@@ -77,7 +77,7 @@ void TempSensor::update(void){
 	}
 	else{
 		if(connected == false){
-			delay(2000); // delay for to seconds to be sure sensor is correctly inserted
+			delay(2000); // delay for two seconds to be sure sensor is correctly inserted
 			init(); // was disconnected, initialize again
 			piLink.debugMessage(PSTR("Temperature sensor on pin %d reconnected"), pin);
 			temperature = sensor->getTempRaw(sensorAddress); // re-read temperature after proper initialization
