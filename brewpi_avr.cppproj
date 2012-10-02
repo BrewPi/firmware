@@ -102,8 +102,8 @@
         </avrgcccpp.compiler.symbols.DefSymbols>
         <avrgcccpp.compiler.directories.IncludePaths>
           <ListValues>
-            <Value>D:\arduino-1.0.1\hardware\arduino\cores\arduino</Value>
-            <Value>D:\arduino-1.0.1\hardware\arduino\variants\leonardo</Value>
+            <Value>$(ARDUINO_HOME)\hardware\arduino\cores\arduino</Value>
+            <Value>$(ARDUINO_HOME)\hardware\arduino\variants\leonardo</Value>
           </ListValues>
         </avrgcccpp.compiler.directories.IncludePaths>
         <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
