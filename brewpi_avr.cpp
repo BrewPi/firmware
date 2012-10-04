@@ -19,11 +19,9 @@
 
 /*
  * This Atmel Studio 6 project automatically includes all needed Arduino source files, you just have to point it to the right directories.
- * To compile this project on your computer, go the the project properties and change the following options:
- * AVR/GNU C++ Compiler --> Directories. 
- * Change the two directories to point to your local Arduino installation. For the second directory, choose the Arduino variant that you are using.
- *		D:\arduino-1.0.1\hardware\arduino\cores\arduino
-		D:\arduino-1.0.1\hardware\arduino\variants\leonardo
+ * To compile this project on your computer, you will have to set an environment variable to find your local Arduino installation.
+ * Set the variable ARDUINO_HOME to point to your local Arduino path, without trailing slash, e.g. 'D:\arduino-1.01'. Instructions on the wiki here:
+ * http://wiki.brewpi.com/index.php/Setting_up_the_brewpi-avr_Project
  * 'ArduinoFunctions.cpp' includes all the source files from Arduino that are used. You might have to edit it if you are not using a Leonardo.
  * That is all that is needed! No hassle with makefiles and compiling libraries.
  */
