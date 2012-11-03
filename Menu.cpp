@@ -135,7 +135,7 @@ void Menu::pickBeerSetting(void){
 	display.printStationaryText(); // restore original text after blinking
 	fixed7_9 oldSetting = tempControl.getBeerSetting();
 	fixed7_9 startVal;
-	if(oldSetting == INT_MIN){ // previous mode was not Beer Constant
+	if(oldSetting == INT_MIN){ // previous mode was not Beer Constant / Beer Profile
 		startVal = 20*512; // start at 20 degrees Celcius
 	}
 	else{

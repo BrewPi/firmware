@@ -138,7 +138,7 @@ fixed7_9 stringToTempDiff(char * numberString){
 
 int fixedToTenths(fixed23_9 temperature){
 	if(tempControl.cc.tempFormat == 'F'){
-		temperature = (10 * temperature + 256) / 512; // Convert to Fahrenheit fixed point first
+		temperature = temperature*9/5 + 32*512; // Convert to Fahrenheit fixed point first
 	}
 	
 	return (int) ((10 * temperature + 256) / 512); // return rounded result in tenth of degrees
@@ -146,8 +146,9 @@ int fixedToTenths(fixed23_9 temperature){
 
 fixed7_9 tenthsToFixed(int temperature){
 	if(tempControl.cc.tempFormat == 'F'){
-		temperature = ((temperature - 320) * 5) / 9; // convert to Celsius in tenth degrees first
+		return (( ( (fixed23_9) temperature - 320) * 512 * 5) / 9 + 5) / 10; // convert to Celsius and return rounded result in fixed point
 	}
-	
-	return ((fixed23_9) temperature * 512 + 5) / 10; // return rounded result in fixed point
+	else{
+		return ((fixed23_9) temperature * 512 + 5) / 10; // return rounded result in fixed point	
+	}
 }
