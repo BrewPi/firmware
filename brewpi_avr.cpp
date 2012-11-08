@@ -55,18 +55,15 @@ void setup()
 	#endif
 	
 	tempControl.loadSettingsAndConstants(); //read previous settings from EEPROM
+	tempControl.init();
+	tempControl.updatePID();
+	tempControl.updateState();
 	
 	delay(2000); // give LCD time to power up
-	
-	tempControl.init();
 	
 	display.init();
 	display.printStationaryText();
 	display.printState();
-	
-	
-	tempControl.updatePID();
-	tempControl.updateState();
 	
 	rotaryEncoder.init();
 	

@@ -55,7 +55,6 @@ unsigned long TempControl::lastHeatTime;
 unsigned long TempControl::lastCoolTime;
 
 void TempControl::init(void){
-	cs.mode=MODE_BEER_CONSTANT;
 	state=STARTUP;
 	beerSensor.init();
 	fridgeSensor.init();
