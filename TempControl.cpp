@@ -78,7 +78,13 @@ void TempControl::reset(void){
 
 void TempControl::updateTemperatures(void){
 	beerSensor.update();
+	if(!beerSensor.isConnected() && (cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_FRIDGE_CONSTANT)){
+		beerSensor.init(); // try to restart the sensor when controlling beer temperature
+	}
 	fridgeSensor.update();
+	if(!fridgeSensor.isConnected()){
+		fridgeSensor.init(); // always try to restart the fridge sensor
+	}
 }
 
 void TempControl::updatePID(void){
@@ -147,6 +153,11 @@ void TempControl::updateState(void){
 	if(cs.fridgeSetting == INT_MIN){
 		// Don nothing when fridge setting is undefined
 		state = IDLE;
+		return;
+	}
+	
+	if(!fridgeSensor.isConnected() || (!beerSensor.isConnected() && (cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_BEER_PROFILE))){
+		state = IDLE; // stay idle when one of the sensors is disconnected
 		return;
 	}
 

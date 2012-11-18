@@ -29,8 +29,12 @@ void TempSensor::init(void){
 
 	// get sensor address
 	if (!sensor->getAddress(sensorAddress, 0)){
-		//error
-		piLink.debugMessage(PSTR("Unable to find address for sensor on pin %d"), pin);
+		// error no sensor found
+		if(millis() < 2000){
+			// only log this debug message at startup
+			piLink.debugMessage(PSTR("Unable to find address for sensor on pin %d"), pin);
+		}
+		return;
 	}
 	sensor->setResolution(sensorAddress, 12);
 		
@@ -75,6 +79,7 @@ void TempSensor::update(void){
 		connected = false;
 		return;
 	}
+	
 	else{
 		if(connected == false){
 			delay(2000); // delay for two seconds to be sure sensor is correctly inserted
