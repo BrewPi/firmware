@@ -68,7 +68,6 @@ class Display{
 		
 	public:
 	OLEDFourBit oled;
-	char content[4][21]; // used as temporary array when reading display content
 			
 	private:
 	uint8_t stateOnDisplay;

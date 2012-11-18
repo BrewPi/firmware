@@ -102,6 +102,11 @@ class OLEDFourBit : public Print {
 		strlcpy_P(buf, str, 20); // copy string to RAM
 		return print(buf); // print from RAM
 	}
+	
+	// copy a line from the shadow copy to a string buffer and correct the degree sign
+	void getLine(uint8_t lineNumber, char * buffer); 
+	
+	void readContent(void); // read the content from the display to the shadow copy buffer
 
 	void command(uint8_t);
 	char readChar(void);
@@ -125,7 +130,10 @@ class OLEDFourBit : public Print {
 	uint8_t _displaymode;
 	uint8_t _initialized;
 	uint8_t _currline;
+	uint8_t _currpos;
 	uint8_t _numlines;
+	
+	char content[4][21]; // always keep a copy of the display content in this variable
 };
 
 #endif

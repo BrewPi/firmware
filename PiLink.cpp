@@ -78,10 +78,11 @@ void PiLink::receive(void){
 			sendControlVariables();
 			break;	
 		case 'l': // Display content requested
-			display.readContent();
 			print_P(PSTR("L:"));
+			char stringBuffer[21];
 			for(uint8_t i=0;i<4;i++){
-				print_P(PSTR("%s<BR>"),display.content[i]);
+				display.oled.getLine(i, stringBuffer);
+				print_P(PSTR("%s<BR>"), stringBuffer);
 			}				
 			print_P(PSTR("\n"));
 			break;

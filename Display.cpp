@@ -29,10 +29,6 @@
 Display display;
 
 void Display::init(void){
-	content[0][20]='\0';
-	content[1][20]='\0';
-	content[2][20]='\0';
-	content[3][20]='\0';
 	stateOnDisplay = 0xFF; // set to unknown state to force update
 	
 	oled.init(DISP_RS, DISP_RW, DISP_EN, DISP_D4, DISP_D5, DISP_D6, DISP_D7); // initialize OLED with these pins
@@ -188,33 +184,4 @@ void Display::printState(void){
 			oled.print_P(PSTR(" s"));
 		break;
     }
-}
-
-void Display::readContent(void){
-	oled.setCursor(0,0);
-	for(uint8_t i =0;i<20;i++){
-		content[0][i] = oled.readChar();
-		if(content[0][i] == 0b11011111){
-			content[0][i] = 0xB0; // correct degree sign
-		}
-	}
-	for(uint8_t i =0;i<20;i++){
-		content[2][i] = oled.readChar();
-		if(content[2][i] == 0b11011111){
-			content[2][i] = 0xB0; // correct degree sign
-		}
-	}
-	oled.setCursor(0,1);
-	for(uint8_t i =0;i<20;i++){
-		content[1][i] = oled.readChar();
-		if(content[1][i] == 0b11011111){
-			content[1][i] = 0xB0; // correct degree sign
-		}
-	}
-	for(uint8_t i =0;i<20;i++){
-		content[3][i] = oled.readChar();
-		if(content[3][i] == 0b11011111){
-			content[3][i] = 0xB0; // correct degree sign
-		}
-	}
 }

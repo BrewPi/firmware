@@ -45,12 +45,20 @@ void OLEDFourBit::init(uint8_t rs, uint8_t rw, uint8_t enable,
   
 	_displayfunction = LCD_FUNCTIONSET | LCD_4BITMODE;
    
-	begin(20, 4);  
+	begin(20, 4);
+	
+	for(uint8_t i = 0; i<4; i++){
+		for(uint8_t j = 0; j<20; j++){
+			content[i][j]=' '; // initialize on all spaces
+		}
+		content[i][20]='\0'; // NULL terminate string
+	}	
 }
 
 void OLEDFourBit::begin(uint8_t cols, uint8_t lines) {
 	_numlines = lines;
 	_currline = 0;
+	_currpos = 0;
   
 	pinMode(_rs_pin, OUTPUT);
 	pinMode(_rw_pin, OUTPUT);
@@ -108,6 +116,8 @@ void OLEDFourBit::clear()
 void OLEDFourBit::home()
 {
 	command(LCD_RETURNHOME);  // set cursor position to zero
+	_currline = 0;
+	_currpos = 0;
 }
 
 void OLEDFourBit::setCursor(uint8_t col, uint8_t row)
@@ -116,7 +126,8 @@ void OLEDFourBit::setCursor(uint8_t col, uint8_t row)
 	if ( row >= _numlines ) {
 		row = 0;  //write to first line if out off bounds
 	}
-  
+	_currline = row;
+	_currpos = col;
 	command(LCD_SETDDRAMADDR | (col + row_offsets[row]));
 }
 
@@ -201,6 +212,8 @@ inline void OLEDFourBit::command(uint8_t value) {
 
 inline size_t OLEDFourBit::write(uint8_t value) {
 	send(value, HIGH);
+	content[_currline][_currpos] = value;
+	_currpos++;
 	waitBusy();
 	return 1;
 }
@@ -237,14 +250,18 @@ void OLEDFourBit::waitBusy(void) {
 	pinMode(_busy_pin, INPUT);
 	digitalWrite(_rs_pin, LOW);
 	digitalWrite(_rw_pin, HIGH);
+	uint8_t tries = 0;
 	do{
 		digitalWrite(_enable_pin, LOW);
 		digitalWrite(_enable_pin, HIGH);
 		delayMicroseconds(10);
 		busy = digitalRead(_busy_pin);
 		digitalWrite(_enable_pin, LOW);
-
 		pulseEnable(); // get remaining 4 bits, which are not used.
+		tries++;
+		if(tries>200){
+			break;
+		}
 	}while(busy);
 
 	pinMode(_busy_pin, OUTPUT);
@@ -270,3 +287,35 @@ char OLEDFourBit::readChar(void){
 	}
 	return value;
 }
+
+void OLEDFourBit::getLine(uint8_t lineNumber, char * buffer){
+	for(uint8_t i =0;i<20;i++){
+		if(content[lineNumber][i] == 0b11011111){
+			buffer[i] = 0xB0; // correct degree sign
+		}
+		else{
+			buffer[i] = content[lineNumber][i]; // copy to string buffer
+		}
+	}
+	buffer[20] = '\0'; // NULL terminate string
+}	
+
+// Read the content from the display and store it in the local string buffer.
+// Buffer should always stay up to date, so this function is not really needed.
+void OLEDFourBit::readContent(void){
+	setCursor(0,0);
+	for(uint8_t i =0;i<20;i++){
+		content[0][i] = readChar();
+	}
+	for(uint8_t i =0;i<20;i++){
+		content[2][i] = readChar();
+	}
+	setCursor(0,1);
+	for(uint8_t i =0;i<20;i++){
+		content[1][i] = readChar();
+	}
+	for(uint8_t i =0;i<20;i++){
+		content[3][i] = readChar();
+	}
+}
+
