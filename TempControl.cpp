@@ -535,7 +535,7 @@ void TempControl::setBeerTemp(int newTemp){
 	}
 	updatePID();
 	updateState();
-	if(abs(storedBeerSetting = newTemp) > 128){ // more than half a degree C difference with EEPROM
+	if(abs(storedBeerSetting - newTemp) > 128){ // more than half a degree C difference with EEPROM
 		// Do not store settings every time, because EEPROM has limited number of write cycles.
 		// If Raspberry Pi is connected, it will update the settings anyway. This is just a safety feature.
 		storeSettings();
