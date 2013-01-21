@@ -31,9 +31,9 @@ Display display;
 void Display::init(void){
 	stateOnDisplay = 0xFF; // set to unknown state to force update
 	
-	oled.init(DISP_RS, DISP_RW, DISP_EN, DISP_D4, DISP_D5, DISP_D6, DISP_D7); // initialize OLED with these pins
-	oled.begin(20, 4);
-	oled.clear();
+	lcd.init(LCD_LATCH_PIN); // initialize LCD
+	lcd.begin(20, 4);
+	lcd.clear();
 }
 
 //print all temperatures on the LCD
@@ -45,20 +45,20 @@ void Display::printAllTemperatures(void){
 }
 
 void Display::printBeerTemp(void){
-	oled.setCursor(6,1);
+	lcd.setCursor(6,1);
 	if(tempControl.beerSensor.isConnected()){
 		printTemperature(tempControl.getBeerTemp());
 	}
 	else{
-		oled.print_P(PSTR(" --.-"));
+		lcd.print_P(PSTR(" --.-"));
 	}
 }
 
 void Display::printBeerSet(void){
-	oled.setCursor(12,1);
+	lcd.setCursor(12,1);
 	fixed7_9 beerSet = tempControl.getBeerSetting();
 	if(beerSet == INT_MIN){ // beer setting is not active
-		oled.print_P(PSTR(" --.-"));	
+		lcd.print_P(PSTR(" --.-"));	
 	}
 	else{
 		printTemperature(beerSet);	
@@ -66,20 +66,20 @@ void Display::printBeerSet(void){
 }
 
 void Display::printFridgeTemp(void){	
-	oled.setCursor(6,2);
+	lcd.setCursor(6,2);
 	if(tempControl.fridgeSensor.isConnected()){
 		printTemperature(tempControl.getFridgeTemp());
 	}
 	else{
-		oled.print_P(PSTR(" --.-"));
+		lcd.print_P(PSTR(" --.-"));
 	}
 }
 
 void Display::printFridgeSet(void){	
-	oled.setCursor(12,2);
+	lcd.setCursor(12,2);
 	fixed7_9 fridgeSet = tempControl.getFridgeSetting();
 	if(fridgeSet == INT_MIN){ // beer setting is not active
-		oled.print_P(PSTR(" --.-"));	
+		lcd.print_P(PSTR(" --.-"));	
 	}
 	else{
 		printTemperature(fridgeSet);
@@ -90,52 +90,52 @@ void Display::printTemperature(fixed7_9 temp){
 	char tempString[9];
 	tempToString(tempString, temp, 1 , 9);
 	for(int i = 0; i<(5-strlen(tempString));i++){
-		oled.write(' ');
+		lcd.write(' ');
 	}
-	oled.print(tempString);
+	lcd.print(tempString);
 }
 
-//print the stationary text on the oled.
+//print the stationary text on the lcd.
 void Display::printStationaryText(void){
-	oled.setCursor(0,0);
-	oled.print_P(PSTR("Mode   "));
+	lcd.setCursor(0,0);
+	lcd.print_P(PSTR("Mode   "));
 
-	oled.setCursor(0,1);
-	oled.print_P(PSTR("Beer   "));
+	lcd.setCursor(0,1);
+	lcd.print_P(PSTR("Beer   "));
 	
-	oled.setCursor(0,2);
-	oled.print_P(PSTR("Fridge ")); 
+	lcd.setCursor(0,2);
+	lcd.print_P(PSTR("Fridge ")); 
 	
-	oled.setCursor(18,1);
+	lcd.setCursor(18,1);
 	printDegreeUnit();
-	oled.setCursor(18,2);
+	lcd.setCursor(18,2);
 	printDegreeUnit();
 }
 
 //print degree sign + C
 void Display::printDegreeUnit(void){
-	oled.write(0b11011111);
-	oled.write(tempControl.cc.tempFormat);	
+	lcd.write(0b11011111);
+	lcd.write(tempControl.cc.tempFormat);	
 }
 
 // print mode on the right location on the first line, after "Mode   "
 void Display::printMode(void){
-	oled.setCursor(7,0);
+	lcd.setCursor(7,0);
 	switch(tempControl.getMode()){
 		case MODE_FRIDGE_CONSTANT:
-			oled.print_P(PSTR("Fridge Const."));
+			lcd.print_P(PSTR("Fridge Const."));
 			break;
 		case MODE_BEER_CONSTANT:
-			oled.print_P(PSTR("Beer Constant"));
+			lcd.print_P(PSTR("Beer Constant"));
 			break;
 		case MODE_BEER_PROFILE:
-			oled.print_P(PSTR("Beer Profile "));
+			lcd.print_P(PSTR("Beer Profile "));
 			break;
 		case MODE_OFF:
-			oled.print_P(PSTR("Off          "));
+			lcd.print_P(PSTR("Off          "));
 			break;
 		default:
-			oled.print_P(PSTR("Invalid mode "));
+			lcd.print_P(PSTR("Invalid mode "));
 			break;
 	}
 }
@@ -144,44 +144,44 @@ void Display::printMode(void){
 void Display::printState(void){
 	uint8_t state = tempControl.getState();
 	if(state != stateOnDisplay){ //only print static text when state has changed
-		oled.setCursor(0,3); 
+		lcd.setCursor(0,3); 
 		// Reprint state and clear rest of the line
 		switch (tempControl.getState()){
 			case IDLE:
-				oled.print_P(PSTR("Idle for            "));	
+				lcd.print_P(PSTR("Idle for            "));	
 			break;
 			case STARTUP:
-				oled.print_P(PSTR("Starting up...      "));
+				lcd.print_P(PSTR("Starting up...      "));
 			break;
 			case COOLING:
-				oled.print_P(PSTR("Cooling for         "));
+				lcd.print_P(PSTR("Cooling for         "));
 			break;
 			case HEATING:
-				oled.print_P(PSTR("Heating for         "));
+				lcd.print_P(PSTR("Heating for         "));
 			break;
 			case DOOR_OPEN:
-				oled.print_P(PSTR("Door open           "));
+				lcd.print_P(PSTR("Door open           "));
 			break;
 			case STATE_OFF:
-				oled.print_P(PSTR("Temp. control OFF   "));
+				lcd.print_P(PSTR("Temp. control OFF   "));
 			break;
 			default:
-				oled.print_P(PSTR("Unknown status!     "));
+				lcd.print_P(PSTR("Unknown status!     "));
 			break;
 		}
 		stateOnDisplay = state;
 	}
 	switch(state){
 		case IDLE:
-			oled.setCursor(9,3);
-			oled.print(min(tempControl.timeSinceCooling(), tempControl.timeSinceHeating())/1000);
-			oled.print_P(PSTR(" s"));
+			lcd.setCursor(9,3);
+			lcd.print(min(tempControl.timeSinceCooling(), tempControl.timeSinceHeating())/1000);
+			lcd.print_P(PSTR(" s"));
 		break;
 		case COOLING:
 		case HEATING:
-			oled.setCursor(12,3);
-			oled.print(tempControl.timeSinceIdle()/1000);
-			oled.print_P(PSTR(" s"));
+			lcd.setCursor(12,3);
+			lcd.print(tempControl.timeSinceIdle()/1000);
+			lcd.print_P(PSTR(" s"));
 		break;
     }
 }

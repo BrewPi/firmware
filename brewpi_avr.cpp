@@ -45,6 +45,10 @@ void setup()
 	
 	Serial.begin(57600);
 	
+	// Signals are inverted on the shield, so set to high
+	digitalWrite(coolingPin, HIGH);
+	digitalWrite(heatingPin, HIGH);
+	
 	pinMode(coolingPin, OUTPUT);
 	pinMode(heatingPin, OUTPUT);
 	

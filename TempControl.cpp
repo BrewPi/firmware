@@ -245,25 +245,26 @@ void TempControl::updateState(void){
 }
 
 void TempControl::updateOutputs(void){
+	// Outputs are inverted on the shield by the mosfets!
 	switch (state)
 	{
 		case IDLE:
 		case STARTUP:
-			digitalWrite(coolingPin, LOW);
-			digitalWrite(heatingPin, LOW);
+			digitalWrite(coolingPin, HIGH);
+			digitalWrite(heatingPin, HIGH);
 			break;
 		case COOLING:
-			digitalWrite(coolingPin, HIGH);
-			digitalWrite(heatingPin, LOW);
-			break;
-		case HEATING:
-		case DOOR_OPEN:
 			digitalWrite(coolingPin, LOW);
 			digitalWrite(heatingPin, HIGH);
 			break;
-		default:
-			digitalWrite(coolingPin, LOW);
+		case HEATING:
+		case DOOR_OPEN:
+			digitalWrite(coolingPin, HIGH);
 			digitalWrite(heatingPin, LOW);
+			break;
+		default:
+			digitalWrite(coolingPin, HIGH);
+			digitalWrite(heatingPin, HIGH);
 			break;
 	}
 }

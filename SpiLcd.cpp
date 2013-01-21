@@ -17,62 +17,39 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "OLEDFourBit.h"
+#include "SpiLcd.h"
 
 #include <Arduino.h>
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#include <util/delay.h>
 
-
-void OLEDFourBit::init(uint8_t rs, uint8_t rw, uint8_t enable,
-					uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7)
+void SpiLcd::init(uint8_t latchPin)
 {
-	_rs_pin = rs;
-	_rw_pin = rw;
-	_enable_pin = enable;
-	_busy_pin = d7;
-  
-	_data_pins[0] = d4;
-	_data_pins[1] = d5;
-	_data_pins[2] = d6;
-	_data_pins[3] = d7; 
-
-
-	pinMode(_rs_pin, OUTPUT);
-	pinMode(_rw_pin, OUTPUT);
-	pinMode(_enable_pin, OUTPUT);
-  
-	_displayfunction = LCD_FUNCTIONSET | LCD_4BITMODE;
-   
-	begin(20, 4);
+	_latchPin = latchPin;
+	pinMode(_latchPin, OUTPUT);
 	
+	_displayfunction = LCD_FUNCTIONSET | LCD_4BITMODE;
+
+	initSpi();   
+		
 	for(uint8_t i = 0; i<4; i++){
 		for(uint8_t j = 0; j<20; j++){
 			content[i][j]=' '; // initialize on all spaces
 		}
 		content[i][20]='\0'; // NULL terminate string
-	}	
+	}
 }
 
-void OLEDFourBit::begin(uint8_t cols, uint8_t lines) {
+void SpiLcd::begin(uint8_t cols, uint8_t lines) {
 	_numlines = lines;
 	_currline = 0;
 	_currpos = 0;
   
-	pinMode(_rs_pin, OUTPUT);
-	pinMode(_rw_pin, OUTPUT);
-	pinMode(_enable_pin, OUTPUT);
-  
-	// Now we pull both RS and R/W low to begin commands
-	digitalWrite(_rs_pin, LOW);
-	digitalWrite(_enable_pin, LOW);
-	digitalWrite(_rw_pin, LOW);
-  
-  	for (int i = 0; i < 4; i++) {
-		pinMode(_data_pins[i], OUTPUT);
-		digitalWrite(_data_pins[i], LOW);
-	}
+	// Set all outputs of shift register to low, this turns the backlight ON.
+	_spiByte = 0x00;
+	spiOut();
 	
 	// SEE PAGE 20 of NHD-0420DZW-AY5 
 	delayMicroseconds(50000); // wait 50 ms just to be sure tha the lcd is initialized
@@ -108,19 +85,19 @@ void OLEDFourBit::begin(uint8_t cols, uint8_t lines) {
 }
 
 /********** high level commands, for the user! */
-void OLEDFourBit::clear()
+void SpiLcd::clear()
 {
 	command(LCD_CLEARDISPLAY);  // clear display, set cursor position to zero
 }
 
-void OLEDFourBit::home()
+void SpiLcd::home()
 {
 	command(LCD_RETURNHOME);  // set cursor position to zero
 	_currline = 0;
 	_currpos = 0;
 }
 
-void OLEDFourBit::setCursor(uint8_t col, uint8_t row)
+void SpiLcd::setCursor(uint8_t col, uint8_t row)
 {
 	uint8_t row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
 	if ( row >= _numlines ) {
@@ -132,70 +109,70 @@ void OLEDFourBit::setCursor(uint8_t col, uint8_t row)
 }
 
 // Turn the display on/off (quickly)
-void OLEDFourBit::noDisplay() {
+void SpiLcd::noDisplay() {
 	_displaycontrol &= ~LCD_DISPLAYON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
-void OLEDFourBit::display() {
+void SpiLcd::display() {
 	_displaycontrol |= LCD_DISPLAYON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
 
 // Turns the underline cursor on/off
-void OLEDFourBit::noCursor() {
+void SpiLcd::noCursor() {
 	_displaycontrol &= ~LCD_CURSORON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
-void OLEDFourBit::cursor() {
+void SpiLcd::cursor() {
 	_displaycontrol |= LCD_CURSORON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
 
 // Turn on and off the blinking cursor
-void OLEDFourBit::noBlink() {
+void SpiLcd::noBlink() {
 	_displaycontrol &= ~LCD_BLINKON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
-void OLEDFourBit::blink() {
+void SpiLcd::blink() {
 	_displaycontrol |= LCD_BLINKON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
 
 // These commands scroll the display without changing the RAM
-void OLEDFourBit::scrollDisplayLeft(void) {
+void SpiLcd::scrollDisplayLeft(void) {
 	command(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVELEFT);
 }
-void OLEDFourBit::scrollDisplayRight(void) {
+void SpiLcd::scrollDisplayRight(void) {
 	command(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVERIGHT);
 }
 
 // This is for text that flows Left to Right
-void OLEDFourBit::leftToRight(void) {
+void SpiLcd::leftToRight(void) {
 	_displaymode |= LCD_ENTRYLEFT;
 	command(LCD_ENTRYMODESET | _displaymode);
 }
 
 // This is for text that flows Right to Left
-void OLEDFourBit::rightToLeft(void) {
+void SpiLcd::rightToLeft(void) {
 	_displaymode &= ~LCD_ENTRYLEFT;
 	command(LCD_ENTRYMODESET | _displaymode);
 }
 
 // This will 'right justify' text from the cursor
-void OLEDFourBit::autoscroll(void) {
+void SpiLcd::autoscroll(void) {
 	_displaymode |= LCD_ENTRYSHIFTINCREMENT;
 	command(LCD_ENTRYMODESET | _displaymode);
 }
 
 // This will 'left justify' text from the cursor
-void OLEDFourBit::noAutoscroll(void) {
+void SpiLcd::noAutoscroll(void) {
 	_displaymode &= ~LCD_ENTRYSHIFTINCREMENT;
 	command(LCD_ENTRYMODESET | _displaymode);
 }
 
 // Allows us to fill the first 8 CGRAM locations
 // with custom characters
-void OLEDFourBit::createChar(uint8_t location, uint8_t charmap[]) {
+void SpiLcd::createChar(uint8_t location, uint8_t charmap[]) {
 	location &= 0x7; // we only have 8 locations 0-7
 	command(LCD_SETCGRAMADDR | (location << 3));
 	for (int i=0; i<8; i++) {
@@ -205,12 +182,12 @@ void OLEDFourBit::createChar(uint8_t location, uint8_t charmap[]) {
 
 /*********** mid level commands, for sending data/cmds */
 
-inline void OLEDFourBit::command(uint8_t value) {
+inline void SpiLcd::command(uint8_t value) {
 	send(value, LOW);
 	waitBusy();
 }
 
-inline size_t OLEDFourBit::write(uint8_t value) {
+inline size_t SpiLcd::write(uint8_t value) {
 	send(value, HIGH);
 	content[_currline][_currpos] = value;
 	_currpos++;
@@ -219,76 +196,79 @@ inline size_t OLEDFourBit::write(uint8_t value) {
 }
 
 /************ low level data pushing commands **********/
+void SpiLcd::initSpi(void){
+	// Set MOSI and CLK to output
+	pinMode(MOSI, OUTPUT);
+	pinMode(SCK, OUTPUT);
+
+	// The most significant bit should be sent out by the SPI port first.
+	// equals SPI.setBitOrder(MSBFIRST);
+	SPCR &= ~_BV(DORD);
+
+	// Here you can set the clock speed of the SPI port. Default is DIV4, which is 4MHz with a 16Mhz system clock.
+	// If you encounter problems due to long wires, try lowering the SPI clock.
+	// equals SPI.setClockDivider(SPI_CLOCK_DIV4);
+	SPCR = (SPCR & 0b11111000);
+	SPSR = (SPSR & 0b11111110);
+
+	// Set clock polarity and phase for shift registers (Mode 3)
+	SPCR |= _BV(CPOL);
+	SPCR |= _BV(CPHA);
+
+	// Warning: if the SS pin ever becomes a LOW INPUT then SPI
+	// automatically switches to Slave, so the data direction of
+	// The SS pin MUST be kept as OUTPUT.	
+	// On the Arduino Leonardo it is connected to the RX status LED, on the Uno we are using it as latch pin.
+	
+	// Set SPI as master and enable SPI
+	SPCR |= _BV(MSTR);
+	SPCR |= _BV(SPE);
+}
+
+// Update the pins of the shift register
+void SpiLcd::spiOut(void){
+	digitalWrite(_latchPin, LOW);
+	SPDR = _spiByte; // Send the byte to the SPI
+	// wait for send to finish
+	while (!(SPSR & _BV(SPIF))); 
+	
+	digitalWrite(_latchPin, HIGH);
+}
 
 // write either command or data
-void OLEDFourBit::send(uint8_t value, uint8_t mode) {
-	digitalWrite(_rs_pin, mode);
-	pinMode(_rw_pin, OUTPUT);
-	digitalWrite(_rw_pin, LOW);
-
+void SpiLcd::send(uint8_t value, uint8_t mode) {
+	if(mode){
+		bitSet(_spiByte, LCD_SHIFT_RS);
+	}
+	else{
+		bitClear(_spiByte, LCD_SHIFT_RS);
+	}
+	spiOut();
 	write4bits(value>>4);
 	write4bits(value);
 }
 
-void OLEDFourBit::pulseEnable(void) {
-	digitalWrite(_enable_pin, HIGH);
-	delayMicroseconds(100); // enable pulse must be >450ns
-	digitalWrite(_enable_pin, LOW);
+void SpiLcd::pulseEnable(void) {
+	bitSet(_spiByte, LCD_SHIFT_ENABLE);
+	spiOut();
+	delayMicroseconds(1); // enable pulse must be >450ns
+	bitClear(_spiByte, LCD_SHIFT_ENABLE);
+	spiOut();
 }
 
-void OLEDFourBit::write4bits(uint8_t value) {
-	for (int i = 0; i < 4; i++) {
-		pinMode(_data_pins[i], OUTPUT);
-		digitalWrite(_data_pins[i], (value >> i) & 0x01);
-	}
-	delayMicroseconds(100);
+void SpiLcd::write4bits(uint8_t value) {
+		
+	_spiByte = (_spiByte & ~LCD_SHIFT_DATA_MASK) | (value << 4);
+	spiOut();
 	pulseEnable();
 }
 
-void OLEDFourBit::waitBusy(void) {
-	uint8_t busy = 1;
-	pinMode(_busy_pin, INPUT);
-	digitalWrite(_rs_pin, LOW);
-	digitalWrite(_rw_pin, HIGH);
-	uint8_t tries = 0;
-	do{
-		digitalWrite(_enable_pin, LOW);
-		digitalWrite(_enable_pin, HIGH);
-		delayMicroseconds(10);
-		busy = digitalRead(_busy_pin);
-		digitalWrite(_enable_pin, LOW);
-		pulseEnable(); // get remaining 4 bits, which are not used.
-		tries++;
-		if(tries>200){
-			break;
-		}
-	}while(busy);
-
-	pinMode(_busy_pin, OUTPUT);
-	digitalWrite(_rw_pin, LOW);
+void SpiLcd::waitBusy(void) {
+	// we cannot read the busy pin, so just wait 10 ms
+	_delay_ms(1);
 }
 
-char OLEDFourBit::readChar(void){
-	char value=0x00;
-	for (int i = 0; i < 4; i++) {
-		pinMode(_data_pins[i], INPUT);
-	}
-	digitalWrite(_rs_pin, HIGH);
-	digitalWrite(_rw_pin, HIGH);
-	pulseEnable();
-	delayMicroseconds(600);
-	for (int i = 0; i < 4; i++) {
-		value = value | (digitalRead(_data_pins[i]) << (i+4));
-	}
-	pulseEnable();
-	delayMicroseconds(600);
-	for (int i = 0; i < 4; i++) {
-		value = value | (digitalRead(_data_pins[i]) << (i));
-	}
-	return value;
-}
-
-void OLEDFourBit::getLine(uint8_t lineNumber, char * buffer){
+void SpiLcd::getLine(uint8_t lineNumber, char * buffer){
 	for(uint8_t i =0;i<20;i++){
 		if(content[lineNumber][i] == 0b11011111){
 			buffer[i] = 0xB0; // correct degree sign
@@ -298,24 +278,4 @@ void OLEDFourBit::getLine(uint8_t lineNumber, char * buffer){
 		}
 	}
 	buffer[20] = '\0'; // NULL terminate string
-}	
-
-// Read the content from the display and store it in the local string buffer.
-// Buffer should always stay up to date, so this function is not really needed.
-void OLEDFourBit::readContent(void){
-	setCursor(0,0);
-	for(uint8_t i =0;i<20;i++){
-		content[0][i] = readChar();
-	}
-	for(uint8_t i =0;i<20;i++){
-		content[2][i] = readChar();
-	}
-	setCursor(0,1);
-	for(uint8_t i =0;i<20;i++){
-		content[1][i] = readChar();
-	}
-	for(uint8_t i =0;i<20;i++){
-		content[3][i] = readChar();
-	}
 }
-

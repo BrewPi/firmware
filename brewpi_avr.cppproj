@@ -171,10 +171,10 @@
     <Compile Include="Menu.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="OLEDFourBit.cpp">
+    <Compile Include="SpiLcd.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="OLEDFourBit.h">
+    <Compile Include="SpiLcd.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="OneWire.cpp">
