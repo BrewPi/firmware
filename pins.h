@@ -32,18 +32,10 @@
 #define alarmPin	3
 #define LCD_LATCH_PIN 10
 
-#if defined(USBCON) // If it has USB, it's a Leonardo
-	// Pay attention when changing the pins for the rotary encoder.
-	// They should be connected to external interrupt INT0, INT1 and INT3
-	#define ROTARY_A 2 // INT1
-	#define ROTARY_B 1 // INT3
-	#define ROTARY_SWITCH 0 // INT2
-	
-#else // Assume Arduino Uno
-	
-
-#endif
-
+// If you change the interrupt pins, you will also have to review the interrupt vectors of the rotary encoder
+#define ROTARY_SWITCH 7 // INT6
+#define ROTARY_A 8 // PCINT4
+#define ROTARY_B 9 // PCINT5
 
 // you can use the internal pull-up resistors instead of external ones for the doorPin and the rotary encoder pins
 #define USE_INTERNAL_PULL_UP_RESISTORS false

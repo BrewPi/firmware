@@ -53,34 +53,27 @@ void SpiLcd::begin(uint8_t cols, uint8_t lines) {
 	
 	// SEE PAGE 20 of NHD-0420DZW-AY5 
 	delayMicroseconds(50000); // wait 50 ms just to be sure tha the lcd is initialized
- 
-	delayMicroseconds(32000);
-	write4bits(0x03);
-	delayMicroseconds(32000);
-	write4bits(0x03);
-	delayMicroseconds(32000);
-	write4bits(0x03);
-	  
-	delayMicroseconds(32000);
-	write4bits(0x02);
-	delayMicroseconds(10000);
-	write4bits(0x02);
-	delayMicroseconds(10000);
-	write4bits(0x08);
-   
-	waitBusy();
-   
-	noDisplay();	// Display off
-		
-	clear();	// display clear
+
+	write4bits(0x03); //set to 8-bit
+	delayMicroseconds(50000); // wait > 4.1ms
+	write4bits(0x03); //set to 8-bit
+	delayMicroseconds(1000); // wait > 100us
+	write4bits(0x03); //set to 8-bit
+	delayMicroseconds(50000); // wait for execution
+	write4bits(0x02); //set to 4-bit
+	delayMicroseconds(50000); // wait for execution
+	write4bits(0x80); // 2 line
+	delayMicroseconds(50000); // wait for execution
 	
+	
+	clear();	// display clear
 	// Entry Mode Set:
 	leftToRight();
 	noAutoscroll();
 	
 	home();
 	
-	noCursor();
+	//noCursor();
 	display();
 }
 

@@ -117,10 +117,10 @@ void loop(void)
 	piLink.receive();
 }
 
-/* catch bad interrupts here when debugging
+// catch bad interrupts here when debugging
 ISR(BADISR_vect){
 	while(1){
 		;
 	}
 }
-*/
+

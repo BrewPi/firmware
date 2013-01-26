@@ -30,48 +30,58 @@ int RotaryEncoder::minimum=INT_MIN;
 int RotaryEncoder::prevRead=0;
 volatile int RotaryEncoder::halfSteps=0;
 volatile bool RotaryEncoder::pushFlag=0;
-volatile uint8_t RotaryEncoder::int1Signal=0;
-volatile uint8_t RotaryEncoder::int3Signal=0;
+volatile uint8_t RotaryEncoder::pinASignal=0;
+volatile uint8_t RotaryEncoder::pinBSignal=0;
+volatile uint8_t RotaryEncoder::pinAHistory=0;
+volatile uint8_t RotaryEncoder::pinBHistory=0;
+volatile unsigned long RotaryEncoder::pinATime=0;
+volatile unsigned long RotaryEncoder::pinBTime=0;
 
-ISR(INT1_vect){
-	#if ROTARY_A != 2
-		#error Review interrupt vectors when not using pin 1 for menu right
-	#endif
-	rotaryEncoder.int1Handler();		
-}
 
-ISR(INT3_vect){
-	#if ROTARY_B != 1
-		#error Review interrupt vectors when not using pin 2 for menu left
-	#endif
-	rotaryEncoder.int3Handler();
-}
-
-ISR(INT2_vect){
-	#if ROTARY_SWITCH != 0
+#if ROTARY_SWITCH != 7
 	#error Review interrupt vectors when not using pin 0 for menu push
-	#endif
+#endif
+#if ROTARY_A != 8
+	#error Review interrupt vectors when not using pin 1 for menu right
+#endif
+#if ROTARY_B != 9
+	#error Review interrupt vectors when not using pin 2 for menu left
+#endif
+
+ISR(INT6_vect){
 	rotaryEncoder.setPushed();
+}
+
+ISR(PCINT0_vect){
+	//todo rotaryEncoder.rotationHandler();
+	static bool prevPinA = 0;
+	static bool prevPinB = 0;
+	
+	bool currPinA = bitRead(PINB,4);
+	bool currPinB = bitRead(PINB,5);
+	if(currPinA != prevPinA){
+		rotaryEncoder.pinAHandler(currPinA);
+	}
+	if(currPinB != prevPinB){
+		rotaryEncoder.pinBHandler(currPinB);
+	}
 }
 
 void RotaryEncoder::setPushed(void){
 	pushFlag = true;
 }
 
-void RotaryEncoder::int1Handler(void){
-	static uint16_t int1Time = 0;
-	static uint8_t int1History = 0;
-
-	if ( micros() - int1Time < ROTARY_THRESHOLD){
+void RotaryEncoder::pinAHandler(bool pinState){
+	if(micros() - pinATime < ROTARY_THRESHOLD){
+		return;
+	}		
+	pinAHistory = pinASignal;
+	pinASignal = pinState;
+	if ( pinBHistory==pinASignal ){
 		return;
 	}
-	int1History = int1Signal;
-	int1Signal = bitRead(PIND,1);
-	if ( int1History==int1Signal ){
-		return;
-	}
-	int1Time = micros();
-	if ( int1Signal == int3Signal ){
+	pinATime = micros();
+	if ( pinASignal == pinBSignal ){
 		halfSteps--;
 	}
 	else{
@@ -83,21 +93,19 @@ void RotaryEncoder::int1Handler(void){
 	}
 	if(halfSteps <= (minimum-2)){
 		halfSteps = maximum;
-	}
+	}		
 }
 
-void RotaryEncoder::int3Handler(void){
-	static uint16_t int3Time = 0;
-	static uint8_t int3History = 0;
-	if ( micros() - int3Time < ROTARY_THRESHOLD ){
+void RotaryEncoder::pinBHandler(bool pinState){
+	if ( micros() - pinBTime < ROTARY_THRESHOLD ){
 		return;
 	}
-	int3History = int3Signal;
-	int3Signal = bitRead(PIND,3);
-	if ( int3History==int3Signal ){
+	pinBHistory = pinBSignal;
+	pinBSignal = pinState;
+	if ( pinBHistory==pinBSignal ){
 		return;
 	}
-	int3Time = micros();
+	pinBTime = micros();
 }
 
 void RotaryEncoder::init(void){
@@ -111,11 +119,17 @@ void RotaryEncoder::init(void){
 	pinMode(ROTARY_SWITCH, INPUT);
 	#endif
 	
-	int1Handler(); // call functions ones here for proper initialization
-	int3Handler(); 
+	pinAHandler(true); // call functions ones here for proper initialization
+	pinBHandler(true); 
 	
-	EICRA |= (1<<ISC21) | (1<<ISC10) | (1<<ISC30);; // any logical change for encoder pins, falling edge for switch
-	EIMSK |= (1<<INT2) | (1<<INT1) | (1<<INT3); // enable interrupts for each pin
+	#if defined(USBCON) //Arduino Leonardo
+		EICRB |= (1<<ISC61) | (0<<ISC60); // falling edge interrupt for switch on INT6
+		EIMSK |= (1<<INT6); // enable interrupt for INT6
+		PCICR |= (1<<PCIE0); // enable pin change interupts
+		PCMSK0 |= (1<<PCINT5) | (1<<PCINT4); // enable pin change interrupt on Arduino pin 8 and 9
+	#else
+	
+	#endif
 }
 
 
