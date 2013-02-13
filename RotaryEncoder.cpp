@@ -25,29 +25,31 @@
 #include <limits.h>
 
 // declare static member variables:
-int RotaryEncoder::maximum=INT_MAX;
-int RotaryEncoder::minimum=INT_MIN;
-int RotaryEncoder::prevRead=0;
-volatile int RotaryEncoder::halfSteps=0;
-volatile bool RotaryEncoder::pushFlag=0;
-volatile uint8_t RotaryEncoder::pinASignal=0;
-volatile uint8_t RotaryEncoder::pinBSignal=0;
-volatile uint8_t RotaryEncoder::pinAHistory=0;
-volatile uint8_t RotaryEncoder::pinBHistory=0;
-volatile unsigned long RotaryEncoder::pinATime=0;
-volatile unsigned long RotaryEncoder::pinBTime=0;
+int RotaryEncoder::maximum;
+int RotaryEncoder::minimum;
+int RotaryEncoder::prevRead;
+volatile int RotaryEncoder::halfSteps;
+volatile bool RotaryEncoder::pushFlag;
+volatile uint8_t RotaryEncoder::pinASignal;
+volatile uint8_t RotaryEncoder::pinBSignal;
+volatile uint8_t RotaryEncoder::pinAHistory;
+volatile uint8_t RotaryEncoder::pinBHistory;
+volatile unsigned long RotaryEncoder::pinATime;
+volatile unsigned long RotaryEncoder::pinBTime;
 
 
 #if ROTARY_SWITCH != 7
-	#error Review interrupt vectors when not using pin 0 for menu push
+	#error Review interrupt vectors when not using pin 7 for menu push
 #endif
 #if ROTARY_A != 8
-	#error Review interrupt vectors when not using pin 1 for menu right
+	#error Review interrupt vectors when not using pin 8 for menu right
 #endif
 #if ROTARY_B != 9
-	#error Review interrupt vectors when not using pin 2 for menu left
+	#error Review interrupt vectors when not using pin 9 for menu left
 #endif
 
+#if defined(USBCON)
+// Arduino Leonardo
 ISR(INT6_vect){
 	rotaryEncoder.setPushed();
 }
@@ -65,7 +67,37 @@ ISR(PCINT0_vect){
 	if(currPinB != prevPinB){
 		rotaryEncoder.pinBHandler(currPinB);
 	}
+	prevPinA = currPinA;
+	prevPinB = currPinB;
 }
+#else
+// Arduino UNO or older
+ISR(PCINT2_vect){
+	if(!bitRead(PIND,7)){
+		// high to low transition
+		rotaryEncoder.setPushed();	
+	}
+}
+
+ISR(PCINT0_vect){
+	//todo rotaryEncoder.rotationHandler();
+	static bool prevPinA = 0;
+	static bool prevPinB = 0;
+			
+	bool currPinA = bitRead(PINB,0);
+	bool currPinB = bitRead(PINB,1);
+	if(currPinA != prevPinA){
+		rotaryEncoder.pinAHandler(currPinA);
+	}
+	if(currPinB != prevPinB){
+		rotaryEncoder.pinBHandler(currPinB);
+	}
+	prevPinA = currPinA;
+	prevPinB = currPinB;
+}
+
+
+#endif
 
 void RotaryEncoder::setPushed(void){
 	pushFlag = true;
@@ -77,15 +109,15 @@ void RotaryEncoder::pinAHandler(bool pinState){
 	}		
 	pinAHistory = pinASignal;
 	pinASignal = pinState;
-	if ( pinBHistory==pinASignal ){
-		return;
+	if ( pinAHistory==pinASignal ){
+		return; // not a transition
 	}
 	pinATime = micros();
 	if ( pinASignal == pinBSignal ){
-		halfSteps--;
+		halfSteps++;
 	}
 	else{
-		halfSteps++;
+		halfSteps--;
 	}
 	// loop around at edges
 	if(halfSteps >= (maximum+2)){
@@ -103,12 +135,24 @@ void RotaryEncoder::pinBHandler(bool pinState){
 	pinBHistory = pinBSignal;
 	pinBSignal = pinState;
 	if ( pinBHistory==pinBSignal ){
-		return;
+		return; // not a transition
 	}
 	pinBTime = micros();
 }
 
 void RotaryEncoder::init(void){
+	maximum = INT_MAX;
+	minimum = INT_MIN;
+	prevRead = 0;
+	halfSteps = 0;
+	pushFlag = 0;
+	pinASignal = 1;
+	pinBSignal = 1;
+	pinAHistory = 1;
+	pinBHistory = 1;
+	pinATime = 0;
+	pinBTime = 0;
+	
 	#if(USE_INTERNAL_PULL_UP_RESISTORS)
 	pinMode(ROTARY_A, INPUT_PULLUP);
 	pinMode(ROTARY_B, INPUT_PULLUP);
@@ -122,13 +166,22 @@ void RotaryEncoder::init(void){
 	pinAHandler(true); // call functions ones here for proper initialization
 	pinBHandler(true); 
 	
-	#if defined(USBCON) //Arduino Leonardo
-		EICRB |= (1<<ISC61) | (0<<ISC60); // falling edge interrupt for switch on INT6
-		EIMSK |= (1<<INT6); // enable interrupt for INT6
-		PCICR |= (1<<PCIE0); // enable pin change interupts
-		PCMSK0 |= (1<<PCINT5) | (1<<PCINT4); // enable pin change interrupt on Arduino pin 8 and 9
-	#else
-	
+	#if defined(USBCON) // Arduino Leonardo
+		// falling edge interrupt for switch on INT6
+		EICRB |= (1<<ISC61) | (0<<ISC60);
+		// enable interrupt for INT6
+		EIMSK |= (1<<INT6);
+		// enable pin change interrupts
+		PCICR |= (1<<PCIE0);
+		// enable pin change interrupt on Arduino pin 8 and 9
+		PCMSK0 |= (1<<PCINT5) | (1<<PCINT4);
+	#else // Arduino UNO
+		// enable PCINT0 (PCINT0 and PCINT1 pin) and PCINT2 vector (PCINT23 pin)
+		PCICR |= (1<<PCIE2) | (1<<PCIE0);
+		// enable mask bits for PCINT0 and PCINT1
+		PCMSK0 |= (1<<PCINT0) | (1<<PCINT1);
+		// enable mask bit for PCINT23
+		PCMSK2 |= (1<<PCINT23);
 	#endif
 }
 

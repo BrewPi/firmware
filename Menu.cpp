@@ -68,7 +68,7 @@ void Menu::pickSettingToChange(void){
 		}
 		
 		blinkTimer++;
-		delay(1); // delay for blinking
+		delay(3); // delay for blinking
 	}
 }
 
@@ -124,7 +124,7 @@ void Menu::pickMode(void){
 				display.lcd.print_P(PSTR("             "));
 			}				
 			blinkTimer++;
-			delay(1); // delay for blinking
+			delay(3); // delay for blinking
 		}
 	}
 	// Time Out. Restore original setting
@@ -168,7 +168,7 @@ void Menu::pickBeerSetting(void){
 				display.lcd.print_P(PSTR("     "));
 			}				
 			blinkTimer++;
-			delay(1); // delay for blinking
+			delay(3); // delay for blinking
 		}
 	}
 	// Time Out. Restore original setting
@@ -212,7 +212,7 @@ void Menu::pickFridgeSetting(void){
 				display.lcd.print_P(PSTR("     "));
 			}				
 			blinkTimer++;
-			delay(1); // delay for blinking
+			delay(3); // delay for blinking
 		}
 	}
 	// Time Out. Restore original setting
