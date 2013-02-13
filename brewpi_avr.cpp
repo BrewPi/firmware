@@ -72,7 +72,7 @@ void setup()
 	rotaryEncoder.init();
 	
 	piLink.printFridgeAnnotation(PSTR("Arduino restarted!"));
-    buzzer.init();
+	buzzer.init();
 	buzzer.beep(2, 500);
 }
 
