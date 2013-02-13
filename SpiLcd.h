@@ -18,12 +18,12 @@
  */
 
 /* This is an adaptation of the Arduino LiquidCrystal library for the 
- * NHD-0420DZW-AY5-ND OLED display, made by NewHaven. The display should be HD44780 compatible but isn't.
+ * NHD-0420DZW-AY5-ND lcd display, made by NewHaven. The display should be HD44780 compatible but isn't.
  * Differences are some of the control commands (cursor on/off), language setting and especially initialization sequence.
  */ 
 
-#ifndef OLEDFourBit_h
-#define OLEDFourBit_h
+#ifndef SpiLcd_h
+#define SpiLcd_h
 
 #include <inttypes.h>
 #include "Print.h"
@@ -66,13 +66,20 @@
 #define LCD_ENGLISH_RUSSIAN    0x02
 #define LCD_WESTERN_EUROPEAN_2 0x03
 
+// Define shift register pins outputs
+#define LCD_SHIFT_RS 0 // QA, LOW= command.  HIGH= character.
+#define LCD_SHIFT_ENABLE 1 // QB, activated by a HIGH pulse.
+#define LCD_SHIFT_BACKLIGHT 2 // QC, LOW = backlight on
+#define LCD_SHIFT_QD 3 // unused QD pin
+#define LCD_SHIFT_DATA_MASK 0xF0 // Data bits, QE = D4, QF = D5, QG = D6, QH = D7
 
-class OLEDFourBit : public Print {
+class SpiLcd : public Print {
 	public:
-	OLEDFourBit(){};
-
-	void init(uint8_t rs, uint8_t rw, uint8_t enable,
-	uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7);
+	// Constants are set in initializer list of constructor
+	SpiLcd(){};
+	~SpiLcd(){};
+	
+	void init(uint8_t latchPin);
 
 	void begin(uint8_t cols, uint8_t rows);
 
@@ -114,16 +121,17 @@ class OLEDFourBit : public Print {
 	using Print::write;
 
 	private:
+	void spiOut(void);
+	void initSpi(void);
 	void send(uint8_t, uint8_t);
 	void write4bits(uint8_t);
 	void pulseEnable();
 	void waitBusy();
 
-	uint8_t _rs_pin; // LOW: command.  HIGH: character.
-	uint8_t _rw_pin; // LOW: write to oled.  HIGH: read from oled.
-	uint8_t _enable_pin; // activated by a HIGH pulse.
-	uint8_t _busy_pin;
-	uint8_t _data_pins[4];
+	uint8_t _latchPin;
+		
+	// Define shift register byte, keep pin state in this byte and send it out for each write.
+	volatile uint8_t _spiByte;
 
 	uint8_t _displayfunction;
 	uint8_t _displaycontrol;

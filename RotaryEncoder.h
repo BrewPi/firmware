@@ -17,7 +17,6 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Interfaces a rotary encoder on INT0, INT1, INT3 */
 
 #ifndef ROTARYENCODER_H_
 #define ROTARYENCODER_H_
@@ -32,9 +31,10 @@ class RotaryEncoder
 	static void init(void);
 	static void setRange(int start, int min, int max);
 	
-	static inline void int1Handler(void);
-	static inline void int3Handler(void);
+	static void pinAHandler(bool pinState);
+	static void pinBHandler(bool pinState);
 	
+		
 	static bool changed(void); // returns one if the value changed since the last call of changed.
 	static int read(void);
 	static int readHalfSteps(void);
@@ -43,7 +43,6 @@ class RotaryEncoder
 	static void resetPushed(void);
 	static void setPushed(void);
 	
-	protected:
 	private:
 	static int maximum;
 	static int minimum;
@@ -51,8 +50,12 @@ class RotaryEncoder
 	static volatile int halfSteps;
 	static volatile bool pushFlag;
 	
-	static volatile uint8_t int1Signal;
-	static volatile uint8_t int3Signal;
+	static volatile uint8_t pinASignal;
+	static volatile uint8_t pinBSignal;
+	static volatile uint8_t pinAHistory;
+	static volatile uint8_t pinBHistory;
+	static volatile unsigned long pinATime;
+	static volatile unsigned long pinBTime;	
 };
 
 static RotaryEncoder rotaryEncoder;

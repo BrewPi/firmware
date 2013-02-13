@@ -43,8 +43,8 @@ void Menu::pickSettingToChange(void){
 			display.printStationaryText();		
 		}
 		if(blinkTimer == 128){ // blink one of the options by overwriting it with spaces
-			display.oled.setCursor(0,rotaryEncoder.read());
-			display.oled.print_P(PSTR("      "));
+			display.lcd.setCursor(0,rotaryEncoder.read());
+			display.lcd.print_P(PSTR("      "));
 		}
 		if( rotaryEncoder.pushed() ){
 			rotaryEncoder.resetPushed();
@@ -68,7 +68,7 @@ void Menu::pickSettingToChange(void){
 		}
 		
 		blinkTimer++;
-		delay(1); // delay for blinking
+		delay(3); // delay for blinking
 	}
 }
 
@@ -120,11 +120,11 @@ void Menu::pickMode(void){
 				display.printMode();
 			}
 			if(blinkTimer == 128){
-				display.oled.setCursor(7,0);
-				display.oled.print_P(PSTR("             "));
+				display.lcd.setCursor(7,0);
+				display.lcd.print_P(PSTR("             "));
 			}				
 			blinkTimer++;
-			delay(1); // delay for blinking
+			delay(3); // delay for blinking
 		}
 	}
 	// Time Out. Restore original setting
@@ -164,11 +164,11 @@ void Menu::pickBeerSetting(void){
 				display.printBeerSet();
 			}
 			if(blinkTimer == 128){
-				display.oled.setCursor(12,1);
-				display.oled.print_P(PSTR("     "));
+				display.lcd.setCursor(12,1);
+				display.lcd.print_P(PSTR("     "));
 			}				
 			blinkTimer++;
-			delay(1); // delay for blinking
+			delay(3); // delay for blinking
 		}
 	}
 	// Time Out. Restore original setting
@@ -208,11 +208,11 @@ void Menu::pickFridgeSetting(void){
 				display.printFridgeSet();
 			}
 			if(blinkTimer == 128){
-				display.oled.setCursor(12,2);
-				display.oled.print_P(PSTR("     "));
+				display.lcd.setCursor(12,2);
+				display.lcd.print_P(PSTR("     "));
 			}				
 			blinkTimer++;
-			delay(1); // delay for blinking
+			delay(3); // delay for blinking
 		}
 	}
 	// Time Out. Restore original setting

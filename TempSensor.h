@@ -33,7 +33,7 @@ class TempSensor{
 	TempSensor(const int pinNr) : pin(pinNr){
 		lastRequestTime = 0;
 		connected = 0;
-		updateCounter = 255; // first update for slope filter after (255-31s)
+		updateCounter = 255; // first update for slope filter after (255-13s)
 		oneWire = new OneWire(pin);
 		sensor = new DallasTemperature(oneWire);
 	};

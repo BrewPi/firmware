@@ -34,6 +34,7 @@ struct jsonKeysContainer{
 	const char * tempFormat;
 	const char * tempSettingMin;
 	const char * tempSettingMax;
+	const char * pidMax;
 	const char * KpHeat;
 	const char * KpCool;
 	const char * Ki;
@@ -85,6 +86,7 @@ const jsonKeysContainer jsonKeys = {
 	"tempFormat",
 	"tempSettingMin",
 	"tempSettingMax",
+	"pidMax",
 	"KpHeat",
 	"KpCool",
 	"Ki",

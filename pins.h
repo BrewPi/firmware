@@ -17,37 +17,30 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- 
+
 #include <Arduino.h>
 
 #ifndef PINS_H_
 #define PINS_H_
 
-// pins
-#define beerSensorPin    10
-#define fridgeSensorPin  11
+#define beerSensorPin    A5 // OneWire 1
+#define fridgeSensorPin  A4 // OneWire 2
 
-// Pay attention when changing the pins for the rotary encoder.
-// They should be connected to external interrupt INT0, INT1 and INT3
+#define coolingPin	6
+#define heatingPin	5
+#define doorPin		4
+#define alarmPin	3
+#define lcdLatchPin 10
 
-#define ROTARY_A 2 // INT1
-#define ROTARY_B 1 // INT3
-#define ROTARY_SWITCH 0 // INT2
+// If you change the interrupt pins, you will also have to review the interrupt vectors of the rotary encoder
+#define rotarySwitchPin 7 // INT6
+#define rotaryAPin 8 // PCINT4
+#define rotaryBPin 9 // PCINT5
 
-
-#define coolingPin 12
-#define heatingPin 13
-#define doorPin    A5
-
-#define DISP_RS 9
-#define DISP_RW 8
-#define DISP_EN 7
-#define DISP_D4 6
-#define DISP_D5 5
-#define DISP_D6 4
-#define DISP_D7 3
-
-// you can use the internal pull-up resistors instead of external ones for the doorPin and the rotary encoder pins
+// You can use the internal pull-up resistors instead of external ones for the doorPin and the rotary encoder pins
 #define USE_INTERNAL_PULL_UP_RESISTORS false
+// If you are using the light bulb of your fridge as a heater, set this define to true
+// It will turn on the light when the door is opened
+#define LIGHT_AS_HEATER true
 
 #endif /* PINS_H_ */

@@ -245,25 +245,35 @@ void TempControl::updateState(void){
 }
 
 void TempControl::updateOutputs(void){
+	// Outputs are inverted on the shield by the mosfets!
 	switch (state)
 	{
 		case IDLE:
 		case STARTUP:
-			digitalWrite(coolingPin, LOW);
-			digitalWrite(heatingPin, LOW);
+			digitalWrite(coolingPin, HIGH);
+			digitalWrite(heatingPin, HIGH);
 			break;
 		case COOLING:
-			digitalWrite(coolingPin, HIGH);
-			digitalWrite(heatingPin, LOW);
-			break;
-		case HEATING:
-		case DOOR_OPEN:
 			digitalWrite(coolingPin, LOW);
 			digitalWrite(heatingPin, HIGH);
 			break;
-		default:
-			digitalWrite(coolingPin, LOW);
+		case HEATING:
+			digitalWrite(coolingPin, HIGH);
 			digitalWrite(heatingPin, LOW);
+			break;
+		case DOOR_OPEN:
+			if(LIGHT_AS_HEATER){
+				digitalWrite(coolingPin, HIGH);
+				digitalWrite(heatingPin, LOW);
+			}
+			else{
+				digitalWrite(coolingPin, HIGH);
+				digitalWrite(heatingPin, HIGH);
+			}			
+			break;
+		default:
+			digitalWrite(coolingPin, HIGH);
+			digitalWrite(heatingPin, HIGH);
 			break;
 	}
 }
@@ -469,7 +479,7 @@ void TempControl::loadDefaultConstants(void){
 	beerSensor.setFastFilterCoefficients(cc.beerFastFilter);
 	cc.beerSlowFilter = SETTLING_TIME_400_SAMPLES;
 	beerSensor.setSlowFilterCoefficients(cc.beerSlowFilter);
-	cc.beerSlopeFilter = SETTLING_TIME_50_SAMPLES;
+	cc.beerSlopeFilter = SETTLING_TIME_100_SAMPLES;
 	beerSensor.setSlopeFilterCoefficients(cc.beerSlopeFilter);
 	storeConstants();
 }
