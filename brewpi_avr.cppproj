@@ -19,12 +19,10 @@
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
     <OverrideVtorValue />
-    <eraseonlaunchrule>1</eraseonlaunchrule>
+    <eraseonlaunchrule>0</eraseonlaunchrule>
     <AsfVersion>3.1.3</AsfVersion>
-    <avrtool>
-    </avrtool>
-    <avrtoolinterface>
-    </avrtoolinterface>
+    <avrtool>com.atmel.avrdbg.tool.avrdragon</avrtool>
+    <avrtoolinterface>JTAG</avrtoolinterface>
     <com_atmel_avrdbg_tool_avrdragon>
       <ToolType>com.atmel.avrdbg.tool.avrdragon</ToolType>
       <ToolName>AVR Dragon</ToolName>
@@ -35,13 +33,13 @@
       </OverrideVtorValue>
       <Channel>
         <host>127.0.0.1</host>
-        <port>32751</port>
+        <port>5604</port>
         <ssl>False</ssl>
       </Channel>
       <ToolOptions>
-        <InterfaceName>debugWIRE</InterfaceName>
+        <InterfaceName>JTAG</InterfaceName>
         <InterfaceProperties>
-          <JtagDbgClock>200000</JtagDbgClock>
+          <JtagDbgClock>250000</JtagDbgClock>
           <JtagProgClock>1000000</JtagProgClock>
           <IspClock>250000</IspClock>
           <JtagInChain>false</JtagInChain>
@@ -50,7 +48,6 @@
           <JtagDevicesAfter>0</JtagDevicesAfter>
           <JtagInstrBitsBefore>0</JtagInstrBitsBefore>
           <JtagInstrBitsAfter>0</JtagInstrBitsAfter>
-          <DebugWireClockDiv>250000</DebugWireClockDiv>
         </InterfaceProperties>
       </ToolOptions>
     </com_atmel_avrdbg_tool_avrdragon>
@@ -106,7 +103,7 @@
   <avrgcccpp.compiler.directories.IncludePaths>
     <ListValues>
       <Value>D:\arduino-1.0.1\hardware\arduino\cores\arduino</Value>
-      <Value>D:\arduino-1.0.1\hardware\arduino\variants\standard</Value>
+      <Value>D:\arduino-1.0.1\hardware\arduino\variants\leonardo</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
   <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>

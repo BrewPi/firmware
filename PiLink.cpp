@@ -321,6 +321,7 @@ void PiLink::processJsonPair(char * key, char * val){
 		if(tempControl.cs.mode == 'f'){
 			printFridgeAnnotation(PSTR("Fridge temperature setting changed to %s in web interface."), val);
 		}
+		tempControl.cs.fridgeSetting = newTemp;
 	}
 	else if(strcmp(key,jsonKeys.heatEstimator) == 0){ tempControl.cs.heatEstimator = stringToFixedPoint(val); }
 	else if(strcmp(key,jsonKeys.coolEstimator) == 0){ tempControl.cs.coolEstimator = stringToFixedPoint(val); }

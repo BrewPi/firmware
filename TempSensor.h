@@ -30,11 +30,11 @@
 
 class TempSensor{
 	public:
-	TempSensor(const int pinNr) : pin(pinNr){
+	TempSensor(const uint8_t pinNumber) : pinNr(pinNumber){
 		lastRequestTime = 0;
 		connected = 0;
 		updateCounter = 255; // first update for slope filter after (255-13s)
-		oneWire = new OneWire(pin);
+		oneWire = new OneWire(pinNr);
 		sensor = new DallasTemperature(oneWire);
 	};
 		
@@ -57,7 +57,7 @@ class TempSensor{
 	void setSlopeFilterCoefficients(uint16_t ab);
 			
 	private:
-	const int pin;
+	const uint8_t pinNr;
 	bool connected;
 	unsigned long lastRequestTime; // in milliseconds
 	unsigned char updateCounter;

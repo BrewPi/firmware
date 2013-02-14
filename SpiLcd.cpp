@@ -51,8 +51,10 @@ void SpiLcd::begin(uint8_t cols, uint8_t lines) {
 	_spiByte = 0x00;
 	spiOut();
 	
-	// SEE PAGE 20 of NHD-0420DZW-AY5 
-	delayMicroseconds(50000); // wait 50 ms just to be sure tha the lcd is initialized
+	// The following initialization sequence should be compatible with: 
+	// - Newhaven OLED displays
+	// - Standard HD44780 or S6A0069 LCD displays
+	delayMicroseconds(50000); // wait 50 ms just to be sure that the lcd is initialized
 
 	write4bits(0x03); //set to 8-bit
 	delayMicroseconds(50000); // wait > 4.1ms
@@ -62,10 +64,8 @@ void SpiLcd::begin(uint8_t cols, uint8_t lines) {
 	delayMicroseconds(50000); // wait for execution
 	write4bits(0x02); //set to 4-bit
 	delayMicroseconds(50000); // wait for execution
-	write4bits(0x80); // 2 line
-	delayMicroseconds(50000); // wait for execution
-	
-	
+	command(0x28); // set to 4-bit, 2-line
+		
 	clear();	// display clear
 	// Entry Mode Set:
 	leftToRight();
@@ -257,7 +257,7 @@ void SpiLcd::write4bits(uint8_t value) {
 }
 
 void SpiLcd::waitBusy(void) {
-	// we cannot read the busy pin, so just wait 10 ms
+	// we cannot read the busy pin, so just wait 1 ms
 	_delay_ms(1);
 }
 
