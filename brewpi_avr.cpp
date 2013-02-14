@@ -72,8 +72,8 @@ void setup()
 	rotaryEncoder.init();
 	
 	piLink.printFridgeAnnotation(PSTR("Arduino restarted!"));
-    //buzzer.init();	
-	//buzzer.beep(2, 500);
+	buzzer.init();
+	buzzer.beep(2, 500);
 }
 
 void main() __attribute__ ((noreturn)); // tell the compiler main doesn't return.

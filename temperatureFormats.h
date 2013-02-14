@@ -28,7 +28,7 @@
 // To convert an integer to the fixed point format, multiply by 512.
 
 // The interface to the Raspberry Pi uses decimal notation, like 21.3.
-// This can be in Celsius or Fahrenheit, this is defined in the project settings.
+// This can be in Celsius or Fahrenheit, this is defined in the project settings. TODO!
 
 // just for clarity, typedefs are used instead of normal integers.
 // Addition and shifting can be done normally. When two fixed points values are multiplied, you have shift the result

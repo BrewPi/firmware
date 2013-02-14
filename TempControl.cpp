@@ -258,9 +258,18 @@ void TempControl::updateOutputs(void){
 			digitalWrite(heatingPin, HIGH);
 			break;
 		case HEATING:
-		case DOOR_OPEN:
 			digitalWrite(coolingPin, HIGH);
 			digitalWrite(heatingPin, LOW);
+			break;
+		case DOOR_OPEN:
+			if(LIGHT_AS_HEATER){
+				digitalWrite(coolingPin, HIGH);
+				digitalWrite(heatingPin, LOW);
+			}
+			else{
+				digitalWrite(coolingPin, HIGH);
+				digitalWrite(heatingPin, HIGH);
+			}			
 			break;
 		default:
 			digitalWrite(coolingPin, HIGH);
@@ -470,7 +479,7 @@ void TempControl::loadDefaultConstants(void){
 	beerSensor.setFastFilterCoefficients(cc.beerFastFilter);
 	cc.beerSlowFilter = SETTLING_TIME_400_SAMPLES;
 	beerSensor.setSlowFilterCoefficients(cc.beerSlowFilter);
-	cc.beerSlopeFilter = SETTLING_TIME_50_SAMPLES;
+	cc.beerSlopeFilter = SETTLING_TIME_100_SAMPLES;
 	beerSensor.setSlopeFilterCoefficients(cc.beerSlopeFilter);
 	storeConstants();
 }

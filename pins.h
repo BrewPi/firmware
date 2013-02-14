@@ -30,14 +30,17 @@
 #define heatingPin	5
 #define doorPin		4
 #define alarmPin	3
-#define LCD_LATCH_PIN 10
+#define lcdLatchPin 10
 
 // If you change the interrupt pins, you will also have to review the interrupt vectors of the rotary encoder
-#define ROTARY_SWITCH 7 // INT6
-#define ROTARY_A 8 // PCINT4
-#define ROTARY_B 9 // PCINT5
+#define rotarySwitchPin 7 // INT6
+#define rotaryAPin 8 // PCINT4
+#define rotaryBPin 9 // PCINT5
 
-// you can use the internal pull-up resistors instead of external ones for the doorPin and the rotary encoder pins
+// You can use the internal pull-up resistors instead of external ones for the doorPin and the rotary encoder pins
 #define USE_INTERNAL_PULL_UP_RESISTORS false
+// If you are using the light bulb of your fridge as a heater, set this define to true
+// It will turn on the light when the door is opened
+#define LIGHT_AS_HEATER true
 
 #endif /* PINS_H_ */

@@ -38,13 +38,13 @@ volatile unsigned long RotaryEncoder::pinATime;
 volatile unsigned long RotaryEncoder::pinBTime;
 
 
-#if ROTARY_SWITCH != 7
+#if rotarySwitchPin != 7
 	#error Review interrupt vectors when not using pin 7 for menu push
 #endif
-#if ROTARY_A != 8
+#if rotaryAPin != 8
 	#error Review interrupt vectors when not using pin 8 for menu right
 #endif
-#if ROTARY_B != 9
+#if rotaryBPin != 9
 	#error Review interrupt vectors when not using pin 9 for menu left
 #endif
 
@@ -154,13 +154,13 @@ void RotaryEncoder::init(void){
 	pinBTime = 0;
 	
 	#if(USE_INTERNAL_PULL_UP_RESISTORS)
-	pinMode(ROTARY_A, INPUT_PULLUP);
-	pinMode(ROTARY_B, INPUT_PULLUP);
-	pinMode(ROTARY_SWITCH, INPUT_PULLUP);
+	pinMode(rotaryAPin, INPUT_PULLUP);
+	pinMode(rotaryBPin, INPUT_PULLUP);
+	pinMode(rotarySwitchPin, INPUT_PULLUP);
 	#else
-	pinMode(ROTARY_A, INPUT);
-	pinMode(ROTARY_B, INPUT);
-	pinMode(ROTARY_SWITCH, INPUT);
+	pinMode(rotaryAPin, INPUT);
+	pinMode(rotaryBPin, INPUT);
+	pinMode(rotarySwitchPin, INPUT);
 	#endif
 	
 	pinAHandler(true); // call functions ones here for proper initialization

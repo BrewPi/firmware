@@ -31,7 +31,7 @@ Display display;
 void Display::init(void){
 	stateOnDisplay = 0xFF; // set to unknown state to force update
 	
-	lcd.init(LCD_LATCH_PIN); // initialize LCD
+	lcd.init(lcdLatchPin); // initialize LCD
 	lcd.begin(20, 4);
 	lcd.clear();
 }
