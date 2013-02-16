@@ -32,10 +32,12 @@ void Buzzer::init(void){
 	// set up square wave PWM for buzzer
 	pinMode(alarmPin,OUTPUT);
 	// Arduino UNO, buzzer is on OC2B
-	TCCR2A = (1<<COM2B1) | (1<<WGM22) | (1<<WGM20);
-	TCCR2B = (1<<CS21) | (1<<CS20); // prescaler = 32
+	TCCR2A = (1<<COM2B1) | (1<<WGM20);
+	TCCR2B = (1<<WGM22) | (1<<CS21) | (1<<CS20); // prescaler = 32
 	OCR2A = 125; // timer top. This value adjusts the frequency.
+	OCR2B = 62;
 }
+
 #endif
 
 
