@@ -35,7 +35,9 @@ extern "C"{
 }
 
 // Standard Arduino source files for serial:
-// #include <HardwareSerial.cpp>
+#ifndef USBCON
+#include <HardwareSerial.cpp>
+#endif
 
 
 // Arduino Leonardo source files for serial:
