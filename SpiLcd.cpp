@@ -198,11 +198,9 @@ void SpiLcd::initSpi(void){
 	// equals SPI.setBitOrder(MSBFIRST);
 	SPCR &= ~_BV(DORD);
 
-	// Here you can set the clock speed of the SPI port. Default is DIV4, which is 4MHz with a 16Mhz system clock.
-	// If you encounter problems due to long wires, try lowering the SPI clock.
-	// equals SPI.setClockDivider(SPI_CLOCK_DIV4);
-	SPCR = (SPCR & 0b11111000);
-	SPSR = (SPSR & 0b11111110);
+	// Set the SPI clock to Fosc/128, the slowest option. This prevents problems with long cables.
+	SPCR |= _BV(SPR1);
+	SPSR |= _BV(SPR0);
 
 	// Set clock polarity and phase for shift registers (Mode 3)
 	SPCR |= _BV(CPOL);
