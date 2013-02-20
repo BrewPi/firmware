@@ -24,6 +24,8 @@
 #include "TempSensor.h"
 #include "pins.h"
 #include "temperatureFormats.h"
+#include "Actuator.h"
+#include "Door.h"
 
 // These two structs are stored in and loaded from EEPROM
 struct ControlSettings{
@@ -100,79 +102,82 @@ enum states{
 	STATE_OFF
 };
 
-// Making all functions and variables static reduces code size.
+// Making all functions and variables reduces code size.
 // There will only be one TempControl object, so it makes sense that they are static.
 
 class TempControl{
 	public:
 	
-	TempControl(){
-	};
+	TempControl(Actuator& _heater, Actuator& _cooler, Door& _door, TempSensor& _fridge, TempSensor& _beer);
+	
 	~TempControl(){
 	};
 	
-	static void init(void);
-	static void reset(void);
+	void init(void);
+	void reset(void);
 	
-	static void updateTemperatures(void);
-	static void updatePID(void);
-	static void updateState(void);
-	static void updateOutputs(void);
-	static void detectPeaks(void);
+	void updateTemperatures(void);
+	void updatePID(void);
+	void updateState(void);
+	void updateOutputs(void);
+	void detectPeaks(void);
 	
-	static void loadSettings(void);
-	static void storeSettings(void);
-	static void loadDefaultSettings(void);
+	void loadSettings(void);
+	void storeSettings(void);
+	void loadDefaultSettings(void);
 	
-	static void loadConstants(void);
-	static void storeConstants(void);
-	static void loadDefaultConstants(void);
+	void loadConstants(void);
+	void storeConstants(void);
+	void loadDefaultConstants(void);
 	
-	static void loadSettingsAndConstants(void);
+	void loadSettingsAndConstants(void);
 	
-	static unsigned long timeSinceCooling(void);
- 	static unsigned long timeSinceHeating(void);
-  	static unsigned long timeSinceIdle(void);
+	unsigned long timeSinceCooling(void);
+ 	unsigned long timeSinceHeating(void);
+  	unsigned long timeSinceIdle(void);
 	  
-	static fixed7_9 getBeerTemp(void);
-	static fixed7_9 getBeerSetting(void);
-	static void setBeerTemp(int newTemp);
+	fixed7_9 getBeerTemp(void);
+	fixed7_9 getBeerSetting(void);
+	void setBeerTemp(int newTemp);
 	
-	static fixed7_9 getFridgeTemp(void);
-	static fixed7_9 getFridgeSetting(void);
-	static void setFridgeTemp(int newTemp);
+	fixed7_9 getFridgeTemp(void);
+	fixed7_9 getFridgeSetting(void);
+	void setFridgeTemp(int newTemp);
 		
-	static void setMode(char newMode);
-	static char getMode(void);
-	static void setState(uint8_t newState);
-	static uint8_t getState(void);
+	void setMode(char newMode);
+	char getMode(void);
+	void setState(uint8_t newState);
+	uint8_t getState(void);
 		
 	public:
-	static TempSensor beerSensor;
-	static TempSensor fridgeSensor;
+	TempSensor beerSensor;
+	TempSensor fridgeSensor;
+	Actuator& heater;
+	Actuator& cooler;
+	Door& door;
 	
 	// Control parameters
-	static ControlConstants cc;
-	static ControlSettings cs;
-	static ControlVariables cv;
+	ControlConstants cc;
+	ControlSettings cs;
+	ControlVariables cv;
 		
 	private:
 	// keep track of beer setting stored in EEPROM
-	static fixed7_9 storedBeerSetting;
+	fixed7_9 storedBeerSetting;
 
 	// Timers
-	static unsigned long lastIdleTime;
-	static unsigned long lastHeatTime;
-	static unsigned long lastCoolTime;
+	unsigned long lastIdleTime;
+	unsigned long lastHeatTime;
+	unsigned long lastCoolTime;
 	
 	// State variables
-	static uint8_t state;
-	static bool doPosPeakDetect;
-	static bool doNegPeakDetect;
+	uint8_t state;
+	bool doPosPeakDetect;
+	bool doNegPeakDetect;
 
 	
-	static void increaseEstimator(fixed7_9 * estimator, fixed7_9 error);
-	static void decreaseEstimator(fixed7_9 * estimator, fixed7_9 error);
+	void increaseEstimator(fixed7_9 * estimator, fixed7_9 error);
+	void decreaseEstimator(fixed7_9 * estimator, fixed7_9 error);
 };
 
 extern TempControl tempControl;

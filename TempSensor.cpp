@@ -48,7 +48,7 @@ void TempSensor::init(void){
 			connected = false; // sensor disconnected
 			return;
 		}
-	}
+	}	
 	sensor->requestTemperatures();
 	delay(750);
 	temperature = sensor->getTempRaw(sensorAddress); // read again. First read is not accurate
@@ -78,8 +78,7 @@ void TempSensor::update(void){
 		}			
 		connected = false;
 		return;
-	}
-	
+	}	
 	else{
 		if(connected == false){
 			delay(2000); // delay for two seconds to be sure sensor is correctly inserted

@@ -29,13 +29,9 @@
 #include "TempControl.h"
 #include "PiLink.h"
 #include "TempSensor.h"
+#include "Actuator.h"
 
-TempControl tempControl;
-
-// Declare static variables
-TempSensor TempControl::beerSensor(beerSensorPin);
-TempSensor TempControl::fridgeSensor(fridgeSensorPin);
-	
+/*		
 // Control parameters
 ControlConstants TempControl::cc;
 ControlSettings TempControl::cs;
@@ -53,6 +49,13 @@ fixed7_9 TempControl::storedBeerSetting;
 unsigned long TempControl::lastIdleTime;
 unsigned long TempControl::lastHeatTime;
 unsigned long TempControl::lastCoolTime;
+*/
+
+TempControl::TempControl(Actuator& _heater, Actuator& _cooler, Door& _door, TempSensor& _fridge, TempSensor& _beer)
+: beerSensor(_beer), fridgeSensor(_fridge), heater(_heater), cooler(_cooler), door(_door) 
+{	
+}
+
 
 void TempControl::init(void){
 	state=STARTUP;
@@ -139,7 +142,7 @@ void TempControl::updatePID(void){
 
 void TempControl::updateState(void){
 	//update state
-	if(digitalRead(doorPin) == LOW){
+	if(door.isOpen()){
 		if(state!=DOOR_OPEN){
 			piLink.printFridgeAnnotation(PSTR("Fridge door opened"));
 		}
@@ -234,7 +237,7 @@ void TempControl::updateState(void){
 		break;
 		case DOOR_OPEN:
 		{
-			if(digitalRead(doorPin) == HIGH){ 
+			if(!door.isOpen()){ 
 				piLink.printFridgeAnnotation(PSTR("Fridge door closed"));
 				state=IDLE;
 				return;
@@ -246,36 +249,31 @@ void TempControl::updateState(void){
 
 void TempControl::updateOutputs(void){
 	// Outputs are inverted on the shield by the mosfets!
-	switch (state)
+/*	switch (state)
 	{
 		case IDLE:
 		case STARTUP:
-			digitalWrite(coolingPin, HIGH);
-			digitalWrite(heatingPin, HIGH);
+			cooler.deactivate();
+			heater.deactivate();			
 			break;
 		case COOLING:
-			digitalWrite(coolingPin, LOW);
-			digitalWrite(heatingPin, HIGH);
+			cooler.activate();
+			heater.deactivate();
 			break;
 		case HEATING:
-			digitalWrite(coolingPin, HIGH);
-			digitalWrite(heatingPin, LOW);
+			cooler.deactivate();
+			heater.activate();
 			break;
 		case DOOR_OPEN:
-			if(LIGHT_AS_HEATER){
-				digitalWrite(coolingPin, HIGH);
-				digitalWrite(heatingPin, LOW);
-			}
-			else{
-				digitalWrite(coolingPin, HIGH);
-				digitalWrite(heatingPin, HIGH);
-			}			
+			cooler.deactivate();
+			heater.setActive(LIGHT_AS_HEATER);
 			break;
 		default:
-			digitalWrite(coolingPin, HIGH);
-			digitalWrite(heatingPin, HIGH);
+			cooler.activate();
+			heater.deactivate();
 			break;
 	}
+	*/
 }
 
 void TempControl::detectPeaks(void){  

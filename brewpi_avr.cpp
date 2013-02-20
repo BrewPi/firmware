@@ -35,7 +35,18 @@
 #include "RotaryEncoder.h"
 #include "Buzzer.h"
 
-// global class opbjects static and defined in class cpp and h files
+// global class objects static and defined in class cpp and h files
+
+// instantiate the actual types we want to use
+
+TempSensor fridgeSensor(fridgeSensorPin);
+TempSensor beerSensor(beerSensorPin);
+DigitalPinActuator heater(heatingPin);
+DigitalPinActuator cooler(coolingPin);
+DigitalPinSensor doorSensor(doorPin, USE_INTERNAL_PULL_UP_RESISTORS, true);
+SensorDoor door(doorSensor);
+MockDoor mockDoor;
+TempControl tempControl(heater, cooler, mockDoor, fridgeSensor, beerSensor);
 
 void setup(void);
 void loop (void);
@@ -44,20 +55,8 @@ void setup()
 {
 	
 	Serial.begin(57600);
-	
-	// Signals are inverted on the shield, so set to high
-	digitalWrite(coolingPin, HIGH);
-	digitalWrite(heatingPin, HIGH);
-	
-	pinMode(coolingPin, OUTPUT);
-	pinMode(heatingPin, OUTPUT);
+	Serial.println("D: serial initialized");
 		
-	#if(USE_INTERNAL_PULL_UP_RESISTORS)
-		pinMode(doorPin, INPUT_PULLUP);
-	#else
-		pinMode(doorPin, INPUT);
-	#endif
-	
 	tempControl.loadSettingsAndConstants(); //read previous settings from EEPROM
 	tempControl.init();
 	tempControl.updatePID();
@@ -99,6 +98,7 @@ void loop(void)
 	static unsigned long lastUpdate;
 	if(millis() - lastUpdate > 1000){ //update settings every second
 		lastUpdate=millis();
+		piLink.debugMessage("loop");
 		
 		tempControl.updateTemperatures();		
 		tempControl.detectPeaks();

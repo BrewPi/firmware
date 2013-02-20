@@ -21,8 +21,9 @@
     <OverrideVtorValue />
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <AsfVersion>3.1.3</AsfVersion>
-    <avrtool>com.atmel.avrdbg.tool.avrdragon</avrtool>
-    <avrtoolinterface>JTAG</avrtoolinterface>
+    <avrtool>com.atmel.avrdbg.tool.simulator</avrtool>
+    <avrtoolinterface>
+    </avrtoolinterface>
     <com_atmel_avrdbg_tool_avrdragon>
       <ToolType>com.atmel.avrdbg.tool.avrdragon</ToolType>
       <ToolName>AVR Dragon</ToolName>
@@ -52,6 +53,21 @@
       </ToolOptions>
     </com_atmel_avrdbg_tool_avrdragon>
     <preserveEEPROM>False</preserveEEPROM>
+    <com_atmel_avrdbg_tool_simulator>
+      <ToolType xmlns="">com.atmel.avrdbg.tool.simulator</ToolType>
+      <ToolName xmlns="">AVR Simulator</ToolName>
+      <ToolNumber xmlns="">
+      </ToolNumber>
+      <KeepTimersRunning xmlns="">true</KeepTimersRunning>
+      <OverrideVtor xmlns="">false</OverrideVtor>
+      <OverrideVtorValue xmlns="">
+      </OverrideVtorValue>
+      <Channel xmlns="">
+        <host>127.0.0.1</host>
+        <port>52234</port>
+        <ssl>False</ssl>
+      </Channel>
+    </com_atmel_avrdbg_tool_simulator>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -102,14 +118,13 @@
   </avrgcccpp.compiler.symbols.DefSymbols>
   <avrgcccpp.compiler.directories.IncludePaths>
     <ListValues>
-      <Value>D:\arduino-1.0.1\hardware\arduino\cores\arduino</Value>
-      <Value>D:\arduino-1.0.1\hardware\arduino\variants\leonardo</Value>
+      <Value>r:\sdk\arduino-1.0.3\hardware\arduino\cores\arduino</Value>
+      <Value>r:\sdk\arduino-1.0.1\hardware\arduino\variants\mega</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
   <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
   <avrgcccpp.compiler.optimization.OtherFlags>-fdata-sections</avrgcccpp.compiler.optimization.OtherFlags>
   <avrgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</avrgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
-  <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
   <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
   <avrgcccpp.compiler.optimization.DebugLevel>Default (-g2)</avrgcccpp.compiler.optimization.DebugLevel>
   <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
@@ -126,6 +141,12 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Actuator.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Actuator.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="ArduinoFunctions.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -138,6 +159,12 @@
     <Compile Include="Buzzer.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Chamber.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Door.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="jsonKeys.h">
       <SubType>compile</SubType>
     </Compile>
@@ -145,6 +172,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="RotaryEncoder.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Sensor.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Sensor.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="SpiLcd.cpp">
@@ -208,6 +241,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="TempSensor.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Time.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
