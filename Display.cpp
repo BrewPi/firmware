@@ -26,9 +26,10 @@
 #include "temperatureFormats.h"
 #include "pins.h"
 
-Display display;
+NullDisplay theDisplay;
+Display& display = theDisplay;
 
-void Display::init(void){
+void LcdDisplay::init(void){
 	stateOnDisplay = 0xFF; // set to unknown state to force update
 	
 	lcd.init(lcdLatchPin); // initialize LCD
@@ -37,14 +38,14 @@ void Display::init(void){
 }
 
 //print all temperatures on the LCD
-void Display::printAllTemperatures(void){
+void LcdDisplay::printAllTemperatures(void){
 	printBeerTemp();
 	printBeerSet();
 	printFridgeTemp();
 	printFridgeSet();
 }
 
-void Display::printBeerTemp(void){
+void LcdDisplay::printBeerTemp(void){
 	lcd.setCursor(6,1);
 	if(tempControl.beerSensor.isConnected()){
 		printTemperature(tempControl.getBeerTemp());
@@ -54,7 +55,7 @@ void Display::printBeerTemp(void){
 	}
 }
 
-void Display::printBeerSet(void){
+void LcdDisplay::printBeerSet(void){
 	lcd.setCursor(12,1);
 	fixed7_9 beerSet = tempControl.getBeerSetting();
 	if(beerSet == INT_MIN){ // beer setting is not active
@@ -65,7 +66,7 @@ void Display::printBeerSet(void){
 	}		
 }
 
-void Display::printFridgeTemp(void){	
+void LcdDisplay::printFridgeTemp(void){	
 	lcd.setCursor(6,2);
 	if(tempControl.fridgeSensor.isConnected()){
 		printTemperature(tempControl.getFridgeTemp());
@@ -75,7 +76,7 @@ void Display::printFridgeTemp(void){
 	}
 }
 
-void Display::printFridgeSet(void){	
+void LcdDisplay::printFridgeSet(void){	
 	lcd.setCursor(12,2);
 	fixed7_9 fridgeSet = tempControl.getFridgeSetting();
 	if(fridgeSet == INT_MIN){ // beer setting is not active
@@ -86,7 +87,7 @@ void Display::printFridgeSet(void){
 	}		
 }
 
-void Display::printTemperature(fixed7_9 temp){
+void LcdDisplay::printTemperature(fixed7_9 temp){
 	char tempString[9];
 	tempToString(tempString, temp, 1 , 9);
 	for(int i = 0; i<(5-strlen(tempString));i++){
@@ -96,7 +97,7 @@ void Display::printTemperature(fixed7_9 temp){
 }
 
 //print the stationary text on the lcd.
-void Display::printStationaryText(void){
+void LcdDisplay::printStationaryText(void){
 	lcd.setCursor(0,0);
 	lcd.print_P(PSTR("Mode   "));
 
@@ -113,13 +114,13 @@ void Display::printStationaryText(void){
 }
 
 //print degree sign + C
-void Display::printDegreeUnit(void){
+void LcdDisplay::printDegreeUnit(void){
 	lcd.write(0b11011111);
 	lcd.write(tempControl.cc.tempFormat);	
 }
 
 // print mode on the right location on the first line, after "Mode   "
-void Display::printMode(void){
+void LcdDisplay::printMode(void){
 	lcd.setCursor(7,0);
 	switch(tempControl.getMode()){
 		case MODE_FRIDGE_CONSTANT:
@@ -141,7 +142,7 @@ void Display::printMode(void){
 }
 
 // print the current state on the last line of the lcd
-void Display::printState(void){
+void LcdDisplay::printState(void){
 	uint8_t state = tempControl.getState();
 	if(state != stateOnDisplay){ //only print static text when state has changed
 		lcd.setCursor(0,3); 
@@ -185,3 +186,16 @@ void Display::printState(void){
 		break;
     }
 }
+
+void LcdDisplay::getLine(uint8_t lineNumber, char * buffer)
+{
+	lcd.getLine(lineNumber, buffer);
+}
+
+void LcdDisplay::printAt(int x, int y, const char* text)
+{
+	lcd.setCursor(x, y);
+	lcd.print_P(text);
+}	
+
+

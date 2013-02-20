@@ -81,7 +81,7 @@ void PiLink::receive(void){
 			print_P(PSTR("L:"));
 			char stringBuffer[21];
 			for(uint8_t i=0;i<4;i++){
-				display.lcd.getLine(i, stringBuffer);
+				display.getLine(i, stringBuffer);
 				print_P(PSTR("%s<BR>"), stringBuffer);
 			}				
 			print_P(PSTR("\n"));

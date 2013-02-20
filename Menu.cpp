@@ -43,8 +43,7 @@ void Menu::pickSettingToChange(void){
 			display.printStationaryText();		
 		}
 		if(blinkTimer == 128){ // blink one of the options by overwriting it with spaces
-			display.lcd.setCursor(0,rotaryEncoder.read());
-			display.lcd.print_P(PSTR("      "));
+			display.printAt(0, rotaryEncoder.read(), PSTR("      "));			
 		}
 		if( rotaryEncoder.pushed() ){
 			rotaryEncoder.resetPushed();
@@ -120,8 +119,7 @@ void Menu::pickMode(void){
 				display.printMode();
 			}
 			if(blinkTimer == 128){
-				display.lcd.setCursor(7,0);
-				display.lcd.print_P(PSTR("             "));
+				display.printAt(7, 0, PSTR("             "));
 			}				
 			blinkTimer++;
 			delay(3); // delay for blinking
@@ -164,8 +162,7 @@ void Menu::pickBeerSetting(void){
 				display.printBeerSet();
 			}
 			if(blinkTimer == 128){
-				display.lcd.setCursor(12,1);
-				display.lcd.print_P(PSTR("     "));
+				display.printAt(12,1, PSTR("     "));
 			}				
 			blinkTimer++;
 			delay(3); // delay for blinking
@@ -208,8 +205,7 @@ void Menu::pickFridgeSetting(void){
 				display.printFridgeSet();
 			}
 			if(blinkTimer == 128){
-				display.lcd.setCursor(12,2);
-				display.lcd.print_P(PSTR("     "));
+				display.printAt(12, 2, PSTR("     "));
 			}				
 			blinkTimer++;
 			delay(3); // delay for blinking
