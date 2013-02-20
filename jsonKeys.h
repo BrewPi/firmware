@@ -34,6 +34,7 @@ struct jsonKeysContainer{
 	const char * tempFormat;
 	const char * tempSettingMin;
 	const char * tempSettingMax;
+	const char * pidMax;
 	const char * KpHeat;
 	const char * KpCool;
 	const char * Ki;
@@ -50,6 +51,7 @@ struct jsonKeysContainer{
 	const char * coolingTargetLower;
 	const char * maxHeatTimeForEstimate;
 	const char * maxCoolTimeForEstimate;
+	const char * pidFilter;
 	const char * fridgeFastFilter;
 	const char * fridgeSlowFilter;
 	const char * fridgeSlopeFilter;
@@ -85,6 +87,7 @@ const jsonKeysContainer jsonKeys = {
 	"tempFormat",
 	"tempSettingMin",
 	"tempSettingMax",
+	"pidMax",
 	"KpHeat",
 	"KpCool",
 	"Ki",
@@ -101,6 +104,7 @@ const jsonKeysContainer jsonKeys = {
 	"coolingTargetLower",
 	"maxHeatTimeForEstimate",
 	"maxCoolTimeForEstimate",
+	"pidFilter",
 	"fridgeFastFilter",
 	"fridgeSlowFilter",
 	"fridgeSlopeFilter",

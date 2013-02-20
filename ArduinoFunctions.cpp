@@ -34,19 +34,17 @@ extern "C"{
 	#include <pins_arduino.h>
 }
 
-// Standard Arduino source files for serial:
-#ifndef USBCON
-#include <HardwareSerial.cpp>
+#if defined(USBCON)
+	// Arduino Leonardo source files for serial:
+	#define USB_VID 0x2341
+	#define USB_PID 0x8036
+	#include <CDC.cpp>
+	#include <USBCore.cpp>
+	#include <HID.cpp>
+#else
+	// Standard Arduino source files for serial:
+	#include <HardwareSerial.cpp>
 #endif
-
-
-// Arduino Leonardo source files for serial:
-#define USB_VID 0x2341
-#define USB_PID 0x8036
-#include <CDC.cpp>
-#include <USBCore.cpp>
-#include <HID.cpp>
-
 
 // Other source files, depends on your program which you need
 #include <Print.cpp>

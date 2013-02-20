@@ -17,10 +17,11 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef C_OLED_H_
-#define C_OLED_H_
+#ifndef C_lcd_H_
+#define C_lcd_H_
 
-#include "OLEDFourBit.h"
+#include "pins.h"
+#include "SpiLcd.h"
 #include "temperatureFormats.h"
 
 class Display{
@@ -28,7 +29,7 @@ class Display{
 	Display(){};
 	~Display(){};
 		
-	// initializes the OLED display
+	// initializes the lcd display
 	void init(void);
 			
 	// print all temperatures on the LCD
@@ -37,7 +38,7 @@ class Display{
 	// print a temperature
 	void printTemperature(fixed7_9 temp);
 
-	// print the stationary text on the oled.
+	// print the stationary text on the lcd.
 	void printStationaryText(void);
 
 	// print degree sign + C/F
@@ -67,7 +68,7 @@ class Display{
 	void readContent(void);
 		
 	public:
-	OLEDFourBit oled;
+	SpiLcd lcd;
 			
 	private:
 	uint8_t stateOnDisplay;
@@ -75,4 +76,4 @@ class Display{
 
 extern Display display;
 
-#endif /* C_OLED_H_ */
+#endif /* C_lcd_H_ */

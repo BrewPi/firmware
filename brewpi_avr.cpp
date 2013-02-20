@@ -25,8 +25,7 @@
  * 'ArduinoFunctions.cpp' includes all the source files from Arduino that are used. You might have to edit it if you are not using a Leonardo.
  * That is all that is needed! No hassle with makefiles and compiling libraries.
  */
-
-#include <arduino.h>
+#include <Arduino.h>
 
 #include "Display.h"
 #include "TempControl.h"
@@ -34,6 +33,7 @@
 #include "Menu.h"
 #include "pins.h"
 #include "RotaryEncoder.h"
+#include "Buzzer.h"
 
 // global class opbjects static and defined in class cpp and h files
 
@@ -45,9 +45,13 @@ void setup()
 	
 	Serial.begin(57600);
 	
+	// Signals are inverted on the shield, so set to high
+	digitalWrite(coolingPin, HIGH);
+	digitalWrite(heatingPin, HIGH);
+	
 	pinMode(coolingPin, OUTPUT);
 	pinMode(heatingPin, OUTPUT);
-	
+		
 	#if(USE_INTERNAL_PULL_UP_RESISTORS)
 		pinMode(doorPin, INPUT_PULLUP);
 	#else
@@ -68,6 +72,8 @@ void setup()
 	rotaryEncoder.init();
 	
 	piLink.printFridgeAnnotation(PSTR("Arduino restarted!"));
+	buzzer.init();
+	buzzer.beep(2, 500);
 }
 
 void main() __attribute__ ((noreturn)); // tell the compiler main doesn't return.
@@ -77,7 +83,7 @@ void main(void)
 	init();
 
 	#if defined(USBCON)
-	USBDevice.attach();
+		USBDevice.attach();
 	#endif
 	
 	setup();
@@ -113,10 +119,10 @@ void loop(void)
 	piLink.receive();
 }
 
-/* catch bad interrupts here when debugging
+// catch bad interrupts here when debugging
 ISR(BADISR_vect){
 	while(1){
 		;
 	}
 }
-*/
+
