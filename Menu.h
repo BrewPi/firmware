@@ -40,7 +40,7 @@ class TempControl;
 class PiLink;
 class Menu{
 	public:
-	Menu(TempControl& control, PiLink& link) : tempControl(control), piLink(link) {};
+	//Menu(TempControl& control, PiLink& link) : tempControl(control), piLink(link) {};
 	void pickSettingToChange(void);
 	void pickMode(void);
 	void pickBeerSetting(void);
@@ -48,8 +48,8 @@ class Menu{
 	
 	~Menu(){};
 	private:
-	TempControl& tempControl;		
-	PiLink& piLink;
+// 	TempControl& tempControl;		
+// 	PiLink& piLink;
 };
 
 extern Menu menu;

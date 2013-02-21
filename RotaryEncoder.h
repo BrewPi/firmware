@@ -22,32 +22,35 @@
 #define ROTARYENCODER_H_
 
 #include <inttypes.h>
+#include <Arduino.h>
 
 #define ROTARY_THRESHOLD 20000ul
+
+typedef short intCanBeShort;
+typedef intCanBeShort rangeType;
 
 class RotaryEncoder
 {
 	public:
 	static void init(void);
-	static void setRange(int start, int min, int max);
+	static void setRange(rangeType start, rangeType min, rangeType max);
 	
 	static void pinAHandler(bool pinState);
 	static void pinBHandler(bool pinState);
-	
-		
+			
 	static bool changed(void); // returns one if the value changed since the last call of changed.
-	static int read(void);
-	static int readHalfSteps(void);
+	static rangeType read(void);
+	static rangeType readHalfSteps(void);
 	
 	static bool pushed(void);
 	static void resetPushed(void);
 	static void setPushed(void);
 	
 	private:
-	static int maximum;
-	static int minimum;
-	static int prevRead;
-	static volatile int halfSteps;
+	static rangeType maximum;
+	static rangeType minimum;
+	static rangeType prevRead;
+	static volatile rangeType halfSteps;
 	static volatile bool pushFlag;
 	
 	static volatile uint8_t pinASignal;

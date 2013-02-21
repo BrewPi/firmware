@@ -25,7 +25,7 @@
 class TempControl;
 class PiLink{
 	public:
-	PiLink(TempControl& control) : tempControl(control) { }
+	//PiLink(TempControl& control) : tempControl(control) { }
 	// There can only be one PiLink object, so functions are static
 	void receive(void);
 	
@@ -52,7 +52,9 @@ class PiLink{
 	void sendJsonPair(const char * name, uint16_t val); // send one JSON pair with a uint16_t value as name:val,
 	void processJsonPair(char * key, char * val); // process one pair
 	
-	TempControl& tempControl;
+	//TempControl& tempControl;
 };
+
+extern PiLink piLink;
 
 #endif /* PILINK_H_ */

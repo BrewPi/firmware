@@ -98,10 +98,10 @@ void Menu::pickMode(void){
 			if(rotaryEncoder.pushed() ){
 				rotaryEncoder.resetPushed();
 				if(tempControl.getMode() ==  MODE_BEER_CONSTANT){
-					menu.pickBeerSetting();
+					pickBeerSetting();
 				}
 				else if(tempControl.getMode() == MODE_FRIDGE_CONSTANT){
-					menu.pickFridgeSetting();
+					pickFridgeSetting();
 				}
 				else if(tempControl.getMode() == MODE_BEER_PROFILE){
 					piLink.printBeerAnnotation(PSTR("Changed to profile mode in menu."));

@@ -44,8 +44,8 @@ template<> class DigitalHardPinSensor<4> { };
 
 TempControl& tempControl = *CONFIG_TEMP_CONTROL;
 Display& display = *CONFIG_DISPLAY;
-PiLink piLink(tempControl);
-Menu menu(tempControl, piLink);
+PiLink piLink; //(tempControl);
+Menu menu; //(tempControl, piLink);
 
 void setup(void);
 void loop (void);

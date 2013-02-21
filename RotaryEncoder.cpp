@@ -25,10 +25,10 @@
 #include <limits.h>
 
 // declare static member variables:
-int RotaryEncoder::maximum;
-int RotaryEncoder::minimum;
-int RotaryEncoder::prevRead;
-volatile int RotaryEncoder::halfSteps;
+rangeType RotaryEncoder::maximum;
+rangeType RotaryEncoder::minimum;
+rangeType RotaryEncoder::prevRead;
+volatile rangeType RotaryEncoder::halfSteps;
 volatile bool RotaryEncoder::pushFlag;
 volatile uint8_t RotaryEncoder::pinASignal;
 volatile uint8_t RotaryEncoder::pinBSignal;
@@ -186,7 +186,7 @@ void RotaryEncoder::init(void){
 }
 
 
-void RotaryEncoder::setRange(int start, int minVal, int maxVal){
+void RotaryEncoder::setRange(rangeType start, rangeType minVal, rangeType maxVal){
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
 		// this part cannot be interrupted
 		// Multiply by two to convert to half steps
@@ -199,7 +199,7 @@ void RotaryEncoder::setRange(int start, int minVal, int maxVal){
 
 bool RotaryEncoder::changed(void){
 	// returns one if the value changed since the last call of changed.
-	static int prevValue = 0;
+	static rangeType prevValue = 0;
 	if(read() != prevValue){
 		prevValue = read();
 		return 1;
@@ -210,7 +210,7 @@ bool RotaryEncoder::changed(void){
 	return 0;
 }
 
-int RotaryEncoder::read(void){
+rangeType RotaryEncoder::read(void){
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
 		if((abs(halfSteps) & 0x01) == 1){
 			// This is a half step, return previous read
@@ -225,7 +225,7 @@ int RotaryEncoder::read(void){
 	return 0;		
 }
 
-int RotaryEncoder::readHalfSteps(void){
+rangeType RotaryEncoder::readHalfSteps(void){
 	return halfSteps;
 }
 
