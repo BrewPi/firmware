@@ -21,6 +21,7 @@
 #ifndef TEMPERATUREFORMATS_H_
 #define TEMPERATUREFORMATS_H_
 
+#include "optimize.h"
 #include <inttypes.h>
 // all temperature are stored as fixed point integers:
 // 7 bits for the integer part: -64 to 63
@@ -47,5 +48,8 @@ fixed23_9 stringToFixedPoint(char * numberString);
 
 int fixedToTenths(fixed23_9 temperature);
 fixed7_9 tenthsToFixed(int temperature);
+
+
+#define OPTIMIZE_TEMPERATURE_FORMATS 1 && OPTIMIZE_GLOBAL
 
 #endif /* TEMPERATUREFORMATS_H_ */
