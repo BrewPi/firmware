@@ -31,31 +31,10 @@
 #include "TempSensor.h"
 #include "Actuator.h"
 
-/*		
-// Control parameters
-ControlConstants TempControl::cc;
-ControlSettings TempControl::cs;
-ControlVariables TempControl::cv;
-	
-	// State variables
-uint8_t TempControl::state;
-bool TempControl::doPosPeakDetect;
-bool TempControl::doNegPeakDetect;
-	
-	// keep track of beer setting stored in EEPROM
-fixed7_9 TempControl::storedBeerSetting;
-	
-	// Timers
-unsigned long TempControl::lastIdleTime;
-unsigned long TempControl::lastHeatTime;
-unsigned long TempControl::lastCoolTime;
-*/
-
 TempControl::TempControl(Actuator& _heater, Actuator& _cooler, Door& _door, TempSensor& _fridge, TempSensor& _beer)
 : beerSensor(_beer), fridgeSensor(_fridge), heater(_heater), cooler(_cooler), door(_door) 
 {	
 }
-
 
 void TempControl::init(void){
 	state=STARTUP;

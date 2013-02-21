@@ -37,16 +37,18 @@
 
 // global class objects static and defined in class cpp and h files
 
-// instantiate the actual types we want to use
-
+// instantiate and configure the sensors, actuators and controllers we want to use
+LcdDisplay theDisplay;
+Display& display = theDisplay;
 TempSensor fridgeSensor(fridgeSensorPin);
 TempSensor beerSensor(beerSensorPin);
-DigitalPinActuator heater(heatingPin);
-DigitalPinActuator cooler(coolingPin);
+DigitalPinActuator heater(heatingPin, true);
+DigitalPinActuator cooler(coolingPin, true);
 DigitalPinSensor doorSensor(doorPin, USE_INTERNAL_PULL_UP_RESISTORS, true);
 SensorDoor door(doorSensor);
-MockDoor mockDoor;
-TempControl tempControl(heater, cooler, mockDoor, fridgeSensor, beerSensor);
+TempControl tempControl(heater, cooler, door, fridgeSensor, beerSensor);
+
+
 
 void setup(void);
 void loop (void);
@@ -55,7 +57,6 @@ void setup()
 {
 	
 	Serial.begin(57600);
-	Serial.println("D: serial initialized");
 		
 	tempControl.loadSettingsAndConstants(); //read previous settings from EEPROM
 	tempControl.init();
@@ -98,8 +99,7 @@ void loop(void)
 	static unsigned long lastUpdate;
 	if(millis() - lastUpdate > 1000){ //update settings every second
 		lastUpdate=millis();
-		piLink.debugMessage("loop");
-		
+				
 		tempControl.updateTemperatures();		
 		tempControl.detectPeaks();
 		tempControl.updatePID();
