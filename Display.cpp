@@ -26,8 +26,7 @@
 #include "temperatureFormats.h"
 #include "pins.h"
 
-LcdDisplay theDisplay;
-Display& display = theDisplay;
+DisplayType DISPLAY_REF display;
 
 void LcdDisplay::init(void){
 	stateOnDisplay = 0xFF; // set to unknown state to force update
