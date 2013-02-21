@@ -34,21 +34,18 @@
 #include "pins.h"
 #include "RotaryEncoder.h"
 #include "Buzzer.h"
+#include "config.h"
 
 // global class objects static and defined in class cpp and h files
 
 // instantiate and configure the sensors, actuators and controllers we want to use
-LcdDisplay theDisplay;
-Display& display = theDisplay;
-TempSensor fridgeSensor(fridgeSensorPin);
-TempSensor beerSensor(beerSensorPin);
-DigitalPinActuator heater(heatingPin, true);
-DigitalPinActuator cooler(coolingPin, true);
-DigitalPinSensor doorSensor(doorPin, USE_INTERNAL_PULL_UP_RESISTORS, true);
-SensorDoor door(doorSensor);
-TempControl tempControl(heater, cooler, door, fridgeSensor, beerSensor);
 
+template<> class DigitalHardPinSensor<4> { };
 
+TempControl& tempControl = *CONFIG_TEMP_CONTROL;
+Display& display = *CONFIG_DISPLAY;
+PiLink piLink(tempControl);
+Menu menu(tempControl, piLink);
 
 void setup(void);
 void loop (void);
@@ -59,7 +56,7 @@ void setup()
 	Serial.begin(57600);
 		
 	tempControl.loadSettingsAndConstants(); //read previous settings from EEPROM
-	tempControl.init();
+	tempControl.init(piLink);
 	tempControl.updatePID();
 	tempControl.updateState();
 	

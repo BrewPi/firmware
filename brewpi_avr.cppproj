@@ -102,8 +102,8 @@
   </avrgcccpp.compiler.symbols.DefSymbols>
   <avrgcccpp.compiler.directories.IncludePaths>
     <ListValues>
-      <Value>$(ARDUINO_HOME)\hardware\arduino\cores\arduino</Value>
-      <Value>$(ARDUINO_HOME)\hardware\arduino\variants\leonardo</Value>
+      <Value>r:\sdk\arduino-1.0.3\hardware\arduino\cores\arduino</Value>
+      <Value>r:\sdk\arduino-1.0.3\hardware\arduino\variants\leonardo</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
   <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
@@ -111,7 +111,6 @@
   <avrgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</avrgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
   <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
   <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
-  <avrgcccpp.compiler.optimization.DebugLevel>Default (-g2)</avrgcccpp.compiler.optimization.DebugLevel>
   <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
   <avrgcccpp.compiler.miscellaneous.OtherFlags>-fno-exceptions -ffreestanding</avrgcccpp.compiler.miscellaneous.OtherFlags>
   <avrgcccpp.linker.libraries.Libraries>
@@ -144,7 +143,10 @@
     <Compile Include="Buzzer.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Chamber.h">
+    <Compile Include="config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="config_local.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Door.h">
@@ -226,6 +228,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="TempSensor.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Time.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Time.h">

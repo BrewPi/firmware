@@ -24,9 +24,11 @@
 #include "SpiLcd.h"
 #include "temperatureFormats.h"
 
+class TempControl;
+
 class Display{
 	public:
-	Display(){};
+	Display() {}
 	~Display(){};
 		
 	// initializes the lcd display
@@ -65,11 +67,14 @@ class Display{
 	virtual void printAt(int x, int y, const char* text)=0;
 	
 	virtual void getLine(uint8_t lineNumber, char * buffer)=0;
+				
 };
 
 class LcdDisplay : public Display
 {
 	public:
+	LcdDisplay(TempControl& control) : tempControl(control) { }
+	
 	// initializes the lcd display
 	virtual void init(void);
 	
@@ -110,11 +115,17 @@ class LcdDisplay : public Display
 	private:
 	SpiLcd lcd;
 	uint8_t stateOnDisplay;
+	/*
+	 * The temp controller that provides the data for this display
+	 */
+	TempControl& tempControl;		
 };
 
 class NullDisplay : public Display
 {
 public:	
+	NullDisplay() { }
+
 	// initializes the lcd display
 	virtual void init(void){}
 	

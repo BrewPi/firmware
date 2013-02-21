@@ -19,10 +19,25 @@ class Time
 class ArduinoTime:public Time
 {
 	public:
-	virtual long millis() { return ::millis(); }
-	virtual long micros() { return ::micros(); }
-}	
-	};
+	virtual long millis();
+	virtual long micros();
+};
+	
+class ScaledTime : public Time
+{
+	private:
+	float scale;
+	Time& source;
+	protected:
+	long scaleTime(long l);
+	
+	public:
+	ScaledTime(Time& source);
+	
+	virtual long millis();
+	virtual long micros();
+};
+	
 
 
 #endif /* TIME_H_ */

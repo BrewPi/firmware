@@ -32,15 +32,24 @@ enum menuPages{
 
 #define MENU_TIMEOUT 10000ul
 
+/*
+ * Menu is the controller in a MVC triad, with TempControl providing the model and PiLink providing the view.  
+ */
+
+class TempControl; 
+class PiLink;
 class Menu{
 	public:
-	Menu(){};
-	static void pickSettingToChange(void);
-	static void pickMode(void);
-	static void pickBeerSetting(void);
-	static void pickFridgeSetting(void);
+	Menu(TempControl& control, PiLink& link) : tempControl(control), piLink(link) {};
+	void pickSettingToChange(void);
+	void pickMode(void);
+	void pickBeerSetting(void);
+	void pickFridgeSetting(void);
 	
 	~Menu(){};
+	private:
+	TempControl& tempControl;		
+	PiLink& piLink;
 };
 
 extern Menu menu;

@@ -26,6 +26,7 @@
 #include "temperatureFormats.h"
 #include "Actuator.h"
 #include "Door.h"
+#include "config.h"
 
 // These two structs are stored in and loaded from EEPROM
 struct ControlSettings{
@@ -102,18 +103,17 @@ enum states{
 	STATE_OFF
 };
 
-// Making all functions and variables reduces code size.
-// There will only be one TempControl object, so it makes sense that they are static.
+class PiLink;
 
 class TempControl{
 	public:
 	
-	TempControl(Actuator& _heater, Actuator& _cooler, Door& _door, TempSensor& _fridge, TempSensor& _beer);
+	TempControl(HeaterActuator& _heater, CoolerActuator& _cooler, Door& _door, TempSensor& _fridge, TempSensor& _beer);
 	
 	~TempControl(){
 	};
 	
-	void init(void);
+	void init(PiLink& piLink);
 	void reset(void);
 	
 	void updateTemperatures(void);
@@ -152,8 +152,8 @@ class TempControl{
 	public:
 	TempSensor beerSensor;
 	TempSensor fridgeSensor;
-	Actuator& heater;
-	Actuator& cooler;
+	HeaterActuator heater;
+	CoolerActuator cooler;
 	Door& door;
 	
 	// Control parameters
@@ -174,12 +174,12 @@ class TempControl{
 	uint8_t state;
 	bool doPosPeakDetect;
 	bool doNegPeakDetect;
-
+	PiLink& piLink;
 	
 	void increaseEstimator(fixed7_9 * estimator, fixed7_9 error);
 	void decreaseEstimator(fixed7_9 * estimator, fixed7_9 error);
 };
 
-extern TempControl tempControl;
+extern TempControl& tempControl;
 
 #endif /* CONTROLLER_H_ */

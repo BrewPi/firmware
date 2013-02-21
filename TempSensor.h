@@ -28,9 +28,10 @@
 #include "pins.h"
 #include <stdlib.h>
 
+class PiLink;
 class TempSensor{
 	public:
-	TempSensor(const uint8_t pinNumber) : pinNr(pinNumber){
+	TempSensor(const uint8_t pinNumber) : pinNr(pinNumber), piLink(0) {
 		lastRequestTime = 0;
 		connected = 0;
 		updateCounter = 255; // first update for slope filter after (255-13s)
@@ -43,7 +44,7 @@ class TempSensor{
 		delete sensor;
 	};
 		
-	void init();
+	void init(PiLink& piLink);
 	bool isConnected(void);
 	void update(void);
 	fixed7_9 read(void);
@@ -70,6 +71,7 @@ class TempSensor{
 	OneWire * oneWire;
 	DallasTemperature * sensor;
 	DeviceAddress sensorAddress;
+	PiLink* piLink;
 };
 
 

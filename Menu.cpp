@@ -27,8 +27,6 @@
 #include "RotaryEncoder.h"
 #include "PiLink.h"
 
-Menu menu;
-
 void Menu::pickSettingToChange(void){
 	rotaryEncoder.setRange(0, 0, 2); // mode setting, beer temp, fridge temp
 	unsigned long timer = millis();

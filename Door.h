@@ -54,7 +54,7 @@ class SensorDoor : public Door
 	
 	virtual boolean isOpen() 
 	{
-		return sensor.sense();
+		return !sensor.sense();
 	}
 };
 

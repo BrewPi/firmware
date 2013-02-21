@@ -302,7 +302,7 @@ void PiLink::processJsonPair(char * key, char * val){
 	debugMessage(PSTR("Received new setting: %s = %s"), key, val);
 	if(strcmp(key,jsonKeys.mode) == 0){
 		tempControl.setMode(val[0]);
-		piLink.printFridgeAnnotation(PSTR("Mode set to %c in web interface"), val[0]);
+		printFridgeAnnotation(PSTR("Mode set to %c in web interface"), val[0]);
 	}
 	else if(strcmp(key,jsonKeys.beerSetting) == 0){ 
 		fixed7_9 newTemp = stringToTemp(val);

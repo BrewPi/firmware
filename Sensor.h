@@ -63,6 +63,18 @@ class DigitalPinSensor : public SwitchSensor
 	virtual boolean sense();	
 };
 
+template<int pin> class DigitalHardPinSensor : public SwitchSensor
+{
+	private:
+	boolean invert;
+	
+	public:
+	DigitalHardPinSensor(boolean _internalPullup, boolean _invert);
+	
+	virtual boolean sense() {
+		return digitalRead(pin) ^ invert;
+	}
+};
 
 
 #endif /* SENSOR_H_ */

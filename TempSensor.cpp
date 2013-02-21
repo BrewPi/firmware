@@ -23,7 +23,9 @@
 #include "PiLink.h"
 #include <limits.h>
 
-void TempSensor::init(void){
+void TempSensor::init(PiLink& link){
+	piLink = &link;
+	
 	// give reset pulse to temp sensors
 	oneWire->reset();
 
@@ -32,7 +34,7 @@ void TempSensor::init(void){
 		// error no sensor found
 		if(millis() < 2000){
 			// only log this debug message at startup
-			piLink.debugMessage(PSTR("Unable to find address for sensor on pin %d"), pinNr);
+			piLink->debugMessage(PSTR("Unable to find address for sensor on pin %d"), pinNr);
 		}
 		return;
 	}
@@ -74,7 +76,7 @@ void TempSensor::update(void){
 	if(temperature == DEVICE_DISCONNECTED){
 		// device disconnected. Don't update filters.  Log a debug message.
 		if(connected == true){
-			piLink.debugMessage(PSTR("Temperature sensor on pin %d disconnected"), pinNr);
+			piLink->debugMessage(PSTR("Temperature sensor on pin %d disconnected"), pinNr);
 		}			
 		connected = false;
 		return;
@@ -83,8 +85,8 @@ void TempSensor::update(void){
 	else{
 		if(connected == false){
 			delay(2000); // delay for two seconds to be sure sensor is correctly inserted
-			init(); // was disconnected, initialize again
-			piLink.debugMessage(PSTR("Temperature sensor on pin %d reconnected"), pinNr);
+			init(*piLink); // was disconnected, initialize again
+			piLink->debugMessage(PSTR("Temperature sensor on pin %d reconnected"), pinNr);
 			temperature = sensor->getTempRaw(sensorAddress); // re-read temperature after proper initialization
 		}
 	}

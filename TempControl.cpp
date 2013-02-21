@@ -31,15 +31,15 @@
 #include "TempSensor.h"
 #include "Actuator.h"
 
-TempControl::TempControl(Actuator& _heater, Actuator& _cooler, Door& _door, TempSensor& _fridge, TempSensor& _beer)
-: beerSensor(_beer), fridgeSensor(_fridge), heater(_heater), cooler(_cooler), door(_door) 
+TempControl::TempControl(HeaterActuator& _heater, CoolerActuator& _cooler, Door& _door, TempSensor& _fridge, TempSensor& _beer)
+: beerSensor(_beer), fridgeSensor(_fridge), heater(_heater), cooler(_cooler), door(_door), piLink(*(PiLink*)0)
 {	
 }
 
-void TempControl::init(void){
+void TempControl::init(PiLink& piLink){
 	state=STARTUP;
-	beerSensor.init();
-	fridgeSensor.init();
+	beerSensor.init(piLink);
+	fridgeSensor.init(piLink);
 	updateTemperatures();
 	reset();
 }
@@ -61,11 +61,11 @@ void TempControl::reset(void){
 void TempControl::updateTemperatures(void){
 	beerSensor.update();
 	if(!beerSensor.isConnected() && (cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_FRIDGE_CONSTANT)){
-		beerSensor.init(); // try to restart the sensor when controlling beer temperature
+		beerSensor.init(piLink); // try to restart the sensor when controlling beer temperature
 	}
 	fridgeSensor.update();
 	if(!fridgeSensor.isConnected()){
-		fridgeSensor.init(); // always try to restart the fridge sensor
+		fridgeSensor.init(piLink); // always try to restart the fridge sensor
 	}
 }
 
