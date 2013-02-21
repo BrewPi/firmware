@@ -26,7 +26,7 @@
 #include "temperatureFormats.h"
 #include "pins.h"
 
-NullDisplay theDisplay;
+LcdDisplay theDisplay;
 Display& display = theDisplay;
 
 void LcdDisplay::init(void){

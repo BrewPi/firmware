@@ -103,11 +103,6 @@ class LcdDisplay : public Display
 	// print the current state on the last line of the LCD
 	virtual void printState(void);
 
-	// print the static text of a menu page
-	virtual void printMenu(int menuPage);
-
-	virtual void readContent(void);
-
 	virtual void getLine(uint8_t lineNumber, char * buffer);
 	
 	virtual void printAt(int x, int y, const char* text);
