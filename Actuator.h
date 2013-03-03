@@ -24,6 +24,19 @@
 #ifndef ACTUATOR_H_
 #define ACTUATOR_H_
 
+#define ACTUATOR_VIRTUAL 0
+
+#if ACTUATOR_VIRTUAL==1	
+	#define ACTUATOR_METHOD virtual
+	#define ACTUATOR_METHOD_IMPL =0
+	#define ACTUATOR_BASE_CLASS_DECL : public Actuator
+#else
+	#define ACTUATOR_METHOD inline
+	#define ACTUATOR_METHOD_IMPL {}
+	#define ACTUATOR_BASE_CLASS_DECL
+#endif
+
+
 /************************************************************************/
 /* An actuator simply turns something on or off.                        */
 /************************************************************************/
@@ -31,16 +44,16 @@
 class Actuator
 {
 	public:
-	virtual boolean isActive()=0;
-	virtual void setActive(boolean active)=0;
-	virtual void activate()  { setActive(true); }
-	virtual void deactivate() { setActive(false); }
+	ACTUATOR_METHOD boolean isActive() ACTUATOR_METHOD_IMPL;
+	ACTUATOR_METHOD void setActive(boolean active) ACTUATOR_METHOD_IMPL;
+	ACTUATOR_METHOD void activate()  { setActive(true); }
+	ACTUATOR_METHOD void deactivate() { setActive(false); }
 };
 
 /************************************************************************/
 /* An Actuator that uses a digital pin to control the actuator state.                                                                     */
 /************************************************************************/
-class DigitalPinActuator : public Actuator
+class DigitalPinActuator ACTUATOR_BASE_CLASS_DECL
 {
 	private:
 	int pin;
@@ -48,10 +61,21 @@ class DigitalPinActuator : public Actuator
 	boolean inverse;
 	
 	public:
-	DigitalPinActuator(int _pin, boolean _inverse=false, boolean _initiallyActive=false);
+	DigitalPinActuator(int _pin, boolean _inverse=false, boolean _initiallyActive=false) : pin(_pin), inverse(_inverse)
+	{
+		pinMode(pin, OUTPUT);
+		setActive(_initiallyActive);
+	}
 	
-	virtual void setActive(boolean active);	
-	virtual boolean isActive();	
+	ACTUATOR_METHOD void setActive(boolean active) {
+		this->active = active;
+		digitalWrite(pin, active ? HIGH : LOW);
+	}
+
+	ACTUATOR_METHOD boolean isActive() {
+		return active;								
+	}
+
 };
 
 class OneWire;

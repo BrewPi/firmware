@@ -24,21 +24,3 @@
 #include "pins.h"
 #include "Actuator.h"
 
-DigitalPinActuator::DigitalPinActuator(int _pin, boolean _inverse, boolean _initiallyActive)
-	 : pin(_pin), inverse(_inverse)
-{	
-	pinMode(pin, OUTPUT);
-	setActive(_initiallyActive);	
-}
-	
-void DigitalPinActuator::setActive(boolean active)
-{
-	this->active = active;
-	digitalWrite(pin, active ? HIGH : LOW);
-}
-	
-boolean DigitalPinActuator::isActive()
-{
-	return active;						
-}		
-	
