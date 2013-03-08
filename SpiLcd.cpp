@@ -193,6 +193,7 @@ void SpiLcd::initSpi(void){
 	// Set MOSI and CLK to output
 	pinMode(MOSI, OUTPUT);
 	pinMode(SCK, OUTPUT);
+	pinMode(SS, OUTPUT);
 
 	// The most significant bit should be sent out by the SPI port first.
 	// equals SPI.setBitOrder(MSBFIRST);
