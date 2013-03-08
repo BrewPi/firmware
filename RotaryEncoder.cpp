@@ -94,17 +94,15 @@ ISR(PCINT0_vect){
 		rotaryEncoder.pinBHandler(currPinB);
 	}
 	prevPinA = currPinA;
-	prevPinB = currPinB;
+	prevPinB = currPinB;	
 }
 
 
 #endif
 
 void RotaryEncoder::setPushed(void){
-	pushFlag = true;
-	if (activityHandler!=NULL) {
-		activityHandler->notifyActivity(ROTARY_ENCODER_PUSHED);
-	}
+	pushFlag = true;	
+	notifyActivity(ROTARY_ENCODER_PUSHED);	
 }
 
 void RotaryEncoder::pinAHandler(bool pinState){
@@ -130,6 +128,9 @@ void RotaryEncoder::pinAHandler(bool pinState){
 	if(halfSteps <= (minimum-2)){
 		halfSteps = maximum;
 	}		
+	
+	notifyActivity(ROTARY_ENCODER_TURNED);
+	
 }
 
 void RotaryEncoder::pinBHandler(bool pinState){
