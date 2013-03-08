@@ -37,6 +37,7 @@ void TempSensor::init(void){
 		return;
 	}
 	sensor->setResolution(sensorAddress, 12);
+	sensor->setWaitForConversion(false);
 		
 	sensor->requestTemperatures();
 	lastRequestTime = millis();
