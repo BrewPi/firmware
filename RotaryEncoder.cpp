@@ -28,6 +28,7 @@
 int RotaryEncoder::maximum;
 int RotaryEncoder::minimum;
 int RotaryEncoder::prevRead;
+ActivityHandler* RotaryEncoder::activityHandler = NULL;
 volatile int RotaryEncoder::halfSteps;
 volatile bool RotaryEncoder::pushFlag;
 volatile uint8_t RotaryEncoder::pinASignal;
@@ -101,6 +102,9 @@ ISR(PCINT0_vect){
 
 void RotaryEncoder::setPushed(void){
 	pushFlag = true;
+	if (activityHandler!=NULL) {
+		activityHandler->notifyActivity(ROTARY_ENCODER_PUSHED);
+	}
 }
 
 void RotaryEncoder::pinAHandler(bool pinState){
