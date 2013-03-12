@@ -4,6 +4,7 @@
  * Created: 7-2-2013 0:22:37
  *  Author: Elco
  */ 
+#include "Ticks.h"
 #include "pins.h"
 #include "Buzzer.h"
 #include <util/delay.h>
@@ -44,10 +45,10 @@ void Buzzer::init(void){
 void Buzzer::beep(uint8_t numBeeps, uint16_t duration){
 	for(uint8_t beepCount = 0; beepCount<numBeeps; beepCount++){
 		BEEP_ON();
-		delay(duration);
+		wait.millis(duration);
 		BEEP_OFF();
 		if(beepCount < numBeeps - 1){
-			delay(duration); // not the last beep
+			wait.millis(duration); // not the last beep
 		}		
 	}		
 }	
