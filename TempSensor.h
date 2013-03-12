@@ -21,7 +21,7 @@
 #ifndef SENSORS_H_
 #define SENSORS_H_
 
-#include "FixedFilter.h"
+#include "CascadedFilter.h"
 #include "OneWire.h"
 #include "DallasTemperature.h"
 #include "temperatureFormats.h"
@@ -63,9 +63,9 @@ class TempSensor{
 	unsigned char updateCounter;
 	fixed7_25 prevOutputForSlope;	
 	
-	FixedFilter fastFilter;
-	FixedFilter slowFilter;
-	FixedFilter slopeFilter;
+	CascadedFilter fastFilter;
+	CascadedFilter slowFilter;
+	CascadedFilter slopeFilter;
 	
 	OneWire * oneWire;
 	DallasTemperature * sensor;
