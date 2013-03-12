@@ -17,13 +17,13 @@ typedef unsigned int ticks_seconds_t;
 typedef unsigned char ticks_seconds_tiny_t;
 
 /*
- * The Ticks class abstracts access to the number of ticks since the device was powered up.
+ * The Ticks class provides the time period since the device was powered up.
  */
 class Ticks {
 public:
 	ticks_millis_t millis() { return ::millis(); }
 	ticks_micros_t micros() { return ::micros(); }	
-	ticks_seconds_t seconds() { return ::millis()>>10; }
+	ticks_seconds_t seconds() { return ::millis()/1000; }
 };
 
 

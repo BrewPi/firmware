@@ -26,16 +26,17 @@
 #include "temperatureFormats.h"
 #include "RotaryEncoder.h"
 #include "PiLink.h"
+#include "Ticks.h"
 
 Menu menu;
 
 void Menu::pickSettingToChange(void){
 	rotaryEncoder.setRange(0, 0, 2); // mode setting, beer temp, fridge temp
-	unsigned long timer = millis();
+	unsigned long timer = ticks.millis();
 	uint8_t blinkTimer = 0;
-	while((millis()) - timer < MENU_TIMEOUT){ // time out at 10 seconds
+	while((ticks.millis()) - timer < MENU_TIMEOUT){ // time out at 10 seconds
 		if(rotaryEncoder.changed()){
-			timer=millis();
+			timer=ticks.millis();
 			blinkTimer = 0;		
 		}
 		if(blinkTimer == 0){
@@ -90,10 +91,10 @@ void Menu::pickMode(void){
 	rotaryEncoder.setRange(startValue, 0, 3); // toggle between beer constant, beer profile, fridge constant
 	const char lookup[] = {'b', 'f', 'p', 'o'};
 	uint8_t blinkTimer = 0;
-	unsigned long timer = millis();
-	while((millis()) - timer < MENU_TIMEOUT){ // time out at 10 seconds
+	unsigned long timer = ticks.millis();
+	while((ticks.millis()) - timer < MENU_TIMEOUT){ // time out at 10 seconds
 		if(rotaryEncoder.changed()){
-			timer=millis();
+			timer=ticks.millis();
 			blinkTimer = 0;
 			
 			tempControl.setMode(lookup[rotaryEncoder.read()]);
@@ -144,10 +145,10 @@ void Menu::pickBeerSetting(void){
 	rotaryEncoder.setRange(fixedToTenths(startVal), fixedToTenths(tempControl.cc.tempSettingMin), fixedToTenths(tempControl.cc.tempSettingMax));
 	
 	uint8_t blinkTimer = 0;
-	unsigned long timer = millis();
-	while((millis()) - timer < MENU_TIMEOUT){ // time out at 10 seconds
+	unsigned long timer = ticks.millis();
+	while((ticks.millis()) - timer < MENU_TIMEOUT){ // time out at 10 seconds
 		if(rotaryEncoder.changed()){
-			timer=millis();
+			timer=ticks.millis();
 			blinkTimer = 0;
 			
 			tempControl.setBeerTemp(tenthsToFixed(rotaryEncoder.read()));			
@@ -188,10 +189,10 @@ void Menu::pickFridgeSetting(void){
 	rotaryEncoder.setRange(fixedToTenths(startVal), fixedToTenths(tempControl.cc.tempSettingMin), fixedToTenths(tempControl.cc.tempSettingMax));
 	
 	uint8_t blinkTimer = 0;
-	unsigned long timer = millis();
-	while((millis()) - timer < MENU_TIMEOUT){ // time out at 10 seconds
+	unsigned long timer = ticks.millis();
+	while((ticks.millis()) - timer < MENU_TIMEOUT){ // time out at 10 seconds
 		if(rotaryEncoder.changed()){
-			timer=millis();
+			timer=ticks.millis();
 			blinkTimer = 0;
 			
 			tempControl.setFridgeTemp(tenthsToFixed(rotaryEncoder.read()));			

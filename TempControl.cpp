@@ -29,6 +29,7 @@
 #include "TempControl.h"
 #include "PiLink.h"
 #include "TempSensor.h"
+#include "Ticks.h"
 
 TempControl tempControl;
 
@@ -167,7 +168,7 @@ void TempControl::updateState(void){
 		case IDLE:
 		case STATE_OFF:
 		{
-			lastIdleTime=millis();
+			lastIdleTime=ticks.millis();
 			if(	((timeSinceCooling() > 900000UL || doNegPeakDetect==false) && (timeSinceHeating() > 600000UL || doPosPeakDetect==false)) ||
 					state==STARTUP) //if cooling is 15 min ago and heating 10, or I just started
 			{
@@ -207,7 +208,7 @@ void TempControl::updateState(void){
 		case COOLING:
 		{
 			doNegPeakDetect=true;
-			lastCoolTime = millis();
+			lastCoolTime = ticks.millis();
 			int coolTime = min(cc.maxCoolTimeForEstimate, timeSinceIdle()/1000); // cool time in seconds
 			fixed7_9 estimatedOvershoot = ((fixed23_9) cs.coolEstimator * coolTime)/3600; // overshoot estimator is in overshoot per hour
 			cv.estimatedPeak = fridgeSensor.readFastFiltered() - estimatedOvershoot;
@@ -221,7 +222,7 @@ void TempControl::updateState(void){
 		case HEATING:
 		{
 			doPosPeakDetect=true;
-			lastHeatTime=millis();
+			lastHeatTime=ticks.millis();
 			int heatTime = min(cc.maxHeatTimeForEstimate, timeSinceIdle()/1000	); // heat time in seconds
 			fixed7_9 estimatedOvershoot = ((fixed23_9) cs.heatEstimator * heatTime)/3600; // overshoot estimator is in overshoot per hour
 			cv.estimatedPeak = fridgeSensor.readFastFiltered() + estimatedOvershoot;
@@ -372,7 +373,7 @@ void TempControl::decreaseEstimator(fixed7_9 * estimator, fixed7_9 error){
 }
 
 unsigned long TempControl::timeSinceCooling(void){
-	unsigned long currentTime = millis();
+	unsigned long currentTime = ticks.millis();
 	unsigned long timeSinceLastOn;
 	if(currentTime>=lastCoolTime){
 		timeSinceLastOn = currentTime - lastCoolTime;
@@ -385,7 +386,7 @@ unsigned long TempControl::timeSinceCooling(void){
 }
 
 unsigned long TempControl::timeSinceHeating(void){
-	unsigned long currentTime = millis();
+	unsigned long currentTime = ticks.millis();
 	unsigned long timeSinceLastOn;
 	if(currentTime>=lastHeatTime){
 		timeSinceLastOn = currentTime - lastHeatTime;
@@ -399,7 +400,7 @@ unsigned long TempControl::timeSinceHeating(void){
 
 
 unsigned long TempControl::timeSinceIdle(void){
-	unsigned long currentTime = millis();
+	unsigned long currentTime = ticks.millis();
 	unsigned long timeSinceLastOn;
 	if(currentTime>=lastIdleTime){
 		timeSinceLastOn = currentTime - lastIdleTime;
