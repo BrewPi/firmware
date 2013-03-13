@@ -146,9 +146,10 @@ void Display::printMode(void){
 
 // print the current state on the last line of the lcd
 void Display::printState(void){
+	unsigned long time;
 	uint8_t state = tempControl.getState();
 	if(state != stateOnDisplay){ //only print static text when state has changed
-		lcd.setCursor(0,3); 
+		lcd.setCursor(0,3);
 		// Reprint state and clear rest of the line
 		switch (tempControl.getState()){
 			case IDLE:
@@ -175,17 +176,19 @@ void Display::printState(void){
 		}
 		stateOnDisplay = state;
 	}
-	switch(state){
-		case IDLE:
-			lcd.setCursor(9,3);
-			lcd.print(min(tempControl.timeSinceCooling(), tempControl.timeSinceHeating())/1000);
-			lcd.print_P(PSTR(" s"));
-		break;
-		case COOLING:
-		case HEATING:
-			lcd.setCursor(12,3);
-			lcd.print(tempControl.timeSinceIdle()/1000);
-			lcd.print_P(PSTR(" s"));
-		break;
-    }
+	
+	if(state==IDLE){
+		lcd.setCursor(9,3);
+		time = 	min(tempControl.timeSinceCooling(), tempControl.timeSinceHeating());
+	}
+	else if(state==COOLING || state==HEATING){
+		lcd.setCursor(12,3);
+		time = tempControl.timeSinceIdle();
+	}
+	else{
+		return;
+	}
+		
+	lcd.print(time/1000);
+	lcd.print_P(PSTR(" s"));
 }
