@@ -236,6 +236,10 @@ void PiLink::sendJsonPair(const char * name, uint16_t val){
 	print_P(PSTR("\"%s\":%u,"), name, val);
 }
 
+void PiLink::sendJsonPair(const char * name, uint8_t val){
+	print_P(PSTR("\"%s\":%u,"), name, val);
+}
+
 void PiLink::receiveJson(void){
 	char key[30];
 	char val[30];
@@ -349,7 +353,7 @@ void PiLink::processJsonPair(char * key, char * val){
 	else if(strcmp(key,jsonKeys.maxCoolTimeForEstimate) == 0){ tempControl.cc.maxCoolTimeForEstimate = strtoul(val, NULL, 10); }
 	else if(strcmp(key,jsonKeys.maxCoolTimeForEstimate) == 0){ tempControl.cc.maxCoolTimeForEstimate = strtoul(val, NULL, 10); }
 		
-	// Receive two chars for filter as uint16_t
+	// Receive the b value for the filter
 	else if(strcmp(key,jsonKeys.fridgeFastFilter) == 0){ 
 		tempControl.cc.fridgeFastFilter = strtoul(val, NULL, 10);
 		tempControl.fridgeSensor.setFastFilterCoefficients(tempControl.cc.fridgeFastFilter);

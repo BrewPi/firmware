@@ -23,22 +23,17 @@
 #include "temperatureFormats.h"
 
 FixedFilter::FixedFilter(){
-	setCoefficients(SETTLING_TIME_50_SAMPLES); // default to 50 samples settling time
+	setCoefficients(2); // default to a b value of 2
 }
 
 FixedFilter::~FixedFilter(){
 	
 }
 
-void FixedFilter::setCoefficients(uint8_t aValue, uint8_t bValue){
-	a = aValue;
-	b = bValue;	
+void FixedFilter::setCoefficients(uint8_t bValue){
+	a = bValue*2+4;
+	b = bValue;
 }
-
-void FixedFilter::setCoefficients(uint16_t ab){
-	a = (ab & 0xFF00)>>8;
-	b = ab & 0x00FF;
-}	
 
 fixed7_9 FixedFilter::add(fixed7_9 val){
 	fixed7_25 returnVal = addDoublePrecision( ((fixed7_25) val) << 16);

@@ -25,7 +25,7 @@
 
 CascadedFilter::CascadedFilter(){
 	for(uint8_t i=0; i<NUM_SECTIONS; i++){
-		sections[i].setCoefficients(SETTLING_TIME_50_SAMPLES); // default to 50 samples settling time
+		sections[i].setCoefficients(2); // default to a b value of 2
 	}	
 }
 
@@ -33,18 +33,10 @@ CascadedFilter::~CascadedFilter(){
 	
 }
 
-void CascadedFilter::setCoefficients(uint8_t aValue, uint8_t bValue){
+void CascadedFilter::setCoefficients(uint8_t bValue){
 	for(uint8_t i=0; i<NUM_SECTIONS; i++){
-		sections[i].a = aValue;
-		sections[i].b = bValue;
+		sections[i].setCoefficients(bValue);
 	}
-}
-
-void CascadedFilter::setCoefficients(uint16_t ab){
-	for(uint8_t i=0; i<NUM_SECTIONS; i++){
-		sections[i].a = (ab & 0xFF00)>>8;
-		sections[i].b = ab & 0x00FF;
-	}		
 }
 
 fixed7_9 CascadedFilter::add(fixed7_9 val){

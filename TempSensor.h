@@ -52,9 +52,9 @@ class TempSensor{
 	fixed7_9 readSlope(void);
 	fixed7_9 detectPosPeak(void); //returns positive peak or INT_MIN when no peak has been found
 	fixed7_9 detectNegPeak(void); //returns negative peak or INT_MIN when no peak has been found
-	void setFastFilterCoefficients(uint16_t ab);
-	void setSlowFilterCoefficients(uint16_t ab);
-	void setSlopeFilterCoefficients(uint16_t ab);
+	void setFastFilterCoefficients(uint8_t b);
+	void setSlowFilterCoefficients(uint8_t b);
+	void setSlopeFilterCoefficients(uint8_t b);
 			
 	private:
 	const uint8_t pinNr;

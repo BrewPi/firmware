@@ -140,14 +140,14 @@ fixed7_9 TempSensor::detectNegPeak(void){
 	return slowFilter.detectNegPeak();
 }
 
-void TempSensor::setFastFilterCoefficients(uint16_t ab){
-	fastFilter.setCoefficients(ab);
+void TempSensor::setFastFilterCoefficients(uint8_t b){
+	fastFilter.setCoefficients(b);
 }
 
-void TempSensor::setSlowFilterCoefficients(uint16_t ab){
-	slowFilter.setCoefficients(ab);
+void TempSensor::setSlowFilterCoefficients(uint8_t b){
+	slowFilter.setCoefficients(b);
 }
 
-void TempSensor::setSlopeFilterCoefficients(uint16_t ab){
-	slopeFilter.setCoefficients(ab);
+void TempSensor::setSlopeFilterCoefficients(uint8_t b){
+	slopeFilter.setCoefficients(b);
 }

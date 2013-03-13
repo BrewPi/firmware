@@ -469,17 +469,19 @@ void TempControl::loadDefaultConstants(void){
 	cc.coolingTargetUpper = 51;		// +0.1 deg Celsius
 	cc.coolingTargetLower = -102;	// -0.2 deg Celsius
 
-	cc.fridgeFastFilter = SETTLING_TIME_25_SAMPLES;
+	// Set filter coefficients. This is the b value. See FixedFilter.h for delay times.
+	// The delay time is 3.33 * 2^b * number of cascades
+	cc.fridgeFastFilter = 1;
 	fridgeSensor.setFastFilterCoefficients(cc.fridgeFastFilter);
-	cc.fridgeSlowFilter = SETTLING_TIME_200_SAMPLES;
+	cc.fridgeSlowFilter = 4;
 	fridgeSensor.setSlowFilterCoefficients(cc.fridgeSlowFilter);
-	cc.fridgeSlopeFilter = SETTLING_TIME_100_SAMPLES;
+	cc.fridgeSlopeFilter = 3;
 	fridgeSensor.setSlopeFilterCoefficients(cc.fridgeSlopeFilter);
-	cc.beerFastFilter = SETTLING_TIME_50_SAMPLES;
+	cc.beerFastFilter = 2;
 	beerSensor.setFastFilterCoefficients(cc.beerFastFilter);
-	cc.beerSlowFilter = SETTLING_TIME_400_SAMPLES;
+	cc.beerSlowFilter = 5;
 	beerSensor.setSlowFilterCoefficients(cc.beerSlowFilter);
-	cc.beerSlopeFilter = SETTLING_TIME_100_SAMPLES;
+	cc.beerSlopeFilter = 2;
 	beerSensor.setSlopeFilterCoefficients(cc.beerSlopeFilter);
 	storeConstants();
 }

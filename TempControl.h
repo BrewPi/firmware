@@ -70,13 +70,13 @@ struct ControlConstants{
 	fixed7_9 coolingTargetLower;
 	uint16_t maxHeatTimeForEstimate; // max time for heat estimate in seconds
 	uint16_t maxCoolTimeForEstimate; // max time for heat estimate in seconds
-	// filter coefficients are stored as an uint16_t: (a<<8+b)
-	uint16_t fridgeFastFilter;	// for display, logging and on-off control
-	uint16_t fridgeSlowFilter;	// for peak detection
-	uint16_t fridgeSlopeFilter;	// not used in current control algorithm
-	uint16_t beerFastFilter;	// for display and logging
-	uint16_t beerSlowFilter;	// for on/off control algorithm
-	uint16_t beerSlopeFilter;	// for PID calculation
+	// for the filter coefficients the b value is stored. a is calculated from b.
+	uint8_t fridgeFastFilter;	// for display, logging and on-off control
+	uint8_t fridgeSlowFilter;	// for peak detection
+	uint8_t fridgeSlopeFilter;	// not used in current control algorithm
+	uint8_t beerFastFilter;	// for display and logging
+	uint8_t beerSlowFilter;	// for on/off control algorithm
+	uint8_t beerSlopeFilter;	// for PID calculation
 };
 
 #define COOLING_TARGET ((cc.coolingTargetUpper+cc.coolingTargetLower)/2)

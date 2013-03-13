@@ -27,7 +27,7 @@
 
 // Use 3 filter sections. This gives excellent filtering, without adding too much delay.
 // For 3 sections the stop band attenuation is 3x the single section attenuation in dB.
-// The settling time is also tripled.
+// The delay is also tripled.
 #define NUM_SECTIONS 3
 
 class CascadedFilter{
@@ -39,8 +39,7 @@ class CascadedFilter{
 	CascadedFilter();
 	~CascadedFilter();
 	void init(fixed7_9 val);
-	void setCoefficients(uint8_t a, uint8_t b);
-	void setCoefficients(uint16_t ab);
+	void setCoefficients(uint8_t bValue);
 	fixed7_9 add(fixed7_9 val); // adds a value and returns the most recent filter output
 	fixed7_25 addDoublePrecision(fixed7_25 val);
 	fixed7_9 readInput(void); // returns the most recent filter input
