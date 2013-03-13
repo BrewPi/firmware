@@ -168,7 +168,7 @@ void TempControl::updateState(void){
 		case STATE_OFF:
 		{
 			lastIdleTime=millis();
-			if(	((timeSinceCooling() > 900000UL || doNegPeakDetect==false) && (timeSinceHeating() > 600000UL || doPosPeakDetect==false)) ||
+			if(	((timeSinceCooling() > 900000UL && doNegPeakDetect==false) && (timeSinceHeating() > 600000UL && doPosPeakDetect==false)) ||
 					state==STARTUP) //if cooling is 15 min ago and heating 10, or I just started
 			{
 				if(fridgeSensor.readFastFiltered() > (cs.fridgeSetting+cc.idleRangeHigh) ){
