@@ -471,17 +471,17 @@ void TempControl::loadDefaultConstants(void){
 
 	// Set filter coefficients. This is the b value. See FixedFilter.h for delay times.
 	// The delay time is 3.33 * 2^b * number of cascades
-	cc.fridgeFastFilter = 1;
+	cc.fridgeFastFilter = 1u;
 	fridgeSensor.setFastFilterCoefficients(cc.fridgeFastFilter);
-	cc.fridgeSlowFilter = 4;
+	cc.fridgeSlowFilter = 4u;
 	fridgeSensor.setSlowFilterCoefficients(cc.fridgeSlowFilter);
-	cc.fridgeSlopeFilter = 3;
+	cc.fridgeSlopeFilter = 3u;
 	fridgeSensor.setSlopeFilterCoefficients(cc.fridgeSlopeFilter);
-	cc.beerFastFilter = 2;
+	cc.beerFastFilter = 2u;
 	beerSensor.setFastFilterCoefficients(cc.beerFastFilter);
-	cc.beerSlowFilter = 5;
+	cc.beerSlowFilter = 5u;
 	beerSensor.setSlowFilterCoefficients(cc.beerSlowFilter);
-	cc.beerSlopeFilter = 3;
+	cc.beerSlopeFilter = 3u;
 	beerSensor.setSlopeFilterCoefficients(cc.beerSlopeFilter);
 	storeConstants();
 }
