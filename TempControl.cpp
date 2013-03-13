@@ -481,7 +481,7 @@ void TempControl::loadDefaultConstants(void){
 	beerSensor.setFastFilterCoefficients(cc.beerFastFilter);
 	cc.beerSlowFilter = 5;
 	beerSensor.setSlowFilterCoefficients(cc.beerSlowFilter);
-	cc.beerSlopeFilter = 2;
+	cc.beerSlopeFilter = 3;
 	beerSensor.setSlopeFilterCoefficients(cc.beerSlopeFilter);
 	storeConstants();
 }
