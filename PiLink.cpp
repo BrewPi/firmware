@@ -312,18 +312,18 @@ void PiLink::processJsonPair(char * key, char * val){
 		fixed7_9 newTemp = stringToTemp(val);
 		if(tempControl.cs.mode == 'p'){
 			if(abs(newTemp-tempControl.cs.beerSetting) > 100){ // this excludes gradual updates under 0.2 degrees
-				printBeerAnnotation(PSTR("Beer temperature setting changed to %s by temperature profile."), val);
+				printBeerAnnotation(PSTR("Beer temp set to %s by temperature profile."), val);
 			}
 		}
 		else{
-			printBeerAnnotation(PSTR("Beer temperature setting changed to %s in web interface."), val);
+			printBeerAnnotation(PSTR("Beer temp set to %s in web interface."), val);
 		}
 		tempControl.cs.beerSetting = newTemp;
 	}
 	else if(strcmp(key,jsonKeys.fridgeSetting) == 0){
 		fixed7_9 newTemp = stringToTemp(val);
 		if(tempControl.cs.mode == 'f'){
-			printFridgeAnnotation(PSTR("Fridge temperature setting changed to %s in web interface."), val);
+			printFridgeAnnotation(PSTR("Fridge temp set to %s in web interface."), val);
 		}
 		tempControl.cs.fridgeSetting = newTemp;
 	}

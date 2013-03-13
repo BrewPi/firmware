@@ -155,7 +155,7 @@ void Menu::pickBeerSetting(void){
 			if(rotaryEncoder.pushed() ){
 				rotaryEncoder.resetPushed();
 				char tempString[9];
-				piLink.printBeerAnnotation(PSTR("Beer temperature setting changed to %s in Menu."), tempToString(tempString,tempControl.getBeerSetting(),1,9));
+				piLink.printBeerAnnotation(PSTR("Beer temp set to %s in Menu."), tempToString(tempString,tempControl.getBeerSetting(),1,9));
 				return;
 			}
 		}
@@ -199,7 +199,7 @@ void Menu::pickFridgeSetting(void){
 			if(rotaryEncoder.pushed() ){
 				rotaryEncoder.resetPushed();
 				char tempString[9];
-				piLink.printFridgeAnnotation(PSTR("Fridge temperature setting changed to %s in Menu."), tempToString(tempString,tempControl.getFridgeSetting(),1,9));
+				piLink.printFridgeAnnotation(PSTR("Fridge temp set to %s in Menu."), tempToString(tempString,tempControl.getFridgeSetting(),1,9));
 				return;
 			}
 		}
