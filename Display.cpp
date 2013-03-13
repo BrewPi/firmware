@@ -50,7 +50,7 @@ void Display::printBeerTemp(void){
 		printTemperature(tempControl.getBeerTemp());
 	}
 	else{
-		lcd.print_P(PSTR(" --.-"));
+		printUndefinedTemperature();
 	}
 }
 
@@ -58,7 +58,7 @@ void Display::printBeerSet(void){
 	lcd.setCursor(12,1);
 	fixed7_9 beerSet = tempControl.getBeerSetting();
 	if(beerSet == INT_MIN){ // beer setting is not active
-		lcd.print_P(PSTR(" --.-"));	
+		printUndefinedTemperature();
 	}
 	else{
 		printTemperature(beerSet);	
@@ -71,7 +71,7 @@ void Display::printFridgeTemp(void){
 		printTemperature(tempControl.getFridgeTemp());
 	}
 	else{
-		lcd.print_P(PSTR(" --.-"));
+		printUndefinedTemperature();
 	}
 }
 
@@ -79,7 +79,7 @@ void Display::printFridgeSet(void){
 	lcd.setCursor(12,2);
 	fixed7_9 fridgeSet = tempControl.getFridgeSetting();
 	if(fridgeSet == INT_MIN){ // beer setting is not active
-		lcd.print_P(PSTR(" --.-"));	
+		printUndefinedTemperature();
 	}
 	else{
 		printTemperature(fridgeSet);
@@ -93,6 +93,10 @@ void Display::printTemperature(fixed7_9 temp){
 		lcd.write(' ');
 	}
 	lcd.print(tempString);
+}
+
+void Display::printUndefinedTemperature(void){
+	printUndefinedTemperature();
 }
 
 //print the stationary text on the lcd.

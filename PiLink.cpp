@@ -90,7 +90,7 @@ void PiLink::receive(void){
 			receiveJson();
 			break;
 		default:
-			debugMessage(PSTR("Invalid command Received by Arduino: %c"), inByte);
+			debugMessage(PSTR("Invalid command received by Arduino: %c"), inByte);
 		}
 		//Serial.flush(); Messages can be back to back. Flush should not be necessary.
 		// Functions should not read more than what is meant for that function.
@@ -101,19 +101,21 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
 	char tempString[9];
 	print_P(PSTR("T:{\"BeerTemp\":%s,"), tempToString(tempString, tempControl.getBeerTemp(), 2, 9));
 	print_P(PSTR("\"BeerSet\":%s,"), tempToString(tempString, tempControl.getBeerSetting(), 2, 9));
+	print_P(PSTR("\"BeerAnn\":"));
 	if(beerAnnotation == 0){
-		print_P(PSTR("\"BeerAnn\":null,"));
+		print_P(PSTR("null,"));
 	}
 	else{
-		print_P(PSTR("\"BeerAnn\":\"%s\","), beerAnnotation);
+		print_P(PSTR("\"%s\","), beerAnnotation);
 	}
 	print_P(PSTR("\"FridgeTemp\":%s,"), tempToString(tempString, tempControl.getFridgeTemp(), 2, 9));
 	print_P(PSTR("\"FridgeSet\":%s,"), tempToString(tempString, tempControl.getFridgeSetting(), 2, 9));
+	print_P(PSTR("\"FridgeAnn\":"));
 	if(fridgeAnnotation == 0){
-		print_P(PSTR("\"FridgeAnn\":null}\n"));
+		print_P(PSTR("null}\n"));
 	}
 	else{
-		print_P(PSTR("\"FridgeAnn\":\"%s\"}\n"), fridgeAnnotation);	
+		print_P(PSTR("\"%s\"}\n"), fridgeAnnotation);	
 	}
 }
 
