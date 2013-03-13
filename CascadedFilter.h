@@ -25,7 +25,10 @@
 #include "temperatureFormats.h"
 #include "FixedFilter.h"
 
-#define NUM_SECTIONS 2
+// Use 3 filter sections. This gives excellent filtering, without adding too much delay.
+// For 3 sections the stop band attenuation is 3x the single section attenuation in dB.
+// The settling time is also tripled.
+#define NUM_SECTIONS 3
 
 class CascadedFilter{
 	public:
