@@ -110,8 +110,7 @@ void loop(void)
 		display.printAllTemperatures();
 		display.printMode();
 	}
-	if(rotaryEncoder.pushed()){
-		rotaryEncoder.resetPushed();
+	if(rotaryEncoder.consumePush()){
 		menu.pickSettingToChange();		
 	}
 	

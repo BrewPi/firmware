@@ -22,24 +22,6 @@
 #include <limits.h>
 #include "temperatureFormats.h"
 
-FixedFilter::FixedFilter(){
-	setCoefficients(SETTLING_TIME_50_SAMPLES); // default to 50 samples settling time
-}
-
-FixedFilter::~FixedFilter(){
-	
-}
-
-void FixedFilter::setCoefficients(uint8_t aValue, uint8_t bValue){
-	a = aValue;
-	b = bValue;	
-}
-
-void FixedFilter::setCoefficients(uint16_t ab){
-	a = (ab & 0xFF00)>>8;
-	b = ab & 0x00FF;
-}	
-
 fixed7_9 FixedFilter::add(fixed7_9 val){
 	fixed7_25 returnVal = addDoublePrecision( ((fixed7_25) val) << 16);
 	return returnVal>>16;
@@ -62,21 +44,6 @@ fixed7_25 FixedFilter::addDoublePrecision(fixed7_25 val){
 	return yv[0];
 }
 
-fixed7_9 FixedFilter::readOutput(void){
-	return yv[0]>>16; // return 16 most significant bits of most recent output
-}
-
-fixed7_9 FixedFilter::readInput(void){
-	return xv[0]>>16; // return 16 most significant bits of most recent input
-}
-
-fixed7_25 FixedFilter::readOutputDoublePrecision(void){
-	return yv[0];
-}
-
-fixed7_25 FixedFilter::readPrevOutputDoublePrecision(void){
-	return yv[1];
-}
 
 void FixedFilter::init(fixed7_9 val){
 		xv[0] = val;

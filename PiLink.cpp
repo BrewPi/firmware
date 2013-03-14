@@ -90,7 +90,7 @@ void PiLink::receive(void){
 			receiveJson();
 			break;
 		default:
-			debugMessage(PSTR("Invalid command Received by Arduino: %c"), inByte);
+			debugMessage(PSTR("Invalid command received by Arduino: %c"), inByte);
 		}
 		//Serial.flush(); Messages can be back to back. Flush should not be necessary.
 		// Functions should not read more than what is meant for that function.
@@ -101,19 +101,21 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
 	char tempString[9];
 	print_P(PSTR("T:{\"BeerTemp\":%s,"), tempToString(tempString, tempControl.getBeerTemp(), 2, 9));
 	print_P(PSTR("\"BeerSet\":%s,"), tempToString(tempString, tempControl.getBeerSetting(), 2, 9));
+	print_P(PSTR("\"BeerAnn\":"));
 	if(beerAnnotation == 0){
-		print_P(PSTR("\"BeerAnn\":null,"));
+		print_P(PSTR("null,"));
 	}
 	else{
-		print_P(PSTR("\"BeerAnn\":\"%s\","), beerAnnotation);
+		print_P(PSTR("\"%s\","), beerAnnotation);
 	}
 	print_P(PSTR("\"FridgeTemp\":%s,"), tempToString(tempString, tempControl.getFridgeTemp(), 2, 9));
 	print_P(PSTR("\"FridgeSet\":%s,"), tempToString(tempString, tempControl.getFridgeSetting(), 2, 9));
+	print_P(PSTR("\"FridgeAnn\":"));
 	if(fridgeAnnotation == 0){
-		print_P(PSTR("\"FridgeAnn\":null}\n"));
+		print_P(PSTR("null}\n"));
 	}
 	else{
-		print_P(PSTR("\"FridgeAnn\":\"%s\"}\n"), fridgeAnnotation);	
+		print_P(PSTR("\"%s\"}\n"), fridgeAnnotation);	
 	}
 }
 
@@ -236,6 +238,10 @@ void PiLink::sendJsonPair(const char * name, uint16_t val){
 	print_P(PSTR("\"%s\":%u,"), name, val);
 }
 
+void PiLink::sendJsonPair(const char * name, uint8_t val){
+	print_P(PSTR("\"%s\":%u,"), name, val);
+}
+
 void PiLink::receiveJson(void){
 	char key[30];
 	char val[30];
@@ -308,18 +314,18 @@ void PiLink::processJsonPair(char * key, char * val){
 		fixed7_9 newTemp = stringToTemp(val);
 		if(tempControl.cs.mode == 'p'){
 			if(abs(newTemp-tempControl.cs.beerSetting) > 100){ // this excludes gradual updates under 0.2 degrees
-				printBeerAnnotation(PSTR("Beer temperature setting changed to %s by temperature profile."), val);
+				printBeerAnnotation(PSTR("Beer temp set to %s by temperature profile."), val);
 			}
 		}
 		else{
-			printBeerAnnotation(PSTR("Beer temperature setting changed to %s in web interface."), val);
+			printBeerAnnotation(PSTR("Beer temp set to %s in web interface."), val);
 		}
 		tempControl.cs.beerSetting = newTemp;
 	}
 	else if(strcmp(key,jsonKeys.fridgeSetting) == 0){
 		fixed7_9 newTemp = stringToTemp(val);
 		if(tempControl.cs.mode == 'f'){
-			printFridgeAnnotation(PSTR("Fridge temperature setting changed to %s in web interface."), val);
+			printFridgeAnnotation(PSTR("Fridge temp set to %s in web interface."), val);
 		}
 		tempControl.cs.fridgeSetting = newTemp;
 	}
@@ -349,7 +355,7 @@ void PiLink::processJsonPair(char * key, char * val){
 	else if(strcmp(key,jsonKeys.maxCoolTimeForEstimate) == 0){ tempControl.cc.maxCoolTimeForEstimate = strtoul(val, NULL, 10); }
 	else if(strcmp(key,jsonKeys.maxCoolTimeForEstimate) == 0){ tempControl.cc.maxCoolTimeForEstimate = strtoul(val, NULL, 10); }
 		
-	// Receive two chars for filter as uint16_t
+	// Receive the b value for the filter
 	else if(strcmp(key,jsonKeys.fridgeFastFilter) == 0){ 
 		tempControl.cc.fridgeFastFilter = strtoul(val, NULL, 10);
 		tempControl.fridgeSensor.setFastFilterCoefficients(tempControl.cc.fridgeFastFilter);

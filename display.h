@@ -37,6 +37,9 @@ class Display{
 	
 	// print a temperature
 	void printTemperature(fixed7_9 temp);
+	
+	// print " --.-"
+	void printUndefinedTemperature(void);
 
 	// print the stationary text on the lcd.
 	void printStationaryText(void);

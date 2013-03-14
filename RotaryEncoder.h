@@ -43,6 +43,11 @@ class RotaryEncoder
 	static void resetPushed(void);
 	static void setPushed(void);
 	
+	bool consumePush() {
+		bool oldPushed = pushFlag;
+		pushFlag = false;
+		return oldPushed;
+	}
 	private:
 	static int maximum;
 	static int minimum;
