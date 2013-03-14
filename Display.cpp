@@ -96,7 +96,7 @@ void Display::printTemperature(fixed7_9 temp){
 }
 
 void Display::printUndefinedTemperature(void){
-	printUndefinedTemperature();
+	lcd.print_P(PSTR(" --.-"));
 }
 
 //print the stationary text on the lcd.
