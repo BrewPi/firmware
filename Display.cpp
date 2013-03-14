@@ -6,7 +6,7 @@
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * (at your option) any later v7ersion.
  * 
  * BrewPi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -96,7 +96,7 @@ void Display::printTemperature(fixed7_9 temp){
 }
 
 void Display::printUndefinedTemperature(void){
-	printUndefinedTemperature();
+	lcd.print_P(PSTR(" --.-"));
 }
 
 //print the stationary text on the lcd.
