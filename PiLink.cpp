@@ -166,12 +166,13 @@ void PiLink::debugMessage(const char * message, ...){
 void PiLink::sendControlSettings(void){
 	char tempString[12];
 	print_P(PSTR("S:{"));
+	ControlSettings& cs = tempControl.cs;
 	sendJsonPair(jsonKeys.mode, tempControl.cs.mode);
-	sendJsonPair(jsonKeys.beerSetting, tempToString(tempString, tempControl.cs.beerSetting, 2, 12));
-	sendJsonPair(jsonKeys.fridgeSetting, tempToString(tempString, tempControl.cs.fridgeSetting, 2, 12));
-	sendJsonPair(jsonKeys.heatEstimator, fixedPointToString(tempString, tempControl.cs.heatEstimator, 3, 12));
+	sendJsonPair(jsonKeys.beerSetting, tempToString(tempString, cs.beerSetting, 2, 12));
+	sendJsonPair(jsonKeys.fridgeSetting, tempToString(tempString, cs.fridgeSetting, 2, 12));
+	sendJsonPair(jsonKeys.heatEstimator, fixedPointToString(tempString, cs.heatEstimator, 3, 12));
 	// last one 'manually' to have no trailing comma
-	print_P(PSTR("\"%s\":%s}\n"), jsonKeys.coolEstimator, fixedPointToString(tempString, tempControl.cs.coolEstimator, 3, 12));
+	print_P(PSTR("\"%s\":%s}\n"), jsonKeys.coolEstimator, fixedPointToString(tempString, cs.coolEstimator, 3, 12));
 }
 
 // Send control constants as JSON string. Might contain spaces between minus sign and number. Python will have to strip these
@@ -305,7 +306,10 @@ void PiLink::receiveJson(void){
 }
 
 void PiLink::processJsonPair(char * key, char * val){
+
 	debugMessage(PSTR("Received new setting: %s = %s"), key, val);
+	const char* msg = PSTR("%s temp setting changed to %s %s.");
+	const char* webui = "in web interface";
 	if(strcmp(key,jsonKeys.mode) == 0){
 		tempControl.setMode(val[0]);
 		piLink.printFridgeAnnotation(PSTR("Mode set to %c in web interface"), val[0]);
@@ -314,18 +318,18 @@ void PiLink::processJsonPair(char * key, char * val){
 		fixed7_9 newTemp = stringToTemp(val);
 		if(tempControl.cs.mode == 'p'){
 			if(abs(newTemp-tempControl.cs.beerSetting) > 100){ // this excludes gradual updates under 0.2 degrees
-				printBeerAnnotation(PSTR("Beer temp set to %s by temperature profile."), val);
+				printBeerAnnotation(msg, "Beer", val, "by profile");
 			}
 		}
 		else{
-			printBeerAnnotation(PSTR("Beer temp set to %s in web interface."), val);
+			printBeerAnnotation(msg, "Beer", val, webui);
 		}
 		tempControl.cs.beerSetting = newTemp;
 	}
 	else if(strcmp(key,jsonKeys.fridgeSetting) == 0){
 		fixed7_9 newTemp = stringToTemp(val);
 		if(tempControl.cs.mode == 'f'){
-			printFridgeAnnotation(PSTR("Fridge temp set to %s in web interface."), val);
+			printFridgeAnnotation(msg, "Fridge", val, webui);
 		}
 		tempControl.cs.fridgeSetting = newTemp;
 	}
@@ -384,4 +388,5 @@ void PiLink::processJsonPair(char * key, char * val){
 	else{
 		debugMessage(PSTR("Could not process setting"));
 	}
+
 }
