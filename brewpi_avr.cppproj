@@ -21,20 +21,19 @@
     <OverrideVtorValue />
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <AsfVersion>2.11.1</AsfVersion>
-    <avrtool>
-    </avrtool>
+    <avrtool>com.atmel.avrdbg.tool.avrdragon</avrtool>
     <avrtoolinterface>JTAG</avrtoolinterface>
     <com_atmel_avrdbg_tool_avrdragon>
       <ToolType>com.atmel.avrdbg.tool.avrdragon</ToolType>
       <ToolName>AVR Dragon</ToolName>
-      <ToolNumber>00A20002612C</ToolNumber>
+      <ToolNumber>00A20002077E</ToolNumber>
       <KeepTimersRunning>true</KeepTimersRunning>
       <OverrideVtor>false</OverrideVtor>
       <OverrideVtorValue>
       </OverrideVtorValue>
       <Channel>
         <host>127.0.0.1</host>
-        <port>5604</port>
+        <port>60077</port>
         <ssl>False</ssl>
       </Channel>
       <ToolOptions>
@@ -42,7 +41,7 @@
         <InterfaceProperties>
           <JtagDbgClock>250000</JtagDbgClock>
           <JtagProgClock>1000000</JtagProgClock>
-          <IspClock>250000</IspClock>
+          <IspClock>150000</IspClock>
           <JtagInChain>false</JtagInChain>
           <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
           <JtagDevicesBefore>0</JtagDevicesBefore>
@@ -104,8 +103,8 @@
         </avrgcccpp.compiler.symbols.DefSymbols>
         <avrgcccpp.compiler.directories.IncludePaths>
           <ListValues>
-            <Value>$(ARDUINO_HOME)\hardware\arduino\cores\arduino</Value>
-            <Value>$(ARDUINO_HOME)\hardware\arduino\variants\leonardo</Value>
+            <Value>c:\arduino-1.0.4\hardware\arduino\cores\arduino</Value>
+            <Value>c:\arduino-1.0.4\hardware\arduino\variants\leonardo</Value>
           </ListValues>
         </avrgcccpp.compiler.directories.IncludePaths>
         <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
@@ -128,13 +127,7 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ActivityHandler.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="ArduinoFunctions.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="BacklightController.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="brewpi_avr.cpp">

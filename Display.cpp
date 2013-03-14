@@ -146,7 +146,7 @@ void Display::printMode(void){
 
 // print the current state on the last line of the lcd
 void Display::printState(void){
-	unsigned long time;
+	uint16_t time;
 	uint8_t state = tempControl.getState();
 	if(state != stateOnDisplay){ //only print static text when state has changed
 		lcd.setCursor(0,3);
@@ -189,6 +189,6 @@ void Display::printState(void){
 		return;
 	}
 		
-	lcd.print(time/1000);
+	lcd.print(time);
 	lcd.print_P(PSTR(" s"));
 }

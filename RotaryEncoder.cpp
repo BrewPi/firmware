@@ -89,8 +89,7 @@ ISR(PCINT0_vect){
 #endif
 
 void RotaryEncoder::setPushed(void){
-	pushFlag = true;	
-	notifyActivity(ROTARY_ENCODER_PUSHED);	
+	pushFlag = true;
 }
 
 void RotaryEncoder::pinAHandler(bool pinState){
@@ -115,10 +114,7 @@ void RotaryEncoder::pinAHandler(bool pinState){
 	}
 	if(halfSteps <= (minimum-2)){
 		halfSteps = maximum;
-	}		
-	
-	notifyActivity(ROTARY_ENCODER_TURNED);
-	
+	}	
 }
 
 void RotaryEncoder::pinBHandler(bool pinState){

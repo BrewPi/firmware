@@ -34,12 +34,8 @@
 #include "pins.h"
 #include "RotaryEncoder.h"
 #include "Buzzer.h"
-#include "ActivityHandler.h"
-#include "BacklightController.h"
 
 // global class objects static and defined in class cpp and h files
-
-BacklightController backlightController;
 
 void setup(void);
 void loop (void);
@@ -75,7 +71,6 @@ void setup()
 	display.printState();
 	
 	rotaryEncoder.init();
-	backlightController.init();
 	
 	piLink.printFridgeAnnotation(PSTR("Arduino restarted!"));
 	buzzer.init();
@@ -102,7 +97,7 @@ void main(void)
 
 void loop(void)
 {
-	static unsigned long lastUpdate;
+	static unsigned long lastUpdate = 0;
 	if(ticks.millis() - lastUpdate > 1000){ //update settings every second
 		lastUpdate=ticks.millis();
 		
@@ -111,16 +106,14 @@ void loop(void)
 		tempControl.updatePID();
 		tempControl.updateState();
 		tempControl.updateOutputs();
-		
-		backlightController.updateBacklight();
+		if(rotaryEncoder.pushed()){
+			rotaryEncoder.resetPushed();
+			menu.pickSettingToChange();	
+		}
 		display.printState();
 		display.printAllTemperatures();
 		display.printMode();
-	}
-	if(rotaryEncoder.consumePush()){
-		menu.pickSettingToChange();		
-	}
-	
+	}	
 	//listen for incoming serial connections while waiting top update
 	piLink.receive();
 }

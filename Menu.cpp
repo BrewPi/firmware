@@ -47,7 +47,8 @@ void Menu::pickSettingToChange(void){
 			display.lcd.setCursor(0,rotaryEncoder.read());
 			display.lcd.print_P(PSTR("      "));
 		}
-		if( rotaryEncoder.consumePush() ){			
+		if( rotaryEncoder.pushed() ){
+			rotaryEncoder.resetPushed();
 			switch(rotaryEncoder.read()){
 				case 0:
 					pickMode();
@@ -98,7 +99,8 @@ void Menu::pickMode(void){
 			
 			tempControl.setMode(lookup[rotaryEncoder.read()]);
 			display.printMode();
-			if(rotaryEncoder.consumePush() ){				
+			if( rotaryEncoder.pushed() ){
+				rotaryEncoder.resetPushed();
 				if(tempControl.getMode() ==  MODE_BEER_CONSTANT){
 					menu.pickBeerSetting();
 				}
@@ -151,7 +153,8 @@ void Menu::pickBeerSetting(void){
 			
 			tempControl.setBeerTemp(tenthsToFixed(rotaryEncoder.read()));			
 			display.printBeerSet();
-			if(rotaryEncoder.consumePush() ){				
+			if( rotaryEncoder.pushed() ){
+				rotaryEncoder.resetPushed();
 				char tempString[9];
 				piLink.printBeerAnnotation(PSTR("Beer temp set to %s in Menu."), tempToString(tempString,tempControl.getBeerSetting(),1,9));
 				return;
@@ -194,7 +197,8 @@ void Menu::pickFridgeSetting(void){
 			
 			tempControl.setFridgeTemp(tenthsToFixed(rotaryEncoder.read()));			
 			display.printFridgeSet();
-			if(rotaryEncoder.consumePush() ){
+			if( rotaryEncoder.pushed() ){
+				rotaryEncoder.resetPushed();
 				char tempString[9];
 				piLink.printFridgeAnnotation(PSTR("Fridge temp set to %s in Menu."), tempToString(tempString,tempControl.getFridgeSetting(),1,9));
 				return;

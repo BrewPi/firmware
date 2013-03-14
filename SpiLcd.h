@@ -27,7 +27,6 @@
 
 #include <inttypes.h>
 #include "Print.h"
-#include "ActivityHandler.h"
 
 // commands
 #define LCD_CLEARDISPLAY 0x01
