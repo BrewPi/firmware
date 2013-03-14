@@ -41,7 +41,7 @@ void TempSensor::init(void){
 		
 	sensor->requestTemperatures();
 	lastRequestTime = millis();
-	delay(750); // delay 750ms for conversion time
+	wait.millis(750); // delay 750ms for conversion time
 	fixed7_9 temperature = DEVICE_DISCONNECTED;
 	while(temperature == DEVICE_DISCONNECTED){
 		temperature = sensor->getTempRaw(sensorAddress);
@@ -51,7 +51,7 @@ void TempSensor::init(void){
 		}
 	}
 	sensor->requestTemperatures();
-	delay(750);
+	wait.millis(750);
 	temperature = sensor->getTempRaw(sensorAddress); // read again. First read is not accurate
 	connected = true;
 	temperature = constrain(temperature, ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5; // sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits
@@ -61,9 +61,6 @@ void TempSensor::init(void){
 	prevOutputForSlope = slowFilter.readOutputDoublePrecision();
 }
 
-bool TempSensor::isConnected(void){
-	return connected;
-}
 
 void TempSensor::update(void){
 	if((millis()-lastRequestTime) > 5000){ // if last request is longer than 5 seconds ago, request again and delay
@@ -83,7 +80,7 @@ void TempSensor::update(void){
 	
 	else{
 		if(connected == false){
-			delay(2000); // delay for two seconds to be sure sensor is correctly inserted
+			wait.millis(2000); // delay for two seconds to be sure sensor is correctly inserted
 			init(); // was disconnected, initialize again
 			piLink.debugMessage(PSTR("Temperature sensor on pin %d reconnected"), pinNr);
 			temperature = sensor->getTempRaw(sensorAddress); // re-read temperature after proper initialization
@@ -122,32 +119,9 @@ fixed7_9 TempSensor::readFastFiltered(void){
 	return fastFilter.readOutput(); //return most recent unfiltered value
 }
 
-fixed7_9 TempSensor::readSlowFiltered(void){
-	return slowFilter.readOutput(); //return most recent unfiltered value
-}
-
 fixed7_9 TempSensor::readSlope(void){
 	// return slope per hour. Multiply by 300 (1h/12s), shift to single precision
 	fixed7_25 doublePrecision = slopeFilter.readOutputDoublePrecision();
 	return (doublePrecision*300)>>16;
 }
 
-fixed7_9 TempSensor::detectPosPeak(void){
-	return slowFilter.detectPosPeak();
-}
-
-fixed7_9 TempSensor::detectNegPeak(void){
-	return slowFilter.detectNegPeak();
-}
-
-void TempSensor::setFastFilterCoefficients(uint8_t b){
-	fastFilter.setCoefficients(b);
-}
-
-void TempSensor::setSlowFilterCoefficients(uint8_t b){
-	slowFilter.setCoefficients(b);
-}
-
-void TempSensor::setSlopeFilterCoefficients(uint8_t b){
-	slopeFilter.setCoefficients(b);
-}

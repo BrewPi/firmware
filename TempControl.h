@@ -143,9 +143,17 @@ class TempControl{
 	static void setFridgeTemp(int newTemp);
 		
 	static void setMode(char newMode);
-	static char getMode(void);
-	static void setState(uint8_t newState);
-	static uint8_t getState(void);
+	static char getMode(void) {
+		return cs.mode;
+	}
+
+	void setState(unsigned char newState){
+		state = newState;
+	}
+
+	unsigned char getState(void){
+		return state;
+	}
 		
 	public:
 	static TempSensor beerSensor;
