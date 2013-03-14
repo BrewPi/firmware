@@ -27,6 +27,7 @@
 
 void SpiLcd::init(uint8_t latchPin)
 {
+	_backlight = false;
 	_latchPin = latchPin;
 	pinMode(_latchPin, OUTPUT);
 	
@@ -48,8 +49,7 @@ void SpiLcd::begin(uint8_t cols, uint8_t lines) {
 	_currpos = 0;
   
 	// Set all outputs of shift register to low, this turns the backlight ON.
-	_spiByte = 0x00;
-	spiOut();
+	setBacklightState(true);
 	
 	// The following initialization sequence should be compatible with: 
 	// - Newhaven OLED displays
@@ -194,7 +194,6 @@ void SpiLcd::initSpi(void){
 	pinMode(MOSI, OUTPUT);
 	pinMode(SCK, OUTPUT);
 	pinMode(SS, OUTPUT);
-
 	// The most significant bit should be sent out by the SPI port first.
 	// equals SPI.setBitOrder(MSBFIRST);
 	SPCR &= ~_BV(DORD);

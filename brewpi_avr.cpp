@@ -34,11 +34,16 @@
 #include "pins.h"
 #include "RotaryEncoder.h"
 #include "Buzzer.h"
+#include "ActivityHandler.h"
+#include "BacklightController.h"
 
-// global class opbjects static and defined in class cpp and h files
+// global class objects static and defined in class cpp and h files
+
+BacklightController backlightController;
 
 void setup(void);
 void loop (void);
+
 
 void setup()
 {
@@ -70,6 +75,7 @@ void setup()
 	display.printState();
 	
 	rotaryEncoder.init();
+	backlightController.init();
 	
 	piLink.printFridgeAnnotation(PSTR("Arduino restarted!"));
 	buzzer.init();
@@ -106,6 +112,7 @@ void loop(void)
 		tempControl.updateState();
 		tempControl.updateOutputs();
 		
+		backlightController.updateBacklight();
 		display.printState();
 		display.printAllTemperatures();
 		display.printMode();
