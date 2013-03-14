@@ -22,42 +22,64 @@
 #define ROTARYENCODER_H_
 
 #include <inttypes.h>
+#include "ActivityHandler.h"
 
 #define ROTARY_THRESHOLD 20000ul
 
 class RotaryEncoder
 {
 	public:
-	static void init(void);
-	static void setRange(int start, int min, int max);
+	void init(void);
+	void setRange(int start, int min, int max);
 	
-	static void pinAHandler(bool pinState);
-	static void pinBHandler(bool pinState);
+	void pinAHandler(bool pinState);
+	void pinBHandler(bool pinState);
 	
 		
-	static bool changed(void); // returns one if the value changed since the last call of changed.
-	static int read(void);
-	static int readHalfSteps(void);
+	bool changed(void); // returns one if the value changed since the last call of changed.
+	int read(void);
 	
-	static bool pushed(void);
-	static void resetPushed(void);
-	static void setPushed(void);
+	int readHalfSteps(void){
+		return halfSteps;
+	}
+
+	bool pushed(void){
+		return pushFlag;
+	}
+
+	void resetPushed(void){
+		pushFlag = false;
+	}	
+	
+	void setPushed(void);
+	
+	void setActivityHandler(ActivityHandler* handler) {
+		activityHandler = handler;
+	}
 	
 	private:
-	static int maximum;
-	static int minimum;
-	static int prevRead;
-	static volatile int halfSteps;
-	static volatile bool pushFlag;
 	
-	static volatile uint8_t pinASignal;
-	static volatile uint8_t pinBSignal;
-	static volatile uint8_t pinAHistory;
-	static volatile uint8_t pinBHistory;
-	static volatile unsigned long pinATime;
-	static volatile unsigned long pinBTime;	
+	void notifyActivity(ActivityType type) {
+		if (activityHandler)
+			activityHandler->notifyActivity(type);
+	}
+	
+	int maximum;
+	int minimum;
+	int prevRead;
+	volatile int halfSteps;
+	volatile bool pushFlag;
+	
+	volatile uint8_t pinASignal;
+	volatile uint8_t pinBSignal;
+	volatile uint8_t pinAHistory;
+	volatile uint8_t pinBHistory;
+	volatile unsigned long pinATime;
+	volatile unsigned long pinBTime;	
+	
+	ActivityHandler* activityHandler;
 };
 
-static RotaryEncoder rotaryEncoder;
+extern RotaryEncoder rotaryEncoder;
 
 #endif /* ROTARYENCODER_H_ */

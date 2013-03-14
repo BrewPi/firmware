@@ -27,6 +27,7 @@
 
 #include <inttypes.h>
 #include "Print.h"
+#include "ActivityHandler.h"
 
 // commands
 #define LCD_CLEARDISPLAY 0x01
@@ -118,6 +119,14 @@ class SpiLcd : public Print {
 	void command(uint8_t);
 	char readChar(void);
 
+	bool isBacklightOn() { return _backlight; }
+	void setBacklightState(bool backlight) {
+		if (backlight!=_backlight)
+			 _backlight = backlight;		
+		_spiByte = _backlight ? 0x00 : 1<<LCD_SHIFT_BACKLIGHT;
+		spiOut();
+	}
+
 	using Print::write;
 
 	private:
@@ -141,7 +150,10 @@ class SpiLcd : public Print {
 	uint8_t _currpos;
 	uint8_t _numlines;
 	
+	bool	_backlight;
+	
 	char content[4][21]; // always keep a copy of the display content in this variable
+	
 };
 
 #endif
