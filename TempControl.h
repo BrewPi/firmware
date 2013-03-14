@@ -130,9 +130,9 @@ class TempControl{
 	
 	static void loadSettingsAndConstants(void);
 	
-	static unsigned long timeSinceCooling(void);
- 	static unsigned long timeSinceHeating(void);
-  	static unsigned long timeSinceIdle(void);
+	static uint16_t timeSinceCooling(void);
+ 	static uint16_t timeSinceHeating(void);
+  	static uint16_t timeSinceIdle(void);
 	  
 	static fixed7_9 getBeerTemp(void);
 	static fixed7_9 getBeerSetting(void);

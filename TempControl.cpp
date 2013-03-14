@@ -168,8 +168,8 @@ void TempControl::updateState(void){
 		case IDLE:
 		case STATE_OFF:
 		{
-			lastIdleTime=ticks.millis();
-			if(	((timeSinceCooling() > 900000UL && doNegPeakDetect==false) && (timeSinceHeating() > 600000UL && doPosPeakDetect==false)) ||
+			lastIdleTime=ticks.seconds();
+			if(	((timeSinceCooling() > 900u && doNegPeakDetect==false) && (timeSinceHeating() > 600u && doPosPeakDetect==false)) ||
 					state==STARTUP) //if cooling is 15 min ago and heating 10, or I just started
 			{
 				if(fridgeSensor.readFastFiltered() > (cs.fridgeSetting+cc.idleRangeHigh) ){
@@ -208,8 +208,8 @@ void TempControl::updateState(void){
 		case COOLING:
 		{
 			doNegPeakDetect=true;
-			lastCoolTime = ticks.millis();
-			int coolTime = min(cc.maxCoolTimeForEstimate, timeSinceIdle()/1000); // cool time in seconds
+			lastCoolTime = ticks.seconds();
+			int coolTime = min(cc.maxCoolTimeForEstimate, timeSinceIdle()); // cool time in seconds
 			fixed7_9 estimatedOvershoot = ((fixed23_9) cs.coolEstimator * coolTime)/3600; // overshoot estimator is in overshoot per hour
 			cv.estimatedPeak = fridgeSensor.readFastFiltered() - estimatedOvershoot;
 			if(cv.estimatedPeak <= cs.fridgeSetting + COOLING_TARGET){
@@ -222,8 +222,8 @@ void TempControl::updateState(void){
 		case HEATING:
 		{
 			doPosPeakDetect=true;
-			lastHeatTime=ticks.millis();
-			int heatTime = min(cc.maxHeatTimeForEstimate, timeSinceIdle()/1000	); // heat time in seconds
+			lastHeatTime=ticks.seconds();
+			int heatTime = min(cc.maxHeatTimeForEstimate, timeSinceIdle()); // heat time in seconds
 			fixed7_9 estimatedOvershoot = ((fixed23_9) cs.heatEstimator * heatTime)/3600; // overshoot estimator is in overshoot per hour
 			cv.estimatedPeak = fridgeSensor.readFastFiltered() + estimatedOvershoot;
 			if(cv.estimatedPeak >= cs.fridgeSetting + HEATING_TARGET){
@@ -372,42 +372,41 @@ void TempControl::decreaseEstimator(fixed7_9 * estimator, fixed7_9 error){
 	storeSettings();
 }
 
-unsigned long TempControl::timeSinceCooling(void){
-	unsigned long currentTime = ticks.millis();
-	unsigned long timeSinceLastOn;
+uint16_t TempControl::timeSinceCooling(void){
+	uint16_t currentTime = ticks.seconds();
+	uint16_t timeSinceLastOn;
 	if(currentTime>=lastCoolTime){
 		timeSinceLastOn = currentTime - lastCoolTime;
 	}
 	else{
-		// millis() overflow has occured
-		timeSinceLastOn = (currentTime + 1440000) - (lastCoolTime +1440000); // add a day to both for calculation
+		// overflow has occured
+		timeSinceLastOn = (currentTime + 1440) - (lastCoolTime +1440); // add a day to both for calculation
 	}
 	return timeSinceLastOn;
 }
 
-unsigned long TempControl::timeSinceHeating(void){
-	unsigned long currentTime = ticks.millis();
-	unsigned long timeSinceLastOn;
+uint16_t TempControl::timeSinceHeating(void){
+	uint16_t currentTime = ticks.seconds();
+	uint16_t timeSinceLastOn;
 	if(currentTime>=lastHeatTime){
 		timeSinceLastOn = currentTime - lastHeatTime;
 	}
 	else{
-		// millis() overflow has occured
-		timeSinceLastOn = (currentTime + 1440000) - (lastHeatTime +1440000); // add a day to both for calculation
+		// overflow has occured
+		timeSinceLastOn = (currentTime + 1440) - (lastHeatTime +1440); // add a day to both for calculation
 	}
 	return timeSinceLastOn;
 }
 
-
-unsigned long TempControl::timeSinceIdle(void){
-	unsigned long currentTime = ticks.millis();
-	unsigned long timeSinceLastOn;
+uint16_t TempControl::timeSinceIdle(void){
+	uint16_t currentTime = ticks.seconds();
+	uint16_t timeSinceLastOn;
 	if(currentTime>=lastIdleTime){
 		timeSinceLastOn = currentTime - lastIdleTime;
 	}
 	else{
-		// millis() overflow has occured
-		timeSinceLastOn = (currentTime + 1440000) - (lastIdleTime +1440000); // add a day to both for calculation
+		// overflow has occured
+		timeSinceLastOn = (currentTime + 1440) - (lastIdleTime +1440); // add a day to both for calculation
 	}
 	return timeSinceLastOn;
 }

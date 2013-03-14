@@ -31,7 +31,7 @@ void TempSensor::init(void){
 	// get sensor address
 	if (!sensor->getAddress(sensorAddress, 0)){
 		// error no sensor found
-		if(ticks.millis() < 2000){
+		if(ticks.seconds() < 4){
 			// only log this debug message at startup
 			piLink.debugMessage(PSTR("Unable to find address for sensor on pin %d"), pinNr);
 		}

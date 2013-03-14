@@ -23,7 +23,7 @@
 
 
 #include "tempControl.h"
-#include "display.h"
+#include "Display.h"
 #include <stdarg.h>
 #include <avr/pgmspace.h>
 #include <limits.h>

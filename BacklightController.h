@@ -10,7 +10,8 @@
 #define BACKLIGHTCONTROLLER_H_
 
 #include "ActivityHandler.h"
-#include "display.h"
+#include "Display.h"
+#include "Ticks.h"
 
 /* The idle duration after which the LCD backlight will automatically switch off. */
 #define BACKLIGHT_AUTO_OFF_PERIOD 600  // 10 minutes
@@ -38,10 +39,10 @@ public:
 	void updateBacklight() {
 		if (active) {
 			//piLink.debugMessage(PSTR("backlight on"));
-			active = false;								// reset flag for this time slot
-			lastActivity = uint32_t(millis()>>10);		// divide by ~1000
+			active = false;						// reset flag for this time slot
+			lastActivity = ticks.seconds();
 		}
-		else if ((((millis()>>10)-lastActivity) > BACKLIGHT_AUTO_OFF_PERIOD)) {
+		else if ((ticks.seconds()-lastActivity) > BACKLIGHT_AUTO_OFF_PERIOD) {
 			//piLink.debugMessage(PSTR("backlight off"));
 			display.lcd.setBacklightState(false);
 		}
