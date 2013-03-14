@@ -120,7 +120,7 @@ class SpiLcd : public Print {
 	char readChar(void);
 
 	bool isBacklightOn() { return _backlight; }
-	bool setBacklightState(bool backlight) {
+	void setBacklightState(bool backlight) {
 		if (backlight!=_backlight)
 			 _backlight = backlight;		
 		_spiByte = _backlight ? 0x00 : 1<<LCD_SHIFT_BACKLIGHT;
