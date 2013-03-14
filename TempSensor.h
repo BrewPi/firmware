@@ -44,18 +44,40 @@ class TempSensor{
 	};
 		
 	void init();
-	bool isConnected(void);
+	
+	bool isConnected(void){
+		return connected;
+	}
+	
 	void update(void);
 	fixed7_9 read(void);
 	fixed7_9 readFastFiltered(void);
-	fixed7_9 readSlowFiltered(void);
+
+	fixed7_9 readSlowFiltered(void){
+		return slowFilter.readOutput(); //return most recent unfiltered value
+	}
 	fixed7_9 readSlope(void);
-	fixed7_9 detectPosPeak(void); //returns positive peak or INT_MIN when no peak has been found
-	fixed7_9 detectNegPeak(void); //returns negative peak or INT_MIN when no peak has been found
-	void setFastFilterCoefficients(uint8_t b);
-	void setSlowFilterCoefficients(uint8_t b);
-	void setSlopeFilterCoefficients(uint8_t b);
-			
+	
+	fixed7_9 detectPosPeak(void){
+		return slowFilter.detectPosPeak();
+	}
+	
+	fixed7_9 detectNegPeak(void){
+		return slowFilter.detectNegPeak();
+	}
+	
+	void setFastFilterCoefficients(uint8_t b){
+		fastFilter.setCoefficients(b);
+	}
+	
+	void setSlowFilterCoefficients(uint8_t b){
+		slowFilter.setCoefficients(b);
+	}
+
+	void setSlopeFilterCoefficients(uint8_t b){
+		slopeFilter.setCoefficients(b);
+	}			
+	
 	private:
 	const uint8_t pinNr;
 	bool connected;

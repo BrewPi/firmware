@@ -511,18 +511,6 @@ void TempControl::setMode(char newMode){
 	storeSettings();
 }
 
-char TempControl::getMode(void){
-	return cs.mode;
-}
-
-void TempControl::setState(unsigned char newState){
-	state = newState;		
-}
-
-unsigned char TempControl::getState(void){
-	return state;
-}
-
 fixed7_9 TempControl::getBeerTemp(void){
 	return beerSensor.readFastFiltered();
 }

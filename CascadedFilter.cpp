@@ -23,14 +23,10 @@
 #include <limits.h>
 #include "temperatureFormats.h"
 
-CascadedFilter::CascadedFilter(){
+CascadedFilter::CascadedFilter() {
 	for(uint8_t i=0; i<NUM_SECTIONS; i++){
 		sections[i].setCoefficients(2); // default to a b value of 2
 	}	
-}
-
-CascadedFilter::~CascadedFilter(){
-	
 }
 
 void CascadedFilter::setCoefficients(uint8_t bValue){
@@ -55,9 +51,6 @@ fixed7_25 CascadedFilter::addDoublePrecision(fixed7_25 val){
 	return input;
 }
 
-fixed7_9 CascadedFilter::readOutput(void){
-	return sections[NUM_SECTIONS-1].readOutput(); // return output of last section
-}
 
 fixed7_9 CascadedFilter::readInput(void){
 	return sections[0].readInput(); // return input of first section
@@ -77,10 +70,4 @@ void CascadedFilter::init(fixed7_9 val){
 	}
 }
 
-fixed7_9 CascadedFilter::detectPosPeak(void){
-	return sections[NUM_SECTIONS-1].detectPosPeak(); // detect peaks in last section
-}
 
-fixed7_9 CascadedFilter::detectNegPeak(void){
-	return sections[NUM_SECTIONS-1].detectNegPeak(); // detect peaks in last section
-}

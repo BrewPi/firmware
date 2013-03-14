@@ -104,7 +104,16 @@ class DallasTemperature
   bool setResolution(uint8_t*, uint8_t);
   
   // sets/gets the waitForConversion flag
-  void setWaitForConversion(bool);
+  // sets the value of the waitForConversion flag
+  // TRUE : function requestTemperature() etc returns when conversion is ready
+  // FALSE: function requestTemperature() etc returns immediately (USE WITH CARE!!)
+  // 		  (1) programmer has to check if the needed delay has passed
+  //        (2) but the application can do meaningfull things in that time
+  void setWaitForConversion(bool flag)
+  {
+	  waitForConversion = flag;
+  }
+
   bool getWaitForConversion(void);
   
   // sends command for all devices on the bus to perform a temperature conversion 
