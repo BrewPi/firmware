@@ -22,6 +22,7 @@
 #include "DallasTemperature.h"
 #include "PiLink.h"
 #include <limits.h>
+#include "Ticks.h"
 
 void TempSensor::init(void){
 	// give reset pulse to temp sensors
@@ -30,7 +31,7 @@ void TempSensor::init(void){
 	// get sensor address
 	if (!sensor->getAddress(sensorAddress, 0)){
 		// error no sensor found
-		if(millis() < 2000){
+		if(ticks.millis() < 2000){
 			// only log this debug message at startup
 			piLink.debugMessage(PSTR("Unable to find address for sensor on pin %d"), pinNr);
 		}
@@ -40,12 +41,12 @@ void TempSensor::init(void){
 	sensor->setWaitForConversion(false);
 		
 	sensor->requestTemperatures();
-	lastRequestTime = millis();
+	lastRequestTime = ticks.millis();
 	delay(750); // delay 750ms for conversion time
 	fixed7_9 temperature = DEVICE_DISCONNECTED;
 	while(temperature == DEVICE_DISCONNECTED){
 		temperature = sensor->getTempRaw(sensorAddress);
-		if(millis() - lastRequestTime > 2000){
+		if(ticks.millis() - lastRequestTime > 2000){
 			connected = false; // sensor disconnected
 			return;
 		}
@@ -66,10 +67,10 @@ bool TempSensor::isConnected(void){
 }
 
 void TempSensor::update(void){
-	if((millis()-lastRequestTime) > 5000){ // if last request is longer than 5 seconds ago, request again and delay
+	if((ticks.millis()-lastRequestTime) > 5000){ // if last request is longer than 5 seconds ago, request again and delay
 		sensor->requestTemperatures();
-		lastRequestTime = millis();
-		delay(750); // wait 750 ms (18B20 max conversion time)
+		lastRequestTime = ticks.millis();
+		wait.millis(750); // wait 750 ms (18B20 max conversion time)
 	}
 	fixed7_9 temperature = sensor->getTempRaw(sensorAddress);
 	if(temperature == DEVICE_DISCONNECTED){
@@ -111,7 +112,7 @@ void TempSensor::update(void){
 		
 	// already send request for next read
 	sensor->requestTemperatures();
-	lastRequestTime = millis();
+	lastRequestTime = ticks.millis();
 }
 
 fixed7_9 TempSensor::read(void){
