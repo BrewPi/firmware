@@ -308,7 +308,7 @@ void PiLink::receiveJson(void){
 void PiLink::processJsonPair(char * key, char * val){
 
 	debugMessage(PSTR("Received new setting: %s = %s"), key, val);
-	const char* msg = PSTR("%s temperature setting changed to %s %s.");
+	const char* msg = PSTR("%s temp setting changed to %s %s.");
 	const char* webui = "in web interface";
 	if(strcmp(key,jsonKeys.mode) == 0){
 		tempControl.setMode(val[0]);
@@ -318,7 +318,7 @@ void PiLink::processJsonPair(char * key, char * val){
 		fixed7_9 newTemp = stringToTemp(val);
 		if(tempControl.cs.mode == 'p'){
 			if(abs(newTemp-tempControl.cs.beerSetting) > 100){ // this excludes gradual updates under 0.2 degrees
-				printBeerAnnotation(msg, "Beer", val, "by temperature profile");
+				printBeerAnnotation(msg, "Beer", val, "by profile");
 			}
 		}
 		else{
