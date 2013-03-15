@@ -28,6 +28,8 @@
 #include "pins.h"
 #include <stdlib.h>
 
+typedef FixedFilter TempSensorFilter;
+
 class TempSensor{
 	public:
 	TempSensor(const uint8_t pinNumber) : pinNr(pinNumber){
@@ -83,13 +85,16 @@ class TempSensor{
 	unsigned char updateCounter;
 	fixed7_25 prevOutputForSlope;	
 	
-	CascadedFilter fastFilter;
-	CascadedFilter slowFilter;
-	CascadedFilter slopeFilter;
+	TempSensorFilter fastFilter;
+	TempSensorFilter slowFilter;
+	TempSensorFilter slopeFilter;
 	
 	OneWire * oneWire;
 	DallasTemperature * sensor;
 	DeviceAddress sensorAddress;
+	
+	friend class ChamberManager;
+	friend class Chamber;
 };
 
 

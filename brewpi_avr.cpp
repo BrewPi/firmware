@@ -36,25 +36,31 @@
 #include "Buzzer.h"
 #include "chamber.h"
 #include "TempSensor.h"
+#include "Ticks.h"
 
 // global class objects static and defined in class cpp and h files
 
 void setup(void);
 void loop (void);
 
+TicksImpl ticks;
+DelayImpl wait;
 
+
+TempSensor fridgeSensor(fridgeSensorPin);
+TempSensor beerSensor(beerSensorPin);
+
+Chamber c1(fridgeSensor, beerSensor);
+Chamber c2(beerSensor, fridgeSensor);
 
 Chamber* chambers[] = {
-	new Chamber(*new TempSensor(fridgeSensorPin), *new TempSensor(beerSensorPin)),
-	// for testing just invert, later will use 1-wire bus or multiple pins
-	new Chamber(*new TempSensor(beerSensorPin), *new TempSensor(fridgeSensorPin)),
+	&c1, &c2
 };
 
-ChamberManager chamberManager(chambers, sizeof(chambers));
+ChamberManager chamberManager(chambers, sizeof(chambers)/sizeof(chambers[0]));
 
 void setup()
 {
-	
 	Serial.begin(57600);
 	
 	// Signals are inverted on the shield, so set to high
@@ -69,20 +75,24 @@ void setup()
 	#else
 		pinMode(doorPin, INPUT);
 	#endif
+	
+	DEBUG_MSG(PSTR("started"));
 
 	chamberManager.init();
-		
+				
+	for (chamber_id i=0; i<chamberManager.chamberCount(); i++) {
+		chamberManager.initChamber(i);
+		piLink.printFridgeAnnotation(PSTR("Arduino restarted. Chamber %d ready!"), i+1);
+	}	
+	
 	display.init();
 	display.printStationaryText();
-	
+		
 	rotaryEncoder.init();
 		
-	for (chamber_id i=0; i<chamberManager.chamberCount(); i++) {
-		chamberManager.switchChamber(i);
-		piLink.printFridgeAnnotation(PSTR("Arduino restarted!"));
-	}		
 	buzzer.init();
-	buzzer.beep(2, 500);
+	//buzzer.beep(2, 500);
+	
 }
 
 void main() __attribute__ ((noreturn)); // tell the compiler main doesn't return.

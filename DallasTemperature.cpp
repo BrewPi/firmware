@@ -4,6 +4,7 @@
 // version 2.1 of the License, or (at your option) any later version.
 
 #include "DallasTemperature.h"
+#include "Ticks.h"
 
 DallasTemperature::DallasTemperature(OneWire* _oneWire)
   #if REQUIRESALARMS
@@ -171,7 +172,7 @@ void DallasTemperature::writeScratchPad(uint8_t* deviceAddress, const uint8_t* s
   _wire->reset();
   // save the newly written values to eeprom
   _wire->write(COPYSCRATCH, parasite);
-  if (parasite) delay(10); // 10ms delay
+  if (parasite) wait.millis(10); // 10ms delay
   _wire->reset();
 }
 
@@ -299,17 +300,17 @@ void DallasTemperature::requestTemperatures()
   switch (bitResolution)
   {
     case 9:
-      delay(94);
+      wait.millis(94);
       break;
     case 10:
-      delay(188);
+      wait.millis(188);
       break;
     case 11:
-      delay(375);
+      wait.millis(375);
       break;
     case 12:
     default:
-      delay(750);
+      wait.millis(750);
       break;
   }
   return;
@@ -333,24 +334,24 @@ bool DallasTemperature::requestTemperaturesByAddress(uint8_t* deviceAddress)
   
   if (deviceAddress[0] == DS18S20MODEL)
   {
-    delay(750);  // max value found in datasheet
+    wait.millis(750);  // max value found in datasheet
 	return true;
   } 
   // other models
   switch(scratchPad[CONFIGURATION])
   {
     case TEMP_9_BIT:
-      delay(94);
+      wait.millis(94);
       break;
     case TEMP_10_BIT:
-      delay(188);
+      wait.millis(188);
       break;
     case TEMP_11_BIT:
-      delay(375);
+      wait.millis(375);
       break;
     case TEMP_12_BIT:
     default:
-      delay(750);
+      wait.millis(750);
       break;
   }
   return true;

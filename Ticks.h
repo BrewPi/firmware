@@ -31,7 +31,7 @@ typedef unsigned char ticks_seconds_tiny_t;
 /*
  * The Ticks class provides the time period since the device was powered up.
  */
-class Ticks {
+class HardwareTicks {
 public:
 	ticks_millis_t millis() { return ::millis(); }
 	ticks_micros_t micros() { return ::micros(); }	
@@ -39,15 +39,30 @@ public:
 };
 
 
-class Delay {
+class HardwareDelay {
 public:
-	static void seconds(uint16_t seconds)	{ delay(seconds<<10); }
-	static void millis(uint32_t millis)	{ ::delay(millis); }
+	void seconds(uint16_t seconds)	{ delay(seconds<<10); }
+	void millis(uint32_t millis)	{ ::delay(millis); }
 	
 };
 
-extern Delay wait;
-extern Ticks ticks;
+class NoOpTicks {
+	ticks_millis_t millis() { return 0; }
+	ticks_micros_t micros() { return 0; }	
+	ticks_seconds_t seconds() { return 0; }	
+};
+
+class NoOpDelay {
+public:	
+	void seconds(uint16_t seconds)	{ delay(seconds<<10); }
+	void millis(uint32_t millis)	{ }	
+};
+
+typedef HardwareDelay DelayImpl;
+typedef HardwareTicks TicksImpl;
+
+extern DelayImpl wait;
+extern TicksImpl ticks;
 
 
 #endif /* TICKS_H_ */

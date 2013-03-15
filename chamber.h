@@ -10,6 +10,7 @@
 
 #include "TempControl.h"
 #include "TempSensor.h"
+#include "piLink.h"
 
 typedef uint8_t chamber_id;
 
@@ -18,8 +19,14 @@ class Chamber
 	public:
 	Chamber(TempSensor& fridge, TempSensor& beer) : state(fridge, beer) { }
 		
+	void init() {
+		state.applyInit();
+	}				
+		
 	void apply();
 	void retract();
+	
+	const TempControlState& getState() const { return state; }
 	
 	private:
 	TempControlState state;
@@ -32,21 +39,36 @@ class ChamberManager
 {
 public: 
 	ChamberManager(Chamber** _chambers, int _count) 
-		: chambers(_chambers), current(0), chamber_count(_count) { }
+		: chambers(_chambers), current(0), chamber_count(_count) 
+		{			
+		}
 	
 	void init()
 	{
+			DEBUG_MSG(PSTR("Initialized with %d chambers"), chamberCount());
+			for (chamber_id i=0; i<chamberCount(); i++) {
+				DEBUG_MSG(PSTR("Chamber %d sensor pins %d and %d"), i, getChamber(i).getState().beerSensor.pinNr, 
+					getChamber(i).getState().fridgeSensor.pinNr);
+			}
+		
+		DEBUG_MSG(PSTR("Applying chamber 0"));
 		getChamber(0).apply();
 		current = 0;
 	}		
 		
 	chamber_id switchChamber(chamber_id id)
 	{
+		DEBUG_MSG(PSTR("switch from chamber %d to %d"), current, id);
 		chamber_id prev = current;
 		getChamber(current).retract();
 		getChamber(id).apply();
 		current = id;
 		return prev;
+	}
+	
+	void initChamber(chamber_id id) {
+		// copy temp sensor data, but let tempcontroller initialize the rest
+		
 	}
 	
 	chamber_id chamberCount() const
@@ -62,7 +84,7 @@ public:
 private:
 	Chamber& getChamber(chamber_id id) const {
 		return *chambers[id];
-	}	
+	}
 	
 private:
 	Chamber** chambers;

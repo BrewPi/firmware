@@ -125,6 +125,10 @@ class SpiLcd : public Print {
 		_spiByte = _backlight ? 0x00 : 1<<LCD_SHIFT_BACKLIGHT;
 		spiOut();
 	}
+	
+	void setBufferOnly(bool bufferOnly) {
+		_bufferOnly = bufferOnly;
+	}
 
 	using Print::write;
 
@@ -144,12 +148,12 @@ class SpiLcd : public Print {
 	uint8_t _displayfunction;
 	uint8_t _displaycontrol;
 	uint8_t _displaymode;
-	uint8_t _initialized;
 	uint8_t _currline;
 	uint8_t _currpos;
 	uint8_t _numlines;
 	
 	bool	_backlight;
+	bool	_bufferOnly;
 	
 	char content[4][21]; // always keep a copy of the display content in this variable
 	

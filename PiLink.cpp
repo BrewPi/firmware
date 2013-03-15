@@ -30,6 +30,7 @@
 #include <string.h>
 #include "jsonKeys.h"
 #include "chamber.h"
+#include "Ticks.h"
 
 // create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
 void PiLink::print_P(const char *fmt, ... ){
@@ -54,11 +55,11 @@ void PiLink::print(char *fmt, ... ){
 void PiLink::receive(void){
 	if (Serial.available() > 0){
 		char inByte = Serial.read();
-		char chamber = Serial.read(); // 1..9
+		int chamber = Serial.read()-'1'; // 1..9
 		
 		chamber_id prev = chamberManager.currentChamber();
-		if (chamber>='1' && chamber<='9')
-			prev = chamberManager.switchChamber(chamber-'1');
+		if (chamber>=0 && chamber<=9)
+			prev = chamberManager.switchChamber(chamber);
 			
 		switch(inByte){
 		case 'x': // request chamber count
@@ -90,11 +91,17 @@ void PiLink::receive(void){
 			break;	
 		case 'l': // Display content requested
 			printChamberResponse('L');
+			
+			display.setBufferOnly(true);
+			display.printAll();
+						
 			char stringBuffer[21];
 			for(uint8_t i=0;i<4;i++){
-				display.lcd.getLine(i, stringBuffer);
+				display.getLine(i, stringBuffer);
 				print_P(PSTR("%s<BR>"), stringBuffer);
-			}				
+			}							
+			display.setBufferOnly(false);
+			
 			print_P(PSTR("\n"));
 			break;
 		case 'j': // Receive settings as json
@@ -183,6 +190,19 @@ void PiLink::debugMessage(const char * message, ...){
 
 	print_P(PSTR("\n")); // print newline
 }
+
+void PiLink::debugMessageDirect(const char * message, ...){
+	char tempString[128]; // resulting string limited to 128 chars
+	va_list args;
+	// Using print_P for the Annotation fails. Arguments are not passed correctly. Use Serial directly as a work around.
+	va_start (args, message );
+	vsnprintf_P(tempString, 128, message, args);
+	va_end (args);
+	Serial.print(tempString);
+
+	print_P(PSTR("\n")); // print newline
+}
+
 
 // Send settings as JSON string
 void PiLink::sendControlSettings(void){
@@ -273,12 +293,12 @@ void PiLink::receiveJson(void){
 	char val[30];
 	uint8_t index=0;
 	char character=0;
-	delay(1);
+	wait.millis(1);
 	while(Serial.available() > 0){ // outer while loop can process multiple pairs
 		index=0;
 		while(Serial.available() > 0) // get key
 		{
-			delay(1);
+			wait.millis(1);
 			character = Serial.read();
 			if(character == ':'){		
 				// value comes now
@@ -299,7 +319,7 @@ void PiLink::receiveJson(void){
 		index = 0;
 		while(Serial.available() > 0) // get value
 		{
-			delay(1);
+			wait.millis(1);
 			character = Serial.read();
 			if(character == ',' || character == '}'){
 				// end of value

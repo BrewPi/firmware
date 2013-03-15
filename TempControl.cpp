@@ -30,12 +30,13 @@
 #include "PiLink.h"
 #include "TempSensor.h"
 #include "Ticks.h"
+#include "chamber.h"
 
 TempControl tempControl;
 
 // Declare static variables
-TempSensor TempControl::beerSensor(beerSensorPin);
-TempSensor TempControl::fridgeSensor(fridgeSensorPin);
+TempSensor TempControl::beerSensor(-1);
+TempSensor TempControl::fridgeSensor(-2);
 	
 // Control parameters
 ControlConstants TempControl::cc;
@@ -57,6 +58,9 @@ unsigned long TempControl::lastCoolTime;
 
 void TempControl::init(void){
 	state=STARTUP;
+	if (EEPROM_CONTROL_BLOCK_SIZE*chamberManager.chamberCount()+1>1024) {
+		DEBUG_MSG(PSTR("EEPROM space exhausted - required %d bytes"),EEPROM_CONTROL_BLOCK_SIZE*chamberManager.chamberCount()+1);
+	}
 	beerSensor.init();
 	fridgeSensor.init();
 	updateTemperatures();
@@ -414,12 +418,12 @@ uint16_t TempControl::timeSinceIdle(void){
 // write new settings to EEPROM to be able to reload them after a reset
 // The update functions only write to EEPROM if the value has changed
 void TempControl::storeSettings(void){
-	eeprom_update_block((void *) &cs, (void *) EEPROM_CONTROL_SETTINGS_ADDRESS, sizeof(ControlSettings));		
+	eeprom_update_block((void *) &cs, (void *) EEPROM_CONTROL_SETTINGS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*chamberManager.currentChamber(), sizeof(ControlSettings));		
 	storedBeerSetting = cs.beerSetting;
 }
 
 void TempControl::loadSettings(void){
-	eeprom_read_block((void *) &cs, (void *) EEPROM_CONTROL_SETTINGS_ADDRESS, sizeof(ControlSettings));
+	eeprom_read_block((void *) &cs, (void *) EEPROM_CONTROL_SETTINGS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*chamberManager.currentChamber(), sizeof(ControlSettings));
 }
 
 void TempControl::loadDefaultSettings(void){
@@ -432,11 +436,11 @@ void TempControl::loadDefaultSettings(void){
 }
 
 void TempControl::storeConstants(void){
-	eeprom_update_block((void *) &cc, (void *) EEPROM_CONTROL_CONSTANTS_ADDRESS, sizeof(ControlConstants));
+	eeprom_update_block((void *) &cc, (void *) EEPROM_CONTROL_CONSTANTS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*chamberManager.currentChamber(), sizeof(ControlConstants));
 }
 
 void TempControl::loadConstants(void){
-	eeprom_read_block((void *) &cc, (void *) EEPROM_CONTROL_CONSTANTS_ADDRESS, sizeof(ControlConstants));
+	eeprom_read_block((void *) &cc, (void *) EEPROM_CONTROL_CONSTANTS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*chamberManager.currentChamber(), sizeof(ControlConstants));
 }
 
 void TempControl::loadDefaultConstants(void){
@@ -492,7 +496,7 @@ void TempControl::loadSettingsAndConstants(void){
 		loadDefaultSettings();
 		loadDefaultConstants();
 		eeprom_write_byte((unsigned char *) EEPROM_IS_INITIALIZED_ADDRESS, 1);
-		storeSettings();
+		storeSettings();	// todo - the store is also done in loadDefaultXXX
 		storeConstants();
 	}
 	else{

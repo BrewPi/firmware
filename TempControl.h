@@ -85,6 +85,7 @@ struct ControlConstants{
 #define EEPROM_IS_INITIALIZED_ADDRESS 0
 #define EEPROM_CONTROL_SETTINGS_ADDRESS (EEPROM_IS_INITIALIZED_ADDRESS+sizeof(uint8_t))
 #define EEPROM_CONTROL_CONSTANTS_ADDRESS (EEPROM_CONTROL_SETTINGS_ADDRESS+sizeof(ControlSettings))
+#define EEPROM_CONTROL_BLOCK_SIZE (sizeof(ControlSettings)+sizeof(ControlConstants))
 
 #define	MODE_FRIDGE_CONSTANT 'f'
 #define MODE_BEER_CONSTANT 'b'
@@ -97,8 +98,11 @@ enum states{
 	IDLE,
 	STARTUP,
 	DOOR_OPEN,
-	STATE_OFF
+	STATE_OFF,
+	NUM_STATES
 };
+
+#define TC_STATE_MASK 0x7;	// 3 bits
 
 
 // Making all functions and variables static reduces code size.
@@ -205,9 +209,9 @@ class TempControlState
 	fixed7_9 storedBeerSetting;
 
 	// Timers
-	unsigned long lastIdleTime;
-	unsigned long lastHeatTime;
-	unsigned long lastCoolTime;
+	unsigned int lastIdleTime;
+	unsigned int lastHeatTime;
+	unsigned int lastCoolTime;
 	
 	// State variables
 	uint8_t state;
@@ -215,18 +219,27 @@ class TempControlState
 	bool doNegPeakDetect;
 	
 	friend class Chamber;
+	friend class ChamberManager;
 	
 	public:
 	TempControlState(TempSensor& fridge, TempSensor& beer)
-: fridgeSensor(fridge), beerSensor(beer) {}
+		: fridgeSensor(fridge), beerSensor(beer) {}
 
 	#define applyField(field) memcpy(&::tempControl.field, &field, sizeof(tempControl.field));
 	#define retractField(field) memcpy(&field, &::tempControl.field, sizeof(tempControl.field));
+
+	void applyInit() {
+		applyField(beerSensor);
+		applyField(fridgeSensor);
+		
+		tempControl.init();
+	}
 
 	/*load into the global temp controller*/
 	void apply() {
 		applyField(beerSensor);
 		applyField(fridgeSensor);
+		
 		applyField(cc);
 		applyField(cs);
 		applyField(cv);

@@ -22,6 +22,7 @@
 
 #include "temperatureFormats.h"
 
+
 class PiLink{
 	public:
 	
@@ -31,6 +32,7 @@ class PiLink{
 	static void printFridgeAnnotation(const char * annotation, ...);
 	static void printBeerAnnotation(const char * annotation, ...);
 	static void debugMessage(const char * message, ...);
+	static void debugMessageDirect(const char * message, ...);
 	
 	private:
 	static void printTemperatures(void);
@@ -56,5 +58,9 @@ class PiLink{
 };
 
 static PiLink piLink;
+
+
+#define DEBUG_MSG(...) piLink.debugMessageDirect(__VA_ARGS__);
+
 
 #endif /* PILINK_H_ */

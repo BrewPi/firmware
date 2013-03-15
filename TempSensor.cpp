@@ -29,6 +29,8 @@ void TempSensor::init(void){
 	{
 		oneWire = new OneWire(pinNr);
 		sensor = new DallasTemperature(oneWire);
+		if (oneWire==NULL || sensor==NULL)
+			DEBUG_MSG(PSTR("Not enough SRAM for sensors"));
 	}
 	
 	// give reset pulse to temp sensors
