@@ -34,8 +34,6 @@ class TempSensor{
 		lastRequestTime = 0;
 		connected = 0;
 		updateCounter = 255; // first update for slope filter after (255-13s)
-		oneWire = new OneWire(pinNr);
-		sensor = new DallasTemperature(oneWire);
 	};
 		
 	~TempSensor(){

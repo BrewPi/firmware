@@ -28,13 +28,12 @@ class PiLink{
 	// There can only be one PiLink object, so functions are static
 	static void receive(void);
 	
-	static void print(char *fmt, ...); // use when format string is stored in RAM
-	static void print_P(const char *fmt, ...); // use when format string is stored in PROGMEM with PSTR("string")
-	
-	static void printTemperatures(void);
-	static void printBeerAnnotation(const char * annotation, ...);
 	static void printFridgeAnnotation(const char * annotation, ...);
+	static void printBeerAnnotation(const char * annotation, ...);
 	static void debugMessage(const char * message, ...);
+	
+	private:
+	static void printTemperatures(void);
 	
 	static void sendControlSettings(void);
 	static void receiveControlConstants(void);
@@ -43,14 +42,17 @@ class PiLink{
 	
 	static void receiveJson(void); // receive settings as JSON key:value pairs
 	
-	
-	private:
+	static void print(char *fmt, ...); // use when format string is stored in RAM
+	static void print(char c) { Serial.print(c); }
+	static void print_P(const char *fmt, ...); // use when format string is stored in PROGMEM with PSTR("string")
+	static void printChamberCount();
 	static void printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotation);
 	static void sendJsonPair(const char * name, char * val); // send one JSON pair with a string value as name:val,
 	static void sendJsonPair(const char * name, char val); // send one JSON pair with a char value as name:val,
 	static void sendJsonPair(const char * name, uint16_t val); // send one JSON pair with a uint16_t value as name:val,
 	static void sendJsonPair(const char * name, uint8_t val); // send one JSON pair with a uint8_t value as name:val,
 	static void processJsonPair(char * key, char * val); // process one pair
+	static void printChamberResponse(char responseChar);
 };
 
 static PiLink piLink;

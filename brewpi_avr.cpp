@@ -34,12 +34,23 @@
 #include "pins.h"
 #include "RotaryEncoder.h"
 #include "Buzzer.h"
+#include "chamber.h"
+#include "TempSensor.h"
 
 // global class objects static and defined in class cpp and h files
 
 void setup(void);
 void loop (void);
 
+
+
+Chamber* chambers[] = {
+	new Chamber(*new TempSensor(fridgeSensorPin), *new TempSensor(beerSensorPin)),
+	// for testing just invert, later will use 1-wire bus or multiple pins
+	new Chamber(*new TempSensor(beerSensorPin), *new TempSensor(fridgeSensorPin)),
+};
+
+ChamberManager chamberManager(chambers, sizeof(chambers));
 
 void setup()
 {
@@ -58,21 +69,18 @@ void setup()
 	#else
 		pinMode(doorPin, INPUT);
 	#endif
-	
-	tempControl.loadSettingsAndConstants(); //read previous settings from EEPROM
-	tempControl.init();
-	tempControl.updatePID();
-	tempControl.updateState();
-	
-	wait.millis(2000); // give LCD time to power up
-	
+
+	chamberManager.init();
+		
 	display.init();
 	display.printStationaryText();
-	display.printState();
 	
 	rotaryEncoder.init();
-	
-	piLink.printFridgeAnnotation(PSTR("Arduino restarted!"));
+		
+	for (chamber_id i=0; i<chamberManager.chamberCount(); i++) {
+		chamberManager.switchChamber(i);
+		piLink.printFridgeAnnotation(PSTR("Arduino restarted!"));
+	}		
 	buzzer.init();
 	buzzer.beep(2, 500);
 }
@@ -95,10 +103,18 @@ void main(void)
 	}
 }
 
+
+
 void loop(void)
 {
 	static unsigned long lastUpdate = 0;
-	if(ticks.millis() - lastUpdate > 1000){ //update settings every second
+	static chamber_id nextChamber = 0;
+	
+	if(ticks.millis() - lastUpdate > (1000/chamberManager.chamberCount())) { //update settings every second
+		
+		nextChamber = ++nextChamber % chamberManager.chamberCount();
+		chamber_id prev = chamberManager.switchChamber(nextChamber);
+		
 		lastUpdate=ticks.millis();
 		
 		tempControl.updateTemperatures();		
@@ -106,13 +122,20 @@ void loop(void)
 		tempControl.updatePID();
 		tempControl.updateState();
 		tempControl.updateOutputs();
+		
+		chamberManager.switchChamber(prev);
+				
 		if(rotaryEncoder.pushed()){
 			rotaryEncoder.resetPushed();
 			menu.pickSettingToChange();	
 		}
-		display.printState();
-		display.printAllTemperatures();
-		display.printMode();
+		
+		if (prev==nextChamber)
+		{
+			display.printState();
+			display.printAllTemperatures();
+			display.printMode();			
+		}
 	}	
 	//listen for incoming serial connections while waiting top update
 	piLink.receive();

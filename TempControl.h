@@ -100,6 +100,7 @@ enum states{
 	STATE_OFF
 };
 
+
 // Making all functions and variables static reduces code size.
 // There will only be one TempControl object, so it makes sense that they are static.
 
@@ -181,8 +182,86 @@ class TempControl{
 	
 	static void increaseEstimator(fixed7_9 * estimator, fixed7_9 error);
 	static void decreaseEstimator(fixed7_9 * estimator, fixed7_9 error);
+	
+	friend class TempControlState;
+};
+	
+extern TempControl tempControl;
+
+
+class TempControlState
+{
+	private:
+	TempSensor& fridgeSensor;
+	TempSensor& beerSensor;
+	
+	// Control parameters
+	ControlConstants cc;
+	ControlSettings cs;
+	ControlVariables cv;
+	
+	private:
+	// keep track of beer setting stored in EEPROM
+	fixed7_9 storedBeerSetting;
+
+	// Timers
+	unsigned long lastIdleTime;
+	unsigned long lastHeatTime;
+	unsigned long lastCoolTime;
+	
+	// State variables
+	uint8_t state;
+	bool doPosPeakDetect;
+	bool doNegPeakDetect;
+	
+	friend class Chamber;
+	
+	public:
+	TempControlState(TempSensor& fridge, TempSensor& beer)
+: fridgeSensor(fridge), beerSensor(beer) {}
+
+	#define applyField(field) memcpy(&::tempControl.field, &field, sizeof(tempControl.field));
+	#define retractField(field) memcpy(&field, &::tempControl.field, sizeof(tempControl.field));
+
+	/*load into the global temp controller*/
+	void apply() {
+		applyField(beerSensor);
+		applyField(fridgeSensor);
+		applyField(cc);
+		applyField(cs);
+		applyField(cv);
+		applyField(storedBeerSetting);
+
+		applyField(lastIdleTime);
+		applyField(lastHeatTime);
+		applyField(lastCoolTime);
+	
+		applyField(state);
+		applyField(doPosPeakDetect);
+		applyField(doNegPeakDetect);
+	}
+
+	/*save state from the global temp controller*/
+	void retract() {
+		retractField(beerSensor);
+		retractField(fridgeSensor);
+		retractField(cc);
+		retractField(cs);
+		retractField(cv);
+		retractField(storedBeerSetting);
+
+		retractField(lastIdleTime);
+		retractField(lastHeatTime);
+		retractField(lastCoolTime);
+	
+		retractField(state);
+		retractField(doPosPeakDetect);
+		retractField(doNegPeakDetect);
+	
+	}
+
 };
 
-extern TempControl tempControl;
+
 
 #endif /* CONTROLLER_H_ */

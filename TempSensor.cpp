@@ -25,6 +25,12 @@
 #include "Ticks.h"
 
 void TempSensor::init(void){
+	if (oneWire==NULL)
+	{
+		oneWire = new OneWire(pinNr);
+		sensor = new DallasTemperature(oneWire);
+	}
+	
 	// give reset pulse to temp sensors
 	oneWire->reset();
 

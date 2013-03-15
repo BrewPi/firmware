@@ -29,6 +29,7 @@
 #include <limits.h>
 #include <string.h>
 #include "jsonKeys.h"
+#include "chamber.h"
 
 // create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
 void PiLink::print_P(const char *fmt, ... ){
@@ -53,7 +54,17 @@ void PiLink::print(char *fmt, ... ){
 void PiLink::receive(void){
 	if (Serial.available() > 0){
 		char inByte = Serial.read();
+		char chamber = Serial.read(); // 1..9
+		
+		chamber_id prev = chamberManager.currentChamber();
+		if (chamber>='1' && chamber<='9')
+			prev = chamberManager.switchChamber(chamber-'1');
+			
 		switch(inByte){
+		case 'x': // request chamber count
+			printChamberResponse('X');
+			print(chamberManager.chamberCount()+'1');
+			break;
 		case 't': // temperatures requested
 			printTemperatures();      
 			break;
@@ -78,7 +89,7 @@ void PiLink::receive(void){
 			sendControlVariables();
 			break;	
 		case 'l': // Display content requested
-			print_P(PSTR("L:"));
+			printChamberResponse('L');
 			char stringBuffer[21];
 			for(uint8_t i=0;i<4;i++){
 				display.lcd.getLine(i, stringBuffer);
@@ -92,14 +103,25 @@ void PiLink::receive(void){
 		default:
 			debugMessage(PSTR("Invalid command received by Arduino: %c"), inByte);
 		}
+		
+		chamberManager.switchChamber(prev);
+		
 		//Serial.flush(); Messages can be back to back. Flush should not be necessary.
 		// Functions should not read more than what is meant for that function.
 	}
 }
 
+void PiLink::printChamberResponse(char responseChar)
+{
+	print(responseChar);
+	print(chamberManager.currentChamber()+'1');	
+	print(':');
+}
+
 void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotation){
 	char tempString[9];
-	print_P(PSTR("T:{\"BeerTemp\":%s,"), tempToString(tempString, tempControl.getBeerTemp(), 2, 9));
+	printChamberResponse('T');
+	print_P(PSTR("{\"BeerTemp\":%s,"), tempToString(tempString, tempControl.getBeerTemp(), 2, 9));
 	print_P(PSTR("\"BeerSet\":%s,"), tempToString(tempString, tempControl.getBeerSetting(), 2, 9));
 	print_P(PSTR("\"BeerAnn\":"));
 	if(beerAnnotation == 0){
@@ -150,8 +172,8 @@ void PiLink::debugMessage(const char * message, ...){
 	char tempString[128]; // resulting string limited to 128 chars
 	va_list args;
 	
-	//print 'D:' as prefix
-	print_P(PSTR("D:"));
+	//print 'D:' as prefix	
+	printChamberResponse('D');
 	
 	// Using print_P for the Annotation fails. Arguments are not passed correctly. Use Serial directly as a work around.
 	va_start (args, message );
@@ -165,7 +187,8 @@ void PiLink::debugMessage(const char * message, ...){
 // Send settings as JSON string
 void PiLink::sendControlSettings(void){
 	char tempString[12];
-	print_P(PSTR("S:{"));
+	printChamberResponse('S');
+	print('{');
 	ControlSettings& cs = tempControl.cs;
 	sendJsonPair(jsonKeys.mode, tempControl.cs.mode);
 	sendJsonPair(jsonKeys.beerSetting, tempToString(tempString, cs.beerSetting, 2, 12));
@@ -178,7 +201,8 @@ void PiLink::sendControlSettings(void){
 // Send control constants as JSON string. Might contain spaces between minus sign and number. Python will have to strip these
 void PiLink::sendControlConstants(void){
 	char tempString[12];
-	print_P(PSTR("C:{"));
+	printChamberResponse('C');
+	print('{');
 	sendJsonPair(jsonKeys.tempFormat, tempControl.cc.tempFormat);
 	sendJsonPair(jsonKeys.tempSettingMin, tempToString(tempString, tempControl.cc.tempSettingMin, 1, 12));
 	sendJsonPair(jsonKeys.tempSettingMax, tempToString(tempString, tempControl.cc.tempSettingMax, 1, 12));
@@ -211,7 +235,8 @@ void PiLink::sendControlConstants(void){
 // Send all control variables. Useful for debugging and choosing parameters
 void PiLink::sendControlVariables(void){
 	char tempString[12];
-	print_P(PSTR("V:{"));
+	printChamberResponse('V');
+	print('{');
 	sendJsonPair(jsonKeys.beerDiff, tempDiffToString(tempString, tempControl.cv.beerDiff, 3, 12));
 	sendJsonPair(jsonKeys.diffIntegral, tempDiffToString(tempString, tempControl.cv.diffIntegral, 3, 12));
 	sendJsonPair(jsonKeys.beerSlope, tempDiffToString(tempString, tempControl.cv.beerSlope, 3, 12));
