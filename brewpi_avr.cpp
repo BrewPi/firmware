@@ -113,6 +113,7 @@ void loop(void)
 		display.printState();
 		display.printAllTemperatures();
 		display.printMode();
+		display.lcd.updateBacklight();
 	}	
 	//listen for incoming serial connections while waiting top update
 	piLink.receive();
