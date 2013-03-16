@@ -9,12 +9,4 @@
 #include "chamber.h"
 
 
-void Chamber::apply()
-{
-	state.apply();
-}	
 
-void Chamber::retract()
-{
-	state.retract();
-}

@@ -30,32 +30,45 @@
 
 typedef FixedFilter TempSensorFilter;
 
-class TempSensor{
+class BasicTempSensor
+{
+public:
+	virtual ~BasicTempSensor() { }
+	
+	virtual bool isConnected(void) = 0;
+	
+	/*
+	 * Attempt to (re-)initialize the sensor and fetch a sensor reading
+	 * Returns a temperature reading, or DEVICE_DISCONNECTED
+	 */
+	virtual fixed7_9 init() =0;
+
+	/*
+	 * Fetch a new reading from the sensor
+	 */
+	virtual fixed7_9 read() = 0;
+	
+	
+};
+
+class TempSensor {
 	public:
-	TempSensor(const uint8_t pinNumber) : pinNr(pinNumber){
-		lastRequestTime = 0;
-		connected = 0;
+	TempSensor(BasicTempSensor& sensor) : _sensor(sensor)  {
 		updateCounter = 255; // first update for slope filter after (255-13s)
-	};
-		
-	~TempSensor(){
-		delete oneWire;
-		delete sensor;
-	};
-		
+	 }
+	
 	void init();
 	
-	bool isConnected(void){
-		return connected;
-	}
+	bool isConnected() { return _sensor.isConnected(); }
 	
-	void update(void);
-	fixed7_9 read(void);
+	void update();
+	
 	fixed7_9 readFastFiltered(void);
 
 	fixed7_9 readSlowFiltered(void){
 		return slowFilter.readOutput(); //return most recent unfiltered value
 	}
+	
 	fixed7_9 readSlope(void);
 	
 	fixed7_9 detectPosPeak(void){
@@ -77,22 +90,16 @@ class TempSensor{
 	void setSlopeFilterCoefficients(uint8_t b){
 		slopeFilter.setCoefficients(b);
 	}			
-	
-	private:
-	const uint8_t pinNr;
-	bool connected;
-	unsigned long lastRequestTime; // in milliseconds
-	unsigned char updateCounter;
+
+	private:	
 	fixed7_25 prevOutputForSlope;	
 	
+	unsigned char updateCounter;
 	TempSensorFilter fastFilter;
 	TempSensorFilter slowFilter;
 	TempSensorFilter slopeFilter;
-	
-	OneWire * oneWire;
-	DallasTemperature * sensor;
-	DeviceAddress sensorAddress;
-	
+	BasicTempSensor& _sensor;
+		
 	friend class ChamberManager;
 	friend class Chamber;
 };

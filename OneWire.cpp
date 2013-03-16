@@ -97,7 +97,7 @@ sample code bearing this copyright.
 */
 
 #include "OneWire.h"
-
+#include "Ticks.h"
 
 OneWire::OneWire(uint8_t pin)
 {
@@ -122,6 +122,10 @@ uint8_t OneWire::reset(void)
 	volatile IO_REG_TYPE *reg IO_REG_ASM = baseReg;
 	uint8_t r;
 	uint8_t retries = 125;
+
+	#if BREWPI_EMULATE
+	retries=1;
+	#endif
 
 	noInterrupts();
 	DIRECT_MODE_INPUT(reg, mask);

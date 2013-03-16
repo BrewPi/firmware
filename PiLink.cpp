@@ -31,6 +31,24 @@
 #include "jsonKeys.h"
 #include "chamber.h"
 #include "Ticks.h"
+#include "brewpi_avr.h"
+
+class MockSerial
+{
+public:
+	void print(char c) {}
+	void print(const char* c) {}
+	char read() { return '\0'; }
+	uint8_t available() { return 0; }
+};
+
+static MockSerial mockSerial;
+
+#if BREWPI_EMULATE	
+	#define piStream mockSerial
+#else
+	#define piStream Serial
+#endif
 
 // create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
 void PiLink::print_P(const char *fmt, ... ){
@@ -39,7 +57,7 @@ void PiLink::print_P(const char *fmt, ... ){
 	va_start (args, fmt );
 	vsnprintf_P(tmp, 128, fmt, args);
 	va_end (args);
-	Serial.print(tmp);
+	piStream.print(tmp);
 }
 
 // create a printf like interface to the Arduino Serial function. Format string stored in RAM
@@ -49,23 +67,29 @@ void PiLink::print(char *fmt, ... ){
 	va_start (args, fmt );
 	vsnprintf(tmp, 128, fmt, args);
 	va_end (args);
-	Serial.print(tmp);
+	piStream.print(tmp);
 }
 
 void PiLink::receive(void){
-	if (Serial.available() > 0){
-		char inByte = Serial.read();
-		int chamber = Serial.read()-'1'; // 1..9
+	if (piStream.available() > 1){
+		
+		char inByte = piStream.read();
+		switch (inByte) {
+			case 'x': // request chamber count
+			printChamberResponse('X');
+			print('{');
+			sendJsonPair("chambers", chamberManager.chamberCount());
+			print('\n');
+			return;
+		}
+		
+		int chamber = piStream.read()-'1'; // 1..9
 		
 		chamber_id prev = chamberManager.currentChamber();
 		if (chamber>=0 && chamber<=9)
 			prev = chamberManager.switchChamber(chamber);
 			
 		switch(inByte){
-		case 'x': // request chamber count
-			printChamberResponse('X');
-			print(chamberManager.chamberCount()+'1');
-			break;
 		case 't': // temperatures requested
 			printTemperatures();      
 			break;
@@ -186,7 +210,7 @@ void PiLink::debugMessage(const char * message, ...){
 	va_start (args, message );
 	vsnprintf_P(tempString, 128, message, args);
 	va_end (args);
-	Serial.print(tempString);
+	piStream.print(tempString);
 
 	print_P(PSTR("\n")); // print newline
 }
@@ -194,13 +218,13 @@ void PiLink::debugMessage(const char * message, ...){
 void PiLink::debugMessageDirect(const char * message, ...){
 	char tempString[128]; // resulting string limited to 128 chars
 	va_list args;
-	// Using print_P for the Annotation fails. Arguments are not passed correctly. Use Serial directly as a work around.
+	// Using print_P for the Annotation fails. Arguments are not passed correctly. Use  directly as a work around.
 	va_start (args, message );
 	vsnprintf_P(tempString, 128, message, args);
 	va_end (args);
-	Serial.print(tempString);
+	piStream.print(tempString);
 
-	print_P(PSTR("\n")); // print newline
+	print('\n'); // print newline
 }
 
 
@@ -268,7 +292,7 @@ void PiLink::sendControlVariables(void){
 	sendJsonPair(jsonKeys.estimatedPeak, tempToString(tempString, tempControl.cv.estimatedPeak, 3, 12));
 	sendJsonPair(jsonKeys.negPeakSetting, tempToString(tempString, tempControl.cv.negPeakSetting, 3, 12));
 	sendJsonPair(jsonKeys.posPeakSetting, tempToString(tempString, tempControl.cv.posPeakSetting, 3, 12));
-	sendJsonPair(jsonKeys.negPeak, tempToString(tempString, tempControl.cv.negPeak, 3, 12));
+	sendJsonPair(jsonKeys.negPeak, tempToString(tempString, tempControl.cv.negPeak, 3, 12));	
 	print_P(PSTR("\"%s\":%s}\n"), jsonKeys.posPeak, tempToString(tempString, tempControl.cv.posPeak, 3, 12));
 }
 
@@ -294,12 +318,12 @@ void PiLink::receiveJson(void){
 	uint8_t index=0;
 	char character=0;
 	wait.millis(1);
-	while(Serial.available() > 0){ // outer while loop can process multiple pairs
+	while(piStream.available() > 0){ // outer while loop can process multiple pairs
 		index=0;
-		while(Serial.available() > 0) // get key
+		while(piStream.available() > 0) // get key
 		{
 			wait.millis(1);
-			character = Serial.read();
+			character = piStream.read();
 			if(character == ':'){		
 				// value comes now
 				break;
@@ -317,10 +341,10 @@ void PiLink::receiveJson(void){
 		}
 		key[index]=0; // null terminate string
 		index = 0;
-		while(Serial.available() > 0) // get value
+		while(piStream.available() > 0) // get value
 		{
 			wait.millis(1);
-			character = Serial.read();
+			character = piStream.read();
 			if(character == ',' || character == '}'){
 				// end of value
 				break;

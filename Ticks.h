@@ -28,41 +28,60 @@ typedef unsigned long ticks_micros_t;
 typedef unsigned int ticks_seconds_t;
 typedef unsigned char ticks_seconds_tiny_t;
 
-/*
- * The Ticks class provides the time period since the device was powered up.
- */
-class HardwareTicks {
-public:
-	ticks_millis_t millis() { return ::millis(); }
-	ticks_micros_t micros() { return ::micros(); }	
-	ticks_seconds_t seconds() { return ::millis()/1000; }
-};
-
-
-class HardwareDelay {
-public:
-	void seconds(uint16_t seconds)	{ delay(seconds<<10); }
-	void millis(uint32_t millis)	{ ::delay(millis); }
+class Ticks {
 	
-};
+	};
 
-class NoOpTicks {
-	ticks_millis_t millis() { return 0; }
-	ticks_micros_t micros() { return 0; }	
-	ticks_seconds_t seconds() { return 0; }	
+class MockTicks {
+public:
+	MockTicks(uint8_t increment) : _increment(increment), _ticks(0) { }
+
+	ticks_millis_t millis() { return _ticks+=_increment; }
+	ticks_micros_t micros() { return _ticks+=_increment; }	
+	ticks_seconds_t seconds() { return millis()>>10; }	
+private:
+
+	uint32_t _increment;
+	uint32_t _ticks;	
+		
 };
 
 class NoOpDelay {
 public:	
-	void seconds(uint16_t seconds)	{ delay(seconds<<10); }
+	void seconds(uint16_t seconds)	{ millis(seconds<<10); }
 	void millis(uint32_t millis)	{ }	
+	void microseconds(uint32_t micros) { }
 };
 
-typedef HardwareDelay DelayImpl;
-typedef HardwareTicks TicksImpl;
+#include "avr_ticks.h"
 
-extern DelayImpl wait;
+#if BREWPI_EMULATE
+#define USE_HARDWARE_TICKS 0
+#define USE_HARDWARE_DELAY 0
+#else
+#define USE_HARDWARE_TICKS 1
+#define USE_HARDWARE_DELAY 1
+#endif
+
+#if USE_HARDWARE_TICKS
+typedef HardwareTicks TicksImpl;
+#define TICKS_IMPL_CONFIG 
+#else
+typedef MockTicks TicksImpl;
+#define TICKS_IMPL_CONFIG 100
+#endif
+
+#if USE_HARDWARE_DELAY
+typedef HardwareDelay DelayImpl;
+#define DELAY_IMPL_CONFIG 
+#else
+typedef NoOpDelay DelayImpl;
+#define DELAY_IMPL_CONFIG 
+#endif
+
 extern TicksImpl ticks;
+extern DelayImpl wait;
+
 
 
 #endif /* TICKS_H_ */

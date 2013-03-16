@@ -31,12 +31,13 @@
 #include "TempSensor.h"
 #include "Ticks.h"
 #include "chamber.h"
+#include "MockTempSensor.h"
 
 TempControl tempControl;
 
 // Declare static variables
-TempSensor TempControl::beerSensor(-1);
-TempSensor TempControl::fridgeSensor(-2);
+TempSensor TempControl::beerSensor(*(BasicTempSensor*)NULL);
+TempSensor TempControl::fridgeSensor(*(BasicTempSensor*)NULL);
 	
 // Control parameters
 ControlConstants TempControl::cc;
@@ -57,8 +58,8 @@ unsigned long TempControl::lastHeatTime;
 unsigned long TempControl::lastCoolTime;
 
 void TempControl::init(void){
-	state=STARTUP;
-	if (EEPROM_CONTROL_BLOCK_SIZE*chamberManager.chamberCount()+1>1024) {
+	state=STARTUP;	
+	if ((EEPROM_CONTROL_BLOCK_SIZE*chamberManager.chamberCount())>1024) {
 		DEBUG_MSG(PSTR("EEPROM space exhausted - required %d bytes"),EEPROM_CONTROL_BLOCK_SIZE*chamberManager.chamberCount()+1);
 	}
 	beerSensor.init();
@@ -420,7 +421,7 @@ uint16_t TempControl::timeSinceIdle(void){
 void TempControl::storeSettings(void){
 	eeprom_update_block((void *) &cs, (void *) EEPROM_CONTROL_SETTINGS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*chamberManager.currentChamber(), sizeof(ControlSettings));		
 	storedBeerSetting = cs.beerSetting;
-}
+}	
 
 void TempControl::loadSettings(void){
 	eeprom_read_block((void *) &cs, (void *) EEPROM_CONTROL_SETTINGS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*chamberManager.currentChamber(), sizeof(ControlSettings));
@@ -491,13 +492,12 @@ void TempControl::loadDefaultConstants(void){
 }
 
 void TempControl::loadSettingsAndConstants(void){
-	if(eeprom_read_byte((unsigned char *) EEPROM_IS_INITIALIZED_ADDRESS) != 1){
+	uint16_t offset = EEPROM_CONTROL_BLOCK_SIZE*chamberManager.currentChamber()+EEPROM_IS_INITIALIZED_ADDRESS;
+	if(eeprom_read_byte((unsigned char*) offset) != 1){
 		// EEPROM is not initialized, use default settings
 		loadDefaultSettings();
 		loadDefaultConstants();
-		eeprom_write_byte((unsigned char *) EEPROM_IS_INITIALIZED_ADDRESS, 1);
-		storeSettings();	// todo - the store is also done in loadDefaultXXX
-		storeConstants();
+		eeprom_write_byte((unsigned char *) offset, 1);
 	}
 	else{
 		loadSettings();

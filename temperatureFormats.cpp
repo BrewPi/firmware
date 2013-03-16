@@ -60,7 +60,7 @@ char * fixedPointToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, ui
 	uint16_t fracPart;
 #if OPTIMIZE_TEMPERATURE_FORMATS_fixedPointToString	
 	const char* fmt;
-	short scale;
+	uint16_t scale;
 	switch (numDecimals)
 	{
 		case 1:
@@ -115,7 +115,7 @@ long int convertAndConstrain(long int rawTemp, byte offset)
 	if(tempControl.cc.tempFormat == 'F'){
 		rawTemp = ((rawTemp - offset) * 5) / 9; // convert to store as Celsius
 	}	
-	constrain(rawTemp, INT_MIN, INT_MAX);
+	return constrain(rawTemp, INT_MIN, INT_MAX);	
 }
 
 fixed7_9 stringToTemp(char * numberString){

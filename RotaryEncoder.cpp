@@ -37,6 +37,10 @@ RotaryEncoder rotaryEncoder;
 	#error Review interrupt vectors when not using pin 9 for menu left
 #endif
 
+#define ENABLE_ROTARY_ENCODER 0
+
+#if ENABLE_ROTARY_ENCODER
+
 #if defined(USBCON)
 // Arduino Leonardo
 ISR(INT6_vect){
@@ -85,6 +89,8 @@ ISR(PCINT0_vect){
 	prevPinB = currPinB;	
 }
 
+
+#endif
 
 #endif
 
@@ -154,7 +160,8 @@ void RotaryEncoder::init(void){
 	
 	pinAHandler(true); // call functions ones here for proper initialization
 	pinBHandler(true); 
-	
+
+#if ENABLE_ROTARY_ENCODER	
 	#if defined(USBCON) // Arduino Leonardo
 		// falling edge interrupt for switch on INT6
 		EICRB |= (1<<ISC61) | (0<<ISC60);
@@ -172,6 +179,7 @@ void RotaryEncoder::init(void){
 		// enable mask bit for PCINT23
 		PCMSK2 |= (1<<PCINT23);
 	#endif
+#endif	
 }
 
 

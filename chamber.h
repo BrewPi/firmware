@@ -23,10 +23,18 @@ class Chamber
 		state.applyInit();
 	}				
 		
-	void apply();
-	void retract();
-	
+	void apply()
+	{
+		state.apply();
+	}	
+
+	void retract()
+	{
+		state.retract();
+	}	
+
 	const TempControlState& getState() const { return state; }
+
 	
 	private:
 	TempControlState state;
@@ -45,19 +53,20 @@ public:
 	
 	void init()
 	{
+		/*
 			DEBUG_MSG(PSTR("Initialized with %d chambers"), chamberCount());
 			for (chamber_id i=0; i<chamberCount(); i++) {
 				DEBUG_MSG(PSTR("Chamber %d sensor pins %d and %d"), i, getChamber(i).getState().beerSensor.pinNr, 
 					getChamber(i).getState().fridgeSensor.pinNr);
 			}
-		
-		DEBUG_MSG(PSTR("Applying chamber 0"));
-		getChamber(0).apply();
+		*/
 		current = 0;
 	}		
 		
 	chamber_id switchChamber(chamber_id id)
 	{
+		if (id==current)
+			return id;
 		DEBUG_MSG(PSTR("switch from chamber %d to %d"), current, id);
 		chamber_id prev = current;
 		getChamber(current).retract();
@@ -67,8 +76,13 @@ public:
 	}
 	
 	void initChamber(chamber_id id) {
-		// copy temp sensor data, but let tempcontroller initialize the rest
-		
+		current = id;
+		getChamber(id).init();		
+		tempControl.loadSettingsAndConstants(); //read previous settings from EEPROM
+		tempControl.init();
+		tempControl.updatePID();
+		tempControl.updateState();
+		getChamber(id).retract();
 	}
 	
 	chamber_id chamberCount() const

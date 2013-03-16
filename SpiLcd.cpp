@@ -181,11 +181,12 @@ inline void SpiLcd::command(uint8_t value) {
 }
 
 inline size_t SpiLcd::write(uint8_t value) {
-	content[_currline][_currpos++] = value;
-	if (!_bufferOnly) 
+	content[_currline][_currpos] = value;
+	_currpos++;
+	if (!_bufferOnly)
 	{
 		send(value, HIGH);
-		waitBusy();			
+		waitBusy();		
 	}
 	return 1;
 }
