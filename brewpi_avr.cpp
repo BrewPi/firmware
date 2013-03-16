@@ -40,6 +40,18 @@
 #include "OneWireTempSensor.h"
 #include "Ticks.h"
 #include "brewpi_avr.h"
+#include "config.h"
+
+// global class objects static and defined in class cpp and h files
+
+// instantiate and configure the sensors, actuators and controllers we want to use
+
+template<> class DigitalHardPinSensor<4> { };
+
+TempControl& tempControl = *CONFIG_TEMP_CONTROL;
+Display& display = *CONFIG_DISPLAY;
+PiLink piLink; //(tempControl);
+Menu menu; //(tempControl, piLink);
 
 void setup(void);
 void loop (void);
@@ -79,19 +91,6 @@ void setup()
 {
 	Serial.begin(57600);
 	
-	// Signals are inverted on the shield, so set to high
-	digitalWrite(coolingPin, HIGH);
-	digitalWrite(heatingPin, HIGH);
-	
-	pinMode(coolingPin, OUTPUT);
-	pinMode(heatingPin, OUTPUT);
-		
-	#if(USE_INTERNAL_PULL_UP_RESISTORS)
-		pinMode(doorPin, INPUT_PULLUP);
-	#else
-		pinMode(doorPin, INPUT);
-	#endif
-		
 	DEBUG_MSG(PSTR("started"));
 
 	chamberManager.init();
