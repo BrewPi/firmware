@@ -1,23 +1,10 @@
 /*
-  * This file is part of BrewPi.
-  *
-  * BrewPi is free software: you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-  * the Free Software Foundation, either version 3 of the License, or
-  * (at your option) any later version.
-  *
-  * BrewPi is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU General Public License for more details.
-  *
-  * You should have received a copy of the GNU General Public License
-  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
-  */
-/* Sensor.h
+ * Copyright 2013 Matthew McGowan
+ * Sensor.h
  *
  * Created: 20/02/2013 15:58:27
  *  Author: mat
+ *
  */ 
 
 
@@ -29,27 +16,28 @@
 template<class T> class Sensor
 {	
 	public:	
-	virtual T& sense(T& t)=0;
+	virtual T sense()=0;
 };
 
-/************************************************************************/
-/* Can pass the result by value                                         */
-/************************************************************************/
-template<class T>
-class ByValueSensor : public Sensor<T>
+template <class T>
+class ValueSensor : public virtual Sensor<T>
 {
-	public:
-	virtual T sense();
-	
-	virtual T& sense(T& target) {
-		target = sense();
-		return target;
+public:	
+	ValueSensor(T initial) : value(initial) {}
+
+	virtual T sense() {
+		return value;
 	}
+	
+	void setValue(T _value) {
+		value = _value;
+	}
+	
+private:
+	T value;	
 };
 
-class SwitchSensor : public ByValueSensor<boolean>
-{
-};
+typedef Sensor<boolean> SwitchSensor;
 
 class DigitalPinSensor : public SwitchSensor
 {
@@ -63,6 +51,9 @@ class DigitalPinSensor : public SwitchSensor
 	virtual boolean sense();	
 };
 
+
+
+/* A SwitchSensor whose state is provided by a hardware pin. */
 template<int pin> class DigitalHardPinSensor : public SwitchSensor
 {
 	private:
@@ -75,6 +66,8 @@ template<int pin> class DigitalHardPinSensor : public SwitchSensor
 		return digitalRead(pin) ^ invert;
 	}
 };
+
+
 
 
 #endif /* SENSOR_H_ */

@@ -35,9 +35,14 @@
 
 TempControl tempControl;
 
-// Declare static variables
-TempSensor TempControl::beerSensor(*(BasicTempSensor*)NULL);
-TempSensor TempControl::fridgeSensor(*(BasicTempSensor*)NULL);
+#if TEMP_CONTROL_STATIC
+TempSensor* TempControl::beerSensor;
+TempSensor* TempControl::fridgeSensor;
+
+Actuator* TempControl::heater;
+Actuator* TempControl::cooler;
+Actuator* TempControl::light;
+SwitchSensor* TempControl::door;
 	
 // Control parameters
 ControlConstants TempControl::cc;
@@ -56,14 +61,15 @@ fixed7_9 TempControl::storedBeerSetting;
 unsigned long TempControl::lastIdleTime;
 unsigned long TempControl::lastHeatTime;
 unsigned long TempControl::lastCoolTime;
+#endif
 
 void TempControl::init(void){
 	state=STARTUP;	
 	if ((EEPROM_CONTROL_BLOCK_SIZE*chamberManager.chamberCount())>1024) {
 		DEBUG_MSG(PSTR("EEPROM space exhausted - required %d bytes"),EEPROM_CONTROL_BLOCK_SIZE*chamberManager.chamberCount()+1);
 	}
-	beerSensor.init();
-	fridgeSensor.init();
+	beerSensor->init();
+	fridgeSensor->init();
 	updateTemperatures();
 	reset();
 }
@@ -83,13 +89,13 @@ void TempControl::reset(void){
 }
 
 void TempControl::updateTemperatures(void){
-	beerSensor.update();
-	if(!beerSensor.isConnected() && (cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_FRIDGE_CONSTANT)){
-		beerSensor.init(); // try to restart the sensor when controlling beer temperature
+	beerSensor->update();
+	if(!beerSensor->isConnected() && (cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_FRIDGE_CONSTANT)){
+		beerSensor->init(); // try to restart the sensor when controlling beer temperature
 	}
-	fridgeSensor.update();
-	if(!fridgeSensor.isConnected()){
-		fridgeSensor.init(); // always try to restart the fridge sensor
+	fridgeSensor->update();
+	if(!fridgeSensor->isConnected()){
+		fridgeSensor->init(); // always try to restart the fridge sensor
 	}
 }
 
@@ -104,8 +110,8 @@ void TempControl::updatePID(void){
 		}
 		
 		// fridge setting is calculated with PID algorithm. Beer temperature error is input to PID
-		cv.beerDiff =  cs.beerSetting - beerSensor.readSlowFiltered();
-		cv.beerSlope = beerSensor.readSlope();
+		cv.beerDiff =  cs.beerSetting - beerSensor->readSlowFiltered();
+		cv.beerSlope = beerSensor->readSlope();
 		if(integralUpdateCounter++ == 60){
 			integralUpdateCounter = 0;
 			if(abs(cv.beerDiff) < cc.iMaxError && cv.beerSlope <= cc.iMaxSlope && cv.beerSlope >= cc.iMinSlope ){
@@ -145,7 +151,7 @@ void TempControl::updatePID(void){
 
 void TempControl::updateState(void){
 	//update state
-	if(digitalRead(doorPin) == LOW){
+	if(door->sense()){
 		if(state!=DOOR_OPEN){
 			piLink.printFridgeAnnotation(PSTR("Fridge door opened"));
 		}
@@ -162,7 +168,7 @@ void TempControl::updateState(void){
 		return;
 	}
 	
-	if(!fridgeSensor.isConnected() || (!beerSensor.isConnected() && (cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_BEER_PROFILE))){
+	if(!fridgeSensor->isConnected() || (!beerSensor->isConnected() && (cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_BEER_PROFILE))){
 		state = IDLE; // stay idle when one of the sensors is disconnected
 		return;
 	}
@@ -177,9 +183,9 @@ void TempControl::updateState(void){
 			if(	((timeSinceCooling() > 900u && doNegPeakDetect==false) && (timeSinceHeating() > 600u && doPosPeakDetect==false)) ||
 					state==STARTUP) //if cooling is 15 min ago and heating 10, or I just started
 			{
-				if(fridgeSensor.readFastFiltered() > (cs.fridgeSetting+cc.idleRangeHigh) ){
+				if(fridgeSensor->readFastFiltered() > (cs.fridgeSetting+cc.idleRangeHigh) ){
 					if(cs.mode!=MODE_FRIDGE_CONSTANT){
-						if(beerSensor.readFastFiltered()>cs.beerSetting+26){ // only start cooling when beer is too warm (0.05 degree idle space)
+						if(beerSensor->readFastFiltered()>cs.beerSetting+26){ // only start cooling when beer is too warm (0.05 degree idle space)
 							state=COOLING;
 							return;
 						}		  
@@ -189,9 +195,9 @@ void TempControl::updateState(void){
 						return;
 					}
 				}
-				else if(fridgeSensor.readFastFiltered() < (cs.fridgeSetting+cc.idleRangeLow)){
+				else if(fridgeSensor->readFastFiltered() < (cs.fridgeSetting+cc.idleRangeLow)){
 					if(cs.mode!=MODE_FRIDGE_CONSTANT){
-						if(beerSensor.readFastFiltered()<cs.beerSetting-26){ // only start heating when beer is too cold (0.05 degree idle space)
+						if(beerSensor->readFastFiltered()<cs.beerSetting-26){ // only start heating when beer is too cold (0.05 degree idle space)
 							state=HEATING;
 							return;
 						}
@@ -202,10 +208,10 @@ void TempControl::updateState(void){
 					}
 				}
 			}
-			if(timeSinceCooling()>1800000UL){ //30 minutes
+			if(timeSinceCooling()>1800U){ //30 minutes
 				doNegPeakDetect=false;  //peak would be from drifting in idle, not from cooling
 			}
-			if(timeSinceHeating()>900000UL){ //20 minutes
+			if(timeSinceHeating()>900U){ //20 minutes
 				doPosPeakDetect=false;  //peak would be from drifting in idle, not from heating
 			}
 		}			
@@ -216,7 +222,7 @@ void TempControl::updateState(void){
 			lastCoolTime = ticks.seconds();
 			int coolTime = min(cc.maxCoolTimeForEstimate, timeSinceIdle()); // cool time in seconds
 			fixed7_9 estimatedOvershoot = ((fixed23_9) cs.coolEstimator * coolTime)/3600; // overshoot estimator is in overshoot per hour
-			cv.estimatedPeak = fridgeSensor.readFastFiltered() - estimatedOvershoot;
+			cv.estimatedPeak = fridgeSensor->readFastFiltered() - estimatedOvershoot;
 			if(cv.estimatedPeak <= cs.fridgeSetting + COOLING_TARGET){
 				cv.negPeakSetting = cs.fridgeSetting; // remember temperature when I switch to Idle, to adjust estimator later
 				state=IDLE;
@@ -230,7 +236,7 @@ void TempControl::updateState(void){
 			lastHeatTime=ticks.seconds();
 			int heatTime = min(cc.maxHeatTimeForEstimate, timeSinceIdle()); // heat time in seconds
 			fixed7_9 estimatedOvershoot = ((fixed23_9) cs.heatEstimator * heatTime)/3600; // overshoot estimator is in overshoot per hour
-			cv.estimatedPeak = fridgeSensor.readFastFiltered() + estimatedOvershoot;
+			cv.estimatedPeak = fridgeSensor->readFastFiltered() + estimatedOvershoot;
 			if(cv.estimatedPeak >= cs.fridgeSetting + HEATING_TARGET){
 				cv.posPeakSetting=cs.fridgeSetting; // remember temperature when I switch to Idle, to adjust estimator later
 				state=IDLE;
@@ -240,7 +246,7 @@ void TempControl::updateState(void){
 		break;
 		case DOOR_OPEN:
 		{
-			if(digitalRead(doorPin) == HIGH){ 
+			if(!door->sense()){ 
 				piLink.printFridgeAnnotation(PSTR("Fridge door closed"));
 				state=IDLE;
 				return;
@@ -250,45 +256,22 @@ void TempControl::updateState(void){
 	}			
 }
 
-void TempControl::updateOutputs(void){
+void TempControl::updateOutputs(void) {
 	// Outputs are inverted on the shield by the mosfets!
-	switch (state)
-	{
-		case IDLE:
-		case STARTUP:
-			digitalWrite(coolingPin, HIGH);
-			digitalWrite(heatingPin, HIGH);
-			break;
-		case COOLING:
-			digitalWrite(coolingPin, LOW);
-			digitalWrite(heatingPin, HIGH);
-			break;
-		case HEATING:
-			digitalWrite(coolingPin, HIGH);
-			digitalWrite(heatingPin, LOW);
-			break;
-		case DOOR_OPEN:
-			if(LIGHT_AS_HEATER){
-				digitalWrite(coolingPin, HIGH);
-				digitalWrite(heatingPin, LOW);
-			}
-			else{
-				digitalWrite(coolingPin, HIGH);
-				digitalWrite(heatingPin, HIGH);
-			}			
-			break;
-		default:
-			digitalWrite(coolingPin, HIGH);
-			digitalWrite(heatingPin, HIGH);
-			break;
-	}
+	cooler->setActive(state==COOLING);	
+#if LIGHT_AS_HEATER
+	heater->setActive(state==DOOR_OPEN || state==HEATING);
+#else
+	heater->setActive(state==HEATING);
+	light->setActive(state==DOOR_OPEN);
+#endif		
 }
 
 void TempControl::detectPeaks(void){  
 	//detect peaks in fridge temperature to tune overshoot estimators
 	if(doPosPeakDetect && state!=HEATING){
 		bool detected = false;
-		fixed7_9 posPeak = fridgeSensor.detectPosPeak();
+		fixed7_9 posPeak = fridgeSensor->detectPosPeak();
 		if(posPeak != INT_MIN){
 			// maximum detected
 			if(posPeak>cv.posPeakSetting+cc.heatingTargetUpper){
@@ -304,11 +287,11 @@ void TempControl::detectPeaks(void){
 			piLink.debugMessage(PSTR("Positive peak detected."));
 			detected = true;
 		}
-		else if(timeSinceHeating() > 580000UL && timeSinceCooling() > 880000UL && fridgeSensor.readFastFiltered() < (cv.posPeakSetting+cc.heatingTargetLower)){
+		else if(timeSinceHeating() > 580UL && timeSinceCooling() > 880UL && fridgeSensor->readFastFiltered() < (cv.posPeakSetting+cc.heatingTargetLower)){
 			// heating is almost 10 minutes ago, cooling is almost 15 minutes ago, but still no peak
 			// This is the heat, then drift up too slow (but in the right direction).
 			// estimator is too high
-			posPeak=fridgeSensor.readFastFiltered();
+			posPeak=fridgeSensor->readFastFiltered();
 			fixed7_9 error = posPeak-(cv.posPeakSetting+cc.heatingTargetLower); // will be negative
 			decreaseEstimator(&cs.heatEstimator, error);
 			
@@ -326,7 +309,7 @@ void TempControl::detectPeaks(void){
 		}			
 	}		
 	if(doNegPeakDetect && state!=COOLING){
-		fixed7_9 negPeak = fridgeSensor.detectNegPeak();
+		fixed7_9 negPeak = fridgeSensor->detectNegPeak();
 		bool detected = false;
 		if(negPeak != INT_MIN){
 			// negative peak detected
@@ -342,7 +325,7 @@ void TempControl::detectPeaks(void){
 			piLink.debugMessage(PSTR("Negative peak detected."));
 			detected = true;
 		}
-		else if(timeSinceHeating() > 580000UL && timeSinceCooling() > 880000UL && fridgeSensor.readFastFiltered() > (cv.negPeakSetting+cc.coolingTargetUpper)){
+		else if(timeSinceHeating() > 580U && timeSinceCooling() > 880U && fridgeSensor->readFastFiltered() > (cv.negPeakSetting+cc.coolingTargetUpper)){
 			// Heating is almost 10 minutes ago, cooling is almost 15 minutes ago, but still no peak
 			// This is the cooling, then drift down too slow (but in the right direction).
 			// estimator is too high
@@ -384,7 +367,7 @@ uint16_t TempControl::timeSinceCooling(void){
 		timeSinceLastOn = currentTime - lastCoolTime;
 	}
 	else{
-		// overflow has occured
+		// overflow has occurred
 		timeSinceLastOn = (currentTime + 1440) - (lastCoolTime +1440); // add a day to both for calculation
 	}
 	return timeSinceLastOn;
@@ -397,7 +380,7 @@ uint16_t TempControl::timeSinceHeating(void){
 		timeSinceLastOn = currentTime - lastHeatTime;
 	}
 	else{
-		// overflow has occured
+		// overflow has occurred
 		timeSinceLastOn = (currentTime + 1440) - (lastHeatTime +1440); // add a day to both for calculation
 	}
 	return timeSinceLastOn;
@@ -410,7 +393,7 @@ uint16_t TempControl::timeSinceIdle(void){
 		timeSinceLastOn = currentTime - lastIdleTime;
 	}
 	else{
-		// overflow has occured
+		// overflow has occurred
 		timeSinceLastOn = (currentTime + 1440) - (lastIdleTime +1440); // add a day to both for calculation
 	}
 	return timeSinceLastOn;
@@ -419,12 +402,12 @@ uint16_t TempControl::timeSinceIdle(void){
 // write new settings to EEPROM to be able to reload them after a reset
 // The update functions only write to EEPROM if the value has changed
 void TempControl::storeSettings(void){
-	eeprom_update_block((void *) &cs, (void *) EEPROM_CONTROL_SETTINGS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*chamberManager.currentChamber(), sizeof(ControlSettings));		
+	eeprom_update_block((void *) &cs, (void *) (EEPROM_CONTROL_SETTINGS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*chamberManager.currentChamber()), sizeof(ControlSettings));		
 	storedBeerSetting = cs.beerSetting;
 }	
 
 void TempControl::loadSettings(void){
-	eeprom_read_block((void *) &cs, (void *) EEPROM_CONTROL_SETTINGS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*chamberManager.currentChamber(), sizeof(ControlSettings));
+	eeprom_read_block((void *) &cs, (void *) (EEPROM_CONTROL_SETTINGS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*chamberManager.currentChamber()), sizeof(ControlSettings));
 }
 
 void TempControl::loadDefaultSettings(void){
@@ -437,11 +420,11 @@ void TempControl::loadDefaultSettings(void){
 }
 
 void TempControl::storeConstants(void){
-	eeprom_update_block((void *) &cc, (void *) EEPROM_CONTROL_CONSTANTS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*chamberManager.currentChamber(), sizeof(ControlConstants));
+	eeprom_update_block((void *) &cc, (void *) (EEPROM_CONTROL_CONSTANTS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*chamberManager.currentChamber()), sizeof(ControlConstants));
 }
 
 void TempControl::loadConstants(void){
-	eeprom_read_block((void *) &cc, (void *) EEPROM_CONTROL_CONSTANTS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*chamberManager.currentChamber(), sizeof(ControlConstants));
+	eeprom_read_block((void *) &cc, (void *) (EEPROM_CONTROL_CONSTANTS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*chamberManager.currentChamber()), sizeof(ControlConstants));
 }
 
 void TempControl::loadDefaultConstants(void){
@@ -477,17 +460,17 @@ void TempControl::loadDefaultConstants(void){
 	// Set filter coefficients. This is the b value. See FixedFilter.h for delay times.
 	// The delay time is 3.33 * 2^b * number of cascades
 	cc.fridgeFastFilter = 1u;
-	fridgeSensor.setFastFilterCoefficients(cc.fridgeFastFilter);
+	fridgeSensor->setFastFilterCoefficients(cc.fridgeFastFilter);
 	cc.fridgeSlowFilter = 4u;
-	fridgeSensor.setSlowFilterCoefficients(cc.fridgeSlowFilter);
+	fridgeSensor->setSlowFilterCoefficients(cc.fridgeSlowFilter);
 	cc.fridgeSlopeFilter = 3u;
-	fridgeSensor.setSlopeFilterCoefficients(cc.fridgeSlopeFilter);
+	fridgeSensor->setSlopeFilterCoefficients(cc.fridgeSlopeFilter);
 	cc.beerFastFilter = 2u;
-	beerSensor.setFastFilterCoefficients(cc.beerFastFilter);
+	beerSensor->setFastFilterCoefficients(cc.beerFastFilter);
 	cc.beerSlowFilter = 5u;
-	beerSensor.setSlowFilterCoefficients(cc.beerSlowFilter);
+	beerSensor->setSlowFilterCoefficients(cc.beerSlowFilter);
 	cc.beerSlopeFilter = 3u;
-	beerSensor.setSlopeFilterCoefficients(cc.beerSlopeFilter);
+	beerSensor->setSlopeFilterCoefficients(cc.beerSlopeFilter);
 	storeConstants();
 }
 
@@ -516,7 +499,7 @@ void TempControl::setMode(char newMode){
 }
 
 fixed7_9 TempControl::getBeerTemp(void){
-	return beerSensor.readFastFiltered();
+	return beerSensor->readFastFiltered();
 }
 
 fixed7_9 TempControl::getBeerSetting(void){
@@ -524,7 +507,7 @@ fixed7_9 TempControl::getBeerSetting(void){
 }
 
 fixed7_9 TempControl::getFridgeTemp(void){
-	return fridgeSensor.readFastFiltered();	
+	return fridgeSensor->readFastFiltered();	
 }
 
 fixed7_9 TempControl::getFridgeSetting(void){

@@ -123,6 +123,7 @@
       <Value>r:\sdk\arduino-1.0.3\hardware\arduino\variants\mega</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
+  <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
   <avrgcccpp.compiler.optimization.OtherFlags>-fdata-sections</avrgcccpp.compiler.optimization.OtherFlags>
   <avrgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</avrgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
   <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
@@ -142,6 +143,12 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Actuator.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Actuator.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="ArduinoFunctions.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -152,9 +159,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="brewpi_avr.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="brewpi_core.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Buzzer.cpp">
@@ -175,6 +179,12 @@
     <Compile Include="chamberManager.cpp">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="config_local.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="DallasTemperature.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -185,6 +195,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Display.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Door.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="FixedFilter.cpp">
@@ -239,6 +252,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="RotaryEncoder.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Sensor.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Sensor.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="SpiLcd.cpp">

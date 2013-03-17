@@ -49,12 +49,17 @@ class PiLink{
 	static void print_P(const char *fmt, ...); // use when format string is stored in PROGMEM with PSTR("string")
 	static void printChamberCount();
 	static void printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotation);
-	static void sendJsonPair(const char * name, char * val); // send one JSON pair with a string value as name:val,
+	static void sendJsonPair(const char * name, const char * val); // send one JSON pair with a string value as name:val,
 	static void sendJsonPair(const char * name, char val); // send one JSON pair with a char value as name:val,
 	static void sendJsonPair(const char * name, uint16_t val); // send one JSON pair with a uint16_t value as name:val,
 	static void sendJsonPair(const char * name, uint8_t val); // send one JSON pair with a uint8_t value as name:val,
 	static void processJsonPair(char * key, char * val); // process one pair
 	static void printChamberResponse(char responseChar);
+	static void printChamberInfo();
+	static void printJsonName(const char * name);
+	static void printJsonSeparator();
+	private:
+	static bool lastPair;
 };
 
 extern PiLink piLink;

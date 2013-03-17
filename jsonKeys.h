@@ -23,108 +23,62 @@
 #define JSON_H_
 
 // Use a struct to only store the JSON keys in program memory once
-struct jsonKeysContainer{
+struct jsonKeys {
 	// settings
-	const char * mode;
-	const char * beerSetting;
-	const char * fridgeSetting;
-	const char * heatEstimator;
-	const char * coolEstimator;
+	static const char* mode;
+	static const char * beerSetting;
+	static const char * fridgeSetting;
+	static const char * heatEstimator;
+	static const char * coolEstimator;
 	// constants
-	const char * tempFormat;
-	const char * tempSettingMin;
-	const char * tempSettingMax;
-	const char * pidMax;
-	const char * KpHeat;
-	const char * KpCool;
-	const char * Ki;
-	const char * KdCool;
-	const char * KdHeat;
-	const char * iMaxSlope;
-	const char * iMinSlope;
-	const char * iMaxError;
-	const char * idleRangeHigh;
-	const char * idleRangeLow;
-	const char * heatingTargetUpper;
-	const char * heatingTargetLower;
-	const char * coolingTargetUpper;
-	const char * coolingTargetLower;
-	const char * maxHeatTimeForEstimate;
-	const char * maxCoolTimeForEstimate;
-	const char * pidFilter;
-	const char * fridgeFastFilter;
-	const char * fridgeSlowFilter;
-	const char * fridgeSlopeFilter;
-	const char * beerFastFilter;
-	const char * beerSlowFilter;
-	const char * beerSlopeFilter;
+	static const char * tempFormat;
+	static const char * tempSettingMin;
+	static const char * tempSettingMax;
+	static const char * pidMax;
+	static const char * KpHeat;
+	static const char * KpCool;
+	static const char * Ki;
+	static const char * KdCool;
+	static const char * KdHeat;
+	static const char * iMaxSlope;
+	static const char * iMinSlope;
+	static const char * iMaxError;
+	static const char * idleRangeHigh;
+	static const char * idleRangeLow;
+	static const char * heatingTargetUpper;
+	static const char * heatingTargetLower;
+	static const char * coolingTargetUpper;
+	static const char * coolingTargetLower;
+	static const char * maxHeatTimeForEstimate;
+	static const char * maxCoolTimeForEstimate;
+	static const char * pidFilter;
+	static const char * fridgeFastFilter;
+	static const char * fridgeSlowFilter;
+	static const char * fridgeSlopeFilter;
+	static const char * beerFastFilter;
+	static const char * beerSlowFilter;
+	static const char * beerSlopeFilter;
 	// variables
-	const char * beerDiff;
-	const char * diffIntegral;
-	const char * beerSlope;
-	const char * p;
-	const char * i;
-	const char * d;
-	const char * Kp;
-	const char * Kd;
-	const char * estimatedPeak;
-	const char * negPeakSetting;
-	const char * posPeakSetting;
-	const char * negPeak;
-	const char * posPeak;
+	static const char * beerDiff;
+	static const char * diffIntegral;
+	static const char * beerSlope;
+	static const char * p;
+	static const char * i;
+	static const char * d;
+	static const char * Kp;
+	static const char * Kd;
+	static const char * estimatedPeak;
+	static const char * negPeakSetting;
+	static const char * posPeakSetting;
+	static const char * negPeak;
+	static const char * posPeak;
+	
 };
 
+#if 0
 // These will be placed in data memory, but there's plenty left.
 // By defining them in this struct, the only have to be stored once.
 const jsonKeysContainer jsonKeys = {
-	// settings
-	"mode",
-	"beerSetting",
-	"fridgeSetting",
-	"heatEstimator",
-	"coolEstimator",
-	// constants
-	"tempFormat",
-	"tempSettingMin",
-	"tempSettingMax",
-	"pidMax",
-	"KpHeat",
-	"KpCool",
-	"Ki",
-	"KdCool",
-	"KdHeat",
-	"iMaxSlope",
-	"iMinSlope",
-	"iMaxError",
-	"idleRangeHigh",
-	"idleRangeLow",
-	"heatingTargetUpper",
-	"heatingTargetLower",
-	"coolingTargetUpper",
-	"coolingTargetLower",
-	"maxHeatTimeForEstimate",
-	"maxCoolTimeForEstimate",
-	"pidFilter",
-	"fridgeFastFilter",
-	"fridgeSlowFilter",
-	"fridgeSlopeFilter",
-	"beerFastFilter",
-	"beerSlowFilter",
-	"beerSlopeFilter",
-	// variables
-	"beerDiff",
-	"diffIntegral",
-	"beerSlope",
-	"p",
-	"i",
-	"d",
-	"Kp",
-	"Kd",
-	"estimatedPeak",
-	"negPeakSetting",
-	"posPeakSetting",
-	"negPeak",
-	"posPeak"
 };
-
+#endif
 #endif /* JSON_H_ */

@@ -1,8 +1,5 @@
 /*
  * OneWireTempSensor.cpp
- *
- * Created: 15/03/2013 09:53:26
- *  Author: mat
  */ 
 
 #include <limits.h>

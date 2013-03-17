@@ -41,17 +41,12 @@
 #include "Ticks.h"
 #include "brewpi_avr.h"
 #include "config.h"
+#include "Sensor.h"
 
 // global class objects static and defined in class cpp and h files
 
 // instantiate and configure the sensors, actuators and controllers we want to use
 
-template<> class DigitalHardPinSensor<4> { };
-
-TempControl& tempControl = *CONFIG_TEMP_CONTROL;
-Display& display = *CONFIG_DISPLAY;
-PiLink piLink; //(tempControl);
-Menu menu; //(tempControl, piLink);
 
 void setup(void);
 void loop (void);
@@ -63,7 +58,7 @@ DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 DisplayType realDisplay;
 Display DISPLAY_REF display = realDisplay;
 
-#if BREWPI_EMULATE && 0
+#if BREWPI_EMULATE
 MockTempSensor directFridgeSensor(10,10);
 MockTempSensor directBeerSensor(5,5);
 #else
@@ -78,8 +73,13 @@ TempSensor beerSensor(directBeerSensor);
 TempSensor fridgeSensor2(directFridgeSensor2);
 TempSensor beerSensor2(directBeerSensor2);
 
-Chamber c1(fridgeSensor, beerSensor);
-Chamber c2(fridgeSensor2, beerSensor2);
+ValueActuator heat1, heat2;
+ValueActuator cool1, cool2;
+ValueActuator light;
+ValueSensor<boolean> door((boolean)false);
+
+Chamber c1(fridgeSensor, beerSensor, cool1, heat1, light, door);
+Chamber c2(fridgeSensor2, beerSensor2, cool2, heat2, light, door);
 
 Chamber* chambers[] = {
 	&c1, &c2
@@ -90,7 +90,10 @@ ChamberManager chamberManager(chambers, sizeof(chambers)/sizeof(chambers[0]));
 void setup()
 {
 	Serial.begin(57600);
-	
+
+	beerSensor2.init();
+	beerSensor.init();
+		
 	DEBUG_MSG(PSTR("started"));
 
 	chamberManager.init();
@@ -101,8 +104,9 @@ void setup()
 	}
 	
 	chamberManager.switchChamber(0);
+	chamberManager.switchChamber(1); // todo - debugging only
 		
-	delay(2000); // give LCD time to power up
+	wait.millis(2000); // give LCD time to power up
 	display.init();
 	display.printStationaryText();
 	display.printState();

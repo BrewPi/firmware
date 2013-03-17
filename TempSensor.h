@@ -28,7 +28,15 @@
 #include "pins.h"
 #include <stdlib.h>
 
+#ifndef TEMP_SENSOR_CASCADED_FILTER 
+#define TEMP_SENSOR_CASCADED_FILTER 1
+#endif
+
+#if TEMP_SENSOR_CASCADED_FILTER 
+
+#else
 typedef FixedFilter TempSensorFilter;
+#endif
 
 class BasicTempSensor
 {
@@ -48,18 +56,17 @@ public:
 	 */
 	virtual fixed7_9 read() = 0;
 	
-	
 };
 
 class TempSensor {
 	public:
-	TempSensor(BasicTempSensor& sensor) : _sensor(sensor)  {
+	TempSensor(BasicTempSensor& sensor) : _sensor(&sensor)  {
 		updateCounter = 255; // first update for slope filter after (255-13s)
-	 }
+	 }	 	 
 	
 	void init();
 	
-	bool isConnected() { return _sensor.isConnected(); }
+	bool isConnected() { return _sensor->isConnected(); }
 	
 	void update();
 	
@@ -98,7 +105,7 @@ class TempSensor {
 	TempSensorFilter fastFilter;
 	TempSensorFilter slowFilter;
 	TempSensorFilter slopeFilter;
-	BasicTempSensor& _sensor;
+	BasicTempSensor* _sensor;
 		
 	friend class ChamberManager;
 	friend class Chamber;

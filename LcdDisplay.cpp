@@ -46,7 +46,7 @@ void LcdDisplay::printAllTemperatures(void){
 
 void LcdDisplay::printBeerTemp(void){
 	lcd.setCursor(6,1);
-	if(tempControl.beerSensor.isConnected()){
+	if(tempControl.beerSensor->isConnected()){
 		printTemperature(tempControl.getBeerTemp());
 	}
 	else{
@@ -67,7 +67,7 @@ void LcdDisplay::printBeerSet(void){
 
 void LcdDisplay::printFridgeTemp(void){	
 	lcd.setCursor(6,2);
-	if(tempControl.fridgeSensor.isConnected()){
+	if(tempControl.fridgeSensor->isConnected()){
 		printTemperature(tempControl.getFridgeTemp());
 	}
 	else{

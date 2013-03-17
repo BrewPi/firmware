@@ -1,4 +1,6 @@
 /*
+ * Copyright 2013 Matthew McGowan
+ *
 * This file is part of BrewPi.
 *
 * BrewPi is free software: you can redistribute it and/or modify

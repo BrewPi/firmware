@@ -1,4 +1,6 @@
 /*
+ * Copyright 2013 Matthew McGowan
+ *
  * avr_ticks.h
  *
  * Created: 15/03/2013 09:31:54

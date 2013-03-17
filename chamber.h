@@ -14,32 +14,22 @@
 
 typedef uint8_t chamber_id;
 
-class Chamber
+/*
+* The chamber class encapsulates how we switch between chambers.
+* Since TemperatureController has only static fields, this implementation copies the state in and out of these static fields.
+* If TemperatureController fields are made non-static then this class can simply copy references. 
+*/
+class Chamber : public TempControlState
 {
 	public:
-	Chamber(TempSensor& fridge, TempSensor& beer) : state(fridge, beer) { }
+	Chamber(TempSensor& _fridgeSensor, TempSensor& _beerSensor, Actuator& _cooler, Actuator& _heater, Actuator& _light, Sensor<boolean>& _door);
 		
 	void init() {
-		state.applyInit();
+		applyInit();
 	}				
-		
-	void apply()
-	{
-		state.apply();
-	}	
-
-	void retract()
-	{
-		state.retract();
-	}	
-
-	const TempControlState& getState() const { return state; }
-
 	
 	private:
-	TempControlState state;
-	
-	Chamber(const Chamber&);
+	Chamber(const Chamber&);	
 };
 
 
@@ -63,27 +53,9 @@ public:
 		current = 0;
 	}		
 		
-	chamber_id switchChamber(chamber_id id)
-	{
-		if (id==current)
-			return id;
-		DEBUG_MSG(PSTR("switch from chamber %d to %d"), current, id);
-		chamber_id prev = current;
-		getChamber(current).retract();
-		getChamber(id).apply();
-		current = id;
-		return prev;
-	}
+	chamber_id switchChamber(chamber_id id);
 	
-	void initChamber(chamber_id id) {
-		current = id;
-		getChamber(id).init();		
-		tempControl.loadSettingsAndConstants(); //read previous settings from EEPROM
-		tempControl.init();
-		tempControl.updatePID();
-		tempControl.updateState();
-		getChamber(id).retract();
-	}
+	void initChamber(chamber_id id);
 	
 	chamber_id chamberCount() const
 	{
