@@ -39,6 +39,8 @@
 
 // You can use the internal pull-up resistors instead of external ones for the doorPin and the rotary encoder pins
 #define USE_INTERNAL_PULL_UP_RESISTORS false
+#define SHIELD_INVERT true
+
 // If you are using the light bulb of your fridge as a heater, set this define to true
 // It will turn on the light when the door is opened
 #define LIGHT_AS_HEATER true

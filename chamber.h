@@ -8,9 +8,15 @@
 #ifndef CHAMBER_H_
 #define CHAMBER_H_
 
+#ifndef MULTICHAMBER
+#define MULTICHAMBER 1
+#endif
+
+#if MULTICHAMBER
 #include "TempControl.h"
 #include "TempSensor.h"
 #include "piLink.h"
+
 
 typedef uint8_t chamber_id;
 
@@ -78,7 +84,13 @@ private:
 	chamber_id chamber_count;
 };
 
-extern ChamberManager chamberManager;
+	extern ChamberManager chamberManager;
+	#define CURRENT_CHAMBER (chamberManager.currentChamber())
+	#define CHAMBER_COUNT (chamberManager.chamberCount())
+#else  // !MULTICHAMBER
+	#define CURRENT_CHAMBER (0)
+	#define CHAMBER_COUNT (1)
+#endif
 
 
 

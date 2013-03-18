@@ -49,6 +49,10 @@ char * tempToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t 
 	return fixedPointToString(s, rawValue, numDecimals, maxLength);
 }
 
+char * fixedPointToString(char s[9], fixed7_9 rawValue, uint8_t numDecimals, uint8_t maxLength){ 
+	fixedPointToString(s, (fixed23_9)rawValue, numDecimals, maxLength);
+}	
+
 char * fixedPointToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength){ 
 	s[0] = ' ';
 	if(rawValue < 0l){
@@ -121,7 +125,7 @@ long int convertAndConstrain(long int rawTemp, byte offset)
 fixed7_9 stringToTemp(char * numberString){
 	fixed23_9 rawTemp = stringToFixedPoint(numberString);
 #ifdef OPTIMIZE_TEMPERATURE_FORMATS_convertAntConstrain	
-	return convertAndConstrain(rawTemp, 32<<9);	
+	return convertAndConstrain(rawTemp, 32UL<<9);	
 #else	
 	if(tempControl.cc.tempFormat == 'F'){
 		rawTemp = ((rawTemp - (32 << 9)) * 5) / 9; // convert to store as Celsius

@@ -13,6 +13,7 @@
 #ifndef ACTUATOR_H_
 #define ACTUATOR_H_
 
+#include "DigitalPin.h"
 
 #define ACTUATOR_VIRTUAL 1
 
@@ -34,7 +35,7 @@
 class Actuator
 {
 	public:
-	ACTUATOR_METHOD boolean isActive() ACTUATOR_METHOD_IMPL;
+	//ACTUATOR_METHOD boolean isActive() ACTUATOR_METHOD_IMPL;
 	ACTUATOR_METHOD void setActive(boolean active) ACTUATOR_METHOD_IMPL;
 	ACTUATOR_METHOD void activate()  { setActive(true); }
 	ACTUATOR_METHOD void deactivate() { setActive(false); }
@@ -45,11 +46,26 @@ class ValueActuator ACTUATOR_BASE_CLASS_DECL
 public:
 	ValueActuator() : state(false) {}
 	ValueActuator(boolean initial) : state(initial) {}
-	ACTUATOR_METHOD boolean isActive() { return state; }
+	//ACTUATOR_METHOD boolean isActive() { return state; }
 	ACTUATOR_METHOD void setActive(boolean active) { state = active; }
 
 private:
 	boolean state;	
+};
+
+
+template<int pin, boolean invert> class DigitalPinActuatorInline ACTUATOR_BASE_CLASS_DECL
+{
+	public:
+	DigitalPinActuatorInline()
+	{
+		fastPinMode(pin, OUTPUT);
+	}
+	
+	ACTUATOR_METHOD void setActive(boolean active) {		
+		fastDigitalWrite(pin, active^invert ? HIGH : LOW);
+	}
+
 };
 
 /************************************************************************/

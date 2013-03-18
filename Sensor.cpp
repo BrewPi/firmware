@@ -22,15 +22,3 @@
 
 #include "sensor.h"
 
-
-DigitalPinSensor::DigitalPinSensor(int _pin, boolean _internalPullup, boolean _invert)
-: pin(_pin), invert(_invert)
-{
-	pinMode(pin, _internalPullup ? INPUT_PULLUP : INPUT);		
-}
-
-boolean DigitalPinSensor::sense()
-{
-	return digitalRead(pin) ^ invert;
-}	
-

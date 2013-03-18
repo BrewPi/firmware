@@ -58,8 +58,9 @@ class PiLink{
 	static void printChamberInfo();
 	static void printJsonName(const char * name);
 	static void printJsonSeparator();
+	static void sendJsonClose();
 	private:
-	static bool lastPair;
+	static bool firstPair;
 };
 
 extern PiLink piLink;

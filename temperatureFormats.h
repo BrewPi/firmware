@@ -46,6 +46,7 @@ char * tempDiffToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint
 fixed7_9 stringToTempDiff(char * string);
 
 char * fixedPointToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength);
+char * fixedPointToString(char s[9], fixed7_9 rawValue, uint8_t numDecimals, uint8_t maxLength);
 fixed23_9 stringToFixedPoint(char * numberString);
 
 int fixedToTenths(fixed23_9 temperature);

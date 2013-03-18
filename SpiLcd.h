@@ -79,7 +79,7 @@ class SpiLcd : public Print {
 	SpiLcd(){};
 	~SpiLcd(){};
 	
-	void init(uint8_t latchPin);
+	void init();
 
 	void begin(uint8_t cols, uint8_t rows);
 
@@ -139,8 +139,6 @@ class SpiLcd : public Print {
 	void write4bits(uint8_t);
 	void pulseEnable();
 	void waitBusy();
-
-	uint8_t _latchPin;
 		
 	// Define shift register byte, keep pin state in this byte and send it out for each write.
 	volatile uint8_t _spiByte;

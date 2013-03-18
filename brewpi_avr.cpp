@@ -43,81 +43,10 @@
 #include "config.h"
 #include "Sensor.h"
 
-// global class objects static and defined in class cpp and h files
+// setup and loop are in brewpi_config so they can be reused across projects
+extern void setup(void);
+extern void loop (void);
 
-// instantiate and configure the sensors, actuators and controllers we want to use
-
-
-void setup(void);
-void loop (void);
-
-TicksImpl ticks = TicksImpl(TICKS_IMPL_CONFIG);
-DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
-
-
-DisplayType realDisplay;
-Display DISPLAY_REF display = realDisplay;
-
-#if BREWPI_EMULATE
-MockTempSensor directFridgeSensor(10,10);
-MockTempSensor directBeerSensor(5,5);
-#else
-OneWireTempSensor directFridgeSensor(fridgeSensorPin);
-OneWireTempSensor directBeerSensor(beerSensorPin);
-#endif
-MockTempSensor directFridgeSensor2(10,10);
-MockTempSensor directBeerSensor2(5,5);
-
-TempSensor fridgeSensor(directFridgeSensor);
-TempSensor beerSensor(directBeerSensor);
-TempSensor fridgeSensor2(directFridgeSensor2);
-TempSensor beerSensor2(directBeerSensor2);
-
-ValueActuator heat1, heat2;
-ValueActuator cool1, cool2;
-ValueActuator light;
-ValueSensor<boolean> door((boolean)false);
-
-Chamber c1(fridgeSensor, beerSensor, cool1, heat1, light, door);
-Chamber c2(fridgeSensor2, beerSensor2, cool2, heat2, light, door);
-
-Chamber* chambers[] = {
-	&c1, &c2
-};
-
-ChamberManager chamberManager(chambers, sizeof(chambers)/sizeof(chambers[0]));
-
-void setup()
-{
-	Serial.begin(57600);
-
-	beerSensor2.init();
-	beerSensor.init();
-		
-	DEBUG_MSG(PSTR("started"));
-
-	chamberManager.init();
-	
-	for (chamber_id i=0; i<chamberManager.chamberCount(); i++) {
-		chamberManager.initChamber(i);
-		piLink.printFridgeAnnotation(PSTR("Arduino restarted. Chamber %d ready!"), i+1);
-	}
-	
-	chamberManager.switchChamber(0);
-	chamberManager.switchChamber(1); // todo - debugging only
-		
-	wait.millis(2000); // give LCD time to power up
-	display.init();
-	display.printStationaryText();
-	display.printState();
-		
-	rotaryEncoder.init();
-	
-	buzzer.init();
-	//buzzer.beep(2, 500);
-
-	DEBUG_MSG(PSTR("init complete"));
-}
 
 void main() __attribute__ ((noreturn)); // tell the compiler main doesn't return.
 
@@ -139,54 +68,9 @@ void main(void)
 
 
 
-void loop(void)
-{
-	static unsigned long lastUpdate = 0;
-	static chamber_id nextChamber = 0;
-	
-	if(ticks.millis() - lastUpdate > (1000/chamberManager.chamberCount())) { //update settings every second
-		nextChamber = ++nextChamber % chamberManager.chamberCount();
-		DEBUG_MSG(PSTR("loop chamber %d"), nextChamber);
-
-		chamber_id prev = chamberManager.switchChamber(nextChamber);
-		
-		lastUpdate=ticks.millis();
-		
-		DEBUG_MSG(PSTR("update TC"));
-		tempControl.updateTemperatures();		
-		DEBUG_MSG(PSTR("update TC peaks"));
-		tempControl.detectPeaks();
-		DEBUG_MSG(PSTR("update TC pid"));
-		tempControl.updatePID();
-		DEBUG_MSG(PSTR("update TC state"));
-		tempControl.updateState();
-		DEBUG_MSG(PSTR("update TC outputs"));
-		tempControl.updateOutputs();
-		
-		DEBUG_MSG(PSTR("switch chamber"));
-		chamberManager.switchChamber(prev);
-				
-				#if 0
-		if(rotaryEncoder.pushed()){
-			rotaryEncoder.resetPushed();
-			menu.pickSettingToChange();	
-		}
-		#endif
-		
-		if (prev==nextChamber)
-		{
-			DEBUG_MSG(PSTR("update display"));
-			display.printState();
-			display.printAllTemperatures();
-			display.printMode();			
-		}
-	}	
-	//listen for incoming serial connections while waiting top update
-	piLink.receive();
-}
-
 // catch bad interrupts here when debugging
 ISR(BADISR_vect){
 	DEBUG_MSG(PSTR("*** BASISR_vect ***"));
+	while (1);
 }
 

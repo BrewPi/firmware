@@ -24,12 +24,16 @@
 #include <string.h>
 #include <inttypes.h>
 #include <util/delay.h>
+#include "DigitalPin.h"
+#include "pins.h"
 
-void SpiLcd::init(uint8_t latchPin)
+// MDM - removed the latchPin parameter since it's never changed, and having a compile time constant makes the
+// compiled code smaller and more efficient. If a more convenient way to specifying the constant latch pin number is needed,
+// expand the SpiLcd class to a template, with a single int instatiation parameter.
+void SpiLcd::init()
 {
 	_backlight = false;
-	_latchPin = latchPin;
-	pinMode(_latchPin, OUTPUT);
+	fastPinMode(lcdLatchPin, OUTPUT);
 	
 	_displayfunction = LCD_FUNCTIONSET | LCD_4BITMODE;
 
@@ -221,12 +225,12 @@ void SpiLcd::initSpi(void){
 
 // Update the pins of the shift register
 void SpiLcd::spiOut(void){
-	digitalWrite(_latchPin, LOW);
+	fastDigitalWrite(lcdLatchPin, LOW);
 	SPDR = _spiByte; // Send the byte to the SPI
 	// wait for send to finish
 	while (!(SPSR & _BV(SPIF))); 
 	
-	digitalWrite(_latchPin, HIGH);
+	fastDigitalWrite(lcdLatchPin, HIGH);
 }
 
 // write either command or data

@@ -11,7 +11,9 @@
 
 /** Turn on/off all optimizations. This can be used to find the net change, plus quickly determine if any new/strange behaviour is a result of optimized code.**/
 
+#ifndef OPTIMIZE_GLOBAL
 #define OPTIMIZE_GLOBAL 1
+#endif 
 
 
 

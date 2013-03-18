@@ -8,6 +8,8 @@
 #include "TempControl.h"
 #include "chamber.h"
 
+#if MULTICHAMBER
+
 Chamber::Chamber(TempSensor& _fridgeSensor, TempSensor& _beerSensor, Actuator& _cooler, Actuator& _heater, Actuator& _light, Sensor<boolean>& _door) : 
 		TempControlState(_fridgeSensor, _beerSensor, _cooler, _heater, _light, _door) 
 {
@@ -38,6 +40,6 @@ void ChamberManager::initChamber(chamber_id id) {
 	getChamber(id).retract();
 }
 
-
+#endif // MULTICHAMBER
 
 

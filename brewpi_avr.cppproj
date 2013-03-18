@@ -103,7 +103,7 @@
   <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
   <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
   <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-  <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
   <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
   <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
   <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
@@ -112,9 +112,12 @@
   <avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>
   <avrgcccpp.compiler.symbols.DefSymbols>
     <ListValues>
-      <Value>ARDUINO=100</Value>
+      <Value>ARDUINO=103</Value>
       <Value>F_CPU=16000000L</Value>
       <Value>BREWPI_EMULATE=0</Value>
+      <Value>MULTICHAMBER=1</Value>
+      <Value>TEMP_SENSOR_CASCADED_FILTER=0</Value>
+      <Value>TEMP_CONTROL_STATIC=1</Value>
     </ListValues>
   </avrgcccpp.compiler.symbols.DefSymbols>
   <avrgcccpp.compiler.directories.IncludePaths>
@@ -137,6 +140,7 @@
     </ListValues>
   </avrgcccpp.linker.libraries.Libraries>
   <avrgcccpp.linker.optimization.GarbageCollectUnusedSections>True</avrgcccpp.linker.optimization.GarbageCollectUnusedSections>
+  <avrgcccpp.linker.optimization.RelaxBranches>True</avrgcccpp.linker.optimization.RelaxBranches>
   <avrgcccpp.linker.miscellaneous.LinkerFlags>-Wl,--relax</avrgcccpp.linker.miscellaneous.LinkerFlags>
   <avrgcccpp.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcccpp.assembler.debugging.DebugLevel>
 </AvrGccCpp>
@@ -159,6 +163,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="brewpi_avr.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="brewpi_config.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Buzzer.cpp">
@@ -189,6 +196,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="DallasTemperature.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="DigitalPin.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Display.cpp">
@@ -252,9 +262,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="RotaryEncoder.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Sensor.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Sensor.h">

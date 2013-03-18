@@ -98,6 +98,7 @@ sample code bearing this copyright.
 
 #include "OneWire.h"
 #include "Ticks.h"
+#include "DigitalPin.h"
 
 OneWire::OneWire(uint8_t pin)
 {

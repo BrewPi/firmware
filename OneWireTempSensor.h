@@ -10,13 +10,15 @@
 #define ONEWIRETEMPSENSOR_H_
 
 #include "TempSensor.h"
+#include "DigitalPin.h"
 
 class DallasTemperature;
 class OneWire;
 
+
 class OneWireTempSensor : public BasicTempSensor {
 public:	
-	OneWireTempSensor(uint8_t pinNumber) : pinNr(pinNumber), oneWire(NULL), sensor(NULL) {
+	OneWireTempSensor(uint8_t pinNumber) : pinNr(pinNumber), oneWire(NULL), sensor(NULL) {		
 		lastRequestTime = 0;
 		connected = 0;
 	};
@@ -40,8 +42,7 @@ public:
 	
 	OneWire * oneWire;
 	DallasTemperature * sensor;
-	DeviceAddress sensorAddress;
-	
+	DeviceAddress sensorAddress;	
 };
 
 
