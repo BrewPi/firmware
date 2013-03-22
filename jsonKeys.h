@@ -22,109 +22,54 @@
 #ifndef JSON_H_
 #define JSON_H_
 
-// Use a struct to only store the JSON keys in program memory once
-struct jsonKeysContainer{
-	// settings
-	const char * mode;
-	const char * beerSetting;
-	const char * fridgeSetting;
-	const char * heatEstimator;
-	const char * coolEstimator;
-	// constants
-	const char * tempFormat;
-	const char * tempSettingMin;
-	const char * tempSettingMax;
-	const char * pidMax;
-	const char * KpHeat;
-	const char * KpCool;
-	const char * Ki;
-	const char * KdCool;
-	const char * KdHeat;
-	const char * iMaxSlope;
-	const char * iMinSlope;
-	const char * iMaxError;
-	const char * idleRangeHigh;
-	const char * idleRangeLow;
-	const char * heatingTargetUpper;
-	const char * heatingTargetLower;
-	const char * coolingTargetUpper;
-	const char * coolingTargetLower;
-	const char * maxHeatTimeForEstimate;
-	const char * maxCoolTimeForEstimate;
-	const char * pidFilter;
-	const char * fridgeFastFilter;
-	const char * fridgeSlowFilter;
-	const char * fridgeSlopeFilter;
-	const char * beerFastFilter;
-	const char * beerSlowFilter;
-	const char * beerSlopeFilter;
-	// variables
-	const char * beerDiff;
-	const char * diffIntegral;
-	const char * beerSlope;
-	const char * p;
-	const char * i;
-	const char * d;
-	const char * Kp;
-	const char * Kd;
-	const char * estimatedPeak;
-	const char * negPeakSetting;
-	const char * posPeakSetting;
-	const char * negPeak;
-	const char * posPeak;
-};
+static const char JSONKEY_mode[] PROGMEM = "mode";
+static const char JSONKEY_beerSetting[] PROGMEM = "beerSetting";
+static const char JSONKEY_fridgeSetting[] PROGMEM = "fridgeSetting";
+static const char JSONKEY_heatEstimator[] PROGMEM = "heatEstimator";
+static const char JSONKEY_coolEstimator[] PROGMEM = "coolEstimator";
 
-// These will be placed in data memory, but there's plenty left.
-// By defining them in this struct, the only have to be stored once.
-const jsonKeysContainer jsonKeys = {
-	// settings
-	"mode",
-	"beerSetting",
-	"fridgeSetting",
-	"heatEstimator",
-	"coolEstimator",
-	// constants
-	"tempFormat",
-	"tempSettingMin",
-	"tempSettingMax",
-	"pidMax",
-	"KpHeat",
-	"KpCool",
-	"Ki",
-	"KdCool",
-	"KdHeat",
-	"iMaxSlope",
-	"iMinSlope",
-	"iMaxError",
-	"idleRangeHigh",
-	"idleRangeLow",
-	"heatingTargetUpper",
-	"heatingTargetLower",
-	"coolingTargetUpper",
-	"coolingTargetLower",
-	"maxHeatTimeForEstimate",
-	"maxCoolTimeForEstimate",
-	"pidFilter",
-	"fridgeFastFilter",
-	"fridgeSlowFilter",
-	"fridgeSlopeFilter",
-	"beerFastFilter",
-	"beerSlowFilter",
-	"beerSlopeFilter",
-	// variables
-	"beerDiff",
-	"diffIntegral",
-	"beerSlope",
-	"p",
-	"i",
-	"d",
-	"Kp",
-	"Kd",
-	"estimatedPeak",
-	"negPeakSetting",
-	"posPeakSetting",
-	"negPeak",
-	"posPeak"
-};
+// constant;
+static const char JSONKEY_tempFormat[] PROGMEM = "tempFormat";
+static const char JSONKEY_tempSettingMin[] PROGMEM = "tempSettingMin";
+static const char JSONKEY_tempSettingMax[] PROGMEM = "tempSettingMax";
+static const char JSONKEY_pidMax[] PROGMEM = "pidMax";
+static const char JSONKEY_KpHeat[] PROGMEM = "KpHeat";
+static const char JSONKEY_KpCool[] PROGMEM = "KpCool";
+static const char JSONKEY_Ki[] PROGMEM = "Ki";
+static const char JSONKEY_KdCool[] PROGMEM = "KdCool";
+static const char JSONKEY_KdHeat[] PROGMEM = "KdHeat";
+static const char JSONKEY_iMaxSlope[] PROGMEM = "iMaxSlope";
+static const char JSONKEY_iMinSlope[] PROGMEM = "iMinSlope";
+static const char JSONKEY_iMaxError[] PROGMEM = "iMaxError";
+static const char JSONKEY_idleRangeHigh[] PROGMEM = "idleRangeHigh";
+static const char JSONKEY_idleRangeLow[] PROGMEM = "idleRangeLow";
+static const char JSONKEY_heatingTargetUpper[] PROGMEM = "heatingTargetUpper";
+static const char JSONKEY_heatingTargetLower[] PROGMEM = "heatingTargetLower";
+static const char JSONKEY_coolingTargetUpper[] PROGMEM = "coolingTargetUpper";
+static const char JSONKEY_coolingTargetLower[] PROGMEM = "coolingTargetLower";
+static const char JSONKEY_maxHeatTimeForEstimate[] PROGMEM = "maxHeatTimeForEstimate";
+static const char JSONKEY_maxCoolTimeForEstimate[] PROGMEM = "maxCoolTimeForEstimate";
+static const char JSONKEY_pidFilter[] PROGMEM = "pidFilter";
+static const char JSONKEY_fridgeFastFilter[] PROGMEM = "fridgeFastFilter";
+static const char JSONKEY_fridgeSlowFilter[] PROGMEM = "fridgeSlowFilter";
+static const char JSONKEY_fridgeSlopeFilter[] PROGMEM = "fridgeSlopeFilter";
+static const char JSONKEY_beerFastFilter[] PROGMEM = "beerFastFilter";
+static const char JSONKEY_beerSlowFilter[] PROGMEM = "beerSlowFilter";
+static const char JSONKEY_beerSlopeFilter[] PROGMEM = "beerSlopeFilter";
+
+// variable;
+static const char JSONKEY_beerDiff[] PROGMEM = "beerDiff";
+static const char JSONKEY_diffIntegral[] PROGMEM = "diffIntegral";
+static const char JSONKEY_beerSlope[] PROGMEM = "beerSlope";
+static const char JSONKEY_p[] PROGMEM = "p";
+static const char JSONKEY_i[] PROGMEM = "i";
+static const char JSONKEY_d[] PROGMEM = "d";
+static const char JSONKEY_Kp[] PROGMEM = "Kp";
+static const char JSONKEY_Kd[] PROGMEM = "Kd";
+static const char JSONKEY_estimatedPeak[] PROGMEM = "estimatedPeak";
+static const char JSONKEY_negPeakSetting[] PROGMEM = "negPeakSetting";
+static const char JSONKEY_posPeakSetting[] PROGMEM = "posPeakSetting";
+static const char JSONKEY_negPeak[] PROGMEM = "negPeak";
+static const char JSONKEY_posPeak[] PROGMEM = "posPeak";
 
 #endif /* JSON_H_ */
