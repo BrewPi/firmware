@@ -29,7 +29,7 @@ class PiLink{
 	static void receive(void);
 	
 	static void print(char *fmt, ...); // use when format string is stored in RAM
-	static void print_P(const char *fmt, ...); // use when format string is stored in[] PROGMEM with PSTR("string")
+	static void print_P(const char *fmt, ...); // use when format string is stored in PROGMEM with PSTR("string")
 	
 	static void printTemperatures(void);
 	static void printBeerAnnotation(const char * annotation, ...);

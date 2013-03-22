@@ -30,7 +30,7 @@
 #include <string.h>
 #include "jsonKeys.h"
 
-// create a printf like interface to the Arduino Serial function. Format string stored in[] PROGMEM
+// create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
 void PiLink::print_P(const char *fmt, ... ){
 	char tmp[128]; // resulting string limited to 128 chars
 	va_list args;
