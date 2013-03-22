@@ -358,17 +358,19 @@ void TempControl::detectPeaks(void){
 	}		
 }
 
+// Increase estimator at least 20%, max 50%s
 void TempControl::increaseEstimator(fixed7_9 * estimator, fixed7_9 error){
-	fixed23_9 factor = 614 + (error>>5); // 1.2 + 3.1% of error
-	factor = constrain(factor, 614, 768); // limit between 1.2 and 1.5
-	*estimator = ((fixed23_9) *estimator * factor)>>9;
+	fixed23_9 factor = 614 + constrain(error>>5, 0, 154); // 1.2 + 3.1% of error, limit between 1.2 and 1.5
+	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;
+	*estimator = (newEstimator >= INT_MAX) ? INT_MAX : newEstimator>>9; // shift back to normal precision
 	storeSettings();
 }
 
+// Decrease estimator at least 16.7% (1/1.2), max 33.3% (1/1.5)
 void TempControl::decreaseEstimator(fixed7_9 * estimator, fixed7_9 error){
-	fixed23_9 factor = 410 + (error>>5); // 0.8 + 3.1% of error
-	factor = constrain(factor, 256, 410); // limit between 0.5 and 0.8
-	*estimator = ((fixed23_9) *estimator * factor)>>9;
+	fixed23_9 factor = 426 + constrain(error>>5, -85, 0); // 0.833 + 3.1% of error, limit between 0.667 and 0.833
+	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;
+	*estimator = newEstimator>>9; // shift back to normal precision
 	storeSettings();
 }
 
