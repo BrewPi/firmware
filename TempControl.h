@@ -92,12 +92,12 @@ struct ControlConstants{
 #define MODE_OFF 'o'
 
 enum states{
-	COOLING,
-	HEATING,
 	IDLE,
 	STARTUP,
+	STATE_OFF,
 	DOOR_OPEN,
-	STATE_OFF
+	HEATING,
+	COOLING,	
 };
 
 // Making all functions and variables static reduces code size.
