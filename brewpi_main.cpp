@@ -16,52 +16,35 @@
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
-/*
- * Door.h
- *
- * Created: 20/02/2013 16:37:19
- *  Author: mat
- */ 
+#include <Arduino.h>
+
+// setup and loop are in brewpi_config so they can be reused across projects
+extern void setup(void);
+extern void loop (void);
 
 
-#ifndef DOOR_H_
-#define DOOR_H_
+void main() __attribute__ ((noreturn)); // tell the compiler main doesn't return.
 
-#include "Sensor.h"
-
-/*
- * Interface for requesting the state of the door.
- */
-class Door
+void main(void)
 {
-	public:	
-	virtual bool isOpen();
-};
+	init();
 
-/*
- * Door implementation that uses a sensor to provide the door state.
- */
-class SensorDoor : public Door
-{
-	private:
-	SwitchSensor& sensor;
+	#if defined(USBCON)
+		USBDevice.attach();
+	#endif
 	
-	public:
-	SensorDoor(SwitchSensor& _sensor) 
-		: sensor(_sensor)
-	{		
-	}
+	setup();
 	
-	virtual bool isOpen() 
-	{
-		return !sensor.sense();
+	for (;;) {
+		loop();
+		if (serialEventRun) serialEventRun();
 	}
-};
+}
 
-class MockDoor : public Door
-{
-	public:
-	virtual bool isOpen() { return false; }
-};	
 
-#endif /* DOOR_H_ */
+
+// catch bad interrupts here when debugging
+ISR(BADISR_vect){
+	while (1);
+}
+

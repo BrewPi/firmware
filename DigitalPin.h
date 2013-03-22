@@ -23,6 +23,8 @@
  */
 #ifndef DigitalPin_h
 #define DigitalPin_h
+#if 0
+
 #include <avr/io.h>
 #include <util/atomic.h>
 //------------------------------------------------------------------------------
@@ -472,4 +474,5 @@ class DigitalPin {
     fastDigitalWrite(PinNumber, value);
   }
 };
+#endif
 #endif  // DigitalPin_h

@@ -10,7 +10,7 @@
 
 #if MULTICHAMBER
 
-Chamber::Chamber(TempSensor& _fridgeSensor, TempSensor& _beerSensor, Actuator& _cooler, Actuator& _heater, Actuator& _light, Sensor<boolean>& _door) : 
+Chamber::Chamber(TempSensor& _fridgeSensor, TempSensor& _beerSensor, Actuator& _cooler, Actuator& _heater, Actuator& _light, Sensor<bool>& _door) : 
 		TempControlState(_fridgeSensor, _beerSensor, _cooler, _heater, _light, _door) 
 {
 	

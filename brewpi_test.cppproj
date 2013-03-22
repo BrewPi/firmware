@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>6.0</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8</ToolchainName>
-    <ProjectGuid>{c0415566-e0bc-45db-8e53-cc52899284fe}</ProjectGuid>
+    <ProjectGuid>{49f6a19f-b4bd-45ab-8c49-c5b19cc350a3}</ProjectGuid>
     <avrdevice>ATmega2560</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
@@ -54,17 +54,17 @@
     </com_atmel_avrdbg_tool_avrdragon>
     <preserveEEPROM>False</preserveEEPROM>
     <com_atmel_avrdbg_tool_simulator>
-      <ToolType xmlns="">com.atmel.avrdbg.tool.simulator</ToolType>
-      <ToolName xmlns="">AVR Simulator</ToolName>
-      <ToolNumber xmlns="">
+      <ToolType>com.atmel.avrdbg.tool.simulator</ToolType>
+      <ToolName>AVR Simulator</ToolName>
+      <ToolNumber>
       </ToolNumber>
-      <KeepTimersRunning xmlns="">true</KeepTimersRunning>
-      <OverrideVtor xmlns="">false</OverrideVtor>
-      <OverrideVtorValue xmlns="">
+      <KeepTimersRunning>true</KeepTimersRunning>
+      <OverrideVtor>false</OverrideVtor>
+      <OverrideVtorValue>
       </OverrideVtorValue>
-      <Channel xmlns="">
+      <Channel>
         <host>127.0.0.1</host>
-        <port>63314</port>
+        <port>53968</port>
         <ssl>False</ssl>
       </Channel>
     </com_atmel_avrdbg_tool_simulator>
@@ -103,8 +103,6 @@
   <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
   <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
   <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-  <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
-  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
   <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
   <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
   <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
@@ -116,17 +114,19 @@
       <Value>F_CPU=16000000L</Value>
       <Value>BREWPI_EMULATE=1</Value>
       <Value>MULTICHAMBER=1</Value>
-      <Value>TEMP_SENSOR_CASCADED_FILTER=0</Value>
+      <Value>TEMP_SENSOR_CASCADED_FILTER=1</Value>
       <Value>TEMP_CONTROL_STATIC=0</Value>
+      <Value>TEST=1</Value>
+      <Value>TEST_PRINT_TYPE=FakeSerial</Value>
     </ListValues>
   </avrgcccpp.compiler.symbols.DefSymbols>
   <avrgcccpp.compiler.directories.IncludePaths>
     <ListValues>
       <Value>r:\sdk\arduino-1.0.3\hardware\arduino\cores\arduino</Value>
       <Value>r:\sdk\arduino-1.0.3\hardware\arduino\variants\mega</Value>
+      <Value>test</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
-  <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
   <avrgcccpp.compiler.optimization.OtherFlags>-fdata-sections</avrgcccpp.compiler.optimization.OtherFlags>
   <avrgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</avrgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
   <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
@@ -153,19 +153,28 @@
     <Compile Include="Actuator.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Arduino.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="ArduinoFunctions.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ArduinoUnit.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ArduinoUnit.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="avr_ticks.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="brewpi_avr.cpp">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="brewpi_avr.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="brewpi_config.cpp">
+    <Compile Include="brewpi_avr_test.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="brewpi_main.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Buzzer.cpp">
@@ -294,6 +303,32 @@
     <Compile Include="Ticks.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="utility\FakeSerial.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="utility\FakeStream.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="utility\FakeStream.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="utility\FreeMemory.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="utility\FreeMemory.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="WString.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="keywords.txt">
+      <SubType>compile</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="utility" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

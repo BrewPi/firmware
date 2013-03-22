@@ -266,6 +266,7 @@ void TempControl::updateOutputs(void) {
 	heater->setActive(state==HEATING);
 	light->setActive(state==DOOR_OPEN);
 #endif		
+// todo - factor out doorOpen state so it is independent of the temp control state.
 }
 
 void TempControl::detectPeaks(void){  

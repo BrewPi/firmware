@@ -33,7 +33,11 @@
 void SpiLcd::init()
 {
 	_backlight = false;
+#ifndef __OPTIMIZE__	
+	pinMode(lcdLatchPin, OUTPUT);
+#else	
 	fastPinMode(lcdLatchPin, OUTPUT);
+#endif
 	
 	_displayfunction = LCD_FUNCTIONSET | LCD_4BITMODE;
 
@@ -225,12 +229,20 @@ void SpiLcd::initSpi(void){
 
 // Update the pins of the shift register
 void SpiLcd::spiOut(void){
+#ifndef __OPTIMIZE__
+	digitalWrite(lcdLatchPin, LOW);
+#else	
 	fastDigitalWrite(lcdLatchPin, LOW);
+#endif	
 	SPDR = _spiByte; // Send the byte to the SPI
 	// wait for send to finish
 	while (!(SPSR & _BV(SPIF))); 
 	
+#ifndef __OPTIMIZE__
+	digitalWrite(lcdLatchPin, HIGH);
+#else
 	fastDigitalWrite(lcdLatchPin, HIGH);
+#endif	
 }
 
 // write either command or data

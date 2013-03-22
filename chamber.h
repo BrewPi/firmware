@@ -28,7 +28,7 @@ typedef uint8_t chamber_id;
 class Chamber : public TempControlState
 {
 	public:
-	Chamber(TempSensor& _fridgeSensor, TempSensor& _beerSensor, Actuator& _cooler, Actuator& _heater, Actuator& _light, Sensor<boolean>& _door);
+	Chamber(TempSensor& _fridgeSensor, TempSensor& _beerSensor, Actuator& _cooler, Actuator& _heater, Actuator& _light, Sensor<bool>& _door);
 		
 	void init() {
 		applyInit();

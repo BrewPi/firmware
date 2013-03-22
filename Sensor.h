@@ -7,9 +7,7 @@
  *
  */ 
 
-
-#ifndef SENSOR_H_
-#define SENSOR_H_
+#pragma once
 
 #include "Arduino.h"
 #include "DigitalPin.h"
@@ -38,22 +36,22 @@ private:
 	T value;	
 };
 
-typedef Sensor<boolean> SwitchSensor;
+typedef Sensor<bool> SwitchSensor;
 
 class DigitalPinSensor : public SwitchSensor
 {
 	private:
 	int pin;
-	boolean invert;
+	bool invert;
 	
 	public:
-	DigitalPinSensor(int _pin, boolean _invert, boolean _internalPullup)
+	DigitalPinSensor(int _pin, bool _invert, bool _internalPullup)
 		: pin(_pin), invert(_invert)
 		{
 			pinMode(pin, _internalPullup ? INPUT_PULLUP : INPUT);
 		}
 
-	virtual boolean sense()
+	virtual bool sense()
 	{
 		return digitalRead(pin) ^ invert;
 	}
@@ -66,20 +64,24 @@ class DigitalPinSensor : public SwitchSensor
 /* A SwitchSensor whose state is provided by a hardware pin. 
   By using a template, the compiler can inline the call to digitalRead. 
 */
-template<int pin, boolean invert, boolean internalPullup> 
+template<int pin, bool invert, bool internalPullup> 
 class DigitalPinSensorInline : public SwitchSensor
 {
 	public:
 	DigitalPinSensorInline() {
+#ifndef __OPTIMIZE__		
+		pinMode(pin, internalPullup ? INPUT_PULLUP : INPUT);
+#else		
 		fastPinMode(pin, internalPullup ? INPUT_PULLUP : INPUT);
+#endif		
 	}
 	
-	virtual boolean sense() {
+	virtual bool sense() {
+#ifndef __OPTIMIZE__
+		return digitalRead(pin) ^ invert;
+#else						
 		return fastDigitalRead(pin) ^ invert;
+#endif		
 	}
 };
 
-
-
-
-#endif /* SENSOR_H_ */

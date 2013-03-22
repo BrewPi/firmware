@@ -190,7 +190,7 @@ class TempControl{
 	TEMP_CONTROL_FIELD Actuator* heater;
 	TEMP_CONTROL_FIELD Actuator* cooler; 
 	TEMP_CONTROL_FIELD Actuator* light;
-	TEMP_CONTROL_FIELD Sensor<boolean>* door;
+	TEMP_CONTROL_FIELD Sensor<bool>* door;
 	
 	// Control parameters
 	TEMP_CONTROL_FIELD ControlConstants cc;

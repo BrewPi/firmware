@@ -9,7 +9,6 @@
  *  Author: mat
  */ 
 
-
 #ifndef ACTUATOR_H_
 #define ACTUATOR_H_
 
@@ -28,15 +27,15 @@
 #endif
 
 
-/************************************************************************/
-/* An actuator simply turns something on or off.                        */
-/************************************************************************/
+/*
+ * An actuator simply turns something on or off.                        
+ */
 
 class Actuator
 {
 	public:
-	//ACTUATOR_METHOD boolean isActive() ACTUATOR_METHOD_IMPL;
-	ACTUATOR_METHOD void setActive(boolean active) ACTUATOR_METHOD_IMPL;
+	//ACTUATOR_METHOD bool isActive() ACTUATOR_METHOD_IMPL;
+	ACTUATOR_METHOD void setActive(bool active) ACTUATOR_METHOD_IMPL;
 	ACTUATOR_METHOD void activate()  { setActive(true); }
 	ACTUATOR_METHOD void deactivate() { setActive(false); }
 };
@@ -45,25 +44,33 @@ class ValueActuator ACTUATOR_BASE_CLASS_DECL
 {
 public:
 	ValueActuator() : state(false) {}
-	ValueActuator(boolean initial) : state(initial) {}
-	//ACTUATOR_METHOD boolean isActive() { return state; }
-	ACTUATOR_METHOD void setActive(boolean active) { state = active; }
+	ValueActuator(bool initial) : state(initial) {}
+	//ACTUATOR_METHOD bool isActive() { return state; }
+	ACTUATOR_METHOD void setActive(bool active) { state = active; }
 
 private:
-	boolean state;	
+	bool state;	
 };
 
 
-template<int pin, boolean invert> class DigitalPinActuatorInline ACTUATOR_BASE_CLASS_DECL
+template<int pin, bool invert> class DigitalPinActuatorInline ACTUATOR_BASE_CLASS_DECL
 {
 	public:
 	DigitalPinActuatorInline()
 	{
+#ifndef __OPTIMIZE__
+		pinMode(pin, OUTPUT);
+#else		
 		fastPinMode(pin, OUTPUT);
+#endif		
 	}
 	
-	ACTUATOR_METHOD void setActive(boolean active) {		
+	ACTUATOR_METHOD void setActive(bool active) {		
+#ifndef __OPTIMIZE__
+		digitalWrite(pin, active^invert ? HIGH : LOW);
+#else		
 		fastDigitalWrite(pin, active^invert ? HIGH : LOW);
+#endif		
 	}
 
 };
@@ -75,22 +82,22 @@ class DigitalPinActuator ACTUATOR_BASE_CLASS_DECL
 {
 	private:
 	int pin;
-	boolean active;
-	boolean inverse;
+	bool active;
+	bool inverse;
 	
 	public:
-	DigitalPinActuator(int _pin, boolean _inverse=false, boolean _initiallyActive=false) : pin(_pin), inverse(_inverse)
+	DigitalPinActuator(int _pin, bool _inverse=false, bool _initiallyActive=false) : pin(_pin), inverse(_inverse)
 	{
 		pinMode(pin, OUTPUT);
 		setActive(_initiallyActive);
 	}
 	
-	ACTUATOR_METHOD void setActive(boolean active) {
+	ACTUATOR_METHOD void setActive(bool active) {
 		this->active = active;
 		digitalWrite(pin, active ? HIGH : LOW);
 	}
 
-	ACTUATOR_METHOD boolean isActive() {
+	ACTUATOR_METHOD bool isActive() {
 		return active;								
 	}
 
