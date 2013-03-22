@@ -21,7 +21,7 @@
 
 #include "PiLink.h"
 
-
+#include "version.h"
 #include "tempControl.h"
 #include "Display.h"
 #include <stdarg.h>
@@ -76,7 +76,10 @@ void PiLink::receive(void){
 			break;
 		case 'v': // Control variables requested
 			sendControlVariables();
-			break;	
+			break;
+		case 'n':
+			print_P(PSTR("N:\"%S\"\n"), PSTR(VERSION_STRING));
+			break;
 		case 'l': // Display content requested
 			print_P(PSTR("L:"));
 			char stringBuffer[21];
