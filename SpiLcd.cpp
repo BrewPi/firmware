@@ -24,6 +24,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include <util/delay.h>
+#include <util/atomic.h>
 
 void SpiLcd::init(uint8_t latchPin)
 {
@@ -250,15 +251,17 @@ void SpiLcd::spiOut(void){
 
 // write either command or data
 void SpiLcd::send(uint8_t value, uint8_t mode) {
-	if(mode){
-		bitSet(_spiByte, LCD_SHIFT_RS);
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){ // prevent interrupts during command
+		if(mode){
+			bitSet(_spiByte, LCD_SHIFT_RS);
+		}
+		else{
+			bitClear(_spiByte, LCD_SHIFT_RS);
+		}
+		spiOut();
+		write4bits(value>>4);
+		write4bits(value);	
 	}
-	else{
-		bitClear(_spiByte, LCD_SHIFT_RS);
-	}
-	spiOut();
-	write4bits(value>>4);
-	write4bits(value);
 }
 
 void SpiLcd::pulseEnable(void) {
