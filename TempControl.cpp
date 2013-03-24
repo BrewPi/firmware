@@ -364,7 +364,7 @@ void TempControl::detectPeaks(void){
 void TempControl::increaseEstimator(fixed7_9 * estimator, fixed7_9 error){
 	fixed23_9 factor = 614 + constrain(error>>5, 0, 154); // 1.2 + 3.1% of error, limit between 1.2 and 1.5
 	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;
-	*estimator = (newEstimator >= INT_MAX<<9) ? INT_MAX : newEstimator>>9; // shift back to normal precision
+	*estimator = (newEstimator >= INT_MAX*512) ? INT_MAX : newEstimator>>9; // shift back to normal precision
 	storeSettings();
 }
 
