@@ -23,7 +23,8 @@
 
 #include <inttypes.h>
 
-#define ROTARY_THRESHOLD 20000ul
+// 500 us idle time for debouncing
+#define ROTARY_THRESHOLD 500u
 
 class RotaryEncoder
 {
