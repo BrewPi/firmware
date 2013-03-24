@@ -197,10 +197,10 @@ void TempControl::updateState(void){
 					}
 				}
 			}
-			if(timeSinceCooling()>1800000UL){ //30 minutes
+			if(timeSinceCooling()>1800u){ //30 minutes
 				doNegPeakDetect=false;  //peak would be from drifting in idle, not from cooling
 			}
-			if(timeSinceHeating()>900000UL){ //20 minutes
+			if(timeSinceHeating()>900u){ //20 minutes
 				doPosPeakDetect=false;  //peak would be from drifting in idle, not from heating
 			}
 		}			
@@ -299,7 +299,7 @@ void TempControl::detectPeaks(void){
 			piLink.debugMessage(PSTR("Positive peak detected."));
 			detected = true;
 		}
-		else if(timeSinceHeating() > 580000UL && timeSinceCooling() > 880000UL && fridgeSensor.readFastFiltered() < (cv.posPeakSetting+cc.heatingTargetLower)){
+		else if(timeSinceHeating() > 580u && timeSinceCooling() > 880u && fridgeSensor.readFastFiltered() < (cv.posPeakSetting+cc.heatingTargetLower)){
 			// heating is almost 10 minutes ago, cooling is almost 15 minutes ago, but still no peak
 			// This is the heat, then drift up too slow (but in the right direction).
 			// estimator is too high
@@ -337,7 +337,7 @@ void TempControl::detectPeaks(void){
 			piLink.debugMessage(PSTR("Negative peak detected."));
 			detected = true;
 		}
-		else if(timeSinceHeating() > 580000UL && timeSinceCooling() > 880000UL && fridgeSensor.readFastFiltered() > (cv.negPeakSetting+cc.coolingTargetUpper)){
+		else if(timeSinceHeating() > 580u && timeSinceCooling() > 880u && fridgeSensor.readFastFiltered() > (cv.negPeakSetting+cc.coolingTargetUpper)){
 			// Heating is almost 10 minutes ago, cooling is almost 15 minutes ago, but still no peak
 			// This is the cooling, then drift down too slow (but in the right direction).
 			// estimator is too high
