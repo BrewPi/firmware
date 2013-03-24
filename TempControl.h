@@ -71,8 +71,6 @@ struct ControlConstants{
 	fixed7_9 Ki;
 	fixed7_9 KdCool;
 	fixed7_9 KdHeat;
-	fixed7_9 iMaxSlope;
-	fixed7_9 iMinSlope;
 	fixed7_9 iMaxError;
 	fixed7_9 idleRangeHigh;
 	fixed7_9 idleRangeLow;

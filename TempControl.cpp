@@ -103,9 +103,15 @@ void TempControl::updatePID(void){
 		cv.beerSlope = beerSensor.readSlope();
 		if(integralUpdateCounter++ == 60){
 			integralUpdateCounter = 0;
-			if(abs(cv.beerDiff) < cc.iMaxError && cv.beerSlope <= cc.iMaxSlope && cv.beerSlope >= cc.iMinSlope ){
-				//difference is smaller than iMaxError degree and slope is almost horizontal 
-				if(abs(cv.beerDiff) > 26){ // difference is more than 0.05 degree Celsius
+			if(abs(cv.beerDiff) < cc.iMaxError){
+				//difference is smaller than iMaxError
+				if(cv.beerDiff < 0 && (cs.fridgeSetting +1024) < fridgeSensor.readFastFiltered()){
+					// cooling and fridge temp is more than 2 degrees from setting, actuator is saturated.
+				}
+				else if(cv.beerDiff > 0 && (cs.fridgeSetting -1024) > fridgeSensor.readFastFiltered()){
+					// heating and fridge temp is more than 2 degrees from setting, actuator is saturated.
+				}					
+				else if(abs(cv.beerDiff) > 26){ // difference is more than 0.05 degree Celsius
 					cv.diffIntegral = cv.diffIntegral + cv.beerDiff;
 				}
 			}
@@ -454,13 +460,11 @@ void TempControl::loadDefaultConstants(void){
 	cc.tempSettingMin = 4*512;	// + 4 deg Celsius
 
 	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
-	cc.KpHeat	= 7680;		// +15
-	cc.KpCool	= 7680;		// +15
-	cc.Ki		= 154;		// +0.3
+	cc.KpHeat	= 10240;	// +20
+	cc.KpCool	= 10240;	// +20
+	cc.Ki		= 307;		// +0.6
 	cc.KdCool	= -1536;	// -3
 	cc.KdHeat	= -1536;	// -3
-	cc.iMaxSlope = 26;		// 0.05 deg/hour
-	cc.iMinSlope = -51;		// 0.1 deg/hour
 	cc.iMaxError = 256;  // 0.5 deg
 
 	// Stay Idle when temperature is in this range
