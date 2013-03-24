@@ -19,7 +19,6 @@
 
 #include <Arduino.h>
 
-
 #include "pins.h"
 #include <avr/eeprom.h>
 #include <avr/pgmspace.h>
@@ -30,6 +29,7 @@
 #include "PiLink.h"
 #include "TempSensor.h"
 #include "Ticks.h"
+
 
 TempControl tempControl;
 
@@ -169,39 +169,35 @@ void TempControl::updateState(void){
 		case STATE_OFF:
 		{
 			lastIdleTime=ticks.seconds();
-			if(	((timeSinceCooling() > 900u && doNegPeakDetect==false) && (timeSinceHeating() > 600u && doPosPeakDetect==false)) ||
-					state==STARTUP) //if cooling is 15 min ago and heating 10, or I just started
-			{
-				if(fridgeSensor.readFastFiltered() > (cs.fridgeSetting+cc.idleRangeHigh) ){
-					if(cs.mode!=MODE_FRIDGE_CONSTANT){
-						if(beerSensor.readFastFiltered()>cs.beerSetting+26){ // only start cooling when beer is too warm (0.05 degree idle space)
-							state=COOLING;
-							return;
-						}		  
-					}
-					else{
+			if(doNegPeakDetect == true || doPosPeakDetect == true){
+				// Wait for peaks before starting to heat or cool again
+				return;
+			}				
+			if(fridgeSensor.readFastFiltered() > (cs.fridgeSetting+cc.idleRangeHigh) ){ // fridge temperature is too high
+				if(cs.mode==MODE_FRIDGE_CONSTANT){
+					if((timeSinceCooling() > MIN_COOL_OFF_TIME_FRIDGE_CONSTANT && timeSinceHeating() > MIN_SWITCH_TIME) || state == STARTUP){
 						state=COOLING;
-						return;
 					}
+					return;
 				}
-				else if(fridgeSensor.readFastFiltered() < (cs.fridgeSetting+cc.idleRangeLow)){
-					if(cs.mode!=MODE_FRIDGE_CONSTANT){
-						if(beerSensor.readFastFiltered()<cs.beerSetting-26){ // only start heating when beer is too cold (0.05 degree idle space)
-							state=HEATING;
-							return;
-						}
+				else{
+					if(beerSensor.readFastFiltered()<cs.beerSetting+26){ // only start cooling when beer is too warm (0.05 degree idle space)
+						return; // beer is already colder than setting, stay in IDLE.
 					}
-					else{
-						state=HEATING;
-						return;
+					if((timeSinceCooling() > MIN_COOL_OFF_TIME && timeSinceHeating() > MIN_SWITCH_TIME) || state == STARTUP){
+						state=COOLING;
 					}
+					return;
 				}
 			}
-			if(timeSinceCooling()>1800u){ //30 minutes
-				doNegPeakDetect=false;  //peak would be from drifting in idle, not from cooling
-			}
-			if(timeSinceHeating()>900u){ //20 minutes
-				doPosPeakDetect=false;  //peak would be from drifting in idle, not from heating
+			else if(fridgeSensor.readFastFiltered() < (cs.fridgeSetting+cc.idleRangeLow)){ // fridge temperature is too low
+				if(beerSensor.readFastFiltered()>cs.beerSetting-26){ // only start heating when beer is too cold (0.05 degree idle space)
+					return; // beer is already warmer than setting, stay in IDLE
+				}
+				if((timeSinceCooling() > MIN_SWITCH_TIME && timeSinceHeating() > MIN_HEAT_OFF_TIME) || state == STARTUP){
+					state=HEATING;
+					return;
+				}					
 			}
 		}			
 		break; 
@@ -299,8 +295,8 @@ void TempControl::detectPeaks(void){
 			piLink.debugMessage(PSTR("Positive peak detected."));
 			detected = true;
 		}
-		else if(timeSinceHeating() > 580u && timeSinceCooling() > 880u && fridgeSensor.readFastFiltered() < (cv.posPeakSetting+cc.heatingTargetLower)){
-			// heating is almost 10 minutes ago, cooling is almost 15 minutes ago, but still no peak
+		else if(timeSinceHeating() + 10 > HEAT_PEAK_DETECT_TIME && fridgeSensor.readFastFiltered() < (cv.posPeakSetting+cc.heatingTargetLower)){
+			// Idle period almost reaches maximum allowed time for peak detection
 			// This is the heat, then drift up too slow (but in the right direction).
 			// estimator is too high
 			posPeak=fridgeSensor.readFastFiltered();
@@ -318,7 +314,10 @@ void TempControl::detectPeaks(void){
 				fixedPointToString(tempString3, cs.heatEstimator, 3, 9));
 			doPosPeakDetect=false;
 			cv.posPeak = posPeak;
-		}			
+		}
+		if(timeSinceHeating() > HEAT_PEAK_DETECT_TIME){
+			doPosPeakDetect = false;
+		}
 	}		
 	if(doNegPeakDetect && state!=COOLING){
 		fixed7_9 negPeak = fridgeSensor.detectNegPeak();
@@ -337,8 +336,8 @@ void TempControl::detectPeaks(void){
 			piLink.debugMessage(PSTR("Negative peak detected."));
 			detected = true;
 		}
-		else if(timeSinceHeating() > 580u && timeSinceCooling() > 880u && fridgeSensor.readFastFiltered() > (cv.negPeakSetting+cc.coolingTargetUpper)){
-			// Heating is almost 10 minutes ago, cooling is almost 15 minutes ago, but still no peak
+		else if(timeSinceCooling() + 10 > COOL_PEAK_DETECT_TIME && fridgeSensor.readFastFiltered() > (cv.negPeakSetting+cc.coolingTargetUpper)){
+			// Idle period almost reaches maximum allowed time for peak detection
 			// This is the cooling, then drift down too slow (but in the right direction).
 			// estimator is too high
 			fixed7_9 error = negPeak-(cv.negPeakSetting+cc.coolingTargetLower); //negative value
@@ -353,7 +352,10 @@ void TempControl::detectPeaks(void){
 				tempToString(tempString2, cv.negPeakSetting, 3, 9),
 				fixedPointToString(tempString3, cs.coolEstimator, 3, 9));
 			doNegPeakDetect=false;
-				cv.negPeak = negPeak;
+			cv.negPeak = negPeak;
+		}
+		if(timeSinceCooling() > COOL_PEAK_DETECT_TIME){
+			doNegPeakDetect = false;
 		}			
 	}		
 }

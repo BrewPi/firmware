@@ -25,6 +25,18 @@
 #include "pins.h"
 #include "temperatureFormats.h"
 
+// Set minimum off time to prevent short cycling the compressor in seconds
+#define MIN_COOL_OFF_TIME 300u
+// Use a minimum off time for the heater as well, so it heats in cycles, not lots of short bursts
+#define MIN_HEAT_OFF_TIME 300u
+// Use a large minimum off time in fridge constant mode. No need for very fast cycling.
+#define MIN_COOL_OFF_TIME_FRIDGE_CONSTANT 900u
+// Set a minimum off time between switching between heating and cooling
+#define MIN_SWITCH_TIME 600u
+// Time allowed for peak detection
+#define COOL_PEAK_DETECT_TIME 1800u
+#define HEAT_PEAK_DETECT_TIME 900u
+
 // These two structs are stored in and loaded from EEPROM
 struct ControlSettings{
 	char mode;
