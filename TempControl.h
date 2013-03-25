@@ -29,6 +29,10 @@
 #define MIN_COOL_OFF_TIME 300u
 // Use a minimum off time for the heater as well, so it heats in cycles, not lots of short bursts
 #define MIN_HEAT_OFF_TIME 300u
+// Minimum on time for the cooler.
+#define MIN_COOL_ON_TIME 300u
+// Minimum on time for the heater.
+#define MIN_HEAT_ON_TIME 300u
 // Use a large minimum off time in fridge constant mode. No need for very fast cycling.
 #define MIN_COOL_OFF_TIME_FRIDGE_CONSTANT 900u
 // Set a minimum off time between switching between heating and cooling

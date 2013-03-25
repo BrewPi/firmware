@@ -216,7 +216,9 @@ void TempControl::updateState(void){
 			cv.estimatedPeak = fridgeSensor.readFastFiltered() - estimatedOvershoot;
 			if(cv.estimatedPeak <= cs.fridgeSetting + COOLING_TARGET){
 				cv.negPeakSetting = cs.fridgeSetting; // remember temperature when I switch to Idle, to adjust estimator later
-				state=IDLE;
+				if(timeSinceIdle() > MIN_COOL_ON_TIME){
+					state=IDLE;
+				}					
 				return;
 			}
 		}		
@@ -230,7 +232,9 @@ void TempControl::updateState(void){
 			cv.estimatedPeak = fridgeSensor.readFastFiltered() + estimatedOvershoot;
 			if(cv.estimatedPeak >= cs.fridgeSetting + HEATING_TARGET){
 				cv.posPeakSetting=cs.fridgeSetting; // remember temperature when I switch to Idle, to adjust estimator later
-				state=IDLE;
+				if(timeSinceIdle() > MIN_HEAT_ON_TIME){
+					state=IDLE;
+				}
 				return;
 			}
 		}
@@ -457,7 +461,7 @@ void TempControl::loadDefaultConstants(void){
 
 	// Limits of fridge temperature setting
 	cc.tempSettingMax = 30*512;	// +30 deg Celsius
-	cc.tempSettingMin = 4*512;	// + 4 deg Celsius
+	cc.tempSettingMin = 1*512;	// +1 deg Celsius
 
 	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
 	cc.KpHeat	= 10240;	// +20
