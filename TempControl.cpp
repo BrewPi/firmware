@@ -295,12 +295,12 @@ void TempControl::detectPeaks(void){
 			if(posPeak>cv.posPeakSetting+cc.heatingTargetUpper){
 				//should not happen, estimated overshoot was too low, so adjust overshoot estimator
 				fixed7_9 error = posPeak-(cv.posPeakSetting+cc.heatingTargetUpper);
-				increaseEstimator(&cs.heatEstimator, error);
+				increaseEstimator(&(cs.heatEstimator), error);
 			}
 			if(posPeak<cv.posPeakSetting+cc.heatingTargetLower){
 				//should not happen, estimated overshoot was too high, so adjust overshoot estimator
 				fixed7_9 error = posPeak-(cv.posPeakSetting+cc.heatingTargetLower); // will be negative
-				decreaseEstimator(&cs.heatEstimator, error);
+				decreaseEstimator(&(cs.heatEstimator), error);
 			}
 			piLink.debugMessage(PSTR("Positive peak detected."));
 			detected = true;
@@ -311,7 +311,7 @@ void TempControl::detectPeaks(void){
 			// estimator is too high
 			posPeak=fridgeSensor.readFastFiltered();
 			fixed7_9 error = posPeak-(cv.posPeakSetting+cc.heatingTargetLower); // will be negative
-			decreaseEstimator(&cs.heatEstimator, error);
+			decreaseEstimator(&(cs.heatEstimator), error);
 			
 			piLink.debugMessage(PSTR("Drifting up after heating too short."));
 			detected = true;
@@ -337,11 +337,11 @@ void TempControl::detectPeaks(void){
 			if(negPeak<cv.negPeakSetting+cc.coolingTargetLower){
 				//should not happen, estimated overshoot was too low, so adjust overshoot estimator
 				fixed7_9 error = negPeak-(cv.negPeakSetting+cc.coolingTargetLower); //positive value
-				increaseEstimator(&cs.coolEstimator, error);
+				increaseEstimator(&(cs.coolEstimator), error);
 			}
 			if(negPeak>cv.negPeakSetting+cc.coolingTargetUpper){
 				fixed7_9 error = negPeak-(cv.negPeakSetting+cc.coolingTargetLower); //negative value
-				decreaseEstimator(&cs.coolEstimator, error);
+				decreaseEstimator(&(cs.coolEstimator), error);
 			}
 			piLink.debugMessage(PSTR("Negative peak detected."));
 			detected = true;
@@ -351,7 +351,7 @@ void TempControl::detectPeaks(void){
 			// This is the cooling, then drift down too slow (but in the right direction).
 			// estimator is too high
 			fixed7_9 error = negPeak-(cv.negPeakSetting+cc.coolingTargetLower); //negative value
-			decreaseEstimator(&cs.coolEstimator, error);
+			decreaseEstimator(&(cs.coolEstimator), error);
 			piLink.debugMessage(PSTR("Drifting down after cooling too short."));
 			detected = true;
 		}
