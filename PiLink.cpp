@@ -40,7 +40,7 @@ void PiLink::print_P(const char *fmt, ... ){
 	va_start (args, fmt );
 	vsnprintf_P(tmp, 128, fmt, args);
 	va_end (args);
-	Serial.print(tmp);
+	piStream.print(tmp);
 }
 
 // create a printf like interface to the Arduino Serial function. Format string stored in RAM
@@ -50,12 +50,12 @@ void PiLink::print(char *fmt, ... ){
 	va_start (args, fmt );
 	vsnprintf(tmp, 128, fmt, args);
 	va_end (args);
-	Serial.print(tmp);
+	piStream.print(tmp);
 }
 
 void PiLink::receive(void){
-	if (Serial.available() > 0){
-		char inByte = Serial.read();
+	if (piStream.available() > 0){
+		char inByte = piStream.read();
 		switch(inByte){
 		case 't': // temperatures requested
 			printTemperatures();      
@@ -84,13 +84,13 @@ void PiLink::receive(void){
 			print_P(PSTR("N:\"%S\"\n"), PSTR(VERSION_STRING));
 			break;
 		case 'l': // Display content requested
-			print_P(PSTR("L:"));
+			printResponse('L');
 			char stringBuffer[21];
 			for(uint8_t i=0;i<4;i++){
 				display.lcd.getLine(i, stringBuffer);
 				print_P(PSTR("%s<BR>"), stringBuffer);
 			}				
-			print_P(PSTR("\n"));
+			piStream.print('\n');			
 			break;
 		case 'j': // Receive settings as json
 			receiveJson();
@@ -98,7 +98,7 @@ void PiLink::receive(void){
 		default:
 			debugMessage(PSTR("Invalid command received by Arduino: %c"), inByte);
 		}
-		//Serial.flush(); Messages can be back to back. Flush should not be necessary.
+		//piStream.flush(); Messages can be back to back. Flush should not be necessary.
 		// Functions should not read more than what is meant for that function.
 	}
 }
@@ -121,7 +121,7 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
 		print_P(PSTR("null,"));
 	}
 	else{
-		print_P(PSTR("\"%s\"},"), fridgeAnnotation);	
+		print_P(PSTR("\"%s\","), fridgeAnnotation);	
 	}
 	print_P(PSTR("\"State\":%u}\n"), tempControl.getState());
 }
@@ -158,24 +158,23 @@ void PiLink::debugMessage(const char * message, ...){
 	va_list args;
 	
 	//print 'D:' as prefix
-	print_P(PSTR("D:"));
+	printResponse('D');
 	
 	// Using print_P for the Annotation fails. Arguments are not passed correctly. Use Serial directly as a work around.
 	va_start (args, message );
 	vsnprintf_P(tempString, 128, message, args);
 	va_end (args);
-	Serial.print(tempString);
-
-	Serial.print('\n'); // print newline
+	piStream.print(tempString);
+	piStream.print('\n'); // print newline
 }
 
 void PiLink::sendJsonClose() {
-	Serial.print('}');
+	print_P(PSTR("}\n"));	
 }
 
 void PiLink::printResponse(char type) {
-	Serial.print(type);
-	Serial.print(':');
+	piStream.print(type);
+	piStream.print(':');
 	firstPair = true;
 }
 
@@ -246,18 +245,19 @@ void PiLink::sendControlVariables(void){
 
 void PiLink::printJsonName(const char * name)
 {
+	printJsonSeparator();
 	piStream.print('"');
 	print_P(name);
 	piStream.print('"');
 	piStream.print(':');
 }
 
-void PiLink::printJsonSeparator() {
+inline void PiLink::printJsonSeparator() {
 	piStream.print(firstPair ? '{' : ',');	
+	firstPair = false;
 }
 
 void PiLink::sendJsonPair(const char * name, const char * val){
-	printJsonSeparator();
 	printJsonName(name);
 	piStream.print(val);
 }
@@ -267,13 +267,11 @@ void PiLink::sendJsonPair(const char * name, char val){
 	piStream.print('"');
 	piStream.print(val);
 	piStream.print('"');
-	printJsonSeparator();
 }
 
 void PiLink::sendJsonPair(const char * name, uint16_t val){
 	printJsonName(name);
 	print_P(PSTR("\"%u\""), val);
-	printJsonSeparator();
 }
 
 void PiLink::sendJsonPair(const char * name, uint8_t val) {
@@ -286,12 +284,12 @@ void PiLink::receiveJson(void){
 	uint8_t index=0;
 	char character=0;
 	delay(1);
-	while(Serial.available() > 0){ // outer while loop can process multiple pairs
+	while(piStream.available() > 0){ // outer while loop can process multiple pairs
 		index=0;
-		while(Serial.available() > 0) // get key
+		while(piStream.available() > 0) // get key
 		{
 			delay(1);
-			character = Serial.read();
+			character = piStream.read();
 			if(character == ':'){		
 				// value comes now
 				break;
@@ -309,10 +307,10 @@ void PiLink::receiveJson(void){
 		}
 		key[index]=0; // null terminate string
 		index = 0;
-		while(Serial.available() > 0) // get value
+		while(piStream.available() > 0) // get value
 		{
 			delay(1);
-			character = Serial.read();
+			character = piStream.read();
 			if(character == ',' || character == '}'){
 				// end of value
 				break;
