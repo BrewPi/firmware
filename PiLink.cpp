@@ -118,7 +118,7 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
 		print_P(PSTR("null,"));
 	}
 	else{
-		print_P(PSTR("\"%s\"},"), fridgeAnnotation);	
+		print_P(PSTR("\"%s\","), fridgeAnnotation);	
 	}
 	print_P(PSTR("\"State\":%u}\n"), tempControl.getState());
 }
