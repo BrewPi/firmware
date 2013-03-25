@@ -104,14 +104,18 @@ void TempControl::updatePID(void){
 		if(integralUpdateCounter++ == 60){
 			integralUpdateCounter = 0;
 			if(abs(cv.beerDiff) < cc.iMaxError){
-				//difference is smaller than iMaxError
-				if(cv.beerDiff < 0 && (cs.fridgeSetting +1024) < fridgeSensor.readFastFiltered()){
+				//difference is smaller than iMaxError, check 4 conditions to see if integrator should be active
+				if(timeSinceIdle() > 1800){
+					// more than 30 minutes since idle, actuator is probably saturated. Do not increase integrator.
+				}			
+				else if(cv.beerDiff < 0 && (cs.fridgeSetting +1024) < fridgeSensor.readFastFiltered()){
 					// cooling and fridge temp is more than 2 degrees from setting, actuator is saturated.
 				}
 				else if(cv.beerDiff > 0 && (cs.fridgeSetting -1024) > fridgeSensor.readFastFiltered()){
 					// heating and fridge temp is more than 2 degrees from setting, actuator is saturated.
 				}					
 				else if(abs(cv.beerDiff) > 26){ // difference is more than 0.05 degree Celsius
+					// all conditions are met, update integrator.
 					cv.diffIntegral = cv.diffIntegral + cv.beerDiff;
 				}
 			}
