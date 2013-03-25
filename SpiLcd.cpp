@@ -24,7 +24,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include <util/delay.h>
-#include "DigitalPin.h"
+#include "FastDigitalPin.h"
 #include "pins.h"
 
 // MDM - removed the latchPin parameter since it's never changed, and having a compile time constant makes the

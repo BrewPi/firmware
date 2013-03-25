@@ -118,6 +118,7 @@
       <Value>MULTICHAMBER=1</Value>
       <Value>TEMP_SENSOR_CASCADED_FILTER=0</Value>
       <Value>TEMP_CONTROL_STATIC=0</Value>
+      <Value>FAST_DIGITAL_PIN=0</Value>
     </ListValues>
   </avrgcccpp.compiler.symbols.DefSymbols>
   <avrgcccpp.compiler.directories.IncludePaths>
@@ -208,6 +209,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Door.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="FastDigitalPin.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="FixedFilter.cpp">

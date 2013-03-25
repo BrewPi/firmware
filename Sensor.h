@@ -10,7 +10,7 @@
 #pragma once
 
 #include "Arduino.h"
-#include "DigitalPin.h"
+#include "FastDigitalPin.h"
 
 template<class T> class Sensor
 {	
@@ -64,24 +64,16 @@ class DigitalPinSensor : public SwitchSensor
 /* A SwitchSensor whose state is provided by a hardware pin. 
   By using a template, the compiler can inline the call to digitalRead. 
 */
-template<int pin, bool invert, bool internalPullup> 
+template<uint8_t pin, bool invert, bool internalPullup> 
 class DigitalPinSensorInline : public SwitchSensor
 {
 	public:
-	DigitalPinSensorInline() {
-#ifndef __OPTIMIZE__		
-		pinMode(pin, internalPullup ? INPUT_PULLUP : INPUT);
-#else		
+	inline __attribute__((always_inline)) DigitalPinSensorInline() {
 		fastPinMode(pin, internalPullup ? INPUT_PULLUP : INPUT);
-#endif		
 	}
 	
 	virtual bool sense() {
-#ifndef __OPTIMIZE__
-		return digitalRead(pin) ^ invert;
-#else						
 		return fastDigitalRead(pin) ^ invert;
-#endif		
 	}
 };
 

@@ -9,10 +9,10 @@
  *  Author: mat
  */ 
 
-#ifndef ACTUATOR_H_
-#define ACTUATOR_H_
+#pragma once
 
-#include "DigitalPin.h"
+#include "Arduino.h"
+#include "FastDigitalPin.h"
 
 #define ACTUATOR_VIRTUAL 1
 
@@ -40,12 +40,15 @@ class Actuator
 	ACTUATOR_METHOD void deactivate() { setActive(false); }
 };
 
+/*
+ * An actuator that simply remembers the set value. This is primary used for testing.
+ */
 class ValueActuator ACTUATOR_BASE_CLASS_DECL
 {
 public:
 	ValueActuator() : state(false) {}
 	ValueActuator(bool initial) : state(initial) {}
-	//ACTUATOR_METHOD bool isActive() { return state; }
+
 	ACTUATOR_METHOD void setActive(bool active) { state = active; }
 
 private:
@@ -53,31 +56,21 @@ private:
 };
 
 
-template<int pin, bool invert> class DigitalPinActuatorInline ACTUATOR_BASE_CLASS_DECL
+template<uint8_t pin, bool invert> 
+class DigitalPinActuatorInline ACTUATOR_BASE_CLASS_DECL
 {
 	public:
 	DigitalPinActuatorInline()
 	{
-#ifndef __OPTIMIZE__
-		pinMode(pin, OUTPUT);
-#else		
 		fastPinMode(pin, OUTPUT);
-#endif		
 	}
 	
 	ACTUATOR_METHOD void setActive(bool active) {		
-#ifndef __OPTIMIZE__
-		digitalWrite(pin, active^invert ? HIGH : LOW);
-#else		
 		fastDigitalWrite(pin, active^invert ? HIGH : LOW);
-#endif		
 	}
 
 };
 
-/************************************************************************/
-/* An Actuator that uses a digital pin to control the actuator state.                                                                     */
-/************************************************************************/
 class DigitalPinActuator ACTUATOR_BASE_CLASS_DECL
 {
 	private:
@@ -102,19 +95,3 @@ class DigitalPinActuator ACTUATOR_BASE_CLASS_DECL
 	}
 
 };
-
-class OneWire;
-
-/************************************************************************/
-/* An actuator that uses the 2408 to control state.                                                                     */
-/************************************************************************/
-class OneWireActuator : public Actuator
-{
-	private:
-	//OneWire& oneWire;
-	
-};	
-	
-
-
-#endif /* ACTUATOR_H_ */

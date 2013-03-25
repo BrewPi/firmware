@@ -10,7 +10,7 @@
 #define ONEWIRETEMPSENSOR_H_
 
 #include "TempSensor.h"
-#include "DigitalPin.h"
+#include "FastDigitalPin.h"
 
 class DallasTemperature;
 class OneWire;

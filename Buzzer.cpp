@@ -4,11 +4,13 @@
  * Created: 7-2-2013 0:22:37
  *  Author: Elco
  */ 
+
+#include "FastDigitalPin.h"
 #include "Ticks.h"
 #include "pins.h"
 #include "Buzzer.h"
 #include <util/delay.h>
-#include "DigitalPin.h"
+
 
 #if (alarmPin != 3)
 	#error "Check PWM settings when you want to use a different pin for the alarm"
@@ -35,7 +37,7 @@ void Buzzer::init(void){
 #ifndef __OPTIMIZE__
 	pinMode(alarmPin, OUTPUT);
 #else		
-	fastPinMode(alarmPin,OUTPUT);
+	pinMode(alarmPin,OUTPUT);
 #endif	
 	// Arduino UNO, buzzer is on OC2B
 	TCCR2A = (1<<COM2B1) | (1<<WGM20);

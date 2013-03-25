@@ -42,7 +42,7 @@
 #include "brewpi_avr.h"
 #include "config.h"
 #include "Sensor.h"
-#include "DigitalPin.h"
+#include "FastDigitalPin.h"
 
 // global class objects static and defined in class cpp and h files
 
@@ -62,10 +62,10 @@ Display DISPLAY_REF display = realDisplay;
 #if BREWPI_EMULATE	// use in-memory/emulated devices
 	MockTempSensor directFridgeSensor(10,10);
 	MockTempSensor directBeerSensor(5,5);
-	ValueActuator heat;
-	ValueActuator cool;
+	ValueActuator heater;
+	ValueActuator cooler;
 	ValueActuator light;
-	ValueSensor<boolean> door((boolean)false);
+	ValueSensor<bool> door((bool)false);
 	
 #else  // non emulation - use real hardware devices
 	OneWireTempSensor directFridgeSensor(fridgeSensorPin);
