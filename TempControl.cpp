@@ -114,8 +114,8 @@ void TempControl::updatePID(void){
 				else if(cv.beerDiff > 0 && (cs.fridgeSetting -1024) > fridgeSensor.readFastFiltered()){
 					// heating and fridge temp is more than 2 degrees from setting, actuator is saturated.
 				}					
-				else if(abs(cv.beerDiff) > 26){ // difference is more than 0.05 degree Celsius
-					// all conditions are met, update integrator.
+				else{
+					// Actuator is not saturated. Update integrator
 					cv.diffIntegral = cv.diffIntegral + cv.beerDiff;
 				}
 			}
@@ -191,7 +191,7 @@ void TempControl::updateState(void){
 					return;
 				}
 				else{
-					if(beerSensor.readFastFiltered()<cs.beerSetting+26){ // only start cooling when beer is too warm (0.05 degree idle space)
+					if(beerSensor.readFastFiltered()<cs.beerSetting){ // only start cooling when beer is too warm
 						return; // beer is already colder than setting, stay in IDLE.
 					}
 					if((timeSinceCooling() > MIN_COOL_OFF_TIME && timeSinceHeating() > MIN_SWITCH_TIME) || state == STARTUP){
@@ -201,7 +201,7 @@ void TempControl::updateState(void){
 				}
 			}
 			else if(fridgeSensor.readFastFiltered() < (cs.fridgeSetting+cc.idleRangeLow)){ // fridge temperature is too low
-				if(beerSensor.readFastFiltered()>cs.beerSetting-26){ // only start heating when beer is too cold (0.05 degree idle space)
+				if(beerSensor.readFastFiltered()>cs.beerSetting){ // only start heating when beer is too cold
 					return; // beer is already warmer than setting, stay in IDLE
 				}
 				if((timeSinceCooling() > MIN_SWITCH_TIME && timeSinceHeating() > MIN_HEAT_OFF_TIME) || state == STARTUP){
