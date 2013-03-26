@@ -44,7 +44,7 @@ void loop (void);
 void setup()
 {
 	
-	Serial.begin(57600);
+	piLink.init();
 	
 	// Signals are inverted on the shield, so set to high
 	digitalWrite(coolingPin, HIGH);

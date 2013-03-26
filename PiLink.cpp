@@ -31,7 +31,13 @@
 #include "jsonKeys.h"
 
 bool PiLink::firstPair;
+
+// Rename Serial to piStream, to abstract it for later platform independence
 #define piStream Serial
+
+void PiLink::init(void){
+	piStream.begin(57600);	
+}
 
 // create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
 void PiLink::print_P(const char *fmt, ... ){

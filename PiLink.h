@@ -26,6 +26,7 @@ class PiLink{
 	public:
 	
 	// There can only be one PiLink object, so functions are static
+	static void init(void);
 	static void receive(void);
 	
 	static void print(char *fmt, ...); // use when format string is stored in RAM
