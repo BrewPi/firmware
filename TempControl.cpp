@@ -64,15 +64,6 @@ void TempControl::init(void){
 }
 
 void TempControl::reset(void){
-	fixed7_9 temp = getBeerTemp();
-	if(cs.beerSetting < temp){
-		cv.Kp=cc.KpCool;
-		cv.Kd=cc.KdCool;
-	}
-	else{
-		cv.Kp=cc.KpHeat;
-		cv.Kd=cc.KdHeat;
-	}
 	doPosPeakDetect=false;
 	doNegPeakDetect=false;
 }
@@ -125,20 +116,11 @@ void TempControl::updatePID(void){
 			
 			}
 		}			
-		if(cv.beerDiff<0){ // slowly go to cool parameters
-			// shift left instead of right or limited precision will cause a limit value 512/(2^8) under the target value.
-			cv.Kp = ((((fixed23_9) cv.Kp)<<8) - cv.Kp + cc.KpCool)>>8;
-			cv.Kd = ((((fixed23_9) cv.Kd)<<8) - cv.Kd + cc.KdCool)>>8;
-		}
-		else{ // slowly go to heat parameters
-			cv.Kp = ((((fixed23_9) cv.Kp)<<8) - cv.Kp + cc.KpHeat)>>8;
-			cv.Kd = ((((fixed23_9) cv.Kd)<<8) - cv.Kd + cc.KdHeat)>>8;
-		}
-		
+				
 		// calculate PID parts. Use fixed23_9 to prevent overflow
-		cv.p = ((fixed23_9) cv.Kp * (fixed23_9) cv.beerDiff)>>9;
+		cv.p = ((fixed23_9) cc.Kp * (fixed23_9) cv.beerDiff)>>9;
 		cv.i = ((fixed23_9) cc.Ki * cv.diffIntegral)>>9;
-		cv.d = ((fixed23_9) cv.Kd * (fixed23_9) cv.beerSlope)>>9;
+		cv.d = ((fixed23_9) cc.Kd * (fixed23_9) cv.beerSlope)>>9;
 				
 		cs.fridgeSetting = constrain(cs.beerSetting + cv.p + cv.i + cv.d, cc.tempSettingMin, cc.tempSettingMax);
 	}
@@ -468,11 +450,9 @@ void TempControl::loadDefaultConstants(void){
 	cc.tempSettingMin = 1*512;	// +1 deg Celsius
 
 	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
-	cc.KpHeat	= 10240;	// +20
-	cc.KpCool	= 10240;	// +20
-	cc.Ki		= 307;		// +0.6
-	cc.KdCool	= -1536;	// -3
-	cc.KdHeat	= -1536;	// -3
+	cc.Kp	= 10240;	// +20
+	cc.Ki	= 307;		// +0.6
+	cc.Kd	= -1536;	// -3
 	cc.iMaxError = 256;  // 0.5 deg
 
 	// Stay Idle when temperature is in this range

@@ -57,8 +57,6 @@ struct ControlVariables{
 	fixed23_9 p;
 	fixed23_9 i;
 	fixed23_9 d;
-	fixed7_9 Kp;
-	fixed7_9 Kd;
 	fixed7_9 estimatedPeak;
 	fixed7_9 negPeakSetting;
 	fixed7_9 posPeakSetting;
@@ -70,11 +68,9 @@ struct ControlConstants{
 	char tempFormat;
 	fixed7_9 tempSettingMin;
 	fixed7_9 tempSettingMax;	
-	fixed7_9 KpHeat;
-	fixed7_9 KpCool;
+	fixed7_9 Kp;
 	fixed7_9 Ki;
-	fixed7_9 KdCool;
-	fixed7_9 KdHeat;
+	fixed7_9 Kd;
 	fixed7_9 iMaxError;
 	fixed7_9 idleRangeHigh;
 	fixed7_9 idleRangeLow;

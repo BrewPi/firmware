@@ -204,11 +204,9 @@ void PiLink::sendControlConstants(void){
 	sendJsonPair(JSONKEY_tempFormat, tempControl.cc.tempFormat);
 	sendJsonPair(JSONKEY_tempSettingMin, tempToString(tempString, tempControl.cc.tempSettingMin, 1, 12));
 	sendJsonPair(JSONKEY_tempSettingMax, tempToString(tempString, tempControl.cc.tempSettingMax, 1, 12));
-	sendJsonPair(JSONKEY_KpHeat, fixedPointToString(tempString, tempControl.cc.KpHeat, 3, 12));
-	sendJsonPair(JSONKEY_KpCool, fixedPointToString(tempString, tempControl.cc.KpCool, 3, 12));
+	sendJsonPair(JSONKEY_Kp, fixedPointToString(tempString, tempControl.cc.Kp, 3, 12));
 	sendJsonPair(JSONKEY_Ki, fixedPointToString(tempString, tempControl.cc.Ki, 3, 12));
-	sendJsonPair(JSONKEY_KdCool, fixedPointToString(tempString, tempControl.cc.KdCool, 3, 12));
-	sendJsonPair(JSONKEY_KdHeat, fixedPointToString(tempString, tempControl.cc.KdHeat, 3, 12));
+	sendJsonPair(JSONKEY_Kd, fixedPointToString(tempString, tempControl.cc.Kd, 3, 12));
 	sendJsonPair(JSONKEY_iMaxError, tempDiffToString(tempString, tempControl.cc.iMaxError, 3, 12));
 	
 	sendJsonPair(JSONKEY_idleRangeHigh, tempDiffToString(tempString, tempControl.cc.idleRangeHigh, 3, 12));
@@ -239,8 +237,6 @@ void PiLink::sendControlVariables(void){
 	sendJsonPair(JSONKEY_p, fixedPointToString(tempString, tempControl.cv.p, 3, 12));
 	sendJsonPair(JSONKEY_i, fixedPointToString(tempString, tempControl.cv.i, 3, 12));
 	sendJsonPair(JSONKEY_d, fixedPointToString(tempString, tempControl.cv.d, 3, 12));
-	sendJsonPair(JSONKEY_Kp, fixedPointToString(tempString, tempControl.cv.Kp, 3, 12));
-	sendJsonPair(JSONKEY_Kd, fixedPointToString(tempString, tempControl.cv.Kd, 3, 12));
 	sendJsonPair(JSONKEY_estimatedPeak, tempToString(tempString, tempControl.cv.estimatedPeak, 3, 12));
 	sendJsonPair(JSONKEY_negPeakSetting, tempToString(tempString, tempControl.cv.negPeakSetting, 3, 12));
 	sendJsonPair(JSONKEY_posPeakSetting, tempToString(tempString, tempControl.cv.posPeakSetting, 3, 12));
@@ -379,11 +375,9 @@ void PiLink::processJsonPair(char * key, char * val){
 	}
 	else if(strcmp_P(key,JSONKEY_tempSettingMin) == 0){ tempControl.cc.tempSettingMin = stringToTemp(val); }
 	else if(strcmp_P(key,JSONKEY_tempSettingMax) == 0){ tempControl.cc.tempSettingMax = stringToTemp(val); }
-	else if(strcmp_P(key,JSONKEY_KpHeat) == 0){ tempControl.cc.KpHeat = stringToFixedPoint(val); }
-	else if(strcmp_P(key,JSONKEY_KpCool) == 0){ tempControl.cc.KpCool = stringToFixedPoint(val); }
+	else if(strcmp_P(key,JSONKEY_Kp) == 0){ tempControl.cc.Kp = stringToFixedPoint(val); }
 	else if(strcmp_P(key,JSONKEY_Ki) == 0){ tempControl.cc.Ki = stringToFixedPoint(val); }
-	else if(strcmp_P(key,JSONKEY_KdCool) == 0){ tempControl.cc.KdCool = stringToFixedPoint(val); }
-	else if(strcmp_P(key,JSONKEY_KdHeat) == 0){ tempControl.cc.KdHeat = stringToFixedPoint(val); }
+	else if(strcmp_P(key,JSONKEY_Kd) == 0){ tempControl.cc.Kd = stringToFixedPoint(val); }
 	else if(strcmp_P(key,JSONKEY_iMaxError) == 0){ tempControl.cc.iMaxError = stringToTempDiff(val); }
 	else if(strcmp_P(key,JSONKEY_idleRangeHigh) == 0){ tempControl.cc.idleRangeHigh = stringToTempDiff(val); }
 	else if(strcmp_P(key,JSONKEY_idleRangeLow) == 0){ tempControl.cc.idleRangeLow = stringToTempDiff(val); }
