@@ -93,9 +93,6 @@ struct ControlConstants{
 	uint8_t beerSlopeFilter;	// for PID calculation
 };
 
-#define COOLING_TARGET ((cc.coolingTargetUpper+cc.coolingTargetLower)/2)
-#define HEATING_TARGET ((cc.heatingTargetUpper+cc.heatingTargetLower)/2)
-
 #define EEPROM_IS_INITIALIZED_ADDRESS 0
 #define EEPROM_CONTROL_SETTINGS_ADDRESS (EEPROM_IS_INITIALIZED_ADDRESS+sizeof(uint8_t))
 #define EEPROM_CONTROL_CONSTANTS_ADDRESS (EEPROM_CONTROL_SETTINGS_ADDRESS+sizeof(ControlSettings))

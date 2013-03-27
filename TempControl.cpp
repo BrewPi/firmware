@@ -218,9 +218,9 @@ void TempControl::updateState(void){
 			int coolTime = min(cc.maxCoolTimeForEstimate, timeSinceIdle()); // cool time in seconds
 			fixed7_9 estimatedOvershoot = ((fixed23_9) cs.coolEstimator * coolTime)/3600; // overshoot estimator is in overshoot per hour
 			cv.estimatedPeak = fridgeSensor.readFastFiltered() - estimatedOvershoot;
-			if(cv.estimatedPeak <= cs.fridgeSetting + COOLING_TARGET){
-				cv.negPeakSetting = cs.fridgeSetting; // remember temperature when I switch to Idle, to adjust estimator later
+			if(cv.estimatedPeak <= cs.fridgeSetting){
 				if(timeSinceIdle() > MIN_COOL_ON_TIME){
+					cv.negPeakSetting = cv.estimatedPeak; // remember estimated peak when I switch to IDLE, to adjust estimator later
 					state=IDLE;
 				}					
 				return;
@@ -234,9 +234,9 @@ void TempControl::updateState(void){
 			int heatTime = min(cc.maxHeatTimeForEstimate, timeSinceIdle()); // heat time in seconds
 			fixed7_9 estimatedOvershoot = ((fixed23_9) cs.heatEstimator * heatTime)/3600; // overshoot estimator is in overshoot per hour
 			cv.estimatedPeak = fridgeSensor.readFastFiltered() + estimatedOvershoot;
-			if(cv.estimatedPeak >= cs.fridgeSetting + HEATING_TARGET){
-				cv.posPeakSetting=cs.fridgeSetting; // remember temperature when I switch to Idle, to adjust estimator later
+			if(cv.estimatedPeak >= cs.fridgeSetting){
 				if(timeSinceIdle() > MIN_HEAT_ON_TIME){
+					cv.posPeakSetting=cv.estimatedPeak; // remember estimated peak when I switch to IDLE, to adjust estimator later
 					state=IDLE;
 				}
 				return;
