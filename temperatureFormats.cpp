@@ -94,10 +94,10 @@ fixed23_9 stringToFixedPoint(char * numberString){
 	fixed23_9 fracPart = 0;
 	
 	char * fractPtr = 0; //pointer to the point in the string
-	char sign = 1;
+	bool negative = 0;
 	if(numberString[0] == '-'){
 		numberString++;
-		sign = -1; // by processing the sign here, we don't have to include strtol
+		negative = true; // by processing the sign here, we don't have to include strtol
 	}
 	
 	// find the point in the string to split in the integer part and the fraction part
@@ -116,7 +116,8 @@ fixed23_9 stringToFixedPoint(char * numberString){
 			numDecimals--;
 		}
 	}
-	return sign * ((intPart<<9) +fracPart);
+	fixed23_9 absVal = ((intPart<<9) +fracPart);
+	return negative ? -absVal:absVal;
 }
 
 char * tempDiffToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength){
