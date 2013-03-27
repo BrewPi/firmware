@@ -476,14 +476,14 @@ void TempControl::loadDefaultConstants(void){
 	cc.iMaxError = 256;  // 0.5 deg
 
 	// Stay Idle when temperature is in this range
-	cc.idleRangeHigh = 256;	// +0.5 deg Celsius
-	cc.idleRangeLow = -256;	// -0.5 deg Celsius
+	cc.idleRangeHigh = 512;	// +1 deg Celsius
+	cc.idleRangeLow = -512;	// -1 deg Celsius
 
 	// when peak falls between these limits, its good.
-	cc.heatingTargetUpper = 102;	// +0.2 deg Celsius
-	cc.heatingTargetLower = -51;	// -0.1 deg Celsius
-	cc.coolingTargetUpper = 51;		// +0.1 deg Celsius
-	cc.coolingTargetLower = -102;	// -0.2 deg Celsius
+	cc.heatingTargetUpper = 154;	// +0.3 deg Celsius
+	cc.heatingTargetLower = -102;	// -0.2 deg Celsius
+	cc.coolingTargetUpper = 102;	// +0.2 deg Celsius
+	cc.coolingTargetLower = -154;	// -0.3 deg Celsius
 
 	// Set filter coefficients. This is the b value. See FixedFilter.h for delay times.
 	// The delay time is 3.33 * 2^b * number of cascades
@@ -493,7 +493,7 @@ void TempControl::loadDefaultConstants(void){
 	fridgeSensor.setSlowFilterCoefficients(cc.fridgeSlowFilter);
 	cc.fridgeSlopeFilter = 3u;
 	fridgeSensor.setSlopeFilterCoefficients(cc.fridgeSlopeFilter);
-	cc.beerFastFilter = 2u;
+	cc.beerFastFilter = 3u;
 	beerSensor.setFastFilterCoefficients(cc.beerFastFilter);
 	cc.beerSlowFilter = 5u;
 	beerSensor.setSlowFilterCoefficients(cc.beerSlowFilter);
