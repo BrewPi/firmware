@@ -58,9 +58,9 @@ struct ControlVariables{
 	fixed23_9 i;
 	fixed23_9 d;
 	fixed7_9 estimatedPeak;
-	fixed7_9 negPeakSetting;
-	fixed7_9 posPeakSetting;
-	fixed7_9 negPeak;
+	fixed7_9 negPeakEstimate; // last estimate
+	fixed7_9 posPeakEstimate;
+	fixed7_9 negPeak; // last detected peak
 	fixed7_9 posPeak;
 };
 
