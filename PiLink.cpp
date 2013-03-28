@@ -35,6 +35,7 @@
 #include "brewpi_avr.h"
 
 bool PiLink::firstPair;
+// Rename Serial to piStream, to abstract it for later platform independence
 #ifdef TEST		// write to a stream to capture output
 	extern Stream& SerialCapture;
 	#define piStream SerialCapture
@@ -55,6 +56,10 @@ bool PiLink::firstPair;
 	#define piStream Serial
 #endif
 
+
+void PiLink::init(void){
+	piStream.begin(57600);	
+}
 
 // create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
 void PiLink::print_P(const char *fmt, ... ){

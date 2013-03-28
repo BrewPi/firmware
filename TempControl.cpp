@@ -116,14 +116,18 @@ void TempControl::updatePID(void){
 		if(integralUpdateCounter++ == 60){
 			integralUpdateCounter = 0;
 			if(abs(cv.beerDiff) < cc.iMaxError){
-				//difference is smaller than iMaxError
-				if(cv.beerDiff < 0 && (cs.fridgeSetting +1024) < fridgeSensor->readFastFiltered()){
+				//difference is smaller than iMaxError, check 4 conditions to see if integrator should be active
+				if(timeSinceIdle() > 1800){
+					// more than 30 minutes since idle, actuator is probably saturated. Do not increase integrator.
+				}			
+				else if(cv.beerDiff < 0 && (cs.fridgeSetting +1024) < fridgeSensor->readFastFiltered()){
 					// cooling and fridge temp is more than 2 degrees from setting, actuator is saturated.
 				}
 				else if(cv.beerDiff > 0 && (cs.fridgeSetting -1024) > fridgeSensor->readFastFiltered()){
 					// heating and fridge temp is more than 2 degrees from setting, actuator is saturated.
 				}					
-				else if(abs(cv.beerDiff) > 26){ // difference is more than 0.05 degree Celsius
+				else{
+					// Actuator is not saturated. Update integrator
 					cv.diffIntegral = cv.diffIntegral + cv.beerDiff;
 				}
 			}
@@ -199,7 +203,7 @@ void TempControl::updateState(void){
 							return;
 						}
 					else{
-					if(beerSensor->readFastFiltered()<cs.beerSetting+26){ // only start cooling when beer is too warm (0.05 degree idle space)
+					if(beerSensor->readFastFiltered()<cs.beerSetting){ // only start cooling when beer is too warm
 						return; // beer is already colder than setting, stay in IDLE.
 					}
 					if((timeSinceCooling() > MIN_COOL_OFF_TIME && timeSinceHeating() > MIN_SWITCH_TIME) || state == STARTUP){
@@ -209,7 +213,7 @@ void TempControl::updateState(void){
 			}
 			}
 			else if(fridgeSensor->readFastFiltered() < (cs.fridgeSetting+cc.idleRangeLow)){ // fridge temperature is too low
-				if(beerSensor->readFastFiltered()>cs.beerSetting-26){ // only start heating when beer is too cold (0.05 degree idle space)
+				if(beerSensor->readFastFiltered()>cs.beerSetting){ // only start heating when beer is too cold
 					return; // beer is already warmer than setting, stay in IDLE
 			}
 				if((timeSinceCooling() > MIN_SWITCH_TIME && timeSinceHeating() > MIN_HEAT_OFF_TIME) || state == STARTUP){
@@ -226,9 +230,11 @@ void TempControl::updateState(void){
 			int coolTime = min(cc.maxCoolTimeForEstimate, timeSinceIdle()); // cool time in seconds
 			fixed7_9 estimatedOvershoot = ((fixed23_9) cs.coolEstimator * coolTime)/3600; // overshoot estimator is in overshoot per hour
 			cv.estimatedPeak = fridgeSensor->readFastFiltered() - estimatedOvershoot;
-			if(cv.estimatedPeak <= cs.fridgeSetting + COOLING_TARGET){
-				cv.negPeakSetting = cs.fridgeSetting; // remember temperature when I switch to Idle, to adjust estimator later
+			if(cv.estimatedPeak <= cs.fridgeSetting){
+				if(timeSinceIdle() > MIN_COOL_ON_TIME){
+					cv.negPeakSetting = cv.estimatedPeak; // remember estimated peak when I switch to IDLE, to adjust estimator later
 				state=IDLE;
+				}					
 				return;
 			}
 		}		
@@ -240,9 +246,11 @@ void TempControl::updateState(void){
 			int heatTime = min(cc.maxHeatTimeForEstimate, timeSinceIdle()); // heat time in seconds
 			fixed7_9 estimatedOvershoot = ((fixed23_9) cs.heatEstimator * heatTime)/3600; // overshoot estimator is in overshoot per hour
 			cv.estimatedPeak = fridgeSensor->readFastFiltered() + estimatedOvershoot;
-			if(cv.estimatedPeak >= cs.fridgeSetting + HEATING_TARGET){
-				cv.posPeakSetting=cs.fridgeSetting; // remember temperature when I switch to Idle, to adjust estimator later
+			if(cv.estimatedPeak >= cs.fridgeSetting){
+				if(timeSinceIdle() > MIN_HEAT_ON_TIME){
+					cv.posPeakSetting=cv.estimatedPeak; // remember estimated peak when I switch to IDLE, to adjust estimator later
 				state=IDLE;
+				}
 				return;
 			}
 		}
@@ -281,12 +289,12 @@ void TempControl::detectPeaks(void){
 			if(posPeak>cv.posPeakSetting+cc.heatingTargetUpper){
 				//should not happen, estimated overshoot was too low, so adjust overshoot estimator
 				fixed7_9 error = posPeak-(cv.posPeakSetting+cc.heatingTargetUpper);
-				increaseEstimator(&cs.heatEstimator, error);
+				increaseEstimator(&(cs.heatEstimator), error);
 			}
 			if(posPeak<cv.posPeakSetting+cc.heatingTargetLower){
 				//should not happen, estimated overshoot was too high, so adjust overshoot estimator
 				fixed7_9 error = posPeak-(cv.posPeakSetting+cc.heatingTargetLower); // will be negative
-				decreaseEstimator(&cs.heatEstimator, error);
+				decreaseEstimator(&(cs.heatEstimator), error);
 			}
 			piLink.debugMessage(PSTR("Positive peak detected."));
 			detected = true;
@@ -297,7 +305,7 @@ void TempControl::detectPeaks(void){
 			// estimator is too high
 			posPeak=fridgeSensor->readFastFiltered();
 			fixed7_9 error = posPeak-(cv.posPeakSetting+cc.heatingTargetLower); // will be negative
-			decreaseEstimator(&cs.heatEstimator, error);
+			decreaseEstimator(&(cs.heatEstimator), error);
 			
 			piLink.debugMessage(PSTR("Drifting up after heating too short."));
 			detected = true;
@@ -323,11 +331,11 @@ void TempControl::detectPeaks(void){
 			if(negPeak<cv.negPeakSetting+cc.coolingTargetLower){
 				//should not happen, estimated overshoot was too low, so adjust overshoot estimator
 				fixed7_9 error = negPeak-(cv.negPeakSetting+cc.coolingTargetLower); //positive value
-				increaseEstimator(&cs.coolEstimator, error);
+				increaseEstimator(&(cs.coolEstimator), error);
 			}
 			if(negPeak>cv.negPeakSetting+cc.coolingTargetUpper){
 				fixed7_9 error = negPeak-(cv.negPeakSetting+cc.coolingTargetLower); //negative value
-				decreaseEstimator(&cs.coolEstimator, error);
+				decreaseEstimator(&(cs.coolEstimator), error);
 			}
 			piLink.debugMessage(PSTR("Negative peak detected."));
 			detected = true;
@@ -337,7 +345,7 @@ void TempControl::detectPeaks(void){
 			// This is the cooling, then drift down too slow (but in the right direction).
 			// estimator is too high
 			fixed7_9 error = negPeak-(cv.negPeakSetting+cc.coolingTargetLower); //negative value
-			decreaseEstimator(&cs.coolEstimator, error);
+			decreaseEstimator(&(cs.coolEstimator), error);
 			piLink.debugMessage(PSTR("Drifting down after cooling too short."));
 			detected = true;
 		}
@@ -359,7 +367,7 @@ void TempControl::detectPeaks(void){
 // Increase estimator at least 20%, max 50%s
 void TempControl::increaseEstimator(fixed7_9 * estimator, fixed7_9 error){
 	fixed23_9 factor = 614 + constrain(error>>5, 0, 154); // 1.2 + 3.1% of error, limit between 1.2 and 1.5
-	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;	
+	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;
 	byte max = byte((INT_MAX*512L)>>24);
 	byte upper = byte(newEstimator>>24);
 	*estimator = upper>max ? INT_MAX : newEstimator>>8; // shift back to normal precision
@@ -449,7 +457,7 @@ void TempControl::loadDefaultConstants(void){
 
 	// Limits of fridge temperature setting
 	cc.tempSettingMax = 30*512;	// +30 deg Celsius
-	cc.tempSettingMin = 4*512;	// + 4 deg Celsius
+	cc.tempSettingMin = 1*512;	// +1 deg Celsius
 
 	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
 	cc.KpHeat	= 10240;	// +20
@@ -460,14 +468,14 @@ void TempControl::loadDefaultConstants(void){
 	cc.iMaxError = 256;  // 0.5 deg
 
 	// Stay Idle when temperature is in this range
-	cc.idleRangeHigh = 256;	// +0.5 deg Celsius
-	cc.idleRangeLow = -256;	// -0.5 deg Celsius
+	cc.idleRangeHigh = 512;	// +1 deg Celsius
+	cc.idleRangeLow = -512;	// -1 deg Celsius
 
 	// when peak falls between these limits, its good.
-	cc.heatingTargetUpper = 102;	// +0.2 deg Celsius
-	cc.heatingTargetLower = -51;	// -0.1 deg Celsius
-	cc.coolingTargetUpper = 51;		// +0.1 deg Celsius
-	cc.coolingTargetLower = -102;	// -0.2 deg Celsius
+	cc.heatingTargetUpper = 154;	// +0.3 deg Celsius
+	cc.heatingTargetLower = -102;	// -0.2 deg Celsius
+	cc.coolingTargetUpper = 102;	// +0.2 deg Celsius
+	cc.coolingTargetLower = -154;	// -0.3 deg Celsius
 
 	// Set filter coefficients. This is the b value. See FixedFilter.h for delay times.
 	// The delay time is 3.33 * 2^b * number of cascades
@@ -477,11 +485,11 @@ void TempControl::loadDefaultConstants(void){
 	fridgeSensor->setSlowFilterCoefficients(cc.fridgeSlowFilter);
 	cc.fridgeSlopeFilter = 3u;
 	fridgeSensor->setSlopeFilterCoefficients(cc.fridgeSlopeFilter);
-	cc.beerFastFilter = 2u;
+	cc.beerFastFilter = 3u;
 	beerSensor->setFastFilterCoefficients(cc.beerFastFilter);
 	cc.beerSlowFilter = 5u;
 	beerSensor->setSlowFilterCoefficients(cc.beerSlowFilter);
-	cc.beerSlopeFilter = 3u;
+	cc.beerSlopeFilter = 4u;
 	beerSensor->setSlopeFilterCoefficients(cc.beerSlopeFilter);
 	storeConstants();
 }

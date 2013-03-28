@@ -31,6 +31,10 @@
 #define MIN_COOL_OFF_TIME 300u
 // Use a minimum off time for the heater as well, so it heats in cycles, not lots of short bursts
 #define MIN_HEAT_OFF_TIME 300u
+// Minimum on time for the cooler.
+#define MIN_COOL_ON_TIME 300u
+// Minimum on time for the heater.
+#define MIN_HEAT_ON_TIME 300u
 // Use a large minimum off time in fridge constant mode. No need for very fast cycling.
 #define MIN_COOL_OFF_TIME_FRIDGE_CONSTANT 900u
 // Set a minimum off time between switching between heating and cooling
@@ -90,9 +94,6 @@ struct ControlConstants{
 	uint8_t beerSlowFilter;	// for on/off control algorithm
 	uint8_t beerSlopeFilter;	// for PID calculation
 };
-
-#define COOLING_TARGET ((cc.coolingTargetUpper+cc.coolingTargetLower)/2)
-#define HEATING_TARGET ((cc.heatingTargetUpper+cc.heatingTargetLower)/2)
 
 #define EEPROM_IS_INITIALIZED_ADDRESS 0
 #define EEPROM_CONTROL_SETTINGS_ADDRESS (EEPROM_IS_INITIALIZED_ADDRESS+sizeof(uint8_t))

@@ -111,7 +111,7 @@ ChamberManager chamberManager(chambers, sizeof(chambers)/sizeof(chambers[0]));
 
 void setup()
 {
-	Serial.begin(57600);
+	piLink.init();
 
 	DEBUG_MSG(PSTR("started"));
 
