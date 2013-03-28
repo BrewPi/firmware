@@ -91,12 +91,15 @@ void PiLink::receive(void){
 			break;
 		case 'l': // Display content requested
 			printResponse('L');
+			piStream.print('[');
 			char stringBuffer[21];
 			for(uint8_t i=0;i<4;i++){
 				display.lcd.getLine(i, stringBuffer);
-				print_P(PSTR("%s<BR>"), stringBuffer);
-			}				
-			piStream.print('\n');			
+				print_P(PSTR("\"%s\""), stringBuffer);
+				char close = (i<3) ? ',':']';
+				piStream.print(close);
+			}
+			piStream.print("\n");
 			break;
 		case 'j': // Receive settings as json
 			receiveJson();
