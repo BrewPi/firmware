@@ -426,8 +426,8 @@ void TempControl::loadDefaultSettings(void){
 	cs.mode = MODE_BEER_CONSTANT;
 	cs.beerSetting = 20<<9;;
 	cs.fridgeSetting = 20<<9;
-	cs.heatEstimator=16; // 0.2*2^9
-	cs.coolEstimator=5<<9;
+	cs.heatEstimator = 102; // 0.2*2^9
+	cs.coolEstimator = 5<<9;
 	storeSettings();
 }
 
