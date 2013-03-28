@@ -34,7 +34,7 @@
 #include "Ticks.h"
 #include "brewpi_avr.h"
 
-
+bool PiLink::firstPair;
 #ifdef TEST		// write to a stream to capture output
 	extern Stream& SerialCapture;
 	#define piStream SerialCapture
@@ -54,6 +54,7 @@
 #else
 	#define piStream Serial
 #endif
+
 
 // create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
 void PiLink::print_P(const char *fmt, ... ){
@@ -87,7 +88,8 @@ void PiLink::receive(void){
 				printChamberInfo();
 				return;
 				case 'n':
-				print_P(PSTR("N:\"%S\"\n"), PSTR(VERSION_STRING));
+				printVersion();
+				//print_P(PSTR("N:\"%S\"\n"), PSTR(VERSION_STRING));
 				break;
 		}
 		
@@ -132,10 +134,10 @@ void PiLink::receive(void){
 			sendControlVariables();
 			break;
 		case 'n':
-			print_P(PSTR("N:\"%S\"\n"), PSTR(VERSION_STRING));
+			print_P(PSTR("N:\"%S\"\n"), PSTR(VERSION_STRING));	
 			break;
 		case 'l': // Display content requested
-			printChamberResponse('L');
+			printResponse('L');
 
 #if MULTICHAMBER			
 			display.setBufferOnly(true);
@@ -150,7 +152,7 @@ void PiLink::receive(void){
 #if MULTICHAMBER		
 			display.setBufferOnly(false);
 #endif			
-			print_P(PSTR("\n"));
+			piStream.print('\n');			
 			break;
 		case 'j': // Receive settings as json
 			receiveJson();
@@ -161,11 +163,12 @@ void PiLink::receive(void){
 
 #if MULTICHAMBER
 		chamberManager.switchChamber(prev);		
-#endif		
-		//Serial.flush(); Messages can be back to back. Flush should not be necessary.
+#endif				
+		//piStream.flush(); Messages can be back to back. Flush should not be necessary.
 		// Functions should not read more than what is meant for that function.
 	}
 }
+
 
 #if MULTICHAMBER
 void PiLink::printChamberInfo()
@@ -179,18 +182,9 @@ void PiLink::printChamberInfo()
 }
 #endif
 
-void PiLink::printChamberResponse(char responseChar)
-{
-	print(responseChar);
-#if MULTICHAMBER	
-	print(chamberManager.currentChamber()+'1');	
-#endif	
-	print(':');
-}
-
 void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotation){
 	char tempString[9];
-	printChamberResponse('T');
+	printResponse('T');
 	print_P(PSTR("{\"BeerTemp\":%s,"), tempToString(tempString, tempControl.getBeerTemp(), 2, 9));
 	print_P(PSTR("\"BeerSet\":%s,"), tempToString(tempString, tempControl.getBeerSetting(), 2, 9));
 	print_P(PSTR("\"BeerAnn\":"));
@@ -207,7 +201,7 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
 		print_P(PSTR("null,"));
 	}
 	else{
-		print_P(PSTR("\"%s\"},"), fridgeAnnotation);	
+		print_P(PSTR("\"%s\","), fridgeAnnotation);	
 	}
 	print_P(PSTR("\"State\":%u}\n"), tempControl.getState());
 }
@@ -243,16 +237,24 @@ void PiLink::debugMessage(const char * message, ...){
 	char tempString[128]; // resulting string limited to 128 chars
 	va_list args;
 	
-	//print 'D:' as prefix	
-	printChamberResponse('D');
+	//print 'D:' as prefix
+	printResponse('D');
 	
 	// Using print_P for the Annotation fails. Arguments are not passed correctly. Use Serial directly as a work around.
 	va_start (args, message );
 	vsnprintf_P(tempString, 128, message, args);
 	va_end (args);
 	piStream.print(tempString);
+	piStream.print('\n'); // print newline
+}
 
-	print_P(PSTR("\n")); // print newline
+void PiLink::printResponse(char type) {
+	piStream.print(type);
+#if MULTICHAMBER
+	print(chamberManager.currentChamber()+'1');
+#endif
+	piStream.print(':');
+	firstPair = true;
 }
 
 void PiLink::debugMessageDirect(const char * message, ...){
@@ -269,23 +271,26 @@ void PiLink::debugMessageDirect(const char * message, ...){
 
 void PiLink::sendJsonClose() {
 	piStream.print('}');
+	piStream.print('\n');
 }
 
 // Send settings as JSON string
 void PiLink::sendControlSettings(void){
 	char tempString[12];
-	printChamberResponse('S');
-	sendJsonPair(JSONKEY_mode, tempControl.cs.mode);
-	sendJsonPair(JSONKEY_beerSetting, tempToString(tempString, tempControl.cs.beerSetting, 2, 12));
-	sendJsonPair(JSONKEY_fridgeSetting, tempToString(tempString, tempControl.cs.fridgeSetting, 2, 12));
-	sendJsonPair(JSONKEY_heatEstimator, fixedPointToString(tempString, tempControl.cs.heatEstimator, 3, 12));
-	sendLastJsonPair(JSONKEY_coolEstimator, fixedPointToString(tempString, tempControl.cs.coolEstimator, 3, 12));
+	printResponse('S');
+	ControlSettings& cs = tempControl.cs;
+	sendJsonPair(JSONKEY_mode, cs.mode);
+	sendJsonPair(JSONKEY_beerSetting, tempToString(tempString, cs.beerSetting, 2, 12));
+	sendJsonPair(JSONKEY_fridgeSetting, tempToString(tempString, cs.fridgeSetting, 2, 12));
+	sendJsonPair(JSONKEY_heatEstimator, fixedPointToString(tempString, cs.heatEstimator, 3, 12));
+	sendJsonPair(JSONKEY_coolEstimator, fixedPointToString(tempString, cs.coolEstimator, 3, 12));	
+	sendJsonClose();
 }
 
 // Send control constants as JSON string. Might contain spaces between minus sign and number. Python will have to strip these
 void PiLink::sendControlConstants(void){
 	char tempString[12];
-	printChamberResponse('C');
+	printResponse('C');	
 	sendJsonPair(JSONKEY_tempFormat, tempControl.cc.tempFormat);
 	sendJsonPair(JSONKEY_tempSettingMin, tempToString(tempString, tempControl.cc.tempSettingMin, 1, 12));
 	sendJsonPair(JSONKEY_tempSettingMax, tempToString(tempString, tempControl.cc.tempSettingMax, 1, 12));
@@ -310,7 +315,8 @@ void PiLink::sendControlConstants(void){
 	sendJsonPair(JSONKEY_fridgeSlopeFilter, tempControl.cc.fridgeSlopeFilter);
 	sendJsonPair(JSONKEY_beerFastFilter, tempControl.cc.beerFastFilter);
 	sendJsonPair(JSONKEY_beerSlowFilter, tempControl.cc.beerSlowFilter);
-	sendLastJsonPair(JSONKEY_beerSlopeFilter, tempControl.cc.beerSlopeFilter);
+	sendJsonPair(JSONKEY_beerSlopeFilter, tempControl.cc.beerSlopeFilter);
+	sendJsonClose();
 }
 
 #if 0
@@ -337,7 +343,7 @@ static PROGMEM const PairOffset offsets_cv_7_9 [] = {
 // Send all control variables. Useful for debugging and choosing parameters
 void PiLink::sendControlVariables(void){
 	char tempString[12];
-	printChamberResponse('V');
+	printResponse('V');	
 	sendJsonPair(JSONKEY_beerDiff, tempDiffToString(tempString, tempControl.cv.beerDiff, 3, 12));
 	sendJsonPair(JSONKEY_diffIntegral, tempDiffToString(tempString, tempControl.cv.diffIntegral, 3, 12));
 	sendJsonPair(JSONKEY_beerSlope, tempDiffToString(tempString, tempControl.cv.beerSlope, 3, 12));
@@ -350,47 +356,45 @@ void PiLink::sendControlVariables(void){
 	sendJsonPair(JSONKEY_negPeakSetting, tempToString(tempString, tempControl.cv.negPeakSetting, 3, 12));
 	sendJsonPair(JSONKEY_posPeakSetting, tempToString(tempString, tempControl.cv.posPeakSetting, 3, 12));
 	sendJsonPair(JSONKEY_negPeak, tempToString(tempString, tempControl.cv.negPeak, 3, 12));
-	sendLastJsonPair(JSONKEY_posPeak, tempToString(tempString, tempControl.cv.posPeak, 3, 12));
+	sendJsonPair(JSONKEY_posPeak, tempToString(tempString, tempControl.cv.posPeak, 3, 12));
+	sendJsonClose();
 }
 
-void PiLink::sendJsonPair(const char *  name, char * val){
-	print_P(PSTR("\"%S\":%s,"), name, val);
+void PiLink::printJsonName(const char * name)
+{
+	printJsonSeparator();
+	piStream.print('"');
+	print_P(name);
+	piStream.print('"');
+	piStream.print(':');
 }
-void PiLink::sendLastJsonPair(const char * name, char * val){
-	print_P(PSTR("\"%S\":%s}\n"), name, val);
+
+inline void PiLink::printJsonSeparator() {
+	piStream.print(firstPair ? '{' : ',');	
+	firstPair = false;
+}
+
+void PiLink::sendJsonPair(const char * name, const char * val){
+	printJsonName(name);
+	piStream.print(val);
 }
 
 void PiLink::sendJsonPair(const char * name, char val){
-	print_P(PSTR("\"%S\":\"%c\","), name, val);
+	printJsonName(name);
+	piStream.print('"');
+	piStream.print(val);
+	piStream.print('"');
 }
-void PiLink::sendLastJsonPair(const char * name, char val){
-	print_P(PSTR("\"%S\":\"%c\"}\n"), name, val);
-}
-
 
 void PiLink::sendJsonPair(const char * name, uint16_t val){
-	print_P(PSTR("\"%S\":%u,"), name, val);
-}
-void PiLink::sendLastJsonPair(const char * name, uint16_t val){
-	print_P(PSTR("\"%S\":%u}\n"), name, val);
-}
-
-void PiLink::sendJsonPair(const char * name, uint8_t val){
-	print_P(PSTR("\"%S\":%u,"), name, val);
-}
-void PiLink::sendLastJsonPair(const char * name, uint8_t val){
-	print_P(PSTR("\"%S\":%u}\n"), name, val);
-}
-
-void PiLink::sendJsonPair_P(const char * name, uint16_t val){
 	printJsonName(name);
 	print_P(PSTR("\"%u\""), val);
-	printJsonSeparator();
 }
 
-void PiLink::sendJsonPair_P(const char * name, uint8_t val) {
-	sendJsonPair_P(name, (uint16_t)val);
+void PiLink::sendJsonPair(const char * name, uint8_t val) {
+	sendJsonPair(name, (uint16_t)val);
 }
+
 
 void PiLink::receiveJson(void){
 	char key[30];
