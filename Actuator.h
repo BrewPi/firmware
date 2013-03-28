@@ -57,41 +57,18 @@ private:
 
 
 template<uint8_t pin, bool invert> 
-class DigitalPinActuatorInline ACTUATOR_BASE_CLASS_DECL
+class DigitalPinActuator ACTUATOR_BASE_CLASS_DECL
 {
 	public:
-	DigitalPinActuatorInline()
+	DigitalPinActuator()
 	{
 		fastPinMode(pin, OUTPUT);
+		fastDigitalWrite(pin, invert ? HIGH : LOW);
 	}
 	
-	ACTUATOR_METHOD void setActive(bool active) {		
+	inline ACTUATOR_METHOD void setActive(bool active) {		
 		fastDigitalWrite(pin, active^invert ? HIGH : LOW);
 	}
 
 };
 
-class DigitalPinActuator ACTUATOR_BASE_CLASS_DECL
-{
-	private:
-	int pin;
-	bool active;
-	bool inverse;
-	
-	public:
-	DigitalPinActuator(int _pin, bool _inverse=false, bool _initiallyActive=false) : pin(_pin), inverse(_inverse)
-	{
-		pinMode(pin, OUTPUT);
-		setActive(_initiallyActive);
-	}
-	
-	ACTUATOR_METHOD void setActive(bool active) {
-		this->active = active;
-		digitalWrite(pin, active ? HIGH : LOW);
-	}
-
-	ACTUATOR_METHOD bool isActive() {
-		return active;								
-	}
-
-};

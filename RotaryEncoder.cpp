@@ -24,6 +24,7 @@
 #include "util/atomic.h"
 #include <limits.h>
 #include "Ticks.h"
+#include "Display.h"
 
 RotaryEncoder rotaryEncoder;
 
@@ -68,7 +69,7 @@ ISR(PCINT0_vect){
 ISR(PCINT2_vect){
 	if(!bitRead(PIND,7)){
 		// high to low transition
-		rotaryEncoder.setPushed();	
+		rotaryEncoder.setPushed();
 	}
 }
 
@@ -96,6 +97,7 @@ ISR(PCINT0_vect){
 
 void RotaryEncoder::setPushed(void){
 	pushFlag = true;
+	display.resetBacklightTimer();
 }
 
 void RotaryEncoder::pinAHandler(bool pinState){
@@ -120,7 +122,8 @@ void RotaryEncoder::pinAHandler(bool pinState){
 	}
 	if(halfSteps <= (minimum-2)){
 		halfSteps = maximum;
-	}	
+	}
+	display.resetBacklightTimer();
 }
 
 void RotaryEncoder::pinBHandler(bool pinState){

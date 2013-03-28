@@ -24,6 +24,9 @@
 #include "SpiLcd.h"
 #include "temperatureFormats.h"
 
+// todo - no need to abstract display, sice it doesn't touch the hardware.
+// instead, abstract SpiLcd.
+
 /* Set to 1 to enable virtual functions and polymorphic display. */
 #define DISPLAY_POLYMORPHIC 1
 #if DISPLAY_POLYMORPHIC 
@@ -92,6 +95,11 @@ class Display{
 	 * When true, print content is not sent to the lcd panel, but only buffered.                                                                      
 	 */
 	DISPLAY_METHOD void setBufferOnly(bool bufferOnly) DISPLAY_METHOD_VIRTUAL;
+	
+	DISPLAY_METHOD void resetBacklightTimer() DISPLAY_METHOD_VIRTUAL;
+	
+	DISPLAY_METHOD void updateBacklight() DISPLAY_METHOD_VIRTUAL;
+	
 };
 #endif
 
@@ -143,6 +151,10 @@ public:
 	}
 		
 	DISPLAY_METHOD void setBufferOnly(bool bufferOnly) { }
+		
+	DISPLAY_METHOD void resetBacklightTimer() { }
+		
+	DISPLAY_METHOD void updateBacklight() { }
 };
 		
 extern Display DISPLAY_REF display;

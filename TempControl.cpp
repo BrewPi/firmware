@@ -19,7 +19,6 @@
 
 #include <Arduino.h>
 
-
 #include "pins.h"
 #include <avr/eeprom.h>
 #include <avr/pgmspace.h>
@@ -32,6 +31,7 @@
 #include "Ticks.h"
 #include "chamber.h"
 #include "MockTempSensor.h"
+
 
 TempControl tempControl;
 
@@ -58,9 +58,9 @@ bool TempControl::doNegPeakDetect;
 fixed7_9 TempControl::storedBeerSetting;
 	
 	// Timers
-unsigned long TempControl::lastIdleTime;
-unsigned long TempControl::lastHeatTime;
-unsigned long TempControl::lastCoolTime;
+unsigned int TempControl::lastIdleTime;
+unsigned int TempControl::lastHeatTime;
+unsigned int TempControl::lastCoolTime;
 #endif
 
 void TempControl::init(void){
@@ -115,9 +115,15 @@ void TempControl::updatePID(void){
 		cv.beerSlope = beerSensor->readSlope();
 		if(integralUpdateCounter++ == 60){
 			integralUpdateCounter = 0;
-			if(abs(cv.beerDiff) < cc.iMaxError && cv.beerSlope <= cc.iMaxSlope && cv.beerSlope >= cc.iMinSlope ){
-				//difference is smaller than iMaxError degree and slope is almost horizontal 
-				if(abs(cv.beerDiff) > 26){ // difference is more than 0.05 degree Celsius
+			if(abs(cv.beerDiff) < cc.iMaxError){
+				//difference is smaller than iMaxError
+				if(cv.beerDiff < 0 && (cs.fridgeSetting +1024) < fridgeSensor->readFastFiltered()){
+					// cooling and fridge temp is more than 2 degrees from setting, actuator is saturated.
+				}
+				else if(cv.beerDiff > 0 && (cs.fridgeSetting -1024) > fridgeSensor->readFastFiltered()){
+					// heating and fridge temp is more than 2 degrees from setting, actuator is saturated.
+				}					
+				else if(abs(cv.beerDiff) > 26){ // difference is more than 0.05 degree Celsius
 					cv.diffIntegral = cv.diffIntegral + cv.beerDiff;
 				}
 			}
@@ -181,39 +187,35 @@ void TempControl::updateState(void){
 		case STATE_OFF:
 		{
 			lastIdleTime=ticks.seconds();
-			if(	((timeSinceCooling() > 900u && doNegPeakDetect==false) && (timeSinceHeating() > 600u && doPosPeakDetect==false)) ||
-					state==STARTUP) //if cooling is 15 min ago and heating 10, or I just started
-			{
-				if(fridgeSensor->readFastFiltered() > (cs.fridgeSetting+cc.idleRangeHigh) ){
-					if(cs.mode!=MODE_FRIDGE_CONSTANT){
-						if(beerSensor->readFastFiltered()>cs.beerSetting+26){ // only start cooling when beer is too warm (0.05 degree idle space)
-							state=COOLING;
+			if(doNegPeakDetect == true || doPosPeakDetect == true){
+				// Wait for peaks before starting to heat or cool again
 							return;
 						}		  
-					}
-					else{
+			if(fridgeSensor->readFastFiltered() > (cs.fridgeSetting+cc.idleRangeHigh) ){ // fridge temperature is too high
+				if(cs.mode==MODE_FRIDGE_CONSTANT){
+					if((timeSinceCooling() > MIN_COOL_OFF_TIME_FRIDGE_CONSTANT && timeSinceHeating() > MIN_SWITCH_TIME) || state == STARTUP){
 						state=COOLING;
-						return;
 					}
-				}
-				else if(fridgeSensor->readFastFiltered() < (cs.fridgeSetting+cc.idleRangeLow)){
-					if(cs.mode!=MODE_FRIDGE_CONSTANT){
-						if(beerSensor->readFastFiltered()<cs.beerSetting-26){ // only start heating when beer is too cold (0.05 degree idle space)
-							state=HEATING;
 							return;
 						}
-					}
 					else{
-						state=HEATING;
-						return;
+					if(beerSensor->readFastFiltered()<cs.beerSetting+26){ // only start cooling when beer is too warm (0.05 degree idle space)
+						return; // beer is already colder than setting, stay in IDLE.
 					}
+					if((timeSinceCooling() > MIN_COOL_OFF_TIME && timeSinceHeating() > MIN_SWITCH_TIME) || state == STARTUP){
+						state=COOLING;
 				}
+					return;
 			}
-			if(timeSinceCooling()>1800U){ //30 minutes
-				doNegPeakDetect=false;  //peak would be from drifting in idle, not from cooling
 			}
-			if(timeSinceHeating()>900U){ //20 minutes
-				doPosPeakDetect=false;  //peak would be from drifting in idle, not from heating
+			else if(fridgeSensor->readFastFiltered() < (cs.fridgeSetting+cc.idleRangeLow)){ // fridge temperature is too low
+				if(beerSensor->readFastFiltered()>cs.beerSetting-26){ // only start heating when beer is too cold (0.05 degree idle space)
+					return; // beer is already warmer than setting, stay in IDLE
+			}
+				if((timeSinceCooling() > MIN_SWITCH_TIME && timeSinceHeating() > MIN_HEAT_OFF_TIME) || state == STARTUP){
+					state=HEATING;
+					return;
+		}			
 			}
 		}			
 		break; 
@@ -289,8 +291,8 @@ void TempControl::detectPeaks(void){
 			piLink.debugMessage(PSTR("Positive peak detected."));
 			detected = true;
 		}
-		else if(timeSinceHeating() > 580UL && timeSinceCooling() > 880UL && fridgeSensor->readFastFiltered() < (cv.posPeakSetting+cc.heatingTargetLower)){
-			// heating is almost 10 minutes ago, cooling is almost 15 minutes ago, but still no peak
+		else if(timeSinceHeating() + 10 > HEAT_PEAK_DETECT_TIME && fridgeSensor->readFastFiltered() < (cv.posPeakSetting+cc.heatingTargetLower)){
+			// Idle period almost reaches maximum allowed time for peak detection
 			// This is the heat, then drift up too slow (but in the right direction).
 			// estimator is too high
 			posPeak=fridgeSensor->readFastFiltered();
@@ -308,8 +310,11 @@ void TempControl::detectPeaks(void){
 				fixedPointToString(tempString3, cs.heatEstimator, 3, 9));
 			doPosPeakDetect=false;
 			cv.posPeak = posPeak;
+		}
+		if(timeSinceHeating() > HEAT_PEAK_DETECT_TIME){
+			doPosPeakDetect = false;
+		}
 		}			
-	}		
 	if(doNegPeakDetect && state!=COOLING){
 		fixed7_9 negPeak = fridgeSensor->detectNegPeak();
 		bool detected = false;
@@ -327,8 +332,8 @@ void TempControl::detectPeaks(void){
 			piLink.debugMessage(PSTR("Negative peak detected."));
 			detected = true;
 		}
-		else if(timeSinceHeating() > 580U && timeSinceCooling() > 880U && fridgeSensor->readFastFiltered() > (cv.negPeakSetting+cc.coolingTargetUpper)){
-			// Heating is almost 10 minutes ago, cooling is almost 15 minutes ago, but still no peak
+		else if(timeSinceCooling() + 10 > COOL_PEAK_DETECT_TIME && fridgeSensor->readFastFiltered() > (cv.negPeakSetting+cc.coolingTargetUpper)){
+			// Idle period almost reaches maximum allowed time for peak detection
 			// This is the cooling, then drift down too slow (but in the right direction).
 			// estimator is too high
 			fixed7_9 error = negPeak-(cv.negPeakSetting+cc.coolingTargetLower); //negative value
@@ -344,21 +349,28 @@ void TempControl::detectPeaks(void){
 				fixedPointToString(tempString3, cs.coolEstimator, 3, 9));
 			doNegPeakDetect=false;
 				cv.negPeak = negPeak;
+		}
+		if(timeSinceCooling() > COOL_PEAK_DETECT_TIME){
+			doNegPeakDetect = false;
 		}			
 	}		
 }
 
+// Increase estimator at least 20%, max 50%s
 void TempControl::increaseEstimator(fixed7_9 * estimator, fixed7_9 error){
-	fixed23_9 factor = 614 + (error>>5); // 1.2 + 3.1% of error
-	factor = constrain(factor, 614, 768); // limit between 1.2 and 1.5
-	*estimator = ((fixed23_9) *estimator * factor)>>9;
+	fixed23_9 factor = 614 + constrain(error>>5, 0, 154); // 1.2 + 3.1% of error, limit between 1.2 and 1.5
+	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;	
+	byte max = byte((INT_MAX*512L)>>24);
+	byte upper = byte(newEstimator>>24);
+	*estimator = upper>max ? INT_MAX : newEstimator>>8; // shift back to normal precision
 	storeSettings();
 }
 
+// Decrease estimator at least 16.7% (1/1.2), max 33.3% (1/1.5)
 void TempControl::decreaseEstimator(fixed7_9 * estimator, fixed7_9 error){
-	fixed23_9 factor = 410 + (error>>5); // 0.8 + 3.1% of error
-	factor = constrain(factor, 256, 410); // limit between 0.5 and 0.8
-	*estimator = ((fixed23_9) *estimator * factor)>>9;
+	fixed23_9 factor = 426 + constrain(error>>5, -85, 0); // 0.833 + 3.1% of error, limit between 0.667 and 0.833
+	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;
+	*estimator = newEstimator>>8; // shift back to normal precision
 	storeSettings();
 }
 
@@ -440,13 +452,11 @@ void TempControl::loadDefaultConstants(void){
 	cc.tempSettingMin = 4*512;	// + 4 deg Celsius
 
 	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
-	cc.KpHeat	= 7680;		// +15
-	cc.KpCool	= 7680;		// +15
-	cc.Ki		= 154;		// +0.3
+	cc.KpHeat	= 10240;	// +20
+	cc.KpCool	= 10240;	// +20
+	cc.Ki		= 307;		// +0.6
 	cc.KdCool	= -1536;	// -3
 	cc.KdHeat	= -1536;	// -3
-	cc.iMaxSlope = 26;		// 0.05 deg/hour
-	cc.iMinSlope = -51;		// 0.1 deg/hour
 	cc.iMaxError = 256;  // 0.5 deg
 
 	// Stay Idle when temperature is in this range
@@ -491,6 +501,8 @@ void TempControl::loadSettingsAndConstants(void){
 }
 
 void TempControl::setMode(char newMode){
+	if(newMode != cs.mode){
+		state = IDLE;
 	cs.mode = newMode;
 	if(newMode==MODE_BEER_PROFILE || newMode == MODE_OFF){
 		// set temperatures to undefined until temperatures have been received from RPi
@@ -498,6 +510,7 @@ void TempControl::setMode(char newMode){
 		cs.fridgeSetting = INT_MIN;
 	}
 	storeSettings();
+	}
 }
 
 fixed7_9 TempControl::getBeerTemp(void){

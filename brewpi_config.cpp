@@ -74,9 +74,9 @@ Display DISPLAY_REF display = realDisplay;
 	//fastPinMode(fridgeSensorPin, INPUT);
 	//fastPinMode(beerSensorPin, INPUT);
 	
-	DigitalPinActuatorInline<heatingPin, SHIELD_INVERT> heater;
-	DigitalPinActuatorInline<coolingPin, SHIELD_INVERT> cooler;
-	DigitalPinSensorInline<doorPin, SHIELD_INVERT, USE_INTERNAL_PULL_UP_RESISTORS> door;	
+	DigitalPinActuator<heatingPin, SHIELD_INVERT> heater;
+	DigitalPinActuator<coolingPin, SHIELD_INVERT> cooler;
+	DigitalPinSensor<doorPin, SHIELD_INVERT, USE_INTERNAL_PULL_UP_RESISTORS> door;	
 	
 	#if LIGHT_AS_HEATER
 		Actuator& light = heater;
@@ -191,7 +191,8 @@ void loop(void)
 			DEBUG_MSG(PSTR("update display"));
 			display.printState();
 			display.printAllTemperatures();
-			display.printMode();			
+			display.printMode();
+			display.updateBacklight();
 		}
 	}	
 	//listen for incoming serial connections while waiting top update

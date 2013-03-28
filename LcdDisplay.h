@@ -63,6 +63,9 @@ DISPLAY_METHOD void getLine(uint8_t lineNumber, char * buffer) { lcd.getLine(lin
 		lcd.setBufferOnly(bufferOnly);
 	}
 	
+	DISPLAY_METHOD void resetBacklightTimer() { }
+	DISPLAY_METHOD void updateBacklight() { }
+	
 	private:
 	DISPLAY_METHOD void printUndefinedTemperature(void);
 	

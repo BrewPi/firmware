@@ -27,6 +27,7 @@
 
 #include <inttypes.h>
 #include "Print.h"
+#include "Ticks.h"
 
 // commands
 #define LCD_CLEARDISPLAY 0x01
@@ -73,6 +74,9 @@
 #define LCD_SHIFT_QD 3 // unused QD pin
 #define LCD_SHIFT_DATA_MASK 0xF0 // Data bits, QE = D4, QF = D5, QG = D6, QH = D7
 
+// Backlight is switched with a P-channel MOSFET, so signal is inverted.
+#define BACKLIGHT_AUTO_OFF_PERIOD 600
+
 class SpiLcd : public Print {
 	public:
 	// Constants are set in initializer list of constructor
@@ -104,7 +108,7 @@ class SpiLcd : public Print {
 
 	virtual size_t write(uint8_t);
 
-	size_t print_P(const char * str) { // print a string stored in PROGMEM
+	size_t print_P(const char * str){ // print a string stored in PROGMEM
 		char buf[21]; // create buffer in RAM
 		strlcpy_P(buf, str, 20); // copy string to RAM
 		return print(buf); // print from RAM
@@ -118,17 +122,11 @@ class SpiLcd : public Print {
 	void command(uint8_t);
 	char readChar(void);
 
-	bool isBacklightOn() { return _backlight; }
-	void setBacklightState(bool backlight) {
-		if (backlight!=_backlight)
-			 _backlight = backlight;		
-		_spiByte = _backlight ? 0x00 : 1<<LCD_SHIFT_BACKLIGHT;
-		spiOut();
-	}
-	
-	void setBufferOnly(bool bufferOnly) {
-		_bufferOnly = bufferOnly;
-	}
+	void setBufferOnly(bool bufferOnly) { _bufferOnly = bufferOnly; }
+
+	void resetBacklightTimer(void);
+
+	void updateBacklight(void);
 
 	using Print::write;
 
@@ -150,9 +148,9 @@ class SpiLcd : public Print {
 	uint8_t _currpos;
 	uint8_t _numlines;
 	
-	bool	_backlight;
 	bool	_bufferOnly;
-	
+	uint16_t _backlightTime;
+
 	char content[4][21]; // always keep a copy of the display content in this variable
 	
 };

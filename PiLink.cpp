@@ -22,7 +22,7 @@
 #include "stddef.h"
 #include "PiLink.h"
 
-
+#include "version.h"
 #include "tempControl.h"
 #include "Display.h"
 #include <stdarg.h>
@@ -34,62 +34,6 @@
 #include "Ticks.h"
 #include "brewpi_avr.h"
 
-/* Set to true before writing out a sequence of JSON pairs. The output routine takes care of writing the opening brace for the first pair, and leading separators
-  for subsequent pairs.  When the last pair has been written, call sendJsonClose() to finalize the output. */
-bool PiLink::firstPair = false;
-
-#define strcmp_json strcmp_P
-// settings
-
-
-const PROGMEM char jsonKeys_mode[] = {"mode"};
-#define FIRST_JSON_KEY jsonKeys_mode
-const PROGMEM char jsonKeys_beerSetting [] = {"beerSetting"};
-const PROGMEM char jsonKeys_fridgeSetting [] = {"fridgeSetting"};
-const PROGMEM char jsonKeys_heatEstimator [] = {"heatEstimator"};
-const PROGMEM char jsonKeys_coolEstimator [] = {"coolEstimator"};
-	// constants
-const PROGMEM char jsonKeys_tempFormat [] = {"tempFormat"};
-const PROGMEM char jsonKeys_tempSettingMin [] = {"tempSettingMin"};
-const PROGMEM char jsonKeys_tempSettingMax [] = {"tempSettingMax"};
-const PROGMEM char jsonKeys_pidMax [] = {"pidMax"};
-const PROGMEM char jsonKeys_KpHeat [] = {"KpHeat"};
-const PROGMEM char jsonKeys_KpCool [] = {"KpCool"};
-const PROGMEM char jsonKeys_Ki [] = {"Ki"};
-const PROGMEM char jsonKeys_KdCool  [] = {"KdCool"};
-const PROGMEM char jsonKeys_KdHeat [] = {"KdHeat"};
-const PROGMEM char jsonKeys_iMaxSlope  [] = {"iMaxSlope"};
-const PROGMEM char jsonKeys_iMinSlope  [] = {"iMinSlope"};
-const PROGMEM char jsonKeys_iMaxError  [] = {"iMaxError"};
-const PROGMEM char jsonKeys_idleRangeHigh [] = {"idleRangeHigh"};
-const PROGMEM char jsonKeys_idleRangeLow  [] = {"idleRangeLow"};
-const PROGMEM char jsonKeys_heatingTargetUpper  [] = {"heatingTargetUpper"};
-const PROGMEM char jsonKeys_heatingTargetLower [] = {"heatingTargetLower"};
-const PROGMEM char jsonKeys_coolingTargetUpper  [] = {"coolingTargetUpper"};
-const PROGMEM char jsonKeys_coolingTargetLower [] = {"coolingTargetLower"};
-const PROGMEM char jsonKeys_maxHeatTimeForEstimate  [] = {"maxHeatTimeForEstimate"};
-const PROGMEM char jsonKeys_maxCoolTimeForEstimate  [] = {"maxCoolTimeForEstimate"};
-const PROGMEM char jsonKeys_pidFilter  [] = {"pidFilter"};
-const PROGMEM char jsonKeys_fridgeFastFilter  [] = {"fridgeFastFilter"};
-const PROGMEM char jsonKeys_fridgeSlowFilter [] = {"fridgeSlowFilter"};
-const PROGMEM char jsonKeys_fridgeSlopeFilter [] = {"fridgeSlopeFilter"};
-const PROGMEM char jsonKeys_beerFastFilter [] = {"beerFastFilter"};
-const PROGMEM char jsonKeys_beerSlowFilter [] = {"beerSlowFilter"};
-const PROGMEM char jsonKeys_beerSlopeFilter [] = {"beerSlopeFilter"};
-// variables
-const PROGMEM char jsonKeys_beerDiff  [] = {"beerDiff"};
-const PROGMEM char jsonKeys_diffIntegral  [] = {"diffIntegral"};
-const PROGMEM char jsonKeys_beerSlope  [] = {"beerSlope"};
-const PROGMEM char jsonKeys_p  [] = {"p"};
-const PROGMEM char jsonKeys_i  [] = {"i"};
-const PROGMEM char jsonKeys_d  [] = {"d"};
-const PROGMEM char jsonKeys_Kp  [] = {"Kp"};
-const PROGMEM char jsonKeys_Kd  [] = {"Kd"};
-const PROGMEM char jsonKeys_estimatedPeak  [] = {"estimatedPeak"};
-const PROGMEM char jsonKeys_negPeakSetting  [] = {"negPeakSetting"};
-const PROGMEM char jsonKeys_posPeakSetting  [] = {"posPeakSetting"};
-const PROGMEM char jsonKeys_negPeak  [] = {"negPeak"};
-const PROGMEM char jsonKeys_posPeak  [] = {"posPeak"};
 
 #ifdef TEST		// write to a stream to capture output
 	extern Stream& SerialCapture;
@@ -132,16 +76,19 @@ void PiLink::print(char *fmt, ... ){
 }
 
 void PiLink::receive(void){
-	if (piStream.available() > 1){
+	if (piStream.available() > 0){
 		
 		char inByte = piStream.read();
-#if MULTICHAMBER		
+#if MULTICHAMBER
 		char arg = piStream.read();
 		if (arg=='\n') {}
 			switch (inByte) {
 				case 'x': // request chamber info
 				printChamberInfo();
 				return;
+				case 'n':
+				print_P(PSTR("N:\"%S\"\n"), PSTR(VERSION_STRING));
+				break;
 		}
 		
 		chamber_id chamber = arg-'1';		
@@ -183,7 +130,10 @@ void PiLink::receive(void){
 			break;
 		case 'v': // Control variables requested
 			sendControlVariables();
-			break;	
+			break;
+		case 'n':
+			print_P(PSTR("N:\"%S\"\n"), PSTR(VERSION_STRING));
+			break;
 		case 'l': // Display content requested
 			printChamberResponse('L');
 
@@ -254,11 +204,12 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
 	print_P(PSTR("\"FridgeSet\":%s,"), tempToString(tempString, tempControl.getFridgeSetting(), 2, 9));
 	print_P(PSTR("\"FridgeAnn\":"));
 	if(fridgeAnnotation == 0){
-		print_P(PSTR("null}\n"));
+		print_P(PSTR("null,"));
 	}
 	else{
-		print_P(PSTR("\"%s\"}\n"), fridgeAnnotation);	
+		print_P(PSTR("\"%s\"},"), fridgeAnnotation);	
 	}
+	print_P(PSTR("\"State\":%u}\n"), tempControl.getState());
 }
 
 void PiLink::printTemperatures(void){
@@ -324,50 +275,45 @@ void PiLink::sendJsonClose() {
 void PiLink::sendControlSettings(void){
 	char tempString[12];
 	printChamberResponse('S');
-	ControlSettings& cs = tempControl.cs;
-	firstPair = true;
-	sendJsonPair_P(jsonKeys_mode, tempControl.cs.mode);
-	sendJsonPair_P(jsonKeys_beerSetting, tempToString(tempString, cs.beerSetting, 2, 12));
-	sendJsonPair_P(jsonKeys_fridgeSetting, tempToString(tempString, cs.fridgeSetting, 2, 12));
-	sendJsonPair_P(jsonKeys_heatEstimator, fixedPointToString(tempString, cs.heatEstimator, 3, 12));	
-	sendJsonPair_P(jsonKeys_coolEstimator, fixedPointToString(tempString, cs.coolEstimator, 3, 12));		
-	sendJsonClose();
+	sendJsonPair(JSONKEY_mode, tempControl.cs.mode);
+	sendJsonPair(JSONKEY_beerSetting, tempToString(tempString, tempControl.cs.beerSetting, 2, 12));
+	sendJsonPair(JSONKEY_fridgeSetting, tempToString(tempString, tempControl.cs.fridgeSetting, 2, 12));
+	sendJsonPair(JSONKEY_heatEstimator, fixedPointToString(tempString, tempControl.cs.heatEstimator, 3, 12));
+	sendLastJsonPair(JSONKEY_coolEstimator, fixedPointToString(tempString, tempControl.cs.coolEstimator, 3, 12));
 }
 
 // Send control constants as JSON string. Might contain spaces between minus sign and number. Python will have to strip these
 void PiLink::sendControlConstants(void){
 	char tempString[12];
 	printChamberResponse('C');
-	firstPair = true;	
-	sendJsonPair_P(jsonKeys_tempFormat, tempControl.cc.tempFormat);
-	sendJsonPair_P(jsonKeys_tempSettingMin, tempToString(tempString, tempControl.cc.tempSettingMin, 1, 12));
-	sendJsonPair_P(jsonKeys_tempSettingMax, tempToString(tempString, tempControl.cc.tempSettingMax, 1, 12));
-	sendJsonPair_P(jsonKeys_KpHeat, fixedPointToString(tempString, tempControl.cc.KpHeat, 3, 12));
-	sendJsonPair_P(jsonKeys_KpCool, fixedPointToString(tempString, tempControl.cc.KpCool, 3, 12));
-	sendJsonPair_P(jsonKeys_Ki, fixedPointToString(tempString, tempControl.cc.Ki, 3, 12));
-	sendJsonPair_P(jsonKeys_KdCool, fixedPointToString(tempString, tempControl.cc.KdCool, 3, 12));
-	sendJsonPair_P(jsonKeys_KdHeat, fixedPointToString(tempString, tempControl.cc.KdHeat, 3, 12));
-	sendJsonPair_P(jsonKeys_iMaxError, tempDiffToString(tempString, tempControl.cc.iMaxError, 3, 12));
-	sendJsonPair_P(jsonKeys_iMaxSlope, tempDiffToString(tempString, tempControl.cc.iMaxSlope, 3, 12));
-	sendJsonPair_P(jsonKeys_iMinSlope, tempDiffToString(tempString, tempControl.cc.iMinSlope, 3, 12));
-	sendJsonPair_P(jsonKeys_idleRangeHigh, tempDiffToString(tempString, tempControl.cc.idleRangeHigh, 3, 12));
-	sendJsonPair_P(jsonKeys_idleRangeLow, tempDiffToString(tempString, tempControl.cc.idleRangeLow, 3, 12));
-	sendJsonPair_P(jsonKeys_heatingTargetUpper, tempDiffToString(tempString, tempControl.cc.heatingTargetUpper, 3, 12));
-	sendJsonPair_P(jsonKeys_heatingTargetLower, tempDiffToString(tempString, tempControl.cc.heatingTargetLower, 3, 12));
-	sendJsonPair_P(jsonKeys_coolingTargetUpper, tempDiffToString(tempString, tempControl.cc.coolingTargetUpper, 3, 12));
-	sendJsonPair_P(jsonKeys_coolingTargetLower, tempDiffToString(tempString, tempControl.cc.coolingTargetLower, 3, 12));
-	sendJsonPair_P(jsonKeys_maxHeatTimeForEstimate, tempControl.cc.maxHeatTimeForEstimate);
-	sendJsonPair_P(jsonKeys_maxCoolTimeForEstimate, tempControl.cc.maxCoolTimeForEstimate);
+	sendJsonPair(JSONKEY_tempFormat, tempControl.cc.tempFormat);
+	sendJsonPair(JSONKEY_tempSettingMin, tempToString(tempString, tempControl.cc.tempSettingMin, 1, 12));
+	sendJsonPair(JSONKEY_tempSettingMax, tempToString(tempString, tempControl.cc.tempSettingMax, 1, 12));
+	sendJsonPair(JSONKEY_KpHeat, fixedPointToString(tempString, tempControl.cc.KpHeat, 3, 12));
+	sendJsonPair(JSONKEY_KpCool, fixedPointToString(tempString, tempControl.cc.KpCool, 3, 12));
+	sendJsonPair(JSONKEY_Ki, fixedPointToString(tempString, tempControl.cc.Ki, 3, 12));
+	sendJsonPair(JSONKEY_KdCool, fixedPointToString(tempString, tempControl.cc.KdCool, 3, 12));
+	sendJsonPair(JSONKEY_KdHeat, fixedPointToString(tempString, tempControl.cc.KdHeat, 3, 12));
+	sendJsonPair(JSONKEY_iMaxError, tempDiffToString(tempString, tempControl.cc.iMaxError, 3, 12));
+	
+	sendJsonPair(JSONKEY_idleRangeHigh, tempDiffToString(tempString, tempControl.cc.idleRangeHigh, 3, 12));
+	sendJsonPair(JSONKEY_idleRangeLow, tempDiffToString(tempString, tempControl.cc.idleRangeLow, 3, 12));
+	sendJsonPair(JSONKEY_heatingTargetUpper, tempDiffToString(tempString, tempControl.cc.heatingTargetUpper, 3, 12));
+	sendJsonPair(JSONKEY_heatingTargetLower, tempDiffToString(tempString, tempControl.cc.heatingTargetLower, 3, 12));
+	sendJsonPair(JSONKEY_coolingTargetUpper, tempDiffToString(tempString, tempControl.cc.coolingTargetUpper, 3, 12));
+	sendJsonPair(JSONKEY_coolingTargetLower, tempDiffToString(tempString, tempControl.cc.coolingTargetLower, 3, 12));
+	sendJsonPair(JSONKEY_maxHeatTimeForEstimate, tempControl.cc.maxHeatTimeForEstimate);
+	sendJsonPair(JSONKEY_maxCoolTimeForEstimate, tempControl.cc.maxCoolTimeForEstimate);
 
-	sendJsonPair_P(jsonKeys_fridgeFastFilter, tempControl.cc.fridgeFastFilter);
-	sendJsonPair_P(jsonKeys_fridgeSlowFilter, tempControl.cc.fridgeSlowFilter);
-	sendJsonPair_P(jsonKeys_fridgeSlopeFilter, tempControl.cc.fridgeSlopeFilter);
-	sendJsonPair_P(jsonKeys_beerFastFilter, tempControl.cc.beerFastFilter);
-	sendJsonPair_P(jsonKeys_beerSlowFilter, tempControl.cc.beerSlowFilter);	
-	sendJsonPair_P(jsonKeys_beerSlopeFilter, tempControl.cc.beerSlopeFilter);		
-	sendJsonClose();
+	sendJsonPair(JSONKEY_fridgeFastFilter, tempControl.cc.fridgeFastFilter);
+	sendJsonPair(JSONKEY_fridgeSlowFilter, tempControl.cc.fridgeSlowFilter);
+	sendJsonPair(JSONKEY_fridgeSlopeFilter, tempControl.cc.fridgeSlopeFilter);
+	sendJsonPair(JSONKEY_beerFastFilter, tempControl.cc.beerFastFilter);
+	sendJsonPair(JSONKEY_beerSlowFilter, tempControl.cc.beerSlowFilter);
+	sendLastJsonPair(JSONKEY_beerSlopeFilter, tempControl.cc.beerSlopeFilter);
 }
 
+#if 0
 struct PairOffset {
 	const char* key; uint8_t valueOffset;
 };
@@ -386,57 +332,54 @@ static PROGMEM const PairOffset offsets_cv_7_9 [] = {
 	PAIR_OFFSET_CV_7_9(negPeak),
 	PAIR_OFFSET_CV_7_9(posPeak),
 };
+#endif
 
 // Send all control variables. Useful for debugging and choosing parameters
 void PiLink::sendControlVariables(void){
 	char tempString[12];
 	printChamberResponse('V');
-	firstPair = true;	
-	ControlVariables& cv = tempControl.cv;
-	sendJsonPair_P(jsonKeys_beerDiff, tempDiffToString(tempString, cv.beerDiff, 3, 12));
-	sendJsonPair_P(jsonKeys_diffIntegral, tempDiffToString(tempString, cv.diffIntegral, 3, 12));
-	sendJsonPair_P(jsonKeys_beerSlope, tempDiffToString(tempString, cv.beerSlope, 3, 12));
-
-	sendJsonPair_P(jsonKeys_p, fixedPointToString(tempString, cv.p, 3, 12));
-	sendJsonPair_P(jsonKeys_i, fixedPointToString(tempString, cv.i, 3, 12));
-	sendJsonPair_P(jsonKeys_d, fixedPointToString(tempString, cv.d, 3, 12));
-		
-	for (uint8_t i=0; i<sizeof(offsets_cv_7_9)/sizeof(offsets_cv_7_9[0]); i++) {
-		sendJsonPair_P(offsets_cv_7_9[i].key, 
-			tempToString(tempString, *(fixed7_9*)(((void*)&cv)+offsets_cv_7_9[i].valueOffset), 3, 12));			
-	}
-
-	sendJsonClose();
+	sendJsonPair(JSONKEY_beerDiff, tempDiffToString(tempString, tempControl.cv.beerDiff, 3, 12));
+	sendJsonPair(JSONKEY_diffIntegral, tempDiffToString(tempString, tempControl.cv.diffIntegral, 3, 12));
+	sendJsonPair(JSONKEY_beerSlope, tempDiffToString(tempString, tempControl.cv.beerSlope, 3, 12));
+	sendJsonPair(JSONKEY_p, fixedPointToString(tempString, tempControl.cv.p, 3, 12));
+	sendJsonPair(JSONKEY_i, fixedPointToString(tempString, tempControl.cv.i, 3, 12));
+	sendJsonPair(JSONKEY_d, fixedPointToString(tempString, tempControl.cv.d, 3, 12));
+	sendJsonPair(JSONKEY_Kp, fixedPointToString(tempString, tempControl.cv.Kp, 3, 12));
+	sendJsonPair(JSONKEY_Kd, fixedPointToString(tempString, tempControl.cv.Kd, 3, 12));
+	sendJsonPair(JSONKEY_estimatedPeak, tempToString(tempString, tempControl.cv.estimatedPeak, 3, 12));
+	sendJsonPair(JSONKEY_negPeakSetting, tempToString(tempString, tempControl.cv.negPeakSetting, 3, 12));
+	sendJsonPair(JSONKEY_posPeakSetting, tempToString(tempString, tempControl.cv.posPeakSetting, 3, 12));
+	sendJsonPair(JSONKEY_negPeak, tempToString(tempString, tempControl.cv.negPeak, 3, 12));
+	sendLastJsonPair(JSONKEY_posPeak, tempToString(tempString, tempControl.cv.posPeak, 3, 12));
 }
 
-void PiLink::printJsonName(const char * name)
-{
-	piStream.print('"');
-	print_P(name);
-	piStream.print('"');
-	piStream.print(':');		
+void PiLink::sendJsonPair(const char *  name, char * val){
+	print_P(PSTR("\"%S\":%s,"), name, val);
+}
+void PiLink::sendLastJsonPair(const char * name, char * val){
+	print_P(PSTR("\"%S\":%s}\n"), name, val);
 }
 
-void PiLink::printJsonSeparator() {
-	if (!firstPair)
-		piStream.print(',');
-	else {
-		piStream.print('{');
-	}
+void PiLink::sendJsonPair(const char * name, char val){
+	print_P(PSTR("\"%S\":\"%c\","), name, val);
+}
+void PiLink::sendLastJsonPair(const char * name, char val){
+	print_P(PSTR("\"%S\":\"%c\"}\n"), name, val);
 }
 
-void PiLink::sendJsonPair_P(const char * name, const char * val){
-	printJsonSeparator();
-	printJsonName(name);
-	piStream.print(val);
+
+void PiLink::sendJsonPair(const char * name, uint16_t val){
+	print_P(PSTR("\"%S\":%u,"), name, val);
+}
+void PiLink::sendLastJsonPair(const char * name, uint16_t val){
+	print_P(PSTR("\"%S\":%u}\n"), name, val);
 }
 
-void PiLink::sendJsonPair_P(const char * name, char val){
-	printJsonName(name);
-	piStream.print('"');
-	piStream.print(val);
-	piStream.print('"');	
-	printJsonSeparator();
+void PiLink::sendJsonPair(const char * name, uint8_t val){
+	print_P(PSTR("\"%S\":%u,"), name, val);
+}
+void PiLink::sendLastJsonPair(const char * name, uint8_t val){
+	print_P(PSTR("\"%S\":%u}\n"), name, val);
 }
 
 void PiLink::sendJsonPair_P(const char * name, uint16_t val){
@@ -510,6 +453,7 @@ void PiLink::receiveJson(void){
 		}
 	}
 }
+#if 0
 
 struct JsonConvert {
 	const char* key; 
@@ -544,113 +488,84 @@ static const PROGMEM JsonConvert jsonConverters[] = {
 	JSON_CONVERT(maxHeatTimeForEstimate, stringToLongVal),
 	JSON_CONVERT(maxCoolTimeForEstimate, stringToLongVal),
 };	
+#endif
 
 void PiLink::processJsonPair(char * key, char * val){
-
 	debugMessage(PSTR("Received new setting: %s = %s"), key, val);
-	const char* msg = ("%s temp setting changed to %s %s.");
-	const char* webui = "in web interface";	
-	
-	// saves a ca 300 hundred bytes by taking these references up front when temp control is non-static
-	// static, the compiler optimizes by linking the address directly, so this has no affect.
-	ControlConstants& cc = tempControl.cc;
-	ControlSettings& cs = tempControl.cs;
-		
-	for (uint8_t i=0; i<sizeof(jsonConverters)/sizeof(jsonConverters[0]); i++) {
-		if (strcmp_json(key, jsonConverters[i].key)==0) 
-			switch (jsonConverters[i].fnType) {
-				case stringToTempVal:
-					*(fixed7_9*)(((void*)&cc)+jsonConverters[i].offset) = stringToTemp(val);
-					return;
-				case stringToFixedPointVal:
-					*(fixed23_9*)(((void*)&cc)+jsonConverters[i].offset) = stringToFixedPoint(val);
-					return;			
-				case stringToTempDiffVal:
-					*(fixed7_9*)(((void*)&cc)+jsonConverters[i].offset) = stringToTempDiff(val);
-					return;
-				case stringToLongVal:
-					*(uint16_t*)(((void*)&cc)+jsonConverters[i].offset) = strtoul(val, NULL, 10);
-					return;
-			}
-	}
-	
-	if(strcmp_json(key,jsonKeys_mode) == 0){
+	if(strcmp_P(key,JSONKEY_mode) == 0){
 		tempControl.setMode(val[0]);
 		piLink.printFridgeAnnotation(PSTR("Mode set to %c in web interface"), val[0]);
 	}
-	else if(strcmp_json(key,jsonKeys_beerSetting) == 0){ 
+	else if(strcmp_P(key,JSONKEY_beerSetting) == 0){
 		fixed7_9 newTemp = stringToTemp(val);
-		if(cs.mode == 'p'){
-			if(abs(newTemp-cs.beerSetting) > 100){ // this excludes gradual updates under 0.2 degrees
-				printBeerAnnotation(msg, "Beer", val, "by profile");
-			}
+		if(tempControl.cs.mode == 'p'){
+			if(abs(newTemp-tempControl.cs.beerSetting) > 100){ // this excludes gradual updates under 0.2 degrees
+			printBeerAnnotation(PSTR("Beer temp set to %s by temperature profile."), val);
 		}
-		else{
-			printBeerAnnotation(msg, "Beer", val, webui);
-		}
-		cs.beerSetting = newTemp;
 	}
-	else if(strcmp_json(key,jsonKeys_fridgeSetting) == 0){
-		fixed7_9 newTemp = stringToTemp(val);
-		if(cs.mode == 'f'){
-			printFridgeAnnotation(msg, "Fridge", val, webui);
-		}
-		cs.fridgeSetting = newTemp;
-	}		
-	else if(strcmp_json(key,jsonKeys_heatEstimator) == 0){ cs.heatEstimator = stringToFixedPoint(val); }
-	else if(strcmp_json(key,jsonKeys_coolEstimator) == 0){ cs.coolEstimator = stringToFixedPoint(val); }
-	else if(strcmp_json(key,jsonKeys_tempFormat) == 0){
-		cc.tempFormat = val[0];
+	else{
+		printBeerAnnotation(PSTR("Beer temp set to %s in web interface."), val);
+	}
+	tempControl.cs.beerSetting = newTemp;
+}
+else if(strcmp_P(key,JSONKEY_fridgeSetting) == 0){
+	fixed7_9 newTemp = stringToTemp(val);
+	if(tempControl.cs.mode == 'f'){
+		printFridgeAnnotation(PSTR("Fridge temp set to %s in web interface."), val);
+	}
+	tempControl.cs.fridgeSetting = newTemp;
+}
+	else if(strcmp_P(key,JSONKEY_heatEstimator) == 0){ tempControl.cs.heatEstimator = stringToFixedPoint(val); }
+	else if(strcmp_P(key,JSONKEY_coolEstimator) == 0){ tempControl.cs.coolEstimator = stringToFixedPoint(val); }
+	else if(strcmp_P(key,JSONKEY_tempFormat) == 0){
+		tempControl.cc.tempFormat = val[0];
 		display.printStationaryText(); // reprint stationary text to update to right degree unit
 	}
-#if 0
-	else if(strcmp_json(key,jsonKeys_tempSettingMin) == 0){ cc.tempSettingMin = stringToTemp(val); }
-	else if(strcmp_json(key,jsonKeys_tempSettingMax) == 0){ cc.tempSettingMax = stringToTemp(val); }
-	else if(strcmp_json(key,jsonKeys_KpHeat) == 0){ cc.KpHeat = stringToFixedPoint(val); }
-	else if(strcmp_json(key,jsonKeys_KpCool) == 0){ cc.KpCool = stringToFixedPoint(val); }
-	else if(strcmp_json(key,jsonKeys_Ki) == 0){ cc.Ki = stringToFixedPoint(val); }
-	else if(strcmp_json(key,jsonKeys_KdCool) == 0){ cc.KdCool = stringToFixedPoint(val); }
-	else if(strcmp_json(key,jsonKeys_KdHeat) == 0){ cc.KdHeat = stringToFixedPoint(val); }
-	else if(strcmp_json(key,jsonKeys_iMaxError) == 0){ cc.iMaxError = stringToTempDiff(val); }
-	else if(strcmp_json(key,jsonKeys_iMaxSlope) == 0){ cc.iMaxSlope = stringToTempDiff(val); }
-	else if(strcmp_json(key,jsonKeys_iMinSlope) == 0){ cc.iMinSlope = stringToTempDiff(val); }
-	else if(strcmp_json(key,jsonKeys_idleRangeHigh) == 0){ cc.idleRangeHigh = stringToTempDiff(val); }
-	else if(strcmp_json(key,jsonKeys_idleRangeLow) == 0){ cc.idleRangeLow = stringToTempDiff(val); }
-	else if(strcmp_json(key,jsonKeys_heatingTargetUpper) == 0){ cc.heatingTargetUpper = stringToTempDiff(val); }
-	else if(strcmp_json(key,jsonKeys_heatingTargetLower) == 0){ cc.heatingTargetLower = stringToTempDiff(val); }
-	else if(strcmp_json(key,jsonKeys_coolingTargetUpper) == 0){ cc.coolingTargetUpper = stringToTempDiff(val); }
-	else if(strcmp_json(key,jsonKeys_coolingTargetLower) == 0){ cc.coolingTargetLower = stringToTempDiff(val); }
-	else if(strcmp_json(key,jsonKeys_maxHeatTimeForEstimate) == 0){ cc.maxHeatTimeForEstimate = strtoul(val, NULL, 10); }
-	else if(strcmp_json(key,jsonKeys_maxCoolTimeForEstimate) == 0){ cc.maxCoolTimeForEstimate = strtoul(val, NULL, 10); }
-#endif
+	else if(strcmp_P(key,JSONKEY_tempSettingMin) == 0){ tempControl.cc.tempSettingMin = stringToTemp(val); }
+	else if(strcmp_P(key,JSONKEY_tempSettingMax) == 0){ tempControl.cc.tempSettingMax = stringToTemp(val); }
+	else if(strcmp_P(key,JSONKEY_KpHeat) == 0){ tempControl.cc.KpHeat = stringToFixedPoint(val); }
+	else if(strcmp_P(key,JSONKEY_KpCool) == 0){ tempControl.cc.KpCool = stringToFixedPoint(val); }
+	else if(strcmp_P(key,JSONKEY_Ki) == 0){ tempControl.cc.Ki = stringToFixedPoint(val); }
+	else if(strcmp_P(key,JSONKEY_KdCool) == 0){ tempControl.cc.KdCool = stringToFixedPoint(val); }
+	else if(strcmp_P(key,JSONKEY_KdHeat) == 0){ tempControl.cc.KdHeat = stringToFixedPoint(val); }
+	else if(strcmp_P(key,JSONKEY_iMaxError) == 0){ tempControl.cc.iMaxError = stringToTempDiff(val); }
+	else if(strcmp_P(key,JSONKEY_idleRangeHigh) == 0){ tempControl.cc.idleRangeHigh = stringToTempDiff(val); }
+	else if(strcmp_P(key,JSONKEY_idleRangeLow) == 0){ tempControl.cc.idleRangeLow = stringToTempDiff(val); }
+	else if(strcmp_P(key,JSONKEY_heatingTargetUpper) == 0){ tempControl.cc.heatingTargetUpper = stringToTempDiff(val); }
+	else if(strcmp_P(key,JSONKEY_heatingTargetLower) == 0){ tempControl.cc.heatingTargetLower = stringToTempDiff(val); }
+	else if(strcmp_P(key,JSONKEY_coolingTargetUpper) == 0){ tempControl.cc.coolingTargetUpper = stringToTempDiff(val); }
+	else if(strcmp_P(key,JSONKEY_coolingTargetLower) == 0){ tempControl.cc.coolingTargetLower = stringToTempDiff(val); }
+	else if(strcmp_P(key,JSONKEY_maxHeatTimeForEstimate) == 0){ tempControl.cc.maxHeatTimeForEstimate = strtoul(val, NULL, 10); }
+	else if(strcmp_P(key,JSONKEY_maxCoolTimeForEstimate) == 0){ tempControl.cc.maxCoolTimeForEstimate = strtoul(val, NULL, 10); }
+	else if(strcmp_P(key,JSONKEY_maxCoolTimeForEstimate) == 0){ tempControl.cc.maxCoolTimeForEstimate = strtoul(val, NULL, 10); }
 
 	// Receive the b value for the filter
-	else if(strcmp_json(key,jsonKeys_fridgeFastFilter) == 0){ 
-		cc.fridgeFastFilter = strtoul(val, NULL, 10);
-		tempControl.fridgeSensor->setFastFilterCoefficients(cc.fridgeFastFilter);
+	else if(strcmp_P(key,JSONKEY_fridgeFastFilter) == 0){ 
+		tempControl.cc.fridgeFastFilter = strtoul(val, NULL, 10);
+		tempControl.fridgeSensor->setFastFilterCoefficients(tempControl.cc.fridgeFastFilter);
 	}
-	else if(strcmp_json(key,jsonKeys_fridgeSlowFilter) == 0){
-		cc.fridgeSlowFilter = strtoul(val, NULL, 10);
-		tempControl.fridgeSensor->setSlowFilterCoefficients(cc.fridgeSlowFilter);
+	else if(strcmp_P(key,JSONKEY_fridgeSlowFilter) == 0){
+		tempControl.cc.fridgeSlowFilter = strtoul(val, NULL, 10);
+		tempControl.fridgeSensor->setSlowFilterCoefficients(tempControl.cc.fridgeSlowFilter);
 	}
-	else if(strcmp_json(key,jsonKeys_fridgeSlopeFilter) == 0){
-		cc.fridgeSlopeFilter = strtoul(val, NULL, 10);
-		tempControl.fridgeSensor->setSlopeFilterCoefficients(cc.fridgeSlopeFilter);
+	else if(strcmp_P(key,JSONKEY_fridgeSlopeFilter) == 0){
+		tempControl.cc.fridgeSlopeFilter = strtoul(val, NULL, 10);
+		tempControl.fridgeSensor->setSlopeFilterCoefficients(tempControl.cc.fridgeSlopeFilter);
 	}
-	else if(strcmp_json(key,jsonKeys_beerFastFilter) == 0){
-		cc.beerFastFilter = strtoul(val, NULL, 10);
-		tempControl.beerSensor->setFastFilterCoefficients(cc.beerFastFilter);	
+	else if(strcmp_P(key,JSONKEY_beerFastFilter) == 0){
+		tempControl.cc.beerFastFilter = strtoul(val, NULL, 10);
+		tempControl.beerSensor->setFastFilterCoefficients(tempControl.cc.beerFastFilter);
+
 	}
-	else if(strcmp_json(key,jsonKeys_beerSlowFilter) == 0){
-		cc.beerSlowFilter = strtoul(val, NULL, 10);
-		tempControl.beerSensor->setSlowFilterCoefficients(cc.beerSlowFilter);
+	else if(strcmp_P(key,JSONKEY_beerSlowFilter) == 0){
+		tempControl.cc.beerSlowFilter = strtoul(val, NULL, 10);
+		tempControl.beerSensor->setSlowFilterCoefficients(tempControl.cc.beerSlowFilter);
 	}
-	else if(strcmp_json(key,jsonKeys_beerSlopeFilter) == 0){
-		cc.beerSlopeFilter = strtoul(val, NULL, 10);
-		tempControl.beerSensor->setSlopeFilterCoefficients(cc.beerSlopeFilter);
+	else if(strcmp_P(key,JSONKEY_beerSlopeFilter) == 0){
+		tempControl.cc.beerSlopeFilter = strtoul(val, NULL, 10);
+		tempControl.beerSensor->setSlopeFilterCoefficients(tempControl.cc.beerSlopeFilter);
 	}
 	else{
 		debugMessage(PSTR("Could not process setting"));
 	}
-
 }

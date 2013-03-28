@@ -38,37 +38,15 @@ private:
 
 typedef Sensor<bool> SwitchSensor;
 
-class DigitalPinSensor : public SwitchSensor
-{
-	private:
-	int pin;
-	bool invert;
-	
-	public:
-	DigitalPinSensor(int _pin, bool _invert, bool _internalPullup)
-		: pin(_pin), invert(_invert)
-		{
-			pinMode(pin, _internalPullup ? INPUT_PULLUP : INPUT);
-		}
-
-	virtual bool sense()
-	{
-		return digitalRead(pin) ^ invert;
-	}
-
-
-};
-
-
 
 /* A SwitchSensor whose state is provided by a hardware pin. 
-  By using a template, the compiler can inline the call to digitalRead. 
+  By using a template, the compiler can inline and optimize the call to digitalRead to a single instruction.
 */
 template<uint8_t pin, bool invert, bool internalPullup> 
-class DigitalPinSensorInline : public SwitchSensor
+class DigitalPinSensor : public SwitchSensor
 {
 	public:
-	inline __attribute__((always_inline)) DigitalPinSensorInline() {
+	DigitalPinSensor() {
 		fastPinMode(pin, internalPullup ? INPUT_PULLUP : INPUT);
 	}
 	

@@ -5,7 +5,7 @@
     <ProjectVersion>6.0</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8</ToolchainName>
     <ProjectGuid>{c0415566-e0bc-45db-8e53-cc52899284fe}</ProjectGuid>
-    <avrdevice>ATmega2560</avrdevice>
+    <avrdevice>ATmega328P</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
     <Language>CPP</Language>
@@ -21,7 +21,8 @@
     <OverrideVtorValue />
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <AsfVersion>3.1.3</AsfVersion>
-    <avrtool>com.atmel.avrdbg.tool.simulator</avrtool>
+    <avrtool>
+    </avrtool>
     <avrtoolinterface>
     </avrtoolinterface>
     <com_atmel_avrdbg_tool_avrdragon>
@@ -114,17 +115,17 @@
     <ListValues>
       <Value>ARDUINO=103</Value>
       <Value>F_CPU=16000000L</Value>
-      <Value>BREWPI_EMULATE=1</Value>
-      <Value>MULTICHAMBER=1</Value>
-      <Value>TEMP_SENSOR_CASCADED_FILTER=0</Value>
-      <Value>TEMP_CONTROL_STATIC=0</Value>
-      <Value>FAST_DIGITAL_PIN=0</Value>
+      <Value>BREWPI_EMULATE=0</Value>
+      <Value>MULTICHAMBER=0</Value>
+      <Value>TEMP_SENSOR_CASCADED_FILTER=1</Value>
+      <Value>TEMP_CONTROL_STATIC=1</Value>
+      <Value>FAST_DIGITAL_PIN=1</Value>
     </ListValues>
   </avrgcccpp.compiler.symbols.DefSymbols>
   <avrgcccpp.compiler.directories.IncludePaths>
     <ListValues>
       <Value>r:\sdk\arduino-1.0.3\hardware\arduino\cores\arduino</Value>
-      <Value>r:\sdk\arduino-1.0.3\hardware\arduino\variants\mega</Value>
+      <Value>r:\sdk\arduino-1.0.3\hardware\arduino\variants\standard</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
   <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
