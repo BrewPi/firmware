@@ -153,9 +153,41 @@ void setup()
 	DEBUG_MSG(PSTR("init complete"));
 }
 
+#if BREWPI_SIMULATE
+static fixed7_9 funFactor = 0;
+static unsigned long lastUpdate = 0;
+void setRunFactor(fixed7_9 factor)
+{
+	funFactor = factor>>9;		// for now whole values only
+	lastUpdate = ::millis();
+}	
+
+void updateSimulationTicks() {	
+// I expect accelerated time to be handled externally, since it's much simpler, but for 
+// manual testing, we have the "self-drive" feature here. 
+	if (funFactor) {
+		unsigned long now = ::millis();
+		int interval = 1000/funFactor;
+		if (interval>0) {
+			if (now-lastUpdate>=interval) {
+				lastUpdate += interval;
+				ticks.incMillis(1000);
+			}			
+		}			
+	}
+}
+#endif
+
 void loop(void)
 {
 	static unsigned long lastUpdate = 0;
+	
+#if BREWPI_SIMULATE		
+	// only needed if we want the arduino to be self running. Useful for manual testing, but not so much with an 
+	// external driver. 
+	updateSimulationTicks();
+#endif	
+	
 #if MULTICHAMBER	
 	// update period is 1000ms / num chambers, so still 1000ms update for all chambers. 
 	static chamber_id nextChamber = 0;

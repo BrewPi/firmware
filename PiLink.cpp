@@ -212,6 +212,9 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
 	else{
 		print_P(PSTR("\"%s\","), fridgeAnnotation);	
 	}
+#if BREWPI_SIMULATE
+	print_P(PSTR("\"t\":%lu,"), ticks.millis());
+#endif	
 	print_P(PSTR("\"State\":%u}\n"), tempControl.getState());
 }
 
@@ -621,6 +624,8 @@ void setTicks(ExternalTicks& externalTicks, const char* val, int multiplier=1000
 	DEBUG_MSG(PSTR("New ticks %lu"), externalTicks.millis());
 }
 
+extern void setRunFactor(fixed7_9 factor);
+
 #endif
 
 void PiLink::updateInputs()
@@ -686,7 +691,7 @@ void PiLink::updateInputs()
 		}
 		else if (strcmp_P(key, PSTR("DoorState"))==0) {		// 0 for closed, anything else for open
 			DEBUG_MSG(PSTR("setting door state to %s"), val);
-			setSwitch(tempControl.door, strcmp(val, "0")==0);
+			setSwitch(tempControl.door, strcmp(val, "0")!=0);
 		}
 		else if (strcmp_P(key, PSTR("ms"))==0) {
 			DEBUG_MSG(PSTR("setting ticks to %s"), val);
@@ -695,6 +700,10 @@ void PiLink::updateInputs()
 		else if (strcmp_P(key, PSTR("s"))==0) {
 			DEBUG_MSG(PSTR("setting seconds to %s"), val);
 			setTicks(ticks, val, 1000);
+		}
+		else if (strcmp_P(key, PSTR("r"))==0) {
+			DEBUG_MSG(PSTR("setting run factor to %s"), val);
+			setRunFactor(stringToFixedPoint(val));
 		}
 	}
 	printTemperatures();	

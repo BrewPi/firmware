@@ -60,7 +60,7 @@ class ExternalTicks {
 	void setMillis(ticks_millis_t now)	{ _ticks = now; }
 	void incMillis(ticks_millis_t advance)	{ _ticks += advance; }
 private:
-	uint32_t _ticks;			
+	ticks_millis_t _ticks;			
 };
 
 
