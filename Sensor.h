@@ -19,7 +19,7 @@ template<class T> class Sensor
 };
 
 template <class T>
-class ValueSensor : public virtual Sensor<T>
+class ValueSensor : public Sensor<T>
 {
 public:	
 	ValueSensor(T initial) : value(initial) {}

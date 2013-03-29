@@ -38,6 +38,7 @@
 #include "TempSensor.h"
 #include "MockTempSensor.h"
 #include "OneWireTempSensor.h"
+#include "ExternalTempSensor.h"
 #include "Ticks.h"
 #include "brewpi_avr.h"
 #include "config.h"
@@ -52,9 +53,10 @@
 void setup(void);
 void loop (void);
 
+/* Configure the counter and delay timer. The actual type of these will vary depending upon the environment.
+ * They are non-virtual to keep code size minimal, so typedefs and preprocessing are used to select the actual compile-time type used. */
 TicksImpl ticks = TicksImpl(TICKS_IMPL_CONFIG);
 DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
-
 
 DisplayType realDisplay;
 Display DISPLAY_REF display = realDisplay;
@@ -62,28 +64,29 @@ Display DISPLAY_REF display = realDisplay;
 #if BREWPI_EMULATE	// use in-memory/emulated devices
 	MockTempSensor directFridgeSensor(10,10);
 	MockTempSensor directBeerSensor(5,5);
-	ValueActuator heater;
-	ValueActuator cooler;
-	ValueActuator light;
-	ValueSensor<bool> door((bool)false);
-	
+#elif BREWPI_SIMULATE
+	ExternalTempSensor directFridgeSensor;
+	ExternalTempSensor directBeerSensor;
 #else  // non emulation - use real hardware devices
 	OneWireTempSensor directFridgeSensor(fridgeSensorPin);
 	OneWireTempSensor directBeerSensor(beerSensorPin);
-	
-	//fastPinMode(fridgeSensorPin, INPUT);
-	//fastPinMode(beerSensorPin, INPUT);
-	
+#endif
+
+#if BREWPI_EMULATE || BREWPI_SIMULATE
+	ValueActuator heater;
+	ValueActuator cooler;
+	ValueSensor<bool> door((bool)false);
+#else	
 	DigitalPinActuator<heatingPin, SHIELD_INVERT> heater;
-	DigitalPinActuator<coolingPin, SHIELD_INVERT> cooler;
+	DigitalPinActuator<coolingPin, SHIELD_INVERT> cooler;	
 	DigitalPinSensor<doorPin, SHIELD_INVERT, USE_INTERNAL_PULL_UP_RESISTORS> door;	
+#endif
 	
-	#if LIGHT_AS_HEATER
-		Actuator& light = heater;
-	#else
-		ValueActuator lightOn;
-		Actuator& light = lightOn;
-	#endif
+#if LIGHT_AS_HEATER
+Actuator& light = heater;
+#else
+ValueActuator lightOn;	// eventually map the light to a real pin
+Actuator& light = lightOn;
 #endif
 
 TempSensor fridgeSensor(directFridgeSensor);
@@ -92,18 +95,20 @@ TempSensor beerSensor(directBeerSensor);
 #if MULTICHAMBER
 MockTempSensor directFridgeSensor2(10,10);
 MockTempSensor directBeerSensor2(5,5);
+#if 1
 TempSensor fridgeSensor2(directFridgeSensor2);
 TempSensor beerSensor2(directBeerSensor2);
 #if 1 || BREWPI_EMULATE		// use emulator for now until we get multi-define one wire
 	ValueActuator heat2;
 	ValueActuator cool2;		
 #endif
-
+#endif
 Chamber c1(fridgeSensor, beerSensor, cooler, heater, light, door);
 Chamber c2(fridgeSensor2, beerSensor2, cool2, heat2, light, door);
 
 Chamber* chambers[] = {
-	&c1, &c2
+	&c1
+	, &c2
 };
 
 ChamberManager chamberManager(chambers, sizeof(chambers)/sizeof(chambers[0]));
@@ -136,7 +141,6 @@ void setup()
 	tempControl.updateState();	
 #endif
 		
-	wait.millis(2000); // give LCD time to power up
 	display.init();
 	display.printStationaryText();
 	display.printState();
@@ -153,14 +157,15 @@ void loop(void)
 {
 	static unsigned long lastUpdate = 0;
 #if MULTICHAMBER	
+	// update period is 1000ms / num chambers, so still 1000ms update for all chambers. 
 	static chamber_id nextChamber = 0;
 	
-	if(ticks.millis() - lastUpdate > (1000/chamberManager.chamberCount())) { //update settings every second
+	if(ticks.millis() - lastUpdate >= (1000/chamberManager.chamberCount())) { //update settings every second
 		nextChamber = (nextChamber+1) % chamberManager.chamberCount();
 		DEBUG_MSG(PSTR("loop chamber %d"), nextChamber);
 		chamber_id prev = chamberManager.switchChamber(nextChamber);
 #else
-	if(ticks.millis() - lastUpdate > (1000)) { //update settings every second
+	if(ticks.millis() - lastUpdate >= (1000)) { //update settings every second
 #endif		
 		lastUpdate=ticks.millis();
 		
@@ -178,7 +183,7 @@ void loop(void)
 #if MULTICHAMBER		
 		chamberManager.switchChamber(prev);
 #endif		
-				
+
 		if(rotaryEncoder.pushed()){
 			rotaryEncoder.resetPushed();
 			menu.pickSettingToChange();	
@@ -188,6 +193,7 @@ void loop(void)
 		if (prev==nextChamber)
 #endif		
 		{
+			// update the lcd for the chamber being displayed
 			DEBUG_MSG(PSTR("update display"));
 			display.printState();
 			display.printAllTemperatures();

@@ -122,7 +122,7 @@ long int convertAndConstrain(long int rawTemp, byte offset)
 	return constrain(rawTemp, INT_MIN, INT_MAX);	
 }
 
-fixed7_9 stringToTemp(char * numberString){
+fixed7_9 stringToTemp(const char * numberString){
 	fixed23_9 rawTemp = stringToFixedPoint(numberString);
 #ifdef OPTIMIZE_TEMPERATURE_FORMATS_convertAntConstrain	
 	return convertAndConstrain(rawTemp, 32UL<<9);	
@@ -134,7 +134,7 @@ fixed7_9 stringToTemp(char * numberString){
 #endif	
 }
 
-fixed23_9 stringToFixedPoint(char * numberString){
+fixed23_9 stringToFixedPoint(const char * numberString){
 	// receive new temperature as null terminated string: "19.20"
 	fixed23_9 intPart = 0;
 	fixed23_9 fracPart = 0;
@@ -173,7 +173,7 @@ char * tempDiffToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint
 	return fixedPointToString(s, rawValue, numDecimals, maxLength);	
 }
 
-fixed7_9 stringToTempDiff(char * numberString){
+fixed7_9 stringToTempDiff(const char * numberString){
 	fixed23_9 rawTempDiff = stringToFixedPoint(numberString);
 #ifdef OPTIMIZE_TEMPERATURE_FORMATS_convertAntConstrain
 	return convertAndConstrain(rawTempDiff, 0);	

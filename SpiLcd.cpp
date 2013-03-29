@@ -33,11 +33,9 @@
 // expand the SpiLcd class to a template, with a single int instatiation parameter.
 void SpiLcd::init()
 {
-#ifndef __OPTIMIZE__	
-	pinMode(lcdLatchPin, OUTPUT);
-#else	
+	wait.millis(2000); // give LCD time to power up
+
 	fastPinMode(lcdLatchPin, OUTPUT);
-#endif
 	
 	_displayfunction = LCD_FUNCTIONSET | LCD_4BITMODE;
 
@@ -225,9 +223,9 @@ inline size_t SpiLcd::write(uint8_t value) {
 /************ low level data pushing commands **********/
 void SpiLcd::initSpi(void){
 	// Set MOSI and CLK to output
-	pinMode(MOSI, OUTPUT);
-	pinMode(SCK, OUTPUT);
-	pinMode(SS, OUTPUT);
+	fastPinMode(MOSI, OUTPUT);
+	fastPinMode(SCK, OUTPUT);
+	fastPinMode(SS, OUTPUT);
 	// The most significant bit should be sent out by the SPI port first.
 	// equals SPI.setBitOrder(MSBFIRST);
 	SPCR &= ~_BV(DORD);
@@ -252,20 +250,12 @@ void SpiLcd::initSpi(void){
 
 // Update the pins of the shift register
 void SpiLcd::spiOut(void){
-#ifndef __OPTIMIZE__
-	digitalWrite(lcdLatchPin, LOW);
-#else	
 	fastDigitalWrite(lcdLatchPin, LOW);
-#endif	
 	SPDR = _spiByte; // Send the byte to the SPI
 	// wait for send to finish
 	while (!(SPSR & _BV(SPIF))); 
 	
-#ifndef __OPTIMIZE__
-	digitalWrite(lcdLatchPin, HIGH);
-#else
 	fastDigitalWrite(lcdLatchPin, HIGH);
-#endif	
 }
 
 // write either command or data

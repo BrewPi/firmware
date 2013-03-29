@@ -40,14 +40,14 @@ typedef int32_t fixed7_25; // fixed7_25 uses 7 signed int bits and 25 fraction b
 inline int8_t asIntFixed7_9(fixed7_9 val) { return val>>9; }
 
 char * tempToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength);
-fixed7_9 stringToTemp(char * string);
+fixed7_9 stringToTemp(const char * string);
 
 char * tempDiffToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength);
-fixed7_9 stringToTempDiff(char * string);
+fixed7_9 stringToTempDiff(const char * string);
 
 char * fixedPointToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength);
 char * fixedPointToString(char s[9], fixed7_9 rawValue, uint8_t numDecimals, uint8_t maxLength);
-fixed23_9 stringToFixedPoint(char * numberString);
+fixed23_9 stringToFixedPoint(const char * numberString);
 
 int fixedToTenths(fixed23_9 temperature);
 fixed7_9 tenthsToFixed(int temperature);

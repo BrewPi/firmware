@@ -36,6 +36,7 @@
 
 bool PiLink::firstPair;
 // Rename Serial to piStream, to abstract it for later platform independence
+
 #ifdef TEST		// write to a stream to capture output
 	extern Stream& SerialCapture;
 	#define piStream SerialCapture
@@ -55,7 +56,6 @@ bool PiLink::firstPair;
 #else
 	#define piStream Serial
 #endif
-
 
 void PiLink::init(void){
 	piStream.begin(57600);	
@@ -93,8 +93,7 @@ void PiLink::receive(void){
 				printChamberInfo();
 				return;
 				case 'n':
-				printVersion();
-				//print_P(PSTR("N:\"%S\"\n"), PSTR(VERSION_STRING));
+				print_P(PSTR("N:\"%S\"\n"), PSTR(VERSION_STRING));
 				break;
 		}
 		
@@ -113,8 +112,13 @@ void PiLink::receive(void){
 			prev = chamber;		// don't switch back to the previous chamber
 			printChamberInfo();
 			break;
-#endif			
-					
+#endif	
+
+#if BREWPI_SIMULATE
+		case 'u':
+			updateInputs();
+			break;
+#endif						
 		case 't': // temperatures requested
 			printTemperatures();      
 			break;
@@ -178,10 +182,10 @@ void PiLink::receive(void){
 #if MULTICHAMBER
 void PiLink::printChamberInfo()
 {
-	printChamberResponse('X');
+	printResponse('X');
 	print('{');
-	sendJsonPair_P(PSTR("chambers"), chamberManager.chamberCount());
-	sendJsonPair_P(PSTR("current"), chamberManager.currentChamber());
+	sendJsonPair(PSTR("chambers"), chamberManager.chamberCount());
+	sendJsonPair(PSTR("current"), chamberManager.currentChamber());
 	print('}');
 	print('\n');
 }
@@ -578,3 +582,123 @@ else if(strcmp_P(key,JSONKEY_fridgeSetting) == 0){
 		debugMessage(PSTR("Could not process setting"));
 	}
 }
+
+
+#if BREWPI_SIMULATE==1
+#include "ExternalTempSensor.h"
+
+void setTemp(TempSensor* sensor, const char* val) {
+	
+	ExternalTempSensor& externalSensor = (ExternalTempSensor&)sensor->basicTempSensor();
+	if (val==NULL || *val==0)
+		externalSensor.setConnected(false);
+	else
+	{
+		fixed7_9 newTemp = stringToTemp(val);
+		externalSensor.setValue(newTemp);
+		externalSensor.setConnected(true);
+	}	
+}
+
+void setSwitch(SwitchSensor* sensor, bool newSetting) {
+	ValueSensor<bool>* externalSensor = (ValueSensor<bool>*) sensor;
+	externalSensor->setValue(newSetting);
+}
+
+void setTicks(ExternalTicks& externalTicks, const char* val, int multiplier=1000) {		
+	
+	if (val==NULL || *val==0) {
+		externalTicks.incMillis(1000);
+	}
+	else {
+		unsigned long newTicks = strtoul(val, NULL, 10)*multiplier;
+		if (*val=='=')
+			externalTicks.setMillis(newTicks);
+		else
+			externalTicks.incMillis(newTicks);
+	}
+	
+	DEBUG_MSG(PSTR("New ticks %lu"), externalTicks.millis());
+}
+
+#endif
+
+void PiLink::updateInputs()
+{
+#if BREWPI_SIMULATE==1
+	char key[30];
+	char val[30];
+	uint8_t index=0;
+	char character=0;
+	wait.millis(1);	
+	
+	while(piStream.available() > 0){ // outer while loop can process multiple pairs
+		index=0;
+		while(piStream.available() > 0) // get key
+		{
+			wait.millis(1);
+			character = piStream.read();
+			if(character == ':'){
+				// value comes now
+				break;
+			}
+			else if(character == ' ' || character == '{' || character == '"'){
+				;
+			}
+			else{
+				key[index++] = character;
+			}
+			if(index>=29)
+			{
+				return; // value was too long, don't process anything
+			}
+		}
+		key[index]=0; // null terminate string
+		index = 0;
+		while(piStream.available() > 0) // get value
+		{
+			wait.millis(1);
+			character = piStream.read();
+			if(character == ',' || character == '}'){
+				// end of value
+				break;
+			}
+			else if(character == ' ' || character == '"'){
+				; // skip spaces and apostrophes
+			}
+			else{
+				val[index++] = character;
+			}
+			if(index>=29)
+			{
+				return; // value was too long, don't process anything
+			}
+		}
+		val[index]=0; // null terminate string
+		DEBUG_MSG(PSTR("name %s val %s"), key, val);
+		if (strcmp_P(key, PSTR("BeerTemp"))==0) {
+			DEBUG_MSG(PSTR("setting beer temp %s"), val);
+			setTemp(tempControl.beerSensor, val);
+		}
+		else if (strcmp_P(key, PSTR("FridgeTemp"))==0) {
+			DEBUG_MSG(PSTR("setting fridge temp %s"), val);
+			setTemp(tempControl.fridgeSensor, val);
+		}
+		else if (strcmp_P(key, PSTR("DoorState"))==0) {		// 0 for closed, anything else for open
+			DEBUG_MSG(PSTR("setting door state to %s"), val);
+			setSwitch(tempControl.door, strcmp(val, "0")==0);
+		}
+		else if (strcmp_P(key, PSTR("ms"))==0) {
+			DEBUG_MSG(PSTR("setting ticks to %s"), val);
+			setTicks(ticks, val);
+		}		
+		else if (strcmp_P(key, PSTR("s"))==0) {
+			DEBUG_MSG(PSTR("setting seconds to %s"), val);
+			setTicks(ticks, val, 1000);
+		}
+	}
+	printTemperatures();	
+#endif	
+}
+
+	

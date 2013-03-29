@@ -30,7 +30,7 @@ typedef unsigned char ticks_seconds_tiny_t;
 
 class Ticks {
 	
-	};
+};
 
 class MockTicks {
 public:
@@ -42,9 +42,28 @@ public:
 private:
 
 	uint32_t _increment;
-	uint32_t _ticks;	
-		
+	uint32_t _ticks;			
 };
+
+/**
+ * Externally provided clock. 
+ */
+
+class ExternalTicks {
+	public:
+	ExternalTicks() : _ticks(0) { }
+
+	ticks_millis_t millis() { return _ticks; }
+	ticks_micros_t micros() { return _ticks*1000; }	
+	ticks_seconds_t seconds() { return millis()/1000; }	
+		
+	void setMillis(ticks_millis_t now)	{ _ticks = now; }
+	void incMillis(ticks_millis_t advance)	{ _ticks += advance; }
+private:
+	uint32_t _ticks;			
+};
+
+
 
 class NoOpDelay {
 public:	
@@ -55,29 +74,28 @@ public:
 
 #include "avr_ticks.h"
 
-#if BREWPI_EMULATE
-#define USE_HARDWARE_TICKS 0
-#define USE_HARDWARE_DELAY 0
-#else
-#define USE_HARDWARE_TICKS 1
-#define USE_HARDWARE_DELAY 1
-#endif
+#if BREWPI_EMULATE   // emulator is slow, so increment ticks by 100 for each request
+	typedef MockTicks TicksImpl;
+	#define TICKS_IMPL_CONFIG 100
 
-#if USE_HARDWARE_TICKS
-typedef HardwareTicks TicksImpl;
-#define TICKS_IMPL_CONFIG 
-#else
-typedef MockTicks TicksImpl;
-#define TICKS_IMPL_CONFIG 100
-#endif
+	typedef NoOpDelay DelayImpl;
+	#define DELAY_IMPL_CONFIG
 
-#if USE_HARDWARE_DELAY
-typedef HardwareDelay DelayImpl;
-#define DELAY_IMPL_CONFIG 
-#else
-typedef NoOpDelay DelayImpl;
-#define DELAY_IMPL_CONFIG 
-#endif
+#elif BREWPI_SIMULATE				// use value holder
+	typedef ExternalTicks TicksImpl;
+	typedef HardwareDelay DelayImpl;
+	#define TICKS_IMPL_CONFIG		// no configuration necessary
+	#define DELAY_IMPL_CONFIG
+	
+#else // use regular hardware timer/delay
+	typedef HardwareTicks TicksImpl;
+	#define TICKS_IMPL_CONFIG
+
+	typedef HardwareDelay DelayImpl;
+	#define DELAY_IMPL_CONFIG
+
+#endif	// BREWPI_EMULATE
+
 
 extern TicksImpl ticks;
 extern DelayImpl wait;

@@ -25,6 +25,7 @@
 #include <limits.h>
 #include "Ticks.h"
 #include "Display.h"
+#include "FastDigitalPin.h"
 
 RotaryEncoder rotaryEncoder;
 
@@ -152,13 +153,13 @@ void RotaryEncoder::init(void){
 	pinBTime = 0;
 	
 	#if(USE_INTERNAL_PULL_UP_RESISTORS)
-	pinMode(rotaryAPin, INPUT_PULLUP);
-	pinMode(rotaryBPin, INPUT_PULLUP);
-	pinMode(rotarySwitchPin, INPUT_PULLUP);
+	fastPinMode(rotaryAPin, INPUT_PULLUP);
+	fastPinMode(rotaryBPin, INPUT_PULLUP);
+	fastPinMode(rotarySwitchPin, INPUT_PULLUP);
 	#else
-	pinMode(rotaryAPin, INPUT);
-	pinMode(rotaryBPin, INPUT);
-	pinMode(rotarySwitchPin, INPUT);
+	fastPinMode(rotaryAPin, INPUT);
+	fastPinMode(rotaryBPin, INPUT);
+	fastPinMode(rotarySwitchPin, INPUT);
 	#endif
 	
 	pinAHandler(true); // call functions ones here for proper initialization

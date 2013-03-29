@@ -120,6 +120,7 @@
       <Value>TEMP_SENSOR_CASCADED_FILTER=1</Value>
       <Value>TEMP_CONTROL_STATIC=1</Value>
       <Value>FAST_DIGITAL_PIN=1</Value>
+      <Value>BREWPI_SIMULATE=1</Value>
     </ListValues>
   </avrgcccpp.compiler.symbols.DefSymbols>
   <avrgcccpp.compiler.directories.IncludePaths>
@@ -210,6 +211,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Door.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ExternalTempSensor.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="FastDigitalPin.h">

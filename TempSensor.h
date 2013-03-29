@@ -60,13 +60,13 @@ public:
 
 class TempSensor {
 	public:
-	TempSensor(BasicTempSensor& sensor) : _sensor(&sensor)  {
+	TempSensor(BasicTempSensor& sensor) : _sensor(sensor)  {
 		updateCounter = 255; // first update for slope filter after (255-13s)
 	 }	 	 
 	
 	void init();
 	
-	bool isConnected() { return _sensor->isConnected(); }
+	bool isConnected() { return _sensor.isConnected(); }
 	
 	void update();
 	
@@ -98,6 +98,10 @@ class TempSensor {
 		slopeFilter.setCoefficients(b);
 	}			
 
+	BasicTempSensor& basicTempSensor() {
+		return _sensor;
+	}
+
 	private:	
 	fixed7_25 prevOutputForSlope;	
 	
@@ -105,10 +109,10 @@ class TempSensor {
 	TempSensorFilter fastFilter;
 	TempSensorFilter slowFilter;
 	TempSensorFilter slopeFilter;
-	BasicTempSensor* _sensor;
+	BasicTempSensor& _sensor;
 		
 	friend class ChamberManager;
-	friend class Chamber;
+	friend class Chamber;	
 };
 
 

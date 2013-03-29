@@ -66,6 +66,7 @@ class PiLink{
 	static void printJsonName(const char * name);
 	static void printJsonSeparator();
 	static void sendJsonClose();
+	static void updateInputs();
 	private:
 	static bool firstPair;
 	
@@ -74,7 +75,7 @@ class PiLink{
 extern PiLink piLink;
 
 
-#define DEBUG_MSG(...) //piLink.debugMessageDirect(__VA_ARGS__);
+#define DEBUG_MSG(...) piLink.debugMessageDirect(__VA_ARGS__);
 
 
 #endif /* PILINK_H_ */
