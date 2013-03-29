@@ -87,7 +87,7 @@ void PiLink::receive(void){
 			sendControlVariables();
 			break;
 		case 'n':
-			print_P(PSTR("N:\"%S\"\n"), PSTR(VERSION_STRING));
+			print_P(PSTR("N:%S\n"), PSTR(VERSION_STRING));
 			break;
 		case 'l': // Display content requested
 			printResponse('L');
