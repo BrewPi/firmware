@@ -82,7 +82,7 @@ class FixedFilter{
 
 		void setCoefficients(uint8_t bValue) {
 			a = bValue*2+4;
-			b = bValue;		
+			b = bValue;
 		}
 		
 		fixed7_9 add(fixed7_9 val); // adds a value and returns the most recent filter output
