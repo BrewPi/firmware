@@ -420,6 +420,12 @@ void TempControl::storeSettings(void){
 
 void TempControl::loadSettings(void){
 	eeprom_read_block((void *) &cs, (void *) EEPROM_CONTROL_SETTINGS_ADDRESS, sizeof(ControlSettings));
+	fridgeSensor.setFastFilterCoefficients(cc.fridgeFastFilter);
+	fridgeSensor.setSlowFilterCoefficients(cc.fridgeSlowFilter);
+	fridgeSensor.setSlopeFilterCoefficients(cc.fridgeSlopeFilter);
+	beerSensor.setFastFilterCoefficients(cc.beerFastFilter);
+	beerSensor.setSlowFilterCoefficients(cc.beerSlowFilter);
+	beerSensor.setSlopeFilterCoefficients(cc.beerSlopeFilter);
 }
 
 void TempControl::loadDefaultSettings(void){
