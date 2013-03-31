@@ -99,54 +99,54 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
       <AvrGccCpp>
-  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
-  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
-  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-  <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
-  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
-  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
-  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-  <avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>
-  <avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>
-  <avrgcccpp.compiler.symbols.DefSymbols>
-    <ListValues>
-      <Value>ARDUINO=103</Value>
-      <Value>F_CPU=16000000L</Value>
-      <Value>BREWPI_EMULATE=0</Value>
-      <Value>MULTICHAMBER=0</Value>
-      <Value>TEMP_SENSOR_CASCADED_FILTER=1</Value>
-      <Value>TEMP_CONTROL_STATIC=1</Value>
-      <Value>FAST_DIGITAL_PIN=1</Value>
-      <Value>BREWPI_SIMULATE=1</Value>
-    </ListValues>
-  </avrgcccpp.compiler.symbols.DefSymbols>
-  <avrgcccpp.compiler.directories.IncludePaths>
-    <ListValues>
-      <Value>r:\sdk\arduino-1.0.3\hardware\arduino\cores\arduino</Value>
-      <Value>r:\sdk\arduino-1.0.3\hardware\arduino\variants\standard</Value>
-    </ListValues>
-  </avrgcccpp.compiler.directories.IncludePaths>
-  <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
-  <avrgcccpp.compiler.optimization.OtherFlags>-fdata-sections</avrgcccpp.compiler.optimization.OtherFlags>
-  <avrgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</avrgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
-  <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
-  <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
-  <avrgcccpp.compiler.optimization.DebugLevel>Maximum (-g3)</avrgcccpp.compiler.optimization.DebugLevel>
-  <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
-  <avrgcccpp.compiler.miscellaneous.OtherFlags>-fno-exceptions -ffreestanding</avrgcccpp.compiler.miscellaneous.OtherFlags>
-  <avrgcccpp.linker.libraries.Libraries>
-    <ListValues>
-      <Value>m</Value>
-    </ListValues>
-  </avrgcccpp.linker.libraries.Libraries>
-  <avrgcccpp.linker.optimization.GarbageCollectUnusedSections>True</avrgcccpp.linker.optimization.GarbageCollectUnusedSections>
-  <avrgcccpp.linker.optimization.RelaxBranches>True</avrgcccpp.linker.optimization.RelaxBranches>
-  <avrgcccpp.linker.miscellaneous.LinkerFlags>-Wl,--relax</avrgcccpp.linker.miscellaneous.LinkerFlags>
-  <avrgcccpp.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcccpp.assembler.debugging.DebugLevel>
-</AvrGccCpp>
+        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+        <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+        <avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>
+        <avrgcccpp.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>ARDUINO=103</Value>
+            <Value>F_CPU=16000000L</Value>
+            <Value>BREWPI_EMULATE=0</Value>
+            <Value>MULTICHAMBER=0</Value>
+            <Value>TEMP_SENSOR_CASCADED_FILTER=1</Value>
+            <Value>TEMP_CONTROL_STATIC=1</Value>
+            <Value>FAST_DIGITAL_PIN=1</Value>
+            <Value>BREWPI_SIMULATE=1</Value>
+          </ListValues>
+        </avrgcccpp.compiler.symbols.DefSymbols>
+        <avrgcccpp.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>r:\sdk\arduino-1.0.3\hardware\arduino\cores\arduino</Value>
+            <Value>r:\sdk\arduino-1.0.3\hardware\arduino\variants\standard</Value>
+          </ListValues>
+        </avrgcccpp.compiler.directories.IncludePaths>
+        <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
+        <avrgcccpp.compiler.optimization.OtherFlags>-fdata-sections</avrgcccpp.compiler.optimization.OtherFlags>
+        <avrgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</avrgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
+        <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
+        <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
+        <avrgcccpp.compiler.optimization.DebugLevel>Maximum (-g3)</avrgcccpp.compiler.optimization.DebugLevel>
+        <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
+        <avrgcccpp.compiler.miscellaneous.OtherFlags>-fno-exceptions -ffreestanding</avrgcccpp.compiler.miscellaneous.OtherFlags>
+        <avrgcccpp.linker.libraries.Libraries>
+          <ListValues>
+            <Value>m</Value>
+          </ListValues>
+        </avrgcccpp.linker.libraries.Libraries>
+        <avrgcccpp.linker.optimization.GarbageCollectUnusedSections>True</avrgcccpp.linker.optimization.GarbageCollectUnusedSections>
+        <avrgcccpp.linker.optimization.RelaxBranches>True</avrgcccpp.linker.optimization.RelaxBranches>
+        <avrgcccpp.linker.miscellaneous.LinkerFlags>-Wl,--relax</avrgcccpp.linker.miscellaneous.LinkerFlags>
+        <avrgcccpp.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcccpp.assembler.debugging.DebugLevel>
+      </AvrGccCpp>
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>

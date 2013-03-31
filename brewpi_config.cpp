@@ -147,7 +147,7 @@ void setup()
 		
 	rotaryEncoder.init();
 	
-	buzzer.init();
+	//buzzer.init();
 	//buzzer.beep(2, 500);
 
 	DEBUG_MSG(PSTR("init complete"));
@@ -176,6 +176,8 @@ void updateSimulationTicks() {
 		}			
 	}
 }
+
+
 #endif
 
 void loop(void)
@@ -185,7 +187,7 @@ void loop(void)
 #if BREWPI_SIMULATE		
 	// only needed if we want the arduino to be self running. Useful for manual testing, but not so much with an 
 	// external driver. 
-	updateSimulationTicks();
+	updateSimulationTicks();	
 #endif	
 	
 #if MULTICHAMBER	
@@ -200,7 +202,7 @@ void loop(void)
 	if(ticks.millis() - lastUpdate >= (1000)) { //update settings every second
 #endif		
 		lastUpdate=ticks.millis();
-		
+			
 		DEBUG_MSG(PSTR("update TC"));
 		tempControl.updateTemperatures();		
 		DEBUG_MSG(PSTR("update TC peaks"));
