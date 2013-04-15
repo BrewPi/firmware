@@ -372,43 +372,28 @@ void TempControl::decreaseEstimator(fixed7_9 * estimator, fixed7_9 error){
 	storeSettings();
 }
 
-uint16_t TempControl::timeSinceCooling(void){
+// return time that has passed since timeStamp, take overflow into account
+uint16_t TempControl::timeSince(uint16_t previousTime){
 	uint16_t currentTime = ticks.seconds();
-	uint16_t timeSinceLastOn;
-	if(currentTime>=lastCoolTime){
-		timeSinceLastOn = currentTime - lastCoolTime;
+	if(currentTime>=previousTime){
+		return currentTime - previousTime;
 	}
 	else{
 		// overflow has occured
-		timeSinceLastOn = (currentTime + 1440) - (lastCoolTime +1440); // add a day to both for calculation
+		return (currentTime + 1440) - (previousTime +1440); // add a day to both for calculation
 	}
-	return timeSinceLastOn;
+}	
+
+uint16_t TempControl::timeSinceCooling(void){
+	return timeSince(lastCoolTime);
 }
 
 uint16_t TempControl::timeSinceHeating(void){
-	uint16_t currentTime = ticks.seconds();
-	uint16_t timeSinceLastOn;
-	if(currentTime>=lastHeatTime){
-		timeSinceLastOn = currentTime - lastHeatTime;
-	}
-	else{
-		// overflow has occured
-		timeSinceLastOn = (currentTime + 1440) - (lastHeatTime +1440); // add a day to both for calculation
-	}
-	return timeSinceLastOn;
+	return timeSince(lastHeatTime);
 }
 
 uint16_t TempControl::timeSinceIdle(void){
-	uint16_t currentTime = ticks.seconds();
-	uint16_t timeSinceLastOn;
-	if(currentTime>=lastIdleTime){
-		timeSinceLastOn = currentTime - lastIdleTime;
-	}
-	else{
-		// overflow has occured
-		timeSinceLastOn = (currentTime + 1440) - (lastIdleTime +1440); // add a day to both for calculation
-	}
-	return timeSinceLastOn;
+	return timeSince(lastIdleTime);
 }
 
 // write new settings to EEPROM to be able to reload them after a reset

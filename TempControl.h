@@ -137,6 +137,7 @@ class TempControl{
 	
 	static void loadSettingsAndConstants(void);
 	
+	static uint16_t timeSince(uint16_t);
 	static uint16_t timeSinceCooling(void);
  	static uint16_t timeSinceHeating(void);
   	static uint16_t timeSinceIdle(void);
