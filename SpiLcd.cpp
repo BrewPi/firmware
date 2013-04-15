@@ -180,7 +180,8 @@ void SpiLcd::resetBacklightTimer(void){
 }
 
 void SpiLcd::updateBacklight(void){
-	bitWrite(_spiByte, LCD_SHIFT_BACKLIGHT, ticks.seconds() > _backlightTime + BACKLIGHT_AUTO_OFF_PERIOD);
+	bool backLightOutput = ticks.timeSince(_backlightTime) > BACKLIGHT_AUTO_OFF_PERIOD;
+	bitWrite(_spiByte, LCD_SHIFT_BACKLIGHT, backLightOutput); // 1=OFF, 0=ON
 }
 
 // Puts the content of one LCD line into the provided buffer.
