@@ -1,4 +1,4 @@
-/*
+	/*
  * Copyright 2012 BrewPi/Elco Jacobs.
  *
  * This file is part of BrewPi.
@@ -372,28 +372,16 @@ void TempControl::decreaseEstimator(fixed7_9 * estimator, fixed7_9 error){
 	storeSettings();
 }
 
-// return time that has passed since timeStamp, take overflow into account
-uint16_t TempControl::timeSince(uint16_t previousTime){
-	uint16_t currentTime = ticks.seconds();
-	if(currentTime>=previousTime){
-		return currentTime - previousTime;
-	}
-	else{
-		// overflow has occured
-		return (currentTime + 1440) - (previousTime +1440); // add a day to both for calculation
-	}
-}	
-
 uint16_t TempControl::timeSinceCooling(void){
-	return timeSince(lastCoolTime);
+	return ticks.timeSince(lastCoolTime);
 }
 
 uint16_t TempControl::timeSinceHeating(void){
-	return timeSince(lastHeatTime);
+	return ticks.timeSince(lastHeatTime);
 }
 
 uint16_t TempControl::timeSinceIdle(void){
-	return timeSince(lastIdleTime);
+	return ticks.timeSince(lastIdleTime);
 }
 
 // write new settings to EEPROM to be able to reload them after a reset

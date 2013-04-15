@@ -25,8 +25,8 @@
 
 typedef unsigned long ticks_millis_t;
 typedef unsigned long ticks_micros_t;
-typedef unsigned int ticks_seconds_t;
-typedef unsigned char ticks_seconds_tiny_t;
+typedef uint16_t ticks_seconds_t;
+typedef uint8_t ticks_seconds_tiny_t;
 
 /*
  * The Ticks class provides the time period since the device was powered up.
@@ -36,6 +36,7 @@ public:
 	ticks_millis_t millis() { return ::millis(); }
 	ticks_micros_t micros() { return ::micros(); }	
 	ticks_seconds_t seconds() { return ::millis()/1000; }
+	static ticks_seconds_t timeSince(ticks_seconds_t timeStamp);
 };
 
 
