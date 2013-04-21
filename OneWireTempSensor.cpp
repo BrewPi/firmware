@@ -51,8 +51,10 @@ fixed7_9 OneWireTempSensor::init(){
 	fixed7_9 temperature = DEVICE_DISCONNECTED;
 	while(temperature == DEVICE_DISCONNECTED){
 		temperature = sensor->getTempRaw(sensorAddress);
-		if(ticks.millis() - lastRequestTime > 2000){
+		DEBUG_MSG("Raw temp on pin %d %d", pinNr, temperature);
+		if(ticks.millis() - lastRequestTime > 4000){
 			connected = false; // sensor disconnected
+			DEBUG_MSG("Reporting device disconnected on pin %d", pinNr);
 			return DEVICE_DISCONNECTED;
 		}
 	}

@@ -74,16 +74,28 @@ public:
 
 #include "avr_ticks.h"
 
-#if BREWPI_EMULATE   // emulator is slow, so increment ticks by 100 for each request
+#if BREWPI_SIMULATE				// use value holder
+
+	typedef ExternalTicks TicksImpl;
+#if BREWPI_EMULATE	
+	typedef NoOpDelay DelayImpl;		// for emulation (avr debugger), don't bother delaying, it takes ages.
+	#define DELAY_IMPL_CONFIG
+#else
+	typedef HardwareDelay DelayImpl;
+	#define DELAY_IMPL_CONFIG
+#endif	
+	#define TICKS_IMPL_CONFIG		// no configuration necessary
+
+#elif BREWPI_EMULATE   // regular code, runing in emulator: emulator is slow, so increment ticks by 100 for each request
 	typedef MockTicks TicksImpl;
 	#define TICKS_IMPL_CONFIG 100
 
 	typedef NoOpDelay DelayImpl;
 	#define DELAY_IMPL_CONFIG
 
-#elif BREWPI_SIMULATE				// use value holder
+
 	typedef ExternalTicks TicksImpl;
-	typedef HardwareDelay DelayImpl;
+	typedef NoOpDelay DelayImpl;
 	#define TICKS_IMPL_CONFIG		// no configuration necessary
 	#define DELAY_IMPL_CONFIG
 	

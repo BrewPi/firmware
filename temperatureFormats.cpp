@@ -50,7 +50,7 @@ char * tempToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t 
 }
 
 char * fixedPointToString(char s[9], fixed7_9 rawValue, uint8_t numDecimals, uint8_t maxLength){ 
-	fixedPointToString(s, (fixed23_9)rawValue, numDecimals, maxLength);
+	return fixedPointToString(s, (fixed23_9)rawValue, numDecimals, maxLength);
 }	
 
 char * fixedPointToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength){ 

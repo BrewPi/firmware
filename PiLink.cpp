@@ -33,6 +33,11 @@
 #include "chamber.h"
 #include "Ticks.h"
 #include "brewpi_avr.h"
+#if BREWPI_SIMULATE
+
+#include "simulator.h"
+
+#endif
 
 bool PiLink::firstPair;
 // Rename Serial to piStream, to abstract it for later platform independence
@@ -48,6 +53,7 @@ bool PiLink::firstPair;
 		void print(const char* c) {}
 		char read() { return '\0'; }
 		uint8_t available() { return 0; }
+			void begin(unsigned long) {}
 	};
 
 	static MockSerial mockSerial;
@@ -82,8 +88,7 @@ void PiLink::print(char *fmt, ... ){
 }
 
 void PiLink::receive(void){
-	if (piStream.available() > 0){
-		
+	if (piStream.available() > 0){		
 		char inByte = piStream.read();
 #if MULTICHAMBER
 		char arg = piStream.read();
@@ -114,10 +119,13 @@ void PiLink::receive(void){
 			break;
 #endif	
 
-#if BREWPI_SIMULATE
+#if BREWPI_SIMULATE==1
 		case 'u':
 			updateInputs();
 			break;
+		case 'U':
+			printSimulatorSettings();
+			break;		
 #endif						
 		case 't': // temperatures requested
 			printTemperatures();      
@@ -143,11 +151,7 @@ void PiLink::receive(void){
 			sendControlVariables();
 			break;
 		case 'n':
-			print_P(PSTR("N:%S"), PSTR(VERSION_STRING));
-#if BREWPI_SIMULATE
-			print_P(PSTR(":simulate"));
-#endif			
-			print('\n');
+			print_P(PSTR("N:%S\n"), PSTR(VERSION_STRING));
 			break;
 		case 'l': // Display content requested
 			printResponse('L');
@@ -199,31 +203,87 @@ void PiLink::printChamberInfo()
 }
 #endif
 
+#define COMPACT_SERIAL 1
+#if COMPACT_SERIAL
+	#define JSON_BEER_TEMP  "bt"
+	#define JSON_BEER_SET	"bs"
+	#define JSON_BEER_ANN	"ba"
+	#define JSON_FRIDGE_TEMP "ft"
+	#define JSON_FRIDGE_SET  "fs"
+	#define JSON_FRIDGE_ANN  "fa"
+	#define JSON_STATE		"s"
+	#define JSON_TIME		"t"
+	#define JSON_ROOM_TEMP  "rt"
+	
+	fixed7_9 beerTemp = -1, beerSet = -1, fridgeTemp = -1, fridgeSet = -1;
+	double roomTemp = -1;
+	uint8_t state = 0xFF;
+	char* beerAnn; char* fridgeAnn;
+	
+	typedef char* PChar;
+	inline bool changed(uint8_t &a, uint8_t b) { uint8_t c = a; a=b; return b!=c; }
+	inline bool changed(fixed7_9 &a, fixed7_9 b) { fixed7_9 c = a; a=b; return b!=c; }
+	inline bool changed(double &a, double b) { double c = a; a=b; return b!=c; }
+	inline bool changed(PChar &a, PChar b) { PChar c = a; a=b; return b!=c; }
+#else
+	#define JSON_BEER_TEMP  "BeerTemp"
+	#define JSON_BEER_SET	"BeerSet"
+	#define JSON_BEER_ANN	"BeerAnn"
+	#define JSON_FRIDGE_TEMP "FridgeTemp"
+	#define JSON_FRIDGE_SET  "FridgeSet"
+	#define JSON_FRIDGE_ANN  "FridgeAnn"
+	#define JSON_STATE		"State"
+	#define JSON_TIME		"Time"
+	#define JSON_ROOM_TEMP  "RoomTemp"
+	
+	#define changed(a,b)  1
+#endif
+
 void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotation){
 	char tempString[9];
-	printResponse('T');
-	print_P(PSTR("{\"BeerTemp\":%s,"), tempToString(tempString, tempControl.getBeerTemp(), 2, 9));
-	print_P(PSTR("\"BeerSet\":%s,"), tempToString(tempString, tempControl.getBeerSetting(), 2, 9));
-	print_P(PSTR("\"BeerAnn\":"));
-	if(beerAnnotation == 0){
-		print_P(PSTR("null,"));
+	printResponse('T');	
+	piLink.print('{');
+	firstPair = false;
+	if (changed(beerTemp, tempControl.getBeerTemp()))	
+		print_P(PSTR("\"" JSON_BEER_TEMP "\":%s,"), tempToString(tempString, tempControl.getBeerTemp(), 2, 9));
+	if (changed(beerSet,tempControl.getBeerSetting()))
+		print_P(PSTR("\"" JSON_BEER_SET "\":%s,"), tempToString(tempString, tempControl.getBeerSetting(), 2, 9));
+	if (changed(beerAnn, beerAnnotation)) {
+		print_P(PSTR("\""JSON_BEER_ANN"\":"));
+		if(beerAnnotation == 0){
+			print_P(PSTR("null,"));
+		}
+		else{
+			print_P(PSTR("\"%s\","), beerAnnotation);
+		}
 	}
-	else{
-		print_P(PSTR("\"%s\","), beerAnnotation);
-	}
-	print_P(PSTR("\"FridgeTemp\":%s,"), tempToString(tempString, tempControl.getFridgeTemp(), 2, 9));
-	print_P(PSTR("\"FridgeSet\":%s,"), tempToString(tempString, tempControl.getFridgeSetting(), 2, 9));
-	print_P(PSTR("\"FridgeAnn\":"));
-	if(fridgeAnnotation == 0){
-		print_P(PSTR("null,"));
-	}
-	else{
-		print_P(PSTR("\"%s\","), fridgeAnnotation);	
-	}
-#if BREWPI_SIMULATE
-	print_P(PSTR("\"t\":%lu,"), ticks.millis());
-#endif	
-	print_P(PSTR("\"State\":%u}\n"), tempControl.getState());
+	if (changed(fridgeTemp, tempControl.getFridgeTemp()))
+		print_P(PSTR("\""JSON_FRIDGE_TEMP"\":%s,"), tempToString(tempString, tempControl.getFridgeTemp(), 2, 9));
+	if (changed(fridgeSet, tempControl.getFridgeSetting()))
+		print_P(PSTR("\""JSON_FRIDGE_SET"\":%s,"), tempToString(tempString, tempControl.getFridgeSetting(), 2, 9));
+	if (changed(fridgeAnn, fridgeAnnotation)) {
+		print_P(PSTR("\""JSON_FRIDGE_ANN"\":"));
+		if(fridgeAnnotation == 0){
+			print_P(PSTR("null,"));
+		}
+		else{
+			print_P(PSTR("\"%s\","), fridgeAnnotation);	
+		}
+	}	
+
+#if BREWPI_SIMULATE		
+	if (changed(roomTemp, simulator.roomTemp()))
+	{
+		print_P(PSTR("\""JSON_ROOM_TEMP"\""));
+		piLink.print(':');
+		printDouble(roomTemp);
+		piLink.print(',');
+	}		
+#endif
+	if (changed(state, tempControl.getState()))
+		print_P(PSTR("\""JSON_STATE"\":%u,"), tempControl.getState());
+	
+	print_P(PSTR("\""JSON_TIME"\":%lu}\n"), ticks.millis()/1000);		
 }
 
 void PiLink::printTemperatures(void){
@@ -467,8 +527,10 @@ void PiLink::receiveJson(void){
 			// this was the last pair.
 			tempControl.storeSettings(); // store new settings to EEPROM
 			tempControl.storeConstants();
+#if !BREWPI_SIMULATE  // this is quite an overhead and not needed for the simulator
 			sendControlSettings(); // update script with new settings
 			sendControlConstants();
+#endif			
 			return;
 		}
 	}
@@ -592,23 +654,23 @@ else if(strcmp_P(key,JSONKEY_fridgeSetting) == 0){
 #if BREWPI_SIMULATE==1
 #include "ExternalTempSensor.h"
 
-void setTemp(TempSensor* sensor, const char* val) {
-	
-	ExternalTempSensor& externalSensor = (ExternalTempSensor&)sensor->basicTempSensor();
-	if (val==NULL || *val==0)
-		externalSensor.setConnected(false);
-	else
-	{
-		fixed7_9 newTemp = stringToTemp(val);
-		externalSensor.setValue(newTemp);
-		externalSensor.setConnected(true);
-	}	
-}
-
-void setSwitch(SwitchSensor* sensor, bool newSetting) {
-	ValueSensor<bool>* externalSensor = (ValueSensor<bool>*) sensor;
-	externalSensor->setValue(newSetting);
-}
+const char SimulatorBeerTemp[] PROGMEM = "b";
+const char SimulatorBeerConnected[] PROGMEM = "bc";
+const char SimulatorBeerVolume[] PROGMEM = "bv";
+const char SimulatorCoolPower[] PROGMEM = "c";
+const char SimulatorDoorState[] PROGMEM = "d";
+const char SimulatorFridgeTemp[] PROGMEM = "f";
+const char SimulatorFridgeConnected[] PROGMEM = "fc";
+const char SimulatorFridgeVolume[] PROGMEM = "fv";
+const char SimulatorHeatPower[] PROGMEM = "h";
+const char SimulatorPrintInterval[] PROGMEM = "i";
+const char SimulatorNoise[] PROGMEM = "n";
+const char SimulatorCoeffBeer[] PROGMEM = "kb";
+const char SimulatorCoeffRoom[] PROGMEM = "ke";
+const char SimulatorRoomTempMin[] PROGMEM = "rmi";
+const char SimulatorRoomTempMax[] PROGMEM = "rmx";
+const char SimulatorBeerDensity[] PROGMEM = "sg";
+const char SimulatorTime[] PROGMEM = "t";
 
 void setTicks(ExternalTicks& externalTicks, const char* val, int multiplier=1000) {		
 	
@@ -616,35 +678,39 @@ void setTicks(ExternalTicks& externalTicks, const char* val, int multiplier=1000
 		externalTicks.incMillis(1000);
 	}
 	else {
-		unsigned long newTicks = strtoul(val, NULL, 10)*multiplier;
 		if (*val=='=')
-			externalTicks.setMillis(newTicks);
+			externalTicks.setMillis(strtoul(val+1, NULL, 10)*multiplier);
 		else
-			externalTicks.incMillis(newTicks);
+			externalTicks.incMillis(strtoul(val+1, NULL, 10)*multiplier);
 	}
 	
 	DEBUG_MSG(PSTR("New ticks %lu"), externalTicks.millis());
 }
 
-extern void setRunFactor(fixed7_9 factor);
 
-#endif
+/* How often the temperature is output, in simulated seconds.
+ * 0 is never.
+ * 1 is once per second.
+ * 5 is once every 5 seconds etc..
+ */
+extern uint8_t printTempInterval;
 
+
+/* This is similar to the JSON parsing, but modified to read until the final } even when !piLink.available(), so that
+   serial data can be streamed much faster without needing to introduce delays. */
 void PiLink::updateInputs()
 {
-#if BREWPI_SIMULATE==1
 	char key[30];
 	char val[30];
 	uint8_t index=0;
-	char character=0;
-	wait.millis(1);	
-	
-	while(piStream.available() > 0){ // outer while loop can process multiple pairs
+	signed char character=0;	
+	while(character!=-1){ // outer while loop can process multiple pairs
 		index=0;
-		while(piStream.available() > 0) // get key
-		{
-			wait.millis(1);
+		while(true) // get key
+		{			
 			character = piStream.read();
+			if (character==-1 || character==0)
+				continue;
 			if(character == ':'){
 				// value comes now
 				break;
@@ -662,14 +728,20 @@ void PiLink::updateInputs()
 		}
 		key[index]=0; // null terminate string
 		index = 0;
-		while(piStream.available() > 0) // get value
-		{
-			wait.millis(1);
+		while(true) // get value
+		{			
 			character = piStream.read();
-			if(character == ',' || character == '}'){
+			if (character==-1 || character==0)
+				continue;
+			if(character == ','){
 				// end of value
 				break;
 			}
+			else if (character == '}')
+			{
+				character=-1;
+				break;
+			}				
 			else if(character == ' ' || character == '"'){
 				; // skip spaces and apostrophes
 			}
@@ -682,34 +754,114 @@ void PiLink::updateInputs()
 			}
 		}
 		val[index]=0; // null terminate string
-		DEBUG_MSG(PSTR("name %s val %s"), key, val);
-		if (strcmp_P(key, PSTR("BeerTemp"))==0) {
-			DEBUG_MSG(PSTR("setting beer temp %s"), val);
-			setTemp(tempControl.beerSensor, val);
-		}
-		else if (strcmp_P(key, PSTR("FridgeTemp"))==0) {
-			DEBUG_MSG(PSTR("setting fridge temp %s"), val);
-			setTemp(tempControl.fridgeSensor, val);
-		}
-		else if (strcmp_P(key, PSTR("DoorState"))==0) {		// 0 for closed, anything else for open
-			DEBUG_MSG(PSTR("setting door state to %s"), val);
-			setSwitch(tempControl.door, strcmp(val, "0")!=0);
-		}
-		else if (strcmp_P(key, PSTR("ms"))==0) {
-			DEBUG_MSG(PSTR("setting ticks to %s"), val);
-			setTicks(ticks, val);
-		}		
-		else if (strcmp_P(key, PSTR("s"))==0) {
-			DEBUG_MSG(PSTR("setting seconds to %s"), val);
+		//DEBUG_MSG(PSTR("name %s val %s"), key, val);
+		
+		// this set the system timer, but not the simulator counter
+		if (strcmp_P(key, PSTR("s"))==0) {
+			//DEBUG_MSG(PSTR("setting seconds to %s"), val);
 			setTicks(ticks, val, 1000);
 		}
+		// these are all doubles - could replace this with a map of string keys to methods
+		else if (strcmp_P(key, SimulatorRoomTempMin)==0) {
+			simulator.setMinRoomTemp(atof(val));
+		}
+		else if (strcmp_P(key, SimulatorRoomTempMax)==0) {
+			simulator.setMaxRoomTemp(atof(val));
+		}
+		else if (strcmp_P(key, SimulatorFridgeVolume)==0) {
+			simulator.setFridgeVolume(atof(val));
+		}
+		else if (strcmp_P(key, SimulatorBeerVolume)==0) {
+			simulator.setBeerVolume(atof(val));
+		}
+		else if (strcmp_P(key, SimulatorBeerDensity)==0) {
+			simulator.setBeerDensity(atof(val));
+		}
+		else if (strcmp_P(key, SimulatorFridgeTemp)==0) {
+			simulator.setFridgeTemp(atof(val));
+		}
+		else if (strcmp_P(key, SimulatorBeerTemp)==0) {
+			simulator.setBeerTemp(atof(val));
+		}
+		else if (strcmp_P(key, SimulatorHeatPower)==0) {
+			simulator.setHeatPower(atof(val));
+		}
+		else if (strcmp_P(key, SimulatorCoolPower)==0) {
+			simulator.setCoolPower(atof(val));
+		}
+		else if (strcmp_P(key, SimulatorCoeffRoom)==0) {
+			simulator.setRoomCoefficient(atof(val));
+		}
+		else if (strcmp_P(key, SimulatorCoeffBeer)==0) {
+			simulator.setBeerCoefficient(atof(val));
+		}
+		else if (strcmp_P(key, SimulatorBeerConnected)==0) {
+			simulator.setConnected(tempControl.beerSensor, strcmp(val, "0")!=0);
+		}
+		else if (strcmp_P(key, SimulatorFridgeConnected)==0) {
+			simulator.setConnected(tempControl.fridgeSensor, strcmp(val, "0")!=0);
+		}		
+		else if (strcmp_P(key, SimulatorDoorState)==0) {		// 0 for closed, anything else for open
+			//DEBUG_MSG(PSTR("setting door state to %s"), val);
+			simulator.setSwitch(tempControl.door, strcmp(val, "0")!=0);
+		}
 		else if (strcmp_P(key, PSTR("r"))==0) {
-			DEBUG_MSG(PSTR("setting run factor to %s"), val);
+			//DEBUG_MSG(PSTR("setting run factor to %s"), val);
 			setRunFactor(stringToFixedPoint(val));
 		}
-	}
-	printTemperatures();	
-#endif	
+		else if (!strcmp_P(key, SimulatorPrintInterval)) {
+			printTempInterval = atoi(val);
+		}
+		else if (!strcmp_P(key, SimulatorNoise)) {
+			simulator.setSensorNoise(atof(val));
+		}
+	}		
 }
+
+void PiLink::printDouble(double val)
+{
+	char buf[30];
+	val *= 10000;
+	long l = val;
+	ltoa(l/10000, buf, 10);
+	piLink.print(buf);
+	l = l % 10000;
+	if (l!=0) {
+		piLink.print('.');
+		ltoa(l, buf, 10);
+		piLink.print(buf);
+	}	
+}
+
+void PiLink::sendJsonPair(const char* name, double val)
+{
+	printJsonName(name);
+	printDouble(val);
+}
+
+void PiLink::printSimulatorSettings()
+{
+	printResponse('U');	
+	sendJsonPair(SimulatorRoomTempMin, simulator.getMinRoomTemp());
+	sendJsonPair(SimulatorRoomTempMax, simulator.getMaxRoomTemp());
+	sendJsonPair(SimulatorFridgeVolume, simulator.getFridgeVolume());
+	sendJsonPair(SimulatorBeerVolume, simulator.getBeerVolume());
+	sendJsonPair(SimulatorBeerDensity, simulator.getBeerDensity());
+	sendJsonPair(SimulatorFridgeTemp, simulator.getFridgeTemp());
+	sendJsonPair(SimulatorBeerTemp, simulator.getBeerTemp());
+	sendJsonPair(SimulatorFridgeConnected, simulator.getConnected(tempControl.fridgeSensor) ? "1" : "0");
+	sendJsonPair(SimulatorBeerConnected, simulator.getConnected(tempControl.beerSensor) ? "1" : "0");
+	sendJsonPair(SimulatorHeatPower, (uint16_t)simulator.getHeatPower());
+	sendJsonPair(SimulatorCoolPower, (uint16_t)simulator.getCoolPower());
+	sendJsonPair(SimulatorCoeffRoom, simulator.getRoomCoefficient());
+ 	sendJsonPair(SimulatorCoeffBeer, simulator.getBeerCoefficient());
+	sendJsonPair(SimulatorDoorState, simulator.doorState() ? "1" : "0");
+	sendJsonPair(SimulatorDoorState, printTempInterval);
+  	sendJsonPair(SimulatorNoise, simulator.getSensorNoise());
+		
+	sendJsonClose();		
+}
+
+#endif // brewpi simulate
 
 	

@@ -16,8 +16,7 @@
 
 #if USE_FAST_DIGITAL_PIN
 	#include "DigitalPin.h"
-#else
-	#error gotta be fast!
+#else	
 	#define fastPinMode pinMode
 	#define fastDigitalWrite digitalWrite
 	#define fastDigitalRead digitalRead

@@ -32,7 +32,6 @@
 #include "chamber.h"
 #include "MockTempSensor.h"
 
-
 TempControl tempControl;
 
 #if TEMP_CONTROL_STATIC
@@ -42,7 +41,7 @@ TempSensor* TempControl::fridgeSensor;
 Actuator* TempControl::heater;
 Actuator* TempControl::cooler;
 Actuator* TempControl::light;
-SwitchSensor* TempControl::door;
+ValueSensor<bool>* TempControl::door;
 	
 // Control parameters
 ControlConstants TempControl::cc;

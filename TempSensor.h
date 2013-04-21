@@ -109,12 +109,16 @@ class TempSensor {
 	TempSensorFilter fastFilter;
 	TempSensorFilter slowFilter;
 	TempSensorFilter slopeFilter;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wattributes"
+	
 	BasicTempSensor& _sensor;
+#pragma GCC diagnostic pop
 		
 	friend class ChamberManager;
 	friend class Chamber;	
 };
-
 
 
 #endif /* SENSORS_H_ */

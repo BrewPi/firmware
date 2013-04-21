@@ -430,7 +430,7 @@ float DallasTemperature::calculateTemperature(uint8_t* deviceAddress, uint8_t* s
 // reads scratchpad and returns the temperature in degrees C
 int16_t DallasTemperature::getRawTemperature(uint8_t* deviceAddress, uint8_t* scratchPad) 
 {
-  int16_t rawTemperature = (((int16_t)scratchPad[TEMP_MSB]) << 8) | scratchPad[TEMP_LSB];
+  int16_t rawTemperature = (((int16_t)scratchPad[TEMP_MSB]) << 8) | scratchPad[TEMP_LSB];  
   return rawTemperature;
 }
 

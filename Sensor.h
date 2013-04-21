@@ -25,7 +25,7 @@ public:
 	ValueSensor(T initial) : value(initial) {}
 
 	virtual T sense() {
-		return value;
+		return (T)0;
 	}
 	
 	void setValue(T _value) {

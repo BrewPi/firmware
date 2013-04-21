@@ -134,6 +134,7 @@ enum states{
  * memory references. While the design goes against the grain of typical OO practices, the savings 
  */
 
+
 class TempControl{
 	public:
 	
@@ -197,7 +198,7 @@ class TempControl{
 	TEMP_CONTROL_FIELD Actuator* heater;
 	TEMP_CONTROL_FIELD Actuator* cooler; 
 	TEMP_CONTROL_FIELD Actuator* light;
-	TEMP_CONTROL_FIELD Sensor<bool>* door;
+	TEMP_CONTROL_FIELD ValueSensor<bool>* door;
 	
 	// Control parameters
 	TEMP_CONTROL_FIELD ControlConstants cc;
@@ -222,6 +223,8 @@ class TempControl{
 };
 	
 extern TempControl tempControl;
+
+#if MULTICHAMBER
 
 #if TEMP_CONTROL_STATIC
 class TempControlState
@@ -344,7 +347,7 @@ class TempControlState
 	friend class ChamberManager;
 
 };
-
+#endif // MULTICHAMBER
 
 
 

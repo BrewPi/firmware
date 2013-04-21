@@ -34,9 +34,9 @@ class PiLink{
 	static void printBeerAnnotation(const char * annotation, ...);
 	static void debugMessage(const char * message, ...);
 	static void debugMessageDirect(const char * message, ...);
+	static void printTemperatures(void);
 	
 	private:
-	static void printTemperatures(void);
 	
 	static void sendControlSettings(void);
 	static void receiveControlConstants(void);
@@ -66,7 +66,14 @@ class PiLink{
 	static void printJsonName(const char * name);
 	static void printJsonSeparator();
 	static void sendJsonClose();
+#if BREWPI_SIMULATE	
 	static void updateInputs();
+	public:
+	static void printSimulatorSettings();
+	private:
+	static void sendJsonPair(const char* name, double val);
+	static void printDouble(double val);
+#endif	
 	private:
 	static bool firstPair;
 	

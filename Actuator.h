@@ -50,6 +50,7 @@ public:
 	ValueActuator(bool initial) : state(initial) {}
 
 	ACTUATOR_METHOD void setActive(bool active) { state = active; }
+	ACTUATOR_METHOD bool isActive() { return state; }
 
 private:
 	bool state;	

@@ -44,6 +44,13 @@
 #include "config.h"
 #include "Sensor.h"
 #include "FastDigitalPin.h"
+#include "OneWireActuator.h"
+
+#if BREWPI_SIMULATE
+#include "simulator.h"
+
+Simulator simulator;
+#endif
 
 // global class objects static and defined in class cpp and h files
 
@@ -65,8 +72,8 @@ Display DISPLAY_REF display = realDisplay;
 	MockTempSensor directFridgeSensor(10,10);
 	MockTempSensor directBeerSensor(5,5);
 #elif BREWPI_SIMULATE
-	ExternalTempSensor directFridgeSensor;
-	ExternalTempSensor directBeerSensor;
+	ExternalTempSensor directFridgeSensor(true);
+	ExternalTempSensor directBeerSensor(true);
 #else  // non emulation - use real hardware devices
 	OneWireTempSensor directFridgeSensor(fridgeSensorPin);
 	OneWireTempSensor directBeerSensor(beerSensorPin);
@@ -75,11 +82,12 @@ Display DISPLAY_REF display = realDisplay;
 #if BREWPI_EMULATE || BREWPI_SIMULATE
 	ValueActuator heater;
 	ValueActuator cooler;
-	ValueSensor<bool> door((bool)false);
+	ValueSensor<bool> doorSensor((bool)false);	
 #else	
 	DigitalPinActuator<heatingPin, SHIELD_INVERT> heater;
 	DigitalPinActuator<coolingPin, SHIELD_INVERT> cooler;	
-	DigitalPinSensor<doorPin, SHIELD_INVERT, USE_INTERNAL_PULL_UP_RESISTORS> door;	
+	ValueSensor<bool> doorSensor((bool)false);	
+	//DigitalPinSensor<doorPin, SHIELD_INVERT, USE_INTERNAL_PULL_UP_RESISTORS> doorSensor;	
 #endif
 	
 #if LIGHT_AS_HEATER
@@ -119,6 +127,7 @@ void setup()
 	piLink.init();
 
 	DEBUG_MSG(PSTR("started"));
+	DEBUG_MSG(PSTR("Door at %x %d"), &doorSensor, doorSensor.sense());
 
 #if MULTICHAMBER
 	chamberManager.init();	
@@ -132,15 +141,24 @@ void setup()
 	tempControl.fridgeSensor = &fridgeSensor;
 	tempControl.cooler = &cooler;
 	tempControl.heater = &heater;
-	tempControl.door = &door;
+	tempControl.door = &doorSensor;
 	tempControl.light = &light;
+	DEBUG_MSG(PSTR("TC Door at %x %d"), tempControl.door, tempControl.door->sense());
 
 	tempControl.loadSettingsAndConstants(); //read previous settings from EEPROM
+	DEBUG_MSG(PSTR("TC Door at %x %d"), tempControl.door, tempControl.door->sense());
 	tempControl.init();
+	DEBUG_MSG(PSTR("TC Door at %x %d"), tempControl.door, tempControl.door->sense());
 	tempControl.updatePID();
+	DEBUG_MSG(PSTR("TC Door at %x %d"), tempControl.door, tempControl.door->sense());
 	tempControl.updateState();	
-#endif
+	DEBUG_MSG(PSTR("TC Door at %x %d"), tempControl.door, tempControl.door->sense());
 		
+#endif
+	
+#if BREWPI_SIMULATE
+	simulator.step();
+#endif	
 	display.init();
 	display.printStationaryText();
 	display.printState();
@@ -154,27 +172,37 @@ void setup()
 }
 
 #if BREWPI_SIMULATE
-static fixed7_9 funFactor = 0;
+static fixed7_9 funFactor = 0;	// paused 
 static unsigned long lastUpdate = 0;
+uint8_t printTempInterval = 5;
+
 void setRunFactor(fixed7_9 factor)
 {
 	funFactor = factor>>9;		// for now whole values only
 	lastUpdate = ::millis();
 }	
 
-void updateSimulationTicks() {	
-// I expect accelerated time to be handled externally, since it's much simpler, but for 
-// manual testing, we have the "self-drive" feature here. 
-	if (funFactor) {
+void updateSimulationTicks() 
+{	
+#if BREWPI_EMULATE
+	ticks.incMillis(1000);
+#else	
+	if (funFactor) {		
 		unsigned long now = ::millis();
 		int interval = 1000/funFactor;
 		if (interval>0) {
-			if (now-lastUpdate>=interval) {
+			if ((now-lastUpdate)>=uint16_t(interval)) {
 				lastUpdate += interval;
 				ticks.incMillis(1000);
 			}			
 		}			
+		else
+		{
+			lastUpdate = now;
+			ticks.incMillis(1000);						
+		}
 	}
+#endif	
 }
 
 
@@ -184,7 +212,7 @@ void loop(void)
 {
 	static unsigned long lastUpdate = 0;
 	
-#if BREWPI_SIMULATE		
+#if BREWPI_SIMULATE 
 	// only needed if we want the arduino to be self running. Useful for manual testing, but not so much with an 
 	// external driver. 
 	updateSimulationTicks();	
@@ -201,29 +229,35 @@ void loop(void)
 #else
 	if(ticks.millis() - lastUpdate >= (1000)) { //update settings every second
 #endif		
-		lastUpdate=ticks.millis();
+		lastUpdate+=1000;
 			
-		DEBUG_MSG(PSTR("update TC"));
 		tempControl.updateTemperatures();		
-		DEBUG_MSG(PSTR("update TC peaks"));
 		tempControl.detectPeaks();
-		DEBUG_MSG(PSTR("update TC pid"));
 		tempControl.updatePID();
-		DEBUG_MSG(PSTR("update TC state"));
 		tempControl.updateState();
-		DEBUG_MSG(PSTR("update TC outputs"));
 		tempControl.updateOutputs();
 
-#if MULTICHAMBER		
+#if MULTICHAMBER
 		chamberManager.switchChamber(prev);
 #endif		
 
+#if !BREWPI_SIMULATE		// disable rotary encoder since this stalls output
 		if(rotaryEncoder.pushed()){
 			rotaryEncoder.resetPushed();
 			menu.pickSettingToChange();	
 		}
+#endif
 
-#if MULTI_CHAMBER
+#if BREWPI_SIMULATE && !BREWPI_EMULATE			// simulation on actual hardware
+		static byte updateCount = 0;
+		if (printTempInterval && (++updateCount%printTempInterval)==0) {
+			piLink.printTemperatures();
+			updateCount = 0;
+		}
+
+		static unsigned long lastDisplayUpdate = 0;  // update the display every second
+		if ((::millis()-lastDisplayUpdate)>=1000 && (lastDisplayUpdate+=1000))
+#elif MULTI_CHAMBER
 		if (prev==nextChamber)
 #endif		
 		{
@@ -234,8 +268,19 @@ void loop(void)
 			display.printMode();
 			display.updateBacklight();
 		}
+		
+#if BREWPI_SIMULATE
+		simulator.step();
+#else
+		piLink.printTemperatures();
+#endif		
 	}	
-	//listen for incoming serial connections while waiting top update
+#if BREWPI_SIMULATE && !BREWPI_EMULATE
+	static unsigned long lastCheckSerial = 0;
+	if ((::millis()-lastCheckSerial)>=1000 && (lastCheckSerial=::millis()>0))	// only listen if 1s passed since last time
+#endif	
+	//listen for incoming serial connections while waiting to update
 	piLink.receive();
+
 }
 

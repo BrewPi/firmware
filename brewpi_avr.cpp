@@ -61,7 +61,7 @@ void main(void)
 	setup();
 	
 	for (;;) {
-		loop();
+		loop();		
 		if (serialEventRun) serialEventRun();
 	}
 }
