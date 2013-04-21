@@ -97,8 +97,8 @@ ValueActuator lightOn;	// eventually map the light to a real pin
 Actuator& light = lightOn;
 #endif
 
-TempSensor fridgeSensor(directFridgeSensor);
-TempSensor beerSensor(directBeerSensor);
+TempSensor fridgeSensor(&directFridgeSensor);
+TempSensor beerSensor(&directBeerSensor);
 
 #if MULTICHAMBER
 MockTempSensor directFridgeSensor2(10,10);

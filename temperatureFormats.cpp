@@ -114,7 +114,7 @@ char * fixedPointToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, ui
 	return s;
 }
 
-long int convertAndConstrain(long int rawTemp, byte offset)
+long int convertAndConstrain(long int rawTemp, int offset)
 {
 	if(tempControl.cc.tempFormat == 'F'){
 		rawTemp = ((rawTemp - offset) * 5) / 9; // convert to store as Celsius
@@ -125,7 +125,7 @@ long int convertAndConstrain(long int rawTemp, byte offset)
 fixed7_9 stringToTemp(const char * numberString){
 	fixed23_9 rawTemp = stringToFixedPoint(numberString);
 #ifdef OPTIMIZE_TEMPERATURE_FORMATS_convertAntConstrain	
-	return convertAndConstrain(rawTemp, 32UL<<9);	
+	return convertAndConstrain(rawTemp, 32<<9);
 #else	
 	if(tempControl.cc.tempFormat == 'F'){
 		rawTemp = ((rawTemp - (32 << 9)) * 5) / 9; // convert to store as Celsius

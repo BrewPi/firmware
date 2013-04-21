@@ -60,13 +60,17 @@ public:
 
 class TempSensor {
 	public:
-	TempSensor(BasicTempSensor& sensor) : _sensor(sensor)  {
+	TempSensor(BasicTempSensor* sensor) : _sensor(sensor)  {
 		updateCounter = 255; // first update for slope filter after (255-13s)
 	 }	 	 
+	 
+	 void setSensor(BasicTempSensor* sensor) {
+		 _sensor = sensor;
+	 }
 	
 	void init();
 	
-	bool isConnected() { return _sensor.isConnected(); }
+	bool isConnected() { return _sensor->isConnected(); }
 	
 	void update();
 	
@@ -99,23 +103,17 @@ class TempSensor {
 	}			
 
 	BasicTempSensor& basicTempSensor() {
-		return _sensor;
+		return *_sensor;
 	}
 
 	private:	
-	fixed7_25 prevOutputForSlope;	
-	
-	unsigned char updateCounter;
+	BasicTempSensor* _sensor;
 	TempSensorFilter fastFilter;
 	TempSensorFilter slowFilter;
 	TempSensorFilter slopeFilter;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-compare"
-#pragma GCC diagnostic ignored "-Wattributes"
-	
-	BasicTempSensor& _sensor;
-#pragma GCC diagnostic pop
-		
+	unsigned char updateCounter;
+	fixed7_25 prevOutputForSlope;
+			
 	friend class ChamberManager;
 	friend class Chamber;	
 };

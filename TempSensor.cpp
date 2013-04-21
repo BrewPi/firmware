@@ -24,8 +24,8 @@
 #include "Ticks.h"
 
 void TempSensor::init()
-{	
-	fixed7_9 temperature = _sensor.init();
+{		
+	fixed7_9 temperature = _sensor->init();
 	if (temperature!=DEVICE_DISCONNECTED) {
 		fastFilter.init(temperature);
 		slowFilter.init(temperature);
@@ -36,7 +36,9 @@ void TempSensor::init()
 
 void TempSensor::update()
 {	
-	fixed7_9 temperature = _sensor.read();
+	if (!_sensor) return;
+	
+	fixed7_9 temperature = _sensor->read();
 	if (temperature==DEVICE_DISCONNECTED)
 		return;
 		
