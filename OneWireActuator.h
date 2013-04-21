@@ -13,16 +13,24 @@
 #include "Actuator.h"
 #include "ds2413.h"
 
+/**
+ * An actuator that operates by communicating with a DS2413 device.
+ */
 class OneWireActuator : public Actuator
 {
 public:	
-	void init(OneWire* bus, DeviceAddress& address, pio_t pio) {
-		device.init(bus, address);		
+	void init(OneWire* bus, DeviceAddress& address, pio_t pio, bool invert=true) {
+		this->invert = invert;
+		device.init(bus, address);
 	}
 	
+	void setActive(bool active) {
+		device.channelWrite(pio, active^invert);
+	}		
 			
 private:
-	DS2413 device;	
-	uint8_t pio;
+	DS2413 device;
+	pio_t pio;
+	bool invert;
 };
 
