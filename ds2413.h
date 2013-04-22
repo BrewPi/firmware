@@ -19,22 +19,23 @@ public:
 	}
 
 	/*
-	 * Initializes this ds2413 actuator device.
+	 * Initializes this ds2413 actuator device. 
 	 * /param oneWire The oneWire bus the device is connected to
 	 * /param address The oneWire address of the device to use. If {@code NULL}
-	 *		the first device found that is a ds2413 is used. */
+	 *		the first device found that is a ds2413 is used. 
+	 */
 	void init(OneWire* oneWire, DeviceAddress address=NULL)
 	{
 		this->oneWire = oneWire;
-		if (address!=NULL)		
+		setAddress(address);
+	}
+	
+	void setAddress(DeviceAddress address) {
+		if (address!=NULL)
 			memcpy(this->address, address, sizeof(DeviceAddress));
 		else
-		{
-			getAddress(this->address, 0);
-		}
+			getAddress(this->address, 0);		
 	}
-
-	// returns true if address is valid
 
 	/*
 	 * Determines if the device is connected. Note that the value returned here is potentially state immediately on return,

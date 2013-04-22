@@ -91,10 +91,9 @@ struct ControlConstants{
 	uint8_t beerSlopeFilter;	// for PID calculation
 };
 
-#define EEPROM_IS_INITIALIZED_ADDRESS 0
-#define EEPROM_CONTROL_SETTINGS_ADDRESS (EEPROM_IS_INITIALIZED_ADDRESS+sizeof(uint8_t))
+#define EEPROM_TC_SETTINGS_BASE_ADDRESS 0
+#define EEPROM_CONTROL_SETTINGS_ADDRESS (EEPROM_TC_SETTINGS_BASE_ADDRESS+sizeof(uint8_t))
 #define EEPROM_CONTROL_CONSTANTS_ADDRESS (EEPROM_CONTROL_SETTINGS_ADDRESS+sizeof(ControlSettings))
-#define EEPROM_CONTROL_BLOCK_SIZE sizeof(uint8_t)+(sizeof(ControlSettings)+sizeof(ControlConstants))
 
 #define	MODE_FRIDGE_CONSTANT 'f'
 #define MODE_BEER_CONSTANT 'b'
@@ -138,10 +137,8 @@ enum states{
 class TempControl{
 	public:
 	
-	TempControl(){
-	};
-	~TempControl(){
-	};
+	TempControl(){};
+	~TempControl(){};
 	
 	TEMP_CONTROL_METHOD void init(void);
 	TEMP_CONTROL_METHOD void reset(void);
@@ -198,7 +195,7 @@ class TempControl{
 	TEMP_CONTROL_FIELD Actuator* heater;
 	TEMP_CONTROL_FIELD Actuator* cooler; 
 	TEMP_CONTROL_FIELD Actuator* light;
-	TEMP_CONTROL_FIELD ValueSensor<bool>* door;
+	TEMP_CONTROL_FIELD Sensor<bool>* door;
 	
 	// Control parameters
 	TEMP_CONTROL_FIELD ControlConstants cc;

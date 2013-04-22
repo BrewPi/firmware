@@ -10,6 +10,7 @@
 #include "PiLink.h"
 #include "Ticks.h"
 
+
 fixed7_9 OneWireTempSensor::init(){
 	
 	if (oneWire==NULL)
@@ -23,11 +24,9 @@ fixed7_9 OneWireTempSensor::init(){
 		}			
 	}
 	
-	// give reset pulse to temp sensors
-	oneWire->reset();
-
 	DEBUG_MSG(PSTR("Fetching address for sensor %d"), pinNr);
 
+	
 	// get sensor address
 	if (!sensor->getAddress(sensorAddress, 0)){
 		// error no sensor found

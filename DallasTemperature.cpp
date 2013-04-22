@@ -59,21 +59,24 @@ bool DallasTemperature::validAddress(uint8_t* deviceAddress)
   return (_wire->crc8(deviceAddress, 7) == deviceAddress[7]);
 }
 
-// finds an address at a given index on the bus
+// finds an address at a given index on the bus, matching the DS temperature probe family
 // returns true if the device was found
 bool DallasTemperature::getAddress(uint8_t* deviceAddress, uint8_t index)
-{
-  uint8_t depth = 0;
-
-  _wire->reset_search();
-
-  while (depth <= index && _wire->search(deviceAddress))
-  {
-    if (depth == index && validAddress(deviceAddress)) return true;
-    depth++;
-  }
-
-  return false;
+{	
+	_wire->reset_search();
+	
+	for (uint8_t pos = 0; deviceAddress[0] = 0, _wire->search(deviceAddress); )
+	{
+		switch (deviceAddress[0]) {
+			case DS18S20MODEL:
+			case DS18B20MODEL:
+			case DS1822MODEL:		
+				if (pos++ == index)
+					return validAddress(deviceAddress);
+				break;
+			}		
+	}
+	return false;
 }
 
 // attempt to determine if the device at the given address is connected to the bus

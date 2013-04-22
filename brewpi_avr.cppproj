@@ -21,8 +21,7 @@
     <OverrideVtorValue />
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <AsfVersion>3.1.3</AsfVersion>
-    <avrtool>
-    </avrtool>
+    <avrtool>com.atmel.avrdbg.tool.simulator</avrtool>
     <avrtoolinterface>
     </avrtoolinterface>
     <com_atmel_avrdbg_tool_avrdragon>
@@ -65,7 +64,7 @@
       </OverrideVtorValue>
       <Channel>
         <host>127.0.0.1</host>
-        <port>60189</port>
+        <port>53767</port>
         <ssl>False</ssl>
       </Channel>
     </com_atmel_avrdbg_tool_simulator>
@@ -136,7 +135,7 @@
   <avrgcccpp.compiler.optimization.DebugLevel>Maximum (-g3)</avrgcccpp.compiler.optimization.DebugLevel>
   <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
   <avrgcccpp.compiler.warnings.WarningsAsErrors>True</avrgcccpp.compiler.warnings.WarningsAsErrors>
-  <avrgcccpp.compiler.miscellaneous.OtherFlags>-fno-exceptions -ffreestanding</avrgcccpp.compiler.miscellaneous.OtherFlags>
+  <avrgcccpp.compiler.miscellaneous.OtherFlags>-fno-exceptions -ffreestanding -std=c++0x</avrgcccpp.compiler.miscellaneous.OtherFlags>
   <avrgcccpp.linker.libraries.Libraries>
     <ListValues>
       <Value>m</Value>
@@ -201,6 +200,12 @@
     <Compile Include="DallasTemperature.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="DeviceManager.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="DeviceManager.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="DigitalPin.h">
       <SubType>compile</SubType>
     </Compile>
@@ -217,6 +222,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="ds2413.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="EepromManager.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="ExternalTempSensor.h">
@@ -286,6 +294,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Sensor.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="SettingsManager.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="simulator.h">

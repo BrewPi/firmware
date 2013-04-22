@@ -56,12 +56,11 @@ private:
 	bool state;	
 };
 
-
 template<uint8_t pin, bool invert> 
-class DigitalPinActuator ACTUATOR_BASE_CLASS_DECL
+class DigitalConstantPinActuator ACTUATOR_BASE_CLASS_DECL
 {
 	public:
-	DigitalPinActuator()
+	DigitalConstantPinActuator()
 	{
 		fastPinMode(pin, OUTPUT);
 		fastDigitalWrite(pin, invert ? HIGH : LOW);

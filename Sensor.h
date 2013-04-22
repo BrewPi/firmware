@@ -43,10 +43,10 @@ typedef Sensor<bool> SwitchSensor;
   By using a template, the compiler can inline and optimize the call to digitalRead to a single instruction.
 */
 template<uint8_t pin, bool invert, bool internalPullup> 
-class DigitalPinSensor : public SwitchSensor
+class DigitalConstantPinSensor : public SwitchSensor
 {
 	public:
-	DigitalPinSensor() {
+	DigitalConstantPinSensor() {
 		fastPinMode(pin, internalPullup ? INPUT_PULLUP : INPUT);
 	}
 	

@@ -18,9 +18,12 @@ class OneWire;
 
 class OneWireTempSensor : public BasicTempSensor {
 public:	
-	OneWireTempSensor(uint8_t pinNumber) : pinNr(pinNumber), oneWire(NULL), sensor(NULL) {		
+	OneWireTempSensor(uint8_t pinNumber, DeviceAddress address=NULL) : pinNr(pinNumber), oneWire(NULL), sensor(NULL) {		
 		lastRequestTime = 0;
-		connected = 0;
+		connected = 0;	
+		autoAddress = address==NULL;
+		if (address)
+			memcpy(sensorAddress, address, sizeof(*address));
 	};
 	
 	~OneWireTempSensor(){
@@ -37,6 +40,7 @@ public:
 	
 	private:
 	bool connected;
+	bool autoAddress;
 	const uint8_t pinNr;
 	unsigned long lastRequestTime; // in milliseconds
 	

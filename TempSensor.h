@@ -60,7 +60,7 @@ public:
 
 class TempSensor {
 	public:
-	TempSensor(BasicTempSensor* sensor) : _sensor(sensor)  {
+	TempSensor(BasicTempSensor* sensor =NULL) : _sensor(sensor)  {
 		updateCounter = 255; // first update for slope filter after (255-13s)
 	 }	 	 
 	 

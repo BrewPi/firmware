@@ -52,6 +52,8 @@
 Simulator simulator;
 #endif
 
+#include "SettingsManager.h"
+
 // global class objects static and defined in class cpp and h files
 
 // instantiate and configure the sensors, actuators and controllers we want to use
@@ -68,59 +70,6 @@ DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 DisplayType realDisplay;
 Display DISPLAY_REF display = realDisplay;
 
-#if BREWPI_EMULATE	// use in-memory/emulated devices
-	MockTempSensor directFridgeSensor(10,10);
-	MockTempSensor directBeerSensor(5,5);
-#elif BREWPI_SIMULATE
-	ExternalTempSensor directFridgeSensor(true);
-	ExternalTempSensor directBeerSensor(true);
-#else  // non emulation - use real hardware devices
-	OneWireTempSensor directFridgeSensor(fridgeSensorPin);
-	OneWireTempSensor directBeerSensor(beerSensorPin);
-#endif
-
-#if BREWPI_EMULATE || BREWPI_SIMULATE
-	ValueActuator heater;
-	ValueActuator cooler;
-	ValueSensor<bool> doorSensor((bool)false);	
-#else	
-	DigitalPinActuator<heatingPin, SHIELD_INVERT> heater;
-	DigitalPinActuator<coolingPin, SHIELD_INVERT> cooler;	
-	ValueSensor<bool> doorSensor((bool)false);	
-	//DigitalPinSensor<doorPin, SHIELD_INVERT, USE_INTERNAL_PULL_UP_RESISTORS> doorSensor;	
-#endif
-	
-#if LIGHT_AS_HEATER
-Actuator& light = heater;
-#else
-ValueActuator lightOn;	// eventually map the light to a real pin
-Actuator& light = lightOn;
-#endif
-
-TempSensor fridgeSensor(&directFridgeSensor);
-TempSensor beerSensor(&directBeerSensor);
-
-#if MULTICHAMBER
-MockTempSensor directFridgeSensor2(10,10);
-MockTempSensor directBeerSensor2(5,5);
-#if 1
-TempSensor fridgeSensor2(directFridgeSensor2);
-TempSensor beerSensor2(directBeerSensor2);
-#if 1 || BREWPI_EMULATE		// use emulator for now until we get multi-define one wire
-	ValueActuator heat2;
-	ValueActuator cool2;		
-#endif
-#endif
-Chamber c1(fridgeSensor, beerSensor, cooler, heater, light, door);
-Chamber c2(fridgeSensor2, beerSensor2, cool2, heat2, light, door);
-
-Chamber* chambers[] = {
-	&c1
-	, &c2
-};
-
-ChamberManager chamberManager(chambers, sizeof(chambers)/sizeof(chambers[0]));
-#endif
 
 void setup()
 {
@@ -129,32 +78,7 @@ void setup()
 	DEBUG_MSG(PSTR("started"));
 	DEBUG_MSG(PSTR("Door at %x %d"), &doorSensor, doorSensor.sense());
 
-#if MULTICHAMBER
-	chamberManager.init();	
-	for (chamber_id i=0; i<chamberManager.chamberCount(); i++) {
-		chamberManager.initChamber(i);
-		piLink.printFridgeAnnotation(PSTR("Arduino restarted. Chamber %d ready!"), i+1);
-	}
-	chamberManager.switchChamber(0);
-#else
-	tempControl.beerSensor = &beerSensor;
-	tempControl.fridgeSensor = &fridgeSensor;
-	tempControl.cooler = &cooler;
-	tempControl.heater = &heater;
-	tempControl.door = &doorSensor;
-	tempControl.light = &light;
-	DEBUG_MSG(PSTR("TC Door at %x %d"), tempControl.door, tempControl.door->sense());
-
-	tempControl.loadSettingsAndConstants(); //read previous settings from EEPROM
-	DEBUG_MSG(PSTR("TC Door at %x %d"), tempControl.door, tempControl.door->sense());
-	tempControl.init();
-	DEBUG_MSG(PSTR("TC Door at %x %d"), tempControl.door, tempControl.door->sense());
-	tempControl.updatePID();
-	DEBUG_MSG(PSTR("TC Door at %x %d"), tempControl.door, tempControl.door->sense());
-	tempControl.updateState();	
-	DEBUG_MSG(PSTR("TC Door at %x %d"), tempControl.door, tempControl.door->sense());
-		
-#endif
+	settingsManager.init();
 	
 #if BREWPI_SIMULATE
 	simulator.step();

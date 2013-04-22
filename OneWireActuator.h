@@ -19,8 +19,9 @@
 class OneWireActuator : public Actuator
 {
 public:	
-	void init(OneWire* bus, DeviceAddress& address, pio_t pio, bool invert=true) {
+	void init(OneWire* bus, DeviceAddress address, pio_t pio, bool invert=true) {
 		this->invert = invert;
+		
 		device.init(bus, address);
 	}
 	

@@ -31,6 +31,7 @@
 #include "Ticks.h"
 #include "chamber.h"
 #include "MockTempSensor.h"
+#include "EepromManager.h"
 
 TempControl tempControl;
 
@@ -41,7 +42,7 @@ TempSensor* TempControl::fridgeSensor;
 Actuator* TempControl::heater;
 Actuator* TempControl::cooler;
 Actuator* TempControl::light;
-ValueSensor<bool>* TempControl::door;
+Sensor<bool>* TempControl::door;
 	
 // Control parameters
 ControlConstants TempControl::cc;
@@ -65,9 +66,6 @@ unsigned int TempControl::lastCoolTime;
 void TempControl::init(void){
 	state=STARTUP;	
 	
-	if ((EEPROM_CONTROL_BLOCK_SIZE*CHAMBER_COUNT)>1024) {
-		DEBUG_MSG(PSTR("EEPROM space exhausted - required %d bytes"),EEPROM_CONTROL_BLOCK_SIZE*CHAMBER_COUNT+1);
-	}
 	beerSensor->init();
 	fridgeSensor->init();
 	updateTemperatures();
@@ -257,7 +255,7 @@ void TempControl::updateOutputs(void) {
 	heater->setActive(state==HEATING);
 	light->setActive(state==DOOR_OPEN);
 #endif		
-// todo - factor out doorOpen state so it is independent of the temp control state.
+// todo - factor out doorOpen state so it is independent of the temp control state. That way, opening/closing the door doesn't affect compressor operation.
 }
 
 void TempControl::detectPeaks(void){  
@@ -402,33 +400,33 @@ uint16_t TempControl::timeSinceIdle(void){
 	return timeSinceLastOn;
 }
 
-// write new settings to EEPROM to be able to reload them after a reset
-// The update functions only write to EEPROM if the value has changed
-void TempControl::storeSettings(void){
-	eeprom_update_block((void *) &cs, (void *) (EEPROM_CONTROL_SETTINGS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER), sizeof(ControlSettings));		
-	storedBeerSetting = cs.beerSetting;
-}	
-
-void TempControl::loadSettings(void){
-	eeprom_read_block((void *) &cs, (void *) (EEPROM_CONTROL_SETTINGS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER), sizeof(ControlSettings));
-}
-
 void TempControl::loadDefaultSettings(void){
-	cs.mode = MODE_BEER_CONSTANT;
+	cs.mode = MODE_OFF;				// the default should be off since this is fail-safe.
 	cs.beerSetting = 20<<9;;
 	cs.fridgeSetting = 20<<9;
 	cs.heatEstimator = 102; // 0.2*2^9
 	cs.coolEstimator=5<<9;
-	storeSettings();
 }
 
-void TempControl::storeConstants(void){
+void TempControl::storeConstants(void){	
 	eeprom_update_block((void *) &cc, (void *) (EEPROM_CONTROL_CONSTANTS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER), sizeof(ControlConstants));
 }
 
 void TempControl::loadConstants(void){
 	eeprom_read_block((void *) &cc, (void *) (EEPROM_CONTROL_CONSTANTS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER), sizeof(ControlConstants));
 }
+
+// write new settings to EEPROM to be able to reload them after a reset
+// The update functions only write to EEPROM if the value has changed
+void TempControl::storeSettings(void){
+	eeprom_update_block((void *) &cs, (void *) (EEPROM_CONTROL_SETTINGS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER), sizeof(ControlSettings));
+	storedBeerSetting = cs.beerSetting;
+}
+
+void TempControl::loadSettings(void){
+	eeprom_read_block((void *) &cs, (void *) (EEPROM_CONTROL_SETTINGS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER), sizeof(ControlSettings));
+}
+
 
 void TempControl::loadDefaultConstants(void){
 	cc.tempFormat = 'C';
@@ -470,11 +468,11 @@ void TempControl::loadDefaultConstants(void){
 	beerSensor->setSlowFilterCoefficients(cc.beerSlowFilter);
 	cc.beerSlopeFilter = 4u;
 	beerSensor->setSlopeFilterCoefficients(cc.beerSlopeFilter);
-	storeConstants();
 }
 
+// this is only called during startup - move into SettingsManager
 void TempControl::loadSettingsAndConstants(void){
-	uint16_t offset = EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER+EEPROM_IS_INITIALIZED_ADDRESS;
+	uint16_t offset = EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER+EEPROM_TC_SETTINGS_BASE_ADDRESS;
 	if(eeprom_read_byte((unsigned char*) offset) != 1){
 		// EEPROM is not initialized, use default settings
 		loadDefaultSettings();
