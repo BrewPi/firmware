@@ -25,8 +25,8 @@
 
 typedef unsigned long ticks_millis_t;
 typedef unsigned long ticks_micros_t;
-typedef unsigned int ticks_seconds_t;
-typedef unsigned char ticks_seconds_tiny_t;
+typedef uint16_t ticks_seconds_t;
+typedef uint8_t ticks_seconds_tiny_t;
 
 class Ticks {
 	
@@ -39,10 +39,12 @@ public:
 	ticks_millis_t millis() { return _ticks+=_increment; }
 	ticks_micros_t micros() { return _ticks+=_increment; }	
 	ticks_seconds_t seconds() { return millis()>>10; }	
+	ticks_seconds_t timeSince(ticks_seconds_t timeStamp);
 private:
 
 	uint32_t _increment;
 	uint32_t _ticks;			
+	static ticks_seconds_t timeSince(ticks_seconds_t timeStamp);
 };
 
 /**

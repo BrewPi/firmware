@@ -1,4 +1,4 @@
-/*
+	/*
  * Copyright 2012 BrewPi/Elco Jacobs.
  *
  * This file is part of BrewPi.
@@ -362,44 +362,23 @@ void TempControl::decreaseEstimator(fixed7_9 * estimator, fixed7_9 error){
 }
 
 uint16_t TempControl::timeSinceCooling(void){
-	uint16_t currentTime = ticks.seconds();
-	uint16_t timeSinceLastOn;
-	if(currentTime>=lastCoolTime){
-		timeSinceLastOn = currentTime - lastCoolTime;
-	}
-	else{
-		// overflow has occurred
-		timeSinceLastOn = (currentTime + 1440) - (lastCoolTime +1440); // add a day to both for calculation
-	}
-	return timeSinceLastOn;
+	return ticks.timeSince(lastCoolTime);
 }
 
 uint16_t TempControl::timeSinceHeating(void){
-	uint16_t currentTime = ticks.seconds();
-	uint16_t timeSinceLastOn;
-	if(currentTime>=lastHeatTime){
-		timeSinceLastOn = currentTime - lastHeatTime;
-	}
-	else{
-		// overflow has occurred
-		timeSinceLastOn = (currentTime + 1440) - (lastHeatTime +1440); // add a day to both for calculation
-	}
-	return timeSinceLastOn;
+	return ticks.timeSince(lastHeatTime);
 }
 
 uint16_t TempControl::timeSinceIdle(void){
-	uint16_t currentTime = ticks.seconds();
-	uint16_t timeSinceLastOn;
-	if(currentTime>=lastIdleTime){
-		timeSinceLastOn = currentTime - lastIdleTime;
-	}
-	else{
-		// overflow has occurred
-		timeSinceLastOn = (currentTime + 1440) - (lastIdleTime +1440); // add a day to both for calculation
-	}
-	return timeSinceLastOn;
+	return ticks.timeSince(lastIdleTime);
 }
 
+	fridgeSensor.setFastFilterCoefficients(cc.fridgeFastFilter);
+	fridgeSensor.setSlowFilterCoefficients(cc.fridgeSlowFilter);
+	fridgeSensor.setSlopeFilterCoefficients(cc.fridgeSlopeFilter);
+	beerSensor.setFastFilterCoefficients(cc.beerFastFilter);
+	beerSensor.setSlowFilterCoefficients(cc.beerSlowFilter);
+	beerSensor.setSlopeFilterCoefficients(cc.beerSlopeFilter);
 void TempControl::loadDefaultSettings(void){
 	cs.mode = MODE_OFF;				// the default should be off since this is fail-safe.
 	cs.beerSetting = 20<<9;;
