@@ -350,7 +350,8 @@ void TempControl::increaseEstimator(fixed7_9 * estimator, fixed7_9 error){
 	byte max = byte((INT_MAX*512L)>>24);
 	byte upper = byte(newEstimator>>24);
 	*estimator = upper>max ? INT_MAX : newEstimator>>8; // shift back to normal precision
-	storeSettings();
+	
+	eepromManager.storeTempSettings();
 }
 
 // Decrease estimator at least 16.7% (1/1.2), max 33.3% (1/1.5)
@@ -358,7 +359,7 @@ void TempControl::decreaseEstimator(fixed7_9 * estimator, fixed7_9 error){
 	fixed23_9 factor = 426 + constrain(error>>5, -85, 0); // 0.833 + 3.1% of error, limit between 0.667 and 0.833
 	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;
 	*estimator = newEstimator>>8; // shift back to normal precision
-	storeSettings();
+	eepromManager.storeTempSettings();
 }
 
 uint16_t TempControl::timeSinceCooling(void){
@@ -373,7 +374,7 @@ uint16_t TempControl::timeSinceIdle(void){
 	return ticks.timeSince(lastIdleTime);
 }
 
-void TempControl::loadDefaultSettings(void){
+void TempControl::loadDefaultSettings(){
 	cs.mode = MODE_OFF;				// the default should be off since this is fail-safe.
 	cs.beerSetting = 20<<9;;
 	cs.fridgeSetting = 20<<9;
@@ -381,24 +382,33 @@ void TempControl::loadDefaultSettings(void){
 	cs.coolEstimator=5<<9;
 }
 
-void TempControl::storeConstants(void){	
-	eeprom_update_block((void *) &cc, (void *) (EEPROM_CONTROL_CONSTANTS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER), sizeof(ControlConstants));
+uint8_t TempControl::storeConstants(eptr_t offset){	
+	if (offset)
+		eepromAccess.writeBlock(offset, (void *) &cc, sizeof(ControlConstants));
+	return sizeof(ControlConstants);
 }
 
-void TempControl::loadConstants(void){
-	eeprom_read_block((void *) &cc, (void *) (EEPROM_CONTROL_CONSTANTS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER), sizeof(ControlConstants));
+uint8_t TempControl::loadConstants(eptr_t offset){
+	eepromAccess.readBlock((void *) &cc, offset, sizeof(ControlConstants));
 	constantsChanged();
+	return sizeof(ControlConstants);
 }
 
 // write new settings to EEPROM to be able to reload them after a reset
 // The update functions only write to EEPROM if the value has changed
-void TempControl::storeSettings(void){
-	eeprom_update_block((void *) &cs, (void *) (EEPROM_CONTROL_SETTINGS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER), sizeof(ControlSettings));
-	storedBeerSetting = cs.beerSetting;
+uint8_t TempControl::storeSettings(eptr_t offset){
+	if (offset)
+	{
+		eepromAccess.writeBlock(offset, (void *) &cs, sizeof(ControlSettings));
+		storedBeerSetting = cs.beerSetting;
+	}		
+	return sizeof(ControlSettings);
 }
 
-void TempControl::loadSettings(void){
-	eeprom_read_block((void *) &cs, (void *) (EEPROM_CONTROL_SETTINGS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER), sizeof(ControlSettings));	
+uint8_t TempControl::loadSettings(eptr_t offset){
+	if (offset)
+		eepromAccess.readBlock((void *) &cs, offset, sizeof(ControlSettings));	
+	return sizeof(ControlSettings);
 }
 
 
@@ -449,6 +459,7 @@ void TempControl::constantsChanged()
 	beerSensor->setSlopeFilterCoefficients(cc.beerSlopeFilter);	
 }
 
+#if 0
 // this is only called during startup - move into SettingsManager
 void TempControl::loadSettingsAndConstants(void){
 	uint16_t offset = EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER+EEPROM_TC_SETTINGS_BASE_ADDRESS;
@@ -463,6 +474,7 @@ void TempControl::loadSettingsAndConstants(void){
 		loadConstants();
 	}
 }
+#endif
 
 void TempControl::setMode(char newMode){
 	if(newMode != cs.mode){
@@ -473,7 +485,7 @@ void TempControl::setMode(char newMode){
 		cs.beerSetting = INT_MIN;
 		cs.fridgeSetting = INT_MIN;
 	}
-	storeSettings();
+	eepromManager.storeTempSettings();
 	}
 }
 
@@ -504,14 +516,15 @@ void TempControl::setBeerTemp(int newTemp){
 	if(abs(storedBeerSetting - newTemp) > 128){ // more than half a degree C difference with EEPROM
 		// Do not store settings every time, because EEPROM has limited number of write cycles.
 		// If Raspberry Pi is connected, it will update the settings anyway. This is just a safety feature.
-		storeSettings();
+		eepromManager.storeTempSettings();
 	}		
 }
 
+// todo - this method is called many times while manually changing the fridge temp using the rotary encoder.
+// Seems to hit the eeprom quite a bit.
 void TempControl::setFridgeTemp(int newTemp){
 	cs.fridgeSetting = newTemp;
 	reset(); // reset peak detection and PID
 	updatePID();
-	updateState();
-	storeSettings();
+	updateState();	
 }

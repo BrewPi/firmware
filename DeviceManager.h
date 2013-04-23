@@ -35,7 +35,7 @@ extern DeviceManager deviceManager;
 /*
  * Describes the logical function of each device. 
  */
-enum DeviceID : uint8_t { 
+enum class DeviceID : uint8_t { 
 	none = 0,								// used as a sentry to mark end of list
 	chamberDoor,							// binary sensor
 	chamberHeat, chamberCool, chamberLight,	// binary actuator	
@@ -60,19 +60,19 @@ enum DeviceClass {
 
 inline DeviceClass deviceClass(DeviceID id) {
 	switch (id) {
-	case chamberDoor:
+	case DeviceID::chamberDoor:
 		return SWITCH_SENSOR;
 		
-	case chamberHeat:
-	case chamberCool:
-	case chamberLight:
-	case beerHeat:
-	case beerCool:
+	case DeviceID::chamberHeat:
+	case DeviceID::chamberCool:
+	case DeviceID::chamberLight:
+	case DeviceID::beerHeat:
+	case DeviceID::beerCool:
 		return SWITCH_ACTUATOR;
 		
-	case chamberTemp:
-	case externalTemp:
-	case beerTemp:
+	case DeviceID::chamberTemp:
+	case DeviceID::externalTemp:
+	case DeviceID::beerTemp:
 		return TEMP_SENSOR;
 		
 	default: 

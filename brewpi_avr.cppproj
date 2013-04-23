@@ -224,6 +224,9 @@
     <Compile Include="ds2413.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="EepromManager.cpp">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="EepromManager.h">
       <SubType>compile</SubType>
     </Compile>

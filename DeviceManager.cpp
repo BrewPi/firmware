@@ -21,7 +21,7 @@ void DeviceManager::loadDefaultDevices()
 	tempControl.door = new DigitalConstantPinSensor<doorPin, SHIELD_INVERT, USE_INTERNAL_PULL_UP_RESISTORS>();
 	tempControl.light = tempControl.heater;				
 		
-	tempControl.loadSettingsAndConstants(); //read previous settings from EEPROM
+	//tempControl.loadSettingsAndConstants(); //read previous settings from EEPROM
 	tempControl.init();
 	tempControl.updatePID();
 	tempControl.updateState();

@@ -26,6 +26,7 @@
 #include "temperatureFormats.h"
 #include "Actuator.h"
 #include "Sensor.h"
+#include "EepromManager.h"
 
 // Set minimum off time to prevent short cycling the compressor in seconds
 #define MIN_COOL_OFF_TIME 300u
@@ -149,15 +150,15 @@ class TempControl{
 	TEMP_CONTROL_METHOD void updateOutputs(void);
 	TEMP_CONTROL_METHOD void detectPeaks(void);
 	
-	TEMP_CONTROL_METHOD void loadSettings(void);
-	TEMP_CONTROL_METHOD void storeSettings(void);
+	TEMP_CONTROL_METHOD uint8_t loadSettings(eptr_t offset);
+	TEMP_CONTROL_METHOD uint8_t storeSettings(eptr_t offset);
 	TEMP_CONTROL_METHOD void loadDefaultSettings(void);
 	
-	TEMP_CONTROL_METHOD void loadConstants(void);
-	TEMP_CONTROL_METHOD void storeConstants(void);
+	TEMP_CONTROL_METHOD uint8_t loadConstants(eptr_t offset);
+	TEMP_CONTROL_METHOD uint8_t storeConstants(eptr_t offset);
 	TEMP_CONTROL_METHOD void loadDefaultConstants(void);
 	
-	TEMP_CONTROL_METHOD void loadSettingsAndConstants(void);
+	//TEMP_CONTROL_METHOD void loadSettingsAndConstants(void);
 		
 	TEMP_CONTROL_METHOD uint16_t timeSinceCooling(void);
  	TEMP_CONTROL_METHOD uint16_t timeSinceHeating(void);

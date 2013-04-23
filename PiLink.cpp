@@ -525,8 +525,7 @@ void PiLink::receiveJson(void){
 		
 		if(character == '}'){
 			// this was the last pair.
-			tempControl.storeSettings(); // store new settings to EEPROM
-			tempControl.storeConstants();
+			eepromManager.storeTempConstantsAndSettings();
 #if !BREWPI_SIMULATE  // this is quite an overhead and not needed for the simulator
 			sendControlSettings(); // update script with new settings
 			sendControlConstants();

@@ -28,11 +28,11 @@ public:
 	void init() {
 		
 		eepromManager.init();
-		void* pv = eepromManager.chamberIterator();
+		eptr_t pv = eepromManager.startSettings();		// begin iteration
 		if (pv) {			
-			// for now, assume 1 chamber. Will add loping later to support multiple chambers
+			// for now, assume 1 chamber. Will add a while loping later to support multiple chambers
 			eepromManager.applySettings(pv);
-			pv = eepromManager.nextSettings();
+			pv = eepromManager.nextSettings(pv);
 			assert(pv==NULL);
 		}
 		else {
