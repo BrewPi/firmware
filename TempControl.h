@@ -187,7 +187,7 @@ class TempControl{
 	private:
 	TEMP_CONTROL_METHOD void increaseEstimator(fixed7_9 * estimator, fixed7_9 error);
 	TEMP_CONTROL_METHOD void decreaseEstimator(fixed7_9 * estimator, fixed7_9 error);
-		
+	TEMP_CONTROL_METHOD void constantsChanged();
 		
 	public:
 	TEMP_CONTROL_FIELD TempSensor* beerSensor;

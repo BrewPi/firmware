@@ -373,12 +373,6 @@ uint16_t TempControl::timeSinceIdle(void){
 	return ticks.timeSince(lastIdleTime);
 }
 
-	fridgeSensor.setFastFilterCoefficients(cc.fridgeFastFilter);
-	fridgeSensor.setSlowFilterCoefficients(cc.fridgeSlowFilter);
-	fridgeSensor.setSlopeFilterCoefficients(cc.fridgeSlopeFilter);
-	beerSensor.setFastFilterCoefficients(cc.beerFastFilter);
-	beerSensor.setSlowFilterCoefficients(cc.beerSlowFilter);
-	beerSensor.setSlopeFilterCoefficients(cc.beerSlopeFilter);
 void TempControl::loadDefaultSettings(void){
 	cs.mode = MODE_OFF;				// the default should be off since this is fail-safe.
 	cs.beerSetting = 20<<9;;
@@ -393,6 +387,7 @@ void TempControl::storeConstants(void){
 
 void TempControl::loadConstants(void){
 	eeprom_read_block((void *) &cc, (void *) (EEPROM_CONTROL_CONSTANTS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER), sizeof(ControlConstants));
+	constantsChanged();
 }
 
 // write new settings to EEPROM to be able to reload them after a reset
@@ -403,7 +398,7 @@ void TempControl::storeSettings(void){
 }
 
 void TempControl::loadSettings(void){
-	eeprom_read_block((void *) &cs, (void *) (EEPROM_CONTROL_SETTINGS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER), sizeof(ControlSettings));
+	eeprom_read_block((void *) &cs, (void *) (EEPROM_CONTROL_SETTINGS_ADDRESS+EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER), sizeof(ControlSettings));	
 }
 
 
@@ -436,17 +431,22 @@ void TempControl::loadDefaultConstants(void){
 	// Set filter coefficients. This is the b value. See FixedFilter.h for delay times.
 	// The delay time is 3.33 * 2^b * number of cascades
 	cc.fridgeFastFilter = 1u;
-	fridgeSensor->setFastFilterCoefficients(cc.fridgeFastFilter);
 	cc.fridgeSlowFilter = 4u;
-	fridgeSensor->setSlowFilterCoefficients(cc.fridgeSlowFilter);
 	cc.fridgeSlopeFilter = 3u;
-	fridgeSensor->setSlopeFilterCoefficients(cc.fridgeSlopeFilter);
 	cc.beerFastFilter = 3u;
-	beerSensor->setFastFilterCoefficients(cc.beerFastFilter);
 	cc.beerSlowFilter = 5u;
-	beerSensor->setSlowFilterCoefficients(cc.beerSlowFilter);
 	cc.beerSlopeFilter = 4u;
-	beerSensor->setSlopeFilterCoefficients(cc.beerSlopeFilter);
+	constantsChanged();
+}
+
+void TempControl::constantsChanged()
+{
+	fridgeSensor->setFastFilterCoefficients(cc.fridgeFastFilter);
+	fridgeSensor->setSlowFilterCoefficients(cc.fridgeSlowFilter);
+	fridgeSensor->setSlopeFilterCoefficients(cc.fridgeSlopeFilter);
+	beerSensor->setFastFilterCoefficients(cc.beerFastFilter);
+	beerSensor->setSlowFilterCoefficients(cc.beerSlowFilter);
+	beerSensor->setSlopeFilterCoefficients(cc.beerSlopeFilter);	
 }
 
 // this is only called during startup - move into SettingsManager
