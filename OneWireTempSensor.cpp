@@ -10,30 +10,25 @@
 #include "PiLink.h"
 #include "Ticks.h"
 
-
 fixed7_9 OneWireTempSensor::init(){
 	
-	if (oneWire==NULL)
-	{
-		oneWire = new OneWire(pinNr);
+	if (sensor==NULL) {
 		sensor = new DallasTemperature(oneWire);
-		if (oneWire==NULL || sensor==NULL) {			
-			if (oneWire) delete oneWire;
+		if (oneWire==NULL) {
 			DEBUG_MSG(PSTR("Not enough SRAM for temp sensors"));
 			return DEVICE_DISCONNECTED;
-		}			
+		}
 	}
 	
-	DEBUG_MSG(PSTR("Fetching address for sensor %d"), pinNr);
-
+	// todo - move this out to device manager?
 	
 	// get sensor address
-	if (!sensor->getAddress(sensorAddress, 0)){
+	if (!sensorAddress[0] && !sensor->getAddress(sensorAddress, 0)){
 		// error no sensor found
-		DEBUG_MSG(PSTR("No address for sensor %d"), pinNr);
+		DEBUG_MSG(PSTR("No address for sensor"));
 		if(ticks.seconds() < 4){
 			// only log this debug message at startup
-			piLink.debugMessage(PSTR("Unable to find address for sensor on pin %d"), pinNr);
+			piLink.debugMessage(PSTR("Unable to find address for sensor"));
 		}
 		return DEVICE_DISCONNECTED;
 	}
@@ -81,7 +76,7 @@ fixed7_9 OneWireTempSensor::read(){
 	if(temperature == DEVICE_DISCONNECTED){
 		// device disconnected. Don't update filters.  Log a debug message.
 		if(connected == true){
-			piLink.debugMessage(PSTR("Temperature sensor on pin %d disconnected"), pinNr);
+			piLink.debugMessage(PSTR("Temperature sensor disconnected"));
 		}
 		connected = false;
 		return DEVICE_DISCONNECTED;
@@ -90,7 +85,7 @@ fixed7_9 OneWireTempSensor::read(){
 		if(connected == false){
 			wait.millis(2000); // delay for two seconds to be sure sensor is correctly inserted
 			init(); // was disconnected, initialize again
-			piLink.debugMessage(PSTR("Temperature sensor on pin %d reconnected"), pinNr);
+			piLink.debugMessage(PSTR("Temperature sensor reconnected"));
 			temperature = sensor->getTempRaw(sensorAddress); // re-read temperature after proper initialization
 		}
 	}

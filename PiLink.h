@@ -36,6 +36,10 @@ class PiLink{
 	static void debugMessageDirect(const char * message, ...);
 	static void printTemperatures(void);
 	
+	typedef void (*ParseJsonCallback)(const char* key, const char* val, void* data);
+
+	static void parseJson(ParseJsonCallback fn, void* data);
+	
 	private:
 	
 	static void sendControlSettings(void);
@@ -60,7 +64,7 @@ class PiLink{
 	static void sendJsonPair(const char * name, uint16_t val); // send one JSON pair with a uint16_t value as name:val,
 	static void sendJsonPair(const char * name, uint8_t val); // send one JSON pair with a uint8_t value as name:val,
 	
-	static void processJsonPair(char * key, char * val); // process one pair
+	static void processJsonPair(const char * key, const char * val, void* pv); // process one pair
 	
 	/* Prints the name part of a json name/value pair. The name must exist in PROGMEM */
 	static void printJsonName(const char * name);
@@ -82,7 +86,7 @@ class PiLink{
 extern PiLink piLink;
 
 
-#define DEBUG_MSG(...) //piLink.debugMessageDirect(__VA_ARGS__);
+#define DEBUG_MSG(...) piLink.debugMessageDirect(__VA_ARGS__);
 
 
 #endif /* PILINK_H_ */

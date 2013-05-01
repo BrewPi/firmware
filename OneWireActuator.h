@@ -19,6 +19,11 @@
 class OneWireActuator : public Actuator
 {
 public:	
+
+	OneWireActuator(OneWire* bus, DeviceAddress address, pio_t pio, bool invert=true) {
+		init(bus, address, pio, invert);
+	}
+
 	void init(OneWire* bus, DeviceAddress address, pio_t pio, bool invert=true) {
 		this->invert = invert;
 		

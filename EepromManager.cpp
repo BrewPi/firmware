@@ -5,34 +5,87 @@
  *  Author: mat
  */ 
 
+#include <stddef.h>
+
 #include "EepromManager.h"
 #include "TempControl.h"
+#include "EepromFormat.h"
 
 EepromManager eepromManager;
 EepromAccess eepromAccess;
 
-void EepromManager::applySettings(eptr_t pv)
+#define pointerOffset(x) offsetof(EepromFormat, x)
+
+EepromManager::EepromManager()
 {
-	//uint8_t blockSize = eepromAccess.readByte(pv);
-	pv++;		// consume block size
-	tempControl.loadConstants(pv);
+	eepromSizeCheck();
+}
+
+bool EepromManager::hasSettings()
+{
+	uint8_t version = eepromAccess.readByte(pointerOffset(version));	
+	return (version==EEPROM_FORMAT_VERSION);
+}
+
+void EepromManager::resetEeprom()
+{
+	for (uint16_t i=1; i<sizeof(EepromFormat); i++)
+		eepromAccess.writeByte(i, 0);	
+	eepromAccess.writeByte(0, EEPROM_FORMAT_VERSION);
+}
+
+#define arraySize(x) (sizeof(x)/sizeof(x[0]))
+
+// assumes the current chamber is already activated
+void EepromManager::applySettings()
+{	
+	eptr_t pv = pointerOffset(chambers);
+	tempControl.loadConstants(pv+offsetof(ChamberBlock, chamberSettings.cc));	
+	tempControl.loadSettings(pv+offsetof(ChamberBlock, beer[0].cs));
 	
+	uint8_t device = 0;
+	AnyDeviceConfig deviceConfig;
+	while (fetchDevice(deviceConfig, device++))
+	{		
+		deviceManager.installDevice(deviceConfig);		
+	}
 }
 
 void EepromManager::storeTempConstantsAndSettings()
 {
-	// find offset for const ant settings
-	eptr_t pv = eptr_t(1/*version byte*/+1 /* chamber block len*/);
-	pv += tempControl.storeConstants(pv);
-	pv += tempControl.storeSettings(pv);
+	uint8_t chamber = 0;
+	eptr_t pv = pointerOffset(chambers);
+	pv += sizeof(ChamberBlock)*chamber;
+	tempControl.storeConstants(pv+offsetof(ChamberBlock, chamberSettings.cc));
+		
+	storeTempSettings();
 }
 
 void EepromManager::storeTempSettings()
 {
-	eptr_t pv = eptr_t(1/*version byte*/+1 /* chamber block len*/);
-	pv += tempControl.storeConstants(NULL);
-	pv += tempControl.storeSettings(pv);
-	
+	uint8_t chamber = 0;
+	eptr_t pv = pointerOffset(chambers);
+	pv += sizeof(ChamberBlock)*chamber;
+	// for now assume just one beer. 
+	tempControl.storeSettings(pv+offsetof(ChamberBlock, beer[0].cs));	
 }
 
+void EepromManager::dumpEeprom(Print& stream) {
+	eepromAccess.dumpBlock(stream, 0, sizeof(EepromFormat));
+}
 
+bool EepromManager::fetchDevice(AnyDeviceConfig& config, uint8_t deviceIndex)
+{
+	bool ok = (hasSettings() && deviceIndex<EepromFormat::MAX_DEVICES);
+	if (ok)
+		eepromAccess.readBlock(&config, pointerOffset(devices)+sizeof(AnyDeviceConfig)*deviceIndex, sizeof(AnyDeviceConfig));
+	return ok;
+}	
+
+bool EepromManager::storeDevice(const AnyDeviceConfig& config, uint8_t deviceIndex)
+{
+	bool ok = (hasSettings() && deviceIndex<EepromFormat::MAX_DEVICES);
+	if (ok)
+		eepromAccess.writeBlock(pointerOffset(devices)+sizeof(AnyDeviceConfig)*deviceIndex, &config, sizeof(AnyDeviceConfig));	
+	return ok;
+}

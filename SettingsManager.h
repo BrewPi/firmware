@@ -28,21 +28,18 @@ public:
 	void init() {
 		
 		eepromManager.init();
-		eptr_t pv = eepromManager.startSettings();		// begin iteration
-		if (pv) {			
+
+		// for multichamber, set number of chambers to 1
+		tempControl.loadDefaultSettings();
+		tempControl.loadDefaultConstants();
+		deviceManager.loadDefaultDevices();
+		
+		
+		if (eepromManager.hasSettings())
 			// for now, assume 1 chamber. Will add a while loping later to support multiple chambers
-			eepromManager.applySettings(pv);
-			pv = eepromManager.nextSettings(pv);
-			assert(pv==NULL);
-		}
-		else {
-			piLink.debugMessage(PSTR("Settings not available - entering OFF mode."));
-			
-			// for multichamber, set number of chambers to 1
-									
-			tempControl.loadDefaultSettings();
-			tempControl.loadDefaultConstants();			
-			deviceManager.loadDefaultDevices();
+			eepromManager.applySettings();
+		else {			
+			piLink.debugMessage(PSTR("Settings not available - entering OFF mode."));			
 		}
 				
 	}

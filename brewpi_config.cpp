@@ -76,8 +76,6 @@ void setup()
 	piLink.init();
 
 	DEBUG_MSG(PSTR("started"));
-	DEBUG_MSG(PSTR("Door at %x %d"), &doorSensor, doorSensor.sense());
-
 	settingsManager.init();
 	
 #if BREWPI_SIMULATE

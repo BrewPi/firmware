@@ -33,6 +33,8 @@
 #include "chamber.h"
 #include "Ticks.h"
 #include "brewpi_avr.h"
+#include "EepromManager.h"
+#include "EepromFormat.h"
 #if BREWPI_SIMULATE
 
 #include "simulator.h"
@@ -129,7 +131,7 @@ void PiLink::receive(void){
 #endif						
 		case 't': // temperatures requested
 			printTemperatures();      
-			break;
+			break;		
 		case 'C': // Set default constants
 			tempControl.loadDefaultConstants();
 			display.printStationaryText(); // reprint stationary text to update to right degree unit
@@ -178,6 +180,34 @@ void PiLink::receive(void){
 		case 'j': // Receive settings as json
 			receiveJson();
 			break;
+
+		case 'e': // dump contents of eeprom
+			piStream.print(PSTR("E:"));
+			eepromAccess.dumpBlock(piStream, 0, sizeof(EepromFormat));
+			break;
+			
+		case 'E': // reset eeprom
+			eepromManager.resetEeprom();
+			break;
+
+		case 'd': // list devices in eeprom order
+			AnyDeviceConfig dc;
+			for (uint8_t idx=0; deviceManager.allDevices(dc, idx); idx++) {
+				printResponse('d');				
+				piLink.print('{');
+				deviceManager.printDevice(dc, piStream);
+				sendJsonClose();
+			}
+			break;
+
+		case 'q': // query/define device
+			deviceManager.parseDeviceDefinition(piStream, '\n', dc);
+			printResponse('q');
+			piLink.print('{');
+			deviceManager.printDevice(dc, piStream);
+			sendJsonClose();
+			break;
+
 		default:
 			debugMessage(PSTR("Invalid command received by Arduino: %c"), inByte);
 		}
@@ -471,69 +501,74 @@ void PiLink::sendJsonPair(const char * name, uint8_t val) {
 	sendJsonPair(name, (uint16_t)val);
 }
 
-
-void PiLink::receiveJson(void){
+void PiLink::parseJson(ParseJsonCallback fn, void* data) 
+{
 	char key[30];
 	char val[30];
 	uint8_t index=0;
-	char character=0;
-	wait.millis(1);
-	while(piStream.available() > 0){ // outer while loop can process multiple pairs
+	signed char character=0;
+	while(character!=-1) { // outer while loop can process multiple pairs
 		index=0;
-		while(piStream.available() > 0) // get key
+	
+		for(;;) // get key
 		{
-			wait.millis(1);
 			character = piStream.read();
-			if(character == ':'){		
-				// value comes now
+			if (character==-1 || character==0)
+				continue;			
+			if(character == ':') // value comes now
 				break;
+			else if(character == ' ' || character == '{' || character == '"') {
+				// ignore whitespace 
 			}
-			else if(character == ' ' || character == '{' || character == '"'){
-				;
-			}
-			else{
+			else
 				key[index++] = character;
-			}
+			
 			if(index>=29)
-			{
-				return; // value was too long, don't process anything
-			}
-		}
+				return; // value was too long, don't process anything		
+		}		
 		key[index]=0; // null terminate string
+		
 		index = 0;
-		while(piStream.available() > 0) // get value
+		for(;;) // get value
 		{
-			wait.millis(1);
 			character = piStream.read();
-			if(character == ',' || character == '}'){
-				// end of value
+			if (character==-1 || character==0)		// skip EOS/no value
+				continue;
+			if(character == ',')  // end of value				
+				break;			
+			else if (character == '}')				// closing brace - end of json
+			{
+				character = -1;						// flag end of parse
 				break;
 			}
 			else if(character == ' ' || character == '"'){
 				; // skip spaces and apostrophes
 			}
-			else{
-				val[index++] = character;
-			}
+			else
+				val[index++] = character;		
 			if(index>=29)
-			{
 				return; // value was too long, don't process anything
-			}
 		}
 		val[index]=0; // null terminate string
-		processJsonPair(key,val);
-		
-		if(character == '}'){
-			// this was the last pair.
-			eepromManager.storeTempConstantsAndSettings();
-#if !BREWPI_SIMULATE  // this is quite an overhead and not needed for the simulator
-			sendControlSettings(); // update script with new settings
-			sendControlConstants();
-#endif			
-			return;
-		}
+		fn(key, val, data);
 	}
 }
+
+void PiLink::receiveJson(void){
+
+	parseJson(&processJsonPair, NULL);
+	
+	// this was the last pair.
+	eepromManager.storeTempConstantsAndSettings();
+				
+	#if !BREWPI_SIMULATE  // this is quite an overhead and not needed for the simulator
+	sendControlSettings(); // update script with new settings
+	sendControlConstants();
+	#endif
+	return;
+}
+
+
 #if 0
 
 struct JsonConvert {
@@ -571,7 +606,7 @@ static const PROGMEM JsonConvert jsonConverters[] = {
 };	
 #endif
 
-void PiLink::processJsonPair(char * key, char * val){
+void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 	debugMessage(PSTR("Received new setting: %s = %s"), key, val);
 	if(strcmp_P(key,JSONKEY_mode) == 0){
 		tempControl.setMode(val[0]);

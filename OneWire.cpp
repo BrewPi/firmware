@@ -102,11 +102,10 @@ sample code bearing this copyright.
 
 OneWire::OneWire(uint8_t pin)
 {
-#if 1
+	this->pin = pin;
 	pinMode(pin, INPUT);
 	bitmask = PIN_TO_BITMASK(pin);
 	baseReg = PIN_TO_BASEREG(pin);
-#endif	
 #if ONEWIRE_SEARCH
 	reset_search();
 #endif

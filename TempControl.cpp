@@ -36,6 +36,8 @@
 TempControl tempControl;
 
 #if TEMP_CONTROL_STATIC
+
+// These sensors are switched out to implement multi-chamber.
 TempSensor* TempControl::beerSensor;
 TempSensor* TempControl::fridgeSensor;
 
@@ -383,8 +385,7 @@ void TempControl::loadDefaultSettings(){
 }
 
 uint8_t TempControl::storeConstants(eptr_t offset){	
-	if (offset)
-		eepromAccess.writeBlock(offset, (void *) &cc, sizeof(ControlConstants));
+	eepromAccess.writeBlock(offset, (void *) &cc, sizeof(ControlConstants));
 	return sizeof(ControlConstants);
 }
 
@@ -397,17 +398,13 @@ uint8_t TempControl::loadConstants(eptr_t offset){
 // write new settings to EEPROM to be able to reload them after a reset
 // The update functions only write to EEPROM if the value has changed
 uint8_t TempControl::storeSettings(eptr_t offset){
-	if (offset)
-	{
-		eepromAccess.writeBlock(offset, (void *) &cs, sizeof(ControlSettings));
-		storedBeerSetting = cs.beerSetting;
-	}		
+	eepromAccess.writeBlock(offset, (void *) &cs, sizeof(ControlSettings));
+	storedBeerSetting = cs.beerSetting;	
 	return sizeof(ControlSettings);
 }
 
 uint8_t TempControl::loadSettings(eptr_t offset){
-	if (offset)
-		eepromAccess.readBlock((void *) &cs, offset, sizeof(ControlSettings));	
+	eepromAccess.readBlock((void *) &cs, offset, sizeof(ControlSettings));	
 	return sizeof(ControlSettings);
 }
 

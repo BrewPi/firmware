@@ -72,3 +72,20 @@ class DigitalConstantPinActuator ACTUATOR_BASE_CLASS_DECL
 
 };
 
+class DigitalPinActuator ACTUATOR_BASE_CLASS_DECL
+{
+private:
+	bool invert;
+	uint8_t pin;
+public:		
+	DigitalPinActuator(uint8_t pin, bool invert) {
+		this->invert = invert;
+		this->pin = pin;
+		pinMode(pin, OUTPUT);
+	}
+	
+	inline ACTUATOR_METHOD void setActive(bool active) {
+		digitalWrite(pin, active^invert ? HIGH : LOW);
+	}
+};	
+	
