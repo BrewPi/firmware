@@ -34,6 +34,8 @@ void EepromManager::resetEeprom()
 	tempControl.loadDefaultConstants();
 	tempControl.loadDefaultSettings();
 	
+	tempControl.cs.mode = MODE_BEER_CONSTANT;
+	
 	for (uint8_t c=0; c<EepromFormat::MAX_CHAMBERS; c++) {
 		eptr_t pv = pointerOffset(chambers)+(c*sizeof(ChamberBlock)) ;
 		tempControl.storeConstants(pv+offsetof(ChamberBlock, chamberSettings.cc));
@@ -43,11 +45,63 @@ void EepromManager::resetEeprom()
 			pv += sizeof(BeerBlock);		// advance to next beer
 		}
 	}
+	
+	uint8_t count = saveDefaultDevices();
 		
-	for (uint16_t i=pointerOffset(devices); i<EepromFormat::MAX_EEPROM_SIZE; i++)
-		eepromAccess.writeByte(i, 0);	
+	for (uint16_t offset=pointerOffset(devices)+(sizeof(DeviceConfig)*count); offset<EepromFormat::MAX_EEPROM_SIZE; offset++)
+		eepromAccess.writeByte(offset, 0);	
 		
 	eepromAccess.writeByte(0, EEPROM_FORMAT_VERSION);
+}
+
+uint8_t EepromManager::saveDefaultDevices() 
+{
+#if 1
+	DeviceConfig config;
+	clear((uint8_t*)&config, sizeof(config));
+		
+#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
+	// single-chamber single beer config from original shield
+	
+	config.chamber = 1;			// all devices in chamber 1
+	config.hw.invert = 1;		// all pin devices inverted
+	
+	config.deviceHardware = DEVICE_HARDWARE_PIN;
+	
+	config.deviceFunction = DEVICE_CHAMBER_DOOR;
+	config.hw.pinNr = doorPin;
+	eepromManager.storeDevice(config, 0);
+
+	config.deviceFunction = DEVICE_CHAMBER_HEAT;
+	config.hw.pinNr = heatingPin;
+	eepromManager.storeDevice(config, 1);
+
+	config.deviceFunction = DEVICE_CHAMBER_COOL;
+	config.hw.pinNr = heatingPin;
+	eepromManager.storeDevice(config, 2);
+	
+	config.deviceHardware = DEVICE_HARDWARE_ONEWIRE_TEMP;
+	config.hw.pinNr = fridgeSensorPin;
+	config.deviceFunction = DEVICE_CHAMBER_TEMP;
+	eepromManager.storeDevice(config, 3);
+
+	config.beer = 1;
+	config.hw.pinNr = beerSensorPin;
+	config.deviceFunction = DEVICE_BEER_TEMP;
+	eepromManager.storeDevice(config, 3);
+		
+	return 5;
+#endif	
+	
+#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+	// the only component that's not dynamic is the door
+	
+	
+#endif	
+
+#else
+	return 0;
+#endif
 }
 
 #define arraySize(x) (sizeof(x)/sizeof(x[0]))

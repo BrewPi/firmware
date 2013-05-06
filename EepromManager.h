@@ -77,6 +77,8 @@ public:
 
 	static bool fetchDevice(DeviceConfig& config, uint8_t deviceIndex);
 	static bool storeDevice(const DeviceConfig& config, uint8_t deviceIndex);
+	
+	static uint8_t saveDefaultDevices();
 };
 
 class EepromStream 
