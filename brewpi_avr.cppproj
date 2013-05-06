@@ -5,7 +5,7 @@
     <ProjectVersion>6.0</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8</ToolchainName>
     <ProjectGuid>{c0415566-e0bc-45db-8e53-cc52899284fe}</ProjectGuid>
-    <avrdevice>ATmega328P</avrdevice>
+    <avrdevice>ATmega32U4</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
     <Language>CPP</Language>
@@ -23,7 +23,8 @@
     <AsfVersion>2.11.1</AsfVersion>
     <avrtool>
     </avrtool>
-    <avrtoolinterface>JTAG</avrtoolinterface>
+    <avrtoolinterface>
+    </avrtoolinterface>
     <com_atmel_avrdbg_tool_avrdragon>
       <ToolType>com.atmel.avrdbg.tool.avrdragon</ToolType>
       <ToolName>AVR Dragon</ToolName>
@@ -34,7 +35,7 @@
       </OverrideVtorValue>
       <Channel>
         <host>127.0.0.1</host>
-        <port>60077</port>
+        <port>54406</port>
         <ssl>False</ssl>
       </Channel>
       <ToolOptions>
@@ -42,7 +43,7 @@
         <InterfaceProperties>
           <JtagDbgClock>250000</JtagDbgClock>
           <JtagProgClock>1000000</JtagProgClock>
-          <IspClock>150000</IspClock>
+          <IspClock>250000</IspClock>
           <JtagInChain>false</JtagInChain>
           <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
           <JtagDevicesBefore>0</JtagDevicesBefore>
@@ -104,8 +105,8 @@
   </avrgcccpp.compiler.symbols.DefSymbols>
   <avrgcccpp.compiler.directories.IncludePaths>
     <ListValues>
-      <Value>c:\arduino-1.0.4\hardware\arduino\cores\arduino</Value>
-      <Value>c:\arduino-1.0.4\hardware\arduino\variants\standard</Value>
+      <Value>$(ARDUINO_HOME)\hardware\arduino\cores\arduino</Value>
+      <Value>$(ARDUINO_HOME)\hardware\arduino\variants\leonardo</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
   <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
@@ -222,6 +223,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Ticks.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="version.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
