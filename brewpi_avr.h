@@ -5,19 +5,18 @@
  *  Author: mat
  */ 
 
-#ifndef BREWPI_AVR_H_
-#define BREWPI_AVR_H_
+#pragma once
 
-#include "Display.h"
-#include "LcdDisplay.h"
+/*
+ * Defines global config for the brewpi project. This file is included in every file in the project to ensure conditional
+ * compilation directives are recognized.
+ * 
+ * config_default.h contains the default settings, and produces a standard Hex file.
+ * To customize the build, users may add settings to config_local.h, or define symbols in the project.
+ */
 
+#include "config_local.h"
+#include "config_default.h"
 
-#if BREWPI_EMULATE
-typedef NullDisplay DisplayType;
-#else
-typedef LcdDisplay DisplayType;
-#endif
+#include <Arduino.h>
 
-
-
-#endif /* BREWPI_AVR_H_ */

@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "brewpi_avr.h"
 #include "TempSensor.h"
 
 class ExternalTempSensor : public BasicTempSensor

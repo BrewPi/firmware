@@ -9,7 +9,9 @@
 #ifndef LCDDISPLAY_H_
 #define LCDDISPLAY_H_
 
-#include "Display.h"
+#include "brewpi_avr.h"
+#include "DisplayBase.h"
+#include "SpiLcd.h"
 
 
 class LcdDisplay DISPLAY_SUPERCLASS
@@ -55,7 +57,7 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	// print the current state on the last line of the LCD
 	DISPLAY_METHOD void printState(void);
 
-DISPLAY_METHOD void getLine(uint8_t lineNumber, char * buffer) { lcd.getLine(lineNumber, buffer); }
+	DISPLAY_METHOD void getLine(uint8_t lineNumber, char * buffer) { lcd.getLine(lineNumber, buffer); }
 
 	DISPLAY_METHOD void printAt(int x, int y, const char* text) { lcd.setCursor(x, y); lcd.print(text); }
 	

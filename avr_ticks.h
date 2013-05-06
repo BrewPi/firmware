@@ -11,7 +11,7 @@
 #ifndef AVR_TICKS_H_
 #define AVR_TICKS_H_
 
-#include "Arduino.h"
+#include "brewpi_avr.h"
 
 /*
  * The Ticks class provides the time period since the device was powered up.

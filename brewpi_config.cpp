@@ -25,9 +25,9 @@
  * 'ArduinoFunctions.cpp' includes all the source files from Arduino that are used. You might have to edit it if you are not using a Leonardo.
  * That is all that is needed! No hassle with makefiles and compiling libraries.
  */
-#include <Arduino.h>
+#include "brewpi_avr.h"
 #include "Ticks.h"
-#include "LcdDisplay.h"
+#include "Display.h"
 #include "TempControl.h"
 #include "PiLink.h"
 #include "Menu.h"
@@ -40,8 +40,6 @@
 #include "OneWireTempSensor.h"
 #include "ExternalTempSensor.h"
 #include "Ticks.h"
-#include "brewpi_avr.h"
-#include "config.h"
 #include "Sensor.h"
 #include "FastDigitalPin.h"
 #include "OneWireActuator.h"
@@ -68,7 +66,7 @@ TicksImpl ticks = TicksImpl(TICKS_IMPL_CONFIG);
 DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 
 DisplayType realDisplay;
-Display DISPLAY_REF display = realDisplay;
+DisplayType DISPLAY_REF display = realDisplay;
 
 
 void setup()
@@ -76,7 +74,7 @@ void setup()
 	piLink.init();
 
 	DEBUG_MSG(PSTR("started"));
-	settingsManager.init();
+	SettingsManager::loadSettings();
 	
 #if BREWPI_SIMULATE
 	simulator.step();
@@ -87,8 +85,10 @@ void setup()
 		
 	rotaryEncoder.init();
 	
-	//buzzer.init();
-	//buzzer.beep(2, 500);
+#if BREWPI_BUZZER	
+	buzzer.init();
+	buzzer.beep(2, 500);
+#endif	
 
 	DEBUG_MSG(PSTR("init complete"));
 }
@@ -126,8 +126,6 @@ void updateSimulationTicks()
 	}
 #endif	
 }
-
-
 #endif
 
 void loop(void)
@@ -151,9 +149,9 @@ void loop(void)
 #else
 	if(ticks.millis() - lastUpdate >= (1000)) { //update settings every second
 #endif		
-		lastUpdate+=1000;
+		lastUpdate = ticks.millis();
 			
-		tempControl.updateTemperatures();		
+		tempControl.updateTemperatures();
 		tempControl.detectPeaks();
 		tempControl.updatePID();
 		tempControl.updateState();
@@ -163,7 +161,7 @@ void loop(void)
 		chamberManager.switchChamber(prev);
 #endif		
 
-#if !BREWPI_SIMULATE		// disable rotary encoder since this stalls output
+#if BREWPI_MENU && !BREWPI_SIMULATE		// disable rotary encoder since this stalls output
 		if(rotaryEncoder.pushed()){
 			rotaryEncoder.resetPushed();
 			menu.pickSettingToChange();	
@@ -184,7 +182,6 @@ void loop(void)
 #endif		
 		{
 			// update the lcd for the chamber being displayed
-			DEBUG_MSG(PSTR("update display"));
 			display.printState();
 			display.printAllTemperatures();
 			display.printMode();
@@ -206,3 +203,16 @@ void loop(void)
 
 }
 
+void SettingsManager::loadSettings()
+{
+	DEBUG_MSG(PSTR("loading settings"));
+	eepromManager.init();
+
+	// for multichamber, set number of chambers to 1
+	tempControl.loadDefaultSettings();
+	tempControl.loadDefaultConstants();
+	deviceManager.loadDefaultDevices();
+			
+	if (!eepromManager.applySettings())
+		piLink.debugMessage(PSTR("EEPROM Settings not available. Starting in safe mode."));
+}

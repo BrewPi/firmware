@@ -21,6 +21,7 @@
 #ifndef CONTROLLER_H_
 #define CONTROLLER_H_
 
+#include "brewpi_avr.h"
 #include "TempSensor.h"
 #include "pins.h"
 #include "temperatureFormats.h"
@@ -100,6 +101,7 @@ struct ControlConstants{
 #define MODE_BEER_CONSTANT 'b'
 #define MODE_BEER_PROFILE 'p'
 #define MODE_OFF 'o'
+#define MODE_TEST 't'
 
 enum states{
 	IDLE,

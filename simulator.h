@@ -6,6 +6,7 @@
  */ 
 #pragma once
 
+#include "brewpi_avr.h"
 #include "ExternalTempSensor.h"
 
 /**
@@ -182,12 +183,12 @@ public:
 
 	void setConnected(TempSensor* sensor, bool connected) 
 	{	
-		ExternalTempSensor& externalSensor = (ExternalTempSensor&)sensor->basicTempSensor();
+		ExternalTempSensor& externalSensor = (ExternalTempSensor&)sensor->sensor();
 		externalSensor.setConnected(connected);
 	}
 	
 	bool getConnected(TempSensor* sensor) {
-		ExternalTempSensor& externalSensor = (ExternalTempSensor&)sensor->basicTempSensor();
+		ExternalTempSensor& externalSensor = (ExternalTempSensor&)sensor->sensor();
 		return externalSensor.isConnected();		
 	}
 
@@ -228,7 +229,7 @@ private:
 
 	void setTemp(TempSensor* sensor, double temp)
 	{
-		ExternalTempSensor& s = (ExternalTempSensor&)(sensor->basicTempSensor());
+		ExternalTempSensor& s = (ExternalTempSensor&)(sensor->sensor());
 		fixed7_9 fixedTemp = temp>=INT_MAX ? INT_MAX*512L : temp<=INT_MIN ? INT_MIN*512L : temp*512L;
 		s.setValue(fixedTemp);
 	}

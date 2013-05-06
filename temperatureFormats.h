@@ -21,6 +21,7 @@
 #ifndef TEMPERATUREFORMATS_H_
 #define TEMPERATUREFORMATS_H_
 
+#include "brewpi_avr.h"
 #include "optimize.h"
 #include <inttypes.h>
 // all temperature are stored as fixed point integers:

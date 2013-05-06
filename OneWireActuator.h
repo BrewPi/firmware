@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "brewpi_avr.h"
 #include "Actuator.h"
 #include "ds2413.h"
 

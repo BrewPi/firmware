@@ -17,7 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <Arduino.h>
+#include "brewpi_avr.h"
 
 #include "pins.h"
 #include <avr/eeprom.h>
@@ -249,7 +249,9 @@ void TempControl::updateState(void){
 }
 
 void TempControl::updateOutputs(void) {
-	// Outputs are inverted on the shield by the mosfets!
+	if (cs.mode==MODE_TEST)
+		return;
+	
 	cooler->setActive(state==COOLING);	
 #if LIGHT_AS_HEATER
 	heater->setActive(state==DOOR_OPEN || state==HEATING);

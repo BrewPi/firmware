@@ -2,6 +2,7 @@
 #ifndef DS2413_H_
 #define DS2413_H_
 
+#include "brewpi_avr.h"
 #include "OneWire.h"
 
 typedef uint8_t DeviceAddress[8];
@@ -24,17 +25,17 @@ public:
 	 * /param address The oneWire address of the device to use. If {@code NULL}
 	 *		the first device found that is a ds2413 is used. 
 	 */
-	void init(OneWire* oneWire, DeviceAddress address=NULL)
+	
+	void init(OneWire* oneWire, DeviceAddress address)
 	{
 		this->oneWire = oneWire;
-		setAddress(address);
+		memcpy(this->address, address, sizeof(DeviceAddress));
 	}
 	
-	void setAddress(DeviceAddress address) {
-		if (address!=NULL)
-			memcpy(this->address, address, sizeof(DeviceAddress));
-		else
-			getAddress(this->address, 0);		
+	void init(OneWire* oneWire)
+	{
+		this->oneWire = oneWire;
+		getAddress(oneWire, this->address, 0);
 	}
 
 	/*
@@ -44,7 +45,7 @@ public:
 	 */
 	bool isConnected()
 	{
-		return validAddress(this->address);
+		return validAddress(oneWire, this->address);
 	}
 	
 	uint8_t pioMask(pio_t pio) { return pio==0 ? 1 : 2; }
@@ -94,12 +95,11 @@ public:
 		return address;
 	}		
 
-	bool validAddress(DeviceAddress deviceAddress)
+	static bool validAddress(OneWire* oneWire, DeviceAddress deviceAddress)
 	{
 		return deviceAddress[0] && (oneWire->crc8(deviceAddress, 7) == deviceAddress[7]);
 	}
 	
-private:
 
 	/*
 	 * Fetches the address at the given enumeration index.
@@ -108,7 +108,7 @@ private:
 	 * /param index	The 0-based device index to return
 	 * /return true if the device was found and is the address valid.
 	 */
-	bool getAddress(uint8_t* deviceAddress, uint8_t index)
+	static bool getAddress(OneWire* oneWire, uint8_t* deviceAddress, uint8_t index)
 	{
 		oneWire->reset_search();
 
@@ -117,11 +117,12 @@ private:
 			if (deviceAddress[0]==DS2413_FAMILY_ID)
 			{				
 				if (pos++ == index)
-					return validAddress(deviceAddress);
+					return true;
 			}			
 		}
 		return false;
 	}
+private:
 
 	/*
 	 * Read all values at once, both current state and sensed values. The read performs data-integrity checks.

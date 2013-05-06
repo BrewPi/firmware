@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "brewpi_avr.h"
 #include <assert.h>
 #include "EepromManager.h"
 #include "DeviceManager.h"
@@ -25,25 +26,7 @@ public:
 	 * Initialize settings. This attempts to read from persisted settings and apply settings from there.
 	 * If that's not possible, defaults are used.
 	 */
-	void init() {
-		
-		eepromManager.init();
-
-		// for multichamber, set number of chambers to 1
-		tempControl.loadDefaultSettings();
-		tempControl.loadDefaultConstants();
-		deviceManager.loadDefaultDevices();
-		
-		
-		if (eepromManager.hasSettings())
-			// for now, assume 1 chamber. Will add a while loping later to support multiple chambers
-			eepromManager.applySettings();
-		else {			
-			piLink.debugMessage(PSTR("Settings not available - entering OFF mode."));			
-		}
-				
-	}
-	
+	static void loadSettings();
 	
 };
 

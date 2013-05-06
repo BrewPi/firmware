@@ -17,10 +17,12 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <Arduino.h>
+#include "brewpi_avr.h"
 #include <limits.h>
 
 #include "Display.h"
 
+#if DISPLAY_POLYMORPHIC
 Display::~Display() { }
+#endif	
 

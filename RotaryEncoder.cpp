@@ -17,15 +17,16 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "brewpi_avr.h"
 #include "RotaryEncoder.h"
 
-#include <Arduino.h>
 #include "pins.h"
 #include "util/atomic.h"
 #include <limits.h>
 #include "Ticks.h"
 #include "Display.h"
 #include "FastDigitalPin.h"
+#include "brewpi_avr.h"
 
 RotaryEncoder rotaryEncoder;
 

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+#include "brewpi_avr.h"
 #include <avr/pgmspace.h>
 
 #ifndef JSON_H_

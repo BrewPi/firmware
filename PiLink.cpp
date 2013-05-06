@@ -18,7 +18,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <Arduino.h>
+#include "brewpi_avr.h"
 #include "stddef.h"
 #include "PiLink.h"
 
@@ -35,10 +35,9 @@
 #include "brewpi_avr.h"
 #include "EepromManager.h"
 #include "EepromFormat.h"
+#include "SettingsManager.h"
 #if BREWPI_SIMULATE
-
 #include "simulator.h"
-
 #endif
 
 bool PiLink::firstPair;
@@ -87,6 +86,12 @@ void PiLink::print(char *fmt, ... ){
 	vsnprintf(tmp, 128, fmt, args);
 	va_end (args);
 	piStream.print(tmp);
+}
+
+void printNibble(uint8_t n)
+{
+	n &= 0xF;
+	piStream.print((char)(n>=10 ? n-10+'A' : n+'0'));
 }
 
 void PiLink::receive(void){
@@ -181,31 +186,55 @@ void PiLink::receive(void){
 			receiveJson();
 			break;
 
-		case 'e': // dump contents of eeprom
-			piStream.print(PSTR("E:"));
-			eepromAccess.dumpBlock(piStream, 0, sizeof(EepromFormat));
+		case 'e': // dump contents of eeprom						
+			// use <= so last line comprises 0 bytes.
+			for (uint16_t i=0; i<1024;) {
+				printResponse('E');				
+				for (uint8_t j=0; j<64; j++) {
+					uint8_t d = eepromAccess.readByte(i++);
+					printNibble(d>>4);
+					printNibble(d);
+				}				
+				piStream.print('\n');
+			}
+			printResponse('E');
+			piStream.print('\n');			
 			break;
 			
 		case 'E': // reset eeprom
 			eepromManager.resetEeprom();
+			piLink.debugMessage(PSTR("EEPROM reset"));
+			SettingsManager::loadSettings();
 			break;
 
 		case 'd': // list devices in eeprom order
-			AnyDeviceConfig dc;
-			for (uint8_t idx=0; deviceManager.allDevices(dc, idx); idx++) {
-				printResponse('d');				
-				piLink.print('{');
-				deviceManager.printDevice(dc, piStream);
-				sendJsonClose();
+			DeviceConfig dc;
+			DeviceDisplay dd;
+			fill((int8_t*)&dd, sizeof(dd));
+			parseJson(HandleDeviceDisplay, (void*)&dd);
+			for (device_slot_t idx=0; deviceManager.allDevices(dc, idx); idx++) {
+				if (dd.id==-1 || dd.id==idx)
+				{							
+					char val[10];
+					val[0] = 0;
+					UpdateDeviceState(dd, dc, val);
+					printResponse('d');
+					piLink.print('{');
+					deviceManager.printDevice(idx, dc, val, piStream);
+					sendJsonClose();
+				}
 			}
 			break;
 
-		case 'q': // query/define device
-			deviceManager.parseDeviceDefinition(piStream, '\n', dc);
-			printResponse('q');
+		case 'U': // update device
+			printResponse('U');
 			piLink.print('{');
-			deviceManager.printDevice(dc, piStream);
+			deviceManager.parseDeviceDefinition(piStream, dc);			
 			sendJsonClose();
+			break;
+			
+		case 'h': // hardware query
+			deviceManager.enumerateHardware(piStream);
 			break;
 
 		default:
@@ -233,7 +262,7 @@ void PiLink::printChamberInfo()
 }
 #endif
 
-#define COMPACT_SERIAL 1
+#define COMPACT_SERIAL BREWPI_SIMULATE
 #if COMPACT_SERIAL
 	#define JSON_BEER_TEMP  "bt"
 	#define JSON_BEER_SET	"bs"
@@ -501,64 +530,61 @@ void PiLink::sendJsonPair(const char * name, uint8_t val) {
 	sendJsonPair(name, (uint16_t)val);
 }
 
+char readNext()
+{
+	while (piStream.available()==0) {}
+	return piStream.read();		
+}
+/**
+ * Parses a token from the piStream.
+ * \return true if a token was parsed
+ */
+bool parseJsonToken(char* val) {
+	uint8_t index = 0;
+	val[0] = 0;
+	bool result = true;
+	for(;;) // get value
+	{
+		char character = readNext();
+		if (index==29 || character == '}' || character==-1) {
+			result = false;
+			break;
+		}
+		if(character == ',' || character==':')  // end of value
+			break;		
+		if(character == ' ' || character == '"'){
+			; // skip spaces and apostrophes
+		}		
+		else
+			val[index++] = character;
+	}
+	val[index]=0; // null terminate string
+	return result;	
+}
+
 void PiLink::parseJson(ParseJsonCallback fn, void* data) 
 {
 	char key[30];
 	char val[30];
-	uint8_t index=0;
-	signed char character=0;
-	while(character!=-1) { // outer while loop can process multiple pairs
-		index=0;
-	
-		for(;;) // get key
-		{
-			character = piStream.read();
-			if (character==-1 || character==0)
-				continue;			
-			if(character == ':') // value comes now
-				break;
-			else if(character == ' ' || character == '{' || character == '"') {
-				// ignore whitespace 
-			}
-			else
-				key[index++] = character;
-			
-			if(index>=29)
-				return; // value was too long, don't process anything		
-		}		
-		key[index]=0; // null terminate string
-		
-		index = 0;
-		for(;;) // get value
-		{
-			character = piStream.read();
-			if (character==-1 || character==0)		// skip EOS/no value
-				continue;
-			if(character == ',')  // end of value				
-				break;			
-			else if (character == '}')				// closing brace - end of json
-			{
-				character = -1;						// flag end of parse
-				break;
-			}
-			else if(character == ' ' || character == '"'){
-				; // skip spaces and apostrophes
-			}
-			else
-				val[index++] = character;		
-			if(index>=29)
-				return; // value was too long, don't process anything
-		}
-		val[index]=0; // null terminate string
-		fn(key, val, data);
+	bool next = true;
+	// read first open brace
+	char c = readNext();		
+	if (c!='{')
+	{
+		DEBUG_MSG(PSTR("Expected opening brace got %c"), c);
+		return;
 	}
+	do {
+		next = parseJsonToken(key) && parseJsonToken(val);
+		if (val[0] && key[0])
+			fn(key, val, data);
+	} while (next);
 }
 
 void PiLink::receiveJson(void){
 
 	parseJson(&processJsonPair, NULL);
 	
-	// this was the last pair.
 	eepromManager.storeTempConstantsAndSettings();
 				
 	#if !BREWPI_SIMULATE  // this is quite an overhead and not needed for the simulator

@@ -27,6 +27,7 @@
 #ifndef DOOR_H_
 #define DOOR_H_
 
+#include "brewpi_avr.h"
 #include "Sensor.h"
 
 /*

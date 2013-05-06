@@ -9,6 +9,7 @@
 #ifndef ONEWIRETEMPSENSOR_H_
 #define ONEWIRETEMPSENSOR_H_
 
+#include "brewpi_avr.h"
 #include "TempSensor.h"
 #include "FastDigitalPin.h"
 

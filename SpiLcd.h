@@ -25,8 +25,9 @@
 #ifndef SpiLcd_h
 #define SpiLcd_h
 
-#include <inttypes.h>
-#include "Print.h"
+#include "brewpi_avr.h"
+#include <stdint.h>
+#include <print.h>
 #include "Ticks.h"
 
 // commands

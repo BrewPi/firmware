@@ -5,6 +5,7 @@
  *  Author: mat
  */ 
 
+#include "brewpi_avr.h"
 #include "TempControl.h"
 #include "chamber.h"
 

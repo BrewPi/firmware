@@ -17,6 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "brewpi_avr.h"
 #include "temperatureFormats.h"
 #include <string.h>
 #include <Arduino.h> // uses constrain function from Arduino.h

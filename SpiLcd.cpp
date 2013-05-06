@@ -19,7 +19,7 @@
 
 #include "SpiLcd.h"
 
-#include <Arduino.h>
+#include "brewpi_avr.h"
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>

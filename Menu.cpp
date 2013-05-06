@@ -17,6 +17,10 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "brewpi_avr.h"
+
+#if BREWPI_MENU
+
 #include "Menu.h"
 
 #include <limits.h>
@@ -27,6 +31,7 @@
 #include "RotaryEncoder.h"
 #include "PiLink.h"
 #include "Ticks.h"
+#include "brewpi_avr.h"
 
 Menu menu;
 
@@ -215,3 +220,5 @@ void Menu::pickFridgeSetting(void){
 	// Time Out. Restore original setting
 	tempControl.setFridgeTemp(oldSetting);
 }
+
+#endif

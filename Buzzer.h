@@ -9,6 +9,9 @@
 #ifndef BUZZER_H_
 #define BUZZER_H_
 
+#include "brewpi_avr.h"
+
+#if BREWPI_BUZZER
 class Buzzer
 {
 	public:
@@ -22,7 +25,7 @@ Buzzer(){};
 };
 
 extern Buzzer buzzer;
-
+#endif
 
 
 #endif /* BUZZER_H_ */

@@ -21,6 +21,7 @@
 #ifndef SENSORS_H_
 #define SENSORS_H_
 
+#include "brewpi_avr.h"
 #include "CascadedFilter.h"
 #include "OneWire.h"
 #include "DallasTemperature.h"
@@ -67,6 +68,7 @@ class TempSensor {
 	 void setSensor(BasicTempSensor* sensor) {
 		 _sensor = sensor;
 	 }
+	 
 	
 	void init();
 	
@@ -101,11 +103,11 @@ class TempSensor {
 	void setSlopeFilterCoefficients(uint8_t b){
 		slopeFilter.setCoefficients(b);
 	}			
-
-	BasicTempSensor& basicTempSensor() {
+	
+	BasicTempSensor& sensor() {
 		return *_sensor;
 	}
-
+	 
 	private:	
 	BasicTempSensor* _sensor;
 	TempSensorFilter fastFilter;
@@ -115,7 +117,8 @@ class TempSensor {
 	fixed7_25 prevOutputForSlope;
 			
 	friend class ChamberManager;
-	friend class Chamber;	
+	friend class Chamber;
+	friend class DeviceManager;
 };
 
 

@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "Arduino.h"
+#include "brewpi_avr.h"
 #include "FastDigitalPin.h"
 #include "pins.h"
 
@@ -17,6 +17,8 @@ template<class T> class Sensor
 {	
 	public:	
 	virtual T sense()=0;
+	
+	virtual ~Sensor() {}	
 };
 
 template <class T>

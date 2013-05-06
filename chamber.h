@@ -8,6 +8,8 @@
 #ifndef CHAMBER_H_
 #define CHAMBER_H_
 
+#include "brewpi_avr.h"
+
 #ifndef MULTICHAMBER
 #define MULTICHAMBER 1
 #endif

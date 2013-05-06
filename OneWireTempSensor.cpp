@@ -1,12 +1,13 @@
 /*
  * OneWireTempSensor.cpp
  */ 
-
+#include "brewpi_avr.h"
 #include <limits.h>
 #include "Arduino.h"
 #include "OneWireTempSensor.h"
 #include "DallasTemperature.h"
 #include "OneWire.h"
+#include "OneWireDevices.h"
 #include "PiLink.h"
 #include "Ticks.h"
 
@@ -14,7 +15,7 @@ fixed7_9 OneWireTempSensor::init(){
 	
 	if (sensor==NULL) {
 		sensor = new DallasTemperature(oneWire);
-		if (oneWire==NULL) {
+		if (sensor==NULL) {
 			DEBUG_MSG(PSTR("Not enough SRAM for temp sensors"));
 			return DEVICE_DISCONNECTED;
 		}
@@ -23,12 +24,13 @@ fixed7_9 OneWireTempSensor::init(){
 	// todo - move this out to device manager?
 	
 	// get sensor address
+	const uint8_t pinNr = oneWire->pinNr();
 	if (!sensorAddress[0] && !sensor->getAddress(sensorAddress, 0)){
 		// error no sensor found
-		DEBUG_MSG(PSTR("No address for sensor"));
+		DEBUG_MSG(PSTR("No address for sensor on pin %d"), pinNr);
 		if(ticks.seconds() < 4){
 			// only log this debug message at startup
-			piLink.debugMessage(PSTR("Unable to find address for sensor"));
+			piLink.debugMessage(PSTR("Unable to find address for sensor on pin %d"), pinNr);
 		}
 		return DEVICE_DISCONNECTED;
 	}
@@ -39,16 +41,18 @@ fixed7_9 OneWireTempSensor::init(){
 	lastRequestTime = ticks.millis();
 	wait.millis(750); // delay 750ms for conversion time
 	
+	char buf[30];
+	printBytes(sensorAddress, 8, buf);
 	// todo - DEVICE_DISCONNECTED is -127, but does this need scaling?
-	DEBUG_MSG("fetching initial temperature %d", pinNr);
+	DEBUG_MSG(PSTR("fetching initial temperature %d %s"), pinNr, buf);
 	
 	fixed7_9 temperature = DEVICE_DISCONNECTED;
 	while(temperature == DEVICE_DISCONNECTED){
 		temperature = sensor->getTempRaw(sensorAddress);
-		DEBUG_MSG("Raw temp on pin %d %d", pinNr, temperature);
+		DEBUG_MSG(PSTR("Raw temp on sensor pin %d addr %s %d"), pinNr, buf, temperature);
 		if(ticks.millis() - lastRequestTime > 4000){
 			connected = false; // sensor disconnected
-			DEBUG_MSG("Reporting device disconnected on pin %d", pinNr);
+			DEBUG_MSG(PSTR("Reporting device disconnected pin %d %s"), pinNr, buf);
 			return DEVICE_DISCONNECTED;
 		}
 	}
@@ -57,7 +61,7 @@ fixed7_9 OneWireTempSensor::init(){
 	temperature = sensor->getTempRaw(sensorAddress); // read again. First read is not accurate
 	connected = true;
 	temperature = constrain(temperature, ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5; // sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits
-	DEBUG_MSG(PSTR("Sensor initialized: pin %d"), pinNr);
+	DEBUG_MSG(PSTR("Sensor initialized: pin %d %s"), pinNr, buf);
 	return temperature;
 }
 

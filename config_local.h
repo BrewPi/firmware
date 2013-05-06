@@ -4,22 +4,14 @@
  * Created: 21/02/2013 02:34:18
  *  Author: mat
  *
- * Edit this file to make 
+ * Edit this file to make local changes.
  */ 
-
 
 #ifndef CONFIG_LOCAL_H_
 #define CONFIG_LOCAL_H_
 
-
-// #define BREWPI_CONFIG BREWPI_CONFIG_BARE
-// Define the initial config
-
-// #define CONFIG_DISPLAY new MyFancyDisplay()
-// override base config by defining key parts of the config
-
-
-
-
+#ifndef BREWPI_DS2413
+#define  BREWPI_DS2413 0
+#endif
 
 #endif /* CONFIG_LOCAL_H_ */

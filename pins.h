@@ -17,17 +17,35 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "Arduino.h"
-
 #ifndef PINS_H_
 #define PINS_H_
 
+#include "brewpi_avr.h"
+
+#define BREWPI_SHIELD_REV_A	1
+#define BREWPI_SHIELD_REV_C	2
+
+
+#ifndef BREWPI_STATIC_CONFIG
+#define BREWPI_STATIC_CONFIG BREWPI_SHIELD_REV_A
+#endif
+
+#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
 #define beerSensorPin    A5 // OneWire 1
 #define fridgeSensorPin  A4 // OneWire 2
 
 #define coolingPin	6
 #define heatingPin	5
+#endif
+
+#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+#define oneWirePin A4
+#define actuator1Pin 2
+#define actuator2Pin 5
+#define actuator3Pin 6
+#define actuator7Pin A5
+#endif
+
 #define doorPin		4
 #define alarmPin	3
 #define lcdLatchPin 10
@@ -38,7 +56,7 @@
 #define rotaryBPin 9 // PCINT5
 
 // You can use the internal pull-up resistors instead of external ones for the doorPin and the rotary encoder pins
-#define USE_INTERNAL_PULL_UP_RESISTORS true
+#define USE_INTERNAL_PULL_UP_RESISTORS false
 #define SHIELD_INVERT true
 
 // If you are using the light bulb of your fridge as a heater, set this define to true

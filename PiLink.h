@@ -20,7 +20,11 @@
 #ifndef PILINK_H_
 #define PILINK_H_
 
+#include "brewpi_avr.h"
 #include "temperatureFormats.h"
+#include "DeviceManager.h"
+
+class DeviceConfig;
 
 
 class PiLink{
@@ -86,7 +90,7 @@ class PiLink{
 extern PiLink piLink;
 
 
-#define DEBUG_MSG(...) piLink.debugMessageDirect(__VA_ARGS__);
+#define DEBUG_MSG(...) //piLink.debugMessageDirect(__VA_ARGS__);
 
 
 #endif /* PILINK_H_ */

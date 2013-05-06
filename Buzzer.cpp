@@ -5,12 +5,14 @@
  *  Author: Elco
  */ 
 
+#include "brewpi_avr.h"
 #include "FastDigitalPin.h"
 #include "Ticks.h"
 #include "pins.h"
 #include "Buzzer.h"
 #include <util/delay.h>
 
+#if BREWPI_BUZZER
 
 #if (alarmPin != 3)
 	#error "Check PWM settings when you want to use a different pin for the alarm"
@@ -58,3 +60,5 @@ void Buzzer::beep(uint8_t numBeeps, uint16_t duration){
 }	
 	
 Buzzer buzzer;
+
+#endif

@@ -6,41 +6,41 @@
  */ 
 
 #pragma once
-
+#include "brewpi_avr.h"
 #include <avr/eeprom.h>
-#include "Arduino.h"
 
 typedef uint16_t eptr_t;
 #define INVALID_EPTR (0)
 
+
+inline void fill(int8_t* p, uint8_t size) {
+	while (size-->0) *p++ = -1;
+}
+inline void clear(uint8_t* p, uint8_t size) {
+	while (size-->0) *p++ = 0;
+}
+
 class EepromAccess
 {
 public:
-	uint8_t readByte(eptr_t offset) {
+	static uint8_t readByte(eptr_t offset) {
 		return eeprom_read_byte((uint8_t*)offset);
 	}
-	void writeByte(eptr_t offset, uint8_t value) {
+	static void writeByte(eptr_t offset, uint8_t value) {
 		eeprom_write_byte((uint8_t*)offset, value);
 	}
 	
-	void readBlock(void* target, eptr_t offset, uint16_t size) {
+	static void readBlock(void* target, eptr_t offset, uint16_t size) {
 		eeprom_read_block(target, (uint8_t*)offset, size);
 	}
-	void writeBlock(eptr_t target, const void* source, uint16_t size) {
-		eeprom_write_block(source, (void*)target, size);
-	}
-	
-	void dumpBlock(Print& stream, eptr_t offset, eptr_t end) {
-		while (offset<end) {
-			uint8_t eValue = readByte(offset);
-			stream.print(eValue, HEX);
-		}
-	}
+	static void writeBlock(eptr_t target, const void* source, uint16_t size) {
+		eeprom_update_block(source, (void*)target, size);
+	}	
 };
 
 extern EepromAccess eepromAccess;
 
-class AnyDeviceConfig;
+class DeviceConfig;
 
 
 // todo - the Eeprom manager should avoid too frequent saves to the eeprom since it supports 100,000 writes. 
@@ -49,32 +49,34 @@ public:
 		
 	EepromManager();
 	
-	void resetEeprom();
-		
-	void init() {}
+	static void init() {}
 	
-	bool hasSettings();
+	static void resetEeprom();
+	
+	/**
+	 * Determines if this eeprom has settings.
+	 */
+	static bool hasSettings();
 
 	/**
 	 * Applies the settings from the eeprom
 	 */
-	void applySettings();
+	static bool applySettings();
 		
-	void dumpEeprom(Print& stream);
+	static void dumpEeprom(Print& stream, uint16_t offset);
 
 	/**
 	 * Save the chamber constants and beer settings to eeprom for the currently active chamber.
 	 */
-	void storeTempConstantsAndSettings();
+	static void storeTempConstantsAndSettings();
 
 	/**
 	 * Save just the beer temp settings.
 	 */
-	void storeTempSettings();
+	static void storeTempSettings();
 
-
-	bool fetchDevice(AnyDeviceConfig& config, uint8_t deviceIndex);
-	bool storeDevice(const AnyDeviceConfig& config, uint8_t deviceIndex);
+	static bool fetchDevice(DeviceConfig& config, uint8_t deviceIndex);
+	static bool storeDevice(const DeviceConfig& config, uint8_t deviceIndex);
 };
 
 class EepromStream 

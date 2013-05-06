@@ -11,12 +11,12 @@
 
 #pragma once
 
-#include "Arduino.h"
+#include "brewpi_avr.h"
 #include "FastDigitalPin.h"
 
 #define ACTUATOR_VIRTUAL 1
 
-#if ACTUATOR_VIRTUAL==1	
+#if ACTUATOR_VIRTUAL
 	#define ACTUATOR_METHOD virtual
 	#define ACTUATOR_METHOD_IMPL =0
 	#define ACTUATOR_BASE_CLASS_DECL : public Actuator
@@ -38,6 +38,10 @@ class Actuator
 	ACTUATOR_METHOD void setActive(bool active) ACTUATOR_METHOD_IMPL;
 	ACTUATOR_METHOD void activate()  { setActive(true); }
 	ACTUATOR_METHOD void deactivate() { setActive(false); }
+#if ACTUATOR_VIRTUAL
+	virtual ~Actuator() {}
+#endif		
+		
 };
 
 /*

@@ -9,6 +9,7 @@
 #ifndef MOCKTEMPSENSOR_H_
 #define MOCKTEMPSENSOR_H_
 
+#include "brewpi_avr.h"
 #include "TempSensor.h"
 
 class MockTempSensor : public BasicTempSensor

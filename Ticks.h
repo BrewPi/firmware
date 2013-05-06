@@ -21,10 +21,12 @@
 #ifndef TICKS_H_
 #define TICKS_H_
 
-#include "Arduino.h"
 
-typedef unsigned long ticks_millis_t;
-typedef unsigned long ticks_micros_t;
+#include "brewpi_avr.h"
+
+
+typedef uint32_t ticks_millis_t;
+typedef uint32_t ticks_micros_t;
 typedef uint16_t ticks_seconds_t;
 typedef uint8_t ticks_seconds_tiny_t;
 

@@ -17,7 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <Arduino.h>
+#include "brewpi_avr.h"
 #include <limits.h>
 
 #include "Display.h"
@@ -89,7 +89,7 @@ void LcdDisplay::printFridgeSet(void){
 void LcdDisplay::printTemperature(fixed7_9 temp){
 	char tempString[9];
 	tempToString(tempString, temp, 1 , 9);
-	for(int i = 0; i<(5-strlen(tempString));i++){
+	for(uint8_t i = 0; i<(5-strlen(tempString));i++){
 		lcd.write(' ');
 	}
 	lcd.print(tempString);
@@ -137,6 +137,9 @@ void LcdDisplay::printMode(void){
 			break;
 		case MODE_OFF:
 			lcd.print_P(PSTR("Off          "));
+			break;
+		case MODE_TEST:
+			lcd.print_P(PSTR("-- Testing --"));
 			break;
 		default:
 			lcd.print_P(PSTR("Invalid mode "));

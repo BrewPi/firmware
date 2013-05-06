@@ -17,6 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "brewpi_avr.h"
 #include "TempSensor.h"
 #include "OneWire.h"
 #include "DallasTemperature.h"

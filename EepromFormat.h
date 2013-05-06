@@ -7,13 +7,14 @@
 
 #pragma once
 
+#include "brewpi_avr.h"
 #include "DeviceManager.h"
 #include "TempControl.h"
 
 
 struct ChamberSettings
 {
-	ControlConstants cc;	
+	ControlConstants cc;
 };
 
 struct BeerBlock {
@@ -31,12 +32,12 @@ struct EepromFormat
 {
 	static const uint16_t MAX_EEPROM_SIZE = 1024;
 	static const uint8_t MAX_CHAMBERS = 4;
-	static const uint8_t MAX_DEVICES = 40;
+	static const uint8_t MAX_DEVICES = MAX_DEVICE_SLOT;
 
 	byte version;
 	byte numChambers;
 	ChamberBlock chambers[MAX_CHAMBERS];
-	AnyDeviceConfig devices[MAX_DEVICES];
+	DeviceConfig devices[MAX_DEVICES];
 };
 
 void eepromSizeTooLarge()

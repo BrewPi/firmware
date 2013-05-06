@@ -25,7 +25,7 @@
  * 'ArduinoFunctions.cpp' includes all the source files from Arduino that are used. You might have to edit it if you are not using a Leonardo.
  * That is all that is needed! No hassle with makefiles and compiling libraries.
  */
-#include <Arduino.h>
+#include "brewpi_avr.h"
 #include "Ticks.h"
 #include "LcdDisplay.h"
 #include "TempControl.h"
@@ -40,7 +40,6 @@
 #include "OneWireTempSensor.h"
 #include "Ticks.h"
 #include "brewpi_avr.h"
-#include "config.h"
 #include "Sensor.h"
 
 // setup and loop are in brewpi_config so they can be reused across projects

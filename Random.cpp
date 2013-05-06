@@ -5,5 +5,12 @@
  *  Author: mat
  */ 
 
+#ifndef BREWPI_RANDOM
+#define BREWPI_RANDOM 1
+#endif
+
+#if BREWPI_RANDOM
 // Have to include this separately from Arduino.h, since it redefines makeWord()
 #include <WMath.cpp>
+
+#endif
