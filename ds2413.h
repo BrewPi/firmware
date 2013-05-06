@@ -4,6 +4,7 @@
 
 #include "brewpi_avr.h"
 #include "OneWire.h"
+#include "PiLink.h"
 
 typedef uint8_t DeviceAddress[8];
 typedef uint8_t pio_t;
@@ -65,8 +66,8 @@ public:
 	uint8_t channelReadAll()
 	{
 		byte result = accessRead();
-		//out.print("accessRead ");
-		//out.println(result, HEX);
+		out.print("accessRead ");
+		out.println(result, HEX);
 		return result<0 ? 0xFF : ((result&0x8)>>2 | (result&2)>>1);
 	}
 	
@@ -81,13 +82,13 @@ public:
 				result &= ~mask;
 			channelWriteAll((uint8_t)result);
 		}
+		else
+			DEBUG_MSG(PSTR("ChannelReadAll failed"));
 	}
 	
 	void channelWriteAll(uint8_t values)
 	{
 		accessWrite(values);
-		//out.print("Writing all values ");
-		//out.println(values);
 	}
 	
 	DeviceAddress& getDeviceAddress()

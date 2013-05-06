@@ -89,8 +89,15 @@ class PiLink{
 
 extern PiLink piLink;
 
+#ifndef BREWPI_DEBUG
+#define BREWPI_DEBUG 0
+#endif
 
-#define DEBUG_MSG(...) //piLink.debugMessageDirect(__VA_ARGS__);
+#if BREWPI_DEBUG
+#define DEBUG_MSG(...) piLink.debugMessageDirect(__VA_ARGS__);
+#else
+#define DEBUG_MSG(...)
+#endif
 
 
 #endif /* PILINK_H_ */

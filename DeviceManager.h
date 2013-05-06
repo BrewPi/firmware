@@ -222,10 +222,11 @@ public:
 			default: return -1;
 		}
 #endif			
+		return -1;
 	}
 
 	int8_t enumerateSensorPins(uint8_t offset) {
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
+#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A || BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
 		if (offset==0)
 			return doorPin;
 #endif			
@@ -237,13 +238,15 @@ public:
 	 */
 	int8_t enumOneWirePins(uint8_t offset)
 	{		
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A || BREWPI_SHIELD==BREWPI_SHIELD_REV_C
-		if (offset==0)
-			return A4;
-#endif
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
+		if (offset==0)
+			return beerSensorPin;
 		if (offset==1)
-			return A5;
+			return fridgeSensorPin;
+#endif
+#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+		if (offset==0)
+			return oneWirePin;
 #endif
 		return -1;								
 	}

@@ -8,6 +8,11 @@
 
 #pragma once
 
+#ifndef BREWPI_STATIC_CONFIG
+#define BREWPI_STATIC_CONFIG BREWPI_SHIELD_REV_A
+#endif
+
+
 #ifdef BREWPI_EMULATE
 #define BREWPI_EMULATE 0
 #endif

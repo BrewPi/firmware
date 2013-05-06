@@ -22,28 +22,54 @@
 
 #include "brewpi_avr.h"
 
+// Most pins are only conditionaly defined here, allowing definitions to be provided in config_local.h for 
+// local overrides
+
 #define BREWPI_SHIELD_REV_A	1
 #define BREWPI_SHIELD_REV_C	2
 
 
-#ifndef BREWPI_STATIC_CONFIG
-#define BREWPI_STATIC_CONFIG BREWPI_SHIELD_REV_A
+#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
+#ifndef beerSensorPin
+#define beerSensorPin    A5 // OneWire 1
 #endif
 
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
-#define beerSensorPin    A5 // OneWire 1
+#ifndef fridgeSensorPin
 #define fridgeSensorPin  A4 // OneWire 2
+#endif
 
+#ifndef coolingPin
 #define coolingPin	6
+#endif
+
+#ifndef heatingPin
 #define heatingPin	5
 #endif
 
+#endif
+
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+
+#ifndef oneWirePin
 #define oneWirePin A4
-#define actuator1Pin 2
-#define actuator2Pin 5
-#define actuator3Pin 6
-#define actuator7Pin A5
+#endif
+
+#ifndef actuatorPin1
+#define actuatorPin1 2
+#endif
+
+#ifndef actuatorPin2
+#define actuatorPin2 5
+#endif
+
+#ifndef actuatorPin3
+#define actuatorPin3 6
+#endif
+
+#ifndef actuatorPin4
+#define actuatorPin4 A5
+#endif
+
 #endif
 
 #define doorPin		4
@@ -56,11 +82,16 @@
 #define rotaryBPin 9 // PCINT5
 
 // You can use the internal pull-up resistors instead of external ones for the doorPin and the rotary encoder pins
+#ifndef USE_INTERNAL_PULL_UP_RESISTORS
 #define USE_INTERNAL_PULL_UP_RESISTORS false
-#define SHIELD_INVERT true
+#endif
 
+#ifndef LIGHT_AS_HEATER
 // If you are using the light bulb of your fridge as a heater, set this define to true
 // It will turn on the light when the door is opened
 #define LIGHT_AS_HEATER true
+#endif
+
+
 
 #endif /* PINS_H_ */

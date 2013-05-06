@@ -13,6 +13,7 @@
 #include "brewpi_avr.h"
 #include "Actuator.h"
 #include "ds2413.h"
+#include "PiLink.h"
 
 /**
  * An actuator that operates by communicating with a DS2413 device.
@@ -26,12 +27,13 @@ public:
 	}
 
 	void init(OneWire* bus, DeviceAddress address, pio_t pio, bool invert=true) {
-		this->invert = invert;
-		
+		this->invert = invert;		
+		this->pio = pio;
 		device.init(bus, address);
 	}
 	
 	void setActive(bool active) {
+		DEBUG_MSG(PSTR("setting pio %d active %d"), pio, active^invert);
 		device.channelWrite(pio, active^invert);
 	}		
 			

@@ -44,7 +44,7 @@ OneWire* DeviceManager::oneWireBus(uint8_t pin) {
 		return &fridgeSensorBus;
 #endif
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
-	if (pin==oneWirePin) 
+	if (pin==oneWirePin)
 		return &primaryOneWireBus;
 #endif		
 	return NULL;
@@ -731,9 +731,10 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCal
 					case DEVICE_HARDWARE_ONEWIRE_2413:
 						// enumerate each pin separately
 						for (uint8_t i=0; i<2; i++) {
-							config.hw.pinNr = i;
+							config.hw.pio = i;
 							handleEnumeratedDevice(config, h, callback, output);
 						}
+						break;
 		#endif				
 					default:
 						handleEnumeratedDevice(config, h, callback, output);
@@ -794,6 +795,7 @@ void UpdateDeviceState(DeviceDisplay& dd, DeviceConfig& dc, char* val)
 
 	if (dd.write>=0 && dt==DEVICETYPE_SWITCH_ACTUATOR) {
 		// write value to a specific device. For now, only actuators are relevant targets
+		DEBUG_MSG(PSTR("setting activator state %d"), dd.write!=0);
 		((Actuator*)*ppv)->setActive(dd.write!=0);
 	}
 	else if (dd.value==1) {		// read values 

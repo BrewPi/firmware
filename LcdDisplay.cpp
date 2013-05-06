@@ -139,7 +139,7 @@ void LcdDisplay::printMode(void){
 			lcd.print_P(PSTR("Off          "));
 			break;
 		case MODE_TEST:
-			lcd.print_P(PSTR("-- Testing --"));
+			lcd.print_P(PSTR("** Testing **"));
 			break;
 		default:
 			lcd.print_P(PSTR("Invalid mode "));
