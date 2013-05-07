@@ -67,11 +67,7 @@ public:
 	 * Performs a simultaneous read of both channels.
 	 * \ return 0xFF if there was an error otherwise bit 1 is channel A state, bit 2 is channel B state.
 	 */
-	uint8_t channelReadAll()
-	{
-		byte result = accessRead();
-		return result<0 ? 0xFF : ((result&0x8)>>2 | (result&2)>>1);
-	}
+	uint8_t channelReadAll();
 	
 	void channelWrite(pio_t pio, bool set)
 	{
@@ -88,10 +84,7 @@ public:
 			DEBUG_MSG(PSTR("ChannelReadAll failed"));
 	}
 	
-	void channelWriteAll(uint8_t values)
-	{
-		accessWrite(values);
-	}
+	void channelWriteAll(uint8_t values);
 	
 	DeviceAddress& getDeviceAddress()
 	{
