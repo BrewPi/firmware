@@ -173,6 +173,10 @@ class TempControl{
 	TEMP_CONTROL_METHOD fixed7_9 getFridgeTemp(void);
 	TEMP_CONTROL_METHOD fixed7_9 getFridgeSetting(void);
 	TEMP_CONTROL_METHOD void setFridgeTemp(int newTemp);
+	
+	TEMP_CONTROL_METHOD fixed7_9 getRoomTemp(void) {
+		return ambientSensor->read();
+	}
 		
 	TEMP_CONTROL_METHOD void setMode(char newMode);
 	TEMP_CONTROL_METHOD char getMode(void) {
@@ -195,6 +199,7 @@ class TempControl{
 	public:
 	TEMP_CONTROL_FIELD TempSensor* beerSensor;
 	TEMP_CONTROL_FIELD TempSensor* fridgeSensor;
+	TEMP_CONTROL_FIELD BasicTempSensor* ambientSensor;
 	TEMP_CONTROL_FIELD Actuator* heater;
 	TEMP_CONTROL_FIELD Actuator* cooler; 
 	TEMP_CONTROL_FIELD Actuator* light;

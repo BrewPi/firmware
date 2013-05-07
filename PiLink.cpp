@@ -339,6 +339,8 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
 		piLink.print(',');
 	}		
 #endif
+	if (tempControl.ambientSensor->isConnected() && changed(roomTemp, tempControl.getRoomTemp()))
+		print_P(PSTR("\""JSON_ROOM_TEMP"\":%s,"), tempToString(tempString, tempControl.getRoomTemp(), 2, 9));
 	if (changed(state, tempControl.getState()))
 		print_P(PSTR("\""JSON_STATE"\":%u,"), tempControl.getState());
 	

@@ -9,7 +9,9 @@
 typedef uint8_t DeviceAddress[8];
 typedef uint8_t pio_t;
 
-#define out Serial
+#ifndef DS2413_DYNAMIC_ADDRESS 
+#define DS2413_DYNAMIC_ADDRESS 0
+#endif
 
 #define  DS2413_FAMILY_ID 0x3A
 class DS2413
@@ -32,12 +34,14 @@ public:
 		this->oneWire = oneWire;
 		memcpy(this->address, address, sizeof(DeviceAddress));
 	}
-	
+
+#if DS2413_DYNAMIC_ADDRESS 
 	void init(OneWire* oneWire)
 	{
 		this->oneWire = oneWire;
 		getAddress(oneWire, this->address, 0);
 	}
+#endif	
 
 	/*
 	 * Determines if the device is connected. Note that the value returned here is potentially state immediately on return,
@@ -46,7 +50,7 @@ public:
 	 */
 	bool isConnected()
 	{
-		return validAddress(oneWire, this->address);
+		return validAddress(oneWire, this->address) && channelReadAll()!=0xFF;
 	}
 	
 	uint8_t pioMask(pio_t pio) { return pio==0 ? 1 : 2; }
@@ -60,14 +64,12 @@ public:
 	}
 	
 	/*
-	 * Performs a simultaneous read of both channels and stores
-	 * the result in .
+	 * Performs a simultaneous read of both channels.
+	 * \ return 0xFF if there was an error otherwise bit 1 is channel A state, bit 2 is channel B state.
 	 */
 	uint8_t channelReadAll()
 	{
 		byte result = accessRead();
-		out.print("accessRead ");
-		out.println(result, HEX);
 		return result<0 ? 0xFF : ((result&0x8)>>2 | (result&2)>>1);
 	}
 	
@@ -109,6 +111,7 @@ public:
 	 * /param index	The 0-based device index to return
 	 * /return true if the device was found and is the address valid.
 	 */
+#if DS2413_DYNAMIC_ADDRESS
 	static bool getAddress(OneWire* oneWire, uint8_t* deviceAddress, uint8_t index)
 	{
 		oneWire->reset_search();
@@ -123,6 +126,7 @@ public:
 		}
 		return false;
 	}
+#endif	
 private:
 
 	/*

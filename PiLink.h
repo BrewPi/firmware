@@ -84,7 +84,7 @@ class PiLink{
 #endif	
 	private:
 	static bool firstPair;
-	
+	friend class DeviceManager;
 };
 
 extern PiLink piLink;

@@ -58,7 +58,8 @@ void DeviceManager::loadDefaultDevices()
 		tempControl.beerSensor = new TempSensor(&defaultTempSensor);
 	if (tempControl.fridgeSensor==NULL)
 		tempControl.fridgeSensor = new TempSensor(&defaultTempSensor);
-		
+
+	tempControl.ambientSensor = &defaultTempSensor;		
 	tempControl.cooler = tempControl.heater = tempControl.light = &defaultActuator;
 	tempControl.door = &defaultSensor;	
 	
@@ -195,6 +196,9 @@ inline void** deviceTarget(DeviceConfig& config)
 	
 	void** ppv;
 	switch (config.deviceFunction) {
+	case DEVICE_CHAMBER_ROOM_TEMP:
+		ppv = (void**)&tempControl.ambientSensor;
+		break;
 	case DEVICE_CHAMBER_DOOR:
 		ppv = (void**)&(tempControl.door);
 		break;
@@ -212,11 +216,16 @@ inline void** deviceTarget(DeviceConfig& config)
 		break;
 	case DEVICE_BEER_TEMP:
 		ppv = (void**)&(tempControl.beerSensor);
-		break;	
+		break;
 	default:
 		ppv = NULL;
 	}
 	return ppv;
+}
+
+inline bool isBasicSensor(DeviceFunction function) {
+	// currently only ambient sensor is basic. The others are wrapped in a TempSensor.
+	return function==DEVICE_CHAMBER_ROOM_TEMP;
 }
 
 /**
@@ -238,12 +247,20 @@ void DeviceManager::installDevice(DeviceConfig& config)
 			break;
 		case DEVICETYPE_TEMP_SENSOR:
 			DEBUG_MSG(PSTR("Installing temp sensor f=%d"), config.deviceFunction);
-			s = &((TempSensor*)*ppv)->sensor();
+			// sensor may be wrapped in a TempSensor class, or may stand alone.
+			s = isBasicSensor(config.deviceFunction) ? (BasicTempSensor*)*ppv : &((TempSensor*)*ppv)->sensor();
 			if (s!=&defaultTempSensor)
 				delete s;
-			ts = ((TempSensor*)*ppv);
-			ts->setSensor((BasicTempSensor*)createDevice(config, dt));
-			ts->init();
+			s = (BasicTempSensor*)createDevice(config, dt);
+			if (isBasicSensor(config.deviceFunction)) {
+				s->init();
+				*ppv = s;				
+			}
+			else {
+				ts = ((TempSensor*)*ppv);
+				ts->setSensor(s);
+				ts->init();
+			}
 			break;
 		case DEVICETYPE_SWITCH_ACTUATOR:
 			DEBUG_MSG(PSTR("Installing actuator f=%d"), config.deviceFunction);
@@ -564,14 +581,20 @@ void printBytes(uint8_t* data, uint8_t len, char* buf) // prints 8-bit data in h
 	*buf = 0;
 }
 
+/*
+void print_P(Print* p, const char* data) {
+	while(pgm_read_byte(data) != 0x00)
+		p->print(pgm_read_byte(data++));
+}
+*/
 
 void DeviceManager::OutputEnumeratedDevices(DeviceConfig* config, void* pv)
 {
 	DeviceOutput* out = (DeviceOutput*)pv;
-	out->pp->print("d:");
+	out->pp->print("d:{");
 	if (config)
 		printDevice(out->slot, *config, out->value, *out->pp);
-	out->pp->print('\n');
+	out->pp->print("}\n");
 }
 
 struct EnumerateHardware
@@ -579,7 +602,8 @@ struct EnumerateHardware
 	int8_t hardware;		// restrict the types of devices requested
 	int8_t pin;				// pin to search
 	int8_t values;			// fetch values for the devices.
-	int8_t unused;			// 0 don't care, 1 unused only.	
+	int8_t unused;			// 0 don't care about unused state, 1 unused only.
+	int8_t function;		// restrict to devices that can be used with this function
 };
 
 void handleHardwareSpec(const char* key, const char* val, void* pv)
@@ -587,7 +611,7 @@ void handleHardwareSpec(const char* key, const char* val, void* pv)
 	EnumerateHardware* h = (EnumerateHardware*)pv;
 	DEBUG_MSG(PSTR("hardwareSpec %s:%s"), key, val);
 	
-	int8_t idx = indexOf("hpvu", key[0]);
+	int8_t idx = indexOf("hpvuf", key[0]);
 	if (idx>=0) {
 		*((int8_t*)h+idx) = atoi(val);
 	}			
@@ -645,6 +669,9 @@ inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw, char* 
 
 void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardware& h, EnumDevicesCallback callback, DeviceOutput& out)
 {
+	if (h.function && !isAssignable(deviceType(DeviceFunction(h.function)), config.deviceHardware)) 
+		return; // device not applicable for required function
+	
 	DEBUG_MSG(PSTR("Handling device"));
 	out.slot = findHardwareDevice(config);
 	DEBUG_MSG(PSTR("Matching device at slot %d"), out.slot);
@@ -753,6 +780,7 @@ void DeviceManager::enumerateHardware( Stream& p )
 	spec.values = 0;			// don't list values
 	spec.pin = -1;				// any pin
 	spec.hardware = -1;			// any hardware
+	spec.function = 0;			// no function restriction
 	
 	piLink.parseJson(handleHardwareSpec, &spec);	
 	DeviceOutput out;

@@ -40,6 +40,7 @@ TempControl tempControl;
 // These sensors are switched out to implement multi-chamber.
 TempSensor* TempControl::beerSensor;
 TempSensor* TempControl::fridgeSensor;
+BasicTempSensor* TempControl::ambientSensor;
 
 Actuator* TempControl::heater;
 Actuator* TempControl::cooler;
