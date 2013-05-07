@@ -5,7 +5,7 @@
     <ProjectVersion>6.1</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8.CPP</ToolchainName>
     <ProjectGuid>{c0415566-e0bc-45db-8e53-cc52899284fe}</ProjectGuid>
-    <avrdevice>ATmega328P</avrdevice>
+    <avrdevice>ATmega32U4</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
     <Language>CPP</Language>
@@ -18,10 +18,12 @@
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
-    <OverrideVtorValue>exception_table</OverrideVtorValue>
+    <OverrideVtorValue>
+    </OverrideVtorValue>
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <AsfVersion>3.1.3</AsfVersion>
-    <avrtool>com.atmel.avrdbg.tool.simulator</avrtool>
+    <avrtool>
+    </avrtool>
     <avrtoolinterface>
     </avrtoolinterface>
     <com_atmel_avrdbg_tool_avrdragon>
@@ -125,6 +127,7 @@
   <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
   <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
   <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+  <avrgcccpp.compiler.general.SubroutinesFunctionPrologues>True</avrgcccpp.compiler.general.SubroutinesFunctionPrologues>
   <avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>
   <avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>
   <avrgcccpp.compiler.symbols.DefSymbols>
@@ -136,16 +139,16 @@
   <avrgcccpp.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(ARDUINO_HOME)\hardware\arduino\cores\arduino</Value>
-      <Value>%24(ARDUINO_HOME)\hardware\arduino\variants\standard</Value>
+      <Value>%24(ARDUINO_HOME)\hardware\arduino\variants\leonardo</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
   <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
-  <avrgcccpp.compiler.optimization.OtherFlags>-fdata-sections</avrgcccpp.compiler.optimization.OtherFlags>
+  <avrgcccpp.compiler.optimization.OtherFlags>-fno-split-wide-types</avrgcccpp.compiler.optimization.OtherFlags>
   <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
   <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
   <avrgcccpp.compiler.optimization.DebugLevel>Maximum (-g3)</avrgcccpp.compiler.optimization.DebugLevel>
   <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
-  <avrgcccpp.compiler.miscellaneous.OtherFlags>-fno-exceptions -ffreestanding -mcall-prologues</avrgcccpp.compiler.miscellaneous.OtherFlags>
+  <avrgcccpp.compiler.miscellaneous.OtherFlags>-fno-exceptions -ffreestanding</avrgcccpp.compiler.miscellaneous.OtherFlags>
   <avrgcccpp.linker.libraries.Libraries>
     <ListValues>
       <Value>libm</Value>
