@@ -4,8 +4,10 @@
 #include <inttypes.h>
 
 #if ARDUINO >= 100
+#include "brewpi_avr.h"
 #include "Arduino.h"       // for delayMicroseconds, digitalPinToBitMask, etc
 #else
+#include "brewpi_avr.h"
 #include "WProgram.h"      // for delayMicroseconds
 #include "pins_arduino.h"  // for digitalPinToBitMask, etc
 #endif
@@ -83,7 +85,7 @@ class OneWire
   private:
     IO_REG_TYPE bitmask;
     volatile IO_REG_TYPE *baseReg;
-
+	uint8_t pin;
 #if ONEWIRE_SEARCH
     // global search state
     uint8_t ROM_NO[8];
@@ -94,6 +96,8 @@ class OneWire
 
   public:
     OneWire( uint8_t pin);
+
+	uint8_t pinNr() const { return pin; }
 
     // Perform a 1-Wire reset cycle. Returns 1 if a device responds
     // with a presence pulse.  Returns 0 if there is no device or the

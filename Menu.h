@@ -17,8 +17,17 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MENU_H_
+#ifndef MENU_H_ 
 #define MENU_H_
+
+#include "brewpi_avr.h"
+
+#ifndef BREWPI_MENU
+#define BREWPI_MENU 1
+#endif
+
+
+#if BREWPI_MENU
 
 #include <inttypes.h>
 
@@ -44,5 +53,7 @@ class Menu{
 };
 
 extern Menu menu;
+
+#endif
 
 #endif /* MENU_H_ */

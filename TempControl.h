@@ -21,9 +21,13 @@
 #ifndef CONTROLLER_H_
 #define CONTROLLER_H_
 
+#include "brewpi_avr.h"
 #include "TempSensor.h"
 #include "pins.h"
 #include "temperatureFormats.h"
+#include "Actuator.h"
+#include "Sensor.h"
+#include "EepromManager.h"
 
 // Set minimum off time to prevent short cycling the compressor in seconds
 #define MIN_COOL_OFF_TIME 300u
@@ -89,14 +93,15 @@ struct ControlConstants{
 	uint8_t beerSlopeFilter;	// for PID calculation
 };
 
-#define EEPROM_IS_INITIALIZED_ADDRESS 0
-#define EEPROM_CONTROL_SETTINGS_ADDRESS (EEPROM_IS_INITIALIZED_ADDRESS+sizeof(uint8_t))
+#define EEPROM_TC_SETTINGS_BASE_ADDRESS 0
+#define EEPROM_CONTROL_SETTINGS_ADDRESS (EEPROM_TC_SETTINGS_BASE_ADDRESS+sizeof(uint8_t))
 #define EEPROM_CONTROL_CONSTANTS_ADDRESS (EEPROM_CONTROL_SETTINGS_ADDRESS+sizeof(ControlSettings))
 
 #define	MODE_FRIDGE_CONSTANT 'f'
 #define MODE_BEER_CONSTANT 'b'
 #define MODE_BEER_PROFILE 'p'
 #define MODE_OFF 'o'
+#define MODE_TEST 't'
 
 enum states{
 	IDLE,
@@ -104,92 +109,251 @@ enum states{
 	STATE_OFF,
 	DOOR_OPEN,
 	HEATING,
-	COOLING,	
+	COOLING,
+	NUM_STATES
 };
+
+#define TC_STATE_MASK 0x7;	// 3 bits
+
+#ifndef TEMP_CONTROL_STATIC
+#define TEMP_CONTROL_STATIC 0
+#endif
+
+#if TEMP_CONTROL_STATIC
+#define TEMP_CONTROL_METHOD static
+#define TEMP_CONTROL_FIELD static
+#else
+#define TEMP_CONTROL_METHOD 
+#define TEMP_CONTROL_FIELD
+#endif
 
 // Making all functions and variables static reduces code size.
 // There will only be one TempControl object, so it makes sense that they are static.
+/*
+ * MDM: To support multi-chamber, I could have made TempControl non-static, and had a reference to
+ * the current instance. But this means each lookup of a field must be done indirectly, which adds to the code size.
+ * Instead, we swap in/out the sensors and control data so that the bulk of the code can work against compile-time resolvable
+ * memory references. While the design goes against the grain of typical OO practices, the savings 
+ */
+
 
 class TempControl{
 	public:
 	
-	TempControl(){
-	};
-	~TempControl(){
-	};
+	TempControl(){};
+	~TempControl(){};
 	
-	static void init(void);
-	static void reset(void);
+	TEMP_CONTROL_METHOD void init(void);
+	TEMP_CONTROL_METHOD void reset(void);
 	
-	static void updateTemperatures(void);
-	static void updatePID(void);
-	static void updateState(void);
-	static void updateOutputs(void);
-	static void detectPeaks(void);
+	TEMP_CONTROL_METHOD void updateTemperatures(void);
+	TEMP_CONTROL_METHOD void updatePID(void);
+	TEMP_CONTROL_METHOD void updateState(void);
+	TEMP_CONTROL_METHOD void updateOutputs(void);
+	TEMP_CONTROL_METHOD void detectPeaks(void);
 	
-	static void loadSettings(void);
-	static void storeSettings(void);
-	static void loadDefaultSettings(void);
+	TEMP_CONTROL_METHOD uint8_t loadSettings(eptr_t offset);
+	TEMP_CONTROL_METHOD uint8_t storeSettings(eptr_t offset);
+	TEMP_CONTROL_METHOD void loadDefaultSettings(void);
 	
-	static void loadConstants(void);
-	static void storeConstants(void);
-	static void loadDefaultConstants(void);
+	TEMP_CONTROL_METHOD uint8_t loadConstants(eptr_t offset);
+	TEMP_CONTROL_METHOD uint8_t storeConstants(eptr_t offset);
+	TEMP_CONTROL_METHOD void loadDefaultConstants(void);
 	
-	static void loadSettingsAndConstants(void);
+	//TEMP_CONTROL_METHOD void loadSettingsAndConstants(void);
 		
-	static uint16_t timeSinceCooling(void);
- 	static uint16_t timeSinceHeating(void);
-  	static uint16_t timeSinceIdle(void);
+	TEMP_CONTROL_METHOD uint16_t timeSinceCooling(void);
+ 	TEMP_CONTROL_METHOD uint16_t timeSinceHeating(void);
+  	TEMP_CONTROL_METHOD uint16_t timeSinceIdle(void);
 	  
-	static fixed7_9 getBeerTemp(void);
-	static fixed7_9 getBeerSetting(void);
-	static void setBeerTemp(int newTemp);
+	TEMP_CONTROL_METHOD fixed7_9 getBeerTemp(void);
+	TEMP_CONTROL_METHOD fixed7_9 getBeerSetting(void);
+	TEMP_CONTROL_METHOD void setBeerTemp(int newTemp);
 	
-	static fixed7_9 getFridgeTemp(void);
-	static fixed7_9 getFridgeSetting(void);
-	static void setFridgeTemp(int newTemp);
+	TEMP_CONTROL_METHOD fixed7_9 getFridgeTemp(void);
+	TEMP_CONTROL_METHOD fixed7_9 getFridgeSetting(void);
+	TEMP_CONTROL_METHOD void setFridgeTemp(int newTemp);
+	
+	TEMP_CONTROL_METHOD fixed7_9 getRoomTemp(void) {
+		return ambientSensor->read();
+	}
 		
-	static void setMode(char newMode);
-	static char getMode(void) {
+	TEMP_CONTROL_METHOD void setMode(char newMode);
+	TEMP_CONTROL_METHOD char getMode(void) {
 		return cs.mode;
 	}
 
-	void setState(unsigned char newState){
+	TEMP_CONTROL_METHOD void setState(unsigned char newState){
 		state = newState;
 	}
 
-	unsigned char getState(void){
+	TEMP_CONTROL_METHOD unsigned char getState(void){
 		return state;
 	}
 		
+	private:
+	TEMP_CONTROL_METHOD void increaseEstimator(fixed7_9 * estimator, fixed7_9 error);
+	TEMP_CONTROL_METHOD void decreaseEstimator(fixed7_9 * estimator, fixed7_9 error);
+	TEMP_CONTROL_METHOD void constantsChanged();
+		
 	public:
-	static TempSensor beerSensor;
-	static TempSensor fridgeSensor;
+	TEMP_CONTROL_FIELD TempSensor* beerSensor;
+	TEMP_CONTROL_FIELD TempSensor* fridgeSensor;
+	TEMP_CONTROL_FIELD BasicTempSensor* ambientSensor;
+	TEMP_CONTROL_FIELD Actuator* heater;
+	TEMP_CONTROL_FIELD Actuator* cooler; 
+	TEMP_CONTROL_FIELD Actuator* light;
+	TEMP_CONTROL_FIELD Sensor<bool>* door;
 	
 	// Control parameters
-	static ControlConstants cc;
-	static ControlSettings cs;
-	static ControlVariables cv;
+	TEMP_CONTROL_FIELD ControlConstants cc;
+	TEMP_CONTROL_FIELD ControlSettings cs;
+	TEMP_CONTROL_FIELD ControlVariables cv;
 		
 	private:
 	// keep track of beer setting stored in EEPROM
-	static fixed7_9 storedBeerSetting;
+	TEMP_CONTROL_FIELD fixed7_9 storedBeerSetting;
 
 	// Timers
-	static unsigned long lastIdleTime;
-	static unsigned long lastHeatTime;
-	static unsigned long lastCoolTime;
+	TEMP_CONTROL_FIELD unsigned int lastIdleTime;
+	TEMP_CONTROL_FIELD unsigned int lastHeatTime;
+	TEMP_CONTROL_FIELD unsigned int lastCoolTime;
 	
 	// State variables
-	static uint8_t state;
-	static bool doPosPeakDetect;
-	static bool doNegPeakDetect;
+	TEMP_CONTROL_FIELD uint8_t state;
+	TEMP_CONTROL_FIELD bool doPosPeakDetect;
+	TEMP_CONTROL_FIELD bool doNegPeakDetect;
+	
+	friend class TempControlState;
+};
+	
+extern TempControl tempControl;
+
+#if MULTICHAMBER
+
+#if TEMP_CONTROL_STATIC
+class TempControlState
+{
+	protected:
+	TempSensor& fridgeSensor;
+	TempSensor& beerSensor;
+	
+	Actuator& heater;
+	Actuator& cooler;
+	Actuator& light;
+	SwitchSensor& door;
+	
+	// Control parameters
+	ControlConstants cc;
+	ControlSettings cs;
+	ControlVariables cv;
+	
+	protected:
+	// keep track of beer setting stored in EEPROM
+	fixed7_9 storedBeerSetting;
+
+	// Timers
+	unsigned int lastIdleTime;
+	unsigned int lastHeatTime;
+	unsigned int lastCoolTime;
+	
+	// State variables
+	uint8_t state;
+	bool doPosPeakDetect;
+	bool doNegPeakDetect;
+	
+	public:
+	TempControlState(TempSensor& _fridgeSensor, TempSensor& _beerSensor, Actuator& _cooler, Actuator& _heater, Actuator& _light, SwitchSensor& _door)
+	: fridgeSensor(_fridgeSensor), beerSensor(_beerSensor), heater(_heater), cooler(_cooler), light(_light), door(_door) {}
+
+	#define applyField(field) memcpy(&TempControl::field, &field, sizeof(TempControl::field));
+	#define retractField(field) memcpy(&field, &TempControl::field, sizeof(TempControl::field));
+	#define applyFieldRef(field) TempControl::field = &field;
+	#define retractFieldRef(field) ;
+
+	void applyInit() {
+		applyFieldRef(beerSensor);
+		applyFieldRef(fridgeSensor);
+		applyFieldRef(cooler);
+		applyFieldRef(heater);
+		applyFieldRef(door);
+		applyFieldRef(light);
+	}
+
+	/*load into the global temp controller*/
+	void apply() {
+		applyInit();
+		
+		applyField(cc);
+		applyField(cs);
+		applyField(cv);
+		applyField(storedBeerSetting);
+
+		applyField(lastIdleTime);
+		applyField(lastHeatTime);
+		applyField(lastCoolTime);
+		
+		applyField(state);
+		applyField(doPosPeakDetect);
+		applyField(doNegPeakDetect);
+	}
+
+	/*save state from the global temp controller*/
+	void retract() {
+		retractFieldRef(beerSensor);
+		retractFieldRef(fridgeSensor);
+		retractFieldRef(heater);
+		retractFieldRef(cooler);
+		retractFieldRef(light);
+		retractFieldRef(door);
+		
+		retractField(cc);
+		retractField(cs);
+		retractField(cv);
+		retractField(storedBeerSetting);
+
+		retractField(lastIdleTime);
+		retractField(lastHeatTime);
+		retractField(lastCoolTime);
+		
+		retractField(state);
+		retractField(doPosPeakDetect);
+		retractField(doNegPeakDetect);
+	}
 
 	
-	static void increaseEstimator(fixed7_9 * estimator, fixed7_9 error);
-	static void decreaseEstimator(fixed7_9 * estimator, fixed7_9 error);
-};
+#else
+	class TempControlState : public TempControl {
+		public:
+		TempControlState(TempSensor& _fridgeSensor, TempSensor& _beerSensor, Actuator& _cooler, Actuator& _heater, Actuator& _light, SwitchSensor& _door)
+		{
+			fridgeSensor = &_fridgeSensor;
+			beerSensor = &_beerSensor;
+			cooler = &_cooler;
+			heater = &_heater;
+			light = &_light;
+			door = &_door;
+		}
+	
+	void applyInit() {
+		apply();
+	}
 
-extern TempControl tempControl;
+	void apply() {
+		memcpy(&tempControl, (TempControl*)this, sizeof(TempControl));
+	}
+	
+	void retract() {
+		memcpy((TempControl*)this, &tempControl, sizeof(TempControl));
+	}
+#endif	
+	
+	friend class Chamber;
+	friend class ChamberManager;
+
+};
+#endif // MULTICHAMBER
+
+
 
 #endif /* CONTROLLER_H_ */

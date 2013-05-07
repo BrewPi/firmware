@@ -25,57 +25,27 @@
  * 'ArduinoFunctions.cpp' includes all the source files from Arduino that are used. You might have to edit it if you are not using a Leonardo.
  * That is all that is needed! No hassle with makefiles and compiling libraries.
  */
-#include <Arduino.h>
+#include "brewpi_avr.h"
 #include "Ticks.h"
-#include "Display.h"
+#include "LcdDisplay.h"
 #include "TempControl.h"
 #include "PiLink.h"
 #include "Menu.h"
 #include "pins.h"
 #include "RotaryEncoder.h"
 #include "Buzzer.h"
+#include "chamber.h"
+#include "TempSensor.h"
+#include "MockTempSensor.h"
+#include "OneWireTempSensor.h"
+#include "Ticks.h"
+#include "brewpi_avr.h"
+#include "Sensor.h"
 
-// global class objects static and defined in class cpp and h files
+// setup and loop are in brewpi_config so they can be reused across projects
+extern void setup(void);
+extern void loop (void);
 
-void setup(void);
-void loop (void);
-
-
-void setup()
-{
-	
-	piLink.init();
-	
-	// Signals are inverted on the shield, so set to high
-	digitalWrite(coolingPin, HIGH);
-	digitalWrite(heatingPin, HIGH);
-	
-	pinMode(coolingPin, OUTPUT);
-	pinMode(heatingPin, OUTPUT);
-		
-	#if(USE_INTERNAL_PULL_UP_RESISTORS)
-		pinMode(doorPin, INPUT_PULLUP);
-	#else
-		pinMode(doorPin, INPUT);
-	#endif
-	
-	tempControl.loadSettingsAndConstants(); //read previous settings from EEPROM
-	tempControl.init();
-	tempControl.updatePID();
-	tempControl.updateState();
-	
-	wait.millis(2000); // give LCD time to power up
-	
-	display.init();
-	display.printStationaryText();
-	display.printState();
-	
-	rotaryEncoder.init();
-	
-	piLink.printFridgeAnnotation(PSTR("Arduino restarted!"));
-	buzzer.init();
-	buzzer.beep(2, 500);
-}
 
 void main() __attribute__ ((noreturn)); // tell the compiler main doesn't return.
 
@@ -90,39 +60,16 @@ void main(void)
 	setup();
 	
 	for (;;) {
-		loop();
+		loop();		
 		if (serialEventRun) serialEventRun();
 	}
 }
 
-void loop(void)
-{
-	static unsigned long lastUpdate = 0;
-	if(ticks.millis() - lastUpdate > 1000){ //update settings every second
-		lastUpdate=ticks.millis();
-		
-		tempControl.updateTemperatures();		
-		tempControl.detectPeaks();
-		tempControl.updatePID();
-		tempControl.updateState();
-		tempControl.updateOutputs();
-		if(rotaryEncoder.pushed()){
-			rotaryEncoder.resetPushed();
-			menu.pickSettingToChange();	
-		}
-		display.printState();
-		display.printAllTemperatures();
-		display.printMode();
-		display.lcd.updateBacklight();
-	}	
-	//listen for incoming serial connections while waiting top update
-	piLink.receive();
-}
+
 
 // catch bad interrupts here when debugging
 ISR(BADISR_vect){
-	while(1){
-		;
-	}
+	DEBUG_MSG(PSTR("*** BASISR_vect ***"));
+	while (1);
 }
 

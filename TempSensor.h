@@ -21,6 +21,7 @@
 #ifndef SENSORS_H_
 #define SENSORS_H_
 
+#include "brewpi_avr.h"
 #include "CascadedFilter.h"
 #include "OneWire.h"
 #include "DallasTemperature.h"
@@ -28,34 +29,59 @@
 #include "pins.h"
 #include <stdlib.h>
 
-class TempSensor{
-	public:
-	TempSensor(const uint8_t pinNumber) : pinNr(pinNumber){
-		lastRequestTime = 0;
-		connected = 0;
+#ifndef TEMP_SENSOR_CASCADED_FILTER 
+#define TEMP_SENSOR_CASCADED_FILTER 1
+#endif
+
+#if TEMP_SENSOR_CASCADED_FILTER 
+typedef CascadedFilter TempSensorFilter;
+#else
+typedef FixedFilter TempSensorFilter;
+#endif
+
+class BasicTempSensor
+{
+public:
+	virtual ~BasicTempSensor() { }
+	
+	virtual bool isConnected(void) = 0;
+	
+	/*
+	 * Attempt to (re-)initialize the sensor and fetch a sensor reading
+	 * Returns a temperature reading, or DEVICE_DISCONNECTED
+	 */
+	virtual fixed7_9 init() =0;
+
+	/*
+	 * Fetch a new reading from the sensor
+	 */
+	virtual fixed7_9 read() = 0;
+	
+};
+
+class TempSensor {
+	public:	
+	TempSensor(BasicTempSensor* sensor =NULL) : _sensor(sensor)  {
 		updateCounter = 255; // first update for slope filter after (255-13s)
-		oneWire = new OneWire(pinNr);
-		sensor = new DallasTemperature(oneWire);
-	};
-		
-	~TempSensor(){
-		delete oneWire;
-		delete sensor;
-	};
-		
+	 }	 	 
+	 
+	 void setSensor(BasicTempSensor* sensor) {
+		 _sensor = sensor;
+	 }
+	 
+	
 	void init();
 	
-	bool isConnected(void){
-		return connected;
-	}
+	bool isConnected() { return _sensor->isConnected(); }
 	
-	void update(void);
-	fixed7_9 read(void);
+	void update();
+	
 	fixed7_9 readFastFiltered(void);
 
 	fixed7_9 readSlowFiltered(void){
 		return slowFilter.readOutput(); //return most recent unfiltered value
 	}
+	
 	fixed7_9 readSlope(void);
 	
 	fixed7_9 detectPosPeak(void){
@@ -78,22 +104,22 @@ class TempSensor{
 		slopeFilter.setCoefficients(b);
 	}			
 	
-	private:
-	const uint8_t pinNr;
-	bool connected;
-	unsigned long lastRequestTime; // in milliseconds
+	BasicTempSensor& sensor() {
+		return *_sensor;
+	}
+	 
+	private:	
+	BasicTempSensor* _sensor;
+	TempSensorFilter fastFilter;
+	TempSensorFilter slowFilter;
+	TempSensorFilter slopeFilter;
 	unsigned char updateCounter;
-	fixed7_25 prevOutputForSlope;	
-	
-	CascadedFilter fastFilter;
-	CascadedFilter slowFilter;
-	CascadedFilter slopeFilter;
-	
-	OneWire * oneWire;
-	DallasTemperature * sensor;
-	DeviceAddress sensorAddress;
+	fixed7_25 prevOutputForSlope;
+			
+	friend class ChamberManager;
+	friend class Chamber;
+	friend class DeviceManager;
 };
-
 
 
 #endif /* SENSORS_H_ */

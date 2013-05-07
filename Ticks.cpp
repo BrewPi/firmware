@@ -17,11 +17,12 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "brewpi_avr.h"
 #include "Ticks.h"
 
 
 // return time that has passed since timeStamp, take overflow into account
-ticks_seconds_t Ticks::timeSince(ticks_seconds_t previousTime){
+ticks_seconds_t HardwareTicks::timeSince(ticks_seconds_t previousTime){
 	ticks_seconds_t currentTime = ticks.seconds();
 	if(currentTime>=previousTime){
 		return currentTime - previousTime;
@@ -31,6 +32,3 @@ ticks_seconds_t Ticks::timeSince(ticks_seconds_t previousTime){
 		return (currentTime + 1440) - (previousTime +1440); // add a day to both for calculation
 	}
 }
-
-Ticks ticks;
-Delay wait;

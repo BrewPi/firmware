@@ -4,10 +4,15 @@
  * Created: 7-2-2013 0:22:37
  *  Author: Elco
  */ 
+
+#include "brewpi_avr.h"
+#include "FastDigitalPin.h"
 #include "Ticks.h"
 #include "pins.h"
 #include "Buzzer.h"
 #include <util/delay.h>
+
+#if BREWPI_BUZZER
 
 #if (alarmPin != 3)
 	#error "Check PWM settings when you want to use a different pin for the alarm"
@@ -21,7 +26,7 @@
 
 void Buzzer::init(void){
 	// set up square wave PWM for buzzer
-	pinMode(alarmPin,OUTPUT);
+	fastPinMode(alarmPin,OUTPUT);
 }
 
 #else
@@ -31,7 +36,8 @@ void Buzzer::init(void){
 	
 void Buzzer::init(void){
 	// set up square wave PWM for buzzer
-	pinMode(alarmPin,OUTPUT);
+	fastPinMode(alarmPin,OUTPUT);
+
 	// Arduino UNO, buzzer is on OC2B
 	TCCR2A = (1<<COM2B1) | (1<<WGM20);
 	TCCR2B = (1<<WGM22) | (1<<CS21) | (1<<CS20); // prescaler = 32
@@ -54,3 +60,5 @@ void Buzzer::beep(uint8_t numBeeps, uint16_t duration){
 }	
 	
 Buzzer buzzer;
+
+#endif

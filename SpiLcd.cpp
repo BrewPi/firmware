@@ -19,17 +19,23 @@
 
 #include "SpiLcd.h"
 
-#include <Arduino.h>
+#include "brewpi_avr.h"
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
 #include <util/delay.h>
+#include "FastDigitalPin.h"
+#include "pins.h"
 #include <util/atomic.h>
 
-void SpiLcd::init(uint8_t latchPin)
+// MDM - removed the latchPin parameter since it's never changed, and having a compile time constant makes the
+// compiled code smaller and more efficient. If a more convenient way to specifying the constant latch pin number is needed,
+// expand the SpiLcd class to a template, with a single int instatiation parameter.
+void SpiLcd::init()
 {
-	_latchPin = latchPin;
-	pinMode(_latchPin, OUTPUT);
+	wait.millis(2000); // give LCD time to power up
+
+	fastPinMode(lcdLatchPin, OUTPUT);
 	
 	_displayfunction = LCD_FUNCTIONSET | LCD_4BITMODE;
 
@@ -205,19 +211,22 @@ inline void SpiLcd::command(uint8_t value) {
 }
 
 inline size_t SpiLcd::write(uint8_t value) {
-	send(value, HIGH);
 	content[_currline][_currpos] = value;
 	_currpos++;
-	waitBusy();
+	if (!_bufferOnly)
+	{
+		send(value, HIGH);
+		waitBusy();		
+	}
 	return 1;
 }
 
 /************ low level data pushing commands **********/
 void SpiLcd::initSpi(void){
 	// Set MOSI and CLK to output
-	pinMode(MOSI, OUTPUT);
-	pinMode(SCK, OUTPUT);
-	pinMode(SS, OUTPUT);
+	fastPinMode(MOSI, OUTPUT);
+	fastPinMode(SCK, OUTPUT);
+	fastPinMode(SS, OUTPUT);
 	// The most significant bit should be sent out by the SPI port first.
 	// equals SPI.setBitOrder(MSBFIRST);
 	SPCR &= ~_BV(DORD);
@@ -242,25 +251,25 @@ void SpiLcd::initSpi(void){
 
 // Update the pins of the shift register
 void SpiLcd::spiOut(void){
-	digitalWrite(_latchPin, LOW);
+	fastDigitalWrite(lcdLatchPin, LOW);
 	SPDR = _spiByte; // Send the byte to the SPI
 	// wait for send to finish
 	while (!(SPSR & _BV(SPIF))); 
 	
-	digitalWrite(_latchPin, HIGH);
+	fastDigitalWrite(lcdLatchPin, HIGH);
 }
 
 // write either command or data
 void SpiLcd::send(uint8_t value, uint8_t mode) {
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){ // prevent interrupts during command
-		if(mode){
-			bitSet(_spiByte, LCD_SHIFT_RS);
-		}
-		else{
-			bitClear(_spiByte, LCD_SHIFT_RS);
-		}
-		spiOut();
-		write4bits(value>>4);
+	if(mode){
+		bitSet(_spiByte, LCD_SHIFT_RS);
+	}
+	else{
+		bitClear(_spiByte, LCD_SHIFT_RS);
+	}
+	spiOut();
+	write4bits(value>>4);
 		write4bits(value);	
 	}
 }

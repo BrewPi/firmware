@@ -17,14 +17,16 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "brewpi_avr.h"
 #include "RotaryEncoder.h"
 
-#include <Arduino.h>
 #include "pins.h"
 #include "util/atomic.h"
 #include <limits.h>
 #include "Ticks.h"
 #include "Display.h"
+#include "FastDigitalPin.h"
+#include "brewpi_avr.h"
 
 RotaryEncoder rotaryEncoder;
 
@@ -37,6 +39,10 @@ RotaryEncoder rotaryEncoder;
 #if rotaryBPin != 9
 	#error Review interrupt vectors when not using pin 9 for menu left
 #endif
+
+#define ENABLE_ROTARY_ENCODER 0
+
+#if ENABLE_ROTARY_ENCODER
 
 #if defined(USBCON)
 // Arduino Leonardo
@@ -89,9 +95,11 @@ ISR(PCINT0_vect){
 
 #endif
 
+#endif
+
 void RotaryEncoder::setPushed(void){
 	pushFlag = true;
-	display.lcd.resetBacklightTimer();
+	display.resetBacklightTimer();
 }
 
 void RotaryEncoder::pinAHandler(bool pinState){
@@ -117,7 +125,7 @@ void RotaryEncoder::pinAHandler(bool pinState){
 	if(halfSteps <= (minimum-2)){
 		halfSteps = maximum;
 	}
-	display.lcd.resetBacklightTimer();
+	display.resetBacklightTimer();
 }
 
 void RotaryEncoder::pinBHandler(bool pinState){
@@ -146,18 +154,19 @@ void RotaryEncoder::init(void){
 	pinBTime = 0;
 	
 	#if(USE_INTERNAL_PULL_UP_RESISTORS)
-	pinMode(rotaryAPin, INPUT_PULLUP);
-	pinMode(rotaryBPin, INPUT_PULLUP);
-	pinMode(rotarySwitchPin, INPUT_PULLUP);
+	fastPinMode(rotaryAPin, INPUT_PULLUP);
+	fastPinMode(rotaryBPin, INPUT_PULLUP);
+	fastPinMode(rotarySwitchPin, INPUT_PULLUP);
 	#else
-	pinMode(rotaryAPin, INPUT);
-	pinMode(rotaryBPin, INPUT);
-	pinMode(rotarySwitchPin, INPUT);
+	fastPinMode(rotaryAPin, INPUT);
+	fastPinMode(rotaryBPin, INPUT);
+	fastPinMode(rotarySwitchPin, INPUT);
 	#endif
 	
 	pinAHandler(true); // call functions ones here for proper initialization
 	pinBHandler(true); 
-	
+
+#if ENABLE_ROTARY_ENCODER	
 	#if defined(USBCON) // Arduino Leonardo
 		// falling edge interrupt for switch on INT6
 		EICRB |= (1<<ISC61) | (0<<ISC60);
@@ -175,6 +184,7 @@ void RotaryEncoder::init(void){
 		// enable mask bit for PCINT23
 		PCMSK2 |= (1<<PCINT23);
 	#endif
+#endif	
 }
 
 

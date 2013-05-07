@@ -21,6 +21,7 @@
 #ifndef CASCADEDFILTER_H_
 #define CASCADEDFILTER_H_
 
+#include "brewpi_avr.h"
 
 #include "temperatureFormats.h"
 #include "FixedFilter.h"

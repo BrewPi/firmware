@@ -17,6 +17,10 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "brewpi_avr.h"
+
+#if BREWPI_MENU
+
 #include "Menu.h"
 
 #include <limits.h>
@@ -27,6 +31,7 @@
 #include "RotaryEncoder.h"
 #include "PiLink.h"
 #include "Ticks.h"
+#include "brewpi_avr.h"
 
 Menu menu;
 
@@ -44,8 +49,7 @@ void Menu::pickSettingToChange(void){
 			display.printStationaryText();		
 		}
 		if(blinkTimer == 128){ // blink one of the options by overwriting it with spaces
-			display.lcd.setCursor(0,rotaryEncoder.read());
-			display.lcd.print_P(PSTR("      "));
+			display.printAt(0, rotaryEncoder.read(), PSTR("      "));			
 		}
 		if( rotaryEncoder.pushed() ){
 			rotaryEncoder.resetPushed();
@@ -69,7 +73,7 @@ void Menu::pickSettingToChange(void){
 		}
 		
 		blinkTimer++;
-		delay(3); // delay for blinking
+		wait.millis(3); // delay for blinking
 	}
 }
 
@@ -121,11 +125,10 @@ void Menu::pickMode(void){
 				display.printMode();
 			}
 			if(blinkTimer == 128){
-				display.lcd.setCursor(7,0);
-				display.lcd.print_P(PSTR("             "));
+				display.printAt(7, 0, PSTR("             "));
 			}				
 			blinkTimer++;
-			delay(3); // delay for blinking
+			wait.millis(3); // delay for blinking
 		}
 	}
 	// Time Out. Restore original setting
@@ -165,11 +168,10 @@ void Menu::pickBeerSetting(void){
 				display.printBeerSet();
 			}
 			if(blinkTimer == 128){
-				display.lcd.setCursor(12,1);
-				display.lcd.print_P(PSTR("     "));
+				display.printAt(12,1, PSTR("     "));
 			}				
 			blinkTimer++;
-			delay(3); // delay for blinking
+			wait.millis(3); // delay for blinking
 		}
 	}
 	// Time Out. Restore original setting
@@ -209,13 +211,14 @@ void Menu::pickFridgeSetting(void){
 				display.printFridgeSet();
 			}
 			if(blinkTimer == 128){
-				display.lcd.setCursor(12,2);
-				display.lcd.print_P(PSTR("     "));
+				display.printAt(12, 2, PSTR("     "));
 			}				
 			blinkTimer++;
-			delay(3); // delay for blinking
+			wait.millis(3); // delay for blinking
 		}
 	}
 	// Time Out. Restore original setting
 	tempControl.setFridgeTemp(oldSetting);
 }
+
+#endif

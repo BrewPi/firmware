@@ -20,7 +20,12 @@
 #ifndef PILINK_H_
 #define PILINK_H_
 
+#include "brewpi_avr.h"
 #include "temperatureFormats.h"
+#include "DeviceManager.h"
+
+class DeviceConfig;
+
 
 class PiLink{
 	public:
@@ -29,13 +34,17 @@ class PiLink{
 	static void init(void);
 	static void receive(void);
 	
-	static void print(char *fmt, ...); // use when format string is stored in RAM
-	static void print_P(const char *fmt, ...); // use when format string is stored in PROGMEM with PSTR("string")
-	
-	static void printTemperatures(void);
-	static void printBeerAnnotation(const char * annotation, ...);
 	static void printFridgeAnnotation(const char * annotation, ...);
+	static void printBeerAnnotation(const char * annotation, ...);
 	static void debugMessage(const char * message, ...);
+	static void debugMessageDirect(const char * message, ...);
+	static void printTemperatures(void);
+	
+	typedef void (*ParseJsonCallback)(const char* key, const char* val, void* data);
+
+	static void parseJson(ParseJsonCallback fn, void* data);
+	
+	private:
 	
 	static void sendControlSettings(void);
 	static void receiveControlConstants(void);
@@ -44,9 +53,14 @@ class PiLink{
 	
 	static void receiveJson(void); // receive settings as JSON key:value pairs
 	
+	static void print(char *fmt, ...); // use when format string is stored in RAM
+	static void print(char c) { Serial.print(c); }
+	static void print_P(const char *fmt, ...); // use when format string is stored in PROGMEM with PSTR("string")
+	static void printChamberCount();
 	
 	private:
-	static void printResponse(char type);
+	static void printResponse(char responseChar);
+	static void printChamberInfo();
 	
 	static void printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotation);
 	static void sendJsonPair(const char * name, const char * val); // send one JSON pair with a string value as name:val,
@@ -54,17 +68,36 @@ class PiLink{
 	static void sendJsonPair(const char * name, uint16_t val); // send one JSON pair with a uint16_t value as name:val,
 	static void sendJsonPair(const char * name, uint8_t val); // send one JSON pair with a uint8_t value as name:val,
 	
-	static void processJsonPair(char * key, char * val); // process one pair
+	static void processJsonPair(const char * key, const char * val, void* pv); // process one pair
 	
 	/* Prints the name part of a json name/value pair. The name must exist in PROGMEM */
 	static void printJsonName(const char * name);
 	static void printJsonSeparator();
 	static void sendJsonClose();
+#if BREWPI_SIMULATE	
+	static void updateInputs();
+	public:
+	static void printSimulatorSettings();
+	private:
+	static void sendJsonPair(const char* name, double val);
+	static void printDouble(double val);
+#endif	
 	private:
 	static bool firstPair;
-	
+	friend class DeviceManager;
 };
 
-static PiLink piLink;
+extern PiLink piLink;
+
+#ifndef BREWPI_DEBUG
+#define BREWPI_DEBUG 0
+#endif
+
+#if BREWPI_DEBUG
+#define DEBUG_MSG(...) piLink.debugMessageDirect(__VA_ARGS__);
+#else
+#define DEBUG_MSG(...)
+#endif
+
 
 #endif /* PILINK_H_ */
