@@ -339,14 +339,6 @@ void handleDeviceDefinition(const char* key, const char* val, void* pv)
 		((uint8_t*)def)[idx] = (uint8_t)strtoul(val, NULL, 10);	
 }
 
-
-//bool DeviceManager::printDeviceAlternatives()
-//{
-	// chamber/beer within bounds. alternate chamber/beer are all valid.
-	// device function - list device functions not in use for the chamber/beer including this one
-	
-//}
-
 bool inRangeUInt8(uint8_t val, uint8_t min, int8_t max) {
 	return min<=val && val<=max;
 }
@@ -663,7 +655,7 @@ inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw, char* 
 {
 	OneWire* bus = oneWireBus(hw.pinNr);
 	OneWireTempSensor sensor(bus, hw.address);
-	fixed23_9 value = sensor.init();	
+	fixed7_9 value = sensor.init();	
 	fixedPointToString(out, value, 3, 9);
 }
 

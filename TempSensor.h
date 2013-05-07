@@ -93,29 +93,17 @@ class TempSensor {
 	
 	fixed7_9 readSlope(void);
 	
-	fixed7_9 detectPosPeak(void){
-		return slowFilter.detectPosPeak();
-	}
+	fixed7_9 detectPosPeak(void);
 	
-	fixed7_9 detectNegPeak(void){
-		return slowFilter.detectNegPeak();
-	}
+	fixed7_9 detectNegPeak(void);
 	
-	void setFastFilterCoefficients(uint8_t b){
-		if (hasFastFilter()) fastFilter.setCoefficients(b);
-	}
+	void setFastFilterCoefficients(uint8_t b);
 	
-	void setSlowFilterCoefficients(uint8_t b){
-		if (hasSlowFilter()) slowFilter.setCoefficients(b);
-	}
+	void setSlowFilterCoefficients(uint8_t b);
 
-	void setSlopeFilterCoefficients(uint8_t b){
-		if (hasSlopeFilter()) slopeFilter.setCoefficients(b);
-	}			
+	void setSlopeFilterCoefficients(uint8_t b);
 	
-	BasicTempSensor& sensor() {
-		return *_sensor;
-	}
+	BasicTempSensor& sensor();
 	 
 	private:	
 	BasicTempSensor* _sensor;

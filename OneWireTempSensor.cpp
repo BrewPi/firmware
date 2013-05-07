@@ -11,6 +11,7 @@
 #include "PiLink.h"
 #include "Ticks.h"
 
+
 fixed7_9 OneWireTempSensor::init(){
 	
 	if (sensor==NULL) {
@@ -41,10 +42,12 @@ fixed7_9 OneWireTempSensor::init(){
 	lastRequestTime = ticks.millis();
 	wait.millis(750); // delay 750ms for conversion time
 	
+	#if BREWPI_DEBUG
 	char buf[30];
 	printBytes(sensorAddress, 8, buf);
 	// todo - DEVICE_DISCONNECTED is -127, but does this need scaling?
 	DEBUG_MSG(PSTR("fetching initial temperature %d %s"), pinNr, buf);
+	#endif
 	
 	fixed7_9 temperature = DEVICE_DISCONNECTED;
 	while(temperature == DEVICE_DISCONNECTED){

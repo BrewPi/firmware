@@ -77,6 +77,17 @@ void Menu::pickSettingToChange(void){
 	}
 }
 
+void Menu::initRotaryWithTemp(fixed7_9 oldSetting){
+	fixed7_9 startVal;
+	if(oldSetting == INT_MIN){ // previous temperature was not defined, start at 20C
+		startVal = 20*512;
+	}
+	else{
+		startVal = oldSetting;
+	}
+	rotaryEncoder.setRange(fixedToTenths(startVal), fixedToTenths(tempControl.cc.tempSettingMin), fixedToTenths(tempControl.cc.tempSettingMax));
+}
+
 void Menu::pickMode(void){
 	display.printStationaryText(); // restore original text after blinking 'Mode'
 	char oldSetting = tempControl.getMode();
@@ -138,14 +149,7 @@ void Menu::pickMode(void){
 void Menu::pickBeerSetting(void){
 	display.printStationaryText(); // restore original text after blinking
 	fixed7_9 oldSetting = tempControl.getBeerSetting();
-	fixed7_9 startVal;
-	if(oldSetting == INT_MIN){ // previous mode was not Beer Constant / Beer Profile
-		startVal = 20*512; // start at 20 degrees Celcius
-	}
-	else{
-		startVal = oldSetting;
-	}
-	rotaryEncoder.setRange(fixedToTenths(startVal), fixedToTenths(tempControl.cc.tempSettingMin), fixedToTenths(tempControl.cc.tempSettingMax));
+	initRotaryWithTemp(oldSetting);
 	
 	uint8_t blinkTimer = 0;
 	unsigned long timer = ticks.millis();
@@ -181,14 +185,7 @@ void Menu::pickBeerSetting(void){
 void Menu::pickFridgeSetting(void){
 	display.printStationaryText(); // restore original text after blinking
 	fixed7_9 oldSetting = tempControl.getFridgeSetting();
-	fixed7_9 startVal;
-	if(oldSetting == INT_MIN){ // previous mode was not Beer Constant
-		startVal = 20*512; // start at 20 degrees Celcius
-	}
-	else{
-		startVal = oldSetting;
-	}
-	rotaryEncoder.setRange(fixedToTenths(startVal), fixedToTenths(tempControl.cc.tempSettingMin), fixedToTenths(tempControl.cc.tempSettingMax));
+	initRotaryWithTemp(oldSetting);
 	
 	uint8_t blinkTimer = 0;
 	unsigned long timer = ticks.millis();

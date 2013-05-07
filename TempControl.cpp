@@ -528,3 +528,4 @@ void TempControl::setFridgeTemp(int newTemp){
 	updatePID();
 	updateState();	
 }
+
