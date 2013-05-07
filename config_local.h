@@ -4,7 +4,7 @@
  * Created: 21/02/2013 02:34:18
  *  Author: mat
  *
- * Edit this file to make local changes.
+ * Edit this file to make local changes. This should be committed to git as an ignored empty file.
  */ 
 
 #ifndef CONFIG_LOCAL_H_
@@ -12,7 +12,7 @@
 
 #define BREWPI_DEBUG 0
 
-#define BREWPI_STATIC_CONFIG BREWPI_SHIELD_REV_C
+#define BREWPI_STATIC_CONFIG BREWPI_SHIELD_REV_A
 
 #ifndef BREWPI_DS2413
 #define  BREWPI_DS2413 1

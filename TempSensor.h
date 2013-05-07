@@ -59,16 +59,25 @@ public:
 	
 };
 
+enum TempSensorType {
+	TEMP_SENSOR_TYPE_FRIDGE=1,
+	TEMP_SENSOR_TYPE_BEER
+};
+
+
 class TempSensor {
 	public:	
-	TempSensor(BasicTempSensor* sensor =NULL) : _sensor(sensor)  {
+	TempSensor(TempSensorType sensorType, BasicTempSensor* sensor =NULL) : _sensor(sensor)  {
 		updateCounter = 255; // first update for slope filter after (255-13s)
 	 }	 	 
 	 
 	 void setSensor(BasicTempSensor* sensor) {
 		 _sensor = sensor;
 	 }
-	 
+
+	bool hasSlowFilter() { return true; }
+	bool hasFastFilter() { return true; }
+	bool hasSlopeFilter() { return true; }
 	
 	void init();
 	
@@ -93,15 +102,15 @@ class TempSensor {
 	}
 	
 	void setFastFilterCoefficients(uint8_t b){
-		fastFilter.setCoefficients(b);
+		if (hasFastFilter()) fastFilter.setCoefficients(b);
 	}
 	
 	void setSlowFilterCoefficients(uint8_t b){
-		slowFilter.setCoefficients(b);
+		if (hasSlowFilter()) slowFilter.setCoefficients(b);
 	}
 
 	void setSlopeFilterCoefficients(uint8_t b){
-		slopeFilter.setCoefficients(b);
+		if (hasSlopeFilter()) slopeFilter.setCoefficients(b);
 	}			
 	
 	BasicTempSensor& sensor() {

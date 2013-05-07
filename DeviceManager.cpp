@@ -55,9 +55,9 @@ void DeviceManager::loadDefaultDevices()
 	// todo - this doesn't really belong here, but part of the initialization for a chamber.
 	// but for now this is single chamber
 	if (tempControl.beerSensor==NULL)
-		tempControl.beerSensor = new TempSensor(&defaultTempSensor);
+		tempControl.beerSensor = new TempSensor(TEMP_SENSOR_TYPE_BEER, &defaultTempSensor);
 	if (tempControl.fridgeSensor==NULL)
-		tempControl.fridgeSensor = new TempSensor(&defaultTempSensor);
+		tempControl.fridgeSensor = new TempSensor(TEMP_SENSOR_TYPE_FRIDGE, &defaultTempSensor);
 
 	tempControl.ambientSensor = &defaultTempSensor;		
 	tempControl.cooler = tempControl.heater = tempControl.light = &defaultActuator;
