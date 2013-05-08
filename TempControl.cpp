@@ -91,10 +91,17 @@ void TempControl::updateTemperatures(void){
 	}
 }
 
-fixed7_9 multiplyFixed(fixed7_9 a, fixed7_9 b) 
-{	
-	return ((fixed23_9) a * (fixed23_9) b)>>9;
+
+fixed7_9 multiplyFixeda7_9b23_9(fixed7_9 a, fixed23_9 b)
+{
+	return ((fixed23_9) a * b)>>9;
 }
+
+fixed7_9 multiplyFixed7_9(fixed7_9 a, fixed7_9 b) 
+{	
+	return ((fixed23_9) a * (fixed23_9) b)>>9;	
+}
+
 
 void TempControl::updatePID(void){
 	static unsigned char integralUpdateCounter = 0;
@@ -136,9 +143,9 @@ void TempControl::updatePID(void){
 		}			
 		
 		// calculate PID parts. Use fixed23_9 to prevent overflow
-		multiplyFixed(cc.Kp, cv.beerDiff);
-		multiplyFixed(cc.Kd, cv.beerSlope);		
-		cv.i = ((fixed23_9) cc.Ki * cv.diffIntegral)>>9;				
+		multiplyFixed7_9(cc.Kp, cv.beerDiff);
+		multiplyFixeda7_9b23_9(cc.Ki, cv.diffIntegral);
+		multiplyFixed7_9(cc.Kd, cv.beerSlope);		
 		cs.fridgeSetting = constrain(cs.beerSetting + cv.p + cv.i + cv.d, cc.tempSettingMin, cc.tempSettingMax);
 	}
 	else{
@@ -254,9 +261,9 @@ void TempControl::updateState(void){
 	}			
 }
 
-void TempControl::updateEstimatedPeak(uint16_t estimate, fixed7_9 estimator, uint16_t sinceIdle)
+void TempControl::updateEstimatedPeak(uint16_t time, fixed7_9 estimator, uint16_t sinceIdle)
 {
-	uint16_t activeTime = min(estimate, sinceIdle); // heat time in seconds
+	uint16_t activeTime = min(time, sinceIdle); // heat time in seconds
 	fixed7_9 estimatedOvershoot = ((fixed23_9) estimator * activeTime)/3600; // overshoot estimator is in overshoot per hour
 	cv.estimatedPeak = fridgeSensor->readFastFiltered() + estimatedOvershoot;		
 }
@@ -274,6 +281,7 @@ void TempControl::updateOutputs(void) {
 #endif		
 // todo - factor out doorOpen state so it is independent of the temp control state. That way, opening/closing the door doesn't affect compressor operation.
 }
+
 
 void TempControl::detectPeaks(void){  
 	//detect peaks in fridge temperature to tune overshoot estimators
@@ -330,7 +338,7 @@ void TempControl::detectPeaks(void){
 				increaseEstimator(&(cs.coolEstimator), error);
 			}
 			if(negPeak>cv.negPeakEstimate+cc.coolingTargetUpper){
-				fixed7_9 error = negPeak-(cv.negPeakEstimate+cc.coolingTargetLower); //negative value
+				fixed7_9 error = negPeak-(cv.negPeakEstimate+cc.coolingTargetUpper); //negative value
 				decreaseEstimator(&(cs.coolEstimator), error);
 			}
 			ESTIMATOR_MSG("Negative peak detected.");
