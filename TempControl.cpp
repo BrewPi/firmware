@@ -268,29 +268,27 @@ void TempControl::detectPeaks(void){
 	if(doPosPeakDetect && state!=HEATING){
 		bool detected = false;
 		fixed7_9 posPeak = fridgeSensor->detectPosPeak();
+		fixed7_9 error = posPeak-cv.posPeakEstimate;
 		if(posPeak != INT_MIN){
-			// maximum detected
-			if(posPeak>cv.posPeakEstimate+cc.heatingTargetUpper){
-				//should not happen, estimated overshoot was too low, so adjust overshoot estimator
-				fixed7_9 error = posPeak-(cv.posPeakEstimate+cc.heatingTargetUpper);
+			// positive peak detected
+			if(error > cc.heatingTargetUpper){ // positive error, peak was higher than estimate
+				// estimated overshoot was too low, so adjust overshoot estimator
 				increaseEstimator(&(cs.heatEstimator), error);
 			}
-			if(posPeak<cv.posPeakEstimate+cc.heatingTargetLower){
-				//should not happen, estimated overshoot was too high, so adjust overshoot estimator
-				fixed7_9 error = posPeak-(cv.posPeakEstimate+cc.heatingTargetLower); // will be negative
+			if(error < cc.heatingTargetLower){ // negative error, peak was lower than estimate
+				// estimated overshoot was too high, so adjust overshoot estimator
 				decreaseEstimator(&(cs.heatEstimator), error);
 			}
 			piLink.debugMessage(PSTR("Positive peak detected."));
 			detected = true;
 		}
-		else if(timeSinceHeating() + 10 > HEAT_PEAK_DETECT_TIME && fridgeSensor->readFastFiltered() < (cv.posPeakEstimate+cc.heatingTargetLower)){
+		else if(timeSinceHeating() + 10 > HEAT_PEAK_DETECT_TIME && 
+				fridgeSensor.readFastFiltered() < (cv.posPeakEstimate+cc.heatingTargetLower)){
 			// Idle period almost reaches maximum allowed time for peak detection
 			// This is the heat, then drift up too slow (but in the right direction).
 			// estimator is too high
 			posPeak=fridgeSensor->readFastFiltered();
-			fixed7_9 error = posPeak-(cv.posPeakEstimate+cc.heatingTargetLower); // will be negative
-			decreaseEstimator(&(cs.heatEstimator), error);
-			
+			decreaseEstimator(&(cs.heatEstimator), error);			
 			piLink.debugMessage(PSTR("Drifting up after heating too short."));
 			detected = true;
 		}
@@ -308,27 +306,27 @@ void TempControl::detectPeaks(void){
 		}
 		}			
 	if(doNegPeakDetect && state!=COOLING){
-		fixed7_9 negPeak = fridgeSensor->detectNegPeak();
 		bool detected = false;
+		fixed7_9 negPeak = fridgeSensor.detectNegPeak();
+		fixed7_9 error = negPeak-cv.negPeakEstimate;
 		if(negPeak != INT_MIN){
 			// negative peak detected
-			if(negPeak<cv.negPeakEstimate+cc.coolingTargetLower){
-				//should not happen, estimated overshoot was too low, so adjust overshoot estimator
-				fixed7_9 error = negPeak-(cv.negPeakEstimate+cc.coolingTargetLower); //positive value
+			if(error < cc.coolingTargetLower){ // negative error, overshoot was higher than estimate
+				// estimated overshoot was too low, so adjust overshoot estimator
 				increaseEstimator(&(cs.coolEstimator), error);
 			}
-			if(negPeak>cv.negPeakEstimate+cc.coolingTargetUpper){
-				fixed7_9 error = negPeak-(cv.negPeakEstimate+cc.coolingTargetLower); //negative value
+			if(error > cc.coolingTargetUpper){ // positive error, overshoot was lower than estimate
+				// estimated overshoot was too high, so adjust overshoot estimator
 				decreaseEstimator(&(cs.coolEstimator), error);
 			}
 			piLink.debugMessage(PSTR("Negative peak detected."));
 			detected = true;
 		}
-		else if(timeSinceCooling() + 10 > COOL_PEAK_DETECT_TIME && fridgeSensor->readFastFiltered() > (cv.negPeakEstimate+cc.coolingTargetUpper)){
+		else if(timeSinceCooling() + 10 > COOL_PEAK_DETECT_TIME && 
+				fridgeSensor.readFastFiltered() > (cv.negPeakEstimate+cc.coolingTargetUpper)){
 			// Idle period almost reaches maximum allowed time for peak detection
 			// This is the cooling, then drift down too slow (but in the right direction).
 			// estimator is too high
-			fixed7_9 error = negPeak-(cv.negPeakEstimate+cc.coolingTargetLower); //negative value
 			decreaseEstimator(&(cs.coolEstimator), error);
 			piLink.debugMessage(PSTR("Drifting down after cooling too short."));
 			detected = true;
@@ -350,7 +348,7 @@ void TempControl::detectPeaks(void){
 
 // Increase estimator at least 20%, max 50%s
 void TempControl::increaseEstimator(fixed7_9 * estimator, fixed7_9 error){
-	fixed23_9 factor = 614 + constrain(error>>5, 0, 154); // 1.2 + 3.1% of error, limit between 1.2 and 1.5
+	fixed23_9 factor = 614 + constrain(abs(error)>>5, 0, 154); // 1.2 + 3.1% of error, limit between 1.2 and 1.5
 	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;
 	byte max = byte((INT_MAX*512L)>>24);
 	byte upper = byte(newEstimator>>24);
@@ -361,7 +359,7 @@ void TempControl::increaseEstimator(fixed7_9 * estimator, fixed7_9 error){
 
 // Decrease estimator at least 16.7% (1/1.2), max 33.3% (1/1.5)
 void TempControl::decreaseEstimator(fixed7_9 * estimator, fixed7_9 error){
-	fixed23_9 factor = 426 + constrain(error>>5, -85, 0); // 0.833 + 3.1% of error, limit between 0.667 and 0.833
+	fixed23_9 factor = 426 - constrain(abs(error)>>5, 0, 85); // 0.833 - 3.1% of error, limit between 0.667 and 0.833
 	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;
 	*estimator = newEstimator>>8; // shift back to normal precision
 	eepromManager.storeTempSettings();
