@@ -91,6 +91,11 @@ void TempControl::updateTemperatures(void){
 	}
 }
 
+fixed7_9 multiplyFixed(fixed7_9 a, fixed7_9 b) 
+{	
+	return ((fixed23_9) a * (fixed23_9) b)>>9;
+}
+
 void TempControl::updatePID(void){
 	static unsigned char integralUpdateCounter = 0;
 	if(cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_BEER_PROFILE){
@@ -104,6 +109,7 @@ void TempControl::updatePID(void){
 		// fridge setting is calculated with PID algorithm. Beer temperature error is input to PID
 		cv.beerDiff =  cs.beerSetting - beerSensor->readSlowFiltered();
 		cv.beerSlope = beerSensor->readSlope();
+		fixed7_9 fridgeFastFiltered = fridgeSensor->readFastFiltered();
 		if(integralUpdateCounter++ == 60){
 			integralUpdateCounter = 0;
 			if(abs(cv.beerDiff) < cc.iMaxError){
@@ -111,10 +117,10 @@ void TempControl::updatePID(void){
 				if(timeSinceIdle() > 1800){
 					// more than 30 minutes since idle, actuator is probably saturated. Do not increase integrator.
 				}			
-				else if(cv.beerDiff < 0 && (cs.fridgeSetting +1024) < fridgeSensor->readFastFiltered()){
+				else if(cv.beerDiff < 0 && (cs.fridgeSetting +1024) < fridgeFastFiltered){
 					// cooling and fridge temp is more than 2 degrees from setting, actuator is saturated.
 				}
-				else if(cv.beerDiff > 0 && (cs.fridgeSetting -1024) > fridgeSensor->readFastFiltered()){
+				else if(cv.beerDiff > 0 && (cs.fridgeSetting -1024) > fridgeFastFiltered){
 					// heating and fridge temp is more than 2 degrees from setting, actuator is saturated.
 				}					
 				else{
@@ -130,10 +136,9 @@ void TempControl::updatePID(void){
 		}			
 		
 		// calculate PID parts. Use fixed23_9 to prevent overflow
-		cv.p = ((fixed23_9) cc.Kp * (fixed23_9) cv.beerDiff)>>9;
-		cv.i = ((fixed23_9) cc.Ki * cv.diffIntegral)>>9;
-		cv.d = ((fixed23_9) cc.Kd * (fixed23_9) cv.beerSlope)>>9;
-				
+		multiplyFixed(cc.Kp, cv.beerDiff);
+		multiplyFixed(cc.Kd, cv.beerSlope);		
+		cv.i = ((fixed23_9) cc.Ki * cv.diffIntegral)>>9;				
 		cs.fridgeSetting = constrain(cs.beerSetting + cv.p + cv.i + cv.d, cc.tempSettingMin, cc.tempSettingMax);
 	}
 	else{
