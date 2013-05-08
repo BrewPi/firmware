@@ -336,7 +336,7 @@ void handleDeviceDefinition(const char* key, const char* val, void* pv)
 	if (key[0]=='a')
 		parseBytes(def->address, val, 8);
 	else if (idx>=0) 
-		((uint8_t*)def)[idx] = (uint8_t)atoi(val);
+		((uint8_t*)def)[idx] = (uint8_t)atol(val);
 }
 
 bool inRangeUInt8(uint8_t val, uint8_t min, int8_t max) {
@@ -605,7 +605,7 @@ void handleHardwareSpec(const char* key, const char* val, void* pv)
 	
 	int8_t idx = indexOf("hpvuf", key[0]);
 	if (idx>=0) {
-		*((int8_t*)h+idx) = atoi(val);
+		*((int8_t*)h+idx) = atol(val);
 	}			
 }
 
@@ -799,7 +799,7 @@ void HandleDeviceDisplay(const char* key, const char* val, void* pv)
 	
 	int8_t idx = indexOf("irw", key[0]);
 	if (idx>=0) {
-		*((int8_t*)&dd+idx) = atoi(val);
+		*((int8_t*)&dd+idx) = atol(val);
 	}	
 }
 

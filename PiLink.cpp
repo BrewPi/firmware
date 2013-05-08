@@ -460,7 +460,7 @@ void PiLink::jsonOutputTempDiffToString(const char* key, uint8_t offset) {
 }
 
 void PiLink::jsonOutputChar(const char* key, uint8_t offset) {	
-	piLink.sendJsonPair(key, *((char*)(jsonOutputBase+offset)), 1, 12));
+	piLink.sendJsonPair(key, *((char*)(jsonOutputBase+offset)));
 }
 
 typedef void (*JsonOutputCCHandler)(const char* key, uint8_t offset);
@@ -470,7 +470,7 @@ enum JsonOutputIndex {
 	JOCC_TEMP_FORMAT=1,
 	JOCC_FIXED_POINT=2,
 	JOCC_TEMP_DIFF=3,
-	JOCC_TEMP_CHAR=4
+	JOCC_CHAR=4
 };
 
 const PiLink::JsonOutputHandler PiLink::JsonOutputHandlers[] = {
@@ -972,7 +972,7 @@ void PiLink::updateInputs()
 			setRunFactor(stringToFixedPoint(val));
 		}
 		else if (!strcmp_P(key, SimulatorPrintInterval)) {
-			printTempInterval = atoi(val);
+			printTempInterval = atol(val);
 		}
 		else if (!strcmp_P(key, SimulatorNoise)) {
 			simulator.setSensorNoise(atof(val));
