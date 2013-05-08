@@ -195,7 +195,9 @@ class TempControl{
 	TEMP_CONTROL_METHOD void increaseEstimator(fixed7_9 * estimator, fixed7_9 error);
 	TEMP_CONTROL_METHOD void decreaseEstimator(fixed7_9 * estimator, fixed7_9 error);
 	TEMP_CONTROL_METHOD void constantsChanged();
-		
+	
+	TEMP_CONTROL_METHOD void updateEstimatedPeak(uint16_t estimate, fixed7_9 estimator, uint16_t sinceIdle);
+
 	public:
 	TEMP_CONTROL_FIELD TempSensor* beerSensor;
 	TEMP_CONTROL_FIELD TempSensor* fridgeSensor;

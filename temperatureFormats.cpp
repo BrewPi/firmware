@@ -150,13 +150,13 @@ fixed23_9 stringToFixedPoint(const char * numberString){
 	// find the point in the string to split in the integer part and the fraction part
 	fractPtr = strchrnul(numberString, '.'); // returns pointer to the point.
 		
-	intPart = strtoul(numberString, NULL, 10);
+	intPart = atol(numberString);
 	if(fractPtr != 0){
 		// decimal point was found
 		char * fractEndPtr;
 		fractPtr++; // add 1 to pointer to skip point
-		fracPart = strtoul(fractPtr,&fractEndPtr, 10);
-		uint8_t numDecimals = fractEndPtr - fractPtr;
+		uint8_t numDecimals = strlen(fractPtr);
+		fracPart = atol(fractPtr);		
 		fracPart = fracPart << 9; // 9 bits for fraction part
 		while(numDecimals > 0){
 			fracPart = (fracPart + 5) / 10; // divide by 10 rounded

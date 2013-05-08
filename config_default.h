@@ -8,6 +8,17 @@
 
 #pragma once
 
+
+#ifndef BREWPI_ESTIMATOR_MESSAGES
+#define BREWPI_ESTIMATOR_MESSAGES 0
+#endif
+
+#if BREWPI_ESTIMATOR_MESSAGES
+	#define ESTIMATOR_MSG(msg, ...) piLink.debugMessage(PSTR(msg), __VA_ARGS__)
+#else
+	#define ESTIMATOR_MSG(msg,...)  {}
+#endif
+
 #ifndef BREWPI_STATIC_CONFIG
 #define BREWPI_STATIC_CONFIG BREWPI_SHIELD_REV_A
 #endif

@@ -336,7 +336,7 @@ void handleDeviceDefinition(const char* key, const char* val, void* pv)
 	if (key[0]=='a')
 		parseBytes(def->address, val, 8);
 	else if (idx>=0) 
-		((uint8_t*)def)[idx] = (uint8_t)strtoul(val, NULL, 10);	
+		((uint8_t*)def)[idx] = (uint8_t)atoi(val);
 }
 
 bool inRangeUInt8(uint8_t val, uint8_t min, int8_t max) {

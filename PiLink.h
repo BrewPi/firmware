@@ -24,6 +24,23 @@
 #include "temperatureFormats.h"
 #include "DeviceManager.h"
 
+#ifndef OPTIMIZE_JSON_OUTPUT
+#define OPTIMIZE_JSON_OUTPUT 1 && OPTIMIZE_GLOBAL
+#endif
+
+#ifndef OPTIMIZE_JSON_OUTPUT_CC
+#define OPTIMIZE_JSON_OUTPUT_CC OPTIMIZE_JSON_OUTPUT
+#endif
+#define OPTIMIZE_JSON_OUTPUT_CV 1 && OPTIMIZE_JSON_OUTPUT
+
+#ifndef OPTIMIZE_JSON_OUTPUT_CV
+#define OPTIMIZE_JSON_OUTPUT_CV OPTIMIZE_JSON_OUTPUT
+#endif
+
+#ifndef OPTIMIZE_JSON_OUTPUT_CS
+#define OPTIMIZE_JSON_OUTPUT_CS OPTIMIZE_JSON_OUTPUT
+#endif
+
 class DeviceConfig;
 
 
@@ -34,8 +51,9 @@ class PiLink{
 	static void init(void);
 	static void receive(void);
 	
-	static void printFridgeAnnotation(const char * annotation, ...);
+	static void printFridgeAnnotation(const char * annotation, ...);	
 	static void printBeerAnnotation(const char * annotation, ...);
+
 	static void debugMessage(const char * message, ...);
 	static void debugMessageDirect(const char * message, ...);
 	static void printTemperatures(void);
@@ -74,6 +92,32 @@ class PiLink{
 	static void printJsonName(const char * name);
 	static void printJsonSeparator();
 	static void sendJsonClose();
+
+#if OPTIMIZE_JSON_OUTPUT
+	struct JsonOutput {
+		const char* key;			// JSON key
+		uint8_t offset;			// offset into TempControl class
+		uint8_t handlerOffset;		// handler index
+	};
+	typedef void (*JsonOutputHandler)(const char* key, uint8_t offset);
+
+	// handler functions for JSON output
+	static void jsonOutputUint8(const char* key, uint8_t offset);
+	static void jsonOutputTempToString(const char* key, uint8_t offset);
+	static void jsonOutputFixedPointToString(const char* key, uint8_t offset);
+	static void jsonOutputTempDiffToString(const char* key, uint8_t offset);
+	static void jsonOutputChar(const char* key, uint8_t offset);
+	static const JsonOutputHandler JsonOutputHandlers[];		
+#if OPTIMIZE_JSON_OUTPUT_CC	
+	static const JsonOutput jsonOutputCCMap[];
+#endif	
+#if OPTIMIZE_JSON_OUTPUT_CV
+	static const JsonOutput jsonOutputCVMap[];
+#endif
+	
+#endif	
+	
+	
 #if BREWPI_SIMULATE	
 	static void updateInputs();
 	public:

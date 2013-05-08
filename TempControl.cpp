@@ -146,6 +146,7 @@ void TempControl::updateState(void){
 	//update state
 	if(door->sense()){
 		if(state!=DOOR_OPEN){
+			// todo - use place holder annotation strings, and replace with full message in the python script. 
 			piLink.printFridgeAnnotation(PSTR("Fridge door opened"));
 		}
 		state=DOOR_OPEN;
@@ -166,39 +167,45 @@ void TempControl::updateState(void){
 		return;
 	}
 
+	uint16_t sinceIdle = timeSinceIdle();
+	uint16_t sinceCooling = timeSinceCooling();
+	uint16_t sinceHeating = timeSinceHeating();
+	fixed7_9 fridgeFast = fridgeSensor->readFastFiltered();
+	fixed7_9 beerFast = beerSensor->readFastFiltered();
+	ticks_seconds_t secs = ticks.seconds();
 	switch(state)
 	{
 		case STARTUP:
 		case IDLE:
 		case STATE_OFF:
 		{
-			lastIdleTime=ticks.seconds();
+			lastIdleTime=secs;
 			if(doNegPeakDetect == true || doPosPeakDetect == true){
 				// Wait for peaks before starting to heat or cool again
-							return;
-						}		  
-			if(fridgeSensor->readFastFiltered() > (cs.fridgeSetting+cc.idleRangeHigh) ){ // fridge temperature is too high
-				if(cs.mode==MODE_FRIDGE_CONSTANT){
-					if((timeSinceCooling() > MIN_COOL_OFF_TIME_FRIDGE_CONSTANT && timeSinceHeating() > MIN_SWITCH_TIME) || state == STARTUP){
-						state=COOLING;
-					}
-							return;
-						}
-					else{
-					if(beerSensor->readFastFiltered()<cs.beerSetting){ // only start cooling when beer is too warm
-						return; // beer is already colder than setting, stay in IDLE.
-					}
-					if((timeSinceCooling() > MIN_COOL_OFF_TIME && timeSinceHeating() > MIN_SWITCH_TIME) || state == STARTUP){
-						state=COOLING;
-				}
 					return;
+			}		  
+			if(fridgeFast > (cs.fridgeSetting+cc.idleRangeHigh) ){ // fridge temperature is too high
+				if(cs.mode==MODE_FRIDGE_CONSTANT){
+					if((sinceCooling > MIN_COOL_OFF_TIME_FRIDGE_CONSTANT && sinceHeating > MIN_SWITCH_TIME) || state == STARTUP){
+						state=COOLING;
+					}
+					return;
+				}
+			else{
+				if(beerFast<cs.beerSetting){ // only start cooling when beer is too warm
+						return; // beer is already colder than setting, stay in IDLE.
+				}
+				if((sinceCooling > MIN_COOL_OFF_TIME && sinceHeating > MIN_SWITCH_TIME) || state == STARTUP){
+					state=COOLING;
+				}
+				return;
 			}
 			}
-			else if(fridgeSensor->readFastFiltered() < (cs.fridgeSetting+cc.idleRangeLow)){ // fridge temperature is too low
-				if(beerSensor->readFastFiltered()>cs.beerSetting){ // only start heating when beer is too cold
+			else if(fridgeFast < (cs.fridgeSetting+cc.idleRangeLow)){ // fridge temperature is too low
+				if(beerFast >cs.beerSetting){ // only start heating when beer is too cold
 					return; // beer is already warmer than setting, stay in IDLE
 			}
-				if((timeSinceCooling() > MIN_SWITCH_TIME && timeSinceHeating() > MIN_HEAT_OFF_TIME) || state == STARTUP){
+				if((sinceCooling > MIN_SWITCH_TIME && sinceHeating > MIN_HEAT_OFF_TIME) || state == STARTUP){
 					state=HEATING;
 					return;
 		}			
@@ -208,32 +215,26 @@ void TempControl::updateState(void){
 		case COOLING:
 		{
 			doNegPeakDetect=true;
-			lastCoolTime = ticks.seconds();
-			int coolTime = min(cc.maxCoolTimeForEstimate, timeSinceIdle()); // cool time in seconds
-			fixed7_9 estimatedOvershoot = ((fixed23_9) cs.coolEstimator * coolTime)/3600; // overshoot estimator is in overshoot per hour
-			cv.estimatedPeak = fridgeSensor->readFastFiltered() - estimatedOvershoot;
+			lastCoolTime = secs;
+			updateEstimatedPeak(cc.maxCoolTimeForEstimate, cs.coolEstimator, sinceIdle);
 			if(cv.estimatedPeak <= cs.fridgeSetting){
-				if(timeSinceIdle() > MIN_COOL_ON_TIME){
+				if(sinceIdle > MIN_COOL_ON_TIME){
 					cv.negPeakEstimate = cv.estimatedPeak; // remember estimated peak when I switch to IDLE, to adjust estimator later
-				state=IDLE;
+					state=IDLE;
 				}					
-				return;
 			}
 		}		
 		break;
 		case HEATING:
 		{
 			doPosPeakDetect=true;
-			lastHeatTime=ticks.seconds();
-			int heatTime = min(cc.maxHeatTimeForEstimate, timeSinceIdle()); // heat time in seconds
-			fixed7_9 estimatedOvershoot = ((fixed23_9) cs.heatEstimator * heatTime)/3600; // overshoot estimator is in overshoot per hour
-			cv.estimatedPeak = fridgeSensor->readFastFiltered() + estimatedOvershoot;
+			lastHeatTime=secs;
+			updateEstimatedPeak(cc.maxHeatTimeForEstimate, cs.heatEstimator, sinceIdle);
 			if(cv.estimatedPeak >= cs.fridgeSetting){
-				if(timeSinceIdle() > MIN_HEAT_ON_TIME){
+				if(sinceIdle > MIN_HEAT_ON_TIME){
 					cv.posPeakEstimate=cv.estimatedPeak; // remember estimated peak when I switch to IDLE, to adjust estimator later
-				state=IDLE;
+					state=IDLE;
 				}
-				return;
 			}
 		}
 		break;
@@ -242,11 +243,17 @@ void TempControl::updateState(void){
 			if(!door->sense()){ 
 				piLink.printFridgeAnnotation(PSTR("Fridge door closed"));
 				state=IDLE;
-				return;
 			}
 		}
 		break;
 	}			
+}
+
+void TempControl::updateEstimatedPeak(uint16_t estimate, fixed7_9 estimator, uint16_t sinceIdle)
+{
+	uint16_t activeTime = min(estimate, sinceIdle); // heat time in seconds
+	fixed7_9 estimatedOvershoot = ((fixed23_9) estimator * activeTime)/3600; // overshoot estimator is in overshoot per hour
+	cv.estimatedPeak = fridgeSensor->readFastFiltered() + estimatedOvershoot;		
 }
 
 void TempControl::updateOutputs(void) {
@@ -280,7 +287,7 @@ void TempControl::detectPeaks(void){
 				fixed7_9 error = posPeak-(cv.posPeakEstimate+cc.heatingTargetLower); // will be negative
 				decreaseEstimator(&(cs.heatEstimator), error);
 			}
-			piLink.debugMessage(PSTR("Positive peak detected."));
+			ESTIMATOR_MSG("Positive peak detected.");
 			detected = true;
 		}
 		else if(timeSinceHeating() + 10 > HEAT_PEAK_DETECT_TIME && fridgeSensor->readFastFiltered() < (cv.posPeakEstimate+cc.heatingTargetLower)){
@@ -291,12 +298,12 @@ void TempControl::detectPeaks(void){
 			fixed7_9 error = posPeak-(cv.posPeakEstimate+cc.heatingTargetLower); // will be negative
 			decreaseEstimator(&(cs.heatEstimator), error);
 			
-			piLink.debugMessage(PSTR("Drifting up after heating too short."));
+			ESTIMATOR_MSG("Drifting up after heating too short.");
 			detected = true;
 		}
 		if(detected){
 			char tempString1[9]; char tempString2[9]; char tempString3[9];
-			piLink.debugMessage(PSTR("Peak: %s Estimated: %s. New estimator: %s"),
+			ESTIMATOR_MSG("Peak: %s Estimated: %s. New estimator: %s",
 				tempToString(tempString1, posPeak, 3, 9),
 				tempToString(tempString2, cv.posPeakEstimate, 3, 9),
 				fixedPointToString(tempString3, cs.heatEstimator, 3, 9));
@@ -321,7 +328,7 @@ void TempControl::detectPeaks(void){
 				fixed7_9 error = negPeak-(cv.negPeakEstimate+cc.coolingTargetLower); //negative value
 				decreaseEstimator(&(cs.coolEstimator), error);
 			}
-			piLink.debugMessage(PSTR("Negative peak detected."));
+			ESTIMATOR_MSG("Negative peak detected.");
 			detected = true;
 		}
 		else if(timeSinceCooling() + 10 > COOL_PEAK_DETECT_TIME && fridgeSensor->readFastFiltered() > (cv.negPeakEstimate+cc.coolingTargetUpper)){
@@ -330,12 +337,12 @@ void TempControl::detectPeaks(void){
 			// estimator is too high
 			fixed7_9 error = negPeak-(cv.negPeakEstimate+cc.coolingTargetLower); //negative value
 			decreaseEstimator(&(cs.coolEstimator), error);
-			piLink.debugMessage(PSTR("Drifting down after cooling too short."));
+			ESTIMATOR_MSG("Drifting down after cooling too short.");
 			detected = true;
 		}
 		if(detected){
 			char tempString1[9]; char tempString2[9]; char tempString3[9];
-			piLink.debugMessage(PSTR("Peak: %s. Estimated: %s. New estimator: %s"),
+			ESTIMATOR_MSG("Peak: %s. Estimated: %s. New estimator: %s",
 				tempToString(tempString1, negPeak, 3, 9),
 				tempToString(tempString2, cv.negPeakEstimate, 3, 9),
 				fixedPointToString(tempString3, cs.coolEstimator, 3, 9));
@@ -354,8 +361,7 @@ void TempControl::increaseEstimator(fixed7_9 * estimator, fixed7_9 error){
 	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;
 	byte max = byte((INT_MAX*512L)>>24);
 	byte upper = byte(newEstimator>>24);
-	*estimator = upper>max ? INT_MAX : newEstimator>>8; // shift back to normal precision
-	
+	*estimator = upper>max ? INT_MAX : newEstimator>>8; // shift back to normal precision	
 	eepromManager.storeTempSettings();
 }
 

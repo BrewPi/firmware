@@ -20,7 +20,7 @@ class HardwareTicks {
 public:
 	ticks_millis_t millis() { return ::millis(); }
 	ticks_micros_t micros() { return ::micros(); }	
-	ticks_seconds_t seconds() { return ::millis()/1000; }
+	ticks_seconds_t seconds();
 		
 	ticks_seconds_t timeSince(ticks_seconds_t timeStamp);
 };

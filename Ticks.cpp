@@ -32,3 +32,6 @@ ticks_seconds_t HardwareTicks::timeSince(ticks_seconds_t previousTime){
 		return (currentTime + 1440) - (previousTime +1440); // add a day to both for calculation
 	}
 }
+
+ticks_seconds_t HardwareTicks::seconds() { return ::millis()/1000; }
+	
