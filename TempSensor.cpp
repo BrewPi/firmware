@@ -78,3 +78,26 @@ fixed7_9 TempSensor::readSlope(void){
 	return (doublePrecision*300)>>16;
 }
 
+fixed7_9 TempSensor::detectPosPeak(void){
+	return slowFilter.detectPosPeak();
+}
+	
+fixed7_9 TempSensor::detectNegPeak(void){
+	return slowFilter.detectNegPeak();
+}
+	
+void TempSensor::setFastFilterCoefficients(uint8_t b){
+	fastFilter.setCoefficients(b);
+}
+	
+void TempSensor::setSlowFilterCoefficients(uint8_t b){
+	slowFilter.setCoefficients(b);
+}
+
+void TempSensor::setSlopeFilterCoefficients(uint8_t b){
+	slopeFilter.setCoefficients(b);
+}
+
+BasicTempSensor& TempSensor::sensor() {
+	return *_sensor;
+}

@@ -55,9 +55,9 @@ void DeviceManager::loadDefaultDevices()
 	// todo - this doesn't really belong here, but part of the initialization for a chamber.
 	// but for now this is single chamber
 	if (tempControl.beerSensor==NULL)
-		tempControl.beerSensor = new TempSensor(&defaultTempSensor);
+		tempControl.beerSensor = new TempSensor(TEMP_SENSOR_TYPE_BEER, &defaultTempSensor);
 	if (tempControl.fridgeSensor==NULL)
-		tempControl.fridgeSensor = new TempSensor(&defaultTempSensor);
+		tempControl.fridgeSensor = new TempSensor(TEMP_SENSOR_TYPE_FRIDGE, &defaultTempSensor);
 
 	tempControl.ambientSensor = &defaultTempSensor;		
 	tempControl.cooler = tempControl.heater = tempControl.light = &defaultActuator;
@@ -336,16 +336,8 @@ void handleDeviceDefinition(const char* key, const char* val, void* pv)
 	if (key[0]=='a')
 		parseBytes(def->address, val, 8);
 	else if (idx>=0) 
-		((uint8_t*)def)[idx] = (uint8_t)strtoul(val, NULL, 10);	
+		((uint8_t*)def)[idx] = (uint8_t)atol(val);
 }
-
-
-//bool DeviceManager::printDeviceAlternatives()
-//{
-	// chamber/beer within bounds. alternate chamber/beer are all valid.
-	// device function - list device functions not in use for the chamber/beer including this one
-	
-//}
 
 bool inRangeUInt8(uint8_t val, uint8_t min, int8_t max) {
 	return min<=val && val<=max;
@@ -613,7 +605,7 @@ void handleHardwareSpec(const char* key, const char* val, void* pv)
 	
 	int8_t idx = indexOf("hpvuf", key[0]);
 	if (idx>=0) {
-		*((int8_t*)h+idx) = atoi(val);
+		*((int8_t*)h+idx) = atol(val);
 	}			
 }
 
@@ -663,7 +655,7 @@ inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw, char* 
 {
 	OneWire* bus = oneWireBus(hw.pinNr);
 	OneWireTempSensor sensor(bus, hw.address);
-	fixed23_9 value = sensor.init();	
+	fixed7_9 value = sensor.init();	
 	fixedPointToString(out, value, 3, 9);
 }
 
@@ -807,7 +799,7 @@ void HandleDeviceDisplay(const char* key, const char* val, void* pv)
 	
 	int8_t idx = indexOf("irw", key[0]);
 	if (idx>=0) {
-		*((int8_t*)&dd+idx) = atoi(val);
+		*((int8_t*)&dd+idx) = atol(val);
 	}	
 }
 
