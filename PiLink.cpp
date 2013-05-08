@@ -209,11 +209,12 @@ void PiLink::receive(void){
 
 		case 'd': // list devices in eeprom order
 			DeviceConfig dc;
-			DeviceDisplay dd;
+			DeviceDisplay dd;			
 			fill((int8_t*)&dd, sizeof(dd));
+			dd.empty = 0;
 			parseJson(HandleDeviceDisplay, (void*)&dd);
 			for (device_slot_t idx=0; deviceManager.allDevices(dc, idx); idx++) {
-				if (dd.id==-1 || dd.id==idx)
+				if (deviceManager.enumDevice(dd, dc, idx))
 				{							
 					char val[10];
 					val[0] = 0;
@@ -244,8 +245,7 @@ void PiLink::receive(void){
 #if MULTICHAMBER
 		chamberManager.switchChamber(prev);		
 #endif				
-		//piStream.flush(); Messages can be back to back. Flush should not be necessary.
-		// Functions should not read more than what is meant for that function.
+		piStream.flush();		
 	}
 }
 
@@ -985,14 +985,10 @@ void PiLink::printDouble(double val)
 	char buf[30];
 	val *= 10000;
 	long l = val;
-	ltoa(l/10000, buf, 10);
+	ltoa(l/10000, buf, 10);	// print the whole part
 	piLink.print(buf);
 	l = l % 10000;
-	if (l!=0) {
-		piLink.print('.');
-		ltoa(l, buf, 10);
-		piLink.print(buf);
-	}	
+	piLink.print_P(".%05d", l);
 }
 
 void PiLink::sendJsonPair(const char* name, double val)

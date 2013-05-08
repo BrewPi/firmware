@@ -573,20 +573,21 @@ void printBytes(uint8_t* data, uint8_t len, char* buf) // prints 8-bit data in h
 	*buf = 0;
 }
 
-/*
-void print_P(Print* p, const char* data) {
-	while(pgm_read_byte(data) != 0x00)
-		p->print(pgm_read_byte(data++));
-}
-*/
-
 void DeviceManager::OutputEnumeratedDevices(DeviceConfig* config, void* pv)
 {
 	DeviceOutput* out = (DeviceOutput*)pv;
-	out->pp->print("d:{");
+	out->pp->print("h:{");
 	if (config)
 		printDevice(out->slot, *config, out->value, *out->pp);
 	out->pp->print("}\n");
+}
+
+bool DeviceManager::enumDevice(DeviceDisplay& dd, DeviceConfig& dc, uint8_t idx)
+{
+	if (dd.id==-1)
+		return (dd.empty || dc.deviceFunction);	// if enumerating all devices, honor the unused request param
+	else
+		return (dd.id==idx);						// enumerate only the specific device requested
 }
 
 struct EnumerateHardware
@@ -797,7 +798,7 @@ void HandleDeviceDisplay(const char* key, const char* val, void* pv)
 	DeviceDisplay& dd = *(DeviceDisplay*)pv;
 	DEBUG_MSG(PSTR("DeviceDisplay %s:%s"), key, val);
 	
-	int8_t idx = indexOf("irw", key[0]);
+	int8_t idx = indexOf("irwe", key[0]);
 	if (idx>=0) {
 		*((int8_t*)&dd+idx) = atol(val);
 	}	

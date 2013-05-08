@@ -13,12 +13,8 @@ typedef uint16_t eptr_t;
 #define INVALID_EPTR (0)
 
 
-inline void fill(int8_t* p, uint8_t size) {
-	while (size-->0) *p++ = -1;
-}
-inline void clear(uint8_t* p, uint8_t size) {
-	while (size-->0) *p++ = 0;
-}
+void fill(int8_t* p, uint8_t size);
+void clear(uint8_t* p, uint8_t size);
 
 class EepromAccess
 {

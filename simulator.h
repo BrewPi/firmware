@@ -58,7 +58,7 @@ class Simulator
 {
 public:	
 	Simulator(
-				unsigned int _time=0, 
+				unsigned long _time=0, 
 				unsigned int _fridgeVolume=400, double _fridgeTemp = 20.0, 
 				double _beerSG=1.060, 
 				double _beerTemp=22.0, double _beerVolume=20.0, 
@@ -90,7 +90,7 @@ public:
 	};
 
 	void step() {
-		// in the simulator, we assume that ValueActator instances are used for the actuators.		
+		// in the simulator, we assume that ValueActuator instances are used for the actuators.
 		heating = PValueActuator(tempControl.heater)->isActive();
 		cooling = PValueActuator(tempControl.cooler)->isActive();		 
 		doorOpen = PValueSensor(tempControl.door)->sense();
@@ -209,8 +209,8 @@ public:
 		if (minRoomTemp==maxRoomTemp)
 			return minRoomTemp;
 		
-		unsigned long secondsInADay = 60.0*60*24;
-		double p = (double(time%secondsInADay)/double(secondsInADay))*(2.0*PI);
+		unsigned long secondsInADay = 60*60*24;
+		double p = (double(time%secondsInADay)/double(secondsInADay))*(TWO_PI);
 		double s = sin(p);
 		double mid = (minRoomTemp+maxRoomTemp)/2;
 		double half = mid-minRoomTemp;

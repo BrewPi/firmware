@@ -186,9 +186,10 @@ struct DeviceOutput
 };
 
 struct DeviceDisplay {
-	int8_t id;		// -1 for all devices, >=0 for specific device
+	int8_t id;		// -1 for all devices, >=0 for specific device	
 	int8_t value;	// set value
 	int8_t write;	// write value		
+	int8_t empty;	// show unused devices when id==-1, default is 0
 };
 
 void HandleDeviceDisplay(const char* key, const char* value, void* pv);
@@ -281,6 +282,8 @@ public:
 	 * read hardware spec from stream and output matching devices
 	 */
 	static void enumerateHardware(Stream& p);
+	
+	static bool enumDevice(DeviceDisplay& dd, DeviceConfig& dc, uint8_t idx);
 	
 private:
 	
