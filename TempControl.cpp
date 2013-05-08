@@ -108,18 +108,30 @@ void TempControl::updatePID(void){
 			integralUpdateCounter = 0;
 			if(abs(cv.beerDiff) < cc.iMaxError){
 				//difference is smaller than iMaxError, check 4 conditions to see if integrator should be active
-				if(timeSinceIdle() > 1800){
-					// more than 30 minutes since idle, actuator is probably saturated. Do not increase integrator.
-				}			
-				else if(cv.beerDiff < 0 && (cs.fridgeSetting +1024) < fridgeSensor->readFastFiltered()){
-					// cooling and fridge temp is more than 2 degrees from setting, actuator is saturated.
+				
+				// Actuator is not saturated. Update integrator
+				if((cv.beerDiff >= 0) == (cv.diffIntegral >= 0)){
+					// beerDiff and integrator have same sign. Integrator action is increased.
+					if(timeSinceIdle() > 1800){
+						// more than 30 minutes since idle, actuator is probably saturated. Do not increase integrator.
+					}
+					if(cs.fridgeSetting == cc.tempSettingMax && cs.fridgeSetting == cc.tempSettingMin){
+						// actuator is already at max. Increasing actuator will only cause integrator windup.
+					}
+					else if(cv.beerDiff < 0 && (cs.fridgeSetting +1024) < fridgeSensor.readFastFiltered()){
+						// cooling and fridge temp is more than 2 degrees from setting, actuator is saturated.
+					}
+					else if(cv.beerDiff > 0 && (cs.fridgeSetting -1024) > fridgeSensor.readFastFiltered()){
+						// heating and fridge temp is more than 2 degrees from setting, actuator is saturated.
+					}
+					else{
+						// increase integrator action
+						cv.diffIntegral = cv.diffIntegral + cv.beerDiff;
+					}
 				}
-				else if(cv.beerDiff > 0 && (cs.fridgeSetting -1024) > fridgeSensor->readFastFiltered()){
-					// heating and fridge temp is more than 2 degrees from setting, actuator is saturated.
-				}					
 				else{
-					// Actuator is not saturated. Update integrator
-					cv.diffIntegral = cv.diffIntegral + cv.beerDiff;
+					// integrator action is decreased. Decrease faster than increase.
+					cv.diffIntegral = cv.diffIntegral + 4*cv.beerDiff;
 				}
 			}
 			else{
