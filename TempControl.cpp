@@ -1,4 +1,4 @@
-	/*
+/*
  * Copyright 2012 BrewPi/Elco Jacobs.
  *
  * This file is part of BrewPi.
@@ -131,7 +131,7 @@ void TempControl::updatePID(void){
 					if(cs.fridgeSetting == cc.tempSettingMax && cs.fridgeSetting == cc.tempSettingMin){
 						// actuator is already at max. Increasing actuator will only cause integrator windup.
 					}
-					else if(cv.beerDiff < 0 && (cs.fridgeSetting +1024) < fridgeSensor.readFastFiltered()){
+					else if(cv.beerDiff < 0 && (cs.fridgeSetting +1024) < fridgeFastFiltered){
 						// cooling and fridge temp is more than 2 degrees from setting, actuator is saturated.
 					}
 					else if(cv.beerDiff > 0 && (cs.fridgeSetting -1024) > fridgeFastFiltered){
@@ -148,14 +148,6 @@ void TempControl::updatePID(void){
 				}
 			}
 			else{
-					// heating and fridge temp is more than 2 degrees from setting, actuator is saturated.
-				}					
-				else{
-					// Actuator is not saturated. Update integrator
-					cv.diffIntegral = cv.diffIntegral + cv.beerDiff;
-				}
-			}
-			else{
 				// decrease integral by 1/8 when not close to end value to prevent integrator windup
 				cv.diffIntegral = cv.diffIntegral-(cv.diffIntegral>>3);
 			
@@ -163,9 +155,9 @@ void TempControl::updatePID(void){
 		}			
 		
 		// calculate PID parts. Use fixed23_9 to prevent overflow
-		multiplyFixed7_9(cc.Kp, cv.beerDiff);
-		multiplyFixeda7_9b23_9(cc.Ki, cv.diffIntegral);
-		multiplyFixed7_9(cc.Kd, cv.beerSlope);		
+		cv.p = multiplyFixed7_9(cc.Kp, cv.beerDiff);
+		cv.i = multiplyFixeda7_9b23_9(cc.Ki, cv.diffIntegral);
+		cv.d = multiplyFixed7_9(cc.Kd, cv.beerSlope);		
 		cs.fridgeSetting = constrain(cs.beerSetting + cv.p + cv.i + cv.d, cc.tempSettingMin, cc.tempSettingMax);
 	}
 	else{
@@ -323,7 +315,7 @@ void TempControl::detectPeaks(void){
 			detected = true;
 		}
 		else if(timeSinceHeating() + 10 > HEAT_PEAK_DETECT_TIME && 
-				fridgeSensor.readFastFiltered() < (cv.posPeakEstimate+cc.heatingTargetLower)){
+				fridgeSensor->readFastFiltered() < (cv.posPeakEstimate+cc.heatingTargetLower)){
 			// Idle period almost reaches maximum allowed time for peak detection
 			// This is the heat, then drift up too slow (but in the right direction).
 			// estimator is too high
@@ -344,10 +336,10 @@ void TempControl::detectPeaks(void){
 		if(timeSinceHeating() > HEAT_PEAK_DETECT_TIME){
 			doPosPeakDetect = false;
 		}
-		}			
+	}			
 	if(doNegPeakDetect && state!=COOLING){
 		bool detected = false;
-		fixed7_9 negPeak = fridgeSensor.detectNegPeak();
+		fixed7_9 negPeak = fridgeSensor->detectNegPeak();
 		fixed7_9 error = negPeak-cv.negPeakEstimate;
 		if(negPeak != INT_MIN){
 			// negative peak detected
@@ -363,7 +355,7 @@ void TempControl::detectPeaks(void){
 			detected = true;
 		}
 		else if(timeSinceCooling() + 10 > COOL_PEAK_DETECT_TIME && 
-				fridgeSensor.readFastFiltered() > (cv.negPeakEstimate+cc.coolingTargetUpper)){
+				fridgeSensor->readFastFiltered() > (cv.negPeakEstimate+cc.coolingTargetUpper)){
 			// Idle period almost reaches maximum allowed time for peak detection
 			// This is the cooling, then drift down too slow (but in the right direction).
 			// estimator is too high
