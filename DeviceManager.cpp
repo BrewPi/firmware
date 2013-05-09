@@ -29,6 +29,10 @@ OneWire DeviceManager::fridgeSensorBus(fridgeSensorPin);
 OneWire DeviceManager::primaryOneWireBus(oneWirePin);
 #endif
 
+bool DeviceManager::firstDeviceOutput;
+
+
+
 /*
  * Defaults for sensors, actuators and temperature sensors when not defined in the eeprom.
  */
@@ -63,17 +67,6 @@ void DeviceManager::loadDefaultDevices()
 	tempControl.cooler = tempControl.heater = tempControl.light = &defaultActuator;
 	tempControl.door = &defaultSensor;	
 	
-#if 0
-	tempControl.beerSensor = new TempSensor(new OneWireTempSensor(oneWireBus(beerSensorPin)));
-	tempControl.fridgeSensor = new TempSensor(new OneWireTempSensor(oneWireBus(fridgeSensorPin)));
-		
-	tempControl.cooler = new DigitalConstantPinActuator<coolingPin, SHIELD_INVERT>();
-	tempControl.heater = new DigitalConstantPinActuator<heatingPin, SHIELD_INVERT>();
-	tempControl.door = new DigitalConstantPinSensor<doorPin, SHIELD_INVERT, USE_INTERNAL_PULL_UP_RESISTORS>();
-	tempControl.light = tempControl.heater;
-#endif		
-	//tempControl.loadSettingsAndConstants(); //read previous settings from EEPROM
-
 	tempControl.init();
 	tempControl.updatePID();
 	tempControl.updateState();
@@ -352,9 +345,10 @@ bool inRangeInt8(int8_t val, int8_t min, int8_t max) {
  * Updates the device definition. Only changes that result in a valid device, with no conflicts with other devices
  * are allowed. 
  */
-void DeviceManager::parseDeviceDefinition(Stream& p, /*[out]*/ DeviceConfig& output)
+void DeviceManager::parseDeviceDefinition(Stream& p)
 {	
 	static DeviceDefinition dev;
+	DeviceConfig output;
 	fill((int8_t*)&dev, sizeof(dev));
 	
 	piLink.parseJson(&handleDeviceDefinition, &dev);
@@ -367,7 +361,6 @@ void DeviceManager::parseDeviceDefinition(Stream& p, /*[out]*/ DeviceConfig& out
 	
 	// todo - should ideally check if the eeprom is correctly initialized.
 	eepromManager.fetchDevice(target, dev.id);	
-	memcpy(&output, &target, sizeof(target));	
 	
 	if (dev.chamber>=0) {
 		target.chamber = dev.chamber;
@@ -403,6 +396,7 @@ void DeviceManager::parseDeviceDefinition(Stream& p, /*[out]*/ DeviceConfig& out
 		eepromManager.storeDevice(target, dev.id);
 		memcpy(&output, &target, sizeof(output));		
 	}	
+	deviceManager.beginDeviceOutput();
 	deviceManager.printDevice(dev.id, output, NULL, p);
 }
 
@@ -472,10 +466,7 @@ bool DeviceManager::isDeviceValid(DeviceConfig& config, DeviceConfig& original, 
 		// todo - could verify that the pin nr corresponds to enumActuatorPins/enumSensorPins		
 	}
 	
-	
-	
 #endif
-
 	// todo - for onewire temp, ensure address is unique	
 	// todo - for onewire 2413 check address+pio nr is unique
 	return true;
@@ -508,17 +499,16 @@ inline bool hasOnewire(DeviceHardware hw)
 	hw==DEVICE_HARDWARE_ONEWIRE_TEMP;
 }
 
-/**
- * Device value alternatives.
- *   index: lists all undefined indexes (device function NONE)
- *   chamber: 
- */
 void DeviceManager::printDevice(device_slot_t slot, DeviceConfig& config, const char* value, Print& p)
 {	
 	char buf[17];
 
 	DeviceType dt = deviceType(config.deviceFunction);
-	
+	if (!firstDeviceOutput) {
+		p.print('\n'); p.print(',');
+	}
+	firstDeviceOutput = false;
+	p.print('{');
 	printAttrib(p, DEVICE_ATTRIB_INDEX, slot, true);
 	printAttrib(p, DEVICE_ATTRIB_TYPE, dt);
 	
@@ -535,16 +525,17 @@ void DeviceManager::printDevice(device_slot_t slot, DeviceConfig& config, const 
 		printAttrib(p, DEVICE_ATTRIB_INVERT, config.hw.invert);
 	
 	if (hasOnewire(config.deviceHardware)) {
-		p.print(",a:");
+		p.print(",a:\"");
 		printBytes(config.hw.address, 8, buf);
 		p.print(buf);
+		p.print('"');
 	}	
 #if BREWPI_DS2413		
 	if (config.deviceHardware==DEVICE_HARDWARE_ONEWIRE_2413) {
 		printAttrib(p, DEVICE_ATTRIB_PIO, config.hw.pio);		
 	}
 #endif	
-					
+	p.print('}');
 }	
 	
 bool DeviceManager::allDevices(DeviceConfig& config, uint8_t deviceIndex)
@@ -576,10 +567,7 @@ void printBytes(uint8_t* data, uint8_t len, char* buf) // prints 8-bit data in h
 void DeviceManager::OutputEnumeratedDevices(DeviceConfig* config, void* pv)
 {
 	DeviceOutput* out = (DeviceOutput*)pv;
-	out->pp->print("h:{");
-	if (config)
-		printDevice(out->slot, *config, out->value, *out->pp);
-	out->pp->print("}\n");
+	printDevice(out->slot, *config, out->value, *out->pp);
 }
 
 bool DeviceManager::enumDevice(DeviceDisplay& dd, DeviceConfig& dc, uint8_t idx)
@@ -688,8 +676,7 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardwa
 			default:
 				break;							
 		}
-	}
-	
+	}	
 	DEBUG_MSG(PSTR("Passing device to callback"));
 	callback(&config, &out);
 }
@@ -780,7 +767,7 @@ void DeviceManager::enumerateHardware( Stream& p )
 	out.pp = &p;
 
 	DEBUG_MSG(PSTR("Enumerating Hardware"));
-	
+	firstDeviceOutput = true;
 	if (spec.hardware==-1 || isOneWire(DeviceHardware(spec.hardware))) {
 		enumerateOneWireDevices(spec, OutputEnumeratedDevices, out);
 	}
@@ -789,14 +776,13 @@ void DeviceManager::enumerateHardware( Stream& p )
 	}
 	
 	DEBUG_MSG(PSTR("Enumerating Hardware Complete"));
-	OutputEnumeratedDevices(NULL, (void*)&out);		// end of enumeration
 }
 
 
 void HandleDeviceDisplay(const char* key, const char* val, void* pv)
 {
 	DeviceDisplay& dd = *(DeviceDisplay*)pv;
-	DEBUG_MSG(PSTR("DeviceDisplay %s:%s"), key, val);
+	//DEBUG_MSG(PSTR("DeviceDisplay %s:%s"), key, val);
 	
 	int8_t idx = indexOf("irwe", key[0]);
 	if (idx>=0) {
@@ -831,4 +817,20 @@ void UpdateDeviceState(DeviceDisplay& dd, DeviceConfig& dc, char* val)
 	}
 }
 
-
+void DeviceManager::listDevices(Stream& p) {
+	DeviceConfig dc;
+	DeviceDisplay dd;
+	fill((int8_t*)&dd, sizeof(dd));
+	dd.empty = 0;
+	piLink.parseJson(HandleDeviceDisplay, (void*)&dd);
+	deviceManager.beginDeviceOutput();
+	for (device_slot_t idx=0; deviceManager.allDevices(dc, idx); idx++) {
+		if (deviceManager.enumDevice(dd, dc, idx))
+		{
+			char val[10];
+			val[0] = 0;
+			UpdateDeviceState(dd, dc, val);
+			deviceManager.printDevice(idx, dc, val, p);			
+		}
+	}	
+}

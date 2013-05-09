@@ -266,7 +266,7 @@ public:
 	 */
 	static void installDevice(DeviceConfig& config);
 	
-	static void parseDeviceDefinition(Stream& p, DeviceConfig& target);
+	static void parseDeviceDefinition(Stream& p);
 	static void printDevice(device_slot_t slot, DeviceConfig& config, const char* value, Print& p);
 		
 	/**
@@ -284,6 +284,8 @@ public:
 	static void enumerateHardware(Stream& p);
 	
 	static bool enumDevice(DeviceDisplay& dd, DeviceConfig& dc, uint8_t idx);
+
+	static void listDevices(Stream& p);
 	
 private:
 	
@@ -296,6 +298,7 @@ private:
 	static OneWire* oneWireBus(uint8_t pin);
 	static void* createDevice(DeviceConfig& config, DeviceType dc);
 	
+	static void beginDeviceOutput() { firstDeviceOutput = true; }
 	
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A	
 	static OneWire beerSensorBus;
@@ -304,7 +307,8 @@ private:
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
 	static OneWire primaryOneWireBus;	
 #endif
-
+	static bool firstDeviceOutput;
 };
+
 
 extern DeviceManager deviceManager;

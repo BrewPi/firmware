@@ -92,6 +92,9 @@ class PiLink{
 	static void printJsonName(const char * name);
 	static void printJsonSeparator();
 	static void sendJsonClose();
+	
+	static void openListResponse(char type);
+	static void closeListResponse();
 
 #if OPTIMIZE_JSON_OUTPUT
 	struct JsonOutput {

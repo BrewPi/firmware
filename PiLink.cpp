@@ -188,17 +188,21 @@ void PiLink::receive(void){
 
 		case 'e': // dump contents of eeprom						
 			// use <= so last line comprises 0 bytes.
+			openListResponse('E');
 			for (uint16_t i=0; i<1024;) {
-				printResponse('E');				
+				if (i>0) {
+					piLink.print('\n');
+					piLink.print(',');
+				}
+				piLink.print('\"');
 				for (uint8_t j=0; j<64; j++) {
 					uint8_t d = eepromAccess.readByte(i++);
 					printNibble(d>>4);
 					printNibble(d);
 				}				
-				piStream.print('\n');
+				piLink.print('\"');
 			}
-			printResponse('E');
-			piStream.print('\n');			
+			closeListResponse();
 			break;
 			
 		case 'E': // reset eeprom
@@ -208,34 +212,21 @@ void PiLink::receive(void){
 			break;
 
 		case 'd': // list devices in eeprom order
-			DeviceConfig dc;
-			DeviceDisplay dd;			
-			fill((int8_t*)&dd, sizeof(dd));
-			dd.empty = 0;
-			parseJson(HandleDeviceDisplay, (void*)&dd);
-			for (device_slot_t idx=0; deviceManager.allDevices(dc, idx); idx++) {
-				if (deviceManager.enumDevice(dd, dc, idx))
-				{							
-					char val[10];
-					val[0] = 0;
-					UpdateDeviceState(dd, dc, val);
-					printResponse('d');
-					piLink.print('{');
-					deviceManager.printDevice(idx, dc, val, piStream);
-					sendJsonClose();
-				}
-			}
+			openListResponse('d');
+			deviceManager.listDevices(piStream);
+			closeListResponse();
 			break;
 
-		case 'U': // update device
+		case 'U': // update device		
 			printResponse('U');
-			piLink.print('{');
-			deviceManager.parseDeviceDefinition(piStream, dc);			
+			deviceManager.parseDeviceDefinition(piStream);			
 			sendJsonClose();
 			break;
 			
 		case 'h': // hardware query
+			openListResponse('h');
 			deviceManager.enumerateHardware(piStream);
+			closeListResponse();
 			break;
 
 		default:
@@ -396,6 +387,17 @@ void PiLink::printResponse(char type) {
 	piStream.print(':');
 	firstPair = true;
 }
+
+void PiLink::openListResponse(char type) {
+	printResponse(type);
+	piStream.print('[');
+}
+
+void PiLink::closeListResponse() {
+	piStream.print(']');
+	piStream.print('\n');
+}
+
 
 void PiLink::debugMessageDirect(const char * message, ...){
 	char tempString[128]; // resulting string limited to 128 chars
