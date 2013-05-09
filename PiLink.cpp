@@ -245,7 +245,6 @@ void PiLink::receive(void){
 #if MULTICHAMBER
 		chamberManager.switchChamber(prev);		
 #endif				
-		piStream.flush();		
 	}
 }
 
