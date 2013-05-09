@@ -56,7 +56,7 @@
 #define TEMP_12_BIT 0x7F // 12 bit
 
 // Error Codes
-#define DEVICE_DISCONNECTED -127
+#define DEVICE_DISCONNECTED INT_MIN
 
 typedef uint8_t DeviceAddress[8];
 

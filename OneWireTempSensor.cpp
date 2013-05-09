@@ -45,14 +45,13 @@ fixed7_9 OneWireTempSensor::init(){
 	#if BREWPI_DEBUG
 	char buf[30];
 	printBytes(sensorAddress, 8, buf);
-	// todo - DEVICE_DISCONNECTED is -127, but does this need scaling?
+	
 	DEBUG_MSG(PSTR("fetching initial temperature %d %s"), pinNr, buf);
 	#endif
 	
 	fixed7_9 temperature = DEVICE_DISCONNECTED;
 	while(temperature == DEVICE_DISCONNECTED){
 		temperature = sensor->getTempRaw(sensorAddress);
-		DEBUG_MSG(PSTR("Raw temp on sensor pin %d addr %s %d"), pinNr, buf, temperature);
 		if(ticks.millis() - lastRequestTime > 4000){
 			connected = false; // sensor disconnected
 			DEBUG_MSG(PSTR("Reporting device disconnected pin %d %s"), pinNr, buf);
@@ -64,7 +63,7 @@ fixed7_9 OneWireTempSensor::init(){
 	temperature = sensor->getTempRaw(sensorAddress); // read again. First read is not accurate
 	connected = true;
 	temperature = constrain(temperature, ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5; // sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits
-	DEBUG_MSG(PSTR("Sensor initialized: pin %d %s"), pinNr, buf);
+	DEBUG_MSG(PSTR("Sensor initialized: pin %d %s %d"), pinNr, buf, temperature);
 	return temperature;
 }
 
