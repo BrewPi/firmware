@@ -54,17 +54,47 @@ OneWire* DeviceManager::oneWireBus(uint8_t pin) {
 	return NULL;
 }
 
+inline void deleteBasicTempSensor(BasicTempSensor* t)
+{
+	if (t!=&defaultTempSensor)
+		delete t;
+}
+
+inline void setDefaultTempSensor(TempSensor* tempSensor)
+{
+	deleteBasicTempSensor(&tempSensor->sensor());
+	tempSensor->setSensor(&defaultTempSensor);
+}
+
+inline void setDefaultActuator(Actuator*& p)
+{
+	if (p!=&defaultActuator)	
+		delete p;
+	p = &defaultActuator;
+}
+
 void DeviceManager::loadDefaultDevices()
 {	
-	// todo - this doesn't really belong here, but part of the initialization for a chamber.
-	// but for now this is single chamber
 	if (tempControl.beerSensor==NULL)
 		tempControl.beerSensor = new TempSensor(TEMP_SENSOR_TYPE_BEER, &defaultTempSensor);
 	if (tempControl.fridgeSensor==NULL)
 		tempControl.fridgeSensor = new TempSensor(TEMP_SENSOR_TYPE_FRIDGE, &defaultTempSensor);
 
-	tempControl.ambientSensor = &defaultTempSensor;		
-	tempControl.cooler = tempControl.heater = tempControl.light = &defaultActuator;
+	// this method is called after resetting the eeprom, so re-initialization should be supported (unless we
+	// force a reset.)
+	// without this, previously configured devices will be memory-leaked
+	setDefaultTempSensor(tempControl.beerSensor);
+	setDefaultTempSensor(tempControl.fridgeSensor);
+	
+	deleteBasicTempSensor(tempControl.ambientSensor);
+	tempControl.ambientSensor = &defaultTempSensor;	
+	
+	setDefaultActuator(tempControl.cooler);
+	setDefaultActuator(tempControl.heater);
+	setDefaultActuator(tempControl.light);		
+	
+	if (tempControl.door!=&defaultSensor)
+		delete tempControl.door;
 	tempControl.door = &defaultSensor;	
 	
 	tempControl.init();
@@ -396,6 +426,10 @@ void DeviceManager::parseDeviceDefinition(Stream& p)
 		eepromManager.storeDevice(target, dev.id);
 		memcpy(&output, &target, sizeof(output));		
 	}	
+	else {
+		DEBUG_MSG("Device definition update spec is not valid");
+	}
+	
 	deviceManager.beginDeviceOutput();
 	deviceManager.printDevice(dev.id, output, NULL, p);
 }

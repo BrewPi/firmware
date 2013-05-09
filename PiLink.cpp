@@ -219,8 +219,7 @@ void PiLink::receive(void){
 
 		case 'U': // update device		
 			printResponse('U');
-			deviceManager.parseDeviceDefinition(piStream);			
-			sendJsonClose();
+			deviceManager.parseDeviceDefinition(piStream);
 			break;
 			
 		case 'h': // hardware query
