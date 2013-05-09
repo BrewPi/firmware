@@ -477,6 +477,7 @@ const PiLink::JsonOutputHandler PiLink::JsonOutputHandlers[] = {
 	PiLink::jsonOutputTempToString,
 	PiLink::jsonOutputFixedPointToString,
 	PiLink::jsonOutputTempDiffToString,
+	PiLink::jsonOutputChar
 };
 
 #define JSON_OUTPUT_CC_MAP(name, fn) { JSONKEY_ ## name,  offsetof(ControlConstants, name), fn }
