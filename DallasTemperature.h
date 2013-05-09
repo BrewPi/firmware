@@ -2,6 +2,7 @@
 #define DallasTemperature_h
 
 #include "brewpi_avr.h"
+#include <limits.h>
 
 #define DALLASTEMPLIBVERSION "3.7.0"
 

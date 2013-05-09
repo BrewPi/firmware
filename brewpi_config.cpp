@@ -191,7 +191,7 @@ void loop(void)
 #if BREWPI_SIMULATE
 		simulator.step();
 #else
-		piLink.printTemperatures();
+		//piLink.printTemperatures();
 #endif		
 	}	
 #if BREWPI_SIMULATE && !BREWPI_EMULATE
