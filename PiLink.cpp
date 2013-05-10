@@ -186,6 +186,7 @@ void PiLink::receive(void){
 			receiveJson();
 			break;
 
+#if BREWPI_EEPROM_HELPER_COMMANDS
 		case 'e': // dump contents of eeprom						
 			openListResponse('E');
 			for (uint16_t i=0; i<1024;) {
@@ -203,6 +204,7 @@ void PiLink::receive(void){
 			}
 			closeListResponse();
 			break;
+#endif
 			
 		case 'E': // initialize eeprom
 			eepromManager.initializeEeprom();
@@ -227,11 +229,13 @@ void PiLink::receive(void){
 			deviceManager.enumerateHardware(piStream);
 			closeListResponse();
 			break;
-			
+
+#if BREWPI_DEBUG			
 		case 'Z': // zap eeprom
 			eepromManager.zapEeprom();
 			DEBUG_MSG(PSTR("Zapped eeprom."));
 			break;
+#endif
 
 		default:
 			debugMessage(PSTR("Invalid command received by Arduino: %c"), inByte);
