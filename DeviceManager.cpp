@@ -54,48 +54,26 @@ OneWire* DeviceManager::oneWireBus(uint8_t pin) {
 	return NULL;
 }
 
-inline void deleteBasicTempSensor(BasicTempSensor* t)
-{
-	if (t!=&defaultTempSensor)
-		delete t;
-}
 
-inline void setDefaultTempSensor(TempSensor* tempSensor)
-{
-	deleteBasicTempSensor(&tempSensor->sensor());
-	tempSensor->setSensor(&defaultTempSensor);
-}
-
-inline void setDefaultActuator(Actuator*& p)
-{
-	if (p!=&defaultActuator)	
-		delete p;
-	p = &defaultActuator;
-}
-
-void DeviceManager::loadDefaultDevices()
+/**
+ * Sets devices to their unconfigured states. Each device is initialized to a static no-op instance.
+ * This method is idempotent, and is called each time the eeprom is reset. 
+ */
+void DeviceManager::setupUnconfiguredDevices()
 {	
 	if (tempControl.beerSensor==NULL)
 		tempControl.beerSensor = new TempSensor(TEMP_SENSOR_TYPE_BEER, &defaultTempSensor);
 	if (tempControl.fridgeSensor==NULL)
-		tempControl.fridgeSensor = new TempSensor(TEMP_SENSOR_TYPE_FRIDGE, &defaultTempSensor);
-
-	// this method is called after resetting the eeprom, so re-initialization should be supported (unless we
-	// force a reset.)
-	// without this, previously configured devices will be memory-leaked
-	setDefaultTempSensor(tempControl.beerSensor);
-	setDefaultTempSensor(tempControl.fridgeSensor);
+		tempControl.fridgeSensor = new TempSensor(TEMP_SENSOR_TYPE_FRIDGE, &defaultTempSensor);	
 	
-	deleteBasicTempSensor(tempControl.ambientSensor);
-	tempControl.ambientSensor = &defaultTempSensor;	
-	
-	setDefaultActuator(tempControl.cooler);
-	setDefaultActuator(tempControl.heater);
-	setDefaultActuator(tempControl.light);		
-	
-	if (tempControl.door!=&defaultSensor)
-		delete tempControl.door;
-	tempControl.door = &defaultSensor;	
+	// right now, uninstall doesn't care about chamber/beer distinction.
+	// but this will need to match beer/function when multiferment is available
+	DeviceConfig cfg;	
+	cfg.chamber = 1; cfg.beer = 1;		
+	for (uint8_t i=0; i<DEVICE_MAX; i++) {
+		cfg.deviceFunction = DeviceFunction(i);
+		uninstallDevice(cfg);
+	}
 	
 	tempControl.init();
 	tempControl.updatePID();
@@ -251,18 +229,59 @@ inline bool isBasicSensor(DeviceFunction function) {
 	return function==DEVICE_CHAMBER_ROOM_TEMP;
 }
 
+inline BasicTempSensor& unwrapSensor(DeviceFunction f, void* pv) {
+	return isBasicSensor(f) ? *(BasicTempSensor*)pv : ((TempSensor*)pv)->sensor();
+}
+
+
+/**
+ * Removes an installed device.
+ * /param config The device to remove. The fields that are used are
+ *		chamber, beer, hardware and function.
+ */
+void DeviceManager::uninstallDevice(DeviceConfig& config)
+{
+	DeviceType dt = deviceType(config.deviceFunction);
+	void** ppv = deviceTarget(config);	
+	if (ppv==NULL)
+		return;
+	
+	BasicTempSensor* s;
+	switch(dt) {
+		case DEVICETYPE_NONE:
+			break;
+		case DEVICETYPE_TEMP_SENSOR:
+			DEBUG_MSG(PSTR("Uninstalling temp sensor f=%d"), config.deviceFunction);
+			// sensor may be wrapped in a TempSensor class, or may stand alone.
+			s = &unwrapSensor(config.deviceFunction, *ppv);
+			if (s!=&defaultTempSensor)
+				delete s;
+			break;
+		case DEVICETYPE_SWITCH_ACTUATOR:
+			DEBUG_MSG(PSTR("Uninstalling actuator f=%d"), config.deviceFunction);
+			if (*ppv!=&defaultActuator)
+				delete (Actuator*)*ppv;
+			break;
+		case DEVICETYPE_SWITCH_SENSOR:
+			DEBUG_MSG(PSTR("Uninstalling sensor f=%d"), config.deviceFunction);
+			if (*ppv!=&defaultSensor)
+				delete (SwitchSensor*)*ppv;
+			break;
+	}
+		
+}
+
+
 /**
  * Creates and installs a device in the current chamber. 
  */
 void DeviceManager::installDevice(DeviceConfig& config)
 {	
 	DeviceType dt = deviceType(config.deviceFunction);
-		
-	// where the newly constructed device will be placed.
-	void** ppv = deviceTarget(config);		
+	void** ppv = deviceTarget(config);
 	if (ppv==NULL)
 		return;
-	
+		
 	BasicTempSensor* s;
 	TempSensor* ts;
 	switch(dt) {
@@ -271,9 +290,6 @@ void DeviceManager::installDevice(DeviceConfig& config)
 		case DEVICETYPE_TEMP_SENSOR:
 			DEBUG_MSG(PSTR("Installing temp sensor f=%d"), config.deviceFunction);
 			// sensor may be wrapped in a TempSensor class, or may stand alone.
-			s = isBasicSensor(config.deviceFunction) ? (BasicTempSensor*)*ppv : &((TempSensor*)*ppv)->sensor();
-			if (s!=&defaultTempSensor)
-				delete s;
 			s = (BasicTempSensor*)createDevice(config, dt);
 			if (isBasicSensor(config.deviceFunction)) {
 				s->init();
@@ -286,16 +302,8 @@ void DeviceManager::installDevice(DeviceConfig& config)
 			}
 			break;
 		case DEVICETYPE_SWITCH_ACTUATOR:
-			DEBUG_MSG(PSTR("Installing actuator f=%d"), config.deviceFunction);
-			if (*ppv!=&defaultActuator)
-				delete (Actuator*)*ppv;
-			*ppv = createDevice(config, dt);
-			break;
 		case DEVICETYPE_SWITCH_SENSOR:
-			DEBUG_MSG(PSTR("Installing sensor f=%d"), config.deviceFunction);
-			if (*ppv!=&defaultSensor)
-				delete (SwitchSensor*)*ppv;
-			*ppv = createDevice(config, dt);				
+			*ppv = createDevice(config, dt);
 			break;
 	}
 }	
@@ -378,7 +386,6 @@ bool inRangeInt8(int8_t val, int8_t min, int8_t max) {
 void DeviceManager::parseDeviceDefinition(Stream& p)
 {	
 	static DeviceDefinition dev;
-	DeviceConfig output;
 	fill((int8_t*)&dev, sizeof(dev));
 	
 	piLink.parseJson(&handleDeviceDefinition, &dev);
@@ -388,9 +395,11 @@ void DeviceManager::parseDeviceDefinition(Stream& p)
 	
 	// save the original device so we can revert
 	DeviceConfig target;
+	DeviceConfig original;
 	
 	// todo - should ideally check if the eeprom is correctly initialized.
-	eepromManager.fetchDevice(target, dev.id);	
+	eepromManager.fetchDevice(original, dev.id);
+	memcpy(&target, &original, sizeof(target));
 	
 	if (dev.chamber>=0) {
 		target.chamber = dev.chamber;
@@ -418,20 +427,24 @@ void DeviceManager::parseDeviceDefinition(Stream& p)
 		clear((uint8_t*)&target, sizeof(target));
 	}
 	
-	// now validate the device
-	bool valid = isDeviceValid(target, output, dev.id);
+	bool valid = isDeviceValid(target, original, dev.id);
+	DeviceConfig* print = &original;
 	if (valid)
-	{
-		installDevice(target);
-		eepromManager.storeDevice(target, dev.id);
-		memcpy(&output, &target, sizeof(output));		
+	{		
+		print = &target;
+		// remove the device associated with the previous function
+		uninstallDevice(original);
+		// also remove any existing device for the new function, since install overwrites any existing definition.
+		uninstallDevice(target);
+		installDevice(target);		
+		eepromManager.storeDevice(target, dev.id);		
 	}	
 	else {
 		DEBUG_MSG("Device definition update spec is not valid");
 	}
 	
 	deviceManager.beginDeviceOutput();
-	deviceManager.printDevice(dev.id, output, NULL, p);
+	deviceManager.printDevice(dev.id, *print, NULL, p);
 }
 
 /**
@@ -844,7 +857,8 @@ void UpdateDeviceState(DeviceDisplay& dd, DeviceConfig& dc, char* val)
 			itoa(((SwitchSensor*)*ppv)->sense()!=0, val, 10);
 		}
 		else if (dt==DEVICETYPE_TEMP_SENSOR) {
-			fixed7_9 temp = ((TempSensor*)*ppv)->sensor().read();
+			BasicTempSensor& s = unwrapSensor(dc.deviceFunction, *ppv);
+			fixed7_9 temp = s.read();
 			fixedPointToString(val, temp, 3, 9);
 		}
 		// todo - should it be possible to read the last set state on an activator?

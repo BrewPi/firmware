@@ -32,20 +32,25 @@
 #include "chamber.h"
 #include "MockTempSensor.h"
 #include "EepromManager.h"
+#include "ExternalTempSensor.h"
 
 TempControl tempControl;
 
 #if TEMP_CONTROL_STATIC
 
+extern ValueSensor<bool> defaultSensor;
+extern ValueActuator defaultActuator;
+extern ExternalTempSensor defaultTempSensor;
+
 // These sensors are switched out to implement multi-chamber.
 TempSensor* TempControl::beerSensor;
 TempSensor* TempControl::fridgeSensor;
-BasicTempSensor* TempControl::ambientSensor;
+BasicTempSensor* TempControl::ambientSensor = &defaultTempSensor;
 
-Actuator* TempControl::heater;
-Actuator* TempControl::cooler;
-Actuator* TempControl::light;
-Sensor<bool>* TempControl::door;
+Actuator* TempControl::heater = &defaultActuator;
+Actuator* TempControl::cooler = &defaultActuator;
+Actuator* TempControl::light = &defaultActuator;
+Sensor<bool>* TempControl::door = &defaultSensor;
 	
 // Control parameters
 ControlConstants TempControl::cc;

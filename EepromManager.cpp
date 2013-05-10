@@ -110,6 +110,9 @@ bool EepromManager::applySettings()
 {	
 	if (!hasSettings())
 		return false;
+
+	// start from a clean state		
+	deviceManager.setupUnconfiguredDevices();		
 		
 	DEBUG_MSG(PSTR("Applying settings"));
 
@@ -123,7 +126,7 @@ bool EepromManager::applySettings()
 	DeviceConfig deviceConfig;
 	for (uint8_t index = 0; fetchDevice(deviceConfig, index); index++)
 	{	
-		if (deviceManager.isDeviceValid(deviceConfig, deviceConfig, index))		 
+		if (deviceConfig.deviceFunction!=0xFF && deviceManager.isDeviceValid(deviceConfig, deviceConfig, index))		 
 			deviceManager.installDevice(deviceConfig);
 		else {
 			clear((uint8_t*)&deviceConfig, sizeof(deviceConfig));

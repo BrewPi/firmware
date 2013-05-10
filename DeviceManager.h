@@ -252,7 +252,7 @@ public:
 		return -1;								
 	}
 
-	static void loadDefaultDevices();
+	static void setupUnconfiguredDevices();
 	
 	/*
 	 * Determines if the given device config is complete. 
@@ -265,6 +265,8 @@ public:
 	 * /return true if a device was installed. false if the config is not complete.
 	 */
 	static void installDevice(DeviceConfig& config);
+	
+	static void uninstallDevice(DeviceConfig& config);
 	
 	static void parseDeviceDefinition(Stream& p);
 	static void printDevice(device_slot_t slot, DeviceConfig& config, const char* value, Print& p);
