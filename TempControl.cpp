@@ -32,7 +32,7 @@
 #include "chamber.h"
 #include "MockTempSensor.h"
 #include "EepromManager.h"
-#include "ExternalTempSensor.h"
+#include "DisconnectedTempSensor.h"
 
 TempControl tempControl;
 
@@ -40,7 +40,7 @@ TempControl tempControl;
 
 extern ValueSensor<bool> defaultSensor;
 extern ValueActuator defaultActuator;
-extern ExternalTempSensor defaultTempSensor;
+extern DisconnectedTempSensor defaultTempSensor;
 
 // These sensors are switched out to implement multi-chamber.
 TempSensor* TempControl::beerSensor;
