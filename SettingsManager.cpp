@@ -25,7 +25,6 @@
 void SettingsManager::loadSettings()
 {
 	DEBUG_MSG(PSTR("loading settings"));
-	eepromManager.init();
 
 	// for multichamber, set number of chambers to 1
 	tempControl.loadDefaultSettings();

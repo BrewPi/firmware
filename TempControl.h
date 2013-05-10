@@ -183,10 +183,6 @@ class TempControl{
 		return cs.mode;
 	}
 
-	TEMP_CONTROL_METHOD void setState(unsigned char newState){
-		state = newState;
-	}
-
 	TEMP_CONTROL_METHOD unsigned char getState(void){
 		return state;
 	}

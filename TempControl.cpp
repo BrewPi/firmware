@@ -418,11 +418,11 @@ uint16_t TempControl::timeSinceIdle(void){
 }
 
 void TempControl::loadDefaultSettings(){
-	cs.mode = MODE_OFF;				// the default should be off since this is fail-safe.
 	cs.beerSetting = 20<<9;;
 	cs.fridgeSetting = 20<<9;
 	cs.heatEstimator = 102; // 0.2*2^9
 	cs.coolEstimator=5<<9;
+	setMode(MODE_OFF);
 }
 
 uint8_t TempControl::storeConstants(eptr_t offset){	
