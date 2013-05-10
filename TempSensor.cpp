@@ -62,12 +62,6 @@ void TempSensor::update()
 		
 }
 
-/*
-fixed7_9 TempSensor::read(void){
-	return fastFilter.readInput(); //return most recent unfiltered value
-}
-*/
-
 fixed7_9 TempSensor::readFastFiltered(void){
 	return fastFilter.readOutput(); //return most recent unfiltered value
 }

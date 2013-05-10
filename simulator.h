@@ -230,7 +230,7 @@ private:
 	void setTemp(TempSensor* sensor, double temp)
 	{
 		ExternalTempSensor& s = (ExternalTempSensor&)(sensor->sensor());
-		fixed7_9 fixedTemp = temp>=INT_MAX ? INT_MAX*512L : temp<=INT_MIN ? INT_MIN*512L : temp*512L;
+		fixed7_9 fixedTemp = temp*512>=INT_MAX ? INT_MAX : temp*512<=INT_MIN ? INT_MIN : temp*512L;
 		s.setValue(fixedTemp);
 	}
 	
