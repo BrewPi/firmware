@@ -12,7 +12,7 @@
 #include "OneWireActuator.h"
 #include "Actuator.h"
 #include "Sensor.h"
-#include "ExternalTempSensor.h"
+#include "DisconnectedTempSensor.h"
 #include "PiLink.h"
 #include "EepromFormat.h"
 #include "ds2413.h"
@@ -38,7 +38,7 @@ bool DeviceManager::firstDeviceOutput;
  */
 ValueSensor<bool> defaultSensor(false);			// off
 ValueActuator defaultActuator;
-ExternalTempSensor defaultTempSensor(false);	// disconnected
+DisconnectedTempSensor defaultTempSensor;
 
 OneWire* DeviceManager::oneWireBus(uint8_t pin) {
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
