@@ -38,11 +38,20 @@ void EepromManager::zapEeprom()
 
 void EepromManager::initializeEeprom()
 {
+	// fetch the default values
 	tempControl.loadDefaultConstants();
-	tempControl.loadDefaultSettings();
+	tempControl.loadDefaultSettings();	
 	
+#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A	
+	// default value is off - but for revA the eeprom is ready to go once initialized
 	tempControl.cs.mode = MODE_BEER_CONSTANT;
+#endif
+#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+	// default value is off - but for revC user will install sensors and may need to test values etc.
+	tempControl.cs.mode = MODE_TEST;
+#endif
 	
+	// write the default constants 
 	for (uint8_t c=0; c<EepromFormat::MAX_CHAMBERS; c++) {
 		eptr_t pv = pointerOffset(chambers)+(c*sizeof(ChamberBlock)) ;
 		tempControl.storeConstants(pv+offsetof(ChamberBlock, chamberSettings.cc));
@@ -52,12 +61,14 @@ void EepromManager::initializeEeprom()
 			pv += sizeof(BeerBlock);		// advance to next beer
 		}
 	}
-	
+
+	// clear the rest of eeprom 	
 	for (uint16_t offset=pointerOffset(devices); offset<EepromFormat::MAX_EEPROM_SIZE; offset++)
 		eepromAccess.writeByte(offset, 0);	
 	
+	// set the version flag - so that storeDevice will work
 	eepromAccess.writeByte(0, EEPROM_FORMAT_VERSION);
-	
+		
 	saveDefaultDevices();		
 }
 
@@ -69,7 +80,7 @@ uint8_t EepromManager::saveDefaultDevices()
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
 	// single-chamber single beer config from original shield
 	
-	config.chamber = 1;			// all devices in chamber 1
+	config.chamber = 1;			// all devices are in chamber 1
 	config.hw.invert = 1;		// all pin devices inverted
 	
 	config.deviceHardware = DEVICE_HARDWARE_PIN;
@@ -131,7 +142,7 @@ bool EepromManager::applySettings()
 	DeviceConfig deviceConfig;
 	for (uint8_t index = 0; fetchDevice(deviceConfig, index); index++)
 	{	
-		if (deviceManager.isDeviceValid(deviceConfig, deviceConfig, index))		 
+		if (deviceManager.isDeviceValid(deviceConfig, deviceConfig, index))
 			deviceManager.installDevice(deviceConfig);
 		else {
 			clear((uint8_t*)&deviceConfig, sizeof(deviceConfig));

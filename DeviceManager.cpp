@@ -201,22 +201,22 @@ inline void** deviceTarget(DeviceConfig& config)
 		ppv = (void**)&tempControl.ambientSensor;
 		break;
 	case DEVICE_CHAMBER_DOOR:
-		ppv = (void**)&(tempControl.door);
+		ppv = (void**)&tempControl.door;
 		break;
 	case DEVICE_CHAMBER_LIGHT:
-		ppv = (void**)&(tempControl.light);
+		ppv = (void**)&tempControl.light;
 		break;
 	case DEVICE_CHAMBER_HEAT:
-		ppv = (void**)&(tempControl.heater);
+		ppv = (void**)&tempControl.heater;
 		break;
 	case DEVICE_CHAMBER_COOL:
-		ppv = (void**)&(tempControl.cooler);
+		ppv = (void**)&tempControl.cooler;
 		break;
 	case DEVICE_CHAMBER_TEMP:
-		ppv = (void**)&(tempControl.fridgeSensor);
+		ppv = (void**)&tempControl.fridgeSensor;
 		break;
 	case DEVICE_BEER_TEMP:
-		ppv = (void**)&(tempControl.beerSensor);
+		ppv = (void**)&tempControl.beerSensor;
 		break;
 	default:
 		ppv = NULL;
@@ -224,6 +224,8 @@ inline void** deviceTarget(DeviceConfig& config)
 	return ppv;
 }
 
+// A pointer to a "temp sensor" may be a TempSensor* or a BasicTempSensor* .
+// These functions allow uniform treatment.
 inline bool isBasicSensor(DeviceFunction function) {
 	// currently only ambient sensor is basic. The others are wrapped in a TempSensor.
 	return function==DEVICE_CHAMBER_ROOM_TEMP;
@@ -233,6 +235,12 @@ inline BasicTempSensor& unwrapSensor(DeviceFunction f, void* pv) {
 	return isBasicSensor(f) ? *(BasicTempSensor*)pv : ((TempSensor*)pv)->sensor();
 }
 
+inline void setSensor(DeviceFunction f, void** ppv, BasicTempSensor* sensor) {
+	if (isBasicSensor(f)) 
+		*ppv = sensor;
+	else
+		((TempSensor*)*ppv)->setSensor(sensor);
+}
 
 /**
  * Removes an installed device.
@@ -254,6 +262,7 @@ void DeviceManager::uninstallDevice(DeviceConfig& config)
 			// sensor may be wrapped in a TempSensor class, or may stand alone.
 			s = &unwrapSensor(config.deviceFunction, *ppv);
 			if (s!=&defaultTempSensor) {
+				setSensor(config.deviceFunction, ppv, NULL);
 				DEBUG_MSG(PSTR("Uninstalling temp sensor f=%d"), config.deviceFunction);
 				delete s;
 			}
@@ -262,18 +271,18 @@ void DeviceManager::uninstallDevice(DeviceConfig& config)
 			if (*ppv!=&defaultActuator) {
 				DEBUG_MSG(PSTR("Uninstalling actuator f=%d"), config.deviceFunction);
 				delete (Actuator*)*ppv;
+				*ppv = NULL;
 			}
 			break;
 		case DEVICETYPE_SWITCH_SENSOR:
 			if (*ppv!=&defaultSensor) {
 				DEBUG_MSG(PSTR("Uninstalling sensor f=%d"), config.deviceFunction);
 				delete (SwitchSensor*)*ppv;
+				*ppv = NULL;
 			}
 			break;
-	}
-		
+	}		
 }
-
 
 /**
  * Creates and installs a device in the current chamber. 
