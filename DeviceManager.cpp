@@ -188,7 +188,7 @@ void* DeviceManager::createDevice(DeviceConfig& config, DeviceType dt)
  * For Temperature sensors, the returned pointer points to a TempSensor*. The basic device can be fetched by calling
  * TempSensor::getSensor().
  */
-inline void** deviceTarget(DeviceConfig& config)	
+inline void** deviceTarget(DeviceConfig& config)
 {
 	// for multichamber, will write directly to the multi-chamber managed storage.
 	// later...	
@@ -294,6 +294,10 @@ void DeviceManager::installDevice(DeviceConfig& config)
 			DEBUG_MSG(PSTR("Installing temp sensor f=%d"), config.deviceFunction);
 			// sensor may be wrapped in a TempSensor class, or may stand alone.
 			s = (BasicTempSensor*)createDevice(config, dt);
+#if BREWPI_DEBUG
+			if (*ppv==NULL)
+				DEBUG_MSG(PSTR("*** OUT OF MEMORY for device f=%d"), config.deviceFunction);
+#endif
 			if (isBasicSensor(config.deviceFunction)) {
 				s->init();
 				*ppv = s;				
@@ -306,9 +310,15 @@ void DeviceManager::installDevice(DeviceConfig& config)
 			break;
 		case DEVICETYPE_SWITCH_ACTUATOR:
 		case DEVICETYPE_SWITCH_SENSOR:
+			DEBUG_MSG(PSTR("Installing device f=%d"), config.deviceFunction);
 			*ppv = createDevice(config, dt);
+#if BREWPI_DEBUG
+			if (*ppv==NULL)
+				DEBUG_MSG(PSTR("*** OUT OF MEMORY for device f=%d"), config.deviceFunction);
+#endif			
 			break;
 	}
+	
 }	
 
 struct DeviceDefinition {
