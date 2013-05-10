@@ -17,7 +17,7 @@
 * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Arduino.h"
+#include "brewpi_avr.h"
 
 
 #include "sensor.h"

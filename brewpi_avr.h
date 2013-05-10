@@ -5,7 +5,8 @@
  *  Author: mat
  */ 
 
-#pragma once
+#ifndef BREWPI_AVR_H
+#define BREWPI_AVR_H
 
 /*
  * Defines global config for the brewpi project. This file is included in every file in the project to ensure conditional
@@ -20,3 +21,4 @@
 
 #include <Arduino.h>
 
+#endif

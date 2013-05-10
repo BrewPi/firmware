@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <Arduino.h>
+#include "brewpi_avr.h"
 
 // setup and loop are in brewpi_config so they can be reused across projects
 extern void setup(void);

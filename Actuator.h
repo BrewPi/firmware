@@ -9,7 +9,8 @@
  *  Author: mat
  */ 
 
-#pragma once
+#ifndef ACTUATOR_H
+#define ACTUATOR_H
 
 #include "brewpi_avr.h"
 #include "FastDigitalPin.h"
@@ -93,3 +94,4 @@ public:
 	}
 };	
 	
+#endif

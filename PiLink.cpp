@@ -208,7 +208,7 @@ void PiLink::receive(void){
 		case 'E': // reset eeprom
 			eepromManager.resetEeprom();
 			piLink.debugMessage(PSTR("EEPROM reset"));
-			SettingsManager::loadSettings();
+			settingsManager.loadSettings();
 			break;
 
 		case 'd': // list devices in eeprom order

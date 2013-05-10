@@ -1,4 +1,4 @@
-#include "Arduino.h"
+#include "brewpi_avr.h"
 #include "ArduinoUnit.h"
 
 

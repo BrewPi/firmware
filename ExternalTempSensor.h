@@ -5,7 +5,8 @@
  *  Author: mat
  */ 
 
-#pragma once
+#ifndef ENTERNAL_TEMP_SENSOR_H
+#define ENTERNAL_TEMP_SENSOR_H
 
 #include "brewpi_avr.h"
 #include "TempSensor.h"
@@ -40,3 +41,5 @@ class ExternalTempSensor : public BasicTempSensor
 	fixed7_9 _temperature;
 	bool _connected;
 };
+
+#endif

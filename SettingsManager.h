@@ -5,7 +5,8 @@
  *  Author: mat
  */ 
 
-#pragma once
+#ifndef SETTINGS_MANAGER_H
+#define SETTINGS_MANAGER_H
 
 #include "brewpi_avr.h"
 #include <assert.h>
@@ -32,3 +33,4 @@ public:
 
 extern SettingsManager settingsManager;
 
+#endif

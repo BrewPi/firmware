@@ -6,7 +6,8 @@
  */ 
 
 
-#pragma once
+#ifndef DEVICE_MANAGER_H
+#define DEVICE_MANAGER_H
 
 #include "brewpi_avr.h"
 
@@ -314,3 +315,5 @@ private:
 
 
 extern DeviceManager deviceManager;
+
+#endif

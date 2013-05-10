@@ -20,7 +20,6 @@
 #include "brewpi_avr.h"
 #include "temperatureFormats.h"
 #include <string.h>
-#include <Arduino.h> // uses constrain function from Arduino.h
 #include <limits.h>
 #include "TempControl.h"
 

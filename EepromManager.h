@@ -5,7 +5,9 @@
  *  Author: mat
  */ 
 
-#pragma once
+#ifndef EEPROM_MANAGER_H
+#define EEPROM_MANAGER_H
+
 #include "brewpi_avr.h"
 #include <avr/eeprom.h>
 
@@ -93,3 +95,5 @@ class EepromStream
 };
 
 extern EepromManager eepromManager;
+
+#endif

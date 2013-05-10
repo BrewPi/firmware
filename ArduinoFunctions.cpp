@@ -29,7 +29,7 @@
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wuninitialized"
 
-#include "Arduino.h"
+#include <Arduino.h>
 extern "C"{
 	#include <pins_arduino.h>
 }

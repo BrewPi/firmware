@@ -1,4 +1,4 @@
-#include <Arduino.h>
+#include "brewpi_avr.h"
 
 #include "Ticks.h"
 #include "LcdDisplay.h"
@@ -12,8 +12,6 @@
 #include "MockTempSensor.h"
 #include "OneWireTempSensor.h"
 #include "Ticks.h"
-#include "brewpi_avr.h"
-#include "config.h"
 #include "Sensor.h"
 
 #include "ArduinoUnit.h"

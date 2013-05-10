@@ -74,7 +74,7 @@ void setup()
 	piLink.init();
 
 	DEBUG_MSG(PSTR("started"));
-	SettingsManager::loadSettings();
+	settingsManager.loadSettings();
 	
 #if BREWPI_SIMULATE
 	simulator.step();
@@ -203,16 +203,3 @@ void loop(void)
 
 }
 
-void SettingsManager::loadSettings()
-{
-	DEBUG_MSG(PSTR("loading settings"));
-	eepromManager.init();
-
-	// for multichamber, set number of chambers to 1
-	tempControl.loadDefaultSettings();
-	tempControl.loadDefaultConstants();
-	deviceManager.setupUnconfiguredDevices();
-			
-	if (!eepromManager.applySettings())
-		piLink.debugMessage(PSTR("EEPROM Settings not available. Starting in safe mode."));
-}

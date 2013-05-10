@@ -2,15 +2,7 @@
 #define OneWire_h
 
 #include <inttypes.h>
-
-#if ARDUINO >= 100
 #include "brewpi_avr.h"
-#include "Arduino.h"       // for delayMicroseconds, digitalPinToBitMask, etc
-#else
-#include "brewpi_avr.h"
-#include "WProgram.h"      // for delayMicroseconds
-#include "pins_arduino.h"  // for digitalPinToBitMask, etc
-#endif
 
 // You can exclude certain features from OneWire.  In theory, this
 // might save some space.  In practice, the compiler automatically
@@ -52,7 +44,6 @@
 
 // Platform specific I/O definitions
 
-#if defined(__AVR__)
 #define PIN_TO_BASEREG(pin)             (portInputRegister(digitalPinToPort(pin)))
 #define PIN_TO_BITMASK(pin)             (digitalPinToBitMask(pin))
 #define IO_REG_TYPE uint8_t
@@ -62,23 +53,6 @@
 #define DIRECT_MODE_OUTPUT(base, mask)  ((*(base+1)) |= (mask))
 #define DIRECT_WRITE_LOW(base, mask)    ((*(base+2)) &= ~(mask))
 #define DIRECT_WRITE_HIGH(base, mask)   ((*(base+2)) |= (mask))
-
-#elif defined(__PIC32MX__)
-#include <plib.h>  // is this necessary?
-#define PIN_TO_BASEREG(pin)             (portModeRegister(digitalPinToPort(pin)))
-#define PIN_TO_BITMASK(pin)             (digitalPinToBitMask(pin))
-#define IO_REG_TYPE uint32_t
-#define IO_REG_ASM
-#define DIRECT_READ(base, mask)         (((*(base+4)) & (mask)) ? 1 : 0)  //PORTX + 0x10
-#define DIRECT_MODE_INPUT(base, mask)   ((*(base+2)) = (mask))            //TRISXSET + 0x08
-#define DIRECT_MODE_OUTPUT(base, mask)  ((*(base+1)) = (mask))            //TRISXCLR + 0x04
-#define DIRECT_WRITE_LOW(base, mask)    ((*(base+8+1)) = (mask))          //LATXCLR  + 0x24
-#define DIRECT_WRITE_HIGH(base, mask)   ((*(base+8+2)) = (mask))          //LATXSET + 0x28
-
-#else
-#error "Please define I/O register types here"
-#endif
-
 
 class OneWire
 {

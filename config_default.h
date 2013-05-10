@@ -6,7 +6,8 @@
  */ 
 
 
-#pragma once
+#ifndef CONFIG_DEFAULT_H
+#define CONFIG_DEFAULT_H
 
 
 #ifndef BREWPI_ESTIMATOR_MESSAGES
@@ -66,4 +67,6 @@
 
 #ifndef BREWPI_BUZZER
 #define BREWPI_BUZZER 1
+#endif
+
 #endif

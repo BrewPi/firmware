@@ -5,7 +5,7 @@
  *  Author: mat
  */ 
 
-#include "Arduino.h"
+#include "brewpi_avr.h"
 #include "Time.h"
 
 long ArduinoTime::millis() 
