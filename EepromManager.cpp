@@ -88,7 +88,7 @@ uint8_t EepromManager::saveDefaultDevices()
 	config.beer = 1;
 	config.hw.pinNr = beerSensorPin;
 	config.deviceFunction = DEVICE_BEER_TEMP;
-	eepromManager.storeDevice(config, 3);
+	eepromManager.storeDevice(config, 4);
 		
 	return 5;
 #endif	
