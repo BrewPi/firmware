@@ -72,8 +72,14 @@ unsigned int TempControl::lastCoolTime;
 #endif
 
 void TempControl::init(void){
-	state=STARTUP;	
+	state=STARTUP;		
+	cs.mode = MODE_OFF;
 	
+	if (tempControl.beerSensor==NULL)
+		tempControl.beerSensor = new TempSensor(TEMP_SENSOR_TYPE_BEER, &defaultTempSensor);
+	if (tempControl.fridgeSensor==NULL)
+		tempControl.fridgeSensor = new TempSensor(TEMP_SENSOR_TYPE_FRIDGE, &defaultTempSensor);
+		
 	beerSensor->init();
 	fridgeSensor->init();
 	updateTemperatures();
@@ -422,31 +428,31 @@ void TempControl::loadDefaultSettings(){
 	cs.fridgeSetting = 20<<9;
 	cs.heatEstimator = 102; // 0.2*2^9
 	cs.coolEstimator=5<<9;
-	setMode(MODE_OFF);
+	setMode(MODE_OFF);	
 }
 
-uint8_t TempControl::storeConstants(eptr_t offset){	
-	eepromAccess.writeBlock(offset, (void *) &cc, sizeof(ControlConstants));
-	return sizeof(ControlConstants);
+void TempControl::storeConstants(eptr_t offset){	
+	eepromAccess.writeBlock(offset, (void *) &cc, sizeof(ControlConstants));	
 }
 
-uint8_t TempControl::loadConstants(eptr_t offset){
+void TempControl::loadConstants(eptr_t offset){
 	eepromAccess.readBlock((void *) &cc, offset, sizeof(ControlConstants));
-	constantsChanged();
-	return sizeof(ControlConstants);
+	constantsChanged();	
 }
 
 // write new settings to EEPROM to be able to reload them after a reset
 // The update functions only write to EEPROM if the value has changed
-uint8_t TempControl::storeSettings(eptr_t offset){
+void TempControl::storeSettings(eptr_t offset){
 	eepromAccess.writeBlock(offset, (void *) &cs, sizeof(ControlSettings));
-	storedBeerSetting = cs.beerSetting;	
-	return sizeof(ControlSettings);
+	storedBeerSetting = cs.beerSetting;		
 }
 
-uint8_t TempControl::loadSettings(eptr_t offset){
+void TempControl::loadSettings(eptr_t offset){
 	eepromAccess.readBlock((void *) &cs, offset, sizeof(ControlSettings));	
-	return sizeof(ControlSettings);
+	uint8_t mode = cs.mode;
+	cs.mode = 0;
+	DEBUG_MSG(PSTR("loaded settings, mode=%c"), mode);
+	setMode(mode);		// force the mode update
 }
 
 
@@ -515,9 +521,10 @@ void TempControl::loadSettingsAndConstants(void){
 #endif
 
 void TempControl::setMode(char newMode){
+	DEBUG_MSG(PSTR("TempControl::setMode from %c to %c"), cs.mode, newMode);
 	if(newMode != cs.mode){
 		state = IDLE;
-	cs.mode = newMode;
+	cs.mode = newMode;	
 	if(newMode==MODE_BEER_PROFILE || newMode == MODE_OFF){
 		// set temperatures to undefined until temperatures have been received from RPi
 		cs.beerSetting = INT_MIN;

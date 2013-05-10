@@ -40,6 +40,8 @@ struct EepromFormat
 	DeviceConfig devices[MAX_DEVICES];
 };
 
+
+// check at compile time that the structure will fit into eeprom
 void eepromSizeTooLarge()
 __attribute__((error("EEPROM data is > 1024 bytes")));
 

@@ -26,12 +26,11 @@ void SettingsManager::loadSettings()
 {
 	DEBUG_MSG(PSTR("loading settings"));
 
-	// for multichamber, set number of chambers to 1
-	tempControl.loadDefaultSettings();
-	tempControl.loadDefaultConstants();
-	
 	if (!eepromManager.applySettings())
 	{
+		tempControl.loadDefaultSettings();
+		tempControl.loadDefaultConstants();
+	
 		deviceManager.setupUnconfiguredDevices();
 		piLink.debugMessage(PSTR("EEPROM Settings not available. Starting in safe mode."));
 	}
