@@ -43,11 +43,11 @@ void EepromManager::initializeEeprom()
 	tempControl.loadDefaultSettings();	
 	
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A	
-	// default value is off - but for revA the eeprom is ready to go once initialized
+	// for revA the eeprom is ready to go once initialized
 	tempControl.setMode(MODE_BEER_CONSTANT);
 #endif
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
-	// default value is off - but for revC user will install sensors and may need to test values etc.
+	// for revC user will install sensors and may need to test values etc.
 	tempControl.setMode(MODE_TEST);
 #endif
 	
