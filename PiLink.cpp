@@ -187,7 +187,6 @@ void PiLink::receive(void){
 			break;
 
 		case 'e': // dump contents of eeprom						
-			// use <= so last line comprises 0 bytes.
 			openListResponse('E');
 			for (uint16_t i=0; i<1024;) {
 				if (i>0) {
@@ -205,9 +204,9 @@ void PiLink::receive(void){
 			closeListResponse();
 			break;
 			
-		case 'E': // reset eeprom
-			eepromManager.resetEeprom();
-			piLink.debugMessage(PSTR("EEPROM reset"));
+		case 'E': // initialize eeprom
+			eepromManager.initializeEeprom();
+			piLink.debugMessage(PSTR("EEPROM initialized"));
 			settingsManager.loadSettings();
 			break;
 
@@ -227,6 +226,11 @@ void PiLink::receive(void){
 			openListResponse('h');
 			deviceManager.enumerateHardware(piStream);
 			closeListResponse();
+			break;
+			
+		case 'Z': // zap eeprom
+			eepromManager.zapEeprom();
+			DEBUG_MSG(PSTR("Zapped eeprom."));
 			break;
 
 		default:

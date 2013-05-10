@@ -48,8 +48,17 @@ public:
 	EepromManager();
 	
 	static void init() {}
+
+	/**
+	 * Write -1 to the entire eeprom, emulating the reset performed by avrdude.
+	 */
+	void zapEeprom();
 	
-	static void resetEeprom();
+	/**
+	 * Prepare the eeprom to accept device definitions. For RevA boards, the eeprom is populated with devices for
+	 * beer/fridge temp sensor, and heating,cooling actuators and door switch.
+	 */
+	static void initializeEeprom();
 	
 	/**
 	 * Determines if this eeprom has settings.

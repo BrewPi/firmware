@@ -29,7 +29,14 @@ bool EepromManager::hasSettings()
 	return (version==EEPROM_FORMAT_VERSION);
 }
 
-void EepromManager::resetEeprom()
+void EepromManager::zapEeprom()
+{
+	for (uint16_t offset=0; offset<EepromFormat::MAX_EEPROM_SIZE; offset++)
+		eepromAccess.writeByte(offset, 0xFF);		
+}
+
+
+void EepromManager::initializeEeprom()
 {
 	tempControl.loadDefaultConstants();
 	tempControl.loadDefaultSettings();
@@ -46,17 +53,16 @@ void EepromManager::resetEeprom()
 		}
 	}
 	
-	uint8_t count = saveDefaultDevices();
-		
-	for (uint16_t offset=pointerOffset(devices)+(sizeof(DeviceConfig)*count); offset<EepromFormat::MAX_EEPROM_SIZE; offset++)
+	for (uint16_t offset=pointerOffset(devices); offset<EepromFormat::MAX_EEPROM_SIZE; offset++)
 		eepromAccess.writeByte(offset, 0);	
-		
+	
 	eepromAccess.writeByte(0, EEPROM_FORMAT_VERSION);
+	
+	saveDefaultDevices();		
 }
 
 uint8_t EepromManager::saveDefaultDevices() 
 {
-#if 1
 	DeviceConfig config;
 	clear((uint8_t*)&config, sizeof(config));
 		
@@ -91,7 +97,6 @@ uint8_t EepromManager::saveDefaultDevices()
 	eepromManager.storeDevice(config, 4);
 		
 	return 5;
-#endif	
 	
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
 	// the only component that's not dynamic is the door
