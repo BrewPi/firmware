@@ -40,8 +40,6 @@ RotaryEncoder rotaryEncoder;
 	#error Review interrupt vectors when not using pin 9 for menu left
 #endif
 
-#define ENABLE_ROTARY_ENCODER 0
-
 #if ENABLE_ROTARY_ENCODER
 
 #if defined(USBCON)

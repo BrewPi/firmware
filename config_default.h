@@ -69,4 +69,8 @@
 #define BREWPI_BUZZER 1
 #endif
 
+#ifndef ENABLE_ROTARY_ENCODER
+#define ENABLE_ROTARY_ENCODER 1
+#endif
+
 #endif
