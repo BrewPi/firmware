@@ -528,7 +528,12 @@ void TempControl::setMode(char newMode){
 }
 
 fixed7_9 TempControl::getBeerTemp(void){
-	return beerSensor->readFastFiltered();
+	if(beerSensor->isConnected()){
+		return beerSensor->readFastFiltered();	
+	}
+	else{
+		return INT_MIN;
+	}
 }
 
 fixed7_9 TempControl::getBeerSetting(void){
@@ -536,7 +541,12 @@ fixed7_9 TempControl::getBeerSetting(void){
 }
 
 fixed7_9 TempControl::getFridgeTemp(void){
-	return fridgeSensor->readFastFiltered();	
+	if(fridgeSensor->isConnected()){
+		return fridgeSensor->readFastFiltered();		
+	}
+	else{
+		return INT_MIN;
+	}
 }
 
 fixed7_9 TempControl::getFridgeSetting(void){
