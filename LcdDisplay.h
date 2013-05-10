@@ -59,7 +59,7 @@ class LcdDisplay DISPLAY_SUPERCLASS
 
 	DISPLAY_METHOD void getLine(uint8_t lineNumber, char * buffer) { lcd.getLine(lineNumber, buffer); }
 
-	DISPLAY_METHOD void printAt(int x, int y, const char* text) { lcd.setCursor(x, y); lcd.print(text); }
+	DISPLAY_METHOD void printAt(uint8_t x, uint8_t y, const char* text) { lcd.setCursor(x, y); 	lcd.print_P(text); }
 	
 	DISPLAY_METHOD void setBufferOnly(bool bufferOnly) {
 		lcd.setBufferOnly(bufferOnly);
