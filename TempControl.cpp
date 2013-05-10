@@ -330,11 +330,13 @@ void TempControl::detectPeaks(void){
 			detected = true;
 		}
 		if(detected){
+			#if BREWPI_ESTIMATOR_MESSAGES 
 			char tempString1[9]; char tempString2[9]; char tempString3[9];
 			ESTIMATOR_MSG("Peak: %s Estimated: %s. New estimator: %s",
 				tempToString(tempString1, posPeak, 3, 9),
 				tempToString(tempString2, cv.posPeakEstimate, 3, 9),
 				fixedPointToString(tempString3, cs.heatEstimator, 3, 9));
+			#endif
 			doPosPeakDetect=false;
 			cv.posPeak = posPeak;
 		}
@@ -369,13 +371,15 @@ void TempControl::detectPeaks(void){
 			detected = true;
 		}
 		if(detected){
+			#if BREWPI_ESTIMATOR_MESSAGES
 			char tempString1[9]; char tempString2[9]; char tempString3[9];
 			ESTIMATOR_MSG("Peak: %s. Estimated: %s. New estimator: %s",
 				tempToString(tempString1, negPeak, 3, 9),
 				tempToString(tempString2, cv.negPeakEstimate, 3, 9),
 				fixedPointToString(tempString3, cs.coolEstimator, 3, 9));
+			#endif				
 			doNegPeakDetect=false;
-				cv.negPeak = negPeak;
+			cv.negPeak = negPeak;
 		}
 		if(timeSinceCooling() > COOL_PEAK_DETECT_TIME){
 			doNegPeakDetect = false;

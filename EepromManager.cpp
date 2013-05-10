@@ -105,14 +105,14 @@ uint8_t EepromManager::saveDefaultDevices()
 
 #define arraySize(x) (sizeof(x)/sizeof(x[0]))
 
-// assumes the current chamber is already activated
+
 bool EepromManager::applySettings()
 {	
 	if (!hasSettings())
 		return false;
 
 	// start from a clean state		
-	deviceManager.setupUnconfiguredDevices();		
+	deviceManager.setupUnconfiguredDevices();
 		
 	DEBUG_MSG(PSTR("Applying settings"));
 

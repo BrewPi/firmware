@@ -251,21 +251,24 @@ void DeviceManager::uninstallDevice(DeviceConfig& config)
 		case DEVICETYPE_NONE:
 			break;
 		case DEVICETYPE_TEMP_SENSOR:
-			DEBUG_MSG(PSTR("Uninstalling temp sensor f=%d"), config.deviceFunction);
 			// sensor may be wrapped in a TempSensor class, or may stand alone.
 			s = &unwrapSensor(config.deviceFunction, *ppv);
-			if (s!=&defaultTempSensor)
+			if (s!=&defaultTempSensor) {
+				DEBUG_MSG(PSTR("Uninstalling temp sensor f=%d"), config.deviceFunction);
 				delete s;
+			}
 			break;
 		case DEVICETYPE_SWITCH_ACTUATOR:
-			DEBUG_MSG(PSTR("Uninstalling actuator f=%d"), config.deviceFunction);
-			if (*ppv!=&defaultActuator)
+			if (*ppv!=&defaultActuator) {
+				DEBUG_MSG(PSTR("Uninstalling actuator f=%d"), config.deviceFunction);
 				delete (Actuator*)*ppv;
+			}
 			break;
 		case DEVICETYPE_SWITCH_SENSOR:
-			DEBUG_MSG(PSTR("Uninstalling sensor f=%d"), config.deviceFunction);
-			if (*ppv!=&defaultSensor)
+			if (*ppv!=&defaultSensor) {
+				DEBUG_MSG(PSTR("Uninstalling sensor f=%d"), config.deviceFunction);
 				delete (SwitchSensor*)*ppv;
+			}
 			break;
 	}
 		

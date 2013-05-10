@@ -152,7 +152,6 @@ fixed23_9 stringToFixedPoint(const char * numberString){
 	intPart = atol(numberString);
 	if(fractPtr != 0){
 		// decimal point was found
-		char * fractEndPtr;
 		fractPtr++; // add 1 to pointer to skip point
 		uint8_t numDecimals = strlen(fractPtr);
 		fracPart = atol(fractPtr);		

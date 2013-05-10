@@ -220,6 +220,7 @@ void PiLink::receive(void){
 		case 'U': // update device		
 			printResponse('U');
 			deviceManager.parseDeviceDefinition(piStream);
+			piLink.print('\n');
 			break;
 			
 		case 'h': // hardware query
@@ -518,7 +519,6 @@ const PiLink::JsonOutput PiLink::jsonOutputCCMap[] = {
 void PiLink::sendControlConstants(void){
 
 #if OPTIMIZE_JSON_OUTPUT_CC
-	char tempString[12];
 	printResponse('C');
 	jsonOutputBase = (uint8_t*)&tempControl.cc;
 	for (uint8_t i=0; i<sizeof(jsonOutputCCMap)/sizeof(jsonOutputCCMap[0]); i++) {
@@ -575,7 +575,6 @@ const PiLink::JsonOutput PiLink::jsonOutputCVMap[] = {
 
 // Send all control variables. Useful for debugging and choosing parameters
 void PiLink::sendControlVariables(void){
-	char tempString[12];
 	printResponse('V');	
 #if OPTIMIZE_JSON_OUTPUT_CV
 	jsonOutputBase = (uint8_t*)&tempControl.cv;
@@ -584,6 +583,7 @@ void PiLink::sendControlVariables(void){
 	}
 
 #else
+	char tempString[12];
 	sendJsonPair(JSONKEY_beerDiff, tempDiffToString(tempString, tempControl.cv.beerDiff, 3, 12));
 	sendJsonPair(JSONKEY_diffIntegral, tempDiffToString(tempString, tempControl.cv.diffIntegral, 3, 12));
 	sendJsonPair(JSONKEY_beerSlope, tempDiffToString(tempString, tempControl.cv.beerSlope, 3, 12));
