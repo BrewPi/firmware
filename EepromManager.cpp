@@ -45,12 +45,10 @@ void EepromManager::initializeEeprom()
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A	
 	// default value is off - but for revA the eeprom is ready to go once initialized
 	tempControl.setMode(MODE_BEER_CONSTANT);
-#endif
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+#elif BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
 	// default value is off - but for revC user will install sensors and may need to test values etc.
 	tempControl.setMode(MODE_TEST);
 #endif
-	tempControl.setState(IDLE);
 	
 	// write the default constants 
 	for (uint8_t c=0; c<EepromFormat::MAX_CHAMBERS; c++) {

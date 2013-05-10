@@ -517,13 +517,13 @@ void TempControl::loadSettingsAndConstants(void){
 void TempControl::setMode(char newMode){
 	if(newMode != cs.mode){
 		state = IDLE;
-	cs.mode = newMode;
-	if(newMode==MODE_BEER_PROFILE || newMode == MODE_OFF){
-		// set temperatures to undefined until temperatures have been received from RPi
-		cs.beerSetting = INT_MIN;
-		cs.fridgeSetting = INT_MIN;
-	}
-	eepromManager.storeTempSettings();
+		cs.mode = newMode;
+		if(newMode==MODE_BEER_PROFILE || newMode == MODE_OFF){
+			// set temperatures to undefined until temperatures have been received from RPi
+			cs.beerSetting = INT_MIN;
+			cs.fridgeSetting = INT_MIN;
+		}
+		eepromManager.storeTempSettings();
 	}
 }
 
