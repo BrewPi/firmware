@@ -16,17 +16,21 @@
 class DallasTemperature;
 class OneWire;
 
-
 class OneWireTempSensor : public BasicTempSensor {
 public:	
-	OneWireTempSensor(OneWire* bus, DeviceAddress address=NULL) : oneWire(bus), sensor(NULL) {
+	/**
+	 * Constructs a new onewire temp sensor.
+	 * /param bus	The onewire bus this sensor is on.
+	 * /param address	The onewire address for this sensor. If all bytes are 0 in the address, the first temp sensor
+	 *    on the bus is used.
+	 * /param calibration	A temperature value that is added to all readings. This can be used to calibrate the sensor.	 
+	 */
+	OneWireTempSensor(OneWire* bus, DeviceAddress address, fixed4_4 calibrationOffset) 
+	: oneWire(bus), sensor(NULL) {
 		lastRequestTime = 0;
-		connected = 0;	
-		
-		if (address)
-			memcpy(sensorAddress, address, sizeof(DeviceAddress));
-		else
-			sensorAddress[0] = 0;
+		connected = true;  // assume connected. Transition from connected to disconnected prints a message.
+		memcpy(sensorAddress, address, sizeof(DeviceAddress));
+		this->calibrationOffset = calibrationOffset;
 	};
 	
 	~OneWireTempSensor(){
@@ -35,18 +39,23 @@ public:
 	
 	bool isConnected(void){
 		return connected;
-	}
+	}		
 	
 	fixed7_9 init();
 	fixed7_9 read();
 	
 	private:
-	bool connected;
+	void setConnected(bool connected);
+	
 	unsigned long lastRequestTime; // in milliseconds
 	
 	OneWire * oneWire;
 	DallasTemperature * sensor;
-	DeviceAddress sensorAddress;	
+	DeviceAddress sensorAddress;
+
+	fixed4_4 calibrationOffset;		
+	bool connected;
+	
 };
 
 

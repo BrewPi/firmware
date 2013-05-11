@@ -146,14 +146,23 @@ struct DeviceConfig {
 	uint8_t chamber;			// 0 means no chamber. 1 is the first chamber.	
 	uint8_t beer;				// 0 means no beer, 1 is the first beer
 	
-	DeviceFunction deviceFunction;			// The function of the device to configure
-											// this used to be a union, but now the fields are simply laid out bare
-	DeviceHardware deviceHardware;			// flag to indicate the runtime type of device
+	DeviceFunction deviceFunction;				// The function of the device to configure												
+	DeviceHardware deviceHardware;				// flag to indicate the runtime type of device
 	struct Hardware {
 		uint8_t pinNr;							// the arduino pin nr this device is connected to
 		bool invert;							// for actuators/sensors, controls if the signal value is inverted.
 		DeviceAddress address;					// for onewire devices, if address[0]==0 then use the first matching device type, otherwise use the device with the specific address
-		uint8_t pio;							// pio address
+		
+		/* The pio and sensor calibration are never needed at the same time so they are a union. 
+		 * To ensure the eeprom format is stable when including/excluding DS2413 support, ensure all fields are the same size.
+		 */
+		union {									
+#if BREWPI_DS2413
+			uint8_t pio;						// for ds2413 (deviceHardware==3) : the pio number (0,1)
+#endif			
+			int8_t /* fixed4_4 */ calibration;	// for temp sensors (deviceHardware==2), calibration adjustment to add to sensor readings
+												// this is intentionally chosen to match the raw value precision returned by the ds18b20 sensors
+		};
 	} hw;
 };
 

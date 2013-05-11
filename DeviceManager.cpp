@@ -148,6 +148,7 @@ void DeviceManager::setupUnconfiguredDevices()
 	#endif
 }
 
+
 /**
  * Creates a new device for the given config.
  */
@@ -162,7 +163,7 @@ void* DeviceManager::createDevice(DeviceConfig& config, DeviceType dt)
 			else
 				return new DigitalPinActuator(config.hw.pinNr, config.hw.invert);
 		case DEVICE_HARDWARE_ONEWIRE_TEMP:
-			return new OneWireTempSensor(oneWireBus(config.hw.pinNr), config.hw.address);
+			return new OneWireTempSensor(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.calibration);
 			
 #if BREWPI_DS2413			
 		case DEVICE_HARDWARE_ONEWIRE_2413:
@@ -315,8 +316,7 @@ void DeviceManager::installDevice(DeviceConfig& config)
 				DEBUG_MSG(PSTR("*** OUT OF MEMORY for device f=%d"), config.deviceFunction);
 #endif			
 			break;
-	}
-	
+	}	
 }	
 
 struct DeviceDefinition {
@@ -326,19 +326,20 @@ struct DeviceDefinition {
 	int8_t deviceFunction;
 	int8_t deviceHardware;
 	int8_t pinNr;
-	int8_t invert;
+	int8_t invert;	
 #if BREWPI_DS2413	
-	int8_t pio;
-#endif	
+		int8_t pio;
+#endif
+	int8_t calibrationAdjust;
 	DeviceAddress address;
 		
 	/**
 	 * Lists the first letter of the key name for each attribute.
 	 */
-	static const char ORDER[10];
+	static const char ORDER[11];
 };
 
-const char DeviceDefinition::ORDER[10] = "icbfhpxna";
+const char DeviceDefinition::ORDER[11] = "icbfhpjxna";
 
 const char DEVICE_ATTRIB_INDEX = 'i';
 const char DEVICE_ATTRIB_CHAMBER = 'c';
@@ -347,9 +348,12 @@ const char DEVICE_ATTRIB_FUNCTION = 'f';
 const char DEVICE_ATTRIB_HARDWARE = 'h';
 const char DEVICE_ATTRIB_PIN = 'p';
 const char DEVICE_ATTRIB_INVERT = 'x';
+const char DEVICE_ATTRIB_ADDRESS = 'a';
 #if BREWPI_DS2413
 const char DEVICE_ATTRIB_PIO = 'n';
 #endif
+const char DEVICE_ATTRIB_CALIBRATEADJUST = 'j';	// value to add to temp sensors to bring to correct temperature
+
 const char DEVICE_ATTRIB_VALUE = 'v';		// print current values
 const char DEVICE_ATTRIB_WRITE = 'w';		// write value to device
 
@@ -375,8 +379,11 @@ void handleDeviceDefinition(const char* key, const char* val, void* pv)
 	
 	// the characters are listed in the same order as the DeviceDefinition struct.
 	int8_t idx = indexOf(DeviceDefinition::ORDER, key[0]);
-	if (key[0]=='a')
+	if (key[0]==DEVICE_ATTRIB_ADDRESS)
 		parseBytes(def->address, val, 8);
+	else if (key[0]==DEVICE_ATTRIB_CALIBRATEADJUST) {
+		def->calibrationAdjust = fixed4_4(stringToTempDiff(val)>>5);
+	}		
 	else if (idx>=0) 
 		((uint8_t*)def)[idx] = (uint8_t)atol(val);
 }
@@ -425,11 +432,15 @@ void DeviceManager::parseDeviceDefinition(Stream& p)
 		target.deviceHardware = DeviceHardware(dev.deviceHardware);		
 	}
 
-	if (dev.pinNr>=0) target.hw.pinNr = dev.pinNr;
-#if BREWPI_DS2413	
-	if (dev.pio>=0) target.hw.pio = dev.pio;
-#endif	
-	if (dev.invert>=0) target.hw.invert = dev.invert;
+	if (dev.pinNr>=0) 
+		target.hw.pinNr = dev.pinNr;
+	
+	if (dev.calibrationAdjust!=-1)		// since this is a union, it also handles pio for 2413 sensors
+		target.hw.calibration = dev.calibrationAdjust;
+
+	if (dev.invert>=0) 
+		target.hw.invert = dev.invert;
+		
 	if (dev.address[0]!=0xFF)	// first byte is family identifier. I don't have a complete list, but so far 0xFF is not used.
 		memcpy(target.hw.address, dev.address, 8);
 	
@@ -440,8 +451,7 @@ void DeviceManager::parseDeviceDefinition(Stream& p)
 	
 	bool valid = isDeviceValid(target, original, dev.id);
 	DeviceConfig* print = &original;
-	if (valid)
-	{		
+	if (valid) {		
 		print = &target;
 		// remove the device associated with the previous function
 		uninstallDevice(original);
@@ -701,7 +711,7 @@ device_slot_t findHardwareDevice(DeviceConfig& find)
 inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw, char* out)
 {
 	OneWire* bus = oneWireBus(hw.pinNr);
-	OneWireTempSensor sensor(bus, hw.address);
+	OneWireTempSensor sensor(bus, hw.address, 0);		// NB: this value is uncalibrated, since we don't have the calibration offset until the device is configured
 	fixed7_9 value = sensor.init();	
 	fixedPointToString(out, value, 3, 9);
 }
