@@ -603,6 +603,11 @@ void DeviceManager::printDevice(device_slot_t slot, DeviceConfig& config, const 
 		printAttrib(p, DEVICE_ATTRIB_PIO, config.hw.pio);		
 	}
 #endif	
+	if (config.deviceHardware==DEVICE_HARDWARE_ONEWIRE_TEMP) {
+		tempDiffToString(buf, fixed7_9(config.hw.calibration)<<5, 3, 8);
+		p.print(",j:");
+		p.print(buf);
+	}
 	p.print('}');
 }	
 	
