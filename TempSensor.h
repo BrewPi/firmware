@@ -25,8 +25,7 @@
 #include "CascadedFilter.h"
 #include "OneWire.h"
 #include "DallasTemperature.h"
-#include "temperatureFormats.h"
-#include "pins.h"
+#include "BasicTempSensor.h"
 #include <stdlib.h>
 
 #ifndef TEMP_SENSOR_CASCADED_FILTER 
@@ -39,25 +38,6 @@ typedef CascadedFilter TempSensorFilter;
 typedef FixedFilter TempSensorFilter;
 #endif
 
-class BasicTempSensor
-{
-public:
-	virtual ~BasicTempSensor() { }
-	
-	virtual bool isConnected(void) = 0;
-	
-	/*
-	 * Attempt to (re-)initialize the sensor and fetch a sensor reading
-	 * Returns a temperature reading, or DEVICE_DISCONNECTED
-	 */
-	virtual fixed7_9 init() =0;
-
-	/*
-	 * Fetch a new reading from the sensor
-	 */
-	virtual fixed7_9 read() = 0;
-	
-};
 
 enum TempSensorType {
 	TEMP_SENSOR_TYPE_FRIDGE=1,
