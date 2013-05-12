@@ -42,16 +42,6 @@ void EepromManager::initializeEeprom()
 	tempControl.loadDefaultConstants();
 	tempControl.loadDefaultSettings();	
 	
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A	
-	// for revA the eeprom is ready to go once initialized
-	DEBUG_MSG(PSTR("EepromManager - setting mode to beer constant"));
-	tempControl.setMode(MODE_BEER_CONSTANT);
-#elif BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
-	// for revC user will install sensors and may need to test values etc.
-	DEBUG_MSG(PSTR("EepromManager - setting mode to test"));
-	tempControl.setMode(MODE_TEST);
-#endif
-	
 	// write the default constants 
 	for (uint8_t c=0; c<EepromFormat::MAX_CHAMBERS; c++) {
 		eptr_t pv = pointerOffset(chambers)+(c*sizeof(ChamberBlock)) ;
