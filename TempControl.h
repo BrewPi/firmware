@@ -152,12 +152,12 @@ class TempControl{
 	TEMP_CONTROL_METHOD void updateOutputs(void);
 	TEMP_CONTROL_METHOD void detectPeaks(void);
 	
-	TEMP_CONTROL_METHOD uint8_t loadSettings(eptr_t offset);
-	TEMP_CONTROL_METHOD uint8_t storeSettings(eptr_t offset);
+	TEMP_CONTROL_METHOD void loadSettings(eptr_t offset);
+	TEMP_CONTROL_METHOD void storeSettings(eptr_t offset);
 	TEMP_CONTROL_METHOD void loadDefaultSettings(void);
 	
-	TEMP_CONTROL_METHOD uint8_t loadConstants(eptr_t offset);
-	TEMP_CONTROL_METHOD uint8_t storeConstants(eptr_t offset);
+	TEMP_CONTROL_METHOD void loadConstants(eptr_t offset);
+	TEMP_CONTROL_METHOD void storeConstants(eptr_t offset);
 	TEMP_CONTROL_METHOD void loadDefaultConstants(void);
 	
 	//TEMP_CONTROL_METHOD void loadSettingsAndConstants(void);

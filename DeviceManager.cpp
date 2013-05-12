@@ -24,8 +24,7 @@ DeviceManager deviceManager;
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
 OneWire DeviceManager::beerSensorBus(beerSensorPin);
 OneWire DeviceManager::fridgeSensorBus(fridgeSensorPin);
-#endif
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+#elif BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
 OneWire DeviceManager::primaryOneWireBus(oneWirePin);
 #endif
 
@@ -46,8 +45,7 @@ OneWire* DeviceManager::oneWireBus(uint8_t pin) {
 		return &beerSensorBus;
 	if (pin==fridgeSensorPin)
 		return &fridgeSensorBus;
-#endif
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+#elif BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
 	if (pin==oneWirePin)
 		return &primaryOneWireBus;
 #endif		
@@ -61,11 +59,6 @@ OneWire* DeviceManager::oneWireBus(uint8_t pin) {
  */
 void DeviceManager::setupUnconfiguredDevices()
 {	
-	if (tempControl.beerSensor==NULL)
-		tempControl.beerSensor = new TempSensor(TEMP_SENSOR_TYPE_BEER, &defaultTempSensor);
-	if (tempControl.fridgeSensor==NULL)
-		tempControl.fridgeSensor = new TempSensor(TEMP_SENSOR_TYPE_FRIDGE, &defaultTempSensor);	
-	
 	// right now, uninstall doesn't care about chamber/beer distinction.
 	// but this will need to match beer/function when multiferment is available
 	DeviceConfig cfg;	
@@ -74,11 +67,7 @@ void DeviceManager::setupUnconfiguredDevices()
 		cfg.deviceFunction = DeviceFunction(i);
 		uninstallDevice(cfg);
 	}
-	
-	tempControl.init();
-	tempControl.updatePID();
-	tempControl.updateState();
-		
+			
 #if 0	// code from multichamber
 	#if BREWPI_EMULATE	// use in-memory/emulated devices
 	MockTempSensor directFridgeSensor(10,10);

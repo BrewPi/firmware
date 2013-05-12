@@ -73,7 +73,8 @@ void setup()
 {
 	piLink.init();
 
-	DEBUG_MSG(PSTR("started"));
+	DEBUG_MSG(PSTR("started"));	
+	tempControl.init();
 	settingsManager.loadSettings();
 	
 #if BREWPI_SIMULATE
@@ -131,7 +132,7 @@ void updateSimulationTicks()
 void loop(void)
 {
 	static unsigned long lastUpdate = 0;
-	
+		
 #if BREWPI_SIMULATE 
 	// only needed if we want the arduino to be self running. Useful for manual testing, but not so much with an 
 	// external driver. 
