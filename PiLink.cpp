@@ -127,10 +127,10 @@ void PiLink::receive(void){
 #endif	
 
 #if BREWPI_SIMULATE==1
-		case 'u':
+		case 'y':
 			updateInputs();
 			break;
-		case 'U':
+		case 'Y':
 			printSimulatorSettings();
 			break;		
 #endif						
