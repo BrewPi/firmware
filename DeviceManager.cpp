@@ -281,7 +281,7 @@ void DeviceManager::installDevice(DeviceConfig& config)
 {	
 	DeviceType dt = deviceType(config.deviceFunction);
 	void** ppv = deviceTarget(config);
-	if (ppv==NULL)
+	if (ppv==NULL || config.hw.deactivate)
 		return;
 		
 	BasicTempSensor* s;
@@ -327,19 +327,19 @@ struct DeviceDefinition {
 	int8_t deviceHardware;
 	int8_t pinNr;
 	int8_t invert;	
-#if BREWPI_DS2413	
-		int8_t pio;
-#endif
+	int8_t pio;
+	int8_t deactivate;
 	int8_t calibrationAdjust;
 	DeviceAddress address;
 		
 	/**
 	 * Lists the first letter of the key name for each attribute.
 	 */
-	static const char ORDER[11];
+	static const char ORDER[12];
 };
 
-const char DeviceDefinition::ORDER[11] = "icbfhpjxna";
+// the special cases are placed at the end. All others should map directly to an int8_t via atoi().
+const char DeviceDefinition::ORDER[12] = "icbfhpxndja";
 
 const char DEVICE_ATTRIB_INDEX = 'i';
 const char DEVICE_ATTRIB_CHAMBER = 'c';
@@ -348,6 +348,7 @@ const char DEVICE_ATTRIB_FUNCTION = 'f';
 const char DEVICE_ATTRIB_HARDWARE = 'h';
 const char DEVICE_ATTRIB_PIN = 'p';
 const char DEVICE_ATTRIB_INVERT = 'x';
+const char DEVICE_ATTRIB_DEACTIVATED = 'd';
 const char DEVICE_ATTRIB_ADDRESS = 'a';
 #if BREWPI_DS2413
 const char DEVICE_ATTRIB_PIO = 'n';
@@ -443,6 +444,9 @@ void DeviceManager::parseDeviceDefinition(Stream& p)
 		
 	if (dev.address[0]!=0xFF)	// first byte is family identifier. I don't have a complete list, but so far 0xFF is not used.
 		memcpy(target.hw.address, dev.address, 8);
+
+	if (dev.deactivate>=0)
+		target.hw.deactivate = dev.deactivate;
 	
 	// setting function to none clears all other fields.
 	if (target.deviceFunction==DEVICE_NONE) {
@@ -584,6 +588,7 @@ void DeviceManager::printDevice(device_slot_t slot, DeviceConfig& config, const 
 	printAttrib(p, DEVICE_ATTRIB_BEER, config.beer);
 	printAttrib(p, DEVICE_ATTRIB_FUNCTION, config.deviceFunction);	
 	printAttrib(p, DEVICE_ATTRIB_HARDWARE, config.deviceHardware);		
+	printAttrib(p, DEVICE_ATTRIB_DEACTIVATED, config.hw.deactivate);
 	printAttrib(p, DEVICE_ATTRIB_PIN, config.hw.pinNr);
 	if (value && *value) {
 		p.print(",v:");

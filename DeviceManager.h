@@ -29,7 +29,7 @@ class DeviceConfig;
 
 typedef int8_t device_slot_t;
 inline bool isDefinedSlot(device_slot_t s) { return s>=0; }
-const device_slot_t MAX_DEVICE_SLOT = 40;
+const device_slot_t MAX_DEVICE_SLOT = 33;
 const device_slot_t INVALID_SLOT = -1;
 
 /*
@@ -151,6 +151,7 @@ struct DeviceConfig {
 	struct Hardware {
 		uint8_t pinNr;							// the arduino pin nr this device is connected to
 		bool invert;							// for actuators/sensors, controls if the signal value is inverted.
+		bool deactivate;							// disable this device - the device will not be installed.
 		DeviceAddress address;					// for onewire devices, if address[0]==0 then use the first matching device type, otherwise use the device with the specific address
 		
 		/* The pio and sensor calibration are never needed at the same time so they are a union. 
@@ -163,7 +164,9 @@ struct DeviceConfig {
 			int8_t /* fixed4_4 */ calibration;	// for temp sensors (deviceHardware==2), calibration adjustment to add to sensor readings
 												// this is intentionally chosen to match the raw value precision returned by the ds18b20 sensors
 		};
+		bool reserved;								// extra space so that additional fields can be added without breaking layout
 	} hw;
+	bool reserved2;
 };
 
 /**

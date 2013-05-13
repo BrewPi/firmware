@@ -38,6 +38,8 @@ void EepromManager::zapEeprom()
 
 void EepromManager::initializeEeprom()
 {
+	deviceManager.setupUnconfiguredDevices();
+
 	// fetch the default values
 	tempControl.loadDefaultConstants();
 	tempControl.loadDefaultSettings();	
