@@ -209,7 +209,7 @@ public:
 		if (minRoomTemp==maxRoomTemp)
 			return minRoomTemp;
 		
-		unsigned long secondsInADay = 60*60*24L;
+		unsigned long secondsInADay = 60*60*24UL;
 		double p = (double(time%secondsInADay)/double(secondsInADay))*(TWO_PI);
 		double s = sin(p);
 		double mid = (minRoomTemp+maxRoomTemp)/2;
