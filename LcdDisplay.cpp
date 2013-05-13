@@ -27,10 +27,11 @@
 #include "temperatureFormats.h"
 #include "pins.h"
 
+static const int LCD_FLAG_DISPLAY_ROOM = 0x01;
 
 void LcdDisplay::init(void){
 	stateOnDisplay = 0xFF; // set to unknown state to force update
-	
+	flags = 0;
 	lcd.init(); // initialize LCD
 	lcd.begin(20, 4);
 	lcd.clear();
@@ -38,6 +39,15 @@ void LcdDisplay::init(void){
 
 //print all temperatures on the LCD
 void LcdDisplay::printAllTemperatures(void){
+	bool displayRoom = ((ticks.seconds()&0x08)==0);
+	if (displayRoom ^ ((flags & LCD_FLAG_DISPLAY_ROOM)!=0)) {	// transition
+		if (!tempControl.ambientSensor->isConnected())	{
+			displayRoom = tempControl.ambientSensor->init()!=DEVICE_DISCONNECTED && displayRoom;
+		}
+		flags = displayRoom ? flags | LCD_FLAG_DISPLAY_ROOM : flags & ~LCD_FLAG_DISPLAY_ROOM;
+		printStationaryText();
+	}
+	
 	printBeerTemp();
 	printBeerSet();
 	printFridgeTemp();
@@ -46,18 +56,24 @@ void LcdDisplay::printAllTemperatures(void){
 
 void LcdDisplay::printBeerTemp(void){
 	lcd.setCursor(6,1);
-	if(tempControl.beerSensor->isConnected()){
-		printTemperature(tempControl.getBeerTemp());
+	if (flags & LCD_FLAG_DISPLAY_ROOM) {
+		if (tempControl.ambientSensor->isConnected())
+			printTemperature(tempControl.ambientSensor->read());			
+		else
+			printUndefinedTemperature();
 	}
-	else{
-		printUndefinedTemperature();
+	else {
+		if(tempControl.beerSensor->isConnected())
+			printTemperature(tempControl.getBeerTemp());		
+		else
+			printUndefinedTemperature();			
 	}
 }
 
 void LcdDisplay::printBeerSet(void){
 	lcd.setCursor(12,1);
-	fixed7_9 beerSet = tempControl.getBeerSetting();
-	if(beerSet == INT_MIN){ // beer setting is not active
+	fixed7_9 beerSet = tempControl.getBeerSetting();	
+	if((flags & LCD_FLAG_DISPLAY_ROOM) || (beerSet == INT_MIN)){ // beer setting is not active
 		printUndefinedTemperature();
 	}
 	else{
@@ -105,7 +121,8 @@ void LcdDisplay::printStationaryText(void){
 	lcd.print_P(PSTR("Mode   "));
 
 	lcd.setCursor(0,1);
-	lcd.print_P(PSTR("Beer   "));
+		
+	lcd.print_P((flags & LCD_FLAG_DISPLAY_ROOM) ?  PSTR("Room   ") : PSTR("Beer   "));
 	
 	lcd.setCursor(0,2);
 	lcd.print_P(PSTR("Fridge ")); 

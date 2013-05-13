@@ -74,6 +74,7 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	private:
 	DISPLAY_FIELD SpiLcd lcd;
 	DISPLAY_FIELD uint8_t stateOnDisplay;
+	DISPLAY_FIELD bool flags;
 		
 };
 

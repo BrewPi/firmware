@@ -17,10 +17,10 @@
  */
 fixed7_9 OneWireTempSensor::init(){
 
-#if BREWPI_DEBUG	
 	// save address and pinNr for debug messages
 	char addressString[17];
 	printBytes(sensorAddress, 8, addressString);
+#if BREWPI_DEBUG || BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
 	uint8_t pinNr = oneWire->pinNr();
 #endif	
 
@@ -34,8 +34,7 @@ fixed7_9 OneWireTempSensor::init(){
 	}
 	
 	// get sensor address - todo this is deprecated and will be phased out. Needed to support revA shields
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
-	const uint8_t pinNr = oneWire->pinNr();
+#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A	
 	if (!sensorAddress[0]) {
 		if (!sensor->getAddress(sensorAddress, 0)) {
 			// error no sensor found
