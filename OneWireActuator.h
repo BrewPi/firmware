@@ -33,7 +33,7 @@ public:
 	}
 	
 	void setActive(bool active) {
-		DEBUG_MSG(PSTR("setting pio %d active %d"), pio, active^invert);
+//		DEBUG_MSG(PSTR("setting pio %d active %d"), pio, active^invert);
 		device.channelWrite(pio, active^invert);
 	}		
 			

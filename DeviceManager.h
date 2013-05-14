@@ -218,6 +218,8 @@ public:
 	
 	int8_t enumerateActuatorPins(uint8_t offset)
 	{
+
+#if BREWPI_ACTUATOR_PINS		
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
 		switch (offset) {
 			case 0: return heatingPin;
@@ -225,9 +227,7 @@ public:
 			default:
 				return -1;
 		}
-#endif	
-
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+#elif BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
 		switch (offset) {
 			case 0: return actuatorPin1;
 			case 1: return actuatorPin2;
@@ -236,11 +236,12 @@ public:
 			default: return -1;
 		}
 #endif			
+#endif
 		return -1;
 	}
 
 	int8_t enumerateSensorPins(uint8_t offset) {
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A || BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+#if (BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A || BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C) && BREWPI_SENSOR_PINS
 		if (offset==0)
 			return doorPin;
 #endif			
