@@ -42,14 +42,11 @@
 #include "Sensor.h"
 #include "FastDigitalPin.h"
 #include "OneWireActuator.h"
+#include "SettingsManager.h"
 
 #if BREWPI_SIMULATE
-#include "simulator.h"
-
-Simulator simulator;
+	#include "simulator.h"
 #endif
-
-#include "SettingsManager.h"
 
 // global class objects static and defined in class cpp and h files
 
@@ -79,6 +76,7 @@ void setup()
 #if BREWPI_SIMULATE
 	simulator.step();
 #endif	
+
 	display.init();
 	display.printStationaryText();
 	display.printState();
@@ -93,51 +91,18 @@ void setup()
 	DEBUG_MSG(PSTR("init complete"));
 }
 
-#if BREWPI_SIMULATE
-static fixed7_9 funFactor = 0;	// paused 
-static unsigned long lastUpdate = 0;
-uint8_t printTempInterval = 5;
-
-void setRunFactor(fixed7_9 factor)
-{
-	funFactor = factor>>9;		// for now whole values only
-	lastUpdate = ::millis();
-}	
-
-void updateSimulationTicks() 
-{	
-#if BREWPI_EMULATE
-	ticks.incMillis(1000);
-#else	
-	if (funFactor) {		
-		unsigned long now = ::millis();
-		int interval = 1000/funFactor;
-		if (interval>0) {
-			if ((now-lastUpdate)>=uint16_t(interval)) {
-				lastUpdate += interval;
-				ticks.incMillis(1000);
-			}			
-		}			
-		else
-		{
-			lastUpdate = now;
-			ticks.incMillis(1000);						
-		}
-	}
+void loop() {
+#if BREWPI_SIMULATE 
+	simulateLoop();
+#else
+	brewpiLoop();
 #endif	
 }
-#endif
 
-void loop(void)
+void brewpiLoop(void)
 {
 	static unsigned long lastUpdate = 0;
 		
-#if BREWPI_SIMULATE 
-	// only needed if we want the arduino to be self running. Useful for manual testing, but not so much with an 
-	// external driver. 
-	updateSimulationTicks();	
-#endif	
-	
 	if(ticks.millis() - lastUpdate >= (1000)) { //update settings every second
 		lastUpdate = ticks.millis();
 			
@@ -147,40 +112,23 @@ void loop(void)
 		tempControl.updateState();
 		tempControl.updateOutputs();
 
-#if BREWPI_MENU && !BREWPI_SIMULATE		// disable rotary encoder for simulator since this stalls output
+#if BREWPI_MENU
 		if(rotaryEncoder.pushed()){
 			rotaryEncoder.resetPushed();
 			menu.pickSettingToChange();	
 		}
 #endif
 
-#if BREWPI_SIMULATE && !BREWPI_EMULATE			// simulation on actual hardware
-		static byte updateCount = 0;
-		if (printTempInterval && (++updateCount%printTempInterval)==0) {
-			piLink.printTemperatures();
-			updateCount = 0;
-		}
-		static unsigned long lastDisplayUpdate = 0;  // update the display every second
-		if ((::millis()-lastDisplayUpdate)>=1000 && (lastDisplayUpdate+=1000))
-#endif
-		{
-			// update the lcd for the chamber being displayed
-			display.printState();
-			display.printAllTemperatures();
-			display.printMode();
-			display.updateBacklight();
-		}
-		
-#if BREWPI_SIMULATE
-		simulator.step();
-#endif		
+		// update the lcd for the chamber being displayed
+		display.printState();
+		display.printAllTemperatures();
+		display.printMode();
+		display.updateBacklight();		
 	}	
-#if BREWPI_SIMULATE && !BREWPI_EMULATE
-	static unsigned long lastCheckSerial = 0;
-	if ((::millis()-lastCheckSerial)>=1000 && (lastCheckSerial=::millis()>0))	// only listen if 1s passed since last time
-#endif	
+
 	//listen for incoming serial connections while waiting to update
 	piLink.receive();
 
 }
+
 

@@ -23,6 +23,8 @@ EepromManager::EepromManager()
 	eepromSizeCheck();
 }
 
+#if !BREWPI_SIMULATE
+
 bool EepromManager::hasSettings()
 {
 	uint8_t version = eepromAccess.readByte(pointerOffset(version));	
@@ -179,6 +181,14 @@ bool EepromManager::storeDevice(const DeviceConfig& config, uint8_t deviceIndex)
 		eepromAccess.writeBlock(pointerOffset(devices)+sizeof(DeviceConfig)*deviceIndex, &config, sizeof(DeviceConfig));	
 	return ok;
 }
+#else  // BREWPI_SIMULATE
+
+// these functions are not used - define them as empty to avoid littering the calling code code with #ifs
+void EepromManager::storeTempConstantsAndSettings() { }
+void EepromManager::storeTempSettings() { }
+
+
+#endif // !BREWPI_SIMULATE
 
 void fill(int8_t* p, uint8_t size) {
 	while (size-->0) *p++ = -1;
@@ -186,3 +196,4 @@ void fill(int8_t* p, uint8_t size) {
 void clear(uint8_t* p, uint8_t size) {
 	while (size-->0) *p++ = 0;
 }
+

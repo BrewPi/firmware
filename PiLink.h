@@ -60,7 +60,7 @@ class PiLink{
 	
 	typedef void (*ParseJsonCallback)(const char* key, const char* val, void* data);
 
-	static void parseJson(ParseJsonCallback fn, void* data);
+	static void parseJson(ParseJsonCallback fn, void* data=NULL);
 	
 	private:
 	

@@ -21,11 +21,13 @@
 #include "SettingsManager.h"
 #include "TempControl.h"
 #include "PiLink.h"
+#include "ExternalTempSensor.h"
 
 void SettingsManager::loadSettings()
 {
 	DEBUG_MSG(PSTR("loading settings"));
 
+#if !BREWPI_SIMULATE
 	if (!eepromManager.applySettings())
 	{
 		tempControl.loadDefaultSettings();
@@ -34,6 +36,17 @@ void SettingsManager::loadSettings()
 		deviceManager.setupUnconfiguredDevices();
 		piLink.debugMessage(PSTR("EEPROM Settings not available. Starting in safe mode."));
 	}
+#else
+	
+	static ExternalTempSensor* ambient = new ExternalTempSensor(true);
+	static ExternalTempSensor* beer = new ExternalTempSensor(true);
+	static ExternalTempSensor* fridge = new ExternalTempSensor(true);
+	
+	tempControl.ambientSensor = ambient;
+	tempControl.fridgeSensor->setSensor(fridge);
+	tempControl.beerSensor->setSensor(beer);
+		
+#endif	
 }
 
 SettingsManager settingsManager;

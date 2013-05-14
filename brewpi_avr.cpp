@@ -69,5 +69,6 @@ void main(void)
 // catch bad interrupts here when debugging
 ISR(BADISR_vect){
 	DEBUG_MSG(PSTR("*** BASISR_vect ***"));
+	while (1);
 }
 

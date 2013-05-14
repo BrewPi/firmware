@@ -13,6 +13,7 @@
 #include "Actuator.h"
 #include "Sensor.h"
 #include "DisconnectedTempSensor.h"
+#include "ExternalTempSensor.h"
 #include "PiLink.h"
 #include "EepromFormat.h"
 #include "ds2413.h"
@@ -20,6 +21,15 @@
 #include "DallasTemperature.h"
 
 DeviceManager deviceManager;
+
+/*
+ * Defaults for sensors, actuators and temperature sensors when not defined in the eeprom.
+ */
+ValueSensor<bool> defaultSensor(false);			// off
+ValueActuator defaultActuator;
+DisconnectedTempSensor defaultTempSensor;
+
+#if !BREWPI_SIMULATE
 
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
 OneWire DeviceManager::beerSensorBus(beerSensorPin);
@@ -29,15 +39,6 @@ OneWire DeviceManager::primaryOneWireBus(oneWirePin);
 #endif
 
 bool DeviceManager::firstDeviceOutput;
-
-
-
-/*
- * Defaults for sensors, actuators and temperature sensors when not defined in the eeprom.
- */
-ValueSensor<bool> defaultSensor(false);			// off
-ValueActuator defaultActuator;
-DisconnectedTempSensor defaultTempSensor;
 
 OneWire* DeviceManager::oneWireBus(uint8_t pin) {
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
@@ -75,6 +76,7 @@ void DeviceManager::setupUnconfiguredDevices()
  */
 void* DeviceManager::createDevice(DeviceConfig& config, DeviceType dt)
 {
+#if !BREWPI_SIMULATE
 	switch (config.deviceHardware) {
 		case DEVICE_HARDWARE_NONE:
 			break;
@@ -83,14 +85,34 @@ void* DeviceManager::createDevice(DeviceConfig& config, DeviceType dt)
 				return new DigitalPinSensor(config.hw.pinNr, config.hw.invert);
 			else
 				return new DigitalPinActuator(config.hw.pinNr, config.hw.invert);
-		case DEVICE_HARDWARE_ONEWIRE_TEMP:
+		case DEVICE_HARDWARE_ONEWIRE_TEMP:						
 			return new OneWireTempSensor(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.calibration);
 			
 #if BREWPI_DS2413			
 		case DEVICE_HARDWARE_ONEWIRE_2413:
 			return new OneWireActuator(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.pio, config.hw.invert);
 #endif			
-	}	
+	}
+#else
+	switch (config.deviceHardware) {
+		case DEVICE_HARDWARE_NONE:
+			break;
+		case DEVICE_HARDWARE_PIN:
+			if (dt==DEVICETYPE_SWITCH_SENSOR)
+				return new ValueSensor<bool>(false);
+			else
+				return new ValueActuator();
+				
+		case DEVICE_HARDWARE_ONEWIRE_TEMP:
+			return new ExternalTempSensor(true);
+		
+		#if BREWPI_DS2413
+		case DEVICE_HARDWARE_ONEWIRE_2413:
+			return new ValueActuator();
+		#endif
+	}
+
+#endif		
 	return NULL;
 }
 
@@ -843,3 +865,5 @@ void DeviceManager::listDevices(Stream& p) {
 		}
 	}	
 }
+
+#endif

@@ -94,7 +94,7 @@ public:
 		heating = PValueActuator(tempControl.heater)->isActive();
 		cooling = PValueActuator(tempControl.cooler)->isActive();		 
 		doorOpen = PValueSensor(tempControl.door)->sense();
-#if 1	// with no serial and no calculation here we get 1500-2000x speedup
+		// with no serial and no calculation here we get 1500-2000x speedup
 		// with this code enabled, around 1300x speedup
 		// with serial, drops to 300x speedup
 		double fermDiff = beerFerment();
@@ -116,7 +116,7 @@ public:
 
 		fridgeTemp = newFridgeTemp;
 		beerTemp = newBeerTemp;
-#endif		
+
 		time += 1;
 		
 		updateSensors();
@@ -374,7 +374,21 @@ struct FermentPhases
 	
 };
 
-
-extern void setRunFactor(fixed7_9 factor);
 extern Simulator simulator;
+
+/**
+ * Set the time scale factor. A run factor of 0 pauses the simulator. 
+ * \param factor  A run factor of 1 runs at real time. 
+ *	A run factor >1  runs as accelerated time. Accurate up to ca. 500.
+ *	A run factor of -1 runs at full speed.
+ */
+void setRunFactor(fixed7_9 factor);
+
+/**
+ * Callback for handling the simulator JSON config.
+ */
+void HandleSimulatorConfig(const char* key, const char* val, void* pv);
+
+void simulateLoop();
+
 
