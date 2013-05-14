@@ -102,12 +102,10 @@ uint8_t EepromManager::saveDefaultDevices()
 	eepromManager.storeDevice(config, 4);
 		
 	return 5;
-	
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+
+#elif BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
 	// the only component that's not dynamic is the door
 	return 0;	
-#endif	
-
 #else
 	return 0;
 #endif

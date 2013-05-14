@@ -25,7 +25,7 @@
 #endif
 
 
-#ifdef BREWPI_EMULATE
+#ifndef BREWPI_EMULATE
 #define BREWPI_EMULATE 0
 #endif
 
