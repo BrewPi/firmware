@@ -18,7 +18,7 @@ template<class T> class Sensor
 	public:	
 	virtual T sense()=0;
 	
-	virtual ~Sensor() {}	
+	virtual ~Sensor() {}
 };
 
 template <class T>

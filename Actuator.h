@@ -34,11 +34,8 @@
 
 class Actuator
 {
-	public:
-	//ACTUATOR_METHOD bool isActive() ACTUATOR_METHOD_IMPL;
+	public:	
 	ACTUATOR_METHOD void setActive(bool active) ACTUATOR_METHOD_IMPL;
-	ACTUATOR_METHOD void activate()  { setActive(true); }
-	ACTUATOR_METHOD void deactivate() { setActive(false); }
 #if ACTUATOR_VIRTUAL
 	virtual ~Actuator() {}
 #endif		

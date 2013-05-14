@@ -50,6 +50,7 @@ BasicTempSensor* TempControl::ambientSensor = &defaultTempSensor;
 Actuator* TempControl::heater = &defaultActuator;
 Actuator* TempControl::cooler = &defaultActuator;
 Actuator* TempControl::light = &defaultActuator;
+Actuator* TempControl::fan = &defaultActuator;
 Sensor<bool>* TempControl::door = &defaultSensor;
 	
 // Control parameters
@@ -294,7 +295,7 @@ void TempControl::updateEstimatedPeak(uint16_t time, fixed7_9 estimator, uint16_
 void TempControl::updateOutputs(void) {
 	if (cs.mode==MODE_TEST)
 		return;
-	
+		
 	cooler->setActive(state==COOLING);	
 #if LIGHT_AS_HEATER
 	heater->setActive(state==DOOR_OPEN || state==HEATING);
@@ -302,7 +303,7 @@ void TempControl::updateOutputs(void) {
 	heater->setActive(state==HEATING);
 	light->setActive(state==DOOR_OPEN);
 #endif		
-// todo - factor out doorOpen state so it is independent of the temp control state. That way, opening/closing the door doesn't affect compressor operation.
+	fan->setActive(state==HEATING || state==COOLING);
 }
 
 

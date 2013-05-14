@@ -205,6 +205,10 @@ inline void** deviceTarget(DeviceConfig& config)
 	case DEVICE_CHAMBER_TEMP:
 		ppv = (void**)&tempControl.fridgeSensor;
 		break;
+	case DEVICE_CHAMBER_FAN:
+		ppv = (void**)&tempControl.fan;
+		break;		
+	
 	case DEVICE_BEER_TEMP:
 		ppv = (void**)&tempControl.beerSensor;
 		break;
