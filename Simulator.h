@@ -6,8 +6,8 @@
  */ 
 #pragma once
 
-#include "brewpi_avr.h"
-#include "ExternalTempSensor.h"
+#include "Brewpi.h"
+#include "TempSensorExternal.h"
 
 /**
  * Thermal mass of air per unit volume, per degree.

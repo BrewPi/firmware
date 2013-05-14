@@ -1,8 +1,8 @@
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "OneWire.h"
 
-#include "ds2413.h"
+#include "DS2413.h"
 
 uint8_t DS2413::channelReadAll()
 {

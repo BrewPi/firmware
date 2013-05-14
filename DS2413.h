@@ -2,7 +2,7 @@
 #ifndef DS2413_H_
 #define DS2413_H_
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "OneWire.h"
 #include "PiLink.h"
 
