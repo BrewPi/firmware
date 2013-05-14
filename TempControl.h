@@ -21,10 +21,10 @@
 #ifndef CONTROLLER_H_
 #define CONTROLLER_H_
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "TempSensor.h"
-#include "pins.h"
-#include "temperatureFormats.h"
+#include "Pins.h"
+#include "TemperatureFormats.h"
 #include "Actuator.h"
 #include "Sensor.h"
 #include "EepromManager.h"
@@ -132,13 +132,13 @@ enum states{
 
 // Making all functions and variables static reduces code size.
 // There will only be one TempControl object, so it makes sense that they are static.
+
 /*
  * MDM: To support multi-chamber, I could have made TempControl non-static, and had a reference to
  * the current instance. But this means each lookup of a field must be done indirectly, which adds to the code size.
  * Instead, we swap in/out the sensors and control data so that the bulk of the code can work against compile-time resolvable
- * memory references. While the design goes against the grain of typical OO practices, the savings 
+ * memory references. While the design goes against the grain of typical OO practices, the reduction in code size make it worth it.
  */
-
 
 class TempControl{
 	public:

@@ -9,18 +9,15 @@
  * (at your option) any later version.
  * 
  * BrewPi is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "brewpi_avr.h"
-#include "FixedFilter.h"
+#include "Brewpi.h"
+#include "FilterFixed.h"
 #include <stdlib.h>
 #include <limits.h>
-#include "temperatureFormats.h"
+#include "TemperatureFormats.h"
 
 fixed7_9 FixedFilter::add(fixed7_9 val){
 	fixed7_25 returnVal = addDoublePrecision( ((fixed7_25) val) << 16);

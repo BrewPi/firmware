@@ -5,7 +5,7 @@
  *  Author: mat
  */ 
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include <stddef.h>
 
 #include "EepromManager.h"

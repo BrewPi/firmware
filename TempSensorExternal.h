@@ -5,12 +5,15 @@
  *  Author: mat
  */ 
 
-#ifndef ENTERNAL_TEMP_SENSOR_H
-#define ENTERNAL_TEMP_SENSOR_H
+#pragma once
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "TempSensor.h"
 
+/**
+ * A temp sensor whose value is not read from the device, but set in code.
+ * This is used by the simulator.
+ */
 class ExternalTempSensor : public BasicTempSensor
 {
 	public:
@@ -41,5 +44,3 @@ class ExternalTempSensor : public BasicTempSensor
 	fixed7_9 _temperature;
 	bool _connected;
 };
-
-#endif

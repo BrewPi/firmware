@@ -18,13 +18,12 @@
  */
 
 
-#ifndef CASCADEDFILTER_H_
-#define CASCADEDFILTER_H_
+#pragma once
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 
-#include "temperatureFormats.h"
-#include "FixedFilter.h"
+#include "TemperatureFormats.h"
+#include "FilterFixed.h"
 
 // Use 3 filter sections. This gives excellent filtering, without adding too much delay.
 // For 3 sections the stop band attenuation is 3x the single section attenuation in dB.
@@ -60,4 +59,3 @@ class CascadedFilter{
 };
 
 
-#endif /* CASCADEDFILTER_H_ */

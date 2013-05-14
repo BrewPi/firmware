@@ -21,7 +21,7 @@
 #ifndef ROTARYENCODER_H_
 #define ROTARYENCODER_H_
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include <inttypes.h>
 
 // 500 us idle time for debouncing

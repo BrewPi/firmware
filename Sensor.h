@@ -9,9 +9,9 @@
 
 #pragma once
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "FastDigitalPin.h"
-#include "pins.h"
+#include "Pins.h"
 
 template<class T> class Sensor
 {	

@@ -9,13 +9,13 @@
 #ifndef DEVICE_MANAGER_H
 #define DEVICE_MANAGER_H
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 
 #include "Actuator.h"
 #include "Sensor.h"
 #include "TempSensor.h"
 #include "OneWireDevices.h"
-#include "pins.h"
+#include "Pins.h"
 
 /**
  * A user has freedom to connect various devices to the arduino, either via extending the oneWire bus, or by assigning to specific pins, e.g. actuators, switch sensors.

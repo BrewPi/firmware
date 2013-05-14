@@ -22,10 +22,9 @@
  * Differences are some of the control commands (cursor on/off), language setting and especially initialization sequence.
  */ 
 
-#ifndef SpiLcd_h
-#define SpiLcd_h
+#pragma once
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include <stdint.h>
 #include <print.h>
 #include "Ticks.h"
@@ -156,4 +155,3 @@ class SpiLcd : public Print {
 	
 };
 
-#endif

@@ -25,21 +25,7 @@
  * 'ArduinoFunctions.cpp' includes all the source files from Arduino that are used. You might have to edit it if you are not using a Leonardo.
  * That is all that is needed! No hassle with makefiles and compiling libraries.
  */
-#include "brewpi_avr.h"
-#include "Ticks.h"
-#include "LcdDisplay.h"
-#include "TempControl.h"
-#include "PiLink.h"
-#include "Menu.h"
-#include "pins.h"
-#include "RotaryEncoder.h"
-#include "Buzzer.h"
-#include "TempSensor.h"
-#include "MockTempSensor.h"
-#include "OneWireTempSensor.h"
-#include "Ticks.h"
-#include "brewpi_avr.h"
-#include "Sensor.h"
+#include "Brewpi.h"
 
 // setup and loop are in brewpi_config so they can be reused across projects
 extern void setup(void);
@@ -59,16 +45,13 @@ void main(void)
 	setup();
 	
 	for (;;) {
-		loop();		
+		loop();
 		if (serialEventRun) serialEventRun();
 	}
 }
 
-
-
 // catch bad interrupts here when debugging
 ISR(BADISR_vect){
-	DEBUG_MSG(PSTR("*** BASISR_vect ***"));
 	while (1);
 }
 

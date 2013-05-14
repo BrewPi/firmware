@@ -17,11 +17,11 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "SettingsManager.h"
 #include "TempControl.h"
 #include "PiLink.h"
-#include "ExternalTempSensor.h"
+#include "TempSensorExternal.h"
 
 void SettingsManager::loadSettings()
 {

@@ -1,7 +1,7 @@
 /*
  * Copyright 2013 Matthew McGowan
  *
- * avr_ticks.h
+ * TicksArduino.h
  *
  * Created: 15/03/2013 09:31:54
  *  Author: mat
@@ -11,7 +11,7 @@
 #ifndef AVR_TICKS_H_
 #define AVR_TICKS_H_
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 
 /*
  * The Ticks class provides the time period since the device was powered up.

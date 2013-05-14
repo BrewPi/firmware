@@ -5,7 +5,7 @@
  *  Author: mat
  */ 
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 
 void parseBytes(uint8_t* data, const char* s, uint8_t len);
 void printBytes(uint8_t* data, uint8_t len, char* buf);

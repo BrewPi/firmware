@@ -9,7 +9,7 @@
 #ifndef BUZZER_H_
 #define BUZZER_H_
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 
 #if BREWPI_BUZZER
 class Buzzer

@@ -12,12 +12,12 @@
  * Defines global config for the brewpi project. This file is included in every file in the project to ensure conditional
  * compilation directives are recognized.
  * 
- * config_default.h contains the default settings, and produces a standard Hex file.
- * To customize the build, users may add settings to config_local.h, or define symbols in the project.
+ * ConfigDefault.h contains the default settings, and produces a standard Hex file.
+ * To customize the build, users may add settings to ConfigLocal.h, or define symbols in the project.
  */
 
-#include "config_local.h"
-#include "config_default.h"
+#include "ConfigLocal.h"
+#include "ConfigDefault.h"
 
 #include <Arduino.h>
 

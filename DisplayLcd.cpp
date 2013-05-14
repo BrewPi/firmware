@@ -17,15 +17,15 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include <limits.h>
 
 #include "Display.h"
-#include "LcdDisplay.h"
+#include "DisplayLcd.h"
 #include "Menu.h"
 #include "TempControl.h"
-#include "temperatureFormats.h"
-#include "pins.h"
+#include "TemperatureFormats.h"
+#include "Pins.h"
 
 static const int LCD_FLAG_DISPLAY_ROOM = 0x01;
 

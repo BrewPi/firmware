@@ -12,7 +12,7 @@
 #ifndef ACTUATOR_H
 #define ACTUATOR_H
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "FastDigitalPin.h"
 
 #define ACTUATOR_VIRTUAL 1

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "DeviceManager.h"
 #include "TempControl.h"
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 BrewPi/Elco Jacobs.
+ * Copyright 2013 BrewPi/Elco Jacobs.
  *
  * This file is part of BrewPi.
  * 
@@ -17,23 +17,29 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef TICKS_H_
 #define TICKS_H_
 
-
-#include "brewpi_avr.h"
-
+#include "Brewpi.h"
 
 typedef uint32_t ticks_millis_t;
 typedef uint32_t ticks_micros_t;
 typedef uint16_t ticks_seconds_t;
 typedef uint8_t ticks_seconds_tiny_t;
 
-class Ticks {
-	
-};
+/**
+ * Ticks - interface to a millisecond timer
+ *
+ * With more code space, Ticks would have been a virtual base class, so all implementations can easily provide the same interface.
+ * Here, the different implementations have no common (virtual) base class to save code space. 
+ * Instead, a typedef is used to compile-time select the implementation to use.
+ * If that implementation doesn't implement the Ticks interface as expected, it will fail to compile.
+ */
 
+/**
+ * A Ticks implementation that increments the millis count each time it is called.
+ * This is used for testing.
+ */
 class MockTicks {
 public:
 	MockTicks(uint8_t increment) : _increment(increment), _ticks(0) { }
@@ -49,9 +55,9 @@ private:
 };
 
 /**
- * Externally provided clock. 
+ * Externally provided millis timer. The calling code takes care of advancing the timer by calling setMillis or incMillis.
+ * This is used for testing and also by the simulator to provide simulated time.
  */
-
 class ExternalTicks {
 	public:
 	ExternalTicks() : _ticks(0) { }
@@ -68,7 +74,10 @@ private:
 };
 
 
-
+/**
+ * A delay class that does nothing.
+ * In the AVR simulator, delays using millis() take a very long time. Using this class makes it possible to step through the code.
+ */
 class NoOpDelay {
 public:	
 	void seconds(uint16_t seconds)	{ millis(seconds<<10); }
@@ -76,44 +85,43 @@ public:
 	void microseconds(uint32_t micros) { }
 };
 
-#include "avr_ticks.h"
 
-#if BREWPI_SIMULATE				// use value holder
+#include "TicksArduino.h"
 
+
+// Determine the type of Ticks needed
+// TICKS_IMPL_CONFIG is the code string passed to the constructor of the Ticks implementation
+
+#if BREWPI_SIMULATE				
+/** For simulation, by the simulator - each step in the simulator advances the time by one second. */    
 	typedef ExternalTicks TicksImpl;
-#if BREWPI_EMULATE	
-	typedef NoOpDelay DelayImpl;		// for emulation (avr debugger), don't bother delaying, it takes ages.
-	#define DELAY_IMPL_CONFIG
-#else
-	typedef HardwareDelay DelayImpl;
-	#define DELAY_IMPL_CONFIG
-#endif	
-	#define TICKS_IMPL_CONFIG		// no configuration necessary
+	#define TICKS_IMPL_CONFIG		// no configuration of ExternalTicks necessary
 
-#elif BREWPI_EMULATE   // regular code, runing in emulator: emulator is slow, so increment ticks by 100 for each request
+#elif BREWPI_EMULATE
+/** When debugging in AVR studio (and running normal brewpi - not the simulator), use a simple MockTicks that increments 100
+	millis each time it's called. */	
 	typedef MockTicks TicksImpl;
-	#define TICKS_IMPL_CONFIG 100
-
-	typedef NoOpDelay DelayImpl;
-	#define DELAY_IMPL_CONFIG
-
-
-	typedef ExternalTicks TicksImpl;
-	typedef NoOpDelay DelayImpl;
-	#define TICKS_IMPL_CONFIG		// no configuration necessary
-	#define DELAY_IMPL_CONFIG
+	#define TICKS_IMPL_CONFIG 100	
 	
 #else // use regular hardware timer/delay
 	typedef HardwareTicks TicksImpl;
 	#define TICKS_IMPL_CONFIG
-
-	typedef HardwareDelay DelayImpl;
-	#define DELAY_IMPL_CONFIG
-
 #endif	// BREWPI_EMULATE
 
-
 extern TicksImpl ticks;
+
+// Determine the type of delay required.
+// For emulation, don't delay, since time in the emulator is not real time, so the delay is meaningless.
+// For regular code, use the arduino delay function.
+
+#if BREWPI_EMULATE
+typedef NoOpDelay DelayImpl;		// for emulation (avr debugger), don't bother delaying, it takes ages.
+#define DELAY_IMPL_CONFIG
+#else
+typedef HardwareDelay DelayImpl;
+#define DELAY_IMPL_CONFIG
+#endif
+
 extern DelayImpl wait;
 
 

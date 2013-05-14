@@ -20,7 +20,7 @@
  *  Author: mat
  */ 
 
-#include "brewpi_avr.h"
-#include "pins.h"
+#include "Brewpi.h"
+#include "Pins.h"
 #include "Actuator.h"
 

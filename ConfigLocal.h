@@ -1,5 +1,5 @@
 /*
- * config_local.h
+ * ConfigLocal.h
  *
  * Created: 21/02/2013 02:34:18
  *  Author: mat
@@ -10,8 +10,9 @@
 #ifndef CONFIG_LOCAL_H_
 #define CONFIG_LOCAL_H_
 
-#define BREWPI_DEBUG 1
-#define OPTIMIZE_JSON_OUTPUT 1
+#define BREWPI_SIMULATE 1
+#define BREWPI_EMULATE 0
+#define BREWPI_DEBUG 0
 
 #define BREWPI_STATIC_CONFIG BREWPI_SHIELD_REV_A
 
@@ -23,5 +24,11 @@
 // So, I make the default bus A5.
 #define oneWirePin A5
 #define actuatorPin4 A4
+
+// I'm using onewire for all actuators
+// may use the door sensor so will keep that.
+#define BREWPI_ACTUATOR_PINS 0
+
+
 
 #endif /* CONFIG_LOCAL_H_ */

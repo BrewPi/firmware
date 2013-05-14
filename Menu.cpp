@@ -17,21 +17,21 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 
 #if BREWPI_MENU
 
 #include "Menu.h"
 
 #include <limits.h>
-#include "pins.h"
+#include "Pins.h"
 #include "Display.h"
 #include "TempControl.h"
-#include "temperatureFormats.h"
+#include "TemperatureFormats.h"
 #include "RotaryEncoder.h"
 #include "PiLink.h"
 #include "Ticks.h"
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 
 Menu menu;
 

@@ -1,9 +1,12 @@
 /*
- * BasicTempSensor.h
+ * TempSensorBasic.h
  *
  * Created: 11/05/2013 04:58:13
  *  Author: mat
  */ 
+
+#pragma once
+
 
 class BasicTempSensor
 {

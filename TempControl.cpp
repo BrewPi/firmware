@@ -17,21 +17,21 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 
-#include "pins.h"
+#include "Pins.h"
 #include <avr/eeprom.h>
 #include <avr/pgmspace.h>
 #include <limits.h>
 
-#include "temperatureFormats.h"
+#include "TemperatureFormats.h"
 #include "TempControl.h"
 #include "PiLink.h"
 #include "TempSensor.h"
 #include "Ticks.h"
-#include "MockTempSensor.h"
+#include "TempSensorMock.h"
 #include "EepromManager.h"
-#include "DisconnectedTempSensor.h"
+#include "TempSensorDisconnected.h"
 
 TempControl tempControl;
 
@@ -483,7 +483,7 @@ void TempControl::loadDefaultConstants(void){
 	cc.coolingTargetUpper = 102;	// +0.2 deg Celsius
 	cc.coolingTargetLower = -154;	// -0.3 deg Celsius
 
-	// Set filter coefficients. This is the b value. See FixedFilter.h for delay times.
+	// Set filter coefficients. This is the b value. See FilterFixed.h for delay times.
 	// The delay time is 3.33 * 2^b * number of cascades
 	cc.fridgeFastFilter = 1u;
 	cc.fridgeSlowFilter = 4u;

@@ -9,22 +9,22 @@
 #ifndef CONFIG_DEFAULT_H
 #define CONFIG_DEFAULT_H
 
+/**
+ * Do not change this file directly - rather edit ConfigLocal.h
+ */
 
 #ifndef BREWPI_ESTIMATOR_MESSAGES
 #define BREWPI_ESTIMATOR_MESSAGES 0
-#endif
-
-#if BREWPI_ESTIMATOR_MESSAGES
-	#define ESTIMATOR_MSG(msg, ...) piLink.debugMessage(PSTR(msg), __VA_ARGS__)
-#else
-	#define ESTIMATOR_MSG(msg,...)  {}
 #endif
 
 #ifndef BREWPI_STATIC_CONFIG
 #define BREWPI_STATIC_CONFIG BREWPI_SHIELD_REV_A
 #endif
 
-
+/**
+ * This flag virtualizes as much of the hardware as possible, so the code can be run in the AvrStudio simulator, which
+ * only emulates the microcontroller, not any attached peripherals.
+ */
 #ifndef BREWPI_EMULATE
 #define BREWPI_EMULATE 0
 #endif
@@ -41,24 +41,33 @@
 #define FAST_DIGITAL_PIN 0
 #endif
 
+/**
+ * Enable the simulator. Real sensors/actuators are replaced with simulated versions. In particular, the values reported by
+ * temp sensors are based on a model of the fridge/beer.
+ */
 #ifndef BREWPI_SIMULATE
 #define BREWPI_SIMULATE 0
 #endif
 
+/**
+ * Enable DS2413 Actuators. 
+ */
 #ifndef BREWPI_DS2413
 #define BREWPI_DS2413 0
 #endif
 
+/**
+ * Enable the LCD menu.
+ */
 #ifndef BREWPI_MENU
 #define BREWPI_MENU 1
 #endif
 
+/**
+ * Enable the LCD display. Without this, a NullDisplay is used
+ */
 #ifndef BREWPI_LCD
 #define BREWPI_LCD 1
-#endif
-
-#ifndef BREWPI_DISPLAY
-#define BREWPI_DISPLAY 1
 #endif
 
 #ifndef BREWPI_BUZZER
@@ -83,5 +92,13 @@
 #define BREWPI_ACTUATOR_PINS 1
 #endif
 
+/** 
+ * Enable debug messages from the temp control estimator.
+ */
+#if BREWPI_ESTIMATOR_MESSAGES
+	#define ESTIMATOR_MSG(msg, ...) piLink.debugMessage(PSTR(msg), __VA_ARGS__)
+#else
+	#define ESTIMATOR_MSG(msg,...)  {}
+#endif
 
 #endif

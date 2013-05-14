@@ -5,18 +5,18 @@
  *  Author: mat
  */ 
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "DeviceManager.h"
 #include "TempControl.h"
 #include "OneWireTempSensor.h"
 #include "OneWireActuator.h"
 #include "Actuator.h"
 #include "Sensor.h"
-#include "DisconnectedTempSensor.h"
-#include "ExternalTempSensor.h"
+#include "TempSensorDisconnected.h"
+#include "TempSensorExternal.h"
 #include "PiLink.h"
 #include "EepromFormat.h"
-#include "ds2413.h"
+#include "DS2413.h"
 #include "OneWire.h"
 #include "DallasTemperature.h"
 

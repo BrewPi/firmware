@@ -18,14 +18,13 @@
  */
 
 
-#ifndef SENSORS_H_
-#define SENSORS_H_
+#pragma once
 
-#include "brewpi_avr.h"
-#include "CascadedFilter.h"
+#include "Brewpi.h"
+#include "FilterCascaded.h"
 #include "OneWire.h"
 #include "DallasTemperature.h"
-#include "BasicTempSensor.h"
+#include "TempSensorBasic.h"
 #include <stdlib.h>
 
 #ifndef TEMP_SENSOR_CASCADED_FILTER 
@@ -98,5 +97,3 @@ class TempSensor {
 	friend class DeviceManager;
 };
 
-
-#endif /* SENSORS_H_ */

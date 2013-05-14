@@ -20,7 +20,7 @@
 #ifndef MENU_H_ 
 #define MENU_H_
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 
 #ifndef BREWPI_MENU
 #define BREWPI_MENU 1
@@ -30,7 +30,7 @@
 #if BREWPI_MENU
 
 #include <inttypes.h>
-#include "temperatureFormats.h"
+#include "TemperatureFormats.h"
 
 enum menuPages{
 	MENU_TOP,

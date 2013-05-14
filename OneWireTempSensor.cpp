@@ -1,7 +1,7 @@
 /*
  * OneWireTempSensor.cpp
  */ 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "OneWireTempSensor.h"
 #include "DallasTemperature.h"
 #include "OneWire.h"

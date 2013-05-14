@@ -17,12 +17,12 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "brewpi_avr.h"
-#include "FixedFilter.h"
-#include "CascadedFilter.h"
+#include "Brewpi.h"
+#include "FilterFixed.h"
+#include "FilterCascaded.h"
 #include <stdlib.h>
 #include <limits.h>
-#include "temperatureFormats.h"
+#include "TemperatureFormats.h"
 
 CascadedFilter::CascadedFilter() {
 	for(uint8_t i=0; i<NUM_SECTIONS; i++){

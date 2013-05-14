@@ -1,15 +1,6 @@
-/*
- * LcdDisplay.h
- *
- * Created: 15/03/2013 09:21:49
- *  Author: mat
- */ 
+#pragma once
 
-
-#ifndef LCDDISPLAY_H_
-#define LCDDISPLAY_H_
-
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "DisplayBase.h"
 #include "SpiLcd.h"
 
@@ -79,6 +70,3 @@ class LcdDisplay DISPLAY_SUPERCLASS
 };
 
 
-
-
-#endif /* LCDDISPLAY_H_ */

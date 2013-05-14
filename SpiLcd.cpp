@@ -19,13 +19,13 @@
 
 #include "SpiLcd.h"
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
 #include <util/delay.h>
 #include "FastDigitalPin.h"
-#include "pins.h"
+#include "Pins.h"
 #include <util/atomic.h>
 
 // MDM - removed the latchPin parameter since it's never changed, and having a compile time constant makes the

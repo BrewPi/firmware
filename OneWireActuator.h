@@ -10,9 +10,9 @@
 
 #pragma once
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "Actuator.h"
-#include "ds2413.h"
+#include "DS2413.h"
 #include "PiLink.h"
 
 /**

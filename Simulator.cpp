@@ -5,7 +5,7 @@
  *  Author: mat
  */ 
 
-#include "simulator.h"
+#include "Simulator.h"
 
 #include "display.h"
 #include "piLink.h"
@@ -94,7 +94,7 @@ void simulateLoop(void)
 
 }
 
-#include "ExternalTempSensor.h"
+#include "TempSensorExternal.h"
 
 const char SimulatorBeerTemp[] PROGMEM = "b";
 const char SimulatorBeerConnected[] PROGMEM = "bc";

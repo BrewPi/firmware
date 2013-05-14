@@ -18,39 +18,42 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "stddef.h"
 #include "PiLink.h"
 
-#include "version.h"
+#include "Version.h"
 #include "tempControl.h"
 #include "Display.h"
 #include <stdarg.h>
 #include <avr/pgmspace.h>
 #include <limits.h>
 #include <string.h>
-#include "jsonKeys.h"
+#include "JsonKeys.h"
 #include "Ticks.h"
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "EepromManager.h"
 #include "EepromFormat.h"
 #include "SettingsManager.h"
 #if BREWPI_SIMULATE
-#include "simulator.h"
+#include "Simulator.h"
 #endif
 
 bool PiLink::firstPair;
 // Rename Serial to piStream, to abstract it for later platform independence
 
 #if BREWPI_EMULATE
-	class MockSerial
+	class MockSerial : public Stream
 	{
 		public:
 		void print(char c) {}
 		void print(const char* c) {}
-		char read() { return '\0'; }
-		uint8_t available() { return 0; }
-			void begin(unsigned long) {}
+		int read() { return -1; }
+		int available() { return -1; }
+		void begin(unsigned long) {}
+		size_t write(uint8_t w) { return 1; }
+		int peek() { return -1; }
+		void flush() { };			
 	};
 
 	static MockSerial mockSerial;

@@ -20,8 +20,8 @@
 #ifndef PILINK_H_
 #define PILINK_H_
 
-#include "brewpi_avr.h"
-#include "temperatureFormats.h"
+#include "Brewpi.h"
+#include "TemperatureFormats.h"
 #include "DeviceManager.h"
 
 #ifndef OPTIMIZE_JSON_OUTPUT

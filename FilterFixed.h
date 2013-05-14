@@ -17,10 +17,9 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FIXEDFILTER_H_
-#define FIXEDFILTER_H_
+#pragma once
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 
 /* This class implements an IIR low pass filter, with the following frequency response
 
@@ -67,7 +66,7 @@ H(z) = 2^-a * -------------------------------------------------
 
 */
 
-#include "temperatureFormats.h"
+#include "TemperatureFormats.h"
 
 class FixedFilter{
 	public:
@@ -111,4 +110,3 @@ class FixedFilter{
 		
 };
 
-#endif /* FixedFilter_H_ */

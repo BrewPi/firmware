@@ -2,7 +2,7 @@
 #define OneWire_h
 
 #include <inttypes.h>
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 
 // You can exclude certain features from OneWire.  In theory, this
 // might save some space.  In practice, the compiler automatically

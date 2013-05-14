@@ -5,11 +5,9 @@
  *  Author: mat
  */ 
 
+#pragma once
 
-#ifndef MOCKTEMPSENSOR_H_
-#define MOCKTEMPSENSOR_H_
-
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "TempSensor.h"
 
 class MockTempSensor : public BasicTempSensor
@@ -51,6 +49,3 @@ public:
 	bool _connected;
 };
 
-
-
-#endif /* MOCKTEMPSENSOR_H_ */

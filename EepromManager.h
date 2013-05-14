@@ -8,7 +8,7 @@
 #ifndef EEPROM_MANAGER_H
 #define EEPROM_MANAGER_H
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include <avr/eeprom.h>
 
 typedef uint16_t eptr_t;

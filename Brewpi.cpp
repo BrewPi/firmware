@@ -25,19 +25,19 @@
  * 'ArduinoFunctions.cpp' includes all the source files from Arduino that are used. You might have to edit it if you are not using a Leonardo.
  * That is all that is needed! No hassle with makefiles and compiling libraries.
  */
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "Ticks.h"
 #include "Display.h"
 #include "TempControl.h"
 #include "PiLink.h"
 #include "Menu.h"
-#include "pins.h"
+#include "Pins.h"
 #include "RotaryEncoder.h"
 #include "Buzzer.h"
 #include "TempSensor.h"
-#include "MockTempSensor.h"
+#include "TempSensorMock.h"
 #include "OneWireTempSensor.h"
-#include "ExternalTempSensor.h"
+#include "TempSensorExternal.h"
 #include "Ticks.h"
 #include "Sensor.h"
 #include "FastDigitalPin.h"
@@ -45,7 +45,7 @@
 #include "SettingsManager.h"
 
 #if BREWPI_SIMULATE
-	#include "simulator.h"
+	#include "Simulator.h"
 #endif
 
 // global class objects static and defined in class cpp and h files
@@ -91,13 +91,6 @@ void setup()
 	DEBUG_MSG(PSTR("init complete"));
 }
 
-void loop() {
-#if BREWPI_SIMULATE 
-	simulateLoop();
-#else
-	brewpiLoop();
-#endif	
-}
 
 void brewpiLoop(void)
 {
@@ -131,4 +124,11 @@ void brewpiLoop(void)
 
 }
 
+void loop() {
+	#if BREWPI_SIMULATE
+	simulateLoop();
+	#else
+	brewpiLoop();
+	#endif
+}
 

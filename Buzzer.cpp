@@ -5,10 +5,10 @@
  *  Author: Elco
  */ 
 
-#include "brewpi_avr.h"
+#include "Brewpi.h"
 #include "FastDigitalPin.h"
 #include "Ticks.h"
-#include "pins.h"
+#include "Pins.h"
 #include "Buzzer.h"
 #include <util/delay.h>
 
