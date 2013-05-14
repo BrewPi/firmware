@@ -51,6 +51,7 @@ static const char JSONKEY_fridgeSlopeFilter[] PROGMEM = "fridgeSlopeFilt";
 static const char JSONKEY_beerFastFilter[] PROGMEM = "beerFastFilt";
 static const char JSONKEY_beerSlowFilter[] PROGMEM = "beerSlowFilt";
 static const char JSONKEY_beerSlopeFilter[] PROGMEM = "beerSlopeFilt";
+static const char JSONKEY_lightAsHeater[] PROGMEM = "lightAsHeater";
 
 // variable;
 static const char JSONKEY_beerDiff[] PROGMEM = "beerDiff";

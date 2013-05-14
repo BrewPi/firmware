@@ -28,6 +28,8 @@
 #include "Actuator.h"
 #include "Sensor.h"
 #include "EepromManager.h"
+#include "ActuatorAutoOff.h"
+
 
 // Set minimum off time to prevent short cycling the compressor in seconds
 #define MIN_COOL_OFF_TIME 300u
@@ -91,6 +93,7 @@ struct ControlConstants{
 	uint8_t beerFastFilter;	// for display and logging
 	uint8_t beerSlowFilter;	// for on/off control algorithm
 	uint8_t beerSlopeFilter;	// for PID calculation
+	uint8_t lightAsHeater;		// use the light to heat rather than the configured heater device
 };
 
 #define EEPROM_TC_SETTINGS_BASE_ADDRESS 0
@@ -202,6 +205,7 @@ class TempControl{
 	TEMP_CONTROL_FIELD Actuator* cooler; 
 	TEMP_CONTROL_FIELD Actuator* light;
 	TEMP_CONTROL_FIELD Actuator* fan;
+	TEMP_CONTROL_FIELD AutoOffActuator cameraLight;
 	TEMP_CONTROL_FIELD Sensor<bool>* door;
 	
 	// Control parameters

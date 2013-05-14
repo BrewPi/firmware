@@ -47,10 +47,14 @@ TempSensor* TempControl::beerSensor;
 TempSensor* TempControl::fridgeSensor;
 BasicTempSensor* TempControl::ambientSensor = &defaultTempSensor;
 
+
 Actuator* TempControl::heater = &defaultActuator;
 Actuator* TempControl::cooler = &defaultActuator;
 Actuator* TempControl::light = &defaultActuator;
 Actuator* TempControl::fan = &defaultActuator;
+
+ValueActuator cameraLightState;		
+AutoOffActuator TempControl::cameraLight(600, &cameraLightState);	// timeout 10 min
 Sensor<bool>* TempControl::door = &defaultSensor;
 	
 // Control parameters
@@ -296,13 +300,10 @@ void TempControl::updateOutputs(void) {
 	if (cs.mode==MODE_TEST)
 		return;
 		
-	cooler->setActive(state==COOLING);	
-#if LIGHT_AS_HEATER
-	heater->setActive(state==DOOR_OPEN || state==HEATING);
-#else
-	heater->setActive(state==HEATING);
-	light->setActive(state==DOOR_OPEN);
-#endif		
+	cameraLight.update();
+	cooler->setActive(state==COOLING);		
+	heater->setActive(!cc.lightAsHeater && state==HEATING);	
+	light->setActive(state==DOOR_OPEN || (cc.lightAsHeater && state==HEATING) || cameraLightState.isActive());	
 	fan->setActive(state==HEATING || state==COOLING);
 }
 

@@ -518,7 +518,9 @@ const PiLink::JsonOutput PiLink::jsonOutputCCMap[] = {
 	JSON_OUTPUT_CC_MAP(fridgeSlopeFilter, JOCC_UINT8),
 	JSON_OUTPUT_CC_MAP(beerFastFilter, JOCC_UINT8),
 	JSON_OUTPUT_CC_MAP(beerSlowFilter, JOCC_UINT8),
-	JSON_OUTPUT_CC_MAP(beerSlopeFilter, JOCC_UINT8)
+	JSON_OUTPUT_CC_MAP(beerSlopeFilter, JOCC_UINT8),
+	
+	JSON_OUTPUT_CC_MAP(lightAsHeater, JOCC_UINT8)
 	
 };
 #endif
@@ -560,6 +562,8 @@ void PiLink::sendControlConstants(void){
 	sendJsonPair(JSONKEY_beerFastFilter, tempControl.cc.beerFastFilter);
 	sendJsonPair(JSONKEY_beerSlowFilter, tempControl.cc.beerSlowFilter);
 	sendJsonPair(JSONKEY_beerSlopeFilter, tempControl.cc.beerSlopeFilter);
+	
+	sendJsonPair(JSONKEY_lightAsHeater, tempControl.cc.lightAsHeater);
 	sendJsonClose();
 #endif	
 }
@@ -815,6 +819,9 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 	else if(strcmp_P(key,JSONKEY_beerSlopeFilter) == 0){
 		tempControl.cc.beerSlopeFilter = atol(val);
 		tempControl.beerSensor->setSlopeFilterCoefficients(tempControl.cc.beerSlopeFilter);
+	}
+	else if(strcmp_P(key,JSONKEY_lightAsHeater) == 0){
+		tempControl.cc.lightAsHeater = atol(val)!=0;
 	}
 	else{
 		debugMessage(PSTR("Could not process setting"));
