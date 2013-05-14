@@ -34,7 +34,6 @@
 #include "pins.h"
 #include "RotaryEncoder.h"
 #include "Buzzer.h"
-#include "chamber.h"
 #include "TempSensor.h"
 #include "MockTempSensor.h"
 #include "OneWireTempSensor.h"

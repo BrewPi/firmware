@@ -29,10 +29,6 @@
 #define BREWPI_EMULATE 0
 #endif
 
-#ifndef MULTICHAMBER 
-#define MULTICHAMBER 0
-#endif
-
 #ifndef TEMP_SENSOR_CASCADED_FILTER
 #define TEMP_SENSOR_CASCADED_FILTER 1
 #endif

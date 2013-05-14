@@ -30,7 +30,6 @@
 #include <limits.h>
 #include <string.h>
 #include "jsonKeys.h"
-#include "chamber.h"
 #include "Ticks.h"
 #include "brewpi_avr.h"
 #include "EepromManager.h"
@@ -97,34 +96,10 @@ void printNibble(uint8_t n)
 void PiLink::receive(void){
 	if (piStream.available() > 0){		
 		char inByte = piStream.read();
-#if MULTICHAMBER
-		char arg = piStream.read();
-		if (arg=='\n') {}
-			switch (inByte) {
-				case 'x': // request chamber info
-				printChamberInfo();
-				return;
-				case 'n':
-				print_P(PSTR("N:\"%S\"\n"), PSTR(VERSION_STRING));
-				break;
-		}
-		
-		chamber_id chamber = arg-'1';		
-		chamber_id prev = chamberManager.currentChamber();
-		if (chamber>=0 && chamber<=9)
-			prev = chamberManager.switchChamber(chamber);
-#else				
-		if (inByte=='\n')		// allow newlines between commands
+		if (inByte=='\n' || inByte=='\r')		// allow newlines between commands
 			return;			
-#endif
-			
+						
 		switch(inByte){
-#if MULTICHAMBER
-		case 'X': // switch chamber
-			prev = chamber;		// don't switch back to the previous chamber
-			printChamberInfo();
-			break;
-#endif	
 
 #if BREWPI_SIMULATE==1
 		case 'y':
@@ -161,13 +136,7 @@ void PiLink::receive(void){
 			print_P(PSTR("N:%S\n"), PSTR(VERSION_STRING));
 			break;
 		case 'l': // Display content requested
-			printResponse('L');
-
-#if MULTICHAMBER			
-			display.setBufferOnly(true);
-			display.printAll();
-#endif			
-						
+			printResponse('L');						
 			piStream.print('[');
 			char stringBuffer[21];
 			for(uint8_t i=0;i<4;i++){
@@ -176,11 +145,7 @@ void PiLink::receive(void){
 				char close = (i<3) ? ',':']';
 				piStream.print(close);
 			}							
-			piStream.print('\n');
-#if MULTICHAMBER		
-			display.setBufferOnly(false);
-#endif			
-						
+			piStream.print('\n');						
 			break;
 		case 'j': // Receive settings as json
 			receiveJson();
@@ -240,25 +205,9 @@ void PiLink::receive(void){
 		default:
 			debugMessage(PSTR("Invalid command received by Arduino: %c"), inByte);
 		}
-
-#if MULTICHAMBER
-		chamberManager.switchChamber(prev);		
-#endif				
 	}
 }
 
-
-#if MULTICHAMBER
-void PiLink::printChamberInfo()
-{
-	printResponse('X');
-	print('{');
-	sendJsonPair(PSTR("chambers"), chamberManager.chamberCount());
-	sendJsonPair(PSTR("current"), chamberManager.currentChamber());
-	print('}');
-	print('\n');
-}
-#endif
 
 #define COMPACT_SERIAL BREWPI_SIMULATE
 #if COMPACT_SERIAL
@@ -389,9 +338,6 @@ void PiLink::debugMessage(const char * message, ...){
 
 void PiLink::printResponse(char type) {
 	piStream.print(type);
-#if MULTICHAMBER
-	print(chamberManager.currentChamber()+'1');
-#endif
 	piStream.print(':');
 	firstPair = true;
 }

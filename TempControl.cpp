@@ -29,7 +29,6 @@
 #include "PiLink.h"
 #include "TempSensor.h"
 #include "Ticks.h"
-#include "chamber.h"
 #include "MockTempSensor.h"
 #include "EepromManager.h"
 #include "DisconnectedTempSensor.h"

@@ -34,7 +34,6 @@
 #include "pins.h"
 #include "RotaryEncoder.h"
 #include "Buzzer.h"
-#include "chamber.h"
 #include "TempSensor.h"
 #include "MockTempSensor.h"
 #include "OneWireTempSensor.h"
@@ -139,17 +138,7 @@ void loop(void)
 	updateSimulationTicks();	
 #endif	
 	
-#if MULTICHAMBER	
-	// update period is 1000ms / num chambers, so still 1000ms update for all chambers. 
-	static chamber_id nextChamber = 0;
-	
-	if(ticks.millis() - lastUpdate >= (1000/chamberManager.chamberCount())) { //update settings every second
-		nextChamber = (nextChamber+1) % chamberManager.chamberCount();
-		DEBUG_MSG(PSTR("loop chamber %d"), nextChamber);
-		chamber_id prev = chamberManager.switchChamber(nextChamber);
-#else
 	if(ticks.millis() - lastUpdate >= (1000)) { //update settings every second
-#endif		
 		lastUpdate = ticks.millis();
 			
 		tempControl.updateTemperatures();
@@ -158,11 +147,7 @@ void loop(void)
 		tempControl.updateState();
 		tempControl.updateOutputs();
 
-#if MULTICHAMBER
-		chamberManager.switchChamber(prev);
-#endif		
-
-#if BREWPI_MENU && !BREWPI_SIMULATE		// disable rotary encoder since this stalls output
+#if BREWPI_MENU && !BREWPI_SIMULATE		// disable rotary encoder for simulator since this stalls output
 		if(rotaryEncoder.pushed()){
 			rotaryEncoder.resetPushed();
 			menu.pickSettingToChange();	
@@ -175,12 +160,9 @@ void loop(void)
 			piLink.printTemperatures();
 			updateCount = 0;
 		}
-
 		static unsigned long lastDisplayUpdate = 0;  // update the display every second
 		if ((::millis()-lastDisplayUpdate)>=1000 && (lastDisplayUpdate+=1000))
-#elif MULTI_CHAMBER
-		if (prev==nextChamber)
-#endif		
+#endif
 		{
 			// update the lcd for the chamber being displayed
 			display.printState();
@@ -191,8 +173,6 @@ void loop(void)
 		
 #if BREWPI_SIMULATE
 		simulator.step();
-#else
-		//piLink.printTemperatures();
 #endif		
 	}	
 #if BREWPI_SIMULATE && !BREWPI_EMULATE
