@@ -13,12 +13,17 @@
  * Do not change this file directly - rather edit ConfigLocal.h
  */
 
+// Set verbosity of debug messages 0-3
+#ifndef BREWPI_DEBUG
+#define BREWPI_DEBUG 1
+#endif
+
 #ifndef BREWPI_ESTIMATOR_MESSAGES
 #define BREWPI_ESTIMATOR_MESSAGES 0
 #endif
 
 #ifndef BREWPI_STATIC_CONFIG
-#define BREWPI_STATIC_CONFIG BREWPI_SHIELD_REV_A
+#define BREWPI_STATIC_CONFIG BREWPI_SHIELD_REV_C
 #endif
 
 /**

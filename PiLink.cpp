@@ -115,12 +115,12 @@ void PiLink::receive(void){
 			tempControl.loadDefaultConstants();
 			display.printStationaryText(); // reprint stationary text to update to right degree unit
 			sendControlConstants(); // update script with new settings
-			debugMessage(PSTR("Default constants loaded."));
+			DEBUG_MSG_1(PSTR("Default constants loaded."));
 			break;
 		case 'S': // Set default settings
 			tempControl.loadDefaultSettings();
 			sendControlSettings(); // update script with new settings
-			debugMessage(PSTR("Default settings loaded."));
+			DEBUG_MSG_1(PSTR("Default settings loaded."));
 			break;
 		case 's': // Control settings requested
 			sendControlSettings();
@@ -174,7 +174,7 @@ void PiLink::receive(void){
 			
 		case 'E': // initialize eeprom
 			eepromManager.initializeEeprom();
-			piLink.debugMessage(PSTR("EEPROM initialized"));
+			DEBUG_MSG_2(PSTR("EEPROM initialized"));
 			settingsManager.loadSettings();
 			break;
 
@@ -196,17 +196,17 @@ void PiLink::receive(void){
 			closeListResponse();
 			break;
 
-#if BREWPI_DEBUG			
+#if (BREWPI_DEBUG > 0)			
 		case 'Z': // zap eeprom
 			eepromManager.zapEeprom();
-			DEBUG_MSG(PSTR("Zapped eeprom."));
+			DEBUG_MSG_1(PSTR("Zapped eeprom."));
 			break;
 #endif
 
 #endif // !BREWPI_SIMULATE
 
 		default:
-			debugMessage(PSTR("Invalid command received by Arduino: %c"), inByte);
+			DEBUG_MSG_1(PSTR("Invalid command received by Arduino: %c"), inByte);
 		}
 	}
 }
@@ -314,21 +314,6 @@ void PiLink::printFridgeAnnotation(const char * annotation, ...){
 	va_end (args);
 }	 
  	  
-void PiLink::debugMessage(const char * message, ...){
-	char tempString[128]; // resulting string limited to 128 chars
-	va_list args;
-	
-	//print 'D:' as prefix
-	printResponse('D');
-	
-	// Using print_P for the Annotation fails. Arguments are not passed correctly. Use Serial directly as a work around.
-	va_start (args, message );
-	vsnprintf_P(tempString, 128, message, args);
-	va_end (args);
-	piStream.print(tempString);
-	piStream.print('\n'); // print newline
-}
-
 void PiLink::printResponse(char type) {
 	piStream.print(type);
 	piStream.print(':');
@@ -346,17 +331,21 @@ void PiLink::closeListResponse() {
 }
 
 
-void PiLink::debugMessageDirect(const char * message, ...){
+void PiLink::debugMessage(const char * message, ...){
 	char tempString[128]; // resulting string limited to 128 chars
 	va_list args;
-	// Using print_P for the Annotation fails. Arguments are not passed correctly. Use  directly as a work around.
+	
+	//print 'D:' as prefix
+	printResponse('D');
+	
+	// Using print_P for the Annotation fails. Arguments are not passed correctly. Use Serial directly as a work around.
 	va_start (args, message );
 	vsnprintf_P(tempString, 128, message, args);
 	va_end (args);
 	piStream.print(tempString);
-
-	print('\n'); // print newline
+	piStream.print('\n'); // print newline
 }
+
 
 void PiLink::sendJsonClose() {
 	piStream.print('}');
@@ -626,7 +615,7 @@ void PiLink::parseJson(ParseJsonCallback fn, void* data)
 	char c = readNext();		
 	if (c!='{')
 	{
-		DEBUG_MSG(PSTR("Expected opening brace got %c"), c);
+		DEBUG_MSG_1(PSTR("Expected { got %c"), c);
 		return;
 	}
 	do {
@@ -687,7 +676,7 @@ static const PROGMEM JsonConvert jsonConverters[] = {
 #endif
 
 void PiLink::processJsonPair(const char * key, const char * val, void* pv){
-	debugMessage(PSTR("Received new setting: %s = %s"), key, val);
+	DEBUG_MSG_1(PSTR("Received new setting: %s = %s"), key, val);
 	if(strcmp_P(key,JSONKEY_mode) == 0){
 		tempControl.setMode(val[0]);
 		piLink.printFridgeAnnotation(PSTR("Mode set to %c in web interface"), val[0]);
@@ -763,7 +752,7 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 		tempControl.cc.lightAsHeater = atol(val)!=0;
 	}
 	else{
-		debugMessage(PSTR("Could not process setting"));
+		DEBUG_MSG_1(PSTR("Could not process setting"));
 	}
 }
 

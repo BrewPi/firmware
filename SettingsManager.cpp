@@ -25,7 +25,7 @@
 
 void SettingsManager::loadSettings()
 {
-	DEBUG_MSG(PSTR("loading settings"));
+	DEBUG_MSG_3(PSTR("loading settings"));
 
 #if !BREWPI_SIMULATE
 	if (!eepromManager.applySettings())
@@ -34,7 +34,7 @@ void SettingsManager::loadSettings()
 		tempControl.loadDefaultConstants();
 	
 		deviceManager.setupUnconfiguredDevices();
-		piLink.debugMessage(PSTR("EEPROM Settings not available. Starting in safe mode."));
+		DEBUG_MSG_1(PSTR("EEPROM Settings not available. Starting in safe mode."));
 	}
 #else
 	

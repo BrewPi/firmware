@@ -20,14 +20,15 @@ fixed7_9 OneWireTempSensor::init(){
 	// save address and pinNr for debug messages
 	char addressString[17];
 	printBytes(sensorAddress, 8, addressString);
-#if BREWPI_DEBUG || BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
+
+#if (BREWPI_DEBUG > 0) && BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
 	uint8_t pinNr = oneWire->pinNr();
 #endif	
 
 	if (sensor==NULL) {
 		sensor = new DallasTemperature(oneWire);
 		if (sensor==NULL) {
-			DEBUG_MSG(PSTR("Not enough SRAM for temp sensor %s"), addressString);
+			DEBUG_MSG_1(PSTR("Not enough SRAM for temp sensor %s"), addressString);
 			setConnected(false);
 			return DEVICE_DISCONNECTED;
 		}
@@ -38,23 +39,23 @@ fixed7_9 OneWireTempSensor::init(){
 	if (!sensorAddress[0]) {
 		if (!sensor->getAddress(sensorAddress, 0)) {
 			// error no sensor found
-			DEBUG_MSG(PSTR("No address for sensor on pin %d"), pinNr);
+			DEBUG_MSG_1(PSTR("No address for sensor on pin %d"), pinNr);
 			if (connected) {
 				// log only on transition from connected to disconnected.				
-				piLink.debugMessage(PSTR("Unable to find address for sensor on pin %d"), pinNr);
+				DEBUG_MSG_1(PSTR("Unable to find address for sensor on pin %d"), pinNr);
 			}
 			setConnected(false);
 			return DEVICE_DISCONNECTED;
 		}
 		else {
-#if BREWPI_DEBUG
+			#if (BREWPI_DEBUG > 0)
 			printBytes(sensorAddress, 8, addressString);
-#endif			
+			#endif	
 		}
 	}
 #endif	
 	
-	DEBUG_MSG(PSTR("fetching initial temperature %d %s"), pinNr, addressString);
+	DEBUG_MSG_3(PSTR("fetching initial temperature %d %s"), pinNr, addressString);
 
 	// This quickly tests if the sensor is connected. Suring the main TempControl loop, we don't want to spend many seconds
 	// scanning each sensor since this brings things to a halt.
@@ -75,33 +76,31 @@ fixed7_9 OneWireTempSensor::init(){
 			sensor->requestTemperatures();
 			wait.millis(750); // delay 750ms for conversion time		
 			temperature = sensor->getTempRaw(sensorAddress);
-			DEBUG_MSG(PSTR("Sensor initial temp read: pin %d %s %d"), pinNr, addressString, temperature);
+			DEBUG_MSG_3(PSTR("Sensor initial temp read: pin %d %s %d"), pinNr, addressString, temperature);
 			if((ticks.millis() - lastRequestTime) > 4000) {
 				setConnected(false);
-				DEBUG_MSG(PSTR("Reporting device disconnected pin %d %s"), pinNr, addressString);
+				DEBUG_MSG_2(PSTR("Reporting device disconnected pin %d %s"), pinNr, addressString);
 				return DEVICE_DISCONNECTED;
 			}
 		}
 	}
-	DEBUG_MSG(PSTR("Sensor final read: pin %d %s %d"), pinNr, addressString, temperature);
 	temperature = constrain(temperature+calibrationOffset, ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5; // sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits		
-	DEBUG_MSG(PSTR("Sensor initialized: pin %d %s %d"), pinNr, addressString, temperature);	
+	DEBUG_MSG_2(PSTR("Sensor initialized: pin %d %s %d"), pinNr, addressString, tempToString(temperature));	
 	setConnected(true);
 	return temperature;
 }
 
 void OneWireTempSensor::setConnected(bool connected) {
 	if (this->connected==connected)
-		return;
+		return; // state is stays the same
 		
 	char addressString[17];
 	printBytes(sensorAddress, 8, addressString);
-	this->connected = connected;	
-	piLink.debugMessage(PSTR("temp sensor %sconnected %s"), connected ? "" : "dis", addressString);
+	this->connected = connected;
+	DEBUG_MSG_1(PSTR("temp sensor %sconnected %s"), connected ? "" : "dis", addressString);
 }
 
 fixed7_9 OneWireTempSensor::read(){
-	
 	if (!connected)
 		return DEVICE_DISCONNECTED;
 	
