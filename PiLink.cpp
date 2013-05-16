@@ -27,6 +27,7 @@
 #include "Display.h"
 #include <stdarg.h>
 #include <avr/pgmspace.h>
+#include <util/delay.h>
 #include <limits.h>
 #include <string.h>
 #include "JsonKeys.h"
@@ -73,7 +74,9 @@ void PiLink::print_P(const char *fmt, ... ){
 	va_start (args, fmt );
 	vsnprintf_P(tmp, 128, fmt, args);
 	va_end (args);
-	piStream.print(tmp);
+	if(piStream){ // if Serial connected (on Leonardo)
+		piStream.print(tmp);
+	}
 }
 
 // create a printf like interface to the Arduino Serial function. Format string stored in RAM
@@ -83,7 +86,9 @@ void PiLink::print(char *fmt, ... ){
 	va_start (args, fmt );
 	vsnprintf(tmp, 128, fmt, args);
 	va_end (args);
-	piStream.print(tmp);
+	if(piStream){
+		piStream.print(tmp);
+	}
 }
 
 void printNibble(uint8_t n)
@@ -574,9 +579,16 @@ void PiLink::sendJsonPair(const char * name, uint8_t val) {
 	sendJsonPair(name, (uint16_t)val);
 }
 
-char readNext()
+int readNext()
 {
-	while (piStream.available()==0) {}
+	uint8_t retries = 0;
+	while (piStream.available()==0) {
+		_delay_us(100);
+		retries++;
+		if(retries >= 10){
+			return -1;
+		}
+	}
 	return piStream.read();		
 }
 /**
@@ -589,7 +601,7 @@ bool parseJsonToken(char* val) {
 	bool result = true;
 	for(;;) // get value
 	{
-		char character = readNext();
+		int character = readNext();
 		if (index==29 || character == '}' || character==-1) {
 			result = false;
 			break;
@@ -612,7 +624,7 @@ void PiLink::parseJson(ParseJsonCallback fn, void* data)
 	char val[30];
 	bool next = true;
 	// read first open brace
-	char c = readNext();		
+	int c = readNext();		
 	if (c!='{')
 	{
 		DEBUG_MSG_1(PSTR("Expected { got %c"), c);
