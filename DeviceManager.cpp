@@ -524,7 +524,8 @@ void DeviceManager::printDevice(device_slot_t slot, DeviceConfig& config, const 
 
 	DeviceType dt = deviceType(config.deviceFunction);
 	if (!firstDeviceOutput) {
-		p.print('\n'); p.print(',');
+		// p.print('\n');
+		p.print(',');
 	}
 	firstDeviceOutput = false;
 	p.print('{');

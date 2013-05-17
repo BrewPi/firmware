@@ -49,6 +49,7 @@ bool PiLink::firstPair;
 		public:
 		void print(char c) {}
 		void print(const char* c) {}
+		void printNewLine() {};
 		int read() { return -1; }
 		int available() { return -1; }
 		void begin(unsigned long) {}
@@ -89,6 +90,10 @@ void PiLink::print(char *fmt, ... ){
 	if(piStream){
 		piStream.print(tmp);
 	}
+}
+
+void PiLink::printNewLine(){
+	piStream.println();
 }
 
 void printNibble(uint8_t n)
@@ -137,7 +142,8 @@ void PiLink::receive(void){
 			sendControlVariables();
 			break;
 		case 'n':
-			print_P(PSTR("N:%S\n"), PSTR(VERSION_STRING));
+			print_P(PSTR("N:%S"), PSTR(VERSION_STRING));
+			printNewLine();
 			break;
 		case 'l': // Display content requested
 			printResponse('L');						
@@ -149,7 +155,7 @@ void PiLink::receive(void){
 				char close = (i<3) ? ',':']';
 				piStream.print(close);
 			}							
-			piStream.print('\n');						
+			printNewLine();						
 			break;
 		case 'j': // Receive settings as json
 			receiveJson();
@@ -162,7 +168,7 @@ void PiLink::receive(void){
 			openListResponse('E');
 			for (uint16_t i=0; i<1024;) {
 				if (i>0) {
-					piLink.print('\n');
+					piLink.printNewLine();
 					piLink.print(',');
 				}
 				piLink.print('\"');
@@ -192,7 +198,7 @@ void PiLink::receive(void){
 		case 'U': // update device		
 			printResponse('U');
 			deviceManager.parseDeviceDefinition(piStream);
-			piLink.print('\n');
+			piLink.printNewLine();
 			break;
 			
 		case 'h': // hardware query
@@ -289,7 +295,8 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
 	if (changed(state, tempControl.getState()))
 		print_P(PSTR("\""JSON_STATE"\":%u,"), tempControl.getState());
 	
-	print_P(PSTR("\""JSON_TIME"\":%lu}\n"), ticks.millis()/1000);		
+	print_P(PSTR("\""JSON_TIME"\":%lu}"), ticks.millis()/1000);		
+	printNewLine();
 }
 
 void PiLink::printTemperatures(void){
@@ -332,7 +339,7 @@ void PiLink::openListResponse(char type) {
 
 void PiLink::closeListResponse() {
 	piStream.print(']');
-	piStream.print('\n');
+	printNewLine();
 }
 
 
@@ -348,13 +355,13 @@ void PiLink::debugMessage(const char * message, ...){
 	vsnprintf_P(tempString, 128, message, args);
 	va_end (args);
 	piStream.print(tempString);
-	piStream.print('\n'); // print newline
+	printNewLine();
 }
 
 
 void PiLink::sendJsonClose() {
 	piStream.print('}');
-	piStream.print('\n');
+	printNewLine();
 }
 
 // Send settings as JSON string
