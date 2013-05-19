@@ -40,6 +40,10 @@ void EepromManager::zapEeprom()
 
 void EepromManager::initializeEeprom()
 {
+	// clear all the eeprom
+	for (uint16_t offset=0; offset<EepromFormat::MAX_EEPROM_SIZE; offset++)
+		eepromAccess.writeByte(offset, 0);
+
 	deviceManager.setupUnconfiguredDevices();
 
 	// fetch the default values
@@ -57,10 +61,6 @@ void EepromManager::initializeEeprom()
 			pv += sizeof(BeerBlock);		// advance to next beer
 		}
 	}
-
-	// clear the rest of eeprom 	
-	for (uint16_t offset=pointerOffset(devices); offset<EepromFormat::MAX_EEPROM_SIZE; offset++)
-		eepromAccess.writeByte(offset, 0);	
 	
 	// set the version flag - so that storeDevice will work
 	eepromAccess.writeByte(0, EEPROM_FORMAT_VERSION);
@@ -143,7 +143,6 @@ bool EepromManager::applySettings()
 			eepromManager.storeDevice(deviceConfig, index);
 		}			
 	}
-
 	return true;
 }
 

@@ -15,13 +15,12 @@
 struct ChamberSettings
 {
 	ControlConstants cc;
-	long reserved1;				// some extra space so that the control constants can be expanded without breaking existing format.
+	byte reserved[4];
 };
 
 struct BeerBlock {
 	ControlSettings cs;
-	bool reserved1;	
-	bool reserved2;	
+	byte reserved[2];
 };
 
 struct ChamberBlock
@@ -39,6 +38,7 @@ struct EepromFormat
 
 	byte version;
 	byte numChambers;
+	byte reserved[4];	
 	ChamberBlock chambers[MAX_CHAMBERS];
 	DeviceConfig devices[MAX_DEVICES];
 };
@@ -68,7 +68,7 @@ void eepromSizeCheck() {
  * Increment this value each time a change is made that is not backwardly-compatible.
  * Either the eeprom will be reset to defaults, or external code will re-establish the values via the piLink interface. 
  */
-#define EEPROM_FORMAT_VERSION 3
+#define EEPROM_FORMAT_VERSION 4
 
 /*
  * Version history:
@@ -76,4 +76,5 @@ void eepromSizeCheck() {
  * rev 1: static config (original avr code)
  * rev 2: initial version dynaconfig
  * rev 3: deactivate flag in DeviceConfig, and additinoal padding to allow for some future expansion.
+ * rev 4: added padding at start and reduced device count to 16. We can always increase later.
  */
