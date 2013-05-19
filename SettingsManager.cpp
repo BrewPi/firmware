@@ -36,6 +36,7 @@ void SettingsManager::loadSettings()
 		deviceManager.setupUnconfiguredDevices();
 		piLink.debugMessage(PSTR("EEPROM Settings not available. Starting in safe mode."));
 	}		
+	
 	if (BREWPI_SIMULATE)
 	{
 		DEBUG_MSG(PSTR("Setting up simulator devices."))
@@ -46,8 +47,7 @@ void SettingsManager::loadSettings()
 	
 		tempControl.ambientSensor = ambient;
 		tempControl.fridgeSensor->setSensor(fridge);
-		tempControl.beerSensor->setSensor(beer);
-		
+		tempControl.beerSensor->setSensor(beer);		
 	}		
 	
 }
