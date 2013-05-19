@@ -383,6 +383,9 @@ void DeviceManager::parseDeviceDefinition(Stream& p)
 	if (dev.pinNr>=0) 
 		target.hw.pinNr = dev.pinNr;
 	
+	if (dev.pio>=0)
+		target.hw.pio = dev.pio;
+	
 	if (dev.calibrationAdjust!=-1)		// since this is a union, it also handles pio for 2413 sensors
 		target.hw.calibration = dev.calibrationAdjust;
 
@@ -865,5 +868,10 @@ void DeviceManager::listDevices(Stream& p) {
 		}
 	}	
 }
+
+#else // !BREWPI_SIMULATE
+	
+	// this is a no-op for the simulator
+	void DeviceManager::setupUnconfiguredDevices() {}
 
 #endif

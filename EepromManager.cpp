@@ -23,7 +23,6 @@ EepromManager::EepromManager()
 	eepromSizeCheck();
 }
 
-#if !BREWPI_SIMULATE
 
 bool EepromManager::hasSettings()
 {
@@ -40,10 +39,6 @@ void EepromManager::zapEeprom()
 
 void EepromManager::initializeEeprom()
 {
-	// clear all the eeprom
-	for (uint16_t offset=0; offset<EepromFormat::MAX_EEPROM_SIZE; offset++)
-		eepromAccess.writeByte(offset, 0);
-
 	deviceManager.setupUnconfiguredDevices();
 
 	// fetch the default values
@@ -61,6 +56,10 @@ void EepromManager::initializeEeprom()
 			pv += sizeof(BeerBlock);		// advance to next beer
 		}
 	}
+
+	// clear the rest of eeprom 	
+	for (uint16_t offset=pointerOffset(devices); offset<EepromFormat::MAX_EEPROM_SIZE; offset++)
+		eepromAccess.writeByte(offset, 0);	
 	
 	// set the version flag - so that storeDevice will work
 	eepromAccess.writeByte(0, EEPROM_FORMAT_VERSION);
@@ -133,15 +132,18 @@ bool EepromManager::applySettings()
 	
 	DEBUG_MSG(PSTR("Applied settings"));
 	
-	DeviceConfig deviceConfig;
-	for (uint8_t index = 0; fetchDevice(deviceConfig, index); index++)
-	{	
-		if (deviceManager.isDeviceValid(deviceConfig, deviceConfig, index))
-			deviceManager.installDevice(deviceConfig);
-		else {
-			clear((uint8_t*)&deviceConfig, sizeof(deviceConfig));
-			eepromManager.storeDevice(deviceConfig, index);
-		}			
+	
+	if (!BREWPI_SIMULATE) {
+		DeviceConfig deviceConfig;
+		for (uint8_t index = 0; fetchDevice(deviceConfig, index); index++)
+		{	
+			if (deviceManager.isDeviceValid(deviceConfig, deviceConfig, index))
+				deviceManager.installDevice(deviceConfig);
+			else {
+				clear((uint8_t*)&deviceConfig, sizeof(deviceConfig));
+				eepromManager.storeDevice(deviceConfig, index);
+			}			
+		}
 	}
 	return true;
 }
@@ -165,6 +167,8 @@ void EepromManager::storeTempSettings()
 	tempControl.storeSettings(pv+offsetof(ChamberBlock, beer[0].cs));	
 }
 
+#if !BREWPI_SIMULATE
+
 bool EepromManager::fetchDevice(DeviceConfig& config, uint8_t deviceIndex)
 {
 	bool ok = (hasSettings() && deviceIndex<EepromFormat::MAX_DEVICES);
@@ -180,11 +184,6 @@ bool EepromManager::storeDevice(const DeviceConfig& config, uint8_t deviceIndex)
 		eepromAccess.writeBlock(pointerOffset(devices)+sizeof(DeviceConfig)*deviceIndex, &config, sizeof(DeviceConfig));	
 	return ok;
 }
-#else  // BREWPI_SIMULATE
-
-// these functions are not used - define them as empty to avoid littering the calling code code with #ifs
-void EepromManager::storeTempConstantsAndSettings() { }
-void EepromManager::storeTempSettings() { }
 
 
 #endif // !BREWPI_SIMULATE

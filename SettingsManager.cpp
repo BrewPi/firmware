@@ -27,26 +27,29 @@ void SettingsManager::loadSettings()
 {
 	DEBUG_MSG(PSTR("loading settings"));
 
-#if !BREWPI_SIMULATE
+
 	if (!eepromManager.applySettings())
 	{
 		tempControl.loadDefaultSettings();
 		tempControl.loadDefaultConstants();
-	
+		
 		deviceManager.setupUnconfiguredDevices();
 		piLink.debugMessage(PSTR("EEPROM Settings not available. Starting in safe mode."));
-	}
-#else
+	}		
+	if (BREWPI_SIMULATE)
+	{
+		DEBUG_MSG(PSTR("Setting up simulator devices."))
+			
+		static ExternalTempSensor* ambient = new ExternalTempSensor(true);
+		static ExternalTempSensor* beer = new ExternalTempSensor(true);
+		static ExternalTempSensor* fridge = new ExternalTempSensor(true);
 	
-	static ExternalTempSensor* ambient = new ExternalTempSensor(true);
-	static ExternalTempSensor* beer = new ExternalTempSensor(true);
-	static ExternalTempSensor* fridge = new ExternalTempSensor(true);
-	
-	tempControl.ambientSensor = ambient;
-	tempControl.fridgeSensor->setSensor(fridge);
-	tempControl.beerSensor->setSensor(beer);
+		tempControl.ambientSensor = ambient;
+		tempControl.fridgeSensor->setSensor(fridge);
+		tempControl.beerSensor->setSensor(beer);
 		
-#endif	
+	}		
+	
 }
 
 SettingsManager settingsManager;
