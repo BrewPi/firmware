@@ -20,17 +20,7 @@
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define VERSION_NUMBER "0.1.0"
-
-#if BREWPI_SIMULATE
-	#define VERSION_INFO "simulate"
-#endif
-
-#ifdef VERSION_INFO
-#define VERSION_STRING VERSION_NUMBER ":" VERSION_INFO
-#else
-#define VERSION_STRING VERSION_NUMBER 
-#endif
+#define VERSION_STRING "0.1.1"
 
 
 #endif /* VERSION_H_ */	
