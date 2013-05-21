@@ -65,7 +65,7 @@ class ExternalTicks {
 	ticks_millis_t millis() { return _ticks; }
 	ticks_micros_t micros() { return _ticks*1000; }	
 	ticks_seconds_t seconds() { return millis()/1000; }	
-	ticks_seconds_t timeSince(ticks_seconds_t timeStamp) { return timeStamp-seconds(); }
+	ticks_seconds_t timeSince(ticks_seconds_t timeStamp);
 			
 	void setMillis(ticks_millis_t now)	{ _ticks = now; }
 	void incMillis(ticks_millis_t advance)	{ _ticks += advance; }

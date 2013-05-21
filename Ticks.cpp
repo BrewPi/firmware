@@ -20,10 +20,8 @@
 #include "Brewpi.h"
 #include "Ticks.h"
 
-
 // return time that has passed since timeStamp, take overflow into account
-ticks_seconds_t HardwareTicks::timeSince(ticks_seconds_t previousTime){
-	ticks_seconds_t currentTime = ticks.seconds();
+inline ticks_seconds_t timeSince(ticks_seconds_t currentTime, ticks_seconds_t previousTime){
 	if(currentTime>=previousTime){
 		return currentTime - previousTime;
 	}
@@ -33,5 +31,20 @@ ticks_seconds_t HardwareTicks::timeSince(ticks_seconds_t previousTime){
 	}
 }
 
+
+
+// return time that has passed since timeStamp, take overflow into account
+ticks_seconds_t HardwareTicks::timeSince(ticks_seconds_t previousTime){
+	ticks_seconds_t currentTime = ticks.seconds();
+	return ::timeSince(currentTime, previousTime);
+}
+
 ticks_seconds_t HardwareTicks::seconds() { return ::millis()/1000; }
 	
+
+// return time that has passed since timeStamp, take overflow into account
+ticks_seconds_t ExternalTicks::timeSince(ticks_seconds_t previousTime){
+	ticks_seconds_t currentTime = ticks.seconds();
+	return ::timeSince(currentTime, previousTime);
+}
+

@@ -425,7 +425,11 @@ uint16_t TempControl::timeSinceIdle(void){
 }
 
 void TempControl::loadDefaultSettings(){
+#if BREWPI_EMULATE
+	setMode(MODE_BEER_CONSTANT);
+#else	
 	setMode(MODE_OFF);
+#endif	
 	cs.beerSetting = 20<<9;;
 	cs.fridgeSetting = 20<<9;
 	cs.heatEstimator = 102; // 0.2*2^9

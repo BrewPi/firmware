@@ -39,7 +39,7 @@ void LcdDisplay::init(void){
 
 //print all temperatures on the LCD
 void LcdDisplay::printAllTemperatures(void){
-	bool displayRoom = ((ticks.seconds()&0x08)==0);
+	bool displayRoom = ((ticks.seconds()&0x08)==0) && !BREWPI_SIMULATE;
 	if (displayRoom ^ ((flags & LCD_FLAG_DISPLAY_ROOM)!=0)) {	// transition
 		if (!tempControl.ambientSensor->isConnected())	{
 			displayRoom = tempControl.ambientSensor->init()!=DEVICE_DISCONNECTED && displayRoom;

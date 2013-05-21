@@ -5,9 +5,7 @@
  *  Author: mat
  */ 
 
-
-#ifndef CONFIG_DEFAULT_H
-#define CONFIG_DEFAULT_H
+#pragma once
 
 /**
  * Do not change this file directly - rather edit ConfigLocal.h
@@ -106,4 +104,14 @@
 	#define ESTIMATOR_MSG(msg,...)  {}
 #endif
 
+#ifndef BREWPI_BOARD
+
+#if defined(USBCON)
+	#define BREWPI_BOARD "leonardo"
+#else
+	#define BREWPI_BOARD "standard"
 #endif
+
+#endif
+
+
