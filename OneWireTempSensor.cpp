@@ -21,9 +21,7 @@ fixed7_9 OneWireTempSensor::init(){
 	char addressString[17];
 	printBytes(sensorAddress, 8, addressString);
 
-#if (BREWPI_DEBUG > 0) && BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
 	uint8_t pinNr = oneWire->pinNr();
-#endif	
 
 	if (sensor==NULL) {
 		sensor = new DallasTemperature(oneWire);
@@ -53,9 +51,11 @@ fixed7_9 OneWireTempSensor::init(){
 			#endif	
 		}
 	}
-#endif	
-	
 	DEBUG_MSG_3(PSTR("fetching initial temperature %d %s"), pinNr, addressString);
+#else	
+	DEBUG_MSG_3(PSTR("fetching initial temperature %s"), addressString);
+#endif
+	
 
 	// This quickly tests if the sensor is connected. Suring the main TempControl loop, we don't want to spend many seconds
 	// scanning each sensor since this brings things to a halt.
@@ -85,7 +85,8 @@ fixed7_9 OneWireTempSensor::init(){
 		}
 	}
 	temperature = constrain(temperature+calibrationOffset, ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5; // sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits		
-	DEBUG_MSG_2(PSTR("Sensor initialized: pin %d %s %d"), pinNr, addressString, tempToString(temperature));	
+	DEBUG_MSG_2(PSTR("Sensor initialized: pin %d %s %s"), pinNr, addressString, temperature);	
+	
 	setConnected(true);
 	return temperature;
 }

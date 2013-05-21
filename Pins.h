@@ -22,7 +22,7 @@
 
 #include "Brewpi.h"
 
-// Most pins are only conditionaly defined here, allowing definitions to be provided in config_local.h for 
+// Most pins are only conditionaly defined here, allowing definitions to be provided in ConfigLocal.h for 
 // local overrides
 
 #define BREWPI_SHIELD_REV_A	1
