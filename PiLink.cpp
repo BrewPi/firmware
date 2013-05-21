@@ -153,8 +153,6 @@ void PiLink::receive(void){
 			receiveJson();
 			break;
 
-#if !BREWPI_SIMULATE		// dynaconfig not needed for simulator
-
 #if BREWPI_EEPROM_HELPER_COMMANDS
 		case 'e': // dump contents of eeprom						
 			openListResponse('E');
@@ -181,6 +179,7 @@ void PiLink::receive(void){
 			settingsManager.loadSettings();
 			break;
 
+#if !BREWPI_SIMULATE		// dynaconfig not needed for simulator
 		case 'd': // list devices in eeprom order
 			openListResponse('d');
 			deviceManager.listDevices(piStream);

@@ -91,8 +91,8 @@ public:
 
 	void step() {
 		// in the simulator, we assume that ValueActuator instances are used for the actuators.
-		heating = PValueActuator(tempControl.heater)->isActive();
-		cooling = PValueActuator(tempControl.cooler)->isActive();		 
+		heating = tempControl.getState()==HEATING || PValueActuator(tempControl.heater)->isActive();
+		cooling = tempControl.getState()==COOLING;// PValueActuator(tempControl.cooler)->isActive();		 
 		doorOpen = PValueSensor(tempControl.door)->sense();
 		// with no serial and no calculation here we get 1500-2000x speedup
 		// with this code enabled, around 1300x speedup
@@ -107,7 +107,7 @@ public:
 
 		TempPair beerTx;
 		TempPair roomTx;
-		double currentRoomTemp = roomTemp();
+		currentRoomTemp = roomTemp();
 		chamberBeerTransfer(fridgeTemp, beerTemp, beerTx);
 		chamberRoomTransfer(fridgeTemp, currentRoomTemp, roomTx);
 
@@ -225,13 +225,19 @@ private:
 		// add noise to the simulated temperature
 		setTemp(tempControl.beerSensor, beerTemp+noise());
 		setTemp(tempControl.fridgeSensor, fridgeTemp+noise());
+		setBasicTemp(*(ExternalTempSensor*)tempControl.ambientSensor, currentRoomTemp);		
+	}
+
+	void setBasicTemp(ExternalTempSensor& sensor, double temp)
+	{
+		fixed7_9 fixedTemp = temp*512>=INT_MAX ? INT_MAX : temp*512<=INT_MIN ? INT_MIN : temp*512L;
+		sensor.setValue(fixedTemp);				
 	}
 
 	void setTemp(TempSensor* sensor, double temp)
 	{
 		ExternalTempSensor& s = (ExternalTempSensor&)(sensor->sensor());
-		fixed7_9 fixedTemp = temp*512>=INT_MAX ? INT_MAX : temp*512<=INT_MIN ? INT_MIN : temp*512L;
-		s.setValue(fixedTemp);
+		setBasicTemp(s, temp);
 	}
 	
 	double noise() {
@@ -351,6 +357,8 @@ private:
 	 * stipulated fermentation duration (e.g. 3 days, 10 days.)
 	 */			
 	double fermentPowerMax;		
+	
+	double currentRoomTemp;
 };
 
 
