@@ -25,7 +25,9 @@ fixed7_9 OneWireTempSensor::init(){
 	char addressString[17];
 	printBytes(sensorAddress, 8, addressString);
 
+#if (BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A && BREWPI_DEBUG>0) || BREWPI_DEBUG>=2
 	uint8_t pinNr = oneWire->pinNr();
+#endif	
 
 	if (sensor==NULL) {
 		sensor = new DallasTemperature(oneWire);
