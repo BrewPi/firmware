@@ -132,41 +132,45 @@ void TempControl::updatePID(void){
 		cv.beerDiff =  cs.beerSetting - beerSensor->readSlowFiltered();
 		cv.beerSlope = beerSensor->readSlope();
 		fixed7_9 fridgeFastFiltered = fridgeSensor->readFastFiltered();
+			
 		if(integralUpdateCounter++ == 60){
 			integralUpdateCounter = 0;
-			if(abs(cv.beerDiff) < cc.iMaxError){
+			
+			fixed7_9 integratorUpdate = cv.beerDiff;
+			if(abs(integratorUpdate) < cc.iMaxError){
 				//difference is smaller than iMaxError, check 4 conditions to see if integrator should be active
+				bool updateSign = (integratorUpdate > 0); // 1 = positive, 0 = negative
+				bool integratorSign = (cv.diffIntegral > 0);		
 				
 				// Actuator is not saturated. Update integrator
-				if((cv.beerDiff >= 0) == (cv.diffIntegral >= 0)){
-					// beerDiff and integrator have same sign. Integrator action is increased.
-					if(timeSinceIdle() > 1800){
-						// more than 30 minutes since idle, actuator is probably saturated. Do not increase integrator.
-					}
-					if(cs.fridgeSetting == cc.tempSettingMax && cs.fridgeSetting == cc.tempSettingMin){
-						// actuator is already at max. Increasing actuator will only cause integrator windup.
-					}
-					else if(cv.beerDiff < 0 && (cs.fridgeSetting +1024) < fridgeFastFiltered){
-						// cooling and fridge temp is more than 2 degrees from setting, actuator is saturated.
-					}
-					else if(cv.beerDiff > 0 && (cs.fridgeSetting -1024) > fridgeFastFiltered){
-						// heating and fridge temp is more than 2 degrees from setting, actuator is saturated.
-					}
-					else{
-						// increase integrator action
-						cv.diffIntegral = cv.diffIntegral + cv.beerDiff;
-					}
+				if(updateSign == integratorSign){
+					// beerDiff and integrator have same sign. Integrator would be increased.
+					
+					// set update to zero when timeSinceIdle > 30 min. Actuator is probably saturated
+					integratorUpdate = (timeSinceIdle() > 1800u) ? 0 : integratorUpdate;
+					
+					// If actuator is already at max increasing actuator will only cause integrator windup.
+					integratorUpdate = (cs.fridgeSetting == cc.tempSettingMax) ? 0 : integratorUpdate;
+					integratorUpdate = (cs.fridgeSetting == cc.tempSettingMin) ? 0 : integratorUpdate;										
+					
+					// cooling and fridge temp is more than 2 degrees from setting, actuator is saturated.
+					integratorUpdate = (!updateSign && (fridgeFastFiltered > (cs.fridgeSetting +1024))) ? 0 : integratorUpdate;
+					
+					// heating and fridge temp is more than 2 degrees from setting, actuator is saturated.
+					integratorUpdate = (updateSign && (fridgeFastFiltered < (cs.fridgeSetting -1024))) ? 0 : integratorUpdate;
+									
 				}
 				else{
 					// integrator action is decreased. Decrease faster than increase.
-					cv.diffIntegral = cv.diffIntegral + 4*cv.beerDiff;
+					integratorUpdate = integratorUpdate*4;
 				}
+				
 			}
 			else{
 				// decrease integral by 1/8 when not close to end value to prevent integrator windup
-				cv.diffIntegral = cv.diffIntegral-(cv.diffIntegral>>3);
-			
+				integratorUpdate = -(cv.diffIntegral >> 3);		
 			}
+			cv.diffIntegral = cv.diffIntegral + integratorUpdate;
 		}			
 		
 		// calculate PID parts. Use fixed23_9 to prevent overflow
