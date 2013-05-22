@@ -443,20 +443,20 @@ bool DeviceManager::isDeviceValid(DeviceConfig& config, DeviceConfig& original, 
 	/* chamber and beer within range.*/
 	if (!inRangeUInt8(config.chamber, 0, EepromFormat::MAX_CHAMBERS))
 	{
-		DEBUG_MSG_1(PSTR("Invalid chamber id %d"), config.chamber);
+		DEBUG_MSG_2(PSTR("Invalid chamber id %d"), config.chamber);
 		return false;
 	}
 
 	/* 0 is allowed - represents a chamber device not assigned to a specific beer */
 	if (!inRangeUInt8(config.beer, 0, ChamberBlock::MAX_BEERS))
 	{
-		DEBUG_MSG_1(PSTR("Invalid beer id %d"), config.beer);
+		DEBUG_MSG_2(PSTR("Invalid beer id %d"), config.beer);
 		return false;
 	}
 
 	if (!inRangeUInt8(config.deviceFunction, 0, DEVICE_MAX-1))
 	{
-		DEBUG_MSG_1(PSTR("Invalid device function %d"), config.deviceFunction);
+		DEBUG_MSG_2(PSTR("Invalid device function %d"), config.deviceFunction);
 		return false;
 	}
 
@@ -464,7 +464,7 @@ bool DeviceManager::isDeviceValid(DeviceConfig& config, DeviceConfig& original, 
 	if (!((owner==DEVICE_OWNER_BEER && config.beer) || (owner==DEVICE_OWNER_CHAMBER && config.chamber) 
 		|| (owner==DEVICE_OWNER_NONE && !config.beer && !config.chamber))) 
 	{
-		DEBUG_MSG_1(PSTR("Invalid config for device owner type %d beer=%d chamber=%d"), owner, config.beer, config.chamber);	
+		DEBUG_MSG_2(PSTR("Invalid config for device owner type %d beer=%d chamber=%d"), owner, config.beer, config.chamber);	
 		return false;
 	}
 		
@@ -473,7 +473,7 @@ bool DeviceManager::isDeviceValid(DeviceConfig& config, DeviceConfig& original, 
 	// The highest id will win.	
 	DeviceType dt = deviceType(config.deviceFunction);
 	if (!isAssignable(dt, config.deviceHardware)) {
-		DEBUG_MSG_1(PSTR("Cannot assign device type %d to hardware %d"), dt, config.deviceHardware);
+		DEBUG_MSG_2(PSTR("Cannot assign device type %d to hardware %d"), dt, config.deviceHardware);
 		return false;
 	}
 			
@@ -482,7 +482,7 @@ bool DeviceManager::isDeviceValid(DeviceConfig& config, DeviceConfig& original, 
 	/* pinNr for a onewire device must be a valid bus. While this won't cause a crash, it's a good idea to validate this. */
 	if (isOneWire(config.deviceHardware)) {	
 		if (!oneWireBus(config.hw.pinNr)) {
-			DEBUG_MSG_1(PSTR("Device is onewire but pin %d is not configured as a onewire bus"), config.hw.pinNr);
+			DEBUG_MSG_2(PSTR("Device is onewire but pin %d is not configured as a onewire bus"), config.hw.pinNr);
 			return false;
 		}
 	}
