@@ -200,20 +200,20 @@ void DeviceManager::uninstallDevice(DeviceConfig& config)
 			s = &unwrapSensor(config.deviceFunction, *ppv);
 			if (s!=&defaultTempSensor) {
 				setSensor(config.deviceFunction, ppv, &defaultTempSensor);
-				DEBUG_MSG_1(PSTR("Uninstalling temp sensor f=%d"), config.deviceFunction);
+				logInfo(INFO_UNINSTALL_TEMP_SENSOR, config.deviceFunction);
 				delete s;
 			}
 			break;
 		case DEVICETYPE_SWITCH_ACTUATOR:
 			if (*ppv!=&defaultActuator) {
-				DEBUG_MSG_1(PSTR("Uninstalling actuator f=%d"), config.deviceFunction);
+				logInfo(INFO_UNINSTALL_ACTUATOR, config.deviceFunction);
 				delete (Actuator*)*ppv;
 				*ppv = &defaultActuator;
 			}
 			break;
 		case DEVICETYPE_SWITCH_SENSOR:
 			if (*ppv!=&defaultSensor) {
-				DEBUG_MSG_1(PSTR("Uninstalling sensor f=%d"), config.deviceFunction);
+				logInfo(INFO_UNINSTALL_SWITCH_SENSOR, config.deviceFunction);
 				delete (SwitchSensor*)*ppv;
 				*ppv = &defaultSensor;
 			}
@@ -237,13 +237,12 @@ void DeviceManager::installDevice(DeviceConfig& config)
 		case DEVICETYPE_NONE:
 			break;
 		case DEVICETYPE_TEMP_SENSOR:
-			DEBUG_MSG_1(PSTR("Installing temp sensor f=%d"), config.deviceFunction);
+			logInfo(INFO_INSTALL_TEMP_SENSOR, config.deviceFunction);
 			// sensor may be wrapped in a TempSensor class, or may stand alone.
 			s = (BasicTempSensor*)createDevice(config, dt);
-#if (BREWPI_DEBUG > 0)
-			if (*ppv==NULL)
-				DEBUG_MSG_1(PSTR("*** OUT OF MEMORY for device f=%d"), config.deviceFunction);
-#endif
+			if (*ppv==NULL){
+				logError(ERROR_OUT_OF_MEMORY_FOR_DEVICE, config.deviceFunction);
+			}
 			if (isBasicSensor(config.deviceFunction)) {
 				s->init();
 				*ppv = s;				

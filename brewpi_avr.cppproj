@@ -201,6 +201,12 @@
     <Compile Include="DallasTemperature.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Debug.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Debug.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="DeviceManager.cpp">
       <SubType>compile</SubType>
     </Compile>

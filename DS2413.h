@@ -81,7 +81,7 @@ public:
 			channelWriteAll((uint8_t)result);
 		}
 		else
-			DEBUG_MSG_2(PSTR("ChannelReadAll failed"));
+			logDeveloper(PSTR("ChannelReadAll failed"));
 	}
 	
 	void channelWriteAll(uint8_t values);

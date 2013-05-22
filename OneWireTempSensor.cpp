@@ -32,7 +32,7 @@ fixed7_9 OneWireTempSensor::init(){
 	if (sensor==NULL) {
 		sensor = new DallasTemperature(oneWire);
 		if (sensor==NULL) {
-			DEBUG_MSG_1(PSTR("Not enough SRAM for temp sensor %s"), addressString);
+			logError(ERROR_SRAM_SENSOR, addressString);
 			setConnected(false);
 			return DEVICE_DISCONNECTED;
 		}
@@ -43,10 +43,10 @@ fixed7_9 OneWireTempSensor::init(){
 	if (!sensorAddress[0]) {
 		if (!sensor->getAddress(sensorAddress, 0)) {
 			// error no sensor found
-			DEBUG_MSG_1(PSTR("No address for sensor on pin %d"), pinNr);
+			logError(ERROR_SENSOR_NO_ADDRESS_ON_PIN, pinNr);
 			if (connected) {
 				// log only on transition from connected to disconnected.				
-				DEBUG_MSG_1(PSTR("Unable to find address for sensor on pin %d"), pinNr);
+				logInfo(INFO_SENSOR_CONNECTED, pinNr);
 			}
 			setConnected(false);
 			return DEVICE_DISCONNECTED;
@@ -57,10 +57,8 @@ fixed7_9 OneWireTempSensor::init(){
 			#endif	
 		}
 	}
-	DEBUG_MSG_3(PSTR("fetching initial temperature %d %s"), pinNr, addressString);
-#else	
-	DEBUG_MSG_3(PSTR("fetching initial temperature %s"), addressString);
 #endif
+	logInfo(INFO_SENSOR_FETCHING_INITIAL_TEMP, addressString);
 	
 
 	// This quickly tests if the sensor is connected. Suring the main TempControl loop, we don't want to spend many seconds
