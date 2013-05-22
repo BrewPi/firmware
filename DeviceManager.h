@@ -103,32 +103,8 @@ inline bool isDigitalPin(DeviceHardware hardware) {
 	return hardware==DEVICE_HARDWARE_PIN;
 }
 
-/**
- * Determines the class of device for the given DeviceID.
- */
-inline DeviceType deviceType(DeviceFunction id) {
-	switch (id) {
-	case DEVICE_CHAMBER_DOOR:
-		return DEVICETYPE_SWITCH_SENSOR;
-		
-	case DEVICE_CHAMBER_HEAT:
-	case DEVICE_CHAMBER_COOL:
-	case DEVICE_CHAMBER_LIGHT:
-	case DEVICE_CHAMBER_FAN:
-	case DEVICE_BEER_HEAT:
-	case DEVICE_BEER_COOL:
-		return DEVICETYPE_SWITCH_ACTUATOR;
-		
-	case DEVICE_CHAMBER_TEMP:
-	case DEVICE_CHAMBER_ROOM_TEMP:
-	case DEVICE_BEER_TEMP:
-	case DEVICE_BEER_TEMP2:
-		return DEVICETYPE_TEMP_SENSOR;
-		
-	default: 
-		return DEVICETYPE_NONE;
-	}
-}	
+extern DeviceType deviceType(DeviceFunction id);
+
 
 /**
  * Determines where this devices belongs.
