@@ -109,12 +109,12 @@ void TempControl::updateTemperatures(void){
 
 fixed7_9 multiplyFixeda7_9b23_9(fixed7_9 a, fixed23_9 b)
 {
-	return ((fixed23_9) a * b)>>9;
+	return constrainTemp(((fixed23_9) a * b)>>9, INT_MIN, INT_MAX);
 }
 
 fixed7_9 multiplyFixed7_9(fixed7_9 a, fixed7_9 b) 
 {	
-	return ((fixed23_9) a * (fixed23_9) b)>>9;	
+	return constrainTemp(((fixed23_9) a * (fixed23_9) b)>>9, INT_MIN, INT_MAX);	
 }
 
 
@@ -132,48 +132,56 @@ void TempControl::updatePID(void){
 		cv.beerDiff =  cs.beerSetting - beerSensor->readSlowFiltered();
 		cv.beerSlope = beerSensor->readSlope();
 		fixed7_9 fridgeFastFiltered = fridgeSensor->readFastFiltered();
+			
 		if(integralUpdateCounter++ == 60){
 			integralUpdateCounter = 0;
-			if(abs(cv.beerDiff) < cc.iMaxError){
+			
+			fixed7_9 integratorUpdate = cv.beerDiff;
+			if(abs(integratorUpdate) < cc.iMaxError){
 				//difference is smaller than iMaxError, check 4 conditions to see if integrator should be active
+				bool updateSign = (integratorUpdate > 0); // 1 = positive, 0 = negative
+				bool integratorSign = (cv.diffIntegral > 0);		
 				
 				// Actuator is not saturated. Update integrator
-				if((cv.beerDiff >= 0) == (cv.diffIntegral >= 0)){
-					// beerDiff and integrator have same sign. Integrator action is increased.
-					if(timeSinceIdle() > 1800){
-						// more than 30 minutes since idle, actuator is probably saturated. Do not increase integrator.
-					}
-					if(cs.fridgeSetting == cc.tempSettingMax && cs.fridgeSetting == cc.tempSettingMin){
-						// actuator is already at max. Increasing actuator will only cause integrator windup.
-					}
-					else if(cv.beerDiff < 0 && (cs.fridgeSetting +1024) < fridgeFastFiltered){
-						// cooling and fridge temp is more than 2 degrees from setting, actuator is saturated.
-					}
-					else if(cv.beerDiff > 0 && (cs.fridgeSetting -1024) > fridgeFastFiltered){
-						// heating and fridge temp is more than 2 degrees from setting, actuator is saturated.
-					}
-					else{
-						// increase integrator action
-						cv.diffIntegral = cv.diffIntegral + cv.beerDiff;
-					}
+				if(updateSign == integratorSign){
+					// beerDiff and integrator have same sign. Integrator would be increased.
+					
+					// set update to zero when timeSinceIdle > 30 min. Actuator is probably saturated
+					integratorUpdate = (timeSinceIdle() > 1800u) ? 0 : integratorUpdate;
+					
+					// If actuator is already at max increasing actuator will only cause integrator windup.
+					integratorUpdate = (cs.fridgeSetting == cc.tempSettingMax) ? 0 : integratorUpdate;
+					integratorUpdate = (cs.fridgeSetting == cc.tempSettingMin) ? 0 : integratorUpdate;										
+					
+					// cooling and fridge temp is more than 2 degrees from setting, actuator is saturated.
+					integratorUpdate = (!updateSign && (fridgeFastFiltered > (cs.fridgeSetting +1024))) ? 0 : integratorUpdate;
+					
+					// heating and fridge temp is more than 2 degrees from setting, actuator is saturated.
+					integratorUpdate = (updateSign && (fridgeFastFiltered < (cs.fridgeSetting -1024))) ? 0 : integratorUpdate;
+									
 				}
 				else{
 					// integrator action is decreased. Decrease faster than increase.
-					cv.diffIntegral = cv.diffIntegral + 4*cv.beerDiff;
+					integratorUpdate = integratorUpdate*4;
 				}
+				
 			}
 			else{
 				// decrease integral by 1/8 when not close to end value to prevent integrator windup
-				cv.diffIntegral = cv.diffIntegral-(cv.diffIntegral>>3);
-			
+				integratorUpdate = -(cv.diffIntegral >> 3);		
 			}
+			cv.diffIntegral = cv.diffIntegral + integratorUpdate;
 		}			
 		
 		// calculate PID parts. Use fixed23_9 to prevent overflow
 		cv.p = multiplyFixed7_9(cc.Kp, cv.beerDiff);
 		cv.i = multiplyFixeda7_9b23_9(cc.Ki, cv.diffIntegral);
-		cv.d = multiplyFixed7_9(cc.Kd, cv.beerSlope);		
-		cs.fridgeSetting = constrain(cs.beerSetting + cv.p + cv.i + cv.d, cc.tempSettingMin, cc.tempSettingMax);
+		cv.d = multiplyFixed7_9(cc.Kd, cv.beerSlope);
+		fixed23_9 newFridgeSetting = cs.beerSetting;
+		newFridgeSetting += cv.p;
+		newFridgeSetting += cv.i;
+		newFridgeSetting += cv.d;		
+		cs.fridgeSetting = constrainTemp(newFridgeSetting, cc.tempSettingMin, cc.tempSettingMax);
 	}
 	else{
 		// FridgeTemperature is set manually, use INT_MIN to indicate
@@ -396,7 +404,7 @@ void TempControl::detectPeaks(void){
 
 // Increase estimator at least 20%, max 50%s
 void TempControl::increaseEstimator(fixed7_9 * estimator, fixed7_9 error){
-	fixed23_9 factor = 614 + constrain(abs(error)>>5, 0, 154); // 1.2 + 3.1% of error, limit between 1.2 and 1.5
+	fixed23_9 factor = 614 + constrainTemp(abs(error)>>5, 0, 154); // 1.2 + 3.1% of error, limit between 1.2 and 1.5
 	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;
 	byte max = byte((INT_MAX*512L)>>24);
 	byte upper = byte(newEstimator>>24);
@@ -406,7 +414,7 @@ void TempControl::increaseEstimator(fixed7_9 * estimator, fixed7_9 error){
 
 // Decrease estimator at least 16.7% (1/1.2), max 33.3% (1/1.5)
 void TempControl::decreaseEstimator(fixed7_9 * estimator, fixed7_9 error){
-	fixed23_9 factor = 426 - constrain(abs(error)>>5, 0, 85); // 0.833 - 3.1% of error, limit between 0.667 and 0.833
+	fixed23_9 factor = 426 - constrainTemp(abs(error)>>5, 0, 85); // 0.833 - 3.1% of error, limit between 0.667 and 0.833
 	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;
 	*estimator = newEstimator>>8; // shift back to normal precision
 	eepromManager.storeTempSettings();

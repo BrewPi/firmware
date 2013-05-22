@@ -60,9 +60,9 @@ struct ControlVariables{
 	fixed7_9 beerDiff;
 	fixed23_9 diffIntegral; // also uses 9 fraction bits, but more integer bits to prevent overflow
 	fixed7_9 beerSlope;
-	fixed23_9 p;
-	fixed23_9 i;
-	fixed23_9 d;
+	fixed7_9 p;
+	fixed7_9 i;
+	fixed7_9 d;
 	fixed7_9 estimatedPeak;
 	fixed7_9 negPeakEstimate; // last estimate
 	fixed7_9 posPeakEstimate;
