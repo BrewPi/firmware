@@ -142,10 +142,11 @@ void PiLink::receive(void){
 			sendControlVariables();
 			break;
 		case 'n':
+
 			// v - version
 			// s - shield type
 			// sim: simulator
-			print_P(PSTR("N:{ver:\"%S\",shield:\"%S\",sim:%d,board:\"%S\"}"), PSTR(VERSION_STRING), PSTR(stringify(BREWPI_STATIC_CONFIG)), BREWPI_SIMULATE, PSTR(BREWPI_BOARD)) ;				
+			print_P(PSTR("N:{ver:\"%S\",shield:\"%S\",sim:%d,board:\"%S\"}"), PSTR(VERSION_STRING), PSTR(stringify(BREWPI_STATIC_CONFIG)), BREWPI_SIMULATE, PSTR(BREWPI_BOARD)) ;
 			printNewLine();
 			break;
 		case 'l': // Display content requested
