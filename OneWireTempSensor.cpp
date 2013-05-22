@@ -9,6 +9,10 @@
 #include "PiLink.h"
 #include "Ticks.h"
 
+OneWireTempSensor::~OneWireTempSensor(){
+	delete sensor;
+};
+
 /**
  * Initializes the temperature sensor.
  * This method is called when the sensor is first created and also any time the sensor reports it's disconnected.

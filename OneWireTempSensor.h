@@ -25,7 +25,7 @@ public:
 	 *    on the bus is used.
 	 * /param calibration	A temperature value that is added to all readings. This can be used to calibrate the sensor.	 
 	 */
-	OneWireTempSensor(OneWire* bus, DeviceAddress address, fixed4_4 calibrationOffset) 
+	OneWireTempSensor(OneWire* bus, DeviceAddress address, fixed4_4 calibrationOffset)
 	: oneWire(bus), sensor(NULL) {
 		lastRequestTime = 0;
 		connected = true;  // assume connected. Transition from connected to disconnected prints a message.
@@ -33,9 +33,7 @@ public:
 		this->calibrationOffset = calibrationOffset;
 	};
 	
-	~OneWireTempSensor(){
-		delete sensor;
-	};
+	~OneWireTempSensor();
 	
 	bool isConnected(void){
 		return connected;

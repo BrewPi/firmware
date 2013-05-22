@@ -114,12 +114,12 @@ char * fixedPointToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, ui
 	return s;
 }
 
-long int convertAndConstrain(fixed23_9 rawTemp, int offset)
+fixed7_9 convertAndConstrain(fixed23_9 rawTemp, int16_t offset)
 {
 	if(tempControl.cc.tempFormat == 'F'){
 		rawTemp = ((rawTemp - offset) * 5) / 9; // convert to store as Celsius
 	}	
-	return constrainTemp(rawTemp, INT_MIN, INT_MAX);	
+	return constrainTemp16(rawTemp);	
 }
 
 fixed7_9 stringToTemp(const char * numberString){
@@ -130,7 +130,7 @@ fixed7_9 stringToTemp(const char * numberString){
 	if(tempControl.cc.tempFormat == 'F'){
 		rawTemp = ((rawTemp - (32 << 9)) * 5) / 9; // convert to store as Celsius
 	}	
-	return constrainTemp(rawTemp, INT_MIN, INT_MAX);
+	return constrainTemp16(rawTemp);
 #endif	
 }
 
@@ -180,7 +180,7 @@ fixed7_9 stringToTempDiff(const char * numberString){
 	if(tempControl.cc.tempFormat == 'F'){
 		rawTempDiff = (rawTempDiff * 5) / 9; // convert to store as Celsius
 	}	
-	return constrainTemp(rawTempDiff, INT_MIN, INT_MAX);	
+	return constrainTemp16(rawTempDiff);	
 #endif	
 }
 
@@ -201,7 +201,9 @@ fixed7_9 tenthsToFixed(int temperature){
 	}
 }
 
-fixed7_9 constrainTemp(fixed23_9 val, fixed7_9 lower, fixed7_9 upper){
+fixed7_9 constrainTemp(fixed23_9 valLong, fixed7_9 lower, fixed7_9 upper){
+	fixed7_9 val = constrainTemp16(valLong);
+	
 	if(val < lower){
 		return lower;
 	}
@@ -209,5 +211,21 @@ fixed7_9 constrainTemp(fixed23_9 val, fixed7_9 lower, fixed7_9 upper){
 	if(val > upper){
 		return upper;
 	}
-	return val;
+	return (fixed7_9)valLong;
+}
+
+fixed7_9 constrainTemp16Impl(int16_t upper)
+{	
+	if (upper<0)		
+		return INT_MIN;
+	else
+		return INT_MAX;	
+}
+
+fixed7_9 constrainTemp16(fixed23_9 val)
+{
+	int16_t upper = val>>16;
+	if (!upper)
+		return fixed7_9(val);
+	return constrainTemp16Impl(upper);
 }

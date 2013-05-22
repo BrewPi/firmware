@@ -57,6 +57,12 @@ fixed7_9 tenthsToFixed(int temperature);
 
 fixed7_9 constrainTemp(fixed23_9 val, fixed7_9 lower, fixed7_9 upper);
 
+fixed7_9 constrainTemp16Impl(int16_t valUpper);
+
+
+fixed7_9 constrainTemp16(fixed23_9 val);
+	
+
 #define OPTIMIZE_TEMPERATURE_FORMATS 1 && OPTIMIZE_GLOBAL
 
 #endif /* TEMPERATUREFORMATS_H_ */

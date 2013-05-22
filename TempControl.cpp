@@ -109,12 +109,12 @@ void TempControl::updateTemperatures(void){
 
 fixed7_9 multiplyFixeda7_9b23_9(fixed7_9 a, fixed23_9 b)
 {
-	return constrainTemp(((fixed23_9) a * b)>>9, INT_MIN, INT_MAX);
+	return constrainTemp16(((fixed23_9) a * b)>>9);
 }
 
 fixed7_9 multiplyFixed7_9(fixed7_9 a, fixed7_9 b) 
 {	
-	return constrainTemp(((fixed23_9) a * (fixed23_9) b)>>9, INT_MIN, INT_MAX);	
+	return constrainTemp16(((fixed23_9) a * (fixed23_9) b)>>9);	
 }
 
 
@@ -181,7 +181,7 @@ void TempControl::updatePID(void){
 		newFridgeSetting += cv.p;
 		newFridgeSetting += cv.i;
 		newFridgeSetting += cv.d;		
-		cs.fridgeSetting = constrainTemp(newFridgeSetting, cc.tempSettingMin, cc.tempSettingMax);
+		cs.fridgeSetting = constrain(constrainTemp16(newFridgeSetting), cc.tempSettingMin, cc.tempSettingMax);
 	}
 	else{
 		// FridgeTemperature is set manually, use INT_MIN to indicate
