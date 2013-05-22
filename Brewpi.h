@@ -22,7 +22,7 @@
  * To customize the build, users may add settings to ConfigLocal.h, or define symbols in the project.
  */
 
-#include "ConfigLocal.h"
+#include "Config.h"
 #include "ConfigDefault.h"
 
 #include <Arduino.h>
