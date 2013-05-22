@@ -27,6 +27,7 @@
 #include "Display.h"
 #include <stdarg.h>
 #include <avr/pgmspace.h>
+#include <util/delay.h>
 #include <limits.h>
 #include <string.h>
 #include "JsonKeys.h"
@@ -48,6 +49,7 @@ bool PiLink::firstPair;
 		public:
 		void print(char c) {}
 		void print(const char* c) {}
+		void printNewLine() {};
 		int read() { return -1; }
 		int available() { return -1; }
 		void begin(unsigned long) {}
@@ -73,7 +75,9 @@ void PiLink::print_P(const char *fmt, ... ){
 	va_start (args, fmt );
 	vsnprintf_P(tmp, 128, fmt, args);
 	va_end (args);
-	piStream.print(tmp);
+	if(piStream){ // if Serial connected (on Leonardo)
+		piStream.print(tmp);
+	}
 }
 
 // create a printf like interface to the Arduino Serial function. Format string stored in RAM
@@ -83,7 +87,13 @@ void PiLink::print(char *fmt, ... ){
 	va_start (args, fmt );
 	vsnprintf(tmp, 128, fmt, args);
 	va_end (args);
-	piStream.print(tmp);
+	if(piStream){
+		piStream.print(tmp);
+	}
+}
+
+void PiLink::printNewLine(){
+	piStream.println();
 }
 
 void printNibble(uint8_t n)
@@ -115,12 +125,12 @@ void PiLink::receive(void){
 			tempControl.loadDefaultConstants();
 			display.printStationaryText(); // reprint stationary text to update to right degree unit
 			sendControlConstants(); // update script with new settings
-			debugMessage(PSTR("Default constants loaded."));
+			DEBUG_MSG_1(PSTR("Default constants loaded."));
 			break;
 		case 'S': // Set default settings
 			tempControl.loadDefaultSettings();
 			sendControlSettings(); // update script with new settings
-			debugMessage(PSTR("Default settings loaded."));
+			DEBUG_MSG_1(PSTR("Default settings loaded."));
 			break;
 		case 's': // Control settings requested
 			sendControlSettings();
@@ -135,7 +145,8 @@ void PiLink::receive(void){
 			// v - version
 			// s - shield type
 			// sim: simulator
-			print_P(PSTR("N:{ver:\"%S\",shield:\"%S\",sim:%d,board:\"%S\"}\n"), PSTR(VERSION_STRING), PSTR(stringify(BREWPI_STATIC_CONFIG)), BREWPI_SIMULATE, PSTR(BREWPI_BOARD)) ;				
+			print_P(PSTR("N:{ver:\"%S\",shield:\"%S\",sim:%d,board:\"%S\"}"), PSTR(VERSION_STRING), PSTR(stringify(BREWPI_STATIC_CONFIG)), BREWPI_SIMULATE, PSTR(BREWPI_BOARD)) ;				
+			printNewLine();
 			break;
 		case 'l': // Display content requested
 			printResponse('L');						
@@ -147,7 +158,7 @@ void PiLink::receive(void){
 				char close = (i<3) ? ',':']';
 				piStream.print(close);
 			}							
-			piStream.print('\n');						
+			printNewLine();						
 			break;
 		case 'j': // Receive settings as json
 			receiveJson();
@@ -158,7 +169,7 @@ void PiLink::receive(void){
 			openListResponse('E');
 			for (uint16_t i=0; i<1024;) {
 				if (i>0) {
-					piLink.print('\n');
+					piLink.printNewLine();
 					piLink.print(',');
 				}
 				piLink.print('\"');
@@ -175,7 +186,7 @@ void PiLink::receive(void){
 			
 		case 'E': // initialize eeprom
 			eepromManager.initializeEeprom();
-			piLink.debugMessage(PSTR("EEPROM initialized"));
+			DEBUG_MSG_2(PSTR("EEPROM initialized"));
 			settingsManager.loadSettings();
 			break;
 
@@ -189,7 +200,7 @@ void PiLink::receive(void){
 		case 'U': // update device		
 			printResponse('U');
 			deviceManager.parseDeviceDefinition(piStream);
-			piLink.print('\n');
+			piLink.printNewLine();
 			break;
 			
 		case 'h': // hardware query
@@ -198,17 +209,17 @@ void PiLink::receive(void){
 			closeListResponse();
 			break;
 
-#if BREWPI_DEBUG			
+#if (BREWPI_DEBUG > 0)			
 		case 'Z': // zap eeprom
 			eepromManager.zapEeprom();
-			DEBUG_MSG(PSTR("Zapped eeprom."));
+			DEBUG_MSG_1(PSTR("Zapped eeprom."));
 			break;
 #endif
 
 #endif // !BREWPI_SIMULATE
 
 		default:
-			debugMessage(PSTR("Invalid command received by Arduino: %c"), inByte);
+			DEBUG_MSG_1(PSTR("Invalid command received by Arduino: %c"), inByte);
 		}
 	}
 }
@@ -286,7 +297,8 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
 	if (changed(state, tempControl.getState()))
 		print_P(PSTR("\""JSON_STATE"\":%u,"), tempControl.getState());
 	
-	print_P(PSTR("\""JSON_TIME"\":%lu}\n"), ticks.millis()/1000);		
+	print_P(PSTR("\""JSON_TIME"\":%lu}"), ticks.millis()/1000);		
+	printNewLine();
 }
 
 void PiLink::printTemperatures(void){
@@ -316,21 +328,6 @@ void PiLink::printFridgeAnnotation(const char * annotation, ...){
 	va_end (args);
 }	 
  	  
-void PiLink::debugMessage(const char * message, ...){
-	char tempString[128]; // resulting string limited to 128 chars
-	va_list args;
-	
-	//print 'D:' as prefix
-	printResponse('D');
-	
-	// Using print_P for the Annotation fails. Arguments are not passed correctly. Use Serial directly as a work around.
-	va_start (args, message );
-	vsnprintf_P(tempString, 128, message, args);
-	va_end (args);
-	piStream.print(tempString);
-	piStream.print('\n'); // print newline
-}
-
 void PiLink::printResponse(char type) {
 	piStream.print(type);
 	piStream.print(':');
@@ -344,25 +341,29 @@ void PiLink::openListResponse(char type) {
 
 void PiLink::closeListResponse() {
 	piStream.print(']');
-	piStream.print('\n');
+	printNewLine();
 }
 
 
-void PiLink::debugMessageDirect(const char * message, ...){
+void PiLink::debugMessage(const char * message, ...){
 	char tempString[128]; // resulting string limited to 128 chars
 	va_list args;
-	// Using print_P for the Annotation fails. Arguments are not passed correctly. Use  directly as a work around.
+	
+	//print 'D:' as prefix
+	printResponse('D');
+	
+	// Using print_P for the Annotation fails. Arguments are not passed correctly. Use Serial directly as a work around.
 	va_start (args, message );
 	vsnprintf_P(tempString, 128, message, args);
 	va_end (args);
 	piStream.print(tempString);
-
-	print('\n'); // print newline
+	printNewLine();
 }
+
 
 void PiLink::sendJsonClose() {
 	piStream.print('}');
-	piStream.print('\n');
+	printNewLine();
 }
 
 // Send settings as JSON string
@@ -587,9 +588,16 @@ void PiLink::sendJsonPair(const char * name, uint8_t val) {
 	sendJsonPair(name, (uint16_t)val);
 }
 
-char readNext()
+int readNext()
 {
-	while (piStream.available()==0) {}
+	uint8_t retries = 0;
+	while (piStream.available()==0) {
+		_delay_us(100);
+		retries++;
+		if(retries >= 10){
+			return -1;
+		}
+	}
 	return piStream.read();		
 }
 /**
@@ -602,7 +610,7 @@ bool parseJsonToken(char* val) {
 	bool result = true;
 	for(;;) // get value
 	{
-		char character = readNext();
+		int character = readNext();
 		if (index==29 || character == '}' || character==-1) {
 			result = false;
 			break;
@@ -625,10 +633,10 @@ void PiLink::parseJson(ParseJsonCallback fn, void* data)
 	char val[30];
 	bool next = true;
 	// read first open brace
-	char c = readNext();		
+	int c = readNext();		
 	if (c!='{')
 	{
-		DEBUG_MSG(PSTR("Expected opening brace got %c"), c);
+		DEBUG_MSG_1(PSTR("Expected { got %c"), c);
 		return;
 	}
 	do {
@@ -689,7 +697,7 @@ static const PROGMEM JsonConvert jsonConverters[] = {
 #endif
 
 void PiLink::processJsonPair(const char * key, const char * val, void* pv){
-	debugMessage(PSTR("Received new setting: %s = %s"), key, val);
+	DEBUG_MSG_1(PSTR("Received new setting: %s = %s"), key, val);
 	if(strcmp_P(key,JSONKEY_mode) == 0){
 		tempControl.setMode(val[0]);
 		piLink.printFridgeAnnotation(PSTR("Mode set to %c in web interface"), val[0]);
@@ -765,7 +773,7 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 		tempControl.cc.lightAsHeater = atol(val)!=0;
 	}
 	else{
-		debugMessage(PSTR("Could not process setting"));
+		DEBUG_MSG_1(PSTR("Could not process setting"));
 	}
 }
 

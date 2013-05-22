@@ -200,20 +200,20 @@ void DeviceManager::uninstallDevice(DeviceConfig& config)
 			s = &unwrapSensor(config.deviceFunction, *ppv);
 			if (s!=&defaultTempSensor) {
 				setSensor(config.deviceFunction, ppv, &defaultTempSensor);
-				DEBUG_MSG(PSTR("Uninstalling temp sensor f=%d"), config.deviceFunction);
+				DEBUG_MSG_1(PSTR("Uninstalling temp sensor f=%d"), config.deviceFunction);
 				delete s;
 			}
 			break;
 		case DEVICETYPE_SWITCH_ACTUATOR:
 			if (*ppv!=&defaultActuator) {
-				DEBUG_MSG(PSTR("Uninstalling actuator f=%d"), config.deviceFunction);
+				DEBUG_MSG_1(PSTR("Uninstalling actuator f=%d"), config.deviceFunction);
 				delete (Actuator*)*ppv;
 				*ppv = &defaultActuator;
 			}
 			break;
 		case DEVICETYPE_SWITCH_SENSOR:
 			if (*ppv!=&defaultSensor) {
-				DEBUG_MSG(PSTR("Uninstalling sensor f=%d"), config.deviceFunction);
+				DEBUG_MSG_1(PSTR("Uninstalling sensor f=%d"), config.deviceFunction);
 				delete (SwitchSensor*)*ppv;
 				*ppv = &defaultSensor;
 			}
@@ -237,12 +237,12 @@ void DeviceManager::installDevice(DeviceConfig& config)
 		case DEVICETYPE_NONE:
 			break;
 		case DEVICETYPE_TEMP_SENSOR:
-			DEBUG_MSG(PSTR("Installing temp sensor f=%d"), config.deviceFunction);
+			DEBUG_MSG_1(PSTR("Installing temp sensor f=%d"), config.deviceFunction);
 			// sensor may be wrapped in a TempSensor class, or may stand alone.
 			s = (BasicTempSensor*)createDevice(config, dt);
-#if BREWPI_DEBUG
+#if (BREWPI_DEBUG > 0)
 			if (*ppv==NULL)
-				DEBUG_MSG(PSTR("*** OUT OF MEMORY for device f=%d"), config.deviceFunction);
+				DEBUG_MSG_1(PSTR("*** OUT OF MEMORY for device f=%d"), config.deviceFunction);
 #endif
 			if (isBasicSensor(config.deviceFunction)) {
 				s->init();
@@ -256,11 +256,11 @@ void DeviceManager::installDevice(DeviceConfig& config)
 			break;
 		case DEVICETYPE_SWITCH_ACTUATOR:
 		case DEVICETYPE_SWITCH_SENSOR:
-			DEBUG_MSG(PSTR("Installing device f=%d"), config.deviceFunction);
+			DEBUG_MSG_1(PSTR("Installing device f=%d"), config.deviceFunction);
 			*ppv = createDevice(config, dt);
-#if BREWPI_DEBUG
+#if (BREWPI_DEBUG > 0)
 			if (*ppv==NULL)
-				DEBUG_MSG(PSTR("*** OUT OF MEMORY for device f=%d"), config.deviceFunction);
+				DEBUG_MSG_1(PSTR("*** OUT OF MEMORY for device f=%d"), config.deviceFunction);
 #endif			
 			break;
 	}	
@@ -323,7 +323,7 @@ inline int8_t indexOf(const char* s, char c)
 void handleDeviceDefinition(const char* key, const char* val, void* pv)
 {
 	DeviceDefinition* def = (DeviceDefinition*) pv;
-	DEBUG_MSG(PSTR("deviceDef %s:%s"), key, val);
+	DEBUG_MSG_3(PSTR("deviceDef %s:%s"), key, val);
 	
 	// the characters are listed in the same order as the DeviceDefinition struct.
 	int8_t idx = indexOf(DeviceDefinition::ORDER, key[0]);
@@ -417,7 +417,7 @@ void DeviceManager::parseDeviceDefinition(Stream& p)
 		eepromManager.storeDevice(target, dev.id);		
 	}	
 	else {
-		DEBUG_MSG("Device definition update spec is not valid");
+		DEBUG_MSG_1("Device def update spec is invalid");
 	}
 	
 	deviceManager.beginDeviceOutput();
@@ -443,20 +443,20 @@ bool DeviceManager::isDeviceValid(DeviceConfig& config, DeviceConfig& original, 
 	/* chamber and beer within range.*/
 	if (!inRangeUInt8(config.chamber, 0, EepromFormat::MAX_CHAMBERS))
 	{
-		DEBUG_MSG(PSTR("Invalid chamber id %d"), config.chamber);
+		DEBUG_MSG_1(PSTR("Invalid chamber id %d"), config.chamber);
 		return false;
 	}
 
 	/* 0 is allowed - represents a chamber device not assigned to a specific beer */
 	if (!inRangeUInt8(config.beer, 0, ChamberBlock::MAX_BEERS))
 	{
-		DEBUG_MSG(PSTR("Invalid beer id %d"), config.beer);
+		DEBUG_MSG_1(PSTR("Invalid beer id %d"), config.beer);
 		return false;
 	}
 
 	if (!inRangeUInt8(config.deviceFunction, 0, DEVICE_MAX-1))
 	{
-		DEBUG_MSG(PSTR("Invalid device function %d"), config.deviceFunction);
+		DEBUG_MSG_1(PSTR("Invalid device function %d"), config.deviceFunction);
 		return false;
 	}
 
@@ -464,7 +464,7 @@ bool DeviceManager::isDeviceValid(DeviceConfig& config, DeviceConfig& original, 
 	if (!((owner==DEVICE_OWNER_BEER && config.beer) || (owner==DEVICE_OWNER_CHAMBER && config.chamber) 
 		|| (owner==DEVICE_OWNER_NONE && !config.beer && !config.chamber))) 
 	{
-		DEBUG_MSG(PSTR("Invalid config for device owner type %d beer=%d chamber=%d"), owner, config.beer, config.chamber);	
+		DEBUG_MSG_1(PSTR("Invalid config for device owner type %d beer=%d chamber=%d"), owner, config.beer, config.chamber);	
 		return false;
 	}
 		
@@ -473,7 +473,7 @@ bool DeviceManager::isDeviceValid(DeviceConfig& config, DeviceConfig& original, 
 	// The highest id will win.	
 	DeviceType dt = deviceType(config.deviceFunction);
 	if (!isAssignable(dt, config.deviceHardware)) {
-		DEBUG_MSG(PSTR("Cannot assign device type %d to hardware %d"), dt, config.deviceHardware);
+		DEBUG_MSG_1(PSTR("Cannot assign device type %d to hardware %d"), dt, config.deviceHardware);
 		return false;
 	}
 			
@@ -482,7 +482,7 @@ bool DeviceManager::isDeviceValid(DeviceConfig& config, DeviceConfig& original, 
 	/* pinNr for a onewire device must be a valid bus. While this won't cause a crash, it's a good idea to validate this. */
 	if (isOneWire(config.deviceHardware)) {	
 		if (!oneWireBus(config.hw.pinNr)) {
-			DEBUG_MSG(PSTR("Device is onewire but pin %d is not configured as a onewire bus"), config.hw.pinNr);
+			DEBUG_MSG_1(PSTR("Device is onewire but pin %d is not configured as a onewire bus"), config.hw.pinNr);
 			return false;
 		}
 	}
@@ -529,7 +529,8 @@ void DeviceManager::printDevice(device_slot_t slot, DeviceConfig& config, const 
 
 	DeviceType dt = deviceType(config.deviceFunction);
 	if (!firstDeviceOutput) {
-		p.print('\n'); p.print(',');
+		// p.print('\n');
+		p.print(',');
 	}
 	firstDeviceOutput = false;
 	p.print('{');
@@ -620,7 +621,7 @@ struct EnumerateHardware
 void handleHardwareSpec(const char* key, const char* val, void* pv)
 {
 	EnumerateHardware* h = (EnumerateHardware*)pv;
-	DEBUG_MSG(PSTR("hardwareSpec %s:%s"), key, val);
+	DEBUG_MSG_3(PSTR("hardwareSpec %s:%s"), key, val);
 	
 	int8_t idx = indexOf("hpvuf", key[0]);
 	if (idx>=0) {
@@ -683,9 +684,9 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardwa
 	if (h.function && !isAssignable(deviceType(DeviceFunction(h.function)), config.deviceHardware)) 
 		return; // device not applicable for required function
 	
-	DEBUG_MSG(PSTR("Handling device"));
+	DEBUG_MSG_3(PSTR("Handling device"));
 	out.slot = findHardwareDevice(config);
-	DEBUG_MSG(PSTR("Matching device at slot %d"), out.slot);
+	DEBUG_MSG_2(PSTR("Matching device at slot %d"), out.slot);
 	
 	if (isDefinedSlot(out.slot)) {
 		if (h.unused)	// only list unused devices, and this one is already used
@@ -696,7 +697,7 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardwa
 	
 	out.value[0] = 0;
 	if (h.values) {
-		DEBUG_MSG(PSTR("Fetching device value"));
+		DEBUG_MSG_3(PSTR("Fetching device value"));
 		switch (config.deviceHardware) {
 			case DEVICE_HARDWARE_ONEWIRE_TEMP:
 				readTempSensorValue(config.hw, out.value);
@@ -707,7 +708,7 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardwa
 				break;							
 		}
 	}	
-	DEBUG_MSG(PSTR("Passing device to callback"));
+	DEBUG_MSG_3(PSTR("Passing device to callback"));
 	callback(&config, &out);
 }
 
@@ -736,19 +737,19 @@ void DeviceManager::enumeratePinDevices(EnumerateHardware& h, EnumDevicesCallbac
 void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCallback callback, DeviceOutput& output)
 {		
 	int8_t pin;	
-	DEBUG_MSG(PSTR("Enumerating one-wire devices"));
+	DEBUG_MSG_3(PSTR("Enumerating one-wire devices"));
 	for (uint8_t count=0; (pin=deviceManager.enumOneWirePins(count))>=0; count++) {
 		DeviceConfig config;
 		clear((uint8_t*)&config, sizeof(config));
 		if (h.pin!=-1 && h.pin!=pin)
 			continue;
 		config.hw.pinNr = pin;
-		DEBUG_MSG(PSTR("Enumerating one-wire devices on pin %d"), pin);				
+		DEBUG_MSG_3(PSTR("Enumerating one-wire devices on pin %d"), pin);				
 		OneWire* wire = oneWireBus(pin);	
 		if (wire!=NULL) {
 			wire->reset_search();
 			while (wire->search(config.hw.address)) {
-				// hardware device type from onewire family ID
+				// hardware device type from OneWire family ID
 				switch (config.hw.address[0]) {
 		#if BREWPI_DS2413
 					case DS2413_FAMILY_ID:
@@ -778,7 +779,7 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCal
 				}
 			}
 		}
-		DEBUG_MSG(PSTR("Enumerating one-wire devices on pin %d complete"), pin);
+		DEBUG_MSG_3(PSTR("Enumerating one-wire devices on pin %d complete"), pin);
 	}	
 }
 
@@ -796,7 +797,7 @@ void DeviceManager::enumerateHardware( Stream& p )
 	DeviceOutput out;
 	out.pp = &p;
 
-	DEBUG_MSG(PSTR("Enumerating Hardware"));
+	DEBUG_MSG_3(PSTR("Enumerating Hardware"));
 	firstDeviceOutput = true;
 	if (spec.hardware==-1 || isOneWire(DeviceHardware(spec.hardware))) {
 		enumerateOneWireDevices(spec, OutputEnumeratedDevices, out);
@@ -805,14 +806,14 @@ void DeviceManager::enumerateHardware( Stream& p )
 		enumeratePinDevices(spec, OutputEnumeratedDevices, out);
 	}
 	
-	DEBUG_MSG(PSTR("Enumerating Hardware Complete"));
+	DEBUG_MSG_3(PSTR("Enumerating Hardware Complete"));
 }
 
 
 void HandleDeviceDisplay(const char* key, const char* val, void* pv)
 {
 	DeviceDisplay& dd = *(DeviceDisplay*)pv;
-	//DEBUG_MSG(PSTR("DeviceDisplay %s:%s"), key, val);
+	//DEBUG_MSG_3(PSTR("DeviceDisplay %s:%s"), key, val);
 	
 	int8_t idx = indexOf("irwe", key[0]);
 	if (idx>=0) {
@@ -832,7 +833,7 @@ void UpdateDeviceState(DeviceDisplay& dd, DeviceConfig& dc, char* val)
 
 	if (dd.write>=0 && dt==DEVICETYPE_SWITCH_ACTUATOR) {
 		// write value to a specific device. For now, only actuators are relevant targets
-		DEBUG_MSG(PSTR("setting activator state %d"), dd.write!=0);
+		DEBUG_MSG_2(PSTR("setting activator state %d"), dd.write!=0);
 		((Actuator*)*ppv)->setActive(dd.write!=0);
 	}
 	else if (dd.value==1) {		// read values 

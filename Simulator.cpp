@@ -126,7 +126,7 @@ void setTicks(ExternalTicks& externalTicks, const char* val, int multiplier=1000
 			externalTicks.incMillis(atol(val+1)*multiplier);
 	}
 	
-	DEBUG_MSG(PSTR("New ticks %lu"), externalTicks.millis());
+	DEBUG_MSG_3(PSTR("New ticks %lu"), externalTicks.millis());
 }
 
 
@@ -142,7 +142,6 @@ void HandleSimulatorConfig(const char* key, const char* val, void* pv)
 {
 	// this set the system timer, but not the simulator counter
 	if (strcmp_P(key, PSTR("s"))==0) {
-		//DEBUG_MSG(PSTR("setting seconds to %s"), val);
 		setTicks(ticks, val, 1000);
 	}
 	// these are all doubles - could replace this with a map of string keys to methods
@@ -186,11 +185,9 @@ void HandleSimulatorConfig(const char* key, const char* val, void* pv)
 		simulator.setConnected(tempControl.fridgeSensor, strcmp(val, "0")!=0);
 	}		
 	else if (strcmp_P(key, SimulatorDoorState)==0) {		// 0 for closed, anything else for open
-		//DEBUG_MSG(PSTR("setting door state to %s"), val);
 		simulator.setSwitch(tempControl.door, strcmp(val, "0")!=0);
 	}
 	else if (strcmp_P(key, PSTR("r"))==0) {
-		//DEBUG_MSG(PSTR("setting run factor to %s"), val);
 		setRunFactor(stringToFixedPoint(val));
 	}
 	else if (!strcmp_P(key, SimulatorPrintInterval)) {

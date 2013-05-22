@@ -55,7 +55,7 @@ class PiLink{
 	static void printBeerAnnotation(const char * annotation, ...);
 
 	static void debugMessage(const char * message, ...);
-	static void debugMessageDirect(const char * message, ...);
+
 	static void printTemperatures(void);
 	
 	typedef void (*ParseJsonCallback)(const char* key, const char* val, void* data);
@@ -74,6 +74,7 @@ class PiLink{
 	static void print(char *fmt, ...); // use when format string is stored in RAM
 	static void print(char c) { Serial.print(c); }
 	static void print_P(const char *fmt, ...); // use when format string is stored in PROGMEM with PSTR("string")
+	static void printNewLine(void);
 	static void printChamberCount();
 	
 	private:
@@ -137,15 +138,23 @@ class PiLink{
 
 extern PiLink piLink;
 
-#ifndef BREWPI_DEBUG
-#define BREWPI_DEBUG 0
-#endif
+// BREWPI_DEBUG is set in ConfigDefault.h
 
-#if BREWPI_DEBUG
-#define DEBUG_MSG(...) piLink.debugMessageDirect(__VA_ARGS__);
+#if (BREWPI_DEBUG > 0)
+#define DEBUG_MSG_1(...) piLink.debugMessage(__VA_ARGS__);
 #else
-#define DEBUG_MSG(...)
+#define DEBUG_MSG_1(...)
 #endif
 
+#if (BREWPI_DEBUG > 1)
+#define DEBUG_MSG_2(...) piLink.debugMessage(__VA_ARGS__);
+#else
+#define DEBUG_MSG_2(...)
+#endif
+#if (BREWPI_DEBUG > 2)
+#define DEBUG_MSG_3(...) piLink.debugMessage(__VA_ARGS__);
+#else
+#define DEBUG_MSG_3(...)
+#endif
 
 #endif /* PILINK_H_ */
