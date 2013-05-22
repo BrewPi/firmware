@@ -109,12 +109,12 @@ void TempControl::updateTemperatures(void){
 
 fixed7_9 multiplyFixeda7_9b23_9(fixed7_9 a, fixed23_9 b)
 {
-	return ((fixed23_9) a * b)>>9;
+	return constrainTemp(((fixed23_9) a * b)>>9, INT_MIN, INT_MAX);
 }
 
 fixed7_9 multiplyFixed7_9(fixed7_9 a, fixed7_9 b) 
 {	
-	return ((fixed23_9) a * (fixed23_9) b)>>9;	
+	return constrainTemp(((fixed23_9) a * (fixed23_9) b)>>9, INT_MIN, INT_MAX);	
 }
 
 
@@ -176,8 +176,12 @@ void TempControl::updatePID(void){
 		// calculate PID parts. Use fixed23_9 to prevent overflow
 		cv.p = multiplyFixed7_9(cc.Kp, cv.beerDiff);
 		cv.i = multiplyFixeda7_9b23_9(cc.Ki, cv.diffIntegral);
-		cv.d = multiplyFixed7_9(cc.Kd, cv.beerSlope);		
-		cs.fridgeSetting = constrain(cs.beerSetting + cv.p + cv.i + cv.d, cc.tempSettingMin, cc.tempSettingMax);
+		cv.d = multiplyFixed7_9(cc.Kd, cv.beerSlope);
+		fixed23_9 newFridgeSetting = cs.beerSetting;
+		newFridgeSetting += cv.p;
+		newFridgeSetting += cv.i;
+		newFridgeSetting += cv.d;		
+		cs.fridgeSetting = constrainTemp(newFridgeSetting, cc.tempSettingMin, cc.tempSettingMax);
 	}
 	else{
 		// FridgeTemperature is set manually, use INT_MIN to indicate
@@ -400,7 +404,7 @@ void TempControl::detectPeaks(void){
 
 // Increase estimator at least 20%, max 50%s
 void TempControl::increaseEstimator(fixed7_9 * estimator, fixed7_9 error){
-	fixed23_9 factor = 614 + constrain(abs(error)>>5, 0, 154); // 1.2 + 3.1% of error, limit between 1.2 and 1.5
+	fixed23_9 factor = 614 + constrainTemp(abs(error)>>5, 0, 154); // 1.2 + 3.1% of error, limit between 1.2 and 1.5
 	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;
 	byte max = byte((INT_MAX*512L)>>24);
 	byte upper = byte(newEstimator>>24);
@@ -410,7 +414,7 @@ void TempControl::increaseEstimator(fixed7_9 * estimator, fixed7_9 error){
 
 // Decrease estimator at least 16.7% (1/1.2), max 33.3% (1/1.5)
 void TempControl::decreaseEstimator(fixed7_9 * estimator, fixed7_9 error){
-	fixed23_9 factor = 426 - constrain(abs(error)>>5, 0, 85); // 0.833 - 3.1% of error, limit between 0.667 and 0.833
+	fixed23_9 factor = 426 - constrainTemp(abs(error)>>5, 0, 85); // 0.833 - 3.1% of error, limit between 0.667 and 0.833
 	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;
 	*estimator = newEstimator>>8; // shift back to normal precision
 	eepromManager.storeTempSettings();
