@@ -214,18 +214,14 @@ fixed7_9 constrainTemp(fixed23_9 valLong, fixed7_9 lower, fixed7_9 upper){
 	return (fixed7_9)valLong;
 }
 
-fixed7_9 constrainTemp16Impl(int16_t upper)
-{	
-	if (upper<0)		
-		return INT_MIN;
-	else
-		return INT_MAX;	
-}
 
 fixed7_9 constrainTemp16(fixed23_9 val)
 {
 	int16_t upper = val>>16;
 	if (!upper)
 		return fixed7_9(val);
-	return constrainTemp16Impl(upper);
+	if (upper<0)
+		return INT_MIN;
+	else
+		return INT_MAX;
 }
