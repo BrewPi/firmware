@@ -23,6 +23,7 @@
 #include "Brewpi.h"
 #include "TemperatureFormats.h"
 #include "DeviceManager.h"
+#include "Debug.h"
 
 #ifndef OPTIMIZE_JSON_OUTPUT
 #define OPTIMIZE_JSON_OUTPUT 1 && OPTIMIZE_GLOBAL
@@ -134,27 +135,9 @@ class PiLink{
 	static bool firstPair;
 	friend class DeviceManager;
 	friend class PiLinkTest;
+	friend class Logger;
 };
 
 extern PiLink piLink;
-
-// BREWPI_DEBUG is set in ConfigDefault.h
-
-#if (BREWPI_DEBUG > 0)
-#define DEBUG_MSG_1(...) piLink.debugMessage(__VA_ARGS__);
-#else
-#define DEBUG_MSG_1(...)
-#endif
-
-#if (BREWPI_DEBUG > 1)
-#define DEBUG_MSG_2(...) piLink.debugMessage(__VA_ARGS__);
-#else
-#define DEBUG_MSG_2(...)
-#endif
-#if (BREWPI_DEBUG > 2)
-#define DEBUG_MSG_3(...) piLink.debugMessage(__VA_ARGS__);
-#else
-#define DEBUG_MSG_3(...)
-#endif
 
 #endif /* PILINK_H_ */
