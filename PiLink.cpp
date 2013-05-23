@@ -570,7 +570,9 @@ inline void PiLink::printJsonSeparator() {
 
 void PiLink::sendJsonPair(const char * name, const char * val){
 	printJsonName(name);
+	piStream.print('"');
 	piStream.print(val);
+	piStream.print('"');
 }
 
 void PiLink::sendJsonPair(const char * name, char val){
