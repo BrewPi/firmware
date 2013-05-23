@@ -48,7 +48,7 @@
 	#define logError(debugId)					logger.logMessage('E', debugId)
 	#define logErrorUint8(debugId, ...)			logger.logMessageUint8('E', debugId, NUMARGS_UINT8(__VA_ARGS__), __VA_ARGS__)
 	#define logErrorString(debugId, ...)		logger.logMessageString('E', debugId, NUMARGS_STRING(__VA_ARGS__), __VA_ARGS__)
-	#define logErrorConstString(debugId, ...)	logger.logMessageConstString('E', debugId, NUMARGS_CONSTSTRING(__VA_ARGS__), __VA_ARGS__)
+	#define logErrorConstString(debugId, ...)	logger.logMessageConstString('E', debugId, NUMARGS_CONST_STRING(__VA_ARGS__), __VA_ARGS__)
 	#define logError_temp(debugId, temp)		logger.logMessage_temp(debugId, temp)
 #else
 	#define logError(debugId)
@@ -62,7 +62,7 @@
 	#define logWarning(debugId)					logger.logMessage('W', debugId)
 	#define logWarningUint8(debugId, ...)		logger.logMessageUint8('W', debugId, NUMARGS_UINT8(__VA_ARGS__), __VA_ARGS__)
 	#define logWarningString(debugId, ...)		logger.logMessageString('W', debugId, NUMARGS_STRING(__VA_ARGS__), __VA_ARGS__)
-	#define logWarningConstString(debugId, ...) logger.logMessageConstString('W', debugId, NUMARGS_CONSTSTRING(__VA_ARGS__), __VA_ARGS__)
+	#define logWarningConstString(debugId, ...) logger.logMessageConstString('W', debugId, NUMARGS_CONST_STRING(__VA_ARGS__), __VA_ARGS__)
 	#define logWarning_temp(debugId, temp)		logger.logMessage_temp(debugId, temp)
 #else
 	#define logWarning(debugId)
@@ -76,7 +76,7 @@
 	#define logInfo(debugId)					logger.logMessage('I', debugId)
 	#define logInfoUint8(debugId, ...)			logger.logMessageUint8('I', debugId, NUMARGS_UINT8(__VA_ARGS__), __VA_ARGS__)
 	#define logInfoString(debugId, ...)			logger.logMessageString('I', debugId, NUMARGS_STRING(__VA_ARGS__), __VA_ARGS__)
-	#define logInfoConstString(debugId, ...)	logger.logMessageConstString('I', debugId, NUMARGS_CONSTSTRING(__VA_ARGS__), __VA_ARGS__)
+	#define logInfoConstString(debugId, ...)	logger.logMessageConstString('I', debugId, NUMARGS_CONST_STRING(__VA_ARGS__), __VA_ARGS__)
 	#define logInfo_temp(debugId, temp)			logger.logMessage_temp(debugId, temp)
 #else
 	#define logInfo(debugId)
@@ -102,6 +102,9 @@ class Logger{
 	void logMessageUint8(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...);
 	void logMessageString(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...);
 	void logMessageConstString(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...);
+	
+	template <class T>
+	void logMessageVaArg(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...);
 	
 	void logMessage_temp(DEBUG_ID_TYPE errorID, fixed7_9 value);
 };
