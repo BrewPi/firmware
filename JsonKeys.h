@@ -66,6 +66,7 @@ static const char JSONKEY_posPeakEstimate[] PROGMEM = "posPeakEst";
 static const char JSONKEY_negPeak[] PROGMEM = "negPeak"; // last true neg peak
 static const char JSONKEY_posPeak[] PROGMEM = "posPeak";
 
+static const char JSONKEY_logType[] PROGMEM = "logType";
 static const char JSONKEY_logID[] PROGMEM = "logID";
 static const char JSONKEY_logString[] PROGMEM = "logString";
 
