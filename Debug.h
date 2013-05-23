@@ -41,7 +41,7 @@
 #define BREWPI_DEBUG_DEVELOPER 1
 
 #if BREWPI_DEBUG_ERRORS
-	#define logError(debugId, ...) logger.logMessage(debugId, __VA_ARGS__)
+	#define logError(debugId, ...) logger.logMessage('E', debugId, __VA_ARGS__)
 	#define logError_temp(debugId, temp) logger.logMessage_temp(debugId, temp)
 #else
 	#define logError(debugId, ...)
@@ -49,7 +49,7 @@
 #endif
 
 #if BREWPI_DEBUG_WARNINGS
-	#define logWarning(debugId, ...) logger.logMessage(debugId, __VA_ARGS__)
+	#define logWarning(debugId, ...) logger.logMessage('W', debugId, __VA_ARGS__)
 	#define logWarning_temp(debugId, temp) logger.logMessage_temp(debugId, temp)
 #else
 	#define logWarning(debugId, ...)
@@ -57,7 +57,7 @@
 #endif
 
 #if BREWPI_DEBUG_INFO
-	#define logInfo(debugId, ...) logger.logMessage(debugId, __VA_ARGS__)
+	#define logInfo(debugId, ...) logger.logMessage('I', debugId, __VA_ARGS__)
 	#define logInfo_temp(debugId, temp) logger.logMessage_temp(debugId, temp)
 #else
 	#define logInfo(...)
@@ -76,9 +76,9 @@ class Logger{
 	Logger(){};
 	~Logger(){};
 		
-	void logMessage(DEBUG_ID_TYPE errorID);
-	void logMessage(DEBUG_ID_TYPE errorID, uint8_t value);
-	void logMessage(DEBUG_ID_TYPE errorID, char * infoString);
+	void logMessage(char type, DEBUG_ID_TYPE errorID);
+	void logMessage(char type, DEBUG_ID_TYPE errorID, uint8_t value);
+	void logMessage(char type, DEBUG_ID_TYPE errorID, char * infoString);
 	void logMessage_temp(DEBUG_ID_TYPE errorID, fixed7_9 value);
 };
 

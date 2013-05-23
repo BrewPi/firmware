@@ -11,21 +11,24 @@
 #include "TemperatureFormats.h"
 #include "JsonKeys.h"
 
-void Logger::logMessage(DEBUG_ID_TYPE errorID){
+void Logger::logMessage(char type, DEBUG_ID_TYPE errorID){
 	piLink.printResponse('D');
+	piLink.sendJsonPair(JSONKEY_logType, type);
 	piLink.sendJsonPair(JSONKEY_logID, errorID);
 	piLink.sendJsonClose();
 }
 
-void Logger::logMessage(DEBUG_ID_TYPE errorID, uint8_t val){
+void Logger::logMessage(char type, DEBUG_ID_TYPE errorID, uint8_t val){
 	piLink.printResponse('D');
+	piLink.sendJsonPair(JSONKEY_logType, type);
 	piLink.sendJsonPair(JSONKEY_logID, errorID);
 	piLink.sendJsonPair(JSONKEY_logString, val);
 	piLink.sendJsonClose();
 }
 
-void Logger::logMessage(DEBUG_ID_TYPE errorID, char * infoString){
+void Logger::logMessage(char type, DEBUG_ID_TYPE errorID, char * infoString){
 	piLink.printResponse('D');
+	piLink.sendJsonPair(JSONKEY_logType, type);
 	piLink.sendJsonPair(JSONKEY_logID, errorID);
 	piLink.sendJsonPair(JSONKEY_logString, infoString);
 	piLink.sendJsonClose();
@@ -35,4 +38,3 @@ void Logger::logMessage_temp(DEBUG_ID_TYPE errorID, fixed7_9 val){
 	
 }
 
-//static Logger logger;
