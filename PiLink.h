@@ -87,6 +87,8 @@ class PiLink{
 	static void sendJsonPair(const char * name, char val); // send one JSON pair with a char value as name:val,
 	static void sendJsonPair(const char * name, uint16_t val); // send one JSON pair with a uint16_t value as name:val,
 	static void sendJsonPair(const char * name, uint8_t val); // send one JSON pair with a uint8_t value as name:val,
+	static void sendJsonAnnotation(const char* name, const char* annotation);
+	static void sendJsonTemp(const char* name, fixed7_9 temp);
 	
 	static void processJsonPair(const char * key, const char * val, void* pv); // process one pair
 	

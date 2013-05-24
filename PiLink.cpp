@@ -263,43 +263,60 @@ void PiLink::receive(void){
 #endif
 
 void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotation){
-	char tempString[9];
 	printResponse('T');	
-	piLink.print('{');
-	firstPair = false;
-	if (changed(beerTemp, tempControl.getBeerTemp()))	
-		print_P(PSTR("\"" JSON_BEER_TEMP "\":%s,"), tempToString(tempString, tempControl.getBeerTemp(), 2, 9));
-	if (changed(beerSet,tempControl.getBeerSetting()))
-		print_P(PSTR("\"" JSON_BEER_SET "\":%s,"), tempToString(tempString, tempControl.getBeerSetting(), 2, 9));
-	if (changed(beerAnn, beerAnnotation)) {
-		print_P(PSTR("\""JSON_BEER_ANN"\":"));
-		if(beerAnnotation == 0){
-			print_P(PSTR("null,"));
-		}
-		else{
-			print_P(PSTR("\"%s\","), beerAnnotation);
-		}
-	}
-	if (changed(fridgeTemp, tempControl.getFridgeTemp()))
-		print_P(PSTR("\""JSON_FRIDGE_TEMP"\":%s,"), tempToString(tempString, tempControl.getFridgeTemp(), 2, 9));
-	if (changed(fridgeSet, tempControl.getFridgeSetting()))
-		print_P(PSTR("\""JSON_FRIDGE_SET"\":%s,"), tempToString(tempString, tempControl.getFridgeSetting(), 2, 9));
-	if (changed(fridgeAnn, fridgeAnnotation)) {
-		print_P(PSTR("\""JSON_FRIDGE_ANN"\":"));
-		if(fridgeAnnotation == 0){
-			print_P(PSTR("null,"));
-		}
-		else{
-			print_P(PSTR("\"%s\","), fridgeAnnotation);	
-		}
-	}	
-	if (tempControl.ambientSensor->isConnected() && changed(roomTemp, tempControl.getRoomTemp()))
-		print_P(PSTR("\""JSON_ROOM_TEMP"\":%s,"), tempToString(tempString, tempControl.getRoomTemp(), 2, 9));
-	if (changed(state, tempControl.getState()))
-		print_P(PSTR("\""JSON_STATE"\":%u,"), tempControl.getState());
+
+	fixed7_9 t;
+	t = tempControl.getBeerTemp();
+	if (changed(beerTemp, t))
+		sendJsonTemp(PSTR(JSON_BEER_TEMP), t);
 	
-	print_P(PSTR("\""JSON_TIME"\":%lu}"), ticks.millis()/1000);		
+	t = tempControl.getBeerSetting();
+	if (changed(beerSet,t))
+		sendJsonTemp(PSTR(JSON_BEER_SET), t);
+		
+	if (changed(beerAnn, beerAnnotation))
+		sendJsonAnnotation(PSTR(JSON_BEER_ANN), beerAnnotation);
+
+	t = tempControl.getFridgeTemp();
+	if (changed(fridgeTemp, t))
+		sendJsonTemp(PSTR(JSON_FRIDGE_TEMP), t);
+
+	t = tempControl.getFridgeSetting();
+	if (changed(fridgeSet, t))
+		sendJsonTemp(PSTR(JSON_FRIDGE_SET), t);
+	
+	if (changed(fridgeAnn, fridgeAnnotation))
+		sendJsonAnnotation(PSTR(JSON_FRIDGE_ANN), fridgeAnnotation);
+		
+	t = tempControl.getRoomTemp();
+	if (tempControl.ambientSensor->isConnected() && changed(roomTemp, t))
+		sendJsonTemp(PSTR(JSON_ROOM_TEMP), tempControl.getRoomTemp());
+		
+	if (changed(state, tempControl.getState()))
+		sendJsonPair(PSTR(JSON_STATE), tempControl.getState());		
+
+#if BREWPI_SIMULATE	
+	printJsonName(PSTR(JSON_TIME));
+	print_P(PSTR("%lu"), ticks.millis()/1000);
+#endif	
+	
+	sendJsonClose();
 	printNewLine();
+}
+
+void PiLink::sendJsonAnnotation(const char* name, const char* annotation)
+{
+	printJsonName(name);
+	const char* fmtAnn = annotation ? PSTR("\"%s\"") : PSTR("null");
+	print_P(fmtAnn, annotation);
+}
+
+void PiLink::sendJsonTemp(const char* name, fixed7_9 temp)
+{
+	char tempString[9];
+	tempToString(tempString, temp, 2, 9);
+	printJsonName(name);
+	piStream.print(tempString);
 }
 
 void PiLink::printTemperatures(void){
