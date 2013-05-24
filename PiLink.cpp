@@ -774,7 +774,7 @@ void setBool(const char* value, uint8_t* target) {
 
 #define JSON_CONVERT(jsonKey, target, fn) { jsonKey, target, (JsonParserHandlerFn)&fn }
 
-const PiLink::JsonPaserConvert PiLink::jsonPaserConverters[] = {
+const PiLink::JsonParserConvert PiLink::jsonPaserConverters[] = {
 	JSON_CONVERT(JSONKEY_mode, NULL, setMode),
 	JSON_CONVERT(JSONKEY_beerSetting, NULL, setBeerSetting),
 	JSON_CONVERT(JSONKEY_fridgeSetting, NULL, setFridgeSetting),
@@ -873,7 +873,7 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 	
 #else
 	for (uint8_t i=0; i<sizeof(jsonPaserConverters)/sizeof(jsonPaserConverters[0]); i++) {
-		JsonPaserConvert converter = jsonPaserConverters[i];
+		JsonParserConvert converter = jsonPaserConverters[i];
 		//DEBUG_MSG_1(PSTR("Handling converter %d %s %S %d %d"), i, key, converter.key, converter.fn, converter.target);
 		if (strcmp_P(key,converter.key) == 0) {
 			//DEBUG_MSG_1(PSTR("Handling json key %s"), key);

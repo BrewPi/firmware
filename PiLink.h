@@ -132,13 +132,13 @@ class PiLink{
 
 	typedef void (*JsonParserHandlerFn)(const char* val, void* target);	
 
-	struct JsonPaserConvert {
+	struct JsonParserConvert {
 		const char* /*PROBMEM*/ key;
 		void* target;
 		JsonParserHandlerFn fn;
 	};
 
-	static const JsonPaserConvert jsonPaserConverters[];
+	static const JsonParserConvert jsonPaserConverters[];
 	// 
 		
 #if BREWPI_SIMULATE	
