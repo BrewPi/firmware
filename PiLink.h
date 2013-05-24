@@ -133,7 +133,7 @@ class PiLink{
 	typedef void (*JsonParserHandlerFn)(const char* val, void* target);	
 
 	struct JsonParserConvert {
-		const char* /*PROBMEM*/ key;
+		const char* /*PROGMEM*/ key;
 		void* target;
 		JsonParserHandlerFn fn;
 	};
