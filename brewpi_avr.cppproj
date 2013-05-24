@@ -207,6 +207,9 @@
     <Compile Include="Debug.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="DebugMessages.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="DeviceManager.cpp">
       <SubType>compile</SubType>
     </Compile>

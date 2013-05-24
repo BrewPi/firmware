@@ -27,9 +27,7 @@ void Logger::logMessageUint8(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...){
 	va_start(args, n);
 	for (uint8_t i=0;i<n;i++)
 	{
-		piLink.firstPair = true;
-		piLink.sendJsonPair(JSONKEY_logString, (uint16_t) va_arg(args, unsigned int));
-		piLink.print('}');
+		piLink.print_P(PSTR("%d"), (uint16_t) va_arg(args, unsigned int));
 		if(i+1<n){
 			piLink.print(',');
 		}
@@ -48,9 +46,7 @@ void Logger::logMessageString(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...){
 	va_start(args, n);
 	for (uint8_t i=0;i<n;i++)
 	{
-		piLink.firstPair = true;
-		piLink.sendJsonPair(JSONKEY_logString, va_arg(args, char*));
-		piLink.print('}');
+		piLink.print_P(PSTR("\"%s\""), va_arg(args, char*));
 		if(i+1<n){
 			piLink.print(',');
 		}
@@ -69,9 +65,7 @@ void Logger::logMessageConstString(char type, DEBUG_ID_TYPE errorID, uint8_t n, 
 	va_start(args, n);
 	for (uint8_t i=0;i<n;i++)
 	{
-		piLink.firstPair = true;
-		piLink.sendJsonPair(JSONKEY_logString, va_arg(args, const char *));
-		piLink.print('}');
+		piLink.print_P(PSTR("\"%s\""), va_arg(args, const char *));
 		if(i+1<n){
 			piLink.print(',');
 		}

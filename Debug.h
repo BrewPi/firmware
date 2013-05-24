@@ -11,6 +11,7 @@
 
 #include <stdarg.h>
 #include "TemperatureFormats.h"
+#include "DebugMessages.h"
 
 // BREWPI_DEBUG is set in ConfigDefault.h
 
@@ -111,60 +112,6 @@ class Logger{
 
 static Logger logger;
 
-/* Overview of error messages and ID's 
-	ERRORS are ID < 99
-	WARNINGS are 200 < ID < 255
-	INFO MESSAGES are 100 < ID < 200
-*/
-
-// Errors
-
-// OneWireTempSensor.cpp
-#define ERROR_SRAM_SENSOR 0
-// ("Not enough SRAM for temp sensor %s"), addressString
-#define ERROR_SENSOR_NO_ADDRESS_ON_PIN 1
-// ("Cannot find address for sensor on pin %d"), pinNr
-#define ERROR_OUT_OF_MEMORY_FOR_DEVICE 2
-// ("*** OUT OF MEMORY for device f=%d"), config.deviceFunction
-
-// DeviceManager.cpp
-#define ERROR_DEVICE_DEFINITION_UPDATE_SPEC_INVALID 3
-// ("Device defifination update specification is invalid"
-#define ERROR_INVALID_CHAMBER 4
-// ("Invalid chamber id %d"), config.chamber
-#define ERROR_INVALID_BEER 5
-// ("Invalid beer id %d"), config.beer
-#define ERROR_INVALID_DEVICE_FUNCTION 6
-// ("Invalid device function id %d"), config.deviceFunction
-
-// Info messages
-
-// OneWireTempSensor.cpp
-#define INFO_SENSOR_CONNECTED 100
-// ("Temp sensor connected on pin %d, pinNr
-#define INFO_SENSOR_FETCHING_INITIAL_TEMP 101
-// ("Fetching initial temperature of sensor %s"), addressString
-
-
-// DeviceManager.cpp
-#define INFO_UNINSTALL_TEMP_SENSOR 102
-// ("uninstalling temperature sensor  with function %d"), config.deviceFunction
-#define INFO_UNINSTALL_ACTUATOR 103
-// ("uninstalling actuator with function %d"), config.deviceFunction
-#define INFO_UNINSTALL_SWITCH_SENSOR 104
-// ("uninstalling switch sensor  with function %d"), config.deviceFunction
-
-#define INFO_INSTALL_TEMP_SENSOR 105
-// ("installing temperature sensor  with function %d"), config.deviceFunction
-#define INFO_INSTALL_ACTUATOR 106
-// ("installing actuator with function %d"), config.deviceFunction
-#define INFO_INSTALL_SWITCH_SENSOR 107
-// ("installing switch sensor  with function %d"), config.deviceFunction
-
-#define INFO_INSTALL_DEVICE 108
-// ("Installing device f=%d"), config.deviceFunction
-#define INFO_DEVICE_DEFINITION 109
-// ("deviceDef %s:%s"), key, val
 
 
 #endif /* DEBUG_H_ */
