@@ -111,17 +111,17 @@ void RotaryEncoder::pinAHandler(bool pinState){
 	}
 	pinATime = ticks.micros();
 	if ( pinASignal == pinBSignal ){
-		halfSteps++;
+		steps++;
 	}
 	else{
-		halfSteps--;
+		steps--;
 	}
 	// loop around at edges
-	if(halfSteps >= (maximum+2)){
-		halfSteps = minimum;
+	if(steps > maximum){
+		steps = minimum;
 	}
-	if(halfSteps <= (minimum-2)){
-		halfSteps = maximum;
+	if(steps < minimum){
+		steps = maximum;
 	}
 	display.resetBacklightTimer();
 }
@@ -142,7 +142,7 @@ void RotaryEncoder::init(void){
 	maximum = INT_MAX;
 	minimum = INT_MIN;
 	prevRead = 0;
-	halfSteps = 0;
+	steps = 0;
 	pushFlag = 0;
 	pinASignal = 1;
 	pinBSignal = 1;
@@ -190,10 +190,10 @@ void RotaryEncoder::setRange(int start, int minVal, int maxVal){
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
 		// this part cannot be interrupted
 		// Multiply by two to convert to half steps
-		halfSteps = 2*start;
-		minimum = 2*minVal;
-		maximum = 2*maxVal; // +1 to make sure that one step is still two half steps at overflow
-		prevRead = 2*start;
+		steps = start;
+		minimum = minVal;
+		maximum = maxVal; // +1 to make sure that one step is still two half steps at overflow
+		prevRead = start;
 	}		
 }
 
@@ -212,15 +212,8 @@ bool RotaryEncoder::changed(void){
 
 int RotaryEncoder::read(void){
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
-		if((abs(halfSteps) & 0x01) == 1){
-			// This is a half step, return previous read
-			return prevRead;
-		}
-		else{
-			// This is a full step, update prevRead and return new value
-			prevRead = halfSteps >> 1;
-			return prevRead;
-		}
+		prevRead = steps;
+		return prevRead;
 	}
 	return 0;		
 }

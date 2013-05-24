@@ -40,8 +40,8 @@ class RotaryEncoder
 	bool changed(void); // returns one if the value changed since the last call of changed.
 	int read(void);
 	
-	int readHalfSteps(void){
-		return halfSteps;
+	int readsteps(void){
+		return steps;
 	}
 
 	bool pushed(void){
@@ -59,7 +59,7 @@ class RotaryEncoder
 	int maximum;
 	int minimum;
 	int prevRead;
-	volatile int halfSteps;
+	volatile int steps;
 	volatile bool pushFlag;
 	
 	volatile uint8_t pinASignal;
