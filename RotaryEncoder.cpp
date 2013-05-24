@@ -50,8 +50,8 @@ ISR(INT6_vect){
 
 ISR(PCINT0_vect){
 	//todo rotaryEncoder.rotationHandler();
-	static bool prevPinA = 0;
-	static bool prevPinB = 0;
+	static bool prevPinA = 1;
+	static bool prevPinB = 1;
 	
 	bool currPinA = bitRead(PINB,4);
 	bool currPinB = bitRead(PINB,5);
@@ -75,8 +75,8 @@ ISR(PCINT2_vect){
 
 ISR(PCINT0_vect){
 	//todo rotaryEncoder.rotationHandler();
-	static bool prevPinA = 0;
-	static bool prevPinB = 0;
+	static bool prevPinA = 1;
+	static bool prevPinB = 1;
 			
 	bool currPinA = bitRead(PINB,0);
 	bool currPinB = bitRead(PINB,1);
@@ -150,7 +150,7 @@ void RotaryEncoder::init(void){
 	pinBHistory = 1;
 	pinATime = 0;
 	pinBTime = 0;
-	
+
 	#if(USE_INTERNAL_PULL_UP_RESISTORS)
 	fastPinMode(rotaryAPin, INPUT_PULLUP);
 	fastPinMode(rotaryBPin, INPUT_PULLUP);
@@ -162,7 +162,7 @@ void RotaryEncoder::init(void){
 	#endif
 	
 	pinAHandler(true); // call functions ones here for proper initialization
-	pinBHandler(true); 
+	pinBHandler(true);
 
 #if ENABLE_ROTARY_ENCODER	
 	#if defined(USBCON) // Arduino Leonardo
