@@ -75,13 +75,13 @@ fixed7_9 OneWireTempSensor::init(){
 	fixed7_9 temperature;
 	for (int i=0; i<2; i++) {
 		temperature = DEVICE_DISCONNECTED;
-		lastRequestTime = ticks.millis();
+		lastRequestTime = ticks.seconds();
 		while(temperature == DEVICE_DISCONNECTED){
 			sensor->requestTemperatures();
 			wait.millis(750); // delay 750ms for conversion time		
 			temperature = sensor->getTempRaw(sensorAddress);
 			DEBUG_MSG_3(PSTR("Sensor initial temp read: pin %d %s %d"), pinNr, addressString, temperature);
-			if((ticks.millis() - lastRequestTime) > 4000) {
+			if(ticks.timeSince(lastRequestTime) > 4) {
 				setConnected(false);
 				DEBUG_MSG_2(PSTR("Reporting device disconnected pin %d %s"), pinNr, addressString);
 				return DEVICE_DISCONNECTED;
@@ -109,9 +109,9 @@ fixed7_9 OneWireTempSensor::read(){
 	if (!connected)
 		return DEVICE_DISCONNECTED;
 	
-	if((ticks.millis()-lastRequestTime) > 5000){ // if last request is longer than 5 seconds ago, request again and delay
+	if(ticks.timeSince(lastRequestTime) > 5){ // if last request is longer than 5 seconds ago, request again and delay
 		sensor->requestTemperatures();
-		lastRequestTime = ticks.millis();
+		lastRequestTime = ticks.seconds();
 		wait.millis(750); // wait 750 ms (18B20 max conversion time)
 	}
 	fixed7_9 temperature = sensor->getTempRaw(sensorAddress);
@@ -123,6 +123,6 @@ fixed7_9 OneWireTempSensor::read(){
 
 	// already send request for next read
 	sensor->requestTemperatures();
-	lastRequestTime = ticks.millis();
+	lastRequestTime = ticks.seconds();
 	return temperature;
 }

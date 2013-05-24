@@ -43,9 +43,10 @@ public:
 	fixed7_9 read();
 	
 	private:
+
 	void setConnected(bool connected);
 	
-	unsigned long lastRequestTime; // in milliseconds
+	uint16_t lastRequestTime; // in seconds
 	
 	OneWire * oneWire;
 	DallasTemperature * sensor;
