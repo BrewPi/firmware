@@ -45,6 +45,7 @@ public:
 	private:
 
 	void setConnected(bool connected);
+	void waitForConversion();
 	
 	uint16_t lastRequestTime; // in seconds
 	

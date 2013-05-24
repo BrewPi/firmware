@@ -110,7 +110,7 @@ class SpiLcd : public Print {
 
 	size_t print_P(const char * str){ // print a string stored in PROGMEM
 		char buf[21]; // create buffer in RAM
-		strlcpy_P(buf, str, 20); // copy string to RAM
+		strcpy_P(buf, str); // copy string to RAM
 		return print(buf); // print from RAM
 	}
 	

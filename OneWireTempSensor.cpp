@@ -58,8 +58,6 @@ fixed7_9 OneWireTempSensor::init(){
 		}
 	}
 #endif
-	logInfoString(INFO_SENSOR_FETCHING_INITIAL_TEMP, addressString);
-	
 
 	// This quickly tests if the sensor is connected. Suring the main TempControl loop, we don't want to spend many seconds
 	// scanning each sensor since this brings things to a halt.
@@ -68,6 +66,8 @@ fixed7_9 OneWireTempSensor::init(){
 		return DEVICE_DISCONNECTED;		
 	}
 		
+	logInfoString(INFO_SENSOR_FETCHING_INITIAL_TEMP, addressString);
+	
 	sensor->setResolution(sensorAddress, 12);
 	sensor->setWaitForConversion(false);
 		
@@ -78,7 +78,7 @@ fixed7_9 OneWireTempSensor::init(){
 		lastRequestTime = ticks.seconds();
 		while(temperature == DEVICE_DISCONNECTED){
 			sensor->requestTemperatures();
-			wait.millis(750); // delay 750ms for conversion time		
+			waitForConversion();
 			temperature = sensor->getTempRaw(sensorAddress);
 			DEBUG_MSG_3(PSTR("Sensor initial temp read: pin %d %s %d"), pinNr, addressString, temperature);
 			if(ticks.timeSince(lastRequestTime) > 4) {
@@ -93,6 +93,11 @@ fixed7_9 OneWireTempSensor::init(){
 	
 	setConnected(true);
 	return temperature;
+}
+
+void OneWireTempSensor::waitForConversion()
+{
+	wait.millis(750);
 }
 
 void OneWireTempSensor::setConnected(bool connected) {
@@ -112,7 +117,7 @@ fixed7_9 OneWireTempSensor::read(){
 	if(ticks.timeSince(lastRequestTime) > 5){ // if last request is longer than 5 seconds ago, request again and delay
 		sensor->requestTemperatures();
 		lastRequestTime = ticks.seconds();
-		wait.millis(750); // wait 750 ms (18B20 max conversion time)
+		waitForConversion();
 	}
 	fixed7_9 temperature = sensor->getTempRaw(sensorAddress);
 	if(temperature == DEVICE_DISCONNECTED){

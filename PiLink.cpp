@@ -70,6 +70,7 @@ void PiLink::init(void){
 
 // create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
 void PiLink::print_P(const char *fmt, ... ){
+	
 	char tmp[128]; // resulting string limited to 128 chars
 	va_list args;
 	va_start (args, fmt );
@@ -89,7 +90,7 @@ void PiLink::print(char *fmt, ... ){
 	va_end (args);
 	if(piStream){
 		piStream.print(tmp);
-	}
+	}	
 }
 
 void PiLink::printNewLine(){
@@ -679,73 +680,155 @@ void PiLink::receiveJson(void){
 	return;
 }
 
-#if 0 
-// mdma - I'll finish this later, should be able to reduce size of this function, this is presently our largest function
-struct JsonPaserConvert {
-	const char* key; 
-	uint8_t offset; 
-	uint8_t fnType;
+
+static const char STR_WEB_INTERFACE[] PROGMEM = "in web interface";
+static const char STR_TEMPERATURE_PROFILE[] PROGMEM = "by temperature profile";
+static const char STR_MODE[] PROGMEM = "Mode";
+static const char STR_BEER_TEMP[] PROGMEM = "Beer temp";
+static const char STR_FRIDGE_TEMP[] PROGMEM = "Fridge temp";
+static const char STR_FMT_SET_TO[] PROGMEM = "%S set to %s %S";
+
+void PiLink::setMode(const char* val) {
+	char mode = val[0];
+	tempControl.setMode(mode);
+	piLink.printFridgeAnnotation(STR_FMT_SET_TO, STR_MODE, val, STR_WEB_INTERFACE);
+}
+
+void PiLink::setBeerSetting(const char* val) {
+	const char* source = NULL;
+	fixed7_9 newTemp = stringToTemp(val);
+	if(tempControl.cs.mode == 'p'){
+		if(abs(newTemp-tempControl.cs.beerSetting) > 100){ // this excludes gradual updates under 0.2 degrees
+			source = STR_TEMPERATURE_PROFILE;
+		}
+	}
+	else {
+		source = STR_WEB_INTERFACE;
+	}
+	if (source)
+		printBeerAnnotation(STR_FMT_SET_TO, STR_BEER_TEMP, val, source);
+	tempControl.cs.beerSetting = newTemp;		
+}
+
+void PiLink::setFridgeSetting(const char* val) {
+	fixed7_9 newTemp = stringToTemp(val);
+	if(tempControl.cs.mode == 'f'){
+		printFridgeAnnotation(STR_FMT_SET_TO, STR_FRIDGE_TEMP, val, STR_WEB_INTERFACE);
+	}
+	tempControl.cs.fridgeSetting = newTemp;	
+}
+
+void PiLink::setTempFormat(const char* val) {
+	tempControl.cc.tempFormat = val[0];
+	display.printStationaryText(); // reprint stationary text to update to right degree unit
+}
+
+
+// todo - move these structs to PROGMEM.
+enum FilterType { FAST, SLOW, SLOPE };
+enum TempSensorTarget { FRIDGE, BEER };
+
+static uint8_t* filterSettings[] = {
+		&tempControl.cc.fridgeFastFilter,
+		&tempControl.cc.fridgeSlowFilter,
+		&tempControl.cc.fridgeSlopeFilter,
+		&tempControl.cc.beerFastFilter,
+		&tempControl.cc.beerSlowFilter,
+		&tempControl.cc.beerSlopeFilter		
 	};
+	
+#define MAKE_FILTER_SETTING_TARGET(filterType, sensorTarget)  (void*)(uint8_t(filterType)+uint8_t(sensorTarget)*3)
 
-#define stringToTempVal 1
-#define stringToFixedPointVal 2
-#define stringToTempDiffVal 3
-#define stringToLongVal 4
+void applyFilterSetting(const char* val, void* target) {
+	uint8_t offset = uint8_t(uint16_t(target));		// target is really just an integer
+	FilterType filterType = FilterType(offset&3);
+	TempSensorTarget sensorTarget = TempSensorTarget(offset/3);
+	
+	uint8_t value = atol(val);
+	uint8_t* location = filterSettings[offset];
+	*location = value;
+	TempSensor* sensor = sensorTarget ? tempControl.beerSensor : tempControl.fridgeSensor;
+	switch (filterType) {
+		case FAST: sensor->setFastFilterCoefficients(value); return;
+		case SLOW: sensor->setSlowFilterCoefficients(value); return;
+		case SLOPE: sensor->setSlopeFilterCoefficients(value); return;
+	}
+}
 
-#define JSON_CONVERT(name, fn) { &jsonKeys_ ## name[0], offsetof(ControlConstants, name), fn }
+void setStringToFixedPoint(const char* value, fixed7_9* target) {
+	*target = stringToFixedPoint(value);
+}
+void setStringToTemp(const char* value, fixed7_9* target) {
+	*target = stringToTemp(value);
+}
+void setStringToTempDiff(const char* value, fixed7_9* target) {
+	*target = stringToTempDiff(value);
+}
+void setUint16(const char* value, uint16_t* target) {
+	*target = atol(value);
+}
+void setBool(const char* value, uint8_t* target) {
+	*target = (atol(value)!=0);
+}
 
-static const PROGMEM JsonConvert jsonConverters[] = {
-	JSON_CONVERT(tempSettingMin, stringToTempVal),
-	JSON_CONVERT(tempSettingMax, stringToTempVal),
-	JSON_CONVERT(KpHeat, stringToFixedPointVal),
-	JSON_CONVERT(KpCool, stringToFixedPointVal),
-	JSON_CONVERT(Ki, stringToFixedPointVal),
-	JSON_CONVERT(KdCool, stringToFixedPointVal),
-	JSON_CONVERT(KdHeat, stringToFixedPointVal),
-	JSON_CONVERT(iMaxError, stringToTempDiffVal),
-	JSON_CONVERT(iMaxSlope, stringToTempDiffVal),
-	JSON_CONVERT(iMinSlope, stringToTempDiffVal),
-	JSON_CONVERT(idleRangeHigh, stringToTempDiffVal),
-	JSON_CONVERT(idleRangeLow, stringToTempDiffVal),
-	JSON_CONVERT(heatingTargetUpper, stringToTempDiffVal),
-	JSON_CONVERT(heatingTargetLower, stringToTempDiffVal),
-	JSON_CONVERT(coolingTargetUpper, stringToTempDiffVal),
-	JSON_CONVERT(coolingTargetLower, stringToTempDiffVal),
-	JSON_CONVERT(maxHeatTimeForEstimate, stringToLongVal),
-	JSON_CONVERT(maxCoolTimeForEstimate, stringToLongVal),
-};	
-#endif
+
+#define JSON_CONVERT(jsonKey, target, fn) { jsonKey, target, (JsonParserHandlerFn)&fn }
+
+const PiLink::JsonPaserConvert PiLink::jsonPaserConverters[] = {
+	JSON_CONVERT(JSONKEY_mode, NULL, setMode),
+	JSON_CONVERT(JSONKEY_beerSetting, NULL, setBeerSetting),
+	JSON_CONVERT(JSONKEY_fridgeSetting, NULL, setFridgeSetting),
+	
+	JSON_CONVERT(JSONKEY_heatEstimator, &tempControl.cs.heatEstimator, setStringToFixedPoint),
+	JSON_CONVERT(JSONKEY_coolEstimator, &tempControl.cs.coolEstimator, setStringToFixedPoint),
+	
+	JSON_CONVERT(JSONKEY_tempFormat, NULL, setTempFormat),
+	
+	JSON_CONVERT(JSONKEY_tempSettingMin, &tempControl.cc.tempSettingMin, setStringToTemp),
+	JSON_CONVERT(JSONKEY_tempSettingMax, &tempControl.cc.tempSettingMax, setStringToTemp),
+
+	JSON_CONVERT(JSONKEY_Kp, &tempControl.cc.Kp, setStringToFixedPoint),
+	JSON_CONVERT(JSONKEY_Ki, &tempControl.cc.Ki, setStringToFixedPoint),
+	JSON_CONVERT(JSONKEY_Kd, &tempControl.cc.Kd, setStringToFixedPoint),
+
+	JSON_CONVERT(JSONKEY_iMaxError, &tempControl.cc.iMaxError, setStringToTempDiff),
+	JSON_CONVERT(JSONKEY_idleRangeHigh, &tempControl.cc.idleRangeHigh, setStringToTempDiff),
+	JSON_CONVERT(JSONKEY_idleRangeLow, &tempControl.cc.idleRangeLow, setStringToTempDiff),
+	JSON_CONVERT(JSONKEY_heatingTargetUpper, &tempControl.cc.heatingTargetUpper, setStringToTempDiff),
+	JSON_CONVERT(JSONKEY_heatingTargetLower, &tempControl.cc.heatingTargetLower, setStringToTempDiff),
+	JSON_CONVERT(JSONKEY_coolingTargetUpper, &tempControl.cc.coolingTargetUpper, setStringToTempDiff),
+	JSON_CONVERT(JSONKEY_coolingTargetLower, &tempControl.cc.coolingTargetLower, setStringToTempDiff),
+	JSON_CONVERT(JSONKEY_maxHeatTimeForEstimate, &tempControl.cc.maxHeatTimeForEstimate, setUint16),
+	JSON_CONVERT(JSONKEY_maxCoolTimeForEstimate, &tempControl.cc.maxCoolTimeForEstimate, setUint16),
+	JSON_CONVERT(JSONKEY_lightAsHeater, &tempControl.cc.lightAsHeater, setBool),
+	
+	JSON_CONVERT(JSONKEY_fridgeFastFilter, MAKE_FILTER_SETTING_TARGET(FAST, FRIDGE), applyFilterSetting),
+	JSON_CONVERT(JSONKEY_fridgeSlowFilter, MAKE_FILTER_SETTING_TARGET(SLOW, FRIDGE), applyFilterSetting),
+	JSON_CONVERT(JSONKEY_fridgeSlopeFilter, MAKE_FILTER_SETTING_TARGET(SLOPE, FRIDGE), applyFilterSetting),
+	JSON_CONVERT(JSONKEY_beerFastFilter, MAKE_FILTER_SETTING_TARGET(FAST, BEER), applyFilterSetting),
+	JSON_CONVERT(JSONKEY_beerSlowFilter, MAKE_FILTER_SETTING_TARGET(SLOW, BEER), applyFilterSetting),
+	JSON_CONVERT(JSONKEY_beerSlopeFilter, MAKE_FILTER_SETTING_TARGET(SLOPE, BEER), applyFilterSetting)
+	
+};
 
 void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 	DEBUG_MSG_1(PSTR("Received new setting: %s = %s"), key, val);
+	
+// change to 1 to use old code in case any suspicious behaviour is found. This will be removed prior to release.
+#if 0
 	if(strcmp_P(key,JSONKEY_mode) == 0){
-		tempControl.setMode(val[0]);
-		piLink.printFridgeAnnotation(PSTR("Mode set to %c in web interface"), val[0]);
+		setMode(val);
 	}
 	else if(strcmp_P(key,JSONKEY_beerSetting) == 0){
-		fixed7_9 newTemp = stringToTemp(val);
-		if(tempControl.cs.mode == 'p'){
-			if(abs(newTemp-tempControl.cs.beerSetting) > 100){ // this excludes gradual updates under 0.2 degrees
-			printBeerAnnotation(PSTR("Beer temp set to %s by temperature profile."), val);
-			}
-		}
-		else{
-			printBeerAnnotation(PSTR("Beer temp set to %s in web interface."), val);
-		}
-		tempControl.cs.beerSetting = newTemp;
+		setBeerSetting(val);
 	}
 	else if(strcmp_P(key,JSONKEY_fridgeSetting) == 0){
-		fixed7_9 newTemp = stringToTemp(val);
-		if(tempControl.cs.mode == 'f'){
-			printFridgeAnnotation(PSTR("Fridge temp set to %s in web interface."), val);
-		}
-		tempControl.cs.fridgeSetting = newTemp;
+		setFridgeSetting(val);
 	}
 	else if(strcmp_P(key,JSONKEY_heatEstimator) == 0){ tempControl.cs.heatEstimator = stringToFixedPoint(val); }
 	else if(strcmp_P(key,JSONKEY_coolEstimator) == 0){ tempControl.cs.coolEstimator = stringToFixedPoint(val); }
 	else if(strcmp_P(key,JSONKEY_tempFormat) == 0){
-		tempControl.cc.tempFormat = val[0];
-		display.printStationaryText(); // reprint stationary text to update to right degree unit
+		setTempFormat(val);
 	}
 	else if(strcmp_P(key,JSONKEY_tempSettingMin) == 0){ tempControl.cc.tempSettingMin = stringToTemp(val); }
 	else if(strcmp_P(key,JSONKEY_tempSettingMax) == 0){ tempControl.cc.tempSettingMax = stringToTemp(val); }
@@ -761,10 +844,7 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 	else if(strcmp_P(key,JSONKEY_coolingTargetLower) == 0){ tempControl.cc.coolingTargetLower = stringToTempDiff(val); }
 	else if(strcmp_P(key,JSONKEY_maxHeatTimeForEstimate) == 0){ tempControl.cc.maxHeatTimeForEstimate = atol(val); }
 	else if(strcmp_P(key,JSONKEY_maxCoolTimeForEstimate) == 0){ tempControl.cc.maxCoolTimeForEstimate = atol(val); }
-	else if(strcmp_P(key,JSONKEY_maxCoolTimeForEstimate) == 0){ tempControl.cc.maxCoolTimeForEstimate = atol(val); }
-
-	// Receive the b value for the filter
-	else if(strcmp_P(key,JSONKEY_fridgeFastFilter) == 0){ 
+	else if(strcmp_P(key,JSONKEY_fridgeFastFilter) == 0){ // Receive the b value for the filter		
 		tempControl.cc.fridgeFastFilter = atol(val);
 		tempControl.fridgeSensor->setFastFilterCoefficients(tempControl.cc.fridgeFastFilter);
 	}
@@ -789,12 +869,28 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 		tempControl.cc.beerSlopeFilter = atol(val);
 		tempControl.beerSensor->setSlopeFilterCoefficients(tempControl.cc.beerSlopeFilter);
 	}
-	else if(strcmp_P(key,JSONKEY_lightAsHeater) == 0){
-		tempControl.cc.lightAsHeater = atol(val)!=0;
-	}
-	else{
+	else
+	
+#else
+	for (uint8_t i=0; i<sizeof(jsonPaserConverters)/sizeof(jsonPaserConverters[0]); i++) {
+		JsonPaserConvert converter = jsonPaserConverters[i];
+		//DEBUG_MSG_1(PSTR("Handling converter %d %s %S %d %d"), i, key, converter.key, converter.fn, converter.target);
+		if (strcmp_P(key,converter.key) == 0) {
+			//DEBUG_MSG_1(PSTR("Handling json key %s"), key);
+			converter.fn(val, converter.target);
+			return;
+		}
+	}					
+	
+	
+	
+#endif
+
+
+	{
 		DEBUG_MSG_1(PSTR("Could not process setting"));
 	}
+
 }
 
 
