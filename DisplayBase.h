@@ -31,8 +31,8 @@
 	#define DISPLAY_REF &
 	#define DISPLAY_SUPERCLASS : public Display
 #else
-	#define DISPLAY_METHOD 
-	#define DISPLAY_FIELD 
+	#define DISPLAY_METHOD	static
+	#define DISPLAY_FIELD	static
 	#define DISPLAY_METHOD_PURE_VIRTUAL {}
 	#define DISPLAY_REF
 	#define DISPLAY_SUPERCLASS 

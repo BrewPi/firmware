@@ -573,7 +573,7 @@ fixed7_9 TempControl::getFridgeSetting(void){
 	return cs.fridgeSetting;	
 }
 
-void TempControl::setBeerTemp(int newTemp){
+void TempControl::setBeerTemp(fixed7_9 newTemp){
 	int oldBeerSetting = cs.beerSetting;
 	cs.beerSetting= newTemp;
 	if(abs(oldBeerSetting - newTemp) > 128){ // more than half a degree C difference with old setting
@@ -588,9 +588,7 @@ void TempControl::setBeerTemp(int newTemp){
 	}		
 }
 
-// todo - this method is called many times while manually changing the fridge temp using the rotary encoder.
-// Seems to hit the eeprom quite a bit.
-void TempControl::setFridgeTemp(int newTemp){
+void TempControl::setFridgeTemp(fixed7_9 newTemp){
 	cs.fridgeSetting = newTemp;
 	reset(); // reset peak detection and PID
 	updatePID();

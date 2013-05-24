@@ -146,6 +146,63 @@ void Menu::pickMode(void){
 	tempControl.setMode(oldSetting);
 }
 
+#define OPT_TEMP_SETTING 1
+
+#if OPT_TEMP_SETTING
+typedef void (* PrintAnnotation)(const char * annotation, ...);
+typedef void (* DisplayUpdate)(void);
+typedef fixed7_9 (* ReadTemp)();
+typedef void (* WriteTemp)(fixed7_9);
+
+void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempName, DisplayUpdate update, PrintAnnotation printAnnoation, int row) {
+	display.printStationaryText(); // restore original text after blinking
+	fixed7_9 oldSetting = readTemp();
+	menu.initRotaryWithTemp(oldSetting);
+	
+	uint8_t blinkTimer = 0;
+	unsigned long timer = ticks.millis();
+	while((ticks.millis()) - timer < MENU_TIMEOUT){ // time out at 10 seconds
+		if(rotaryEncoder.changed()){
+			timer=ticks.millis();
+			blinkTimer = 0;
+			
+			writeTemp(tenthsToFixed(rotaryEncoder.read()));
+			update();
+			
+			if( rotaryEncoder.pushed() ){
+				rotaryEncoder.resetPushed();
+				char tempString[9];
+				printAnnoation(PSTR("%S temp set to %s in Menu."), tempName, tempToString(tempString,readTemp(),1,9));
+				return;
+			}
+		}
+		else{
+			if(blinkTimer == 0){
+				update();
+			}
+			if(blinkTimer == 128){
+				display.printAt(12, row, PSTR("     "));
+			}
+			blinkTimer++;
+			wait.millis(3); // delay for blinking
+		}
+	}
+	// Time Out. Restore original setting
+	writeTemp(oldSetting);
+	
+}
+
+void Menu::pickFridgeSetting(void){
+	pickTempSetting(tempControl.getFridgeSetting, tempControl.setFridgeTemp, PSTR("Fridge"), display.printFridgeSet, piLink.printFridgeAnnotation, 2);
+}
+
+void Menu::pickBeerSetting(void){
+	pickTempSetting(tempControl.getBeerSetting, tempControl.setBeerTemp, PSTR("Beer"), display.printBeerSet, piLink.printBeerAnnotation, 1);
+}
+
+
+#else
+
 void Menu::pickBeerSetting(void){
 	display.printStationaryText(); // restore original text after blinking
 	fixed7_9 oldSetting = tempControl.getBeerSetting();
@@ -217,5 +274,6 @@ void Menu::pickFridgeSetting(void){
 	// Time Out. Restore original setting
 	tempControl.setFridgeTemp(oldSetting);
 }
+#endif
 
 #endif

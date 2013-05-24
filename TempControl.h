@@ -171,11 +171,11 @@ class TempControl{
 	  
 	TEMP_CONTROL_METHOD fixed7_9 getBeerTemp(void);
 	TEMP_CONTROL_METHOD fixed7_9 getBeerSetting(void);
-	TEMP_CONTROL_METHOD void setBeerTemp(int newTemp);
+	TEMP_CONTROL_METHOD void setBeerTemp(fixed7_9 newTemp);
 	
 	TEMP_CONTROL_METHOD fixed7_9 getFridgeTemp(void);
 	TEMP_CONTROL_METHOD fixed7_9 getFridgeSetting(void);
-	TEMP_CONTROL_METHOD void setFridgeTemp(int newTemp);
+	TEMP_CONTROL_METHOD void setFridgeTemp(fixed7_9 newTemp);
 	
 	TEMP_CONTROL_METHOD fixed7_9 getRoomTemp(void) {
 		return ambientSensor->read();

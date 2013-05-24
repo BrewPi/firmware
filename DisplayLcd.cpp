@@ -29,6 +29,11 @@
 
 static const int LCD_FLAG_DISPLAY_ROOM = 0x01;
 
+uint8_t LcdDisplay::stateOnDisplay;
+bool LcdDisplay::flags;
+SpiLcd LcdDisplay::lcd;
+
+
 void LcdDisplay::init(void){
 	stateOnDisplay = 0xFF; // set to unknown state to force update
 	flags = 0;
