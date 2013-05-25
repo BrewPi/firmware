@@ -11,72 +11,39 @@
 #include "TemperatureFormats.h"
 #include "JsonKeys.h"
 
-void Logger::logMessage(char type, DEBUG_ID_TYPE errorID){
+/*void Logger::logMessage(char type, DEBUG_ID_TYPE errorID){
 	piLink.printResponse('D');
 	piLink.sendJsonPair(JSONKEY_logType, type);
 	piLink.sendJsonPair(JSONKEY_logID, errorID);
 	piLink.sendJsonClose();
-}
+}*/
 
-void Logger::logMessageUint8(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...){
+void Logger::logMessageVaArg(char type, DEBUG_ID_TYPE errorID, const char * varTypes, ...){
 	va_list args;
 	piLink.printResponse('D');
 	piLink.sendJsonPair(JSONKEY_logType, type);
 	piLink.sendJsonPair(JSONKEY_logID, errorID);
 	piLink.print_P(PSTR(",\"V\":["));
-	va_start(args, n);
-	for (uint8_t i=0;i<n;i++)
-	{
-		piLink.firstPair = true;
-		piLink.sendJsonPair(JSONKEY_logString, (uint16_t) va_arg(args, unsigned int));
-		piLink.print('}');
-		if(i+1<n){
+	va_start (args, varTypes);
+	uint8_t index = 0;
+	while(varTypes[index]){
+		switch(varTypes[index]){	
+			case 'd': // integer, signed or unsigned
+				piLink.print_P(PSTR("%d"), va_arg(args, int));
+				break;
+			case 's': // string
+				piLink.print_P(PSTR("\"%s\""), va_arg(args, char*));
+				break;
+			case 't': // temperature in fixed_7_9 format
+				char buf[12];
+				piLink.print_P(PSTR("\"%s\""), tempToString(buf, va_arg(args,int), 1, 12));
+			break;			
+		}
+		if(varTypes[++index]){
 			piLink.print(',');
 		}
 	}
-	va_end(args);
-	piLink.print(']');
-	piLink.sendJsonClose();
-}
-
-void Logger::logMessageString(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...){
-	va_list args;
-	piLink.printResponse('D');
-	piLink.sendJsonPair(JSONKEY_logType, type);
-	piLink.sendJsonPair(JSONKEY_logID, errorID);
-	piLink.print_P(PSTR(",\"V\":["));
-	va_start(args, n);
-	for (uint8_t i=0;i<n;i++)
-	{
-		piLink.firstPair = true;
-		piLink.sendJsonPair(JSONKEY_logString, va_arg(args, char*));
-		piLink.print('}');
-		if(i+1<n){
-			piLink.print(',');
-		}
-	}
-	va_end(args);
-	piLink.print(']');
-	piLink.sendJsonClose();
-}
-
-void Logger::logMessageConstString(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...){
-	va_list args;
-	piLink.printResponse('D');
-	piLink.sendJsonPair(JSONKEY_logType, type);
-	piLink.sendJsonPair(JSONKEY_logID, errorID);
-	piLink.print_P(PSTR(",\"V\":["));
-	va_start(args, n);
-	for (uint8_t i=0;i<n;i++)
-	{
-		piLink.firstPair = true;
-		piLink.sendJsonPair(JSONKEY_logString, va_arg(args, const char *));
-		piLink.print('}');
-		if(i+1<n){
-			piLink.print(',');
-		}
-	}
-	va_end(args);
+	va_end (args);
 	piLink.print(']');
 	piLink.sendJsonClose();
 }

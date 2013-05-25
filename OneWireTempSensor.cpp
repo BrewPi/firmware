@@ -43,11 +43,7 @@ fixed7_9 OneWireTempSensor::init(){
 	if (!sensorAddress[0]) {
 		if (!sensor->getAddress(sensorAddress, 0)) {
 			// error no sensor found
-			logErrorUint8(ERROR_SENSOR_NO_ADDRESS_ON_PIN, pinNr);
-			if (connected) {
-				// log only on transition from connected to disconnected.				
-				logInfoUint8(INFO_SENSOR_CONNECTED, pinNr);
-			}
+			logErrorInt(ERROR_SENSOR_NO_ADDRESS_ON_PIN, pinNr);
 			setConnected(false);
 			return DEVICE_DISCONNECTED;
 		}
@@ -66,7 +62,7 @@ fixed7_9 OneWireTempSensor::init(){
 		return DEVICE_DISCONNECTED;		
 	}
 		
-	logInfoString(INFO_SENSOR_FETCHING_INITIAL_TEMP, addressString);
+	logDeveloper(PSTR("Fetching initial temperature of sensor %s"), addressString);
 	
 	sensor->setResolution(sensorAddress, 12);
 	sensor->setWaitForConversion(false);
@@ -80,16 +76,15 @@ fixed7_9 OneWireTempSensor::init(){
 			sensor->requestTemperatures();
 			waitForConversion();
 			temperature = sensor->getTempRaw(sensorAddress);
-			DEBUG_MSG_3(PSTR("Sensor initial temp read: pin %d %s %d"), pinNr, addressString, temperature);
+			logDeveloper(PSTR("Sensor initial temp read: pin %d %s %d"), this->oneWire->pinNr(), addressString, temperature);
 			if(ticks.timeSince(lastRequestTime) > 4) {
 				setConnected(false);
-				DEBUG_MSG_2(PSTR("Reporting device disconnected pin %d %s"), pinNr, addressString);
 				return DEVICE_DISCONNECTED;
 			}
 		}
 	}
 	temperature = constrainTemp(temperature+calibrationOffset, ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5; // sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits		
-	DEBUG_MSG_2(PSTR("Sensor initialized: pin %d %s %s"), pinNr, addressString, temperature);	
+	logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temperature);	
 	
 	setConnected(true);
 	return temperature;
@@ -107,7 +102,12 @@ void OneWireTempSensor::setConnected(bool connected) {
 	char addressString[17];
 	printBytes(sensorAddress, 8, addressString);
 	this->connected = connected;
-	DEBUG_MSG_1(PSTR("temp sensor %sconnected %s"), connected ? "" : "dis", addressString);
+	if(connected){
+		logInfoIntString(INFO_TEMP_SENSOR_CONNECTED, this->oneWire->pinNr(), addressString);
+	}
+	else{
+		logWarningIntString(WARNING_TEMP_SENSOR_DISCONNECTED, this->oneWire->pinNr(), addressString);
+	}
 }
 
 fixed7_9 OneWireTempSensor::read(){

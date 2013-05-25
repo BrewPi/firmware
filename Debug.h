@@ -11,6 +11,7 @@
 
 #include <stdarg.h>
 #include "TemperatureFormats.h"
+#include "DebugMessages.h"
 
 // BREWPI_DEBUG is set in ConfigDefault.h
 
@@ -38,51 +39,47 @@
 #define BREWPI_DEBUG_ERRORS 1
 #define BREWPI_DEBUG_WARNINGS 1
 #define BREWPI_DEBUG_INFO 1
-#define BREWPI_DEBUG_DEVELOPER 1
-
-#define NUMARGS_UINT8(...)  (sizeof((uint8_t[]){__VA_ARGS__})/sizeof(uint8_t))
-#define NUMARGS_STRING(...)  (sizeof((char*[]){__VA_ARGS__})/sizeof(char*))
-#define NUMARGS_CONST_STRING(...)  (sizeof((const char*[]){__VA_ARGS__})/sizeof(const char*))
+#define BREWPI_DEBUG_DEVELOPER 0
 
 #if BREWPI_DEBUG_ERRORS
-	#define logError(debugId)					logger.logMessage('E', debugId)
-	#define logErrorUint8(debugId, ...)			logger.logMessageUint8('E', debugId, NUMARGS_UINT8(__VA_ARGS__), __VA_ARGS__)
-	#define logErrorString(debugId, ...)		logger.logMessageString('E', debugId, NUMARGS_STRING(__VA_ARGS__), __VA_ARGS__)
-	#define logErrorConstString(debugId, ...)	logger.logMessageConstString('E', debugId, NUMARGS_CONST_STRING(__VA_ARGS__), __VA_ARGS__)
-	#define logError_temp(debugId, temp)		logger.logMessage_temp(debugId, temp)
+	#define logError(debugId)				logger.logMessageVaArg('E', debugId, "")
+	#define logErrorInt(debugId, val)		logger.logMessageVaArg('E', debugId, "d", val)
+	#define logErrorString(debugId, val)	logger.logMessageVaArg('E', debugId, "s", val)
+	#define logErrorTemp(debugId, temp)		logger.logMessage_temp('E', debugId, "t", val)
+	#define logErrorIntInt(debugId, val1, val2)				logger.logMessageVaArg('E', debugId, "dd", val1, val2)
+	#define logErrorIntIntInt(debugId, val1, val2, val3)	logger.logMessageVaArg('E', debugId, "ddd", val1, val2, val3)
 #else
 	#define logError(debugId)
-	#define logErrorUint8(debugId, ...)
-	#define logErrorString(debugId, ...)
-	#define logErrorConstString(debugId, ...)
-	#define logError_temp(debugId, temp)
+	#define logErrorInt(debugId, val)
+	#define logErrorString(debugId, val)
+	#define logErrorTemp(debugId, temp)
 #endif
 
 #if BREWPI_DEBUG_WARNINGS
-	#define logWarning(debugId)					logger.logMessage('W', debugId)
-	#define logWarningUint8(debugId, ...)		logger.logMessageUint8('W', debugId, NUMARGS_UINT8(__VA_ARGS__), __VA_ARGS__)
-	#define logWarningString(debugId, ...)		logger.logMessageString('W', debugId, NUMARGS_STRING(__VA_ARGS__), __VA_ARGS__)
-	#define logWarningConstString(debugId, ...) logger.logMessageConstString('W', debugId, NUMARGS_CONST_STRING(__VA_ARGS__), __VA_ARGS__)
-	#define logWarning_temp(debugId, temp)		logger.logMessage_temp(debugId, temp)
+	#define logWarning(debugId)					logger.logMessageVaArg('W', debugId, "")
+	#define logWarningInt(debugId, val)			logger.logMessageVaArg('W', debugId, "d", val)
+	#define logWarningString(debugId, val)		logger.logMessageVaArg('W', debugId, "s", val)
+	#define logWarningTemp(debugId, temp)		logger.logMessageVaArg('W', debugId, "t", val)
+	#define logWarningIntString(debugId, val1, val2)	logger.logMessageVaArg('W', debugId, "ds", val1, val2)
 #else
 	#define logWarning(debugId)
-	#define logWarningUint8(debugId, ...)
-	#define logWarningString(debugId, ...)
-	#define logWarningConstString(debugId, ...)
-	#define logWarning_temp(debugId, temp)
+	#define logWarningInt(debugId, val)
+	#define logWarningString(debugId, val)
+	#define logWarningTemp(debugId, temp)
 #endif
 
 #if BREWPI_DEBUG_INFO
-	#define logInfo(debugId)					logger.logMessage('I', debugId)
-	#define logInfoUint8(debugId, ...)			logger.logMessageUint8('I', debugId, NUMARGS_UINT8(__VA_ARGS__), __VA_ARGS__)
-	#define logInfoString(debugId, ...)			logger.logMessageString('I', debugId, NUMARGS_STRING(__VA_ARGS__), __VA_ARGS__)
-	#define logInfoConstString(debugId, ...)	logger.logMessageConstString('I', debugId, NUMARGS_CONST_STRING(__VA_ARGS__), __VA_ARGS__)
-	#define logInfo_temp(debugId, temp)			logger.logMessage_temp(debugId, temp)
+	#define logInfo(debugId)							logger.logMessageVaArg('I', debugId, "")
+	#define logInfoInt(debugId, val)					logger.logMessageVaArg('I', debugId, "d", val)
+	#define logInfoString(debugId, val)					logger.logMessageVaArg('I', debugId, "s", val)
+	#define logInfoTemp(debugId, temp)					logger.logMessageVaArg('I', debugId, "t", val)
+	#define logInfoIntString(debugId, val1, val2)		logger.logMessageVaArg('I', debugId, "ds", val1, val2)
+	#define logInfoStringString(debugId, val1, val2)	logger.logMessageVaArg('I', debugId, "ss", val1, val2)
+	#define logInfoIntStringTemp(debugId, val1, val2, val3) logger.logMessageVaArg('I', debugId, "dst", val1, val2, val3)
 #else
 	#define logInfo(debugId)
-	#define logInfoUint8(debugId, ...)
-	#define logInfoString(debugId, ...)
-	#define logInfoConstString(debugId, ...)
+	#define logInfoInt(debugId, val)
+	#define logInfoStringString(debugId, val)
 	#define logInfo_temp(debugId, temp)
 #endif
 
@@ -98,73 +95,16 @@ class Logger{
 	Logger(){};
 	~Logger(){};
 		
-	void logMessage(char type, DEBUG_ID_TYPE errorID);
-	void logMessageUint8(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...);
-	void logMessageString(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...);
-	void logMessageConstString(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...);
-	
-	template <class T>
-	void logMessageVaArg(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...);
-	
+	//void logMessage(char type, DEBUG_ID_TYPE errorID);
+	//void logMessageUint8(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...);
+	//void logMessageString(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...);
+	void logMessageVaArg(char type, DEBUG_ID_TYPE errorID, const char * varTypes, ...);
+		
 	void logMessage_temp(DEBUG_ID_TYPE errorID, fixed7_9 value);
 };
 
 static Logger logger;
 
-/* Overview of error messages and ID's 
-	ERRORS are ID < 99
-	WARNINGS are 200 < ID < 255
-	INFO MESSAGES are 100 < ID < 200
-*/
-
-// Errors
-
-// OneWireTempSensor.cpp
-#define ERROR_SRAM_SENSOR 0
-// ("Not enough SRAM for temp sensor %s"), addressString
-#define ERROR_SENSOR_NO_ADDRESS_ON_PIN 1
-// ("Cannot find address for sensor on pin %d"), pinNr
-#define ERROR_OUT_OF_MEMORY_FOR_DEVICE 2
-// ("*** OUT OF MEMORY for device f=%d"), config.deviceFunction
-
-// DeviceManager.cpp
-#define ERROR_DEVICE_DEFINITION_UPDATE_SPEC_INVALID 3
-// ("Device defifination update specification is invalid"
-#define ERROR_INVALID_CHAMBER 4
-// ("Invalid chamber id %d"), config.chamber
-#define ERROR_INVALID_BEER 5
-// ("Invalid beer id %d"), config.beer
-#define ERROR_INVALID_DEVICE_FUNCTION 6
-// ("Invalid device function id %d"), config.deviceFunction
-
-// Info messages
-
-// OneWireTempSensor.cpp
-#define INFO_SENSOR_CONNECTED 100
-// ("Temp sensor connected on pin %d, pinNr
-#define INFO_SENSOR_FETCHING_INITIAL_TEMP 101
-// ("Fetching initial temperature of sensor %s"), addressString
-
-
-// DeviceManager.cpp
-#define INFO_UNINSTALL_TEMP_SENSOR 102
-// ("uninstalling temperature sensor  with function %d"), config.deviceFunction
-#define INFO_UNINSTALL_ACTUATOR 103
-// ("uninstalling actuator with function %d"), config.deviceFunction
-#define INFO_UNINSTALL_SWITCH_SENSOR 104
-// ("uninstalling switch sensor  with function %d"), config.deviceFunction
-
-#define INFO_INSTALL_TEMP_SENSOR 105
-// ("installing temperature sensor  with function %d"), config.deviceFunction
-#define INFO_INSTALL_ACTUATOR 106
-// ("installing actuator with function %d"), config.deviceFunction
-#define INFO_INSTALL_SWITCH_SENSOR 107
-// ("installing switch sensor  with function %d"), config.deviceFunction
-
-#define INFO_INSTALL_DEVICE 108
-// ("Installing device f=%d"), config.deviceFunction
-#define INFO_DEVICE_DEFINITION 109
-// ("deviceDef %s:%s"), key, val
 
 
 #endif /* DEBUG_H_ */

@@ -192,7 +192,7 @@
     <Compile Include="ConfigDefault.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="ConfigLocal.h">
+    <Compile Include="Config.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="DallasTemperature.cpp">
@@ -205,6 +205,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Debug.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="DebugMessages.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="DeviceManager.cpp">
