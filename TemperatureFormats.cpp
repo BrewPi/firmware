@@ -23,17 +23,6 @@
 #include <limits.h>
 #include "TempControl.h"
 
-/**
- * Before (no-optimize)
-				Program Memory Usage 	:	26230 bytes   80.0 % Full
-				Data Memory Usage 		:	1081 bytes   42.2 % Full
- * After
-				Program Memory Usage 	:	26058 bytes   79.5 % Full
-				Data Memory Usage 		:	1087 bytes   42.5 % Full
- */
-#define OPTIMIZE_TEMPERATURE_FORMATS_fixedPointToString 1 && OPTIMIZE_TEMPERATURE_FORMATS
-#define OPTIMIZE_TEMPERATURE_FORMATS_convertAntConstrain 1 && OPTIMIZE_TEMPERATURE_FORMATS
-
 // result can have maximum length of : sign + 3 digits integer part + point + 3 digits fraction part + '\0' = 9 bytes;
 // only 1, 2 or 3 decimals allowed.
 // returns pointer to the string
@@ -72,7 +61,6 @@ char * fixedPointToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, ui
 	
 	int intPart = rawValue >> 9;
 	uint16_t fracPart;
-#if OPTIMIZE_TEMPERATURE_FORMATS_fixedPointToString	
 	const char* fmt;
 	uint16_t scale;
 	switch (numDecimals)
@@ -95,32 +83,6 @@ char * fixedPointToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, ui
 		fracPart = 0;
 	}
 	mysnprintf_P(&s[1], maxLength-1, fmt,  intPart, fracPart);
-#else
-	if(numDecimals == 1){
-		fracPart = ((rawValue & 0x01FF) * 10 + 256) >> 9; // add 256 for rounding
-		if(fracPart >= 10){
-			intPart++;
-			fracPart = 0; // has already overflowed into integer part.
-		}
-		snprintf_P(&s[1], maxLength-1, PSTR("%d.%01d"), intPart, fracPart);
-	}
-	else if(numDecimals == 2){
-		fracPart = ((rawValue  & 0x01FF) * 100 + 256) >> 9;
-		if(fracPart >= 100){
-			intPart++;
-			fracPart = 0; // has already overflowed into integer part.
-		}
-		snprintf_P(&s[1], maxLength-1, PSTR("%d.%02d"), intPart, fracPart);
-	}
-	else{
-		fracPart = ((rawValue  & 0x01FF) * 1000 + 256) >> 9;
-		if(fracPart>=1000){
-			intPart++;
-			fracPart = 0; // has already overflowed into integer part.
-		}
-		snprintf_P(&s[1], maxLength-1, PSTR("%d.%03d"),  intPart, fracPart);
-	}
-#endif
 	return s;
 }
 
@@ -134,14 +96,7 @@ fixed7_9 convertAndConstrain(fixed23_9 rawTemp, int16_t offset)
 
 fixed7_9 stringToTemp(const char * numberString){
 	fixed23_9 rawTemp = stringToFixedPoint(numberString);
-#ifdef OPTIMIZE_TEMPERATURE_FORMATS_convertAntConstrain	
 	return convertAndConstrain(rawTemp, 32<<9);
-#else	
-	if(tempControl.cc.tempFormat == 'F'){
-		rawTemp = ((rawTemp - (32 << 9)) * 5) / 9; // convert to store as Celsius
-	}	
-	return constrainTemp16(rawTemp);
-#endif	
 }
 
 fixed23_9 stringToFixedPoint(const char * numberString){
@@ -184,14 +139,7 @@ char * tempDiffToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint
 
 fixed7_9 stringToTempDiff(const char * numberString){
 	fixed23_9 rawTempDiff = stringToFixedPoint(numberString);
-#ifdef OPTIMIZE_TEMPERATURE_FORMATS_convertAntConstrain
 	return convertAndConstrain(rawTempDiff, 0);	
-#else	
-	if(tempControl.cc.tempFormat == 'F'){
-		rawTempDiff = (rawTempDiff * 5) / 9; // convert to store as Celsius
-	}	
-	return constrainTemp16(rawTempDiff);	
-#endif	
 }
 
 int fixedToTenths(fixed23_9 temperature){
