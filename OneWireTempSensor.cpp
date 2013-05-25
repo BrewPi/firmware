@@ -25,9 +25,7 @@ fixed7_9 OneWireTempSensor::init(){
 	char addressString[17];
 	printBytes(sensorAddress, 8, addressString);
 
-#if (BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A && BREWPI_DEBUG>0) || BREWPI_DEBUG>=2
 	uint8_t pinNr = oneWire->pinNr();
-#endif	
 
 	if (sensor==NULL) {
 		sensor = new DallasTemperature(oneWire);
@@ -84,7 +82,7 @@ fixed7_9 OneWireTempSensor::init(){
 		}
 	}
 	temperature = constrainTemp(temperature+calibrationOffset, ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5; // sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits		
-	logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temperature);	
+	logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temperature);
 	
 	setConnected(true);
 	return temperature;
