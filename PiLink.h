@@ -25,23 +25,6 @@
 #include "DeviceManager.h"
 #include "Debug.h"
 
-#ifndef OPTIMIZE_JSON_OUTPUT
-#define OPTIMIZE_JSON_OUTPUT 1 && OPTIMIZE_GLOBAL
-#endif
-
-#ifndef OPTIMIZE_JSON_OUTPUT_CC
-#define OPTIMIZE_JSON_OUTPUT_CC OPTIMIZE_JSON_OUTPUT
-#endif
-#define OPTIMIZE_JSON_OUTPUT_CV 1 && OPTIMIZE_JSON_OUTPUT
-
-#ifndef OPTIMIZE_JSON_OUTPUT_CV
-#define OPTIMIZE_JSON_OUTPUT_CV OPTIMIZE_JSON_OUTPUT
-#endif
-
-#ifndef OPTIMIZE_JSON_OUTPUT_CS
-#define OPTIMIZE_JSON_OUTPUT_CS OPTIMIZE_JSON_OUTPUT
-#endif
-
 class DeviceConfig;
 
 
@@ -100,7 +83,6 @@ class PiLink{
 	static void openListResponse(char type);
 	static void closeListResponse();
 
-#if OPTIMIZE_JSON_OUTPUT
 	struct JsonOutput {
 		const char* key;			// JSON key
 		uint8_t offset;			// offset into TempControl class
@@ -115,13 +97,8 @@ class PiLink{
 	static void jsonOutputTempDiffToString(const char* key, uint8_t offset);
 	static void jsonOutputChar(const char* key, uint8_t offset);
 	static const JsonOutputHandler JsonOutputHandlers[];		
-#if OPTIMIZE_JSON_OUTPUT_CC	
 	static const JsonOutput jsonOutputCCMap[];
-#endif	
-#if OPTIMIZE_JSON_OUTPUT_CV
 	static const JsonOutput jsonOutputCVMap[];
-#endif
-#endif	
 
 	// Json parsing
 
