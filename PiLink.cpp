@@ -126,12 +126,12 @@ void PiLink::receive(void){
 			tempControl.loadDefaultConstants();
 			display.printStationaryText(); // reprint stationary text to update to right degree unit
 			sendControlConstants(); // update script with new settings
-			DEBUG_MSG_1(PSTR("Default constants loaded."));
+			logInfo(INFO_DEFAULT_CONSTANTS_LOADED);
 			break;
 		case 'S': // Set default settings
 			tempControl.loadDefaultSettings();
 			sendControlSettings(); // update script with new settings
-			DEBUG_MSG_1(PSTR("Default settings loaded."));
+			logInfo(INFO_DEFAULT_SETTINGS_LOADED);
 			break;
 		case 's': // Control settings requested
 			sendControlSettings();
@@ -188,7 +188,7 @@ void PiLink::receive(void){
 			
 		case 'E': // initialize eeprom
 			eepromManager.initializeEeprom();
-			DEBUG_MSG_2(PSTR("EEPROM initialized"));
+			logInfo(INFO_EEPROM_INITIALIZED);
 			settingsManager.loadSettings();
 			break;
 
@@ -214,14 +214,14 @@ void PiLink::receive(void){
 #if (BREWPI_DEBUG > 0)			
 		case 'Z': // zap eeprom
 			eepromManager.zapEeprom();
-			DEBUG_MSG_1(PSTR("Zapped eeprom."));
+			logInfo(INFO_EEPROM_ZAPPED);
 			break;
 #endif
 
 #endif // !BREWPI_SIMULATE
 
 		default:
-			DEBUG_MSG_1(PSTR("Invalid command received by Arduino: %c"), inByte);
+			logWarningInt(WARNING_INVALID_COMMAND, inByte);
 		}
 	}
 }
@@ -657,7 +657,7 @@ void PiLink::parseJson(ParseJsonCallback fn, void* data)
 	int c = readNext();		
 	if (c!='{')
 	{
-		DEBUG_MSG_1(PSTR("Expected { got %c"), c);
+		logErrorInt(ERROR_EXPECTED_BRACKET, c);
 		return;
 	}
 	do {
@@ -812,7 +812,7 @@ const PiLink::JsonPaserConvert PiLink::jsonPaserConverters[] = {
 };
 
 void PiLink::processJsonPair(const char * key, const char * val, void* pv){
-	DEBUG_MSG_1(PSTR("Received new setting: %s = %s"), key, val);
+	logInfoStringString(INFO_RECEIVED_SETTING, key, val);
 	
 // change to 1 to use old code in case any suspicious behaviour is found. This will be removed prior to release.
 #if 0
@@ -874,9 +874,9 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 #else
 	for (uint8_t i=0; i<sizeof(jsonPaserConverters)/sizeof(jsonPaserConverters[0]); i++) {
 		JsonPaserConvert converter = jsonPaserConverters[i];
-		//DEBUG_MSG_1(PSTR("Handling converter %d %s %S %d %d"), i, key, converter.key, converter.fn, converter.target);
+		//logDeveloper(PSTR("Handling converter %d %s %S %d %d"), i, key, converter.key, converter.fn, converter.target);
 		if (strcmp_P(key,converter.key) == 0) {
-			//DEBUG_MSG_1(PSTR("Handling json key %s"), key);
+			//logDeveloper(PSTR("Handling json key %s"), key);
 			converter.fn(val, converter.target);
 			return;
 		}
@@ -888,7 +888,7 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 
 
 	{
-		DEBUG_MSG_1(PSTR("Could not process setting"));
+		logWarning(WARNING_COULD_NOT_PROCESS_SETTING);
 	}
 
 }

@@ -11,12 +11,12 @@
 #include "TemperatureFormats.h"
 #include "JsonKeys.h"
 
-void Logger::logMessage(char type, DEBUG_ID_TYPE errorID){
+/*void Logger::logMessage(char type, DEBUG_ID_TYPE errorID){
 	piLink.printResponse('D');
 	piLink.sendJsonPair(JSONKEY_logType, type);
 	piLink.sendJsonPair(JSONKEY_logID, errorID);
 	piLink.sendJsonClose();
-}
+}*/
 
 void Logger::logMessageVaArg(char type, DEBUG_ID_TYPE errorID, const char * varTypes, ...){
 	va_list args;
@@ -28,15 +28,16 @@ void Logger::logMessageVaArg(char type, DEBUG_ID_TYPE errorID, const char * varT
 	uint8_t index = 0;
 	while(varTypes[index]){
 		switch(varTypes[index]){	
-			case 'd':
+			case 'd': // integer, signed or unsigned
 				piLink.print_P(PSTR("%d"), va_arg(args, int));
 				break;
-			case 's':
+			case 's': // string
 				piLink.print_P(PSTR("\"%s\""), va_arg(args, char*));
 				break;
-			case 'S':
-				piLink.print_P(PSTR("\"%s\""), va_arg(args, const char *));
-				break;
+			case 't': // temperature in fixed_7_9 format
+				char buf[12];
+				piLink.print_P(PSTR("\"%s\""), tempToString(buf, va_arg(args,int), 1, 12));
+			break;			
 		}
 		if(varTypes[++index]){
 			piLink.print(',');

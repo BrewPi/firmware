@@ -51,7 +51,7 @@ void EepromManager::initializeEeprom()
 		tempControl.storeConstants(pv+offsetof(ChamberBlock, chamberSettings.cc));
 		pv += offsetof(ChamberBlock, beer)+offsetof(BeerBlock, cs);
 		for (uint8_t b=0; b<ChamberBlock::MAX_BEERS; b++) {
-//			DEBUG_MSG_2(PSTR("EepromManager - saving settings for beer %d at %d"), b, (uint16_t)pv);
+//			logDeveloper(PSTR("EepromManager - saving settings for beer %d at %d"), b, (uint16_t)pv);
 			tempControl.storeSettings(pv);	
 			pv += sizeof(BeerBlock);		// advance to next beer
 		}
@@ -123,14 +123,14 @@ bool EepromManager::applySettings()
 	// start from a clean state		
 	deviceManager.setupUnconfiguredDevices();
 		
-	DEBUG_MSG_3(PSTR("Applying settings"));
+	logDeveloper(PSTR("Applying settings"));
 
 	// load the one chamber and one beer for now
 	eptr_t pv = pointerOffset(chambers);
 	tempControl.loadConstants(pv+offsetof(ChamberBlock, chamberSettings.cc));	
 	tempControl.loadSettings(pv+offsetof(ChamberBlock, beer[0].cs));
 	
-	DEBUG_MSG_3(PSTR("Applied settings"));
+	logDeveloper(PSTR("Applied settings"));
 	
 	
 	if (!BREWPI_SIMULATE) {

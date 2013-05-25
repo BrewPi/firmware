@@ -25,7 +25,7 @@
 
 void SettingsManager::loadSettings()
 {
-	DEBUG_MSG_3(PSTR("loading settings"));
+	logDeveloper(PSTR("loading settings"));
 
 
 	if (!eepromManager.applySettings())
@@ -35,12 +35,12 @@ void SettingsManager::loadSettings()
 		
 		deviceManager.setupUnconfiguredDevices();
 
-		DEBUG_MSG_1(PSTR("EEPROM Settings not available. Starting in safe mode."));
+		logWarning(WARNING_START_IN_SAFE_MODE);
 	}
 	
 	#if (BREWPI_SIMULATE)
 	{
-		DEBUG_MSG_3(PSTR("Setting up simulator devices."))
+		logDeveloper(PSTR("Setting up simulator devices."))
 			
 		static ExternalTempSensor* ambient = new ExternalTempSensor(true);
 		static ExternalTempSensor* beer = new ExternalTempSensor(true);
