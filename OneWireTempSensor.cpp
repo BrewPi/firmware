@@ -43,10 +43,10 @@ fixed7_9 OneWireTempSensor::init(){
 	if (!sensorAddress[0]) {
 		if (!sensor->getAddress(sensorAddress, 0)) {
 			// error no sensor found
-			logErrorUint8(ERROR_SENSOR_NO_ADDRESS_ON_PIN, pinNr);
+			logErrorInt(ERROR_SENSOR_NO_ADDRESS_ON_PIN, pinNr);
 			if (connected) {
 				// log only on transition from connected to disconnected.				
-				logInfoUint8(INFO_SENSOR_CONNECTED, pinNr);
+				logInfoInt(INFO_SENSOR_CONNECTED, pinNr);
 			}
 			setConnected(false);
 			return DEVICE_DISCONNECTED;

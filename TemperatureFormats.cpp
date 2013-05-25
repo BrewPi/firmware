@@ -54,7 +54,7 @@ char * fixedPointToString(char s[9], fixed7_9 rawValue, uint8_t numDecimals, uin
 }	
 
 
-// this gets rid of vsnprintf_P
+// this gets rid of snprintf_P
 void mysnprintf_P(char* buf, int len, const char* fmt, ...)
 {
 	va_list args;

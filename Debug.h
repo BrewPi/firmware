@@ -41,49 +41,47 @@
 #define BREWPI_DEBUG_INFO 1
 #define BREWPI_DEBUG_DEVELOPER 1
 
-#define NUMARGS_UINT8(...)  (sizeof((uint8_t[]){__VA_ARGS__})/sizeof(uint8_t))
-#define NUMARGS_STRING(...)  (sizeof((char*[]){__VA_ARGS__})/sizeof(char*))
-#define NUMARGS_CONST_STRING(...)  (sizeof((const char*[]){__VA_ARGS__})/sizeof(const char*))
-
 #if BREWPI_DEBUG_ERRORS
-	#define logError(debugId)					logger.logMessage('E', debugId)
-	#define logErrorUint8(debugId, ...)			logger.logMessageUint8('E', debugId, NUMARGS_UINT8(__VA_ARGS__), __VA_ARGS__)
-	#define logErrorString(debugId, ...)		logger.logMessageString('E', debugId, NUMARGS_STRING(__VA_ARGS__), __VA_ARGS__)
-	#define logErrorConstString(debugId, ...)	logger.logMessageConstString('E', debugId, NUMARGS_CONST_STRING(__VA_ARGS__), __VA_ARGS__)
+	#define logError(debugId)					logger.logMessageVaArg('E', debugId, "")
+	#define logErrorInt(debugId, val)			logger.logMessageVaArg('E', debugId, "d", val)
+	#define logErrorString(debugId, val)		logger.logMessageVaArg('E', debugId, "s", val)
+	#define logErrorConstString(debugId, val)	logger.logMessageVaArg('E', debugId, "S", val)
 	#define logError_temp(debugId, temp)		logger.logMessage_temp(debugId, temp)
 #else
 	#define logError(debugId)
-	#define logErrorUint8(debugId, ...)
+	#define logErrorInt(debugId, ...)
 	#define logErrorString(debugId, ...)
 	#define logErrorConstString(debugId, ...)
 	#define logError_temp(debugId, temp)
 #endif
 
 #if BREWPI_DEBUG_WARNINGS
-	#define logWarning(debugId)					logger.logMessage('W', debugId)
-	#define logWarningUint8(debugId, ...)		logger.logMessageUint8('W', debugId, NUMARGS_UINT8(__VA_ARGS__), __VA_ARGS__)
-	#define logWarningString(debugId, ...)		logger.logMessageString('W', debugId, NUMARGS_STRING(__VA_ARGS__), __VA_ARGS__)
-	#define logWarningConstString(debugId, ...) logger.logMessageConstString('W', debugId, NUMARGS_CONST_STRING(__VA_ARGS__), __VA_ARGS__)
+	#define logWarning(debugId)					logger.logMessageVaArg('I', debugId, "")
+	#define logWarningInt(debugId, ...)			logger.logMessageVaArg('I', debugId, "d", val)
+	#define logWarningString(debugId, ...)		logger.logMessageVaArg('I', debugId, "s", val)
+	#define logWarningConstString(debugId, ...) logger.logMessageVaArg('I', debugId, "S", val)
 	#define logWarning_temp(debugId, temp)		logger.logMessage_temp(debugId, temp)
 #else
 	#define logWarning(debugId)
-	#define logWarningUint8(debugId, ...)
+	#define logWarningInt(debugId, ...)
 	#define logWarningString(debugId, ...)
 	#define logWarningConstString(debugId, ...)
 	#define logWarning_temp(debugId, temp)
 #endif
 
 #if BREWPI_DEBUG_INFO
-	#define logInfo(debugId)					logger.logMessage('I', debugId)
-	#define logInfoUint8(debugId, ...)			logger.logMessageUint8('I', debugId, NUMARGS_UINT8(__VA_ARGS__), __VA_ARGS__)
-	#define logInfoString(debugId, ...)			logger.logMessageString('I', debugId, NUMARGS_STRING(__VA_ARGS__), __VA_ARGS__)
-	#define logInfoConstString(debugId, ...)	logger.logMessageConstString('I', debugId, NUMARGS_CONST_STRING(__VA_ARGS__), __VA_ARGS__)
-	#define logInfo_temp(debugId, temp)			logger.logMessage_temp(debugId, temp)
+	#define logInfo(debugId)							logger.logMessageVaArg('I', debugId, "")
+	#define logInfoInt(debugId, val)					logger.logMessageVaArg('I', debugId, "d", val)
+	#define logInfoString(debugId, val)					logger.logMessageVaArg('I', debugId, "s", val)
+	#define logInfoConstString(debugId, val)			logger.logMessageVaArg('I', debugId, "S", val)
+	#define logInfoConstString2(debugId, val1, val2)	logger.logMessageVaArg('I', debugId, "SS", val1, val2)
+	#define logInfo_temp(debugId, temp)					logger.logMessage_temp(debugId, temp)
 #else
 	#define logInfo(debugId)
-	#define logInfoUint8(debugId, ...)
+	#define logInfoInt(debugId, ...)
 	#define logInfoString(debugId, ...)
 	#define logInfoConstString(debugId, ...)
+	#define logInfoConstString2(debugId, val1, val2)
 	#define logInfo_temp(debugId, temp)
 #endif
 
@@ -103,10 +101,8 @@ class Logger{
 	void logMessageUint8(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...);
 	void logMessageString(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...);
 	void logMessageConstString(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...);
-	
-	template <class T>
-	void logMessageVaArg(char type, DEBUG_ID_TYPE errorID, uint8_t n, ...);
-	
+	void logMessageVaArg(char type, DEBUG_ID_TYPE errorID, const char * varTypes, ...);
+		
 	void logMessage_temp(DEBUG_ID_TYPE errorID, fixed7_9 value);
 };
 

@@ -200,20 +200,20 @@ void DeviceManager::uninstallDevice(DeviceConfig& config)
 			s = &unwrapSensor(config.deviceFunction, *ppv);
 			if (s!=&defaultTempSensor) {
 				setSensor(config.deviceFunction, ppv, &defaultTempSensor);
-				logInfoUint8(INFO_UNINSTALL_TEMP_SENSOR, config.deviceFunction);
+				logInfoInt(INFO_UNINSTALL_TEMP_SENSOR, config.deviceFunction);
 				delete s;
 			}
 			break;
 		case DEVICETYPE_SWITCH_ACTUATOR:
 			if (*ppv!=&defaultActuator) {
-				logInfoUint8(INFO_UNINSTALL_ACTUATOR, config.deviceFunction);
+				logInfoInt(INFO_UNINSTALL_ACTUATOR, config.deviceFunction);
 				delete (Actuator*)*ppv;
 				*ppv = &defaultActuator;
 			}
 			break;
 		case DEVICETYPE_SWITCH_SENSOR:
 			if (*ppv!=&defaultSensor) {
-				logInfoUint8(INFO_UNINSTALL_SWITCH_SENSOR, config.deviceFunction);
+				logInfoInt(INFO_UNINSTALL_SWITCH_SENSOR, config.deviceFunction);
 				delete (SwitchSensor*)*ppv;
 				*ppv = &defaultSensor;
 			}
@@ -237,11 +237,11 @@ void DeviceManager::installDevice(DeviceConfig& config)
 		case DEVICETYPE_NONE:
 			break;
 		case DEVICETYPE_TEMP_SENSOR:
-			logInfoUint8(INFO_INSTALL_TEMP_SENSOR, config.deviceFunction);
+			logInfoInt(INFO_INSTALL_TEMP_SENSOR, config.deviceFunction);
 			// sensor may be wrapped in a TempSensor class, or may stand alone.
 			s = (BasicTempSensor*)createDevice(config, dt);
 			if (*ppv==NULL){
-				logErrorUint8(ERROR_OUT_OF_MEMORY_FOR_DEVICE, config.deviceFunction);
+				logErrorInt(ERROR_OUT_OF_MEMORY_FOR_DEVICE, config.deviceFunction);
 			}
 			if (isBasicSensor(config.deviceFunction)) {
 				s->init();
@@ -255,11 +255,11 @@ void DeviceManager::installDevice(DeviceConfig& config)
 			break;
 		case DEVICETYPE_SWITCH_ACTUATOR:
 		case DEVICETYPE_SWITCH_SENSOR:
-			logInfoUint8(INFO_INSTALL_DEVICE, config.deviceFunction);
+			logInfoInt(INFO_INSTALL_DEVICE, config.deviceFunction);
 			*ppv = createDevice(config, dt);
 #if (BREWPI_DEBUG > 0)
 			if (*ppv==NULL)
-				logErrorUint8(ERROR_OUT_OF_MEMORY_FOR_DEVICE, config.deviceFunction);
+				logErrorInt(ERROR_OUT_OF_MEMORY_FOR_DEVICE, config.deviceFunction);
 #endif			
 			break;
 	}	
@@ -322,7 +322,7 @@ inline int8_t indexOf(const char* s, char c)
 void handleDeviceDefinition(const char* key, const char* val, void* pv)
 {
 	DeviceDefinition* def = (DeviceDefinition*) pv;
-	logInfoConstString(INFO_DEVICE_DEFINITION, key, val);
+	logInfoConstString2(INFO_DEVICE_DEFINITION, key, val);
 	
 	// the characters are listed in the same order as the DeviceDefinition struct.
 	int8_t idx = indexOf(DeviceDefinition::ORDER, key[0]);
@@ -442,20 +442,20 @@ bool DeviceManager::isDeviceValid(DeviceConfig& config, DeviceConfig& original, 
 	/* chamber and beer within range.*/
 	if (!inRangeUInt8(config.chamber, 0, EepromFormat::MAX_CHAMBERS))
 	{
-		logErrorUint8(ERROR_INVALID_CHAMBER, config.chamber);
+		logErrorInt(ERROR_INVALID_CHAMBER, config.chamber);
 		return false;
 	}
 
 	/* 0 is allowed - represents a chamber device not assigned to a specific beer */
 	if (!inRangeUInt8(config.beer, 0, ChamberBlock::MAX_BEERS))
 	{
-		logErrorUint8(ERROR_INVALID_BEER, config.beer);
+		logErrorInt(ERROR_INVALID_BEER, config.beer);
 		return false;
 	}
 
 	if (!inRangeUInt8(config.deviceFunction, 0, DEVICE_MAX-1))
 	{
-		logErrorUint8(ERROR_INVALID_DEVICE_FUNCTION, config.deviceFunction);
+		logErrorInt(ERROR_INVALID_DEVICE_FUNCTION, config.deviceFunction);
 		return false;
 	}
 
