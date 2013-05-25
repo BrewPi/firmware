@@ -652,8 +652,10 @@ void PiLink::parseJson(ParseJsonCallback fn, void* data)
 {
 	char key[30];
 	char val[30];
+	*key = 0;
+	*val = 0;
 	bool next = true;
-	// read first open brace
+	// read first open brace	
 	int c = readNext();		
 	if (c!='{')
 	{
