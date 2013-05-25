@@ -121,10 +121,26 @@ class PiLink{
 #if OPTIMIZE_JSON_OUTPUT_CV
 	static const JsonOutput jsonOutputCVMap[];
 #endif
-	
 #endif	
-	
-	
+
+	// Json parsing
+
+	static void setMode(const char* val);
+	static void setBeerSetting(const char* val);
+	static void setFridgeSetting(const char* val);
+	static void setTempFormat(const char* val);
+
+	typedef void (*JsonParserHandlerFn)(const char* val, void* target);	
+
+	struct JsonPaserConvert {
+		const char* /*PROBMEM*/ key;
+		void* target;
+		JsonParserHandlerFn fn;
+	};
+
+	static const JsonPaserConvert jsonPaserConverters[];
+	// 
+		
 #if BREWPI_SIMULATE	
 	static void updateInputs();
 	public:
@@ -133,6 +149,7 @@ class PiLink{
 	static void sendJsonPair(const char* name, double val);
 	static void printDouble(double val);
 #endif	
+
 	private:
 	static bool firstPair;
 	friend class DeviceManager;
@@ -141,5 +158,8 @@ class PiLink{
 };
 
 extern PiLink piLink;
+
+	
+
 
 #endif /* PILINK_H_ */

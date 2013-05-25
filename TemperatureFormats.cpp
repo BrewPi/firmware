@@ -53,6 +53,16 @@ char * fixedPointToString(char s[9], fixed7_9 rawValue, uint8_t numDecimals, uin
 	return fixedPointToString(s, (fixed23_9)rawValue, numDecimals, maxLength);
 }	
 
+
+// this gets rid of vsnprintf_P
+void mysnprintf_P(char* buf, int len, const char* fmt, ...)
+{
+	va_list args;
+	va_start (args, fmt );
+	vsnprintf_P(buf, len, fmt, args);
+	va_end (args);
+}
+
 char * fixedPointToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength){ 
 	s[0] = ' ';
 	if(rawValue < 0l){
@@ -84,7 +94,7 @@ char * fixedPointToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, ui
 		intPart++;
 		fracPart = 0;
 	}
-	snprintf_P(&s[1], maxLength-1, fmt,  intPart, fracPart);
+	mysnprintf_P(&s[1], maxLength-1, fmt,  intPart, fracPart);
 #else
 	if(numDecimals == 1){
 		fracPart = ((rawValue & 0x01FF) * 10 + 256) >> 9; // add 256 for rounding
