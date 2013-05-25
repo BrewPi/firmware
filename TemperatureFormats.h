@@ -22,7 +22,6 @@
 #define TEMPERATUREFORMATS_H_
 
 #include "Brewpi.h"
-#include "Optimize.h"
 #include <inttypes.h>
 // all temperature are stored as fixed point integers:
 // 7 bits for the integer part: -64 to 63

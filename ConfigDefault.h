@@ -112,6 +112,11 @@
 	#define BREWPI_BOARD "standard"
 #endif
 
+#ifndef OPTIMIZE_GLOBAL
+#define OPTIMIZE_GLOBAL 1
+#endif
+
+
 #endif
 
 
