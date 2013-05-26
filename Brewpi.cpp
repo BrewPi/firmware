@@ -69,7 +69,7 @@ void setup()
 {
 	piLink.init();
 
-	logDeveloper(PSTR("started"));	
+	logDeveloper("started");	
 	tempControl.init();
 	settingsManager.loadSettings();
 	
@@ -88,7 +88,7 @@ void setup()
 	buzzer.beep(2, 500);
 #endif	
 
-	logDeveloper(PSTR("init complete"));
+	logDeveloper("init complete");
 }
 
 

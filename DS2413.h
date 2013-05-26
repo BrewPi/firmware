@@ -80,8 +80,9 @@ public:
 				result &= ~mask;
 			channelWriteAll((uint8_t)result);
 		}
-		else
-			logDeveloper(PSTR("ChannelReadAll failed"));
+		else{
+			logDeveloper("ChannelReadAll failed");
+		}
 	}
 	
 	void channelWriteAll(uint8_t values);

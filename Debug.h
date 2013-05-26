@@ -39,7 +39,7 @@
 #define BREWPI_DEBUG_ERRORS 1
 #define BREWPI_DEBUG_WARNINGS 1
 #define BREWPI_DEBUG_INFO 1
-#define BREWPI_DEBUG_DEVELOPER 0
+#define BREWPI_DEBUG_DEVELOPER 1
 
 #if BREWPI_DEBUG_ERRORS
 	#define logError(debugId)				logger.logMessageVaArg('E', debugId, "")
@@ -84,9 +84,10 @@
 #endif
 
 #if BREWPI_DEBUG_DEVELOPER
-	#define logDeveloper(...) piLink.debugMessage(__VA_ARGS__)
+	#define logDeveloper(string) piLink.debugMessage(PSTR(string))
+	#define logDeveloperVaArg(string, ...) piLink.debugMessage(PSTR(string), __VA_ARGS__)
 #else
-	#define logDeveloper(debugId, ...)
+	#define logDeveloper(string, ...)
 #endif
 
 class Logger{

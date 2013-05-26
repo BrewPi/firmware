@@ -126,7 +126,7 @@ void setTicks(ExternalTicks& externalTicks, const char* val, int multiplier=1000
 			externalTicks.incMillis(atol(val+1)*multiplier);
 	}
 	
-	logDeveloper(PSTR("New ticks %lu"), externalTicks.millis());
+	logDeveloper("New ticks %lu"), externalTicks.millis();
 }
 
 
