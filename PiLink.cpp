@@ -219,7 +219,6 @@ void PiLink::receive(void){
 #endif
 
 #endif // !BREWPI_SIMULATE
-
 		default:
 			logWarningInt(WARNING_INVALID_COMMAND, inByte);
 		}
@@ -299,10 +298,8 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
 #if BREWPI_SIMULATE	
 	printJsonName(PSTR(JSON_TIME));
 	print_P(PSTR("%lu"), ticks.millis()/1000);
-#endif	
-	
-	sendJsonClose();
-	printNewLine();
+#endif		
+	sendJsonClose();	
 }
 
 void PiLink::sendJsonAnnotation(const char* name, const char* annotation)

@@ -18,6 +18,8 @@
 	piLink.sendJsonClose();
 }*/
 
+static const char* PROGMEM LOG_STRING_FORMAT = "\"%s\"";
+
 void Logger::logMessageVaArg(char type, DEBUG_ID_TYPE errorID, const char * varTypes, ...){
 	va_list args;
 	piLink.printResponse('D');
@@ -32,11 +34,11 @@ void Logger::logMessageVaArg(char type, DEBUG_ID_TYPE errorID, const char * varT
 				piLink.print_P(PSTR("%d"), va_arg(args, int));
 				break;
 			case 's': // string
-				piLink.print_P(PSTR("\"%s\""), va_arg(args, char*));
+				piLink.print_P(LOG_STRING_FORMAT, va_arg(args, char*));
 				break;
 			case 't': // temperature in fixed_7_9 format
 				char buf[12];
-				piLink.print_P(PSTR("\"%s\""), tempToString(buf, va_arg(args,int), 1, 12));
+				piLink.print_P(LOG_STRING_FORMAT, tempToString(buf, va_arg(args,int), 1, 12));
 			break;			
 		}
 		if(varTypes[++index]){
