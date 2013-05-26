@@ -464,7 +464,7 @@ void TempControl::loadSettings(eptr_t offset){
 	eepromAccess.readBlock((void *) &cs, offset, sizeof(ControlSettings));	
 	uint8_t mode = cs.mode;
 	cs.mode = 0;
-	logDeveloper(PSTR("loaded settings, mode=%c"), mode);
+	logDeveloper("loaded settings, mode=%c", mode);
 	setMode(mode);		// force the mode update
 }
 
@@ -534,7 +534,7 @@ void TempControl::loadSettingsAndConstants(void){
 #endif
 
 void TempControl::setMode(char newMode){
-	logDeveloper(PSTR("TempControl::setMode from %c to %c"), cs.mode, newMode);
+	logDeveloper("TempControl::setMode from %c to %c", cs.mode, newMode);
 	if(newMode != cs.mode){
 		state = IDLE;
 	cs.mode = newMode;	

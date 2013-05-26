@@ -760,9 +760,9 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 	
 	for (uint8_t i=0; i<sizeof(jsonPaserConverters)/sizeof(jsonPaserConverters[0]); i++) {
 		JsonParserConvert converter = jsonPaserConverters[i];
-		//logDeveloper(PSTR("Handling converter %d %s %S %d %d"), i, key, converter.key, converter.fn, converter.target);
+		//logDeveloper("Handling converter %d %s %S %d %d"), i, key, converter.key, converter.fn, converter.target);
 		if (strcmp_P(key,converter.key) == 0) {
-			//logDeveloper(PSTR("Handling json key %s"), key);
+			//logDeveloper("Handling json key %s"), key);
 			converter.fn(val, converter.target);
 			return;
 		}
