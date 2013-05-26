@@ -343,6 +343,10 @@ bool inRangeInt8(int8_t val, int8_t min, int8_t max) {
 	return min<=val && val<=max;
 }
 
+void assignIfSet(int8_t value, uint8_t* target) {
+	if (value>=0)
+		*target = (uint8_t)value;
+}
 
 /**
  * Updates the device definition. Only changes that result in a valid device, with no conflicts with other devices
@@ -366,38 +370,26 @@ void DeviceManager::parseDeviceDefinition(Stream& p)
 	eepromManager.fetchDevice(original, dev.id);
 	memcpy(&target, &original, sizeof(target));
 	
-	if (dev.chamber>=0) {
-		target.chamber = dev.chamber;
-	}				
-	if (dev.beer>=0) {
-		target.beer = dev.beer;
-	}		
-	if (dev.deviceFunction>=0) {
-		target.deviceFunction = DeviceFunction(dev.deviceFunction);
-	}		
-	if (dev.deviceHardware>=0) {		
-		target.deviceHardware = DeviceHardware(dev.deviceHardware);		
-	}
-
-	if (dev.pinNr>=0) 
-		target.hw.pinNr = dev.pinNr;
+	assignIfSet(dev.chamber, &target.chamber);
+	assignIfSet(dev.beer, &target.beer);
+	assignIfSet(dev.deviceFunction, (uint8_t*)&target.deviceFunction);
+	assignIfSet(dev.deviceHardware, (uint8_t*)&target.deviceHardware);
+	assignIfSet(dev.pinNr, &target.hw.pinNr);
 	
+		
 #if BREWPI_DS2413	
-	if (dev.pio>=0)
-		target.hw.pio = dev.pio;
+	assignIfSet(dev.pio, &target.hw.pio);
 #endif		
 	
 	if (dev.calibrationAdjust!=-1)		// since this is a union, it also handles pio for 2413 sensors
 		target.hw.calibration = dev.calibrationAdjust;
 
-	if (dev.invert>=0) 
-		target.hw.invert = dev.invert;
+	assignIfSet(dev.invert, (uint8_t*)&target.hw.invert);
 		
 	if (dev.address[0]!=0xFF)	// first byte is family identifier. I don't have a complete list, but so far 0xFF is not used.
 		memcpy(target.hw.address, dev.address, 8);
 
-	if (dev.deactivate>=0)
-		target.hw.deactivate = dev.deactivate;
+	assignIfSet(dev.deactivate, (uint8_t*)&target.hw.deactivate);
 	
 	// setting function to none clears all other fields.
 	if (target.deviceFunction==DEVICE_NONE) {
