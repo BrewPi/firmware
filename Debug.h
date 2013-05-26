@@ -84,8 +84,7 @@
 #endif
 
 #if BREWPI_DEBUG_DEVELOPER
-	#define logDeveloper(string) piLink.debugMessage(PSTR(string))
-	#define logDeveloperVaArg(string, ...) piLink.debugMessage(PSTR(string), __VA_ARGS__)
+	#define logDeveloper(string, ...) piLink.debugMessage(PSTR(string), ##__VA_ARGS__)
 #else
 	#define logDeveloper(string, ...)
 #endif

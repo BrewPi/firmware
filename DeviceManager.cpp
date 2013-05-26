@@ -322,7 +322,7 @@ inline int8_t indexOf(const char* s, char c)
 void handleDeviceDefinition(const char* key, const char* val, void* pv)
 {
 	DeviceDefinition* def = (DeviceDefinition*) pv;
-	logDeveloperVaArg("deviceDef %s:%s", key, val);
+	logDeveloper("deviceDef %s:%s", key, val);
 	
 	// the characters are listed in the same order as the DeviceDefinition struct.
 	int8_t idx = indexOf(DeviceDefinition::ORDER, key[0]);
@@ -620,7 +620,7 @@ struct EnumerateHardware
 void handleHardwareSpec(const char* key, const char* val, void* pv)
 {
 	EnumerateHardware* h = (EnumerateHardware*)pv;
-	logDeveloperVaArg("hardwareSpec %s:%s", key, val);
+	logDeveloper("hardwareSpec %s:%s", key, val);
 	
 	int8_t idx = indexOf("hpvuf", key[0]);
 	if (idx>=0) {
@@ -743,7 +743,7 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCal
 		if (h.pin!=-1 && h.pin!=pin)
 			continue;
 		config.hw.pinNr = pin;
-		logDeveloperVaArg("Enumerating one-wire devices on pin %d", pin);				
+		logDeveloper("Enumerating one-wire devices on pin %d", pin);				
 		OneWire* wire = oneWireBus(pin);	
 		if (wire!=NULL) {
 			wire->reset_search();
@@ -778,7 +778,7 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCal
 				}
 			}
 		}
-		logDeveloperVaArg("Enumerating one-wire devices on pin %d complete", pin);
+		logDeveloper("Enumerating one-wire devices on pin %d complete", pin);
 	}	
 }
 
