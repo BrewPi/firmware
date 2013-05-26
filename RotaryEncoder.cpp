@@ -110,7 +110,7 @@ void RotaryEncoder::pinAHandler(bool pinState){
 		return; // not a transition
 	}
 	pinATime = ticks.micros();
-	if ( pinASignal != pinBSignal ){
+	if ( pinASignal == pinBSignal ){
 		steps++;
 	}
 	else{
