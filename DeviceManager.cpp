@@ -677,7 +677,7 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardwa
 	
 	logDeveloper("Handling device");
 	out.slot = findHardwareDevice(config);
-	logInfoInt(INFO_MATCHING_DEVICE, out.slot);
+	DEBUG_ONLY(logInfoInt(INFO_MATCHING_DEVICE, out.slot));
 	
 	if (isDefinedSlot(out.slot)) {
 		if (h.unused)	// only list unused devices, and this one is already used
@@ -824,7 +824,7 @@ void UpdateDeviceState(DeviceDisplay& dd, DeviceConfig& dc, char* val)
 
 	if (dd.write>=0 && dt==DEVICETYPE_SWITCH_ACTUATOR) {
 		// write value to a specific device. For now, only actuators are relevant targets
-		logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write!=0);
+		DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write!=0));
 		((Actuator*)*ppv)->setActive(dd.write!=0);
 	}
 	else if (dd.value==1) {		// read values 
