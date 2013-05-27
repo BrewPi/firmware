@@ -116,6 +116,13 @@
 #define OPTIMIZE_GLOBAL 1
 #endif
 
+/*
+ * Disable onewire crc table - it takes up 256 bytes of progmem.
+ */
+#ifndef ONEWIRE_CRC8_TABLE
+#define ONEWIRE_CRC8_TABLE 0
+#endif
+
 
 #endif
 
