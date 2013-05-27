@@ -35,8 +35,6 @@ int16_t RotaryEncoder::maximum;
 int16_t RotaryEncoder::minimum;
 volatile int16_t RotaryEncoder::steps;
 volatile bool RotaryEncoder::pushFlag;
-const uint8_t ** RotaryEncoder::table;
-uint8_t RotaryEncoder::state;
 
 
 #if rotarySwitchPin != 7
@@ -130,7 +128,7 @@ uint8_t RotaryEncoder::state;
 #define HS_R_START_M 0x3
 #define HS_R_CW_BEGIN_M 0x4
 #define HS_R_CCW_BEGIN_M 0x5
-const uint8_t PROGMEM hs_ttable[6][4] = {
+const uint8_t PROGMEM hs_ttable[7][4] = {
 	// R_START (00)
 	{HS_R_START_M,            HS_R_CW_BEGIN,     HS_R_CCW_BEGIN,  R_START},
 	// HS_R_CCW_BEGIN
@@ -143,6 +141,7 @@ const uint8_t PROGMEM hs_ttable[6][4] = {
 	{HS_R_START_M,            HS_R_START_M,      HS_R_CW_BEGIN_M, R_START | DIR_CW},
 	// HS_R_CCW_BEGIN_M
 	{HS_R_START_M,            HS_R_CCW_BEGIN_M,  HS_R_START_M,    R_START | DIR_CCW},
+	{R_START, R_START, R_START, R_START}
 };
 
 // Use the full-step state table (emits a code at 00 only)
@@ -194,6 +193,7 @@ ISR(PCINT0_vect){
 #endif
 
 void RotaryEncoder::process(void){
+	static uint8_t state=R_START;
 	// Grab state of input pins.
 	#if defined(USBCON)
 	// Arduino Leonardo
@@ -205,9 +205,15 @@ void RotaryEncoder::process(void){
 	#endif
 	
 	unsigned char pinstate = (currPinB << 1) | currPinA;
-		
+
 	// Determine new state from the pins and state table.
-	state = pgm_read_byte(&(table[state & 0xf][pinstate]));
+	if(tempControl.cc.rotaryHalfSteps){
+		state = pgm_read_byte(&(hs_ttable[state & 0xf][pinstate]));	
+	}
+	else{
+		state = pgm_read_byte(&(ttable[state & 0xf][pinstate]));	
+	}
+	
 	// Get emit bits, ie the generated event.
 	
 	uint8_t dir = state & 0x30;
@@ -231,7 +237,6 @@ void RotaryEncoder::setPushed(void){
 
 
 void RotaryEncoder::init(void){
-	state = R_START;
 	#if(USE_INTERNAL_PULL_UP_RESISTORS)
 	fastPinMode(rotaryAPin, INPUT_PULLUP);
 	fastPinMode(rotaryBPin, INPUT_PULLUP);
@@ -240,15 +245,7 @@ void RotaryEncoder::init(void){
 	fastPinMode(rotaryAPin, INPUT);
 	fastPinMode(rotaryBPin, INPUT);
 	fastPinMode(rotarySwitchPin, INPUT);
-	#endif
-	
-	if(tempControl.cc.rotaryHalfSteps){
-		table = (const uint8_t **) hs_ttable;	
-	}
-	else{
-		table = (const uint8_t **) ttable;
-	}
-	
+	#endif	
 	
 #if ENABLE_ROTARY_ENCODER	
 	#if defined(USBCON) // Arduino Leonardo
