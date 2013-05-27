@@ -27,6 +27,7 @@
 #include "Display.h"
 #include "FastDigitalPin.h"
 #include "Brewpi.h"
+#include "TempControl.h"
 
 RotaryEncoder rotaryEncoder;
 
@@ -116,28 +117,27 @@ RotaryEncoder rotaryEncoder;
 #define R_START 0x0
 // #define HALF_STEP
 
-#ifdef HALF_STEP
 // Use the half-step state table (emits a code at 00 and 11)
-#define R_CCW_BEGIN 0x1
-#define R_CW_BEGIN 0x2
-#define R_START_M 0x3
-#define R_CW_BEGIN_M 0x4
-#define R_CCW_BEGIN_M 0x5
-const unsigned char PROGMEM ttable[6][4] = {
+#define HS_R_CCW_BEGIN 0x1
+#define HS_R_CW_BEGIN 0x2
+#define HS_R_START_M 0x3
+#define HS_R_CW_BEGIN_M 0x4
+#define HS_R_CCW_BEGIN_M 0x5
+const uint8_t PROGMEM hs_ttable[6][4] = {
 	// R_START (00)
-	{R_START_M,            R_CW_BEGIN,     R_CCW_BEGIN,  R_START},
-	// R_CCW_BEGIN
-	{R_START_M | DIR_CCW, R_START,        R_CCW_BEGIN,  R_START},
-	// R_CW_BEGIN
-	{R_START_M | DIR_CW,  R_CW_BEGIN,     R_START,      R_START},
-	// R_START_M (11)
-	{R_START_M,            R_CCW_BEGIN_M,  R_CW_BEGIN_M, R_START},
-	// R_CW_BEGIN_M
-	{R_START_M,            R_START_M,      R_CW_BEGIN_M, R_START | DIR_CW},
-	// R_CCW_BEGIN_M
-	{R_START_M,            R_CCW_BEGIN_M,  R_START_M,    R_START | DIR_CCW},
+	{HS_R_START_M,            HS_R_CW_BEGIN,     HS_R_CCW_BEGIN,  R_START},
+	// HS_R_CCW_BEGIN
+	{HS_R_START_M | DIR_CCW, R_START,        HS_R_CCW_BEGIN,  R_START},
+	// HS_R_CW_BEGIN
+	{HS_R_START_M | DIR_CW,  HS_R_CW_BEGIN,     R_START,      R_START},
+	// HS_R_START_M (11)
+	{HS_R_START_M,            HS_R_CCW_BEGIN_M,  HS_R_CW_BEGIN_M, R_START},
+	// HS_R_CW_BEGIN_M
+	{HS_R_START_M,            HS_R_START_M,      HS_R_CW_BEGIN_M, R_START | DIR_CW},
+	// HS_R_CCW_BEGIN_M
+	{HS_R_START_M,            HS_R_CCW_BEGIN_M,  HS_R_START_M,    R_START | DIR_CCW},
 };
-#else
+
 // Use the full-step state table (emits a code at 00 only)
 #define R_CW_FINAL 0x1
 #define R_CW_BEGIN 0x2
@@ -146,7 +146,7 @@ const unsigned char PROGMEM ttable[6][4] = {
 #define R_CCW_FINAL 0x5
 #define R_CCW_NEXT 0x6
 
-const unsigned char PROGMEM ttable[7][4] = {
+const uint8_t PROGMEM ttable[7][4] = {
 	// R_START
 	{R_START,    R_CW_BEGIN,  R_CCW_BEGIN, R_START},
 	// R_CW_FINAL
@@ -162,7 +162,7 @@ const unsigned char PROGMEM ttable[7][4] = {
 	// R_CCW_NEXT
 	{R_CCW_NEXT, R_CCW_FINAL, R_CCW_BEGIN, R_START},
 };
-#endif
+
 
 
 #if ENABLE_ROTARY_ENCODER
@@ -189,9 +189,7 @@ ISR(PCINT0_vect){
 #endif
 
 void RotaryEncoder::process(void){
-	static uint8_t state = 0;
 	// Grab state of input pins.
-	
 	#if defined(USBCON)
 	// Arduino Leonardo
 	uint8_t currPinA = !bitRead(PINB,4);
@@ -202,8 +200,9 @@ void RotaryEncoder::process(void){
 	#endif
 	
 	unsigned char pinstate = (currPinB << 1) | currPinA;
+		
 	// Determine new state from the pins and state table.
-	state = pgm_read_byte(&(ttable[state & 0xf][pinstate]));
+	state = pgm_read_byte(&(table[state & 0xf][pinstate]));
 	// Get emit bits, ie the generated event.
 	
 	uint8_t dir = state & 0x30;
@@ -217,8 +216,7 @@ void RotaryEncoder::process(void){
 			steps = maximum;
 		}
 		display.resetBacklightTimer();
-	}		
-	
+	}	
 }
 
 void RotaryEncoder::setPushed(void){
@@ -228,7 +226,7 @@ void RotaryEncoder::setPushed(void){
 
 
 void RotaryEncoder::init(void){
-
+	state = R_START;
 	#if(USE_INTERNAL_PULL_UP_RESISTORS)
 	fastPinMode(rotaryAPin, INPUT_PULLUP);
 	fastPinMode(rotaryBPin, INPUT_PULLUP);
@@ -238,6 +236,14 @@ void RotaryEncoder::init(void){
 	fastPinMode(rotaryBPin, INPUT);
 	fastPinMode(rotarySwitchPin, INPUT);
 	#endif
+	
+	if(tempControl.cc.rotaryHalfSteps){
+		table = (const uint8_t **) hs_ttable;	
+	}
+	else{
+		table = (const uint8_t **) ttable;
+	}
+	
 	
 #if ENABLE_ROTARY_ENCODER	
 	#if defined(USBCON) // Arduino Leonardo

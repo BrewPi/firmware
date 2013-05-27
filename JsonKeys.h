@@ -52,6 +52,7 @@ static const char JSONKEY_beerFastFilter[] PROGMEM = "beerFastFilt";
 static const char JSONKEY_beerSlowFilter[] PROGMEM = "beerSlowFilt";
 static const char JSONKEY_beerSlopeFilter[] PROGMEM = "beerSlopeFilt";
 static const char JSONKEY_lightAsHeater[] PROGMEM = "lightAsHeater";
+static const char JSONKEY_rotaryHalfSteps[] PROGMEM = "hs";
 
 // variable;
 static const char JSONKEY_beerDiff[] PROGMEM = "beerDiff";
@@ -68,5 +69,6 @@ static const char JSONKEY_posPeak[] PROGMEM = "posPeak";
 
 static const char JSONKEY_logType[] PROGMEM = "logType";
 static const char JSONKEY_logID[] PROGMEM = "logID";
+
 
 #endif /* JSON_H_ */
