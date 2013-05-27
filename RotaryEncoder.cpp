@@ -35,7 +35,7 @@ int16_t RotaryEncoder::maximum;
 int16_t RotaryEncoder::minimum;
 volatile int16_t RotaryEncoder::steps;
 volatile bool RotaryEncoder::pushFlag;
-const uint8_t ** RotaryEncoder::table;
+const uint8_t * RotaryEncoder::table;
 uint8_t RotaryEncoder::state;
 
 
@@ -207,7 +207,7 @@ void RotaryEncoder::process(void){
 	unsigned char pinstate = (currPinB << 1) | currPinA;
 		
 	// Determine new state from the pins and state table.
-	state = pgm_read_byte(&(table[state & 0xf][pinstate]));
+	state = pgm_read_byte(table+((state & 0xf)*4)+pinstate);
 	// Get emit bits, ie the generated event.
 	
 	uint8_t dir = state & 0x30;
@@ -243,10 +243,10 @@ void RotaryEncoder::init(void){
 	#endif
 	
 	if(tempControl.cc.rotaryHalfSteps){
-		table = (const uint8_t **) hs_ttable;	
+		table = (const uint8_t *) hs_ttable;	
 	}
 	else{
-		table = (const uint8_t **) ttable;
+		table = (const uint8_t *) ttable;
 	}
 	
 	
@@ -284,9 +284,10 @@ void RotaryEncoder::setRange(int start, int minVal, int maxVal){
 
 bool RotaryEncoder::changed(void){
 	// returns one if the value changed since the last call of changed.
-	static int prevValue = 0;
-	if(read() != prevValue){
-		prevValue = read();
+	static uint16_t prevValue = 0;
+	uint16_t r = read();
+	if(r != prevValue){
+		prevValue = r;
 		return 1;
 	}
 	if(pushFlag == true){
@@ -296,8 +297,9 @@ bool RotaryEncoder::changed(void){
 }
 
 int RotaryEncoder::read(void){
+	uint8_t result;
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
-		return steps;		
+		result = steps;		
 	}
-	return 0;		
+	return result;
 }

@@ -61,7 +61,7 @@ class RotaryEncoder
 	static int16_t minimum;
 	static volatile int16_t steps;
 	static volatile bool pushFlag;
-	static const uint8_t ** table;
+	static const uint8_t * table;
 	static uint8_t state;
 };
 
