@@ -89,7 +89,7 @@ class PiLink{
 		uint8_t handlerOffset;		// handler index
 	};
 	typedef void (*JsonOutputHandler)(const char* key, uint8_t offset);
-	static void sendJsonValues(char responseType, void* outputBase, const JsonOutput* /*PROGMEM*/ jsonOutputMap, uint8_t mapCount);
+	static void sendJsonValues(char responseType, const JsonOutput* /*PROGMEM*/ jsonOutputMap, uint8_t mapCount);
 
 
 	// handler functions for JSON output

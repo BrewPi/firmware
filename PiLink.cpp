@@ -480,7 +480,7 @@ const PiLink::JsonOutput PiLink::jsonOutputCCMap[] PROGMEM = {
 	
 };
 
-void PiLink::sendJsonValues(char responseType, void* outputBase, const JsonOutput* /*PROGMEM*/ jsonOutputMap, uint8_t mapCount) {
+void PiLink::sendJsonValues(char responseType, const JsonOutput* /*PROGMEM*/ jsonOutputMap, uint8_t mapCount) {
 	printResponse(responseType);
 	while (mapCount-->0) {
 		JsonOutput output;
@@ -492,7 +492,8 @@ void PiLink::sendJsonValues(char responseType, void* outputBase, const JsonOutpu
 
 // Send control constants as JSON string. Might contain spaces between minus sign and number. Python will have to strip these
 void PiLink::sendControlConstants(void){
-	sendJsonValues('C', &tempControl.cc, jsonOutputCCMap, sizeof(jsonOutputCCMap)/sizeof(jsonOutputCCMap[0]));	
+	jsonOutputBase = (uint8_t*)&tempControl.cc;
+	sendJsonValues('C', jsonOutputCCMap, sizeof(jsonOutputCCMap)/sizeof(jsonOutputCCMap[0]));	
 }
 
 const PiLink::JsonOutput PiLink::jsonOutputCVMap[] PROGMEM = {
@@ -511,7 +512,8 @@ const PiLink::JsonOutput PiLink::jsonOutputCVMap[] PROGMEM = {
 
 // Send all control variables. Useful for debugging and choosing parameters
 void PiLink::sendControlVariables(void){
-	sendJsonValues('V', &tempControl.cv, jsonOutputCVMap, sizeof(jsonOutputCVMap)/sizeof(jsonOutputCVMap[0]));
+	jsonOutputBase = (uint8_t*)&tempControl.cv;
+	sendJsonValues('V', jsonOutputCVMap, sizeof(jsonOutputCVMap)/sizeof(jsonOutputCVMap[0]));
 }
 
 void PiLink::printJsonName(const char * name)
