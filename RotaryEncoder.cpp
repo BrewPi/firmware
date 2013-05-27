@@ -205,7 +205,8 @@ void RotaryEncoder::process(void){
 	// Determine new state from the pins and state table.
 	state = pgm_read_byte(&(ttable[state & 0xf][pinstate]));
 	// Get emit bits, ie the generated event.
-	uint8_t dir = state && 0x30;
+	
+	uint8_t dir = state & 0x30;
 	
 	if(dir){
 		steps = (dir == DIR_CW) ? steps+1 : steps-1;
@@ -214,9 +215,10 @@ void RotaryEncoder::process(void){
 		}
 		if(steps < minimum){
 			steps = maximum;
-			display.resetBacklightTimer();
 		}
-	}
+		display.resetBacklightTimer();
+	}		
+	
 }
 
 void RotaryEncoder::setPushed(void){
