@@ -35,13 +35,13 @@ class RotaryEncoder
 {
 	public:
 	static void init(void);
-	static void setRange(int start, int min, int max);
+	static void setRange(int16_t start, int16_t min, int16_t max);
 	static void process(void);
 			
 	static bool changed(void); // returns one if the value changed since the last call of changed.
-	static int read(void);
+	static int16_t read(void);
 	
-	static int readsteps(void){
+	static int16_t readsteps(void){
 		return steps;
 	}
 

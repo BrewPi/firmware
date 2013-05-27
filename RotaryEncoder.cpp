@@ -269,7 +269,7 @@ void RotaryEncoder::init(void){
 }
 
 
-void RotaryEncoder::setRange(int start, int minVal, int maxVal){
+void RotaryEncoder::setRange(int16_t start, int16_t minVal, int16_t maxVal){
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
 		// this part cannot be interrupted
 		// Multiply by two to convert to half steps
@@ -281,9 +281,10 @@ void RotaryEncoder::setRange(int start, int minVal, int maxVal){
 
 bool RotaryEncoder::changed(void){
 	// returns one if the value changed since the last call of changed.
-	static int prevValue = 0;
-	if(read() != prevValue){
-		prevValue = read();
+	static int16_t prevValue = 0;
+	int16_t r = read();
+	if(r != prevValue){
+		prevValue = r;
 		return 1;
 	}
 	if(pushFlag == true){
@@ -292,7 +293,7 @@ bool RotaryEncoder::changed(void){
 	return 0;
 }
 
-int RotaryEncoder::read(void){
+int16_t RotaryEncoder::read(void){
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
 		return steps;		
 	}
