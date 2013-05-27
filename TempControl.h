@@ -182,7 +182,7 @@ class TempControl{
 		return ambientSensor->read();
 	}
 		
-	TEMP_CONTROL_METHOD void setMode(char newMode);
+	TEMP_CONTROL_METHOD void setMode(char newMode, bool force=false);
 	TEMP_CONTROL_METHOD char getMode(void) {
 		return cs.mode;
 	}

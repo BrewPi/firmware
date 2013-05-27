@@ -463,10 +463,8 @@ void TempControl::storeSettings(eptr_t offset){
 
 void TempControl::loadSettings(eptr_t offset){
 	eepromAccess.readBlock((void *) &cs, offset, sizeof(ControlSettings));	
-	uint8_t mode = cs.mode;
-	cs.mode = 0;
-	logDeveloper("loaded settings, mode=%c", mode);
-	setMode(mode);		// force the mode update
+	logDeveloper("loaded I settings, mode=%c", mode);
+	setMode(cs.mode, true);		// force the mode update
 }
 
 
@@ -522,17 +520,21 @@ void TempControl::constantsChanged()
 	beerSensor->setSlopeFilterCoefficients(cc.beerSlopeFilter);		
 }
 
-void TempControl::setMode(char newMode){
+void TempControl::setMode(char newMode, bool force){
 	logDeveloper("TempControl::setMode from %c to %c", cs.mode, newMode);
+	
 	if(newMode != cs.mode){
 		state = IDLE;
-	cs.mode = newMode;	
-	if(newMode==MODE_BEER_PROFILE || newMode == MODE_OFF){
-		// set temperatures to undefined until temperatures have been received from RPi
-		cs.beerSetting = INT_MIN;
-		cs.fridgeSetting = INT_MIN;
+		force = true;
 	}
-	eepromManager.storeTempSettings();
+	if (force) {
+		cs.mode = newMode;
+		if(newMode==MODE_BEER_PROFILE || newMode == MODE_OFF){
+			// set temperatures to undefined until temperatures have been received from RPi
+			cs.beerSetting = INT_MIN;
+			cs.fridgeSetting = INT_MIN;
+		}
+		eepromManager.storeTempSettings();
 	}
 }
 
