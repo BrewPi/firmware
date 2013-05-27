@@ -143,4 +143,11 @@ extern Logger logger;
 	#define logDeveloper(string, ...)
 #endif
 
+#if BREWPI_DEBUG>0
+	#define DEBUG_ONLY(x) x
+#else
+	#define DEBUG_ONLY(x)
+#endif
+
+
 #endif /* DEBUG_H_ */

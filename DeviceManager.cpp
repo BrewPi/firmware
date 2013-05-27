@@ -200,20 +200,20 @@ void DeviceManager::uninstallDevice(DeviceConfig& config)
 			s = &unwrapSensor(config.deviceFunction, *ppv);
 			if (s!=&defaultTempSensor) {
 				setSensor(config.deviceFunction, ppv, &defaultTempSensor);
-				logInfoInt(INFO_UNINSTALL_TEMP_SENSOR, config.deviceFunction);
+				DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_TEMP_SENSOR, config.deviceFunction));
 				delete s;
 			}
 			break;
 		case DEVICETYPE_SWITCH_ACTUATOR:
 			if (*ppv!=&defaultActuator) {
-				logInfoInt(INFO_UNINSTALL_ACTUATOR, config.deviceFunction);
+				DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_ACTUATOR, config.deviceFunction));
 				delete (Actuator*)*ppv;
 				*ppv = &defaultActuator;
 			}
 			break;
 		case DEVICETYPE_SWITCH_SENSOR:
 			if (*ppv!=&defaultSensor) {
-				logInfoInt(INFO_UNINSTALL_SWITCH_SENSOR, config.deviceFunction);
+				DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_SWITCH_SENSOR, config.deviceFunction));
 				delete (SwitchSensor*)*ppv;
 				*ppv = &defaultSensor;
 			}
@@ -237,7 +237,7 @@ void DeviceManager::installDevice(DeviceConfig& config)
 		case DEVICETYPE_NONE:
 			break;
 		case DEVICETYPE_TEMP_SENSOR:
-			logInfoInt(INFO_INSTALL_TEMP_SENSOR, config.deviceFunction);
+			DEBUG_ONLY(logInfoInt(INFO_INSTALL_TEMP_SENSOR, config.deviceFunction));
 			// sensor may be wrapped in a TempSensor class, or may stand alone.
 			s = (BasicTempSensor*)createDevice(config, dt);
 			if (*ppv==NULL){
@@ -255,7 +255,7 @@ void DeviceManager::installDevice(DeviceConfig& config)
 			break;
 		case DEVICETYPE_SWITCH_ACTUATOR:
 		case DEVICETYPE_SWITCH_SENSOR:
-			logInfoInt(INFO_INSTALL_DEVICE, config.deviceFunction);
+			DEBUG_ONLY(logInfoInt(INFO_INSTALL_DEVICE, config.deviceFunction));
 			*ppv = createDevice(config, dt);
 #if (BREWPI_DEBUG > 0)
 			if (*ppv==NULL)
@@ -677,7 +677,7 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardwa
 	
 	logDeveloper("Handling device");
 	out.slot = findHardwareDevice(config);
-	logInfoInt(INFO_MATCHING_DEVICE, out.slot);
+	DEBUG_ONLY(logInfoInt(INFO_MATCHING_DEVICE, out.slot));
 	
 	if (isDefinedSlot(out.slot)) {
 		if (h.unused)	// only list unused devices, and this one is already used
@@ -824,7 +824,7 @@ void UpdateDeviceState(DeviceDisplay& dd, DeviceConfig& dc, char* val)
 
 	if (dd.write>=0 && dt==DEVICETYPE_SWITCH_ACTUATOR) {
 		// write value to a specific device. For now, only actuators are relevant targets
-		logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write!=0);
+		DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write!=0));
 		((Actuator*)*ppv)->setActive(dd.write!=0);
 	}
 	else if (dd.value==1) {		// read values 
