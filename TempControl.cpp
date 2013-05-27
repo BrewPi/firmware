@@ -524,7 +524,8 @@ void TempControl::setMode(char newMode, bool force){
 	logDeveloper("TempControl::setMode from %c to %c", cs.mode, newMode);
 	
 	if(newMode != cs.mode){
-		state = IDLE;
+		if (state!=STARTUP) 
+			state = IDLE;
 		force = true;
 	}
 	if (force) {
