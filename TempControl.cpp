@@ -205,7 +205,7 @@ void TempControl::updateState(void){
 		return;
 	}
 	if(cs.fridgeSetting == INT_MIN){
-		// Don nothing when fridge setting is undefined
+		// Do nothing when fridge setting is undefined
 		state = IDLE;
 		return;
 	}
@@ -537,7 +537,6 @@ void TempControl::setMode(char newMode, bool force){
 		}
 		eepromManager.storeTempSettings();
 	}
-}
 
 fixed7_9 TempControl::getBeerTemp(void){
 	if(beerSensor->isConnected()){
