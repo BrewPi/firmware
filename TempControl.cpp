@@ -537,6 +537,7 @@ void TempControl::setMode(char newMode, bool force){
 		}
 		eepromManager.storeTempSettings();
 	}
+}
 
 fixed7_9 TempControl::getBeerTemp(void){
 	if(beerSensor->isConnected()){
