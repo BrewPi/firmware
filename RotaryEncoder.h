@@ -22,21 +22,22 @@
 #define ROTARYENCODER_H_
 
 #include "Brewpi.h"
-#include <inttypes.h>
 
-// 500 us idle time for debouncing
-#define ROTARY_THRESHOLD 500u
+// Values returned by 'process'
+// No complete step yet.
+#define DIR_NONE 0x0
+// Clockwise step.
+#define DIR_CW 0x10
+// Anti-clockwise step.
+#define DIR_CCW 0x20
 
 class RotaryEncoder
 {
 	public:
 	void init(void);
 	void setRange(int start, int min, int max);
-	
-	void pinAHandler(bool pinState);
-	void pinBHandler(bool pinState);
-	
-		
+	void process(void);
+			
 	bool changed(void); // returns one if the value changed since the last call of changed.
 	int read(void);
 	
@@ -62,12 +63,6 @@ class RotaryEncoder
 	volatile int steps;
 	volatile bool pushFlag;
 	
-	volatile uint8_t pinASignal;
-	volatile uint8_t pinBSignal;
-	volatile uint8_t pinAHistory;
-	volatile uint8_t pinBHistory;
-	volatile unsigned long pinATime;
-	volatile unsigned long pinBTime;	
 };
 
 extern RotaryEncoder rotaryEncoder;
