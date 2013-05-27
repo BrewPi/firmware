@@ -31,6 +31,13 @@
 
 RotaryEncoder rotaryEncoder;
 
+int16_t RotaryEncoder::maximum;
+int16_t RotaryEncoder::minimum;
+volatile int16_t RotaryEncoder::steps;
+volatile bool RotaryEncoder::pushFlag;
+const uint8_t ** RotaryEncoder::table;
+uint8_t RotaryEncoder::state;
+
 
 #if rotarySwitchPin != 7
 	#error Review interrupt vectors when not using pin 7 for menu push
@@ -163,8 +170,6 @@ const uint8_t PROGMEM ttable[7][4] = {
 	{R_CCW_NEXT, R_CCW_FINAL, R_CCW_BEGIN, R_START},
 };
 
-
-
 #if ENABLE_ROTARY_ENCODER
 
 #if defined(USBCON)
@@ -208,13 +213,13 @@ void RotaryEncoder::process(void){
 	uint8_t dir = state & 0x30;
 	
 	if(dir){
-		steps = (dir == DIR_CW) ? steps+1 : steps-1;
-		if(steps > maximum){
-			steps = minimum;
-		}
-		if(steps < minimum){
-			steps = maximum;
-		}
+		uint8_t s = steps;	// steps is volatile - save a copy here to avoid multiple fetches
+		s = (dir==DIR_CW) ? s+1 : s-1;
+		if (s > maximum)	
+			s = minimum;
+		else if (s < minimum)
+			s = maximum;	
+		steps = s;
 		display.resetBacklightTimer();
 	}	
 }
@@ -274,7 +279,6 @@ void RotaryEncoder::setRange(int start, int minVal, int maxVal){
 		steps = start;
 		minimum = minVal;
 		maximum = maxVal; // +1 to make sure that one step is still two half steps at overflow
-		prevRead = start;
 	}		
 }
 
@@ -293,8 +297,7 @@ bool RotaryEncoder::changed(void){
 
 int RotaryEncoder::read(void){
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
-		prevRead = steps;
-		return prevRead;
+		return steps;		
 	}
 	return 0;		
 }

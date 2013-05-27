@@ -34,36 +34,35 @@
 class RotaryEncoder
 {
 	public:
-	void init(void);
-	void setRange(int start, int min, int max);
-	void process(void);
+	static void init(void);
+	static void setRange(int start, int min, int max);
+	static void process(void);
 			
-	bool changed(void); // returns one if the value changed since the last call of changed.
-	int read(void);
+	static bool changed(void); // returns one if the value changed since the last call of changed.
+	static int read(void);
 	
-	int readsteps(void){
+	static int readsteps(void){
 		return steps;
 	}
 
-	bool pushed(void){
+	static bool pushed(void){
 		return pushFlag;
 	}
 
-	void resetPushed(void){
+	static void resetPushed(void){
 		pushFlag = false;
 	}	
 	
-	void setPushed(void);
+	static void setPushed(void);
 	
 	private:
 	
-	int maximum;
-	int minimum;
-	int prevRead;
-	volatile int steps;
-	volatile bool pushFlag;
-	const uint8_t ** table;
-	uint8_t state;
+	static int16_t maximum;
+	static int16_t minimum;
+	static volatile int16_t steps;
+	static volatile bool pushFlag;
+	static const uint8_t ** table;
+	static uint8_t state;
 };
 
 extern RotaryEncoder rotaryEncoder;
