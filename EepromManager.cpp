@@ -64,7 +64,9 @@ void EepromManager::initializeEeprom()
 	// set the version flag - so that storeDevice will work
 	eepromAccess.writeByte(0, EEPROM_FORMAT_VERSION);
 		
-	saveDefaultDevices();		
+	saveDefaultDevices();
+	// set state to startup
+	tempControl.init();
 }
 
 uint8_t EepromManager::saveDefaultDevices() 

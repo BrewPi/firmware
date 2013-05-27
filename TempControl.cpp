@@ -239,24 +239,24 @@ void TempControl::updateState(void){
 					}
 					return;
 				}
-			else{
-				if(beerFast<cs.beerSetting){ // only start cooling when beer is too warm
-						return; // beer is already colder than setting, stay in IDLE.
+				else{
+					if(beerFast<cs.beerSetting){ // only start cooling when beer is too warm
+							return; // beer is already colder than setting, stay in IDLE.
+					}
+					if((sinceCooling > MIN_COOL_OFF_TIME && sinceHeating > MIN_SWITCH_TIME) || state == STARTUP){
+						state=COOLING;
+					}
+					return;
 				}
-				if((sinceCooling > MIN_COOL_OFF_TIME && sinceHeating > MIN_SWITCH_TIME) || state == STARTUP){
-					state=COOLING;
-				}
-				return;
-			}
 			}
 			else if(fridgeFast < (cs.fridgeSetting+cc.idleRangeLow)){ // fridge temperature is too low
 				if(beerFast >cs.beerSetting){ // only start heating when beer is too cold
 					return; // beer is already warmer than setting, stay in IDLE
-			}
+				}
 				if((sinceCooling > MIN_SWITCH_TIME && sinceHeating > MIN_HEAT_OFF_TIME) || state == STARTUP){
 					state=HEATING;
 					return;
-		}			
+				}			
 			}
 		}			
 		break; 
