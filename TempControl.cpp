@@ -205,7 +205,7 @@ void TempControl::updateState(void){
 		return;
 	}
 	if(cs.fridgeSetting == INT_MIN){
-		// Don nothing when fridge setting is undefined
+		// Do nothing when fridge setting is undefined
 		state = IDLE;
 		return;
 	}
@@ -239,24 +239,24 @@ void TempControl::updateState(void){
 					}
 					return;
 				}
-			else{
-				if(beerFast<cs.beerSetting){ // only start cooling when beer is too warm
-						return; // beer is already colder than setting, stay in IDLE.
+				else{
+					if(beerFast<cs.beerSetting){ // only start cooling when beer is too warm
+							return; // beer is already colder than setting, stay in IDLE.
+					}
+					if((sinceCooling > MIN_COOL_OFF_TIME && sinceHeating > MIN_SWITCH_TIME) || state == STARTUP){
+						state=COOLING;
+					}
+					return;
 				}
-				if((sinceCooling > MIN_COOL_OFF_TIME && sinceHeating > MIN_SWITCH_TIME) || state == STARTUP){
-					state=COOLING;
-				}
-				return;
-			}
 			}
 			else if(fridgeFast < (cs.fridgeSetting+cc.idleRangeLow)){ // fridge temperature is too low
-				if(beerFast >cs.beerSetting){ // only start heating when beer is too cold
+				if(beerFast > cs.beerSetting){ // only start heating when beer is too cold
 					return; // beer is already warmer than setting, stay in IDLE
-			}
+				}
 				if((sinceCooling > MIN_SWITCH_TIME && sinceHeating > MIN_HEAT_OFF_TIME) || state == STARTUP){
 					state=HEATING;
 					return;
-		}			
+				}			
 			}
 		}			
 		break; 
@@ -464,9 +464,9 @@ void TempControl::storeSettings(eptr_t offset){
 void TempControl::loadSettings(eptr_t offset){
 	eepromAccess.readBlock((void *) &cs, offset, sizeof(ControlSettings));	
 	uint8_t mode = cs.mode;
-	cs.mode = 0;
+	cs.mode = STARTUP;
 	logDeveloper("loaded settings, mode=%c", mode);
-	setMode(mode);		// force the mode update
+	setMode(mode); // force the mode update
 }
 
 
@@ -524,8 +524,9 @@ void TempControl::constantsChanged()
 
 void TempControl::setMode(char newMode){
 	logDeveloper("TempControl::setMode from %c to %c", cs.mode, newMode);
-	if(newMode != cs.mode){
+	if(newMode != cs.mode && cs.mode != STARTUP){
 		state = IDLE;
+	}
 	cs.mode = newMode;	
 	if(newMode==MODE_BEER_PROFILE || newMode == MODE_OFF){
 		// set temperatures to undefined until temperatures have been received from RPi
@@ -533,7 +534,6 @@ void TempControl::setMode(char newMode){
 		cs.fridgeSetting = INT_MIN;
 	}
 	eepromManager.storeTempSettings();
-	}
 }
 
 fixed7_9 TempControl::getBeerTemp(void){
