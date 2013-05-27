@@ -200,20 +200,20 @@ void DeviceManager::uninstallDevice(DeviceConfig& config)
 			s = &unwrapSensor(config.deviceFunction, *ppv);
 			if (s!=&defaultTempSensor) {
 				setSensor(config.deviceFunction, ppv, &defaultTempSensor);
-				logInfoInt(INFO_UNINSTALL_TEMP_SENSOR, config.deviceFunction);
+				DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_TEMP_SENSOR, config.deviceFunction));
 				delete s;
 			}
 			break;
 		case DEVICETYPE_SWITCH_ACTUATOR:
 			if (*ppv!=&defaultActuator) {
-				logInfoInt(INFO_UNINSTALL_ACTUATOR, config.deviceFunction);
+				DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_ACTUATOR, config.deviceFunction));
 				delete (Actuator*)*ppv;
 				*ppv = &defaultActuator;
 			}
 			break;
 		case DEVICETYPE_SWITCH_SENSOR:
 			if (*ppv!=&defaultSensor) {
-				logInfoInt(INFO_UNINSTALL_SWITCH_SENSOR, config.deviceFunction);
+				DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_SWITCH_SENSOR, config.deviceFunction));
 				delete (SwitchSensor*)*ppv;
 				*ppv = &defaultSensor;
 			}
@@ -237,7 +237,7 @@ void DeviceManager::installDevice(DeviceConfig& config)
 		case DEVICETYPE_NONE:
 			break;
 		case DEVICETYPE_TEMP_SENSOR:
-			logInfoInt(INFO_INSTALL_TEMP_SENSOR, config.deviceFunction);
+			DEBUG_ONLY(logInfoInt(INFO_INSTALL_TEMP_SENSOR, config.deviceFunction));
 			// sensor may be wrapped in a TempSensor class, or may stand alone.
 			s = (BasicTempSensor*)createDevice(config, dt);
 			if (*ppv==NULL){
@@ -255,7 +255,7 @@ void DeviceManager::installDevice(DeviceConfig& config)
 			break;
 		case DEVICETYPE_SWITCH_ACTUATOR:
 		case DEVICETYPE_SWITCH_SENSOR:
-			logInfoInt(INFO_INSTALL_DEVICE, config.deviceFunction);
+			DEBUG_ONLY(logInfoInt(INFO_INSTALL_DEVICE, config.deviceFunction));
 			*ppv = createDevice(config, dt);
 #if (BREWPI_DEBUG > 0)
 			if (*ppv==NULL)
