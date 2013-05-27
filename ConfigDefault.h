@@ -107,9 +107,9 @@
 #ifndef BREWPI_BOARD
 
 #if defined(USBCON)
-	#define BREWPI_BOARD "leonardo"
+	#define BREWPI_BOARD 's'		// standard
 #else
-	#define BREWPI_BOARD "standard"
+	#define BREWPI_BOARD 'l'		// leonardo
 #endif
 
 #ifndef OPTIMIZE_GLOBAL

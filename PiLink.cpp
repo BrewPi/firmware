@@ -147,7 +147,11 @@ void PiLink::receive(void){
 			// s shield type
 			// y: simulator			
 			// b: board
-			print_P(PSTR("N:{v:\"%S\",s:\"%S\",y:%d,b:\"%S\"}"), PSTR(VERSION_STRING), PSTR(stringify(BREWPI_STATIC_CONFIG)), BREWPI_SIMULATE, PSTR(BREWPI_BOARD));
+			print_P(PSTR("N:{v:\"%S\",s:%d,y:%d,b:\"%c\"}"), 
+					PSTR(VERSION_STRING), 
+					BREWPI_STATIC_CONFIG, 
+					BREWPI_SIMULATE, 
+					BREWPI_BOARD);
 			printNewLine();
 			break;
 		case 'l': // Display content requested
@@ -539,8 +543,8 @@ void PiLink::sendJsonPair(const char * name, char val){
 }
 
 void PiLink::sendJsonPair(const char * name, uint16_t val){
-	printJsonName(name);
-	print_P(PSTR("\"%u\""), val);
+	printJsonName(name);	
+	print_P(PSTR("%u"), val);
 }
 
 void PiLink::sendJsonPair(const char * name, uint8_t val) {
