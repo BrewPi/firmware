@@ -143,11 +143,11 @@ void PiLink::receive(void){
 			sendControlVariables();
 			break;
 		case 'n':
-
-			// v - version
-			// s - shield type
-			// sim: simulator
-			print_P(PSTR("N:{ver:\"%S\",shield:\"%S\",sim:%d,board:\"%S\"}"), PSTR(VERSION_STRING), PSTR(stringify(BREWPI_STATIC_CONFIG)), BREWPI_SIMULATE, PSTR(BREWPI_BOARD)) ;
+			// v version
+			// s shield type
+			// y: simulator			
+			// b: board
+			print_P(PSTR("N:{v:\"%S\",s:\"%S\",y:%d,b:\"%S\"}"), PSTR(VERSION_STRING), PSTR(stringify(BREWPI_STATIC_CONFIG)), BREWPI_SIMULATE, PSTR(BREWPI_BOARD));
 			printNewLine();
 			break;
 		case 'l': // Display content requested
@@ -330,7 +330,6 @@ void PiLink::printBeerAnnotation(const char * annotation, ...){
 	vsnprintf_P(tempString, 128, annotation, args);
 	va_end (args);
 	printTemperaturesJSON(tempString, 0);
-	va_end (args);
 }
 
 void PiLink::printFridgeAnnotation(const char * annotation, ...){
@@ -341,7 +340,6 @@ void PiLink::printFridgeAnnotation(const char * annotation, ...){
 	vsnprintf_P(tempString, 128, annotation, args);
 	va_end (args);
 	printTemperaturesJSON(0, tempString);
-	va_end (args);
 }	 
  	  
 void PiLink::printResponse(char type) {
@@ -449,7 +447,7 @@ const PiLink::JsonOutputHandler PiLink::JsonOutputHandlers[] = {
 #define JSON_OUTPUT_CV_MAP(name, fn) { JSONKEY_ ## name,  offsetof(ControlVariables, name), fn }
 #define JSON_OUTPUT_CS_MAP(name, fn) { JSONKEY_ ## name,  offsetof(ControlSettings, name), fn }
 
-const PiLink::JsonOutput PiLink::jsonOutputCCMap[] = {
+const PiLink::JsonOutput PiLink::jsonOutputCCMap[] PROGMEM = {
 	JSON_OUTPUT_CC_MAP(tempFormat, JOCC_CHAR),
 	JSON_OUTPUT_CC_MAP(tempSettingMin, JOCC_TEMP_FORMAT),
 	JSON_OUTPUT_CC_MAP(tempSettingMax, JOCC_TEMP_FORMAT),
@@ -478,19 +476,22 @@ const PiLink::JsonOutput PiLink::jsonOutputCCMap[] = {
 	
 };
 
-// Send control constants as JSON string. Might contain spaces between minus sign and number. Python will have to strip these
-void PiLink::sendControlConstants(void){
-
-	printResponse('C');
-	jsonOutputBase = (uint8_t*)&tempControl.cc;
-	for (uint8_t i=0; i<sizeof(jsonOutputCCMap)/sizeof(jsonOutputCCMap[0]); i++) {
-		JsonOutputHandlers[jsonOutputCCMap[i].handlerOffset](jsonOutputCCMap[i].key,jsonOutputCCMap[i].offset);
+void PiLink::sendJsonValues(char responseType, void* outputBase, const JsonOutput* /*PROGMEM*/ jsonOutputMap, uint8_t mapCount) {
+	printResponse(responseType);
+	while (mapCount-->0) {
+		JsonOutput output;
+		memcpy_P(&output, jsonOutputMap++, sizeof(output));
+		JsonOutputHandlers[output.handlerOffset](output.key,output.offset);
 	}
 	sendJsonClose();
-
 }
 
-const PiLink::JsonOutput PiLink::jsonOutputCVMap[] = {
+// Send control constants as JSON string. Might contain spaces between minus sign and number. Python will have to strip these
+void PiLink::sendControlConstants(void){
+	sendJsonValues('C', &tempControl.cc, jsonOutputCCMap, sizeof(jsonOutputCCMap)/sizeof(jsonOutputCCMap[0]));	
+}
+
+const PiLink::JsonOutput PiLink::jsonOutputCVMap[] PROGMEM = {
 	JSON_OUTPUT_CV_MAP(beerDiff, JOCC_TEMP_DIFF),
 	JSON_OUTPUT_CV_MAP(diffIntegral, JOCC_TEMP_DIFF),
 	JSON_OUTPUT_CV_MAP(beerSlope, JOCC_TEMP_DIFF),
@@ -506,12 +507,7 @@ const PiLink::JsonOutput PiLink::jsonOutputCVMap[] = {
 
 // Send all control variables. Useful for debugging and choosing parameters
 void PiLink::sendControlVariables(void){
-	printResponse('V');	
-	jsonOutputBase = (uint8_t*)&tempControl.cv;
-	for (uint8_t i=0; i<sizeof(jsonOutputCVMap)/sizeof(jsonOutputCVMap[0]); i++) {
-		JsonOutputHandlers[jsonOutputCVMap[i].handlerOffset](jsonOutputCVMap[i].key,jsonOutputCVMap[i].offset);
-	}
-	sendJsonClose();
+	sendJsonValues('V', &tempControl.cv, jsonOutputCVMap, sizeof(jsonOutputCVMap)/sizeof(jsonOutputCVMap[0]));
 }
 
 void PiLink::printJsonName(const char * name)
@@ -672,7 +668,7 @@ void PiLink::setTempFormat(const char* val) {
 enum FilterType { FAST, SLOW, SLOPE };
 enum TempSensorTarget { FRIDGE, BEER };
 
-static uint8_t* filterSettings[] = {
+static uint8_t* const filterSettings[] = {
 		&tempControl.cc.fridgeFastFilter,
 		&tempControl.cc.fridgeSlowFilter,
 		&tempControl.cc.fridgeSlopeFilter,
@@ -689,7 +685,7 @@ void applyFilterSetting(const char* val, void* target) {
 	TempSensorTarget sensorTarget = TempSensorTarget(offset/3);
 	
 	uint8_t value = atol(val);
-	uint8_t* location = filterSettings[offset];
+	uint8_t* const location = filterSettings[offset];
 	*location = value;
 	TempSensor* sensor = sensorTarget ? tempControl.beerSensor : tempControl.fridgeSensor;
 	switch (filterType) {
@@ -718,7 +714,7 @@ void setBool(const char* value, uint8_t* target) {
 
 #define JSON_CONVERT(jsonKey, target, fn) { jsonKey, target, (JsonParserHandlerFn)&fn }
 
-const PiLink::JsonParserConvert PiLink::jsonPaserConverters[] = {
+const PiLink::JsonParserConvert PiLink::jsonParserConverters[] PROGMEM = {
 	JSON_CONVERT(JSONKEY_mode, NULL, setMode),
 	JSON_CONVERT(JSONKEY_beerSetting, NULL, setBeerSetting),
 	JSON_CONVERT(JSONKEY_fridgeSetting, NULL, setFridgeSetting),
@@ -758,8 +754,9 @@ const PiLink::JsonParserConvert PiLink::jsonPaserConverters[] = {
 void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 	logInfoStringString(INFO_RECEIVED_SETTING, key, val);
 	
-	for (uint8_t i=0; i<sizeof(jsonPaserConverters)/sizeof(jsonPaserConverters[0]); i++) {
-		JsonParserConvert converter = jsonPaserConverters[i];
+	for (uint8_t i=0; i<sizeof(jsonParserConverters)/sizeof(jsonParserConverters[0]); i++) {
+		JsonParserConvert converter;
+		memcpy_P(&converter, &jsonParserConverters[i], sizeof(converter));		
 		//logDeveloper("Handling converter %d %s %S %d %d"), i, key, converter.key, converter.fn, converter.target);
 		if (strcmp_P(key,converter.key) == 0) {
 			//logDeveloper("Handling json key %s"), key);
