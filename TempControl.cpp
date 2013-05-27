@@ -463,7 +463,7 @@ void TempControl::storeSettings(eptr_t offset){
 
 void TempControl::loadSettings(eptr_t offset){
 	eepromAccess.readBlock((void *) &cs, offset, sizeof(ControlSettings));	
-	logDeveloper("loaded I settings, mode=%c", mode);
+	logDeveloper("loaded settings");
 	setMode(cs.mode, true);		// force the mode update
 }
 
