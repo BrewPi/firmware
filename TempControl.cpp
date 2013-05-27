@@ -503,6 +503,8 @@ void TempControl::loadDefaultConstants(void){
 	cc.beerFastFilter = 3u;
 	cc.beerSlowFilter = 5u;
 	cc.beerSlopeFilter = 4u;
+	
+	cc.lightAsHeater = 0;
 	constantsChanged();
 }
 
@@ -515,23 +517,6 @@ void TempControl::constantsChanged()
 	beerSensor->setSlowFilterCoefficients(cc.beerSlowFilter);
 	beerSensor->setSlopeFilterCoefficients(cc.beerSlopeFilter);	
 }
-
-#if 0
-// this is only called during startup - move into SettingsManager
-void TempControl::loadSettingsAndConstants(void){
-	uint16_t offset = EEPROM_CONTROL_BLOCK_SIZE*CURRENT_CHAMBER+EEPROM_TC_SETTINGS_BASE_ADDRESS;
-	if(eeprom_read_byte((unsigned char*) offset) != 1){
-		// EEPROM is not initialized, use default settings
-		loadDefaultSettings();
-		loadDefaultConstants();
-		eeprom_write_byte((unsigned char *) offset, 1);
-	}
-	else{
-		loadSettings();
-		loadConstants();
-	}
-}
-#endif
 
 void TempControl::setMode(char newMode){
 	logDeveloper("TempControl::setMode from %c to %c", cs.mode, newMode);

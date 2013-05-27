@@ -615,11 +615,11 @@ void PiLink::parseJson(ParseJsonCallback fn, void* data)
 
 void PiLink::receiveJson(void){
 
-	parseJson(&processJsonPair, NULL);
-	
-	eepromManager.storeTempConstantsAndSettings();
+	parseJson(&processJsonPair, NULL);	
+	tempControl.constantsChanged();
 				
 #if !BREWPI_SIMULATE	// this is quite an overhead and not needed for the simulator
+	eepromManager.storeTempConstantsAndSettings();
 	sendControlSettings();	// update script with new settings
 	sendControlConstants();
 #endif
