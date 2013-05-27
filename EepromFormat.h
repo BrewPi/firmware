@@ -15,7 +15,7 @@
 struct ChamberSettings
 {
 	ControlConstants cc;
-	byte reserved[4];
+	byte reserved[3];
 };
 
 struct BeerBlock {

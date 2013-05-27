@@ -32,6 +32,7 @@
 #include "TempSensorMock.h"
 #include "EepromManager.h"
 #include "TempSensorDisconnected.h"
+#include "RotaryEncoder.h"
 
 TempControl tempControl;
 
@@ -495,6 +496,9 @@ void TempControl::loadDefaultConstants(void){
 	cc.coolingTargetUpper = 102;	// +0.2 deg Celsius
 	cc.coolingTargetLower = -154;	// -0.3 deg Celsius
 
+	cc.lightAsHeater = 0;
+	cc.rotaryHalfSteps = 1;
+	
 	// Set filter coefficients. This is the b value. See FilterFixed.h for delay times.
 	// The delay time is 3.33 * 2^b * number of cascades
 	cc.fridgeFastFilter = 1u;
@@ -516,6 +520,7 @@ void TempControl::constantsChanged()
 	beerSensor->setFastFilterCoefficients(cc.beerFastFilter);
 	beerSensor->setSlowFilterCoefficients(cc.beerSlowFilter);
 	beerSensor->setSlopeFilterCoefficients(cc.beerSlopeFilter);	
+	rotaryEncoder.init();
 }
 
 void TempControl::setMode(char newMode){

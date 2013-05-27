@@ -62,7 +62,8 @@ class RotaryEncoder
 	int prevRead;
 	volatile int steps;
 	volatile bool pushFlag;
-	
+	const uint8_t ** table;
+	uint8_t state;
 };
 
 extern RotaryEncoder rotaryEncoder;

@@ -476,7 +476,8 @@ const PiLink::JsonOutput PiLink::jsonOutputCCMap[] PROGMEM = {
 	JSON_OUTPUT_CC_MAP(beerSlowFilter, JOCC_UINT8),
 	JSON_OUTPUT_CC_MAP(beerSlopeFilter, JOCC_UINT8),
 	
-	JSON_OUTPUT_CC_MAP(lightAsHeater, JOCC_UINT8)
+	JSON_OUTPUT_CC_MAP(lightAsHeater, JOCC_UINT8),
+	JSON_OUTPUT_CC_MAP(rotaryHalfSteps, JOCC_UINT8)
 	
 };
 
@@ -747,6 +748,7 @@ const PiLink::JsonParserConvert PiLink::jsonParserConverters[] PROGMEM = {
 	JSON_CONVERT(JSONKEY_maxHeatTimeForEstimate, &tempControl.cc.maxHeatTimeForEstimate, setUint16),
 	JSON_CONVERT(JSONKEY_maxCoolTimeForEstimate, &tempControl.cc.maxCoolTimeForEstimate, setUint16),
 	JSON_CONVERT(JSONKEY_lightAsHeater, &tempControl.cc.lightAsHeater, setBool),
+	JSON_CONVERT(JSONKEY_rotaryHalfSteps, &tempControl.cc.rotaryHalfSteps, setBool),
 	
 	JSON_CONVERT(JSONKEY_fridgeFastFilter, MAKE_FILTER_SETTING_TARGET(FAST, FRIDGE), applyFilterSetting),
 	JSON_CONVERT(JSONKEY_fridgeSlowFilter, MAKE_FILTER_SETTING_TARGET(SLOW, FRIDGE), applyFilterSetting),
