@@ -201,7 +201,7 @@ void RotaryEncoder::process(void){
 	uint8_t currPinB = bitRead(PINB,1);
 	#endif
 	
-	unsigned char pinstate = (currPinA << 1) | currPinB;
+	unsigned char pinstate = (currPinB << 1) | currPinA;
 	// Determine new state from the pins and state table.
 	state = pgm_read_byte(&(ttable[state & 0xf][pinstate]));
 	// Get emit bits, ie the generated event.
