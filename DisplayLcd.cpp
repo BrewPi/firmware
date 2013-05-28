@@ -27,10 +27,9 @@
 #include "TemperatureFormats.h"
 #include "Pins.h"
 
-static const int LCD_FLAG_DISPLAY_ROOM = 0x01;
 
 uint8_t LcdDisplay::stateOnDisplay;
-bool LcdDisplay::flags;
+uint8_t LcdDisplay::flags;
 SpiLcd LcdDisplay::lcd;
 
 
@@ -44,19 +43,28 @@ void LcdDisplay::init(void){
 
 //print all temperatures on the LCD
 void LcdDisplay::printAllTemperatures(void){
-	bool displayRoom = ((ticks.seconds()&0x08)==0) && !BREWPI_SIMULATE;
-	if (displayRoom ^ ((flags & LCD_FLAG_DISPLAY_ROOM)!=0)) {	// transition
-		if (!tempControl.ambientSensor->isConnected())	{
-			displayRoom = tempControl.ambientSensor->init()!=DEVICE_DISCONNECTED && displayRoom;
+	// alternate between beer and room temp
+	if (flags & LCD_FLAG_ALTERNATE_ROOM) {
+		bool displayRoom = ((ticks.seconds()&0x08)==0) && !BREWPI_SIMULATE;
+		if (displayRoom ^ ((flags & LCD_FLAG_DISPLAY_ROOM)!=0)) {	// transition
+			if (!tempControl.ambientSensor->isConnected())	{
+				displayRoom = tempControl.ambientSensor->init()!=DEVICE_DISCONNECTED && displayRoom;
+			}
+			flags = displayRoom ? flags | LCD_FLAG_DISPLAY_ROOM : flags & ~LCD_FLAG_DISPLAY_ROOM;
+			printStationaryText();
 		}
-		flags = displayRoom ? flags | LCD_FLAG_DISPLAY_ROOM : flags & ~LCD_FLAG_DISPLAY_ROOM;
-		printStationaryText();
 	}
 	
 	printBeerTemp();
 	printBeerSet();
 	printFridgeTemp();
 	printFridgeSet();
+}
+
+void LcdDisplay::setDisplayFlags(uint8_t flags) {
+	LcdDisplay::flags = flags;
+	printStationaryText();
+	printAllTemperatures();
 }
 
 void LcdDisplay::printBeerTemp(void){

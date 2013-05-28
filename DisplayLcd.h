@@ -33,6 +33,9 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	// print mode on the right location on the first line, after Mode:
 	DISPLAY_METHOD void printMode(void);
 
+	DISPLAY_METHOD void setDisplayFlags(uint8_t flags);
+	DISPLAY_METHOD uint8_t getDisplayFlags(){ return flags; };
+
 	// print beer temperature at the right place on the display
 	DISPLAY_METHOD void printBeerTemp(void);
 
@@ -65,7 +68,7 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	private:
 	DISPLAY_FIELD SpiLcd lcd;
 	DISPLAY_FIELD uint8_t stateOnDisplay;
-	DISPLAY_FIELD bool flags;
+	DISPLAY_FIELD uint8_t flags;
 		
 };
 

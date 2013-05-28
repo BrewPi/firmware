@@ -56,13 +56,16 @@ class Display{
 	DISPLAY_METHOD void printTemperature(fixed7_9 temp) DISPLAY_METHOD_PURE_VIRTUAL;
 	
 	// print " --.-"
-	void printUndefinedTemperature(void);
+	DISPLAY_METHOD void printUndefinedTemperature(void) DISPLAY_METHOD_PURE_VIRTUAL;
 
 	// print the stationary text on the lcd.
 	DISPLAY_METHOD void printStationaryText(void) DISPLAY_METHOD_PURE_VIRTUAL;
 
 	// print degree sign + C/F
 	DISPLAY_METHOD void printDegreeUnit(void) DISPLAY_METHOD_PURE_VIRTUAL;
+	
+	DISPLAY_METHOD void setDisplayFlags(uint8_t flags) DISPLAY_METHOD_PURE_VIRTUAL;
+	DISPLAY_METHOD uint8_t getDisplayFlags() DISPLAY_METHOD_PURE_VIRTUAL;
 
 	// print mode on the right location on the first line, after Mode:
 	DISPLAY_METHOD void printMode(void) DISPLAY_METHOD_PURE_VIRTUAL;
@@ -122,6 +125,10 @@ public:
 	// print mode on the right location on the first line, after Mode:
 	DISPLAY_METHOD void printMode(void){}
 
+	DISPLAY_METHOD void setDisplayFlags(uint8_t flags){};
+	DISPLAY_METHOD uint8_t getDisplayFlags(){ return 0; };
+		
+
 	// print beer temperature at the right place on the display
 	DISPLAY_METHOD void printBeerTemp(void){}
 
@@ -150,7 +157,19 @@ public:
 	DISPLAY_METHOD void resetBacklightTimer() { }
 		
 	DISPLAY_METHOD void updateBacklight() { }
+
 };
 		
+/**
+	* When set in flags, the current display will show the room temp, rather than beer temp.
+	*/
+static const uint8_t LCD_FLAG_DISPLAY_ROOM = 0x01;
+
+/**
+	* When set, the room temp will automatically alternate between beer and room temp.
+	*/
+static const uint8_t LCD_FLAG_ALTERNATE_ROOM = 0x02;
+
+
 	
 	
