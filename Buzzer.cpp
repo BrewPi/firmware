@@ -1,10 +1,23 @@
 /*
  * Buzzer.cpp
  *
- * Created: 7-2-2013 0:22:37
- *  Author: Elco
- */ 
-
+ * Copyright 2012 BrewPi.
+ *
+ * This file is part of BrewPi.
+ *
+ * BrewPi is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BrewPi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "Brewpi.h"
 #include "FastDigitalPin.h"
 #include "Ticks.h"
@@ -19,34 +32,42 @@
 #endif
 
 #if defined(USBCON)
-// Arduino Leonardo, the buzzer is on OC0B, but Timer0 is already in use for micros() and millis()
-// Do not change anything about the timer, just use the output mode
-#define BEEP_ON() bitSet(TCCR0A,COM0B1);
-#define BEEP_OFF() bitClear(TCCR0A,COM0B1);
-
-void Buzzer::init(void){
-	// set up square wave PWM for buzzer
-	fastPinMode(alarmPin,OUTPUT);
-}
-
+	#define BUZZER_TIMER_REG TCCR0A
+	#define BUZZER_TIMER_REG_FLAG COM0B1
+	#define BUZZER_TIMER_REG_INIT (void); 
+#elif defined (__AVR_ATmega2560__)
+	#define BUZZER_TIMER_REG TCCR3A
+	#define BUZZER_TIMER_REG_FLAG COM3C1
 #else
-// Arduino Uno, the buzzer is on OC2B
-#define BEEP_ON() bitSet(TCCR2A,COM2B1);
-#define BEEP_OFF() bitClear(TCCR2A,COM2B1);
-	
+	#define BUZZER_TIMER_REG TCCR2A
+	#define BUZZER_TIMER_REG_FLAG COM2B1
+#endif
+
+#define BEEP_ON() bitSet(BUZZER_TIMER_REG,BUZZER_TIMER_REG_FLAG);
+#define BEEP_OFF() bitClear(BUZZER_TIMER_REG,BUZZER_TIMER_REG_FLAG);
+
 void Buzzer::init(void){
 	// set up square wave PWM for buzzer
 	fastPinMode(alarmPin,OUTPUT);
 
+#if defined(USBCON)
+	// no further setup needed - timer already active
+#elif defined (__AVR_ATmega2560__)
+	TCCR3A = (1<<COM3C1) | (1<<WGM30); 
+	TCCR3C = (1<<WGM32) | (1<<CS31) | (1<<CS30);  // prescaler = 32 
+	OCR3A = 125;  // timer top. This value adjusts the frequency. 
+	OCR3C = 62; 
+	TIMSK3 |= (1 << OCIE3C);
+#else
+	
 	// Arduino UNO, buzzer is on OC2B
 	TCCR2A = (1<<COM2B1) | (1<<WGM20);
 	TCCR2B = (1<<WGM22) | (1<<CS21) | (1<<CS20); // prescaler = 32
 	OCR2A = 125; // timer top. This value adjusts the frequency.
 	OCR2B = 62;
-}
-
 #endif
 
+}
 
 void Buzzer::beep(uint8_t numBeeps, uint16_t duration){
 	for(uint8_t beepCount = 0; beepCount<numBeeps; beepCount++){
