@@ -109,7 +109,6 @@ struct ControlConstants{
 
 enum states{
 	IDLE,
-	STARTUP,
 	STATE_OFF,
 	DOOR_OPEN,
 	HEATING,

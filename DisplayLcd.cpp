@@ -188,9 +188,6 @@ void LcdDisplay::printState(void){
 			case IDLE:
 				lcd.print_P(PSTR("Idle for            "));	
 			break;
-			case STARTUP:
-				lcd.print_P(PSTR("Starting up...      "));
-			break;
 			case COOLING:
 				lcd.print_P(PSTR("Cooling for         "));
 			break;
