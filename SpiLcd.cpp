@@ -292,3 +292,9 @@ void SpiLcd::waitBusy(void) {
 	// we cannot read the busy pin, so just wait 1 ms
 	_delay_ms(1);
 }
+
+void SpiLcd::printSpacesToRestOfLine(void){
+	while(_currpos < 20){
+		print(' ');
+	}
+}

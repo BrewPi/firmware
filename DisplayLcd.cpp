@@ -32,6 +32,15 @@ uint8_t LcdDisplay::stateOnDisplay;
 uint8_t LcdDisplay::flags;
 SpiLcd LcdDisplay::lcd;
 
+// Constant strings used multiple times
+static const char STR_Beer_[] PROGMEM = "Beer ";
+static const char STR_Fridge_[] PROGMEM = "Fridge ";
+static const char STR_Const_[] PROGMEM = "Const.";
+static const char STR_for[] PROGMEM = "for";
+static const char STR_Waiting_to_[] PROGMEM = "Waiting to ";
+static const char STR_Cooling_[] PROGMEM = "Cooling ";
+static const char STR_Heating_[] PROGMEM = "Heating ";
+static const char STR_min_time[] PROGMEM = "min time";
 
 void LcdDisplay::init(void){
 	stateOnDisplay = 0xFF; // set to unknown state to force update
@@ -131,15 +140,14 @@ void LcdDisplay::printUndefinedTemperature(void){
 //print the stationary text on the lcd.
 void LcdDisplay::printStationaryText(void){
 	lcd.setCursor(0,0);
-	lcd.print_P(PSTR("Mode   "));
-
+	lcd.print_P(PSTR("Mode"));
 	lcd.setCursor(0,1);
 		
-	lcd.print_P((flags & LCD_FLAG_DISPLAY_ROOM) ?  PSTR("Room   ") : PSTR("Beer   "));
-	
+	lcd.print_P((flags & LCD_FLAG_DISPLAY_ROOM) ?  PSTR("Room") : STR_Beer_);
+		
 	lcd.setCursor(0,2);
-	lcd.print_P(PSTR("Fridge ")); 
-	
+	lcd.print_P(STR_Fridge_); 
+		
 	lcd.setCursor(18,1);
 	printDegreeUnit();
 	lcd.setCursor(18,2);
@@ -157,31 +165,29 @@ void LcdDisplay::printMode(void){
 	lcd.setCursor(7,0);
 	switch(tempControl.getMode()){
 		case MODE_FRIDGE_CONSTANT:
-			lcd.print_P(PSTR("Fridge Const."));
+			lcd.print_P(STR_Fridge_);
+			lcd.print_P(STR_Const_);
 			break;
 		case MODE_BEER_CONSTANT:
-			lcd.print_P(PSTR("Beer Constant"));
+			lcd.print_P(STR_Beer_);
+			lcd.print_P(STR_Const_);
 			break;
 		case MODE_BEER_PROFILE:
-			lcd.print_P(PSTR("Beer Profile "));
+			lcd.print_P(STR_Beer_);
+			lcd.print_P(PSTR("Profile"));
 			break;
 		case MODE_OFF:
-			lcd.print_P(PSTR("Off          "));
+			lcd.print_P(PSTR("Off"));
 			break;
 		case MODE_TEST:
 			lcd.print_P(PSTR("** Testing **"));
 			break;
 		default:
-			lcd.print_P(PSTR("Invalid mode "));
+			lcd.print_P(PSTR("Invalid mode"));
 			break;
 	}
+	lcd.printSpacesToRestOfLine();
 }
-
-static const char STR_for[] PROGMEM = "for";
-static const char STR_Waiting_to_[] PROGMEM = "Waiting to ";
-static const char STR_Cooling_[] PROGMEM = "Cooling ";
-static const char STR_Heating_[] PROGMEM = "Heating ";
-static const char STR_min_time[] PROGMEM = "min time";
 
 // print the current state on the last line of the lcd
 void LcdDisplay::printState(void){
@@ -235,9 +241,7 @@ void LcdDisplay::printState(void){
 		}
 		stateOnDisplay = state;
 		// erase rest of the line by writing spaces
-		while(lcd.getCurrPos() < 20){
-			lcd.print(' ');
-		}
+		lcd.printSpacesToRestOfLine();
 	}
 	uint16_t idleTime = tempControl.timeSinceIdle();
 	if(state==IDLE){
