@@ -178,7 +178,7 @@ void LcdDisplay::printMode(void){
 			lcd.print_P(PSTR("Invalid mode"));
 			break;
 	}
-	lcd.writeSpacesToRestOfLine();
+	lcd.printSpacesToRestOfLine();
 }
 
 // print the current state on the last line of the lcd
@@ -233,7 +233,7 @@ void LcdDisplay::printState(void){
 		}
 		stateOnDisplay = state;
 		// erase rest of the line by writing spaces
-		lcd.writeSpacesToRestOfLine();
+		lcd.printSpacesToRestOfLine();
 	}
 	uint16_t idleTime = tempControl.timeSinceIdle();
 	if(state==IDLE){
