@@ -127,6 +127,13 @@ class SpiLcd : public Print {
 	void resetBacklightTimer(void);
 
 	void updateBacklight(void);
+	
+	uint8_t getCurrPos(void){
+		return _currpos;
+	}
+	uint8_t getCurrLine(void){
+		return _currline;
+	}
 
 	using Print::write;
 
