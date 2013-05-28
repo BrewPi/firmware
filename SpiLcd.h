@@ -134,7 +134,10 @@ class SpiLcd : public Print {
 	uint8_t getCurrLine(void){
 		return _currline;
 	}
-
+	
+	// Write spaces from current position to line end.
+	void printSpacesToRestOfLine(void);
+		
 	using Print::write;
 
 	private:
