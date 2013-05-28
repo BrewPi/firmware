@@ -219,7 +219,7 @@ void RotaryEncoder::process(void){
 	uint8_t dir = state & 0x30;
 	
 	if(dir){
-		uint8_t s = steps;	// steps is volatile - save a copy here to avoid multiple fetches
+		int16_t s = steps;	// steps is volatile - save a copy here to avoid multiple fetches
 		s = (dir==DIR_CW) ? s+1 : s-1;
 		if (s > maximum)	
 			s = minimum;
