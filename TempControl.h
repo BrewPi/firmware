@@ -113,6 +113,11 @@ enum states{
 	DOOR_OPEN,
 	HEATING,
 	COOLING,
+	WAITING_TO_COOL,
+	WAITING_TO_HEAT,
+	WAITING_FOR_PEAK_DETECT,
+	COOLING_MIN_TIME,
+	HEATING_MIN_TIME,
 	NUM_STATES
 };
 
@@ -189,6 +194,20 @@ class TempControl{
 	TEMP_CONTROL_METHOD unsigned char getState(void){
 		return state;
 	}
+	
+	TEMP_CONTROL_METHOD uint16_t getWaitTime(void){
+		return waitTime;
+	}
+	
+	TEMP_CONTROL_METHOD void resetWaitTime(void){
+		waitTime = 0;
+	}
+	
+	TEMP_CONTROL_METHOD void updateWaitTime(uint16_t newTime){
+		if(newTime > waitTime){
+			waitTime = newTime;
+		}
+	}
 		
 	TEMP_CONTROL_METHOD void constantsChanged();
 
@@ -219,9 +238,11 @@ class TempControl{
 	TEMP_CONTROL_FIELD fixed7_9 storedBeerSetting;
 
 	// Timers
-	TEMP_CONTROL_FIELD unsigned int lastIdleTime;
-	TEMP_CONTROL_FIELD unsigned int lastHeatTime;
-	TEMP_CONTROL_FIELD unsigned int lastCoolTime;
+	TEMP_CONTROL_FIELD uint16_t lastIdleTime;
+	TEMP_CONTROL_FIELD uint16_t lastHeatTime;
+	TEMP_CONTROL_FIELD uint16_t lastCoolTime;
+	TEMP_CONTROL_FIELD uint16_t waitTime;
+	
 	
 	// State variables
 	TEMP_CONTROL_FIELD uint8_t state;

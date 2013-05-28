@@ -91,8 +91,8 @@ public:
 
 	void step() {
 		// in the simulator, we assume that ValueActuator instances are used for the actuators.
-		heating = tempControl.getState()==HEATING || PValueActuator(tempControl.heater)->isActive();
-		cooling = tempControl.getState()==COOLING;// PValueActuator(tempControl.cooler)->isActive();		 
+		heating = (tempControl.getState()==HEATING || tempControl.getState()==HEATING_MIN_TIME || PValueActuator(tempControl.heater)->isActive());
+		cooling = (tempControl.getState()==COOLING || tempControl.getState()==COOLING_MIN_TIME);// || PValueActuator(tempControl.cooler)->isActive());		 
 		doorOpen = PValueSensor(tempControl.door)->sense();
 		// with no serial and no calculation here we get 1500-2000x speedup
 		// with this code enabled, around 1300x speedup
