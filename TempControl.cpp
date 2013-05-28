@@ -77,7 +77,7 @@ unsigned int TempControl::lastCoolTime;
 #endif
 
 void TempControl::init(void){
-	state=STARTUP;		
+	state=IDLE;		
 	cs.mode = MODE_OFF;
 	
 	if (tempControl.beerSensor==NULL)
@@ -89,6 +89,9 @@ void TempControl::init(void){
 	fridgeSensor->init();
 	updateTemperatures();
 	reset();
+	// allow heating/cooling directly after boot
+	lastHeatTime = -3200; // will wrap around
+	lastCoolTime = -3200; // will wrap around
 }
 
 void TempControl::reset(void){
@@ -223,40 +226,47 @@ void TempControl::updateState(void){
 	ticks_seconds_t secs = ticks.seconds();
 	switch(state)
 	{
-		case STARTUP:
 		case IDLE:
 		case STATE_OFF:
 		{
 			lastIdleTime=secs;
 			if(doNegPeakDetect == true || doPosPeakDetect == true){
 				// Wait for peaks before starting to heat or cool again
-					return;
-			}		  
-			if(fridgeFast > (cs.fridgeSetting+cc.idleRangeHigh) ){ // fridge temperature is too high
+				break;
+			}	  
+			if(fridgeFast > (cs.fridgeSetting+cc.idleRangeHigh) ){  // fridge temperature is too high
+				if(sinceHeating < MIN_SWITCH_TIME){
+					break;
+				}
+				
 				if(cs.mode==MODE_FRIDGE_CONSTANT){
-					if((sinceCooling > MIN_COOL_OFF_TIME_FRIDGE_CONSTANT && sinceHeating > MIN_SWITCH_TIME) || state == STARTUP){
-						state=COOLING;
+					if((sinceCooling < MIN_COOL_OFF_TIME_FRIDGE_CONSTANT)){					
+						break;
 					}
-					return;
 				}
 				else{
+					if(sinceCooling < MIN_COOL_OFF_TIME){
+						break;
+					}
 					if(beerFast<cs.beerSetting){ // only start cooling when beer is too warm
-							return; // beer is already colder than setting, stay in IDLE.
+						break;  // beer is already colder than setting, stay in current state.
 					}
-					if((sinceCooling > MIN_COOL_OFF_TIME && sinceHeating > MIN_SWITCH_TIME) || state == STARTUP){
-						state=COOLING;
-					}
-					return;
 				}
+				state=COOLING;
 			}
-			else if(fridgeFast < (cs.fridgeSetting+cc.idleRangeLow)){ // fridge temperature is too low
-				if(beerFast >cs.beerSetting){ // only start heating when beer is too cold
-					return; // beer is already warmer than setting, stay in IDLE
+			else if(fridgeFast < (cs.fridgeSetting+cc.idleRangeLow)){  // fridge temperature is too low
+				if(sinceCooling < MIN_SWITCH_TIME){
+					break;
 				}
-				if((sinceCooling > MIN_SWITCH_TIME && sinceHeating > MIN_HEAT_OFF_TIME) || state == STARTUP){
-					state=HEATING;
-					return;
-				}			
+				if(sinceHeating < MIN_HEAT_OFF_TIME){
+					break;
+				}
+				if(cs.mode!=MODE_FRIDGE_CONSTANT){
+					if(beerFast > cs.beerSetting){ // only start heating when beer is too cold
+						break;  // beer is already warmer than setting, stay in IDLE
+					}
+				}
+				state=HEATING;							
 			}
 		}			
 		break; 
@@ -524,8 +534,7 @@ void TempControl::setMode(char newMode, bool force){
 	logDeveloper("TempControl::setMode from %c to %c", cs.mode, newMode);
 	
 	if(newMode != cs.mode){
-		if (state!=STARTUP) 
-			state = IDLE;
+		state = IDLE;
 		force = true;
 	}
 	if (force) {
