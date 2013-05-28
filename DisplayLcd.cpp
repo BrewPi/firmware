@@ -187,22 +187,37 @@ void LcdDisplay::printState(void){
 		switch (tempControl.getState()){
 			case IDLE:
 				lcd.print_P(PSTR("Idle for            "));	
-			break;
+				break;
+			case WAITING_TO_COOL:
+				lcd.print_P(PSTR("Waiting to cool     "));
+				break;
+			case WAITING_TO_HEAT:
+				lcd.print_P(PSTR("Waiting to heat     "));
+				break;
+			case WAITING_FOR_PEAK_DETECT:
+				lcd.print_P(PSTR("Awaiting peak detect"));
+				break;
 			case COOLING:
 				lcd.print_P(PSTR("Cooling for         "));
-			break;
+				break;
 			case HEATING:
 				lcd.print_P(PSTR("Heating for         "));
-			break;
+				break;
+			case COOLING_MIN_TIME:
+				lcd.print_P(PSTR("Cooling min time    "));
+				break;
+			case HEATING_MIN_TIME:
+				lcd.print_P(PSTR("Heating min time    "));
+				break;
 			case DOOR_OPEN:
 				lcd.print_P(PSTR("Door open           "));
-			break;
+				break;
 			case STATE_OFF:
 				lcd.print_P(PSTR("Temp. control OFF   "));
-			break;
+				break;
 			default:
 				lcd.print_P(PSTR("Unknown status!     "));
-			break;
+				break;
 		}
 		stateOnDisplay = state;
 	}
@@ -215,10 +230,17 @@ void LcdDisplay::printState(void){
 		lcd.setCursor(12,3);
 		time = tempControl.timeSinceIdle();
 	}
+	else if(state==COOLING_MIN_TIME || state==HEATING_MIN_TIME){
+		lcd.setCursor(17,3);
+		time = tempControl.timeSinceIdle();
+	}
+	else if(state == WAITING_TO_COOL || state == WAITING_TO_HEAT){
+		lcd.setCursor(16,3);
+		time = tempControl.getWaitTime();
+	}
 	else{
 		return;
 	}
 		
 	lcd.print(time);
-	lcd.print_P(PSTR(" s"));
 }

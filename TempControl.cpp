@@ -71,9 +71,10 @@ bool TempControl::doNegPeakDetect;
 fixed7_9 TempControl::storedBeerSetting;
 	
 	// Timers
-unsigned int TempControl::lastIdleTime;
-unsigned int TempControl::lastHeatTime;
-unsigned int TempControl::lastCoolTime;
+uint16_t TempControl::lastIdleTime;
+uint16_t TempControl::lastHeatTime;
+uint16_t TempControl::lastCoolTime;
+uint16_t TempControl::waitTime;
 #endif
 
 void TempControl::init(void){
@@ -89,9 +90,12 @@ void TempControl::init(void){
 	fridgeSensor->init();
 	updateTemperatures();
 	reset();
-	// allow heating/cooling directly after boot
-	lastHeatTime = -3200; // will wrap around
-	lastCoolTime = -3200; // will wrap around
+	
+	// Do not allow heating/cooling directly after reset.
+	// A failing script + CRON + Arduino uno (which resets on serial connect) could damage the compressor
+	// For test purposes, set these to -3600 to eliminate waiting after reset
+	lastHeatTime = 0;
+	lastCoolTime = 0;
 }
 
 void TempControl::reset(void){
@@ -228,71 +232,103 @@ void TempControl::updateState(void){
 	{
 		case IDLE:
 		case STATE_OFF:
+		case WAITING_TO_COOL:
+		case WAITING_TO_HEAT:
+		case WAITING_FOR_PEAK_DETECT:
 		{
-			lastIdleTime=secs;
-			if(doNegPeakDetect == true || doPosPeakDetect == true){
-				// Wait for peaks before starting to heat or cool again
-				break;
-			}	  
-			if(fridgeFast > (cs.fridgeSetting+cc.idleRangeHigh) ){  // fridge temperature is too high
+			lastIdleTime=secs;		
+			// set waitTime to zero. It will be set to the maximum required waitTime below when wait is in effect.
+			resetWaitTime();
+			if(fridgeFast > (cs.fridgeSetting+cc.idleRangeHigh) ){  // fridge temperature is too high			
 				if(sinceHeating < MIN_SWITCH_TIME){
-					break;
-				}
-				
+					updateWaitTime(MIN_SWITCH_TIME - sinceHeating);
+				}			
 				if(cs.mode==MODE_FRIDGE_CONSTANT){
 					if((sinceCooling < MIN_COOL_OFF_TIME_FRIDGE_CONSTANT)){					
-						break;
+						updateWaitTime(MIN_COOL_OFF_TIME_FRIDGE_CONSTANT-sinceCooling);
 					}
 				}
 				else{
-					if(sinceCooling < MIN_COOL_OFF_TIME){
+					if(beerFast<cs.beerSetting){ // only start cooling when beer is too warm
+						state = IDLE; // beer is already colder than setting, stay in or go to idle
 						break;
 					}
-					if(beerFast<cs.beerSetting){ // only start cooling when beer is too warm
-						break;  // beer is already colder than setting, stay in current state.
+					if(sinceCooling < MIN_COOL_OFF_TIME){
+						updateWaitTime(MIN_COOL_OFF_TIME-sinceCooling);
 					}
 				}
-				state=COOLING;
+				if(getWaitTime() > 0){
+					state = WAITING_TO_COOL;
+				}
+				else{
+					state = COOLING;	
+				}
 			}
 			else if(fridgeFast < (cs.fridgeSetting+cc.idleRangeLow)){  // fridge temperature is too low
 				if(sinceCooling < MIN_SWITCH_TIME){
-					break;
+					updateWaitTime(MIN_SWITCH_TIME - sinceCooling);
 				}
 				if(sinceHeating < MIN_HEAT_OFF_TIME){
-					break;
+					updateWaitTime(MIN_HEAT_OFF_TIME - sinceHeating);
 				}
 				if(cs.mode!=MODE_FRIDGE_CONSTANT){
 					if(beerFast > cs.beerSetting){ // only start heating when beer is too cold
-						break;  // beer is already warmer than setting, stay in IDLE
+						state = IDLE;  // beer is already warmer than setting, stay in or go to idle
+						break;
 					}
 				}
-				state=HEATING;							
+				if(getWaitTime() > 0){
+					state = WAITING_TO_HEAT;
+				}
+				else{
+					state = HEATING;
+				}
+			}
+			if(state == HEATING || state == COOLING){	
+				if(doNegPeakDetect == true || doPosPeakDetect == true){
+					// If peak detect is not finished, but the fridge wants to switch to heat/cool
+					// Wait for peak detection and display 'Await peak detect' on display
+					state = WAITING_FOR_PEAK_DETECT;
+					break;
+				}
 			}
 		}			
 		break; 
 		case COOLING:
+		case COOLING_MIN_TIME:
 		{
 			doNegPeakDetect=true;
 			lastCoolTime = secs;
 			updateEstimatedPeak(cc.maxCoolTimeForEstimate, cs.coolEstimator, sinceIdle);
+			state = COOLING; // set to cooling here, so the display of COOLING/COOLING_MIN_TIME is correct
 			if(cv.estimatedPeak <= cs.fridgeSetting){
 				if(sinceIdle > MIN_COOL_ON_TIME){
 					cv.negPeakEstimate = cv.estimatedPeak; // remember estimated peak when I switch to IDLE, to adjust estimator later
 					state=IDLE;
-				}					
+					break;
+				}
+				else{
+					state = COOLING_MIN_TIME;
+					break;
+				}				
 			}
 		}		
 		break;
 		case HEATING:
+		case HEATING_MIN_TIME:
 		{
 			doPosPeakDetect=true;
 			lastHeatTime=secs;
 			updateEstimatedPeak(cc.maxHeatTimeForEstimate, cs.heatEstimator, sinceIdle);
+			state = HEATING; // reset to heating here, so the display of HEATING/HEATING_MIN_TIME is correct
 			if(cv.estimatedPeak >= cs.fridgeSetting){
 				if(sinceIdle > MIN_HEAT_ON_TIME){
 					cv.posPeakEstimate=cv.estimatedPeak; // remember estimated peak when I switch to IDLE, to adjust estimator later
 					state=IDLE;
+					break;
 				}
+				state = HEATING_MIN_TIME;
+				break;
 			}
 		}
 		break;
@@ -307,10 +343,13 @@ void TempControl::updateState(void){
 	}			
 }
 
-void TempControl::updateEstimatedPeak(uint16_t time, fixed7_9 estimator, uint16_t sinceIdle)
+void TempControl::updateEstimatedPeak(uint16_t timeLimit, fixed7_9 estimator, uint16_t sinceIdle)
 {
-	uint16_t activeTime = min(time, sinceIdle); // heat time in seconds
+	uint16_t activeTime = min(timeLimit, sinceIdle); // heat time in seconds
 	fixed7_9 estimatedOvershoot = ((fixed23_9) estimator * activeTime)/3600; // overshoot estimator is in overshoot per hour
+	if(state==COOLING || state==COOLING_MIN_TIME){
+		estimatedOvershoot = -estimatedOvershoot; // when cooling subtract overshoot from fridge temperature
+	}
 	cv.estimatedPeak = fridgeSensor->readFastFiltered() + estimatedOvershoot;		
 }
 
@@ -319,10 +358,10 @@ void TempControl::updateOutputs(void) {
 		return;
 		
 	cameraLight.update();
-	cooler->setActive(state==COOLING);		
-	heater->setActive(!cc.lightAsHeater && state==HEATING);	
-	light->setActive(state==DOOR_OPEN || (cc.lightAsHeater && state==HEATING) || cameraLightState.isActive());	
-	fan->setActive(state==HEATING || state==COOLING);
+	cooler->setActive(state==COOLING || state==COOLING_MIN_TIME);		
+	heater->setActive(!cc.lightAsHeater && (state==HEATING || state==HEATING_MIN_TIME));	
+	light->setActive(state==DOOR_OPEN || (cc.lightAsHeater && (state==HEATING || state==HEATING_MIN_TIME)) || cameraLightState.isActive());	
+	fan->setActive(state==HEATING || state==COOLING || state==HEATING_MIN_TIME || state==COOLING_MIN_TIME);
 }
 
 
