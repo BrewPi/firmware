@@ -284,6 +284,10 @@ void TempControl::updateState(void){
 					state = HEATING;
 				}
 			}
+			else{
+				state = IDLE; // within IDLE range, always go to IDLE
+				break;
+			}
 			if(state == HEATING || state == COOLING){	
 				if(doNegPeakDetect == true || doPosPeakDetect == true){
 					// If peak detect is not finished, but the fridge wants to switch to heat/cool
@@ -312,7 +316,7 @@ void TempControl::updateState(void){
 					break;
 				}				
 			}
-		}		
+		}
 		break;
 		case HEATING:
 		case HEATING_MIN_TIME:
@@ -327,8 +331,10 @@ void TempControl::updateState(void){
 					state=IDLE;
 					break;
 				}
-				state = HEATING_MIN_TIME;
-				break;
+				else{
+					state = HEATING_MIN_TIME;
+					break;
+				}
 			}
 		}
 		break;
