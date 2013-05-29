@@ -240,22 +240,16 @@ void TempControl::updateState(void){
 			// set waitTime to zero. It will be set to the maximum required waitTime below when wait is in effect.
 			resetWaitTime();
 			if(fridgeFast > (cs.fridgeSetting+cc.idleRangeHigh) ){  // fridge temperature is too high			
-				if(sinceHeating < MIN_SWITCH_TIME){
-					updateWaitTime(MIN_SWITCH_TIME - sinceHeating);
-				}			
+				tempControl.updateWaitTime(MIN_SWITCH_TIME, sinceHeating);			
 				if(cs.mode==MODE_FRIDGE_CONSTANT){
-					if((sinceCooling < MIN_COOL_OFF_TIME_FRIDGE_CONSTANT)){					
-						updateWaitTime(MIN_COOL_OFF_TIME_FRIDGE_CONSTANT-sinceCooling);
-					}
+					tempControl.updateWaitTime(MIN_COOL_OFF_TIME_FRIDGE_CONSTANT, sinceCooling);
 				}
 				else{
 					if(beerFast<cs.beerSetting){ // only start cooling when beer is too warm
 						state = IDLE; // beer is already colder than setting, stay in or go to idle
 						break;
 					}
-					if(sinceCooling < MIN_COOL_OFF_TIME){
-						updateWaitTime(MIN_COOL_OFF_TIME-sinceCooling);
-					}
+					tempControl.updateWaitTime(MIN_COOL_OFF_TIME, sinceCooling);
 				}
 				if(getWaitTime() > 0){
 					state = WAITING_TO_COOL;
@@ -265,12 +259,8 @@ void TempControl::updateState(void){
 				}
 			}
 			else if(fridgeFast < (cs.fridgeSetting+cc.idleRangeLow)){  // fridge temperature is too low
-				if(sinceCooling < MIN_SWITCH_TIME){
-					updateWaitTime(MIN_SWITCH_TIME - sinceCooling);
-				}
-				if(sinceHeating < MIN_HEAT_OFF_TIME){
-					updateWaitTime(MIN_HEAT_OFF_TIME - sinceHeating);
-				}
+				tempControl.updateWaitTime(MIN_SWITCH_TIME, sinceCooling);
+				tempControl.updateWaitTime(MIN_HEAT_OFF_TIME, sinceHeating);
 				if(cs.mode!=MODE_FRIDGE_CONSTANT){
 					if(beerFast > cs.beerSetting){ // only start heating when beer is too cold
 						state = IDLE;  // beer is already warmer than setting, stay in or go to idle
@@ -640,4 +630,3 @@ void TempControl::setFridgeTemp(fixed7_9 newTemp){
 	updatePID();
 	updateState();	
 }
-

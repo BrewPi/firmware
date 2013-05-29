@@ -32,20 +32,20 @@
 
 
 // Set minimum off time to prevent short cycling the compressor in seconds
-#define MIN_COOL_OFF_TIME 300u
+const uint16_t MIN_COOL_OFF_TIME = 300;
 // Use a minimum off time for the heater as well, so it heats in cycles, not lots of short bursts
-#define MIN_HEAT_OFF_TIME 300u
+const uint16_t MIN_HEAT_OFF_TIME = 300;
 // Minimum on time for the cooler.
-#define MIN_COOL_ON_TIME 300u
+const uint16_t MIN_COOL_ON_TIME = 300;
 // Minimum on time for the heater.
-#define MIN_HEAT_ON_TIME 300u
+const uint16_t MIN_HEAT_ON_TIME = 300;
 // Use a large minimum off time in fridge constant mode. No need for very fast cycling.
-#define MIN_COOL_OFF_TIME_FRIDGE_CONSTANT 900u
+const uint16_t MIN_COOL_OFF_TIME_FRIDGE_CONSTANT = 900;
 // Set a minimum off time between switching between heating and cooling
-#define MIN_SWITCH_TIME 600u
+const uint16_t MIN_SWITCH_TIME = 600;
 // Time allowed for peak detection
-#define COOL_PEAK_DETECT_TIME 1800u
-#define HEAT_PEAK_DETECT_TIME 900u
+const uint16_t COOL_PEAK_DETECT_TIME = 1800;
+const uint16_t HEAT_PEAK_DETECT_TIME = 900;
 
 // These two structs are stored in and loaded from EEPROM
 struct ControlSettings{
@@ -123,10 +123,6 @@ enum states{
 
 #define TC_STATE_MASK 0x7;	// 3 bits
 
-#ifndef TEMP_CONTROL_STATIC
-#define TEMP_CONTROL_STATIC 0
-#endif
-
 #if TEMP_CONTROL_STATIC
 #define TEMP_CONTROL_METHOD static
 #define TEMP_CONTROL_FIELD static
@@ -203,9 +199,13 @@ class TempControl{
 		waitTime = 0;
 	}
 	
-	TEMP_CONTROL_METHOD void updateWaitTime(uint16_t newTime){
-		if(newTime > waitTime){
-			waitTime = newTime;
+	// TEMP_CONTROL_METHOD void updateWaitTime(uint16_t newTimeLimit, uint16_t newTimeSince);
+	TEMP_CONTROL_METHOD void updateWaitTime(uint16_t newTimeLimit, uint16_t newTimeSince){
+		if(newTimeSince < newTimeLimit){
+			uint16_t newWaitTime = newTimeLimit - newTimeSince;
+			if(newWaitTime > waitTime){
+				waitTime = newWaitTime;
+			}
 		}
 	}
 		
