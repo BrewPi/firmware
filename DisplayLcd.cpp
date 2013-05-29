@@ -129,7 +129,7 @@ void LcdDisplay::printStationaryText(void){
 	printDegreeUnit(18, 2);
 }
 
-//print degree sign + C
+//print degree sign + temp unit
 void LcdDisplay::printDegreeUnit(uint8_t x, uint8_t y){
 	lcd.setCursor(x,y);
 	lcd.write(0b11011111);
