@@ -829,7 +829,8 @@ void UpdateDeviceState(DeviceDisplay& dd, DeviceConfig& dc, char* val)
 	}
 	else if (dd.value==1) {		// read values 
 		if (dt==DEVICETYPE_SWITCH_SENSOR) {
-			itoa(((SwitchSensor*)*ppv)->sense()!=0, val, 10);
+			//itoa(((SwitchSensor*)*ppv)->sense()!=0, val, 10);
+			sprintf_P(val, PSTR("%d"), (int) ((SwitchSensor*)*ppv)->sense()!=0); // cheaper than itoa, because it overlaps with vsnprintf
 		}
 		else if (dt==DEVICETYPE_TEMP_SENSOR) {
 			BasicTempSensor& s = unwrapSensor(dc.deviceFunction, *ppv);

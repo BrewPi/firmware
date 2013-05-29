@@ -53,7 +53,7 @@ void Menu::pickSettingToChange(void){
 			display.printStationaryText();		
 		}
 		if(blinkTimer == 128){ // blink one of the options by overwriting it with spaces
-			display.printAt(0, rotaryEncoder.read(), PSTR("      "));			
+			display.printAt_P(0, rotaryEncoder.read(), PSTR("      "));			
 		}
 		if( rotaryEncoder.pushed() ){
 			rotaryEncoder.resetPushed();
@@ -141,7 +141,7 @@ void Menu::pickMode(void){
 				display.printMode();
 			}
 			if(blinkTimer == 128){
-				display.printAt(7, 0, PSTR("             "));
+				display.printAt_P(7, 0, PSTR("             "));
 			}				
 			blinkTimer++;
 			wait.millis(3); // delay for blinking
@@ -186,7 +186,7 @@ void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempNam
 				update();
 			}
 			if(blinkTimer == 128){
-				display.printAt(12, row, PSTR("     "));
+				display.printAt_P(12, row, PSTR("     "));
 			}
 			blinkTimer++;
 			wait.millis(3); // delay for blinking

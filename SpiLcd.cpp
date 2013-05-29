@@ -97,7 +97,7 @@ void SpiLcd::home()
 
 void SpiLcd::setCursor(uint8_t col, uint8_t row)
 {
-	uint8_t row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
+	const uint8_t row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
 	if ( row >= _numlines ) {
 		row = 0;  //write to first line if out off bounds
 	}

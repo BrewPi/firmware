@@ -25,7 +25,7 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	DISPLAY_METHOD void printStationaryText(void);
 
 	// print degree sign + C/F
-	DISPLAY_METHOD void printDegreeUnit(void);
+	DISPLAY_METHOD void printDegreeUnit(uint8_t x, uint8_t y);
 
 	// print mode on the right location on the first line, after Mode:
 	DISPLAY_METHOD void printMode(void);
@@ -50,7 +50,8 @@ class LcdDisplay DISPLAY_SUPERCLASS
 
 	DISPLAY_METHOD void getLine(uint8_t lineNumber, char * buffer) { lcd.getLine(lineNumber, buffer); }
 
-	DISPLAY_METHOD void printAt(uint8_t x, uint8_t y, const char* text) { lcd.setCursor(x, y); 	lcd.print_P(text); }
+	DISPLAY_METHOD void printAt_P(uint8_t x, uint8_t y, const char* text);
+	DISPLAY_METHOD void printAt(uint8_t x, uint8_t y, char* text);
 	
 	DISPLAY_METHOD void setBufferOnly(bool bufferOnly) {
 		lcd.setBufferOnly(bufferOnly);
@@ -62,6 +63,7 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	private:
 	// print a temperature
 	DISPLAY_METHOD void printTemperature(fixed7_9 temp);
+	DISPLAY_METHOD void printTemperatureAt(uint8_t x, uint8_t y, fixed7_9 temp);
 
 		
 	private:

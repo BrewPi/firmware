@@ -27,7 +27,6 @@
 #include "TemperatureFormats.h"
 #include "Pins.h"
 
-
 uint8_t LcdDisplay::stateOnDisplay;
 uint8_t LcdDisplay::flags;
 SpiLcd LcdDisplay::lcd;
@@ -80,30 +79,32 @@ void LcdDisplay::setDisplayFlags(uint8_t flags) {
 
 
 void LcdDisplay::printBeerTemp(void){
-	lcd.setCursor(6,1);
-	printTemperature(flags & LCD_FLAG_DISPLAY_ROOM ? 
+	printTemperatureAt(6, 1, flags & LCD_FLAG_DISPLAY_ROOM ? 
 		tempControl.ambientSensor->read() : 
 		tempControl.getBeerTemp());
 }
 
 void LcdDisplay::printBeerSet(void){
-	lcd.setCursor(12,1);
 	fixed7_9 beerSet = tempControl.getBeerSetting();	
 	if(flags & LCD_FLAG_DISPLAY_ROOM) // beer setting is not active
 		beerSet = INT_MIN;
-	printTemperature(beerSet);	
+	printTemperatureAt(12, 1, beerSet);	
 }
 
 void LcdDisplay::printFridgeTemp(void){	
-	lcd.setCursor(6,2);
-	printTemperature(tempControl.getFridgeTemp());
+	printTemperatureAt(6,2, tempControl.getFridgeTemp());
 }
 
 void LcdDisplay::printFridgeSet(void){	
-	lcd.setCursor(12,2);
 	fixed7_9 fridgeSet = tempControl.getFridgeSetting();	
-	printTemperature(fridgeSet);	
+	printTemperatureAt(12, 2, fridgeSet);	
 }
+
+void LcdDisplay::printTemperatureAt(uint8_t x, uint8_t y, fixed7_9 temp){
+	lcd.setCursor(x,y);
+	printTemperature(temp);
+}
+
 
 void LcdDisplay::printTemperature(fixed7_9 temp){
 	if (temp==INT_MIN)
@@ -121,26 +122,28 @@ void LcdDisplay::printTemperature(fixed7_9 temp){
 
 //print the stationary text on the lcd.
 void LcdDisplay::printStationaryText(void){
-	lcd.setCursor(0,0);
-	lcd.print_P(PSTR("Mode"));
-	
-	lcd.setCursor(0,1);		
-	lcd.print_P((flags & LCD_FLAG_DISPLAY_ROOM) ?  PSTR("Room") : STR_Beer_);
-		
-	lcd.setCursor(0,2);
-	lcd.print_P(STR_Fridge_); 
-		
-	lcd.setCursor(18,1);
-	printDegreeUnit();
-	
-	lcd.setCursor(18,2);
-	printDegreeUnit();
+	printAt_P(0, 0, PSTR("Mode"));
+	printAt_P(0, 1, (flags & LCD_FLAG_DISPLAY_ROOM) ?  PSTR("Room") : STR_Beer_);
+	printAt_P(0, 2, STR_Fridge_); 
+	printDegreeUnit(18, 1);
+	printDegreeUnit(18, 2);
 }
 
 //print degree sign + C
-void LcdDisplay::printDegreeUnit(void){
+void LcdDisplay::printDegreeUnit(uint8_t x, uint8_t y){
+	lcd.setCursor(x,y);
 	lcd.write(0b11011111);
 	lcd.write(tempControl.cc.tempFormat);	
+}
+
+void LcdDisplay::printAt_P(uint8_t x, uint8_t y, const char* text){
+	lcd.setCursor(x, y);
+	lcd.print_P(text);
+}
+
+void LcdDisplay::printAt(uint8_t x, uint8_t y, char* text){
+	lcd.setCursor(x, y);
+	lcd.print(text);
 }
 
 // print mode on the right location on the first line, after "Mode   "
@@ -179,7 +182,6 @@ void LcdDisplay::printState(void){
 	uint8_t state = tempControl.getState();
 	uint8_t counterPrintPos=0;
 	if(state != stateOnDisplay){ //only print static text when state has changed
-		lcd.setCursor(0,3);
 		// Reprint state and clear rest of the line
 		const char * part1 = STR_empty_string;
 		const char * part2 = STR_empty_string;
@@ -225,10 +227,9 @@ void LcdDisplay::printState(void){
 				part1 = PSTR("Unknown status!");
 				break;
 		}
-		lcd.print_P(part1);
+		printAt_P(0, 3, part1);
 		lcd.print_P(part2);
 		stateOnDisplay = state;
-		// erase rest of the line by writing spaces
 		lcd.printSpacesToRestOfLine();
 	}
 	uint16_t idleTime = tempControl.timeSinceIdle();
@@ -248,9 +249,10 @@ void LcdDisplay::printState(void){
 		counterPrintPos = 16;
 		time = tempControl.getWaitTime();
 	}
-	else{
-		return;
-	}	
-	lcd.setCursor(counterPrintPos, 3);
-	lcd.print(time);
+	if(counterPrintPos > 0){
+		char timeString[10];
+		sprintf_P(timeString,PSTR("%d"), (int) time); // cheaper than itoa, because it overlaps with vsnprintf
+		printAt(counterPrintPos, 3, timeString);
+		lcd.printSpacesToRestOfLine(); // overwrite previous numbers that had more digits
+	}
 }
