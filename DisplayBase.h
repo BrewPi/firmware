@@ -51,10 +51,7 @@ class Display{
 			
 	// print all temperatures on the LCD
 	DISPLAY_METHOD void printAllTemperatures(void) DISPLAY_METHOD_PURE_VIRTUAL;
-	
-	// print a temperature
-	DISPLAY_METHOD void printTemperature(fixed7_9 temp) DISPLAY_METHOD_PURE_VIRTUAL;
-	
+		
 	// print " --.-"
 	DISPLAY_METHOD void printUndefinedTemperature(void) DISPLAY_METHOD_PURE_VIRTUAL;
 

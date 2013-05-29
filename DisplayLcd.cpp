@@ -76,55 +76,40 @@ void LcdDisplay::setDisplayFlags(uint8_t flags) {
 	printAllTemperatures();
 }
 
+
+
 void LcdDisplay::printBeerTemp(void){
 	lcd.setCursor(6,1);
-	if (flags & LCD_FLAG_DISPLAY_ROOM) {
-		if (tempControl.ambientSensor->isConnected())
-			printTemperature(tempControl.ambientSensor->read());			
-		else
-			printUndefinedTemperature();
-	}
-	else {
-		if(tempControl.beerSensor->isConnected())
-			printTemperature(tempControl.getBeerTemp());		
-		else
-			printUndefinedTemperature();			
-	}
+	printTemperature(flags & LCD_FLAG_DISPLAY_ROOM ? 
+		tempControl.ambientSensor->read() : 
+		tempControl.getBeerTemp());
 }
 
 void LcdDisplay::printBeerSet(void){
 	lcd.setCursor(12,1);
 	fixed7_9 beerSet = tempControl.getBeerSetting();	
-	if((flags & LCD_FLAG_DISPLAY_ROOM) || (beerSet == INT_MIN)){ // beer setting is not active
-		printUndefinedTemperature();
-	}
-	else{
-		printTemperature(beerSet);	
-	}		
+	if(flags & LCD_FLAG_DISPLAY_ROOM) // beer setting is not active
+		beerSet = INT_MIN;
+	printTemperature(beerSet);	
 }
 
 void LcdDisplay::printFridgeTemp(void){	
 	lcd.setCursor(6,2);
-	if(tempControl.fridgeSensor->isConnected()){
-		printTemperature(tempControl.getFridgeTemp());
-	}
-	else{
-		printUndefinedTemperature();
-	}
+	printTemperature(tempControl.getFridgeTemp());
 }
 
 void LcdDisplay::printFridgeSet(void){	
 	lcd.setCursor(12,2);
 	fixed7_9 fridgeSet = tempControl.getFridgeSetting();	
-	if(fridgeSet == INT_MIN){ // beer setting is not active
-		printUndefinedTemperature();
-	}
-	else{
-		printTemperature(fridgeSet);
-	}		
+	printTemperature(fridgeSet);	
 }
 
 void LcdDisplay::printTemperature(fixed7_9 temp){
+	if (temp==INT_MIN)
+	{
+		lcd.print_P(PSTR(" --.-"));
+		return;
+	}
 	char tempString[9];
 	tempToString(tempString, temp, 1 , 9);
 	for(uint8_t i = 0; i<(5-strlen(tempString));i++){
@@ -133,16 +118,12 @@ void LcdDisplay::printTemperature(fixed7_9 temp){
 	lcd.print(tempString);
 }
 
-void LcdDisplay::printUndefinedTemperature(void){
-	lcd.print_P(PSTR(" --.-"));
-}
-
 //print the stationary text on the lcd.
 void LcdDisplay::printStationaryText(void){
 	lcd.setCursor(0,0);
 	lcd.print_P(PSTR("Mode"));
-	lcd.setCursor(0,1);
-		
+	
+	lcd.setCursor(0,1);		
 	lcd.print_P((flags & LCD_FLAG_DISPLAY_ROOM) ?  PSTR("Room") : STR_Beer_);
 		
 	lcd.setCursor(0,2);
@@ -150,6 +131,7 @@ void LcdDisplay::printStationaryText(void){
 		
 	lcd.setCursor(18,1);
 	printDegreeUnit();
+	
 	lcd.setCursor(18,2);
 	printDegreeUnit();
 }

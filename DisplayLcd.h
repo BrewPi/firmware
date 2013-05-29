@@ -21,9 +21,6 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	// print all temperatures on the LCD
 	DISPLAY_METHOD void printAllTemperatures(void);
 	
-	// print a temperature
-	DISPLAY_METHOD void printTemperature(fixed7_9 temp);
-
 	// print the stationary text on the lcd.
 	DISPLAY_METHOD void printStationaryText(void);
 
@@ -63,8 +60,10 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	DISPLAY_METHOD void updateBacklight() { }
 	
 	private:
-	DISPLAY_METHOD void printUndefinedTemperature(void);
-	
+	// print a temperature
+	DISPLAY_METHOD void printTemperature(fixed7_9 temp);
+
+		
 	private:
 	DISPLAY_FIELD SpiLcd lcd;
 	DISPLAY_FIELD uint8_t stateOnDisplay;
