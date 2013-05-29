@@ -40,8 +40,6 @@ enum menuPages{
 	MENU_PROFILE
 };
 
-#define MENU_TIMEOUT 10000ul
-
 class Menu{
 	public:
 	Menu(){};
