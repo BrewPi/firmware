@@ -308,18 +308,6 @@ const char DEVICE_ATTRIB_WRITE = 'w';		// write value to device
 const char DEVICE_ATTRIB_TYPE = 't';
 
 
-inline int8_t indexOf(const char* s, char c)
-{
-	char c2;
-	int8_t idx = -1;
-	while ((c2=s[++idx]))
-	{
-		if (c==c2) 
-			return idx;
-	}
-	return -1;
-}
-
 void handleDeviceDefinition(const char* key, const char* val, void* pv)
 {
 	DeviceDefinition* def = (DeviceDefinition*) pv;

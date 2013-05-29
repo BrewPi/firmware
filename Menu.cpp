@@ -97,21 +97,13 @@ void Menu::initRotaryWithTemp(fixed7_9 oldSetting){
 	rotaryEncoder.setRange(fixedToTenths(startVal), fixedToTenths(tempControl.cc.tempSettingMin), fixedToTenths(tempControl.cc.tempSettingMax));
 }
 
+const char* LOOKUP = "bfpo";
+
 void Menu::pickMode(void){
 	display.printStationaryText(); // restore original text after blinking 'Mode'
 	char oldSetting = tempControl.getMode();
 	uint8_t startValue=0;
-	switch(oldSetting){
-		case 'b':
-			startValue = 0;
-			break;
-		case 'f':
-			startValue = 1;
-			break;
-		case 'p':
-			startValue = 2;
-			break;
-	}
+	startValue = indexOf(LOOKUP, oldSetting);
 	rotaryEncoder.setRange(startValue, 0, 3); // toggle between beer constant, beer profile, fridge constant
 	const char lookup[] = {'b', 'f', 'p', 'o'};
 	uint8_t blinkTimer = 0;
@@ -125,17 +117,17 @@ void Menu::pickMode(void){
 			display.printMode();
 			if( rotaryEncoder.pushed() ){
 				rotaryEncoder.resetPushed();
-				
-				if(tempControl.getMode() ==  MODE_BEER_CONSTANT){
+				char mode = tempControl.getMode();
+				if(mode ==  MODE_BEER_CONSTANT){
 					menu.pickBeerSetting();
 				}
-				else if(tempControl.getMode() == MODE_FRIDGE_CONSTANT){
+				else if(mode == MODE_FRIDGE_CONSTANT){
 					menu.pickFridgeSetting();
 				}
-				else if(tempControl.getMode() == MODE_BEER_PROFILE){
+				else if(mode == MODE_BEER_PROFILE){
 					piLink.printBeerAnnotation(PSTR("Changed to profile mode in menu."));
 				}
-				else if(tempControl.getMode() == MODE_OFF){
+				else if(mode == MODE_OFF){
 					piLink.printBeerAnnotation(PSTR("Temp control turned off in menu."));
 				}						
 				return;
