@@ -272,7 +272,7 @@ void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempNam
 	rotaryEncoder.setRange(fixedToTenths(startVal), fixedToTenths(tempControl.cc.tempSettingMin), fixedToTenths(tempControl.cc.tempSettingMax));
 
 	uint8_t blinkTimer = 0;
-	uint8_t lastChangeTime = ticks.seconds();
+	uint16_t lastChangeTime = ticks.seconds();
 	while(ticks.timeSince(lastChangeTime) < MENU_TIMEOUT){ // time out at 10 seconds
 		if(rotaryEncoder.changed()){
 			lastChangeTime = ticks.seconds();
