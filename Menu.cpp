@@ -54,7 +54,7 @@ void Menu::pickSettingToChange(){
 bool blinkLoop(
 	void (*changed)(),	// called to update the value
 	void (*show)(),		// called to show the current value
-	void (*blink)(),	// called to blank out the current value
+	void (*hide)(),	// called to blank out the current value
 	void (*pushed)())	// handle selection
 {	
 	uint16_t lastChangeTime = ticks.seconds();
@@ -69,7 +69,7 @@ bool blinkLoop(
 		if (blinkTimer==0)
 			show();
 		else if (blinkTimer==128)
-			blink();
+			hide();
 			
 		if (rotaryEncoder.pushed()) {
 			rotaryEncoder.resetPushed();
