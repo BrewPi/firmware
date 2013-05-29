@@ -184,6 +184,12 @@
     <Compile Include="Brewpi.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="BrewpiStrings.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="BrewpiStrings.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Buzzer.cpp">
       <SubType>compile</SubType>
     </Compile>
