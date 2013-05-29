@@ -52,6 +52,8 @@ class Menu{
 	static void initRotaryWithTemp(fixed7_9 oldSetting);
 	
 	~Menu(){};
+	private:
+	static void pickSettingToChangeLoop();
 };
 
 extern Menu menu;

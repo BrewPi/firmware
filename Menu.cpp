@@ -35,10 +35,15 @@
 
 Menu menu;
 
-void Menu::pickSettingToChange(void){
+void Menu::pickSettingToChange(){
 	// ensure beer temp is displayed
 	uint8_t flags = display.getDisplayFlags();
 	display.setDisplayFlags(flags &= ~(LCD_FLAG_ALTERNATE_ROOM|LCD_FLAG_DISPLAY_ROOM));
+	pickSettingToChangeLoop();
+	display.setDisplayFlags(flags);
+}
+
+void Menu::pickSettingToChangeLoop(void){
 	
 	rotaryEncoder.setRange(0, 0, 2); // mode setting, beer temp, fridge temp
 	unsigned long timer = ticks.millis();
@@ -60,26 +65,25 @@ void Menu::pickSettingToChange(void){
 			switch(rotaryEncoder.read()){
 				case 0:
 					pickMode();
-					break;
+					return;
 				case 1:
 					// switch to beer constant, because beer setting will be set through display
 					tempControl.setMode(MODE_BEER_CONSTANT);
 					display.printMode();
 					pickBeerSetting();
-					break;
+					return;
 				case 2:
 					// switch to fridge constant, because fridge setting will be set through display
 					tempControl.setMode(MODE_FRIDGE_CONSTANT);
 					display.printMode();
 					pickFridgeSetting();
-					break;
+					return;
 			}
 		}
 		
 		blinkTimer++;
 		wait.millis(3); // delay for blinking
 	}
-	display.setDisplayFlags(flags);
 }
 
 void Menu::initRotaryWithTemp(fixed7_9 oldSetting){
