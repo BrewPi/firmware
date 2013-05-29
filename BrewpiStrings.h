@@ -5,7 +5,7 @@
 extern const char STR_FMT_S[];
 extern const char STR_FMT_U[];
 extern const char STR_FMT_D[];
-extern const char STR_SPACES[];
+extern const char STR_6SPACES[];
 
 #define indexOf_inline 0
 

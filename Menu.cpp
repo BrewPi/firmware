@@ -85,7 +85,7 @@ bool blinkLoop(
 }
 
 void clearSettingText() {
-	display.printAt_P(0, rotaryEncoder.read(), PSTR("      "));
+	display.printAt_P(0, rotaryEncoder.read(), STR_6SPACES);
 }
 
 void settingChanged() {} // no -op - the only change is to update the display which happens already
@@ -126,7 +126,7 @@ void changedMode() {
 }
 
 void clearMode() {
-	display.printAt_P(7, 0, PSTR("            "));
+	display.printAt_P(7, 0, PSTR("             ")); // print 13 spaces
 }
 
 void selectMode() {
@@ -173,7 +173,7 @@ void Menu::pickSettingToChangeLoop(void){
 			display.printStationaryText();		
 		}
 		if(blinkTimer == 128){ // blink one of the options by overwriting it with spaces
-			display.printAt_P(0, rotaryEncoder.read(), PSTR("      "));
+			display.printAt_P(0, rotaryEncoder.read(), STR_6SPACES);
 		}
 		if( rotaryEncoder.pushed() ){
 			rotaryEncoder.resetPushed();
@@ -293,7 +293,7 @@ void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempNam
 				update();
 			}
 			if(blinkTimer == 128){
-				display.printAt_P(12, row, PSTR("     "));
+				display.printAt_P(12, row, STR_6SPACES); // only 5 needed, but 6 is okay to and lets us re-use the string
 			}
 			blinkTimer++;
 			wait.millis(3); // delay for blinking

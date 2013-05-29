@@ -12,7 +12,7 @@
 const char STR_FMT_S[] PROGMEM = "%s";
 const char STR_FMT_U[] PROGMEM = "%u";
 const char STR_FMT_D[] PROGMEM = "%d";
-const char STR_SPACES[] PROGMEM = "             ";
+const char STR_6SPACES[] PROGMEM = "      ";
 
 
 
