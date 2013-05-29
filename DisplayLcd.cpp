@@ -18,6 +18,7 @@
  */
 
 #include "Brewpi.h"
+#include "BrewpiStrings.h"
 #include <limits.h>
 
 #include "Display.h"
@@ -26,6 +27,7 @@
 #include "TempControl.h"
 #include "TemperatureFormats.h"
 #include "Pins.h"
+
 
 uint8_t LcdDisplay::stateOnDisplay;
 uint8_t LcdDisplay::flags;
@@ -141,6 +143,7 @@ void LcdDisplay::printAt_P(uint8_t x, uint8_t y, const char* text){
 	lcd.print_P(text);
 }
 
+
 void LcdDisplay::printAt(uint8_t x, uint8_t y, char* text){
 	lcd.setCursor(x, y);
 	lcd.print(text);
@@ -251,7 +254,7 @@ void LcdDisplay::printState(void){
 	}
 	if(counterPrintPos > 0){
 		char timeString[10];
-		sprintf_P(timeString,PSTR("%d"), (int) time); // cheaper than itoa, because it overlaps with vsnprintf
+		sprintf_P(timeString,STR_FMT_U, (unsigned int) time); // cheaper than itoa, because it overlaps with vsnprintf
 		printAt(counterPrintPos, 3, timeString);
 		lcd.printSpacesToRestOfLine(); // overwrite previous numbers that had more digits
 	}

@@ -18,6 +18,7 @@
  */
 
 #include "Brewpi.h"
+#include "BrewpiStrings.h"
 
 #if BREWPI_MENU
 
@@ -31,7 +32,6 @@
 #include "RotaryEncoder.h"
 #include "PiLink.h"
 #include "Ticks.h"
-#include "Brewpi.h"
 
 Menu menu;
 
@@ -58,7 +58,7 @@ void Menu::pickSettingToChangeLoop(void){
 			display.printStationaryText();		
 		}
 		if(blinkTimer == 128){ // blink one of the options by overwriting it with spaces
-			display.printAt_P(0, rotaryEncoder.read(), PSTR("      "));			
+			display.printAt_P(0, rotaryEncoder.read(), STR_SPACES_END-6);
 		}
 		if( rotaryEncoder.pushed() ){
 			rotaryEncoder.resetPushed();
@@ -125,6 +125,7 @@ void Menu::pickMode(void){
 			display.printMode();
 			if( rotaryEncoder.pushed() ){
 				rotaryEncoder.resetPushed();
+				
 				if(tempControl.getMode() ==  MODE_BEER_CONSTANT){
 					menu.pickBeerSetting();
 				}
@@ -145,7 +146,7 @@ void Menu::pickMode(void){
 				display.printMode();
 			}
 			if(blinkTimer == 128){
-				display.printAt_P(7, 0, PSTR("             "));
+				display.printAt_P(7, 0, STR_SPACES_END-13);
 			}				
 			blinkTimer++;
 			wait.millis(3); // delay for blinking
@@ -190,7 +191,7 @@ void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempNam
 				update();
 			}
 			if(blinkTimer == 128){
-				display.printAt_P(12, row, PSTR("     "));
+				display.printAt_P(12, row, STR_SPACES_END-5);
 			}
 			blinkTimer++;
 			wait.millis(3); // delay for blinking
@@ -238,7 +239,7 @@ void Menu::pickBeerSetting(void){
 				display.printBeerSet();
 			}
 			if(blinkTimer == 128){
-				display.printAt(12,1, PSTR("     "));
+				display.printAt(12,1, STR_NULL, 5);
 			}				
 			blinkTimer++;
 			wait.millis(3); // delay for blinking

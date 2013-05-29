@@ -25,6 +25,7 @@
 #pragma once
 
 #include "Brewpi.h"
+#include "BrewpiStrings.h"
 #include <stdint.h>
 #include <print.h>
 #include "Ticks.h"
@@ -108,12 +109,16 @@ class SpiLcd : public Print {
 
 	virtual size_t write(uint8_t);
 
-	size_t print_P(const char * str){ // print a string stored in PROGMEM
+#define print_P_inline 1
+#if print_P_inline
+	void print_P(const char * str){ // print a string stored in PROGMEM
 		char buf[21]; // create buffer in RAM
 		strcpy_P(buf, str); // copy string to RAM
-		return print(buf); // print from RAM
+		print(buf); // print from RAM
 	}
-	
+#else
+	void print_P(const char * str);
+#endif
 	// copy a line from the shadow copy to a string buffer and correct the degree sign
 	void getLine(uint8_t lineNumber, char * buffer); 
 	
@@ -136,7 +141,10 @@ class SpiLcd : public Print {
 	}
 	
 	// Write spaces from current position to line end.
-	void printSpacesToRestOfLine(void);
+	void printSpacesToRestOfLine(void) {
+			print_P(STR_SPACES_END-(20-_currpos));
+			_currpos = 20;
+	}
 		
 	using Print::write;
 

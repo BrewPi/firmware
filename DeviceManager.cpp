@@ -6,6 +6,7 @@
  */ 
 
 #include "Brewpi.h"
+#include "BrewpiStrings.h"
 #include "DeviceManager.h"
 #include "TempControl.h"
 #include "OneWireTempSensor.h"
@@ -829,8 +830,7 @@ void UpdateDeviceState(DeviceDisplay& dd, DeviceConfig& dc, char* val)
 	}
 	else if (dd.value==1) {		// read values 
 		if (dt==DEVICETYPE_SWITCH_SENSOR) {
-			//itoa(((SwitchSensor*)*ppv)->sense()!=0, val, 10);
-			sprintf_P(val, PSTR("%d"), (int) ((SwitchSensor*)*ppv)->sense()!=0); // cheaper than itoa, because it overlaps with vsnprintf
+			sprintf_P(val, STR_FMT_U, (unsigned int) ((SwitchSensor*)*ppv)->sense()!=0); // cheaper than itoa, because it overlaps with vsnprintf
 		}
 		else if (dt==DEVICETYPE_TEMP_SENSOR) {
 			BasicTempSensor& s = unwrapSensor(dc.deviceFunction, *ppv);

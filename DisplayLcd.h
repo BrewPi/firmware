@@ -48,7 +48,6 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	DISPLAY_METHOD void getLine(uint8_t lineNumber, char * buffer) { lcd.getLine(lineNumber, buffer); }
 
 	DISPLAY_METHOD void printAt_P(uint8_t x, uint8_t y, const char* text);
-	DISPLAY_METHOD void printAt(uint8_t x, uint8_t y, char* text);
 	
 	DISPLAY_METHOD void setBufferOnly(bool bufferOnly) {
 		lcd.setBufferOnly(bufferOnly);
@@ -65,6 +64,8 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	// print degree sign + C/F
 	DISPLAY_METHOD void printDegreeUnit(uint8_t x, uint8_t y);
 		
+	DISPLAY_METHOD void printAt(uint8_t x, uint8_t y, char* text);
+
 	private:
 	DISPLAY_FIELD SpiLcd lcd;
 	DISPLAY_FIELD uint8_t stateOnDisplay;

@@ -6,6 +6,7 @@
  */ 
 
 #include "Brewpi.h"
+#include "BrewpiStrings.h"
 #include "Debug.h"
 #include "PiLink.h"
 #include "TemperatureFormats.h"
@@ -24,7 +25,7 @@ void Logger::logMessageVaArg(char type, DEBUG_ID_TYPE errorID, const char * varT
 	while(varTypes[index]){
 		switch(varTypes[index]){	
 			case 'd': // integer, signed or unsigned
-				piLink.print_P(PSTR("%d"), va_arg(args, int));
+				piLink.print_P(STR_FMT_D, va_arg(args, int));
 				break;
 			case 's': // string
 				piLink.print_P(LOG_STRING_FORMAT, va_arg(args, char*));

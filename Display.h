@@ -14,5 +14,6 @@ typedef NullDisplay DisplayType;
 typedef LcdDisplay DisplayType;
 #endif
 
+
 extern DisplayType DISPLAY_REF display;
 
