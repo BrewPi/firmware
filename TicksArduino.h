@@ -29,8 +29,8 @@ public:
 class HardwareDelay {
 public:
 	HardwareDelay() {}
-	void seconds(uint16_t seconds)	{ millis(seconds<<10); }
-	void millis(uint32_t millis)	{ ::delay(millis); }
+	void seconds(uint16_t seconds);
+	void millis(uint16_t millis);
 	void microseconds(uint32_t micros) { ::delayMicroseconds(micros); }	
 };
 

@@ -48,3 +48,7 @@ ticks_seconds_t ExternalTicks::timeSince(ticks_seconds_t previousTime){
 	return ::timeSince(currentTime, previousTime);
 }
 
+
+void HardwareDelay::millis(uint16_t millis) { ::delay(millis); }
+	
+void HardwareDelay::seconds(uint16_t seconds)	{ millis(seconds<<10); }

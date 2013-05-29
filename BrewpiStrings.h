@@ -8,9 +8,7 @@ extern const char STR_FMT_D[];
 extern const char STR_SPACES[];
 
 #define STR_SPACES_LEN 13
-#define STR_SPACES_END (STR_SPACES+STR_SPACES_LEN+1)	// 13 spaces plus final '\0'
-
-#define STR_EMPTY STR_SPACES_END
+#define STR_SPACES_END (STR_SPACES+STR_SPACES_LEN)	// 13 spaces plus final '\0'
 
 #define idnexOf_inline 0
 

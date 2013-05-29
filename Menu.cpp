@@ -252,7 +252,10 @@ void Menu::pickMode(void){
 	// Time Out. Restore original setting
 	tempControl.setMode(oldSetting);
 }
+
 #endif
+
+// tried optimizing this to use blinkLoop but the size becomes larger
 
 typedef void (* PrintAnnotation)(const char * annotation, ...);
 typedef void (* DisplayUpdate)(void);
@@ -260,7 +263,7 @@ typedef fixed7_9 (* ReadTemp)();
 typedef void (* WriteTemp)(fixed7_9);
 
 void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempName, DisplayUpdate update, PrintAnnotation printAnnoation, int row) {
-	display.printStationaryText(); // restore original text after blinking
+	
 	fixed7_9 oldSetting = readTemp();
 	fixed7_9 startVal = oldSetting;
 	if(oldSetting == INT_MIN)	 // previous temperature was not defined, start at 20C
@@ -284,7 +287,7 @@ void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempNam
 				printAnnoation(PSTR("%S temp set to %s in Menu."), tempName, tempToString(tempString,readTemp(),1,9));
 				return;
 			}
-	}	
+		}	
 		else{
 			if(blinkTimer == 0){
 				update();
