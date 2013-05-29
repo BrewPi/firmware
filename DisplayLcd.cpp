@@ -81,24 +81,24 @@ void LcdDisplay::setDisplayFlags(uint8_t flags) {
 
 
 void LcdDisplay::printBeerTemp(void){
-	printTemperatureAt(6, 1, flags & LCD_FLAG_DISPLAY_ROOM ? 
-		tempControl.ambientSensor->read() : 
-		tempControl.getBeerTemp());
+	printTemperatureAt(6, 1, tempControl.getBeerTemp());
 }
 
 void LcdDisplay::printBeerSet(void){
 	fixed7_9 beerSet = tempControl.getBeerSetting();	
-	if(flags & LCD_FLAG_DISPLAY_ROOM) // beer setting is not active
-		beerSet = INT_MIN;
 	printTemperatureAt(12, 1, beerSet);	
 }
 
 void LcdDisplay::printFridgeTemp(void){	
-	printTemperatureAt(6,2, tempControl.getFridgeTemp());
+	printTemperatureAt(6,2, flags & LCD_FLAG_DISPLAY_ROOM ?
+		tempControl.ambientSensor->read() :
+		tempControl.getFridgeTemp());
 }
 
 void LcdDisplay::printFridgeSet(void){	
 	fixed7_9 fridgeSet = tempControl.getFridgeSetting();	
+	if(flags & LCD_FLAG_DISPLAY_ROOM) // beer setting is not active
+		fridgeSet = INT_MIN;
 	printTemperatureAt(12, 2, fridgeSet);	
 }
 
@@ -125,8 +125,8 @@ void LcdDisplay::printTemperature(fixed7_9 temp){
 //print the stationary text on the lcd.
 void LcdDisplay::printStationaryText(void){
 	printAt_P(0, 0, PSTR("Mode"));
-	printAt_P(0, 1, (flags & LCD_FLAG_DISPLAY_ROOM) ?  PSTR("Room") : STR_Beer_);
-	printAt_P(0, 2, STR_Fridge_); 
+	printAt_P(0, 1, STR_Beer_);
+	printAt_P(0, 2, (flags & LCD_FLAG_DISPLAY_ROOM) ?  PSTR("Room") : STR_Fridge_); 
 	printDegreeUnit(18, 1);
 	printDegreeUnit(18, 2);
 }
