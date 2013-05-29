@@ -121,14 +121,10 @@ void LcdDisplay::printTemperature(fixed7_9 temp){
 
 //print the stationary text on the lcd.
 void LcdDisplay::printStationaryText(void){
-	lcd.setCursor(0,0);
-	lcd.print_P(PSTR("Mode"));
 	
-	lcd.setCursor(0,1);		
-	lcd.print_P((flags & LCD_FLAG_DISPLAY_ROOM) ?  PSTR("Room") : STR_Beer_);
-		
-	lcd.setCursor(0,2);
-	lcd.print_P(STR_Fridge_); 
+	printAt(0,0,PSTR("Mode"));	
+	printAt(0, 1, (flags & LCD_FLAG_DISPLAY_ROOM) ?  PSTR("Room") : STR_Beer_);		
+	printAt(0,2,STR_Fridge_); 
 		
 	printDegreeUnit(18,1);	
 	printDegreeUnit(18,2);
