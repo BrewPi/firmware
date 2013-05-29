@@ -41,6 +41,7 @@ static const char STR_Waiting_to_[] PROGMEM = "Waiting to ";
 static const char STR_Cooling_[] PROGMEM = "Cooling ";
 static const char STR_Heating_[] PROGMEM = "Heating ";
 static const char STR_min_time[] PROGMEM = "min time";
+static const char STR_empty_string[] PROGMEM = "";
 
 void LcdDisplay::init(void){
 	stateOnDisplay = 0xFF; // set to unknown state to force update
@@ -145,6 +146,7 @@ void LcdDisplay::printDegreeUnit(void){
 // print mode on the right location on the first line, after "Mode   "
 void LcdDisplay::printMode(void){
 	lcd.setCursor(7,0);
+	// Factoring prints out of switch has negative effect on code size in this function
 	switch(tempControl.getMode()){
 		case MODE_FRIDGE_CONSTANT:
 			lcd.print_P(STR_Fridge_);
@@ -179,48 +181,52 @@ void LcdDisplay::printState(void){
 	if(state != stateOnDisplay){ //only print static text when state has changed
 		lcd.setCursor(0,3);
 		// Reprint state and clear rest of the line
+		const char * part1 = STR_empty_string;
+		const char * part2 = STR_empty_string;
 		switch (tempControl.getState()){
 			case IDLE:
-				lcd.print_P(PSTR("Idle "));
-				lcd.print_P(STR_for);
+				part1 = PSTR("Idle ");
+				part2 = STR_for;
 				break;
 			case WAITING_TO_COOL:
-				lcd.print_P(STR_Waiting_to_);
-				lcd.print_P(PSTR("cool"));
+				part1 = STR_Waiting_to_;
+				part2 = PSTR("cool");
 				break;
 			case WAITING_TO_HEAT:
-				lcd.print_P(STR_Waiting_to_);
-				lcd.print_P(PSTR("heat"));
+				part1 = STR_Waiting_to_;
+				part2 = PSTR("heat");
 				break;
 			case WAITING_FOR_PEAK_DETECT:
-				lcd.print_P(PSTR("Awaiting peak detect"));
+				part1 = PSTR("Awaiting peak detect");
 				break;
 			case COOLING:
-				lcd.print_P(STR_Cooling_);
-				lcd.print_P(STR_for);
+				part1 = STR_Cooling_;
+				part2 = STR_for;
 				break;
 			case HEATING:
-				lcd.print_P(STR_Heating_);
-				lcd.print_P(STR_for);
+				part1 = STR_Heating_;
+				part2 = STR_for;
 				break;
 			case COOLING_MIN_TIME:
-				lcd.print_P(STR_Cooling_);
-				lcd.print_P(STR_min_time);
+				part1 = STR_Cooling_;
+				part2 = STR_min_time;
 				break;
 			case HEATING_MIN_TIME:
-				lcd.print_P(STR_Heating_);
-				lcd.print_P(STR_min_time);
+				part1 = STR_Heating_;
+				part2 = STR_min_time;
 				break;
 			case DOOR_OPEN:
-				lcd.print_P(PSTR("Door open"));
+				part1 = PSTR("Door open");
 				break;
 			case STATE_OFF:
-				lcd.print_P(PSTR("Temp. control OFF"));
+				part1 = PSTR("Temp. control OFF");
 				break;
 			default:
-				lcd.print_P(PSTR("Unknown status!"));
+				part1 = PSTR("Unknown status!");
 				break;
 		}
+		lcd.print_P(part1);
+		lcd.print_P(part2);
 		stateOnDisplay = state;
 		// erase rest of the line by writing spaces
 		lcd.printSpacesToRestOfLine();
