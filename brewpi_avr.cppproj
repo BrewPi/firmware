@@ -172,9 +172,6 @@
     <Compile Include="ActuatorAutoOff.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Arduino.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="ArduinoFunctions.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -206,15 +203,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="DallasTemperature.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Debug.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Debug.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="DebugMessages.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="DeviceManager.cpp">
@@ -272,6 +260,15 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="JsonKeys.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Logger.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Logger.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="LogMessages.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Main.cpp">

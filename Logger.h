@@ -1,57 +1,42 @@
 /*
- * Debug.h
+ * Copyright 2012 BrewPi/Elco Jacobs.
  *
- * Created: 22-5-2013 17:52:26
- *  Author: Elco
- */ 
+ * This file is part of BrewPi.
+ * 
+ * BrewPi is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * BrewPi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-
-#ifndef DEBUG_H_
-#define DEBUG_H_
+#pragma once
 
 #include <stdarg.h>
 #include "TemperatureFormats.h"
-#include "DebugMessages.h"
-
-// BREWPI_DEBUG is set in ConfigDefault.h
-
-#if (BREWPI_DEBUG > 0)
-#define DEBUG_MSG_1(...) piLink.debugMessage(__VA_ARGS__);
-#else
-#define DEBUG_MSG_1(...)
-#endif
-
-#if (BREWPI_DEBUG > 1)
-#define DEBUG_MSG_2(...) piLink.debugMessage(__VA_ARGS__);
-#else
-#define DEBUG_MSG_2(...)
-#endif
-#if (BREWPI_DEBUG > 2)
-#define DEBUG_MSG_3(...) piLink.debugMessage(__VA_ARGS__);
-#else
-#define DEBUG_MSG_3(...)
-#endif
+#include "LogMessages.h"
 
 // define error id variable type to make it easy to bump to uint16 when needed
-#define DEBUG_ID_TYPE uint8_t
-
-// move these to config file later
-#define BREWPI_DEBUG_ERRORS 1
-#define BREWPI_DEBUG_WARNINGS 1
-#define BREWPI_DEBUG_INFO 1
-#define BREWPI_DEBUG_DEVELOPER 0
+#define LOG_ID_TYPE uint8_t
 
 class Logger{
 	public:
 	Logger(){};
 	~Logger(){};
 	
-	static void logMessageVaArg(const char type, DEBUG_ID_TYPE errorID, const char * varTypes, ...);
+	static void logMessageVaArg(const char type, LOG_ID_TYPE errorID, const char * varTypes, ...);
 };
 extern Logger logger;
 
 
-#if BREWPI_DEBUG_ERRORS
+#if BREWPI_LOG_ERRORS
 	inline void logError(uint8_t debugId){
 		logger.logMessageVaArg('E', debugId, "");
 	}
@@ -71,15 +56,15 @@ extern Logger logger;
 		logger.logMessageVaArg('E', debugId, "ddd", val1, val2, val3);
 	}
 #else
-	#define logError(debugId)
-	#define logErrorInt(debugId, val)
-	#define logErrorString(debugId, val)
-	#define logErrorTemp(debugId, temp)
-	#define logErrorIntInt(debugId, val1, val2)
-	#define logErrorIntIntInt(debugId, val1, val2, val3)
+	#define logError(debugId) {}
+	#define logErrorInt(debugId, val) {}
+	#define logErrorString(debugId, val) {}
+	#define logErrorTemp(debugId, temp) {}
+	#define logErrorIntInt(debugId, val1, val2)	{}
+	#define logErrorIntIntInt(debugId, val1, val2, val3) {}
 #endif
 
-#if BREWPI_DEBUG_WARNINGS
+#if BREWPI_LOG_WARNINGS
 	inline void logWarning(uint8_t debugId){
 		logger.logMessageVaArg('W', debugId, "");
 	}
@@ -96,14 +81,14 @@ extern Logger logger;
 		logger.logMessageVaArg('W', debugId, "ds", val1, val2);
 	}
 #else
-	#define logWarning(debugId)
-	#define logWarningInt(debugId, val)
-	#define logWarningString(debugId, val)
-	#define logWarningTemp(debugId, temp)
-	#define logWarningIntString(debugId, val1, val2)
+	#define logWarning(debugId) {}
+	#define logWarningInt(debugId, val) {}
+	#define logWarningString(debugId, val) {}
+	#define logWarningTemp(debugId, temp) {}
+	#define logWarningIntString(debugId, val1, val2) {}
 #endif
 
-#if BREWPI_DEBUG_INFO
+#if BREWPI_LOG_INFO
 		inline void logInfo(uint8_t debugId){
 			logger.logMessageVaArg('I', debugId, "");
 		}
@@ -126,28 +111,19 @@ extern Logger logger;
 			logger.logMessageVaArg('I', debugId, "dst", val1, val2, val3);
 		}
 #else
-	#define logInfo(debugId)
-	#define logInfoInt(debugId, val)
-	#define logInfoString(debugId, val)
-	#define logInfoTemp(debugId, temp)
-	#define logInfoStringString(debugId, val1, val2)
-	#define logInfoIntString(debugId, val1, val2)
-	#define logInfoIntStringTemp(debugId, val1, val2, val3)
+	#define logInfo(debugId) {}
+	#define logInfoInt(debugId, val) {}
+	#define logInfoString(debugId, val) {}
+	#define logInfoTemp(debugId, temp) {}
+	#define logInfoStringString(debugId, val1, val2) {}
+	#define logInfoIntString(debugId, val1, val2) {}
+	#define logInfoIntStringTemp(debugId, val1, val2, val3) {}
 	
 	
 #endif
 
-#if BREWPI_DEBUG_DEVELOPER
+#if BREWPI_LOG_DEVELOPER
 	#define logDeveloper(string, ...) piLink.debugMessage(PSTR(string), ##__VA_ARGS__)
 #else
-	#define logDeveloper(string, ...)
+	#define logDeveloper(string, ...) {}
 #endif
-
-#if BREWPI_DEBUG>0
-	#define DEBUG_ONLY(x) x
-#else
-	#define DEBUG_ONLY(x)
-#endif
-
-
-#endif /* DEBUG_H_ */

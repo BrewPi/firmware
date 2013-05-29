@@ -17,9 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef TEMPERATUREFORMATS_H_
-#define TEMPERATUREFORMATS_H_
+#pragma once
 
 #include "Brewpi.h"
 #include <inttypes.h>
@@ -62,5 +60,3 @@ fixed7_9 constrainTemp16(fixed23_9 val);
 	
 
 #define OPTIMIZE_TEMPERATURE_FORMATS 1 && OPTIMIZE_GLOBAL
-
-#endif /* TEMPERATUREFORMATS_H_ */

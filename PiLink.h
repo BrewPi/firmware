@@ -17,13 +17,12 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PILINK_H_
-#define PILINK_H_
+#pragma once
 
 #include "Brewpi.h"
 #include "TemperatureFormats.h"
 #include "DeviceManager.h"
-#include "Debug.h"
+#include "Logger.h"
 
 class DeviceConfig;
 
@@ -136,8 +135,3 @@ class PiLink{
 };
 
 extern PiLink piLink;
-
-	
-
-
-#endif /* PILINK_H_ */

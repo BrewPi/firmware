@@ -1,5 +1,4 @@
-#ifndef DallasTemperature_h
-#define DallasTemperature_h
+#pragma once
 
 #include "Brewpi.h"
 #include <limits.h>
@@ -243,4 +242,3 @@ class DallasTemperature
   #endif
   
 };
-#endif

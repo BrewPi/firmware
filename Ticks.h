@@ -17,8 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TICKS_H_
-#define TICKS_H_
+#pragma once
 
 #include "Brewpi.h"
 
@@ -123,7 +122,3 @@ typedef HardwareDelay DelayImpl;
 #endif
 
 extern DelayImpl wait;
-
-
-
-#endif /* TICKS_H_ */

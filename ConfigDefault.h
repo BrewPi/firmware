@@ -1,9 +1,21 @@
 /*
- * config_default.h
+ * Copyright 2012 BrewPi/Elco Jacobs.
  *
- * Created: 06/05/2013 00:23:26
- *  Author: mat
- */ 
+ * This file is part of BrewPi.
+ * 
+ * BrewPi is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * BrewPi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #pragma once
 
@@ -11,9 +23,33 @@
  * Do not change this file directly - rather edit ConfigLocal.h
  */
 
-// Set verbosity of debug messages 0-3
+// Enable printing debug only log messages and debug only wrapped statements
 #ifndef BREWPI_DEBUG
-#define BREWPI_DEBUG 1
+#define BREWPI_DEBUG 0
+#endif
+
+#if BREWPI_DEBUG>0
+	#define DEBUG_ONLY(x) x
+#else
+	#define DEBUG_ONLY(x)
+#endif
+
+
+// Set which debug messages are printed
+#ifndef BREWPI_LOG_ERRORS
+#define BREWPI_LOG_ERRORS 1
+#endif
+
+#ifndef BREWPI_LOG_WARNINGS
+#define BREWPI_LOG_WARNINGS 1 
+#endif 
+
+#ifndef BREWPI_LOG_INFO
+#define BREWPI_LOG_INFO 1
+#endif
+
+#ifndef BREWPI_LOG_DEVELOPER
+#define BREWPI_LOG_DEVELOPER 0
 #endif
 
 #ifndef BREWPI_ESTIMATOR_MESSAGES
@@ -99,7 +135,7 @@
  * Enable debug messages from the temp control estimator.
  */
 #if BREWPI_ESTIMATOR_MESSAGES
-	#define ESTIMATOR_MSG(msg, ...) piLink.debugMessage(PSTR(msg), __VA_ARGS__)
+	#define ESTIMATOR_MSG(msg, ...) piLink.debugMessage(PSTR(msg), ##__VA_ARGS__)
 #else
 	#define ESTIMATOR_MSG(msg,...)  {}
 #endif

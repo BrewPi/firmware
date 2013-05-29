@@ -16,11 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+#pragma once
+
 #include "Brewpi.h"
 #include <avr/pgmspace.h>
-
-#ifndef JSON_H_
-#define JSON_H_
 
 static const char JSONKEY_mode[] PROGMEM = "mode";
 static const char JSONKEY_beerSetting[] PROGMEM = "beerSet";
@@ -69,6 +69,3 @@ static const char JSONKEY_posPeak[] PROGMEM = "posPeak";
 
 static const char JSONKEY_logType[] PROGMEM = "logType";
 static const char JSONKEY_logID[] PROGMEM = "logID";
-
-
-#endif /* JSON_H_ */

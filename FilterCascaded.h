@@ -17,7 +17,6 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #pragma once
 
 #include "Brewpi.h"

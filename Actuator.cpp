@@ -1,4 +1,6 @@
 /*
+ * Copyright 2012 BrewPi/Elco Jacobs.
+ *
  * This file is part of BrewPi.
  * 
  * BrewPi is free software: you can redistribute it and/or modify
@@ -13,14 +15,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Actuator.cpp
- *
- * Created: 19/02/2013 18:23:38
- *  Author: mat
- */ 
+ */
 
 #include "Brewpi.h"
 #include "Pins.h"
 #include "Actuator.h"
-

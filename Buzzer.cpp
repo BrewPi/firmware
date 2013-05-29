@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include "Brewpi.h"
 #include "FastDigitalPin.h"
 #include "Ticks.h"

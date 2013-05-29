@@ -17,8 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PINS_H_
-#define PINS_H_
+#pragma once
 
 #include "Brewpi.h"
 
@@ -85,7 +84,3 @@
 #ifndef USE_INTERNAL_PULL_UP_RESISTORS
 #define USE_INTERNAL_PULL_UP_RESISTORS false
 #endif
-
-
-
-#endif /* PINS_H_ */

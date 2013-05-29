@@ -1,20 +1,32 @@
 /*
- * Debug.cpp
+ * Copyright 2012 BrewPi/Elco Jacobs.
  *
- * Created: 22-5-2013 17:53:42
- *  Author: Elco
- */ 
+ * This file is part of BrewPi.
+ * 
+ * BrewPi is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * BrewPi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "Brewpi.h"
 #include "BrewpiStrings.h"
-#include "Debug.h"
+#include "Logger.h"
 #include "PiLink.h"
 #include "TemperatureFormats.h"
 #include "JsonKeys.h"
 
 static const char PROGMEM LOG_STRING_FORMAT[] = "\"%s\"";
 
-void Logger::logMessageVaArg(char type, DEBUG_ID_TYPE errorID, const char * varTypes, ...){
+void Logger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * varTypes, ...){
 	va_list args;
 	piLink.printResponse('D');
 	piLink.sendJsonPair(JSONKEY_logType, type);
