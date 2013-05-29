@@ -7,10 +7,7 @@ extern const char STR_FMT_U[];
 extern const char STR_FMT_D[];
 extern const char STR_SPACES[];
 
-#define STR_SPACES_LEN 13
-#define STR_SPACES_END (STR_SPACES+STR_SPACES_LEN)	// 13 spaces plus final '\0'
-
-#define idnexOf_inline 0
+#define indexOf_inline 0
 
 #if indexOf_inline
 inline int8_t indexOf(const char* s, char c)
@@ -27,7 +24,3 @@ inline int8_t indexOf(const char* s, char c)
 #else
 int8_t indexOf(const char* s, char c);
 #endif
-
-
-
-

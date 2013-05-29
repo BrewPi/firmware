@@ -141,10 +141,7 @@ class SpiLcd : public Print {
 	}
 	
 	// Write spaces from current position to line end.
-	void printSpacesToRestOfLine(void) {
-			print_P(STR_SPACES_END-(20-_currpos));
-			_currpos = 20;
-	}
+	void printSpacesToRestOfLine(void);
 		
 	using Print::write;
 

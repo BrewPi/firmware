@@ -85,7 +85,7 @@ bool blinkLoop(
 }
 
 void clearSettingText() {
-	display.printAt_P(0, rotaryEncoder.read(), STR_SPACES_END-6);
+	display.printAt_P(0, rotaryEncoder.read(), PSTR("      "));
 }
 
 void settingChanged() {} // no -op - the only change is to update the display which happens already
@@ -126,7 +126,7 @@ void changedMode() {
 }
 
 void clearMode() {
-	display.printAt_P(7, 0, STR_SPACES_END-13);
+	display.printAt_P(7, 0, PSTR("            "));
 }
 
 void selectMode() {
@@ -173,7 +173,7 @@ void Menu::pickSettingToChangeLoop(void){
 			display.printStationaryText();		
 		}
 		if(blinkTimer == 128){ // blink one of the options by overwriting it with spaces
-			display.printAt_P(0, rotaryEncoder.read(), STR_SPACES_END-6);
+			display.printAt_P(0, rotaryEncoder.read(), PSTR("      "));
 		}
 		if( rotaryEncoder.pushed() ){
 			rotaryEncoder.resetPushed();
@@ -243,7 +243,7 @@ void Menu::pickMode(void){
 				display.printMode();
 			}
 			if(blinkTimer == 128){
-				display.printAt_P(7, 0, STR_SPACES_END-13);
+				clearMode();
 			}				
 			blinkTimer++;
 			wait.millis(3); // delay for blinking
@@ -293,7 +293,7 @@ void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempNam
 				update();
 			}
 			if(blinkTimer == 128){
-				display.printAt_P(12, row, STR_SPACES_END-5);
+				display.printAt_P(12, row, PSTR("     "));
 			}
 			blinkTimer++;
 			wait.millis(3); // delay for blinking

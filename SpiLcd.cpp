@@ -293,13 +293,11 @@ void SpiLcd::waitBusy(void) {
 	_delay_ms(1);
 }
 
-#if 0
 void SpiLcd::printSpacesToRestOfLine(void){
 	while(_currpos < 20){
 		print(' ');
 	}
 }
-#endif
 
 #if !print_P_inline
 	void SpiLcd::print_P(const char * str){ // print a string stored in PROGMEM
