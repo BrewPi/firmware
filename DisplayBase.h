@@ -52,14 +52,9 @@ class Display{
 	// print all temperatures on the LCD
 	DISPLAY_METHOD void printAllTemperatures(void) DISPLAY_METHOD_PURE_VIRTUAL;
 		
-	// print " --.-"
-	DISPLAY_METHOD void printUndefinedTemperature(void) DISPLAY_METHOD_PURE_VIRTUAL;
 
 	// print the stationary text on the lcd.
 	DISPLAY_METHOD void printStationaryText(void) DISPLAY_METHOD_PURE_VIRTUAL;
-
-	// print degree sign + C/F
-	DISPLAY_METHOD void printDegreeUnit(void) DISPLAY_METHOD_PURE_VIRTUAL;
 	
 	DISPLAY_METHOD void setDisplayFlags(uint8_t flags) DISPLAY_METHOD_PURE_VIRTUAL;
 	DISPLAY_METHOD uint8_t getDisplayFlags() DISPLAY_METHOD_PURE_VIRTUAL;
@@ -110,14 +105,8 @@ public:
 	// print all temperatures on the LCD
 	DISPLAY_METHOD void printAllTemperatures(void){}
 	
-	// print a temperature
-	DISPLAY_METHOD void printTemperature(fixed7_9 temp){}
-
 	// print the stationary text on the lcd.
 	DISPLAY_METHOD void printStationaryText(void){}
-
-	// print degree sign + C/F
-	DISPLAY_METHOD void printDegreeUnit(void){}
 
 	// print mode on the right location on the first line, after Mode:
 	DISPLAY_METHOD void printMode(void){}

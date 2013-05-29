@@ -24,9 +24,6 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	// print the stationary text on the lcd.
 	DISPLAY_METHOD void printStationaryText(void);
 
-	// print degree sign + C/F
-	DISPLAY_METHOD void printDegreeUnit(void);
-
 	// print mode on the right location on the first line, after Mode:
 	DISPLAY_METHOD void printMode(void);
 
@@ -63,6 +60,8 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	// print a temperature
 	DISPLAY_METHOD void printTemperature(fixed7_9 temp);
 
+	// print degree sign + C/F
+	DISPLAY_METHOD void printDegreeUnit(void);
 		
 	private:
 	DISPLAY_FIELD SpiLcd lcd;
