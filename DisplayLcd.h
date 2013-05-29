@@ -61,7 +61,7 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	DISPLAY_METHOD void printTemperature(fixed7_9 temp);
 
 	// print degree sign + C/F
-	DISPLAY_METHOD void printDegreeUnit(void);
+	DISPLAY_METHOD void printDegreeUnit(uint8_t x, uint8_t y);
 		
 	private:
 	DISPLAY_FIELD SpiLcd lcd;

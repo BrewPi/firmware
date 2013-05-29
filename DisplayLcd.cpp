@@ -130,15 +130,13 @@ void LcdDisplay::printStationaryText(void){
 	lcd.setCursor(0,2);
 	lcd.print_P(STR_Fridge_); 
 		
-	lcd.setCursor(18,1);
-	printDegreeUnit();
-	
-	lcd.setCursor(18,2);
-	printDegreeUnit();
+	printDegreeUnit(18,1);	
+	printDegreeUnit(18,2);
 }
 
-//print degree sign + C
-void LcdDisplay::printDegreeUnit(void){
+//print degree sign + temp unit
+void LcdDisplay::printDegreeUnit(uint8_t x, uint8_t y){
+	lcd.setCursor(x,y);
 	lcd.write(0b11011111);
 	lcd.write(tempControl.cc.tempFormat);	
 }
