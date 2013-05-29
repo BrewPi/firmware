@@ -24,7 +24,6 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	// print the stationary text on the lcd.
 	DISPLAY_METHOD void printStationaryText(void);
 
-	DISPLAY_METHOD void printDegreeUnit(uint8_t x, uint8_t y);
 	// print mode on the right location on the first line, after Mode:
 	DISPLAY_METHOD void printMode(void);
 
