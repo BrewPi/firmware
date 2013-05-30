@@ -514,44 +514,7 @@ void TempControl::loadSettings(eptr_t offset){
 
 
 void TempControl::loadDefaultConstants(void){
-	cc.tempFormat = 'C';
-	// maximum history to take into account, in seconds
-	cc.maxHeatTimeForEstimate = 600;
-	cc.maxCoolTimeForEstimate = 1200;
-
-	// Limits of fridge temperature setting
-	cc.tempSettingMax = 30*512;	// +30 deg Celsius
-	cc.tempSettingMin = 1*512;	// +1 deg Celsius
-
-	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
-	cc.Kp	= 10240;	// +20
-	cc.Ki		= 307;		// +0.6
-	cc.Kd	= -1536;	// -3
-	cc.iMaxError = 256;  // 0.5 deg
-
-	// Stay Idle when temperature is in this range
-	cc.idleRangeHigh = 512;	// +1 deg Celsius
-	cc.idleRangeLow = -512;	// -1 deg Celsius
-
-	// when peak falls between these limits, its good.
-	cc.heatingTargetUpper = 154;	// +0.3 deg Celsius
-	cc.heatingTargetLower = -102;	// -0.2 deg Celsius
-	cc.coolingTargetUpper = 102;	// +0.2 deg Celsius
-	cc.coolingTargetLower = -154;	// -0.3 deg Celsius
-
-	cc.lightAsHeater = 0;
-	cc.rotaryHalfSteps = 0;
-	
-	// Set filter coefficients. This is the b value. See FilterFixed.h for delay times.
-	// The delay time is 3.33 * 2^b * number of cascades
-	cc.fridgeFastFilter = 1u;
-	cc.fridgeSlowFilter = 4u;
-	cc.fridgeSlopeFilter = 3u;
-	cc.beerFastFilter = 3u;
-	cc.beerSlowFilter = 5u;
-	cc.beerSlopeFilter = 4u;
-	
-	cc.lightAsHeater = 0;
+	memcpy_P((void*) &tempControl.cc, (void*) &tempControl.ccDefaults, sizeof(ControlConstants));
 	constantsChanged();
 }
 
@@ -637,3 +600,44 @@ bool TempControl::stateIsCooling(void){
 bool TempControl::stateIsHeating(void){
 	return (state==HEATING || state==HEATING_MIN_TIME);
 }
+
+
+const ControlConstants TempControl::ccDefaults PROGMEM =
+{
+	// Do Not change the order of these initialializations!
+	/* tempFormat */ 'C',
+	/* tempSettingMin */ 1*512,	// +1 deg Celsius
+	/* tempSettingMax */ 30*512,	// +30 deg Celsius
+	
+	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
+	/* Kp	*/ 10240,	// +20
+	/* Ki	*/ 307,		// +0.6
+	/* Kd	*/ -1536,	// -3
+	/* iMaxError */ 256,  // 0.5 deg
+
+	// Stay Idle when temperature is in this range
+	/* idleRangeHigh */ 512,	// +1 deg Celsius
+	/* idleRangeLow */ -512,	// -1 deg Celsius
+
+	// when peak falls between these limits, its good.
+	/* heatingTargetUpper */ 154,	// +0.3 deg Celsius
+	/* heatingTargetLower */ -102,	// -0.2 deg Celsius
+	/* coolingTargetUpper */ 102,	// +0.2 deg Celsius
+	/* coolingTargetLower */ -154,	// -0.3 deg Celsius
+
+	// maximum history to take into account, in seconds
+	/* maxHeatTimeForEstimate */ 600,
+	/* maxCoolTimeForEstimate */ 1200,
+
+	// Set filter coefficients. This is the b value. See FilterFixed.h for delay times.
+	// The delay time is 3.33 * 2^b * number of cascades
+	/* fridgeFastFilter */ 1u,
+	/* fridgeSlowFilter */ 4u,
+	/* fridgeSlopeFilter */ 3u,
+	/* beerFastFilter */ 3u,
+	/* beerSlowFilter */ 5u,
+	/* beerSlopeFilter */ 4u,
+	
+	/* lightAsHeater */ 0,
+	/* rotaryHalfSteps */ 0,
+};

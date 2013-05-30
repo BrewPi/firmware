@@ -233,7 +233,10 @@ class TempControl{
 	TEMP_CONTROL_FIELD ControlConstants cc;
 	TEMP_CONTROL_FIELD ControlSettings cs;
 	TEMP_CONTROL_FIELD ControlVariables cv;
-		
+	
+	// Defaults for control constants. Defined in cpp file, copied with memcpy_p
+	static const ControlConstants ccDefaults;
+			
 	private:
 	// keep track of beer setting stored in EEPROM
 	TEMP_CONTROL_FIELD fixed7_9 storedBeerSetting;
