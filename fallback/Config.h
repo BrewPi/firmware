@@ -1,4 +1,5 @@
 /*
+ * Copyright 2012-2013 BrewPi/Elco Jacobs.
  * Copyright 2013 Matthew McGowan.
  *
  * This file is part of BrewPi.
@@ -27,7 +28,7 @@
 ///
 /// Instead, copy the file from 
 ///
-///             brewpi_avr/fallback/COnfig.h 
+///             brewpi_avr/fallback/Config.h 
 /// to 
 ///             brewpi_avr/Config.h
 ///
@@ -52,19 +53,11 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////////////////
-//
-// Debug messages for estimator peak detection
-// 
-// #ifndef BREWPI_ESTIMATOR_MESSAGES
-// #define BREWPI_ESTIMATOR_MESSAGES 0
-// #endif
-//////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
 //
 // Define which brewpi shield is used.
-// BREWPI_SHIELD_REV_A The RevA shield (ca. Feb 2013), two OneWire busses, door, heat, cool.
+// BREWPI_SHIELD_REV_A The RevA shield (ca. Feb 2013), two OneWire buses, door, heat, cool.
 // BREWPI_SHIELD_REV_C The RevC shield (ca. May 2013). One common ONeWire bus, 4 actuators. Dynaconfig.
 //
 // #ifndef BREWPI_STATIC_CONFIG

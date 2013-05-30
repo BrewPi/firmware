@@ -34,6 +34,7 @@ void Logger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * varTyp
 	piLink.print_P(PSTR(",\"V\":["));
 	va_start (args, varTypes);
 	uint8_t index = 0;
+	char buf[9];
 	while(varTypes[index]){
 		switch(varTypes[index]){	
 			case 'd': // integer, signed or unsigned
@@ -43,8 +44,10 @@ void Logger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * varTyp
 				piLink.print_P(LOG_STRING_FORMAT, va_arg(args, char*));
 				break;
 			case 't': // temperature in fixed_7_9 format
-				char buf[12];
 				piLink.print_P(LOG_STRING_FORMAT, tempToString(buf, va_arg(args,int), 1, 12));
+			break;
+			case 'f': // fixed point value
+				piLink.print_P(LOG_STRING_FORMAT, fixedPointToString(buf, (fixed7_9) va_arg(args,int), 3, 12));
 			break;			
 		}
 		if(varTypes[++index]){

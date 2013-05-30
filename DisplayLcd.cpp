@@ -235,18 +235,23 @@ void LcdDisplay::printState(void){
 		stateOnDisplay = state;
 		lcd.printSpacesToRestOfLine();
 	}
-	uint16_t idleTime = tempControl.timeSinceIdle();
+	uint16_t sinceIdleTime = tempControl.timeSinceIdle();
 	if(state==IDLE){
 		counterPrintPos = 9;
 		time = 	min(tempControl.timeSinceCooling(), tempControl.timeSinceHeating());
 	}
 	else if(state==COOLING || state==HEATING){
 		counterPrintPos = 12;
-		time = idleTime;
+		time = sinceIdleTime;
 	}
-	else if(state==COOLING_MIN_TIME || state==HEATING_MIN_TIME){
+	else if(state==COOLING_MIN_TIME){
 		counterPrintPos = 17;
-		time = idleTime;
+		time = MIN_COOL_ON_TIME-sinceIdleTime;
+	}
+	
+	else if(state==HEATING_MIN_TIME){
+		counterPrintPos = 17;
+		time = MIN_HEAT_ON_TIME-sinceIdleTime;
 	}
 	else if(state == WAITING_TO_COOL || state == WAITING_TO_HEAT){
 		counterPrintPos = 16;

@@ -343,7 +343,7 @@ void TempControl::updateEstimatedPeak(uint16_t timeLimit, fixed7_9 estimator, ui
 {
 	uint16_t activeTime = min(timeLimit, sinceIdle); // heat time in seconds
 	fixed7_9 estimatedOvershoot = ((fixed23_9) estimator * activeTime)/3600; // overshoot estimator is in overshoot per hour
-	if(state==COOLING || state==COOLING_MIN_TIME){
+	if(stateIsCooling()){
 		estimatedOvershoot = -estimatedOvershoot; // when cooling subtract overshoot from fridge temperature
 	}
 	cv.estimatedPeak = fridgeSensor->readFastFiltered() + estimatedOvershoot;		
@@ -354,20 +354,26 @@ void TempControl::updateOutputs(void) {
 		return;
 		
 	cameraLight.update();
-	cooler->setActive(state==COOLING || state==COOLING_MIN_TIME);		
-	heater->setActive(!cc.lightAsHeater && (state==HEATING || state==HEATING_MIN_TIME));	
-	light->setActive(state==DOOR_OPEN || (cc.lightAsHeater && (state==HEATING || state==HEATING_MIN_TIME)) || cameraLightState.isActive());	
-	fan->setActive(state==HEATING || state==COOLING || state==HEATING_MIN_TIME || state==COOLING_MIN_TIME);
+	bool heating = stateIsHeating();
+	bool cooling = stateIsCooling();
+	cooler->setActive(cooling);		
+	heater->setActive(!cc.lightAsHeater && heating);	
+	light->setActive(state==DOOR_OPEN || (cc.lightAsHeater && heating) || cameraLightState.isActive());	
+	fan->setActive(heating || cooling);
 }
 
 
 void TempControl::detectPeaks(void){  
 	//detect peaks in fridge temperature to tune overshoot estimators
-	if(doPosPeakDetect && state!=HEATING){
-		bool detected = false;
-		fixed7_9 posPeak = fridgeSensor->detectPosPeak();
-		fixed7_9 error = posPeak-cv.posPeakEstimate;
-		if(posPeak != INT_MIN){
+	LOG_ID_TYPE detected = 0;
+	fixed7_9 peak, estimate, error, oldEstimator, newEstimator;
+	
+	if(doPosPeakDetect && !stateIsHeating()){
+		peak = fridgeSensor->detectPosPeak();
+		estimate = cv.posPeakEstimate;
+		error = peak-estimate;
+		oldEstimator = cs.heatEstimator;
+		if(peak != INT_MIN){
 			// positive peak detected
 			if(error > cc.heatingTargetUpper){ // positive error, peak was higher than estimate
 				// estimated overshoot was too low, so adjust overshoot estimator
@@ -377,39 +383,34 @@ void TempControl::detectPeaks(void){
 				// estimated overshoot was too high, so adjust overshoot estimator
 				decreaseEstimator(&(cs.heatEstimator), error);
 			}
-			ESTIMATOR_MSG("Positive peak detected.");
-			detected = true;
-		}
-		else if(timeSinceHeating() + 10 > HEAT_PEAK_DETECT_TIME && 
-				fridgeSensor->readFastFiltered() < (cv.posPeakEstimate+cc.heatingTargetLower)){
-			// Idle period almost reaches maximum allowed time for peak detection
-			// This is the heat, then drift up too slow (but in the right direction).
-			// estimator is too high
-			posPeak=fridgeSensor->readFastFiltered();
-			decreaseEstimator(&(cs.heatEstimator), error);			
-			ESTIMATOR_MSG("Drifting up after heating too short.");
-			detected = true;
-		}
-		if(detected){
-			#if BREWPI_ESTIMATOR_MESSAGES 
-			char tempString1[9]; char tempString2[9]; char tempString3[9];
-			ESTIMATOR_MSG("Peak: %s Estimated: %s. New estimator: %s",
-				tempToString(tempString1, posPeak, 3, 9),
-				tempToString(tempString2, cv.posPeakEstimate, 3, 9),
-				fixedPointToString(tempString3, cs.heatEstimator, 3, 9));
-			#endif
-			doPosPeakDetect=false;
-			cv.posPeak = posPeak;
+			detected = INFO_POSITIVE_PEAK;
 		}
 		if(timeSinceHeating() > HEAT_PEAK_DETECT_TIME){
+			if(fridgeSensor->readFastFiltered() < (cv.posPeakEstimate+cc.heatingTargetLower)){
+				// Idle period almost reaches maximum allowed time for peak detection
+				// This is the heat, then drift up too slow (but in the right direction).
+				// estimator is too high
+				peak=fridgeSensor->readFastFiltered();
+				decreaseEstimator(&(cs.heatEstimator), error);			
+				detected = INFO_POSITIVE_DRIFT;
+			}
+			else{
+				// maximum time for peak estimation reached
+				doPosPeakDetect = false;	
+			}
+		}
+		if(detected){
+			newEstimator = cs.heatEstimator;	
+			cv.posPeak = peak;
 			doPosPeakDetect = false;
 		}
 	}			
-	if(doNegPeakDetect && state!=COOLING){
-		bool detected = false;
-		fixed7_9 negPeak = fridgeSensor->detectNegPeak();
-		fixed7_9 error = negPeak-cv.negPeakEstimate;
-		if(negPeak != INT_MIN){
+	else if(doNegPeakDetect && !stateIsCooling()){
+		peak = fridgeSensor->detectNegPeak();
+		estimate = cv.negPeakEstimate;
+		error = peak-estimate;
+		oldEstimator = cs.coolEstimator;
+		if(peak != INT_MIN){
 			// negative peak detected
 			if(error < cc.coolingTargetLower){ // negative error, overshoot was higher than estimate
 				// estimated overshoot was too low, so adjust overshoot estimator
@@ -419,33 +420,32 @@ void TempControl::detectPeaks(void){
 				// estimated overshoot was too high, so adjust overshoot estimator
 				decreaseEstimator(&(cs.coolEstimator), error);
 			}
-			ESTIMATOR_MSG("Negative peak detected.");
-			detected = true;
+			detected = INFO_NEGATIVE_PEAK;
 		}
-		else if(timeSinceCooling() + 10 > COOL_PEAK_DETECT_TIME && 
-				fridgeSensor->readFastFiltered() > (cv.negPeakEstimate+cc.coolingTargetUpper)){
-			// Idle period almost reaches maximum allowed time for peak detection
-			// This is the cooling, then drift down too slow (but in the right direction).
-			// estimator is too high
-			decreaseEstimator(&(cs.coolEstimator), error);
-			ESTIMATOR_MSG("Drifting down after cooling too short.");
-			detected = true;
+		else if(timeSinceCooling() > COOL_PEAK_DETECT_TIME){
+			if(fridgeSensor->readFastFiltered() > (cv.negPeakEstimate+cc.coolingTargetUpper)){
+				// Idle period almost reaches maximum allowed time for peak detection
+				// This is the cooling, then drift down too slow (but in the right direction).
+				// estimator is too high
+				peak = fridgeSensor->readFastFiltered();
+				decreaseEstimator(&(cs.coolEstimator), error);
+				detected = INFO_NEGATIVE_DRIFT;
+			}
+			else{
+				// maximum time for peak estimation reached
+				doNegPeakDetect=false;
+			}
 		}
 		if(detected){
-			#if BREWPI_ESTIMATOR_MESSAGES
-			char tempString1[9]; char tempString2[9]; char tempString3[9];
-			ESTIMATOR_MSG("Peak: %s. Estimated: %s. New estimator: %s",
-				tempToString(tempString1, negPeak, 3, 9),
-				tempToString(tempString2, cv.negPeakEstimate, 3, 9),
-				fixedPointToString(tempString3, cs.coolEstimator, 3, 9));
-			#endif				
+			newEstimator = cs.coolEstimator;
+			cv.negPeak = peak;
 			doNegPeakDetect=false;
-			cv.negPeak = negPeak;
 		}
-		if(timeSinceCooling() > COOL_PEAK_DETECT_TIME){
-			doNegPeakDetect = false;
-		}			
-	}		
+	}
+	if(detected){
+		// send out log message for type of peak detected
+		logInfoTempTempFixedFixed(detected, peak, estimate, oldEstimator, newEstimator);
+	}
 }
 
 // Increase estimator at least 20%, max 50%s
@@ -514,44 +514,7 @@ void TempControl::loadSettings(eptr_t offset){
 
 
 void TempControl::loadDefaultConstants(void){
-	cc.tempFormat = 'C';
-	// maximum history to take into account, in seconds
-	cc.maxHeatTimeForEstimate = 600;
-	cc.maxCoolTimeForEstimate = 1200;
-
-	// Limits of fridge temperature setting
-	cc.tempSettingMax = 30*512;	// +30 deg Celsius
-	cc.tempSettingMin = 1*512;	// +1 deg Celsius
-
-	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
-	cc.Kp	= 10240;	// +20
-	cc.Ki		= 307;		// +0.6
-	cc.Kd	= -1536;	// -3
-	cc.iMaxError = 256;  // 0.5 deg
-
-	// Stay Idle when temperature is in this range
-	cc.idleRangeHigh = 512;	// +1 deg Celsius
-	cc.idleRangeLow = -512;	// -1 deg Celsius
-
-	// when peak falls between these limits, its good.
-	cc.heatingTargetUpper = 154;	// +0.3 deg Celsius
-	cc.heatingTargetLower = -102;	// -0.2 deg Celsius
-	cc.coolingTargetUpper = 102;	// +0.2 deg Celsius
-	cc.coolingTargetLower = -154;	// -0.3 deg Celsius
-
-	cc.lightAsHeater = 0;
-	cc.rotaryHalfSteps = 0;
-	
-	// Set filter coefficients. This is the b value. See FilterFixed.h for delay times.
-	// The delay time is 3.33 * 2^b * number of cascades
-	cc.fridgeFastFilter = 1u;
-	cc.fridgeSlowFilter = 4u;
-	cc.fridgeSlopeFilter = 3u;
-	cc.beerFastFilter = 3u;
-	cc.beerSlowFilter = 5u;
-	cc.beerSlopeFilter = 4u;
-	
-	cc.lightAsHeater = 0;
+	memcpy_P((void*) &tempControl.cc, (void*) &tempControl.ccDefaults, sizeof(ControlConstants));
 	constantsChanged();
 }
 
@@ -630,3 +593,51 @@ void TempControl::setFridgeTemp(fixed7_9 newTemp){
 	updatePID();
 	updateState();	
 }
+
+bool TempControl::stateIsCooling(void){
+	return (state==COOLING || state==COOLING_MIN_TIME);
+}
+bool TempControl::stateIsHeating(void){
+	return (state==HEATING || state==HEATING_MIN_TIME);
+}
+
+
+const ControlConstants TempControl::ccDefaults PROGMEM =
+{
+	// Do Not change the order of these initialializations!
+	/* tempFormat */ 'C',
+	/* tempSettingMin */ 1*512,	// +1 deg Celsius
+	/* tempSettingMax */ 30*512,	// +30 deg Celsius
+	
+	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
+	/* Kp	*/ 10240,	// +20
+	/* Ki	*/ 307,		// +0.6
+	/* Kd	*/ -1536,	// -3
+	/* iMaxError */ 256,  // 0.5 deg
+
+	// Stay Idle when temperature is in this range
+	/* idleRangeHigh */ 512,	// +1 deg Celsius
+	/* idleRangeLow */ -512,	// -1 deg Celsius
+
+	// when peak falls between these limits, its good.
+	/* heatingTargetUpper */ 154,	// +0.3 deg Celsius
+	/* heatingTargetLower */ -102,	// -0.2 deg Celsius
+	/* coolingTargetUpper */ 102,	// +0.2 deg Celsius
+	/* coolingTargetLower */ -154,	// -0.3 deg Celsius
+
+	// maximum history to take into account, in seconds
+	/* maxHeatTimeForEstimate */ 600,
+	/* maxCoolTimeForEstimate */ 1200,
+
+	// Set filter coefficients. This is the b value. See FilterFixed.h for delay times.
+	// The delay time is 3.33 * 2^b * number of cascades
+	/* fridgeFastFilter */ 1u,
+	/* fridgeSlowFilter */ 4u,
+	/* fridgeSlopeFilter */ 3u,
+	/* beerFastFilter */ 3u,
+	/* beerSlowFilter */ 5u,
+	/* beerSlopeFilter */ 4u,
+	
+	/* lightAsHeater */ 0,
+	/* rotaryHalfSteps */ 0,
+};
