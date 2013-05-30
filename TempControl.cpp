@@ -343,7 +343,7 @@ void TempControl::updateEstimatedPeak(uint16_t timeLimit, fixed7_9 estimator, ui
 {
 	uint16_t activeTime = min(timeLimit, sinceIdle); // heat time in seconds
 	fixed7_9 estimatedOvershoot = ((fixed23_9) estimator * activeTime)/3600; // overshoot estimator is in overshoot per hour
-	if(state==COOLING || state==COOLING_MIN_TIME){
+	if(stateIsCooling()){
 		estimatedOvershoot = -estimatedOvershoot; // when cooling subtract overshoot from fridge temperature
 	}
 	cv.estimatedPeak = fridgeSensor->readFastFiltered() + estimatedOvershoot;		
@@ -354,10 +354,12 @@ void TempControl::updateOutputs(void) {
 		return;
 		
 	cameraLight.update();
-	cooler->setActive(state==COOLING || state==COOLING_MIN_TIME);		
-	heater->setActive(!cc.lightAsHeater && (state==HEATING || state==HEATING_MIN_TIME));	
-	light->setActive(state==DOOR_OPEN || (cc.lightAsHeater && (state==HEATING || state==HEATING_MIN_TIME)) || cameraLightState.isActive());	
-	fan->setActive(state==HEATING || state==COOLING || state==HEATING_MIN_TIME || state==COOLING_MIN_TIME);
+	bool heating = stateIsHeating();
+	bool cooling = stateIsCooling();
+	cooler->setActive(cooling);		
+	heater->setActive(!cc.lightAsHeater && heating);	
+	light->setActive(state==DOOR_OPEN || (cc.lightAsHeater && heating) || cameraLightState.isActive());	
+	fan->setActive(heating || cooling);
 }
 
 
@@ -366,7 +368,7 @@ void TempControl::detectPeaks(void){
 	LOG_ID_TYPE detected = 0;
 	fixed7_9 peak, estimate, error, oldEstimator, newEstimator;
 	
-	if(doPosPeakDetect && state!=HEATING){
+	if(doPosPeakDetect && !stateIsHeating()){
 		peak = fridgeSensor->detectPosPeak();
 		estimate = cv.posPeakEstimate;
 		error = peak-estimate;
@@ -403,7 +405,7 @@ void TempControl::detectPeaks(void){
 			doPosPeakDetect = false;
 		}
 	}			
-	else if(doNegPeakDetect && state!=COOLING){
+	else if(doNegPeakDetect && !stateIsCooling()){
 		peak = fridgeSensor->detectNegPeak();
 		estimate = cv.negPeakEstimate;
 		error = peak-estimate;
@@ -627,4 +629,11 @@ void TempControl::setFridgeTemp(fixed7_9 newTemp){
 	reset(); // reset peak detection and PID
 	updatePID();
 	updateState();	
+}
+
+bool TempControl::stateIsCooling(void){
+	return (state==COOLING || state==COOLING_MIN_TIME);
+}
+bool TempControl::stateIsHeating(void){
+	return (state==HEATING || state==HEATING_MIN_TIME);
 }
