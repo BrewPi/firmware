@@ -31,7 +31,7 @@
 
 uint8_t LcdDisplay::stateOnDisplay;
 uint8_t LcdDisplay::flags;
-SpiLcd LcdDisplay::lcd;
+LcdDriver LcdDisplay::lcd;
 
 // Constant strings used multiple times
 static const char STR_Beer_[] PROGMEM = "Beer ";

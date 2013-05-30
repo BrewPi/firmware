@@ -22,6 +22,14 @@
 #include "Brewpi.h"
 #include "DisplayBase.h"
 #include "SpiLcd.h"
+#include "OLEDFourBit.h"
+
+#if BREWPI_SHIFT_LCD
+	typedef SpiLcd		LcdDriver;
+#else
+	typedef OLEDFourBit LcdDriver;
+#endif
+
 
 
 class LcdDisplay DISPLAY_SUPERCLASS
@@ -86,7 +94,7 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	DISPLAY_METHOD void printAt(uint8_t x, uint8_t y, char* text);
 
 	private:
-	DISPLAY_FIELD SpiLcd lcd;
+	DISPLAY_FIELD LcdDriver lcd;
 	DISPLAY_FIELD uint8_t stateOnDisplay;
 	DISPLAY_FIELD uint8_t flags;
 		

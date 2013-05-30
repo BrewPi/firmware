@@ -160,6 +160,13 @@
 #define ONEWIRE_CRC8_TABLE 0
 #endif
 
+/*
+ * LCD Display using a shift register.
+ * For diy-shields prior to the revA shield, this should be set to 0.
+ */
+#ifndef BREWPI_SHIFT_LCD
+#define BREWPI_SHIFT_LCD 1
+#endif
 
 #endif
 

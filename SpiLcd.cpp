@@ -41,12 +41,6 @@ void SpiLcd::init()
 
 	initSpi();   
 		
-	for(uint8_t i = 0; i<4; i++){
-		for(uint8_t j = 0; j<20; j++){
-			content[i][j]=' '; // initialize on all spaces
-		}
-		content[i][20]='\0'; // NULL terminate string
-	}
 	_backlightTime = 0;
 }
 
@@ -86,6 +80,13 @@ void SpiLcd::begin(uint8_t cols, uint8_t lines) {
 void SpiLcd::clear()
 {
 	command(LCD_CLEARDISPLAY);  // clear display, set cursor position to zero
+	
+	for(uint8_t i = 0; i<4; i++){
+		for(uint8_t j = 0; j<20; j++){
+			content[i][j]=' '; // initialize on all spaces
+		}
+		content[i][20]='\0'; // NULL terminate string
+	}
 }
 
 void SpiLcd::home()
