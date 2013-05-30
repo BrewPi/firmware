@@ -1,7 +1,7 @@
 /*
  * Buzzer.cpp
  *
- * Copyright 2012 BrewPi.
+ * Copyright 2012-2013 BrewPi.
  *
  * This file is part of BrewPi.
  *

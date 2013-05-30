@@ -1,6 +1,6 @@
 /*
- * Copyright 2012 BrewPi/Elco Jacobs.
- * Various changes Copyright 2013 Matthew McGowan.
+ * Copyright 2012-2013 BrewPi/Elco Jacobs.
+ * Copyright 2013 Matthew McGowan.
  *
  * This file is part of BrewPi.
  * 

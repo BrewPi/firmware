@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 BrewPi/Elco Jacobs.
+ * Copyright 2012-2013 BrewPi/Elco Jacobs.
  *
  * This file is part of BrewPi.
  * 
