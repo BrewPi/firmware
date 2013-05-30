@@ -23,10 +23,10 @@ else ifeq ($(BOARD),uno)
 	MCU_HEADERS = standard
 endif
 
-MCU_INCLUDE_VARIANT ?= $(ARDUINO_HOME)\hardware\arduino\variants
-ARDUINO_HEADERS ?= $(ARDUINO_HOME)\hardware\arduino\cores\arduino
-MCU_INCLUDE ?= $(MCU_INCLUDE_VARIANT)\$(MCU_HEADERS)
+ARDUINO_HEADERS ?= $(ARDUINO_HOME)/hardware/arduino/cores/arduino
 
+MCU_INCLUDE_VARIANT ?= $(ARDUINO_HOME)/hardware/arduino/variants
+MCU_INCLUDE ?= $(MCU_INCLUDE_VARIANT)\$(MCU_HEADERS)
 
 RM ?= rm -rf
 
@@ -296,7 +296,7 @@ LIB_DEP+=
 ./$(OBJ_DIR)%.o: $(SRC)./%.cpp
 	@echo Building file: $<
 	@echo Invoking: AVR8/GNU C Compiler
-	"$(AVRGCC)" -mcall-prologues -funsigned-char -funsigned-bitfields -DARDUINO=105 -DF_CPU=16000000L  -I"$(ARDUINO_HEADERS)" -I"$(MCU_INCLUDE)" -I"$(SRC)\fallback"  -Os -fno-split-wide-types -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g3 -Wall -mmcu=$(MCU) -c -fno-exceptions -ffreestanding -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$(OBJ_DIR)" "$<"
+	"$(AVRGCC)" -mcall-prologues -funsigned-char -funsigned-bitfields -DARDUINO=105 -DF_CPU=16000000L  -I"$(ARDUINO_HEADERS)" -I"$(MCU_INCLUDE)" -I"$(SRC)/fallback"  -Os -fno-split-wide-types -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g3 -Wall -mmcu=$(MCU) -c -fno-exceptions -ffreestanding -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$(OBJ_DIR)" "$<"
 	@echo Finished building: $<
 	
 
