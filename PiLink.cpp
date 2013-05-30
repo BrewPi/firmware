@@ -410,6 +410,10 @@ void PiLink::jsonOutputUint8(const char* key, uint8_t offset) {
 	piLink.sendJsonPair(key, *(jsonOutputBase+offset));
 }
 
+void PiLink::jsonOutputUint16(const char* key, uint8_t offset) {
+	piLink.sendJsonPair(key, *((uint16_t*) (jsonOutputBase+offset)));
+}
+
 /**
  * outputs the temperature at the given offset from tempControl.cc.
  * The temperature is assumed to be a fixed7_9 value.
@@ -440,7 +444,8 @@ enum JsonOutputIndex {
 	JOCC_TEMP_FORMAT=1,
 	JOCC_FIXED_POINT=2,
 	JOCC_TEMP_DIFF=3,
-	JOCC_CHAR=4
+	JOCC_CHAR=4,
+	JOCC_UINT16=5,
 };
 
 const PiLink::JsonOutputHandler PiLink::JsonOutputHandlers[] = {
@@ -448,7 +453,8 @@ const PiLink::JsonOutputHandler PiLink::JsonOutputHandlers[] = {
 	PiLink::jsonOutputTempToString,
 	PiLink::jsonOutputFixedPointToString,
 	PiLink::jsonOutputTempDiffToString,
-	PiLink::jsonOutputChar
+	PiLink::jsonOutputChar,
+	PiLink::jsonOutputUint16,
 };
 
 #define JSON_OUTPUT_CC_MAP(name, fn) { JSONKEY_ ## name,  offsetof(ControlConstants, name), fn }
@@ -471,7 +477,8 @@ const PiLink::JsonOutput PiLink::jsonOutputCCMap[] PROGMEM = {
 	JSON_OUTPUT_CC_MAP(heatingTargetLower, JOCC_TEMP_DIFF),
 	JSON_OUTPUT_CC_MAP(coolingTargetUpper, JOCC_TEMP_DIFF),
 	JSON_OUTPUT_CC_MAP(coolingTargetLower, JOCC_TEMP_DIFF),
-	JSON_OUTPUT_CC_MAP(maxHeatTimeForEstimate, JOCC_TEMP_DIFF),
+	JSON_OUTPUT_CC_MAP(maxHeatTimeForEstimate, JOCC_UINT16),
+	JSON_OUTPUT_CC_MAP(maxCoolTimeForEstimate, JOCC_UINT16),
 
 	JSON_OUTPUT_CC_MAP(fridgeFastFilter, JOCC_UINT8),
 	JSON_OUTPUT_CC_MAP(fridgeSlowFilter, JOCC_UINT8),
