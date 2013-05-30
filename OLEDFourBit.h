@@ -27,6 +27,7 @@
 
 #include <inttypes.h>
 #include "Print.h"
+#include "pins.h"
 
 // commands
 #define LCD_CLEARDISPLAY 0x01
@@ -66,22 +67,15 @@
 #define LCD_ENGLISH_RUSSIAN    0x02
 #define LCD_WESTERN_EUROPEAN_2 0x03
 
-
-#define DISP_RS 9
-#define DISP_RW 8
-#define DISP_EN 7
-#define DISP_D4 6
-#define DISP_D5 5
-#define DISP_D6 4
-#define DISP_D7 3
-
 class OLEDFourBit : public Print {
 	public:
 	OLEDFourBit(){};
 
+#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_DIY
 	void init() {
 		init(DISP_RS, DISP_RW, DISP_EN, DISP_D4, DISP_D5, DISP_D6, DISP_D7); // initialize OLED with these pins		
 	}
+#endif	
 
 	void init(uint8_t rs, uint8_t rw, uint8_t enable,
 		uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7);

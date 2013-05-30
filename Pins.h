@@ -23,7 +23,7 @@
 
 // Most pins are only conditionaly defined here, allowing definitions to be provided in ConfigLocal.h for 
 // local overrides
-
+#define BREWPI_SHIELD_DIY   0
 #define BREWPI_SHIELD_REV_A	1
 #define BREWPI_SHIELD_REV_C	2
 
@@ -69,7 +69,9 @@
 #define actuatorPin4 A5
 #endif
 
-#endif
+#endif 
+
+#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A || BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
 
 #define doorPin		4
 #define alarmPin	3
@@ -83,4 +85,35 @@
 // You can use the internal pull-up resistors instead of external ones for the doorPin and the rotary encoder pins
 #ifndef USE_INTERNAL_PULL_UP_RESISTORS
 #define USE_INTERNAL_PULL_UP_RESISTORS false
+#endif
+
+#elif BREWPI_STATIC_CONFIG==BREWPI_SHIELD_DIY
+
+// pins
+#define beerSensorPin    10
+#define fridgeSensorPin  11
+
+// Pay attention when changing the pins for the rotary encoder.
+// They should be connected to external interrupt INT0, INT1 and INT3
+
+#define rotaryAPin 2 // INT1
+#define rotaryBPin 1 // INT3
+#define rotarySwitchPin 0 // INT2
+
+
+#define coolingPin 12
+#define heatingPin 13
+#define doorPin    A5
+
+#define DISP_RS 9
+#define DISP_RW 8
+#define DISP_EN 7
+#define DISP_D4 6
+#define DISP_D5 5
+#define DISP_D6 4
+#define DISP_D7 3
+
+// you can use the internal pull-up resistors instead of external ones for the doorPin and the rotary encoder pins
+#define USE_INTERNAL_PULL_UP_RESISTORS false
+
 #endif
