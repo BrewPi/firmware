@@ -53,10 +53,6 @@
 #define BREWPI_LOG_DEVELOPER 0
 #endif
 
-#ifndef BREWPI_ESTIMATOR_MESSAGES
-#define BREWPI_ESTIMATOR_MESSAGES 0
-#endif
-
 #ifndef BREWPI_STATIC_CONFIG
 #define BREWPI_STATIC_CONFIG BREWPI_SHIELD_REV_C
 #endif
@@ -130,15 +126,6 @@
 // BREWPI_ACTUATOR_PINS - can be disabled if only using onewire devices
 #ifndef BREWPI_ACTUATOR_PINS
 #define BREWPI_ACTUATOR_PINS 1
-#endif
-
-/** 
- * Enable debug messages from the temp control estimator.
- */
-#if BREWPI_ESTIMATOR_MESSAGES
-	#define ESTIMATOR_MSG(msg, ...) piLink.debugMessage(PSTR(msg), ##__VA_ARGS__)
-#else
-	#define ESTIMATOR_MSG(msg,...)  {}
 #endif
 
 #ifndef BREWPI_BOARD

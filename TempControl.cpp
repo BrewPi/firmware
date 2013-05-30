@@ -363,11 +363,15 @@ void TempControl::updateOutputs(void) {
 
 void TempControl::detectPeaks(void){  
 	//detect peaks in fridge temperature to tune overshoot estimators
+	LOG_ID_TYPE detected = 0;
+	fixed7_9 peak, estimate, error, oldEstimator, newEstimator;
+	
 	if(doPosPeakDetect && state!=HEATING){
-		bool detected = false;
-		fixed7_9 posPeak = fridgeSensor->detectPosPeak();
-		fixed7_9 error = posPeak-cv.posPeakEstimate;
-		if(posPeak != INT_MIN){
+		peak = fridgeSensor->detectPosPeak();
+		estimate = cv.posPeakEstimate;
+		error = peak-estimate;
+		oldEstimator = cs.heatEstimator;
+		if(peak != INT_MIN){
 			// positive peak detected
 			if(error > cc.heatingTargetUpper){ // positive error, peak was higher than estimate
 				// estimated overshoot was too low, so adjust overshoot estimator
@@ -377,39 +381,34 @@ void TempControl::detectPeaks(void){
 				// estimated overshoot was too high, so adjust overshoot estimator
 				decreaseEstimator(&(cs.heatEstimator), error);
 			}
-			ESTIMATOR_MSG("Positive peak detected.");
-			detected = true;
-		}
-		else if(timeSinceHeating() + 10 > HEAT_PEAK_DETECT_TIME && 
-				fridgeSensor->readFastFiltered() < (cv.posPeakEstimate+cc.heatingTargetLower)){
-			// Idle period almost reaches maximum allowed time for peak detection
-			// This is the heat, then drift up too slow (but in the right direction).
-			// estimator is too high
-			posPeak=fridgeSensor->readFastFiltered();
-			decreaseEstimator(&(cs.heatEstimator), error);			
-			ESTIMATOR_MSG("Drifting up after heating too short.");
-			detected = true;
-		}
-		if(detected){
-			#if BREWPI_ESTIMATOR_MESSAGES 
-			char tempString1[9]; char tempString2[9]; char tempString3[9];
-			ESTIMATOR_MSG("Peak: %s Estimated: %s. New estimator: %s",
-				tempToString(tempString1, posPeak, 3, 9),
-				tempToString(tempString2, cv.posPeakEstimate, 3, 9),
-				fixedPointToString(tempString3, cs.heatEstimator, 3, 9));
-			#endif
-			doPosPeakDetect=false;
-			cv.posPeak = posPeak;
+			detected = INFO_POSITIVE_PEAK;
 		}
 		if(timeSinceHeating() > HEAT_PEAK_DETECT_TIME){
+			if(fridgeSensor->readFastFiltered() < (cv.posPeakEstimate+cc.heatingTargetLower)){
+				// Idle period almost reaches maximum allowed time for peak detection
+				// This is the heat, then drift up too slow (but in the right direction).
+				// estimator is too high
+				peak=fridgeSensor->readFastFiltered();
+				decreaseEstimator(&(cs.heatEstimator), error);			
+				detected = INFO_POSITIVE_DRIFT;
+			}
+			else{
+				// maximum time for peak estimation reached
+				doPosPeakDetect = false;	
+			}
+		}
+		if(detected){
+			newEstimator = cs.heatEstimator;	
+			cv.posPeak = peak;
 			doPosPeakDetect = false;
 		}
 	}			
-	if(doNegPeakDetect && state!=COOLING){
-		bool detected = false;
-		fixed7_9 negPeak = fridgeSensor->detectNegPeak();
-		fixed7_9 error = negPeak-cv.negPeakEstimate;
-		if(negPeak != INT_MIN){
+	else if(doNegPeakDetect && state!=COOLING){
+		peak = fridgeSensor->detectNegPeak();
+		estimate = cv.negPeakEstimate;
+		error = peak-estimate;
+		oldEstimator = cs.coolEstimator;
+		if(peak != INT_MIN){
 			// negative peak detected
 			if(error < cc.coolingTargetLower){ // negative error, overshoot was higher than estimate
 				// estimated overshoot was too low, so adjust overshoot estimator
@@ -419,33 +418,32 @@ void TempControl::detectPeaks(void){
 				// estimated overshoot was too high, so adjust overshoot estimator
 				decreaseEstimator(&(cs.coolEstimator), error);
 			}
-			ESTIMATOR_MSG("Negative peak detected.");
-			detected = true;
+			detected = INFO_NEGATIVE_PEAK;
 		}
-		else if(timeSinceCooling() + 10 > COOL_PEAK_DETECT_TIME && 
-				fridgeSensor->readFastFiltered() > (cv.negPeakEstimate+cc.coolingTargetUpper)){
-			// Idle period almost reaches maximum allowed time for peak detection
-			// This is the cooling, then drift down too slow (but in the right direction).
-			// estimator is too high
-			decreaseEstimator(&(cs.coolEstimator), error);
-			ESTIMATOR_MSG("Drifting down after cooling too short.");
-			detected = true;
+		else if(timeSinceCooling() > COOL_PEAK_DETECT_TIME){
+			if(fridgeSensor->readFastFiltered() > (cv.negPeakEstimate+cc.coolingTargetUpper)){
+				// Idle period almost reaches maximum allowed time for peak detection
+				// This is the cooling, then drift down too slow (but in the right direction).
+				// estimator is too high
+				peak = fridgeSensor->readFastFiltered();
+				decreaseEstimator(&(cs.coolEstimator), error);
+				detected = INFO_NEGATIVE_DRIFT;
+			}
+			else{
+				// maximum time for peak estimation reached
+				doNegPeakDetect=false;
+			}
 		}
 		if(detected){
-			#if BREWPI_ESTIMATOR_MESSAGES
-			char tempString1[9]; char tempString2[9]; char tempString3[9];
-			ESTIMATOR_MSG("Peak: %s. Estimated: %s. New estimator: %s",
-				tempToString(tempString1, negPeak, 3, 9),
-				tempToString(tempString2, cv.negPeakEstimate, 3, 9),
-				fixedPointToString(tempString3, cs.coolEstimator, 3, 9));
-			#endif				
+			newEstimator = cs.coolEstimator;
+			cv.negPeak = peak;
 			doNegPeakDetect=false;
-			cv.negPeak = negPeak;
 		}
-		if(timeSinceCooling() > COOL_PEAK_DETECT_TIME){
-			doNegPeakDetect = false;
-		}			
-	}		
+	}
+	if(detected){
+		// send out log message for type of peak detected
+		logInfoTempTempFixedFixed(detected, peak, estimate, oldEstimator, newEstimator);
+	}
 }
 
 // Increase estimator at least 20%, max 50%s

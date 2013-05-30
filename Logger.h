@@ -110,6 +110,9 @@ extern Logger logger;
 		inline void logInfoIntStringTemp(uint8_t debugId, int val1, const char * val2, fixed7_9 val3){
 			logger.logMessageVaArg('I', debugId, "dst", val1, val2, val3);
 		}
+		inline void logInfoTempTempFixedFixed(uint8_t debugId, fixed7_9 t1, fixed7_9 t2, fixed7_9 f1, fixed7_9 f2){
+			logger.logMessageVaArg('I', debugId, "ttff", t1, t2, f1, f2);
+		}
 #else
 	#define logInfo(debugId) {}
 	#define logInfoInt(debugId, val) {}
