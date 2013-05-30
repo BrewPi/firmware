@@ -23,7 +23,7 @@
 #include "PiLink.h"
 
 #include "Version.h"
-#include "tempControl.h"
+#include "TempControl.h"
 #include "Display.h"
 #include <stdarg.h>
 #include <avr/pgmspace.h>

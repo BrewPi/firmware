@@ -50,7 +50,7 @@ extern "C"{
 
 // Other source files, depends on your program which you need
 #include <Print.cpp>
-#include <New.cpp>
+#include <new.cpp>
 #include <wiring.c>
 #include <wiring_digital.c>
 

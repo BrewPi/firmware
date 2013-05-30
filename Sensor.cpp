@@ -19,4 +19,4 @@
  */
 
 #include "Brewpi.h"
-#include "sensor.h"
+#include "Sensor.h"

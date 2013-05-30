@@ -20,8 +20,8 @@
 
 #include "Simulator.h"
 
-#include "display.h"
-#include "piLink.h"
+#include "Display.h"
+#include "PiLink.h"
 
 #if BREWPI_SIMULATE
 
