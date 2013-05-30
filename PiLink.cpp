@@ -147,7 +147,7 @@ void PiLink::receive(void){
 			// s shield type
 			// y: simulator			
 			// b: board
-			print_P(PSTR("N:{v:\"%S\",s:%d,y:%d,b:\"%c\"}"), 
+			print_P(PSTR("N:{\"v\":\"%S\",\"s\":%d,\"y\":%d,\"b\":\"%c\"}"), 
 					PSTR(VERSION_STRING), 
 					BREWPI_STATIC_CONFIG, 
 					BREWPI_SIMULATE, 
@@ -222,6 +222,10 @@ void PiLink::receive(void){
 			break;
 #endif
 
+		case 'R': // reset 
+			asm volatile ("  jmp 0"); 
+			break;
+			
 #endif // !BREWPI_SIMULATE
 		default:
 			logWarningInt(WARNING_INVALID_COMMAND, inByte);
