@@ -1,21 +1,56 @@
-RM = del 
+## defaults for Windows - these will be moved to a separate file
+RM = rm -rf 
 TOOLCHAIN_BIN ?= C:/Program Files (x86)/Atmel/Atmel Toolchain/AVR8 GCC/Native/3.4.2.939/avr8-gnu-toolchain/bin/
-
-OUTPUT_DIR ?= final/
-SRC=../
-OBJ_DIR = tmp/
-TARGET_NAME=build
 EXE ?= .exe
 
+# convert build parameters to defines
+
+BREWPI_SIMULATOR = 0
+
+ifeq ($(SHIELD),diy)
+	BREWPI_STATIC_CONFIG = BREWPI_SHIELD_DIY
+else ifeq ($(SHIELD),revA)
+	BREWPI_STATIC_CONFIG = BREWPI_SHIELD_REV_A
+else ifeq ($(SHIELD),revC)
+	BREWPI_STATIC_CONFIG = BREWPI_SHIELD_REV_C
+else ifeq ($(SHIELD),simulator)
+	BREWPI_SIMULATOR = 1
+endif
+
+## build target directory organization and output files
+
+# base name of output files
+TARGET_NAME ?= brewpi-avr
+
+# location of .cpp sources
+SRC=../
+
+# temporary .o and .d files
+OBJ_DIR = tmp/
+
+# location of artefacts to keep
+OUTPUT_DIR ?= final/
+
+# default locations for tools based on the toolchain bin dir
 AVRGCC ?= $(TOOLCHAIN_BIN)avr-g++$(EXE)
 AVROBJCOPY ?= $(TOOLCHAIN_BIN)avr-objcopy$(EXE)
 AVROBJDUMP ?= $(TOOLCHAIN_BIN)avr-objdump$(EXE)
 AVRSIZE ?= $(TOOLCHAIN_BIN)avr-size$(EXE)
 
-ARDUINO ?= 105
+ARDUINO_VERSION ?= 105
 
+# default config if nothing else specified
 BOARD ?= leonardo
+BREWPI_STATIC_CONFIG ?= BREWPI_SHIELD_REV_C
+BREWPI_DEBUG ?= 0
 
+DEFINES = \
+ -DBREWPI_STATIC_CONFIG=$(BREWPI_STATIC_CONFIG) \
+ -DBREWPI_DEBUG=$(BREWPI_DEBUG) \
+ -DBREWPI_SIMULATOR=$(BREWPI_SIMULATOR) \
+ -DARDUINO=$(ARDUINO_VERSION) \ 
+ -DF_CPU=16000000L  
+ 
 ifeq ($(BOARD),leonardo)
 	MCU = atmega32u4
 	MCU_HEADERS = leonardo
@@ -28,8 +63,6 @@ ARDUINO_HEADERS ?= $(ARDUINO_HOME)/hardware/arduino/cores/arduino
 
 MCU_INCLUDE_VARIANT ?= $(ARDUINO_HOME)/hardware/arduino/variants
 MCU_INCLUDE ?= $(MCU_INCLUDE_VARIANT)\$(MCU_HEADERS)
-
-RM ?= rm -rf
 
 USER_OBJS :=
 
@@ -297,7 +330,7 @@ LIB_DEP+=
 ./$(OBJ_DIR)%.o: $(SRC)./%.cpp
 	@echo Building file: $<
 	@echo Invoking: AVR8/GNU C Compiler
-	"$(AVRGCC)" -mcall-prologues -funsigned-char -funsigned-bitfields -DARDUINO=105 -DF_CPU=16000000L  -I"$(ARDUINO_HEADERS)" -I"$(MCU_INCLUDE)" -I"$(SRC)/fallback"  -Os -fno-split-wide-types -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g3 -Wall -mmcu=$(MCU) -c -fno-exceptions -ffreestanding -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$(OBJ_DIR)" "$<"
+	"$(AVRGCC)" $(DEFINES) -mcall-prologues -funsigned-char -funsigned-bitfields -I"$(ARDUINO_HEADERS)" -I"$(MCU_INCLUDE)" -I"$(SRC)/fallback"  -Os -fno-split-wide-types -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g3 -Wall -mmcu=$(MCU) -c -fno-exceptions -ffreestanding -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$(OBJ_DIR)" "$<"
 	@echo Finished building: $<
 	
 
@@ -345,4 +378,4 @@ $(OUTPUT_FILE_PATH): $(OBJS) $(USER_OBJS) $(OUTPUT_FILE_DEP) $(LIB_DEP)
 clean:
 	-$(RM) $(OBJS_AS_ARGS) $(EXECUTABLES)  
 	-$(RM) $(C_DEPS_AS_ARGS)   
-	-$(RM) -rf "$(OUTPUT_DIR)$(TARGET_NAME).elf" "$(OUTPUT_DIR)$(TARGET_NAME).a" "$(OUTPUT_DIR)$(TARGET_NAME).hex" "$(OUTPUT_DIR)$(TARGET_NAME).lss" "$(OUTPUT_DIR)$(TARGET_NAME).eep" "$(OUTPUT_DIR)$(TARGET_NAME).map" "$(OUTPUT_DIR)$(TARGET_NAME).srec"
+	-$(RM) "$(OUTPUT_DIR)$(TARGET_NAME).elf" "$(OUTPUT_DIR)$(TARGET_NAME).a" "$(OUTPUT_DIR)$(TARGET_NAME).hex" "$(OUTPUT_DIR)$(TARGET_NAME).lss" "$(OUTPUT_DIR)$(TARGET_NAME).eep" "$(OUTPUT_DIR)$(TARGET_NAME).map" "$(OUTPUT_DIR)$(TARGET_NAME).srec"
