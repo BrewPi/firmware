@@ -24,13 +24,11 @@
 #include "SpiLcd.h"
 #include "OLEDFourBit.h"
 
-#if BREWPI_SHIFT_LCD
-	typedef SpiLcd		LcdDriver;
+#if !BREWPI_SHIFT_LCD
+	typedef OLEDFourBit LcdDriver;	
 #else
-	typedef OLEDFourBit LcdDriver;
+	typedef SpiLcd		LcdDriver;	
 #endif
-
-
 
 class LcdDisplay DISPLAY_SUPERCLASS
 {

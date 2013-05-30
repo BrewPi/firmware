@@ -21,13 +21,6 @@
 
 #include "Brewpi.h"
 
-// Most pins are only conditionaly defined here, allowing definitions to be provided in ConfigLocal.h for 
-// local overrides
-#define BREWPI_SHIELD_DIY   0
-#define BREWPI_SHIELD_REV_A	1
-#define BREWPI_SHIELD_REV_C	2
-
-
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
 #ifndef beerSensorPin
 #define beerSensorPin    A5 // OneWire 1

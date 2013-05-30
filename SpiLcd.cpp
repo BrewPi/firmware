@@ -28,9 +28,11 @@
 #include "Pins.h"
 #include <util/atomic.h>
 
+#if BREWPI_SHIFT_LCD
+
 // MDM - removed the latchPin parameter since it's never changed, and having a compile time constant makes the
 // compiled code smaller and more efficient. If a more convenient way to specifying the constant latch pin number is needed,
-// expand the SpiLcd class to a template, with a single int instatiation parameter.
+// expand the SpiLcd class to a template, with a single int instantiation parameter.
 void SpiLcd::init()
 {
 	wait.millis(2000); // give LCD time to power up
@@ -301,9 +303,12 @@ void SpiLcd::printSpacesToRestOfLine(void){
 }
 
 #if !print_P_inline
-	void SpiLcd::print_P(const char * str){ // print a string stored in PROGMEM
-		char buf[21]; // create buffer in RAM
-		strcpy_P(buf, str); // copy string to RAM
-		print(buf); // print from RAM
-	}
-	#endif
+void SpiLcd::print_P(const char * str){ // print a string stored in PROGMEM
+	char buf[21]; // create buffer in RAM
+	strcpy_P(buf, str); // copy string to RAM
+	print(buf); // print from RAM
+}
+#endif
+
+
+#endif

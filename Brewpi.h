@@ -25,6 +25,13 @@
 #define _stringifyDo(s) #s
 
 
+// Most pins are only conditionally defined here, allowing definitions to be provided in ConfigLocal.h for
+// local overrides
+#define BREWPI_SHIELD_DIY   0
+#define BREWPI_SHIELD_REV_A	1
+#define BREWPI_SHIELD_REV_C	2
+
+
 /*
  * Defines global config for the brewpi project. This file is included in every file in the project to ensure conditional
  * compilation directives are recognized.

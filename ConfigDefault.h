@@ -24,19 +24,21 @@
  * Do not change this file directly - rather edit ConfigLocal.h
  */
 
+#ifndef BREWPI_STATIC_CONFIG
+#define BREWPI_STATIC_CONFIG BREWPI_SHIELD_REV_C
+#endif
 
 /*
  * LCD Display using a shift register.
  * For diy-shields prior to the revA shield, this should be set to 0.
  */
-#ifndef BREWPI_SHIFT_LCD
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_DIY
-#define BREWPI_SHIFT_LCD 0
+#ifndef BREWPI_SHIFT_LCD	
+#if BREWPI_STATIC_CONFIG != BREWPI_SHIELD_DIY
+	#define BREWPI_SHIFT_LCD 1
 #else
-#define BREWPI_SHIFT_LCD 1
+	#define BREWPI_SHIFT_LCD 0
 #endif
 #endif
-
 
 // Enable printing debug only log messages and debug only wrapped statements
 #ifndef BREWPI_DEBUG

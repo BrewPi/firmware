@@ -36,17 +36,28 @@ int16_t RotaryEncoder::minimum;
 volatile int16_t RotaryEncoder::steps;
 volatile bool RotaryEncoder::pushFlag;
 
+#if BREWPI_STATIC_CONFIG!=BREWPI_SHIELD_DIY
+	#if rotarySwitchPin != 7
+		#error Review interrupt vectors when not using pin 7 for menu push
+	#endif
+	#if rotaryAPin != 8
+		#error Review interrupt vectors when not using pin 8 for menu right
+	#endif
+	#if rotaryBPin != 9
+		#error Review interrupt vectors when not using pin 9 for menu left
+	#endif
+#else
+	#if rotarySwitchPin != 0
+	#error Review interrupt vectors when not using pin 0 for menu push
+	#endif
+	#if rotaryAPin != 2
+	#error Review interrupt vectors when not using pin 2 for menu right
+	#endif
+	#if rotaryBPin != 1
+	#error Review interrupt vectors when not using pin 1 for menu left
+	#endif
 
-#if rotarySwitchPin != 7
-	#error Review interrupt vectors when not using pin 7 for menu push
 #endif
-#if rotaryAPin != 8
-	#error Review interrupt vectors when not using pin 8 for menu right
-#endif
-#if rotaryBPin != 9
-	#error Review interrupt vectors when not using pin 9 for menu left
-#endif
-
 
 // Implementation based on work of Ben Buxton:
 
@@ -171,13 +182,19 @@ const uint8_t PROGMEM ttable[7][4] = {
 
 #if ENABLE_ROTARY_ENCODER
 
-#if defined(USBCON)
-// Arduino Leonardo
+#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_DIY
+#if !defined(USBCON)
+	#error DIY shield ONLY compatible with Leonardo board.
+#endif
+
+ISR(INT2_vect) {
+	rotaryEncoder.setPushed();
+}
+#elif defined(USBCON)  // Arduino Leonardo
 ISR(INT6_vect){
 	rotaryEncoder.setPushed();
 }
-#else
-// Arduino UNO or older
+#else  // Arduino UNO or older
 ISR(PCINT2_vect){
 	if(!bitRead(PIND,7)){
 		// high to low transition
@@ -186,11 +203,20 @@ ISR(PCINT2_vect){
 }
 #endif
 
-ISR(PCINT0_vect){
+#if BREWPI_STATIC_CONFIG!=BREWPI_SHIELD_DIY
+	ISR(PCINT0_vect){
+		rotaryEncoder.process();
+	}
+#else
+ISR(INT3_vect) {
 	rotaryEncoder.process();
 }
-
+ISR(INT1_vect) {
+	rotaryEncoder.process();
+}
 #endif
+
+#endif  // ENABLE_ROTARY_ENCODER
 
 void RotaryEncoder::process(void){
 	static uint8_t state=R_START;
@@ -247,8 +273,11 @@ void RotaryEncoder::init(void){
 	fastPinMode(rotarySwitchPin, INPUT);
 	#endif	
 	
-#if ENABLE_ROTARY_ENCODER	
-	#if defined(USBCON) // Arduino Leonardo
+#if ENABLE_ROTARY_ENCODER		
+	#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_DIY
+		EICRA |= (1<<ISC21) | (1<<ISC10) | (1<<ISC30);; // any logical change for encoder pins, falling edge for switch
+		EIMSK |= (1<<INT2) | (1<<INT1) | (1<<INT3); // enable interrupts for each pin	
+	#elif defined(USBCON) // Arduino Leonardo
 		// falling edge interrupt for switch on INT6
 		EICRB |= (1<<ISC61) | (0<<ISC60);
 		// enable interrupt for INT6
@@ -265,6 +294,7 @@ void RotaryEncoder::init(void){
 		// enable mask bit for PCINT23
 		PCMSK2 |= (1<<PCINT23);
 	#endif
+		
 #endif	
 }
 
