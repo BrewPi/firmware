@@ -104,7 +104,7 @@ uint8_t EepromManager::saveDefaultDevices()
 	eepromManager.storeDevice(config, 1);
 
 	config.deviceFunction = DEVICE_CHAMBER_COOL;
-	config.hw.pinNr = heatingPin;
+	config.hw.pinNr = coolingPin;
 	eepromManager.storeDevice(config, 2);
 	
 	config.deviceHardware = DEVICE_HARDWARE_ONEWIRE_TEMP;
