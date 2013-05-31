@@ -182,13 +182,14 @@ void LcdDisplay::printMode(void){
 // print the current state on the last line of the lcd
 void LcdDisplay::printState(void){
 	uint16_t time;
-	uint8_t state = tempControl.getState();
+	uint8_t state = tempControl.getDisplayState();
 	uint8_t counterPrintPos=0;
 	if(state != stateOnDisplay){ //only print static text when state has changed
+		stateOnDisplay = state;
 		// Reprint state and clear rest of the line
 		const char * part1 = STR_empty_string;
 		const char * part2 = STR_empty_string;
-		switch (tempControl.getDisplayState()){
+		switch (state){
 			case IDLE:
 				part1 = PSTR("Idle ");
 				part2 = STR_for;
@@ -231,8 +232,7 @@ void LcdDisplay::printState(void){
 				break;
 		}
 		printAt_P(0, 3, part1);
-		lcd.print_P(part2);
-		stateOnDisplay = state;
+		lcd.print_P(part2);		
 		lcd.printSpacesToRestOfLine();
 	}
 	uint16_t sinceIdleTime = tempControl.timeSinceIdle();
