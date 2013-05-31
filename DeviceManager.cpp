@@ -493,9 +493,11 @@ void printAttrib(Print& p, char c, int8_t val, bool first=false)
 {		
 	if (!first)
 		p.print(',');
-	p.print(c);
-	p.print(':');
-	p.print(val);
+
+	char tempString[32]; // resulting string limited to 128 chars
+	va_list args;
+	sprintf_P(tempString, PSTR("\"%c\":%d"), val);
+	p.print(tempString);
 }
 
 inline bool hasInvert(DeviceHardware hw)
