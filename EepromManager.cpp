@@ -87,7 +87,7 @@ uint8_t EepromManager::saveDefaultDevices()
 	DeviceConfig config;
 	clear((uint8_t*)&config, sizeof(config));
 		
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
+#if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
 	// single-chamber single beer config from original shield
 	
 	config.chamber = 1;			// all devices are in chamber 1
@@ -119,7 +119,7 @@ uint8_t EepromManager::saveDefaultDevices()
 		
 	return 5;
 
-#elif BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+#elif BREWPI_STATIC_CONFIG>=BREWPI_SHIELD_REV_C
 	// the only component that's not dynamic is the door
 	return 0;	
 #else

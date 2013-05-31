@@ -205,16 +205,15 @@ public:
 	
 	int8_t enumerateActuatorPins(uint8_t offset)
 	{
-
-#if BREWPI_ACTUATOR_PINS		
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
+#if BREWPI_ACTUATOR_PINS
+#if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
 		switch (offset) {
 			case 0: return heatingPin;
 			case 1: return coolingPin;
 			default:
 				return -1;
 		}
-#elif BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+#elif BREWPI_STATIC_CONFIG>=BREWPI_SHIELD_REV_C
 		switch (offset) {
 			case 0: return actuatorPin1;
 			case 1: return actuatorPin2;
@@ -228,7 +227,7 @@ public:
 	}
 
 	int8_t enumerateSensorPins(uint8_t offset) {
-#if (BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A || BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C) && BREWPI_SENSOR_PINS
+#if BREWPI_SENSOR_PINS
 		if (offset==0)
 			return doorPin;
 #endif			
@@ -240,13 +239,13 @@ public:
 	 */
 	int8_t enumOneWirePins(uint8_t offset)
 	{		
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
+#if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
 		if (offset==0)
 			return beerSensorPin;
 		if (offset==1)
 			return fridgeSensorPin;
 #endif
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+#if BREWPI_STATIC_CONFIG>=BREWPI_SHIELD_REV_C
 		if (offset==0)
 			return oneWirePin;
 #endif
@@ -303,11 +302,11 @@ private:
 	
 	static void beginDeviceOutput() { firstDeviceOutput = true; }
 	
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A	
+#if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A	
 	static OneWire beerSensorBus;
 	static OneWire fridgeSensorBus;	
 #endif	
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+#if BREWPI_STATIC_CONFIG>=BREWPI_SHIELD_REV_C
 	static OneWire primaryOneWireBus;	
 #endif
 	static bool firstDeviceOutput;

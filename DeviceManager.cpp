@@ -45,22 +45,22 @@ DisconnectedTempSensor defaultTempSensor;
 
 #if !BREWPI_SIMULATE
 
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
+#if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
 OneWire DeviceManager::beerSensorBus(beerSensorPin);
 OneWire DeviceManager::fridgeSensorBus(fridgeSensorPin);
-#elif BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+#elif BREWPI_STATIC_CONFIG>=BREWPI_SHIELD_REV_C
 OneWire DeviceManager::primaryOneWireBus(oneWirePin);
 #endif
 
 bool DeviceManager::firstDeviceOutput;
 
 OneWire* DeviceManager::oneWireBus(uint8_t pin) {
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A
+#if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
 	if (pin==beerSensorPin)
 		return &beerSensorBus;
 	if (pin==fridgeSensorPin)
 		return &fridgeSensorBus;
-#elif BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+#elif BREWPI_STATIC_CONFIG>=BREWPI_SHIELD_REV_C
 	if (pin==oneWirePin)
 		return &primaryOneWireBus;
 #endif		
