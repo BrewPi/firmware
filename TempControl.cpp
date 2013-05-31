@@ -66,6 +66,7 @@ ControlVariables TempControl::cv;
 uint8_t TempControl::state;
 bool TempControl::doPosPeakDetect;
 bool TempControl::doNegPeakDetect;
+bool TempControl::doorOpen;
 	
 	// keep track of beer setting stored in EEPROM
 fixed7_9 TempControl::storedBeerSetting;
@@ -199,14 +200,12 @@ void TempControl::updatePID(void){
 
 void TempControl::updateState(void){
 	//update state
-	if(door->sense()){
-		if(state!=DOOR_OPEN){
-			// todo - use place holder annotation strings, and replace with full message in the python script. 
-			piLink.printFridgeAnnotation(PSTR("Fridge door opened"));
-		}
-		state=DOOR_OPEN;
-		return;
+	bool newDoorOpen = door->sense();
+	if(newDoorOpen!=doorOpen) {
+		doorOpen = newDoorOpen;
+		piLink.printFridgeAnnotation(PSTR("Fridge door "), doorOpen ? PSTR("opened") : PSTR("closed"));
 	}
+
 	if(cs.mode == MODE_OFF){
 		state = STATE_OFF;
 		return;
@@ -328,14 +327,6 @@ void TempControl::updateState(void){
 			}
 		}
 		break;
-		case DOOR_OPEN:
-		{
-			if(!door->sense()){ 
-				piLink.printFridgeAnnotation(PSTR("Fridge door closed"));
-				state=IDLE;
-			}
-		}
-		break;
 	}			
 }
 
@@ -358,7 +349,7 @@ void TempControl::updateOutputs(void) {
 	bool cooling = stateIsCooling();
 	cooler->setActive(cooling);		
 	heater->setActive(!cc.lightAsHeater && heating);	
-	light->setActive(state==DOOR_OPEN || (cc.lightAsHeater && heating) || cameraLightState.isActive());	
+	light->setActive(isDoorOpen() || (cc.lightAsHeater && heating) || cameraLightState.isActive());	
 	fan->setActive(heating || cooling);
 }
 

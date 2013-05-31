@@ -188,7 +188,7 @@ void LcdDisplay::printState(void){
 		// Reprint state and clear rest of the line
 		const char * part1 = STR_empty_string;
 		const char * part2 = STR_empty_string;
-		switch (tempControl.getState()){
+		switch (tempControl.getDisplayState()){
 			case IDLE:
 				part1 = PSTR("Idle ");
 				part2 = STR_for;

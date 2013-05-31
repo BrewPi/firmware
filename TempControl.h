@@ -211,13 +211,18 @@ class TempControl{
 	TEMP_CONTROL_METHOD bool stateIsHeating(void);
 		
 	TEMP_CONTROL_METHOD void constantsChanged();
+	
+	TEMP_CONTROL_METHOD bool isDoorOpen() { return doorOpen; }
+	
+	TEMP_CONTROL_METHOD unsigned char getDisplayState() {
+		return isDoorOpen() ? DOOR_OPEN : getState();
+	}
 
 	private:
 	TEMP_CONTROL_METHOD void increaseEstimator(fixed7_9 * estimator, fixed7_9 error);
 	TEMP_CONTROL_METHOD void decreaseEstimator(fixed7_9 * estimator, fixed7_9 error);
 	
 	TEMP_CONTROL_METHOD void updateEstimatedPeak(uint16_t estimate, fixed7_9 estimator, uint16_t sinceIdle);
-
 	public:
 	TEMP_CONTROL_FIELD TempSensor* beerSensor;
 	TEMP_CONTROL_FIELD TempSensor* fridgeSensor;
@@ -252,6 +257,7 @@ class TempControl{
 	TEMP_CONTROL_FIELD uint8_t state;
 	TEMP_CONTROL_FIELD bool doPosPeakDetect;
 	TEMP_CONTROL_FIELD bool doNegPeakDetect;
+	TEMP_CONTROL_FIELD bool doorOpen;
 	
 	friend class TempControlState;
 };
