@@ -126,7 +126,7 @@ extern Logger logger;
 #endif
 
 #if BREWPI_LOG_DEVELOPER
-	#define logDeveloper(string, ...) piLink.debugMessage(PSTR(string), ##__VA_ARGS__)
+	#define logDebug(string, ...) piLink.debugMessage(PSTR(string), ##__VA_ARGS__)
 #else
-	#define logDeveloper(string, ...) {}
+	#define logDebug(string, ...) {}
 #endif

@@ -138,14 +138,14 @@ bool EepromManager::applySettings()
 	// start from a clean state		
 	deviceManager.setupUnconfiguredDevices();
 		
-	logDeveloper("Applying settings");
+	logDebug("Applying settings");
 
 	// load the one chamber and one beer for now
 	eptr_t pv = pointerOffset(chambers);
 	tempControl.loadConstants(pv+offsetof(ChamberBlock, chamberSettings.cc));	
 	tempControl.loadSettings(pv+offsetof(ChamberBlock, beer[0].cs));
 	
-	logDeveloper("Applied settings");
+	logDebug("Applied settings");
 	
 	
 	if (!BREWPI_SIMULATE) {

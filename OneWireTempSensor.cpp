@@ -77,7 +77,7 @@ fixed7_9 OneWireTempSensor::init(){
 		return DEVICE_DISCONNECTED;		
 	}
 		
-	logDeveloper("Fetching initial temperature of sensor %s", addressString);
+	logDebug("Fetching initial temperature of sensor %s", addressString);
 	
 	sensor->setResolution(sensorAddress, 12);
 	sensor->setWaitForConversion(false);
@@ -91,7 +91,7 @@ fixed7_9 OneWireTempSensor::init(){
 			sensor->requestTemperatures();
 			waitForConversion();
 			temperature = sensor->getTempRaw(sensorAddress);
-			logDeveloper("Sensor initial temp read: pin %d %s %d", this->oneWire->pinNr(), addressString, temperature);
+			logDebug("Sensor initial temp read: pin %d %s %d", this->oneWire->pinNr(), addressString, temperature);
 			if(ticks.timeSince(lastRequestTime) > 4) {
 				setConnected(false);
 				return DEVICE_DISCONNECTED;

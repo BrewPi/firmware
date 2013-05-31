@@ -26,7 +26,7 @@
 
 void SettingsManager::loadSettings()
 {
-	logDeveloper("loading settings");
+	logDebug("loading settings");
 
 
 	if (!eepromManager.applySettings())
@@ -41,7 +41,7 @@ void SettingsManager::loadSettings()
 	
 	#if (BREWPI_SIMULATE)
 	{
-		logDeveloper("Setting up simulator devices.");
+		logDebug("Setting up simulator devices.");
 			
 		static ExternalTempSensor* ambient = new ExternalTempSensor(true);
 		static ExternalTempSensor* beer = new ExternalTempSensor(true);

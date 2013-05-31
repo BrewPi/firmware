@@ -99,7 +99,7 @@ public:
 			channelWriteAll((uint8_t)result);
 		}
 		else{
-			logDeveloper("ChannelReadAll failed");
+			logDebug("ChannelReadAll failed");
 		}
 	}
 	
