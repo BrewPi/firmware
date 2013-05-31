@@ -180,7 +180,7 @@ const uint8_t PROGMEM ttable[7][4] = {
 	{R_CCW_NEXT, R_CCW_FINAL, R_CCW_BEGIN, R_START},
 };
 
-#if ENABLE_ROTARY_ENCODER
+#if BREWPI_ROTARY_ENCODER
 
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_DIY
 #if !defined(USBCON)
@@ -216,7 +216,7 @@ ISR(INT1_vect) {
 }
 #endif
 
-#endif  // ENABLE_ROTARY_ENCODER
+#endif  // BREWPI_ROTARY_ENCODER
 
 void RotaryEncoder::process(void){
 	static uint8_t state=R_START;
@@ -273,7 +273,7 @@ void RotaryEncoder::init(void){
 	fastPinMode(rotarySwitchPin, INPUT);
 	#endif	
 	
-#if ENABLE_ROTARY_ENCODER		
+#if BREWPI_ROTARY_ENCODER		
 	#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_DIY
 		EICRA |= (1<<ISC21) | (1<<ISC10) | (1<<ISC30);; // any logical change for encoder pins, falling edge for switch
 		EIMSK |= (1<<INT2) | (1<<INT1) | (1<<INT3); // enable interrupts for each pin	
