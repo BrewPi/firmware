@@ -42,10 +42,15 @@ public:
 		device.init(bus, address);
 	}
 	
+
 	void setActive(bool active) {
-//		logDeveloper(PSTR("setting pio %d active %d"), pio, active^invert);
 		device.channelWrite(pio, active^invert);
-	}		
+	}
+
+	bool isActive() {
+		return device.channelRead(pio, false);
+	}
+
 			
 private:
 	DS2413 device;
