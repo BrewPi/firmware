@@ -171,6 +171,10 @@
 #define ONEWIRE_CRC8_TABLE 0
 #endif
 
+#ifndef BUILD_NUMBER
+#define BUILD_NUMBER 0
+#endif
+
 #endif
 
 

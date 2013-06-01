@@ -147,8 +147,9 @@ void PiLink::receive(void){
 			// s shield type
 			// y: simulator			
 			// b: board
-			print_P(PSTR("N:{\"v\":\"%S\",\"s\":%d,\"y\":%d,\"b\":\"%c\"}"), 
+			print_P(PSTR("N:{\"v\":\"%S\",\"n\":%d,\"s\":%d,\"y\":%d,\"b\":\"%c\"}"),
 					PSTR(VERSION_STRING), 
+					BUILD_NUMBER,
 					BREWPI_STATIC_CONFIG, 
 					BREWPI_SIMULATE, 
 					BREWPI_BOARD);
