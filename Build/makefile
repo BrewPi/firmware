@@ -275,57 +275,9 @@ LIB_DEP+=
 # AVR32/GNU C Compiler
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#
+# Recipes
+#
 
 ./$(OBJ_DIR)%.o: $(SRC)./%.cpp
 	@echo Building file: $<
@@ -333,17 +285,9 @@ LIB_DEP+=
 	"$(AVRGCC)" $(DEFINES) -mcall-prologues -funsigned-char -funsigned-bitfields -I"$(ARDUINO_HEADERS)" -I"$(MCU_INCLUDE)" -I"$(SRC)/fallback"  -Os -fno-split-wide-types -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g3 -Wall -mmcu=$(MCU) -c -fno-exceptions -ffreestanding -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$(OBJ_DIR)" "$<"
 	@echo Finished building: $<
 	
-
-
-
 # AVR32/GNU Preprocessing Assembler
 
-
-
 # AVR32/GNU Assembler
-
-
-
 
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(strip $(C_DEPS)),)
