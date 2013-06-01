@@ -80,7 +80,11 @@
 #define USE_INTERNAL_PULL_UP_RESISTORS false
 #endif
 
+#define BREWPI_INVERT_ACTUATORS 1
+
 #elif BREWPI_STATIC_CONFIG==BREWPI_SHIELD_DIY
+
+#define BREWPI_INVERT_ACTUATORS 0
 
 // pins
 #define beerSensorPin    10

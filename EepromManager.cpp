@@ -91,7 +91,7 @@ uint8_t EepromManager::saveDefaultDevices()
 	// single-chamber single beer config from original shield
 	
 	config.chamber = 1;			// all devices are in chamber 1
-	config.hw.invert = 1;		// all pin devices inverted
+	config.hw.invert = BREWPI_INVERT_ACTUATORS;		// invert depending upon shield type
 	
 	config.deviceHardware = DEVICE_HARDWARE_PIN;
 	
