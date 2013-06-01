@@ -216,7 +216,6 @@ ISR(INT1_vect) {
 }
 #endif
 
-#endif  // BREWPI_ROTARY_ENCODER
 
 void RotaryEncoder::process(void){
 	static uint8_t state=R_START;
@@ -255,6 +254,7 @@ void RotaryEncoder::process(void){
 		display.resetBacklightTimer();
 	}	
 }
+#endif  // BREWPI_ROTARY_ENCODER
 
 void RotaryEncoder::setPushed(void){
 	pushFlag = true;
@@ -263,6 +263,7 @@ void RotaryEncoder::setPushed(void){
 
 
 void RotaryEncoder::init(void){
+#if BREWPI_ROTARY_ENCODER
 	#if(USE_INTERNAL_PULL_UP_RESISTORS)
 	fastPinMode(rotaryAPin, INPUT_PULLUP);
 	fastPinMode(rotaryBPin, INPUT_PULLUP);
@@ -273,7 +274,6 @@ void RotaryEncoder::init(void){
 	fastPinMode(rotarySwitchPin, INPUT);
 	#endif	
 	
-#if BREWPI_ROTARY_ENCODER		
 	#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_DIY
 		EICRA |= (1<<ISC21) | (1<<ISC10) | (1<<ISC30);; // any logical change for encoder pins, falling edge for switch
 		EIMSK |= (1<<INT2) | (1<<INT1) | (1<<INT3); // enable interrupts for each pin	
@@ -294,7 +294,6 @@ void RotaryEncoder::init(void){
 		// enable mask bit for PCINT23
 		PCMSK2 |= (1<<PCINT23);
 	#endif
-		
 #endif	
 }
 
@@ -324,8 +323,10 @@ bool RotaryEncoder::changed(void){
 }
 
 int16_t RotaryEncoder::read(void){
+#if BREWPI_ROTARY_ENCODER
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
 		return steps;		
 	}
+#endif
 	return 0;		
 }
