@@ -495,7 +495,7 @@ void printAttrib(Print& p, char c, int8_t val, bool first=false)
 		p.print(',');
 
 	char tempString[32]; // resulting string limited to 128 chars
-	sprintf_P(tempString, PSTR("\"%c\":%d"), val);
+	sprintf_P(tempString, PSTR("\"%c\":%d"), c, val);
 	p.print(tempString);
 }
 
