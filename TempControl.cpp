@@ -332,7 +332,7 @@ void TempControl::updateState(void){
 
 void TempControl::updateEstimatedPeak(uint16_t timeLimit, fixed7_9 estimator, uint16_t sinceIdle)
 {
-	uint16_t activeTime = min(timeLimit, sinceIdle); // heat time in seconds
+	uint16_t activeTime = min(timeLimit, sinceIdle); // heat or cool time in seconds
 	fixed7_9 estimatedOvershoot = ((fixed23_9) estimator * activeTime)/3600; // overshoot estimator is in overshoot per hour
 	if(stateIsCooling()){
 		estimatedOvershoot = -estimatedOvershoot; // when cooling subtract overshoot from fridge temperature
@@ -366,12 +366,16 @@ void TempControl::detectPeaks(void){
 		oldEstimator = cs.heatEstimator;
 		if(peak != INT_MIN){
 			// positive peak detected
-			if(error > cc.heatingTargetUpper){ // positive error, peak was higher than estimate
-				// estimated overshoot was too low, so adjust overshoot estimator
+			if(error > cc.heatingTargetUpper){
+				// Peak temperature was higher than the estimate.
+				// Overshoot was higher than expected
+				// Increase estimator to increase the estimated overshoot
 				increaseEstimator(&(cs.heatEstimator), error);
 			}
-			if(error < cc.heatingTargetLower){ // negative error, peak was lower than estimate
-				// estimated overshoot was too high, so adjust overshoot estimator
+			if(error < cc.heatingTargetLower){
+				// Peak temperature was lower than the estimate.
+				// Overshoot was lower than expected
+				// Decrease estimator to decrease the estimated overshoot
 				decreaseEstimator(&(cs.heatEstimator), error);
 			}
 			detected = INFO_POSITIVE_PEAK;
@@ -403,13 +407,18 @@ void TempControl::detectPeaks(void){
 		oldEstimator = cs.coolEstimator;
 		if(peak != INT_MIN){
 			// negative peak detected
-			if(error < cc.coolingTargetLower){ // negative error, overshoot was higher than estimate
-				// estimated overshoot was too low, so adjust overshoot estimator
+			if(error < cc.coolingTargetLower){
+				// Peak temperature was lower than the estimate.
+				// Overshoot was higher than expected
+				// Increase estimator to increase the estimated overshoot
 				increaseEstimator(&(cs.coolEstimator), error);
 			}
-			if(error > cc.coolingTargetUpper){ // positive error, overshoot was lower than estimate
-				// estimated overshoot was too high, so adjust overshoot estimator
+			if(error > cc.coolingTargetUpper){
+				// Peak temperature was higher than the estimate.
+				// Overshoot was lower than expected
+				// Decrease estimator to decrease the estimated overshoot
 				decreaseEstimator(&(cs.coolEstimator), error);
+
 			}
 			detected = INFO_NEGATIVE_PEAK;
 		}
@@ -441,19 +450,15 @@ void TempControl::detectPeaks(void){
 
 // Increase estimator at least 20%, max 50%s
 void TempControl::increaseEstimator(fixed7_9 * estimator, fixed7_9 error){
-	fixed23_9 factor = 614 + constrainTemp(abs(error)>>5, 0, 154); // 1.2 + 3.1% of error, limit between 1.2 and 1.5
-	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;
-	byte max = byte((INT_MAX*512L)>>24);
-	byte upper = byte(newEstimator>>24);
-	*estimator = upper>max ? INT_MAX : newEstimator>>8; // shift back to normal precision	
+	fixed7_9 factor = 614 + constrainTemp(abs(error)>>5, 0, 154); // 1.2 + 3.1% of error, limit between 1.2 and 1.5
+	*estimator = multiplyFixed7_9(factor, *estimator);
 	eepromManager.storeTempSettings();
 }
 
 // Decrease estimator at least 16.7% (1/1.2), max 33.3% (1/1.5)
 void TempControl::decreaseEstimator(fixed7_9 * estimator, fixed7_9 error){
-	fixed23_9 factor = 426 - constrainTemp(abs(error)>>5, 0, 85); // 0.833 - 3.1% of error, limit between 0.667 and 0.833
-	fixed23_9 newEstimator = (fixed23_9) *estimator * factor;
-	*estimator = newEstimator>>8; // shift back to normal precision
+	fixed7_9 factor = 426 - constrainTemp(abs(error)>>5, 0, 85); // 0.833 - 3.1% of error, limit between 0.667 and 0.833
+	*estimator = multiplyFixed7_9(factor, *estimator);
 	eepromManager.storeTempSettings();
 }
 
@@ -595,7 +600,7 @@ bool TempControl::stateIsHeating(void){
 
 const ControlConstants TempControl::ccDefaults PROGMEM =
 {
-	// Do Not change the order of these initialializations!
+	// Do Not change the order of these initializations!
 	/* tempFormat */ 'C',
 	/* tempSettingMin */ 1*512,	// +1 deg Celsius
 	/* tempSettingMax */ 30*512,	// +30 deg Celsius
