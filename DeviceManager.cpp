@@ -540,7 +540,7 @@ void DeviceManager::printDevice(device_slot_t slot, DeviceConfig& config, const 
 	printAttrib(p, DEVICE_ATTRIB_DEACTIVATED, config.hw.deactivate);
 	printAttrib(p, DEVICE_ATTRIB_PIN, config.hw.pinNr);
 	if (value && *value) {
-		p.print(",v:");
+		p.print(",\"v\":");
 		p.print(value);
 	}
 	if (hasInvert(config.deviceHardware))	
