@@ -547,7 +547,7 @@ void DeviceManager::printDevice(device_slot_t slot, DeviceConfig& config, const 
 		printAttrib(p, DEVICE_ATTRIB_INVERT, config.hw.invert);
 	
 	if (hasOnewire(config.deviceHardware)) {
-		p.print(",a:\"");
+		p.print(",\"a\":\"");
 		printBytes(config.hw.address, 8, buf);
 		p.print(buf);
 		p.print('"');
@@ -559,7 +559,7 @@ void DeviceManager::printDevice(device_slot_t slot, DeviceConfig& config, const 
 #endif	
 	if (config.deviceHardware==DEVICE_HARDWARE_ONEWIRE_TEMP) {
 		tempDiffToString(buf, fixed7_9(config.hw.calibration)<<5, 3, 8);
-		p.print(",j:");
+		p.print(",\"j\":");
 		p.print(buf);
 	}
 	p.print('}');
@@ -675,7 +675,7 @@ inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw, char* 
 	fixed7_9 value = sensor.init();	
 	fixedPointToString(out, value, 3, 9);
 #else
-	strcpy(out, "0.00");
+	strcpy_P(out, PSTR("0.00"));
 #endif	
 }
 
