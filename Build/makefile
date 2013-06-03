@@ -1,10 +1,27 @@
-## defaults for Windows - these will be moved to a separate file
-RM = rm -rf 
-TOOLCHAIN_BIN ?= C:/Program Files (x86)/Atmel/Atmel Toolchain/AVR8 GCC/Native/3.4.2.939/avr8-gnu-toolchain/bin/
-EXE ?= .exe
+
+#
+# Copyright 2013 BrewPi/Elco Jacobs.
+# Copyright 2013 Matthew McGowan
+#
+# This file is part of BrewPi.
+# 
+# BrewPi is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# BrewPi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 # convert build parameters to defines
 
+# simulator flag control by shield type - the simulator is a virtual shield
 BREWPI_SIMULATOR = 0
 
 ifeq ($(SHIELD),diy)
@@ -48,7 +65,7 @@ BUILD_NUMBER ?= 0
 DEFINES = \
  -DBREWPI_STATIC_CONFIG=$(BREWPI_STATIC_CONFIG) \
  -DBREWPI_DEBUG=$(BREWPI_DEBUG) \
- -DBREWPI_SIMULATOR=$(BREWPI_SIMULATOR) \
+ -DBREWPI_SIMULTE=$(BREWPI_SIMULATOR) \
  -DARDUINO=$(ARDUINO_VERSION) \
  -DF_CPU=16000000L \
  -DBUILD_NUMBER=$(BUILD_NUMBER)
