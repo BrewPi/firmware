@@ -82,6 +82,8 @@ void TempControl::init(void){
 	state=IDLE;		
 	cs.mode = MODE_OFF;
 	
+	cameraLight.setActive(false);
+		
 	if (tempControl.beerSensor==NULL)
 		tempControl.beerSensor = new TempSensor(TEMP_SENSOR_TYPE_BEER, &defaultTempSensor);
 	if (tempControl.fridgeSensor==NULL)
