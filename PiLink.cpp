@@ -56,6 +56,7 @@ bool PiLink::firstPair;
 		size_t write(uint8_t w) { return 1; }
 		int peek() { return -1; }
 		void flush() { };			
+		operator bool() { return true; }
 	};
 
 	static MockSerial mockSerial;
@@ -197,7 +198,6 @@ void PiLink::receive(void){
 			settingsManager.loadSettings();
 			break;
 
-#if !BREWPI_SIMULATE		// dynaconfig not needed for simulator
 		case 'd': // list devices in eeprom order
 			openListResponse('d');
 			deviceManager.listDevices(piStream);
@@ -227,7 +227,6 @@ void PiLink::receive(void){
 			asm volatile ("  jmp 0"); 
 			break;
 			
-#endif // !BREWPI_SIMULATE
 		default:
 			logWarningInt(WARNING_INVALID_COMMAND, inByte);
 		}

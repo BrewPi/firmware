@@ -34,6 +34,7 @@
 #include "OneWire.h"
 #include "DallasTemperature.h"
 
+
 DeviceManager deviceManager;
 
 /*
@@ -44,17 +45,16 @@ ValueActuator defaultActuator;
 DisconnectedTempSensor defaultTempSensor;
 
 #if !BREWPI_SIMULATE
-
 #if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
 OneWire DeviceManager::beerSensorBus(beerSensorPin);
 OneWire DeviceManager::fridgeSensorBus(fridgeSensorPin);
 #elif BREWPI_STATIC_CONFIG>=BREWPI_SHIELD_REV_C
 OneWire DeviceManager::primaryOneWireBus(oneWirePin);
 #endif
-
-bool DeviceManager::firstDeviceOutput;
+#endif
 
 OneWire* DeviceManager::oneWireBus(uint8_t pin) {
+#if !BREWPI_SIMULATE
 #if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
 	if (pin==beerSensorPin)
 		return &beerSensorBus;
@@ -64,9 +64,15 @@ OneWire* DeviceManager::oneWireBus(uint8_t pin) {
 	if (pin==oneWirePin)
 		return &primaryOneWireBus;
 #endif		
+#endif
 	return NULL;
 }
 
+bool DeviceManager::firstDeviceOutput;
+
+bool DeviceManager::isDefaultTempSensor(BasicTempSensor* sensor) {
+	return sensor==&defaultTempSensor;
+}
 
 /**
  * Sets devices to their unconfigured states. Each device is initialized to a static no-op instance.
@@ -90,43 +96,36 @@ void DeviceManager::setupUnconfiguredDevices()
  */
 void* DeviceManager::createDevice(DeviceConfig& config, DeviceType dt)
 {
-#if !BREWPI_SIMULATE
 	switch (config.deviceHardware) {
 		case DEVICE_HARDWARE_NONE:
 			break;
 		case DEVICE_HARDWARE_PIN:
 			if (dt==DEVICETYPE_SWITCH_SENSOR)
+			#if BREWPI_SIMULATE
+				return new ValueSensor<bool>(false);		
+			#else
 				return new DigitalPinSensor(config.hw.pinNr, config.hw.invert);
+			#endif				
 			else
+			// use hardware actuators even for simulator
 				return new DigitalPinActuator(config.hw.pinNr, config.hw.invert);
-		case DEVICE_HARDWARE_ONEWIRE_TEMP:						
+		
+		case DEVICE_HARDWARE_ONEWIRE_TEMP:
+		#if BREWPI_SIMULATE
+			return new ExternalTempSensor(false);// initially disconnected, so init doesn't populate the filters with the default value of 0.0
+		#else
 			return new OneWireTempSensor(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.calibration);
-			
-#if BREWPI_DS2413			
+		#endif
+
+#if BREWPI_DS2413
 		case DEVICE_HARDWARE_ONEWIRE_2413:
+		#if BREWPI_SIMULATE
+			return new ValueActuator();
+		#else
 			return new OneWireActuator(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.pio, config.hw.invert);
+		#endif
 #endif			
 	}
-#else
-	switch (config.deviceHardware) {
-		case DEVICE_HARDWARE_NONE:
-			break;
-		case DEVICE_HARDWARE_PIN:
-			if (dt==DEVICETYPE_SWITCH_SENSOR)
-				return new ValueSensor<bool>(false);
-			else
-				return new ValueActuator();
-				
-		case DEVICE_HARDWARE_ONEWIRE_TEMP:
-			return new ExternalTempSensor(true);
-		
-		#if BREWPI_DS2413
-		case DEVICE_HARDWARE_ONEWIRE_2413:
-			return new ValueActuator();
-		#endif
-	}
-
-#endif		
 	return NULL;
 }
 
@@ -266,6 +265,9 @@ void DeviceManager::installDevice(DeviceConfig& config)
 				ts->setSensor(s);
 				ts->init();
 			}
+#if BREWPI_SIMULATE
+			((ExternalTempSensor*)s)->setConnected(true);	// now connect the sensor after init is called
+#endif			
 			break;
 		case DEVICETYPE_SWITCH_ACTUATOR:
 		case DEVICETYPE_SWITCH_SENSOR:
@@ -667,10 +669,14 @@ device_slot_t findHardwareDevice(DeviceConfig& find)
 
 inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw, char* out)
 {
+#if !BREWPI_SIMULATE
 	OneWire* bus = oneWireBus(hw.pinNr);
 	OneWireTempSensor sensor(bus, hw.address, 0);		// NB: this value is uncalibrated, since we don't have the calibration offset until the device is configured
 	fixed7_9 value = sensor.init();	
 	fixedPointToString(out, value, 3, 9);
+#else
+	strcpy(out, "0.00");
+#endif	
 }
 
 void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardware& h, EnumDevicesCallback callback, DeviceOutput& out)
@@ -730,6 +736,7 @@ void DeviceManager::enumeratePinDevices(EnumerateHardware& h, EnumDevicesCallbac
 
 void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCallback callback, DeviceOutput& output)
 {		
+#if !BREWPI_SIMULATE
 	int8_t pin;	
 	logDebug("Enumerating one-wire devices");
 	for (uint8_t count=0; (pin=deviceManager.enumOneWirePins(count))>=0; count++) {
@@ -774,7 +781,8 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCal
 			}
 		}
 		logDebug("Enumerating one-wire devices on pin %d complete", pin);
-	}	
+	}
+#endif	
 }
 
 void DeviceManager::enumerateHardware( Stream& p )
@@ -894,9 +902,3 @@ DeviceType deviceType(DeviceFunction id) {
 }	
 
 
-#else // BREWPI_SIMULATE
-	
-	// this is a no-op for the simulator
-	void DeviceManager::setupUnconfiguredDevices() {}
-
-#endif

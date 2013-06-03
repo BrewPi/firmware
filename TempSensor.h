@@ -31,7 +31,7 @@
 #define TEMP_SENSOR_CASCADED_FILTER 1
 #endif
 
-#if TEMP_SENSOR_CASCADED_FILTER 
+#if TEMP_SENSOR_CASCADED_FILTER
 typedef CascadedFilter TempSensorFilter;
 #else
 typedef FixedFilter TempSensorFilter;

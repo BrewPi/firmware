@@ -22,6 +22,8 @@
 
 #include "Brewpi.h"
 #include "TempSensorExternal.h"
+#include "Logger.h"
+#include "DeviceManager.h"
 
 /**
  * Thermal mass of air per unit volume, per degree.
@@ -66,7 +68,9 @@ struct HeatPotential
  * Some pointer types to make casting nicer.
  */
 typedef ValueActuator*	PValueActuator;
+typedef Sensor<bool>*	PSensor;
 typedef ValueSensor<bool>*	PValueSensor;
+
 
 class Simulator
 {
@@ -77,7 +81,7 @@ public:
 				double _beerSG=1.060, 
 				double _beerTemp=22.0, double _beerVolume=20.0, 
 				double _minRoomTemp = 13.0, double _maxRoomTemp = 18.0, 				
-				double _heatPower = 25.0, double _coolPower = 50.0, 
+				double _heatPower = 25.0, double _coolPower = 60.0, 
 				double _quantizeTempOutput=0.0625,
 				double _coefficientChamberRoom = 1.67, double _coefficientChamberBeer = 3,
 				double _sensorNoise = 0.0
@@ -89,7 +93,6 @@ public:
 		{
 			setBeerVolume(beerVolume);
 			setFridgeVolume(fridgeVolume);
-			updateSensors();
 			time = 0;
 			fermentPowerMax = 5;    // todo - rather max power, parameter should be ferment time, and compute power from moles of sugar
 			heating = false;
@@ -104,10 +107,9 @@ public:
 	};
 
 	void step() {
-		// in the simulator, we assume that ValueActuator instances are used for the actuators.
-		heating = (tempControl.stateIsHeating() || PValueActuator(tempControl.heater)->isActive());
-		cooling = tempControl.stateIsCooling();// || PValueActuator(tempControl.cooler)->isActive());		 
-		doorOpen = PValueSensor(tempControl.door)->sense();
+		heating = tempControl.stateIsHeating();
+		cooling = tempControl.stateIsCooling();
+		doorOpen = PSensor(tempControl.door)->sense();
 		// with no serial and no calculation here we get 1500-2000x speedup
 		// with this code enabled, around 1300x speedup
 		// with serial, drops to 300x speedup
@@ -243,9 +245,10 @@ private:
 	}
 
 	void setBasicTemp(ExternalTempSensor& sensor, double temp)
-	{
+	{						
 		fixed7_9 fixedTemp = temp*512>=INT_MAX ? INT_MAX : temp*512<=INT_MIN ? INT_MIN : temp*512L;
-		sensor.setValue(fixedTemp);				
+		if (!deviceManager.isDefaultTempSensor(&sensor))
+			sensor.setValue(fixedTemp);				
 	}
 
 	void setTemp(TempSensor* sensor, double temp)

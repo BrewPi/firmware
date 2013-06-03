@@ -203,6 +203,8 @@ class DeviceManager
 {
 public:
 	
+	bool isDefaultTempSensor(BasicTempSensor* sensor);
+	
 	int8_t enumerateActuatorPins(uint8_t offset)
 	{
 #if BREWPI_ACTUATOR_PINS

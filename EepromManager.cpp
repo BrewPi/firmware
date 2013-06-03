@@ -148,17 +148,15 @@ bool EepromManager::applySettings()
 	logDebug("Applied settings");
 	
 	
-	if (!BREWPI_SIMULATE) {
-		DeviceConfig deviceConfig;
-		for (uint8_t index = 0; fetchDevice(deviceConfig, index); index++)
-		{	
-			if (deviceManager.isDeviceValid(deviceConfig, deviceConfig, index))
-				deviceManager.installDevice(deviceConfig);
-			else {
-				clear((uint8_t*)&deviceConfig, sizeof(deviceConfig));
-				eepromManager.storeDevice(deviceConfig, index);
-			}			
-		}
+	DeviceConfig deviceConfig;
+	for (uint8_t index = 0; fetchDevice(deviceConfig, index); index++)
+	{	
+		if (deviceManager.isDeviceValid(deviceConfig, deviceConfig, index))
+			deviceManager.installDevice(deviceConfig);
+		else {
+			clear((uint8_t*)&deviceConfig, sizeof(deviceConfig));
+			eepromManager.storeDevice(deviceConfig, index);
+		}			
 	}
 	return true;
 }
@@ -182,8 +180,6 @@ void EepromManager::storeTempSettings()
 	tempControl.storeSettings(pv+offsetof(ChamberBlock, beer[0].cs));	
 }
 
-#if !BREWPI_SIMULATE
-
 bool EepromManager::fetchDevice(DeviceConfig& config, uint8_t deviceIndex)
 {
 	bool ok = (hasSettings() && deviceIndex<EepromFormat::MAX_DEVICES);
@@ -199,9 +195,6 @@ bool EepromManager::storeDevice(const DeviceConfig& config, uint8_t deviceIndex)
 		eepromAccess.writeBlock(pointerOffset(devices)+sizeof(DeviceConfig)*deviceIndex, &config, sizeof(DeviceConfig));	
 	return ok;
 }
-
-
-#endif // !BREWPI_SIMULATE
 
 void fill(int8_t* p, uint8_t size) {
 	while (size-->0) *p++ = -1;

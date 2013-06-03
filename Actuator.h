@@ -44,6 +44,7 @@ class Actuator
 {
 	public:	
 	ACTUATOR_METHOD void setActive(bool active) ACTUATOR_METHOD_IMPL;
+	ACTUATOR_METHOD bool isActive() ACTUATOR_METHOD_IMPL;
 #if ACTUATOR_VIRTUAL
 	virtual ~Actuator() {}
 #endif		
@@ -69,16 +70,22 @@ private:
 template<uint8_t pin, bool invert> 
 class DigitalConstantPinActuator ACTUATOR_BASE_CLASS_DECL
 {
+	private:
+	bool active;
+	
 	public:
-	DigitalConstantPinActuator()
+	DigitalConstantPinActuator() : active(false)
 	{
 		fastPinMode(pin, OUTPUT);
-		fastDigitalWrite(pin, invert ? HIGH : LOW);
+		setActive(false);
 	}
 	
 	inline ACTUATOR_METHOD void setActive(bool active) {		
+		this->active = active;
 		fastDigitalWrite(pin, active^invert ? HIGH : LOW);
 	}
+	
+	bool isActive() { return active; }
 
 };
 
@@ -87,6 +94,7 @@ class DigitalPinActuator ACTUATOR_BASE_CLASS_DECL
 private:
 	bool invert;
 	uint8_t pin;
+	bool active;
 public:		
 	DigitalPinActuator(uint8_t pin, bool invert) {
 		this->invert = invert;
@@ -95,6 +103,9 @@ public:
 	}
 	
 	inline ACTUATOR_METHOD void setActive(bool active) {
+		this->active = active;
 		digitalWrite(pin, active^invert ? HIGH : LOW);
 	}
+	
+	bool isActive() { return active; }
 };	

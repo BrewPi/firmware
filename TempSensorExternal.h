@@ -30,11 +30,14 @@
 class ExternalTempSensor : public BasicTempSensor
 {
 	public:
-	ExternalTempSensor(bool connected=false) : _temperature(0), _connected(connected) { }
+	ExternalTempSensor(bool connected=false) : _temperature(0), _connected(false) 
+	{
+		setConnected(connected);
+	}
 
 	void setConnected(bool connected)
 	{
-		_connected = connected;
+		this->_connected = connected;
 	}
 
 	bool isConnected() { return _connected; }

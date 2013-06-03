@@ -139,7 +139,7 @@ void setTicks(ExternalTicks& externalTicks, const char* val, int multiplier=1000
 			externalTicks.incMillis(atol(val+1)*multiplier);
 	}
 	
-	logDebug("New ticks %lu"), externalTicks.millis();
+	logDebug("New ticks %lu", externalTicks.millis());
 }
 
 
@@ -219,7 +219,7 @@ void PiLink::printDouble(double val)
 	ltoa(l/10000, buf, 10);	// print the whole part
 	piLink.print(buf);
 	l = l % 10000;
-	piLink.print_P(".%05d", l);
+	piLink.print_P(PSTR(".%05d"), uint16_t(l));
 }
 
 void PiLink::sendJsonPair(const char* name, double val)
@@ -230,7 +230,7 @@ void PiLink::sendJsonPair(const char* name, double val)
 
 void PiLink::printSimulatorSettings()
 {
-	printResponse('U');	
+	printResponse('Y');	
 	sendJsonPair(SimulatorRoomTempMin, simulator.getMinRoomTemp());
 	sendJsonPair(SimulatorRoomTempMax, simulator.getMaxRoomTemp());
 	sendJsonPair(SimulatorFridgeVolume, simulator.getFridgeVolume());

@@ -33,9 +33,14 @@ public:
 	
 	void setActive(bool active)
 	{
+		this->active = active;
 		target->setActive(active);
 		if (active)
 			lastActiveTime = ticks.seconds();
+	}
+	
+	bool isActive() {
+		return active; //target->isActive(); - this takes 20 bytes more
 	}
 	
 	void update() {
@@ -47,4 +52,5 @@ private:
 	uint16_t lastActiveTime;
 	uint16_t timeout;
 	Actuator* target;
+	bool active;
 };

@@ -42,14 +42,26 @@ void SettingsManager::loadSettings()
 	#if (BREWPI_SIMULATE)
 	{
 		logDebug("Setting up simulator devices.");
-			
-		static ExternalTempSensor* ambient = new ExternalTempSensor(true);
-		static ExternalTempSensor* beer = new ExternalTempSensor(true);
-		static ExternalTempSensor* fridge = new ExternalTempSensor(true);
-	
-		tempControl.ambientSensor = ambient;
-		tempControl.fridgeSensor->setSensor(fridge);
-		tempControl.beerSensor->setSensor(beer);		
+		
+		// temp sensors are special in the simulator - make sure they are set up even if not
+		// configured in the eeprom
+		DeviceConfig cfg;
+		clear((uint8_t*)&cfg, sizeof(cfg));
+		cfg.deviceHardware = DEVICE_HARDWARE_ONEWIRE_TEMP;	
+		cfg.chamber = 1;
+		cfg.deviceFunction = DEVICE_CHAMBER_ROOM_TEMP;	
+		deviceManager.uninstallDevice(cfg);
+		deviceManager.installDevice(cfg);
+
+		cfg.deviceFunction = DEVICE_CHAMBER_TEMP;
+		deviceManager.uninstallDevice(cfg);
+		deviceManager.installDevice(cfg);
+
+		cfg.beer = 1;
+		cfg.deviceFunction = DEVICE_BEER_TEMP;
+		deviceManager.uninstallDevice(cfg);
+		deviceManager.installDevice(cfg);
+		
 	}
 	#endif		
 	
