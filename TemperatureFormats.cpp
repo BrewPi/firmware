@@ -175,20 +175,17 @@ fixed7_9 constrainTemp(fixed23_9 valLong, fixed7_9 lower, fixed7_9 upper){
 
 fixed7_9 constrainTemp16(fixed23_9 val)
 {
-	/* This is broken! Returns INT_MIN for all negative values!
+	/* saves just 6 bytes - a bit cryptic for general use!
 	int16_t upper = val>>16;
-	if (!upper)
+	if (((upper+1) & ~1)==0)		// 0 or 1, so upper word was -1 or 0
 		return fixed7_9(val);
-	if (upper<0)
-		return INT_MIN;
-	else
-		return INT_MAX;*/
-	
+	return (upper<0) ? INT_MIN : INT_MAX; // upper > 0 || upper < -1
+	*/
 	if(val<INT_MIN){
 		return INT_MIN;
 	}
 	if(val>INT_MAX){
 		return INT_MAX;
 	}
-	return val;
+	return val;	
 }
