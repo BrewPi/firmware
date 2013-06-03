@@ -205,7 +205,7 @@ void TempControl::updateState(void){
 	bool newDoorOpen = door->sense();
 	if(newDoorOpen!=doorOpen) {
 		doorOpen = newDoorOpen;
-		piLink.printFridgeAnnotation(PSTR("Fridge door "), doorOpen ? PSTR("opened") : PSTR("closed"));
+		piLink.printFridgeAnnotation(PSTR("Fridge door %s"), doorOpen ? PSTR("opened") : PSTR("closed"));
 	}
 
 	if(cs.mode == MODE_OFF){
