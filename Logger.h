@@ -125,7 +125,8 @@ extern Logger logger;
 	
 #endif
 
-#if BREWPI_LOG_DEVELOPER
+#if BREWPI_LOG_DEBUG
+	#include "PiLink.h"
 	#define logDebug(string, ...) piLink.debugMessage(PSTR(string), ##__VA_ARGS__)
 #else
 	#define logDebug(string, ...) {}

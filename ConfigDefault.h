@@ -65,8 +65,8 @@
 #define BREWPI_LOG_INFO 1
 #endif
 
-#ifndef BREWPI_LOG_DEVELOPER
-#define BREWPI_LOG_DEVELOPER 0
+#ifndef BREWPI_LOG_DEBUG
+#define BREWPI_LOG_DEBUG 0
 #endif
 
 #ifndef BREWPI_STATIC_CONFIG
