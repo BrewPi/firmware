@@ -185,7 +185,7 @@ void SpiLcd::createChar(uint8_t location, uint8_t charmap[]) {
 void SpiLcd::resetBacklightTimer(void){
 	_backlightTime = ticks.seconds();
 	updateBacklight();
-	spiOut();
+	spiOut();		// instant update since the backlight may be turned on by user input
 }
 
 void SpiLcd::updateBacklight(void){

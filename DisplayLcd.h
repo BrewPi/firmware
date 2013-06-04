@@ -78,8 +78,8 @@ class LcdDisplay DISPLAY_SUPERCLASS
 		lcd.setBufferOnly(bufferOnly);
 	}
 	
-	DISPLAY_METHOD void resetBacklightTimer() { }
-	DISPLAY_METHOD void updateBacklight() { }
+	DISPLAY_METHOD void resetBacklightTimer() { lcd.resetBacklightTimer(); }
+	DISPLAY_METHOD void updateBacklight() { lcd.updateBacklight(); }
 	
 	private:
 	// print a temperature
