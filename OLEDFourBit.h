@@ -120,6 +120,10 @@ class OLEDFourBit : public Print {
 	void setBufferOnly(bool bufferOnly) {}
 
 	void printSpacesToRestOfLine();
+	
+	void resetBacklightTimer(void){ /* not implemented for OLED, doesn't have a backlight. */ }
+
+	void updateBacklight(void){ /* not implemented for OLED, doesn't have a backlight. */ }
 
 	using Print::write;
 
