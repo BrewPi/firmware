@@ -46,7 +46,7 @@ static const char STR_empty_string[] PROGMEM = "";
 
 void LcdDisplay::init(void){
 	stateOnDisplay = 0xFF; // set to unknown state to force update
-	flags = 0;
+	flags = LCD_FLAG_ALTERNATE_ROOM;
 	lcd.init(); // initialize LCD
 	lcd.begin(20, 4);
 	lcd.clear();
