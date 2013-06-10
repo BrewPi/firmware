@@ -385,6 +385,9 @@
     <Compile Include="TicksArduino.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Version.h">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="fallback" />

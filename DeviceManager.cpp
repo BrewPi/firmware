@@ -414,9 +414,10 @@ void DeviceManager::parseDeviceDefinition(Stream& p)
 	else {
 		logError(ERROR_DEVICE_DEFINITION_UPDATE_SPEC_INVALID);
 	}
-	
+	piLink.printResponse('U');
 	deviceManager.beginDeviceOutput();
 	deviceManager.printDevice(dev.id, *print, NULL, p);
+	piLink.printNewLine();
 }
 
 /**

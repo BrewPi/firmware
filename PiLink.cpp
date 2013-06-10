@@ -205,9 +205,9 @@ void PiLink::receive(void){
 			break;
 
 		case 'U': // update device		
-			printResponse('U');
+			//printResponse('U'); // moved into function below, because installing devices can cause printing in between
 			deviceManager.parseDeviceDefinition(piStream);
-			piLink.printNewLine();
+			//piLink.printNewLine();
 			break;
 			
 		case 'h': // hardware query
