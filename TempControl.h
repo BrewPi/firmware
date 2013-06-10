@@ -105,17 +105,18 @@ struct ControlConstants{
 #define MODE_OFF 'o'
 #define MODE_TEST 't'
 
+
 enum states{
-	IDLE,
-	STATE_OFF,
-	DOOR_OPEN,
-	HEATING,
-	COOLING,
-	WAITING_TO_COOL,
-	WAITING_TO_HEAT,
-	WAITING_FOR_PEAK_DETECT,
-	COOLING_MIN_TIME,
-	HEATING_MIN_TIME,
+	IDLE,						// 0
+	STATE_OFF,					// 1
+	DOOR_OPEN,					// 2 used by the Display only
+	HEATING,					// 3
+	COOLING,					// 4
+	WAITING_TO_COOL,			// 5
+	WAITING_TO_HEAT,			// 6
+	WAITING_FOR_PEAK_DETECT,	// 7
+	COOLING_MIN_TIME,			// 8
+	HEATING_MIN_TIME,			// 9
 	NUM_STATES
 };
 

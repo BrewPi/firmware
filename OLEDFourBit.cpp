@@ -288,13 +288,10 @@ char OLEDFourBit::readChar(void){
 }
 
 void OLEDFourBit::getLine(uint8_t lineNumber, char * buffer){
+	const char* src = content[lineNumber];
 	for(uint8_t i =0;i<20;i++){
-		if(content[lineNumber][i] == 0b11011111){
-			buffer[i] = 0xB0; // correct degree sign
-		}
-		else{
-			buffer[i] = content[lineNumber][i]; // copy to string buffer
-		}
+		char c = src[i];
+		buffer[i] = (c == 0b11011111) ? 0xB0 : c;
 	}
 	buffer[20] = '\0'; // NULL terminate string
 }	
