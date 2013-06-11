@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include <Arduino.h> // include Arduino.h or USBCON will always be undefined
+
 /**
  * Do not change this file directly - rather edit ConfigLocal.h
  */
@@ -155,9 +157,9 @@
 #ifndef BREWPI_BOARD
 
 #if defined(USBCON)
-	#define BREWPI_BOARD 's'		// standard
+	#define BREWPI_BOARD 'l'		// standard
 #else
-	#define BREWPI_BOARD 'l'		// leonardo
+	#define BREWPI_BOARD 's'		// leonardo
 #endif
 
 #ifndef OPTIMIZE_GLOBAL
