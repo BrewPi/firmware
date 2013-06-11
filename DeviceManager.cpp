@@ -848,7 +848,9 @@ void UpdateDeviceState(DeviceDisplay& dd, DeviceConfig& dc, char* val)
 			fixed7_9 temp = s.read();
 			fixedPointToString(val, temp, 3, 9);
 		}
-		// todo - should it be possible to read the last set state on an activator?
+		else if (dt==DEVICETYPE_SWITCH_ACTUATOR) {
+			sprintf_P(val, STR_FMT_U, (unsigned int) ((Actuator*)*ppv)->isActive()!=0);			
+		}
 	}
 }
 
