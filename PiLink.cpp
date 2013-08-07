@@ -41,6 +41,7 @@
 #endif
 
 bool PiLink::firstPair;
+char PiLink::printfBuff[PRINTF_BUFFER_SIZE];
 // Rename Serial to piStream, to abstract it for later platform independence
 
 #if BREWPI_EMULATE
@@ -71,26 +72,23 @@ void PiLink::init(void){
 
 // create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
 void PiLink::print_P(const char *fmt, ... ){
-	
-	char tmp[128]; // resulting string limited to 128 chars
 	va_list args;
 	va_start (args, fmt );
-	vsnprintf_P(tmp, 128, fmt, args);
+	vsnprintf_P(printfBuff, PRINTF_BUFFER_SIZE, fmt, args);
 	va_end (args);
 	if(piStream){ // if Serial connected (on Leonardo)
-		piStream.print(tmp);
+		piStream.print(printfBuff);
 	}
 }
 
 // create a printf like interface to the Arduino Serial function. Format string stored in RAM
 void PiLink::print(char *fmt, ... ){
-	char tmp[128]; // resulting string limited to 128 chars
 	va_list args;
 	va_start (args, fmt );
-	vsnprintf(tmp, 128, fmt, args);
+	vsnprintf(printfBuff, PRINTF_BUFFER_SIZE, fmt, args);
 	va_end (args);
 	if(piStream){
-		piStream.print(tmp);
+		piStream.print(printfBuff);
 	}	
 }
 
@@ -369,17 +367,16 @@ void PiLink::closeListResponse() {
 
 
 void PiLink::debugMessage(const char * message, ...){
-	char tempString[128]; // resulting string limited to 128 chars
 	va_list args;
-	
+		
 	//print 'D:' as prefix
 	printResponse('D');
 	
 	// Using print_P for the Annotation fails. Arguments are not passed correctly. Use Serial directly as a work around.
 	va_start (args, message );
-	vsnprintf_P(tempString, 128, message, args);
+	vsnprintf_P(printfBuff, PRINTF_BUFFER_SIZE, message, args);
 	va_end (args);
-	piStream.print(tempString);
+	piStream.print(printfBuff);
 	printNewLine();
 }
 

@@ -25,6 +25,8 @@
 #include "DeviceManager.h"
 #include "Logger.h"
 
+#define PRINTF_BUFFER_SIZE 128
+
 class DeviceConfig;
 
 
@@ -134,6 +136,7 @@ class PiLink{
 	friend class DeviceManager;
 	friend class PiLinkTest;
 	friend class Logger;
+	static char printfBuff[PRINTF_BUFFER_SIZE];
 };
 
 extern PiLink piLink;
