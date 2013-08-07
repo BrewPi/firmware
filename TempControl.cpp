@@ -115,6 +115,10 @@ void TempControl::updateTemperatures(void){
 	if(!fridgeSensor->isConnected()){
 		fridgeSensor->init(); // always try to restart the fridge sensor
 	}
+	
+	// Read ambient sensor to keep the value up to date. If no sensor is connected, this does nothing.
+	// This prevents a delay in serial response because the value is not up to date.
+	ambientSensor->read();
 }
 
 

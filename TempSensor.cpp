@@ -58,8 +58,7 @@ void TempSensor::update()
 		slopeFilter.addDoublePrecision(slowFilter.readOutputDoublePrecision() - prevOutputForSlope);
 		prevOutputForSlope = slowFilter.readOutputDoublePrecision();
 		updateCounter = 12;
-	}
-		
+	}		
 }
 
 fixed7_9 TempSensor::readFastFiltered(void){
