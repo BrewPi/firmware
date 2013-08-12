@@ -300,7 +300,9 @@ void TempControl::updateState(void){
 			lastCoolTime = secs;
 			updateEstimatedPeak(cc.maxCoolTimeForEstimate, cs.coolEstimator, sinceIdle);
 			state = COOLING; // set to cooling here, so the display of COOLING/COOLING_MIN_TIME is correct
-			if(cv.estimatedPeak <= cs.fridgeSetting){
+			
+			// stop cooling when estimated fridge temp peak lands on target or if beer is already too cold
+			if(cv.estimatedPeak <= cs.fridgeSetting || beerFast <= cs.beerSetting){
 				if(sinceIdle > MIN_COOL_ON_TIME){
 					cv.negPeakEstimate = cv.estimatedPeak; // remember estimated peak when I switch to IDLE, to adjust estimator later
 					state=IDLE;
@@ -320,7 +322,9 @@ void TempControl::updateState(void){
 			lastHeatTime=secs;
 			updateEstimatedPeak(cc.maxHeatTimeForEstimate, cs.heatEstimator, sinceIdle);
 			state = HEATING; // reset to heating here, so the display of HEATING/HEATING_MIN_TIME is correct
-			if(cv.estimatedPeak >= cs.fridgeSetting){
+			
+			// stop heating when estimated fridge temp peak lands on target or if beer is already too warm
+			if(cv.estimatedPeak >= cs.fridgeSetting || beerFast >= cs.beerSetting){
 				if(sinceIdle > MIN_HEAT_ON_TIME){
 					cv.posPeakEstimate=cv.estimatedPeak; // remember estimated peak when I switch to IDLE, to adjust estimator later
 					state=IDLE;
