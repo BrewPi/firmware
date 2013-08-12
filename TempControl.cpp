@@ -108,7 +108,7 @@ void TempControl::reset(void){
 
 void TempControl::updateTemperatures(void){
 	beerSensor->update();
-	if(!beerSensor->isConnected() && (cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_FRIDGE_CONSTANT)){
+	if(!beerSensor->isConnected() && (cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_BEER_PROFILE)){
 		beerSensor->init(); // try to restart the sensor when controlling beer temperature
 	}
 	fridgeSensor->update();
