@@ -72,8 +72,8 @@ void LcdDisplay::printAllTemperatures(void){
 	printFridgeSet();
 }
 
-void LcdDisplay::setDisplayFlags(uint8_t flags) {
-	LcdDisplay::flags = flags;
+void LcdDisplay::setDisplayFlags(uint8_t newFlags) {
+	flags = newFlags;
 	printStationaryText();
 	printAllTemperatures();
 }

@@ -42,10 +42,10 @@ Menu menu;
 
 void Menu::pickSettingToChange(){
 	// ensure beer temp is displayed
-	uint8_t flags = display.getDisplayFlags();
-	display.setDisplayFlags(flags &= ~(LCD_FLAG_ALTERNATE_ROOM|LCD_FLAG_DISPLAY_ROOM));
+	uint8_t oldFlags = display.getDisplayFlags();
+	display.setDisplayFlags(oldFlags & ~(LCD_FLAG_ALTERNATE_ROOM|LCD_FLAG_DISPLAY_ROOM));
 	pickSettingToChangeLoop();
-	display.setDisplayFlags(flags);
+	display.setDisplayFlags(oldFlags);
 }
 
 #if MENU_OPTIMIZE 

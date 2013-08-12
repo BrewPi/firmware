@@ -57,7 +57,7 @@ class Display{
 	// print the stationary text on the lcd.
 	DISPLAY_METHOD void printStationaryText(void) DISPLAY_METHOD_PURE_VIRTUAL;
 	
-	DISPLAY_METHOD void setDisplayFlags(uint8_t flags) DISPLAY_METHOD_PURE_VIRTUAL;
+	DISPLAY_METHOD void setDisplayFlags(uint8_t newFlags) DISPLAY_METHOD_PURE_VIRTUAL;
 	DISPLAY_METHOD uint8_t getDisplayFlags() DISPLAY_METHOD_PURE_VIRTUAL;
 
 	// print mode on the right location on the first line, after Mode:
@@ -112,7 +112,7 @@ public:
 	// print mode on the right location on the first line, after Mode:
 	DISPLAY_METHOD void printMode(void){}
 
-	DISPLAY_METHOD void setDisplayFlags(uint8_t flags){};
+	DISPLAY_METHOD void setDisplayFlags(uint8_t newFlags){};
 	DISPLAY_METHOD uint8_t getDisplayFlags(){ return 0; };
 		
 
