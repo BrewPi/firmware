@@ -46,19 +46,28 @@ void TempSensor::update()
 	fastFilter.add(temperature);
 	slowFilter.add(temperature);
 		
-	// update slope filter every 12 samples.
+	// update slope filter every 3 samples.
 	// averaged differences will give the slope. Use the slow filter as input
 	updateCounter--;
-	// initialize first read for slope filter after (255-13) seconds. This prevents an influence for the startup inaccuracy.
-	if(updateCounter == 13){
+	// initialize first read for slope filter after (255-4) seconds. This prevents an influence for the startup inaccuracy.
+	if(updateCounter == 4){
 		// only happens once after startup.
 		prevOutputForSlope = slowFilter.readOutputDoublePrecision();
 	}
 	if(updateCounter == 0){
-		slopeFilter.addDoublePrecision(slowFilter.readOutputDoublePrecision() - prevOutputForSlope);
-		prevOutputForSlope = slowFilter.readOutputDoublePrecision();
-		updateCounter = 12;
-	}		
+		fixed7_25 slowFilterOutput = slowFilter.readOutputDoublePrecision();
+		fixed7_25 diff =  slowFilterOutput - prevOutputForSlope;
+		fixed7_9 diff_upper = diff >> 16;
+		if(diff_upper > 27){ // limit to prevent overflow INT_MAX/1200 = 27.14
+			diff = (27l << 16);
+		}
+		else if(diff_upper < -27){
+			diff = (-27l << 16);
+		}
+		slopeFilter.addDoublePrecision(1200*diff); // Multiply by 1200 (1h/4s), shift to single precision
+		prevOutputForSlope = slowFilterOutput;
+		updateCounter = 3;
+	}
 }
 
 fixed7_9 TempSensor::readFastFiltered(void){
@@ -66,9 +75,9 @@ fixed7_9 TempSensor::readFastFiltered(void){
 }
 
 fixed7_9 TempSensor::readSlope(void){
-	// return slope per hour. Multiply by 300 (1h/12s), shift to single precision
+	// return slope per hour. 
 	fixed7_25 doublePrecision = slopeFilter.readOutputDoublePrecision();
-	return (doublePrecision*300)>>16;
+	return doublePrecision>>16; // shift to single precision
 }
 
 fixed7_9 TempSensor::detectPosPeak(void){

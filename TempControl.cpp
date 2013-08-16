@@ -155,11 +155,10 @@ void TempControl::updatePID(void){
 			
 			fixed7_9 integratorUpdate = cv.beerDiff;
 			if(abs(integratorUpdate) < cc.iMaxError){
-				//difference is smaller than iMaxError, check 4 conditions to see if integrator should be active
+				//difference is smaller than iMaxError, check 4 conditions to see if integrator should be active to prevent windup
 				bool updateSign = (integratorUpdate > 0); // 1 = positive, 0 = negative
 				bool integratorSign = (cv.diffIntegral > 0);		
 				
-				// Actuator is not saturated. Update integrator
 				if(updateSign == integratorSign){
 					// beerDiff and integrator have same sign. Integrator would be increased.
 					
@@ -643,7 +642,7 @@ const ControlConstants TempControl::ccDefaults PROGMEM =
 	/* fridgeSlowFilter */ 4u,
 	/* fridgeSlopeFilter */ 3u,
 	/* beerFastFilter */ 3u,
-	/* beerSlowFilter */ 5u,
+	/* beerSlowFilter */ 4u,
 	/* beerSlopeFilter */ 4u,
 	
 	/* lightAsHeater */ 0,

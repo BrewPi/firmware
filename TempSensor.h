@@ -47,7 +47,7 @@ enum TempSensorType {
 class TempSensor {
 	public:	
 	TempSensor(TempSensorType sensorType, BasicTempSensor* sensor =NULL) : _sensor(sensor)  {
-		updateCounter = 255; // first update for slope filter after (255-13s)
+		updateCounter = 255; // first update for slope filter after (255-4s)
 	 }	 	 
 	 
 	 void setSensor(BasicTempSensor* sensor) {
