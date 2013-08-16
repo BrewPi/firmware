@@ -718,12 +718,14 @@ void DeviceManager::enumeratePinDevices(EnumerateHardware& h, EnumDevicesCallbac
 	DeviceConfig config;
 	clear((uint8_t*)&config, sizeof(config));
 	config.deviceHardware = DEVICE_HARDWARE_PIN;
+	config.chamber = 1; // chamber 1 is default
 	
 	int8_t pin;	
 	for (uint8_t count=0; (pin=deviceManager.enumerateActuatorPins(count))>=0; count++) {
 		if (h.pin!=-1 && h.pin!=pin)
 			continue;
 		config.hw.pinNr = pin;
+		config.hw.invert = true; // make inverted default, because shiels have transistor on them
 		handleEnumeratedDevice(config, h, callback, output);
 	}	
 	
@@ -746,6 +748,7 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCal
 		if (h.pin!=-1 && h.pin!=pin)
 			continue;
 		config.hw.pinNr = pin;
+		config.chamber = 1; // chamber 1 is default
 		logDebug("Enumerating one-wire devices on pin %d", pin);				
 		OneWire* wire = oneWireBus(pin);	
 		if (wire!=NULL) {
