@@ -166,21 +166,19 @@ void TempControl::updatePID(void){
 					integratorUpdate = (timeSinceIdle() > 1800u) ? 0 : integratorUpdate;
 					
 					// If actuator is already at max increasing actuator will only cause integrator windup.
-					integratorUpdate = (cs.fridgeSetting == cc.tempSettingMax) ? 0 : integratorUpdate;
-					integratorUpdate = (cs.fridgeSetting == cc.tempSettingMin) ? 0 : integratorUpdate;										
-					
+					integratorUpdate = ((cs.fridgeSetting - cs.beerSetting) >= cc.pidMax) ? 0 : integratorUpdate;
+					integratorUpdate = ((cs.beerSetting - cs.fridgeSetting) >= cc.pidMax) ? 0 : integratorUpdate;
+										
 					// cooling and fridge temp is more than 2 degrees from setting, actuator is saturated.
 					integratorUpdate = (!updateSign && (fridgeFastFiltered > (cs.fridgeSetting +1024))) ? 0 : integratorUpdate;
 					
 					// heating and fridge temp is more than 2 degrees from setting, actuator is saturated.
 					integratorUpdate = (updateSign && (fridgeFastFiltered < (cs.fridgeSetting -1024))) ? 0 : integratorUpdate;
-									
 				}
 				else{
 					// integrator action is decreased. Decrease faster than increase.
 					integratorUpdate = integratorUpdate*4;
-				}
-				
+				}	
 			}
 			else{
 				// decrease integral by 1/8 when not close to end value to prevent integrator windup
@@ -197,7 +195,9 @@ void TempControl::updatePID(void){
 		newFridgeSetting += cv.p;
 		newFridgeSetting += cv.i;
 		newFridgeSetting += cv.d;		
-		cs.fridgeSetting = constrain(constrainTemp16(newFridgeSetting), cc.tempSettingMin, cc.tempSettingMax);
+		
+		// constrain so fridge setting is max pidMax from beer setting
+		cs.fridgeSetting = constrain(constrainTemp16(newFridgeSetting), cs.beerSetting - cc.pidMax, cs.beerSetting + cc.pidMax);
 	}
 	else{
 		// FridgeTemperature is set manually, use INT_MIN to indicate
@@ -257,11 +257,13 @@ void TempControl::updateState(void){
 					}
 					tempControl.updateWaitTime(MIN_COOL_OFF_TIME, sinceCooling);
 				}
-				if(getWaitTime() > 0){
-					state = WAITING_TO_COOL;
-				}
-				else{
-					state = COOLING;	
+				if(tempControl.cooler != &defaultActuator){
+					if(getWaitTime() > 0){
+						state = WAITING_TO_COOL;
+					}
+					else{
+						state = COOLING;	
+					}
 				}
 			}
 			else if(fridgeFast < (cs.fridgeSetting+cc.idleRangeLow)){  // fridge temperature is too low
@@ -273,11 +275,13 @@ void TempControl::updateState(void){
 						break;
 					}
 				}
-				if(getWaitTime() > 0){
-					state = WAITING_TO_HEAT;
-				}
-				else{
-					state = HEATING;
+				if(tempControl.cooler != &defaultActuator){
+					if(getWaitTime() > 0){
+						state = WAITING_TO_HEAT;
+					}
+					else{
+						state = HEATING;
+					}
 				}
 			}
 			else{
@@ -615,6 +619,7 @@ const ControlConstants TempControl::ccDefaults PROGMEM =
 	/* tempFormat */ 'C',
 	/* tempSettingMin */ 1*512,	// +1 deg Celsius
 	/* tempSettingMax */ 30*512,	// +30 deg Celsius
+	/* pidMax */ 10*512,	// +/- 10 deg Celsius
 	
 	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
 	/* Kp	*/ 10240,	// +20

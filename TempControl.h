@@ -72,6 +72,7 @@ struct ControlConstants{
 	char tempFormat;
 	fixed7_9 tempSettingMin;
 	fixed7_9 tempSettingMax;	
+	fixed7_9 pidMax;
 	fixed7_9 Kp;
 	fixed7_9 Ki;
 	fixed7_9 Kd;
