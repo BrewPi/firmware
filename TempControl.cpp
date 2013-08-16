@@ -118,7 +118,9 @@ void TempControl::updateTemperatures(void){
 	
 	// Read ambient sensor to keep the value up to date. If no sensor is connected, this does nothing.
 	// This prevents a delay in serial response because the value is not up to date.
-	ambientSensor->read();
+	if(ambientSensor->read() == DEVICE_DISCONNECTED){
+		ambientSensor->init(); // try to reconnect a disconnected, but installed sensor
+	}
 }
 
 

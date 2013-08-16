@@ -56,11 +56,8 @@ void LcdDisplay::init(void){
 void LcdDisplay::printAllTemperatures(void){
 	// alternate between beer and room temp
 	if (flags & LCD_FLAG_ALTERNATE_ROOM) {
-		bool displayRoom = ((ticks.seconds()&0x08)==0) && !BREWPI_SIMULATE;
+		bool displayRoom = ((ticks.seconds()&0x08)==0) && !BREWPI_SIMULATE && tempControl.ambientSensor->isConnected();
 		if (displayRoom ^ ((flags & LCD_FLAG_DISPLAY_ROOM)!=0)) {	// transition
-			if (!tempControl.ambientSensor->isConnected())	{
-				displayRoom = tempControl.ambientSensor->init()!=DEVICE_DISCONNECTED && displayRoom;
-			}
 			flags = displayRoom ? flags | LCD_FLAG_DISPLAY_ROOM : flags & ~LCD_FLAG_DISPLAY_ROOM;
 			printStationaryText();
 		}
