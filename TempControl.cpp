@@ -275,7 +275,7 @@ void TempControl::updateState(void){
 						break;
 					}
 				}
-				if(tempControl.cooler != &defaultActuator){
+				if(tempControl.heater != &defaultActuator){
 					if(getWaitTime() > 0){
 						state = WAITING_TO_HEAT;
 					}
