@@ -166,6 +166,8 @@ void TempControl::updatePID(void){
 					integratorUpdate = (timeSinceIdle() > 1800u) ? 0 : integratorUpdate;
 					
 					// If actuator is already at max increasing actuator will only cause integrator windup.
+					integratorUpdate = (cs.fridgeSetting == cc.tempSettingMax) ? 0 : integratorUpdate;
+					integratorUpdate = (cs.fridgeSetting == cc.tempSettingMin) ? 0 : integratorUpdate;
 					integratorUpdate = ((cs.fridgeSetting - cs.beerSetting) >= cc.pidMax) ? 0 : integratorUpdate;
 					integratorUpdate = ((cs.beerSetting - cs.fridgeSetting) >= cc.pidMax) ? 0 : integratorUpdate;
 										
@@ -197,7 +199,9 @@ void TempControl::updatePID(void){
 		newFridgeSetting += cv.d;		
 		
 		// constrain so fridge setting is max pidMax from beer setting
-		cs.fridgeSetting = constrain(constrainTemp16(newFridgeSetting), cs.beerSetting - cc.pidMax, cs.beerSetting + cc.pidMax);
+		newFridgeSetting = constrain(constrainTemp16(newFridgeSetting), cs.beerSetting - cc.pidMax, cs.beerSetting + cc.pidMax);
+		// constrain within absolute limits
+		cs.fridgeSetting = constrain(constrainTemp16(newFridgeSetting), cc.tempSettingMin, cc.tempSettingMax);
 	}
 	else{
 		// FridgeTemperature is set manually, use INT_MIN to indicate
