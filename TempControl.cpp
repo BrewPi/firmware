@@ -154,20 +154,24 @@ void TempControl::updatePID(void){
 			integralUpdateCounter = 0;
 			
 			fixed7_9 integratorUpdate = cv.beerDiff;
-			if(abs(integratorUpdate) < cc.iMaxError){
-				//difference is smaller than iMaxError, check 4 conditions to see if integrator should be active to prevent windup
+			
+			// Only update integrator in IDLE, because thats when the fridge temp has reached the fridge setting.
+			// If the beer temp is still not correct, the fridge setting is too low/high and integrator action is needed.
+			if(state != IDLE){
+				integratorUpdate = 0;
+			}
+			else if(abs(integratorUpdate) < cc.iMaxError){
+				// difference is smaller than iMaxError				
+				// check additional conditions to see if integrator should be active to prevent windup
 				bool updateSign = (integratorUpdate > 0); // 1 = positive, 0 = negative
 				bool integratorSign = (cv.diffIntegral > 0);		
 				
 				if(updateSign == integratorSign){
 					// beerDiff and integrator have same sign. Integrator would be increased.
 					
-					// set update to zero when timeSinceIdle > 30 min. Actuator is probably saturated
-					integratorUpdate = (timeSinceIdle() > 1800u) ? 0 : integratorUpdate;
-					
 					// If actuator is already at max increasing actuator will only cause integrator windup.
-					integratorUpdate = (cs.fridgeSetting == cc.tempSettingMax) ? 0 : integratorUpdate;
-					integratorUpdate = (cs.fridgeSetting == cc.tempSettingMin) ? 0 : integratorUpdate;
+					integratorUpdate = (cs.fridgeSetting >= cc.tempSettingMax) ? 0 : integratorUpdate;
+					integratorUpdate = (cs.fridgeSetting <= cc.tempSettingMin) ? 0 : integratorUpdate;
 					integratorUpdate = ((cs.fridgeSetting - cs.beerSetting) >= cc.pidMax) ? 0 : integratorUpdate;
 					integratorUpdate = ((cs.beerSetting - cs.fridgeSetting) >= cc.pidMax) ? 0 : integratorUpdate;
 										
@@ -179,11 +183,11 @@ void TempControl::updatePID(void){
 				}
 				else{
 					// integrator action is decreased. Decrease faster than increase.
-					integratorUpdate = integratorUpdate*4;
+					integratorUpdate = integratorUpdate*2;
 				}	
 			}
 			else{
-				// decrease integral by 1/8 when not close to end value to prevent integrator windup
+				// decrease integral by 1/8 when far from the end value to reset the integrator
 				integratorUpdate = -(cv.diffIntegral >> 3);		
 			}
 			cv.diffIntegral = cv.diffIntegral + integratorUpdate;
@@ -197,7 +201,7 @@ void TempControl::updatePID(void){
 		newFridgeSetting += cv.p;
 		newFridgeSetting += cv.i;
 		newFridgeSetting += cv.d;		
-		
+
 		// constrain so fridge setting is max pidMax from beer setting
 		newFridgeSetting = constrain(constrainTemp16(newFridgeSetting), cs.beerSetting - cc.pidMax, cs.beerSetting + cc.pidMax);
 		// constrain within absolute limits
@@ -626,12 +630,12 @@ const ControlConstants TempControl::ccDefaults PROGMEM =
 	/* pidMax */ 10*512,	// +/- 10 deg Celsius
 	
 	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
-	/* Kp	*/ 10240,	// +20
-	/* Ki	*/ 307,		// +0.6
-	/* Kd	*/ -1536,	// -3
+	/* Kp	*/ 5120,	// +10
+	/* Ki	*/ 205,		// +0.4
+	/* Kd	*/ -1024,	// -2
 	/* iMaxError */ 256,  // 0.5 deg
 
-	// Stay Idle when temperature is in this range
+	// Stay Idle when fridge temperature is in this range
 	/* idleRangeHigh */ 512,	// +1 deg Celsius
 	/* idleRangeLow */ -512,	// -1 deg Celsius
 
@@ -650,7 +654,7 @@ const ControlConstants TempControl::ccDefaults PROGMEM =
 	/* fridgeFastFilter */ 1u,
 	/* fridgeSlowFilter */ 4u,
 	/* fridgeSlopeFilter */ 3u,
-	/* beerFastFilter */ 3u,
+	/* beerFastFilter */ 2u,
 	/* beerSlowFilter */ 4u,
 	/* beerSlopeFilter */ 4u,
 	

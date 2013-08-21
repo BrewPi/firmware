@@ -42,7 +42,7 @@ const uint16_t MIN_COOL_OFF_TIME_FRIDGE_CONSTANT = 600;
 // Set a minimum off time between switching between heating and cooling
 const uint16_t MIN_SWITCH_TIME = 600;
 // Time allowed for peak detection
-const uint16_t COOL_PEAK_DETECT_TIME = 1800;
+const uint16_t COOL_PEAK_DETECT_TIME = 1200;
 const uint16_t HEAT_PEAK_DETECT_TIME = 900;
 
 // These two structs are stored in and loaded from EEPROM
