@@ -283,7 +283,7 @@ void TempControl::updateState(void){
 						break;
 					}
 				}
-				if(tempControl.heater != &defaultActuator){
+				if(tempControl.heater != &defaultActuator || (cc.lightAsHeater && (tempControl.light != &defaultActuator))){
 					if(getWaitTime() > 0){
 						state = WAITING_TO_HEAT;
 					}
