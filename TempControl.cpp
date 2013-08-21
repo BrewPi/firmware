@@ -550,7 +550,7 @@ void TempControl::constantsChanged()
 void TempControl::setMode(char newMode, bool force){
 	logDebug("TempControl::setMode from %c to %c", cs.mode, newMode);
 	
-	if(newMode != cs.mode){
+	if(newMode != cs.mode || state == WAITING_TO_HEAT || state == WAITING_TO_COOL || state == WAITING_FOR_PEAK_DETECT){
 		state = IDLE;
 		force = true;
 	}
