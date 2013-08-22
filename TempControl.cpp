@@ -259,7 +259,7 @@ void TempControl::updateState(void){
 					tempControl.updateWaitTime(MIN_COOL_OFF_TIME_FRIDGE_CONSTANT, sinceCooling);
 				}
 				else{
-					if(beerFast<cs.beerSetting){ // only start cooling when beer is too warm
+					if(beerFast < (cs.beerSetting + 16) ){ // If beer is already under target, stay/go to idle. 1/2 sensor bit idle zone
 						state = IDLE; // beer is already colder than setting, stay in or go to idle
 						break;
 					}
@@ -278,7 +278,7 @@ void TempControl::updateState(void){
 				tempControl.updateWaitTime(MIN_SWITCH_TIME, sinceCooling);
 				tempControl.updateWaitTime(MIN_HEAT_OFF_TIME, sinceHeating);
 				if(cs.mode!=MODE_FRIDGE_CONSTANT){
-					if(beerFast > cs.beerSetting){ // only start heating when beer is too cold
+					if(beerFast > (cs.beerSetting - 16)){ // If beer is already over target, stay/go to idle. 1/2 sensor bit idle zone
 						state = IDLE;  // beer is already warmer than setting, stay in or go to idle
 						break;
 					}
@@ -314,8 +314,8 @@ void TempControl::updateState(void){
 			updateEstimatedPeak(cc.maxCoolTimeForEstimate, cs.coolEstimator, sinceIdle);
 			state = COOLING; // set to cooling here, so the display of COOLING/COOLING_MIN_TIME is correct
 			
-			// stop cooling when estimated fridge temp peak lands on target or if beer is already too cold
-			if(cv.estimatedPeak <= cs.fridgeSetting || beerFast <= cs.beerSetting){
+			// stop cooling when estimated fridge temp peak lands on target or if beer is already too cold (1/2 sensor bit idle zone)
+			if(cv.estimatedPeak <= cs.fridgeSetting || beerFast < (cs.beerSetting - 16) ){
 				if(sinceIdle > MIN_COOL_ON_TIME){
 					cv.negPeakEstimate = cv.estimatedPeak; // remember estimated peak when I switch to IDLE, to adjust estimator later
 					state=IDLE;
@@ -336,8 +336,8 @@ void TempControl::updateState(void){
 			updateEstimatedPeak(cc.maxHeatTimeForEstimate, cs.heatEstimator, sinceIdle);
 			state = HEATING; // reset to heating here, so the display of HEATING/HEATING_MIN_TIME is correct
 			
-			// stop heating when estimated fridge temp peak lands on target or if beer is already too warm
-			if(cv.estimatedPeak >= cs.fridgeSetting || beerFast >= cs.beerSetting){
+			// stop heating when estimated fridge temp peak lands on target or if beer is already too warm (1/2 sensor bit idle zone)
+			if(cv.estimatedPeak >= cs.fridgeSetting || beerFast > (cs.beerSetting + 16)){
 				if(sinceIdle > MIN_HEAT_ON_TIME){
 					cv.posPeakEstimate=cv.estimatedPeak; // remember estimated peak when I switch to IDLE, to adjust estimator later
 					state=IDLE;
@@ -654,7 +654,7 @@ const ControlConstants TempControl::ccDefaults PROGMEM =
 	/* fridgeFastFilter */ 1u,
 	/* fridgeSlowFilter */ 4u,
 	/* fridgeSlopeFilter */ 3u,
-	/* beerFastFilter */ 2u,
+	/* beerFastFilter */ 3u,
 	/* beerSlowFilter */ 4u,
 	/* beerSlopeFilter */ 4u,
 	
