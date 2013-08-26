@@ -66,6 +66,57 @@ char PiLink::printfBuff[PRINTF_BUFFER_SIZE];
 
 	static MockSerial mockSerial;
 	#define piStream mockSerial
+#elif !defined(ARDUINO)
+        #include "stdio.h"
+        //#include "iostream"
+        class StdIO : public Stream {
+        public:
+            StdIO() : out(stdout) {                
+            }            
+
+		void print(char c) {
+                    fputc(c,out);
+                }
+		void print(const char* c) {
+                    fputs(c,out);
+                }
+		void printNewLine() {
+                    fputs("\r\n", out);
+                    flush();
+                }
+                void println() {
+                    printNewLine();
+                }
+
+		int available() { 
+                    return -1;//return in.rdbuf()->in_avail();
+                }
+		void begin(unsigned long) {
+                }
+		size_t write(uint8_t w) { 
+                    fputc(w, out);
+                    return 1;
+                }
+
+		int read() {                     
+                    return readChar(); 
+                }
+                
+                int readChar() {
+                    char c;
+                    //in.get(c);
+                    return c;
+                }
+		
+		void flush() { fflush(out); }
+		operator bool() { return true; }
+
+        private:
+            //std::istream& in;
+            FILE* out;
+        };
+        static StdIO stdIO;
+        #define piStream stdIO
 #else
 	#define piStream Serial
 #endif
@@ -792,5 +843,5 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 }
 
 #ifndef ARDUINO
-void PiLink::print(char c) { piLink.print(c); }
+void PiLink::print(char c) { piStream.print(c); }
 #endif
