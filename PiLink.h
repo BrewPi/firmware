@@ -58,7 +58,13 @@ class PiLink{
 	static void receiveJson(void); // receive settings as JSON key:value pairs
 	
 	static void print(char *fmt, ...); // use when format string is stored in RAM
-	static void print(char c) { Serial.print(c); }
+	static void print(char c)       // inline for arduino
+#ifdef ARDUINO        
+         { Serial.print(c); } 
+#else
+        ;
+#endif
+        
 	static void print_P(const char *fmt, ...); // use when format string is stored in PROGMEM with PSTR("string")
 	static void printNewLine(void);
 	static void printChamberCount();

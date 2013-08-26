@@ -20,7 +20,10 @@
 #pragma once
 
 #include "Brewpi.h"
+
+#ifdef ARDUINO
 #include <avr/pgmspace.h>
+#endif
 
 static const char JSONKEY_mode[] PROGMEM = "mode";
 static const char JSONKEY_beerSetting[] PROGMEM = "beerSet";

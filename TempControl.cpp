@@ -20,8 +20,6 @@
 #include "Brewpi.h"
 
 #include "Pins.h"
-#include <avr/eeprom.h>
-#include <avr/pgmspace.h>
 #include <limits.h>
 
 #include "TemperatureFormats.h"
@@ -118,7 +116,7 @@ void TempControl::updateTemperatures(void){
 	
 	// Read ambient sensor to keep the value up to date. If no sensor is connected, this does nothing.
 	// This prevents a delay in serial response because the value is not up to date.
-	if(ambientSensor->read() == DEVICE_DISCONNECTED){
+	if(ambientSensor->read() == TEMP_SENSOR_DISCONNECTED){
 		ambientSensor->init(); // try to reconnect a disconnected, but installed sensor
 	}
 }
@@ -138,10 +136,10 @@ fixed7_9 multiplyFixed7_9(fixed7_9 a, fixed7_9 b)
 void TempControl::updatePID(void){
 	static unsigned char integralUpdateCounter = 0;
 	if(cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_BEER_PROFILE){
-		if(cs.beerSetting == INT_MIN){
+		if(cs.beerSetting == MIN_TEMP){
 			// beer setting is not updated yet
 			// set fridge to unknown too
-			cs.fridgeSetting = INT_MIN;
+			cs.fridgeSetting = MIN_TEMP;
 			return;
 		}
 		
@@ -201,7 +199,7 @@ void TempControl::updatePID(void){
 	}
 	else{
 		// FridgeTemperature is set manually, use INT_MIN to indicate
-		cs.beerSetting = INT_MIN;
+		cs.beerSetting = MIN_TEMP;
 	}
 }
 
@@ -550,8 +548,8 @@ void TempControl::setMode(char newMode, bool force){
 		cs.mode = newMode;
 		if(newMode==MODE_BEER_PROFILE || newMode == MODE_OFF){
 			// set temperatures to undefined until temperatures have been received from RPi
-			cs.beerSetting = INT_MIN;
-			cs.fridgeSetting = INT_MIN;
+			cs.beerSetting = MIN_TEMP;
+			cs.fridgeSetting = MIN_TEMP;
 		}
 		eepromManager.storeTempSettings();
 	}
@@ -562,7 +560,7 @@ fixed7_9 TempControl::getBeerTemp(void){
 		return beerSensor->readFastFiltered();	
 	}
 	else{
-		return INT_MIN;
+		return MIN_TEMP;
 	}
 }
 
@@ -575,7 +573,7 @@ fixed7_9 TempControl::getFridgeTemp(void){
 		return fridgeSensor->readFastFiltered();		
 	}
 	else{
-		return INT_MIN;
+		return MIN_TEMP;
 	}
 }
 

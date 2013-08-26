@@ -36,12 +36,9 @@
 #include "Buzzer.h"
 #include "TempSensor.h"
 #include "TempSensorMock.h"
-#include "OneWireTempSensor.h"
 #include "TempSensorExternal.h"
 #include "Ticks.h"
 #include "Sensor.h"
-#include "FastDigitalPin.h"
-#include "OneWireActuator.h"
 #include "SettingsManager.h"
 
 #if BREWPI_SIMULATE

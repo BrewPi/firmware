@@ -19,5 +19,4 @@
  */
 
 #include "Brewpi.h"
-#include "Pins.h"
 #include "Actuator.h"

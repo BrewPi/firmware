@@ -19,15 +19,13 @@
 
 #include "Brewpi.h"
 #include "TempSensor.h"
-#include "OneWire.h"
-#include "DallasTemperature.h"
 #include "PiLink.h"
 #include "Ticks.h"
 
 void TempSensor::init()
 {		
 	fixed7_9 temperature = _sensor->init();
-	if (temperature!=DEVICE_DISCONNECTED) {
+	if (temperature!=TEMP_SENSOR_DISCONNECTED) {
 		fastFilter.init(temperature);
 		slowFilter.init(temperature);
 		slopeFilter.init(0);
@@ -40,7 +38,7 @@ void TempSensor::update()
 	if (!_sensor) return;
 	
 	fixed7_9 temperature = _sensor->read();
-	if (temperature==DEVICE_DISCONNECTED)
+	if (temperature==TEMP_SENSOR_DISCONNECTED)
 		return;
 		
 	fastFilter.add(temperature);

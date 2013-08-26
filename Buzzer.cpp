@@ -19,14 +19,15 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "Brewpi.h"
-#include "FastDigitalPin.h"
 #include "Ticks.h"
 #include "Pins.h"
 #include "Buzzer.h"
-#include <util/delay.h>
 
 #if BREWPI_BUZZER
+#include <util/delay.h>
+#include "FastDigitalPin.h"
 
 #if (alarmPin != 3)
 	#error "Check PWM settings when you want to use a different pin for the alarm"

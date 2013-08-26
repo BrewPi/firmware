@@ -20,6 +20,8 @@
 
 #pragma once
 
+#ifdef ARDUINO
+
 #include "Brewpi.h"
 #include "Actuator.h"
 #include "DS2413.h"
@@ -58,3 +60,4 @@ private:
 	bool invert;
 };
 
+#endif

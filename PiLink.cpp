@@ -26,8 +26,6 @@
 #include "TempControl.h"
 #include "Display.h"
 #include <stdarg.h>
-#include <avr/pgmspace.h>
-#include <util/delay.h>
 #include <limits.h>
 #include <string.h>
 #include "JsonKeys.h"
@@ -36,6 +34,11 @@
 #include "EepromManager.h"
 #include "EepromFormat.h"
 #include "SettingsManager.h"
+
+#ifdef ARDUINO
+#include "util/delay.h"
+#endif
+
 #if BREWPI_SIMULATE
 #include "Simulator.h"
 #endif
@@ -44,13 +47,14 @@ bool PiLink::firstPair;
 char PiLink::printfBuff[PRINTF_BUFFER_SIZE];
 // Rename Serial to piStream, to abstract it for later platform independence
 
-#if BREWPI_EMULATE
+#if BREWPI_EMULATE || !defined(ARDUINO)
 	class MockSerial : public Stream
 	{
 		public:
 		void print(char c) {}
 		void print(const char* c) {}
-		void printNewLine() {};
+		void printNewLine() {}
+                void println() {}
 		int read() { return -1; }
 		int available() { return -1; }
 		void begin(unsigned long) {}
@@ -695,7 +699,10 @@ static uint8_t* const filterSettings[] = {
 #define MAKE_FILTER_SETTING_TARGET(filterType, sensorTarget)  (void*)(uint8_t(filterType)+uint8_t(sensorTarget)*3)
 
 void applyFilterSetting(const char* val, void* target) {
-	uint8_t offset = uint8_t(uint16_t(target));		// target is really just an integer
+	// the cast was  (uint8_t(uint16_t(target), changed to unsigned int so that the
+        // first cast is the same width as a pointer, avoiding a warning    
+        uint8_t offset = uint8_t((unsigned int)(target));		// target is really just an integer
+        
 	FilterType filterType = FilterType(offset&3);
 	TempSensorTarget sensorTarget = TempSensorTarget(offset/3);
 	
@@ -784,5 +791,6 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 	logWarning(WARNING_COULD_NOT_PROCESS_SETTING);
 }
 
-
-	
+#ifndef ARDUINO
+void PiLink::print(char c) { piLink.print(c); }
+#endif

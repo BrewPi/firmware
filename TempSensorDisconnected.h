@@ -32,7 +32,7 @@ public:
 	}
 	
 	fixed7_9 read() {
-		return DEVICE_DISCONNECTED;
+		return TEMP_SENSOR_DISCONNECTED;
 	}	
 	
 };
