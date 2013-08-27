@@ -19,15 +19,14 @@
  */
 
 #include "Brewpi.h"
+#include <stdarg.h>
+
 #include "stddef.h"
 #include "PiLink.h"
 
 #include "Version.h"
 #include "TempControl.h"
 #include "Display.h"
-#include <stdarg.h>
-#include <limits.h>
-#include <string.h>
 #include "JsonKeys.h"
 #include "Ticks.h"
 #include "Brewpi.h"
@@ -43,11 +42,9 @@
 #include "Simulator.h"
 #endif
 
-bool PiLink::firstPair;
-char PiLink::printfBuff[PRINTF_BUFFER_SIZE];
 // Rename Serial to piStream, to abstract it for later platform independence
 
-#if BREWPI_EMULATE || !defined(ARDUINO)
+#if BREWPI_EMULATE
 	class MockSerial : public Stream
 	{
 		public:
@@ -67,63 +64,19 @@ char PiLink::printfBuff[PRINTF_BUFFER_SIZE];
 	static MockSerial mockSerial;
 	#define piStream mockSerial
 #elif !defined(ARDUINO)
-        #include "stdio.h"
-        //#include "iostream"
-        class StdIO : public Stream {
-        public:
-            StdIO() : out(stdout) {                
-            }            
-
-		void print(char c) {
-                    fputc(c,out);
-                }
-		void print(const char* c) {
-                    fputs(c,out);
-                }
-		void printNewLine() {
-                    fputs("\r\n", out);
-                    flush();
-                }
-                void println() {
-                    printNewLine();
-                }
-
-		int available() { 
-                    return -1;//return in.rdbuf()->in_avail();
-                }
-		void begin(unsigned long) {
-                }
-		size_t write(uint8_t w) { 
-                    fputc(w, out);
-                    return 1;
-                }
-
-		int read() {                     
-                    return readChar(); 
-                }
-                
-                int readChar() {
-                    char c;
-                    //in.get(c);
-                    return c;
-                }
-		
-		void flush() { fflush(out); }
-		operator bool() { return true; }
-
-        private:
-            //std::istream& in;
-            FILE* out;
-        };
-        static StdIO stdIO;
+        StdIO stdIO;
         #define piStream stdIO
 #else
 	#define piStream Serial
 #endif
 
+bool PiLink::firstPair;
+char PiLink::printfBuff[PRINTF_BUFFER_SIZE];
+                
 void PiLink::init(void){
 	piStream.begin(57600);	
 }
+
 
 // create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
 void PiLink::print_P(const char *fmt, ... ){
@@ -151,6 +104,7 @@ void PiLink::printNewLine(){
 	piStream.println();
 }
 
+
 void printNibble(uint8_t n)
 {
 	n &= 0xF;
@@ -158,8 +112,8 @@ void printNibble(uint8_t n)
 }
 
 void PiLink::receive(void){
-	if (piStream.available() > 0){		
-		char inByte = piStream.read();
+	if (piStream.available() > 0) {		
+		char inByte = piStream.read();              
 		if (inByte=='\n' || inByte=='\r')		// allow newlines between commands
 			return;			
 						
@@ -277,15 +231,17 @@ void PiLink::receive(void){
 			break;
 #endif
 
+#ifdef ARDUINO
 		case 'R': // reset 
 			asm volatile ("  jmp 0"); 
 			break;
-			
+#endif			
 		default:
 			logWarningInt(WARNING_INVALID_COMMAND, inByte);
 		}
 	}
 }
+
 
 
 #define COMPACT_SERIAL BREWPI_SIMULATE
