@@ -152,18 +152,24 @@ void TempControl::updatePID(void){
 			integralUpdateCounter = 0;
 			
 			fixed7_9 integratorUpdate = cv.beerDiff;
-			if(abs(integratorUpdate) < cc.iMaxError){
-				//difference is smaller than iMaxError, check 4 conditions to see if integrator should be active to prevent windup
+			
+			// Only update integrator in IDLE, because thats when the fridge temp has reached the fridge setting.
+			// If the beer temp is still not correct, the fridge setting is too low/high and integrator action is needed.
+			if(state != IDLE){
+				integratorUpdate = 0;
+			}
+			else if(abs(integratorUpdate) < cc.iMaxError){
+				// difference is smaller than iMaxError				
+				// check additional conditions to see if integrator should be active to prevent windup
 				bool updateSign = (integratorUpdate > 0); // 1 = positive, 0 = negative
 				bool integratorSign = (cv.diffIntegral > 0);		
 				
 				if(updateSign == integratorSign){
 					// beerDiff and integrator have same sign. Integrator would be increased.
 					
-					// set update to zero when timeSinceIdle > 30 min. Actuator is probably saturated
-					integratorUpdate = (timeSinceIdle() > 1800u) ? 0 : integratorUpdate;
-					
 					// If actuator is already at max increasing actuator will only cause integrator windup.
+					integratorUpdate = (cs.fridgeSetting >= cc.tempSettingMax) ? 0 : integratorUpdate;
+					integratorUpdate = (cs.fridgeSetting <= cc.tempSettingMin) ? 0 : integratorUpdate;
 					integratorUpdate = ((cs.fridgeSetting - cs.beerSetting) >= cc.pidMax) ? 0 : integratorUpdate;
 					integratorUpdate = ((cs.beerSetting - cs.fridgeSetting) >= cc.pidMax) ? 0 : integratorUpdate;
 										
@@ -175,11 +181,11 @@ void TempControl::updatePID(void){
 				}
 				else{
 					// integrator action is decreased. Decrease faster than increase.
-					integratorUpdate = integratorUpdate*4;
+					integratorUpdate = integratorUpdate*2;
 				}	
 			}
 			else{
-				// decrease integral by 1/8 when not close to end value to prevent integrator windup
+				// decrease integral by 1/8 when far from the end value to reset the integrator
 				integratorUpdate = -(cv.diffIntegral >> 3);		
 			}
 			cv.diffIntegral = cv.diffIntegral + integratorUpdate;
@@ -193,9 +199,11 @@ void TempControl::updatePID(void){
 		newFridgeSetting += cv.p;
 		newFridgeSetting += cv.i;
 		newFridgeSetting += cv.d;		
-		
+
 		// constrain so fridge setting is max pidMax from beer setting
-		cs.fridgeSetting = constrain(constrainTemp16(newFridgeSetting), cs.beerSetting - cc.pidMax, cs.beerSetting + cc.pidMax);
+		newFridgeSetting = constrain(constrainTemp16(newFridgeSetting), cs.beerSetting - cc.pidMax, cs.beerSetting + cc.pidMax);
+		// constrain within absolute limits
+		cs.fridgeSetting = constrain(constrainTemp16(newFridgeSetting), cc.tempSettingMin, cc.tempSettingMax);
 	}
 	else{
 		// FridgeTemperature is set manually, use INT_MIN to indicate
@@ -249,7 +257,7 @@ void TempControl::updateState(void){
 					tempControl.updateWaitTime(MIN_COOL_OFF_TIME_FRIDGE_CONSTANT, sinceCooling);
 				}
 				else{
-					if(beerFast<cs.beerSetting){ // only start cooling when beer is too warm
+					if(beerFast < (cs.beerSetting + 16) ){ // If beer is already under target, stay/go to idle. 1/2 sensor bit idle zone
 						state = IDLE; // beer is already colder than setting, stay in or go to idle
 						break;
 					}
@@ -268,12 +276,12 @@ void TempControl::updateState(void){
 				tempControl.updateWaitTime(MIN_SWITCH_TIME, sinceCooling);
 				tempControl.updateWaitTime(MIN_HEAT_OFF_TIME, sinceHeating);
 				if(cs.mode!=MODE_FRIDGE_CONSTANT){
-					if(beerFast > cs.beerSetting){ // only start heating when beer is too cold
+					if(beerFast > (cs.beerSetting - 16)){ // If beer is already over target, stay/go to idle. 1/2 sensor bit idle zone
 						state = IDLE;  // beer is already warmer than setting, stay in or go to idle
 						break;
 					}
 				}
-				if(tempControl.heater != &defaultActuator){
+				if(tempControl.heater != &defaultActuator || (cc.lightAsHeater && (tempControl.light != &defaultActuator))){
 					if(getWaitTime() > 0){
 						state = WAITING_TO_HEAT;
 					}
@@ -304,8 +312,8 @@ void TempControl::updateState(void){
 			updateEstimatedPeak(cc.maxCoolTimeForEstimate, cs.coolEstimator, sinceIdle);
 			state = COOLING; // set to cooling here, so the display of COOLING/COOLING_MIN_TIME is correct
 			
-			// stop cooling when estimated fridge temp peak lands on target or if beer is already too cold
-			if(cv.estimatedPeak <= cs.fridgeSetting || beerFast <= cs.beerSetting){
+			// stop cooling when estimated fridge temp peak lands on target or if beer is already too cold (1/2 sensor bit idle zone)
+			if(cv.estimatedPeak <= cs.fridgeSetting || (cs.mode != MODE_FRIDGE_CONSTANT && beerFast < (cs.beerSetting - 16))){
 				if(sinceIdle > MIN_COOL_ON_TIME){
 					cv.negPeakEstimate = cv.estimatedPeak; // remember estimated peak when I switch to IDLE, to adjust estimator later
 					state=IDLE;
@@ -326,8 +334,8 @@ void TempControl::updateState(void){
 			updateEstimatedPeak(cc.maxHeatTimeForEstimate, cs.heatEstimator, sinceIdle);
 			state = HEATING; // reset to heating here, so the display of HEATING/HEATING_MIN_TIME is correct
 			
-			// stop heating when estimated fridge temp peak lands on target or if beer is already too warm
-			if(cv.estimatedPeak >= cs.fridgeSetting || beerFast >= cs.beerSetting){
+			// stop heating when estimated fridge temp peak lands on target or if beer is already too warm (1/2 sensor bit idle zone)
+			if(cv.estimatedPeak >= cs.fridgeSetting || (cs.mode != MODE_FRIDGE_CONSTANT && beerFast > (cs.beerSetting + 16))){
 				if(sinceIdle > MIN_HEAT_ON_TIME){
 					cv.posPeakEstimate=cv.estimatedPeak; // remember estimated peak when I switch to IDLE, to adjust estimator later
 					state=IDLE;
@@ -540,7 +548,7 @@ void TempControl::constantsChanged()
 void TempControl::setMode(char newMode, bool force){
 	logDebug("TempControl::setMode from %c to %c", cs.mode, newMode);
 	
-	if(newMode != cs.mode){
+	if(newMode != cs.mode || state == WAITING_TO_HEAT || state == WAITING_TO_COOL || state == WAITING_FOR_PEAK_DETECT){
 		state = IDLE;
 		force = true;
 	}
@@ -620,12 +628,12 @@ const ControlConstants TempControl::ccDefaults PROGMEM =
 	/* pidMax */ 10*512,	// +/- 10 deg Celsius
 	
 	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
-	/* Kp	*/ 10240,	// +20
-	/* Ki	*/ 307,		// +0.6
-	/* Kd	*/ -1536,	// -3
+	/* Kp	*/ 5120,	// +10
+	/* Ki	*/ 205,		// +0.4
+	/* Kd	*/ -1024,	// -2
 	/* iMaxError */ 256,  // 0.5 deg
 
-	// Stay Idle when temperature is in this range
+	// Stay Idle when fridge temperature is in this range
 	/* idleRangeHigh */ 512,	// +1 deg Celsius
 	/* idleRangeLow */ -512,	// -1 deg Celsius
 
