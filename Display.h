@@ -25,15 +25,10 @@
  * to the compile-time config.
  */
 
-
 #include "DisplayBase.h"
 #include "DisplayLcd.h"
 
-#if BREWPI_EMULATE || !BREWPI_LCD
-typedef NullDisplay DisplayType;
-#else
 typedef LcdDisplay DisplayType;
-#endif
 
 
 extern DisplayType DISPLAY_REF display;

@@ -20,7 +20,7 @@
 
 #include <avr/eeprom.h>
 
-class EepromAccess
+class ArduinoEepromAccess
 {
 public:
 	static uint8_t readByte(eptr_t offset) {
