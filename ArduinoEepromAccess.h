@@ -18,21 +18,22 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <avr/eeprom.h>
 
-#include "EepromTypes.h"
-
-#ifdef ARDUINO
-
-#include "ArduinoEepromAccess.h"
-typedef ArduinoEepromAccess EepromAccess;
-
-#else
-
-#include "ArrayEepromAccess.h"
-
-typedef ArrayEepromAccess EepromAccess;
-
-#endif
-
-extern EepromAccess eepromAccess;
+class EepromAccess
+{
+public:
+	static uint8_t readByte(eptr_t offset) {
+		return eeprom_read_byte((uint8_t*)offset);
+	}
+	static void writeByte(eptr_t offset, uint8_t value) {
+		eeprom_write_byte((uint8_t*)offset, value);
+	}
+	
+	static void readBlock(void* target, eptr_t offset, uint16_t size) {
+		eeprom_read_block(target, (uint8_t*)offset, size);
+	}
+	static void writeBlock(eptr_t target, const void* source, uint16_t size) {
+		eeprom_update_block(source, (void*)target, size);
+	}	
+};

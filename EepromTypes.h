@@ -18,21 +18,8 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #pragma once
 
-#include "EepromTypes.h"
-
-#ifdef ARDUINO
-
-#include "ArduinoEepromAccess.h"
-typedef ArduinoEepromAccess EepromAccess;
-
-#else
-
-#include "ArrayEepromAccess.h"
-
-typedef ArrayEepromAccess EepromAccess;
-
-#endif
-
-extern EepromAccess eepromAccess;
+typedef uint16_t eptr_t;
+#define INVALID_EPTR (0)

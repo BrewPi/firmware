@@ -22,17 +22,11 @@
 
 #include "Brewpi.h"
 
-typedef uint16_t eptr_t;
-#define INVALID_EPTR (0)
-
 #include "EepromAccess.h"
 
 
 void fill(int8_t* p, uint8_t size);
 void clear(uint8_t* p, uint8_t size);
-
-
-extern EepromAccess eepromAccess;
 
 class DeviceConfig;
 

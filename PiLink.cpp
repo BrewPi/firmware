@@ -77,6 +77,7 @@ void PiLink::init(void){
 	piStream.begin(57600);	
 }
 
+extern void handleReset();
 
 // create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
 void PiLink::print_P(const char *fmt, ... ){
@@ -231,11 +232,9 @@ void PiLink::receive(void){
 			break;
 #endif
 
-#ifdef ARDUINO
 		case 'R': // reset 
-			asm volatile ("  jmp 0"); 
-			break;
-#endif			
+                        handleReset();
+                        break;
 		default:
 			logWarningInt(WARNING_INVALID_COMMAND, inByte);
 		}
