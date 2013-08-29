@@ -98,14 +98,19 @@ void setup()
 void brewpiLoop(void)
 {
 	static unsigned long lastUpdate = 0;
-		
+	uint8_t oldState;
+			
 	if(ticks.millis() - lastUpdate >= (1000)) { //update settings every second
 		lastUpdate = ticks.millis();
 			
 		tempControl.updateTemperatures();
 		tempControl.detectPeaks();
 		tempControl.updatePID();
+		oldState = tempControl.getState();
 		tempControl.updateState();
+		if(oldState != tempControl.getState()){
+			piLink.printTemperatures(); // add a data point at every state transition
+		}
 		tempControl.updateOutputs();
 
 #if BREWPI_MENU
