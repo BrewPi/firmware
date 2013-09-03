@@ -33,6 +33,7 @@
 #include "EepromManager.h"
 #include "EepromFormat.h"
 #include "SettingsManager.h"
+#include "Buzzer.h"
 
 #ifdef ARDUINO
 #include "util/delay.h"
@@ -128,6 +129,10 @@ void PiLink::receive(void){
 			printSimulatorSettings();
 			break;		
 #endif						
+		case 'A': // alarm
+			soundAlarm();
+			break;
+			
 		case 't': // temperatures requested
 			printTemperatures();      
 			break;		
@@ -797,6 +802,16 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 	logWarning(WARNING_COULD_NOT_PROCESS_SETTING);
 }
 
+void PiLink::soundAlarm()
+{
+#if BREWPI_BUZZER
+    buzzer.beep(10, 500);
+#endif    
+}
+
+
 #ifndef ARDUINO
 void PiLink::print(char c) { piStream.print(c); }
 #endif
+
+
