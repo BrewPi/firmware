@@ -118,7 +118,7 @@ fixed23_9 stringToFixedPoint(const char * numberString){
 	if(fractPtr != 0){
 		// decimal point was found
 		fractPtr++; // add 1 to pointer to skip point
-		uint8_t numDecimals = strlen(fractPtr);
+		int8_t numDecimals = (int8_t) strlen(fractPtr);
 		fracPart = atol(fractPtr);		
 		fracPart = fracPart << 9; // 9 bits for fraction part
 		while(numDecimals > 0){

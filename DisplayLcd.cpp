@@ -113,7 +113,8 @@ void LcdDisplay::printTemperature(fixed7_9 temp){
 	}
 	char tempString[9];
 	tempToString(tempString, temp, 1 , 9);
-	for(uint8_t i = 0; i<(5-strlen(tempString));i++){
+	int8_t spacesToWrite = 5 - (int8_t) strlen(tempString); 
+	for(int8_t i = 0; i < spacesToWrite ;i++){
 		lcd.write(' ');
 	}
 	lcd.print(tempString);
