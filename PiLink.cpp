@@ -660,8 +660,9 @@ void PiLink::setBeerSetting(const char* val) {
 	else {
 		source = STR_WEB_INTERFACE;
 	}
-	if (source)
+	if (source) {
 		printBeerAnnotation(STR_FMT_SET_TO, STR_BEER_TEMP, val, source);
+	}
 	tempControl.cs.beerSetting = newTemp;		
 }
 

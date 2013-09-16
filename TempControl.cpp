@@ -503,14 +503,14 @@ void TempControl::loadDefaultSettings(){
 #else	
 	setMode(MODE_OFF);
 #endif	
-	cs.beerSetting = 20<<9;;
-	cs.fridgeSetting = 20<<9;
+	cs.beerSetting = 20 * 512 + C_OFFSET;
+	cs.fridgeSetting = 20 * 512 + C_OFFSET;
 	cs.heatEstimator = 102; // 0.2*2^9
-	cs.coolEstimator=5<<9;
+	cs.coolEstimator = 5 * 512;
 }
 
 void TempControl::storeConstants(eptr_t offset){	
-	eepromAccess.writeBlock(offset, (void *) &cc, sizeof(ControlConstants));	
+	eepromAccess.writeBlock(offset, (void *) &cc, sizeof(ControlConstants));
 }
 
 void TempControl::loadConstants(eptr_t offset){
@@ -625,8 +625,8 @@ const ControlConstants TempControl::ccDefaults PROGMEM =
 {
 	// Do Not change the order of these initializations!
 	/* tempFormat */ 'C',
-	/* tempSettingMin */ 1*512,	// +1 deg Celsius
-	/* tempSettingMax */ 30*512,	// +30 deg Celsius
+	/* tempSettingMin */ 1*512 + C_OFFSET,	// +1 deg Celsius
+	/* tempSettingMax */ 30*512 + C_OFFSET,	// +30 deg Celsius
 	/* pidMax */ 10*512,	// +/- 10 deg Celsius
 	
 	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512

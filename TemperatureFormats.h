@@ -21,13 +21,21 @@
 
 #include "Brewpi.h"
 #include <inttypes.h>
-// all temperature are stored as fixed point integers:
-// 7 bits for the integer part: -64 to 63
-// 9 bits for the fraction part
-// To convert an integer to the fixed point format, multiply by 512.
+// all temperature are stored as fixed point integers
+
+// The internal fixed point format has 9 bits (512 steps) per degree. The range is -16 to 112C, an offset of -48C
+// The communication over serial is in C or F and it is always converted to the internal fixed point format in C.
+// From C to fixed point temp: T = (C-48)*512 = (C-48)<<9 = C<<9 - 48<<9 = C<<9 - 24576
+// From F to fixed point temp: ((F-32)*5/9-48) * 512 = (F*5/9)<<9 - 33678
+// From fixed point temp to C: C = T/512 + 48 = (T+24576)/512 = (T+24576)>>9
+// From fixed point temp to F: F = (T/512 + 48)*9/5 + 32 = (T+24576)*9/5/512 + 32 = (T+33678)*9/5/512
+
+// Offsets when converting to the internal format:
+#define C_OFFSET -24576l
+#define F_OFFSET -33678l
 
 // The interface to the Raspberry Pi uses decimal notation, like 21.3.
-// This can be in Celsius or Fahrenheit, this is defined in the project settings. TODO!
+// Depending on the EEPROM setting cc.tempFormat, this will be interpreted as Celsius or Fahrenheit
 
 // just for clarity, typedefs are used instead of normal integers.
 // Addition and shifting can be done normally. When two fixed points values are multiplied, you have shift the result
@@ -52,11 +60,8 @@ fixed23_9 stringToFixedPoint(const char * numberString);
 int fixedToTenths(fixed23_9 temperature);
 fixed7_9 tenthsToFixed(int temperature);
 
+
 fixed7_9 constrainTemp(fixed23_9 val, fixed7_9 lower, fixed7_9 upper);
-
-
-
 fixed7_9 constrainTemp16(fixed23_9 val);
-	
 
 #define OPTIMIZE_TEMPERATURE_FORMATS 1 && OPTIMIZE_GLOBAL
