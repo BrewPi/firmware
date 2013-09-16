@@ -207,8 +207,8 @@ void TempControl::updatePID(void){
 		// constrain within absolute limits
 		cs.fridgeSetting = constrain(constrainTemp16(newFridgeSetting), cc.tempSettingMin, cc.tempSettingMax);
 	}
-	else{
-		// FridgeTemperature is set manually, use INT_MIN to indicate
+	else if(cs.mode == MODE_FRIDGE_CONSTANT){
+		// FridgeTemperature is set manually, use INT_MIN to indicate beer temp is not active
 		cs.beerSetting = INT_MIN;
 	}
 }
