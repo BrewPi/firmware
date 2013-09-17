@@ -674,7 +674,7 @@ inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw, char* 
 	OneWire* bus = oneWireBus(hw.pinNr);
 	OneWireTempSensor sensor(bus, hw.address, 0);		// NB: this value is uncalibrated, since we don't have the calibration offset until the device is configured
 	fixed7_9 value = sensor.init();	
-	fixedPointToString(out, value, 3, 9);
+	tempToString(out, value, 3, 9);
 #else
 	strcpy_P(out, PSTR("0.00"));
 #endif	
@@ -849,7 +849,7 @@ void UpdateDeviceState(DeviceDisplay& dd, DeviceConfig& dc, char* val)
 		else if (dt==DEVICETYPE_TEMP_SENSOR) {
 			BasicTempSensor& s = unwrapSensor(dc.deviceFunction, *ppv);
 			fixed7_9 temp = s.read();
-			fixedPointToString(val, temp, 3, 9);
+			tempToString(val, temp, 3, 9);
 		}
 		else if (dt==DEVICETYPE_SWITCH_ACTUATOR) {
 			sprintf_P(val, STR_FMT_U, (unsigned int) ((Actuator*)*ppv)->isActive()!=0);			

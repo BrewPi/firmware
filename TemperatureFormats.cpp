@@ -167,7 +167,7 @@ char * tempToString(char * s, fixed23_9 rawValue, uint8_t numDecimals, uint8_t m
 	return fixedPointToString(s, rawValue, numDecimals, maxLength);
 }
 
-char * tempDiffToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength){
+char * tempDiffToString(char * s, fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength){
 	convertFromInternalTemp(rawValue, false);
 	return fixedPointToString(s, rawValue, numDecimals, maxLength);
 }
