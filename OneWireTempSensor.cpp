@@ -98,7 +98,8 @@ fixed7_9 OneWireTempSensor::init(){
 			}
 		}
 	}
-	temperature = constrainTemp(temperature+calibrationOffset, ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5; // sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits		
+	// sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits and add the offset for storage
+	temperature = constrainTemp(temperature+calibrationOffset+(C_OFFSET>>5), ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5;
 	DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temperature);)
 	
 	setConnected(true);
@@ -138,8 +139,9 @@ fixed7_9 OneWireTempSensor::read(){
 	if(temperature == DEVICE_DISCONNECTED){
 		setConnected(false);
 		return DEVICE_DISCONNECTED;
-	}
-	temperature = constrainTemp(temperature+calibrationOffset, ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5; // sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits
+	}	
+	// sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits and add the offset for storage
+	temperature = constrainTemp(temperature+calibrationOffset+(C_OFFSET>>5), ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5;
 
 	// already send request for next read
 	sensor->requestTemperatures();
