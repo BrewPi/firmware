@@ -44,3 +44,8 @@
 #include "ConfigDefault.h"
 
 #include <Arduino.h>
+
+#include "Actuator.h"
+
+extern ValueActuator alarm;
+

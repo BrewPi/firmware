@@ -69,9 +69,8 @@ class PiLink{
 	static void printNewLine(void);
 	static void printChamberCount();
 	
-	static void soundAlarm();
-	
 	private:
+	static void soundAlarm(bool enabled);
 	static void printResponse(char responseChar);
 	static void printChamberInfo();
 	

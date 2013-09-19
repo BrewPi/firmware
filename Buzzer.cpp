@@ -68,7 +68,19 @@ void Buzzer::init(void){
 	OCR2A = 125; // timer top. This value adjusts the frequency.
 	OCR2B = 62;
 #endif
+}
 
+void Buzzer::setActive(bool active)
+{
+	if (active!=this->isActive()) {
+		ValueActuator::setActive(active);
+		if (active) {
+			BEEP_ON();
+		}
+		else {
+			BEEP_OFF();
+		}
+	}
 }
 
 void Buzzer::beep(uint8_t numBeeps, uint16_t duration){
