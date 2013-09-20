@@ -21,6 +21,7 @@
 
 #include "Brewpi.h"
 #include <inttypes.h>
+#include <limits.h>
 // all temperature are stored as fixed point integers:
 // 7 bits for the integer part: -64 to 63
 // 9 bits for the fraction part
@@ -38,27 +39,41 @@ typedef int16_t fixed12_4;	// 1 sign bit, 11 integer bits, and 4 fraction bits -
 typedef int8_t fixed4_4;	// fixed4_4 uses 1-sign bit, 3 int bits and 4 fraction bits. Corresponds with precision of DS18B20 sensors
 
 #define INVALID_TEMP -32768		
+#define MAX_TEMP INT_MAX
+#define MIN_TEMP INT_MIN+1
 
-inline int8_t asIntFixed7_9(fixed7_9 val) { return val>>9; }
+/* Temperature expressed as an integer. */
+typedef int8_t temp_int;
+typedef fixed7_9 temperature;
+typedef fixed23_9 long_temperature;
 
-char * tempToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength);
-fixed7_9 stringToTemp(const char * string);
+inline int8_t tempToInt(temperature val) { return int8_t(val>>9); }
+inline temperature intToTemp(int8_t val) { return temperature(val)<<9; }
+inline temperature doubleToTemp(double temp) { return temp*512>=MAX_TEMP ? MAX_TEMP : temp*512<=MIN_TEMP ? MIN_TEMP : temp*512L; }
 
-char * tempDiffToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength);
-fixed7_9 stringToTempDiff(const char * string);
+inline long_temperature intToLongTemp(int16_t val) { return long_temperature(val)<<9; }
 
-char * fixedPointToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength);
-char * fixedPointToString(char s[9], fixed7_9 rawValue, uint8_t numDecimals, uint8_t maxLength);
+
+char * tempToString(char s[9], long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
+temperature stringToTemp(const char * string);
+
+char * tempDiffToString(char s[9], long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
+temperature stringToTempDiff(const char * string);
+
+char * fixedPointToString(char s[9], long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
+char * fixedPointToString(char s[9], temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
 fixed23_9 stringToFixedPoint(const char * numberString);
 
-int fixedToTenths(fixed23_9 temperature);
-fixed7_9 tenthsToFixed(int temperature);
+int fixedToTenths(long_temperature temperature);
+temperature tenthsToFixed(int temperature);
 
-fixed7_9 constrainTemp(fixed23_9 val, fixed7_9 lower, fixed7_9 upper);
+temperature constrainTemp(long_temperature val, temperature lower, temperature upper);
 
+temperature constrainTemp16(fixed23_9 val);
 
+temperature multiplyFixeda7_9b23_9(temperature a, fixed23_9 b);
+temperature multiplyFixed7_9(temperature a, temperature b);
 
-fixed7_9 constrainTemp16(fixed23_9 val);
 	
 
 #define OPTIMIZE_TEMPERATURE_FORMATS 1 && OPTIMIZE_GLOBAL

@@ -38,7 +38,7 @@ char * tempToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t 
 	return fixedPointToString(s, rawValue, numDecimals, maxLength);
 }
 
-char * fixedPointToString(char s[9], fixed7_9 rawValue, uint8_t numDecimals, uint8_t maxLength){ 
+char * fixedPointToString(char s[9], temperature rawValue, uint8_t numDecimals, uint8_t maxLength){ 
 	return fixedPointToString(s, (fixed23_9)rawValue, numDecimals, maxLength);
 }	
 
@@ -86,7 +86,7 @@ char * fixedPointToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, ui
 	return s;
 }
 
-fixed7_9 convertAndConstrain(fixed23_9 rawTemp, int16_t offset)
+temperature convertAndConstrain(fixed23_9 rawTemp, int16_t offset)
 {
 	if(tempControl.cc.tempFormat == 'F'){
 		rawTemp = ((rawTemp - offset) * 5) / 9; // convert to store as Celsius
@@ -94,9 +94,9 @@ fixed7_9 convertAndConstrain(fixed23_9 rawTemp, int16_t offset)
 	return constrainTemp16(rawTemp);	
 }
 
-fixed7_9 stringToTemp(const char * numberString){
+temperature stringToTemp(const char * numberString){
 	fixed23_9 rawTemp = stringToFixedPoint(numberString);
-	return convertAndConstrain(rawTemp, 32<<9);
+	return convertAndConstrain(rawTemp, intToTemp(32));
 }
 
 fixed23_9 stringToFixedPoint(const char * numberString){
@@ -126,7 +126,7 @@ fixed23_9 stringToFixedPoint(const char * numberString){
 			numDecimals--;
 		}
 	}
-	fixed23_9 absVal = ((intPart<<9) +fracPart);
+	fixed23_9 absVal = intToLongTemp(intPart) +fracPart;
 	return negative ? -absVal:absVal;
 }
 
@@ -137,20 +137,20 @@ char * tempDiffToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint
 	return fixedPointToString(s, rawValue, numDecimals, maxLength);	
 }
 
-fixed7_9 stringToTempDiff(const char * numberString){
+temperature stringToTempDiff(const char * numberString){
 	fixed23_9 rawTempDiff = stringToFixedPoint(numberString);
 	return convertAndConstrain(rawTempDiff, 0);	
 }
 
 int fixedToTenths(fixed23_9 temperature){
 	if(tempControl.cc.tempFormat == 'F'){
-		temperature = temperature*9/5 + 32*512; // Convert to Fahrenheit fixed point first
+		temperature = temperature*9/5 + intToTemp(32); // Convert to Fahrenheit fixed point first
 	}
 	
-	return (int) ((10 * temperature + 256) / 512); // return rounded result in tenth of degrees
+	return (int) ((10 * temperature + intToTemp(5)/10) / intToTemp(1)); // return rounded result in tenth of degrees
 }
 
-fixed7_9 tenthsToFixed(int temperature){
+temperature tenthsToFixed(int temperature){
 	if(tempControl.cc.tempFormat == 'F'){
 		return (( ( (fixed23_9) temperature - 320) * 512 * 5) / 9 + 5) / 10; // convert to Celsius and return rounded result in fixed point
 	}
@@ -159,8 +159,8 @@ fixed7_9 tenthsToFixed(int temperature){
 	}
 }
 
-fixed7_9 constrainTemp(fixed23_9 valLong, fixed7_9 lower, fixed7_9 upper){
-	fixed7_9 val = constrainTemp16(valLong);
+temperature constrainTemp(fixed23_9 valLong, temperature lower, temperature upper){
+	temperature val = constrainTemp16(valLong);
 	
 	if(val < lower){
 		return lower;
@@ -169,11 +169,11 @@ fixed7_9 constrainTemp(fixed23_9 valLong, fixed7_9 lower, fixed7_9 upper){
 	if(val > upper){
 		return upper;
 	}
-	return (fixed7_9)valLong;
+	return (temperature)valLong;
 }
 
 
-fixed7_9 constrainTemp16(fixed23_9 val)
+temperature constrainTemp16(fixed23_9 val)
 {
 	/* saves just 6 bytes - a bit cryptic for general use!
 	int16_t upper = val>>16;
@@ -189,3 +189,14 @@ fixed7_9 constrainTemp16(fixed23_9 val)
 	}
 	return val;	
 }
+
+temperature multiplyFixeda7_9b23_9(temperature a, fixed23_9 b)
+{
+	return constrainTemp16(((fixed23_9) a * b)>>9);
+}
+
+temperature multiplyFixed7_9(temperature a, temperature b)
+{
+	return constrainTemp16(((fixed23_9) a * (fixed23_9) b)>>9);
+}
+

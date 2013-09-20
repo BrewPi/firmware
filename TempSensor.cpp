@@ -24,7 +24,7 @@
 
 void TempSensor::init()
 {		
-	fixed7_9 temperature = _sensor->init();
+	temperature temperature = _sensor->init();
 	if (temperature!=TEMP_SENSOR_DISCONNECTED) {
 		fastFilter.init(temperature);
 		slowFilter.init(temperature);
@@ -37,12 +37,12 @@ void TempSensor::update()
 {	
 	if (!_sensor) return;
 	
-	fixed7_9 temperature = _sensor->read();
-	if (temperature==TEMP_SENSOR_DISCONNECTED)
+	temperature temp = _sensor->read();
+	if (temp==TEMP_SENSOR_DISCONNECTED)
 		return;
 		
-	fastFilter.add(temperature);
-	slowFilter.add(temperature);
+	fastFilter.add(temp);
+	slowFilter.add(temp);
 		
 	// update slope filter every 3 samples.
 	// averaged differences will give the slope. Use the slow filter as input
@@ -55,7 +55,7 @@ void TempSensor::update()
 	if(updateCounter == 0){
 		fixed7_25 slowFilterOutput = slowFilter.readOutputDoublePrecision();
 		fixed7_25 diff =  slowFilterOutput - prevOutputForSlope;
-		fixed7_9 diff_upper = diff >> 16;
+		temperature diff_upper = diff >> 16;
 		if(diff_upper > 27){ // limit to prevent overflow INT_MAX/1200 = 27.14
 			diff = (27l << 16);
 		}
@@ -68,21 +68,21 @@ void TempSensor::update()
 	}
 }
 
-fixed7_9 TempSensor::readFastFiltered(void){
+temperature TempSensor::readFastFiltered(void){
 	return fastFilter.readOutput(); //return most recent unfiltered value
 }
 
-fixed7_9 TempSensor::readSlope(void){
+temperature TempSensor::readSlope(void){
 	// return slope per hour. 
 	fixed7_25 doublePrecision = slopeFilter.readOutputDoublePrecision();
 	return doublePrecision>>16; // shift to single precision
 }
 
-fixed7_9 TempSensor::detectPosPeak(void){
+temperature TempSensor::detectPosPeak(void){
 	return slowFilter.detectPosPeak();
 }
 	
-fixed7_9 TempSensor::detectNegPeak(void){
+temperature TempSensor::detectNegPeak(void){
 	return slowFilter.detectNegPeak();
 }
 	

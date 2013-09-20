@@ -260,15 +260,15 @@ void Menu::pickMode(void){
 
 typedef void (* PrintAnnotation)(const char * annotation, ...);
 typedef void (* DisplayUpdate)(void);
-typedef fixed7_9 (* ReadTemp)();
-typedef void (* WriteTemp)(fixed7_9);
+typedef temperature (* ReadTemp)();
+typedef void (* WriteTemp)(temperature);
 
 void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempName, DisplayUpdate update, PrintAnnotation printAnnoation, int row) {
 	
-	fixed7_9 oldSetting = readTemp();
-	fixed7_9 startVal = oldSetting;
+	temperature oldSetting = readTemp();
+	temperature startVal = oldSetting;
 	if(oldSetting == INT_MIN)	 // previous temperature was not defined, start at 20C
-		startVal = 20*512;
+		startVal = intToTemp(20);
 	
 	rotaryEncoder.setRange(fixedToTenths(startVal), fixedToTenths(tempControl.cc.tempSettingMin), fixedToTenths(tempControl.cc.tempSettingMax));
 

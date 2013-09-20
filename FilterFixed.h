@@ -79,21 +79,21 @@ class FixedFilter{
 	public:
 		FixedFilter() { setCoefficients(20); /* default to a b value of 2 */ }
 		~FixedFilter() { }
-		void init(fixed7_9 val);
+		void init(temperature val);
 
 		void setCoefficients(uint8_t bValue) {
 			a = bValue*2+4;
 			b = bValue;
 		}
 		
-		fixed7_9 add(fixed7_9 val); // adds a value and returns the most recent filter output
+		temperature add(temperature val); // adds a value and returns the most recent filter output
 		fixed7_25 addDoublePrecision(fixed7_25 val);
 
-		fixed7_9 readOutput(void){
+		temperature readOutput(void){
 			return yv[0]>>16; // return 16 most significant bits of most recent output
 		}
 
-		fixed7_9 readInput(void){
+		temperature readInput(void){
 			return xv[0]>>16; // return 16 most significant bits of most recent input
 		}
 
@@ -105,8 +105,8 @@ class FixedFilter{
 			return yv[1];
 		}
 		
-		fixed7_9 detectPosPeak(void); //returns positive peak or INT_MIN when no peak has been found
-		fixed7_9 detectNegPeak(void); //returns negative peak or INT_MIN when no peak has been found
+		temperature detectPosPeak(void); //returns positive peak or INT_MIN when no peak has been found
+		temperature detectNegPeak(void); //returns negative peak or INT_MIN when no peak has been found
 		
 };
 

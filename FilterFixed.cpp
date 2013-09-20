@@ -19,7 +19,7 @@
 #include <limits.h>
 #include "TemperatureFormats.h"
 
-fixed7_9 FixedFilter::add(fixed7_9 val){
+temperature FixedFilter::add(temperature val){
 	fixed7_25 returnVal = addDoublePrecision( ((fixed7_25) val) << 16);
 	return returnVal>>16;
 }
@@ -42,7 +42,7 @@ fixed7_25 FixedFilter::addDoublePrecision(fixed7_25 val){
 }
 
 
-void FixedFilter::init(fixed7_9 val){
+void FixedFilter::init(temperature val){
 		xv[0] = val;
 		xv[0] = xv[0]<<16; // 16 extra bits are used in the filter for the fraction part
 
@@ -54,7 +54,7 @@ void FixedFilter::init(fixed7_9 val){
 		yv[2] = xv[0];
 }
 
-fixed7_9 FixedFilter::detectPosPeak(void){
+temperature FixedFilter::detectPosPeak(void){
 	if(yv[0] < yv[1] && yv[1] >= yv[2]){
 		return yv[1]>>16;
 	}
@@ -63,7 +63,7 @@ fixed7_9 FixedFilter::detectPosPeak(void){
 	}
 }
 
-fixed7_9 FixedFilter::detectNegPeak(void){
+temperature FixedFilter::detectNegPeak(void){
 	if(yv[0] > yv[1] && yv[1] <= yv[2]){
 		return yv[1]>>16;
 	}

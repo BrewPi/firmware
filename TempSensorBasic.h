@@ -33,11 +33,11 @@ public:
 	 * Attempt to (re-)initialize the sensor and fetch a sensor reading
 	 * Returns a temperature reading, or TEMP_SENSOR_DISCONNECTED
 	 */
-	virtual fixed7_9 init() =0;
+	virtual temperature init() =0;
 
 	/*
 	 * Fetch a new reading from the sensor
 	 */
-	virtual fixed7_9 read() = 0;
+	virtual temperature read() = 0;
 	
 };

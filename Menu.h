@@ -46,7 +46,7 @@ class Menu{
 	static void pickMode(void);
 	static void pickBeerSetting(void);
 	static void pickFridgeSetting(void);
-	static void initRotaryWithTemp(fixed7_9 oldSetting);
+	static void initRotaryWithTemp(temperature oldSetting);
 	
 	~Menu(){};
 	private:
