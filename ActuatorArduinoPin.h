@@ -9,7 +9,7 @@
 
 #include "Actuator.h"
 
-template<uint8_t pin, bool invert> 
+template<uint8_t pin, bool invert>
 class DigitalConstantPinActuator ACTUATOR_BASE_CLASS_DECL
 {
 	private:
@@ -18,11 +18,11 @@ class DigitalConstantPinActuator ACTUATOR_BASE_CLASS_DECL
 	public:
 	DigitalConstantPinActuator() : active(false)
 	{
-		fastPinMode(pin, OUTPUT);
 		setActive(false);
+		fastPinMode(pin, OUTPUT);
 	}
 	
-	inline ACTUATOR_METHOD void setActive(bool active) {		
+	inline ACTUATOR_METHOD void setActive(bool active) {
 		this->active = active;
 		fastDigitalWrite(pin, active^invert ? HIGH : LOW);
 	}
@@ -33,14 +33,15 @@ class DigitalConstantPinActuator ACTUATOR_BASE_CLASS_DECL
 
 class DigitalPinActuator ACTUATOR_BASE_CLASS_DECL
 {
-private:
+	private:
 	bool invert;
 	uint8_t pin;
 	bool active;
-public:		
+	public:
 	DigitalPinActuator(uint8_t pin, bool invert) {
 		this->invert = invert;
 		this->pin = pin;
+		setActive(false);
 		pinMode(pin, OUTPUT);
 	}
 	
@@ -50,4 +51,4 @@ public:
 	}
 	
 	bool isActive() { return active; }
-};	
+};
