@@ -20,7 +20,7 @@
 
 #pragma once
 
-#define TEMP_SENSOR_DISCONNECTED MIN_TEMP
+#define TEMP_SENSOR_DISCONNECTED INVALID_TEMP
 
 class BasicTempSensor
 {

@@ -25,7 +25,7 @@
 #include "TempSensorBasic.h"
 #include <stdlib.h>
 
-#define TEMP_SENSOR_DISCONNECTED MIN_TEMP
+#define TEMP_SENSOR_DISCONNECTED INVALID_TEMP
 
 #ifndef TEMP_SENSOR_CASCADED_FILTER 
 #define TEMP_SENSOR_CASCADED_FILTER 1

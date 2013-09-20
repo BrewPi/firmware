@@ -136,10 +136,10 @@ fixed7_9 multiplyFixed7_9(fixed7_9 a, fixed7_9 b)
 void TempControl::updatePID(void){
 	static unsigned char integralUpdateCounter = 0;
 	if(cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_BEER_PROFILE){
-		if(cs.beerSetting == MIN_TEMP){
+		if(cs.beerSetting == INVALID_TEMP){
 			// beer setting is not updated yet
 			// set fridge to unknown too
-			cs.fridgeSetting = MIN_TEMP;
+			cs.fridgeSetting = INVALID_TEMP;
 			return;
 		}
 		
@@ -207,7 +207,7 @@ void TempControl::updatePID(void){
 	}
 	else if(cs.mode == MODE_FRIDGE_CONSTANT){
 		// FridgeTemperature is set manually, use INT_MIN to indicate beer temp is not active
-		cs.beerSetting = MIN_TEMP;
+		cs.beerSetting = INVALID_TEMP;
 	}
 }
 
@@ -556,8 +556,8 @@ void TempControl::setMode(char newMode, bool force){
 		cs.mode = newMode;
 		if(newMode==MODE_BEER_PROFILE || newMode == MODE_OFF){
 			// set temperatures to undefined until temperatures have been received from RPi
-			cs.beerSetting = MIN_TEMP;
-			cs.fridgeSetting = MIN_TEMP;
+			cs.beerSetting = INVALID_TEMP;
+			cs.fridgeSetting = INVALID_TEMP;
 		}
 		eepromManager.storeTempSettings();
 	}
@@ -568,7 +568,7 @@ fixed7_9 TempControl::getBeerTemp(void){
 		return beerSensor->readFastFiltered();	
 	}
 	else{
-		return MIN_TEMP;
+		return INVALID_TEMP;
 	}
 }
 
@@ -581,7 +581,7 @@ fixed7_9 TempControl::getFridgeTemp(void){
 		return fridgeSensor->readFastFiltered();		
 	}
 	else{
-		return MIN_TEMP;
+		return INVALID_TEMP;
 	}
 }
 

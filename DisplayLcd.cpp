@@ -95,7 +95,7 @@ void LcdDisplay::printFridgeTemp(void){
 void LcdDisplay::printFridgeSet(void){	
 	fixed7_9 fridgeSet = tempControl.getFridgeSetting();	
 	if(flags & LCD_FLAG_DISPLAY_ROOM) // beer setting is not active
-		fridgeSet = MIN_TEMP;
+		fridgeSet = INVALID_TEMP;
 	printTemperatureAt(12, 2, fridgeSet);	
 }
 

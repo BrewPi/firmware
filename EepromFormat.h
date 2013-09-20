@@ -50,7 +50,7 @@ struct EepromFormat
 	static const uint8_t MAX_DEVICES = MAX_DEVICE_SLOT;
 
 	byte version;
-	byte numChambers;
+	byte numChambers;		// todo - remove this - and increase reserved space.
 	byte reserved[4];	
 	ChamberBlock chambers[MAX_CHAMBERS];
 	DeviceConfig devices[MAX_DEVICES];
