@@ -71,8 +71,8 @@ H(z) = 2^-a * -------------------------------------------------
 class FixedFilter{
 	public:
 		// input and output arrays
-		fixed7_25 xv[3];
-		fixed7_25 yv[3];
+		temperature_precise xv[3];
+		temperature_precise yv[3];
 		uint8_t a;
 		uint8_t b;
 
@@ -87,7 +87,7 @@ class FixedFilter{
 		}
 		
 		temperature add(temperature val); // adds a value and returns the most recent filter output
-		fixed7_25 addDoublePrecision(fixed7_25 val);
+		temperature_precise addDoublePrecision(temperature_precise val);
 
 		temperature readOutput(void){
 			return yv[0]>>16; // return 16 most significant bits of most recent output
@@ -97,11 +97,11 @@ class FixedFilter{
 			return xv[0]>>16; // return 16 most significant bits of most recent input
 		}
 
-		fixed7_25 readOutputDoublePrecision(void){
+		temperature_precise readOutputDoublePrecision(void){
 			return yv[0];
 		}
 
-		fixed7_25 readPrevOutputDoublePrecision(void){
+		temperature_precise readPrevOutputDoublePrecision(void){
 			return yv[1];
 		}
 		

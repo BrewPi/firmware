@@ -90,7 +90,7 @@ class TempSensor {
 	TempSensorFilter slowFilter;
 	TempSensorFilter slopeFilter;
 	unsigned char updateCounter;
-	fixed7_25 prevOutputForSlope;
+	temperature_precise prevOutputForSlope;
 			
 	friend class ChamberManager;
 	friend class Chamber;

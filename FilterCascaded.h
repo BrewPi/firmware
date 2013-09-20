@@ -40,14 +40,14 @@ class CascadedFilter{
 	void init(temperature val);
 	void setCoefficients(uint8_t bValue);
 	temperature add(temperature val); // adds a value and returns the most recent filter output
-	fixed7_25 addDoublePrecision(fixed7_25 val);
+	temperature_precise addDoublePrecision(temperature_precise val);
 	temperature readInput(void); // returns the most recent filter input
 
 	temperature readOutput(void){
 		return sections[NUM_SECTIONS-1].readOutput(); // return output of last section
 	}
-	fixed7_25 readOutputDoublePrecision(void);
-	fixed7_25 readPrevOutputDoublePrecision(void);
+	temperature_precise readOutputDoublePrecision(void);
+	temperature_precise readPrevOutputDoublePrecision(void);
 	
 	temperature detectPosPeak(void){
 		return sections[NUM_SECTIONS-1].detectPosPeak(); // detect peaks in last section

@@ -179,10 +179,10 @@ void TempControl::updatePID(void){
 			cv.diffIntegral = cv.diffIntegral + integratorUpdate;
 		}			
 		
-		// calculate PID parts. Use fixed23_9 to prevent overflow
-		cv.p = multiplyFixed7_9(cc.Kp, cv.beerDiff);
-		cv.i = multiplyFixeda7_9b23_9(cc.Ki, cv.diffIntegral);
-		cv.d = multiplyFixed7_9(cc.Kd, cv.beerSlope);
+		// calculate PID parts. Use long_temperature to prevent overflow
+		cv.p = multiplyTemperature(cc.Kp, cv.beerDiff);
+		cv.i = multiplyTemperatureLong(cc.Ki, cv.diffIntegral);
+		cv.d = multiplyTemperature(cc.Kd, cv.beerSlope);
 		long_temperature newFridgeSetting = cs.beerSetting;
 		newFridgeSetting += cv.p;
 		newFridgeSetting += cv.i;
@@ -460,14 +460,14 @@ void TempControl::detectPeaks(void){
 // Increase estimator at least 20%, max 50%s
 void TempControl::increaseEstimator(temperature * estimator, temperature error){
 	temperature factor = 614 + constrainTemp(abs(error)>>5, 0, 154); // 1.2 + 3.1% of error, limit between 1.2 and 1.5
-	*estimator = multiplyFixed7_9(factor, *estimator);
+	*estimator = multiplyTemperature(factor, *estimator);
 	eepromManager.storeTempSettings();
 }
 
 // Decrease estimator at least 16.7% (1/1.2), max 33.3% (1/1.5)
 void TempControl::decreaseEstimator(temperature * estimator, temperature error){
 	temperature factor = 426 - constrainTemp(abs(error)>>5, 0, 85); // 0.833 - 3.1% of error, limit between 0.667 and 0.833
-	*estimator = multiplyFixed7_9(factor, *estimator);
+	*estimator = multiplyTemperature(factor, *estimator);
 	eepromManager.storeTempSettings();
 }
 

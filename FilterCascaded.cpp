@@ -37,14 +37,14 @@ void CascadedFilter::setCoefficients(uint8_t bValue){
 }
 
 temperature CascadedFilter::add(temperature val){
-	fixed7_25 valDoublePrecision = ((fixed7_25) val) << 16;
+	temperature_precise valDoublePrecision = tempRegularToPrecise(val);
 	valDoublePrecision = addDoublePrecision(valDoublePrecision);
 	// return output, shifted back to single precision
-	return valDoublePrecision >> 16;
+	return tempPreciseToRegular(valDoublePrecision);
 }
 
-fixed7_25 CascadedFilter::addDoublePrecision(fixed7_25 val){
-	fixed7_25 input = val;
+temperature_precise CascadedFilter::addDoublePrecision(temperature_precise val){
+	temperature_precise input = val;
 	// input is input for next section, which is the output of the previous section
 	for(uint8_t i=0; i<NUM_SECTIONS; i++){
 		input = sections[i].addDoublePrecision(input);
@@ -57,11 +57,11 @@ temperature CascadedFilter::readInput(void){
 	return sections[0].readInput(); // return input of first section
 }
 
-fixed7_25 CascadedFilter::readOutputDoublePrecision(void){
+temperature_precise CascadedFilter::readOutputDoublePrecision(void){
 	return sections[NUM_SECTIONS-1].readOutputDoublePrecision(); // return output of last section
 }
 
-fixed7_25 CascadedFilter::readPrevOutputDoublePrecision(void){
+temperature_precise CascadedFilter::readPrevOutputDoublePrecision(void){
 	return sections[NUM_SECTIONS-1].readPrevOutputDoublePrecision(); // return previous output of last section
 }
 

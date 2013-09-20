@@ -46,13 +46,22 @@ typedef int8_t fixed4_4;	// fixed4_4 uses 1-sign bit, 3 int bits and 4 fraction 
 typedef int8_t temp_int;
 typedef fixed7_9 temperature;
 typedef fixed23_9 long_temperature;
+typedef fixed7_25 temperature_precise;
 
-inline int8_t tempToInt(temperature val) { return int8_t(val>>9); }
-inline temperature intToTemp(int8_t val) { return temperature(val)<<9; }
-inline temperature doubleToTemp(double temp) { return temp*512>=MAX_TEMP ? MAX_TEMP : temp*512<=MIN_TEMP ? MIN_TEMP : temp*512L; }
+#define TEMP_FIXED_POINT_BITS (9)
+#define TEMP_FIXED_POINT_SCALE (1<<TEMP_FIXED_POINT_BITS)
+#define TEMP_FIXED_POINT_MASK (TEMP_FIXED_POINT_SCALE-1)
+#define TEMP_PRECISE_EXTRA_FRACTION_BITS 16
+
+inline int8_t tempToInt(temperature val) { return int8_t(val>>TEMP_FIXED_POINT_BITS); }
+inline int16_t longTempToInt(long_temperature val) { return int16_t(val>>TEMP_FIXED_POINT_BITS); }
+inline temperature intToTemp(int8_t val) { return temperature(val)<<TEMP_FIXED_POINT_BITS; }
+inline temperature doubleToTemp(double temp) { return temp*TEMP_FIXED_POINT_SCALE>=MAX_TEMP ? MAX_TEMP : temp*TEMP_FIXED_POINT_SCALE<=MIN_TEMP ? MIN_TEMP : temperature(temp*TEMP_FIXED_POINT_SCALE); }
 
 inline long_temperature intToLongTemp(int16_t val) { return long_temperature(val)<<9; }
 
+inline temperature tempPreciseToRegular(temperature_precise val) { return val>>TEMP_PRECISE_EXTRA_FRACTION_BITS; }
+inline temperature_precise tempRegularToPrecise(temperature val) { return temperature_precise(val)<<TEMP_PRECISE_EXTRA_FRACTION_BITS; }
 
 char * tempToString(char s[9], long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
 temperature stringToTemp(const char * string);
@@ -62,17 +71,17 @@ temperature stringToTempDiff(const char * string);
 
 char * fixedPointToString(char s[9], long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
 char * fixedPointToString(char s[9], temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
-fixed23_9 stringToFixedPoint(const char * numberString);
+long_temperature stringToFixedPoint(const char * numberString);
 
 int fixedToTenths(long_temperature temperature);
 temperature tenthsToFixed(int temperature);
 
 temperature constrainTemp(long_temperature val, temperature lower, temperature upper);
 
-temperature constrainTemp16(fixed23_9 val);
+temperature constrainTemp16(long_temperature val);
 
-temperature multiplyFixeda7_9b23_9(temperature a, fixed23_9 b);
-temperature multiplyFixed7_9(temperature a, temperature b);
+temperature multiplyTemperatureLong(temperature a, long_temperature b);
+temperature multiplyTemperature(temperature a, temperature b);
 
 	
 

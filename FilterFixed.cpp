@@ -20,11 +20,11 @@
 #include "TemperatureFormats.h"
 
 temperature FixedFilter::add(temperature val){
-	fixed7_25 returnVal = addDoublePrecision( ((fixed7_25) val) << 16);
-	return returnVal>>16;
+	temperature_precise returnVal = addDoublePrecision(tempRegularToPrecise(val));
+	return tempPreciseToRegular(returnVal);
 }
 
-fixed7_25 FixedFilter::addDoublePrecision(fixed7_25 val){
+temperature_precise FixedFilter::addDoublePrecision(temperature_precise val){
 	xv[2] = xv[1];
 	xv[1] = xv[0];
 	xv[0] = val;
@@ -44,7 +44,7 @@ fixed7_25 FixedFilter::addDoublePrecision(fixed7_25 val){
 
 void FixedFilter::init(temperature val){
 		xv[0] = val;
-		xv[0] = xv[0]<<16; // 16 extra bits are used in the filter for the fraction part
+		xv[0] = tempRegularToPrecise(xv[0]); // 16 extra bits are used in the filter for the fraction part
 
 		xv[1] = xv[0];
 		xv[2] = xv[0];
@@ -56,7 +56,7 @@ void FixedFilter::init(temperature val){
 
 temperature FixedFilter::detectPosPeak(void){
 	if(yv[0] < yv[1] && yv[1] >= yv[2]){
-		return yv[1]>>16;
+		return tempPreciseToRegular(yv[1]);
 	}
 	else{
 		return INVALID_TEMP;
@@ -65,7 +65,7 @@ temperature FixedFilter::detectPosPeak(void){
 
 temperature FixedFilter::detectNegPeak(void){
 	if(yv[0] > yv[1] && yv[1] <= yv[2]){
-		return yv[1]>>16;
+		return tempPreciseToRegular(yv[1]);
 	}
 	else{
 		return INVALID_TEMP;

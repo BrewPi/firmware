@@ -56,7 +56,7 @@ struct ControlSettings{
 
 struct ControlVariables{
 	temperature beerDiff;
-	fixed23_9 diffIntegral; // also uses 9 fraction bits, but more integer bits to prevent overflow
+	long_temperature diffIntegral; // also uses 9 fraction bits, but more integer bits to prevent overflow
 	temperature beerSlope;
 	temperature p;
 	temperature i;

@@ -53,8 +53,8 @@ void TempSensor::update()
 		prevOutputForSlope = slowFilter.readOutputDoublePrecision();
 	}
 	if(updateCounter == 0){
-		fixed7_25 slowFilterOutput = slowFilter.readOutputDoublePrecision();
-		fixed7_25 diff =  slowFilterOutput - prevOutputForSlope;
+		temperature_precise slowFilterOutput = slowFilter.readOutputDoublePrecision();
+		temperature_precise diff =  slowFilterOutput - prevOutputForSlope;
 		temperature diff_upper = diff >> 16;
 		if(diff_upper > 27){ // limit to prevent overflow INT_MAX/1200 = 27.14
 			diff = (27l << 16);
@@ -74,7 +74,7 @@ temperature TempSensor::readFastFiltered(void){
 
 temperature TempSensor::readSlope(void){
 	// return slope per hour. 
-	fixed7_25 doublePrecision = slopeFilter.readOutputDoublePrecision();
+	temperature_precise doublePrecision = slopeFilter.readOutputDoublePrecision();
 	return doublePrecision>>16; // shift to single precision
 }
 
