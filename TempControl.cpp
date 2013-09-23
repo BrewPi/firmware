@@ -108,7 +108,7 @@ void TempControl::reset(void){
 
 void TempControl::updateTemperatures(void){
 	beerSensor->update();
-	if(!beerSensor->isConnected() && (cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_BEER_PROFILE)){
+	if(!beerSensor->isConnected() && tempControl.modeIsBeer()){
 		beerSensor->init(); // try to restart the sensor when controlling beer temperature
 	}
 	fridgeSensor->update();
@@ -137,7 +137,7 @@ fixed7_9 multiplyFixed7_9(fixed7_9 a, fixed7_9 b)
 
 void TempControl::updatePID(void){
 	static unsigned char integralUpdateCounter = 0;
-	if(cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_BEER_PROFILE){
+	if(tempControl.modeIsBeer()){
 		if(cs.beerSetting == INT_MIN){
 			// beer setting is not updated yet
 			// set fridge to unknown too
@@ -215,7 +215,9 @@ void TempControl::updatePID(void){
 
 void TempControl::updateState(void){
 	//update state
+	bool stayIdle = false;
 	bool newDoorOpen = door->sense();
+		
 	if(newDoorOpen!=doorOpen) {
 		doorOpen = newDoorOpen;
 		piLink.printFridgeAnnotation(PSTR("Fridge door %S"), doorOpen ? PSTR("opened") : PSTR("closed"));
@@ -223,17 +225,14 @@ void TempControl::updateState(void){
 
 	if(cs.mode == MODE_OFF){
 		state = STATE_OFF;
-		return;
+		stayIdle = true;
 	}
-	if(cs.fridgeSetting == INT_MIN){
-		// Do nothing when fridge setting is undefined
+	// stay idle when one of the required sensors is disconnected, or the fridge setting is INT_MIN
+	if( cs.fridgeSetting == INT_MIN || 
+		!fridgeSensor->isConnected() || 
+		(!beerSensor->isConnected() && tempControl.modeIsBeer())){
 		state = IDLE;
-		return;
-	}
-	
-	if(!fridgeSensor->isConnected() || (!beerSensor->isConnected() && (cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_BEER_PROFILE))){
-		state = IDLE; // stay idle when one of the sensors is disconnected
-		return;
+		stayIdle = true;
 	}
 
 	uint16_t sinceIdle = timeSinceIdle();
@@ -252,6 +251,9 @@ void TempControl::updateState(void){
 		{
 			lastIdleTime=secs;		
 			// set waitTime to zero. It will be set to the maximum required waitTime below when wait is in effect.
+			if(stayIdle){
+				break;
+			}
 			resetWaitTime();
 			if(fridgeFast > (cs.fridgeSetting+cc.idleRangeHigh) ){  // fridge temperature is too high			
 				tempControl.updateWaitTime(MIN_SWITCH_TIME, sinceHeating);			
@@ -619,7 +621,6 @@ bool TempControl::stateIsCooling(void){
 bool TempControl::stateIsHeating(void){
 	return (state==HEATING || state==HEATING_MIN_TIME);
 }
-
 
 const ControlConstants TempControl::ccDefaults PROGMEM =
 {

@@ -211,6 +211,9 @@ class TempControl{
 	
 	TEMP_CONTROL_METHOD bool stateIsCooling(void);
 	TEMP_CONTROL_METHOD bool stateIsHeating(void);
+	TEMP_CONTROL_METHOD bool modeIsBeer(void){
+		return (cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_BEER_PROFILE);
+	}
 		
 	TEMP_CONTROL_METHOD void constantsChanged();
 	
