@@ -77,7 +77,7 @@
 
 // You can use the internal pull-up resistors instead of external ones for the doorPin and the rotary encoder pins
 #ifndef USE_INTERNAL_PULL_UP_RESISTORS
-#define USE_INTERNAL_PULL_UP_RESISTORS false
+#define USE_INTERNAL_PULL_UP_RESISTORS true
 #endif
 
 #define BREWPI_INVERT_ACTUATORS 1
@@ -111,6 +111,6 @@
 #define DISP_D7 3
 
 // you can use the internal pull-up resistors instead of external ones for the doorPin and the rotary encoder pins
-#define USE_INTERNAL_PULL_UP_RESISTORS false
+#define USE_INTERNAL_PULL_UP_RESISTORS true
 
 #endif

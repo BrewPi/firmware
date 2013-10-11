@@ -625,10 +625,8 @@ void PiLink::parseJson(ParseJsonCallback fn, void* data)
 void PiLink::receiveJson(void){
 
 	parseJson(&processJsonPair, NULL);	
-	tempControl.constantsChanged();
 				
 #if !BREWPI_SIMULATE	// this is quite an overhead and not needed for the simulator
-	eepromManager.storeTempConstantsAndSettings();
 	sendControlSettings();	// update script with new settings
 	sendControlConstants();
 #endif
@@ -660,10 +658,9 @@ void PiLink::setBeerSetting(const char* val) {
 	else {
 		source = STR_WEB_INTERFACE;
 	}
-	if (source) {
+	if (source)
 		printBeerAnnotation(STR_FMT_SET_TO, STR_BEER_TEMP, val, source);
-	}
-	tempControl.cs.beerSetting = newTemp;		
+	tempControl.setBeerTemp(newTemp);		
 }
 
 void PiLink::setFridgeSetting(const char* val) {
@@ -671,12 +668,13 @@ void PiLink::setFridgeSetting(const char* val) {
 	if(tempControl.cs.mode == 'f'){
 		printFridgeAnnotation(STR_FMT_SET_TO, STR_FRIDGE_TEMP, val, STR_WEB_INTERFACE);
 	}
-	tempControl.cs.fridgeSetting = newTemp;	
+	tempControl.setFridgeTemp(newTemp);	
 }
 
 void PiLink::setTempFormat(const char* val) {
 	tempControl.cc.tempFormat = val[0];
 	display.printStationaryText(); // reprint stationary text to update to right degree unit
+	eepromManager.storeTempConstantsAndSettings();
 }
 
 
@@ -705,26 +703,32 @@ void applyFilterSetting(const char* val, void* target) {
 	*location = value;
 	TempSensor* sensor = sensorTarget ? tempControl.beerSensor : tempControl.fridgeSensor;
 	switch (filterType) {
-		case FAST: sensor->setFastFilterCoefficients(value); return;
-		case SLOW: sensor->setSlowFilterCoefficients(value); return;
-		case SLOPE: sensor->setSlopeFilterCoefficients(value); return;
+		case FAST: sensor->setFastFilterCoefficients(value); break;
+		case SLOW: sensor->setSlowFilterCoefficients(value); break;
+		case SLOPE: sensor->setSlopeFilterCoefficients(value); break;
 	}
+	eepromManager.storeTempConstantsAndSettings();
 }
 
 void setStringToFixedPoint(const char* value, fixed7_9* target) {
 	*target = stringToFixedPoint(value);
+	eepromManager.storeTempConstantsAndSettings();
 }
 void setStringToTemp(const char* value, fixed7_9* target) {
 	*target = stringToTemp(value);
+	eepromManager.storeTempConstantsAndSettings();
 }
 void setStringToTempDiff(const char* value, fixed7_9* target) {
 	*target = stringToTempDiff(value);
+	eepromManager.storeTempConstantsAndSettings();
 }
 void setUint16(const char* value, uint16_t* target) {
 	*target = atol(value);
+	eepromManager.storeTempConstantsAndSettings();
 }
 void setBool(const char* value, uint8_t* target) {
 	*target = (atol(value)!=0);
+	eepromManager.storeTempConstantsAndSettings();
 }
 
 

@@ -108,7 +108,7 @@ void TempControl::reset(void){
 
 void TempControl::updateTemperatures(void){
 	beerSensor->update();
-	if(!beerSensor->isConnected() && (cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_BEER_PROFILE)){
+	if(!beerSensor->isConnected() && tempControl.modeIsBeer()){
 		beerSensor->init(); // try to restart the sensor when controlling beer temperature
 	}
 	fridgeSensor->update();
@@ -137,7 +137,7 @@ fixed7_9 multiplyFixed7_9(fixed7_9 a, fixed7_9 b)
 
 void TempControl::updatePID(void){
 	static unsigned char integralUpdateCounter = 0;
-	if(cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_BEER_PROFILE){
+	if(tempControl.modeIsBeer()){
 		if(cs.beerSetting == INT_MIN){
 			// beer setting is not updated yet
 			// set fridge to unknown too
@@ -215,7 +215,9 @@ void TempControl::updatePID(void){
 
 void TempControl::updateState(void){
 	//update state
+	bool stayIdle = false;
 	bool newDoorOpen = door->sense();
+		
 	if(newDoorOpen!=doorOpen) {
 		doorOpen = newDoorOpen;
 		piLink.printFridgeAnnotation(PSTR("Fridge door %S"), doorOpen ? PSTR("opened") : PSTR("closed"));
@@ -223,17 +225,14 @@ void TempControl::updateState(void){
 
 	if(cs.mode == MODE_OFF){
 		state = STATE_OFF;
-		return;
+		stayIdle = true;
 	}
-	if(cs.fridgeSetting == INT_MIN){
-		// Do nothing when fridge setting is undefined
+	// stay idle when one of the required sensors is disconnected, or the fridge setting is INT_MIN
+	if( cs.fridgeSetting == INT_MIN || 
+		!fridgeSensor->isConnected() || 
+		(!beerSensor->isConnected() && tempControl.modeIsBeer())){
 		state = IDLE;
-		return;
-	}
-	
-	if(!fridgeSensor->isConnected() || (!beerSensor->isConnected() && (cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_BEER_PROFILE))){
-		state = IDLE; // stay idle when one of the sensors is disconnected
-		return;
+		stayIdle = true;
 	}
 
 	uint16_t sinceIdle = timeSinceIdle();
@@ -252,6 +251,9 @@ void TempControl::updateState(void){
 		{
 			lastIdleTime=secs;		
 			// set waitTime to zero. It will be set to the maximum required waitTime below when wait is in effect.
+			if(stayIdle){
+				break;
+			}
 			resetWaitTime();
 			if(fridgeFast > (cs.fridgeSetting+cc.idleRangeHigh) ){  // fridge temperature is too high			
 				tempControl.updateWaitTime(MIN_SWITCH_TIME, sinceHeating);			
@@ -515,29 +517,30 @@ void TempControl::storeConstants(eptr_t offset){
 
 void TempControl::loadConstants(eptr_t offset){
 	eepromAccess.readBlock((void *) &cc, offset, sizeof(ControlConstants));
-	constantsChanged();	
+	initFilters();	
 }
 
 // write new settings to EEPROM to be able to reload them after a reset
 // The update functions only write to EEPROM if the value has changed
 void TempControl::storeSettings(eptr_t offset){
 	eepromAccess.writeBlock(offset, (void *) &cs, sizeof(ControlSettings));
-	storedBeerSetting = cs.beerSetting;		
+	storedBeerSetting = cs.beerSetting;
 }
 
 void TempControl::loadSettings(eptr_t offset){
 	eepromAccess.readBlock((void *) &cs, offset, sizeof(ControlSettings));	
 	logDebug("loaded settings");
+	storedBeerSetting = cs.beerSetting;
 	setMode(cs.mode, true);		// force the mode update
 }
 
 
 void TempControl::loadDefaultConstants(void){
 	memcpy_P((void*) &tempControl.cc, (void*) &tempControl.ccDefaults, sizeof(ControlConstants));
-	constantsChanged();
+	initFilters();
 }
 
-void TempControl::constantsChanged()
+void TempControl::initFilters()
 {
 	fridgeSensor->setFastFilterCoefficients(cc.fridgeFastFilter);
 	fridgeSensor->setSlowFilterCoefficients(cc.fridgeSlowFilter);
@@ -592,17 +595,19 @@ fixed7_9 TempControl::getFridgeSetting(void){
 }
 
 void TempControl::setBeerTemp(fixed7_9 newTemp){
-	int oldBeerSetting = cs.beerSetting;
+	fixed7_9 oldBeerSetting = cs.beerSetting;
 	cs.beerSetting= newTemp;
-	if(abs(oldBeerSetting - newTemp) > 128){ // more than half a degree C difference with old setting
+	if(abs(oldBeerSetting - newTemp) > 256){ // more than half degree C difference with old setting
 		reset(); // reset controller
 	}
 	updatePID();
 	updateState();
-	if(abs(storedBeerSetting - newTemp) > 128){ // more than half a degree C difference with EEPROM
-		// Do not store settings every time, because EEPROM has limited number of write cycles.
+	if(cs.mode != MODE_BEER_PROFILE || abs(storedBeerSetting - newTemp) > 128){
+		// more than 1/4 degree C difference with EEPROM
+		// Do not store settings every time in profile mode, because EEPROM has limited number of write cycles.
+		// A temperature ramp would cause a lot of writes
 		// If Raspberry Pi is connected, it will update the settings anyway. This is just a safety feature.
-		eepromManager.storeTempSettings();
+		eepromManager.storeTempSettings();		
 	}		
 }
 
@@ -611,6 +616,7 @@ void TempControl::setFridgeTemp(fixed7_9 newTemp){
 	reset(); // reset peak detection and PID
 	updatePID();
 	updateState();	
+	eepromManager.storeTempSettings();
 }
 
 bool TempControl::stateIsCooling(void){
@@ -619,7 +625,6 @@ bool TempControl::stateIsCooling(void){
 bool TempControl::stateIsHeating(void){
 	return (state==HEATING || state==HEATING_MIN_TIME);
 }
-
 
 const ControlConstants TempControl::ccDefaults PROGMEM =
 {
