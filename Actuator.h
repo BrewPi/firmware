@@ -76,12 +76,11 @@ class DigitalConstantPinActuator ACTUATOR_BASE_CLASS_DECL
 	public:
 	DigitalConstantPinActuator() : active(false)
 	{
-		setActive(false);
-		fastPinMode(pin, OUTPUT);
 	}
 	
 	inline ACTUATOR_METHOD void setActive(bool active) {		
 		this->active = active;
+		fastPinMode(pin, OUTPUT);
 		fastDigitalWrite(pin, active^invert ? HIGH : LOW);
 	}
 	
