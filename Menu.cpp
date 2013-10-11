@@ -36,8 +36,6 @@
 
 Menu menu;
 
-#define MENU_OPTIMIZE 1
-
 #define MENU_TIMEOUT 10u
 
 void Menu::pickSettingToChange(){
@@ -48,7 +46,6 @@ void Menu::pickSettingToChange(){
 	display.setDisplayFlags(oldFlags);
 }
 
-#if MENU_OPTIMIZE 
 /**
  * @return {@code true} if a value was selected. {@code false} on timeout.
  */
@@ -157,120 +154,20 @@ void Menu::pickMode(void) {
 		tempControl.setMode(oldSetting);		
 }
 
-
-#else
-void Menu::pickSettingToChangeLoop(void){
-	
-	rotaryEncoder.setRange(0, 0, 2); // mode setting, beer temp, fridge temp
-	uint16_t lastChangeTime = ticks.seconds();
-	uint8_t blinkTimer = 0;
-	while(ticks.timeSince(lastChangeTime) < MENU_TIMEOUT){ // time out at 10 seconds
-		if(rotaryEncoder.changed()){
-			lastChangeTime = ticks.seconds();
-			blinkTimer = 0;		
-		}
-		if(blinkTimer == 0){
-			// print all text again for blinking
-			display.printStationaryText();		
-		}
-		if(blinkTimer == 128){ // blink one of the options by overwriting it with spaces
-			display.printAt_P(0, rotaryEncoder.read(), STR_6SPACES);
-		}
-		if( rotaryEncoder.pushed() ){
-			rotaryEncoder.resetPushed();
-			switch(rotaryEncoder.read()){
-				case 0:
-					pickMode();
-					return;
-				case 1:
-					// switch to beer constant, because beer setting will be set through display
-					tempControl.setMode(MODE_BEER_CONSTANT);
-					display.printMode();
-					pickBeerSetting();
-					return;
-				case 2:
-					// switch to fridge constant, because fridge setting will be set through display
-					tempControl.setMode(MODE_FRIDGE_CONSTANT);
-					display.printMode();
-					pickFridgeSetting();
-					return;
-			}
-		}
-		
-		blinkTimer++;
-		wait.millis(3); // delay for blinking
-	}
-}
-
-const char* LOOKUP = "bfpo";
-
-void Menu::pickMode(void){
-	display.printStationaryText(); // restore original text after blinking 'Mode'
-	char oldSetting = tempControl.getMode();
-	uint8_t startValue=0;
-	startValue = indexOf(LOOKUP, oldSetting);
-	rotaryEncoder.setRange(startValue, 0, 3); // toggle between beer constant, beer profile, fridge constant
-	const char lookup[] = {'b', 'f', 'p', 'o'};
-	uint8_t blinkTimer = 0;		
-	uint16_t lastChangeTime = ticks.seconds();
-	while(ticks.timeSince(lastChangeTime) < MENU_TIMEOUT){ // time out at 10 seconds
-		if(rotaryEncoder.changed()){
-			lastChangeTime = ticks.seconds();
-			blinkTimer = 0;
-			
-			tempControl.setMode(lookup[rotaryEncoder.read()]);
-			display.printMode();
-			
-			if( rotaryEncoder.pushed() ){
-				rotaryEncoder.resetPushed();
-				char mode = tempControl.getMode();
-				if(mode ==  MODE_BEER_CONSTANT){
-					menu.pickBeerSetting();
-				}
-				else if(mode == MODE_FRIDGE_CONSTANT){
-					menu.pickFridgeSetting();
-				}
-				else if(mode == MODE_BEER_PROFILE){
-					piLink.printBeerAnnotation(PSTR("Changed to profile mode in menu."));
-				}
-				else if(mode == MODE_OFF){
-					piLink.printBeerAnnotation(PSTR("Temp control turned off in menu."));
-				}						
-				return;
-			}
-		}
-		else{
-			if(blinkTimer == 0){
-				display.printMode();
-			}
-			if(blinkTimer == 128){
-				clearMode();
-			}				
-			blinkTimer++;
-			wait.millis(3); // delay for blinking
-		}
-	}
-	// Time Out. Restore original setting
-	tempControl.setMode(oldSetting);
-}
-
-#endif
-
-// tried optimizing this to use blinkLoop but the size becomes larger
-
 typedef void (* PrintAnnotation)(const char * annotation, ...);
 typedef void (* DisplayUpdate)(void);
 typedef fixed7_9 (* ReadTemp)();
 typedef void (* WriteTemp)(fixed7_9);
 
-void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempName, DisplayUpdate update, PrintAnnotation printAnnoation, int row) {
+void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempName, PrintAnnotation printAnnoation, int row) {
 	
 	fixed7_9 oldSetting = readTemp();
-	fixed7_9 startVal = oldSetting;
-	if(oldSetting == INT_MIN)	 // previous temperature was not defined, start at 20C
-		startVal = 20*512;
+	fixed7_9 newSetting = oldSetting;
+	if(oldSetting == INT_MIN){	 // previous temperature was not defined, start at 20C
+		oldSetting = 20*512;
+	}
 	
-	rotaryEncoder.setRange(fixedToTenths(startVal), fixedToTenths(tempControl.cc.tempSettingMin), fixedToTenths(tempControl.cc.tempSettingMax));
+	rotaryEncoder.setRange(fixedToTenths(oldSetting), fixedToTenths(tempControl.cc.tempSettingMin), fixedToTenths(tempControl.cc.tempSettingMax));
 
 	uint8_t blinkTimer = 0;
 	uint16_t lastChangeTime = ticks.seconds();
@@ -278,20 +175,20 @@ void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempNam
 		if(rotaryEncoder.changed()){
 			lastChangeTime = ticks.seconds();
 			blinkTimer = 0;
-
-			writeTemp(tenthsToFixed(rotaryEncoder.read()));		
-			update();
+			newSetting = tenthsToFixed(rotaryEncoder.read());
+			display.printTemperatureAt(12, row, newSetting);
 
 			if( rotaryEncoder.pushed() ){
 				rotaryEncoder.resetPushed();
-				char tempString[9];
-				printAnnoation(PSTR("%S temp set to %s in Menu."), tempName, tempToString(tempString,readTemp(),1,9));
+				writeTemp(newSetting);
+				char tempString[9];				
+				printAnnoation(PSTR("%S temp set to %s in Menu."), tempName, tempToString(tempString,newSetting,1,9));
 				return;
 			}
 		}	
 		else{
 			if(blinkTimer == 0){
-				update();
+				display.printTemperatureAt(12, row, newSetting);
 			}
 			if(blinkTimer == 128){
 				display.printAt_P(12, row, STR_6SPACES); // only 5 needed, but 6 is okay to and lets us re-use the string
@@ -300,16 +197,15 @@ void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempNam
 			wait.millis(3); // delay for blinking
 		}
 	}
-	// Time Out. Restore original setting
-	writeTemp(oldSetting);	
+	// Time Out. Setting is not written
 }
 
 void Menu::pickFridgeSetting(void){
-	pickTempSetting(tempControl.getFridgeSetting, tempControl.setFridgeTemp, PSTR("Fridge"), display.printFridgeSet, piLink.printFridgeAnnotation, 2);
+	pickTempSetting(tempControl.getFridgeSetting, tempControl.setFridgeTemp, PSTR("Fridge"), piLink.printFridgeAnnotation, 2);
 }
 
 void Menu::pickBeerSetting(void){
-	pickTempSetting(tempControl.getBeerSetting, tempControl.setBeerTemp, PSTR("Beer"), display.printBeerSet, piLink.printBeerAnnotation, 1);
+	pickTempSetting(tempControl.getBeerSetting, tempControl.setBeerTemp, PSTR("Beer"), piLink.printBeerAnnotation, 1);
 }
 
 
