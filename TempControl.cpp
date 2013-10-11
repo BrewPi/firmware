@@ -613,6 +613,7 @@ void TempControl::setFridgeTemp(fixed7_9 newTemp){
 	reset(); // reset peak detection and PID
 	updatePID();
 	updateState();	
+	eepromManager.storeTempSettings();
 }
 
 bool TempControl::stateIsCooling(void){
