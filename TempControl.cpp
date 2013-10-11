@@ -517,29 +517,30 @@ void TempControl::storeConstants(eptr_t offset){
 
 void TempControl::loadConstants(eptr_t offset){
 	eepromAccess.readBlock((void *) &cc, offset, sizeof(ControlConstants));
-	constantsChanged();	
+	initFilters();	
 }
 
 // write new settings to EEPROM to be able to reload them after a reset
 // The update functions only write to EEPROM if the value has changed
 void TempControl::storeSettings(eptr_t offset){
 	eepromAccess.writeBlock(offset, (void *) &cs, sizeof(ControlSettings));
-	storedBeerSetting = cs.beerSetting;		
+	storedBeerSetting = cs.beerSetting;
 }
 
 void TempControl::loadSettings(eptr_t offset){
 	eepromAccess.readBlock((void *) &cs, offset, sizeof(ControlSettings));	
 	logDebug("loaded settings");
+	storedBeerSetting = cs.beerSetting;
 	setMode(cs.mode, true);		// force the mode update
 }
 
 
 void TempControl::loadDefaultConstants(void){
 	memcpy_P((void*) &tempControl.cc, (void*) &tempControl.ccDefaults, sizeof(ControlConstants));
-	constantsChanged();
+	initFilters();
 }
 
-void TempControl::constantsChanged()
+void TempControl::initFilters()
 {
 	fridgeSensor->setFastFilterCoefficients(cc.fridgeFastFilter);
 	fridgeSensor->setSlowFilterCoefficients(cc.fridgeSlowFilter);
@@ -594,17 +595,19 @@ fixed7_9 TempControl::getFridgeSetting(void){
 }
 
 void TempControl::setBeerTemp(fixed7_9 newTemp){
-	int oldBeerSetting = cs.beerSetting;
+	fixed7_9 oldBeerSetting = cs.beerSetting;
 	cs.beerSetting= newTemp;
-	if(abs(oldBeerSetting - newTemp) > 128){ // more than half a degree C difference with old setting
+	if(abs(oldBeerSetting - newTemp) > 256){ // more than half degree C difference with old setting
 		reset(); // reset controller
 	}
 	updatePID();
 	updateState();
-	if(abs(storedBeerSetting - newTemp) > 128){ // more than half a degree C difference with EEPROM
-		// Do not store settings every time, because EEPROM has limited number of write cycles.
+	if(cs.mode != MODE_BEER_PROFILE || abs(storedBeerSetting - newTemp) > 128){
+		// more than 1/4 degree C difference with EEPROM
+		// Do not store settings every time in profile mode, because EEPROM has limited number of write cycles.
+		// A temperature ramp would cause a lot of writes
 		// If Raspberry Pi is connected, it will update the settings anyway. This is just a safety feature.
-		eepromManager.storeTempSettings();
+		eepromManager.storeTempSettings();		
 	}		
 }
 

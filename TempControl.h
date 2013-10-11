@@ -215,7 +215,7 @@ class TempControl{
 		return (cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_BEER_PROFILE);
 	}
 		
-	TEMP_CONTROL_METHOD void constantsChanged();
+	TEMP_CONTROL_METHOD void initFilters();
 	
 	TEMP_CONTROL_METHOD bool isDoorOpen() { return doorOpen; }
 	
