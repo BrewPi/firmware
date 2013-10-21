@@ -25,7 +25,7 @@
 #define _stringifyDo(s) #s
 
 
-// Most pins are only conditionally defined here, allowing definitions to be provided in ConfigLocal.h for
+// Most pins are only conditionally defined here, allowing definitions to be provided in Config.h for
 // local overrides
 #define BREWPI_SHIELD_DIY   0
 #define BREWPI_SHIELD_REV_A	1
@@ -37,7 +37,7 @@
  * compilation directives are recognized.
  * 
  * ConfigDefault.h contains the default settings, and produces a standard Hex file.
- * To customize the build, users may add settings to ConfigLocal.h, or define symbols in the project.
+ * To customize the build, users may add settings to Config.h, or define symbols in the project.
  */
 
 #include "Config.h"

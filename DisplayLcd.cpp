@@ -257,7 +257,13 @@ void LcdDisplay::printState(void){
 	}
 	if(counterPrintPos > 0){
 		char timeString[10];
-		sprintf_P(timeString,STR_FMT_U, (unsigned int) time); // cheaper than itoa, because it overlaps with vsnprintf
+#if DISPLAY_TIME_HMS  // 82 bytes more space required. 
+		unsigned int minutes = time/60;		
+		unsigned int hours = minutes/60;
+		sprintf_P(timeString, PSTR("%dh%02dm%02ds"), hours, minutes%60, time%60);
+#else
+		sprintf_P(timeString, STR_FMT_U, (unsigned int)time);		
+#endif		
 		printAt(counterPrintPos, 3, timeString);
 		lcd.printSpacesToRestOfLine(); // overwrite previous numbers that had more digits
 	}
