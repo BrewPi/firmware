@@ -635,9 +635,9 @@ const ControlConstants TempControl::ccDefaults PROGMEM =
 	/* pidMax */ 10*512,	// +/- 10 deg Celsius
 	
 	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
-	/* Kp	*/ 5120,	// +10
-	/* Ki	*/ 205,		// +0.4
-	/* Kd	*/ -1024,	// -2
+	/* Kp	*/ 2560,	// +5
+	/* Ki	*/ 128,		// +0.25
+	/* Kd	*/ -768,	// -1.5
 	/* iMaxError */ 256,  // 0.5 deg
 
 	// Stay Idle when fridge temperature is in this range
