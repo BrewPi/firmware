@@ -20,7 +20,7 @@
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define VERSION_STRING "0.2.2"
+#define VERSION_STRING "0.2.3"
 
 
 #endif /* VERSION_H_ */	
