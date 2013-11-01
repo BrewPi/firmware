@@ -116,6 +116,7 @@ $(SRC)fallback
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
 $(SRC)Actuator.cpp \
+$(SRC)ActuatorArduino.cpp \
 $(SRC)ArduinoFunctions.cpp \
 $(SRC)Brewpi.cpp \
 $(SRC)BrewpiStrings.cpp \
@@ -155,6 +156,7 @@ ASM_SRCS +=
 
 OBJS +=  \
 $(OBJ_DIR)Actuator.o \
+$(OBJ_DIR)ActuatorArduinoPin.o \
 $(OBJ_DIR)ArduinoFunctions.o \
 $(OBJ_DIR)Brewpi.o \
 $(OBJ_DIR)BrewpiStrings.o \
@@ -187,6 +189,7 @@ $(OBJ_DIR)Ticks.o
 
 OBJS_AS_ARGS +=  \
 $(OBJ_DIR)Actuator.o \
+$(OBJ_DIR)ActuatorArduinoPin.o \
 $(OBJ_DIR)ArduinoFunctions.o \
 $(OBJ_DIR)Brewpi.o \
 $(OBJ_DIR)BrewpiStrings.o \
@@ -219,6 +222,7 @@ $(OBJ_DIR)Ticks.o
 
 C_DEPS +=  \
 $(OBJ_DIR)Actuator.d \
+$(OBJ_DIR)ActuatorArduinoPin.d \
 $(OBJ_DIR)ArduinoFunctions.d \
 $(OBJ_DIR)Brewpi.d \
 $(OBJ_DIR)BrewpiStrings.d \
@@ -251,6 +255,7 @@ $(OBJ_DIR)Ticks.d
 
 C_DEPS_AS_ARGS +=  \
 $(OBJ_DIR)Actuator.d \
+$(OBJ_DIR)ActuatorArduinoPin.d \
 $(OBJ_DIR)ArduinoFunctions.d \
 $(OBJ_DIR)Brewpi.d \
 $(OBJ_DIR)BrewpiStrings.d \

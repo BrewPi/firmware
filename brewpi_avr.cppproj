@@ -5,7 +5,7 @@
     <ProjectVersion>6.1</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8.CPP</ToolchainName>
     <ProjectGuid>{c0415566-e0bc-45db-8e53-cc52899284fe}</ProjectGuid>
-    <avrdevice>ATmega328P</avrdevice>
+    <avrdevice>ATmega32U4</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
     <Language>CPP</Language>
@@ -139,7 +139,7 @@
   <avrgcccpp.compiler.directories.IncludePaths>
     <ListValues>
       <Value>%24(ARDUINO_HOME)\hardware\arduino\cores\arduino</Value>
-      <Value>%24(ARDUINO_HOME)\hardware\arduino\variants\standard</Value>
+      <Value>%24(ARDUINO_HOME)\hardware\arduino\variants\leonardo</Value>
       <Value>..\fallback</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
@@ -169,7 +169,13 @@
     <Compile Include="Actuator.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="ActuatorArduinoPin.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="ActuatorAutoOff.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ArduinoEepromAccess.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="ArduinoFunctions.cpp">
@@ -278,6 +284,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Menu.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="NullLcdDriver.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="OLEDFourBit.cpp">

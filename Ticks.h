@@ -85,9 +85,7 @@ public:
 	void microseconds(uint32_t micros) { }
 };
 
-
 #include "TicksArduino.h"
-
 
 // Determine the type of Ticks needed
 // TICKS_IMPL_CONFIG is the code string passed to the constructor of the Ticks implementation
@@ -114,7 +112,7 @@ extern TicksImpl ticks;
 // For emulation, don't delay, since time in the emulator is not real time, so the delay is meaningless.
 // For regular code, use the arduino delay function.
 
-#if BREWPI_EMULATE
+#if BREWPI_EMULATE || !defined(ARDUINO)
 typedef NoOpDelay DelayImpl;		// for emulation (avr debugger), don't bother delaying, it takes ages.
 #define DELAY_IMPL_CONFIG
 #else

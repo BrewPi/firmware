@@ -32,7 +32,14 @@ inline ticks_seconds_t timeSince(ticks_seconds_t currentTime, ticks_seconds_t pr
 	}
 }
 
+// return time that has passed since timeStamp, take overflow into account
+ticks_seconds_t ExternalTicks::timeSince(ticks_seconds_t previousTime){
+	ticks_seconds_t currentTime = ticks.seconds();
+	return ::timeSince(currentTime, previousTime);
+}
 
+
+#ifdef ARDUINO
 
 // return time that has passed since timeStamp, take overflow into account
 ticks_seconds_t HardwareTicks::timeSince(ticks_seconds_t previousTime){
@@ -43,13 +50,8 @@ ticks_seconds_t HardwareTicks::timeSince(ticks_seconds_t previousTime){
 ticks_seconds_t HardwareTicks::seconds() { return ::millis()/1000; }
 	
 
-// return time that has passed since timeStamp, take overflow into account
-ticks_seconds_t ExternalTicks::timeSince(ticks_seconds_t previousTime){
-	ticks_seconds_t currentTime = ticks.seconds();
-	return ::timeSince(currentTime, previousTime);
-}
-
-
 void HardwareDelay::millis(uint16_t millis) { ::delay(millis); }
 	
 void HardwareDelay::seconds(uint16_t seconds)	{ millis(seconds<<10); }
+
+#endif

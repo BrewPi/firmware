@@ -59,7 +59,7 @@ fixed7_9 FixedFilter::detectPosPeak(void){
 		return yv[1]>>16;
 	}
 	else{
-		return INT_MIN;
+		return INVALID_TEMP;
 	}
 }
 
@@ -68,6 +68,6 @@ fixed7_9 FixedFilter::detectNegPeak(void){
 		return yv[1]>>16;
 	}
 	else{
-		return INT_MIN;
+		return INVALID_TEMP;
 	}
 }

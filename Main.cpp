@@ -33,6 +33,11 @@ extern void setup(void);
 extern void loop (void);
 
 
+void handleReset() 
+{ 
+        asm volatile ("  jmp 0"); 
+}
+
 void main() __attribute__ ((noreturn)); // tell the compiler main doesn't return.
 
 void main(void)

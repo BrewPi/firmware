@@ -20,6 +20,8 @@
 
 #pragma once
 
+#define TEMP_SENSOR_DISCONNECTED INVALID_TEMP
+
 class BasicTempSensor
 {
 public:
@@ -29,7 +31,7 @@ public:
 	
 	/*
 	 * Attempt to (re-)initialize the sensor and fetch a sensor reading
-	 * Returns a temperature reading, or DEVICE_DISCONNECTED
+	 * Returns a temperature reading, or TEMP_SENSOR_DISCONNECTED
 	 */
 	virtual fixed7_9 init() =0;
 

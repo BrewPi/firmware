@@ -22,20 +22,23 @@
 #include "BrewpiStrings.h"
 #include "DeviceManager.h"
 #include "TempControl.h"
-#include "OneWireTempSensor.h"
-#include "OneWireActuator.h"
 #include "Actuator.h"
 #include "Sensor.h"
 #include "TempSensorDisconnected.h"
 #include "TempSensorExternal.h"
 #include "PiLink.h"
 #include "EepromFormat.h"
+
+#ifdef ARDUINO
+#include "OneWireTempSensor.h"
+#include "OneWireActuator.h"
 #include "DS2413.h"
 #include "OneWire.h"
 #include "DallasTemperature.h"
+#include "ActuatorArduinoPin.h"
+#include "SensorArduinoPin.h"
+#endif
 
-
-DeviceManager deviceManager;
 
 /*
  * Defaults for sensors, actuators and temperature sensors when not defined in the eeprom.
@@ -52,6 +55,7 @@ OneWire DeviceManager::fridgeSensorBus(fridgeSensorPin);
 OneWire DeviceManager::primaryOneWireBus(oneWirePin);
 #endif
 #endif
+
 
 OneWire* DeviceManager::oneWireBus(uint8_t pin) {
 #if !BREWPI_SIMULATE
@@ -107,9 +111,13 @@ void* DeviceManager::createDevice(DeviceConfig& config, DeviceType dt)
 				return new DigitalPinSensor(config.hw.pinNr, config.hw.invert);
 			#endif				
 			else
+#if BREWPI_SIMULATE
+                            return new ValueActuator();
+#else
+                            
 			// use hardware actuators even for simulator
 				return new DigitalPinActuator(config.hw.pinNr, config.hw.invert);
-		
+#endif		
 		case DEVICE_HARDWARE_ONEWIRE_TEMP:
 		#if BREWPI_SIMULATE
 			return new ExternalTempSensor(false);// initially disconnected, so init doesn't populate the filters with the default value of 0.0
@@ -495,7 +503,7 @@ bool DeviceManager::isDeviceValid(DeviceConfig& config, DeviceConfig& original, 
 void printAttrib(Print& p, char c, int8_t val, bool first=false) 
 {		
 	if (!first)
-		p.print(',');
+        	p.print(',');
 
 	char tempString[32]; // resulting string limited to 128 chars
 	sprintf_P(tempString, PSTR("\"%c\":%d"), c, val);
@@ -907,4 +915,4 @@ DeviceType deviceType(DeviceFunction id) {
 	}
 }	
 
-
+DeviceManager deviceManager;

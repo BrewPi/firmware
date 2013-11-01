@@ -1,6 +1,6 @@
 /*
  * Copyright 2013 BrewPi/Elco Jacobs.
- * Copyright 2013 Matthew McGowan. 
+ * Copyright 2013 Matthew McGowan.
  *
  * This file is part of BrewPi.
  * 
@@ -18,36 +18,22 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <avr/eeprom.h>
 
-#include "Brewpi.h"
-
-template<class T> class Sensor
-{	
-	public:	
-	virtual T sense()=0;
-	
-	virtual ~Sensor() {}
-};
-
-template <class T>
-class ValueSensor : public Sensor<T>
+class ArduinoEepromAccess
 {
-public:	
-	ValueSensor(T initial) : value(initial) {}
-
-	virtual T sense() {
-		return (T)0;
+public:
+	static uint8_t readByte(eptr_t offset) {
+		return eeprom_read_byte((uint8_t*)offset);
+	}
+	static void writeByte(eptr_t offset, uint8_t value) {
+		eeprom_write_byte((uint8_t*)offset, value);
 	}
 	
-	void setValue(T _value) {
-		value = _value;
+	static void readBlock(void* target, eptr_t offset, uint16_t size) {
+		eeprom_read_block(target, (uint8_t*)offset, size);
 	}
-	
-private:
-	T value;	
+	static void writeBlock(eptr_t target, const void* source, uint16_t size) {
+		eeprom_update_block(source, (void*)target, size);
+	}	
 };
-
-typedef Sensor<bool> SwitchSensor;
-
-
