@@ -67,6 +67,11 @@ DisplayType DISPLAY_REF display = realDisplay;
 
 void setup()
 {
+#if BREWPI_BUZZER	
+	buzzer.init();
+	buzzer.beep(2, 500);
+#endif	
+
 	piLink.init();
 
 	logDebug("started");	
@@ -86,11 +91,6 @@ void setup()
 		
 	rotaryEncoder.init();
 	
-#if BREWPI_BUZZER	
-	buzzer.init();
-	buzzer.beep(2, 500);
-#endif	
-
 	logDebug("init complete");
 }
 

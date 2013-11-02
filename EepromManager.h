@@ -37,7 +37,7 @@ public:
 		return eeprom_read_byte((uint8_t*)offset);
 	}
 	static void writeByte(eptr_t offset, uint8_t value) {
-		eeprom_write_byte((uint8_t*)offset, value);
+		eeprom_update_byte((uint8_t*)offset, value);
 	}
 	
 	static void readBlock(void* target, eptr_t offset, uint16_t size) {

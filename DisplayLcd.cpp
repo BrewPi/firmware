@@ -37,11 +37,11 @@ LcdDriver LcdDisplay::lcd;
 static const char STR_Beer_[] PROGMEM = "Beer ";
 static const char STR_Fridge_[] PROGMEM = "Fridge ";
 static const char STR_Const_[] PROGMEM = "Const.";
-static const char STR_for[] PROGMEM = "for";
-static const char STR_Waiting_to_[] PROGMEM = "Waiting to ";
-static const char STR_Cooling_[] PROGMEM = "Cooling ";
-static const char STR_Heating_[] PROGMEM = "Heating ";
-static const char STR_min_time[] PROGMEM = "min time";
+static const char STR_Cool[] PROGMEM = "Cool";
+static const char STR_Heat[] PROGMEM = "Heat";
+static const char STR_ing_for[] PROGMEM = "ing for";
+static const char STR_Wait_to_[] PROGMEM = "Wait to ";
+static const char STR__time_left[] PROGMEM = " time left";
 static const char STR_empty_string[] PROGMEM = "";
 
 void LcdDisplay::init(void){
@@ -179,9 +179,8 @@ void LcdDisplay::printMode(void){
 
 // print the current state on the last line of the lcd
 void LcdDisplay::printState(void){
-	uint16_t time;
+	uint16_t time = UINT_MAX; // init to max
 	uint8_t state = tempControl.getDisplayState();
-	uint8_t counterPrintPos=0;
 	if(state != stateOnDisplay){ //only print static text when state has changed
 		stateOnDisplay = state;
 		// Reprint state and clear rest of the line
@@ -189,35 +188,35 @@ void LcdDisplay::printState(void){
 		const char * part2 = STR_empty_string;
 		switch (state){
 			case IDLE:
-				part1 = PSTR("Idle ");
-				part2 = STR_for;
+				part1 = PSTR("Idl");
+				part2 = STR_ing_for;
 				break;
 			case WAITING_TO_COOL:
-				part1 = STR_Waiting_to_;
-				part2 = PSTR("cool");
+				part1 = STR_Wait_to_;
+				part2 = STR_Cool;
 				break;
 			case WAITING_TO_HEAT:
-				part1 = STR_Waiting_to_;
-				part2 = PSTR("heat");
+				part1 = STR_Wait_to_;
+				part2 = STR_Heat;
 				break;
 			case WAITING_FOR_PEAK_DETECT:
-				part1 = PSTR("Awaiting peak detect");
+				part1 = PSTR("Waiting for peak");
 				break;
 			case COOLING:
-				part1 = STR_Cooling_;
-				part2 = STR_for;
+				part1 = STR_Cool;
+				part2 = STR_ing_for;
 				break;
 			case HEATING:
-				part1 = STR_Heating_;
-				part2 = STR_for;
+				part1 = STR_Heat;
+				part2 = STR_ing_for;
 				break;
 			case COOLING_MIN_TIME:
-				part1 = STR_Cooling_;
-				part2 = STR_min_time;
+				part1 = STR_Cool;
+				part2 = STR__time_left;
 				break;
 			case HEATING_MIN_TIME:
-				part1 = STR_Heating_;
-				part2 = STR_min_time;
+				part1 = STR_Heat;
+				part2 = STR__time_left;
 				break;
 			case DOOR_OPEN:
 				part1 = PSTR("Door open");
@@ -235,30 +234,36 @@ void LcdDisplay::printState(void){
 	}
 	uint16_t sinceIdleTime = tempControl.timeSinceIdle();
 	if(state==IDLE){
-		counterPrintPos = 9;
 		time = 	min(tempControl.timeSinceCooling(), tempControl.timeSinceHeating());
 	}
 	else if(state==COOLING || state==HEATING){
-		counterPrintPos = 12;
 		time = sinceIdleTime;
 	}
 	else if(state==COOLING_MIN_TIME){
-		counterPrintPos = 17;
 		time = MIN_COOL_ON_TIME-sinceIdleTime;
 	}
 	
 	else if(state==HEATING_MIN_TIME){
-		counterPrintPos = 17;
 		time = MIN_HEAT_ON_TIME-sinceIdleTime;
 	}
 	else if(state == WAITING_TO_COOL || state == WAITING_TO_HEAT){
-		counterPrintPos = 16;
 		time = tempControl.getWaitTime();
 	}
-	if(counterPrintPos > 0){
+	if(time != UINT_MAX){
 		char timeString[10];
-		sprintf_P(timeString,STR_FMT_U, (unsigned int) time); // cheaper than itoa, because it overlaps with vsnprintf
-		printAt(counterPrintPos, 3, timeString);
-		lcd.printSpacesToRestOfLine(); // overwrite previous numbers that had more digits
+#if DISPLAY_TIME_HMS  // 96 bytes more space required. 
+		unsigned int minutes = time/60;		
+		unsigned int hours = minutes/60;
+		int stringLength = sprintf_P(timeString, PSTR("%dh%02dm%02d"), hours, minutes%60, time%60);
+		char * printString = timeString;
+		if(!hours){
+			printString = &timeString[2];
+			stringLength = stringLength-2;
+		}
+		printAt(20-stringLength, 3, printString);
+#else
+		int stringLength = sprintf_P(timeString, STR_FMT_U, (unsigned int)time);
+		printAt(20-stringLength, 3, timeString);
+#endif		
 	}
 }
