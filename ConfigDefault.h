@@ -71,10 +71,6 @@
 #define BREWPI_LOG_DEBUG 0
 #endif
 
-#ifndef BREWPI_STATIC_CONFIG
-#define BREWPI_STATIC_CONFIG BREWPI_SHIELD_REV_C
-#endif
-
 /**
  * This flag virtualizes as much of the hardware as possible, so the code can be run in the AvrStudio simulator, which
  * only emulates the microcontroller, not any attached peripherals.
@@ -157,9 +153,9 @@
 #ifndef BREWPI_BOARD
 
 #if defined(USBCON)
-	#define BREWPI_BOARD 'l'		// standard
+	#define BREWPI_BOARD 'l'		// leonardo
 #else
-	#define BREWPI_BOARD 's'		// leonardo
+	#define BREWPI_BOARD 's'		// standard
 #endif
 
 #endif
