@@ -27,11 +27,18 @@
  * That is all that is needed! No hassle with makefiles and compiling libraries.
  */
 #include "Brewpi.h"
+#include <avr/wdt.h>
 
 // setup and loop are in brewpi_config so they can be reused across projects
 extern void setup(void);
 extern void loop (void);
 
+
+void handleReset() 
+{ 
+	wdt_enable(WDTO_30MS); // enable watchdog timer
+	while(1) {}; // wait for time-out
+}
 
 void main() __attribute__ ((noreturn)); // tell the compiler main doesn't return.
 

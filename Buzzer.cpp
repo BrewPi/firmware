@@ -19,14 +19,15 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "Brewpi.h"
-#include "FastDigitalPin.h"
 #include "Ticks.h"
 #include "Pins.h"
 #include "Buzzer.h"
-#include <util/delay.h>
 
 #if BREWPI_BUZZER
+#include <util/delay.h>
+#include "FastDigitalPin.h"
 
 #if (alarmPin != 3)
 	#error "Check PWM settings when you want to use a different pin for the alarm"
@@ -67,7 +68,19 @@ void Buzzer::init(void){
 	OCR2A = 125; // timer top. This value adjusts the frequency.
 	OCR2B = 62;
 #endif
+}
 
+void Buzzer::setActive(bool active)
+{
+	if (active!=this->isActive()) {
+		ValueActuator::setActive(active);
+		if (active) {
+			BEEP_ON();
+		}
+		else {
+			BEEP_OFF();
+		}
+	}
 }
 
 void Buzzer::beep(uint8_t numBeeps, uint16_t duration){

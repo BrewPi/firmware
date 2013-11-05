@@ -21,34 +21,12 @@
 #pragma once
 
 #include "Brewpi.h"
-#include <avr/eeprom.h>
 
-typedef uint16_t eptr_t;
-#define INVALID_EPTR (0)
+#include "EepromAccess.h"
 
 
 void fill(int8_t* p, uint8_t size);
 void clear(uint8_t* p, uint8_t size);
-
-class EepromAccess
-{
-public:
-	static uint8_t readByte(eptr_t offset) {
-		return eeprom_read_byte((uint8_t*)offset);
-	}
-	static void writeByte(eptr_t offset, uint8_t value) {
-		eeprom_update_byte((uint8_t*)offset, value);
-	}
-	
-	static void readBlock(void* target, eptr_t offset, uint16_t size) {
-		eeprom_read_block(target, (uint8_t*)offset, size);
-	}
-	static void writeBlock(eptr_t target, const void* source, uint16_t size) {
-		eeprom_update_block(source, (void*)target, size);
-	}	
-};
-
-extern EepromAccess eepromAccess;
 
 class DeviceConfig;
 

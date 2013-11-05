@@ -20,6 +20,8 @@
 
 #pragma once
 
+#ifdef ARDUINO
+
 #include "Brewpi.h"
 
 /*
@@ -42,3 +44,5 @@ public:
 	void millis(uint16_t millis);
 	void microseconds(uint32_t micros) { ::delayMicroseconds(micros); }	
 };
+
+#endif

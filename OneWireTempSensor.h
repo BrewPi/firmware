@@ -23,6 +23,7 @@
 #include "Brewpi.h"
 #include "TempSensor.h"
 #include "FastDigitalPin.h"
+#include "DallasTemperature.h"
 
 class DallasTemperature;
 class OneWire;

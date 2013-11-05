@@ -33,7 +33,7 @@ OneWireTempSensor::~OneWireTempSensor(){
 /**
  * Initializes the temperature sensor.
  * This method is called when the sensor is first created and also any time the sensor reports it's disconnected.
- * If the result is DEVICE_DISCONNECTED then subsequent calls to read() will also return DEVICE_DISCONNECTED.
+ * If the result is TEMP_SENSOR_DISCONNECTED then subsequent calls to read() will also return TEMP_SENSOR_DISCONNECTED.
  * Clients should attempt to re-initialize the sensor by calling init() again. 
  */
 fixed7_9 OneWireTempSensor::init(){
@@ -49,7 +49,7 @@ fixed7_9 OneWireTempSensor::init(){
 		if (sensor==NULL) {
 			logErrorString(ERROR_SRAM_SENSOR, addressString);
 			setConnected(false);
-			return DEVICE_DISCONNECTED;
+			return TEMP_SENSOR_DISCONNECTED;
 		}
 	}
 	
@@ -60,7 +60,7 @@ fixed7_9 OneWireTempSensor::init(){
 			// error no sensor found
 			logErrorInt(ERROR_SENSOR_NO_ADDRESS_ON_PIN, pinNr);
 			setConnected(false);
-			return DEVICE_DISCONNECTED;
+			return TEMP_SENSOR_DISCONNECTED;
 		}
 		else {
 			#if (BREWPI_DEBUG > 0)
@@ -74,7 +74,7 @@ fixed7_9 OneWireTempSensor::init(){
 	// scanning each sensor since this brings things to a halt.
 	if (!sensor->isConnected(sensorAddress)) {
 		setConnected(false);
-		return DEVICE_DISCONNECTED;		
+		return TEMP_SENSOR_DISCONNECTED;		
 	}
 		
 	logDebug("Fetching initial temperature of sensor %s", addressString);
@@ -94,7 +94,7 @@ fixed7_9 OneWireTempSensor::init(){
 			logDebug("Sensor initial temp read: pin %d %s %d", this->oneWire->pinNr(), addressString, temperature);
 			if(ticks.timeSince(lastRequestTime) > 4) {
 				setConnected(false);
-				return DEVICE_DISCONNECTED;
+				return TEMP_SENSOR_DISCONNECTED;
 			}
 		}
 	}
@@ -128,7 +128,7 @@ void OneWireTempSensor::setConnected(bool connected) {
 
 fixed7_9 OneWireTempSensor::read(){
 	if (!connected)
-		return DEVICE_DISCONNECTED;
+		return TEMP_SENSOR_DISCONNECTED;
 	
 	if(ticks.timeSince(lastRequestTime) > 5){ // if last request is longer than 5 seconds ago, request again and delay
 		sensor->requestTemperatures();
@@ -138,7 +138,7 @@ fixed7_9 OneWireTempSensor::read(){
 	fixed7_9 temperature = sensor->getTempRaw(sensorAddress);
 	if(temperature == DEVICE_DISCONNECTED){
 		setConnected(false);
-		return DEVICE_DISCONNECTED;
+		return TEMP_SENSOR_DISCONNECTED;
 	}	
 	// sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits and add the offset for storage
 	temperature = constrainTemp(temperature+calibrationOffset+(C_OFFSET>>5), ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5;

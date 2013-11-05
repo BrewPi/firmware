@@ -19,29 +19,31 @@
  */
 
 #include "Brewpi.h"
+#include <stdarg.h>
+
 #include "stddef.h"
 #include "PiLink.h"
 
 #include "Version.h"
 #include "TempControl.h"
 #include "Display.h"
-#include <stdarg.h>
-#include <avr/pgmspace.h>
-#include <util/delay.h>
-#include <limits.h>
-#include <string.h>
 #include "JsonKeys.h"
 #include "Ticks.h"
 #include "Brewpi.h"
 #include "EepromManager.h"
 #include "EepromFormat.h"
 #include "SettingsManager.h"
+#include "Buzzer.h"
+#include "Display.h"
+
+#ifdef ARDUINO
+#include "util/delay.h"
+#endif
+
 #if BREWPI_SIMULATE
 #include "Simulator.h"
 #endif
 
-bool PiLink::firstPair;
-char PiLink::printfBuff[PRINTF_BUFFER_SIZE];
 // Rename Serial to piStream, to abstract it for later platform independence
 
 #if BREWPI_EMULATE
@@ -50,7 +52,8 @@ char PiLink::printfBuff[PRINTF_BUFFER_SIZE];
 		public:
 		void print(char c) {}
 		void print(const char* c) {}
-		void printNewLine() {};
+		void printNewLine() {}
+                void println() {}
 		int read() { return -1; }
 		int available() { return -1; }
 		void begin(unsigned long) {}
@@ -62,13 +65,21 @@ char PiLink::printfBuff[PRINTF_BUFFER_SIZE];
 
 	static MockSerial mockSerial;
 	#define piStream mockSerial
+#elif !defined(ARDUINO)
+        StdIO stdIO;
+        #define piStream stdIO
 #else
 	#define piStream Serial
 #endif
 
+bool PiLink::firstPair;
+char PiLink::printfBuff[PRINTF_BUFFER_SIZE];
+                
 void PiLink::init(void){
 	piStream.begin(57600);	
 }
+
+extern void handleReset();
 
 // create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
 void PiLink::print_P(const char *fmt, ... ){
@@ -96,6 +107,7 @@ void PiLink::printNewLine(){
 	piStream.println();
 }
 
+
 void printNibble(uint8_t n)
 {
 	n &= 0xF;
@@ -103,8 +115,8 @@ void printNibble(uint8_t n)
 }
 
 void PiLink::receive(void){
-	if (piStream.available() > 0){		
-		char inByte = piStream.read();
+	if (piStream.available() > 0) {		
+		char inByte = piStream.read();              
 		if (inByte=='\n' || inByte=='\r')		// allow newlines between commands
 			return;			
 						
@@ -118,6 +130,13 @@ void PiLink::receive(void){
 			printSimulatorSettings();
 			break;		
 #endif						
+		case 'A': // alarm on
+			soundAlarm(true);
+			break;
+		case 'a': // alarm off
+			soundAlarm(false);
+			break;
+			
 		case 't': // temperatures requested
 			printTemperatures();      
 			break;		
@@ -223,14 +242,14 @@ void PiLink::receive(void){
 #endif
 
 		case 'R': // reset 
-			asm volatile ("  jmp 0"); 
-			break;
-			
+                        handleReset();
+                        break;
 		default:
 			logWarningInt(WARNING_INVALID_COMMAND, inByte);
 		}
 	}
 }
+
 
 
 #define COMPACT_SERIAL BREWPI_SIMULATE
@@ -694,7 +713,10 @@ static uint8_t* const filterSettings[] = {
 #define MAKE_FILTER_SETTING_TARGET(filterType, sensorTarget)  (void*)(uint8_t(filterType)+uint8_t(sensorTarget)*3)
 
 void applyFilterSetting(const char* val, void* target) {
-	uint8_t offset = uint8_t(uint16_t(target));		// target is really just an integer
+	// the cast was  (uint8_t(uint16_t(target), changed to unsigned int so that the
+        // first cast is the same width as a pointer, avoiding a warning    
+        uint8_t offset = uint8_t((unsigned int)(target));		// target is really just an integer
+        
 	FilterType filterType = FilterType(offset&3);
 	TempSensorTarget sensorTarget = TempSensorTarget(offset/3);
 	
@@ -789,5 +811,14 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 	logWarning(WARNING_COULD_NOT_PROCESS_SETTING);
 }
 
+void PiLink::soundAlarm(bool active)
+{
+	alarm.setActive(active);
+}
 
-	
+
+#ifndef ARDUINO
+void PiLink::print(char c) { piStream.print(c); }
+#endif
+
+

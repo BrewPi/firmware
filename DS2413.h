@@ -20,6 +20,8 @@
 
 #pragma once
 
+#ifdef ARDUINO
+
 #include "Brewpi.h"
 #include "OneWire.h"
 #include "PiLink.h"
@@ -31,7 +33,8 @@ typedef uint8_t pio_t;
 #define DS2413_DYNAMIC_ADDRESS 0
 #endif
 
-#define  DS2413_FAMILY_ID 0x3A
+#define  DS2413_FAMILY_ID 0x3A
+
 class DS2413
 {
 public:
@@ -207,3 +210,5 @@ private:
 	DeviceAddress address;
 	uint8_t state;
 };
+
+#endif

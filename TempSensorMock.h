@@ -42,7 +42,7 @@ public:
 	fixed7_9 read()
 	{
 		if (!isConnected())
-			return DEVICE_DISCONNECTED;
+			return TEMP_SENSOR_DISCONNECTED;
 		
 		switch (tempControl.getMode()) {
 			case COOLING:

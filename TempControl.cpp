@@ -20,8 +20,6 @@
 #include "Brewpi.h"
 
 #include "Pins.h"
-#include <avr/eeprom.h>
-#include <avr/pgmspace.h>
 #include <limits.h>
 
 #include "TemperatureFormats.h"
@@ -118,7 +116,7 @@ void TempControl::updateTemperatures(void){
 	
 	// Read ambient sensor to keep the value up to date. If no sensor is connected, this does nothing.
 	// This prevents a delay in serial response because the value is not up to date.
-	if(ambientSensor->read() == DEVICE_DISCONNECTED){
+	if(ambientSensor->read() == TEMP_SENSOR_DISCONNECTED){
 		ambientSensor->init(); // try to reconnect a disconnected, but installed sensor
 	}
 }
@@ -138,10 +136,10 @@ fixed7_9 multiplyFixed7_9(fixed7_9 a, fixed7_9 b)
 void TempControl::updatePID(void){
 	static unsigned char integralUpdateCounter = 0;
 	if(tempControl.modeIsBeer()){
-		if(cs.beerSetting == INT_MIN){
+		if(cs.beerSetting == INVALID_TEMP){
 			// beer setting is not updated yet
 			// set fridge to unknown too
-			cs.fridgeSetting = INT_MIN;
+			cs.fridgeSetting = INVALID_TEMP;
 			return;
 		}
 		
@@ -209,7 +207,7 @@ void TempControl::updatePID(void){
 	}
 	else if(cs.mode == MODE_FRIDGE_CONSTANT){
 		// FridgeTemperature is set manually, use INT_MIN to indicate beer temp is not active
-		cs.beerSetting = INT_MIN;
+		cs.beerSetting = INVALID_TEMP;
 	}
 }
 
@@ -234,7 +232,7 @@ void TempControl::updateState(void){
 		state = IDLE;
 		stayIdle = true;
 	}
-
+	
 	uint16_t sinceIdle = timeSinceIdle();
 	uint16_t sinceCooling = timeSinceCooling();
 	uint16_t sinceHeating = timeSinceHeating();
@@ -524,7 +522,7 @@ void TempControl::loadConstants(eptr_t offset){
 // The update functions only write to EEPROM if the value has changed
 void TempControl::storeSettings(eptr_t offset){
 	eepromAccess.writeBlock(offset, (void *) &cs, sizeof(ControlSettings));
-	storedBeerSetting = cs.beerSetting;
+	storedBeerSetting = cs.beerSetting;		
 }
 
 void TempControl::loadSettings(eptr_t offset){
@@ -561,8 +559,8 @@ void TempControl::setMode(char newMode, bool force){
 		cs.mode = newMode;
 		if(newMode==MODE_BEER_PROFILE || newMode == MODE_OFF){
 			// set temperatures to undefined until temperatures have been received from RPi
-			cs.beerSetting = INT_MIN;
-			cs.fridgeSetting = INT_MIN;
+			cs.beerSetting = INVALID_TEMP;
+			cs.fridgeSetting = INVALID_TEMP;
 		}
 		eepromManager.storeTempSettings();
 	}
@@ -573,7 +571,7 @@ fixed7_9 TempControl::getBeerTemp(void){
 		return beerSensor->readFastFiltered();	
 	}
 	else{
-		return INT_MIN;
+		return INVALID_TEMP;
 	}
 }
 
@@ -586,7 +584,7 @@ fixed7_9 TempControl::getFridgeTemp(void){
 		return fridgeSensor->readFastFiltered();		
 	}
 	else{
-		return INT_MIN;
+		return INVALID_TEMP;
 	}
 }
 
@@ -607,7 +605,7 @@ void TempControl::setBeerTemp(fixed7_9 newTemp){
 		// Do not store settings every time in profile mode, because EEPROM has limited number of write cycles.
 		// A temperature ramp would cause a lot of writes
 		// If Raspberry Pi is connected, it will update the settings anyway. This is just a safety feature.
-		eepromManager.storeTempSettings();		
+		eepromManager.storeTempSettings();
 	}		
 }
 

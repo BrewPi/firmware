@@ -116,11 +116,11 @@ fixed7_9 constrainTemp16(fixed23_9 val)
 		return fixed7_9(val);
 	return (upper<0) ? INT_MIN : INT_MAX; // upper > 0 || upper < -1
 	*/
-	if(val<INT_MIN){
-		return INT_MIN;
+	if(val<INVALID_TEMP){
+		return INVALID_TEMP;
 	}
 	if(val>INT_MAX){
-		return INT_MAX;
+		return INVALID_TEMP;
 	}
 	return val;	
 }

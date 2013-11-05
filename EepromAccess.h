@@ -1,6 +1,6 @@
 /*
  * Copyright 2013 BrewPi/Elco Jacobs.
- * Copyright 2013 Matthew McGowan 
+ * Copyright 2013 Matthew McGowan.
  *
  * This file is part of BrewPi.
  * 
@@ -20,44 +20,19 @@
 
 #pragma once
 
+#include "EepromTypes.h"
+
 #ifdef ARDUINO
 
-#include "Brewpi.h"
-#include "Actuator.h"
-#include "DS2413.h"
-#include "PiLink.h"
+#include "ArduinoEepromAccess.h"
+typedef ArduinoEepromAccess EepromAccess;
 
-/**
- * An actuator that operates by communicating with a DS2413 device.
- */
-class OneWireActuator : public Actuator
-{
-public:	
+#else
 
-	OneWireActuator(OneWire* bus, DeviceAddress address, pio_t pio, bool invert=true) {
-		init(bus, address, pio, invert);
-	}
+#include "ArrayEepromAccess.h"
 
-	void init(OneWire* bus, DeviceAddress address, pio_t pio, bool invert=true) {
-		this->invert = invert;		
-		this->pio = pio;
-		device.init(bus, address);
-	}
-	
-
-	void setActive(bool active) {
-		device.channelWrite(pio, active^invert);
-	}
-
-	bool isActive() {
-		return device.channelRead(pio, false);
-	}
-
-			
-private:
-	DS2413 device;
-	pio_t pio;
-	bool invert;
-};
+typedef ArrayEepromAccess EepromAccess;
 
 #endif
+
+extern EepromAccess eepromAccess;

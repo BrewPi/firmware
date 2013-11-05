@@ -18,6 +18,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Brewpi.h"
 #include "Simulator.h"
 
 #include "Display.h"
@@ -114,6 +115,7 @@ const char SimulatorBeerConnected[] PROGMEM = "bc";
 const char SimulatorBeerVolume[] PROGMEM = "bv";
 const char SimulatorCoolPower[] PROGMEM = "c";
 const char SimulatorDoorState[] PROGMEM = "d";
+const char SimulatorEnabled[] PROGMEM = "e";
 const char SimulatorFridgeTemp[] PROGMEM = "f";
 const char SimulatorFridgeConnected[] PROGMEM = "fc";
 const char SimulatorFridgeVolume[] PROGMEM = "fv";
@@ -126,6 +128,7 @@ const char SimulatorRoomTempMin[] PROGMEM = "rmi";
 const char SimulatorRoomTempMax[] PROGMEM = "rmx";
 const char SimulatorBeerDensity[] PROGMEM = "sg";
 const char SimulatorTime[] PROGMEM = "t";
+
 
 void setTicks(ExternalTicks& externalTicks, const char* val, int multiplier=1000) {		
 	
@@ -209,6 +212,10 @@ void HandleSimulatorConfig(const char* key, const char* val, void* pv)
 	else if (!strcmp_P(key, SimulatorNoise)) {
 		simulator.setSensorNoise(atof(val));
 	}
+	else if (strcmp_P(key, SimulatorEnabled)==0) {		// 0 for closed, anything else for open
+		simulator.setSimulationEnabled(strcmp(val, "0")!=0);
+	}
+        
 }
 
 void PiLink::printDouble(double val)

@@ -21,11 +21,9 @@
 #include "RotaryEncoder.h"
 
 #include "Pins.h"
-#include "util/atomic.h"
 #include <limits.h>
 #include "Ticks.h"
 #include "Display.h"
-#include "FastDigitalPin.h"
 #include "Brewpi.h"
 #include "TempControl.h"
 
@@ -181,6 +179,9 @@ const uint8_t PROGMEM ttable[7][4] = {
 };
 
 #if BREWPI_ROTARY_ENCODER
+#include "util/atomic.h"
+#include "FastDigitalPin.h"
+
 
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_DIY
 #if !defined(USBCON)
@@ -299,6 +300,7 @@ void RotaryEncoder::init(void){
 
 
 void RotaryEncoder::setRange(int16_t start, int16_t minVal, int16_t maxVal){
+#if BREWPI_ROTARY_ENCODER    
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
 		// this part cannot be interrupted
 		// Multiply by two to convert to half steps
@@ -306,6 +308,7 @@ void RotaryEncoder::setRange(int16_t start, int16_t minVal, int16_t maxVal){
 		minimum = minVal;
 		maximum = maxVal; // +1 to make sure that one step is still two half steps at overflow
 	}		
+#endif        
 }
 
 bool RotaryEncoder::changed(void){

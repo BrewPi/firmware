@@ -23,9 +23,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
-#include <util/delay.h>
 #include "FastDigitalPin.h"
 #include "Pins.h"
+
+#include <util/delay.h>
 #include <util/atomic.h>
 
 #if BREWPI_SHIFT_LCD

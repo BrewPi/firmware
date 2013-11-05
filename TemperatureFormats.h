@@ -45,6 +45,8 @@ typedef int32_t fixed7_25; // fixed7_25 uses 7 signed int bits and 25 fraction b
 typedef int16_t fixed12_4;	// 1 sign bit, 11 integer bits, and 4 fraction bits - encoding returned by DS18B20 sensors.
 typedef int8_t fixed4_4;	// fixed4_4 uses 1-sign bit, 3 int bits and 4 fraction bits. Corresponds with precision of DS18B20 sensors
 
+#define INVALID_TEMP -32768		
+
 inline int8_t asIntFixed7_9(fixed7_9 val) { return val>>9; }
 
 char * tempToString(char * s, fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength);
