@@ -160,7 +160,7 @@
   <avrgcccpp.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcccpp.assembler.debugging.DebugLevel>
 </AvrGccCpp>
     </ToolchainSettings>
-    <PostBuildEvent> $(ARDUINO_HOME)\hardware\tools\avr\avr\bin\nm --size-sort --print-size -r -td "$(OutputDirectory)\$(OutputFileName)$(OutputFileExtension)" &gt; $(OutputDirectory)\avr-size.txt</PostBuildEvent>
+    <PostBuildEvent> $(ARDUINO_HOME)\hardware\tools\avr\avr\bin\nm --demangle --size-sort --print-size -r -td "$(OutputDirectory)\$(OutputFileName)$(OutputFileExtension)" &gt; $(OutputDirectory)\avr-size.txt</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Actuator.cpp">

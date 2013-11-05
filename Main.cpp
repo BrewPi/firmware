@@ -27,7 +27,6 @@
  * That is all that is needed! No hassle with makefiles and compiling libraries.
  */
 #include "Brewpi.h"
-#include <avr/wdt.h>
 
 // setup and loop are in brewpi_config so they can be reused across projects
 extern void setup(void);
@@ -36,8 +35,9 @@ extern void loop (void);
 
 void handleReset() 
 { 
-	wdt_enable(WDTO_30MS); // enable watchdog timer
-	while(1) {}; // wait for time-out
+	// resetting using the watchdog timer (which is a full reset of all registers) 
+	// might not be compatible with old Arduino bootloaders. jumping to 0 is safer.
+	asm volatile ("  jmp 0");
 }
 
 void main() __attribute__ ((noreturn)); // tell the compiler main doesn't return.
