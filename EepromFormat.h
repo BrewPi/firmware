@@ -28,7 +28,7 @@
 struct ChamberSettings
 {
 	ControlConstants cc;
-	byte reserved[3];
+	byte reserved[1];	// was 3, but added pidMax
 };
 
 struct BeerBlock {
