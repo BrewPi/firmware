@@ -51,8 +51,8 @@ public:
 		return connected;
 	}		
 	
-	fixed7_9 init();
-	fixed7_9 read();
+	temperature init();
+	temperature read();
 	
 	private:
 

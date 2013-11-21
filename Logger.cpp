@@ -47,7 +47,7 @@ void Logger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * varTyp
 				piLink.print_P(LOG_STRING_FORMAT, tempToString(buf, va_arg(args,int), 1, 12));
 			break;
 			case 'f': // fixed point value
-				piLink.print_P(LOG_STRING_FORMAT, fixedPointToString(buf, (fixed7_9) va_arg(args,int), 3, 12));
+				piLink.print_P(LOG_STRING_FORMAT, fixedPointToString(buf, (temperature) va_arg(args,int), 3, 12));
 			break;			
 		}
 		if(varTypes[++index]){

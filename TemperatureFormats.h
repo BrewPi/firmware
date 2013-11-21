@@ -21,6 +21,7 @@
 
 #include "Brewpi.h"
 #include <inttypes.h>
+#include <limits.h>
 // all temperature are stored as fixed point integers:
 // 7 bits for the integer part: -64 to 63
 // 9 bits for the fraction part
@@ -38,27 +39,50 @@ typedef int16_t fixed12_4;	// 1 sign bit, 11 integer bits, and 4 fraction bits -
 typedef int8_t fixed4_4;	// fixed4_4 uses 1-sign bit, 3 int bits and 4 fraction bits. Corresponds with precision of DS18B20 sensors
 
 #define INVALID_TEMP -32768		
+#define MAX_TEMP INT_MAX
+#define MIN_TEMP INT_MIN+1
 
-inline int8_t asIntFixed7_9(fixed7_9 val) { return val>>9; }
+/* Temperature expressed as an integer. */
+typedef int8_t temp_int;
+typedef fixed7_9 temperature;
+typedef fixed23_9 long_temperature;
+typedef fixed7_25 temperature_precise;
 
-char * tempToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength);
-fixed7_9 stringToTemp(const char * string);
+#define TEMP_FIXED_POINT_BITS (9)
+#define TEMP_FIXED_POINT_SCALE (1<<TEMP_FIXED_POINT_BITS)
+#define TEMP_FIXED_POINT_MASK (TEMP_FIXED_POINT_SCALE-1)
+#define TEMP_PRECISE_EXTRA_FRACTION_BITS 16
 
-char * tempDiffToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength);
-fixed7_9 stringToTempDiff(const char * string);
+inline int8_t tempToInt(temperature val) { return int8_t(val>>TEMP_FIXED_POINT_BITS); }
+inline int16_t longTempToInt(long_temperature val) { return int16_t(val>>TEMP_FIXED_POINT_BITS); }
+inline temperature intToTemp(int8_t val) { return temperature(val)<<TEMP_FIXED_POINT_BITS; }
+inline temperature doubleToTemp(double temp) { return temp*TEMP_FIXED_POINT_SCALE>=MAX_TEMP ? MAX_TEMP : temp*TEMP_FIXED_POINT_SCALE<=MIN_TEMP ? MIN_TEMP : temperature(temp*TEMP_FIXED_POINT_SCALE); }
 
-char * fixedPointToString(char s[9], fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength);
-char * fixedPointToString(char s[9], fixed7_9 rawValue, uint8_t numDecimals, uint8_t maxLength);
-fixed23_9 stringToFixedPoint(const char * numberString);
+inline long_temperature intToLongTemp(int16_t val) { return long_temperature(val)<<9; }
 
-int fixedToTenths(fixed23_9 temperature);
-fixed7_9 tenthsToFixed(int temperature);
+inline temperature tempPreciseToRegular(temperature_precise val) { return val>>TEMP_PRECISE_EXTRA_FRACTION_BITS; }
+inline temperature_precise tempRegularToPrecise(temperature val) { return temperature_precise(val)<<TEMP_PRECISE_EXTRA_FRACTION_BITS; }
 
-fixed7_9 constrainTemp(fixed23_9 val, fixed7_9 lower, fixed7_9 upper);
+char * tempToString(char s[9], long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
+temperature stringToTemp(const char * string);
 
+char * tempDiffToString(char s[9], long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
+temperature stringToTempDiff(const char * string);
 
+char * fixedPointToString(char s[9], long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
+char * fixedPointToString(char s[9], temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
+long_temperature stringToFixedPoint(const char * numberString);
 
-fixed7_9 constrainTemp16(fixed23_9 val);
+int fixedToTenths(long_temperature temperature);
+temperature tenthsToFixed(int temperature);
+
+temperature constrainTemp(long_temperature val, temperature lower, temperature upper);
+
+temperature constrainTemp16(long_temperature val);
+
+temperature multiplyTemperatureLong(temperature a, long_temperature b);
+temperature multiplyTemperature(temperature a, temperature b);
+
 	
 
 #define OPTIMIZE_TEMPERATURE_FORMATS 1 && OPTIMIZE_GLOBAL

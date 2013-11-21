@@ -48,41 +48,41 @@ const uint16_t HEAT_PEAK_DETECT_TIME = 900;
 // These two structs are stored in and loaded from EEPROM
 struct ControlSettings{
 	char mode;
-	fixed7_9 beerSetting;
-	fixed7_9 fridgeSetting;
-	fixed7_9 heatEstimator; // updated automatically by self learning algorithm
-	fixed7_9 coolEstimator; // updated automatically by self learning algorithm
+	temperature beerSetting;
+	temperature fridgeSetting;
+	temperature heatEstimator; // updated automatically by self learning algorithm
+	temperature coolEstimator; // updated automatically by self learning algorithm
 };
 
 struct ControlVariables{
-	fixed7_9 beerDiff;
-	fixed23_9 diffIntegral; // also uses 9 fraction bits, but more integer bits to prevent overflow
-	fixed7_9 beerSlope;
-	fixed7_9 p;
-	fixed7_9 i;
-	fixed7_9 d;
-	fixed7_9 estimatedPeak;
-	fixed7_9 negPeakEstimate; // last estimate
-	fixed7_9 posPeakEstimate;
-	fixed7_9 negPeak; // last detected peak
-	fixed7_9 posPeak;
+	temperature beerDiff;
+	long_temperature diffIntegral; // also uses 9 fraction bits, but more integer bits to prevent overflow
+	temperature beerSlope;
+	temperature p;
+	temperature i;
+	temperature d;
+	temperature estimatedPeak;
+	temperature negPeakEstimate; // last estimate
+	temperature posPeakEstimate;
+	temperature negPeak; // last detected peak
+	temperature posPeak;
 };
 
 struct ControlConstants{
 	char tempFormat;
-	fixed7_9 tempSettingMin;
-	fixed7_9 tempSettingMax;	
-	fixed7_9 pidMax;
-	fixed7_9 Kp;
-	fixed7_9 Ki;
-	fixed7_9 Kd;
-	fixed7_9 iMaxError;
-	fixed7_9 idleRangeHigh;
-	fixed7_9 idleRangeLow;
-	fixed7_9 heatingTargetUpper;
-	fixed7_9 heatingTargetLower;
-	fixed7_9 coolingTargetUpper;
-	fixed7_9 coolingTargetLower;
+	temperature tempSettingMin;
+	temperature tempSettingMax;	
+	temperature pidMax;
+	temperature Kp;
+	temperature Ki;
+	temperature Kd;
+	temperature iMaxError;
+	temperature idleRangeHigh;
+	temperature idleRangeLow;
+	temperature heatingTargetUpper;
+	temperature heatingTargetLower;
+	temperature coolingTargetUpper;
+	temperature coolingTargetLower;
 	uint16_t maxHeatTimeForEstimate; // max time for heat estimate in seconds
 	uint16_t maxCoolTimeForEstimate; // max time for heat estimate in seconds
 	// for the filter coefficients the b value is stored. a is calculated from b.
@@ -170,15 +170,15 @@ class TempControl{
  	TEMP_CONTROL_METHOD uint16_t timeSinceHeating(void);
   	TEMP_CONTROL_METHOD uint16_t timeSinceIdle(void);
 	  
-	TEMP_CONTROL_METHOD fixed7_9 getBeerTemp(void);
-	TEMP_CONTROL_METHOD fixed7_9 getBeerSetting(void);
-	TEMP_CONTROL_METHOD void setBeerTemp(fixed7_9 newTemp);
+	TEMP_CONTROL_METHOD temperature getBeerTemp(void);
+	TEMP_CONTROL_METHOD temperature getBeerSetting(void);
+	TEMP_CONTROL_METHOD void setBeerTemp(temperature newTemp);
 	
-	TEMP_CONTROL_METHOD fixed7_9 getFridgeTemp(void);
-	TEMP_CONTROL_METHOD fixed7_9 getFridgeSetting(void);
-	TEMP_CONTROL_METHOD void setFridgeTemp(fixed7_9 newTemp);
+	TEMP_CONTROL_METHOD temperature getFridgeTemp(void);
+	TEMP_CONTROL_METHOD temperature getFridgeSetting(void);
+	TEMP_CONTROL_METHOD void setFridgeTemp(temperature newTemp);
 	
-	TEMP_CONTROL_METHOD fixed7_9 getRoomTemp(void) {
+	TEMP_CONTROL_METHOD temperature getRoomTemp(void) {
 		return ambientSensor->read();
 	}
 		
@@ -224,10 +224,10 @@ class TempControl{
 	}
 
 	private:
-	TEMP_CONTROL_METHOD void increaseEstimator(fixed7_9 * estimator, fixed7_9 error);
-	TEMP_CONTROL_METHOD void decreaseEstimator(fixed7_9 * estimator, fixed7_9 error);
+	TEMP_CONTROL_METHOD void increaseEstimator(temperature * estimator, temperature error);
+	TEMP_CONTROL_METHOD void decreaseEstimator(temperature * estimator, temperature error);
 	
-	TEMP_CONTROL_METHOD void updateEstimatedPeak(uint16_t estimate, fixed7_9 estimator, uint16_t sinceIdle);
+	TEMP_CONTROL_METHOD void updateEstimatedPeak(uint16_t estimate, temperature estimator, uint16_t sinceIdle);
 	public:
 	TEMP_CONTROL_FIELD TempSensor* beerSensor;
 	TEMP_CONTROL_FIELD TempSensor* fridgeSensor;
@@ -249,7 +249,7 @@ class TempControl{
 			
 	private:
 	// keep track of beer setting stored in EEPROM
-	TEMP_CONTROL_FIELD fixed7_9 storedBeerSetting;
+	TEMP_CONTROL_FIELD temperature storedBeerSetting;
 
 	// Timers
 	TEMP_CONTROL_FIELD uint16_t lastIdleTime;

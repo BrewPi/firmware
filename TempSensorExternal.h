@@ -42,21 +42,21 @@ class ExternalTempSensor : public BasicTempSensor
 
 	bool isConnected() { return _connected; }
 
-	fixed7_9 init() {
+	temperature init() {
 		return read();
 	}
 	
-	fixed7_9 read() {
+	temperature read() {
 		if (!isConnected())
 			return TEMP_SENSOR_DISCONNECTED;
 		return _temperature;
 	}
 	
-	void setValue(fixed7_9 newTemp) {
+	void setValue(temperature newTemp) {
 		_temperature = newTemp;		
 	}
 	
 	private:
-	fixed7_9 _temperature;
+	temperature _temperature;
 	bool _connected;
 };

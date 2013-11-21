@@ -36,7 +36,7 @@ OneWireTempSensor::~OneWireTempSensor(){
  * If the result is TEMP_SENSOR_DISCONNECTED then subsequent calls to read() will also return TEMP_SENSOR_DISCONNECTED.
  * Clients should attempt to re-initialize the sensor by calling init() again. 
  */
-fixed7_9 OneWireTempSensor::init(){
+temperature OneWireTempSensor::init(){
 
 	// save address and pinNr for debug messages
 	char addressString[17];
@@ -83,7 +83,7 @@ fixed7_9 OneWireTempSensor::init(){
 	sensor->setWaitForConversion(false);
 		
 	// read initial temperature twice - first read is inaccurate
-	fixed7_9 temperature;
+	temperature temperature;
 	for (int i=0; i<2; i++) {
 		temperature = DEVICE_DISCONNECTED;
 		lastRequestTime = ticks.seconds();
@@ -125,7 +125,7 @@ void OneWireTempSensor::setConnected(bool connected) {
 	}
 }
 
-fixed7_9 OneWireTempSensor::read(){
+temperature OneWireTempSensor::read(){
 	if (!connected)
 		return TEMP_SENSOR_DISCONNECTED;
 	
@@ -134,7 +134,7 @@ fixed7_9 OneWireTempSensor::read(){
 		lastRequestTime = ticks.seconds();
 		waitForConversion();
 	}
-	fixed7_9 temperature = sensor->getTempRaw(sensorAddress);
+	temperature temperature = sensor->getTempRaw(sensorAddress);
 	if(temperature == DEVICE_DISCONNECTED){
 		setConnected(false);
 		return TEMP_SENSOR_DISCONNECTED;
