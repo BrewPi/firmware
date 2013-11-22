@@ -142,12 +142,12 @@ temperature stringToTempDiff(const char * numberString){
 	return convertAndConstrain(rawTempDiff, 0);	
 }
 
-int fixedToTenths(long_temperature temperature){
+int fixedToTenths(long_temperature temp){
 	if(tempControl.cc.tempFormat == 'F'){
-		temperature = temperature*9/5 + intToTemp(32); // Convert to Fahrenheit fixed point first
+		temp = temp*9/5 + intToTemp(32); // Convert to Fahrenheit fixed point first
 	}
 	
-	return (int) ((10 * temperature + intToTemp(5)/10) / intToTemp(1)); // return rounded result in tenth of degrees
+	return (int) ((10 * temp + intToTemp(5)/10) / intToTemp(1)); // return rounded result in tenth of degrees
 }
 
 temperature tenthsToFixed(int temperature){

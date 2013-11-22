@@ -53,15 +53,24 @@ typedef fixed7_25 temperature_precise;
 #define TEMP_FIXED_POINT_MASK (TEMP_FIXED_POINT_SCALE-1)
 #define TEMP_PRECISE_EXTRA_FRACTION_BITS 16
 
+#if 0
 inline int8_t tempToInt(temperature val) { return int8_t(val>>TEMP_FIXED_POINT_BITS); }
 inline int16_t longTempToInt(long_temperature val) { return int16_t(val>>TEMP_FIXED_POINT_BITS); }
 inline temperature intToTemp(int8_t val) { return temperature(val)<<TEMP_FIXED_POINT_BITS; }
 inline temperature doubleToTemp(double temp) { return temp*TEMP_FIXED_POINT_SCALE>=MAX_TEMP ? MAX_TEMP : temp*TEMP_FIXED_POINT_SCALE<=MIN_TEMP ? MIN_TEMP : temperature(temp*TEMP_FIXED_POINT_SCALE); }
-
 inline long_temperature intToLongTemp(int16_t val) { return long_temperature(val)<<9; }
-
 inline temperature tempPreciseToRegular(temperature_precise val) { return val>>TEMP_PRECISE_EXTRA_FRACTION_BITS; }
 inline temperature_precise tempRegularToPrecise(temperature val) { return temperature_precise(val)<<TEMP_PRECISE_EXTRA_FRACTION_BITS; }
+#else
+#define tempToInt(val) (val>>TEMP_FIXED_POINT_BITS)
+#define longTempToInt(val) (val>>TEMP_FIXED_POINT_BITS)
+#define intToTemp(val) (temperature(val)<<TEMP_FIXED_POINT_BITS)
+#define doubleToTemp(temp) (temp*TEMP_FIXED_POINT_SCALE>=MAX_TEMP ? MAX_TEMP : temp*TEMP_FIXED_POINT_SCALE<=MIN_TEMP ? MIN_TEMP : temperature(temp*TEMP_FIXED_POINT_SCALE))
+#define intToLongTemp(val) (long_temperature(val)<<9)
+#define tempPreciseToRegular(val) (val>>TEMP_PRECISE_EXTRA_FRACTION_BITS)
+#define tempRegularToPrecise(val) (temperature_precise(val)<<TEMP_PRECISE_EXTRA_FRACTION_BITS)
+
+#endif
 
 char * tempToString(char s[9], long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
 temperature stringToTemp(const char * string);
