@@ -185,7 +185,6 @@
     <Compile Include="ArduinoFunctions.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="arduino\cores\arduino\WString.h" />
     <Compile Include="arduino\variants\pins_arduino.h">
       <SubType>compile</SubType>
     </Compile>
@@ -419,8 +418,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="arduino\" />
-    <Folder Include="arduino\cores\" />
     <Folder Include="arduino\cores\arduino\" />
     <Folder Include="arduino\variants\" />
     <Folder Include="fallback" />
