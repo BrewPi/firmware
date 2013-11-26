@@ -26,7 +26,7 @@
 class Buzzer : public ValueActuator
 {
 	public:
-Buzzer(){};
+	Buzzer(){};
 	~Buzzer(){};
 	
 	void init(void);

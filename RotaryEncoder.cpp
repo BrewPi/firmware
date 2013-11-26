@@ -54,7 +54,10 @@ volatile bool RotaryEncoder::pushFlag;
 	#if rotaryBPin != 1
 	#error Review interrupt vectors when not using pin 1 for menu left
 	#endif
+#endif
 
+#if BREWPI_BOARD!=BREWPI_BOARD_LEONARDO && BREWPI_BOARD!=BREWPI_BOARD_STANDARD
+	#error Rotary encoder code is not compatible with boards other than leonardo or uno yet.
 #endif
 
 // Implementation based on work of Ben Buxton:
@@ -184,50 +187,49 @@ const uint8_t PROGMEM ttable[7][4] = {
 
 
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_DIY
-#if !defined(USBCON)
-	#error DIY shield ONLY compatible with Leonardo board.
-#endif
-
 ISR(INT2_vect) {
 	rotaryEncoder.setPushed();
 }
-#elif defined(USBCON)  // Arduino Leonardo
-ISR(INT6_vect){
-	rotaryEncoder.setPushed();
-}
-#else  // Arduino UNO or older
-ISR(PCINT2_vect){
-	if(!bitRead(PIND,7)){
-		// high to low transition
-		rotaryEncoder.setPushed();
-	}
-}
-#endif
-
-#if BREWPI_STATIC_CONFIG!=BREWPI_SHIELD_DIY
-	ISR(PCINT0_vect){
-		rotaryEncoder.process();
-	}
-#else
 ISR(INT3_vect) {
 	rotaryEncoder.process();
 }
 ISR(INT1_vect) {
 	rotaryEncoder.process();
 }
+#elif BREWPI_BOARD == BREWPI_BOARD_LEONARDO
+ISR(INT6_vect){
+	rotaryEncoder.setPushed();
+}
+ISR(PCINT0_vect){
+	rotaryEncoder.process();
+}
+#elif BREWPI_BOARD == BREWPI_BOARD_STANDARD
+ISR(PCINT2_vect){
+	if(!bitRead(PIND,7)){
+		// high to low transition
+		rotaryEncoder.setPushed();
+	}
+}
+ISR(PCINT0_vect){
+	rotaryEncoder.process();
+}
+#else
+	#error board/processor not supported by rotary encoder code. Disable or fix the rotary encoder.
 #endif
 
 
 void RotaryEncoder::process(void){
 	static uint8_t state=R_START;
 	// Grab state of input pins.
-	#if defined(USBCON)
-	// Arduino Leonardo
+	#if BREWPI_STATIC_CONFIG == BREWPI_SHIELD_DIY
+	uint8_t currPinA = !bitRead(PIND,2);
+	uint8_t currPinB = !bitRead(PIND,3);
+	#elif BREWPI_BOARD == BREWPI_BOARD_LEONARDO
 	uint8_t currPinA = !bitRead(PINB,4);
 	uint8_t currPinB = !bitRead(PINB,5);
-	#else
-	uint8_t currPinA = bitRead(PINB,0);
-	uint8_t currPinB = bitRead(PINB,1);
+	#elif BREWPI_BOARD == BREWPI_BOARD_STANDARD
+	uint8_t currPinA = bitRead(PINB,1);
+	uint8_t currPinB = bitRead(PINB,0);
 	#endif
 	
 	unsigned char pinstate = (currPinB << 1) | currPinA;
@@ -278,7 +280,7 @@ void RotaryEncoder::init(void){
 	#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_DIY
 		EICRA |= (1<<ISC21) | (1<<ISC10) | (1<<ISC30);; // any logical change for encoder pins, falling edge for switch
 		EIMSK |= (1<<INT2) | (1<<INT1) | (1<<INT3); // enable interrupts for each pin	
-	#elif defined(USBCON) // Arduino Leonardo
+	#elif BREWPI_BOARD == BREWPI_BOARD_LEONARDO
 		// falling edge interrupt for switch on INT6
 		EICRB |= (1<<ISC61) | (0<<ISC60);
 		// enable interrupt for INT6
@@ -287,7 +289,7 @@ void RotaryEncoder::init(void){
 		PCICR |= (1<<PCIE0);
 		// enable pin change interrupt on Arduino pin 8 and 9
 		PCMSK0 |= (1<<PCINT5) | (1<<PCINT4);
-	#else // Arduino UNO
+	#elif BREWPI_BOARD == BREWPI_BOARD_STANDARD
 		// enable PCINT0 (PCINT0 and PCINT1 pin) and PCINT2 vector (PCINT23 pin)
 		PCICR |= (1<<PCIE2) | (1<<PCIE0);
 		// enable mask bits for PCINT0 and PCINT1

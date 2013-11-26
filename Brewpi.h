@@ -31,6 +31,10 @@
 #define BREWPI_SHIELD_REV_A	1
 #define BREWPI_SHIELD_REV_C	2
 
+#define BREWPI_BOARD_LEONARDO 'l'
+#define BREWPI_BOARD_STANDARD 's'
+#define BREWPI_BOARD_MEGA 'm'
+#define REWPI_BOARD_UNKNOWN '?'
 
 /*
  * Defines global config for the brewpi project. This file is included in every file in the project to ensure conditional
