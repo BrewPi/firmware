@@ -265,15 +265,10 @@ void RotaryEncoder::setPushed(void){
 
 void RotaryEncoder::init(void){
 #if BREWPI_ROTARY_ENCODER
-	#if(USE_INTERNAL_PULL_UP_RESISTORS)
-	fastPinMode(rotaryAPin, INPUT_PULLUP);
-	fastPinMode(rotaryBPin, INPUT_PULLUP);
-	fastPinMode(rotarySwitchPin, INPUT_PULLUP);
-	#else
-	fastPinMode(rotaryAPin, INPUT);
-	fastPinMode(rotaryBPin, INPUT);
-	fastPinMode(rotarySwitchPin, INPUT);
-	#endif	
+	#define BREWPI_INPUT_PULLUP (USE_INTERNAL_PULL_UP_RESISTORS ? INPUT_PULLUP : INPUT)
+	fastPinMode(rotaryAPin, BREWPI_INPUT_PULLUP);
+	fastPinMode(rotaryBPin, BREWPI_INPUT_PULLUP);
+	fastPinMode(rotarySwitchPin, BREWPI_INPUT_PULLUP);
 	
 	#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_DIY
 		EICRA |= (1<<ISC21) | (1<<ISC10) | (1<<ISC30);; // any logical change for encoder pins, falling edge for switch
