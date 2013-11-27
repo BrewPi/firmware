@@ -228,8 +228,8 @@ void RotaryEncoder::process(void){
 	uint8_t currPinA = !bitRead(PINB,4);
 	uint8_t currPinB = !bitRead(PINB,5);
 	#elif BREWPI_BOARD == BREWPI_BOARD_STANDARD
-	uint8_t currPinA = bitRead(PINB,1);
-	uint8_t currPinB = bitRead(PINB,0);
+	uint8_t currPinA = !bitRead(PINB,0);
+	uint8_t currPinB = !bitRead(PINB,1);
 	#endif
 	
 	unsigned char pinstate = (currPinB << 1) | currPinA;
