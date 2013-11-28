@@ -72,7 +72,6 @@ struct ControlConstants{
 	char tempFormat;
 	temperature tempSettingMin;
 	temperature tempSettingMax;	
-	temperature pidMax;
 	temperature Kp;
 	temperature Ki;
 	temperature Kd;
@@ -94,6 +93,7 @@ struct ControlConstants{
 	uint8_t beerSlopeFilter;	// for PID calculation
 	uint8_t lightAsHeater;		// use the light to heat rather than the configured heater device
 	uint8_t rotaryHalfSteps; // define whether to use full or half steps for the rotary encoder
+	temperature pidMax;
 };
 
 #define EEPROM_TC_SETTINGS_BASE_ADDRESS 0

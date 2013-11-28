@@ -618,7 +618,6 @@ const ControlConstants TempControl::ccDefaults PROGMEM =
 	/* tempFormat */ 'C',
 	/* tempSettingMin */ intToTemp(1),	// +1 deg Celsius
 	/* tempSettingMax */ intToTemp(30),	// +30 deg Celsius
-	/* pidMax */ intToTemp(10),	// +/- 10 deg Celsius
 	
 	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
 	/* Kp	*/ intToTemp(10),	// +5
@@ -651,4 +650,6 @@ const ControlConstants TempControl::ccDefaults PROGMEM =
 	
 	/* lightAsHeater */ 0,
 	/* rotaryHalfSteps */ 0,
+
+	/* pidMax */ intToTemp(10),	// +/- 10 deg Celsius
 };

@@ -33,16 +33,16 @@
 	#error "Check PWM settings when you want to use a different pin for the alarm"
 #endif
 
-#if defined(USBCON)
+#if BREWPI_BOARD == BREWPI_BOARD_LEONARDO
 	#define BUZZER_TIMER_REG TCCR0A
 	#define BUZZER_TIMER_REG_FLAG COM0B1
 	#define BUZZER_TIMER_REG_INIT (void); 
-#elif defined (__AVR_ATmega2560__)
-	#define BUZZER_TIMER_REG TCCR3A
-	#define BUZZER_TIMER_REG_FLAG COM3C1
-#else
+#elif BREWPI_BOARD == BREWPI_BOARD_STANDARD
 	#define BUZZER_TIMER_REG TCCR2A
 	#define BUZZER_TIMER_REG_FLAG COM2B1
+#elif BREWPI_BOARD == BREWPI_BOARD_MEGA 
+	#define BUZZER_TIMER_REG TCCR3A
+	#define BUZZER_TIMER_REG_FLAG COM3C1
 #endif
 
 #define BEEP_ON() bitSet(BUZZER_TIMER_REG,BUZZER_TIMER_REG_FLAG);
@@ -52,21 +52,20 @@ void Buzzer::init(void){
 	// set up square wave PWM for buzzer
 	fastPinMode(alarmPin,OUTPUT);
 
-#if defined(USBCON)
-	// no further setup needed - timer already active
-#elif defined (__AVR_ATmega2560__)
-	TCCR3A = (1<<COM3C1) | (1<<WGM30); 
-	TCCR3C = (1<<WGM32) | (1<<CS31) | (1<<CS30);  // prescaler = 32 
-	OCR3A = 125;  // timer top. This value adjusts the frequency. 
-	OCR3C = 62; 
-	TIMSK3 |= (1 << OCIE3C);
-#else
-	
+#if BREWPI_BOARD == BREWPI_BOARD_LEONARDO
+	// Arduino Leonardo, no further setup needed - timer already active
+#elif BREWPI_BOARD == BREWPI_BOARD_STANDARD
 	// Arduino UNO, buzzer is on OC2B
 	TCCR2A = (1<<COM2B1) | (1<<WGM20);
 	TCCR2B = (1<<WGM22) | (1<<CS21) | (1<<CS20); // prescaler = 32
 	OCR2A = 125; // timer top. This value adjusts the frequency.
 	OCR2B = 62;
+#elif BREWPI_BOARD == BREWPI_BOARD_MEGA
+	TCCR3A = (1<<COM3C1) | (1<<WGM30);
+	TCCR3C = (1<<WGM32) | (1<<CS31) | (1<<CS30);  // prescaler = 32
+	OCR3A = 125;  // timer top. This value adjusts the frequency.
+	OCR3C = 62;
+	TIMSK3 |= (1 << OCIE3C);
 #endif
 }
 

@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include <Arduino.h> // include Arduino.h or USBCON will always be undefined
-
 /**
  * Do not change this file directly - rather edit Config.h
  */
@@ -152,10 +150,15 @@
 
 #ifndef BREWPI_BOARD
 
-#if defined(USBCON)
-	#define BREWPI_BOARD 'l'		// leonardo
+#if defined(__AVR_ATmega32U4__)
+	#define BREWPI_BOARD BREWPI_BOARD_LEONARDO
+#elif defined(__AVR_ATmega328P__)
+	#define BREWPI_BOARD BREWPI_BOARD_STANDARD
+#elif defined(__AVR_ATmega2560__)
+	#define BREWPI_BOARD BREWPI_BOARD_MEGA
 #else
-	#define BREWPI_BOARD 's'		// standard
+	#error Unknown processor type!
+	#define BREWPI_BOARD BREWPI_BOARD_UNKNOWN
 #endif
 
 #endif
