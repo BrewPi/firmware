@@ -42,7 +42,7 @@ extern "C"{
 	#define USB_PID 0x8036
 	#include <CDC.cpp>
 	#include <USBCore.cpp>
-	#include <HID.cpp>
+	// #include <HID.cpp>
 #else
 	// Standard Arduino source files for serial:
 	#include <HardwareSerial.cpp>

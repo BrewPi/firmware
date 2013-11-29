@@ -78,10 +78,10 @@ else ifeq ($(BOARD),uno)
 	MCU_HEADERS = standard
 endif
 
-ARDUINO_HEADERS ?= $(ARDUINO_HOME)/hardware/arduino/cores/arduino
+ARDUINO_HEADERS ?= $(SRC)arduino/cores/arduino
 
-MCU_INCLUDE_VARIANT ?= $(ARDUINO_HOME)/hardware/arduino/variants
-MCU_INCLUDE ?= $(MCU_INCLUDE_VARIANT)\$(MCU_HEADERS)
+MCU_INCLUDE_VARIANT ?= $(SRC)arduino/variants
+MCU_INCLUDE ?= $(MCU_INCLUDE_VARIANT)/$(MCU_HEADERS)
 
 USER_OBJS :=
 

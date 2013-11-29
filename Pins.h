@@ -71,20 +71,13 @@
 #define lcdLatchPin 10
 
 // If you change the interrupt pins, you will also have to review the interrupt vectors of the rotary encoder
-#define rotarySwitchPin 7 // INT6
-#define rotaryAPin 8 // PCINT4
-#define rotaryBPin 9 // PCINT5
-
-// You can use the internal pull-up resistors instead of external ones for the doorPin and the rotary encoder pins
-#ifndef USE_INTERNAL_PULL_UP_RESISTORS
-#define USE_INTERNAL_PULL_UP_RESISTORS 1
-#endif
+#define rotarySwitchPin 7 // INT6 on leo or PCINT23 on uno
+#define rotaryAPin 8 // PCINT4 on leo or PCINT0 on uno
+#define rotaryBPin 9 // PCINT5 on leo or PCINT1 on uno
 
 #define BREWPI_INVERT_ACTUATORS 1
 
 #elif BREWPI_STATIC_CONFIG==BREWPI_SHIELD_DIY
-
-#define BREWPI_INVERT_ACTUATORS 0
 
 // pins
 #define beerSensorPin    10
@@ -110,4 +103,11 @@
 #define DISP_D6 4
 #define DISP_D7 3
 
+#define BREWPI_INVERT_ACTUATORS 0
+
+#endif
+
+// You can use the internal pull-up resistors instead of external ones for the doorPin and the rotary encoder pins
+#ifndef USE_INTERNAL_PULL_UP_RESISTORS
+#define USE_INTERNAL_PULL_UP_RESISTORS 1
 #endif
