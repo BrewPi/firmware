@@ -37,22 +37,22 @@ class CascadedFilter{
 	public:
 	CascadedFilter();
 	~CascadedFilter() {}
-	void init(fixed7_9 val);
+	void init(temperature val);
 	void setCoefficients(uint8_t bValue);
-	fixed7_9 add(fixed7_9 val); // adds a value and returns the most recent filter output
-	fixed7_25 addDoublePrecision(fixed7_25 val);
-	fixed7_9 readInput(void); // returns the most recent filter input
+	temperature add(temperature val); // adds a value and returns the most recent filter output
+	temperature_precise addDoublePrecision(temperature_precise val);
+	temperature readInput(void); // returns the most recent filter input
 
-	fixed7_9 readOutput(void){
+	temperature readOutput(void){
 		return sections[NUM_SECTIONS-1].readOutput(); // return output of last section
 	}
-	fixed7_25 readOutputDoublePrecision(void);
-	fixed7_25 readPrevOutputDoublePrecision(void);
+	temperature_precise readOutputDoublePrecision(void);
+	temperature_precise readPrevOutputDoublePrecision(void);
 	
-	fixed7_9 detectPosPeak(void){
+	temperature detectPosPeak(void){
 		return sections[NUM_SECTIONS-1].detectPosPeak(); // detect peaks in last section
 	}
-	fixed7_9 detectNegPeak(void){
+	temperature detectNegPeak(void){
 		return sections[NUM_SECTIONS-1].detectNegPeak(); // detect peaks in last section
 	}
 };

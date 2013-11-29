@@ -26,7 +26,7 @@
 class MockTempSensor : public BasicTempSensor
 {
 public:	
-	MockTempSensor(fixed7_9 initial, fixed7_9 delta) : _temperature(initial), _delta(delta), _connected(true) { }
+	MockTempSensor(temperature initial, temperature delta) : _temperature(initial), _delta(delta), _connected(true) { }
 	
 	void setConnected(bool connected)
 	{
@@ -35,11 +35,11 @@ public:
 	
 	bool isConnected() { return _connected; }
 
-	fixed7_9 init() {
+	temperature init() {
 		return read();
 	}
 	
-	fixed7_9 read()
+	temperature read()
 	{
 		if (!isConnected())
 			return TEMP_SENSOR_DISCONNECTED;
@@ -57,8 +57,8 @@ public:
 	}
 	
 	private:
-	fixed7_9 _temperature;	
-	fixed7_9 _delta;	
+	temperature _temperature;	
+	temperature _delta;	
 	bool _connected;
 };
 

@@ -254,7 +254,7 @@ private:
 
 	void setBasicTemp(ExternalTempSensor& sensor, double temp)
 	{						
-		fixed7_9 fixedTemp = temp*512>=INT_MAX ? INT_MAX : temp*512<=INT_MIN ? INT_MIN : temp*512L;
+		temperature fixedTemp = doubleToTemp(temp);
 		if (!deviceManager.isDefaultTempSensor(&sensor))
 			sensor.setValue(fixedTemp);				
 	}
@@ -415,7 +415,7 @@ extern Simulator simulator;
  *	A run factor >1  runs as accelerated time. Accurate up to ca. 500.
  *	A run factor of -1 runs at full speed.
  */
-void setRunFactor(fixed7_9 factor);
+void setRunFactor(temperature factor);
 
 /**
  * Callback for handling the simulator JSON config.

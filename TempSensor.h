@@ -64,17 +64,17 @@ class TempSensor {
 	
 	void update();
 	
-	fixed7_9 readFastFiltered(void);
+	temperature readFastFiltered(void);
 
-	fixed7_9 readSlowFiltered(void){
+	temperature readSlowFiltered(void){
 		return slowFilter.readOutput(); //return most recent unfiltered value
 	}
 	
-	fixed7_9 readSlope(void);
+	temperature readSlope(void);
 	
-	fixed7_9 detectPosPeak(void);
+	temperature detectPosPeak(void);
 	
-	fixed7_9 detectNegPeak(void);
+	temperature detectNegPeak(void);
 	
 	void setFastFilterCoefficients(uint8_t b);
 	
@@ -90,7 +90,7 @@ class TempSensor {
 	TempSensorFilter slowFilter;
 	TempSensorFilter slopeFilter;
 	unsigned char updateCounter;
-	fixed7_25 prevOutputForSlope;
+	temperature_precise prevOutputForSlope;
 			
 	friend class ChamberManager;
 	friend class Chamber;

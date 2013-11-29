@@ -28,7 +28,19 @@
 // result can have maximum length of : sign + 3 digits integer part + point + 3 digits fraction part + '\0' = 9 bytes;
 // only 1, 2 or 3 decimals allowed.
 // returns pointer to the string
-// fixed7_23 is used to prevent overflow
+// long_temperature is used to prevent overflow
+char * tempToString(char * s, long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength){ 
+	if(rawValue == INVALID_TEMP){
+		strcpy_P(s, PSTR("null")); 
+		return s;
+	}
+	rawValue = convertFromInternalTemp(rawValue);
+	return fixedPointToString(s, rawValue, numDecimals, maxLength);
+}
+	
+char * fixedPointToString(char * s, temperature rawValue, uint8_t numDecimals, uint8_t maxLength){ 
+	return fixedPointToString(s, long_temperature(rawValue), numDecimals, maxLength);
+}
 
 // this gets rid of snprintf_P
 void mysnprintf_P(char* buf, int len, const char* fmt, ...)
@@ -39,18 +51,14 @@ void mysnprintf_P(char* buf, int len, const char* fmt, ...)
 	va_end (args);
 }
 
-char * fixedPointToString(char * s, fixed7_9 rawValue, uint8_t numDecimals, uint8_t maxLength){
-	return fixedPointToString(s, (fixed23_9)rawValue, numDecimals, maxLength);
-}
-
-char * fixedPointToString(char * s, fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength){ 
+char * fixedPointToString(char * s, long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength){ 
 	s[0] = ' ';
 	if(rawValue < 0l){
 		s[0] = '-';
 		rawValue = -rawValue;
 	}
 	
-	int intPart = rawValue >> 9;
+	int intPart = longTempDiffToInt(rawValue); // rawValue is supposed to be without internal offset
 	uint16_t fracPart;
 	const char* fmt;
 	uint16_t scale;
@@ -68,7 +76,7 @@ char * fixedPointToString(char * s, fixed23_9 rawValue, uint8_t numDecimals, uin
 			fmt = PSTR("%d.%03d");
 			scale = 1000;
 	}
-	fracPart = ((rawValue & 0x01FF) * scale + 256) >> 9; // add 256 for rounding
+	fracPart = ((rawValue & TEMP_FIXED_POINT_MASK) * scale + TEMP_FIXED_POINT_SCALE/2) >> TEMP_FIXED_POINT_BITS; // add 256 for rounding
 	if(fracPart >= scale){
 		intPart++;
 		fracPart = 0;
@@ -77,10 +85,22 @@ char * fixedPointToString(char * s, fixed23_9 rawValue, uint8_t numDecimals, uin
 	return s;
 }
 
-fixed23_9 stringToFixedPoint(const char * numberString){
+temperature stringToTemp(const char * numberString){
+	long_temperature rawTemp = stringToFixedPoint(numberString);
+	rawTemp = convertToInternalTemp(rawTemp);
+	return constrainTemp16(rawTemp);
+}
+
+temperature stringToTempDiff(const char * numberString){
+	long_temperature rawTempDiff = stringToFixedPoint(numberString);
+	rawTempDiff = convertToInternalTempDiff(rawTempDiff);
+	return constrainTemp16(rawTempDiff);
+}
+
+long_temperature stringToFixedPoint(const char * numberString){
 	// receive new temperature as null terminated string: "19.20"
-	fixed23_9 intPart = 0;
-	fixed23_9 fracPart = 0;
+	long_temperature intPart = 0;
+	long_temperature fracPart = 0;
 	
 	char * fractPtr = 0; //pointer to the point in the string
 	bool negative = 0;
@@ -98,36 +118,19 @@ fixed23_9 stringToFixedPoint(const char * numberString){
 		fractPtr++; // add 1 to pointer to skip point
 		int8_t numDecimals = (int8_t) strlen(fractPtr);
 		fracPart = atol(fractPtr);
-		fracPart = fracPart << 9; // 9 bits for fraction part
+		fracPart = fracPart << TEMP_FIXED_POINT_BITS; // bits for fraction part
 		while(numDecimals > 0){
 			fracPart = (fracPart + 5) / 10; // divide by 10 rounded
 			numDecimals--;
 		}
 	}
-	fixed23_9 absVal = ((intPart<<9) +fracPart);
+	long_temperature absVal = (intPart << TEMP_FIXED_POINT_BITS) + fracPart;
 	return negative ? -absVal:absVal;
-}
-
-fixed7_9 constrainTemp16(fixed23_9 val)
-{
-	/* saves just 6 bytes - a bit cryptic for general use!
-	int16_t upper = val>>16;
-	if (((upper+1) & ~1)==0)		// 0 or 1, so upper word was -1 or 0
-		return fixed7_9(val);
-	return (upper<0) ? INT_MIN : INT_MAX; // upper > 0 || upper < -1
-	*/
-	if(val<INVALID_TEMP){
-		return INVALID_TEMP;
-	}
-	if(val>INT_MAX){
-		return INVALID_TEMP;
-	}
-	return val;	
 }
 
 // convertToInternalTemp receives the external temp format in fixed point and converts it to the internal format
 // It scales the value for Fahrenheit and adds the offset needed for absolute temperatures. For temperature differences, use no offset.
-fixed23_9 convertToInternalTemp(fixed23_9 rawTemp, bool addOffset){
+long_temperature convertToInternalTempImpl(long_temperature rawTemp, bool addOffset){
 	if(tempControl.cc.tempFormat == 'F'){ // value received is in F, convert to C
 		rawTemp = (rawTemp) * 5 / 9;
 		if(addOffset){
@@ -143,7 +146,7 @@ fixed23_9 convertToInternalTemp(fixed23_9 rawTemp, bool addOffset){
 }
 
 // convertAndConstrain adds an offset, then scales with *9/5 for Fahrenheit. Use it without the offset argument for temperature differences
-fixed23_9 convertFromInternalTemp(fixed23_9 rawTemp, bool addOffset){
+long_temperature convertFromInternalTempImpl(long_temperature rawTemp, bool addOffset){
 	if(tempControl.cc.tempFormat == 'F'){ // value received is in F, convert to C
 		if(addOffset){
 			rawTemp -= F_OFFSET;
@@ -158,44 +161,23 @@ fixed23_9 convertFromInternalTemp(fixed23_9 rawTemp, bool addOffset){
 	return rawTemp;
 }
 
-char * tempToString(char * s, fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength){
-	if(rawValue == INT_MIN){
-		strcpy_P(s, PSTR("null"));
-		return s;
-	}
-	rawValue = convertFromInternalTemp(rawValue, true);
-	return fixedPointToString(s, rawValue, numDecimals, maxLength);
-}
-
 char * tempDiffToString(char * s, fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength){
-	convertFromInternalTemp(rawValue, false);
+	convertFromInternalTempDiff(rawValue);
 	return fixedPointToString(s, rawValue, numDecimals, maxLength);
 }
 
-fixed7_9 stringToTemp(const char * numberString){
-	fixed23_9 rawTemp = stringToFixedPoint(numberString);
-	rawTemp = convertToInternalTemp(rawTemp, true);
-	return constrainTemp16(rawTemp);
+int fixedToTenths(long_temperature temp){
+	temp = convertFromInternalTemp(temp);
+	return (int) ((10 * temp + intToTempDiff(5)/10) / intToTempDiff(1)); // return rounded result in tenth of degrees
 }
 
-fixed7_9 stringToTempDiff(const char * numberString){
-	fixed23_9 rawTempDiff = stringToFixedPoint(numberString);
-	rawTempDiff = convertToInternalTemp(rawTempDiff, false);	
-	return constrainTemp16(rawTempDiff);
-}
-
-int fixedToTenths(fixed23_9 temperature){
-	temperature = convertFromInternalTemp(temperature, true);
-	return (int) ((10 * temperature + 256) / 512); // return rounded result in tenth of degrees
-}
-
-fixed7_9 tenthsToFixed(int temperature){
-	fixed23_9 fixedPointTemp = convertToInternalTemp(((fixed23_9) temperature * 512 + 5)/10, true);
+temperature tenthsToFixed(int temp){
+	long_temperature fixedPointTemp = convertToInternalTemp(((long_temperature) temp * intToTempDiff(1) + 5) / 10);	
 	return constrainTemp16(fixedPointTemp);
 }
 
-fixed7_9 constrainTemp(fixed23_9 valLong, fixed7_9 lower, fixed7_9 upper){
-	fixed7_9 val = constrainTemp16(valLong);
+temperature constrainTemp(long_temperature valLong, temperature lower, temperature upper){
+	temperature val = constrainTemp16(valLong);
 	
 	if(val < lower){
 		return lower;
@@ -204,5 +186,38 @@ fixed7_9 constrainTemp(fixed23_9 valLong, fixed7_9 lower, fixed7_9 upper){
 	if(val > upper){
 		return upper;
 	}
-	return (fixed7_9)valLong;
+	return temperature(valLong);
+}
+
+
+temperature constrainTemp16(long_temperature val)
+{
+	if(val<MIN_TEMP){
+		return MIN_TEMP;
+	}
+	if(val>MAX_TEMP){
+		return MAX_TEMP;
+	}
+	return val;	
+}
+
+temperature multiplyFactorTemperatureLong(temperature factor, long_temperature b)
+{
+	return constrainTemp16(((long_temperature) factor * (b-C_OFFSET) + C_OFFSET)>>TEMP_FIXED_POINT_BITS);
+}
+
+temperature multiplyFactorTemperatureDiffLong(temperature factor, long_temperature b)
+{
+	return constrainTemp16(((long_temperature) factor * b)>>TEMP_FIXED_POINT_BITS);
+}
+
+
+temperature multiplyFactorTemperature(temperature factor, temperature b)
+{
+	return constrainTemp16(((long_temperature) factor * ((long_temperature) b - C_OFFSET) + C_OFFSET)>>TEMP_FIXED_POINT_BITS);
+}
+
+temperature multiplyFactorTemperatureDiff(temperature factor, temperature b)
+{
+	return constrainTemp16(((long_temperature) factor * (long_temperature) b )>>TEMP_FIXED_POINT_BITS);
 }

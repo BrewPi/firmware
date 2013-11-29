@@ -156,15 +156,15 @@ void Menu::pickMode(void) {
 
 typedef void (* PrintAnnotation)(const char * annotation, ...);
 typedef void (* DisplayUpdate)(void);
-typedef fixed7_9 (* ReadTemp)();
-typedef void (* WriteTemp)(fixed7_9);
+typedef temperature (* ReadTemp)();
+typedef void (* WriteTemp)(temperature);
 
 void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempName, PrintAnnotation printAnnoation, int row) {
 	
-	fixed7_9 oldSetting = readTemp();
-	fixed7_9 newSetting = oldSetting;
-	if(oldSetting == INT_MIN){	 // previous temperature was not defined, start at 20C
-		oldSetting = 20*512;
+	temperature oldSetting = readTemp();
+	temperature startVal = oldSetting;
+	if(oldSetting == INVALID_TEMP){	 // previous temperature was not defined, start at 20C
+		startVal = intToTemp(20);
 	}
 	
 	rotaryEncoder.setRange(fixedToTenths(oldSetting), fixedToTenths(tempControl.cc.tempSettingMin), fixedToTenths(tempControl.cc.tempSettingMax));
@@ -175,20 +175,20 @@ void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempNam
 		if(rotaryEncoder.changed()){
 			lastChangeTime = ticks.seconds();
 			blinkTimer = 0;
-			newSetting = tenthsToFixed(rotaryEncoder.read());
-			display.printTemperatureAt(12, row, newSetting);
+			startVal = tenthsToFixed(rotaryEncoder.read());
+			display.printTemperatureAt(12, row, startVal);
 
 			if( rotaryEncoder.pushed() ){
 				rotaryEncoder.resetPushed();
-				writeTemp(newSetting);
+				writeTemp(startVal);
 				char tempString[9];				
-				printAnnoation(PSTR("%S temp set to %s in Menu."), tempName, tempToString(tempString,newSetting,1,9));
+				printAnnoation(PSTR("%S temp set to %s in Menu."), tempName, tempToString(tempString,startVal,1,9));
 				return;
 			}
 		}	
 		else{
 			if(blinkTimer == 0){
-				display.printTemperatureAt(12, row, newSetting);
+				display.printTemperatureAt(12, row, startVal);
 			}
 			if(blinkTimer == 128){
 				display.printAt_P(12, row, STR_6SPACES); // only 5 needed, but 6 is okay to and lets us re-use the string

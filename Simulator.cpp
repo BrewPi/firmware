@@ -28,11 +28,11 @@
 
 Simulator simulator;
 
-static fixed7_9 funFactor = 0;	// paused
+static temperature funFactor = 0;	// paused
 static unsigned long lastUpdate = 0;
 uint8_t printTempInterval = 5;
 
-void setRunFactor(fixed7_9 factor)
+void setRunFactor(temperature factor)
 {
 	funFactor = factor>>9;		// for now whole values only
 	lastUpdate = ::millis();

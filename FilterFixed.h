@@ -71,42 +71,42 @@ H(z) = 2^-a * -------------------------------------------------
 class FixedFilter{
 	public:
 		// input and output arrays
-		fixed7_25 xv[3];
-		fixed7_25 yv[3];
+		temperature_precise xv[3];
+		temperature_precise yv[3];
 		uint8_t a;
 		uint8_t b;
 
 	public:
 		FixedFilter() { setCoefficients(20); /* default to a b value of 2 */ }
 		~FixedFilter() { }
-		void init(fixed7_9 val);
+		void init(temperature val);
 
 		void setCoefficients(uint8_t bValue) {
 			a = bValue*2+4;
 			b = bValue;
 		}
 		
-		fixed7_9 add(fixed7_9 val); // adds a value and returns the most recent filter output
-		fixed7_25 addDoublePrecision(fixed7_25 val);
+		temperature add(temperature val); // adds a value and returns the most recent filter output
+		temperature_precise addDoublePrecision(temperature_precise val);
 
-		fixed7_9 readOutput(void){
+		temperature readOutput(void){
 			return yv[0]>>16; // return 16 most significant bits of most recent output
 		}
 
-		fixed7_9 readInput(void){
+		temperature readInput(void){
 			return xv[0]>>16; // return 16 most significant bits of most recent input
 		}
 
-		fixed7_25 readOutputDoublePrecision(void){
+		temperature_precise readOutputDoublePrecision(void){
 			return yv[0];
 		}
 
-		fixed7_25 readPrevOutputDoublePrecision(void){
+		temperature_precise readPrevOutputDoublePrecision(void){
 			return yv[1];
 		}
 		
-		fixed7_9 detectPosPeak(void); //returns positive peak or INT_MIN when no peak has been found
-		fixed7_9 detectNegPeak(void); //returns negative peak or INT_MIN when no peak has been found
+		temperature detectPosPeak(void); //returns positive peak or INVALID_TEMP when no peak has been found
+		temperature detectNegPeak(void); //returns negative peak or INVALID_TEMP when no peak has been found
 		
 };
 

@@ -36,7 +36,7 @@ OneWireTempSensor::~OneWireTempSensor(){
  * If the result is TEMP_SENSOR_DISCONNECTED then subsequent calls to read() will also return TEMP_SENSOR_DISCONNECTED.
  * Clients should attempt to re-initialize the sensor by calling init() again. 
  */
-fixed7_9 OneWireTempSensor::init(){
+temperature OneWireTempSensor::init(){
 
 	// save address and pinNr for debug messages
 	char addressString[17];
@@ -84,7 +84,7 @@ fixed7_9 OneWireTempSensor::init(){
 	sensor->setWaitForConversion(false);
 		
 	// read initial temperature twice - first read is inaccurate
-	fixed7_9 temperature;
+	temperature temperature;
 	for (int i=0; i<2; i++) {
 		temperature = DEVICE_DISCONNECTED;
 		lastRequestTime = ticks.seconds();
@@ -100,7 +100,7 @@ fixed7_9 OneWireTempSensor::init(){
 		}
 	}
 	// sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits and add the offset for storage
-	temperature = constrainTemp(temperature+calibrationOffset+(C_OFFSET>>5), ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5;
+	temperature = constrainTemp(temperature+calibrationOffset+(C_OFFSET>>5), ((int) MIN_TEMP)>>5, ((int) MAX_TEMP)>>5)<<5;
 	DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temperature);)
 	
 	setConnected(true);
@@ -127,7 +127,7 @@ void OneWireTempSensor::setConnected(bool connected) {
 	}
 }
 
-fixed7_9 OneWireTempSensor::read(){
+temperature OneWireTempSensor::read(){
 	if (!connected)
 		return TEMP_SENSOR_DISCONNECTED;
 	
@@ -136,13 +136,13 @@ fixed7_9 OneWireTempSensor::read(){
 		lastRequestTime = ticks.seconds();
 		waitForConversion();
 	}
-	fixed7_9 temperature = sensor->getTempRaw(sensorAddress);
+	temperature temperature = sensor->getTempRaw(sensorAddress);
 	if(temperature == DEVICE_DISCONNECTED){
 		setConnected(false);
 		return TEMP_SENSOR_DISCONNECTED;
 	}	
 	// sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits and add the offset for storage
-	temperature = constrainTemp(temperature+calibrationOffset+(C_OFFSET>>5), ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5;
+	temperature = constrainTemp(temperature+calibrationOffset+(C_OFFSET>>5), ((int) MIN_TEMP)>>5, ((int) MAX_TEMP)>>5)<<5;
 
 	// already send request for next read
 	sensor->requestTemperatures();
