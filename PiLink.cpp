@@ -115,12 +115,13 @@ void printNibble(uint8_t n)
 }
 
 void PiLink::receive(void){
-	if (piStream.available() > 0) {		
+	while (piStream.available() > 0) {
 		char inByte = piStream.read();              
-		if (inByte=='\n' || inByte=='\r')		// allow newlines between commands
-			return;			
-						
 		switch(inByte){
+		case ' ':
+		case '\n':
+		case '\r':
+			break;
 
 #if BREWPI_SIMULATE==1
 		case 'y':
