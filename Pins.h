@@ -71,9 +71,9 @@
 #define lcdLatchPin 10
 
 // If you change the interrupt pins, you will also have to review the interrupt vectors of the rotary encoder
-#define rotarySwitchPin 7 // INT6
-#define rotaryAPin 8 // PCINT4
-#define rotaryBPin 9 // PCINT5
+#define rotarySwitchPin 7 // INT6 on leo or PCINT23 on uno
+#define rotaryAPin 8 // PCINT4 on leo or PCINT0 on uno
+#define rotaryBPin 9 // PCINT5 on leo or PCINT1 on uno
 
 #define BREWPI_INVERT_ACTUATORS 1
 
