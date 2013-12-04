@@ -148,20 +148,23 @@
 #define BREWPI_ACTUATOR_PINS 1
 #endif
 
+
 #ifndef BREWPI_BOARD
 
-#if defined(__AVR_ATmega32U4__)
-	#define BREWPI_BOARD BREWPI_BOARD_LEONARDO
+#if !ARDUINO
+        #define BREWPI_BOARD BREWPI_BOARD_UNKNOWN
+#elif defined(__AVR_ATmega32U4__)
+        #define BREWPI_BOARD BREWPI_BOARD_LEONARDO
 #elif defined(__AVR_ATmega328P__)
-	#define BREWPI_BOARD BREWPI_BOARD_STANDARD
+        #define BREWPI_BOARD BREWPI_BOARD_STANDARD
 #elif defined(__AVR_ATmega2560__)
-	#define BREWPI_BOARD BREWPI_BOARD_MEGA
+        #define BREWPI_BOARD BREWPI_BOARD_MEGA
 #else
-	#error Unknown processor type!
-	#define BREWPI_BOARD BREWPI_BOARD_UNKNOWN
+        #error Unknown processor type!
+        #define BREWPI_BOARD BREWPI_BOARD_UNKNOWN
 #endif
 
-#endif
+#endif // ifndef BREWPI_BOARD
 
 #ifndef OPTIMIZE_GLOBAL
 #define OPTIMIZE_GLOBAL 1
