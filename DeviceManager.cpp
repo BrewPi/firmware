@@ -634,9 +634,11 @@ void handleHardwareSpec(const char* key, const char* val, void* pv)
 	}			
 }
 
-inline bool matchAddress(uint8_t* a1, uint8_t* a2, uint8_t count) {
+inline bool matchAddress(uint8_t* detected, uint8_t* configured, uint8_t count) {
+	if (!configured[0])
+		return true;
 	while (count-->0) {
-		if (a1[count]!=a2[count])
+		if (detected[count]!=configured[count])
 			return false;
 	}
 	return true;
