@@ -56,8 +56,10 @@ volatile bool RotaryEncoder::pushFlag;
 	#endif
 #endif
 
+#if BREWPI_ROTARY_ENCODER
 #if BREWPI_BOARD!=BREWPI_BOARD_LEONARDO && BREWPI_BOARD!=BREWPI_BOARD_STANDARD
 	#error Rotary encoder code is not compatible with boards other than leonardo or uno yet.
+#endif
 #endif
 
 // Implementation based on work of Ben Buxton:
