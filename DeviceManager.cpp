@@ -334,7 +334,7 @@ const char DEVICE_ATTRIB_TYPE = 't';
 void handleDeviceDefinition(const char* key, const char* val, void* pv)
 {
 	DeviceDefinition* def = (DeviceDefinition*) pv;
-	logDebug("deviceDef %s:%s", key, val);
+//	logDebug("deviceDef %s:%s", key, val);
 	
 	// the characters are listed in the same order as the DeviceDefinition struct.
 	int8_t idx = indexOf(DeviceDefinition::ORDER, key[0]);
@@ -626,7 +626,7 @@ struct EnumerateHardware
 void handleHardwareSpec(const char* key, const char* val, void* pv)
 {
 	EnumerateHardware* h = (EnumerateHardware*)pv;
-	logDebug("hardwareSpec %s:%s", key, val);
+//	logDebug("hardwareSpec %s:%s", key, val);
 	
 	int8_t idx = indexOf("hpvuf", key[0]);
 	if (idx>=0) {
@@ -693,7 +693,7 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardwa
 	if (h.function && !isAssignable(deviceType(DeviceFunction(h.function)), config.deviceHardware)) 
 		return; // device not applicable for required function
 	
-	logDebug("Handling device");
+//	logDebug("Handling device");
 	out.slot = findHardwareDevice(config);
 	DEBUG_ONLY(logInfoInt(INFO_MATCHING_DEVICE, out.slot));
 	
@@ -706,7 +706,7 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardwa
 	
 	out.value[0] = 0;
 	if (h.values) {
-		logDebug("Fetching device value");
+//		logDebug("Fetching device value");
 		switch (config.deviceHardware) {
 			case DEVICE_HARDWARE_ONEWIRE_TEMP:
 				readTempSensorValue(config.hw, out.value);
@@ -717,7 +717,7 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardwa
 				break;							
 		}
 	}	
-	logDebug("Passing device to callback");
+//	logDebug("Passing device to callback");
 	callback(&config, &out);
 }
 
@@ -749,7 +749,6 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCal
 {		
 #if !BREWPI_SIMULATE
 	int8_t pin;	
-	logDebug("Enumerating one-wire devices");
 	for (uint8_t count=0; (pin=deviceManager.enumOneWirePins(count))>=0; count++) {
 		DeviceConfig config;
 		clear((uint8_t*)&config, sizeof(config));
@@ -757,7 +756,7 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCal
 			continue;
 		config.hw.pinNr = pin;
 		config.chamber = 1; // chamber 1 is default
-		logDebug("Enumerating one-wire devices on pin %d", pin);				
+//		logDebug("Enumerating one-wire devices on pin %d", pin);				
 		OneWire* wire = oneWireBus(pin);	
 		if (wire!=NULL) {
 			wire->reset_search();
@@ -792,7 +791,6 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCal
 				}
 			}
 		}
-		logDebug("Enumerating one-wire devices on pin %d complete", pin);
 	}
 #endif	
 }
@@ -811,7 +809,7 @@ void DeviceManager::enumerateHardware( Stream& p )
 	DeviceOutput out;
 	out.pp = &p;
 
-	logDebug("Enumerating Hardware");
+//	logDebug("Enumerating Hardware");
 	firstDeviceOutput = true;
 	if (spec.hardware==-1 || isOneWire(DeviceHardware(spec.hardware))) {
 		enumerateOneWireDevices(spec, OutputEnumeratedDevices, out);
@@ -820,7 +818,7 @@ void DeviceManager::enumerateHardware( Stream& p )
 		enumeratePinDevices(spec, OutputEnumeratedDevices, out);
 	}
 	
-	logDebug("Enumerating Hardware Complete");
+//	logDebug("Enumerating Hardware Complete");
 }
 
 
