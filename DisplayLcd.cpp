@@ -20,6 +20,7 @@
 #include "Brewpi.h"
 #include "BrewpiStrings.h"
 #include <limits.h>
+#include <stdint.h>
 
 #include "Display.h"
 #include "DisplayLcd.h"
@@ -27,6 +28,7 @@
 #include "TempControl.h"
 #include "TemperatureFormats.h"
 #include "Pins.h"
+
 
 
 uint8_t LcdDisplay::stateOnDisplay;
@@ -51,6 +53,10 @@ void LcdDisplay::init(void){
 	lcd.begin(20, 4);
 	lcd.clear();
 }
+
+#ifndef UINT16_MAX
+#define UINT16_MAX 65535
+#endif
 
 //print all temperatures on the LCD
 void LcdDisplay::printAllTemperatures(void){
@@ -179,7 +185,7 @@ void LcdDisplay::printMode(void){
 
 // print the current state on the last line of the lcd
 void LcdDisplay::printState(void){
-	uint16_t time = UINT_MAX; // init to max
+	uint16_t time = UINT16_MAX; // init to max
 	uint8_t state = tempControl.getDisplayState();
 	if(state != stateOnDisplay){ //only print static text when state has changed
 		stateOnDisplay = state;
