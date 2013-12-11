@@ -37,6 +37,11 @@ char * tempToString(char * s, long_temperature rawValue, uint8_t numDecimals, ui
 	rawValue = convertFromInternalTemp(rawValue);
 	return fixedPointToString(s, rawValue, numDecimals, maxLength);
 }
+
+char * tempDiffToString(char * s, long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength){
+	rawValue = convertFromInternalTempDiff(rawValue);
+	return fixedPointToString(s, rawValue, numDecimals, maxLength);
+}
 	
 char * fixedPointToString(char * s, temperature rawValue, uint8_t numDecimals, uint8_t maxLength){ 
 	return fixedPointToString(s, long_temperature(rawValue), numDecimals, maxLength);
@@ -161,11 +166,6 @@ long_temperature convertFromInternalTempImpl(long_temperature rawTemp, bool addO
 	return rawTemp;
 }
 
-char * tempDiffToString(char * s, fixed23_9 rawValue, uint8_t numDecimals, uint8_t maxLength){
-	convertFromInternalTempDiff(rawValue);
-	return fixedPointToString(s, rawValue, numDecimals, maxLength);
-}
-
 int fixedToTenths(long_temperature temp){
 	temp = convertFromInternalTemp(temp);
 	return (int) ((10 * temp + intToTempDiff(5)/10) / intToTempDiff(1)); // return rounded result in tenth of degrees
@@ -203,7 +203,7 @@ temperature constrainTemp16(long_temperature val)
 
 temperature multiplyFactorTemperatureLong(temperature factor, long_temperature b)
 {
-	return constrainTemp16(((long_temperature) factor * (b-C_OFFSET) + C_OFFSET)>>TEMP_FIXED_POINT_BITS);
+	return constrainTemp16(((long_temperature) factor * (b-C_OFFSET))>>TEMP_FIXED_POINT_BITS);
 }
 
 temperature multiplyFactorTemperatureDiffLong(temperature factor, long_temperature b)
@@ -214,7 +214,7 @@ temperature multiplyFactorTemperatureDiffLong(temperature factor, long_temperatu
 
 temperature multiplyFactorTemperature(temperature factor, temperature b)
 {
-	return constrainTemp16(((long_temperature) factor * ((long_temperature) b - C_OFFSET) + C_OFFSET)>>TEMP_FIXED_POINT_BITS);
+	return constrainTemp16(((long_temperature) factor * ((long_temperature) b - C_OFFSET))>>TEMP_FIXED_POINT_BITS);
 }
 
 temperature multiplyFactorTemperatureDiff(temperature factor, temperature b)

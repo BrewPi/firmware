@@ -20,8 +20,8 @@
 #pragma once
 
 #include "Brewpi.h"
-#include <inttypes.h>
-#include <limits.h>
+#include <stdint.h>
+
 
 // Offsets when converting to the internal format:
 #define C_OFFSET (-24576) // this is also the default offset for the internal temp format
@@ -42,12 +42,12 @@
 typedef int16_t fixed7_9; // fixed7_9 uses 7 signed int bits and 9 fraction bits
 typedef int32_t fixed23_9; // fixed23_9 uses 23 signed int bits and 9 fraction bits. Used when results can overflow
 typedef int32_t fixed7_25; // fixed7_25 uses 7 signed int bits and 25 fraction bits. Used when extra precision is needed
-typedef int16_t fixed12_4;	// 1 sign bit, 11 integer bits, and 4 fraction bits - encoding returned by DS18B20 sensors.
-typedef int8_t fixed4_4;	// fixed4_4 uses 1-sign bit, 3 int bits and 4 fraction bits. Corresponds with precision of DS18B20 sensors
+typedef int16_t fixed12_4; // 1 sign bit, 11 integer bits, and 4 fraction bits - encoding returned by DS18B20 sensors.
+typedef int8_t fixed4_4; // fixed4_4 uses 1-sign bit, 3 int bits and 4 fraction bits. Corresponds with precision of DS18B20 sensors
 
 #define INVALID_TEMP -32768		
-#define MAX_TEMP INT_MAX
-#define MIN_TEMP INT_MIN+1
+#define MAX_TEMP 32767
+#define MIN_TEMP INVALID_TEMP+1
 
 /* Temperature expressed as an integer. */
 typedef int8_t temp_int;
@@ -61,16 +61,46 @@ typedef fixed7_25 temperature_precise;
 #define TEMP_PRECISE_EXTRA_FRACTION_BITS 16
 
 #if 0
-inline int8_t tempToInt(temperature val) { return int8_t((val - C_OFFSET)>>TEMP_FIXED_POINT_BITS); }
-inline int16_t longTempToInt(long_temperature val) { return int16_t((val - C_OFFSET)>>TEMP_FIXED_POINT_BITS); }
-inline int8_t tempDiffToInt(temperature val) { return int8_t((val)>>TEMP_FIXED_POINT_BITS); }
-inline int16_t longTempDiffToInt(long_temperature val) { return int16_t((val)>>TEMP_FIXED_POINT_BITS); }
-inline temperature intToTemp(int8_t val) { return (temperature(val)<<TEMP_FIXED_POINT_BITS) + C_OFFSET; }
-inline temperature intToTempDiff(int8_t val) { return (temperature(val)<<TEMP_FIXED_POINT_BITS); }
-inline temperature doubleToTemp(double temp) { return (temp*TEMP_FIXED_POINT_SCALE + C_OFFSET)>=MAX_TEMP ? MAX_TEMP : (temp*TEMP_FIXED_POINT_SCALE + C_OFFSET)<=MIN_TEMP ? MIN_TEMP : temperature(temp*TEMP_FIXED_POINT_SCALE + C_OFFSET); }
-inline long_temperature intToLongTemp(int16_t val) { return (long_temperature(val)<<TEMP_FIXED_POINT_BITS) + C_OFFSET; }
-inline temperature tempPreciseToRegular(temperature_precise val) { return val>>TEMP_PRECISE_EXTRA_FRACTION_BITS; }
-inline temperature_precise tempRegularToPrecise(temperature val) { return temperature_precise(val)<<TEMP_PRECISE_EXTRA_FRACTION_BITS; }
+
+inline int8_t tempToInt(temperature val) {
+    return int8_t((val - C_OFFSET) >> TEMP_FIXED_POINT_BITS);
+}
+
+inline int16_t longTempToInt(long_temperature val) {
+    return int16_t((val - C_OFFSET) >> TEMP_FIXED_POINT_BITS);
+}
+
+inline int8_t tempDiffToInt(temperature val) {
+    return int8_t((val) >> TEMP_FIXED_POINT_BITS);
+}
+
+inline int16_t longTempDiffToInt(long_temperature val) {
+    return int16_t((val) >> TEMP_FIXED_POINT_BITS);
+}
+
+inline temperature intToTemp(int8_t val) {
+    return (temperature(val) << TEMP_FIXED_POINT_BITS) +C_OFFSET;
+}
+
+inline temperature intToTempDiff(int8_t val) {
+    return (temperature(val) << TEMP_FIXED_POINT_BITS);
+}
+
+inline temperature doubleToTemp(double temp) {
+    return (temp * TEMP_FIXED_POINT_SCALE + C_OFFSET) >= MAX_TEMP ? MAX_TEMP : (temp * TEMP_FIXED_POINT_SCALE + C_OFFSET) <= MIN_TEMP ? MIN_TEMP : temperature(temp * TEMP_FIXED_POINT_SCALE + C_OFFSET);
+}
+
+inline long_temperature intToLongTemp(int16_t val) {
+    return (long_temperature(val) << TEMP_FIXED_POINT_BITS) +C_OFFSET;
+}
+
+inline temperature tempPreciseToRegular(temperature_precise val) {
+    return val >> TEMP_PRECISE_EXTRA_FRACTION_BITS;
+}
+
+inline temperature_precise tempRegularToPrecise(temperature val) {
+    return temperature_precise(val) << TEMP_PRECISE_EXTRA_FRACTION_BITS;
+}
 #else
 #define tempToInt(val) ((val - C_OFFSET)>>TEMP_FIXED_POINT_BITS)
 #define longTempToInt(val) ((val - C_OFFSET)>>TEMP_FIXED_POINT_BITS)
@@ -114,17 +144,20 @@ temperature multiplyFactorTemperatureDiff(temperature factor, temperature b);
 long_temperature convertToInternalTempImpl(long_temperature rawTemp, bool addOffset);
 long_temperature convertFromInternalTempImpl(long_temperature rawTemp, bool addOffset);
 
-inline long_temperature convertToInternalTempDiff(long_temperature rawTempDiff){
-	return convertToInternalTempImpl(rawTempDiff, false);
+inline long_temperature convertToInternalTempDiff(long_temperature rawTempDiff) {
+    return convertToInternalTempImpl(rawTempDiff, false);
 }
-inline long_temperature convertFromInternalTempDiff(long_temperature rawTempDiff){
-	return convertFromInternalTempImpl(rawTempDiff, false);
+
+inline long_temperature convertFromInternalTempDiff(long_temperature rawTempDiff) {
+    return convertFromInternalTempImpl(rawTempDiff, false);
 }
-inline long_temperature convertToInternalTemp(long_temperature rawTemp){
-	return convertToInternalTempImpl(rawTemp, true);
+
+inline long_temperature convertToInternalTemp(long_temperature rawTemp) {
+    return convertToInternalTempImpl(rawTemp, true);
 }
-inline long_temperature convertFromInternalTemp(long_temperature rawTemp){
-	return convertFromInternalTempImpl(rawTemp, true);
+
+inline long_temperature convertFromInternalTemp(long_temperature rawTemp) {
+    return convertFromInternalTempImpl(rawTemp, true);
 }
 
 
