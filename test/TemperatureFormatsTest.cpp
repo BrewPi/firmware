@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
-#include "temperatureFormats.h"
-#include "tempControl.h"
+#include "TemperatureFormats.h"
+#include "TempControl.h"
 
-TEST(temperatureFormatsTest, intToTemp){
+TEST(TemperatureFormatsTest, intToTemp){
     // intToTemp is a macro to initialize temperatures in Celsius
     
     ASSERT_EQ(C_OFFSET, intToTemp(0)); "Storing 0 as internal temperature gets C_OFFSET added";
@@ -10,7 +10,7 @@ TEST(temperatureFormatsTest, intToTemp){
     ASSERT_EQ(-20, tempToInt(intToTemp(-20))) << "Expect conversion from negative int to temp and back to do nothing";;    
 }
 
-TEST(temperatureFormatsTest, intToTempDiff){
+TEST(TemperatureFormatsTest, intToTempDiff){
     // intToTemp is a macro to initialize temperatures in Celsius
     
     ASSERT_EQ(0, intToTempDiff(0)); "Storing 0 as internal temperature difference is stored without offset";
@@ -18,7 +18,7 @@ TEST(temperatureFormatsTest, intToTempDiff){
     ASSERT_EQ(-20, tempDiffToInt(intToTempDiff(-20))) << "Expect conversion from negative int to temp diff and back to do nothing";;    
 }
 
-TEST(temperatureFormatsTest, fixedPointToString){
+TEST(TemperatureFormatsTest, fixedPointToString){
     char result[12];
     
     tempControl.cc.tempFormat = 'C';
@@ -39,7 +39,7 @@ TEST(temperatureFormatsTest, fixedPointToString){
     ASSERT_STREQ(" 5.000", fixedPointToString(result, intToTempDiff(5), 3, 12)) << "Test conversion of a 5 fixed point to String";
 }
 
-TEST(temperatureFormatsTest, tempToString){
+TEST(TemperatureFormatsTest, tempToString){
     char result[9];
     
     tempControl.cc.tempFormat = 'C';
@@ -57,7 +57,7 @@ TEST(temperatureFormatsTest, tempToString){
     ASSERT_STREQ("null", tempToString(result, INVALID_TEMP, 2, 9)) << "Test printing of invalid temperature as null";
 }
 
-TEST(temperatureFormatsTest, tempDiffToString){
+TEST(TemperatureFormatsTest, tempDiffToString){
     char result[9];
     
     tempControl.cc.tempFormat = 'C';
@@ -74,7 +74,7 @@ TEST(temperatureFormatsTest, tempDiffToString){
     ASSERT_STREQ("-9.0", tempDiffToString(result, intToTempDiff(-5), 1, 9)) << "Test conversion of a -5C difference to a string in Fahrenheit";
 }
 
-TEST(temperatureFormatsTest, stringToFixedPoint){   
+TEST(TemperatureFormatsTest, stringToFixedPoint){   
     tempControl.cc.tempFormat = 'C';
     ASSERT_EQ(intToTempDiff(20), stringToFixedPoint("20")) << "Test conversion of string \"20\" to fixed point format";
     ASSERT_EQ(intToTempDiff(-5), stringToFixedPoint("-5")) << "Test conversion of string \"-5\" to fixed point format";    
@@ -86,7 +86,7 @@ TEST(temperatureFormatsTest, stringToFixedPoint){
     ASSERT_EQ(intToTempDiff(1)/4, stringToFixedPoint("0.25")) << "Test conversion of string \"0.25\" to fixed point format";    
 }
 
-TEST(temperatureFormatsTest, stringToTemp){   
+TEST(TemperatureFormatsTest, stringToTemp){   
     tempControl.cc.tempFormat = 'C';
     ASSERT_EQ(intToTemp(20), stringToTemp("20")) << "Test conversion of string \"20\" in Celsius to a temperature";    
     ASSERT_EQ(intToTemp(-5), stringToTemp("-5")) << "Test conversion of string \"-5\" in Celsius to a temperature";    
@@ -100,7 +100,7 @@ TEST(temperatureFormatsTest, stringToTemp){
     ASSERT_EQ(intToTemp(20) + intToTempDiff(1)/10, stringToTemp("68.18")) << "Test conversion of string \"68.18\" in Fahrenheit to a temperature";   
 }
 
-TEST(temperatureFormatsTest, stringToTempDiff){   
+TEST(TemperatureFormatsTest, stringToTempDiff){   
     tempControl.cc.tempFormat = 'C';
     ASSERT_EQ(intToTempDiff(20), stringToTempDiff("20")) << "Test conversion of string \"20\" in Celsius to a temperature difference";    
     ASSERT_EQ(intToTempDiff(-5), stringToTempDiff("-5")) << "Test conversion of string \"-5\" in Celsius to a temperature difference";    
@@ -114,7 +114,7 @@ TEST(temperatureFormatsTest, stringToTempDiff){
     ASSERT_EQ(intToTempDiff(20) + intToTempDiff(1)/10, stringToTempDiff("36.18")) << "Test conversion of string \"68.18\" in Fahrenheit to a temperature difference";   
 }
 
-TEST(temperatureFormatsTest, constrainTempFunctions){
+TEST(TemperatureFormatsTest, constrainTempFunctions){
     tempControl.cc.tempFormat = 'C';
     ASSERT_EQ(intToTemp(1), constrainTemp16(intToTemp(1))) << "Test that constraining value within limits does not alter it";
     ASSERT_EQ(MAX_TEMP, constrainTemp16(MAX_TEMP+1)) << "Test that constraining value above MAX_TEMP limits it to MAX_TEMP";
@@ -124,7 +124,7 @@ TEST(temperatureFormatsTest, constrainTempFunctions){
     ASSERT_EQ(intToTemp(1), constrainTemp(intToTemp(0), intToTemp(1), intToTemp(4))) << "Test that constraining value lower than min is clipped to min";
 }
 
-TEST(temperatureFormatsTest, multiplication){
+TEST(TemperatureFormatsTest, multiplication){
     tempControl.cc.tempFormat = 'C';
     ASSERT_EQ(intToTempDiff(0), multiplyFactorTemperature(intToTempDiff(0), intToTemp(0))) << "Test multiplying a 0 temperature and a 0 temperature";
     ASSERT_EQ(intToTempDiff(20), multiplyFactorTemperature(intToTempDiff(2), intToTemp(10))) << "Test multiplying a temperature and a temperature";
@@ -137,7 +137,7 @@ TEST(temperatureFormatsTest, multiplication){
     ASSERT_EQ(MIN_TEMP, multiplyFactorTemperature(intToTempDiff(-10), intToTemp(10))) << "Test multiplying with a result lower than TEMP_MIN to be clipped";
 }
 
-TEST(temperatureFormatsTest, fixedToTenths){
+TEST(TemperatureFormatsTest, fixedToTenths){
     tempControl.cc.tempFormat = 'C';
     ASSERT_EQ(200, fixedToTenths(intToTemp(20))) << "Test converting internal temp 20C to tenths: 200";
     ASSERT_EQ(201, fixedToTenths(intToTemp(20) + intToTempDiff(6)/100)) << "Test converting internal temp 20.06C to tenths with rounding: 201";
@@ -149,7 +149,7 @@ TEST(temperatureFormatsTest, fixedToTenths){
     ASSERT_EQ(681, fixedToTenths(intToTemp(20) + intToTempDiff(4)/100)) << "Test converting internal temp 20.04C (68.072F) to tenths with rounding: 681";
 }
 
-TEST(temperatureFormatsTest, tenthsToFixed){
+TEST(TemperatureFormatsTest, tenthsToFixed){
     tempControl.cc.tempFormat = 'C';
     ASSERT_EQ(intToTemp(20), tenthsToFixed(200)) << "Test converting tenths 200 in Celsius to internal temp format";
     ASSERT_EQ(intToTemp(20) + intToTempDiff(1)/10, tenthsToFixed(201)) << "Test converting tenths 201 in Celsius to internal temp format";
