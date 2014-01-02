@@ -3,8 +3,8 @@
 #include "Brewpi.h"
 #include <limits.h>
 
-#define DALLASTEMPLIBVERSION "3.7.0"
 
+#define DALLASTEMPLIBVERSION "3.7.2"
 
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -13,7 +13,7 @@
 
 // set to true to include code for new and delete operators
 #ifndef REQUIRESNEW
-#define REQUIRESNEW true
+#define REQUIRESNEW false
 #endif
 
 // set to true to include code implementing alarm search functions
@@ -28,6 +28,8 @@
 #define DS18S20MODEL 0x10
 #define DS18B20MODEL 0x28
 #define DS1822MODEL  0x22
+#define DS1825MODEL  0x3B
+
 
 // OneWire commands
 #define STARTCONVO      0x44  // Tells device to take a temperature reading and put it on the scratchpad
@@ -57,6 +59,9 @@
 
 // Error Codes
 #define DEVICE_DISCONNECTED INT_MIN
+#define DEVICE_DISCONNECTED_C -127
+#define DEVICE_DISCONNECTED_F -196.6
+#define DEVICE_DISCONNECTED_RAW -2032
 
 typedef uint8_t DeviceAddress[8];
 
@@ -66,33 +71,36 @@ class DallasTemperature
 
   DallasTemperature(OneWire*);
 
-  // initalize bus
+  // initialise bus
   void begin(void);
 
   // returns the number of devices found on the bus
   uint8_t getDeviceCount(void);
   
+  // Is a conversion complete on the wire?
+  bool isConversionComplete(void);
+  
   // returns true if address is valid
-  bool validAddress(uint8_t*);
+  bool validAddress(const uint8_t*);
 
   // finds an address at a given index on the bus 
-  bool getAddress(uint8_t*, const uint8_t);
+  bool getAddress(uint8_t*, uint8_t);
   
   // attempt to determine if the device at the given address is connected to the bus
-  bool isConnected(uint8_t*);
+  bool isConnected(const uint8_t*);
 
   // attempt to determine if the device at the given address is connected to the bus
   // also allows for updating the read scratchpad
-  bool isConnected(uint8_t*, uint8_t*);
+  bool isConnected(const uint8_t*, uint8_t*);
 
   // read device's scratchpad
-  void readScratchPad(uint8_t*, uint8_t*);
+  void readScratchPad(const uint8_t*, uint8_t*);
 
   // write device's scratchpad
-  void writeScratchPad(uint8_t*, const uint8_t*);
+  void writeScratchPad(const uint8_t*, const uint8_t*);
 
   // read device's power requirements
-  bool readPowerSupply(uint8_t*);
+  bool readPowerSupply(const uint8_t*);
 
   // get global resolution
   uint8_t getResolution();
@@ -100,11 +108,11 @@ class DallasTemperature
   // set global resolution to 9, 10, 11, or 12 bits
   void setResolution(uint8_t);
 
-  // returns the device resolution, 9-12
-  uint8_t getResolution(uint8_t*);
+  // returns the device resolution: 9, 10, 11, or 12 bits
+  uint8_t getResolution(const uint8_t*);
 
   // set resolution of a device to 9, 10, 11, or 12 bits
-  bool setResolution(uint8_t*, uint8_t);
+  bool setResolution(const uint8_t*, uint8_t);
   
   // sets/gets the waitForConversion flag
   // sets the value of the waitForConversion flag
@@ -119,23 +127,30 @@ class DallasTemperature
 
   bool getWaitForConversion(void);
   
+  // sets/gets the checkForConversion flag
+  void setCheckForConversion(bool);
+  bool getCheckForConversion(void);
+  
   // sends command for all devices on the bus to perform a temperature conversion 
   void requestTemperatures(void);
    
   // sends command for one device to perform a temperature conversion by address
-  bool requestTemperaturesByAddress(uint8_t*);
+  bool requestTemperaturesByAddress(const uint8_t*);
 
   // sends command for one device to perform a temperature conversion by index
   bool requestTemperaturesByIndex(uint8_t);
 
+  // returns temperature raw value (12 bit integer of 1/16 degrees C)
+  int16_t getTemp(const uint8_t* address) { return getTempRaw(address); }
+  
+  int16_t getTempRaw(const uint8_t*);  // changed return type from uint32 to int16 (Elco, BrewPi)
+  
+
   // returns temperature in degrees C
-  float getTempC(uint8_t*);
+  float getTempC(const uint8_t*);
 
   // returns temperature in degrees F
-  float getTempF(uint8_t*);
-
-  // returns temperature in raw bits
-  int16_t getTempRaw(uint8_t*);  // changed return type from uint32 to int16 (Elco, BrewPi)
+  float getTempF(const uint8_t*);
 
   // Get temperature for device index (slow)
   float getTempCByIndex(uint8_t);
@@ -145,26 +160,28 @@ class DallasTemperature
   
   // returns true if the bus requires parasite power
   bool isParasitePowerMode(void);
+  
+  bool isConversionAvailable(const uint8_t*);
 
   #if REQUIRESALARMS
   
-  typedef void AlarmHandler(uint8_t*);
+  typedef void AlarmHandler(const uint8_t*);
 
   // sets the high alarm temperature for a device
   // accepts a char.  valid range is -55C - 125C
-  void setHighAlarmTemp(uint8_t*, const char);
+  void setHighAlarmTemp(const uint8_t*, char);
 
   // sets the low alarm temperature for a device
   // accepts a char.  valid range is -55C - 125C
-  void setLowAlarmTemp(uint8_t*, const char);
+  void setLowAlarmTemp(const uint8_t*, char);
 
   // returns a signed char with the current high alarm temperature for a device
   // in the range -55C - 125C
-  char getHighAlarmTemp(uint8_t*);
+  char getHighAlarmTemp(const uint8_t*);
 
   // returns a signed char with the current low alarm temperature for a device
   // in the range -55C - 125C
-  char getLowAlarmTemp(uint8_t*);
+  char getLowAlarmTemp(const uint8_t*);
   
   // resets internal variables used for the alarm search
   void resetAlarmSearch(void);
@@ -173,7 +190,7 @@ class DallasTemperature
   bool alarmSearch(uint8_t*);
 
   // returns true if ia specific device has an alarm
-  bool hasAlarm(uint8_t*);
+  bool hasAlarm(const uint8_t*);
 
   // returns true if any device is reporting an alarm on the bus
   bool hasAlarm(void);
@@ -182,22 +199,28 @@ class DallasTemperature
   void processAlarms(void);
   
   // sets the alarm handler
-  void setAlarmHandler(AlarmHandler *);
+  void setAlarmHandler(const AlarmHandler *);
   
   // The default alarm handler
-  static void defaultAlarmHandler(uint8_t*);
+  static void defaultAlarmHandler(const uint8_t*);
 
   #endif
 
-  // convert from celsius to farenheit
-  static float toFahrenheit(const float);
+  // convert from Celsius to Fahrenheit
+  static float toFahrenheit(float);
 
-  // convert from farenheit to celsius
-  static float toCelsius(const float);
+  // convert from Fahrenheit to Celsius
+  static float toCelsius(float);
+
+  // convert from raw to Celsius
+  static float rawToCelsius(int16_t);
+
+  // convert from raw to Fahrenheit
+  static float rawToFahrenheit(int16_t);
 
   #if REQUIRESNEW
 
-  // initalize memory area
+  // initialize memory area
   void* operator new (unsigned int);
 
   // delete memory reference
@@ -213,10 +236,13 @@ class DallasTemperature
 
   // used to determine the delay amount needed to allow for the
   // temperature conversion to take place
-  int bitResolution;
+  uint8_t bitResolution;
   
   // used to requestTemperature with or without delay
   bool waitForConversion;
+  
+  // used to requestTemperature to dynamically check if a conversion is complete
+  bool checkForConversion;
   
   // count of devices on the bus
   uint8_t devices;
@@ -224,10 +250,12 @@ class DallasTemperature
   // Take a pointer to one wire instance
   OneWire* _wire;
 
-  // reads scratchpad and returns the temperature in degrees C
-  float calculateTemperature(uint8_t*, uint8_t*);
-  // same function, but for raw bits:
-  int16_t getRawTemperature(uint8_t*, uint8_t*);
+  // reads scratchpad and returns the raw temperature
+  int16_t calculateTemperature(const uint8_t*, uint8_t*);
+  
+  int16_t millisToWaitForConversion(uint8_t);
+
+  void	blockTillConversionComplete(uint8_t, const uint8_t*);
   
   #if REQUIRESALARMS
 
@@ -242,3 +270,4 @@ class DallasTemperature
   #endif
   
 };
+
