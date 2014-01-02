@@ -112,7 +112,7 @@ void LcdDisplay::printTemperatureAt(uint8_t x, uint8_t y, fixed7_9 temp){
 
 
 void LcdDisplay::printTemperature(fixed7_9 temp){
-	if (temp==INT_MIN)
+	if (temp==INVALID_TEMP)
 	{
 		lcd.print_P(PSTR(" --.-"));
 		return;
