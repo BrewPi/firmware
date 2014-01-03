@@ -62,8 +62,6 @@ fixed7_9 OneWireTempSensor::init(){
 		
 	logDebug("Fetching initial temperature of sensor %s", addressString);
 	
-	sensor->setResolution(sensorAddress, 12);
-			
 	// read initial temperature twice - first read is inaccurate
 	fixed7_9 temperature;
 	for (int i=0; i<2; i++) {
@@ -71,10 +69,9 @@ fixed7_9 OneWireTempSensor::init(){
 		lastRequestTime = ticks.seconds();
 		while(temperature == DEVICE_DISCONNECTED) {
 			// loop for up to 4 seconds to find the temperature
-			if (sensor->requestTemperaturesByAddress(sensorAddress))
-			{
+			if (requestConversion()) { // this sets lastRequestTime on successful read			
 				waitForConversion();
-				temperature = sensor->getTempRaw(sensorAddress);				
+				temperature = readAndConstrainTemp();
 				logDebug("Sensor initial temp read: pin %d %s %d", this->oneWire->pinNr(), addressString, temperature);
 			}
 			if(ticks.timeSince(lastRequestTime) > 4) {
@@ -83,7 +80,6 @@ fixed7_9 OneWireTempSensor::init(){
 			}
 		}
 	}
-	temperature = constrainTemp(temperature+calibrationOffset, ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5; // sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits		
 	DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temperature);)	
 	setConnected(true);
 	return temperature;
@@ -92,6 +88,16 @@ fixed7_9 OneWireTempSensor::init(){
 void OneWireTempSensor::waitForConversion()
 {
 	wait.millis(750);
+}
+
+bool OneWireTempSensor::requestConversion()
+{	
+	if (!sensor->requestTemperaturesByAddress(sensorAddress)) {
+		setConnected(false);
+		return false;
+	}
+	lastRequestTime = ticks.seconds();
+	return true;
 }
 
 void OneWireTempSensor::setConnected(bool connected) {
@@ -110,25 +116,30 @@ void OneWireTempSensor::setConnected(bool connected) {
 }
 
 fixed7_9 OneWireTempSensor::read(){
+	
 	if (!connected)
 		return TEMP_SENSOR_DISCONNECTED;
 	
-	if(ticks.timeSince(lastRequestTime) > 5){ // if last request is longer than 5 seconds ago, request again and delay
-		if (sensor->requestTemperaturesByAddress(sensorAddress))
-		lastRequestTime = ticks.seconds();
-		waitForConversion();
+	// MDMA: If we have more than 5000/750 = 6.6 sensors connected (7 or more), and it's more than than 5 seconds since the last read, 
+	// then they will all timeout continually in the next read since each successive round of read calls will take >5s,
+	// causing an endless cycle. Need to find an alternative way to avoid stale data or simply ignore it. 
+	if(ticks.timeSince(lastRequestTime) > 5) { // if last request is longer than 5 seconds ago, request again and delay
+		if (requestConversion())
+			waitForConversion();
 	}
+	
+	fixed7_9 temperature = readAndConstrainTemp();
+	requestConversion();
+	return temperature;
+}
+
+fixed7_9 OneWireTempSensor::readAndConstrainTemp()
+{
 	fixed7_9 temperature = sensor->getTempRaw(sensorAddress);
 	if(temperature == DEVICE_DISCONNECTED){
 		setConnected(false);
 		return TEMP_SENSOR_DISCONNECTED;
 	}
-	temperature = constrainTemp(temperature+calibrationOffset, ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5; // sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits
-
-	// already send request for next read
-	if (!sensor->requestTemperaturesByAddress(sensorAddress))
-		setConnected(false);
-		
-	lastRequestTime = ticks.seconds();
+	temperature = constrainTemp(temperature+calibrationOffset, ((int) INT_MIN)>>5, ((int) INT_MAX)>>5)<<5; // sensor returns 12 bits with 4 fraction bits. Store with 9 fraction bits	
 	return temperature;
 }

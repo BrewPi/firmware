@@ -55,8 +55,17 @@
 #define REQUIRESWAITFORCONVERSION false
 #endif
 
+
+
 // both whole bus ops and indexed address access make use of device enumeration
-#define REQUIREDEVICEENUM REQUIRESWHOLEBUSOPS || REQUIRESINDEXEDADDRESSING
+#ifndef REQUIRESDEVICEENUM
+#define REQUIRESDEVICEENUM REQUIRESWHOLEBUSOPS || REQUIRESINDEXEDADDRESSING
+#endif
+
+// reset detection - ensures that getTemp returns only a valid value from a previous call to requestTemperature
+#ifndef REQUIRESRESETDETECTION
+#define REQUIRESRESETDETECTION !REQUIRESALARMS
+#endif
 
 
 #include <inttypes.h>

@@ -57,7 +57,14 @@ public:
 	private:
 
 	void setConnected(bool connected);
+	bool requestConversion();
 	void waitForConversion();
+	
+	/**
+	 * Reads the temperature. If successful, constrains the temp to the range of the fixed7_9 type and
+	 * updates lastRequestTime. On successful, leaves lastRequestTime alone and returns DEVICE_DISCONNECTED.
+	 */
+	fixed7_9 readAndConstrainTemp();
 	
 	uint16_t lastRequestTime; // in seconds
 	
