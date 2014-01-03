@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Brewpi.h"
+#include "TemperatureFormats.h"
 #include <limits.h>
 
 
@@ -112,7 +113,7 @@
 #define TEMP_12_BIT 0x7F // 12 bit
 
 // Error Codes
-#define DEVICE_DISCONNECTED INT_MIN
+#define DEVICE_DISCONNECTED INVALID_TEMP
 
 #if REQUIRESTEMPCONVERSION || REQUIRESALARMS
 #define DEVICE_DISCONNECTED_C -127

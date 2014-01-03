@@ -88,7 +88,7 @@ void LcdDisplay::printBeerTemp(void){
 }
 
 void LcdDisplay::printBeerSet(void){
-	fixed7_9 beerSet = tempControl.getBeerSetting();	
+	temperature beerSet = tempControl.getBeerSetting();	
 	printTemperatureAt(12, 1, beerSet);	
 }
 
@@ -99,19 +99,19 @@ void LcdDisplay::printFridgeTemp(void){
 }
 
 void LcdDisplay::printFridgeSet(void){	
-	fixed7_9 fridgeSet = tempControl.getFridgeSetting();	
+	temperature fridgeSet = tempControl.getFridgeSetting();	
 	if(flags & LCD_FLAG_DISPLAY_ROOM) // beer setting is not active
 		fridgeSet = INVALID_TEMP;
 	printTemperatureAt(12, 2, fridgeSet);	
 }
 
-void LcdDisplay::printTemperatureAt(uint8_t x, uint8_t y, fixed7_9 temp){
+void LcdDisplay::printTemperatureAt(uint8_t x, uint8_t y, temperature temp){
 	lcd.setCursor(x,y);
 	printTemperature(temp);
 }
 
 
-void LcdDisplay::printTemperature(fixed7_9 temp){
+void LcdDisplay::printTemperature(temperature temp){
 	if (temp==INVALID_TEMP)
 	{
 		lcd.print_P(PSTR(" --.-"));

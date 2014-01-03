@@ -51,8 +51,8 @@ public:
 		return connected;
 	}		
 	
-	fixed7_9 init();
-	fixed7_9 read();
+	temperature init();
+	temperature read();
 	
 	private:
 
@@ -61,10 +61,10 @@ public:
 	void waitForConversion();
 	
 	/**
-	 * Reads the temperature. If successful, constrains the temp to the range of the fixed7_9 type and
+	 * Reads the temperature. If successful, constrains the temp to the range of the temperature type and
 	 * updates lastRequestTime. On successful, leaves lastRequestTime alone and returns DEVICE_DISCONNECTED.
 	 */
-	fixed7_9 readAndConstrainTemp();
+	temperature readAndConstrainTemp();
 	
 	uint16_t lastRequestTime; // in seconds
 	

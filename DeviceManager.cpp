@@ -567,7 +567,7 @@ void DeviceManager::printDevice(device_slot_t slot, DeviceConfig& config, const 
 	}
 #endif	
 	if (config.deviceHardware==DEVICE_HARDWARE_ONEWIRE_TEMP) {
-		tempDiffToString(buf, fixed7_9(config.hw.calibration)<<5, 3, 8);
+		tempDiffToString(buf, temperature(config.hw.calibration)<<5, 3, 8);
 		p.print(",\"j\":");
 		p.print(buf);
 	}
@@ -683,8 +683,8 @@ inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw, char* 
 #if !BREWPI_SIMULATE
 	OneWire* bus = oneWireBus(hw.pinNr);
 	OneWireTempSensor sensor(bus, hw.address, 0);		// NB: this value is uncalibrated, since we don't have the calibration offset until the device is configured
-	fixed7_9 value = sensor.init();	
-	fixedPointToString(out, value, 3, 9);
+	temperature value = sensor.init();	
+	tempToString(out, value, 3, 9);
 #else
 	strcpy_P(out, PSTR("0.00"));
 #endif	
@@ -856,7 +856,7 @@ void UpdateDeviceState(DeviceDisplay& dd, DeviceConfig& dc, char* val)
 		}
 		else if (dt==DEVICETYPE_TEMP_SENSOR) {
 			BasicTempSensor& s = unwrapSensor(dc.deviceFunction, *ppv);
-			fixed7_9 temp = s.read();
+			temperature temp = s.read();
 			fixedPointToString(val, temp, 3, 9);
 		}
 		else if (dt==DEVICETYPE_SWITCH_ACTUATOR) {

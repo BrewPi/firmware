@@ -110,7 +110,7 @@ class SpiLcd : public Print {
 	virtual size_t write(uint8_t);
 
 #define print_P_inline 1
-#if print_P_inline
+#ifdef print_P_inline
 	void print_P(const char * str){ // print a string stored in PROGMEM
 		char buf[21]; // create buffer in RAM
 		strcpy_P(buf, str); // copy string to RAM

@@ -85,8 +85,8 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	DISPLAY_METHOD void updateBacklight() { lcd.updateBacklight(); }
 	
 	// print a temperature
-	DISPLAY_METHOD void printTemperature(fixed7_9 temp);
-	DISPLAY_METHOD void printTemperatureAt(uint8_t x, uint8_t y, fixed7_9 temp);
+	DISPLAY_METHOD void printTemperature(temperature temp);
+	DISPLAY_METHOD void printTemperatureAt(uint8_t x, uint8_t y, temperature temp);
 
 	// print degree sign + C/F
 	DISPLAY_METHOD void printDegreeUnit(uint8_t x, uint8_t y);
