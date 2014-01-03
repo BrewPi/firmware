@@ -53,9 +53,10 @@ temperature OneWireTempSensor::init(){
 		}
 	}
 	
-	// This quickly tests if the sensor is connected. During the main TempControl loop, we don't want to spend many seconds
+	// This quickly tests if the sensor is connected and initializes the reset detection. 
+	// During the main TempControl loop, we don't want to spend many seconds
 	// scanning each sensor since this brings things to a halt.
-	if (!sensor->isConnected(sensorAddress)) {
+	if (!sensor->initConnection(sensorAddress)) {
 		setConnected(false);
 		return TEMP_SENSOR_DISCONNECTED;		
 	}
@@ -120,9 +121,13 @@ temperature OneWireTempSensor::read(){
 	if (!connected)
 		return TEMP_SENSOR_DISCONNECTED;
 	
-	// MDMA: If we have more than 5000/750 = 6.6 sensors connected (7 or more), and it's more than than 5 seconds since the last read, 
-	// then they will all timeout continually in the next read since each successive round of read calls will take >5s,
+	// MDMA: If we have more than 5000/750 = ~6.6 sensors connected (i.e. 7 or more), and the main loop is stalled for more than than 5 seconds (e.g. menu delay)
+	// then all sensors all timeout continually in the next read since each successive round of read calls will take >5s,
 	// causing an endless cycle. Need to find an alternative way to avoid stale data or simply ignore it. 
+	// This should be handled in the main loop. If the loop detects the first long delay, then it reset the onewire devices, and counts the
+	// next delay start from the *end* point when all devices are successfully re-initialized, so the initialization time isn't included in 
+	// the next check. 
+	
 	if(ticks.timeSince(lastRequestTime) > 5) { // if last request is longer than 5 seconds ago, request again and delay
 		if (requestConversion())
 			waitForConversion();

@@ -7,6 +7,9 @@
 // See Includes...
 // Modified by Jordan Hochenbaum
 
+// MDMA: added conditional compile for different facets of the API
+// MDMA: added reset detection support so calling code knows to re-initialize the sensor
+
 #include "brewpi.h"
 #include "DallasTemperature.h"
 #include "Ticks.h"
@@ -38,6 +41,32 @@ DallasTemperature::DallasTemperature(OneWire* _oneWire)
 #if REQUIRESWAITFORCONVERSION
     waitForConversion = true;
     checkForConversion = true;
+#endif	
+}
+
+bool DallasTemperature::initConnection(const uint8_t* deviceAddress) {
+#if REQUIRESRESETDETECTION
+	ScratchPad scratchPad;
+	
+	if (!isConnected(deviceAddress, scratchPad))
+		return false;
+		
+	if (scratchPad[HIGH_ALARM_TEMP]) {		// conditional to avoid wear on eeprom. 			
+		scratchPad[HIGH_ALARM_TEMP] = 0;
+		writeScratchPad(deviceAddress, scratchPad, true);	// save to eeprom
+		
+		// check if the write was successful (HIGH_ALARAM_TEMP == 0)
+		if (!isConnected(deviceAddress, scratchPad) || !detectedReset(scratchPad))
+			return false;
+		
+		scratchPad[HIGH_ALARM_TEMP] = 1;
+		writeScratchPad(deviceAddress, scratchPad, false);	// don't save to eeprom, so that it reverts to 0 on reset
+		// from this point on, if we read a scratchpad with a 0 value in HIGH_ALARM (detectedReset() returns true)
+		// it means the device has reset or the previous write of the scratchpad above was unsuccessful.
+		// Either way, initConnection() should be called again
+		// This is checked for in isConnected()
+	}
+	return true;
 #endif	
 }
 
@@ -112,7 +141,7 @@ bool DallasTemperature::getAddress(uint8_t* deviceAddress, uint8_t index)
 bool DallasTemperature::isConnected(const uint8_t* deviceAddress)
 {
     ScratchPad scratchPad;
-    return isConnected(deviceAddress, scratchPad);
+    return isConnected(deviceAddress, scratchPad) && !detectedReset(scratchPad);
 }
 
 // attempt to determine if the device at the given address is connected to the bus
@@ -203,11 +232,16 @@ void DallasTemperature::writeScratchPad(const uint8_t* deviceAddress, const uint
     if (!isDS18S20Model(deviceAddress)) 
 		_wire->write(scratchPad[CONFIGURATION]); // configuration
     _wire->reset();
-    _wire->select(deviceAddress); //<--this line was missing
-    // save the newly written values to eeprom
-    _wire->write(COPYSCRATCH, isParasitePowerMode());
-    if (isParasitePowerMode()) wait.millis(10); // 10ms delay
-    _wire->reset();
+    
+	// save the newly written values to eeprom
+	if (copyToEeprom)  {
+	    _wire->select(deviceAddress); //<--this line was missing
+		_wire->write(COPYSCRATCH, isParasitePowerMode());
+		if (isParasitePowerMode()) 
+			wait.millis(10); // 10ms delay
+		_wire->reset();
+	}
+	
 }
 
 // reads the device's power requirements
@@ -279,7 +313,7 @@ bool DallasTemperature::setResolution(const uint8_t* deviceAddress, uint8_t newR
             }
 #endif			
 			scratchPad[CONFIGURATION] = resolution;
-            writeScratchPad(deviceAddress, scratchPad, true);
+            writeScratchPad(deviceAddress, scratchPad, false);
         }
         return true;  // new value set
     }
@@ -517,7 +551,7 @@ int16_t DallasTemperature::calculateTemperature(const uint8_t* deviceAddress, ui
 int16_t DallasTemperature::getTempRaw(const uint8_t* deviceAddress)
 {
     ScratchPad scratchPad;
-    if (isConnected(deviceAddress, scratchPad)) return calculateTemperature(deviceAddress, scratchPad);
+    if (isConnected(deviceAddress, scratchPad) && !detectedReset(scratchPad)) return calculateTemperature(deviceAddress, scratchPad);
     return DEVICE_DISCONNECTED;		// use a value that the sensor could not ordinarily measure
 }
 

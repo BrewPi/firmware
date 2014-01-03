@@ -129,6 +129,24 @@ class DallasTemperature
 
   DallasTemperature(OneWire*);
 
+  /*
+   * Initializes the connection with the device. This is done at power up and after detectedReset() returns true.
+   */
+  bool initConnection(const uint8_t* address);
+
+  /*
+   * Determines if the device has been powered off since the last call to init connection. 
+   * Only functional when REQUIRESRESETDETECTION is enabled, otherwise returns false always.
+   */
+  bool detectedReset(const uint8_t* scratchPad) {
+#if REQUIRESRESETDETECTION
+	return scratchPad[HIGH_ALARM_TEMP]==0;
+#else
+	return false;	
+#endif
+	  
+  }
+
 #if REQUIRESDEVICEENUM
   // initialise bus
   void begin(void);
