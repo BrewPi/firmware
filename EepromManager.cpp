@@ -84,47 +84,7 @@ void EepromManager::initializeEeprom()
 
 uint8_t EepromManager::saveDefaultDevices() 
 {
-	DeviceConfig config;
-	clear((uint8_t*)&config, sizeof(config));
-		
-#if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
-	// single-chamber single beer config from original shield
-	
-	config.chamber = 1;			// all devices are in chamber 1
-	config.hw.invert = BREWPI_INVERT_ACTUATORS;		// invert depending upon shield type
-	
-	config.deviceHardware = DEVICE_HARDWARE_PIN;
-	
-	config.deviceFunction = DEVICE_CHAMBER_DOOR;
-	config.hw.pinNr = doorPin;
-	eepromManager.storeDevice(config, 0);
-
-	config.deviceFunction = DEVICE_CHAMBER_HEAT;
-	config.hw.pinNr = heatingPin;
-	eepromManager.storeDevice(config, 1);
-
-	config.deviceFunction = DEVICE_CHAMBER_COOL;
-	config.hw.pinNr = coolingPin;
-	eepromManager.storeDevice(config, 2);
-	
-	config.deviceHardware = DEVICE_HARDWARE_ONEWIRE_TEMP;
-	config.hw.pinNr = fridgeSensorPin;
-	config.deviceFunction = DEVICE_CHAMBER_TEMP;
-	eepromManager.storeDevice(config, 3);
-
-	config.beer = 1;
-	config.hw.pinNr = beerSensorPin;
-	config.deviceFunction = DEVICE_BEER_TEMP;
-	eepromManager.storeDevice(config, 4);
-		
-	return 5;
-
-#elif BREWPI_STATIC_CONFIG>=BREWPI_SHIELD_REV_C
-	// the only component that's not dynamic is the door
-	return 0;	
-#else
 	return 0;
-#endif
 }
 
 #define arraySize(x) (sizeof(x)/sizeof(x[0]))

@@ -21,11 +21,54 @@
 #define REQUIRESALARMS false
 #endif
 
+// support for DS18S20
+#ifndef REQUIRESDS18S20MODEL
+#define REQUIRESDS18S20MODEL false
+#endif
+
+// only support 12-bit resolution (saves 204 bytes)
+#ifndef REQUIRESONLY12BITCONVERSION
+#define REQUIRESONLY12BITCONVERSION true
+#endif
+
+// conversion of raw sensor values to C/F 
+#ifndef REQUIRESTEMPCONVERSION
+#define REQUIRESTEMPCONVERSION false
+#endif
+
+// enable support for parasite mode
+#ifndef REQUIRESPARASITEPOWERAVAILABLE
+#define REQUIRESPARASITEPOWERAVAILABLE false
+#endif
+
+// indexed addressing of sensors
+#ifndef REQUIRESINDEXEDADDRESSING
+#define REQUIRESINDEXEDADDRESSING false
+#endif
+
+// ops that address the entire bus
+#ifndef REQUIRESWHOLEBUSOPS
+#define REQUIRESWHOLEBUSOPS false
+#endif
+
+#ifndef REQUIRESWAITFORCONVERSION
+#define REQUIRESWAITFORCONVERSION false
+#endif
+
+// both whole bus ops and indexed address access make use of device enumeration
+#define REQUIREDEVICEENUM REQUIRESWHOLEBUSOPS || REQUIRESINDEXEDADDRESSING
+
+
 #include <inttypes.h>
 #include "OneWire.h"
 
 // Model IDs
+#if REQUIRESDS18S20MODEL
 #define DS18S20MODEL 0x10
+	#define isDS18S20Model(address) (address[0]==DS18S20MODEL)
+#else
+	#define isDS18S20Model(address) (false)
+#endif
 #define DS18B20MODEL 0x28
 #define DS1822MODEL  0x22
 #define DS1825MODEL  0x3B
@@ -52,15 +95,20 @@
 #define SCRATCHPAD_CRC  8
 
 // Device resolution
+#if !REQUIRESONLY12BITCONVERSION
 #define TEMP_9_BIT  0x1F //  9 bit
 #define TEMP_10_BIT 0x3F // 10 bit
 #define TEMP_11_BIT 0x5F // 11 bit
+#endif
 #define TEMP_12_BIT 0x7F // 12 bit
 
 // Error Codes
 #define DEVICE_DISCONNECTED INT_MIN
+
+#if REQUIRESTEMPCONVERSION || REQUIRESALARMS
 #define DEVICE_DISCONNECTED_C -127
 #define DEVICE_DISCONNECTED_F -196.6
+#endif
 #define DEVICE_DISCONNECTED_RAW -2032
 
 typedef uint8_t DeviceAddress[8];
@@ -71,20 +119,28 @@ class DallasTemperature
 
   DallasTemperature(OneWire*);
 
+#if REQUIRESDEVICEENUM
   // initialise bus
   void begin(void);
+#endif  
 
+#if REQUIRESDEVICEENUM
   // returns the number of devices found on the bus
   uint8_t getDeviceCount(void);
+#endif  
   
+#if REQUIRESWHOLEBUSOPS  
   // Is a conversion complete on the wire?
   bool isConversionComplete(void);
+#endif  
   
   // returns true if address is valid
   bool validAddress(const uint8_t*);
 
+#if REQUIRESDEVICEENUM
   // finds an address at a given index on the bus 
   bool getAddress(uint8_t*, uint8_t);
+#endif  
   
   // attempt to determine if the device at the given address is connected to the bus
   bool isConnected(const uint8_t*);
@@ -97,7 +153,7 @@ class DallasTemperature
   void readScratchPad(const uint8_t*, uint8_t*);
 
   // write device's scratchpad
-  void writeScratchPad(const uint8_t*, const uint8_t*);
+  void writeScratchPad(const uint8_t*, const uint8_t*, boolean copyToEeprom);
 
   // read device's power requirements
   bool readPowerSupply(const uint8_t*);
@@ -120,9 +176,11 @@ class DallasTemperature
   // FALSE: function requestTemperature() etc returns immediately (USE WITH CARE!!)
   // 		  (1) programmer has to check if the needed delay has passed
   //        (2) but the application can do meaningfull things in that time
+#if REQUIRESWAITFORCONVERSION
+
   void setWaitForConversion(bool flag)
   {
-	  waitForConversion = flag;
+	waitForConversion = flag;
   }
 
   bool getWaitForConversion(void);
@@ -131,37 +189,59 @@ class DallasTemperature
   void setCheckForConversion(bool);
   bool getCheckForConversion(void);
   
+#endif
+  
+#if REQUIRESWHOLEBUSOPS
   // sends command for all devices on the bus to perform a temperature conversion 
   void requestTemperatures(void);
+#endif  
    
   // sends command for one device to perform a temperature conversion by address
   bool requestTemperaturesByAddress(const uint8_t*);
 
+
+#if REQUIRESINDEXEDADDRESSING
   // sends command for one device to perform a temperature conversion by index
   bool requestTemperaturesByIndex(uint8_t);
+#endif  
 
   // returns temperature raw value (12 bit integer of 1/16 degrees C)
   int16_t getTemp(const uint8_t* address) { return getTempRaw(address); }
   
-  int16_t getTempRaw(const uint8_t*);  // changed return type from uint32 to int16 (Elco, BrewPi)
+  int16_t getTempRaw(const uint8_t* deviceAddress);  // changed return type from uint32 to int16 (Elco, BrewPi)
   
-
+#if REQUIRESTEMPCONVERSION
   // returns temperature in degrees C
   float getTempC(const uint8_t*);
 
   // returns temperature in degrees F
   float getTempF(const uint8_t*);
 
+#if REQUIRESINDEXEDADDRESSING
   // Get temperature for device index (slow)
   float getTempCByIndex(uint8_t);
   
   // Get temperature for device index (slow)
   float getTempFByIndex(uint8_t);
   
-  // returns true if the bus requires parasite power
-  bool isParasitePowerMode(void);
+#endif // REQUIREINDEXEDADDRESS  
+#endif // REQUIRETEMPCONVERSION
   
+  // returns true if the bus requires parasite power
+  bool isParasitePowerMode(void) {
+#if REQUIRESPARASITEPOWERAVAILABLE
+	return parasite;
+#else
+	return false;
+#endif	  
+  }
+
+#if REQUIRESWAITFORCONVERSION  
+
   bool isConversionAvailable(const uint8_t*);
+
+#endif
+
 
   #if REQUIRESALARMS
   
@@ -206,6 +286,7 @@ class DallasTemperature
 
   #endif
 
+#if REQUIRESTEMPCONVERSION
   // convert from Celsius to Fahrenheit
   static float toFahrenheit(float);
 
@@ -217,6 +298,7 @@ class DallasTemperature
 
   // convert from raw to Fahrenheit
   static float rawToFahrenheit(int16_t);
+#endif // REQUIRESTEMPCONVERSION  
 
   #if REQUIRESNEW
 
@@ -230,32 +312,41 @@ class DallasTemperature
 
   private:
   typedef uint8_t ScratchPad[9];
-  
+
+#if REQUIRESPARASITEPOWERAVAILABLE  
   // parasite power on or off
   bool parasite;
+#endif  
 
+#if !REQUIRESONLY12BITCONVERSION
   // used to determine the delay amount needed to allow for the
   // temperature conversion to take place
   uint8_t bitResolution;
+#endif  
   
+#if REQUIRESWAITFORCONVERSION  
   // used to requestTemperature with or without delay
   bool waitForConversion;
   
   // used to requestTemperature to dynamically check if a conversion is complete
   bool checkForConversion;
+#endif  
   
+#if REQUIRESDEVICEENUM
   // count of devices on the bus
   uint8_t devices;
+#endif  
   
   // Take a pointer to one wire instance
   OneWire* _wire;
 
   // reads scratchpad and returns the raw temperature
   int16_t calculateTemperature(const uint8_t*, uint8_t*);
-  
-  int16_t millisToWaitForConversion(uint8_t);
 
+#if REQUIRESWAITFORCONVERSION  
+  int16_t millisToWaitForConversion(uint8_t);
   void	blockTillConversionComplete(uint8_t, const uint8_t*);
+#endif  
   
   #if REQUIRESALARMS
 
