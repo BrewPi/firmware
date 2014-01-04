@@ -27,8 +27,8 @@ class DisconnectedTempSensor : public BasicTempSensor {
 public:
 	bool isConnected() { return false; }
 
-	temperature init() {
-		return read();
+	bool init() {
+		return read()!=TEMP_SENSOR_DISCONNECTED;
 	}
 	
 	temperature read() {

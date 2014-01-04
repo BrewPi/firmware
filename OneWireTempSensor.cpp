@@ -36,69 +36,40 @@ OneWireTempSensor::~OneWireTempSensor(){
  * If the result is TEMP_SENSOR_DISCONNECTED then subsequent calls to read() will also return TEMP_SENSOR_DISCONNECTED.
  * Clients should attempt to re-initialize the sensor by calling init() again. 
  */
-temperature OneWireTempSensor::init(){
+bool OneWireTempSensor::init(){
 
-	// save address and pinNr for debug messages
+	// save address and pinNr for log messages
 	char addressString[17];
 	printBytes(sensorAddress, 8, addressString);
-
 	uint8_t pinNr = oneWire->pinNr();
+
+	bool success = false;
 
 	if (sensor==NULL) {
 		sensor = new DallasTemperature(oneWire);
 		if (sensor==NULL) {
 			logErrorString(ERROR_SRAM_SENSOR, addressString);
-			setConnected(false);
-			return TEMP_SENSOR_DISCONNECTED;
 		}
 	}
 	
-	// This quickly tests if the sensor is connected and initializes the reset detection. 
+	// This quickly tests if the sensor is connected and initializes the reset detection.
 	// During the main TempControl loop, we don't want to spend many seconds
 	// scanning each sensor since this brings things to a halt.
-	if (!sensor->initConnection(sensorAddress)) {
-		setConnected(false);
-		return TEMP_SENSOR_DISCONNECTED;		
-	}
-		
-	logDebug("Fetching initial temperature of sensor %s", addressString);
-	
-	// read initial temperature twice - first read is inaccurate
-	temperature temperature;
-	for (int i=0; i<2; i++) {
-		temperature = DEVICE_DISCONNECTED;
-		lastRequestTime = ticks.seconds();
-		while(temperature == DEVICE_DISCONNECTED) {
-			// loop for up to 4 seconds to find the temperature
-			if (requestConversion()) { // this sets lastRequestTime on successful read			
-				waitForConversion();
-				temperature = readAndConstrainTemp();
-				logDebug("Sensor initial temp read: pin %d %s %d", this->oneWire->pinNr(), addressString, temperature);
-			}
-			if(ticks.timeSince(lastRequestTime) > 4) {
-				setConnected(false);
-				return TEMP_SENSOR_DISCONNECTED;
-			}
-		}
-	}
-	DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temperature);)	
-	setConnected(true);
-	return temperature;
-}
-
-void OneWireTempSensor::waitForConversion()
-{
-	wait.millis(750);
+	if (sensor && sensor->initConnection(sensorAddress) && requestConversion()) {
+		waitForConversion();
+		temperature temperature = readAndConstrainTemp();
+		DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temperature));
+		success = temperature!=DEVICE_DISCONNECTED && requestConversion();
+	}	
+	setConnected(success);
+	return success;
 }
 
 bool OneWireTempSensor::requestConversion()
 {	
-	if (!sensor->requestTemperaturesByAddress(sensorAddress)) {
-		setConnected(false);
-		return false;
-	}
-	lastRequestTime = ticks.seconds();
-	return true;
+	bool ok = sensor->requestTemperaturesByAddress(sensorAddress);
+	setConnected(ok);
+	return ok;
 }
 
 void OneWireTempSensor::setConnected(bool connected) {
@@ -120,18 +91,6 @@ temperature OneWireTempSensor::read(){
 	
 	if (!connected)
 		return TEMP_SENSOR_DISCONNECTED;
-	
-	// MDMA: If we have more than 5000/750 = ~6.6 sensors connected (i.e. 7 or more), and the main loop is stalled for more than than 5 seconds (e.g. menu delay)
-	// then all sensors all timeout continually in the next read since each successive round of read calls will take >5s,
-	// causing an endless cycle. Need to find an alternative way to avoid stale data or simply ignore it. 
-	// This should be handled in the main loop. If the loop detects the first long delay, then it reset the onewire devices, and counts the
-	// next delay start from the *end* point when all devices are successfully re-initialized, so the initialization time isn't included in 
-	// the next check. 
-	
-	if(ticks.timeSince(lastRequestTime) > 5) { // if last request is longer than 5 seconds ago, request again and delay
-		if (requestConversion())
-			waitForConversion();
-	}
 	
 	temperature temperature = readAndConstrainTemp();
 	requestConversion();

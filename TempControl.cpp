@@ -81,14 +81,18 @@ void TempControl::init(void){
 	cs.mode = MODE_OFF;
 	
 	cameraLight.setActive(false);
+	
+	// this is for cases where the device manager hasn't configured beer/fridge sensor.	
+	if (beerSensor==NULL) {
+		beerSensor = new TempSensor(TEMP_SENSOR_TYPE_BEER, &defaultTempSensor);
+		beerSensor->init();
+	}
 		
-	if (tempControl.beerSensor==NULL)
-		tempControl.beerSensor = new TempSensor(TEMP_SENSOR_TYPE_BEER, &defaultTempSensor);
-	if (tempControl.fridgeSensor==NULL)
-		tempControl.fridgeSensor = new TempSensor(TEMP_SENSOR_TYPE_FRIDGE, &defaultTempSensor);
-		
-	beerSensor->init();
-	fridgeSensor->init();
+	if (fridgeSensor==NULL) {
+		fridgeSensor = new TempSensor(TEMP_SENSOR_TYPE_FRIDGE, &defaultTempSensor);
+		fridgeSensor->init();
+	}
+	
 	updateTemperatures();
 	reset();
 	
@@ -104,15 +108,17 @@ void TempControl::reset(void){
 	doNegPeakDetect=false;
 }
 
+void updateSensor(TempSensor* sensor) {
+	sensor->update();
+	if(!sensor->isConnected()) {
+		sensor->init();
+	}		
+}
+
 void TempControl::updateTemperatures(void){
-	beerSensor->update();
-	if(!beerSensor->isConnected() && tempControl.modeIsBeer()){
-		beerSensor->init(); // try to restart the sensor when controlling beer temperature
-	}
-	fridgeSensor->update();
-	if(!fridgeSensor->isConnected()){
-		fridgeSensor->init(); // always try to restart the fridge sensor
-	}
+	
+	updateSensor(beerSensor);
+	updateSensor(fridgeSensor);
 	
 	// Read ambient sensor to keep the value up to date. If no sensor is connected, this does nothing.
 	// This prevents a delay in serial response because the value is not up to date.

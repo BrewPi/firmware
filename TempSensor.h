@@ -48,6 +48,7 @@ class TempSensor {
 	public:	
 	TempSensor(TempSensorType sensorType, BasicTempSensor* sensor =NULL) : _sensor(sensor)  {
 		updateCounter = 255; // first update for slope filter after (255-4s)
+		failedReadCount = -1;
 	 }	 	 
 	 
 	 void setSensor(BasicTempSensor* sensor) {
@@ -91,6 +92,10 @@ class TempSensor {
 	TempSensorFilter slopeFilter;
 	unsigned char updateCounter;
 	temperature_precise prevOutputForSlope;
+	
+	// An indication of how stale the data is in the filters. Each time a read fails, this value is incremented.
+	// It's used to reset the filters after a large enough disconnect delay, and on the first init.
+	int8_t failedReadCount;		// -1 for uninitialized, >=0 afterwards. 
 			
 	friend class ChamberManager;
 	friend class Chamber;

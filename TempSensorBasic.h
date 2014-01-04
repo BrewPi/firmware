@@ -30,10 +30,9 @@ public:
 	virtual bool isConnected(void) = 0;
 	
 	/*
-	 * Attempt to (re-)initialize the sensor and fetch a sensor reading
-	 * Returns a temperature reading, or TEMP_SENSOR_DISCONNECTED
+	 * Attempt to (re-)initialize the sensor. 	 
 	 */
-	virtual temperature init() =0;
+	virtual bool init() =0;
 
 	/*
 	 * Fetch a new reading from the sensor

@@ -42,8 +42,8 @@ class ExternalTempSensor : public BasicTempSensor
 
 	bool isConnected() { return _connected; }
 
-	temperature init() {
-		return read();
+	bool init() {
+		return read()!=TEMP_SENSOR_DISCONNECTED;
 	}
 	
 	temperature read() {
