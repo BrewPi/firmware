@@ -57,7 +57,6 @@
 #endif
 
 
-
 // both whole bus ops and indexed address access make use of device enumeration
 #ifndef REQUIRESDEVICEENUM
 #define REQUIRESDEVICEENUM REQUIRESWHOLEBUSOPS || REQUIRESINDEXEDADDRESSING
@@ -138,14 +137,7 @@ class DallasTemperature
    * Determines if the device has been powered off since the last call to init connection. 
    * Only functional when REQUIRESRESETDETECTION is enabled, otherwise returns false always.
    */
-  bool detectedReset(const uint8_t* scratchPad) {
-#if REQUIRESRESETDETECTION
-	return scratchPad[HIGH_ALARM_TEMP]==0;
-#else
-	return false;	
-#endif
-	  
-  }
+  bool detectedReset(const uint8_t* scratchPad);
 
 #if REQUIRESDEVICEENUM
   // initialise bus
@@ -339,6 +331,8 @@ class DallasTemperature
   #endif
 
   private:
+  void sendCommand(const uint8_t* deviceAddress, uint8_t command);
+	
   typedef uint8_t ScratchPad[9];
 
 #if REQUIRESPARASITEPOWERAVAILABLE  

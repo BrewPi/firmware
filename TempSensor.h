@@ -46,13 +46,14 @@ enum TempSensorType {
 
 class TempSensor {
 	public:	
-	TempSensor(TempSensorType sensorType, BasicTempSensor* sensor =NULL) : _sensor(sensor)  {
+	TempSensor(TempSensorType sensorType, BasicTempSensor* sensor =NULL)  {
 		updateCounter = 255; // first update for slope filter after (255-4s)
-		failedReadCount = -1;
+		setSensor(sensor);
 	 }	 	 
 	 
 	 void setSensor(BasicTempSensor* sensor) {
 		 _sensor = sensor;
+		 failedReadCount = -1;
 	 }
 
 	bool hasSlowFilter() { return true; }

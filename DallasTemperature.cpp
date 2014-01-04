@@ -48,26 +48,38 @@ bool DallasTemperature::initConnection(const uint8_t* deviceAddress) {
 #if REQUIRESRESETDETECTION
 	ScratchPad scratchPad;
 	
-	if (!isConnected(deviceAddress, scratchPad))
+	if (!isConnected(deviceAddress, scratchPad)) {
 		return false;
+	}
 		
+	// assume the sensor has just been powered on. So this should only be called on initializtion, or
+	// after a device was disconnected.			
 	if (scratchPad[HIGH_ALARM_TEMP]) {		// conditional to avoid wear on eeprom. 			
 		scratchPad[HIGH_ALARM_TEMP] = 0;
 		writeScratchPad(deviceAddress, scratchPad, true);	// save to eeprom
 		
 		// check if the write was successful (HIGH_ALARAM_TEMP == 0)
 		if (!isConnected(deviceAddress, scratchPad) || !detectedReset(scratchPad))
-			return false;
-		
-		scratchPad[HIGH_ALARM_TEMP] = 1;
-		writeScratchPad(deviceAddress, scratchPad, false);	// don't save to eeprom, so that it reverts to 0 on reset
-		// from this point on, if we read a scratchpad with a 0 value in HIGH_ALARM (detectedReset() returns true)
-		// it means the device has reset or the previous write of the scratchpad above was unsuccessful.
-		// Either way, initConnection() should be called again
-		// This is checked for in isConnected()
+			return false;		
 	}
-	return true;
+
+	scratchPad[HIGH_ALARM_TEMP]=1;
+	writeScratchPad(deviceAddress, scratchPad, false);	// don't save to eeprom, so that it reverts to 0 on reset
+	// from this point on, if we read a scratchpad with a 0 value in HIGH_ALARM (detectedReset() returns true)
+	// it means the device has reset or the previous write of the scratchpad above was unsuccessful.
+	// Either way, initConnection() should be called again	
 #endif	
+	return true;
+}
+
+bool DallasTemperature::detectedReset(const uint8_t* scratchPad)
+{
+	#if REQUIRESRESETDETECTION
+	bool reset = (scratchPad[HIGH_ALARM_TEMP]==0);
+	return reset;
+	#else
+	return false;
+	#endif
 }
 
 #if REQUIRESDEVICEENUM
@@ -145,20 +157,24 @@ bool DallasTemperature::isConnected(const uint8_t* deviceAddress)
 }
 
 // attempt to determine if the device at the given address is connected to the bus
-// also allows for updating the read scratchpad
+// also allows for updating the read scratchpad.
 bool DallasTemperature::isConnected(const uint8_t* deviceAddress, uint8_t* scratchPad)
 {
     readScratchPad(deviceAddress, scratchPad);
     return (_wire->crc8(scratchPad, 8) == scratchPad[SCRATCHPAD_CRC]);
 }
 
+void DallasTemperature::sendCommand(const uint8_t* deviceAddress, uint8_t command) {
+    _wire->reset();
+    _wire->select(deviceAddress);
+    _wire->write(command);	
+}
+
 // read device's scratch pad
 void DallasTemperature::readScratchPad(const uint8_t* deviceAddress, uint8_t* scratchPad)
 {
     // send the command
-    _wire->reset();
-    _wire->select(deviceAddress);
-    _wire->write(READSCRATCH);
+	sendCommand(deviceAddress, READSCRATCH);
 
     // TODO => collect all comments &  use simple loop
     // byte 0: temperature LSB
@@ -174,11 +190,12 @@ void DallasTemperature::readScratchPad(const uint8_t* deviceAddress, uint8_t* sc
     //         DS18B20 & DS1822: store for crc
     // byte 8: SCRATCHPAD_CRC
     //
-    // for(int i=0; i<9; i++)
-    // {
-    //   scratchPad[i] = _wire->read();
-    // }
-
+#if 1			// saves 96 bytes using the loop
+     for(int i=0; i<9; i++)
+     {
+       scratchPad[i] = _wire->read();
+     }
+#else
 
     // read the response
 
@@ -216,21 +233,20 @@ void DallasTemperature::readScratchPad(const uint8_t* deviceAddress, uint8_t* sc
     // byte 8:
     // SCTRACHPAD_CRC
     scratchPad[SCRATCHPAD_CRC] = _wire->read();
-
+#endif
     _wire->reset();
 }
 
 // writes device's scratch pad
 void DallasTemperature::writeScratchPad(const uint8_t* deviceAddress, const uint8_t* scratchPad, boolean copyToEeprom)
 {
-    _wire->reset();
-    _wire->select(deviceAddress);
-    _wire->write(WRITESCRATCH);
-    _wire->write(scratchPad[HIGH_ALARM_TEMP]); // high alarm temp
-    _wire->write(scratchPad[LOW_ALARM_TEMP]); // low alarm temp
-    // DS18S20 does not use the configuration register
-    if (!isDS18S20Model(deviceAddress)) 
-		_wire->write(scratchPad[CONFIGURATION]); // configuration
+	sendCommand(deviceAddress, WRITESCRATCH);
+    
+	// DS18S20 does not use the configuration register
+	uint8_t top = isDS18S20Model(deviceAddress) ? LOW_ALARM_TEMP : CONFIGURATION;
+	for (uint8_t i=HIGH_ALARM_TEMP; i<=top; i++) {
+		_wire->write(scratchPad[i]); // high alarm temp
+	}
     _wire->reset();
     
 	// save the newly written values to eeprom
@@ -248,9 +264,7 @@ void DallasTemperature::writeScratchPad(const uint8_t* deviceAddress, const uint
 bool DallasTemperature::readPowerSupply(const uint8_t* deviceAddress)
 {
     bool ret = false;
-    _wire->reset();
-    _wire->select(deviceAddress);
-    _wire->write(READPOWERSUPPLY);
+    sendCommand(deviceAddress, READPOWERSUPPLY);
     if (_wire->read_bit() == 0) ret = true;
     _wire->reset();
     return ret;
@@ -427,14 +441,16 @@ void DallasTemperature::requestTemperatures()
 // returns FALSE if device is disconnected
 // returns TRUE  otherwise
 bool DallasTemperature::requestTemperaturesByAddress(const uint8_t* deviceAddress)
-{
-    _wire->reset();
+{    
+	_wire->reset();
     _wire->select(deviceAddress);
     _wire->write(STARTCONVO, isParasitePowerMode());
 
     // check device
     ScratchPad scratchPad;
-    if (!isConnected(deviceAddress, scratchPad)) return false;
+    if (!isConnected(deviceAddress, scratchPad) || detectedReset(scratchPad)) {
+		return false;
+	}
 
     // ASYNC mode?
 #if REQUIRESWAITFORCONVERSION
@@ -551,7 +567,7 @@ int16_t DallasTemperature::calculateTemperature(const uint8_t* deviceAddress, ui
 int16_t DallasTemperature::getTempRaw(const uint8_t* deviceAddress)
 {
     ScratchPad scratchPad;
-    if (isConnected(deviceAddress, scratchPad) && !detectedReset(scratchPad)) return calculateTemperature(deviceAddress, scratchPad);
+    if (isConnected(deviceAddress, scratchPad) && !detectedReset(scratchPad)) return calculateTemperature(deviceAddress, scratchPad);	
     return DEVICE_DISCONNECTED;		// use a value that the sensor could not ordinarily measure
 }
 

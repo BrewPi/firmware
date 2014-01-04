@@ -52,16 +52,19 @@ bool OneWireTempSensor::init(){
 		}
 	}
 	
+	logDebug("init onewire sensor");
 	// This quickly tests if the sensor is connected and initializes the reset detection.
 	// During the main TempControl loop, we don't want to spend many seconds
 	// scanning each sensor since this brings things to a halt.
 	if (sensor && sensor->initConnection(sensorAddress) && requestConversion()) {
+		logDebug("init onewire sensor - wait for conversion");
 		waitForConversion();
-		temperature temperature = readAndConstrainTemp();
-		DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temperature));
-		success = temperature!=DEVICE_DISCONNECTED && requestConversion();
+		temperature temp = readAndConstrainTemp();
+		DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temp));
+		success = temp!=DEVICE_DISCONNECTED && requestConversion();
 	}	
 	setConnected(success);
+	logDebug("init onewire sensor complete %d", success);
 	return success;
 }
 
@@ -92,18 +95,18 @@ temperature OneWireTempSensor::read(){
 	if (!connected)
 		return TEMP_SENSOR_DISCONNECTED;
 	
-	temperature temperature = readAndConstrainTemp();
+	temperature temp = readAndConstrainTemp();
 	requestConversion();
-	return temperature;
+	return temp;
 }
 
 temperature OneWireTempSensor::readAndConstrainTemp()
 {
-	temperature temperature = sensor->getTempRaw(sensorAddress);
-	if(temperature == DEVICE_DISCONNECTED){
+	temperature temp = sensor->getTempRaw(sensorAddress);
+	if(temp == DEVICE_DISCONNECTED){
 		setConnected(false);
 		return TEMP_SENSOR_DISCONNECTED;
 	}
-	temperature = constrainTemp(temperature+calibrationOffset+(C_OFFSET>>5), ((int) MIN_TEMP)>>5, ((int) MAX_TEMP)>>5)<<5;
-	return temperature;
+	temp = constrainTemp(temp+calibrationOffset+(C_OFFSET>>5), ((int) MIN_TEMP)>>5, ((int) MAX_TEMP)>>5)<<5;
+	return temp;
 }

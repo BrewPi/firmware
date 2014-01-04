@@ -24,11 +24,13 @@
 
 void TempSensor::init()
 {				
-	if (_sensor->init() && (failedReadCount==-1 || failedReadCount>60)) {
-		temperature temperature = _sensor->read();
-		if (temperature!=TEMP_SENSOR_DISCONNECTED) {
-			fastFilter.init(temperature);
-			slowFilter.init(temperature);
+	logDebug("tempsensor::init - begin %d", failedReadCount);
+	if (_sensor && _sensor->init() && (failedReadCount==-1 || failedReadCount>60)) {		
+		temperature temp = _sensor->read();
+		if (temp!=TEMP_SENSOR_DISCONNECTED) {
+			logDebug("initializing filters with value %d", temp);
+			fastFilter.init(temp);
+			slowFilter.init(temp);
 			slopeFilter.init(0);
 			prevOutputForSlope = slowFilter.readOutputDoublePrecision();
 			failedReadCount = 0;
@@ -39,9 +41,10 @@ void TempSensor::init()
 void TempSensor::update()
 {	
 	temperature temp;
-	if (!_sensor || (temp=_sensor->read())==TEMP_SENSOR_DISCONNECTED) {
+	if (!_sensor || (temp=_sensor->read())==TEMP_SENSOR_DISCONNECTED) {		
 		failedReadCount++;		
 		failedReadCount = min(failedReadCount,127);	// limit
+		return;
 	}
 		
 	fastFilter.add(temp);
