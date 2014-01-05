@@ -43,7 +43,7 @@ void TempSensor::update()
 	temperature temp;
 	if (!_sensor || (temp=_sensor->read())==TEMP_SENSOR_DISCONNECTED) {		
 		failedReadCount++;		
-		failedReadCount = min(failedReadCount,127);	// limit
+		failedReadCount = min(failedReadCount,int8_t(127));	// limit
 		return;
 	}
 		

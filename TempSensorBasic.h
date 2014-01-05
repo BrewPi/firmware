@@ -20,7 +20,11 @@
 
 #pragma once
 
+#include "TemperatureFormats.h"
+
+
 #define TEMP_SENSOR_DISCONNECTED INVALID_TEMP
+
 
 class BasicTempSensor
 {
