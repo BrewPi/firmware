@@ -120,8 +120,9 @@ public:
 	 * Writes to the latch for a given PIO.
 	 * /param set	1 to switch the pin off, 0 to switch on. 
 	 */
-	void channelWrite(pio_t pio, bool set)
+	bool channelWrite(pio_t pio, bool set)
 	{
+		bool ok = false;
 		byte result = channelReadAll();
 		if (result>=0) {
 			uint8_t mask = pioMask(pio);
@@ -129,11 +130,9 @@ public:
 				result |= mask;
 			else
 				result &= ~mask;
-			channelWriteAll((uint8_t)result);
+			ok = channelWriteAll((uint8_t)result);
 		}
-		else{
-			logDebug("ChannelReadAll failed");
-		}
+		return ok;
 	}
 	
 	void channelWriteAll(uint8_t values);
