@@ -26,11 +26,20 @@
 uint8_t DS2413::channelReadAll()
 {
 	byte result = accessRead();
-	return result<0 ? 0xFF : ((result&0x8)>>2 | (result&2)>>1);
+	// save bit3 and bit1 (PIO
+	return result<0 ? result : ((result&0x8)>>2 | (result&2)>>1);
 }
 	
-void DS2413::channelWriteAll(uint8_t values)
+uint8_t DS2413::channelSenseAll()
 {
-	accessWrite(values);
+	byte result = accessRead();
+	// save bit3 and bit1 (PIO
+	return result<0 ? result : ((result&0x4)>>1 | (result&1));
 }
 
+
+void DS2413::channelWriteAll(uint8_t values)
+		{
+	accessWrite(values);
+	}
+	

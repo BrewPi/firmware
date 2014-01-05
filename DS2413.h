@@ -29,27 +29,34 @@
 typedef uint8_t DeviceAddress[8];
 typedef uint8_t pio_t;
 
+// Enables use of "first on bus" address via a constructor that takes just the OneWire bus
 #ifndef DS2413_DYNAMIC_ADDRESS 
 #define DS2413_DYNAMIC_ADDRESS 0
 #endif
 
 #define  DS2413_FAMILY_ID 0x3A
 
+/*
+ * Provides access to a OneWire-addressable dual-channel I/O device. 
+ * The channel latch can be set to on (false) or off (true).
+ * When a channel is off (PIOx=1), the channel state can be sensed. This is the power on-default. 
+ *
+ * channelRead/channelWrite reads and writes the channel latch state to turn the output transistor on or off
+ * channelSense senses if the channel is pulled high.
+ */
 class DS2413
 {
 public:
 	
-	DS2413() : oneWire(NULL)
+	DS2413()
 	{		
 	}
 
 	/*
-	 * Initializes this ds2413 actuator device. 
+	 * Initializes this ds2413.
 	 * /param oneWire The oneWire bus the device is connected to
-	 * /param address The oneWire address of the device to use. If {@code NULL}
-	 *		the first device found that is a ds2413 is used. 
-	 */
-	
+	 * /param address The oneWire address of the device to use.
+	 */	
 	void init(OneWire* oneWire, DeviceAddress address)
 	{
 		this->oneWire = oneWire;
@@ -65,31 +72,54 @@ public:
 #endif	
 
 	/*
-	 * Determines if the device is connected. Note that the value returned here is potentially state immediately on return,
+	 * Determines if the device is connected. Note that the value returned here is potentially stale immediately on return,
 	 * and should only be used for status reporting. In particular, a return value of true does not provide any guarantee
 	 * that subsequent operations will succeed.
 	 */
 	bool isConnected()
 	{
-		return validAddress(oneWire, this->address) && channelReadAll()!=0xFF;
+		return validAddress(oneWire, this->address) && accessRead()>=0;
 	}
 	
-	uint8_t pioMask(pio_t pio) { return pio==0 ? 1 : 2; }
+	// assumes pio is either 0 or 1, which translates to masks 0x1 and 0x2
+	uint8_t pioMask(pio_t pio) { return pio++; }
 
+	/*
+	 * Reads the output state of a given channel, defaulting to a given value on error.
+	 * Note that for a read to make sense the channel must be off (value written is 1).
+	 */
 	bool channelRead(pio_t pio, bool defaultValue)
 	{
-		byte result = channelReadAll();
+		byte result = channelReadAll();		
 		if (result<0)
 			return defaultValue;
-		return (result & pioMask(pio))!=0;
+		return (result & pioMask(pio));
 	}
 	
 	/*
+	 * Reads the output state of a given channel, defaulting to a given value on error.
+	 * Note that for a read to make sense the channel must be off (value written is 1).
+	 */
+	bool channelSense(pio_t pio, bool defaultValue)
+	{
+		byte result = channelSenseAll();
+		if (result<0)
+			return defaultValue;
+		return (result & pioMask(pio));
+	}
+
+
+	/*
 	 * Performs a simultaneous read of both channels.
-	 * \ return 0xFF if there was an error otherwise bit 1 is channel A state, bit 2 is channel B state.
+	 * /return <0 if there was an error otherwise bit 1 is channel A state, bit 2 is channel B state.
 	 */
 	uint8_t channelReadAll();
+	uint8_t channelSenseAll();
 	
+	/*
+	 * Writes to the latch for a given PIO.
+	 * /param set	1 to switch the pin off, 0 to switch on. 
+	 */
 	void channelWrite(pio_t pio, bool set)
 	{
 		byte result = channelReadAll();
@@ -114,7 +144,7 @@ public:
 	}		
 
 	static bool validAddress(OneWire* oneWire, DeviceAddress deviceAddress)
-	{
+	{		
 		return deviceAddress[0] && (oneWire->crc8(deviceAddress, 7) == deviceAddress[7]);
 	}
 	
@@ -147,11 +177,14 @@ private:
 	/*
 	 * Read all values at once, both current state and sensed values. The read performs data-integrity checks.
 	 * Returns a negative result if the device cannot be read successfully within the given number of tries.
+	 * The lower 4-bits are the values as described under PIO ACCESSS READ [F5h] in the ds2413 datasheet:	 
+	 * b0: PIOA state
+	 * b1: PIOA output latch state
+	 * b2: PIOB state
+	 * b3: PIOB output latch state
 	 */
-	byte accessRead(uint8_t maxTries=100) /* const */
+	byte accessRead(uint8_t maxTries=3) /* const */
 	{		
-		// todo - due to bus errors, should the entire operation be retried? At present only the results are re-read, but it may be necessary to
-		// perform the select and write again too.
 		#define ACCESS_READ 0xF5
 		
 		oneWire->reset();
@@ -172,16 +205,18 @@ private:
 	}
 	
 	/*
-	 * Writes the state of all PIOs in one operation.                                                                    
+	 * Writes the state of all PIOs in one operation.
+	 * /param b pio data - PIOA is bit 0 (lsb), PIOB is bit 1	 
+	 * /param maxTries the maximum number of attempts before giving up.
+	 * /return true on success
 	 */
-	bool accessWrite(uint8_t b, uint8_t maxTries=100)
+	bool accessWrite(uint8_t b, uint8_t maxTries=3)
 	{
 		#define ACCESS_WRITE 0x5A
 		#define ACK_SUCCESS 0xAA
 		#define ACK_ERROR 0xFF
 		
-		/* Upper 6 bits should be set to 1's */
-		b |= 0xFC;
+		b |= 0xFC;   		/* Upper 6 bits should be set to 1's */
 		uint8_t ack = 0;
 		do
 		{
@@ -194,21 +229,20 @@ private:
 			oneWire->write(~b);
 			/* Acknowledgement byte, 0xAA for success, 0xFF for failure. */
 			ack = oneWire->read();
-			//uint8_t newSettings;
+						
 			if (ack==ACK_SUCCESS)
-				/*newSettings = */oneWire->read();		// status byte sent after ack
+				oneWire->read();		// status byte sent after ack
 			
-			oneWire->reset();
 			//out.print("tries "); out.print(maxTries); out.print(" ack ");out.print(ack, HEX);out.print(" newValues ");out.print(newSettings, HEX);
 			//out.println();
 		} while (ack!=ACK_SUCCESS && maxTries-->0);
 		
+		oneWire->reset();
 		return ack==ACK_SUCCESS;
  	}
 
 	OneWire* oneWire;	
-	DeviceAddress address;
-	uint8_t state;
+	DeviceAddress address;	
 };
 
 #endif
