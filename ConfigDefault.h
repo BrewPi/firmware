@@ -185,5 +185,8 @@
 #define DISPLAY_TIME_HMS 1
 #endif
 
+#ifndef ONEWIRE_PARASITE_SUPPORT
+#define ONEWIRE_PARASITE_SUPPORT 0
+#endif
 
 

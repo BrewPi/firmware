@@ -102,6 +102,9 @@
 #error "Please define I/O register types here"
 #endif
 
+#ifndef ONEWIRE_PARASITE_SUPPORT
+#define ONEWIRE_PARASITE_SUPPORT 1
+#endif
 
 class OneWire
 {
@@ -116,6 +119,8 @@ class OneWire
     uint8_t LastFamilyDiscrepancy;
     uint8_t LastDeviceFlag;
 #endif
+
+	void parasitePowerAfterWrite(bool power);
 
   public:
     OneWire( uint8_t pin);
@@ -181,7 +186,7 @@ class OneWire
     // Compute a Dallas Semiconductor 8 bit CRC, these are used in the
     // ROM and scratchpad registers.
     static uint8_t crc8(const uint8_t *addr, uint8_t len);
-
+	
 #if ONEWIRE_CRC16
     // Compute the 1-Wire CRC16 and compare it against the received CRC.
     // Example usage (reading a DS2408):

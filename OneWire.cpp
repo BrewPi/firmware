@@ -230,23 +230,25 @@ void OneWire::write(uint8_t v, uint8_t power /* = 0 */) {
     for (bitMask = 0x01; bitMask; bitMask <<= 1) {
 	OneWire::write_bit( (bitMask & v)?1:0);
     }
-    if ( !power) {
-	noInterrupts();
-	DIRECT_MODE_INPUT(baseReg, bitmask);
-	DIRECT_WRITE_LOW(baseReg, bitmask);
-	interrupts();
-    }
+	parasitePowerAfterWrite(power);
 }
 
 void OneWire::write_bytes(const uint8_t *buf, uint16_t count, bool power /* = 0 */) {
   for (uint16_t i = 0 ; i < count ; i++)
     write(buf[i]);
-  if (!power) {
-    noInterrupts();
-    DIRECT_MODE_INPUT(baseReg, bitmask);
-    DIRECT_WRITE_LOW(baseReg, bitmask);
-    interrupts();
-  }
+    parasitePowerAfterWrite(power);
+}
+
+void OneWire::parasitePowerAfterWrite(bool power)
+{	
+#if ONEWIRE_PARASITE_SUPPORT	
+	if (!power) {
+		noInterrupts();
+		DIRECT_MODE_INPUT(baseReg, bitmask);
+		DIRECT_WRITE_LOW(baseReg, bitmask);
+		interrupts();
+	}
+#endif	
 }
 
 //
