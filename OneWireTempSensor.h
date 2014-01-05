@@ -29,6 +29,8 @@
 class DallasTemperature;
 class OneWire;
 
+#define ONEWIRE_TEMP_SENSOR_PRECISION (4)
+
 class OneWireTempSensor : public BasicTempSensor {
 public:	
 	/**

@@ -25,6 +25,7 @@
 #include "OneWireDevices.h"
 #include "PiLink.h"
 #include "Ticks.h"
+#include "TemperatureFormats.h"
 
 OneWireTempSensor::~OneWireTempSensor(){
 	delete sensor;
@@ -107,6 +108,8 @@ temperature OneWireTempSensor::readAndConstrainTemp()
 		setConnected(false);
 		return TEMP_SENSOR_DISCONNECTED;
 	}
-	temp = constrainTemp(temp+calibrationOffset+(C_OFFSET>>5), ((int) MIN_TEMP)>>5, ((int) MAX_TEMP)>>5)<<5;
+	
+	const uint8_t shift = TEMP_FIXED_POINT_BITS-ONEWIRE_TEMP_SENSOR_PRECISION; // difference in precision between DS18B20 format and temperature adt
+	temp = constrainTemp(temp+calibrationOffset+(C_OFFSET>>shift), ((int) MIN_TEMP)>>shift, ((int) MAX_TEMP)>>shift)<<shift;
 	return temp;
 }
