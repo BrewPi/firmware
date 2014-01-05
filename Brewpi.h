@@ -44,7 +44,11 @@
  * To customize the build, users may add settings to Config.h, or define symbols in the project.
  */
 
+#ifdef ARDUINO
+#include "Config.h"
+#else
 #include <Config.h>                     // use search path rather than current directory, so that config.h
+#endif
 #include "ConfigDefault.h"
 
 #include <Arduino.h>
