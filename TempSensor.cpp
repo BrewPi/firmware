@@ -25,7 +25,7 @@
 void TempSensor::init()
 {				
 	logDebug("tempsensor::init - begin %d", failedReadCount);
-	if (_sensor && _sensor->init() && (failedReadCount==-1 || failedReadCount>60)) {		
+	if (_sensor && _sensor->init() && (failedReadCount<0 || failedReadCount>60)) {		
 		temperature temp = _sensor->read();
 		if (temp!=TEMP_SENSOR_DISCONNECTED) {
 			logDebug("initializing filters with value %d", temp);
