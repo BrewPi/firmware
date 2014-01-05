@@ -34,6 +34,10 @@ typedef uint8_t pio_t;
 #define DS2413_DYNAMIC_ADDRESS 0
 #endif
 
+#ifndef DS2413_SUPPORT_SENSE
+#define DS2413_SUPPORT_SENSE 1
+#endif
+
 #define  DS2413_FAMILY_ID 0x3A
 
 /*
@@ -96,6 +100,7 @@ public:
 		return (result & pioMask(pio));
 	}
 	
+#if DS2413_SUPPORT_SENSE
 	/*
 	 * Reads the output state of a given channel, defaulting to a given value on error.
 	 * Note that for a read to make sense the channel must be off (value written is 1).
@@ -108,13 +113,24 @@ public:
 		return (result & pioMask(pio));
 	}
 
+	uint8_t channelSenseAll()
+	{
+		byte result = accessRead();
+		// save bit3 and bit1 (PIO
+		return result<0 ? result : ((result&0x4)>>1 | (result&1));
+	}
 
+#endif
 	/*
 	 * Performs a simultaneous read of both channels.
 	 * /return <0 if there was an error otherwise bit 1 is channel A state, bit 2 is channel B state.
 	 */
-	uint8_t channelReadAll();
-	uint8_t channelSenseAll();
+	uint8_t channelReadAll()
+	{
+		byte result = accessRead();
+		// save bit3 and bit1 (PIO
+		return result<0 ? result : ((result&0x8)>>2 | (result&2)>>1);
+	}
 	
 	/*
 	 * Writes to the latch for a given PIO.

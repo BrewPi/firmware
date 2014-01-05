@@ -189,4 +189,8 @@
 #define ONEWIRE_PARASITE_SUPPORT 0
 #endif
 
+#ifndef DS2413_SUPPORT_SENSE
+#define DS2413_SUPPORT_SENSE 0
+#endif
+
 

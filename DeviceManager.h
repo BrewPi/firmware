@@ -80,7 +80,7 @@ enum DeviceOwner {
 enum DeviceType {
 	DEVICETYPE_NONE=0,
 	DEVICETYPE_TEMP_SENSOR=1,		/* BasicTempSensor - OneWire */
-	DEVICETYPE_SWITCH_SENSOR=2,		/* SwitchSensor - direct pin */
+	DEVICETYPE_SWITCH_SENSOR=2,		/* SwitchSensor - direct pin and onewire are supported */
 	DEVICETYPE_SWITCH_ACTUATOR=3	/* Actuator - both direct pin and onewire are supported */	
 };
 
@@ -100,7 +100,7 @@ inline bool isAssignable(DeviceType type, DeviceHardware hardware)
 {
 	return (hardware==DEVICE_HARDWARE_PIN && (type==DEVICETYPE_SWITCH_ACTUATOR || type==DEVICETYPE_SWITCH_SENSOR))
 #if BREWPI_DS2413
-	|| (hardware==DEVICE_HARDWARE_ONEWIRE_2413 && type==DEVICETYPE_SWITCH_ACTUATOR)
+	|| (hardware==DEVICE_HARDWARE_ONEWIRE_2413 && (type==DEVICETYPE_SWITCH_ACTUATOR || (DS2413_SUPPORT_SENSE && type==DEVICETYPE_SWITCH_SENSOR)))
 #endif	
 	|| (hardware==DEVICE_HARDWARE_ONEWIRE_TEMP && type==DEVICETYPE_TEMP_SENSOR)
 	|| (hardware==DEVICE_HARDWARE_NONE && type==DEVICETYPE_NONE);
@@ -309,6 +309,7 @@ private:
 	
 
 	static void* createDevice(DeviceConfig& config, DeviceType dc);
+	static void* createOneWireGPIO(DeviceConfig& config, DeviceType dt);
 	
 	static void beginDeviceOutput() { firstDeviceOutput = true; }
 

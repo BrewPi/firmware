@@ -112,10 +112,10 @@ void* DeviceManager::createDevice(DeviceConfig& config, DeviceType dt)
 			#endif				
 			else
 #if BREWPI_SIMULATE
-                            return new ValueActuator();
-#else
+				return new ValueActuator();
+#else                            
                             
-			// use hardware actuators even for simulator
+				// use hardware actuators even for simulator
 				return new DigitalPinActuator(config.hw.pinNr, config.hw.invert);
 #endif		
 		case DEVICE_HARDWARE_ONEWIRE_TEMP:
@@ -128,6 +128,9 @@ void* DeviceManager::createDevice(DeviceConfig& config, DeviceType dt)
 #if BREWPI_DS2413
 		case DEVICE_HARDWARE_ONEWIRE_2413:
 		#if BREWPI_SIMULATE
+		if (dt==DEVICETYPE_SWITCH_SENSOR)
+			return new ValueSensor<bool>(false);
+		else
 			return new ValueActuator();
 		#else
 			return new OneWireActuator(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.pio, config.hw.invert);

@@ -28,9 +28,13 @@
 #include "PiLink.h"
 
 /**
- * An actuator that operates by communicating with a DS2413 device.
+ * An actuator or sensor that operates by communicating with a DS2413 device.
+ *
  */
 class OneWireActuator : public Actuator
+#if DS2413_SUPPORT_SENSE 
+	, SwitchSensor
+#endif	
 {
 public:	
 
@@ -44,7 +48,6 @@ public:
 		device.init(bus, address);
 	}
 	
-
 	void setActive(bool active) {
 		device.channelWrite(pio, active^invert);
 	}
@@ -52,7 +55,13 @@ public:
 	bool isActive() {
 		return device.channelRead(pio, false);
 	}
-
+	
+#if DS2413_SUPPORT_SENSE
+	bool sense() {
+		device.channelWrite(pio, 0);
+		return device.channelSense(pio, invert);	// on device failure, default is high for invert, low for regular.
+	}
+#endif
 			
 private:
 	DS2413 device;
