@@ -1,7 +1,7 @@
 
 #
 # Copyright 2013 BrewPi/Elco Jacobs.
-# Copyright 2013 Matthew McGowan
+# Copyright 2014 Matthew McGowan
 #
 # This file is part of BrewPi.
 # 
@@ -337,7 +337,7 @@ $(OUTPUT_FILE_PATH): $(OBJS) $(USER_OBJS) $(OUTPUT_FILE_DEP) $(LIB_DEP)
 	
 	"$(AVROBJCOPY)" -O srec -R .eeprom -R .fuse -R .lock -R .signature  "$(OUTPUT_DIR)$(TARGET_NAME).elf" "$(OUTPUT_DIR)$(TARGET_NAME).srec"
 	
-	"$(AVRSIZE)" "$(OUTPUT_DIR)$(TARGET_NAME).elf"
+	"$(AVRSIZE)" "$(OUTPUT_DIR)$(TARGET_NAME).elf" > "$(OUTPUT_DIR)$(TARGET_NAME).elf.size"
 
 	
 
