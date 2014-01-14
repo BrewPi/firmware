@@ -24,7 +24,7 @@
 #include "TempSensor.h"
 #include "FastDigitalPin.h"
 #include "DallasTemperature.h"
-#include "ticks.h"
+#include "Ticks.h"
 
 class DallasTemperature;
 class OneWire;
