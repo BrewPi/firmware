@@ -166,10 +166,10 @@ void PiLink::receive(void){
 			// s shield type
 			// y: simulator			
 			// b: board
-			print_P(PSTR("N:{\"v\":\"%S\",\"n\":%d,\"c\":%s,\"s\":%d,\"y\":%d,\"b\":\"%c\",\"l\":\"%d\"}"), 
+			print_P(PSTR("N:{\"v\":\"%S\",\"n\":%d,\"c\":\"%S\",\"s\":%d,\"y\":%d,\"b\":\"%c\",\"l\":\"%d\"}"), 
 					PSTR(VERSION_STRING), 
 					BUILD_NUMBER,
-					BUILD_NAME,
+					PSTR(BUILD_NAME),
 					BREWPI_STATIC_CONFIG, 
 					BREWPI_SIMULATE, 
 					BREWPI_BOARD,
