@@ -688,8 +688,10 @@ inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw, char* 
 #if !BREWPI_SIMULATE
 	OneWire* bus = oneWireBus(hw.pinNr);
 	OneWireTempSensor sensor(bus, hw.address, 0);		// NB: this value is uncalibrated, since we don't have the calibration offset until the device is configured
-	temperature value = sensor.init();	
-	tempToString(out, value, 3, 9);
+	temperature temp = INVALID_TEMP;
+	if (sensor.init())
+		temp = sensor.read();
+	tempToString(out, temp, 3, 9);
 #else
 	strcpy_P(out, PSTR("0.00"));
 #endif	
