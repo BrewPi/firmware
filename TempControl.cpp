@@ -553,8 +553,7 @@ void TempControl::setMode(char newMode, bool force){
 	}
 	if (force) {
 		cs.mode = newMode;
-		if(newMode==MODE_BEER_PROFILE || newMode == MODE_OFF){
-			// set temperatures to undefined until temperatures have been received from RPi
+		if(newMode == MODE_OFF){
 			cs.beerSetting = INVALID_TEMP;
 			cs.fridgeSetting = INVALID_TEMP;
 		}
