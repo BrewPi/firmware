@@ -62,7 +62,9 @@ bool DallasTemperature::initConnection(const uint8_t* deviceAddress) {
 		if (!isConnected(deviceAddress, scratchPad) || !detectedReset(scratchPad))
 			return false;		
 	}
-
+	#if REQUIRESONLY12BITCONVERSION		
+		scratchPad[CONFIGURATION] = TEMP_12_BIT;
+	#endif
 	scratchPad[HIGH_ALARM_TEMP]=1;
 	writeScratchPad(deviceAddress, scratchPad, false);	// don't save to eeprom, so that it reverts to 0 on reset
 	// from this point on, if we read a scratchpad with a 0 value in HIGH_ALARM (detectedReset() returns true)
