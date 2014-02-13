@@ -397,7 +397,7 @@ void TempControl::detectPeaks(void){
 			}
 			detected = INFO_POSITIVE_PEAK;
 		}
-		if(timeSinceHeating() > HEAT_PEAK_DETECT_TIME){
+		else if(timeSinceHeating() > HEAT_PEAK_DETECT_TIME){
 			if(fridgeSensor->readFastFiltered() < (cv.posPeakEstimate+cc.heatingTargetLower)){
 				// Idle period almost reaches maximum allowed time for peak detection
 				// This is the heat, then drift up too slow (but in the right direction).
