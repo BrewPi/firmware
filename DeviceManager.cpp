@@ -701,11 +701,11 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardwa
 {
 	if (h.function && !isAssignable(deviceType(DeviceFunction(h.function)), config.deviceHardware)) 
 		return; // device not applicable for required function
-	
+		
 //	logDebug("Handling device");
 	out.slot = findHardwareDevice(config);
 	DEBUG_ONLY(logInfoInt(INFO_MATCHING_DEVICE, out.slot));
-	
+		
 	if (isDefinedSlot(out.slot)) {
 		if (h.unused)	// only list unused devices, and this one is already used
 			return;
@@ -795,8 +795,16 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCal
 						}
 						break;
 		#endif				
-					default:
+				default:
+		#if !ONEWIRE_PARASITE_SUPPORT
+					// check that device is not parasite powered
+					DallasTemperature sensor(wire);
+					if(sensor.initConnection(config.hw.address)){
 						handleEnumeratedDevice(config, h, callback, output);
+					}
+		#else
+					handleEnumeratedDevice(config, h, callback, output);	
+		#endif
 				}
 			}
 		}
