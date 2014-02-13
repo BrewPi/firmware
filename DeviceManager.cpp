@@ -794,17 +794,21 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCal
 							handleEnumeratedDevice(config, h, callback, output);
 						}
 						break;
-		#endif				
-				default:
-		#if !ONEWIRE_PARASITE_SUPPORT
-					// check that device is not parasite powered
-					DallasTemperature sensor(wire);
-					if(sensor.initConnection(config.hw.address)){
-						handleEnumeratedDevice(config, h, callback, output);
-					}
-		#else
-					handleEnumeratedDevice(config, h, callback, output);	
 		#endif
+					case DEVICE_HARDWARE_ONEWIRE_TEMP:
+		#if !ONEWIRE_PARASITE_SUPPORT
+						{	// check that device is not parasite powered
+							DallasTemperature sensor(wire);
+							if(sensor.initConnection(config.hw.address)){
+								handleEnumeratedDevice(config, h, callback, output);
+							}
+						}
+		#else
+						handleEnumeratedDevice(config, h, callback, output);
+		#endif
+						break;
+					default:
+						handleEnumeratedDevice(config, h, callback, output);	
 				}
 			}
 		}
