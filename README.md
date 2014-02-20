@@ -1,13 +1,14 @@
-eGUI
+![eGUI](http://gargy007.github.io/egui_doc/eGUI_Logo.png)
 ====
 
 Welcome to eGUI embedded graphic library Wiki pages.
-![eGUI Example picture](http://gargy007.github.io/egui_doc/eGUI_Logo.png)
 
 
-The eGUI is originaly developed by www.freescale.com company  
+The eGUI is originaly developed by www.freescale.com company.
+ 
 ![eGUI Example picture](http://gargy007.github.io/egui_doc/downloads/fsl_logo.gif)
-And since February 2014 is available free under LGPL license, to allow community extend this project.
+
+Since February 2014 is available free under LGPL license, to allow community extend this project.
 
 
 Documentation
