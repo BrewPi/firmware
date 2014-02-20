@@ -81,8 +81,12 @@ IAR Embedded Workbench 6.6.
 *- @ref doxd4d_slider
 *- @ref doxd4d_text_box
 
-
+\n
+Download : [Freescale eGUI Presentation 3.0] (downloads/eGUI_v3_00.pptx)
+============
+\n
 RELEASE NOTES\n
+===============
 Release notes for the @ref release_notes "Freescale's eGUI Graphic Driver". Suggestions for improvements, bug reports and new things development can be reported to petr.gargulak@freescale.com or petr.gargulak@gmail.com. 
 */
 
