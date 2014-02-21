@@ -51,9 +51,9 @@ of the LCD displays.
 the LCD and the user application.
 
 
-@image html _images/D4D_low_level_driver_structure.png Figure 1: Freescale eGUI/D4D block diagram
-@image rtf _images/D4D_low_level_driver_structure.png  Figure 1: Freescale eGUI/D4D block diagram
-@image latex _images/D4D_low_level_driver_structure.png Figure 1: Freescale eGUI/D4D block diagram
+@image html _images/D4D_low_level_driver_structure.png Figure 1: eGUI/D4D block diagram
+@image rtf _images/D4D_low_level_driver_structure.png  Figure 1: eGUI/D4D block diagram
+@image latex _images/D4D_low_level_driver_structure.png Figure 1: eGUI/D4D block diagram
 
 
 <h1>File Structure</h1> \n

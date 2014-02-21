@@ -13,10 +13,10 @@
 ***************************************************************************/
 
 
-//*********** Freescale's eGUI Graphic Driver **********************
+//*********** eGUI alias D4D Graphic Driver **********************
 /*! 
 @mainpage Introduction
-This document describes the Freescale's software - eGUI graphic driver for Freescale microcontrollers. These software driver is provided in a source code form. The source code files are intended to be included directly into the application project or built separately into as a statically linked library. This document should give you all information about driver configuration and its use in your application. The @ref structure explains the source files and header files important for your application. Please read the @ref license document for terms and conditions under which you can use the software.
+This document describes the software library - eGUI graphic driver for microcontrollers. The source code files are intended to be included directly into the application project or built separately into as a statically linked library. This document should give you all information about driver configuration and its use in your application. The @ref structure explains the source files and header files important for your application. Please read the @ref license document for terms and conditions under which you can use the software.
 
 \n
 \n
@@ -34,10 +34,11 @@ D4D has been specifically written with the constraints of an MCU (low FLASH and 
 assumption that the graphics display RAM is write-only, as is the case of many "Smart LCD" panels. As
 a result, the D4D can produce a stunning layered graphics display using only limited RAM and FLASH
 from the MCU and a small library footprint.
+
 All the code in this application note has been tested and debugged on the S08, S12, ColdFire V1/V2,
 Kinetis and PX series of Freescale microcontrollers, with CodeWarrior for Microcontrollers v6.3. for
 HCS08 MCU's, CodeWarrior for Coldfire v7.2, CodeWarrior for MobileGT 9.2, CodeWarrior 10.5 and
-IAR Embedded Workbench 6.6.
+IAR Embedded Workbench 6.7.
 \n
 \n
 @image html _images/eGUI_Example.png eGUI Example
@@ -87,7 +88,7 @@ Download : [Freescale eGUI Presentation 3.0] (downloads/eGUI_v3_00.pptx)
 \n
 RELEASE NOTES\n
 ===============
-Release notes for the @ref release_notes "Freescale's eGUI Graphic Driver". Suggestions for improvements, bug reports and new things development can be reported to petr.gargulak@freescale.com or petr.gargulak@gmail.com. 
+Release notes for the @ref release_notes "eGUI alias D4D Graphic Driver". Suggestions for improvements, bug reports and new things development can be reported to egui.library@gmail.com. 
 */
 
 //*************************STRUCTURE************************************
@@ -524,6 +525,10 @@ Changes in version Freescale eGUI/D4D 2.xx:
     _D4D_DECLARE_CONSOLE replace by _D4D_DECLARE_CONSOLE2
     
     Removed D4D_KEYS D4D_GetKeys(void) function. Is obsolete.
+    
+  February 2014:
+   eGUI is pushed to open source under LGPL license.   
+    
 */
 
 

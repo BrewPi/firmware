@@ -47,7 +47,7 @@
 #define __D4D_USER_CFG_APP_H
 
 /******************************************************************************
-* Desciption : This file allows user depends modification of D4D Freescale 
+* Desciption : This file allows user depends modification of D4D/eGUI 
 *   graphical driver. 
 *
 *
