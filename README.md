@@ -25,7 +25,7 @@ Downloads :
 Similar projects :
 ==================
 The simplified version has been done for the alpha numerical displays (with driver like HD44780 etc). 
-Please check also:  **[D4CD - Modification of the eGUI(D4D) driver for char displays] (http://gargy007.github.io/D4CD)**  
+Please check also:  **[D4CD - Modification of the eGUI(D4D) driver for char displays] (https://github.com/Gargy007/D4CD)**  
 
 Email :
 ===========
