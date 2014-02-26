@@ -22,6 +22,11 @@ Downloads :
 
 **[Freescale eGUI Converter Utility 3.0] (http://gargy007.github.io/egui_doc/downloads/Freescale Embedded GUI Converter Utility 3.0.zip)**
 
+Similar projects :
+==================
+The simplified version has been done for the alpha numerical displays (with driver like HD44780 etc). 
+Please check also:  **[D4CD - Modification of the eGUI(D4D) driver for char displays] (http://gargy007.github.io/D4CD)**  
+
 Email :
 ===========
 egui.library@gmail.com

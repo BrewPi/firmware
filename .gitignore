@@ -18,4 +18,8 @@
 *.app
 
 # Folders
-HTML
+HTML/
+D4CD/
+_Official_Demos/EGUI_Demo/TWR_K70/IAR/settings/
+*.dep
+*.ewd
