@@ -211,7 +211,7 @@ typedef struct
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_PICTURE, but is created in RAM instead of the ROM memory
 *******************************************************************************/
-#define D4D_DECLARE_STD_PICTURE_INRAM(name, cx, cy, x, y, pBmp) \
+#define D4D_DECLARE_STD_PICTURE_INRAM(name, x, y, cx, cy, pBmp) \
   D4D_DECLARE_PICTURE_INRAM(name, x, y, cx, cy, pBmp, (D4D_PIC_F_DEFAULT), NULL, NULL)
 
 // Rounded button definition
