@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,12 +34,12 @@
 * @file      d4d_extsrc.c
 *
 * @author   Michal hanak, Petr Gargulak
-* 
+*
 * @version   0.0.12.0
-* 
+*
 * @date      Oct-2-2013
-* 
-* @brief     D4D driver extscr functions c file 
+*
+* @brief     D4D driver extscr functions c file
 *
 ******************************************************************************/
 
@@ -73,23 +73,23 @@
 D4D_CHAR* D4D_GetFileExtension(D4D_CHAR* pFileName)
 {
   int i;
-  
+
   if(pFileName == NULL)
     return NULL;
 
-  
+
   i = D4D_StrLen(pFileName);
-  
+
   if(i == 0)
     return NULL;
-  
+
   i--; // decrement index to point on last char
-  
+
   while((pFileName[i] >= ' ') && (pFileName[i] != '.'))
   {
     i--;
   };
-  
+
   if(pFileName[i] == '.')
     return &pFileName[i+1];
   else
@@ -106,8 +106,8 @@ D4D_BOOL D4D_FileIsAbsolutePath(D4D_CHAR* pFileName)
 {
   if(pFileName[1] == ':')
     return D4D_TRUE;
-  
-  return D4D_FALSE;  
+
+  return D4D_FALSE;
 }
 #endif
 
@@ -122,10 +122,10 @@ int D4D_StrLen(register const D4D_CHAR *s)
 {
 #ifndef D4D_STD_STRING_H_INCLUDE
   register int n;
-  
+
   if(!s)
     return 0;
-  
+
   n = 0;
   while (*s++)
           n++;
@@ -146,7 +146,7 @@ int D4D_StrLen(register const D4D_CHAR *s)
 *******************************************************************************/
 D4D_CHAR* D4D_StrCopy(register D4D_CHAR *sd, register const D4D_CHAR *ss)
 {
-#ifndef D4D_STD_STRING_H_INCLUDE  
+#ifndef D4D_STD_STRING_H_INCLUDE
   register D4D_CHAR *s = sd;
 
   while (*sd++ = *ss++)
@@ -161,7 +161,7 @@ D4D_CHAR* D4D_StrCopy(register D4D_CHAR *sd, register const D4D_CHAR *ss)
 
 /**************************************************************************/ /*!
 * @brief   The function copy string one string (UNICODE) to other one (STANDARD 8 bit)(terminated by zero)
-* @param   sd - destination string 
+* @param   sd - destination string
 * @param   ss - source string
 * @return  pointer to destination string
 * @note    Is used to convert strings from standard ASCII to Unicode.
@@ -178,7 +178,7 @@ D4D_CHAR* D4D_StrCopyUnicode2Ascii(register D4D_CHAR *sd, register const D4D_WCH
 
 /**************************************************************************/ /*!
 * @brief   The function copy string one string (STANDARD 8 bit) to other one (UNICODE)(terminated by zero)
-* @param   sd - destination string 
+* @param   sd - destination string
 * @param   ss - source string
 * @return  pointer to destination string
 * @note    Is used to convert strings from Unicode to standard ASCII.
@@ -203,12 +203,12 @@ D4D_WCHAR* D4D_StrCopyAscii2Unicode(register D4D_WCHAR *sd, register const D4D_C
 *******************************************************************************/
 D4D_CHAR* D4D_StrCat(register D4D_CHAR *sd, register const D4D_CHAR *ss)
 {
-#ifndef D4D_STD_STRING_H_INCLUDE  
+#ifndef D4D_STD_STRING_H_INCLUDE
   register D4D_CHAR *s = sd;
 
   while (*sd)
     sd++;
-  
+
   while ((*sd++ = *ss++))
     ;
 
@@ -232,7 +232,7 @@ D4D_WCHAR* D4D_StrCatUnicode(register D4D_WCHAR *sd, register const D4D_WCHAR *s
 
   while (*sd)
     sd++;
-  
+
   while (*sd++ = *ss++)
     ;
 
@@ -249,7 +249,7 @@ D4D_WCHAR* D4D_StrCatUnicode(register D4D_WCHAR *sd, register const D4D_WCHAR *s
 *******************************************************************************/
 int D4D_CompareStrings(const D4D_CHAR* s1, const D4D_CHAR* s2)
 {
-#ifndef D4D_STD_STRING_H_INCLUDE  
+#ifndef D4D_STD_STRING_H_INCLUDE
   D4D_CHAR val2 = *s2++;
     while(val2)
     {
@@ -257,7 +257,7 @@ int D4D_CompareStrings(const D4D_CHAR* s1, const D4D_CHAR* s2)
         {
             if (s1[-1] < val2)
                 return -1;
-            
+
             return 1;
         }
         val2 = *s2++;
@@ -265,12 +265,12 @@ int D4D_CompareStrings(const D4D_CHAR* s1, const D4D_CHAR* s2)
 
     if (*s1)        // if we get to here, then s2 terminated
       return 1;   // s1 is still going
-    
-    return 0;       // they both terminated  
+
+    return 0;       // they both terminated
 #else
   // Standard system implementation
   return strcmp(s1, s2);
-#endif    
+#endif
 }
 
 /**************************************************************************/ /*!
@@ -283,14 +283,14 @@ int D4D_CompareStrings(const D4D_CHAR* s1, const D4D_CHAR* s2)
 int D4D_CompareStringsUnicode(const D4D_WCHAR* s1, const D4D_WCHAR* s2)
 {
   D4D_WCHAR val2 = *s2++;
-  
+
   while(val2)
   {
       if (*s1++ != val2)
       {
           if (s1[-1] < val2)
               return -1;
-          
+
           return 1;
       }
       val2 = *s2++;
@@ -298,8 +298,8 @@ int D4D_CompareStringsUnicode(const D4D_WCHAR* s1, const D4D_WCHAR* s2)
 
   if (*s1)        // if we get to here, then s2 terminated
     return 1;   // s1 is still going
-  
-  return 0;       // they both terminated      
+
+  return 0;       // they both terminated
 }
 
 /**************************************************************************/ /*!
@@ -314,7 +314,7 @@ void D4D_ToUpper(D4D_CHAR* s)
   {
     if((*s >= 'a') && (*s <= 'z'))
       *s -= 'a' - 'A';
-    
+
     s++;
   }
 }

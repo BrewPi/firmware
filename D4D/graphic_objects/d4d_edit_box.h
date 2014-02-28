@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_edit_box.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.5.0
-* 
+*
 * @date      Jan-14-2014
-* 
+*
 * @brief     D4D Driver editBox object header file
 *
 *******************************************************************************/
@@ -106,7 +106,7 @@ typedef void (*D4D_EDIT_BOX_ON_EVENT)(D4D_OBJECT* pThis, D4D_EVENTID eventId);
 typedef sByte D4D_EDIT_BOX_INDEX;
 
 typedef Byte D4D_EDIT_BOX_FLAGS;
-  
+
 #define D4D_EDIT_BOX_FLAGS_REDRAWTEXT     (0x04)
 #define D4D_EDIT_BOX_FLAGS_MOVECURSOR     (0x08)
 #define D4D_EDIT_BOX_FLAGS_REDRAWCURSOR   (0x10)
@@ -117,7 +117,7 @@ typedef Byte D4D_EDIT_BOX_FLAGS;
 
 
 
-typedef struct 
+typedef struct
 {
    D4D_STRING string;
    D4D_INDEX curPos;
@@ -134,7 +134,7 @@ typedef struct
 } D4D_EDIT_BOX;
 
 /******************************************************************************
-* Macros 
+* Macros
 ******************************************************************************/
 
 // getting the EDIT_BOX structure from general OBJECT
@@ -171,7 +171,7 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_EDIT_BOX structure, including the object data sub structure. Is used to define all properties of Edit Box.
-*******************************************************************************/ 
+*******************************************************************************/
 #define _D4D_DECLARE_EDIT_BOX(type, name, x, y, cx, cy, radius, pMargin, pRelations, flags, pScheme, pInitText, fontId, maxStr, pUser, pOnEvent, pOnUsrMsg) \
     static D4D_STR_PROPERTIES name##_strPrties = {D4D_EDIT_BOX_FNT_PRTY_DEFAULT, D4D_EDIT_BOX_TXT_PRTY_DEFAULT};\
     static D4D_TCHAR name##_txtArray[maxStr + 1];\
@@ -184,7 +184,7 @@ typedef struct
     }; \
     \
     D4D_DECLARE_OBJECT(type, name, x, y, cx, cy, radius, pMargin, pRelations, pOnUsrMsg, &d4d_editBoxSysFunc, &(name##_params), flags, pUser, pScheme)
-    
+
 
 /**************************************************************************/ /*!
 * @brief   Macro that create the Edit Box object structure in memory including all substructures with restricted count of parameters to simplify definition
@@ -206,7 +206,7 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_EDIT_BOX structure, including the object data sub structure. Is used to define all properties of Edit Box. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_EDIT_BOX instead of this one.  
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_EDIT_BOX instead of this one.
 *******************************************************************************/
 #define D4D_DECLARE_EDIT_BOX(name, x, y, cx, cy, pRelations, flags, pScheme, pInitText, fontId, maxStr, pUser, pOnEvent, pOnUsrMsg) \
  _D4D_DECLARE_EDIT_BOX(D4D_CONST, name, x, y, cx, cy, 0, (D4D_MARGIN*)&d4d_marginDefault, pRelations, flags, pScheme, pInitText,\
@@ -255,7 +255,7 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_EDIT_BOX structure, including the object data sub structure. Is used to define all properties of Edit Box. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_EDIT_BOX instead of this one.  
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_EDIT_BOX instead of this one.
 *******************************************************************************/
 #define D4D_DECLARE_REDIT_BOX(name, x, y, cx, cy, radius, pRelations, flags, pScheme, pInitText, fontId, maxStr, pUser, pOnEvent, pOnUsrMsg) \
  _D4D_DECLARE_EDIT_BOX(D4D_CONST, name, x, y, cx, cy, radius, (D4D_MARGIN*)&d4d_marginDefault, pRelations, flags, pScheme, pInitText,\
@@ -287,36 +287,36 @@ typedef struct
 //IN RAM instantions macros
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_EDIT_BOX, but is created in RAM instead of the ROM memory
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_EDIT_BOX_INRAM(name, x, y, cx, cy, pRelations, flags, pScheme, pInitText, fontId, maxStr, pUser, pOnEvent, pOnUsrMsg) \
  _D4D_DECLARE_EDIT_BOX(D4D_NO_CONST, name, x, y, cx, cy, 0, (D4D_MARGIN*)&d4d_marginDefault, pRelations, flags, pScheme, pInitText,\
     fontId, maxStr, pUser, pOnEvent, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_EDIT_BOX, but is created in RAM instead of the ROM memory
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_STD_EDIT_BOX_INRAM(name, x, y, cx, cy, pRelations, pInitText, fontId, maxStr, pOnEvent) \
     D4D_DECLARE_EDIT_BOX_INRAM(name, x, y, cx, cy, pRelations, (D4D_EDIT_BOX_F_DEFAULT), NULL, pInitText, fontId, maxStr, NULL, pOnEvent, NULL)
 
 // Rounded editBox definition
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_REDIT_BOX, but is created in RAM instead of the ROM memory
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_REDIT_BOX_INRAM(name, x, y, cx, cy, radius, pRelations, flags, pScheme, pInitText, fontId, maxStr, pUser, pOnEvent, pOnUsrMsg) \
  _D4D_DECLARE_EDIT_BOX(D4D_NO_CONST, name, x, y, cx, cy, radius, (D4D_MARGIN*)&d4d_marginDefault, pRelations, flags, pScheme, pInitText,\
     fontId, maxStr, pUser, pOnEvent, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_REDIT_BOX, but is created in RAM instead of the ROM memory
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_STD_REDIT_BOX_INRAM(name, x, y, cx, cy, radius, pRelations, pInitText, fontId, maxStr, pOnEvent) \
     D4D_DECLARE_REDIT_BOX_INRAM(name, x, y, cx, cy, radius, pRelations, (D4D_EDIT_BOX_F_DEFAULT), NULL, pInitText, fontId, maxStr, NULL, pOnEvent, NULL)
-   
-/*! @} End of doxd4d_edit_box_macro                                             */   
+
+/*! @} End of doxd4d_edit_box_macro                                             */
 /******************************************************************************
 * Global variables
-******************************************************************************/   
-   
+******************************************************************************/
+
 /******************************************************************************
 * Global functions
 ******************************************************************************/
@@ -328,7 +328,7 @@ void D4D_EditBoxClearAll(D4D_OBJECT_PTR pObj);
 D4D_TCHAR* D4D_EditBoxGetText(D4D_OBJECT_PTR pObj);
 
 #endif /* __D4D_EDIT_BOX_H  */
- 
+
 
 
 

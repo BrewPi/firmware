@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_mouse.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.3.0
-* 
+*
 * @date      Oct-2-2013
-* 
+*
 * @brief     D4D Driver mouse functions header file
 *
 *******************************************************************************/
@@ -59,17 +59,17 @@
 /*! @brief D4D_MOUSE_BUFF_LENGTH constant default declaration                 */
 #ifndef D4D_MOUSE_BUFF_LENGTH
   #define D4D_MOUSE_BUFF_LENGTH 4       ///< 4
-#endif 
+#endif
 
 /*! @brief D4D_MOUSE_NORMAL_BMP constant default declaration                 */
 #ifndef D4D_MOUSE_NORMAL_BMP
   #define D4D_MOUSE_NORMAL_BMP            NULL  ///< NULL - no bitmap for normal cursor
-#endif 
+#endif
 
 /*! @brief D4D_MOUSE_BUSY_BMP constant default declaration                 */
 #ifndef D4D_MOUSE_BUSY_BMP
   #define D4D_MOUSE_BUSY_BMP              NULL  ///< NULL - no bitmap for busy cursor
-#endif 
+#endif
 
 /*! @brief D4D_MOUSE_UNAVAILABLE_BMP constant default declaration                 */
 #ifndef D4D_MOUSE_UNAVAILABLE_BMP
@@ -81,8 +81,8 @@
   #define D4D_MOUSE_BMP_KEY_COLOR       0x003F3F3F  ///< 0x003F3F3F - the most white key color that support LCDC peripheral
 #endif
 
-/*! @} End of doxd4d_mouse_const                                              */       
-  
+/*! @} End of doxd4d_mouse_const                                              */
+
 /******************************************************************************
 * Internal constants
 ******************************************************************************/
@@ -105,7 +105,7 @@ typedef enum
   D4D_MOUSE_EVENT_DOWN_R,       ///< Right button down event
   D4D_MOUSE_EVENT_UP_R,         ///< Right button up event
   D4D_MOUSE_EVENT_DOWN_M,       ///< Middle button down event
-  D4D_MOUSE_EVENT_UP_M,         ///< Middle button up event          
+  D4D_MOUSE_EVENT_UP_M,         ///< Middle button up event
   D4D_MOUSE_EVENT_WHEEL_UP,     ///< Wheel up event
   D4D_MOUSE_EVENT_WHEEL_DOWN    ///< Wheel down event
 }D4D_MOUSE_EVENT;
@@ -121,11 +121,11 @@ typedef struct
 /*! @brief D4D_MOUSE_CURSOR_TYPE enumeration type contains all types of MOUSE cursors */
 typedef enum
 {
-  D4D_MOUSE_CURSOR_TYPE_INACTIVE = 0,   ///< Drawed normal cursor but the object/screen doesn't get any click/wheel events 
-  D4D_MOUSE_CURSOR_TYPE_NORMAL = 1,     ///< Drawed normal cursor and all events are sending to objects/screens 
-  D4D_MOUSE_CURSOR_TYPE_BUSY = 2,       ///< Drawed busy cursor but the object/screen doesn't get any click/wheel events 
-  D4D_MOUSE_CURSOR_TYPE_UNAVAILABLE = 3, ///< Drawed unavailable cursor but the object/screen doesn't get any click/wheel events 
-  D4D_MOUSE_CURSOR_TYPE_CNT             ///< Just system define that specified the count of cursors, must be kept on end of the enumeration field 
+  D4D_MOUSE_CURSOR_TYPE_INACTIVE = 0,   ///< Drawed normal cursor but the object/screen doesn't get any click/wheel events
+  D4D_MOUSE_CURSOR_TYPE_NORMAL = 1,     ///< Drawed normal cursor and all events are sending to objects/screens
+  D4D_MOUSE_CURSOR_TYPE_BUSY = 2,       ///< Drawed busy cursor but the object/screen doesn't get any click/wheel events
+  D4D_MOUSE_CURSOR_TYPE_UNAVAILABLE = 3, ///< Drawed unavailable cursor but the object/screen doesn't get any click/wheel events
+  D4D_MOUSE_CURSOR_TYPE_CNT             ///< Just system define that specified the count of cursors, must be kept on end of the enumeration field
 }D4D_MOUSE_CURSOR_TYPE;
 
 /*! @} End of doxd4d_mouse_type                                               */
@@ -148,7 +148,7 @@ typedef struct
 
 typedef Byte D4D_MOUSE_STATUS;
 
-#define D4D_MOUSE_BTN_LEFT_MASK         (0x01) 
+#define D4D_MOUSE_BTN_LEFT_MASK         (0x01)
 #define D4D_MOUSE_BTN_RIGHT_MASK        (0x02)
 #define D4D_MOUSE_BTN_MIDDLE_MASK       (0x04)
 
@@ -181,14 +181,14 @@ typedef Byte D4D_MOUSE_STATUS;
   const D4D_MOUSECURSOR_BMP name = \
     { { (D4D_BMP*)&pNormal, (D4D_BMP*)&pBusy, (D4D_BMP*)&pUnavailable }, keyColor};
 
-   
+
 /*! @} End of doxd4d_mouse_macro                                              */
 
 /******************************************************************************
 * Global variables
 ******************************************************************************/
-      
-      
+
+
 #ifdef D4D_LLD_MOUSE
 /******************************************************************************
 * Global functions

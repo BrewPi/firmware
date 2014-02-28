@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,12 +34,12 @@
 * @file      d4d_bmp.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.22.0
-* 
+*
 * @date      Oct-2-2013
-* 
-* @brief     D4D driver bmp decoder header file 
+*
+* @brief     D4D driver bmp decoder header file
 *
 ******************************************************************************/
 
@@ -62,7 +62,7 @@
 * @{
 *******************************************************************************/
 /*! @brief D4D_BMP_EXTSRC_SUPPORT_D4D_EXT constant default declaration        */
-/*! @note D4D_BMP_EXTSRC_SUPPORT_D4D_EXT reflects the endianism settings and selecting the      
+/*! @note D4D_BMP_EXTSRC_SUPPORT_D4D_EXT reflects the endianism settings and selecting the
     right format of file to optimize the speed of drawing of pictures */
 #if D4D_ENDIAN == D4D_ENDIAN_LITTLE
   #define D4D_BMP_EXTSRC_SUPPORT_D4D_EXT "D4L"  ///< D4L file extension will be used for eGUI own format
@@ -73,11 +73,11 @@
 /**************************************************************************/ /*!
 * @brief   Macro that contains name of empty bitmap structure
 * @note    This define is used for cases where is need to specify any bitmap structure
-*          , but the bitmap should not be valid. For example for mouse cursor definition. 
+*          , but the bitmap should not be valid. For example for mouse cursor definition.
 *******************************************************************************/
-#define D4D_BMP_CLEAR d4d_mouseNoCursor 
+#define D4D_BMP_CLEAR d4d_mouseNoCursor
 
-/*! @} End of doxd4d_bmp_const                                              */       
+/*! @} End of doxd4d_bmp_const                                              */
 
 
 /******************************************************************************
@@ -89,15 +89,15 @@
 /*! @brief D4D_EXTIMG_TYPE eGUI supported image type enumeration              */
 typedef enum
 {
-  D4D_EXTIMG_UNKNOWN = 0,       ///< Uknown image format - do nothing 
-  D4D_EXTIMG_INTD4D,            ///< Internal memory eGUI format of image 
+  D4D_EXTIMG_UNKNOWN = 0,       ///< Uknown image format - do nothing
+  D4D_EXTIMG_INTD4D,            ///< Internal memory eGUI format of image
   D4D_EXTIMG_D4D,               ///< External memory eGUI format of image
   D4D_EXTIMG_BMP,               ///< External memory MicroSoft BMP format of image
   D4D_EXTIMG_ITEMS_CNT          ///< Just last item where is stored the count of the image decoder. Keep it on last position.
 }D4D_EXTIMG_TYPE;
 
 /*! @brief D4D_BMP eGUI main image structure             */
-typedef struct 
+typedef struct
 {
     const void *pData;          ///< Pointer to data to internal memory. In case of external source of image this must be NULL
     const void *pParam;         ///< Pointer to pallete to internal memory. In case of external source of image is used as a pointer to file path.
@@ -158,8 +158,8 @@ typedef Byte D4D_BMP_PROPERTIES;
 #define D4D_EXTERN_BMP(name) \
     extern const D4D_BMP name
 
-/*! @} End of doxd4d_bmp_macro                                              */      
-      
+/*! @} End of doxd4d_bmp_macro                                              */
+
 
 /******************************************************************************
 * Global D4D bitmap drawing level functions

@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,12 +34,12 @@
 * @file      d4d_screen.c
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.44.0
-* 
+*
 * @date      Jan-14-2014
-* 
-* @brief     D4D driver screen functions c file 
+*
+* @brief     D4D driver screen functions c file
 *
 ******************************************************************************/
 
@@ -56,12 +56,12 @@ static D4D_OBJECT* D4D_FindObject(D4D_SCREEN* pScreen, D4D_OBJECT_PTR pObject);
 static void D4D_ChangeScreen(D4D_SCREEN* pNewScreen, D4D_SCREEN* pOldScreen);
 
 
-D4D_MARGIN d4d_screenMarginDflt = 
+D4D_MARGIN d4d_screenMarginDflt =
 {
   0,    //left
   0,    //top
   0,    //right
-  0     //bottom  
+  0     //bottom
 };
 
 /******************************************************************************
@@ -80,7 +80,7 @@ D4D_SCREEN* D4D_GetActiveScreen(void)
     // no screen yet shown
     if(d4d_screenHistoryIndex <= 0)
         return NULL;
-    
+
     return d4d_screenHistory[d4d_screenHistoryIndex - 1];
 }
 
@@ -92,16 +92,16 @@ D4D_SCREEN* D4D_GetActiveScreen(void)
 * @note    Enter new screen, remember the history if not only replacing
 *******************************************************************************/
 void D4D_ActivateScreen(D4D_SCREEN* pNewScreen, D4D_BOOL bReplaceCurrent)
-{    
+{
   D4D_SCREEN* pOldScreen;
 
   // can not activate screen (no space left in history array)
   if(d4d_screenHistoryIndex >= D4D_SCREEN_HISTORY && !bReplaceCurrent)
       return ;
-  
+
   if(!pNewScreen)
     return;
-  
+
   // cancel key capture
   D4D_CaptureKeys(NULL);
 
@@ -119,7 +119,7 @@ void D4D_ActivateScreen(D4D_SCREEN* pNewScreen, D4D_BOOL bReplaceCurrent)
   d4d_screenHistory[d4d_screenHistoryIndex] = pNewScreen;
   d4d_screenHistoryIndex++;
 
-  D4D_ChangeScreen(pNewScreen, pOldScreen);    
+  D4D_ChangeScreen(pNewScreen, pOldScreen);
 }
 
 /**************************************************************************/ /*!
@@ -130,20 +130,20 @@ void D4D_ActivateScreen(D4D_SCREEN* pNewScreen, D4D_BOOL bReplaceCurrent)
 void D4D_EscapeScreen(void)
 {
     D4D_SCREEN* pOldScreen;
-    
-    // can not escape current screen, it is the top one 
+
+    // can not escape current screen, it is the top one
     if(d4d_screenHistoryIndex <= 1)
       return;
-    
+
     // cancel key capture
     D4D_CaptureKeys(NULL);
 
     pOldScreen = D4D_GetActiveScreen();
-    
+
     // pop the history stack
     if(d4d_screenHistoryIndex > 1)
       d4d_screenHistoryIndex--;
-    
+
     D4D_ChangeScreen(D4D_GetActiveScreen(), pOldScreen);
 
 }
@@ -157,20 +157,20 @@ void D4D_EscapeToBaseScreen(void)
 {
     D4D_SCREEN* pOldScreen;
 
-    // can not escape current screen, it is the top one 
+    // can not escape current screen, it is the top one
     if(d4d_screenHistoryIndex == 0)
         return;
-    
+
     // cancel key capture
     D4D_CaptureKeys(NULL);
 
-    
+
     // I can be sure this is not NULL
     pOldScreen = D4D_GetActiveScreen();
 
     // pop the history stack
-    d4d_screenHistoryIndex = 1;    
-    
+    d4d_screenHistoryIndex = 1;
+
     D4D_ChangeScreen(D4D_GetActiveScreen(), pOldScreen);
 }
 
@@ -189,43 +189,43 @@ void D4D_InitScreen(D4D_SCREEN* pScreen)
 
 
   if(!pScreen)
-    return;  
+    return;
 
   // prepare message
   localMsg.pScreen = pScreen;
   localMsg.nMsgId = D4D_MSG_ONINIT;
-  
+
   pObj = (D4D_OBJECT**) pScreen->pObjects;
-  
-  // init objects   
+
+  // init objects
   while(*pObj != NULL)
-  {  
-    
+  {
+
     localMsg.pObject = *pObj;
-    
+
     // initialize the pointers on this screen in all screen objects
     D4D_SetObjectScreenPointer(*pObj, pScreen);
-    
+
     // send the ON INIT message
-    D4D_SendMessageMask(&localMsg, 0, D4D_OBJECT_F_NOTINIT);    
-    
+    D4D_SendMessageMask(&localMsg, 0, D4D_OBJECT_F_NOTINIT);
+
     pObj++;
   }
-  
+
   if(!(pData->flags & D4D_SCR_FINT_INITDONE))
   {
     pData->flags |= D4D_SCR_FINT_INITDONE;
-    
+
     D4D_FocusNextObject(pScreen, D4D_TRUE);
-    
+
     // user's screen initialization
     if(pScreen->OnInit)
         pScreen->OnInit();
-    
+
     // Enable natively touch scren for screens if exit button is enabled
     if(pScreen->flags & D4D_SCR_F_EXIT)
-      pData->flags |= D4D_SCR_FINT_TOUCHENABLE;   
-  } 
+      pData->flags |= D4D_SCR_FINT_TOUCHENABLE;
+  }
 }
 
 /**************************************************************************/ /*!
@@ -236,12 +236,12 @@ void D4D_InitScreen(D4D_SCREEN* pScreen)
 * @note    Invalidate screen and its object in two ways - complete or active areas only.
 *******************************************************************************/
 void D4D_InvalidateScreen(D4D_SCREEN* pScreen, D4D_BOOL bComplete)
-{    
+{
     if(!pScreen)
       return;
 
     pScreen->pData->flags |= D4D_SCR_FINT_CHECKOBJECTS;
-    
+
     if(bComplete)
     {
         pScreen->pData->flags |= D4D_SCR_FINT_REDRAWC;
@@ -288,15 +288,15 @@ void D4D_FocusNextObject(D4D_SCREEN* pScreen, D4D_BOOL bInitialSearch)
   D4D_SCREEN_DATA* pData = pScreen->pData;
   const D4D_OBJECT* const* pObjects = pScreen->pObjects;
   D4D_OBJECT* pFocusedObj = pData->focusedObject;
-  
+
   if(!pScreen)
     return;
-  
+
   // sanity check of list of objects - contains Screen any object?
   if(*pObjects == NULL)
     return;
 
-  // currently focused object already has a tabstop    
+  // currently focused object already has a tabstop
   if(bInitialSearch)
   {
     //SetUp start object
@@ -305,24 +305,24 @@ void D4D_FocusNextObject(D4D_SCREEN* pScreen, D4D_BOOL bInitialSearch)
     if((pObjects[0]->pData->flags & (D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_ENABLED)) == (D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_ENABLED))
       return ;
   }
-  
+
   do
   {
-      
+
       // get next object
       pFocusedObj = D4D_FindNextObject(pFocusedObj, (((pFocusedObj->pData->flags) & (D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_VISIBLE)) == (D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_VISIBLE)));
-             
+
       // object with focus enabled?
       if((pFocusedObj->pData->flags & (D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_VISIBLE)) == (D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_VISIBLE))
           break;
-      
+
     // avoid endless loop if no focused object can be found
   }while(((D4D_OBJECT*)pFocusedObj) != pData->focusedObject);
-  
-  
-  
+
+
+
   if(((D4D_OBJECT*)pFocusedObj) != pData->focusedObject)
-  {        
+  {
     // invalidate object which is loosing focus
     D4D_SetObjectFlags(pData->focusedObject, D4D_OBJECT_F_REDRAWSTATE, D4D_FALSE);
 
@@ -331,14 +331,14 @@ void D4D_FocusNextObject(D4D_SCREEN* pScreen, D4D_BOOL bInitialSearch)
     d4d_msg.nMsgId = D4D_MSG_KILLFOCUS;
     d4d_msg.pObject = pData->focusedObject;
     D4D_SendMessage(&d4d_msg);
-    
-    
+
+
     // invalidate object which is getting focus
     D4D_SetObjectFlags((D4D_OBJECT*)pFocusedObj, D4D_OBJECT_F_REDRAWSTATE, D4D_FALSE);
-    
+
     // move the focus
     pData->focusedObject = ((D4D_OBJECT*)pFocusedObj);
-    
+
     // prepare message
     d4d_msg.pScreen = pScreen;
     d4d_msg.nMsgId = D4D_MSG_SETFOCUS;
@@ -358,26 +358,26 @@ void D4D_FocusPrevObject(D4D_SCREEN* pScreen)
     D4D_SCREEN_DATA* pData = pScreen->pData;
     const D4D_OBJECT* const* pObjects = pScreen->pObjects;
     D4D_OBJECT* pFocusedObj = pData->focusedObject;
-    
+
     if(!pScreen)
       return;
-    
+
     // sanity check of list of objects - contains Screen any object?
     if(*pObjects == NULL)
       return;
-    
+
     do
     {
-        
+
         // just get previous object
         pFocusedObj = D4D_FindPreviousObject(pFocusedObj, (((pFocusedObj->pData->flags) & (D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_VISIBLE)) == (D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_VISIBLE)));
-        
+
         // object with focus enabled?
         if((pFocusedObj->pData->flags & (D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_VISIBLE)) == (D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_VISIBLE))
         {
           D4D_OBJECT * pParent = pFocusedObj;
           D4D_BOOL couldBeFocused = D4D_TRUE;
-          
+
           // Take care that the parents objects are also visible and enabled
           while(pParent = D4D_GetParentObject(pParent))
           {
@@ -387,31 +387,31 @@ void D4D_FocusPrevObject(D4D_SCREEN* pScreen)
               break;
             }
           }
-          
+
           if(couldBeFocused)
             break;
         }
-        
+
       // avoid endless loop if no focused object can be found
     }while(pFocusedObj != pData->focusedObject);
-    
+
     if(pFocusedObj != pData->focusedObject)
-    {        
+    {
       // invalidate object which is loosing focus
       D4D_SetObjectFlags(pData->focusedObject, D4D_OBJECT_F_REDRAWSTATE, D4D_FALSE);
-      
+
       // prepare message KILLFOCUS
       d4d_msg.pScreen = pScreen;
       d4d_msg.nMsgId = D4D_MSG_KILLFOCUS;
       d4d_msg.pObject = pData->focusedObject;
       D4D_SendMessage(&d4d_msg);
-      
+
       // invalidate object which is getting focus
       D4D_SetObjectFlags((D4D_OBJECT*)pFocusedObj, D4D_OBJECT_F_REDRAWSTATE, D4D_FALSE);
-      
+
       // move the focus
       pData->focusedObject = pFocusedObj;
-      
+
       // prepare message
       d4d_msg.pScreen = pScreen;
       d4d_msg.nMsgId = D4D_MSG_SETFOCUS;
@@ -432,47 +432,47 @@ void D4D_FocusSet(D4D_SCREEN* pScreen, D4D_OBJECT_PTR pObject)
     D4D_SCREEN_DATA* pData = pScreen->pData;
     D4D_OBJECT* pFocusedObj = pData->focusedObject;
     D4D_OBJECT* pNewFocus;
-    
+
     if(pScreen == NULL)
       return;
-    
+
     // check if object is really item of the current screen
     pNewFocus = D4D_FindObject(pScreen, pObject);
     if(pNewFocus == NULL)
       return;
-    
+
     if(pNewFocus == pFocusedObj) // is selected object same as focused?
       return;
-  
+
    if((pNewFocus->pData->flags & (D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_ENABLED)) != (D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_ENABLED)) // is this object selectable?
       return;
-    
+
     if(!D4D_IsEnabled(pNewFocus))
       return;
-    
+
     // invalidate object which is loosing focus
     D4D_SetObjectFlags(pFocusedObj, D4D_OBJECT_F_REDRAWSTATE, D4D_FALSE);
-    
+
     // invalidate object which is getting focus
     D4D_SetObjectFlags(pNewFocus, D4D_OBJECT_F_REDRAWSTATE, D4D_FALSE);
-    
+
     // move the focus
     pData->focusedObject = pNewFocus;
-    
+
     // prepare message
     d4d_msg.pScreen = pScreen;
     d4d_msg.nMsgId = D4D_MSG_KILLFOCUS;
     d4d_msg.pObject = pFocusedObj;
     D4D_SendMessage(&d4d_msg);
-    
-    
-    
+
+
+
     // prepare message
     d4d_msg.pScreen = pScreen;
     d4d_msg.nMsgId = D4D_MSG_SETFOCUS;
     d4d_msg.pObject = pNewFocus;
     D4D_SendMessage(&d4d_msg);
-        
+
 }
 
 
@@ -486,12 +486,12 @@ void D4D_FocusSet(D4D_SCREEN* pScreen, D4D_OBJECT_PTR pObject)
   *******************************************************************************/
   void D4D_EnableScrTouchScreen(const D4D_SCREEN* pScr, D4D_BOOL bEnable)
   {
-    if(bEnable)  
-      pScr->pData->flags |= D4D_SCR_FINT_TOUCHENABLE;    
+    if(bEnable)
+      pScr->pData->flags |= D4D_SCR_FINT_TOUCHENABLE;
     else
-      pScr->pData->flags &= ~D4D_SCR_FINT_TOUCHENABLE;    
+      pScr->pData->flags &= ~D4D_SCR_FINT_TOUCHENABLE;
   }
-#endif  
+#endif
 
 /**************************************************************************/ /*!
 * @brief   The function sets the screen font properties
@@ -500,11 +500,11 @@ void D4D_FocusSet(D4D_SCREEN* pScreen, D4D_OBJECT_PTR pObject)
 * @return  None
 * @note    Sets the font property for text used natively by screen (title)
 *******************************************************************************/
-void D4D_SetScreenFontProperties(D4D_SCREEN* pScreen, D4D_FONT_PROPERTIES property) 
+void D4D_SetScreenFontProperties(D4D_SCREEN* pScreen, D4D_FONT_PROPERTIES property)
 {
   if(pScreen->textBuff.str_properties->font_properties == property)
     return;     // There is no change needed
-  
+
   pScreen->textBuff.str_properties->font_properties = property;
   D4D_InvalidateScreen(pScreen, D4D_FALSE);
 }
@@ -516,11 +516,11 @@ void D4D_SetScreenFontProperties(D4D_SCREEN* pScreen, D4D_FONT_PROPERTIES proper
 * @return  None
 * @note    Sets the text property for text used natively by screen (title)
 *******************************************************************************/
-void D4D_SetScreenTextProperties(D4D_SCREEN* pScreen, D4D_TEXT_PROPERTIES property) 
+void D4D_SetScreenTextProperties(D4D_SCREEN* pScreen, D4D_TEXT_PROPERTIES property)
 {
   if(pScreen->textBuff.str_properties->text_properties == property)
     return;     // There is no change needed
-  
+
   pScreen->textBuff.str_properties->text_properties = property;
   D4D_InvalidateScreen(pScreen, D4D_FALSE);
 
@@ -537,42 +537,42 @@ D4D_POINT D4D_GetClientToScreenPoint(D4D_OBJECT* pObject, D4D_POINT* nClientPoin
 {
   D4D_POINT tmp_point;
   D4D_SCREEN* pScreen = pObject->pData->pScreen;
-  
-  
+
+
   if(pScreen == NULL)
   {
-    return *nClientPoint;  
+    return *nClientPoint;
   }
-  
+
   tmp_point.x = (D4D_COOR)(pScreen->position.x + nClientPoint->x);
   tmp_point.y = (D4D_COOR)(pScreen->position.y + nClientPoint->y);
-  
+
   if(pScreen->flags & D4D_SCR_F_BEVEL)
     tmp_point.x += D4D_BEVEL_WIDTH;
   else if(pScreen->flags & D4D_SCR_F_OUTLINE)
-  	tmp_point.x++;	
-  
-  tmp_point.y += D4D_GetScrHeaderSize(pScreen); 
-  
+  	tmp_point.x++;
+
+  tmp_point.y += D4D_GetScrHeaderSize(pScreen);
+
   if(pObject->pRelations)
   {
     D4D_OBJECT* pParent = (D4D_OBJECT*)pObject->pRelations[D4D_OBJECT_USR_DATA_PARENT_IX];
-  
+
     while(pParent)
     {
       tmp_point.x += pParent->position.x;
       tmp_point.y += pParent->position.y;
-      
+
       if(pParent->pMargin)
       {
         tmp_point.x += pParent->pMargin->left;
-        tmp_point.y += pParent->pMargin->top;        
+        tmp_point.y += pParent->pMargin->top;
       }
-      
+
       pParent = (D4D_OBJECT*)pParent->pRelations[D4D_OBJECT_USR_DATA_PARENT_IX];
     }
   }
-  
+
   return tmp_point;
 }
 
@@ -587,26 +587,26 @@ D4D_POINT D4D_GetScreenToClientPoint(D4D_OBJECT* pObject, D4D_POINT* nScreenPoin
 {
   D4D_POINT tmp_point;
   D4D_SCREEN* pScreen = pObject->pData->pScreen;
-  
+
   if(pScreen == NULL)
   {
-    return *nScreenPoint;  
+    return *nScreenPoint;
   }
-  
+
   tmp_point.x = (D4D_COOR)(nScreenPoint->x - pScreen->position.x);
   tmp_point.y = (D4D_COOR)(nScreenPoint->y - pScreen->position.y);
-  
+
   if(pScreen->flags & D4D_SCR_F_BEVEL)
     tmp_point.x -= D4D_BEVEL_WIDTH;
   else if(pScreen->flags & D4D_SCR_F_OUTLINE)
     tmp_point.x--;
-  
-  tmp_point.y -= D4D_GetScrHeaderSize(pScreen); 
-  
+
+  tmp_point.y -= D4D_GetScrHeaderSize(pScreen);
+
   if(pObject->pRelations)
   {
     D4D_OBJECT* pParent = (D4D_OBJECT*)pObject->pRelations[D4D_OBJECT_USR_DATA_PARENT_IX];
-  
+
     while(pParent)
     {
       tmp_point.x -= pParent->position.x;
@@ -614,13 +614,13 @@ D4D_POINT D4D_GetScreenToClientPoint(D4D_OBJECT* pObject, D4D_POINT* nScreenPoin
       if(pParent->pMargin)
       {
         tmp_point.x -= pParent->pMargin->left;
-        tmp_point.y -= pParent->pMargin->top;        
+        tmp_point.y -= pParent->pMargin->top;
       }
       pParent = (D4D_OBJECT*)pParent->pRelations[D4D_OBJECT_USR_DATA_PARENT_IX];
     }
   }
-  
-  
+
+
   return tmp_point;
 }
 
@@ -634,7 +634,7 @@ D4D_POINT D4D_GetScreenToClientPoint(D4D_OBJECT* pObject, D4D_POINT* nScreenPoin
 D4D_BOOL D4D_ScrCheckCoor(D4D_SCREEN* pScreen, D4D_POINT* point)
 {
   if((point->x >= pScreen->position.x) && (point->y >= (pScreen->position.y + D4D_GetScrHeaderSize(pScreen))))
-  { 
+  {
     if((point->x <= (pScreen->position.x + pScreen->size.cx)) && (point->y <= (pScreen->position.y + pScreen->size.cy)))
       return D4D_TRUE;
   }
@@ -645,7 +645,7 @@ D4D_BOOL D4D_ScrCheckCoor(D4D_SCREEN* pScreen, D4D_POINT* point)
 /******************************************************************************
 *       End of public functions                                               */
 /*! @} End of doxd4d_screen_func                                              */
-/******************************************************************************/ 
+/******************************************************************************/
 
 /**************************************************************************/ /*!
 * @brief   The function returns the pointer to last object in the screen
@@ -656,15 +656,15 @@ D4D_BOOL D4D_ScrCheckCoor(D4D_SCREEN* pScreen, D4D_POINT* point)
 D4D_OBJECT* D4D_GetLastObject(D4D_SCREEN* pScreen)
 {
     D4D_OBJECT** pObject;
-    
+
     if(!pScreen)
       return NULL;
-    
+
     pObject = (D4D_OBJECT**)pScreen->pObjects;
-    
+
     while(*(pObject + 1))
       pObject++;
-    
+
     return *pObject;
 }
 
@@ -676,20 +676,20 @@ D4D_OBJECT* D4D_GetLastObject(D4D_SCREEN* pScreen)
 static D4D_OBJECT* D4D_FindObject(D4D_SCREEN* pScreen, D4D_OBJECT_PTR pObject)
 {
     D4D_OBJECT* pLocObject = pScreen->pData->focusedObject;
-    
+
     if(!pScreen || !pLocObject)
       return NULL;
-    
+
     do
     {
       // get next object
       pLocObject = D4D_FindNextObject(pLocObject, D4D_TRUE);
-      
+
       if(pLocObject == pObject)
         return pLocObject;
-            
+
     }while(pLocObject != pScreen->pData->focusedObject);
-            
+
     // not found
     return NULL;
 }
@@ -700,77 +700,77 @@ static D4D_OBJECT* D4D_FindObject(D4D_SCREEN* pScreen, D4D_OBJECT_PTR pObject)
 *
 ******************************************************************/
 static void D4D_ChangeScreen(D4D_SCREEN* pNewScreen, D4D_SCREEN* pOldScreen)
-{    
+{
     D4D_SCREEN_DATA* pData;
     D4D_MESSAGE tmp_msg;
 
     if(pNewScreen == NULL)
       return;
-    
+
     if(pOldScreen == pNewScreen)
       return;
-    
+
     tmp_msg.pScreen = pOldScreen;
-    
+
     if(pOldScreen != NULL)
     {
       D4D_SetObjectFlags(pOldScreen->pData->focusedObject, D4D_OBJECT_F_REDRAWSTATE, D4D_FALSE);
-      
+
       tmp_msg.nMsgId = D4D_MSG_KILLFOCUS;
       tmp_msg.pObject = pOldScreen->pData->focusedObject;
       D4D_SendMessage(&tmp_msg);
-              
+
       // Draw NC screen area as an inactivate
       D4D_DrawScreenNC(pOldScreen, D4D_FALSE);
-      
+
       // call de-activate event
       if(pOldScreen->OnDeactivate != NULL)
-          pOldScreen->OnDeactivate();       
+          pOldScreen->OnDeactivate();
     }
 
     // invalidate the new screen (global complete redraw, not individual objects)
     D4D_InvalidateScreen(pNewScreen, D4D_TRUE);
-    
-    // if this is the first time activating 
-    pData = pNewScreen->pData;  
-    
+
+    // if this is the first time activating
+    pData = pNewScreen->pData;
+
     // Init the screen
     D4D_InitScreen(pNewScreen);
-    
+
     D4D_SetObjectFlags(pData->focusedObject, D4D_OBJECT_F_REDRAWSTATE, D4D_FALSE);
-    
+
     // Send to the object Focus message
     tmp_msg.pScreen = pNewScreen;
     tmp_msg.nMsgId = D4D_MSG_SETFOCUS;
     tmp_msg.pObject = pData->focusedObject;
-    D4D_SendMessage(&tmp_msg);          
-  
+    D4D_SendMessage(&tmp_msg);
+
     // inform the screen it has been activated
     if(pNewScreen->OnActivate)
         pNewScreen->OnActivate();
-    
+
     D4D_ClearKeysBuffer();
-  
-  #ifdef D4D_LLD_TCH  
+
+  #ifdef D4D_LLD_TCH
     d4d_LastTouchedObj = NULL;
   #endif
-  
+
     // finish all action for previous screen
-    D4D_MouseChangedScreen();     
+    D4D_MouseChangedScreen();
 }
 
 /**************************************************************//*!
 *
-* Compute size of screen header 
+* Compute size of screen header
 *
 ******************************************************************/
 D4D_COOR D4D_GetScrHeaderSize(D4D_SCREEN* pScreen)
 {
   D4D_COOR tmp_size = 0;
-  
+
   if(pScreen == NULL)
     return 0;
-  
+
   if((pScreen->flags & D4D_SCR_F_TITLEBAR) || pScreen->textBuff.pText)
   {
     tmp_size = (D4D_COOR)(D4D_SCR_TITLE_OFF_Y * 2 + D4D_GetFontHeight(pScreen->textBuff.fontId));
@@ -778,13 +778,13 @@ D4D_COOR D4D_GetScrHeaderSize(D4D_SCREEN* pScreen)
 
   if(pScreen->pIcon != NULL)
     if(tmp_size < (D4D_GetBmpHeight(pScreen->pIcon) + D4D_SCR_TITLE_OFF_Y * 2 + 1))
-      tmp_size = (D4D_COOR)(D4D_GetBmpHeight(pScreen->pIcon) + D4D_SCR_TITLE_OFF_Y * 2 + 1);          
-  
-  if(pScreen->flags & D4D_SCR_F_TITLEBAR) 
+      tmp_size = (D4D_COOR)(D4D_GetBmpHeight(pScreen->pIcon) + D4D_SCR_TITLE_OFF_Y * 2 + 1);
+
+  if(pScreen->flags & D4D_SCR_F_TITLEBAR)
     if(tmp_size < D4D_SCR_HEADER_SIZE_MIN_SIZE)
-      tmp_size = D4D_SCR_HEADER_SIZE_MIN_SIZE;   
-        
-  return tmp_size;  
+      tmp_size = D4D_SCR_HEADER_SIZE_MIN_SIZE;
+
+  return tmp_size;
 }
 
 /**************************************************************//*!
@@ -795,18 +795,18 @@ D4D_COOR D4D_GetScrHeaderSize(D4D_SCREEN* pScreen)
 static D4D_COOR D4D_GetScrHeaderTitleOffset(D4D_SCREEN* pScreen)
 {
   D4D_COOR tmp_off = D4D_SCR_TITLE_OFF_X;
-  
+
   if(pScreen == NULL)
     return 0;
-  
-  if(pScreen->pIcon != NULL)    
-    tmp_off = (D4D_COOR)(D4D_GetBmpWidth(pScreen->pIcon) + D4D_SCR_TITLE_OFF_X * 2);          
-  
+
+  if(pScreen->pIcon != NULL)
+    tmp_off = (D4D_COOR)(D4D_GetBmpWidth(pScreen->pIcon) + D4D_SCR_TITLE_OFF_X * 2);
+
   #if D4D_ROUND_CORNER_ENABLE == D4D_TRUE
     tmp_off += (pScreen->radius * 2);
-  #endif  
-      
-  return tmp_off;  
+  #endif
+
+  return tmp_off;
 }
 
 
@@ -816,43 +816,43 @@ static D4D_COOR D4D_GetScrHeaderTitleOffset(D4D_SCREEN* pScreen)
 *
 ******************************************************************/
 static D4D_BOOL D4D_GetScrHeaderExitBtnCoor(D4D_SCREEN* pScreen, D4D_POINT* resultPos, D4D_SIZE* resultSize)
-{        
+{
   D4D_COOR tmp_coor = D4D_GetScrHeaderSize(pScreen);
-  
+
   resultPos->x = 0;
   resultPos->y = 0;
-  
+
   resultSize->cx = 0;
   resultSize->cy = 0;
-  
+
   if(pScreen == NULL)
     return D4D_FALSE;
-  
+
   if((tmp_coor - D4D_SCR_TITLE_EXITBTN_OFFSET * 2) <= 0)
     return D4D_FALSE;
 
   tmp_coor -= D4D_SCR_TITLE_EXITBTN_OFFSET * 2;
-  
+
   if(tmp_coor < D4D_SCR_TITLE_EXITBTN_MIN_SIZE)
     return D4D_FALSE;
-  
+
   resultSize->cx = tmp_coor;
   resultSize->cy = tmp_coor;
-  
+
   resultPos->x = (D4D_COOR)(pScreen->position.x + pScreen->size.cx - tmp_coor - D4D_SCR_TITLE_EXITBTN_OFFSET);
   resultPos->y = (D4D_COOR)(pScreen->position.y + D4D_SCR_TITLE_EXITBTN_OFFSET);
-  
+
   if(pScreen->flags & D4D_SCR_F_BEVEL)
   {
     resultPos->x -= D4D_BEVEL_WIDTH;
     resultPos->y += D4D_BEVEL_WIDTH;
-    
+
   }else if(pScreen->flags & D4D_SCR_F_OUTLINE)
   {
     resultPos->x--;
     resultPos->y++;
   }
-  
+
   return D4D_TRUE;
 }
 
@@ -868,32 +868,32 @@ static void D4D_DrawScreenNC(D4D_SCREEN* pScreen, D4D_BOOL active)
   D4D_GEOMETRY contentGeom;
   D4D_POINT tmpPoint;
   D4D_SIZE tmpSize;
-  
+
   contentGeom.pnt = pScreen->position;
   contentGeom.sz = pScreen->size;
-  
+
   if(pScreen->flags & D4D_SCR_F_BEVEL)
   {
     contentGeom.pnt.x += D4D_BEVEL_WIDTH;
     contentGeom.pnt.y += D4D_BEVEL_WIDTH;
     contentGeom.sz.cx -= 2*D4D_BEVEL_WIDTH;
     contentGeom.sz.cy -= 2*D4D_BEVEL_WIDTH;
-    
+
   }else if(pScreen->flags & D4D_SCR_F_OUTLINE)
   {
     contentGeom.pnt.x++;
     contentGeom.pnt.y++;
     contentGeom.sz.cx -= 2;
-    contentGeom.sz.cy -= 2;      
+    contentGeom.sz.cy -= 2;
   }
-  
+
   if(active)
-  {    
+  {
     if(pScreen->flags & D4D_SCR_F_BCKG)
-    {    
+    {
       D4D_FillRRect(&contentGeom.pnt, &contentGeom.sz, pScheme->screen.desktop, pScreen->radius);
     }
-    
+
     if(pScreen->flags & D4D_SCR_F_BEVEL)
     {
       D4D_Bevel(&(pScreen->position), &(pScreen->size), pScheme->screen.outline, D4D_BEVEL_RAISED, pScreen->radius);
@@ -905,19 +905,19 @@ static void D4D_DrawScreenNC(D4D_SCREEN* pScreen, D4D_BOOL active)
 
   if(pScreen->flags & D4D_SCR_F_TITLEBAR)
   {
-    
+
     clr = pScheme->screen.title_bar;
-    
+
     if(!active)
-      clr = D4D_GetGreyScale(clr);    
-    
+      clr = D4D_GetGreyScale(clr);
+
     tmpSize = contentGeom.sz;
     tmpSize.cy = D4D_GetScrHeaderSize(pScreen);
-    
+
     if(tmpSize.cy)
       tmpSize.cy--;
 
-    D4D_FillRRect(&contentGeom.pnt, &tmpSize, clr, pScreen->radius);    
+    D4D_FillRRect(&contentGeom.pnt, &tmpSize, clr, pScreen->radius);
   }
 
   if(pScreen->pIcon != NULL)
@@ -925,68 +925,68 @@ static void D4D_DrawScreenNC(D4D_SCREEN* pScreen, D4D_BOOL active)
     tmpPoint = contentGeom.pnt;
     tmpPoint.x += D4D_SCR_TITLE_OFF_X;
     tmpPoint.y += (D4D_COOR)((D4D_GetScrHeaderSize(pScreen) - D4D_GetBmpHeight(pScreen->pIcon)) / 2);
-    
-    D4D_DrawRBmp(&tmpPoint, pScreen->pIcon, (D4D_BOOL)!active, pScreen->radius);  
+
+    D4D_DrawRBmp(&tmpPoint, pScreen->pIcon, (D4D_BOOL)!active, pScreen->radius);
   }
 
   if(pScreen->textBuff.pText)
-  {        
+  {
     tmpPoint = contentGeom.pnt;
     tmpPoint.x += D4D_GetScrHeaderTitleOffset(pScreen);
     tmpPoint.y += (D4D_COOR)((D4D_GetScrHeaderSize(pScreen) - D4D_GetFontHeight(pScreen->textBuff.fontId)) / 2);
-    
+
     clr = pScheme->screen.title_text;
-    
+
     if(!active)
-      clr = D4D_GetGreyScale(clr);    
-    
+      clr = D4D_GetGreyScale(clr);
+
     D4D_DrawText(&tmpPoint, &pScreen->textBuff, clr, 0);
     }
 
   if(pScreen->flags & D4D_SCR_F_EXIT)
   {
     clr = pScheme->screen.exitBtnFore;
-    
+
     if(!active)
       clr = D4D_GetGreyScale(clr);
-    
+
     if(D4D_GetScrHeaderExitBtnCoor(pScreen, &tmpPoint, &tmpSize))
-    {         
+    {
       D4D_RBox(&tmpPoint, &tmpSize, D4D_LINE_THIN, clr, pScheme->screen.exitBtnBckg, pScreen->radius);
-      
+
       tmpPoint.x += D4D_SCR_EXITBTN_CROSS_SIZE;
-      tmpPoint.y += D4D_SCR_EXITBTN_CROSS_SIZE;    
-#if D4D_ROUND_CORNER_ENABLE != D4D_FALSE    
+      tmpPoint.y += D4D_SCR_EXITBTN_CROSS_SIZE;
+#if D4D_ROUND_CORNER_ENABLE != D4D_FALSE
       tmpPoint.x += (D4D_COOR)(pScreen->radius / 2);
       tmpPoint.y += (D4D_COOR)(pScreen->radius / 2);
-#endif      
-      
+#endif
+
       D4D_MoveTo(&tmpPoint);
       tmpPoint.x += tmpSize.cx - (2 * D4D_SCR_EXITBTN_CROSS_SIZE);
       tmpPoint.y += tmpSize.cy - (2 * D4D_SCR_EXITBTN_CROSS_SIZE);
-#if D4D_ROUND_CORNER_ENABLE != D4D_FALSE    
+#if D4D_ROUND_CORNER_ENABLE != D4D_FALSE
       tmpPoint.x -= (D4D_COOR)(pScreen->radius);
       tmpPoint.y -= (D4D_COOR)(pScreen->radius);
-#endif        
-      
+#endif
+
       D4D_LineTo(&tmpPoint, D4D_LINE_THIN, clr);
-      
-      tmpPoint.y -= tmpSize.cy - (2 * D4D_SCR_EXITBTN_CROSS_SIZE);    
-#if D4D_ROUND_CORNER_ENABLE != D4D_FALSE    
+
+      tmpPoint.y -= tmpSize.cy - (2 * D4D_SCR_EXITBTN_CROSS_SIZE);
+#if D4D_ROUND_CORNER_ENABLE != D4D_FALSE
       tmpPoint.y += (D4D_COOR)(pScreen->radius);
-#endif       
+#endif
       D4D_MoveTo(&tmpPoint);
       tmpPoint.x -= tmpSize.cx - (2 * D4D_SCR_EXITBTN_CROSS_SIZE);
-      tmpPoint.y += tmpSize.cy - (2 * D4D_SCR_EXITBTN_CROSS_SIZE);    
-#if D4D_ROUND_CORNER_ENABLE != D4D_FALSE    
+      tmpPoint.y += tmpSize.cy - (2 * D4D_SCR_EXITBTN_CROSS_SIZE);
+#if D4D_ROUND_CORNER_ENABLE != D4D_FALSE
       tmpPoint.x += (D4D_COOR)(pScreen->radius);
       tmpPoint.y -= (D4D_COOR)(pScreen->radius);
-#endif 
+#endif
       D4D_LineTo(&tmpPoint, D4D_LINE_THIN, clr);
     }
   }
 }
- 
+
 /**************************************************************//*!
 *
 * Redraw all objects that need it on given screen
@@ -996,38 +996,38 @@ static void D4D_RedrawScreenObject(D4D_OBJECT* pObject, D4D_BOOL complete)
 {
   D4D_MESSAGE msg;
   D4D_OBJECT_FLAGS flags = pObject->pData->flags;
-  
-  pObject->pData->flags &= ~(D4D_OBJECT_F_REDRAW | D4D_OBJECT_F_REDRAWC | D4D_OBJECT_F_REDRAWSTATE);  
-    
+
+  pObject->pData->flags &= ~(D4D_OBJECT_F_REDRAW | D4D_OBJECT_F_REDRAWC | D4D_OBJECT_F_REDRAWSTATE);
+
   if(!(flags & D4D_OBJECT_F_VISIBLE))
     return;
-  
+
   msg.pScreen = pObject->pData->pScreen;
   msg.pObject = pObject;
-  msg.prm.draw = 0;    
-  
-  
+  msg.prm.draw = 0;
+
+
   if(complete || (flags & (D4D_OBJECT_F_REDRAW | D4D_OBJECT_F_REDRAWC | D4D_OBJECT_F_REDRAWSTATE))) /* object does need to redraw */
   {
     /* forced complete redraw of all objects or object wants to be completely redrawn*/
     if(complete || (flags & D4D_OBJECT_F_REDRAWC))
       msg.prm.draw |= D4D_OBJECT_DRAWFLAGS_COMPLETE;
-  
+
     /* notify object that state of object has been changed (focus, capture etc)*/
     if(flags & D4D_OBJECT_F_REDRAWSTATE)
       msg.prm.draw |= D4D_OBJECT_DRAWFLAGS_STATE;
-  
-    
+
+
     // draw special?
     if((pObject == msg.pScreen->pData->focusedObject) && (pObject->pData->flags & D4D_OBJECT_F_TABSTOP))
     {
         msg.prm.draw |= D4D_OBJECT_DRAWFLAGS_FOCUSED;
-  
+
         if(pObject == d4d_pKeysCapturer)
             msg.prm.draw |= D4D_OBJECT_DRAWFLAGS_CAPTURING;
     }
-    
-    // will draw now            
+
+    // will draw now
     // send the DRAW message
     msg.nMsgId = D4D_MSG_DRAW;
     D4D_SendMessage(&msg);
@@ -1035,18 +1035,18 @@ static void D4D_RedrawScreenObject(D4D_OBJECT* pObject, D4D_BOOL complete)
     msg.nMsgId = D4D_MSG_DRAWDONE;
     D4D_SendMessage(&msg);
   }
-           
-  
+
+
   if(pObject->pRelations)
   {
     D4D_OBJECT** pChild = (D4D_OBJECT**)&(pObject->pRelations[D4D_OBJECT_USR_DATA_CHILD_IX]);
-    
+
     while(*pChild)
     {
       D4D_RedrawScreenObject(*pChild, complete);
       pChild++;
-    }    
-  }      
+    }
+  }
 }
 
 
@@ -1059,42 +1059,42 @@ void D4D_RedrawScreen(D4D_SCREEN* pScreen)
 {
   D4D_SCREEN_DATA data = *pScreen->pData;
   D4D_OBJECT** pObj;
-  
+
   pScreen->pData->flags &= ~(D4D_SCR_FINT_REDRAWC | D4D_SCR_FINT_CHECKOBJECTS);
-  
+
   // prepare message
   d4d_msg.pScreen = pScreen;
-  
+
   if(data.flags & (D4D_SCR_FINT_CHECKOBJECTS | D4D_SCR_FINT_REDRAWC))
     D4D_LLD_LCD.D4DLCD_FlushBuffer(D4DLCD_FLSH_SCR_START);
-  
+
   // redraw screen non client area if necessary
   if(data.flags & D4D_SCR_FINT_REDRAWC)
   {
     d4d_msg.pObject = NULL;
     d4d_msg.nMsgId = D4D_MSG_DRAW;
     D4D_SendMessage(&d4d_msg);
-    
-    D4D_DrawScreenNC(pScreen, D4D_TRUE);    
+
+    D4D_DrawScreenNC(pScreen, D4D_TRUE);
   }
-  
+
   if(data.flags & D4D_SCR_FINT_CHECKOBJECTS)
   {
-    // redraw objects   
+    // redraw objects
     pObj = (D4D_OBJECT**)pScreen->pObjects;
     // Go through the all top level objects
     while(*pObj != NULL)
     {
       // redraw all top level objects includes it children
       D4D_RedrawScreenObject(*pObj, data.flags & D4D_SCR_FINT_REDRAWC);
-      pObj++;          
+      pObj++;
     }
-    
+
     d4d_msg.pObject = NULL;
     d4d_msg.nMsgId = D4D_MSG_DRAWDONE;
     D4D_SendMessage(&d4d_msg);
   }
-  
+
   if(data.flags & (D4D_SCR_FINT_CHECKOBJECTS | D4D_SCR_FINT_REDRAWC))
     D4D_LLD_LCD.D4DLCD_FlushBuffer(D4DLCD_FLSH_SCR_END);
 }
@@ -1110,19 +1110,19 @@ void D4D_HandleTimeTicks(D4D_SCREEN* pScreen)
   {
     D4D_OBJECT** pObjects = (D4D_OBJECT**)pScreen->pObjects;
     d4d_systemFlags &= ~D4D_SYSTEM_F_TIMETICK;
-    
+
     d4d_msg.pScreen = pScreen;
     d4d_msg.nMsgId = D4D_MSG_TIMETICK;
-    
+
     // Go through the all top level objects
     while(*pObjects != NULL)
     {
       d4d_msg.pObject = *pObjects;
       // send timeticks to all top level objects includes it children
       D4D_SendMessageMask(&d4d_msg, D4D_OBJECT_F_VISIBLE , D4D_OBJECT_F_TIMETICK);
-      pObjects++;          
+      pObjects++;
     }
-    
+
   }
 }
 
@@ -1135,12 +1135,12 @@ D4D_BOOL D4D_ScrCheckExitBtnCoor(D4D_SCREEN* pScreen, D4D_POINT* point)
 {
   D4D_POINT tmp_pos;
   D4D_SIZE tmp_size;
-  
-  
+
+
   if(D4D_GetScrHeaderExitBtnCoor(pScreen, &tmp_pos, &tmp_size))
-  {    
+  {
     if((point->x >= tmp_pos.x) && (point->y >= tmp_pos.y))
-    { 
+    {
       if((point->x <= (tmp_pos.x + tmp_size.cx)) && (point->y <= (tmp_pos.y + tmp_size.cy)))
         return D4D_TRUE;
     }

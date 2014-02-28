@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,12 +34,12 @@
 * @file      d4dlcd_ssd1926.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.2.0
-* 
+*
 * @date      Apr-11-2011
-* 
-* @brief     D4D driver - ssd1926 lcd driver function header file 
+*
+* @brief     D4D driver - ssd1926 lcd driver function header file
 *
 *******************************************************************************/
 
@@ -52,19 +52,19 @@
     * Includes
     ******************************************************************************/
     #include "d4dlcd_ssd1926_cfg.h"
-    
+
     /******************************************************************************
     * Constants
     ******************************************************************************/
-   
+
     /******************************************************************************
     * Types
     ******************************************************************************/
 
     /******************************************************************************
-    * Macros 
+    * Macros
     ******************************************************************************/
-    
+
     /*********************************************************************
     * Overview: SSD1926 registers definitions.
     *********************************************************************/
@@ -111,7 +111,7 @@
     #define REG_POST_PROCESSING_BRIGHTNESS                  0x2d
     #define REG_POST_PROCESSING_CONTRAST                    0x2e
     #define REG_POST_PROCESSING_CTRL                        0x2f
-     
+
     #define REG_FPFRAME_START_OFFSET0                       0x30
     #define REG_FPFRAME_START_OFFSET1                       0x31
     #define REG_FPFRAME_STOP_OFFSET0                        0x34
@@ -125,7 +125,7 @@
 
     #define REG_INTERRUPT_FLAG                              0x48
     #define REG_INTERRUPT_ENABLE                            0x4A
-                                                                
+
     #define REG_DYN_DITHER_CONTROL                          0x50
 
     #define REG_DISPLAY_MODE                                0x70
@@ -167,11 +167,11 @@
     #define REG_PWM1_CLOCK_CONTROL                          0xb4
     #define REG_PWM1_CLOCK_CONFIG                           0xb5
     #define REG_PWM1_CLOCK_DUTY_CYCLE                       0xb7
-                                                            
+
     #define REG_PWM2_CLOCK_CONTROL                          0xb8
     #define REG_PWM2_CLOCK_CONFIG                           0xb9
     #define REG_PWM2_CLOCK_DUTY_CYCLE                       0xbb
-                                                            
+
     #define REG_PWM3_CLOCK_CONTROL                          0xbc
     #define REG_PWM3_CLOCK_CONFIG                           0xbd
     #define REG_PWM3_CLOCK_DUTY_CYCLE                       0xbf
@@ -233,7 +233,7 @@
     #define REG_CURSOR2_COL_IND3_3                          0x113
 
     #define REG_MAIN_REFLESH                                0x12c
-                                                            
+
     #define REG_PCLK_FREQ_RATIO_0                           0x158
     #define REG_PCLK_FREQ_RATIO_1                           0x159
     #define REG_PCLK_FREQ_RATIO_2                           0x15a
@@ -253,7 +253,7 @@
     #define REG_DV_JMEM_STR_1                               0x16d
     #define REG_DV_JMEM_STR_2                               0x16e
     #define REG_DV_JMEM_STR_3                               0x16f
-                                                            
+
     #define REG_DV_VHDEC_RATIO                              0x170
     #define REG_DV_VVDEC_RATIO                              0x171
     #define REG_DV_JHDEC_RATIO                              0x172
@@ -264,21 +264,21 @@
 
     #define REG_DV_HORI_MAX_0                               0x17c
     #define REG_DV_HORI_MAX_1                               0x17d
-                                                            
-    #define REG_DV_VERT_MAX_0                               0x180  
+
+    #define REG_DV_VERT_MAX_0                               0x180
     #define REG_DV_VERT_MAX_1                               0x181
-                                                            
+
     #define REG_DV_HCROP_STR_0                              0x184 //x
     #define REG_DV_HCROP_STR_1                              0x185 //x
-                                                            
+
     #define REG_DV_VCROP_STR_0                              0x188 //x
     #define REG_DV_VCROP_STR_1                              0x189 //x
 
     #define REG_DV_HCROP_SIZE_0                             0x18c
     #define REG_DV_HCROP_SIZE_1                             0x18d
-                                                            
-    #define REG_DV_VCROP_SIZE_0                             0x190 
-    #define REG_DV_VCROP_SIZE_1                             0x191 
+
+    #define REG_DV_VCROP_SIZE_0                             0x190
+    #define REG_DV_VCROP_SIZE_1                             0x191
 
     #define REG_DV_FRAME_PULSE_WIDTH                        0x194
     #if 0
@@ -292,7 +292,7 @@
     #define REG_DV_VMEM_STR_ADDR1_1                         0x19d
     #define REG_DV_VMEM_STR_ADDR1_2                         0x19e
     #define REG_DV_VMEM_STR_ADDR1_3                         0x19f
-                                                            
+
     #define REG_DV_VMEM_STR_ADDR2_0                         0x1a0
     #define REG_DV_VMEM_STR_ADDR2_1                         0x1a1
     #define REG_DV_VMEM_STR_ADDR2_2                         0x1a2
@@ -315,11 +315,11 @@
     #define REG_DV_DV0_START_ADDR_0                         0x1b0
     #define REG_DV_DV0_START_ADDR_1                         0x1b1
     #define REG_DV_DV0_START_ADDR_2                         0x1b2
-                                                            
+
     #define REG_DV_DV1_START_ADDR_0                         0x1b4
     #define REG_DV_DV1_START_ADDR_1                         0x1b5
     #define REG_DV_DV1_START_ADDR_2                         0x1b6
-                                                            
+
     #define REG_2D_1d0                                      0x1d0
     #define REG_2D_1d1                                      0x1d1
     #define REG_2D_1d2                                      0x1d2
@@ -499,7 +499,7 @@
 
     #define REG_FRC_FRAME_CTL                               0x334
     #define REG_FRC_ENABLE                                  0x336
-                                                            
+
     #define REG_JPEG_RESIZER_CTL                            0x360
     #define REG_JPEG_RESIZER_STARTX_0                       0x364
     #define REG_JPEG_RESIZER_STARTX_1                       0x365
@@ -557,12 +557,12 @@
     #define REG_JPEG_Y_PIXEL_SIZE_1                         0x40d
     #define REG_JPEG_X_PIXEL_SIZE_0                         0x40e
     #define REG_JPEG_X_PIXEL_SIZE_1                         0x40f
-                                                            
+
     #define REG_JPEG_SRC_START_ADDR_0                       0x410
     #define REG_JPEG_SRC_START_ADDR_1                       0x411
     #define REG_JPEG_SRC_START_ADDR_2                       0x412
     #define REG_JPEG_SRC_START_ADDR_3                       0x413
-                                                            
+
     #define REG_JPEG_DEST_START_ADDR_0                      0x414
     #define REG_JPEG_DEST_START_ADDR_1                      0x415
     #define REG_JPEG_DEST_START_ADDR_2                      0x416
@@ -576,7 +576,7 @@
     #define REG_JPEG_INSERT_MARKER01                        0x422
     #define REG_JPEG_MARKER_LENGTH00                        0x424
     #define REG_JPEG_MARKER_LENGTH01                        0x426
-                                                            
+
     #define REG_JPEG_MARKER_DATA_00                         0x428
     #define REG_JPEG_MARKER_DATA_01                         0x42a
     #define REG_JPEG_MARKER_DATA_02                         0x42c
@@ -609,10 +609,10 @@
     #define REG_JPEG_MARKER_DATA_29                         0x462
     #define REG_JPEG_MARKER_DATA_30                         0x464
     #define REG_JPEG_MARKER_DATA_31                         0x466
-                                                        
+
     #define REG_JPEG_SOI_CONST_00                           0x468
     #define REG_JPEG_SOI_CONST_01                           0x46a
-                                                        
+
     #define REG_JPEG_JFIF_CONST_00                          0x46c
     #define REG_JPEG_JFIF_CONST_01                          0x46e
     #define REG_JPEG_JFIF_CONST_02                          0x470
@@ -631,19 +631,19 @@
     #define REG_JPEG_JFIF_CONST_15                          0x48a
     #define REG_JPEG_JFIF_CONST_16                          0x48c
     #define REG_JPEG_JFIF_CONST_17                          0x48e
-                                                            
+
     #define REG_JPEG_LUM_DC_HT_CONST_00                     0x490
     #define REG_JPEG_LUM_DC_HT_CONST_01                     0x492
     #define REG_JPEG_LUM_DC_HT_CONST_02                     0x494
     #define REG_JPEG_LUM_DC_HT_CONST_03                     0x496
     #define REG_JPEG_LUM_DC_HT_CONST_04                     0x498
-                                                            
+
     #define REG_JPEG_CHR_DC_HT_CONST_00                     0x4a0
     #define REG_JPEG_CHR_DC_HT_CONST_01                     0x4a2
     #define REG_JPEG_CHR_DC_HT_CONST_02                     0x4a4
     #define REG_JPEG_CHR_DC_HT_CONST_03                     0x4a6
     #define REG_JPEG_CHR_DC_HT_CONST_04                     0x4a8
-                                                            
+
     #define REG_JPEG_LUM_AC_HT_CONST_00                     0x4b0
     #define REG_JPEG_LUM_AC_HT_CONST_01                     0x4b2
     #define REG_JPEG_LUM_AC_HT_CONST_02                     0x4b4
@@ -655,19 +655,19 @@
     #define REG_JPEG_CHR_AC_HT_CONST_02                     0x4c4
     #define REG_JPEG_CHR_AC_HT_CONST_03                     0x4c6
     #define REG_JPEG_CHR_AC_HT_CONST_04                     0x4c8
-                                                            
+
     #define REG_JPEG_LUM_QT_CONST_00                        0x4d0
     #define REG_JPEG_LUM_QT_CONST_01                        0x4d2
     #define REG_JPEG_LUM_QT_CONST_02                        0x4d4
     #define REG_JPEG_LUM_QT_CONST_03                        0x4d6
     #define REG_JPEG_LUM_QT_CONST_04                        0x4d8
-                                                            
+
     #define REG_JPEG_CHR_QT_CONST_00                        0x4e0
     #define REG_JPEG_CHR_QT_CONST_01                        0x4e2
     #define REG_JPEG_CHR_QT_CONST_02                        0x4e4
     #define REG_JPEG_CHR_QT_CONST_03                        0x4e6
     #define REG_JPEG_CHR_QT_CONST_04                        0x4e8
-                                                            
+
     #define REG_JPEG_SOF_CONST_00                           0x4f0
     #define REG_JPEG_SOF_CONST_01                           0x4f2
     #define REG_JPEG_SOF_CONST_02                           0x4f4
@@ -738,7 +738,7 @@
     #define REG_JPEG_QUANT_T0_61                            0x57a
     #define REG_JPEG_QUANT_T0_62                            0x57c
     #define REG_JPEG_QUANT_T0_63                            0x57e
-                                                            
+
     #define REG_JPEG_QUANT_T1_00                            0x580
     #define REG_JPEG_QUANT_T1_01                            0x582
     #define REG_JPEG_QUANT_T1_02                            0x584
@@ -803,7 +803,7 @@
     #define REG_JPEG_QUANT_T1_61                            0x5fa
     #define REG_JPEG_QUANT_T1_62                            0x5fc
     #define REG_JPEG_QUANT_T1_63                            0x5fe
-                                                            
+
     #define REG_JPEG_DC_T0_R0_00                            0x600
     #define REG_JPEG_DC_T0_R0_01                            0x602
     #define REG_JPEG_DC_T0_R0_02                            0x604
@@ -820,7 +820,7 @@
     #define REG_JPEG_DC_T0_R0_13                            0x61a
     #define REG_JPEG_DC_T0_R0_14                            0x61c
     #define REG_JPEG_DC_T0_R0_15                            0x61e
-                                                            
+
     #define REG_JPEG_DC_T0_R1_00                            0x620
     #define REG_JPEG_DC_T0_R1_01                            0x622
     #define REG_JPEG_DC_T0_R1_02                            0x624
@@ -833,7 +833,7 @@
     #define REG_JPEG_DC_T0_R1_09                            0x632
     #define REG_JPEG_DC_T0_R1_10                            0x634
     #define REG_JPEG_DC_T0_R1_11                            0x636
-                                                            
+
     #define REG_JPEG_AC_T0_R0_00                            0x640
     #define REG_JPEG_AC_T0_R0_01                            0x642
     #define REG_JPEG_AC_T0_R0_02                            0x644
@@ -850,7 +850,7 @@
     #define REG_JPEG_AC_T0_R0_13                            0x65a
     #define REG_JPEG_AC_T0_R0_14                            0x65c
     #define REG_JPEG_AC_T0_R0_15                            0x65e
-                                                            
+
     #define REG_JPEG_AC_T0_R1_00                            0x660
     #define REG_JPEG_AC_T0_R1_01                            0x662
     #define REG_JPEG_AC_T0_R1_02                            0x664
@@ -1228,22 +1228,22 @@
     #define REG_JPEG_QTABLE_CONST_1                         0x9b2
     #define REG_JPEG_QTABLE_CONST_2                         0x9b4
     #define REG_JPEG_QTABLE_CONST_3                         0x9b6
-                                                            
+
     #define REG_JPEG_QTABLE0_SAMPLE                         0x9b8
     #define REG_JPEG_QTABLE1_SAMPLE                         0x9bc
     #define REG_JPEG_QTABLE2_SAMPLE                         0x9c0
-                                                            
+
     #define REG_JPEG_DRI_CONST_0                            0x9c4
     #define REG_JPEG_DRI_CONST_1                            0x9c6
     #define REG_JPEG_DRI_CONST_2                            0x9c8
     #define REG_JPEG_DRI_CONST_3                            0x9ca
-                                                            
+
     #define REG_JPEG_SOS_CONST_0                            0x9cc
     #define REG_JPEG_SOS_CONST_1                            0x9ce
     #define REG_JPEG_SOS_CONST_2                            0x9d0
     #define REG_JPEG_SOS_CONST_3                            0x9d2
     #define REG_JPEG_SOS_CONST_4                            0x9d4
-                                                            
+
     #define REG_JPEG_EOI_CONST_0                            0x9e4
     #define REG_JPEG_EOI_CONST_1                            0x9e6
     #define REG_JPEG_EOI_CONST_2                            0x9e8
@@ -1258,7 +1258,7 @@
     #define REG_JPEG_DRI_CONFIG1                            0x9fa
 
 
-      
+
     /******************************************************************************
     * Global variables
     ******************************************************************************/

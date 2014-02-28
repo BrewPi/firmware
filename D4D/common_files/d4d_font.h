@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_font.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.35.0
-* 
+*
 * @date      Oct-2-2013
-* 
+*
 * @brief     D4D Driver fonts header file
 *
 *******************************************************************************/
@@ -57,21 +57,21 @@
 * @{
 *******************************************************************************/
 
-/*! @brief This macro is used to enable external fonts resource support.   
+/*! @brief This macro is used to enable external fonts resource support.
            If not defined, the external font resource support is disabled as a default.*/
 #ifndef D4D_FNT_EXTSRC_SUPPORT
   #define D4D_FNT_EXTSRC_SUPPORT D4D_FALSE
 #endif
 
-/*! @} End of doxd4d_font_const                                               */ 
+/*! @} End of doxd4d_font_const                                               */
 
 /******************************************************************************
 * D4D FONTS types
 *
 *//*! @addtogroup doxd4d_font_type
 * @{
-*******************************************************************************/         
-/*! 
+*******************************************************************************/
+/*!
   @defgroup doxd4d_font_type_underline D4D FONT Defines masks of underline properties
   This section specifies masks of underline properties.
   @ingroup doxd4d_font_type
@@ -80,7 +80,7 @@
 /**
  * @addtogroup doxd4d_font_type_underline
  * @{
- */             
+ */
 /*! @brief Font Underline property masks*/
 #define D4D_FNT_PRTY_UNDERLINE_MASK              (0x03) ///< Underline Property mask
 #define D4D_FNT_PRTY_UNDERLINE_NONE_MASK         (0x00) ///< None Underline Text Property mask
@@ -89,7 +89,7 @@
 #define D4D_FNT_PRTY_UNDERLINE_RES_MASK          (0x03) ///< Reserved -  Underline Text Property mask
 /* @} */
 
-/*! 
+/*!
   @defgroup doxd4d_font_type_strikethrough D4D FONT Defines masks of strike through properties
   This section specifies masks of strike through properties.
   @ingroup doxd4d_font_type
@@ -98,7 +98,7 @@
 /**
  * @addtogroup doxd4d_font_type_strikethrough
  * @{
- */  
+ */
 /*! @brief Font Strike through property masks*/
 #define D4D_FNT_PRTY_STRIKETHROUGH_MASK          (0x0C) ///< Strike Through Property mask
 #define D4D_FNT_PRTY_STRIKETHROUGH_NONE_MASK     (0x00) ///< None Strike Through Text Property mask
@@ -115,7 +115,7 @@
 
 typedef Byte D4D_FONT_PROPERTIES;
 
-/*! @} End of doxd4d_font_type                                               */ 
+/*! @} End of doxd4d_font_type                                               */
 
 /******************************************************************************
 * Internal types
@@ -165,7 +165,7 @@ typedef Byte D4D_FONT_FLAGS;
   typedef Byte D4D_FONT_IX;
   typedef Byte D4D_FONT_REV;
 #endif
-  
+
 typedef Word D4D_FONT_OFFSET;
 typedef Byte D4D_FONT_DATA;
 typedef Byte D4D_FONT;
@@ -180,16 +180,16 @@ typedef Word D4D_FONT_DSIZE;
   typedef struct
   {
     D4D_FONT_SIZE width;
-    D4D_FONT_SIZE height;    
+    D4D_FONT_SIZE height;
   }D4D_FONT_SIZES;
-  
+
   typedef struct D4D_FONT_DESCRIPTOR_S
   {
     D4D_FONT_REV revision;       //1 Font descriptor version number
-    D4D_FONT_FLAGS flags;        //1 linear / non linear , proporcional or not, 
+    D4D_FONT_FLAGS flags;        //1 linear / non linear , proporcional or not,
     D4D_FONT_IX startChar;       //2/1 start char of used table
     D4D_FONT_IX charCnt;         //2/1 end char of used table
-    D4D_FONT_IX charDefault;     //2/1 index of char that will be printed instead of 
+    D4D_FONT_IX charDefault;     //2/1 index of char that will be printed instead of
     D4D_FONT_SIZE charSize;      //1 Font size (size of font loaded in PC)
     D4D_FONT_DSIZE charBmpSize;   //2 Size of font bitmpap for non proportional fonts
     D4D_FONT_SIZE charBaseLine;  //1 offset from Y0 coordinate to baseline
@@ -199,7 +199,7 @@ typedef Word D4D_FONT_DSIZE;
     const D4D_FONT_OFFSET *pOffTable;  // Offset table - used when proporcial font is set in flags
     const D4D_FONT_SIZE *pSizeTable;   // Size table - used when proporcial font is set in flags
     const D4D_FONT_DATA *pFontData; // bitmap/font data array
-    const struct D4D_FONT_DESCRIPTOR_S* pNext;  // pointer on next page for this font (used in unicode) 
+    const struct D4D_FONT_DESCRIPTOR_S* pNext;  // pointer on next page for this font (used in unicode)
   }D4D_FONT_DESCRIPTOR;
 
 #pragma pack (pop)
@@ -213,14 +213,14 @@ typedef struct
   D4D_CHAR* fileName;
 }D4D_FONT_TYPE;
 
-typedef struct{  
-  D4D_COOR x; 
-  D4D_COOR y;   
+typedef struct{
+  D4D_COOR x;
+  D4D_COOR y;
   D4D_TCHAR* pText;
   D4D_FONT_TYPE* pFontType;
   D4D_TAB* pTab;
-  D4D_COLOR colorText; 
-  D4D_COLOR colorBack; 
+  D4D_COLOR colorText;
+  D4D_COLOR colorBack;
   D4D_FONT_PROPERTIES properties;
   D4D_INDEX textLength;
   D4D_INDEX textOffset;
@@ -228,7 +228,7 @@ typedef struct{
 }D4D_PRINT_DESC;
 
 /******************************************************************************
-* Macros 
+* Macros
 ******************************************************************************/
 
 #define D4D_DECLARE_USR_FONT_TABLE_BEGIN(name)  const D4D_FONT_TYPE name[] = {

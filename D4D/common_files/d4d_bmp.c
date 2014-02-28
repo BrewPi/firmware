@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,12 +34,12 @@
 * @file      d4d_bmp.c
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.36.0
-* 
+*
 * @date      Oct-3-2013
-* 
-* @brief     D4D driver bmp decoder functions c file 
+*
+* @brief     D4D driver bmp decoder functions c file
 *
 ******************************************************************************/
 
@@ -51,7 +51,7 @@
   static const D4D_CHAR imgDfltPath[] = D4D_IMG_WORK_PATH_DEFAULT;
   static D4D_CHAR* pImgWorkPath = (D4D_CHAR*)imgDfltPath;
 #endif
-  
+
 static const D4D_EXTIMG_FUNC d4d_extImgFunc[D4D_EXTIMG_ITEMS_CNT] =
 {
   { NULL, NULL, NULL, NULL, NULL },
@@ -60,7 +60,7 @@ static const D4D_EXTIMG_FUNC d4d_extImgFunc[D4D_EXTIMG_ITEMS_CNT] =
   { D4D_ImgDecBmpDraw, D4D_ImgDecBmpGetWidth, D4D_ImgDecBmpGetHeight, D4D_ImgDecBmpGetSize, D4D_ImgDecBmpGetHeader }
 };
 
-const D4D_BMP d4d_mouseNoCursor = 
+const D4D_BMP d4d_mouseNoCursor =
 {
   NULL,
   NULL
@@ -71,7 +71,7 @@ const D4D_BMP d4d_mouseNoCursor =
 *//*! @addtogroup doxd4d_bmp_func
 * @{
 *******************************************************************************/
-    
+
 /**************************************************************//*!
 *
 * External Bitmap support
@@ -81,34 +81,34 @@ const D4D_BMP d4d_mouseNoCursor =
 #if D4D_EXTSRC_FILE_ENABLE != D4D_FALSE
   /**************************************************************************/ /*!
   * @brief   Function sets image external source files work directory.
-  * @param   pPath - the new default IMAGE working path 
+  * @param   pPath - the new default IMAGE working path
   * @return  none
-  * @note    This function sets the new image default working path. All relative defined image 
+  * @note    This function sets the new image default working path. All relative defined image
   *          paths is using this as start folder.
   *******************************************************************************/
   void D4D_ExtImgSetWorkPath(D4D_CHAR* pPath)
   {
     if(pPath)
-      pImgWorkPath = pPath;  
+      pImgWorkPath = pPath;
   }
 
   /**************************************************************************/ /*!
   * @brief   Function gets image external source files work directory.
   * @return  The current sets working directory
-  * @note    This function returns the image working path. All relative defined image 
+  * @note    This function returns the image working path. All relative defined image
   *          paths is using this as start folder.
-  *******************************************************************************/  
+  *******************************************************************************/
   D4D_CHAR* D4D_ExtImgGetWorkPath(void)
   {
-    return pImgWorkPath;  
+    return pImgWorkPath;
   }
 
   /**************************************************************************/ /*!
   * @brief   Function opens the ing file.
   * @param   pFileName - the image file name path (could be relative or absolute)
   * @param   mode - mode of file open
-  * @return  pointer to file 
-  * @note    This function open the image file. In case of relative path it create 
+  * @return  pointer to file
+  * @note    This function open the image file. In case of relative path it create
   *          absolute path with the image work path.
   *******************************************************************************/
   D4D_FILEPTR D4D_OpenImgFile(D4D_CHAR* pFileName, D4D_CHAR* mode)
@@ -124,12 +124,12 @@ const D4D_BMP d4d_mouseNoCursor =
       // the input path is relative and must be updated with preselected image work paths
       if((D4D_StrLen(pImgWorkPath) + D4D_StrLen(pFileName)) >= D4D_EXTSRC_BUFF_SIZE)
         return NULL;
-      
+
       D4D_StrCopy((D4D_CHAR*)d4d_extsrcBuffer, pImgWorkPath);
       D4D_StrCat((D4D_CHAR*)d4d_extsrcBuffer, pFileName);
       return D4D_FileOpen((D4D_CHAR*)d4d_extsrcBuffer,mode);
     }
-    
+
   }
 #endif
 
@@ -137,51 +137,51 @@ const D4D_BMP d4d_mouseNoCursor =
 * @brief   Function returns the type of image source.
 * @param   pBmp - pointer on the bitmap structure
 * @return  type of image
-* @note    This function find out the type of the image source. In case of not supported image it 
+* @note    This function find out the type of the image source. In case of not supported image it
 *          returns D4D_EXTIMG_UNKNOWN.
 *******************************************************************************/
 D4D_EXTIMG_TYPE D4D_GetImgSrcType(D4D_BMP* pBmp)
 {
   if(pBmp == NULL)
     return D4D_EXTIMG_UNKNOWN;
-  
-  #if D4D_EXTSRC_FILE_ENABLE != D4D_FALSE  
+
+  #if D4D_EXTSRC_FILE_ENABLE != D4D_FALSE
     if(pBmp->pData == NULL)
     {
       D4D_CHAR* pExt;
-      
+
       // run the external data dekoder
       if(pBmp->pParam == NULL)
         return D4D_EXTIMG_UNKNOWN;
-      
+
       // 1. get File extension
       pExt = D4D_GetFileExtension((D4D_CHAR*)pBmp->pParam);
-      
+
       // Convert extension to upper format
       D4D_ToUpper(pExt);
-      
+
       if(pExt == NULL)
         return D4D_EXTIMG_UNKNOWN;
-      
-      #if (D4D_BMP_EXTSRC_SUPPORT_D4D == D4D_TRUE) && (D4D_EXTSRC_FILE_ENABLE == D4D_TRUE)  
+
+      #if (D4D_BMP_EXTSRC_SUPPORT_D4D == D4D_TRUE) && (D4D_EXTSRC_FILE_ENABLE == D4D_TRUE)
         if(!D4D_CompareStrings(pExt, D4D_BMP_EXTSRC_SUPPORT_D4D_EXT))        // big or little endian of the egui picture format
           return D4D_EXTIMG_D4D; // d4d bitmap binary files
-        
+
       #endif
 
       #if (D4D_BMP_EXTSRC_SUPPORT_BMP == D4D_TRUE) && (D4D_EXTSRC_FILE_ENABLE == D4D_TRUE)
         if(!D4D_CompareStrings(pExt, "BMP"))
           return D4D_EXTIMG_BMP; // standard bitmap BMP files
-      #endif  
-      
-      
+      #endif
+
+
     }else
-    
-  #endif  
+
+  #endif
     if((pBmp->pData != NULL))
-      return D4D_EXTIMG_INTD4D;  
-    
-  return D4D_EXTIMG_UNKNOWN;      
+      return D4D_EXTIMG_INTD4D;
+
+  return D4D_EXTIMG_UNKNOWN;
 }
 
 
@@ -202,27 +202,27 @@ D4D_EXTIMG_TYPE D4D_GetImgSrcType(D4D_BMP* pBmp)
 * @param   greyScale - drawing in greyScale
 * @param   radius - round corner radius
 * @return  none
-* @note    This function draws bitmap on specified coordination, it can draw colors 
+* @note    This function draws bitmap on specified coordination, it can draw colors
 *          in grey scale, and with round corners.
 *******************************************************************************/
 void D4D_DrawRBmpXY(D4D_COOR x, D4D_COOR y, const D4D_BMP* pBmp, D4D_BOOL greyScale, D4D_COOR radius)
 {
   D4D_EXTIMG_TYPE imgType = D4D_GetImgSrcType((D4D_BMP*)pBmp);
-  
+
   if(imgType == D4D_EXTIMG_UNKNOWN)
     return;
-  
+
   if(imgType == D4D_EXTIMG_INTD4D)
   {
     if(d4d_extImgFunc[imgType].D4D_ImgDecDraw)
-      d4d_extImgFunc[imgType].D4D_ImgDecDraw(x, y, (D4D_CHAR*)pBmp, greyScale, radius);    
-  
+      d4d_extImgFunc[imgType].D4D_ImgDecDraw(x, y, (D4D_CHAR*)pBmp, greyScale, radius);
+
   }
-#if D4D_EXTSRC_FILE_ENABLE != D4D_FALSE    
+#if D4D_EXTSRC_FILE_ENABLE != D4D_FALSE
   else
   {
     if(d4d_extImgFunc[imgType].D4D_ImgDecDraw)
-      d4d_extImgFunc[imgType].D4D_ImgDecDraw(x, y, (D4D_CHAR*)(pBmp->pParam), greyScale, radius);    
+      d4d_extImgFunc[imgType].D4D_ImgDecDraw(x, y, (D4D_CHAR*)(pBmp->pParam), greyScale, radius);
   }
 #endif
 }
@@ -237,55 +237,55 @@ void D4D_DrawRBmpXY(D4D_COOR x, D4D_COOR y, const D4D_BMP* pBmp, D4D_BOOL greySc
 * @param   colorBkgd - background color of bitmap
 * @param   greyScale - drawing in greyScale
 * @return  none
-* @note    This function draws bitmap in specified rectangle, it can draw colors 
+* @note    This function draws bitmap in specified rectangle, it can draw colors
 *          in grey scale, and with round corners. There is optin to align bitmap inside the rectangle.
 *******************************************************************************/
 void D4D_DrawBmpRect(D4D_POINT* ppt, D4D_SIZE* psz, const D4D_BMP* pBmp, D4D_BMP_PROPERTIES bmpProp, D4D_COLOR colorBkgd, D4D_BOOL greyScale)
 {
   D4D_SIZE tmp_size = *psz;
   D4D_POINT tmp_pos = *ppt;
-  
+
   D4D_COOR tmp_bmpWidth = (D4D_COOR)D4D_GetBmpWidth(pBmp);
   D4D_COOR tmp_bmpHeight = (D4D_COOR)D4D_GetBmpHeight(pBmp);
-  
+
   if(!tmp_size.cx)
     tmp_size.cx = tmp_bmpWidth;
-  
+
   if(!tmp_size.cy)
     tmp_size.cy = tmp_bmpHeight;
-  
+
   // If the bitmap is larger than specify place, don't draw it
   if ((tmp_size.cy < tmp_bmpHeight) || (tmp_size.cx < tmp_bmpWidth))
   {
     D4D_FillRect(ppt, psz, colorBkgd);
     return;
   }
-  
+
   tmp_pos.y = ppt->y;
-  tmp_pos.x = ppt->x; 
-  
+  tmp_pos.x = ppt->x;
+
   // Compute the text position in rectangle in Y axis
   switch(bmpProp & D4D_ALIGN_V_MASK)
   {
     case D4D_ALIGN_V_BOTTOM_MASK:
       tmp_pos.y += (D4D_COOR)(tmp_size.cy - tmp_bmpHeight);
       break;
-    
+
     case D4D_ALIGN_V_CENTER_MASK:
       tmp_pos.y += (D4D_COOR)((tmp_size.cy - tmp_bmpHeight) / 2);
-      break;        
+      break;
   }
-  
+
   // Compute the text position in rectangle in X axis
   switch(bmpProp & D4D_ALIGN_H_MASK)
   {
     case D4D_ALIGN_H_RIGHT_MASK:
       tmp_pos.x += (D4D_COOR)(tmp_size.cx - tmp_bmpWidth);
       break;
-    
+
     case D4D_ALIGN_H_CENTER_MASK:
       tmp_pos.x += (D4D_COOR)((tmp_size.cx - tmp_bmpWidth) / 2);
-      break;       
+      break;
   }
 
     if(tmp_size.cx > tmp_bmpWidth)
@@ -295,7 +295,7 @@ void D4D_DrawBmpRect(D4D_POINT* ppt, D4D_SIZE* psz, const D4D_BMP* pBmp, D4D_BMP
         // Fill the part of rect in front of the text in full height of rect
           D4D_FillRectXY(ppt->x, ppt->y, tmp_pos.x, (D4D_COOR)(ppt->y + tmp_size.cy - 1), colorBkgd);
       }
-      
+
       if((bmpProp & D4D_ALIGN_H_MASK) != D4D_ALIGN_H_RIGHT_MASK)
       {
         // Fill the part of rect behind the text in full height of rect
@@ -304,24 +304,24 @@ void D4D_DrawBmpRect(D4D_POINT* ppt, D4D_SIZE* psz, const D4D_BMP* pBmp, D4D_BMP
     }
 
     if(tmp_size.cy > tmp_bmpHeight)
-    {  
+    {
       if((bmpProp & D4D_ALIGN_V_MASK) != D4D_ALIGN_V_TOP_MASK)
       {
         // Fill the part of rect above the text in lenght of text
         D4D_FillRectXY(tmp_pos.x, ppt->y, (D4D_COOR)(tmp_pos.x + tmp_bmpWidth - 1), tmp_pos.y, colorBkgd);
       }
-      
+
       if((bmpProp & D4D_ALIGN_V_MASK) != D4D_ALIGN_V_BOTTOM_MASK)
       {
         // Fill the part of rect under the text in lenght of text
         D4D_FillRectXY(tmp_pos.x, (D4D_COOR)(tmp_pos.y + tmp_bmpHeight - 1), (D4D_COOR)(tmp_pos.x + tmp_bmpWidth - 1), (D4D_COOR)(ppt->y + tmp_size.cy - 1), colorBkgd);
       }
     }
-  
+
   // Print the string itself
   D4D_DrawRBmpXY(tmp_pos.x, tmp_pos.y, pBmp, greyScale, 0); // radius, grayscale?
-  
-  
+
+
 }
 
 #if D4D_ROUND_CORNER_ENABLE != D4D_FALSE
@@ -335,24 +335,24 @@ void D4D_DrawBmpRect(D4D_POINT* ppt, D4D_SIZE* psz, const D4D_BMP* pBmp, D4D_BMP
 * @param   greyScale - drawing in greyScale
 * @param   radius - round corner radius
 * @return  none
-* @note    This function draws bitmap in specified rectangle, it can draw colors 
+* @note    This function draws bitmap in specified rectangle, it can draw colors
 *          in grey scale, and with round corners. There is optin to align bitmap inside the rectangle.
 *******************************************************************************/
 void D4D_DrawRBmpRect(D4D_POINT* ppt, D4D_SIZE* psz, const D4D_BMP* pBmp, D4D_BMP_PROPERTIES bmpProp, D4D_COLOR colorBkgd, D4D_BOOL greyScale, D4D_COOR radius)
 {
   D4D_POINT tmp_pos = *ppt;
   D4D_SIZE  tmp_size = *psz;
-  
+
   D4D_COOR tmp_bmpWidth;
   D4D_COOR tmp_bmpHeight;
-  
+
   if(!radius)
   {
     D4D_DrawBmpRect(ppt, psz, pBmp, bmpProp, colorBkgd, greyScale);
     return;
   }
-  
-  
+
+
   tmp_bmpWidth = (D4D_COOR)D4D_GetBmpWidth(pBmp);
   tmp_bmpHeight = (D4D_COOR)D4D_GetBmpHeight(pBmp);
 
@@ -362,51 +362,51 @@ void D4D_DrawRBmpRect(D4D_POINT* ppt, D4D_SIZE* psz, const D4D_BMP* pBmp, D4D_BM
     D4D_FillRect(ppt, psz, colorBkgd);
     return;
   }
-  
-   
+
+
   // Compute the text position in rectangle in Y axis
   switch(bmpProp & D4D_ALIGN_V_MASK)
   {
     case D4D_ALIGN_V_BOTTOM_MASK:
       tmp_pos.y = (D4D_COOR)(ppt->y + (tmp_size.cy - tmp_bmpHeight));
       break;
-    
+
     case D4D_ALIGN_V_CENTER_MASK:
       tmp_pos.y = (D4D_COOR)(ppt->y + ((tmp_size.cy - tmp_bmpHeight) / 2));
       break;
-    
+
     default:
     case D4D_ALIGN_V_TOP_MASK:
       tmp_pos.y = ppt->y;
-      break;        
+      break;
   }
-  
+
   // Compute the text position in rectangle in X axis
   switch(bmpProp & D4D_ALIGN_H_MASK)
   {
     case D4D_ALIGN_H_RIGHT_MASK:
       tmp_pos.x = (D4D_COOR)(ppt->x + (tmp_size.cx - tmp_bmpWidth));
       break;
-    
+
     case D4D_ALIGN_H_CENTER_MASK:
       tmp_pos.x = (D4D_COOR)(ppt->x + ((tmp_size.cx - tmp_bmpWidth) / 2));
       break;
-    
+
     default:
     case D4D_ALIGN_H_LEFT_MASK:
       tmp_pos.x = ppt->x;
-      break;        
+      break;
   }
-  
-  
+
+
   // Fill the part of rect in front of the text in full height of rect
   if((psz->cx != tmp_bmpWidth) || (psz->cy != tmp_bmpHeight))
     D4D_FillRRect(ppt, psz, colorBkgd, radius);
-   
+
   // Print the bmp itself
   D4D_DrawRBmpXY(tmp_pos.x, tmp_pos.y, pBmp, greyScale, radius); // radius, grayscale?
-  
-  
+
+
 }
 
 #endif
@@ -416,30 +416,30 @@ void D4D_DrawRBmpRect(D4D_POINT* ppt, D4D_SIZE* psz, const D4D_BMP* pBmp, D4D_BM
 * @param   pBmp - pointer on the bitmap structure
 * @return  none
 * @note    Function tries get the size information of bitmap handled in D4D_BMP parameter.
-*          In case that there is no chance get the size, it return size 0,0. 
+*          In case that there is no chance get the size, it return size 0,0.
 *******************************************************************************/
 D4D_SIZE D4D_GetBmpSize(const D4D_BMP* pBmp)
 {
   D4D_EXTIMG_TYPE imgType = D4D_GetImgSrcType((D4D_BMP*)pBmp);
-  
+
   if(imgType == D4D_EXTIMG_UNKNOWN)
     return *(D4D_SIZE*)&d4d_size_zero;
-  
+
   if(imgType == D4D_EXTIMG_INTD4D)
   {
     if(d4d_extImgFunc[imgType].D4D_ImgDecGetSize)
-      return d4d_extImgFunc[imgType].D4D_ImgDecGetSize((D4D_CHAR*)pBmp);    
-  
+      return d4d_extImgFunc[imgType].D4D_ImgDecGetSize((D4D_CHAR*)pBmp);
+
   }
-#if D4D_EXTSRC_FILE_ENABLE != D4D_FALSE   
+#if D4D_EXTSRC_FILE_ENABLE != D4D_FALSE
   else
   {
     if(d4d_extImgFunc[imgType].D4D_ImgDecGetSize)
-      return d4d_extImgFunc[imgType].D4D_ImgDecGetSize((D4D_CHAR*)(pBmp->pParam));    
+      return d4d_extImgFunc[imgType].D4D_ImgDecGetSize((D4D_CHAR*)(pBmp->pParam));
   }
 #endif
 
-  return *(D4D_SIZE*)&d4d_size_zero;  
+  return *(D4D_SIZE*)&d4d_size_zero;
 
 }
 
@@ -448,26 +448,26 @@ D4D_SIZE D4D_GetBmpSize(const D4D_BMP* pBmp)
 * @param   pBmp - pointer on the bitmap structure
 * @return  none
 * @note    Function tries get the width information of bitmap handled in D4D_BMP parameter.
-*          In case that there is no chance get the width, it return width 0. 
+*          In case that there is no chance get the width, it return width 0.
 *******************************************************************************/
 D4D_COOR D4D_GetBmpWidth(const D4D_BMP* pBmp)
 {
   D4D_EXTIMG_TYPE imgType = D4D_GetImgSrcType((D4D_BMP*)pBmp);
-  
+
   if(imgType == D4D_EXTIMG_UNKNOWN)
     return 0;
-  
+
   if(imgType == D4D_EXTIMG_INTD4D)
   {
     if(d4d_extImgFunc[imgType].D4D_ImgDecGetWidth)
-      return d4d_extImgFunc[imgType].D4D_ImgDecGetWidth((D4D_CHAR*)pBmp);    
-  
+      return d4d_extImgFunc[imgType].D4D_ImgDecGetWidth((D4D_CHAR*)pBmp);
+
   }
-#if D4D_EXTSRC_FILE_ENABLE != D4D_FALSE    
+#if D4D_EXTSRC_FILE_ENABLE != D4D_FALSE
   else
   {
     if(d4d_extImgFunc[imgType].D4D_ImgDecGetWidth)
-      return d4d_extImgFunc[imgType].D4D_ImgDecGetWidth((D4D_CHAR*)(pBmp->pParam));    
+      return d4d_extImgFunc[imgType].D4D_ImgDecGetWidth((D4D_CHAR*)(pBmp->pParam));
   }
 #endif
 
@@ -479,26 +479,26 @@ D4D_COOR D4D_GetBmpWidth(const D4D_BMP* pBmp)
 * @param   pBmp - pointer on the bitmap structure
 * @return  none
 * @note    Function tries get the height information of bitmap handled in D4D_BMP parameter.
-*          In case that there is no chance get the height, it return height 0. 
+*          In case that there is no chance get the height, it return height 0.
 *******************************************************************************/
 D4D_COOR D4D_GetBmpHeight(const D4D_BMP* pBmp)
 {
   D4D_EXTIMG_TYPE imgType = D4D_GetImgSrcType((D4D_BMP*)pBmp);
-  
+
   if(imgType == D4D_EXTIMG_UNKNOWN)
     return 0;
-  
+
   if(imgType == D4D_EXTIMG_INTD4D)
   {
     if(d4d_extImgFunc[imgType].D4D_ImgDecGetHeight)
-      return d4d_extImgFunc[imgType].D4D_ImgDecGetHeight((D4D_CHAR*)pBmp);    
-  
+      return d4d_extImgFunc[imgType].D4D_ImgDecGetHeight((D4D_CHAR*)pBmp);
+
   }
-#if D4D_EXTSRC_FILE_ENABLE != D4D_FALSE    
+#if D4D_EXTSRC_FILE_ENABLE != D4D_FALSE
   else
   {
     if(d4d_extImgFunc[imgType].D4D_ImgDecGetHeight)
-      return d4d_extImgFunc[imgType].D4D_ImgDecGetHeight((D4D_CHAR*)(pBmp->pParam));    
+      return d4d_extImgFunc[imgType].D4D_ImgDecGetHeight((D4D_CHAR*)(pBmp->pParam));
   }
 #endif
 
@@ -513,37 +513,37 @@ D4D_COOR D4D_GetBmpHeight(const D4D_BMP* pBmp)
 * @param   max_size - max_buffer size
 * @return  count of byte copied to buffer
 * @note    Function return the image header. The size and type of image header depends on input
-*          image source typeZ. 
+*          image source typeZ.
 *******************************************************************************/
 int D4D_GetBmpHeader(D4D_BMP* pBmp, void* pBuff, int max_size)
 {
   D4D_EXTIMG_TYPE imgType = D4D_GetImgSrcType((D4D_BMP*)pBmp);
-     
+
   if(imgType == D4D_EXTIMG_INTD4D)
   {
     if(d4d_extImgFunc[imgType].D4D_ImgDecGetHeader)
-      return d4d_extImgFunc[imgType].D4D_ImgDecGetHeader((D4D_CHAR*)pBmp, pBuff, max_size);    
-  
+      return d4d_extImgFunc[imgType].D4D_ImgDecGetHeader((D4D_CHAR*)pBmp, pBuff, max_size);
+
   }
-#if D4D_EXTSRC_FILE_ENABLE != D4D_FALSE    
+#if D4D_EXTSRC_FILE_ENABLE != D4D_FALSE
   else
   {
     if(d4d_extImgFunc[imgType].D4D_ImgDecGetHeader)
-      return d4d_extImgFunc[imgType].D4D_ImgDecGetHeader((D4D_CHAR*)(pBmp->pParam), pBuff, max_size);    
+      return d4d_extImgFunc[imgType].D4D_ImgDecGetHeader((D4D_CHAR*)(pBmp->pParam), pBuff, max_size);
   }
 #endif
 
   return 0;
 }
-   
+
 
 /******************************************************************************
 *       End of public functions                                               */
 /*! @} End of doxd4d_bmp_func                                               */
-/******************************************************************************/  
-  
+/******************************************************************************/
+
 /******************************************************************************
 *       Private functions                                                     *
-******************************************************************************/ 
+******************************************************************************/
 
 

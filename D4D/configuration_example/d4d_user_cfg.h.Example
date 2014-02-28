@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_user_cfg.h.Example
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.21.0
-* 
+*
 * @date      Jun-29-2012
-* 
+*
 * @brief     D4D Driver user configuration file
 *
 *******************************************************************************/
@@ -47,8 +47,8 @@
 #define __D4D_USER_CFG_H
 
 /******************************************************************************
-* Desciption : This file allows user depends modification of D4D Freescale 
-*   graphical driver. 
+* Desciption : This file allows user depends modification of D4D Freescale
+*   graphical driver.
 *
 *
 ******************************************************************************/
@@ -63,7 +63,7 @@
 
 /**************************************************************//*!
 *
-* Low Level driver specification for LCD diplay and optionally for 
+* Low Level driver specification for LCD diplay and optionally for
 * touch screen
 *
 ******************************************************************/
@@ -72,8 +72,8 @@
 // d4dlcd_ssd1289 - driver for LCD displays with SSD1289 controller from Solomon Systech
 // d4dlcd_fsa506 - driver for LCD displays with FSA506 controller
 // d4dlcd_lgdp4531 - driver for LCD displays with LGDP4531 controller from LG Electronics
-// d4dlcd_ls020 - driver for LCD displays LS020 
-// d4dlcd_frame_buffer - frame buffer driver for MCU/MPU with LCD peripheral 
+// d4dlcd_ls020 - driver for LCD displays LS020
+// d4dlcd_frame_buffer - frame buffer driver for MCU/MPU with LCD peripheral
 
 
 // Please define a used low LCD driver
@@ -90,7 +90,7 @@
 // d4dlcdhw_spi_8b - low level hw interface driver for hardware SPI with 8 bit witdh for S08 MCU
 // d4dlcdhw_s12_spi_16b - low level hw interface driver for hardware SPI with 8 bit witdh for S12 MCU
 // d4dlcdhw_swspi_16b - low level hw interface driver for software SPI with 16 bit witdh
-// d4dlcdhw_spi_swc_8b - low level hw interface driver for hardware SPI with 8 bit witdh and software 
+// d4dlcdhw_spi_swc_8b - low level hw interface driver for hardware SPI with 8 bit witdh and software
                           controlled control signals of LCD controller (for example FSA506)
 
 // d4dlcdhw_mqx_spi - low level driver for SPI over MQX (version 3.6 or higher)
@@ -99,7 +99,7 @@
 // d4dlcdhw_mqx_mpc5125_diu - low level driver for MPC5125 MPU DIU peripherial over MQX (version 3.6 or higher)
 // d4dlcdhw_k70_lcdc - low level driver for Kinetis K70 MCU LCDC peripherial
 // d4dlcdhw_px_dcu_fb - low level driver for PX series MCU DCU peripherial
-  
+
 // Please (if it's needed) define a used LCD hw interface driver
 #define D4D_LLD_LCD_HW d4dlcdhw_flexbus_16b   // the name of LCD hw interface driver descriptor structure
 
@@ -135,7 +135,7 @@
 
 /******************************************************************************
 *
-*        ==================== D4D General ======================              
+*        ==================== D4D General ======================
 *
 *               User definition of general bahaviour of D4Dvr
 *     To apply user definition uncomment and modify the accurate line
@@ -147,20 +147,20 @@
 * Types
 ******************************************************************************/
 
-// The D4Drv contains own standard types for cases that in the whole project missing 
+// The D4Drv contains own standard types for cases that in the whole project missing
 // loaded standard types as Byte, Word, LWord etc.
-// To disable using of D4Drv own standard types change the below define to D4D_TRUE 
+// To disable using of D4Drv own standard types change the below define to D4D_TRUE
 
 #define D4D_USE_STANDARD_TYPES D4D_FALSE
 
 // Variable of coordinations of display
-// in simple - if display has resolution bigger than 256, than you have to specify 
-// bigger type than unsigned char (recommended is unsigned short) 
+// in simple - if display has resolution bigger than 256, than you have to specify
+// bigger type than unsigned char (recommended is unsigned short)
 #define D4D_COOR_TYPE Word
- 
+
 /******************************************************************************
 *
-*   User definition of input KEYS format 
+*   User definition of input KEYS format
 *     To apply user definition uncomment the accurate line
 *
 ******************************************************************************/
@@ -192,8 +192,8 @@
 ******************************************************************************/
 
 //Select the MCU type that is used in this project  supported types:
-//D4D_HC08  	- HC08 
-//D4D_HCS08 	- HCS08	
+//D4D_HC08  	- HC08
+//D4D_HCS08 	- HCS08
 //D4D_HC12  	- HC12
 //D4D_HCS12 	- HCS12
 //D4D_HCS12X	- HCS12X
@@ -206,17 +206,17 @@
 
 #define D4D_MCU_TYPE D4D_MK
 
-//#define D4D_OS_MQX						// if this is uncommented the eGUI is using some MQX features (example: memAlloc)			
+//#define D4D_OS_MQX						// if this is uncommented the eGUI is using some MQX features (example: memAlloc)
 #define D4D_FONT_TABLE_DISABLED D4D_FALSE   // this option enable /disable font table for whole driver
                                              // when this option is sets to true all strings are disabled
 
 #define D4D_ROUND_CORNER_ENABLE D4D_FALSE  // this option disable/enable round corners support of D4D
 
 // Supported color systems
-//  D4D_COLOR_SYSTEM_RGB888 
-//  D4D_COLOR_SYSTEM_RGB666 
-//  D4D_COLOR_SYSTEM_RGB565 
-//  D4D_COLOR_SYSTEM_RGB332 
+//  D4D_COLOR_SYSTEM_RGB888
+//  D4D_COLOR_SYSTEM_RGB666
+//  D4D_COLOR_SYSTEM_RGB565
+//  D4D_COLOR_SYSTEM_RGB332
 
 #define D4D_COLOR_SYSTEM D4D_COLOR_SYSTEM_RGB565  // this select the type of D4D system colors (also depends size of type D4D_COLOR on this settings)
 
@@ -246,24 +246,24 @@
 ******************************************************************************/
 
 
-//#define D4D_INPUT_EVENT_CALLBACK D4D_InputEventCB // This name of callback function 
+//#define D4D_INPUT_EVENT_CALLBACK D4D_InputEventCB // This name of callback function
                                                   // that is called with all input events
-                                                  // from keyboard or touchscreen. 
+                                                  // from keyboard or touchscreen.
                                                   // Prototype is void D4D_INPUT_EVENT_CALLBACK(void)
-                                                  // Uncomment to used it.           
+                                                  // Uncomment to used it.
 
 /******************************************************************************
 *
-*        ==================== D4D BITMAPS ======================              
+*        ==================== D4D BITMAPS ======================
 *
-*                 List of supported bitmap types 
+*                 List of supported bitmap types
 *     To enable bitmap decoding algorithm change D4D_FALSE option to D4D_TRUE
 *
 ******************************************************************************/
 // 16m colors bitmap without pallete
 #define D4D_BMP_16MNOPAL_ENABLE D4D_TRUE
 
-// 65k colors bitmap without pallete 
+// 65k colors bitmap without pallete
 #define D4D_BMP_65536NOPAL_ENABLE D4D_FALSE
 
 // 256 colors bitmap without pallete
@@ -288,7 +288,7 @@
 
 /******************************************************************************
 *
-*        ==================== D4D_SCREEN ======================              
+*        ==================== D4D_SCREEN ======================
 *
 *               User definition of defaults of D4D screen
 *     To apply user definition uncomment and modify the accurate line
@@ -332,12 +332,12 @@
 //#define D4D_SCR_TITLE_EXITBTN_OFFSET  4
 
 
-// Define a default flags 
+// Define a default flags
 //#define D4D_SCR_F_DEFAULT        (0)
 
 /******************************************************************************
 *
-*        ==================== D4D_OBJECT ======================              
+*        ==================== D4D_OBJECT ======================
 *
 *          User definition of defaults  of individual objects
 *          To apply user definition uncomment the accurate line
@@ -455,7 +455,7 @@
 /******************************************************************************
 * Icon Object
 ******************************************************************************/
- 
+
 /***********************
 * Features
 ***********************/
@@ -573,7 +573,7 @@
 
 //#define D4D_GRAPH_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
 //#define D4D_GRAPH_FNT_PRTY_DEFAULT  ( 0 )
-//#define D4D_GRAPH_LBL_FNT_PRTY_DEFAULT  ( 0 ) 
+//#define D4D_GRAPH_LBL_FNT_PRTY_DEFAULT  ( 0 )
 
 /***********************
 * Sizes constants
@@ -581,7 +581,7 @@
 //#define D4D_GRAPH_BORDER_OFF        5
 //#define D4D_GRAPH_VALUE_OFF        2
 
- 
+
 /***********************
 * Colors
 ***********************/
@@ -626,10 +626,10 @@
 //#define D4D_CNSL_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_FOCUSRECT | D4D_OBJECT_F_TOUCHENABLE)
 
 // Console scroll bars default properties
-//#define D4D_CNSL_F_SCRLBRS_DEFAULT  (D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_OBJECT_F_FOCUSRECT) 
+//#define D4D_CNSL_F_SCRLBRS_DEFAULT  (D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_OBJECT_F_FOCUSRECT)
 
 //#define D4D_CNSL_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_LEFT_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
-//#define D4D_CNSL_FNT_PRTY_DEFAULT  ( 0 ) 
+//#define D4D_CNSL_FNT_PRTY_DEFAULT  ( 0 )
 
 /***********************
 * Sizes constants
@@ -653,7 +653,7 @@
 //#define D4D_TXTBX_F_SCRLBRS_DEFAULT  (D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_OBJECT_F_FOCUSRECT)
 
 //#define D4D_TXTBX_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_LEFT_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
-//#define D4D_TXTBX_FNT_PRTY_DEFAULT  ( 0 ) 
+//#define D4D_TXTBX_FNT_PRTY_DEFAULT  ( 0 )
 
 /***********************
 * Sizes constants

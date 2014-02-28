@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_combo_box.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.5.0
-* 
+*
 * @date      Oct-14-2013
-* 
+*
 * @brief     D4D Driver comboBox object header file
 *
 *******************************************************************************/
@@ -150,7 +150,7 @@ typedef struct D4D_COMBO_BOX_S
 D4D_EXTERN_BMP(bmp_arrow);
 
 /******************************************************************************
-* Macros 
+* Macros
 ******************************************************************************/
 
 // getting the COMBO_BOX structure from general OBJECT
@@ -195,7 +195,7 @@ D4D_EXTERN_BMP(bmp_arrow);
 * @note    This macro create complete D4D_COMBO_BOX structure, including the object data sub structure. Is used to define all properties of combo box.
 *               In fact the combo box is created fromthe three chilren object \ref D4D_BUTTON, \ref D4D_EDIT_BOX and \ref D4D_LIST_BOX handled in one combo box.
 *               It must be followed by \ref D4D_DECLARE_COMBO_BOX_ITEM or at least \ref D4D_DECLARE_COMBO_BOX_END.
-*******************************************************************************/ 
+*******************************************************************************/
 #define _D4D_DECLARE_COMBO_BOX_BEGIN(type, name, x, y, cx, cy, cy_list, radius, pMargin, pParent, flags, pScheme,\
     itemsFontId, maxStrLen, posCnt, comboBoxItemsOff, pUser, pOnEvent, pOnUsrMsg) \
     extern type D4D_OBJECT name##_EditBox;\
@@ -217,33 +217,33 @@ D4D_EXTERN_BMP(bmp_arrow);
     static const D4D_OBJECT* const name##_ButtonsRelations[] = {&name, NULL};\
     _D4D_DECLARE_BUTTON(type, name##_Button, NULL, (D4D_COOR)((cx) - (cy)), 0, (cy), (cy), radius, NULL, name##_ButtonsRelations, D4D_COMBO_BOX_F_BTN_DEFAULT, &bmp_arrow, &bmp_arrow, pScheme, 0, (void*)&name, D4D_ComboBoxButtonFeedBack, D4D_ComboBoxButtonMsgFeedBack) \
     _D4D_DECLARE_LIST_BOX_BEGIN(type, name##_ListBox, 0, (cy), (cx), cy_list, radius, (D4D_MARGIN*)&d4d_marginDefault, &name, D4D_COMBO_BOX_F_LISTBOX_DEFAULT, pScheme, itemsFontId, posCnt, comboBoxItemsOff, (void*)&name, D4D_ComboBoxListFeedBack, D4D_ComboBoxListBoxMsgFeedBack)
-    
+
 /**************************************************************************/ /*!
 * @brief   Macro that is used to add item to combo box definition
 * @param   pText - text of item
 * @param   pUser - user data of item (*void)
 * @note    This macro is used after the combo box declaration to add new item
-* Here is an example demonstrating how to used it. 
+* Here is an example demonstrating how to used it.
 * @code
 *       D4D_DECLARE_STD_COMBO_BOX_BEGIN(my_comboBox, 10, 10, 100, 20, 100, NULL, MY_FONT, My_ComboBoxEventsCB)
 *       D4D_DECLARE_COMBO_BOX_ITEM(D4D_DEFSTR("My Item1"), 0)
 *       D4D_DECLARE_COMBO_BOX_ITEM(D4D_DEFSTR("My Item2"), 1)
-*       D4D_DECLARE_COMBO_BOX_END()    
+*       D4D_DECLARE_COMBO_BOX_END()
 * @endcode
-*******************************************************************************/      
+*******************************************************************************/
 #define D4D_DECLARE_COMBO_BOX_ITEM      D4D_DECLARE_LIST_BOX_ITEM
-      
+
 /**************************************************************************/ /*!
 * @brief   Macro that is used to close the item list for combo box definition
 * @note    This macro is used after the combo box items declaration to close the list of items
-* Here is an example demonstrating how to used it. 
+* Here is an example demonstrating how to used it.
 * @code
 *       D4D_DECLARE_STD_COMBO_BOX_BEGIN(my_comboBox, 10, 10, 100, 20, 100, NULL, MY_FONT, My_ComboBoxEventsCB)
 *       D4D_DECLARE_COMBO_BOX_ITEM(D4D_DEFSTR("My Item1"), 0)
 *       D4D_DECLARE_COMBO_BOX_ITEM(D4D_DEFSTR("My Item2"), 1)
-*       D4D_DECLARE_COMBO_BOX_END()    
+*       D4D_DECLARE_COMBO_BOX_END()
 * @endcode
-*******************************************************************************/       
+*******************************************************************************/
 #define D4D_DECLARE_COMBO_BOX_END       D4D_DECLARE_LIST_BOX_END
 
 
@@ -272,7 +272,7 @@ D4D_EXTERN_BMP(bmp_arrow);
 *               In fact the combo box is created fromthe three chilren object \ref D4D_BUTTON, \ref D4D_EDIT_BOX and \ref D4D_LIST_BOX handled in one combo box. If
 *               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_CHECKBOX instead of this one.
 *               It must be followed by \ref D4D_DECLARE_COMBO_BOX_ITEM or at least \ref D4D_DECLARE_COMBO_BOX_END.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_COMBO_BOX_BEGIN(name, x, y, cx, cy, cy_list, flags, pParent, pScheme, itemsFontId, maxStrLen, posCnt, comboBoxItemsOff, pUser, pOnEvent, pOnUsrMsg) \
  _D4D_DECLARE_COMBO_BOX_BEGIN(D4D_CONST, name, x, y, cx, cy, cy_list, 0, (D4D_MARGIN*)&comboBox_marginDefault, pParent, flags, pScheme,\
     itemsFontId, maxStrLen, posCnt, comboBoxItemsOff, pUser, pOnEvent, pOnUsrMsg)
@@ -326,7 +326,7 @@ D4D_EXTERN_BMP(bmp_arrow);
 *               In fact the combo box is created fromthe three chilren object \ref D4D_BUTTON, \ref D4D_EDIT_BOX and \ref D4D_LIST_BOX handled in one combo box. If
 *               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_CHECKBOX instead of this one.
 *               It must be followed by \ref D4D_DECLARE_COMBO_BOX_ITEM or at least \ref D4D_DECLARE_COMBO_BOX_END.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_RCOMBO_BOX_BEGIN(name, x, y, cx, cy, cy_list, radius, flags, pParent, pScheme, itemsFontId, maxStrLen, posCnt, comboBoxItemsOff, pUser, pOnEvent, pOnUsrMsg) \
  _D4D_DECLARE_COMBO_BOX_BEGIN(D4D_CONST, name, x, y, cx, cy, cy_list, radius, (D4D_MARGIN*)&comboBox_marginDefault, pParent, flags, pScheme,\
     itemsFontId, maxStrLen, posCnt, comboBoxItemsOff, pUser, pOnEvent, pOnUsrMsg)
@@ -358,39 +358,39 @@ D4D_EXTERN_BMP(bmp_arrow);
 //IN RAM instantions macros
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_COMBO_BOX_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_COMBO_BOX_BEGIN_INRAM(name, x, y, cx, cy, cy_list, flags, pParent, pScheme, itemsFontId, maxStrLen, posCnt, comboBoxItemsOff, pUser, pOnEvent, pOnUsrMsg) \
  _D4D_DECLARE_COMBO_BOX_BEGIN(D4D_NO_CONST, name, x, y, cx, cy, cy_list, 0, (D4D_MARGIN*)&comboBox_marginDefault, pParent, flags, pScheme,\
     itemsFontId, maxStrLen, posCnt, comboBoxItemsOff, pUser, pOnEvent, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_COMBO_BOX_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_STD_COMBO_BOX_BEGIN_INRAM(name, x, y, cx, cy, cy_list, pParent, itemsFontId, pOnEvent) \
     D4D_DECLARE_COMBO_BOX_BEGIN_INRAM(name, x, y, cx, cy, cy_list, (D4D_COMBO_BOX_F_DEFAULT), pParent, NULL, itemsFontId, D4D_COMBO_BOX_STR_MAX_LEN, 0, 0, NULL, pOnEvent, NULL)
-    
+
 
 // Rounded comboBox definition
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_RCOMBO_BOX_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_RCOMBO_BOX_BEGIN_INRAM(name, x, y, cx, cy, cy_list, radius, flags, pParent, pScheme, itemsFontId, maxStrLen, posCnt, comboBoxItemsOff, pUser, pOnEvent, pOnUsrMsg) \
  _D4D_DECLARE_COMBO_BOX_BEGIN(D4D_NO_CONST, name, x, y, cx, cy, cy_list, radius, (D4D_MARGIN*)&comboBox_marginDefault, pParent, flags, pScheme,\
     itemsFontId, maxStrLen, posCnt, comboBoxItemsOff, pUser, pOnEvent, pOnUsrMsg)
-   
+
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_RCOMBO_BOX_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_STD_RCOMBO_BOX_BEGIN_INRAM(name, x, y, cx, cy, cy_list, radius, pParent, itemsFontId, pOnEvent) \
     D4D_DECLARE_RCOMBO_BOX_BEGIN_INRAM(name, x, y, cx, cy, cy_list, radius, (D4D_COMBO_BOX_F_DEFAULT), pParent, NULL, itemsFontId, D4D_COMBO_BOX_STR_MAX_LEN, 0, 0, NULL, pOnEvent, NULL)
-   
-/*! @} End of doxd4d_combo_box_macro                                          */   
-      
+
+/*! @} End of doxd4d_combo_box_macro                                          */
+
 /******************************************************************************
 * Global variables
-******************************************************************************/   
-extern const D4D_MARGIN comboBox_marginDefault;    
-   
+******************************************************************************/
+extern const D4D_MARGIN comboBox_marginDefault;
+
 /******************************************************************************
 * Global functions
 ******************************************************************************/
@@ -406,7 +406,7 @@ extern const D4D_MARGIN comboBox_marginDefault;
 * @param   pThis - pointer to the combo box object
 * @return  count of combo box items.
 * @note    Because the combo box is based on the list box, this calls the list box API.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_ComboBoxGetItemCount(pThis) D4D_ListBoxGetItemCount(D4D_GET_COMBO_BOX_LIST_BOX(pThis))
 
 /**************************************************************************/ /*!
@@ -415,7 +415,7 @@ extern const D4D_MARGIN comboBox_marginDefault;
 * @param   pUser - user data that is used to look for the item index (must match)
 * @return  index of item if it's found, if not, it returns -1.
 * @note    Because the combo box is based on the list box, this calls the list box API.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_ComboBoxFindUserDataItem(pThis, pUser) D4D_ListBoxFindUserDataItem(D4D_GET_COMBO_BOX_LIST_BOX(pThis), pUser)
 
 /**************************************************************************/ /*!
@@ -423,7 +423,7 @@ extern const D4D_MARGIN comboBox_marginDefault;
 * @param   pThis - pointer to the combo box object
 * @return  user data of selected item.
 * @note    Because the combo box is based on the list box, this calls the list box API.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_ComboBoxGetItemUserData(pThis) D4D_ListBoxGetItemUserData(D4D_GET_COMBO_BOX_LIST_BOX(pThis))
 
 /**************************************************************************/ /*!
@@ -431,16 +431,16 @@ extern const D4D_MARGIN comboBox_marginDefault;
 * @param   pThis - pointer to the combo box object
 * @return  pointer to slected  item text
 * @note    Because the combo box is based on the list box, this calls the list box API.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_ComboBoxGetItemText(pThis) D4D_ListBoxGetItemText(D4D_GET_COMBO_BOX_LIST_BOX(pThis))
 
 /**************************************************************************/ /*!
 * @brief   Function gets the text of item choosed by item index
 * @param   pThis - pointer to the combo box object
 * @param   ix - index to item array
-* @return  pointer to item text 
+* @return  pointer to item text
 * @note    Because the combo box is based on the list box, this calls the list box API.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_ComboBoxGetItemTextIx(pThis, ix) D4D_ListBoxGetItemTextIx(D4D_GET_COMBO_BOX_LIST_BOX(pThis), ix)
 
 /**************************************************************************/ /*!
@@ -448,7 +448,7 @@ extern const D4D_MARGIN comboBox_marginDefault;
 * @param   pThis - pointer to the combo box object
 * @return  noen
 * @note    Because the combo box is based on the list box, this calls the list box API.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_ComboBoxEnsureVisible(pThis) D4D_ListBoxEnsureVisible(D4D_GET_COMBO_BOX_LIST_BOX(pThis))
 
 /**************************************************************************/ /*!
@@ -457,7 +457,7 @@ extern const D4D_MARGIN comboBox_marginDefault;
 * @param   pItems - pointer to the new item list
 * @return  none
 * @note    Because the combo box is based on the list box, this calls the list box API.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_ComboBoxChangeItemList(pThis, pItems) D4D_ListBoxChangeItemList(D4D_GET_COMBO_BOX_LIST_BOX(pThis), pItems)
 
 /**************************************************************************/ /*!
@@ -465,7 +465,7 @@ extern const D4D_MARGIN comboBox_marginDefault;
 * @param   pThis - pointer to the combo box object
 * @return  pointer to current using item list
 * @note    Because the combo box is based on the list box, this calls the list box API.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_ComboBoxGetItemList(pThis) D4D_ListBoxGetItemList(D4D_GET_COMBO_BOX_LIST_BOX(pThis))
 
 /******************************************************************************
@@ -473,7 +473,7 @@ extern const D4D_MARGIN comboBox_marginDefault;
 /*! @} End of doxd4d_combo_box_func                                              */
 /******************************************************************************/
 #endif /* __D4D_COMBO_BOX_H  */
- 
+
 
 
 

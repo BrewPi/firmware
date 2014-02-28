@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_object.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.20.0
-* 
+*
 * @date      Jan-14-2014
-* 
+*
 * @brief     D4D Driver object functions header file
 *
 *******************************************************************************/
@@ -57,8 +57,8 @@
 * @{
 *******************************************************************************/
 
-// Common flags as for initial as for runtime 
-/*! 
+// Common flags as for initial as for runtime
+/*!
   @defgroup doxd4d_object_const_flags D4D OBJECT Defines masks of object behaviour flags
   This section specifies masks of object behaviour flags.
   @ingroup doxd4d_object_const
@@ -67,8 +67,8 @@
 /**
  * @addtogroup doxd4d_object_const_flags
  * @{
- */     
-   
+ */
+
 #define D4D_OBJECT_F_VISIBLE        0x0001      ///< Object after initialization is visible on the screen
 #define D4D_OBJECT_F_ENABLED        0x0002      ///< Object after initialization is enabled
 #define D4D_OBJECT_F_TABSTOP        0x0004      ///< Object can be focused
@@ -96,7 +96,7 @@
 #define D4D_OBJECT_F_OBJECT_SHIFT       20              ///< Object flags widget part shift
 
 /**@}*/
-   
+
 /*! @brief The relations object index to relation array for parent object. */
 #define D4D_OBJECT_USR_DATA_PARENT_IX   0
 /*! @brief The relations object index to relation array for first child object. */
@@ -166,9 +166,9 @@ typedef Byte (*D4D_ON_USR_MSG)(struct D4D_MESSAGE_S* pMsg);
 /*! @note This is main object (widget) data structure typically placed in ROM. It contains all common properties of objects */
 typedef struct D4D_OBJECT_S
 {
-  D4D_POINT                             position;             ///< Position on the screen/object. 
+  D4D_POINT                             position;             ///< Position on the screen/object.
   D4D_SIZE                              size;                 ///< Size of the object.
-  D4D_COOR                              radius;               ///< Object corners radius. 
+  D4D_COOR                              radius;               ///< Object corners radius.
   D4D_MARGIN*                           pMargin;              ///< Object inner margin.
   void*                                 pParam;               ///< The object depends parameters.
   D4D_OBJECT_SYS_FUNCTION*              pObjFunc;             ///< The pointer on object system functions.
@@ -198,7 +198,7 @@ typedef const D4D_OBJECT* D4D_OBJECT_PTR;
 *//*! @addtogroup doxd4d_object_macro
 * @{
 *******************************************************************************/
-   
+
 /**************************************************************************/ /*!
 * @brief   Macro that externs the D4D_OBJECT struxture
 * @param   name of object structure
@@ -220,7 +220,7 @@ typedef const D4D_OBJECT* D4D_OBJECT_PTR;
 * @param   flags - object flags
 * @return  witdh of object frame in pixels
 * @note    This is help macro to find out object frame width
-*******************************************************************************/    
+*******************************************************************************/
 #define D4D_BORDER_WIDTH(flags) (((flags) & D4D_OBJECT_F_BEVEL_MASK)? (D4D_BEVEL_WIDTH) : (((flags) & D4D_OBJECT_F_FOCUSRECT)? 1:0))
 
 /**************************************************************************/ /*!
@@ -228,10 +228,10 @@ typedef const D4D_OBJECT* D4D_OBJECT_PTR;
 * @param   pObject - object structure pointer
 * @return  the type of bevel (D4D_BEVEL)
 * @note    This macro separate from object flags the type of object bevel in type D4D_BEVEL.
-*******************************************************************************/    
+*******************************************************************************/
 #define D4D_OBJECT_FLAGS2BEVEL(pObject) ((D4D_BEVEL)(((pObject)->pData->flags & D4D_OBJECT_F_BEVEL_MASK) >> D4D_OBJECT_F_BEVEL_SHIFT))
-    
-    
+
+
 /**************************************************************************/ /*!
 * @brief   Macro that create the object structure in memory including all substructures
 * @param   type - type of object <\ref D4D_CONST; \ref D4D_NO_CONST>
@@ -251,7 +251,7 @@ typedef const D4D_OBJECT* D4D_OBJECT_PTR;
 * @param   pScheme - pointer to color scheme. In case that this parameter is NULL, the default scheme color will be used for draw object
 
 * @note    This macro create complete \ref D4D_OBJECT structure, including the object data sub structure. Is ussually used by graphic widgets declaration macros.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_OBJECT(type, name, x, y, cx, cy, rad, margin, relations, onusrmsg, sysFunc , param, initFlags, userData, pScheme) \
     D4D_OBJECT_DATA name##_Data = {(D4D_OBJECT_FLAGS)((initFlags | D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL}; \
     type D4D_OBJECT name = \
@@ -268,44 +268,44 @@ typedef const D4D_OBJECT* D4D_OBJECT_PTR;
         initFlags, \
         pScheme, \
         &(name##_Data) \
-    };     
- 
+    };
+
 /**************************************************************************/ /*!
 * @brief   Macro that defines at one line relations array
 * @param   name - name of the object relation array
 * @param   pParent - pointer to parent object - could be NULL if there is no parent object
 * @param   ... - pointers to children objects - could be NULL if there is no child object
 * @note    This macro simplify definition of object relation arrays
-*******************************************************************************/      
+*******************************************************************************/
  #define D4D_DECLARE_OBJECT_RELATIONS(name, pParent, ...)\
     const D4D_OBJECT * const name[] =  {pParent, __VA_ARGS__ , NULL};
- 
- // next way how to define object relation array   
-    
+
+ // next way how to define object relation array
+
 /**************************************************************************/ /*!
 * @brief   Macro that defines at multi line relations array
 * @param   name - name of the object relation array
 * @param   pParent - pointer to parent object - could be NULL if there is no parent object
 * @note    This macro is second way how to define object relation array, must be followed by \ref D4D_DECLARE_OBJECT_RELATIONS_CHILD or \ref D4D_DECLARE_OBJECT_RELATIONS_END
-*******************************************************************************/    
+*******************************************************************************/
  #define D4D_DECLARE_OBJECT_RELATIONS_BEGIN(name, pParent)\
     const D4D_OBJECT * const name[] = \
     {\
      pParent,
- 
+
 /**************************************************************************/ /*!
 * @brief   Macro that defines at multi line relations array - the add child part
 * @param   child - name of the child object
 * @note    This macro is second way how to define object relation array, must be followed by \ref D4D_DECLARE_OBJECT_RELATIONS_CHILD or \ref D4D_DECLARE_OBJECT_RELATIONS_END
-*******************************************************************************/  
+*******************************************************************************/
  #define D4D_DECLARE_OBJECT_RELATIONS_CHILD(child) &child,
- 
+
 /**************************************************************************/ /*!
 * @brief   Macro that defines at multi line relations array - the final part
 * @note    This macro is second way how to define object relation array, it closes the robject relation parts definition
-*******************************************************************************/  
+*******************************************************************************/
  #define D4D_DECLARE_OBJECT_RELATIONS_END NULL };
-  
+
 /*! @} End of doxd4d_object_macro                                             */
  #define D4D_OBJECT_MAX_TEXT_LEN(str) 1000
 
@@ -313,8 +313,8 @@ typedef const D4D_OBJECT* D4D_OBJECT_PTR;
 
 /******************************************************************************
 * Public functions
-******************************************************************************/    
-D4D_BOOL D4D_ObjectCheckCoordinates(D4D_OBJECT* pThis, D4D_POINT point);    
+******************************************************************************/
+D4D_BOOL D4D_ObjectCheckCoordinates(D4D_OBJECT* pThis, D4D_POINT point);
 D4D_BOOL D4D_IsEnabled(D4D_OBJECT* pObject);
 D4D_BOOL D4D_IsVisible(D4D_OBJECT* pObject);
 D4D_BOOL D4D_IsMineFocus(D4D_OBJECT* pObject);

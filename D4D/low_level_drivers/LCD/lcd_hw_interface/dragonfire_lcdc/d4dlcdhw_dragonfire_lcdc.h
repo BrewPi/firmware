@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,12 +34,12 @@
 * @file      d4dlcdhw_dragonfire_lcdc.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.2.0
-* 
+*
 * @date      Aug-30-2010
-* 
-* @brief     D4D driver - dragonfire_lcdc hardware lcd driver function header file 
+*
+* @brief     D4D driver - dragonfire_lcdc hardware lcd driver function header file
 *
 *******************************************************************************/
 
@@ -52,50 +52,50 @@
     * Includes
     ******************************************************************************/
     #include "d4dlcdhw_dragonfire_lcdc_cfg.h"
-    
+
     /******************************************************************************
     * Constants
     ******************************************************************************/
-		
-		#ifndef D4DLCDHWFB_START_ADDRESS 
+
+		#ifndef D4DLCDHWFB_START_ADDRESS
 			#define D4DLCDHWFB_START_ADDRESS 0x40000000
-		#endif	
-		   
-		#ifndef D4DLCDHWFB_X_MAX 
+		#endif
+
+		#ifndef D4DLCDHWFB_X_MAX
 			#define D4DLCDHWFB_X_MAX 240
-		#endif	
-		   
-		#ifndef D4DLCDHWFB_Y_MAX 
+		#endif
+
+		#ifndef D4DLCDHWFB_Y_MAX
 			#define D4DLCDHWFB_Y_MAX 320
-		#endif	
-				
-		#ifndef D4DLCDHWFB_Y_BPP_BYTE 
+		#endif
+
+		#ifndef D4DLCDHWFB_Y_BPP_BYTE
 			#define D4DLCDHWFB_Y_BPP_BYTE 2
-		#endif	
-		
-		
+		#endif
+
+
 		#ifndef D4DLCDHWFB_MIRROWED
 			#define D4DLCDHWFB_MIRROWED 0
 		#endif
-		
-		#ifndef D4DLCDHWFB_PANEL_TYPE	
+
+		#ifndef D4DLCDHWFB_PANEL_TYPE
 			#define D4DLCDHWFB_PANEL_TYPE M52277EVB_PANEL
-		#endif	
-		   
-		#ifndef D4DLCDHWFB_PANEL_CLKDIV	
+		#endif
+
+		#ifndef D4DLCDHWFB_PANEL_CLKDIV
 			#define D4DLCDHWFB_PANEL_CLKDIV 7
-		#endif	
-		   
+		#endif
+
     /******************************************************************************
     * Types
     ******************************************************************************/
 
     /******************************************************************************
-    * Macros 
+    * Macros
     ******************************************************************************/
-    
+
     #define MCF_LCDC_LCD_PCR_PANEL_TYPE(x)     (((x)&0x00000003)<<30)
-      
+
     /******************************************************************************
     * Global variables
     ******************************************************************************/
@@ -127,7 +127,7 @@ typedef enum
   ACD_DIV_12,
   ACD_DIV_13,
   ACD_DIV_14,
-  ACD_DIV_15  	
+  ACD_DIV_15
 } ACD_DIV;
 
 typedef enum
@@ -140,7 +140,7 @@ typedef enum
 } Panel_Size ;
 
 
-typedef enum 
+typedef enum
 { MONO_PANEL=0,
   CSTN_PANEL,
   PANEL_UNUSED,
@@ -156,7 +156,7 @@ typedef enum
  BPP12=4,
  BPP16=5,
  BPP18=6,
- RESERVED=7 
+ RESERVED=7
 } BPP_TYPE;
 
   #endif

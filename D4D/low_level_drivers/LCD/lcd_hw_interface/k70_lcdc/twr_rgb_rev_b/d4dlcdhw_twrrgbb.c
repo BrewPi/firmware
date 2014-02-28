@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,12 +34,12 @@
 * @file      d4dlcdhw_twrrgbb.c
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.4.0
-* 
+*
 * @date      Aug-16-2012
-* 
-* @brief     D4D driver - k70_lcdc hardware lcd driver source c file 
+*
+* @brief     D4D driver - k70_lcdc hardware lcd driver source c file
 *
 ******************************************************************************/
 
@@ -67,29 +67,29 @@
 // copilation enable preprocessor condition
 // the string d4dtch_k70_lcdc_ID must be replaced by define created one line up
 #if (D4D_MK_STR(D4D_LLD_LCD_HW_K70LCDC) == d4dlcdhw_k70_lcdc_twr_rgbB_ID)
-  
+
   // include of low level driver heaser file
   // it will be included into wole project only in case that this driver is selected in main D4D configuration file
   #include "low_level_drivers/LCD/lcd_hw_interface/k70_lcdc/twr_rgb_rev_b/d4dlcdhw_twrrgbb.h"
   /******************************************************************************
-  * Macros 
+  * Macros
   ******************************************************************************/
 
   /******************************************************************************
-  * Internal function prototypes 
+  * Internal function prototypes
   ******************************************************************************/
-  static void lcdc_init_pins(void);        
+  static void lcdc_init_pins(void);
   static unsigned char D4DLCDHW_Init_K70LCDC_TwrRgbB(void);
-  
+
   /**************************************************************//*!
   *
   * Global variables
   *
   ******************************************************************/
 
-  const D4DLCDHWFBK70LCDC_FUNCTIONS d4dlcdhw_k70_lcdc_twr_rgbB = 
+  const D4DLCDHWFBK70LCDC_FUNCTIONS d4dlcdhw_k70_lcdc_twr_rgbB =
   {
-    D4DLCDHW_Init_K70LCDC_TwrRgbB 
+    D4DLCDHW_Init_K70LCDC_TwrRgbB
   };
 
   /**************************************************************//*!
@@ -104,27 +104,27 @@
   *
   ******************************************************************/
 
-   
+
   //-----------------------------------------------------------------------------
   // FUNCTION:    D4DLCDHW_Init_K70LCDC
   // SCOPE:       Low Level Driver API function
-  // DESCRIPTION: The function is used for initialization of this low level driver 
-  //              
+  // DESCRIPTION: The function is used for initialization of this low level driver
+  //
   // PARAMETERS:  none
-  //              
+  //
   // RETURNS:     result: 1 - Success
   //                      0 - Failed
-  //-----------------------------------------------------------------------------  
+  //-----------------------------------------------------------------------------
 static unsigned char D4DLCDHW_Init_K70LCDC_TwrRgbB(void)
 {
   /* Setup LCD pin muxing */
-  lcdc_init_pins();   
-  
+  lcdc_init_pins();
+
   // Setting for TWR-LCD-RGB revA!!!
-  
+
     // set LCD panning offset
   LCDC_LPOR = 0;
-  
+
   // set LCD panel configuration
   LCDC_LPCR =
     LCDC_LPCR_TFT_MASK      |       //TFT Screen
@@ -133,14 +133,14 @@ static unsigned char D4DLCDHW_Init_K70LCDC_TwrRgbB(void)
     //LCDC_LPCR_PIXPOL_MASK   | // pixel polarity
     LCDC_LPCR_FLMPOL_MASK   |       //first line marker active low
     LCDC_LPCR_LPPOL_MASK    |       //line pulse active low
-    LCDC_LPCR_END_SEL_MASK  |       //Use big-endian mode (0xFFAA5500 means R=AA,G=55,B=00)    
-    //LCDC_LPCR_SWAP_SEL_MASK |  
+    LCDC_LPCR_END_SEL_MASK  |       //Use big-endian mode (0xFFAA5500 means R=AA,G=55,B=00)
+    //LCDC_LPCR_SWAP_SEL_MASK |
     LCDC_LPCR_SCLKIDLE_MASK |       //Enalbe LSCLK when vsync is idle
     LCDC_LPCR_SCLKSEL_MASK  |       //Always enable clock
     LCDC_LPCR_CLKPOL_MASK  |       //Active on positive edge of LSCLK. In TFT mode, active on negative edge of LSCLK.
  //   LCDC_LPCR_ACD(ACD_DIV_7) |  // It isn't used in TFT mode
     LCDC_LPCR_PCD(D4DLCDHWFB_PANEL_CLKDIV);             //Divide 120 PLL clock by (12+1)=13 to get 9.23MHz clock
-  
+
    // set LCD horizontal configuration based on panel data (Figure 3-3 in Seiko datasheet)
   LCDC_LHCR =
     LCDC_LHCR_H_WIDTH(1)   |    //(1+1)=2 SCLK period for HSYNC activated
@@ -152,7 +152,7 @@ static unsigned char D4DLCDHW_Init_K70LCDC_TwrRgbB(void)
     LCDC_LVCR_V_WIDTH(63)  |    //2 SCLK period for VSYNC activated
     LCDC_LVCR_V_WAIT_1(128) |    //2 SCLK period between end of OE and beginning of VSYNC
     LCDC_LVCR_V_WAIT_2(32);     //10 SCLK periods between end of VSYNC and beginning of OE
-      
+
   return 1;
 }
 
@@ -164,8 +164,8 @@ static void lcdc_init_pins(void)
   #define ALT2 		(0|PORT_PCR_MUX(2))
   #define ALT5 		(0|PORT_PCR_MUX(5))
   #define ALT7 		(0|PORT_PCR_MUX(7))
-  
-  
+
+
   PORTF_PCR4 =ALT7; // Graphic LCD D[0],  Schematic PTF4
   PORTF_PCR5 =ALT7; // Graphic LCD D[1],  Schematic PTF5
   PORTF_PCR6 =ALT7; // Graphic LCD D[2],  Schematic PTF6

@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_types.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.37.0
-* 
+*
 * @date      Jan-14-2014
-* 
+*
 * @brief     D4D Driver global types header file
 *
 *******************************************************************************/
@@ -106,7 +106,7 @@
 #define D4D_TRUE  1
 
 // The MCU type list
-/*! 
+/*!
   @defgroup doxd4d_types_const_mcuTypes D4D TYPES Defines MCU types constants
   This section specifies MCU types constants.
   @ingroup doxd4d_types_const
@@ -115,7 +115,7 @@
 /**
  * @addtogroup doxd4d_types_const_mcuTypes
  * @{
- */ 
+ */
   #define  D4D_HC08       1       ///< The group of MCU with CORE HC08
   #define  D4D_HCS08      2       ///< The group of MCU with CORE HCS08
   #define  D4D_HC12       10      ///< The group of MCU with CORE HC12
@@ -135,7 +135,7 @@
 #ifndef D4D_USE_STANDARD_TYPES
   #define D4D_USE_STANDARD_TYPES D4D_FALSE
   #warning "The D4D is using own standard types Byte, Word etc. , because the D4D_USE_STANDARD_TYPES is not defined!"
-#endif  
+#endif
 
 /*! @} End of doxd4d_types_const                                              */
 
@@ -178,7 +178,7 @@
     /*! @brief Type definition of sDLWord (signed 64-bit). */
     typedef signed long long    sDLWord;
   #endif
-  
+
   #ifndef NULL
     /*! @brief Type definition of null pointer. */
     #define NULL (void*)0
@@ -187,7 +187,7 @@
 #else
   #if D4D_MCU_TYPE == D4D_HCS08
     #include <hidef.h>
-  #endif 
+  #endif
 #endif
 
 
@@ -196,7 +196,7 @@
   typedef Word D4D_INDEX;
   typedef sWord D4D_INDEX_DELTA;
 #elif (D4D_MCU_TYPE == D4D_HC12) || (D4D_MCU_TYPE == D4D_HCS12) || (D4D_MCU_TYPE == D4D_HCS12X)
-  typedef Word D4D_BOOL;  
+  typedef Word D4D_BOOL;
   typedef Word D4D_INDEX;
   typedef sWord D4D_INDEX_DELTA;
 #elif (D4D_MCU_TYPE == D4D_MCF51) || (D4D_MCU_TYPE == D4D_MCF52) || (D4D_MCU_TYPE == D4D_MPC51) || (D4D_MCU_TYPE == D4D_MK)
@@ -208,7 +208,7 @@
   typedef sLWord D4D_INDEX_DELTA;
 #else
   #error "Unsupported MCU type for D4D_BOOL type!"
-#endif 
+#endif
 
 
 #ifdef D4D_COOR_TYPE
@@ -216,18 +216,18 @@
   typedef D4D_COOR_TYPE D4D_COOR;
 #else
   /*! @brief Type definition of eGUI coordination variables.*/
-  typedef Byte D4D_COOR;  
+  typedef Byte D4D_COOR;
 #endif
 
-/*! @brief Type definition of eGUI point structure.*/  
-typedef struct 
+/*! @brief Type definition of eGUI point structure.*/
+typedef struct
 {
     D4D_COOR x; ///< Coordination in axis X
     D4D_COOR y; ///< Coordination in axis Y
 } D4D_POINT;
 
 /*! @brief Type definition of eGUI size structure.*/
-typedef struct 
+typedef struct
 {
     D4D_COOR cx;        ///< Size in axis X (width)
     D4D_COOR cy;        ///< Size in axis Y (height)
@@ -263,44 +263,44 @@ typedef struct
 #elif ((D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB565) || (D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB555))
   typedef Word D4D_COLOR;
 #elif ((D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB332) || (D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_MONO))
-  typedef Byte D4D_COLOR;  
-#else  
+  typedef Byte D4D_COLOR;
+#else
   #error D4D_COLOR not defined due to unsupported D4D system color.
 #endif
 
 #ifndef D4D_WCHAR
   /*! @brief Type definition of eGUI wide char.*/
-  typedef unsigned short D4D_WCHAR;  
-#endif  
+  typedef unsigned short D4D_WCHAR;
+#endif
 
-/*! @brief Type definition of eGUI ASCII character.*/  
-typedef char D4D_CHAR;  
+/*! @brief Type definition of eGUI ASCII character.*/
+typedef char D4D_CHAR;
 
 #ifdef D4D_UNICODE
   /*! @brief Type definition of eGUI character (it depends on UNICODE setting if this is \ref D4D_CHAR or \ref D4D_WCHAR).*/
   typedef D4D_WCHAR D4D_TCHAR;
 #else
-  /*! @brief Type definition of eGUI character (it depends on UNICODE setting if this is \ref D4D_CHAR or \ref D4D_WCHAR).*/  
+  /*! @brief Type definition of eGUI character (it depends on UNICODE setting if this is \ref D4D_CHAR or \ref D4D_WCHAR).*/
   typedef D4D_CHAR D4D_TCHAR;
 #endif
 
-/*! @brief Type definition of eGUI line type.*/  
+/*! @brief Type definition of eGUI line type.*/
 typedef enum
 {
   D4D_LINE_THIN = 0x00, ///< Line type thin
   D4D_LINE_THICK        ///< Line type thick
 }D4D_LINETYPE;
 
-/*! @brief Type definition of eGUI file pointer.*/  
+/*! @brief Type definition of eGUI file pointer.*/
 typedef void* D4D_FILEPTR;
 
-/*! @brief Type definition of eGUI keys - this is obsolete type that is kept just only for backward compatibility.*/  
-typedef Byte D4D_KEYS;  
+/*! @brief Type definition of eGUI keys - this is obsolete type that is kept just only for backward compatibility.*/
+typedef Byte D4D_KEYS;
 
-/*! @brief Type definition of eGUI keys scan code.*/  
+/*! @brief Type definition of eGUI keys scan code.*/
 typedef Byte D4D_KEY_SCANCODE;
 
-/*! @brief Type definition of eGUI direction type.*/  
+/*! @brief Type definition of eGUI direction type.*/
 typedef enum
 {
   D4D_DIR_UP,           ///< Direction UP
@@ -309,14 +309,14 @@ typedef enum
   D4D_DIR_LEFT          ///< Direction LEFT
 }D4D_DIRECTION;
 
-/*! @brief Type definition of eGUI trend type.*/  
+/*! @brief Type definition of eGUI trend type.*/
 typedef enum
 {
   D4D_CLOCK_WISE = 0,   ///< Trend Clock Wise
   D4D_ANTI_CLOCK_WISE   ///< Trend Anti Clock Wise
 }D4D_TREND;
 
-/*! @brief Type definition of eGUI circle quadrant.*/  
+/*! @brief Type definition of eGUI circle quadrant.*/
 typedef enum
 {
   D4D_QUAD_1,   ///< First quadrant <0-90)
@@ -325,7 +325,7 @@ typedef enum
   D4D_QUAD_4    ///< Fourth quadrant <270-360)
 }D4D_QUADRANT;
 
-/*! @brief Type definition of eGUI bevel type.*/  
+/*! @brief Type definition of eGUI bevel type.*/
 typedef enum
 {
   D4D_BEVEL_NONE = 0,           ///< None Bevel is used
@@ -334,11 +334,11 @@ typedef enum
   D4D_BEVEL_RESERVED = 3        ///< Reserved for future use
 }D4D_BEVEL;
 
-/*! @brief Type definition of eGUI display orientation.*/  
+/*! @brief Type definition of eGUI display orientation.*/
 typedef enum
 {
   D4D_ORIENT_PORTRAIT,	        ///< Portrait orientation
-  D4D_ORIENT_PORTRAIT180,	///< Portrait up side down orientation        
+  D4D_ORIENT_PORTRAIT180,	///< Portrait up side down orientation
   D4D_ORIENT_LANDSCAPE,	        ///< Landscape orientation
   D4D_ORIENT_LANDSCAPE180       ///< Landscape up side down orientation
 } D4D_ORIENTATION;
@@ -354,7 +354,7 @@ typedef struct
 }D4D_TOUCHSCREEN_CALIB;
 
 /*! @brief Type definition of eGUI touch screen event structure.*/
-typedef struct 
+typedef struct
 {
   D4D_BOOL touched;     ///< Boolean of touch state (touched or non touched)
   D4D_POINT point;      ///< Point of touch event or lost of touch event
@@ -362,7 +362,7 @@ typedef struct
 
 /*! @} End of doxd4d_types_type                                               */
 /******************************************************************************
-* Macros 
+* Macros
 ******************************************************************************/
 
 

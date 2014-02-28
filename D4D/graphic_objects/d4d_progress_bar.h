@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_progress_bar.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.6.0
-* 
+*
 * @date      Jan-14-2014
-* 
+*
 * @brief     D4D Driver progress_bar object header file
 *
 *******************************************************************************/
@@ -55,7 +55,7 @@ extern const D4D_OBJECT_SYS_FUNCTION d4d_progress_barSysFunc;
 *******************************************************************************/
 
 //********************* Progress Bar flags for button specific flags *****************
-/*! 
+/*!
   @defgroup doxd4d_progress_bar_const_flags D4D PROGRESS BAR Defines masks of progress bar specific behaviour flags
   This section specifies masks of progress bar behaviour flags.
   @ingroup doxd4d_progress_bar_const
@@ -67,7 +67,7 @@ extern const D4D_OBJECT_SYS_FUNCTION d4d_progress_barSysFunc;
  */
   #define D4D_PRGRS_BAR_F_BAR_AUTOCOLOR 0x0100          ///< This flag specifies the behavior of the progress bar. If it is set, the color of a progress bar depends on the current value and it is computed from a color scheme object dependent parameters fore color and barEnd from the progress bar declaration macro. In another situation, a color specified by the bar parameter from the color scheme object dependent parameters are used.
   #define D4D_PRGRS_BAR_F_TEXT_AUTOCOLOR 0x0200         ///< Enable text autocolor based on current value (inverted color to bar color)
-  #define D4D_PRGRS_BAR_F_BAR_SCALECOLOR 0x0400         ///< This option enable little bit different type of drawing bar, the color is gradually changed from fore color to end bar color 
+  #define D4D_PRGRS_BAR_F_BAR_SCALECOLOR 0x0400         ///< This option enable little bit different type of drawing bar, the color is gradually changed from fore color to end bar color
 
   #define D4D_PRGRS_BAR_F_AUTOCOLOR                     (D4D_PRGRS_BAR_F_BAR_AUTOCOLOR | D4D_PRGRS_BAR_F_TEXT_AUTOCOLOR) ///< Help macro to simplify the auto color declaration
 /**@}*/
@@ -86,7 +86,7 @@ extern const D4D_OBJECT_SYS_FUNCTION d4d_progress_barSysFunc;
 
 /*! @brief This is progress bar fore color definition.
            If not defined, it sets to \ref D4D_COLOR_DARK_GREEN as a default.*/
-#ifndef D4D_COLOR_PRGRS_BAR_BAR_FORE  
+#ifndef D4D_COLOR_PRGRS_BAR_BAR_FORE
   #define D4D_COLOR_PRGRS_BAR_BAR_FORE    D4D_COLOR_DARK_GREEN
 #endif
 
@@ -98,7 +98,7 @@ extern const D4D_OBJECT_SYS_FUNCTION d4d_progress_barSysFunc;
 
 /*! @brief This is progress bar background color definition.
            If not defined, it sets to \ref D4D_COLOR_BRIGHT_GREY as a default.*/
-#ifndef D4D_COLOR_PRGRS_BAR_BAR_BCKG  
+#ifndef D4D_COLOR_PRGRS_BAR_BAR_BCKG
   #define D4D_COLOR_PRGRS_BAR_BAR_BCKG   D4D_COLOR_BRIGHT_GREY
 #endif
 
@@ -145,7 +145,7 @@ typedef struct
 
 
 /******************************************************************************
-* Macros 
+* Macros
 ******************************************************************************/
 
 // getting the PROGRESS_BAR structure from general OBJECT
@@ -177,7 +177,7 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_PROGRESS_BAR structure, including the object data sub structure. Is used to define all properties of progress bar.
-*******************************************************************************/     
+*******************************************************************************/
 #define _D4D_DECLARE_PROGRESS_BAR(type, name, x, y, cx, cy, radius, pMargin, pRelations, flags, pScheme, pUser, pOnUsrMsg) \
     static D4D_PROGRESS_BAR_DATA name##_data = { 0, 0, D4D_COLOR_PRGRS_BAR_BAR_FORE}; \
     static type D4D_PROGRESS_BAR name##_params = \
@@ -204,8 +204,8 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_PROGRESS_BAR structure, including the object data sub structure. Is used to define all properties of progress bar. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_PROGRESS_BAR instead of this one.  
-*******************************************************************************/     
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_PROGRESS_BAR instead of this one.
+*******************************************************************************/
 #define D4D_DECLARE_PROGRESS_BAR(name, x, y, cx, cy, radius, flags, pScheme, pUser, pOnUsrMsg) \
   _D4D_DECLARE_PROGRESS_BAR(D4D_CONST, name, x, y, cx, cy, radius, NULL, NULL, flags, pScheme, pUser, pOnUsrMsg)
 
@@ -220,9 +220,9 @@ typedef struct
 * @param   radius - radius of corners
 
 * @note    This macro create complete D4D_PROGRESS_BAR structure, including the object data sub structure. Is used to define all properties of progress bar. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_PROGRESS_BAR instead of this one.  
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_PROGRESS_BAR instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
-*******************************************************************************/     
+*******************************************************************************/
 #define D4D_DECLARE_STD_PROGRESS_BAR(name, x, y, cx, cy, radius) \
     D4D_DECLARE_PROGRESS_BAR(name, x, y, cx, cy, radius, (D4D_PRGRS_BAR_F_DEFAULT), NULL, NULL, NULL)
 
@@ -230,18 +230,18 @@ typedef struct
 // IN RAM instantions macros
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_PROGRESS_BAR, but is created in RAM instead of the ROM memory
-*******************************************************************************/          
+*******************************************************************************/
 #define D4D_DECLARE_PROGRESS_BAR_INRAM(name, x, y, cx, cy, radius, flags, pScheme, pUser, pOnUsrMsg) \
   _D4D_DECLARE_PROGRESS_BAR( D4D_NO_CONST, name, x, y, cx, cy, radius, NULL, NULL, flags, pScheme, pUser, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_PROGRESS_BAR, but is created in RAM instead of the ROM memory
-*******************************************************************************/          
+*******************************************************************************/
 #define D4D_DECLARE_STD_PROGRESS_BAR_INRAM(name, x, y, cx, cy, radius) \
     D4D_DECLARE_PROGRESS_BAR_INRAM(name, x, y, cx, cy, radius, (D4D_PRGRS_BAR_F_DEFAULT), NULL, NULL, NULL)
 
-/*! @} End of doxd4d_progress_bar_macro                                             */      
-      
+/*! @} End of doxd4d_progress_bar_macro                                             */
+
 /******************************************************************************
 * Global functions
 ******************************************************************************/

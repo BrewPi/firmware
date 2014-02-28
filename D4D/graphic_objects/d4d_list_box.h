@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_list_box.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.8.0
-* 
+*
 * @date      Jan-14-2014
-* 
+*
 * @brief     D4D Driver listBox object header file
 *
 *******************************************************************************/
@@ -56,7 +56,7 @@ void D4D_ListBoxScrollBarsFeedBack(D4D_OBJECT* pThis, D4D_INDEX old_position, D4
 *******************************************************************************/
 
 //********************* List Box flags for button specific flags *****************
-/*! 
+/*!
   @defgroup doxd4d_list_box_const_flags D4D LIST BOX Defines masks of list box specific behaviour flags
   This section specifies masks of list box behaviour flags.
   @ingroup doxd4d_list_box_const
@@ -85,7 +85,7 @@ void D4D_ListBoxScrollBarsFeedBack(D4D_OBJECT* pThis, D4D_INDEX old_position, D4
            If not defined, it sets to 20 pixels as a default.*/
 #ifndef D4D_LIST_BOX_SCRLBR_WIDTH
   #define D4D_LIST_BOX_SCRLBR_WIDTH  ( 20 )
-#endif 
+#endif
 
 /*! @brief This is list box embedded scroll bar change step
            If not defined, it sets to 1 step as a default.*/
@@ -128,7 +128,7 @@ typedef void (*D4D_LSTBX_ON_EVENT)(D4D_OBJECT* pThis, D4D_EVENTID eventId);
 typedef sByte D4D_LIST_BOX_INDEX;
 
 /*! @brief This is list box item variable type.*/
-typedef struct 
+typedef struct
 {
   D4D_TCHAR* pText;     ///<    pointer to item text
   void* pUser;          ///<    pointer to void (it can  be retype to any other user data in size or less that is pointer size)
@@ -140,7 +140,7 @@ typedef struct
 * Private Types
 ******************************************************************************/
 
-typedef struct 
+typedef struct
 {
    D4D_LIST_BOX_INDEX ix;
    D4D_LIST_BOX_INDEX page_ix;
@@ -152,7 +152,7 @@ typedef struct
     D4D_FONT  itemsFontId;
     D4D_LIST_BOX_INDEX posCnt; // Number of visiable position
     D4D_COOR textOff; // text offset between individual item on screen
-    D4D_LIST_BOX_DATA* pData;     // ListBox volatile data struct    
+    D4D_LIST_BOX_DATA* pData;     // ListBox volatile data struct
     D4D_LSTBX_ON_EVENT OnEvent;
 } D4D_LIST_BOX;
 
@@ -160,7 +160,7 @@ typedef struct
 #define D4D_LIST_BOX_CHILD_SCROLL_BAR_IX 1
 
 /******************************************************************************
-* Macros 
+* Macros
 ******************************************************************************/
 
 // getting the LIST_BOX structure from general OBJECT
@@ -199,7 +199,7 @@ typedef struct
 
 * @note    This macro create complete D4D_LIST_BOX structure, including the object data sub structure. Is used to define all properties of list box.
 *               It must be followed by \ref D4D_DECLARE_LIST_BOX_ITEM or at least \ref D4D_DECLARE_LIST_BOX_END.
-*******************************************************************************/  
+*******************************************************************************/
 #define _D4D_DECLARE_LIST_BOX_BEGIN(type, name, x, y, cx, cy, radius, pMargin, pParent, flags, pScheme,\
     itemsFontId, posCnt, listBoxItemsOff, pUser, pOnEvent, pOnUsrMsg) \
     extern type D4D_LIST_BOX_ITEM name##_items[];\
@@ -222,34 +222,34 @@ typedef struct
      radius, NULL, name##_scrollBarVerRelations, D4D_LIST_BOX_F_SCRLBRS_DEFAULT, pScheme, (void*)&name, D4D_ListBoxScrollBarsFeedBack, NULL) \
     \
     type D4D_LIST_BOX_ITEM name##_items[] = { \
-    
-      
+
+
 /**************************************************************************/ /*!
 * @brief   Macro that is used to add item to list box definition
 * @param   pText - text of item
 * @param   pUser - user data of item (*void)
 * @note    This macro is used after the list box declaration to add new item
-* Here is an example demonstrating how to used it. 
+* Here is an example demonstrating how to used it.
 * @code
 *       D4D_DECLARE_STD_LIST_BOX_BEGIN(my_listBox, 10, 10, 100, 20, NULL, MY_FONT, My_ListBoxEventsCB)
 *       D4D_DECLARE_LIST_BOX_ITEM(D4D_DEFSTR("My Item1"), 0)
 *       D4D_DECLARE_LIST_BOX_ITEM(D4D_DEFSTR("My Item2"), 1)
-*       D4D_DECLARE_LIST_BOX_END()    
+*       D4D_DECLARE_LIST_BOX_END()
 * @endcode
-*******************************************************************************/      
+*******************************************************************************/
 #define D4D_DECLARE_LIST_BOX_ITEM(pText, pUser) { pText, (void*)pUser},
 
 /**************************************************************************/ /*!
 * @brief   Macro that is used to close the item list for list box definition
 * @note    This macro is used after the list box items declaration to close the list of items
-* Here is an example demonstrating how to used it. 
+* Here is an example demonstrating how to used it.
 * @code
 *       D4D_DECLARE_STD_LIST_BOX_BEGIN(my_listBox, 10, 10, 100, 20, NULL, MY_FONT, My_ListBoxEventsCB)
 *       D4D_DECLARE_LIST_BOX_ITEM(D4D_DEFSTR("My Item1"), 0)
 *       D4D_DECLARE_LIST_BOX_ITEM(D4D_DEFSTR("My Item2"), 1)
-*       D4D_DECLARE_LIST_BOX_END()   
+*       D4D_DECLARE_LIST_BOX_END()
 * @endcode
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_LIST_BOX_END() { NULL, NULL} };
 
 /**************************************************************************/ /*!
@@ -274,7 +274,7 @@ typedef struct
 * @note    This macro create complete D4D_LIST_BOX structure, including the object data sub structure. Is used to define all properties of list box. If
 *               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_LIST_BOX_BEGIN instead of this one.
 *               It must be followed by \ref D4D_DECLARE_LIST_BOX_ITEM or at least \ref D4D_DECLARE_LIST_BOX_END.
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_LIST_BOX_BEGIN(name, x, y, cx, cy, flags, pParent, pScheme, itemsFontId, posCnt, listBoxItemsOff, pUser, pOnEvent, pOnUsrMsg) \
  _D4D_DECLARE_LIST_BOX_BEGIN(D4D_CONST, name, x, y, cx, cy, 0, (D4D_MARGIN*)&listBox_marginDefault, pParent, flags, pScheme,\
     itemsFontId, posCnt, listBoxItemsOff, pUser, pOnEvent, pOnUsrMsg)
@@ -295,7 +295,7 @@ typedef struct
 *               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_LIST_BOX_BEGIN instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
 *               It must be followed by \ref D4D_DECLARE_LIST_BOX_ITEM or at least \ref D4D_DECLARE_LIST_BOX_END.
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_STD_LIST_BOX_BEGIN(name, x, y, cx, cy, pParent, itemsFontId, pOnEvent) \
     D4D_DECLARE_LIST_BOX_BEGIN(name, x, y, cx, cy, (D4D_LIST_BOX_F_DEFAULT), pParent, NULL, itemsFontId, 0, 0, NULL, pOnEvent, NULL)
 
@@ -323,7 +323,7 @@ typedef struct
 * @note    This macro create complete D4D_LIST_BOX structure, including the object data sub structure. Is used to define all properties of list box. If
 *               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_LIST_BOX_BEGIN instead of this one.
 *               It must be followed by \ref D4D_DECLARE_LIST_BOX_ITEM or at least \ref D4D_DECLARE_LIST_BOX_END.
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_RLIST_BOX_BEGIN(name, x, y, cx, cy, radius, flags, pParent, pScheme, itemsFontId, posCnt, listBoxItemsOff, pUser, pOnEvent, pOnUsrMsg) \
  _D4D_DECLARE_LIST_BOX_BEGIN(D4D_CONST, name, x, y, cx, cy, radius, (D4D_MARGIN*)&listBox_marginDefault, pParent, flags, pScheme,\
     itemsFontId, posCnt, listBoxItemsOff, pUser, pOnEvent, pOnUsrMsg)
@@ -345,7 +345,7 @@ typedef struct
 *               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_LIST_BOX_BEGIN instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
 *               It must be followed by \ref D4D_DECLARE_LIST_BOX_ITEM or at least \ref D4D_DECLARE_LIST_BOX_END.
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_STD_RLIST_BOX_BEGIN(name, x, y, cx, cy, radius, pParent, itemsFontId, pOnEvent) \
     D4D_DECLARE_RLIST_BOX_BEGIN(name, x, y, cx, cy, radius, (D4D_LIST_BOX_F_DEFAULT), pParent, NULL, itemsFontId, 0, 0, NULL, pOnEvent, NULL)
 
@@ -353,39 +353,39 @@ typedef struct
 //IN RAM instantions macros
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_LIST_BOX_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_LIST_BOX_BEGIN_INRAM(name, x, y, cx, cy, flags, pParent, pScheme, itemsFontId, posCnt, listBoxItemsOff, pUser, pOnEvent, pOnUsrMsg) \
  _D4D_DECLARE_LIST_BOX_BEGIN(D4D_NO_CONST, name, x, y, cx, cy, 0, (D4D_MARGIN*)&listBox_marginDefault, pParent, flags, pScheme,\
     itemsFontId, posCnt, listBoxItemsOff, pUser, pOnEvent, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_LIST_BOX_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_STD_LIST_BOX_BEGIN_INRAM(name, x, y, cx, cy, pParent, itemsFontId, pOnEvent) \
     D4D_DECLARE_LIST_BOX_BEGIN_INRAM(name, x, y, cx, cy, (D4D_LIST_BOX_F_DEFAULT), pParent, NULL, itemsFontId, 0, 0, NULL, pOnEvent, NULL)
-    
+
 
 // Rounded listBox definition
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_RLIST_BOX_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_RLIST_BOX_BEGIN_INRAM(name, x, y, cx, cy, radius, flags, pParent, pScheme, itemsFontId, posCnt, listBoxItemsOff, pUser, pOnEvent, pOnUsrMsg) \
  _D4D_DECLARE_LIST_BOX_BEGIN(D4D_NO_CONST, name, x, y, cx, cy, radius, (D4D_MARGIN*)&listBox_marginDefault, pParent, flags, pScheme,\
     itemsFontId, posCnt, listBoxItemsOff, pUser, pOnEvent, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_RLIST_BOX_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_STD_RLIST_BOX_BEGIN_INRAM(name, x, y, cx, cy, radius, pParent, itemsFontId, pOnEvent) \
     D4D_DECLARE_RLIST_BOX_BEGIN_INRAM(name, x, y, cx, cy, radius, (D4D_LIST_BOX_F_DEFAULT), pParent, NULL, itemsFontId, 0, 0, NULL, pOnEvent, NULL)
-   
-/*! @} End of doxd4d_list_box_macro                                          */   
-      
+
+/*! @} End of doxd4d_list_box_macro                                          */
+
 /******************************************************************************
 * Global variables
-******************************************************************************/   
-extern const D4D_MARGIN listBox_marginDefault;    
-   
+******************************************************************************/
+extern const D4D_MARGIN listBox_marginDefault;
+
 /******************************************************************************
 * Global functions
 ******************************************************************************/
@@ -402,7 +402,7 @@ void D4D_ListBoxEnsureVisible(D4D_OBJECT* pThis);
 void D4D_ListBoxChangeItemList(D4D_OBJECT_PTR pThis, const D4D_LIST_BOX_ITEM* pItems);
 D4D_LIST_BOX_ITEM* D4D_ListBoxGetItemList(D4D_OBJECT_PTR pThis);
 #endif /* __D4D_LIST_BOX_H  */
- 
+
 
 
 

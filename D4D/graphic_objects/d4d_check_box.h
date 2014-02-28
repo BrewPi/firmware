@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_check_box.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.33.0
-* 
+*
 * @date      Oct-14-2013
-* 
+*
 * @brief     D4D Driver check box object header file
 *
 *******************************************************************************/
@@ -74,7 +74,7 @@ extern const D4D_OBJECT_SYS_FUNCTION d4d_checkBoxSysFunc;
 
 
 //********************* Check Box flags for check box specific flags *****************
-/*! 
+/*!
   @defgroup doxd4d_check_box_const_flags D4D CHECK BOX Defines masks of check box specific behaviour flags
   This section specifies masks of check box behaviour flags.
   @ingroup doxd4d_check_box_const
@@ -142,18 +142,18 @@ typedef Byte D4D_CHECKBOX_STATUS;
 #define D4D_CHECKBOX_STATUS_PRESSED_MASK    (0x01)
 #define D4D_CHECKBOX_STATUS_CHECKED_MASK    (0x02)
 
-typedef struct 
+typedef struct
 {
     D4D_STRING textBuff;    // check box text
     const D4D_BMP*  pBmpChecked;    // Checked state bitmap
     const D4D_BMP*  pBmpUnChecked;    // Checked state bitmap
-    D4D_CHECKBOX_STATUS*  pStatus;    
+    D4D_CHECKBOX_STATUS*  pStatus;
     D4D_CHCKBX_ON_CHANGE OnChange;
 } D4D_CHECKBOX;
 
 
 /******************************************************************************
-* Macros 
+* Macros
 ******************************************************************************/
 
 // getting the CHECK BOX structure from general OBJECT
@@ -193,7 +193,7 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_CHECK_BOX structure, including the object data sub structure. Is used to define all properties of check box.
-*******************************************************************************/ 
+*******************************************************************************/
 #define _D4D_DECLARE_CHECKBOX(type, name, text, x, y, cx, cy, radius, pMargin, pRelations, flags, pbmpChecked, pbmpUnChecked, pScheme, fontId, pUser, onchange, pOnUsrMsg) \
     static D4D_CHECKBOX_STATUS name##_status = { 0 }; \
     static D4D_STR_PROPERTIES name##_strPrties = { D4D_CHECKBOX_FNT_PRTY_DEFAULT, D4D_CHECKBOX_TXT_PRTY_DEFAULT}; \
@@ -228,7 +228,7 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_CHECK_BOX structure, including the object data sub structure. Is used to define all properties of check box. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_CHECKBOX instead of this one.  
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_CHECKBOX instead of this one.
 *******************************************************************************/
 #define D4D_DECLARE_CHECKBOX(name, text, x, y, cx, cy, flags, pbmpChecked, pbmpUnChecked, pScheme, fontId, pUser, onchange, pOnUsrMsg) \
   _D4D_DECLARE_CHECKBOX(D4D_CONST, name, text, x, y, cx, cy, 0, (D4D_MARGIN*)&d4d_marginDefault, NULL, flags, pbmpChecked, pbmpUnChecked, pScheme, fontId, pUser, onchange, pOnUsrMsg)
@@ -248,7 +248,7 @@ typedef struct
 * @param   onchange - Pointer to an on-change user callback function \ref D4D_CHCKBX_ON_CHANGE
 
 * @note    This macro create complete D4D_CHECK_BOX structure, including the object data sub structure. Is used to define all properties of check box. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_CHECKBOX instead of this one.  
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_CHECKBOX instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
 *******************************************************************************/
 #define D4D_DECLARE_STD_CHECKBOX(name, text, x, y, cx, cy, pbmpChecked, pbmpUnChecked, fontId, onchange) \
@@ -264,7 +264,7 @@ typedef struct
 * @param   y - coordination of check box in Y axis
 * @param   cx - size of check box in X axis (width)
 * @param   cy - size of check box in Y axis (height)
-* @param   radius - radius of corners      
+* @param   radius - radius of corners
 * @param   flags - bitmask that specifies initial \ref doxd4d_object_const_flags and \ref doxd4d_check_box_const_flags
 * @param   pbmpChecked - pointer to a bitmap that is shown in a checked state of the check box (Could be NULL)
 * @param   pbmpUnChecked - pointer to a bitmap that is shown in a unchecked state of the check box (Could be NULL)
@@ -277,7 +277,7 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_CHECK_BOX structure, including the object data sub structure. Is used to define all properties of check box. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_CHECKBOX instead of this one.  
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_CHECKBOX instead of this one.
 *******************************************************************************/
 #define D4D_DECLARE_RCHECKBOX(name, text, x, y, cx, cy, radius, flags, pbmpChecked, pbmpUnChecked, pScheme, fontId, pUser, onchange, pOnUsrMsg) \
   _D4D_DECLARE_CHECKBOX(D4D_CONST, name, text, x, y, cx, cy, radius, (D4D_MARGIN*)&d4d_marginDefault, NULL, flags, pbmpChecked, pbmpUnChecked, pScheme, fontId, pUser, onchange, pOnUsrMsg)
@@ -291,14 +291,14 @@ typedef struct
 * @param   y - coordination of check box in Y axis
 * @param   cx - size of check box in X axis (width)
 * @param   cy - size of check box in Y axis (height)
-* @param   radius - radius of corners      
+* @param   radius - radius of corners
 * @param   pbmpChecked - pointer to a bitmap that is shown in a checked state of the check box (Could be NULL)
 * @param   pbmpUnChecked - pointer to a bitmap that is shown in a unchecked state of the check box (Could be NULL)
 * @param   fontId - Identification number of the used title text font
 * @param   onchange - Pointer to an on-change user callback function \ref D4D_CHCKBX_ON_CHANGE
 
 * @note    This macro create complete D4D_CHECK_BOX structure, including the object data sub structure. Is used to define all properties of check box. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_CHECKBOX instead of this one.  
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_CHECKBOX instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
 *******************************************************************************/
 #define D4D_DECLARE_STD_RCHECKBOX(name, text, x, y, cx, cy, radius, pbmpChecked, pbmpUnChecked, fontId, onchange) \
@@ -308,13 +308,13 @@ typedef struct
 // IN RAM instantions macros
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_CHECKBOX, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_CHECKBOX_INRAM(name, text, x, y, cx, cy, flags, pbmpChecked, pbmpUnChecked, pScheme, fontId, pUser, onchange, pOnUsrMsg) \
   _D4D_DECLARE_CHECKBOX(D4D_NO_CONST, name, text, x, y, cx, cy, 0, (D4D_MARGIN*)&d4d_marginDefault, NULL, flags, pbmpChecked, pbmpUnChecked, pScheme, fontId, pUser, onchange, pOnUsrMsg)
-    
+
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_CHECKBOX, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_STD_CHECKBOX_INRAM(name, text, x, y, cx, cy, pbmpChecked, pbmpUnChecked, fontId, onchange) \
     D4D_DECLARE_CHECKBOX_INRAM(name, text, x, y, cx, cy, 0, (D4D_CHECKBOX_F_DEFAULT), pbmpChecked, pbmpUnChecked, NULL, fontId, NULL, onchange, NULL)
 
@@ -322,18 +322,18 @@ typedef struct
 // Rounded check box definition
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_RCHECKBOX, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_RCHECKBOX_INRAM(name, text, x, y, cx, cy, radius, flags, pbmpChecked, pbmpUnChecked, pScheme, fontId, pUser, onchange, pOnUsrMsg) \
   _D4D_DECLARE_CHECKBOX(D4D_NO_CONST, name, text, x, y, cx, cy, radius, (D4D_MARGIN*)&d4d_marginDefault, NULL, flags, pbmpChecked, pbmpUnChecked, pScheme, fontId, pUser, onchange, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_RCHECKBOX, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_STD_RCHECKBOX_INRAM(name, text, x, y, cx, cy, radius, pbmpChecked, pbmpUnChecked, fontId, onchange) \
-    D4D_DECLARE_RCHECKBOX_INRAM(name, text, x, y, cx, cy, radius, (D4D_CHECKBOX_F_DEFAULT), pbmpChecked, pbmpUnChecked, NULL, fontId, NULL, onchange, NULL)    
-    
+    D4D_DECLARE_RCHECKBOX_INRAM(name, text, x, y, cx, cy, radius, (D4D_CHECKBOX_F_DEFAULT), pbmpChecked, pbmpUnChecked, NULL, fontId, NULL, onchange, NULL)
+
 /*! @} End of doxd4d_check_box_macro                                          */
-      
+
 /******************************************************************************
 * Global functions
 ******************************************************************************/

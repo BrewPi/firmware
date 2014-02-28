@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,12 +34,12 @@
 * @file      d4dlcdhw_flexbus_16b.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.4.0
-* 
+*
 * @date      Jun-28-2010
-* 
-* @brief     D4D driver - flexbus_16b hardware lcd driver function header file 
+*
+* @brief     D4D driver - flexbus_16b hardware lcd driver function header file
 *
 *******************************************************************************/
 
@@ -52,50 +52,50 @@
     * Includes
     ******************************************************************************/
     #include "d4dlcdhw_flexbus_16b_cfg.h"
-    
-    
+
+
     /******************************************************************************
     * Types
     ******************************************************************************/
 
     /******************************************************************************
-    * Macros 
+    * Macros
     ******************************************************************************/
-    
+
       #define SET(x)           (x##_PORT) |= (1 << (x))
       #define RESET(x)         (x##_PORT) &= ~(1 << (x))
 
-      #define OUTPUT(x)        (x##_DDR) |= (1 << (x)) 
+      #define OUTPUT(x)        (x##_DDR) |= (1 << (x))
       #define INPUT(x)         (x##_DDR) &= ~(1 << (x))
-    
-    
+
+
     /******************************************************************************
     * Constants
     ******************************************************************************/
-   
-    
-      #ifndef D4DLCD_FLEX_BASE_ADDRESS 
+
+
+      #ifndef D4DLCD_FLEX_BASE_ADDRESS
         #define D4DLCD_FLEX_BASE_ADDRESS  0x00410000
       #endif
-      
+
       #ifndef D4DLCD_FLEX_DC_ADDRESS
         #define D4DLCD_FLEX_DC_ADDRESS    0x00400000
       #endif
-      
+
       #ifndef D4DLCD_FLEX_ADRESS_MASK
         #define D4DLCD_FLEX_ADRESS_MASK    0x00010000
       #endif
-      
-      
+
+
       #ifndef D4DLCD_FLEX_CS
         #define D4DLCD_FLEX_CS 0
       #else
         #if (D4DLCD_FLEX_CS < 0) || (D4DLCD_FLEX_CS > 1)
           #error The D4DLCD_FLEX_CS value must be set to 0 or 1
         #endif
-      #endif  
-      
-     
+      #endif
+
+
      #ifndef D4DLCD_FLEX_CSAR
      	#if D4DLCD_FLEX_CS == 0
      		#define D4DLCD_FLEX_CSAR CSAR0
@@ -103,7 +103,7 @@
      		#define D4DLCD_FLEX_CSAR CSAR1
      	#endif
      #endif
-     
+
      #ifndef D4DLCD_FLEX_CSMR
      	#if D4DLCD_FLEX_CS == 0
      		#define D4DLCD_FLEX_CSMR CSMR0
@@ -111,7 +111,7 @@
      		#define D4DLCD_FLEX_CSMR CSMR1
      	#endif
      #endif
-     
+
      #ifndef D4DLCD_FLEX_CSCR
      	#if D4DLCD_FLEX_CS == 0
      		#define D4DLCD_FLEX_CSCR CSCR0
@@ -119,25 +119,25 @@
      		#define D4DLCD_FLEX_CSCR CSCR1
      	#endif
      #endif
-     
-        
+
+
 		#ifndef D4DLCD_FLEX_CSMR_V_MASK
 			#define D4DLCD_FLEX_CSMR_V_MASK CSMR0_V_MASK
 		#endif
-    
+
     #ifndef D4DLCD_FLEX_CSCR_MUX_MASK
 			#define D4DLCD_FLEX_CSCR_MUX_MASK CSCR0_MUX_MASK
 		#endif
-    
+
     #ifndef D4DLCD_FLEX_CSCR_AA_MASK
 			#define D4DLCD_FLEX_CSCR_AA_MASK CSCR0_AA_MASK
 		#endif
-    
+
     #ifndef D4DLCD_FLEX_CSCR_PS1_MASK
 			#define D4DLCD_FLEX_CSCR_PS1_MASK CSCR0_PS1_MASK
 		#endif
 
-      
+
       #ifdef D4DLCD_BACKLIGHT
 
         #ifndef D4DLCD_INIT_BACKLIGHT
@@ -146,38 +146,38 @@
 
         #ifndef D4DLCD_ASSERT_BACKLIGHT
         	#define D4DLCD_ASSERT_BACKLIGHT RESET(D4DLCD_BACKLIGHT);
-        #endif  
+        #endif
 
         #ifndef D4DLCD_DEASSERT_BACKLIGHT
-          #define D4DLCD_DEASSERT_BACKLIGHT SET(D4DLCD_BACKLIGHT);      
+          #define D4DLCD_DEASSERT_BACKLIGHT SET(D4DLCD_BACKLIGHT);
         #endif
 
       #endif
 
       #ifndef D4DLCD_INIT_RESET
         #ifndef D4DLCD_RESET
-        	#error "The Macro D4DLCD_RESET must be set in LCD low level driver configuration file." 
+        	#error "The Macro D4DLCD_RESET must be set in LCD low level driver configuration file."
         #else
         	#define D4DLCD_INIT_RESET OUTPUT(D4DLCD_RESET);
-        #endif 	
+        #endif
       #endif
 
       #ifndef D4DLCD_ASSERT_RESET
         #ifndef D4DLCD_RESET
-        	#error "The Macro D4DLCD_RESET must be set in LCD low level driver configuration file." 
-        #else    
+        	#error "The Macro D4DLCD_RESET must be set in LCD low level driver configuration file."
+        #else
         	#define D4DLCD_ASSERT_RESET RESET(D4DLCD_RESET);
-        #endif	
-      #endif  
+        #endif
+      #endif
 
       #ifndef D4DLCD_DEASSERT_RESET
         #ifndef D4DLCD_RESET
-        	#error "The Macro D4DLCD_RESET must be set in LCD low level driver configuration file." 
-        #else    
+        	#error "The Macro D4DLCD_RESET must be set in LCD low level driver configuration file."
+        #else
         	#define D4DLCD_DEASSERT_RESET SET(D4DLCD_RESET);
-        #endif	
+        #endif
       #endif
-        
+
     /******************************************************************************
     * Global variables
     ******************************************************************************/

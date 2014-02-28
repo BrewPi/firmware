@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,12 +34,12 @@
 * @file      d4dtchhw_px_adc.c
 *
 * @author    Jiri Kotzian
-* 
+*
 * @version   0.0.2.0
-* 
+*
 * @date      Jul-31-2012
-* 
-* @brief     D4D driver - template hardware touch screen driver source c file 
+*
+* @brief     D4D driver - template hardware touch screen driver source c file
 *
 ******************************************************************************/
 
@@ -58,11 +58,11 @@
 // it will be included into wole project only in case that this driver is selected in main D4D configuration file
 #include "low_level_drivers\touch_screen\touch_screen_hw_interface\px_adc_10b\d4dtchhw_PX_adc.h"
 /******************************************************************************
- * Macros 
+ * Macros
  ******************************************************************************/
 
 /******************************************************************************
- * Internal function prototypes 
+ * Internal function prototypes
  ******************************************************************************/
 
 static unsigned char D4DTCHHW_Init_PX_adc(void);
@@ -100,13 +100,13 @@ const D4D_TOUCHSCREEN_LIMITS d4dtchhw_px_adc_limits =
 //-----------------------------------------------------------------------------
 // FUNCTION:    D4DTCHHW_Init_Template
 // SCOPE:       Low Level Driver API function
-// DESCRIPTION: The function is used for initialization of this hw low level driver 
-//              
+// DESCRIPTION: The function is used for initialization of this hw low level driver
+//
 // PARAMETERS:  none
-//              
+//
 // RETURNS:     result: 1 - Success
 //                      0 - Failed
-//-----------------------------------------------------------------------------  
+//-----------------------------------------------------------------------------
 static unsigned char D4DTCHHW_Init_PX_adc(void)
 {
 #ifdef D4DTCH_MCU_USER_INIT
@@ -127,13 +127,13 @@ static unsigned char D4DTCHHW_Init_PX_adc(void)
 //-----------------------------------------------------------------------------
 // FUNCTION:    D4DTCHHW_DeInit_Template
 // SCOPE:       Low Level Driver API function
-// DESCRIPTION: The function is used for deinitialization of this hw low level driver 
-//              
+// DESCRIPTION: The function is used for deinitialization of this hw low level driver
+//
 // PARAMETERS:  none
-//              
+//
 // RETURNS:     result: 1 - Success
 //                      0 - Failed
-//-----------------------------------------------------------------------------  
+//-----------------------------------------------------------------------------
 static unsigned char D4DTCHHW_DeInit_PX_adc(void)
 {
     ADC_0.NCMR[1].R = 0x00000000; //ADC chain is empty
@@ -142,13 +142,13 @@ static unsigned char D4DTCHHW_DeInit_PX_adc(void)
 //-----------------------------------------------------------------------------
 // FUNCTION:    D4DTCHHW_ReadTouchAxis_Template
 // SCOPE:       Low Level Driver API function
-// DESCRIPTION: The function is used to read one RAW nonfiltered value of the 
+// DESCRIPTION: The function is used to read one RAW nonfiltered value of the
 //              touch screen signal
 // PARAMETERS:  pinId - the signal to read
-//              
+//
 // RETURNS:     readed value of the specified signal
-//               
-//-----------------------------------------------------------------------------  
+//
+//-----------------------------------------------------------------------------
 static unsigned short D4DTCHHW_ReadTouchAxis_PX_adc(D4DTCHHW_PINS pinId)
 {
     uint16_t advalue = 0;
@@ -192,13 +192,13 @@ static unsigned short D4DTCHHW_ReadTouchAxis_PX_adc(D4DTCHHW_PINS pinId)
 //-----------------------------------------------------------------------------
 // FUNCTION:    D4DTCHHW_GetRawLimits_Template
 // SCOPE:       Low Level Driver API function
-// DESCRIPTION: The function returns pointer on touch screen raw limits 
-//              structure. 
+// DESCRIPTION: The function returns pointer on touch screen raw limits
+//              structure.
 // PARAMETERS:  none
-//              
+//
 // RETURNS:     pointer on touch screen raw limit structure
-//               
-//----------------------------------------------------------------------------- 
+//
+//-----------------------------------------------------------------------------
 static D4D_TOUCHSCREEN_LIMITS* D4DTCHHW_GetRawLimits_PX_adc(void)
 {
     return (D4D_TOUCHSCREEN_LIMITS*) &d4dtchhw_px_adc_limits;
@@ -208,7 +208,7 @@ static D4D_TOUCHSCREEN_LIMITS* D4DTCHHW_GetRawLimits_PX_adc(void)
 // FUNCTION:    D4DTCHHW_PinCtl_Template
 // SCOPE:       Low Level Driver API function
 // DESCRIPTION: allows control GPIO pins for touch screen purposes
-// 
+//
 // PARAMETERS:  D4DTCHHW_PINS pinId - Pin identification
 //              D4DHW_PIN_STATE setState - Pin action
 // RETURNS:     for Get action retuns the pin value

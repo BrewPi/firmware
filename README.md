@@ -5,7 +5,7 @@ Welcome to eGUI embedded graphic library Wiki pages.
 
 
 The eGUI is originaly developed by www.freescale.com company.
- 
+
 ![eGUI Example picture](http://gargy007.github.io/egui_doc/downloads/fsl_logo.gif)
 
 Since February 2014 is available free under LGPL license, to allow community extend this project.
@@ -24,8 +24,8 @@ Downloads :
 
 Similar projects :
 ==================
-The simplified version has been done for the alpha numerical displays (with driver like HD44780 etc). 
-Please check also:  **[D4CD - Modification of the eGUI(D4D) driver for char displays] (https://github.com/Gargy007/D4CD)**  
+The simplified version has been done for the alpha numerical displays (with driver like HD44780 etc).
+Please check also:  **[D4CD - Modification of the eGUI(D4D) driver for char displays] (https://github.com/Gargy007/D4CD)**
 
 Email :
 ===========

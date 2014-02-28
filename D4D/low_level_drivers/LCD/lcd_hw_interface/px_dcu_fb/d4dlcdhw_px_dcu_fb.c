@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,12 +34,12 @@
 * @file      d4dlcdhw_px_dcu_fb.c
 *
 * @author    Jiri Kotzian
-* 
+*
 * @version   0.0.3.0
-* 
+*
 * @date      Aug-9-2012
-* 
-* @brief     D4D driver - px_dcu_fb hardware lcd driver source c file 
+*
+* @brief     D4D driver - px_dcu_fb hardware lcd driver source c file
 *
 ******************************************************************************/
 
@@ -60,11 +60,11 @@
 // it will be included into wole project only in case that this driver is selected in main D4D configuration file
 #include "d4dlcdhw_px_dcu_fb.h"
 /******************************************************************************
- * Macros 
+ * Macros
  ******************************************************************************/
 
 /******************************************************************************
- * Internal function prototypes 
+ * Internal function prototypes
  ******************************************************************************/
 static void TWR_PXD10_SIUL_setup(void);
 static void EDT_setup(void);
@@ -88,11 +88,11 @@ static unsigned char D4DLCDHW_PinCtl_PxDcuFb(D4DLCDHW_PINS pinId, D4DHW_PIN_STAT
 // the name fo this structure is used for recognizing of configured low level driver of whole D4D
 // so this name has to be used in main configuration header file of D4D driver to enable this driver
 const D4DLCDHWFB_FUNCTIONS d4dlcdhw_px_dcu_fb =
-{ 
-	D4DLCDHW_Init_PxDcuFb, 
-	D4DLCDHW_WriteData_PxDcuFb, 
-	D4DLCDHW_ReadData_PxDcuFb, 
-	D4DLCDHW_GetFbDescriptor_PxDcuFb, 
+{
+	D4DLCDHW_Init_PxDcuFb,
+	D4DLCDHW_WriteData_PxDcuFb,
+	D4DLCDHW_ReadData_PxDcuFb,
+	D4DLCDHW_GetFbDescriptor_PxDcuFb,
 	D4DLCDHW_PinCtl_PxDcuFb,
     D4DLCD_FlushBuffer_PxDcuFb,
 	D4DLCDHW_DeInit_PxDcuFb
@@ -104,10 +104,10 @@ const D4DLCDHWFB_FUNCTIONS d4dlcdhw_px_dcu_fb =
  ******************************************************************/
 static const D4DLCD_FRAMEBUFF_DESC d4dlcdhw_px_dcu_desc =
 	{
-	 	D4DLCDHWFB_START_ADDRESS, 
-		D4DLCDHWFB_X_MAX, 
-		D4DLCDHWFB_Y_MAX, 
-		D4DLCDHWFB_BPP_BYTE 
+	 	D4DLCDHWFB_START_ADDRESS,
+		D4DLCDHWFB_X_MAX,
+		D4DLCDHWFB_Y_MAX,
+		D4DLCDHWFB_BPP_BYTE
 	};
 
 /**************************************************************//*!
@@ -119,13 +119,13 @@ static const D4DLCD_FRAMEBUFF_DESC d4dlcdhw_px_dcu_desc =
 //-----------------------------------------------------------------------------
 // FUNCTION:    D4DLCDHW_Init_PxDcuFb
 // SCOPE:       Low Level Driver API function
-// DESCRIPTION: The function is used for initialization of this low level driver 
-//              
+// DESCRIPTION: The function is used for initialization of this low level driver
+//
 // PARAMETERS:  none
-//              
+//
 // RETURNS:     result: 1 - Success
 //                      0 - Failed
-//-----------------------------------------------------------------------------  
+//-----------------------------------------------------------------------------
 uint32_t* clut_memory_test = (uint32_t*) 0xffe7e000;
 
 static unsigned char D4DLCDHW_Init_PxDcuFb(void)
@@ -160,7 +160,7 @@ static unsigned char D4DLCDHW_Init_PxDcuFb(void)
         //Tile settings
         DCU.LAYER[i].CTRLDESCL7.B.TILE_VER_SIZE = 0;
         DCU.LAYER[i].CTRLDESCL7.B.TILE_HOR_SIZE = 0;
-        //Enable layer    
+        //Enable layer
         DCU.LAYER[i].CTRLDESCL4.B.EN = 0; //Turn on the layer
     }
 
@@ -192,11 +192,11 @@ static unsigned char D4DLCDHW_Init_PxDcuFb(void)
 #if D4DLCDHWFB_BPP_BYTE == 4
     DCU.LAYER[i].CTRLDESCL4.B.BPP = 6; // b0110 = 32 bpp (ARGB8888)
 #elif D4DLCDHWFB_BPP_BYTE == 2
-    DCU.LAYER[i].CTRLDESCL4.B.BPP = 4; // b0100 = 16 bpp (RGB565) 
+    DCU.LAYER[i].CTRLDESCL4.B.BPP = 4; // b0100 = 16 bpp (RGB565)
 #elif D4DLCDHWFB_BPP_BYTE == 1
     DCU.LAYER[i].CTRLDESCL4.B.BPP = 3; // b0011 = 8 bpp (RGB332)
-#else     
-    DCU.LAYER[i].CTRLDESCL4.B.BPP = 4; // b0100 = 16 bpp (RGB565) 
+#else
+    DCU.LAYER[i].CTRLDESCL4.B.BPP = 4; // b0100 = 16 bpp (RGB565)
 #endif
 
     //Layer blending and enable
@@ -214,7 +214,7 @@ static unsigned char D4DLCDHW_Init_PxDcuFb(void)
     //Tile settings
     DCU.LAYER[i].CTRLDESCL7.B.TILE_VER_SIZE = 0;
     DCU.LAYER[i].CTRLDESCL7.B.TILE_HOR_SIZE = 0;
-    //Enable layer  
+    //Enable layer
     DCU.LAYER[i].CTRLDESCL4.B.EN = 1; //Turn on the layer
 
     DCU.DCU_MODE.B.DCU_MODE = 1; // Standard Mode
@@ -300,13 +300,13 @@ static void EDT_setup(void)
 //-----------------------------------------------------------------------------
 // FUNCTION:    D4DLCDHW_DeInit_PxDcuFb
 // SCOPE:       Low Level Driver API function
-// DESCRIPTION: The function is used for deinitialization of this low level driver 
-//              
+// DESCRIPTION: The function is used for deinitialization of this low level driver
+//
 // PARAMETERS:  none
-//              
+//
 // RETURNS:     result: 1 - Success
 //                      0 - Failed
-//-----------------------------------------------------------------------------  
+//-----------------------------------------------------------------------------
 static unsigned char D4DLCDHW_DeInit_PxDcuFb(void)
 {
     return 1;
@@ -315,7 +315,7 @@ static unsigned char D4DLCDHW_DeInit_PxDcuFb(void)
 //-----------------------------------------------------------------------------
 // FUNCTION:    D4DLCDHW_SendDataWord_PxDcuFb
 // SCOPE:       Low Level Driver API function
-// DESCRIPTION: The function send the one 16 bit variable into LCD  
+// DESCRIPTION: The function send the one 16 bit variable into LCD
 //
 // PARAMETERS:  unsigned long addr  		address to write data
 //							unsigned short value    variable to send
@@ -327,12 +327,12 @@ static unsigned char D4DLCDHW_DeInit_PxDcuFb(void)
 static void D4DLCDHW_WriteData_PxDcuFb(unsigned long addr, D4D_COLOR value)
 {
 
-#if TWR_PXD10_REV ==  TWR_PXD10_REV_B  
+#if TWR_PXD10_REV ==  TWR_PXD10_REV_B
     *((D4D_COLOR*) addr) = value;
 #else
     D4D_COLOR value_b, value_r;
 
-#if D4DLCDHWFB_BPP_BYTE == 2  // b0100 = 16 bpp (RGB565) 
+#if D4DLCDHWFB_BPP_BYTE == 2  // b0100 = 16 bpp (RGB565)
     D4D_COLOR value_b, value_r;
     value_b = value & 0b0000000000011111;
     value_r = (value & 0b1111100000000000) >> 11;
@@ -350,12 +350,12 @@ static void D4DLCDHW_WriteData_PxDcuFb(unsigned long addr, D4D_COLOR value)
 //-----------------------------------------------------------------------------
 // FUNCTION:    D4DLCDHW_ReadDataWord_PxDcuFb
 // SCOPE:       Low Level Driver API function
-// DESCRIPTION: The function reads the one 16 bit variable from LCD (if this function is supported)  
+// DESCRIPTION: The function reads the one 16 bit variable from LCD (if this function is supported)
 //
 // PARAMETERS:  unsigned long addr  		address to read data
 //
 // RETURNS:     unsigned short - the readed value
-//              
+//
 //-----------------------------------------------------------------------------
 static D4D_COLOR D4DLCDHW_ReadData_PxDcuFb(unsigned long addr)
 {
@@ -365,12 +365,12 @@ static D4D_COLOR D4DLCDHW_ReadData_PxDcuFb(unsigned long addr)
 //-----------------------------------------------------------------------------
 // FUNCTION:    D4DLCDHW_GetFbDescriptor_PxDcuFb
 // SCOPE:       Low Level Driver API function
-// DESCRIPTION: The function return the pointer on filled frame buffer descriptor  
+// DESCRIPTION: The function return the pointer on filled frame buffer descriptor
 //
 // PARAMETERS:  none
 //
 // RETURNS:     D4DLCD_FRAMEBUFF_DESC* - pointer on frame buffer descriptor
-//              
+//
 //-----------------------------------------------------------------------------
 static D4DLCD_FRAMEBUFF_DESC* D4DLCDHW_GetFbDescriptor_PxDcuFb(void)
 {
@@ -400,7 +400,7 @@ static unsigned char D4DLCDHW_PinCtl_PxDcuFb(D4DLCDHW_PINS pinId, D4DHW_PIN_STAT
 //              driver the complete object is drawed and pending pixels should be flushed
 //
 // PARAMETERS:  none
-//              
+//
 // RETURNS:     none
 //-----------------------------------------------------------------------------
   static void D4DLCD_FlushBuffer_PxDcuFb(D4DLCD_FLUSH_MODE mode)

@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,12 +34,12 @@
 * @file      d4d_scheme.c
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.15.0
-* 
+*
 * @date      Jan-14-2014
-* 
-* @brief     D4D driver color scheme c file 
+*
+* @brief     D4D driver color scheme c file
 *
 ******************************************************************************/
 
@@ -71,8 +71,8 @@ D4D_DECLARE_CLR_SCHEME(d4d_clr_scheme_default, \
 **************************************************************/
 
 // pointer to default color scheme pointer
-static D4D_CLR_SCHEME *pSchemeDefault = (D4D_CLR_SCHEME*)&d4d_clr_scheme_default; 
-   
+static D4D_CLR_SCHEME *pSchemeDefault = (D4D_CLR_SCHEME*)&d4d_clr_scheme_default;
+
 
 /******************************************************************************
 * Begin of D4D_SCHEME public functions
@@ -88,14 +88,14 @@ static D4D_CLR_SCHEME *pSchemeDefault = (D4D_CLR_SCHEME*)&d4d_clr_scheme_default
 *          It handles with standard default scheme and screen color scheme.
 *******************************************************************************/
 D4D_CLR_SCHEME* D4D_ScreenGetScheme(D4D_SCREEN * pScreen)
-{ 
+{
   if(pScreen == NULL)
     return pSchemeDefault;
-  
+
   if(pScreen->clrScheme != NULL)
-    return pScreen->clrScheme; 
-  
-  return pSchemeDefault;    
+    return pScreen->clrScheme;
+
+  return pSchemeDefault;
 }
 
 /**************************************************************************/ /*!
@@ -107,13 +107,13 @@ D4D_CLR_SCHEME* D4D_ScreenGetScheme(D4D_SCREEN * pScreen)
 *          directly with user object color scheme.
 *******************************************************************************/
 D4D_CLR_SCHEME* D4D_ObjectGetScheme(D4D_OBJECT * pObj)
-{ 
+{
   if(pObj == NULL)
     return pSchemeDefault;
-  
+
   if(pObj->clrScheme != NULL)
-    return pObj->clrScheme; 
-  
+    return pObj->clrScheme;
+
   if(pObj->pRelations)
   {
     D4D_OBJECT* pParent = D4D_GetParentObject((D4D_OBJECT*)pObj);
@@ -121,8 +121,8 @@ D4D_CLR_SCHEME* D4D_ObjectGetScheme(D4D_OBJECT * pObj)
     if(pParent)
       return D4D_ObjectGetScheme(pParent);
   }
-    
-  return D4D_ScreenGetScheme(pObj->pData->pScreen); 
+
+  return D4D_ScreenGetScheme(pObj->pData->pScreen);
 }
 
 /**************************************************************************/ /*!
@@ -132,7 +132,7 @@ D4D_CLR_SCHEME* D4D_ObjectGetScheme(D4D_OBJECT * pObj)
 *******************************************************************************/
 D4D_CLR_SCHEME* D4D_GetDefaultScheme(void)
 {
-  return pSchemeDefault;  
+  return pSchemeDefault;
 }
 
 /**************************************************************************/ /*!
@@ -141,7 +141,7 @@ D4D_CLR_SCHEME* D4D_GetDefaultScheme(void)
 * @return  none
 * @note    This function sets the new default color scheme. If by parameter is handled NULL,
 *               then it's used default color scheme defined in d4d_usrcfg.h file.
-*******************************************************************************/ 
+*******************************************************************************/
 void D4D_SetDefaultScheme(D4D_CLR_SCHEME* pScheme)
 {
   if(pScheme == NULL)
@@ -155,22 +155,22 @@ void D4D_SetDefaultScheme(D4D_CLR_SCHEME* pScheme)
 * @param   pObj - pointer to object
 * @param   draw - draw runtime flags handled to object by D4D_MSG_ONDRAW
 * @return  Current used fore color of object.
-* @note    Function by object flags and also draw parameter return one of object color from 
+* @note    Function by object flags and also draw parameter return one of object color from
 *          color scheme - normal/disable/focus/capture colors.
-*******************************************************************************/       
+*******************************************************************************/
 D4D_COLOR D4D_ObjectGetForeColor(D4D_OBJECT * pObj, D4D_OBJECT_DRAWFLAGS draw)
 {
   D4D_CLR_SCHEME *pScheme = D4D_ObjectGetScheme(pObj);
-  
+
   if(!D4D_IsEnabled(pObj))
     return pScheme->foreDis;
-  
+
   if(draw & D4D_OBJECT_DRAWFLAGS_CAPTURING)
     return pScheme->foreCapture;
-  
+
   if(draw & D4D_OBJECT_DRAWFLAGS_FOCUSED)
     return pScheme->foreFocus;
-  
+
   return pScheme->fore;
 }
 
@@ -179,22 +179,22 @@ D4D_COLOR D4D_ObjectGetForeColor(D4D_OBJECT * pObj, D4D_OBJECT_DRAWFLAGS draw)
 * @param   pObj - pointer to object
 * @param   draw - draw runtime flags handled to object by D4D_MSG_ONDRAW
 * @return  Current used background color of object.
-* @note    Function by object flags and also draw parameter return one of object color from 
+* @note    Function by object flags and also draw parameter return one of object color from
 *          color scheme - normal/disable/focus/capture colors.
-*******************************************************************************/ 
+*******************************************************************************/
 D4D_COLOR D4D_ObjectGetBckgColor(D4D_OBJECT * pObj, D4D_OBJECT_DRAWFLAGS draw)
 {
   D4D_CLR_SCHEME *pScheme = D4D_ObjectGetScheme(pObj);
-  
+
   if(!D4D_IsEnabled(pObj))
     return pScheme->bckgDis;
-  
+
   if(draw & D4D_OBJECT_DRAWFLAGS_CAPTURING)
     return pScheme->bckgCapture;
-  
+
   if(draw & D4D_OBJECT_DRAWFLAGS_FOCUSED)
     return pScheme->bckgFocus;
-  
+
   return pScheme->bckg;
 }
 
@@ -202,16 +202,16 @@ D4D_COLOR D4D_ObjectGetBckgColor(D4D_OBJECT * pObj, D4D_OBJECT_DRAWFLAGS draw)
 * @brief   Function return object current fill fore color
 * @param   pObj - pointer to object
 * @return  Current used fill fore color of object.
-* @note    Function by object flags return one of object color from 
+* @note    Function by object flags return one of object color from
 *          color scheme - normal/disable colors.
-*******************************************************************************/ 
+*******************************************************************************/
 D4D_COLOR D4D_ObjectGetForeFillColor(D4D_OBJECT * pObj)
 {
   D4D_CLR_SCHEME *pScheme = D4D_ObjectGetScheme(pObj);
-  
+
   if(!D4D_IsEnabled(pObj))
     return pScheme->foreDis;
-  
+
   return pScheme->fore;
 }
 
@@ -219,16 +219,16 @@ D4D_COLOR D4D_ObjectGetForeFillColor(D4D_OBJECT * pObj)
 * @brief   Function return object current fill background color
 * @param   pObj - pointer to object
 * @return  Current used fill background color of object.
-* @note    Function by object flags return one of object color from 
+* @note    Function by object flags return one of object color from
 *          color scheme - normal/disable colors.
 *******************************************************************************/
 D4D_COLOR D4D_ObjectGetBckgFillColor(D4D_OBJECT * pObj)
 {
   D4D_CLR_SCHEME *pScheme = D4D_ObjectGetScheme(pObj);
-  
+
   if(!D4D_IsEnabled(pObj))
     return pScheme->bckgDis;
-  
+
   return pScheme->bckg;
 }
 
@@ -244,36 +244,36 @@ D4D_COLOR D4D_GetCrossColor(D4D_COLOR startColor, D4D_COLOR endColor, Byte value
 {
   Byte r, g, b;
   Byte c_s, c_e;
-  
+
   //Red color computing
   c_s = D4D_COLOR_GET_R(startColor);
   c_e = D4D_COLOR_GET_R(endColor);
-  
+
   if(c_s < c_e)
     r = (Byte)(c_s + D4D_MulDivUU8(value, (Byte)(c_e - c_s), 255));
   else
     r = (Byte)(c_s - D4D_MulDivUU8(value, (Byte)(c_s - c_e), 255));
-  
+
   //Green color computing
   c_s = D4D_COLOR_GET_G(startColor);
   c_e = D4D_COLOR_GET_G(endColor);
-  
+
   if(c_s < c_e)
     g = (Byte)(c_s + D4D_MulDivUU8(value, (Byte)(c_e - c_s), 255));
   else
     g = (Byte)(c_s - D4D_MulDivUU8(value, (Byte)(c_s - c_e), 255));
-  
+
   //Blue color computing
   c_s = D4D_COLOR_GET_B(startColor);
   c_e = D4D_COLOR_GET_B(endColor);
-  
+
   if(c_s < c_e)
     b = (Byte)(c_s + D4D_MulDivUU8(value, (Byte)(c_e - c_s), 255));
   else
     b = (Byte)(c_s - D4D_MulDivUU8(value, (Byte)(c_s - c_e), 255));
-  
+
   return D4D_COLOR_RGB(r, g, b);
-  
+
 }
 
 /**************************************************************************/ /*!
@@ -287,16 +287,16 @@ D4D_COLOR D4D_ChangeColorIntesity(D4D_COLOR color, sByte intensity)
 {
   sWord r, g, b;
   Byte absIntesity;
-  
+
   if(intensity > 100)
     intensity = 100;
-  
+
   if(intensity < -100)
     intensity = -100;
 
   absIntesity = D4D_Abs(intensity);
-  
-  
+
+
   r = D4D_MulDivUU8(absIntesity, D4D_COLOR_GET_R(color), 100);
   g = D4D_MulDivUU8(absIntesity, D4D_COLOR_GET_G(color), 100);
   b = D4D_MulDivUU8(absIntesity, D4D_COLOR_GET_B(color), 100);
@@ -306,11 +306,11 @@ D4D_COLOR D4D_ChangeColorIntesity(D4D_COLOR color, sByte intensity)
     r += D4D_COLOR_GET_R(color);
     if(r > 255)
       r = 255;
-    
+
     g += D4D_COLOR_GET_G(color);
     if(g > 255)
       g = 255;
-    
+
     b += D4D_COLOR_GET_B(color);
     if(b > 255)
       b = 255;
@@ -319,9 +319,9 @@ D4D_COLOR D4D_ChangeColorIntesity(D4D_COLOR color, sByte intensity)
     r = (Byte)(D4D_COLOR_GET_R(color) - r);
     g = (Byte)(D4D_COLOR_GET_G(color) - g);
     b = (Byte)(D4D_COLOR_GET_B(color) - b);
-  } 
-  
-  return D4D_COLOR_RGB(r, g, b);  
+  }
+
+  return D4D_COLOR_RGB(r, g, b);
 }
 
 /**************************************************************************/ /*!
@@ -334,19 +334,19 @@ D4D_COLOR D4D_GetGreyScale(D4D_COLOR color)
 {
   Byte red, green, blue;
 
-  // Get the separate color components    
+  // Get the separate color components
   red = D4D_COLOR_GET_R(color);
   green = D4D_COLOR_GET_G(color);
   blue = D4D_COLOR_GET_B(color);
 
   // Get the arithmetic mean of all color components and store it back as individual components
-  red = green = blue = (Byte)((Word)(red + green + blue) / 3);    
+  red = green = blue = (Byte)((Word)(red + green + blue) / 3);
 
-  // Create the color in GreyScale            
+  // Create the color in GreyScale
   return D4D_COLOR_RGB(red, green, blue);
 }
 
 /******************************************************************************
 *       End of public functions                                               */
 /*! @} End of doxd4d_scheme_func                                              */
-/******************************************************************************/  
+/******************************************************************************/

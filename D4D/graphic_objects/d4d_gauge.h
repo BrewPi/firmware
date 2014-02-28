@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_gauge.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.48.0
-* 
+*
 * @date      Jan-14-2014
-* 
+*
 * @brief     D4D Driver gauge object header file
 *
 *******************************************************************************/
@@ -59,7 +59,7 @@ extern const D4D_OBJECT_SYS_FUNCTION d4d_gaugeSysFunc;
            If not defined, it sets to 3 pixel as a default.*/
 #ifndef D4D_GAUGE_HUB_RADIUS
   #define D4D_GAUGE_HUB_RADIUS 3
-#endif  
+#endif
 
 /*! @brief This is default gauge hub color definition.
            If not defined, it sets to \ref D4D_COLOR_DARK_RED as a default.*/
@@ -74,7 +74,7 @@ extern const D4D_OBJECT_SYS_FUNCTION d4d_gaugeSysFunc;
 #endif
 
 //********************* Gauge flags for its specific flags *****************
-/*! 
+/*!
   @defgroup doxd4d_gauge_const_flags D4D GAUGE Defines masks of its specific behaviour flags
   This section specifies masks of gauge behaviour flags.
   @ingroup doxd4d_gauge_const
@@ -106,7 +106,7 @@ extern const D4D_OBJECT_SYS_FUNCTION d4d_gaugeSysFunc;
            If not defined, it sets to ( 0 ) as a default.*/
 #ifndef D4D_GAUGE_FNT_PRTY_DEFAULT
   #define D4D_GAUGE_FNT_PRTY_DEFAULT  ( 0 )
-#endif  
+#endif
 
 /*! @} End of doxd4d_gauge_const                                             */
 /******************************************************************************
@@ -138,7 +138,7 @@ typedef struct
   D4D_GAUGE_VALUE valueMin;   ///< minimal value (corresponds to angleMin)
   D4D_GAUGE_VALUE valueMax;   ///< maximal value (corresponds to angleMax)
   D4D_GAUGE_ANGLE angleMin;   ///< line angle from 0x00 to 0xFF
-  D4D_GAUGE_ANGLE angleMax;   ///< line angle from 0x00 to 0xFF    
+  D4D_GAUGE_ANGLE angleMax;   ///< line angle from 0x00 to 0xFF
 } D4D_GAUGE_LIMITS;
 
 /*! @} End of doxd4d_gauge_type                                             */
@@ -154,7 +154,7 @@ typedef struct
     D4D_GAUGE_VALUE value;      // current value
     D4D_GAUGE_VALUE valueLast;  // last pointer value drawn
     D4D_TREND trend;            // trend of pointer move (D4D_CLOCK_WISE or D4D_ANTI_CLOCK_WISE)
-    D4D_GAUGE_LIMITS limits;    // gauge runtime configuration    
+    D4D_GAUGE_LIMITS limits;    // gauge runtime configuration
 } D4D_GAUGE_DATA;
 
 // gauge configuration (in ROM by default)
@@ -166,15 +166,15 @@ typedef struct
     D4D_POINT hubOff;           // hub coordinates as offset from scrPos
     D4D_COOR  pointerLen;       // lentgth of the pointer line
     const D4D_BMP*  pBmpBkgd;   // gauge background bitmap
-    
+
     D4D_GAUGE_ON_CHANGE OnValueChanged;
-    
+
     D4D_GAUGE_DATA* pData;
-    
+
 } D4D_GAUGE;
 
 /******************************************************************************
-* Macros 
+* Macros
 ******************************************************************************/
 
 // getting the GAUGE structure from general OBJECT
@@ -215,7 +215,7 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_GAUGE structure, including the object data sub structure. Is used to define all properties of gauge.
-*******************************************************************************/ 
+*******************************************************************************/
 #define _D4D_DECLARE_GAUGE(type, name, text, x, y, cx, cy, radius, pMargin, pRelations, tx, ty, kx, ky, plen, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg) \
     static D4D_GAUGE_DATA name##_data = {0, 1, D4D_CLOCK_WISE, {0, 100, 0, 0x7F } }; \
     static D4D_STR_PROPERTIES name##_strPrties = { D4D_GAUGE_FNT_PRTY_DEFAULT, D4D_GAUGE_TXT_PRTY_DEFAULT}; \
@@ -257,8 +257,8 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_GAUGE structure, including the object data sub structure. Is used to define all properties of gauge. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_BUTTON instead of this one. 
-*******************************************************************************/ 
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_BUTTON instead of this one.
+*******************************************************************************/
 #define D4D_DECLARE_GAUGE(name, text, x, y, cx, cy, tx, ty, kx, ky, plen, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg) \
   _D4D_DECLARE_GAUGE(D4D_CONST, name, text, x, y, cx, cy, 0, NULL, NULL, tx, ty, kx, ky, plen, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg)
 
@@ -281,9 +281,9 @@ typedef struct
 * @param   onvalch - Pointer to an on-change user callback function \ref D4D_GAUGE_ON_CHANGE
 
 * @note    This macro create complete D4D_GAUGE structure, including the object data sub structure. Is used to define all properties of gauge. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_BUTTON instead of this one. 
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_BUTTON instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_STD_GAUGE(name, text, x, y, cx, cy, tx, ty, kx, ky, plen, pBmp, fontId, onvalch) \
     D4D_DECLARE_GAUGE(name, text, x, y, cx, cy, tx, ty, kx, ky, plen, (D4D_GAUGE_F_DEFAULT), pBmp, NULL, fontId, NULL, onvalch, NULL)
 
@@ -313,8 +313,8 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_GAUGE structure, including the object data sub structure. Is used to define all properties of gauge. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_BUTTON instead of this one. 
-*******************************************************************************/ 
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_BUTTON instead of this one.
+*******************************************************************************/
 #define D4D_DECLARE_RGAUGE(name, text, x, y, cx, cy, radius, tx, ty, kx, ky, plen, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg) \
   _D4D_DECLARE_GAUGE(D4D_CONST, name, text, x, y, cx, cy, radius, NULL, NULL, tx, ty, kx, ky, plen, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg)
 
@@ -338,9 +338,9 @@ typedef struct
 * @param   onvalch - Pointer to an on-change user callback function \ref D4D_GAUGE_ON_CHANGE
 
 * @note    This macro create complete D4D_GAUGE structure, including the object data sub structure. Is used to define all properties of gauge. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_BUTTON instead of this one. 
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_BUTTON instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_STD_RGAUGE(name, text, x, y, cx, cy, radius, tx, ty, kx, ky, plen, pBmp, fontId, onvalch) \
     D4D_DECLARE_RGAUGE(name, text, x, y, cx, cy, radius, tx, ty, kx, ky, plen, (D4D_GAUGE_F_DEFAULT), pBmp, NULL, fontId, NULL, onvalch, NULL)
 
@@ -357,7 +357,7 @@ typedef struct
 *******************************************************************************/
 #define D4D_DECLARE_STD_GAUGE_INRAM(name, text, x, y, cx, cy, tx, ty, kx, ky, plen, pBmp, fontId, onvalch) \
     D4D_DECLARE_GAUGE_INRAM(name, text, x, y, cx, cy, tx, ty, kx, ky, plen, (D4D_GAUGE_F_DEFAULT), pBmp, NULL, fontId, NULL, onvalch, NULL)
-    
+
 // Rounded gauge definition
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_RGAUGE, but is created in RAM instead of the ROM memory
@@ -369,7 +369,7 @@ typedef struct
 * @brief   Same as \ref D4D_DECLARE_STD_RGAUGE, but is created in RAM instead of the ROM memory
 *******************************************************************************/
 #define D4D_DECLARE_STD_RGAUGE_INRAM(name, text, x, y, cx, cy, radius, tx, ty, kx, ky, plen, pBmp, fontId, onvalch) \
-    D4D_DECLARE_RGAUGE_INRAM(name, text, x, y, cx, cy, radius, tx, ty, kx, ky, plen, (D4D_GAUGE_F_DEFAULT), pBmp, NULL, fontId, NULL, onvalch, NULL)    
+    D4D_DECLARE_RGAUGE_INRAM(name, text, x, y, cx, cy, radius, tx, ty, kx, ky, plen, (D4D_GAUGE_F_DEFAULT), pBmp, NULL, fontId, NULL, onvalch, NULL)
 
 /*! @} End of doxd4d_gauge_macro                                             */
 /******************************************************************************
@@ -389,7 +389,7 @@ typedef struct
 
 void D4D_GaugSetValue(D4D_OBJECT_PTR pThis, D4D_GAUGE_VALUE value);
 D4D_GAUGE_VALUE D4D_GaugGetValue(D4D_OBJECT_PTR pThis);
-  
+
 void D4D_GaugSetLimits(D4D_OBJECT_PTR pThis, const D4D_GAUGE_LIMITS* pLimits);
 void D4D_GaugGetLimits(D4D_OBJECT_PTR pThis, D4D_GAUGE_LIMITS* pLimits);
 

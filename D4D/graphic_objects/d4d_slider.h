@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_slider.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.48.0
-* 
+*
 * @date      Jan-14-2014
-* 
+*
 * @brief     D4D Driver slider object header file
 *
 *******************************************************************************/
@@ -56,7 +56,7 @@ extern const D4D_OBJECT_SYS_FUNCTION d4d_sliderSysFunc;
 *******************************************************************************/
 
 //********************* Slider flags for its specific flags *****************
-/*! 
+/*!
   @defgroup doxd4d_slider_const_flags D4D SLIDER Defines masks of slider specific behaviour flags
   This section specifies masks of slider behaviour flags.
   @ingroup doxd4d_slider_const
@@ -68,7 +68,7 @@ extern const D4D_OBJECT_SYS_FUNCTION d4d_sliderSysFunc;
  */
 #define D4D_SLDR_F_BAR_AUTOCOLOR  (0x01 << D4D_OBJECT_F_OBJECT_SHIFT)   ///< This flag specifies the behavior of the slider. If it is set, the color of a slider bar depends on the current value and it is computed from a color scheme object dependent parameters fore color and barEnd from the slider declaration macro. In another situation, a color specified by the bar parameter from the color scheme object dependent parameters are used.
 #define D4D_SLDR_F_TEXT_AUTOCOLOR (0x02 << D4D_OBJECT_F_OBJECT_SHIFT)   ///< Enable text autocolor based on current value (inverted color to bar color)
-#define D4D_SLDR_F_BAR_SCALECOLOR (0x04 << D4D_OBJECT_F_OBJECT_SHIFT)   ///< This option enable little bit different type of drawing bar, the color is gradually changed from fore color to end bar color 
+#define D4D_SLDR_F_BAR_SCALECOLOR (0x04 << D4D_OBJECT_F_OBJECT_SHIFT)   ///< This option enable little bit different type of drawing bar, the color is gradually changed from fore color to end bar color
 #define D4D_SLDR_F_AUTOTOUCH_OFF  (0x08 << D4D_OBJECT_F_OBJECT_SHIFT)   ///< This option disables auto touch events to prevent fast changing of slider for longer touches
 
 #define D4D_SLDR_F_AUTOCOLOR      (D4D_SLDR_F_BAR_AUTOCOLOR | D4D_SLDR_F_TEXT_AUTOCOLOR)   ///< Help macro to simplify the auto color declaration
@@ -113,13 +113,13 @@ extern const D4D_OBJECT_SYS_FUNCTION d4d_sliderSysFunc;
 
 /*! @brief This is slider fore color definition.
            If not defined, it sets to \ref D4D_COLOR_DARK_BLUE as a default.*/
-#ifndef D4D_COLOR_SLDR_BAR_FORE  
+#ifndef D4D_COLOR_SLDR_BAR_FORE
   #define D4D_COLOR_SLDR_BAR_FORE        D4D_COLOR_DARK_BLUE
 #endif
 
 /*! @brief This is slider background color definition.
            If not defined, it sets to \ref D4D_COLOR_BRIGHT_GREY as a default.*/
-#ifndef D4D_COLOR_SLDR_BAR_BCKG  
+#ifndef D4D_COLOR_SLDR_BAR_BCKG
   #define D4D_COLOR_SLDR_BAR_BCKG   D4D_COLOR_BRIGHT_GREY
 #endif
 
@@ -151,9 +151,9 @@ typedef sByte D4D_SLIDER_VALUE;
 typedef struct
 {
   D4D_SLIDER_VALUE valueMin;   ///< minimal value - <-128..valueMax>
-  D4D_SLIDER_VALUE valueMax;   ///< maximal value - <valueMin..127> 
+  D4D_SLIDER_VALUE valueMax;   ///< maximal value - <valueMin..127>
   D4D_SLIDER_VALUE step;       ///< step value of slider change
-  D4D_SLIDER_VALUE valueOrg;   ///< bar origin value (should be valueMin <= org <= valueMax)    
+  D4D_SLIDER_VALUE valueOrg;   ///< bar origin value (should be valueMin <= org <= valueMax)
 } D4D_SLIDER_LIMITS;
 
 /**************************************************************************/ /*!
@@ -175,7 +175,7 @@ typedef struct
 {
   D4D_SLIDER_VALUE value;      // current value
   D4D_SLIDER_LIMITS limits;    // slider runtime configuration
-  D4D_COLOR colorBar;          // Color v Bar - can be changed  
+  D4D_COLOR colorBar;          // Color v Bar - can be changed
 } D4D_SLIDER_DATA;
 
 // slider configuration (in ROM by default)
@@ -193,7 +193,7 @@ typedef struct
 
 
 /******************************************************************************
-* Macros 
+* Macros
 ******************************************************************************/
 
 // getting the SLIDER structure from general OBJECT
@@ -235,7 +235,7 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_SLIDER structure, including the object data sub structure. Is used to define all properties of slider.
-*******************************************************************************/     
+*******************************************************************************/
 #define _D4D_DECLARE_SLIDER(type, name, text, x, y, cx, cy, radius, pMargin, pRelations, tx, ty, bx, by, bcx, bcy, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg) \
     static D4D_SLIDER_DATA name##_data = { 0, 0, 100, 1, 0, D4D_COLOR_SLDR_BAR_FORE}; \
     static D4D_STR_PROPERTIES name##_strPrties = { D4D_SLDR_FNT_PRTY_DEFAULT, D4D_SLDR_TXT_PRTY_DEFAULT}; \
@@ -278,8 +278,8 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_SLIDER structure, including the object data sub structure. Is used to define all properties of slider. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_SLIDER instead of this one.  
-*******************************************************************************/     
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_SLIDER instead of this one.
+*******************************************************************************/
 #define D4D_DECLARE_SLIDER(name, text, x, y, cx, cy, tx, ty, bx, by, bcx, bcy, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg) \
   _D4D_DECLARE_SLIDER(D4D_CONST, name, text, x, y, cx, cy, 0, NULL, NULL, tx, ty, bx, by, bcx, bcy, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg)
 
@@ -303,15 +303,15 @@ typedef struct
 * @param   onvalch - Pointer to an on-change user callback function \ref D4D_SLDR_ON_CHANGE
 
 * @note    This macro create complete D4D_SLIDER structure, including the object data sub structure. Is used to define all properties of slider. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_SLIDER instead of this one.  
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_SLIDER instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
-*******************************************************************************/     
+*******************************************************************************/
 #define D4D_DECLARE_STD_SLIDER(name, text, x, y, cx, cy, tx, ty, bx, by, bcx, bcy, pBmp, fontId, onvalch) \
     D4D_DECLARE_SLIDER(name, text, x, y, cx, cy, tx, ty, bx, by, bcx, bcy, (D4D_SLDR_F_DEFAULT), pBmp, NULL, fontId, NULL, onvalch, NULL)
 
 /**************************************************************************/ /*!
 * @brief   Macro that create the Slider object structure in memory including all substructures with restricted count of parameters to simplify definition
-*               The internal coordination values are computed automatically to standard.      
+*               The internal coordination values are computed automatically to standard.
 * @param   name - name of slider object
 * @param   text - title text of slider
 * @param   x - coordination of slider in X axis
@@ -329,15 +329,15 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_SLIDER structure, including the object data sub structure. Is used to define all properties of slider. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_SLIDER instead of this one.  
-*******************************************************************************/     
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_SLIDER instead of this one.
+*******************************************************************************/
 #define D4D_DECLARE_SLIDER_AUTOSIZE(name, text, x, y, cx, cy, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg) \
     D4D_DECLARE_SLIDER(name, text, x, y, cx, cy, 0, 0, 0, 0, 0, 0, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Macro that create the Slider object structure in memory including all substructures with restricted count of parameters to simplify definition
 *               The missing parameters are replaced by default values.
-*               The internal coordination values are computed automatically to standard.      
+*               The internal coordination values are computed automatically to standard.
 * @param   name - name of slider object
 * @param   text - title text of slider
 * @param   x - coordination of slider in X axis
@@ -349,9 +349,9 @@ typedef struct
 * @param   onvalch - Pointer to an on-change user callback function \ref D4D_SLDR_ON_CHANGE
 
 * @note    This macro create complete D4D_SLIDER structure, including the object data sub structure. Is used to define all properties of slider. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_SLIDER instead of this one.  
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_SLIDER instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
-*******************************************************************************/     
+*******************************************************************************/
 #define D4D_DECLARE_STD_SLIDER_AUTOSIZE(name, text, x, y, cx, cy, pBmp, fontId, onvalch) \
     D4D_DECLARE_STD_SLIDER(name, text, x, y, cx, cy, 0, 0, 0, 0, 0, 0, pBmp, fontId, onvalch)
 
@@ -382,8 +382,8 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_SLIDER structure, including the object data sub structure. Is used to define all properties of slider. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_SLIDER instead of this one.  
-*******************************************************************************/     
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_SLIDER instead of this one.
+*******************************************************************************/
 #define D4D_DECLARE_RSLIDER(name, text, x, y, cx, cy, radius, tx, ty, bx, by, bcx, bcy, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg) \
   _D4D_DECLARE_SLIDER(D4D_CONST, name, text, x, y, cx, cy, radius, NULL, NULL, tx, ty, bx, by, bcx, bcy, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg)
 
@@ -408,15 +408,15 @@ typedef struct
 * @param   onvalch - Pointer to an on-change user callback function \ref D4D_SLDR_ON_CHANGE
 
 * @note    This macro create complete D4D_SLIDER structure, including the object data sub structure. Is used to define all properties of slider. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_SLIDER instead of this one.  
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_SLIDER instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
-*******************************************************************************/     
+*******************************************************************************/
 #define D4D_DECLARE_STD_RSLIDER(name, text, x, y, cx, cy, radius, tx, ty, bx, by, bcx, bcy, pBmp, fontId, onvalch) \
     D4D_DECLARE_RSLIDER(name, text, x, y, cx, cy, radius, tx, ty, bx, by, bcx, bcy, (D4D_SLDR_F_DEFAULT), pBmp, NULL, fontId, NULL, onvalch, NULL)
 
 /**************************************************************************/ /*!
 * @brief   Macro that create the rounded Slider object structure in memory including all substructures with restricted count of parameters to simplify definition
-*               The internal coordination values are computed automatically to standard.      
+*               The internal coordination values are computed automatically to standard.
 * @param   name - name of slider object
 * @param   text - title text of slider
 * @param   x - coordination of slider in X axis
@@ -435,15 +435,15 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_SLIDER structure, including the object data sub structure. Is used to define all properties of slider. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_SLIDER instead of this one.  
-*******************************************************************************/     
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_SLIDER instead of this one.
+*******************************************************************************/
 #define D4D_DECLARE_RSLIDER_AUTOSIZE(name, text, x, y, cx, cy, radius, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg) \
     D4D_DECLARE_RSLIDER(name, text, x, y, cx, cy, radius, 0, 0, 0, 0, 0, 0, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Macro that create the rounded Slider object structure in memory including all substructures with restricted count of parameters to simplify definition
 *               The missing parameters are replaced by default values.
-*               The internal coordination values are computed automatically to standard.      
+*               The internal coordination values are computed automatically to standard.
 * @param   name - name of slider object
 * @param   text - title text of slider
 * @param   x - coordination of slider in X axis
@@ -456,9 +456,9 @@ typedef struct
 * @param   onvalch - Pointer to an on-change user callback function \ref D4D_SLDR_ON_CHANGE
 
 * @note    This macro create complete D4D_SLIDER structure, including the object data sub structure. Is used to define all properties of slider. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_SLIDER instead of this one.  
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_SLIDER instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
-*******************************************************************************/     
+*******************************************************************************/
 #define D4D_DECLARE_STD_RSLIDER_AUTOSIZE(name, text, x, y, cx, cy, radius, pBmp, fontId, onvalch) \
     D4D_DECLARE_STD_RSLIDER(name, text, x, y, cx, cy, radius, 0, 0, 0, 0, 0, 0, pBmp, fontId, onvalch)
 
@@ -466,55 +466,55 @@ typedef struct
 // IN RAM instantions macros
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_SLIDER, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_SLIDER_INRAM(name, text, x, y, cx, cy, tx, ty, bx, by, bcx, bcy, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg) \
   _D4D_DECLARE_SLIDER( D4D_NO_CONST, name, text, x, y, cx, cy, 0, NULL, NULL, tx, ty, bx, by, bcx, bcy, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_SLIDER, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_STD_SLIDER_INRAM(name, text, x, y, cx, cy, tx, ty, bx, by, bcx, bcy, pBmp, fontId, onvalch) \
     D4D_DECLARE_SLIDER_INRAM(name, text, x, y, cx, cy, tx, ty, bx, by, bcx, bcy, (D4D_SLDR_F_DEFAULT), pBmp, NULL, fontId, NULL, onvalch, NULL)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_SLIDER_AUTOSIZE, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_SLIDER_AUTOSIZE_INRAM(name, text, x, y, cx, cy, flags, pBmp, pScheme, font, pUser, onvalch, pOnUsrMsg) \
     D4D_DECLARE_SLIDER_INRAM(name, text, x, y, cx, cy, 0, 0, 0, 0, 0, 0, flags, pBmp, pScheme, font, pUser, onvalch, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_SLIDER, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_STD_SLIDER_AUTOSIZE_INRAM(name, text, x, y, cx, cy, pBmp, font, onvalch) \
     D4D_DECLARE_STD_SLIDER_INRAM(name, text, x, y, cx, cy, 0, 0, 0, 0, 0, 0, pBmp, font, onvalch)
-    
+
 // Rounded slider definition
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_RSLIDER, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_RSLIDER_INRAM(name, text, x, y, cx, cy, radius, tx, ty, bx, by, bcx, bcy, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg) \
   _D4D_DECLARE_SLIDER(D4D_NO_CONST, name, text, x, y, cx, cy, radius, NULL, NULL, tx, ty, bx, by, bcx, bcy, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_RSLIDER, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_STD_RSLIDER_INRAM(name, text, x, y, cx, cy, radius, tx, ty, bx, by, bcx, bcy, pBmp, fontId, onvalch) \
     D4D_DECLARE_RSLIDER_INRAM(name, text, x, y, cx, cy, radius, tx, ty, bx, by, bcx, bcy, (D4D_SLDR_F_DEFAULT), pBmp, NULL, fontId, NULL, onvalch, NULL)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_RSLIDER_AUTOSIZE, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_RSLIDER_AUTOSIZE_INRAM(name, text, x, y, cx, cy, radius, flags, pBmp, pScheme, font, pUser, onvalch, pOnUsrMsg) \
     D4D_DECLARE_RSLIDER_INRAM(name, text, x, y, cx, cy, radius, 0, 0, 0, 0, 0, 0, flags, pBmp, pScheme, font, pUser, onvalch, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_RSLIDER_AUTOSIZE, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_STD_RSLIDER_AUTOSIZE_INRAM(name, text, x, y, cx, cy, radius, pBmp, font, onvalch) \
-    D4D_DECLARE_STD_RSLIDER_INRAM(name, text, x, y, cx, cy, radius, 0, 0, 0, 0, 0, 0, pBmp, font, onvalch)    
+    D4D_DECLARE_STD_RSLIDER_INRAM(name, text, x, y, cx, cy, radius, 0, 0, 0, 0, 0, 0, pBmp, font, onvalch)
 
-/*! @} End of doxd4d_slider_macro                                          */      
-      
+/*! @} End of doxd4d_slider_macro                                          */
+
 /******************************************************************************
 * Global functions
 ******************************************************************************/
@@ -536,7 +536,7 @@ void D4D_SldrSetBarColor(D4D_OBJECT_PTR pThis, D4D_COLOR color);
 D4D_COLOR D4D_SldrGetBarColor(D4D_OBJECT_PTR pThis);
 
 
-// Obsolete functions, replaced by any general 
+// Obsolete functions, replaced by any general
 #define D4D_SldrSetText D4D_SetText
 
 

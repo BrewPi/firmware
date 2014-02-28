@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_text_box.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.15.0
-* 
+*
 * @date      Jan-14-2014
-* 
+*
 * @brief     D4D Driver label object header file
 *
 *******************************************************************************/
@@ -78,13 +78,13 @@ void D4D_TextBoxScrollBarsFeedBack(D4D_OBJECT* pThis, D4D_INDEX old_position, D4
            If not defined, it sets to ( 0 ) as a default.*/
 #ifndef D4D_TXTBX_FNT_PRTY_DEFAULT
   #define D4D_TXTBX_FNT_PRTY_DEFAULT  ( 0 )
-#endif 
+#endif
 
 /*! @brief This is text box embedded scroll bar width
            If not defined, it sets to 20 pixels as a default.*/
 #ifndef D4D_TXTBX_SCRLBR_WIDTH
   #define D4D_TXTBX_SCRLBR_WIDTH  ( 20 )
-#endif 
+#endif
 
 /*! @brief This is text box embedded scroll bar change step
            If not defined, it sets to 2 step as a default.*/
@@ -99,15 +99,15 @@ void D4D_TextBoxScrollBarsFeedBack(D4D_OBJECT* pThis, D4D_INDEX old_position, D4
 ******************************************************************************/
 
 
-  
 
 
-                                                 
+
+
 
 typedef struct D4D_TXTBX_DATA_S
 {
 	D4D_INDEX firstShowedCharIx;
-	D4D_TCHAR* pTxtArr;			 // Pointer on text array that will use TextBox to store all lines    
+	D4D_TCHAR* pTxtArr;			 // Pointer on text array that will use TextBox to store all lines
 	D4D_BOOL redrawText;
 }D4D_TXTBX_DATA;
 
@@ -117,12 +117,12 @@ typedef struct
 {
     D4D_COOR* pTabTable;
     D4D_FONT textFontId; 		 // Used font for whole text
-    D4D_TXTBX_DATA* pData;		 // Run time data needed for TextBox 	
+    D4D_TXTBX_DATA* pData;		 // Run time data needed for TextBox
 } D4D_TEXTBOX;
 
 
 /******************************************************************************
-* Macros 
+* Macros
 ******************************************************************************/
 #define D4D_TEXTBOX_CHILD_SCROLL_BAR_VER_IX 1
 
@@ -162,7 +162,7 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_TEXT_BOX structure, including the object data sub structure. Is used to define all properties of text box.
-*******************************************************************************/  
+*******************************************************************************/
 #define _D4D_DECLARE_TEXTBOX(type, name, x, y, cx, cy, radius, pMargin, pParent, pTextArray, pTabTable, flags, pScheme, fontId, pUser, pOnUsrMsg) \
     static D4D_TXTBX_DATA name##_data = { 0, (D4D_TCHAR*)pTextArray, D4D_TRUE};\
     extern type D4D_OBJECT name##_scrollBarVer;\
@@ -180,7 +180,7 @@ typedef struct
     \
     _D4D_DECLARE_SCROLL_BAR(type, name##_scrollBarVer, (D4D_COOR)(cx - D4D_BORDER_WIDTH(flags) - D4D_TXTBX_SCRLBR_WIDTH), D4D_BORDER_WIDTH(flags), D4D_TXTBX_SCRLBR_WIDTH, (D4D_COOR)(cy - 2*D4D_BORDER_WIDTH(flags)),\
       ((radius > D4D_TXTBX_SCRLBR_WIDTH / 2)? (D4D_COOR)(D4D_TXTBX_SCRLBR_WIDTH / 2) : radius), NULL, name##_scrollBarRelations, D4D_TXTBX_F_SCRLBRS_DEFAULT, pScheme, NULL, D4D_TextBoxScrollBarsFeedBack, NULL)
-  
+
 
 /**************************************************************************/ /*!
 * @brief   Macro that create the Text box object structure in memory including all substructures with restricted count of parameters to simplify definition
@@ -200,8 +200,8 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_TEXT_BOX structure, including the object data sub structure. Is used to define all properties of text box. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_TEXTBOX instead of this one. 
-*******************************************************************************/ 
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_TEXTBOX instead of this one.
+*******************************************************************************/
 #define D4D_DECLARE_TEXTBOX(name, x, y, cx, cy, pTextArray, pTabTable, flags, pScheme, fontId, pUser, pOnUsrMsg) \
   _D4D_DECLARE_TEXTBOX(D4D_CONST, name, x, y, cx, cy, 0, NULL, NULL, pTextArray, pTabTable, flags, pScheme, fontId, pUser, pOnUsrMsg)
 
@@ -218,9 +218,9 @@ typedef struct
 * @param   fontId - identification number of the used text font
 
 * @note    This macro create complete D4D_TEXT_BOX structure, including the object data sub structure. Is used to define all properties of text box. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_TEXTBOX instead of this one. 
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_TEXTBOX instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_STD_TEXTBOX(name, x, y, cx, cy, pTextArray, pTabTable, fontId) \
   D4D_DECLARE_TEXTBOX(name, x, y, cx, cy, pTextArray, pTabTable, D4D_TXTBX_F_DEFAULT, NULL, fontId, NULL, NULL)
 
@@ -243,8 +243,8 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_TEXT_BOX structure, including the object data sub structure. Is used to define all properties of text box. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_TEXTBOX instead of this one. 
-*******************************************************************************/ 
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_TEXTBOX instead of this one.
+*******************************************************************************/
 #define D4D_DECLARE_RTEXTBOX(name, x, y, cx, cy, radius, pTextArray, pTabTable, flags, pScheme, fontId, pUser, pOnUsrMsg) \
   _D4D_DECLARE_TEXTBOX(D4D_CONST, name, x, y, cx, cy, radius, NULL, NULL, pTextArray, pTabTable, flags, pScheme, fontId, pUser, pOnUsrMsg)
 
@@ -262,44 +262,44 @@ typedef struct
 * @param   fontId - identification number of the used text font
 
 * @note    This macro create complete D4D_TEXT_BOX structure, including the object data sub structure. Is used to define all properties of text box. If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_TEXTBOX instead of this one. 
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_TEXTBOX instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_STD_RTEXTBOX(name, x, y, cx, cy, radius, pTextArray, pTabTable,  fontId) \
   D4D_DECLARE_RTEXTBOX(name, x, y, cx, cy, radius, pTextArray, pTabTable, D4D_TXTBX_F_DEFAULT, NULL, fontId, NULL, NULL)
 
 //IN RAM instantions macros
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_TEXTBOX, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_TEXTBOX_INRAM(name, x, y, cx, cy, pTextArray, pTabTable, flags, pScheme, fontId, pUser, pOnUsrMsg) \
   _D4D_DECLARE_TEXTBOX(D4D_NO_CONST, name, x, y, cx, cy, 0, NULL, NULL, pTextArray, pTabTable, flags, pScheme, fontId, pUser, pOnUsrMsg)
-                               
+
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_TEXTBOX, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_STD_TEXTBOX_INRAM(name, x, y, cx, cy, pTextArray, pTabTable,  fontId) \
   D4D_DECLARE_TEXTBOX_INRAM(name, x, y, cx, cy, pTextArray, pTabTable, D4D_TXTBX_F_DEFAULT, NULL, fontId, NULL, NULL)
 
 // Rounded text box definition
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_RTEXTBOX, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_RTEXTBOX_INRAM(name, x, y, cx, cy, radius, pTextArray, pTabTable, flags, pScheme, fontId, pUser, pOnUsrMsg) \
   _D4D_DECLARE_TEXTBOX(D4D_NO_CONST, name, x, y, cx, cy, radius, NULL, NULL, pTextArray, pTabTable, flags, pScheme, fontId, pUser, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_RTEXTBOX, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_STD_RTEXTBOX_INRAM(name, x, y, cx, cy, radius, pTextArray, pTabTable,  fontId) \
   D4D_DECLARE_RTEXTBOX_INRAM(name, x, y, cx, cy, radius, pTextArray, pTabTable, D4D_TXTBX_F_DEFAULT, NULL, fontId, NULL, NULL)
 
-/*! @} End of doxd4d_text_box_macro                                          */ 
-    
+/*! @} End of doxd4d_text_box_macro                                          */
+
 /******************************************************************************
 * Global variables
 ******************************************************************************/
-   
+
 
 /******************************************************************************
 * Global functions

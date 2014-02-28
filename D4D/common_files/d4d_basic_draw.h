@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_basic_draw.h
 *
 * @author   Michal hanak, Petr Gargulak
-* 
+*
 * @version   0.0.2.0
-* 
+*
 * @date      Oct-2-2013
-* 
+*
 * @brief     D4D Driver core and base functions header file
 *
 *******************************************************************************/
@@ -59,13 +59,13 @@
 /*! @brief D4D_BEVEL_WIDTH constant declaration - can't be changed!           */
 #define D4D_BEVEL_WIDTH 2
 
-/*! @brief D4D_BEVEL_FORE_INTENSITY constant default declaration. Sets the 
+/*! @brief D4D_BEVEL_FORE_INTENSITY constant default declaration. Sets the
 percentual change of color for bevel frame for fore color */
 #ifndef D4D_BEVEL_FORE_INTENSITY
   #define D4D_BEVEL_FORE_INTENSITY 33
 #endif
 
-/*! @brief D4D_BEVEL_BCKG_INTENSITY constant default declaration. Sets the 
+/*! @brief D4D_BEVEL_BCKG_INTENSITY constant default declaration. Sets the
 percentual change of color for bevel frame for background color */
 #ifndef D4D_BEVEL_BCKG_INTENSITY
   #define D4D_BEVEL_BCKG_INTENSITY -33
@@ -132,8 +132,8 @@ percentual change of color for bevel frame for background color */
 * @param   colorText - color of text
 * @param   colorBkgd - color of text background
 * @return  none
-* @note    Function that draw the text on the screeninto logic rectangle. In case 
-            of long texts it make text shorter and add three points "...". It also support 
+* @note    Function that draw the text on the screeninto logic rectangle. In case
+            of long texts it make text shorter and add three points "...". It also support
             text align and fill up complete rectangle in case that this is neccessary.
 *******************************************************************************/
 #define D4D_DrawTextRect(ppt, psz, buffText, colorText, colorBkgd) D4D_DrawTextRectTab(ppt, psz, buffText, NULL, colorText, colorBkgd)
@@ -147,8 +147,8 @@ percentual change of color for bevel frame for background color */
 * @param   colorText - color of text
 * @param   colorBkgd - color of text background
 * @return  none
-* @note    Function that draw the text on the screeninto logic rectangle. In case 
-            of long texts it make text shorter and add three points "...". It also support 
+* @note    Function that draw the text on the screeninto logic rectangle. In case
+            of long texts it make text shorter and add three points "...". It also support
             text align and fill up complete rectangle in case that this is neccessary.
 *******************************************************************************/
 #define D4D_DrawTextRectTo(ppt, buffText, colorText, colorBkgd) D4D_DrawTextRectTabTo(ppt, buffText, NULL, colorText, colorBkgd)
@@ -163,8 +163,8 @@ percentual change of color for bevel frame for background color */
 * @param   colorText - color of text
 * @param   colorBkgd - color of text background
 * @return  none
-* @note    Function that draw the text on the screeninto logic rectangle. In case 
-            of long texts it make text shorter and add three points "...". It also support 
+* @note    Function that draw the text on the screeninto logic rectangle. In case
+            of long texts it make text shorter and add three points "...". It also support
             text align and fill up complete rectangle in case that this is neccessary.
 *******************************************************************************/
 #define D4D_DrawTextRectXY(x1, y1, x2, y2, buffText, colorText, colorBkgd) D4D_DrawTextRectTabXY(x1, y1, x2, y2, buffText, NULL, colorText, colorBkgd)
@@ -178,8 +178,8 @@ percentual change of color for bevel frame for background color */
 * @param   colorText - color of text
 * @param   colorBkgd - color of text background
 * @return  none
-* @note    Function that draw the text on the screeninto logic rectangle. In case 
-            of long texts it make text shorter and add three points "...". It also support 
+* @note    Function that draw the text on the screeninto logic rectangle. In case
+            of long texts it make text shorter and add three points "...". It also support
             text align and fill up complete rectangle in case that this is neccessary.
 *******************************************************************************/
 #define D4D_DrawTextRectToXY(x, y, buffText, colorText, colorBkgd) D4D_DrawTextRectTabToXY(x, y, buffText, NULL, colorText, colorBkgd)
@@ -193,8 +193,8 @@ percentual change of color for bevel frame for background color */
 * @param   colorBkgd - color of text background
 * @param   radius - radius or text rectangle
 * @return  none
-* @note    Function that draw the text on the screeninto logic rectangle. In case 
-            of long texts it make text shorter and add three points "...". It also support 
+* @note    Function that draw the text on the screeninto logic rectangle. In case
+            of long texts it make text shorter and add three points "...". It also support
             text align and fill up complete rectangle in case that this is neccessary.
 *******************************************************************************/
 #define D4D_DrawTextRRect(ppt, psz, buffText, colorText, colorBkgd, radius) D4D_DrawTextRRectTab(ppt, psz, buffText, NULL, colorText, colorBkgd, radius)
@@ -209,8 +209,8 @@ percentual change of color for bevel frame for background color */
 * @param   colorBkgd - color of text background
 * @param   radius - radius or text rectangle
 * @return  none
-* @note    Function that draw the text on the screeninto logic rectangle. In case 
-            of long texts it make text shorter and add three points "...". It also support 
+* @note    Function that draw the text on the screeninto logic rectangle. In case
+            of long texts it make text shorter and add three points "...". It also support
             text align and fill up complete rectangle in case that this is neccessary.
 *******************************************************************************/
 #define D4D_DrawTextRRectTo(ppt, buffText, colorText, colorBkgd, radius) D4D_DrawTextRRectTabTo(ppt, buffText, NULL, colorText, colorBkgd, radius)
@@ -226,8 +226,8 @@ percentual change of color for bevel frame for background color */
 * @param   colorBkgd - color of text background
 * @param   radius - radius or text rectangle
 * @return  none
-* @note    Function that draw the text on the screeninto logic rectangle. In case 
-            of long texts it make text shorter and add three points "...". It also support 
+* @note    Function that draw the text on the screeninto logic rectangle. In case
+            of long texts it make text shorter and add three points "...". It also support
             text align and fill up complete rectangle in case that this is neccessary.
 *******************************************************************************/
 #define D4D_DrawTextRRectXY(x1, y1, x2, y2, buffText, colorText, colorBkgd, radius) D4D_DrawTextRRectTabXY(x1, y1, x2, y2, buffText, NULL, colorText, colorBkgd, radius)
@@ -242,8 +242,8 @@ percentual change of color for bevel frame for background color */
 * @param   colorBkgd - color of text background
 * @param   radius - radius or text rectangle
 * @return  none
-* @note    Function that draw the text on the screeninto logic rectangle. In case 
-            of long texts it make text shorter and add three points "...". It also support 
+* @note    Function that draw the text on the screeninto logic rectangle. In case
+            of long texts it make text shorter and add three points "...". It also support
             text align and fill up complete rectangle in case that this is neccessary.
 *******************************************************************************/
 #define D4D_DrawTextRRectToXY(x, y, buffText, colorText, colorBkgd, radius) D4D_DrawTextRRectTabToXY(x, y, buffText, NULL, colorText, colorBkgd, radius)
@@ -314,14 +314,14 @@ void D4D_Bevel(D4D_POINT* ppt, D4D_SIZE* psz, D4D_COLOR color, D4D_BEVEL type, D
   void D4D_DrawTextRRectTab(D4D_POINT* ppt, D4D_SIZE* psz, D4D_STRING* buffText, D4D_TAB* pTab, D4D_COLOR colorText, D4D_COLOR colorBkgd, D4D_COOR radius);
   void D4D_DrawTextRRectTabTo(D4D_POINT* ppt, D4D_STRING* buffText, D4D_TAB* pTab, D4D_COLOR colorText, D4D_COLOR colorBkgd, D4D_COOR radius);
   void D4D_DrawTextRRectTabXY(D4D_COOR x1, D4D_COOR y1, D4D_COOR x2, D4D_COOR y2, D4D_STRING* buffText, D4D_TAB* pTab, D4D_COLOR colorText, D4D_COLOR colorBkgd, D4D_COOR radius);
-  void D4D_DrawTextRRectTabToXY(D4D_COOR x, D4D_COOR y, D4D_STRING* buffText, D4D_TAB* pTab, D4D_COLOR colorText, D4D_COLOR colorBkgd, D4D_COOR radius);  
+  void D4D_DrawTextRRectTabToXY(D4D_COOR x, D4D_COOR y, D4D_STRING* buffText, D4D_TAB* pTab, D4D_COLOR colorText, D4D_COLOR colorBkgd, D4D_COOR radius);
 #else
   #define D4D_RRect(ppt, psz, ltype, color, radius)                                             D4D_Rect(ppt, psz, ltype, color)
   #define D4D_RRectXY(x1, y1, x2, y2, ltype, color, radius)                                     D4D_RectXY(x1, y1, x2, y2, ltype, color)
   #define D4D_RRectTo(ppt, ltype, color, radius)                                                D4D_RectTo(ppt, ltype, color)
   #define D4D_RRectToXY(x, y, ltype, color, radius)                                             D4D_RectToXY(x, y, ltype, color)
   #define D4D_FillRRect(ppt, psz, color, radius)                                                D4D_FillRect(ppt, psz, color)
-  #define D4D_FillRRectXY(x1, y1, x2, y2, color, radius)                                        D4D_FillRectXY(x1, y1, x2, y2, color)               
+  #define D4D_FillRRectXY(x1, y1, x2, y2, color, radius)                                        D4D_FillRectXY(x1, y1, x2, y2, color)
   #define D4D_FillRRectTo(ppt, color, radius)                                                   D4D_FillRectTo(ppt, color)
   #define D4D_FillRRectToXY(x, y, color, radius)                                                D4D_FillRectToXY(x, y, color)
   #define D4D_RBox(ppt, psz, ltype, colorLine, colorFill, radius)                               D4D_Box(ppt, psz, ltype, colorLine, colorFill)
@@ -337,12 +337,12 @@ void D4D_Bevel(D4D_POINT* ppt, D4D_SIZE* psz, D4D_COLOR color, D4D_BEVEL type, D
   #define D4D_FillRRectColorScaleTo(ppt, startColor, endColor, direction, radius)               D4D_FillRectColorScaleTo(ppt, startColor, endColor, direction)
   #define D4D_FillRRectColorScaleToXY(x, y, startColor, endColor, direction, radius)            D4D_FillRectColorScaleToXY(x, y, startColor, endColor, direction)
   #define D4D_DrawTextRRectTab(ppt, psz, buffText, pTab, colorText, colorBkgd, radius)          D4D_DrawTextRectTab(ppt, psz, buffText, pTab, colorText, colorBkgd)
-  #define D4D_DrawTextRRectTabTo(ppt, buffText, pTab, colorText, colorBkgd, radius)             D4D_DrawTextRectTabTo(ppt, buffText, pTab, colorText, colorBkgd)                   
+  #define D4D_DrawTextRRectTabTo(ppt, buffText, pTab, colorText, colorBkgd, radius)             D4D_DrawTextRectTabTo(ppt, buffText, pTab, colorText, colorBkgd)
   #define D4D_DrawTextRRectTabXY(x1, y1, x2, y2, buffText, pTab, colorText, colorBkgd, radius)  D4D_DrawTextRectTabXY(x1, y1, x2, y2, buffText, pTab, colorText, colorBkgd)
   #define D4D_DrawTextRRectTabToXY(x, y, buffText, pTab, colorText, colorBkgd, radius)          D4D_DrawTextRectTabToXY(x, y, buffText, pTab, colorText, colorBkgd)
-  
+
 #endif
-  
+
 void D4D_DrawTextTabXY(D4D_COOR x, D4D_COOR y, D4D_STRING* buffText, D4D_TAB* pTab, D4D_COLOR colorText, D4D_COLOR colorBkgd);
 
 void D4D_DrawTextRectTab(D4D_POINT* ppt, D4D_SIZE* psz, D4D_STRING* buffText, D4D_TAB* pTab, D4D_COLOR colorText, D4D_COLOR colorBkgd);

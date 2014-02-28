@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,12 +34,12 @@
 * @file      d4d_lldapi.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.22.0
-* 
+*
 * @date      Oct-2-2013
-* 
-* @brief     D4D driver - resistive touch screen driver function header file 
+*
+* @brief     D4D driver - resistive touch screen driver function header file
 *
 *******************************************************************************/
 
@@ -70,7 +70,7 @@ typedef enum
 } D4DLCD_ORIENTATION;
 
 /*! @brief D4D low level MCU pin state enumeration type*/
-typedef enum 
+typedef enum
 {
   D4DHW_PIN_PULL_UP_ON, ///< Switch on Pull Up resistor on pin
   D4DHW_PIN_PULL_UP_OFF,///< Switch off Pull Up resistor on pin
@@ -84,7 +84,7 @@ typedef enum
 }D4DHW_PIN_STATE;
 
 /*! @brief D4D low level MCU types definition for analog resistive touch screen signals.*/
-typedef enum 
+typedef enum
 {
   D4DTCH_X_PLUS_PIN,    ///< Analog touch screen X+ signal
   D4DTCH_X_MINUS_PIN,   ///< Analog touch screen X- signal
@@ -93,7 +93,7 @@ typedef enum
 }D4DTCHHW_PINS;
 
 /*! @brief D4D low level MCU types definition for general LCD screen control signals.*/
-typedef enum 
+typedef enum
 {
   D4DLCD_RESET_PIN,     ///< LCD device reset signal
   D4DLCD_BACKLIGHT_PIN, ///< LCD device backlight enable signal
@@ -146,7 +146,7 @@ typedef enum
            All the function MUST be defined in low level driver */
 typedef struct D4DLCD_FUNCTIONS_S
 {
-  unsigned char (*D4DLCD_Init)(void);                   ///< The LCD driver initialization function     
+  unsigned char (*D4DLCD_Init)(void);                   ///< The LCD driver initialization function
   unsigned char (*D4DLCD_SetWindow)(unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2);        ///< The LCD driver Set logic window function. Into this logic window will be draw pixels
   unsigned char (*D4DLCD_SetOrientation)(D4DLCD_ORIENTATION new_orientation);   ///< The LCD driver set orientation function
   void (*D4DLCD_Send_PixelColor)(D4D_COLOR value);      ///< The LCD driver send pixel function. The pixels will be draw on position (automaticaly incremented) sets by D4DLCD_SetWindow function.
@@ -182,7 +182,7 @@ typedef struct D4DLCDHWFB_FUNCTIONS_S
   void (*D4DLCDHW_WriteData)(unsigned long addr, D4D_COLOR value);      ///< The frame buffer LCD driver write data to buffer function
   D4D_COLOR (*D4DLCDHW_ReadData)(unsigned long addr);                   ///< The frame buffer LCD driver read data from buffer function
   D4DLCD_FRAMEBUFF_DESC* (*D4DLCDHW_GetFbDescriptor)(void);             ///< The frame buffer LCD driver get frame buffer descriptor function
-  unsigned char (*D4DLCDHW_PinCtl)(D4DLCDHW_PINS pinId, D4DHW_PIN_STATE setState);      ///< The frame buffer LCD driver control HW pins function 
+  unsigned char (*D4DLCDHW_PinCtl)(D4DLCDHW_PINS pinId, D4DHW_PIN_STATE setState);      ///< The frame buffer LCD driver control HW pins function
   void (*D4DLCDHW_FlushBuffer)(D4DLCD_FLUSH_MODE mode);                 ///< The frame buffer LCD driver flush data function
   unsigned char (*D4DLCDHW_DeInit)(void);                               ///< The frame buffer LCD driver deinitialization function
 }D4DLCDHWFB_FUNCTIONS;
@@ -199,7 +199,7 @@ typedef struct D4DTCH_FUNCTIONS_S
   D4D_TOUCHSCREEN_LIMITS* (*D4DTCH_GetRawLimits)(void);         ///< The touch screen driver get touch screen hardware limit structure function
   unsigned char (*D4DTCH_DeInit)(void);                         ///< The touch screen driver deinitialization function
 }D4DTCH_FUNCTIONS;
-          
+
 
 /*! @brief D4D low level touch screen hardware interface API structure.*/
 /*! @note  This structure contains all needed API function pointers to currently used touch screen hardware interface driver.
@@ -215,7 +215,7 @@ typedef struct D4DTCHHW_FUNCTIONS_S
 
 /*! @brief D4D low level mouse pointer interface API structure.*/
 /*! @note  This structure contains all needed API function pointers to currently used mouse pointer interface driver.
-           All the function MUST be defined in low level driver */  
+           All the function MUST be defined in low level driver */
 typedef struct D4DMOUSE_FUNCTIONS_S
 {
   unsigned char (*D4DMOUSE_Init)(void);                         ///< The mouse pointer interface driver initialization function
@@ -243,11 +243,11 @@ extern const D4DLCD_FUNCTIONS D4D_LLD_LCD;
 #ifdef D4D_LLD_TCH_HW
   extern const D4DTCHHW_FUNCTIONS D4D_LLD_TCH_HW;
 #endif
-  
+
 #ifdef D4D_LLD_MOUSE
   extern const D4DMOUSE_FUNCTIONS D4D_LLD_MOUSE;
-#endif  
-  
+#endif
+
 
 #endif /* __D4D_LLD_API_H */
 

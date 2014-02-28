@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_private.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.30.0
-* 
+*
 * @date      Jan-14-2014
-* 
+*
 * @brief     D4D Driver private header file
 *
 *******************************************************************************/
@@ -61,7 +61,7 @@
 
 
 /******************************************************************************
-* Macros 
+* Macros
 ******************************************************************************/
 
 #ifdef __EGUI_DOXYGEN__
@@ -91,8 +91,8 @@ extern D4D_SYSTEM_FLAGS d4d_systemFlags;
 // zero size structure for automatic function capability
 extern const D4D_SIZE d4d_size_zero;
 
-// zero point structure 
-extern const D4D_POINT d4d_point_zero; 
+// zero point structure
+extern const D4D_POINT d4d_point_zero;
 
 #ifdef D4D_LLD_TCH
   extern D4D_OBJECT* d4d_LastTouchedObj;
@@ -110,7 +110,7 @@ extern const D4D_POINT d4d_point_zero;
 
 void D4D_HandleKeys(void);
 
-  
+
 void D4D_SendMessage(D4D_MESSAGE* pMsg);
 void D4D_SendMessageMask(D4D_MESSAGE* pMsg, D4D_OBJECT_FLAGS parentFlagsMask, D4D_OBJECT_FLAGS endFlagMask);
 void D4D_SendMessageBack(D4D_MESSAGE* pMsg);

@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_icon.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.46.0
-* 
+*
 * @date      Jan-14-2014
-* 
+*
 * @brief     D4D Driver icon object header file
 *
 *******************************************************************************/
@@ -122,12 +122,12 @@ typedef struct
 {
     D4D_ICON_INDEX index;      // current value
 
-#if D4D_ICON_ENABLE_ANIMATION == D4D_TRUE    
+#if D4D_ICON_ENABLE_ANIMATION == D4D_TRUE
     D4D_BOOL animationEnabled;
     Word tickCounter;
     Word tickCounterTrshld;
 #endif
-    
+
 } D4D_ICON_DATA;
 
 // ICON configuration (in ROM by default)
@@ -138,11 +138,11 @@ typedef struct
     D4D_POINT txtOff;           // text coordinates as offset from scrPos
     const D4D_ICON_BMPS* const*  pBmpX;           // ICON state X idication bitmaps
     D4D_ICON_ON_CHANGE  OnValueChanged;
-    D4D_ICON_DATA* pData;    
+    D4D_ICON_DATA* pData;
 } D4D_ICON;
 
 /******************************************************************************
-* Macros 
+* Macros
 ******************************************************************************/
 
 // getting the ICON structure from general OBJECT
@@ -181,14 +181,14 @@ typedef struct
 * @note    This macro create complete D4D_ICON structure, including the object data sub structure. Is used to define all properties of icon.
 The code example:
       @code
-      
+
       _D4D_DECLARE_ICON_BEGIN(D4D_CONST, my_icon, D4D_DEFSTR("My Icon"), 10, 10, 120, 120, 100, 100, 6, NULL, NULL, (D4D_ICON_F_DEFAULT), NULL, MY_FONT, NULL, NULL, NULL)
         D4D_DECLARE_ICON_BMP(&my_IconBmp1)
         D4D_DECLARE_ICON_BMP(&my_IconBmp2)
         D4D_DECLARE_ICON_BMP(&my_IconBmp3)
       D4D_DECLARE_ICON_END()
       @endcode
-*******************************************************************************/ 
+*******************************************************************************/
 #define _D4D_DECLARE_ICON_BEGIN(type, name, text, x, y, cx, cy, tx, ty, radius, pMargin, pRelations, flags, pScheme, fontId, pUser, pOnValch, pOnUsrMsg) \
     extern const D4D_ICON_BMPS*  const name##_bmps[];\
     static D4D_ICON_DATA name##_data; \
@@ -205,13 +205,13 @@ The code example:
     D4D_DECLARE_OBJECT(type, name, x, y, cx, cy, radius, pMargin, pRelations, pOnUsrMsg, &d4d_iconSysFunc, &(name##_params), (flags), pUser, pScheme)\
     \
     const D4D_ICON_BMPS*   const name##_bmps[] = \
-    {    
+    {
 
 /**************************************************************************/ /*!
 * @brief   Macro that adds one bitmap to icon object list
 * @param   pBmp - pointer to the bitmap
 * @note    This macro is used  with \ref D4D_DECLARE_ICON_BEGIN & \ref D4D_DECLARE_ICON_END to create the complete ICON object declaration
-* Here is an example demonstrating how to used it. 
+* Here is an example demonstrating how to used it.
 * @code
       _D4D_DECLARE_ICON_BEGIN(D4D_CONST, my_icon, D4D_DEFSTR("My Icon"), 10, 10, 120, 120, 100, 100, 6, NULL, NULL, (D4D_ICON_F_DEFAULT), NULL, MY_FONT, NULL, NULL, NULL)
         D4D_DECLARE_ICON_BMP(&my_IconBmp1)
@@ -225,7 +225,7 @@ The code example:
 /**************************************************************************/ /*!
 * @brief   Macro that ends the icon object declaration
 * @note    This macro is used  with \ref D4D_DECLARE_ICON_BEGIN & \ref D4D_DECLARE_ICON_BMP to create the complete ICON object declaration
-* Here is an example demonstrating how to used it. 
+* Here is an example demonstrating how to used it.
 * @code
       _D4D_DECLARE_ICON_BEGIN(D4D_CONST, my_icon, D4D_DEFSTR("My Icon"), 10, 10, 120, 120, 100, 100, 6, NULL, NULL, (D4D_ICON_F_DEFAULT), NULL, MY_FONT, NULL, NULL, NULL)
         D4D_DECLARE_ICON_BMP(&my_IconBmp1)
@@ -256,17 +256,17 @@ The code example:
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_ICON structure, including the object data sub structure. Is used to define all properties of icon.If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_ICON_BEGIN instead of this one.   
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_ICON_BEGIN instead of this one.
 The code example:
       @code
-      
+
       D4D_DECLARE_ICON_BEGIN(my_icon, D4D_DEFSTR("My Icon"), 10, 10, 120, 120, 100, 100, (D4D_ICON_F_DEFAULT), NULL, MY_FONT, NULL, NULL, NULL)
         D4D_DECLARE_ICON_BMP(&my_IconBmp1)
         D4D_DECLARE_ICON_BMP(&my_IconBmp2)
         D4D_DECLARE_ICON_BMP(&my_IconBmp3)
       D4D_DECLARE_ICON_END()
       @endcode
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_ICON_BEGIN(name, text, x, y, cx, cy, tx, ty, flags, pScheme, fontId, pUser, pOnValch, pOnUsrMsg) \
   _D4D_DECLARE_ICON_BEGIN(D4D_CONST, name, text, x, y, cx, cy, tx, ty, 0, NULL, NULL, flags, pScheme, fontId, pUser, pOnValch, pOnUsrMsg)
 
@@ -285,18 +285,18 @@ The code example:
 * @param   pOnValch - Pointer to an on-change user callback function \ref D4D_ICON_ON_CHANGE
 
 * @note    This macro create complete D4D_ICON structure, including the object data sub structure. Is used to define all properties of icon.If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_ICON_BEGIN instead of this one.   
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_ICON_BEGIN instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
 The code example:
       @code
-      
+
       D4D_DECLARE_STD_ICON_BEGIN(my_icon, D4D_DEFSTR("My Icon"), 10, 10, 120, 120, 100, 100, MY_FONT, NULL)
         D4D_DECLARE_ICON_BMP(&my_IconBmp1)
         D4D_DECLARE_ICON_BMP(&my_IconBmp2)
         D4D_DECLARE_ICON_BMP(&my_IconBmp3)
       D4D_DECLARE_ICON_END()
       @endcode
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_STD_ICON_BEGIN(name, text, x, y, cx, cy, tx, ty, fontId, pOnValch) \
   D4D_DECLARE_ICON_BEGIN(name, text, x, y, cx, cy, tx, ty, (D4D_ICON_F_DEFAULT), NULL, fontId, NULL, pOnValch, NULL)
 
@@ -323,20 +323,20 @@ The code example:
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_ICON structure, including the object data sub structure. Is used to define all properties of icon.If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_ICON_BEGIN instead of this one.   
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_ICON_BEGIN instead of this one.
 The code example:
       @code
-      
+
       D4D_DECLARE_RICON_BEGIN(my_icon, D4D_DEFSTR("My Icon"), 10, 10, 120, 120, 100, 100, 6, (D4D_ICON_F_DEFAULT), NULL, MY_FONT, NULL, NULL, NULL)
         D4D_DECLARE_ICON_BMP(&my_IconBmp1)
         D4D_DECLARE_ICON_BMP(&my_IconBmp2)
         D4D_DECLARE_ICON_BMP(&my_IconBmp3)
       D4D_DECLARE_ICON_END()
       @endcode
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_RICON_BEGIN(name, text, x, y, cx, cy, tx, ty, radius, flags, pScheme, fontId, pUser, pOnValch, pOnUsrMsg) \
   _D4D_DECLARE_ICON_BEGIN(D4D_CONST, name, text, x, y, cx, cy, tx, ty, radius, NULL, NULL, flags, pScheme, fontId, pUser, pOnValch, pOnUsrMsg)
-  
+
 /**************************************************************************/ /*!
 * @brief   Macro that create the rounded Icon object structure in memory including all substructures with restricted count of parameters to simplify definition
 *               The missing parameters are replaced by default values.
@@ -353,18 +353,18 @@ The code example:
 * @param   pOnValch - Pointer to an on-change user callback function \ref D4D_ICON_ON_CHANGE
 
 * @note    This macro create complete D4D_ICON structure, including the object data sub structure. Is used to define all properties of icon.If
-*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_ICON_BEGIN instead of this one.   
+*               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_ICON_BEGIN instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
 The code example:
       @code
-      
+
       D4D_DECLARE_STD_RICON_BEGIN(my_icon, D4D_DEFSTR("My Icon"), 10, 10, 120, 120, 100, 100, 6, MY_FONT, NULL)
         D4D_DECLARE_ICON_BMP(&my_IconBmp1)
         D4D_DECLARE_ICON_BMP(&my_IconBmp2)
         D4D_DECLARE_ICON_BMP(&my_IconBmp3)
       D4D_DECLARE_ICON_END()
       @endcode
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_STD_RICON_BEGIN(name, text, x, y, cx, cy, tx, ty, radius, fontId, pOnValch) \
   D4D_DECLARE_RICON_BEGIN(name, text, x, y, cx, cy, tx, ty, radius, (D4D_ICON_F_DEFAULT), NULL, fontId, NULL, pOnValch, NULL)
 
@@ -372,13 +372,13 @@ The code example:
 // IN RAM instantions macros
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_ICON_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/          
+*******************************************************************************/
 #define D4D_DECLARE_ICON_BEGIN_INRAM(name, text, x, y, cx, cy, tx, ty, flags, pScheme, fontId, pUser, pOnValch, pOnUsrMsg) \
   _D4D_DECLARE_ICON_BEGIN(D4D_NO_CONST, name, text, x, y, cx, cy, tx, ty, 0, NULL, NULL, flags, pScheme, fontId, pUser, pOnValch, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_ICON_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/          
+*******************************************************************************/
 #define D4D_DECLARE_STD_ICON_BEGIN_INRAM(name, text, x, y, cx, cy, tx, ty, fontId, onvalch) \
   D4D_DECLARE_ICON_BEGIN_INRAM(name, text, x, y, cx, cy, tx, ty, (D4D_ICON_F_DEFAULT), NULL, fontId, NULL, onvalch, NULL)
 
@@ -386,18 +386,18 @@ The code example:
 // Rounded icon definition
 /**************************************************************************/ /*!
 * @brief   Same as \ref _D4D_DECLARE_ICON_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/          
+*******************************************************************************/
 #define D4D_DECLARE_RICON_BEGIN_INRAM(name, text, x, y, cx, cy, tx, ty, radius, flags, pScheme, fontId, pUser, pOnValch, pOnUsrMsg) \
   _D4D_DECLARE_ICON_BEGIN(D4D_NO_CONST, name, text, x, y, cx, cy, tx, ty, radius, NULL, NULL, flags, pScheme, fontId, pUser, pOnValch, pOnUsrMsg)
-  
+
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_RICON_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/          
+*******************************************************************************/
 #define D4D_DECLARE_STD_RICON_BEGIN_INRAM(name, text, x, y, cx, cy, tx, ty, radius, fontId, onvalch) \
   D4D_DECLARE_RICON_BEGIN_INRAM(name, text, x, y, cx, cy, tx, ty, radius, (D4D_ICON_F_DEFAULT), NULL, fontId, NULL, onvalch, NULL)
 
 /*! @} End of doxd4d_icon_macro                                             */
-    
+
     // Obsolete macros
 #define D4D_DECLARE_STD_ICON1(name, text, x, y, cx, cy, tx, ty, pBmp0, font, onvalch) \
     D4D_DECLARE_ICON_BEGIN(name, text, x, y, cx, cy, tx, ty, (D4D_ICON_F_DEFAULT), NULL, font, NULL, onvalch, NULL)\
@@ -409,7 +409,7 @@ The code example:
     D4D_DECLARE_ICON_BMP((pBmp0))\
     D4D_DECLARE_ICON_BMP((pBmp1))\
     D4D_DECLARE_ICON_END()
-      
+
 #define D4D_DECLARE_STD_ICON1_INRAM(name, text, x, y, cx, cy, tx, ty, pBmp0, font, onvalch) \
     D4D_DECLARE_ICON_BEGIN_INRAM(name, text, x, y, cx, cy, tx, ty, (D4D_ICON_F_DEFAULT), NULL, font, NULL, onvalch, NULL)\
     D4D_DECLARE_ICON_BMP((pBmp0))\
@@ -451,6 +451,6 @@ D4D_ICON_INDEX D4D_IconGetBmpCount(D4D_OBJECT_PTR pThis);
 
 
 
-#endif /* __D4D_ICON_H */        
+#endif /* __D4D_ICON_H */
 
 

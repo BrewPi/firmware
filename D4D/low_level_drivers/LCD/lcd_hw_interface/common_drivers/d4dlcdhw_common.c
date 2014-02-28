@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,12 +34,12 @@
 * @file      d4dlcdhw_common.c
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.10.0
-* 
+*
 * @date      Jul-25-2012
-* 
-* @brief     D4D driver - common general low level drivers c file 
+*
+* @brief     D4D driver - common general low level drivers c file
 *
 ******************************************************************************/
 
@@ -48,24 +48,24 @@
 #include "d4d.h"
 #include "common_files/d4d_lldapi.h"
 #include "common_files/d4d_private.h"
-  
+
 #include "low_level_drivers\LCD\lcd_hw_interface\common_drivers\d4dlcdhw_common.h"
 
   /******************************************************************************
-  * Macros 
+  * Macros
   ******************************************************************************/
 
 
   /******************************************************************************
   * Functions definitions
   ******************************************************************************/
-  
+
   /**************************************************************//*!
   *
   * Public variables
   *
-  ******************************************************************/  
-  
+  ******************************************************************/
+
   /**************************************************************//*!
   *
   * Local variables
@@ -80,21 +80,21 @@
 
   void D4DLCDHW_CommonInit(void)
   {
-     
+
   }
-  
 
 
 
 
 
 
-  #define MCU_BUS_CYCLES_100US (D4D_MCU_BUS_CLOCK / 10000) 
-	
+
+  #define MCU_BUS_CYCLES_100US (D4D_MCU_BUS_CLOCK / 10000)
+
   #ifdef MQX_CPU
-    // do nothing  
+    // do nothing
   #elif (D4D_MCU_TYPE == D4D_HCS08)
-  
+
   #define MCU_BUS_CYCLES_100US_WITHOUT_OVERHEAD (MCU_BUS_CYCLES_100US - 18)
   #define DELAY_LOOP_CNT (MCU_BUS_CYCLES_100US_WITHOUT_OVERHEAD / 5)
 
@@ -135,19 +135,19 @@
       rts                                /* return from subroutine */
     }
   }
- 
+
 
  #elif (D4D_MCU_TYPE == D4D_HCS12) || (D4D_MCU_TYPE == D4D_HCS12X)
-   
-   
-   #define MCU_BUS_CYCLES_100US_WITHOUT_OVERHEAD (MCU_BUS_CYCLES_100US - 13)   
+
+
+   #define MCU_BUS_CYCLES_100US_WITHOUT_OVERHEAD (MCU_BUS_CYCLES_100US - 13)
    #define DELAY_LOOP_CNT (MCU_BUS_CYCLES_100US_WITHOUT_OVERHEAD /3)
-   
+
    #pragma CODE_SEG __NEAR_SEG NON_BANKED
    #pragma NO_ENTRY
    #pragma NO_EXIT
    #pragma MESSAGE DISABLE C5703
-   
+
    static void Cpu_Delay100US(unsigned short us100)
   {
   /* irremovable overhead (ignored): 13 cycles */
@@ -180,12 +180,12 @@
    #pragma CODE_SEG DEFAULT
  //===========================================================================
 
- 
- #elif (D4D_MCU_TYPE == D4D_MCF51) || (D4D_MCU_TYPE == D4D_MCF52) 
- 
+
+ #elif (D4D_MCU_TYPE == D4D_MCF51) || (D4D_MCU_TYPE == D4D_MCF52)
+
  #define MCU_BUS_CYCLES_100US_WITHOUT_OVERHEAD (MCU_BUS_CYCLES_100US - 9)
  #define DELAY_LOOP_CNT (unsigned int)(MCU_BUS_CYCLES_100US_WITHOUT_OVERHEAD / 3)
- 
+
   __declspec(register_abi) static void Cpu_Delay100US(unsigned int us100:__D0)
   {
     /* Total irremovable overhead: 9 cycles */
@@ -225,7 +225,7 @@
    {
     unsigned int i;
     while((us100--)){
-      for(i=0; i < (MCU_BUS_CYCLES_100US/10); i++) 
+      for(i=0; i < (MCU_BUS_CYCLES_100US/10); i++)
         {// 10 cycles delay
           asm("NOP");
           asm("NOP");
@@ -239,7 +239,7 @@
    {
     unsigned int i;
     while((us100--)){
-      for(i=0; i < (MCU_BUS_CYCLES_100US/10); i++) 
+      for(i=0; i < (MCU_BUS_CYCLES_100US/10); i++)
         {// 10 cycles delay
           asm("nop");
           asm("nop");
@@ -247,27 +247,27 @@
         }
     }
   }
-  
- 
+
+
  #else
   #error "Unsupported MCU type for delay loop in loe level common driver!"
 
 
- 
+
  #endif
 
   void D4DLCD_Delay_ms_Common(unsigned short period)   //delay routine (milliseconds)
   {
 
     #ifdef MQX_CPU
-    	_time_delay(period);    	
+    	_time_delay(period);
     #else
-        
+
 	    while (period != 0)
 	    {
-	        	Cpu_Delay100US (10);          
-	        period--;    
+	        	Cpu_Delay100US (10);
+	        period--;
 	    }
     #endif
-      
-  }  
+
+  }

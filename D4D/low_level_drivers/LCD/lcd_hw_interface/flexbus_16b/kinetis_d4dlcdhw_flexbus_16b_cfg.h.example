@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,12 +34,12 @@
 * @file      kinetis_d4dlcdhw_flexbus_16b_cfg.h.example
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.3.0
-* 
+*
 * @date      Feb-3-2011
-* 
-* @brief     D4D driver - flexbus_16b HW lcd config for Kinetis TWR-K60N512 
+*
+* @brief     D4D driver - flexbus_16b HW lcd config for Kinetis TWR-K60N512
 *
 *******************************************************************************/
 
@@ -50,28 +50,28 @@
   * includes
   ******************************************************************************/
   // include here what the driver need for run for example "derivative.h"
- //#include "derivative.h"    /* include peripheral declarations and more for S08 and CV1 */ 
+ //#include "derivative.h"    /* include peripheral declarations and more for S08 and CV1 */
 
  #include "MK60N512VMD100.h"
-  
+
   /******************************************************************************
   * Constants
   ******************************************************************************/
 
   #define ALT5 (PORT_PCR_MUX(5)|PORT_PCR_DSE_MASK)           // Alternative function 5 = FB enable
-  #define FLEX_CLK_INIT (SIM_CLKDIV1 |= SIM_CLKDIV1_OUTDIV3(1))// FlexBus = Sysclk/2 = ~48MHz 
+  #define FLEX_CLK_INIT (SIM_CLKDIV1 |= SIM_CLKDIV1_OUTDIV3(1))// FlexBus = Sysclk/2 = ~48MHz
 
   #define D4DLCD_DISPLAY_MCU_USER_INIT SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK | SIM_SCGC5_PORTB_MASK | SIM_SCGC5_PORTC_MASK | SIM_SCGC5_PORTD_MASK | SIM_SCGC5_PORTE_MASK;\
                                        PORTC_PCR0=ALT5; PORTC_PCR1=ALT5; PORTC_PCR2=ALT5; PORTC_PCR3=ALT5; PORTC_PCR4=ALT5; PORTC_PCR5=ALT5; PORTC_PCR6=ALT5; PORTC_PCR7=ALT5; PORTC_PCR8=ALT5; PORTC_PCR9=ALT5; PORTC_PCR10=ALT5; PORTC_PCR11=ALT5;\
                                        PORTD_PCR1=ALT5; PORTD_PCR2=ALT5; PORTD_PCR3=ALT5; PORTD_PCR4=ALT5; PORTD_PCR5=ALT5; PORTD_PCR6=ALT5; PORTB_PCR17=ALT5; PORTB_PCR18=ALT5;\
                                        FLEX_CLK_INIT;SIM_SOPT2 |= SIM_SOPT2_FBSL(3); SIM_SCGC7 |= SIM_SCGC7_FLEXBUS_MASK;
-                                       
-                                         
-                                                                                                                                                       
+
+
+
   #define D4DLCD_FLEX_BASE_ADDRESS  0x60010000
   #define D4DLCD_FLEX_DC_ADDRESS    0x60000000
   #define D4DLCD_FLEX_ADRESS_MASK   0x00010000
-  
+
   #define D4DLCD_FLEX_CS 0
 //#define CSCR_RESET 0x003ffC00
 #define CSCR_RESET 0x00000000
@@ -83,9 +83,9 @@
 
 // MUX mode + Wait States
   #define D4DLCD_FLEX_CSCR_MUX_MASK  (FB_CSCR_BLS_MASK | CSCR_RESET)
-  #define D4DLCD_FLEX_CSMR_V_MASK    FB_CSMR_V_MASK 
-  #define D4DLCD_FLEX_CSCR_AA_MASK   FB_CSCR_AA_MASK 
-  #define D4DLCD_FLEX_CSCR_PS1_MASK  (FB_CSCR_PS(2)) 
+  #define D4DLCD_FLEX_CSMR_V_MASK    FB_CSMR_V_MASK
+  #define D4DLCD_FLEX_CSCR_AA_MASK   FB_CSCR_AA_MASK
+  #define D4DLCD_FLEX_CSCR_PS1_MASK  (FB_CSCR_PS(2))
 
 
   /*******************************************
@@ -96,30 +96,30 @@
   #define D4DLCD_INIT_RESET
   #define D4DLCD_ASSERT_RESET
   #define D4DLCD_DEASSERT_RESET
-  
+
   // RESET pin definition -if used
 
-  //#define D4DLCD_RESET        x           // Pin number 
-  //#define D4DLCD_RESET_PORT   GPIOx_PDOR  // PortX Output Data Output  
-  //#define D4DLCD_RESET_DDR    GPIOx_POER  // PortX Output Enable              
-  //#define D4DLCD_RESET_PCR    PORTx_PCRx  // PAD configuration register 
-           
-  
-  // BACKLIGHT pin definition -if used 
-  
-  //#define D4DLCD_BACKLIGHT        x           // Pin number 
-  //#define D4DLCD_BACKLIGHT_PORT   GPIOx_PDOR  // PortX Output Data Output  
-  //#define D4DLCD_BACKLIGHT_DDR    GPIOx_POER  // PortX Output Enable              
-  //#define D4DLCD_BACKLIGHT_PCR    PORTx_PCRx  // PAD configuration register 
+  //#define D4DLCD_RESET        x           // Pin number
+  //#define D4DLCD_RESET_PORT   GPIOx_PDOR  // PortX Output Data Output
+  //#define D4DLCD_RESET_DDR    GPIOx_POER  // PortX Output Enable
+  //#define D4DLCD_RESET_PCR    PORTx_PCRx  // PAD configuration register
 
-  
+
+  // BACKLIGHT pin definition -if used
+
+  //#define D4DLCD_BACKLIGHT        x           // Pin number
+  //#define D4DLCD_BACKLIGHT_PORT   GPIOx_PDOR  // PortX Output Data Output
+  //#define D4DLCD_BACKLIGHT_DDR    GPIOx_POER  // PortX Output Enable
+  //#define D4DLCD_BACKLIGHT_PCR    PORTx_PCRx  // PAD configuration register
+
+
   /*********** Power macros - for modification uncoment and modify ***********/
 
-  
+
   //#define D4DLCD_INIT_RESET OUTPUT(D4DLCD_RESET);
   //#define D4DLCD_ASSERT_RESET RESET(D4DLCD_RESET);
   //#define D4DLCD_DEASSERT_RESET SET(D4DLCD_RESET);
-  
+
   // define here what you need to be configurable
 
 #endif /* __D4DLCDHW_FLEXBUS_16B_CFG_H */

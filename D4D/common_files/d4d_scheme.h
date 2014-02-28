@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_scheme.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.28.0
-* 
+*
 * @date      Jan-14-2014
-* 
+*
 * @brief     D4D Driver color scheme header file
 *
 *******************************************************************************/
@@ -59,7 +59,7 @@
 *******************************************************************************/
 
 //Colors systems definition
-/*! 
+/*!
   @defgroup doxd4d_scheme_const_colorssystem D4D SCHEME the color systems definition to define D4D_COLOR_SYSTEM.
   This section specifies the list of eGUI supported color systems.
   @ingroup doxd4d_scheme_const
@@ -81,12 +81,12 @@
 /*! @brief The definition of color system used by eGUI in this project.
            The all options are defined in \ref doxd4d_scheme_const_colorssystem
            If not defined, it sets to D4D_COLOR_SYSTEM_RGB565 as a default.*/
-#ifndef D4D_COLOR_SYSTEM 
+#ifndef D4D_COLOR_SYSTEM
   #define D4D_COLOR_SYSTEM D4D_COLOR_SYSTEM_RGB565
 #endif
 
 //Colors definition
-/*! 
+/*!
   @defgroup doxd4d_scheme_const_colors D4D SCHEME Defined standard colors
   This section specifies the list of standard colors.
   The list can be extend to any user colors.
@@ -108,7 +108,7 @@
   #define D4D_COLOR_BRIGHT_RED    D4D_COLOR_RGB(255, 28, 24)    ///< Bright Red color (255, 28, 24)
   #define D4D_COLOR_RED           D4D_COLOR_RGB(255, 0, 0)      ///< Red color (255, 0, 0)
   #define D4D_COLOR_DARK_RED      D4D_COLOR_RGB(152, 0, 0)      ///< Dark Red color (152, 0, 0)
-  #define D4D_COLOR_MAGENTA       D4D_COLOR_RGB(255, 0, 255)    ///< Magenta color (255, 0, 255) 
+  #define D4D_COLOR_MAGENTA       D4D_COLOR_RGB(255, 0, 255)    ///< Magenta color (255, 0, 255)
   #define D4D_COLOR_BRIGHT_GREEN  D4D_COLOR_RGB(152, 255, 152)  ///< Bright Green color (152, 255, 152)
   #define D4D_COLOR_GREEN         D4D_COLOR_RGB(0, 255, 0)      ///< Green color (0, 255, 0)
   #define D4D_COLOR_DARK_GREEN    D4D_COLOR_RGB(0, 128, 0)      ///< Dark Green color (0, 128, 0)
@@ -200,18 +200,18 @@
 /*! @brief This is screen exit button background color.
            If not defined, it sets to \ref D4D_COLOR_BRIGHT_RED as a default.*/
 #ifndef D4D_COLOR_SCR_EXIT_BTN_BCKG
-  #define D4D_COLOR_SCR_EXIT_BTN_BCKG  
+  #define D4D_COLOR_SCR_EXIT_BTN_BCKG
 #endif
 
 
-/*! @} End of doxd4d_scheme_const                                               */   
+/*! @} End of doxd4d_scheme_const                                               */
 /******************************************************************************
 * Private Constants
 ******************************************************************************/
 
 //******************************************************************************
 //      24 bit - 888 color space
-/*! 
+/*!
   @defgroup doxd4d_scheme_macro_888 D4D SCHEME 24-bit color mode support macros.
   This section specifies help macros to handle 24-bit color format.
 
@@ -222,7 +222,7 @@
  * @addtogroup doxd4d_scheme_macro_888
  * @{
  */
-             
+
 #define D4D_COLOR_RGB888_GET_R(color) ((Byte)((color) >> 16))   ///< The macro gets the Red component from 24-bit RGB888 format to 8-bit component format
 #define D4D_COLOR_RGB888_GET_G(color) ((Byte)((color) >> 8))    ///< The macro gets the Green component from 24-bit RGB888 format to 8-bit component format
 #define D4D_COLOR_RGB888_GET_B(color) ((Byte)(color))           ///< The macro gets the Blue component from 24-bit RGB888 format to 8-bit component format
@@ -242,7 +242,7 @@
 
 //******************************************************************************
 //      18 bit - 666 color space
-/*! 
+/*!
   @defgroup doxd4d_scheme_macro_666 D4D SCHEME 18-bit color mode support macros.
   This section specifies help macros to handle 18-bit color format.
 
@@ -257,12 +257,12 @@
 #define D4D_COLOR_RGB666_GET_R(color) ((Byte)((((color) >> 12) * 65) / 16))             ///< The macro gets the Red component from 18-bit RGB666 format to 8-bit component format
 #define D4D_COLOR_RGB666_GET_G(color) ((Byte)(((((color) >> 6) & 0x3f) * 65) / 16))     ///< The macro gets the Green component from 18-bit RGB666 format to 8-bit component format
 #define D4D_COLOR_RGB666_GET_B(color) ((Byte)((((color) & 0x3f) * 65) / 16))            ///< The macro gets the Blue component from 18-bit RGB666 format to 8-bit component format
-                                                                                        
+
 #define D4D_COLOR_BGR666_GET_B(color) ((Byte)((((color) >> 12) * 65) / 16))             ///< The macro gets the Red component from 18-bit BGR666 format to 8-bit component format
 #define D4D_COLOR_BGR666_GET_G(color) ((Byte)(((((color) >> 6) & 0x3f) * 65) / 16))     ///< The macro gets the Green component from 18-bit BGR666 format to 8-bit component format
 #define D4D_COLOR_BGR666_GET_R(color) ((Byte)((((color) & 0x3f) * 65) / 16))            ///< The macro gets the Blue component from 18-bit BGR666 format to 8-bit component format
-                                                                                        
-                                                                                        
+
+
 #define D4D_COLOR666_GET_R(color) D4D_COLOR_RGB666_GET_R(color)                         ///< The macro gets the Red component from 18-bit standard format to 8-bit component format
 #define D4D_COLOR666_GET_G(color) D4D_COLOR_RGB666_GET_G(color)                         ///< The macro gets the Green component from 18-bit standard format to 8-bit component format
 #define D4D_COLOR666_GET_B(color) D4D_COLOR_RGB666_GET_B(color)                         ///< The macro gets the Blue component from 18-bit standard format to 8-bit component format
@@ -273,7 +273,7 @@
 //******************************************************************************
 //      16 bit - 565 color space
 
-/*! 
+/*!
   @defgroup doxd4d_scheme_macro_565 D4D SCHEME 16-bit color mode support macros.
   This section specifies help macros to handle 16-bit color format(565).
 
@@ -288,12 +288,12 @@
 #define D4D_COLOR_RGB565_GET_R(color) ((Byte)((((color) >> 11) * 33) / 4))              ///< The macro gets the Red component from 16-bit RGB565 format to 8-bit component format
 #define D4D_COLOR_RGB565_GET_G(color) ((Byte)(((((color) >> 5) & 0x3f) * 65) / 16))     ///< The macro gets the Green component from 16-bit RGB565 format to 8-bit component format
 #define D4D_COLOR_RGB565_GET_B(color) ((Byte)((((color) & 0x1f) * 33) / 4))             ///< The macro gets the Blue component from 16-bit RGB565 format to 8-bit component format
-                                                                                        
+
 #define D4D_COLOR_BGR565_GET_B(color) ((Byte)((((color) >> 11) * 33) / 4))              ///< The macro gets the Red component from 16-bit BGR565 format to 8-bit component format
 #define D4D_COLOR_BGR565_GET_G(color) ((Byte)(((((color) >> 5) & 0x3f) * 65) / 16))     ///< The macro gets the Green component from 16-bit BGR565 format to 8-bit component format
 #define D4D_COLOR_BGR565_GET_R(color) ((Byte)((((color) & 0x1f) * 33) / 4))             ///< The macro gets the Blue component from 16-bit BGR565 format to 8-bit component format
-                                                                                        
-                                                                                        
+
+
 #define D4D_COLOR565_GET_R(color) D4D_COLOR_RGB565_GET_R(color)                         ///< The macro gets the Red component from 16-bit standard format to 8-bit component format
 #define D4D_COLOR565_GET_G(color) D4D_COLOR_RGB565_GET_G(color)                         ///< The macro gets the Green component from 16-bit standard format to 8-bit component format
 #define D4D_COLOR565_GET_B(color) D4D_COLOR_RGB565_GET_B(color)                         ///< The macro gets the Blue component from 16-bit standard format to 8-bit component format
@@ -303,7 +303,7 @@
 /**@}*/
 //******************************************************************************
 //      15 bit - 555 color space
-/*! 
+/*!
   @defgroup doxd4d_scheme_macro_555 D4D SCHEME 15-bit color mode support macros.
   This section specifies help macros to handle 15-bit color format(555).
 
@@ -314,15 +314,15 @@
  * @addtogroup doxd4d_scheme_macro_555
  * @{
  */
-#define D4D_COLOR_RGB555_GET_R(color) ((Byte)((((color) >> 10) * 33) / 4))              ///< The macro gets the Red component from 15-bit RGB555 format to 8-bit component format          
+#define D4D_COLOR_RGB555_GET_R(color) ((Byte)((((color) >> 10) * 33) / 4))              ///< The macro gets the Red component from 15-bit RGB555 format to 8-bit component format
 #define D4D_COLOR_RGB555_GET_G(color) ((Byte)(((((color) >> 5) & 0x1f) * 33) / 4))      ///< The macro gets the Green component from 15-bit RGB555 format to 8-bit component format
 #define D4D_COLOR_RGB555_GET_B(color) ((Byte)((((color) & 0x1f) * 33) / 4))             ///< The macro gets the Blue component from 15-bit RGB555 format to 8-bit component format
-                                                                                        
+
 #define D4D_COLOR_BGR555_GET_B(color) ((Byte)((((color) >> 10) * 33) / 4))              ///< The macro gets the Red component from 15-bit BGR555 format to 8-bit component format
 #define D4D_COLOR_BGR555_GET_G(color) ((Byte)(((((color) >> 5) & 0x1f) * 33) / 4))      ///< The macro gets the Green component from 15-bit BGR555 format to 8-bit component format
 #define D4D_COLOR_BGR555_GET_R(color) ((Byte)((((color) & 0x1f) * 33) / 4))             ///< The macro gets the Blue component from 15-bit BGR555 format to 8-bit component format
-                                                                                        
-                                                                                        
+
+
 #define D4D_COLOR555_GET_R(color) D4D_COLOR_RGB555_GET_R(color)                         ///< The macro gets the Red component from 15-bit standard format to 8-bit component format
 #define D4D_COLOR555_GET_G(color) D4D_COLOR_RGB555_GET_G(color)                         ///< The macro gets the Green component from 15-bit standard format to 8-bit component format
 #define D4D_COLOR555_GET_B(color) D4D_COLOR_RGB555_GET_B(color)                         ///< The macro gets the Blue component from 15-bit standard format to 8-bit component format
@@ -333,7 +333,7 @@
 //******************************************************************************
 //      8 bit - 332 color space
 
-/*! 
+/*!
   @defgroup doxd4d_scheme_macro_332 D4D SCHEME 8-bit color mode support macros.
   This section specifies help macros to handle 8-bit color format(332).
 
@@ -344,15 +344,15 @@
  * @addtogroup doxd4d_scheme_macro_332
  * @{
  */
-#define D4D_COLOR_RGB332_GET_R(color) ((Byte)(((((color) >> 5) & 0x07) * 73) / 2))      ///< The macro gets the Red component from 8-bit RGB332 format to 8-bit component format    
+#define D4D_COLOR_RGB332_GET_R(color) ((Byte)(((((color) >> 5) & 0x07) * 73) / 2))      ///< The macro gets the Red component from 8-bit RGB332 format to 8-bit component format
 #define D4D_COLOR_RGB332_GET_G(color) ((Byte)(((((color) >> 2) & 0x07) * 73) / 2))      ///< The macro gets the Green component from 8-bit RGB332 format to 8-bit component format
 #define D4D_COLOR_RGB332_GET_B(color) ((Byte)((((color) & 0x03) * 170) / 2))            ///< The macro gets the Blue component from 8-bit RGB332 format to 8-bit component format
-                                                                                        
+
 #define D4D_COLOR_BGR332_GET_B(color) ((Byte)(((((color) >> 5) & 0x07) * 73) / 2))      ///< The macro gets the Red component from 8-bit BGR332 format to 8-bit component format
 #define D4D_COLOR_BGR332_GET_G(color) ((Byte)(((((color) >> 2) & 0x07) * 73) / 2))      ///< The macro gets the Green component from 8-bit BGR332 format to 8-bit component format
 #define D4D_COLOR_BGR332_GET_R(color) ((Byte)((((color) & 0x03) * 170) / 2))            ///< The macro gets the Blue component from 8-bit BGR332 format to 8-bit component format
-                                                                                        
-                                                                                        
+
+
 #define D4D_COLOR332_GET_R(color) D4D_COLOR_RGB332_GET_R(color)                         ///< The macro gets the Red component from 8-bit standard format to 8-bit component format
 #define D4D_COLOR332_GET_G(color) D4D_COLOR_RGB332_GET_G(color)                         ///< The macro gets the Green component from 8-bit standard format to 8-bit component format
 #define D4D_COLOR332_GET_B(color) D4D_COLOR_RGB332_GET_B(color)                         ///< The macro gets the Blue component from 8-bit standard format to 8-bit component format
@@ -363,7 +363,7 @@
 //******************************************************************************
 //      1 bit - monochrome color space
 
-/*! 
+/*!
   @defgroup doxd4d_scheme_macro_monochrome D4D SCHEME 1-bit color mode support macros.
   This section specifies help macros to handle 1-bit color format(monochrome).
   This is still non tested color scheme - added just for some initial tests.
@@ -378,7 +378,7 @@
   #define D4D_COLORMONO_THRESHOLD 128           ///< Defiend treshold of color components to compute the final color (black or white)
 #endif
 
-#define D4D_COLORMONO_GET_R(color) ((Byte)((color > D4D_COLORMONO_THRESHOLD)? 0xFF:0))  ///< The macro gets the Red component from 1-bit monochrome format to 8-bit component format  
+#define D4D_COLORMONO_GET_R(color) ((Byte)((color > D4D_COLORMONO_THRESHOLD)? 0xFF:0))  ///< The macro gets the Red component from 1-bit monochrome format to 8-bit component format
 #define D4D_COLORMONO_GET_G(color) ((Byte)((color > D4D_COLORMONO_THRESHOLD)? 0xFF:0))  ///< The macro gets the Green component from 1-bit monochrome format to 8-bit component format
 #define D4D_COLORMONO_GET_B(color) ((Byte)((color > D4D_COLORMONO_THRESHOLD)? 0xFF:0))  ///< The macro gets the Blue component from 1-bit monochrome format to 8-bit component format
 
@@ -390,7 +390,7 @@
 #if D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB888
 // comented just 888 color system due to Doxygen requirements
 
-/*! 
+/*!
   @defgroup doxd4d_scheme_macro_colors D4D SCHEME help macros to handle different color modes of eGUI.
   This section specifies help macros to handle different color modes of eGUI.
 
@@ -403,7 +403,7 @@
  */
   #define D4D_COLOR_RGB(R,G,B) D4D_COLOR_RGB888(R,G,B)  ///< The macro create the color from the color component Red/Green/Blue to configured color format by D4D_COLOR_SYSTEM constant(the input parameters are 8-bit)
 
-  #define D4D_COLOR_GET_R(color) D4D_COLOR888_GET_R(color)      ///< The macro gets the Red component from configured color format by D4D_COLOR_SYSTEM constant to 8-bit component format  
+  #define D4D_COLOR_GET_R(color) D4D_COLOR888_GET_R(color)      ///< The macro gets the Red component from configured color format by D4D_COLOR_SYSTEM constant to 8-bit component format
   #define D4D_COLOR_GET_G(color) D4D_COLOR888_GET_G(color)      ///< The macro gets the Green component from configured color format by D4D_COLOR_SYSTEM constant to 8-bit component format
   #define D4D_COLOR_GET_B(color) D4D_COLOR888_GET_B(color)      ///< The macro gets the Blue component from configured color format by D4D_COLOR_SYSTEM constant to 8-bit component format
 
@@ -446,7 +446,7 @@
 #elif D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB555
 
   #define D4D_COLOR_RGB(R,G,B) D4D_COLOR_RGB555(R,G,B)
-  
+
 
   #define D4D_COLOR_GET_R(color) D4D_COLOR555_GET_R(color)
   #define D4D_COLOR_GET_G(color) D4D_COLOR555_GET_G(color)
@@ -461,7 +461,7 @@
 #elif D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB332
 
   #define D4D_COLOR_RGB(R,G,B) D4D_COLOR_RGB332(R,G,B)
-  
+
 
   #define D4D_COLOR_GET_R(color) D4D_COLOR332_GET_R(color)
   #define D4D_COLOR_GET_G(color) D4D_COLOR332_GET_G(color)
@@ -508,13 +508,13 @@
 /*! @brief This is the structure of the color scheme for screens in the D4D. It contains all the necessary
 colors to draw a screen under the common color scheme. */
 /*! @note This is part of  D4D_CLR_SCHEME_S structure*/
-typedef struct 
+typedef struct
 {
   D4D_COLOR desktop;            ///< Color of screen desktop
   D4D_COLOR outline;            ///< Color of screen outline (if enabled)
-  D4D_COLOR title_bar;          ///< Color of screen title bar (if enabled) 
+  D4D_COLOR title_bar;          ///< Color of screen title bar (if enabled)
   D4D_COLOR title_text;         ///< Color of screen title bar text (if enabled)
-  D4D_COLOR exitBtnFore;        ///< Fore color of screen exit button 
+  D4D_COLOR exitBtnFore;        ///< Fore color of screen exit button
   D4D_COLOR exitBtnBckg;        ///< Background color of screen exit button (if enabled)
 }D4D_CLR_SCHEME_SCR;
 
@@ -713,11 +713,11 @@ typedef const D4D_CLR_SCHEME * D4D_CLR_SCHEME_PTR;
 /******************************************************************************
 * Global variables
 ******************************************************************************/
-   
+
 
 /******************************************************************************
 * Global functions
 ******************************************************************************/
 
-  
+
 #endif  /* __D4D_SCHEME_H */

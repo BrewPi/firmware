@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_graph.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.29.0
-* 
+*
 * @date      Jan-14-2014
-* 
+*
 * @brief     D4D Driver graph object header file
 *
 *******************************************************************************/
@@ -57,24 +57,24 @@ extern const D4D_OBJECT_SYS_FUNCTION d4d_graphSysFunc;
 
 /*! @brief This is offset of graph area from object borders.
            If not defined, it sets to 5 pixel as a default.*/
-#ifndef D4D_GRAPH_BORDER_OFF  
+#ifndef D4D_GRAPH_BORDER_OFF
   #define D4D_GRAPH_BORDER_OFF        5
 #endif
 
 /*! @brief This is offset of value text  from graph area borders.
            If not defined, it sets to 2 pixel as a default.*/
-#ifndef D4D_GRAPH_VALUE_OFF  
+#ifndef D4D_GRAPH_VALUE_OFF
   #define D4D_GRAPH_VALUE_OFF        2
 #endif
 
 /*! @brief This is default graph grid color definition.
            If not defined, it sets to \ref D4D_COLOR_LIGHT_GREY as a default.*/
-#ifndef D4D_COLOR_GRAPH_GRID  
+#ifndef D4D_COLOR_GRAPH_GRID
   #define D4D_COLOR_GRAPH_GRID        D4D_COLOR_LIGHT_GREY
 #endif
 
 //********************* Graph flags for its specific flags *****************
-/*! 
+/*!
   @defgroup doxd4d_graph_const_flags D4D GRAPH Defines masks of its specific behaviour flags
   This section specifies masks of graph behaviour flags.
   @ingroup doxd4d_graph_const
@@ -84,7 +84,7 @@ extern const D4D_OBJECT_SYS_FUNCTION d4d_graphSysFunc;
  * @addtogroup doxd4d_graph_const_flags
  * @{
  */
-  //@note    For axis, only one setting can be used, it is not allowed to mix two flags for one axis.   
+  //@note    For axis, only one setting can be used, it is not allowed to mix two flags for one axis.
 
   #define D4D_GRAPH_F_MODE_MASK       (0x03 << D4D_OBJECT_F_OBJECT_SHIFT)       ///< Mask of graph mode (it's used internaly by driver)
   #define D4D_GRAPH_F_MODE_NORMAL     (0x00 << D4D_OBJECT_F_OBJECT_SHIFT)       ///< The graph runs in normal mode, this means that a graph adds new data to the screen. When it fills up the whole graph area, the object clears all the shown points and draws a new graph on a screen from new data.
@@ -124,7 +124,7 @@ extern const D4D_OBJECT_SYS_FUNCTION d4d_graphSysFunc;
 #endif
 
 //********************* Graph traces types *****************
-/*! 
+/*!
   @defgroup doxd4d_graph_const_traceType D4D GRAPH Defines types of graph traces.
   This section specifies types of graph traces
   @ingroup doxd4d_graph_const
@@ -198,10 +198,10 @@ typedef struct
 {
     D4D_GRAPH_SAMPLE_IX xPosCnt;      // position counter on X axis
     D4D_GRAPH_DATA_LEN lastShowPos;   // position in input data buffer of shown data
-    D4D_GRAPH_DATA_LEN lastDataPos;   // position in input data buffer of last added data 
+    D4D_GRAPH_DATA_LEN lastDataPos;   // position in input data buffer of last added data
     D4D_GRAPH_DATA_LEN initData;
-    D4D_GRAPH_DATA_LEN dataShowX; // count of showed data on axis X 
-    D4D_COOR lblSizeY;       
+    D4D_GRAPH_DATA_LEN dataShowX; // count of showed data on axis X
+    D4D_COOR lblSizeY;
     D4D_COOR columnDrawed;
     D4D_INDEX drigDrawedX;
 } D4D_GRAPH_DATA;
@@ -209,25 +209,25 @@ typedef struct
 typedef struct
 {
   D4D_INDEX x_cnt;
-  D4D_INDEX y_cnt;    
+  D4D_INDEX y_cnt;
 }D4D_GRAPH_GRID;
 
 // GRAPH configuration (in ROM by default)
-  
+
 typedef struct
 {
     D4D_STRING                  textBuff;       // GRAPH main text
-    D4D_GRAPH_GRID              grid;        // graph grid information   
+    D4D_GRAPH_GRID              grid;        // graph grid information
     const D4D_GRAPH_TRACE*      traces;
     D4D_GRAPH_DATA_LEN          dataLenght;
     D4D_FONT                    labelFont;
     D4D_GRAPH_ON_NEED_LABEL     OnNeedLabelText;
     D4D_GRAPH_ON_CHANGE         OnValueChanged;
-    D4D_GRAPH_DATA*             pData;    
+    D4D_GRAPH_DATA*             pData;
 } D4D_GRAPH;
-  
+
 /******************************************************************************
-* Macros 
+* Macros
 ******************************************************************************/
 
 // getting the GRAPH structure from general OBJECT
@@ -267,7 +267,7 @@ typedef struct
 *               return value, in a normal case the return value must be \ref D4D_MSG_NOSKIP
 
 * @note    This macro create complete D4D_GRAPH structure, including the object data sub structure. Is used to define all properties of graph.
-*******************************************************************************/ 
+*******************************************************************************/
 #define _D4D_DECLARE_GRAPH_BEGIN(type, name, text, x, y, cx, cy, radius, pMargin, pRelations, gx, gy, dataLen, flags, pScheme, fontId, lblFontId, pOnNeedLblTxt, pUser, pOnValch, pOnUsrMsg) \
     extern type D4D_GRAPH_TRACE  name##_traces[];\
     static D4D_GRAPH_DATA name##_data = { 0, 0, 0, 0, 0, 0, 0, 0}; /* reset data of graph*/ \
@@ -288,7 +288,7 @@ typedef struct
     \
     type D4D_GRAPH_TRACE name##_traces[] = \
     {
-    
+
 
 /**************************************************************************/ /*!
 * @brief   Macro that is used to add trace to graph definition
@@ -297,31 +297,31 @@ typedef struct
 * @param   line - line type - \ref D4D_LINETYPE
 * @param   type - type of trace - \ref doxd4d_graph_const_traceType
 * @note    This macro is used after the graph declaration to add new trace
-* Here is an example demonstrating how to used it. 
+* Here is an example demonstrating how to used it.
 * @code
 *       D4D_GRAPH_VALUE  my_traceData1[200];
-*       D4D_GRAPH_VALUE  my_traceData2[200];      
+*       D4D_GRAPH_VALUE  my_traceData2[200];
 *       D4D_DECLARE_STD_GRAPH_BEGIN(my_graph, D4D_DEFSTR("My Nice Graph"), 10, 10, 200, 150, 4, 3, 200, MY_FONT, MY_SMALL_FONT)
 *       D4D_DECLARE_GRAPH_TRACE(my_traceData1, D4D_WHITE, D4D_LINE_THIN, D4D_GRAPH_TRACE_TYPE_LINE)
 *       D4D_DECLARE_GRAPH_TRACE(my_traceData2, D4D_RED, D4D_LINE_THICK, D4D_GRAPH_TRACE_TYPE_DOT)
-*       D4D_DECLARE_GRAPH_END()    
+*       D4D_DECLARE_GRAPH_END()
 * @endcode
-*******************************************************************************/      
+*******************************************************************************/
 #define D4D_DECLARE_GRAPH_TRACE(pData, clr, line, type) { pData, clr , line, type},
 
 /**************************************************************************/ /*!
 * @brief   Macro that is used to end of graph definition
 * @note    This macro is used as a last declaration macro in Graph definition
-* Here is an example demonstrating how to used it. 
+* Here is an example demonstrating how to used it.
 * @code
 *       D4D_GRAPH_VALUE  my_traceData1[200];
-*       D4D_GRAPH_VALUE  my_traceData2[200];      
+*       D4D_GRAPH_VALUE  my_traceData2[200];
 *       D4D_DECLARE_STD_GRAPH_BEGIN(my_graph, D4D_DEFSTR("My Nice Graph"), 10, 10, 200, 150, 4, 3, 200, MY_FONT, MY_SMALL_FONT)
 *       D4D_DECLARE_GRAPH_TRACE(my_traceData1, D4D_WHITE, D4D_LINE_THIN, D4D_GRAPH_TRACE_TYPE_LINE)
 *       D4D_DECLARE_GRAPH_TRACE(my_traceData2, D4D_RED, D4D_LINE_THICK, D4D_GRAPH_TRACE_TYPE_DOT)
-*       D4D_DECLARE_GRAPH_END()    
+*       D4D_DECLARE_GRAPH_END()
 * @endcode
-*******************************************************************************/      
+*******************************************************************************/
 #define D4D_DECLARE_GRAPH_END() { NULL, D4D_COLOR_WHITE , D4D_LINE_THIN, 0}};
 
 
@@ -349,7 +349,7 @@ typedef struct
 
 * @note    This macro create complete D4D_GRAPH structure, including the object data sub structure. Is used to define all properties of graph. Is used to define all properties of graph. If
 *               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_GRAPH_BEGIN instead of this one.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_GRAPH_BEGIN(name, text, x, y, cx, cy, gx, gy, dataLen, flags, pScheme, fontId, lblFontId, pOnNeedLblTxt, pUser, pOnValch, pOnUsrMsg) \
   _D4D_DECLARE_GRAPH_BEGIN(D4D_CONST, name, text, x, y, cx, cy, 0, NULL, NULL, gx, gy, dataLen, flags, pScheme, fontId, lblFontId, pOnNeedLblTxt, pUser, pOnValch, pOnUsrMsg)
 
@@ -371,7 +371,7 @@ typedef struct
 * @note    This macro create complete D4D_GRAPH structure, including the object data sub structure. Is used to define all properties of graph. Is used to define all properties of graph. If
 *               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_GRAPH_BEGIN instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_STD_GRAPH_BEGIN(name, text, x, y, cx, cy, gx, gy, dataLen, fontId, lblFontId) \
   D4D_DECLARE_GRAPH_BEGIN(name, text, x, y, cx, cy, gx, gy, dataLen, (D4D_GRAPH_F_DEFAULT), NULL, fontId, lblFontId, NULL, NULL, NULL, NULL)
 
@@ -401,7 +401,7 @@ typedef struct
 
 * @note    This macro create complete D4D_GRAPH structure, including the object data sub structure. Is used to define all properties of graph. Is used to define all properties of graph. If
 *               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_GRAPH_BEGIN instead of this one.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_RGRAPH_BEGIN(name, text, x, y, cx, cy, radius, gx, gy, dataLen, flags, pScheme, fontId, lblFontId, pOnNeedLblTxt, pUser, pOnValch, pOnUsrMsg) \
   _D4D_DECLARE_GRAPH_BEGIN(D4D_CONST, name, text, x, y, cx, cy, radius, NULL, NULL, gx, gy, dataLen, flags, pScheme, fontId, lblFontId, pOnNeedLblTxt, pUser, pOnValch, pOnUsrMsg)
 
@@ -424,7 +424,7 @@ typedef struct
 * @note    This macro create complete D4D_GRAPH structure, including the object data sub structure. Is used to define all properties of graph. Is used to define all properties of graph. If
 *               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_GRAPH_BEGIN instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_STD_RGRAPH_BEGIN(name, text, x, y, cx, cy, radius, gx, gy, dataLen, fontId, lblFontId) \
   D4D_DECLARE_RGRAPH_BEGIN(name, text, x, y, cx, cy, radius, gx, gy, dataLen, (D4D_GRAPH_F_DEFAULT), NULL, fontId, lblFontId, NULL, NULL, NULL, NULL)
 
@@ -432,13 +432,13 @@ typedef struct
 // IN RAM instantions macros
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_GRAPH_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/          
+*******************************************************************************/
 #define D4D_DECLARE_GRAPH_BEGIN_INRAM(name, text, x, y, cx, cy, gx, gy, dataLen, flags, pScheme, fontId, lblFontId, pOnNeedLblTxt, pUser, pOnValch, pOnUsrMsg) \
   _D4D_DECLARE_GRAPH_BEGIN(D4D_NO_CONST, name, text, x, y, cx, cy, 0, NULL, NULL, gx, gy, dataLen, flags, pScheme, fontId, lblFontId, pOnNeedLblTxt, pUser, pOnValch, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_GRAPH_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/          
+*******************************************************************************/
 #define D4D_DECLARE_STD_GRAPH_BEGIN_INRAM(name, text, x, y, cx, cy, gx, gy, dataLen, fontId, lblFontId) \
   D4D_DECLARE_STD_GRAPH_BEGIN_INRAM(name, text, x, y, cx, cy, gx, gy, dataLen, (D4D_GRAPH_F_DEFAULT), NULL, fontId, lblFontId, NULL, NULL, NULL, NULL)
 
@@ -446,13 +446,13 @@ typedef struct
 // Rounded graph definition
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_RGRAPH_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/          
+*******************************************************************************/
 #define D4D_DECLARE_RGRAPH_BEGIN_INRAM(name, text, x, y, cx, cy, radius, gx, gy, dataLen, flags, pScheme, fontId, lblFontId, pOnNeedLblTxt, pUser, pOnValch, pOnUsrMsg) \
   _D4D_DECLARE_GRAPH_BEGIN(D4D_NO_CONST, name, text, x, y, cx, cy, radius, NULL, NULL, gx, gy, dataLen, flags, pScheme, fontId, lblFontId, pOnNeedLblTxt, pUser, pOnValch, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_RGRAPH_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/          
+*******************************************************************************/
 #define D4D_DECLARE_STD_RGRAPH_BEGIN_INRAM(name, text, x, y, cx, cy, radius, gx, gy, dataLen, fontId, lblFontId) \
   D4D_DECLARE_RGRAPH_BEGIN_INRAM(name, text, x, y, cx, cy, radius, gx, gy, dataLen, (D4D_GRAPH_F_DEFAULT), NULL, fontId, lblFontId, NULL, NULL, NULL, NULL)
 
@@ -484,7 +484,7 @@ D4D_BOOL D4D_GraphSetDataWidth(D4D_OBJECT_PTR pObj, D4D_INDEX samples);
 
 
 
-                                     
-#endif /* __D4D_GRAPH_H */        
+
+#endif /* __D4D_GRAPH_H */
 
 

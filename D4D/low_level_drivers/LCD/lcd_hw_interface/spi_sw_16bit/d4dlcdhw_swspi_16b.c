@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,12 +34,12 @@
 * @file      d4dlcdhw_swspi_16b.c
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.7.0
-* 
+*
 * @date      Aug-6-2012
-* 
-* @brief     D4D driver - swspi_16b hardware lcd driver source c file 
+*
+* @brief     D4D driver - swspi_16b hardware lcd driver source c file
 *
 ******************************************************************************/
 
@@ -56,18 +56,18 @@
 // copilation enable preprocessor condition
 // the string d4dtch_swSpi_16b_ID must be replaced by define created one line up
 #if (D4D_MK_STR(D4D_LLD_LCD_HW) == d4dlcdhw_swspi_16b_ID)
-  
+
   // include of low level driver heaser file
   // it will be included into wole project only in case that this driver is selected in main D4D configuration file
   #include "low_level_drivers\LCD\lcd_hw_interface\spi_sw_16bit\d4dlcdhw_swspi_16b.h"
   /******************************************************************************
-  * Macros 
+  * Macros
   ******************************************************************************/
   #if D4D_COLOR_SYSTEM != D4D_COLOR_SYSTEM_RGB565
     #error The eGUI low level driver "d4dlcdhw_swspi_16b" not supported selected type of D4D_COLOR_SYSTEM. To run this driver just select D4D_COLOR_SYSTEM_RGB565.
   #endif
   /******************************************************************************
-  * Internal function prototypes 
+  * Internal function prototypes
   ******************************************************************************/
 
   static unsigned char D4DLCDHW_Init_SwSpi_16b(void);
@@ -78,19 +78,19 @@
   static unsigned short D4DLCDHW_ReadCmdWord_SwSpi_16b(void);
   static unsigned char D4DLCDHW_PinCtl_SwSpi_16b(D4DLCDHW_PINS pinId, D4DHW_PIN_STATE setState);
   static void D4DLCD_FlushBuffer_SwSpi_16b(D4DLCD_FLUSH_MODE mode);
- 
+
   /**************************************************************//*!
   *
   * Global variables
   *
   ******************************************************************/
-  
+
   // the main structure that contains low level driver api functions
   // the name fo this structure is used for recognizing of configured low level driver of whole D4D
   // so this name has to be used in main configuration header file of D4D driver to enable this driver
-  const D4DLCDHW_FUNCTIONS d4dlcdhw_swspi_16b = 
+  const D4DLCDHW_FUNCTIONS d4dlcdhw_swspi_16b =
   {
-    D4DLCDHW_Init_SwSpi_16b,    
+    D4DLCDHW_Init_SwSpi_16b,
     D4DLCDHW_SendDataWord_SwSpi_16b,
     D4DLCDHW_SendCmdWord_SwSpi_16b,
     D4DLCDHW_ReadDataWord_SwSpi_16b,
@@ -111,17 +111,17 @@
   *
   ******************************************************************/
 
-   
+
   //-----------------------------------------------------------------------------
   // FUNCTION:    D4DLCDHW_Init_SwSpi_16b
   // SCOPE:       Low Level Driver API function
-  // DESCRIPTION: The function is used for initialization of this low level driver 
-  //              
+  // DESCRIPTION: The function is used for initialization of this low level driver
+  //
   // PARAMETERS:  none
-  //              
+  //
   // RETURNS:     result: 1 - Success
   //                      0 - Failed
-  //-----------------------------------------------------------------------------  
+  //-----------------------------------------------------------------------------
   static unsigned char D4DLCDHW_Init_SwSpi_16b(void)
   {
     #ifdef D4DLCD_DISPLAY_MCU_USER_INIT
@@ -132,26 +132,26 @@
     D4DLCD_ASSERT_DC;
 
     D4DLCD_INIT_CS;
-    D4DLCD_INIT_DC;    
-    
- 
-    D4DLCD_INIT_SPICLK;  
-    D4DLCD_INIT_SPIDATA;  
-    
+    D4DLCD_INIT_DC;
+
+
+    D4DLCD_INIT_SPICLK;
+    D4DLCD_INIT_SPIDATA;
+
     return 1;
   }
-  
-  
+
+
   //-----------------------------------------------------------------------------
   // FUNCTION:    D4DLCDHW_DeInit_SwSpi_16b
   // SCOPE:       Low Level Driver API function
-  // DESCRIPTION: The function is used for deinitialization of this low level driver 
-  //              
+  // DESCRIPTION: The function is used for deinitialization of this low level driver
+  //
   // PARAMETERS:  none
-  //              
+  //
   // RETURNS:     result: 1 - Success
   //                      0 - Failed
-  //-----------------------------------------------------------------------------  
+  //-----------------------------------------------------------------------------
   static unsigned char D4DLCDHW_DeInit_SwSpi_16b(void)
   {
     return 0;
@@ -160,7 +160,7 @@
   //-----------------------------------------------------------------------------
   // FUNCTION:    D4DLCDHW_SendDataWord_SwSpi_16b
   // SCOPE:       Low Level Driver API function
-  // DESCRIPTION: The function send the one 16 bit variable into LCD  
+  // DESCRIPTION: The function send the one 16 bit variable into LCD
   //
   // PARAMETERS:  unsigned short value    variable to send
   //
@@ -168,7 +168,7 @@
   //-----------------------------------------------------------------------------
   static void D4DLCDHW_SendDataWord_SwSpi_16b(unsigned short value)
   {
-    int Bit;  
+    int Bit;
 
       D4DLCD_ASSERT_CS;
       	asm     // 2 nops are KO, 3 nops are OK for QE DEMO, we go for 6 RE-CHECK [PL]
@@ -176,77 +176,77 @@
           nop
           nop
           nop
-          nop        
-      };  
-  		for (Bit=15; Bit>=0; --Bit)	// 
-  		{ 
-  			D4DLCD_ASSERT_SPICLK					// Clock := 0 
-  		
-  		  if (value & (1 << Bit))		// Bit testen 
-  				D4DLCD_DEASSERT_SPIDATA				// falls das Bit 1 ist 
-  			else 
-  				D4DLCD_ASSERT_SPIDATA			// falls das Bit 0 ist 
-  		
-  			D4DLCD_DEASSERT_SPICLK					// Clock := 1 
-  		} 
-  		
+          nop
+      };
+  		for (Bit=15; Bit>=0; --Bit)	//
+  		{
+  			D4DLCD_ASSERT_SPICLK					// Clock := 0
+
+  		  if (value & (1 << Bit))		// Bit testen
+  				D4DLCD_DEASSERT_SPIDATA				// falls das Bit 1 ist
+  			else
+  				D4DLCD_ASSERT_SPIDATA			// falls das Bit 0 ist
+
+  			D4DLCD_DEASSERT_SPICLK					// Clock := 1
+  		}
+
   		asm     // 2 nops are KO, 3 nops are OK for QE DEMO, we go for 6 RE-CHECK [PL]
       {
           nop
           nop
           nop
-          nop         
-      };  	     
-  	  D4DLCD_DEASSERT_CS;         
+          nop
+      };
+  	  D4DLCD_DEASSERT_CS;
   }
-  
+
   //-----------------------------------------------------------------------------
   // FUNCTION:    D4DLCDHW_SendCmdWord_SwSpi_16b
   // SCOPE:       Low Level Driver API function
-  // DESCRIPTION: The function send the one 16 bit command into LCD  
+  // DESCRIPTION: The function send the one 16 bit command into LCD
   //
   // PARAMETERS:  unsigned short cmd    command to send
   //
   // RETURNS:     none
   //-----------------------------------------------------------------------------
   static void D4DLCDHW_SendCmdWord_SwSpi_16b(unsigned short cmd)
-  {       
-    D4DLCD_ASSERT_DC;                        // DataCmd := 0 
+  {
+    D4DLCD_ASSERT_DC;                        // DataCmd := 0
     D4DLCDHW_SendDataWord_SwSpi_16b(cmd);
-    D4DLCD_DEASSERT_DC;                      // DataCmd := 1 
+    D4DLCD_DEASSERT_DC;                      // DataCmd := 1
   }
-  
-  
+
+
   //-----------------------------------------------------------------------------
   // FUNCTION:    D4DLCDHW_ReadDataWord_SwSpi_16b
   // SCOPE:       Low Level Driver API function
-  // DESCRIPTION: The function reads the one 16 bit variable from LCD (if this function is supported)  
+  // DESCRIPTION: The function reads the one 16 bit variable from LCD (if this function is supported)
   //
   // PARAMETERS:  none
   //
   // RETURNS:     unsigned short - the readed value
-  //              
+  //
   //-----------------------------------------------------------------------------
   static unsigned short D4DLCDHW_ReadDataWord_SwSpi_16b(void)
-  {       
+  {
     return 0;
   }
-  
+
   //-----------------------------------------------------------------------------
   // FUNCTION:    D4DLCDHW_ReadCmdWord_SwSpi_16b
   // SCOPE:       Low Level Driver API function
-  // DESCRIPTION: The function reads the one 16 bit command from LCD (if this function is supported)  
+  // DESCRIPTION: The function reads the one 16 bit command from LCD (if this function is supported)
   //
   // PARAMETERS:  none
   //
   // RETURNS:     unsigned short - the readed value
-  //              
+  //
   //-----------------------------------------------------------------------------
   static unsigned short D4DLCDHW_ReadCmdWord_SwSpi_16b(void)
-  {       
+  {
     return 0;
   }
-  
+
   //-----------------------------------------------------------------------------
   // FUNCTION:    D4DLCDHW_PinCtl_SwSpi_16b
   // SCOPE:       Low Level Driver API function
@@ -257,7 +257,7 @@
   // RETURNS:     for Get action retuns the pin value
   //-----------------------------------------------------------------------------
   static unsigned char D4DLCDHW_PinCtl_SwSpi_16b(D4DLCDHW_PINS pinId, D4DHW_PIN_STATE setState)
-  {       
+  {
     switch(pinId)
     {
       case D4DLCD_RESET_PIN:
@@ -274,15 +274,15 @@
             break;
           case D4DHW_PIN_SET_0:
             D4DLCD_ASSERT_RESET;
-            break;           
+            break;
         }
         break;
       case D4DLCD_BACKLIGHT_PIN:
         switch(setState)
         {
-          
+
           #ifdef D4DLCD_BACKLIGHT
-          
+
           case D4DHW_PIN_OUT:
             OUTPUT(D4DLCD_BACKLIGHT);
             break;
@@ -294,17 +294,17 @@
             break;
           case D4DHW_PIN_SET_0:
             D4DLCD_ASSERT_BACKLIGHT;
-            break; 
-         
-         #endif   
-                    
+            break;
+
+         #endif
+
         }
-        break;    
+        break;
     }
-    
-    return 1;   
+
+    return 1;
   }
-  
+
   //-----------------------------------------------------------------------------
   // FUNCTION:    D4DLCD_FlushBuffer_SwSpi_16b
   // SCOPE:       Low Level Driver API function
@@ -312,12 +312,12 @@
   //              driver the complete object is drawed and pending pixels should be flushed
   //
   // PARAMETERS:  none
-  //              
+  //
   // RETURNS:     none
   //-----------------------------------------------------------------------------
   static void D4DLCD_FlushBuffer_SwSpi_16b(D4DLCD_FLUSH_MODE mode)
-  {       
-    D4D_UNUSED(mode);  
+  {
+    D4D_UNUSED(mode);
   }
 
 #endif //(D4D_MK_STR(D4D_LLD_LCD_HW) == d4dlcdhw_swspi_16b_ID)

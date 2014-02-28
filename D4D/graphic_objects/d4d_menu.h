@@ -1,23 +1,23 @@
 /**************************************************************************
-* 
+*
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License Version 3 
+* it under the terms of the GNU Lesser General Public License Version 3
 * or later (the "LGPL").
 *
 * As a special exception, the copyright holders of the eGUI project give you
 * permission to link the eGUI sources with independent modules to produce an
 * executable, regardless of the license terms of these independent modules,
-* and to copy and distribute the resulting executable under terms of your 
+* and to copy and distribute the resulting executable under terms of your
 * choice, provided that you also meet, for each linked independent module,
 * the terms and conditions of the license of that module.
-* An independent module is a module which is not derived from or based 
-* on this library. 
-* If you modify the eGUI sources, you may extend this exception 
-* to your version of the eGUI sources, but you are not obligated 
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
 * to do so. If you do not wish to do so, delete this
 * exception statement from your version.
 *
@@ -34,11 +34,11 @@
 * @file      d4d_menu.h
 *
 * @author     Petr Gargulak
-* 
+*
 * @version   0.0.47.0
-* 
+*
 * @date      Jan-14-2014
-* 
+*
 * @brief     D4D Driver menu object header file
 *
 *******************************************************************************/
@@ -56,7 +56,7 @@ void D4D_MenuScrollBarsFeedBack(D4D_OBJECT* pThis, D4D_INDEX old_position, D4D_I
 *******************************************************************************/
 
 //********************* Menu flags for button specific flags *****************
-/*! 
+/*!
   @defgroup doxd4d_menu_const_flags D4D MENU Defines masks of menu specific behaviour flags
   This section specifies masks of menu behaviour flags.
   @ingroup doxd4d_menu_const
@@ -69,7 +69,7 @@ void D4D_MenuScrollBarsFeedBack(D4D_OBJECT* pThis, D4D_INDEX old_position, D4D_I
   #define D4D_MENU_F_INDEX    (0x01 << D4D_OBJECT_F_OBJECT_SHIFT)       ///< Enable show of index of items in header
   #define D4D_MENU_F_SIDEBAR  (0x02 << D4D_OBJECT_F_OBJECT_SHIFT)       ///< Forca always show of side bar scroll bar
 /**@}*/
-   
+
 /*! @brief This is menu init flags.
            If not defined, it sets to (\ref D4D_OBJECT_F_VISIBLE | \ref D4D_OBJECT_F_ENABLED | \ref D4D_OBJECT_F_TABSTOP | \ref D4D_OBJECT_F_TOUCHENABLE | \ref D4D_OBJECT_F_MOUSE_NORMAL | \ref D4D_OBJECT_F_BEVEL_RAISED | \ref D4D_MENU_F_INDEX | \ref D4D_MENU_F_SIDEBAR) as a default.*/
 #ifndef D4D_MENU_F_DEFAULT
@@ -86,7 +86,7 @@ void D4D_MenuScrollBarsFeedBack(D4D_OBJECT* pThis, D4D_INDEX old_position, D4D_I
            If not defined, it sets to 20 pixels as a default.*/
 #ifndef D4D_MENU_SCRLBR_WIDTH
   #define D4D_MENU_SCRLBR_WIDTH  ( 20 )
-#endif 
+#endif
 
 /*! @brief This is menu embedded scroll bar change step
            If not defined, it sets to 1 step as a default.*/
@@ -159,14 +159,14 @@ typedef void (*D4D_MENU_ON_CLICK)(D4D_OBJECT* pThis, D4D_MENU_INDEX ix);
 ******************************************************************************/
 
 // Menu configuration (goes to ROM by default)
-typedef struct 
+typedef struct
 {
   D4D_STRING text;
   const D4D_BMP*  pIcon;    // Item Icon
-  void* pUser;    
+  void* pUser;
 }D4D_MENU_ITEM;
 
-typedef struct 
+typedef struct
 {
    D4D_MENU_INDEX ix;
    D4D_MENU_INDEX page_ix;
@@ -187,7 +187,7 @@ typedef struct
 
 
 /******************************************************************************
-* Macros 
+* Macros
 ******************************************************************************/
 #define D4D_MENU_CHILD_SCROLL_BAR_VER_IX 1
 
@@ -222,7 +222,7 @@ typedef struct
 * @param   itemsFontId - identification number of the used item text font
 * @param   posCnt - count of visible positions
 * @param   menuItemsOff - offset between the individual items in pixels
-* @param   pIcon - pointer to \ref D4D_BMP structure to title 
+* @param   pIcon - pointer to \ref D4D_BMP structure to title
 * @param   pUser - user data of  menu
 * @param   pOnClick - Pointer to an on-click user callback function \ref D4D_MENU_ON_CLICK
 * @param   pOnUsrMsg -Pointer to an on user message callback function \ref D4D_ON_USR_MSG. This callback is called before this
@@ -231,7 +231,7 @@ typedef struct
 
 * @note    This macro create complete D4D_MENU structure, including the object data sub structure. Is used to define all properties of menu.
 *               It must be followed by \ref D4D_DECLARE_MENU_ITEM or \ref D4D_DECLARE_MENU_ITEM_FULL or at least \ref D4D_DECLARE_MENU_END.
-*******************************************************************************/     
+*******************************************************************************/
 #define _D4D_DECLARE_MENU_BEGIN(type, name, title_text, title_font, x, y, cx, cy, radius, pMargin, pParent, flags, pScheme,\
     indexFontId, itemsFontId, posCnt, menuItemsOff, pIcon, pUser, pOnClick, pOnUsrMsg) \
     extern type D4D_MENU_ITEM name##_items[];\
@@ -259,20 +259,20 @@ typedef struct
     _D4D_DECLARE_SCROLL_BAR(D4D_NO_CONST, name##_scrollBarVer,  20, 100, 100, 20, radius, NULL, name##_scrollBarRelations, D4D_MENU_F_SCRLBRS_DEFAULT, pScheme, NULL, D4D_MenuScrollBarsFeedBack, NULL) \
     \
     type D4D_MENU_ITEM name##_items[] = {
-          
+
 /**************************************************************************/ /*!
 * @brief   Macro that is used to add item to menu definition
 * @param   pText - text of item
 * @param   pIcon - pointer to item icon bitmap
 * @note    This macro is used after the menu declaration to add new item
-* Here is an example demonstrating how to used it. 
+* Here is an example demonstrating how to used it.
 * @code
 *       D4D_DECLARE_STD_RMENU_AUTOSIZE_BEGIN(my_menu, D4D_DEFSTR("My Menu"), MU_BIG_FONT, 10, 10, 100, 120, 6, MY_SMALL_FONT, MY_FONT, &my_icon, NULL)
 *       D4D_DECLARE_MENU_ITEM(D4D_DEFSTR("My Item1"), &myIcon1)
 *       D4D_DECLARE_MENU_ITEM(D4D_DEFSTR("My Item2"), &myIcon2)
-*       D4D_DECLARE_MENU_END(my_menu)    
+*       D4D_DECLARE_MENU_END(my_menu)
 * @endcode
-*******************************************************************************/      
+*******************************************************************************/
 #define D4D_DECLARE_MENU_ITEM(pText, pIcon) { {(pText), D4D_TEXT_LEN(pText), 0, NULL, D4D_OBJECT_MAX_TEXT_LEN(pText), 0}, pIcon, NULL},
 
 /**************************************************************************/ /*!
@@ -281,25 +281,25 @@ typedef struct
 * @param   pIcon - pointer to item icon bitmap
 * @param   pUser - pointer to user data
 * @note    This macro is used after the menu declaration to add new item with user data
-* Here is an example demonstrating how to used it. 
+* Here is an example demonstrating how to used it.
 * @code
 *       D4D_DECLARE_STD_RMENU_AUTOSIZE_BEGIN(my_menu, D4D_DEFSTR("My Menu"), MU_BIG_FONT, 10, 10, 100, 120, 6, MY_SMALL_FONT, MY_FONT, &my_icon, NULL)
 *       D4D_DECLARE_MENU_ITEM(D4D_DEFSTR("My Item1"), &myIcon1, 0)
 *       D4D_DECLARE_MENU_ITEM(D4D_DEFSTR("My Item2"), &myIcon2, 1)
-*       D4D_DECLARE_MENU_END(my_menu)    
+*       D4D_DECLARE_MENU_END(my_menu)
 * @endcode
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_MENU_ITEM_FULL(pText, pIcon, pUser) { {(pText), D4D_TEXT_LEN(pText), 0, NULL, D4D_OBJECT_MAX_TEXT_LEN(pText), 0}, pIcon, (void*)pUser},
 
 /**************************************************************************/ /*!
 * @brief   Macro that is used to close the item list for menu definition
 * @note    This macro is used after the menu items declaration to close the list of items
-* Here is an example demonstrating how to used it. 
+* Here is an example demonstrating how to used it.
 * @code
 *       D4D_DECLARE_STD_RMENU_AUTOSIZE_BEGIN(my_menu, D4D_DEFSTR("My Menu"), MU_BIG_FONT, 10, 10, 100, 120, 6, MY_SMALL_FONT, MY_FONT, &my_icon, NULL)
 *       D4D_DECLARE_MENU_ITEM(D4D_DEFSTR("My Item1"), &myIcon1, 0)
 *       D4D_DECLARE_MENU_ITEM(D4D_DEFSTR("My Item2"), &myIcon2, 1)
-*       _D4D_DECLARE_MENU_END()  
+*       _D4D_DECLARE_MENU_END()
 * @endcode
 *******************************************************************************/
 #define _D4D_DECLARE_MENU_END() { {NULL, 0, 0, NULL}, NULL, NULL} };
@@ -307,18 +307,18 @@ typedef struct
 /**************************************************************************/ /*!
 * @brief   Macro that is used to close the item list for menu definition
 * @note    This macro is used after the menu items declaration to close the list of items
-* Here is an example demonstrating how to used it. 
-*               This is obsolete macro, the parameter is not needed. It can be used \ref _D4D_DECLARE_MENU_END() instead of.       
+* Here is an example demonstrating how to used it.
+*               This is obsolete macro, the parameter is not needed. It can be used \ref _D4D_DECLARE_MENU_END() instead of.
 * @code
 *       D4D_DECLARE_STD_RMENU_AUTOSIZE_BEGIN(my_menu, D4D_DEFSTR("My Menu"), MU_BIG_FONT, 10, 10, 100, 120, 6, MY_SMALL_FONT, MY_FONT, &my_icon, NULL)
 *       D4D_DECLARE_MENU_ITEM(D4D_DEFSTR("My Item1"), &myIcon1, 0)
 *       D4D_DECLARE_MENU_ITEM(D4D_DEFSTR("My Item2"), &myIcon2, 1)
-*       _D4D_DECLARE_MENU_END()  
+*       _D4D_DECLARE_MENU_END()
 * @endcode
 *******************************************************************************/
 #define D4D_DECLARE_MENU_END(name)  _D4D_DECLARE_MENU_END()
 
-      
+
 /**************************************************************************/ /*!
 * @brief   Macro that create the Menu object structure in memory including all substructures with restricted count of parameters to simplify definition
 * @param   name - name of menu object
@@ -334,7 +334,7 @@ typedef struct
 * @param   itemsFontId - identification number of the used item text font
 * @param   posCnt - count of visible positions
 * @param   menuItemsOff - offset between the individual items in pixels
-* @param   pIcon - pointer to \ref D4D_BMP structure to title 
+* @param   pIcon - pointer to \ref D4D_BMP structure to title
 * @param   pUser - user data of  menu
 * @param   pOnClick - Pointer to an on-click user callback function \ref D4D_MENU_ON_CLICK
 * @param   pOnUsrMsg -Pointer to an on user message callback function \ref D4D_ON_USR_MSG. This callback is called before this
@@ -344,7 +344,7 @@ typedef struct
 * @note    This macro create complete D4D_MENU structure, including the object data sub structure. Is used to define all properties of menu. If
 *               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_MENU_BEGIN instead of this one.
 *               It must be followed by \ref D4D_DECLARE_MENU_ITEM or \ref D4D_DECLARE_MENU_ITEM_FULL or at least \ref D4D_DECLARE_MENU_END.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_MENU_BEGIN(name, title_text, title_font, x, y, cx, cy, flags, pScheme,\
     indexFontId, itemsFontId, posCnt, menuItemsOff, pIcon, pUser, pOnClick, pOnUsrMsg) \
  _D4D_DECLARE_MENU_BEGIN(D4D_CONST, name, title_text, title_font, x, y, cx, cy, 0, NULL, NULL, flags, pScheme,\
@@ -362,14 +362,14 @@ typedef struct
 * @param   cy - size of menu in Y axis (height) (with hidden list box)
 * @param   indexFontId - identification number of the used index text font
 * @param   itemsFontId - identification number of the used item text font
-* @param   pIcon - pointer to \ref D4D_BMP structure to title 
+* @param   pIcon - pointer to \ref D4D_BMP structure to title
 * @param   pOnClick - Pointer to an on-click user callback function \ref D4D_MENU_ON_CLICK
 
 * @note    This macro create complete D4D_MENU structure, including the object data sub structure. Is used to define all properties of menu. If
 *               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_MENU_BEGIN instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
 *               It must be followed by \ref D4D_DECLARE_MENU_ITEM or \ref D4D_DECLARE_MENU_ITEM_FULL or at least \ref D4D_DECLARE_MENU_END.
-*******************************************************************************/   
+*******************************************************************************/
 #define D4D_DECLARE_STD_MENU_BEGIN(name, title_text, title_font, x, y, cx, cy, indexFontId, itemsFontId, pIcon, pOnClick) \
     D4D_DECLARE_MENU_BEGIN(name, title_text, title_font, x, y, cx, cy, (D4D_MENU_F_DEFAULT), NULL,\
     IndexFontId, ItemsFontId, 0, 0, pIcon, NULL, pOnClick, NULL)
@@ -391,7 +391,7 @@ typedef struct
 * @param   itemsFontId - identification number of the used item text font
 * @param   posCnt - count of visible positions
 * @param   menuItemsOff - offset between the individual items in pixels
-* @param   pIcon - pointer to \ref D4D_BMP structure to title 
+* @param   pIcon - pointer to \ref D4D_BMP structure to title
 * @param   pUser - user data of  menu
 * @param   pOnClick - Pointer to an on-click user callback function \ref D4D_MENU_ON_CLICK
 * @param   pOnUsrMsg -Pointer to an on user message callback function \ref D4D_ON_USR_MSG. This callback is called before this
@@ -401,7 +401,7 @@ typedef struct
 * @note    This macro create complete D4D_MENU structure, including the object data sub structure. Is used to define all properties of menu. If
 *               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_MENU_BEGIN instead of this one.
 *               It must be followed by \ref D4D_DECLARE_MENU_ITEM or \ref D4D_DECLARE_MENU_ITEM_FULL or at least \ref D4D_DECLARE_MENU_END.
-*******************************************************************************/ 
+*******************************************************************************/
 #define D4D_DECLARE_RMENU_BEGIN(name, title_text, title_font, x, y, cx, cy, radius, flags, pScheme,\
     indexFontId, itemsFontId, posCnt, menuItemsOff, pIcon, pUser, pOnClick, pOnUsrMsg) \
  _D4D_DECLARE_MENU_BEGIN(D4D_CONST, name, title_text, title_font, x, y, cx, cy, radius, NULL, NULL, flags, pScheme,\
@@ -422,14 +422,14 @@ typedef struct
 * @param   radius - radius of corners
 * @param   indexFontId - identification number of the used index text font
 * @param   itemsFontId - identification number of the used item text font
-* @param   pIcon - pointer to \ref D4D_BMP structure to title 
+* @param   pIcon - pointer to \ref D4D_BMP structure to title
 * @param   pOnClick - Pointer to an on-click user callback function \ref D4D_MENU_ON_CLICK
 
 * @note    This macro create complete D4D_MENU structure, including the object data sub structure. Is used to define all properties of menu. If
 *               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_MENU_BEGIN instead of this one.
 *               The main advantage is less parameters of this macro against the full version.
 *               It must be followed by \ref D4D_DECLARE_MENU_ITEM or \ref D4D_DECLARE_MENU_ITEM_FULL or at least \ref D4D_DECLARE_MENU_END.
-*******************************************************************************/   
+*******************************************************************************/
 #define D4D_DECLARE_STD_RMENU_BEGIN(name, title_text, title_font, x, y, cx, cy, radius, indexFontId, itemsFontId, pIcon, pOnClick) \
     D4D_DECLARE_RMENU_BEGIN(name, title_text, title_font, x, y, cx, cy, radius, (D4D_MENU_F_DEFAULT), NULL,\
     indexFontId, itemsFontId, 0, 0, pIcon, NULL, pOnClick, NULL)
@@ -438,7 +438,7 @@ typedef struct
 //IN RAM instantions macros
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_MENU_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_MENU_BEGIN_INRAM(name, title_text, title_font, x, y, cx, cy, flags, pScheme,\
     indexFontId, itemsFontId, posCnt, menuItemsOff, pIcon, pUser, pOnClick, pOnUsrMsg) \
  _D4D_DECLARE_MENU_BEGIN(D4D_NO_CONST, name, title_text, title_font, x, y, cx, cy, 0, NULL, NULL, flags, pScheme,\
@@ -447,16 +447,16 @@ typedef struct
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_MENU_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_STD_MENU_BEGIN_INRAM(name, title_text, title_font, x, y, cx, cy, IndexFontId, ItemsFontId, pIcon, pOnClick) \
     D4D_DECLARE_MENU_BEGIN_INRAM(name, title_text, title_font, x, y, cx, cy, (D4D_MENU_F_DEFAULT), NULL,\
     IndexFontId, ItemsFontId, 0, 0, pIcon, NULL, pOnClick, NULL)
-    
+
 
 // Rounded menu definition
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_RMENU_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_RMENU_BEGIN_INRAM(name, title_text, title_font, x, y, cx, cy, radius, flags, pScheme,\
     indexFontId, itemsFontId, posCnt, menuItemsOff, pIcon, pUser, pOnClick, pOnUsrMsg) \
  _D4D_DECLARE_MENU_BEGIN(D4D_NO_CONST, name, title_text, title_font, x, y, cx, cy, radius, NULL, NULL, flags, pScheme,\
@@ -466,15 +466,15 @@ typedef struct
 
 /**************************************************************************/ /*!
 * @brief   Same as \ref D4D_DECLARE_STD_RMENU_BEGIN, but is created in RAM instead of the ROM memory
-*******************************************************************************/  
+*******************************************************************************/
 #define D4D_DECLARE_STD_RMENU_BEGIN_INRAM(name, title_text, title_font, x, y, cx, cy, radius, IndexFontId, ItemsFontId, pIcon, pOnClick) \
     D4D_DECLARE_RMENU_BEGIN_INRAM(name, title_text, title_font, x, y, cx, cy, radius, (D4D_MENU_F_DEFAULT), NULL,\
     IndexFontId, ItemsFontId, 0, 0, pIcon, NULL, pOnClick, NULL)
-  
-/*! @} End of doxd4d_menu_macro                                          */   
-      
+
+/*! @} End of doxd4d_menu_macro                                          */
+
       /* Obsolete macros */
-      
+
       #define D4D_DECLARE_RMENU_END(name)  D4D_DECLARE_MENU_END(name)
       #define D4D_DECLARE_MENU_END_INRAM(name)  _D4D_DECLARE_MENU_END()
       #define D4D_DECLARE_RMENU_END_INRAM(name)  D4D_DECLARE_MENU_END_INRAM(name)
@@ -491,7 +491,7 @@ D4D_STRING* D4D_MenuGetItemText(D4D_OBJECT_PTR pThis);
 
 
 #endif /* __D4D_MENU_H  */
- 
+
 
 
 
