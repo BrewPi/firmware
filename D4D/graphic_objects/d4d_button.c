@@ -217,7 +217,7 @@ static void D4D_BtnOnDraw(D4D_MESSAGE* pMsg)
 
         D4D_DrawFrame(pThis, clrT, clrB);
 
-        if(pThis->pData->flags & D4D_OBJECT_F_BEVEL_MASK)
+        if(pThis->pData->flags & D4D_OBJECT_F_BEVEL_MASK) {
           if((pThis->pData->flags & D4D_OBJECT_F_BEVEL_MASK) == D4D_OBJECT_F_BEVEL_RAISED)
           {
             pThis->pData->flags &= ~D4D_OBJECT_F_BEVEL_MASK;
@@ -227,6 +227,7 @@ static void D4D_BtnOnDraw(D4D_MESSAGE* pMsg)
             pThis->pData->flags &= ~D4D_OBJECT_F_BEVEL_MASK;
             pThis->pData->flags |= D4D_OBJECT_F_BEVEL_RAISED;
           }
+        }
       }else
       {
         D4D_DrawFrame(pThis, clrT, clrB);
