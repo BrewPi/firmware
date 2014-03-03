@@ -74,6 +74,7 @@ extern const D4D_OBJECT_SYS_FUNCTION d4d_btnSysFunc;
  */
   #define D4D_BTN_F_3D            (0x01 << D4D_OBJECT_F_OBJECT_SHIFT)   ///< Enable 3D appearence for button
   #define D4D_BTN_F_CONT_RECT     (0x02 << D4D_OBJECT_F_OBJECT_SHIFT)   ///< Enable content rectangle for button
+  #define D4D_BTN_F_INVERT        (0x04 << D4D_OBJECT_F_OBJECT_SHIFT)   ///< Enabel inverting button colours on keypress
 /**@}*/
 
 //******************************************************************************
