@@ -154,6 +154,7 @@ typedef struct D4DLCD_FUNCTIONS_S
   void (*D4DLCD_FlushBuffer)(D4DLCD_FLUSH_MODE mode);   ///< The LCD driver flush function.
   void (*D4DLCD_Delay_ms)(unsigned short period);       ///< The LCD driver delay function.
   unsigned char (*D4DLCD_DeInit)(void);                 ///< The LCD driver deinicialization function
+  unsigned char (*D4DLCD_FillRect)(D4D_COLOR value);    ///< The LCD Driver fill rect function
 }D4DLCD_FUNCTIONS;
 
 
