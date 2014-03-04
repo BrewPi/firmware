@@ -181,7 +181,7 @@ typedef struct
 *       D4D_DECLARE_STRING_TABLE_END
 * @endcode
 *******************************************************************************/
-#define D4D_DECLARE_STRING_TABLE_END {0, NULL} };
+#define D4D_DECLARE_STRING_TABLE_END {0, NULL, 0} };
 
 /**************************************************************************/ /*!
 * @brief   Macro that starts of tabulator table declaration.
