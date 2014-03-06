@@ -518,7 +518,8 @@ D4D_OBJECT* D4D_FindNextObjectOnScreen(D4D_OBJECT* pObject)
   LWord i = 0;
   while(pObjects[i])
   {
-    if(pObjects[i] == pObject) {
+    if(pObjects[i] == pObject) 
+	{
       if(pObjects[i+1])
         return (D4D_OBJECT*)pObjects[i+1];
       else
@@ -626,7 +627,8 @@ D4D_OBJECT* D4D_FindPreviousObjectOnScreen(D4D_OBJECT* pObject)
 
   while(pObjects[i])
   {
-    if(pObjects[i] == pObject) {
+    if(pObjects[i] == pObject) 
+	{
       if(i)
         return (D4D_OBJECT*)pObjects[i-1];
       else
