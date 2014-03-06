@@ -165,6 +165,7 @@ static void D4D_BtnOnDraw(D4D_MESSAGE* pMsg)
     D4D_OBJECT_DRAWFLAGS draw = pMsg->prm.draw;
     D4D_COLOR clrT, clrB;
     const D4D_BMP* pBmp = pBtn->pBmpNormal;
+    D4D_BOOL pressed = *(pBtn->pStatus) & D4D_BUTTON_STATUS_PRESSED_MASK;
 
 //-------- 3D Buttons Enabled --------
     D4D_BMP_PROPERTIES bmpProp;
@@ -175,8 +176,13 @@ static void D4D_BtnOnDraw(D4D_MESSAGE* pMsg)
 
     // focused bitmap (may be also NULL)
 
-    clrT = D4D_ObjectGetForeColor(pThis, draw);
-    clrB = D4D_ObjectGetBckgColor(pThis, draw);
+    if (pressed && (pThis->initFlags & D4D_BTN_F_INVERT)) {
+      clrB = D4D_ObjectGetForeColor(pThis, draw);
+      clrT = D4D_ObjectGetBckgColor(pThis, draw);
+    } else {
+      clrT = D4D_ObjectGetForeColor(pThis, draw);
+      clrB = D4D_ObjectGetBckgColor(pThis, draw);
+    }
 
     if((draw & D4D_OBJECT_DRAWFLAGS_FOCUSED) && (pBtn->pBmpFocus))
       pBmp = pBtn->pBmpFocus;
@@ -200,7 +206,7 @@ static void D4D_BtnOnDraw(D4D_MESSAGE* pMsg)
       }
 
       // draw the shading
-      if(*(pBtn->pStatus) & D4D_BUTTON_STATUS_PRESSED_MASK)
+      if(pressed)
       {
         if(pThis->pData->flags & D4D_OBJECT_F_BEVEL_MASK)
           if((pThis->pData->flags & D4D_OBJECT_F_BEVEL_MASK) == D4D_OBJECT_F_BEVEL_RAISED)
@@ -213,11 +219,9 @@ static void D4D_BtnOnDraw(D4D_MESSAGE* pMsg)
             pThis->pData->flags |= D4D_OBJECT_F_BEVEL_RAISED;
           }
 
-
-
         D4D_DrawFrame(pThis, clrT, clrB);
 
-        if(pThis->pData->flags & D4D_OBJECT_F_BEVEL_MASK)
+        if(pThis->pData->flags & D4D_OBJECT_F_BEVEL_MASK) {
           if((pThis->pData->flags & D4D_OBJECT_F_BEVEL_MASK) == D4D_OBJECT_F_BEVEL_RAISED)
           {
             pThis->pData->flags &= ~D4D_OBJECT_F_BEVEL_MASK;
@@ -227,14 +231,11 @@ static void D4D_BtnOnDraw(D4D_MESSAGE* pMsg)
             pThis->pData->flags &= ~D4D_OBJECT_F_BEVEL_MASK;
             pThis->pData->flags |= D4D_OBJECT_F_BEVEL_RAISED;
           }
+        }
       }else
       {
         D4D_DrawFrame(pThis, clrT, clrB);
       }
-
-
-
-
 
       D4D_FillRect(&_calc.corGeom1.pnt, &_calc.corGeom1.sz,clrB);
       D4D_FillRect(&_calc.corGeom2.pnt, &_calc.corGeom2.sz,clrB);

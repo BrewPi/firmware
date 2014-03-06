@@ -239,7 +239,7 @@ typedef struct D4D_SCREEN_S
         {cx, cy}, \
         radius, \
         NULL, \
-        { text, sizeof(text), fontId,  &name##_strPrties}, /* textBuff */ \
+        { text, sizeof(text), fontId,  &name##_strPrties, 0, 0}, /* textBuff */ \
         icon, \
         (D4D_SCREEN_FLAGS)(initFlags & 0x00FF), \
         pScheme, \

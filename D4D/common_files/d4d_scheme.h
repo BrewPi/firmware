@@ -200,7 +200,7 @@
 /*! @brief This is screen exit button background color.
            If not defined, it sets to \ref D4D_COLOR_BRIGHT_RED as a default.*/
 #ifndef D4D_COLOR_SCR_EXIT_BTN_BCKG
-  #define D4D_COLOR_SCR_EXIT_BTN_BCKG
+  #define D4D_COLOR_SCR_EXIT_BTN_BCKG  D4D_COLOR_BRIGHT_RED
 #endif
 
 
