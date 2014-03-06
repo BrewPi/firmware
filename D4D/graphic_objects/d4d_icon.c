@@ -49,7 +49,6 @@
 //Internal API
 void D4D_IconOnMessage(D4D_MESSAGE* pMsg);
 D4D_STRING* D4D_IconGetTextBuffer(D4D_OBJECT* pThis);
-D4D_ICON_INDEX D4D_IconGetBmpCount(D4D_OBJECT_PTR pThis);
 
 const D4D_OBJECT_SYS_FUNCTION d4d_iconSysFunc =
 {
