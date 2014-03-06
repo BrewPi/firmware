@@ -223,12 +223,6 @@ void D4D_LCD_Box(D4D_COOR x1, D4D_COOR y1, D4D_COOR x2, D4D_COOR y2, D4D_COLOR c
   // Set the logic window on LCD
   (void)D4D_LLD_LCD.D4DLCD_SetWindow(x1, y1, x2, y2);
 
-  // use fill rect if available
-  if (D4D_LLD_LCD.D4DLCD_FillRect) {
-    D4D_LLD_LCD.D4DLCD_FillRect(color);
-    return;
-  }
-
   // Count the pixel count
   i_max = (LWord)((LWord)(x2-x1+1)*(LWord)(y2-y1+1));
 
