@@ -119,10 +119,6 @@ void D4D_SendMessageBack(D4D_MESSAGE* pMsg);
 void D4D_ObjOnMessage(D4D_MESSAGE* pMsg);
 void D4D_ChangeText(D4D_STRING* pBuff, D4D_TCHAR* pNewText, D4D_TCHAR fillChar);
 
-void D4D_FocusNextObject(D4D_SCREEN* pScreen, D4D_BOOL bInitialSearch);
-void D4D_FocusPrevObject(D4D_SCREEN* pScreen);
-
-
 D4D_OBJECT* D4D_GetParentObject(D4D_OBJECT* pObject);
 D4D_BOOL D4D_HasObjectChildren(D4D_OBJECT* pObject);
 
