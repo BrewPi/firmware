@@ -629,7 +629,7 @@ const ControlConstants TempControl::ccDefaults PROGMEM =
 	/* tempSettingMax */ intToTemp(30),	// +30 deg Celsius
 	
 	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
-	/* Kp	*/ intToTempDiff(10),	// +5
+	/* Kp	*/ intToTempDiff(5),	// +5
 	/* Ki	*/ intToTempDiff(1)/4, // +0.25
 	/* Kd	*/ intToTempDiff(-3)/2,	// -1.5
 	/* iMaxError */ intToTempDiff(5)/10,  // 0.5 deg
