@@ -72,6 +72,13 @@
   #define D4D_FNT_WORK_PATH_DEFAULT "a:\\"
 #endif
 
+/*! @brief D4D_DRIVE_MAX_STRLEN constant default declaration  (8)                */
+/*! @note D4D_DRIVE_MAX_STRLEN sets the default maximum length of the drive identifier
+    recognized in the absolute paths. E.g. length of "a:" is 1 while "usb:" is 3. */
+#ifndef D4D_DRIVE_MAX_STRLEN
+  #define D4D_DRIVE_MAX_STRLEN 8
+#endif
+
 /*! @} End of doxd4d_extsrc_const                                              */
 
 /******************************************************************************

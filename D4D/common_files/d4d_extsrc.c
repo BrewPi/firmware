@@ -104,8 +104,15 @@ D4D_CHAR* D4D_GetFileExtension(D4D_CHAR* pFileName)
 *******************************************************************************/
 D4D_BOOL D4D_FileIsAbsolutePath(D4D_CHAR* pFileName)
 {
-  if(pFileName[1] == ':')
-    return D4D_TRUE;
+  Byte i;
+
+  if(!pFileName || !pFileName[0])
+    return D4D_FALSE;
+
+  for(i=1; i<=D4D_DRIVE_MAX_STRLEN; ++i) {
+    if(pFileName[i] == ':')
+      return D4D_TRUE;
+  }
 
   return D4D_FALSE;
 }
