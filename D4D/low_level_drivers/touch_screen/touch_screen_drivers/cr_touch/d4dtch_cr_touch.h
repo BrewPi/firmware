@@ -127,6 +127,53 @@
       #define D4DTCH_SWAP_AXES               0
     #endif
 
+
+    // Default TOUCHPANDING signal port name
+    #ifndef CRTCH_TOUCHPANDING_PORT
+      #define CRTCH_TOUCHPANDING_PORT        B
+    #endif
+
+    // Default TOUCHPANDING signal pin number
+    #ifndef CRTCH_TOUCHPENDING_PIN
+      #define CRTCH_TOUCHPENDING_PIN         22
+    #endif
+
+    // Default TOUCHPANDING signal pin MUX
+    #ifndef CRTCH_TOUCHPENDING_PCR_MUX
+      #define CRTCH_TOUCHPENDING_PCR_MUX     1
+    #endif
+
+    // Default TOUCHPANDING signal pin control flags
+    #ifndef CRTCH_TOUCHPENDING_PCR_FLAGS
+      #define CRTCH_TOUCHPENDING_PCR_FLAGS   (PORT_PCR_PS_MASK | PORT_PCR_PE_MASK)
+    #endif
+
+    // Default TOUCHPANDING signal clock gate number
+    #ifndef CRTCH_TOUCHPENDING_SCGC
+      #define CRTCH_TOUCHPENDING_SCGC        5
+    #endif
+
+    // Constructs the SIM System Clock Gating Control Register address (e.g. SIM_SCGC5)
+    #ifndef CRTCH_TOUCHPENDING_SIM_SCGC
+      #define CRTCH_TOUCHPENDING_SIM_SCGC       PASTE(SIM_SCGC, CRTCH_TOUCHPENDING_SCGC)
+    #endif
+
+    // Constructs the SIM System Clock Gating Control Register mask (e.g. SIM_SCGC5_PORTB_MASK)
+    #ifndef CRTCH_TOUCHPENDING_SIM_SCGC_MASK
+      #define CRTCH_TOUCHPENDING_SIM_SCGC_MASK  PASTE(PASTE(SIM_SCGC, PASTE(CRTCH_TOUCHPENDING_SCGC, _PORT)), PASTE(CRTCH_TOUCHPANDING_PORT, _MASK))
+    #endif
+
+    // Constructs the PORT Pin Control Register address (e.g. PORTB_PCR22)
+    #ifndef CRTCH_TOUCHPENDING_PCR
+      #define CRTCH_TOUCHPENDING_PCR            PASTE(PASTE(PORT, CRTCH_TOUCHPANDING_PORT), PASTE(_PCR, CRTCH_TOUCHPENDING_PIN))
+    #endif
+
+    // Constructs the GPIO Port Data Input Register address (e.g. GPIOB_PDIR)
+    #ifndef CRTCH_GPIO_PDIR
+      #define CRTCH_GPIO_PDIR                   PASTE(GPIO, PASTE(CRTCH_TOUCHPANDING_PORT, _PDIR))
+    #endif
+
+
     #ifndef D4D_LLD_TCH_HW_CRTOUCH
       #define D4D_LLD_TCH_HW_CRTOUCH d4dtchhw_crtouch_iicBareMetal
     #endif

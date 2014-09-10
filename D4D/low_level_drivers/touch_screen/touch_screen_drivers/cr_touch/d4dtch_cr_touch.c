@@ -157,6 +157,12 @@
       return 0;
     }
 
+  #ifdef CRTCH_ENABLE_TOUCHPENDING
+    // Enable pin port clock and configure as input GPIO
+    CRTCH_TOUCHPENDING_SIM_SCGC |= CRTCH_TOUCHPENDING_SIM_SCGC_MASK;
+    CRTCH_TOUCHPENDING_PCR = PORT_PCR_MUX(CRTCH_TOUCHPENDING_PCR_MUX) | CRTCH_TOUCHPENDING_PCR_FLAGS;
+  #endif // CRTCH_ENABLE_TOUCHPENDING //
+
     // Initializations is OK
     return 1;
   }
@@ -209,6 +215,16 @@
     static unsigned char last_state = 0;
     static unsigned short lastX, lastY;
     CRTOUCH_RES_SIMPLE crtouch_res;
+
+
+  #ifdef CRTCH_ENABLE_TOUCHPENDING
+    // Check TOUCHPENDING GPIO for a new event (must be 0, otherwise no change)
+    if(CRTCH_GPIO_PDIR & (1 << CRTCH_TOUCHPENDING_PIN)) {
+      *TouchPositionX = lastX;
+      *TouchPositionY = lastY;
+      return last_state;
+    }
+  #endif // CRTCH_ENABLE_TOUCHPENDING //
 
     if(D4D_LLD_TCH_HW_CRTOUCH.D4DTCHHWCRTOUCH_SetAddress != NULL)
       D4D_LLD_TCH_HW_CRTOUCH.D4DTCHHWCRTOUCH_SetAddress(D4DTCH_IIC_ADDRESS);
