@@ -215,9 +215,9 @@
 
     if(D4D_LLD_TCH_HW_CRTOUCH.D4DTCHHWCRTOUCH_MultiReadBytes( CRTCH_STATUS1, (Byte*)(&crtouch_res),  sizeof(crtouch_res)) == D4D_LLD_TCH_HW_CRTOUCH.COMM_OK)
     {
-      if(crtouch_res.status1 & CRTCH_STATUS1_RTSRDY_MASK)
+      if(crtouch_res.status1 & CRTCH_STATUS1_RTST_MASK)
       {
-        if(crtouch_res.status1 & CRTCH_STATUS1_RTST_MASK)
+        if(crtouch_res.status1 & CRTCH_STATUS1_RTSRDY_MASK)
         {
     #if D4DTCH_SWAP_AXES == 0
           lastX = D4D_READ16B(crtouch_res.X);
@@ -237,9 +237,9 @@
 
           last_state = 1;
         }
-        else
-         last_state = 0;
       }
+      else
+       last_state = 0;
     }
 
     *TouchPositionX = lastX;
