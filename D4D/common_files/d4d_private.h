@@ -71,6 +71,9 @@
   #define D4D_MK_STR(x) D4D_MK_STR1(x)
 #endif
 
+#define D4D_PASTE( a, b)                D4D_PASTE_NOEXPAND( a, b)
+#define D4D_PASTE_NOEXPAND( a, b)       a##b
+
 /******************************************************************************
 * Global variables
 ******************************************************************************/
