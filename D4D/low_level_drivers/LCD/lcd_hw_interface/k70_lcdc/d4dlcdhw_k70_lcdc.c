@@ -84,13 +84,14 @@
   static unsigned char D4DLCDHW_PinCtl_K70LCDC(D4DLCDHW_PINS pinId, D4DHW_PIN_STATE setState);
   static void D4DLCDHW_FlushBuffer_K70LCDC(D4DLCD_FLUSH_MODE mode);
 
+#ifdef D4D_LLD_MOUSE
   static unsigned char D4DMOUSE_Init_K70LCDC(void);
   static void D4DMOUSE_SetCoor_K70LCDC(unsigned short x, unsigned short y);
   static void D4DMOUSE_SetPointerBmp_K70LCDC(void** pPntrData, D4D_INDEX cnt, D4D_COLOR keyColor);
   static void D4DMOUSE_SetPointer_K70LCDC(D4D_INDEX ix, D4D_BOOL show);
   static unsigned char D4DMOUSE_DeInit_K70LCDC(void);
   static D4DMOUSE_DESC* D4DMOUSE_GetDescriptor_K70LCDC(void);
-
+#endif
 
 
 #if D4DLCDHWFB_DOUBLE_BUFFER
@@ -149,12 +150,14 @@
       D4DLCDHWFB_BPP_BYTE
     };
 
+#ifdef D4D_LLD_MOUSE
     static const D4DMOUSE_DESC d4dmouse_descriptor =
     {
       D4DMOUSE_CURSOR_SIZE_X,
       D4DMOUSE_CURSOR_SIZE_Y,
       D4DMOUSE_CURSOR_BMPFORMAT
     };
+#endif
 
     static volatile sLWord enableWrite = 0;
 
