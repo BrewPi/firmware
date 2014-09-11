@@ -141,7 +141,7 @@ static unsigned char D4DLCDHW_Init_K70LCDC_Sqm4Eb(void)
 
    // set LCD horizontal configuration based on panel data (Figure 3-3 in Seiko datasheet)
 
-#if defined(FRD5040TPT) || defined(FRD7040TPT)
+#if defined(FRD7040TPT)
   LCDC_LHCR =
     LCDC_LHCR_H_WIDTH(5)   |    //(47+1)=48 SCLK period for HSYNC activated
     LCDC_LHCR_H_WAIT_1(0x20)  |    //(39+1)=40 SCLK period between end of OE and beginning of HSYNC
@@ -152,6 +152,17 @@ static unsigned char D4DLCDHW_Init_K70LCDC_Sqm4Eb(void)
     LCDC_LVCR_V_WIDTH(0x30)  |   //3 lines period for VSYNC activated
     LCDC_LVCR_V_WAIT_1(0x30) |    //13 line period between end of OE and beginning of VSYNC
     LCDC_LVCR_V_WAIT_2(0x30);    //32 line periods between end of VSYNC and beginning of OE
+#elif defined(FRD5040TPT)
+  LCDC_LHCR =
+    LCDC_LHCR_H_WIDTH(47)   |    //(47+1)=48 SCLK period for HSYNC activated
+    LCDC_LHCR_H_WAIT_1(39)  |    //(39+1)=40 SCLK period between end of OE and beginning of HSYNC
+    LCDC_LHCR_H_WAIT_2(85);     //(85+3)=88 SCLK periods between end of HSYNC and beginning of OE
+
+  // set LCD vertical configuration based on panel data (Figure 3-3 in Seiko datasheet)
+  LCDC_LVCR =
+    LCDC_LVCR_V_WIDTH(3)  |   //3 lines period for VSYNC activated
+    LCDC_LVCR_V_WAIT_1(13) |    //13 line period between end of OE and beginning of VSYNC
+    LCDC_LVCR_V_WAIT_2(32);    //32 line periods between end of VSYNC and beginning of OE
 #else
   LCDC_LHCR =
     LCDC_LHCR_H_WIDTH(40)   |    //(40+1)=41 SCLK period for HSYNC activated
