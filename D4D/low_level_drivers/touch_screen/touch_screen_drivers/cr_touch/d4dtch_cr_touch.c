@@ -144,24 +144,24 @@
     if(D4D_LLD_TCH_HW_CRTOUCH.D4DTCHHWCRTOUCH_SetAddress != NULL)
       D4D_LLD_TCH_HW_CRTOUCH.D4DTCHHWCRTOUCH_SetAddress(D4DTCH_IIC_ADDRESS);
 
-    if(D4D_LLD_TCH_HW_CRTOUCH.D4DTCHHWCRTOUCH_MultiReadBytes(CRTCH_STATUS2, &status2, 1) != D4D_LLD_TCH_HW_CRTOUCH.COMM_OK)
+    if(D4D_LLD_TCH_HW_CRTOUCH.D4DTCHHWCRTOUCH_MultiReadBytes(D4D_CRTCH_STATUS2, &status2, 1) != D4D_LLD_TCH_HW_CRTOUCH.COMM_OK)
     {
       (void)D4D_LLD_TCH_HW_CRTOUCH.D4DTCHHWCRTOUCH_DeInit();
       return 0;
     }
 
-    if((status2 & CRTCH_STATUS2_RTSD_MASK) == 0)
+    if((status2 & D4D_CRTCH_STATUS2_RTSD_MASK) == 0)
     {
       // The touch screen hardware is NOT detected
       (void)D4D_LLD_TCH_HW_CRTOUCH.D4DTCHHWCRTOUCH_DeInit();
       return 0;
     }
 
-  #ifdef CRTCH_ENABLE_TOUCHPENDING
+  #ifdef D4D_CRTCH_ENABLE_TOUCHPENDING
     // Enable pin port clock and configure as input GPIO
-    CRTCH_TOUCHPENDING_SIM_SCGC |= CRTCH_TOUCHPENDING_SIM_SCGC_MASK;
-    CRTCH_TOUCHPENDING_PCR = PORT_PCR_MUX(CRTCH_TOUCHPENDING_PCR_MUX) | CRTCH_TOUCHPENDING_PCR_FLAGS;
-  #endif // CRTCH_ENABLE_TOUCHPENDING //
+    D4D_CRTCH_TOUCHPENDING_SIM_SCGC |= D4D_CRTCH_TOUCHPENDING_SIM_SCGC_MASK;
+    D4D_CRTCH_TOUCHPENDING_PCR = PORT_PCR_MUX(D4D_CRTCH_TOUCHPENDING_PCR_MUX) | D4D_CRTCH_TOUCHPENDING_PCR_FLAGS;
+  #endif // D4D_CRTCH_ENABLE_TOUCHPENDING //
 
     // Initializations is OK
     return 1;
@@ -217,23 +217,23 @@
     CRTOUCH_RES_SIMPLE crtouch_res;
 
 
-  #ifdef CRTCH_ENABLE_TOUCHPENDING
+  #ifdef D4D_CRTCH_ENABLE_TOUCHPENDING
     // Check TOUCHPENDING GPIO for a new event (must be 0, otherwise no change)
-    if(CRTCH_GPIO_PDIR & (1 << CRTCH_TOUCHPENDING_PIN)) {
+    if(D4D_CRTCH_GPIO_PDIR & (1 << D4D_CRTCH_TOUCHPENDING_PIN)) {
       *TouchPositionX = lastX;
       *TouchPositionY = lastY;
       return last_state;
     }
-  #endif // CRTCH_ENABLE_TOUCHPENDING //
+  #endif // D4D_CRTCH_ENABLE_TOUCHPENDING //
 
     if(D4D_LLD_TCH_HW_CRTOUCH.D4DTCHHWCRTOUCH_SetAddress != NULL)
       D4D_LLD_TCH_HW_CRTOUCH.D4DTCHHWCRTOUCH_SetAddress(D4DTCH_IIC_ADDRESS);
 
-    if(D4D_LLD_TCH_HW_CRTOUCH.D4DTCHHWCRTOUCH_MultiReadBytes( CRTCH_STATUS1, (Byte*)(&crtouch_res),  sizeof(crtouch_res)) == D4D_LLD_TCH_HW_CRTOUCH.COMM_OK)
+    if(D4D_LLD_TCH_HW_CRTOUCH.D4DTCHHWCRTOUCH_MultiReadBytes( D4D_CRTCH_STATUS1, (Byte*)(&crtouch_res),  sizeof(crtouch_res)) == D4D_LLD_TCH_HW_CRTOUCH.COMM_OK)
     {
-      if(crtouch_res.status1 & CRTCH_STATUS1_RTST_MASK)
+      if(crtouch_res.status1 & D4D_CRTCH_STATUS1_RTST_MASK)
       {
-        if(crtouch_res.status1 & CRTCH_STATUS1_RTSRDY_MASK)
+        if(crtouch_res.status1 & D4D_CRTCH_STATUS1_RTSRDY_MASK)
         {
     #if D4DTCH_SWAP_AXES == 0
           lastX = D4D_READ16B(crtouch_res.X);

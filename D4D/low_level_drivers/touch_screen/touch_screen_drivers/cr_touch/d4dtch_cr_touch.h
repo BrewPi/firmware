@@ -56,27 +56,27 @@
     /******************************************************************************
     * Constants
     ******************************************************************************/
-    #define CRTCH_STATUS      0x00
-    #define CRTCH_STATUS1     0x01
-    #define CRTCH_STATUS2     0x02
-    #define CRTCH_X           0x03
-    #define CRTCH_Y           0x05
-    #define CRTCH_PRESS       0x07
-    #define CRTCH_FIFO_ST     0x09
-    #define CRTCH_FIFO_X      0x0A
-    #define CRTCH_FIFO_Y      0x0C
-    #define CRTCH_FIFO_PRESS  0x0E
-    #define CRTCH_UART_BAUD   0x10
+    #define D4D_CRTCH_STATUS                    0x00
+    #define D4D_CRTCH_STATUS1                   0x01
+    #define D4D_CRTCH_STATUS2                   0x02
+    #define D4D_CRTCH_X                         0x03
+    #define D4D_CRTCH_Y                         0x05
+    #define D4D_CRTCH_PRESS                     0x07
+    #define D4D_CRTCH_FIFO_ST                   0x09
+    #define D4D_CRTCH_FIFO_X                    0x0A
+    #define D4D_CRTCH_FIFO_Y                    0x0C
+    #define D4D_CRTCH_FIFO_PRESS                0x0E
+    #define D4D_CRTCH_UART_BAUD                 0x10
 
-    #define CRTCH_RES_CFG     0x40
+    #define D4D_CRTCH_RES_CFG                   0x40
 
 
-    #define CRTCH_STATUS1_RTST_MASK         0x80
-    #define CRTCH_STATUS1_RTSRDY_MASK       0x01
+    #define D4D_CRTCH_STATUS1_RTST_MASK         0x80
+    #define D4D_CRTCH_STATUS1_RTSRDY_MASK       0x01
 
-    #define CRTCH_RES_CFG_RTPRESEN_MASK     0x80
+    #define D4D_CRTCH_RES_CFG_RTPRESEN_MASK     0x80
 
-    #define CRTCH_STATUS2_RTSD_MASK     0x03
+    #define D4D_CRTCH_STATUS2_RTSD_MASK         0x03
 
 
 
@@ -129,48 +129,48 @@
 
 
     // Default TOUCHPANDING signal port name
-    #ifndef CRTCH_TOUCHPANDING_PORT
-      #define CRTCH_TOUCHPANDING_PORT        B
+    #ifndef D4D_CRTCH_TOUCHPANDING_PORT
+      #define D4D_CRTCH_TOUCHPANDING_PORT           B
     #endif
 
     // Default TOUCHPANDING signal pin number
-    #ifndef CRTCH_TOUCHPENDING_PIN
-      #define CRTCH_TOUCHPENDING_PIN         22
+    #ifndef D4D_CRTCH_TOUCHPENDING_PIN
+      #define D4D_CRTCH_TOUCHPENDING_PIN            22
     #endif
 
     // Default TOUCHPANDING signal pin MUX
-    #ifndef CRTCH_TOUCHPENDING_PCR_MUX
-      #define CRTCH_TOUCHPENDING_PCR_MUX     1
+    #ifndef D4D_CRTCH_TOUCHPENDING_PCR_MUX
+      #define D4D_CRTCH_TOUCHPENDING_PCR_MUX        1
     #endif
 
     // Default TOUCHPANDING signal pin control flags
-    #ifndef CRTCH_TOUCHPENDING_PCR_FLAGS
-      #define CRTCH_TOUCHPENDING_PCR_FLAGS   (PORT_PCR_PS_MASK | PORT_PCR_PE_MASK)
+    #ifndef D4D_CRTCH_TOUCHPENDING_PCR_FLAGS
+      #define D4D_CRTCH_TOUCHPENDING_PCR_FLAGS      (PORT_PCR_PS_MASK | PORT_PCR_PE_MASK)
     #endif
 
     // Default TOUCHPANDING signal clock gate number
-    #ifndef CRTCH_TOUCHPENDING_SCGC
-      #define CRTCH_TOUCHPENDING_SCGC        5
+    #ifndef D4D_CRTCH_TOUCHPENDING_SCGC
+      #define D4D_CRTCH_TOUCHPENDING_SCGC           5
     #endif
 
     // Constructs the SIM System Clock Gating Control Register address (e.g. SIM_SCGC5)
-    #ifndef CRTCH_TOUCHPENDING_SIM_SCGC
-      #define CRTCH_TOUCHPENDING_SIM_SCGC       PASTE(SIM_SCGC, CRTCH_TOUCHPENDING_SCGC)
+    #ifndef D4D_CRTCH_TOUCHPENDING_SIM_SCGC
+      #define D4D_CRTCH_TOUCHPENDING_SIM_SCGC       D4D_PASTE(SIM_SCGC, D4D_CRTCH_TOUCHPENDING_SCGC)
     #endif
 
     // Constructs the SIM System Clock Gating Control Register mask (e.g. SIM_SCGC5_PORTB_MASK)
-    #ifndef CRTCH_TOUCHPENDING_SIM_SCGC_MASK
-      #define CRTCH_TOUCHPENDING_SIM_SCGC_MASK  PASTE(PASTE(SIM_SCGC, PASTE(CRTCH_TOUCHPENDING_SCGC, _PORT)), PASTE(CRTCH_TOUCHPANDING_PORT, _MASK))
+    #ifndef D4D_CRTCH_TOUCHPENDING_SIM_SCGC_MASK
+      #define D4D_CRTCH_TOUCHPENDING_SIM_SCGC_MASK  D4D_PASTE(D4D_PASTE(SIM_SCGC, D4D_PASTE(D4D_CRTCH_TOUCHPENDING_SCGC, _PORT)), D4D_PASTE(D4D_CRTCH_TOUCHPANDING_PORT, _MASK))
     #endif
 
     // Constructs the PORT Pin Control Register address (e.g. PORTB_PCR22)
-    #ifndef CRTCH_TOUCHPENDING_PCR
-      #define CRTCH_TOUCHPENDING_PCR            PASTE(PASTE(PORT, CRTCH_TOUCHPANDING_PORT), PASTE(_PCR, CRTCH_TOUCHPENDING_PIN))
+    #ifndef D4D_CRTCH_TOUCHPENDING_PCR
+      #define D4D_CRTCH_TOUCHPENDING_PCR            D4D_PASTE(D4D_PASTE(PORT, D4D_CRTCH_TOUCHPANDING_PORT), D4D_PASTE(_PCR, D4D_CRTCH_TOUCHPENDING_PIN))
     #endif
 
     // Constructs the GPIO Port Data Input Register address (e.g. GPIOB_PDIR)
-    #ifndef CRTCH_GPIO_PDIR
-      #define CRTCH_GPIO_PDIR                   PASTE(GPIO, PASTE(CRTCH_TOUCHPANDING_PORT, _PDIR))
+    #ifndef D4D_CRTCH_GPIO_PDIR
+      #define D4D_CRTCH_GPIO_PDIR                   D4D_PASTE(GPIO, D4D_PASTE(D4D_CRTCH_TOUCHPANDING_PORT, _PDIR))
     #endif
 
 

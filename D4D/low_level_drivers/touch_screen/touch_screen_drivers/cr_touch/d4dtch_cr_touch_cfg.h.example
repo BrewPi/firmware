@@ -84,11 +84,11 @@
     #define I2C_SDA_PORT  GPIOE_PDOR   // Data output register
     #define I2C_SDA_DDR   GPIOE_PDDR   // Output enable register
 
-    #define CRTCH_ENABLE_TOUCHPENDING                       // Comment this out to disable TOUCHPENDING input GPIO
-    #define CRTCH_TOUCHPANDING_PORT         B               // TOUCHPENDING input port
-    #define CRTCH_TOUCHPENDING_PIN          22              // TOUCHPENDING input pin
-    #define CRTCH_TOUCHPENDING_MUX          1               // TOUCHPENDING input MUX value (GPIO)
-    #define CRTCH_TOUCHPENDING_SCGC         5               // TOUCHPENDING input clock gating number
+    #define D4D_CRTCH_ENABLE_TOUCHPENDING                       // Comment this out to disable TOUCHPENDING input GPIO
+    #define D4D_CRTCH_TOUCHPANDING_PORT         B               // TOUCHPENDING input port
+    #define D4D_CRTCH_TOUCHPENDING_PIN          22              // TOUCHPENDING input pin
+    #define D4D_CRTCH_TOUCHPENDING_MUX          1               // TOUCHPENDING input MUX value (GPIO)
+    #define D4D_CRTCH_TOUCHPENDING_SCGC         5               // TOUCHPENDING input clock gating number
 
   // define here what you need to be configurable
 
