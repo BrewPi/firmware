@@ -157,12 +157,24 @@
     else
     {
       // Plus side calibration results
-      caldata = (unsigned int)(D4DTCH_ADC_CLP0+D4DTCH_ADC_CLP1+D4DTCH_ADC_CLP2+D4DTCH_ADC_CLP3+D4DTCH_ADC_CLP4+D4DTCH_ADC_CLPS);
+      caldata = (unsigned int)(D4DTCH_ADC_CLP0);
+      caldata += (unsigned int)(D4DTCH_ADC_CLP1);
+      caldata += (unsigned int)(D4DTCH_ADC_CLP2);
+      caldata += (unsigned int)(D4DTCH_ADC_CLP3);
+      caldata += (unsigned int)(D4DTCH_ADC_CLP4);
+      caldata += (unsigned int)(D4DTCH_ADC_CLPS);
+      
       caldata = caldata/2;          // div by 2
       caldata = (caldata | 0x8000); // set MSB bit
       D4DTCH_ADC_PG = caldata;
       // Minus side calibration results
-      caldata = (unsigned int)(D4DTCH_ADC_CLM0+D4DTCH_ADC_CLM1+D4DTCH_ADC_CLM2+D4DTCH_ADC_CLM3+D4DTCH_ADC_CLM4+D4DTCH_ADC_CLMS);
+      caldata = (unsigned int)(D4DTCH_ADC_CLM0);
+      caldata += (unsigned int)(D4DTCH_ADC_CLM1);
+      caldata += (unsigned int)(D4DTCH_ADC_CLM2);
+      caldata += (unsigned int)(D4DTCH_ADC_CLM3);
+      caldata += (unsigned int)(D4DTCH_ADC_CLM4);
+      caldata += (unsigned int)(D4DTCH_ADC_CLMS);
+      
       caldata = caldata/2;
       caldata = (caldata | 0x8000);
       D4DTCH_ADC_MG = caldata;

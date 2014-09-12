@@ -58,7 +58,7 @@
 *******************************************************************************/
 /*! @brief There is stored version number of eGUI in string format - DO NOT CHANGE
            To check release history - read the release_notes.txt file */
-#define D4D_VERSION "v3.00"
+#define D4D_VERSION "v3.01"
 
 /*! @brief This macro is used to select the running platform of eGUI code.
            If not defined, the Kinetis platform is used as a default.*/
