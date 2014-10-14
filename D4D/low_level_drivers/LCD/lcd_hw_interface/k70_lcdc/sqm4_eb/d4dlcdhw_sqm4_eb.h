@@ -58,7 +58,11 @@
 
 
     #ifndef D4DLCDHWFB_PANEL_CLKDIV
-      #define D4DLCDHWFB_PANEL_CLKDIV 5
+      #if defined(FRD5040TPT) || defined(FRD7040TPT)
+        #define D4DLCDHWFB_PANEL_CLKDIV 5
+      #else
+        #define D4DLCDHWFB_PANEL_CLKDIV 12
+      #endif
     #endif
 
     /******************************************************************************
