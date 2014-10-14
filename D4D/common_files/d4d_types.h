@@ -268,11 +268,14 @@ typedef struct
   #error D4D_COLOR not defined due to unsupported D4D system color.
 #endif
 
-#ifndef D4D_WCHAR
-  /*! @brief Type definition of eGUI wide char.*/
-  typedef unsigned short D4D_WCHAR;
+#ifndef D4D_WCHAR_TYPE
+/*! @brief User type definition of eGUI wide char.*/
+  #define  D4D_WCHAR_TYPE unsigned short
 #endif
 
+/*! @brief Type definition of eGUI wide char.*/
+typedef D4D_WCHAR_TYPE D4D_WCHAR;
+  
 /*! @brief Type definition of eGUI ASCII character.*/
 typedef char D4D_CHAR;
 
