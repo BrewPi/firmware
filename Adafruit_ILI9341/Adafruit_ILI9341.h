@@ -107,28 +107,28 @@ class Adafruit_ILI9341 : public Adafruit_GFX {
 public:
 	Adafruit_ILI9341(uint8_t CS, uint8_t RS, uint8_t RST);
 
-	void     begin(void),
-		setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1),
-		pushColor(uint16_t color),
-		fillScreen(uint16_t color),
-		drawPixel(int16_t x, int16_t y, uint16_t color),
-		drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color),
-		drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color),
-		fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
-		uint16_t color),
-		setRotation(uint8_t r),
-		invertDisplay(boolean i);
+	void begin(void);
+        void setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
+	void pushColor(uint16_t color);
+        void fillScreen(uint16_t color);
+	void drawPixel(int16_t x, int16_t y, uint16_t color);
+        void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
+	void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
+	void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+	void setRotation(uint8_t r);
+	void invertDisplay(boolean i);
 
 	uint16_t Color565(uint8_t r, uint8_t g, uint8_t b);
 
 	/* These are not for current use, 8-bit protocol only! */
-	uint8_t  readdata(void), readcommand8(uint8_t);
+	uint8_t  readdata(void);
+        uint8_t readcommand8(uint8_t);
 	
-	void     spiwrite(uint8_t),
-		writecommand(uint8_t c),
-		writedata(uint8_t d),
-		commandList(uint8_t *addr);
-	uint8_t  spiread(void);
+	void spiwrite(uint8_t);
+	void writecommand(uint8_t c);
+	void writedata(uint8_t d);
+	void commandList(uint8_t *addr);
+	uint8_t spiread(void);
 
 private:
 
