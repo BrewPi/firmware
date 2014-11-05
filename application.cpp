@@ -17,8 +17,6 @@ ScrollBox debugBox(&tft);
 unsigned long testText();
 
 
-int count = 0;
-
 void setup() {
     pinMode(act1, OUTPUT);
     pinMode(act2, OUTPUT);
@@ -28,12 +26,30 @@ void setup() {
     tft.begin();
     tft.setRotation(1);
     testText();
+    
+    debugBox.println("BrewPi started");
+    
+    debugBox.print("It is ");
+    debugBox.print(Time.timeStr());
+    
+    debugBox.print("Connected to ");
+    debugBox.println(WiFi.SSID());
+    
+    debugBox.print("Signal strength: ");
+    debugBox.print(WiFi.RSSI());
+    debugBox.println("dB");
+    
+    debugBox.print("My IP is: ");
+    debugBox.println(WiFi.localIP());    
+    
 }
 
-void loop(void) { 
-    digitalWrite(act1, count & 0x1); // blink output
-    debugBox.print("Test Debug Message "); debugBox.println(count);
-    debugBox.println("Test very very very very very very very very long debug message");
+void loop(void) {
+    // print "Spark Core has been running for xxxx ms"
+    debugBox.print("Spark Core has been running for ");
+    debugBox.print(millis());
+    debugBox.println(" ms");   
+    
     delay(5000);
 }
 
