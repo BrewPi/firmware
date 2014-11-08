@@ -3,6 +3,7 @@
 #include "Adafruit_mfGFX/Adafruit_mfGFX.h"
 #include "Adafruit_ILI9341/Adafruit_ILI9341.h"
 #include "ScrollBox/ScrollBox.h"
+#include "DS2482/DS2482.h"
 
 SYSTEM_MODE(AUTOMATIC);
 
@@ -13,11 +14,14 @@ int act3 = A6;
 int buzz = A2;
 Adafruit_ILI9341 tft = Adafruit_ILI9341(D4, D5, 0);
 ScrollBox debugBox(&tft);
+DS2482 ds(0);
 
 unsigned long testText();
 
-
 void setup() {
+    Serial.begin(57600);
+    Wire.begin(); 
+    ds.reset();
     pinMode(act1, OUTPUT);
     pinMode(act2, OUTPUT);
     pinMode(act3, OUTPUT);
@@ -27,8 +31,16 @@ void setup() {
     tft.setRotation(1);
     testText();
     
-    debugBox.println("BrewPi started");
+    //configure DS2482 to use active pull-up instead of pull-up resistor 
+    //configure returns 0 if it cannot find DS2482 connected 
+    if (!ds.configure(DS2482_CONFIG_APU)) 
+    { 
+        Serial.print("DS2482 not found\n");
+        debugBox.println("DS2482 not found\n");
+    }
     
+    debugBox.println("BrewPi started");
+    /*
     debugBox.print("It is ");
     debugBox.print(Time.timeStr());
     
@@ -40,17 +52,30 @@ void setup() {
     debugBox.println("dB");
     
     debugBox.print("My IP is: ");
-    debugBox.println(WiFi.localIP());    
+    debugBox.println(WiFi.localIP());
+    */
     
 }
 
-void loop(void) {
-    // print "Spark Core has been running for xxxx ms"
-    debugBox.print("Spark Core has been running for ");
-    debugBox.print(millis());
-    debugBox.println(" ms");   
-    
-    delay(5000);
+void loop(void) {  
+    byte addr[8];
+    if ( !ds.search(addr)) {
+       debugBox.println("No more addresses.");
+       ds.reset_search();
+       delay(250);
+       return;
+     }
+    else{
+        Serial.print("R=");
+        for(uint8_t i = 0; i < 8; i++) {
+          Serial.print(addr[i], HEX);
+          debugBox.print(addr[i], HEX);
+          Serial.print(" ");
+          debugBox.print(" ");
+        }
+    }
+    debugBox.println("");
+    delay(1000);
 }
 
 unsigned long testFillScreen() {
