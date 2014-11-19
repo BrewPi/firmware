@@ -27,8 +27,19 @@ void setup() {
     pinMode(act3, OUTPUT);
     pinMode(buzz, OUTPUT);
     digitalWrite(buzz, HIGH);
+    
+    SPI.begin();
+	//TODO, lgramatikov, core runs at 72MHz. 11 gives 6.5. But looks like Spark can do only predefined values - http://docs.spark.io/#/firmware/communication-spi 
+	//16 looks like good start.
+    SPI.setClockDivider(SPI_CLOCK_DIV16); //not quite full! speed! :)
+    //SPI.setClockDivider(11); // 85MHz / 11 = 7.6 MHz (full! speed!)
+
+    SPI.setBitOrder(MSBFIRST);
+    SPI.setDataMode(SPI_MODE0);
+    
     tft.begin();
-    tft.setRotation(1);
+    tft.setRotation(3);
+    
     testText();
     
     //configure DS2482 to use active pull-up instead of pull-up resistor 

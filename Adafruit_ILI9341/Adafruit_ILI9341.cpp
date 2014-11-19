@@ -108,7 +108,11 @@ void Adafruit_ILI9341::begin(void) {
 	csport = &_cs;
 	dcport = &_dc;
 
-	SPI.begin();
+        
+        /*
+         * Initialize SPI externally
+         * 
+	//SPI.begin();
 	//TODO, lgramatikov, core runs at 72MHz. 11 gives 6.5. But looks like Spark can do only predefined values - http://docs.spark.io/#/firmware/communication-spi 
 	//16 looks like good start.
 	//SPI.setClockDivider(SPI_CLOCK_DIV2); //not quite full! speed! :)
@@ -117,7 +121,8 @@ void Adafruit_ILI9341::begin(void) {
 	SPI.setBitOrder(MSBFIRST);
 	SPI.setBitOrder(MSBFIRST);
 	SPI.setDataMode(SPI_MODE0);
-
+         */
+        
 	// toggle RST low to reset
 	digitalWrite(_rst, HIGH);
 	delay(5);
