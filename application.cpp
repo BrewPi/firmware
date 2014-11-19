@@ -4,6 +4,7 @@
 #include "Adafruit_ILI9341/Adafruit_ILI9341.h"
 #include "ScrollBox/ScrollBox.h"
 #include "DS2482/DS2482.h"
+#include "BrewPiTouch/BrewPiTouch.h"
 
 SYSTEM_MODE(SEMI_AUTOMATIC);
 
@@ -15,6 +16,7 @@ int buzz = A2;
 Adafruit_ILI9341 tft = Adafruit_ILI9341(D4, D5, 0);
 ScrollBox debugBox(&tft);
 DS2482 ds(0);
+BrewPiTouch touch(D3, D2);
 
 unsigned long testText();
 
@@ -49,7 +51,7 @@ void setup() {
         Serial.print("DS2482 not found\n");
         debugBox.println("DS2482 not found\n");
     }
-    
+    touch.init();
     debugBox.println("BrewPi started");
     /*
     debugBox.print("It is ");
@@ -68,7 +70,8 @@ void setup() {
     
 }
 
-void loop(void) {  
+void loop(void) {
+    /*
     byte addr[8];
     if ( !ds.search(addr)) {
        debugBox.println("No more addresses.");
@@ -86,7 +89,21 @@ void loop(void) {
         }
     }
     debugBox.println("");
-    delay(1000);
+    delay(1000);*/
+    touch.calibrate(&tft);
+    touch.update();
+    if(touch.isTouched()){
+        touch.update();
+        Serial.print(touch.getX());
+        Serial.print("\t");
+        Serial.print(touch.getY());
+        delay(10);
+        //digitalWrite(buzz, LOW);
+        
+    }
+    else{
+        digitalWrite(buzz, HIGH);
+    }
 }
 
 unsigned long testFillScreen() {
