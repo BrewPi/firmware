@@ -8,6 +8,12 @@
 #include "BrewPiTouch.h"
 #include "application.h"
 #include <limits.h>
+// includes for getting a median:
+#undef min
+#undef max
+#undef swap
+#include <vector>
+#include <algorithm>
 
 BrewPiTouch::BrewPiTouch(uint8_t cs, uint8_t irq) : pinCS(cs), pinIRQ(irq) {
 }
@@ -101,8 +107,8 @@ int16_t BrewPiTouch::getY() {
 }
 
 void BrewPiTouch::update(uint16_t numSamples) {
-    uint32_t sumX = 0;
-    uint32_t sumY = 0;
+    std::vector<int16_t> samplesX;
+    std::vector<int16_t> samplesY;
 
     pinMode(pinIRQ, OUTPUT); // reverse bias diode during conversion
     digitalWrite(pinIRQ, LOW); // as recommended in SBAA028
@@ -110,15 +116,18 @@ void BrewPiTouch::update(uint16_t numSamples) {
 
     for (uint16_t i = 0; i < numSamples; i++) {
         spiWrite((config & CHMASK) | CHX); // select channel x
-        sumX += readChannel();
+        samplesX.push_back(readChannel());
 
         spiWrite((config & CHMASK) | CHY); // select channel y
-        sumY += readChannel();
+        samplesY.push_back(readChannel());
 
     }
-    xRaw = sumX / numSamples;
-    yRaw = sumY / numSamples;
-
+    // get median
+    size_t middle = samplesX.size() / 2;
+    std::nth_element(samplesX.begin(), samplesX.begin() + middle, samplesX.end());
+    std::nth_element(samplesY.begin(), samplesY.begin() + middle, samplesY.end());
+    xRaw = samplesX[middle];
+    yRaw = samplesY[middle];
 
     pinMode(pinIRQ, INPUT);
     digitalWrite(pinCS, HIGH);
@@ -175,12 +184,12 @@ void BrewPiTouch::calibrate(Adafruit_ILI9341 * tft) {
                 Serial.print(xCalibrated);
                 Serial.print("\t");
                 Serial.println(yCalibrated);
-                tft->fillCircle(xCalibrated, yCalibrated,3,ILI9341_WHITE);
-                
+                tft->fillCircle(xCalibrated, yCalibrated, 3, ILI9341_WHITE);
+
                 // print progress line
                 uint16_t progress = samples * tftWidth / requiredSamples;
                 tft->drawFastHLine(0, 0, progress, ILI9341_BLUE);
-                
+
                 // stop when required number of samples is reached
                 if (samples >= requiredSamples) {
                     tft->drawFastHLine(0, 0, tftWidth, ILI9341_GREEN);
