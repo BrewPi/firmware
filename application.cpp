@@ -5,7 +5,7 @@
 #include "ScrollBox/ScrollBox.h"
 #include "DS2482/DS2482.h"
 
-SYSTEM_MODE(AUTOMATIC);
+SYSTEM_MODE(SEMI_AUTOMATIC);
 
 // Define the pins we're going to call pinMode on
 int act1 = A0;
