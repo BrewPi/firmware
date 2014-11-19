@@ -94,9 +94,9 @@ void loop(void) {
     touch.update();
     if(touch.isTouched()){
         touch.update();
-        Serial.print(touch.getX());
+        Serial.print(touch.getXRaw());
         Serial.print("\t");
-        Serial.print(touch.getY());
+        Serial.print(touch.getYRaw());
         delay(10);
         //digitalWrite(buzz, LOW);
         

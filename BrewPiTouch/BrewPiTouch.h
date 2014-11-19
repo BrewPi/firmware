@@ -17,14 +17,16 @@ public:
     virtual ~BrewPiTouch();
     void init(uint8_t configuration = BrewPiTouch::START);
     void update(uint16_t numSamples = 32);
-    uint16_t getX();
-    uint16_t getY();
+    int16_t getXRaw();
+    int16_t getYRaw();
+    int16_t getX();
+    int16_t getY();
     void set8bit();
     void set12bit();
     bool is8bit();
     bool is12bit();
     void calibrate(Adafruit_ILI9341 * tft);
-    uint8_t isTouched();
+    bool isTouched();
        
     enum controlBits {
         START = 0x80,
@@ -41,11 +43,12 @@ public:
     };
     
 private:
-    uint8_t orientation;
-    int16_t xScale;
-    int16_t yScale;
-    uint16_t xOffset;
-    uint16_t yOffset;
+    int16_t width; // can be negative when display is flipped
+    int16_t height; // can be negative when display is flipped
+    int16_t tftWidth; 
+    int16_t tftHeight;    
+    int16_t xOffset;
+    int16_t yOffset;
     uint16_t xRaw;
     uint16_t yRaw;
     uint8_t pinCS;
