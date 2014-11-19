@@ -332,6 +332,12 @@ void Adafruit_ILI9341::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t c
 	digitalWrite(_cs, HIGH);
 }
 
+void Adafruit_ILI9341::drawCrossHair(int16_t x, int16_t y, int16_t s, uint16_t color){
+    drawFastHLine(x-s, y, 2*s, color);
+    drawFastVLine(x, y-s, 2*s, color);
+}
+
+
 void Adafruit_ILI9341::fillScreen(uint16_t color) {
 	fillRect(0, 0, _width, _height, color);
 }
