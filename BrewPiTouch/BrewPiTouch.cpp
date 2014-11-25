@@ -1,8 +1,20 @@
-/* 
- * File:   BrewPiTouch.cpp
- * Author: Elco
+/*
+ * Copyright 2014 BrewPi/Elco Jacobs.
+ *
+ * This file is part of BrewPi.
  * 
- * Created on 18 november 2014, 9:32
+ * BrewPi is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * BrewPi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "BrewPiTouch.h"
@@ -40,6 +52,10 @@ void BrewPiTouch::init(uint8_t configuration) {
     digitalWrite(pinCS, LOW);
     spiWrite(config);
     digitalWrite(pinCS, HIGH);
+    filterX.init(0);
+    filterX.setCoefficients(SETTLING_TIME_25_SAMPLES);
+    filterY.init(0);
+    filterY.setCoefficients(SETTLING_TIME_25_SAMPLES);
     update();
 }
 
@@ -85,28 +101,32 @@ bool BrewPiTouch::isTouched() {
 }
 
 int16_t BrewPiTouch::getXRaw() {
-    return xRaw;
+    return filterX.readInput();
 }
 
 int16_t BrewPiTouch::getYRaw() {
-    return yRaw;
+    return filterY.readInput();
 }
 
 int16_t BrewPiTouch::getX() {
-    int32_t val = xRaw; // create room for multiplication
+    int32_t val = getXRaw(); // create room for multiplication
     val -= xOffset; // remove offset
     val = val * tftWidth / width; //scale
     return val;
 }
 
 int16_t BrewPiTouch::getY() {
-    int32_t val = yRaw; // create room for multiplication
+    int32_t val = getYRaw(); // create room for multiplication
     val -= yOffset; // remove offset
     val = val * tftHeight / height; //scale
     return val;
 }
-
-void BrewPiTouch::update(uint16_t numSamples) {
+/*
+ *  update() updates the x and y coordinates of the touch screen
+ *  It reads numSamples values and takes the median
+ *  The result is fed to the low pass filters
+ */
+bool BrewPiTouch::update(uint16_t numSamples) {
     std::vector<int16_t> samplesX;
     std::vector<int16_t> samplesY;
 
@@ -114,49 +134,74 @@ void BrewPiTouch::update(uint16_t numSamples) {
     digitalWrite(pinIRQ, LOW); // as recommended in SBAA028
     digitalWrite(pinCS, LOW);
 
+    bool valid = true;
     for (uint16_t i = 0; i < numSamples; i++) {
+        if (!isTouched()) {
+            valid = false;
+            break;
+        }
         spiWrite((config & CHMASK) | CHX); // select channel x
         samplesX.push_back(readChannel());
 
         spiWrite((config & CHMASK) | CHY); // select channel y
         samplesY.push_back(readChannel());
-
     }
-    // get median
-    size_t middle = samplesX.size() / 2;
-    std::nth_element(samplesX.begin(), samplesX.begin() + middle, samplesX.end());
-    std::nth_element(samplesY.begin(), samplesY.begin() + middle, samplesY.end());
-    xRaw = samplesX[middle];
-    yRaw = samplesY[middle];
+    if (valid) {
+        // get median
+        size_t middle = samplesX.size() / 2;
+        std::nth_element(samplesX.begin(), samplesX.begin() + middle, samplesX.end());
+        std::nth_element(samplesY.begin(), samplesY.begin() + middle, samplesY.end());
+        filterX.add(samplesX[middle]);
+        filterY.add(samplesY[middle]);
+    }
 
     pinMode(pinIRQ, INPUT);
     digitalWrite(pinCS, HIGH);
+    return valid;
+}
+
+/* isStable() returns true if the difference between the last sample and 
+ * a low pass filtered value of past samples is under a certain threshold
+ */
+bool BrewPiTouch::isStable() {
+    if (abs(filterX.readInput() - filterX.readOutput()) > STABILITY_TRESHOLD) {
+        return false;
+    }
+    if (abs(filterY.readInput() - filterY.readOutput()) > STABILITY_TRESHOLD) {
+        return false;
+    }
+    return true;
 }
 
 void BrewPiTouch::calibrate(Adafruit_ILI9341 * tft) {
-    const int32_t xDisplay[3] = {40, 40, 280};
-    const int32_t yDisplay[3] = {40, 200, 200};
-
-    volatile int32_t xTouch[3];
-    volatile int32_t yTouch[3];
+    int32_t xTouch[3];
+    int32_t yTouch[3];
 
     tftWidth = tft->width();
     tftHeight = tft->height();
 
+    int32_t xDisplay[3] = {CALIBRATE_FROM_EDGE, CALIBRATE_FROM_EDGE, tftWidth - CALIBRATE_FROM_EDGE};
+    int32_t yDisplay[3] = {CALIBRATE_FROM_EDGE, tftHeight - CALIBRATE_FROM_EDGE, tftHeight / 2};
+
     volatile int16_t samples;
 
-    const int16_t requiredSamples = 256;
+    const int16_t requiredSamples = 1024;
     tft->fillScreen(ILI9341_BLACK);
     for (uint8_t i = 0; i < 3; i++) {
         tft->drawCrossHair(xDisplay[i], yDisplay[i], 10, ILI9341_GREEN);
         while (!isTouched()); // wait for touch
-        while (samples < requiredSamples || isTouched()) {
+        do {
             samples = 0;
             xTouch[i] = 0;
             yTouch[i] = 0;
             tft->drawFastHLine(0, 0, tftWidth, ILI9341_RED);
             while (isTouched()) {
                 update();
+                Serial.print(isStable());
+                if (!isStable()) {
+                    // update is not valid, reset
+                    break;
+                }
                 int32_t xSample = getXRaw();
                 int32_t ySample = getYRaw();
 
@@ -166,7 +211,8 @@ void BrewPiTouch::calibrate(Adafruit_ILI9341 * tft) {
 
                 int32_t xAverage = xTouch[i] / samples;
                 int32_t yAverage = yTouch[i] / samples;
-
+                
+                /*
                 Serial.print(xSample);
                 Serial.print("\t");
                 Serial.print(xAverage);
@@ -177,14 +223,16 @@ void BrewPiTouch::calibrate(Adafruit_ILI9341 * tft) {
                 Serial.print(yAverage);
                 Serial.print("\t\t");
                 Serial.print(samples);
-
+                 */
+                
                 int16_t xCalibrated = getX();
                 int16_t yCalibrated = getY();
+                /*
                 Serial.print("\t\t");
                 Serial.print(xCalibrated);
                 Serial.print("\t");
-                Serial.println(yCalibrated);
-                tft->fillCircle(xCalibrated, yCalibrated, 3, ILI9341_WHITE);
+                Serial.println(yCalibrated);*/
+                tft->fillCircle(xCalibrated, yCalibrated, 2, ILI9341_WHITE);
 
                 // print progress line
                 uint16_t progress = samples * tftWidth / requiredSamples;
@@ -204,10 +252,10 @@ void BrewPiTouch::calibrate(Adafruit_ILI9341 * tft) {
                     break;
                 }
             }
-        }
+        } while (samples < requiredSamples || isTouched());
         xTouch[i] = xTouch[i] / samples;
         yTouch[i] = yTouch[i] / samples;
-
+        
         Serial.print("Display coordinates:");
         Serial.print(xDisplay[i]);
         Serial.print("\t");
@@ -221,6 +269,7 @@ void BrewPiTouch::calibrate(Adafruit_ILI9341 * tft) {
         Serial.print(samples);
         Serial.print("\t");
         Serial.println(yTouch[i]);
+        
     }
 
     width = tftWidth * (xTouch[2] - xTouch[0]) / (xDisplay[2] - xDisplay[0]);
