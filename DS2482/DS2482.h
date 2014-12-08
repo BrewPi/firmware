@@ -50,6 +50,7 @@ class DS2482 {
 public:
     //Address is 0-3
     DS2482(uint8_t address);
+    ~DS2482();
 
     bool configure(uint8_t config);
     void resetMaster();

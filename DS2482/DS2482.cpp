@@ -37,6 +37,10 @@ DS2482::DS2482(uint8_t addr)
 	mAddress = 0x18 | addr;
 }
 
+DS2482::~DS2482()
+{
+}
+
 //-------helpers
 void DS2482::setReadPtr(uint8_t readPtr)
 {

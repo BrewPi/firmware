@@ -3,7 +3,7 @@
 #include "Adafruit_mfGFX/Adafruit_mfGFX.h"
 #include "Adafruit_ILI9341/Adafruit_ILI9341.h"
 #include "ScrollBox/ScrollBox.h"
-#include "DS2482/DS2482.h"
+#include "OneWire/OneWire.h"
 #include "BrewPiTouch/BrewPiTouch.h"
 
 SYSTEM_MODE(SEMI_AUTOMATIC);
@@ -15,7 +15,7 @@ int act3 = A6;
 int buzz = A2;
 Adafruit_ILI9341 tft = Adafruit_ILI9341(D4, D5, 0);
 ScrollBox debugBox(&tft);
-DS2482 ds(0);
+OneWire ow(0);
 BrewPiTouch touch(D3, D2);
 
 unsigned long testText();
@@ -23,7 +23,7 @@ unsigned long testText();
 void setup() {
     Serial.begin(57600);
     Wire.begin(); 
-    ds.reset();
+    ow.reset();
     pinMode(act1, OUTPUT);
     pinMode(act2, OUTPUT);
     pinMode(act3, OUTPUT);
@@ -46,7 +46,7 @@ void setup() {
     
     //configure DS2482 to use active pull-up instead of pull-up resistor 
     //configure returns 0 if it cannot find DS2482 connected 
-    if (!ds.configure(DS2482_CONFIG_APU)) 
+    if (!ow.configure(DS2482_CONFIG_APU)) 
     { 
         Serial.print("DS2482 not found\n");
         debugBox.println("DS2482 not found\n");
@@ -71,11 +71,10 @@ void setup() {
 }
 
 void loop(void) {
-    /*
     byte addr[8];
-    if ( !ds.search(addr)) {
+    if ( !ow.search(addr)) {
        debugBox.println("No more addresses.");
-       ds.reset_search();
+       ow.reset_search();
        delay(250);
        return;
      }
@@ -89,7 +88,8 @@ void loop(void) {
         }
     }
     debugBox.println("");
-    delay(1000);*/
+    delay(1000);
+    return;
     touch.calibrate(&tft);
     touch.update();
     if(touch.isTouched()){
