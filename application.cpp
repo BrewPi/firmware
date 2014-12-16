@@ -5,6 +5,7 @@
 #include "ScrollBox/ScrollBox.h"
 #include "OneWire/OneWire.h"
 #include "BrewPiTouch/BrewPiTouch.h"
+#include "DS2408/DS2408.h"
 
 SYSTEM_MODE(SEMI_AUTOMATIC);
 
@@ -22,32 +23,31 @@ unsigned long testText();
 
 void setup() {
     Serial.begin(57600);
-    Wire.begin(); 
+    Wire.begin();
     ow.reset();
     pinMode(act1, OUTPUT);
     pinMode(act2, OUTPUT);
     pinMode(act3, OUTPUT);
     pinMode(buzz, OUTPUT);
     digitalWrite(buzz, HIGH);
-    
+
     SPI.begin();
-	//TODO, lgramatikov, core runs at 72MHz. 11 gives 6.5. But looks like Spark can do only predefined values - http://docs.spark.io/#/firmware/communication-spi 
-	//16 looks like good start.
+    //TODO, lgramatikov, core runs at 72MHz. 11 gives 6.5. But looks like Spark can do only predefined values - http://docs.spark.io/#/firmware/communication-spi 
+    //16 looks like good start.
     SPI.setClockDivider(SPI_CLOCK_DIV16); //not quite full! speed! :)
     //SPI.setClockDivider(11); // 85MHz / 11 = 7.6 MHz (full! speed!)
 
     SPI.setBitOrder(MSBFIRST);
     SPI.setDataMode(SPI_MODE0);
-    
+
     tft.begin();
     tft.setRotation(3);
-    
+
     testText();
-    
+
     //configure DS2482 to use active pull-up instead of pull-up resistor 
     //configure returns 0 if it cannot find DS2482 connected 
-    if (!ow.configure(DS2482_CONFIG_APU)) 
-    { 
+    if (!ow.configure(DS2482_CONFIG_APU)) {
         Serial.print("DS2482 not found\n");
         debugBox.println("DS2482 not found\n");
     }
@@ -66,42 +66,105 @@ void setup() {
     
     debugBox.print("My IP is: ");
     debugBox.println(WiFi.localIP());
-    */
-    
+     */
+
 }
 
 void loop(void) {
-    byte addr[8];
-    if ( !ow.search(addr)) {
-       debugBox.println("No more addresses.");
-       ow.reset_search();
-       delay(250);
-       return;
-     }
-    else{
+    uint8_t addr[8];
+    if (!ow.search(addr)) {
+        debugBox.println("No more addresses.");
+        ow.reset_search();
+        delay(250);
+        return;
+    } else {
         Serial.print("R=");
-        for(uint8_t i = 0; i < 8; i++) {
-          Serial.print(addr[i], HEX);
-          debugBox.print(addr[i], HEX);
-          Serial.print(" ");
-          debugBox.print(" ");
+        for (uint8_t i = 0; i < 8; i++) {
+            Serial.print(addr[i], HEX);
+            debugBox.print(addr[i], HEX);
+            Serial.print(" ");
+            debugBox.print(" ");
         }
     }
     debugBox.println("");
-    delay(1000);
+    DS2408 valves;
+    valves.init(&ow, addr);
+    // 3 = off, 1 = open, 2 = closed
+    // bits: 
+    // 0-1 B state
+    // 2-3 B action
+    // 4-5 A state
+    // 6-7 A action
+    
+    uint8_t valve1State = 3;
+    uint8_t valve2State = 3;
+    uint8_t valve1Action = 3;
+    uint8_t valve2Action = 3;
+    uint8_t channelStates = 0xFF;
+    while (1) {
+        channelStates = valves.accessRead();
+        debugBox.print(channelStates, BIN);
+        debugBox.print("\t");
+        valve1State = (channelStates & 0b00110000) >> 4;
+        valve2State = channelStates & 0b00000011;
+        debugBox.print(valve1State, BIN);
+        debugBox.print("\t");
+        debugBox.print(valve2State, BIN);
+        debugBox.print("\t");
+        
+        if(valve1State == valve1Action){
+            // done, turn off motor
+            valves.accessWrite(channelStates | 0b11000000);
+        }
+        if(valve2State == valve2Action){
+            // done, turn off motor
+            valves.accessWrite(channelStates | 0b00001100);
+        }
+        
+        if (Serial.available()) {
+            char c = Serial.read();
+            switch (c) {
+                case '1':
+                    valve1Action = 1;
+                    break;
+                case '2':
+                    valve1Action = 2;
+                    break;
+                case '3':
+                    valve1Action = 3;
+                    break;
+                case '4':
+                    valve2Action = 1;
+                    break;
+                case '5':
+                    valve2Action = 2;
+                    break;
+                case '6':
+                    valve2Action = 3;
+                    break;
+            }
+            uint8_t writeValue = ((valve1Action & 0b11) << 6) +
+                                ((valve2Action & 0b11) << 2) +
+                                0b00110011;
+            debugBox.print(writeValue, BIN);
+            valves.accessWrite(writeValue);            
+            delay(50);
+        }
+        debugBox.println("");
+    }
+
     return;
     touch.calibrate(&tft);
     touch.update();
-    if(touch.isTouched()){
+    if (touch.isTouched()) {
         touch.update();
         Serial.print(touch.getXRaw());
         Serial.print("\t");
         Serial.print(touch.getYRaw());
         delay(10);
         //digitalWrite(buzz, LOW);
-        
-    }
-    else{
+
+    } else {
         digitalWrite(buzz, HIGH);
     }
 }

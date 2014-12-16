@@ -17,8 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BREWPITOUCH_H
-#define	BREWPITOUCH_H
+#pragma once
 
 #include <inttypes.h>
 #include "../Adafruit_ILI9341/Adafruit_ILI9341.h"
@@ -75,6 +74,3 @@ private:
     uint8_t spiRead(void);
     uint16_t readChannel();
 };
-
-#endif	/* BREWPITOUCH_H */
-
