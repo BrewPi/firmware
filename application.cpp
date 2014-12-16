@@ -6,6 +6,7 @@
 #include "OneWire/OneWire.h"
 #include "BrewPiTouch/BrewPiTouch.h"
 #include "DS2408/DS2408.h"
+#include "ValvesController/ValvesController.h"
 
 SYSTEM_MODE(SEMI_AUTOMATIC);
 
@@ -87,70 +88,36 @@ void loop(void) {
         }
     }
     debugBox.println("");
-    DS2408 valves;
+    ValvesController valves;
     valves.init(&ow, addr);
-    // 3 = off, 1 = open, 2 = closed
-    // bits: 
-    // 0-1 B state
-    // 2-3 B action
-    // 4-5 A state
-    // 6-7 A action
     
-    uint8_t valve1State = 3;
-    uint8_t valve2State = 3;
-    uint8_t valve1Action = 3;
-    uint8_t valve2Action = 3;
-    uint8_t channelStates = 0xFF;
     while (1) {
-        channelStates = valves.accessRead();
-        debugBox.print(channelStates, BIN);
-        debugBox.print("\t");
-        valve1State = (channelStates & 0b00110000) >> 4;
-        valve2State = channelStates & 0b00000011;
-        debugBox.print(valve1State, BIN);
-        debugBox.print("\t");
-        debugBox.print(valve2State, BIN);
-        debugBox.print("\t");
-        
-        if(valve1State == valve1Action){
-            // done, turn off motor
-            valves.accessWrite(channelStates | 0b11000000);
-        }
-        if(valve2State == valve2Action){
-            // done, turn off motor
-            valves.accessWrite(channelStates | 0b00001100);
-        }
+        valves.update();
         
         if (Serial.available()) {
             char c = Serial.read();
             switch (c) {
                 case '1':
-                    valve1Action = 1;
+                    valves.open(0);
                     break;
                 case '2':
-                    valve1Action = 2;
+                    valves.close(0);
                     break;
                 case '3':
-                    valve1Action = 3;
+                    valves.stop(0);
                     break;
                 case '4':
-                    valve2Action = 1;
+                    valves.open(1);
                     break;
                 case '5':
-                    valve2Action = 2;
+                    valves.close(1);
                     break;
                 case '6':
-                    valve2Action = 3;
+                    valves.stop(1);
                     break;
-            }
-            uint8_t writeValue = ((valve1Action & 0b11) << 6) +
-                                ((valve2Action & 0b11) << 2) +
-                                0b00110011;
-            debugBox.print(writeValue, BIN);
-            valves.accessWrite(writeValue);            
-            delay(50);
+            }    
         }
-        debugBox.println("");
+        delay(50);        
     }
 
     return;
