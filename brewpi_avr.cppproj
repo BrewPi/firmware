@@ -139,12 +139,12 @@
   </avrgcccpp.compiler.symbols.DefSymbols>
   <avrgcccpp.compiler.directories.IncludePaths>
     <ListValues>
-      <Value>../arduino/cores/arduino</Value>
-      <Value>../fallback</Value>
-      <Value>../arduino/variants</Value>
-      <Value>../devices</Value>
-      <Value>../controller</Value>
-      <Value>../</Value>
+      <Value>../platform/avr/arduino/cores/arduino</Value>
+      <Value>../platform/avr/arduino/variants</Value>
+      <Value>../platform/avr</Value>
+      <Value>../app/fallback</Value>
+      <Value>../app/devices</Value>
+      <Value>../app/controller</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
   <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
@@ -167,292 +167,295 @@
     <PostBuildEvent> $(ARDUINO_HOME)\hardware\tools\avr\avr\bin\nm --demangle --size-sort --print-size -r -td "$(OutputDirectory)\$(OutputFileName)$(OutputFileExtension)" &gt; $(OutputDirectory)\avr-size.txt</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ActuatorArduinoPin.cpp">
+    <Compile Include="app\controller\AppConfigDefault.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="ActuatorArduinoPin.h">
+    <Compile Include="app\controller\Brewpi.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="ActuatorAutoOff.h">
+    <Compile Include="app\controller\Brewpi.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="ArduinoEepromAccess.h">
+    <Compile Include="app\controller\BrewpiStrings.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="ArduinoFunctions.cpp">
+    <Compile Include="app\controller\BrewpiStrings.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="arduino\variants\pins_arduino.h">
+    <Compile Include="app\controller\DeviceManager.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Buzzer.cpp">
+    <Compile Include="app\controller\DeviceManager.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Buzzer.h">
+    <Compile Include="app\controller\DisplayLcd.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="ConfigDefault.h">
+    <Compile Include="app\controller\DisplayLcd.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Config.h">
+    <Compile Include="app\controller\EepromFormat.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\AppConfigDefault.h">
+    <Compile Include="app\controller\EepromManager.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\Brewpi.cpp">
+    <Compile Include="app\controller\EepromManager.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\Brewpi.h">
+    <Compile Include="app\controller\FilterCascaded.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\BrewpiStrings.cpp">
+    <Compile Include="app\controller\FilterCascaded.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\BrewpiStrings.h">
+    <Compile Include="app\controller\FilterFixed.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\DeviceManager.cpp">
+    <Compile Include="app\controller\FilterFixed.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\DeviceManager.h">
+    <Compile Include="app\controller\JsonKeys.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\DisplayLcd.cpp">
+    <Compile Include="app\controller\Logger.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\DisplayLcd.h">
+    <Compile Include="app\controller\Logger.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\EepromFormat.h">
+    <Compile Include="app\controller\LogMessages.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\EepromManager.cpp">
+    <Compile Include="app\controller\Menu.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\EepromManager.h">
+    <Compile Include="app\controller\Menu.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\FilterCascaded.cpp">
+    <Compile Include="app\controller\OneWireDevices.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\FilterCascaded.h">
+    <Compile Include="app\controller\PiLink.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\FilterFixed.cpp">
+    <Compile Include="app\controller\PiLink.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\FilterFixed.h">
+    <Compile Include="app\controller\RotaryEncoder.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\JsonKeys.h">
+    <Compile Include="app\controller\RotaryEncoderBase.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\Logger.cpp">
+    <Compile Include="app\controller\SettingsManager.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\Logger.h">
+    <Compile Include="app\controller\SettingsManager.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\LogMessages.h">
+    <Compile Include="app\controller\Simulator.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\Menu.cpp">
+    <Compile Include="app\controller\Simulator.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\Menu.h">
+    <Compile Include="app\controller\TempControl.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\OneWireDevices.h">
+    <Compile Include="app\controller\TempControl.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\PiLink.cpp">
+    <Compile Include="app\controller\TemperatureFormats.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\PiLink.h">
+    <Compile Include="app\controller\TemperatureFormats.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\RotaryEncoder.h">
+    <Compile Include="app\controller\TempSensor.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\RotaryEncoderBase.cpp">
+    <Compile Include="app\controller\TempSensor.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\SettingsManager.cpp">
+    <Compile Include="app\controller\Ticks.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\SettingsManager.h">
+    <Compile Include="app\controller\Version.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\Simulator.cpp">
+    <Compile Include="app\devices\Actuator.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\Simulator.h">
+    <Compile Include="app\devices\Devices.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\TempControl.cpp">
+    <Compile Include="app\devices\DisplayBase.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\TempControl.h">
+    <Compile Include="app\devices\EepromAccess.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\TemperatureFormats.cpp">
+    <Compile Include="app\devices\EepromTypes.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\TemperatureFormats.h">
+    <Compile Include="app\devices\Sensor.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\TempSensor.cpp">
+    <Compile Include="app\devices\TempSensorBasic.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\TempSensor.h">
+    <Compile Include="app\devices\TempSensorDisconnected.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\Ticks.cpp">
+    <Compile Include="app\devices\TempSensorExternal.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="controller\Version.h">
+    <Compile Include="app\devices\TempSensorMock.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="DallasTemperature.cpp">
+    <Compile Include="app\devices\Ticks.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="DallasTemperature.h">
+    <Compile Include="app\fallback\AppConfig.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="devices\Actuator.h">
+    <Compile Include="app\fallback\Config.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="devices\Devices.h">
+    <Compile Include="platform\avr\ActuatorArduinoPin.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="devices\DisplayBase.h">
+    <Compile Include="platform\avr\ActuatorArduinoPin.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="devices\EepromAccess.h">
+    <Compile Include="platform\avr\ActuatorAutoOff.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="devices\EepromTypes.h">
+    <Compile Include="platform\avr\ArduinoEepromAccess.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="devices\Sensor.h">
+    <Compile Include="platform\avr\ArduinoFunctions.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="devices\TempSensorBasic.h">
+    <Compile Include="platform\avr\arduino\variants\pins_arduino.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="devices\TempSensorDisconnected.h">
+    <Compile Include="platform\avr\Buzzer.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="devices\TempSensorExternal.h">
+    <Compile Include="platform\avr\Buzzer.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="devices\TempSensorMock.h">
+    <Compile Include="platform\avr\Config.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="devices\Ticks.h">
+    <Compile Include="platform\avr\ConfigDefault.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Display.cpp">
+    <Compile Include="platform\avr\DallasTemperature.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Display.h">
+    <Compile Include="platform\avr\DallasTemperature.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="DisplayLcdImpl.h">
+    <Compile Include="platform\avr\Display.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="DS2413.cpp">
+    <Compile Include="platform\avr\Display.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="DS2413.h">
+    <Compile Include="platform\avr\DisplayLcdImpl.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="EepromAccessImpl.h">
+    <Compile Include="platform\avr\DS2413.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="fallback\AppConfig.h">
+    <Compile Include="platform\avr\DS2413.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="fallback\Config.h">
+    <Compile Include="platform\avr\EepromAccessImpl.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="FastDigitalPin.h">
+    <Compile Include="platform\avr\FastDigitalPin.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Main.cpp">
+    <Compile Include="platform\avr\Main.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="NullLcdDriver.cpp">
+    <Compile Include="platform\avr\NullLcdDriver.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="NullLcdDriver.h">
+    <Compile Include="platform\avr\NullLcdDriver.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="OLEDFourBit.cpp">
+    <Compile Include="platform\avr\OLEDFourBit.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="OLEDFourBit.h">
+    <Compile Include="platform\avr\OLEDFourBit.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="OneWire.cpp">
+    <Compile Include="platform\avr\OneWire.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="OneWire.h">
+    <Compile Include="platform\avr\OneWire.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="OneWireActuator.h">
+    <Compile Include="platform\avr\OneWireActuator.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="OneWireTempSensor.cpp">
+    <Compile Include="platform\avr\OneWireTempSensor.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="OneWireTempSensor.h">
+    <Compile Include="platform\avr\OneWireTempSensor.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Pins.h">
+    <Compile Include="platform\avr\Pins.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Random.cpp">
+    <Compile Include="platform\avr\Random.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="RotaryEncoder.cpp">
+    <Compile Include="platform\avr\RotaryEncoder.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="SensorArduinoPin.h">
+    <Compile Include="platform\avr\SensorArduinoPin.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="SpiLcd.cpp">
+    <Compile Include="platform\avr\SpiLcd.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="SpiLcd.h">
+    <Compile Include="platform\avr\SpiLcd.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="TicksArduino.h">
+    <Compile Include="platform\avr\TicksArduino.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="TicksArduino.cpp">
+    <Compile Include="platform\avr\TicksArduino.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="TicksImpl.h">
+    <Compile Include="platform\avr\TicksImpl.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="arduino\" />
-    <Folder Include="arduino\cores\" />
-    <Folder Include="arduino\cores\arduino\" />
-    <Folder Include="arduino\variants\" />
-    <Folder Include="fallback" />
-    <Folder Include="build" />
-    <Folder Include="devices" />
-    <Folder Include="controller" />
+    <Folder Include="app\controller\" />
+    <Folder Include="app\devices\" />
+    <Folder Include="app\fallback\" />
+    <Folder Include="app" />
+    <Folder Include="platform" />
+    <Folder Include="platform\avr" />
+    <Folder Include="platform\avr\arduino\" />
+    <Folder Include="platform\avr\arduino\cores\" />
+    <Folder Include="platform\avr\arduino\cores\arduino\" />
+    <Folder Include="platform\avr\arduino\variants\" />
+    <Folder Include="platform\avr\build\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build\makedep.mk">
+    <None Include="platform\avr\build\makedep.mk">
       <SubType>compile</SubType>
     </None>
-    <None Include="build\Makefile">
+    <None Include="platform\avr\build\Makefile">
       <SubType>compile</SubType>
     </None>
   </ItemGroup>
