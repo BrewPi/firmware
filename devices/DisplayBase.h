@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "Brewpi.h"
-#include "TemperatureFormats.h"
 
 /* Set to 1 to enable virtual functions and polymorphic display. */
 #define DISPLAY_POLYMORPHIC 0

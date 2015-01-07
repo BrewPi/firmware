@@ -85,39 +85,16 @@ public:
 	void microseconds(uint32_t micros) { }
 };
 
-#include "TicksArduino.h"
+// return time that has passed since timeStamp, take overflow into account
+inline ticks_seconds_t timeSince(ticks_seconds_t currentTime, ticks_seconds_t previousTime) {
+	if(currentTime>=previousTime){
+		return currentTime - previousTime;
+	}
+	else{
+		// overflow has occurred
+		return (currentTime + 1440) - (previousTime +1440); // add a day to both for calculation
+	}
+}
 
-// Determine the type of Ticks needed
-// TICKS_IMPL_CONFIG is the code string passed to the constructor of the Ticks implementation
 
-#if BREWPI_SIMULATE				
-/** For simulation, by the simulator - each step in the simulator advances the time by one second. */    
-	typedef ExternalTicks TicksImpl;
-	#define TICKS_IMPL_CONFIG		// no configuration of ExternalTicks necessary
-
-#elif BREWPI_EMULATE
-/** When debugging in AVR studio (and running normal brewpi - not the simulator), use a simple MockTicks that increments 100
-	millis each time it's called. */	
-	typedef MockTicks TicksImpl;
-	#define TICKS_IMPL_CONFIG 100	
-	
-#else // use regular hardware timer/delay
-	typedef HardwareTicks TicksImpl;
-	#define TICKS_IMPL_CONFIG
-#endif	// BREWPI_EMULATE
-
-extern TicksImpl ticks;
-
-// Determine the type of delay required.
-// For emulation, don't delay, since time in the emulator is not real time, so the delay is meaningless.
-// For regular code, use the arduino delay function.
-
-#if BREWPI_EMULATE || !defined(ARDUINO)
-typedef NoOpDelay DelayImpl;		// for emulation (avr debugger), don't bother delaying, it takes ages.
-#define DELAY_IMPL_CONFIG
-#else
-typedef HardwareDelay DelayImpl;
-#define DELAY_IMPL_CONFIG
-#endif
-
-extern DelayImpl wait;
+#include "TicksImpl.h"

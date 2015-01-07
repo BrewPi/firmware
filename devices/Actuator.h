@@ -20,8 +20,7 @@
 
 #pragma once
 
-#include "Brewpi.h"
-#include "FastDigitalPin.h"
+#include "Devices.h"
 
 #define ACTUATOR_VIRTUAL 1
 

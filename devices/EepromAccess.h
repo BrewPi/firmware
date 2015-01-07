@@ -1,6 +1,6 @@
 /*
  * Copyright 2013 BrewPi/Elco Jacobs.
- * Copyright 2013 Matthew McGowan. 
+ * Copyright 2013 Matthew McGowan.
  *
  * This file is part of BrewPi.
  * 
@@ -20,34 +20,8 @@
 
 #pragma once
 
-#include "Brewpi.h"
+#include "EepromTypes.h"
 
-template<class T> class Sensor
-{	
-	public:	
-	virtual T sense()=0;
-	
-	virtual ~Sensor() {}
-};
+#include "EepromAccessImpl.h"
 
-template <class T>
-class ValueSensor : public Sensor<T>
-{
-public:	
-	ValueSensor(T initial) : value(initial) {}
-
-	virtual T sense() {
-		return (T)0;
-	}
-	
-	void setValue(T _value) {
-		value = _value;
-	}
-	
-private:
-	T value;	
-};
-
-typedef Sensor<bool> SwitchSensor;
-
-
+extern EepromAccess eepromAccess;

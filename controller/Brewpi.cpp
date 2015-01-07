@@ -33,7 +33,9 @@
 #include "Menu.h"
 #include "Pins.h"
 #include "RotaryEncoder.h"
+#if BREWPI_BUZZER
 #include "Buzzer.h"
+#endif
 #include "TempSensor.h"
 #include "TempSensorMock.h"
 #include "TempSensorExternal.h"

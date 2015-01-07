@@ -8,6 +8,7 @@
 #pragma once
 
 #include "Actuator.h"
+#include "FastDigitalPin.h"
 
 template<uint8_t pin, bool invert>
 class DigitalConstantPinActuator ACTUATOR_BASE_CLASS_DECL

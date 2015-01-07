@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Brewpi.h"
 
 // Values returned by 'process'
 // No complete step yet.
@@ -34,7 +33,7 @@ class RotaryEncoder
 	public:
 	static void init(void);
 	static void setRange(int16_t start, int16_t min, int16_t max);
-	static void process(void);
+	static void process(uint8_t currPinA, uint8_t currPinB);
 			
 	static bool changed(void); // returns one if the value changed since the last call of changed.
 	static int16_t read(void);

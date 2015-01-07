@@ -47,11 +47,23 @@
 #ifdef ARDUINO
 #include "Config.h"
 #else
-#include <Config.h>                     // use search path rather than current directory, so that config.h
+#include <Config.h>                     // use search path rather than current directory, so that config.h is found elsewhere
 #endif
 #include "ConfigDefault.h"
 
+#ifdef ARDUINO
+#include "AppConfig.h"
+#else
+#include <AppConfig.h>
+#endif
+#include "AppConfigDefault.h"
+
+
+#ifdef ARDUINO
 #include <Arduino.h>
+#endif
+
+
 
 #include "Actuator.h"
 
