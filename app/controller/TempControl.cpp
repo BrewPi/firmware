@@ -30,7 +30,6 @@
 #include "TempSensorMock.h"
 #include "EepromManager.h"
 #include "TempSensorDisconnected.h"
-#include "RotaryEncoder.h"
 
 TempControl tempControl;
 

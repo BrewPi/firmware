@@ -228,12 +228,6 @@
     <Compile Include="app\controller\LogMessages.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\controller\Menu.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="app\controller\Menu.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="app\controller\OneWireDevices.h">
       <SubType>compile</SubType>
     </Compile>
@@ -280,6 +274,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\Ticks.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\controller\UI.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\Version.h">
@@ -384,6 +381,12 @@
     <Compile Include="platform\avr\Main.cpp">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="platform\avr\Menu.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="platform\avr\Menu.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="platform\avr\NullLcdDriver.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -436,6 +439,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="platform\avr\TicksImpl.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="platform\avr\UI.cpp">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>

@@ -24,7 +24,6 @@
 
 #include "Display.h"
 #include "DisplayLcd.h"
-#include "Menu.h"
 #include "TempControl.h"
 #include "TemperatureFormats.h"
 #include "Pins.h"

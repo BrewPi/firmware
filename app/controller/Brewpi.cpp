@@ -32,16 +32,13 @@
 #include "PiLink.h"
 #include "Menu.h"
 #include "Pins.h"
-#include "RotaryEncoder.h"
-#if BREWPI_BUZZER
-#include "Buzzer.h"
-#endif
 #include "TempSensor.h"
 #include "TempSensorMock.h"
 #include "TempSensorExternal.h"
 #include "Ticks.h"
 #include "Sensor.h"
 #include "SettingsManager.h"
+#include "UI.h"
 
 #if BREWPI_SIMULATE
 	#include "Simulator.h"
@@ -64,14 +61,11 @@ DisplayType realDisplay;
 DisplayType DISPLAY_REF display = realDisplay;
 
 ValueActuator alarm;
+UI ui;
 
 void setup()
 {
-#if BREWPI_BUZZER	
-	buzzer.init();
-	buzzer.beep(2, 500);
-#endif	
-
+	ui.init();
 	piLink.init();
 
 	logDebug("started");	
@@ -88,9 +82,7 @@ void setup()
 	display.init();
 	display.printStationaryText();
 	display.printState();
-		
-	rotaryEncoder.init();
-	
+			
 	logDebug("init complete");
 }
 
@@ -102,10 +94,6 @@ void brewpiLoop(void)
 			
 	if(ticks.millis() - lastUpdate >= (1000)) { //update settings every second
 		lastUpdate = ticks.millis();
-
-#if BREWPI_BUZZER
-		buzzer.setActive(alarm.isActive() && !buzzer.isActive());
-#endif			
 			
 		tempControl.updateTemperatures();
 		tempControl.detectPeaks();
@@ -117,12 +105,7 @@ void brewpiLoop(void)
 		}
 		tempControl.updateOutputs();
 
-#if BREWPI_MENU
-		if(rotaryEncoder.pushed()){
-			rotaryEncoder.resetPushed();
-			menu.pickSettingToChange();	
-		}
-#endif
+		ui.update();
 
 		// update the lcd for the chamber being displayed
 		display.printState();
