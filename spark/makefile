@@ -1,5 +1,5 @@
 
-%: run_make
+$(MAKECMDGOALS) %: run_make
 
 .PHONY: run_make
 
