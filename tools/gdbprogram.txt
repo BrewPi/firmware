@@ -1,0 +1,17 @@
+# connect remote gdbserver on port 9025 (started with st-util -p 9025)
+target remote localhost:9025
+
+# reset core and hold in reset
+monitor reset halt
+
+# program core with supplied .elf file
+load
+
+# remove all breakpoints
+delete
+
+# reset core and disconnect
+monitor reset
+
+disconnect
+quit
