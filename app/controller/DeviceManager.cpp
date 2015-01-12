@@ -31,16 +31,17 @@
 
 #define CALIBRATION_OFFSET_PRECISION (4)
 
-#ifdef ARDUINO
+#ifdef WIRING
 #include "OneWireTempSensor.h"
 #include "OneWireActuator.h"
 #include "DS2413.h"
 #include "OneWire.h"
 #include "DallasTemperature.h"
-#include "ActuatorArduinoPin.h"
-#include "SensorArduinoPin.h"
+#include "ActuatorPin.h"
+#include "SensorPin.h"
 #endif
 
+class OneWire;
 
 /*
  * Defaults for sensors, actuators and temperature sensors when not defined in the eeprom.
@@ -49,7 +50,7 @@ ValueSensor<bool> defaultSensor(false);			// off
 ValueActuator defaultActuator;
 DisconnectedTempSensor defaultTempSensor;
 
-#if !BREWPI_SIMULATE
+#if !BREWPI_SIMULATE && defined(ARDUINO)
 #if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
 OneWire DeviceManager::beerSensorBus(beerSensorPin);
 OneWire DeviceManager::fridgeSensorBus(fridgeSensorPin);
@@ -60,7 +61,7 @@ OneWire DeviceManager::primaryOneWireBus(oneWirePin);
 
 
 OneWire* DeviceManager::oneWireBus(uint8_t pin) {
-#if !BREWPI_SIMULATE
+#if !BREWPI_SIMULATE && defined(ARDUINO)
 #if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
 	if (pin==beerSensorPin)
 		return &beerSensorBus;

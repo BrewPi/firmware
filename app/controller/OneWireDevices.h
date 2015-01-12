@@ -22,3 +22,5 @@
 
 void parseBytes(uint8_t* data, const char* s, uint8_t len);
 void printBytes(uint8_t* data, uint8_t len, char* buf);
+
+typedef uint8_t DeviceAddress[8];

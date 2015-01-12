@@ -27,10 +27,7 @@
 #include "TempSensor.h"
 #include "OneWireDevices.h"
 #include "Pins.h"
-
-#ifdef ARDUINO
-#include "DallasTemperature.h"	// for DeviceAddress
-#endif
+#include "OneWire.h"
 
 /**
  * A user has freedom to connect various devices to the arduino, either via extending the oneWire bus, or by assigning to specific pins, e.g. actuators, switch sensors.
@@ -128,7 +125,8 @@ inline DeviceOwner deviceOwner(DeviceFunction id) {
 	return id==0 ? DEVICE_OWNER_NONE : id>=DEVICE_BEER_FIRST ? DEVICE_OWNER_BEER : DEVICE_OWNER_CHAMBER;
 }	
 
-		
+typedef uint8_t DeviceAddress[8];
+
 /*
  * A union of all device types.
  */	
@@ -203,7 +201,6 @@ void HandleDeviceDisplay(const char* key, const char* value, void* pv);
  */
 void UpdateDeviceState(DeviceDisplay& dd, DeviceConfig& dc, char* val);
 
-class OneWire;
 
 class DeviceManager
 {
@@ -213,7 +210,8 @@ public:
 	
 	int8_t enumerateActuatorPins(uint8_t offset)
 	{
-#if BREWPI_ACTUATOR_PINS && defined(ARDUINO)
+#if BREWPI_ACTUATOR_PINS
+#ifdef ARDUINO
 #if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
 		switch (offset) {
 			case 0: return heatingPin;
@@ -231,6 +229,7 @@ public:
 		}
 #endif			
 #endif
+#endif                
 		return -1;
 	}
 
@@ -247,7 +246,7 @@ public:
 	 */
 	int8_t enumOneWirePins(uint8_t offset)
 	{		
-#ifdef ARDUINO            
+#if defined(ARDUINO)
 #if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
 		if (offset==0)
 			return beerSensorPin;
