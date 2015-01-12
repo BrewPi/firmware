@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Atmel Studio Solution File, Format Version 11.00
-Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "brewpi_avr", "brewpi_avr.cppproj", "{C0415566-E0BC-45DB-8E53-CC52899284FE}"
+Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "brewpi-avr", "brewpi-avr.cppproj", "{C0415566-E0BC-45DB-8E53-CC52899284FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,12 +1,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "application.h"
-#include "Adafruit_mfGFX/Adafruit_mfGFX.h"
-#include "Adafruit_ILI9341/Adafruit_ILI9341.h"
-#include "ScrollBox/ScrollBox.h"
-#include "OneWire/OneWire.h"
-#include "BrewPiTouch/BrewPiTouch.h"
-#include "DS2408/DS2408.h"
-#include "ValvesController/ValvesController.h"
+#include "devices/Adafruit_mfGFX/Adafruit_mfGFX.h"
+#include "devices/Adafruit_ILI9341/Adafruit_ILI9341.h"
+#include "devices/ScrollBox/ScrollBox.h"
+#include "devices/OneWire/OneWire.h"
+#include "devices/BrewPiTouch/BrewPiTouch.h"
+#include "devices/DS2408/DS2408.h"
+#include "devices/ValvesController/ValvesController.h"
 
 SYSTEM_MODE(SEMI_AUTOMATIC);
 
