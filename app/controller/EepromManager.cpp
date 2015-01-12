@@ -87,9 +87,6 @@ uint8_t EepromManager::saveDefaultDevices()
 	return 0;
 }
 
-#define arraySize(x) (sizeof(x)/sizeof(x[0]))
-
-
 bool EepromManager::applySettings()
 {	
 	if (!hasSettings())
