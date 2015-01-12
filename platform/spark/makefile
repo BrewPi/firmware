@@ -7,4 +7,4 @@ APPDIR = ../../firmware
 SPARKDIR = $(APPDIR)/platform/spark
 
 run_make:
-	@$(MAKE) -s -e -C ../../../spark-firmware/main APPDIR=$(APPDIR) TARGET_FILE=brewpi TARGET_DIR=$(SPARKDIR)/target $(MAKEOVERRIDES) $(MAKECMDGOALS) 
+	@$(MAKE) --debug=b -e -C ../../../spark-firmware/main APPDIR=$(APPDIR) TARGET_FILE=brewpi TARGET_DIR=$(SPARKDIR)/target $(MAKEOVERRIDES) $(MAKECMDGOALS) 
