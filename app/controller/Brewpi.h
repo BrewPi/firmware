@@ -58,12 +58,7 @@
 #endif
 #include "AppConfigDefault.h"
 
-
-#ifdef ARDUINO
-#include <Arduino.h>
-#endif
-
-
+#include "Platform.h"
 
 #include "Actuator.h"
 
