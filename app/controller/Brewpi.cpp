@@ -30,8 +30,6 @@
 #include "Display.h"
 #include "TempControl.h"
 #include "PiLink.h"
-#include "Menu.h"
-#include "Pins.h"
 #include "TempSensor.h"
 #include "TempSensorMock.h"
 #include "TempSensorExternal.h"

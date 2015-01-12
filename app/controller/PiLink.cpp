@@ -33,12 +33,7 @@
 #include "EepromManager.h"
 #include "EepromFormat.h"
 #include "SettingsManager.h"
-#include "Buzzer.h"
 #include "Display.h"
-
-#ifdef ARDUINO
-#include "util/delay.h"
-#endif
 
 #if BREWPI_SIMULATE
 #include "Simulator.h"
@@ -65,11 +60,16 @@
 
 	static MockSerial mockSerial;
 	#define piStream mockSerial
-#elif !defined(ARDUINO)
+#elif !defined(WIRING)
         StdIO stdIO;
         #define piStream stdIO
 #else
 	#define piStream Serial
+#ifdef SPARK
+    #define SERIAL_READY(x) 1
+#else
+    #define SERIAL_READY(x) x
+#endif        
 #endif
 
 bool PiLink::firstPair;
@@ -87,7 +87,7 @@ void PiLink::print_P(const char *fmt, ... ){
 	va_start (args, fmt );
 	vsnprintf_P(printfBuff, PRINTF_BUFFER_SIZE, fmt, args);
 	va_end (args);
-	if(piStream){ // if Serial connected (on Leonardo)
+	if(SERIAL_READY(piStream)){ // if Serial connected (on Leonardo)
 		piStream.print(printfBuff);
 	}
 }
@@ -98,7 +98,7 @@ void PiLink::print(char *fmt, ... ){
 	va_start (args, fmt );
 	vsnprintf(printfBuff, PRINTF_BUFFER_SIZE, fmt, args);
 	va_end (args);
-	if(piStream){
+	if(SERIAL_READY(piStream)){
 		piStream.print(printfBuff);
 	}	
 }
@@ -170,7 +170,11 @@ void PiLink::receive(void){
 					PSTR(VERSION_STRING), 
 					BUILD_NUMBER,
 					PSTR(BUILD_NAME),
+#ifdef BREWPI_STATIC_CONFIG                
 					BREWPI_STATIC_CONFIG, 
+#else
+                    0,
+#endif                
 					BREWPI_SIMULATE, 
 					BREWPI_BOARD,
 					BREWPI_LOG_MESSAGES_VERSION);
@@ -587,7 +591,7 @@ int readNext()
 {
 	uint8_t retries = 0;
 	while (piStream.available()==0) {
-		_delay_us(100);
+		wait.microseconds(100);
 		retries++;
 		if(retries >= 10){
 			return -1;
