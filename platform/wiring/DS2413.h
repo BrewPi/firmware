@@ -20,11 +20,8 @@
 
 #pragma once
 
-#ifdef ARDUINO
-
 #include "Brewpi.h"
 #include "OneWire.h"
-#include "PiLink.h"
 
 typedef uint8_t DeviceAddress[8];
 typedef uint8_t pio_t;
@@ -213,5 +210,3 @@ private:
 	OneWire* oneWire;	
 	DeviceAddress address;	
 };
-
-#endif

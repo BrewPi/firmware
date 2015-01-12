@@ -136,7 +136,7 @@ void NullLcdDriver::getLine(uint8_t lineNumber, char * buffer){
 inline void NullLcdDriver::command(uint8_t value) {
 }
 
-inline size_t NullLcdDriver::write(uint8_t value) {
+size_t NullLcdDriver::write(uint8_t value) {
 	content[_currline][_currpos] = value;
 	_currpos++;
 	return 1;

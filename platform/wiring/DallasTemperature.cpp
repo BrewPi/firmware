@@ -14,15 +14,6 @@
 #include "DallasTemperature.h"
 #include "Ticks.h"
 
-
-#if ARDUINO >= 100
-#include "Arduino.h"
-#else
-extern "C" {
-#include "WConstants.h"
-}
-#endif
-
 DallasTemperature::DallasTemperature(OneWire* _oneWire)
 #if REQUIRESALARMS
     : _AlarmHandler(&defaultAlarmHandler)

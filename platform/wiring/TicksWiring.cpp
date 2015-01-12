@@ -7,8 +7,7 @@
 
 #include "Ticks.h"
 
-#ifdef ARDUINO
-#include "TicksArduino.h"
+#include "TicksWiring.h"
 
 
 
@@ -25,4 +24,3 @@ void HardwareDelay::millis(uint16_t millis) { ::delay(millis); }
 
 void HardwareDelay::seconds(uint16_t seconds)	{ millis(seconds<<10); }
 
-#endif

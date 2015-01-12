@@ -25,7 +25,6 @@
 #include "Brewpi.h"
 #include "Actuator.h"
 #include "DS2413.h"
-#include "PiLink.h"
 
 /**
  * An actuator or sensor that operates by communicating with a DS2413 device.
