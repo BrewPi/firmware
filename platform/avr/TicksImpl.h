@@ -9,7 +9,7 @@
 #ifndef TICKSIMPL_H_
 #define TICKSIMPL_H_
 
-#include "TicksArduino.h"
+#include "TicksWiring.h"
 
 // Determine the type of Ticks needed
 // TICKS_IMPL_CONFIG is the code string passed to the constructor of the Ticks implementation
