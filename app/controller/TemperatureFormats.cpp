@@ -22,6 +22,7 @@
 #include <string.h>
 #include <limits.h>
 #include "TempControl.h"
+#include <stdarg.h>
 
 // See header file for details about the temp format used.
 

@@ -22,6 +22,8 @@
 
 #include "Brewpi.h"
 
+#include <stdint.h>
+
 typedef uint32_t ticks_millis_t;
 typedef uint32_t ticks_micros_t;
 typedef uint16_t ticks_seconds_t;
