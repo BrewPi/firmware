@@ -15,7 +15,7 @@ int act1 = A0;
 int act2 = A1;
 int act3 = A6;
 int buzz = A2;
-Adafruit_ILI9341 tft = Adafruit_ILI9341(D4, D5, 0);
+Adafruit_ILI9341 tft = Adafruit_ILI9341(D4, D5);
 ScrollBox debugBox(&tft);
 OneWire ow(0);
 BrewPiTouch touch(D3, D2);
@@ -30,7 +30,7 @@ void setup() {
     digitalWrite(buzz, LOW);
     delay(200);
     digitalWrite(buzz, HIGH);
-   
+
     SPI.begin();
     //TODO, lgramatikov, core runs at 72MHz. 11 gives 6.5. But looks like Spark can do only predefined values - http://docs.spark.io/#/firmware/communication-spi 
     //16 looks like good start.
@@ -170,7 +170,7 @@ unsigned long testText() {
     tft.println("Mashing display demo");
     tft.println();
 
-    char const * name[6] = {"HLT in: ", "HLT out: ", "Mash in: ", "Mash out: ", "Boil in", "Boil out"};
+    char const * name[6] = {"HLT in: ", "HLT out: ", "Mash in: ", "Mash out: ", "Boil in:", "Boil out:"};
     float value[6] = {68.6, 68.8, 68.7, 68.1, 25.1, 26.4};
     float setting[6] = {0x0, 69.0, 0x0, 68.5, 0x0, 0x0};
 
