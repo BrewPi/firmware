@@ -152,42 +152,72 @@ unsigned long testFillScreen() {
 unsigned long testText() {
     tft.fillScreen(ILI9341_BLACK);
     unsigned long start = micros();
-    tft.setCursor(0, 0);
-    tft.setTextColor(ILI9341_WHITE);
-    tft.setTextSize(1);
+    tft.setCursor(0, 2);
 
-    tft.setTextColor(ILI9341_YELLOW);
+    tft.setTextColor(tft.Color565(0xD4, 0x26, 0x50));
     tft.setTextSize(3);
-    tft.println("BrewPi");
-    tft.setTextColor(ILI9341_GREEN);
-    tft.println("LCD test 2");
-    tft.setTextColor(ILI9341_WHITE);
+    tft.print("BrewPi ");
+    tft.setTextColor(tft.Color565(0x5F, 0xB1, 0x46));
+    tft.setTextSize(3);
+    tft.println("Spark");
+
+    tft.setTextSize(1);
+    tft.println();
     tft.setTextSize(2);
 
-    tft.setTextColor(ILI9341_WHITE);
-    tft.print("HLT in: ");
+    tft.setTextColor(0x3333);
+    tft.setCursorX(50);
+    tft.println("Mashing display demo");
+    tft.println();
+
+    char const * name[6] = {"HLT in: ", "HLT out: ", "Mash in: ", "Mash out: ", "Boil in", "Boil out"};
+    float value[6] = {68.6, 68.8, 68.7, 68.1, 25.1, 26.4};
+    float setting[6] = {0x0, 69.0, 0x0, 68.5, 0x0, 0x0};
+
     tft.setTextColor(ILI9341_YELLOW);
-    tft.println(68.1);
+//    tft.setTextSize(1);
+    tft.setCursorX(135);
+    tft.print("Actual");
+    tft.setCursorX(225);
+    tft.println("Target");
+
+    tft.setTextSize(2);
+    for (int i = 0; i < 6; i++) {
+        tft.setTextColor(tft.Color565(0xAA, 0xAA, 0xAA));
+        tft.setCursorX(15);
+        tft.print(name[i]);
+
     tft.setTextColor(ILI9341_WHITE);
-    tft.print("HLT out: ");
-    tft.setTextColor(ILI9341_YELLOW);
-    tft.println(68.4);
-    tft.setTextColor(ILI9341_WHITE);
-    tft.print("Mash in: ");
-    tft.setTextColor(ILI9341_YELLOW);
-    tft.println(66.5);
-    tft.setTextColor(ILI9341_WHITE);
-    tft.print("Mash out: ");
-    tft.setTextColor(ILI9341_YELLOW);
-    tft.println(68.3);
-    tft.setTextColor(ILI9341_WHITE);
-    tft.print("Boil out: ");
-    tft.setTextColor(ILI9341_YELLOW);
-    tft.println(52.3);
+        tft.setCursorX(140);
+        tft.print(value[i]);
+        tft.setCursorX(230);
+        if(setting[i] == 0x00){
+            tft.println(" -.--");
+        }
+        else{
+            tft.println(setting[i]);
+        }
+    }
     tft.setTextSize(1);
-    tft.print("And in the smallest font, space on the screen is almost unlimited!");
-    tft.print("Bla bla bla...");
-    tft.print("This could be the fine print disclaimer");
+    tft.println();
+    for (int i = 0; i < 12; i++) {
+        int valve = i+1;
+        tft.setCursor(i/3 * 80, i%3*8 + 200);
+        tft.setTextColor(ILI9341_WHITE);
+        tft.print(valve);
+        tft.print(": ");
+        if ((valve > 1 && valve < 6) || valve == 9) {
+            tft.setTextColor(ILI9341_GREEN);
+            tft.print("open");
+        } else {
+            tft.setTextColor(ILI9341_RED);
+            tft.print("closed");
+        }
+        if ((i + 1) % 3 == 0) {
+            tft.println();
+        }      
+    }
+
 
     return micros() - start;
 }
