@@ -1,5 +1,6 @@
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices
+INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/OneWire
 INCLUDE_DIRS += $(SOURCE_PATH)/app/fallback
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/wiring
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark
@@ -8,7 +9,6 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/Adafruit_mfGFX
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/BrewPiTouch
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/DS2408
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/DS2413
-INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/DS2482
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/Display
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/EEPROM
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/LowPassFilter
@@ -21,6 +21,9 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/ValvesController
 
 CSRC += $(call target_files,app/controller,*.c)
 CPPSRC += $(call target_files,app/controller,*.cpp)
+
+CSRC += $(call target_files,app/devices,*.c)
+CPPSRC += $(call target_files,app/devices,*.cpp)
 
 CSRC += $(call target_files,platform/wiring/,*.c)
 CPPSRC += $(call target_files,platform/wiring/,*.cpp)

@@ -16,21 +16,10 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __DS2482_H__
-#define __DS2482_H__
+#pragma once
 
 #include <inttypes.h>
-
-// you can exclude onewire_search by defining that to 0
-#ifndef ONEWIRE_SEARCH
-#define ONEWIRE_SEARCH 1
-#endif
-
-// You can exclude CRC checks altogether by defining this to 0
-#ifndef ONEWIRE_CRC
-#define ONEWIRE_CRC 1
-#endif
-
+#include "OneWireLowLevelInterface.h"
 
 #define DS2482_CONFIG_APU (1<<0)
 #define DS2482_CONFIG_PPM (1<<1)
@@ -46,51 +35,57 @@
 #define DS2482_STATUS_TSB	(1<<6)
 #define DS2482_STATUS_DIR	(1<<7)
 
-class DS2482 {
+class DS2482 : public OneWireLowLevelInterface {
 public:
     //Address is 0-3
-    DS2482(uint8_t address);
-    ~DS2482();
+
+    DS2482(uint8_t address) : mAddress(address) {
+        mAddress = 0x18 | mAddress;
+    }
+
+    virtual ~DS2482(){};
 
     bool configure(uint8_t config);
-    void resetMaster();
+    
+    uint8_t pinNr(){
+        return mAddress; // return I2C address instead of pinNr
+    }
 
-    //DS2482-800 only
-    bool selectChannel(uint8_t channel);
-
+    // Perform the onewire reset function.  We will wait up to 250uS for
+    // the bus to come high, if it doesn't then it is broken or shorted
+    // and we return a 0;
+    //
+    // Returns 1 if a device asserted a presence pulse, 0 otherwise.   
     bool reset(); // return true if presence pulse is detected
-    uint8_t wireReadStatus(bool setPtr = false);
+
+    // Issue a 1-Wire rom select command, you do the reset first.
+    virtual void select(const uint8_t rom[8]) = 0;
+
+    // Issue skip rom
+    void skip();
 
     void write(uint8_t b, uint8_t power = 0);
     uint8_t read();
 
     void write_bit(uint8_t bit);
     uint8_t read_bit();
+
     // Issue a 1-Wire rom select command, you do the reset first.
     void select(uint8_t rom[8]);
-    // Issue skip rom
-    void skip();
+
+    // DS2482 specific functions below
+
+    void resetMaster();
+
+    //DS2482-800 only
+    bool selectChannel(uint8_t channel);
+
+
+    uint8_t wireReadStatus(bool setPtr = false);
 
     uint8_t hasTimeout() {
         return mTimeout;
     }
-#if ONEWIRE_SEARCH
-    // Clear the search state so that if will start from the beginning again.
-    void reset_search();
-
-    // Look for the next device. Returns 1 if a new address has been
-    // returned. A zero might mean that the bus is shorted, there are
-    // no devices, or you have already retrieved all of them.  It
-    // might be a good idea to check the CRC to make sure you didn't
-    // get garbage.  The order is deterministic. You will always get
-    // the same devices in the same order.
-    uint8_t search(uint8_t *newAddr);
-#endif
-#if ONEWIRE_CRC
-    // Compute a Dallas Semiconductor 8 bit CRC, these are used in the
-    // ROM and scratchpad registers.
-    static uint8_t crc8(uint8_t *addr, uint8_t len);
-#endif
 
 private:
 
@@ -100,15 +95,4 @@ private:
     void setReadPtr(uint8_t readPtr);
 
     uint8_t busyWait(bool setReadPtr = false); //blocks until
-
-#if ONEWIRE_SEARCH
-    uint8_t searchAddress[8];
-    int8_t searchLastDisrepancy;
-    uint8_t searchExhausted;
-#endif
-
 };
-
-
-
-#endif

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "../OneWire/OneWire.h"
+#include "OneWire.h"
 #include <string.h>
 
 typedef uint8_t DeviceAddress[8];

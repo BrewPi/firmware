@@ -106,7 +106,7 @@
 #define ONEWIRE_PARASITE_SUPPORT 1
 #endif
 
-class OneWire
+class OneWirePin
 {
   private:
     IO_REG_TYPE bitmask;
@@ -123,7 +123,7 @@ class OneWire
 	void parasitePowerAfterWrite(bool power);
 
   public:
-    OneWire( uint8_t pin);
+    OneWirePin( uint8_t pin);
 
 	uint8_t pinNr() const { return pin; }
 

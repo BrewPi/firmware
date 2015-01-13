@@ -1,14 +1,22 @@
-/* 
- * File:   OneWire.h
- * Author: Elco
- *
- * Created on 3 december 2014, 22:39
- */
+#pragma once
 
-#ifndef ONEWIRE_H
-#define	ONEWIRE_H
+#include <inttypes.h>
+#include "OneWireImpl.h"
 
-#include "../DS2482/DS2482.h"
+// You can exclude certain features from OneWire.  In theory, this
+// might save some space.  In practice, the compiler automatically
+// removes unused code (technically, the linker, using -fdata-sections
+// and -ffunction-sections when compiling, and Wl,--gc-sections
+// when linking), so most of these will not result in any code size
+// reduction.  Well, unless you try to use the missing features
+// and redesign your program to not need them!  ONEWIRE_CRC8_TABLE
+// is the exception, because it selects a fast but large algorithm
+// or a small but slow algorithm.
+
+// you can exclude onewire_search by defining that to 0
+#ifndef ONEWIRE_SEARCH
+#define ONEWIRE_SEARCH 1
+#endif
 
 // You can exclude CRC checks altogether by defining this to 0
 #ifndef ONEWIRE_CRC
@@ -30,31 +38,66 @@
 #define ONEWIRE_CRC16 1
 #endif
 
-#define ONEWIRE_DS2408 1
+#define FALSE 0
+#define TRUE  1
 
+#ifndef ONEWIRE_PARASITE_SUPPORT
+#define ONEWIRE_PARASITE_SUPPORT 1
+#endif
 
-
-
-#if ONEWIRE_DS2408
-class OneWire : public DS2482 {
+class OneWire : public OneWireImpl {
 public:
-    OneWire(uint8_t address);
-    ~OneWire();
+    // Argument is PinNr for OneWirePin device, address for bus master IC
+
+    OneWire(uint8_t config) : OneWireImpl(config) {
+        // base class OneWireLowLevelInterface configures pin or bus master IC
+#if ONEWIRE_SEARCH
+        reset_search();
+#endif
+    }
+
 private:
-
-#else // ONEWIRE_DS2408    
-// TODO
-    
-#endif // ONEWIRE_DS2408
-    
-    
+#if ONEWIRE_SEARCH
+    // global search state
+    uint8_t ROM_NO[8];
+    uint8_t LastDiscrepancy;
+    uint8_t LastFamilyDiscrepancy;
+    uint8_t LastDeviceFlag;
+#endif
 
 public:
+    // Issue a 1-Wire rom select command, you do the reset first.
+    void select(const uint8_t rom[8]);
+
+    // Issue a 1-Wire rom skip command, to address all on bus.
+    void skip(void);
+
+    void write_bytes(const uint8_t *buf, uint16_t count);
+
+    void read_bytes(uint8_t *buf, uint16_t count);
+
+#if ONEWIRE_SEARCH
+    // Clear the search state so that if will start from the beginning again.
+    void reset_search();
+
+    // Setup the search to find the device type 'family_code' on the next call
+    // to search(*newAddr) if it is present.
+    void target_search(uint8_t family_code);
+
+    // Look for the next device. Returns 1 if a new address has been
+    // returned. A zero might mean that the bus is shorted, there are
+    // no devices, or you have already retrieved all of them.  It
+    // might be a good idea to check the CRC to make sure you didn't
+    // get garbage.  The order is deterministic. You will always get
+    // the same devices in the same order.
+    uint8_t search(uint8_t *newAddr);
+#endif
+
 #if ONEWIRE_CRC
     // Compute a Dallas Semiconductor 8 bit CRC, these are used in the
     // ROM and scratchpad registers.
     static uint8_t crc8(const uint8_t *addr, uint8_t len);
-	
+
 #if ONEWIRE_CRC16
     // Compute the 1-Wire CRC16 and compare it against the received CRC.
     // Example usage (reading a DS2408):
@@ -93,11 +136,4 @@ public:
     static uint16_t crc16(const uint8_t* input, uint16_t len, uint16_t crc = 0);
 #endif
 #endif
-    
 };
-
-
-
-
-#endif	/* ONEWIRE_H */
-

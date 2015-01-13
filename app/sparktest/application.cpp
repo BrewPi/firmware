@@ -1,12 +1,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "application.h"
-#include "devices/Adafruit_mfGFX/Adafruit_mfGFX.h"
-#include "devices/Adafruit_ILI9341/Adafruit_ILI9341.h"
-#include "devices/ScrollBox/ScrollBox.h"
-#include "devices/OneWire/OneWire.h"
-#include "devices/BrewPiTouch/BrewPiTouch.h"
-#include "devices/DS2408/DS2408.h"
-#include "devices/ValvesController/ValvesController.h"
+#include "Adafruit_mfGFX.h"
+#include "Adafruit_ILI9341.h"
+#include "ScrollBox.h"
+#include "OneWire.h"
+#include "BrewPiTouch.h"
+#include "DS2408.h"
+#include "ValvesController.h"
 
 SYSTEM_MODE(SEMI_AUTOMATIC);
 
@@ -71,10 +71,9 @@ void setup() {
     debugBox.print("My IP is: ");
     debugBox.println(WiFi.localIP());
      */
-
 }
 
-void loop(void) {
+void printOneWireAdresses(void){
     uint8_t addr[8];
     if (!ow.search(addr)) {
         debugBox.println("No more addresses.");
@@ -91,6 +90,10 @@ void loop(void) {
         }
     }
     debugBox.println("");
+}
+
+void ballValvesSerialTest(){
+    uint8_t addr[8];
     ValvesController valves;
     valves.init(&ow, addr);
     
@@ -122,8 +125,9 @@ void loop(void) {
         }
         delay(50);        
     }
+}
 
-    return;
+void touchCalibrateTest(){
     touch.calibrate(&tft);
     touch.update();
     if (touch.isTouched()) {
@@ -137,6 +141,10 @@ void loop(void) {
     } else {
         digitalWrite(buzz, HIGH);
     }
+}
+
+void loop(void) {
+    printOneWireAdresses();
 }
 
 unsigned long testFillScreen() {
