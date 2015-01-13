@@ -19,6 +19,7 @@ Upload SWD enabled build result via DFU. Put core in DFU mode, run:
 ```
 make program-dfu
 ```
+This should find brewpi.dfu and upload it over USB.
 
 When starting st-util, you should now see this line:
 
@@ -43,3 +44,12 @@ And the run directory to
 ```
 tools
 ```
+
+# Hardware debugging
+To step debug on target, you will have to:
+
+- set the Gdb Init File in the projects Debug settings to gdb-attach.txt
+- load your .elf to the core the Run button (see above)
+- start st-util listening on port 9025: st-util -p 9025
+- set a breakpoint that you are sure you will hit (pause is not working yet)
+- attach to to the debugger in Netbeans with the gdbserver plugin with target ```remote localhost:9025```
