@@ -23,15 +23,14 @@ BrewPiTouch touch(D3, D2);
 unsigned long testText();
 
 void setup() {
-    Serial.begin(57600);
-    Wire.begin();
-    ow.reset();
     pinMode(act1, OUTPUT);
     pinMode(act2, OUTPUT);
     pinMode(act3, OUTPUT);
     pinMode(buzz, OUTPUT);
+    digitalWrite(buzz, LOW);
+    delay(200);
     digitalWrite(buzz, HIGH);
-
+   
     SPI.begin();
     //TODO, lgramatikov, core runs at 72MHz. 11 gives 6.5. But looks like Spark can do only predefined values - http://docs.spark.io/#/firmware/communication-spi 
     //16 looks like good start.
@@ -45,6 +44,10 @@ void setup() {
     tft.setRotation(3);
 
     testText();
+
+    Serial.begin(57600);
+    Wire.begin();
+    ow.reset();
 
     //configure DS2482 to use active pull-up instead of pull-up resistor 
     //configure returns 0 if it cannot find DS2482 connected 
