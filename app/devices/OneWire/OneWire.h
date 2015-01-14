@@ -45,11 +45,11 @@
 #define ONEWIRE_PARASITE_SUPPORT 1
 #endif
 
-class OneWire : public OneWireImpl {
+class OneWire {
 public:
     // Argument is PinNr for OneWirePin device, address for bus master IC
 
-    OneWire(uint8_t config) : OneWireImpl(config) {
+    OneWire(uint8_t pa) : driver(pa){
         // base class OneWireLowLevelInterface configures pin or bus master IC
 #if ONEWIRE_SEARCH
         reset_search();
@@ -63,9 +63,29 @@ private:
     uint8_t LastDiscrepancy;
     uint8_t LastFamilyDiscrepancy;
     uint8_t LastDeviceFlag;
+    OneWireDriver driver;
 #endif
 
 public:
+    // wrappers for low level functions
+    bool init(){
+        return driver.init();
+    }    
+    uint8_t read(){
+        return driver.read();
+    }
+    void write(uint8_t b, uint8_t power = 0){
+        driver.write(b, power);
+    }
+    uint8_t pinNr(){
+        return driver.pinNr(); // return I2C address instead of pinNr
+    }
+    bool reset(){
+        return driver.reset();
+    }  
+    
+    // high level functions
+    
     // Issue a 1-Wire rom select command, you do the reset first.
     void select(const uint8_t rom[8]);
 

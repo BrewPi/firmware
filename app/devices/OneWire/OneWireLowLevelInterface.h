@@ -23,7 +23,7 @@
 class OneWireLowLevelInterface {
 public:
     // Configure the pin or chip
-    bool configure(uint8_t config);
+    virtual bool init() = 0;
     virtual uint8_t pinNr(void) = 0;
 
     // Perform a 1-Wire reset cycle. Returns 1 if a device responds

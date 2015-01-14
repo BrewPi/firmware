@@ -67,6 +67,12 @@ uint8_t DS2482::busyWait(bool setReadPtr) {
 
 //----------interface
 
+bool DS2482::init(){
+    Wire.begin();
+    resetMaster();
+    return configure(DS2482_CONFIG_APU);
+}
+
 void DS2482::resetMaster() {
     mTimeout = 0;
     Wire.beginTransmission(mAddress);

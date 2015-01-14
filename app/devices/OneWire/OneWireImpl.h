@@ -6,12 +6,12 @@
 
 #include "DS2482.h"
 
-typedef DS2482 OneWireImpl;
+typedef DS2482 OneWireDriver;
 
 #elif defined(ONEWIRE_PIN)
 
 #include "OneWirePin.h"
 
-typedef OneWirePin OneWireImpl;
+typedef OneWirePin OneWireDriver;
 
 #endif

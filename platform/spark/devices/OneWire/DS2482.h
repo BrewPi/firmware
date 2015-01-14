@@ -19,6 +19,7 @@
 #pragma once
 
 #include <inttypes.h>
+#include "application.h"
 #include "OneWireLowLevelInterface.h"
 
 #define DS2482_CONFIG_APU (1<<0)
@@ -42,9 +43,11 @@ public:
     DS2482(uint8_t address) : mAddress(address) {
         mAddress = 0x18 | mAddress;
     }
-
+  
     virtual ~DS2482(){};
 
+    bool init();
+    
     bool configure(uint8_t config);
     
     uint8_t pinNr(){
@@ -56,22 +59,13 @@ public:
     // and we return a 0;
     //
     // Returns 1 if a device asserted a presence pulse, 0 otherwise.   
-    bool reset(); // return true if presence pulse is detected
-
-    // Issue a 1-Wire rom select command, you do the reset first.
-    virtual void select(const uint8_t rom[8]) = 0;
-
-    // Issue skip rom
-    void skip();
+    bool reset();
 
     void write(uint8_t b, uint8_t power = 0);
     uint8_t read();
 
     void write_bit(uint8_t bit);
     uint8_t read_bit();
-
-    // Issue a 1-Wire rom select command, you do the reset first.
-    void select(uint8_t rom[8]);
 
     // DS2482 specific functions below
 

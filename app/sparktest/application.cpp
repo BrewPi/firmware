@@ -46,14 +46,13 @@ void setup() {
     testText();
 
     Serial.begin(57600);
-    Wire.begin();
-    ow.reset();
-
+    
     //configure DS2482 to use active pull-up instead of pull-up resistor 
     //configure returns 0 if it cannot find DS2482 connected 
-    if (!ow.configure(DS2482_CONFIG_APU)) {
-        Serial.print("DS2482 not found\n");
-        debugBox.println("DS2482 not found\n");
+    if (!ow.init()) {
+        const char error[] = "OneWire initialization failed\n";
+        Serial.print(error);
+        debugBox.println(error);
     }
     touch.init();
     debugBox.println("BrewPi started");

@@ -120,12 +120,12 @@ sample code bearing this copyright.
 
 void OneWire::write_bytes(const uint8_t *buf, uint16_t count) {
     for (uint16_t i = 0; i < count; i++)
-        write(buf[i]);
+        driver.write(buf[i]);
 }
 
 void OneWire::read_bytes(uint8_t *buf, uint16_t count) {
     for (uint16_t i = 0; i < count; i++)
-        buf[i] = read();
+        buf[i] = driver.read();
 }
 
 //
@@ -135,9 +135,9 @@ void OneWire::read_bytes(uint8_t *buf, uint16_t count) {
 void OneWire::select(const uint8_t rom[8]) {
     uint8_t i;
 
-    write(0x55); // Choose ROM
+    driver.write(0x55); // Choose ROM
 
-    for (i = 0; i < 8; i++) write(rom[i]);
+    for (i = 0; i < 8; i++) driver.write(rom[i]);
 }
 
 //
@@ -145,7 +145,7 @@ void OneWire::select(const uint8_t rom[8]) {
 //
 
 void OneWire::skip() {
-    write(0xCC); // Skip ROM
+    driver.write(0xCC); // Skip ROM
 }
 
 #if ONEWIRE_SEARCH
@@ -214,7 +214,7 @@ uint8_t OneWire::search(uint8_t *newAddr) {
     // if the last call was not the last one
     if (!LastDeviceFlag) {
         // 1-Wire reset
-        if (!reset()) {
+        if (!driver.reset()) {
             // reset the search
             LastDiscrepancy = 0;
             LastDeviceFlag = FALSE;
@@ -223,13 +223,13 @@ uint8_t OneWire::search(uint8_t *newAddr) {
         }
 
         // issue the search command
-        write(0xF0);
+        driver.write(0xF0);
 
         // loop to do the search
         do {
             // read a bit and its complement
-            id_bit = read_bit();
-            cmp_id_bit = read_bit();
+            id_bit = driver.read_bit();
+            cmp_id_bit = driver.read_bit();
 
             // check for no devices on 1-wire
             if ((id_bit == 1) && (cmp_id_bit == 1))
@@ -265,7 +265,7 @@ uint8_t OneWire::search(uint8_t *newAddr) {
                     ROM_NO[rom_byte_number] &= ~rom_byte_mask;
 
                 // serial number search direction write bit
-                write_bit(search_direction);
+                driver.write_bit(search_direction);
 
                 // increment the byte counter id_bit_number
                 // and shift the mask rom_byte_mask
