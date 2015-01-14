@@ -35,7 +35,7 @@
 #define DS2482_STATUS_TSB	(1<<6)
 #define DS2482_STATUS_DIR	(1<<7)
 
-class DS2482 : public OneWireLowLevelInterface {
+class DS2482 /*: public OneWireLowLevelInterface */ {
 public:
     //Address is 0-3
 
