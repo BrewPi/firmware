@@ -69,6 +69,7 @@
           <executablePath>./platform/spark/target/brewpi.elf</executablePath>
         </makeTool>
       </makefileType>
+    </conf>
     <conf name="minimal_SWD" type="0">
       <toolsSet>
         <compilerSet>default</compilerSet>
