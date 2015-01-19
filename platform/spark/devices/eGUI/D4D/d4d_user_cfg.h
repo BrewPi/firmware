@@ -46,6 +46,10 @@
 #ifndef __D4D_USER_CFG_H
 #define __D4D_USER_CFG_H
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcomment"
+
+
 /******************************************************************************
 * Desciption : This file allows user depends modification of D4D Freescale
 *   graphical driver.
@@ -91,7 +95,7 @@
 // d4dlcdhw_s12_spi_16b - low level hw interface driver for hardware SPI with 8 bit witdh for S12 MCU
 // d4dlcdhw_swspi_16b - low level hw interface driver for software SPI with 16 bit witdh
 // d4dlcdhw_spi_swc_8b - low level hw interface driver for hardware SPI with 8 bit witdh and software
-                          controlled control signals of LCD controller (for example FSA506)
+//                          controlled control signals of LCD controller (for example FSA506)
 
 // d4dlcdhw_mqx_spi - low level driver for SPI over MQX (version 3.6 or higher)
 // d4dlcdhw_mqx_fb - low level driver for flexbus over MQX (version 3.6 or higher)
@@ -308,7 +312,7 @@
 //#define D4D_COLOR_SCR_EXIT_BTN_FORE  D4D_COLOR_YELLOW
 
 // Define a default screen header exit button background color
-//#define D4D_COLOR_SCR_EXIT_BTN_BCKG  D4D_COLOR_BRIGHT_RED\
+//#define D4D_COLOR_SCR_EXIT_BTN_BCKG  D4D_COLOR_BRIGHT_RED
 
 // Define a default screen background color
 //#define D4D_COLOR_SCR_DESKTOP  D4D_COLOR_WHITE
@@ -386,9 +390,9 @@
 
 //#define D4D_BTN_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
 //#define D4D_BTN_FNT_PRTY_DEFAULT  ( 0 )
-/***********************
-* Sizes constants
-***********************/
+/***********************/
+/* Sizes constants */
+/************************/
 
 //#define D4D_BTN_BORDER_OFFSET 3
 
@@ -405,41 +409,43 @@
 * Properties
 ***********************/
 
-//#define D4D_GAUGE_F_DEFAULT     (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE | \
-//                                  D4D_OBJECT_F_FOCUSRECT | D4D_GAUGE_F_REDRAW_TEXT | D4D_GAUGE_F_HUB)
+#if 0
+#define D4D_GAUGE_F_DEFAULT     (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE | \
+                                  D4D_OBJECT_F_FOCUSRECT | D4D_GAUGE_F_REDRAW_TEXT | D4D_GAUGE_F_HUB)
+#endif
 
 //#define D4D_GAUGE_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
 //#define D4D_GAUGE_FNT_PRTY_DEFAULT  ( 0 )
 
-/***********************
-* Sizes constants
-***********************/
+/***********************/
+/* Sizes constants */
+/***********************/
 
 //#define D4D_GAUGE_HUB_RADIUS 6
 
-/***********************
-* Colors
-***********************/
+/***********************/
+/* Colors */
+/***********************/
 // standard gauge colors
 //#define D4D_COLOR_GAUG_HUB        D4D_COLOR_DARK_RED
 //#define D4D_COLOR_GAUG_POINTER    D4D_COLOR_DARK_BLUE
 
-/******************************************************************************
-* Slider Object
-******************************************************************************/
+/******************************************************************************/
+/* Slider Object*/
+/******************************************************************************/
 
-/***********************
-* Properties
-***********************/
+/***********************/
+/* Properties */
+/***********************/
 
 
 //#define D4D_SLDR_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FOCUSRECT | D4D_OBJECT_F_TRANSP_TEXT)
 
 //#define D4D_SLDR_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
 //#define D4D_SLDR_FNT_PRTY_DEFAULT  ( D4D_FNT_PRTY_TRANSPARENT_YES_MASK )
-/***********************
-* Sizes constants
-***********************/
+/***********************/
+/* Sizes constants */
+/***********************/
 //#define D4D_SLDR_BAR_OFF_LENGTH  2
 //#define D4D_SLDR_BAR_OFF_WIDTH  4
 
@@ -504,17 +510,18 @@
 //#define D4D_MENU_ITEM_FNT_PRTY_DEFAULT  ( 0 )
 
 
-/******************************************************************************
-* CheckBox  Object
-******************************************************************************/
+/******************************************************************************/
+/** CheckBox  Object */
+/******************************************************************************/
 
-/***********************
-* Properties
-***********************/
+/***********************/
+/* Properties */
+/***********************/
 
-//#define D4D_CHECKBOX_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE\
-//                                  | D4D_OBJECT_F_FOCUSRECT | D4D_CHECKBOX_F_ICON_RECTANGLE )
-
+#if 0
+#define D4D_CHECKBOX_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE\
+                                  | D4D_OBJECT_F_FOCUSRECT | D4D_CHECKBOX_F_ICON_RECTANGLE )
+#endif
 
 // #define D4D_CHECKBOX_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_LEFT_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
 // #define D4D_CHECKBOX_FNT_PRTY_DEFAULT  ( 0 )
@@ -536,12 +543,14 @@
 * Radio button  Object
 ******************************************************************************/
 
-/***********************
-* Properties
-***********************/
+/***********************/
+/* Properties */
+/***********************/
 
-//#define D4D_RADIOBUTTON_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE\
-//                                  | D4D_OBJECT_F_FOCUSRECT | D4D_RADIOBUTTON_F_ICON_RING )
+#if 0
+#define D4D_RADIOBUTTON_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE\
+                                  | D4D_OBJECT_F_FOCUSRECT | D4D_RADIOBUTTON_F_ICON_RING )
+#endif
 
 // #define D4D_RADIOBUTTON_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_LEFT_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
 // #define D4D_RADIOBUTTON_FNT_PRTY_DEFAULT  ( 0 )
@@ -747,5 +756,7 @@
 // #define D4D_EDIT_BOX_ITEM_TXT_PRTY_DEFAULT  ( D4D_ALIGN_V_CENTER_MASK | D4D_ALIGN_H_LEFT_MASK )
 
 // #define D4D_EDIT_BOX_CURSOR_BLINK_TICK_COUNTER  ( 10 )
+
+#pragma GCC diagnostic pop
 
 #endif /* __D4D_USER_CFG_H */
