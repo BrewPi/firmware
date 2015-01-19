@@ -1,0 +1,128 @@
+/**************************************************************************
+*
+* Copyright 2014 by Petr Gargulak. eGUI Community.
+* Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
+*
+***************************************************************************
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Lesser General Public License Version 3
+* or later (the "LGPL").
+*
+* As a special exception, the copyright holders of the eGUI project give you
+* permission to link the eGUI sources with independent modules to produce an
+* executable, regardless of the license terms of these independent modules,
+* and to copy and distribute the resulting executable under terms of your
+* choice, provided that you also meet, for each linked independent module,
+* the terms and conditions of the license of that module.
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
+* to do so. If you do not wish to do so, delete this
+* exception statement from your version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+*
+* You should have received a copy of the GNU General Public License
+* and the GNU Lesser General Public License along with this program.
+* If not, see <http://www.gnu.org/licenses/>.
+*
+***************************************************************************//*!
+*
+* @file      d4dlcdhw_kinetis_spi_cfg.h.example
+*
+* @author    b01800
+*
+* @version   0.0.2.0
+*
+* @date      Feb-3-2011
+*
+* @brief     D4D driver - template hardware lcd driver configuration header file
+*
+*******************************************************************************/
+
+#ifndef __D4DLCDHW_KINETIS_SPI_CFG_H
+#define __D4DLCDHW_KINETIS_SPI_CFG_H
+
+  /******************************************************************************
+  * includes
+  ******************************************************************************/
+  // include here what the driver need for run for example "derivative.h"
+  // #include "derivative.h"    /* include peripheral declarations and more for S08 and CV1 */
+
+ #include "MK60N512VMD100.h"
+
+
+ /*******************************************
+  * Signals definition
+  *******************************************/
+
+  #define D4DLCD_SPI_ID 2       // SPI module number
+  #define D4DLCD_SPI_PCS_ID 0   // Chip Select used by SPI
+
+  // tweak off the SPI frequency to maximum 25Mb/s, standard 12Mb/s
+  #define D4DLCD_SPI_DBL_BRATE
+
+
+
+  // configure PADs for SPI functionality
+
+  #define D4DLCD_SPI_MISO_PCR   PORTD_PCR14
+  #define D4DLCD_SPI_MOSI_PCR   PORTD_PCR13
+  #define D4DLCD_SPI_CLK_PCR    PORTD_PCR12
+  #define D4DLCD_SPI_CS_PCR     PORTD_PCR11 // PCS0
+  // #define D4DLCD_SPI_CS_PCR   PORTD_PCR15 // PCS1
+
+
+
+  #define D4DLCD_DC             17          // PTB_17
+  #define D4DLCD_DC_PORT        GPIOB_PDOR  // PortB Output Data Output
+  #define D4DLCD_DC_DDR         GPIOB_POER  // PortB Output Enable
+  #define D4DLCD_DC_PCR         PORTB_PCR17 // PAD configuration register
+
+  // RESET pin definition -if used
+
+  //#define D4DLCD_RESET        x           // Pin number
+  //#define D4DLCD_RESET_PORT   GPIOx_PDOR  // PortX Output Data Output
+  //#define D4DLCD_RESET_DDR    GPIOx_POER  // PortX Output Enable
+  //#define D4DLCD_RESET_PCR    PORTx_PCRx  // PAD configuration register
+
+
+  // BACKLIGHT pin definition -if used
+
+  //#define D4DLCD_BACKLIGHT        x           // Pin number
+  //#define D4DLCD_BACKLIGHT_PORT   GPIOx_PDOR  // PortX Output Data Output
+  //#define D4DLCD_BACKLIGHT_DDR    GPIOx_POER  // PortX Output Enable
+  //#define D4DLCD_BACKLIGHT_PCR    PORTx_PCRx  // PAD configuration register
+
+
+ // Enable clock to SPI module and Peripheral ports
+  #define D4DLCD_DISPLAY_MCU_USER_INIT SIM_SCGC3 |= SIM_SCGC3_SPI2_MASK;\
+                               SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK\
+                               | SIM_SCGC5_PORTB_MASK | SIM_SCGC5_PORTC_MASK \
+                               | SIM_SCGC5_PORTD_MASK | SIM_SCGC5_PORTE_MASK;
+
+
+ /*********** Power macros - for modification uncoment and modify ***********/
+
+  //#define D4DLCD_INIT_CS OUTPUT(D4DLCD_CS);
+  //#define D4DLCD_ASSERT_CS RESET(D4DLCD_CS);
+  //#define D4DLCD_DEASSERT_CS SET(D4DLCD_CS);
+
+  //#define D4DLCD_INIT_DC OUTPUT(D4DLCD_DC);
+  //#define D4DLCD_ASSERT_DC RESET(D4DLCD_DC);
+  //#define D4DLCD_DEASSERT_DC SET(D4DLCD_DC);
+
+  //#define D4DLCD_INIT_RESET OUTPUT(D4DLCD_RESET);
+  //#define D4DLCD_ASSERT_RESET RESET(D4DLCD_RESET);
+  //#define D4DLCD_DEASSERT_RESET SET(D4DLCD_RESET);
+
+
+  /******************************************************************************
+  * Constants
+  ******************************************************************************/
+  // define here what you need to be configurable
+
+#endif /* __D4DLCDHW_KINETIS_SPI_CFG_H */

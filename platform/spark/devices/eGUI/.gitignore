@@ -1,0 +1,32 @@
+# Object files
+*.o
+*.ko
+
+# Libraries
+*.lib
+*.a
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Folders
+HTML/
+D4CD/
+_Official_Demos/EGUI_Demo/TWR_K70/IAR/settings/
+*.dep
+*.ewd
+*.pbi
+*.cout
+*.pbd
+*.browse
+_Official_Demos/EGUI_Demo/TWR_K70/IAR/D4D_LIBRARY/
+*.i
+*.map

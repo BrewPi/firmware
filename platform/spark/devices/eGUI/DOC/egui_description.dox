@@ -1,0 +1,399 @@
+/*!
+  \page egui_description Description
+  
+<h1>Features:</h1> \n
+A solution for the LCD is needed in cases of control, measure, and diagnostics of some systems or devices
+with human-machine interface, where the operator can actively change conditions and requirements.
+The eGUI/D4D is capable of generating the user menu, graphics, pictures, text, and display them on the
+LCD module. It allows interacting with all objects, dynamically changing, adding, or removing them. It
+also can read and write their status or current value. The D4D also fully supports touch screen capabilities
+of the LCD displays.
+
+- Supports graphical color LCD displays of various sizes
+- Small RAM (volatile) memory footprint
+- Multiple platform support
+- Object style of driver
+- Smart support-screen-oriented structure of the user code
+- Custom screen sizes, position, and a header like window
+- Compounded objects (objects can be owner of child objects)
+- <b>Graphical widgets</b>
+*- @ref doxd4d_button
+*- @ref doxd4d_check_box
+*- @ref doxd4d_combo_box
+*- @ref doxd4d_console
+*- @ref doxd4d_edit_box
+*- @ref doxd4d_gauge
+*- @ref doxd4d_graph
+*- @ref doxd4d_group_box
+*- @ref doxd4d_icon
+*- @ref doxd4d_label
+*- @ref doxd4d_list_box
+*- @ref doxd4d_menu
+*- @ref doxd4d_picture
+*- @ref doxd4d_progress_bar
+*- @ref doxd4d_radio_button
+*- @ref doxd4d_scroll_bar
+*- @ref doxd4d_slider
+*- @ref doxd4d_text_box
+- Touch screen support
+- Multiple font support
+- External font support
+- UNICODE support
+- Buffer for input keys
+- Various types of color systems
+- Transparent color support
+
+\n
+\n
+
+<h1>Structure of Project with eGUI/D4D</h1> \n
+  Figure shows the position of the D4D in the whole project. It is placed between low-level drivers of
+the LCD and the user application.
+
+
+@image html _images/D4D_low_level_driver_structure.png Figure 1: eGUI/D4D block diagram
+@image rtf _images/D4D_low_level_driver_structure.png  Figure 1: eGUI/D4D block diagram
+@image latex _images/D4D_low_level_driver_structure.png Figure 1: eGUI/D4D block diagram
+
+
+<h1>File Structure</h1> \n
+In Figure you can find the file structure of eGUI/D4D, it is created from five types of files:
+- LCD low-level driver
+- LCD D4D high-level driver
+- LCD D4D user configuration
+- User application files
+- User application D4D dependent file (screen files)
+
+@image html _images/CW_FileList_D4D.png Figure 2: eGUI/D4D file structure in CodeWarrior project
+@image rtf _images/CW_FileList_D4D.png Figure 2: eGUI/D4D file structure in CodeWarrior project
+@image latex _images/CW_FileList_D4D.png Figure 2: eGUI/D4D file structure in CodeWarrior project
+
+
+\n
+\n
+
+<h1>Low-Level Drivers</h1> \n
+  The low-level driver groups contain the hardware-dependent low-level drivers for the LCD/TFT displays
+and touch screens. This group is divided into two sub-groups. These groups are also divided into another
+two groups that separate controller drivers and hardware interface drivers. The lower level driver file
+structures are shown in Figure 3. This organization of low level drivers allow various combinations of
+LCD and Touch screen drivers and hardware interfaces as shown in Figure 1
+
+@image html _images/Low_Level_File_structure.png Figure 3: eGUI/D4D low level driver file structures
+@image rtf _images/Low_Level_File_structure.png Figure 3: eGUI/D4D low level driver file structures
+@image latex _images/Low_Level_File_structure.png Figure 3: eGUI/D4D low level driver file structures
+
+<h2>LCD Drivers </h2> \n
+The LCD driver directory contains both layers designated for the LCD control.
+<h3>LCD Controller Drivers </h3>
+This group contains all supported LCD drivers.
+- d4dlcd_ssd1289.h / d4dlcd_ssd1289.c
+*- Provides functions and prototypes to control the LCD module with the SSD1289 TFT controller.
+- d4dlcd_fsa506.h / d4dlcd_fsa506.c
+*- Provides functions and prototypes to control the LCD module with the FSA506 TFT controller.
+- d4dlcd_ls020.h / d4dlcd_ls020.c
+*- Provides functions and prototypes to control the LS020 LCD module.
+- d4dlcd_lgdp4531.h / d4dlcd_lgdp4531.c
+*- Provides functions and prototypes to control the LCD module with the LGDP4531 TFT controller.
+- d4dlcd_frame_buffer.h / d4dlcd_frame_buffer.c
+*- Provides functions and prototypes to control the LCD module over MCU/MPU peripheral to
+- d4dlcd_template.h / d4dlcd_template.c
+*- Template of LCD low level driver, that should be used to create a new low level driver
+
+<h3>LCD Hardware Interface Drivers</h3>
+This group contains all supported LCD driver hardware interfaces for the LCD controllers mentioned
+above.
+- d4dlcdhw_flexbus_16b.h / d4dlcdhw_flexbus_16b.c
+*- Provides functions and prototypes to communicate with the LCD controller through a 16-bit
+width 6800 parallel bus interface over flexbus.
+- d4dlcdhw_flexbus_8b.h / d4dlcdhw_flexbus_8b.c
+*- Provides functions and prototypes to communicate with the LCD controller through an 8-bit
+width 6800 parallel bus interface over flexbus.
+- d4dlcdhw_gpio6800_8b.h / d4dlcdhw_gpio6800_8b.c
+*- Provides functions and prototypes to communicate with the LCD controller through an 8-bit
+width 6800 parallel bus interface over GPIO.
+- d4dlcdhw_gpio8080_8b.h / d4dlcdhw_gpio8080_8b.c
+*- Provides functions and prototypes to communicate with the LCD controller through an 8-bit
+width 8080 parallel bus interface over GPIO.
+- d4dlcdhw_gpio8080_byte_8b.h / d4dlcdhw_gpio8080_byte_8b.c
+*- Provides functions and prototypes to communicate with the LCD controller through an 8-bit
+width 8080 parallel bus interface over GPIO. This is a special derivative from a gpio8080
+driver that sends only bytes instead of words. This access is needed for an FSA506 LCD
+controller.
+- d4dlcdhw_s12_spi_16b.h / d4dlcdhw_s12_spi_16b.c
+*- Provides functions and prototypes to communicate with the LCD controller through a 16-bit
+serial bus interface over an SPI. This driver is a derivative from the S12 MCU family.
+- d4dlcdhw_spi_8b.h / d4dlcdhw_spi_8b.c
+*- Provides functions and prototypes to communicate with the LCD controller through an 8-bit
+serial bus interface over SPI. This driver is a derivative from the S08 MCU family.
+- d4dlcdhw_spi_swc_8b.h / d4dlcdhw_spi_swc_8b.c
+*- Provides functions and prototypes to communicate with software controlled LCD controller by
+8-bit serial bus interface over SPI. This driver is derivative for S08 MCU family.
+- d4dlcdhw_spi_sw_16b.h / d4dlcdhw_spi_sw_16b.c
+*- Provides functions and prototypes to communicate with the LCD controller through a 16-bit
+serial bus SPI interface over GPIO.
+- d4dlcdhw_kinetis_spi.h / d4dlcdhw_kinetis_spi.c
+*- Provides functions and prototypes to communicate with the LCD controller through a 16-bit
+serial bus SPI interface on Kinetis device.
+- d4dlcdhw_mqx_spi.h / d4dlcdhw_mqx_spi.c
+*- Provides functions and prototypes to communicate with the LCD controller through a 16-bit
+serial bus SPI interface through MQX IO drivers.
+- d4dlcdhw_mqx_flexbus.h / d4dlcdhw_mqx_flexbus.c
+*- Provides functions and prototypes to communicate with the LCD controller through a 16-bit
+parallel FlexBus bus through MQX IO drivers.
+- d4dlcd_template.h / d4dlcd_template.c
+*- Template of the LCD low level hardware interface driver that must be used to create a new low
+level hardware interface driver.
+- d4dlcdhw_dragonfire_lcdc.h / d4dlcdhw_dragonfire_lcdc.c
+*- Provides functions and prototypes to operate with the MCF52277 LCDC peripheral.
+- d4dlcdhw_mqx_mpc5125_diu.h / d4dlcdhw_mqx_mpc5125_diu.c
+*- Provides functions and prototypes to operate with the MPC5125 DIU peripheral on the MQX
+(3.6 version or higher).
+- d4dlcdhw_k70_lcdc.h / d4dlcdhw_k70_lcdc.c
+*- Provides functions and prototypes to operate with the kinetis K70 LCDC peripheral (support
+native 24- bit color depth).
+- d4dlcd_template_fb.h / d4dlcd_template_fb.c
+*- LCD template of the low level hardware interface driver for the frame buffer that must be used
+to create a new frame buffer low level hardware interface driver.
+
+<h2>Touch Screen Drivers</h2>
+The LCD drivers directory contain both layers designated for the touch screen control.
+<h3>Touch Screen Drivers</h3>
+- d4dtch_resistive.h / d4dtch_resistive.c
+*- Provides functions and prototypes to control the resistive touch screen module with analog
+interface
+- d4dtch_resistive_mqx.h / d4dtch_resistive_mqx.c
+*- Provides functions and prototypes to control the resistive touch screen module with MQX
+TCHRES IO driver.
+- d4dtch_TSC2046.h / d4dtch_TSC2046.c
+*- Provides functions and prototypes to control the resistive touch screen module with a digital
+SPI interface provided by the TSC2046 controller
+- d4dtch_cr_touch.h / d4dtch_cr_touch.c
+*- Provides functions and prototypes to control the touch screen module handled by CRTOUCH
+Freescale device. It has implemented IIC bare metal and also MQX driver.
+- d4dtch_mcf52277_asp.h / d4dtch_mcf52277_asp.c
+*- Provides functions and prototypes to control the resistive touch screen module with an analog
+interface on the MCF52277 ASP peripheral. The driver is interrupt driven.
+- d4dtch_template.h / d4dtch_template.c
+*- Template of the touch screen low level driver that must be used to create a new low level driver
+
+<h3>Touch Screen Hardware Interface Drivers</h3>
+This group contains all supported touch screen driver hardware interfaces for the touch screen hardware
+mentioned above.
+- d4dtchhw_s08_adc.h / d4dtchhw_s08_adc.c
+*- Provides a function to run a resistive method of reading the touch screen using a GPIO and
+ADC peripheral.
+- d4dtchhw_s12_adc.h / d4dtchhw_s12_adc.c
+*- Provides a function to run the resistive method of reading the touch screen using a GPIO and
+ADC peripherial.This driver is derivative for S12 MCU family.
+- d4dtchhw_mcf52259_adc.h / d4dtchhw_mcf52259_adc.c
+*- Provides a function to run the resistive method of reading the touch screen using the GPIO and
+ADC peripherial.This driver is derivative for MCF52259 MCU.
+- d4dtchhw_kinetis_adc_12b.h / d4dtchhw_kinetis_adc_12b.c
+*- Provides a function to run the resistive method of reading the touch screen using the GPIO and
+ADC peripheral on Kinetis device.
+- d4dtchhw_template.h / d4dtchhw_template.c
+*- Template of the touch screen low level hardware interface driver that must be used to create a
+new low level hardware interface driver.
+
+<h1>eGUI/D4D User Configuration File</h1>
+This file is used to modify all default values and settings of the D4D. Here the behavior of the driver and
+its objects can be modified. The default visual aspect of the individual objects can also be modified.
+\ref d4d_user_cfg.h.Example
+*- This file is used to change default settings of the driver and all objects
+*- File has to be created in the user source code directory. The template of this file is placed in the
+driver folder, sub folder "Configuration Example."
+\n
+
+<b><i>NOTE</i></b>
+All these files are needed to run the eGUI/D4D correctly in your project,
+including d4d_user_cfg.h. If you do not use some functions you do not need
+to care about them, they will not be linked into your application and will not
+consume any memory or any other resources.
+
+\n
+\n
+
+<h1>User Application Files</h1>
+User application files are dependent on the target application, there are a few recommendations on how to
+use this driver and how to design source code for individual screens.
+Recommendation:
+- On start the user code void D4D_Init(D4D_SCREEN* pInitScreen) has to be called.
+- In the main never-ending loop void D4D_Poll(void) has to be periodically called.
+- When the keys were changed (for example in the keyboard interrupt) void
+D4D_NewKeyEvent(D4D_KEY_SCANCODE scanCode) has to be called with the new state of
+keys.
+- In case the touch screen is used (for example in an interrupt routine from the timer peripheral) void
+D4D_CheckTouchScreen(void) has to be called periodically to check the state of the touch screen.
+- In case the time events are used (for example in an interrupt routine from the timer peripheral)
+void D4D_TimeTickPut(void) has to be called periodically, to provide "time tick" information into
+the driver.
+\n
+
+<h2>User Application eGUI/D4D Dependent Files</h2>
+- screen_xxxxxx.c
+*- These files must contain all the code for individual screens as functions and data. Create a new
+file for each screen, for better lucidity of the source code.
+
+<h1>eGUI/D4D Data Memory Use</h1>
+The driver consumes some flash memory for its code and static data structures. Here is an explanation of
+the memory usage for screens and objects. Each screen contains its own configuration information, its
+runtime data, and a list of all the objects that are present on it. Each object is put together from a general
+object representation, object specific data, and some objects also have run-time object data.
+
+@image html _images/memory_placement.PNG Figure 4: Memory map for screens and objects
+@image rtf _images/memory_placement.PNG Figure 4: Memory map for screens and objects
+@image latex _images/memory_placement.PNG Figure 4: Memory map for screens and objects
+
+\n
+\n
+
+<b><i>NOTE</i></b>
+\n
+All objects contain instantiation macros that create gripped objects mostly
+in ROM memory and only runtime data in the RAM (see Figure 4). All of
+these macros have others with same name and postfix _INRAM. The macros
+with _INRAM postfix creates complete graphic objects in RAM memory
+and thus all parameters can change runtime, but the screen must be redrawn
+manually after each change.
+
+@image html _images/memory_placement_RAM.PNG Figure 5: Memory map for screens and objects created in RAM memory by _INRAM postfix instantion macros
+@image rtf _images/memory_placement_RAM.PNG Figure 5: Memory map for screens and objects created in RAM memory by _INRAM postfix instantion macros
+@image latex _images/memory_placement_RAM.PNG Figure 5: Memory map for screens and objects created in RAM memory by _INRAM postfix instantion macros
+
+\n
+<h1>eGUI/D4D Compounded objects</h1>
+The eGUI since 3.00 version brings new functionality "compounded objects" that allow all objects be
+owner of any other objects ("children"). This functionality allows with eGUI create professional
+applications with better graphical layout on the screen.
+The nice example of compounded object is D4D_GROUP_BOX, this object is completely using a new
+advantages of this new functionality. It is typical container type of object that just only draw the
+background, bevels and title, and the main thing what is does is containing other "children" objects.
+The difference between standard eGUI "single" objects and the new compounded objects is shown on
+following figures. On the first figure(Figure 6 Standard eGUI objects on screen) that shows the standard
+eGUI objects on screen is shown that all objects are on same layer and could be created just only simple
+screens without any advanced arrangement of objects.
+
+\n
+\n
+@image html _images/Standard_scren.PNG Figure 6: Standard eGUI objects on screen
+@image rtf _images/Standard_scren.PNG Figure 6: Standard eGUI objects on screen
+@image latex _images/Standard_scren.PNG Figure 6: Standard eGUI objects on screen
+\n
+\n
+The second figure(Figure 7 The compounded objects on screen) shows the screen that contains
+compounded objects, that shows typical multi layer objects structure that allows create an advanced
+argument of objects on screen.
+\n
+\n
+@image html _images/Compounded_screen.png Figure 7: The compounded objects on screen
+@image rtf _images/Compounded_screen.png Figure 7: The compounded objects on screen
+@image latex _images/Compounded_screen.png Figure 7: The compounded objects on screen
+\n
+\n
+Code example:
+\n
+@code
+// Externs the parent objects
+D4D_EXTERN_OBJECT(grbBx_test)
+D4D_EXTERN_OBJECT(grbBx_test2)
+D4D_EXTERN_OBJECT(grbBx_test2b)
+D4D_EXTERN_OBJECT(grbBx_test2a)
+
+// The declaration of relations between the 3 radio buttons in smallest group box
+D4D_DECLARE_OBJECT_RELATIONS_BEGIN(rb_testRela, &grbBx_test2a)
+D4D_DECLARE_OBJECT_RELATIONS_END
+
+// The declaration of small 3 radio buttons
+_D4D_DECLARE_RADIOBUTTON(D4D_CONST, rb_test1a, "Radio Button 1", 5, 0, 85, 16, 4, NULL,
+rb_testRela, D4D_RADIOBUTTON_F_DEFAULT, NULL, NULL, NULL, FONT_ARIAL7, NULL, NULL, NULL)
+
+_D4D_DECLARE_RADIOBUTTON(D4D_CONST, rb_test2a, "Radio Button 2", 5, 20, 85, 16, 4, NULL,
+rb_testRela, D4D_RADIOBUTTON_F_DEFAULT, NULL, NULL, NULL, FONT_ARIAL7, NULL, NULL, NULL)
+
+_D4D_DECLARE_RADIOBUTTON(D4D_CONST, rb_test3a, "Radio Button 3", 5, 40, 85, 16, 4, NULL,
+rb_testRela, D4D_RADIOBUTTON_F_DEFAULT, NULL, NULL, NULL, FONT_ARIAL7, NULL, NULL, NULL)
+
+// Declaration of group box "My test2a Group Box" with three radio buttons
+D4D_DECLARE_GROUP_BOX_BEGIN(grbBx_test2a, 5, 0, 105, 80, 0, &grbBx_test2,
+&groupBox_marginDefault, "My test2a Group Box", FONT_ARIAL7, D4D_GROUP_BOX_F_DEFAULT, NULL,
+NULL, NULL)
+
+D4D_DECLARE_GROUP_BOX_OBJECT(rb_test1a)
+D4D_DECLARE_GROUP_BOX_OBJECT(rb_test2a)
+D4D_DECLARE_GROUP_BOX_OBJECT(rb_test3a)
+D4D_DECLARE_GROUP_BOX_OBJECT_END
+
+//Declaration of ralations for button and edit box in small group box "My test2b Group Box"
+D4D_DECLARE_OBJECT_RELATIONS_BEGIN(lbl_testRel, &grbBx_test2b)
+D4D_DECLARE_OBJECT_RELATIONS_END
+
+// Button declaration
+_D4D_DECLARE_BUTTON(D4D_CONST, btn_test, "Button", 20, 5, 60, 20, 5, NULL, lbl_testRel,
+(D4D_BTN_F_DEFAULT | D4D_BTN_F_3D), NULL, NULL, NULL, FONT_ARIAL7, NULL, NULL, NULL)
+
+// Edit box declaration
+_D4D_DECLARE_EDIT_BOX(D4D_CONST, edtBx_test, 20, 30, 60, 20, 0,
+(D4D_MARGIN*)&editBox_marginDefault, lbl_testRel, D4D_EDIT_BOX_F_DEFAULT, NULL, "Edit Box",
+FONT_ARIAL7, 30, NULL, NULL, NULL)
+
+// Group box declaration that is owner of button and edit box
+D4D_DECLARE_GROUP_BOX_BEGIN(grbBx_test2b, 110, 0, 105, 80, 0, &grbBx_test2,
+&groupBox_marginDefault, "My test2b Group Box", FONT_ARIAL7, D4D_GROUP_BOX_F_DEFAULT, NULL,
+NULL, NULL)
+
+D4D_DECLARE_GROUP_BOX_OBJECT(btn_test)
+D4D_DECLARE_GROUP_BOX_OBJECT(edtBx_test)
+D4D_DECLARE_GROUP_BOX_OBJECT_END
+
+// Declaration of child group box "My test2 Group Box" with next two group boxes
+D4D_DECLARE_GROUP_BOX_BEGIN(grbBx_test2, 10, 100, 230, 105, 4, &grbBx_test,
+&groupBox_marginDefault, "My test2 Group Box", FONT_ARIAL7, D4D_GROUP_BOX_F_DEFAULT, NULL,
+NULL, NULL)
+
+D4D_DECLARE_GROUP_BOX_OBJECT(grbBx_test2a)
+D4D_DECLARE_GROUP_BOX_OBJECT(grbBx_test2b)
+D4D_DECLARE_GROUP_BOX_OBJECT_END
+D4D_EXTERN_OBJECT(grbBx_testRB)
+
+// Declaration of relation array for radio buttons, the important is pointer on parent object
+D4D_DECLARE_OBJECT_RELATIONS_BEGIN(rb_testRel, &grbBx_testRB)
+D4D_DECLARE_OBJECT_RELATIONS_END
+
+// Declaration of the Radio Buttons in group box “Radio buttons”
+_D4D_DECLARE_RADIOBUTTON(D4D_CONST, rb_test1, "Radio Button 1", 5, 0, 160, 20, 4, NULL,
+rb_testRel, D4D_RADIOBUTTON_F_DEFAULT, NULL, NULL, NULL, FONT_BERLIN_SANS_FBDEMI12, NULL, NULL,
+NULL)
+
+_D4D_DECLARE_RADIOBUTTON(D4D_CONST, rb_test2, "Radio Button 2", 5, 22, 160, 20, 4, NULL,
+rb_testRel, D4D_RADIOBUTTON_F_DEFAULT, NULL, NULL, NULL, FONT_BERLIN_SANS_FBDEMI12, NULL, NULL,
+NULL)
+
+_D4D_DECLARE_RADIOBUTTON(D4D_CONST, rb_test3, "Radio Button 3", 5, 44, 160, 20, 4, NULL,
+rb_testRel, D4D_RADIOBUTTON_F_DEFAULT, NULL, NULL, NULL, FONT_BERLIN_SANS_FBDEMI12, NULL, NULL,
+NULL)
+
+// Declarations of Big goup box with three radio buttons
+D4D_DECLARE_GROUP_BOX_BEGIN(grbBx_testRB, 20, 0, 180, 90, 6, &grbBx_test,
+&groupBox_marginDefault, "Radio buttons", FONT_ARIAL7, D4D_GROUP_BOX_F_DEFAULT, NULL, NULL,
+NULL)
+
+D4D_DECLARE_GROUP_BOX_OBJECT(rb_test1)
+D4D_DECLARE_GROUP_BOX_OBJECT(rb_test2)
+D4D_DECLARE_GROUP_BOX_OBJECT(rb_test3)
+D4D_DECLARE_GROUP_BOX_OBJECT_END
+
+// Declaration of main Group Box
+D4D_DECLARE_GROUP_BOX_BEGIN(grbBx_test, 10, 20, 260, 230, 16, NULL, &groupBox_marginDefault,
+"My test Group Box", FONT_ARIAL7, D4D_GROUP_BOX_F_DEFAULT, NULL, NULL, NULL)
+D4D_DECLARE_GROUP_BOX_OBJECT(grbBx_testRB) // Child Group Box with radio buttons
+D4D_DECLARE_GROUP_BOX_OBJECT(grbBx_test2) // Child Group Box with two next group boxes
+D4D_DECLARE_GROUP_BOX_OBJECT_END
+@endcode
+
+
+
+
+  
+
+*/

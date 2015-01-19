@@ -1,0 +1,38 @@
+/*!
+  \page egui_converter Converter utility
+
+Introduction
+============
+  
+  The Freescale Embedded GUI Converter Utility 3.0 
+converts images, fonts and strings into data in ANSI C language and binary formats 
+resulting in a format suitable for the eGUI 
+LCD driver for MCUs and MPUs. Output data are stored as 
+in source and header files, as optionaly in binary formats. The utility enables plenty of 
+conversion modes (color, grayscale, monochrome, 
+palette) and color modes (65536, 4096, 256, 2 colors) for 
+image conversion. The images can also be adjusted 
+(change size, rotate, flip) before the conversion. Various 
+fonts, including UNICODE, can be easily customized, converted, and used 
+effectively with the eGUI LCD driver.
+The utility is able also generate the string tables with smart support of multilanguage.
+Also there is implemented save/load functionality to handle multilanguge string tables project on PC.
+
+@image html _images/converter_bmp.png Figure 1: Converter utility bitmaps page
+@image rtf _images/converter_bmp.png Figure 1: Converter utility bitmaps page
+@image latex _images/converter_bmp.png Figure 1: Converter utility bitmaps page
+
+@image html _images/converter_fnt.png Figure 2: Converter utility fonts page
+@image rtf _images/converter_fnt.png Figure 2: Converter utility fonts page
+@image latex _images/converter_fnt.png Figure 2: Converter utility fonts page
+
+@image html _images/converter_str.png Figure 3: Converter utility strings page
+@image rtf _images/converter_str.png Figure 3: Converter utility strings page
+@image latex _images/converter_str.png Figure 3: Converter utility strings page
+
+
+
+Download : [Freescale eGUI Converter Utility 3.0] (downloads/Freescale Embedded GUI Converter Utility 3.0.zip)
+============
+ 
+*/

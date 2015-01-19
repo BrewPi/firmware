@@ -1,0 +1,98 @@
+/**************************************************************************
+*
+* Copyright 2014 by Petr Gargulak. eGUI Community.
+* Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
+*
+***************************************************************************
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Lesser General Public License Version 3
+* or later (the "LGPL").
+*
+* As a special exception, the copyright holders of the eGUI project give you
+* permission to link the eGUI sources with independent modules to produce an
+* executable, regardless of the license terms of these independent modules,
+* and to copy and distribute the resulting executable under terms of your
+* choice, provided that you also meet, for each linked independent module,
+* the terms and conditions of the license of that module.
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
+* to do so. If you do not wish to do so, delete this
+* exception statement from your version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+*
+* You should have received a copy of the GNU General Public License
+* and the GNU Lesser General Public License along with this program.
+* If not, see <http://www.gnu.org/licenses/>.
+*
+***************************************************************************//*!
+*
+* @file      d4dlcdhw_px_dcu_fb_cfg.h.example
+*
+* @author    Jiri Kotzian
+*
+* @version   0.0.1.0
+*
+* @date      Jul-31-2012
+*
+* @brief     D4D driver - px_dcu_fb hardware lcd driver configuration header file
+*
+*******************************************************************************/
+
+#ifndef __D4DLCDHW_PX_DCU_FB_CFG_H
+#define __D4DLCDHW_PX_DCU_FB_CFG_H
+
+/******************************************************************************
+ * includes
+ ******************************************************************************/
+// include here what the driver need for run for example "derivative.h"
+// #include "derivative.h"    /* include peripheral declarations and more for S08 and CV1 */
+#include "PXD1010.h"
+
+/******************************************************************************
+ * Constants
+ ******************************************************************************/
+
+// define here what you need to be configurable
+
+#define DCU_PCLK    16000000     // pixel frequency
+#define D4DLCDHWFB_START_ADDRESS 0x60000000
+
+//#define D4DLCDHWFB_BPP_BYTE   2
+#define D4DLCDHWFB_BPP_BYTE     1
+
+// supported PX modules
+// RGB lines  definition TWR-LCD-RGB has swapped R and B lines from Schematic rev B (due K70 error)
+// TWR-PXD10   REVA has original R and B colors pins (swapping in the driver needed)
+// TWR-PXD10   REVB has swapped R and B colors pins  (no swapping needed)
+#define TWR_PXD10_REV_A 1
+#define TWR_PXD10_REV_B 2
+#define TWR_PXD10_REV TWR_PXD10_REV_B
+
+// supported displays
+// TWR-LCD-RGB 480 x 272
+// EDT 320 x 240
+#if D4D_DISPLAY_TYPE == TWR_LCD_RGB
+#define D4DLCDHWFB_X_MAX 480
+#define D4DLCDHWFB_Y_MAX 272
+#define PCLK_MAX    9000000     // pixel frequency
+#define D4DLCDHWFB_X_OFFSET 0
+#define D4DLCDHWFB_Y_OFFSET 0
+
+#elif D4D_DISPLAY_TYPE == EDT_ET0350G0DH6
+#define D4DLCDHWFB_X_MAX 320
+#define D4DLCDHWFB_Y_MAX 240
+#define PCLK_MAX    6500000     // pixel frequency
+#define D4DLCDHWFB_X_OFFSET 0
+#define D4DLCDHWFB_Y_OFFSET 0
+#endif  //END display
+#define D4DLCDHWFB_MIRROWED 0
+
+#define D4DLCD_BACKGROUND_COLOR 0x00000000  // 0x00RRGGBB
+
+
+#endif /* __D4DLCDHW__PX_DCU_FB_CFG_H */

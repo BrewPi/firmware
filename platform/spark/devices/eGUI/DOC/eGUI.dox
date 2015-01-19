@@ -1,0 +1,2047 @@
+/**********************************************************************//*!
+*
+* @file eGUI.dox
+*
+* @author Petr Gargulak
+*
+* @date Jan-16-2014
+*
+* @version 1.0.3.0
+*
+* @brief eGUI graphic driver Documentation Framework for Doxygen.
+*
+***************************************************************************/
+
+
+//*********** eGUI alias D4D Graphic Driver **********************
+/*! 
+@mainpage Introduction
+This document describes the software library - eGUI graphic driver for microcontrollers. The source code files are intended to be included directly into the application project or built separately into as a statically linked library. This document should give you all information about driver configuration and its use in your application. The @ref structure explains the source files and header files important for your application. Please read the @ref license document for terms and conditions under which you can use the software.
+
+\n
+\n
+
+Many embedded applications require a human interface for control and display purposes, but until recently
+these have been restricted to simple led or segment LCD displays for most MCU applications due to the
+limited RAM and ROM available on the chip. When the required complexity has led to the need for a
+graphics LCD panel, then the hardware would normally be changed to add an additional MPU with a
+dedicated LCD drive or with the addition of an external graphics LCD controller. The additional cost
+associated with this has restricted the introduction of graphics LCDs to most MCU applications. However,
+with the recent introduction of low-priced graphics LCD panels with simple serial or parallel interfaces
+and integrated display RAM, graphic LCD applications can now easily be implemented with MCUs if the
+graphics driver software is well designed and takes into consideration the limited MCU resources. The
+D4D has been specifically written with the constraints of an MCU (low FLASH and RAM) and the
+assumption that the graphics display RAM is write-only, as is the case of many "Smart LCD" panels. As
+a result, the D4D can produce a stunning layered graphics display using only limited RAM and FLASH
+from the MCU and a small library footprint.
+
+All the code in this application note has been tested and debugged on the S08, S12, ColdFire V1/V2,
+Kinetis and PX series of Freescale microcontrollers, with CodeWarrior for Microcontrollers v6.3. for
+HCS08 MCU's, CodeWarrior for Coldfire v7.2, CodeWarrior for MobileGT 9.2, CodeWarrior 10.5 and
+IAR Embedded Workbench 6.7.
+\n
+\n
+@image html _images/eGUI_Example.png eGUI Example
+@image rtf _images/eGUI_Example.png eGUI Example
+@image latex  _images/eGUI_Example.png eGUI Example 
+
+\n
+\n
+
+<b>REFERENCE</b>\n
+- @ref doxd4d_base 
+- @ref doxd4d_basic_draw
+- @ref doxd4d_bmp
+- @ref doxd4d_extsrc
+- @ref doxd4d_font
+- @ref doxd4d_lldapi
+- @ref doxd4d_math
+- @ref doxd4d_mouse
+- @ref doxd4d_object
+- @ref doxd4d_scheme
+- @ref doxd4d_screen
+- @ref doxd4d_string
+- @ref doxd4d_types
+- <b>Graphical widgets</b>
+*- @ref doxd4d_button
+*- @ref doxd4d_check_box
+*- @ref doxd4d_combo_box
+*- @ref doxd4d_console
+*- @ref doxd4d_edit_box
+*- @ref doxd4d_gauge
+*- @ref doxd4d_graph
+*- @ref doxd4d_group_box
+*- @ref doxd4d_icon
+*- @ref doxd4d_label
+*- @ref doxd4d_list_box
+*- @ref doxd4d_menu
+*- @ref doxd4d_picture
+*- @ref doxd4d_progress_bar
+*- @ref doxd4d_radio_button
+*- @ref doxd4d_scroll_bar
+*- @ref doxd4d_slider
+*- @ref doxd4d_text_box
+
+\n
+Download : [Freescale eGUI Presentation 3.0] (downloads/eGUI_v3_00.pptx)
+============
+\n
+RELEASE NOTES\n
+===============
+Release notes for the @ref release_notes "eGUI alias D4D Graphic Driver". Suggestions for improvements, bug reports and new things development can be reported to egui.library@gmail.com. 
+*/
+
+//*************************STRUCTURE************************************
+/*! 
+@page structure Directory Structure
+
+The current version of the eGUI driver project has the following directory structure:
+###
+- <tt>[D4D]</tt> - Main installation directory
+  - <tt>[_release_notes]</tt> - Project release notes and other information 
+  - <tt>[common_files]</tt> - eGUI common files
+  - <tt>[configuration_example]</tt> - eGUI configuration file and screen example
+  - <tt>[graphic_objects]</tt> - Subfolder with eGUI grahic objects
+  - <tt>[low_level_drivers]</tt> - Subfolder with eGUI low level drivers
+    - <tt>[LCD]</tt> - Drivers for LCD
+      - <tt>[lcd_controllers_drivers]   </tt> - Subgroup of LCD controolers drivers
+      - <tt>[lcd_hw_interface]   </tt> - Subgroup of LCD hardware interface drivers
+    - <tt>[touch_screen]</tt> - Drivers for Touch screen
+      - <tt>[touch_screen_drivers]   </tt> - Subgroup of touch screen controolers drivers
+      - <tt>[touch_screen_hw_interface]   </tt> - Subgroup of touch screen hardware interface drivers
+
+The source code for drivers and examples are located in the @c drivers and @c projects subfolders. The project files are placed in a subfolder for the respective compiler of the @c build folder.
+*/
+
+
+//*************************LICENSE************************************
+/*! 
+@page license License
+
+		   GNU LESSER GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
+
+ Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+
+  This version of the GNU Lesser General Public License incorporates
+the terms and conditions of version 3 of the GNU General Public
+License, supplemented by the additional permissions listed below.
+
+  0. Additional Definitions.
+
+  As used herein, "this License" refers to version 3 of the GNU Lesser
+General Public License, and the "GNU GPL" refers to version 3 of the GNU
+General Public License.
+
+  "The Library" refers to a covered work governed by this License,
+other than an Application or a Combined Work as defined below.
+
+  An "Application" is any work that makes use of an interface provided
+by the Library, but which is not otherwise based on the Library.
+Defining a subclass of a class defined by the Library is deemed a mode
+of using an interface provided by the Library.
+
+  A "Combined Work" is a work produced by combining or linking an
+Application with the Library.  The particular version of the Library
+with which the Combined Work was made is also called the "Linked
+Version".
+
+  The "Minimal Corresponding Source" for a Combined Work means the
+Corresponding Source for the Combined Work, excluding any source code
+for portions of the Combined Work that, considered in isolation, are
+based on the Application, and not on the Linked Version.
+
+  The "Corresponding Application Code" for a Combined Work means the
+object code and/or source code for the Application, including any data
+and utility programs needed for reproducing the Combined Work from the
+Application, but excluding the System Libraries of the Combined Work.
+
+  1. Exception to Section 3 of the GNU GPL.
+
+  You may convey a covered work under sections 3 and 4 of this License
+without being bound by section 3 of the GNU GPL.
+
+  2. Conveying Modified Versions.
+
+  If you modify a copy of the Library, and, in your modifications, a
+facility refers to a function or data to be supplied by an Application
+that uses the facility (other than as an argument passed when the
+facility is invoked), then you may convey a copy of the modified
+version:
+
+   a) under this License, provided that you make a good faith effort to
+   ensure that, in the event an Application does not supply the
+   function or data, the facility still operates, and performs
+   whatever part of its purpose remains meaningful, or
+
+   b) under the GNU GPL, with none of the additional permissions of
+   this License applicable to that copy.
+
+  3. Object Code Incorporating Material from Library Header Files.
+
+  The object code form of an Application may incorporate material from
+a header file that is part of the Library.  You may convey such object
+code under terms of your choice, provided that, if the incorporated
+material is not limited to numerical parameters, data structure
+layouts and accessors, or small macros, inline functions and templates
+(ten or fewer lines in length), you do both of the following:
+
+   a) Give prominent notice with each copy of the object code that the
+   Library is used in it and that the Library and its use are
+   covered by this License.
+
+   b) Accompany the object code with a copy of the GNU GPL and this license
+   document.
+
+  4. Combined Works.
+
+  You may convey a Combined Work under terms of your choice that,
+taken together, effectively do not restrict modification of the
+portions of the Library contained in the Combined Work and reverse
+engineering for debugging such modifications, if you also do each of
+the following:
+
+   a) Give prominent notice with each copy of the Combined Work that
+   the Library is used in it and that the Library and its use are
+   covered by this License.
+
+   b) Accompany the Combined Work with a copy of the GNU GPL and this license
+   document.
+
+   c) For a Combined Work that displays copyright notices during
+   execution, include the copyright notice for the Library among
+   these notices, as well as a reference directing the user to the
+   copies of the GNU GPL and this license document.
+
+   d) Do one of the following:
+
+       0) Convey the Minimal Corresponding Source under the terms of this
+       License, and the Corresponding Application Code in a form
+       suitable for, and under terms that permit, the user to
+       recombine or relink the Application with a modified version of
+       the Linked Version to produce a modified Combined Work, in the
+       manner specified by section 6 of the GNU GPL for conveying
+       Corresponding Source.
+
+       1) Use a suitable shared library mechanism for linking with the
+       Library.  A suitable mechanism is one that (a) uses at run time
+       a copy of the Library already present on the user's computer
+       system, and (b) will operate properly with a modified version
+       of the Library that is interface-compatible with the Linked
+       Version.
+
+   e) Provide Installation Information, but only if you would otherwise
+   be required to provide such information under section 6 of the
+   GNU GPL, and only to the extent that such information is
+   necessary to install and execute a modified version of the
+   Combined Work produced by recombining or relinking the
+   Application with a modified version of the Linked Version. (If
+   you use option 4d0, the Installation Information must accompany
+   the Minimal Corresponding Source and Corresponding Application
+   Code. If you use option 4d1, you must provide the Installation
+   Information in the manner specified by section 6 of the GNU GPL
+   for conveying Corresponding Source.)
+
+  5. Combined Libraries.
+
+  You may place library facilities that are a work based on the
+Library side by side in a single library together with other library
+facilities that are not Applications and are not covered by this
+License, and convey such a combined library under terms of your
+choice, if you do both of the following:
+
+   a) Accompany the combined library with a copy of the same work based
+   on the Library, uncombined with any other library facilities,
+   conveyed under the terms of this License.
+
+   b) Give prominent notice with the combined library that part of it
+   is a work based on the Library, and explaining where to find the
+   accompanying uncombined form of the same work.
+
+  6. Revised Versions of the GNU Lesser General Public License.
+
+  The Free Software Foundation may publish revised and/or new versions
+of the GNU Lesser General Public License from time to time. Such new
+versions will be similar in spirit to the present version, but may
+differ in detail to address new problems or concerns.
+
+  Each version is given a distinguishing version number. If the
+Library as you received it specifies that a certain numbered version
+of the GNU Lesser General Public License "or any later version"
+applies to it, you have the option of following the terms and
+conditions either of that published version or of any later version
+published by the Free Software Foundation. If the Library as you
+received it does not specify a version number of the GNU Lesser
+General Public License, you may choose any version of the GNU Lesser
+General Public License ever published by the Free Software Foundation.
+
+  If the Library as you received it specifies that a proxy can decide
+whether future versions of the GNU Lesser General Public License shall
+apply, that proxy's public statement of acceptance of any version is
+permanent authorization for you to choose that version for the
+Library.
+
+*/
+
+//*********************** RELEASE NOTES ********************************
+/*! 
+@page release_notes Release Notes
+
+This contains release notes of D4D driver since the version 0.9.
+
+
+Changes in API for version Freescale eGUI/D4D 1.0:
+
+Fonts:
+  - This version brings completelly new font support:
+      - the driver support proportional / monospace fonts
+      - the size of font is not restricted in this version (in version 0.9 fonts was limited to 8 pixels width)
+      - the font table could be linear (full) or nonlinear (restricted)
+      - the nonlinear fonts could used two types of index table lookup and map style (toachive better utilization of flash)
+      - the font could be packed in little/big endian format and could be packed or not
+      - the new fonts are described by new structure D4D_FONT_DESCRIPTOR
+      - the new fonts support different char/line spacing
+      
+  - The fonts data has been moved from driver to the user application, so it depends on 
+    user application that fonts will use
+  
+  - D4D_DECLARE_FONT_TABLE is renamed to D4D_DECLARE_FONT
+  - D4D_DECLARE_FONT macro was extended to support different char/line spacing (new two parameters added)
+  
+  
+  - There is new Textdraw function (D4D_DrawTextRect) that supports text alligment
+  
+BitMaps:
+  All bitmap drawing function was moved to special file d4d_bmp.c/h
+
+Low Level Drivers:
+  - for this version is created comletelly new low level drivers structure with better flexibility 
+
+
+Main Types:
+  - LWord/sLWord was redefined from "int" to "long"
+  - DLWord/sDLWord was redefined from "long" to "long long"
+
+
+Keys:
+  - the original bitmap way of handling keys in D4D was repalced by event driven scan codes for better flexibility
+    with hadling more keys. For this is added to driver new scancode macros definition D4D_KEY_SCANCODE_XX, where XX 
+    is key name as UP, DOWN, ENTER etc. The highest bit in scan code (0x80) determine the event for the key (push, release).
+  - the new API function has been add void D4D_NewKeyEvent(D4D_KEY_SCANCODE scanCode) for handling keys events into D4D
+  - the old input API function D4D_KeysChanged with bitmap oriented input parameter is keep in project for backward compatibility
+    but only with support for basic keys (up, down, left, right, enter, esc)
+  - all D4D driver at this version runs on scancodes included hadling keys into user application over messages 
+
+Touch Screen:
+
+
+Graphic Objects:
+  General: 
+    - For most objects the the function D4D_XxxSetText (where Xxx is nick of object) was replaced by general one  D4D_SetTex
+
+  Button: 
+    - The Button declaration macros (D4D_DECLARE_BUTTON, D4D_DECLARE_STD_BUTTON, D4D_DECLARE_TXT_BUTTON) was reduce by two parameter
+      text offset x / y. The functionality of text offset is stand in by Text alligment proporties
+      
+
+Configuration file:
+  - The is new type of configuration low level drivers - more in DRM1116
+  - added D4D_MCU_TYPE definition - for settings the used MCu
+  - added D4D_MCU_BUS_CLOCK definition - for general used of driver
+  
+  - for most graphic object added macro D4D_xx_TXT_PRTY_DEFAULT and D4D_xx_FNT_PRTY_DEFAULT to setup 
+    default text behaviour of object     
+
+
+
+
+Changes in API for version Freescale eGUI/D4D 1.01:
+
+	Low level drivers section:
+	  - add beta version of frame buffer low level driver and it was tested on MCF52277 with 3.25" (320x240) and 12" (800x600) LCD
+	  - add beta version of touch screen low level driver based on MCF52277 ASP peripherial     
+  
+
+
+
+Changes in API for version Freescale eGUI/D4D 1.11:
+
+
+	  Graphic Object:
+	  - add new beta version of scroll bar graphic object (touch screen/ keyboard controlled, autosize capability, OnChange callBack)
+	  - add new beta version of console graphic object (autosize capability, scroll bars capability)  
+	  - Each graphic object can be forced into RAM memory to allow change basic properties in runtime _INRAM postfix in declaration macros   
+	  
+	Added function to get screen client area size : D4D_SIZE D4D_GetClientScreenSize(D4D_SCREEN* pScreen);
+	Added functions to allow change screen title text properties :
+	  - void D4D_SetScreenTextProperties(D4D_SCREEN* pScreen, D4D_TEXT_PROPERTIES property);
+	  - void D4D_SetScreenFontProperties(D4D_SCREEN* pScreen, D4D_FONT_PROPERTIES property);
+	 
+	Added function that allows force initialization of screen before it first use: void D4D_InitScreen(D4D_SCREEN* pScreen)
+	  
+	Added new three configuration defines into main d4d_cfg.h configuration header file:  
+	  - D4D_COLOR_SYSTEM_FORE - System fore color (for example for calibration screen)
+	  - D4D_COLOR_SYSTEM_BCKG - System background color (for example for calibration screen)
+	  - D4D_FONT_SYSTEM_DEFAULT - System default font (for example for calibration screen)
+	
+	Added new message Id :D4D_MSG_TIMETICK - message with this Id is called by D4D_RedrawScreen  function and send to all active objects
+	to provide time functions as blinking with cursor etc.
+	
+	Some minor bugs has been fixed
+
+Changes in API for version Freescale eGUI/D4D 1.12:
+
+Low level drivers section:
+  - add beta version of frame buffer low level driver for MPC5125 on MQX 3.6.  
+  - add low level driver beta version of LCD controller LGDP4531, its tested only on SPI interfaface called SPIX.
+  
+Changes in API for version Freescale eGUI/D4D 1.20:
+
+	  Graphic Object:
+	  - add new beta version of text box graphic object (touch screen/ keyboard controlled, autosize capability) to show larger texts on screen.
+	    It support new line, tab special chars and for texts bigger then screen it shows vertical scroll bar on right size.
+	        
+	Scroll Bar - fixed bug in touch screen support
+	
+	Fixed bug in print text routine for transparent prints (double size spce between chars in string).
+	
+	
+	  
+	Some minor bugs has been fixed  
+
+
+
+Changes in API for version Freescale eGUI/D4D 2.00:
+
+	Added object round corners support
+	
+	Object button has been updated to support round corners
+	
+	Some minor bugs has been fixed
+
+
+
+Changes in version Freescale eGUI/D4D 2.01:
+	Add support for Kinetis MCU - little endian, alpha low level drivers etc.
+	
+	Fixed some new bugs founds under IAR compiler. 
+
+
+Changes in version Freescale eGUI/D4D 2.02:
+	Fixed issue with screen changes (Activate, escape). Bug - during changes of screens the D4D_MSG_GET_FOCUS and D4D_MSG_SET_FOCUS wasn't generated.
+
+Changes in version Freescale eGUI/D4D 2.03:
+	Added rounded corners functionality to D4D_CHECKBOX, D4D_ICON and D4D_PICTURE.
+
+Changes in version Freescale eGUI/D4D 2.04:
+	Changed system of colors in D4D, from this moment can be used various representation of color in D4D. Added into configuration file D4D_COLOR_SYSTEM macro.
+
+Changes in version Freescale eGUI/D4D 2.05:
+	Fixed bug in drawing Slider bar. There was problem with "overflow" of slider bar into neighbourhood inside whole D4D_SLIDER object.
+
+Changes in version Freescale eGUI/D4D 2.06:
+	Added rounded corners functionality to D4D_GAUGE, D4D_MENU, D4D_CONSOLE and D4D_TEXTBOX. Added new object D4D_PROGRESSBAR. Updated D4D_MENU with standard scroll bar instead of simple sidebar.
+	Add to D4D_MENU D4D_DECLARE_MENU_ITEM_FULL declaration macro that allows add to all items user data and add some new functions D4D_MenuSetIndex, D4D_MenuGetItemCount, D4D_MenuFindUserDataItem, D4D_MenuGetItemUserData, D4D_MenuGetItemTextD4D_MenuGetItemText.
+	Add to D4D_SLIDER and also to D4D_PROGRESSBAR scaled colors of active bar.
+
+Changes in version Freescale eGUI/D4D 2.07:
+	All Objects and screen support round corners! Added kinetis Bare metal low level drivers!
+
+Changes in version Freescale eGUI/D4D 2.10:
+	Official release with Kinetis full support.
+
+Changes in version Freescale eGUI/D4D 2.20:
+	Added external BMP files support!
+
+Changes in version Freescale eGUI/D4D 2.22:
+	Extended D4D_BUTTON to support 3D appearence, the new functionality code is enabled ib d4d_user_cfg.h file (#define D4D_BTN_3D_ENABLE D4D_TRUE) and the 3D appearence is enabling by D4D_BTN_F_3D.
+	Also add new system message D4D_MSG_TOUCH_LOST, that occur when the touch screen is still touched but finger go out of the touched object.
+
+Changes in version Freescale eGUI/D4D 2.23:
+	Extended functionality of printing strings to reduce strings that are longer then specified max size. In practice, the API functions D4D_DrawRextText... draw text never exceed the specified rectangle. 
+ 
+Changes in version Freescale eGUI/D4D 2.24:
+	Redesigned bitmap drawing functions (from internal memory). The code size of this decoders has been redused by 45% and the round corners bitmaps for 2 and 16 colors has been added.
+
+Changes in version Freescale eGUI/D4D 2.25:
+	Fix bug in D4D_BUTTON: the bitmaps wasn't draw in greyscale when the button was disabled.
+	Add to the D4D_ICON functionality of redrawing icon background in case that the new showed picture is smaller then previous one. The limitation is taht the object has to has manually specified size.
+
+19. 3. 2012
+Changes in version Freescale eGUI/D4D 2.30:
+  Changed LCD low level driver API, the data width reflect size of D4D_COLOR type to flexible support bigger color depth. (Example: unsigned char (*D4DLCD_Send_PixelColor)(D4D_COLOR value);).
+  Changed the system of the includes in whole driver, at the moment all includes has relative path to base d4d directory. In practice in the final project could be added only one include path to base directory of d4d.
+  Added support for 18-bit color depth (6-6-6), never tested!!!
+  Add low level driver for K70 LCDC and TWR-LCD-RGB board.
+  Add low level touch screen driver for CRTOUCH chip. The driver is at the moemnt just in I2C version but it can be configured as baremetal as MQX version.
+  Add decoders for 24-bit color depth bitmaps (internal form Flash).
+  Add transparent color support to extend drawing capabilities of whole driver.
+  Add BackSpace char capability into D4D_CONSOLE object. 
+  Add external font support. (This allow load different national character sets or skinning the application)
+  Add UNICODE support. (For example for Chinesse language support).
+
+  The new object D4D_RADIOBUTTON has been added. The original functioonality of D4D_CHECK_BOX works like radio button has been removed.
+ 
+  Fixed bug with bad touch screen calibration in PORTRAIT mode when the frame buffer was used. (The problem was in bad orientations in frame buffer).
+  Fixed bug with cursor in D4D_CONSOLE OBJECT.
+  
+  Removed some API:
+    All functions about drawing texts with "Adv" suffix. (Example :D4D_DrawTextRectTabAdv) The only one diffencies to standard (D4D_DrawTextRectTab) functions (no Adv) was text offset parameter that was moved into 
+    D4D_STRING structure.      
+   
+   
+Changes in version Freescale eGUI/D4D 2.xx:
+  Added basic support of compouded objects
+  Added Group Box object D4D_GROUP_BOX
+  Added Bevel drawing functions: 
+    void D4D_Bevel(D4D_POINT* ppt, D4D_SIZE* psz, D4D_COLOR fore, D4D_COLOR bck);
+    void D4D_RBevel(D4D_POINT* ppt, D4D_SIZE* psz, D4D_COLOR fore, D4D_COLOR bck, D4D_COOR radius);
+
+  Added Margin for objects
+  
+  Fixed bugs:
+    The one pixel drawed on position 0,0 when the scroll bar is used. Now OK.
+    The fonts has been drawed with some "mesh extra pixels" in high optimizations under IAR. Now OK.
+  
+  Changed API:
+    Type D4D_OBJECT_PTR has been changed from "const" to standard.        
+    D4D_POINT D4D_GetScreenToClientPoint(D4D_SCREEN* pScreen, D4D_POINT* nScreenPoint) to D4D_POINT D4D_GetScreenToClientPoint(D4D_OBJECT* pObject, D4D_POINT* nScreenPoint)    
+    D4D_POINT D4D_GetClientToScreenPoint(D4D_SCREEN* pScreen, D4D_POINT* nClientPoint) to D4D_POINT D4D_GetClientToScreenPoint(D4D_OBJECT* pObject, D4D_POINT* nClientPoint)
+    D4D_SIZE D4D_GetClientScreenSize(D4D_SCREEN* pScreen) to D4D_SIZE D4D_GetClientScreenSize(D4D_OBJECT* pObject)
+    D4D_POINT D4D_GetTouchScreenCoordinates(void) to D4D_POINT D4D_GetTouchScreenCoordinates(D4D_OBJECT* pObject)
+    
+    Changed internal OBJECT structure D4D_OBJECT_SYS_FUNCTION. Item type to item strName. This allow adding objects without any changes in eGUI itself. :-)
+    ChangedLow Level drivers API for Flush functions - Add parameter mode where is type of flush.
+    
+    Removed all AUTOSIZE MACRO declarations for objects
+    
+    OBSOLETE:
+    
+    D4D_CHECKBOX_BORDER_OFFSET
+    
+    _D4D_DECLARE_CONSOLE replace by _D4D_DECLARE_CONSOLE2
+    
+    Removed D4D_KEYS D4D_GetKeys(void) function. Is obsolete.
+    
+  February 2014:
+   eGUI is pushed to open source under LGPL license.   
+    
+*/
+
+
+//***********************************************************************
+//******************************D4D BASE*********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_base D4D BASE functionality  
+This section describes the API of the eGUI base functions support. 
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_base_const D4D BASE API Constant Specification
+This section specifies the exact constants used by module.
+@ingroup doxd4d_base
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_base_type D4D BASE API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_base
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_base_macro D4D BASE API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_base
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_base_func D4D BASE API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_base
+*/
+
+//***********************************************************************
+//***************************D4D BASIC DRAW******************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_basic_draw D4D BASIC DRAWING functionality  
+This section describes the API of the eGUI basic drawing functions support. 
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_basic_draw_const D4D BASIC DRAW API Constant Specification
+This section specifies the exact constants used by module.
+@ingroup doxd4d_basic_draw
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_basic_draw_type D4D BASIC DRAW API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_basic_draw
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_basic_draw_macro D4D BASIC DRAW API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_basic_draw
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_basic_draw_func D4D BASIC DRAW API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_basic_draw
+*/
+
+
+//***********************************************************************
+//*****************************D4D BITMAP********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_bmp D4D BITMAP functionality  
+This section describes the API of the eGUI bitmap drawing functions support. 
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_bmp_const D4D BMP DRAW API Constant Specification
+This section specifies the exact constants used by module.
+@ingroup doxd4d_bmp
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_bmp_type D4D BMP DRAW API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_bmp
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_bmp_macro D4D BMP DRAW API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_bmp
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_bmp_func D4D BMP DRAW API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_bmp
+*/
+
+
+
+//***********************************************************************
+//*******************D4D EXTERNAL RESOURCES******************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_extsrc D4D EXTERNAL RESOURCE functionality  
+This section describes the API of the eGUI external resource functions support. 
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_extsrc_const D4D EXTERNAL RESOURCE API Constant Specification
+This section specifies the exact constants used by module.
+@ingroup doxd4d_extsrc
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_extsrc_type D4D EXTERNAL RESOURCE API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_extsrc
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_extsrc_macro D4D EXTERNAL RESOURCE API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_extsrc
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_extsrc_func D4D EXTERNAL RESOURCE API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_extsrc
+*/
+
+
+//***********************************************************************
+//****************************D4D FONTS**********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_font D4D FONTS functionality  
+
+The eGUI/D4D supports using multiple fonts in each project in a defined font table that indicates what
+fonts will be used in the project and allows creating font derivatives with a scaling and spacing function.
+The eGUI/D4D allows support to whatever font type as defined in the d4d_font.c file, because all objects
+(also screen) work only with font indexes that point to the eGUI/D4D font table created by the user.
+eGUI/D4D font support features:
+- Multiple font creation based on same font data base, using scaling and spacing function
+- Scaling in both axes
+- Line and char spacing
+- MonoSpace and proportional font support
+- Full and restricted font table support (linear and non-linear)
+- Two types of index tables for restricted
+- Various types of font bitmap type
+- Underline, strike through, and transparent font drawing support
+- External font storage support
+- UNICODE support
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_font_const D4D FONTS API Constant Specification
+This section specifies the exact constants used by module.
+@ingroup doxd4d_font
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_font_type D4D FONTS API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_font
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_font_macro D4D FONTS API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_font
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_font_func D4D FONTS API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_font
+*/
+
+//***********************************************************************
+//**********************D4D LOW LEVEL DRIVER API*************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_lldapi D4D LOW LEVEL DRIVER API functionality  
+This section describes the API of the eGUI low level API functions support. 
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_lldapi_types D4D LOW LEVEL DRIVER API Types Specification
+This section specifies the exact type for each typedef definition of low 
+level drivers support.
+@ingroup doxd4d_lldapi
+*/
+
+//***********************************************************************
+//****************************D4D MATH***********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_math D4D MATH functionality  
+This section describes the API of the eGUI math functions support. 
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_math_func D4D MATH API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_math
+*/
+
+//***********************************************************************
+//******************************D4D MOUSE********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_mouse D4D MOUSE Handler  
+This section describes the API of the eGUI Mouse support. 
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_mouse_const D4D MOUSE API Constant Specification
+This section specifies the exact constants used by module.
+@ingroup doxd4d_mouse
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_mouse_type D4D MOUSE API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_mouse
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_mouse_macro D4D MOUSE API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_mouse
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_mouse_func D4D MOUSE API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_mouse
+*/
+
+//***********************************************************************
+//******************************D4D OBJECT*******************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_object D4D OBJECT Handler  
+This section describes the API of the eGUI graphics objects. 
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_object_const D4D OBJECT API Constant Specification
+This section specifies the exact constants used by module.
+@ingroup doxd4d_object
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_object_type D4D OBJECT API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_object
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_object_macro D4D OBJECT API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_object
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_object_func D4D OBJECT API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_object
+*/
+
+//***********************************************************************
+//******************************D4D SCHEME*******************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_scheme D4D SCHEME Handler  
+This section describes the API of the eGUI color schemes. 
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_scheme_const D4D SCHEME API Constant Specification
+This section specifies the exact constants used by module.
+@ingroup doxd4d_scheme
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_scheme_type D4D SCHEME API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_scheme
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_scheme_macro D4D SCHEME API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_scheme
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_scheme_func D4D SCHEME API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_scheme
+*/
+
+//***********************************************************************
+//******************************D4D SCREEN*******************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_screen D4D SCREEN Handler  
+<h1>Introduction</h1>
+\n
+The D4D_SCREEN is the basic organizational structure of the eGUI/D4D. The whole project structure is
+divided into individual screens and its objects, therefore screens are used to keep organization of the whole
+project by the appearance as well as the program structure.
+It is recommended to create your own source code file for each individual screen.
+To simplify the program and user GUI, the driver organization can manage screen histories. It is possible
+to go through the screens by system forward and back (activate and escape screen).
+\n
+\n
+@image html _images/screen1.PNG D4D structure—objects and screens
+@image rtf _images/screen1.PNG D4D structure—objects and screens
+@image latex _images/screen1.PNG D4D structure—objects and screens
+\n
+\n
+The D4D_SCREEN object can be used as a window, have a smaller size, be placed anywhere, and also
+have a header (title bar) with icon, title, and exit button. Such a screen looks like a window and has many
+uses (help menu, warning, error, ask, messages, and so on).
+\n
+\n
+@image html _images/screen2.PNG The screen with non-default settings
+@image rtf _images/screen2.PNG The screen with non-default settings
+@image latex _images/screen2.PNG The screen with non-default settings
+
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_screen_const D4D SCREEN API Constant Specification
+This section specifies the exact constants used by module.
+@ingroup doxd4d_screen
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_screen_type D4D SCREEN API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_screen
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_screen_macro D4D SCREEN API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_screen
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_screen_func D4D SCREEN API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_screen
+*/
+
+//***********************************************************************
+//******************************D4D STRING*******************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_string D4D STRING Handler  
+This section describes the API of the eGUI strings. 
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_string_const D4D STRING API Constant Specification
+This section specifies the exact constants used by module.
+@ingroup doxd4d_string
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_string_type D4D STRING API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_string
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_string_macro D4D STRING API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_string
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_string_func D4D STRING API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_string
+*/
+
+//***********************************************************************
+//******************************D4D TYPES *******************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_types D4D TYPES Definition  
+This section describes the API of the eGUI strings. 
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_types_const D4D TYPES API Constant Specification
+This section specifies the exact constants used by module.
+@ingroup doxd4d_types
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_types_type D4D TYPES API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_types
+*/
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+//*************************** D4D WIDGETS **************************************
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+    
+//***********************************************************************
+//*************************** D4D BUTTON ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_button D4D Button Widget
+ 
+The D4D_BUTTON object is intended to be used as a standard button providing many basic features:
+
+- Variable position, size, and text position
+- Title text that can be run-time changed
+- Underline, strike through and transparent text option
+- Disable/enable capability
+- 3D visual appearance
+- Two background bitmaps for focused and normal state
+- Touch screen support to focus and click action with fast touch capability (both actions on one touch)
+- Variable colors of text and background in normal and focus state
+- OnClick callback function to simplify the user application
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/button1.png Button objects on the screen
+@image rtf _images/button1.png  Button objects on the screen
+@image latex _images/button1.png Button objects on the screen
+\n \n
+
+@image html _images/button2.png Button location and description
+@image rtf _images/button2.png Button location and description
+@image latex _images/button2.png Button location and description
+
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_button_const D4D BUTTON API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_button
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_button_type D4D BUTTON API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_button
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_button_macro D4D BUTTON API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_button
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_button_func D4D BUTTON API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_button
+*/
+
+//***********************************************************************
+//*************************** D4D CHECK BOX ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_check_box D4D Check Box Widget  
+
+The D4D_CHECKBOX object is prepared to be used as a standard checkbox known from a PC. The object provides many basic features:
+
+- Variable position and size
+- User bitmaps for check icon (checked and unchecked state)
+- Disable and enable capability
+- Text that run-time can be changed
+- Underline, strike through and transparent text option
+- Touch screen support to focus and change actions with fast touch capability (both actions in one touch)
+- Variable colors of text and background in normal and focus state
+- OnChange callback function to simplify user application
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/check_box1.png Check Box objects on the screen
+@image rtf _images/check_box1.png  Check Box objects on the screen
+@image latex _images/check_box1.png Check Box objects on the screen
+\n \n
+
+@image html _images/check_box2.png Check Box location and description
+@image rtf _images/check_box2.png Check Box location and description
+@image latex _images/check_box2.png Check Box location and description
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_check_box_const D4D CHECK BOX API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_check_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_check_box_type D4D CHECK BOX API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_check_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_check_box_macro D4D CHECK BOX API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_check_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_check_box_func D4D CHECK BOX API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_check_box
+*/
+
+
+//***********************************************************************
+//*************************** D4D COMBO BOX ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_combo_box D4D Combo Box Widget  
+
+The D4D_COMBO_BOX object is prepared to be used as a standard combo box known from a PC.
+It's compounded from 3 basic objects:
+- \ref doxd4d_button
+- \ref doxd4d_edit_box
+- \ref doxd4d_list_box
+
+\n\n
+The object provides many basic features:
+
+- Variable position and size
+- Disable and enable capability
+- Editable text
+- Underline, strike through and transparent text option
+- Touch screen support to focus and change actions with fast touch capability (both actions in one touch)
+- Variable colors of text and background in normal and focus state
+- OnEvent callback function to simplify user application
+- pOnUsrMsg pointer to the on-user message callback function 
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_combo_box_const D4D COMBO BOX API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_combo_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_combo_box_type D4D COMBO BOX API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_combo_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_combo_box_macro D4D COMBO BOX API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_combo_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_combo_box_func D4D COMBO BOX API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_combo_box
+*/
+
+//***********************************************************************
+//*************************** D4D CONSOLE ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_console D4D Console Widget  
+
+The D4D_CONSOLE object is prepared to create a simple console that provides standard features:
+
+- Variable position and size
+- Horizontal and vertical scroll bars in case that the object size is smaller than the text array
+- Cursor function
+- Disable/Enable capability
+- Standard key controls
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/console1.png Console objects on the screen
+@image rtf _images/console1.png  Console objects on the screen
+@image latex _images/console1.png Console objects on the screen
+
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_console_const D4D CONSOLE API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_console
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_console_type D4D CONSOLE API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_console
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_console_macro D4D CONSOLE API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_console
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_console_func D4D CONSOLE API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_console
+*/
+
+
+//***********************************************************************
+//*************************** D4D EDIT BOX ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_edit_box D4D Edit Box Widget  
+
+The D4D_EDIT_BOX object is prepared to be used as an input text object and provide some basic
+features:
+
+- Variable position and size
+- Disable and enable capability
+- Handling one line text bigger then is visible area
+- Return carrier and backspace support
+- Cursor capability in keys capture mode
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/edit_box1.png Edit box objects on the screen
+@image rtf _images/edit_box1.png  Edit box objects on the screen
+@image latex _images/edit_box1.png Edit box objects on the screen
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_edit_box_const D4D EDIT BOX API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_edit_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_edit_box_type D4D EDIT BOX API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_edit_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_edit_box_macro D4D EDIT BOX API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_edit_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_edit_box_func D4D EDIT BOX API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_edit_box
+*/
+
+//***********************************************************************
+//*************************** D4D GAUGE ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_gauge D4D Gauge Widget  
+
+The D4D_GAUGE object is prepared to be used as a visualization object of any numerical value that
+provides many basic features:
+
+- Variable position, size, hub position, pointer length, and text position
+- Title text that can be run-time changed
+- Underline, strike through and transparent text option
+- Disable/enable capability
+- Background bitmap that allows making various gauges
+- Touch screen support to focus
+- Variable colors of text, hub, pointer, and background
+- Different values for angle range setting and input control value range (angle is unsigned variable,
+value is signed variable)
+- Direction of rotation control
+- OnValueChange callback function to simplify user application
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/gauge1.png GAUGE location and description
+@image rtf _images/gauge1.png  GAUGE location and description
+@image latex _images/gauge1.png GAUGE location and description
+/n
+/n
+@image html _images/gauge2.png GAUGE angle representation by an 8-bit unsigned variable
+@image rtf _images/gauge2.png  GAUGE angle representation by an 8-bit unsigned variable
+@image latex _images/gauge2.png GAUGE angle representation by an 8-bit unsigned variable
+/n
+/n
+@image html _images/gauge3.png GAUGE limits
+@image rtf _images/gauge3.png  GAUGE limits
+@image latex _images/gauge3.png GAUGE limits
+/n
+/n
+@image html _images/gauge4.png GAUGE example
+@image rtf _images/gauge4.png  GAUGE example
+@image latex _images/gauge4.png GAUGE example
+/n
+/n
+
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_gauge_const D4D GAUGE API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_gauge
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_gauge_type D4D GAUGE API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_gauge
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_gauge_macro D4D GAUGE API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_gauge
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_gauge_func D4D GAUGE API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_gauge
+*/
+
+//***********************************************************************
+//*************************** D4D GRAPH ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_graph D4D Graph Widget  
+
+The D4D_GRAPH object is prepared to create a simple graph that provides many basic features:
+
+- Variable position and size
+- Title header of the graph
+- Selectable grid of graph in both axes
+- X-axis scale capability
+- Labels for both axes
+- Auto size capability for the size of the graph (not the whole object)
+- Disable/enable capability
+- Multiple traces of the graph
+- Variable colors and styles of traces
+- OnChange callback function to simplify the user application
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/graph1.png Graph description
+@image rtf _images/graph1.png  Graph description
+@image latex _images/graph1.png Graph description
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_graph_const D4D GRAPH API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_graph
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_graph_type D4D GRAPH API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_graph
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_graph_macro D4D GRAPH API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_graph
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_graph_func D4D GRAPH API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_graph
+*/
+
+//***********************************************************************
+//*************************** D4D GROUP BOX ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_group_box D4D Group Box Widget  
+
+The D4D_GROUP_BOX object is container that provides basic features:
+
+- Variable position and size
+- Title text
+- Border frame
+- Frame bevels
+- Disable/Enable capability.
+- Standard keys control.
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/group_box1.png Group box object on the screen example
+@image rtf _images/group_box1.png  Group box object on the screen example
+@image latex _images/group_box1.png Group box object on the screen example
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_group_box_const D4D GROUP BOX API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_group_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_group_box_type D4D GROUP BOX API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_group_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_group_box_macro D4D GROUP BOX API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_group_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_group_box_func D4D GROUP BOX API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_group_box
+*/
+
+//***********************************************************************
+//*************************** D4D ICON ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_icon D4D Icon Widget  
+
+The D4D_ICON object is prepared to be used as a visualization object to show various states of the
+application that provide many basic features:
+
+- Variable position, size, and text position
+- Title text that can be run-time changed
+- Underline, strike through and transparent text option
+- Disable/enable capability
+- Bitmap array
+- Easy bitmap change system
+- Touch screen support to focus
+- Variable colors of text and background
+- Automatic animation capability
+- OnValueChange callback function to simplify user application
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/icon1.png ICON location and description
+@image rtf _images/icon1.png  ICON location and description
+@image latex _images/icon1.png ICON location and description
+
+\n
+\n
+
+@image html _images/icon2.png ICON location and description example
+@image rtf _images/icon2.png  ICON location and description example
+@image latex _images/icon2.png ICON location and description example
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_icon_const D4D ICON API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_icon
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_icon_type D4D ICON API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_icon
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_icon_macro D4D ICON API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_icon
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_icon_func D4D ICON API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_icon
+*/
+
+//***********************************************************************
+//*************************** D4D LABEL ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_label D4D Label Widget  
+
+The D4D_LABEL object is prepared to be used as a visualization object to show simple text one-line
+information of an application in a graphical form and provides a few basic features:
+
+- Variable position and size
+- Text that can be run-time changed
+- Underline, strike through and transparent text option
+- Disable/enable capability
+- Text align—Left, center, top, bottom, and right
+- Touch screen support to focus
+- Variable colors of text and background
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/label1.png Label object
+@image rtf _images/label1.png  Label object
+@image latex _images/label1.png Label object
+
+\n
+\n
+
+@image html _images/label2.png Label object example
+@image rtf _images/label2.png  Label object example
+@image latex _images/label2.png Label object example
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_label_const D4D LABEL API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_label
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_label_type D4D LABEL API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_label
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_label_macro D4D LABEL API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_label
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_label_func D4D LABEL API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_label
+*/
+
+//***********************************************************************
+//*************************** D4D LIST BOX ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_list_box D4D List Box Widget  
+
+The D4D_LIST_BOX object is prepared to be used to create a list box with scroll bar. The list box is little
+bit similar to D4D_MENU object, but the difference is that the list box is simple text version of
+D4D_MENU (no icons, no header and no index counter), and it could be used as good base stone to create
+any advanced compounded object like combo box or roll-down box.
+
+- Variable position and size
+- Optional scroll bar for easy orientation
+- Auto size capability for text offset
+- Disable and enable capability
+- Underline and strike through text option
+- Touch screen support to focus and change action with fast touch capability (both actions in one
+touch)
+- Variable colors of text and background in a normal and focus state
+- OnChange callback function to simplify the user application
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/list_box1.png D4D_LIST_BOX object on the screen example
+@image rtf _images/list_box1.png  D4D_LIST_BOX object on the screen example
+@image latex _images/list_box1.png D4D_LIST_BOX object on the screen example
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_list_box_const D4D LIST BOX API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_list_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_list_box_type D4D LIST BOX API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_list_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_list_box_macro D4D LIST BOX API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_list_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_list_box_func D4D LIST BOX API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_list_box
+*/
+
+//***********************************************************************
+//*************************** D4D MENU ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_menu D4D Menu Widget  
+
+The D4D_MENU object is prepared to be used to create a simple menu with the menu title and a side bar
+that provides a lot of basic features:
+
+- Variable position and size
+- Title header with an icon and optional index of selected menu item
+- Optional side bar for easy orientation in a bigger menu
+- Auto size capability for text offset
+- Disable and enable capability
+- Underline and strike through text option
+- Touch screen support to focus and change action with fast touch capability (both actions in one
+touch)
+- Variable colors of text and background in a normal and focus state
+- OnChange callback function to simplify the user application
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/menu1.png MENU object on the screen
+@image rtf _images/menu1.png  MENU object on the screen
+@image latex _images/menu1.png MENU object on the screen
+
+\n
+\n
+@image html _images/menu2.png MENU object on the screen example
+@image rtf _images/menu2.png  MENU object on the screen example
+@image latex _images/menu2.png MENU object on the screen example
+
+
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_menu_const D4D MENU API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_menu
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_menu_type D4D MENU API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_menu
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_menu_macro D4D MENU API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_menu
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_menu_func D4D MENU API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_menu
+*/
+
+//***********************************************************************
+//*************************** D4D PICTURE ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_picture D4D Picture Widget  
+
+The D4D_PICTURE is an object used to show a picture on the display that provides the following features:
+
+- Variable position of a shown bitmap
+- Disable/enable capability
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/picture1.png PICTURE on the screen and screen represented by PICTURE
+@image rtf _images/picture1.png  PICTURE on the screen and screen represented by PICTURE
+@image latex _images/picture1.png PICTURE on the screen and screen represented by PICTURE
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_picture_const D4D PICTURE API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_picture
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_picture_type D4D PICTURE API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_picture
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_picture_macro D4D PICTURE API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_picture
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_picture_func D4D PICTURE API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_picture
+*/
+
+
+//***********************************************************************
+//*************************** D4D PROGRESS BAR ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_progress_bar D4D Progress Bar Widget  
+
+The D4D_PROGRESS_BAR object is prepared to be used as a visualization object to show the numerical
+values of the application in a graphical form and provide some basic features:
+
+- Variable position and size
+- Disable and enable capability
+- Variable colors of the bar and background
+- Automatic color cross function from minimum to maximum value of the progress bar
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/progress_bar1.png Progress bar location and description example
+@image rtf _images/progress_bar1.png  Progress bar location and description example
+@image latex _images/progress_bar1.png Progress bar location and description example
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_progress_bar_const D4D PROGRESS BAR API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_progress_bar
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_progress_bar_type D4D PROGRESS BAR API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_progress_bar
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_progress_bar_macro D4D PROGRESS BAR API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_progress_bar
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_progress_bar_func D4D PROGRESS BAR API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_progress_bar
+*/
+
+//***********************************************************************
+//*************************** D4D RADIO BUTTON ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_radio_button D4D Radio Button Widget  
+
+The D4D_RADIO_BUTTON object is prepared to be used as a standard radio button known from a PC.
+The object provides many basic features:
+
+- Variable position and size
+- Disable and enable capability
+- Text that run-time can be changed
+- Underline, strike through and transparent text option
+- Touch screen support to focus and change actions with fast touch capability (both actions in one touch)
+- Variable colors of text and background in normal and focus state
+- OnChange callback function to simplify user application
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/radio_button1.png Radio Button objects on the screen
+@image rtf _images/radio_button1.png  Radio Button objects on the screen
+@image latex _images/radio_button1.png Radio Button objects on the screen
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_radio_button_const D4D RADIO BUTTON API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_radio_button
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_radio_button_type D4D RADIO BUTTON API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_radio_button
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_radio_button_macro D4D RADIO BUTTON API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_radio_button
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_radio_button_func D4D RADIO BUTTON API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_radio_button
+*/
+
+
+//***********************************************************************
+//*************************** D4D SCROLL BAR ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_scroll_bar D4D Scroll Bar Widget  
+
+The D4D_SCROOLL_BAR object creates a simple scroll bar that provides standard features:
+
+- Variable position and size
+- Horizontal and vertical orientation
+- Runtime selectable maximum, minimum, step, and page parameters
+- Disable/Enable capability
+- Standard keys control
+- OnChange callback function to simplify the user application with old and new position
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/scroll_bar1.png Scroll bar objects on the screen example
+@image rtf _images/scroll_bar1.png  Scroll bar objects on the screen example
+@image latex _images/scroll_bar1.png Scroll bar objects on the screen example
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_scroll_bar_const D4D SCROLL BAR API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_scroll_bar
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_scroll_bar_type D4D SCROLL BAR API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_scroll_bar
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_scroll_bar_macro D4D SCROLL BAR API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_scroll_bar
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_scroll_bar_func D4D SCROLL BAR API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_scroll_bar
+*/
+
+
+//***********************************************************************
+//*************************** D4D SLIDER ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_slider D4D Slider Widget  
+
+The D4D_SLIDER object is prepared to be used as a visualization and control object to show and set the
+numerical values of the application in a graphical form and provide many basic features:
+
+- Variable position, size, bar offset, bar size, and text position
+- Title text that can be run-time changed
+- Underline, strike through and transparent text option
+- Disable and enable capability
+- Background bitmap
+- Touch screen support
+- Variable colors of the text, bar, and background
+- Automatic color cross function from minimum to maximum value of the slider
+- OnValueChange callback function to simplify the user application
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/slider1.png Slider location and description
+@image rtf _images/slider1.png  Slider location and description
+@image latex _images/slider1.png Slider location and description
+
+\n
+\n
+@image html _images/slider2.png Slider location and description example
+@image rtf _images/slider2.png  Slider location and description example
+@image latex _images/slider2.png Slider location and description example
+
+
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_slider_const D4D SLIDER API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_slider
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_slider_type D4D SLIDER API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_slider
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_slider_macro D4D SLIDER API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_slider
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_slider_func D4D SLIDER API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_slider
+*/
+
+//***********************************************************************
+//*************************** D4D TEXT BOX ********************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_text_box D4D Text Box Widget  
+
+The D4D_TEXTBOX object is prepared to create a simple text box that provides basic features:
+
+- Variable position and size
+- Vertical scroll bar in case the object size is smaller than the input text
+- Word detection and long word wrapping
+- Tabulators support
+- New line support
+- Disable/Enable capability.
+- Standard keys control.
+- pOnUsrMsg pointer to the on-user message callback function 
+
+@image html _images/text_box1.png Text Box object on the screen example
+@image rtf _images/text_box1.png  Text Box object on the screen example
+@image latex _images/text_box1.png Text Box object on the screen example
+
+
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_text_box_const D4D TEXT BOX API Constant Specification
+This section specifies the exact constants used by widget.
+@ingroup doxd4d_text_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_text_box_type D4D TEXT BOX API Types Specification
+This section specifies the exact type for each typedef definition.
+@ingroup doxd4d_text_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_text_box_macro D4D TEXT BOX API Macro's Specification
+This section specifies the exact usage for each API macro.
+@ingroup doxd4d_text_box
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_text_box_func D4D TEXT BOX API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_text_box
+*/
+
+
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+//********************** D4D LOW LEVEL DRIVERS *********************************
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
+    
+//***********************************************************************
+//*************************** D4D LCD DRIVERS ***************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_lcd D4D LCD driver Template
+ 
+This part describes all the functions the prototypes need to run the LCD low level drivers interfaces.
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_lcd_const D4D LOW LEVEL LCD API Constant Specification
+This section specifies the exact constants used by low level driver.
+@ingroup doxd4d_lcd
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_lcd_func D4D LOW LEVEL LCD API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_lcd
+*/
+
+
+//***********************************************************************
+//*************************** D4D LCD HW DRIVERS ************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_lcdhw D4D LCD HW  INTERFACE driver Template
+ 
+This part describes all the function prototype needs to run the touch screen low level driver interfaces.
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_lcdhw_const D4D LOW LEVEL LCD HW INTERFACE API Constant Specification
+This section specifies the exact constants used by low level driver.
+@ingroup doxd4d_lcdhw
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_lcdhw_func D4D LOW LEVEL LCD HW INTERFACE API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_lcdhw
+*/
+
+//***********************************************************************
+//*************************** D4D LCD HW FB DRIVERS *********************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_lcdhwfb D4D LCD HW INTERFACE Frame Buffer driver Template
+ 
+This part describes all the function prototype needs to run the touch screen low level driver interfaces.
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_lcdhwfb_const D4D LOW LEVEL LCD HW FB INTERFACE API Constant Specification
+This section specifies the exact constants used by low level driver.
+@ingroup doxd4d_lcdhwfb
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_lcdhwfb_func D4D LOW LEVEL LCD HW FB INTERFACE API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_lcdhwfb
+*/
+
+//***********************************************************************
+//******************** D4D TOUCH SCREEN DRIVERS *************************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_tch D4D TCHSCR driver Template
+ 
+This part describes all the function prototype needs to run the touch screen low level driver interfaces.
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_tch_const D4D LOW LEVEL TCHSCR API Constant Specification
+This section specifies the exact constants used by low level driver.
+@ingroup doxd4d_tch
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_tch_func D4D LOW LEVEL TCHSCR API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_tch
+*/
+
+//***********************************************************************
+//************ D4D TOUCH SCREEN HW INTERFACE DRIVERS ********************
+//***********************************************************************
+//***********************************************************************
+/*! 
+@defgroup doxd4d_tchhw D4D TCHSCR HW INTERFACE driver Template
+ 
+This part contains function prototypes that are used to interface between the touch screen control layer and
+the hardware interface layer.
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_tchhw_const D4D LOW LEVEL TCHSCR HW INTERFACE API Constant Specification
+This section specifies the exact constants used by low level driver.
+@ingroup doxd4d_tchhw
+*/
+//***********************************************************************
+/*! 
+@defgroup doxd4d_tchhw_func D4D LOW LEVEL TCHSCR HW INTERFACE API Functions Specification
+This section specifies the exact usage for each API function.
+@ingroup doxd4d_tchhw
+*/

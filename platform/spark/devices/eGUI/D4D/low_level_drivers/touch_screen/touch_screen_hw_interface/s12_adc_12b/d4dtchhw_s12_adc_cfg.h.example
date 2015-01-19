@@ -1,0 +1,125 @@
+/**************************************************************************
+*
+* Copyright 2014 by Petr Gargulak. eGUI Community.
+* Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
+*
+***************************************************************************
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Lesser General Public License Version 3
+* or later (the "LGPL").
+*
+* As a special exception, the copyright holders of the eGUI project give you
+* permission to link the eGUI sources with independent modules to produce an
+* executable, regardless of the license terms of these independent modules,
+* and to copy and distribute the resulting executable under terms of your
+* choice, provided that you also meet, for each linked independent module,
+* the terms and conditions of the license of that module.
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
+* to do so. If you do not wish to do so, delete this
+* exception statement from your version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+*
+* You should have received a copy of the GNU General Public License
+* and the GNU Lesser General Public License along with this program.
+* If not, see <http://www.gnu.org/licenses/>.
+*
+***************************************************************************//*!
+*
+* @file      d4dtchhw_s12_adc_cfg.h.example
+*
+* @author     Petr Gargulak
+*
+* @version   0.0.1.0
+*
+* @date      Jun-29-2010
+*
+* @brief     D4D driver - resistive touch screen driver function header file
+*
+*******************************************************************************/
+
+#ifndef __D4DTCH_RESISTIVE_CFG_H
+#define __D4DTCH_RESISTIVE_CFG_H
+
+
+  /******************************************************************************
+  * includes
+  ******************************************************************************/
+
+  #include "derivative.h"    /* include peripheral declarations and more for S08 and CV1 */
+  //#include "support_common.h" /* include peripheral declarations and more for CV2 */
+
+  /******************************************************************************
+  * Constants
+  ******************************************************************************/
+
+  #define D4DTCH_ADC_HW D4DTCH_ADC_HW_S12
+
+  // X+ wire definition
+  #define D4DTCH_X_PLUS   2
+  #define D4DTCH_X_PLUS_PORT  PT1AD1
+  #define D4DTCH_X_PLUS_DDR   DDR1AD1
+  #define D4DTCH_X_PLUS_ADCH   2
+  #define D4DTCH_X_PLUS_ADCH_PIN_ENABLE  (DDR1AD1_DDR1AD12 = 0); // b01800 commented
+  #define D4DTCH_X_PLUS_ADCH_PIN_DISABLE (DDR1AD1_DDR1AD12 = 1);
+
+  //#define D4DTCH_INIT_X_PLUS  OUTPUT(D4DTCH_X_PLUS); RESET(D4DTCH_X_PLUS);
+  //#define D4DTCH_RESET_X_PLUS RESET(D4DTCH_X_PLUS);
+  //#define D4DTCH_SET_X_PLUS   SET(D4DTCH_X_PLUS);
+
+  // X- wire definition
+  #define D4DTCH_X_MINUS  3
+  #define D4DTCH_X_MINUS_PORT  PT1AD1
+  #define D4DTCH_X_MINUS_DDR   DDR1AD1
+
+  //#define D4DTCH_INIT_X_MINUS  OUTPUT(D4DTCH_X_MINUS); RESET(D4DTCH_X_MINUS);
+  //#define D4DTCH_RESET_X_MINUS RESET(D4DTCH_X_MINUS);
+  //#define D4DTCH_SET_X_MINUS   SET(D4DTCH_X_MINUS);
+  //#define D4DTCH_X_MINUS_HIGH_Z_ENABLE INPUT(D4DTCH_X_MINUS);
+  //#define D4DTCH_X_MINUS_HIGH_Z_DISABLE OUTPUT(D4DTCH_X_MINUS);
+
+  // Y+ wire definition
+  #define D4DTCH_Y_PLUS   4
+  #define D4DTCH_Y_PLUS_PORT  PT1AD1
+  #define D4DTCH_Y_PLUS_DDR   DDR1AD1
+  #define D4DTCH_Y_PLUS_ADCH   4
+  #define D4DTCH_Y_PLUS_ADCH_PIN_ENABLE  (DDR1AD1_DDR1AD14 = 0);
+  #define D4DTCH_Y_PLUS_ADCH_PIN_DISABLE (DDR1AD1_DDR1AD14 = 1);
+
+  //#define D4DTCH_INIT_Y_PLUS  OUTPUT(D4DTCH_Y_PLUS); RESET(D4DTCH_Y_PLUS);
+  //#define D4DTCH_RESET_Y_PLUS RESET(D4DTCH_Y_PLUS);
+  //#define D4DTCH_SET_Y_PLUS   SET(D4DTCH_Y_PLUS);
+
+  // Y- wire definition
+  #define D4DTCH_Y_MINUS  5
+  #define D4DTCH_Y_MINUS_PORT  PT1AD1
+  #define D4DTCH_Y_MINUS_DDR   DDR1AD1
+
+  //#define D4DTCH_INIT_Y_MINUS  OUTPUT(D4DTCH_Y_MINUS); RESET(D4DTCH_Y_MINUS);
+  //#define D4DTCH_RESET_Y_MINUS RESET(D4DTCH_Y_MINUS);
+  //#define D4DTCH_SET_Y_MINUS   SET(D4DTCH_Y_MINUS);
+  //#define D4DTCH_Y_MINUS_HIGH_Z_ENABLE INPUT(D4DTCH_Y_MINUS);
+  //#define D4DTCH_Y_MINUS_HIGH_Z_DISABLE OUTPUT(D4DTCH_Y_MINUS);
+
+  // definition of calibration cross offset on on screen in pixels
+  //#define D4DTCH_CALIB_CROSS_OFFSET 30
+
+  // Constant specifying maximum ADC value for a screen touch (=12bits)
+  #define D4DTCH_FULL_SCALE           0x0FFF
+
+  // Constants specifying minimum ADC value for a screen touch
+  //#define D4DTCH_X_TOUCH_MIN              (D4DTCH_FULL_SCALE / 10)
+  //#define D4DTCH_Y_TOUCH_MIN              (D4DTCH_FULL_SCALE / 10)
+
+  //#define D4DTCH_X_TOUCH_OFFMAX              (D4DTCH_X_TOUCH_MIN * 4 / 2)
+  //#define D4DTCH_Y_TOUCH_OFFMAX              (D4DTCH_Y_TOUCH_MIN * 4 / 2)
+
+  // Constants specifying ADC difference for touch screen sample
+  //#define D4DTCH_SAMPLE_MARGIN            (D4DTCH_FULL_SCALE / 256)
+
+#endif /* __D4DTCH_RESISTIVE_CFG_H */

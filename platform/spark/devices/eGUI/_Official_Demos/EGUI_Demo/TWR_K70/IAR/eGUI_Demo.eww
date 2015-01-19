@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+  <project>
+    <path>$WS_DIR$\eGUI_Demo.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\eGUI_Demo_d4dLib.ewp</path>
+    </project>
+  <batchBuild>
+    <batchDefinition>
+      <name>All</name>
+      <member>
+        <project>eGUI_Demo_d4dLib</project>
+        <configuration>Debug</configuration>
+      </member>
+      <member>
+        <project>eGUI_Demo_d4dLib</project>
+        <configuration>Release</configuration>
+      </member>
+      <member>
+        <project>eGUI_Demo</project>
+        <configuration>Debug</configuration>
+      </member>
+      <member>
+        <project>eGUI_Demo</project>
+        <configuration>Release</configuration>
+      </member>
+    </batchDefinition>
+    <batchDefinition>
+      <name>Debug</name>
+      <member>
+        <project>eGUI_Demo_d4dLib</project>
+        <configuration>Debug</configuration>
+      </member>
+      <member>
+        <project>eGUI_Demo</project>
+        <configuration>Debug</configuration>
+      </member>
+    </batchDefinition>
+    <batchDefinition>
+      <name>Release</name>
+      <member>
+        <project>eGUI_Demo_d4dLib</project>
+        <configuration>Release</configuration>
+      </member>
+      <member>
+        <project>eGUI_Demo</project>
+        <configuration>Release</configuration>
+      </member>
+    </batchDefinition>
+  </batchBuild>
+</workspace>
+
+

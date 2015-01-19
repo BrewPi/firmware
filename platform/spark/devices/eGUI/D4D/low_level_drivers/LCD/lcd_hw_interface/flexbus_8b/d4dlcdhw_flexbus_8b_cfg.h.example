@@ -1,0 +1,99 @@
+/**************************************************************************
+*
+* Copyright 2014 by Petr Gargulak. eGUI Community.
+* Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
+*
+***************************************************************************
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Lesser General Public License Version 3
+* or later (the "LGPL").
+*
+* As a special exception, the copyright holders of the eGUI project give you
+* permission to link the eGUI sources with independent modules to produce an
+* executable, regardless of the license terms of these independent modules,
+* and to copy and distribute the resulting executable under terms of your
+* choice, provided that you also meet, for each linked independent module,
+* the terms and conditions of the license of that module.
+* An independent module is a module which is not derived from or based
+* on this library.
+* If you modify the eGUI sources, you may extend this exception
+* to your version of the eGUI sources, but you are not obligated
+* to do so. If you do not wish to do so, delete this
+* exception statement from your version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+*
+* You should have received a copy of the GNU General Public License
+* and the GNU Lesser General Public License along with this program.
+* If not, see <http://www.gnu.org/licenses/>.
+*
+***************************************************************************//*!
+*
+* @file      d4dlcdhw_flexbus_8b_cfg.h.example
+*
+* @author     Petr Gargulak
+*
+* @version   0.0.1.0
+*
+* @date      May-5-2010
+*
+* @brief     D4D driver - flexbus_8b hardware lcd driver configuration header file
+*
+*******************************************************************************/
+
+#ifndef __D4DLCDHW_FLEXBUS_8B_CFG_H
+#define __D4DLCDHW_FLEXBUS_8B_CFG_H
+
+
+  /******************************************************************************
+  * includes
+  ******************************************************************************/
+  // include here what the driver need for run for example "derivative.h"
+   #include "derivative.h"    /* include peripheral declarations and more for S08 and CV1 */
+
+  /******************************************************************************
+  * Constants
+  ******************************************************************************/
+
+  // for MINI FLEX BUS                        CS0              FB_AD16             FB_AD7          FB_AD6           FB_AD5             FB_RW           FB_AD4            FB_AD3             FB_AD2           FB_AD1             FB_AD0           FB_AD9             FB_AD10               FB_AD11         FB_AD12              FB_AD15          FB_AD8              FB_AD13          FB_AD14        (FB_ALE) = GPIO Output
+  #define D4DLCD_DISPLAY_MCU_USER_INIT  PTEPF1_E7 = 0x02; PTFPF2_F3 = 0x02; PTGPF2_G1 = 0x02; PTGPF2_G2 = 0x02; PTGPF2_G3 = 0x02; PTGPF1_G4 = 0x02; PTJPF2_J1 = 0x02; PTJPF2_J2 = 0x02; PTJPF2_J3 = 0x02; PTJPF1_J4 = 0x02; PTJPF1_J5 = 0x02;  PTHPF1_H7 = 0x02; PTHPF1_H6 = 0x02;   PTHPF1_H5 = 0x02;  PTHPF1_H4 = 0x02;  PTHPF2_H0 = 0x02; PTGPF2_G0 = 0x02;  PTFPF1_F7 = 0x02;  PTFPF1_F6 = 0x02;  PTJDD_PTJDD0 = 1;   PTJD_PTJD0   = 1;
+
+
+  #define D4DLCD_FLEX_BASE_ADDRESS  0x00410000
+
+
+
+  #define D4DLCD_FLEX_DC_ADDRESS    0x00400000
+
+
+
+  #define D4DLCD_FLEX_ADRESS_MASK   0x00010000
+
+
+  #define D4DLCD_FLEX_CS 0
+
+  /*******************************************
+  * Signals definition
+  *******************************************/
+
+  #define D4DLCD_RESET           3         // RESET
+  #define D4DLCD_RESET_PORT      PTCD      // RESET
+  #define D4DLCD_RESET_DDR       PTCDD     // RESET
+
+  //#define D4DLCD_BACKLIGHT       0         // BACKLIGHT
+  //#define D4DLCD_BACKLIGHT_PORT  PTCD      // BACKLIGHT
+  //#define D4DLCD_BACKLIGHT_DDR   PTCDD     // BACKLIGHT
+
+
+  /*********** Power macros - for modification uncoment and modify ***********/
+
+
+  //#define D4DLCD_INIT_RESET OUTPUT(D4DLCD_RESET);
+  //#define D4DLCD_ASSERT_RESET RESET(D4DLCD_RESET);
+  //#define D4DLCD_DEASSERT_RESET SET(D4DLCD_RESET);
+
+  // define here what you need to be configurable
+
+#endif /* __D4DLCDHW_FLEXBUS_8B_CFG_H */

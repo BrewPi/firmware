@@ -1,0 +1,98 @@
+/*!
+  \page egui_new_lld Create new low level driver
+
+<h1>How to Use Templates to Create a New User Low Level Driver</h1> \n
+Creating a new low level driver from the template is simple and can be executed in a few simple steps.
+
+\n
+\n
+<h2>Name of New Driver</h2>\n
+First, the new driver has to be created with a unique name that describes the driver and has not already
+been used in the "eGUI/D4D".
+Example: For LCD controller layer and LCD driver SSD1926 from Solomon Systech company, the name
+must be "ssd1926".
+
+\n
+\n
+<h2>New Driver Directory</h2>\n
+Second, create a folder for a new driver in the correct place in the D4D directory structure:
+Directory paths for drivers:
+- LCD controller layer: "D4D\low_level_drivers\LCD\lcd_controllers_drivers\"
+- LCD hardware communication layer: "D4D\low_level_drivers\LCD\lcd_hw_interface\"
+- Touch screen control layer: "D4D\low_level_drivers\touch_screen\touch_screen_drivers\"
+- Touch screen hardware interface layer ("D4D\low_level_drivers\touch_screen\touch_screen_hw_interface\")
+Example: For the new SSD1926 LCD controller a folder must be created, "ssd1926" in "D4D\low_level_drivers\LCD\lcd_controllers_drivers\".
+
+\n
+\n
+<h2>Copy Template Files</h2>\n
+
+In this step the directory must be filled with the template driver files. The templates are stored in the
+low-level driver directory and the folder name is called "template". After copying these files into the user
+new driver folder, all the files must be renamed to a valid name. This must be executed by replacing the
+template word in the name of the files by the user name selected in first place.
+Example: Copy the content of the template directory placed in
+"D4D\low_level_drivers\LCD\lcd_controllers_drivers\" into the new folder "ssd1926" and rename all the
+file names with the word "template" to "ssd1926".
+
+\n
+\n
+<h2>Add Driver Files Into eGUI/D4D Project</h2>\n
+
+Finally add these files into the CodeWarrior project. This can be executed by dragging and dropping the
+new created folder with the renamed template files into the corresponding group in the eGUI/D4D main
+group.
+Example: Drag and drop the new created folder "ssd1926" with the renamed files and place them into the
+CodeWarrior project with eGUI/D4D to the correct group: "D4D\low_level_drivers\LCD\lcd_controllers_drivers\".
+
+@image html _images/01-new_driver_inCW.png Figure 1: New added driver
+@image rtf _images/01-new_driver_inCW.png Figure 1: New added driver
+@image latex _images/01-new_driver_inCW.png Figure 1: New added driver
+
+\n
+\n
+
+<h2>Update File Template Contents to Correct Names</h2>\n
+The new driver files from the template contain all the necessary functions and mainly the API structure,
+but with a default name. All functions, macros, variables, and defines contain the word "template" in a
+different letter case. The step is renamed and all the contents to their correct names as the driver name
+selected in the first step.The fastest way to rename all the things needed in these new files are the
+following:
+- Close all editor windows (for example in the CodeWarrior Window menu):
+
+@image html _images/02-no_editor_window.png Figure 2: CW without any editor windows
+@image rtf _images/02-no_editor_window.png Figure 2: CW without any editor windows
+@image latex _images/02-no_editor_window.png Figure 2: CW without any editor windows
+
+- Open all three new driver files to have a better selection in the Find In Files menu:
+
+@image html _images/03-open_driver_files.png Figure 3: New driver open files in editor window
+@image rtf _images/03-open_driver_files.png Figure 3: New driver open files in editor window
+@image latex _images/03-open_driver_files.png Figure 3: New driver open files in editor window
+
+- Open Find In Files utility in CodeWarrior search menu.
+- Select tab In Files
+- Set File Set to open the Editor Files
+- Check Case sensitive option
+- Open Find In Files utility in CodeWarrior search menu.
+- Select tab In Files
+- Set File Set to open the Editor Files
+- Check Case sensitive option
+
+@image html _images/04-rename_template.png Figure 4: Replacing "template" string
+@image rtf _images/04-rename_template.png Figure 4: Replacing "template" string
+@image latex _images/04-rename_template.png Figure 4: Replacing "template" string
+
+<h2>Fill Up the Function Bodies</h2>\n
+The last step is filling up the function bodies with correct code that manages the LCD display for a correct
+run. After the API is completed by the template the user must fill up only the power code and not the API.
+This speeds up the new driver development.
+
+<b>REFERENCE</b>\n
+- @ref doxd4d_lcd
+- @ref doxd4d_lcdhw
+- @ref doxd4d_lcdhwfb
+- @ref doxd4d_tch
+- @ref doxd4d_tchhw
+
+*/

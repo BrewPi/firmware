@@ -1,0 +1,235 @@
+This file contains release notes of D4D driver since the version 0.9.
+
+
+Changes in API for version Freescale eGUI/D4D 1.0:
+
+Fonts:
+  - This version brings completelly new font support:
+      - the driver support proportional / monospace fonts
+      - the size of font is not restricted in this version (in version 0.9 fonts was limited to 8 pixels width)
+      - the font table could be linear (full) or nonlinear (restricted)
+      - the nonlinear fonts could used two types of index table lookup and map style (toachive better utilization of flash)
+      - the font could be packed in little/big endian format and could be packed or not
+      - the new fonts are described by new structure D4D_FONT_DESCRIPTOR
+      - the new fonts support different char/line spacing
+
+  - The fonts data has been moved from driver to the user application, so it depends on
+    user application that fonts will use
+
+  - D4D_DECLARE_FONT_TABLE is renamed to D4D_DECLARE_FONT
+  - D4D_DECLARE_FONT macro was extended to support different char/line spacing (new two parameters added)
+
+
+  - There is new Textdraw function (D4D_DrawTextRect) that supports text alligment
+
+BitMaps:
+  All bitmap drawing function was moved to special file d4d_bmp.c/h
+
+Low Level Drivers:
+  - for this version is created comletelly new low level drivers structure with better flexibility
+
+
+Main Types:
+  - LWord/sLWord was redefined from "int" to "long"
+  - DLWord/sDLWord was redefined from "long" to "long long"
+
+
+Keys:
+  - the original bitmap way of handling keys in D4D was repalced by event driven scan codes for better flexibility
+    with hadling more keys. For this is added to driver new scancode macros definition D4D_KEY_SCANCODE_XX, where XX
+    is key name as UP, DOWN, ENTER etc. The highest bit in scan code (0x80) determine the event for the key (push, release).
+  - the new API function has been add void D4D_NewKeyEvent(D4D_KEY_SCANCODE scanCode) for handling keys events into D4D
+  - the old input API function D4D_KeysChanged with bitmap oriented input parameter is keep in project for backward compatibility
+    but only with support for basic keys (up, down, left, right, enter, esc)
+  - all D4D driver at this version runs on scancodes included hadling keys into user application over messages
+
+Touch Screen:
+
+
+Graphic Objects:
+  General:
+    - For most objects the the function D4D_XxxSetText (where Xxx is nick of object) was replaced by general one  D4D_SetTex
+
+  Button:
+    - The Button declaration macros (D4D_DECLARE_BUTTON, D4D_DECLARE_STD_BUTTON, D4D_DECLARE_TXT_BUTTON) was reduce by two parameter
+      text offset x / y. The functionality of text offset is stand in by Text alligment proporties
+
+
+Configuration file:
+  - The is new type of configuration low level drivers - more in DRM1116
+  - added D4D_MCU_TYPE definition - for settings the used MCu
+  - added D4D_MCU_BUS_CLOCK definition - for general used of driver
+
+  - for most graphic object added macro D4D_xx_TXT_PRTY_DEFAULT and D4D_xx_FNT_PRTY_DEFAULT to setup
+    default text behaviour of object
+
+
+
+
+Changes in API for version Freescale eGUI/D4D 1.01:
+
+	Low level drivers section:
+	  - add beta version of frame buffer low level driver and it was tested on MCF52277 with 3.25" (320x240) and 12" (800x600) LCD
+	  - add beta version of touch screen low level driver based on MCF52277 ASP peripherial
+
+
+
+
+Changes in API for version Freescale eGUI/D4D 1.11:
+
+
+	  Graphic Object:
+	  - add new beta version of scroll bar graphic object (touch screen/ keyboard controlled, autosize capability, OnChange callBack)
+	  - add new beta version of console graphic object (autosize capability, scroll bars capability)
+	  - Each graphic object can be forced into RAM memory to allow change basic properties in runtime _INRAM postfix in declaration macros
+
+	Added function to get screen client area size : D4D_SIZE D4D_GetClientScreenSize(D4D_SCREEN* pScreen);
+	Added functions to allow change screen title text properties :
+	  - void D4D_SetScreenTextProperties(D4D_SCREEN* pScreen, D4D_TEXT_PROPERTIES property);
+	  - void D4D_SetScreenFontProperties(D4D_SCREEN* pScreen, D4D_FONT_PROPERTIES property);
+
+	Added function that allows force initialization of screen before it first use: void D4D_InitScreen(D4D_SCREEN* pScreen)
+
+	Added new three configuration defines into main d4d_cfg.h configuration header file:
+	  - D4D_COLOR_SYSTEM_FORE - System fore color (for example for calibration screen)
+	  - D4D_COLOR_SYSTEM_BCKG - System background color (for example for calibration screen)
+	  - D4D_FONT_SYSTEM_DEFAULT - System default font (for example for calibration screen)
+
+	Added new message Id :D4D_MSG_TIMETICK - message with this Id is called by D4D_RedrawScreen  function and send to all active objects
+	to provide time functions as blinking with cursor etc.
+
+	Some minor bugs has been fixed
+
+Changes in API for version Freescale eGUI/D4D 1.12:
+
+Low level drivers section:
+  - add beta version of frame buffer low level driver for MPC5125 on MQX 3.6.
+  - add low level driver beta version of LCD controller LGDP4531, its tested only on SPI interfaface called SPIX.
+
+Changes in API for version Freescale eGUI/D4D 1.20:
+
+	  Graphic Object:
+	  - add new beta version of text box graphic object (touch screen/ keyboard controlled, autosize capability) to show larger texts on screen.
+	    It support new line, tab special chars and for texts bigger then screen it shows vertical scroll bar on right size.
+
+	Scroll Bar - fixed bug in touch screen support
+
+	Fixed bug in print text routine for transparent prints (double size spce between chars in string).
+
+
+
+	Some minor bugs has been fixed
+
+
+
+Changes in API for version Freescale eGUI/D4D 2.00:
+
+	Added object round corners support
+
+	Object button has been updated to support round corners
+
+	Some minor bugs has been fixed
+
+
+
+Changes in version Freescale eGUI/D4D 2.01:
+	Add support for Kinetis MCU - little endian, alpha low level drivers etc.
+
+	Fixed some new bugs founds under IAR compiler.
+
+
+Changes in version Freescale eGUI/D4D 2.02:
+	Fixed issue with screen changes (Activate, escape). Bug - during changes of screens the D4D_MSG_GET_FOCUS and D4D_MSG_SET_FOCUS wasn't generated.
+
+Changes in version Freescale eGUI/D4D 2.03:
+	Added rounded corners functionality to D4D_CHECKBOX, D4D_ICON and D4D_PICTURE.
+
+Changes in version Freescale eGUI/D4D 2.04:
+	Changed system of colors in D4D, from this moment can be used various representation of color in D4D. Added into configuration file D4D_COLOR_SYSTEM macro.
+
+Changes in version Freescale eGUI/D4D 2.05:
+	Fixed bug in drawing Slider bar. There was problem with "overflow" of slider bar into neighbourhood inside whole D4D_SLIDER object.
+
+Changes in version Freescale eGUI/D4D 2.06:
+	Added rounded corners functionality to D4D_GAUGE, D4D_MENU, D4D_CONSOLE and D4D_TEXTBOX. Added new object D4D_PROGRESSBAR. Updated D4D_MENU with standard scroll bar instead of simple sidebar.
+	Add to D4D_MENU D4D_DECLARE_MENU_ITEM_FULL declaration macro that allows add to all items user data and add some new functions D4D_MenuSetIndex, D4D_MenuGetItemCount, D4D_MenuFindUserDataItem, D4D_MenuGetItemUserData, D4D_MenuGetItemTextD4D_MenuGetItemText.
+	Add to D4D_SLIDER and also to D4D_PROGRESSBAR scaled colors of active bar.
+
+Changes in version Freescale eGUI/D4D 2.07:
+	All Objects and screen support round corners! Added kinetis Bare metal low level drivers!
+
+Changes in version Freescale eGUI/D4D 2.10:
+	Official release with Kinetis full support.
+
+Changes in version Freescale eGUI/D4D 2.20:
+	Added external BMP files support!
+
+Changes in version Freescale eGUI/D4D 2.22:
+	Extended D4D_BUTTON to support 3D appearence, the new functionality code is enabled ib d4d_user_cfg.h file (#define D4D_BTN_3D_ENABLE D4D_TRUE) and the 3D appearence is enabling by D4D_BTN_F_3D.
+	Also add new system message D4D_MSG_TOUCH_LOST, that occur when the touch screen is still touched but finger go out of the touched object.
+
+Changes in version Freescale eGUI/D4D 2.23:
+	Extended functionality of printing strings to reduce strings that are longer then specified max size. In practice, the API functions D4D_DrawRextText... draw text never exceed the specified rectangle.
+
+Changes in version Freescale eGUI/D4D 2.24:
+	Redesigned bitmap drawing functions (from internal memory). The code size of this decoders has been redused by 45% and the round corners bitmaps for 2 and 16 colors has been added.
+
+Changes in version Freescale eGUI/D4D 2.25:
+	Fix bug in D4D_BUTTON: the bitmaps wasn't draw in greyscale when the button was disabled.
+	Add to the D4D_ICON functionality of redrawing icon background in case that the new showed picture is smaller then previous one. The limitation is taht the object has to has manually specified size.
+
+19. 3. 2012
+Changes in version Freescale eGUI/D4D 2.30:
+  Changed LCD low level driver API, the data width reflect size of D4D_COLOR type to flexible support bigger color depth. (Example: unsigned char (*D4DLCD_Send_PixelColor)(D4D_COLOR value);).
+  Changed the system of the includes in whole driver, at the moment all includes has relative path to base d4d directory. In practice in the final project could be added only one include path to base directory of d4d.
+  Added support for 18-bit color depth (6-6-6), never tested!!!
+  Add low level driver for K70 LCDC and TWR-LCD-RGB board.
+  Add low level touch screen driver for CRTOUCH chip. The driver is at the moemnt just in I2C version but it can be configured as baremetal as MQX version.
+  Add decoders for 24-bit color depth bitmaps (internal form Flash).
+  Add transparent color support to extend drawing capabilities of whole driver.
+  Add BackSpace char capability into D4D_CONSOLE object.
+  Add external font support. (This allow load different national character sets or skinning the application)
+  Add UNICODE support. (For example for Chinesse language support).
+
+  The new object D4D_RADIOBUTTON has been added. The original functioonality of D4D_CHECK_BOX works like radio button has been removed.
+
+  Fixed bug with bad touch screen calibration in PORTRAIT mode when the frame buffer was used. (The problem was in bad orientations in frame buffer).
+  Fixed bug with cursor in D4D_CONSOLE OBJECT.
+
+  Removed some API:
+    All functions about drawing texts with "Adv" suffix. (Example :D4D_DrawTextRectTabAdv) The only one diffencies to standard (D4D_DrawTextRectTab) functions (no Adv) was text offset parameter that was moved into
+    D4D_STRING structure.
+
+
+Changes in version Freescale eGUI/D4D 2.xx:
+  Added basic support of compouded objects
+  Added Group Box object D4D_GROUP_BOX
+  Added Bevel drawing functions:
+    void D4D_Bevel(D4D_POINT* ppt, D4D_SIZE* psz, D4D_COLOR fore, D4D_COLOR bck);
+    void D4D_RBevel(D4D_POINT* ppt, D4D_SIZE* psz, D4D_COLOR fore, D4D_COLOR bck, D4D_COOR radius);
+
+  Added Margin for objects
+
+  Fixed bugs:
+    The one pixel drawed on position 0,0 when the scroll bar is used. Now OK.
+    The fonts has been drawed with some "mesh extra pixels" in high optimizations under IAR. Now OK.
+
+  Changed API:
+    Type D4D_OBJECT_PTR has been changed from "const" to standard.
+    D4D_POINT D4D_GetScreenToClientPoint(D4D_SCREEN* pScreen, D4D_POINT* nScreenPoint) to D4D_POINT D4D_GetScreenToClientPoint(D4D_OBJECT* pObject, D4D_POINT* nScreenPoint)
+    D4D_POINT D4D_GetClientToScreenPoint(D4D_SCREEN* pScreen, D4D_POINT* nClientPoint) to D4D_POINT D4D_GetClientToScreenPoint(D4D_OBJECT* pObject, D4D_POINT* nClientPoint)
+    D4D_SIZE D4D_GetClientScreenSize(D4D_SCREEN* pScreen) to D4D_SIZE D4D_GetClientScreenSize(D4D_OBJECT* pObject)
+    D4D_POINT D4D_GetTouchScreenCoordinates(void) to D4D_POINT D4D_GetTouchScreenCoordinates(D4D_OBJECT* pObject)
+
+    Changed internal OBJECT structure D4D_OBJECT_SYS_FUNCTION. Item type to item strName. This allow adding objects without any changes in eGUI itself. :-)
+    ChangedLow Level drivers API for Flush functions - Add parameter mode where is type of flush.
+
+    Removed all AUTOSIZE MACRO declarations for objects
+
+    OBSOLETE:
+
+    D4D_CHECKBOX_BORDER_OFFSET
+
+    _D4D_DECLARE_CONSOLE replace by _D4D_DECLARE_CONSOLE2
+
+    Removed D4D_KEYS D4D_GetKeys(void) function. Is obsolete.
