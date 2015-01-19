@@ -1,0 +1,2 @@
+
+INCLUDE_DIRS += $(SRC_EGUI)/D4D
