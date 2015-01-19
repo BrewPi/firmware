@@ -379,7 +379,7 @@ void D4D_FocusPrevObject(D4D_SCREEN* pScreen)
           D4D_BOOL couldBeFocused = D4D_TRUE;
 
           // Take care that the parents objects are also visible and enabled
-          while(pParent = D4D_GetParentObject(pParent))
+          while((pParent = D4D_GetParentObject(pParent)))
           {
             if((pParent->pData->flags & (D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_VISIBLE)) != (D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_VISIBLE))
             {

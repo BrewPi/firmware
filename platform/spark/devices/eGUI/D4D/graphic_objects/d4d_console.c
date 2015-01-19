@@ -579,7 +579,7 @@ D4D_BOOL D4D_CnslPutChar(D4D_OBJECT_PTR pObj, D4D_TCHAR ch)
 D4D_BOOL D4D_CnslPutString(D4D_OBJECT_PTR pObj, D4D_TCHAR* pText) {
 
 D4D_BOOL wrap = D4D_FALSE;
-D4D_POINT tmp_scrollbars;
+D4D_POINT tmp_scrollbars = {0,0};
 
   if(pText == NULL)
     return D4D_FALSE;
@@ -599,7 +599,7 @@ D4D_POINT tmp_scrollbars;
 
   if(tmp_scrollbars.y == D4D_GET_CONSOLE_DATA(pObj)->cursorPos.y)
   {
-    if(D4D_GET_LIST_BOX_SCROLL_BAR_VER(pObj)->pData->flags & D4D_OBJECT_F_VISIBLE)
+    if(D4D_GET_LIST_BOX_SCROLL_BAR_HOR(pObj)->pData->flags & D4D_OBJECT_F_VISIBLE)
       if(tmp_scrollbars.x != D4D_ScrlBrGetPosition(D4D_GET_LIST_BOX_SCROLL_BAR_VER(pObj)))
         return wrap;
 

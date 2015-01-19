@@ -500,7 +500,7 @@ static void D4D_MenuOnTouch(D4D_MESSAGE* pMsg, D4D_POINT* pPoint)
       // Select Menu Item
         D4D_COOR tmp_y;
         Byte tmpB;
-        D4D_MENU_INDEX tmpItemsCnt = D4D_GetItemsCount(pMenu);
+        __attribute__((unused)) D4D_MENU_INDEX tmpItemsCnt = D4D_GetItemsCount(pMenu);
 
         tmp_y = (D4D_COOR)(pPoint->y - pThis->position.y);
 

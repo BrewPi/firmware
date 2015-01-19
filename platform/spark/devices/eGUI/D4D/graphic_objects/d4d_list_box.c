@@ -280,7 +280,7 @@ static void D4D_ListBoxOnDraw(D4D_MESSAGE* pMsg)
 static void D4D_ListBoxFocusNextItem(D4D_OBJECT* pThis)
 {
   D4D_LIST_BOX* pListBox = D4D_GET_LIST_BOX(pThis);
-  D4D_LIST_BOX_INDEX tmpPosCnt = D4D_GetPositionCount(pThis);
+  __attribute__((unused)) D4D_LIST_BOX_INDEX tmpPosCnt = D4D_GetPositionCount(pThis);
   D4D_LIST_BOX_INDEX tmpItemsCnt = D4D_GetItemsCount(pListBox);
 
   pListBox->pData->ix++;
@@ -304,7 +304,7 @@ static void D4D_ListBoxFocusNextItem(D4D_OBJECT* pThis)
 static void D4D_ListBoxFocusPreviousItem(D4D_OBJECT* pThis)
 {
   D4D_LIST_BOX* pListBox = D4D_GET_LIST_BOX(pThis);
-  D4D_LIST_BOX_INDEX tmpPosCnt = D4D_GetPositionCount(pThis);
+  __attribute__((unused)) D4D_LIST_BOX_INDEX tmpPosCnt = D4D_GetPositionCount(pThis);
   D4D_LIST_BOX_INDEX tmpItemsCnt = D4D_GetItemsCount(pListBox);
 
   pListBox->pData->ix--;
@@ -392,7 +392,7 @@ static void D4D_ListBoxOnTouch(D4D_MESSAGE* pMsg, D4D_POINT* pPoint)
         // Select ListBox Item
         D4D_COOR tmp_y;
         Byte tmpB;
-        D4D_LIST_BOX_INDEX tmpItemsCnt = D4D_GetItemsCount(pListBox);
+        __attribute__((unused)) D4D_LIST_BOX_INDEX tmpItemsCnt = D4D_GetItemsCount(pListBox);
 
         tmp_y = (D4D_COOR)(pPoint->y - pThis->position.y);
 
@@ -495,7 +495,7 @@ void D4D_ListBoxEnsureVisible(D4D_OBJECT* pThis)
 {
   D4D_LIST_BOX* pListBox = D4D_GET_LIST_BOX(pThis);
   D4D_LIST_BOX_INDEX tmpPosCnt = D4D_GetPositionCount(pThis);
-  D4D_LIST_BOX_INDEX tmpItemsCnt = D4D_GetItemsCount(pListBox);
+  __attribute__((unused)) D4D_LIST_BOX_INDEX tmpItemsCnt = D4D_GetItemsCount(pListBox);
 
   // Check if the selected item is already visible
   if((pListBox->pData->ix >= pListBox->pData->page_ix) && (pListBox->pData->ix < (pListBox->pData->page_ix + tmpPosCnt)))

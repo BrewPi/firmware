@@ -156,7 +156,7 @@ D4D_CHAR* D4D_StrCopy(register D4D_CHAR *sd, register const D4D_CHAR *ss)
 #ifndef D4D_STD_STRING_H_INCLUDE
   register D4D_CHAR *s = sd;
 
-  while (*sd++ = *ss++)
+  while ((*sd++ = *ss++))
     ;
 
   return s;
@@ -177,7 +177,7 @@ D4D_CHAR* D4D_StrCopyUnicode2Ascii(register D4D_CHAR *sd, register const D4D_WCH
 {
   register D4D_CHAR *s = sd;
 
-  while (*sd++ = (D4D_CHAR)*ss++)
+  while ((*sd++ = (D4D_CHAR)*ss++))
     ;
 
   return s;
@@ -194,7 +194,7 @@ D4D_WCHAR* D4D_StrCopyAscii2Unicode(register D4D_WCHAR *sd, register const D4D_C
 {
   register D4D_WCHAR *s = sd;
 
-  while (*sd++ = (D4D_WCHAR)*ss++)
+  while ((*sd++ = (D4D_WCHAR)*ss++))
     ;
 
   return s;
@@ -240,7 +240,7 @@ D4D_WCHAR* D4D_StrCatUnicode(register D4D_WCHAR *sd, register const D4D_WCHAR *s
   while (*sd)
     sd++;
 
-  while (*sd++ = *ss++)
+  while ((*sd++ = *ss++))
     ;
 
   return s;

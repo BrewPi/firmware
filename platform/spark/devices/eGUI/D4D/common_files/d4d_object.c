@@ -363,7 +363,7 @@ D4D_BOOL D4D_IsMineFocus(D4D_OBJECT* pObject)
   if((pObject->pRelations) && (pFocused->pRelations))
   {
     // Lok for all parents - step by step
-    while(pFocused = D4D_GetParentObject(pFocused))
+    while((pFocused = D4D_GetParentObject(pFocused)))
     {
       if(pObject == pFocused)
         return D4D_TRUE;
