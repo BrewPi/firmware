@@ -19,6 +19,6 @@
  */
 
 
-#include "../OneWire/OneWire.h"
+#include "OneWire.h"
 
 #include "DS2413.h"

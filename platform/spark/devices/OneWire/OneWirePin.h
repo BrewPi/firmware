@@ -2,45 +2,7 @@
 #define OneWire_h
 
 #include <inttypes.h>
-#include "Brewpi.h"
-
-// You can exclude certain features from OneWire.  In theory, this
-// might save some space.  In practice, the compiler automatically
-// removes unused code (technically, the linker, using -fdata-sections
-// and -ffunction-sections when compiling, and Wl,--gc-sections
-// when linking), so most of these will not result in any code size
-// reduction.  Well, unless you try to use the missing features
-// and redesign your program to not need them!  ONEWIRE_CRC8_TABLE
-// is the exception, because it selects a fast but large algorithm
-// or a small but slow algorithm.
-
-// you can exclude onewire_search by defining that to 0
-#ifndef ONEWIRE_SEARCH
-#define ONEWIRE_SEARCH 1
-#endif
-
-// You can exclude CRC checks altogether by defining this to 0
-#ifndef ONEWIRE_CRC
-#define ONEWIRE_CRC 1
-#endif
-
-// Select the table-lookup method of computing the 8-bit CRC
-// by setting this to 1.  The lookup table enlarges code size by
-// about 250 bytes.  It does NOT consume RAM (but did in very
-// old versions of OneWire).  If you disable this, a slower
-// but very compact algorithm is used.
-#ifndef ONEWIRE_CRC8_TABLE
-#define ONEWIRE_CRC8_TABLE 1
-#endif
-
-// You can allow 16-bit CRC checks by defining this to 1
-// (Note that ONEWIRE_CRC must also be 1.)
-#ifndef ONEWIRE_CRC16
-#define ONEWIRE_CRC16 1
-#endif
-
-#define FALSE 0
-#define TRUE  1
+#include "application.h"
 
 // Platform specific I/O definitions
 
@@ -106,12 +68,11 @@
 #define ONEWIRE_PARASITE_SUPPORT 1
 #endif
 
-class OneWirePin
-{
-  private:
+class OneWirePin {
+private:
     IO_REG_TYPE bitmask;
     volatile IO_REG_TYPE *baseReg;
-	uint8_t pin;
+    uint8_t pin;
 #if ONEWIRE_SEARCH
     // global search state
     uint8_t ROM_NO[8];
@@ -120,12 +81,14 @@ class OneWirePin
     uint8_t LastDeviceFlag;
 #endif
 
-	void parasitePowerAfterWrite(bool power);
+    void parasitePowerAfterWrite(bool power);
 
-  public:
-    OneWirePin( uint8_t pin);
+public:
+    OneWirePin(uint8_t pin);
 
-	uint8_t pinNr() const { return pin; }
+    uint8_t pinNr() const {
+        return pin;
+    }
 
     // Perform a 1-Wire reset cycle. Returns 1 if a device responds
     // with a presence pulse.  Returns 0 if there is no device or the
@@ -186,7 +149,7 @@ class OneWirePin
     // Compute a Dallas Semiconductor 8 bit CRC, these are used in the
     // ROM and scratchpad registers.
     static uint8_t crc8(const uint8_t *addr, uint8_t len);
-	
+
 #if ONEWIRE_CRC16
     // Compute the 1-Wire CRC16 and compare it against the received CRC.
     // Example usage (reading a DS2408):

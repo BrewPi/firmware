@@ -105,7 +105,7 @@ typedef unsigned char prog_uchar;
 class Adafruit_ILI9341 : public Adafruit_GFX {
 
 public:
-	Adafruit_ILI9341(uint8_t CS, uint8_t RS, uint8_t RST);
+	Adafruit_ILI9341(uint8_t CS, uint8_t RS, uint8_t RST = 255);
 
 	void begin(void);
         void setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
