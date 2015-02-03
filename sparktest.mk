@@ -29,6 +29,9 @@ CPPSRC += $(call target_files,app/devices,*.cpp)
 CSRC += $(call target_files,platform/spark/devices/,*.c)
 CPPSRC += $(call target_files,platform/spark/devices/,*.cpp)
 
+SRC_EGUI = $(SOURCE_PATH)/platform/spark/devices/eGUI
+include $(SRC_EGUI)/egui.mk
+
 #CSRC += $(call target_files,platform/wiring/,*.c)
 #CPPSRC += $(call target_files,platform/wiring/,*.cpp)
 
