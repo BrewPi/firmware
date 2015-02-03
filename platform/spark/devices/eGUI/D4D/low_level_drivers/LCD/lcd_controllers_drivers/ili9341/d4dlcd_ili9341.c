@@ -1,5 +1,5 @@
 /**************************************************************************
-*
+* Copyright 2015 by Elco Jacobs, BrewPi
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
@@ -31,7 +31,7 @@
 *
 ***************************************************************************//*!
 *
-* @file      d4dlcd_template.c
+* @file      d4dlcd_ili9341.c
 *
 * @author     Petr Gargulak
 *
@@ -39,7 +39,7 @@
 *
 * @date      Jan-14-2014
 *
-* @brief     D4D driver - template lcd driver source c file
+* @brief     D4D driver - ili9341 lcd driver source c file
 *
 ******************************************************************************/
 
@@ -56,17 +56,17 @@
 
 /*! @brief  Identification string of driver - must be same as name D4DLCD_FUNCTIONS structure + "_ID"
  it is used for enable the code for compilation   */
-#define d4dlcd_template_ID 1
+#define d4dlcd_ili9341_ID 1
 
 /*! @} End of doxd4d_lcd_const                                             */
 
 // copilation enable preprocessor condition
-// the string d4dlcd_template_ID must be replaced by define created one line up
-#if (D4D_MK_STR(D4D_LLD_LCD) == d4dlcd_template_ID)
-//  #if (D4D_LLD_LCD == d4dlcd_template_ID)
+// the string d4dlcd_ili9341_ID must be replaced by define created one line up
+#if (D4D_MK_STR(D4D_LLD_LCD) == d4dlcd_ili9341_ID)
+//  #if (D4D_LLD_LCD == d4dlcd_ili9341_ID)
   // include of low level driver heaser file
   // it will be included into wole project only in case that this driver is selected in main D4D configuration file
-  #include "low_level_drivers\LCD\lcd_controllers_drivers\template\d4dlcd_template.h"
+  #include "low_level_drivers\LCD\lcd_controllers_drivers\ili9341\d4dlcd_ili9341.h"
   /******************************************************************************
   * Macros
   ******************************************************************************/
@@ -75,14 +75,14 @@
   * Internal function prototypes
   ******************************************************************************/
 
-  static unsigned char D4DLCD_Init_Template(void);
-  static unsigned char D4DLCD_SetWindow_Template(unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2);
-  static unsigned char D4DLCD_SetOrientation_Template(D4DLCD_ORIENTATION new_orientation);
-  static void D4DLCD_Send_PixelColor_Template(D4D_COLOR color) ;
-  static D4D_COLOR D4DLCD_Read_PixelColor_Template(void);
-  static void D4DLCD_Flush_Template(D4DLCD_FLUSH_MODE mode);
-  static void D4DLCD_Delay_ms_Template(unsigned short period);
-  static unsigned char D4DLCD_DeInit_Template(void);
+  static unsigned char D4DLCD_Init_ili9341(void);
+  static unsigned char D4DLCD_SetWindow_ili9341(unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2);
+  static unsigned char D4DLCD_SetOrientation_ili9341(D4DLCD_ORIENTATION new_orientation);
+  static void D4DLCD_Send_PixelColor_ili9341(D4D_COLOR color) ;
+  static D4D_COLOR D4DLCD_Read_PixelColor_ili9341(void);
+  static void D4DLCD_Flush_ili9341(D4DLCD_FLUSH_MODE mode);
+  static void D4DLCD_Delay_ms_ili9341(unsigned short period);
+  static unsigned char D4DLCD_DeInit_ili9341(void);
 
   /**************************************************************//*!
   *
@@ -100,16 +100,16 @@
    the name fo this structure is used for recognizing of configured low level driver of whole D4D
    so this name has to be used in main configuration header file of D4D driver to enable this driver
   */
-  const D4DLCD_FUNCTIONS d4dlcd_template =
+  const D4DLCD_FUNCTIONS d4dlcd_ili9341 =
   {
-    D4DLCD_Init_Template,             ///< The pointer to driver initialization function
-    D4DLCD_SetWindow_Template,        ///< The pointer to driver set drawing window function
-    D4DLCD_SetOrientation_Template,   ///< The pointer to driver set screen orientation function
-    D4DLCD_Send_PixelColor_Template,  ///< The pointer to driver send pixel to LCD function
-    D4DLCD_Read_PixelColor_Template,  ///< The pointer to driver get pixel from LCD function
-    D4DLCD_Flush_Template,            ///< The pointer to driver flush written pixels to LCD function
-    D4DLCD_Delay_ms_Template,         ///< The pointer to driver delay function
-    D4DLCD_DeInit_Template,           ///< The pointer to driver deinitialization function
+    D4DLCD_Init_ili9341,             ///< The pointer to driver initialization function
+    D4DLCD_SetWindow_ili9341,        ///< The pointer to driver set drawing window function
+    D4DLCD_SetOrientation_ili9341,   ///< The pointer to driver set screen orientation function
+    D4DLCD_Send_PixelColor_ili9341,  ///< The pointer to driver send pixel to LCD function
+    D4DLCD_Read_PixelColor_ili9341,  ///< The pointer to driver get pixel from LCD function
+    D4DLCD_Flush_ili9341,            ///< The pointer to driver flush written pixels to LCD function
+    D4DLCD_Delay_ms_ili9341,         ///< The pointer to driver delay function
+    D4DLCD_DeInit_ili9341,           ///< The pointer to driver deinitialization function
   };
   /*! @} End of doxd4d_lcd_variable                                           */
   /**************************************************************//*!
@@ -132,9 +132,9 @@
   /**************************************************************************/ /*!
   * @brief   The function is used for initialization of this low level driver
   * @return  result: 1 - Success; 0 - Failed
-  * @note    This should initilize all neccessary things to run template lcd driver.
+  * @note    This should initilize all neccessary things to run ili9341 lcd driver.
   *******************************************************************************/
-  static unsigned char D4DLCD_Init_Template(void)
+  static unsigned char D4DLCD_Init_ili9341(void)
   {
 
   }
@@ -142,9 +142,9 @@
   /**************************************************************************/ /*!
   * @brief   The function is used for deinitialization of this low level driver
   * @return  result: 1 - Success; 0 - Failed
-  * @note    This should deinitilize all neccessary things to run template lcd driver.
+  * @note    This should deinitilize all neccessary things to run ili9341 lcd driver.
   *******************************************************************************/
-  static unsigned char D4DLCD_DeInit_Template(void)
+  static unsigned char D4DLCD_DeInit_ili9341(void)
   {
 
   }
@@ -158,7 +158,7 @@
   * @return  result: 1 - Success; 0 - Failed
   * @note    After this function could be write/read pixels to/from LCD panel
   *******************************************************************************/
-  static unsigned char D4DLCD_SetWindow_Template(unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2)
+  static unsigned char D4DLCD_SetWindow_ili9341(unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2)
   {
 
   }
@@ -169,7 +169,7 @@
   * @return  result: 1 - Success; 0 - Failed
   * @note    This function changes the orientation of LCD
   *******************************************************************************/
-  static unsigned char D4DLCD_SetOrientation_Template(D4DLCD_ORIENTATION new_orientation)
+  static unsigned char D4DLCD_SetOrientation_ili9341(D4DLCD_ORIENTATION new_orientation)
   {
 
   }
@@ -178,10 +178,10 @@
   * @brief   The function send the one pixel into LCD drawing window
   * @param   color - value of pixel color
   * @return  none
-  * @note    This function writes the one pixel to the opened drawing window by \ref  D4DLCD_SetWindow_Template function.
+  * @note    This function writes the one pixel to the opened drawing window by \ref  D4DLCD_SetWindow_ili9341 function.
   *           If the window is lager then 1 pixel the driver MUST autmatically increment the next pixel address.
   *******************************************************************************/
-  static void D4DLCD_Send_PixelColor_Template(D4D_COLOR color)
+  static void D4DLCD_Send_PixelColor_ili9341(D4D_COLOR color)
   {
 
   }
@@ -189,10 +189,10 @@
   /**************************************************************************/ /*!
   * @brief   The function reads the one Pixel from LCD (if this function is supported)
   * @return  color - value of pixel color
-  * @note    This function reads the one pixel from the opened drawing window by \ref  D4DLCD_SetWindow_Template function.
+  * @note    This function reads the one pixel from the opened drawing window by \ref  D4DLCD_SetWindow_ili9341 function.
   *           If the window is lager then 1 pixel the driver MUST autmatically increment the next pixel address.
   *******************************************************************************/
-  static unsigned short D4DLCD_Read_PixelColor_Template(void)
+  static unsigned short D4DLCD_Read_PixelColor_ili9341(void)
   {
 
   }
@@ -204,13 +204,13 @@
   * @return  none
   * @note    This function just notify the driver that eGUI finish drawing element/object/screen to allow driver handle any kind of caching memmory.
   *******************************************************************************/
-  static void D4DLCD_Flush_Template(D4DLCD_FLUSH_MODE mode)
+  static void D4DLCD_Flush_ili9341(D4DLCD_FLUSH_MODE mode)
   {
 
   }
 
   //-----------------------------------------------------------------------------
-  // FUNCTION:    D4DLCD_Delay_ms_Template
+  // FUNCTION:    D4DLCD_Delay_ms_ili9341
   // SCOPE:       Low Level Driver API function
   // DESCRIPTION: For do some small delays in ms
   //
@@ -224,11 +224,11 @@
   * @return  none
   * @note    This function is just used to do some delays of eGUI (just for initialization purposes, not for run)
   *******************************************************************************/
-  static void D4DLCD_Delay_ms_Template(unsigned short period)
+  static void D4DLCD_Delay_ms_ili9341(unsigned short period)
   {
 
   }
 
   /*! @} End of doxd4d_lcd_func                                           */
 
-#endif //(D4D_MK_STR(D4D_LLD_LCD) == d4dlcd_template_ID)
+#endif //(D4D_MK_STR(D4D_LLD_LCD) == d4dlcd_ili9341_ID)

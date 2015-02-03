@@ -1,5 +1,5 @@
 /**************************************************************************
-*
+* Copyright 2015 by Elco Jacobs, BrewPi
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
@@ -31,7 +31,7 @@
 *
 ***************************************************************************//*!
 *
-* @file      d4dlcd_template.h
+* @file      d4dlcd_ili9341.h
 *
 * @author     Petr Gargulak
 *
@@ -39,19 +39,19 @@
 *
 * @date      Jun-4-2010
 *
-* @brief     D4D driver - template lcd driver function header file
+* @brief     D4D driver - ili9341 lcd driver function header file
 *
 *******************************************************************************/
 
-#ifndef __D4DLCD_TEMPLATE_H
-#define __D4DLCD_TEMPLATE_H
+#ifndef __D4DLCD_ILI9341_H
+#define __D4DLCD_ILI9341_H
 
-  #if (D4D_MK_STR(D4D_LLD_LCD) == d4dlcd_template_ID)
+  #if (D4D_MK_STR(D4D_LLD_LCD) == d4dlcd_ili9341_ID)
 
     /******************************************************************************
     * Includes
     ******************************************************************************/
-    #include "d4dlcd_template_cfg.h"
+    #include "d4dlcd_ili9341_cfg.h"
 
     /******************************************************************************
     * Constants
@@ -78,7 +78,7 @@
     ******************************************************************************/
 
   #endif
-#endif /* __D4DLCD_TEMPLATE_H */
+#endif /* __D4DLCD_ILI9341_H */
 
 
 

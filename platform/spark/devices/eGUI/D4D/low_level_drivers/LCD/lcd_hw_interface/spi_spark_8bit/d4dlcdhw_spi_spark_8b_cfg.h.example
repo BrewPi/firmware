@@ -31,32 +31,87 @@
 *
 ***************************************************************************//*!
 *
-* @file      d4dlcd_ili9341.h.example
+* @file      d4dlcdhw_sp_spark_8b_cfg.h.example
 *
-* @author     Petr Gargulak
+* @author    Elco Jacobs
 *
 * @version   0.0.1.0
 *
-* @date      Apr-26-2010
+* @date      Feb 2015
 *
-* @brief     D4D driver - ili9341 lcd driver configuration header file
+* @brief     D4D low level driver SPI_SPARK_8B hardware level LCD header configuration file
 *
 *******************************************************************************/
 
-#ifndef __D4DLCD_ILI9341_CFG_H
-#define __D4DLCD_ILI9341_CFG_H
-
+#ifndef __D4DLCD_SPI_SPARK_8B_CFG_H
+#define __D4DLCD_SPI_SPARK_8B_CFG_H
 
   /******************************************************************************
   * includes
   ******************************************************************************/
-  // include here what the driver need for run for example "derivative.h"
-  // #include "derivative.h"    /* include peripheral declarations and more for S08 and CV1 */
+
+  #include "derivative.h"       /* include peripheral declarations and more for S08 and CV1 */
+  //#include "support_common.h" /* include peripheral declarations and more for CV2 */
+
 
   /******************************************************************************
   * Constants
   ******************************************************************************/
 
-  // define here what you need to be configurable
 
-#endif /* __D4DLCD_ILI9341_CFG_H */
+  // Define the index of used communication interface
+  #define D4DLCD_COMM_HW_ID 1
+
+// Uncomment this line for 16 bit SPI peripheral version to run it in 8 bit mode
+//  #define SPI_VERSION_16B 1
+
+//#define D4DLCD_DISPLAY_MCU_USER_INIT;
+
+
+
+  /*******************************************
+  * Signals definition
+  *******************************************/
+  #define D4DLCD_CS              7         // CS
+  #define D4DLCD_CS_PORT         PTED      // CS
+  #define D4DLCD_CS_DDR          PTEDD     // CS
+
+  #define D4DLCD_DC              3         // DC
+  #define D4DLCD_DC_PORT         PTFD      // DC
+  #define D4DLCD_DC_DDR          PTFDD     // DC
+
+  #define D4DLCD_RESET           3         // RESET
+  #define D4DLCD_RESET_PORT      PTCD      // RESET
+  #define D4DLCD_RESET_DDR       PTCDD     // RESET
+
+  //#define D4DLCD_BACKLIGHT       0         // BACKLIGHT
+  //#define D4DLCD_BACKLIGHT_PORT  PTCD      // BACKLIGHT
+  //#define D4DLCD_BACKLIGHT_DDR   PTCDD     // BACKLIGHT
+
+
+  /*********** Power macros - for modification uncoment and modify ***********/
+
+  //#define D4DLCD_INIT_CS OUTPUT(D4DLCD_CS);
+  //#define D4DLCD_ASSERT_CS RESET(D4DLCD_CS);
+  //#define D4DLCD_DEASSERT_CS SET(D4DLCD_CS);
+
+
+  //#define D4DLCD_INIT_DC OUTPUT(D4DLCD_DC);
+  //#define D4DLCD_ASSERT_DC RESET(D4DLCD_DC);
+  //#define D4DLCD_DEASSERT_DC SET(D4DLCD_DC);
+
+  //#define D4DLCD_INIT_RESET OUTPUT(D4DLCD_RESET);
+  //#define D4DLCD_ASSERT_RESET RESET(D4DLCD_RESET);
+  //#define D4DLCD_DEASSERT_RESET SET(D4DLCD_RESET);
+
+#endif /* __D4DLCD_SPI_SPARK_8B_CFG_H */
+
+
+
+
+
+
+
+
+
+

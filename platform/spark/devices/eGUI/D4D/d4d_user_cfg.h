@@ -78,10 +78,11 @@
 // d4dlcd_lgdp4531 - driver for LCD displays with LGDP4531 controller from LG Electronics
 // d4dlcd_ls020 - driver for LCD displays LS020
 // d4dlcd_frame_buffer - frame buffer driver for MCU/MPU with LCD peripheral
+// d4dlcdhw_ili9341 - low level driver for ILI9341 via 8-bit SPI
 
 
 // Please define a used low LCD driver
-#define D4D_LLD_LCD d4dlcd_ssd1289   // the name of low level driver descriptor structure
+#define D4D_LLD_LCD d4dlcd_ili9341   // the name of low level driver descriptor structure
 
 // List of implemented low level LCD hw interface drivers
 
@@ -103,9 +104,10 @@
 // d4dlcdhw_mqx_mpc5125_diu - low level driver for MPC5125 MPU DIU peripherial over MQX (version 3.6 or higher)
 // d4dlcdhw_k70_lcdc - low level driver for Kinetis K70 MCU LCDC peripherial
 // d4dlcdhw_px_dcu_fb - low level driver for PX series MCU DCU peripherial
+// d4dlcdhw_spi_spark_8b - low level hw interface driver for hardware SPI with 8 bit for the Spark Core
 
 // Please (if it's needed) define a used LCD hw interface driver
-#define D4D_LLD_LCD_HW d4dlcdhw_flexbus_16b   // the name of LCD hw interface driver descriptor structure
+#define D4D_LLD_LCD_HW d4dlcdhw_spi_spark_8b   // the name of LCD hw interface driver descriptor structure
 
 
 /**************************************************************//*!
