@@ -35,3 +35,6 @@ CPPSRC += $(call target_files,platform/spark/modules,*.cpp)
 
 SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
 include $(SRC_EGUI)/egui.mk
+
+LIBS_DIR = $(SOURCE_PATH)/platform/spark/libs
+include $(LIBS_DIR)/libs.mk
