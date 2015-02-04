@@ -1,4 +1,4 @@
-here_files = $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/$1,$2))
+here_files = $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/$1/$2))
 
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices

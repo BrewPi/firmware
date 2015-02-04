@@ -3,6 +3,5 @@
 
 INCLUDE_DIRS += $(LIBS_DIR)/flashee/firmware
 
-CSRC += $(call here_files,$(LIBS_DIR)/firmware,*.c)
-CPPSRC += $(call here_files,$(LIBS_DIR)/firmware,*.cpp)
+CPPSRC += $(call here_files,platform/spark/libs/flashee/firmware,*.cpp)
 
