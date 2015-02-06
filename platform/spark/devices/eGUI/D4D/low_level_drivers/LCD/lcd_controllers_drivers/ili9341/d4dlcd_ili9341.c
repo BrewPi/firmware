@@ -136,7 +136,12 @@
   *******************************************************************************/
   static unsigned char D4DLCD_Init_ili9341(void)
   {
-
+      D4DLCD_DEASSERT_RESET();
+      delay(5);
+      D4DLCD_ASSERT_RESET();
+      delay(20);
+      D4DLCD_DEASSERT_RESET();
+      delay(150);
   }
 
   /**************************************************************************/ /*!
