@@ -404,8 +404,6 @@ public:
 
 class Devices {
 private:
-    static FlashDeviceRegion userRegion;
-
     inline static FlashDevice* createLogicalPageMapper(FlashDevice* flash, page_count_t pageCount) {
         page_count_t count = flash->pageCount();
         return count <= 256 && pageCount < count && pageCount > 1 ? new LogicalPageMapper<>(*flash, pageCount) : NULL;
@@ -417,8 +415,8 @@ private:
 
     inline static FlashDevice* createMultiPageEraseImpl(flash_addr_t startAddress, flash_addr_t endAddress, page_count_t freePageCount) {
         if (endAddress == flash_addr_t(-1))
-            endAddress = startAddress + userRegion.pageAddress(256);
-        if (freePageCount < 2 || freePageCount >= ((endAddress - startAddress) / userRegion.pageSize()))
+            endAddress = startAddress + userFlash().pageAddress(256);
+        if (freePageCount < 2 || freePageCount >= ((endAddress - startAddress) / userFlash().pageSize()))
             return NULL;
         FlashDevice* userFlash = createUserFlashRegion(startAddress, endAddress);
         if (userFlash==NULL)
@@ -435,14 +433,12 @@ public:
      * the first writable address is 0x000000.
      * @return A reference to the user accessible flash.
      */
-    static FlashDevice& userFlash() {
-        return userRegion;
-    }
+    static FlashDeviceRegion& userFlash();
 
     static FlashDevice* createUserFlashRegion(flash_addr_t startAddress, flash_addr_t endAddress, page_count_t minPageCount=1) {
-        if (((endAddress-startAddress)/userRegion.pageSize())<minPageCount)
+        if (((endAddress-startAddress)/userFlash().pageSize())<minPageCount)
             return NULL;
-        return userRegion.createSubregion(startAddress, endAddress);
+        return userFlash().createSubregion(startAddress, endAddress);
     }
 
 
@@ -464,11 +460,14 @@ public:
     /**
      * Creates a flash device where destructive writes cause a page erase, and
      * the page erases are levelled out over the available free pages.
-     * @param startAddress
-     * @param endAddress
-     * @param freePageCount     The number of pages to allocate in the given region.
+     * @param startAddress	The start address (from 0) of the user flash to allocate. Must align on a page boundary.
+     * @param endAddress          The end address (exclusive) of the end of the user flash region to allocate.
+Must align on a page boundary.
+     * @param freePageCount     The number of pages to leave free in the given region. This must be at least 2, and less than the number of pages between the start and end adresses.
      *
-     * @return
+     * Note that the smallest possible region that can be allocated is 3 pages. However, for wear levelling to work optimally, it's best to allocate more space (even if you don't plan on filling it) so that writes to flash are spread out over multiple pages, improving endurnace.
+     *
+     * @return The wear levelling flash device, or (@code NULL) if the device couldn't be created.
      */
     static FlashDevice* createWearLevelErase(flash_addr_t startAddress = 0, flash_addr_t endAddress = flash_addr_t(-1), page_count_t freePageCount = 2) {
         FlashDevice* mapper = createMultiPageEraseImpl(startAddress, endAddress, freePageCount);
@@ -482,7 +481,9 @@ public:
      * @param startAddress
      * @param endAddress
      * @param pageCount
-     * @return
+     * @return The FlashDevice created or {@code NULL} if the region could not be allocated.
+     * 
+     *  NB: This method has the same requirements for start and end addresses as createWearLevelErase()
      */
     static FlashDevice* createAddressErase(flash_addr_t startAddress = 0, flash_addr_t endAddress = flash_addr_t(-1), page_count_t freePageCount = 2) {
         FlashDevice* mapper = createMultiPageEraseImpl(startAddress, endAddress, freePageCount);
@@ -493,7 +494,7 @@ public:
     }
 
     /**
-     * Creates a circular buffer that uses the pages
+     * Creates a circular buffer that uses the pages given for storage.
      */
     static CircularBuffer* createCircularBuffer(flash_addr_t startAddress, flash_addr_t endAddress) {
         FlashDevice* device = createUserFlashRegion(startAddress, endAddress, 2);
@@ -510,6 +511,8 @@ public:
      * @param pfs           The address of the FATFS structure for this filesystem. 
      *  This is typically statically allocated.
      * @param format        When true, the storage will be formatted.
+     * 
+     * NB: this method has the same requirements for start and end addresses as createWearLevelErase().
      */
     static FRESULT createFATRegion(flash_addr_t startAddress, flash_addr_t endAddress, 
         FATFS* pfs, FormatCmd formatCmd=FORMAT_CMD_FORMAT_IF_NEEDED);
