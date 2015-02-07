@@ -36,14 +36,23 @@ namespace Flashee {
     
 FlashDevice::~FlashDevice() { }
 
+/**
+ * By wrapping the static instances in a function we ensure the objects are initialized
+ * before they are used. With module-level statics, this is not a guarantee since
+ * constructors in different modules are called in arbitrary order. 
+ * @return The FlashDevice that provides access to the user accessible flash region.
+ */
+FlashDeviceRegion& Devices::userFlash() 
+{
 #ifdef SPARK
     static SparkExternalFlashDevice directFlash;
 #else
     static FakeFlashDevice directFlash(512, 4096);
 #endif
-
-FlashDeviceRegion Devices::userRegion(directFlash, 0x80000, 0x200000);
-
+    static FlashDeviceRegion userRegion(directFlash, 0x80000, 0x200000);
+    
+    return userRegion;
+}
 
 /**
  * Compares data in the buffer with the data in flash.
