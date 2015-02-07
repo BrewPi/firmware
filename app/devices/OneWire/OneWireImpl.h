@@ -14,4 +14,10 @@ typedef DS2482 OneWireDriver;
 
 typedef OneWirePin OneWireDriver;
 
+#else
+
+#include "OneWireNull.h"
+
+typedef OneWireNull OneWireDriver;
+
 #endif
