@@ -87,8 +87,24 @@
           <executablePath>./platform/spark/target/brewpi.elf</executablePath>
         </makeTool>
       </makefileType>
-      <item path="app/minimal/application.cpp" ex="false" tool="1" flavor2="0">
-      </item>
+    </conf>
+    <conf name="eguitest_SWD" type="0">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>false</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <codeAssistance>
+        <includeAdditional>true</includeAdditional>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>./platform/spark</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f makefile USE_SWD=y APP=eguitest</buildCommand>
+          <cleanCommand>${MAKE} -f makefile clean</cleanCommand>
+          <executablePath>./platform/spark/target/brewpi.elf</executablePath>
+        </makeTool>
+      </makefileType>
     </conf>
   </confs>
 </configurationDescriptor>

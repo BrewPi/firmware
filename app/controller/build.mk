@@ -18,7 +18,6 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/ScrollBox
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/Ticks
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/ValvesController
 
-
 CSRC += $(call target_files,app/controller,*.c)
 CPPSRC += $(call target_files,app/controller,*.cpp)
 

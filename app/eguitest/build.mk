@@ -1,4 +1,4 @@
-INCLUDE_DIRS += $(SOURCE_PATH)/app/sparktest
+INCLUDE_DIRS += $(SOURCE_PATH)/app/eguitest
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices
 INCLUDE_DIRS += $(SOURCE_PATH)/app/fallback
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices
@@ -19,8 +19,8 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/ScrollBox
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/Ticks
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/ValvesController
 
-CSRC += $(call target_files,app/sparktest,*.c)
-CPPSRC += $(call target_files,app/sparktest,*.cpp)
+CSRC += $(call target_files,app/eguitest,*.c)
+CPPSRC += $(call target_files,app/eguitest,*.cpp)
 
 CSRC += $(call target_files,app/devices,*.c)
 CPPSRC += $(call target_files,app/devices,*.cpp)
@@ -30,9 +30,3 @@ CPPSRC += $(call target_files,platform/spark/devices/,*.cpp)
 
 SRC_EGUI = $(SOURCE_PATH)/platform/spark/devices/eGUI
 include $(SRC_EGUI)/egui.mk
-
-#CSRC += $(call target_files,platform/wiring/,*.c)
-#CPPSRC += $(call target_files,platform/wiring/,*.cpp)
-
-#CSRC += $(call target_files,platform/spark/,*.c)
-#CPPSRC += $(call target_files,platform/spark/,*.cpp)

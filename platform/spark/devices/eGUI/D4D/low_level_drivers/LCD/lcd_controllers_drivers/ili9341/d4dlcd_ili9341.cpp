@@ -43,9 +43,11 @@
 *
 ******************************************************************************/
 
+extern "C" {
 #include "d4d.h"            // include of all public items (types, function etc) of D4D driver
 #include "common_files/d4d_lldapi.h"     // include non public low level driver interface header file (types, function prototypes, enums etc. )
 #include "common_files/d4d_private.h"    // include the private header file that contains perprocessor macros as D4D_MK_STR
+}
 
 /******************************************************************************
  * D4D LCD Driver setting  constants
@@ -348,7 +350,8 @@ static void D4DLCD_Send_PixelColor_ili9341(D4D_COLOR value) {
         Word color = D4D_COLOR_RGB565(D4D_COLOR_GET_R(value), D4D_COLOR_GET_G(value), D4D_COLOR_GET_B(value));
         D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(color);
 #else
-        D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord((unsigned short) value);
+        D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(value >> 8);
+        D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(value & 0xff);
 #endif
     }
 }
@@ -398,7 +401,7 @@ static void D4DLCD_Flush_ili9341(D4DLCD_FLUSH_MODE mode) {
   *******************************************************************************/
 
 static void D4DLCD_Delay_ms_ili9341(unsigned short period) {
-    // D4D_LLD_LCD_HW.D4DLCDHW_Delay(period);
+    // D4DLCDHW_Delay(period);
 }
 
 /*! @} End of doxd4d_lcd_func                                           */
