@@ -43,9 +43,12 @@
 *
 ******************************************************************************/
 
+extern "C" {
 #include "d4d.h"            // include of all public items (types, function etc) of D4D driver
 #include "common_files/d4d_lldapi.h"     // include non public low level driver interface header file (types, function prototypes, enums etc. )
 #include "common_files/d4d_private.h"    // include the private header file that contains perprocessor macros as D4D_MK_STR
+}
+#include "application.h"
 
 // identification string of driver - must be same as name D4DTCH_FUNCTIONS structure + "_ID"
 // it is used for enable the code for compilation
@@ -59,6 +62,7 @@
 // include of low level driver header file
 // it will be included into whole project only in case that this driver is selected in main D4D configuration file
 #include "low_level_drivers\LCD\lcd_hw_interface\spi_spark_8bit\d4dlcdhw_spi_spark_8b.h"
+
 /******************************************************************************
  * Macros
  ******************************************************************************/
@@ -77,6 +81,8 @@ static unsigned short D4DLCDHW_ReadDataWord_Spi_Spark_8b(void);
 static unsigned short D4DLCDHW_ReadCmdWord_Spi_Spark_8b(void);
 static unsigned char D4DLCDHW_PinCtl_Spi_Spark_8b(D4DLCDHW_PINS pinId, D4DHW_PIN_STATE setState);
 static void D4DLCD_FlushBuffer_Spi_Spark_8b(D4DLCD_FLUSH_MODE mode);
+static void D4DLCDHW_Delay_Spi_Spark_8b(unsigned short period);
+
 
 /**************************************************************//*!
   *
@@ -85,7 +91,7 @@ static void D4DLCD_FlushBuffer_Spi_Spark_8b(D4DLCD_FLUSH_MODE mode);
   ******************************************************************/
 
 // the main structure that contains low level driver api functions
-// the name fo this structure is used for recognizing of configured low level driver of whole D4D
+// the name of this structure is used for recognizing of configured low level driver of whole D4D
 // so this name has to be used in main configuration header file of D4D driver to enable this driver
 const D4DLCDHW_FUNCTIONS d4dlcdhw_spi_spark_8b ={
     D4DLCDHW_Init_Spi_Spark_8b,
@@ -95,7 +101,7 @@ const D4DLCDHW_FUNCTIONS d4dlcdhw_spi_spark_8b ={
     D4DLCDHW_ReadCmdWord_Spi_Spark_8b,
     D4DLCDHW_PinCtl_Spi_Spark_8b,
     D4DLCD_FlushBuffer_Spi_Spark_8b,
-    D4DLCDHW_DeInit_Spi_Spark_8b
+    D4DLCDHW_DeInit_Spi_Spark_8b,
 };
 /**************************************************************//*!
   *
@@ -126,12 +132,11 @@ static unsigned char D4DLCDHW_Init_Spi_Spark_8b(void) {
     D4DLCD_DISPLAY_MCU_USER_INIT
 #endif
 
-    pinMode(D4DLCD_CS, OUTPUT);
-    pinMode(D4DLCD_DC, OUTPUT);
-    if (D4DLCD_RESET != 255) { // 255 = no hardware reset pin, use software reset
-        pinMode(D4DLCD_RESET, OUTPUT);
-        digitalWrite(D4DLCD_RESET, LOW);
-    }
+    D4DLCD_DEASSERT_CS;
+    D4DLCD_ASSERT_DC;
+
+    D4DLCD_INIT_CS;
+    D4DLCD_INIT_DC;
 
     SPI.begin();
     //TODO, lgramatikov, core runs at 72MHz. 11 gives 6.5. But looks like Spark can do only predefined values - http://docs.spark.io/#/firmware/communication-spi 
@@ -141,6 +146,13 @@ static unsigned char D4DLCDHW_Init_Spi_Spark_8b(void) {
 
     SPI.setBitOrder(MSBFIRST);
     SPI.setDataMode(SPI_MODE0);
+    
+    D4DLCD_DEASSERT_RESET;
+    D4DLCDHW_Delay_Spi_Spark_8b(5);
+    D4DLCD_ASSERT_RESET;
+    D4DLCDHW_Delay_Spi_Spark_8b(20);
+    D4DLCD_DEASSERT_RESET;
+    D4DLCDHW_Delay_Spi_Spark_8b(150);
 
     return 1;
 }
@@ -173,34 +185,8 @@ static unsigned char D4DLCDHW_DeInit_Spi_Spark_8b(void) {
 
 static void D4DLCDHW_SendDataWord_Spi_Spark_8b(unsigned short value) {
     D4DLCD_ASSERT_CS;
-
-    while (!D4DLCD_SPIS_SPTEF) {
-    };
     // Send data byte
-    D4DLCD_SPID = (unsigned char) ((value >> 8) & 0xff);
-
-#ifdef SPI_VERSION_16B
-
-    while (!D4DLCD_SPIS_SPRF) {
-    };
-
-    // Send data byte
-    (void) D4DLCD_SPID;
-    D4DLCD_SPID = (unsigned char) (value & 0xff);
-
-    while (!D4DLCD_SPIS_SPRF) {
-    };
-    (void) D4DLCD_SPID;
-
-#else
-    while (!D4DLCD_SPIS_SPTEF) {
-    };
-    // Send data byte
-    D4DLCD_SPID = (unsigned char) (value & 0xff);
-
-    while (!D4DLCD_SPIS_SPRF) {
-    };
-#endif
+    SPI.transfer(value);
 
     D4DLCD_DEASSERT_CS;
 }
@@ -234,6 +220,12 @@ static void D4DLCDHW_SendCmdWord_Spi_Spark_8b(unsigned short cmd) {
 //-----------------------------------------------------------------------------
 
 static unsigned short D4DLCDHW_ReadDataWord_Spi_Spark_8b(void) {
+    /*D4DLCD_DEASSERT_DC;
+    D4DLCD_ASSERT_CS;
+    digitalWrite(_cs, LOW);
+    unsigned short r = SPI.transfer(0x00);
+    D4DLCD_DEASSERT_CS;
+    return r;*/
     return 0;
 }
 
@@ -255,17 +247,18 @@ static unsigned short D4DLCDHW_ReadCmdWord_Spi_Spark_8b(void) {
 //-----------------------------------------------------------------------------
 // FUNCTION:    D4DLCDHW_PinCtl_Spi_Spark_8b
 // SCOPE:       Low Level Driver API function
-// DESCRIPTION: allows control GPIO pins for LCD conrol purposes
+// DESCRIPTION: allows control GPIO pins for LCD control purposes
 //
 // PARAMETERS:  D4DLCDHW_PINS pinId - Pin identification
 //              D4DHW_PIN_STATE setState - Pin action
-// RETURNS:     for Get action retuns the pin value
+// RETURNS:     for Get action returns the pin value
 //-----------------------------------------------------------------------------
 
 static unsigned char D4DLCDHW_PinCtl_Spi_Spark_8b(D4DLCDHW_PINS pinId, D4DHW_PIN_STATE setState) {
     switch (pinId) {
         case D4DLCD_RESET_PIN:
             switch (setState) {
+#if defined(D4DLCD_RESET)
                 case D4DHW_PIN_OUT:
                     OUTPUT(D4DLCD_RESET);
                     break;
@@ -278,6 +271,7 @@ static unsigned char D4DLCDHW_PinCtl_Spi_Spark_8b(D4DLCDHW_PINS pinId, D4DHW_PIN
                 case D4DHW_PIN_SET_0:
                     D4DLCD_ASSERT_RESET;
                     break;
+#endif
             }
             break;
         case D4DLCD_BACKLIGHT_PIN:
@@ -320,5 +314,29 @@ static unsigned char D4DLCDHW_PinCtl_Spi_Spark_8b(D4DLCDHW_PINS pinId, D4DHW_PIN
 static void D4DLCD_FlushBuffer_Spi_Spark_8b(D4DLCD_FLUSH_MODE mode) {
     D4D_UNUSED(mode);
 }
+
+
+//-----------------------------------------------------------------------------
+// FUNCTION:    D4DLCDHW_Delay_Spi_Spark_8b
+// SCOPE:       Low Level Driver API function
+// DESCRIPTION: For do some small delays in ms
+//
+// PARAMETERS:  period - count of ms
+//
+// RETURNS:     none
+//-----------------------------------------------------------------------------
+/**************************************************************************/ /*!
+  * @brief   For do some small delays in ms
+  * @param   period - 1ms periods time
+  * @return  none
+  * @note    This function is just used to do some delays of eGUI (just for initialization purposes, not for run)
+  *******************************************************************************/
+
+
+static void D4DLCDHW_Delay_Spi_Spark_8b(unsigned short period){
+    delay(period);
+}
+
+
 
 #endif //(D4D_MK_STR(D4D_LLD_LCD_HW) == d4dlcdhw_spi_8b_ID)

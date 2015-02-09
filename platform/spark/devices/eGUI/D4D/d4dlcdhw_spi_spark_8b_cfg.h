@@ -90,23 +90,23 @@
 
   /*********** Power macros - for modification uncoment and modify ***********/
 
-  #define D4DLCD_INIT_CS fastPinMode(D4DLCD_CS, OUTPUT)
-  #define D4DLCD_ASSERT_CS fastDigitalWrite(D4DLCD_CS, LOW)
-  #define D4DLCD_DEASSERT_CS fastDigitalWrite(D4DLCD_CS, HIGH)
+  #define D4DLCD_INIT_CS pinMode(D4DLCD_CS, OUTPUT)
+  #define D4DLCD_ASSERT_CS digitalWrite(D4DLCD_CS, LOW)
+  #define D4DLCD_DEASSERT_CS digitalWrite(D4DLCD_CS, HIGH)
 
 
-  #define D4DLCD_INIT_DC fastPinMode(D4DLCD_DC, OUTPUT)
-  #define D4DLCD_ASSERT_DC fastDigitalWrite(D4DLCD_DC, LOW)
-  #define D4DLCD_DEASSERT_DC fastDigitalWrite(D4DLCD_DC, HIGH)
+  #define D4DLCD_INIT_DC pinMode(D4DLCD_DC, OUTPUT)
+  #define D4DLCD_ASSERT_DC digitalWrite(D4DLCD_DC, LOW)
+  #define D4DLCD_DEASSERT_DC digitalWrite(D4DLCD_DC, HIGH)
 
 #if defined(D4DLCD_RESET)
-  #define D4DLCD_INIT_RESET fastPinMode(D4DLCD_RESET, OUTPUT)
-  #define D4DLCD_ASSERT_RESET fastDigitalWrite(D4DLCD_RESET, LOW)
-  #define D4DLCD_DEASSERT_RESET fastDigitalWrite(D4DLCD_RESET, HIGH)
+  #define D4DLCD_INIT_RESET pinMode(D4DLCD_RESET, OUTPUT)
+  #define D4DLCD_ASSERT_RESET digitalWrite(D4DLCD_RESET, LOW)
+  #define D4DLCD_DEASSERT_RESET digitalWrite(D4DLCD_RESET, HIGH)
 #else
-  #define D4DLCD_INIT_RESET nop()
+  #define D4DLCD_INIT_RESET 
   #define D4DLCD_ASSERT_RESET D4DLCDHW_SendCmdWord_Spi_Spark_8b(0x01)
-  #define D4DLCD_DEASSERT_RESET nop()
+  #define D4DLCD_DEASSERT_RESET 
 #endif
 
 

@@ -46,6 +46,8 @@
 #ifndef __D4DRVHW_SPI_SPARK_8B_H
 #define __D4DRVHW_SPI_SPARK_8B_H
 
+#include "d4d.h"
+
 #if (D4D_MK_STR(D4D_LLD_LCD_HW) == d4dlcdhw_spi_spark_8b_ID)
 
 
@@ -58,11 +60,11 @@
   * Macros
   ******************************************************************************/
 
-  #define SET(x)           (x##_PORT) |= (1 << (x))
-  #define RESET(x)         (x##_PORT) &= ~(1 << (x))
+  //#define SET(x)           (x##_PORT) |= (1 << (x))
+  //#define RESET(x)         (x##_PORT) &= ~(1 << (x))
 
-  #define OUTPUT(x)        (x##_DDR) |= (1 << (x))
-  #define INPUT(x)         (x##_DDR) &= ~(1 << (x))
+  //#define OUTPUT(x)        (x##_DDR) |= (1 << (x))
+  //#define INPUT(x)         (x##_DDR) &= ~(1 << (x))
 
 
   /******************************************************************************
@@ -122,41 +124,7 @@
     #define D4DLCD_READ_CMD_SUPPORT D4D_FALSE
   #endif
 
-  #if D4DLCD_COMM_HW_ID == 0
-    #define D4DLCD_SPIBR 				SPIBR
-    #define D4DLCD_SPIC1 				SPIC1
-    #define D4DLCD_SPIC2 				SPIC2
-    #define D4DLCD_SPID 				SPID
-    #define D4DLCD_SPIS 				SPIS
-    #define D4DLCD_SPIS_SPTEF 	SPIS_SPTEF
-    #define D4DLCD_SPIS_SPRF 	  SPIS_SPRF
-  #elif D4DLCD_COMM_HW_ID == 1
-    #define D4DLCD_SPIBR 				SPI1BR
-    #define D4DLCD_SPIC1 				SPI1C1
-    #define D4DLCD_SPIC2 				SPI1C2
-    #define D4DLCD_SPID 				SPI1D
-    #define D4DLCD_SPIS 				SPI1S
-    #define D4DLCD_SPIS_SPTEF 	SPI1S_SPTEF
-    #define D4DLCD_SPIS_SPRF 	  SPI1S_SPRF
-  #elif D4DLCD_COMM_HW_ID == 2
-    #define D4DLCD_SPIBR 				SPI2BR
-    #define D4DLCD_SPIC1 				SPI2C1
-    #define D4DLCD_SPIC2 				SPI2C2
-    #define D4DLCD_SPID 				SPI2D
-    #define D4DLCD_SPIS 				SPI2S
-    #define D4DLCD_SPIS_SPTEF 	SPI2S_SPTEF
-    #define D4DLCD_SPIS_SPRF 	  SPI2S_SPRF
-  #elif D4DLCD_COMM_HW_ID == 3
-    #define D4DLCD_SPIBR 				SPI3BR
-    #define D4DLCD_SPIC1 				SPI3C1
-    #define D4DLCD_SPIC2 				SPI3C2
-    #define D4DLCD_SPID 				SPI3D
-    #define D4DLCD_SPIS 				SPI3S
-    #define D4DLCD_SPIS_SPTEF 	SPI3S_SPTEF
-    #define D4DLCD_SPIS_SPRF 	  SPI3S_SPRF
-  #endif
-
-    #ifdef D4DLCD_BACKLIGHT
+  #ifdef D4DLCD_BACKLIGHT
 
     #ifndef D4DLCD_INIT_BACKLIGHT
     	#define D4DLCD_INIT_BACKLIGHT OUTPUT(D4DLCD_BACKLIGHT);

@@ -1,5 +1,6 @@
 /**************************************************************************
 *
+* Copyright 2015 by Elco Jacobs. BrewPi.
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
@@ -35,9 +36,9 @@
 *
 * @author     Petr Gargulak
 *
-* @version   0.0.21.0
+* @version   0.0.22.0
 *
-* @date      Jun-29-2012
+* @date      Feb 2015
 *
 * @brief     D4D Driver user configuration file
 *
