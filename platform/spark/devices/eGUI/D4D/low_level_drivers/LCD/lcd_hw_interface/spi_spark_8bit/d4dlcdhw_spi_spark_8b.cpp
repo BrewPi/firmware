@@ -93,7 +93,7 @@ static void D4DLCDHW_Delay_Spi_Spark_8b(unsigned short period);
 // the main structure that contains low level driver api functions
 // the name of this structure is used for recognizing of configured low level driver of whole D4D
 // so this name has to be used in main configuration header file of D4D driver to enable this driver
-const D4DLCDHW_FUNCTIONS d4dlcdhw_spi_spark_8b ={
+extern "C" const D4DLCDHW_FUNCTIONS d4dlcdhw_spi_spark_8b ={
     D4DLCDHW_Init_Spi_Spark_8b,
     D4DLCDHW_SendDataWord_Spi_Spark_8b,
     D4DLCDHW_SendCmdWord_Spi_Spark_8b,

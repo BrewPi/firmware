@@ -22,9 +22,11 @@ void setup() {
     pinMode(buzz, OUTPUT);
     digitalWrite(buzz, LOW);
 
+    Serial.begin(57600);
+    
     if (!D4D_Init(&screen_helloworld)) {
         // D4D initialization failed
-        printf("eGUI/D4D initialization failed\n\r");
+        Serial.println("eGUI/D4D initialization failed");
         return;
     }
 
