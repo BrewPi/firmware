@@ -65,7 +65,11 @@
 * Local variables
 *
 ******************************************************************/
-static D4D_ORIENTATION d4d_orientation = D4D_ORIENT_PORTRAIT;
+
+#ifndef D4D_ORIENT_START
+#define D4D_ORIENT_START D4D_ORIENT_PORTRAIT
+#endif 
+static D4D_ORIENTATION d4d_orientation = D4D_ORIENT_START;
 
 #ifdef D4D_LLD_TCH
   static D4D_TOUCHSCREEN_CALIB d4d_tchCalib = {0, 0, 0, 0, 0};
@@ -134,7 +138,7 @@ D4D_BOOL D4D_LCD_Init(void)
       return D4D_FALSE;
   #endif
 
-  D4D_LCD_SetOrientation(D4D_ORIENT_PORTRAIT);
+  D4D_LCD_SetOrientation(D4D_ORIENT_START);
 
   #ifdef D4D_LLD_TCH
     // Clear flag to indicate touch screen not calibrated

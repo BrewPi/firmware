@@ -139,6 +139,7 @@ static D4DLCD_ORIENTATION d4dlcd_orientation = Landscape;
   *******************************************************************************/
 
 static unsigned char D4DLCD_Init_ili9341(void) {
+    D4D_LLD_LCD_HW.D4DLCDHW_Init(); // init low level hardware driver (e.g. SPI)
     D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xEF);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x03);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x80);
@@ -268,7 +269,7 @@ static unsigned char D4DLCD_DeInit_ili9341(void) {
   * @param   x2 - right cordination of logic window
   * @param   y2 - bottom cordination of logic window
   * @return  result: 1 - Success; 0 - Failed
-  * @note    After this function could be write/read pixels to/from LCD panel
+  * @note    After this function one can write/read pixels to/from LCD panel
   *******************************************************************************/
 
 static unsigned char D4DLCD_SetWindow_ili9341(unsigned short x0, unsigned short y0, unsigned short x1, unsigned short y1) {
@@ -305,29 +306,29 @@ static unsigned char D4DLCD_SetOrientation_ili9341(D4DLCD_ORIENTATION new_orient
     switch (new_orientation) {
         default: // Invalid! Fall through to landscape mode
         case Landscape:
-            D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(ILI9341_MADCTL_MX | ILI9341_MADCTL_BGR);
-            width = ILI9341_TFTWIDTH;
-            height = ILI9341_TFTHEIGHT;
-            break;
-        case Portrait:
-            D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(ILI9341_MADCTL_MV | ILI9341_MADCTL_BGR);
-            width = ILI9341_TFTHEIGHT;
-            height = ILI9341_TFTWIDTH;
-            break;
-        case Landscape180:
-            D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(ILI9341_MADCTL_MY | ILI9341_MADCTL_BGR);
-            width = ILI9341_TFTWIDTH;
-            height = ILI9341_TFTHEIGHT;
-            break;
-        case Portrait180:
             D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(
                     ILI9341_MADCTL_MV | ILI9341_MADCTL_MY | ILI9341_MADCTL_MX
                     | ILI9341_MADCTL_BGR);
-            width = ILI9341_TFTHEIGHT;
-            height = ILI9341_TFTWIDTH;
+            width = D4D_SCREEN_SIZE_LONGER_SIDE;
+            height = D4D_SCREEN_SIZE_SHORTER_SIDE;
+            break;
+        case Portrait:
+            D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(ILI9341_MADCTL_MY | ILI9341_MADCTL_BGR);
+            width = D4D_SCREEN_SIZE_SHORTER_SIDE;
+            height = D4D_SCREEN_SIZE_LONGER_SIDE;
+            break;
+        case Landscape180:
+            D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(ILI9341_MADCTL_MV | ILI9341_MADCTL_BGR);
+            width = D4D_SCREEN_SIZE_LONGER_SIDE;
+            height = D4D_SCREEN_SIZE_SHORTER_SIDE;
+            break;
+        case Portrait180:
+            D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(ILI9341_MADCTL_MX | ILI9341_MADCTL_BGR);
+            width = D4D_SCREEN_SIZE_SHORTER_SIDE;
+            height = D4D_SCREEN_SIZE_LONGER_SIDE;
             break;
     }
-    (void) D4DLCD_SetWindow_ili9341(0, 0, width, height);
+    (void) D4DLCD_SetWindow_ili9341(0, 0, height, width); // x is shorter side in display
     return 1;
 }
 

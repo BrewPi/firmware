@@ -53,6 +53,8 @@
   // include here what the driver need for run for example "derivative.h"
   // #include "derivative.h"    /* include peripheral declarations and more for S08 and CV1 */
 
+#include "d4dlcdhw_spi_spark_8b_cfg.h"
+
   /******************************************************************************
   * Constants
   ******************************************************************************/

@@ -69,14 +69,14 @@
   * Signals definition
   *******************************************/
 // PB3, D4
-  #define D4DLCD_CS              4         // CS
-  #define D4DLCD_CS_PORT         TODO      // CS
-  #define D4DLCD_CS_DDR          TODO     // CS
+  #define D4DLCD_CS              D4         // CS
+//#define D4DLCD_CS_PORT         TODO      // CS
+//#define D4DLCD_CS_DDR          TODO     // CS
 
 // PA15, D5
-  #define D4DLCD_DC              5         // DC
-  #define D4DLCD_DC_PORT         TODO      // DC
-  #define D4DLCD_DC_DDR          TODO     // DC
+  #define D4DLCD_DC              D5         // DC
+//  #define D4DLCD_DC_PORT         TODO      // DC
+//  #define D4DLCD_DC_DDR          TODO     // DC
 
 // No HW reset, use software reset
 //  #define D4DLCD_RESET           255       // RESET

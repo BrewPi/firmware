@@ -44,10 +44,13 @@
 ******************************************************************************/
 
 #include "screens.h"
+#include "brewpi-logo.h"
 
-#define HELLO_STR_POSX 10
+#define XMARGIN 10
+#define WINDOW_SIZE_X 220
+#define WINDOW_SIZE_Y 140
 
-#define HELLO_STR_POSY(ix) (40 + (ix) * 11)
+#define HELLO_STR_POSY(ix) (45 + (ix) * 13)
 
 /*****************************************************************************
  *
@@ -58,16 +61,16 @@
 
 // Body strings
 
-D4D_DECLARE_STD_LABEL(scrAbout_lblTitle, "BrewPi says Hello", 2, 0, 210, 20, FONT_BERLIN_SANS_FBDEMI12)
-D4D_DECLARE_STD_LABEL(scrAbout_lblTitle1, "a first message on eGUI ", 2, 20, 210, 20, FONT_BERLIN_SANS_FBDEMI12)
+D4D_DECLARE_STD_LABEL(scrAbout_lblTitle, "BrewPi says Hello", XMARGIN, 2, WINDOW_SIZE_X-2*XMARGIN, 20, FONT_BERLIN_SANS_FBDEMI12)
+D4D_DECLARE_STD_LABEL(scrAbout_lblTitle1, "a first message on eGUI ", XMARGIN, 20, WINDOW_SIZE_X-2*XMARGIN, 20, FONT_BERLIN_SANS_FBDEMI12)
 
-D4D_DECLARE_STD_LABEL(scrAbout_lblApp, "Example application: \"Hello World\".", HELLO_STR_POSX, HELLO_STR_POSY(0), 205, 15, FONT_ARIAL7)
-D4D_DECLARE_STD_LABEL(scrAbout_lblApp1, "Hi!", HELLO_STR_POSX, HELLO_STR_POSY(1), 205, 15, FONT_ARIAL7)
+D4D_DECLARE_STD_LABEL(scrAbout_lblApp, "Example application: \"Hello World\".", XMARGIN, HELLO_STR_POSY(0), WINDOW_SIZE_X-2*XMARGIN, 15, FONT_ARIAL7)
+D4D_DECLARE_STD_LABEL(scrAbout_lblApp1, "Hi!", XMARGIN, HELLO_STR_POSY(1), WINDOW_SIZE_X-2*XMARGIN, 15, FONT_ARIAL7)
 
-D4D_DECLARE_STD_LABEL(scrAbout_lblRoznov, "Elco Jacobs, (2015)", HELLO_STR_POSX, HELLO_STR_POSY(3), 205, 18, FONT_BERLIN_SANS_FBDEMI12)
+D4D_DECLARE_STD_LABEL(scrAbout_lblElco, "Elco Jacobs, (2015)", XMARGIN, HELLO_STR_POSY(2), WINDOW_SIZE_X-2*XMARGIN, 18, FONT_ARIAL7)
 
 //D4D_DECLARE_STD_LABEL(scrAbout_lblVer, D4D_VERSION, HELLO_STR_POSX, HELLO_STR_POSY(3) + 16, 205, 18, FONT_BERLIN_SANS_FBDEMI12)
-D4D_DECLARE_RLABEL(scrAbout_lblVer, D4D_VERSION, HELLO_STR_POSX, HELLO_STR_POSY(3) + 18, 70, 22, 8, (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_FOCUSRECT), NULL, FONT_BERLIN_SANS_FBDEMI12, NULL, NULL)
+D4D_DECLARE_RLABEL(scrAbout_lblVer, D4D_VERSION, WINDOW_SIZE_X/2-35, HELLO_STR_POSY(2) + 20, 70, 20, 8, (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_FOCUSRECT), NULL, FONT_BERLIN_SANS_FBDEMI12, NULL, NULL)
 
 
 /*****************************************************************************
@@ -78,12 +81,12 @@ D4D_DECLARE_RLABEL(scrAbout_lblVer, D4D_VERSION, HELLO_STR_POSX, HELLO_STR_POSY(
  *****************************************************************************/
 
 // Standard screen declaration
-D4D_DECLARE_RSCREEN_BEGIN(screen_helloworld, ScreenHelloWorld_, 50, 50, 220, 150, 8, "eGUI/D4D Hello", FONT_BERLIN_SANS_FBDEMI12, &bmpFreescale, (D4D_SCR_F_BCKG | D4D_SCR_F_EXIT | D4D_SCR_F_TITLEBAR | D4D_SCR_F_BEVEL | D4D_SCR_F_TOUCHENABLE), NULL)
+D4D_DECLARE_RSCREEN_BEGIN(screen_helloworld, ScreenHelloWorld_, 50, 50, WINDOW_SIZE_X, WINDOW_SIZE_Y, 8, "eGUI/D4D Hello", FONT_BERLIN_SANS_FBDEMI12, &bmp_brewpi_logo_22_16, (D4D_SCR_F_BCKG | D4D_SCR_F_EXIT | D4D_SCR_F_TITLEBAR | D4D_SCR_F_BEVEL | D4D_SCR_F_TOUCHENABLE), NULL)
 D4D_DECLARE_SCREEN_OBJECT(scrAbout_lblTitle)
 D4D_DECLARE_SCREEN_OBJECT(scrAbout_lblTitle1)
 D4D_DECLARE_SCREEN_OBJECT(scrAbout_lblApp)
 D4D_DECLARE_SCREEN_OBJECT(scrAbout_lblApp1)
-D4D_DECLARE_SCREEN_OBJECT(scrAbout_lblRoznov)
+D4D_DECLARE_SCREEN_OBJECT(scrAbout_lblElco)
 D4D_DECLARE_SCREEN_OBJECT(scrAbout_lblVer)
 D4D_DECLARE_SCREEN_END()
 

@@ -21,16 +21,20 @@ void setup() {
     pinMode(act3, OUTPUT);
     pinMode(buzz, OUTPUT);
     digitalWrite(buzz, LOW);
-
+    delay(50);
+    digitalWrite(buzz, HIGH);
+    delay(50);
+    digitalWrite(buzz, LOW);
+    delay(50);
+    digitalWrite(buzz, HIGH);
     Serial.begin(57600);
-    
+
     if (!D4D_Init(&screen_helloworld)) {
         // D4D initialization failed
         Serial.println("eGUI/D4D initialization failed");
         return;
     }
-
-    D4D_SetOrientation(D4D_ORIENT_LANDSCAPE);
+    D4D_Poll();
 }
 
 void loop() {

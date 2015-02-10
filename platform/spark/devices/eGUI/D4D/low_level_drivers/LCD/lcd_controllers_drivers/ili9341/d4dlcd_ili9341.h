@@ -57,9 +57,6 @@
  * Constants
  ******************************************************************************/
 
-#define ILI9341_TFTWIDTH  240
-#define ILI9341_TFTHEIGHT 320
-
 #define ILI9341_NOP     0x00
 #define ILI9341_SWRESET 0x01
 #define ILI9341_RDDID   0x04
@@ -122,16 +119,6 @@
 
 #define ILI9341_GMCTRP1 0xE0
 #define ILI9341_GMCTRN1 0xE1
-
-// Color definitions
-#define	ILI9341_BLACK   0x0000
-#define	ILI9341_BLUE    0x001F
-#define	ILI9341_RED     0xF800
-#define	ILI9341_GREEN   0x07E0
-#define ILI9341_CYAN    0x07FF
-#define ILI9341_MAGENTA 0xF81F
-#define ILI9341_YELLOW  0xFFE0
-#define ILI9341_WHITE   0xFFFF
 
 /******************************************************************************
  * Types
