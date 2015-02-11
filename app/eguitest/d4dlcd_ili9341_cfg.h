@@ -33,11 +33,11 @@
 *
 * @file      d4dlcd_ili9341.h.example
 *
-* @author     Petr Gargulak
+* @author    Elco Jacobs
 *
 * @version   0.0.1.0
 *
-* @date      Apr-26-2010
+* @date      Feb 2015
 *
 * @brief     D4D driver - ili9341 lcd driver configuration header file
 *

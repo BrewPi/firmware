@@ -69,6 +69,10 @@ extern "C" {
 // include of low level driver header file
 // it will be included into whole project only in case that this driver is selected in main D4D configuration file
 #include "low_level_drivers\LCD\lcd_controllers_drivers\ili9341\d4dlcd_ili9341.h"
+extern "C" {
+#include "low_level_drivers\LCD\lcd_hw_interface\common_drivers\d4dlcdhw_common.h"
+}
+
 /******************************************************************************
  * Macros
  ******************************************************************************/
@@ -99,7 +103,7 @@ static unsigned char D4DLCD_DeInit_ili9341(void);
   * @{
   *******************************************************************************/
 /*! @brief the main structure that contains low level driver api functions
- the name fo this structure is used for recognizing of configured low level driver of whole D4D
+ the name of this structure is used for recognizing of configured low level driver of whole D4D
  so this name has to be used in main configuration header file of D4D driver to enable this driver
  */
 const D4DLCD_FUNCTIONS d4dlcd_ili9341 = {
@@ -135,7 +139,7 @@ static D4DLCD_ORIENTATION d4dlcd_orientation = Landscape;
 /**************************************************************************/ /*!
   * @brief   The function is used for initialization of this low level driver
   * @return  result: 1 - Success; 0 - Failed
-  * @note    This should initilize all neccessary things to run ili9341 lcd driver.
+  * @note    This should initialize all necessary things to run the ili9341 lcd driver.
   *******************************************************************************/
 
 static unsigned char D4DLCD_Init_ili9341(void) {
@@ -299,7 +303,7 @@ static unsigned char D4DLCD_SetWindow_ili9341(unsigned short x0, unsigned short 
 static unsigned char D4DLCD_SetOrientation_ili9341(D4DLCD_ORIENTATION new_orientation) {
 
     unsigned short width, height;
-            d4dlcd_orientation = new_orientation;
+    d4dlcd_orientation = new_orientation;
 
     D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(ILI9341_MADCTL);
 
@@ -365,12 +369,12 @@ static void D4DLCD_Send_PixelColor_ili9341(D4D_COLOR value) {
   *******************************************************************************/
 
 static D4D_COLOR D4DLCD_Read_PixelColor_ili9341(void) {
-    #if D4D_COLOR_SYSTEM != D4D_COLOR_SYSTEM_RGB565
-      Word color =  D4D_LLD_LCD_HW.D4DLCDHW_ReadDataWord();
-      return D4D_COLOR_RGB(D4D_COLOR565_GET_R(color), D4D_COLOR565_GET_G(color), D4D_COLOR565_GET_B(color));
-    #else
-      return D4D_LLD_LCD_HW.D4DLCDHW_ReadDataWord();
-    #endif
+#if D4D_COLOR_SYSTEM != D4D_COLOR_SYSTEM_RGB565
+    Word color = D4D_LLD_LCD_HW.D4DLCDHW_ReadDataWord();
+    return D4D_COLOR_RGB(D4D_COLOR565_GET_R(color), D4D_COLOR565_GET_G(color), D4D_COLOR565_GET_B(color));
+#else
+    return D4D_LLD_LCD_HW.D4DLCDHW_ReadDataWord();
+#endif
 }
 
 /**************************************************************************/ /*!
@@ -402,7 +406,7 @@ static void D4DLCD_Flush_ili9341(D4DLCD_FLUSH_MODE mode) {
   *******************************************************************************/
 
 static void D4DLCD_Delay_ms_ili9341(unsigned short period) {
-    // D4DLCDHW_Delay(period);
+    D4DLCD_Delay_ms_Common(period);
 }
 
 /*! @} End of doxd4d_lcd_func                                           */

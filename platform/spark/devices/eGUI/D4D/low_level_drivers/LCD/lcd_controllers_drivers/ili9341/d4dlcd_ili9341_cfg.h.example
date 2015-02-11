@@ -33,11 +33,11 @@
 *
 * @file      d4dlcd_ili9341.h.example
 *
-* @author     Petr Gargulak
+* @author    Elco Jacobs
 *
 * @version   0.0.1.0
 *
-* @date      Apr-26-2010
+* @date      Feb 2015
 *
 * @brief     D4D driver - ili9341 lcd driver configuration header file
 *
@@ -52,6 +52,8 @@
   ******************************************************************************/
   // include here what the driver need for run for example "derivative.h"
   // #include "derivative.h"    /* include peripheral declarations and more for S08 and CV1 */
+
+#include "d4dlcdhw_spi_spark_8b_cfg.h"
 
   /******************************************************************************
   * Constants

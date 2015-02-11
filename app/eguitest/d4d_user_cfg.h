@@ -244,7 +244,7 @@
 
 #define D4D_ORIENT_START D4D_ORIENT_LANDSCAPE
 
-//#define D4D_MCU_BUS_CLOCK 24000000L  // Mcu bus clock in Hz mainly for few delay loops in low level (BSP_BUS_CLOCK for MQX)
+#define D4D_MCU_BUS_CLOCK 70000000L  // Mcu bus clock in Hz mainly for few delay loops in low level (BSP_BUS_CLOCK for MQX)
 
 //#define D4D_COLOR_SYSTEM_FORE D4D_COLOR_YELLOW // System fore color (for example for calibration screen)
 

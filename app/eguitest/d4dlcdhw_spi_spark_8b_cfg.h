@@ -88,7 +88,7 @@
   //#define D4DLCD_BACKLIGHT_DDR   PTCDD     // BACKLIGHT
 
 
-  /*********** Power macros - for modification uncoment and modify ***********/
+  /*********** Power macros - for modification uncomment and modify ***********/
 
   #define D4DLCD_INIT_CS pinMode(D4DLCD_CS, OUTPUT)
   #define D4DLCD_ASSERT_CS digitalWrite(D4DLCD_CS, LOW)
