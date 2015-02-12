@@ -167,16 +167,16 @@ void PiLink::receive(void){
 			// y: simulator			
 			// b: board
 			print_P(PSTR("N:{\"v\":\"%S\",\"n\":%d,\"c\":\"%S\",\"s\":%d,\"y\":%d,\"b\":\"%c\",\"l\":\"%d\"}"), 
-					PSTR(VERSION_STRING), 
-					BUILD_NUMBER,
-					PSTR(BUILD_NAME),
+					PSTR(VERSION_STRING),       // v:
+					BUILD_NUMBER,               // n:
+					PSTR(BUILD_NAME),           // c:
 #ifdef BREWPI_STATIC_CONFIG                
-					BREWPI_STATIC_CONFIG, 
+					BREWPI_STATIC_CONFIG,       // s:
 #else
                     0,
 #endif                
-					BREWPI_SIMULATE, 
-					BREWPI_BOARD,
+					BREWPI_SIMULATE,            // y:
+					BREWPI_BOARD,               // b:
 					BREWPI_LOG_MESSAGES_VERSION);
 			printNewLine();
 			break;
