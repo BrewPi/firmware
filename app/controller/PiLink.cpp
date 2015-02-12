@@ -34,6 +34,7 @@
 #include "EepromFormat.h"
 #include "SettingsManager.h"
 #include "Display.h"
+#include "PiLinkHandlers.h"
 
 #if BREWPI_SIMULATE
 #include "Simulator.h"
@@ -78,8 +79,6 @@ char PiLink::printfBuff[PRINTF_BUFFER_SIZE];
 void PiLink::init(void){
 	piStream.begin(57600);	
 }
-
-extern void handleReset();
 
 // create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
 void PiLink::print_P(const char *fmt, ... ){
@@ -171,14 +170,14 @@ void PiLink::receive(void){
                             "\"n\":\"" PRINTF_PROGMEM "\","
                             "\"s\":%d,"
                             "\"y\":%d,"
-                            "\"b\":\"" PRINTF_PROGMEM "\","
+                            "\"b\":\"%c\","
                             "\"l\":\"%d\""
                             "}"), 
 					PSTR(VERSION_STRING),               // v:
 					PSTR(stringify(BUILD_NUMBER)),      // n:                 
 					BREWPI_STATIC_CONFIG,               // s:
 					BREWPI_SIMULATE,                    // y:
-					PSTR(stringify(BREWPI_BOARD)),      // b:
+					BREWPI_BOARD,      // b:
 					BREWPI_LOG_MESSAGES_VERSION);       // l:
 			printNewLine();
 			break;
@@ -231,9 +230,7 @@ void PiLink::receive(void){
 			break;
 
 		case 'U': // update device		
-			//printResponse('U'); // moved into function below, because installing devices can cause printing in between
 			deviceManager.parseDeviceDefinition(piStream);
-			//piLink.printNewLine();
 			break;
 			
 		case 'h': // hardware query
@@ -250,8 +247,13 @@ void PiLink::receive(void){
 #endif
 
 		case 'R': // reset 
-                        handleReset();
-                        break;
+            handleReset();
+            break;
+            
+        case 'F': // flash firmware
+            flashFirmware();
+            break;
+            
 		default:
 			logWarningInt(WARNING_INVALID_COMMAND, inByte);
 		}
@@ -833,5 +835,3 @@ void PiLink::soundAlarm(bool active)
 #ifndef ARDUINO
 void PiLink::print(char c) { piStream.print(c); }
 #endif
-
-

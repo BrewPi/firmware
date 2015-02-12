@@ -27,6 +27,7 @@
  * That is all that is needed! No hassle with makefiles and compiling libraries.
  */
 #include "Brewpi.h"
+#include "PiLinkHandlers.h"
 
 // setup and loop are in brewpi_config so they can be reused across projects
 extern void setup(void);
@@ -38,6 +39,11 @@ void handleReset()
 	// resetting using the watchdog timer (which is a full reset of all registers) 
 	// might not be compatible with old Arduino bootloaders. jumping to 0 is safer.
 	asm volatile ("  jmp 0");
+}
+
+void flashFirmware()
+{
+    // a no-op. This is not used on this platform.
 }
 
 void main() __attribute__ ((noreturn)); // tell the compiler main doesn't return.
