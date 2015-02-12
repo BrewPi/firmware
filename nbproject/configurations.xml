@@ -28,7 +28,7 @@
       <makefileType>
         <makeTool>
           <buildCommandWorkingDir>./platform/spark</buildCommandWorkingDir>
-          <buildCommand>${MAKE} -f makefile all program-dfu</buildCommand>
+          <buildCommand>${MAKE} -f makefile all program-dfu USE_SWD_JTAG=y v=1</buildCommand>
           <cleanCommand>${MAKE} -f makefile clean</cleanCommand>
           <executablePath>./platform/spark/target/brewpi.elf</executablePath>
         </makeTool>
