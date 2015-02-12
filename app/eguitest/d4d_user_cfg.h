@@ -124,9 +124,10 @@
 // d4dtch_resistive_mqx - driver for resistive touch screen with direct analog connection to MCU over MQX (version 3.6 or higher)
 // d4dtch_mcf52277_asp - driver for resistive touch screen over MCF52277 ASP peripheral
 // d4dtch_cr_touch - driver for touch screen over CR TOUCH external chip driven over IIC (also there is MQX IIC driver version)
+// d4dtch_tsc2046_brewpi - driver for touch screen driven by TSC2046 / XPT2046 via BrewPiTouch class with filtering
 
 // Please define a used touch screen driver if touch screen is used in project
-//#define D4D_LLD_TCH  d4dtch_resistive
+#define D4D_LLD_TCH d4dtch_tsc2046_brewpi
 
 
 // List of implemented low level Touch screen hw interface drivers
@@ -138,7 +139,7 @@
 // d4dtchhw_px_adc_10b - low level hw interface driver for PX series ADC
 
 // Please (if it's needed) define a used touch screen hw interface driver
-//#define D4D_LLD_TCH_HW d4dtchhw_s08_adc
+// #define D4D_LLD_TCH_HW d4dtchhw_spark_spi_8b
 
 /******************************************************************************
 *
@@ -212,9 +213,6 @@
 //D4D_MK 		- Kinetis
 
 #define D4D_MCU_TYPE D4D_MK
-
-// define hardware specific delay function to Spark's delay
-#define D4DLCDHW_Delay delay
 
 //#define D4D_OS_MQX						// if this is uncommented the eGUI is using some MQX features (example: memAlloc)
 #define D4D_FONT_TABLE_DISABLED D4D_FALSE   // this option enable /disable font table for whole driver

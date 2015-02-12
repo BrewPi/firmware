@@ -1,7 +1,5 @@
 /**************************************************************************
 * Copyright 2015 by Elco Jacobs, BrewPi
-* Copyright 2014 by Petr Gargulak. eGUI Community.
-* Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
 ***************************************************************************
 * This program is free software: you can redistribute it and/or modify
@@ -31,20 +29,20 @@
 *
 ***************************************************************************//*!
 *
-* @file      d4dlcd_ili9341.h.example
+* @file      d4dlcd_Tsc2046_brewpi_cfg.example
 *
-* @author     Petr Gargulak
+* @author    Elco Jacobs
 *
 * @version   0.0.1.0
 *
-* @date      Apr-26-2010
+* @date      Feb 2015
 *
-* @brief     D4D driver - ili9341 lcd driver configuration header file
+* @brief     D4D driver - TSC2046 touch driver configuration header file
 *
 *******************************************************************************/
 
-#ifndef __D4DLCD_ILI9341_CFG_H
-#define __D4DLCD_ILI9341_CFG_H
+#ifndef __D4DLCD_TSC2046_BREWPI_CFG_H
+#define __D4DLCD_TSC2046_BREWPI_CFG_H
 
 
   /******************************************************************************
@@ -61,4 +59,8 @@
 
   // define here what you need to be configurable
 
-#endif /* __D4DLCD_ILI9341_CFG_H */
+#define D4DTCH_CS  D3
+#define D4DTCH_IRQ D2
+
+
+#endif /* __D4DLCD_TSC2046_BREWPI_CFG_H */

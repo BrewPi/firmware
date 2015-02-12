@@ -35,9 +35,12 @@ void setup() {
         return;
     }
     D4D_Poll();
+    D4D_CalibrateTouchScreen();
+    D4D_Poll();
 }
 
 void loop() {
+    
     D4D_Poll();
     delay(10);
 }
