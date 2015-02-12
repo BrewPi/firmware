@@ -166,18 +166,20 @@ void PiLink::receive(void){
 			// s shield type
 			// y: simulator			
 			// b: board
-			print_P(PSTR("N:{\"v\":\"%S\",\"n\":%d,\"c\":\"%S\",\"s\":%d,\"y\":%d,\"b\":\"%c\",\"l\":\"%d\"}"), 
-					PSTR(VERSION_STRING),       // v:
-					BUILD_NUMBER,               // n:
-					PSTR(BUILD_NAME),           // c:
-#ifdef BREWPI_STATIC_CONFIG                
-					BREWPI_STATIC_CONFIG,       // s:
-#else
-                    0,
-#endif                
-					BREWPI_SIMULATE,            // y:
-					BREWPI_BOARD,               // b:
-					BREWPI_LOG_MESSAGES_VERSION);
+			print_P(PSTR(   "N:{"
+                            "\"v\":\"" PRINTF_PROGMEM "\","
+                            "\"n\":\"" PRINTF_PROGMEM "\","
+                            "\"s\":%d,"
+                            "\"y\":%d,"
+                            "\"b\":\"" PRINTF_PROGMEM "\","
+                            "\"l\":\"%d\""
+                            "}"), 
+					PSTR(VERSION_STRING),               // v:
+					PSTR(stringify(BUILD_NUMBER)),      // n:                 
+					BREWPI_STATIC_CONFIG,               // s:
+					BREWPI_SIMULATE,                    // y:
+					PSTR(stringify(BREWPI_BOARD)),      // b:
+					BREWPI_LOG_MESSAGES_VERSION);       // l:
 			printNewLine();
 			break;
 		case 'l': // Display content requested
@@ -664,7 +666,7 @@ static const char STR_TEMPERATURE_PROFILE[] PROGMEM = "by temperature profile";
 static const char STR_MODE[] PROGMEM = "Mode";
 static const char STR_BEER_TEMP[] PROGMEM = "Beer temp";
 static const char STR_FRIDGE_TEMP[] PROGMEM = "Fridge temp";
-static const char STR_FMT_SET_TO[] PROGMEM = "%S set to %s %S";
+static const char STR_FMT_SET_TO[] PROGMEM = PRINTF_PROGMEM " set to %s " PRINTF_PROGMEM;
 
 void PiLink::setMode(const char* val) {
 	char mode = val[0];
@@ -812,7 +814,7 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 	for (uint8_t i=0; i<sizeof(jsonParserConverters)/sizeof(jsonParserConverters[0]); i++) {
 		JsonParserConvert converter;
 		memcpy_P(&converter, &jsonParserConverters[i], sizeof(converter));		
-		//logDeveloper("Handling converter %d %s %S %d %d"), i, key, converter.key, converter.fn, converter.target);
+		//logDeveloper("Handling converter %d %s "PRINTF_PROGMEM" %d %d"), i, key, converter.key, converter.fn, converter.target);
 		if (strcmp_P(key,converter.key) == 0) {
 			//logDeveloper("Handling json key %s"), key);
 			converter.fn(val, converter.target);
