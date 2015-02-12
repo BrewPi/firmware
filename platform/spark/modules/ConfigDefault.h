@@ -36,5 +36,4 @@
 #define BREWPI_SENSOR_PINS 1
 #endif
 
-#define BREWPI_BOARD 'z'
-
+#define BREWPI_BOARD BREWPI_BOARD_SPARKCORE
