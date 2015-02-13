@@ -13,13 +13,17 @@ int act2 = A1;
 int act3 = A6;
 int buzz = A2;
 
-D4D_EXTERN_SCREEN(screen_helloworld);
+extern "C" {
+D4D_EXTERN_SCREEN(screen_main);
+}
 
 void setup() {
     pinMode(act1, OUTPUT);
     pinMode(act2, OUTPUT);
     pinMode(act3, OUTPUT);
     pinMode(buzz, OUTPUT);
+    
+    // beep, beep
     digitalWrite(buzz, LOW);
     delay(50);
     digitalWrite(buzz, HIGH);
@@ -27,20 +31,24 @@ void setup() {
     digitalWrite(buzz, LOW);
     delay(50);
     digitalWrite(buzz, HIGH);
+    
     Serial.begin(57600);
 
-    if (!D4D_Init(&screen_helloworld)) {
+    if (!D4D_Init(&screen_main)) {
         // D4D initialization failed
         Serial.println("eGUI/D4D initialization failed");
         return;
     }
-    D4D_Poll();
+    D4D_SetOrientation(D4D_ORIENT_LANDSCAPE);
+    D4D_CheckTouchScreen();
     D4D_CalibrateTouchScreen();
-    D4D_Poll();
+    D4D_Poll();    
 }
 
 void loop() {
-    
+    // move this to Ticks later
+    D4D_TimeTickPut();
+    D4D_CheckTouchScreen();
     D4D_Poll();
-    delay(10);
+    delay(25);  
 }

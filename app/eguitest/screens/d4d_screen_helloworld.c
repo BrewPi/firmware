@@ -31,7 +31,7 @@
  *
  ***************************************************************************//*!
 *
-* @file      d4d_screen_about.c
+* @file      d4d_screen_helloworld.c
 *
 * @author    Petr Gargulak
 * 
@@ -39,12 +39,13 @@
 * 
 * @date      Jan-14-2014
 * 
-* @brief     D4D driver - about of d4d typical screen source file
+* @brief     D4D driver - helloworld of d4d typical screen source file
 *
 ******************************************************************************/
 
-#include "screens.h"
+#include "screen_common.h"
 #include "brewpi-logo.h"
+//#include "d4d_screen_helloworld.h"
 
 #define XMARGIN 10
 #define WINDOW_SIZE_X 220
@@ -61,16 +62,16 @@
 
 // Body strings
 
-D4D_DECLARE_STD_LABEL(scrAbout_lblTitle, "BrewPi says Hello", XMARGIN, 2, WINDOW_SIZE_X-2*XMARGIN, 20, FONT_BERLIN_SANS_FBDEMI12)
-D4D_DECLARE_STD_LABEL(scrAbout_lblTitle1, "a first message on eGUI ", XMARGIN, 20, WINDOW_SIZE_X-2*XMARGIN, 20, FONT_BERLIN_SANS_FBDEMI12)
+D4D_DECLARE_STD_LABEL(scrHello_lblTitle, "BrewPi says Hello", XMARGIN, 2, WINDOW_SIZE_X-2*XMARGIN, 20, FONT_BERLIN_SANS_FBDEMI12)
+D4D_DECLARE_STD_LABEL(scrHello_lblTitle1, "a first message on eGUI ", XMARGIN, 20, WINDOW_SIZE_X-2*XMARGIN, 20, FONT_BERLIN_SANS_FBDEMI12)
 
-D4D_DECLARE_STD_LABEL(scrAbout_lblApp, "Example application: \"Hello World\".", XMARGIN, HELLO_STR_POSY(0), WINDOW_SIZE_X-2*XMARGIN, 15, FONT_ARIAL7)
-D4D_DECLARE_STD_LABEL(scrAbout_lblApp1, "Hi!", XMARGIN, HELLO_STR_POSY(1), WINDOW_SIZE_X-2*XMARGIN, 15, FONT_ARIAL7)
+D4D_DECLARE_STD_LABEL(scrHello_lblApp, "Example application: \"Hello World\".", XMARGIN, HELLO_STR_POSY(0), WINDOW_SIZE_X-2*XMARGIN, 15, FONT_ARIAL7)
+D4D_DECLARE_STD_LABEL(scrHello_lblApp1, "Hi!", XMARGIN, HELLO_STR_POSY(1), WINDOW_SIZE_X-2*XMARGIN, 15, FONT_ARIAL7)
 
-D4D_DECLARE_STD_LABEL(scrAbout_lblElco, "Elco Jacobs, (2015)", XMARGIN, HELLO_STR_POSY(2), WINDOW_SIZE_X-2*XMARGIN, 18, FONT_ARIAL7)
+D4D_DECLARE_STD_LABEL(scrHello_lblElco, "Elco Jacobs, (2015)", XMARGIN, HELLO_STR_POSY(2), WINDOW_SIZE_X-2*XMARGIN, 18, FONT_ARIAL7)
 
-//D4D_DECLARE_STD_LABEL(scrAbout_lblVer, D4D_VERSION, HELLO_STR_POSX, HELLO_STR_POSY(3) + 16, 205, 18, FONT_BERLIN_SANS_FBDEMI12)
-D4D_DECLARE_RLABEL(scrAbout_lblVer, D4D_VERSION, WINDOW_SIZE_X/2-35, HELLO_STR_POSY(2) + 20, 70, 20, 8, (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_FOCUSRECT), NULL, FONT_BERLIN_SANS_FBDEMI12, NULL, NULL)
+//D4D_DECLARE_STD_LABEL(scrHello_lblVer, D4D_VERSION, HELLO_STR_POSX, HELLO_STR_POSY(3) + 16, 205, 18, FONT_BERLIN_SANS_FBDEMI12)
+D4D_DECLARE_RLABEL(scrHello_lblVer, D4D_VERSION, WINDOW_SIZE_X/2-35, HELLO_STR_POSY(2) + 20, 70, 20, 8, (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_FOCUSRECT), NULL, FONT_BERLIN_SANS_FBDEMI12, NULL, NULL)
 
 
 /*****************************************************************************
@@ -81,15 +82,15 @@ D4D_DECLARE_RLABEL(scrAbout_lblVer, D4D_VERSION, WINDOW_SIZE_X/2-35, HELLO_STR_P
  *****************************************************************************/
 
 // Standard screen declaration
-D4D_DECLARE_RSCREEN_BEGIN(screen_helloworld, ScreenHelloWorld_, 50, 50, WINDOW_SIZE_X, WINDOW_SIZE_Y, 8, "eGUI/D4D Hello", FONT_BERLIN_SANS_FBDEMI12, &bmp_brewpi_logo_22_16, (D4D_SCR_F_BCKG | D4D_SCR_F_EXIT | D4D_SCR_F_TITLEBAR | D4D_SCR_F_BEVEL | D4D_SCR_F_TOUCHENABLE), NULL)
-D4D_DECLARE_SCREEN_OBJECT(scrAbout_lblTitle)
-D4D_DECLARE_SCREEN_OBJECT(scrAbout_lblTitle1)
-D4D_DECLARE_SCREEN_OBJECT(scrAbout_lblApp)
-D4D_DECLARE_SCREEN_OBJECT(scrAbout_lblApp1)
-D4D_DECLARE_SCREEN_OBJECT(scrAbout_lblElco)
-D4D_DECLARE_SCREEN_OBJECT(scrAbout_lblVer)
-D4D_DECLARE_SCREEN_END()
 
+D4D_DECLARE_RSCREEN_BEGIN(screen_helloworld, ScreenHelloworld_, 50, 50, WINDOW_SIZE_X, WINDOW_SIZE_Y, 8, "eGUI/D4D Hello", FONT_BERLIN_SANS_FBDEMI12, &bmp_brewpi_logo_22_16, (D4D_SCR_F_BCKG | D4D_SCR_F_EXIT | D4D_SCR_F_TITLEBAR | D4D_SCR_F_BEVEL | D4D_SCR_F_TOUCHENABLE), NULL)
+D4D_DECLARE_SCREEN_OBJECT(scrHello_lblTitle)
+D4D_DECLARE_SCREEN_OBJECT(scrHello_lblTitle1)
+D4D_DECLARE_SCREEN_OBJECT(scrHello_lblApp)
+D4D_DECLARE_SCREEN_OBJECT(scrHello_lblApp1)
+D4D_DECLARE_SCREEN_OBJECT(scrHello_lblElco)
+D4D_DECLARE_SCREEN_OBJECT(scrHello_lblVer)
+D4D_DECLARE_SCREEN_END()
 
 /*****************************************************************************
  *
@@ -98,37 +99,36 @@ D4D_DECLARE_SCREEN_END()
  *
  *****************************************************************************/
 
-// One time called screen function in screen initialization proces
-static void ScreenHelloWorld_OnInit() {
-//    Log_AddScreenEvent("About", "OnInit");
+// One time called screen function in screen initialization process
+static void ScreenHelloworld_OnInit() {
+    Log_AddScreenEvent("Helloworld", "OnInit");
 }
 
 // Screen on Activate function called with each screen activation
 
-static void ScreenHelloWorld_OnActivate() {
-//    Log_AddScreenEvent("About", "OnActivate");
+static void ScreenHelloworld_OnActivate() {
+    Log_AddScreenEvent("Helloworld", "OnActivate");
 }
 
 // Screen "Main" function called periodically in each D4D_poll runs
 
-static void ScreenHelloWorld_OnMain() {
+static void ScreenHelloworld_OnMain() {
 
 }
 
 
 // Screen on DeActivate function called with each screen deactivation
 
-static void ScreenHelloWorld_OnDeactivate() {
-//    Log_AddScreenEvent("About", "OnDeActivate");
+static void ScreenHelloworld_OnDeactivate() {
+    Log_AddScreenEvent("Helloworld", "OnDeActivate");
 }
 
 // Screen on message function called with each internal massage for this screen
 
-static Byte ScreenHelloWorld_OnObjectMsg(D4D_MESSAGE* pMsg) {
+static Byte ScreenHelloworld_OnObjectMsg(D4D_MESSAGE* pMsg) {
     D4D_UNUSED(pMsg);
 
     return 0;
 }
-
 
 

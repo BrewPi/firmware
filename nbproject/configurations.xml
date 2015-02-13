@@ -100,9 +100,15 @@
       <makefileType>
         <makeTool>
           <buildCommandWorkingDir>./platform/spark</buildCommandWorkingDir>
-          <buildCommand>${MAKE} -f makefile USE_SWD=y APP=eguitest</buildCommand>
+          <buildCommand>${MAKE} -f makefile USE_SWD=y APP=eguitest v=1 SPARK_CLOUD=n</buildCommand>
           <cleanCommand>${MAKE} -f makefile clean</cleanCommand>
           <executablePath>./platform/spark/target/brewpi.elf</executablePath>
+          <ccTool>
+            <incDir>
+              <pElem>../spark-firmware/main/inc</pElem>
+              <pElem>../spark-firmware/wiring/inc</pElem>
+            </incDir>
+          </ccTool>
         </makeTool>
       </makefileType>
     </conf>
