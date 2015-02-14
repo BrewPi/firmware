@@ -237,7 +237,7 @@ typedef struct
 * @note    This macro create complete D4D_SLIDER structure, including the object data sub structure. Is used to define all properties of slider.
 *******************************************************************************/
 #define _D4D_DECLARE_SLIDER(type, name, text, x, y, cx, cy, radius, pMargin, pRelations, tx, ty, bx, by, bcx, bcy, flags, pBmp, pScheme, fontId, pUser, onvalch, pOnUsrMsg) \
-    static D4D_SLIDER_DATA name##_data = { 0, 0, 100, 1, 0, D4D_COLOR_SLDR_BAR_FORE}; \
+    static D4D_SLIDER_DATA name##_data = { 0, {0, 100, 1, 0}, D4D_COLOR_SLDR_BAR_FORE}; \
     static D4D_STR_PROPERTIES name##_strPrties = { D4D_SLDR_FNT_PRTY_DEFAULT, D4D_SLDR_TXT_PRTY_DEFAULT}; \
     static type D4D_SLIDER name##_params = \
     { \
