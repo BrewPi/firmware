@@ -1,4 +1,4 @@
-INCLUDE_DIRS += $(SOURCE_PATH)/app/eguitest
+INCLUDE_DIRS += $(SOURCE_PATH)/app/egui_demo
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices
 INCLUDE_DIRS += $(SOURCE_PATH)/app/fallback
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices
@@ -19,8 +19,8 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/ScrollBox
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/Ticks
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/devices/ValvesController
 
-CSRC += $(call target_files,app/eguitest,*.c)
-CPPSRC += $(call target_files,app/eguitest,*.cpp)
+CSRC += $(call target_files,app/egui_demo,*.c)
+CPPSRC += $(call target_files,app/egui_demo,*.cpp)
 
 CSRC += $(call target_files,app/devices,*.c)
 CPPSRC += $(call target_files,app/devices,*.cpp)

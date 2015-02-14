@@ -30,7 +30,7 @@
                     <type>0</type>
                 </confElem>
                 <confElem>
-                    <name>eguitest_SWD</name>
+                    <name>eguidemo_SWD</name>
                     <type>0</type>
                 </confElem>
             </confList>

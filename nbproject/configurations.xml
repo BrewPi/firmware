@@ -88,7 +88,7 @@
         </makeTool>
       </makefileType>
     </conf>
-    <conf name="eguitest_SWD" type="0">
+    <conf name="eguidemo_SWD" type="0">
       <toolsSet>
         <compilerSet>default</compilerSet>
         <dependencyChecking>false</dependencyChecking>
@@ -100,7 +100,7 @@
       <makefileType>
         <makeTool>
           <buildCommandWorkingDir>./platform/spark</buildCommandWorkingDir>
-          <buildCommand>${MAKE} -f makefile USE_SWD=y APP=eguitest v=1 SPARK_CLOUD=n</buildCommand>
+          <buildCommand>${MAKE} -f makefile USE_SWD=y APP=egui_demo v=1 SPARK_CLOUD=n</buildCommand>
           <cleanCommand>${MAKE} -f makefile clean</cleanCommand>
           <executablePath>./platform/spark/target/brewpi.elf</executablePath>
           <ccTool>
