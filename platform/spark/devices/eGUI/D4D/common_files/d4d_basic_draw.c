@@ -1284,7 +1284,7 @@ D4D_COOR D4D_RndCornerGetNonPrintedPxl(D4D_COOR radius, D4D_COOR line)
   D4D_INDEX_DELTA error =  (D4D_INDEX_DELTA)(-1 * (D4D_INDEX_DELTA)radius);
   D4D_COOR x = radius;
   D4D_COOR y = 0;
-  D4D_COOR x1_bf,y1_bf;
+  D4D_COOR x1_bf = 0, y1_bf = 0;
   D4D_BOOL match = D4D_FALSE;
 
   line = (D4D_COOR)(radius - line);
