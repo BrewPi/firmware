@@ -139,10 +139,8 @@ static unsigned char D4DLCDHW_Init_Spi_Spark_8b(void) {
     D4DLCD_INIT_DC;
 
     SPI.begin();
-    //TODO, lgramatikov, core runs at 72MHz. 11 gives 6.5. But looks like Spark can do only predefined values - http://docs.spark.io/#/firmware/communication-spi 
-    //16 looks like good start.
-    SPI.setClockDivider(SPI_CLOCK_DIV16); //not quite full! speed! :)
-    //SPI.setClockDivider(11); // 85MHz / 11 = 7.6 MHz (full! speed!)
+    // Serial clock cycle is min 150ns from ILI93841 datasheet, which equals 6.7 MHz
+    SPI.setClockDivider(11);
 
     SPI.setBitOrder(MSBFIRST);
     SPI.setDataMode(SPI_MODE0);

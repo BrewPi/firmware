@@ -213,7 +213,7 @@
 
 #define D4D_MCU_TYPE D4D_MK
 
-#define D4D_MCU_BUS_CLOCK 70000000L  /* Mcu bus clock in Hz mainly for few delay loops in low level*/
+#define D4D_MCU_BUS_CLOCK 72000000L  /* Mcu bus clock in Hz mainly for few delay loops in low level*/
 
 #define D4D_ORIENT_START D4D_ORIENT_LANDSCAPE
 
