@@ -55,7 +55,6 @@ D4D_EXTERN_SCREEN(screen_winmenu)
 #define BTN_POSX(ix) ((ix) * (BTN_SIZEX + 10))
 #define BTN_POSY (D4D_SCREEN_SIZE_SHORTER_SIDE - BTN_SIZEY - EDGE_SPACE)
 
-
 /*****************************************************************************
  *
  * Graphic objects callback/events functions declaration
@@ -97,6 +96,35 @@ D4D_DECLARE_SCREEN_END()
  *
  *****************************************************************************/
 
+static void ScreenTouchtest_printCoordinates(D4D_COOR x, D4D_COOR y, D4D_COOR screen_x, D4D_COOR screen_y) {
+    D4D_COLOR fore = D4D_COLOR_WHITE;
+    D4D_COLOR bckg = D4D_COLOR_BLACK;
+    
+    D4D_STRING tmp_txtbuff;
+    D4D_STR_PROPERTIES tmp_str_prty;
+    D4D_TCHAR str_touch[8] = D4D_DEFSTR("X:00000");
+    tmp_txtbuff.fontId = D4D_FONT_SYSTEM_DEFAULT;
+    tmp_txtbuff.str_properties = &tmp_str_prty;
+    tmp_str_prty.font_properties = 0;  
+    
+    D4D_UNUSED(fore);
+    D4D_UNUSED(bckg);
+    D4D_UNUSED(tmp_txtbuff);
+    
+    if(D4D_GetFont(D4D_FONT_SYSTEM_DEFAULT) != NULL) {
+        tmp_txtbuff.buffSize = 0;
+        tmp_txtbuff.printLen = 0;
+        tmp_txtbuff.printOff = 0;
+        tmp_txtbuff.pText = str_touch;
+        str_touch[0] = 'X';
+        D4D_SprintDecU16((Word) x, &str_touch[2], ' ');
+        D4D_DrawTextXY(screen_x, screen_y, &tmp_txtbuff, fore, bckg);
+        str_touch[0] = 'Y';
+        D4D_SprintDecU16((Word) y, &str_touch[2], ' ');
+        D4D_DrawTextXY(screen_x + D4D_GetFontWidth(D4D_FONT_SYSTEM_DEFAULT) * 6, screen_y, &tmp_txtbuff, fore, bckg);
+    }    
+}
+
 //Button Menu OnClick CallBack
 static void ScrTouchtest_OnClickBtnMenu(D4D_OBJECT* pThis) {
     D4D_ActivateScreen(&screen_winmenu, D4D_FALSE);
@@ -105,7 +133,6 @@ static void ScrTouchtest_OnClickBtnMenu(D4D_OBJECT* pThis) {
 
 //Button Clear OnClick CallBack
 static void ScrTouchtest_OnClickBtnClear(D4D_OBJECT* pThis) {
-    // D4D_ClearScreen(D4D_COLOR_BLACK);
     D4D_InvalidateScreen((D4D_SCREEN*) &screen_touchtest, D4D_TRUE); // Do a complete redraw
     Log_AddObjectEvent(pThis, "Clear click.");
 }
@@ -113,35 +140,6 @@ static void ScrTouchtest_OnClickBtnClear(D4D_OBJECT* pThis) {
 // One time called screen function in screen initialization process
 
 static void ScreenTouchtest_OnInit() {
-    /*Log_AddScreenEvent("Touchtest", "OnInit");
-        // Declare and initialize local variables
-    D4D_STRING tmp_txtbuff;
-    D4D_STR_PROPERTIES tmp_str_prty;
-    D4D_TOUCHSCREEN_LIMITS* p_tchRawLimits = D4D_LLD_TCH.D4DTCH_GetRawLimits();
-    Word X[2];
-    Word Y[2];
-    D4D_TCHAR str_touch[10] = D4D_DEFSTR("X1:00000");
-
-    Byte tmp_i;
-
-    tmp_txtbuff.fontId = D4D_FONT_SYSTEM_DEFAULT;
-    tmp_str_prty.font_properties = 0;
-    tmp_txtbuff.str_properties = &tmp_str_prty;
-
-    D4D_LLD_LCD.D4DLCD_FlushBuffer(D4DLCD_FLSH_SCR_START);
-
-    // Initialize display orientation to LANDSCAPE
-    D4D_ClearScreen(bckg);
-    D4D_LLD_LCD.D4DLCD_FlushBuffer(D4DLCD_FLSH_SCR_END);
-
-    if(D4D_GetFont(D4D_FONT_SYSTEM_DEFAULT) != NULL)
-    {
-      tmp_txtbuff.buffSize = 0;
-      tmp_txtbuff.printLen = 0;
-      tmp_txtbuff.printOff = 0;
-      tmp_txtbuff.pText = D4D_DEFSTR("Touch the cross by stylus.");
-      D4D_DrawTextXY(10, (D4D_COOR)(D4D_DisplayHeight() - 3 * (D4D_GetFontHeight(D4D_FONT_SYSTEM_DEFAULT)+1) - 10), &tmp_txtbuff, fore, bckg);
-    }*/
 }
 
 // Screen on Activate function called with each screen activation
@@ -159,11 +157,8 @@ static void ScreenTouchtest_OnMain() {
         y = yRaw;
         D4D_TCH_GetCalibratedPosition(&x, &y);
         D4D_PutPixelXY(x, y, D4D_LINE_THIN, D4D_COLOR_RED);
+        ScreenTouchtest_printCoordinates(x,y, 10, 10);
     }
-}
-
-void D4D_INPUT_EVENT_CALLBACK() {
-
 }
 
 // Screen on DeActivate function called with each screen deactivation
