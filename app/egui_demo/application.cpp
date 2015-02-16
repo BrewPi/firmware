@@ -14,7 +14,7 @@ int act3 = A6;
 int buzz = A2;
 
 extern "C" {
-D4D_EXTERN_SCREEN(screen_main);
+D4D_EXTERN_SCREEN(screen_entry);
 }
 
 void setup() {
@@ -34,7 +34,7 @@ void setup() {
     
     Serial.begin(57600);
 
-    if (!D4D_Init(&screen_main)) {
+    if (!D4D_Init(&screen_entry)) {
         // D4D initialization failed
         Serial.println("eGUI/D4D initialization failed");
         return;
@@ -45,10 +45,27 @@ void setup() {
     D4D_Poll();    
 }
 
+unsigned long tic = 0;
+unsigned long toc = 0;
+unsigned int count = 0;
+unsigned long ticTocSum = 0;
+
 void loop() {
     // move this to Ticks later
     D4D_TimeTickPut();
     D4D_CheckTouchScreen();
     D4D_Poll();
-    delay(25);  
+    
+    // Serial print performance
+    tic = toc;
+    toc = micros();
+    ticTocSum += toc-tic;
+    count++;
+    // print loop time every 10 loops
+    if(count >= 10){
+        Serial.print("Avg loop time (us):");
+        Serial.println(ticTocSum / 10);
+        count = 0;
+        ticTocSum = 0;
+    }
 }

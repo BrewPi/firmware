@@ -11,6 +11,7 @@ extern "C" {
 
 // C wrapper for C++ function millis
 unsigned long millisC(void);   
+unsigned long microsC(void);   
     
 #ifdef __cplusplus
 }
