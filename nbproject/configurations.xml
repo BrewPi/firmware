@@ -103,10 +103,18 @@
           <buildCommand>${MAKE} -f makefile USE_SWD=y APP=egui_demo v=1 SPARK_CLOUD=n</buildCommand>
           <cleanCommand>${MAKE} -f makefile clean</cleanCommand>
           <executablePath>./platform/spark/target/brewpi.elf</executablePath>
+          <cTool>
+            <incDir>
+              <pElem>../spark-firmware/main/inc</pElem>
+              <pElem>../spark-firmware/wiring/inc</pElem>
+              <pElem>./platform/spark/devices/eGUI/D4D/common_files</pElem>
+            </incDir>
+          </cTool>
           <ccTool>
             <incDir>
               <pElem>../spark-firmware/main/inc</pElem>
               <pElem>../spark-firmware/wiring/inc</pElem>
+              <pElem>./platform/spark/devices/eGUI/D4D/common_files</pElem>
             </incDir>
           </ccTool>
         </makeTool>

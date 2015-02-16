@@ -47,7 +47,8 @@
 
 D4D_EXTERN_SCREEN(screen_log) // log screen
 D4D_EXTERN_SCREEN(screen_about) // about screen
-D4D_EXTERN_SCREEN(screen_entry) // about screen
+D4D_EXTERN_SCREEN(screen_entry) // entry screen
+D4D_EXTERN_SCREEN(screen_touchtest) // touch test screen
 
 /*****************************************************************************
 *
@@ -71,7 +72,7 @@ D4D_DECLARE_STD_RMENU_BEGIN(scrWinMenu_menu, "Select any" , FONT_BERLIN_SANS_FBD
 #endif  
   D4D_DECLARE_MENU_ITEM_FULL("About", NULL, &screen_about)
   D4D_DECLARE_MENU_ITEM_FULL("Entry Screen",NULL, &screen_entry)
-  D4D_DECLARE_MENU_ITEM("Dummy Item1", NULL)
+  D4D_DECLARE_MENU_ITEM_FULL("Touch Test", NULL, &screen_touchtest)
   D4D_DECLARE_MENU_ITEM("Dummy Item2", NULL)
   D4D_DECLARE_MENU_ITEM("Dummy Item3", NULL)
   D4D_DECLARE_MENU_ITEM("Dummy Item4", NULL)
