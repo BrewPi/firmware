@@ -28,7 +28,7 @@
       <makefileType>
         <makeTool>
           <buildCommandWorkingDir>./platform/spark</buildCommandWorkingDir>
-          <buildCommand>${MAKE} -f makefile</buildCommand>
+          <buildCommand>${MAKE} -f makefile all program-dfu USE_SWD_JTAG=y v=1</buildCommand>
           <cleanCommand>${MAKE} -f makefile clean</cleanCommand>
           <executablePath>./platform/spark/target/brewpi.elf</executablePath>
         </makeTool>
@@ -87,8 +87,6 @@
           <executablePath>./platform/spark/target/brewpi.elf</executablePath>
         </makeTool>
       </makefileType>
-      <item path="app/minimal/application.cpp" ex="false" tool="1" flavor2="0">
-      </item>
     </conf>
   </confs>
 </configurationDescriptor>

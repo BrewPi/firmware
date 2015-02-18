@@ -1,6 +1,5 @@
 /*
- * Copyright 2013 BrewPi/Elco Jacobs.
- * Copyright 2015 Matthew McGowan
+ * Copyright 2015 BrewPi/Elco Jacobs/Matthew McGowan. 
  *
  * This file is part of BrewPi.
  * 
@@ -18,23 +17,18 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#ifndef PILINKHANDLERS_H
+#define	PILINKHANDLERS_H
 
 /**
- * Do not change this file directly - rather edit Config.h
+ * Called to invoke a system reset.
  */
+void handleReset();
 
-#ifndef BREWPI_DS2413
-#define BREWPI_DS2413 0
-#endif
+/**
+ * Called to start the platform firmware update process.
+ */
+void flashFirmware();
 
-#ifndef BREWPI_ACTUATOR_PINS
-#define BREWPI_ACTUATOR_PINS 1
-#endif
+#endif	/* PILINKHANDLERS_H */
 
-#ifndef BREWPI_SENSOR_PINS
-#define BREWPI_SENSOR_PINS 1
-#endif
-
-#define BREWPI_BOARD BREWPI_BOARD_SPARKCORE
-#define BREWPI_STATIC_CONFIG 0
