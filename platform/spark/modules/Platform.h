@@ -16,3 +16,6 @@
 typedef uint8_t DeviceAddress[8];
 
 #define TWO_PI 6.283185307179586476925286766559
+
+#define PRINTF_PROGMEM "%s"             // devices with unified address space
+
