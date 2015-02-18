@@ -1,5 +1,5 @@
 /**************************************************************************
-*
+* Copyright 2015 by Elco Jacobs, BrewPi
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
@@ -31,7 +31,7 @@
 *
 ***************************************************************************//*!
 *
-* @file      d4dlcd_template.h.example
+* @file      d4dlcd_ili9341.h.example
 *
 * @author     Petr Gargulak
 *
@@ -39,12 +39,12 @@
 *
 * @date      Apr-26-2010
 *
-* @brief     D4D driver - template lcd driver configuration header file
+* @brief     D4D driver - ili9341 lcd driver configuration header file
 *
 *******************************************************************************/
 
-#ifndef __D4DLCD_TEMPLATE_CFG_H
-#define __D4DLCD_TEMPLATE_CFG_H
+#ifndef __D4DLCD_ILI9341_CFG_H
+#define __D4DLCD_ILI9341_CFG_H
 
 
   /******************************************************************************
@@ -53,10 +53,12 @@
   // include here what the driver need for run for example "derivative.h"
   // #include "derivative.h"    /* include peripheral declarations and more for S08 and CV1 */
 
+#include "d4dlcdhw_spi_spark_8b_cfg.h"
+
   /******************************************************************************
   * Constants
   ******************************************************************************/
 
   // define here what you need to be configurable
 
-#endif /* __D4DLCD_TEMPLATE_CFG_H */
+#endif /* __D4DLCD_ILI9341_CFG_H */

@@ -15,6 +15,8 @@ void setup() {
     pinMode(act3, OUTPUT);
     pinMode(buzz, OUTPUT);
     digitalWrite(buzz, LOW);
+    delay(200);
+    digitalWrite(buzz, HIGH);
 }
 
 void loop(){

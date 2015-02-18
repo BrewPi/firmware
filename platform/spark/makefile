@@ -9,5 +9,5 @@ APP ?= controller
 
 run_make:
 	@$(MAKE) -e -C ../../../spark-firmware/main APPDIR=$(APPDIR) \
-	USER_MAKEFILE=$(APP).mk \
+	USER_MAKEFILE=app/$(APP)/build.mk \
 	TARGET_FILE=brewpi TARGET_DIR=$(SPARKDIR)/target $(MAKEOVERRIDES) $(MAKECMDGOALS) 

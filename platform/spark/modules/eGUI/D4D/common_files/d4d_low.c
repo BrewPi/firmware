@@ -65,7 +65,11 @@
 * Local variables
 *
 ******************************************************************/
-static D4D_ORIENTATION d4d_orientation = D4D_ORIENT_PORTRAIT;
+
+#ifndef D4D_ORIENT_START
+#define D4D_ORIENT_START D4D_ORIENT_PORTRAIT
+#endif 
+static D4D_ORIENTATION d4d_orientation = D4D_ORIENT_START;
 
 #ifdef D4D_LLD_TCH
   static D4D_TOUCHSCREEN_CALIB d4d_tchCalib = {0, 0, 0, 0, 0};
@@ -134,7 +138,7 @@ D4D_BOOL D4D_LCD_Init(void)
       return D4D_FALSE;
   #endif
 
-  D4D_LCD_SetOrientation(D4D_ORIENT_PORTRAIT);
+  D4D_LCD_SetOrientation(D4D_ORIENT_START);
 
   #ifdef D4D_LLD_TCH
     // Clear flag to indicate touch screen not calibrated
@@ -757,16 +761,16 @@ static void D4D_GetCalibrationPoint(Byte ix, Word* X, Word* Y, D4D_COLOR fore, D
 //-----------------------------------------------------------------------------
 // FUNCTION:    LCD_CalibrateTouchScreen
 // SCOPE:       Global
-// DESCRIPTION: Reads touchscreen positions in relation to screen positions
+// DESCRIPTION: Reads touch screen positions in relation to screen positions
 //              and calculates calibration constants. These constants are used
-//              to calulate 'real' screen positions
+//              to calculate 'real' screen positions
 // PARAMETERS:  none
 // RETURNS:     VOID
 //-----------------------------------------------------------------------------
 //
 void D4D_TCH_Calibrate(D4D_COLOR fore, D4D_COLOR bckg)
 {
-    // Declare and initialise local variables
+    // Declare and initialize local variables
     D4D_STRING tmp_txtbuff;
     D4D_STR_PROPERTIES tmp_str_prty;
     D4D_TOUCHSCREEN_LIMITS* p_tchRawLimits = D4D_LLD_TCH.D4DTCH_GetRawLimits();
@@ -782,7 +786,7 @@ void D4D_TCH_Calibrate(D4D_COLOR fore, D4D_COLOR bckg)
 
     D4D_LLD_LCD.D4DLCD_FlushBuffer(D4DLCD_FLSH_SCR_START);
 
-    // Initialise display orientation to LANDSCAPE
+    // Initialize display orientation to LANDSCAPE
     D4D_ClearScreen(bckg);
     D4D_LLD_LCD.D4DLCD_FlushBuffer(D4DLCD_FLSH_SCR_END);
 

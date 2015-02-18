@@ -121,6 +121,7 @@ int16_t BrewPiTouch::getY() {
     val = val * tftHeight / height; //scale
     return val;
 }
+
 /*
  *  update() updates the x and y coordinates of the touch screen
  *  It reads numSamples values and takes the median
@@ -130,8 +131,6 @@ bool BrewPiTouch::update(uint16_t numSamples) {
     std::vector<int16_t> samplesX;
     std::vector<int16_t> samplesY;
 
-    pinMode(pinIRQ, OUTPUT); // reverse bias diode during conversion
-    digitalWrite(pinIRQ, LOW); // as recommended in SBAA028
     digitalWrite(pinCS, LOW);
 
     bool valid = true;
@@ -140,24 +139,27 @@ bool BrewPiTouch::update(uint16_t numSamples) {
             valid = false;
             break;
         }
+        pinMode(pinIRQ, OUTPUT); // reverse bias diode during conversion
+        digitalWrite(pinIRQ, LOW); // as recommended in SBAA028
         spiWrite((config & CHMASK) | CHX); // select channel x
         samplesX.push_back(readChannel());
 
         spiWrite((config & CHMASK) | CHY); // select channel y
         samplesY.push_back(readChannel());
+        pinMode(pinIRQ, INPUT); // Set back to input
     }
     if (valid) {
         // get median
         size_t middle = samplesX.size() / 2;
         std::nth_element(samplesX.begin(), samplesX.begin() + middle, samplesX.end());
         std::nth_element(samplesY.begin(), samplesY.begin() + middle, samplesY.end());
+        // feed to filter to check stability
         filterX.add(samplesX[middle]);
         filterY.add(samplesY[middle]);
     }
 
-    pinMode(pinIRQ, INPUT);
     digitalWrite(pinCS, HIGH);
-    return valid;
+    return valid && isStable();
 }
 
 /* isStable() returns true if the difference between the last sample and 
@@ -197,7 +199,6 @@ void BrewPiTouch::calibrate(Adafruit_ILI9341 * tft) {
             tft->drawFastHLine(0, 0, tftWidth, ILI9341_RED);
             while (isTouched()) {
                 update();
-                Serial.print(isStable());
                 if (!isStable()) {
                     // update is not valid, reset
                     break;
@@ -211,27 +212,9 @@ void BrewPiTouch::calibrate(Adafruit_ILI9341 * tft) {
 
                 int32_t xAverage = xTouch[i] / samples;
                 int32_t yAverage = yTouch[i] / samples;
-                
-                /*
-                Serial.print(xSample);
-                Serial.print("\t");
-                Serial.print(xAverage);
-                Serial.print("\t\t");
 
-                Serial.print(ySample);
-                Serial.print("\t");
-                Serial.print(yAverage);
-                Serial.print("\t\t");
-                Serial.print(samples);
-                 */
-                
                 int16_t xCalibrated = getX();
                 int16_t yCalibrated = getY();
-                /*
-                Serial.print("\t\t");
-                Serial.print(xCalibrated);
-                Serial.print("\t");
-                Serial.println(yCalibrated);*/
                 tft->fillCircle(xCalibrated, yCalibrated, 2, ILI9341_WHITE);
 
                 // print progress line
@@ -248,41 +231,16 @@ void BrewPiTouch::calibrate(Adafruit_ILI9341 * tft) {
 
                 if (abs(xSample - xAverage) > 50 || abs(ySample - yAverage) > 50) {
                     // if new sample deviates too much from average, reset
-                    Serial.println("reset");
                     break;
                 }
             }
         } while (samples < requiredSamples || isTouched());
         xTouch[i] = xTouch[i] / samples;
         yTouch[i] = yTouch[i] / samples;
-        
-        Serial.print("Display coordinates:");
-        Serial.print(xDisplay[i]);
-        Serial.print("\t");
-        Serial.println(yDisplay[i]);
-        Serial.print("Touch coordinates:");
-        Serial.print(xTouch[i]);
-        Serial.print("\t");
-        Serial.println(yTouch[i]);
-
-        Serial.print("Number of samples:");
-        Serial.print(samples);
-        Serial.print("\t");
-        Serial.println(yTouch[i]);
-        
     }
 
     width = tftWidth * (xTouch[2] - xTouch[0]) / (xDisplay[2] - xDisplay[0]);
     height = tftHeight * (yTouch[1] - yTouch[0]) / (yDisplay[1] - yDisplay[0]);
     xOffset = xTouch[0] - xDisplay[0] * width / tftWidth;
     yOffset = yTouch[0] - yDisplay[0] * height / tftHeight;
-    Serial.println("Calibration finished.");
-    Serial.print("width: ");
-    Serial.println(width);
-    Serial.print("yScale: ");
-    Serial.println(width);
-    Serial.print("height: ");
-    Serial.println(xOffset);
-    Serial.print("yOffset: ");
-    Serial.println(yOffset);
 }
