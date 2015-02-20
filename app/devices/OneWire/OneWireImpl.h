@@ -1,6 +1,6 @@
 #pragma once
 
-//#define ONEWIRE_DS2482
+#define ONEWIRE_DS2482
 //#define ONEWIRE_PIN
 
 #if defined(ONEWIRE_DS2482)
