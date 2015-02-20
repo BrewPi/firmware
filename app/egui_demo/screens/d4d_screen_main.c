@@ -406,14 +406,16 @@ static void ScreenMain_OnMain()
   if(musicEnable)
   {
     // each 100ms
-    if(millisC() % 100 == 0)
+    static unsigned long lastMillis = 0;
+    if(millisC() - lastMillis >=  100)
     {
       Byte tmp_output;
       
+      lastMillis = millisC(); 
+      
       // add new data into "input audio signal" graph
       D4D_GraphAddTracesData(&scrMain_graph, pDummyMusic);
-      
-      
+            
       // if left output signal is enable (check the check box)
       if(D4D_CheckBoxGetValue(&scrMain_checkBxLeft))
       {        

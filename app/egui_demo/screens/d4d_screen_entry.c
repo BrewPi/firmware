@@ -177,10 +177,10 @@ static void ScreenEntry_OnActivate()
 // Screen "Main" function called periodically in each D4D_poll runs
 static void ScreenEntry_OnMain()
 {
-
-  if(millisC() % 100 == 0)
+  static unsigned long lastMillis = 0;
+  if(millisC() - lastMillis >=  100)
   {
-       
+    lastMillis = millisC();
     // Check the end of count down
     //if(D4D_SldrGetValue(&scrEntry_sldrTimeout) >= SCR_ENTRY_TIMEOUT_TICKS)
     if(D4D_PrgrsBarGetValue(&scrEntry_prgrsBarTimeout) >= SCR_ENTRY_TIMEOUT_TICKS)
