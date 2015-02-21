@@ -4,13 +4,27 @@
 #include "Buzzer.h"
 #include "Menu.h"
 
-void UI::init() {
+uint8_t UI::init() {
 #if BREWPI_BUZZER
 	buzzer.init();
 	buzzer.beep(2, 500);
 #endif
 	rotaryEncoder.init();
 }
+
+uint32_t UI::showStartupPage()
+{
+    return 0;
+}
+        
+/**
+ * Show the main controller page. 
+ */
+void UI::showControllerPage()
+{
+    // a no-op - we only have the controller page
+}
+
 
 void UI::update() {
 #if BREWPI_BUZZER
