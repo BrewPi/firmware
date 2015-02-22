@@ -178,7 +178,15 @@ struct DeviceAlternatives {
 
 struct DeviceCallbackInfo;
 typedef void (*EnumDevicesCallback)(DeviceConfig*, DeviceCallbackInfo* info);
-class EnumerateHardware;
+
+struct EnumerateHardware
+{
+	int8_t hardware;		// restrict the types of devices requested
+	int8_t pin;			// pin to search
+	int8_t values;			// fetch values for the devices.
+	int8_t unused;			// 0 don't care about unused state, 1 unused only.
+	int8_t function;		// restrict to devices that can be used with this function
+};
 
 /**
  * Additional information passed back about each device enumerated.
@@ -221,6 +229,14 @@ class DeviceManager
 public:
 	
     bool isDefaultTempSensor(BasicTempSensor* sensor);
+
+	/**
+	 * Create the device corresponding to the give config.
+	 * @param config	The DeviceConfig describing the device to create.
+	 * @param dt		The device type indicating the type of device to create (where hardware type is not unambiguous.)	
+	 */
+    static void* createDevice(DeviceConfig& config, DeviceType dt);
+	static void disposeDevice(DeviceType dt, void* device);
 
     static void setupUnconfiguredDevices();
 
@@ -287,8 +303,6 @@ private:
     static void handleEnumeratedDevice(DeviceConfig& config, EnumerateHardware& h, EnumDevicesCallback callback, DeviceCallbackInfo* info);
     static void readTempSensorValue(DeviceConfig::Hardware hw, char* out);
 
-
-    static void* createDevice(DeviceConfig& config, DeviceType dc);
     static void* createOneWireGPIO(DeviceConfig& config, DeviceType dt);
 
     static void beginDeviceOutput() { firstDeviceOutput = true; }

@@ -118,6 +118,23 @@ void* DeviceManager::createDevice(DeviceConfig& config, DeviceType dt)
 	return NULL;
 }
 
+void DeviceManager::disposeDevice(DeviceType dt, void* device) 
+{			
+	switch (dt) {
+		case DEVICETYPE_NONE:
+			break;
+		case DEVICETYPE_TEMP_SENSOR:
+			delete (BasicTempSensor*)device;
+			break;
+		case DEVICETYPE_SWITCH_SENSOR:
+			delete (SwitchSensor*)device;
+			break;
+		case DEVICETYPE_SWITCH_ACTUATOR:
+			delete (Actuator*)device;
+			break;
+	}
+}
+
 /**
  * Returns the pointer to where the device pointer resides. This can be used to delete the current device and install a new one. 
  * For Temperature sensors, the returned pointer points to a TempSensor*. The basic device can be fetched by calling
@@ -188,11 +205,11 @@ inline void setSensor(DeviceFunction f, void** ppv, BasicTempSensor* sensor) {
  */
 void DeviceManager::uninstallDevice(DeviceConfig& config)
 {
-	DeviceType dt = deviceType(config.deviceFunction);
 	void** ppv = deviceTarget(config);	
 	if (ppv==NULL)
 		return;
-	
+
+	DeviceType dt = deviceType(config.deviceFunction);
 	BasicTempSensor* s;
 	switch(dt) {
 		case DEVICETYPE_NONE:
@@ -593,15 +610,6 @@ bool DeviceManager::enumDevice(DeviceDisplay& dd, DeviceConfig& dc, uint8_t idx)
 	else
 		return (dd.id==idx);						// enumerate only the specific device requested
 }
-
-struct EnumerateHardware
-{
-	int8_t hardware;		// restrict the types of devices requested
-	int8_t pin;				// pin to search
-	int8_t values;			// fetch values for the devices.
-	int8_t unused;			// 0 don't care about unused state, 1 unused only.
-	int8_t function;		// restrict to devices that can be used with this function
-};
 
 void handleHardwareSpec(const char* key, const char* val, void* pv)
 {
