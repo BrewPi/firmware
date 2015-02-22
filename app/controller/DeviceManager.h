@@ -222,10 +222,6 @@ public:
 	
     bool isDefaultTempSensor(BasicTempSensor* sensor);
 
-    int8_t enumerateActuatorPins(uint8_t offset);
-    int8_t enumerateSensorPins(uint8_t offset);
-    int8_t enumOneWirePins(uint8_t offset);
-
     static void setupUnconfiguredDevices();
 
     /*
@@ -280,6 +276,11 @@ public:
 	
 private:
 	
+    static int8_t enumerateActuatorPins(uint8_t offset);
+    static int8_t enumerateSensorPins(uint8_t offset);
+    static int8_t enumOneWirePins(uint8_t offset);
+
+
     static void enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCallback f, DeviceCallbackInfo* info);	
     static void enumeratePinDevices(EnumerateHardware& h, EnumDevicesCallback callback, DeviceCallbackInfo* info);
     static void OutputEnumeratedDevices(DeviceConfig* config, DeviceCallbackInfo* info);
