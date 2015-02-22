@@ -10,6 +10,7 @@ uint8_t UI::init() {
 	buzzer.beep(2, 500);
 #endif
 	rotaryEncoder.init();
+	return 0;
 }
 
 uint32_t UI::showStartupPage()

@@ -21,26 +21,25 @@
 
 #include "Brewpi.h"
 
-#define oneWirePin A4
+#define oneWirePin 0
 
 #ifndef actuatorPin1
-#define actuatorPin1 2
+#define actuatorPin1 A0
 #endif
 
 #ifndef actuatorPin2
-#define actuatorPin2 5
+#define actuatorPin2 A1
 #endif
 
 #ifndef actuatorPin3
-#define actuatorPin3 6
+#define actuatorPin3 A6
 #endif
 
 #ifndef actuatorPin4
 #define actuatorPin4 A5
 #endif
 
-#define doorPin		4
-#define alarmPin	3
+#define alarmPin    A2	
 
 #define BREWPI_INVERT_ACTUATORS 1
 

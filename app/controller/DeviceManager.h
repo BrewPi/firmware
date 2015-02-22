@@ -208,59 +208,10 @@ public:
 	
 	bool isDefaultTempSensor(BasicTempSensor* sensor);
 	
-	int8_t enumerateActuatorPins(uint8_t offset)
-	{
-#if BREWPI_ACTUATOR_PINS
-#ifdef ARDUINO
-#if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
-		switch (offset) {
-			case 0: return heatingPin;
-			case 1: return coolingPin;
-			default:
-				return -1;
-		}
-#elif BREWPI_STATIC_CONFIG>=BREWPI_SHIELD_REV_C
-		switch (offset) {
-			case 0: return actuatorPin1;
-			case 1: return actuatorPin2;
-			case 2: return actuatorPin3;
-			case 3: return actuatorPin4;
-			default: return -1;
-		}
-#endif			
-#endif
-#endif                
-		return -1;
-	}
-
-	int8_t enumerateSensorPins(uint8_t offset) {
-#if BREWPI_SENSOR_PINS && defined(ARDUINO)
-		if (offset==0)
-			return doorPin;
-#endif			
-		return -1;
-	}
-	
-	/* Enumerates the 1-wire pins.
-	 * 
-	 */
-	int8_t enumOneWirePins(uint8_t offset)
-	{		
-#if defined(ARDUINO)
-#if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
-		if (offset==0)
-			return beerSensorPin;
-		if (offset==1)
-			return fridgeSensorPin;
-#endif
-#if BREWPI_STATIC_CONFIG>=BREWPI_SHIELD_REV_C
-		if (offset==0)
-			return oneWirePin;
-#endif
-#endif
-		return -1;								
-	}
-
+	int8_t enumerateActuatorPins(uint8_t offset);
+    int8_t enumerateSensorPins(uint8_t offset);
+    int8_t enumOneWirePins(uint8_t offset);
+        
 	static void setupUnconfiguredDevices();
 	
 	/*
@@ -314,17 +265,15 @@ private:
 
 	static OneWire* oneWireBus(uint8_t pin);
 
-#ifdef ARDUINO
-	
-#if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A	
+#if defined(ARDUINO) && BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
 	static OneWire beerSensorBus;
 	static OneWire fridgeSensorBus;	
-#endif	
-#if BREWPI_STATIC_CONFIG>=BREWPI_SHIELD_REV_C
+#endif
+
+#if (defined(ARDUINO) && BREWPI_STATIC_CONFIG>=BREWPI_SHIELD_REV_C) || defined(SPARK)
 	static OneWire primaryOneWireBus;	
 #endif
         
-#endif
 	static bool firstDeviceOutput;
 };
 

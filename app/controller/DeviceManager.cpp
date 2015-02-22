@@ -731,6 +731,12 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardwa
 	callback(&config, &out);
 }
 
+/**
+ * Enumerate the static devices that are permanently installed.
+ * @param h
+ * @param callback
+ * @param output
+ */
 void DeviceManager::enumeratePinDevices(EnumerateHardware& h, EnumDevicesCallback callback, DeviceOutput& output) 
 {
 	DeviceConfig config;
@@ -739,6 +745,7 @@ void DeviceManager::enumeratePinDevices(EnumerateHardware& h, EnumDevicesCallbac
 	config.chamber = 1; // chamber 1 is default
 	
 	int8_t pin;	
+#if BREWPI_ACTUATOR_PINS
 	for (uint8_t count=0; (pin=deviceManager.enumerateActuatorPins(count))>=0; count++) {
 		if (h.pin!=-1 && h.pin!=pin)
 			continue;
@@ -746,13 +753,16 @@ void DeviceManager::enumeratePinDevices(EnumerateHardware& h, EnumDevicesCallbac
 		config.hw.invert = true; // make inverted default, because shiels have transistor on them
 		handleEnumeratedDevice(config, h, callback, output);
 	}	
+#endif    
 	
+#if BREWPI_SENSOR_PINS    
 	for (uint8_t count=0; (pin=deviceManager.enumerateSensorPins(count))>=0; count++) {
 		if (h.pin!=-1 && h.pin!=pin)
 			continue;
 		config.hw.pinNr = pin;
 		handleEnumeratedDevice(config, h, callback, output);
 	}	
+#endif    
 }
 
 void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCallback callback, DeviceOutput& output)

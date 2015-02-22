@@ -1,5 +1,4 @@
-#ifndef OneWire_h
-#define OneWire_h
+#pragma once 
 
 #include <inttypes.h>
 #include "Brewpi.h"
@@ -125,6 +124,8 @@ class OneWirePin
   public:
     OneWirePin( uint8_t pin);
 
+	bool init() { return true; }
+
 	uint8_t pinNr() const { return pin; }
 
     // Perform a 1-Wire reset cycle. Returns 1 if a device responds
@@ -227,4 +228,3 @@ class OneWirePin
 #endif
 };
 
-#endif
