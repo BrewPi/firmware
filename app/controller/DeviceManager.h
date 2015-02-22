@@ -176,15 +176,29 @@ struct DeviceAlternatives {
 	
 };
 
-
-typedef void (*EnumDevicesCallback)(DeviceConfig*, void* pv);
+struct DeviceCallbackInfo;
+typedef void (*EnumDevicesCallback)(DeviceConfig*, DeviceCallbackInfo* info);
 class EnumerateHardware;
 
-struct DeviceOutput
+/**
+ * Additional information passed back about each device enumerated.
+ */
+struct DeviceCallbackInfo
 {
-	device_slot_t	slot;
-	char value[10];
-	Print* pp;
+    /**
+     * The slot the device was found in.
+     */
+    device_slot_t	slot;
+ 
+    /**
+     * The current value of the device.
+     */
+    char value[10];
+    
+    /**
+     * Application data. 
+     */
+    void* data;
 };
 
 struct DeviceDisplay {
@@ -206,66 +220,81 @@ class DeviceManager
 {
 public:
 	
-	bool isDefaultTempSensor(BasicTempSensor* sensor);
-	
-	int8_t enumerateActuatorPins(uint8_t offset);
-        int8_t enumerateSensorPins(uint8_t offset);
-        int8_t enumOneWirePins(uint8_t offset);
-        
-	static void setupUnconfiguredDevices();
-	
-	/*
-	 * Determines if the given device config is complete. 
-	 */
-	static bool firstUndefinedAlternative(DeviceConfig& config, DeviceAlternatives& alternatives);
-	
-	
-	/**
-	 * Creates and Installs a device from the given device config.
-	 * /return true if a device was installed. false if the config is not complete.
-	 */
-	static void installDevice(DeviceConfig& config);
-	
-	static void uninstallDevice(DeviceConfig& config);
-	
-	static void parseDeviceDefinition(Stream& p);
-	static void printDevice(device_slot_t slot, DeviceConfig& config, const char* value, Print& p);
-		
-	/**
-	 * Iterate over the defined devices.
-	 * Caller first calls with deviceIndex 0. If the return value is true, config is filled out with the 
-	 * config for the device. The caller can then increment deviceIndex and try again.
-	 */
-	static bool allDevices(DeviceConfig& config, uint8_t deviceIndex);
+    bool isDefaultTempSensor(BasicTempSensor* sensor);
 
-	static bool isDeviceValid(DeviceConfig& config, DeviceConfig& original, uint8_t deviceIndex);
+    int8_t enumerateActuatorPins(uint8_t offset);
+    int8_t enumerateSensorPins(uint8_t offset);
+    int8_t enumOneWirePins(uint8_t offset);
 
-	/**
-	 * read hardware spec from stream and output matching devices
-	 */
-	static void enumerateHardware(Stream& p);
-	
-	static bool enumDevice(DeviceDisplay& dd, DeviceConfig& dc, uint8_t idx);
+    static void setupUnconfiguredDevices();
 
-	static void listDevices(Stream& p);
+    /*
+     * Determines if the given device config is complete. 
+     */
+    static bool firstUndefinedAlternative(DeviceConfig& config, DeviceAlternatives& alternatives);
+
+
+    /**
+     * Creates and Installs a device from the given device config.
+     * /return true if a device was installed. false if the config is not complete.
+     */
+    static void installDevice(DeviceConfig& config);
+
+    static void uninstallDevice(DeviceConfig& config);
+
+    static void parseDeviceDefinition(Stream& p);
+    static void printDevice(device_slot_t slot, DeviceConfig& config, const char* value, Print& p);
+
+    /**
+     * Iterate over the defined devices.
+     * Caller first calls with deviceIndex 0. If the return value is true, config is filled out with the 
+     * config for the device. The caller can then increment deviceIndex and try again.
+     */
+    static bool allDevices(DeviceConfig& config, uint8_t deviceIndex);
+
+    static bool isDeviceValid(DeviceConfig& config, DeviceConfig& original, uint8_t deviceIndex);
+
+    /**
+     * read hardware spec from stream and output matching devices
+     */
+    static void enumerateHardwareToStream(Stream& p);
+    
+    /**
+     * Enumerates the devices detected in the system. Installed devices
+     * are signified by returning their slot number in {@code callbackData}, while
+     * non-installed devices have slot set to -1. 
+     * @param spec              The hardware enumeration spec, specifies constraints
+     *  on the hardware to enumerate. For an unconstrained search, set all fields
+     *  to 0.
+     * @param callback  The callback that is called with each device enumerated.
+     *
+     * @param callbackData  The storage for the device callback info, allowing
+     *  the enumeration to return additional info on each device, plus an application
+     *  provided pointer in {@code info->data}.
+     */
+    static void enumerateHardware(EnumerateHardware& spec, EnumDevicesCallback callback, DeviceCallbackInfo* callbackData);
+
+    static bool enumDevice(DeviceDisplay& dd, DeviceConfig& dc, uint8_t idx);
+
+    static void listDevices(Stream& p);
 	
 private:
 	
-	static void enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCallback f, DeviceOutput& output);	
-	static void enumeratePinDevices(EnumerateHardware& h, EnumDevicesCallback callback, DeviceOutput& output);
-	static void OutputEnumeratedDevices(DeviceConfig* config, void* pv);
-	static void handleEnumeratedDevice(DeviceConfig& config, EnumerateHardware& h, EnumDevicesCallback callback, DeviceOutput& out);
-	static void readTempSensorValue(DeviceConfig::Hardware hw, char* out);
-	
+    static void enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCallback f, DeviceCallbackInfo* info);	
+    static void enumeratePinDevices(EnumerateHardware& h, EnumDevicesCallback callback, DeviceCallbackInfo* info);
+    static void OutputEnumeratedDevices(DeviceConfig* config, DeviceCallbackInfo* info);
+    static void handleEnumeratedDevice(DeviceConfig& config, EnumerateHardware& h, EnumDevicesCallback callback, DeviceCallbackInfo* info);
+    static void readTempSensorValue(DeviceConfig::Hardware hw, char* out);
 
-	static void* createDevice(DeviceConfig& config, DeviceType dc);
-	static void* createOneWireGPIO(DeviceConfig& config, DeviceType dt);
-	
-	static void beginDeviceOutput() { firstDeviceOutput = true; }
 
-	static OneWire* oneWireBus(uint8_t pin);
-	
-	static bool firstDeviceOutput;
+    static void* createDevice(DeviceConfig& config, DeviceType dc);
+    static void* createOneWireGPIO(DeviceConfig& config, DeviceType dt);
+
+    static void beginDeviceOutput() { firstDeviceOutput = true; }
+
+    static OneWire* oneWireBus(uint8_t pin);
+
+    static bool firstDeviceOutput;
 };
 
 
