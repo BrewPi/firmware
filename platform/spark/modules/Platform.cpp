@@ -17,6 +17,19 @@ void flashFirmware()
 }
 
 
+#if !BREWPI_SIMULATE
+OneWire primaryOneWireBus(oneWirePin);
+#endif
+
+OneWire* DeviceManager::oneWireBus(uint8_t pin) {
+#if !BREWPI_SIMULATE
+	if (pin==oneWirePin)
+		return &primaryOneWireBus;
+#endif
+	return NULL;
+}
+
+
 int8_t  DeviceManager::enumerateActuatorPins(uint8_t offset)
 {
     switch (offset) {

@@ -209,8 +209,8 @@ public:
 	bool isDefaultTempSensor(BasicTempSensor* sensor);
 	
 	int8_t enumerateActuatorPins(uint8_t offset);
-    int8_t enumerateSensorPins(uint8_t offset);
-    int8_t enumOneWirePins(uint8_t offset);
+        int8_t enumerateSensorPins(uint8_t offset);
+        int8_t enumOneWirePins(uint8_t offset);
         
 	static void setupUnconfiguredDevices();
 	
@@ -264,16 +264,7 @@ private:
 	static void beginDeviceOutput() { firstDeviceOutput = true; }
 
 	static OneWire* oneWireBus(uint8_t pin);
-
-#if defined(ARDUINO) && BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
-	static OneWire beerSensorBus;
-	static OneWire fridgeSensorBus;	
-#endif
-
-#if (defined(ARDUINO) && BREWPI_STATIC_CONFIG>=BREWPI_SHIELD_REV_C) || defined(SPARK)
-	static OneWire primaryOneWireBus;	
-#endif
-        
+	
 	static bool firstDeviceOutput;
 };
 

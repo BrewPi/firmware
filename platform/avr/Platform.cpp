@@ -24,6 +24,33 @@
 #include "DeviceManager.h"
 #include "Pins.h"
 
+#if !BREWPI_SIMULATE
+#if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
+OneWire beerSensorBus(beerSensorPin);
+OneWire fridgeSensorBus(fridgeSensorPin);
+#elif BREWPI_STATIC_CONFIG>=BREWPI_SHIELD_REV_C
+OneWire primaryOneWireBus(oneWirePin);
+#endif
+#endif
+
+
+OneWire* DeviceManager::oneWireBus(uint8_t pin) {
+#if !BREWPI_SIMULATE
+#if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
+	if (pin==beerSensorPin)
+		return &beerSensorBus;
+	if (pin==fridgeSensorPin)
+		return &fridgeSensorBus;
+#elif BREWPI_STATIC_CONFIG>=BREWPI_SHIELD_REV_C
+	if (pin==oneWirePin)
+		return &primaryOneWireBus;
+#endif		
+#endif
+	return NULL;
+}
+
+
+
 int8_t  DeviceManager::enumerateActuatorPins(uint8_t offset)
 {
 #if BREWPI_STATIC_CONFIG<=BREWPI_SHIELD_REV_A
