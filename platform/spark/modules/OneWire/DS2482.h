@@ -42,6 +42,7 @@ public:
 
     DS2482(uint8_t address) : mAddress(address) {
         mAddress = 0x18 | mAddress;
+        init();
     }
   
     virtual ~DS2482(){};

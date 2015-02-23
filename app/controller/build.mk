@@ -1,4 +1,4 @@
-here_files = $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/$1,$2))
+here_files = $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/$1/$2))
 
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices
@@ -35,3 +35,7 @@ CPPSRC += $(call target_files,platform/spark/modules,*.cpp)
 
 SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
 include $(SRC_EGUI)/egui.mk
+
+$(info source path $(SOURCE_PATH))
+LIBS_DIR = $(SOURCE_PATH)/platform/spark/libs
+include $(LIBS_DIR)/libs.mk

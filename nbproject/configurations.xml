@@ -64,7 +64,7 @@
       <makefileType>
         <makeTool>
           <buildCommandWorkingDir>./platform/spark</buildCommandWorkingDir>
-          <buildCommand>${MAKE} -f makefile USE_SWD=y</buildCommand>
+          <buildCommand>${MAKE} -f makefile USE_SWD=y SPARK_CLOUD=n</buildCommand>
           <cleanCommand>${MAKE} -f makefile clean</cleanCommand>
           <executablePath>./platform/spark/target/brewpi.elf</executablePath>
         </makeTool>

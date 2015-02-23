@@ -119,7 +119,7 @@ sample code bearing this copyright.
 #include "FastDigitalPin.h"
 
 
-OneWirePin::OneWire(uint8_t pin)
+OneWirePin::OneWirePin(uint8_t pin)
 {
 	this->pin = pin;
 	pinMode(pin, INPUT);

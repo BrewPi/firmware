@@ -1,6 +1,13 @@
 #pragma once
 
-//#define ONEWIRE_DS2482
+#ifdef ARDUINO
+#include "OneWirePin.h"
+typedef OneWirePin OneWireDriver;
+
+#else
+
+
+#define ONEWIRE_DS2482
 //#define ONEWIRE_PIN
 
 #if defined(ONEWIRE_DS2482)
@@ -20,5 +27,7 @@ typedef OneWirePin OneWireDriver;
 #include "OneWireNull.h"
 
 typedef OneWireNull OneWireDriver;
+
+#endif
 
 #endif

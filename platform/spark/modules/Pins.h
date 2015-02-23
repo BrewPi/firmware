@@ -21,7 +21,7 @@
 
 #include "Brewpi.h"
 
-#define oneWireAddress 0x0
+#define oneWirePin 0x0 // actually the i2c address
 
 #ifndef actuatorPin1
 #define actuatorPin1 A0

@@ -66,6 +66,12 @@ void setup()
 	ui.init();
 	piLink.init();
 
+    uint32_t start = millis();
+    uint32_t delay = ui.showStartupPage();
+    while (millis()-start <= delay) {
+        ui.update();
+    }
+    
 	logDebug("started");	
 	tempControl.init();
 	settingsManager.loadSettings();
@@ -77,6 +83,8 @@ void setup()
 	tempControl.fridgeSensor->init();	
 #endif	
 
+    ui.showControllerPage();
+    
 	display.init();
 	display.printStationaryText();
 	display.printState();
