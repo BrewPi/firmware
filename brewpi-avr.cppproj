@@ -146,6 +146,7 @@
       <Value>../platform/wiring</Value>
       <Value>../app/fallback</Value>
       <Value>../app/devices</Value>
+      <Value>../app/devices/OneWire</Value>
       <Value>../app/controller</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
@@ -182,6 +183,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\BrewpiStrings.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\controller\ConnectedDevicesManager.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\controller\ConnectedDevicesManager.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\DeviceManager.cpp">
@@ -301,6 +308,18 @@
     <Compile Include="app\devices\EepromTypes.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="app\devices\OneWire\OneWire.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\OneWire\OneWire.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\OneWire\OneWireImpl.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\OneWire\OneWireLowLevelInterface.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="app\devices\Sensor.h">
       <SubType>compile</SubType>
     </Compile>
@@ -382,13 +401,16 @@
     <Compile Include="platform\avr\OLEDFourBit.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="platform\avr\OneWire.cpp">
+    <Compile Include="platform\avr\OneWirePin.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="platform\avr\OneWire.h">
+    <Compile Include="platform\avr\OneWirePin.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="platform\avr\Pins.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="platform\avr\Platform.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="platform\avr\Platform.h">
@@ -458,6 +480,7 @@
   <ItemGroup>
     <Folder Include="app\controller\" />
     <Folder Include="app\devices\" />
+    <Folder Include="app\devices\OneWire" />
     <Folder Include="app\fallback\" />
     <Folder Include="app" />
     <Folder Include="platform" />

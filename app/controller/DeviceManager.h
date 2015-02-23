@@ -277,7 +277,7 @@ public:
      * non-installed devices have slot set to -1. 
      * @param spec              The hardware enumeration spec, specifies constraints
      *  on the hardware to enumerate. For an unconstrained search, set all fields
-     *  to 0.
+     *  to 0, and pin and hardware to -1.
      * @param callback  The callback that is called with each device enumerated.
      *
      * @param callbackData  The storage for the device callback info, allowing
