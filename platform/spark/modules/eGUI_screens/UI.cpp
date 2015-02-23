@@ -1,5 +1,6 @@
 #include "Brewpi.h"
 #include "UI.h"
+#include "Buzzer.h"
 
 extern "C" {
 #include "d4d.h"
@@ -7,13 +8,16 @@ extern "C" {
 
 #include "brewpi_boot_screen.h"
 
-
 uint8_t UI::init() {
     if (!D4D_Init(&screen_boot))
         return 1;
     
     D4D_SetOrientation(D4D_ORIENT_LANDSCAPE);
     D4D_CheckTouchScreen();
+    #if BREWPI_BUZZER
+	buzzer.init();
+	buzzer.beep(2, 100);
+    #endif
     return 0;
 }
 
@@ -39,4 +43,7 @@ void UI::update()
     D4D_TimeTickPut();
     D4D_CheckTouchScreen();
     D4D_Poll();
+    #if BREWPI_BUZZER
+	buzzer.setActive(alarm.isActive() && !buzzer.isActive());
+    #endif
 }
