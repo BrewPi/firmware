@@ -127,6 +127,9 @@ class ConnectedDevicesManager {
             if (slot >= 0) { // found the device still active
                 devices[slot].lastSeen = 0; // seen this one now
                 devices[slot].value.temp = devices[slot].pointer.tempSensor->read();
+                if(devices[slot].value.temp == TEMP_SENSOR_DISCONNECTED){
+                    devices[slot].pointer.tempSensor->init();                    
+                }
                 changed(this, slot, devices + slot, UPDATED);
             } else {
                 // attempt to reuse previous location
