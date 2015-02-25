@@ -33,46 +33,49 @@ eGuiSettingsClass eGuiSettings;
 uint8_t UI::init() {
     if (!D4D_Init(&screen_boot))
         return 1;
-    
+
     D4D_SetOrientation(D4D_ORIENT_LANDSCAPE);
     D4D_CheckTouchScreen();
-    #if BREWPI_BUZZER
-	buzzer.init();
-	buzzer.beep(2, 100);
-    #endif
-        
+#if BREWPI_BUZZER
+    buzzer.init();
+    buzzer.beep(2, 100);
+#endif
+
     return 0;
 }
 
-uint32_t UI::showStartupPage()
-{   
+uint32_t UI::showStartupPage() {
     // Check if touch screen has been calibrated
-    if(!eGuiSettings.loadTouchCalib()){
+    if (!eGuiSettings.loadTouchCalib()) {
         // could not load valid settings from flash memory
-        D4D_CalibrateTouchScreen();
-        eGuiSettings.storeTouchCalib();
+        calibrateTouchScreen();
     }
     // Poll to show boot screen
     D4D_Poll();
-    
+
     return 0;
 }
-        
+
 /**
  * Show the main controller page. 
  */
-void UI::showControllerPage()
-{
-    // for now we in fact show what will be the startup page. 
-    
+void UI::showControllerPage() {
+    // for now we in fact show what will be the startup page.     
 }
 
-void UI::update() 
-{
+void UI::update() {
     D4D_TimeTickPut();
     D4D_CheckTouchScreen();
     D4D_Poll();
-    #if BREWPI_BUZZER
-	buzzer.setActive(alarm.isActive() && !buzzer.isActive());
-    #endif
+#if BREWPI_BUZZER
+    buzzer.setActive(alarm.isActive() && !buzzer.isActive());
+#endif
+}
+
+/**
+ * Show touch screen calibration screen store settings afterwards
+ */
+void UI::calibrateTouchScreen() {
+    D4D_CalibrateTouchScreen();
+    eGuiSettings.storeTouchCalib();
 }
