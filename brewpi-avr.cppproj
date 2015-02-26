@@ -147,6 +147,7 @@
       <Value>../app/fallback</Value>
       <Value>../app/devices</Value>
       <Value>../app/controller</Value>
+      <Value>../app/devices/OneWire</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
   <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
@@ -184,16 +185,31 @@
     <Compile Include="app\controller\BrewpiStrings.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="app\controller\Buzzer.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\controller\d4d_user_cfg_app.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="app\controller\DeviceManager.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\DeviceManager.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="app\controller\Display.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\controller\Display.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="app\controller\DisplayLcd.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\DisplayLcd.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\controller\DisplayLcdImpl.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\EepromFormat.h">
@@ -236,6 +252,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\PiLink.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\controller\PiLinkHandlers.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\RotaryEncoder.h">
@@ -301,6 +320,18 @@
     <Compile Include="app\devices\EepromTypes.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="app\devices\OneWire\OneWire.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\OneWire\OneWire.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\OneWire\OneWireImpl.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\OneWire\OneWireLowLevelInterface.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="app\devices\Sensor.h">
       <SubType>compile</SubType>
     </Compile>
@@ -343,12 +374,6 @@
     <Compile Include="platform\avr\Buzzer.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="platform\avr\Buzzer.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="platform\avr\Config.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="platform\avr\ConfigDefault.h">
       <SubType>compile</SubType>
     </Compile>
@@ -382,13 +407,16 @@
     <Compile Include="platform\avr\OLEDFourBit.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="platform\avr\OneWire.cpp">
+    <Compile Include="platform\avr\OneWirePin.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="platform\avr\OneWire.h">
+    <Compile Include="platform\avr\OneWirePin.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="platform\avr\Pins.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="platform\avr\Platform.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="platform\avr\Platform.h">
@@ -458,6 +486,7 @@
   <ItemGroup>
     <Folder Include="app\controller\" />
     <Folder Include="app\devices\" />
+    <Folder Include="app\devices\OneWire\" />
     <Folder Include="app\fallback\" />
     <Folder Include="app" />
     <Folder Include="platform" />
