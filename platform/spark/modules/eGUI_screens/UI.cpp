@@ -52,6 +52,7 @@ const D4D_OBJECT* views[] = { &scrBoot_devices0, &scrBoot_devices1, &scrBoot_dev
 ConnectedDevicesManager mgr;
 ConnectedDevicesPresenter presenter(&mgr, views, 5);
 
+
 extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
 {
     bool checked = D4D_CheckBoxGetValue(pThis);
@@ -70,6 +71,7 @@ extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
     }
 }
 
+D4D_EXTERN_OBJECT(scrBoot_Toggle);
 
 uint32_t UI::showStartupPage()
 {
@@ -80,6 +82,7 @@ uint32_t UI::showStartupPage()
     }
             
     D4D_ActivateScreen(&screen_boot, D4D_TRUE);
+    D4D_EnableObject(&scrBoot_Toggle, D4D_TRUE);
     D4D_Poll();
     return 0;
 }
@@ -119,7 +122,7 @@ void UI::update() {
     
     static uint32_t last = 0;    
     uint32_t now = millis();
-    if (now-last>=1000) {
+    if (now-last>=800) {
         last = now;
         mgr.update();
     }

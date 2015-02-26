@@ -99,14 +99,14 @@ public:
         
         // only show temp when connected
         buf[0] = 0;
-        if (connected) {
+        if (connected)
             valueAsText(device, buf, sizeof(buf));
-        }
-        view.setValueText(buf);
-        
-        // always show last connection, so users see the system remembers the placement.        
+        view.setValueText(buf);        
+
+        buf[0] = 0;
+        if (connected)
+            view.setConnectionText(buf);
         connectionAsText(device, buf, sizeof(buf));
-        view.setConnectionText(buf);
         
         view.invalidate();
     }
