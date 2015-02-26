@@ -68,12 +68,12 @@ bool DallasTemperature::initConnection(const uint8_t* deviceAddress) {
 
 bool DallasTemperature::detectedReset(const uint8_t* scratchPad)
 {
-	#if REQUIRESRESETDETECTION
-	bool reset = (scratchPad[HIGH_ALARM_TEMP]==0);
-	return reset;
-	#else
-	return false;
-	#endif
+    #if REQUIRESRESETDETECTION
+    bool reset = (scratchPad[HIGH_ALARM_TEMP]==0);
+    return reset;
+    #else
+    return false;
+    #endif
 }
 
 #if REQUIRESDEVICEENUM
@@ -267,7 +267,8 @@ bool DallasTemperature::isParasitePowered(const uint8_t* deviceAddress)
     bool ret = false;
     sendCommand(deviceAddress, READPOWERSUPPLY);
     // Parasite powered sensors pull the bus low
-    if (_wire->read_bit() == 0) ret = true;
+    if (_wire->read_bit() == 0)
+        ret = true;
     _wire->reset();
     return ret;
 }
@@ -450,9 +451,12 @@ bool DallasTemperature::requestTemperaturesByAddress(const uint8_t* deviceAddres
 
     // check device
     ScratchPad scratchPad;
-    if (!isConnected(deviceAddress, scratchPad) || detectedReset(scratchPad)) {
-		return false;
-	}
+    if( !isConnected(deviceAddress, scratchPad) ){
+        return false;
+    }
+    if( detectedReset(scratchPad) ){
+        return false;
+    }
 
     // ASYNC mode?
 #if REQUIRESWAITFORCONVERSION
@@ -569,8 +573,14 @@ int16_t DallasTemperature::calculateTemperature(const uint8_t* deviceAddress, ui
 int16_t DallasTemperature::getTempRaw(const uint8_t* deviceAddress)
 {
     ScratchPad scratchPad;
-    if (isConnected(deviceAddress, scratchPad) && !detectedReset(scratchPad)) return calculateTemperature(deviceAddress, scratchPad);	
-    return DEVICE_DISCONNECTED;		// use a value that the sensor could not ordinarily measure
+    if( !isConnected(deviceAddress, scratchPad) ){
+        return DEVICE_DISCONNECTED;
+    }
+    if( detectedReset(scratchPad) )
+    {
+        return DEVICE_DISCONNECTED;
+    }
+    return calculateTemperature(deviceAddress, scratchPad);     
 }
 
 #if REQUIRESTEMPCONVERSION
