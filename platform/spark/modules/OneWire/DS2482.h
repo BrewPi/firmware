@@ -52,7 +52,7 @@ public:
     bool configure(uint8_t config);
     
     uint8_t pinNr(){
-        return mAddress; // return I2C address instead of pinNr
+        return mAddress & 0b11; // return lower bits of I2C address instead of pin
     }
 
     // Perform the onewire reset function.  We will wait up to 250uS for
