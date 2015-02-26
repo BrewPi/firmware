@@ -167,7 +167,7 @@ class DallasTemperature
 
   // attempt to determine if the device at the given address is connected to the bus
   // also allows for updating the read scratchpad
-  bool isConnected(const uint8_t*, uint8_t*);
+  bool readScratchPadCRC(const uint8_t*, uint8_t*);
 
   // read device's scratchpad
   void readScratchPad(const uint8_t*, uint8_t*);
@@ -217,7 +217,7 @@ class DallasTemperature
 #endif  
    
   // sends command for one device to perform a temperature conversion by address
-  bool requestTemperaturesByAddress(const uint8_t*);
+  void requestTemperaturesByAddress(const uint8_t*);
 
 
 #if REQUIRESINDEXEDADDRESSING
