@@ -71,26 +71,23 @@ extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
 }
 
 
-
 uint32_t UI::showStartupPage()
 {
     // Check if touch screen has been calibrated
     if (!eGuiSettings.loadTouchCalib()) {
         // could not load valid settings from flash memory
-        D4D_CalibrateTouchScreen();
-        eGuiSettings.storeTouchCalib();
+        calibrateTouchScreen();
     }
             
     D4D_ActivateScreen(&screen_boot, D4D_TRUE);
     D4D_Poll();
     return 0;
 }
-        
+
 /**
  * Show the main controller page. 
  */
-void UI::showControllerPage()
-{
+void UI::showControllerPage() {
     // for now we in fact show what will be the startup page.     
 }
 
@@ -111,8 +108,7 @@ void ConnectedDeviceUpdate(ConnectedDevicesManager* mgr, int index, ConnectedDev
     }
 }
 
-void UI::update() 
-{
+void UI::update() {
     D4D_TimeTickPut();
     D4D_CheckTouchScreen();
     D4D_Poll();
@@ -129,5 +125,10 @@ void UI::update()
     }
 }
 
-
- 
+/**
+ * Show touch screen calibration screen store settings afterwards
+ */
+void UI::calibrateTouchScreen() {
+    D4D_CalibrateTouchScreen();
+    eGuiSettings.storeTouchCalib();
+}

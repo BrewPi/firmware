@@ -35,6 +35,7 @@
 #include "SettingsManager.h"
 #include "Display.h"
 #include "PiLinkHandlers.h"
+#include "UI.h"
 
 #if BREWPI_SIMULATE
 #include "Simulator.h"
@@ -254,6 +255,10 @@ void PiLink::receive(void){
             flashFirmware();
             break;
             
+            case 'T':
+                ui.calibrateTouchScreen();
+                break;
+
 		default:
 			logWarningInt(WARNING_INVALID_COMMAND, inByte);
 		}
