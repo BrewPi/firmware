@@ -26,6 +26,10 @@ void UI::showControllerPage()
     // a no-op - we only have the controller page
 }
 
+void UI::calibrateTouchScreen()
+{
+   // a no-op - touch screen not available on AVR 
+}
 
 void UI::update() {
 #if BREWPI_BUZZER
