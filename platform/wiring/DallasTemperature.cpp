@@ -13,6 +13,7 @@
 #include "Brewpi.h"
 #include "DallasTemperature.h"
 #include "Ticks.h"
+#include "Logger.h"
 
 DallasTemperature::DallasTemperature(OneWire* _oneWire)
 #if REQUIRESALARMS
@@ -76,7 +77,7 @@ bool DallasTemperature::detectedReset(const uint8_t* scratchPad)
 }
 
 #if REQUIRESDEVICEENUM
-// initialise the bus
+// initialize the bus
 void DallasTemperature::begin(void)
 {
     DeviceAddress deviceAddress;
@@ -154,12 +155,13 @@ bool DallasTemperature::isConnected(const uint8_t* deviceAddress)
 bool DallasTemperature::isConnected(const uint8_t* deviceAddress, uint8_t* scratchPad)
 {
     readScratchPad(deviceAddress, scratchPad);
+    bool crcMatch = _wire->crc8(scratchPad, 8) == scratchPad[SCRATCHPAD_CRC];
 	// Also check that device is not parasite powered, if this is disabled.
-	// Thiss is to prevent sensors with a loose 5V line to be detected
+    // This is to prevent sensors with a loose 5V line to be detected
 	#if REQUIRESPARASITEPOWERAVAILABLE
-		return (_wire->crc8(scratchPad, 8) == scratchPad[SCRATCHPAD_CRC]);
+        return (crcMatch);
 	#else
-		return (_wire->crc8(scratchPad, 8) == scratchPad[SCRATCHPAD_CRC] && !readPowerSupply(deviceAddress));
+        return (crcMatch && !isParasitePowered(deviceAddress));
 	#endif
 }
 
@@ -260,10 +262,11 @@ void DallasTemperature::writeScratchPad(const uint8_t* deviceAddress, const uint
 }
 
 // reads the device's power requirements
-bool DallasTemperature::readPowerSupply(const uint8_t* deviceAddress)
+bool DallasTemperature::isParasitePowered(const uint8_t* deviceAddress)
 {
     bool ret = false;
     sendCommand(deviceAddress, READPOWERSUPPLY);
+    // Parasite powered sensors pull the bus low
     if (_wire->read_bit() == 0) ret = true;
     _wire->reset();
     return ret;

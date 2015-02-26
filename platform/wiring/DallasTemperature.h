@@ -176,7 +176,7 @@ class DallasTemperature
   void writeScratchPad(const uint8_t*, const uint8_t*, boolean copyToEeprom);
 
   // read device's power requirements
-  bool readPowerSupply(const uint8_t*);
+  bool isParasitePowered(const uint8_t*);
 
   // get global resolution
   uint8_t getResolution();
