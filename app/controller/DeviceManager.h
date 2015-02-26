@@ -81,15 +81,21 @@ enum DeviceType {
 	DEVICETYPE_SWITCH_ACTUATOR=3	/* Actuator - both direct pin and onewire are supported */	
 };
 
+enum DeviceConnection {
+    DEVICE_CONNECTION_PIN,
+    DEVICE_CONNECTION_ONEWIRE,
+    // I2C, etc..
+};
+
 /*
  * The concrete type of the device. 
  */
 enum DeviceHardware { 
 	DEVICE_HARDWARE_NONE=0,
 	DEVICE_HARDWARE_PIN=1,			// a digital pin, either input or output
-	DEVICE_HARDWARE_ONEWIRE_TEMP=2,	// a onewire temperature sensor
+	DEVICE_HARDWARE_ONEWIRE_TEMP=2,         // a onewire temperature sensor
 #if BREWPI_DS2413
-	DEVICE_HARDWARE_ONEWIRE_2413=3	// a onewire 2-channel PIO input or output.
+	DEVICE_HARDWARE_ONEWIRE_2413=3          // a onewire 2-channel PIO input or output.
 #endif	
 };
 
@@ -113,6 +119,10 @@ inline bool isOneWire(DeviceHardware hardware) {
 
 inline bool isDigitalPin(DeviceHardware hardware) {
 	return hardware==DEVICE_HARDWARE_PIN;
+}
+
+inline DeviceConnection deviceConnection(DeviceHardware hardware) {
+    return isOneWire(hardware) ? DEVICE_CONNECTION_ONEWIRE : DEVICE_CONNECTION_PIN;
 }
 
 extern DeviceType deviceType(DeviceFunction id);

@@ -1,5 +1,3 @@
-#pragma once
-
 /**
  ******************************************************************************
  * @file    ConnectedDevicesManager.cpp
@@ -22,6 +20,9 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************
  */
+
+#pragma once
+
 #include "EepromManager.h"		// for clear()
 #include "OneWireDevices.h"
 #include "DeviceManager.h"
@@ -29,48 +30,70 @@
 #include "Actuator.h"
 #include "Sensor.h"
 #include "PiLink.h"
+#include "Pins.h"
+#include "fixstl.h"
+#include "ActuatorPin.h"
+#include <functional>
+
 
 #define MAX_TEMP_SENSORS
 
+
+#define MAX_CONNECTED_DEVICES 5
+
 /**
- * Periodically scan the device manager.
- * Don't use DM's value function since it waits 750ms per device.
- *  Looks specifically for temperature sensors. 
+ * Describes a device presently connected or previously connected to the controller.
  */
-
-#define MAX_CONNECTED_DEVICES 4
-
-struct ConnectedDevice {
-    DeviceAddress address;
+struct ConnectedDevice 
+{    
     int8_t lastSeen;
     DeviceType dt;
+    DeviceHardware dh;
 
-    union {
-        temperature temp;
-        bool state;
+    struct Connection {
+        DeviceConnection type;
+        union {
+            DeviceAddress address;  // type == DEVICECONNECTION_ONEWIRE
+            int pin;                // type == DEVICECONNECTION_PIN
+        };
+    } connection;
+    
+    union Value {
+        temperature temp;       // dt==DEVICETYPE_TEMP_SENSOR
+        bool state;             // dt==DEVICETYPE_SWITCH_SENSOR ||
+                                // dt==DEVICETYPE_ACTUATOR
     } value;
 
-    union {
+    union Device {
         void* any;
-        BasicTempSensor* tempSensor;
-        Actuator* actuator;
-        SwitchSensor* sensor;
+        BasicTempSensor* tempSensor;    // dt==DEVICETYPE_TEMP_SENSOR
+        Actuator* actuator;             // dt==DEVICETYPE_ACTUATOR
+        SwitchSensor* sensor;           // dt==DEVICETYPE_SWITCH_SENSOR
     } pointer;
 };
 
-enum ConnectedDeviceChange {
+void valueAsText(const ConnectedDevice* device, char* buf, size_t len);
+void connectionAsText(const ConnectedDevice* device, char* buf, size_t len);
+char* itoa(int i, char b[]);
+
+enum ConnectedDeviceChange 
+{
     ADDED,
     UPDATED,
     REMOVED
 };
 
 class ConnectedDevicesManager;
-typedef void (*NotifyDevicesChanged)(ConnectedDevicesManager* mgr, int slot, ConnectedDevice* device, ConnectedDeviceChange change);
 
-class ConnectedDevicesManager {
+typedef std::function<void(const ConnectedDevicesManager* mgr, int slot, const ConnectedDevice* device, ConnectedDeviceChange change)> NotifyDevicesChanged;
+
+class ConnectedDevicesManager 
+{
     ConnectedDevice devices[MAX_CONNECTED_DEVICES];
-    NotifyDevicesChanged changed;
+    NotifyDevicesChanged changed;    
 
+    Actuator* actuators[3];
+    
     /**
      * Find a slot that matches the given device config.
      * The slot is matching if the address matches.
@@ -81,10 +104,15 @@ class ConnectedDevicesManager {
         int slot = -1;
         for (int i = 0; i < MAX_CONNECTED_DEVICES; i++) {
             ConnectedDevice& device = devices[i];
-            if (!memcmp(device.address, config->hw.address, 8)
-                    && (!active || (device.pointer.any && device.lastSeen >= 0 && device.lastSeen <= 2))) {
+            
+            if (config->deviceHardware==device.dh) {        // same hardware type
+                if (device.connection.type==DEVICE_CONNECTION_ONEWIRE &&
+                    !memcmp(device.connection.address, config->hw.address, 8) && 
+                    (!active || (device.pointer.any && device.lastSeen >= 0 && device.lastSeen <= 2))) 
+                {
                 slot = i;
                 break;
+                }
             }
         }
         return slot;
@@ -118,43 +146,7 @@ class ConnectedDevicesManager {
         cdm->handleDevice(config, info);
     }
 
-    void handleDevice(DeviceConfig* config, DeviceCallbackInfo* info) {
-        if (config->deviceHardware == DEVICE_HARDWARE_ONEWIRE_TEMP) {
-            char addressString[17];
-            printBytes(config->hw.address, 8, addressString);
-
-            int slot = existingSlot(config);
-            if (slot >= 0) { // found the device still active
-                devices[slot].lastSeen = 0; // seen this one now
-                devices[slot].value.temp = devices[slot].pointer.tempSensor->read();
-                if(devices[slot].value.temp == TEMP_SENSOR_DISCONNECTED){
-                    devices[slot].pointer.tempSensor->init();                    
-                }
-                changed(this, slot, devices + slot, UPDATED);
-            } else {
-                // attempt to reuse previous location
-                slot = existingSlot(config, false);
-                if (slot < 0)
-                    slot = freeSlot(config);
-                if (slot >= 0) {
-                    clearSlot(slot);
-                    sendRemoveEvent(slot);
-                    ConnectedDevice& device = devices[slot];
-                    device.lastSeen = 0;
-                    device.dt = DEVICETYPE_TEMP_SENSOR;
-                    memcpy(device.address, config->hw.address, 8);
-                    device.value.temp = MIN_TEMP; // flag invalid
-                    device.pointer.tempSensor = (BasicTempSensor*) DeviceManager::createDevice(*config, device.dt);
-                    if (!device.pointer.tempSensor || !device.pointer.tempSensor->init()) {
-                        clearSlot(slot);
-                        device.lastSeen = -1; // don't send REMOVED event since no added event has been sent
-                    } else
-                        changed(this, slot, devices + slot, ADDED); // new device added					
-                }
-                // just ignore the device - not enough free slots
-            }
-        }
-    }
+    void handleDevice(DeviceConfig* config, DeviceCallbackInfo* info);
 
     void sendRemoveEvent(int i) {
         if (!devices[i].pointer.any && devices[i].lastSeen != -1) {
@@ -165,41 +157,40 @@ class ConnectedDevicesManager {
 
 public:
 
-    ConnectedDevicesManager(NotifyDevicesChanged listener) {
+    ConnectedDevicesManager() {
         clear((uint8_t*) & devices, sizeof (devices));
+        for (int i = 0; i < MAX_CONNECTED_DEVICES; i++) {
+            devices[i].dt = DEVICETYPE_NONE;            
+        }        
+
+        // todo - pull the definitions of the static devices from the device manager.
+        actuators[0] = new DigitalPinActuator(actuatorPin1, BREWPI_INVERT_ACTUATORS);
+        actuators[1] = new DigitalPinActuator(actuatorPin2, BREWPI_INVERT_ACTUATORS);
+        actuators[2] = new DigitalPinActuator(actuatorPin3, BREWPI_INVERT_ACTUATORS);
+    }
+    
+    ~ConnectedDevicesManager() {
+        for (int i=0; i<3; i++) {
+            delete actuators[i];
+        }            
+        
+        for (int i = 0; i < MAX_CONNECTED_DEVICES; i++) {
+            clearSlot(i);
+        }        
+    }
+    
+    void setListener(NotifyDevicesChanged listener)
+    {
         changed = listener;
     }
 
-    ~ConnectedDevicesManager() {
-        for (int i = 0; i < MAX_CONNECTED_DEVICES; i++) {
-            clearSlot(i);
-        }
+    void update();
+    
+    Actuator* actuator(size_t index) {
+        return actuators[index];
     }
-
-    void update() {
-        DeviceCallbackInfo info;
-        info.data = this;
-        EnumerateHardware spec;
-        memset(&spec, 0, sizeof (spec));
-        spec.pin = -1; // any pin
-        spec.hardware = -1; // any hardware
-
-        // increment the last seen for all devices        
-        for (int i = 0; i < MAX_CONNECTED_DEVICES; i++) {
-            if (devices[i].pointer.any)
-                devices[i].lastSeen++;
-        }
-        DeviceManager::enumerateHardware(spec, deviceCallback, &info);
-
-        // flag disconnected slots as disconnected (once only)
-        // This also ensures that the first update posts the states of disconnected slots.
-        for (int i = 0; i < MAX_CONNECTED_DEVICES; i++) {
-            if (devices[i].lastSeen > 2) {
-                clearSlot(i);
-            }
-            sendRemoveEvent(i);
-        }
-
+    
+    const ConnectedDevice* device(size_t index) {
+        return &devices[index];
     }
-
 };

@@ -238,7 +238,7 @@
 ******************************************************************************/
 
 // standard normal color fore
-#define D4D_COLOR_FORE_NORM  D4D_COLOR_YELLOW
+#define D4D_COLOR_FORE_NORM  D4D_COLOR_WHITE
 // standard normal color background
 #define D4D_COLOR_BCKG_NORM  D4D_COLOR_LIGHT_GREY
 
@@ -271,7 +271,9 @@
 * Properties
 ***********************/
 
+#ifndef D4D_BTN_F_DEFAULT
 #define D4D_BTN_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_BTN_F_3D | D4D_OBJECT_F_BEVEL_RAISED /*| D4D_BTN_F_CONT_RECT */)
+#endif
 
 //#define D4D_BTN_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
 //#define D4D_BTN_FNT_PRTY_DEFAULT  ( 0 )

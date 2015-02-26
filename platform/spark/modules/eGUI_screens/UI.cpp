@@ -18,22 +18,24 @@
  */
 
 #include "Brewpi.h"
+#include "fixstl.h"
 #include "UI.h"
 #include "Buzzer.h"
 #include "eGuiSettings.h"
 #include "ConnectedDevicesManager.h"
 #include "PiLink.h"
 
+#include "brewpi_boot_screen.h"
+#include "ConnectedDevicesView.h"
+
 extern "C" {
 #include "d4d.h"
 }
 
-#include "brewpi_boot_screen.h"
-
 eGuiSettingsClass eGuiSettings;
 
 uint8_t UI::init() {
-    if (!D4D_Init(&screen_boot))
+    if (!D4D_Init(NULL))
         return 1;
     
     D4D_SetOrientation(D4D_ORIENT_LANDSCAPE);
@@ -46,17 +48,41 @@ uint8_t UI::init() {
     return 0;
 }
 
+const D4D_OBJECT* views[] = { &scrBoot_devices0, &scrBoot_devices1, &scrBoot_devices2, &scrBoot_devices3, &scrBoot_devices4 };
+ConnectedDevicesManager mgr;
+ConnectedDevicesPresenter presenter(&mgr, views, 5);
+
+extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
+{
+    bool checked = D4D_CheckBoxGetValue(pThis);
+    
+    int idx = -1;
+    if (pThis==&scrBoot_actuator1)
+        idx = 0;
+    else if (pThis==&scrBoot_actuator2)
+        idx = 1;
+    if (pThis==&scrBoot_actuator3)
+        idx = 2;
+    
+    if (idx>=0) {
+        Actuator* actuator = mgr.actuator(idx);
+        actuator->setActive(checked);
+    }
+}
+
+
+
 uint32_t UI::showStartupPage()
 {
     // Check if touch screen has been calibrated
-    if(!eGuiSettings.loadTouchCalib()){
+    if (!eGuiSettings.loadTouchCalib()) {
         // could not load valid settings from flash memory
-    D4D_CalibrateTouchScreen();
+        D4D_CalibrateTouchScreen();
         eGuiSettings.storeTouchCalib();
     }
-    // Poll to show boot screen
-    D4D_Poll();    
-    
+            
+    D4D_ActivateScreen(&screen_boot, D4D_TRUE);
+    D4D_Poll();
     return 0;
 }
         
@@ -65,11 +91,11 @@ uint32_t UI::showStartupPage()
  */
 void UI::showControllerPage()
 {
-    // for now we in fact show what will be the startup page. 
-    
+    // for now we in fact show what will be the startup page.     
 }
 
-void ConnectedDeviceUpdate(ConnectedDevicesManager* mgr, int index, ConnectedDevice* device, ConnectedDeviceChange change) {
+void ConnectedDeviceUpdate(ConnectedDevicesManager* mgr, int index, ConnectedDevice* device, ConnectedDeviceChange change) 
+{
     char buf[10];
     switch (change) {
         case ADDED:    
@@ -85,19 +111,17 @@ void ConnectedDeviceUpdate(ConnectedDevicesManager* mgr, int index, ConnectedDev
     }
 }
 
-ConnectedDevicesManager mgr(ConnectedDeviceUpdate);
-
 void UI::update() 
 {
     D4D_TimeTickPut();
     D4D_CheckTouchScreen();
     D4D_Poll();
+    
     #if BREWPI_BUZZER
 	buzzer.setActive(alarm.isActive() && !buzzer.isActive());
     #endif
     
-    static uint32_t last = 0;
-    
+    static uint32_t last = 0;    
     uint32_t now = millis();
     if (now-last>=1000) {
         last = now;

@@ -587,7 +587,7 @@ void parseBytes(uint8_t* data, const char* s, uint8_t len) {
 	}
 }
 
-void printBytes(uint8_t* data, uint8_t len, char* buf) // prints 8-bit data in hex
+void printBytes(const uint8_t* data, uint8_t len, char* buf) // prints 8-bit data in hex
 {
 	for (int i=0; i<len; i++) {
 		uint8_t b = (data[i] >> 4) & 0x0f;
