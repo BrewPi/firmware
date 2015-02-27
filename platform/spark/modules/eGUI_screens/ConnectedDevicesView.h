@@ -68,10 +68,10 @@ public:
         D4D_CDV_SetConnectionText(pObject, text);
     }
     
-    void setConnected(bool connected) {
+    void setConnected(bool connected) {                
         D4D_EnableObject(pObject, connected);
         D4D_EnableObject(D4D_CDV_CONNECTION(pObject), connected);
-        D4D_EnableObject(D4D_CDV_VALUE(pObject), connected);
+        //D4D_EnableObject(D4D_CDV_VALUE(pObject), connected);
     }
     
 };
@@ -99,14 +99,12 @@ public:
         
         // only show temp when connected
         buf[0] = 0;
-        if (connected)
-            valueAsText(device, buf, sizeof(buf));
+        valueAsText(device, buf, sizeof(buf));
         view.setValueText(buf);        
 
         buf[0] = 0;
-        if (connected)
-            view.setConnectionText(buf);
         connectionAsText(device, buf, sizeof(buf));
+        view.setConnectionText(buf);
         
         view.invalidate();
     }

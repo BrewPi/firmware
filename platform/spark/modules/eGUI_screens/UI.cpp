@@ -47,15 +47,12 @@ uint8_t UI::init() {
     return 0;
 }
 
-const D4D_OBJECT* views[] = { &scrBoot_devices0, &scrBoot_devices1, &scrBoot_devices2, &scrBoot_devices3, &scrBoot_devices4 };
+const D4D_OBJECT* views[] = { &scrBoot_devices00, &scrBoot_devices10, &scrBoot_devices20, &scrBoot_devices01, &scrBoot_devices11, &scrBoot_devices21 };
 ConnectedDevicesManager mgr;
-ConnectedDevicesPresenter presenter(&mgr, views, 5);
-
+ConnectedDevicesPresenter presenter(&mgr, views, 6);
 
 extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
 {
-    bool checked = D4D_CheckBoxGetValue(pThis);
-    
     int idx = -1;
     if (pThis==&scrBoot_actuator1)
         idx = 0;
@@ -66,11 +63,11 @@ extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
     
     if (idx>=0) {
         Actuator* actuator = mgr.actuator(idx);
-        actuator->setActive(checked);
+        bool active = !actuator->isActive();
+        actuator->setActive(active);
+        SetActuatorButtonState(pThis, active);
     }
 }
-
-D4D_EXTERN_OBJECT(scrBoot_Toggle);
 
 uint32_t UI::showStartupPage()
 {
@@ -81,7 +78,6 @@ uint32_t UI::showStartupPage()
     }
             
     D4D_ActivateScreen(&screen_boot, D4D_TRUE);
-    D4D_EnableObject(&scrBoot_Toggle, D4D_TRUE);
     D4D_Poll();
     return 0;
 }

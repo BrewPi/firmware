@@ -39,7 +39,7 @@
 #define MAX_TEMP_SENSORS
 
 
-#define MAX_CONNECTED_DEVICES 5
+#define MAX_CONNECTED_DEVICES 6
 
 /**
  * Describes a device presently connected or previously connected to the controller.
