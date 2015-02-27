@@ -27,8 +27,8 @@
 #include "Ticks.h"
 #include "TemperatureFormats.h"
 
-OneWireTempSensor::~OneWireTempSensor(){
-	delete sensor;
+OneWireTempSensor::~OneWireTempSensor() {
+    delete sensor;
 };
 
 /**
@@ -37,81 +37,78 @@ OneWireTempSensor::~OneWireTempSensor(){
  * If the result is TEMP_SENSOR_DISCONNECTED then subsequent calls to read() will also return TEMP_SENSOR_DISCONNECTED.
  * Clients should attempt to re-initialize the sensor by calling init() again. 
  */
-bool OneWireTempSensor::init(){
+bool OneWireTempSensor::init() {
 
-	// save address and pinNr for log messages
-	char addressString[17];
-	printBytes(sensorAddress, 8, addressString);
-	#if BREWPI_DEBUG
-	uint8_t pinNr = oneWire->pinNr();
-	#endif
+    // save address and pinNr for log messages
+    char addressString[17];
+    printBytes(sensorAddress, 8, addressString);
+#if BREWPI_DEBUG
+    uint8_t pinNr = oneWire->pinNr();
+#endif
 
-	bool success = false;
+    bool success = false;
 
-	if (sensor==NULL) {
-		sensor = new DallasTemperature(oneWire);
-		if (sensor==NULL) {
-			logErrorString(ERROR_SRAM_SENSOR, addressString);
-		}
-	}
-	
-	logDebug("init onewire sensor");
-	// This quickly tests if the sensor is connected and initializes the reset detection.
-	// During the main TempControl loop, we don't want to spend many seconds
-	// scanning each sensor since this brings things to a halt.
-	if (sensor && sensor->initConnection(sensorAddress) && requestConversion()) {
-		logDebug("init onewire sensor - wait for conversion");
-		waitForConversion();
-		temperature temp = readAndConstrainTemp();
-		DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temp));
-		success = temp!=DEVICE_DISCONNECTED && requestConversion();
-	}	
-	setConnected(success);
-	logDebug("init onewire sensor complete %d", success);
-	return success;
+    if (sensor == NULL) {
+        sensor = new DallasTemperature(oneWire);
+        if (sensor == NULL) {
+            logErrorString(ERROR_SRAM_SENSOR, addressString);
+        }
+    }
+
+    logDebug("init onewire sensor");
+    // This quickly tests if the sensor is connected and initializes the reset detection.
+    // During the main TempControl loop, we don't want to spend many seconds
+    // scanning each sensor since this brings things to a halt.
+    if (sensor && sensor->initConnection(sensorAddress)){
+        requestConversion();
+        logDebug("init onewire sensor - wait for conversion");
+        waitForConversion();
+        temperature temp = readAndConstrainTemp();
+        DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temp));
+        success = temp != DEVICE_DISCONNECTED;
+        requestConversion(); // piggyback request for a new conversion
+    }
+    setConnected(success);
+    logDebug("init onewire sensor complete %d", success);
+    return success;
 }
 
-bool OneWireTempSensor::requestConversion()
-{	
-	bool ok = sensor->requestTemperaturesByAddress(sensorAddress);
-	setConnected(ok);
-	return ok;
+void OneWireTempSensor::requestConversion() {
+    sensor->requestTemperaturesByAddress(sensorAddress);
 }
 
 void OneWireTempSensor::setConnected(bool connected) {
-	if (this->connected==connected)
-		return; // state is stays the same
-		
-	char addressString[17];
-	printBytes(sensorAddress, 8, addressString);
-	this->connected = connected;
-	if(connected){
-		logInfoIntString(INFO_TEMP_SENSOR_CONNECTED, this->oneWire->pinNr(), addressString);
-	}
-	else{
-		logWarningIntString(WARNING_TEMP_SENSOR_DISCONNECTED, this->oneWire->pinNr(), addressString);
-	}
+    if (this->connected == connected)
+        return; // state is stays the same
+
+    char addressString[17];
+    printBytes(sensorAddress, 8, addressString);
+    this->connected = connected;
+    if (connected) {
+        logInfoIntString(INFO_TEMP_SENSOR_CONNECTED, this->oneWire->pinNr(), addressString);
+    } else {
+        logWarningIntString(WARNING_TEMP_SENSOR_DISCONNECTED, this->oneWire->pinNr(), addressString);
+    }
 }
 
-temperature OneWireTempSensor::read(){
-	
-	if (!connected)
-		return TEMP_SENSOR_DISCONNECTED;
-	
-	temperature temp = readAndConstrainTemp();
-	requestConversion();
-	return temp;
+temperature OneWireTempSensor::read() {
+
+    if (!connected)
+        return TEMP_SENSOR_DISCONNECTED;
+
+    temperature temp = readAndConstrainTemp();
+    requestConversion();
+    return temp;
 }
 
-temperature OneWireTempSensor::readAndConstrainTemp()
-{
-	temperature temp = sensor->getTempRaw(sensorAddress);
-	if(temp == DEVICE_DISCONNECTED){
-		setConnected(false);
-		return TEMP_SENSOR_DISCONNECTED;
-	}
-	
-	const uint8_t shift = TEMP_FIXED_POINT_BITS-ONEWIRE_TEMP_SENSOR_PRECISION; // difference in precision between DS18B20 format and temperature adt
-	temp = constrainTemp(temp+calibrationOffset+(C_OFFSET>>shift), ((int) MIN_TEMP)>>shift, ((int) MAX_TEMP)>>shift)<<shift;
-	return temp;
+temperature OneWireTempSensor::readAndConstrainTemp() {
+    temperature temp = sensor->getTempRaw(sensorAddress);
+    if (temp == DEVICE_DISCONNECTED) {
+        setConnected(false);
+        return TEMP_SENSOR_DISCONNECTED;
+    }
+
+    const uint8_t shift = TEMP_FIXED_POINT_BITS - ONEWIRE_TEMP_SENSOR_PRECISION; // difference in precision between DS18B20 format and temperature adt
+    temp = constrainTemp(temp + calibrationOffset + (C_OFFSET >> shift), ((int) MIN_TEMP) >> shift, ((int) MAX_TEMP) >> shift) << shift;
+    return temp;
 }
