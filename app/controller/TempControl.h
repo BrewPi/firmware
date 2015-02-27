@@ -27,7 +27,7 @@
 #include "Sensor.h"
 #include "EepromManager.h"
 #include "ActuatorAutoOff.h"
-
+#include "ModeControl.h"
 
 // Set minimum off time to prevent short cycling the compressor in seconds
 const uint16_t MIN_COOL_OFF_TIME = 300;
@@ -47,7 +47,7 @@ const uint16_t HEAT_PEAK_DETECT_TIME = 900;
 
 // These two structs are stored in and loaded from EEPROM
 struct ControlSettings{
-	char mode;
+	control_mode_t mode;
 	temperature beerSetting;
 	temperature fridgeSetting;
 	temperature heatEstimator; // updated automatically by self learning algorithm
@@ -99,13 +99,6 @@ struct ControlConstants{
 #define EEPROM_TC_SETTINGS_BASE_ADDRESS 0
 #define EEPROM_CONTROL_SETTINGS_ADDRESS (EEPROM_TC_SETTINGS_BASE_ADDRESS+sizeof(uint8_t))
 #define EEPROM_CONTROL_CONSTANTS_ADDRESS (EEPROM_CONTROL_SETTINGS_ADDRESS+sizeof(ControlSettings))
-
-#define	MODE_FRIDGE_CONSTANT 'f'
-#define MODE_BEER_CONSTANT 'b'
-#define MODE_BEER_PROFILE 'p'
-#define MODE_OFF 'o'
-#define MODE_TEST 't'
-
 
 enum states{
 	IDLE,						// 0
@@ -182,8 +175,8 @@ class TempControl{
 		return ambientSensor->read();
 	}
 		
-	TEMP_CONTROL_METHOD void setMode(char newMode, bool force=false);
-	TEMP_CONTROL_METHOD char getMode(void) {
+	TEMP_CONTROL_METHOD void setMode(control_mode_t newMode, bool force=false);
+	TEMP_CONTROL_METHOD control_mode_t getMode(void) {
 		return cs.mode;
 	}
 

@@ -6,6 +6,7 @@
 #include "connected_device_widget.h"
 #include "widget_color_scheme.h"
 #include "spark_macros.h"
+#include "ModeControl.h"
 #include <string.h>
 
 #define INACTIVE_BG_COLOR D4D_COLOR_RGB(24,24,24)
@@ -62,7 +63,7 @@ D4D_DECLARE_STD_LABEL(scrBoot_lblVersion, "0.2.6", 10, 30, 50, 20, FONT_ARIAL7);
 D4D_DECLARE_STD_PICTURE(scrBoot_bmpLogo, 10, 50, 50, 50, &bmp_brewpi_logo_48_30);
 
 #define D4D_DECLARE_ACTUATOR(idx)\
-     _D4D_DECLARE_ACTUATOR(scrBoot_actuator##idx, idx, 25+((idx-1)*90), 0, 86, 50, FONT_ARIAL7, FONT_ARIAL7_BIG)
+     _D4D_DECLARE_ACTUATOR(scrBoot_actuator##idx, idx, 25+((2-(idx-1))*90), 0, 86, 50, FONT_ARIAL7, FONT_ARIAL7_BIG)
 
 #define D4D_ACTUATOR_FLAGS (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_BTN_F_3D | D4D_OBJECT_F_BEVEL_RAISED | D4D_BTN_F_CONT_RECT )
 
@@ -127,14 +128,15 @@ static void ScreenBoot_OnMain()
     
 }
 
+control_mode_t prev_mode;
 static void ScreenBoot_OnActivate()
 {
-    
+    prev_mode = ModeControl_SetMode(MODE_TEST);
 }
 
 static void ScreenBoot_OnDeactivate()
 {
-    
+    ModeControl_SetMode(prev_mode);
 }
 
 static Byte ScreenBoot_OnObjectMsg(D4D_MESSAGE* pMsg)
