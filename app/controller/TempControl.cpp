@@ -30,6 +30,7 @@
 #include "TempSensorMock.h"
 #include "EepromManager.h"
 #include "TempSensorDisconnected.h"
+#include "ModeControl.h"
 
 TempControl tempControl;
 
@@ -661,3 +662,16 @@ const ControlConstants TempControl::ccDefaults PROGMEM =
 
 	/* pidMax */ intToTempDiff(10),	// +/- 10 deg Celsius
 };
+
+control_mode_t ModeControl_GetMode()
+{
+    return tempControl.getMode();
+}
+
+control_mode_t ModeControl_SetMode(control_mode_t mode)
+{
+    control_mode_t prev = tempControl.getMode();
+    tempControl.setMode(mode, true);
+    return prev;
+}
+
