@@ -92,12 +92,11 @@ void setup()
 	logDebug("init complete");
 }
 
-
 void brewpiLoop(void)
 {
 	static unsigned long lastUpdate = 0;
 	uint8_t oldState;
-			
+    ui.ticks();
 	if(ticks.millis() - lastUpdate >= (1000)) { //update settings every second
 		lastUpdate = ticks.millis();
 			

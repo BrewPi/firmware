@@ -25,6 +25,12 @@ struct UI {
     static void showControllerPage();
 
     /**
+     * Called as often as possible by the application. Allows the UI to peform
+     * quick background tasks, such as reading the touch screen.
+     */    
+    static void ticks();
+    
+    /**
      * Called from the main loop to update the current page and perform event
      * processing.
      */

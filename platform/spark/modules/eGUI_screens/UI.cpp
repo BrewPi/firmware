@@ -39,7 +39,6 @@ uint8_t UI::init() {
         return 1;
     
     D4D_SetOrientation(D4D_ORIENT_LANDSCAPE);
-    D4D_CheckTouchScreen();
     #if BREWPI_BUZZER
 	buzzer.init();
 	buzzer.beep(2, 100);
@@ -111,15 +110,19 @@ void ConnectedDeviceUpdate(ConnectedDevicesManager* mgr, int index, ConnectedDev
     }
 }
 
-void UI::update() {
+void UI::ticks()
+{
     D4D_TimeTickPut();
     D4D_CheckTouchScreen();
     D4D_Poll();
     
     #if BREWPI_BUZZER
 	buzzer.setActive(alarm.isActive() && !buzzer.isActive());
-    #endif
-    
+    #endif    
+}    
+
+void UI::update() 
+{    
     static uint32_t last = 0;    
     uint32_t now = millis();
     if (now-last>=800) {
