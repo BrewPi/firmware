@@ -36,6 +36,18 @@
 #define DS2482_STATUS_TSB	(1<<6)
 #define DS2482_STATUS_DIR	(1<<7)
 
+// I2C commands
+#define DS2482_DRST	0xf0 // Device Reset
+#define DS2482_WCFG	0xd2 // Write Configuration
+#define DS2482_CHSL	0xc3 // Channel Select (DS2482-800 only)
+#define DS2482_SRP	0xe1 // Set Read Pointer
+#define DS2482_1WRS	0xb4 // 1-Wire Reset
+#define DS2482_1WWB	0xa5 // 1-Wire Write Byte
+#define DS2482_1WRB	0x96 // 1-Wire Read Byte
+#define DS2482_1WSB	0x87 // 1-Wire Single Bit
+#define DS2482_1WT	0x78 // 1-Wire Triplet
+
+
 class DS2482 /*: public OneWireLowLevelInterface */ {
 public:
     //Address is 0-3
