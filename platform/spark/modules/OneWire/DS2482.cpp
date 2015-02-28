@@ -67,7 +67,7 @@ uint8_t DS2482::busyWait(bool setReadPtr) {
 
 //----------interface
 
-bool DS2482::init(){
+bool DS2482::init() {
     Wire.begin();
     resetMaster();
     return configure(DS2482_CONFIG_APU);
@@ -182,4 +182,28 @@ uint8_t DS2482::read_bit() {
     write_bit(1);
     uint8_t status = busyWait(true);
     return status & DS2482_STATUS_SBR ? 1 : 0;
+}
+
+uint8_t DS2482::search_triplet(uint8_t * search_direction, uint8_t * id_bit, uint8_t * cmp_id_bit) {
+    // 1-Wire Triplet (Case B)
+    //   S AD,0 [A] 1WT [A] SS [A] Sr AD,1 [A] [Status] A [Status] A\ P
+    //                                         \--------/
+    //                           Repeat until 1WB bit has changed to 0
+    //  [] indicates from slave
+    //  SS indicates byte containing search direction bit value in msbit
+    busyWait(true);
+    Wire.beginTransmission(mAddress);
+    Wire.write(DS2482_1WT);
+    Wire.write(*search_direction ? 0x80 : 0x00);
+    Wire.endTransmission();
+
+    uint8_t status = busyWait();
+
+    // check bit results in status byte
+    *id_bit = ((status & DS2482_STATUS_SBR) == DS2482_STATUS_SBR);
+    *cmp_id_bit = ((status & DS2482_STATUS_TSB) == DS2482_STATUS_TSB);
+    *search_direction =
+            ((status & DS2482_STATUS_DIR) == DS2482_STATUS_DIR) ? (byte) 1 : (byte) 0;
+
+    return status;
 }

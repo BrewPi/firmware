@@ -93,6 +93,17 @@ public:
     uint8_t hasTimeout() {
         return mTimeout;
     }
+    
+    //--------------------------------------------------------------------------
+    // Use the DS2482 help command '1-Wire triplet' to perform one bit of a
+    // 1-Wire search.
+    // This command does two read bits and one write bit. The write bit
+    // is either the default direction (all device have same bit) or in case of
+    // a discrepancy, the 'search_direction' parameter is used.
+    //
+    // Returns – The DS2482 status byte result from the triplet command
+    // Updates search direction, id_bit and cmp_id_bit
+    uint8_t search_triplet(uint8_t * search_direction, uint8_t * id_bit, uint8_t * cmp_id_bit);
 
 private:
 
