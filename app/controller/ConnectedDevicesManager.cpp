@@ -51,14 +51,18 @@ void ConnectedDevicesManager::handleDevice(DeviceConfig* config, DeviceCallbackI
 {
     if (config->deviceHardware == DEVICE_HARDWARE_ONEWIRE_TEMP) {     
         int slot = existingSlot(config);
-        if (slot >= 0) { // found the device still active                
-            devices[slot].value.temp = devices[slot].pointer.tempSensor->read();
-            if(devices[slot].value.temp == TEMP_SENSOR_DISCONNECTED){
+        if (slot >= 0) { // found the device still active
+            temperature newTemp = devices[slot].pointer.tempSensor->read();
+            if(newTemp == TEMP_SENSOR_DISCONNECTED){
                 devices[slot].lastSeen+=2;                
             } 
             else {
                 devices[slot].lastSeen = 0; // seen this one now
-                changed(this, slot, devices + slot, UPDATED);
+                // check if temperature has changed to notify that UI needs to be updated
+                if(newTemp != devices[slot].value.temp){
+                    devices[slot].value.temp = newTemp;
+                    changed(this, slot, devices + slot, UPDATED);
+                }
             }                                
         } else {
             // attempt to reuse previous location
