@@ -94,13 +94,16 @@ public:
     }
     
     void update(ConnectedDeviceChange change) {
-        bool connected = (change!=REMOVED);        
+        bool connected = (change!=REMOVED);
         view.setConnected(connected);
         
-        // only show temp when connected
-        buf[0] = 0;
-        valueAsText(device, buf, sizeof(buf));
-        view.setValueText(buf);        
+        if(change != ADDED){
+            // skip printing value when sensor has just been connected
+            // and value is still null
+            buf[0] = 0;
+            valueAsText(device, buf, sizeof(buf));
+            view.setValueText(buf);
+        }
 
         buf[0] = 0;
         connectionAsText(device, buf, sizeof(buf));
