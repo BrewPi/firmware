@@ -79,7 +79,7 @@ void ConnectedDevicesManager::handleDevice(DeviceConfig* config, DeviceCallbackI
                 device.dt = device.dh == DEVICE_HARDWARE_ONEWIRE_TEMP ? DEVICETYPE_TEMP_SENSOR : DEVICETYPE_SWITCH_ACTUATOR;
                 device.connection.type = deviceConnection(device.dh);
                 memcpy(device.connection.address, config->hw.address, 8);
-                device.value.temp = MIN_TEMP; // flag invalid
+                device.value.temp = INVALID_TEMP; // flag invalid
                 device.pointer.tempSensor = (BasicTempSensor*) DeviceManager::createDevice(*config, device.dt);
                 if (!device.pointer.tempSensor || !device.pointer.tempSensor->init()) {
                     clearSlot(slot);
