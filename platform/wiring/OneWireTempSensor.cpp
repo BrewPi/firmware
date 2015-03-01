@@ -61,8 +61,7 @@ bool OneWireTempSensor::init() {
     // scanning each sensor since this brings things to a halt.
     if (sensor && sensor->initConnection(sensorAddress)){
         requestConversion();
-        //logDebug("init onewire sensor - wait for conversion");
-        // waitForConversion();
+        //logDebug("init onewire sensor");
         temperature temp = readAndConstrainTemp();
         DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temp));
         success = temp != DEVICE_DISCONNECTED;

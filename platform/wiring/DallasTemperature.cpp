@@ -33,40 +33,49 @@ DallasTemperature::DallasTemperature(OneWire* _oneWire)
 #if REQUIRESWAITFORCONVERSION
     waitForConversion = true;
     checkForConversion = true;
-#endif	
+#endif
 }
 
 bool DallasTemperature::initConnection(const uint8_t* deviceAddress) {
 #if REQUIRESRESETDETECTION
     ScratchPad scratchPad;
+    bool writeSettings = false;
 
-    if (!isConnected(deviceAddress)) {
+    if (isParasitePowered(deviceAddress)) {
         return false;
     }
+    // Reload settings from EEPROM so we can skip writing EEPROM if the values are already set
+    recallScratchpad(deviceAddress);
     if (!readScratchPadCRC(deviceAddress, scratchPad)) {
         return false;
     }
 
-    // assume the sensor has just been powered on. So this should only be called on initialization, or
-    // after a device was disconnected.			
+#if REQUIRESONLY12BITCONVERSION		
+    if(scratchPad[CONFIGURATION] != TEMP_12_BIT){
+        scratchPad[CONFIGURATION] = TEMP_12_BIT;
+        writeSettings = true;
+    }
+#endif
+
+    // Make sure that HIGH_ALARM_TEMP is set to zero in EEPROM
+    // This value will be loaded on power on
     if (scratchPad[HIGH_ALARM_TEMP]) { // conditional to avoid wear on eeprom. 			
         scratchPad[HIGH_ALARM_TEMP] = 0;
-        writeScratchPad(deviceAddress, scratchPad, true); // save to eeprom
-
-        // check if the write was successful (HIGH_ALARAM_TEMP == 0)
-        if (!readScratchPadCRC(deviceAddress, scratchPad) || !detectedReset(scratchPad))
-            return false;
+        writeSettings = true;
     }
-#if REQUIRESONLY12BITCONVERSION		
-    scratchPad[CONFIGURATION] = TEMP_12_BIT;
-#endif
-    scratchPad[HIGH_ALARM_TEMP] = 1;
-    writeScratchPad(deviceAddress, scratchPad, false); // don't save to eeprom, so that it reverts to 0 on reset
+
+    if (writeSettings){
+        writeScratchPad(deviceAddress, scratchPad, true); // save settings to eeprom
+    }
+    // Write HIGH_ALARM_TEMP again, but don't save to EEPROM, so that it reverts to 0 on reset
     // from this point on, if we read a scratchpad with a 0 value in HIGH_ALARM (detectedReset() returns true)
     // it means the device has reset or the previous write of the scratchpad above was unsuccessful.
-    // Either way, initConnection() should be called again	
-#endif	
+    // Either way, initConnection() should be called again
+    scratchPad[HIGH_ALARM_TEMP] = 1;
+    writeScratchPad(deviceAddress, scratchPad, false); 
+#endif
     return true;
+
 }
 
 bool DallasTemperature::detectedReset(const uint8_t* scratchPad) {
@@ -142,27 +151,9 @@ bool DallasTemperature::getAddress(uint8_t* deviceAddress, uint8_t index) {
 }
 #endif
 
-// Attempt to determine if the device at the given address is connected to the bus
-// This means it returns a valid CRC and is not parasite powered
-
-bool DallasTemperature::isConnected(const uint8_t* deviceAddress) {
-    ScratchPad scratchPad;
-    if (!readScratchPadCRC(deviceAddress, scratchPad)) {
-        return false;
-    }
-    // Also check that device is not parasite powered, if this is disabled.
-    // This is to prevent sensors with a loose 5V line to be detected
-#if REQUIRESPARASITEPOWERAVAILABLE
-    return true;
-#else
-    return !isParasitePowered(deviceAddress);
-#endif
-}
-
 // Read scratchpad and check the CRC, if the CRC check fails, retry
 // return 1 on success
 #define DALLAS_CRC_RETRIES 2
-
 bool DallasTemperature::readScratchPadCRC(const uint8_t* deviceAddress, uint8_t* scratchPad) {
     for (uint8_t i = 0; i < DALLAS_CRC_RETRIES; i++) {
         readScratchPad(deviceAddress, scratchPad);
@@ -248,7 +239,7 @@ void DallasTemperature::readScratchPad(const uint8_t* deviceAddress, uint8_t* sc
 
 // writes device's scratch pad
 
-void DallasTemperature::writeScratchPad(const uint8_t* deviceAddress, const uint8_t* scratchPad, boolean copyToEeprom) {
+void DallasTemperature::writeScratchPad(const uint8_t* deviceAddress, const uint8_t* scratchPad, bool copyToEeprom) {
     sendCommand(deviceAddress, WRITESCRATCH);
 
     // DS18S20 does not use the configuration register
@@ -262,11 +253,18 @@ void DallasTemperature::writeScratchPad(const uint8_t* deviceAddress, const uint
     if (copyToEeprom) {
         _wire->select(deviceAddress); //<--this line was missing
         _wire->write(COPYSCRATCH, isParasitePowerMode());
-        if (isParasitePowerMode())
-            wait.millis(10); // 10ms delay
+        
         _wire->reset();
     }
 
+}
+
+// reload scratchpad 2,3, and 4 (alarms and configuration) from EEPROM
+
+void DallasTemperature::recallScratchpad(const uint8_t* deviceAddress){
+    _wire->reset();
+    _wire->select(deviceAddress); //<--this line was missing
+    _wire->write(RECALLSCRATCH, isParasitePowerMode());    
 }
 
 // reads the device's power requirements

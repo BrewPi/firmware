@@ -67,7 +67,6 @@
 #define REQUIRESRESETDETECTION !REQUIRESALARMS
 #endif
 
-
 #include <inttypes.h>
 #include "OneWire.h"
 
@@ -163,9 +162,6 @@ class DallasTemperature
 #endif  
   
   // attempt to determine if the device at the given address is connected to the bus
-  bool isConnected(const uint8_t*);
-
-  // attempt to determine if the device at the given address is connected to the bus
   // also allows for updating the read scratchpad
   bool readScratchPadCRC(const uint8_t*, uint8_t*);
 
@@ -173,8 +169,11 @@ class DallasTemperature
   void readScratchPad(const uint8_t*, uint8_t*);
 
   // write device's scratchpad
-  void writeScratchPad(const uint8_t*, const uint8_t*, boolean copyToEeprom);
+  void writeScratchPad(const uint8_t*, const uint8_t*, bool copyToEeprom);
 
+  // restore alarms and configuration from EEPROM
+  void recallScratchpad(const uint8_t* deviceAddress);
+  
   // read device's power requirements
   bool isParasitePowered(const uint8_t*);
 
