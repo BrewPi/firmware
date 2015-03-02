@@ -47,18 +47,18 @@ uint8_t UI::init() {
     return 0;
 }
 
-const D4D_OBJECT* views[] = { &scrBoot_devices00, &scrBoot_devices10, &scrBoot_devices20, &scrBoot_devices01, &scrBoot_devices11, &scrBoot_devices21 };
+const D4D_OBJECT* views[] = { &scrTest_devices00, &scrTest_devices10, &scrTest_devices20, &scrTest_devices01, &scrTest_devices11, &scrTest_devices21 };
 ConnectedDevicesManager mgr;
 ConnectedDevicesPresenter presenter(&mgr, views, 6);
 
 extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
 {
     int idx = -1;
-    if (pThis==&scrBoot_actuator1)
+    if (pThis==&scrTest_actuator1)
         idx = 0;
-    else if (pThis==&scrBoot_actuator2)
+    else if (pThis==&scrTest_actuator2)
         idx = 1;
-    if (pThis==&scrBoot_actuator3)
+    if (pThis==&scrTest_actuator3)
         idx = 2;
     
     if (idx>=0) {
