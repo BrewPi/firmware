@@ -58,7 +58,7 @@ public:
 	private:
 
 	void setConnected(bool connected);
-	bool requestConversion();
+	void requestConversion();
 	void waitForConversion()
 	{
 		wait.millis(750);

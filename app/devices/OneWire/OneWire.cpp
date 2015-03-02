@@ -227,34 +227,35 @@ uint8_t OneWire::search(uint8_t *newAddr) {
 
         // loop to do the search
         do {
-            // read a bit and its complement
-            id_bit = driver.read_bit();
-            cmp_id_bit = driver.read_bit();
+            // if this discrepancy if before the Last Discrepancy
+            // on a previous next then pick the same as last time
+            if (id_bit_number < LastDiscrepancy) {
+                if ((ROM_NO[rom_byte_number] & rom_byte_mask) > 0)
+                    search_direction = 1;
+                else
+                    search_direction = 0;
+            } else {
+                // if equal to last pick 1, if not then pick 0
+                if (id_bit_number == LastDiscrepancy)
+                    search_direction = 1;
+                else
+                    search_direction = 0;
+            }
 
-            // check for no devices on 1-wire
-            if ((id_bit == 1) && (cmp_id_bit == 1))
+            // Perform a triple operation on the DS2482 which will perform
+            // 2 read bits and 1 write bit
+            driver.search_triplet(&search_direction, &id_bit, &cmp_id_bit);
+
+            // check for no devices on 1-Wire
+            if ((id_bit) && (cmp_id_bit))
                 break;
             else {
-                // all devices coupled have 0 or 1
-                if (id_bit != cmp_id_bit)
-                    search_direction = id_bit; // bit write value for search
-                else {
-                    // if this discrepancy if before the Last Discrepancy
-                    // on a previous next then pick the same as last time
-                    if (id_bit_number < LastDiscrepancy)
-                        search_direction = ((ROM_NO[rom_byte_number] & rom_byte_mask) > 0);
-                    else
-                        // if equal to last pick 1, if not then pick 0
-                        search_direction = (id_bit_number == LastDiscrepancy);
+                if ((!id_bit) && (!cmp_id_bit) && (search_direction == 0)) {
+                    last_zero = id_bit_number;
 
-                    // if 0 was picked then record its position in LastZero
-                    if (search_direction == 0) {
-                        last_zero = id_bit_number;
-
-                        // check for Last discrepancy in family
-                        if (last_zero < 9)
-                            LastFamilyDiscrepancy = last_zero;
-                    }
+                    // check for Last discrepancy in family
+                    if (last_zero < 9)
+                        LastFamilyDiscrepancy = last_zero;
                 }
 
                 // set or clear the bit in the ROM byte rom_byte_number
@@ -262,17 +263,15 @@ uint8_t OneWire::search(uint8_t *newAddr) {
                 if (search_direction == 1)
                     ROM_NO[rom_byte_number] |= rom_byte_mask;
                 else
-                    ROM_NO[rom_byte_number] &= ~rom_byte_mask;
-
-                // serial number search direction write bit
-                driver.write_bit(search_direction);
+                    ROM_NO[rom_byte_number] &= (byte) ~rom_byte_mask;
 
                 // increment the byte counter id_bit_number
                 // and shift the mask rom_byte_mask
                 id_bit_number++;
                 rom_byte_mask <<= 1;
 
-                // if the mask is 0 then go to new SerialNum byte rom_byte_number and reset mask
+                // if the mask is 0 then go to new SerialNum byte rom_byte_number
+                // and reset mask
                 if (rom_byte_mask == 0) {
                     rom_byte_number++;
                     rom_byte_mask = 1;
@@ -281,26 +280,33 @@ uint8_t OneWire::search(uint8_t *newAddr) {
         } while (rom_byte_number < 8); // loop until through all ROM bytes 0-7
 
         // if the search was successful then
+
         if (!(id_bit_number < 65)) {
-            // search successful so set LastDiscrepancy,LastDeviceFlag,search_result
+            // search successful so set LastDiscrepancy,LastDeviceFlag
+            // search_result
             LastDiscrepancy = last_zero;
 
             // check for last device
             if (LastDiscrepancy == 0)
-                LastDeviceFlag = TRUE;
+                    LastDeviceFlag = TRUE;
 
             search_result = TRUE;
+
         }
     }
 
-    // if no device found then reset counters so next 'search' will be like a first
-    if (!search_result || !ROM_NO[0]) {
+    // if no device found then reset counters so next
+    // 'search' will be like a first
+
+    if (!search_result || (ROM_NO[0] == 0)) {
         LastDiscrepancy = 0;
         LastDeviceFlag = FALSE;
         LastFamilyDiscrepancy = 0;
         search_result = FALSE;
     }
-    for (int i = 0; i < 8; i++) newAddr[i] = ROM_NO[i];
+    for (int i = 0; i < 8; i++)
+        newAddr[i] = ROM_NO[i];
+
     return search_result;
 }
 
@@ -362,10 +368,11 @@ uint8_t OneWire::crc8(const uint8_t *addr, uint8_t len) {
         uint8_t inbyte = *addr++;
         for (uint8_t i = 8; i; i--) {
             uint8_t mix = (crc ^ inbyte) & 0x01;
-            crc >>= 1;
+                    crc >>= 1;
+
             if (mix) crc ^= 0x8C;
-            inbyte >>= 1;
-        }
+                    inbyte >>= 1;
+            }
     }
     return crc;
 }
@@ -375,27 +382,28 @@ uint8_t OneWire::crc8(const uint8_t *addr, uint8_t len) {
 
 bool OneWire::check_crc16(const uint8_t* input, uint16_t len, const uint8_t* inverted_crc, uint16_t crc) {
     crc = ~crc16(input, len, crc);
+
     return (crc & 0xFF) == inverted_crc[0] && (crc >> 8) == inverted_crc[1];
 }
 
 uint16_t OneWire::crc16(const uint8_t* input, uint16_t len, uint16_t crc) {
-    static const uint8_t oddparity[16] ={0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0};
+    static const uint8_t oddparity[16] = {0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0};
 
     for (uint16_t i = 0; i < len; i++) {
         // Even though we're just copying a byte from the input,
         // we'll be doing 16-bit computation with it.
         uint16_t cdata = input[i];
-        cdata = (cdata ^ crc) & 0xff;
-        crc >>= 8;
+                cdata = (cdata ^ crc) & 0xff;
+                crc >>= 8;
 
         if (oddparity[cdata & 0x0F] ^ oddparity[cdata >> 4])
-            crc ^= 0xC001;
+                crc ^= 0xC001;
 
-        cdata <<= 6;
-        crc ^= cdata;
-        cdata <<= 1;
-        crc ^= cdata;
-    }
+                cdata <<= 6;
+                crc ^= cdata;
+                cdata <<= 1;
+                crc ^= cdata;
+        }
     return crc;
 }
 #endif

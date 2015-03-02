@@ -793,7 +793,8 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCal
 		#if !ONEWIRE_PARASITE_SUPPORT
 						{	// check that device is not parasite powered
 							DallasTemperature sensor(wire);
-							if(sensor.initConnection(config.hw.address)){
+                                                        // initialize sensor without reset detection (faster)
+                                                        if(!sensor.isParasitePowered(config.hw.address)){
 								handleEnumeratedDevice(config, h, callback, info);
 							}
 						}

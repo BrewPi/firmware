@@ -191,16 +191,31 @@
     <Compile Include="app\controller\ConnectedDevicesManager.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="app\controller\Buzzer.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\controller\d4d_user_cfg_app.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="app\controller\DeviceManager.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\DeviceManager.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="app\controller\Display.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\controller\Display.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="app\controller\DisplayLcd.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\DisplayLcd.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\controller\DisplayLcdImpl.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\EepromFormat.h">
@@ -243,6 +258,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\PiLink.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\controller\PiLinkHandlers.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\RotaryEncoder.h">
@@ -362,12 +380,6 @@
     <Compile Include="platform\avr\Buzzer.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="platform\avr\Buzzer.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="platform\avr\Config.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="platform\avr\ConfigDefault.h">
       <SubType>compile</SubType>
     </Compile>
@@ -480,7 +492,7 @@
   <ItemGroup>
     <Folder Include="app\controller\" />
     <Folder Include="app\devices\" />
-    <Folder Include="app\devices\OneWire" />
+    <Folder Include="app\devices\OneWire\" />
     <Folder Include="app\fallback\" />
     <Folder Include="app" />
     <Folder Include="platform" />

@@ -36,6 +36,18 @@
 #define DS2482_STATUS_TSB	(1<<6)
 #define DS2482_STATUS_DIR	(1<<7)
 
+// I2C commands
+#define DS2482_DRST	0xf0 // Device Reset
+#define DS2482_WCFG	0xd2 // Write Configuration
+#define DS2482_CHSL	0xc3 // Channel Select (DS2482-800 only)
+#define DS2482_SRP	0xe1 // Set Read Pointer
+#define DS2482_1WRS	0xb4 // 1-Wire Reset
+#define DS2482_1WWB	0xa5 // 1-Wire Write Byte
+#define DS2482_1WRB	0x96 // 1-Wire Read Byte
+#define DS2482_1WSB	0x87 // 1-Wire Single Bit
+#define DS2482_1WT	0x78 // 1-Wire Triplet
+
+
 class DS2482 /*: public OneWireLowLevelInterface */ {
 public:
     //Address is 0-3
@@ -52,7 +64,7 @@ public:
     bool configure(uint8_t config);
     
     uint8_t pinNr(){
-        return mAddress; // return I2C address instead of pinNr
+        return mAddress & 0b11; // return lower bits of I2C address instead of pin
     }
 
     // Perform the onewire reset function.  We will wait up to 250uS for
@@ -81,6 +93,17 @@ public:
     uint8_t hasTimeout() {
         return mTimeout;
     }
+    
+    //--------------------------------------------------------------------------
+    // Use the DS2482 help command '1-Wire triplet' to perform one bit of a
+    // 1-Wire search.
+    // This command does two read bits and one write bit. The write bit
+    // is either the default direction (all device have same bit) or in case of
+    // a discrepancy, the 'search_direction' parameter is used.
+    //
+    // Returns – The DS2482 status byte result from the triplet command
+    // Updates search direction, id_bit and cmp_id_bit
+    uint8_t search_triplet(uint8_t * search_direction, uint8_t * id_bit, uint8_t * cmp_id_bit);
 
 private:
 
