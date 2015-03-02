@@ -71,7 +71,7 @@ public:
     void setConnected(bool connected) {                
         D4D_EnableObject(pObject, connected);
         D4D_EnableObject(D4D_CDV_CONNECTION(pObject), connected);
-        //D4D_EnableObject(D4D_CDV_VALUE(pObject), connected);
+        D4D_EnableObject(D4D_CDV_VALUE(pObject), connected);
     }
     
 };
@@ -107,7 +107,7 @@ public:
 
         buf[0] = 0;
         connectionAsText(device, buf, sizeof(buf));
-        view.setConnectionText(buf);
+        view.setConnectionText(buf);        
         
         view.invalidate();
     }
