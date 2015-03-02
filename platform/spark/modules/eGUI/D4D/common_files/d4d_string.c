@@ -571,7 +571,7 @@ D4D_INDEX D4D_GetTextMaxLength(D4D_STRING* pString, D4D_COOR maxWidth)
 * @return  None
 * @note    The function change the text in the object text buffer if the object has it.
 *******************************************************************************/
-void D4D_SetText(D4D_OBJECT_PTR pObject, D4D_TCHAR* pText)
+D4D_BOOL D4D_SetText(D4D_OBJECT_PTR pObject, D4D_TCHAR* pText)
 {
   D4D_STRING* p_TextBuff = NULL;
 
@@ -580,10 +580,12 @@ void D4D_SetText(D4D_OBJECT_PTR pObject, D4D_TCHAR* pText)
 
   if(p_TextBuff)
   {
-    if (D4D_ChangeText(p_TextBuff, pText, 0))
+    if (D4D_ChangeText(p_TextBuff, pText, 0)) {
         D4D_InvalidateObject(pObject, D4D_FALSE);
+        return D4D_TRUE;
+    }    
   }
-
+  return D4D_FALSE;
 }
 
 /******************************************************************************
@@ -605,7 +607,7 @@ D4D_BOOL D4D_ChangeText(D4D_STRING* pBuff, D4D_TCHAR* pNewText, D4D_TCHAR fillCh
     
     // preserve one byte in the buffer
     if(pDest != pNewText) {
-      changed = !strncmp(pDest, pNewText, n);
+      changed = strncmp(pDest, pNewText, n);
       while(n > 1 && *pNewText)
       {
         *pDest = *pNewText;

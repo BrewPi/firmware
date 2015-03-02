@@ -100,16 +100,12 @@ public:
         if(change != ADDED){
             // skip printing value when sensor has just been connected
             // and value is still null
-            buf[0] = 0;
             valueAsText(device, buf, sizeof(buf));
             view.setValueText(buf);
         }
 
-        buf[0] = 0;
         connectionAsText(device, buf, sizeof(buf));
-        view.setConnectionText(buf);        
-        
-        view.invalidate();
+        view.setConnectionText(buf);                        
     }
     
 };

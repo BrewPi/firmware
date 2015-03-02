@@ -199,7 +199,7 @@ D4D_COOR D4D_GetBmpWidth(const D4D_BMP* pBmp);
 D4D_COOR D4D_GetBmpHeight(const D4D_BMP* pBmp);
 int D4D_GetBmpHeader(D4D_BMP* pBmp, void* pBuff, int max_size);
 
-void D4D_SetText(D4D_OBJECT_PTR pObject, D4D_TCHAR* pText);
+D4D_BOOL D4D_SetText(D4D_OBJECT_PTR pObject, D4D_TCHAR* pText);
 void D4D_SetTextProperties(D4D_OBJECT_PTR pObject, D4D_TEXT_PROPERTIES property);
 void D4D_SetFontProperties(D4D_OBJECT_PTR pObject, D4D_FONT_PROPERTIES property);
 D4D_INDEX D4D_GetTextLength(D4D_TCHAR* pText);
