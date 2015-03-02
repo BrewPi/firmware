@@ -60,7 +60,7 @@ void SetActuatorButtonState(D4D_OBJECT* pThis, D4D_BOOL state)
 
 D4D_DECLARE_STD_LABEL(scrBoot_lblTitle, "Brewpi", 10, 10, 50, 20, FONT_ARIAL7);
 D4D_DECLARE_STD_LABEL(scrBoot_lblVersion, "0.2.6", 10, 30, 50, 20, FONT_ARIAL7);
-D4D_DECLARE_STD_PICTURE(scrBoot_bmpLogo, 10, 50, 50, 50, &bmp_brewpi_logo_48_30);
+D4D_DECLARE_STD_PICTURE(scrBoot_bmpLogo, 10, 50, 50, 50, &bmp_brewpi_logo_black_45_30);
 
 #define D4D_DECLARE_ACTUATOR(idx)\
      _D4D_DECLARE_ACTUATOR(scrBoot_actuator##idx, idx, 25+((2-(idx-1))*90), 240-50, 86, 50, FONT_ARIAL7, FONT_ARIAL7_BIG)
