@@ -3,6 +3,6 @@
 
 D4D_EXTERN_BMP(bmp_brewpi_logo_48_30);
 D4D_EXTERN_BMP(bmp_brewpi_logo_22_16);
-D4D_EXTERN_BMP(bmp_brewpi_logo_100_68);
+D4D_EXTERN_BMP(bmp_brewpi_logo_black_124_80);
 
 #endif
