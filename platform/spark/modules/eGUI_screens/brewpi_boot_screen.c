@@ -63,7 +63,7 @@ D4D_DECLARE_STD_LABEL(scrBoot_lblVersion, "0.2.6", 10, 30, 50, 20, FONT_ARIAL7);
 D4D_DECLARE_STD_PICTURE(scrBoot_bmpLogo, 10, 50, 50, 50, &bmp_brewpi_logo_48_30);
 
 #define D4D_DECLARE_ACTUATOR(idx)\
-     _D4D_DECLARE_ACTUATOR(scrBoot_actuator##idx, idx, 25+((2-(idx-1))*90), 320-50, 86, 50, FONT_ARIAL7, FONT_ARIAL7_BIG)
+     _D4D_DECLARE_ACTUATOR(scrBoot_actuator##idx, idx, 25+((2-(idx-1))*90), 240-50, 86, 50, FONT_ARIAL7, FONT_ARIAL7_BIG)
 
 #define D4D_ACTUATOR_FLAGS (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_BTN_F_3D | D4D_OBJECT_F_BEVEL_RAISED | D4D_BTN_F_CONT_RECT )
 
@@ -109,15 +109,6 @@ D4D_DECLARE_SCREEN_END()
 
 static void ScreenBoot_OnInit()
 {
-/*
-    for (int l=0; l<arraySize(devices_colors); l++) {       // for each list
-        for (int c=0; c<arraySize(devices_colors[0]); c++) {    // for each column            
-            memcpy(&devices_colors[l][c][0], &color_scheme_device, sizeof(color_scheme_device));
-            memcpy(&devices_colors[l][c][1], &color_scheme_device, sizeof(color_scheme_device));
-            memcpy(&devices_colors[l][c][2], &color_scheme_device, sizeof(color_scheme_connection));
-        }
-    }        
-*/    
     SetActuatorButtonState((D4D_OBJECT*)&scrBoot_actuator1, D4D_FALSE);
     SetActuatorButtonState((D4D_OBJECT*)&scrBoot_actuator2, D4D_FALSE);
     SetActuatorButtonState((D4D_OBJECT*)&scrBoot_actuator3, D4D_FALSE);
