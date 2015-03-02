@@ -1,4 +1,5 @@
 #include "ConnectedDevicesManager.h"
+#include "UI.h"
 
 void valueAsText(const ConnectedDevice* device, char* buf, size_t len) {
     if (device->dt==DEVICETYPE_TEMP_SENSOR) {        
@@ -49,6 +50,7 @@ char* itoa(int i, char b[]){
 
 void ConnectedDevicesManager::handleDevice(DeviceConfig* config, DeviceCallbackInfo* info) 
 {
+    ui.ticks();
     if (config->deviceHardware == DEVICE_HARDWARE_ONEWIRE_TEMP) {     
         int slot = existingSlot(config);
         if (slot >= 0) { // found the device still active
