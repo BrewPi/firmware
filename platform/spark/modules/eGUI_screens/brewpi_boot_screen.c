@@ -63,7 +63,7 @@ D4D_DECLARE_STD_LABEL(scrBoot_lblVersion, "0.2.6", 10, 30, 50, 20, FONT_ARIAL7);
 D4D_DECLARE_STD_PICTURE(scrBoot_bmpLogo, 10, 50, 50, 50, &bmp_brewpi_logo_48_30);
 
 #define D4D_DECLARE_ACTUATOR(idx)\
-     _D4D_DECLARE_ACTUATOR(scrBoot_actuator##idx, idx, 25+((2-(idx-1))*90), 0, 86, 50, FONT_ARIAL7, FONT_ARIAL7_BIG)
+     _D4D_DECLARE_ACTUATOR(scrBoot_actuator##idx, idx, 25+((2-(idx-1))*90), 320-50, 86, 50, FONT_ARIAL7, FONT_ARIAL7_BIG)
 
 #define D4D_ACTUATOR_FLAGS (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_BTN_F_3D | D4D_OBJECT_F_BEVEL_RAISED | D4D_BTN_F_CONT_RECT )
 
@@ -87,7 +87,7 @@ D4D_DECLARE_ACTUATOR(1);
 D4D_DECLARE_ACTUATOR(2);
 D4D_DECLARE_ACTUATOR(3);
 
-#define SCRBOOT_DEVICES_Y 90
+#define SCRBOOT_DEVICES_Y 0
 #define SCRBOOT_DEVICES_CX 104
 #define SCRBOOT_DEVICES_CY 150 
 #define SCRBOOT_DEVICES_CX_GAP 4
@@ -136,7 +136,8 @@ static void ScreenBoot_OnActivate()
 
 static void ScreenBoot_OnDeactivate()
 {
-    ModeControl_SetMode(prev_mode);
+    if (ModeControl_GetMode()==MODE_TEST)
+        ModeControl_SetMode(prev_mode);
 }
 
 static Byte ScreenBoot_OnObjectMsg(D4D_MESSAGE* pMsg)
