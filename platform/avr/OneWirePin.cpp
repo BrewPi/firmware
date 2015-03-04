@@ -328,6 +328,11 @@ void OneWirePin::target_search(uint8_t family_code)
    LastDeviceFlag = FALSE;
 }
 
+void OneWirePin::search_triplet(uint8_t*, uint8_t*, uint8_t*)
+{
+	// TODO!
+}
+
 //
 // Perform a search. If this function returns a '1' then it has
 // enumerated the next device and you may retrieve the ROM from the

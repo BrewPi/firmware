@@ -84,11 +84,7 @@ void setup()
 #endif	
 
     ui.showControllerPage();
-    
-	display.init();
-	display.printStationaryText();
-	display.printState();
-			
+    			
 	logDebug("init complete");
 }
 
@@ -112,11 +108,6 @@ void brewpiLoop(void)
 
 		ui.update();
 
-		// update the lcd for the chamber being displayed
-		display.printState();
-		display.printAllTemperatures();
-		display.printMode();
-		display.updateBacklight();		
 	}	
 
 	//listen for incoming serial connections while waiting to update

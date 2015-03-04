@@ -167,6 +167,9 @@ class OneWirePin
     void depower(void);
 
 #if ONEWIRE_SEARCH
+
+	void search_triplet(uint8_t*, uint8_t*, uint8_t*);
+
     // Clear the search state so that if will start from the beginning again.
     void reset_search();
 

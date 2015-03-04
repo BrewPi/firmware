@@ -1,6 +1,7 @@
 #include "Brewpi.h"
 #include "UI.h"
 #include "RotaryEncoder.h"
+#include "Display.h"
 #include "Buzzer.h"
 #include "Menu.h"
 
@@ -23,7 +24,10 @@ uint32_t UI::showStartupPage()
  */
 void UI::showControllerPage()
 {
-    // a no-op - we only have the controller page
+	display.init();
+	display.printStationaryText();
+	display.printState();
+
 }
 
 void UI::calibrateTouchScreen()
@@ -46,5 +50,10 @@ void UI::ticks() {
 
 void UI::update() {
 
+    // update the lcd for the chamber being displayed
+    display.printState();
+    display.printAllTemperatures();
+    display.printMode();
+    display.updateBacklight();		
 
 }
