@@ -42,9 +42,10 @@ void TempSensor::update()
 {	
 	temperature temp;
 	if (!_sensor || (temp=_sensor->read())==TEMP_SENSOR_DISCONNECTED) {		
-		failedReadCount++;		
-		failedReadCount = min(failedReadCount,int8_t(127));	// limit
-		return;
+            if(failedReadCount < 127){ 	// limit
+                failedReadCount++;
+            }
+            return;
 	}
 		
 	fastFilter.add(temp);
@@ -58,7 +59,7 @@ void TempSensor::update()
 		// only happens once after startup.
 		prevOutputForSlope = slowFilter.readOutputDoublePrecision();
 	}
-	if(updateCounter == 0){
+	if(updateCounter <= 0){
 		temperature_precise slowFilterOutput = slowFilter.readOutputDoublePrecision();
 		temperature_precise diff =  slowFilterOutput - prevOutputForSlope;
 		temperature diff_upper = diff >> 16;

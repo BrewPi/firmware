@@ -236,7 +236,7 @@ void PiLink::receive(void){
 			
 		case 'h': // hardware query
 			openListResponse('h');
-			deviceManager.enumerateHardware(piStream);
+			deviceManager.enumerateHardwareToStream(piStream);
 			closeListResponse();
 			break;
 

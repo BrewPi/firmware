@@ -84,7 +84,7 @@ public:
         return driver.read_bit();
     }    
     uint8_t pinNr(){
-        return driver.pinNr(); // return I2C address instead of pinNr
+        return driver.pinNr(); // return pin number or lower bits of I2C address
     }
     bool reset(){
         return driver.reset();

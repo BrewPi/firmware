@@ -118,6 +118,23 @@ void* DeviceManager::createDevice(DeviceConfig& config, DeviceType dt)
 	return NULL;
 }
 
+void DeviceManager::disposeDevice(DeviceType dt, void* device) 
+{			
+	switch (dt) {
+		case DEVICETYPE_NONE:
+			break;
+		case DEVICETYPE_TEMP_SENSOR:
+			delete (BasicTempSensor*)device;
+			break;
+		case DEVICETYPE_SWITCH_SENSOR:
+			delete (SwitchSensor*)device;
+			break;
+		case DEVICETYPE_SWITCH_ACTUATOR:
+			delete (Actuator*)device;
+			break;
+	}
+}
+
 /**
  * Returns the pointer to where the device pointer resides. This can be used to delete the current device and install a new one. 
  * For Temperature sensors, the returned pointer points to a TempSensor*. The basic device can be fetched by calling
@@ -188,11 +205,11 @@ inline void setSensor(DeviceFunction f, void** ppv, BasicTempSensor* sensor) {
  */
 void DeviceManager::uninstallDevice(DeviceConfig& config)
 {
-	DeviceType dt = deviceType(config.deviceFunction);
 	void** ppv = deviceTarget(config);	
 	if (ppv==NULL)
 		return;
-	
+
+	DeviceType dt = deviceType(config.deviceFunction);
 	BasicTempSensor* s;
 	switch(dt) {
 		case DEVICETYPE_NONE:
@@ -570,7 +587,7 @@ void parseBytes(uint8_t* data, const char* s, uint8_t len) {
 	}
 }
 
-void printBytes(uint8_t* data, uint8_t len, char* buf) // prints 8-bit data in hex
+void printBytes(const uint8_t* data, uint8_t len, char* buf) // prints 8-bit data in hex
 {
 	for (int i=0; i<len; i++) {
 		uint8_t b = (data[i] >> 4) & 0x0f;
@@ -581,10 +598,9 @@ void printBytes(uint8_t* data, uint8_t len, char* buf) // prints 8-bit data in h
 	*buf = 0;
 }
 
-void DeviceManager::OutputEnumeratedDevices(DeviceConfig* config, void* pv)
+void DeviceManager::OutputEnumeratedDevices(DeviceConfig* config, DeviceCallbackInfo* info)
 {
-	DeviceOutput* out = (DeviceOutput*)pv;
-	printDevice(out->slot, *config, out->value, *out->pp);
+	printDevice(info->slot, *config, info->value, *(Print*)info->data);
 }
 
 bool DeviceManager::enumDevice(DeviceDisplay& dd, DeviceConfig& dc, uint8_t idx)
@@ -594,15 +610,6 @@ bool DeviceManager::enumDevice(DeviceDisplay& dd, DeviceConfig& dc, uint8_t idx)
 	else
 		return (dd.id==idx);						// enumerate only the specific device requested
 }
-
-struct EnumerateHardware
-{
-	int8_t hardware;		// restrict the types of devices requested
-	int8_t pin;				// pin to search
-	int8_t values;			// fetch values for the devices.
-	int8_t unused;			// 0 don't care about unused state, 1 unused only.
-	int8_t function;		// restrict to devices that can be used with this function
-};
 
 void handleHardwareSpec(const char* key, const char* val, void* pv)
 {
@@ -673,28 +680,29 @@ inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw, char* 
 #endif	
 }
 
-void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardware& h, EnumDevicesCallback callback, DeviceOutput& out)
+void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardware& h, EnumDevicesCallback callback, DeviceCallbackInfo* info)
 {
 	if (h.function && !isAssignable(deviceType(DeviceFunction(h.function)), config.deviceHardware)) 
 		return; // device not applicable for required function
 		
 //	logDebug("Handling device");
-	out.slot = findHardwareDevice(config);
-	DEBUG_ONLY(logInfoInt(INFO_MATCHING_DEVICE, out.slot));
+	device_slot_t slot = findHardwareDevice(config);
+	info->slot = slot;
+	info->value[0] = 0;	
+	DEBUG_ONLY(logInfoInt(INFO_MATCHING_DEVICE, slot));
 		
-	if (isDefinedSlot(out.slot)) {
+	if (isDefinedSlot(slot)) {
 		if (h.unused)	// only list unused devices, and this one is already used
 			return;
 		// display the actual matched value
-		deviceManager.allDevices(config, out.slot);
+		deviceManager.allDevices(config, slot);
 	}
-	
-	out.value[0] = 0;
+		
 	if (h.values) {
 //		logDebug("Fetching device value");
 		switch (config.deviceHardware) {
 			case DEVICE_HARDWARE_ONEWIRE_TEMP:
-				readTempSensorValue(config.hw, out.value);
+				readTempSensorValue(config.hw, info->value);
 				break;
 			// unassigned pins could be input or output so we can't determine any other details from here.
 			// values can be read once the pin has been assigned a function
@@ -703,7 +711,7 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardwa
 		}
 	}	
 //	logDebug("Passing device to callback");
-	callback(&config, &out);
+	callback(&config, info);
 }
 
 /**
@@ -712,7 +720,7 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig& config, EnumerateHardwa
  * @param callback
  * @param output
  */
-void DeviceManager::enumeratePinDevices(EnumerateHardware& h, EnumDevicesCallback callback, DeviceOutput& output) 
+void DeviceManager::enumeratePinDevices(EnumerateHardware& h, EnumDevicesCallback callback, DeviceCallbackInfo* info) 
 {
 	DeviceConfig config;
 	clear((uint8_t*)&config, sizeof(config));
@@ -726,7 +734,7 @@ void DeviceManager::enumeratePinDevices(EnumerateHardware& h, EnumDevicesCallbac
 			continue;
 		config.hw.pinNr = pin;
 		config.hw.invert = true; // make inverted default, because shiels have transistor on them
-		handleEnumeratedDevice(config, h, callback, output);
+		handleEnumeratedDevice(config, h, callback, info);
 	}	
 #endif    
 	
@@ -735,12 +743,12 @@ void DeviceManager::enumeratePinDevices(EnumerateHardware& h, EnumDevicesCallbac
 		if (h.pin!=-1 && h.pin!=pin)
 			continue;
 		config.hw.pinNr = pin;
-		handleEnumeratedDevice(config, h, callback, output);
+		handleEnumeratedDevice(config, h, callback, info);
 	}	
 #endif    
 }
 
-void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCallback callback, DeviceOutput& output)
+void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCallback callback, DeviceCallbackInfo* info)
 {		
 #if !BREWPI_SIMULATE
 	int8_t pin;	
@@ -777,7 +785,7 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCal
 						// enumerate each pin separately
 						for (uint8_t i=0; i<2; i++) {
 							config.hw.pio = i;
-							handleEnumeratedDevice(config, h, callback, output);
+							handleEnumeratedDevice(config, h, callback, info);
 						}
 						break;
 		#endif
@@ -785,16 +793,17 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCal
 		#if !ONEWIRE_PARASITE_SUPPORT
 						{	// check that device is not parasite powered
 							DallasTemperature sensor(wire);
-							if(sensor.initConnection(config.hw.address)){
-								handleEnumeratedDevice(config, h, callback, output);
+                                                        // initialize sensor without reset detection (faster)
+                                                        if(!sensor.isParasitePowered(config.hw.address)){
+								handleEnumeratedDevice(config, h, callback, info);
 							}
 						}
 		#else
-						handleEnumeratedDevice(config, h, callback, output);
+						handleEnumeratedDevice(config, h, callback, info);
 		#endif
 						break;
 					default:
-						handleEnumeratedDevice(config, h, callback, output);	
+						handleEnumeratedDevice(config, h, callback, info);	
 				}
 			}
 		}
@@ -802,10 +811,10 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware& h, EnumDevicesCal
 #endif	
 }
 
-void DeviceManager::enumerateHardware( Stream& p )
+void DeviceManager::enumerateHardwareToStream( Stream& p )
 {
 	EnumerateHardware spec;
-	// set up defaults
+	// set up defaults    
 	spec.unused = 0;			// list all devices
 	spec.values = 0;			// don't list values
 	spec.pin = -1;				// any pin
@@ -813,19 +822,24 @@ void DeviceManager::enumerateHardware( Stream& p )
 	spec.function = 0;			// no function restriction
 	
 	piLink.parseJson(handleHardwareSpec, &spec);	
-	DeviceOutput out;
-	out.pp = &p;
+	DeviceCallbackInfo info;
+	info.data = &p;
 
 //	logDebug("Enumerating Hardware");
+    
 	firstDeviceOutput = true;
+    enumerateHardware(spec, OutputEnumeratedDevices, &info);
+//	logDebug("Enumerating Hardware Complete");
+}
+
+void DeviceManager::enumerateHardware(EnumerateHardware& spec, EnumDevicesCallback callback, DeviceCallbackInfo* info)
+{
 	if (spec.hardware==-1 || isOneWire(DeviceHardware(spec.hardware))) {
-		enumerateOneWireDevices(spec, OutputEnumeratedDevices, out);
+		enumerateOneWireDevices(spec, callback, info);
 	}
 	if (spec.hardware==-1 || isDigitalPin(DeviceHardware(spec.hardware))) {
-		enumeratePinDevices(spec, OutputEnumeratedDevices, out);
+		enumeratePinDevices(spec, callback, info);
 	}
-	
-//	logDebug("Enumerating Hardware Complete");
 }
 
 

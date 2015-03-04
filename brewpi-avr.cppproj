@@ -146,8 +146,8 @@
       <Value>../platform/wiring</Value>
       <Value>../app/fallback</Value>
       <Value>../app/devices</Value>
-      <Value>../app/controller</Value>
       <Value>../app/devices/OneWire</Value>
+      <Value>../app/controller</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
   <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
@@ -183,6 +183,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\BrewpiStrings.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\controller\ConnectedDevicesManager.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\controller\ConnectedDevicesManager.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\Buzzer.h">

@@ -30,8 +30,7 @@ void UI::calibrateTouchScreen()
 {
    // a no-op - touch screen not available on AVR 
 }
-
-void UI::update() {
+void UI::ticks() {
 #if BREWPI_BUZZER
 	buzzer.setActive(alarm.isActive() && !buzzer.isActive());
 #endif
@@ -42,5 +41,10 @@ void UI::update() {
 		menu.pickSettingToChange();
 	}
 #endif
+    
+}
+
+void UI::update() {
+
 
 }

@@ -92,9 +92,7 @@
 #define D4D_FONT_TABLE_DISABLED D4D_FALSE       // this option enable /disable font table for whole driver
                                                 // when this option is sets to true all strings are disabled
 
-#define D4D_ROUND_CORNER_ENABLE D4D_TRUE  // this option disable/enable round corners support of D4D
-
-#define D4D_FNT_WORK_PATH_DEFAULT "A:\\Fonts\\"
+#define D4D_ROUND_CORNER_ENABLE D4D_FALSE  // this option disable/enable round corners support of D4D
 
 // Supported color systems
 //  D4D_COLOR_SYSTEM_RGB888 
@@ -116,15 +114,15 @@
 
 //#define D4D_UNICODE                   // Enables Unicode support
 
-//#define D4D_SCREEN_HISTORY 10         // This option define depth of history of screens
+#define D4D_SCREEN_HISTORY 3         // This option define depth of history of screens
 
 #define D4D_SCREEN_SIZE_LONGER_SIDE  320  // The maximum resolution of longer longer side of physical LCD
 
 #define D4D_SCREEN_SIZE_SHORTER_SIDE  240  // The maximum resolution of  shorter longer side of physical LCD
 
-#define D4D_COLOR_SYSTEM_FORE D4D_COLOR_YELLOW // System fore color (for example for calibration screen)
+#define D4D_COLOR_SYSTEM_FORE D4D_COLOR_WHITE // System fore color (for example for calibration screen)
 
-#define D4D_COLOR_SYSTEM_BCKG D4D_COLOR_GREY // System background color (for example for calibration screen)
+#define D4D_COLOR_SYSTEM_BCKG D4D_COLOR_BLACK // System background color (for example for calibration screen)
 
 #define D4D_FONT_SYSTEM_DEFAULT 4 // System default font (for example for calibration screen)
 
@@ -154,7 +152,7 @@
 #define D4D_BMP_65536NOPAL_ENABLE D4D_FALSE
 
 // 256 colors bitmap without pallete
-#define D4D_BMP_256NOPAL_ENABLE D4D_TRUE
+#define D4D_BMP_256NOPAL_ENABLE D4D_FALSE
 
 // 256 colors bitmap with pallete
 #define D4D_BMP_PAL_256_ENABLE D4D_TRUE
@@ -163,7 +161,7 @@
 #define D4D_BMP_PAL_16_ENABLE D4D_FALSE
 
 // 2 colors bitmap with pallete
-#define D4D_BMP_PAL_2_ENABLE D4D_TRUE
+#define D4D_BMP_PAL_2_ENABLE D4D_FALSE
 
 /******************************************************************************
 * External files bitmpas decoders
@@ -192,13 +190,13 @@
 #define D4D_COLOR_SCR_TILTLETEXT  D4D_COLOR_BLACK
 
 // Define a default screen header exit button fore color
-#define D4D_COLOR_SCR_EXIT_BTN_FORE  D4D_COLOR_YELLOW
+#define D4D_COLOR_SCR_EXIT_BTN_FORE  D4D_COLOR_WHITE
 
 // Define a default screen header exit button background color
 #define D4D_COLOR_SCR_EXIT_BTN_BCKG  D4D_COLOR_BRIGHT_RED
 
 // Define a default screen background color
-#define D4D_COLOR_SCR_DESKTOP  D4D_COLOR_GREY
+#define D4D_COLOR_SCR_DESKTOP  D4D_COLOR_BLACK
 
 
 
@@ -238,9 +236,9 @@
 ******************************************************************************/
 
 // standard normal color fore
-#define D4D_COLOR_FORE_NORM  D4D_COLOR_YELLOW
+#define D4D_COLOR_FORE_NORM  D4D_COLOR_WHITE
 // standard normal color background
-#define D4D_COLOR_BCKG_NORM  D4D_COLOR_LIGHT_GREY
+#define D4D_COLOR_BCKG_NORM  D4D_COLOR_BLACK
 
 // standard disabled color fore
 #define D4D_COLOR_FORE_DISABLED D4D_COLOR_WHITE
@@ -271,7 +269,9 @@
 * Properties
 ***********************/
 
+#ifndef D4D_BTN_F_DEFAULT
 #define D4D_BTN_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_BTN_F_3D | D4D_OBJECT_F_BEVEL_RAISED /*| D4D_BTN_F_CONT_RECT */)
+#endif
 
 //#define D4D_BTN_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
 //#define D4D_BTN_FNT_PRTY_DEFAULT  ( 0 )
@@ -369,8 +369,8 @@
 
 #define D4D_LBL_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED )
 
-#define D4D_LBL_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_LEFT_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
-#define D4D_LBL_FNT_PRTY_DEFAULT  ( D4D_FNT_PRTY_TRANSPARENT_YES_MASK )
+#define D4D_LBL_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
+#define D4D_LBL_FNT_PRTY_DEFAULT  ( D4D_FNT_PRTY_TRANSPARENT_NO_MASK )
 
 /******************************************************************************
 * Menu Object
@@ -489,7 +489,7 @@
 * Properties
 ***********************/
 
-//#define D4D_PIC_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED)
+#define D4D_PIC_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED)
 
 
 /******************************************************************************

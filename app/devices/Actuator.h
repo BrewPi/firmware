@@ -22,6 +22,9 @@
 
 #include "Devices.h"
 
+/**
+ * Actuator needs to be virtual so that instance pointers can be destroyed via the virtual destructor.
+ */
 #define ACTUATOR_VIRTUAL 1
 
 #if ACTUATOR_VIRTUAL
