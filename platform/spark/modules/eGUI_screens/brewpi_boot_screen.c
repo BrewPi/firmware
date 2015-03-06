@@ -40,7 +40,7 @@ const WIDGET_COLOR_SCHEME color_scheme_connection = {
 };
 
 void ActuatorClicked(D4D_OBJECT* pThis);
-void SetActuatorButtonState(D4D_OBJECT* pThis, D4D_BOOL state)
+void SetActuatorButtonState(const D4D_OBJECT* pThis, D4D_BOOL state)
 {
     D4D_SetText(pThis, state ? "ON" : "OFF");
     D4D_COLOR bg = state ? color_scheme_device.bckg : color_scheme_device.bckgDis;
