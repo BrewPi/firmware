@@ -25,8 +25,8 @@
 #include "ConnectedDevicesManager.h"
 #include "PiLink.h"
 
-#include "brewpi_boot_screen.h"
-#include "ConnectedDevicesView.h"
+#include "devicetest/device_test_screen.h"
+#include "devicetest/ConnectedDevicesView.h"
 
 extern "C" {
 #include "d4d.h"
@@ -47,18 +47,18 @@ uint8_t UI::init() {
     return 0;
 }
 
-const D4D_OBJECT* views[] = { &scrTest_devices00, &scrTest_devices10, &scrTest_devices20, &scrTest_devices01, &scrTest_devices11, &scrTest_devices21 };
+const D4D_OBJECT* views[] = { &scrDeviceTest_devices00, &scrDeviceTest_devices10, &scrDeviceTest_devices20, &scrDeviceTest_devices01, &scrDeviceTest_devices11, &scrDeviceTest_devices21 };
 ConnectedDevicesManager mgr;
 ConnectedDevicesPresenter presenter(&mgr, views, 6);
 
 extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
 {
     int idx = -1;
-    if (pThis==&scrTest_actuator1)
+    if (pThis==&scrDeviceTest_actuator1)
         idx = 0;
-    else if (pThis==&scrTest_actuator2)
+    else if (pThis==&scrDeviceTest_actuator2)
         idx = 1;
-    if (pThis==&scrTest_actuator3)
+    if (pThis==&scrDeviceTest_actuator3)
         idx = 2;
     
     if (idx>=0) {
@@ -77,7 +77,7 @@ uint32_t UI::showStartupPage()
         calibrateTouchScreen();
     }
             
-    D4D_ActivateScreen(&screen_boot, D4D_TRUE);
+    D4D_ActivateScreen(&screen_devicetest, D4D_TRUE);
     D4D_Poll();
     return 0;
 }

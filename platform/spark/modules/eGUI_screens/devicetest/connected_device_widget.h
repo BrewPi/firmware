@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 #include "d4d.h"
-#include "widget_color_scheme.h"
+#include "../widget_color_scheme.h"
     
 void D4D_CDV_SetValueText(const D4D_OBJECT* pObj, const char* text);
 void D4D_CDV_SetConnectionText(const D4D_OBJECT* pObj, const char* text);

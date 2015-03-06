@@ -1,10 +1,10 @@
 
 #include "d4d.h"
-#include "fonts.h"
-#include "pictures.h"
-#include "brewpi-logo.h"
+#include "../fonts.h"
+#include "../pictures.h"
+#include "../brewpi-logo.h"
+#include "../widget_color_scheme.h"
 #include "connected_device_widget.h"
-#include "widget_color_scheme.h"
 #include "spark_macros.h"
 #include "ModeControl.h"
 #include <string.h>
@@ -59,7 +59,7 @@ void SetActuatorButtonState(D4D_OBJECT* pThis, D4D_BOOL state)
 }
 
 #define D4D_DECLARE_ACTUATOR(idx)\
-     _D4D_DECLARE_ACTUATOR(scrTest_actuator##idx, idx, ((2-(idx-1))*108), 190, 104, 50, FONT_ARIAL7, FONT_ARIAL7_BIG)
+     _D4D_DECLARE_ACTUATOR(scrDeviceTest_actuator##idx, idx, ((2-(idx-1))*108), 190, 104, 50, FONT_ARIAL7, FONT_ARIAL7_BIG)
 
 #define D4D_ACTUATOR_FLAGS (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_BTN_F_3D | D4D_OBJECT_F_BEVEL_RAISED | D4D_BTN_F_CONT_RECT )
 
@@ -87,62 +87,62 @@ D4D_DECLARE_ACTUATOR(3);
 #define SCRBOOT_DEVICES_CX 104
 #define SCRBOOT_DEVICES_CY 120 
 #define SCRBOOT_DEVICES_CX_GAP 4
-D4D_DECLARE_CDV_LIST(D4D_CONST, scrTest_devices0, 0, SCRBOOT_DEVICES_Y, SCRBOOT_DEVICES_CX, SCRBOOT_DEVICES_CY, FONT_ARIAL7_BIG, FONT_ARIAL7, &color_scheme_device, &color_scheme_connection);
-D4D_DECLARE_CDV_LIST(D4D_CONST, scrTest_devices1, SCRBOOT_DEVICES_CX+SCRBOOT_DEVICES_CX_GAP, SCRBOOT_DEVICES_Y, SCRBOOT_DEVICES_CX, SCRBOOT_DEVICES_CY, FONT_ARIAL7_BIG, FONT_ARIAL7, &color_scheme_device, &color_scheme_connection);
-D4D_DECLARE_CDV_LIST(D4D_CONST, scrTest_devices2, 2*(SCRBOOT_DEVICES_CX+SCRBOOT_DEVICES_CX_GAP), SCRBOOT_DEVICES_Y, SCRBOOT_DEVICES_CX, SCRBOOT_DEVICES_CY, FONT_ARIAL7_BIG, FONT_ARIAL7, &color_scheme_device, &color_scheme_connection);
+D4D_DECLARE_CDV_LIST(D4D_CONST, scrDeviceTest_devices0, 0, SCRBOOT_DEVICES_Y, SCRBOOT_DEVICES_CX, SCRBOOT_DEVICES_CY, FONT_ARIAL7_BIG, FONT_ARIAL7, &color_scheme_device, &color_scheme_connection);
+D4D_DECLARE_CDV_LIST(D4D_CONST, scrDeviceTest_devices1, SCRBOOT_DEVICES_CX+SCRBOOT_DEVICES_CX_GAP, SCRBOOT_DEVICES_Y, SCRBOOT_DEVICES_CX, SCRBOOT_DEVICES_CY, FONT_ARIAL7_BIG, FONT_ARIAL7, &color_scheme_device, &color_scheme_connection);
+D4D_DECLARE_CDV_LIST(D4D_CONST, scrDeviceTest_devices2, 2*(SCRBOOT_DEVICES_CX+SCRBOOT_DEVICES_CX_GAP), SCRBOOT_DEVICES_Y, SCRBOOT_DEVICES_CX, SCRBOOT_DEVICES_CY, FONT_ARIAL7_BIG, FONT_ARIAL7, &color_scheme_device, &color_scheme_connection);
 
-// D4D_DECLARE_PICTURE(scrTest_bmpLogo, 0, 0, 68, 4, &bmp_brewpi_logo_black_68_48, D4D_OBJECT_F_ENABLED|D4D_OBJECT_F_VISIBLE, NULL, NULL);
-D4D_DECLARE_STD_PICTURE(scrTest_bmpLogo, 16, 4, 72, 48, &bmp_brewpi_logo_black_72_48);
+// D4D_DECLARE_PICTURE(scrDeviceTest_bmpLogo, 0, 0, 68, 4, &bmp_brewpi_logo_black_68_48, D4D_OBJECT_F_ENABLED|D4D_OBJECT_F_VISIBLE, NULL, NULL);
+D4D_DECLARE_STD_PICTURE(scrDeviceTest_bmpLogo, 16, 4, 72, 48, &bmp_brewpi_logo_black_72_48);
 
 #define TEST_TEXT_X  108
 #define TEST_TEXT_CY  12
-D4D_DECLARE_STD_LABEL(scrTest_title, "BrewPi Hardware Test", TEST_TEXT_X, 0, 320-TEST_TEXT_X, 2*TEST_TEXT_CY, FONT_ARIAL7_BIG);
-D4D_DECLARE_STD_LABEL(scrTest_text0, "Shows connected sensors and toggles outputs.", TEST_TEXT_X, TEST_TEXT_CY*2, 320-TEST_TEXT_X, TEST_TEXT_CY, FONT_ARIAL7);
-D4D_DECLARE_STD_LABEL(scrTest_text1, "For instructions go to", TEST_TEXT_X, TEST_TEXT_CY*3, 320-TEST_TEXT_X, TEST_TEXT_CY, FONT_ARIAL7);
-D4D_DECLARE_STD_LABEL(scrTest_text2, "http://brewpi.com/spark-getting-started", TEST_TEXT_X, TEST_TEXT_CY*4, 320-TEST_TEXT_X, TEST_TEXT_CY, FONT_ARIAL7);
+D4D_DECLARE_STD_LABEL(scrDeviceTest_title, "BrewPi Hardware Test", TEST_TEXT_X, 0, 320-TEST_TEXT_X, 2*TEST_TEXT_CY, FONT_ARIAL7_BIG);
+D4D_DECLARE_STD_LABEL(scrDeviceTest_text0, "Shows connected sensors and toggles outputs.", TEST_TEXT_X, TEST_TEXT_CY*2, 320-TEST_TEXT_X, TEST_TEXT_CY, FONT_ARIAL7);
+D4D_DECLARE_STD_LABEL(scrDeviceTest_text1, "For instructions go to", TEST_TEXT_X, TEST_TEXT_CY*3, 320-TEST_TEXT_X, TEST_TEXT_CY, FONT_ARIAL7);
+D4D_DECLARE_STD_LABEL(scrDeviceTest_text2, "http://brewpi.com/spark-getting-started", TEST_TEXT_X, TEST_TEXT_CY*4, 320-TEST_TEXT_X, TEST_TEXT_CY, FONT_ARIAL7);
 
-D4D_DECLARE_STD_SCREEN_BEGIN(screen_boot, ScreenBoot_)
-    D4D_DECLARE_SCREEN_OBJECT(scrTest_actuator1)
-    D4D_DECLARE_SCREEN_OBJECT(scrTest_actuator2)
-    D4D_DECLARE_SCREEN_OBJECT(scrTest_actuator3)
-    D4D_DECLARE_SCREEN_OBJECT(scrTest_devices00)
-    D4D_DECLARE_SCREEN_OBJECT(scrTest_devices01)
-    D4D_DECLARE_SCREEN_OBJECT(scrTest_devices10)
-    D4D_DECLARE_SCREEN_OBJECT(scrTest_devices11)
-    D4D_DECLARE_SCREEN_OBJECT(scrTest_devices20)
-    D4D_DECLARE_SCREEN_OBJECT(scrTest_devices21)
-    D4D_DECLARE_SCREEN_OBJECT(scrTest_bmpLogo)
-    D4D_DECLARE_SCREEN_OBJECT(scrTest_title)
-    D4D_DECLARE_SCREEN_OBJECT(scrTest_text0)
-    D4D_DECLARE_SCREEN_OBJECT(scrTest_text1)
-    D4D_DECLARE_SCREEN_OBJECT(scrTest_text2)
+D4D_DECLARE_STD_SCREEN_BEGIN(screen_devicetest, ScreenDeviceTest_)
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator1)
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator2)
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator3)
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices00)
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices01)
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices10)
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices11)
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices20)
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices21)
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_bmpLogo)
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_title)
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_text0)
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_text1)
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_text2)
 D4D_DECLARE_SCREEN_END()    
 
-static void ScreenBoot_OnInit()
+static void ScreenDeviceTest_OnInit()
 {
-    SetActuatorButtonState((D4D_OBJECT*)&scrTest_actuator1, D4D_FALSE);
-    SetActuatorButtonState((D4D_OBJECT*)&scrTest_actuator2, D4D_FALSE);
-    SetActuatorButtonState((D4D_OBJECT*)&scrTest_actuator3, D4D_FALSE);
+    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator1, D4D_FALSE);
+    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator2, D4D_FALSE);
+    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator3, D4D_FALSE);
 }
 
-static void ScreenBoot_OnMain()
+static void ScreenDeviceTest_OnMain()
 {
     
 }
 
 control_mode_t prev_mode;
-static void ScreenBoot_OnActivate()
+static void ScreenDeviceTest_OnActivate()
 {
     prev_mode = ModeControl_SetMode(MODE_TEST);
 }
 
-static void ScreenBoot_OnDeactivate()
+static void ScreenDeviceTest_OnDeactivate()
 {
     if (ModeControl_GetMode()==MODE_TEST)
         ModeControl_SetMode(prev_mode);
 }
 
-static Byte ScreenBoot_OnObjectMsg(D4D_MESSAGE* pMsg)
+static Byte ScreenDeviceTest_OnObjectMsg(D4D_MESSAGE* pMsg)
 {
     D4D_UNUSED(pMsg);
     return 0;
