@@ -26,5 +26,5 @@ class DigitalPinActuator ACTUATOR_BASE_CLASS_DECL
 		digitalWrite(pin, active^invert ? HIGH : LOW);
 	}
 	
-	bool isActive() { return (digitalRead(pin) ^ invert) ? HIGH : LOW; }
+	bool isActive() { return ((digitalRead(pin)!=LOW) ^ invert); }
 };
