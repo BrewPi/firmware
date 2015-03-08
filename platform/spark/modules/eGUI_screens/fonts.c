@@ -13,6 +13,12 @@ D4D_DECLARE_FONT(FONT_ARIAL7_BIG, d4dfnt_Arial7_desc, 2, 2, 0, 0)
 D4D_DECLARE_FONT(FONT_BERLIN_SANS_FBDEMI12, d4dfnt_BerlinSansFBDemi12_desc, 1, 1, 1, 0)
 D4D_DECLARE_FONT(FONT_BERLIN_SANS_FBDEMI12_HIGH, d4dfnt_BerlinSansFBDemi12_desc, 1, 2, 1, 0)
 D4D_DECLARE_FONT(FONT_BERLIN_SANS_FBDEMI12_BIG, d4dfnt_BerlinSansFBDemi12_desc, 2, 2, 1, 0)
+D4D_DECLARE_FONT(FONT_SEGOEUI8, d4dfnt_SegoeUI_8_desc, 1, 1, 0, 0)
+D4D_DECLARE_FONT(FONT_SEGOEUI8_BIG, d4dfnt_SegoeUI_8_desc, 2, 2, 0, 0)
+D4D_DECLARE_FONT(FONT_SEGOEUI9, d4dfnt_SegoeUI_9_desc, 1, 1, 0, 0)
+D4D_DECLARE_FONT(FONT_SEGOEUI10, d4dfnt_SegoeUI10_desc, 1, 1, 0, 0)
+D4D_DECLARE_FONT(FONT_SEGOEUI11, d4dfnt_SegoeUI11_desc, 1, 1, 0, 0)
+D4D_DECLARE_FONT(FONT_SEGOEUI9_BIG, d4dfnt_SegoeUI_9_desc, 2, 2, 0, 0)
 D4D_DECLARE_FONT_TABLE_END
 
 
@@ -3195,4 +3201,3566 @@ const D4D_FONT_DESCRIPTOR d4dfnt_CourierNewTest_desc = {
 
 
 
+
+const Byte d4dfnt_Tahoma_8_data_table[] = { 
+
+/* character 0x0020 (' '): (width = 3, offset = 0) */
+0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0021 ('!'): (width = 4, offset = 5) */
+0x00, 0x04, 0x44, 0x44, 0x40, 0x40, 0x00, 
+
+/* character 0x0022 ('"'): (width = 4, offset = 12) */
+0x00, 0xAA, 0xA0, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0023 ('#'): (width = 8, offset = 19) */
+0x00, 0x00, 0x00, 0x14, 0x14, 0x7E, 0x28, 0x28, 0xFC, 0x50, 0x50, 0x00, 0x00, 
+
+/* character 0x0024 ('$'): (width = 6, offset = 32) */
+0x00, 0x02, 0x08, 0x7A, 0x8A, 0x1C, 0x28, 0xAF, 0x08, 0x20, 
+
+/* character 0x0025 ('%'): (width = 11, offset = 42) */
+0x00, 0x00, 0x00, 0x00, 0x31, 0x09, 0x21, 0x28, 0x19, 0x00, 0x4C, 0x0A, 0x42, 0x48, 0x46, 0x00,
+0x00, 0x00, 
+
+/* character 0x0026 ('&'): (width = 7, offset = 60) */
+0x00, 0x00, 0x03, 0x09, 0x12, 0x19, 0x4A, 0x89, 0x19, 0xC8, 0x00, 0x00, 
+
+/* character 0x0027 ('''): (width = 2, offset = 72) */
+0x0A, 0x80, 0x00, 0x00, 
+
+/* character 0x0028 ('('): (width = 4, offset = 76) */
+0x00, 0x24, 0x48, 0x88, 0x88, 0x44, 0x20, 
+
+/* character 0x0029 (')'): (width = 4, offset = 83) */
+0x00, 0x84, 0x42, 0x22, 0x22, 0x44, 0x80, 
+
+/* character 0x002A ('*'): (width = 6, offset = 90) */
+0x00, 0x02, 0x2A, 0x72, 0xA2, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x002B ('+'): (width = 8, offset = 100) */
+0x00, 0x00, 0x00, 0x00, 0x10, 0x10, 0x10, 0xFE, 0x10, 0x10, 0x10, 0x00, 0x00, 
+
+/* character 0x002C (','): (width = 4, offset = 113) */
+0x00, 0x00, 0x00, 0x00, 0x04, 0x44, 0x80, 
+
+/* character 0x002D ('-'): (width = 4, offset = 120) */
+0x00, 0x00, 0x00, 0x0E, 0x00, 0x00, 0x00, 
+
+/* character 0x002E ('.'): (width = 4, offset = 127) */
+0x00, 0x00, 0x00, 0x00, 0x04, 0x40, 0x00, 
+
+/* character 0x002F ('/'): (width = 4, offset = 134) */
+0x00, 0x22, 0x24, 0x44, 0x44, 0x88, 0x80, 
+
+/* character 0x0030 ('0'): (width = 6, offset = 141) */
+0x00, 0x00, 0x1C, 0x8A, 0x28, 0xA2, 0x8A, 0x27, 0x00, 0x00, 
+
+/* character 0x0031 ('1'): (width = 6, offset = 151) */
+0x00, 0x00, 0x08, 0x60, 0x82, 0x08, 0x20, 0x87, 0x00, 0x00, 
+
+/* character 0x0032 ('2'): (width = 6, offset = 161) */
+0x00, 0x00, 0x1C, 0x88, 0x21, 0x08, 0x42, 0x0F, 0x80, 0x00, 
+
+/* character 0x0033 ('3'): (width = 6, offset = 171) */
+0x00, 0x00, 0x1C, 0x88, 0x23, 0x02, 0x0A, 0x27, 0x00, 0x00, 
+
+/* character 0x0034 ('4'): (width = 6, offset = 181) */
+0x00, 0x00, 0x04, 0x31, 0x49, 0x3E, 0x10, 0x41, 0x00, 0x00, 
+
+/* character 0x0035 ('5'): (width = 6, offset = 191) */
+0x00, 0x00, 0x3E, 0x82, 0x0F, 0x02, 0x0A, 0x27, 0x00, 0x00, 
+
+/* character 0x0036 ('6'): (width = 6, offset = 201) */
+0x00, 0x00, 0x0C, 0x42, 0x0F, 0x22, 0x8A, 0x27, 0x00, 0x00, 
+
+/* character 0x0037 ('7'): (width = 6, offset = 211) */
+0x00, 0x00, 0x3E, 0x08, 0x41, 0x08, 0x21, 0x04, 0x00, 0x00, 
+
+/* character 0x0038 ('8'): (width = 6, offset = 221) */
+0x00, 0x00, 0x1C, 0x8A, 0x27, 0x22, 0x8A, 0x27, 0x00, 0x00, 
+
+/* character 0x0039 ('9'): (width = 6, offset = 231) */
+0x00, 0x00, 0x1C, 0x8A, 0x28, 0x9E, 0x08, 0x46, 0x00, 0x00, 
+
+/* character 0x003A (':'): (width = 4, offset = 241) */
+0x00, 0x00, 0x04, 0x40, 0x04, 0x40, 0x00, 
+
+/* character 0x003B (';'): (width = 4, offset = 248) */
+0x00, 0x00, 0x04, 0x40, 0x04, 0x44, 0x80, 
+
+/* character 0x003C ('<'): (width = 8, offset = 255) */
+0x00, 0x00, 0x00, 0x00, 0x02, 0x0C, 0x30, 0x40, 0x30, 0x0C, 0x02, 0x00, 0x00, 
+
+/* character 0x003D ('='): (width = 8, offset = 268) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFE, 0x00, 0xFE, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x003E ('>'): (width = 8, offset = 281) */
+0x00, 0x00, 0x00, 0x00, 0x40, 0x30, 0x0C, 0x02, 0x0C, 0x30, 0x40, 0x00, 0x00, 
+
+/* character 0x003F ('?'): (width = 5, offset = 294) */
+0x00, 0x01, 0xC1, 0x08, 0x88, 0x40, 0x10, 0x00, 0x00, 
+
+/* character 0x0040 ('@'): (width = 10, offset = 303) */
+0x00, 0x00, 0x00, 0x00, 0xF8, 0x41, 0x27, 0x2A, 0x4A, 0x92, 0xA4, 0xA7, 0xC4, 0x00, 0xF0, 0x00,
+0x00, 
+
+/* character 0x0041 ('A'): (width = 7, offset = 320) */
+0x00, 0x00, 0x01, 0x83, 0x09, 0x12, 0x24, 0xFD, 0x0A, 0x10, 0x00, 0x00, 
+
+/* character 0x0042 ('B'): (width = 6, offset = 332) */
+0x00, 0x00, 0x3C, 0x8A, 0x2F, 0x22, 0x8A, 0x2F, 0x00, 0x00, 
+
+/* character 0x0043 ('C'): (width = 7, offset = 342) */
+0x00, 0x00, 0x01, 0xE4, 0x10, 0x20, 0x40, 0x80, 0x80, 0xF0, 0x00, 0x00, 
+
+/* character 0x0044 ('D'): (width = 7, offset = 354) */
+0x00, 0x00, 0x07, 0x88, 0x90, 0xA1, 0x42, 0x85, 0x13, 0xC0, 0x00, 0x00, 
+
+/* character 0x0045 ('E'): (width = 6, offset = 366) */
+0x00, 0x00, 0x3E, 0x82, 0x0F, 0x20, 0x82, 0x0F, 0x80, 0x00, 
+
+/* character 0x0046 ('F'): (width = 6, offset = 376) */
+0x00, 0x00, 0x3E, 0x82, 0x0F, 0xA0, 0x82, 0x08, 0x00, 0x00, 
+
+/* character 0x0047 ('G'): (width = 7, offset = 386) */
+0x00, 0x00, 0x01, 0xE4, 0x10, 0x20, 0x4E, 0x84, 0x88, 0xF0, 0x00, 0x00, 
+
+/* character 0x0048 ('H'): (width = 7, offset = 398) */
+0x00, 0x00, 0x04, 0x28, 0x50, 0xBF, 0x42, 0x85, 0x0A, 0x10, 0x00, 0x00, 
+
+/* character 0x0049 ('I'): (width = 4, offset = 410) */
+0x00, 0x0E, 0x44, 0x44, 0x44, 0xE0, 0x00, 
+
+/* character 0x004A ('J'): (width = 5, offset = 417) */
+0x00, 0x00, 0xE1, 0x08, 0x42, 0x10, 0xB8, 0x00, 0x00, 
+
+/* character 0x004B ('K'): (width = 6, offset = 426) */
+0x00, 0x00, 0x22, 0x92, 0x8C, 0x30, 0xA2, 0x48, 0x80, 0x00, 
+
+/* character 0x004C ('L'): (width = 5, offset = 436) */
+0x00, 0x01, 0x08, 0x42, 0x10, 0x84, 0x3C, 0x00, 0x00, 
+
+/* character 0x004D ('M'): (width = 8, offset = 445) */
+0x00, 0x00, 0x00, 0xC6, 0xC6, 0xAA, 0xAA, 0x92, 0x92, 0x82, 0x82, 0x00, 0x00, 
+
+/* character 0x004E ('N'): (width = 7, offset = 458) */
+0x00, 0x00, 0x06, 0x2C, 0x54, 0xA9, 0x4A, 0x95, 0x1A, 0x30, 0x00, 0x00, 
+
+/* character 0x004F ('O'): (width = 8, offset = 470) */
+0x00, 0x00, 0x00, 0x38, 0x44, 0x82, 0x82, 0x82, 0x82, 0x44, 0x38, 0x00, 0x00, 
+
+/* character 0x0050 ('P'): (width = 6, offset = 483) */
+0x00, 0x00, 0x3C, 0x8A, 0x28, 0xBC, 0x82, 0x08, 0x00, 0x00, 
+
+/* character 0x0051 ('Q'): (width = 8, offset = 493) */
+0x00, 0x00, 0x00, 0x38, 0x44, 0x82, 0x82, 0x82, 0x82, 0x44, 0x38, 0x08, 0x06, 
+
+/* character 0x0052 ('R'): (width = 7, offset = 506) */
+0x00, 0x00, 0x07, 0x88, 0x91, 0x22, 0x78, 0x91, 0x12, 0x10, 0x00, 0x00, 
+
+/* character 0x0053 ('S'): (width = 6, offset = 518) */
+0x00, 0x00, 0x1E, 0x82, 0x07, 0x02, 0x08, 0x2F, 0x00, 0x00, 
+
+/* character 0x0054 ('T'): (width = 6, offset = 528) */
+0x00, 0x00, 0x3E, 0x20, 0x82, 0x08, 0x20, 0x82, 0x00, 0x00, 
+
+/* character 0x0055 ('U'): (width = 7, offset = 538) */
+0x00, 0x00, 0x04, 0x28, 0x50, 0xA1, 0x42, 0x85, 0x09, 0xE0, 0x00, 0x00, 
+
+/* character 0x0056 ('V'): (width = 6, offset = 550) */
+0x00, 0x00, 0x22, 0x8A, 0x25, 0x14, 0x50, 0x82, 0x00, 0x00, 
+
+/* character 0x0057 ('W'): (width = 10, offset = 560) */
+0x00, 0x00, 0x00, 0x02, 0x22, 0x88, 0xA2, 0x25, 0x51, 0x54, 0x55, 0x08, 0x82, 0x20, 0x00, 0x00,
+0x00, 
+
+/* character 0x0058 ('X'): (width = 6, offset = 577) */
+0x00, 0x00, 0x22, 0x89, 0x42, 0x08, 0x52, 0x28, 0x80, 0x00, 
+
+/* character 0x0059 ('Y'): (width = 6, offset = 587) */
+0x00, 0x00, 0x22, 0x89, 0x45, 0x08, 0x20, 0x82, 0x00, 0x00, 
+
+/* character 0x005A ('Z'): (width = 6, offset = 597) */
+0x00, 0x00, 0x3E, 0x08, 0x42, 0x08, 0x42, 0x0F, 0x80, 0x00, 
+
+/* character 0x005B ('['): (width = 4, offset = 607) */
+0x00, 0xE8, 0x88, 0x88, 0x88, 0x88, 0xE0, 
+
+/* character 0x005C ('\'): (width = 4, offset = 614) */
+0x00, 0x88, 0x84, 0x44, 0x44, 0x22, 0x20, 
+
+/* character 0x005D (']'): (width = 4, offset = 621) */
+0x00, 0xE2, 0x22, 0x22, 0x22, 0x22, 0xE0, 
+
+/* character 0x005E ('^'): (width = 8, offset = 628) */
+0x00, 0x00, 0x00, 0x10, 0x28, 0x44, 0x82, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x005F ('_'): (width = 6, offset = 641) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFC, 
+
+/* character 0x0060 ('`'): (width = 6, offset = 651) */
+0x00, 0x04, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x007B ('{'): (width = 5, offset = 661) */
+0x00, 0x04, 0x42, 0x10, 0x98, 0x21, 0x08, 0x41, 0x00, 
+
+/* character 0x007C ('|'): (width = 4, offset = 670) */
+0x00, 0x44, 0x44, 0x44, 0x44, 0x44, 0x40, 
+
+/* character 0x007D ('}'): (width = 5, offset = 677) */
+0x00, 0x20, 0x84, 0x21, 0x06, 0x42, 0x10, 0x88, 0x00, 
+
+/* character 0x007E ('~'): (width = 8, offset = 686) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x62, 0x92, 0x8C, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x00B0 (' '): (width = 5, offset = 699) */
+0x00, 0x00, 0xC9, 0x49, 0x80, 0x00, 0x00, 0x00, 0x00
+
+};
+
+const D4D_FONT_OFFSET d4dfnt_Tahoma_8_offset_table[] = { 
+
+/*       offset       char      hexcode     */
+/*       ======      =====      =======     */
+            0,    /*   ' '        0020       */
+            5,    /*   '!'        0021       */
+           12,    /*   '"'        0022       */
+           19,    /*   '#'        0023       */
+           32,    /*   '$'        0024       */
+           42,    /*   '%'        0025       */
+           60,    /*   '&'        0026       */
+           72,    /*   '''        0027       */
+           76,    /*   '('        0028       */
+           83,    /*   ')'        0029       */
+           90,    /*   '*'        002A       */
+          100,    /*   '+'        002B       */
+          113,    /*   ','        002C       */
+          120,    /*   '-'        002D       */
+          127,    /*   '.'        002E       */
+          134,    /*   '/'        002F       */
+          141,    /*   '0'        0030       */
+          151,    /*   '1'        0031       */
+          161,    /*   '2'        0032       */
+          171,    /*   '3'        0033       */
+          181,    /*   '4'        0034       */
+          191,    /*   '5'        0035       */
+          201,    /*   '6'        0036       */
+          211,    /*   '7'        0037       */
+          221,    /*   '8'        0038       */
+          231,    /*   '9'        0039       */
+          241,    /*   ':'        003A       */
+          248,    /*   ';'        003B       */
+          255,    /*   '<'        003C       */
+          268,    /*   '='        003D       */
+          281,    /*   '>'        003E       */
+          294,    /*   '?'        003F       */
+          303,    /*   '@'        0040       */
+          320,    /*   'A'        0041       */
+          332,    /*   'B'        0042       */
+          342,    /*   'C'        0043       */
+          354,    /*   'D'        0044       */
+          366,    /*   'E'        0045       */
+          376,    /*   'F'        0046       */
+          386,    /*   'G'        0047       */
+          398,    /*   'H'        0048       */
+          410,    /*   'I'        0049       */
+          417,    /*   'J'        004A       */
+          426,    /*   'K'        004B       */
+          436,    /*   'L'        004C       */
+          445,    /*   'M'        004D       */
+          458,    /*   'N'        004E       */
+          470,    /*   'O'        004F       */
+          483,    /*   'P'        0050       */
+          493,    /*   'Q'        0051       */
+          506,    /*   'R'        0052       */
+          518,    /*   'S'        0053       */
+          528,    /*   'T'        0054       */
+          538,    /*   'U'        0055       */
+          550,    /*   'V'        0056       */
+          560,    /*   'W'        0057       */
+          577,    /*   'X'        0058       */
+          587,    /*   'Y'        0059       */
+          597,    /*   'Z'        005A       */
+          607,    /*   '['        005B       */
+          614,    /*   '\'        005C       */
+          621,    /*   ']'        005D       */
+          628,    /*   '^'        005E       */
+          641,    /*   '_'        005F       */
+          651,    /*   '`'        0060       */
+          661,    /*   '{'        007B       */
+          670,    /*   '|'        007C       */
+          677,    /*   '}'        007D       */
+          686,    /*   '~'        007E       */
+          699    /*   ' '        00B0       */
+};
+
+const D4D_FONT_IX d4dfnt_Tahoma_8_index_table[] = { 
+
+/*        char      hexacode      decimal       index     */
+/*       ======     ========      =======      =======    */
+          ' ',    /*   0020          32            0       */
+          '!',    /*   0021          33            1       */
+          '"',    /*   0022          34            2       */
+          '#',    /*   0023          35            3       */
+          '$',    /*   0024          36            4       */
+          '%',    /*   0025          37            5       */
+          '&',    /*   0026          38            6       */
+          '\'',    /*   0027          39            7       */
+          '(',    /*   0028          40            8       */
+          ')',    /*   0029          41            9       */
+          '*',    /*   002A          42           10       */
+          '+',    /*   002B          43           11       */
+          ',',    /*   002C          44           12       */
+          '-',    /*   002D          45           13       */
+          '.',    /*   002E          46           14       */
+          '/',    /*   002F          47           15       */
+          '0',    /*   0030          48           16       */
+          '1',    /*   0031          49           17       */
+          '2',    /*   0032          50           18       */
+          '3',    /*   0033          51           19       */
+          '4',    /*   0034          52           20       */
+          '5',    /*   0035          53           21       */
+          '6',    /*   0036          54           22       */
+          '7',    /*   0037          55           23       */
+          '8',    /*   0038          56           24       */
+          '9',    /*   0039          57           25       */
+          ':',    /*   003A          58           26       */
+          ';',    /*   003B          59           27       */
+          '<',    /*   003C          60           28       */
+          '=',    /*   003D          61           29       */
+          '>',    /*   003E          62           30       */
+          '?',    /*   003F          63           31       */
+          '@',    /*   0040          64           32       */
+          'A',    /*   0041          65           33       */
+          'B',    /*   0042          66           34       */
+          'C',    /*   0043          67           35       */
+          'D',    /*   0044          68           36       */
+          'E',    /*   0045          69           37       */
+          'F',    /*   0046          70           38       */
+          'G',    /*   0047          71           39       */
+          'H',    /*   0048          72           40       */
+          'I',    /*   0049          73           41       */
+          'J',    /*   004A          74           42       */
+          'K',    /*   004B          75           43       */
+          'L',    /*   004C          76           44       */
+          'M',    /*   004D          77           45       */
+          'N',    /*   004E          78           46       */
+          'O',    /*   004F          79           47       */
+          'P',    /*   0050          80           48       */
+          'Q',    /*   0051          81           49       */
+          'R',    /*   0052          82           50       */
+          'S',    /*   0053          83           51       */
+          'T',    /*   0054          84           52       */
+          'U',    /*   0055          85           53       */
+          'V',    /*   0056          86           54       */
+          'W',    /*   0057          87           55       */
+          'X',    /*   0058          88           56       */
+          'Y',    /*   0059          89           57       */
+          'Z',    /*   005A          90           58       */
+          '[',    /*   005B          91           59       */
+          '\\',    /*   005C          92           60       */
+          ']',    /*   005D          93           61       */
+          '^',    /*   005E          94           62       */
+          '_',    /*   005F          95           63       */
+          '`',    /*   0060          96           64       */
+          '{',    /*   007B         123           65       */
+          '|',    /*   007C         124           66       */
+          '}',    /*   007D         125           67       */
+          '~',    /*   007E         126           68       */
+         0x00B0     /*   00B0         176           69       */
+};
+
+const D4D_FONT_SIZE d4dfnt_Tahoma_8_width_table[] = { 
+
+/*       width        char      hexcode     */
+/*       ======      =====      =======     */
+           3,    /*   ' '        0020       */
+           4,    /*   '!'        0021       */
+           4,    /*   '"'        0022       */
+           8,    /*   '#'        0023       */
+           6,    /*   '$'        0024       */
+          11,    /*   '%'        0025       */
+           7,    /*   '&'        0026       */
+           2,    /*   '''        0027       */
+           4,    /*   '('        0028       */
+           4,    /*   ')'        0029       */
+           6,    /*   '*'        002A       */
+           8,    /*   '+'        002B       */
+           4,    /*   ','        002C       */
+           4,    /*   '-'        002D       */
+           4,    /*   '.'        002E       */
+           4,    /*   '/'        002F       */
+           6,    /*   '0'        0030       */
+           6,    /*   '1'        0031       */
+           6,    /*   '2'        0032       */
+           6,    /*   '3'        0033       */
+           6,    /*   '4'        0034       */
+           6,    /*   '5'        0035       */
+           6,    /*   '6'        0036       */
+           6,    /*   '7'        0037       */
+           6,    /*   '8'        0038       */
+           6,    /*   '9'        0039       */
+           4,    /*   ':'        003A       */
+           4,    /*   ';'        003B       */
+           8,    /*   '<'        003C       */
+           8,    /*   '='        003D       */
+           8,    /*   '>'        003E       */
+           5,    /*   '?'        003F       */
+          10,    /*   '@'        0040       */
+           7,    /*   'A'        0041       */
+           6,    /*   'B'        0042       */
+           7,    /*   'C'        0043       */
+           7,    /*   'D'        0044       */
+           6,    /*   'E'        0045       */
+           6,    /*   'F'        0046       */
+           7,    /*   'G'        0047       */
+           7,    /*   'H'        0048       */
+           4,    /*   'I'        0049       */
+           5,    /*   'J'        004A       */
+           6,    /*   'K'        004B       */
+           5,    /*   'L'        004C       */
+           8,    /*   'M'        004D       */
+           7,    /*   'N'        004E       */
+           8,    /*   'O'        004F       */
+           6,    /*   'P'        0050       */
+           8,    /*   'Q'        0051       */
+           7,    /*   'R'        0052       */
+           6,    /*   'S'        0053       */
+           6,    /*   'T'        0054       */
+           7,    /*   'U'        0055       */
+           6,    /*   'V'        0056       */
+          10,    /*   'W'        0057       */
+           6,    /*   'X'        0058       */
+           6,    /*   'Y'        0059       */
+           6,    /*   'Z'        005A       */
+           4,    /*   '['        005B       */
+           4,    /*   '\'        005C       */
+           4,    /*   ']'        005D       */
+           8,    /*   '^'        005E       */
+           6,    /*   '_'        005F       */
+           6,    /*   '`'        0060       */
+           5,    /*   '{'        007B       */
+           4,    /*   '|'        007C       */
+           5,    /*   '}'        007D       */
+           8,    /*   '~'        007E       */
+           5     /*   ' '        00B0       */
+};
+
+const D4D_FONT_DESCRIPTOR d4dfnt_Tahoma_8_desc = {
+    0,       // Font descriptor version number
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,   // linear / nonlinear , proporcional or not
+    ' ',     // start char of used table
+    70,   // count of all chars of used table
+    0x0020,     // index of char that will be printed instead of
+    8,       // font size (size of font loaded in PC)
+    0,     // height of font bitmpap for non proporcional fonts
+    11,      // offset from Y0 coordination to baseline
+    {11, 13},     // size of biggest char x/y
+    D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON,     // packing condition of individual bitmaps
+    d4dfnt_Tahoma_8_index_table,          // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
+    d4dfnt_Tahoma_8_offset_table,     // Offset table - used when proporcial font is set in flags
+    d4dfnt_Tahoma_8_width_table,        // Size table - used when proporcial font is set in flags
+    d4dfnt_Tahoma_8_data_table,      // bitmap/font data array
+    NULL       // pointer for next UNICODE page
+};
+
+const Byte d4dfnt_Tahoma_9_data_table[] = { 
+
+/* character 0x0020 (' '): (width = 4, offset = 0) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0021 ('!'): (width = 4, offset = 7) */
+0x00, 0x04, 0x44, 0x44, 0x44, 0x04, 0x00, 
+
+/* character 0x0022 ('"'): (width = 5, offset = 14) */
+0x00, 0x14, 0xA5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0023 ('#'): (width = 9, offset = 23) */
+0x00, 0x00, 0x00, 0x01, 0x40, 0xA1, 0xF8, 0x50, 0x28, 0x7E, 0x0A, 0x0A, 0x05, 0x00, 0x00, 0x00,
+
+
+/* character 0x0024 ('$'): (width = 7, offset = 39) */
+0x00, 0x00, 0x40, 0x83, 0x8A, 0x94, 0x18, 0x18, 0x29, 0x51, 0xC1, 0x02, 0x00, 
+
+/* character 0x0025 ('%'): (width = 12, offset = 52) */
+0x00, 0x00, 0x00, 0x00, 0x06, 0x10, 0x92, 0x09, 0x20, 0x94, 0x06, 0x4C, 0x05, 0x20, 0x92, 0x09,
+0x21, 0x0C, 0x00, 0x00, 0x00, 
+
+/* character 0x0026 ('&'): (width = 8, offset = 73) */
+0x00, 0x00, 0x00, 0x70, 0x88, 0x88, 0x50, 0x62, 0x92, 0x8C, 0x8C, 0x72, 0x00, 0x00, 
+
+/* character 0x0027 ('''): (width = 3, offset = 87) */
+0x01, 0x24, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0028 ('('): (width = 5, offset = 93) */
+0x00, 0x04, 0x42, 0x21, 0x08, 0x42, 0x10, 0x42, 0x08, 
+
+/* character 0x0029 (')'): (width = 5, offset = 102) */
+0x00, 0x10, 0x42, 0x08, 0x42, 0x10, 0x84, 0x42, 0x20, 
+
+/* character 0x002A ('*'): (width = 7, offset = 111) */
+0x00, 0x00, 0x42, 0xA3, 0x8A, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x002B ('+'): (width = 8, offset = 124) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x10, 0x10, 0xFE, 0x10, 0x10, 0x10, 0x00, 0x00, 
+
+/* character 0x002C (','): (width = 4, offset = 138) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x44, 0x48, 
+
+/* character 0x002D ('-'): (width = 4, offset = 145) */
+0x00, 0x00, 0x00, 0x00, 0xE0, 0x00, 0x00, 
+
+/* character 0x002E ('.'): (width = 4, offset = 152) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x44, 0x00, 
+
+/* character 0x002F ('/'): (width = 5, offset = 159) */
+0x00, 0x04, 0x22, 0x10, 0x84, 0x42, 0x10, 0x88, 0x40, 
+
+/* character 0x0030 ('0'): (width = 7, offset = 168) */
+0x00, 0x00, 0x03, 0xC8, 0x50, 0xA1, 0x42, 0x85, 0x0A, 0x13, 0xC0, 0x00, 0x00, 
+
+/* character 0x0031 ('1'): (width = 7, offset = 181) */
+0x00, 0x00, 0x00, 0x87, 0x02, 0x04, 0x08, 0x10, 0x20, 0x43, 0xE0, 0x00, 0x00, 
+
+/* character 0x0032 ('2'): (width = 7, offset = 194) */
+0x00, 0x00, 0x03, 0xC8, 0x40, 0x81, 0x04, 0x30, 0x82, 0x07, 0xE0, 0x00, 0x00, 
+
+/* character 0x0033 ('3'): (width = 7, offset = 207) */
+0x00, 0x00, 0x03, 0xC8, 0x40, 0x81, 0x1C, 0x04, 0x0A, 0x13, 0xC0, 0x00, 0x00, 
+
+/* character 0x0034 ('4'): (width = 7, offset = 220) */
+0x00, 0x00, 0x00, 0x41, 0x85, 0x12, 0x44, 0xFC, 0x10, 0x20, 0x40, 0x00, 0x00, 
+
+/* character 0x0035 ('5'): (width = 7, offset = 233) */
+0x00, 0x00, 0x07, 0xE8, 0x10, 0x3E, 0x02, 0x04, 0x0A, 0x13, 0xC0, 0x00, 0x00, 
+
+/* character 0x0036 ('6'): (width = 7, offset = 246) */
+0x00, 0x00, 0x01, 0xC4, 0x10, 0x3E, 0x42, 0x85, 0x0A, 0x13, 0xC0, 0x00, 0x00, 
+
+/* character 0x0037 ('7'): (width = 7, offset = 259) */
+0x00, 0x00, 0x07, 0xE0, 0x41, 0x02, 0x08, 0x10, 0x40, 0x82, 0x00, 0x00, 0x00, 
+
+/* character 0x0038 ('8'): (width = 7, offset = 272) */
+0x00, 0x00, 0x03, 0xC8, 0x50, 0xA1, 0x3C, 0x85, 0x0A, 0x13, 0xC0, 0x00, 0x00, 
+
+/* character 0x0039 ('9'): (width = 7, offset = 285) */
+0x00, 0x00, 0x03, 0xC8, 0x50, 0xA1, 0x42, 0x7C, 0x08, 0x23, 0x80, 0x00, 0x00, 
+
+/* character 0x003A (':'): (width = 4, offset = 298) */
+0x00, 0x00, 0x04, 0x40, 0x00, 0x44, 0x00, 
+
+/* character 0x003B (';'): (width = 4, offset = 305) */
+0x00, 0x00, 0x04, 0x40, 0x00, 0x44, 0x48, 
+
+/* character 0x003C ('<'): (width = 9, offset = 312) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x30, 0x60, 0x40, 0x18, 0x03, 0x00, 0x40, 0x00, 0x00,
+
+
+/* character 0x003D ('='): (width = 9, offset = 328) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0xF8, 0x00, 0x7E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+
+
+/* character 0x003E ('>'): (width = 9, offset = 344) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0xC0, 0x18, 0x02, 0x06, 0x0C, 0x08, 0x00, 0x00, 0x00,
+
+
+/* character 0x003F ('?'): (width = 6, offset = 360) */
+0x00, 0x00, 0x1C, 0x88, 0x20, 0x8C, 0x41, 0x00, 0x10, 0x00, 0x00, 
+
+/* character 0x0040 ('@'): (width = 11, offset = 371) */
+0x00, 0x00, 0x00, 0x00, 0x0F, 0x06, 0x18, 0xBD, 0x28, 0x95, 0x12, 0xA2, 0x54, 0x49, 0x7E, 0x30,
+0x01, 0xE0, 0x00, 0x00, 
+
+/* character 0x0041 ('A'): (width = 8, offset = 391) */
+0x00, 0x00, 0x00, 0x10, 0x28, 0x28, 0x28, 0x44, 0x44, 0x7C, 0x82, 0x82, 0x00, 0x00, 
+
+/* character 0x0042 ('B'): (width = 7, offset = 405) */
+0x00, 0x00, 0x07, 0xC8, 0x50, 0xA1, 0x7C, 0x85, 0x0A, 0x17, 0xC0, 0x00, 0x00, 
+
+/* character 0x0043 ('C'): (width = 7, offset = 418) */
+0x00, 0x00, 0x01, 0xE4, 0x10, 0x20, 0x40, 0x81, 0x01, 0x01, 0xE0, 0x00, 0x00, 
+
+/* character 0x0044 ('D'): (width = 8, offset = 431) */
+0x00, 0x00, 0x00, 0xF8, 0x84, 0x82, 0x82, 0x82, 0x82, 0x82, 0x84, 0xF8, 0x00, 0x00, 
+
+/* character 0x0045 ('E'): (width = 7, offset = 445) */
+0x00, 0x00, 0x07, 0xE8, 0x10, 0x20, 0x7E, 0x81, 0x02, 0x07, 0xE0, 0x00, 0x00, 
+
+/* character 0x0046 ('F'): (width = 6, offset = 458) */
+0x00, 0x00, 0x3E, 0x82, 0x08, 0x3E, 0x82, 0x08, 0x20, 0x00, 0x00, 
+
+/* character 0x0047 ('G'): (width = 8, offset = 469) */
+0x00, 0x00, 0x00, 0x3C, 0x42, 0x80, 0x80, 0x8E, 0x82, 0x82, 0x42, 0x3E, 0x00, 0x00, 
+
+/* character 0x0048 ('H'): (width = 8, offset = 483) */
+0x00, 0x00, 0x00, 0x82, 0x82, 0x82, 0x82, 0xFE, 0x82, 0x82, 0x82, 0x82, 0x00, 0x00, 
+
+/* character 0x0049 ('I'): (width = 4, offset = 497) */
+0x00, 0x0E, 0x44, 0x44, 0x44, 0x4E, 0x00, 
+
+/* character 0x004A ('J'): (width = 5, offset = 504) */
+0x00, 0x00, 0xE1, 0x08, 0x42, 0x10, 0x85, 0xC0, 0x00, 
+
+/* character 0x004B ('K'): (width = 7, offset = 513) */
+0x00, 0x00, 0x04, 0x28, 0x92, 0x28, 0x60, 0xA1, 0x22, 0x24, 0x20, 0x00, 0x00, 
+
+/* character 0x004C ('L'): (width = 6, offset = 526) */
+0x00, 0x00, 0x20, 0x82, 0x08, 0x20, 0x82, 0x08, 0x3E, 0x00, 0x00, 
+
+/* character 0x004D ('M'): (width = 9, offset = 537) */
+0x00, 0x00, 0x00, 0x18, 0x6C, 0x35, 0x2A, 0x95, 0x4A, 0x99, 0x4C, 0xA0, 0x50, 0x20, 0x00, 0x00,
+
+
+/* character 0x004E ('N'): (width = 8, offset = 553) */
+0x00, 0x00, 0x00, 0xC2, 0xC2, 0xA2, 0xA2, 0x92, 0x8A, 0x8A, 0x86, 0x86, 0x00, 0x00, 
+
+/* character 0x004F ('O'): (width = 9, offset = 567) */
+0x00, 0x00, 0x00, 0x07, 0x84, 0x24, 0x0A, 0x05, 0x02, 0x81, 0x40, 0x90, 0x87, 0x80, 0x00, 0x00,
+
+
+/* character 0x0050 ('P'): (width = 7, offset = 583) */
+0x00, 0x00, 0x07, 0xC8, 0x50, 0xA1, 0x42, 0xF9, 0x02, 0x04, 0x00, 0x00, 0x00, 
+
+/* character 0x0051 ('Q'): (width = 9, offset = 596) */
+0x00, 0x00, 0x00, 0x07, 0x84, 0x24, 0x0A, 0x05, 0x02, 0x81, 0x40, 0x90, 0x87, 0x80, 0x80, 0x38,
+
+
+/* character 0x0052 ('R'): (width = 7, offset = 612) */
+0x00, 0x00, 0x07, 0x88, 0x91, 0x22, 0x78, 0x91, 0x12, 0x24, 0x20, 0x00, 0x00, 
+
+/* character 0x0053 ('S'): (width = 7, offset = 625) */
+0x00, 0x00, 0x03, 0xC8, 0x50, 0x20, 0x3C, 0x04, 0x0A, 0x13, 0xC0, 0x00, 0x00, 
+
+/* character 0x0054 ('T'): (width = 8, offset = 638) */
+0x00, 0x00, 0x00, 0xFE, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x00, 0x00, 
+
+/* character 0x0055 ('U'): (width = 8, offset = 652) */
+0x00, 0x00, 0x00, 0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x44, 0x38, 0x00, 0x00, 
+
+/* character 0x0056 ('V'): (width = 8, offset = 666) */
+0x00, 0x00, 0x00, 0x82, 0x82, 0x44, 0x44, 0x44, 0x28, 0x28, 0x28, 0x10, 0x00, 0x00, 
+
+/* character 0x0057 ('W'): (width = 12, offset = 680) */
+0x00, 0x00, 0x00, 0x00, 0x08, 0x42, 0x84, 0x24, 0xA4, 0x4A, 0x44, 0xA4, 0x51, 0x43, 0x18, 0x20,
+0x82, 0x08, 0x00, 0x00, 0x00, 
+
+/* character 0x0058 ('X'): (width = 7, offset = 701) */
+0x00, 0x00, 0x04, 0x24, 0x89, 0x0C, 0x18, 0x30, 0x91, 0x24, 0x20, 0x00, 0x00, 
+
+/* character 0x0059 ('Y'): (width = 8, offset = 714) */
+0x00, 0x00, 0x00, 0x82, 0x44, 0x44, 0x28, 0x10, 0x10, 0x10, 0x10, 0x10, 0x00, 0x00, 
+
+/* character 0x005A ('Z'): (width = 7, offset = 728) */
+0x00, 0x00, 0x07, 0xE0, 0x41, 0x04, 0x10, 0x20, 0x82, 0x07, 0xE0, 0x00, 0x00, 
+
+/* character 0x005B ('['): (width = 5, offset = 741) */
+0x00, 0x1C, 0x84, 0x21, 0x08, 0x42, 0x10, 0x84, 0x38, 
+
+/* character 0x005C ('\'): (width = 5, offset = 750) */
+0x00, 0x21, 0x04, 0x21, 0x08, 0x21, 0x08, 0x41, 0x08, 
+
+/* character 0x005D (']'): (width = 5, offset = 759) */
+0x00, 0x1C, 0x21, 0x08, 0x42, 0x10, 0x84, 0x21, 0x38, 
+
+/* character 0x005E ('^'): (width = 9, offset = 768) */
+0x00, 0x00, 0x00, 0x01, 0x01, 0x41, 0x11, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+
+
+/* character 0x005F ('_'): (width = 7, offset = 784) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1F, 0xC0, 
+
+/* character 0x0060 ('`'): (width = 7, offset = 797) */
+0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x007B ('{'): (width = 6, offset = 810) */
+0x00, 0x01, 0x88, 0x20, 0x82, 0x08, 0xC0, 0x82, 0x08, 0x20, 0x60, 
+
+/* character 0x007C ('|'): (width = 5, offset = 821) */
+0x00, 0x08, 0x42, 0x10, 0x84, 0x21, 0x08, 0x42, 0x10, 
+
+/* character 0x007D ('}'): (width = 6, offset = 830) */
+0x00, 0x0C, 0x08, 0x20, 0x82, 0x08, 0x18, 0x82, 0x08, 0x23, 0x00, 
+
+/* character 0x007E ('~'): (width = 9, offset = 841) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x62, 0x49, 0x23, 0x00, 0x00, 0x00, 0x00, 0x00,
+
+
+/* character 0x00B0 (' '): (width = 6, offset = 857) */
+0x00, 0x00, 0x0C, 0x49, 0x23, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+
+};
+
+const D4D_FONT_OFFSET d4dfnt_Tahoma_9_offset_table[] = { 
+
+/*       offset       char      hexcode     */
+/*       ======      =====      =======     */
+            0,    /*   ' '        0020       */
+            7,    /*   '!'        0021       */
+           14,    /*   '"'        0022       */
+           23,    /*   '#'        0023       */
+           39,    /*   '$'        0024       */
+           52,    /*   '%'        0025       */
+           73,    /*   '&'        0026       */
+           87,    /*   '''        0027       */
+           93,    /*   '('        0028       */
+          102,    /*   ')'        0029       */
+          111,    /*   '*'        002A       */
+          124,    /*   '+'        002B       */
+          138,    /*   ','        002C       */
+          145,    /*   '-'        002D       */
+          152,    /*   '.'        002E       */
+          159,    /*   '/'        002F       */
+          168,    /*   '0'        0030       */
+          181,    /*   '1'        0031       */
+          194,    /*   '2'        0032       */
+          207,    /*   '3'        0033       */
+          220,    /*   '4'        0034       */
+          233,    /*   '5'        0035       */
+          246,    /*   '6'        0036       */
+          259,    /*   '7'        0037       */
+          272,    /*   '8'        0038       */
+          285,    /*   '9'        0039       */
+          298,    /*   ':'        003A       */
+          305,    /*   ';'        003B       */
+          312,    /*   '<'        003C       */
+          328,    /*   '='        003D       */
+          344,    /*   '>'        003E       */
+          360,    /*   '?'        003F       */
+          371,    /*   '@'        0040       */
+          391,    /*   'A'        0041       */
+          405,    /*   'B'        0042       */
+          418,    /*   'C'        0043       */
+          431,    /*   'D'        0044       */
+          445,    /*   'E'        0045       */
+          458,    /*   'F'        0046       */
+          469,    /*   'G'        0047       */
+          483,    /*   'H'        0048       */
+          497,    /*   'I'        0049       */
+          504,    /*   'J'        004A       */
+          513,    /*   'K'        004B       */
+          526,    /*   'L'        004C       */
+          537,    /*   'M'        004D       */
+          553,    /*   'N'        004E       */
+          567,    /*   'O'        004F       */
+          583,    /*   'P'        0050       */
+          596,    /*   'Q'        0051       */
+          612,    /*   'R'        0052       */
+          625,    /*   'S'        0053       */
+          638,    /*   'T'        0054       */
+          652,    /*   'U'        0055       */
+          666,    /*   'V'        0056       */
+          680,    /*   'W'        0057       */
+          701,    /*   'X'        0058       */
+          714,    /*   'Y'        0059       */
+          728,    /*   'Z'        005A       */
+          741,    /*   '['        005B       */
+          750,    /*   '\'        005C       */
+          759,    /*   ']'        005D       */
+          768,    /*   '^'        005E       */
+          784,    /*   '_'        005F       */
+          797,    /*   '`'        0060       */
+          810,    /*   '{'        007B       */
+          821,    /*   '|'        007C       */
+          830,    /*   '}'        007D       */
+          841,    /*   '~'        007E       */
+          857    /*   ' '        00B0       */
+};
+
+const D4D_FONT_IX d4dfnt_Tahoma_9_index_table[] = { 
+
+/*        char      hexacode      decimal       index     */
+/*       ======     ========      =======      =======    */
+          ' ',    /*   0020          32            0       */
+          '!',    /*   0021          33            1       */
+          '"',    /*   0022          34            2       */
+          '#',    /*   0023          35            3       */
+          '$',    /*   0024          36            4       */
+          '%',    /*   0025          37            5       */
+          '&',    /*   0026          38            6       */
+          '\'',    /*   0027          39            7       */
+          '(',    /*   0028          40            8       */
+          ')',    /*   0029          41            9       */
+          '*',    /*   002A          42           10       */
+          '+',    /*   002B          43           11       */
+          ',',    /*   002C          44           12       */
+          '-',    /*   002D          45           13       */
+          '.',    /*   002E          46           14       */
+          '/',    /*   002F          47           15       */
+          '0',    /*   0030          48           16       */
+          '1',    /*   0031          49           17       */
+          '2',    /*   0032          50           18       */
+          '3',    /*   0033          51           19       */
+          '4',    /*   0034          52           20       */
+          '5',    /*   0035          53           21       */
+          '6',    /*   0036          54           22       */
+          '7',    /*   0037          55           23       */
+          '8',    /*   0038          56           24       */
+          '9',    /*   0039          57           25       */
+          ':',    /*   003A          58           26       */
+          ';',    /*   003B          59           27       */
+          '<',    /*   003C          60           28       */
+          '=',    /*   003D          61           29       */
+          '>',    /*   003E          62           30       */
+          '?',    /*   003F          63           31       */
+          '@',    /*   0040          64           32       */
+          'A',    /*   0041          65           33       */
+          'B',    /*   0042          66           34       */
+          'C',    /*   0043          67           35       */
+          'D',    /*   0044          68           36       */
+          'E',    /*   0045          69           37       */
+          'F',    /*   0046          70           38       */
+          'G',    /*   0047          71           39       */
+          'H',    /*   0048          72           40       */
+          'I',    /*   0049          73           41       */
+          'J',    /*   004A          74           42       */
+          'K',    /*   004B          75           43       */
+          'L',    /*   004C          76           44       */
+          'M',    /*   004D          77           45       */
+          'N',    /*   004E          78           46       */
+          'O',    /*   004F          79           47       */
+          'P',    /*   0050          80           48       */
+          'Q',    /*   0051          81           49       */
+          'R',    /*   0052          82           50       */
+          'S',    /*   0053          83           51       */
+          'T',    /*   0054          84           52       */
+          'U',    /*   0055          85           53       */
+          'V',    /*   0056          86           54       */
+          'W',    /*   0057          87           55       */
+          'X',    /*   0058          88           56       */
+          'Y',    /*   0059          89           57       */
+          'Z',    /*   005A          90           58       */
+          '[',    /*   005B          91           59       */
+          '\\',    /*   005C          92           60       */
+          ']',    /*   005D          93           61       */
+          '^',    /*   005E          94           62       */
+          '_',    /*   005F          95           63       */
+          '`',    /*   0060          96           64       */
+          '{',    /*   007B         123           65       */
+          '|',    /*   007C         124           66       */
+          '}',    /*   007D         125           67       */
+          '~',    /*   007E         126           68       */
+         0x00B0     /*   00B0         176           69       */
+};
+
+const D4D_FONT_SIZE d4dfnt_Tahoma_9_width_table[] = { 
+
+/*       width        char      hexcode     */
+/*       ======      =====      =======     */
+           4,    /*   ' '        0020       */
+           4,    /*   '!'        0021       */
+           5,    /*   '"'        0022       */
+           9,    /*   '#'        0023       */
+           7,    /*   '$'        0024       */
+          12,    /*   '%'        0025       */
+           8,    /*   '&'        0026       */
+           3,    /*   '''        0027       */
+           5,    /*   '('        0028       */
+           5,    /*   ')'        0029       */
+           7,    /*   '*'        002A       */
+           8,    /*   '+'        002B       */
+           4,    /*   ','        002C       */
+           4,    /*   '-'        002D       */
+           4,    /*   '.'        002E       */
+           5,    /*   '/'        002F       */
+           7,    /*   '0'        0030       */
+           7,    /*   '1'        0031       */
+           7,    /*   '2'        0032       */
+           7,    /*   '3'        0033       */
+           7,    /*   '4'        0034       */
+           7,    /*   '5'        0035       */
+           7,    /*   '6'        0036       */
+           7,    /*   '7'        0037       */
+           7,    /*   '8'        0038       */
+           7,    /*   '9'        0039       */
+           4,    /*   ':'        003A       */
+           4,    /*   ';'        003B       */
+           9,    /*   '<'        003C       */
+           9,    /*   '='        003D       */
+           9,    /*   '>'        003E       */
+           6,    /*   '?'        003F       */
+          11,    /*   '@'        0040       */
+           8,    /*   'A'        0041       */
+           7,    /*   'B'        0042       */
+           7,    /*   'C'        0043       */
+           8,    /*   'D'        0044       */
+           7,    /*   'E'        0045       */
+           6,    /*   'F'        0046       */
+           8,    /*   'G'        0047       */
+           8,    /*   'H'        0048       */
+           4,    /*   'I'        0049       */
+           5,    /*   'J'        004A       */
+           7,    /*   'K'        004B       */
+           6,    /*   'L'        004C       */
+           9,    /*   'M'        004D       */
+           8,    /*   'N'        004E       */
+           9,    /*   'O'        004F       */
+           7,    /*   'P'        0050       */
+           9,    /*   'Q'        0051       */
+           7,    /*   'R'        0052       */
+           7,    /*   'S'        0053       */
+           8,    /*   'T'        0054       */
+           8,    /*   'U'        0055       */
+           8,    /*   'V'        0056       */
+          12,    /*   'W'        0057       */
+           7,    /*   'X'        0058       */
+           8,    /*   'Y'        0059       */
+           7,    /*   'Z'        005A       */
+           5,    /*   '['        005B       */
+           5,    /*   '\'        005C       */
+           5,    /*   ']'        005D       */
+           9,    /*   '^'        005E       */
+           7,    /*   '_'        005F       */
+           7,    /*   '`'        0060       */
+           6,    /*   '{'        007B       */
+           5,    /*   '|'        007C       */
+           6,    /*   '}'        007D       */
+           9,    /*   '~'        007E       */
+           6     /*   ' '        00B0       */
+};
+
+const D4D_FONT_DESCRIPTOR d4dfnt_Tahoma_9_desc = {
+    0,       // Font descriptor version number
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,   // linear / nonlinear , proporcional or not
+    ' ',     // start char of used table
+    70,   // count of all chars of used table
+    0x0020,     // index of char that will be printed instead of
+    9,       // font size (size of font loaded in PC)
+    0,     // height of font bitmpap for non proporcional fonts
+    12,      // offset from Y0 coordination to baseline
+    {12, 14},     // size of biggest char x/y
+    D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON,     // packing condition of individual bitmaps
+    d4dfnt_Tahoma_9_index_table,          // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
+    d4dfnt_Tahoma_9_offset_table,     // Offset table - used when proporcial font is set in flags
+    d4dfnt_Tahoma_9_width_table,        // Size table - used when proporcial font is set in flags
+    d4dfnt_Tahoma_9_data_table,      // bitmap/font data array
+    NULL       // pointer for next UNICODE page
+};
+
+const Byte d4dfnt_SegoeUISemibold_9_data_table[] = { 
+
+/* character 0x0020 (' '): (width = 3, offset = 0) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0021 ('!'): (width = 4, offset = 6) */
+0x00, 0x00, 0x66, 0x66, 0x66, 0x06, 0x60, 0x00, 
+
+/* character 0x0022 ('"'): (width = 5, offset = 14) */
+0x00, 0x00, 0x07, 0xBD, 0xE0, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0023 ('#'): (width = 7, offset = 24) */
+0x00, 0x00, 0x00, 0x01, 0xE3, 0xFF, 0x9E, 0x3D, 0xFD, 0xE3, 0xC0, 0x00, 0x00, 0x00, 
+
+/* character 0x0024 ('$'): (width = 7, offset = 38) */
+0x00, 0x00, 0x00, 0xC3, 0xCF, 0x1E, 0x3C, 0x3C, 0x3C, 0x7B, 0xF7, 0xC3, 0x00, 0x00, 
+
+/* character 0x0025 ('%'): (width = 10, offset = 52) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x39, 0x9B, 0xC6, 0xF0, 0xF8, 0x0C, 0x03, 0xE1, 0xEC, 0x7B, 0x33,
+0x80, 0x00, 0x00, 
+
+/* character 0x0026 ('&'): (width = 10, offset = 71) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x1C, 0x0D, 0x83, 0x6C, 0x73, 0x3E, 0xD9, 0xE6, 0x39, 0x9E, 0x3F,
+0xC0, 0x00, 0x00, 
+
+/* character 0x0027 ('''): (width = 3, offset = 90) */
+0x00, 0x06, 0xD8, 0x00, 0x00, 0x00, 
+
+/* character 0x0028 ('('): (width = 4, offset = 96) */
+0x00, 0x00, 0x13, 0x36, 0x66, 0x66, 0x73, 0x10, 
+
+/* character 0x0029 (')'): (width = 4, offset = 104) */
+0x00, 0x00, 0xC6, 0x63, 0x33, 0x33, 0x76, 0xC0, 
+
+/* character 0x002A ('*'): (width = 5, offset = 112) */
+0x00, 0x00, 0x03, 0x7C, 0xCF, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x002B ('+'): (width = 8, offset = 122) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0C, 0x0C, 0x3F, 0x0C, 0x0C, 0x00, 0x00, 0x00, 
+
+/* character 0x002C (','): (width = 3, offset = 137) */
+0x00, 0x00, 0x00, 0x00, 0x07, 0xF0, 
+
+/* character 0x002D ('-'): (width = 5, offset = 143) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xC0, 0x00, 0x00, 0x00, 
+
+/* character 0x002E ('.'): (width = 3, offset = 153) */
+0x00, 0x00, 0x00, 0x00, 0x36, 0x00, 
+
+/* character 0x002F ('/'): (width = 5, offset = 159) */
+0x00, 0x00, 0x00, 0x8C, 0x67, 0x31, 0x9C, 0xC6, 0x60, 0x00, 
+
+/* character 0x0030 ('0'): (width = 7, offset = 169) */
+0x00, 0x00, 0x00, 0x07, 0xCD, 0xB1, 0xE3, 0xC7, 0x8F, 0x1B, 0x67, 0xC0, 0x00, 0x00, 
+
+/* character 0x0031 ('1'): (width = 7, offset = 183) */
+0x00, 0x00, 0x00, 0x03, 0x8F, 0x06, 0x0C, 0x18, 0x30, 0x60, 0xC7, 0xE0, 0x00, 0x00, 
+
+/* character 0x0032 ('2'): (width = 7, offset = 197) */
+0x00, 0x00, 0x00, 0x07, 0xCC, 0xC1, 0x83, 0x0C, 0x38, 0xE1, 0x87, 0xE0, 0x00, 0x00, 
+
+/* character 0x0033 ('3'): (width = 7, offset = 211) */
+0x00, 0x00, 0x00, 0x07, 0xCC, 0xC1, 0x83, 0x3C, 0x0C, 0x1B, 0x37, 0xC0, 0x00, 0x00, 
+
+/* character 0x0034 ('4'): (width = 7, offset = 225) */
+0x00, 0x00, 0x00, 0x00, 0xC3, 0x8F, 0x1E, 0x6D, 0xDB, 0xF8, 0x60, 0xC0, 0x00, 0x00, 
+
+/* character 0x0035 ('5'): (width = 7, offset = 239) */
+0x00, 0x00, 0x00, 0x07, 0xEC, 0x18, 0x3E, 0x0E, 0x0C, 0x1B, 0x77, 0xC0, 0x00, 0x00, 
+
+/* character 0x0036 ('6'): (width = 7, offset = 253) */
+0x00, 0x00, 0x00, 0x03, 0xC6, 0x18, 0x3E, 0x76, 0xCD, 0x9B, 0xB3, 0xC0, 0x00, 0x00, 
+
+/* character 0x0037 ('7'): (width = 7, offset = 267) */
+0x00, 0x00, 0x00, 0x07, 0xE0, 0xC3, 0x06, 0x0C, 0x30, 0x60, 0xC3, 0x00, 0x00, 0x00, 
+
+/* character 0x0038 ('8'): (width = 7, offset = 281) */
+0x00, 0x00, 0x00, 0x03, 0xCC, 0xD9, 0xBE, 0x3C, 0xDD, 0x9B, 0x33, 0xC0, 0x00, 0x00, 
+
+/* character 0x0039 ('9'): (width = 7, offset = 295) */
+0x00, 0x00, 0x00, 0x03, 0xCD, 0xD9, 0xB3, 0x66, 0x7C, 0x18, 0x67, 0x80, 0x00, 0x00, 
+
+/* character 0x003A (':'): (width = 3, offset = 309) */
+0x00, 0x00, 0x03, 0x60, 0x36, 0x00, 
+
+/* character 0x003B (';'): (width = 3, offset = 315) */
+0x00, 0x00, 0x03, 0x60, 0x07, 0xF0, 
+
+/* character 0x003C ('<'): (width = 8, offset = 321) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x0E, 0x18, 0x38, 0x0E, 0x03, 0x00, 0x00, 0x00, 
+
+/* character 0x003D ('='): (width = 8, offset = 336) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0x00, 0x00, 0x7F, 0x00, 0x00, 0x00, 
+
+/* character 0x003E ('>'): (width = 8, offset = 351) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x30, 0x1C, 0x06, 0x07, 0x1C, 0x30, 0x00, 0x00, 0x00, 
+
+/* character 0x003F ('?'): (width = 5, offset = 366) */
+0x00, 0x00, 0x07, 0x84, 0x23, 0x31, 0x80, 0x63, 0x00, 0x00, 
+
+/* character 0x0040 ('@'): (width = 11, offset = 376) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF8, 0x71, 0xCF, 0xFB, 0xED, 0x79, 0xAF, 0x35, 0xEF, 0x9F,
+0xF3, 0x80, 0x1F, 0x80, 0x00, 
+
+/* character 0x0041 ('A'): (width = 8, offset = 397) */
+0x00, 0x00, 0x00, 0x00, 0x1C, 0x1C, 0x3E, 0x36, 0x36, 0x7F, 0x63, 0x63, 0xE3, 0x00, 0x00, 
+
+/* character 0x0042 ('B'): (width = 7, offset = 412) */
+0x00, 0x00, 0x00, 0x07, 0xCC, 0xD9, 0xB3, 0x7C, 0xCD, 0x9B, 0x37, 0xC0, 0x00, 0x00, 
+
+/* character 0x0043 ('C'): (width = 7, offset = 426) */
+0x00, 0x00, 0x00, 0x01, 0xE6, 0x58, 0x30, 0x60, 0xC1, 0x81, 0x91, 0xE0, 0x00, 0x00, 
+
+/* character 0x0044 ('D'): (width = 9, offset = 440) */
+0x00, 0x00, 0x00, 0x00, 0x07, 0xE3, 0x19, 0x86, 0xC3, 0x61, 0xB0, 0xD8, 0xEC, 0xE7, 0xE0, 0x00,
+0x00, 
+
+/* character 0x0045 ('E'): (width = 6, offset = 457) */
+0x00, 0x00, 0x00, 0x7D, 0x86, 0x18, 0x7D, 0x86, 0x18, 0x7C, 0x00, 0x00, 
+
+/* character 0x0046 ('F'): (width = 6, offset = 469) */
+0x00, 0x00, 0x00, 0x7D, 0x86, 0x18, 0x7D, 0x86, 0x18, 0x60, 0x00, 0x00, 
+
+/* character 0x0047 ('G'): (width = 8, offset = 481) */
+0x00, 0x00, 0x00, 0x00, 0x1F, 0x33, 0x60, 0x60, 0x6F, 0x63, 0x63, 0x33, 0x1F, 0x00, 0x00, 
+
+/* character 0x0048 ('H'): (width = 9, offset = 496) */
+0x00, 0x00, 0x00, 0x00, 0x06, 0x1B, 0x0D, 0x86, 0xC3, 0x7F, 0xB0, 0xD8, 0x6C, 0x36, 0x18, 0x00,
+0x00, 
+
+/* character 0x0049 ('I'): (width = 3, offset = 513) */
+0x00, 0x0E, 0xDB, 0x6D, 0xBE, 0x00, 
+
+/* character 0x004A ('J'): (width = 5, offset = 519) */
+0x00, 0x00, 0x01, 0x8C, 0x63, 0x18, 0xC6, 0x7F, 0x00, 0x00, 
+
+/* character 0x004B ('K'): (width = 7, offset = 529) */
+0x00, 0x00, 0x00, 0x06, 0x6D, 0xDF, 0x3C, 0x78, 0xF1, 0xF3, 0x76, 0x60, 0x00, 0x00, 
+
+/* character 0x004C ('L'): (width = 6, offset = 543) */
+0x00, 0x00, 0x00, 0x61, 0x86, 0x18, 0x61, 0x86, 0x18, 0x7C, 0x00, 0x00, 
+
+/* character 0x004D ('M'): (width = 11, offset = 555) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x0E, 0xE1, 0xDE, 0x7B, 0xCF, 0x7D, 0xED, 0xED, 0xBD, 0xB7,
+0xB6, 0x66, 0x00, 0x00, 0x00, 
+
+/* character 0x004E ('N'): (width = 9, offset = 576) */
+0x00, 0x00, 0x00, 0x00, 0x07, 0x1B, 0x8D, 0xE6, 0xFB, 0x6D, 0xB7, 0xD9, 0xEC, 0x76, 0x38, 0x00,
+0x00, 
+
+/* character 0x004F ('O'): (width = 9, offset = 593) */
+0x00, 0x00, 0x00, 0x00, 0x01, 0xE1, 0x99, 0x86, 0xC3, 0x61, 0xB0, 0xD8, 0x66, 0x61, 0xE0, 0x00,
+0x00, 
+
+/* character 0x0050 ('P'): (width = 7, offset = 610) */
+0x00, 0x00, 0x00, 0x07, 0xCC, 0xD9, 0xB3, 0x6E, 0xF9, 0x83, 0x06, 0x00, 0x00, 0x00, 
+
+/* character 0x0051 ('Q'): (width = 9, offset = 624) */
+0x00, 0x00, 0x00, 0x00, 0x01, 0xE1, 0x99, 0x86, 0xC3, 0x61, 0xB0, 0xD8, 0x66, 0x61, 0xE0, 0x30,
+0x0E, 
+
+/* character 0x0052 ('R'): (width = 7, offset = 641) */
+0x00, 0x00, 0x00, 0x07, 0xCC, 0xD9, 0xB3, 0x7C, 0xD9, 0xBB, 0x36, 0x60, 0x00, 0x00, 
+
+/* character 0x0053 ('S'): (width = 7, offset = 655) */
+0x00, 0x00, 0x00, 0x03, 0xEC, 0xD8, 0x38, 0x3C, 0x1C, 0x1B, 0x37, 0xC0, 0x00, 0x00, 
+
+/* character 0x0054 ('T'): (width = 7, offset = 669) */
+0x00, 0x00, 0x00, 0x0F, 0xE3, 0x06, 0x0C, 0x18, 0x30, 0x60, 0xC1, 0x80, 0x00, 0x00, 
+
+/* character 0x0055 ('U'): (width = 8, offset = 683) */
+0x00, 0x00, 0x00, 0x00, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x63, 0x77, 0x3E, 0x00, 0x00, 
+
+/* character 0x0056 ('V'): (width = 8, offset = 698) */
+0x00, 0x00, 0x00, 0x00, 0xE3, 0x63, 0x63, 0x77, 0x36, 0x36, 0x3E, 0x1C, 0x1C, 0x00, 0x00, 
+
+/* character 0x0057 ('W'): (width = 12, offset = 713) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE7, 0x3E, 0x73, 0x67, 0xB6, 0xFB, 0x7D, 0xF3, 0xDE, 0x3D,
+0xE3, 0xCE, 0x38, 0xE0, 0x00, 0x00, 0x00, 
+
+/* character 0x0058 ('X'): (width = 7, offset = 736) */
+0x00, 0x00, 0x00, 0x0E, 0x6C, 0xDF, 0x9E, 0x18, 0x79, 0xFB, 0x3E, 0x60, 0x00, 0x00, 
+
+/* character 0x0059 ('Y'): (width = 7, offset = 750) */
+0x00, 0x00, 0x00, 0x0E, 0x2C, 0xDD, 0x9E, 0x3C, 0x30, 0x60, 0xC1, 0x80, 0x00, 0x00, 
+
+/* character 0x005A ('Z'): (width = 7, offset = 764) */
+0x00, 0x00, 0x00, 0x0F, 0xE0, 0xC3, 0x8E, 0x18, 0x71, 0xC3, 0x0F, 0xE0, 0x00, 0x00, 
+
+/* character 0x005B ('['): (width = 4, offset = 778) */
+0x00, 0x00, 0x76, 0x66, 0x66, 0x66, 0x66, 0x70, 
+
+/* character 0x005C ('\'): (width = 5, offset = 786) */
+0x00, 0x00, 0x0C, 0x31, 0x8E, 0x31, 0x8E, 0x31, 0x84, 0x00, 
+
+/* character 0x005D (']'): (width = 4, offset = 796) */
+0x00, 0x00, 0x73, 0x33, 0x33, 0x33, 0x33, 0x70, 
+
+/* character 0x005E ('^'): (width = 8, offset = 804) */
+0x00, 0x00, 0x00, 0x00, 0x1C, 0x1C, 0x36, 0x36, 0x63, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x005F ('_'): (width = 5, offset = 819) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xE0, 
+
+/* character 0x0060 ('`'): (width = 3, offset = 829) */
+0x00, 0x06, 0x40, 0x00, 0x00, 0x00, 
+
+/* character 0x007B ('{'): (width = 4, offset = 835) */
+0x00, 0x00, 0x76, 0x66, 0x6C, 0x66, 0x66, 0x70, 
+
+/* character 0x007C ('|'): (width = 3, offset = 843) */
+0x00, 0x06, 0xDB, 0x6D, 0xB6, 0xD8, 
+
+/* character 0x007D ('}'): (width = 4, offset = 849) */
+0x00, 0x00, 0xE6, 0x66, 0x63, 0x66, 0x66, 0xE0, 
+
+/* character 0x007E ('~'): (width = 8, offset = 857) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7B, 0x6F, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x00B0 (' '): (width = 5, offset = 872) */
+0x00, 0x00, 0x07, 0xBD, 0xE0, 0x00, 0x00, 0x00, 0x00, 0x00
+
+};
+
+const D4D_FONT_OFFSET d4dfnt_SegoeUISemibold_9_offset_table[] = { 
+
+/*       offset       char      hexcode     */
+/*       ======      =====      =======     */
+            0,    /*   ' '        0020       */
+            6,    /*   '!'        0021       */
+           14,    /*   '"'        0022       */
+           24,    /*   '#'        0023       */
+           38,    /*   '$'        0024       */
+           52,    /*   '%'        0025       */
+           71,    /*   '&'        0026       */
+           90,    /*   '''        0027       */
+           96,    /*   '('        0028       */
+          104,    /*   ')'        0029       */
+          112,    /*   '*'        002A       */
+          122,    /*   '+'        002B       */
+          137,    /*   ','        002C       */
+          143,    /*   '-'        002D       */
+          153,    /*   '.'        002E       */
+          159,    /*   '/'        002F       */
+          169,    /*   '0'        0030       */
+          183,    /*   '1'        0031       */
+          197,    /*   '2'        0032       */
+          211,    /*   '3'        0033       */
+          225,    /*   '4'        0034       */
+          239,    /*   '5'        0035       */
+          253,    /*   '6'        0036       */
+          267,    /*   '7'        0037       */
+          281,    /*   '8'        0038       */
+          295,    /*   '9'        0039       */
+          309,    /*   ':'        003A       */
+          315,    /*   ';'        003B       */
+          321,    /*   '<'        003C       */
+          336,    /*   '='        003D       */
+          351,    /*   '>'        003E       */
+          366,    /*   '?'        003F       */
+          376,    /*   '@'        0040       */
+          397,    /*   'A'        0041       */
+          412,    /*   'B'        0042       */
+          426,    /*   'C'        0043       */
+          440,    /*   'D'        0044       */
+          457,    /*   'E'        0045       */
+          469,    /*   'F'        0046       */
+          481,    /*   'G'        0047       */
+          496,    /*   'H'        0048       */
+          513,    /*   'I'        0049       */
+          519,    /*   'J'        004A       */
+          529,    /*   'K'        004B       */
+          543,    /*   'L'        004C       */
+          555,    /*   'M'        004D       */
+          576,    /*   'N'        004E       */
+          593,    /*   'O'        004F       */
+          610,    /*   'P'        0050       */
+          624,    /*   'Q'        0051       */
+          641,    /*   'R'        0052       */
+          655,    /*   'S'        0053       */
+          669,    /*   'T'        0054       */
+          683,    /*   'U'        0055       */
+          698,    /*   'V'        0056       */
+          713,    /*   'W'        0057       */
+          736,    /*   'X'        0058       */
+          750,    /*   'Y'        0059       */
+          764,    /*   'Z'        005A       */
+          778,    /*   '['        005B       */
+          786,    /*   '\'        005C       */
+          796,    /*   ']'        005D       */
+          804,    /*   '^'        005E       */
+          819,    /*   '_'        005F       */
+          829,    /*   '`'        0060       */
+          835,    /*   '{'        007B       */
+          843,    /*   '|'        007C       */
+          849,    /*   '}'        007D       */
+          857,    /*   '~'        007E       */
+          872    /*   ' '        00B0       */
+};
+
+const D4D_FONT_IX d4dfnt_SegoeUISemibold_9_index_table[] = { 
+
+/*        char      hexacode      decimal       index     */
+/*       ======     ========      =======      =======    */
+          ' ',    /*   0020          32            0       */
+          '!',    /*   0021          33            1       */
+          '"',    /*   0022          34            2       */
+          '#',    /*   0023          35            3       */
+          '$',    /*   0024          36            4       */
+          '%',    /*   0025          37            5       */
+          '&',    /*   0026          38            6       */
+          '\'',    /*   0027          39            7       */
+          '(',    /*   0028          40            8       */
+          ')',    /*   0029          41            9       */
+          '*',    /*   002A          42           10       */
+          '+',    /*   002B          43           11       */
+          ',',    /*   002C          44           12       */
+          '-',    /*   002D          45           13       */
+          '.',    /*   002E          46           14       */
+          '/',    /*   002F          47           15       */
+          '0',    /*   0030          48           16       */
+          '1',    /*   0031          49           17       */
+          '2',    /*   0032          50           18       */
+          '3',    /*   0033          51           19       */
+          '4',    /*   0034          52           20       */
+          '5',    /*   0035          53           21       */
+          '6',    /*   0036          54           22       */
+          '7',    /*   0037          55           23       */
+          '8',    /*   0038          56           24       */
+          '9',    /*   0039          57           25       */
+          ':',    /*   003A          58           26       */
+          ';',    /*   003B          59           27       */
+          '<',    /*   003C          60           28       */
+          '=',    /*   003D          61           29       */
+          '>',    /*   003E          62           30       */
+          '?',    /*   003F          63           31       */
+          '@',    /*   0040          64           32       */
+          'A',    /*   0041          65           33       */
+          'B',    /*   0042          66           34       */
+          'C',    /*   0043          67           35       */
+          'D',    /*   0044          68           36       */
+          'E',    /*   0045          69           37       */
+          'F',    /*   0046          70           38       */
+          'G',    /*   0047          71           39       */
+          'H',    /*   0048          72           40       */
+          'I',    /*   0049          73           41       */
+          'J',    /*   004A          74           42       */
+          'K',    /*   004B          75           43       */
+          'L',    /*   004C          76           44       */
+          'M',    /*   004D          77           45       */
+          'N',    /*   004E          78           46       */
+          'O',    /*   004F          79           47       */
+          'P',    /*   0050          80           48       */
+          'Q',    /*   0051          81           49       */
+          'R',    /*   0052          82           50       */
+          'S',    /*   0053          83           51       */
+          'T',    /*   0054          84           52       */
+          'U',    /*   0055          85           53       */
+          'V',    /*   0056          86           54       */
+          'W',    /*   0057          87           55       */
+          'X',    /*   0058          88           56       */
+          'Y',    /*   0059          89           57       */
+          'Z',    /*   005A          90           58       */
+          '[',    /*   005B          91           59       */
+          '\\',    /*   005C          92           60       */
+          ']',    /*   005D          93           61       */
+          '^',    /*   005E          94           62       */
+          '_',    /*   005F          95           63       */
+          '`',    /*   0060          96           64       */
+          '{',    /*   007B         123           65       */
+          '|',    /*   007C         124           66       */
+          '}',    /*   007D         125           67       */
+          '~',    /*   007E         126           68       */
+         0x00B0     /*   00B0         176           69       */
+};
+
+const D4D_FONT_SIZE d4dfnt_SegoeUISemibold_9_width_table[] = { 
+
+/*       width        char      hexcode     */
+/*       ======      =====      =======     */
+           3,    /*   ' '        0020       */
+           4,    /*   '!'        0021       */
+           5,    /*   '"'        0022       */
+           7,    /*   '#'        0023       */
+           7,    /*   '$'        0024       */
+          10,    /*   '%'        0025       */
+          10,    /*   '&'        0026       */
+           3,    /*   '''        0027       */
+           4,    /*   '('        0028       */
+           4,    /*   ')'        0029       */
+           5,    /*   '*'        002A       */
+           8,    /*   '+'        002B       */
+           3,    /*   ','        002C       */
+           5,    /*   '-'        002D       */
+           3,    /*   '.'        002E       */
+           5,    /*   '/'        002F       */
+           7,    /*   '0'        0030       */
+           7,    /*   '1'        0031       */
+           7,    /*   '2'        0032       */
+           7,    /*   '3'        0033       */
+           7,    /*   '4'        0034       */
+           7,    /*   '5'        0035       */
+           7,    /*   '6'        0036       */
+           7,    /*   '7'        0037       */
+           7,    /*   '8'        0038       */
+           7,    /*   '9'        0039       */
+           3,    /*   ':'        003A       */
+           3,    /*   ';'        003B       */
+           8,    /*   '<'        003C       */
+           8,    /*   '='        003D       */
+           8,    /*   '>'        003E       */
+           5,    /*   '?'        003F       */
+          11,    /*   '@'        0040       */
+           8,    /*   'A'        0041       */
+           7,    /*   'B'        0042       */
+           7,    /*   'C'        0043       */
+           9,    /*   'D'        0044       */
+           6,    /*   'E'        0045       */
+           6,    /*   'F'        0046       */
+           8,    /*   'G'        0047       */
+           9,    /*   'H'        0048       */
+           3,    /*   'I'        0049       */
+           5,    /*   'J'        004A       */
+           7,    /*   'K'        004B       */
+           6,    /*   'L'        004C       */
+          11,    /*   'M'        004D       */
+           9,    /*   'N'        004E       */
+           9,    /*   'O'        004F       */
+           7,    /*   'P'        0050       */
+           9,    /*   'Q'        0051       */
+           7,    /*   'R'        0052       */
+           7,    /*   'S'        0053       */
+           7,    /*   'T'        0054       */
+           8,    /*   'U'        0055       */
+           8,    /*   'V'        0056       */
+          12,    /*   'W'        0057       */
+           7,    /*   'X'        0058       */
+           7,    /*   'Y'        0059       */
+           7,    /*   'Z'        005A       */
+           4,    /*   '['        005B       */
+           5,    /*   '\'        005C       */
+           4,    /*   ']'        005D       */
+           8,    /*   '^'        005E       */
+           5,    /*   '_'        005F       */
+           3,    /*   '`'        0060       */
+           4,    /*   '{'        007B       */
+           3,    /*   '|'        007C       */
+           4,    /*   '}'        007D       */
+           8,    /*   '~'        007E       */
+           5     /*   ' '        00B0       */
+};
+
+const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUISemibold_9_desc = {
+    0,       // Font descriptor version number
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,   // linear / nonlinear , proporcional or not
+    ' ',     // start char of used table
+    70,   // count of all chars of used table
+    0x0020,     // index of char that will be printed instead of
+    9,       // font size (size of font loaded in PC)
+    0,     // height of font bitmpap for non proporcional fonts
+    13,      // offset from Y0 coordination to baseline
+    {12, 15},     // size of biggest char x/y
+    D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON,     // packing condition of individual bitmaps
+    d4dfnt_SegoeUISemibold_9_index_table,          // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
+    d4dfnt_SegoeUISemibold_9_offset_table,     // Offset table - used when proporcial font is set in flags
+    d4dfnt_SegoeUISemibold_9_width_table,        // Size table - used when proporcial font is set in flags
+    d4dfnt_SegoeUISemibold_9_data_table,      // bitmap/font data array
+    NULL       // pointer for next UNICODE page
+};
+
+const Byte d4dfnt_SegoeUI_9_data_table[] = { 
+
+/* character 0x0020 (' '): (width = 3, offset = 0) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0021 ('!'): (width = 3, offset = 6) */
+0x00, 0x04, 0x92, 0x48, 0x24, 0x00, 
+
+/* character 0x0022 ('"'): (width = 5, offset = 12) */
+0x00, 0x00, 0x05, 0x29, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0023 ('#'): (width = 7, offset = 22) */
+0x00, 0x00, 0x00, 0x02, 0x44, 0xBF, 0xA4, 0x49, 0xFD, 0x22, 0x40, 0x00, 0x00, 0x00, 
+
+/* character 0x0024 ('$'): (width = 6, offset = 36) */
+0x00, 0x00, 0x04, 0x39, 0x55, 0x14, 0x38, 0x51, 0x55, 0x38, 0x40, 0x00, 
+
+/* character 0x0025 ('%'): (width = 10, offset = 48) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0xA4, 0x49, 0x21, 0x90, 0x0C, 0x02, 0x61, 0x24, 0x89, 0x41,
+0x80, 0x00, 0x00, 
+
+/* character 0x0026 ('&'): (width = 10, offset = 67) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x09, 0x02, 0x48, 0x62, 0x24, 0x90, 0xC4, 0x11, 0x0C, 0x3C,
+0xC0, 0x00, 0x00, 
+
+/* character 0x0027 ('''): (width = 3, offset = 86) */
+0x00, 0x04, 0x90, 0x00, 0x00, 0x00, 
+
+/* character 0x0028 ('('): (width = 4, offset = 92) */
+0x00, 0x00, 0x12, 0x24, 0x44, 0x44, 0x22, 0x10, 
+
+/* character 0x0029 (')'): (width = 4, offset = 100) */
+0x00, 0x00, 0x84, 0x42, 0x22, 0x22, 0x44, 0x80, 
+
+/* character 0x002A ('*'): (width = 5, offset = 108) */
+0x00, 0x00, 0x02, 0x55, 0xCA, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x002B ('+'): (width = 8, offset = 118) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x08, 0x3E, 0x08, 0x08, 0x00, 0x00, 0x00, 
+
+/* character 0x002C (','): (width = 3, offset = 133) */
+0x00, 0x00, 0x00, 0x00, 0x04, 0xA0, 
+
+/* character 0x002D ('-'): (width = 5, offset = 139) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x80, 0x00, 0x00, 0x00, 
+
+/* character 0x002E ('.'): (width = 3, offset = 149) */
+0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 
+
+/* character 0x002F ('/'): (width = 5, offset = 155) */
+0x00, 0x00, 0x00, 0x88, 0x42, 0x21, 0x10, 0x84, 0x40, 0x00, 
+
+/* character 0x0030 ('0'): (width = 6, offset = 165) */
+0x00, 0x00, 0x00, 0x31, 0x24, 0x92, 0x49, 0x24, 0x92, 0x30, 0x00, 0x00, 
+
+/* character 0x0031 ('1'): (width = 6, offset = 177) */
+0x00, 0x00, 0x00, 0x11, 0xC1, 0x04, 0x10, 0x41, 0x04, 0x7C, 0x00, 0x00, 
+
+/* character 0x0032 ('2'): (width = 6, offset = 189) */
+0x00, 0x00, 0x00, 0x70, 0x20, 0x82, 0x10, 0x42, 0x10, 0x78, 0x00, 0x00, 
+
+/* character 0x0033 ('3'): (width = 6, offset = 201) */
+0x00, 0x00, 0x00, 0x70, 0x20, 0x82, 0x30, 0x20, 0x82, 0x70, 0x00, 0x00, 
+
+/* character 0x0034 ('4'): (width = 6, offset = 213) */
+0x00, 0x00, 0x00, 0x08, 0x61, 0x8A, 0x29, 0x27, 0xC2, 0x08, 0x00, 0x00, 
+
+/* character 0x0035 ('5'): (width = 6, offset = 225) */
+0x00, 0x00, 0x00, 0x79, 0x04, 0x1C, 0x08, 0x20, 0x82, 0x70, 0x00, 0x00, 
+
+/* character 0x0036 ('6'): (width = 6, offset = 237) */
+0x00, 0x00, 0x00, 0x18, 0x84, 0x1C, 0x49, 0x24, 0x92, 0x30, 0x00, 0x00, 
+
+/* character 0x0037 ('7'): (width = 6, offset = 249) */
+0x00, 0x00, 0x00, 0x78, 0x21, 0x04, 0x10, 0x42, 0x08, 0x20, 0x00, 0x00, 
+
+/* character 0x0038 ('8'): (width = 6, offset = 261) */
+0x00, 0x00, 0x00, 0x31, 0x24, 0x92, 0x31, 0x24, 0x92, 0x30, 0x00, 0x00, 
+
+/* character 0x0039 ('9'): (width = 6, offset = 273) */
+0x00, 0x00, 0x00, 0x31, 0x24, 0x92, 0x48, 0xE0, 0x82, 0x70, 0x00, 0x00, 
+
+/* character 0x003A (':'): (width = 3, offset = 285) */
+0x00, 0x00, 0x02, 0x40, 0x24, 0x00, 
+
+/* character 0x003B (';'): (width = 3, offset = 291) */
+0x00, 0x00, 0x02, 0x40, 0x04, 0xA0, 
+
+/* character 0x003C ('<'): (width = 8, offset = 297) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x04, 0x18, 0x20, 0x18, 0x04, 0x02, 0x00, 0x00, 
+
+/* character 0x003D ('='): (width = 8, offset = 312) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7E, 0x00, 0x00, 0x7E, 0x00, 0x00, 0x00, 
+
+/* character 0x003E ('>'): (width = 8, offset = 327) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x10, 0x0C, 0x02, 0x0C, 0x10, 0x20, 0x00, 0x00, 
+
+/* character 0x003F ('?'): (width = 5, offset = 342) */
+0x00, 0x00, 0x07, 0x04, 0x22, 0x21, 0x00, 0x42, 0x00, 0x00, 
+
+/* character 0x0040 ('@'): (width = 11, offset = 352) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x61, 0x0B, 0x92, 0x92, 0x52, 0x4A, 0x49, 0x49, 0x27,
+0xC2, 0x00, 0x3E, 0x00, 0x00, 
+
+/* character 0x0041 ('A'): (width = 8, offset = 373) */
+0x00, 0x00, 0x00, 0x00, 0x18, 0x18, 0x24, 0x24, 0x24, 0x42, 0x7E, 0x81, 0x81, 0x00, 0x00, 
+
+/* character 0x0042 ('B'): (width = 7, offset = 388) */
+0x00, 0x00, 0x00, 0x07, 0x88, 0x91, 0x22, 0x78, 0x89, 0x12, 0x27, 0x80, 0x00, 0x00, 
+
+/* character 0x0043 ('C'): (width = 8, offset = 402) */
+0x00, 0x00, 0x00, 0x00, 0x1C, 0x22, 0x40, 0x40, 0x40, 0x40, 0x40, 0x22, 0x1C, 0x00, 0x00, 
+
+/* character 0x0044 ('D'): (width = 8, offset = 417) */
+0x00, 0x00, 0x00, 0x00, 0x78, 0x44, 0x42, 0x42, 0x42, 0x42, 0x42, 0x44, 0x78, 0x00, 0x00, 
+
+/* character 0x0045 ('E'): (width = 6, offset = 432) */
+0x00, 0x00, 0x00, 0x79, 0x04, 0x10, 0x79, 0x04, 0x10, 0x78, 0x00, 0x00, 
+
+/* character 0x0046 ('F'): (width = 6, offset = 444) */
+0x00, 0x00, 0x00, 0x79, 0x04, 0x10, 0x79, 0x04, 0x10, 0x40, 0x00, 0x00, 
+
+/* character 0x0047 ('G'): (width = 8, offset = 456) */
+0x00, 0x00, 0x00, 0x00, 0x1C, 0x22, 0x40, 0x40, 0x4E, 0x42, 0x42, 0x22, 0x1C, 0x00, 0x00, 
+
+/* character 0x0048 ('H'): (width = 9, offset = 471) */
+0x00, 0x00, 0x00, 0x00, 0x04, 0x12, 0x09, 0x04, 0x82, 0x7F, 0x20, 0x90, 0x48, 0x24, 0x10, 0x00,
+0x00, 
+
+/* character 0x0049 ('I'): (width = 3, offset = 488) */
+0x00, 0x0E, 0x92, 0x49, 0x2E, 0x00, 
+
+/* character 0x004A ('J'): (width = 4, offset = 494) */
+0x00, 0x00, 0x22, 0x22, 0x22, 0x22, 0xC0, 0x00, 
+
+/* character 0x004B ('K'): (width = 7, offset = 502) */
+0x00, 0x00, 0x00, 0x04, 0x28, 0x92, 0x28, 0x60, 0xA1, 0x22, 0x24, 0x20, 0x00, 0x00, 
+
+/* character 0x004C ('L'): (width = 6, offset = 516) */
+0x00, 0x00, 0x00, 0x41, 0x04, 0x10, 0x41, 0x04, 0x10, 0x78, 0x00, 0x00, 
+
+/* character 0x004D ('M'): (width = 11, offset = 528) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x04, 0xC1, 0x98, 0x32, 0x8A, 0x51, 0x49, 0x49, 0x29, 0x22,
+0x24, 0x44, 0x00, 0x00, 0x00, 
+
+/* character 0x004E ('N'): (width = 9, offset = 549) */
+0x00, 0x00, 0x00, 0x00, 0x06, 0x13, 0x09, 0x44, 0xA2, 0x49, 0x22, 0x91, 0x48, 0x64, 0x30, 0x00,
+0x00, 
+
+/* character 0x004F ('O'): (width = 9, offset = 566) */
+0x00, 0x00, 0x00, 0x00, 0x01, 0xC1, 0x11, 0x04, 0x82, 0x41, 0x20, 0x90, 0x44, 0x41, 0xC0, 0x00,
+0x00, 
+
+/* character 0x0050 ('P'): (width = 7, offset = 583) */
+0x00, 0x00, 0x00, 0x07, 0x88, 0x91, 0x22, 0x44, 0xF1, 0x02, 0x04, 0x00, 0x00, 0x00, 
+
+/* character 0x0051 ('Q'): (width = 9, offset = 597) */
+0x00, 0x00, 0x00, 0x00, 0x01, 0xC1, 0x11, 0x04, 0x82, 0x41, 0x20, 0x90, 0x44, 0x41, 0xC0, 0x20,
+0x0C, 
+
+/* character 0x0052 ('R'): (width = 7, offset = 614) */
+0x00, 0x00, 0x00, 0x07, 0x88, 0x91, 0x22, 0x78, 0x91, 0x12, 0x24, 0x20, 0x00, 0x00, 
+
+/* character 0x0053 ('S'): (width = 6, offset = 628) */
+0x00, 0x00, 0x00, 0x39, 0x14, 0x08, 0x10, 0x20, 0x51, 0x38, 0x00, 0x00, 
+
+/* character 0x0054 ('T'): (width = 7, offset = 640) */
+0x00, 0x00, 0x00, 0x0F, 0xE2, 0x04, 0x08, 0x10, 0x20, 0x40, 0x81, 0x00, 0x00, 0x00, 
+
+/* character 0x0055 ('U'): (width = 8, offset = 654) */
+0x00, 0x00, 0x00, 0x00, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3C, 0x00, 0x00, 
+
+/* character 0x0056 ('V'): (width = 7, offset = 669) */
+0x00, 0x00, 0x00, 0x08, 0x30, 0x51, 0x22, 0x44, 0x50, 0xA1, 0x41, 0x00, 0x00, 0x00, 
+
+/* character 0x0057 ('W'): (width = 11, offset = 683) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x43, 0x08, 0x52, 0x92, 0x52, 0x4A, 0x45, 0x50, 0xAA, 0x08,
+0x81, 0x10, 0x00, 0x00, 0x00, 
+
+/* character 0x0058 ('X'): (width = 7, offset = 704) */
+0x00, 0x00, 0x00, 0x08, 0x28, 0x8A, 0x14, 0x10, 0x50, 0xA2, 0x28, 0x20, 0x00, 0x00, 
+
+/* character 0x0059 ('Y'): (width = 7, offset = 718) */
+0x00, 0x00, 0x00, 0x08, 0x28, 0x91, 0x14, 0x28, 0x20, 0x40, 0x81, 0x00, 0x00, 0x00, 
+
+/* character 0x005A ('Z'): (width = 7, offset = 732) */
+0x00, 0x00, 0x00, 0x0F, 0xE0, 0x82, 0x04, 0x10, 0x40, 0x82, 0x0F, 0xE0, 0x00, 0x00, 
+
+/* character 0x005B ('['): (width = 4, offset = 746) */
+0x00, 0x00, 0x64, 0x44, 0x44, 0x44, 0x44, 0x60, 
+
+/* character 0x005C ('\'): (width = 5, offset = 754) */
+0x00, 0x00, 0x08, 0x21, 0x08, 0x21, 0x04, 0x21, 0x04, 0x00, 
+
+/* character 0x005D (']'): (width = 4, offset = 764) */
+0x00, 0x00, 0x62, 0x22, 0x22, 0x22, 0x22, 0x60, 
+
+/* character 0x005E ('^'): (width = 8, offset = 772) */
+0x00, 0x00, 0x00, 0x00, 0x18, 0x18, 0x24, 0x24, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x005F ('_'): (width = 5, offset = 787) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xE0, 
+
+/* character 0x0060 ('`'): (width = 3, offset = 797) */
+0x00, 0x08, 0x80, 0x00, 0x00, 0x00, 
+
+/* character 0x007B ('{'): (width = 4, offset = 803) */
+0x00, 0x00, 0x64, 0x44, 0x48, 0x44, 0x44, 0x60, 
+
+/* character 0x007C ('|'): (width = 3, offset = 811) */
+0x00, 0x04, 0x92, 0x49, 0x24, 0x90, 
+
+/* character 0x007D ('}'): (width = 4, offset = 817) */
+0x00, 0x00, 0x62, 0x22, 0x21, 0x22, 0x22, 0x60, 
+
+/* character 0x007E ('~'): (width = 8, offset = 825) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x32, 0x4C, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x00B0 (' '): (width = 5, offset = 840) */
+0x00, 0x00, 0x07, 0x29, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00
+
+};
+
+const D4D_FONT_OFFSET d4dfnt_SegoeUI_9_offset_table[] = { 
+
+/*       offset       char      hexcode     */
+/*       ======      =====      =======     */
+            0,    /*   ' '        0020       */
+            6,    /*   '!'        0021       */
+           12,    /*   '"'        0022       */
+           22,    /*   '#'        0023       */
+           36,    /*   '$'        0024       */
+           48,    /*   '%'        0025       */
+           67,    /*   '&'        0026       */
+           86,    /*   '''        0027       */
+           92,    /*   '('        0028       */
+          100,    /*   ')'        0029       */
+          108,    /*   '*'        002A       */
+          118,    /*   '+'        002B       */
+          133,    /*   ','        002C       */
+          139,    /*   '-'        002D       */
+          149,    /*   '.'        002E       */
+          155,    /*   '/'        002F       */
+          165,    /*   '0'        0030       */
+          177,    /*   '1'        0031       */
+          189,    /*   '2'        0032       */
+          201,    /*   '3'        0033       */
+          213,    /*   '4'        0034       */
+          225,    /*   '5'        0035       */
+          237,    /*   '6'        0036       */
+          249,    /*   '7'        0037       */
+          261,    /*   '8'        0038       */
+          273,    /*   '9'        0039       */
+          285,    /*   ':'        003A       */
+          291,    /*   ';'        003B       */
+          297,    /*   '<'        003C       */
+          312,    /*   '='        003D       */
+          327,    /*   '>'        003E       */
+          342,    /*   '?'        003F       */
+          352,    /*   '@'        0040       */
+          373,    /*   'A'        0041       */
+          388,    /*   'B'        0042       */
+          402,    /*   'C'        0043       */
+          417,    /*   'D'        0044       */
+          432,    /*   'E'        0045       */
+          444,    /*   'F'        0046       */
+          456,    /*   'G'        0047       */
+          471,    /*   'H'        0048       */
+          488,    /*   'I'        0049       */
+          494,    /*   'J'        004A       */
+          502,    /*   'K'        004B       */
+          516,    /*   'L'        004C       */
+          528,    /*   'M'        004D       */
+          549,    /*   'N'        004E       */
+          566,    /*   'O'        004F       */
+          583,    /*   'P'        0050       */
+          597,    /*   'Q'        0051       */
+          614,    /*   'R'        0052       */
+          628,    /*   'S'        0053       */
+          640,    /*   'T'        0054       */
+          654,    /*   'U'        0055       */
+          669,    /*   'V'        0056       */
+          683,    /*   'W'        0057       */
+          704,    /*   'X'        0058       */
+          718,    /*   'Y'        0059       */
+          732,    /*   'Z'        005A       */
+          746,    /*   '['        005B       */
+          754,    /*   '\'        005C       */
+          764,    /*   ']'        005D       */
+          772,    /*   '^'        005E       */
+          787,    /*   '_'        005F       */
+          797,    /*   '`'        0060       */
+          803,    /*   '{'        007B       */
+          811,    /*   '|'        007C       */
+          817,    /*   '}'        007D       */
+          825,    /*   '~'        007E       */
+          840    /*   ' '        00B0       */
+};
+
+const D4D_FONT_IX d4dfnt_SegoeUI_9_index_table[] = { 
+
+/*        char      hexacode      decimal       index     */
+/*       ======     ========      =======      =======    */
+          ' ',    /*   0020          32            0       */
+          '!',    /*   0021          33            1       */
+          '"',    /*   0022          34            2       */
+          '#',    /*   0023          35            3       */
+          '$',    /*   0024          36            4       */
+          '%',    /*   0025          37            5       */
+          '&',    /*   0026          38            6       */
+          '\'',    /*   0027          39            7       */
+          '(',    /*   0028          40            8       */
+          ')',    /*   0029          41            9       */
+          '*',    /*   002A          42           10       */
+          '+',    /*   002B          43           11       */
+          ',',    /*   002C          44           12       */
+          '-',    /*   002D          45           13       */
+          '.',    /*   002E          46           14       */
+          '/',    /*   002F          47           15       */
+          '0',    /*   0030          48           16       */
+          '1',    /*   0031          49           17       */
+          '2',    /*   0032          50           18       */
+          '3',    /*   0033          51           19       */
+          '4',    /*   0034          52           20       */
+          '5',    /*   0035          53           21       */
+          '6',    /*   0036          54           22       */
+          '7',    /*   0037          55           23       */
+          '8',    /*   0038          56           24       */
+          '9',    /*   0039          57           25       */
+          ':',    /*   003A          58           26       */
+          ';',    /*   003B          59           27       */
+          '<',    /*   003C          60           28       */
+          '=',    /*   003D          61           29       */
+          '>',    /*   003E          62           30       */
+          '?',    /*   003F          63           31       */
+          '@',    /*   0040          64           32       */
+          'A',    /*   0041          65           33       */
+          'B',    /*   0042          66           34       */
+          'C',    /*   0043          67           35       */
+          'D',    /*   0044          68           36       */
+          'E',    /*   0045          69           37       */
+          'F',    /*   0046          70           38       */
+          'G',    /*   0047          71           39       */
+          'H',    /*   0048          72           40       */
+          'I',    /*   0049          73           41       */
+          'J',    /*   004A          74           42       */
+          'K',    /*   004B          75           43       */
+          'L',    /*   004C          76           44       */
+          'M',    /*   004D          77           45       */
+          'N',    /*   004E          78           46       */
+          'O',    /*   004F          79           47       */
+          'P',    /*   0050          80           48       */
+          'Q',    /*   0051          81           49       */
+          'R',    /*   0052          82           50       */
+          'S',    /*   0053          83           51       */
+          'T',    /*   0054          84           52       */
+          'U',    /*   0055          85           53       */
+          'V',    /*   0056          86           54       */
+          'W',    /*   0057          87           55       */
+          'X',    /*   0058          88           56       */
+          'Y',    /*   0059          89           57       */
+          'Z',    /*   005A          90           58       */
+          '[',    /*   005B          91           59       */
+          '\\',    /*   005C          92           60       */
+          ']',    /*   005D          93           61       */
+          '^',    /*   005E          94           62       */
+          '_',    /*   005F          95           63       */
+          '`',    /*   0060          96           64       */
+          '{',    /*   007B         123           65       */
+          '|',    /*   007C         124           66       */
+          '}',    /*   007D         125           67       */
+          '~',    /*   007E         126           68       */
+         0x00B0     /*   00B0         176           69       */
+};
+
+const D4D_FONT_SIZE d4dfnt_SegoeUI_9_width_table[] = { 
+
+/*       width        char      hexcode     */
+/*       ======      =====      =======     */
+           3,    /*   ' '        0020       */
+           3,    /*   '!'        0021       */
+           5,    /*   '"'        0022       */
+           7,    /*   '#'        0023       */
+           6,    /*   '$'        0024       */
+          10,    /*   '%'        0025       */
+          10,    /*   '&'        0026       */
+           3,    /*   '''        0027       */
+           4,    /*   '('        0028       */
+           4,    /*   ')'        0029       */
+           5,    /*   '*'        002A       */
+           8,    /*   '+'        002B       */
+           3,    /*   ','        002C       */
+           5,    /*   '-'        002D       */
+           3,    /*   '.'        002E       */
+           5,    /*   '/'        002F       */
+           6,    /*   '0'        0030       */
+           6,    /*   '1'        0031       */
+           6,    /*   '2'        0032       */
+           6,    /*   '3'        0033       */
+           6,    /*   '4'        0034       */
+           6,    /*   '5'        0035       */
+           6,    /*   '6'        0036       */
+           6,    /*   '7'        0037       */
+           6,    /*   '8'        0038       */
+           6,    /*   '9'        0039       */
+           3,    /*   ':'        003A       */
+           3,    /*   ';'        003B       */
+           8,    /*   '<'        003C       */
+           8,    /*   '='        003D       */
+           8,    /*   '>'        003E       */
+           5,    /*   '?'        003F       */
+          11,    /*   '@'        0040       */
+           8,    /*   'A'        0041       */
+           7,    /*   'B'        0042       */
+           8,    /*   'C'        0043       */
+           8,    /*   'D'        0044       */
+           6,    /*   'E'        0045       */
+           6,    /*   'F'        0046       */
+           8,    /*   'G'        0047       */
+           9,    /*   'H'        0048       */
+           3,    /*   'I'        0049       */
+           4,    /*   'J'        004A       */
+           7,    /*   'K'        004B       */
+           6,    /*   'L'        004C       */
+          11,    /*   'M'        004D       */
+           9,    /*   'N'        004E       */
+           9,    /*   'O'        004F       */
+           7,    /*   'P'        0050       */
+           9,    /*   'Q'        0051       */
+           7,    /*   'R'        0052       */
+           6,    /*   'S'        0053       */
+           7,    /*   'T'        0054       */
+           8,    /*   'U'        0055       */
+           7,    /*   'V'        0056       */
+          11,    /*   'W'        0057       */
+           7,    /*   'X'        0058       */
+           7,    /*   'Y'        0059       */
+           7,    /*   'Z'        005A       */
+           4,    /*   '['        005B       */
+           5,    /*   '\'        005C       */
+           4,    /*   ']'        005D       */
+           8,    /*   '^'        005E       */
+           5,    /*   '_'        005F       */
+           3,    /*   '`'        0060       */
+           4,    /*   '{'        007B       */
+           3,    /*   '|'        007C       */
+           4,    /*   '}'        007D       */
+           8,    /*   '~'        007E       */
+           5     /*   ' '        00B0       */
+};
+
+const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUI_9_desc = {
+    0,       // Font descriptor version number
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,   // linear / nonlinear , proporcional or not
+    ' ',     // start char of used table
+    70,   // count of all chars of used table
+    0x0020,     // index of char that will be printed instead of
+    9,       // font size (size of font loaded in PC)
+    0,     // height of font bitmpap for non proporcional fonts
+    13,      // offset from Y0 coordination to baseline
+    {11, 15},     // size of biggest char x/y
+    D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON,     // packing condition of individual bitmaps
+    d4dfnt_SegoeUI_9_index_table,          // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
+    d4dfnt_SegoeUI_9_offset_table,     // Offset table - used when proporcial font is set in flags
+    d4dfnt_SegoeUI_9_width_table,        // Size table - used when proporcial font is set in flags
+    d4dfnt_SegoeUI_9_data_table,      // bitmap/font data array
+    NULL       // pointer for next UNICODE page
+};
+
+const Byte d4dfnt_SegoeUI_8_data_table[] = { 
+
+/* character 0x0020 (' '): (width = 3, offset = 0) */
+0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0021 ('!'): (width = 3, offset = 5) */
+0x00, 0x04, 0x92, 0x41, 0x20, 
+
+/* character 0x0022 ('"'): (width = 4, offset = 10) */
+0x00, 0x00, 0x55, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0023 ('#'): (width = 7, offset = 17) */
+0x00, 0x00, 0x00, 0x02, 0x85, 0x3F, 0x28, 0xFC, 0xA1, 0x40, 0x00, 0x00, 
+
+/* character 0x0024 ('$'): (width = 6, offset = 29) */
+0x00, 0x00, 0x08, 0x7A, 0x8A, 0x18, 0x30, 0xA2, 0xBC, 0x20, 
+
+/* character 0x0025 ('%'): (width = 9, offset = 39) */
+0x00, 0x00, 0x00, 0x00, 0x06, 0x14, 0x92, 0x50, 0xD0, 0x0B, 0x0A, 0x49, 0x28, 0x60, 0x00, 
+
+/* character 0x0026 ('&'): (width = 9, offset = 54) */
+0x00, 0x00, 0x00, 0x00, 0x01, 0x81, 0x20, 0x94, 0x32, 0x25, 0x21, 0x11, 0x87, 0x30, 0x00, 
+
+/* character 0x0027 ('''): (width = 3, offset = 69) */
+0x00, 0x04, 0x80, 0x00, 0x00, 
+
+/* character 0x0028 ('('): (width = 3, offset = 74) */
+0x00, 0x02, 0x92, 0x49, 0x24, 
+
+/* character 0x0029 (')'): (width = 3, offset = 79) */
+0x00, 0x08, 0x92, 0x49, 0x24, 
+
+/* character 0x002A ('*'): (width = 5, offset = 84) */
+0x00, 0x00, 0x02, 0x55, 0xCA, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x002B ('+'): (width = 8, offset = 93) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x10, 0x7C, 0x10, 0x10, 0x00, 0x00, 
+
+/* character 0x002C (','): (width = 3, offset = 106) */
+0x00, 0x00, 0x00, 0x00, 0x28, 
+
+/* character 0x002D ('-'): (width = 4, offset = 111) */
+0x00, 0x00, 0x00, 0x00, 0x0E, 0x00, 0x00, 
+
+/* character 0x002E ('.'): (width = 3, offset = 118) */
+0x00, 0x00, 0x00, 0x01, 0x20, 
+
+/* character 0x002F ('/'): (width = 4, offset = 123) */
+0x00, 0x00, 0x11, 0x22, 0x44, 0x48, 0x80, 
+
+/* character 0x0030 ('0'): (width = 6, offset = 130) */
+0x00, 0x00, 0x00, 0x31, 0x24, 0x92, 0x49, 0x24, 0x8C, 0x00, 
+
+/* character 0x0031 ('1'): (width = 6, offset = 140) */
+0x00, 0x00, 0x00, 0x11, 0xC1, 0x04, 0x10, 0x41, 0x1F, 0x00, 
+
+/* character 0x0032 ('2'): (width = 6, offset = 150) */
+0x00, 0x00, 0x00, 0x70, 0x20, 0x82, 0x10, 0x84, 0x1E, 0x00, 
+
+/* character 0x0033 ('3'): (width = 6, offset = 160) */
+0x00, 0x00, 0x00, 0x70, 0x20, 0x8C, 0x08, 0x20, 0x9C, 0x00, 
+
+/* character 0x0034 ('4'): (width = 6, offset = 170) */
+0x00, 0x00, 0x00, 0x08, 0x62, 0x8A, 0x49, 0xF0, 0x82, 0x00, 
+
+/* character 0x0035 ('5'): (width = 6, offset = 180) */
+0x00, 0x00, 0x00, 0x79, 0x04, 0x1C, 0x08, 0x20, 0x9C, 0x00, 
+
+/* character 0x0036 ('6'): (width = 6, offset = 190) */
+0x00, 0x00, 0x00, 0x18, 0x84, 0x1C, 0x49, 0x24, 0x8C, 0x00, 
+
+/* character 0x0037 ('7'): (width = 6, offset = 200) */
+0x00, 0x00, 0x00, 0x78, 0x21, 0x04, 0x10, 0x82, 0x08, 0x00, 
+
+/* character 0x0038 ('8'): (width = 6, offset = 210) */
+0x00, 0x00, 0x00, 0x31, 0x24, 0x8C, 0x49, 0x24, 0x8C, 0x00, 
+
+/* character 0x0039 ('9'): (width = 6, offset = 220) */
+0x00, 0x00, 0x00, 0x31, 0x24, 0x92, 0x38, 0x20, 0x9C, 0x00, 
+
+/* character 0x003A (':'): (width = 3, offset = 230) */
+0x00, 0x00, 0x12, 0x01, 0x20, 
+
+/* character 0x003B (';'): (width = 3, offset = 235) */
+0x00, 0x00, 0x12, 0x00, 0x28, 
+
+/* character 0x003C ('<'): (width = 8, offset = 240) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x18, 0x60, 0x18, 0x04, 0x00, 0x00, 
+
+/* character 0x003D ('='): (width = 8, offset = 253) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7C, 0x00, 0x7C, 0x00, 0x00, 0x00, 
+
+/* character 0x003E ('>'): (width = 8, offset = 266) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x30, 0x0C, 0x30, 0x40, 0x00, 0x00, 
+
+/* character 0x003F ('?'): (width = 5, offset = 279) */
+0x00, 0x00, 0x07, 0x84, 0x26, 0x20, 0x08, 0x40, 0x00, 
+
+/* character 0x0040 ('@'): (width = 11, offset = 288) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0xF0, 0x41, 0x13, 0x92, 0x92, 0x52, 0x4A, 0x49, 0x3E, 0x10,
+0x01, 0xF0, 
+
+/* character 0x0041 ('A'): (width = 7, offset = 306) */
+0x00, 0x00, 0x00, 0x01, 0x05, 0x0A, 0x14, 0x44, 0xFA, 0x0C, 0x10, 0x00, 
+
+/* character 0x0042 ('B'): (width = 7, offset = 318) */
+0x00, 0x00, 0x00, 0x07, 0x88, 0x91, 0x3C, 0x44, 0x89, 0x13, 0xC0, 0x00, 
+
+/* character 0x0043 ('C'): (width = 7, offset = 330) */
+0x00, 0x00, 0x00, 0x01, 0xC4, 0x10, 0x20, 0x40, 0x80, 0x80, 0xE0, 0x00, 
+
+/* character 0x0044 ('D'): (width = 8, offset = 342) */
+0x00, 0x00, 0x00, 0x00, 0x78, 0x44, 0x42, 0x42, 0x42, 0x42, 0x44, 0x78, 0x00, 
+
+/* character 0x0045 ('E'): (width = 6, offset = 355) */
+0x00, 0x00, 0x00, 0x79, 0x04, 0x1E, 0x41, 0x04, 0x1E, 0x00, 
+
+/* character 0x0046 ('F'): (width = 6, offset = 365) */
+0x00, 0x00, 0x00, 0x79, 0x04, 0x1E, 0x41, 0x04, 0x10, 0x00, 
+
+/* character 0x0047 ('G'): (width = 8, offset = 375) */
+0x00, 0x00, 0x00, 0x00, 0x1E, 0x20, 0x40, 0x40, 0x4E, 0x42, 0x22, 0x1C, 0x00, 
+
+/* character 0x0048 ('H'): (width = 8, offset = 388) */
+0x00, 0x00, 0x00, 0x00, 0x42, 0x42, 0x42, 0x7E, 0x42, 0x42, 0x42, 0x42, 0x00, 
+
+/* character 0x0049 ('I'): (width = 3, offset = 401) */
+0x00, 0x0E, 0x92, 0x49, 0x70, 
+
+/* character 0x004A ('J'): (width = 4, offset = 406) */
+0x00, 0x00, 0x22, 0x22, 0x22, 0x2C, 0x00, 
+
+/* character 0x004B ('K'): (width = 6, offset = 413) */
+0x00, 0x00, 0x00, 0x45, 0x25, 0x18, 0x61, 0x44, 0x91, 0x00, 
+
+/* character 0x004C ('L'): (width = 5, offset = 423) */
+0x00, 0x00, 0x04, 0x21, 0x08, 0x42, 0x10, 0xE0, 0x00, 
+
+/* character 0x004D ('M'): (width = 10, offset = 432) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x98, 0x66, 0x19, 0x4A, 0x52, 0x93, 0x24, 0xC9, 0x02, 0x00,
+0x00, 
+
+/* character 0x004E ('N'): (width = 8, offset = 449) */
+0x00, 0x00, 0x00, 0x00, 0x42, 0x62, 0x52, 0x52, 0x4A, 0x4A, 0x46, 0x42, 0x00, 
+
+/* character 0x004F ('O'): (width = 9, offset = 462) */
+0x00, 0x00, 0x00, 0x00, 0x01, 0xC1, 0x11, 0x04, 0x82, 0x41, 0x20, 0x88, 0x83, 0x80, 0x00, 
+
+/* character 0x0050 ('P'): (width = 6, offset = 477) */
+0x00, 0x00, 0x00, 0x79, 0x14, 0x51, 0x79, 0x04, 0x10, 0x00, 
+
+/* character 0x0051 ('Q'): (width = 9, offset = 487) */
+0x00, 0x00, 0x00, 0x00, 0x01, 0xC1, 0x11, 0x04, 0x82, 0x41, 0x20, 0x88, 0x83, 0x80, 0x40, 
+
+/* character 0x0052 ('R'): (width = 7, offset = 502) */
+0x00, 0x00, 0x00, 0x07, 0x88, 0x91, 0x22, 0x78, 0x91, 0x12, 0x10, 0x00, 
+
+/* character 0x0053 ('S'): (width = 6, offset = 514) */
+0x00, 0x00, 0x00, 0x39, 0x04, 0x08, 0x10, 0x20, 0x9C, 0x00, 
+
+/* character 0x0054 ('T'): (width = 5, offset = 524) */
+0x00, 0x00, 0x0F, 0x90, 0x84, 0x21, 0x08, 0x40, 0x00, 
+
+/* character 0x0055 ('U'): (width = 8, offset = 533) */
+0x00, 0x00, 0x00, 0x00, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3C, 0x00, 
+
+/* character 0x0056 ('V'): (width = 7, offset = 546) */
+0x00, 0x00, 0x00, 0x08, 0x30, 0x51, 0x22, 0x28, 0x50, 0xA0, 0x80, 0x00, 
+
+/* character 0x0057 ('W'): (width = 11, offset = 558) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x43, 0x08, 0x52, 0x92, 0x52, 0x51, 0x4A, 0x28, 0x82, 0x10,
+0x40, 0x00, 
+
+/* character 0x0058 ('X'): (width = 6, offset = 576) */
+0x00, 0x00, 0x00, 0x85, 0x24, 0x8C, 0x31, 0x24, 0xA1, 0x00, 
+
+/* character 0x0059 ('Y'): (width = 5, offset = 586) */
+0x00, 0x00, 0x08, 0xA9, 0x4A, 0x21, 0x08, 0x40, 0x00, 
+
+/* character 0x005A ('Z'): (width = 6, offset = 595) */
+0x00, 0x00, 0x00, 0xFC, 0x21, 0x04, 0x21, 0x04, 0x3F, 0x00, 
+
+/* character 0x005B ('['): (width = 3, offset = 605) */
+0x00, 0x06, 0x92, 0x49, 0x24, 
+
+/* character 0x005C ('\'): (width = 4, offset = 610) */
+0x00, 0x00, 0x88, 0x44, 0x42, 0x21, 0x10, 
+
+/* character 0x005D (']'): (width = 3, offset = 617) */
+0x00, 0x0C, 0x92, 0x49, 0x24, 
+
+/* character 0x005E ('^'): (width = 8, offset = 622) */
+0x00, 0x00, 0x00, 0x00, 0x18, 0x18, 0x24, 0x24, 0x42, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x005F ('_'): (width = 5, offset = 635) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0060 ('`'): (width = 3, offset = 644) */
+0x00, 0x44, 0x00, 0x00, 0x00, 
+
+/* character 0x007B ('{'): (width = 3, offset = 649) */
+0x00, 0x06, 0x92, 0x89, 0x24, 
+
+/* character 0x007C ('|'): (width = 3, offset = 654) */
+0x00, 0x04, 0x92, 0x49, 0x24, 
+
+/* character 0x007D ('}'): (width = 3, offset = 659) */
+0x00, 0x0C, 0x92, 0x29, 0x24, 
+
+/* character 0x007E ('~'): (width = 8, offset = 664) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x24, 0x58, 0x00, 0x00, 0x00, 
+
+/* character 0x00B0 (' '): (width = 4, offset = 677) */
+0x00, 0x00, 0xEA, 0xE0, 0x00, 0x00, 0x00
+
+};
+
+const D4D_FONT_OFFSET d4dfnt_SegoeUI_8_offset_table[] = { 
+
+/*       offset       char      hexcode     */
+/*       ======      =====      =======     */
+            0,    /*   ' '        0020       */
+            5,    /*   '!'        0021       */
+           10,    /*   '"'        0022       */
+           17,    /*   '#'        0023       */
+           29,    /*   '$'        0024       */
+           39,    /*   '%'        0025       */
+           54,    /*   '&'        0026       */
+           69,    /*   '''        0027       */
+           74,    /*   '('        0028       */
+           79,    /*   ')'        0029       */
+           84,    /*   '*'        002A       */
+           93,    /*   '+'        002B       */
+          106,    /*   ','        002C       */
+          111,    /*   '-'        002D       */
+          118,    /*   '.'        002E       */
+          123,    /*   '/'        002F       */
+          130,    /*   '0'        0030       */
+          140,    /*   '1'        0031       */
+          150,    /*   '2'        0032       */
+          160,    /*   '3'        0033       */
+          170,    /*   '4'        0034       */
+          180,    /*   '5'        0035       */
+          190,    /*   '6'        0036       */
+          200,    /*   '7'        0037       */
+          210,    /*   '8'        0038       */
+          220,    /*   '9'        0039       */
+          230,    /*   ':'        003A       */
+          235,    /*   ';'        003B       */
+          240,    /*   '<'        003C       */
+          253,    /*   '='        003D       */
+          266,    /*   '>'        003E       */
+          279,    /*   '?'        003F       */
+          288,    /*   '@'        0040       */
+          306,    /*   'A'        0041       */
+          318,    /*   'B'        0042       */
+          330,    /*   'C'        0043       */
+          342,    /*   'D'        0044       */
+          355,    /*   'E'        0045       */
+          365,    /*   'F'        0046       */
+          375,    /*   'G'        0047       */
+          388,    /*   'H'        0048       */
+          401,    /*   'I'        0049       */
+          406,    /*   'J'        004A       */
+          413,    /*   'K'        004B       */
+          423,    /*   'L'        004C       */
+          432,    /*   'M'        004D       */
+          449,    /*   'N'        004E       */
+          462,    /*   'O'        004F       */
+          477,    /*   'P'        0050       */
+          487,    /*   'Q'        0051       */
+          502,    /*   'R'        0052       */
+          514,    /*   'S'        0053       */
+          524,    /*   'T'        0054       */
+          533,    /*   'U'        0055       */
+          546,    /*   'V'        0056       */
+          558,    /*   'W'        0057       */
+          576,    /*   'X'        0058       */
+          586,    /*   'Y'        0059       */
+          595,    /*   'Z'        005A       */
+          605,    /*   '['        005B       */
+          610,    /*   '\'        005C       */
+          617,    /*   ']'        005D       */
+          622,    /*   '^'        005E       */
+          635,    /*   '_'        005F       */
+          644,    /*   '`'        0060       */
+          649,    /*   '{'        007B       */
+          654,    /*   '|'        007C       */
+          659,    /*   '}'        007D       */
+          664,    /*   '~'        007E       */
+          677    /*   ' '        00B0       */
+};
+
+const D4D_FONT_IX d4dfnt_SegoeUI_8_index_table[] = { 
+
+/*        char      hexacode      decimal       index     */
+/*       ======     ========      =======      =======    */
+          ' ',    /*   0020          32            0       */
+          '!',    /*   0021          33            1       */
+          '"',    /*   0022          34            2       */
+          '#',    /*   0023          35            3       */
+          '$',    /*   0024          36            4       */
+          '%',    /*   0025          37            5       */
+          '&',    /*   0026          38            6       */
+          '\'',    /*   0027          39            7       */
+          '(',    /*   0028          40            8       */
+          ')',    /*   0029          41            9       */
+          '*',    /*   002A          42           10       */
+          '+',    /*   002B          43           11       */
+          ',',    /*   002C          44           12       */
+          '-',    /*   002D          45           13       */
+          '.',    /*   002E          46           14       */
+          '/',    /*   002F          47           15       */
+          '0',    /*   0030          48           16       */
+          '1',    /*   0031          49           17       */
+          '2',    /*   0032          50           18       */
+          '3',    /*   0033          51           19       */
+          '4',    /*   0034          52           20       */
+          '5',    /*   0035          53           21       */
+          '6',    /*   0036          54           22       */
+          '7',    /*   0037          55           23       */
+          '8',    /*   0038          56           24       */
+          '9',    /*   0039          57           25       */
+          ':',    /*   003A          58           26       */
+          ';',    /*   003B          59           27       */
+          '<',    /*   003C          60           28       */
+          '=',    /*   003D          61           29       */
+          '>',    /*   003E          62           30       */
+          '?',    /*   003F          63           31       */
+          '@',    /*   0040          64           32       */
+          'A',    /*   0041          65           33       */
+          'B',    /*   0042          66           34       */
+          'C',    /*   0043          67           35       */
+          'D',    /*   0044          68           36       */
+          'E',    /*   0045          69           37       */
+          'F',    /*   0046          70           38       */
+          'G',    /*   0047          71           39       */
+          'H',    /*   0048          72           40       */
+          'I',    /*   0049          73           41       */
+          'J',    /*   004A          74           42       */
+          'K',    /*   004B          75           43       */
+          'L',    /*   004C          76           44       */
+          'M',    /*   004D          77           45       */
+          'N',    /*   004E          78           46       */
+          'O',    /*   004F          79           47       */
+          'P',    /*   0050          80           48       */
+          'Q',    /*   0051          81           49       */
+          'R',    /*   0052          82           50       */
+          'S',    /*   0053          83           51       */
+          'T',    /*   0054          84           52       */
+          'U',    /*   0055          85           53       */
+          'V',    /*   0056          86           54       */
+          'W',    /*   0057          87           55       */
+          'X',    /*   0058          88           56       */
+          'Y',    /*   0059          89           57       */
+          'Z',    /*   005A          90           58       */
+          '[',    /*   005B          91           59       */
+          '\\',    /*   005C          92           60       */
+          ']',    /*   005D          93           61       */
+          '^',    /*   005E          94           62       */
+          '_',    /*   005F          95           63       */
+          '`',    /*   0060          96           64       */
+          '{',    /*   007B         123           65       */
+          '|',    /*   007C         124           66       */
+          '}',    /*   007D         125           67       */
+          '~',    /*   007E         126           68       */
+         0x00B0     /*   00B0         176           69       */
+};
+
+const D4D_FONT_SIZE d4dfnt_SegoeUI_8_width_table[] = { 
+
+/*       width        char      hexcode     */
+/*       ======      =====      =======     */
+           3,    /*   ' '        0020       */
+           3,    /*   '!'        0021       */
+           4,    /*   '"'        0022       */
+           7,    /*   '#'        0023       */
+           6,    /*   '$'        0024       */
+           9,    /*   '%'        0025       */
+           9,    /*   '&'        0026       */
+           3,    /*   '''        0027       */
+           3,    /*   '('        0028       */
+           3,    /*   ')'        0029       */
+           5,    /*   '*'        002A       */
+           8,    /*   '+'        002B       */
+           3,    /*   ','        002C       */
+           4,    /*   '-'        002D       */
+           3,    /*   '.'        002E       */
+           4,    /*   '/'        002F       */
+           6,    /*   '0'        0030       */
+           6,    /*   '1'        0031       */
+           6,    /*   '2'        0032       */
+           6,    /*   '3'        0033       */
+           6,    /*   '4'        0034       */
+           6,    /*   '5'        0035       */
+           6,    /*   '6'        0036       */
+           6,    /*   '7'        0037       */
+           6,    /*   '8'        0038       */
+           6,    /*   '9'        0039       */
+           3,    /*   ':'        003A       */
+           3,    /*   ';'        003B       */
+           8,    /*   '<'        003C       */
+           8,    /*   '='        003D       */
+           8,    /*   '>'        003E       */
+           5,    /*   '?'        003F       */
+          11,    /*   '@'        0040       */
+           7,    /*   'A'        0041       */
+           7,    /*   'B'        0042       */
+           7,    /*   'C'        0043       */
+           8,    /*   'D'        0044       */
+           6,    /*   'E'        0045       */
+           6,    /*   'F'        0046       */
+           8,    /*   'G'        0047       */
+           8,    /*   'H'        0048       */
+           3,    /*   'I'        0049       */
+           4,    /*   'J'        004A       */
+           6,    /*   'K'        004B       */
+           5,    /*   'L'        004C       */
+          10,    /*   'M'        004D       */
+           8,    /*   'N'        004E       */
+           9,    /*   'O'        004F       */
+           6,    /*   'P'        0050       */
+           9,    /*   'Q'        0051       */
+           7,    /*   'R'        0052       */
+           6,    /*   'S'        0053       */
+           5,    /*   'T'        0054       */
+           8,    /*   'U'        0055       */
+           7,    /*   'V'        0056       */
+          11,    /*   'W'        0057       */
+           6,    /*   'X'        0058       */
+           5,    /*   'Y'        0059       */
+           6,    /*   'Z'        005A       */
+           3,    /*   '['        005B       */
+           4,    /*   '\'        005C       */
+           3,    /*   ']'        005D       */
+           8,    /*   '^'        005E       */
+           5,    /*   '_'        005F       */
+           3,    /*   '`'        0060       */
+           3,    /*   '{'        007B       */
+           3,    /*   '|'        007C       */
+           3,    /*   '}'        007D       */
+           8,    /*   '~'        007E       */
+           4     /*   ' '        00B0       */
+};
+
+const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUI_8_desc = {
+    0,       // Font descriptor version number
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,   // linear / nonlinear , proporcional or not
+    ' ',     // start char of used table
+    70,   // count of all chars of used table
+    0x0020,     // index of char that will be printed instead of
+    8,       // font size (size of font loaded in PC)
+    0,     // height of font bitmpap for non proporcional fonts
+    12,      // offset from Y0 coordination to baseline
+    {11, 13},     // size of biggest char x/y
+    D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON,     // packing condition of individual bitmaps
+    d4dfnt_SegoeUI_8_index_table,          // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
+    d4dfnt_SegoeUI_8_offset_table,     // Offset table - used when proporcial font is set in flags
+    d4dfnt_SegoeUI_8_width_table,        // Size table - used when proporcial font is set in flags
+    d4dfnt_SegoeUI_8_data_table,      // bitmap/font data array
+    NULL       // pointer for next UNICODE page
+};
+
+const Byte d4dfnt_Verdana_8_data_table[] = { 
+
+/* character 0x0020 (' '): (width = 4, offset = 0) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0021 ('!'): (width = 4, offset = 7) */
+0x00, 0x02, 0x22, 0x22, 0x20, 0x20, 0x00, 
+
+/* character 0x0022 ('"'): (width = 5, offset = 14) */
+0x00, 0x14, 0xA5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0023 ('#'): (width = 9, offset = 23) */
+0x00, 0x00, 0x00, 0x01, 0x40, 0xA1, 0xF8, 0x50, 0x28, 0x7E, 0x14, 0x0A, 0x00, 0x00, 0x00, 
+
+/* character 0x0024 ('$'): (width = 7, offset = 38) */
+0x00, 0x00, 0x40, 0x83, 0xCA, 0x14, 0x1C, 0x14, 0x29, 0xE0, 0x81, 0x00, 
+
+/* character 0x0025 ('%'): (width = 12, offset = 50) */
+0x00, 0x00, 0x00, 0x00, 0x03, 0x10, 0x49, 0x04, 0xA0, 0x32, 0x00, 0x4C, 0x05, 0x20, 0x92, 0x08,
+0xC0, 0x00, 0x00, 0x00, 
+
+/* character 0x0026 ('&'): (width = 8, offset = 70) */
+0x00, 0x00, 0x00, 0x30, 0x48, 0x48, 0x32, 0x4A, 0x44, 0x46, 0x39, 0x00, 0x00, 
+
+/* character 0x0027 ('''): (width = 3, offset = 83) */
+0x01, 0x24, 0x00, 0x00, 0x00, 
+
+/* character 0x0028 ('('): (width = 5, offset = 88) */
+0x00, 0x04, 0x42, 0x21, 0x08, 0x42, 0x08, 0x41, 0x00, 
+
+/* character 0x0029 (')'): (width = 5, offset = 97) */
+0x00, 0x10, 0x42, 0x08, 0x42, 0x10, 0x88, 0x44, 0x00, 
+
+/* character 0x002A ('*'): (width = 7, offset = 106) */
+0x00, 0x00, 0x42, 0xA3, 0x8A, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x002B ('+'): (width = 9, offset = 118) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x40, 0x20, 0xFE, 0x08, 0x04, 0x02, 0x00, 0x00, 0x00, 
+
+/* character 0x002C (','): (width = 4, offset = 133) */
+0x00, 0x00, 0x00, 0x00, 0x02, 0x22, 0x40, 
+
+/* character 0x002D ('-'): (width = 5, offset = 140) */
+0x00, 0x00, 0x00, 0x00, 0x0E, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x002E ('.'): (width = 4, offset = 149) */
+0x00, 0x00, 0x00, 0x00, 0x02, 0x20, 0x00, 
+
+/* character 0x002F ('/'): (width = 5, offset = 156) */
+0x00, 0x02, 0x11, 0x08, 0x84, 0x42, 0x21, 0x00, 0x00, 
+
+/* character 0x0030 ('0'): (width = 7, offset = 165) */
+0x00, 0x00, 0x01, 0xC4, 0x48, 0x91, 0x22, 0x44, 0x88, 0xE0, 0x00, 0x00, 
+
+/* character 0x0031 ('1'): (width = 7, offset = 177) */
+0x00, 0x00, 0x00, 0x87, 0x02, 0x04, 0x08, 0x10, 0x21, 0xF0, 0x00, 0x00, 
+
+/* character 0x0032 ('2'): (width = 7, offset = 189) */
+0x00, 0x00, 0x01, 0xC4, 0x40, 0x82, 0x08, 0x20, 0x81, 0xF0, 0x00, 0x00, 
+
+/* character 0x0033 ('3'): (width = 7, offset = 201) */
+0x00, 0x00, 0x01, 0xC4, 0x40, 0x86, 0x02, 0x04, 0x88, 0xE0, 0x00, 0x00, 
+
+/* character 0x0034 ('4'): (width = 7, offset = 213) */
+0x00, 0x00, 0x00, 0x41, 0x85, 0x12, 0x44, 0xFC, 0x10, 0x20, 0x00, 0x00, 
+
+/* character 0x0035 ('5'): (width = 7, offset = 225) */
+0x00, 0x00, 0x03, 0xE4, 0x08, 0x1E, 0x02, 0x04, 0x88, 0xE0, 0x00, 0x00, 
+
+/* character 0x0036 ('6'): (width = 7, offset = 237) */
+0x00, 0x00, 0x00, 0xC2, 0x08, 0x1E, 0x22, 0x44, 0x88, 0xE0, 0x00, 0x00, 
+
+/* character 0x0037 ('7'): (width = 7, offset = 249) */
+0x00, 0x00, 0x03, 0xE0, 0x41, 0x02, 0x08, 0x10, 0x40, 0x80, 0x00, 0x00, 
+
+/* character 0x0038 ('8'): (width = 7, offset = 261) */
+0x00, 0x00, 0x01, 0xC4, 0x48, 0x8E, 0x22, 0x44, 0x88, 0xE0, 0x00, 0x00, 
+
+/* character 0x0039 ('9'): (width = 7, offset = 273) */
+0x00, 0x00, 0x01, 0xC4, 0x48, 0x91, 0x1E, 0x04, 0x10, 0xC0, 0x00, 0x00, 
+
+/* character 0x003A (':'): (width = 5, offset = 285) */
+0x00, 0x00, 0x00, 0x10, 0x80, 0x01, 0x08, 0x00, 0x00, 
+
+/* character 0x003B (';'): (width = 5, offset = 294) */
+0x00, 0x00, 0x00, 0x10, 0x80, 0x01, 0x08, 0x44, 0x00, 
+
+/* character 0x003C ('<'): (width = 9, offset = 303) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x30, 0x60, 0xC0, 0x18, 0x03, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x003D ('='): (width = 9, offset = 318) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0xFC, 0x00, 0x7F, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x003E ('>'): (width = 9, offset = 333) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x80, 0x30, 0x06, 0x0C, 0x18, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x003F ('?'): (width = 6, offset = 348) */
+0x00, 0x00, 0x1C, 0x08, 0x21, 0x08, 0x20, 0x02, 0x00, 0x00, 
+
+/* character 0x0040 ('@'): (width = 10, offset = 358) */
+0x00, 0x00, 0x00, 0x00, 0x7C, 0x20, 0x93, 0xA5, 0x29, 0x4A, 0x52, 0x93, 0x42, 0x00, 0x78, 0x00,
+0x00, 
+
+/* character 0x0041 ('A'): (width = 8, offset = 375) */
+0x00, 0x00, 0x00, 0x18, 0x18, 0x24, 0x24, 0x24, 0x7E, 0x42, 0x42, 0x00, 0x00, 
+
+/* character 0x0042 ('B'): (width = 8, offset = 388) */
+0x00, 0x00, 0x00, 0x78, 0x44, 0x44, 0x7C, 0x42, 0x42, 0x42, 0x7C, 0x00, 0x00, 
+
+/* character 0x0043 ('C'): (width = 9, offset = 401) */
+0x00, 0x00, 0x00, 0x03, 0xC2, 0x12, 0x01, 0x00, 0x80, 0x40, 0x10, 0x87, 0x80, 0x00, 0x00, 
+
+/* character 0x0044 ('D'): (width = 9, offset = 416) */
+0x00, 0x00, 0x00, 0x0F, 0x84, 0x22, 0x09, 0x04, 0x82, 0x41, 0x21, 0x1F, 0x00, 0x00, 0x00, 
+
+/* character 0x0045 ('E'): (width = 7, offset = 431) */
+0x00, 0x00, 0x03, 0xE4, 0x08, 0x1F, 0x20, 0x40, 0x81, 0xF0, 0x00, 0x00, 
+
+/* character 0x0046 ('F'): (width = 6, offset = 443) */
+0x00, 0x00, 0x1F, 0x41, 0x07, 0x90, 0x41, 0x04, 0x00, 0x00, 
+
+/* character 0x0047 ('G'): (width = 9, offset = 453) */
+0x00, 0x00, 0x00, 0x03, 0xC2, 0x12, 0x01, 0x00, 0x8E, 0x41, 0x10, 0x87, 0x80, 0x00, 0x00, 
+
+/* character 0x0048 ('H'): (width = 8, offset = 468) */
+0x00, 0x00, 0x00, 0x42, 0x42, 0x42, 0x7E, 0x42, 0x42, 0x42, 0x42, 0x00, 0x00, 
+
+/* character 0x0049 ('I'): (width = 5, offset = 481) */
+0x00, 0x00, 0xE2, 0x10, 0x84, 0x21, 0x1C, 0x00, 0x00, 
+
+/* character 0x004A ('J'): (width = 5, offset = 490) */
+0x00, 0x00, 0xE1, 0x08, 0x42, 0x10, 0xB8, 0x00, 0x00, 
+
+/* character 0x004B ('K'): (width = 8, offset = 499) */
+0x00, 0x00, 0x00, 0x42, 0x44, 0x48, 0x50, 0x70, 0x48, 0x44, 0x42, 0x00, 0x00, 
+
+/* character 0x004C ('L'): (width = 6, offset = 512) */
+0x00, 0x00, 0x10, 0x41, 0x04, 0x10, 0x41, 0x07, 0xC0, 0x00, 
+
+/* character 0x004D ('M'): (width = 9, offset = 522) */
+0x00, 0x00, 0x00, 0x0C, 0x66, 0x32, 0xA9, 0x54, 0x92, 0x49, 0x20, 0x90, 0x40, 0x00, 0x00, 
+
+/* character 0x004E ('N'): (width = 8, offset = 537) */
+0x00, 0x00, 0x00, 0x62, 0x62, 0x52, 0x52, 0x4A, 0x4A, 0x46, 0x46, 0x00, 0x00, 
+
+/* character 0x004F ('O'): (width = 9, offset = 550) */
+0x00, 0x00, 0x00, 0x03, 0x82, 0x22, 0x09, 0x04, 0x82, 0x41, 0x11, 0x07, 0x00, 0x00, 0x00, 
+
+/* character 0x0050 ('P'): (width = 7, offset = 565) */
+0x00, 0x00, 0x03, 0xC4, 0x48, 0x91, 0x3C, 0x40, 0x81, 0x00, 0x00, 0x00, 
+
+/* character 0x0051 ('Q'): (width = 9, offset = 577) */
+0x00, 0x00, 0x00, 0x03, 0x82, 0x22, 0x09, 0x04, 0x82, 0x41, 0x11, 0x07, 0x00, 0x80, 0x30, 
+
+/* character 0x0052 ('R'): (width = 8, offset = 592) */
+0x00, 0x00, 0x00, 0x78, 0x44, 0x44, 0x44, 0x78, 0x48, 0x44, 0x42, 0x00, 0x00, 
+
+/* character 0x0053 ('S'): (width = 8, offset = 605) */
+0x00, 0x00, 0x00, 0x3C, 0x42, 0x40, 0x30, 0x0C, 0x02, 0x42, 0x3C, 0x00, 0x00, 
+
+/* character 0x0054 ('T'): (width = 7, offset = 618) */
+0x00, 0x00, 0x07, 0xF1, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x00, 0x00, 
+
+/* character 0x0055 ('U'): (width = 8, offset = 630) */
+0x00, 0x00, 0x00, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3C, 0x00, 0x00, 
+
+/* character 0x0056 ('V'): (width = 8, offset = 643) */
+0x00, 0x00, 0x00, 0x42, 0x42, 0x42, 0x24, 0x24, 0x24, 0x18, 0x18, 0x00, 0x00, 
+
+/* character 0x0057 ('W'): (width = 11, offset = 656) */
+0x00, 0x00, 0x00, 0x00, 0x22, 0x24, 0x44, 0x55, 0x0A, 0xA1, 0x54, 0x2A, 0x82, 0x20, 0x44, 0x00,
+0x00, 0x00, 
+
+/* character 0x0058 ('X'): (width = 8, offset = 674) */
+0x00, 0x00, 0x00, 0x42, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x42, 0x00, 0x00, 
+
+/* character 0x0059 ('Y'): (width = 7, offset = 687) */
+0x00, 0x00, 0x04, 0x14, 0x45, 0x04, 0x08, 0x10, 0x20, 0x40, 0x00, 0x00, 
+
+/* character 0x005A ('Z'): (width = 8, offset = 699) */
+0x00, 0x00, 0x00, 0x7E, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x7E, 0x00, 0x00, 
+
+/* character 0x005B ('['): (width = 5, offset = 712) */
+0x00, 0x1C, 0x84, 0x21, 0x08, 0x42, 0x10, 0x87, 0x00, 
+
+/* character 0x005C ('\'): (width = 5, offset = 721) */
+0x00, 0x21, 0x04, 0x20, 0x84, 0x10, 0x82, 0x10, 0x00, 
+
+/* character 0x005D (']'): (width = 5, offset = 730) */
+0x00, 0x1C, 0x21, 0x08, 0x42, 0x10, 0x84, 0x27, 0x00, 
+
+/* character 0x005E ('^'): (width = 9, offset = 739) */
+0x00, 0x00, 0x00, 0x01, 0x01, 0x41, 0x11, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x005F ('_'): (width = 7, offset = 754) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0F, 0xE0, 
+
+/* character 0x0060 ('`'): (width = 7, offset = 766) */
+0x00, 0x00, 0x80, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0061 ('a'): (width = 7, offset = 778) */
+0x00, 0x00, 0x00, 0x00, 0x07, 0x01, 0x1E, 0x44, 0x88, 0xF0, 0x00, 0x00, 
+
+/* character 0x0062 ('b'): (width = 7, offset = 790) */
+0x00, 0x01, 0x02, 0x04, 0x0F, 0x11, 0x22, 0x44, 0x89, 0xE0, 0x00, 0x00, 
+
+/* character 0x0063 ('c'): (width = 6, offset = 802) */
+0x00, 0x00, 0x00, 0x00, 0xE4, 0x50, 0x41, 0x13, 0x80, 0x00, 
+
+/* character 0x0064 ('d'): (width = 7, offset = 812) */
+0x00, 0x00, 0x10, 0x20, 0x47, 0x91, 0x22, 0x44, 0x88, 0xF0, 0x00, 0x00, 
+
+/* character 0x0065 ('e'): (width = 7, offset = 824) */
+0x00, 0x00, 0x00, 0x00, 0x07, 0x11, 0x3E, 0x40, 0x88, 0xE0, 0x00, 0x00, 
+
+/* character 0x0066 ('f'): (width = 4, offset = 836) */
+0x00, 0x34, 0x4F, 0x44, 0x44, 0x40, 0x00, 
+
+/* character 0x0067 ('g'): (width = 7, offset = 843) */
+0x00, 0x00, 0x00, 0x00, 0x07, 0x91, 0x22, 0x44, 0x88, 0xF0, 0x23, 0x80, 
+
+/* character 0x0068 ('h'): (width = 7, offset = 855) */
+0x00, 0x01, 0x02, 0x04, 0x0F, 0x11, 0x22, 0x44, 0x89, 0x10, 0x00, 0x00, 
+
+/* character 0x0069 ('i'): (width = 3, offset = 867) */
+0x01, 0x00, 0x92, 0x49, 0x00, 
+
+/* character 0x006A ('j'): (width = 4, offset = 872) */
+0x00, 0x20, 0x06, 0x22, 0x22, 0x22, 0xC0, 
+
+/* character 0x006B ('k'): (width = 7, offset = 879) */
+0x00, 0x01, 0x02, 0x04, 0x08, 0x92, 0x28, 0x70, 0x91, 0x10, 0x00, 0x00, 
+
+/* character 0x006C ('l'): (width = 3, offset = 891) */
+0x01, 0x24, 0x92, 0x49, 0x00, 
+
+/* character 0x006D ('m'): (width = 11, offset = 896) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF7, 0x11, 0x12, 0x22, 0x44, 0x48, 0x89, 0x11, 0x00,
+0x00, 0x00, 
+
+/* character 0x006E ('n'): (width = 7, offset = 914) */
+0x00, 0x00, 0x00, 0x00, 0x0F, 0x11, 0x22, 0x44, 0x89, 0x10, 0x00, 0x00, 
+
+/* character 0x006F ('o'): (width = 7, offset = 926) */
+0x00, 0x00, 0x00, 0x00, 0x07, 0x11, 0x22, 0x44, 0x88, 0xE0, 0x00, 0x00, 
+
+/* character 0x0070 ('p'): (width = 7, offset = 938) */
+0x00, 0x00, 0x00, 0x00, 0x0F, 0x11, 0x22, 0x44, 0x89, 0xE2, 0x04, 0x00, 
+
+/* character 0x0071 ('q'): (width = 7, offset = 950) */
+0x00, 0x00, 0x00, 0x00, 0x07, 0x91, 0x22, 0x44, 0x88, 0xF0, 0x20, 0x40, 
+
+/* character 0x0072 ('r'): (width = 5, offset = 962) */
+0x00, 0x00, 0x00, 0x2D, 0x88, 0x42, 0x10, 0x00, 0x00, 
+
+/* character 0x0073 ('s'): (width = 6, offset = 971) */
+0x00, 0x00, 0x00, 0x00, 0xE4, 0x18, 0x18, 0x27, 0x00, 0x00, 
+
+/* character 0x0074 ('t'): (width = 4, offset = 981) */
+0x00, 0x04, 0x4F, 0x44, 0x44, 0x30, 0x00, 
+
+/* character 0x0075 ('u'): (width = 7, offset = 988) */
+0x00, 0x00, 0x00, 0x00, 0x08, 0x91, 0x22, 0x44, 0x88, 0xF0, 0x00, 0x00, 
+
+/* character 0x0076 ('v'): (width = 7, offset = 1000) */
+0x00, 0x00, 0x00, 0x00, 0x08, 0x91, 0x14, 0x28, 0x20, 0x40, 0x00, 0x00, 
+
+/* character 0x0077 ('w'): (width = 9, offset = 1012) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x49, 0x24, 0xAA, 0x55, 0x11, 0x08, 0x80, 0x00, 0x00, 
+
+/* character 0x0078 ('x'): (width = 7, offset = 1027) */
+0x00, 0x00, 0x00, 0x00, 0x08, 0x8A, 0x08, 0x10, 0x51, 0x10, 0x00, 0x00, 
+
+/* character 0x0079 ('y'): (width = 7, offset = 1039) */
+0x00, 0x00, 0x00, 0x00, 0x08, 0x8A, 0x14, 0x28, 0x20, 0x40, 0x82, 0x00, 
+
+/* character 0x007A ('z'): (width = 6, offset = 1051) */
+0x00, 0x00, 0x00, 0x01, 0xE0, 0x84, 0x21, 0x07, 0x80, 0x00, 
+
+/* character 0x007B ('{'): (width = 7, offset = 1061) */
+0x00, 0x00, 0x30, 0x81, 0x02, 0x04, 0x30, 0x10, 0x20, 0x40, 0x80, 0xC0, 
+
+/* character 0x007C ('|'): (width = 5, offset = 1073) */
+0x00, 0x08, 0x42, 0x10, 0x84, 0x21, 0x08, 0x42, 0x00, 
+
+/* character 0x007D ('}'): (width = 7, offset = 1082) */
+0x00, 0x01, 0x80, 0x81, 0x02, 0x04, 0x06, 0x10, 0x20, 0x40, 0x86, 0x00, 
+
+/* character 0x007E ('~'): (width = 9, offset = 1094) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC4, 0x92, 0x46, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x007F (''): (width = 3, offset = 1109) */
+0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x00B0 (' '): (width = 6, offset = 1114) */
+0x00, 0x00, 0x0C, 0x49, 0x23, 0x00, 0x00, 0x00, 0x00, 0x00
+
+};
+
+const D4D_FONT_OFFSET d4dfnt_Verdana_8_offset_table[] = { 
+
+/*       offset       char      hexcode     */
+/*       ======      =====      =======     */
+            0,    /*   ' '        0020       */
+            7,    /*   '!'        0021       */
+           14,    /*   '"'        0022       */
+           23,    /*   '#'        0023       */
+           38,    /*   '$'        0024       */
+           50,    /*   '%'        0025       */
+           70,    /*   '&'        0026       */
+           83,    /*   '''        0027       */
+           88,    /*   '('        0028       */
+           97,    /*   ')'        0029       */
+          106,    /*   '*'        002A       */
+          118,    /*   '+'        002B       */
+          133,    /*   ','        002C       */
+          140,    /*   '-'        002D       */
+          149,    /*   '.'        002E       */
+          156,    /*   '/'        002F       */
+          165,    /*   '0'        0030       */
+          177,    /*   '1'        0031       */
+          189,    /*   '2'        0032       */
+          201,    /*   '3'        0033       */
+          213,    /*   '4'        0034       */
+          225,    /*   '5'        0035       */
+          237,    /*   '6'        0036       */
+          249,    /*   '7'        0037       */
+          261,    /*   '8'        0038       */
+          273,    /*   '9'        0039       */
+          285,    /*   ':'        003A       */
+          294,    /*   ';'        003B       */
+          303,    /*   '<'        003C       */
+          318,    /*   '='        003D       */
+          333,    /*   '>'        003E       */
+          348,    /*   '?'        003F       */
+          358,    /*   '@'        0040       */
+          375,    /*   'A'        0041       */
+          388,    /*   'B'        0042       */
+          401,    /*   'C'        0043       */
+          416,    /*   'D'        0044       */
+          431,    /*   'E'        0045       */
+          443,    /*   'F'        0046       */
+          453,    /*   'G'        0047       */
+          468,    /*   'H'        0048       */
+          481,    /*   'I'        0049       */
+          490,    /*   'J'        004A       */
+          499,    /*   'K'        004B       */
+          512,    /*   'L'        004C       */
+          522,    /*   'M'        004D       */
+          537,    /*   'N'        004E       */
+          550,    /*   'O'        004F       */
+          565,    /*   'P'        0050       */
+          577,    /*   'Q'        0051       */
+          592,    /*   'R'        0052       */
+          605,    /*   'S'        0053       */
+          618,    /*   'T'        0054       */
+          630,    /*   'U'        0055       */
+          643,    /*   'V'        0056       */
+          656,    /*   'W'        0057       */
+          674,    /*   'X'        0058       */
+          687,    /*   'Y'        0059       */
+          699,    /*   'Z'        005A       */
+          712,    /*   '['        005B       */
+          721,    /*   '\'        005C       */
+          730,    /*   ']'        005D       */
+          739,    /*   '^'        005E       */
+          754,    /*   '_'        005F       */
+          766,    /*   '`'        0060       */
+          778,    /*   'a'        0061       */
+          790,    /*   'b'        0062       */
+          802,    /*   'c'        0063       */
+          812,    /*   'd'        0064       */
+          824,    /*   'e'        0065       */
+          836,    /*   'f'        0066       */
+          843,    /*   'g'        0067       */
+          855,    /*   'h'        0068       */
+          867,    /*   'i'        0069       */
+          872,    /*   'j'        006A       */
+          879,    /*   'k'        006B       */
+          891,    /*   'l'        006C       */
+          896,    /*   'm'        006D       */
+          914,    /*   'n'        006E       */
+          926,    /*   'o'        006F       */
+          938,    /*   'p'        0070       */
+          950,    /*   'q'        0071       */
+          962,    /*   'r'        0072       */
+          971,    /*   's'        0073       */
+          981,    /*   't'        0074       */
+          988,    /*   'u'        0075       */
+         1000,    /*   'v'        0076       */
+         1012,    /*   'w'        0077       */
+         1027,    /*   'x'        0078       */
+         1039,    /*   'y'        0079       */
+         1051,    /*   'z'        007A       */
+         1061,    /*   '{'        007B       */
+         1073,    /*   '|'        007C       */
+         1082,    /*   '}'        007D       */
+         1094,    /*   '~'        007E       */
+         1109,    /*   ''        007F       */
+         1114    /*   ' '        00B0       */
+};
+
+const D4D_FONT_IX d4dfnt_Verdana_8_index_table[] = { 
+
+/*        char      hexacode      decimal       index     */
+/*       ======     ========      =======      =======    */
+          ' ',    /*   0020          32            0       */
+          '!',    /*   0021          33            1       */
+          '"',    /*   0022          34            2       */
+          '#',    /*   0023          35            3       */
+          '$',    /*   0024          36            4       */
+          '%',    /*   0025          37            5       */
+          '&',    /*   0026          38            6       */
+          '\'',    /*   0027          39            7       */
+          '(',    /*   0028          40            8       */
+          ')',    /*   0029          41            9       */
+          '*',    /*   002A          42           10       */
+          '+',    /*   002B          43           11       */
+          ',',    /*   002C          44           12       */
+          '-',    /*   002D          45           13       */
+          '.',    /*   002E          46           14       */
+          '/',    /*   002F          47           15       */
+          '0',    /*   0030          48           16       */
+          '1',    /*   0031          49           17       */
+          '2',    /*   0032          50           18       */
+          '3',    /*   0033          51           19       */
+          '4',    /*   0034          52           20       */
+          '5',    /*   0035          53           21       */
+          '6',    /*   0036          54           22       */
+          '7',    /*   0037          55           23       */
+          '8',    /*   0038          56           24       */
+          '9',    /*   0039          57           25       */
+          ':',    /*   003A          58           26       */
+          ';',    /*   003B          59           27       */
+          '<',    /*   003C          60           28       */
+          '=',    /*   003D          61           29       */
+          '>',    /*   003E          62           30       */
+          '?',    /*   003F          63           31       */
+          '@',    /*   0040          64           32       */
+          'A',    /*   0041          65           33       */
+          'B',    /*   0042          66           34       */
+          'C',    /*   0043          67           35       */
+          'D',    /*   0044          68           36       */
+          'E',    /*   0045          69           37       */
+          'F',    /*   0046          70           38       */
+          'G',    /*   0047          71           39       */
+          'H',    /*   0048          72           40       */
+          'I',    /*   0049          73           41       */
+          'J',    /*   004A          74           42       */
+          'K',    /*   004B          75           43       */
+          'L',    /*   004C          76           44       */
+          'M',    /*   004D          77           45       */
+          'N',    /*   004E          78           46       */
+          'O',    /*   004F          79           47       */
+          'P',    /*   0050          80           48       */
+          'Q',    /*   0051          81           49       */
+          'R',    /*   0052          82           50       */
+          'S',    /*   0053          83           51       */
+          'T',    /*   0054          84           52       */
+          'U',    /*   0055          85           53       */
+          'V',    /*   0056          86           54       */
+          'W',    /*   0057          87           55       */
+          'X',    /*   0058          88           56       */
+          'Y',    /*   0059          89           57       */
+          'Z',    /*   005A          90           58       */
+          '[',    /*   005B          91           59       */
+          '\\',    /*   005C          92           60       */
+          ']',    /*   005D          93           61       */
+          '^',    /*   005E          94           62       */
+          '_',    /*   005F          95           63       */
+          '`',    /*   0060          96           64       */
+          'a',    /*   0061          97           65       */
+          'b',    /*   0062          98           66       */
+          'c',    /*   0063          99           67       */
+          'd',    /*   0064         100           68       */
+          'e',    /*   0065         101           69       */
+          'f',    /*   0066         102           70       */
+          'g',    /*   0067         103           71       */
+          'h',    /*   0068         104           72       */
+          'i',    /*   0069         105           73       */
+          'j',    /*   006A         106           74       */
+          'k',    /*   006B         107           75       */
+          'l',    /*   006C         108           76       */
+          'm',    /*   006D         109           77       */
+          'n',    /*   006E         110           78       */
+          'o',    /*   006F         111           79       */
+          'p',    /*   0070         112           80       */
+          'q',    /*   0071         113           81       */
+          'r',    /*   0072         114           82       */
+          's',    /*   0073         115           83       */
+          't',    /*   0074         116           84       */
+          'u',    /*   0075         117           85       */
+          'v',    /*   0076         118           86       */
+          'w',    /*   0077         119           87       */
+          'x',    /*   0078         120           88       */
+          'y',    /*   0079         121           89       */
+          'z',    /*   007A         122           90       */
+          '{',    /*   007B         123           91       */
+          '|',    /*   007C         124           92       */
+          '}',    /*   007D         125           93       */
+          '~',    /*   007E         126           94       */
+          '',    /*   007F         127           95       */
+         0x00B0     /*   00B0         176           96       */
+};
+
+const D4D_FONT_SIZE d4dfnt_Verdana_8_width_table[] = { 
+
+/*       width        char      hexcode     */
+/*       ======      =====      =======     */
+           4,    /*   ' '        0020       */
+           4,    /*   '!'        0021       */
+           5,    /*   '"'        0022       */
+           9,    /*   '#'        0023       */
+           7,    /*   '$'        0024       */
+          12,    /*   '%'        0025       */
+           8,    /*   '&'        0026       */
+           3,    /*   '''        0027       */
+           5,    /*   '('        0028       */
+           5,    /*   ')'        0029       */
+           7,    /*   '*'        002A       */
+           9,    /*   '+'        002B       */
+           4,    /*   ','        002C       */
+           5,    /*   '-'        002D       */
+           4,    /*   '.'        002E       */
+           5,    /*   '/'        002F       */
+           7,    /*   '0'        0030       */
+           7,    /*   '1'        0031       */
+           7,    /*   '2'        0032       */
+           7,    /*   '3'        0033       */
+           7,    /*   '4'        0034       */
+           7,    /*   '5'        0035       */
+           7,    /*   '6'        0036       */
+           7,    /*   '7'        0037       */
+           7,    /*   '8'        0038       */
+           7,    /*   '9'        0039       */
+           5,    /*   ':'        003A       */
+           5,    /*   ';'        003B       */
+           9,    /*   '<'        003C       */
+           9,    /*   '='        003D       */
+           9,    /*   '>'        003E       */
+           6,    /*   '?'        003F       */
+          10,    /*   '@'        0040       */
+           8,    /*   'A'        0041       */
+           8,    /*   'B'        0042       */
+           9,    /*   'C'        0043       */
+           9,    /*   'D'        0044       */
+           7,    /*   'E'        0045       */
+           6,    /*   'F'        0046       */
+           9,    /*   'G'        0047       */
+           8,    /*   'H'        0048       */
+           5,    /*   'I'        0049       */
+           5,    /*   'J'        004A       */
+           8,    /*   'K'        004B       */
+           6,    /*   'L'        004C       */
+           9,    /*   'M'        004D       */
+           8,    /*   'N'        004E       */
+           9,    /*   'O'        004F       */
+           7,    /*   'P'        0050       */
+           9,    /*   'Q'        0051       */
+           8,    /*   'R'        0052       */
+           8,    /*   'S'        0053       */
+           7,    /*   'T'        0054       */
+           8,    /*   'U'        0055       */
+           8,    /*   'V'        0056       */
+          11,    /*   'W'        0057       */
+           8,    /*   'X'        0058       */
+           7,    /*   'Y'        0059       */
+           8,    /*   'Z'        005A       */
+           5,    /*   '['        005B       */
+           5,    /*   '\'        005C       */
+           5,    /*   ']'        005D       */
+           9,    /*   '^'        005E       */
+           7,    /*   '_'        005F       */
+           7,    /*   '`'        0060       */
+           7,    /*   'a'        0061       */
+           7,    /*   'b'        0062       */
+           6,    /*   'c'        0063       */
+           7,    /*   'd'        0064       */
+           7,    /*   'e'        0065       */
+           4,    /*   'f'        0066       */
+           7,    /*   'g'        0067       */
+           7,    /*   'h'        0068       */
+           3,    /*   'i'        0069       */
+           4,    /*   'j'        006A       */
+           7,    /*   'k'        006B       */
+           3,    /*   'l'        006C       */
+          11,    /*   'm'        006D       */
+           7,    /*   'n'        006E       */
+           7,    /*   'o'        006F       */
+           7,    /*   'p'        0070       */
+           7,    /*   'q'        0071       */
+           5,    /*   'r'        0072       */
+           6,    /*   's'        0073       */
+           4,    /*   't'        0074       */
+           7,    /*   'u'        0075       */
+           7,    /*   'v'        0076       */
+           9,    /*   'w'        0077       */
+           7,    /*   'x'        0078       */
+           7,    /*   'y'        0079       */
+           6,    /*   'z'        007A       */
+           7,    /*   '{'        007B       */
+           5,    /*   '|'        007C       */
+           7,    /*   '}'        007D       */
+           9,    /*   '~'        007E       */
+           3,    /*   ''        007F       */
+           6     /*   ' '        00B0       */
+};
+
+const D4D_FONT_DESCRIPTOR d4dfnt_Verdana_8_desc = {
+    0,       // Font descriptor version number
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,   // linear / nonlinear , proporcional or not
+    ' ',     // start char of used table
+    97,   // count of all chars of used table
+    0x0020,     // index of char that will be printed instead of
+    8,       // font size (size of font loaded in PC)
+    0,     // height of font bitmpap for non proporcional fonts
+    11,      // offset from Y0 coordination to baseline
+    {12, 13},     // size of biggest char x/y
+    D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON,     // packing condition of individual bitmaps
+    d4dfnt_Verdana_8_index_table,          // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
+    d4dfnt_Verdana_8_offset_table,     // Offset table - used when proporcial font is set in flags
+    d4dfnt_Verdana_8_width_table,        // Size table - used when proporcial font is set in flags
+    d4dfnt_Verdana_8_data_table,      // bitmap/font data array
+    NULL       // pointer for next UNICODE page
+};
+
+const Byte d4dfnt_SegoeUI11_data_table[] = { 
+
+/* character 0x0020 (' '): (width = 4, offset = 0) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0030 ('0'): (width = 8, offset = 10) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x1C, 0x24, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x24, 0x38,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0031 ('1'): (width = 8, offset = 30) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x68, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x7F,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0032 ('2'): (width = 8, offset = 50) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x1C, 0x22, 0x02, 0x02, 0x02, 0x04, 0x08, 0x18, 0x30, 0x60, 0x7E,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0033 ('3'): (width = 8, offset = 70) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x3C, 0x46, 0x02, 0x02, 0x04, 0x38, 0x06, 0x02, 0x02, 0x46, 0x78,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0034 ('4'): (width = 8, offset = 90) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x0C, 0x0C, 0x14, 0x34, 0x24, 0x44, 0xC4, 0xFE, 0x04, 0x04, 0x04,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0035 ('5'): (width = 8, offset = 110) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x3E, 0x20, 0x20, 0x20, 0x3C, 0x06, 0x02, 0x02, 0x02, 0x26, 0x3C,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0036 ('6'): (width = 8, offset = 130) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x1C, 0x20, 0x20, 0x40, 0x5C, 0x66, 0x42, 0x42, 0x42, 0x26, 0x1C,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0037 ('7'): (width = 8, offset = 150) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x7E, 0x06, 0x04, 0x04, 0x0C, 0x08, 0x08, 0x10, 0x10, 0x10, 0x20,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0038 ('8'): (width = 8, offset = 170) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x3C, 0x62, 0x42, 0x42, 0x2C, 0x3C, 0x66, 0x42, 0x42, 0x66, 0x3C,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0039 ('9'): (width = 8, offset = 190) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x3C, 0x24, 0x42, 0x42, 0x42, 0x66, 0x3A, 0x02, 0x04, 0x04, 0x38,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x003A (':'): (width = 3, offset = 210) */
+0x00, 0x00, 0x00, 0x48, 0x00, 0x12, 0x00, 0x00, 
+
+/* character 0x003B (';'): (width = 3, offset = 218) */
+0x00, 0x00, 0x00, 0x48, 0x00, 0x12, 0x90, 0x00, 
+
+/* character 0x0041 ('A'): (width = 10, offset = 226) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0xC0, 0x78, 0x12, 0x04, 0x82, 0x30, 0x84, 0x7F,
+0x90, 0x24, 0x0B, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0042 ('B'): (width = 9, offset = 251) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xE1, 0x18, 0x84, 0x42, 0x22, 0x1E, 0x08, 0xC4, 0x22, 0x11,
+0x18, 0xF8, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0043 ('C'): (width = 9, offset = 274) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78, 0xC4, 0x40, 0x40, 0x20, 0x10, 0x08, 0x04, 0x01, 0x00,
+0xC4, 0x3E, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0044 ('D'): (width = 11, offset = 297) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x10, 0x62, 0x04, 0x40, 0x48, 0x09, 0x01, 0x20,
+0x24, 0x04, 0x81, 0x10, 0x43, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0045 ('E'): (width = 8, offset = 325) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x7E, 0x40, 0x40, 0x40, 0x40, 0x7C, 0x40, 0x40, 0x40, 0x40, 0x7E,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0046 ('F'): (width = 7, offset = 345) */
+0x00, 0x00, 0x00, 0x00, 0x0F, 0x90, 0x20, 0x40, 0x81, 0xF2, 0x04, 0x08, 0x10, 0x20, 0x00, 0x00,
+0x00, 0x00, 
+
+/* character 0x0047 ('G'): (width = 10, offset = 363) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xE1, 0x08, 0x80, 0x40, 0x10, 0x04, 0x39, 0x02, 0x40,
+0x88, 0x23, 0x08, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0048 ('H'): (width = 11, offset = 388) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x81, 0x10, 0x22, 0x04, 0x40, 0x88, 0x11, 0xFE, 0x20,
+0x44, 0x08, 0x81, 0x10, 0x22, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0049 ('I'): (width = 4, offset = 416) */
+0x00, 0x00, 0x0E, 0x44, 0x44, 0x44, 0x44, 0x4E, 0x00, 0x00, 
+
+/* character 0x004A ('J'): (width = 5, offset = 426) */
+0x00, 0x00, 0x00, 0x08, 0x42, 0x10, 0x84, 0x21, 0x08, 0x9C, 0x00, 0x00, 0x00, 
+
+/* character 0x004B ('K'): (width = 9, offset = 439) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x09, 0x08, 0x88, 0x48, 0x28, 0x1C, 0x0B, 0x04, 0xC2, 0x31,
+0x0C, 0x83, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x004C ('L'): (width = 7, offset = 462) */
+0x00, 0x00, 0x00, 0x00, 0x08, 0x10, 0x20, 0x40, 0x81, 0x02, 0x04, 0x08, 0x10, 0x3E, 0x00, 0x00,
+0x00, 0x00, 
+
+/* character 0x004D ('M'): (width = 13, offset = 480) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x30, 0x31, 0x81, 0x8C, 0x0C, 0x50, 0xA2, 0x85,
+0x16, 0x68, 0x92, 0x44, 0x92, 0x23, 0x11, 0x18, 0x88, 0x44, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 
+
+/* character 0x004E ('N'): (width = 11, offset = 513) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC1, 0x18, 0x23, 0x84, 0x50, 0x89, 0x11, 0x32, 0x22,
+0x44, 0x28, 0x87, 0x10, 0x62, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x004F ('O'): (width = 11, offset = 541) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3E, 0x0C, 0x61, 0x04, 0x40, 0x48, 0x09, 0x01, 0x20,
+0x24, 0x04, 0x41, 0x0C, 0x60, 0xF8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0050 ('P'): (width = 8, offset = 569) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x7C, 0x46, 0x42, 0x42, 0x42, 0x44, 0x78, 0x40, 0x40, 0x40, 0x40,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0051 ('Q'): (width = 11, offset = 589) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3E, 0x0C, 0x61, 0x04, 0x40, 0x48, 0x09, 0x01, 0x20,
+0x24, 0x04, 0x41, 0x0C, 0x60, 0xF8, 0x02, 0x00, 0x60, 0x07, 0x00, 0x00, 
+
+/* character 0x0052 ('R'): (width = 9, offset = 617) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xF1, 0x0C, 0x82, 0x41, 0x21, 0x1F, 0x08, 0x84, 0x22, 0x19,
+0x04, 0x83, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0053 ('S'): (width = 8, offset = 640) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x3E, 0x62, 0x40, 0x40, 0x20, 0x18, 0x04, 0x02, 0x02, 0x46, 0x7C,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0054 ('T'): (width = 8, offset = 660) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0xFE, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0055 ('U'): (width = 10, offset = 680) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x24, 0x09, 0x02, 0x40, 0x90, 0x24, 0x09, 0x02, 0x40,
+0x90, 0x22, 0x10, 0x78, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0056 ('V'): (width = 9, offset = 705) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x05, 0x04, 0x82, 0x63, 0x11, 0x08, 0x86, 0xC1, 0x40, 0xA0,
+0x50, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0057 ('W'): (width = 14, offset = 728) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x0C, 0x1C, 0x30, 0xD0, 0xC2, 0x43, 0x89,
+0x92, 0x62, 0x49, 0x09, 0x24, 0x2C, 0x50, 0xE1, 0xC1, 0x86, 0x06, 0x18, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 
+
+/* character 0x0058 ('X'): (width = 9, offset = 763) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x0D, 0x8C, 0x44, 0x36, 0x0A, 0x02, 0x02, 0x83, 0x61, 0x11,
+0x8D, 0x83, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0059 ('Y'): (width = 8, offset = 786) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0xC1, 0x42, 0x62, 0x22, 0x14, 0x14, 0x08, 0x08, 0x08, 0x08, 0x08,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x005A ('Z'): (width = 9, offset = 806) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xFC, 0x04, 0x04, 0x06, 0x06, 0x02, 0x03, 0x03, 0x01, 0x01,
+0x01, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00
+
+};
+
+const D4D_FONT_OFFSET d4dfnt_SegoeUI11_offset_table[] = { 
+
+/*       offset       char      hexcode     */
+/*       ======      =====      =======     */
+            0,    /*   ' '        0020       */
+           10,    /*   '0'        0030       */
+           30,    /*   '1'        0031       */
+           50,    /*   '2'        0032       */
+           70,    /*   '3'        0033       */
+           90,    /*   '4'        0034       */
+          110,    /*   '5'        0035       */
+          130,    /*   '6'        0036       */
+          150,    /*   '7'        0037       */
+          170,    /*   '8'        0038       */
+          190,    /*   '9'        0039       */
+          210,    /*   ':'        003A       */
+          218,    /*   ';'        003B       */
+          226,    /*   'A'        0041       */
+          251,    /*   'B'        0042       */
+          274,    /*   'C'        0043       */
+          297,    /*   'D'        0044       */
+          325,    /*   'E'        0045       */
+          345,    /*   'F'        0046       */
+          363,    /*   'G'        0047       */
+          388,    /*   'H'        0048       */
+          416,    /*   'I'        0049       */
+          426,    /*   'J'        004A       */
+          439,    /*   'K'        004B       */
+          462,    /*   'L'        004C       */
+          480,    /*   'M'        004D       */
+          513,    /*   'N'        004E       */
+          541,    /*   'O'        004F       */
+          569,    /*   'P'        0050       */
+          589,    /*   'Q'        0051       */
+          617,    /*   'R'        0052       */
+          640,    /*   'S'        0053       */
+          660,    /*   'T'        0054       */
+          680,    /*   'U'        0055       */
+          705,    /*   'V'        0056       */
+          728,    /*   'W'        0057       */
+          763,    /*   'X'        0058       */
+          786,    /*   'Y'        0059       */
+          806    /*   'Z'        005A       */
+};
+
+const D4D_FONT_IX d4dfnt_SegoeUI11_index_table[] = { 
+
+/*        char      hexacode      decimal       index     */
+/*       ======     ========      =======      =======    */
+          ' ',    /*   0020          32            0       */
+          '0',    /*   0030          48            1       */
+          '1',    /*   0031          49            2       */
+          '2',    /*   0032          50            3       */
+          '3',    /*   0033          51            4       */
+          '4',    /*   0034          52            5       */
+          '5',    /*   0035          53            6       */
+          '6',    /*   0036          54            7       */
+          '7',    /*   0037          55            8       */
+          '8',    /*   0038          56            9       */
+          '9',    /*   0039          57           10       */
+          ':',    /*   003A          58           11       */
+          ';',    /*   003B          59           12       */
+          'A',    /*   0041          65           13       */
+          'B',    /*   0042          66           14       */
+          'C',    /*   0043          67           15       */
+          'D',    /*   0044          68           16       */
+          'E',    /*   0045          69           17       */
+          'F',    /*   0046          70           18       */
+          'G',    /*   0047          71           19       */
+          'H',    /*   0048          72           20       */
+          'I',    /*   0049          73           21       */
+          'J',    /*   004A          74           22       */
+          'K',    /*   004B          75           23       */
+          'L',    /*   004C          76           24       */
+          'M',    /*   004D          77           25       */
+          'N',    /*   004E          78           26       */
+          'O',    /*   004F          79           27       */
+          'P',    /*   0050          80           28       */
+          'Q',    /*   0051          81           29       */
+          'R',    /*   0052          82           30       */
+          'S',    /*   0053          83           31       */
+          'T',    /*   0054          84           32       */
+          'U',    /*   0055          85           33       */
+          'V',    /*   0056          86           34       */
+          'W',    /*   0057          87           35       */
+          'X',    /*   0058          88           36       */
+          'Y',    /*   0059          89           37       */
+          'Z'    /*   005A          90           38       */
+};
+
+const D4D_FONT_SIZE d4dfnt_SegoeUI11_width_table[] = { 
+
+/*       width        char      hexcode     */
+/*       ======      =====      =======     */
+           4,    /*   ' '        0020       */
+           8,    /*   '0'        0030       */
+           8,    /*   '1'        0031       */
+           8,    /*   '2'        0032       */
+           8,    /*   '3'        0033       */
+           8,    /*   '4'        0034       */
+           8,    /*   '5'        0035       */
+           8,    /*   '6'        0036       */
+           8,    /*   '7'        0037       */
+           8,    /*   '8'        0038       */
+           8,    /*   '9'        0039       */
+           3,    /*   ':'        003A       */
+           3,    /*   ';'        003B       */
+          10,    /*   'A'        0041       */
+           9,    /*   'B'        0042       */
+           9,    /*   'C'        0043       */
+          11,    /*   'D'        0044       */
+           8,    /*   'E'        0045       */
+           7,    /*   'F'        0046       */
+          10,    /*   'G'        0047       */
+          11,    /*   'H'        0048       */
+           4,    /*   'I'        0049       */
+           5,    /*   'J'        004A       */
+           9,    /*   'K'        004B       */
+           7,    /*   'L'        004C       */
+          13,    /*   'M'        004D       */
+          11,    /*   'N'        004E       */
+          11,    /*   'O'        004F       */
+           8,    /*   'P'        0050       */
+          11,    /*   'Q'        0051       */
+           9,    /*   'R'        0052       */
+           8,    /*   'S'        0053       */
+           8,    /*   'T'        0054       */
+          10,    /*   'U'        0055       */
+           9,    /*   'V'        0056       */
+          14,    /*   'W'        0057       */
+           9,    /*   'X'        0058       */
+           8,    /*   'Y'        0059       */
+           9     /*   'Z'        005A       */
+};
+
+const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUI11_desc = {
+    0,       // Font descriptor version number
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,   // linear / nonlinear , proporcional or not
+    ' ',     // start char of used table
+    39,   // count of all chars of used table
+    0x0020,     // index of char that will be printed instead of
+    11,       // font size (size of font loaded in PC)
+    0,     // height of font bitmpap for non proporcional fonts
+    16,      // offset from Y0 coordination to baseline
+    {14, 20},     // size of biggest char x/y
+    D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON,     // packing condition of individual bitmaps
+    d4dfnt_SegoeUI11_index_table,          // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
+    d4dfnt_SegoeUI11_offset_table,     // Offset table - used when proporcial font is set in flags
+    d4dfnt_SegoeUI11_width_table,        // Size table - used when proporcial font is set in flags
+    d4dfnt_SegoeUI11_data_table,      // bitmap/font data array
+    NULL       // pointer for next UNICODE page
+};
+
+const Byte d4dfnt_SegoeUI10_data_table[] = { 
+
+/* character 0x0020 (' '): (width = 4, offset = 0) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0030 ('0'): (width = 7, offset = 9) */
+0x00, 0x00, 0x00, 0x00, 0x07, 0x0B, 0x22, 0x44, 0x89, 0x12, 0x26, 0x87, 0x00, 0x00, 0x00, 
+
+/* character 0x0031 ('1'): (width = 7, offset = 24) */
+0x00, 0x00, 0x00, 0x00, 0x06, 0x1C, 0x08, 0x10, 0x20, 0x40, 0x81, 0x0F, 0x80, 0x00, 0x00, 
+
+/* character 0x0032 ('2'): (width = 7, offset = 39) */
+0x00, 0x00, 0x00, 0x00, 0x07, 0x11, 0x02, 0x04, 0x10, 0x61, 0x82, 0x0F, 0x80, 0x00, 0x00, 
+
+/* character 0x0033 ('3'): (width = 7, offset = 54) */
+0x00, 0x00, 0x00, 0x00, 0x07, 0x11, 0x02, 0x04, 0x70, 0x10, 0x24, 0x4F, 0x00, 0x00, 0x00, 
+
+/* character 0x0034 ('4'): (width = 7, offset = 69) */
+0x00, 0x00, 0x00, 0x00, 0x01, 0x83, 0x0A, 0x14, 0x49, 0x13, 0xF0, 0x40, 0x80, 0x00, 0x00, 
+
+/* character 0x0035 ('5'): (width = 7, offset = 84) */
+0x00, 0x00, 0x00, 0x00, 0x0F, 0x90, 0x20, 0x78, 0x18, 0x10, 0x24, 0xCF, 0x00, 0x00, 0x00, 
+
+/* character 0x0036 ('6'): (width = 7, offset = 99) */
+0x00, 0x00, 0x00, 0x00, 0x07, 0x08, 0x20, 0x58, 0xC9, 0x12, 0x26, 0x47, 0x00, 0x00, 0x00, 
+
+/* character 0x0037 ('7'): (width = 7, offset = 114) */
+0x00, 0x00, 0x00, 0x00, 0x0F, 0x81, 0x04, 0x08, 0x10, 0x40, 0x82, 0x04, 0x00, 0x00, 0x00, 
+
+/* character 0x0038 ('8'): (width = 7, offset = 129) */
+0x00, 0x00, 0x00, 0x00, 0x07, 0x11, 0x22, 0x28, 0x71, 0x12, 0x24, 0x47, 0x00, 0x00, 0x00, 
+
+/* character 0x0039 ('9'): (width = 7, offset = 144) */
+0x00, 0x00, 0x00, 0x00, 0x07, 0x13, 0x22, 0x44, 0x88, 0xF0, 0x20, 0x87, 0x00, 0x00, 0x00, 
+
+/* character 0x003A (':'): (width = 3, offset = 159) */
+0x00, 0x00, 0x02, 0x40, 0x04, 0x80, 0x00, 
+
+/* character 0x003B (';'): (width = 3, offset = 166) */
+0x00, 0x00, 0x02, 0x40, 0x00, 0xA4, 0x00, 
+
+/* character 0x0041 ('A'): (width = 8, offset = 173) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x18, 0x2C, 0x24, 0x24, 0x42, 0x7E, 0x42, 0x81, 0x00, 0x00,
+0x00, 
+
+/* character 0x0042 ('B'): (width = 7, offset = 190) */
+0x00, 0x00, 0x00, 0x00, 0x0F, 0x11, 0x22, 0x44, 0xF1, 0x12, 0x24, 0x4F, 0x00, 0x00, 0x00, 
+
+/* character 0x0043 ('C'): (width = 8, offset = 205) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x1E, 0x22, 0x40, 0x40, 0x40, 0x40, 0x40, 0x22, 0x1C, 0x00, 0x00,
+0x00, 
+
+/* character 0x0044 ('D'): (width = 9, offset = 222) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xE1, 0x08, 0x82, 0x41, 0x20, 0x90, 0x48, 0x64, 0x63, 0xE0,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0045 ('E'): (width = 7, offset = 242) */
+0x00, 0x00, 0x00, 0x00, 0x0F, 0x90, 0x20, 0x40, 0xF9, 0x02, 0x04, 0x0F, 0x80, 0x00, 0x00, 
+
+/* character 0x0046 ('F'): (width = 6, offset = 257) */
+0x00, 0x00, 0x00, 0x01, 0xE4, 0x10, 0x41, 0xE4, 0x10, 0x41, 0x00, 0x00, 0x00, 
+
+/* character 0x0047 ('G'): (width = 9, offset = 270) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF8, 0xC4, 0xC0, 0x40, 0x23, 0x90, 0x48, 0x22, 0x10, 0xF0,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0048 ('H'): (width = 9, offset = 290) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x09, 0x04, 0x82, 0x41, 0x3F, 0x90, 0x48, 0x24, 0x12, 0x08,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0049 ('I'): (width = 3, offset = 310) */
+0x00, 0x01, 0xD2, 0x49, 0x25, 0xC0, 0x00, 
+
+/* character 0x004A ('J'): (width = 5, offset = 317) */
+0x00, 0x00, 0x00, 0x08, 0x42, 0x10, 0x84, 0x21, 0x30, 0x00, 0x00, 
+
+/* character 0x004B ('K'): (width = 8, offset = 328) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x42, 0x44, 0x48, 0x50, 0x60, 0x50, 0x48, 0x44, 0x42, 0x00, 0x00,
+0x00, 
+
+/* character 0x004C ('L'): (width = 6, offset = 345) */
+0x00, 0x00, 0x00, 0x01, 0x04, 0x10, 0x41, 0x04, 0x10, 0x41, 0xE0, 0x00, 0x00, 
+
+/* character 0x004D ('M'): (width = 12, offset = 358) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x06, 0x60, 0x67, 0x0E, 0x50, 0xA5, 0x9A, 0x49,
+0x24, 0xF2, 0x46, 0x24, 0x62, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x004E ('N'): (width = 10, offset = 384) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x26, 0x09, 0x42, 0x48, 0x93, 0x24, 0x49, 0x0A, 0x41,
+0x90, 0x60, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x004F ('O'): (width = 10, offset = 406) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x82, 0x11, 0x02, 0x40, 0x90, 0x24, 0x09, 0x02, 0x21,
+0x07, 0x80, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0050 ('P'): (width = 7, offset = 428) */
+0x00, 0x00, 0x00, 0x00, 0x0F, 0x11, 0x22, 0x44, 0x99, 0xE2, 0x04, 0x08, 0x00, 0x00, 0x00, 
+
+/* character 0x0051 ('Q'): (width = 10, offset = 443) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x82, 0x11, 0x02, 0x40, 0x90, 0x24, 0x09, 0x02, 0x21,
+0x07, 0x80, 0x60, 0x0E, 0x00, 0x00, 
+
+/* character 0x0052 ('R'): (width = 8, offset = 465) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x7C, 0x42, 0x42, 0x46, 0x78, 0x4C, 0x44, 0x42, 0x43, 0x00, 0x00,
+0x00, 
+
+/* character 0x0053 ('S'): (width = 7, offset = 482) */
+0x00, 0x00, 0x00, 0x00, 0x07, 0x91, 0x20, 0x60, 0x30, 0x30, 0x24, 0x4F, 0x00, 0x00, 0x00, 
+
+/* character 0x0054 ('T'): (width = 7, offset = 497) */
+0x00, 0x00, 0x00, 0x00, 0x1F, 0xC4, 0x08, 0x10, 0x20, 0x40, 0x81, 0x02, 0x00, 0x00, 0x00, 
+
+/* character 0x0055 ('U'): (width = 9, offset = 512) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x09, 0x04, 0x82, 0x41, 0x20, 0x90, 0x48, 0x26, 0x31, 0xF0,
+0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0056 ('V'): (width = 8, offset = 532) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x81, 0x42, 0x42, 0x42, 0x24, 0x24, 0x3C, 0x18, 0x18, 0x00, 0x00,
+0x00, 
+
+/* character 0x0057 ('W'): (width = 12, offset = 549) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x61, 0xC6, 0x34, 0x62, 0x45, 0x24, 0x92, 0x29,
+0x42, 0x94, 0x30, 0xC1, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 
+
+/* character 0x0058 ('X'): (width = 8, offset = 575) */
+0x00, 0x00, 0x00, 0x00, 0x00, 0xC3, 0x42, 0x24, 0x38, 0x18, 0x38, 0x24, 0x42, 0xC3, 0x00, 0x00,
+0x00, 
+
+/* character 0x0059 ('Y'): (width = 7, offset = 592) */
+0x00, 0x00, 0x00, 0x00, 0x10, 0x51, 0x22, 0x28, 0x50, 0x40, 0x81, 0x02, 0x00, 0x00, 0x00, 
+
+/* character 0x005A ('Z'): (width = 7, offset = 607) */
+0x00, 0x00, 0x00, 0x00, 0x1F, 0xC1, 0x04, 0x08, 0x20, 0x81, 0x04, 0x1F, 0xC0, 0x00, 0x00
+
+};
+
+const D4D_FONT_OFFSET d4dfnt_SegoeUI10_offset_table[] = { 
+
+/*       offset       char      hexcode     */
+/*       ======      =====      =======     */
+            0,    /*   ' '        0020       */
+            9,    /*   '0'        0030       */
+           24,    /*   '1'        0031       */
+           39,    /*   '2'        0032       */
+           54,    /*   '3'        0033       */
+           69,    /*   '4'        0034       */
+           84,    /*   '5'        0035       */
+           99,    /*   '6'        0036       */
+          114,    /*   '7'        0037       */
+          129,    /*   '8'        0038       */
+          144,    /*   '9'        0039       */
+          159,    /*   ':'        003A       */
+          166,    /*   ';'        003B       */
+          173,    /*   'A'        0041       */
+          190,    /*   'B'        0042       */
+          205,    /*   'C'        0043       */
+          222,    /*   'D'        0044       */
+          242,    /*   'E'        0045       */
+          257,    /*   'F'        0046       */
+          270,    /*   'G'        0047       */
+          290,    /*   'H'        0048       */
+          310,    /*   'I'        0049       */
+          317,    /*   'J'        004A       */
+          328,    /*   'K'        004B       */
+          345,    /*   'L'        004C       */
+          358,    /*   'M'        004D       */
+          384,    /*   'N'        004E       */
+          406,    /*   'O'        004F       */
+          428,    /*   'P'        0050       */
+          443,    /*   'Q'        0051       */
+          465,    /*   'R'        0052       */
+          482,    /*   'S'        0053       */
+          497,    /*   'T'        0054       */
+          512,    /*   'U'        0055       */
+          532,    /*   'V'        0056       */
+          549,    /*   'W'        0057       */
+          575,    /*   'X'        0058       */
+          592,    /*   'Y'        0059       */
+          607    /*   'Z'        005A       */
+};
+
+const D4D_FONT_IX d4dfnt_SegoeUI10_index_table[] = { 
+
+/*        char      hexacode      decimal       index     */
+/*       ======     ========      =======      =======    */
+          ' ',    /*   0020          32            0       */
+          '0',    /*   0030          48            1       */
+          '1',    /*   0031          49            2       */
+          '2',    /*   0032          50            3       */
+          '3',    /*   0033          51            4       */
+          '4',    /*   0034          52            5       */
+          '5',    /*   0035          53            6       */
+          '6',    /*   0036          54            7       */
+          '7',    /*   0037          55            8       */
+          '8',    /*   0038          56            9       */
+          '9',    /*   0039          57           10       */
+          ':',    /*   003A          58           11       */
+          ';',    /*   003B          59           12       */
+          'A',    /*   0041          65           13       */
+          'B',    /*   0042          66           14       */
+          'C',    /*   0043          67           15       */
+          'D',    /*   0044          68           16       */
+          'E',    /*   0045          69           17       */
+          'F',    /*   0046          70           18       */
+          'G',    /*   0047          71           19       */
+          'H',    /*   0048          72           20       */
+          'I',    /*   0049          73           21       */
+          'J',    /*   004A          74           22       */
+          'K',    /*   004B          75           23       */
+          'L',    /*   004C          76           24       */
+          'M',    /*   004D          77           25       */
+          'N',    /*   004E          78           26       */
+          'O',    /*   004F          79           27       */
+          'P',    /*   0050          80           28       */
+          'Q',    /*   0051          81           29       */
+          'R',    /*   0052          82           30       */
+          'S',    /*   0053          83           31       */
+          'T',    /*   0054          84           32       */
+          'U',    /*   0055          85           33       */
+          'V',    /*   0056          86           34       */
+          'W',    /*   0057          87           35       */
+          'X',    /*   0058          88           36       */
+          'Y',    /*   0059          89           37       */
+          'Z'    /*   005A          90           38       */
+};
+
+const D4D_FONT_SIZE d4dfnt_SegoeUI10_width_table[] = { 
+
+/*       width        char      hexcode     */
+/*       ======      =====      =======     */
+           4,    /*   ' '        0020       */
+           7,    /*   '0'        0030       */
+           7,    /*   '1'        0031       */
+           7,    /*   '2'        0032       */
+           7,    /*   '3'        0033       */
+           7,    /*   '4'        0034       */
+           7,    /*   '5'        0035       */
+           7,    /*   '6'        0036       */
+           7,    /*   '7'        0037       */
+           7,    /*   '8'        0038       */
+           7,    /*   '9'        0039       */
+           3,    /*   ':'        003A       */
+           3,    /*   ';'        003B       */
+           8,    /*   'A'        0041       */
+           7,    /*   'B'        0042       */
+           8,    /*   'C'        0043       */
+           9,    /*   'D'        0044       */
+           7,    /*   'E'        0045       */
+           6,    /*   'F'        0046       */
+           9,    /*   'G'        0047       */
+           9,    /*   'H'        0048       */
+           3,    /*   'I'        0049       */
+           5,    /*   'J'        004A       */
+           8,    /*   'K'        004B       */
+           6,    /*   'L'        004C       */
+          12,    /*   'M'        004D       */
+          10,    /*   'N'        004E       */
+          10,    /*   'O'        004F       */
+           7,    /*   'P'        0050       */
+          10,    /*   'Q'        0051       */
+           8,    /*   'R'        0052       */
+           7,    /*   'S'        0053       */
+           7,    /*   'T'        0054       */
+           9,    /*   'U'        0055       */
+           8,    /*   'V'        0056       */
+          12,    /*   'W'        0057       */
+           8,    /*   'X'        0058       */
+           7,    /*   'Y'        0059       */
+           7     /*   'Z'        005A       */
+};
+
+const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUI10_desc = {
+    0,       // Font descriptor version number
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,   // linear / nonlinear , proporcional or not
+    ' ',     // start char of used table
+    39,   // count of all chars of used table
+    0x0020,     // index of char that will be printed instead of
+    10,       // font size (size of font loaded in PC)
+    0,     // height of font bitmpap for non proporcional fonts
+    14,      // offset from Y0 coordination to baseline
+    {12, 17},     // size of biggest char x/y
+    D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON,     // packing condition of individual bitmaps
+    d4dfnt_SegoeUI10_index_table,          // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
+    d4dfnt_SegoeUI10_offset_table,     // Offset table - used when proporcial font is set in flags
+    d4dfnt_SegoeUI10_width_table,        // Size table - used when proporcial font is set in flags
+    d4dfnt_SegoeUI10_data_table,      // bitmap/font data array
+    NULL       // pointer for next UNICODE page
+};
 
