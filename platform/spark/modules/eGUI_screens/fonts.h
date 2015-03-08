@@ -14,6 +14,8 @@
 #define FONT_SEGOEUI10  10
 #define FONT_SEGOEUI11  11
 #define FONT_SEGOEUI9_BIG  12
+#define FONT_PROGGY_SQUARE  13
+#define FONT_PROGGY_SQUARE_BIG  14
 
 extern const D4D_FONT_DESCRIPTOR d4dfnt_CourierNew8B_desc;
 extern const D4D_FONT_DESCRIPTOR d4dfnt_TimesNewRoman12B_desc;
@@ -35,5 +37,7 @@ extern const D4D_FONT_DESCRIPTOR d4dfnt_Verdana_8_desc;
 extern const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUI11_desc;
 
 extern const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUI10_desc;
+
+extern const D4D_FONT_DESCRIPTOR d4dfnt_ProggySquare_desc;
 
 #endif
