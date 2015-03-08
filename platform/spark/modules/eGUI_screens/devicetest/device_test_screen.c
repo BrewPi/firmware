@@ -125,9 +125,19 @@ static void ScreenDeviceTest_OnInit()
     SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator3, D4D_FALSE);
 }
 
+
+
+
 static void ScreenDeviceTest_OnMain()
 {
-    
+#if 0
+    static uint32_t last = 0;    
+    uint32_t now = millis();
+    if (now-last>=800) {
+        last = now;
+        mgr.update();
+    }    
+#endif
 }
 
 control_mode_t prev_mode;

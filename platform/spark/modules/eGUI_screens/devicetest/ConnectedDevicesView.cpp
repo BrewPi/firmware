@@ -26,6 +26,7 @@
 
 #include "ConnectedDevicesView.h"
 #include "ConnectedDevicesManager.h"
+#include "device_test_screen.h"
 
 using namespace std::placeholders;
 
@@ -50,3 +51,24 @@ void ConnectedDevicesPresenter::notifyChanged(const ConnectedDevicesManager* mgr
 }
 
 
+const D4D_OBJECT* views[] = { &scrDeviceTest_devices00, &scrDeviceTest_devices10, &scrDeviceTest_devices20, &scrDeviceTest_devices01, &scrDeviceTest_devices11, &scrDeviceTest_devices21 };
+ConnectedDevicesManager mgr;
+ConnectedDevicesPresenter presenter(&mgr, views, 6);
+
+extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
+{
+    int idx = -1;
+    if (pThis==&scrDeviceTest_actuator1)
+        idx = 0;
+    else if (pThis==&scrDeviceTest_actuator2)
+        idx = 1;
+    if (pThis==&scrDeviceTest_actuator3)
+        idx = 2;
+    
+    if (idx>=0) {
+        Actuator* actuator = mgr.actuator(idx);
+        bool active = !actuator->isActive();
+        actuator->setActive(active);
+        SetActuatorButtonState(pThis, active);
+    }
+}

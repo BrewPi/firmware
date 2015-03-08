@@ -26,7 +26,7 @@
 #include "PiLink.h"
 
 #include "devicetest/device_test_screen.h"
-#include "devicetest/ConnectedDevicesView.h"
+#include "controller/controller_screen.h"
 
 extern "C" {
 #include "d4d.h"
@@ -47,28 +47,6 @@ uint8_t UI::init() {
     return 0;
 }
 
-const D4D_OBJECT* views[] = { &scrDeviceTest_devices00, &scrDeviceTest_devices10, &scrDeviceTest_devices20, &scrDeviceTest_devices01, &scrDeviceTest_devices11, &scrDeviceTest_devices21 };
-ConnectedDevicesManager mgr;
-ConnectedDevicesPresenter presenter(&mgr, views, 6);
-
-extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
-{
-    int idx = -1;
-    if (pThis==&scrDeviceTest_actuator1)
-        idx = 0;
-    else if (pThis==&scrDeviceTest_actuator2)
-        idx = 1;
-    if (pThis==&scrDeviceTest_actuator3)
-        idx = 2;
-    
-    if (idx>=0) {
-        Actuator* actuator = mgr.actuator(idx);
-        bool active = !actuator->isActive();
-        actuator->setActive(active);
-        SetActuatorButtonState(pThis, active);
-    }
-}
-
 uint32_t UI::showStartupPage()
 {
     // Check if touch screen has been calibrated
@@ -77,7 +55,7 @@ uint32_t UI::showStartupPage()
         calibrateTouchScreen();
     }
             
-    D4D_ActivateScreen(&screen_devicetest, D4D_TRUE);
+    D4D_ActivateScreen(&screen_controller, D4D_TRUE);
     D4D_Poll();
     return 0;
 }
@@ -87,23 +65,6 @@ uint32_t UI::showStartupPage()
  */
 void UI::showControllerPage() {
     // for now we in fact show what will be the startup page.     
-}
-
-void ConnectedDeviceUpdate(ConnectedDevicesManager* mgr, int index, ConnectedDevice* device, ConnectedDeviceChange change) 
-{
-    char buf[10];
-    switch (change) {
-        case ADDED:    
-            piLink.debugMessage("sensor added at slot %d", index);
-            break;
-        case REMOVED:    
-            piLink.debugMessage("sensor removed at slot %d", index);
-            break;
-        case UPDATED:
-            tempToString(buf, device->value.temp, 3, 9);
-            piLink.debugMessage("sensor updated at slot %d: %s", index, buf);
-            break;
-    }
 }
 
 void UI::ticks()
@@ -118,13 +79,9 @@ void UI::ticks()
 }    
 
 void UI::update() 
-{    
-    static uint32_t last = 0;    
-    uint32_t now = millis();
-    if (now-last>=800) {
-        last = now;
-        mgr.update();
-    }
+{   
+    // todo - how to forward the update to the right screen
+
 }
 
 /**

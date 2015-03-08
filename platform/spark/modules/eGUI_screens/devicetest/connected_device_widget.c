@@ -11,3 +11,5 @@ void D4D_CDV_SetConnectionText(const D4D_OBJECT* pObj, const char* text)
 {
     D4D_SetText(D4D_CDV_CONNECTION(pObj), (char*)text);
 }
+
+

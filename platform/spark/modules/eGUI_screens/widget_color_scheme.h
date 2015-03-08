@@ -25,6 +25,7 @@
 #define	WIDGET_COLOR_SCHEME_H
 
 #include <stdint.h>
+#include <stddef.h>
 #include "d4d.h"
 
 
