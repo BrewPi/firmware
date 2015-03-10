@@ -598,11 +598,11 @@ void PiLink::sendJsonPair(const char * name, uint8_t val) {
 
 int readNext()
 {
-	uint8_t retries = 0;
+	uint16_t retries = 0;
 	while (piStream.available()==0) {
 		wait.microseconds(100);
 		retries++;
-		if(retries >= 10){
+		if(retries >= 10000){
 			return -1;
 		}
 	}
