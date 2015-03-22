@@ -24,10 +24,6 @@
 
 #include <stdint.h>
 
-typedef uint32_t ticks_millis_t;
-typedef uint32_t ticks_micros_t;
-typedef uint16_t ticks_seconds_t;
-typedef uint8_t ticks_seconds_tiny_t;
 
 /**
  * Ticks - interface to a millisecond timer

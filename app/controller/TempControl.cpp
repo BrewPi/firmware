@@ -69,11 +69,11 @@ bool TempControl::doorOpen;
 	// keep track of beer setting stored in EEPROM
 temperature TempControl::storedBeerSetting;
 	
-	// Timers
-uint16_t TempControl::lastIdleTime;
-uint16_t TempControl::lastHeatTime;
-uint16_t TempControl::lastCoolTime;
-uint16_t TempControl::waitTime;
+// Timers
+tcduration_t TempControl::lastIdleTime;
+tcduration_t TempControl::lastHeatTime;
+tcduration_t TempControl::lastCoolTime;
+tcduration_t TempControl::waitTime;
 #endif
 
 void TempControl::init(void){
@@ -229,9 +229,9 @@ void TempControl::updateState(void){
 		stayIdle = true;
 	}
 	
-	uint16_t sinceIdle = timeSinceIdle();
-	uint16_t sinceCooling = timeSinceCooling();
-	uint16_t sinceHeating = timeSinceHeating();
+	tcduration_t sinceIdle = timeSinceIdle();
+	tcduration_t sinceCooling = timeSinceCooling();
+	tcduration_t sinceHeating = timeSinceHeating();
 	temperature fridgeFast = fridgeSensor->readFastFiltered();
 	temperature beerFast = beerSensor->readFastFiltered();
 	ticks_seconds_t secs = ticks.seconds();
@@ -484,15 +484,15 @@ void TempControl::decreaseEstimator(temperature * estimator, temperature error){
 	eepromManager.storeTempSettings();
 }
 
-uint16_t TempControl::timeSinceCooling(void){
+tcduration_t TempControl::timeSinceCooling(void){
 	return ticks.timeSince(lastCoolTime);
 }
 
-uint16_t TempControl::timeSinceHeating(void){
+tcduration_t TempControl::timeSinceHeating(void){
 	return ticks.timeSince(lastHeatTime);
 }
 
-uint16_t TempControl::timeSinceIdle(void){
+tcduration_t TempControl::timeSinceIdle(void){
 	return ticks.timeSince(lastIdleTime);
 }
 
