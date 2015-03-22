@@ -47,6 +47,8 @@ uint8_t UI::init() {
     return 0;
 }
 
+D4D_EXTERN_SCREEN(screen_controller);
+
 uint32_t UI::showStartupPage()
 {
     // Check if touch screen has been calibrated
@@ -55,8 +57,6 @@ uint32_t UI::showStartupPage()
         calibrateTouchScreen();
     }
             
-    D4D_ActivateScreen(&screen_controller, D4D_TRUE);
-    D4D_Poll();
     return 0;
 }
 
@@ -64,7 +64,8 @@ uint32_t UI::showStartupPage()
  * Show the main controller page. 
  */
 void UI::showControllerPage() {
-    // for now we in fact show what will be the startup page.     
+    D4D_ActivateScreen(&screen_controller, D4D_TRUE);
+    D4D_Poll();
 }
 
 void UI::ticks()
