@@ -25,6 +25,7 @@
 #include "ConnectedDevicesManager.h"
 #include "PiLink.h"
 #include "Display.h"
+#include "TempControl.h"
 
 #include "devicetest/device_test_screen.h"
 #include "devicetest/ConnectedDevicesView.h"
@@ -52,18 +53,23 @@ const D4D_OBJECT* views[] = { &scrDeviceTest_devices00, &scrDeviceTest_devices10
 ConnectedDevicesManager mgr;
 ConnectedDevicesPresenter presenter(&mgr, views, 6);
 
-extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
+const D4D_OBJECT* actuator_views[] = { &scrDeviceTest_actuator1, &scrDeviceTest_actuator2, &scrDeviceTest_actuator3 };
+
+Actuator* actuatorForView(const D4D_OBJECT* pThis)
 {
-    int idx = -1;
-    if (pThis==&scrDeviceTest_actuator1)
-        idx = 0;
-    else if (pThis==&scrDeviceTest_actuator2)
-        idx = 1;
-    if (pThis==&scrDeviceTest_actuator3)
-        idx = 2;
-    
-    if (idx>=0) {
-        Actuator* actuator = mgr.actuator(idx);
+    Actuator* actuator = NULL;
+    for (unsigned i=0; i<arraySize(actuator_views); i++) {
+        if (actuator_views[i]==pThis) {
+            actuator = mgr.actuator(i);
+        }
+    }    
+    return actuator;
+}
+
+extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
+{   
+    Actuator* actuator = actuatorForView(pThis);
+    if (actuator) {
         bool active = !actuator->isActive();
         actuator->setActive(active);
         SetActuatorButtonState(pThis, active);
@@ -124,10 +130,17 @@ void UI::update()
     display.printAllTemperatures();
     display.printMode();
     display.updateBacklight();    
+
+    for (unsigned i=0; i<arraySize(actuator_views); i++) {
+        const D4D_OBJECT* obj = actuator_views[i];
+        Actuator* actuator = actuatorForView(obj);        
+        SetActuatorButtonState(obj, actuator->isActive());
+    }
     
     static uint32_t last = 0;    
     uint32_t now = millis();
-    if (now-last>=800) {
+    uint32_t delay = tempControl.getMode()==MODE_TEST ? 800 : 5000;
+    if (now-last>=delay) {
         last = now;
         mgr.update();
     }
