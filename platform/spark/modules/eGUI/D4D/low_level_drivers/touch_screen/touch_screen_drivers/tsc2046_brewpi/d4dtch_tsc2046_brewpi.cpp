@@ -63,7 +63,7 @@ extern "C" {
 
 // include of low level driver header file
 // it will be included into whole project only in case that this driver is selected in main D4D configuration file
-#include "low_level_drivers\touch_screen\touch_screen_drivers\tsc2046_brewpi\d4dtch_tsc2046_brewpi.h"
+#include "low_level_drivers/touch_screen/touch_screen_drivers/tsc2046_brewpi/d4dtch_tsc2046_brewpi.h"
 
 
 /******************************************************************************

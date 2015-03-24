@@ -39,7 +39,7 @@
 *
 ******************************************************************************/
 
-#include "low_level_drivers\touch_screen\touch_screen_drivers\cr_touch\hw_iic_cfg.h"
+#include "low_level_drivers/touch_screen/touch_screen_drivers/cr_touch/hw_iic_cfg.h"
 
 
 

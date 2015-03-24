@@ -61,7 +61,7 @@ extern "C" {
 
 // include of low level driver header file
 // it will be included into whole project only in case that this driver is selected in main D4D configuration file
-#include "low_level_drivers\LCD\lcd_hw_interface\spi_spark_8bit\d4dlcdhw_spi_spark_8b.h"
+#include "low_level_drivers/LCD/lcd_hw_interface/spi_spark_8bit/d4dlcdhw_spi_spark_8b.h"
 
 /******************************************************************************
  * Macros
