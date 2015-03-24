@@ -24,6 +24,7 @@
 #include "eGuiSettings.h"
 #include "ConnectedDevicesManager.h"
 #include "PiLink.h"
+#include "Display.h"
 
 #include "devicetest/device_test_screen.h"
 #include "devicetest/ConnectedDevicesView.h"
@@ -119,6 +120,11 @@ void UI::ticks()
 
 void UI::update() 
 {    
+    display.printState();
+    display.printAllTemperatures();
+    display.printMode();
+    display.updateBacklight();    
+    
     static uint32_t last = 0;    
     uint32_t now = millis();
     if (now-last>=800) {
