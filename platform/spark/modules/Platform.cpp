@@ -4,6 +4,7 @@
 #include "Pins.h"
 #include "ymodem/ymodem.h"
 #include "flashee-eeprom.h"
+#include "EepromManager.h"
 
 SYSTEM_MODE(SEMI_AUTOMATIC)
 
@@ -64,6 +65,7 @@ void eraseExternalFlash()
 {
 #if PLATFORM_ID==PLATFORM_SPARK_CORE
     Flashee::Devices::userFlash().eraseAll();
+    eepromManager.initializeEeprom();
 #endif    
 }
 
