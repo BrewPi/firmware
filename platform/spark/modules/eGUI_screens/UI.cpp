@@ -37,6 +37,8 @@ extern "C" {
 eGuiSettingsClass eGuiSettings;
 
 uint8_t UI::init() {
+    eGuiSettings.init();
+    
     if (!D4D_Init(NULL))
         return 1;
     

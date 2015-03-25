@@ -96,3 +96,8 @@ int8_t DeviceManager::enumOneWirePins(uint8_t offset)
 #endif
     return -1;								
 }
+
+void platform_init()
+{
+    // nothing to do here yet
+}

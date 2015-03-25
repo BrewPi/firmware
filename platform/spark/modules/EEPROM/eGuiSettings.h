@@ -43,7 +43,7 @@ class eGuiSettingsClass {
 
 public:
 
-    eGuiSettingsClass() {
+    void init() {
         flash = Flashee::Devices::createAddressErase(4096 * EEPROM_EGUI_SETTINGS_START_BLOCK, 4096 * EEPROM_EGUI_SETTINGS_END_BLOCK);
     };
 

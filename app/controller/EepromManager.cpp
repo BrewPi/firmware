@@ -36,6 +36,11 @@ EepromManager::EepromManager()
 	eepromSizeCheck();
 }
 
+void EepromManager::init() 
+{
+    eepromAccess.init();
+}
+
 
 bool EepromManager::hasSettings()
 {

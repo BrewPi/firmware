@@ -7,7 +7,7 @@ class SparkEepromAccess
 {
     Flashee::FlashDevice* flash;
 public:
-    SparkEepromAccess() 
+    void init() 
     {
         flash = Flashee::Devices::createAddressErase(4096*EEPROM_CONTROLLER_START_BLOCK, 4096*EEPROM_CONTROLLER_END_BLOCK);
     }

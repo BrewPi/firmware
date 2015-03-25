@@ -3,12 +3,13 @@
 #include "DeviceManager.h"
 #include "Pins.h"
 #include "ymodem/ymodem.h"
+#include "flashee-eeprom.h"
 
 SYSTEM_MODE(SEMI_AUTOMATIC)
 
 void handleReset() 
 { 
-	System.reset();
+    System.reset();
 }
 
 void flashFirmware()
@@ -23,10 +24,10 @@ OneWire primaryOneWireBus(oneWirePin);
 
 OneWire* DeviceManager::oneWireBus(uint8_t pin) {
 #if !BREWPI_SIMULATE
-	if (pin==oneWirePin)
-		return &primaryOneWireBus;
+    if (pin==oneWirePin)
+            return &primaryOneWireBus;
 #endif
-	return NULL;
+    return NULL;
 }
 
 
@@ -53,4 +54,26 @@ int8_t DeviceManager::enumOneWirePins(uint8_t offset)
     if (offset==0)
         return oneWirePin;
     return -1;								
+}
+
+
+#define EEPROM_MAGIC1 (0xD0)
+#define EEPROM_MAGIC2 (0x7E)
+
+void eraseExternalFlash()
+{
+#if PLATFORM_ID==PLATFORM_SPARK_CORE
+    Flashee::Devices::userFlash().eraseAll();
+#endif    
+}
+
+void platform_init()
+{        
+    if (EEPROM.read(0)!=EEPROM_MAGIC1 || EEPROM.read(1)!=EEPROM_MAGIC2) {
+        
+        eraseExternalFlash();
+        
+        EEPROM.write(0, EEPROM_MAGIC1);
+        EEPROM.write(1, EEPROM_MAGIC2);
+    }
 }

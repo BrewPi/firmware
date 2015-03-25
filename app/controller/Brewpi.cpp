@@ -63,8 +63,10 @@ UI ui;
 
 void setup()
 {
-	ui.init();
-	piLink.init();
+    platform_init();
+    eepromManager.init();
+    ui.init();
+    piLink.init();
 
     uint32_t start = millis();
     uint32_t delay = ui.showStartupPage();
