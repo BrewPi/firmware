@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void SetActuatorButtonState(D4D_OBJECT* pThis, D4D_BOOL state);
+void SetActuatorButtonState(const D4D_OBJECT* pThis, D4D_BOOL state);
 
 
 D4D_EXTERN_SCREEN(screen_devicetest);

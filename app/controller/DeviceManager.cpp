@@ -733,7 +733,11 @@ void DeviceManager::enumeratePinDevices(EnumerateHardware& h, EnumDevicesCallbac
 		if (h.pin!=-1 && h.pin!=pin)
 			continue;
 		config.hw.pinNr = pin;
-		config.hw.invert = true; // make inverted default, because shiels have transistor on them
+#if (BREWPI_STATIC_CONFIG < 3)
+		config.hw.invert = true; // make inverted default, because Arduino shields have transistor on them
+#else
+                config.hw.invert = false; // spark shield has buffer instead of transistor, does not invert
+#endif
 		handleEnumeratedDevice(config, h, callback, info);
 	}	
 #endif    

@@ -49,7 +49,7 @@
 #include "common_files/d4d_lldapi.h"
 #include "common_files/d4d_private.h"
 
-#include "low_level_drivers\LCD\lcd_hw_interface\common_drivers\d4dlcdhw_common.h"
+#include "low_level_drivers/LCD/lcd_hw_interface/common_drivers/d4dlcdhw_common.h"
 
   /******************************************************************************
   * Macros

@@ -80,7 +80,7 @@ void UI::ticks()
 }    
 
 void UI::update() 
-{   
+{    
     // todo - how to forward the update to the right screen
 
 }

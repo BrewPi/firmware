@@ -5,6 +5,9 @@
 
 Clone the `firmware` and `spark-firmware` repos to the same parent folder (e.g. 'brewpi').
 
+- In the spark-firmware repo, change to the "feature/hal" branch: `git checkout feature/hal`
+- in the firmwarwe repo, change to the "develop" branch: `git checkout develop`
+
 # Build
 
 ```
