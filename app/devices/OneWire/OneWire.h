@@ -1,8 +1,5 @@
 #pragma once
 
-#include <inttypes.h>
-#include "OneWireImpl.h"
-
 // You can exclude certain features from OneWire.  In theory, this
 // might save some space.  In practice, the compiler automatically
 // removes unused code (technically, the linker, using -fdata-sections
@@ -44,6 +41,9 @@
 #ifndef ONEWIRE_PARASITE_SUPPORT
 #define ONEWIRE_PARASITE_SUPPORT 1
 #endif
+
+#include <inttypes.h>
+#include "OneWireImpl.h"
 
 class OneWire {
 public:
