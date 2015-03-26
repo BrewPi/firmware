@@ -198,7 +198,7 @@ void SpiLcd::updateBacklight(void){
 void SpiLcd::getLine(uint8_t lineNumber, char * buffer){
 	const char* src = content[lineNumber];
 	for(uint8_t i =0;i<20;i++){
-		char c = src[i];
+		uint8_t c = src[i];
 		buffer[i] = (c == 0b11011111) ? 0xB0 : c;
 	}
 	buffer[20] = '\0'; // NULL terminate string
