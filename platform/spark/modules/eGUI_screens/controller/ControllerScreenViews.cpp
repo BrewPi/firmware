@@ -43,11 +43,11 @@ const char* ControllerStatePresenter::state_name[] {
     "DOOR OPEN",
     "HEATING",
     "COOLING",
-    "WAITING TO COOL",
-    "WAITING TO HEAT",
-    "PEAK DETECT",
-    "COOLING > ",
-    "HEATING > "
+    "> COOL",
+    "> HEAT",
+    "([ \\ )",
+    "COOLING.",
+    "HEATING."
 };
 
 D4D_COLOR ControllerStatePresenter::state_color[] = {
