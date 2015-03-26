@@ -97,3 +97,28 @@ void ControllerScreen_Update()
 
 }
 
+
+void TemperatureProcessPresenter::asString(char* buf, temperature t, unsigned num_decimals, unsigned max_len)
+{
+    if (t==INVALID_TEMP) {
+        strcpy(buf, "--.-");
+    }
+    else
+        tempToString(buf, t, num_decimals, max_len);
+}
+
+const char* TemperatureProcessPresenter::ltrim(const char* s) {
+    for (;*s==' ';s++);
+    return s;
+}
+
+void TemperatureProcessPresenter::update(temperature current, temperature setpoint, bool has_setpoint)
+{
+    char current_str[MAX_TEMP_LEN];
+    char setpoint_str[MAX_TEMP_LEN];
+
+    asString(current_str, current, 1, MAX_TEMP_LEN);
+    asString(setpoint_str, setpoint, 1, MAX_TEMP_LEN);        
+    view_.setBgColor(bg_col);
+    view_.update(ltrim(current_str), has_setpoint ? ltrim(setpoint_str) : NULL);
+}          

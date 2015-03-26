@@ -132,18 +132,14 @@ class TemperatureProcessPresenter
 public:
 
     TemperatureProcessPresenter(TemperatureProcessView& view, D4D_COLOR col) :
-        view_(view), bg_col(col) {}
+        view_(view), bg_col(col)
+    {}
     
-    void update(temperature current, temperature setpoint, bool has_setpoint=true)
-    {
-        char current_str[MAX_TEMP_LEN];
-        char setpoint_str[MAX_TEMP_LEN];
+    static void asString(char* buf, temperature t, unsigned num_decimals, unsigned max_len);
+    
+    static const char* ltrim(const char* s);
         
-        tempToString(current_str, current, 1, MAX_TEMP_LEN);
-        tempToString(setpoint_str, setpoint, 1, MAX_TEMP_LEN);
-        view_.setBgColor(bg_col);
-        view_.update(current_str, has_setpoint ? setpoint_str : NULL);
-    }          
+    void update(temperature current, temperature setpoint, bool has_setpoint=true);
 };
 
 class ControllerModeView
