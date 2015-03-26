@@ -85,11 +85,15 @@ TemperatureProcessPresenter roomTempPresenter(roomTempView, ROOM_BG_COLOR);
 ControllerModeView modeView(&scrController_mode);
 ControllerModePresenter modePresenter(modeView);
 
+ControllerTimeView timeView(&scrController_time);
+ControllerTimePresenter timePresenter(timeView);
+
 void ControllerScreen_Update()
 {
     states state = states(tempControl.getState());
     statePresenter.setState(state);
     modePresenter.update(tempControl.getMode());
+    timePresenter.update();
     
     beerTempPresenter.update(tempControl.getBeerTemp(), tempControl.getBeerSetting());
     fridgeTempPresenter.update(tempControl.getFridgeTemp(), tempControl.getFridgeSetting());
