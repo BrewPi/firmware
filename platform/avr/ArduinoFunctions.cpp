@@ -26,9 +26,8 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wattributes"
-#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused"
 #pragma GCC diagnostic ignored "-Wuninitialized"
-#pragma GCC diagnostic ignored "-Wcpp"
 #pragma GCC diagnostic ignored "-Wnarrowing"
 
 #include <Arduino.h>
@@ -36,6 +35,7 @@ extern "C"{
 	#include <pins_arduino.h>
 }
 
+#undef HID_ENABLED
 #if defined(USBCON)
 	// Arduino Leonardo source files for serial:
 	#define USB_VID 0x2341
@@ -53,7 +53,9 @@ extern "C"{
 #include <new.cpp>
 #include <wiring.c>
 #include <wiring_digital.c>
-
+extern "C"{
+	#include <hooks.c> 
+}
 
 // Unused source files:
 
@@ -67,5 +69,9 @@ extern "C"{
 //#include <WMath.cpp>
 //#include <WString.cpp>
 
-// Restore original warnings configuration
+
+// error handler that is invoked when a pure virtual function is called
+extern "C" void __cxa_pure_virtual() { while (1); }
+	
+// Restore original warnings configuration	
 #pragma GCC diagnostic pop
