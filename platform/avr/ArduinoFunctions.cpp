@@ -46,6 +46,7 @@ extern "C"{
 #else
 	// Standard Arduino source files for serial:
 	#include <HardwareSerial.cpp>
+	#include <HardwareSerial0.cpp>
 #endif
 
 // Other source files, depends on your program which you need

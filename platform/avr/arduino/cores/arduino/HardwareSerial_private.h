@@ -21,6 +21,10 @@
   Modified 14 August 2012 by Alarus
 */
 
+
+#ifndef HardwareSerial_private_h
+#define HardwareSerial_private_h
+
 #include "wiring_private.h"
 
 // this next line disables the entire HardwareSerial.cpp, 
@@ -121,3 +125,4 @@ void HardwareSerial::_rx_complete_irq(void)
 }
 
 #endif // whole file
+#endif //HardwareSerial_private_h
