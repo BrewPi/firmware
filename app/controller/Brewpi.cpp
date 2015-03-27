@@ -63,7 +63,7 @@ UI ui;
 
 void setup()
 {
-    platform_init();
+    bool resetEeprom = platform_init();
     eepromManager.init();
     ui.init();
     piLink.init();
@@ -74,20 +74,22 @@ void setup()
         ui.update();
     }
     
-	logDebug("started");	
-	tempControl.init();
-	settingsManager.loadSettings();
+    logDebug("started");	
+    tempControl.init();
+    settingsManager.loadSettings();
 	
 #if BREWPI_SIMULATE
-	simulator.step();
-	// initialize the filters with the assigned initial temp value
-	tempControl.beerSensor->init();
-	tempControl.fridgeSensor->init();	
+    simulator.step();
+    // initialize the filters with the assigned initial temp value
+    tempControl.beerSensor->init();
+    tempControl.fridgeSensor->init();	
 #endif	
-
+    if (resetEeprom)
+        eepromManager.initializeEeprom();
+        
     ui.showControllerPage();
-    			
-	logDebug("init complete");
+    
+    logDebug("init complete");
 }
 
 void brewpiLoop(void)

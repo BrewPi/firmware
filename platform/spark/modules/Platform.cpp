@@ -59,23 +59,25 @@ int8_t DeviceManager::enumOneWirePins(uint8_t offset)
 
 
 #define EEPROM_MAGIC1 (0xD0)
-#define EEPROM_MAGIC2 (0x7E)
+#define EEPROM_MAGIC2 (0x9E)
 
 void eraseExternalFlash()
 {
 #if PLATFORM_ID==PLATFORM_SPARK_CORE
-    Flashee::Devices::userFlash().eraseAll();
-    eepromManager.initializeEeprom();
+    Flashee::Devices::userFlash().eraseAll();    
 #endif    
 }
 
-void platform_init()
-{        
-    if (EEPROM.read(0)!=EEPROM_MAGIC1 || EEPROM.read(1)!=EEPROM_MAGIC2) {
+bool platform_init()
+{            
+    bool initialize = (EEPROM.read(0)!=EEPROM_MAGIC1 || EEPROM.read(1)!=EEPROM_MAGIC2);
+    if (initialize) {
         
         eraseExternalFlash();
         
         EEPROM.write(0, EEPROM_MAGIC1);
         EEPROM.write(1, EEPROM_MAGIC2);
     }
+    eepromAccess.init();
+    return initialize;
 }

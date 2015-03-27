@@ -39,7 +39,7 @@
 #define BREWPI_BOARD_PHOTON 'y'
 #define BREWPI_BOARD_UNKNOWN '?'
 
-void platform_init();
+bool platform_init();
 
 /*
  * Defines global config for the brewpi project. This file is included in every file in the project to ensure conditional

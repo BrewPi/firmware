@@ -97,7 +97,8 @@ int8_t DeviceManager::enumOneWirePins(uint8_t offset)
     return -1;								
 }
 
-void platform_init()
+bool platform_init()
 {
-    // nothing to do here yet
+    eepromAccess.init();
+    return false;
 }
