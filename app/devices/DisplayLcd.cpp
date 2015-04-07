@@ -27,7 +27,8 @@
 #include "TempControl.h"
 #include "TemperatureFormats.h"
 #include "Pins.h"
-
+#include "fixstl.h"
+#include <algorithm>
 
 
 uint8_t LcdDisplay::stateOnDisplay;
@@ -238,7 +239,7 @@ void LcdDisplay::printState(void){
 	}
 	uint16_t sinceIdleTime = tempControl.timeSinceIdle();
 	if(state==IDLE){
-		time = 	min(tempControl.timeSinceCooling(), tempControl.timeSinceHeating());
+		time = 	std::min(tempControl.timeSinceCooling(), tempControl.timeSinceHeating());
 	}
 	else if(state==COOLING || state==HEATING){
 		time = sinceIdleTime;

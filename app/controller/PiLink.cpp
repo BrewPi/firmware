@@ -334,7 +334,7 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
 		sendJsonTemp(PSTR(JSON_ROOM_TEMP), tempControl.getRoomTemp());
 		
 	if (changed(state, tempControl.getState()))
-		sendJsonPair(PSTR(JSON_STATE), tempControl.getState());		
+		sendJsonPair(PSTR(JSON_STATE), (uint8_t)tempControl.getState());		
 
 #if BREWPI_SIMULATE	
 	printJsonName(PSTR(JSON_TIME));

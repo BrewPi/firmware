@@ -31,6 +31,8 @@
 #include "EepromManager.h"
 #include "TempSensorDisconnected.h"
 #include "ModeControl.h"
+#include "fixstl.h"
+#include <algorithm>
 
 TempControl tempControl;
 
@@ -61,7 +63,7 @@ ControlSettings TempControl::cs;
 ControlVariables TempControl::cv;
 	
 	// State variables
-uint8_t TempControl::state;
+states TempControl::state;
 bool TempControl::doPosPeakDetect;
 bool TempControl::doNegPeakDetect;
 bool TempControl::doorOpen;
@@ -351,7 +353,7 @@ void TempControl::updateState(void){
 
 void TempControl::updateEstimatedPeak(uint16_t timeLimit, temperature estimator, uint16_t sinceIdle)
 {
-	uint16_t activeTime = min(timeLimit, sinceIdle); // heat or cool time in seconds
+	uint16_t activeTime = std::min(timeLimit, sinceIdle); // heat or cool time in seconds
 	temperature estimatedOvershoot = ((long_temperature) estimator * activeTime)/3600; // overshoot estimator is in overshoot per hour
 	if(stateIsCooling()){
 		estimatedOvershoot = -estimatedOvershoot; // when cooling subtract overshoot from fridge temperature

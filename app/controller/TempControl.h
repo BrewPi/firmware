@@ -180,7 +180,7 @@ class TempControl{
 		return cs.mode;
 	}
 
-	TEMP_CONTROL_METHOD unsigned char getState(void){
+	TEMP_CONTROL_METHOD states getState(void){
 		return state;
 	}
 	
@@ -252,7 +252,7 @@ class TempControl{
 	
 	
 	// State variables
-	TEMP_CONTROL_FIELD uint8_t state;
+	TEMP_CONTROL_FIELD states state;
 	TEMP_CONTROL_FIELD bool doPosPeakDetect;
 	TEMP_CONTROL_FIELD bool doNegPeakDetect;
 	TEMP_CONTROL_FIELD bool doorOpen;
