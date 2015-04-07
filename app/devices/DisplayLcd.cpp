@@ -27,7 +27,10 @@
 #include "TempControl.h"
 #include "TemperatureFormats.h"
 #include "Pins.h"
+#include "fixstl.h"
+#include <algorithm>
 
+using std::min;
 
 
 uint8_t LcdDisplay::stateOnDisplay;
