@@ -24,6 +24,8 @@
 #include "ControllerScreenViews.h"
 #include "TempControl.h"
 #include "controller_screen.h"
+#include "fixstl.h"
+#include <algorithm>
 
 bool set_background_color(const D4D_OBJECT* pThis, D4D_COLOR bg)
 {
@@ -126,3 +128,27 @@ void TemperatureProcessPresenter::update(temperature current, temperature setpoi
     view_.setBgColor(bg_col);
     view_.update(ltrim(current_str), has_setpoint ? ltrim(setpoint_str) : NULL);
 }          
+
+uint16_t fetch_time(states state)
+{
+    tcduration_t time = 0;
+    tcduration_t sinceIdleTime = tempControl.timeSinceIdle();
+    if(state==IDLE){
+        time = std::min(tempControl.timeSinceCooling(), tempControl.timeSinceHeating());
+    }
+    else if(state==COOLING || state==HEATING){
+        time = sinceIdleTime;
+    }
+    else if(state==COOLING_MIN_TIME){
+        time = MIN_COOL_ON_TIME-sinceIdleTime;
+    }	
+    else if(state==HEATING_MIN_TIME){
+        time = MIN_HEAT_ON_TIME-sinceIdleTime;
+    }
+    else if(state == WAITING_TO_COOL || state == WAITING_TO_HEAT){
+        time = tempControl.getWaitTime();
+    }
+
+    return time;
+}
+

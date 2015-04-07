@@ -215,28 +215,7 @@ public:
     }
 };
 
-uint16_t fetch_time(states state)
-{
-    tcduration_t time = INT_MIN;
-    tcduration_t sinceIdleTime = tempControl.timeSinceIdle();
-    if(state==IDLE){
-        time = min(tempControl.timeSinceCooling(), tempControl.timeSinceHeating());
-    }
-    else if(state==COOLING || state==HEATING){
-        time = sinceIdleTime;
-    }
-    else if(state==COOLING_MIN_TIME){
-        time = MIN_COOL_ON_TIME-sinceIdleTime;
-    }	
-    else if(state==HEATING_MIN_TIME){
-        time = MIN_HEAT_ON_TIME-sinceIdleTime;
-    }
-    else if(state == WAITING_TO_COOL || state == WAITING_TO_HEAT){
-        time = tempControl.getWaitTime();
-    }
-
-    return time;
-}
+uint16_t fetch_time(states state);
 
 class ControllerTimePresenter
 {
@@ -249,8 +228,8 @@ public:
             
         void update() {
             char time_str[MAX_TIME_LEN];
-            tcduration_t time = tempControl.getWaitTime();
-            if (time==INT_MIN)
+            int time = fetch_time(tempControl.getState());
+            if (time<0)
                 time_str[0] = 0;
             else
                 sprintf(time_str, "%d:%02d:%02d", uint16_t(time/3600), uint16_t((time/60)%60), uint16_t(time%60));

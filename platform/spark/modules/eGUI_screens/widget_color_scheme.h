@@ -50,5 +50,15 @@ typedef struct WIDGET_COLOR_SCHEME {
     ((D4D_CLR_SCHEME*)(((uint8_t*)c)-offsetof(D4D_CLR_SCHEME, bckg)))
 
 
+/**
+ * Declare a label with the given colors. 
+ * The WIDGET_COLOR_SCHEME is availalbe as name_color.
+ */
+#define D4D_DECLARE_COLOR_LABEL(name, text, x, y, cx, cy, font, type, bg, fg) \
+    WIDGET_COLOR_SCHEME name##_color = { bg, bg, bg, bg, fg, fg, fg, fg }; \
+    D4D_DECLARE_LABEL(name, text, x, y, cx, cy, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&name##_color), font, NULL, NULL);
+
+
+
 #endif	/* WIDGET_COLOR_SCHEME_H */
 

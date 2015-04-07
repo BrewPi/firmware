@@ -27,6 +27,8 @@
 
 #include "devicetest/device_test_screen.h"
 #include "controller/controller_screen.h"
+#include "startup/startup_screen.h"
+#include "screen_model.h"
 
 extern "C" {
 #include "d4d.h"
@@ -48,15 +50,81 @@ uint8_t UI::init() {
 }
 
 D4D_EXTERN_SCREEN(screen_controller);
+D4D_EXTERN_SCREEN(screen_startup);
+
+
+class StartupScreenModel {
+    
+    uint32_t timer;
+    bool touched_flag;
+    
+public:    
+    void start() {
+        timer = millis();
+        touched_flag = false;
+    }
+    
+    uint32_t elapsed() {
+        return millis()-timer;
+    }
+    
+    bool timeout() {
+        return elapsed()>4500;
+    }
+    
+    bool touched() {
+        return touched_flag;
+    }
+    
+    void flagTouched() {
+        touched_flag = true;
+    }
+    
+};
+
+void* screenModel = NULL;
+
+void startup_screen_touched() {
+    ((StartupScreenModel*)screenModel)->flagTouched();
+}
+
+
+void* active_screen_model()
+{
+    return screenModel;
+}
 
 uint32_t UI::showStartupPage()
-{
+{    
     // Check if touch screen has been calibrated
     if (!eGuiSettings.loadTouchCalib()) {
         // could not load valid settings from flash memory
         calibrateTouchScreen();
     }
-            
+    else {                
+        StartupScreenModel model;
+        screenModel = &model;
+        model.start();
+        
+        D4D_ActivateScreen(&screen_startup, D4D_TRUE);
+        while (!model.touched() && !model.timeout())
+        {            
+            ticks();
+            uint32_t elapsed = model.elapsed();
+            uint8_t c = 0;
+            if (elapsed>2000) {
+                uint8_t c2 = std::min(255lu, ((elapsed-2000)*255)/(3000));
+                if (c!=c2) {
+                    scrStartup_version.clrScheme->fore = D4D_COLOR_RGB(c2,c2,c2);
+                    c = c2;
+                    D4D_InvalidateObject(&scrStartup_version, D4D_FALSE);
+                }
+            }                
+        }
+        if (model.touched())
+            calibrateTouchScreen();
+        screenModel = NULL;
+    }
     return 0;
 }
 
