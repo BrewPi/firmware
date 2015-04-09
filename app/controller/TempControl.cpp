@@ -252,7 +252,7 @@ void TempControl::updateState(void){
 			}
 			resetWaitTime();
 			if(fridgeFast > (cs.fridgeSetting+cc.idleRangeHigh) ){  // fridge temperature is too high			
-				tempControl.updateWaitTime(MIN_SWITCH_TIME, sinceHeating);			
+				tempControl.updateWaitTime(MIN_SWITCH_TIME, sinceHeating);
 				if(cs.mode==MODE_FRIDGE_CONSTANT){
 					tempControl.updateWaitTime(MIN_COOL_OFF_TIME_FRIDGE_CONSTANT, sinceCooling);
 				}
@@ -294,15 +294,21 @@ void TempControl::updateState(void){
 				state = IDLE; // within IDLE range, always go to IDLE
 				break;
 			}
-			if(state == HEATING || state == COOLING){	
-				if(doNegPeakDetect == true || doPosPeakDetect == true){
-					// If peak detect is not finished, but the fridge wants to switch to heat/cool
-					// Wait for peak detection and display 'Await peak detect' on display
-					state = WAITING_FOR_PEAK_DETECT;
-					break;
+			if(state == HEATING || state == COOLING){
+				// If peak detect is not finished, but the fridge wants to switch to heat/cool
+				// Wait for peak detection and show on display
+				if(doNegPeakDetect == true){
+					tempControl.updateWaitTime(COOL_PEAK_DETECT_TIME, sinceCooling);
+                                }
+				else if(doPosPeakDetect == true){
+					tempControl.updateWaitTime(HEAT_PEAK_DETECT_TIME, sinceHeating);
 				}
+				else{
+					break; // peak detect has finished
+				}
+				state = WAITING_FOR_PEAK_DETECT;
 			}
-		}			
+		}
 		break; 
 		case COOLING:
 		case COOLING_MIN_TIME:

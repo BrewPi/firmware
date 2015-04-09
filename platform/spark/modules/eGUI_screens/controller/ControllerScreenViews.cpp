@@ -45,9 +45,9 @@ const char* ControllerStatePresenter::state_name[] {
     "DOOR OPEN",
     "HEATING",
     "COOLING",
-    "> COOL",
-    "> HEAT",
-    "([ \\ )",
+    "COOL IN",
+    "HEAT IN",
+    "PEAK DET.",
     "COOLING.",
     "HEATING."
 };
@@ -145,10 +145,10 @@ uint16_t fetch_time(states state)
     else if(state==HEATING_MIN_TIME){
         time = MIN_HEAT_ON_TIME-sinceIdleTime;
     }
-    else if(state == WAITING_TO_COOL || state == WAITING_TO_HEAT){
+    else if(state == WAITING_TO_COOL || state == WAITING_TO_HEAT || state == WAITING_FOR_PEAK_DETECT){
         time = tempControl.getWaitTime();
     }
-
+    
     return time;
 }
 
