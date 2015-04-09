@@ -311,9 +311,6 @@
     <Compile Include="app\devices\DisplayLcd.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\devices\DisplayLcdImpl.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="app\devices\EepromAccess.h">
       <SubType>compile</SubType>
     </Compile>
@@ -456,6 +453,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="platform\wiring\DS2413.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="platform\wiring\fixstl.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="platform\wiring\NullLcdDriver.cpp">

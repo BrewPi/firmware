@@ -369,7 +369,7 @@ void TempControl::updateOutputs(void) {
 	bool heating = stateIsHeating();
 	bool cooling = stateIsCooling();
 	cooler->setActive(cooling);		
-	heater->setActive(!cc.lightAsHeater && heating);	
+	heater->setActive(heating);	
 	light->setActive(isDoorOpen() || (cc.lightAsHeater && heating) || cameraLightState.isActive());	
 	fan->setActive(heating || cooling);
 }

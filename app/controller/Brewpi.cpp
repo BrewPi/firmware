@@ -66,15 +66,16 @@ void setup()
 	ui.init();
 	piLink.init();
 
+	logDebug("started");
+	tempControl.init();
+	settingsManager.loadSettings();
+
     uint32_t start = millis();
     uint32_t delay = ui.showStartupPage();
     while (millis()-start <= delay) {
         ui.update();
     }
     
-	logDebug("started");	
-	tempControl.init();
-	settingsManager.loadSettings();
 	
 #if BREWPI_SIMULATE
 	simulator.step();
