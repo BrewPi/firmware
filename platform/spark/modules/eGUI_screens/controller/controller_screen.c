@@ -54,11 +54,11 @@
 #define ROW1_GAP ROW_GAP
 
 #define ROW2_Y (ROW1_Y+ROW1_CY+ROW1_GAP)
-#define ROW2_CY (40)
+#define ROW2_CY (60)
 #define ROW2_GAP 0
 
 #define ROW3_Y (ROW2_Y+ROW2_CY+ROW2_GAP)
-#define ROW3_CY (40)
+#define ROW3_CY (20)
 #define ROW3_GAP 0
 
 #define ROW4_Y (ROW3_Y+ROW3_CY+ROW3_GAP)
@@ -103,15 +103,19 @@ D4D_DECLARE_STD_PICTURE(scrController_logo, 138, 5, 45, 30, &bmp_brewpi_logo_bla
 
 D4D_DECLARE_COLOR_LABEL(scrController_beertemp, controller_beertemp, COL2_X, ROW2_Y, COL2_CX, ROW2_CY, LARGE_NUMBER_FONT, D4D_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
 D4D_DECLARE_COLOR_LABEL(scrController_beersv, controller_beerset, COL2_X, ROW3_Y, COL2_CX, ROW3_CY, MEDIUM_NUMBER_FONT, D4D_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
-D4D_DECLARE_COLOR_LABEL(scrController_beer, "Beer", COL2_X, ROW4_Y, COL2_CX, ROW4_CY, SMALL_FONT, D4D_CONST, INITIAL_BLOCK_COLOR, BEER_FG_COLOR);
+
+char beer_text[] = "Beer";
+char fridge_text[] = "Fridge";
+char room_text[] = "Room";
+D4D_DECLARE_COLOR_LABEL(scrController_beer, beer_text, COL2_X, ROW4_Y, COL2_CX, ROW4_CY, SMALL_FONT, D4D_CONST, INITIAL_BLOCK_COLOR, BEER_FG_COLOR);
 
 D4D_DECLARE_COLOR_LABEL(scrController_fridgetemp, controller_fridgetemp, COL3_X, ROW2_Y, COL3_CX, ROW2_CY, LARGE_NUMBER_FONT, D4D_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
 D4D_DECLARE_COLOR_LABEL(scrController_fridgesv, controller_fridgeset, COL3_X, ROW3_Y, COL3_CX, ROW3_CY, MEDIUM_NUMBER_FONT, D4D_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
-D4D_DECLARE_COLOR_LABEL(scrController_fridge, "Fridge", COL3_X, ROW4_Y, COL3_CX, ROW4_CY, SMALL_FONT, D4D_CONST, INITIAL_BLOCK_COLOR, FRIDGE_FG_COLOR);
+D4D_DECLARE_COLOR_LABEL(scrController_fridge, fridge_text, COL3_X, ROW4_Y, COL3_CX, ROW4_CY, SMALL_FONT, D4D_CONST, INITIAL_BLOCK_COLOR, FRIDGE_FG_COLOR);
 
 D4D_DECLARE_COLOR_LABEL(scrController_roomtemp, controller_roomtemp, COL4_X, ROW2_Y, COL4_CX, ROW2_CY, LARGE_NUMBER_FONT, D4D_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
 D4D_DECLARE_COLOR_LABEL(scrController_roomsv, controller_roomset, COL4_X, ROW3_Y, COL4_CX, ROW3_CY, MEDIUM_NUMBER_FONT, D4D_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
-D4D_DECLARE_COLOR_LABEL(scrController_room, "Room", COL4_X, ROW4_Y, COL4_CX, ROW4_CY, SMALL_FONT, D4D_CONST, INITIAL_BLOCK_COLOR, ROOM_FG_COLOR);
+D4D_DECLARE_COLOR_LABEL(scrController_room, room_text, COL4_X, ROW4_Y, COL4_CX, ROW4_CY, SMALL_FONT, D4D_CONST, INITIAL_BLOCK_COLOR, ROOM_FG_COLOR);
 
 D4D_DECLARE_COLOR_LABEL(scrController_mode, controller_mode, COL2_X, ROW5_Y, COL2_CX, ROW5_CY, REGULAR_FONT, D4D_NO_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
 D4D_DECLARE_COLOR_LABEL(scrController_state, controller_state, COL3_X, ROW5_Y, COL3_CX+(COL3_GAP>>1), ROW5_CY, REGULAR_FONT, D4D_NO_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
@@ -150,7 +154,6 @@ D4D_DECLARE_SCREEN_END()
         
 static void ScrController_OnInit()
 {
-    
 }
 
 static void ScrController_OnMain()
@@ -160,7 +163,10 @@ static void ScrController_OnMain()
 
 
 static void ScrController_OnActivate()
-{
+{    
+    *room_text = 0;
+   *beer_text = 0;
+   *fridge_text = 0;
 }
 
 static void ScrController_OnDeactivate()
