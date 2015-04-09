@@ -24,6 +24,7 @@
 #include "eGuiSettings.h"
 #include "ConnectedDevicesManager.h"
 #include "PiLink.h"
+#include "../BrewPiTouch/BrewPiTouch.h"
 
 #include "devicetest/device_test_screen.h"
 #include "controller/controller_screen.h"
@@ -94,6 +95,8 @@ void* active_screen_model()
     return screenModel;
 }
 
+extern BrewPiTouch touch;
+
 uint32_t UI::showStartupPage()
 {    
     // Check if touch screen has been calibrated
@@ -105,13 +108,12 @@ uint32_t UI::showStartupPage()
         StartupScreenModel model;
         screenModel = &model;
         model.start();
-        
+        touch.setStabilityThreshold(16000); // set to high Threshold to disable filter
         D4D_ActivateScreen(&screen_startup, D4D_TRUE);
-        while (!model.touched() && !model.timeout())
-        {            
+        uint8_t c = 0;
+        while (!model.touched() && !model.timeout()) {         
             ticks();
             uint32_t elapsed = model.elapsed();
-            uint8_t c = 0;
             if (elapsed>2000) {
                 uint8_t c2 = std::min(255lu, ((elapsed-2000)*255)/(3000));
                 if (c!=c2) {
@@ -121,8 +123,11 @@ uint32_t UI::showStartupPage()
                 }
             }                
         }
-        if (model.touched())
+        if (model.touched()){
+            touch.setStabilityThreshold(5); // require extra stable reading
             calibrateTouchScreen();
+        }
+        touch.setStabilityThreshold(); // reset to default
         screenModel = NULL;
     }
     return 0;
