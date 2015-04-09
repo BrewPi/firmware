@@ -116,7 +116,7 @@ long_temperature stringToFixedPoint(const char * numberString){
 	}
 	
 	// find the point in the string to split in the integer part and the fraction part
-	fractPtr = strchrnul(numberString, '.'); // returns pointer to the point.
+	fractPtr = strchr(numberString, '.'); // returns pointer to the point.
 	
 	intPart = atol(numberString);
 	if(fractPtr != 0){
