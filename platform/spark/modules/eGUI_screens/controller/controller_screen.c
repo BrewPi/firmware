@@ -58,7 +58,7 @@
 #define ROW2_GAP 0
 
 #define ROW3_Y (ROW2_Y+ROW2_CY+ROW2_GAP)
-#define ROW3_CY (45)
+#define ROW3_CY (40)
 #define ROW3_GAP 0
 
 #define ROW4_Y (ROW3_Y+ROW3_CY+ROW3_GAP)
