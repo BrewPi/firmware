@@ -16,6 +16,8 @@
 #define FONT_SEGOEUI9_BIG  12
 #define FONT_PROGGY_SQUARE  13
 #define FONT_PROGGY_SQUARE_BIG  14
+#define FONT_ALTE_DIN_22  15
+#define FONT_ALTE_DIN_16  16
 
 extern const D4D_FONT_DESCRIPTOR d4dfnt_CourierNew8B_desc;
 extern const D4D_FONT_DESCRIPTOR d4dfnt_TimesNewRoman12B_desc;
@@ -23,21 +25,16 @@ extern const D4D_FONT_DESCRIPTOR d4dfnt_BerlinSansFBDemi12_desc;
 extern const D4D_FONT_DESCRIPTOR d4dfnt_Arial7_desc;
 extern const D4D_FONT_DESCRIPTOR d4dfnt_CourierNewTest_desc;
 extern const D4D_FONT_DESCRIPTOR d4dfnt_Tahoma_8_desc;
-
 extern const D4D_FONT_DESCRIPTOR d4dfnt_Tahoma_9_desc;
-
 extern const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUISemibold_9_desc;
-
 extern const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUI_9_desc;
-
 extern const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUI_8_desc;
-
 extern const D4D_FONT_DESCRIPTOR d4dfnt_Verdana_8_desc;
-
 extern const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUI11_desc;
-
 extern const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUI10_desc;
-
 extern const D4D_FONT_DESCRIPTOR d4dfnt_ProggySquare_desc;
+extern const D4D_FONT_DESCRIPTOR d4dfnt_AlteDIN1451_22_desc;
+extern const D4D_FONT_DESCRIPTOR d4dfnt_AlteDIN1451_16_desc;
+
 
 #endif
