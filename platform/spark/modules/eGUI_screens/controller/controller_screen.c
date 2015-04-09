@@ -164,9 +164,6 @@ static void ScrController_OnMain()
 
 static void ScrController_OnActivate()
 {    
-    *room_text = 0;
-   *beer_text = 0;
-   *fridge_text = 0;
 }
 
 static void ScrController_OnDeactivate()
