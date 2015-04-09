@@ -19,6 +19,11 @@
 #define FONT_ALTE_DIN_22  15
 #define FONT_ALTE_DIN_16  16
 
+#define FONT_SMALL FONT_ARIAL7
+#define FONT_REGULAR FONT_SEGOEUI11
+#define FONT_NUMBER_LARGE FONT_ALTE_DIN_22
+#define FONT_NUMBER_MEDIUM FONT_ALTE_DIN_16
+
 extern const D4D_FONT_DESCRIPTOR d4dfnt_CourierNew8B_desc;
 extern const D4D_FONT_DESCRIPTOR d4dfnt_TimesNewRoman12B_desc;
 extern const D4D_FONT_DESCRIPTOR d4dfnt_BerlinSansFBDemi12_desc;
