@@ -1798,8 +1798,9 @@ const Byte d4dfnt_Arial7_data_table[] = {
     /* character 0x007E ('~'): (width = 5, offset = 726) */
     0x00, 0x00, 0x00, 0x6A, 0xC0, 0x00, 0x00, 0x00,
 
-    /* character 0x007F (''): (width = 7, offset = 734) */
-    0x00, 0x00, 0x03, 0xE4, 0x48, 0x91, 0x22, 0x7C, 0x00, 0x00, 0x00
+    /* replace 0x7F with degree sign*/
+    /* character 0x007F (''): (width = 3, offset = 734) */
+    0x00, 0x75, 0x70, 0x00, 0x00, 0x00
 
 };
 
@@ -1902,7 +1903,7 @@ const Word d4dfnt_Arial7_offset_table[] = {
     716, /*   '|'        007C       */
     721, /*   '}'        007D       */
     726, /*   '~'        007E       */
-    734 /*   ''        007F       */
+    734 /*   degree sign 007F       */
 };
 
 
@@ -2005,7 +2006,7 @@ const Byte d4dfnt_Arial7_width_table[] = {
     3, /*   '|'        007C       */
     3, /*   '}'        007D       */
     5, /*   '~'        007E       */
-    7 /*   ''        007F       */
+    4  /* degree sign  007F       */
 };
 
 const D4D_FONT_DESCRIPTOR d4dfnt_Arial7_desc = {
@@ -7059,7 +7060,7 @@ const Byte d4dfnt_ProggySquare_data_table[] = {
 
 /* Use 0x007F for degree sign */
 /* character 0x007F (''): (width = 7, offset = 1045) */
-0x00, 0x20, 0x50, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+0x00, 0x20, 0x50, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00        
 
 };
 
