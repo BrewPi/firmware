@@ -255,14 +255,10 @@ void PiLink::receive(void){
             flashFirmware();
             break;
             
-            case 'T':
-                ui.calibrateTouchScreen();
-                break;
-
-		default:
-			logWarningInt(WARNING_INVALID_COMMAND, inByte);
-		}
-	}
+        default:
+        logWarningInt(WARNING_INVALID_COMMAND, inByte);
+        }
+    }
 }
 
 
