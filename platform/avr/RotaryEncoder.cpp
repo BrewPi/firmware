@@ -72,12 +72,12 @@ ISR(INT1_vect) {
 }
 #elif BREWPI_BOARD == BREWPI_BOARD_LEONARDO
 ISR(INT6_vect){
-	uint8_t currPinA = !bitRead(PINB,4);
-	uint8_t currPinB = !bitRead(PINB,5);
-	rotaryEncoder.setPushed(currPinA, currPinB);
+	rotaryEncoder.setPushed();
 }
 ISR(PCINT0_vect){
-	rotaryEncoder.process();
+	uint8_t currPinA = !bitRead(PINB,4);
+	uint8_t currPinB = !bitRead(PINB,5);
+	rotaryEncoder.process(currPinA, currPinB);
 }
 #elif BREWPI_BOARD == BREWPI_BOARD_STANDARD
 ISR(PCINT2_vect){
