@@ -82,7 +82,7 @@ extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
         Actuator* actuator = mgr.actuator(idx);
         bool active = !actuator->isActive();
         actuator->setActive(active);
-        SetActuatorButtonState(pThis, active);
+        SetActuatorButtonState(pThis, active, idx);
     }
 }
 
@@ -91,7 +91,7 @@ void ScreenDeviceTest_OnMain()
     for (unsigned i=0; i<arraySize(actuator_views); i++) {
         const D4D_OBJECT* obj = actuator_views[i];
         Actuator* actuator = actuatorForView(obj);        
-        SetActuatorButtonState(obj, actuator->isActive());
+        SetActuatorButtonState(obj, actuator->isActive(), i);
     }
     
     static uint32_t last = 0;

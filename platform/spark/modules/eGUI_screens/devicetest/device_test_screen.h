@@ -1,12 +1,11 @@
-#ifndef BREWPI_BOOT_SCREEN_H
-#define	BREWPI_BOOT_SCREEN_H
+#ifndef DEVICE_TEST_SCREEN_H
+#define	DEVICE_TEST_SCREEN_H
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-void SetActuatorButtonState(const D4D_OBJECT* pThis, D4D_BOOL state);
-
+void SetActuatorButtonState(const D4D_OBJECT* pThis, D4D_BOOL state, uint8_t idx);
 
 D4D_EXTERN_SCREEN(screen_devicetest);
 D4D_EXTERN_OBJECT(scrDeviceTest_devices00);
@@ -31,5 +30,5 @@ Byte ScreenDeviceTest_OnObjectMsg(D4D_MESSAGE* pMsg);
 }
 #endif
 
-#endif	/* BREWPI_BOOT_SCREEN_H */
+#endif	/* DEVICE_TEST_SCREEN_H */
 

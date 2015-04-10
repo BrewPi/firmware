@@ -16,6 +16,7 @@
 #define INACTIVE_FS_COLOR D4D_COLOR_RGB(128,128,128)
 #define ACTIVE_FG_COLOR D4D_COLOR_RGB(255,255,255)
 
+static D4D_BOOL actuator_views_state[3];
 
 const WIDGET_COLOR_SCHEME color_scheme_device = {
     ACTIVE_BG_COLOR,           // bkg active
@@ -40,8 +41,13 @@ const WIDGET_COLOR_SCHEME color_scheme_connection = {
 };
 
 void ActuatorClicked(D4D_OBJECT* pThis);
-void SetActuatorButtonState(const D4D_OBJECT* pThis, D4D_BOOL state)
+
+void SetActuatorButtonState(const D4D_OBJECT* pThis, D4D_BOOL state, uint8_t idx)
 {
+    if(actuator_views_state[idx]==state){
+        return; // already up to date
+    }
+    
     D4D_SetText(pThis, state ? "ON" : "OFF");
     D4D_COLOR bg = state ? color_scheme_device.bckg : color_scheme_device.bckgDis;
     D4D_COLOR fg = state ? color_scheme_device.fore : color_scheme_device.foreDis;
@@ -55,6 +61,7 @@ void SetActuatorButtonState(const D4D_OBJECT* pThis, D4D_BOOL state)
     pThis->clrScheme->foreCapture = fg;
     pThis->clrScheme->foreFocus = fg;
 
+    actuator_views_state[idx] = state;
     D4D_InvalidateObject(pThis, D4D_TRUE);
 }
 
@@ -120,7 +127,10 @@ D4D_DECLARE_SCREEN_END()
 
 void ScreenDeviceTest_OnInit()
 {
-    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator1, D4D_FALSE);
-    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator2, D4D_FALSE);
-    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator3, D4D_FALSE);
+    actuator_views_state[0] = D4D_TRUE; // mismatch with below to force update on init
+    actuator_views_state[1] = D4D_TRUE;
+    actuator_views_state[2] = D4D_TRUE;
+    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator1, D4D_FALSE, 0);
+    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator2, D4D_FALSE, 1);
+    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator3, D4D_FALSE, 2);
 }
