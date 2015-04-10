@@ -118,42 +118,9 @@ D4D_DECLARE_STD_SCREEN_BEGIN(screen_devicetest, ScreenDeviceTest_)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_text2)
 D4D_DECLARE_SCREEN_END()    
 
-static void ScreenDeviceTest_OnInit()
+void ScreenDeviceTest_OnInit()
 {
     SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator1, D4D_FALSE);
     SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator2, D4D_FALSE);
     SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator3, D4D_FALSE);
-}
-
-
-
-
-static void ScreenDeviceTest_OnMain()
-{
-#if 0
-    static uint32_t last = 0;    
-    uint32_t now = millis();
-    if (now-last>=800) {
-        last = now;
-        mgr.update();
-    }    
-#endif
-}
-
-control_mode_t prev_mode;
-static void ScreenDeviceTest_OnActivate()
-{
-    prev_mode = ModeControl_SetMode(MODE_TEST);
-}
-
-static void ScreenDeviceTest_OnDeactivate()
-{
-    if (ModeControl_GetMode()==MODE_TEST)
-        ModeControl_SetMode(prev_mode);
-}
-
-static Byte ScreenDeviceTest_OnObjectMsg(D4D_MESSAGE* pMsg)
-{
-    D4D_UNUSED(pMsg);
-    return 0;
 }

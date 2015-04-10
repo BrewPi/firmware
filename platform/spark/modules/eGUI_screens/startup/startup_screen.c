@@ -41,29 +41,3 @@ D4D_DECLARE_SCREEN_BEGIN(screen_startup, ScrStartup_, 0 ,0, (D4D_COOR)(D4D_SCREE
     D4D_DECLARE_SCREEN_OBJECT(scrStartup_text)    
 D4D_DECLARE_SCREEN_END()        
 
-        
-static void ScrStartup_OnInit()
-{
-    
-}
-
-static void ScrStartup_OnMain()
-{       
-}
-
-
-static void ScrStartup_OnActivate()
-{    
-}
-
-static void ScrStartup_OnDeactivate()
-{
-}
-
-static Byte ScrStartup_OnObjectMsg(D4D_MESSAGE* pMsg)
-{
-    D4D_UNUSED(pMsg);
-    if (pMsg->nMsgId==D4D_MSG_TOUCHED) 
-        startup_screen_touched();
-    return 0;
-}

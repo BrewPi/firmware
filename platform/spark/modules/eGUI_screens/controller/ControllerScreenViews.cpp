@@ -152,3 +152,26 @@ uint16_t fetch_time(states state)
     return time;
 }
 
+void ScrController_OnInit()
+{
+}
+
+void ScrController_OnMain()
+{
+    ControllerScreen_Update();
+}
+
+
+void ScrController_OnActivate()
+{    
+}
+
+void ScrController_OnDeactivate()
+{
+}
+
+Byte ScrController_OnObjectMsg(D4D_MESSAGE* pMsg)
+{
+    D4D_UNUSED(pMsg);
+    return 0;
+}

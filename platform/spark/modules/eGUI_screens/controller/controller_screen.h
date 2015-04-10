@@ -9,7 +9,12 @@ extern "C" {
 #include "d4d.h"
 #include "../brewpi_colors.h"
 
-void ControllerScreen_Update();    
+void ScrController_OnInit();
+void ScrController_OnMain();
+void ScrController_OnActivate();
+void ScrController_OnDeactivate();
+Byte ScrController_OnObjectMsg(D4D_MESSAGE* pMsg);
+
 
 D4D_EXTERN_OBJECT(scrController_lbl_name);    
 D4D_EXTERN_OBJECT(scrController_lbl_tempunit);

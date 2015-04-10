@@ -60,19 +60,18 @@ UI ui;
 
 void setup()
 {
-	ui.init();
-	piLink.init();
+    ui.init();
+    piLink.init();
 
-	logDebug("started");
-	tempControl.init();
-	settingsManager.loadSettings();
+    logDebug("started");
+    tempControl.init();
+    settingsManager.loadSettings();
 
     uint32_t start = millis();
     uint32_t delay = ui.showStartupPage();
     while (millis()-start <= delay) {
-        ui.update();
-    }
-    
+        ui.ticks();
+    }    
 	
 #if BREWPI_SIMULATE
 	simulator.step();
@@ -83,41 +82,40 @@ void setup()
 
     ui.showControllerPage();
     			
-	logDebug("init complete");
+    logDebug("init complete");
 }
 
 void brewpiLoop(void)
 {
-	static unsigned long lastUpdate = -1000; // init at -1000 to update immediately
-	uint8_t oldState;
-        ui.ticks();
-	if(ticks.millis() - lastUpdate >= (1000)) { //update settings every second
-		lastUpdate = ticks.millis();
-			
-		tempControl.updateTemperatures();
-		tempControl.detectPeaks();
-		tempControl.updatePID();
-		oldState = tempControl.getState();
-		tempControl.updateState();
-		if(oldState != tempControl.getState()){
-			piLink.printTemperatures(); // add a data point at every state transition
-		}
-		tempControl.updateOutputs();
+    static unsigned long lastUpdate = -1000; // init at -1000 to update immediately
+    uint8_t oldState;
+    ui.ticks();
+    if(ticks.millis() - lastUpdate >= (1000)) { //update settings every second
+        lastUpdate = ticks.millis();
 
-		ui.update();
+        tempControl.updateTemperatures();
+        tempControl.detectPeaks();
+        tempControl.updatePID();
+        oldState = tempControl.getState();
+        tempControl.updateState();
+        if(oldState != tempControl.getState()){
+                piLink.printTemperatures(); // add a data point at every state transition
+        }
+        tempControl.updateOutputs();
 
-	}	
+        ui.update();
+    }	
 
-	//listen for incoming serial connections while waiting to update
-	piLink.receive();
+    //listen for incoming serial connections while waiting to update
+    piLink.receive();
 
 }
 
 void loop() {
-	#if BREWPI_SIMULATE
-	simulateLoop();
-	#else
-	brewpiLoop();
-	#endif
+    #if BREWPI_SIMULATE
+    simulateLoop();
+    #else
+    brewpiLoop();
+    #endif
 }
 

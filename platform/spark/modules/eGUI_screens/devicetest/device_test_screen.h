@@ -21,6 +21,12 @@ D4D_EXTERN_OBJECT(scrDeviceTest_actuator2)
 D4D_EXTERN_OBJECT(scrDeviceTest_actuator3)
 
 
+void ScreenDeviceTest_OnMain();
+void ScreenDeviceTest_OnActivate();
+void ScreenDeviceTest_OnDeactivate();
+Byte ScreenDeviceTest_OnObjectMsg(D4D_MESSAGE* pMsg);
+
+        
 #ifdef	__cplusplus
 }
 #endif

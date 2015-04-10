@@ -142,29 +142,4 @@ D4D_DECLARE_STD_SCREEN_BEGIN(screen_controller, ScrController_)
     D4D_DECLARE_SCREEN_OBJECT(scrController_time)
 
 D4D_DECLARE_SCREEN_END()        
-        
-#define clear_array(x) memset(x, 0, sizeof(x));
-        
-static void ScrController_OnInit()
-{
-}
-
-static void ScrController_OnMain()
-{
-    ControllerScreen_Update();
-}
-
-
-static void ScrController_OnActivate()
-{    
-}
-
-static void ScrController_OnDeactivate()
-{
-}
-
-static Byte ScrController_OnObjectMsg(D4D_MESSAGE* pMsg)
-{
-    D4D_UNUSED(pMsg);
-    return 0;
-}
+                

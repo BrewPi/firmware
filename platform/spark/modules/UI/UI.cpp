@@ -25,12 +25,12 @@
 #include "ConnectedDevicesManager.h"
 #include "PiLink.h"
 #include "Display.h"
-#include "../BrewPiTouch/BrewPiTouch.h"
+#include "UIController.h"
 
-#include "devicetest/device_test_screen.h"
-#include "controller/controller_screen.h"
-#include "startup/startup_screen.h"
-#include "screen_model.h"
+#include "../eGUI_screens/devicetest/device_test_screen.h"
+#include "../eGUI_screens/controller/controller_screen.h"
+#include "../eGUI_screens/startup/startup_screen.h"
+#include "../eGUI_screens/screen_model.h"
 
 extern "C" {
 #include "d4d.h"
@@ -57,53 +57,6 @@ uint8_t UI::init() {
     return 0;
 }
 
-D4D_EXTERN_SCREEN(screen_controller);
-D4D_EXTERN_SCREEN(screen_startup);
-
-
-class StartupScreenModel {
-    
-    uint32_t timer;
-    bool touched_flag;
-    
-public:    
-    void start() {
-        timer = millis();
-        touched_flag = false;
-    }
-    
-    uint32_t elapsed() {
-        return millis()-timer;
-    }
-    
-    bool timeout() {
-        return elapsed()>4500;
-    }
-    
-    bool touched() {
-        return touched_flag;
-    }
-    
-    void flagTouched() {
-        touched_flag = true;
-    }
-    
-};
-
-void* screenModel = NULL;
-
-void startup_screen_touched() {
-    ((StartupScreenModel*)screenModel)->flagTouched();
-}
-
-
-void* active_screen_model()
-{
-    return screenModel;
-}
-
-extern BrewPiTouch touch;
-
 uint32_t UI::showStartupPage()
 {    
     // Check if touch screen has been calibrated
@@ -111,44 +64,18 @@ uint32_t UI::showStartupPage()
         // could not load valid settings from flash memory
         calibrateTouchScreen();
     }
-    else {                
-        StartupScreenModel model;
-        screenModel = &model;
-        model.start();
-        touch.setStabilityThreshold(16000); // set to high Threshold to disable filter
-        D4D_ActivateScreen(&screen_startup, D4D_TRUE);
-        uint8_t c = 0;
-        while (!model.touched() && !model.timeout()) {         
-            ticks();
-            uint32_t elapsed = model.elapsed();
-            if (elapsed>2000) {
-                uint8_t c2 = std::min(255lu, ((elapsed-2000)*255)/(3000));
-                if (c!=c2) {
-                    scrStartup_version.clrScheme->fore = D4D_COLOR_RGB(c2,c2,c2);
-                    c = c2;
-                    D4D_InvalidateObject(&scrStartup_version, D4D_FALSE);
-                }
-            }                
-        }
-        if (model.touched()){
-            touch.setStabilityThreshold(5); // require extra stable reading
-            calibrateTouchScreen();
-        }
-        touch.setStabilityThreshold(); // reset to default
-        screenModel = NULL;
-    }
+    
+    uiController.beginStartup();    
     return 0;
 }
 
 /**
- * Show the main controller page. 
+ * Since the startup page waits for the user, it has variable duration. This allows
+ * the main loop to continue running while the startup screen is displayed.
  */
 void UI::showControllerPage() {
     display.printStationaryText();
-    display.printState();
-
-    D4D_ActivateScreen(&screen_controller, D4D_TRUE);
-    D4D_Poll();
+    display.printState();        
 }
 
 void UI::ticks()
@@ -160,11 +87,13 @@ void UI::ticks()
     #if BREWPI_BUZZER
 	buzzer.setActive(alarm.isActive() && !buzzer.isActive());
     #endif    
-}    
+}
+
+UIController uiController;
 
 void UI::update() 
 {    
-    // todo - how to forward the update to the right screen
+    uiController.updateScreen();
 
     display.printState();
     display.printAllTemperatures();
@@ -175,7 +104,7 @@ void UI::update()
 /**
  * Show touch screen calibration screen store settings afterwards
  */
-void UI::calibrateTouchScreen() {
+void calibrateTouchScreen() {
     D4D_CalibrateTouchScreen();
     eGuiSettings.storeTouchCalib();
 }

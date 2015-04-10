@@ -36,10 +36,6 @@ struct UI {
      */
     static void update();
 
-    /**
-     * Show touch screen calibration screen store settings afterwards
-     */
-    static void calibrateTouchScreen();
 
 };
 

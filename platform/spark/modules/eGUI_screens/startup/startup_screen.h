@@ -28,8 +28,16 @@
 extern "C" {
 #endif
 
+#include "d4d.h"
 
-void startup_screen_touched(void);
+        
+void ScrStartup_OnInit();
+void ScrStartup_OnMain();
+void ScrStartup_OnActivate();
+void ScrStartup_OnDeactivate();
+Byte ScrStartup_OnObjectMsg(D4D_MESSAGE* pMsg);
+
+extern void calibrateTouchScreen();
 
 D4D_EXTERN_OBJECT(scrStartup_version);
 D4D_EXTERN_OBJECT(scrStartup_text);

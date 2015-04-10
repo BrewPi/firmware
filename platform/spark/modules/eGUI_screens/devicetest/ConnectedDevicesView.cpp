@@ -55,6 +55,19 @@ const D4D_OBJECT* views[] = { &scrDeviceTest_devices00, &scrDeviceTest_devices10
 ConnectedDevicesManager mgr;
 ConnectedDevicesPresenter presenter(&mgr, views, 6);
 
+const D4D_OBJECT* actuator_views[] = { &scrDeviceTest_actuator1, &scrDeviceTest_actuator2, &scrDeviceTest_actuator3 };
+
+Actuator* actuatorForView(const D4D_OBJECT* pThis)
+{
+    Actuator* actuator = NULL;
+    for (unsigned i=0; i<arraySize(actuator_views); i++) {
+        if (actuator_views[i]==pThis) {
+            actuator = mgr.actuator(i);
+        }
+    }    
+    return actuator;
+}
+
 extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
 {
     int idx = -1;
@@ -71,4 +84,34 @@ extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
         actuator->setActive(active);
         SetActuatorButtonState(pThis, active);
     }
+}
+
+void ScreenDeviceTest_OnMain()
+{
+    for (unsigned i=0; i<arraySize(actuator_views); i++) {
+        const D4D_OBJECT* obj = actuator_views[i];
+        Actuator* actuator = actuatorForView(obj);        
+        SetActuatorButtonState(obj, actuator->isActive());
+    }
+    
+    static uint32_t last = 0;
+    uint32_t now = millis();
+    if (now-last>=800) {
+        last = now;
+        mgr.update();
+    }
+}
+
+void ScreenDeviceTest_OnActivate()
+{
+}
+
+void ScreenDeviceTest_OnDeactivate()
+{
+}
+
+Byte ScreenDeviceTest_OnObjectMsg(D4D_MESSAGE* pMsg)
+{
+    D4D_UNUSED(pMsg);
+    return 0;
 }
