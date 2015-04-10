@@ -45,8 +45,8 @@ const char* ControllerStatePresenter::state_name[] {
     "DOOR OPEN",
     "HEATING",
     "COOLING",
-    "COOL IN",
-    "HEAT IN",
+    "COOL IN...",
+    "HEAT IN...",
     "PEAK DET.",
     "COOLING.",
     "HEATING."
