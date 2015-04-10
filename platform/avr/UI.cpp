@@ -5,6 +5,10 @@
 #include "Buzzer.h"
 #include "Menu.h"
 
+DisplayType realDisplay;
+DisplayType DISPLAY_REF display = realDisplay;
+
+
 uint8_t UI::init() {
 #if BREWPI_BUZZER
 	buzzer.init();
@@ -27,7 +31,6 @@ void UI::showControllerPage()
 {
 	display.printStationaryText();
 	display.printState();
-
 }
 
 void UI::calibrateTouchScreen()

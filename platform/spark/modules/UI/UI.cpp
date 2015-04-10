@@ -24,6 +24,7 @@
 #include "eGuiSettings.h"
 #include "ConnectedDevicesManager.h"
 #include "PiLink.h"
+#include "Display.h"
 #include "../BrewPiTouch/BrewPiTouch.h"
 
 #include "devicetest/device_test_screen.h"
@@ -35,9 +36,15 @@ extern "C" {
 #include "d4d.h"
 }
 
+DisplayType realDisplay;
+DisplayType DISPLAY_REF display = realDisplay;
+
+
 eGuiSettingsClass eGuiSettings;
 
 uint8_t UI::init() {
+    display.init();
+
     if (!D4D_Init(NULL))
         return 1;
     
@@ -137,6 +144,9 @@ uint32_t UI::showStartupPage()
  * Show the main controller page. 
  */
 void UI::showControllerPage() {
+    display.printStationaryText();
+    display.printState();
+
     D4D_ActivateScreen(&screen_controller, D4D_TRUE);
     D4D_Poll();
 }
@@ -156,6 +166,10 @@ void UI::update()
 {    
     // todo - how to forward the update to the right screen
 
+    display.printState();
+    display.printAllTemperatures();
+    display.printMode();
+    display.updateBacklight();
 }
 
 /**

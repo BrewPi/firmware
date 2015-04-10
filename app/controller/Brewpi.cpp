@@ -55,9 +55,6 @@ void loop (void);
 TicksImpl ticks = TicksImpl(TICKS_IMPL_CONFIG);
 DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 
-DisplayType realDisplay;
-DisplayType DISPLAY_REF display = realDisplay;
-
 ValueActuator alarm;
 UI ui;
 
