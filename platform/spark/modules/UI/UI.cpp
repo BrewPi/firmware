@@ -108,3 +108,7 @@ void calibrateTouchScreen() {
     D4D_CalibrateTouchScreen();
     eGuiSettings.storeTouchCalib();
 }
+
+bool UI::inStartup() {
+    return uiController.inStartup();
+}

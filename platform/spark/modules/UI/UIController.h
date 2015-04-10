@@ -15,7 +15,7 @@ class UIController
 public:    
     void notifyStartupComplete() { startupComplete = true; }
     void beginStartup();
-    
+    bool inStartup() { return !startupComplete; }
     void updateScreen();
 };
 

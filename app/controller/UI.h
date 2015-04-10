@@ -35,6 +35,13 @@ struct UI {
      * processing.
      */
     static void update();
+    
+    /**
+     * Determines if this UI is in startup mode. The controller services piLink
+     * requests and continues to update the UI, but the main control loop is not executed.
+     * @return 
+     */
+    static bool inStartup();
 
 
 };

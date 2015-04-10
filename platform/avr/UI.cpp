@@ -60,3 +60,5 @@ void UI::update() {
     display.updateBacklight();		
 
 }
+
+bool UI::inStartup() { return false; }
