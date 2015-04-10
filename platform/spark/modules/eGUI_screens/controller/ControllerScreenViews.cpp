@@ -90,8 +90,12 @@ ControllerModePresenter modePresenter(modeView);
 ControllerTimeView timeView(&scrController_time);
 ControllerTimePresenter timePresenter(timeView);
 
+TextView tempFormatView(&scrController_lbl_tempunit);
+ControllerTemperatureFormatPresenter tempFormatPresenter(tempFormatView);
+
 void ControllerScreen_Update()
 {
+    tempFormatPresenter.update();
     states state = states(tempControl.getState());
     statePresenter.setState(state);
     modePresenter.update(tempControl.getMode());
@@ -100,7 +104,7 @@ void ControllerScreen_Update()
     beerTempPresenter.update(tempControl.getBeerTemp(), tempControl.getBeerSetting());
     fridgeTempPresenter.update(tempControl.getFridgeTemp(), tempControl.getFridgeSetting());
     roomTempPresenter.update(tempControl.getRoomTemp(), INVALID_TEMP, false);
-
+    
 }
 
 
@@ -152,6 +156,17 @@ uint16_t fetch_time(states state)
     return time;
 }
 
+const char* ControllerTemperatureFormatPresenter::formatText()
+{
+    switch (tempControl.cc.tempFormat) {
+        case 'C': return TEMP_FORMAT_C_TEXT;
+        case 'F': return TEMP_FORMAT_F_TEXT;
+        default:
+            return "";
+    }
+}
+
+
 void ScrController_OnInit()
 {
 }
@@ -175,3 +190,4 @@ Byte ScrController_OnObjectMsg(D4D_MESSAGE* pMsg)
     D4D_UNUSED(pMsg);
     return 0;
 }
+

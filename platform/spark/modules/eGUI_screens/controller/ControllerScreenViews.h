@@ -226,16 +226,52 @@ public:
     ControllerTimePresenter(ControllerTimeView& view)
         : view_(view) {}
             
-        void update() {
-            char time_str[MAX_TIME_LEN];
-            int time = fetch_time(tempControl.getState());
-            if (time<0)
-                time_str[0] = 0;
-            else
-                sprintf(time_str, "%d:%02d:%02d", uint16_t(time/3600), uint16_t((time/60)%60), uint16_t(time%60));
-            view_.update(time_str);
-        }
+    void update() {
+        char time_str[MAX_TIME_LEN];
+        int time = fetch_time(tempControl.getState());
+        if (time<0)
+            time_str[0] = 0;
+        else
+            sprintf(time_str, "%d:%02d:%02d", uint16_t(time/3600), uint16_t((time/60)%60), uint16_t(time%60));
+        view_.update(time_str);
+    }
 };
+
+class TextView
+{    
+    const D4D_OBJECT* obj;
+    
+public:
+
+    TextView(const D4D_OBJECT* obj)
+    {
+        this->obj = obj;
+    }
+    
+    void update(const char* text)
+    {
+        D4D_SetText(obj, text);        
+    }    
+};
+
+class ControllerTemperatureFormatPresenter
+{
+    TextView& view_;
+    
+    const char* formatText();
+    
+public:
+  
+    ControllerTemperatureFormatPresenter(TextView& view) : view_(view)
+    {        
+    }
+            
+    void update()
+    {
+        view_.update(formatText());
+    }
+};
+
 
 const char ControllerModePresenter::modes[5] = {
     MODE_FRIDGE_CONSTANT,

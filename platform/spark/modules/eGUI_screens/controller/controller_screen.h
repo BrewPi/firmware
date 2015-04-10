@@ -15,6 +15,8 @@ void ScrController_OnActivate();
 void ScrController_OnDeactivate();
 Byte ScrController_OnObjectMsg(D4D_MESSAGE* pMsg);
 
+#define TEMP_FORMAT_F_TEXT "\x7f""F"
+#define TEMP_FORMAT_C_TEXT "\x7f""C"
 
 D4D_EXTERN_OBJECT(scrController_lbl_name);    
 D4D_EXTERN_OBJECT(scrController_lbl_tempunit);
