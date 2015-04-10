@@ -90,15 +90,18 @@ void ScreenDeviceTest_OnMain()
 {
     for (unsigned i=0; i<arraySize(actuator_views); i++) {
         const D4D_OBJECT* obj = actuator_views[i];
-        Actuator* actuator = actuatorForView(obj);        
+        Actuator* actuator = actuatorForView(obj);
         SetActuatorButtonState(obj, actuator->isActive(), i);
     }
     
     static uint32_t last = 0;
+    static uint32_t updateTime = 0;
     uint32_t now = millis();
-    if (now-last>=800) {
+    // make sure updating is only taking 25% of CPU time
+    if (now-last>=4*updateTime) {
         last = now;
         mgr.update();
+        updateTime = millis()-now;
     }
 }
 
