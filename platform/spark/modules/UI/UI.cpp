@@ -104,7 +104,7 @@ void UI::update()
 /**
  * Show touch screen calibration screen store settings afterwards
  */
-void UI::calibrateTouchScreen() {
+void calibrateTouchScreen() {
     D4D_CalibrateTouchScreen();
     eGuiSettings.storeTouchCalib();
 }

@@ -98,7 +98,7 @@ void ScrStartup_OnDeactivate()
 {
     if (model.touched()){
         touch.setStabilityThreshold(5); // require extra stable reading
-        UI::calibrateTouchScreen();
+        calibrateTouchScreen();
     }
     
     touch.setStabilityThreshold(); // reset to default    
