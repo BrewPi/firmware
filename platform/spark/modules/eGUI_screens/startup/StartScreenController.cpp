@@ -78,7 +78,7 @@ void ScrStartup_OnMain()
 {    
     uint32_t elapsed = model.elapsed();
     if (elapsed>2000) {                        
-        if (model.fadeColorUpdate(std::min(255lu, ((elapsed-2000)*255)/(3000)))) {
+        if (model.fadeColorUpdate(min(255lu, ((elapsed-2000)*255)/(3000)))) {
             uint8_t c = model.fadeColor();
             scrStartup_version.clrScheme->fore = D4D_COLOR_RGB(c,c,c);            
             D4D_InvalidateObject(&scrStartup_version, D4D_FALSE);
@@ -98,7 +98,7 @@ void ScrStartup_OnDeactivate()
 {
     if (model.touched()){
         touch.setStabilityThreshold(5); // require extra stable reading
-        calibrateTouchScreen();
+        UI::calibrateTouchScreen();
     }
     
     touch.setStabilityThreshold(); // reset to default    

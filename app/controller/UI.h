@@ -43,6 +43,11 @@ struct UI {
      */
     static bool inStartup();
 
+    /**
+     * Starts the touch screen calibration routine
+     * no-op on AVR
+     */
+    static void calibrateTouchScreen();
 
 };
 

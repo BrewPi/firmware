@@ -5,14 +5,14 @@ Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "brewpi-avr", "brewpi-avr.cp
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|AVR = Debug|AVR
-		Release|AVR = Release|AVR
+		revA|AVR = revA|AVR
+		revC|AVR = revC|AVR
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C0415566-E0BC-45DB-8E53-CC52899284FE}.Debug|AVR.ActiveCfg = Debug|AVR
-		{C0415566-E0BC-45DB-8E53-CC52899284FE}.Debug|AVR.Build.0 = Debug|AVR
-		{C0415566-E0BC-45DB-8E53-CC52899284FE}.Release|AVR.ActiveCfg = Release|AVR
-		{C0415566-E0BC-45DB-8E53-CC52899284FE}.Release|AVR.Build.0 = Release|AVR
+		{C0415566-E0BC-45DB-8E53-CC52899284FE}.revA|AVR.ActiveCfg = revA|AVR
+		{C0415566-E0BC-45DB-8E53-CC52899284FE}.revA|AVR.Build.0 = revA|AVR
+		{C0415566-E0BC-45DB-8E53-CC52899284FE}.revC|AVR.ActiveCfg = revC|AVR
+		{C0415566-E0BC-45DB-8E53-CC52899284FE}.revC|AVR.Build.0 = revC|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

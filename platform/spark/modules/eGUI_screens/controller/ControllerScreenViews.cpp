@@ -134,7 +134,7 @@ uint16_t fetch_time(states state)
     tcduration_t time = 0;
     tcduration_t sinceIdleTime = tempControl.timeSinceIdle();
     if(state==IDLE){
-        time = std::min(tempControl.timeSinceCooling(), tempControl.timeSinceHeating());
+        time = min(tempControl.timeSinceCooling(), tempControl.timeSinceHeating());
     }
     else if(state==COOLING || state==HEATING){
         time = sinceIdleTime;

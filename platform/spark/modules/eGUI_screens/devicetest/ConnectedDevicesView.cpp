@@ -31,7 +31,7 @@ char DeviceStatusPresenter::buf[17];    // just used as temp storage
 ConnectedDevicesPresenter::ConnectedDevicesPresenter(ConnectedDevicesManager* mgr, 
     DeviceStatusViewInitType* viewInit, std::size_t max_devices)
 {
-    max_devices = std::min(max_devices, MAX_PRESENTED_DEVICES);
+    max_devices = min(max_devices, MAX_PRESENTED_DEVICES);
     for (unsigned i=0; i<max_devices; i++) {
         status[i].getView().init(viewInit[i]);
         status[i].setDevice(mgr->device(i));
