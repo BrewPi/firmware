@@ -511,8 +511,8 @@ void TempControl::loadDefaultSettings(){
 #else	
 	setMode(MODE_OFF);
 #endif	
-	cs.beerSetting = intToTemp(20);
-	cs.fridgeSetting = intToTemp(20);
+	cs.beerSetting = INVALID_TEMP; // start with no temp settings
+	cs.fridgeSetting = INVALID_TEMP;
 	cs.heatEstimator = intToTempDiff(2)/10; // 0.2
 	cs.coolEstimator=intToTempDiff(5);
 }
