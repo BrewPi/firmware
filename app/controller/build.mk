@@ -42,3 +42,7 @@ LIBS_DIR = $(SOURCE_PATH)/platform/spark/libs
 include $(LIBS_DIR)/libs.mk
 
 CFLAGS += -fdata-sections
+
+GIT_VERSION = $(shell cd $(SOURCE_PATH); git describe)
+$(info using $(GIT_VERSION) as build name)
+CFLAGS += -DBUILD_NAME="$(GIT_VERSION)"

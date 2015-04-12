@@ -81,12 +81,8 @@
 #define OPTIMIZE_GLOBAL 1
 #endif
 
-#ifndef BUILD_NUMBER
-#define BUILD_NUMBER 0
-#endif
-
 #ifndef BUILD_NAME
-#define BUILD_NAME "00000000"
+#define BUILD_NAME  "unknown"
 #endif
 
 /**
