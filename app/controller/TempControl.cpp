@@ -31,6 +31,7 @@
 #include "EepromManager.h"
 #include "TempSensorDisconnected.h"
 #include "ModeControl.h"
+#include "fixstl.h"
 
 TempControl tempControl;
 
@@ -61,7 +62,7 @@ ControlSettings TempControl::cs;
 ControlVariables TempControl::cv;
 	
 	// State variables
-uint8_t TempControl::state;
+states TempControl::state;
 bool TempControl::doPosPeakDetect;
 bool TempControl::doNegPeakDetect;
 bool TempControl::doorOpen;
@@ -69,11 +70,11 @@ bool TempControl::doorOpen;
 	// keep track of beer setting stored in EEPROM
 temperature TempControl::storedBeerSetting;
 	
-	// Timers
-uint16_t TempControl::lastIdleTime;
-uint16_t TempControl::lastHeatTime;
-uint16_t TempControl::lastCoolTime;
-uint16_t TempControl::waitTime;
+// Timers
+tcduration_t TempControl::lastIdleTime;
+tcduration_t TempControl::lastHeatTime;
+tcduration_t TempControl::lastCoolTime;
+tcduration_t TempControl::waitTime;
 #endif
 
 void TempControl::init(void){
@@ -229,9 +230,9 @@ void TempControl::updateState(void){
 		stayIdle = true;
 	}
 	
-	uint16_t sinceIdle = timeSinceIdle();
-	uint16_t sinceCooling = timeSinceCooling();
-	uint16_t sinceHeating = timeSinceHeating();
+	tcduration_t sinceIdle = timeSinceIdle();
+	tcduration_t sinceCooling = timeSinceCooling();
+	tcduration_t sinceHeating = timeSinceHeating();
 	temperature fridgeFast = fridgeSensor->readFastFiltered();
 	temperature beerFast = beerSensor->readFastFiltered();
 	ticks_seconds_t secs = ticks.seconds();
@@ -250,7 +251,7 @@ void TempControl::updateState(void){
 			}
 			resetWaitTime();
 			if(fridgeFast > (cs.fridgeSetting+cc.idleRangeHigh) ){  // fridge temperature is too high			
-				tempControl.updateWaitTime(MIN_SWITCH_TIME, sinceHeating);			
+				tempControl.updateWaitTime(MIN_SWITCH_TIME, sinceHeating);
 				if(cs.mode==MODE_FRIDGE_CONSTANT){
 					tempControl.updateWaitTime(MIN_COOL_OFF_TIME_FRIDGE_CONSTANT, sinceCooling);
 				}
@@ -292,15 +293,21 @@ void TempControl::updateState(void){
 				state = IDLE; // within IDLE range, always go to IDLE
 				break;
 			}
-			if(state == HEATING || state == COOLING){	
-				if(doNegPeakDetect == true || doPosPeakDetect == true){
-					// If peak detect is not finished, but the fridge wants to switch to heat/cool
-					// Wait for peak detection and display 'Await peak detect' on display
-					state = WAITING_FOR_PEAK_DETECT;
-					break;
+			if(state == HEATING || state == COOLING){
+				// If peak detect is not finished, but the fridge wants to switch to heat/cool
+				// Wait for peak detection and show on display
+				if(doNegPeakDetect == true){
+					tempControl.updateWaitTime(COOL_PEAK_DETECT_TIME, sinceCooling);
+                                }
+				else if(doPosPeakDetect == true){
+					tempControl.updateWaitTime(HEAT_PEAK_DETECT_TIME, sinceHeating);
 				}
+				else{
+					break; // peak detect has finished
+				}
+				state = WAITING_FOR_PEAK_DETECT;
 			}
-		}			
+		}
 		break; 
 		case COOLING:
 		case COOLING_MIN_TIME:
@@ -346,6 +353,8 @@ void TempControl::updateState(void){
 			}
 		}
 		break;
+		case DOOR_OPEN:
+		break; // do nothing
 	}			
 }
 
@@ -367,7 +376,7 @@ void TempControl::updateOutputs(void) {
 	bool heating = stateIsHeating();
 	bool cooling = stateIsCooling();
 	cooler->setActive(cooling);		
-	heater->setActive(!cc.lightAsHeater && heating);	
+	heater->setActive(heating);	
 	light->setActive(isDoorOpen() || (cc.lightAsHeater && heating) || cameraLightState.isActive());	
 	fan->setActive(heating || cooling);
 }
@@ -484,15 +493,15 @@ void TempControl::decreaseEstimator(temperature * estimator, temperature error){
 	eepromManager.storeTempSettings();
 }
 
-uint16_t TempControl::timeSinceCooling(void){
+tcduration_t TempControl::timeSinceCooling(void){
 	return ticks.timeSince(lastCoolTime);
 }
 
-uint16_t TempControl::timeSinceHeating(void){
+tcduration_t TempControl::timeSinceHeating(void){
 	return ticks.timeSince(lastHeatTime);
 }
 
-uint16_t TempControl::timeSinceIdle(void){
+tcduration_t TempControl::timeSinceIdle(void){
 	return ticks.timeSince(lastIdleTime);
 }
 
@@ -502,8 +511,8 @@ void TempControl::loadDefaultSettings(){
 #else	
 	setMode(MODE_OFF);
 #endif	
-	cs.beerSetting = intToTemp(20);
-	cs.fridgeSetting = intToTemp(20);
+	cs.beerSetting = INVALID_TEMP; // start with no temp settings
+	cs.fridgeSetting = INVALID_TEMP;
 	cs.heatEstimator = intToTempDiff(2)/10; // 0.2
 	cs.coolEstimator=intToTempDiff(5);
 }

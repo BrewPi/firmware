@@ -1,3 +1,6 @@
 platform/spark/target/
 Debug/
 nbproject/private/
+*.atsuo
+revA/
+revC/

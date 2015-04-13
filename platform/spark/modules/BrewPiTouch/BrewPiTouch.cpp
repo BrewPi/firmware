@@ -45,6 +45,7 @@ void BrewPiTouch::init(uint8_t configuration) {
     tftHeight = 240;
     xOffset = 0;
     yOffset = 0;
+    setStabilityThreshold(); // default threshold
     pinMode(pinCS, OUTPUT);
     pinMode(pinIRQ, INPUT);
     // SPI is initialized externally
@@ -52,9 +53,9 @@ void BrewPiTouch::init(uint8_t configuration) {
     digitalWrite(pinCS, LOW);
     spiWrite(config);
     digitalWrite(pinCS, HIGH);
-    filterX.init(0);
+    filterX.init(width/2);
     filterX.setCoefficients(SETTLING_TIME_25_SAMPLES);
-    filterY.init(0);
+    filterY.init(height/2);
     filterY.setCoefficients(SETTLING_TIME_25_SAMPLES);
     update();
 }
@@ -162,19 +163,24 @@ bool BrewPiTouch::update(uint16_t numSamples) {
     return valid && isStable();
 }
 
+void BrewPiTouch::setStabilityThreshold(int16_t threshold){
+    stabilityThreshold = threshold;
+}
+
 /* isStable() returns true if the difference between the last sample and 
  * a low pass filtered value of past samples is under a certain threshold
  */
 bool BrewPiTouch::isStable() {
-    if (abs(filterX.readInput() - filterX.readOutput()) > STABILITY_TRESHOLD) {
+    if (abs(filterX.readInput() - filterX.readOutput()) > stabilityThreshold) {
         return false;
     }
-    if (abs(filterY.readInput() - filterY.readOutput()) > STABILITY_TRESHOLD) {
+    if (abs(filterY.readInput() - filterY.readOutput()) > stabilityThreshold) {
         return false;
     }
     return true;
 }
 
+/*
 void BrewPiTouch::calibrate(Adafruit_ILI9341 * tft) {
     int32_t xTouch[3];
     int32_t yTouch[3];
@@ -244,3 +250,4 @@ void BrewPiTouch::calibrate(Adafruit_ILI9341 * tft) {
     xOffset = xTouch[0] - xDisplay[0] * width / tftWidth;
     yOffset = yTouch[0] - yDisplay[0] * height / tftHeight;
 }
+ */

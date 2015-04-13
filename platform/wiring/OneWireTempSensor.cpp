@@ -56,13 +56,19 @@ bool OneWireTempSensor::init() {
     }
 
     logDebug("init onewire sensor");
-    // This quickly tests if the sensor is connected and initializes the reset detection.
-    // During the main TempControl loop, we don't want to spend many seconds
-    // scanning each sensor since this brings things to a halt.
-    if (sensor && sensor->initConnection(sensorAddress)){
-        requestConversion();
-        //logDebug("init onewire sensor");
-        temperature temp = readAndConstrainTemp();
+    // This quickly tests if the sensor is connected and initializes the reset detection if necessary.
+    if (sensor){
+        // If this is the first conversion after power on, the device will return DEVICE_DISCONNECTED
+        // Because HIGH_ALARM_TEMP will be copied from EEPROM
+        temperature temp = sensor->getTempRaw(sensorAddress);
+        if(temp == DEVICE_DISCONNECTED){
+            // Device was just powered on and should be initialized
+            if(sensor->initConnection(sensorAddress)){
+                requestConversion();
+                waitForConversion();
+                temp = sensor->getTempRaw(sensorAddress);            
+            }
+        }        
         DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temp));
         success = temp != DEVICE_DISCONNECTED;
         requestConversion(); // piggyback request for a new conversion

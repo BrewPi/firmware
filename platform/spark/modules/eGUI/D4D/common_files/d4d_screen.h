@@ -220,11 +220,11 @@ typedef struct D4D_SCREEN_S
 *******************************************************************************/
 #define _D4D_DECLARE_SCREEN_BEGIN(type, name, funcPrefix, x ,y, cx, cy, radius, text, fontId, icon, initFlags, pScheme) \
     extern const D4D_OBJECT * const name##_objects[]; \
-    static void funcPrefix##OnInit(void); \
-    static void funcPrefix##OnMain(void); \
-    static void funcPrefix##OnActivate(void); \
-    static void funcPrefix##OnDeactivate(void); \
-    static Byte funcPrefix##OnObjectMsg(D4D_MESSAGE* pMsg); \
+    void funcPrefix##OnInit(void); \
+    void funcPrefix##OnMain(void); \
+    void funcPrefix##OnActivate(void); \
+    void funcPrefix##OnDeactivate(void); \
+    Byte funcPrefix##OnObjectMsg(D4D_MESSAGE* pMsg); \
     static D4D_SCREEN_DATA name##_data = { NULL,  (Byte)((D4D_SCREEN_FLAGS)(initFlags >> 8) & 0x00FF)}; \
     static D4D_STR_PROPERTIES name##_strPrties = { D4D_FNT_PRTY_TRANSPARENT_YES_MASK, (D4D_ALIGN_H_LEFT_MASK | D4D_ALIGN_V_CENTER_MASK)}; \
     type D4D_SCREEN name = \

@@ -68,9 +68,9 @@ extern "C" {
 //  #if (D4D_LLD_LCD == d4dlcd_ili9341_ID)
 // include of low level driver header file
 // it will be included into whole project only in case that this driver is selected in main D4D configuration file
-#include "low_level_drivers\LCD\lcd_controllers_drivers\ili9341\d4dlcd_ili9341.h"
+#include "low_level_drivers/LCD/lcd_controllers_drivers/ili9341/d4dlcd_ili9341.h"
 extern "C" {
-#include "low_level_drivers\LCD\lcd_hw_interface\common_drivers\d4dlcdhw_common.h"
+#include "low_level_drivers/LCD/lcd_hw_interface/common_drivers/d4dlcdhw_common.h"
 }
 
 /******************************************************************************

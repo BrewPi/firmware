@@ -62,7 +62,7 @@ class TempSensor {
 	
 	void init();
 	
-	bool isConnected() { return _sensor->isConnected(); }
+	bool isConnected() { return _sensor!=NULL && _sensor->isConnected(); }
 	
 	void update();
 	

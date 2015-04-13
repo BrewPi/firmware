@@ -159,9 +159,9 @@ class TempControl{
 	
 	//TEMP_CONTROL_METHOD void loadSettingsAndConstants(void);
 		
-	TEMP_CONTROL_METHOD uint16_t timeSinceCooling(void);
- 	TEMP_CONTROL_METHOD uint16_t timeSinceHeating(void);
-  	TEMP_CONTROL_METHOD uint16_t timeSinceIdle(void);
+	TEMP_CONTROL_METHOD tcduration_t timeSinceCooling(void);
+ 	TEMP_CONTROL_METHOD tcduration_t timeSinceHeating(void);
+  	TEMP_CONTROL_METHOD tcduration_t timeSinceIdle(void);
 	  
 	TEMP_CONTROL_METHOD temperature getBeerTemp(void);
 	TEMP_CONTROL_METHOD temperature getBeerSetting(void);
@@ -180,11 +180,11 @@ class TempControl{
 		return cs.mode;
 	}
 
-	TEMP_CONTROL_METHOD unsigned char getState(void){
+	TEMP_CONTROL_METHOD states getState(void){
 		return state;
 	}
 	
-	TEMP_CONTROL_METHOD uint16_t getWaitTime(void){
+	TEMP_CONTROL_METHOD tcduration_t getWaitTime(void){
 		return waitTime;
 	}
 	
@@ -193,7 +193,7 @@ class TempControl{
 	}
 	
 	// TEMP_CONTROL_METHOD void updateWaitTime(uint16_t newTimeLimit, uint16_t newTimeSince);
-	TEMP_CONTROL_METHOD void updateWaitTime(uint16_t newTimeLimit, uint16_t newTimeSince){
+	TEMP_CONTROL_METHOD void updateWaitTime(tcduration_t newTimeLimit, tcduration_t newTimeSince){
 		if(newTimeSince < newTimeLimit){
 			uint16_t newWaitTime = newTimeLimit - newTimeSince;
 			if(newWaitTime > waitTime){
@@ -245,14 +245,14 @@ class TempControl{
 	TEMP_CONTROL_FIELD temperature storedBeerSetting;
 
 	// Timers
-	TEMP_CONTROL_FIELD uint16_t lastIdleTime;
-	TEMP_CONTROL_FIELD uint16_t lastHeatTime;
-	TEMP_CONTROL_FIELD uint16_t lastCoolTime;
-	TEMP_CONTROL_FIELD uint16_t waitTime;
+	TEMP_CONTROL_FIELD tcduration_t lastIdleTime;
+	TEMP_CONTROL_FIELD tcduration_t lastHeatTime;
+	TEMP_CONTROL_FIELD tcduration_t lastCoolTime;
+	TEMP_CONTROL_FIELD tcduration_t waitTime;
 	
 	
 	// State variables
-	TEMP_CONTROL_FIELD uint8_t state;
+	TEMP_CONTROL_FIELD states state;
 	TEMP_CONTROL_FIELD bool doPosPeakDetect;
 	TEMP_CONTROL_FIELD bool doNegPeakDetect;
 	TEMP_CONTROL_FIELD bool doorOpen;

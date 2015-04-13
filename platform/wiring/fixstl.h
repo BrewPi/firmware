@@ -27,9 +27,13 @@
 // the Spark platform defines min/max as macros - these interfere with the STL and
 // need to be undefined. see https://github.com/spark/firmware/pull/398
 
+#ifndef ARDUINO
 #undef min
 #undef max
-
+#include <algorithm>
+#define min(x,y) std::min(x,y)
+#define max(x,y) std::max(x,y)
+#endif
 
 #endif	/* FIXSTL_H */
 
