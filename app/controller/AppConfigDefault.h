@@ -82,7 +82,7 @@
 #endif
 
 #ifndef BUILD_NAME
-#define BUILD_NAME  "unknown"
+#define BUILD_NAME unknown
 #endif
 
 /**
