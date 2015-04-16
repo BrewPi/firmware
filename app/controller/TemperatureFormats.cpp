@@ -18,6 +18,8 @@
  */
 
 #include "Brewpi.h"
+#include "Platform.h"
+#include <stdint.h>
 #include "TemperatureFormats.h"
 #include <string.h>
 #include <limits.h>

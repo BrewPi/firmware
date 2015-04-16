@@ -28,6 +28,7 @@
 #include "TempSensorExternal.h"
 #include "PiLink.h"
 #include "EepromFormat.h"
+#include "EepromManager.h"
 
 #define CALIBRATION_OFFSET_PRECISION (4)
 
