@@ -263,7 +263,7 @@ uint8_t OneWire::search(uint8_t *newAddr) {
                 if (search_direction == 1)
                     ROM_NO[rom_byte_number] |= rom_byte_mask;
                 else
-                    ROM_NO[rom_byte_number] &= (byte) ~rom_byte_mask;
+                    ROM_NO[rom_byte_number] &= (uint8_t) ~rom_byte_mask;
 
                 // increment the byte counter id_bit_number
                 // and shift the mask rom_byte_mask

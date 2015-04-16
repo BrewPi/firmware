@@ -1,4 +1,4 @@
-
+#include <stdint.h>
 #include "application.h"
 #include "math.h"
 

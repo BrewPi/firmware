@@ -18,6 +18,7 @@
  */
 
 #include "Brewpi.h"
+#include "Platform.h"
 #include "BrewpiStrings.h"
 #include "Logger.h"
 #include "PiLink.h"

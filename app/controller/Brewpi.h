@@ -61,9 +61,3 @@
 #endif
 #include "AppConfigDefault.h"
 
-#include "Platform.h"
-
-#include "Actuator.h"
-
-extern ValueActuator alarm;
-

@@ -4,6 +4,7 @@
 #include "Display.h"
 #include "Buzzer.h"
 #include "Menu.h"
+#include "Actuator.h"
 
 DisplayType realDisplay;
 DisplayType DISPLAY_REF display = realDisplay;
@@ -33,6 +34,7 @@ void UI::showControllerPage()
 	display.printState();
 }
 
+extern ValueActuator alarm;
 void UI::ticks() {
 #if BREWPI_BUZZER
 	buzzer.setActive(alarm.isActive() && !buzzer.isActive());

@@ -36,6 +36,8 @@
 #include "Display.h"
 #include "PiLinkHandlers.h"
 #include "UI.h"
+#include "Actuator.h"
+
 
 #if BREWPI_SIMULATE
 #include "Simulator.h"
@@ -827,6 +829,7 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 	logWarning(WARNING_COULD_NOT_PROCESS_SETTING);
 }
 
+extern ValueActuator alarm;
 void PiLink::soundAlarm(bool active)
 {
 	alarm.setActive(active);
