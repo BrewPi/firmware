@@ -188,6 +188,33 @@ TEST_CASE("Test conversion between internal format and stirng", "[tempconversion
         CHECK(intToTemp(20) ==  tenthsToFixed(680));
         CHECK((intToTemp(20) + intToTempDiff(5)/10) ==  tenthsToFixed(689));
     }
+    
+    SECTION("String null, None or other invalid string results in INVALID_TEMP for all conversion functions"){
+        tempControl.cc.tempFormat = 'C';
+        
+        REQUIRE(INVALID_TEMP ==  stringToFixedPoint("null"));
+        REQUIRE(INVALID_TEMP ==  stringToFixedPoint("None"));
+        REQUIRE(INVALID_TEMP ==  stringToFixedPoint("foo"));
+        
+        CHECK(INVALID_TEMP ==  stringToTemp("null"));
+        CHECK(INVALID_TEMP ==  stringToTemp("None"));
+        CHECK(INVALID_TEMP ==  stringToTemp("foo"));
+        
+        CHECK(INVALID_TEMP ==  stringToTempDiff("null"));
+        CHECK(INVALID_TEMP ==  stringToTempDiff("None"));
+        CHECK(INVALID_TEMP ==  stringToTempDiff("foo"));
+        
+        CHECK(INVALID_TEMP !=  stringToFixedPoint("0.")); // A dot with no decimals is allowed
+        CHECK(INVALID_TEMP !=  stringToFixedPoint(".5")); // omitting the leading zero should be allowed
+        CHECK(INVALID_TEMP ==  stringToFixedPoint("")); // empty string is invalid
+        CHECK(INVALID_TEMP ==  stringToFixedPoint("-")); // just minus in invalid
+        CHECK(INVALID_TEMP !=  stringToFixedPoint(" 0.5")); // leading space is allowed           
+               
+        tempControl.cc.tempFormat = 'F';
+        CHECK(INVALID_TEMP ==  stringToTemp("null"));      
+        CHECK(INVALID_TEMP ==  stringToTempDiff("null"));
+        CHECK(INVALID_TEMP ==  stringToFixedPoint("null"));
+    }
 }
 
 // Restore original warnings configuration	

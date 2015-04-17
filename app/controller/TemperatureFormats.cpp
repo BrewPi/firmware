@@ -94,46 +94,60 @@ char * fixedPointToString(char * s, long_temperature rawValue, uint8_t numDecima
 }
 
 temperature stringToTemp(const char * numberString){
-	long_temperature rawTemp = stringToFixedPoint(numberString);
+	long_temperature rawTemp = stringToFixedPointLong(numberString);
+        if(rawTemp == INVALID_TEMP_LONG){
+            return INVALID_TEMP;
+        }
 	rawTemp = convertToInternalTemp(rawTemp);
 	return constrainTemp16(rawTemp);
 }
 
 temperature stringToTempDiff(const char * numberString){
-	long_temperature rawTempDiff = stringToFixedPoint(numberString);
+	long_temperature rawTempDiff = stringToFixedPointLong(numberString);
+        if(rawTempDiff == INVALID_TEMP_LONG){
+            return INVALID_TEMP;
+        }
 	rawTempDiff = convertToInternalTempDiff(rawTempDiff);
 	return constrainTemp16(rawTempDiff);
 }
 
-long_temperature stringToFixedPoint(const char * numberString){
+
+long_temperature stringToFixedPointLong(const char * numberString){
 	// receive new temperature as null terminated string: "19.20"
 	long_temperature intPart = 0;
-	long_temperature fracPart = 0;
+	long_temperature fractPart = 0;
 	
-	char * fractPtr = 0; //pointer to the point in the string
-	bool negative = 0;
-	if(numberString[0] == '-'){
-		numberString++;
-		negative = true; // by processing the sign here, we don't have to include strtol
-	}
+	char * startFract;
+        char* end;
 	
 	// find the point in the string to split in the integer part and the fraction part
-	fractPtr = strchr(numberString, '.'); // returns pointer to the point.
-	
-	intPart = atol(numberString);
-	if(fractPtr != 0){
+	startFract = strchr(numberString, '.'); // returns pointer to the point.
+        intPart = strtol(numberString, &end, 10);
+        if(startFract != 0){
 		// decimal point was found
-		fractPtr++; // add 1 to pointer to skip point
-		int8_t numDecimals = (int8_t) strlen(fractPtr);
-		fracPart = atol(fractPtr);
-		fracPart = fracPart << TEMP_FIXED_POINT_BITS; // bits for fraction part
+		startFract++; // add 1 to pointer to skip point
+		fractPart = strtol(startFract, &end, 10);
+                int8_t numDecimals = end - startFract;
+		fractPart = fractPart << TEMP_FIXED_POINT_BITS; // make room for  bits for fraction part
 		while(numDecimals > 0){
-			fracPart = (fracPart + 5) / 10; // divide by 10 rounded
+			fractPart = (fractPart + 5) / 10; // divide by 10 rounded
 			numDecimals--;
 		}
 	}
-	long_temperature absVal = (intPart << TEMP_FIXED_POINT_BITS) + fracPart;
-	return negative ? -absVal:absVal;
+        if((*end != '\0' && *end != '.') || numberString == end){
+            // integer did not end with . or at end of string or string was empty
+            return INVALID_TEMP_LONG;
+        }        
+        
+	return (intPart << TEMP_FIXED_POINT_BITS) + fractPart;
+}
+
+temperature stringToFixedPoint(const char * numberString){
+    long_temperature temp = stringToFixedPointLong(numberString);
+    if(temp == INVALID_TEMP_LONG){
+        return INVALID_TEMP;
+    }
+    return constrainTemp16(temp);
 }
 
 // convertToInternalTemp receives the external temp format in fixed point and converts it to the internal format

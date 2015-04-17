@@ -45,9 +45,10 @@ typedef int32_t fixed7_25; // fixed7_25 uses 7 signed int bits and 25 fraction b
 typedef int16_t fixed12_4; // 1 sign bit, 11 integer bits, and 4 fraction bits - encoding returned by DS18B20 sensors.
 typedef int8_t fixed4_4; // fixed4_4 uses 1-sign bit, 3 int bits and 4 fraction bits. Corresponds with precision of DS18B20 sensors
 
-#define INVALID_TEMP -32768		
-#define MAX_TEMP 32767
-#define MIN_TEMP INVALID_TEMP+1
+#define INVALID_TEMP INT16_MIN	
+#define INVALID_TEMP_LONG INT32_MIN
+#define MAX_TEMP INT16_MAX
+#define MIN_TEMP (INVALID_TEMP+1)
 
 /* Temperature expressed as an integer. */
 typedef int8_t temp_int;
@@ -125,7 +126,8 @@ temperature stringToTempDiff(const char * string);
 
 char * fixedPointToString(char * s, long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
 char * fixedPointToString(char * s, temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
-long_temperature stringToFixedPoint(const char * numberString);
+temperature stringToFixedPoint(const char * numberString);
+long_temperature stringToFixedPointLong(const char * numberString);
 
 int fixedToTenths(long_temperature temperature);
 temperature tenthsToFixed(int temperature);
