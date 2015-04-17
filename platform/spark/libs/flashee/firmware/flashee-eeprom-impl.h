@@ -189,14 +189,14 @@ protected:
             if (region->isExcluded(pageOffset + i)) {
                 as_bytes(buf)[i] = 0xFF;
             }
+            // else leave the buffer as is                
         }
     }
 
     /**
      * A no-op copy handler - the buffer contents are not modified but simply copied as is.
      */
-    static void copyPageHandler(page_size_t pageOffset, void* data, uint8_t* buf, page_size_t bufLen) {
-    }
+    static void copyPageHandler(page_size_t pageOffset, void* data, uint8_t* buf, page_size_t bufLen) { }
 
 
     /**
@@ -1025,7 +1025,7 @@ public:
      * Compacts the data in a slot.
      * @param slot
      */
-    static void compactSlot(uint8_t* slot) {
+    static void compactSlot(uint8_t* slot) {  // todo if bitmap is 0xFF or 0xFE, then do nothing - the slot is already as small as it can be.
         uint8_t value = readSlot(slot);
         memset(slot, 0xFF, SLOT_SIZE);
         writeSlot(value, slot);
@@ -1072,7 +1072,7 @@ class MultiWriteFlashStore : public FlashDevice, private MultiWriteSlotAccess {
     static void compactPageExcludeRegionHandler(page_size_t pageOffset, void* data, uint8_t* buf, const page_size_t bufLen) {
         FlashExcludeRegion* region = (FlashExcludeRegion*) data;
         for (page_size_t i = 0; i < (bufLen & ~(SLOT_SIZE - 1)); i += SLOT_SIZE) {
-            if (region->isExcluded(pageOffset + i))
+            if (region->isExcluded(pageOffset + (i>>SLOT_SIZE_SHIFT)))
                 memset(as_bytes(buf) + i, 0xFF, SLOT_SIZE); // slot is uninitialized - will be written later.
             else
                 compactSlot(as_bytes(buf) + i);
@@ -1147,7 +1147,7 @@ public:
                     // data+i(length-offset))
                     page_size_t addressOffset = address % pageSize();
                     FlashExcludeRegion region = {addressOffset + offset, addressOffset + offset + length};
-                    if (!flash.copyPage(address, &compactPageExcludeRegionHandler, &region, buf, bufSize))
+                    if (!flash.copyPage(toPhysicalAddress(address), &compactPageExcludeRegionHandler, &region, buf, bufSize))
                         break;
 
                     // now copy the data block to the freshly initialized page
