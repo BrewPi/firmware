@@ -26,5 +26,7 @@
 
 #include <stdio.h> // for vsnprintf
 
+#define ONEWIRE_NULL
+
 #endif	/* PLATFORM_H */
 

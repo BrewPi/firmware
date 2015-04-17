@@ -19,3 +19,4 @@ typedef uint8_t DeviceAddress[8];
 
 #define PRINTF_PROGMEM "%s"             // devices with unified address space
 
+#define ONEWIRE_DS2482
