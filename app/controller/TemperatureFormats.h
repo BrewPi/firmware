@@ -57,7 +57,8 @@ typedef int8_t fixed4_4; // fixed4_4 uses 1-sign bit, 3 int bits and 4 fraction 
 #define INVALID_TEMP INT16_MIN	
 #define INVALID_TEMP_LONG INT32_MIN
 #define MAX_TEMP INT16_MAX
-#define MIN_TEMP (INVALID_TEMP+1)
+#define DISABLED_TEMP (INVALID_TEMP+1)
+#define MIN_TEMP (INVALID_TEMP+2)
 
 /* Temperature expressed as an integer. */
 typedef int8_t temp_int;

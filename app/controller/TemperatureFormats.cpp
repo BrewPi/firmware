@@ -92,6 +92,9 @@ char * fixedPointToString(char * s, long_temperature rawValue, uint8_t numDecima
 }
 
 temperature stringToTemp(const char * numberString){
+	if(0 == strcmp(PSTR("null"), numberString) || 0 == strcmp(PSTR("None"), numberString)){
+		return DISABLED_TEMP;
+	}
 	long_temperature rawTemp = stringToFixedPointLong(numberString);
         if(rawTemp == INVALID_TEMP_LONG){
             return INVALID_TEMP;

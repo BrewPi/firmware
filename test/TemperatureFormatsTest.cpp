@@ -189,20 +189,22 @@ TEST_CASE("Test conversion between internal format and stirng", "[tempconversion
         CHECK((intToTemp(20) + intToTempDiff(5)/10) ==  tenthsToFixed(689));
     }
     
-    SECTION("String null, None or other invalid string results in INVALID_TEMP for all conversion functions"){
+    
+    SECTION("String null, None or other invalid string results in INVALID_TEMP"
+            " for all conversion functions except strintToTemp"){
         tempControl.cc.tempFormat = 'C';
         
         REQUIRE(INVALID_TEMP ==  stringToFixedPoint("null"));
         REQUIRE(INVALID_TEMP ==  stringToFixedPoint("None"));
         REQUIRE(INVALID_TEMP ==  stringToFixedPoint("foo"));
-        
-        CHECK(INVALID_TEMP ==  stringToTemp("null"));
-        CHECK(INVALID_TEMP ==  stringToTemp("None"));
-        CHECK(INVALID_TEMP ==  stringToTemp("foo"));
-        
+                
         CHECK(INVALID_TEMP ==  stringToTempDiff("null"));
         CHECK(INVALID_TEMP ==  stringToTempDiff("None"));
         CHECK(INVALID_TEMP ==  stringToTempDiff("foo"));
+        
+        CHECK(INVALID_TEMP ==  stringToTemp("foo"));
+        CHECK(INVALID_TEMP !=  stringToTemp("null"));
+        CHECK(INVALID_TEMP !=  stringToTemp("None"));
         
         CHECK((intToTempDiff(0)) ==  stringToTempDiff("0.")); // A dot with no decimals is allowed
         CHECK((intToTempDiff(1)/2) ==  stringToTempDiff(".5")); // omitting the leading zero should be allowed
@@ -216,9 +218,16 @@ TEST_CASE("Test conversion between internal format and stirng", "[tempconversion
         CHECK(INVALID_TEMP ==  stringToTempDiff(" 0.5a")); // extra characters right after the number are not
                
         tempControl.cc.tempFormat = 'F';
-        CHECK(INVALID_TEMP ==  stringToTemp("null"));      
+        CHECK(INVALID_TEMP !=  stringToTemp("null"));      
         CHECK(INVALID_TEMP ==  stringToTempDiff("null"));
         CHECK(INVALID_TEMP ==  stringToFixedPoint("null"));
+    }
+    
+    SECTION("String null and None are interpreted converted to DISABLED_TEMP"){
+        tempControl.cc.tempFormat = 'C';
+        
+        CHECK(DISABLED_TEMP ==  stringToTemp("null"));
+        CHECK(DISABLED_TEMP ==  stringToTemp("None"));        
     }
 }
 
