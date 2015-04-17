@@ -134,8 +134,8 @@ long_temperature stringToFixedPointLong(const char * numberString){
 			numDecimals--;
 		}
 	}
-        if((*end != '\0' && *end != '.') || numberString == end){
-            // integer did not end with . or at end of string or string was empty
+        if((*end != '\0' && *end != '.' && *end != ' ') // parsing did not end at end of string, space or decimal point
+                || numberString == end){ // no number found in string
             return INVALID_TEMP_LONG;
         }        
         

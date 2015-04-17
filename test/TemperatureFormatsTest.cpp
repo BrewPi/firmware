@@ -204,11 +204,16 @@ TEST_CASE("Test conversion between internal format and stirng", "[tempconversion
         CHECK(INVALID_TEMP ==  stringToTempDiff("None"));
         CHECK(INVALID_TEMP ==  stringToTempDiff("foo"));
         
-        CHECK(INVALID_TEMP !=  stringToFixedPoint("0.")); // A dot with no decimals is allowed
-        CHECK(INVALID_TEMP !=  stringToFixedPoint(".5")); // omitting the leading zero should be allowed
-        CHECK(INVALID_TEMP ==  stringToFixedPoint("")); // empty string is invalid
-        CHECK(INVALID_TEMP ==  stringToFixedPoint("-")); // just minus in invalid
-        CHECK(INVALID_TEMP !=  stringToFixedPoint(" 0.5")); // leading space is allowed           
+        CHECK((intToTempDiff(0)) ==  stringToTempDiff("0.")); // A dot with no decimals is allowed
+        CHECK((intToTempDiff(1)/2) ==  stringToTempDiff(".5")); // omitting the leading zero should be allowed
+        CHECK(INVALID_TEMP ==  stringToTempDiff("")); // empty string is invalid
+        CHECK(INVALID_TEMP ==  stringToTempDiff("-")); // just minus is invalid
+        CHECK(INVALID_TEMP ==  stringToTempDiff(" ")); // just spaces is invalid
+        CHECK(INVALID_TEMP ==  stringToTempDiff("   ")); // just spaces is invalid
+        CHECK((intToTempDiff(1)/2) ==  stringToTempDiff(" 0.5")); // leading space is allowed    
+        CHECK((intToTempDiff(1)/2) ==  stringToTempDiff(" 0.5 ")); // trailing space is allowed
+        CHECK((intToTempDiff(1)/2) ==  stringToTempDiff(" 0.5 a")); // extra characters after a space are okay
+        CHECK(INVALID_TEMP ==  stringToTempDiff(" 0.5a")); // extra characters right after the number are not
                
         tempControl.cc.tempFormat = 'F';
         CHECK(INVALID_TEMP ==  stringToTemp("null"));      
