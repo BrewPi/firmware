@@ -18,12 +18,10 @@
  */
 
 #include "Brewpi.h"
-#include "Platform.h"
-#include <stdint.h>
 #include "TemperatureFormats.h"
-#include <string.h>
-#include <limits.h>
+#include "Platform.h"
 #include "TempControl.h"
+#include <string.h>
 #include <stdarg.h>
 
 // See header file for details about the temp format used.

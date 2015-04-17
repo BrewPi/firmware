@@ -22,6 +22,15 @@
 #include "Brewpi.h"
 #include <stdint.h>
 
+#ifndef INT16_MAX
+	#define 	INT16_MAX   0x7fff
+	#define 	INT16_MIN   (-INT16_MAX - 1)
+#endif
+#ifndef INT32_MAX
+	#define 	INT32_MAX   0x7fffffffL
+	#define 	INT32_MIN   (-INT32_MAX - 1L)
+#endif
+
 
 // Offsets when converting to the internal format:
 #define C_OFFSET (-24576) // this is also the default offset for the internal temp format

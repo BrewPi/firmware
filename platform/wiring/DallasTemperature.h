@@ -2,8 +2,6 @@
 
 #include "Brewpi.h"
 #include "TemperatureFormats.h"
-#include <limits.h>
-
 
 #define DALLASTEMPLIBVERSION "3.7.2"
 

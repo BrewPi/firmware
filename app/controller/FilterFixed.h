@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Brewpi.h"
+#include "TemperatureFormats.h"
 
 /* This class implements an IIR low pass filter, with the following frequency response
 
@@ -65,8 +66,6 @@ H(z) = 2^-a * -------------------------------------------------
 	a=16,	b=6,	delay time = 213
 
 */
-
-#include "TemperatureFormats.h"
 
 class FixedFilter{
 	public:

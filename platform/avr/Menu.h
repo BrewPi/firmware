@@ -28,7 +28,6 @@
 
 #if BREWPI_MENU
 
-#include <inttypes.h>
 #include "TemperatureFormats.h"
 
 enum menuPages{

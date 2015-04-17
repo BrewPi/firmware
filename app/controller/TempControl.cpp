@@ -18,11 +18,8 @@
  */
 
 #include "Brewpi.h"
-
-#include "Pins.h"
-#include <limits.h>
-
 #include "TemperatureFormats.h"
+#include "Pins.h"
 #include "TempControl.h"
 #include "PiLink.h"
 #include "TempSensor.h"

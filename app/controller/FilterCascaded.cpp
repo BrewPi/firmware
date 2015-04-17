@@ -18,11 +18,10 @@
  */
 
 #include "Brewpi.h"
+#include "TemperatureFormats.h"
 #include "FilterFixed.h"
 #include "FilterCascaded.h"
 #include <stdlib.h>
-#include <limits.h>
-#include "TemperatureFormats.h"
 
 CascadedFilter::CascadedFilter() {
 	for(uint8_t i=0; i<NUM_SECTIONS; i++){

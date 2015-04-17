@@ -18,14 +18,11 @@
  */
 
 #include "Brewpi.h"
+#include "TemperatureFormats.h"
 #include "BrewpiStrings.h"
-#include <limits.h>
-#include <stdint.h>
-
 #include "Display.h"
 #include "DisplayLcd.h"
 #include "TempControl.h"
-#include "TemperatureFormats.h"
 #include "Pins.h"
 #include "fixstl.h"
 

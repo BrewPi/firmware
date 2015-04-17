@@ -24,12 +24,11 @@
 #if BREWPI_MENU
 
 #include "Menu.h"
+#include "TemperatureFormats.h"
 
-#include <limits.h>
 #include "Pins.h"
 #include "Display.h"
 #include "TempControl.h"
-#include "TemperatureFormats.h"
 #include "RotaryEncoder.h"
 #include "PiLink.h"
 #include "Ticks.h"

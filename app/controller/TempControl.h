@@ -20,9 +20,9 @@
 #pragma once
 
 #include "Brewpi.h"
+#include "TemperatureFormats.h"
 #include "Platform.h"
 #include "TempSensor.h"
-#include "TemperatureFormats.h"
 #include "Actuator.h"
 #include "Sensor.h"
 #include "EepromTypes.h"
