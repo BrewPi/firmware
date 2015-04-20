@@ -64,7 +64,6 @@ typedef int8_t fixed4_4; // fixed4_4 uses 1-sign bit, 3 int bits and 4 fraction 
 #define MAX_TEMP INT16_MAX
 #define DISABLED_TEMP (INVALID_TEMP+1)
 #define MIN_TEMP (INVALID_TEMP+2)
-#define isDisabledOrInvalid(x) (x == INVALID_TEMP || x == DISABLED_TEMP)
 
 /* Temperature expressed as an integer. */
 typedef int8_t temp_int;
@@ -146,6 +145,10 @@ inline long_temperature convertFromInternalTemp(long_temperature rawTemp) {
 }
 
 long int my_strtol(const char* str, char** tail);
+
+inline bool isDisabledOrInvalid(temperature x){
+    return (x == INVALID_TEMP || x == DISABLED_TEMP);
+}
 
 // Use custom strtol to save space.
 // std strtol is 616 byes on avr, my_strtol is 166
