@@ -71,7 +71,9 @@ bool OneWireTempSensor::init() {
         }        
         DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temp));
         success = temp != DEVICE_DISCONNECTED;
-        requestConversion(); // piggyback request for a new conversion
+        if(success){
+            requestConversion(); // piggyback request for a new conversion
+        }
     }
     setConnected(success);
     logDebug("init onewire sensor complete %d", success);

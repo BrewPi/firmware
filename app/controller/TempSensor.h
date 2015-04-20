@@ -53,7 +53,7 @@ class TempSensor {
 	 
 	 void setSensor(BasicTempSensor* sensor) {
 		 _sensor = sensor;
-		 failedReadCount = -1;
+		 failedReadCount = 255;
 	 }
 
 	bool hasSlowFilter() { return true; }
@@ -96,7 +96,7 @@ class TempSensor {
 	
 	// An indication of how stale the data is in the filters. Each time a read fails, this value is incremented.
 	// It's used to reset the filters after a large enough disconnect delay, and on the first init.
-	int8_t failedReadCount;		// -1 for uninitialized, >=0 afterwards. 
+	uint8_t failedReadCount;
 			
 	friend class ChamberManager;
 	friend class Chamber;
