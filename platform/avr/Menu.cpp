@@ -24,12 +24,11 @@
 #if BREWPI_MENU
 
 #include "Menu.h"
+#include "TemperatureFormats.h"
 
-#include <limits.h>
 #include "Pins.h"
 #include "Display.h"
 #include "TempControl.h"
-#include "TemperatureFormats.h"
 #include "RotaryEncoder.h"
 #include "PiLink.h"
 #include "Ticks.h"
@@ -163,7 +162,7 @@ void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempNam
 	
 	temperature oldSetting = readTemp();
 	temperature startVal = oldSetting;
-	if(oldSetting == INVALID_TEMP){	 // previous temperature was not defined, start at 20C
+	if(isDisabledOrInvalid(oldSetting)){	 // previous temperature was not defined, start at 20C
 		startVal = intToTemp(20);
 	}
 	

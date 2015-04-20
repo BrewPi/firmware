@@ -6,7 +6,7 @@
             <name>brewpi-firmware</name>
             <c-extensions>c</c-extensions>
             <cpp-extensions>cc,cpp</cpp-extensions>
-            <header-extensions>h</header-extensions>
+            <header-extensions>h,hpp</header-extensions>
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects/>
             <sourceRootList>
@@ -31,6 +31,10 @@
                 </confElem>
                 <confElem>
                     <name>eguidemo_SWD</name>
+                    <type>0</type>
+                </confElem>
+                <confElem>
+                    <name>test</name>
                     <type>0</type>
                 </confElem>
             </confList>

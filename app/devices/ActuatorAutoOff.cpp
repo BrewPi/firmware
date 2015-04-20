@@ -1,6 +1,5 @@
 /*
- * Copyright 2013 BrewPi/Elco Jacobs.
- * Copyright 2013 Matthew McGowan.
+ * Copyright 2015 BrewPi Elco Jacobs / Matthew McGowan
  *
  * This file is part of BrewPi.
  * 
@@ -18,9 +17,18 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ActuatorAutoOff.h"
+#include "Ticks.h"
 
-#pragma once
-#include <stdint.h>
+void AutoOffActuator::setActive(bool active)
+{
+    this->active = active;
+    target->setActive(active);
+    if (active)
+            lastActiveTime = ticks.seconds();
+}
 
-typedef uint16_t eptr_t;
-#define INVALID_EPTR (0)
+void AutoOffActuator::update() {
+    if (ticks.timeSince(lastActiveTime)>=timeout)
+            setActive(false);
+}

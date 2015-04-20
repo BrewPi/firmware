@@ -18,6 +18,7 @@
  */
 
 #include "Brewpi.h"
+#include "Platform.h"
 #include "RotaryEncoder.h"
 
 #include "Pins.h"

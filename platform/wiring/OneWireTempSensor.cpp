@@ -19,13 +19,14 @@
  */
 
 #include "Brewpi.h"
+#include "TemperatureFormats.h"
 #include "OneWireTempSensor.h"
 #include "DallasTemperature.h"
 #include "OneWire.h"
 #include "OneWireDevices.h"
 #include "PiLink.h"
 #include "Ticks.h"
-#include "TemperatureFormats.h"
+
 
 OneWireTempSensor::~OneWireTempSensor() {
     delete sensor;

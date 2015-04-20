@@ -20,14 +20,15 @@
 #pragma once
 
 #include "Brewpi.h"
-#include "TempSensor.h"
-#include "Pins.h"
 #include "TemperatureFormats.h"
+#include "Platform.h"
+#include "TempSensor.h"
 #include "Actuator.h"
 #include "Sensor.h"
-#include "EepromManager.h"
+#include "EepromTypes.h"
 #include "ActuatorAutoOff.h"
 #include "ModeControl.h"
+#include "TicksImpl.h"
 
 // Set minimum off time to prevent short cycling the compressor in seconds
 const uint16_t MIN_COOL_OFF_TIME = 300;

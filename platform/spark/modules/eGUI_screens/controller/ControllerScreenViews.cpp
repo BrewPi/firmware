@@ -106,7 +106,7 @@ void ControllerScreen_Update()
 
 void TemperatureProcessPresenter::asString(char* buf, temperature t, unsigned num_decimals, unsigned max_len)
 {
-    if (t==INVALID_TEMP) {
+    if (isDisabledOrInvalid(t)) {
         strcpy(buf, "--.-");
     }
     else

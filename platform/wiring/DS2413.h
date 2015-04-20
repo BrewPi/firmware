@@ -21,6 +21,7 @@
 #pragma once
 
 #include "Brewpi.h"
+#include <string.h>
 #include "OneWire.h"
 
 typedef uint8_t DeviceAddress[8];
@@ -91,7 +92,7 @@ public:
 	 */
 	bool channelRead(pio_t pio, bool defaultValue)
 	{
-		byte result = channelReadAll();		
+		uint8_t result = channelReadAll();		
 		if (result<0)
 			return defaultValue;
 		return (result & pioMask(pio));
@@ -104,7 +105,7 @@ public:
 	 */
 	bool channelSense(pio_t pio, bool defaultValue)
 	{
-		byte result = channelSenseAll();
+		uint8_t result = channelSenseAll();
 		if (result<0)
 			return defaultValue;
 		return (result & pioMask(pio));
@@ -112,7 +113,7 @@ public:
 
 	uint8_t channelSenseAll()
 	{
-		byte result = accessRead();
+		uint8_t result = accessRead();
 		// save bit3 and bit1 (PIO
 		return result<0 ? result : ((result&0x4)>>1 | (result&1));
 	}
@@ -124,7 +125,7 @@ public:
 	 */
 	uint8_t channelReadAll()
 	{
-		byte result = accessRead();
+		uint8_t result = accessRead();
 		// save bit3 and bit1 (PIO
 		return result<0 ? result : ((result&0x8)>>2 | (result&2)>>1);
 	}
@@ -136,7 +137,7 @@ public:
 	bool channelWrite(pio_t pio, bool set)
 	{
 		bool ok = false;
-		byte result = channelReadAll();
+		uint8_t result = channelReadAll();
 		if (result>=0) {
 			uint8_t mask = pioMask(pio);
 			if (set)
@@ -197,7 +198,7 @@ private:
 	 * b2: PIOB state
 	 * b3: PIOB output latch state
 	 */
-	byte accessRead(uint8_t maxTries=3);
+	uint8_t accessRead(uint8_t maxTries=3);
 	
 	/*
 	 * Writes the state of all PIOs in one operation.

@@ -120,5 +120,22 @@
         </makeTool>
       </makefileType>
     </conf>
+    <conf name="test" type="0">
+      <toolsSet>
+        <compilerSet>MinGW|MinGW</compilerSet>
+        <dependencyChecking>false</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <codeAssistance>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>./test</buildCommandWorkingDir>
+          <buildCommand>${MAKE}</buildCommand>
+          <cleanCommand>${MAKE} clean</cleanCommand>
+          <executablePath>test\obj\runner.exe</executablePath>
+        </makeTool>
+      </makefileType>
+    </conf>
   </confs>
 </configurationDescriptor>
