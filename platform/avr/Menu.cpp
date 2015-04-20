@@ -162,7 +162,7 @@ void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempNam
 	
 	temperature oldSetting = readTemp();
 	temperature startVal = oldSetting;
-	if(oldSetting == INVALID_TEMP){	 // previous temperature was not defined, start at 20C
+	if(isDisabledOrInvalid(oldSetting)){	 // previous temperature was not defined, start at 20C
 		startVal = intToTemp(20);
 	}
 	

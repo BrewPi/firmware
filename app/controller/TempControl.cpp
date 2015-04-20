@@ -128,10 +128,10 @@ void TempControl::updateTemperatures(void){
 void TempControl::updatePID(void){
 	static unsigned char integralUpdateCounter = 0;
 	if(tempControl.modeIsBeer()){
-		if(cs.beerSetting == INVALID_TEMP){
+		if(isDisabledOrInvalid(cs.beerSetting)){
 			// beer setting is not updated yet
 			// set fridge to unknown too
-			cs.fridgeSetting = INVALID_TEMP;
+			cs.fridgeSetting = DISABLED_TEMP;
 			return;
 		}
 		
@@ -200,8 +200,8 @@ void TempControl::updatePID(void){
 		cs.fridgeSetting = constrain(constrainTemp16(newFridgeSetting), lowerBound, upperBound);
 	}
 	else if(cs.mode == MODE_FRIDGE_CONSTANT){
-		// FridgeTemperature is set manually, use INVALID_TEMP to indicate beer temp is not active
-		cs.beerSetting = INVALID_TEMP;
+		// FridgeTemperature is set manually, disable beer setpoint
+		cs.beerSetting = DISABLED_TEMP;
 	}
 }
 
@@ -220,7 +220,7 @@ void TempControl::updateState(void){
 		stayIdle = true;
 	}
 	// stay idle when one of the required sensors is disconnected, or the fridge setting is INVALID_TEMP
-	if( cs.fridgeSetting == INVALID_TEMP || 
+	if(isDisabledOrInvalid(cs.fridgeSetting) || 
 		!fridgeSensor->isConnected() || 
 		(!beerSensor->isConnected() && tempControl.modeIsBeer())){
 		state = IDLE;
@@ -508,8 +508,8 @@ void TempControl::loadDefaultSettings(){
 #else	
 	setMode(MODE_OFF);
 #endif	
-	cs.beerSetting = INVALID_TEMP; // start with no temp settings
-	cs.fridgeSetting = INVALID_TEMP;
+	cs.beerSetting = DISABLED_TEMP; // start with no temp settings
+	cs.fridgeSetting = DISABLED_TEMP;
 	cs.heatEstimator = intToTempDiff(2)/10; // 0.2
 	cs.coolEstimator=intToTempDiff(5);
 }
@@ -562,8 +562,8 @@ void TempControl::setMode(char newMode, bool force){
 	if (force) {
 		cs.mode = newMode;
 		if(newMode == MODE_OFF){
-			cs.beerSetting = INVALID_TEMP;
-			cs.fridgeSetting = INVALID_TEMP;
+			cs.beerSetting = DISABLED_TEMP;
+			cs.fridgeSetting = DISABLED_TEMP;
 		}
 		eepromManager.storeTempSettings();
 	}
@@ -635,20 +635,20 @@ const ControlConstants TempControl::ccDefaults PROGMEM =
 	/* tempSettingMax */ intToTemp(30),	// +30 deg Celsius
 	
 	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
-	/* Kp	*/ intToTempDiff(5),	// +5
-	/* Ki	*/ intToTempDiff(1)/4, // +0.25
-	/* Kd	*/ intToTempDiff(-3)/2,	// -1.5
-	/* iMaxError */ intToTempDiff(5)/10,  // 0.5 deg
+	/* Kp	*/ doubleToTempDiff(5.0),	// +5
+	/* Ki	*/ doubleToTempDiff(0.25), // +0.25
+	/* Kd	*/ doubleToTempDiff(1.5),	// -1.5
+	/* iMaxError */ doubleToTempDiff(0.5),  // 0.5 deg
 
 	// Stay Idle when fridge temperature is in this range
 	/* idleRangeHigh */ intToTempDiff(1),	// +1 deg Celsius
 	/* idleRangeLow */ intToTempDiff(-1),	// -1 deg Celsius
 
 	// when peak falls between these limits, its good.
-	/* heatingTargetUpper */ intToTempDiff(3)/10,	// +0.3 deg Celsius
-	/* heatingTargetLower */ intToTempDiff(-2)/10,	// -0.2 deg Celsius
-	/* coolingTargetUpper */ intToTempDiff(2)/10,	// +0.2 deg Celsius
-	/* coolingTargetLower */ intToTempDiff(-3)/10,	// -0.3 deg Celsius
+	/* heatingTargetUpper */ doubleToTempDiff(0.3),	// +0.3 deg Celsius
+	/* heatingTargetLower */ doubleToTempDiff(-0.2),	// -0.2 deg Celsius
+	/* coolingTargetUpper */ doubleToTempDiff(0.2),	// +0.2 deg Celsius
+	/* coolingTargetLower */ doubleToTempDiff(-0.3),	// -0.3 deg Celsius
 
 	// maximum history to take into account, in seconds
 	/* maxHeatTimeForEstimate */ 600,
