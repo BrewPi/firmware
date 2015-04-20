@@ -64,7 +64,6 @@ char * fixedPointToString(char * s, long_temperature rawValue, uint8_t numDecima
         s[0] = '-';
         rawValue = -rawValue;
     }
-
     int intPart = longTempDiffToInt(rawValue); // rawValue is supposed to be without internal offset
     uint16_t fracPart;
     const char* fmt;
@@ -128,7 +127,7 @@ bool stringToFixedPoint(long_temperature * result, const char * numberString) {
     // Check if - is in the string
     bool positive = (0 == strchr(numberString, '-'));
 
-    newValue = strtol(numberString, &end, 10); // convert string to integer
+    newValue = strtol_impl(numberString, &end); // convert string to integer
     if (invalidStrtolResult(numberString, end)) {
         return false; // string was not valid
     }
@@ -139,7 +138,7 @@ bool stringToFixedPoint(long_temperature * result, const char * numberString) {
     if (decimalPtr != 0) {
         decimalPtr++; // skip decimal point
         // convert decimals to integer
-        decimalValue = strtol(decimalPtr, &end, 10) << TEMP_FIXED_POINT_BITS;
+        decimalValue = strtol_impl(decimalPtr, &end) << TEMP_FIXED_POINT_BITS;
         if (invalidStrtolResult(decimalPtr, end)) {
             return false; // string was not valid
         }
@@ -171,7 +170,7 @@ bool stringToBool(bool * result, const char * numberString) {
         *result = false;
         return true;
     }
-    uint8_t newValue = strtol(numberString, &end, 10); // only accept 0 and 1
+    uint8_t newValue = strtol_impl(numberString, &end); // only accept 0 and 1
     if (invalidStrtolResult(numberString, end)) { // no number found in string
         return false;
     }
@@ -187,7 +186,7 @@ bool stringToBool(bool * result, const char * numberString) {
 bool stringToUint16(uint16_t* result, const char * numberString) {
     char* end;
     long newValue;
-    newValue = strtol(numberString, &end, 10); // only accept 0 and 1
+    newValue = strtol_impl(numberString, &end); // only accept 0 and 1
     if (invalidStrtolResult(numberString, end)) { // no number found in string
         return false;
     }
@@ -195,10 +194,10 @@ bool stringToUint16(uint16_t* result, const char * numberString) {
         *result = UINT16_MAX; // clip to max
     } else if (newValue < 0) {
         return false; // negative values are invalid
-    }
-    else{
+    } else {
+
         *result = newValue;
-    }  
+    }
     return true;
 }
 
@@ -228,8 +227,7 @@ long_temperature convertFromInternalTempImpl(long_temperature rawTemp, bool addO
         }
         int8_t rounder = (rawTemp < 0) ? -25 : 25;
         rawTemp = (rawTemp * 90 + rounder) / 50; // round result
-    }
-    else if (addOffset) {
+    } else if (addOffset) {
         rawTemp -= C_OFFSET;
     }
     return rawTemp;
@@ -248,11 +246,9 @@ temperature tenthsToFixed(int temp) {
 
 temperature constrainTemp(long_temperature valLong, temperature lower, temperature upper) {
     temperature val = constrainTemp16(valLong);
-
     if (val < lower) {
         return lower;
     }
-
     if (val > upper) {
         return upper;
     }
@@ -283,4 +279,32 @@ temperature multiplyFactorTemperature(temperature factor, temperature b) {
 
 temperature multiplyFactorTemperatureDiff(temperature factor, temperature b) {
     return constrainTemp16(((long_temperature) factor * (long_temperature) b) >> TEMP_FIXED_POINT_BITS);
+}
+
+long int my_strtol(const char* str, char** tail) {
+    long val = 0;
+    bool positive = true;
+    *tail = (char*) str;
+    uint16_t read = 0;
+    while (1) {
+        if (**tail == '\0') {
+            break;
+        } else if (**tail == ' ') {
+            if (read != 0) {
+                break; // only leading zeros allowed
+            }
+        } else if (**tail == '-') {
+            positive = false;
+        } else if (**tail >= '0' && **tail <= '9') {
+            val = val * 10 + (**tail - '0');
+            read++;
+        } else {
+            break;
+        }
+        (*tail)++;
+    }
+    if (read == 0) {
+        *tail = (char*) str;
+    }
+    return positive ? val : -val;
 }
