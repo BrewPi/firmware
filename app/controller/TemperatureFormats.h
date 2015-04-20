@@ -77,11 +77,10 @@ typedef fixed7_25 temperature_precise;
 #define TEMP_FIXED_POINT_MASK (TEMP_FIXED_POINT_SCALE-1)
 #define TEMP_PRECISE_EXTRA_FRACTION_BITS 16
 
-#define tempToInt(val) ((val - C_OFFSET)>>TEMP_FIXED_POINT_BITS)
-#define longTempToInt(val) ((val - C_OFFSET)>>TEMP_FIXED_POINT_BITS)
-#define tempDiffToInt(val) ((val)>>TEMP_FIXED_POINT_BITS)
-#define longTempDiffToInt(val) ((val)>>TEMP_FIXED_POINT_BITS)
-
+#define tempToInt(val) ((val - C_OFFSET + TEMP_FIXED_POINT_BITS/2)>>TEMP_FIXED_POINT_BITS)
+#define longTempToInt(val) tempToInt(val)
+#define tempDiffToInt(val) ((val+TEMP_FIXED_POINT_BITS/2)>>TEMP_FIXED_POINT_BITS)
+#define longTempDiffToInt(val) tempDiffToInt(val)
 
 #define intToTemp(val) (intToTempDiff(val) + C_OFFSET)
 #define intToTempDiff(val) ((temperature(val)<<TEMP_FIXED_POINT_BITS))
@@ -145,6 +144,5 @@ inline long_temperature convertToInternalTemp(long_temperature rawTemp) {
 inline long_temperature convertFromInternalTemp(long_temperature rawTemp) {
     return convertFromInternalTempImpl(rawTemp, true);
 }
-
 
 #define OPTIMIZE_TEMPERATURE_FORMATS 1 && OPTIMIZE_GLOBAL

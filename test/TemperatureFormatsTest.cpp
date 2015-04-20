@@ -71,7 +71,7 @@ TEST_CASE("Test conversion between internal format and stirng", "[tempconversion
         tempControl.cc.tempFormat = 'C';
         REQUIRE(0 == strcmp(" 5.0", tempToString(result, intToTemp(5), 1, 9)));
         REQUIRE(0 == strcmp(" 20.0", tempToString(result, intToTemp(20), 1, 9)));
-        REQUIRE(0 == strcmp("-20.0", tempToString(result, intToTemp(-20), 1, 9)));
+        REQUIRE(0 == strcmp("-15.0", tempToString(result, intToTemp(-15), 1, 9)));
         REQUIRE(0 == strcmp(" 20.00", tempToString(result, intToTemp(20), 2, 9)));
         REQUIRE(0 == strcmp("null", tempToString(result, INVALID_TEMP, 2, 9)));
     }
@@ -81,7 +81,7 @@ TEST_CASE("Test conversion between internal format and stirng", "[tempconversion
         tempControl.cc.tempFormat = 'F';
         REQUIRE(0 == strcmp(" 41.0", tempToString(result, intToTemp(5), 1, 9)));
         REQUIRE(0 == strcmp(" 68.0", tempToString(result, intToTemp(20), 1, 9)));
-        REQUIRE(0 == strcmp("-4.0", tempToString(result, intToTemp(-20), 1, 9)));
+        REQUIRE(0 == strcmp(" 14.0", tempToString(result, intToTemp(-10), 1, 9)));
         REQUIRE(0 == strcmp(" 68.00", tempToString(result, intToTemp(20), 2, 9)));
         REQUIRE(0 == strcmp(" 32.45", tempToString(result, (intToTemp(0) + intToTempDiff(1) / 4), 2, 9)));
         REQUIRE(0 == strcmp("null", tempToString(result, INVALID_TEMP, 2, 9)));
