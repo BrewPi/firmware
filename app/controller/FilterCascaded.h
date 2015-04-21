@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Brewpi.h"
-
 #include "TemperatureFormats.h"
 #include "FilterFixed.h"
 

@@ -21,7 +21,7 @@
 #pragma once
 
 #include "Actuator.h"
-#include "Ticks.h"
+#include <stdint.h>
 
 class AutoOffActuator : public Actuator {
 	
@@ -31,23 +31,14 @@ public:
 		this->target = target;
 	}
 	
-	void setActive(bool active)
-	{
-		this->active = active;
-		target->setActive(active);
-		if (active)
-			lastActiveTime = ticks.seconds();
-	}
+	void setActive(bool active);
 	
 	bool isActive() {
 		return active; //target->isActive(); - this takes 20 bytes more
 	}
 	
-	void update() {
-		if (ticks.timeSince(lastActiveTime)>=timeout)
-			setActive(false);
-	}
-
+        void update();
+        
 private:
 	uint16_t lastActiveTime;
 	uint16_t timeout;

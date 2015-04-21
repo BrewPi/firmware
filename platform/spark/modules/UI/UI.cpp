@@ -26,6 +26,7 @@
 #include "PiLink.h"
 #include "Display.h"
 #include "UIController.h"
+#include "Actuator.h"
 
 #include "../eGUI_screens/devicetest/device_test_screen.h"
 #include "../eGUI_screens/controller/controller_screen.h"
@@ -78,6 +79,7 @@ void UI::showControllerPage() {
     display.printState();        
 }
 
+extern ValueActuator alarm;
 void UI::ticks()
 {
     D4D_TimeTickPut();

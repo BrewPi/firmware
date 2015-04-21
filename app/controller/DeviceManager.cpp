@@ -28,6 +28,7 @@
 #include "TempSensorExternal.h"
 #include "PiLink.h"
 #include "EepromFormat.h"
+#include "EepromManager.h"
 
 #define CALIBRATION_OFFSET_PRECISION (4)
 
@@ -339,7 +340,10 @@ void handleDeviceDefinition(const char* key, const char* val, void* pv)
 	if (key[0]==DEVICE_ATTRIB_ADDRESS)
 		parseBytes(def->address, val, 8);
 	else if (key[0]==DEVICE_ATTRIB_CALIBRATEADJUST) {
-		def->calibrationAdjust = fixed4_4(stringToTempDiff(val)>>(TEMP_FIXED_POINT_BITS-CALIBRATION_OFFSET_PRECISION));
+		temperature parsedVal;
+		if (stringToTempDiff(&parsedVal, val)) {
+			def->calibrationAdjust = fixed4_4(parsedVal)>>(TEMP_FIXED_POINT_BITS - CALIBRATION_OFFSET_PRECISION);
+		}
 	}		
 	else if (idx>=0) 
 		((uint8_t*)def)[idx] = (uint8_t)atol(val);

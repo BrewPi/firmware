@@ -27,6 +27,7 @@
  * That is all that is needed! No hassle with makefiles and compiling libraries.
  */
 #include "Brewpi.h"
+#include "Platform.h"
 #include "PiLinkHandlers.h"
 
 // setup and loop are in brewpi_config so they can be reused across projects

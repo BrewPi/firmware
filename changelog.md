@@ -1,4 +1,25 @@
+## 0.2.9
+This is a faster release in between our normal release schedule to fix some bugs that we thought were bad enough to warrant a hotfix release.
 
+### Features
+No new features in this release
+
+### Bugfixes
+- ####Temperature filter initialization
+Temperature sensor filters could be used uninitialized in when a fridge or beer sensor was plugged in 1-60 seconds after start. See issue #18.
+
+- ####External flash
+A bug in the flashee library, which handles external flash to store settings, could cause a hard reset and temp sensors to be installed with an incorrect device address. This would only happen when a flash was worn out and the new data block spanned multiple pages, which is unlikely to have occured yet under normal use. See https://github.com/m-mcgowan/spark-flashee-eeprom/issues/16.
+
+- ####Error checking when parsing strings received from script
+When an invalid temperature or setting string was received from the script, the value defaulted to 0. We have refactored the string parsing functions to detect and ignore invalid strings. See issue #16 and #21.
+
+- ####Small rounding errors in conversions
+We fixed small 1 bit rounding errors (0.0002 degree) in or temperature conversion functions. See issue #22.
+
+
+### Enhancements
+[Catch](https://github.com/philsquared/Catch) unit tests were added to the build (replacing googletest). We used it to test all the new temperature conversion functions. Closes issue #15.
 
 
 ## 0.2.8

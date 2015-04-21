@@ -19,6 +19,7 @@
  */
 
 #include "Brewpi.h"
+#include "Platform.h"
 #include "BrewpiStrings.h"
 
 // some useful strings

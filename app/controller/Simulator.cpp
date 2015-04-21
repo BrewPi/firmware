@@ -81,7 +81,7 @@ void simulateLoop(void)
 		tempControl.updateOutputs();
 
 		#if !BREWPI_EMULATE			// simulation on actual hardware
-		static byte updateCount = 0;
+		static uint8_t updateCount = 0;
 		if (printTempInterval && (++updateCount%printTempInterval)==0) {
 			piLink.printTemperatures();
 			updateCount = 0;

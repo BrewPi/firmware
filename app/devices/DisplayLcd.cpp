@@ -18,14 +18,11 @@
  */
 
 #include "Brewpi.h"
+#include "TemperatureFormats.h"
 #include "BrewpiStrings.h"
-#include <limits.h>
-#include <stdint.h>
-
 #include "Display.h"
 #include "DisplayLcd.h"
 #include "TempControl.h"
-#include "TemperatureFormats.h"
 #include "Pins.h"
 #include "fixstl.h"
 
@@ -101,7 +98,7 @@ void LcdDisplay::printFridgeTemp(void){
 void LcdDisplay::printFridgeSet(void){	
 	temperature fridgeSet = tempControl.getFridgeSetting();	
 	if(flags & LCD_FLAG_DISPLAY_ROOM) // beer setting is not active
-		fridgeSet = INVALID_TEMP;
+		fridgeSet = DISABLED_TEMP;
 	printTemperatureAt(12, 2, fridgeSet);	
 }
 
@@ -112,7 +109,7 @@ void LcdDisplay::printTemperatureAt(uint8_t x, uint8_t y, temperature temp){
 
 
 void LcdDisplay::printTemperature(temperature temp){
-	if (temp==INVALID_TEMP) {
+	if (isDisabledOrInvalid(temp)) {
 		lcd.print_P(PSTR(" --.-"));
 		return;
 	}

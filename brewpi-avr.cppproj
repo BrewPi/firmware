@@ -260,6 +260,9 @@
     <Compile Include="app\devices\Actuator.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="app\devices\ActuatorAutoOff.cpp">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="app\devices\ActuatorAutoOff.h">
       <SubType>compile</SubType>
     </Compile>

@@ -1,6 +1,5 @@
 /*
- * Copyright 2013 BrewPi/Elco Jacobs.
- * Copyright 2013 Matthew McGowan.
+ * Copyright 2015 BrewPi/Elco Jacobs.
  *
  * This file is part of BrewPi.
  * 
@@ -18,9 +17,6 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #pragma once
-#include <stdint.h>
 
-typedef uint16_t eptr_t;
-#define INVALID_EPTR (0)
+
