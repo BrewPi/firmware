@@ -76,27 +76,28 @@ typedef fixed7_25 temperature_precise;
 #define TEMP_FIXED_POINT_MASK (TEMP_FIXED_POINT_SCALE-1)
 #define TEMP_PRECISE_EXTRA_FRACTION_BITS 16
 
-#define tempToInt(val) ((val - C_OFFSET + TEMP_FIXED_POINT_BITS/2)>>TEMP_FIXED_POINT_BITS)
+#define tempToInt(val) (((val) - C_OFFSET + TEMP_FIXED_POINT_BITS/2)>>TEMP_FIXED_POINT_BITS)
 #define longTempToInt(val) tempToInt(val)
-#define tempDiffToInt(val) ((val+TEMP_FIXED_POINT_BITS/2)>>TEMP_FIXED_POINT_BITS)
+#define tempDiffToInt(val) (((val)+TEMP_FIXED_POINT_BITS/2)>>TEMP_FIXED_POINT_BITS)
 #define longTempDiffToInt(val) tempDiffToInt(val)
 
+#define intToTempDiff(val) (temperature(val)<<TEMP_FIXED_POINT_BITS)
 #define intToTemp(val) (intToTempDiff(val) + C_OFFSET)
-#define intToTempDiff(val) ((temperature(val)<<TEMP_FIXED_POINT_BITS))
+
 // To explain the monstrosity below: for rounding, add -0.5 when negative, 0.5 when positive
 // This can be evaluated at compile time
-#define doubleToTemp(temp) ((temp*TEMP_FIXED_POINT_SCALE + C_OFFSET + 0.5)>=MAX_TEMP ? MAX_TEMP : \
-                            (temp*TEMP_FIXED_POINT_SCALE + C_OFFSET -0.5)<=MIN_TEMP ? MIN_TEMP :  \
-                            (temp*TEMP_FIXED_POINT_SCALE + C_OFFSET < 0) ? \
-                             temperature(temp*TEMP_FIXED_POINT_SCALE + C_OFFSET - 0.5) : \
-                             temperature(temp*TEMP_FIXED_POINT_SCALE + C_OFFSET + 0.5))
-#define doubleToTempDiff(temp) ((temp*TEMP_FIXED_POINT_SCALE + 0.5)>=MAX_TEMP ? MAX_TEMP : \
-                            (temp*TEMP_FIXED_POINT_SCALE -0.5)<=MIN_TEMP ? MIN_TEMP :  \
-                            (temp*TEMP_FIXED_POINT_SCALE < 0) ? \
-                             temperature(temp*TEMP_FIXED_POINT_SCALE - 0.5) : \
-                             temperature(temp*TEMP_FIXED_POINT_SCALE + 0.5))
+#define doubleToTemp(temp) (((temp)*TEMP_FIXED_POINT_SCALE + C_OFFSET + 0.5)>=MAX_TEMP ? MAX_TEMP : \
+                            ((temp)*TEMP_FIXED_POINT_SCALE + C_OFFSET -0.5)<=MIN_TEMP ? MIN_TEMP :  \
+                            (((temp)*TEMP_FIXED_POINT_SCALE + C_OFFSET) < 0) ? \
+                             temperature((temp)*TEMP_FIXED_POINT_SCALE + C_OFFSET - 0.5) : \
+                             temperature((temp)*TEMP_FIXED_POINT_SCALE + C_OFFSET + 0.5))
+#define doubleToTempDiff(temp) (((temp)*TEMP_FIXED_POINT_SCALE + 0.5)>=MAX_TEMP ? MAX_TEMP : \
+                            ((temp)*TEMP_FIXED_POINT_SCALE -0.5)<=MIN_TEMP ? MIN_TEMP :  \
+                            (((temp)*TEMP_FIXED_POINT_SCALE) < 0) ? \
+                             temperature((temp)*TEMP_FIXED_POINT_SCALE - 0.5) : \
+                             temperature((temp)*TEMP_FIXED_POINT_SCALE + 0.5))
 #define intToLongTemp(val) ((long_temperature(val)<<TEMP_FIXED_POINT_BITS) + C_OFFSET)
-#define tempPreciseToRegular(val) (val>>TEMP_PRECISE_EXTRA_FRACTION_BITS)
+#define tempPreciseToRegular(val) ((val)>>TEMP_PRECISE_EXTRA_FRACTION_BITS)
 #define tempRegularToPrecise(val) (temperature_precise(val)<<TEMP_PRECISE_EXTRA_FRACTION_BITS)
 
 char * tempToString(char * s, long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
@@ -104,7 +105,7 @@ char * tempDiffToString(char * s, long_temperature rawValue, uint8_t numDecimals
 char * fixedPointToString(char * s, long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
 char * fixedPointToString(char * s, temperature rawValue, uint8_t numDecimals, uint8_t maxLength);
 
-// On succesful converison, these functions write the result and return
+// On succesful conversion, these functions write the result and return
 // Result is not written on failure and false is returned
 bool stringToFixedPoint(temperature * result, const char * numberString);
 bool stringToFixedPoint(long_temperature * result, const char * numberString);

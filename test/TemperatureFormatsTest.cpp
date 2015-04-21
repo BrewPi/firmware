@@ -1,6 +1,7 @@
 #include "catch.hpp"
 #include "TemperatureFormats.h"
 #include "TempControl.h"
+#include <cstring>
 
 ControlConstants TempControl::cc;
 

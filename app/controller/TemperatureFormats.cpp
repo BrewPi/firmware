@@ -236,7 +236,7 @@ long_temperature convertFromInternalTempImpl(long_temperature rawTemp, bool addO
 int fixedToTenths(long_temperature temp) {
     temp = convertFromInternalTemp(temp);
     temperature rounder = (temp < 0) ? -TEMP_FIXED_POINT_SCALE / 2 : TEMP_FIXED_POINT_SCALE / 2;
-    return (int) ((10 * temp + rounder)) / TEMP_FIXED_POINT_SCALE; // return rounded result in tenth of degrees
+    return (10 * temp + rounder) / TEMP_FIXED_POINT_SCALE; // return rounded result in tenth of degrees
 }
 
 temperature tenthsToFixed(int temp) {
