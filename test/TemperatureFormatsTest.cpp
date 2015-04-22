@@ -42,22 +42,37 @@ TEST_CASE("Test conversion between internal format and stirng", "[tempconversion
     }
 
     SECTION("Fixed point to string in Celsius") {
-        char result[12];
         tempControl.cc.tempFormat = 'C';
-        REQUIRE(0 == strcmp(" 0.000", fixedPointToString(result, intToTempDiff(0), 3, 12)));
-        REQUIRE(0 == strcmp(" 5.000", fixedPointToString(result, intToTempDiff(5), 3, 12)));
-        REQUIRE(0 == strcmp("-5.000", fixedPointToString(result, intToTempDiff(-5), 3, 12)));
-        REQUIRE(0 == strcmp(" 0.250", fixedPointToString(result, intToTempDiff(1) / 4, 3, 12)));
+        char result[12];
+        char tempString[12];
+        for (long_temperature temp = MIN_TEMP; temp <= MAX_TEMP; temp++) {
+            snprintf(tempString, 12, "% .1f", round(10*double(temp - C_OFFSET) / TEMP_FIXED_POINT_SCALE)/10);
+            REQUIRE(tempToString(result, temp, 1, 12)); // returns true on success
+            if (0 != strcmp(tempString, result)){
+                printf("Test failed on temp: %s, %s, %d", tempString, result, temp);
+            }
+            REQUIRE(0 == strcmp(tempString, result));
+        }
     }
 
     SECTION("Fixed point to string in Fahrenheit") {
-        // test in Fahrenheit too, should be the same
-        char result[12];
         tempControl.cc.tempFormat = 'F';
-        REQUIRE(0 == strcmp(" 0.000", fixedPointToString(result, intToTempDiff(0), 3, 12)));
-        REQUIRE(0 == strcmp(" 5.000", fixedPointToString(result, intToTempDiff(5), 3, 12)));
-        REQUIRE(0 == strcmp("-5.000", fixedPointToString(result, intToTempDiff(-5), 3, 12)));
-        REQUIRE(0 == strcmp(" 0.250", fixedPointToString(result, intToTempDiff(1) / 4, 3, 12)));
+        char result[12];
+        char tempString[12];
+        for (long_temperature temp = MIN_TEMP; temp <= MAX_TEMP; temp++) {
+            snprintf(tempString, 12, "% .3f", round(1000*double(temp - F_OFFSET)*9/5 / TEMP_FIXED_POINT_SCALE)/1000);
+            REQUIRE(tempToString(result, temp, 3, 12)); // returns true on success
+            if (0 != strcmp(tempString, result)){
+                if((atof(tempString) - atof(result)) < 0.0011 &&
+                   (atof(tempString) - atof(result)) > -0.0011){
+                    // small rounding errors are inevitable due to rounding in internal calculations
+                }
+                else{
+                    printf("Test failed on temp: %s, %s, %d", tempString, result, temp);
+                    REQUIRE(0 == strcmp(tempString, result));
+                }
+            }
+        }
     }
 
     SECTION("Fixed point to string with specified number of decimals") {
@@ -274,7 +289,7 @@ TEST_CASE("Test conversion between internal format and stirng", "[tempconversion
         REQUIRE_FALSE(stringToTempDiff(&result, "null"));
         REQUIRE_FALSE(stringToFixedPoint(&result, "null"));
     }
-   
+
     SECTION("DISABLED_TEMP converts to null") {
         char result[9];
         tempControl.cc.tempFormat = 'C';
@@ -286,19 +301,19 @@ TEST_CASE("Test conversion between internal format and stirng", "[tempconversion
         bool result = true;
         REQUIRE(stringToBool(&result, "0"));
         REQUIRE_FALSE(result);
-        
+
         result = false;
         REQUIRE(stringToBool(&result, "1"));
         REQUIRE(result);
-        
+
         result = true;
         REQUIRE(stringToBool(&result, "false"));
         REQUIRE_FALSE(result);
-        
+
         result = false;
         REQUIRE(stringToBool(&result, "true"));
         REQUIRE(result);
-        
+
         // everything else does not convert
         result = true;
         REQUIRE_FALSE(stringToBool(&result, "2"));
@@ -307,20 +322,47 @@ TEST_CASE("Test conversion between internal format and stirng", "[tempconversion
         REQUIRE_FALSE(stringToBool(&result, "None"));
         REQUIRE_FALSE(stringToBool(&result, " "));
         REQUIRE_FALSE(stringToBool(&result, ""));
-        REQUIRE(result);        
+        REQUIRE(result);
     }
-    
+
     SECTION("Converting uint16 from string with error checking") {
         uint16_t result = 0;
         REQUIRE(stringToUint16(&result, "123"));
         REQUIRE(result == 123);
-                
+
         REQUIRE(stringToUint16(&result, "123456789"));
         REQUIRE(result == UINT16_MAX); // result is clipped to max
-        
+
         result = 345;
         REQUIRE_FALSE(stringToUint16(&result, "-123")); // negative not allowed
         REQUIRE(result == 345); // result is not written        
+    }
+
+    SECTION("Converting temperature higher than max temp results in max temp") {
+        tempControl.cc.tempFormat = 'C';
+        temperature result = 0;
+        REQUIRE(stringToTempDiff(&result, "115"));
+        REQUIRE(result == MAX_TEMP);
+    }
+
+    SECTION("Max temp converts correctly") {
+        tempControl.cc.tempFormat = 'C';
+        char result[12];
+        REQUIRE(tempToString(result, MAX_TEMP, 1, 9));
+        if (0 != strcmp(" 112.0", result)) {
+            printf("Max temp converted to %s", result);
+        }
+        REQUIRE(0 == strcmp(" 112.0", result)); // assert
+    }
+
+    SECTION("Min temp converts correctly") {
+        tempControl.cc.tempFormat = 'C';
+        char result[12];
+        REQUIRE(tempToString(result, MIN_TEMP, 1, 9));
+        if (0 != strcmp("-16.0", result)) {
+            printf("Min temp converted to %s", result);
+        }
+        REQUIRE(0 == strcmp("-16.0", result)); // assert
     }
 }
 

@@ -64,7 +64,7 @@ char * fixedPointToString(char * s, long_temperature rawValue, uint8_t numDecima
         s[0] = '-';
         rawValue = -rawValue;
     }
-    int intPart = longTempDiffToInt(rawValue); // rawValue is supposed to be without internal offset
+    int intPart = rawValue >> TEMP_FIXED_POINT_BITS; // do not use longTempDiffToInt because it rounds up
     uint16_t fracPart;
     const char* fmt;
     uint16_t scale;
