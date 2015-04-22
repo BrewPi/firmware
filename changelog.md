@@ -1,3 +1,7 @@
+## 0.2.10
+### Bugfixes
+I missed a test case in yesterday's release. Converting a temperature very close to a whole number (e.g. 20.998) converted 1 degree too high (22) due to erroneous rounding of an internal result. This releases fixes the bug and improves the unit tests to go through the entire temperature range to make sure it works.
+
 ## 0.2.9
 This is a faster release in between our normal release schedule to fix some bugs that we thought were bad enough to warrant a hotfix release.
 
