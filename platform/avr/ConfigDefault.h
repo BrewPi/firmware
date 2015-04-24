@@ -40,6 +40,13 @@
 #endif
 #endif
 
+#ifndef BREWPI_TWI_LCD
+#if BREWPI_STATIC_CONFIG != BREWPI_SHIELD_DIY_TWI
+	#define BREWPI_TWI_LCD 1
+#else
+	#define BREWPI_TWI_LCD 0
+#endif
+#endif
 
 #ifndef FAST_DIGITAL_PIN 
 #define FAST_DIGITAL_PIN 0
