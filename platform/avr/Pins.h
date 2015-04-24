@@ -64,7 +64,31 @@
 
 #endif 
 
-#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A || BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
+#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_DIY_TWI
+
+#ifndef oneWirePin
+#define oneWirePin A2
+#endif
+
+#ifndef actuatorPin1
+#define actuatorPin1 2
+#endif
+
+#ifndef actuatorPin2
+#define actuatorPin2 5
+#endif
+
+#ifndef actuatorPin3
+#define actuatorPin3 6
+#endif
+
+#ifndef actuatorPin4
+#define actuatorPin4 A3
+#endif
+
+#endif
+
+#if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A || BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C || BREWPI_STATIC_CONFIG==BREWPI_SHIELD_DIY_TWI
 
 #define doorPin		4
 #define alarmPin	3

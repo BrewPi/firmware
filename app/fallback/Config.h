@@ -57,8 +57,10 @@
 //////////////////////////////////////////////////////////////////////////
 //
 // Define which brewpi shield is used.
-// BREWPI_SHIELD_REV_A The RevA shield (ca. Feb 2013), two OneWire buses, door, heat, cool.
-// BREWPI_SHIELD_REV_C The RevC shield (ca. May 2013). One common ONeWire bus, 4 actuators. Dynaconfig.
+// BREWPI_SHIELD_REV_A		The RevA shield (ca. Feb 2013), two OneWire buses, door, heat, cool.
+// BREWPI_SHIELD_REV_C		The RevC shield (ca. May 2013). One common ONeWire bus, 4 actuators. Dynaconfig.
+// BREWPI_SHIELD_DIY		"Classic" DIY Shield with neither LCD, buzzer, nor rotary encoder.
+// BREWPI_SHIELD_DIY_TWI	DIY Shield with TWI LCD attached, one Onewire, buzzer, four actuators.
 //
 // #ifndef BREWPI_STATIC_CONFIG
 // #define BREWPI_STATIC_CONFIG BREWPI_SHIELD_REV_A
