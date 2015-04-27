@@ -1,19 +1,29 @@
 #pragma once
+#include <stdint.h>
 
-typedef uint32_t tcduration_t;
-typedef uint32_t ticks_millis_t;
-typedef uint32_t ticks_micros_t;
-typedef uint32_t ticks_seconds_t;
-typedef uint8_t ticks_seconds_tiny_t;
+// #include "TicksWiring.h"
 
-/*
-#include "TicksWiring.h"
+// Determine the type of Ticks needed
+// TICKS_IMPL_CONFIG is the code string passed to the constructor of the Ticks implementation
 
-typedef HardwareTicks TicksImpl;
-typedef HardwareDelay DelayImpl;
-#define TICKS_IMPL_CONFIG
-#define DELAY_IMPL_CONFIG
+#if BREWPI_SIMULATE				
+/** For simulation, by the simulator - each step in the simulator advances the time by one second. */
+typedef ExternalTicks TicksImpl;
+#define TICKS_IMPL_CONFIG		// no configuration of ExternalTicks necessary
+
+#elif BREWPI_EMULATE
+typedef MockTicks TicksImpl;
+#define TICKS_IMPL_CONFIG 1
+#endif	// BREWPI_EMULATE
 
 extern TicksImpl ticks;
+
+#if BREWPI_EMULATE
+typedef NoOpDelay DelayImpl;
+#define DELAY_IMPL_CONFIG 1
+#else
+typedef HardwareDelay DelayImpl;
+#define DELAY_IMPL_CONFIG
+#endif
+
 extern DelayImpl wait;
-*/

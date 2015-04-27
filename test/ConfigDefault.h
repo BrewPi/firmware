@@ -19,4 +19,4 @@
 
 #pragma once
 
-
+#define BREWPI_EMULATE 1

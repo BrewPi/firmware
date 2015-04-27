@@ -1,4 +1,5 @@
 #include "ActuatorPwm.h"
+#include "Ticks.h"
 
 ActuatorPwm::ActuatorPwm(Actuator * driver, uint8_t pwm = 0) {
     this->driver = driver;
@@ -20,7 +21,7 @@ void ActuatorPwm::setPwm(uint8_t val) {
 void ActuatorPwm::updatePwm() {
     ticks_millis_t dutyTime = (this->pwm * period) / 255 - dutyError;
     ticks_millis_t periodTime = period - periodError;
-    ticks_millis_t currentTime = millis();
+    ticks_millis_t currentTime = ticks.millis();
     ticks_millis_t elapsedTime = currentTime - this->periodStartTime;
     
     if (elapsedTime >= periodTime) {

@@ -28,7 +28,7 @@
 #include "EepromTypes.h"
 #include "ActuatorAutoOff.h"
 #include "ModeControl.h"
-#include "TicksImpl.h"
+#include "Ticks.h"
 
 // Set minimum off time to prevent short cycling the compressor in seconds
 const uint16_t MIN_COOL_OFF_TIME = 300;

@@ -67,9 +67,9 @@ void setup()
     tempControl.init();
     settingsManager.loadSettings();
 
-    uint32_t start = millis();
+    uint32_t start = ticks.millis();
     uint32_t delay = ui.showStartupPage();
-    while (millis()-start <= delay) {
+    while (ticks.millis()-start <= delay) {
         ui.ticks();
     }    
 	
