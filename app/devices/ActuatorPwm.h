@@ -38,6 +38,12 @@ public:
     void setPwm(uint8_t pwm);
     uint8_t getPwm();
     void updatePwm();
+    ticks_millis_t getPeriod(){
+        return period;
+    }
+    bool isActive(){
+        return driver->isActive();
+    }
 #if ACTUATOR_VIRTUAL
     virtual ~ActuatorPwm() {
     }

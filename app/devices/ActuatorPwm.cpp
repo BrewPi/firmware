@@ -8,6 +8,7 @@ ActuatorPwm::ActuatorPwm(Actuator * driver, uint8_t pwm = 0) {
     this->dutyError = 0;
     this->periodError = 0;
     this->periodStartTime = 0;
+    this->driver->setActive(false);
 }
 
 uint8_t ActuatorPwm::getPwm() {
@@ -23,14 +24,17 @@ void ActuatorPwm::updatePwm() {
     ticks_millis_t periodTime = period - periodError;
     ticks_millis_t currentTime = ticks.millis();
     ticks_millis_t elapsedTime = currentTime - this->periodStartTime;
-    
+
     if (elapsedTime >= periodTime) {
-        this->driver->setActive(true);
-        this->periodError += (elapsedTime - periodTime);
-        this->periodStartTime = currentTime;
-    }
-    else if (elapsedTime >= dutyTime) {
-        this->driver->setActive(false);
-        this->dutyError += (elapsedTime - dutyTime);
+        if (!this->driver->isActive()) {
+            this->driver->setActive(true);
+            this->periodError = (elapsedTime - periodTime)%period;
+            this->periodStartTime = currentTime;
+        }
+    } else if (elapsedTime >= dutyTime) {
+        if (this->driver->isActive()) {
+            this->driver->setActive(false);
+            this->dutyError = (elapsedTime - dutyTime)%dutyTime;
+        }
     }
 }
