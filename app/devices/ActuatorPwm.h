@@ -28,10 +28,10 @@ class ActuatorPwm {
 private:
     Actuator * driver;
     uint8_t pwm;
-    int32_t periodLate;
     int32_t dutyLate;
+    int32_t dutyTime;
     ticks_millis_t periodStartTime;
-    const ticks_millis_t period = 10000;
+    const int32_t period = 10000;
 
 public:
     ActuatorPwm(Actuator * driver, uint8_t pwm);

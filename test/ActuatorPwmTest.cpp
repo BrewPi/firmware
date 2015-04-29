@@ -30,41 +30,39 @@ uint8_t randomIntervalTest(ActuatorPwm* act, uint8_t duty, int delayMax) {
     ticks_millis_t totalHighTime = 0;
     ticks_millis_t totalLowTime = 0;
 
-    printf("*** Results running 100 periods and random update intervals,"
+    printf("\n\n*** Results running 100 periods and random 0-%d ms update intervals,"
             "with duty cycle %u and period %u ***\n",
-            duty, act->getPeriod());
+            delayMax, duty, act->getPeriod());
 
-    // wait for new period
-    while (act->isActive()) {
-        highToLowTime = delay(1);
-        act->updatePwm();
-    }
-    while (!act->isActive()) {
-        lowToHighTime = delay(1);
-        act->updatePwm();
-    }
     // run for 100 periods
     for (int i = 0; i < 100; i++) {
-        act->updatePwm();
         do {
             highToLowTime = random_delay(delayMax);
             act->updatePwm();
         } while (act->isActive());
         ticks_millis_t highTime = highToLowTime - lowToHighTime;
-        totalHighTime += highTime;
-        printf("_/ %u \t \\_ %u \t", lowToHighTime, highToLowTime);
-        printf("high: %u ms \t", highTime);
+        if (i > 0) { // skip first cycle in totals, it can be incomplete
+            totalHighTime += highTime;
+        }
+        printf("_/ %10u \t \\_ %10u \t", lowToHighTime, highToLowTime);
+        printf("high: %10u ms \t", highTime);
         do {
             lowToHighTime = random_delay(delayMax);
             act->updatePwm();
         } while (!act->isActive());
         ticks_millis_t lowTime = lowToHighTime - highToLowTime;
-        totalLowTime += lowTime;
-        printf("low: %u ms \n", lowTime);
+        if (i > 0) { // skip first cycle in totals, it can have old duty cycle
+            totalLowTime += lowTime;
+            printf("low: %10u ms \n", lowTime);
+        }
+        else{
+            printf("low: %10u ms (ignored)\n", lowTime);
+        }
+        
     }
     double avgDuty = double(totalHighTime) / (totalHighTime + totalLowTime);
     int avgDutyInt = int(round(avgDuty * 255));
-    printf("total high time: %u \t total low time: %u \t avg duty: %0.3f = %u/255\n",
+    printf("total high time: %10u\ntotal low time:  %10u \navg duty: %7.3f = %u/255\n",
             totalHighTime, totalLowTime, avgDuty, avgDutyInt);
     return avgDutyInt;
 }
@@ -134,7 +132,7 @@ TEST_CASE("Test ActuatorPWM class with ValueActuator as driver", "[actuatorpwm]"
         REQUIRE((int) randomIntervalTest(act, 1, 500) == 1);
         REQUIRE((int) randomIntervalTest(act, 254, 500) == 254);
     }
-    
+
     SECTION("Test output stays low with PWM value 0") {
         act->setPwm(0);
         // wait for new period
@@ -146,29 +144,33 @@ TEST_CASE("Test ActuatorPWM class with ValueActuator as driver", "[actuatorpwm]"
             delay(1);
             act->updatePwm();
         }
-        for (uint32_t i = 0; i < 10 * act->getPeriod(); i++){
+        for (uint32_t i = 0; i < 10 * act->getPeriod(); i++) {
             delay(1);
             act->updatePwm();
-            if(act->isActive()){REQUIRE_FALSE(act->isActive()); } // prevents many assertions
+            if (act->isActive()) {
+                REQUIRE_FALSE(act->isActive());
+            } // prevents many assertions
             // REQUIRE_FALSE(act->isActive());
         }
     }
-    
+
     SECTION("Test output stays high with PWM value 255") {
         act->setPwm(255);
         // wait for new period
-        while (act->isActive()){
+        while (act->isActive()) {
             delay(1);
             act->updatePwm();
         }
-        while (!act->isActive()){
+        while (!act->isActive()) {
             delay(1);
             act->updatePwm();
         }
-        for (uint32_t i = 0; i < 10 * act->getPeriod(); i++){
+        for (uint32_t i = 0; i < 10 * act->getPeriod(); i++) {
             delay(1);
             act->updatePwm();
-            if(!act->isActive()){REQUIRE(act->isActive()); } // prevents many assertions
+            if (!act->isActive()) {
+                REQUIRE(act->isActive());
+            } // prevents many assertions
             // REQUIRE_TRUE(act->isActive());
         }
     }
