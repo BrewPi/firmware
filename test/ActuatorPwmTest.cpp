@@ -34,6 +34,7 @@ uint8_t randomIntervalTest(ActuatorPwm* act, uint8_t duty, int delayMax) {
             "with duty cycle %u and period %u ***\n",
             delayMax, duty, act->getPeriod());
 
+    printf("\n\nl->h timestamp  h->l timestamp       high time       low time\n");
     // run for 100 periods
     for (int i = 0; i < 100; i++) {
         do {
@@ -44,8 +45,8 @@ uint8_t randomIntervalTest(ActuatorPwm* act, uint8_t duty, int delayMax) {
         if (i > 0) { // skip first cycle in totals, it can be incomplete
             totalHighTime += highTime;
         }
-        printf("_/ %10u \t \\_ %10u \t", lowToHighTime, highToLowTime);
-        printf("high: %10u ms \t", highTime);
+        printf("_/  %10u \t \\_ %10u \t", lowToHighTime, highToLowTime);
+        printf(" %10u ms \t", highTime);
         do {
             lowToHighTime = random_delay(delayMax);
             act->updatePwm();
@@ -53,10 +54,10 @@ uint8_t randomIntervalTest(ActuatorPwm* act, uint8_t duty, int delayMax) {
         ticks_millis_t lowTime = lowToHighTime - highToLowTime;
         if (i > 0) { // skip first cycle in totals, it can have old duty cycle
             totalLowTime += lowTime;
-            printf("low: %10u ms \n", lowTime);
+            printf("%10u ms \n", lowTime);
         }
         else{
-            printf("low: %10u ms (ignored)\n", lowTime);
+            printf("%10u ms (ignored)\n", lowTime);
         }
         
     }
