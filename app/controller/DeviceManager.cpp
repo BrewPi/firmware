@@ -342,7 +342,7 @@ void handleDeviceDefinition(const char* key, const char* val, void* pv)
 	else if (key[0]==DEVICE_ATTRIB_CALIBRATEADJUST) {
 		temperature parsedVal;
 		if (stringToTempDiff(&parsedVal, val)) {
-			def->calibrationAdjust = fixed4_4(parsedVal)>>(TEMP_FIXED_POINT_BITS - CALIBRATION_OFFSET_PRECISION);
+			def->calibrationAdjust = fixed4_4(parsedVal>>(TEMP_FIXED_POINT_BITS - CALIBRATION_OFFSET_PRECISION));
 		}
 	}		
 	else if (idx>=0) 
