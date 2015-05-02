@@ -68,6 +68,7 @@ typedef int8_t fixed4_4; // fixed4_4 uses 1-sign bit, 3 int bits and 4 fraction 
 /* Temperature expressed as an integer. */
 typedef int8_t temp_int;
 typedef fixed7_9 temperature;
+typedef fixed7_9 temp_diff;
 typedef fixed23_9 long_temperature;
 typedef fixed7_25 temperature_precise;
 
