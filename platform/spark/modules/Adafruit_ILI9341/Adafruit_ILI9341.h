@@ -20,9 +20,6 @@ MIT license, all text above must be included in any redistribution
 // Hack to get this to work in Spark IDE
 #include "../Adafruit_mfGFX/Adafruit_mfGFX.h"
 
-#define pgm_read_byte(addr) (*(const unsigned char *)(addr))
-#define pgm_read_word(addr) (*(const unsigned short *)(addr))
-
 typedef unsigned char prog_uchar;
 
 #define ILI9341_TFTWIDTH  240
