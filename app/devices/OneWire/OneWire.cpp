@@ -242,7 +242,7 @@ uint8_t OneWire::search(uint8_t *newAddr) {
                     search_direction = 0;
             }
 
-            // Perform a triple operation on the DS2482 which will perform
+            // Perform a triple operation on the DS248X which will perform
             // 2 read bits and 1 write bit
             driver.search_triplet(&search_direction, &id_bit, &cmp_id_bit);
 
