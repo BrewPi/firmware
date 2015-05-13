@@ -27,11 +27,15 @@
 
 #if BREWPI_BUZZER
 
-#define BEEP_ON() digitalWrite(alarmPin, LOW);
-#define BEEP_OFF() digitalWrite(alarmPin, HIGH);
-
 void Buzzer::init(void) {
     // set up square wave PWM for buzzer
+    
+    // Rev D has a pull down resistor, Rev C has a pull up resistor
+    // If the pin is low, it is Rev D and inversion is not needed
+    pinMode(alarmPin, INPUT);
+    wait.millis(1); // give time to change
+    invert = digitalRead(alarmPin);
+    setActive(false);
     pinMode(alarmPin, OUTPUT);
 }
 
@@ -39,18 +43,18 @@ void Buzzer::setActive(bool active) {
     if (active != this->isActive()) {
         ValueActuator::setActive(active);
         if (active) {
-            BEEP_ON();
+            digitalWrite(alarmPin, !invert);
         } else {
-            BEEP_OFF();
+            digitalWrite(alarmPin, invert);
         }
     }
 }
 
 void Buzzer::beep(uint8_t numBeeps, uint16_t duration) {
     for (uint8_t beepCount = 0; beepCount < numBeeps; beepCount++) {
-        BEEP_ON();
+        setActive(true);
         wait.millis(duration);
-        BEEP_OFF();
+        setActive(false);
         if (beepCount < numBeeps - 1) {
             wait.millis(duration); // not the last beep
         }

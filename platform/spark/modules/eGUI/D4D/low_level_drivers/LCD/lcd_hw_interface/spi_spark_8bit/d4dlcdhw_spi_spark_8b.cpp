@@ -138,7 +138,7 @@ static unsigned char D4DLCDHW_Init_Spi_Spark_8b(void) {
     D4DLCD_INIT_CS;
     D4DLCD_INIT_DC;
 
-    SPI.begin();
+    SPI.begin(D4DLCD_CS);
     // Serial clock cycle is min 150ns from ILI93841 datasheet, which equals 6.7 MHz
     // But touch screen driver (XPT2046) needs 200ns low, 200ns high.
     // 1 /( 72 MHz / 29) = 403 ns. Prescaler of 32 gives a bit of margin.

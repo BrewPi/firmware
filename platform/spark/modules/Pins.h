@@ -35,6 +35,10 @@
 #define actuatorPin3 A6
 #endif
 
+#ifndef actuatorPin4
+#define actuatorPin4 A7
+#endif
+
 #define alarmPin A2
 
 #define BREWPI_INVERT_ACTUATORS 0
