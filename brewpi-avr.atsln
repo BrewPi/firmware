@@ -6,13 +6,10 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AVR = Debug|AVR
-		Release|AVR = Release|AVR
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{C0415566-E0BC-45DB-8E53-CC52899284FE}.Debug|AVR.ActiveCfg = Debug|AVR
 		{C0415566-E0BC-45DB-8E53-CC52899284FE}.Debug|AVR.Build.0 = Debug|AVR
-		{C0415566-E0BC-45DB-8E53-CC52899284FE}.Release|AVR.ActiveCfg = Release|AVR
-		{C0415566-E0BC-45DB-8E53-CC52899284FE}.Release|AVR.Build.0 = Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

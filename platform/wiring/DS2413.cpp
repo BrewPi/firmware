@@ -34,7 +34,7 @@
 	* b2: PIOB state
 	* b3: PIOB output latch state
 	*/
-byte DS2413::accessRead(uint8_t maxTries) /* const */
+uint8_t DS2413::accessRead(uint8_t maxTries) /* const */
 {		
 	#define ACCESS_READ 0xF5
 		
@@ -78,11 +78,11 @@ bool DS2413::accessWrite(uint8_t b, uint8_t maxTries)
 			
 		/* data is sent again, inverted to guard against transmission errors */
 		oneWire->write(~b);
-		/* Acknowledgement byte, 0xAA for success, 0xFF for failure. */
+		/* Acknowledgement uint8_t, 0xAA for success, 0xFF for failure. */
 		ack = oneWire->read();
 						
 		if (ack==ACK_SUCCESS)
-			oneWire->read();		// status byte sent after ack
+			oneWire->read();		// status uint8_t sent after ack
 			
 		//out.print("tries "); out.print(maxTries); out.print(" ack ");out.print(ack, HEX);out.print(" newValues ");out.print(newSettings, HEX);
 		//out.println();

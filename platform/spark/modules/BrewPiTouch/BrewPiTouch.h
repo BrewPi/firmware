@@ -20,7 +20,6 @@
 #pragma once
 
 #include <inttypes.h>
-#include "../Adafruit_ILI9341/Adafruit_ILI9341.h"
 #include "../LowPassFilter/LowPassFilter.h"
 
 class BrewPiTouch {
@@ -37,9 +36,10 @@ public:
     void set12bit();
     bool is8bit();
     bool is12bit();
-    void calibrate(Adafruit_ILI9341 * tft);
+    // void calibrate(Adafruit_ILI9341 * tft);
     bool isTouched();
     bool isStable();
+    void setStabilityThreshold(int16_t treshold = 40);
        
     enum controlBits {
         START = 0x80,
@@ -54,7 +54,6 @@ public:
         CHY = 0x50,
         CHMASK = 0x8F // AND with CHMASK to set A2, A1 A0 to 0
     };
-    const int16_t STABILITY_TRESHOLD = 40;
     const int16_t CALIBRATE_FROM_EDGE = 40;
     
 private:
@@ -67,6 +66,7 @@ private:
     uint8_t pinCS;
     uint8_t pinIRQ;
     uint8_t config;
+    int16_t stabilityThreshold;
     LowPassFilter filterX;
     LowPassFilter filterY;
     

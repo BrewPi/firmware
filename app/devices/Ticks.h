@@ -21,13 +21,10 @@
 #pragma once
 
 #include "Brewpi.h"
-
+#include "Platform.h"
+#include "TicksImpl.h"
 #include <stdint.h>
 
-typedef uint32_t ticks_millis_t;
-typedef uint32_t ticks_micros_t;
-typedef uint16_t ticks_seconds_t;
-typedef uint8_t ticks_seconds_tiny_t;
 
 /**
  * Ticks - interface to a millisecond timer
@@ -97,6 +94,3 @@ inline ticks_seconds_t timeSince(ticks_seconds_t currentTime, ticks_seconds_t pr
 		return (currentTime + 1440) - (previousTime +1440); // add a day to both for calculation
 	}
 }
-
-
-#include "TicksImpl.h"

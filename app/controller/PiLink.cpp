@@ -36,6 +36,8 @@
 #include "Display.h"
 #include "PiLinkHandlers.h"
 #include "UI.h"
+#include "Actuator.h"
+
 
 #if BREWPI_SIMULATE
 #include "Simulator.h"
@@ -175,7 +177,7 @@ void PiLink::receive(void){
                             "\"l\":\"%d\""
                             "}"), 
 					PSTR(VERSION_STRING),               // v:
-					PSTR(stringify(BUILD_NUMBER)),      // n:                 
+					PSTR(stringify(BUILD_NAME)),      // n:                 
 					BREWPI_STATIC_CONFIG,               // s:
 					BREWPI_SIMULATE,                    // y:
 					BREWPI_BOARD,      // b:
@@ -255,14 +257,10 @@ void PiLink::receive(void){
             flashFirmware();
             break;
             
-            case 'T':
-                ui.calibrateTouchScreen();
-                break;
-
-		default:
-			logWarningInt(WARNING_INVALID_COMMAND, inByte);
-		}
-	}
+        default:
+        logWarningInt(WARNING_INVALID_COMMAND, inByte);
+        }
+    }
 }
 
 
@@ -334,7 +332,7 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
 		sendJsonTemp(PSTR(JSON_ROOM_TEMP), tempControl.getRoomTemp());
 		
 	if (changed(state, tempControl.getState()))
-		sendJsonPair(PSTR(JSON_STATE), tempControl.getState());		
+		sendJsonPair(PSTR(JSON_STATE), (uint8_t)tempControl.getState());		
 
 #if BREWPI_SIMULATE	
 	printJsonName(PSTR(JSON_TIME));
@@ -683,7 +681,10 @@ void PiLink::setMode(const char* val) {
 
 void PiLink::setBeerSetting(const char* val) {
 	const char* source = NULL;
-	temperature newTemp = stringToTemp(val);
+	temperature newTemp;
+	if(!stringToTemp(&newTemp, val)){
+		return; // could not parse value
+	}
 	if(tempControl.cs.mode == 'p'){
 		if(abs(newTemp-tempControl.cs.beerSetting) > 100){ // this excludes gradual updates under 0.2 degrees
 			source = STR_TEMPERATURE_PROFILE;
@@ -692,13 +693,17 @@ void PiLink::setBeerSetting(const char* val) {
 	else {
 		source = STR_WEB_INTERFACE;
 	}
-	if (source)
+	if (source){
 		printBeerAnnotation(STR_FMT_SET_TO, STR_BEER_TEMP, val, source);
+	}
 	tempControl.setBeerTemp(newTemp);		
 }
 
 void PiLink::setFridgeSetting(const char* val) {
-	temperature newTemp = stringToTemp(val);
+	temperature newTemp;
+	if(!stringToTemp(&newTemp, val)){
+		return; // could not parse value
+	}
 	if(tempControl.cs.mode == 'f'){
 		printFridgeAnnotation(STR_FMT_SET_TO, STR_FRIDGE_TEMP, val, STR_WEB_INTERFACE);
 	}
@@ -753,24 +758,32 @@ void applyFilterSetting(const char* val, void* target) {
 }
 
 void setStringToFixedPoint(const char* value, temperature* target) {
-	*target = stringToFixedPoint(value);
-	eepromManager.storeTempConstantsAndSettings();
+    if(stringToFixedPoint(target, value)){
+        eepromManager.storeTempConstantsAndSettings(); // value parsed correctly
+    }
 }
 void setStringToTemp(const char* value, temperature* target) {
-	*target = stringToTemp(value);
-	eepromManager.storeTempConstantsAndSettings();
+    if(stringToTemp(target, value)){
+        eepromManager.storeTempConstantsAndSettings(); // value parsed correctly
+    }
 }
 void setStringToTempDiff(const char* value, temperature* target) {
-	*target = stringToTempDiff(value);
-	eepromManager.storeTempConstantsAndSettings();
+    if(stringToTempDiff(target, value)){
+        eepromManager.storeTempConstantsAndSettings(); // value parsed correctly
+    }
 }
+
 void setUint16(const char* value, uint16_t* target) {
-	*target = atol(value);
-	eepromManager.storeTempConstantsAndSettings();
+    if(stringToUint16(target, value)){
+        eepromManager.storeTempConstantsAndSettings(); // value parsed correctly
+    }
 }
 void setBool(const char* value, uint8_t* target) {
-	*target = (atol(value)!=0);
-	eepromManager.storeTempConstantsAndSettings();
+    bool result;
+    if(stringToBool(&result, value)){
+        *target = result; // convert bool to uint8_t
+        eepromManager.storeTempConstantsAndSettings();
+    }
 }
 
 
@@ -831,6 +844,7 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 	logWarning(WARNING_COULD_NOT_PROCESS_SETTING);
 }
 
+extern ValueActuator alarm;
 void PiLink::soundAlarm(bool active)
 {
 	alarm.setActive(active);

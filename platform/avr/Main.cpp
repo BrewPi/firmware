@@ -27,6 +27,7 @@
  * That is all that is needed! No hassle with makefiles and compiling libraries.
  */
 #include "Brewpi.h"
+#include "Platform.h"
 #include "PiLinkHandlers.h"
 
 // setup and loop are in brewpi_config so they can be reused across projects
@@ -46,9 +47,9 @@ void flashFirmware()
     // a no-op. This is not used on this platform.
 }
 
-void main() __attribute__ ((noreturn)); // tell the compiler main doesn't return.
+__attribute__((OS_main)) int main(void);
 
-void main(void)
+int main(void)
 {
 	init();
 
@@ -62,10 +63,11 @@ void main(void)
 		loop();
 		if (serialEventRun) serialEventRun();
 	}
+	return 0;
 }
 
 // catch bad interrupts here, uncomment while only when debugging
 ISR(BADISR_vect){
-	;//while (1);
+	while (1);
 }
 

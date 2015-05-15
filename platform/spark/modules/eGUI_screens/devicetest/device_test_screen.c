@@ -1,3 +1,21 @@
+/*
+ * Copyright 2015 BrewPi / Elco Jacobs, Matthew McGowan.
+ *
+ * This file is part of BrewPi.
+ * 
+ * BrewPi is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * BrewPi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ */ 
 
 #include "d4d.h"
 #include "../fonts.h"
@@ -16,6 +34,7 @@
 #define INACTIVE_FS_COLOR D4D_COLOR_RGB(128,128,128)
 #define ACTIVE_FG_COLOR D4D_COLOR_RGB(255,255,255)
 
+static D4D_BOOL actuator_views_state[3];
 
 const WIDGET_COLOR_SCHEME color_scheme_device = {
     ACTIVE_BG_COLOR,           // bkg active
@@ -40,8 +59,13 @@ const WIDGET_COLOR_SCHEME color_scheme_connection = {
 };
 
 void ActuatorClicked(D4D_OBJECT* pThis);
-void SetActuatorButtonState(const D4D_OBJECT* pThis, D4D_BOOL state)
+
+void SetActuatorButtonState(const D4D_OBJECT* pThis, D4D_BOOL state, uint8_t idx)
 {
+    if(actuator_views_state[idx]==state){
+        return; // already up to date
+    }
+    
     D4D_SetText(pThis, state ? "ON" : "OFF");
     D4D_COLOR bg = state ? color_scheme_device.bckg : color_scheme_device.bckgDis;
     D4D_COLOR fg = state ? color_scheme_device.fore : color_scheme_device.foreDis;
@@ -55,6 +79,7 @@ void SetActuatorButtonState(const D4D_OBJECT* pThis, D4D_BOOL state)
     pThis->clrScheme->foreCapture = fg;
     pThis->clrScheme->foreFocus = fg;
 
+    actuator_views_state[idx] = state;
     D4D_InvalidateObject(pThis, D4D_TRUE);
 }
 
@@ -118,32 +143,12 @@ D4D_DECLARE_STD_SCREEN_BEGIN(screen_devicetest, ScreenDeviceTest_)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_text2)
 D4D_DECLARE_SCREEN_END()    
 
-static void ScreenDeviceTest_OnInit()
+void ScreenDeviceTest_OnInit()
 {
-    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator1, D4D_FALSE);
-    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator2, D4D_FALSE);
-    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator3, D4D_FALSE);
-}
-
-static void ScreenDeviceTest_OnMain()
-{
-    
-}
-
-control_mode_t prev_mode;
-static void ScreenDeviceTest_OnActivate()
-{
-    prev_mode = ModeControl_SetMode(MODE_TEST);
-}
-
-static void ScreenDeviceTest_OnDeactivate()
-{
-    if (ModeControl_GetMode()==MODE_TEST)
-        ModeControl_SetMode(prev_mode);
-}
-
-static Byte ScreenDeviceTest_OnObjectMsg(D4D_MESSAGE* pMsg)
-{
-    D4D_UNUSED(pMsg);
-    return 0;
+    actuator_views_state[0] = D4D_TRUE; // mismatch with below to force update on init
+    actuator_views_state[1] = D4D_TRUE;
+    actuator_views_state[2] = D4D_TRUE;
+    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator1, D4D_FALSE, 0);
+    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator2, D4D_FALSE, 1);
+    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator3, D4D_FALSE, 2);
 }

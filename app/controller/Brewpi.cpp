@@ -55,9 +55,6 @@ void loop (void);
 TicksImpl ticks = TicksImpl(TICKS_IMPL_CONFIG);
 DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 
-DisplayType realDisplay;
-DisplayType DISPLAY_REF display = realDisplay;
-
 ValueActuator alarm;
 UI ui;
 
@@ -65,31 +62,31 @@ void setup()
 {
     bool resetEeprom = platform_init();
     eepromManager.init();
-    ui.init();
-    piLink.init();
+	ui.init();
+	piLink.init();
+
+    logDebug("started");
+    tempControl.init();
+    settingsManager.loadSettings();
 
     uint32_t start = millis();
     uint32_t delay = ui.showStartupPage();
     while (millis()-start <= delay) {
-        ui.update();
+        ui.ticks();
     }
     
-    logDebug("started");	
-    tempControl.init();
-    settingsManager.loadSettings();
-	
 #if BREWPI_SIMULATE
-    simulator.step();
-    // initialize the filters with the assigned initial temp value
-    tempControl.beerSensor->init();
-    tempControl.fridgeSensor->init();	
+	simulator.step();
+	// initialize the filters with the assigned initial temp value
+	tempControl.beerSensor->init();
+	tempControl.fridgeSensor->init();	
 #endif	
     if (resetEeprom)
         eepromManager.initializeEeprom();
-        
+
     ui.showControllerPage();
-    
-    logDebug("init complete");
+    			
+	logDebug("init complete");
 }
 
 void brewpiLoop(void)
@@ -97,7 +94,8 @@ void brewpiLoop(void)
 	static unsigned long lastUpdate = -1000; // init at -1000 to update immediately
 	uint8_t oldState;
         ui.ticks();
-	if(ticks.millis() - lastUpdate >= (1000)) { //update settings every second
+        
+    if(!ui.inStartup() && (ticks.millis() - lastUpdate >= (1000))) { //update settings every second
 		lastUpdate = ticks.millis();
 			
 		tempControl.updateTemperatures();
@@ -111,7 +109,6 @@ void brewpiLoop(void)
 		tempControl.updateOutputs();
 
 		ui.update();
-
 	}	
 
 	//listen for incoming serial connections while waiting to update

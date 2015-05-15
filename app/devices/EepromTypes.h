@@ -20,6 +20,7 @@
 
 
 #pragma once
+#include <stdint.h>
 
 typedef uint16_t eptr_t;
 #define INVALID_EPTR (0)

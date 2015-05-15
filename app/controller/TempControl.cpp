@@ -18,11 +18,8 @@
  */
 
 #include "Brewpi.h"
-
-#include "Pins.h"
-#include <limits.h>
-
 #include "TemperatureFormats.h"
+#include "Pins.h"
 #include "TempControl.h"
 #include "PiLink.h"
 #include "TempSensor.h"
@@ -31,10 +28,7 @@
 #include "EepromManager.h"
 #include "TempSensorDisconnected.h"
 #include "ModeControl.h"
-#undef min
-#undef max
-
-#include <algorithm>
+#include "fixstl.h"
 
 TempControl tempControl;
 
@@ -65,7 +59,7 @@ ControlSettings TempControl::cs;
 ControlVariables TempControl::cv;
 	
 	// State variables
-uint8_t TempControl::state;
+states TempControl::state;
 bool TempControl::doPosPeakDetect;
 bool TempControl::doNegPeakDetect;
 bool TempControl::doorOpen;
@@ -74,10 +68,10 @@ bool TempControl::doorOpen;
 temperature TempControl::storedBeerSetting;
 	
 	// Timers
-uint16_t TempControl::lastIdleTime;
-uint16_t TempControl::lastHeatTime;
-uint16_t TempControl::lastCoolTime;
-uint16_t TempControl::waitTime;
+tcduration_t TempControl::lastIdleTime;
+tcduration_t TempControl::lastHeatTime;
+tcduration_t TempControl::lastCoolTime;
+tcduration_t TempControl::waitTime;
 #endif
 
 void TempControl::init(void){
@@ -134,10 +128,10 @@ void TempControl::updateTemperatures(void){
 void TempControl::updatePID(void){
 	static unsigned char integralUpdateCounter = 0;
 	if(tempControl.modeIsBeer()){
-		if(cs.beerSetting == INVALID_TEMP){
+		if(isDisabledOrInvalid(cs.beerSetting)){
 			// beer setting is not updated yet
 			// set fridge to unknown too
-			cs.fridgeSetting = INVALID_TEMP;
+			cs.fridgeSetting = DISABLED_TEMP;
 			return;
 		}
 		
@@ -206,8 +200,8 @@ void TempControl::updatePID(void){
 		cs.fridgeSetting = constrain(constrainTemp16(newFridgeSetting), lowerBound, upperBound);
 	}
 	else if(cs.mode == MODE_FRIDGE_CONSTANT){
-		// FridgeTemperature is set manually, use INVALID_TEMP to indicate beer temp is not active
-		cs.beerSetting = INVALID_TEMP;
+		// FridgeTemperature is set manually, disable beer setpoint
+		cs.beerSetting = DISABLED_TEMP;
 	}
 }
 
@@ -226,16 +220,16 @@ void TempControl::updateState(void){
 		stayIdle = true;
 	}
 	// stay idle when one of the required sensors is disconnected, or the fridge setting is INVALID_TEMP
-	if( cs.fridgeSetting == INVALID_TEMP || 
+	if(isDisabledOrInvalid(cs.fridgeSetting) || 
 		!fridgeSensor->isConnected() || 
 		(!beerSensor->isConnected() && tempControl.modeIsBeer())){
 		state = IDLE;
 		stayIdle = true;
 	}
 	
-	uint16_t sinceIdle = timeSinceIdle();
-	uint16_t sinceCooling = timeSinceCooling();
-	uint16_t sinceHeating = timeSinceHeating();
+	tcduration_t sinceIdle = timeSinceIdle();
+	tcduration_t sinceCooling = timeSinceCooling();
+	tcduration_t sinceHeating = timeSinceHeating();
 	temperature fridgeFast = fridgeSensor->readFastFiltered();
 	temperature beerFast = beerSensor->readFastFiltered();
 	ticks_seconds_t secs = ticks.seconds();
@@ -297,14 +291,20 @@ void TempControl::updateState(void){
 				break;
 			}
 			if(state == HEATING || state == COOLING){	
-				if(doNegPeakDetect == true || doPosPeakDetect == true){
 					// If peak detect is not finished, but the fridge wants to switch to heat/cool
-					// Wait for peak detection and display 'Await peak detect' on display
+				// Wait for peak detection and show on display
+				if(doNegPeakDetect == true){
+					tempControl.updateWaitTime(COOL_PEAK_DETECT_TIME, sinceCooling);
+                                }
+				else if(doPosPeakDetect == true){
+					tempControl.updateWaitTime(HEAT_PEAK_DETECT_TIME, sinceHeating);
+				}
+				else{
+					break; // peak detect has finished
+				}
 					state = WAITING_FOR_PEAK_DETECT;
-					break;
 				}
 			}
-		}			
 		break; 
 		case COOLING:
 		case COOLING_MIN_TIME:
@@ -350,6 +350,8 @@ void TempControl::updateState(void){
 			}
 		}
 		break;
+		case DOOR_OPEN:
+		break; // do nothing
 	}			
 }
 
@@ -371,7 +373,7 @@ void TempControl::updateOutputs(void) {
 	bool heating = stateIsHeating();
 	bool cooling = stateIsCooling();
 	cooler->setActive(cooling);		
-	heater->setActive(!cc.lightAsHeater && heating);	
+	heater->setActive(heating);	
 	light->setActive(isDoorOpen() || (cc.lightAsHeater && heating) || cameraLightState.isActive());	
 	fan->setActive(heating || cooling);
 }
@@ -488,15 +490,15 @@ void TempControl::decreaseEstimator(temperature * estimator, temperature error){
 	eepromManager.storeTempSettings();
 }
 
-uint16_t TempControl::timeSinceCooling(void){
+tcduration_t TempControl::timeSinceCooling(void){
 	return ticks.timeSince(lastCoolTime);
 }
 
-uint16_t TempControl::timeSinceHeating(void){
+tcduration_t TempControl::timeSinceHeating(void){
 	return ticks.timeSince(lastHeatTime);
 }
 
-uint16_t TempControl::timeSinceIdle(void){
+tcduration_t TempControl::timeSinceIdle(void){
 	return ticks.timeSince(lastIdleTime);
 }
 
@@ -506,8 +508,8 @@ void TempControl::loadDefaultSettings(){
 #else	
 	setMode(MODE_OFF);
 #endif	
-	cs.beerSetting = intToTemp(20);
-	cs.fridgeSetting = intToTemp(20);
+	cs.beerSetting = DISABLED_TEMP; // start with no temp settings
+	cs.fridgeSetting = DISABLED_TEMP;
 	cs.heatEstimator = intToTempDiff(2)/10; // 0.2
 	cs.coolEstimator=intToTempDiff(5);
 }
@@ -560,8 +562,8 @@ void TempControl::setMode(char newMode, bool force){
 	if (force) {
 		cs.mode = newMode;
 		if(newMode == MODE_OFF){
-			cs.beerSetting = INVALID_TEMP;
-			cs.fridgeSetting = INVALID_TEMP;
+			cs.beerSetting = DISABLED_TEMP;
+			cs.fridgeSetting = DISABLED_TEMP;
 		}
 		eepromManager.storeTempSettings();
 	}
@@ -633,20 +635,20 @@ const ControlConstants TempControl::ccDefaults PROGMEM =
 	/* tempSettingMax */ intToTemp(30),	// +30 deg Celsius
 	
 	// control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
-	/* Kp	*/ intToTempDiff(5),	// +5
-	/* Ki	*/ intToTempDiff(1)/4, // +0.25
-	/* Kd	*/ intToTempDiff(-3)/2,	// -1.5
-	/* iMaxError */ intToTempDiff(5)/10,  // 0.5 deg
+	/* Kp	*/ doubleToTempDiff(5.0),	// +5
+	/* Ki	*/ doubleToTempDiff(0.25), // +0.25
+	/* Kd	*/ doubleToTempDiff(1.5),	// -1.5
+	/* iMaxError */ doubleToTempDiff(0.5),  // 0.5 deg
 
 	// Stay Idle when fridge temperature is in this range
 	/* idleRangeHigh */ intToTempDiff(1),	// +1 deg Celsius
 	/* idleRangeLow */ intToTempDiff(-1),	// -1 deg Celsius
 
 	// when peak falls between these limits, its good.
-	/* heatingTargetUpper */ intToTempDiff(3)/10,	// +0.3 deg Celsius
-	/* heatingTargetLower */ intToTempDiff(-2)/10,	// -0.2 deg Celsius
-	/* coolingTargetUpper */ intToTempDiff(2)/10,	// +0.2 deg Celsius
-	/* coolingTargetLower */ intToTempDiff(-3)/10,	// -0.3 deg Celsius
+	/* heatingTargetUpper */ doubleToTempDiff(0.3),	// +0.3 deg Celsius
+	/* heatingTargetLower */ doubleToTempDiff(-0.2),	// -0.2 deg Celsius
+	/* coolingTargetUpper */ doubleToTempDiff(0.2),	// +0.2 deg Celsius
+	/* coolingTargetLower */ doubleToTempDiff(-0.3),	// -0.3 deg Celsius
 
 	// maximum history to take into account, in seconds
 	/* maxHeatTimeForEstimate */ 600,

@@ -1,7 +1,5 @@
 #pragma once
-
-#include <inttypes.h>
-#include "OneWireImpl.h"
+#include "Brewpi.h"
 
 // You can exclude certain features from OneWire.  In theory, this
 // might save some space.  In practice, the compiler automatically
@@ -44,6 +42,9 @@
 #ifndef ONEWIRE_PARASITE_SUPPORT
 #define ONEWIRE_PARASITE_SUPPORT 1
 #endif
+
+#include <inttypes.h>
+#include "OneWireImpl.h"
 
 class OneWire {
 public:

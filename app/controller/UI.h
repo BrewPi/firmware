@@ -6,6 +6,7 @@
  */
 
 #pragma once
+#include <stdint.h>
 
 struct UI {
     /**
@@ -35,11 +36,14 @@ struct UI {
      * processing.
      */
     static void update();
-
+    
     /**
-     * Show touch screen calibration screen store settings afterwards
+     * Determines if this UI is in startup mode. The controller services piLink
+     * requests and continues to update the UI, but the main control loop is not executed.
+     * @return 
      */
-    static void calibrateTouchScreen();
+    static bool inStartup();
+
 
 };
 

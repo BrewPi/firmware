@@ -1,0 +1,2 @@
+# prevent \r\n in shell scripts on Windows
+*.sh eol=LF

@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <stdint.h>
+#include "Platform.h"
 #include "Actuator.h"
 #include "FastDigitalPin.h"
 

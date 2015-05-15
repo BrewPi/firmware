@@ -19,6 +19,7 @@
  */
 
 #pragma once
+#include <stdint.h>
 
 extern const char STR_FMT_S_RAM[];
 extern const char STR_FMT_S_PROGMEM[];

@@ -21,6 +21,7 @@
 #pragma once
 
 #include "Brewpi.h"
+#include "Platform.h"
 
 #include "EepromAccess.h"
 

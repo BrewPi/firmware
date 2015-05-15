@@ -24,12 +24,11 @@
 #if BREWPI_MENU
 
 #include "Menu.h"
+#include "TemperatureFormats.h"
 
-#include <limits.h>
 #include "Pins.h"
 #include "Display.h"
 #include "TempControl.h"
-#include "TemperatureFormats.h"
 #include "RotaryEncoder.h"
 #include "PiLink.h"
 #include "Ticks.h"
@@ -163,11 +162,13 @@ void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempNam
 	
 	temperature oldSetting = readTemp();
 	temperature startVal = oldSetting;
-	if(oldSetting == INVALID_TEMP){	 // previous temperature was not defined, start at 20C
+	temperature minVal = tempControl.cc.tempSettingMin;
+	temperature maxVal = tempControl.cc.tempSettingMax;
+	if(isDisabledOrInvalid(oldSetting)){	 // previous temperature was not defined, start at 20C
 		startVal = intToTemp(20);
 	}
-	
-	rotaryEncoder.setRange(fixedToTenths(oldSetting), fixedToTenths(tempControl.cc.tempSettingMin), fixedToTenths(tempControl.cc.tempSettingMax));
+
+	rotaryEncoder.setRange(fixedToTenths(startVal), fixedToTenths(minVal), fixedToTenths(maxVal));
 
 	uint8_t blinkTimer = 0;
 	uint16_t lastChangeTime = ticks.seconds();

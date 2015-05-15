@@ -19,6 +19,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/OneWire
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/OneWireSwitch
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/ScrollBox
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Ticks
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/UI
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/ValvesController
 
 CSRC += $(call target_files,app/controller,*.c)
@@ -41,3 +42,7 @@ LIBS_DIR = $(SOURCE_PATH)/platform/spark/libs
 include $(LIBS_DIR)/libs.mk
 
 CFLAGS += -fdata-sections
+
+GIT_VERSION = $(shell cd $(SOURCE_PATH); git describe --long)
+$(info using $(GIT_VERSION) as build name)
+CFLAGS += -DBUILD_NAME="$(GIT_VERSION)"
