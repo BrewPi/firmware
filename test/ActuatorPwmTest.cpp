@@ -6,22 +6,8 @@
 #include "ActuatorPwm.h"
 #include "Ticks.h"
 #include <cstring>
-// delay ms miliseconds and return current time afterwards
 
-ticks_millis_t delay(int ms) {
-    ticks_millis_t newTime;
-    for (int i = 0; i < ms; i++) {
-        newTime = ticks.millis();
-    }
-    return newTime;
-}
-
-// delay random nr of milliseconds with maximum max
-
-ticks_millis_t random_delay(int max) {
-    int ms = rand() % (max - 1);
-    return delay(ms);
-}
+#include "main.h"
 
 uint8_t randomIntervalTest(ActuatorPwm* act, uint8_t duty, int delayMax) {
     act->setPwm(duty);
