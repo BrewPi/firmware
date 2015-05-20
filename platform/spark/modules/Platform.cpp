@@ -15,7 +15,7 @@ void handleReset()
 
 void flashFirmware()
 {
-    System.serialFirmwareUpdate(&Serial);
+    //System.serialFirmwareUpdate(&Serial);
 }
 
 
