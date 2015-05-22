@@ -100,20 +100,21 @@
 
 #elif PLATFORM_ID==6
   #define D4DLCD_INIT_CS pinMode(D4DLCD_CS, OUTPUT)
+  #define D4DLCD_DEASSERT_CS HAL_Pin_Map()[D4DLCD_CS].gpio_peripheral->BSRRL = HAL_Pin_Map()[D4DLCD_CS].gpio_pin;
+  #define D4DLCD_ASSERT_CS HAL_Pin_Map()[D4DLCD_CS].gpio_peripheral->BSRRH = HAL_Pin_Map()[D4DLCD_CS].gpio_pin;
+  #define D4DLCD_INIT_DC pinMode(D4DLCD_DC, OUTPUT)
+  #define D4DLCD_DEASSERT_DC HAL_Pin_Map()[D4DLCD_DC].gpio_peripheral->BSRRL = HAL_Pin_Map()[D4DLCD_DC].gpio_pin;
+  #define D4DLCD_ASSERT_DC HAL_Pin_Map()[D4DLCD_DC].gpio_peripheral->BSRRH = HAL_Pin_Map()[D4DLCD_DC].gpio_pin;
+
+
+#elif PLATFORM_ID==666
+#include "pinmap_hal.h"
+#define D4DLCD_INIT_CS pinMode(D4DLCD_CS, OUTPUT)
   #define D4DLCD_DEASSERT_CS digitalWrite(D4DLCD_CS, LOW)
   #define D4DLCD_ASSERT_CS digitalWrite(D4DLCD_CS, HIGH)
   #define D4DLCD_INIT_DC pinMode(D4DLCD_DC, OUTPUT)
   #define D4DLCD_DEASSERT_DC digitalWrite(D4DLCD_DC, LOW)
   #define D4DLCD_ASSERT_DC digitalWrite(D4DLCD_DC, HIGH)
-
-#elif PLATFORM_ID==666
-#include "pinmap_hal.h"
-  #define D4DLCD_INIT_CS pinMode(D4DLCD_CS, OUTPUT)
-  #define D4DLCD_DEASSERT_CS HAL_Pin_Map()[D4DLCD_CS].gpio_peripheral->BSRRH = HAL_Pin_Map()[D4DLCD_CS].gpio_pin;
-  #define D4DLCD_ASSERT_CS HAL_Pin_Map()[D4DLCD_CS].gpio_peripheral->BSRRL = HAL_Pin_Map()[D4DLCD_CS].gpio_pin;
-  #define D4DLCD_INIT_DC pinMode(D4DLCD_DC, OUTPUT)
-  #define D4DLCD_DEASSERT_DC HAL_Pin_Map()[D4DLCD_DC].gpio_peripheral->BSRRH = HAL_Pin_Map()[D4DLCD_DC].gpio_pin;
-  #define D4DLCD_ASSERT_DC HAL_Pin_Map()[D4DLCD_DC].gpio_peripheral->BSRRL = HAL_Pin_Map()[D4DLCD_DC].gpio_pin;
 #else
 #error Unknown Platform
 #endif
