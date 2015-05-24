@@ -2,7 +2,9 @@
 #include "PiLinkHandlers.h"
 #include "DeviceManager.h"
 #include "Pins.h"
+#if PLATFORM_ID==0
 #include "ymodem/ymodem.h"
+#endif
 #include "flashee-eeprom.h"
 #include "EepromManager.h"
 
@@ -15,7 +17,7 @@ void handleReset()
 
 void flashFirmware()
 {
-    //System.serialFirmwareUpdate(&Serial);
+    System.firmwareUpdate(&Serial);
 }
 
 
