@@ -57,7 +57,7 @@ uint8_t randomIntervalTest(ActuatorPwm* act, uint8_t duty, int delayMax) {
 TEST_CASE("Test ActuatorPWM class with ValueActuator as driver", "[actuatorpwm]") {
     srand(time(NULL));
     Actuator * v = new ValueActuator();
-    ActuatorPwm * act = new ActuatorPwm(v, 0);
+    ActuatorPwm * act = new ActuatorPwm(v);
     // intToTemp is a macro to initialize temperatures in Celsius
 
     SECTION("PWM value is initialized to 0") {

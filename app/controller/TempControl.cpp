@@ -43,13 +43,14 @@ TempSensor* TempControl::beerSensor;
 TempSensor* TempControl::fridgeSensor;
 BasicTempSensor* TempControl::ambientSensor = &defaultTempSensor;
 
-
-Actuator* TempControl::heater = &defaultActuator;
-Actuator* TempControl::cooler = &defaultActuator;
+Actuator* TempControl::chamberCooler = &defaultActuator;
 Actuator* TempControl::light = &defaultActuator;
 Actuator* TempControl::fan = &defaultActuator;
 
-ValueActuator cameraLightState;		
+ValueActuator cameraLightState;
+ActuatorPwm* TempControl::chamberHeater;
+ActuatorPwm* TempControl::beerHeater;
+
 AutoOffActuator TempControl::cameraLight(600, &cameraLightState);	// timeout 10 min
 Sensor<bool>* TempControl::door = &defaultSensor;
 	
@@ -74,6 +75,9 @@ tcduration_t TempControl::lastCoolTime;
 tcduration_t TempControl::waitTime;
 #endif
 
+TempControl::TempControl(){
+};
+
 void TempControl::init(void){
 	state=IDLE;		
 	cs.mode = MODE_OFF;
@@ -91,6 +95,14 @@ void TempControl::init(void){
 		fridgeSensor->init();
 	}
 	
+	if (chamberHeater==NULL){
+	    chamberHeater = new ActuatorPwm(&defaultActuator);
+	}
+
+	if (beerHeater==NULL){
+	    beerHeater = new ActuatorPwm(&defaultActuator);
+	}
+
 	updateTemperatures();
 	reset();
 	
@@ -259,7 +271,7 @@ void TempControl::updateState(void){
 					}
 					tempControl.updateWaitTime(MIN_COOL_OFF_TIME, sinceCooling);
 				}
-				if(tempControl.cooler != &defaultActuator){
+				if(tempControl.chamberCooler != &defaultActuator){
 					if(getWaitTime() > 0){
 						state = WAITING_TO_COOL;
 					}
@@ -277,7 +289,7 @@ void TempControl::updateState(void){
 						break;
 					}
 				}
-				if(tempControl.heater != &defaultActuator || (cc.lightAsHeater && (tempControl.light != &defaultActuator))){
+				if(tempControl.chamberHeater->getTarget() != &defaultActuator || (cc.lightAsHeater && (tempControl.light != &defaultActuator))){
 					if(getWaitTime() > 0){
 						state = WAITING_TO_HEAT;
 					}
@@ -372,10 +384,16 @@ void TempControl::updateOutputs(void) {
 	cameraLight.update();
 	bool heating = stateIsHeating();
 	bool cooling = stateIsCooling();
-	cooler->setActive(cooling);		
-	heater->setActive(heating);	
+	chamberCooler->setActive(cooling);
 	light->setActive(isDoorOpen() || (cc.lightAsHeater && heating) || cameraLightState.isActive());	
 	fan->setActive(heating || cooling);
+	if(heating){
+	    temperature fridgeError = cs.fridgeSetting - fridgeSensor->readSlowFiltered();
+	    temperature duty = multiplyFactorTemperatureDiff(cc.fridgePwmScale, fridgeError);
+	    duty = tempDiffToInt(duty);
+	    duty = constrainTemp(duty, 0, 255);
+	    chamberHeater->setPwm(duty);
+	}
 }
 
 
@@ -667,6 +685,10 @@ const ControlConstants TempControl::ccDefaults PROGMEM =
 	/* rotaryHalfSteps */ 0,
 
 	/* pidMax */ intToTempDiff(10),	// +/- 10 deg Celsius
+	/* fridgePwmAutoScale */ false,
+	/* beerPwmAutoScale */ false,
+	/* fridgePwmScale */ intToTempDiff(5),
+	/* beerPwmScale */ intToTempDiff(5)
 };
 
 control_mode_t ModeControl_GetMode()

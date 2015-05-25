@@ -27,6 +27,7 @@
 #include "Sensor.h"
 #include "EepromTypes.h"
 #include "ActuatorAutoOff.h"
+#include "ActuatorPwm.h"
 #include "ModeControl.h"
 #include "Ticks.h"
 
@@ -95,6 +96,10 @@ struct ControlConstants{
 	uint8_t lightAsHeater;		// use the light to heat rather than the configured heater device
 	uint8_t rotaryHalfSteps; // define whether to use full or half steps for the rotary encoder
 	temperature pidMax;
+	bool fridgePwmAutoScale;
+	bool beerPwmAutoScale;
+	fixed7_9 fridgePwmScale;
+	fixed7_9 beerPwmScale;
 };
 
 #define EEPROM_TC_SETTINGS_BASE_ADDRESS 0
@@ -138,7 +143,7 @@ enum states{
 class TempControl{
 	public:
 	
-	TempControl(){};
+	TempControl();
 	~TempControl(){};
 	
 	TEMP_CONTROL_METHOD void init(void);
@@ -226,8 +231,9 @@ class TempControl{
 	TEMP_CONTROL_FIELD TempSensor* beerSensor;
 	TEMP_CONTROL_FIELD TempSensor* fridgeSensor;
 	TEMP_CONTROL_FIELD BasicTempSensor* ambientSensor;
-	TEMP_CONTROL_FIELD Actuator* heater;
-	TEMP_CONTROL_FIELD Actuator* cooler; 
+	TEMP_CONTROL_FIELD ActuatorPwm* chamberHeater;
+	TEMP_CONTROL_FIELD ActuatorPwm* beerHeater;
+	TEMP_CONTROL_FIELD Actuator* chamberCooler; 
 	TEMP_CONTROL_FIELD Actuator* light;
 	TEMP_CONTROL_FIELD Actuator* fan;
 	TEMP_CONTROL_FIELD AutoOffActuator cameraLight;

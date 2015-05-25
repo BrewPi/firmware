@@ -1,10 +1,10 @@
+#include "Actuator.h"
 #include "ActuatorPwm.h"
 #include "Ticks.h"
 
-ActuatorPwm::ActuatorPwm(Actuator * driver, uint8_t pwm = 0) {
-    this->driver = driver;
+ActuatorPwm::ActuatorPwm(Actuator* driver) : target(driver) {
     this->periodStartTime = 0;
-    this->driver->setActive(false);
+    this->target->setActive(false);
     this->setPwm(pwm);
 }
 
@@ -23,14 +23,14 @@ void ActuatorPwm::updatePwm() {
     int32_t currentTime = ticks.millis();
     int32_t elapsedTime = currentTime - this->periodStartTime;
 
-    if (this->driver->isActive()) {
+    if (this->target->isActive()) {
         if (elapsedTime >= adjDutyTime) {
             // end of duty cycle
-            this->driver->setActive(false);
+            this->target->setActive(false);
             this->dutyLate += elapsedTime - dutyTime;
         }
     }
-    if (!this->driver->isActive()) {
+    if (!this->target->isActive()) {
         if (elapsedTime >= period) {
             // end of PWM cycle
             if (adjDutyTime < 0) {
@@ -39,7 +39,7 @@ void ActuatorPwm::updatePwm() {
                 // subtract duty cycle form duty late accumulator
                 this->dutyLate = this->dutyLate - dutyTime;
             } else {
-                this->driver->setActive(true);
+                this->target->setActive(true);
             }
             int32_t periodLate = elapsedTime - period;
             // limit to half of the period
