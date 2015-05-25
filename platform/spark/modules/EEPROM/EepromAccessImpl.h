@@ -26,7 +26,11 @@ public:
     }
     void writeBlock(eptr_t target, const void* source, uint16_t size) {
         flash->write(source, target, size);
-    }	
+    }
+    
+    size_t length() {
+        return flash->length();
+    }
 };
 
 typedef SparkEepromAccess EepromAccess;
