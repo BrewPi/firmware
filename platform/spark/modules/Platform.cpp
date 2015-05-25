@@ -8,13 +8,6 @@
 #include "flashee-eeprom.h"
 #include "EepromManager.h"
 
-SYSTEM_MODE(SEMI_AUTOMATIC)
-
-void handleReset() 
-{ 
-    System.reset();
-}
-
 void flashFirmware()
 {
     System.firmwareUpdate(&Serial);
