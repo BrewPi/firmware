@@ -394,6 +394,14 @@ void TempControl::updateOutputs(void) {
 	    duty = constrainTemp(duty, 0, 255);
 	    chamberHeater->setPwm(duty);
 	}
+        else{
+            chamberHeater->setPwm(0);
+        }
+}
+
+void TempControl::updatePwm(void) {
+    chamberHeater->updatePwm();
+    beerHeater->updatePwm();
 }
 
 

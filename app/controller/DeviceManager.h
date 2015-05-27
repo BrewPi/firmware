@@ -117,7 +117,7 @@ inline bool isAssignable(DeviceType     type,
                          DeviceHardware hardware)
 {
     return ((hardware == DEVICE_HARDWARE_PIN)
-            && ((type == DEVICETYPE_SWITCH_ACTUATOR) || (type == DEVICETYPE_SWITCH_SENSOR)))
+            && ((type == DEVICETYPE_SWITCH_ACTUATOR) || (type == DEVICETYPE_SWITCH_SENSOR) || type == DEVICETYPE_PWM_ACTUATOR))
 
 #if BREWPI_DS2413
             || ((hardware == DEVICE_HARDWARE_ONEWIRE_2413)

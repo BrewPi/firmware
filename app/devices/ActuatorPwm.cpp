@@ -13,9 +13,13 @@ uint8_t ActuatorPwm::getPwm() {
 }
 
 void ActuatorPwm::setPwm(uint8_t val) {
-    this->pwm = val;
-    this->dutyLate = 0;
-    this->dutyTime = ((this->pwm * period) / 255);
+    if(this->pwm != val){
+        this->pwm = val;
+        this->dutyTime = ((this->pwm * period) / 255);
+        if(this->pwm != (val+1) || this->pwm != (val-1)){
+            this->dutyLate = 0;
+        }
+    }
 }
 
 void ActuatorPwm::updatePwm() {

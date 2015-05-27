@@ -153,6 +153,8 @@ class TempControl{
 	TEMP_CONTROL_METHOD void updatePID(void);
 	TEMP_CONTROL_METHOD void updateState(void);
 	TEMP_CONTROL_METHOD void updateOutputs(void);
+	TEMP_CONTROL_METHOD void updatePwm(void);
+
 	TEMP_CONTROL_METHOD void detectPeaks(void);
 	
 	TEMP_CONTROL_METHOD void loadSettings(eptr_t offset);

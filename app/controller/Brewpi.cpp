@@ -106,7 +106,7 @@ void brewpiLoop(void)
 
         ui.update();
     }	
-
+    tempControl.updatePwm();
     //listen for incoming serial connections while waiting to update
     piLink.receive();
 
