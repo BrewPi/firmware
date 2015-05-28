@@ -34,10 +34,10 @@ class ActuatorPwm
         int32_t        dutyLate;
         int32_t        dutyTime;
         ticks_millis_t periodStartTime;
-        const int32_t  period = 10000;
+        int32_t  period;
 
     public:
-        ActuatorPwm(Actuator * driver);
+        ActuatorPwm(Actuator * _target, uint8_t _period);
 
         ActuatorPwm(const ActuatorPwm &obj){};
 
@@ -65,7 +65,14 @@ class ActuatorPwm
         {
             return target;
         }
+
         void setTarget(Actuator * driver)
         {
             target = driver;
-        }};
+        }
+
+        void setPeriod(uint8_t sec){
+            period = int32_t(sec) * 1000;
+        }
+
+};

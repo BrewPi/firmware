@@ -96,11 +96,11 @@ void TempControl::init(void){
 	}
 	
 	if (chamberHeater==NULL){
-	    chamberHeater = new ActuatorPwm(&defaultActuator);
+	    chamberHeater = new ActuatorPwm(&defaultActuator, ccDefaults.pwmPeriod);
 	}
 
 	if (beerHeater==NULL){
-	    beerHeater = new ActuatorPwm(&defaultActuator);
+	    beerHeater = new ActuatorPwm(&defaultActuator, ccDefaults.pwmPeriod);
 	}
 
 	updateTemperatures();
@@ -546,7 +546,9 @@ void TempControl::storeConstants(eptr_t offset){
 
 void TempControl::loadConstants(eptr_t offset){
 	eepromAccess.readBlock((void *) &cc, offset, sizeof(ControlConstants));
-	initFilters();	
+	initFilters();
+	chamberHeater->setPeriod(cc.pwmPeriod);
+	beerHeater->setPeriod(cc.pwmPeriod);
 }
 
 // write new settings to EEPROM to be able to reload them after a reset
@@ -693,6 +695,8 @@ const ControlConstants TempControl::ccDefaults PROGMEM =
 	/* rotaryHalfSteps */ 0,
 
 	/* pidMax */ intToTempDiff(10),	// +/- 10 deg Celsius
+
+	/* pwmPeriod */ 4,
 	/* fridgePwmAutoScale */ false,
 	/* beerPwmAutoScale */ false,
 	/* fridgePwmScale */ intToTempDiff(5),

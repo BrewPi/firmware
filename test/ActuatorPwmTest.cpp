@@ -57,7 +57,7 @@ uint8_t randomIntervalTest(ActuatorPwm* act, uint8_t duty, int delayMax) {
 TEST_CASE("Test ActuatorPWM class with ValueActuator as driver", "[actuatorpwm]") {
     srand(time(NULL));
     Actuator * v = new ValueActuator();
-    ActuatorPwm * act = new ActuatorPwm(v);
+    ActuatorPwm * act = new ActuatorPwm(v,4);
     // intToTemp is a macro to initialize temperatures in Celsius
 
     SECTION("PWM value is initialized to 0") {
@@ -106,7 +106,7 @@ TEST_CASE("Test ActuatorPWM class with ValueActuator as driver", "[actuatorpwm]"
 
         ticks_millis_t timeHigh = highToLowTime1 - lowToHighTime1;
         ticks_millis_t timeLow = lowToHighTime2 - highToLowTime1;
-        ticks_millis_t actualDuty = timeHigh * 255 / (timeHigh + timeLow);
+        ticks_millis_t actualDuty = (timeHigh * 255 + (timeHigh + timeLow)/2) / (timeHigh + timeLow); // rounded result
         printf("*** Timestamps testing one period with duty cycle %d and period %d***\n", duty, act->getPeriod());
         printf("lowToHigh1: %d \t highToLowTime1: %d \t lowToHigh2 %d \n", lowToHighTime1, highToLowTime1, lowToHighTime2);
         printf("time high: %d \t time low: %d \t actual duty cycle: %d\n", timeHigh, timeLow, actualDuty);

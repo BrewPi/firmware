@@ -56,6 +56,12 @@ static const char JSONKEY_beerSlowFilter[] PROGMEM = "beerSlowFilt";
 static const char JSONKEY_beerSlopeFilter[] PROGMEM = "beerSlopeFilt";
 static const char JSONKEY_lightAsHeater[] PROGMEM = "lah";
 static const char JSONKEY_rotaryHalfSteps[] PROGMEM = "hs";
+static const char JSONKEY_pwmPeriod[] PROGMEM = "pwmPeriod";
+static const char JSONKEY_fridgePwmAutoScale[] PROGMEM = "fPwmAuto";
+static const char JSONKEY_beerPwmAutoScale[] PROGMEM = "bPwmAuto";
+static const char JSONKEY_fridgePwmScale[] PROGMEM = "fPwmSc";
+static const char JSONKEY_beerPwmScale[] PROGMEM = "bPwmSc";
+
 
 // variable;
 static const char JSONKEY_beerDiff[] PROGMEM = "beerDiff";

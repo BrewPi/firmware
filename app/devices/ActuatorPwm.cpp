@@ -2,10 +2,11 @@
 #include "ActuatorPwm.h"
 #include "Ticks.h"
 
-ActuatorPwm::ActuatorPwm(Actuator* driver) : target(driver) {
+ActuatorPwm::ActuatorPwm(Actuator* _target, uint8_t _period) : target(_target) {
     this->periodStartTime = 0;
     this->target->setActive(false);
-    this->setPwm(pwm);
+    this->setPeriod(_period);
+    this->setPwm(0);
 }
 
 uint8_t ActuatorPwm::getPwm() {
