@@ -54,7 +54,7 @@ class ActuatorPwm
 
         bool isActive()
         {
-            return target -> isActive();
+            return (pwm > 0);
         }
 
 #if ACTUATOR_VIRTUAL

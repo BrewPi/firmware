@@ -28,6 +28,10 @@ void ActuatorPwm::updatePwm() {
     int32_t currentTime = ticks.millis();
     int32_t elapsedTime = currentTime - this->periodStartTime;
 
+    if ( pwm == 0 ){
+        this->target->setActive(false);
+        return;
+    }
     if (this->target->isActive()) {
         if (elapsedTime >= adjDutyTime) {
             // end of duty cycle
@@ -35,7 +39,7 @@ void ActuatorPwm::updatePwm() {
             this->dutyLate += elapsedTime - dutyTime;
         }
     }
-    if (!this->target->isActive()) {
+    if (!this->target->isActive()) { // <- do not replace with else if
         if (elapsedTime >= period) {
             // end of PWM cycle
             if (adjDutyTime < 0) {
