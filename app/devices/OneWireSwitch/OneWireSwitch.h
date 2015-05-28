@@ -21,7 +21,6 @@ public:
     void init(OneWire* oneWire, DeviceAddress address);
     DeviceAddress& getDeviceAddress();
     bool validAddress(OneWire* oneWire, DeviceAddress deviceAddress);
-    bool isConnected();
 
 protected:
     OneWire* oneWire;
@@ -29,19 +28,14 @@ protected:
 
 public:    
     /*
-     * Read all values at once, both current state and sensed values. The read performs data-integrity checks.
-     * Returns a negative result if the device cannot be read successfully within the given number of tries.
-     * The lower 4-bits are the values as described under PIO ACCESSS READ [F5h] in the ds2413 datasheet:	 
-     * b0: PIOA state
-     * b1: PIOA output latch state
-     * b2: PIOB state
-     * b3: PIOB output latch state
+     * Read all values at once, both current state and sensed values for the DS2413.
+     * Output state of 8 pins for the DS2408.
      */
-    uint8_t accessRead(uint8_t maxTries = 3);
+    uint8_t accessRead();
 
     /*
      * Writes the state of all PIOs in one operation.
-     * /param b pio data - PIOA is bit 0 (lsb), PIOB is bit 1	 
+     * /param b pio data - PIOA is bit 0 (lsb), PIOB is bit 1 for DS2413. All bits are used for DS2408
      * /param maxTries the maximum number of attempts before giving up.
      * /return true on success
      */

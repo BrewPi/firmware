@@ -121,7 +121,7 @@ inline bool isAssignable(DeviceType     type,
 
 #if BREWPI_DS2413
             || ((hardware == DEVICE_HARDWARE_ONEWIRE_2413)
-                && ((type == DEVICETYPE_SWITCH_ACTUATOR)
+                && ((type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_PWM_ACTUATOR)
                     || (DS2413_SUPPORT_SENSE && (type == DEVICETYPE_SWITCH_SENSOR))))
 #endif
 
