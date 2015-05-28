@@ -23,7 +23,7 @@
 
 #include <vector>
 
-#include "../devices/Actuator.h"
+#include "Actuator.h"
 #include "Pid.h"
 #include "TempSensor.h"
 

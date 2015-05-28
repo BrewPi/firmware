@@ -20,7 +20,7 @@
 #pragma once
 
 #include <inttypes.h>
-#include "../LowPassFilter/LowPassFilter.h"
+#include "LowPassFilter.h"
 
 class BrewPiTouch {
 public:

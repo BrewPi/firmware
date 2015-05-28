@@ -6,7 +6,7 @@
  */
 
 #pragma once
-#include "../DS2408/DS2408.h"
+#include "DS2408.h"
 
 class ValvesController : public DS2408 {
 public:
