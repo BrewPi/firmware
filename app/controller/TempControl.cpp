@@ -388,9 +388,9 @@ void TempControl::updateOutputs(void) {
 	light->setActive(isDoorOpen() || (cc.lightAsHeater && heating) || cameraLightState.isActive());	
 	fan->setActive(heating || cooling);
 	if(heating){
-	    temperature fridgeError = cs.fridgeSetting - fridgeSensor->readSlowFiltered();
-	    temperature duty = multiplyFactorTemperatureDiff(cc.fridgePwmScale, fridgeError);
-	    duty = tempDiffToInt(duty);
+	    temperature fridgeError = cs.fridgeSetting - fridgeSensor->readFastFiltered();
+	    long_temperature duty = multiplyFactorTemperatureDiff(cc.fridgePwmScale/4, fridgeError); // returns -64/+64, divide by 4 to make it fit for now
+	    duty = tempDiffToInt(4*duty);
 	    duty = constrainTemp(duty, 0, 255);
 	    chamberHeater->setPwm(duty);
 	}
