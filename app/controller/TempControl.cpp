@@ -68,7 +68,7 @@ bool TempControl::doorOpen;
 	// keep track of beer setting stored in EEPROM
 temperature TempControl::storedBeerSetting;
 	
-// Timers
+	// Timers
 tcduration_t TempControl::lastIdleTime;
 tcduration_t TempControl::lastHeatTime;
 tcduration_t TempControl::lastCoolTime;
@@ -260,7 +260,7 @@ void TempControl::updateState(void){
 			}
 			resetWaitTime();
 			if(fridgeFast > (cs.fridgeSetting+cc.idleRangeHigh) ){  // fridge temperature is too high			
-				tempControl.updateWaitTime(MIN_SWITCH_TIME, sinceHeating);
+				tempControl.updateWaitTime(MIN_SWITCH_TIME, sinceHeating);			
 				if(cs.mode==MODE_FRIDGE_CONSTANT){
 					tempControl.updateWaitTime(MIN_COOL_OFF_TIME_FRIDGE_CONSTANT, sinceCooling);
 				}
@@ -302,8 +302,8 @@ void TempControl::updateState(void){
 				state = IDLE; // within IDLE range, always go to IDLE
 				break;
 			}
-			if(state == HEATING || state == COOLING){
-				// If peak detect is not finished, but the fridge wants to switch to heat/cool
+			if(state == HEATING || state == COOLING){	
+					// If peak detect is not finished, but the fridge wants to switch to heat/cool
 				// Wait for peak detection and show on display
 				if(doNegPeakDetect == true){
 					tempControl.updateWaitTime(COOL_PEAK_DETECT_TIME, sinceCooling);
@@ -314,9 +314,9 @@ void TempControl::updateState(void){
 				else{
 					break; // peak detect has finished
 				}
-				state = WAITING_FOR_PEAK_DETECT;
+					state = WAITING_FOR_PEAK_DETECT;
+				}
 			}
-		}
 		break; 
 		case COOLING:
 		case COOLING_MIN_TIME:
@@ -369,7 +369,7 @@ void TempControl::updateState(void){
 
 void TempControl::updateEstimatedPeak(uint16_t timeLimit, temperature estimator, uint16_t sinceIdle)
 {
-	uint16_t activeTime = min(timeLimit, sinceIdle); // heat or cool time in seconds
+	uint16_t activeTime = std::min(timeLimit, sinceIdle); // heat or cool time in seconds
 	temperature estimatedOvershoot = ((long_temperature) estimator * activeTime)/3600; // overshoot estimator is in overshoot per hour
 	if(stateIsCooling()){
 		estimatedOvershoot = -estimatedOvershoot; // when cooling subtract overshoot from fridge temperature

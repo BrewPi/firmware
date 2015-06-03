@@ -17,6 +17,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Adafruit_ILI9341
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/BrewPiTouch
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Display
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/EEPROM
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/eGUI_screens
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/OneWire
 # INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/ScrollBox
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Ticks

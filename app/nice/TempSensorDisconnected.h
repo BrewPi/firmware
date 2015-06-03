@@ -1,5 +1,6 @@
 /*
- * Copyright 2012 BrewPi/Elco Jacobs.
+ * Copyright 2012-2013 BrewPi/Elco Jacobs.
+ * Copyright 2013 Matthew McGowan.
  *
  * This file is part of BrewPi.
  * 
@@ -17,9 +18,21 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VERSION_H_
-#define VERSION_H_
+#pragma once
 
-#define VERSION_STRING "0.2.10"
+#include "TempSensor.h"
 
-#endif /* VERSION_H_ */	
+class DisconnectedTempSensor : public BasicTempSensor {
+	
+public:
+	bool isConnected() { return false; }
+
+	bool init() {
+		return read()!=TEMP_SENSOR_DISCONNECTED;
+	}
+	
+	temperature read() {
+		return TEMP_SENSOR_DISCONNECTED;
+	}	
+	
+};

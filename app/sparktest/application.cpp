@@ -7,6 +7,7 @@
 #include "BrewPiTouch.h"
 #include "DS2408.h"
 #include "ValvesController.h"
+#include "Platform.h"
 
 SYSTEM_MODE(SEMI_AUTOMATIC);
 
@@ -21,6 +22,8 @@ OneWire ow(0);
 BrewPiTouch touch(D3, D2);
 
 unsigned long testText();
+void printOneWireAdresses(void);
+void ballValvesSerialTest(void);
 
 void setup() {
     pinMode(act1, OUTPUT);
@@ -54,8 +57,9 @@ void setup() {
         Serial.print(error);
         debugBox.println(error);
     }
-    touch.init();
+    //touch.init();
     debugBox.println("BrewPi started");
+    printOneWireAdresses();
     /*
     debugBox.print("It is ");
     debugBox.print(Time.timeStr());
@@ -70,6 +74,7 @@ void setup() {
     debugBox.print("My IP is: ");
     debugBox.println(WiFi.localIP());
      */
+    ballValvesSerialTest();
 }
 
 void printOneWireAdresses(void){
@@ -145,10 +150,12 @@ void touchCalibrateTest(){
 
     } else {
         digitalWrite(buzz, HIGH);
-    }INCLUDE_DIRS += $(SOURCE_PATH)/app/devices
-}*/
+    }
+}
+*/
 
 void loop(void) {
+    //printOneWireAdresses();
     ballValvesSerialTest();
 }
 

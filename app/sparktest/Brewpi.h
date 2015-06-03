@@ -39,27 +39,5 @@
 #define BREWPI_BOARD_PHOTON 'y'
 #define BREWPI_BOARD_UNKNOWN '?'
 
-bool platform_init();
 
-/*
- * Defines global config for the brewpi project. This file is included in every file in the project to ensure conditional
- * compilation directives are recognized.
- * 
- * ConfigDefault.h contains the default settings, and produces a standard Hex file.
- * To customize the build, users may add settings to Config.h, or define symbols in the project.
- */
-
-#ifdef ARDUINO
-#include "Config.h"
-#else
-#include <Config.h>                     // use search path rather than current directory, so that config.h is found elsewhere
-#endif
-#include "ConfigDefault.h"
-
-#ifdef ARDUINO
-#include "AppConfig.h"
-#else
-#include <AppConfig.h>
-#endif
-#include "AppConfigDefault.h"
 

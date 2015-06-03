@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "Brewpi.h"
 #include "Platform.h"
 #include <stdint.h>
 

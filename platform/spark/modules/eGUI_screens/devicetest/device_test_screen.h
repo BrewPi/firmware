@@ -50,4 +50,3 @@ Byte ScreenDeviceTest_OnObjectMsg(D4D_MESSAGE* pMsg);
 #endif
 
 #endif	/* DEVICE_TEST_SCREEN_H */
-

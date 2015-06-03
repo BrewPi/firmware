@@ -2,18 +2,15 @@
 #include "PiLinkHandlers.h"
 #include "DeviceManager.h"
 #include "Pins.h"
-#include "ymodem/ymodem.h"
-
-SYSTEM_MODE(SEMI_AUTOMATIC)
-
-void handleReset() 
-{ 
-	System.reset();
-}
+#if PLATFORM_ID==0
+#include "Ymodem/Ymodem.h"
+#endif
+#include "flashee-eeprom.h"
+#include "EepromManager.h"
 
 void flashFirmware()
 {
-    System.serialFirmwareUpdate(&Serial);
+    System.firmwareUpdate(&Serial);
 }
 
 
@@ -23,10 +20,10 @@ OneWire primaryOneWireBus(oneWirePin);
 
 OneWire* DeviceManager::oneWireBus(uint8_t pin) {
 #if !BREWPI_SIMULATE
-	if (pin==oneWirePin)
-		return &primaryOneWireBus;
+    if (pin==oneWirePin)
+            return &primaryOneWireBus;
 #endif
-	return NULL;
+    return NULL;
 }
 
 
@@ -53,4 +50,29 @@ int8_t DeviceManager::enumOneWirePins(uint8_t offset)
     if (offset==0)
         return oneWirePin;
     return -1;								
+}
+
+
+#define EEPROM_MAGIC1 (0xD0)
+#define EEPROM_MAGIC2 (0x9E)
+
+void eraseExternalFlash()
+{
+#if PLATFORM_ID==PLATFORM_SPARK_CORE
+    Flashee::Devices::userFlash().eraseAll();    
+#endif    
+}
+
+bool platform_init()
+{            
+    bool initialize = (EEPROM.read(0)!=EEPROM_MAGIC1 || EEPROM.read(1)!=EEPROM_MAGIC2);
+    if (initialize) {
+        
+        eraseExternalFlash();
+        
+        EEPROM.write(0, EEPROM_MAGIC1);
+        EEPROM.write(1, EEPROM_MAGIC2);
+    }
+    eepromAccess.init();
+    return initialize;
 }
