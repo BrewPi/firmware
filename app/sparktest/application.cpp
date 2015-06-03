@@ -93,6 +93,12 @@ void printOneWireAdresses(void){
 
 void ballValvesSerialTest(){
     uint8_t addr[8];
+
+    if (!ow.search(addr)) { // Search for first device on bus
+            debugBox.println("Could not find OneWire device.");
+    }
+
+
     ValvesController valves;
     valves.init(&ow, addr);
     
@@ -125,7 +131,7 @@ void ballValvesSerialTest(){
         delay(50);        
     }
 }
-
+/*
 void touchCalibrateTest(){
     touch.calibrate(&tft);
     touch.update();
@@ -139,11 +145,11 @@ void touchCalibrateTest(){
 
     } else {
         digitalWrite(buzz, HIGH);
-    }
-}
+    }INCLUDE_DIRS += $(SOURCE_PATH)/app/devices
+}*/
 
 void loop(void) {
-    printOneWireAdresses();
+    ballValvesSerialTest();
 }
 
 unsigned long testFillScreen() {
