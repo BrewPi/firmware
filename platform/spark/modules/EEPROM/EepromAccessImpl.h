@@ -1,16 +1,16 @@
 #pragma once
 
 #include "flashee-eeprom.h"
-#include "SparkEepromRegions.h"
+
+namespace Flashee {
+    class FlashDevice;
+};
 
 class SparkEepromAccess
 {
     Flashee::FlashDevice* flash;
 public:
-    SparkEepromAccess() 
-    {
-        flash = Flashee::Devices::createAddressErase(4096*EEPROM_CONTROLLER_START_BLOCK, 4096*EEPROM_CONTROLLER_END_BLOCK);
-    }
+    void init();
     
     uint8_t readByte(eptr_t offset) {
         uint8_t value;
@@ -26,7 +26,11 @@ public:
     }
     void writeBlock(eptr_t target, const void* source, uint16_t size) {
         flash->write(source, target, size);
-    }	
+    }
+    
+    size_t length() {
+        return flash->length();
+    }
 };
 
 typedef SparkEepromAccess EepromAccess;

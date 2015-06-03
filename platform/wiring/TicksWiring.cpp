@@ -13,7 +13,7 @@
 
 // return time that has passed since timeStamp, take overflow into account
 ticks_seconds_t HardwareTicks::timeSince(ticks_seconds_t previousTime){
-	ticks_seconds_t currentTime = ticks.seconds();
+	ticks_seconds_t currentTime = TICKS.seconds();
 	return ::timeSince(currentTime, previousTime);
 }
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "BrewPi.h"
+#include "Brewpi.h"
 
 // You can exclude certain features from OneWire.  In theory, this
 // might save some space.  In practice, the compiler automatically
@@ -36,8 +36,12 @@
 #define ONEWIRE_CRC16 1
 #endif
 
+#ifndef FALSE
 #define FALSE 0
+#endif
+#ifndef TRUE
 #define TRUE  1
+#endif
 
 #ifndef ONEWIRE_PARASITE_SUPPORT
 #define ONEWIRE_PARASITE_SUPPORT 1

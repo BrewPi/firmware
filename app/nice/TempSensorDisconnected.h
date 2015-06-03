@@ -1,5 +1,6 @@
 /*
- * Copyright 2015 BrewPi/Elco Jacobs/Matthew McGowan. 
+ * Copyright 2012-2013 BrewPi/Elco Jacobs.
+ * Copyright 2013 Matthew McGowan.
  *
  * This file is part of BrewPi.
  * 
@@ -17,18 +18,21 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PILINKHANDLERS_H
-#define	PILINKHANDLERS_H
+#pragma once
 
-/**
- * Called to invoke a system reset.
- */
-void handleReset(bool exit=true);
+#include "TempSensor.h"
 
-/**
- * Called to start the platform firmware update process.
- */
-void flashFirmware();
+class DisconnectedTempSensor : public BasicTempSensor {
+	
+public:
+	bool isConnected() { return false; }
 
-#endif	/* PILINKHANDLERS_H */
-
+	bool init() {
+		return read()!=TEMP_SENSOR_DISCONNECTED;
+	}
+	
+	temperature read() {
+		return TEMP_SENSOR_DISCONNECTED;
+	}	
+	
+};
