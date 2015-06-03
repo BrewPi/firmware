@@ -39,7 +39,6 @@
 #define BREWPI_BOARD_PHOTON 'y'
 #define BREWPI_BOARD_UNKNOWN '?'
 
-bool platform_init();
 
 /*
  * Defines global config for the brewpi project. This file is included in every file in the project to ensure conditional
@@ -63,3 +62,4 @@ bool platform_init();
 #endif
 #include "AppConfigDefault.h"
 
+#define VERSION_STRING "0.2.10"
