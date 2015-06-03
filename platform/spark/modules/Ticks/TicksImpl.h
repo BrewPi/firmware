@@ -13,6 +13,8 @@ typedef HardwareDelay DelayImpl;
 #define TICKS_IMPL_CONFIG
 #define DELAY_IMPL_CONFIG
 
-extern TicksImpl ticks;
+#include "TicksDeclaration.h"
+
+extern TicksImpl TICKS;
 extern DelayImpl wait;
 

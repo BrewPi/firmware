@@ -20,7 +20,6 @@
 #include "Brewpi.h"
 #include "TemperatureFormats.h"
 #include "Platform.h"
-#include "TempControl.h"
 #include <string.h>
 #include <stdarg.h>
 
@@ -199,38 +198,6 @@ bool stringToUint16(uint16_t* result, const char * numberString) {
         *result = newValue;
     }
     return true;
-}
-
-// convertToInternalTemp receives the external temp format in fixed point and converts it to the internal format
-// It scales the value for Fahrenheit and adds the offset needed for absolute temperatures. For temperature differences, use no offset.
-
-long_temperature convertToInternalTempImpl(long_temperature rawTemp, bool addOffset) {
-    if (tempControl.cc.tempFormat == 'F') { // value received is in F, convert to C
-        if (addOffset) {
-            rawTemp = rawTemp - (temperature(32) << TEMP_FIXED_POINT_BITS);
-        }
-        int8_t rounder = (rawTemp < 0) ? -45 : 45;
-        rawTemp = (rawTemp * 50 + rounder) / 90; // rounded result        
-    }
-    if (addOffset) {
-        rawTemp += C_OFFSET;
-    }
-    return rawTemp;
-}
-
-// convertAndConstrain adds an offset, then scales with *9/5 for Fahrenheit. Use it without the offset argument for temperature differences
-
-long_temperature convertFromInternalTempImpl(long_temperature rawTemp, bool addOffset) {
-    if (tempControl.cc.tempFormat == 'F') { // value received is in F, convert to C
-        if (addOffset) {
-            rawTemp -= F_OFFSET;
-        }
-        int8_t rounder = (rawTemp < 0) ? -25 : 25;
-        rawTemp = (rawTemp * 90 + rounder) / 50; // round result
-    } else if (addOffset) {
-        rawTemp -= C_OFFSET;
-    }
-    return rawTemp;
 }
 
 int fixedToTenths(long_temperature temp) {

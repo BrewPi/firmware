@@ -43,8 +43,14 @@ class eGuiSettingsClass {
 
 public:
 
-    eGuiSettingsClass() {
+    void init() {
+#if PLATFORM_ID==0        
         flash = Flashee::Devices::createAddressErase(4096 * EEPROM_EGUI_SETTINGS_START_BLOCK, 4096 * EEPROM_EGUI_SETTINGS_END_BLOCK);
+#elif PLATFORM_ID==6
+        flash = Flashee::Devices::createEepromDevice(EEPROM_EGUI_SETTINGS_START_BLOCK, EEPROM_EGUI_SETTINGS_END_BLOCK);
+#else
+#error Unknown Product ID
+#endif
     };
 
     /**

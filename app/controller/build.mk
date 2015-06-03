@@ -14,6 +14,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/DS2408
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/DS2413
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Display
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/EEPROM
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/eGUI_screens
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/LowPassFilter
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/OneWire
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/OneWireSwitch
