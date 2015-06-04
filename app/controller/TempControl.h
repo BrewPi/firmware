@@ -33,18 +33,10 @@
 
 // Set minimum off time to prevent short cycling the compressor in seconds
 const uint16_t MIN_COOL_OFF_TIME = 300;
-// Use a minimum off time for the heater as well, so it heats in cycles, not lots of short bursts
-const uint16_t MIN_HEAT_OFF_TIME = 300;
 // Minimum on time for the cooler.
-const uint16_t MIN_COOL_ON_TIME = 180;
-// Minimum on time for the heater.
-const uint16_t MIN_HEAT_ON_TIME = 180;
-// Use a large minimum off time in fridge constant mode. No need for very fast cycling.
-const uint16_t MIN_COOL_OFF_TIME_FRIDGE_CONSTANT = 600;
-// Set a minimum off time between switching between heating and cooling
-const uint16_t MIN_SWITCH_TIME = 600;
+const uint16_t MIN_COOL_ON_TIME = 120;
 // Time allowed for peak detection
-const uint16_t COOL_PEAK_DETECT_TIME = 1800;
+const uint16_t COOL_PEAK_DETECT_TIME = 900;
 const uint16_t HEAT_PEAK_DETECT_TIME = 900;
 
 // These two structs are stored in and loaded from EEPROM
@@ -114,11 +106,9 @@ enum states{
 	HEATING,					// 3
 	COOLING,					// 4
 	WAITING_TO_COOL,			// 5
-	WAITING_TO_HEAT,			// 6
-	WAITING_FOR_PEAK_DETECT,	// 7
-	COOLING_MIN_TIME,			// 8
-	HEATING_MIN_TIME,			// 9
-	NUM_STATES
+	WAITING_FOR_PEAK_DETECT,	// 6
+	COOLING_MIN_TIME,			// 7
+	NUM_STATES                  // 8
 };
 
 #define TC_STATE_MASK 0x7;	// 3 bits
@@ -246,10 +236,7 @@ class TempControl{
 	TEMP_CONTROL_FIELD ControlConstants cc;
 	TEMP_CONTROL_FIELD ControlSettings cs;
 	TEMP_CONTROL_FIELD ControlVariables cv;
-	
-	// Defaults for control constants. Defined in cpp file, copied with memcpy_p
-	static const ControlConstants ccDefaults;
-			
+
 	private:
 	// keep track of beer setting stored in EEPROM
 	TEMP_CONTROL_FIELD temperature storedBeerSetting;
@@ -267,6 +254,8 @@ class TempControl{
 	TEMP_CONTROL_FIELD bool doNegPeakDetect;
 	TEMP_CONTROL_FIELD bool doorOpen;
 	
+
+
 	friend class TempControlState;
 };
 	

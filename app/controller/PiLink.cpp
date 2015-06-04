@@ -24,7 +24,6 @@
 #include "stddef.h"
 #include "PiLink.h"
 
-#include "Version.h"
 #include "TempControl.h"
 #include "Display.h"
 #include "JsonKeys.h"
