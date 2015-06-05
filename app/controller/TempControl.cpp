@@ -67,10 +67,10 @@ bool   TempControl::doorOpen;
 temperature TempControl::storedBeerSetting;
 
 // Timers
-tcduration_t TempControl::lastIdleTime;
-tcduration_t TempControl::lastHeatTime;
-tcduration_t TempControl::lastCoolTime;
-tcduration_t TempControl::waitTime;
+tcduration_t                      TempControl::lastIdleTime;
+tcduration_t                      TempControl::lastHeatTime;
+tcduration_t                      TempControl::lastCoolTime;
+tcduration_t                      TempControl::waitTime;
 #endif
 
 ControlConstants const ccDefaults PROGMEM =
@@ -460,12 +460,19 @@ void TempControl::updateState(void)
         case COOLING :
         case COOLING_MIN_TIME :
         {
+            if (tempControl.chamberCooler == &defaultActuator)
+            {
+                state = IDLE;    // cooler uninstalled
+
+                break;
+            }
+
             doNegPeakDetect = true;
             lastCoolTime    = secs;
 
             updateEstimatedPeak(cc.maxCoolTimeForEstimate, cs.coolEstimator, sinceIdle);
 
-            state = COOLING;    // set to cooling here, so the display of COOLING/COOLING_MIN_TIME is correct
+            state = COOLING;     // set to cooling here, so the display of COOLING/COOLING_MIN_TIME is correct
 
             // stop cooling when estimated fridge temp peak lands on target or if beer is already too cold (1/2 sensor bit idle zone)
             if ((cv.estimatedPeak <= cs.fridgeSetting)
@@ -473,9 +480,9 @@ void TempControl::updateState(void)
             {
                 if (sinceIdle > MIN_COOL_ON_TIME)
                 {
-                    cv.negPeakEstimate = cv.
-                        estimatedPeak;    // remember estimated peak when I switch to IDLE, to adjust estimator later
-                    state = IDLE;
+                    // remember estimated peak when I switch to IDLE, to adjust estimator later
+                    cv.negPeakEstimate = cv.estimatedPeak;
+                    state              = IDLE;
 
                     break;
                 }
@@ -492,20 +499,27 @@ void TempControl::updateState(void)
 
         case HEATING :
         {
+            if (tempControl.chamberHeater -> getTarget() == &defaultActuator)
+            {
+                state = IDLE;    // heater uninstalled
+
+                break;
+            }
+
             doPosPeakDetect = true;
             lastHeatTime    = secs;
 
             updateEstimatedPeak(cc.maxHeatTimeForEstimate, cs.heatEstimator, sinceIdle);
 
-            state = HEATING;    // reset to heating here, so the display of HEATING/HEATING_MIN_TIME is correct
+            state = HEATING;     // reset to heating here, so the display of HEATING/HEATING_MIN_TIME is correct
 
             // stop heating when estimated fridge temp peak lands on target or if beer is already too warm (1/2 sensor bit idle zone)
             if ((cv.estimatedPeak >= cs.fridgeSetting)
                     || ((cs.mode != MODE_FRIDGE_CONSTANT) && (beerFast > (cs.beerSetting + 16))))
             {
-                cv.posPeakEstimate = cv.
-                    estimatedPeak;    // remember estimated peak when I switch to IDLE, to adjust estimator later
-                state = IDLE;
+                // remember estimated peak when I switch to IDLE, to adjust estimator later
+                cv.posPeakEstimate = cv.estimatedPeak;
+                state              = IDLE;
 
                 break;
             }
@@ -550,7 +564,9 @@ void TempControl::updateOutputs(void)
     light -> setActive(isDoorOpen() || (cc.lightAsHeater && heating) || cameraLightState.isActive());
     fan -> setActive(heating || cooling);
 
-    if (heating)
+    // when still heating, or when waiting for the positive peak, keep updating PWM
+    // if
+    if (heating || state == WAITING_FOR_PEAK_DETECT && doPosPeakDetect)
     {
         temperature      fridgeError = cs.fridgeSetting - fridgeSensor -> readFastFiltered();
         long_temperature duty        = multiplyFactorTemperatureDiff(cc.fridgePwmScale / 4,
@@ -579,7 +595,7 @@ void TempControl::detectPeaks(void)
     LOG_ID_TYPE detected = 0;
     temperature peak, estimate, error, oldEstimator, newEstimator;
 
-    if (doPosPeakDetect &&!stateIsHeating())
+    if (doPosPeakDetect)
     {
         peak         = fridgeSensor -> detectPosPeak();
         estimate     = cv.posPeakEstimate;
@@ -588,13 +604,23 @@ void TempControl::detectPeaks(void)
 
         if (peak != INVALID_TEMP)
         {
-            // positive peak detected
+            // positive peak detected. Can also happen when still heating.
             if (error > cc.heatingTargetUpper)
             {
                 // Peak temperature was higher than the estimate.
                 // Overshoot was higher than expected
                 // Increase estimator to increase the estimated overshoot
-                increaseEstimator(&(cs.heatEstimator), error);
+                if (!stateIsHeating())
+                {
+                    // if not heating, increase overshoot estimator. We heated too long.
+                    increaseEstimator(&(cs.heatEstimator), error);
+                }
+
+                if (cc.fridgePwmAutoScale)
+                {
+                    // decrease PWM scaling
+                    decreaseEstimator(&(cc.fridgePwmScale), cv.beerDiff); // use actual difference here, not estimate
+                }
             }
 
             if (error < cc.heatingTargetLower)
@@ -602,7 +628,16 @@ void TempControl::detectPeaks(void)
                 // Peak temperature was lower than the estimate.
                 // Overshoot was lower than expected
                 // Decrease estimator to decrease the estimated overshoot
-                decreaseEstimator(&(cs.heatEstimator), error);
+                if (!stateIsHeating())
+                {
+                    // if not heating, decrease overshoot estimator. We heated too short.
+                    decreaseEstimator(&(cs.heatEstimator), error);
+                }
+
+                if (cc.fridgePwmAutoScale)
+                {
+                    increaseEstimator(&(cc.fridgePwmScale), cv.beerDiff); // use actual difference here, not estimate
+                }
             }
 
             detected = INFO_POSITIVE_PEAK;
@@ -904,7 +939,6 @@ bool TempControl::stateIsHeating(void)
 {
     return (state == HEATING);
 }
-
 
 control_mode_t ModeControl_GetMode()
 {
