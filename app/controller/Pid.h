@@ -22,13 +22,14 @@
 #include "TemperatureFormats.h"
 #include "FilterCascaded.h"
 #include "TempSensor.h"
+#include "ActuatorPwm.h"
 
 #pragma once
 
 class Pid
 {
     public:
-        Pid();
+        Pid(TempSensor * input, Actuator * output);
 
         Pid(const Pid & orig);
 
@@ -46,15 +47,18 @@ class Pid
 
         void setInputFilter(uint8_t b);
 
-        void setSlopeFilter(uint8_t b);
+        void setDerivativeFilter(uint8_t b);
+
+        void setDoubleDerivativeFilter(uint8_t b);
 
         void setMinMax(fixed7_9 min,
                        fixed7_9 max);
 
     private:
-        fixed7_9         Kp;
-        fixed7_9         Ki;
-        fixed7_9         Kd;
+        fixed7_9         Kp; // proportional gain
+        fixed7_9         Ki; // integral gain
+        fixed7_9         Kd; // derivative gain
+        fixed7_9         Ka; // integrator anti windup gain
         fixed7_9         min;
         fixed7_9         max;
         fixed7_9         setPoint;
@@ -63,9 +67,11 @@ class Pid
         fixed7_9         i;
         fixed7_9         d;
         fixed7_9         error;
-        fixed7_9         slope;
+        fixed7_9         derivative;
+        fixed7_9         doubleDerivative;
         long_temperature integral;
         uint8_t          integralUpdateCounter;
         FilterCascaded   inputFilter;
-        FilterCascaded   slopefilter;
+        FilterCascaded   derivativeFilter;
+        FilterCascaded   doubleDerivativeFilter;
 };

@@ -21,24 +21,63 @@
 
 #include "Control.h"
 
-#include "TemperatureFormats.h"
+#include <stddef.h>
+
+#include "../devices/Actuator/Actuator.h"
+#include "../devices/Sensor.h"
+#include "../devices/TempSensor/TempSensorDisconnected.h"
+
 
 Control::Control(){}
 
+extern ValueSensor<bool>      defaultSensor;
+extern ValueActuator          defaultActuator;
+extern DisconnectedTempSensor defaultTempSensor;
+
 void Control::initBackwardsCompatible(void)
 {
-    Pid * fridgePid = new Pid;
-    Pid * beerPid   = new Pid;
 
-    beerPid -> setConstants(doubleToTempDiff(5.0), doubleToTempDiff(0.2), doubleToTempDiff(-1.5));
-    fridgePid -> setConstants(doubleToTempDiff(5.0), doubleToTempDiff(0.2), doubleToTempDiff(-1.5));
+    // this is for cases where the device manager hasn't configured beer/fridge sensor.
+    if (beerSensor == NULL)
+    {
+        beerSensor = new TempSensor(TEMP_SENSOR_TYPE_BEER, &defaultTempSensor);
+        beerSensor -> init();
+    }
 
-    beerPid->setInputFilter(4u);
-    beerPid->setSlopeFilter(4u);
-    fridgePid->setInputFilter(4u);
-    fridgePid->setSlopeFilter(4u);
+    if (fridgeSensor == NULL)
+    {
+        fridgeSensor = new TempSensor(TEMP_SENSOR_TYPE_FRIDGE, &defaultTempSensor);
+        fridgeSensor -> init();
+    }
 
-    beerPid->setMinMax(intToTemp(-10),intToTemp(10));
-    pids.push_back(beerPid);
-    pids.push_back(fridgePid);
+    if (chamberHeater == NULL){
+        chamberHeater = new ActuatorPwm(&defaultActuator, 4);
+    }
+    if (chamberCooler == NULL){
+            chamberCooler = new ActuatorPwm(&defaultActuator, 600);
+        }
+
+    if (beerHeater == NULL)
+    {
+        beerHeater = new ActuatorPwm(&defaultActuator, 4);
+    }
+
+    Pid * beerHeaterPid   = new Pid(beerSensor, beerHeater);
+    Pid * fridgeHeaterPid = new Pid(fridgeSensor, chamberHeater);
+    Pid * fridgeCoolerPid = new Pid(fridgeSensor, chamberCooler);
+    //Pid * beerToFridgePid = new Pid;
+
+    pids.push_back(beerHeaterPid);
+    pids.push_back(fridgeHeaterPid);
+    pids.push_back(fridgeCoolerPid);
+    // pids.push_back(beerToFridgePid);
+
+    for ( auto &i : pids ) {
+       // i->setConstants(doubleToTempDiff(5.0), doubleToTempDiff(0.2), doubleToTempDiff(-1.5));
+        i->setInputFilter(4u);
+        i->setDerivativeFilter(4u);
+        i->setDoubleDerivativeFilter(4u);
+        i->setMinMax(0, 255);
+    }
 }
+

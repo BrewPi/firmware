@@ -23,8 +23,8 @@
 
 #include <vector>
 
-#include "Actuator.h"
 #include "Pid.h"
+#include "ActuatorPwm.h"
 #include "TempSensor.h"
 
 class Control
@@ -41,11 +41,18 @@ class Control
 
         void update(void);
 
-
-
         std::vector<TempSensor*> sensors;
         std::vector<Pid*>        pids;
         std::vector<Actuator*>   actuators;
+
+        // pointers for compatibility with device manager
+        TempSensor *      beerSensor;
+        TempSensor *      fridgeSensor;
+        BasicTempSensor * ambientSensor;
+        Actuator *        chamberCooler;
+        Actuator *     chamberHeater;
+        Actuator *     beerHeater;
+
 };
 
 

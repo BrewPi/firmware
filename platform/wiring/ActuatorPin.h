@@ -21,10 +21,13 @@ class DigitalPinActuator ACTUATOR_BASE_CLASS_DECL
 		setActive(false);
 		pinMode(pin, OUTPUT);
 	}
+	ACTUATOR_METHOD ~DigitalPinActuator(){}
 	
 	inline ACTUATOR_METHOD void setActive(bool active) {
 		digitalWrite(pin, active^invert ? HIGH : LOW);
 	}
 	
 	bool isActive() { return ((digitalRead(pin)!=LOW) ^ invert); }
+
+	void process(uint8_t val);
 };

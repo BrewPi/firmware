@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <stdint.h>
 #include "Devices.h"
 
 /**
@@ -47,6 +48,7 @@ class Actuator
 	public:	
 	ACTUATOR_METHOD void setActive(bool active) ACTUATOR_METHOD_IMPL;
 	ACTUATOR_METHOD bool isActive() ACTUATOR_METHOD_IMPL;
+	ACTUATOR_METHOD void process(uint8_t val) ACTUATOR_METHOD_IMPL;
 #if ACTUATOR_VIRTUAL
 	virtual ~Actuator() {}
 #endif		
@@ -64,6 +66,7 @@ public:
 
 	ACTUATOR_METHOD void setActive(bool active) { state = active; }
 	ACTUATOR_METHOD bool isActive() { return state; }
+	ACTUATOR_METHOD void process(uint8_t val) {}
 
 private:
 	bool state;	

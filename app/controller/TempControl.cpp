@@ -566,7 +566,7 @@ void TempControl::updateOutputs(void)
 
     // when still heating, or when waiting for the positive peak, keep updating PWM
     // if
-    if (heating || state == WAITING_FOR_PEAK_DETECT && doPosPeakDetect)
+    if (heating || ((state == WAITING_FOR_PEAK_DETECT) && doPosPeakDetect))
     {
         temperature      fridgeError = cs.fridgeSetting - fridgeSensor -> readFastFiltered();
         long_temperature duty        = multiplyFactorTemperatureDiff(cc.fridgePwmScale / 4,

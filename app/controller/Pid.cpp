@@ -23,14 +23,14 @@
 #include "TempSensor.h"
 #include "TemperatureFormats.h"
 
-Pid::Pid()
+Pid::Pid(TempSensor * input, Actuator * output)
 {
-    setConstants(doubleToTempDiff(5.0), doubleToTempDiff(0.2), doubleToTempDiff(-1.5));
+    setConstants(doubleToTempDiff(10.0), doubleToTempDiff(0.2), doubleToTempDiff(-1.5));
     setMinMax(MIN_TEMP, MAX_TEMP);
 
     integralUpdateCounter = 0;
     error                 = 0;
-    slope                 = 0;
+    derivative            = 0;
     integral              = 0;
 }
 
@@ -43,6 +43,7 @@ void Pid::setConstants(fixed7_9 kp,
     Kp = kp;
     Ki = ki;
     Kd = kd;
+    Ka = 5*Kp;
 }
 
 fixed7_9 Pid::update(fixed7_9 input)
@@ -51,48 +52,28 @@ fixed7_9 Pid::update(fixed7_9 input)
 
     error = setPoint - inputFilter.readOutput();
 
-    slopefilter.addDoublePrecision(inputFilter.readOutputDoublePrecision()
+    derivativeFilter.addDoublePrecision(inputFilter.readOutputDoublePrecision()
                                    - inputFilter.readOldestOutputDoublePrecision());
 
-    slope = slopefilter.readOutput();
+    doubleDerivativeFilter.addDoublePrecision(derivativeFilter.readOutputDoublePrecision()
+                                   - derivativeFilter.readOldestOutputDoublePrecision());
 
-    if (integralUpdateCounter++ == 60){
-        integralUpdateCounter = 0;
+    derivative = derivativeFilter.readOutput();
+    doubleDerivative = doubleDerivativeFilter.readOutput();
 
-        temp_diff integratorUpdate = error;
-        bool      updateSign       = (integratorUpdate > 0);    // 1 = positive, 0 = negative
-        bool      integratorSign   = (integral > 0);
 
-        if (updateSign == integratorSign){
-            // update will increase integrator action
-            if ((output >= max) || (output <= min)){
-                // output is already saturated, don't increase integral
-                integratorUpdate = 0;
-            } else if ((slope < 0) && updateSign){
-                // input is decreasing and error is positive
-                integratorUpdate = 0;    // already moving in the right direction
-            } else if ((slope > 0) &&!updateSign){
-                // input is increasing and error is negative
-                integratorUpdate = 0;    // already moving in the right direction
-            }
-        } else{
-            // integrator action is decreased. Decrease faster than increase.
-            // quadratically when above 0.5 degree difference
-            integratorUpdate = integratorUpdate * 2;
-
-            if (error > intToTempDiff(1)){
-                integratorUpdate = multiplyFactorTemperatureDiff(integratorUpdate, integratorUpdate);
-            }
-        }
-
-        integral += integratorUpdate;
-    }
 
     // calculate PID parts.
     p      = multiplyFactorTemperatureDiff(Kp, error);
     i      = multiplyFactorTemperatureDiffLong(Ki, integral);
-    d      = multiplyFactorTemperatureDiff(Kd, slope);
-    output = constrainTemp(p + i + d, min, max);
+    d      = multiplyFactorTemperatureDiff(Kd, derivative);
+
+    long_temperature pidResult = p + i + d;
+
+    output = constrainTemp(pidResult, min, max);
+
+    // update integral with anti-windup back calculation
+    integral += (error + multiplyFactorTemperatureDiff(Ka, output-pidResult)); // pidResult - output is zero when actuator is not saturated
 
     return output;
 }

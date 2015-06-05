@@ -78,6 +78,7 @@ class OneWireActuator:
             return device.sense(pio, invert);    // on device failure, default is high for invert, low for regular.
         }
 #endif
+        void process(uint8_t val){};
 
     private:
         DS2413 device;
