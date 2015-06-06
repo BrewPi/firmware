@@ -23,21 +23,6 @@
 #include <stdint.h>
 #include "Devices.h"
 
-/**
- * Actuator needs to be virtual so that instance pointers can be destroyed via the virtual destructor.
- */
-#define ACTUATOR_VIRTUAL 1
-
-#if ACTUATOR_VIRTUAL
-	#define ACTUATOR_METHOD virtual
-	#define ACTUATOR_METHOD_IMPL =0
-	#define ACTUATOR_BASE_CLASS_DECL : public Actuator
-#else
-	#define ACTUATOR_METHOD inline
-	#define ACTUATOR_METHOD_IMPL {}
-	#define ACTUATOR_BASE_CLASS_DECL
-#endif
-
 
 /*
  * An actuator simply turns something on or off.                        
@@ -45,28 +30,26 @@
 
 class Actuator
 {
-	public:	
-	ACTUATOR_METHOD void setActive(bool active) ACTUATOR_METHOD_IMPL;
-	ACTUATOR_METHOD bool isActive() ACTUATOR_METHOD_IMPL;
-	ACTUATOR_METHOD void process(uint8_t val) ACTUATOR_METHOD_IMPL;
-#if ACTUATOR_VIRTUAL
-	virtual ~Actuator() {}
-#endif		
-		
+	public:
+    Actuator(){}
+    virtual ~Actuator() {}
+    virtual void setActive(bool active) = 0;
+	virtual bool isActive() = 0;
+	virtual void process(uint8_t val) = 0;
 };
 
 /*
  * An actuator that simply remembers the set value. This is primary used for testing.
  */
-class ValueActuator ACTUATOR_BASE_CLASS_DECL
+class ValueActuator : public Actuator
 {
 public:
 	ValueActuator() : state(false) {}
 	ValueActuator(bool initial) : state(initial) {}
 
-	ACTUATOR_METHOD void setActive(bool active) { state = active; }
-	ACTUATOR_METHOD bool isActive() { return state; }
-	ACTUATOR_METHOD void process(uint8_t val) {}
+	virtual void setActive(bool active) { state = active; }
+	virtual bool isActive() { return state; }
+	virtual void process(uint8_t val) {}
 
 private:
 	bool state;	

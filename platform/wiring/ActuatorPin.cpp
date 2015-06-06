@@ -20,37 +20,14 @@
 
 
 
-#pragma once
+#include "ActuatorPin.h"
 
-#include "Platform.h"
-#include "Actuator.h"
-
-class DigitalPinActuator:
-    public Actuator
+DigitalPinActuator::DigitalPinActuator(uint8_t pin,
+        bool                                   invert)
 {
-    private:
-        bool    invert;
-        uint8_t pin;
+    this -> invert = invert;
+    this -> pin    = pin;
 
-    public:
-        DigitalPinActuator(uint8_t pin,
-                           bool    invert);
-
-        ~DigitalPinActuator()
-        {
-        }
-
-        inline void setActive(bool active)
-        {
-            digitalWrite(pin, (active ^ invert) ? HIGH : LOW);
-        }
-
-        inline bool isActive()
-        {
-            return ((digitalRead(pin) != LOW) ^ invert);
-        }
-
-        void process(uint8_t val)
-        {
-        }
-};
+    setActive(false);
+    pinMode(pin, OUTPUT);
+}
