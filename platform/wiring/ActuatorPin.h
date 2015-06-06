@@ -50,7 +50,7 @@ class DigitalPinActuator:
             return ((digitalRead(pin) != LOW) ^ invert);
         }
 
-        void process(uint8_t val)
+        void write(uint8_t val)
         {
         }
 };

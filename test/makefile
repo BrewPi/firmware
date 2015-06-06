@@ -38,19 +38,20 @@ target_files = $(patsubst $(SRC_ROOT)%,%,$(call rwildcard,$(SRC_ROOT)$1,$2))
 CSRC += $(call target_files,test,*.c)
 CPPSRC += $(call target_files,test,*.cpp)
 
-CPPSRC += $(SOURCE_PATH)app/controller/TemperatureFormats.cpp
-CPPSRC += $(SOURCE_PATH)app/devices/ActuatorPwm.cpp
-CPPSRC += $(SOURCE_PATH)app/devices/ActuatorOnOff.cpp
+CPPSRC += $(SOURCE_PATH)platform/wiring/TemperatureFormats.cpp
+CPPSRC += $(SOURCE_PATH)app/controller/TemperatureControllerFormats.cpp
+CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorPwm.cpp
+CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorOnOff.cpp
 
 
 INCLUDE_DIRS += $(SOURCE_PATH)app/controller
 INCLUDE_DIRS += $(SOURCE_PATH)app/devices
 INCLUDE_DIRS += $(SOURCE_PATH)app/devices/Actuator
-INCLUDE_DIRS += $(SOURCE_PATH)app/devices/OneWire
+# INCLUDE_DIRS += $(SOURCE_PATH)app/devices/OneWire
 INCLUDE_DIRS += $(SOURCE_PATH)app/devices/TempSensor
 INCLUDE_DIRS += $(SOURCE_PATH)app/controller/Filter
 INCLUDE_DIRS += $(SOURCE_PATH)app/fallback
-#INCLUDE_DIRS += $(SOURCE_PATH)platform/wiring
+INCLUDE_DIRS += $(SOURCE_PATH)platform/wiring
 #INCLUDE_DIRS += $(SOURCE_PATH)platform/spark
 #INCLUDE_DIRS += $(SOURCE_PATH)platform/spark/modules
 

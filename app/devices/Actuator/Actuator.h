@@ -35,7 +35,7 @@ class Actuator
     virtual ~Actuator() {}
     virtual void setActive(bool active) = 0;
 	virtual bool isActive() = 0;
-	virtual void process(uint8_t val) = 0;
+	virtual void write(uint8_t val) = 0;
 };
 
 /*
@@ -49,7 +49,7 @@ public:
 
 	virtual void setActive(bool active) { state = active; }
 	virtual bool isActive() { return state; }
-	virtual void process(uint8_t val) {}
+	virtual void write(uint8_t val) {}
 
 private:
 	bool state;	

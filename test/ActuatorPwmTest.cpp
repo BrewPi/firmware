@@ -4,12 +4,14 @@
 #include <time.h>       /* time, to seed rand */
 
 #include "ActuatorPwm.h"
+#include "ActuatorOnOff.h"
 #include "Ticks.h"
 #include <cstring>
 
 #include "main.h"
 
-uint8_t randomIntervalTest(ActuatorPwm* act, uint8_t duty, int delayMax) {
+
+uint8_t randomIntervalTest(ActuatorPwm* act, Actuator * target, uint8_t duty, int delayMax) {
     act->setPwm(duty);
     ticks_millis_t lowToHighTime = ticks.millis();
     ticks_millis_t highToLowTime = ticks.millis();
@@ -26,7 +28,7 @@ uint8_t randomIntervalTest(ActuatorPwm* act, uint8_t duty, int delayMax) {
         do {
             highToLowTime = random_delay(delayMax);
             act->updatePwm();
-        } while (act->isActive());
+        } while (target->isActive());
         ticks_millis_t highTime = highToLowTime - lowToHighTime;
         if (i > 0) { // skip first cycle in totals, it can be incomplete
             totalHighTime += highTime;
@@ -36,7 +38,7 @@ uint8_t randomIntervalTest(ActuatorPwm* act, uint8_t duty, int delayMax) {
         do {
             lowToHighTime = random_delay(delayMax);
             act->updatePwm();
-        } while (!act->isActive());
+        } while (!target->isActive());
         ticks_millis_t lowTime = lowToHighTime - highToLowTime;
         if (i > 0) { // skip first cycle in totals, it can have old duty cycle
             totalLowTime += lowTime;
@@ -56,8 +58,8 @@ uint8_t randomIntervalTest(ActuatorPwm* act, uint8_t duty, int delayMax) {
 
 TEST_CASE("Test ActuatorPWM class with ValueActuator as driver", "[actuatorpwm]") {
     srand(time(NULL));
-    Actuator * v = new ValueActuator();
-    ActuatorPwm * act = new ActuatorPwm(v,4);
+    Actuator * target = new ValueActuator();
+    ActuatorPwm * act = new ActuatorPwm(target,4);
     // intToTemp is a macro to initialize temperatures in Celsius
 
     SECTION("PWM value is initialized to 0") {
@@ -94,15 +96,15 @@ TEST_CASE("Test ActuatorPWM class with ValueActuator as driver", "[actuatorpwm]"
         do {
             lowToHighTime1 = delay(1);
             act->updatePwm();
-        } while (!act->isActive());
+        } while (!target->isActive());
         do {
             highToLowTime1 = delay(1);
             act->updatePwm();
-        } while (act->isActive());
+        } while (target->isActive());
         do {
             lowToHighTime2 = delay(1);
             act->updatePwm();
-        } while (!act->isActive());
+        } while (!target->isActive());
 
         ticks_millis_t timeHigh = highToLowTime1 - lowToHighTime1;
         ticks_millis_t timeLow = lowToHighTime2 - highToLowTime1;
@@ -114,51 +116,112 @@ TEST_CASE("Test ActuatorPWM class with ValueActuator as driver", "[actuatorpwm]"
     }
 
     SECTION("Test that average duty cycle is correct, even with random update intervals") {
-        REQUIRE((int) randomIntervalTest(act, 100, 500) == 100);
-        REQUIRE((int) randomIntervalTest(act, 5, 500) == 5);
-        REQUIRE((int) randomIntervalTest(act, 1, 500) == 1);
-        REQUIRE((int) randomIntervalTest(act, 254, 500) == 254);
+        REQUIRE((int) randomIntervalTest(act, target, 100, 500) == 100);
+        REQUIRE((int) randomIntervalTest(act, target, 5, 500) == 5);
+        REQUIRE((int) randomIntervalTest(act, target, 1, 500) == 1);
+        REQUIRE((int) randomIntervalTest(act, target, 254, 500) == 254);
     }
 
     SECTION("Test output stays low with PWM value 0") {
         act->setPwm(0);
-        // wait for new period
-        while (act->isActive()) {
-            delay(1);
-            act->updatePwm();
-        }
-        while (!act->isActive()) {
+        // wait target to go low
+        while (target->isActive()) {
             delay(1);
             act->updatePwm();
         }
         for (uint32_t i = 0; i < 10 * act->getPeriod(); i++) {
             delay(1);
             act->updatePwm();
-            if (act->isActive()) {
-                REQUIRE_FALSE(act->isActive());
+            if (target->isActive()) {
+                REQUIRE_FALSE(target->isActive());
             } // prevents many assertions
-            // REQUIRE_FALSE(act->isActive());
+            // REQUIRE_FALSE(target->isActive());
         }
     }
 
     SECTION("Test output stays high with PWM value 255") {
         act->setPwm(255);
-        // wait for new period
-        while (act->isActive()) {
-            delay(1);
-            act->updatePwm();
-        }
-        while (!act->isActive()) {
+        // wait for target to go high
+        while (!target->isActive()) {
             delay(1);
             act->updatePwm();
         }
         for (uint32_t i = 0; i < 10 * act->getPeriod(); i++) {
             delay(1);
             act->updatePwm();
-            if (!act->isActive()) {
-                REQUIRE(act->isActive());
+            if (!target->isActive()) {
+                REQUIRE(target->isActive());
             } // prevents many assertions
-            // REQUIRE_TRUE(act->isActive());
+            // REQUIRE_TRUE(target->isActive());
         }
     }
 }
+
+TEST_CASE("Test ActuatorPWM class with min/max time limited On/Off actuator as driver", "[actuatorpwmonoff]") {
+    // test with minimum ON of 2 seconds, minimum off of 5 seconds and period 5 seconds
+
+    srand(time(NULL));
+    Actuator * vAct = new ValueActuator();
+    Actuator * onOffAct = new ActuatorOnOff(vAct, 2, 5);
+    ActuatorPwm * act = new ActuatorPwm(onOffAct, 10);
+
+    SECTION("Test that average duty cycle is correct, even with minimum times") {
+        REQUIRE((int) randomIntervalTest(act, vAct, 100, 500) == 100);
+        REQUIRE((int) randomIntervalTest(act, vAct, 5, 500) == 5);
+        REQUIRE((int) randomIntervalTest(act, vAct, 1, 500) == 1);
+//        REQUIRE((int) randomIntervalTest(act, vAct, 254, 500) == 254); // 254 not attainable due to minimum OFF time
+    }
+}
+
+TEST_CASE("Ramping PWM up faster than period gives correct average", "[actuatorpwmonoff]") {
+    Actuator * vAct = new ValueActuator();
+    ActuatorPwm * act = new ActuatorPwm(vAct, 20);
+    ticks_seconds_t timeHigh = 0;
+    ticks_seconds_t timeLow = 0;
+    int actualDuty;
+
+    for(int ramps = 0; ramps <100; ramps++){ // enough ramps to not be affected by time window
+        for(int i = 100; i <= 200; i++){
+            act->setPwm(i);
+            for(int j = 0; j < 100; j++){ // 10 seconds total
+                delay(100);
+                act->updatePwm();
+                if(vAct->isActive()){
+                    timeHigh++;
+                }
+                else{
+                    timeLow++;
+                }
+            }
+        }
+    }
+    actualDuty = (timeHigh * 255 + (timeHigh + timeLow)/2) / (timeHigh + timeLow); // rounded result
+    CHECK(actualDuty == 150);
+}
+
+TEST_CASE("Ramping PWM down faster than period gives correct average", "[actuatorpwmonoff]") {
+    Actuator * vAct = new ValueActuator();
+    ActuatorPwm * act = new ActuatorPwm(vAct, 20);
+    ticks_seconds_t timeHigh = 0;
+    ticks_seconds_t timeLow = 0;
+    int actualDuty;
+
+    for(int ramps = 0; ramps <100; ramps++){ // enough ramps to not be affected by time window
+        for(int i = 200; i >= 100; i--){
+            act->setPwm(i);
+            for(int j = 0; j < 100; j++){ // 10 seconds total
+                act->updatePwm();
+                delay(100);
+                if(vAct->isActive()){
+                    timeHigh++;
+                }
+                else{
+                    timeLow++;
+                }
+            }
+        }
+    }
+    actualDuty = (timeHigh * 255 + (timeHigh + timeLow)/2) / (timeHigh + timeLow); // rounded result
+    CHECK(actualDuty == 150);
+}
+

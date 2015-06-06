@@ -31,9 +31,9 @@ class ActuatorOnOff:
 {
     public:
         ActuatorOnOff(Actuator * target,
-                      uint16_t   minOnTime = 180,
-                      uint16_t   maxOnTime = UINT16_MAX,
-                      uint16_t   minOffTime = 300)
+                      uint16_t   minOnTime = 120,
+                      uint16_t   minOffTime = 300,
+                      uint16_t   maxOnTime = UINT16_MAX)
         {
             this -> minOnTime  = minOnTime;
             this -> minOffTime = minOffTime;
@@ -53,6 +53,10 @@ class ActuatorOnOff:
         }
 
         void update();
+
+        void write(uint8_t val){
+            setActive(val != 0);
+        }
 
         ticks_seconds_t timeSinceToggle(void);
 

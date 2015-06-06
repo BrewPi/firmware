@@ -32,6 +32,7 @@ class ActuatorPwm : public Actuator
         Actuator *     target;
         uint8_t        pwm;
         int32_t        dutyLate;
+        int32_t        periodLate;
         int32_t        dutyTime;
         ticks_millis_t periodStartTime;
         int32_t  period;
@@ -43,7 +44,7 @@ class ActuatorPwm : public Actuator
 
         void setPwm(uint8_t pwm);
 
-        void process(uint8_t val){
+        void write(uint8_t val){
             setPwm(val);
         }
 

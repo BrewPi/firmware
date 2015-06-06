@@ -31,13 +31,14 @@ void ActuatorOnOff::setActive(bool active)
     }
 
     if (this -> active &&!active){
-        if (timeSinceToggle() < minOnTime){
+        if (timeSinceToggle() <= minOnTime){
             doUpdate = false;    // do not turn off before minOnTime has passed
+            // use <= because stored value is truncated in divide from milliseconds to seconds
         }
     }
 
     if (!this -> active && active){
-        if (timeSinceToggle() < minOffTime){
+        if (timeSinceToggle() <= minOffTime){
             doUpdate = false;    // do not turn on before minOffTime has passed
         }
     }

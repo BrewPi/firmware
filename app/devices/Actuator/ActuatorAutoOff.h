@@ -39,7 +39,7 @@ public:
 	
     void update();
 
-    void process(uint8_t val){};
+    void write(uint8_t val){};
         
 private:
 	uint16_t lastActiveTime;

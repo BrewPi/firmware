@@ -43,7 +43,7 @@ public:
 
 	ticks_millis_t millis() { return _ticks+=_increment; }
 	ticks_micros_t micros() { return _ticks+=_increment; }	
-	ticks_seconds_t seconds() { return millis()>>10; }	
+	ticks_seconds_t seconds() { return millis()/1000; }
 	ticks_seconds_t timeSince(ticks_seconds_t timeStamp) { return seconds() - timeStamp; }
 	void reset(void){ _ticks = 0; };
 private:

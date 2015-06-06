@@ -3,60 +3,69 @@
 #include "Ticks.h"
 
 ActuatorPwm::ActuatorPwm(Actuator* _target, uint16_t _period) : target(_target) {
-    this->periodStartTime = 0;
-    this->target->setActive(false);
-    this->setPeriod(_period);
-    this->setPwm(0);
+    periodStartTime = 0;
+    periodLate = 0;
+    dutyLate = 0;
+    target->setActive(false);
+    setPeriod(_period);
+    setPwm(0);
 }
 
 uint8_t ActuatorPwm::getPwm() {
-    return this->pwm;
+    return pwm;
 }
 
 void ActuatorPwm::setPwm(uint8_t val) {
-    if(this->pwm != val){
-        this->pwm = val;
-        this->dutyTime = ((this->pwm * period) / 255);
-        if(this->pwm != (val+1) || this->pwm != (val-1)){
-            this->dutyLate = 0;
+    if(pwm != val){
+        pwm = val;
+        if(pwm != (val+1) || pwm != (val-1)){
+            dutyLate = 0;
         }
     }
+    dutyTime = ((pwm * period) / 255)*(period + periodLate) / period;
 }
 
 void ActuatorPwm::updatePwm() {
-    int32_t adjDutyTime = dutyTime - this->dutyLate;
+    int32_t adjDutyTime = dutyTime - dutyLate;
     int32_t currentTime = ticks.millis();
-    int32_t elapsedTime = currentTime - this->periodStartTime;
+    int32_t elapsedTime = currentTime - periodStartTime;
 
     if ( pwm == 0 ){
-        this->target->setActive(false);
+        target->setActive(false);
         return;
     }
-    if (this->target->isActive()) {
+    if (target->isActive()) {
         if (elapsedTime >= adjDutyTime) {
             // end of duty cycle
-            this->target->setActive(false);
-            this->dutyLate += elapsedTime - dutyTime;
+            target->setActive(false);
+            // check if turning the output off has succeeded (OnOff actuator could stay active due to time limit)
+            if(target->isActive()){
+                return; // try next time
+            }
+            dutyLate += elapsedTime - dutyTime;
         }
     }
-    if (!this->target->isActive()) { // <- do not replace with else if
+    if (!target->isActive()) { // <- do not replace with else if
         if (elapsedTime >= period) {
             // end of PWM cycle
             if (adjDutyTime < 0) {
                 // skip going high for 1 period when previous periods built up
                 // more than one entire duty cycle (duty is ahead)
                 // subtract duty cycle form duty late accumulator
-                this->dutyLate = this->dutyLate - dutyTime;
+                dutyLate = dutyLate - dutyTime;
             } else {
-                this->target->setActive(true);
+                target->setActive(true);
+                if(!target->isActive()){
+                    return; // try next time
+                }
             }
-            int32_t periodLate = elapsedTime - period;
+            periodLate = elapsedTime - period;
             // limit to half of the period
             periodLate = (periodLate < period / 2) ? periodLate : period / 2;
             // adjust next duty time to account for longer period due to infrequent updates
             // low period was longer, increase high period (duty cycle) with same ratio
-            this->dutyTime = ((this->pwm * period) / 255)*(period + periodLate) / period;
-            this->periodStartTime = currentTime;
+            dutyTime = ((pwm * period) / 255)*(period + periodLate) / period;
+            periodStartTime = currentTime;
         }
     }
 }
