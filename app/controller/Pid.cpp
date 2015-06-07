@@ -32,6 +32,7 @@ Pid::Pid(TempSensor * input, Actuator * output)
     error                 = 0;
     derivative            = 0;
     integral              = 0;
+    failedReadCount       = 0;
 }
 
 Pid::~Pid(){}
@@ -46,9 +47,34 @@ void Pid::setConstants(fixed7_9 kp,
     Ka = 5*Kp;
 }
 
-fixed7_9 Pid::update(fixed7_9 input)
+void Pid::update()
 {
-    inputFilter.add(input);
+    temperature inputVal;
+
+    if (!inputSensor || (inputVal = inputSensor->read())==TEMP_SENSOR_DISCONNECTED) {
+        // Could not read from input sensor
+        if(failedReadCount < 255){  // limit
+            failedReadCount++;
+        }
+        // Try to reconnect
+        if(inputSensor->init()){
+            if(failedReadCount>60){
+                // re-initialize filters if sensor has been lost longer than 60 seconds
+                inputVal = inputSensor->read();
+                inputFilter.init(inputVal);
+                derivativeFilter.init(0);
+                doubleDerivativeFilter.init(0);
+                failedReadCount = 0;
+            }
+        } else{
+            if(failedReadCount>60){
+                outputActuator->setActive(false);
+            }
+            return;
+        }
+    }
+
+    inputFilter.add(inputSensor->read());
 
     error = setPoint - inputFilter.readOutput();
 
@@ -70,12 +96,11 @@ fixed7_9 Pid::update(fixed7_9 input)
 
     long_temperature pidResult = p + i + d;
 
-    output = constrainTemp(pidResult, min, max);
+    fixed7_9 output = constrainTemp(pidResult, min, max);
 
     // update integral with anti-windup back calculation
     integral += (error + multiplyFactorTemperatureDiff(Ka, output-pidResult)); // pidResult - output is zero when actuator is not saturated
 
-    return output;
 }
 
 void Pid::setSetPoint(fixed7_9 val)

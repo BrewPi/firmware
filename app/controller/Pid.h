@@ -29,7 +29,8 @@
 class Pid
 {
     public:
-        Pid(TempSensor * input, Actuator * output);
+        Pid(TempSensor * input,
+            Actuator *   output);
 
         Pid(const Pid & orig);
 
@@ -37,7 +38,7 @@ class Pid
 
         void init();
 
-        fixed7_9 update(fixed7_9 input);
+        void update();
 
         void setSetPoint(fixed7_9 val);
 
@@ -55,23 +56,25 @@ class Pid
                        fixed7_9 max);
 
     private:
-        fixed7_9         Kp; // proportional gain
-        fixed7_9         Ki; // integral gain
-        fixed7_9         Kd; // derivative gain
-        fixed7_9         Ka; // integrator anti windup gain
-        fixed7_9         min;
-        fixed7_9         max;
-        fixed7_9         setPoint;
-        fixed7_9         output;
-        fixed7_9         p;
-        fixed7_9         i;
-        fixed7_9         d;
-        fixed7_9         error;
-        fixed7_9         derivative;
-        fixed7_9         doubleDerivative;
-        long_temperature integral;
-        uint8_t          integralUpdateCounter;
-        FilterCascaded   inputFilter;
-        FilterCascaded   derivativeFilter;
-        FilterCascaded   doubleDerivativeFilter;
+        Actuator *        outputActuator;
+        BasicTempSensor * inputSensor;
+        fixed7_9          Kp;    // proportional gain
+        fixed7_9          Ki;    // integral gain
+        fixed7_9          Kd;    // derivative gain
+        fixed7_9          Ka;    // integrator anti windup gain
+        fixed7_9          min;
+        fixed7_9          max;
+        fixed7_9          setPoint;
+        fixed7_9          p;
+        fixed7_9          i;
+        fixed7_9          d;
+        fixed7_9          error;
+        fixed7_9          derivative;
+        fixed7_9          doubleDerivative;
+        long_temperature  integral;
+        uint8_t           integralUpdateCounter;
+        FilterCascaded    inputFilter;
+        FilterCascaded    derivativeFilter;
+        FilterCascaded    doubleDerivativeFilter;
+        uint8_t           failedReadCount;
 };
