@@ -139,6 +139,10 @@ class fixed_point
 	/// Grant the fixed_point template access to private members. Types with
 	/// different template parameters are different types and without this
 	/// declaration they do not have access to private members.
+	template<
+	    typename B2,
+	    unsigned char I2,
+	    unsigned char F2 = std::numeric_limits<B>::digits - I2>
 	friend class fpml::fixed_point;
 
 	/// Grant the numeric_limits specialization for this fixed_point class 
@@ -1047,7 +1051,7 @@ public:
 		return root;
 	}
 
-private:
+protected:
 	/// The value in fixed point format.
 	B value_;
 };

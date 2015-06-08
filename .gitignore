@@ -7,3 +7,5 @@ revC/
 test/obj/
 .cproject
 .settings/
+*.o
+*.d
