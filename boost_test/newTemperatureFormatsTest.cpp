@@ -35,20 +35,85 @@ BOOST_AUTO_TEST_CASE( temperature_test )
     temp t(0.0);
     temp_diff d(-48.0);
     BOOST_CHECK_EQUAL(t, d); // temperatures are stored with -48C offset
+
+    temp_long tl(0.0);
+    temp_diff_long dl(-48.0);
+    BOOST_CHECK_EQUAL(tl, dl); // temperatures are stored with -48C offset
+
+    temp_precise tp(0.0);
+    temp_diff_precise dp(-48.0);
+    BOOST_CHECK_EQUAL(tp, dp); // temperatures are stored with -48C offset
 }
 
-BOOST_AUTO_TEST_CASE( conversion_between_normal_and_long )
+BOOST_AUTO_TEST_CASE( temperature_diff_assignment )
 {
-      fpml::fixed_point<int16_t, 7> fp0(1.0);
-      fpml::fixed_point<int32_t, 7> fp1 = fp0;
+    temp_diff a = 5.0;
+    temp_diff b = a;
+    BOOST_CHECK_EQUAL(a, b);
 
-      BOOST_CHECK_EQUAL(fp1, fp0);
 
-      fpml::fixed_point<int32_t, 7> fp2 = fp1 + fp1;
-      fpml::fixed_point<int32_t, 7> fp3(2.0);
+    temp_diff_long c = 5.0;
+    temp_diff_long d = c;
+    BOOST_CHECK_EQUAL(c, d);
 
-      BOOST_CHECK_EQUAL(fp2, fp3);
+    temp_diff_precise e = 5.0;
+    temp_diff_precise f = e;
+    BOOST_CHECK_EQUAL(e, f);
 }
+
+BOOST_AUTO_TEST_CASE( temperature_assignment )
+{
+    temp a = 5.0;
+    temp b = a;
+    BOOST_CHECK_EQUAL(a, b);
+
+
+    temp_long c = 5.0;
+    temp_long d = c;
+    BOOST_CHECK_EQUAL(c, d);
+
+    temp_precise e = 5.0;
+    temp_precise f = e;
+    BOOST_CHECK_EQUAL(e, f);
+}
+
+
+BOOST_AUTO_TEST_CASE( conversion_between_normal_long_and_precise_temp_diff )
+{
+    // normal variable to convert from
+    temp_diff td0 = 1.0;
+
+    // conversion to longer format
+    temp_diff_long tdl0 = 1.0;
+    temp_diff_long tdl1 = temp_diff_long(td0);
+
+    BOOST_CHECK_EQUAL(tdl0, tdl1);
+
+    // conversion to more fraction bits
+    temp_diff_precise tdp0 = 1.0;
+    temp_diff_precise tdp1 = temp_diff_precise(td0);
+
+    BOOST_CHECK_EQUAL(tdp0, tdp1);
+}
+
+BOOST_AUTO_TEST_CASE( conversion_between_normal_long_and_precise_temp)
+{
+    // normal variable to convert from
+    temp t0 = 1.0;
+
+    // conversion to longer format
+    temp_long tl0 = 1.0;
+    temp_long tl1 = temp_long(t0);
+
+    BOOST_CHECK_EQUAL(tl0, tl1);
+
+    // conversion to more fraction bits
+    temp_precise tp0 = 1.0;
+    temp_precise tp1 = temp_precise(tp0);
+
+    BOOST_CHECK_EQUAL(tp0, tp1);
+}
+
 
 
 

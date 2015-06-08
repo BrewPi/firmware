@@ -507,6 +507,8 @@ BOOST_AUTO_TEST_CASE( scenario1 )
 {
 	fixed_point<int, 16> a = 256.;
 	fixed_point<int, 16> b = sqrt(a);
+	fixed_point<int, 16> c = 16.;
+	BOOST_CHECK_EQUAL(b, c);
 }
 
 
@@ -516,6 +518,8 @@ BOOST_AUTO_TEST_CASE( sceanario2 )
 
 	double a = 256.;
 	double b = sqrt(a);
+	double c = 16.;
+	BOOST_CHECK_EQUAL(b, c);
 
 #undef double
 }
