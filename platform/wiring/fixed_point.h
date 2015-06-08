@@ -285,6 +285,8 @@ public:
 	{ }
 
 	template<
+	    /// The other integer data type.
+	    typename B2,
 		/// The other integer part bit count.
 		unsigned char I2,
 		/// The other fractional part bit count.
@@ -292,13 +294,10 @@ public:
 	/// Converting copy constructor.
 	fixed_point(
 		/// The right hand side.
-		fixed_point<B, I2, F2> const& rhs)
+		fixed_point<B2, I2, F2> const& rhs)
 		: value_(rhs.value_)
 	{ 
-		if (I-I2 > 0)
-			value_ >>= I-I2;
-		if (I2-I > 0)
-			value_ <<= I2-I;
+	    value_ = (F >= F2) ? value_ << (F-F2) : value_ >> (F2-F);
 	}
 
 	/// Copy assignment operator.
@@ -312,6 +311,8 @@ public:
 	}
 
 	template<
+	    /// The other integer data type.
+	    typename B2,
 		/// The other integer part bit count.
 		unsigned char I2,
 		/// The other fractional part bit count.
@@ -319,7 +320,7 @@ public:
 	/// Converting copy assignment operator.
 	fpml::fixed_point<B, I, F> & operator =(
 		/// The right hand side.
-		fpml::fixed_point<B, I2, F2> const& rhs)
+		fpml::fixed_point<B2, I2, F2> const& rhs)
 	{
 		fpml::fixed_point<B, I, F> temp(rhs);
 		swap(temp);
@@ -423,7 +424,7 @@ public:
 		/// Summand for addition.
 		fpml::fixed_point<B, I, F> const& summand)
 	{
-		value_ += summand.value_;
+	        value_ += summand.value_;
 		return *this;
 	}
 

@@ -30,20 +30,24 @@ BOOST_AUTO_TEST_CASE( temperature_test )
     temp_diff y(3.0);
     temp_diff z(9.0);
 
-    BOOST_CHECK(x*y == z);
+    BOOST_CHECK_EQUAL(x*y, z);
 
     temp t(0.0);
     temp_diff d(-48.0);
-    BOOST_CHECK(t == d); // temperatures are stored with -48C offset
+    BOOST_CHECK_EQUAL(t, d); // temperatures are stored with -48C offset
 }
 
 BOOST_AUTO_TEST_CASE( conversion_between_normal_and_long )
 {
-//    temp_diff td_normal(3.0);
+      fpml::fixed_point<int16_t, 7> fp0(1.0);
+      fpml::fixed_point<int32_t, 7> fp1 = fp0;
 
-//    temp_diff_long td_long = td_normal;
+      BOOST_CHECK_EQUAL(fp1, fp0);
 
-    //BOOST_CHECK(td_long == temp_long(3.0));*/
+      fpml::fixed_point<int32_t, 7> fp2 = fp1 + fp1;
+      fpml::fixed_point<int32_t, 7> fp3(2.0);
+
+      BOOST_CHECK_EQUAL(fp2, fp3);
 }
 
 
