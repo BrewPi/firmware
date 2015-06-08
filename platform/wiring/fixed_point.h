@@ -296,7 +296,9 @@ public:
 		/// The right hand side.
 		fixed_point<B2, I2, F2> const& rhs)
 		: value_(rhs.value_)
-	{ 
+	{
+	    BOOST_STATIC_ASSERT(I >= I2); // integer part could overflow during conversion if I < I2
+	    BOOST_STATIC_ASSERT(F >= F2); // loosing precision in fraction part if F < F2
 	    value_ = (F >= F2) ? value_ << (F-F2) : value_ >> (F2-F);
 	}
 
