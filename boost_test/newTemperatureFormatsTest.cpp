@@ -23,7 +23,6 @@
 
 BOOST_AUTO_TEST_SUITE( temperature_suite )
 
-
 BOOST_AUTO_TEST_CASE( temperature_test )
 {
     temp_diff x(3.0);
@@ -85,13 +84,13 @@ BOOST_AUTO_TEST_CASE( conversion_between_normal_long_and_precise_temp_diff )
 
     // conversion to longer format
     temp_diff_long tdl0 = 1.0;
-    temp_diff_long tdl1 = temp_diff_long(td0);
+    temp_diff_long tdl1 = toLong(td0);
 
     BOOST_CHECK_EQUAL(tdl0, tdl1);
 
     // conversion to more fraction bits
     temp_diff_precise tdp0 = 1.0;
-    temp_diff_precise tdp1 = temp_diff_precise(td0);
+    temp_diff_precise tdp1 = toPrecise(td0);
 
     BOOST_CHECK_EQUAL(tdp0, tdp1);
 }
@@ -103,18 +102,16 @@ BOOST_AUTO_TEST_CASE( conversion_between_normal_long_and_precise_temp)
 
     // conversion to longer format
     temp_long tl0 = 1.0;
-    temp_long tl1 = temp_long(t0);
+    temp_long tl1 = toLong(t0);
 
     BOOST_CHECK_EQUAL(tl0, tl1);
 
     // conversion to more fraction bits
     temp_precise tp0 = 1.0;
-    temp_precise tp1 = temp_precise(tp0);
+    temp_precise tp1 = toPrecise(t0);
 
     BOOST_CHECK_EQUAL(tp0, tp1);
 }
 
-
-
-
 BOOST_AUTO_TEST_SUITE_END()
+
