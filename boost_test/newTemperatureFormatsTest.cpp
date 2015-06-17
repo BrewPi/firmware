@@ -20,6 +20,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "newTemperatureFormats.h"
+#include <cstdio>
 
 BOOST_AUTO_TEST_SUITE( temperature_suite )
 
@@ -113,5 +114,28 @@ BOOST_AUTO_TEST_CASE( conversion_between_normal_long_and_precise_temp)
     BOOST_CHECK_EQUAL(tp0, tp1);
 }
 
+BOOST_AUTO_TEST_CASE(temp_diff_conversion_to_string){
+    for(double d = -64; d < 64; d += 0.1){
+        temp_diff t = d;
+        char s1[12];
+        char s2[12];
+        t.toString(s1, 3, 8);
+        snprintf(s2, 12, "%7.03f", double(t)); // prints like " -3.000"
+        BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(temp_conversion_to_string){
+    for(double d = -16; d < 112; d += 0.1){
+        temp t = d;
+        char s1[12];
+        char s2[12];
+        t.toString(s1, 3, 8);
+        snprintf(s2, 12, "%7.03f", double(t)+48.0); // take into account the internal offset of 48C.
+        BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
+
 
