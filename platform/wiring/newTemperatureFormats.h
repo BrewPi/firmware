@@ -24,15 +24,20 @@
 
 // used for temp and temp_diff, 16 bits
 #define TEMP_BASE_TYPE          int16_t
-#define TEMP_BASE_INTBITS       6 // 6 integer bits (-64/64 diff or -16/112 temp, 9 fraction bits, 1 sign bit)
+#define TEMP_BASE_INTBITS       6 // 6 integer bits (-64/64 diff or -16/112 temp), 9 fraction bits, 1 sign bit
 
 // used when higher integer part is needed
 #define TEMP_LONG_TYPE          int32_t
-#define TEMP_LONG_INTBITS       22 // 22 integer bits (-4194304/4194304, 9 fraction bits, 1 sign bit)
+#define TEMP_LONG_INTBITS       22 // 22 integer bits (-4194304/4194304), 9 fraction bits, 1 sign bit
 
 // used when more precision is needed, 1 bit more for integer part than temp diff, so it is large enough to hold temp as well
 #define TEMP_PRECISE_TYPE       int32_t
-#define TEMP_PRECISE_INTBITS    7 // 7 integer bits (-128/128, 23 fraction bits, 1 sign bit)
+#define TEMP_PRECISE_INTBITS    7 // 7 integer bits (-128/128), 23 fraction bits, 1 sign bit)
+
+// used for small temperature differences, for example for sensor calibration
+#define TEMP_SMALL_TYPE       int8_t
+#define TEMP_SMALL_INTBITS    3 // 3 integer bits (-8/+8), 4 fraction bits, 1 sign bit
+
 
 template<
 /// The base type. Must be an integer type.
@@ -134,6 +139,7 @@ using temp = temp_template<TEMP_BASE_TYPE, TEMP_BASE_INTBITS>;
 using temp_diff = temp_diff_template<TEMP_BASE_TYPE, TEMP_BASE_INTBITS>;
 using temp_long = temp_diff_template<TEMP_LONG_TYPE,TEMP_LONG_INTBITS>;
 using temp_precise = temp_diff_template<TEMP_PRECISE_TYPE,TEMP_PRECISE_INTBITS>;
+using temp_diff_small = temp_diff_template<TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS>;
 
 // To convert, cast back to base class. Base class handles conversion for different fixed point types
 
@@ -161,4 +167,10 @@ static inline temp_precise toPrecise(temp & val) {
             (fpml::fixed_point<TEMP_BASE_TYPE, TEMP_BASE_INTBITS> &) val);
     copy += temp_precise(48); // remove offset
     return copy;
+}
+
+static inline temp_diff fromSmall(temp_diff_small & val) {
+    temp_diff copy(
+                (fpml::fixed_point<TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS> &) val);
+        return copy;
 }
