@@ -35,14 +35,6 @@ BOOST_AUTO_TEST_CASE( temperature_test )
     temp t(0.0);
     temp_diff d(-48.0);
     BOOST_CHECK_EQUAL(t, d); // temperatures are stored with -48C offset
-
-    temp_long tl(0.0);
-    temp_diff_long dl(-48.0);
-    BOOST_CHECK_EQUAL(tl, dl); // temperatures are stored with -48C offset
-
-    temp_precise tp(0.0);
-    temp_diff_precise dp(-48.0);
-    BOOST_CHECK_EQUAL(tp, dp); // temperatures are stored with -48C offset
 }
 
 BOOST_AUTO_TEST_CASE( temperature_diff_assignment )
@@ -52,12 +44,12 @@ BOOST_AUTO_TEST_CASE( temperature_diff_assignment )
     BOOST_CHECK_EQUAL(a, b);
 
 
-    temp_diff_long c = 5.0;
-    temp_diff_long d = c;
+    temp_long c = 5.0;
+    temp_long d = c;
     BOOST_CHECK_EQUAL(c, d);
 
-    temp_diff_precise e = 5.0;
-    temp_diff_precise f = e;
+    temp_precise e = 5.0;
+    temp_precise f = e;
     BOOST_CHECK_EQUAL(e, f);
 }
 
@@ -77,41 +69,27 @@ BOOST_AUTO_TEST_CASE( temperature_assignment )
     BOOST_CHECK_EQUAL(e, f);
 }
 
-
-BOOST_AUTO_TEST_CASE( conversion_between_normal_long_and_precise_temp_diff )
-{
-    // normal variable to convert from
-    temp_diff td0 = 1.0;
-
-    // conversion to longer format
-    temp_diff_long tdl0 = 1.0;
-    temp_diff_long tdl1 = toLong(td0);
-
-    BOOST_CHECK_EQUAL(tdl0, tdl1);
-
-    // conversion to more fraction bits
-    temp_diff_precise tdp0 = 1.0;
-    temp_diff_precise tdp1 = toPrecise(td0);
-
-    BOOST_CHECK_EQUAL(tdp0, tdp1);
-}
-
 BOOST_AUTO_TEST_CASE( conversion_between_normal_long_and_precise_temp)
 {
     // normal variable to convert from
     temp t0 = 1.0;
+    temp_diff td0 = 1.0;
 
     // conversion to longer format
     temp_long tl0 = 1.0;
     temp_long tl1 = toLong(t0);
+    temp_long tl2 = toLong(td0);
 
     BOOST_CHECK_EQUAL(tl0, tl1);
+    BOOST_CHECK_EQUAL(tl0, tl2);
 
     // conversion to more fraction bits
     temp_precise tp0 = 1.0;
     temp_precise tp1 = toPrecise(t0);
+    temp_precise tp2 = toPrecise(td0);
 
     BOOST_CHECK_EQUAL(tp0, tp1);
+    BOOST_CHECK_EQUAL(tp0, tp2);
 }
 
 BOOST_AUTO_TEST_CASE(temp_diff_conversion_to_fixed_length_string){
