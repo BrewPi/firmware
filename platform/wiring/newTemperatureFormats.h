@@ -92,11 +92,13 @@ public:
                 }
             }
         } while (p > buf);
-
+        char * pWithoutSpaces = p;
         while (p > buf){
             *(--p) = ' '; // prepend digits with spaces
         }
-        return p; // return pointer to string skipping spaces
+        // return pointer to string skipping spaces
+        // programmer can choose to use original buf pointer with spaces or return value without spaces
+        return pWithoutSpaces;
     }
 };
 
