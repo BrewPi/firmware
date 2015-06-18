@@ -60,19 +60,27 @@ public:
 
         char const digit[] = "0123456789";
         char* p;
-        int val = this->value_;
-        int shifter = val + (offset<<F);
+        B val = this->value_;
         bool negative = false;
 
-        for(int i=0; i<numDecimals; i++){
-            shifter = shifter*10;
-        }
-        shifter = (shifter + (1<<(F-1)))>>F; // divide rounded by fixed point scale
+        // promote to larger type to prevent overflow. For B=int8, use int32 instead of int16. Int16 will overflow for more than 4 decimals
+        using shifterType = typename std::conditional<std::is_same<int8_t, B>::value,
+                int32_t,
+                typename fpml::fixed_point<B, I, F>::template promote_type<B>::type
+            >::type;
+
+        shifterType shifter = val + (offset<<F);
 
         if(shifter < 0){
             shifter = -shifter;
             negative = true;
         }
+        // code below looks a bit cryptic, but what it does is * 10^numDecimals / 2^F
+        for(uint8_t i=0; i<numDecimals; i++){
+            shifter = shifter*5; // *5 instead of 10, combined with reduced shift below. Less chance of overflow
+        }
+        shifter = (shifter + (1<<(F-numDecimals-1)))>>(F-numDecimals); // divide rounded by fixed point scale
+
 
 
         p =  &buf[len-1]; // start at the end of buffer

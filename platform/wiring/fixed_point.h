@@ -444,7 +444,7 @@ public:
 		return *this;
 	}
 
-	private:
+	protected:
 		struct Error_promote_type_not_specialized_for_this_type
 		{ };
 
