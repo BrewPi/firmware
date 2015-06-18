@@ -39,6 +39,7 @@ CPPSRC += $(call target_files,app/nice,*.cpp)
 #ßCPPSRC += $(call target_files,platform/wiring/,*.cpp)
 
 CPPSRC += $(call here_files,platform/spark/modules/nice,*.cpp)
+CPPSRC += $(call here_files,platform/spark/modules/EEPROM,*.cpp)
 CPPSRC += $(call here_files,app/devices/OneWire,*.cpp)
 CPPSRC += $(call here_files,platform/spark/modules/OneWire,*.cpp)
 CPPSRC += platform/wiring/TemperatureFormats.cpp
