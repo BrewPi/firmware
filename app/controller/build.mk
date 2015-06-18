@@ -35,6 +35,11 @@ CPPSRC += $(call target_files,platform/wiring/,*.cpp)
 CSRC += $(call target_files,platform/spark/modules,*.c)
 CPPSRC += $(call target_files,platform/spark/modules,*.cpp)
 
+ifeq ($(BOOST_ROOT),)
+$(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)
+endif
+CFLAGS += -I$(BOOST_ROOT)
+
 SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
 include $(SRC_EGUI)/egui.mk
 

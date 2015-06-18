@@ -16,7 +16,6 @@ SRC_ROOT=../
 # location of this folder relative to the root
 SRC_PATH=test
 SPARK=../spark-firmware/
-BOOST=../boost_1_58_0/
 WIRING=$(SPARK)/wiring/
 HAL=$(SPARK)/hal/
 WIRING_SRC=$(WIRING)src/
@@ -45,7 +44,7 @@ CPPSRC += $(SOURCE_PATH)platform/wiring/str_functions.cpp
 ifeq ($(BOOST_ROOT),)
 $(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)
 endif
-INCLUDE_DIRS += $(BOOST)
+CFLAGS += -I$(BOOST_ROOT)
 
 INCLUDE_DIRS += $(SOURCE_PATH)platform/wiring
 
