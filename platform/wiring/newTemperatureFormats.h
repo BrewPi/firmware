@@ -21,6 +21,7 @@
 #include "Platform.h"
 #include <fixed_point.h>
 #include <cstdlib>
+#include "str_functions.h"
 
 // used for temp and temp_diff, 16 bits
 #define TEMP_BASE_TYPE          int16_t
@@ -37,7 +38,6 @@
 // used for small temperature differences, for example for sensor calibration
 #define TEMP_SMALL_TYPE       int8_t
 #define TEMP_SMALL_INTBITS    3 // 3 integer bits (-8/+8), 4 fraction bits, 1 sign bit
-
 
 template<
 /// The base type. Must be an integer type.
@@ -56,7 +56,7 @@ public:
 
     // converts fixed point value to string, without using double/float
     // resulting string is always length len (including \0). Spaces are prepended to achieve that.
-    char * toString(char buf[], uint8_t numDecimals, uint8_t len, int offset = 0) {
+    char * toString(char buf[], uint8_t numDecimals, uint8_t len, const int offset = 0) {
 
         char const digit[] = "0123456789";
         char* p;
@@ -65,56 +65,95 @@ public:
 
         // promote to larger type to prevent overflow. For B=int8, use int32 instead of int16. Int16 will overflow for more than 4 decimals
         using shifterType = typename std::conditional<std::is_same<int8_t, B>::value,
-                int32_t,
-                typename fpml::fixed_point<B, I, F>::template promote_type<B>::type
-            >::type;
+        int32_t,
+        typename fpml::fixed_point<B, I, F>::template promote_type<B>::type
+        >::type;
 
-        shifterType shifter = val + (offset<<F);
+        shifterType shifter = val + (offset << F);
 
-        if(shifter < 0){
+        if (shifter < 0) {
             shifter = -shifter;
             negative = true;
         }
         // code below looks a bit cryptic, but what it does is * 10^numDecimals / 2^F
-        for(uint8_t i=0; i<numDecimals; i++){
-            shifter = shifter*5; // *5 instead of 10, combined with reduced shift below. Less chance of overflow
+        for (uint8_t i = 0; i < numDecimals; i++) {
+            shifter = shifter * 5; // *5 instead of 10, combined with reduced shift below. Less chance of overflow
         }
-        shifter = (shifter + (1<<(F-numDecimals-1)))>>(F-numDecimals); // divide rounded by fixed point scale
+        shifter = (shifter + (1 << (F - numDecimals - 1))) >> (F - numDecimals); // divide rounded by fixed point scale
 
-
-
-        p =  &buf[len-1]; // start at the end of buffer
+        p = &buf[len - 1]; // start at the end of buffer
         *p = '\0';
-        std::div_t dv{}; dv.quot = shifter;
-        do{ //Move back, inserting digits as u go
-            if(p == &buf[len-1-numDecimals]){
+        std::div_t dv { };
+        dv.quot = shifter;
+        do { //Move back, inserting digits as u go
+            if (p == &buf[len - 1 - numDecimals]) {
                 *--p = '.'; // insert decimal point at right moment
-            }
-            else {
+            } else {
                 dv = std::div(dv.quot, 10);
-                if((dv.quot || dv.rem)){ // check if end of digits
+                if ((dv.quot || dv.rem)) { // check if end of digits
                     *--p = digit[std::abs(dv.rem)];
-                }
-                else if((p - buf) > (len - numDecimals - 3) ){ // still need to print some leading zeros
+                } else if ((p - buf) > (len - numDecimals - 3)) { // still need to print some leading zeros
                     *--p = '0';
-                }
-                else if(negative){
+                } else if (negative) {
                     // print minus sign if needed as last digit to print
                     *--p = '-';
                     break;
-                }
-                else{
+                } else {
                     break;
                 }
             }
         } while (p > buf);
         char * pWithoutSpaces = p;
-        while (p > buf){
+        while (p > buf) {
             *(--p) = ' '; // prepend digits with spaces
         }
         // return pointer to string skipping spaces
         // programmer can choose to use original buf pointer with spaces or return value without spaces
         return pWithoutSpaces;
+    }
+
+    bool fromString(char * const s, const int offset = 0) {
+        // receive new value as null terminated string: "19.20"
+        B newValue;
+
+        // promote to larger type to prevent overflow. For B=int8, use int32 instead of int16. Int16 will overflow for more than 4 decimals
+        using shifterType = typename std::conditional<std::is_same<int8_t, B>::value,
+        int32_t,
+        typename fpml::fixed_point<B, I, F>::template promote_type<B>::type
+        >::type;
+
+        shifterType decimalValue = 0;
+
+        char* decimalPtr;
+        char* end;
+        // Check if - is in the string
+        bool positive = (0 == strchr(s, '-'));
+
+        newValue = strtol_impl(s, &end);// convert string to integer
+        if (invalidStrtolResult(s, end)) {
+            return false; // string was not valid
+        }
+        newValue += offset;
+        newValue = newValue << F; // shift to fixed point
+
+        // find the point in the string to know whether we have decimals
+        decimalPtr = strchr(s, '.');// returns pointer to the point.
+        if (decimalPtr != 0) {
+            decimalPtr++; // skip decimal point
+            // convert decimals to integer
+            decimalValue = strtol_impl(decimalPtr, &end);
+            if (invalidStrtolResult(decimalPtr, end)) {
+                return false; // string was not valid
+            }
+
+            decimalValue = decimalValue << F;
+            uint8_t charsAfterPoint = end - decimalPtr; // actually used # digits after point
+            while (charsAfterPoint-- > 0) {
+                decimalValue = (decimalValue + 5) / 10;
+            }
+        }
+        this->value_ = positive ? newValue + decimalValue : newValue - decimalValue;
+        return true;
     }
 };
 
@@ -132,14 +171,21 @@ template<
 class temp_template: public temp_diff_template<B, I, F> {
 public:
     using temp_diff_template<B, I, F>::temp_diff_template; // inherit constructors from base class
+    temp_template() : temp_diff_template<B, I, F>::temp_diff_template(0){
+    }
+
     temp_template(double rhs) {
         *this = temp_diff_template<B, I, F>(rhs - 48.0); // store temperature with -48C offset when initializing from double
     }
     temp_template(int rhs) {
         *this = temp_diff_template<B, I, F>(rhs - 48); // store temperature with -48C offset when initializing from int
     }
-    char * toString(char buf[], uint8_t numDecimals, uint8_t len){
+    char * toString(char buf[], uint8_t numDecimals, uint8_t len) {
         return temp_diff_template<B, I, F>::toString(buf, numDecimals, len, 48);
+    }
+
+    bool fromString(char * const s) {
+        return temp_diff_template<B, I, F>::fromString(s, -48);
     }
 };
 
@@ -179,6 +225,6 @@ static inline temp_precise toPrecise(temp & val) {
 
 static inline temp_diff fromSmall(temp_diff_small & val) {
     temp_diff copy(
-                (fpml::fixed_point<TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS> &) val);
-        return copy;
+            (fpml::fixed_point<TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS> &) val);
+    return copy;
 }

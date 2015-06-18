@@ -40,6 +40,7 @@ CSRC += $(call target_files,boost_test,*.c)
 CPPSRC += $(call target_files,boost_test,*.cpp)
 
 CPPSRC += $(SOURCE_PATH)platform/wiring/newTemperatureFormats.cpp
+CPPSRC += $(SOURCE_PATH)platform/wiring/str_functions.cpp
 
 ifeq ($(BOOST_ROOT),)
 $(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)

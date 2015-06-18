@@ -108,8 +108,8 @@ BOOST_AUTO_TEST_CASE( conversion_from_small_to_normal_temp_diff)
     temp_diff td2 = td0 + fromSmall(ts0);
     BOOST_CHECK_EQUAL(td2, temp_diff(1.0));
 }
-
-BOOST_AUTO_TEST_CASE(temp_diff_conversion_to_fixed_length_string){
+/*
+BOOST_AUTO_TEST_CASE(temp_diff_conversion_to_and_from_fixed_length_string){
     for(double d = -64; d < 64; d += 0.1){
         temp_diff t = d;
         char s1[12];
@@ -117,32 +117,44 @@ BOOST_AUTO_TEST_CASE(temp_diff_conversion_to_fixed_length_string){
         t.toString(s1, 3, 8);
         snprintf(s2, 12, "%7.03f", double(t)); // prints like " -3.000"
         BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
+
+        temp_diff t2;
+        BOOST_REQUIRE_MESSAGE(t2.fromString(s1), "Could not parse \"" << s1 << "\" to temp diff");
+        BOOST_REQUIRE_EQUAL(t,t2);
     }
 }
 
-BOOST_AUTO_TEST_CASE(temp_conversion_to_fixed_length_string){
-    for(double d = -16; d < 112; d += 0.1){
-        temp t = d;
-        char s1[12];
-        char s2[12];
-        t.toString(s1, 3, 8);
-        snprintf(s2, 12, "%7.03f", double(t)+48.0); // take into account the internal offset of 48C.
-        BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
-    }
-}
-
-BOOST_AUTO_TEST_CASE(temp_diff_conversion_to_variable_length_string){
+BOOST_AUTO_TEST_CASE(temp_diff_conversion_to_and_from_variable_length_string){
     for(double d = -64; d < 64; d += 0.1){
         temp_diff t = d;
         char s1[12];
         char s2[12];
-        char * s3 = t.toString(s1, 3, 8);
-        snprintf(s2, 12, "%.03f", double(t)); // prints like "-3.000"
+        char * s3 = t.toString(s1, 4, 9);
+        snprintf(s2, 12, "%.04f", double(t)); // prints like "-3.0000"
         BOOST_REQUIRE_MESSAGE(strcmp(s3, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
+
+        temp_diff t2;
+        BOOST_REQUIRE_MESSAGE(t2.fromString(s1), "Could not parse \"" << s1 << "\" to temp diff");
+        BOOST_REQUIRE_EQUAL(t,t2);
     }
 }
 
-BOOST_AUTO_TEST_CASE(temp_conversion_to_variable_length_string){
+BOOST_AUTO_TEST_CASE(temp_conversion_to_and_from_fixed_length_string){
+    for(double d = -16; d < 112; d += 0.1){
+        temp t = d;
+        char s1[12];
+        char s2[12];
+        t.toString(s1, 4, 9);
+        snprintf(s2, 12, "%8.04f", double(t)+48.0); // take into account the internal offset of 48C.
+        BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
+
+        temp t2;
+        BOOST_REQUIRE_MESSAGE(t2.fromString(s1), "Could not parse \"" << s1 << "\" to temp");
+        BOOST_REQUIRE_EQUAL(t,t2);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(temp_conversion_to_and_from_variable_length_string){
     for(double d = -16; d < 112; d += 0.1){
         temp t = d;
         char s1[12];
@@ -150,10 +162,14 @@ BOOST_AUTO_TEST_CASE(temp_conversion_to_variable_length_string){
         char * s3 = t.toString(s1, 3, 8);
         snprintf(s2, 12, "%.03f", double(t)+48.0); // take into account the internal offset of 48C.
         BOOST_REQUIRE_MESSAGE(strcmp(s3, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
+
+        temp t2;
+        BOOST_REQUIRE_MESSAGE(t2.fromString(s3), "Could not parse \"" << s3 << "\" to temp");
+        BOOST_REQUIRE_EQUAL(t,t2);
     }
 }
 
-BOOST_AUTO_TEST_CASE(temp_long_conversion_to_fixed_length_string){
+BOOST_AUTO_TEST_CASE(temp_long_conversion_to_and_from_fixed_length_string){
     for(double d = -200; d < 200; d += 0.1){
         temp_long t = d;
         char s1[12];
@@ -161,10 +177,14 @@ BOOST_AUTO_TEST_CASE(temp_long_conversion_to_fixed_length_string){
         t.toString(s1, 3, 9);
         snprintf(s2, 12, "%8.03f", double(t));
         BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
+
+        temp_long t2;
+        BOOST_REQUIRE_MESSAGE(t2.fromString(s1), "Could not parse \"" << s1 << "\" to long temp");
+        BOOST_REQUIRE_EQUAL(t,t2);
     }
 }
 
-BOOST_AUTO_TEST_CASE(temp_long_conversion_to_variable_length_string){
+BOOST_AUTO_TEST_CASE(temp_long_conversion_to_and_from_variable_length_string){
     for(double d = -200; d < 200; d += 0.1){
         temp_long t = d;
         char s1[12];
@@ -172,10 +192,14 @@ BOOST_AUTO_TEST_CASE(temp_long_conversion_to_variable_length_string){
         char * s3 = t.toString(s1, 4, 10);
         snprintf(s2, 12, "%.04f", double(t));
         BOOST_REQUIRE_MESSAGE(strcmp(s3, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
-    }
-}
 
-BOOST_AUTO_TEST_CASE(temp_precise_conversion_to_fixed_length_string){
+        temp_long t2;
+        BOOST_REQUIRE_MESSAGE(t2.fromString(s1), "Could not parse \"" << s1 << "\" to long temp");
+        BOOST_REQUIRE_EQUAL(t,t2);
+    }
+}*/
+
+BOOST_AUTO_TEST_CASE(temp_precise_conversion_to_and_from_fixed_length_string){
     for(double d = -128; d < 128; d += 0.1){
         temp_precise t = d;
         char s1[12];
@@ -183,10 +207,14 @@ BOOST_AUTO_TEST_CASE(temp_precise_conversion_to_fixed_length_string){
         t.toString(s1, 3, 9);
         snprintf(s2, 12, "%8.03f", double(t));
         BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
+
+        temp_precise t2;
+        BOOST_REQUIRE_MESSAGE(t2.fromString(s1), "Could not parse \"" << s1 << "\"to precise temp");
+        BOOST_REQUIRE_EQUAL(t,t2);
     }
 }
 
-BOOST_AUTO_TEST_CASE(temp_precise_conversion_to_variable_length_string){
+BOOST_AUTO_TEST_CASE(temp_precise_conversion_to_and_from_variable_length_string){
     for(double d = -128; d < 128; d += 0.1){
         temp_precise t = d;
         char s1[12];
@@ -194,10 +222,14 @@ BOOST_AUTO_TEST_CASE(temp_precise_conversion_to_variable_length_string){
         char * s3 = t.toString(s1, 5, 12);
         snprintf(s2, 12, "%.05f", double(t));
         BOOST_REQUIRE_MESSAGE(strcmp(s3, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
+
+        temp_precise t2;
+        BOOST_REQUIRE_MESSAGE(t2.fromString(s1), "Could not parse \"" << s1 << "\"to precise temp");
+        BOOST_REQUIRE_EQUAL(t,t2);
     }
 }
 
-BOOST_AUTO_TEST_CASE(temp_diff_small_conversion_to_fixed_length_string){
+BOOST_AUTO_TEST_CASE(temp_diff_small_conversion_to_and_from_fixed_length_string){
     for(double d = -8; d < 8; d += 0.0625){
         temp_diff_small t = d;
         char s1[12];
@@ -205,10 +237,14 @@ BOOST_AUTO_TEST_CASE(temp_diff_small_conversion_to_fixed_length_string){
         t.toString(s1, 3, 9);
         snprintf(s2, 12, "%8.03f", round(double(t) * 1000.0) / 1000.0); // don't let snprintf do the rounding, it uses bankers rounding / round to even
         BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
+
+        temp_diff_small t2;
+        BOOST_REQUIRE_MESSAGE(t2.fromString(s1), "Could not parse \"" << s1 << "\"to small temp diff");
+        BOOST_REQUIRE_EQUAL(t,t2);
     }
 }
 
-BOOST_AUTO_TEST_CASE(temp_diff_small_conversion_to_variable_length_string){
+BOOST_AUTO_TEST_CASE(temp_diff_small_conversion_to_and_from_variable_length_string){
     for(double d = -8; d < 8; d += 0.0625){
         temp_diff_small t = d;
         char s1[12];
@@ -216,6 +252,10 @@ BOOST_AUTO_TEST_CASE(temp_diff_small_conversion_to_variable_length_string){
         char * s3 = t.toString(s1, 3, 9);
         snprintf(s2, 12, "%.03f", round(double(t) * 1000.0) / 1000.0); // don't let snprintf do the rounding, it uses bankers rounding / round to even
         BOOST_REQUIRE_MESSAGE(strcmp(s3, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
+
+        temp_diff_small t2;
+        BOOST_REQUIRE_MESSAGE(t2.fromString(s1), "Could not parse \"" << s1 << "\"to small temp diff");
+        BOOST_REQUIRE_EQUAL(t,t2);
     }
 }
 
