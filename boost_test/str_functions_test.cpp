@@ -1,6 +1,5 @@
 /*
  * Copyright 2015 BrewPi/Elco Jacobs.
- * Copyright 2015 Matthew McGowan.
  *
  * This file is part of BrewPi.
  *
@@ -18,22 +17,33 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-#include <cstring>
+#include <boost/test/unit_test.hpp>
 
-long int my_strtol(const char* str, char** tail);
+#include "newTemperatureFormats.h"
+#include <cstdio>
+#include "str_functions.h"
 
-// Use custom strtol to save space.
-// std strtol is 616 byes on avr, my_strtol is 166
-#if 1
-inline long int strtol_impl(const char* str, char** tail){
-    return my_strtol(str, tail);
+BOOST_AUTO_TEST_SUITE( str_functions )
+
+BOOST_AUTO_TEST_CASE( my_strtol_test )
+{
+    char s[20];
+    char * end;
+    char * end2;
+    long result;
+    long result2;
+    for(long i = -LONG_MIN; i<LONG_MAX*.99;i+=LONG_MAX*0.001){
+        snprintf(s, 20, "%ld", i);
+        result = strtol(s, &end, 10);
+        result2 = my_strtol(s, &end2);
+
+        BOOST_REQUIRE_EQUAL(end, end2);
+        BOOST_REQUIRE_EQUAL(result, result2);
+        BOOST_REQUIRE_EQUAL(i, result2);
+    }
 }
-#else
-inline long int strtol_impl(const char* str, char** tail){
-    return strol(str, tail, 10);
-}
-#endif
 
-// check if strtol function (which has set the end pointer) was successful.
-bool invalidStrtolResult(const char * start, const char * end);
+
+BOOST_AUTO_TEST_SUITE_END()
+
+
