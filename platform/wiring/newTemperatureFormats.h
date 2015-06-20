@@ -25,9 +25,9 @@
 #include "fixstl.h"
 #undef constrain
 
-// used for temp and temp_diff, 16 bits
-#define TEMP_BASE_TYPE          int16_t
-#define TEMP_BASE_INTBITS       6 // 6 integer bits (-64/64 diff or -16/112 temp), 9 fraction bits, 1 sign bit
+// used for temp and temp, 16 bits
+#define TEMP_TYPE          int16_t
+#define TEMP_INTBITS       7 // 7 integer bits (-128/128), 8 fraction bits, 1 sign bit
 
 // used when higher integer part is needed
 #define TEMP_LONG_TYPE          int32_t
@@ -52,25 +52,25 @@ template<
         unsigned char I,
         /// The fractional part bit count.
         unsigned char F = std::numeric_limits<B>::digits - I>
-class temp_diff_template: public fpml::fixed_point<B, I, F> {
+class temp_template: public fpml::fixed_point<B, I, F> {
 public:
     using fpml::fixed_point<B, I, F>::fixed_point; // inherit constructors from base class
 
     /*
     // Converting this back to base type
-    fpml::fixed_point<B, I, F> & operator = (const temp_diff_template&  rhs)
+    fpml::fixed_point<B, I, F> & operator = (const temp_template&  rhs)
     {
         return (fpml::fixed_point<B, I, F> & )*this;
     }*/
 
-    static inline const temp_diff_template min(){
+    static inline const temp_template min(){
         return  std::numeric_limits<fpml::fixed_point<B, I, F> >::min();
     }
-    static inline const temp_diff_template max(){
+    static inline const temp_template max(){
         return std::numeric_limits<fpml::fixed_point<B, I, F> >::max();
     }
 
-    temp_diff_template constrain(const temp_diff_template & min, const temp_diff_template & max){
+    temp_template constrain(const temp_template & min, const temp_template & max){
         if(*this < min){
             return min;
         }
@@ -183,97 +183,29 @@ public:
     }
 };
 
-template<
-/// The base type. Must be an integer type.
-//!
-//! If this is a signed type, the fixed_point number will behave signed too,
-//! if this is an unsigned type, the fixed_point number will behave
-//! unsigned.
-        typename B,
-        /// The integer part bit count.
-        unsigned char I,
-        /// The fractional part bit count.
-        unsigned char F = std::numeric_limits<B>::digits - I>
-class temp_template: public temp_diff_template<B, I, F> {
-public:
-    using temp_diff_template<B, I, F>::temp_diff_template; // inherit constructors from base class
-    temp_template() : temp_diff_template<B, I, F>::temp_diff_template(0){
-    }
 
-    temp_template(double rhs) {
-        *this = temp_diff_template<B, I, F>(rhs - 48.0); // store temperature with -48C offset when initializing from double
-    }
-    temp_template(int rhs) {
-        *this = temp_diff_template<B, I, F>(rhs - 48); // store temperature with -48C offset when initializing from int
-    }
-
-    operator double() const{
-        return temp_diff_template<B, I, F>::operator double() + 48;
-    }
-
-    char * toString(char buf[], uint8_t numDecimals, uint8_t len) {
-        return temp_diff_template<B, I, F>::toString(buf, numDecimals, len, 48);
-    }
-
-    bool fromString(char * const s) {
-        return temp_diff_template<B, I, F>::fromString(s, -48);
-    }
-
-    static inline const temp_template min(){
-        return temp_diff_template<B, I, F>::min();
-    }
-
-    static inline const temp_template max(){
-        return temp_diff_template<B, I, F>::max();
-    }
-};
-
-
-using temp = temp_template<TEMP_BASE_TYPE, TEMP_BASE_INTBITS>;
-using temp_diff = temp_diff_template<TEMP_BASE_TYPE, TEMP_BASE_INTBITS>;
-using temp_long = temp_diff_template<TEMP_LONG_TYPE,TEMP_LONG_INTBITS>;
-using temp_precise = temp_diff_template<TEMP_PRECISE_TYPE,TEMP_PRECISE_INTBITS>;
-using temp_diff_small = temp_diff_template<TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS>;
+using temp = temp_template<TEMP_TYPE, TEMP_INTBITS>;
+using temp_long = temp_template<TEMP_LONG_TYPE,TEMP_LONG_INTBITS>;
+using temp_precise = temp_template<TEMP_PRECISE_TYPE,TEMP_PRECISE_INTBITS>;
+using temp_small = temp_template<TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS>;
 
 // To convert, cast back to base class. Base class handles conversion for different fixed point types
 
-static inline temp_long toLong(temp_diff & val) {
-    temp_long copy(
-            (fpml::fixed_point<TEMP_BASE_TYPE, TEMP_BASE_INTBITS> &) val);
-    return copy;
-}
-
-static inline temp_precise toPrecise(temp_diff & val) {
-    temp_precise copy(
-            (fpml::fixed_point<TEMP_BASE_TYPE, TEMP_BASE_INTBITS> &) val);
-    return copy;
-}
-
 static inline temp_long toLong(temp & val) {
     temp_long copy(
-            (fpml::fixed_point<TEMP_BASE_TYPE, TEMP_BASE_INTBITS> &) val);
-    copy += temp_long(48); // remove offset
+            (fpml::fixed_point<TEMP_TYPE, TEMP_INTBITS> &) val);
     return copy;
 }
 
 static inline temp_precise toPrecise(temp & val) {
     temp_precise copy(
-            (fpml::fixed_point<TEMP_BASE_TYPE, TEMP_BASE_INTBITS> &) val);
-    copy += temp_precise(48); // remove offset
+            (fpml::fixed_point<TEMP_TYPE, TEMP_INTBITS> &) val);
     return copy;
 }
 
-static inline temp_diff fromSmall(temp_diff_small & val) {
-    temp_diff copy(
+static inline temp toTemp(temp_small & val) {
+    temp copy(
             (fpml::fixed_point<TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS> &) val);
-    return copy;
-}
-
-static inline temp_diff toTempDiff(temp_precise & val) {
-    temp_diff min = temp_diff::min();
-    temp_diff max = temp_diff::max();
-    temp_precise constrained = val.constrain(toPrecise(min),toPrecise(max));
-    temp_diff copy((fpml::fixed_point<TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS> &) constrained );
     return copy;
 }
 
@@ -281,16 +213,7 @@ static inline temp toTemp(temp_precise & val) {
     temp min = temp::min();
     temp max = temp::max();
     temp_precise constrained = val.constrain(toPrecise(min),toPrecise(max));
-    constrained -= temp_precise(48.0);
     temp copy((fpml::fixed_point<TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS> &) constrained );
-    return copy;
-}
-
-static inline temp_diff toTempDiff(temp_long & val) {
-    temp_diff min = temp_diff::min();
-    temp_diff max = temp_diff::max();
-    temp_long constrained = val.constrain(toLong(min),toLong(max));
-    temp_diff copy((fpml::fixed_point<TEMP_LONG_TYPE, TEMP_LONG_INTBITS> &) constrained );
     return copy;
 }
 
@@ -298,7 +221,7 @@ static inline temp toTemp(temp_long & val) {
     temp min = temp::min();
     temp max = temp::max();
     temp_long constrained = val.constrain(toLong(min),toLong(max));
-    constrained -= temp_long(48.0);
     temp copy((fpml::fixed_point<TEMP_LONG_TYPE, TEMP_LONG_INTBITS> &) constrained );
     return copy;
 }
+

@@ -58,17 +58,17 @@ class Pid
     private:
         Actuator *        outputActuator;
         BasicTempSensor * inputSensor;
-        temp_diff         Kp;    // proportional gain
-        temp_diff         Ki;    // integral gain
-        temp_diff         Kd;    // derivative gain
-        temp_diff         Ka;    // integrator anti windup gain
-        temp_diff         min;
-        temp_diff         max;
+        temp         Kp;    // proportional gain
+        temp         Ki;    // integral gain
+        temp         Kd;    // derivative gain
+        temp         Ka;    // integrator anti windup gain
+        temp         min;
+        temp         max;
         temp              setPoint;
-        temp_diff         p;
-        temp_diff         i;
-        temp_diff         d;
-        temp_diff         error;
+        temp         p;
+        temp         i;
+        temp         d;
+        temp         error;
         temp_precise      derivative;
         temp_precise      doubleDerivative;
         temp_long         integral;

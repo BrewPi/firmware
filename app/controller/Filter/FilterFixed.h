@@ -101,8 +101,6 @@ class FixedFilter
 
         temp_precise add(temp_precise val);    // adds a value and returns the most recent filter output
 
-        temp_diff add(temp_precise val);    // adds a value and returns the most recent filter output
-
         temp add(temp val);    // adds a value and returns the most recent filter output
 
         temp_precise readOutput(void)

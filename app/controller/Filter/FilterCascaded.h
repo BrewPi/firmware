@@ -17,6 +17,8 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+
 #pragma once
 
 #include "Brewpi.h"
@@ -27,41 +29,41 @@
 // For 3 sections the stop band attenuation is 3x the single section attenuation in dB.
 // The delay is also tripled.
 #define NUM_SECTIONS 3
-class FilterCascaded {
-public:
+class FilterCascaded
+{
+    public:
 
-	// CascadedFilter implements a filter that consists of multiple second order secions.
-	FixedFilter sections[NUM_SECTIONS];
+        // CascadedFilter implements a filter that consists of multiple second order secions.
+        FixedFilter sections[NUM_SECTIONS];
 
-public:
-	FilterCascaded();
+    public:
+        FilterCascaded();
 
-	~FilterCascaded() {
-	}
+        ~FilterCascaded()
+        {
+        }
 
-	void init(temp val);
+        void init(temp val);
 
-	void setCoefficients(uint8_t bValue);
+        void setCoefficients(uint8_t bValue);
 
-	temp_precise add(temp_precise val); // adds a value and returns the most recent filter output
+        temp_precise add(temp_precise val);    // adds a value and returns the most recent filter output
 
-	temp add(temp val); // adds a value and returns the most recent filter output as temp
+        temp add(temp val);                    // adds a value and returns the most recent filter output as temp
 
-	temp_diff add(temp_diff val); // adds a value and returns the most recent filter output as temp diff
+        temp_precise addDoublePrecision(temp_precise val);
 
-	temp_precise addDoublePrecision(temp_precise val);
+        temp_precise readInput(void);          // returns the most recent filter input
 
-	temp_precise readInput(void);         // returns the most recent filter input
+        temp_precise readOutput(void);
 
-	temp_precise readOutput(void);
+        temp_precise readOutputPrecise(void);
 
-	temp_precise readOutputPrecise(void);
+        temp_precise readPrevOutputPrecise(void);
 
-	temp_precise readPrevOutputPrecise(void);
+        temp_precise readOldestOutputPrecise(void);
 
-	temp_precise readOldestOutputPrecise(void);
+        temp_precise detectPosPeak(void);
 
-	temp_precise detectPosPeak(void);
-
-	temp_precise detectNegPeak(void);
+        temp_precise detectNegPeak(void);
 };
