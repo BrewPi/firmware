@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Brewpi.h"
-#include "TemperatureFormats.h"
+#include "newTemperatureFormats.h"
 #include "FilterFixed.h"
 
 // Use 3 filter sections. This gives excellent filtering, without adding too much delay.
@@ -39,25 +39,29 @@ public:
 	~FilterCascaded() {
 	}
 
-	void init(temperature val);
+	void init(temp val);
 
 	void setCoefficients(uint8_t bValue);
 
-	temperature add(temperature val); // adds a value and returns the most recent filter output
+	temp_precise add(temp_precise val); // adds a value and returns the most recent filter output
 
-	temperature_precise addDoublePrecision(temperature_precise val);
+	temp add(temp val); // adds a value and returns the most recent filter output as temp
 
-	temperature readInput(void);         // returns the most recent filter input
+	temp_diff add(temp_diff val); // adds a value and returns the most recent filter output as temp diff
 
-	temperature readOutput(void);
+	temp_precise addDoublePrecision(temp_precise val);
 
-	temperature_precise readOutputDoublePrecision(void);
+	temp_precise readInput(void);         // returns the most recent filter input
 
-	temperature_precise readPrevOutputDoublePrecision(void);
+	temp_precise readOutput(void);
 
-	temperature_precise readOldestOutputDoublePrecision(void);
+	temp_precise readOutputPrecise(void);
 
-	temperature detectPosPeak(void);
+	temp_precise readPrevOutputPrecise(void);
 
-	temperature detectNegPeak(void);
+	temp_precise readOldestOutputPrecise(void);
+
+	temp_precise detectPosPeak(void);
+
+	temp_precise detectNegPeak(void);
 };

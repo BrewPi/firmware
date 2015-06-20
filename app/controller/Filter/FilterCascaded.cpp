@@ -84,7 +84,7 @@ temperature FilterCascaded::detectNegPeak(void)
     return sections[NUM_SECTIONS - 1].detectNegPeak();    // detect peaks in last section
 }
 
-temperature_precise FilterCascaded::readOutputDoublePrecision(void)
+temperature_precise FilterCascaded::readOutputPrecise(void)
 {
     return sections[NUM_SECTIONS - 1].readOutputDoublePrecision();    // return output of last section1
 }

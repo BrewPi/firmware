@@ -74,8 +74,8 @@ class FixedFilter
     public:
 
         // input and output arrays
-        temperature_precise xv[3];
-        temperature_precise yv[3];
+        temp_precise xv[3];
+        temp_precise yv[3];
         uint8_t             a;
         uint8_t             b;
 
@@ -99,36 +99,33 @@ class FixedFilter
             b = bValue;
         }
 
-        temperature add(temperature val);    // adds a value and returns the most recent filter output
+        temp_precise add(temp_precise val);    // adds a value and returns the most recent filter output
 
-        temperature_precise addDoublePrecision(temperature_precise val);
+        temp_diff add(temp_precise val);    // adds a value and returns the most recent filter output
 
-        temperature readOutput(void)
-        {
-            return yv[0] >> 16;    // return 16 most significant bits of most recent output
-        }
+        temp add(temp val);    // adds a value and returns the most recent filter output
 
-        temperature readInput(void)
-        {
-            return xv[0] >> 16;    // return 16 most significant bits of most recent input
-        }
-
-        temperature_precise readOutputDoublePrecision(void)
+        temp_precise readOutput(void)
         {
             return yv[0];
         }
 
-        temperature_precise readPrevOutputDoublePrecision(void)
+        temp_precise readInput(void)
+        {
+            return xv[0];
+        }
+
+        temp_precise readPrevOutput(void)
         {
             return yv[1];
         }
 
-        temperature_precise readOldestOutputDoublePrecision(void)
+        temp_precise readOldestOutput(void)
         {
             return yv[2];
         }
 
-        temperature detectPosPeak(void);    // returns positive peak or INVALID_TEMP when no peak has been found
+        bool detectPosPeak(temp_precise * result);    // returns true if peak detected and puts peak in result
 
-        temperature detectNegPeak(void);    // returns negative peak or INVALID_TEMP when no peak has been found
+        bool detectNegPeak(temp_precise * result);    // returns true if peak detected and puts peak in result
 };

@@ -78,10 +78,10 @@ void Pid::update()
 
     error = setPoint - inputFilter.readOutput();
 
-    derivativeFilter.addDoublePrecision(inputFilter.readOutputDoublePrecision()
+    derivativeFilter.addDoublePrecision(inputFilter.readOutputPrecise()
                                    - inputFilter.readOldestOutputDoublePrecision());
 
-    doubleDerivativeFilter.addDoublePrecision(derivativeFilter.readOutputDoublePrecision()
+    doubleDerivativeFilter.addDoublePrecision(derivativeFilter.readOutputPrecise()
                                    - derivativeFilter.readOldestOutputDoublePrecision());
 
     derivative = derivativeFilter.readOutput();

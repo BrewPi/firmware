@@ -14,16 +14,16 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "Brewpi.h"
-#include "TemperatureFormats.h"
+#include "newTemperatureFormats.h"
 #include "FilterFixed.h"
 #include <stdlib.h>
 
-temperature FixedFilter::add(temperature val){
-	temperature_precise returnVal = addDoublePrecision(tempRegularToPrecise(val));
-	return tempPreciseToRegular(returnVal);
+temp FixedFilter::add(temp val){
+	temp_precise returnVal = add(toPrecise(val));
+	return fromPrecise(returnVal);
 }
 
-temperature_precise FixedFilter::addDoublePrecision(temperature_precise val){
+temp_precise FixedFilter::add(temp_precise val){
 	xv[2] = xv[1];
 	xv[1] = xv[0];
 	xv[0] = val;
