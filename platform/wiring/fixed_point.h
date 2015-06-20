@@ -549,10 +549,17 @@ public:
 		/// Factor for mutliplication.
 		fpml::fixed_point<B, I, F> const& factor)
 	{
-		
-		value_ = (static_cast< typename fpml::fixed_point<B, I, F>::template 
-				promote_type<B>::type>
-			(value_) * factor.value_) >> F;
+	    typename fpml::fixed_point<B, I, F>::template
+	            promote_type<B>::type result = value_;
+	    result *= factor.value_;
+	    result = result >> F;
+	    if(result < std::numeric_limits<B>::min()){
+	        result = std::numeric_limits<B>::min();
+	    }
+	    if(result > std::numeric_limits<B>::max()){
+            result = std::numeric_limits<B>::max();
+        }
+		value_ =  result;
 		return *this;
 	}
 

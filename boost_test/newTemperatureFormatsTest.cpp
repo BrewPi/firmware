@@ -248,6 +248,18 @@ BOOST_AUTO_TEST_CASE(temp_small_conversion_to_and_from_variable_length_string){
     }
 }
 
+BOOST_AUTO_TEST_CASE(overflowing_multiplication_is_constrained){
+    temp t1 = 120;
+    temp t2 = 120;
+
+    BOOST_REQUIRE_EQUAL(t1*t2, temp::max());
+
+    t1 = -120;
+    t2 = 120;
+
+    BOOST_REQUIRE_EQUAL(t1*t2, temp::min());
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 
