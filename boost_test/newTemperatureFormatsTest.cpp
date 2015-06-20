@@ -109,6 +109,104 @@ BOOST_AUTO_TEST_CASE( conversion_from_small_to_normal_temp_diff)
     BOOST_CHECK_EQUAL(td2, temp_diff(1.0));
 }
 
+BOOST_AUTO_TEST_CASE(conversion_to_double){
+    BOOST_CHECK_CLOSE(1.0, double(temp_diff(1)), 1);
+    BOOST_CHECK_CLOSE(1.0, double(temp(1)), 1);
+    BOOST_CHECK_CLOSE(1.0, double(temp_precise(1)), 1);
+    BOOST_CHECK_CLOSE(1.0, double(temp_long(1)), 1);
+}
+
+BOOST_AUTO_TEST_CASE(test_min_max){
+    BOOST_CHECK_EQUAL(double(-64), double(temp_diff::min()));
+    BOOST_CHECK_CLOSE(double(64), double(temp_diff::max()), 1);
+    BOOST_CHECK_EQUAL(double(-16), double(temp::min()));
+    BOOST_CHECK_CLOSE(double(112), double(temp::max()), 1);
+}
+
+BOOST_AUTO_TEST_CASE( conversion_from_precise_to_normal_temp_diff)
+{
+    // non-clipping/non-overflowing conversion
+    temp_precise tp = 0.5;
+
+    // conversion to normal format
+    temp_diff td = toTempDiff(tp);
+    BOOST_CHECK_EQUAL(td, temp_diff(0.5));
+
+    // clipping conversion should be constrained to min/max
+
+    // conversion to normal format
+    tp = -120;
+    td = toTempDiff(tp);
+    BOOST_CHECK_EQUAL(td, temp_diff::min());
+
+    tp = 120;
+    td = toTempDiff(tp);
+    BOOST_CHECK_EQUAL(td, temp_diff::max());
+}
+
+BOOST_AUTO_TEST_CASE( conversion_from_precise_to_normal_temp)
+{
+    // non-clipping/non-overflowing conversion
+    temp_precise tp = 0.5;
+
+    // conversion to normal format
+    temp t = toTemp(tp);
+    BOOST_CHECK_EQUAL(t, temp(0.5));
+
+    // clipping conversion should be constrained to min/max
+
+    // conversion to normal format
+    tp = -120;
+    t = toTemp(tp);
+    BOOST_CHECK_EQUAL(t, temp::min());
+
+    tp = 120;
+    t = toTemp(tp);
+    BOOST_CHECK_EQUAL(t, temp::max());
+}
+
+BOOST_AUTO_TEST_CASE( conversion_from_long_to_normal_temp_diff)
+{
+    // non-clipping/non-overflowing conversion
+    temp_long tl = 0.5;
+
+    // conversion to normal format
+    temp_diff td = toTempDiff(tl);
+    BOOST_CHECK_EQUAL(td, temp_diff(0.5));
+
+    // clipping conversion should be constrained to min/max
+
+    // conversion to normal format
+    tl = -120;
+    td = toTempDiff(tl);
+    BOOST_CHECK_EQUAL(td, temp_diff::min());
+
+    tl = 120;
+    td = toTempDiff(tl);
+    BOOST_CHECK_EQUAL(td, temp_diff::max());
+}
+
+BOOST_AUTO_TEST_CASE( conversion_from_long_to_normal_temp)
+{
+    // non-clipping/non-overflowing conversion
+    temp_long tl = 0.5;
+
+    // conversion to normal format
+    temp t = toTemp(tl);
+    BOOST_CHECK_EQUAL(t, temp(0.5));
+
+    // clipping conversion should be constrained to min/max
+
+    // conversion to normal format
+    tl = -120;
+    t = toTemp(tl);
+    BOOST_CHECK_EQUAL(t, temp::min());
+
+    tl = 120;
+    t = toTemp(tl);
+    BOOST_CHECK_EQUAL(t, temp::max());
+}
+
 BOOST_AUTO_TEST_CASE(temp_diff_conversion_to_and_from_fixed_length_string){
     for(double d = -64; d < 64; d += 0.1){
         temp_diff t = d;
@@ -145,7 +243,7 @@ BOOST_AUTO_TEST_CASE(temp_conversion_to_and_from_fixed_length_string){
         char s1[12];
         char s2[12];
         t.toString(s1, 4, 9);
-        snprintf(s2, 12, "%8.04f", double(t)+48.0); // take into account the internal offset of 48C.
+        snprintf(s2, 12, "%8.04f", double(t));
         BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
 
         temp t2;
@@ -160,7 +258,7 @@ BOOST_AUTO_TEST_CASE(temp_conversion_to_and_from_variable_length_string){
         char s1[12];
         char s2[12];
         char * s3 = t.toString(s1, 3, 8);
-        snprintf(s2, 12, "%.03f", double(t)+48.0); // take into account the internal offset of 48C.
+        snprintf(s2, 12, "%.03f", double(t));
         BOOST_REQUIRE_MESSAGE(strcmp(s3, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
 
         temp t2;

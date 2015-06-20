@@ -22,6 +22,8 @@
 #include <fixed_point.h>
 #include <cstdlib>
 #include "str_functions.h"
+#include "fixstl.h"
+#undef constrain
 
 // used for temp and temp_diff, 16 bits
 #define TEMP_BASE_TYPE          int16_t
@@ -53,6 +55,30 @@ template<
 class temp_diff_template: public fpml::fixed_point<B, I, F> {
 public:
     using fpml::fixed_point<B, I, F>::fixed_point; // inherit constructors from base class
+
+    /*
+    // Converting this back to base type
+    fpml::fixed_point<B, I, F> & operator = (const temp_diff_template&  rhs)
+    {
+        return (fpml::fixed_point<B, I, F> & )*this;
+    }*/
+
+    static inline const temp_diff_template min(){
+        return  std::numeric_limits<fpml::fixed_point<B, I, F> >::min();
+    }
+    static inline const temp_diff_template max(){
+        return std::numeric_limits<fpml::fixed_point<B, I, F> >::max();
+    }
+
+    temp_diff_template constrain(const temp_diff_template & min, const temp_diff_template & max){
+        if(*this < min){
+            return min;
+        }
+        if(*this > max){
+            return max;
+        }
+        return *this;
+    }
 
     // converts fixed point value to string, without using double/float
     // resulting string is always length len (including \0). Spaces are prepended to achieve that.
@@ -180,6 +206,11 @@ public:
     temp_template(int rhs) {
         *this = temp_diff_template<B, I, F>(rhs - 48); // store temperature with -48C offset when initializing from int
     }
+
+    operator double() const{
+        return temp_diff_template<B, I, F>::operator double() + 48;
+    }
+
     char * toString(char buf[], uint8_t numDecimals, uint8_t len) {
         return temp_diff_template<B, I, F>::toString(buf, numDecimals, len, 48);
     }
@@ -187,7 +218,16 @@ public:
     bool fromString(char * const s) {
         return temp_diff_template<B, I, F>::fromString(s, -48);
     }
+
+    static inline const temp_template min(){
+        return temp_diff_template<B, I, F>::min();
+    }
+
+    static inline const temp_template max(){
+        return temp_diff_template<B, I, F>::max();
+    }
 };
+
 
 using temp = temp_template<TEMP_BASE_TYPE, TEMP_BASE_INTBITS>;
 using temp_diff = temp_diff_template<TEMP_BASE_TYPE, TEMP_BASE_INTBITS>;
@@ -226,5 +266,39 @@ static inline temp_precise toPrecise(temp & val) {
 static inline temp_diff fromSmall(temp_diff_small & val) {
     temp_diff copy(
             (fpml::fixed_point<TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS> &) val);
+    return copy;
+}
+
+static inline temp_diff toTempDiff(temp_precise & val) {
+    temp_diff min = temp_diff::min();
+    temp_diff max = temp_diff::max();
+    temp_precise constrained = val.constrain(toPrecise(min),toPrecise(max));
+    temp_diff copy((fpml::fixed_point<TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS> &) constrained );
+    return copy;
+}
+
+static inline temp toTemp(temp_precise & val) {
+    temp min = temp::min();
+    temp max = temp::max();
+    temp_precise constrained = val.constrain(toPrecise(min),toPrecise(max));
+    constrained -= temp_precise(48.0);
+    temp copy((fpml::fixed_point<TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS> &) constrained );
+    return copy;
+}
+
+static inline temp_diff toTempDiff(temp_long & val) {
+    temp_diff min = temp_diff::min();
+    temp_diff max = temp_diff::max();
+    temp_long constrained = val.constrain(toLong(min),toLong(max));
+    temp_diff copy((fpml::fixed_point<TEMP_LONG_TYPE, TEMP_LONG_INTBITS> &) constrained );
+    return copy;
+}
+
+static inline temp toTemp(temp_long & val) {
+    temp min = temp::min();
+    temp max = temp::max();
+    temp_long constrained = val.constrain(toLong(min),toLong(max));
+    constrained -= temp_long(48.0);
+    temp copy((fpml::fixed_point<TEMP_LONG_TYPE, TEMP_LONG_INTBITS> &) constrained );
     return copy;
 }
