@@ -56,18 +56,22 @@ class temp_template: public fpml::fixed_point<B, I, F> {
 public:
     using fpml::fixed_point<B, I, F>::fixed_point; // inherit constructors from base class
 
-    /*
-    // Converting this back to base type
-    fpml::fixed_point<B, I, F> & operator = (const temp_template&  rhs)
-    {
-        return (fpml::fixed_point<B, I, F> & )*this;
-    }*/
-
-    static inline const temp_template min(){
-        return  std::numeric_limits<fpml::fixed_point<B, I, F> >::min();
-    }
     static inline const temp_template max(){
         return std::numeric_limits<fpml::fixed_point<B, I, F> >::max();
+    }
+    static inline const temp_template min(){
+        temp_template min = std::numeric_limits<fpml::fixed_point<B, I, F> >::min();
+        min.value_ += 2; // bottom 2 are reserved for special cases (disabled/invalid)
+        return min;
+    }
+    static inline const temp_template invalid(){
+        temp_template invalid = std::numeric_limits<fpml::fixed_point<B, I, F> >::min();
+        return invalid;
+    }
+    static inline const temp_template disabled(){
+        temp_template disabled = std::numeric_limits<fpml::fixed_point<B, I, F> >::min();
+        disabled.value_ += 1;
+        return disabled;
     }
 
     temp_template constrain(const temp_template & min, const temp_template & max){
