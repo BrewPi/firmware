@@ -122,7 +122,7 @@ template<
 class fixed_point
 	: boost::ordered_field_operators<fpml::fixed_point<B, I, F>
 	, boost::unit_steppable<fpml::fixed_point<B, I, F>
-	, boost::shiftable<fpml::fixed_point<B, I, F>, size_t
+	, boost::shiftable<fpml::fixed_point<B, I, F>, unsigned char
 	> > >
 {
 	// Only integer types qualify for base type. If this line triggers an error,
@@ -587,7 +587,7 @@ public:
 	//! /return A reference to this object.
 	fpml::fixed_point<B, I, F> & operator >>=(
 		/// Count of positions to shift.
-		size_t shift)
+		unsigned char shift)
 	{
 		value_ >>= shift;
 		return *this;
@@ -601,7 +601,7 @@ public:
 	//! /return A reference to this object.
 	fpml::fixed_point<B, I, F> & operator <<=(
 		/// Count of positions to shift.
-		size_t shift)
+		unsigned char shift)
 	{
 		value_ <<= shift;
 		return *this;
@@ -610,7 +610,7 @@ public:
 	/// Convert to char.
 	//!
 	//! /return The value converted to char.
-	operator char() const
+	explicit operator char() const
 	{
 		return (char)(value_ >> F);	
 	}
@@ -618,7 +618,7 @@ public:
 	/// Convert to signed char.
 	//!
 	//! /return The value converted to signed char.
-	operator signed char() const
+	explicit operator signed char() const
 	{
 		return (signed char)(value_ >> F);	
 	}
@@ -626,7 +626,7 @@ public:
 	/// Convert to unsigned char.
 	//!
 	//! /return The value converted to unsigned char.
-	operator unsigned char() const
+	explicit operator unsigned char() const
 	{
 		return (unsigned char)(value_ >> F);	
 	}
@@ -634,7 +634,7 @@ public:
 	/// Convert to short.
 	//!
 	//! /return The value converted to short.
-	operator short() const
+	explicit operator short() const
 	{
 		return (short)(value_ >> F);	
 	}
@@ -642,7 +642,7 @@ public:
 	/// Convert to unsigned short.
 	//!
 	//! /return The value converted to unsigned short.
-	operator unsigned short() const
+	explicit operator unsigned short() const
 	{
 		return (unsigned short)(value_ >> F);	
 	}
@@ -650,7 +650,7 @@ public:
 	/// Convert to int.
 	//!
 	//! /return The value converted to int.
-	operator int() const
+	explicit operator int() const
 	{
 		return (int)(value_ >> F);	
 	}
@@ -658,7 +658,7 @@ public:
 	/// Convert to unsigned int.
 	//!
 	//! /return The value converted to unsigned int.
-	operator unsigned int() const
+	explicit operator unsigned int() const
 	{
 		return (unsigned int)(value_ >> F);	
 	}
@@ -666,7 +666,7 @@ public:
 	/// Convert to long.
 	//!
 	//! /return The value converted to long.
-	operator long() const
+	explicit operator long() const
 	{
 		return (long)(value_ >> F);	
 	}
@@ -674,7 +674,7 @@ public:
 	/// Convert to unsigned long.
 	//!
 	//! /return The value converted to unsigned long.
-	operator unsigned long() const
+	explicit operator unsigned long() const
 	{
 		return (unsigned long)(value_ >> F);	
 	}
@@ -682,7 +682,7 @@ public:
 	/// Convert to long long.
 	//!
 	//! /return The value converted to long long.
-	operator long long() const
+	explicit operator long long() const
 	{
 		return (long long)(value_ >> F);	
 	}
@@ -690,7 +690,7 @@ public:
 	/// Convert to unsigned long long.
 	//!
 	//! /return The value converted to unsigned long long.
-	operator unsigned long long() const
+	explicit operator unsigned long long() const
 	{
 		return (unsigned long long)(value_ >> F);	
 	}
@@ -698,7 +698,7 @@ public:
 	/// Convert to a bool.
 	//!
 	//! /return The value converted to a bool.
-	operator bool() const
+	explicit operator bool() const
 	{
 		return (bool)value_;	
 	}
