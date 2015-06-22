@@ -21,6 +21,7 @@
 
 #include "FilterCascaded.h"
 #include <cstdio>
+#include <math.h>
 
 BOOST_AUTO_TEST_SUITE( filter_suite )
 
@@ -43,7 +44,7 @@ long delayTime(FilterCascaded f){
 
 BOOST_AUTO_TEST_CASE( filter_delay_time )
 {
-    /* Cascaded(3x) filter delay times (tested with matlab)
+    /* Cascaded(3x) filter delay times (analyzed with matlab, see FixedFilter.h)
      *       a=4,    b=0,    delay time = 9
      *       a=6,    b=1,    delay time = 20
      *       a=8,    b=2,    delay time = 43
@@ -54,7 +55,6 @@ BOOST_AUTO_TEST_CASE( filter_delay_time )
      */
 
     FilterCascaded f; // initialized to zero
-    // actual delay time
 
     f.setCoefficients(0);
     BOOST_CHECK_EQUAL(delayTime(f), 9);
@@ -90,6 +90,34 @@ BOOST_AUTO_TEST_CASE( filter_has_no_overshoot_and_approaches_input )
 
     BOOST_CHECK_CLOSE(double(f.readOutput()), 10.0, 0.1);
 }
+
+
+BOOST_AUTO_TEST_CASE( peak_detect )
+{
+    FilterCascaded f;
+    f.setCoefficients(2); // delay time 88
+    double amplitude = 10.0;
+    double period = 1000.0;
+    int peaks_detected = 0;
+
+    for(double t=0; t<5000; t++){
+        temp_precise val = amplitude * sin( t * 2 * M_PI / period );
+        f.add(val);
+        temp_precise peak;
+        if(t>10.0){
+            if(f.detectPosPeak(&peak)){
+                BOOST_CHECK_CLOSE(double(peak), 10.0, 1);  // accept 1% margin due to filtering
+                peaks_detected++;
+            }
+            if(f.detectNegPeak(&peak)){
+                BOOST_CHECK_CLOSE(double(peak), -10.0, 1);
+                peaks_detected++;
+            }
+        }
+    }
+    BOOST_CHECK_EQUAL(peaks_detected, 10);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 

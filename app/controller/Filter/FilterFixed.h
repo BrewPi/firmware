@@ -56,7 +56,7 @@
  *       set(h,'FrequencyRange', 'Specify freq. vector');
  *       set(h,'FrequencyScale','Log')
  *       set(h,'FrequencyVector', logspace(-4,0,1000));
- *       [amp, t] = stepz(H)
+ *       [amp, t] = stepz(H);
  *       ind = find(amp>.5,1);
  *       disp('delay time: '), disp(t(ind));
  *
