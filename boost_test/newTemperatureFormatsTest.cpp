@@ -262,6 +262,16 @@ BOOST_AUTO_TEST_CASE(overflowing_multiplication_is_constrained){
     BOOST_REQUIRE_CLOSE(double(t1*t2), double(temp::min()),1);
 }
 
+BOOST_AUTO_TEST_CASE(left_shift){
+    temp t = 2.0;
+    unsigned char a = 1;
+    temp t2 = t>>a;
+    temp t3 = t>>uint8_t(1); //cast needed to prevent ambiguity
+
+    BOOST_REQUIRE_EQUAL(double(t2), 1.0);
+    BOOST_REQUIRE_EQUAL(double(t3), 1.0);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 

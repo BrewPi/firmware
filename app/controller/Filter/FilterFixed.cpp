@@ -20,7 +20,7 @@
 
 temp FixedFilter::add(temp val){
 	temp_precise returnVal = add(toPrecise(val));
-	return fromPrecise(returnVal);
+	return toTemp(returnVal);
 }
 
 temp_precise FixedFilter::add(temp_precise val){
@@ -32,41 +32,43 @@ temp_precise FixedFilter::add(temp_precise val){
 	yv[1] = yv[0];
 	
 	/* Implementation that prevents overflow as much as possible by order of operations: */
-	yv[0] = ((yv[1] - yv[2]) + yv[1]) // expected value + 1*
-	- (yv[1]>>b) + (yv[2]>>b) + // expected value +0*
-	+ (xv[0]>>a) + (xv[1]>>(a-1)) + (xv[2]>>a) // expected value +(1>>(a-2))
-	- (yv[2]>>(a-2)); // expected value -(1>>(a-2))
+	yv[0] = (yv[1] - yv[2]) + yv[1]; // expected value + 1*
+	yv[0] -= (yv[1]>>b); // expected value -1>>b*
+    yv[0] += (yv[2]>>b); // expected value +1>>b*
+	temp_precise temporary = (xv[0]>>a) + (xv[1]>>uint8_t(a-1)) + (xv[2]>>a); // expected value +(1>>(a-2))
+	temporary -= (yv[2]>>uint8_t(a-2)); // expected value -(1>>(a-2))
+	yv[0] += temporary;
 	
 	return yv[0];
 }
 
+void FixedFilter::init(temp_precise val){
+        xv[0] = val;
+        xv[1] = val;
+        xv[2] = val;
 
-void FixedFilter::init(temperature val){
-		xv[0] = val;
-		xv[0] = tempRegularToPrecise(xv[0]); // 16 extra bits are used in the filter for the fraction part
-
-		xv[1] = xv[0];
-		xv[2] = xv[0];
-	
-		yv[0] = xv[0];
-		yv[1] = xv[0];
-		yv[2] = xv[0];
+        yv[0] = val;
+        yv[1] = val;
+        yv[2] = val;
 }
 
-temperature FixedFilter::detectPosPeak(void){
+bool FixedFilter::detectPosPeak(temp_precise * peak){
 	if(yv[0] < yv[1] && yv[1] >= yv[2]){
-		return tempPreciseToRegular(yv[1]);
+		*peak = yv[1];
+	    return true;
 	}
 	else{
-		return INVALID_TEMP;
+		return false;
 	}
 }
 
-temperature FixedFilter::detectNegPeak(void){
+bool FixedFilter::detectNegPeak(temp_precise * peak){
 	if(yv[0] > yv[1] && yv[1] <= yv[2]){
-		return tempPreciseToRegular(yv[1]);
+	    *peak = yv[1];
+        return true;
 	}
 	else{
-		return INVALID_TEMP;
+		return false;
 	}
 }
+

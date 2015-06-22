@@ -21,8 +21,9 @@
 
 #pragma once
 
-#include "Brewpi.h"
-#include "TemperatureFormats.h"
+// #include "Brewpi.h"
+
+#include "newTemperatureFormats.h"
 
 /*
  *  This class implements an IIR low pass filter, with the following frequency response
@@ -55,6 +56,9 @@
  *       set(h,'FrequencyRange', 'Specify freq. vector');
  *       set(h,'FrequencyScale','Log')
  *       set(h,'FrequencyVector', logspace(-4,0,1000));
+ *       [amp, t] = stepz(H)
+ *       ind = find(amp>.5,1);
+ *       disp('delay time: '), disp(t(ind));
  *
  *       Here are the specifications for a single stage filter, for values a=2b+4
  *       The delay time is the time it takes to rise to 0.5 in a step response.
@@ -65,9 +69,8 @@
  *       a=8,    b=2,    delay time = 13
  *       a=10,   b=3,    delay time = 26
  *       a=12,   b=4,    delay time = 53
- *       a=14,   b=5,    delay time = 106
- *       a=16,   b=6,    delay time = 213
- *
+ *       a=14,   b=5,    delay time = 107
+ *       a=16,   b=6,    delay time = 214
  */
 class FixedFilter
 {
@@ -76,8 +79,8 @@ class FixedFilter
         // input and output arrays
         temp_precise xv[3];
         temp_precise yv[3];
-        uint8_t             a;
-        uint8_t             b;
+        uint8_t      a;
+        uint8_t      b;
 
     public:
         FixedFilter()
@@ -91,7 +94,7 @@ class FixedFilter
         {
         }
 
-        void init(temperature val);
+        void init(temp_precise val = temp_precise(0.0));
 
         void setCoefficients(uint8_t bValue)
         {
@@ -101,7 +104,7 @@ class FixedFilter
 
         temp_precise add(temp_precise val);    // adds a value and returns the most recent filter output
 
-        temp add(temp val);    // adds a value and returns the most recent filter output
+        temp add(temp val);                    // adds a value and returns the most recent filter output
 
         temp_precise readOutput(void)
         {

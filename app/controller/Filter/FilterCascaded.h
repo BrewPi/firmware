@@ -21,13 +21,24 @@
 
 #pragma once
 
-#include "Brewpi.h"
+//#include "Brewpi.h"
 #include "newTemperatureFormats.h"
 #include "FilterFixed.h"
 
 // Use 3 filter sections. This gives excellent filtering, without adding too much delay.
 // For 3 sections the stop band attenuation is 3x the single section attenuation in dB.
-// The delay is also tripled.
+// The delay is longer too.
+
+/* See MATLAB script in FixedFilter.h for analysis
+ *       a=4,    b=0,    delay time = 9
+ *       a=6,    b=1,    delay time = 20
+ *       a=8,    b=2,    delay time = 43
+ *       a=10,   b=3,    delay time = 88
+ *       a=12,   b=4,    delay time = 179
+ *       a=14,   b=5,    delay time = 360
+ *       a=16,   b=6,    delay time = 723
+ */
+
 #define NUM_SECTIONS 3
 class FilterCascaded
 {
@@ -43,27 +54,25 @@ class FilterCascaded
         {
         }
 
-        void init(temp val);
+        void init(temp_precise val = temp_precise(0.0));
 
         void setCoefficients(uint8_t bValue);
 
-        temp_precise add(temp_precise val);    // adds a value and returns the most recent filter output
+        temp_precise add(temp_precise & val);    // adds a value and returns the most recent filter output
 
-        temp add(temp val);                    // adds a value and returns the most recent filter output as temp
+        temp add(temp & val);                    // adds a value and returns the most recent filter output as temp
 
-        temp_precise addDoublePrecision(temp_precise val);
+        temp_precise addDoublePrecision(temp_precise & val);
 
         temp_precise readInput(void);          // returns the most recent filter input
 
         temp_precise readOutput(void);
 
-        temp_precise readOutputPrecise(void);
+        temp_precise readPrevOutput(void);
 
-        temp_precise readPrevOutputPrecise(void);
+        temp_precise readOldestOutput(void);
 
-        temp_precise readOldestOutputPrecise(void);
+        bool detectPosPeak(temp_precise * peak);
 
-        temp_precise detectPosPeak(void);
-
-        temp_precise detectNegPeak(void);
+        bool detectNegPeak(temp_precise * peak);
 };

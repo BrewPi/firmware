@@ -20,7 +20,7 @@
 
 
 #include "Brewpi.h"
-#include "TemperatureFormats.h"
+#include "newTemperatureFormats.h"
 #include "FilterFixed.h"
 #include "FilterCascaded.h"
 #include <stdlib.h>
@@ -31,6 +31,7 @@ FilterCascaded::FilterCascaded()
     {
         sections[i].setCoefficients(2);    // default to a b value of 2
     }
+    init();
 }
 
 void FilterCascaded::setCoefficients(uint8_t bValue)
@@ -41,65 +42,60 @@ void FilterCascaded::setCoefficients(uint8_t bValue)
     }
 }
 
-temperature FilterCascaded::add(temperature val)
+temp FilterCascaded::add(temp & val)
 {
-    temperature_precise valDoublePrecision = tempRegularToPrecise(val);
+    temp_precise valPrecise= toPrecise(val);
 
-    valDoublePrecision = addDoublePrecision(valDoublePrecision);
+    valPrecise = add(valPrecise);
 
-    // return output, shifted back to single precision
-    return tempPreciseToRegular(valDoublePrecision);
+    // return output, converted back to normal precision
+    return toTemp(valPrecise);
 }
 
-temperature_precise FilterCascaded::addDoublePrecision(temperature_precise val)
+temp_precise FilterCascaded::add(temp_precise & val)
 {
-    temperature_precise input = val;
+    temp_precise temporary = val;
 
-    // input is input for next section, which is the output of the previous section
+    // temporary is input for next section, which is the output of the previous section
     for (uint8_t i = 0; i < NUM_SECTIONS; i++)
     {
-        input = sections[i].addDoublePrecision(input);
+        temporary = sections[i].add(temporary);
     }
 
-    return input;
+    return temporary;
 }
 
-temperature FilterCascaded::readInput(void)
+temp_precise FilterCascaded::readInput(void)
 {
     return sections[0].readInput();    // return input of first section
 }
 
-temperature FilterCascaded::readOutput(void)
+temp_precise FilterCascaded::readOutput(void)
 {
     return sections[NUM_SECTIONS - 1].readOutput();    // return output of last section
 }
 
-temperature FilterCascaded::detectPosPeak(void)
+bool FilterCascaded::detectPosPeak(temp_precise * peak)
 {
-    return sections[NUM_SECTIONS - 1].detectPosPeak();    // detect peaks in last section
+    return sections[NUM_SECTIONS - 1].detectPosPeak(peak);    // detect peaks in last section
 }
 
-temperature FilterCascaded::detectNegPeak(void)
+bool FilterCascaded::detectNegPeak(temp_precise * peak)
 {
-    return sections[NUM_SECTIONS - 1].detectNegPeak();    // detect peaks in last section
+    return sections[NUM_SECTIONS - 1].detectNegPeak(peak);    // detect peaks in last section
 }
 
-temperature_precise FilterCascaded::readOutputPrecise(void)
+temp_precise FilterCascaded::readPrevOutput(void)
 {
-    return sections[NUM_SECTIONS - 1].readOutputDoublePrecision();    // return output of last section1
+    return sections[NUM_SECTIONS - 1].readPrevOutput();    // return previous output of last section
 }
 
-temperature_precise FilterCascaded::readPrevOutputDoublePrecision(void)
+temp_precise FilterCascaded::readOldestOutput(void)	// return oldest output in filter
 {
-    return sections[NUM_SECTIONS - 1].readPrevOutputDoublePrecision();    // return previous output of last section
+    return sections[0].readOldestOutput();    // return output of last section
 }
 
-temperature_precise FilterCascaded::readOldestOutputDoublePrecision(void)	// return oldest output in filter
-{
-    return sections[0].readOldestOutputDoublePrecision();    // return output of last section
-}
-
-void FilterCascaded::init(temperature val)
+void FilterCascaded::init(temp_precise val)
 {
     for (uint8_t i = 0; i < NUM_SECTIONS; i++)
     {
