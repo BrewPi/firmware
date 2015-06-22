@@ -38,7 +38,7 @@ long delayTime(FilterCascaded f){
         f.add(target);
         addedSamples++;
     } while(double(f.readOutput()) < 50.0);
-    return addedSamples;
+    return addedSamples-1; // delay is added samples - 1, because after 1 sample would be 0 delay.
 }
 
 BOOST_AUTO_TEST_CASE( filter_delay_time )
@@ -54,27 +54,28 @@ BOOST_AUTO_TEST_CASE( filter_delay_time )
      */
 
     FilterCascaded f; // initialized to zero
+    // actual delay time
 
     f.setCoefficients(0);
-    BOOST_CHECK_EQUAL(delayTime(f), 10);
+    BOOST_CHECK_EQUAL(delayTime(f), 9);
 
     f.setCoefficients(1);
-    BOOST_CHECK_EQUAL(delayTime(f), 21);
+    BOOST_CHECK_EQUAL(delayTime(f), 20);
 
     f.setCoefficients(2);
-    BOOST_CHECK_EQUAL(delayTime(f), 44);
+    BOOST_CHECK_EQUAL(delayTime(f), 43);
 
     f.setCoefficients(3);
-    BOOST_CHECK_EQUAL(delayTime(f), 89);
+    BOOST_CHECK_EQUAL(delayTime(f), 88);
 
     f.setCoefficients(4);
-    BOOST_CHECK_EQUAL(delayTime(f), 180);
+    BOOST_CHECK_EQUAL(delayTime(f), 179);
 
     f.setCoefficients(5);
-    BOOST_CHECK_EQUAL(delayTime(f), 361);
+    BOOST_CHECK_EQUAL(delayTime(f), 360);
 
     f.setCoefficients(6);
-    BOOST_CHECK_EQUAL(delayTime(f), 724);
+    BOOST_CHECK_EQUAL(delayTime(f), 723);
 }
 
 BOOST_AUTO_TEST_CASE( filter_has_no_overshoot_and_approaches_input )
