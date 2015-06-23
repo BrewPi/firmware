@@ -17,19 +17,18 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+#pragma once
 
 #include "newTemperatureFormats.h"
 #include "FilterCascaded.h"
-#include "TempSensor.h"
-#include "ActuatorPwm.h"
+#include "TempSensorBasic.h"
+#include "Actuator.h"
 
-#pragma once
 
 class Pid
 {
     public:
-        Pid(TempSensor * input,
+        Pid(BasicTempSensor * input,
             Actuator *   output);
 
         Pid(const Pid & orig);
@@ -40,11 +39,11 @@ class Pid
 
         void update();
 
-        void setSetPoint(fixed7_9 val);
+        void setSetPoint(temp val);
 
-        void setConstants(fixed7_9 kp,
-                          fixed7_9 ki,
-                          fixed7_9 kd);
+        void setConstants(temp kp,
+                          temp ki,
+                          temp kd);
 
         void setInputFilter(uint8_t b);
 
@@ -52,29 +51,26 @@ class Pid
 
         void setDoubleDerivativeFilter(uint8_t b);
 
-        void setMinMax(fixed7_9 min,
-                       fixed7_9 max);
+        void setMinMax(temp min,
+                       temp max);
 
     private:
         Actuator *        outputActuator;
         BasicTempSensor * inputSensor;
-        temp         Kp;    // proportional gain
-        temp         Ki;    // integral gain
-        temp         Kd;    // derivative gain
-        temp         Ka;    // integrator anti windup gain
-        temp         min;
-        temp         max;
+        temp              Kp;    // proportional gain
+        temp              Ki;    // integral gain
+        temp              Kd;    // derivative gain
+        temp              Ka;    // integrator anti windup gain
+        temp              min;
+        temp              max;
         temp              setPoint;
-        temp         p;
-        temp         i;
-        temp         d;
-        temp         error;
+        temp              p;
+        temp              i;
+        temp              d;
+        temp              error;
         temp_precise      derivative;
-        temp_precise      doubleDerivative;
         temp_long         integral;
-        uint8_t           integralUpdateCounter;
         FilterCascaded    inputFilter;
         FilterCascaded    derivativeFilter;
-        FilterCascaded    doubleDerivativeFilter;
         uint8_t           failedReadCount;
 };

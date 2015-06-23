@@ -20,15 +20,12 @@
 
 
 #include "Pid.h"
-#include "TempSensor.h"
-#include "TemperatureFormats.h"
 
-Pid::Pid(TempSensor * input, Actuator * output)
+Pid::Pid(BasicTempSensor * input, Actuator * output)
 {
-    setConstants(doubleToTempDiff(10.0), doubleToTempDiff(0.2), doubleToTempDiff(-1.5));
-    setMinMax(MIN_TEMP, MAX_TEMP);
+    setConstants(temp(10.0), temp(0.2), temp(-1.5));
+    setMinMax(temp::min(), temp::max());
 
-    integralUpdateCounter = 0;
     error                 = 0;
     derivative            = 0;
     integral              = 0;
@@ -37,19 +34,19 @@ Pid::Pid(TempSensor * input, Actuator * output)
 
 Pid::~Pid(){}
 
-void Pid::setConstants(fixed7_9 kp,
-                       fixed7_9 ki,
-                       fixed7_9 kd)
+void Pid::setConstants(temp kp,
+                       temp ki,
+                       temp kd)
 {
     Kp = kp;
     Ki = ki;
     Kd = kd;
-    Ka = 5*Kp;
+    Ka = temp(5.0)*Kp;
 }
 
 void Pid::update()
 {
-    temperature inputVal;
+    temp inputVal;
 
     if (!inputSensor || (inputVal = inputSensor->read())==TEMP_SENSOR_DISCONNECTED) {
         // Could not read from input sensor
@@ -62,8 +59,7 @@ void Pid::update()
                 // re-initialize filters if sensor has been lost longer than 60 seconds
                 inputVal = inputSensor->read();
                 inputFilter.init(inputVal);
-                derivativeFilter.init(0);
-                doubleDerivativeFilter.init(0);
+                derivativeFilter.init(temp_precise(0.0));
                 failedReadCount = 0;
             }
         } else{
@@ -76,42 +72,40 @@ void Pid::update()
 
     inputFilter.add(inputSensor->read());
 
-    error = setPoint - inputFilter.readOutput();
+    error = setPoint - toTemp(inputFilter.readOutput());
 
-    derivativeFilter.addDoublePrecision(inputFilter.readOutputPrecise()
-                                   - inputFilter.readOldestOutputDoublePrecision());
-
-    doubleDerivativeFilter.addDoublePrecision(derivativeFilter.readOutputPrecise()
-                                   - derivativeFilter.readOldestOutputDoublePrecision());
+    temp_precise delta = inputFilter.readOutput() - inputFilter.readOldestOutput();
+    derivativeFilter.add(delta);
 
     derivative = derivativeFilter.readOutput();
-    doubleDerivative = doubleDerivativeFilter.readOutput();
-
 
 
     // calculate PID parts.
-    p      = multiplyFactorTemperatureDiff(Kp, error);
-    i      = multiplyFactorTemperatureDiffLong(Ki, integral);
-    d      = multiplyFactorTemperatureDiff(Kd, derivative);
+    p      = Kp * error;
+    i      = toTemp(toLong(Ki) * integral);
+    d      = toTemp(toPrecise(Kp) * derivative);
 
-    long_temperature pidResult = p + i + d;
+    temp_long pidResult_long = toLong(p) + toLong(i) + toLong(d);
+    temp pidResult = toTemp(pidResult_long);
 
-    fixed7_9 output = constrainTemp(pidResult, min, max);
+    temp output = pidResult;
+    output = output.constrain(min, max);
 
     // update integral with anti-windup back calculation
-    integral += (error + multiplyFactorTemperatureDiff(Ka, output-pidResult)); // pidResult - output is zero when actuator is not saturated
+    integral += (error + Ka*(output-pidResult)); // pidResult - output is zero when actuator is not saturated
 
 }
 
-void Pid::setSetPoint(fixed7_9 val)
+void Pid::setSetPoint(temp val)
 {
-    if ((val - this -> setPoint) > doubleToTempDiff(0.25)){
+    if ((val - setPoint) > temp(0.25)){
         integral = 0;    // reset integrator for big jumps in setpoint
     }
+    setPoint = val;
 }
 
-void Pid::setMinMax(fixed7_9 min,
-                    fixed7_9 max)
+void Pid::setMinMax(temp min,
+                    temp max)
 {
     this -> min = min;
     this -> max = max;
