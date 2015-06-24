@@ -272,6 +272,22 @@ BOOST_AUTO_TEST_CASE(left_shift){
     BOOST_REQUIRE_EQUAL(double(t3), 1.0);
 }
 
+
+BOOST_AUTO_TEST_CASE(addition_of_temps){
+    temp t1 = 2.0;
+    temp t2 = 3.0;
+
+    temp t3 = t1 + t2;
+    BOOST_REQUIRE_EQUAL(double(t3), 5.0);
+    BOOST_REQUIRE_EQUAL(double(t1+t2), 5.0);
+
+    temp_precise t4 = toPrecise(t3);
+    BOOST_REQUIRE_EQUAL(double(t4), 5.0);
+
+    temp_precise t5 = toPrecise(t1+t2);
+    BOOST_REQUIRE_EQUAL(double(t5), 5.0);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 
