@@ -58,11 +58,9 @@ class FilterCascaded
 
         void setCoefficients(uint8_t bValue);
 
-        temp_precise add(temp_precise & val);    // adds a value and returns the most recent filter output
+        temp_precise add(const temp_precise & val);    // adds a value and returns the most recent filter output
 
-        temp add(temp & val);                    // adds a value and returns the most recent filter output as temp
-
-        temp_precise addDoublePrecision(temp_precise & val);
+        temp add(const temp & val);                    // adds a value and returns the most recent filter output as temp
 
         temp_precise readInput(void);          // returns the most recent filter input
 

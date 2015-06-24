@@ -56,25 +56,25 @@ class temp_template: public fpml::fixed_point<B, I, F> {
 public:
     using fpml::fixed_point<B, I, F>::fixed_point; // inherit constructors from base class
 
-    static inline const temp_template max(){
+    static inline const temp_template max() {
         return std::numeric_limits<fpml::fixed_point<B, I, F> >::max();
     }
-    static inline const temp_template min(){
+    static inline const temp_template min() {
         temp_template min = std::numeric_limits<fpml::fixed_point<B, I, F> >::min();
         min.value_ += 2; // bottom 2 are reserved for special cases (disabled/invalid)
         return min;
     }
-    static inline const temp_template invalid(){
+    static inline const temp_template invalid() {
         temp_template invalid = std::numeric_limits<fpml::fixed_point<B, I, F> >::min();
         return invalid;
     }
-    static inline const temp_template disabled(){
+    static inline const temp_template disabled() {
         temp_template disabled = std::numeric_limits<fpml::fixed_point<B, I, F> >::min();
         disabled.value_ += 1;
         return disabled;
     }
 
-    temp_template constrain(const temp_template & min, const temp_template & max){
+    temp_template constrain(const temp_template & min, const temp_template & max) const {
         if(*this < min){
             return min;
         }
@@ -86,7 +86,7 @@ public:
 
     // converts fixed point value to string, without using double/float
     // resulting string is always length len (including \0). Spaces are prepended to achieve that.
-    char * toString(char buf[], uint8_t numDecimals, uint8_t len, const int offset = 0) {
+    char * toString(char buf[], uint8_t numDecimals, uint8_t len, const int offset = 0)  const {
 
         char const digit[] = "0123456789";
         char* p;
@@ -195,37 +195,37 @@ using temp_small = temp_template<TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS>;
 
 // To convert, cast back to base class. Base class handles conversion for different fixed point types
 
-static inline temp_long toLong(temp & val) {
+static inline temp_long toLong(const temp & val) {
     temp_long copy(
-            (fpml::fixed_point<TEMP_TYPE, TEMP_INTBITS> &) val);
+            (fpml::fixed_point<TEMP_TYPE, TEMP_INTBITS> const &) val);
     return copy;
 }
 
-static inline temp_precise toPrecise(temp & val) {
+static inline temp_precise toPrecise(const temp & val) {
     temp_precise copy(
-            (fpml::fixed_point<TEMP_TYPE, TEMP_INTBITS> &) val);
+            (fpml::fixed_point<TEMP_TYPE, TEMP_INTBITS> const &) val);
     return copy;
 }
 
-static inline temp toTemp(temp_small & val) {
+static inline temp toTemp(const temp_small & val) {
     temp copy(
-            (fpml::fixed_point<TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS> &) val);
+            (fpml::fixed_point<TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS> const &) val);
     return copy;
 }
 
-static inline temp toTemp(temp_precise & val) {
-    temp min = temp::min();
-    temp max = temp::max();
+static inline temp toTemp(const temp_precise & val) {
+    const temp min = temp::min();
+    const temp max = temp::max();
     temp_precise constrained = val.constrain(toPrecise(min),toPrecise(max));
-    temp copy((fpml::fixed_point<TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS> &) constrained );
+    temp copy((fpml::fixed_point<TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS> const &) constrained );
     return copy;
 }
 
-static inline temp toTemp(temp_long & val) {
-    temp min = temp::min();
-    temp max = temp::max();
+static inline temp toTemp(const temp_long & val) {
+    const temp min = temp::min();
+    const temp max = temp::max();
     temp_long constrained = val.constrain(toLong(min),toLong(max));
-    temp copy((fpml::fixed_point<TEMP_LONG_TYPE, TEMP_LONG_INTBITS> &) constrained );
+    temp copy((fpml::fixed_point<TEMP_LONG_TYPE, TEMP_LONG_INTBITS> const &) constrained );
     return copy;
 }
 

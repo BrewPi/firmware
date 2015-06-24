@@ -42,7 +42,7 @@ void FilterCascaded::setCoefficients(uint8_t bValue)
     }
 }
 
-temp FilterCascaded::add(temp & val)
+temp FilterCascaded::add(const temp & val)
 {
     temp_precise valPrecise= toPrecise(val);
 
@@ -52,7 +52,7 @@ temp FilterCascaded::add(temp & val)
     return toTemp(valPrecise);
 }
 
-temp_precise FilterCascaded::add(temp_precise & val)
+temp_precise FilterCascaded::add(const temp_precise & val)
 {
     temp_precise temporary = val;
 
