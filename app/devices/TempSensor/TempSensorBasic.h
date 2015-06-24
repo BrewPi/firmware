@@ -22,6 +22,8 @@
 
 #include "newTemperatureFormats.h"
 
+#define TEMP_SENSOR_DISCONNECTED temp::invalid()
+
 class BasicTempSensor
 {
 public:

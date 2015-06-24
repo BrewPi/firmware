@@ -21,12 +21,12 @@
 #pragma once
 
 #include "Brewpi.h"
-#include "TempSensor.h"
+#include "TempSensorBasic.h"
 
 class MockTempSensor : public BasicTempSensor
 {
 public:	
-	MockTempSensor(temperature initial, temperature delta) : _temperature(initial), _delta(delta), _connected(true) { }
+	MockTempSensor(temp initial) : _temperature(initial), _connected(true) { }
 	
 	void setConnected(bool connected)
 	{
@@ -36,29 +36,22 @@ public:
 	bool isConnected() { return _connected; }
 
 	bool init() {
-		return read()!=TEMP_SENSOR_DISCONNECTED;
+		return read()!= TEMP_SENSOR_DISCONNECTED;
 	}
 	
-	temperature read()
+	void add(temp delta){
+	    _temperature += delta;
+	}
+
+	temp read()
 	{
 		if (!isConnected())
 			return TEMP_SENSOR_DISCONNECTED;
-		
-		switch (tempControl.getMode()) {
-			case COOLING:
-				_temperature -= _delta;
-				break;
-			case HEATING:
-				_temperature += _delta;
-				break;
-		}
-		
 		return _temperature;
 	}
 	
 	private:
-	temperature _temperature;	
-	temperature _delta;	
+	temp _temperature;
 	bool _connected;
 };
 
