@@ -38,7 +38,6 @@
 
 BOOST_AUTO_TEST_SUITE( fixed_point_suite )
 
-
 BOOST_AUTO_TEST_CASE( construction )
 {
 	fpml::fixed_point<int, 16> fp0(0);
@@ -472,7 +471,7 @@ BOOST_AUTO_TEST_CASE( divide_assign )
 		}
 	}
 }
-*/
+
 BOOST_AUTO_TEST_CASE( absolute )
 {
 	double a=(std::numeric_limits<fpml::fixed_point<int, 16> >::min)(); 
@@ -485,7 +484,7 @@ BOOST_AUTO_TEST_CASE( absolute )
 		a += .5;
 	}
 }
-/*
+
 BOOST_AUTO_TEST_CASE( square_root )
 {
 	for (double a=0; 
@@ -500,7 +499,8 @@ BOOST_AUTO_TEST_CASE( square_root )
 		BOOST_CHECK( (fpml::fixed_point<int, 16>)(double)b == (fpml::fixed_point<int, 16>)sqrt(a) );
 	}
 }
-*/
+
+
 
 using namespace fpml;
 BOOST_AUTO_TEST_CASE( scenario1 )
@@ -524,7 +524,6 @@ BOOST_AUTO_TEST_CASE( sceanario2 )
 #undef double
 }
 
-
-
+*/
 BOOST_AUTO_TEST_SUITE_END()
 

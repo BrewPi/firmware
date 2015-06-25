@@ -44,12 +44,10 @@ void FilterCascaded::setCoefficients(uint8_t bValue)
 
 temp FilterCascaded::add(const temp & val)
 {
-    temp_precise valPrecise= toPrecise(val);
-
-    valPrecise = add(valPrecise);
+    temp_precise p = val;
 
     // return output, converted back to normal precision
-    return toTemp(valPrecise);
+    return add(p);
 }
 
 temp_precise FilterCascaded::add(const temp_precise & val)

@@ -31,7 +31,7 @@
 
 // used when higher integer part is needed
 #define TEMP_LONG_TYPE          int32_t
-#define TEMP_LONG_INTBITS       22 // 22 integer bits (-4194304/4194304), 9 fraction bits, 1 sign bit
+#define TEMP_LONG_INTBITS       23 // 23 integer bits (-4194304/4194304), 8 fraction bits, 1 sign bit
 
 // used when more precision is needed, 1 bit more for integer part than temp diff, so it is large enough to hold temp as well
 #define TEMP_PRECISE_TYPE       int32_t
@@ -41,191 +41,232 @@
 #define TEMP_SMALL_TYPE       int8_t
 #define TEMP_SMALL_INTBITS    3 // 3 integer bits (-8/+8), 4 fraction bits, 1 sign bit
 
-template<
-/// The base type. Must be an integer type.
-//!
-//! If this is a signed type, the fixed_point number will behave signed too,
-//! if this is an unsigned type, the fixed_point number will behave
-//! unsigned.
-        typename B,
-        /// The integer part bit count.
-        unsigned char I,
-        /// The fractional part bit count.
-        unsigned char F = std::numeric_limits<B>::digits - I>
-class temp_template: public fpml::fixed_point<B, I, F> {
+
+class temp;
+class temp_precise;
+class temp_long;
+class temp_small;
+
+// static function to convert to string, used by all formats in a wrapper
+char * toStringImpl(
+        const int32_t raw, // raw value of fixed point
+        const unsigned char F, // number of fixed point bits
+        char buf[], // target buffer
+        const uint8_t numDecimals, // number of decimals to print
+        const uint8_t len); // maximum number of characters to print
+
+// static function to convert from a string, used by all formats in a wrapper
+bool fromStringImpl(
+        int32_t * raw, // result is put in this variable upon success
+        const unsigned char F, // number of fraction bits
+        const char * s, // the string to convert
+        int32_t min, // the minimum value for the result
+        int32_t max); // the maximum value for the result
+
+
+class temp : public fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>{
+
 public:
-    using fpml::fixed_point<B, I, F>::fixed_point; // inherit constructors from base class
+    using fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::fixed_point_base; // inherit constructors from base class
 
-    static inline const temp_template max() {
-        return std::numeric_limits<fpml::fixed_point<B, I, F> >::max();
+    temp(){}
+
+    // converting copy constructor which removes the extra precision bits
+    temp(const temp_precise& rhs);
+
+    // converting copy constructor which constrains to temp's limits
+    temp(const temp_long& rhs);
+
+    // converting copy constructor which adds extra fraction and int bits
+    temp(const temp_small& rhs);
+
+    // reserve lowest 5 values for special cases (invalid/disabled)
+    static const fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::base_type min_val =
+            fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::min_val + 5;
+
+    // special value to indicate an invalid temp
+    static const fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::base_type invalid_val =
+                fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::min_val;
+
+    // special value to indicate an disabled temp
+    static const fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::base_type disabled_val =
+                    fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::min_val + 1;
+
+    // function that returns temp object with value min
+    static const temp min(){
+        temp t;
+        t.value_ = min_val;
+        return t;
     }
-    static inline const temp_template min() {
-        temp_template min = std::numeric_limits<fpml::fixed_point<B, I, F> >::min();
-        min.value_ += 2; // bottom 2 are reserved for special cases (disabled/invalid)
-        return min;
+    // function that returns temp object with value min
+    static const temp invalid(){
+        temp t;
+        t.value_ = invalid_val;
+        return t;
     }
-    static inline const temp_template invalid() {
-        temp_template invalid = std::numeric_limits<fpml::fixed_point<B, I, F> >::min();
-        return invalid;
-    }
-    static inline const temp_template disabled() {
-        temp_template disabled = std::numeric_limits<fpml::fixed_point<B, I, F> >::min();
-        disabled.value_ += 1;
-        return disabled;
-    }
-
-    temp_template constrain(const temp_template & min, const temp_template & max) const {
-        if(*this < min){
-            return min;
-        }
-        if(*this > max){
-            return max;
-        }
-        return *this;
-    }
-
-    // converts fixed point value to string, without using double/float
-    // resulting string is always length len (including \0). Spaces are prepended to achieve that.
-    char * toString(char buf[], uint8_t numDecimals, uint8_t len, const int offset = 0)  const {
-
-        char const digit[] = "0123456789";
-        char* p;
-        B val = this->value_;
-        bool negative = false;
-
-        // promote to larger type to prevent overflow. For B=int8, use int32 instead of int16. Int16 will overflow for more than 4 decimals
-        using shifterType = typename std::conditional<std::is_same<int8_t, B>::value,
-        int32_t,
-        typename fpml::fixed_point<B, I, F>::template promote_type<B>::type
-        >::type;
-
-        shifterType shifter = val + (offset << F);
-
-        if (shifter < 0) {
-            shifter = -shifter;
-            negative = true;
-        }
-        // code below looks a bit cryptic, but what it does is * 10^numDecimals / 2^F
-        for (uint8_t i = 0; i < numDecimals; i++) {
-            shifter = shifter * 5; // *5 instead of 10, combined with reduced shift below. Less chance of overflow
-        }
-        shifter = (shifter + (1 << (F - numDecimals - 1))) >> (F - numDecimals); // divide rounded by fixed point scale
-
-        p = &buf[len - 1]; // start at the end of buffer
-        *p = '\0';
-        std::div_t dv { };
-        dv.quot = shifter;
-        do { //Move back, inserting digits as u go
-            if (p == &buf[len - 1 - numDecimals]) {
-                *--p = '.'; // insert decimal point at right moment
-            } else {
-                dv = std::div(dv.quot, 10);
-                if ((dv.quot || dv.rem)) { // check if end of digits
-                    *--p = digit[std::abs(dv.rem)];
-                } else if ((p - buf) > (len - numDecimals - 3)) { // still need to print some leading zeros
-                    *--p = '0';
-                } else if (negative) {
-                    // print minus sign if needed as last digit to print
-                    *--p = '-';
-                    break;
-                } else {
-                    break;
-                }
-            }
-        } while (p > buf);
-        char * pWithoutSpaces = p;
-        while (p > buf) {
-            *(--p) = ' '; // prepend digits with spaces
-        }
-        // return pointer to string skipping spaces
-        // programmer can choose to use original buf pointer with spaces or return value without spaces
-        return pWithoutSpaces;
+    // function that returns temp object with value min
+    static const temp disabled(){
+        temp t;
+        t.value_ = disabled_val;
+        return t;
     }
 
-    bool fromString(char * const s, const int offset = 0) {
-        // receive new value as null terminated string: "19.20"
-        B newValue;
-
-        // promote to larger type to prevent overflow. For B=int8, use int32 instead of int16. Int16 will overflow for more than 4 decimals
-        using shifterType = typename std::conditional<std::is_same<int8_t, B>::value,
-        int32_t,
-        typename fpml::fixed_point<B, I, F>::template promote_type<B>::type
-        >::type;
-
-        shifterType decimalValue = 0;
-
-        char* decimalPtr;
-        char* end;
-        // Check if - is in the string
-        bool positive = (0 == strchr(s, '-'));
-
-        newValue = strtol_impl(s, &end);// convert string to integer
-        if (invalidStrtolResult(s, end)) {
-            return false; // string was not valid
-        }
-        newValue += offset;
-        newValue = newValue << F; // shift to fixed point
-
-        // find the point in the string to know whether we have decimals
-        decimalPtr = strchr(s, '.');// returns pointer to the point.
-        if (decimalPtr != 0) {
-            decimalPtr++; // skip decimal point
-            // convert decimals to integer
-            decimalValue = strtol_impl(decimalPtr, &end);
-            if (invalidStrtolResult(decimalPtr, end)) {
-                return false; // string was not valid
-            }
-
-            decimalValue = decimalValue << F;
-            uint8_t charsAfterPoint = end - decimalPtr; // actually used # digits after point
-            while (charsAfterPoint-- > 0) {
-                decimalValue = (decimalValue + 5) / 10;
-            }
-        }
-        this->value_ = positive ? newValue + decimalValue : newValue - decimalValue;
-        return true;
+    char * toString (char buf[], uint8_t numDecimals, uint8_t len){
+            return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
     }
+
+    bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum = max_val){
+        int32_t tempValue;
+        bool success = fromStringImpl(&tempValue, fractional_bit_count, s, minimum, maximum);
+        if( success ){
+            value_ = tempValue;
+        }
+        return success;
+    }
+
+    friend class temp_precise;
+    friend class temp_long;
+    friend class temp_small;
 };
 
+class temp_precise : public fpml::fixed_point_base<temp_precise, TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS> {
 
-using temp = temp_template<TEMP_TYPE, TEMP_INTBITS>;
-using temp_long = temp_template<TEMP_LONG_TYPE,TEMP_LONG_INTBITS>;
-using temp_precise = temp_template<TEMP_PRECISE_TYPE,TEMP_PRECISE_INTBITS>;
-using temp_small = temp_template<TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS>;
+public:
 
-// To convert, cast back to base class. Base class handles conversion for different fixed point types
+    using fpml::fixed_point_base<temp_precise, TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS>::fixed_point_base; // inherit constructors from base class
 
-static inline temp_long toLong(const temp & val) {
-    temp_long copy(
-            (fpml::fixed_point<TEMP_TYPE, TEMP_INTBITS> const &) val);
-    return copy;
+    temp_precise(){}
+
+    // converting copy constructor with shifts the value to have more fraction bits
+    temp_precise(const temp& rhs);
+
+    // converting copy constructor with shifts the value to have more fraction bits and constrains the result to fit
+    temp_precise(const temp_long& rhs);
+
+    char * toString (char buf[], uint8_t numDecimals, uint8_t len){
+        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
+    }
+
+    bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum = max_val){
+        return fromStringImpl(&value_, fractional_bit_count, s, minimum, maximum);
+    }
+
+    friend class temp;
+    friend class temp_long;
+    friend class temp_small;
+};
+
+class temp_long : public fpml::fixed_point_base<temp_long, TEMP_LONG_TYPE, TEMP_LONG_INTBITS> {
+
+public:
+    using fpml::fixed_point_base<temp_long, TEMP_LONG_TYPE, TEMP_LONG_INTBITS>::fixed_point_base; // inherit constructors from base class
+
+    temp_long(){}
+
+    // converting copy constructor from normal temp format
+    temp_long(const temp& rhs);
+
+    // converting copy constructor which removes extra precision bits
+    temp_long(const temp_precise& rhs);
+
+    char * toString (char buf[], uint8_t numDecimals, uint8_t len){
+        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
+    }
+
+    bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum = max_val){
+        return fromStringImpl(&value_, fractional_bit_count, s, minimum, maximum);
+    }
+
+    friend class temp;
+    friend class temp_precise;
+    friend class temp_small;
+};
+
+class temp_small : public fpml::fixed_point_base<temp_small, TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS> {
+
+public:
+    using fpml::fixed_point_base<temp_small, TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS>::fixed_point_base; // inherit constructors from base class
+
+    temp_small(){}
+
+    char * toString (char buf[], uint8_t numDecimals, uint8_t len){
+            return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
+    }
+
+    bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum = max_val){
+        int32_t tempValue;
+        bool success = fromStringImpl(&tempValue, fractional_bit_count, s, minimum, maximum);
+        if( success ){
+            value_ = tempValue;
+        }
+        return success;
+    }
+
+    friend class temp;
+    friend class temp_precise;
+    friend class temp_long;
+};
+
+// multiplication operators for mixed types. Always returns the bigger type
+// which is automatically converted afterwards if assigned to a small type
+// not defined for small type, it is only meant to be added as offset to sensors
+inline temp_precise operator *(temp & x, temp_precise & y) {
+    return temp_precise(x) * y;
+}
+inline temp_precise operator *(temp_precise & x, temp & y) {
+    return x * temp_precise(y);
+}
+inline temp_long operator *(temp & x, temp_long & y) {
+    return temp_long(x) * y;
+}
+inline temp_long operator *(temp_long & x, temp & y) {
+    return x* temp_long(y);
+}
+inline temp_long operator *(temp_long & x, temp_precise & y) {
+    return x * temp_long(y);
+}
+inline temp_long operator *(temp_precise & x, temp_long & y) {
+    return temp_long(x) * y;
 }
 
-static inline temp_precise toPrecise(const temp & val) {
-    temp_precise copy(
-            (fpml::fixed_point<TEMP_TYPE, TEMP_INTBITS> const &) val);
-    return copy;
+// Addition operators for mixed types. Always returns the bigger type
+// which is automatically converted afterwards if assigned to a small type
+inline temp_precise operator +(temp & x, temp_precise & y) {
+    return temp_precise(x) + y;
+}
+inline temp_precise operator +(temp_precise & x, temp & y) {
+    return x + temp_precise(y);
+}
+inline temp_long operator +(temp & x, temp_long & y) {
+    return temp_long(x) + y;
+}
+inline temp_long operator +(temp_long & x, temp & y) {
+    return x + temp_long(y);
+}
+inline temp_long operator +(temp_long & x, temp_precise & y) {
+    return x + temp_long(y);
+}
+inline temp_long operator +(temp_precise & x, temp_long & y) {
+    return temp_long(x) + y;
 }
 
-static inline temp toTemp(const temp_small & val) {
-    temp copy(
-            (fpml::fixed_point<TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS> const &) val);
-    return copy;
+// Subtraction operators for mixed types. Always returns the bigger type
+// which is automatically converted afterwards if assigned to a small type
+inline temp_precise operator -(temp & x, temp_precise & y) {
+    return temp_precise(x) - y;
 }
-
-static inline temp toTemp(const temp_precise & val) {
-    const temp min = temp::min();
-    const temp max = temp::max();
-    temp_precise constrained = val.constrain(toPrecise(min),toPrecise(max));
-    temp copy((fpml::fixed_point<TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS> const &) constrained );
-    return copy;
+inline temp_precise operator -(temp_precise & x, temp & y) {
+    return x - temp_precise(y);
 }
-
-static inline temp toTemp(const temp_long & val) {
-    const temp min = temp::min();
-    const temp max = temp::max();
-    temp_long constrained = val.constrain(toLong(min),toLong(max));
-    temp copy((fpml::fixed_point<TEMP_LONG_TYPE, TEMP_LONG_INTBITS> const &) constrained );
-    return copy;
+inline temp_long operator -(temp & x, temp_long & y) {
+    return temp_long(x) - y;
 }
-
+inline temp_long operator -(temp_long & x, temp & y) {
+    return x - temp_long(y);
+}
+inline temp_long operator -(temp_long & x, temp_precise & y) {
+    return x - temp_long(y);
+}
+inline temp_long operator -(temp_precise & x, temp_long & y) {
+    return temp_long(x) - y;
+}

@@ -72,7 +72,7 @@ void Pid::update()
 
     inputFilter.add(inputSensor->read());
 
-    error = setPoint - toTemp(inputFilter.readOutput());
+    error = setPoint - inputFilter.readOutput();
 
     temp_precise delta = inputFilter.readOutput() - inputFilter.readOldestOutput();
     derivativeFilter.add(delta);
@@ -82,14 +82,18 @@ void Pid::update()
 
     // calculate PID parts.
     p      = Kp * error;
-    i      = toTemp(toLong(Ki) * integral);
-    d      = toTemp(toPrecise(Kp) * derivative);
+    i      = Ki * integral;
+    d      = Kp * derivative;
 
-    temp_long pidResult_long = toLong(p) + toLong(i) + toLong(d);
-    temp pidResult = toTemp(pidResult_long);
+    temp pidResult = p + i + d;
 
     temp output = pidResult;
-    output = output.constrain(min, max);
+    if(output < min){
+        output = min;
+    }
+    if (output > max){
+        output = max;
+    }
 
     // update integral with anti-windup back calculation
     integral += (error + Ka*(output-pidResult)); // pidResult - output is zero when actuator is not saturated

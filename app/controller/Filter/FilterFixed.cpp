@@ -19,8 +19,9 @@
 #include <stdlib.h>
 
 temp FixedFilter::add(temp val){
-	temp_precise returnVal = add(toPrecise(val));
-	return toTemp(returnVal);
+    temp_precise p = val;
+    // return output, converted back to normal precision
+	return add(p);
 }
 
 temp_precise FixedFilter::add(temp_precise val){

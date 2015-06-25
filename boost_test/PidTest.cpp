@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE( pid_init )
     MockTempSensor sensor(20.0);
     ValueActuator actuator;
 
-    //Pid pid(&sensor, &actuator);
+    // Pid pid(&sensor, &actuator);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
