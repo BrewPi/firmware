@@ -43,11 +43,8 @@ CPPSRC += $(call here_files,platform/spark/modules/EEPROM,*.cpp)
 CPPSRC += $(call here_files,app/devices/OneWire,*.cpp)
 CPPSRC += $(call here_files,platform/spark/modules/OneWire,*.cpp)
 CPPSRC += platform/wiring/TemperatureFormats.cpp
-
-#CSRC += $(call here_files,platform/spark/modules/EEPROM,*.c)
-#CPPSRC += $(call here_files,platform/spark/modules/EEPROM,*.cpp)
-
-
+CSRC += $(call here_files,platform/spark/modules/EEPROM,*.c)
+CPPSRC += $(call here_files,platform/spark/modules/EEPROM,*.cpp)
 
 SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
 #include $(SRC_EGUI)/egui.mk
@@ -55,8 +52,6 @@ SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
 $(info source path $(SOURCE_PATH))
 LIBS_DIR = $(SOURCE_PATH)/platform/spark/libs
 include $(LIBS_DIR)/libs.mk
-
-CFLAGS += -fdata-sections
 
 GIT_VERSION = $(shell cd $(SOURCE_PATH); git describe --long)
 $(info using $(GIT_VERSION) as build name)

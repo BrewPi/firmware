@@ -58,14 +58,24 @@ Container* createRootContainer()
 }
 
 #if 0
-class BuildInfoValues : public FactoryContainer {
+
+class BuildInfoValues : public FactoryContainer
+{
 	private:	
 	
 	public:
+
 	BuildInfoValues() {}
 			
-	container_id size() { return 1; }
-	virtual Object* item(container_id id) { return new_object(ProgmemStringValue((PSTR(BUILD_NAME)))); }
+    container_id size()
+    {
+        return 1;
+    }
+
+    virtual Object* item(container_id id)
+    {
+        return new_object(ProgmemStringValue((PSTR(BUILD_NAME))));
+    }
 };
 #endif
 
@@ -73,10 +83,12 @@ bool logValuesFlag = false;
 
 const uint8_t loadProfileDelay = 10;	// seconds
 
-class GlobalSettings {
+class GlobalSettings
+{
 	uint8_t settings[10];
 		
-	Object* externalValueHandler(container_id id) {
+    Object* externalValueHandler(container_id id)
+    {
 		if (id==-1) return (Object*)10;	// size
 		if (id>9) return NULL;
 		return new ExternalValue(settings+id, 1);
@@ -85,7 +97,7 @@ class GlobalSettings {
 
 void setup()
 {    	
-        eepromAccess.init();
+    eepromAccess.init();
 
 	SystemProfile::initialize();
 	
@@ -93,15 +105,18 @@ void setup()
 			
 #if 0
 	uint8_t start = ticks.seconds();
-	while (ticks.timeSince(start)<loadProfileDelay) {
+    while (ticks.timeSince(start) < loadProfileDelay)
+    {
 		Comms::receive();
 	}
 #endif			
 	SystemProfile::activateDefaultProfile();
 }
 
-bool prepareCallback(Object* o, void* data, container_id* id, bool enter) {
-	if (enter) {				
+bool prepareCallback(Object* o, void* data, container_id* id, bool enter)
+{
+    if (enter)
+    {
 		uint32_t& waitUntil = *(uint32_t*)data;
 		prepare_t millisToWait = o->prepare();
 		if (millisToWait)
@@ -113,7 +128,8 @@ bool prepareCallback(Object* o, void* data, container_id* id, bool enter) {
 /**
  * Updates each object in the container hierarchy.
  */
-bool updateCallback(Object* o, void* data, container_id* id, bool enter) {
+bool updateCallback(Object* o, void* data, container_id* id, bool enter)
+{
 	if (enter)
 		o->update();
 	return false;
@@ -130,7 +146,8 @@ void logValues(container_id* ids)
 	out.close();
 }
 
-void process() {
+void process()
+{
 	container_id ids[MAX_CONTAINER_DEPTH];
 	
     prepare_t d = 0;
@@ -141,7 +158,8 @@ void process() {
     d = min(prepare_t(1000), d);	// just for testing to stop busy waiting
 #endif
     uint32_t end = ticks.millis()+d;
-    while (ticks.millis()<end) {
+    while (ticks.millis() < end)
+    {
         Comms::receive();
 #if BREWPI_VIRTUAL              // avoid busy waiting on a desktop PC since this hogs the cpu
         wait.millis(10);
@@ -151,7 +169,8 @@ void process() {
     Container* root2 = SystemProfile::rootContainer();	
         // root may have been changed by commands, so original prepare may not be valid
         // should watch out for newly created objects, since these will then also need preparing
-	if (root==root2 && root) {
+    if (root == root2 && root)
+    {
         root->update();
 		
         // todo - should brewpi always log, or only log when requested?
@@ -175,7 +194,8 @@ void brewpiLoop(void)
 	Comms::receive();
 }
 
-void loop() {       
+void loop()
+{
 	#if 0 && BREWPI_SIMULATE
 	simulateLoop();
 	#else
