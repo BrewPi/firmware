@@ -77,121 +77,184 @@ temp_long::temp_long(const temp_precise& rhs){
 
 
 
-// Addition operators for mixed types. Always returns the bigger type
-// which is automatically converted afterwards if assigned to a small type
-temp_precise temp::operator+(temp_precise & y) {
-    temp_precise result(*this);
-    result += y;
-    return result;
-}
-
-temp_long temp::operator+(temp_long & y) {
-    temp_long result(*this);
-    result += y;
-    return result;
-}
-
-temp_long temp_long::operator+(temp_precise & y) {
-    temp_long result(*this);
-    result += temp_long(y);
-    return result;
-}
-
-temp_long temp_long::operator+(temp & y) {
-    temp_long result(*this);
-    result += temp_long(y);
-    return result;
-}
-
-temp_precise temp_precise::operator+(temp & y) {
-    temp_precise result(*this);
-    result += temp_precise(y);
-    return result;
-}
-
-temp_long temp_precise::operator+(temp_long & y) {
-    temp_long result(*this);
-    result += temp_long(y);
-    return result;
-}
-
-
-// operators for rhs from another type. Always return the result as the biggest type
+// With operators for mixed types always returns the bigger type
 // which is automatically converted afterwards if assigned to a small type
 
-temp_precise temp::operator-(temp_precise & y) {
+// Addition
+
+// this looks recursive, but it prevents ambiguity
+temp temp::operator+(temp const& rhs){
+    temp result(*this);
+    result += rhs;
+    return result;
+}
+
+temp_precise temp::operator+(temp_precise const& rhs) {
     temp_precise result(*this);
-    result -= y;
+    result += rhs;
     return result;
 }
 
-temp_long temp::operator-(temp_long & y) {
+temp_long temp::operator+(temp_long const& rhs) {
     temp_long result(*this);
-    result -= y;
+    result += rhs;
     return result;
 }
 
-temp_long temp_long::operator-(temp_precise & y) {
+
+temp_long temp_long::operator+(temp_long const& rhs){
     temp_long result(*this);
-    result -= temp_long(y);
+    result += rhs;
     return result;
 }
 
-temp_long temp_long::operator-(temp & y) {
+temp_long temp_long::operator+(temp_precise const& rhs) {
     temp_long result(*this);
-    result -= temp_long(y);
+    result += temp_long(rhs);
     return result;
 }
 
-temp_precise temp_precise::operator-(temp & y) {
+temp_long temp_long::operator+(temp const& rhs) {
+    temp_long result(*this);
+    result += temp_long(rhs);
+    return result;
+}
+
+
+temp_precise temp_precise::operator+(temp_precise const& rhs) {
     temp_precise result(*this);
-    result -= temp_precise(y);
+    result += rhs;
     return result;
 }
 
-temp_long temp_precise::operator-(temp_long & y) {
-    temp_long result(*this);
-    result -= temp_long(y);
-    return result;
-}
-
-
-// multiplication operators for mixed types. Always returns the bigger type
-// which is automatically converted afterwards if assigned to a small type
-// not defined for small type, it is only meant to be added as offset to sensors
-temp_precise temp::operator*(temp_precise & y) {
+temp_precise temp_precise::operator+(temp const& rhs) {
     temp_precise result(*this);
-    result *= y;
+    result += temp_precise(rhs);
     return result;
 }
 
-temp_long temp::operator*(temp_long & y) {
+temp_long temp_precise::operator+(temp_long const& rhs) {
     temp_long result(*this);
-    result *= y;
+    result += temp_long(rhs);
     return result;
 }
 
-temp_long temp_long::operator*(temp_precise & y) {
-    temp_long result(*this);
-    result *= temp_long(y);
+
+// Subtraction
+
+// this looks recursive, but it prevents ambiguity
+temp temp::operator-(temp const& rhs){
+    temp result(*this);
+    result -= rhs;
     return result;
 }
 
-temp_long temp_long::operator*(temp & y) {
-    temp_long result(*this);
-    result *= temp_long(y);
-    return result;
-}
-
-temp_precise temp_precise::operator*(temp & y) {
+temp_precise temp::operator-(temp_precise const& rhs) {
     temp_precise result(*this);
-    result *= temp_precise(y);
+    result -= rhs;
     return result;
 }
 
-temp_long temp_precise::operator*(temp_long & y) {
+temp_long temp::operator-(temp_long const& rhs) {
     temp_long result(*this);
-    result *= temp_long(y);
+    result -= rhs;
+    return result;
+}
+
+
+temp_long temp_long::operator-(temp_long const& rhs) {
+    temp_long result(*this);
+    result -= rhs;
+    return result;
+}
+
+temp_long temp_long::operator-(temp_precise const& rhs) {
+    temp_long result(*this);
+    result -= temp_long(rhs);
+    return result;
+}
+
+temp_long temp_long::operator-(temp const& rhs) {
+    temp_long result(*this);
+    result -= temp_long(rhs);
+    return result;
+}
+
+
+temp_precise temp_precise::operator-(temp_precise const& rhs) {
+    temp_precise result(*this);
+    result -= rhs;
+    return result;
+}
+
+temp_precise temp_precise::operator-(temp const& rhs) {
+    temp_precise result(*this);
+    result -= temp_precise(rhs);
+    return result;
+}
+
+temp_long temp_precise::operator-(temp_long const& rhs) {
+    temp_long result(*this);
+    result -= temp_long(rhs);
+    return result;
+}
+
+
+// Multiplication
+
+temp temp::operator*(temp const& rhs){
+    temp result(*this);
+    result *= rhs;
+    return result;
+}
+
+temp_precise temp::operator*(temp_precise const& rhs) {
+    temp_precise result(*this);
+    result *= rhs;
+    return result;
+}
+
+temp_long temp::operator*(temp_long const& rhs) {
+    temp_long result(*this);
+    result *= rhs;
+    return result;
+}
+
+
+temp_long temp_long::operator*(temp_long const& rhs) {
+    temp_long result(*this);
+    result *= rhs;
+    return result;
+}
+
+temp_long temp_long::operator*(temp_precise const& rhs) {
+    temp_long result(*this);
+    result *= temp_long(rhs);
+    return result;
+}
+
+temp_long temp_long::operator*(temp const& rhs) {
+    temp_long result(*this);
+    result *= temp_long(rhs);
+    return result;
+}
+
+
+temp_precise temp_precise::operator*(temp_precise const& rhs) {
+    temp_precise result(*this);
+    result *= rhs;
+    return result;
+}
+
+temp_precise temp_precise::operator*(temp const& rhs) {
+    temp_precise result(*this);
+    result *= temp_precise(rhs);
+    return result;
+}
+
+temp_long temp_precise::operator*(temp_long const& rhs) {
+    temp_long result(*this);
+    result *= temp_long(rhs);
     return result;
 }
 

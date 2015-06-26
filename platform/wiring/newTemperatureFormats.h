@@ -72,13 +72,13 @@ public:
     temp(){}
 
     // converting copy constructor which removes the extra precision bits
-    temp(const temp_precise& rhs);
+    temp(temp_precise const& rhs);
 
     // converting copy constructor which constrains to temp's limits
-    temp(const temp_long& rhs);
+    temp(temp_long const& rhs);
 
     // converting copy constructor which adds extra fraction and int bits
-    temp(const temp_small& rhs);
+    temp(temp_small const& rhs);
 
     // reserve lowest 5 values for special cases (invalid/disabled)
     static const fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::base_type min_val =
@@ -124,14 +124,17 @@ public:
         return success;
     }
 
-    temp_precise operator+(temp_precise & rhs);
-    temp_long operator+(temp_long & rhs);
+    temp operator+(temp const& rhs);
+    temp_precise operator+(temp_precise const& rhs);
+    temp_long operator+(temp_long const& rhs);
 
-    temp_precise operator-(temp_precise & rhs);
-    temp_long operator-(temp_long & rhs);
+    temp operator-(temp const& rhs);
+    temp_precise operator-(temp_precise const& rhs);
+    temp_long operator-(temp_long const& rhs);
 
-    temp_precise operator*(temp_precise & rhs);
-    temp_long operator*(temp_long & rhs);
+    temp operator*(temp const& rhs);
+    temp_precise operator*(temp_precise const& rhs);
+    temp_long operator*(temp_long const& rhs);
 
     friend class temp_precise;
     friend class temp_long;
@@ -147,10 +150,10 @@ public:
     temp_precise(){}
 
     // converting copy constructor with shifts the value to have more fraction bits
-    temp_precise(const temp& rhs);
+    temp_precise(temp const& rhs);
 
     // converting copy constructor with shifts the value to have more fraction bits and constrains the result to fit
-    temp_precise(const temp_long& rhs);
+    temp_precise(temp_long const& rhs);
 
     char * toString (char buf[], uint8_t numDecimals, uint8_t len){
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
@@ -160,14 +163,17 @@ public:
         return fromStringImpl(&value_, fractional_bit_count, s, minimum, maximum);
     }
 
-    temp_precise operator+(temp & y);
-    temp_long operator+(temp_long & y);
+    temp_precise operator+(temp_precise const& rhs);
+    temp_precise operator+(temp const& rhs);
+    temp_long operator+(temp_long const& rhs);
 
-    temp_precise operator-(temp & y);
-    temp_long operator-(temp_long & y);
+    temp_precise operator-(temp_precise const& rhs);
+    temp_precise operator-(temp const& rhs);
+    temp_long operator-(temp_long const& rhs);
 
-    temp_precise operator*(temp & y);
-    temp_long operator*(temp_long & y);
+    temp_precise operator*(temp_precise const& rhs);
+    temp_precise operator*(temp const& rhs);
+    temp_long operator*(temp_long const& rhs);
 
 
     friend class temp;
@@ -183,10 +189,10 @@ public:
     temp_long(){}
 
     // converting copy constructor from normal temp format
-    temp_long(const temp& rhs);
+    temp_long(temp const& rhs);
 
     // converting copy constructor which removes extra precision bits
-    temp_long(const temp_precise& rhs);
+    temp_long(temp_precise const& rhs);
 
     char * toString (char buf[], uint8_t numDecimals, uint8_t len){
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
@@ -196,14 +202,17 @@ public:
         return fromStringImpl(&value_, fractional_bit_count, s, minimum, maximum);
     }
 
-    temp_long operator+(temp & y);
-    temp_long operator+(temp_precise & y);
+    temp_long operator+(temp_long const& rhs);
+    temp_long operator+(temp const& rhs);
+    temp_long operator+(temp_precise const& rhs);
 
-    temp_long operator-(temp & y);
-    temp_long operator-(temp_precise & y);
+    temp_long operator-(temp_long const& rhs);
+    temp_long operator-(temp const& rhs);
+    temp_long operator-(temp_precise const& rhs);
 
-    temp_long operator*(temp & y);
-    temp_long operator*(temp_precise & y);
+    temp_long operator*(temp_long const& rhs);
+    temp_long operator*(temp const& rhs);
+    temp_long operator*(temp_precise const& rhs);
 
     friend class temp;
     friend class temp_precise;
