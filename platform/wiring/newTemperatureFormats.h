@@ -93,19 +93,19 @@ public:
                     fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::min_val + 1;
 
     // function that returns temp object with value min
-    static const temp min(){
+    static temp min(){
         temp t;
         t.value_ = min_val;
         return t;
     }
     // function that returns temp object with value min
-    static const temp invalid(){
+    static temp invalid(){
         temp t;
         t.value_ = invalid_val;
         return t;
     }
     // function that returns temp object with value min
-    static const temp disabled(){
+    static temp disabled(){
         temp t;
         t.value_ = disabled_val;
         return t;
@@ -123,6 +123,15 @@ public:
         }
         return success;
     }
+
+    temp_precise operator+(temp_precise & rhs);
+    temp_long operator+(temp_long & rhs);
+
+    temp_precise operator-(temp_precise & rhs);
+    temp_long operator-(temp_long & rhs);
+
+    temp_precise operator*(temp_precise & rhs);
+    temp_long operator*(temp_long & rhs);
 
     friend class temp_precise;
     friend class temp_long;
@@ -151,6 +160,16 @@ public:
         return fromStringImpl(&value_, fractional_bit_count, s, minimum, maximum);
     }
 
+    temp_precise operator+(temp & y);
+    temp_long operator+(temp_long & y);
+
+    temp_precise operator-(temp & y);
+    temp_long operator-(temp_long & y);
+
+    temp_precise operator*(temp & y);
+    temp_long operator*(temp_long & y);
+
+
     friend class temp;
     friend class temp_long;
     friend class temp_small;
@@ -176,6 +195,15 @@ public:
     bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum = max_val){
         return fromStringImpl(&value_, fractional_bit_count, s, minimum, maximum);
     }
+
+    temp_long operator+(temp & y);
+    temp_long operator+(temp_precise & y);
+
+    temp_long operator-(temp & y);
+    temp_long operator-(temp_precise & y);
+
+    temp_long operator*(temp & y);
+    temp_long operator*(temp_precise & y);
 
     friend class temp;
     friend class temp_precise;
@@ -207,66 +235,4 @@ public:
     friend class temp_long;
 };
 
-// multiplication operators for mixed types. Always returns the bigger type
-// which is automatically converted afterwards if assigned to a small type
-// not defined for small type, it is only meant to be added as offset to sensors
-inline temp_precise operator *(temp & x, temp_precise & y) {
-    return temp_precise(x) * y;
-}
-inline temp_precise operator *(temp_precise & x, temp & y) {
-    return x * temp_precise(y);
-}
-inline temp_long operator *(temp & x, temp_long & y) {
-    return temp_long(x) * y;
-}
-inline temp_long operator *(temp_long & x, temp & y) {
-    return x* temp_long(y);
-}
-inline temp_long operator *(temp_long & x, temp_precise & y) {
-    return x * temp_long(y);
-}
-inline temp_long operator *(temp_precise & x, temp_long & y) {
-    return temp_long(x) * y;
-}
 
-// Addition operators for mixed types. Always returns the bigger type
-// which is automatically converted afterwards if assigned to a small type
-inline temp_precise operator +(temp & x, temp_precise & y) {
-    return temp_precise(x) + y;
-}
-inline temp_precise operator +(temp_precise & x, temp & y) {
-    return x + temp_precise(y);
-}
-inline temp_long operator +(temp & x, temp_long & y) {
-    return temp_long(x) + y;
-}
-inline temp_long operator +(temp_long & x, temp & y) {
-    return x + temp_long(y);
-}
-inline temp_long operator +(temp_long & x, temp_precise & y) {
-    return x + temp_long(y);
-}
-inline temp_long operator +(temp_precise & x, temp_long & y) {
-    return temp_long(x) + y;
-}
-
-// Subtraction operators for mixed types. Always returns the bigger type
-// which is automatically converted afterwards if assigned to a small type
-inline temp_precise operator -(temp & x, temp_precise & y) {
-    return temp_precise(x) - y;
-}
-inline temp_precise operator -(temp_precise & x, temp & y) {
-    return x - temp_precise(y);
-}
-inline temp_long operator -(temp & x, temp_long & y) {
-    return temp_long(x) - y;
-}
-inline temp_long operator -(temp_long & x, temp & y) {
-    return x - temp_long(y);
-}
-inline temp_long operator -(temp_long & x, temp_precise & y) {
-    return x - temp_long(y);
-}
-inline temp_long operator -(temp_precise & x, temp_long & y) {
-    return temp_long(x) - y;
-}

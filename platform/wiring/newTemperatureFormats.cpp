@@ -48,7 +48,6 @@ temp::temp(const temp_small& rhs){
     this->value_ = rhs.value_ << shift;
 }
 
-
 temp_precise::temp_precise(const temp& rhs){
     // temp and temp_precise have same number of integer bits, so this will not overflow
     static_assert(temp::integer_bit_count == temp_precise::integer_bit_count,
@@ -75,6 +74,126 @@ temp_long::temp_long(const temp_precise& rhs){
     this->value_ = rhs.value_ >> shift;
 }
 
+
+
+
+// Addition operators for mixed types. Always returns the bigger type
+// which is automatically converted afterwards if assigned to a small type
+temp_precise temp::operator+(temp_precise & y) {
+    temp_precise result(*this);
+    result += y;
+    return result;
+}
+
+temp_long temp::operator+(temp_long & y) {
+    temp_long result(*this);
+    result += y;
+    return result;
+}
+
+temp_long temp_long::operator+(temp_precise & y) {
+    temp_long result(*this);
+    result += temp_long(y);
+    return result;
+}
+
+temp_long temp_long::operator+(temp & y) {
+    temp_long result(*this);
+    result += temp_long(y);
+    return result;
+}
+
+temp_precise temp_precise::operator+(temp & y) {
+    temp_precise result(*this);
+    result += temp_precise(y);
+    return result;
+}
+
+temp_long temp_precise::operator+(temp_long & y) {
+    temp_long result(*this);
+    result += temp_long(y);
+    return result;
+}
+
+
+// operators for rhs from another type. Always return the result as the biggest type
+// which is automatically converted afterwards if assigned to a small type
+
+temp_precise temp::operator-(temp_precise & y) {
+    temp_precise result(*this);
+    result -= y;
+    return result;
+}
+
+temp_long temp::operator-(temp_long & y) {
+    temp_long result(*this);
+    result -= y;
+    return result;
+}
+
+temp_long temp_long::operator-(temp_precise & y) {
+    temp_long result(*this);
+    result -= temp_long(y);
+    return result;
+}
+
+temp_long temp_long::operator-(temp & y) {
+    temp_long result(*this);
+    result -= temp_long(y);
+    return result;
+}
+
+temp_precise temp_precise::operator-(temp & y) {
+    temp_precise result(*this);
+    result -= temp_precise(y);
+    return result;
+}
+
+temp_long temp_precise::operator-(temp_long & y) {
+    temp_long result(*this);
+    result -= temp_long(y);
+    return result;
+}
+
+
+// multiplication operators for mixed types. Always returns the bigger type
+// which is automatically converted afterwards if assigned to a small type
+// not defined for small type, it is only meant to be added as offset to sensors
+temp_precise temp::operator*(temp_precise & y) {
+    temp_precise result(*this);
+    result *= y;
+    return result;
+}
+
+temp_long temp::operator*(temp_long & y) {
+    temp_long result(*this);
+    result *= y;
+    return result;
+}
+
+temp_long temp_long::operator*(temp_precise & y) {
+    temp_long result(*this);
+    result *= temp_long(y);
+    return result;
+}
+
+temp_long temp_long::operator*(temp & y) {
+    temp_long result(*this);
+    result *= temp_long(y);
+    return result;
+}
+
+temp_precise temp_precise::operator*(temp & y) {
+    temp_precise result(*this);
+    result *= temp_precise(y);
+    return result;
+}
+
+temp_long temp_precise::operator*(temp_long & y) {
+    temp_long result(*this);
+    result *= temp_long(y);
+    return result;
+}
 
 
 // converts fixed point value to string, without using double/float
@@ -183,4 +302,3 @@ bool fromStringImpl(
     }
     return false; // if value is not within limits, it is like invalid
 }
-
