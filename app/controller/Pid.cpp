@@ -96,7 +96,7 @@ void Pid::update()
     }
 
     // update integral with anti-windup back calculation
-    integral += (error + Ka*(output-pidResult)); // pidResult - output is zero when actuator is not saturated
+    integral = integral + (error + Ka*(output-pidResult)); // pidResult - output is zero when actuator is not saturated
 
 }
 
