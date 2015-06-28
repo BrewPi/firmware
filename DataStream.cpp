@@ -3,12 +3,11 @@
  *
  * Created: 30/03/2014 15:33:43
  *  Author: mat
- */ 
+ */
 
-#include "Brewpi.h"
 #include "DataStream.h"
 
-	
+
 bool BufferDataOut::write(uint8_t data) {
 	if (pos<size) {
 		buffer[pos++] = data;
@@ -28,7 +27,7 @@ void writePlatformEndianBytes(void* data, uint8_t size, DataOut& out)
 	uint8_t* buf = (uint8_t*)data;
 	for (int i=size; i-->0; )
 		out.write(buf[i]);
-	#else	
+	#else
 	out.writeBuffer((uint8_t*)data, size);
 	#endif
 }
@@ -45,6 +44,6 @@ void readPlatformEndianMaskedBytes(void* _data, uint8_t size, DataIn& in, DataIn
 	{
 		uint8_t d = in.next();
 		uint8_t m = mask.next();
-		data[i] = (d&m) | (data[i] & ~m);	
+		data[i] = (d&m) | (data[i] & ~m);
 	}
 }

@@ -1,11 +1,10 @@
 
-#include "Brewpi.h"
 #include "Values.h"
 
 /**
  * /param obj - Assumed to be a container.
  */
-bool walkContainer(Container* c, EnumObjectsFn callback, void* data, container_id* id, container_id* end) 
+bool walkContainer(Container* c, EnumObjectsFn callback, void* data, container_id* id, container_id* end)
 {
 	uint8_t count = c->size();
 	for (int8_t i=0; i<count; i++) {
@@ -13,18 +12,18 @@ bool walkContainer(Container* c, EnumObjectsFn callback, void* data, container_i
 		*end = i;
 		if (walkObject(o, callback, data, id, end))
 			return true;
-	}	
+	}
 	return false;
 }
 
 /**
  * Recursively walks all objects in a container hierarchy.
  */
-bool walkObject(Object* obj, EnumObjectsFn callback, void* data, container_id* id, container_id* end) {	
+bool walkObject(Object* obj, EnumObjectsFn callback, void* data, container_id* id, container_id* end) {
 	if (callback(obj, data, id, true))
 		return true;
-	
-	if (isContainer(obj)) {		
+
+	if (isContainer(obj)) {
 		*end++ |= 0x80;		// flag as not last element in id chain
 		walkContainer((Container*)obj, callback, data, id, end);
 		*--end &= 0x7F;		// remove last bit
@@ -32,7 +31,7 @@ bool walkObject(Object* obj, EnumObjectsFn callback, void* data, container_id* i
 
 	if (callback(obj, data, id, false))
 		return true;
-		
+
 	return false;
 }
 
@@ -41,7 +40,7 @@ bool walkObject(Object* obj, EnumObjectsFn callback, void* data, container_id* i
  * @param o	The object containing the object to fetch. This may be NULL and may or may not be a container.
  * @param id	The id to fetch. May include the 0x80 flag for on the wire encoding that this is not the last
  *   id in the chain.
- * @return The fetched object, or {@code NULL} if the object could not be fetched. 
+ * @return The fetched object, or {@code NULL} if the object could not be fetched.
  */
 Object* fetchContainedObject(Object* o, uint8_t id)
 {
@@ -56,7 +55,7 @@ Object* fetchContainedObject(Object* o, uint8_t id)
 	else {
 		// special case of 0 is also allowed as a self reference for non-container objects
 		// this allows ids to be padded with 0 bytes without affecting the lookup
-		if (!id)		
+		if (!id)
 			result = o;
 	}
 	return result;
@@ -65,16 +64,16 @@ Object* fetchContainedObject(Object* o, uint8_t id)
 /**
  * Lookup the object fetching the id chain from a stream.
  * @param data	The data stream to read the id chain.
- * @return The fetched object, or {@code NULL} if the id in the stream doesn't correspond to 
+ * @return The fetched object, or {@code NULL} if the id in the stream doesn't correspond to
  */
 Object* lookupObject(Object* current, DataIn& data) {
 	int8_t id = -1;
 	while (data.hasNext() && id<0)
 	{
 		id = int8_t(data.next());							// msb set if there is more bytes in the id.
-		current = fetchContainedObject(current, uint8_t(id));		
+		current = fetchContainedObject(current, uint8_t(id));
 	}
-	return current;	
+	return current;
 }
 
 // todo - factor lookupObject/lookupContainer
@@ -87,8 +86,8 @@ Object* lookupObject(Object* current, DataIn& data) {
  * For example, given a stream encoding the id chain "2.3.5", the container returned would correspond with
  * object "2.3" and lastID would be set to 5.
  */
-OpenContainer* lookupOpenContainer(Object* current, DataIn& data, int8_t& lastID) 
-{	
+OpenContainer* lookupOpenContainer(Object* current, DataIn& data, int8_t& lastID)
+{
 	int8_t id = int8_t(data.next());
 	while (id<0 && data.hasNext())
 	{
@@ -96,7 +95,7 @@ OpenContainer* lookupOpenContainer(Object* current, DataIn& data, int8_t& lastID
 		id = int8_t(data.next());
 	}
 	lastID = id;
-	
+
 	return isOpenContainer(current) ? (OpenContainer*)current : NULL;
 }
 
@@ -111,13 +110,13 @@ OpenContainer* lookupUserOpenContainer(DataIn& data, int8_t& lastID) {
 
 void ObjectDefinition::spool() {
 	while (in->hasNext())
-		in->next();	
+		in->next();
 }
 
 
-int16_t read2BytesFrom(Value* value) {	
+int16_t read2BytesFrom(Value* value) {
 	uint8_t result[2];
 	BufferDataOut out(result, 2);
-	value->readTo(out);	
+	value->readTo(out);
 	return int16_t(result[0])<<8 | result[1];
 }

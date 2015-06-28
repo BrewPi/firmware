@@ -1,11 +1,4 @@
-/*
- * ValuesProgmem.cpp
- *
- * Created: 09/02/2014 23:09:05
- *  Author: mat
- */ 
 
-#include "Brewpi.h"
 #include "ValuesProgmem.h"
 #include "Platform.h"
 
@@ -21,7 +14,7 @@ void ProgmemStringValue::readTo(DataOut& out) {
 		out.write(b);
 	} while (b);
 }
-		
+
 uint8_t ProgmemStringValue::streamSize() {
 	return strlen_P(value);
 }
