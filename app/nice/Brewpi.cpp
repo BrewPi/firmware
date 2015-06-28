@@ -2,22 +2,24 @@
  * Copyright 2012-2013 BrewPi/Elco Jacobs.
  *
  * This file is part of BrewPi.
- * 
+ *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * BrewPi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Brewpi.h"
+#include "Version.h"
+#include "Integration.h"
 #include "Ticks.h"
 #include "Comms.h"
 #include "Commands.h"
@@ -53,7 +55,7 @@ void loop (void);
 
 Container* createRootContainer()
 {
-	DynamicContainer* d = new DynamicContainer();    
+	DynamicContainer* d = new DynamicContainer();
     return d;
 }
 
@@ -61,12 +63,12 @@ Container* createRootContainer()
 
 class BuildInfoValues : public FactoryContainer
 {
-	private:	
-	
+	private:
+
 	public:
 
 	BuildInfoValues() {}
-			
+
     container_id size()
     {
         return 1;
@@ -86,7 +88,7 @@ const uint8_t loadProfileDelay = 10;	// seconds
 class GlobalSettings
 {
 	uint8_t settings[10];
-		
+
     Object* externalValueHandler(container_id id)
     {
 		if (id==-1) return (Object*)10;	// size
@@ -96,20 +98,20 @@ class GlobalSettings
 };
 
 void setup()
-{    	
+{
     eepromAccess.init();
 
 	SystemProfile::initialize();
-	
+
 	Comms::init();
-			
+
 #if 0
 	uint8_t start = ticks.seconds();
     while (ticks.timeSince(start) < loadProfileDelay)
     {
 		Comms::receive();
 	}
-#endif			
+#endif
 	SystemProfile::activateDefaultProfile();
 }
 
@@ -136,7 +138,7 @@ bool updateCallback(Object* o, void* data, container_id* id, bool enter)
 }
 
 /**
- * Logs all values in the system. 
+ * Logs all values in the system.
  */
 void logValues(container_id* ids)
 {
@@ -149,12 +151,12 @@ void logValues(container_id* ids)
 void process()
 {
 	container_id ids[MAX_CONTAINER_DEPTH];
-	
+
     prepare_t d = 0;
     Container* root = SystemProfile::rootContainer();
     if (root)
         d = root->prepare();
-#if BREWPI_VIRTUAL			
+#if BREWPI_VIRTUAL
     d = min(prepare_t(1000), d);	// just for testing to stop busy waiting
 #endif
     uint32_t end = ticks.millis()+d;
@@ -163,16 +165,16 @@ void process()
         Comms::receive();
 #if BREWPI_VIRTUAL              // avoid busy waiting on a desktop PC since this hogs the cpu
         wait.millis(10);
-#endif        
-    }        
-        
-    Container* root2 = SystemProfile::rootContainer();	
+#endif
+    }
+
+    Container* root2 = SystemProfile::rootContainer();
         // root may have been changed by commands, so original prepare may not be valid
         // should watch out for newly created objects, since these will then also need preparing
     if (root == root2 && root)
     {
         root->update();
-		
+
         // todo - should brewpi always log, or only log when requested?
         if (logValuesFlag)
         {
@@ -185,11 +187,11 @@ void process()
 /*
  * Lifecycle for components:
  *
- * - prepare: start of a new control loop and determine how long any asynchronous operations will take. 
+ * - prepare: start of a new control loop and determine how long any asynchronous operations will take.
  * - update: fetch data from the environment, read sensor values, compute settings etc..
  */
 void brewpiLoop(void)
-{		
+{
 	process();
 	Comms::receive();
 }
@@ -204,14 +206,14 @@ void loop()
 }
 
 /**
- * ARDUINO_OBJECT - used to declare object factories that are only suitable on 
+ * ARDUINO_OBJECT - used to declare object factories that are only suitable on
  * an arduino-compatible device
  */
 #if defined(ARDUINO) || defined(SPARK)
 #define ARDUINO_OBJECT(x) x
 #else
 #define ARDUINO_OBJECT(x) nullFactory
-#endif	
+#endif
 
 
 #if BREWPI_LCD && 0
@@ -247,11 +249,11 @@ ObjectFactory createObjectHandlers[] = {
 //	ARDUINO_OBJECT(DigitalPinActuator::create),				// type C
 	IndirectValue::create,									// type D
 	NULL
-	
+
 	// When defining a new object type, add the handler above the last NULL value (it's just there to make
 	// editing the code easier).
 	// The Object definition passed to the create handler contains the stream and the block length.
-	// it's critical that the create code reads len bytes from the stream so that the data is 
+	// it's critical that the create code reads len bytes from the stream so that the data is
 	// spooled to eeprom to the persisted object definition.
 };
 
@@ -264,7 +266,23 @@ Object* createApplicationObject(ObjectDefinition& def, bool dryRun)
 	uint8_t type = def.type;
 	if (dryRun || type>=sizeof(createObjectHandlers)/sizeof(createObjectHandlers[0]))
 		type = 0;		// null object creator. Ensures stream is properly consumed even for invalid type values.
-	
-	Object* result = createObjectHandlers[type](def);	
+
+	Object* result = createObjectHandlers[type](def);
 	return result;
+}
+
+
+#define VERSION /* 0  */ "[\"s\":0,"\
+				/* 7  */ "\"y\":0,"\
+				/* 13 */ "\"b\":\" \",\"v\":\"" VERSION_STRING "\",\"c\":\"" stringify(BUILD_NAME) "\"]\n"
+
+
+void printVersion(DataOut& out)
+{
+    char buf[64];
+    strcpy_P(buf, PSTR(VERSION));
+    buf[5] = BREWPI_STATIC_CONFIG+'0';
+    buf[11] = BREWPI_SIMULATE+'0';
+    buf[18] = BREWPI_BOARD;
+    out.writeBuffer(buf, strlen(buf));
 }
