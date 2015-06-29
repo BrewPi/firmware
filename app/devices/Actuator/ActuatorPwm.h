@@ -26,31 +26,32 @@
 #include "Ticks.h"
 #include <stdint.h>
 
+#define ACT_PWM_MIN 0.0
+#define ACT_PWM_MAX 100.0
+
 class ActuatorPwm : public Actuator
 {
     private:
         Actuator *     target;
-        uint8_t        pwm;
+        temp           value;
         int32_t        dutyLate;
         int32_t        periodLate;
         int32_t        dutyTime;
         ticks_millis_t periodStartTime;
         int32_t  period;
+        const temp min = temp(ACT_PWM_MIN);
+        const temp max = temp(ACT_PWM_MAX);
 
     public:
         ActuatorPwm(Actuator * _target, uint16_t _period);
 
         ActuatorPwm(const ActuatorPwm &obj){};
 
-        void setPwm(uint8_t pwm);
 
-        void write(uint8_t val){
-            setPwm(val);
-        }
+        temp read();
+        void write(temp val);
 
-        uint8_t getPwm();
-
-        void updatePwm();
+        void update();
 
         ticks_millis_t getPeriod()
         {
@@ -59,7 +60,7 @@ class ActuatorPwm : public Actuator
 
         bool isActive()
         {
-            return (pwm > 0);
+            return (value > temp(0.0));
         }
 
 #if ACTUATOR_VIRTUAL
@@ -82,11 +83,13 @@ class ActuatorPwm : public Actuator
 
         void setActive(bool active){
             if(active){
-                pwm = 255;
+                value = max;
             }
             else{
-                pwm = 0;
+                value = min;
             }
         }
 
+        // recalculates duty time based on value and dutyLate and periodLate
+        void recalculate();
 };

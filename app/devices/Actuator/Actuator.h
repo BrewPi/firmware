@@ -21,12 +21,12 @@
 #pragma once
 
 #include <stdint.h>
+#include "newTemperatureFormats.h"
 
 
 /*
  * An actuator simply turns something on or off.                        
  */
-
 class Actuator
 {
 	public:
@@ -34,21 +34,55 @@ class Actuator
     virtual ~Actuator() {}
     virtual void setActive(bool active) = 0;
 	virtual bool isActive() = 0;
-	virtual void write(uint8_t val) = 0;
+	virtual void write(temp val) = 0;
 };
+
 
 /*
  * An actuator that simply remembers the set value. This is primary used for testing.
  */
-class ValueActuator : public Actuator
+class ValueActuator
 {
 public:
-	ValueActuator() : state(false) {}
-	ValueActuator(bool initial) : state(initial) {}
+	ValueActuator(temp initial, temp minVal, temp maxVal) : value(initial), min(minVal), max(maxVal) {}
+
+	virtual void setActive(bool active) {
+	    if(active){
+	        value = max;
+	    }
+	    else{
+	        value = min;
+	    }
+	}
+	virtual bool isActive() { return value > min; }
+	virtual void write(temp val) {
+	    if(val < min){
+	        val = min;
+	    }
+	    if(val > max){
+	        val = max;
+	    }
+	    value = val;
+	}
+
+private:
+	temp value;
+	temp min;
+	temp max;
+};
+
+/*
+ * An actuator that simply remembers a true/false set value. This is primary used for testing.
+ */
+class BoolActuator : public Actuator
+{
+public:
+	BoolActuator() : state(false) {}
+	BoolActuator(bool initial) : state(initial) {}
 
 	virtual void setActive(bool active) { state = active; }
 	virtual bool isActive() { return state; }
-	virtual void write(uint8_t val) {}
+	virtual void write(temp val) { state = val > temp(0.0);}
 
 private:
 	bool state;	

@@ -54,8 +54,8 @@ class ActuatorOnOff:
 
         void update();
 
-        void write(uint8_t val){
-            setActive(val != 0);
+        void write(temp val){
+            setActive(val > temp(0.0));
         }
 
         ticks_seconds_t timeSinceToggle(void);

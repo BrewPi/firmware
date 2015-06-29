@@ -43,6 +43,8 @@ CPPSRC += $(SOURCE_PATH)platform/wiring/str_functions.cpp
 CPPSRC += $(SOURCE_PATH)app/controller/Filter/FilterFixed.cpp
 CPPSRC += $(SOURCE_PATH)app/controller/Filter/FilterCascaded.cpp
 CPPSRC += $(SOURCE_PATH)app/controller/Pid.cpp
+CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorPwm.cpp
+CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorOnOff.cpp
 
 ifeq ($(BOOST_ROOT),)
 $(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)
@@ -55,6 +57,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)app/controller/Filter
 INCLUDE_DIRS += $(SOURCE_PATH)app/fallback
 INCLUDE_DIRS += $(SOURCE_PATH)app/devices/TempSensor
 INCLUDE_DIRS += $(SOURCE_PATH)app/devices/Actuator
+INCLUDE_DIRS += $(SOURCE_PATH)app/devices/
 
 CFLAGS += $(patsubst %,-I$(SRC_ROOT)%,$(INCLUDE_DIRS)) -I.
 CFLAGS += -ffunction-sections -Wall

@@ -6,32 +6,51 @@ ActuatorPwm::ActuatorPwm(Actuator* _target, uint16_t _period) : target(_target) 
     periodStartTime = 0;
     periodLate = 0;
     dutyLate = 0;
+    value = 0;
     target->setActive(false);
     setPeriod(_period);
-    setPwm(0);
+    recalculate();
 }
 
-uint8_t ActuatorPwm::getPwm() {
-    return pwm;
+temp ActuatorPwm::read() {
+    return value;
 }
 
-void ActuatorPwm::setPwm(uint8_t val) {
-    if(pwm != val){
-        pwm = val;
-        if(pwm != (val+1) || pwm != (val-1)){
+void ActuatorPwm::recalculate(){
+    temp_long newPeriod = temp_long(value) * temp_long(period) / temp_long(100);
+    temp_long correctionFactor = temp_long(period + periodLate) / temp_long(period);
+    dutyTime = int32_t(newPeriod * correctionFactor);
+}
+
+void ActuatorPwm::write(temp val) {
+    if (val <= min){
+        val = min;
+    }
+    if (val >= max){
+        val = max;
+    }
+
+    if(value != val){
+        temp delta = (val > value) ? val - value : value - val;
+        value = val;
+        if(delta > temp(1.0)){
             dutyLate = 0;
         }
     }
-    dutyTime = ((pwm * period) / 255)*(period + periodLate) / period;
+    recalculate();
 }
 
-void ActuatorPwm::updatePwm() {
+void ActuatorPwm::update() {
     int32_t adjDutyTime = dutyTime - dutyLate;
     int32_t currentTime = ticks.millis();
     int32_t elapsedTime = currentTime - periodStartTime;
 
-    if ( pwm == 0 ){
+    if ( value <= min ){
         target->setActive(false);
+        return;
+    }
+    if ( value >= max ){
+        target->setActive(true);
         return;
     }
     if (target->isActive()) {
@@ -64,7 +83,7 @@ void ActuatorPwm::updatePwm() {
             periodLate = (periodLate < period / 2) ? periodLate : period / 2;
             // adjust next duty time to account for longer period due to infrequent updates
             // low period was longer, increase high period (duty cycle) with same ratio
-            dutyTime = ((pwm * period) / 255)*(period + periodLate) / period;
+            recalculate();
             periodStartTime = currentTime;
         }
     }

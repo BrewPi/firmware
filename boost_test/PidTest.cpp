@@ -24,15 +24,22 @@
 #include <math.h>
 #include "TempSensorMock.h"
 #include "Actuator.h"
+#include "ActuatorPwm.h"
 
 BOOST_AUTO_TEST_SUITE( pid_test )
 
 BOOST_AUTO_TEST_CASE( pid_init )
 {
-    MockTempSensor sensor(20.0);
-    ValueActuator actuator;
+    BasicTempSensor * sensor = new MockTempSensor(20.0);
+    Actuator * vAct = new BoolActuator();
+    ActuatorPwm * act = new ActuatorPwm(vAct,4);
 
-    Pid pid(&sensor, &actuator);
+    Pid pid(sensor, act);
+
+    // set filtering to minimum.
+    pid.setInputFilter(0);
+    pid.setDerivativeFilter(0);
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

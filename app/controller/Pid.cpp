@@ -85,9 +85,10 @@ void Pid::update()
     i      = Ki * integral;
     d      = Kp * derivative;
 
-    temp pidResult = p + i + d;
+    temp_long pidResult = temp_long(p) + temp_long(i) + temp_long(d);
 
-    temp output = pidResult;
+    temp output = pidResult; // will be constrained to -128/128 here
+
     if(output < min){
         output = min;
     }
@@ -96,7 +97,7 @@ void Pid::update()
     }
 
     // update integral with anti-windup back calculation
-    integral = integral + (error + Ka*(output-pidResult)); // pidResult - output is zero when actuator is not saturated
+    integral = integral + error + Ka*(output-pidResult); // pidResult - output is zero when actuator is not saturated
 
 }
 
@@ -114,3 +115,12 @@ void Pid::setMinMax(temp min,
     this -> min = min;
     this -> max = max;
 }
+
+void Pid::setInputFilter(uint8_t b){
+    inputFilter.setCoefficients(b);
+}
+
+void Pid::setDerivativeFilter(uint8_t b){
+    derivativeFilter.setCoefficients(b);
+}
+
