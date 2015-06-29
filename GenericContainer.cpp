@@ -1,3 +1,22 @@
+/*
+ * Copyright 2014-2015 Matthew McGowan.
+ *
+ * This file is part of Nice Firmware.
+ *
+ * BrewPi is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 
 #include "GenericContainer.h"
 
@@ -7,13 +26,13 @@ container_id DynamicContainer::next() {
 	container_id sz = _size();
 	for (container_id i=0; i<sz;i++)
 		if (!_items[i])
-			return i;				
+			return i;
 	return !((sz+1)&0x80) ? sz : -1;
 }
 
 bool DynamicContainer::expand(uint8_t sz)
 {
-	// some useful details on malloc/realloc here - http://www.nongnu.org/avr-libc/user-manual/malloc.html	
+	// some useful details on malloc/realloc here - http://www.nongnu.org/avr-libc/user-manual/malloc.html
 	void* _newitems = realloc(_items, sz*sizeof(Object*));
 	if (_newitems) {
 		uint8_t prev_sz = size();
@@ -36,8 +55,8 @@ bool DynamicContainer::add(container_id slot, Object* item) {
 
 void DynamicContainer::remove(container_id id) {
 #if DYNAMIC_CONTAINER_BOUNDS_CHECKS
-	if (id<size()) 
-#endif	
+	if (id<size())
+#endif
 	{
 		delete_object(item(id));
 		assign(id, NULL);

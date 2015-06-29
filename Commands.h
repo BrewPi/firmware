@@ -1,11 +1,24 @@
-#pragma once
-
 /*
- * Commands.h
+ * Copyright 2014-2015 Matthew McGowan.
  *
- * Created: 05/02/2014 22:32:25
- *  Author: mat
- */ 
+ * This file is part of Nice Firmware.
+ *
+ * BrewPi is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+#pragma once
 
 #include "DataStream.h"
 #include "Values.h"
@@ -18,8 +31,8 @@ void handleCommand(DataIn& data, DataOut& out);
 
 /**
  * Function prototype expected by the commands implementation to perform
- * a reset.  
- * @param exit false on first call, true on second call. The first call (exit==false) is 
+ * a reset.
+ * @param exit false on first call, true on second call. The first call (exit==false) is
  * during command processing, so that actions can be taken before the command response is sent.
  * The second call (exit==true) is called to perform the actual reset.
  */
@@ -45,13 +58,13 @@ uint8_t rehydrateObject(eptr_t offset, PipeDataIn& in, bool dryRun=false);
 uint8_t deleteObject(DataIn& id);
 
 /**
- * Prototype for object factories. 
+ * Prototype for object factories.
  */
 typedef Object* (*ObjectFactory)(ObjectDefinition& def);
 
 /**
  * Factory that consumes the object definition stream and returns {@code NULL}.
- */	
+ */
 Object* nullFactory(ObjectDefinition& def);
 
 
@@ -68,7 +81,7 @@ enum Commands {
 	CMD_CREATE_PROFILE = 7,     // create a new profile
 	CMD_DELETE_PROFILE = 8,     // delete a profile
 	CMD_ACTIVATE_PROFILE = 9,	// activate a profile
-	CMD_LOG_VALUES = 10,		// request to log all values	
+	CMD_LOG_VALUES = 10,		// request to log all values
 	CMD_RESET = 11,				// perform a reset so that values are read in again from persistent storage.
 	CMD_FREE_SLOT_ROOT = 12,	// retrieves the next free slot in the root container
 	CMD_NOT_USED = 13,			// by chance this happened to be unused - this might appeal to superstitious minds
@@ -88,6 +101,6 @@ enum Commands {
 void logValuesImpl(container_id* ids, DataOut& out);
 
 /**
- * 
+ *
  */
 extern Object* createApplicationObject(ObjectDefinition& def, bool dryRun=false);

@@ -1,3 +1,23 @@
+/*
+ * Copyright 2014-2015 Matthew McGowan.
+ *
+ * This file is part of Nice Firmware.
+ *
+ * BrewPi is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
 #pragma once
 
 #include <stdint.h>
@@ -17,7 +37,7 @@ typedef container_id profile_id_t;
 static const profile_id_t SYSTEM_PROFILE_DEFAULT = -2;
 
 /**
- * Profile value used to indicate that no profile should be activated. 
+ * Profile value used to indicate that no profile should be activated.
  */
 static const profile_id_t SYSTEM_PROFILE_NONE = -1;
 
@@ -25,8 +45,8 @@ const uint8_t SYSTEM_PROFILE_MAGIC = 0x69;
 const uint8_t SYSTEM_PROFILE_VERSION = 0x01;
 
 /**
- * Application-provided method to create a new root container for the profile. 
- * The application can create default objects in the root container. 
+ * Application-provided method to create a new root container for the profile.
+ * The application can create default objects in the root container.
  */
 extern Container* createRootContainer();
 
@@ -36,7 +56,7 @@ extern Container* createRootContainer();
  * <pre>
  *	uint8_t			object type
  *  uint8_t			data length
- *  uint8_t[len]	data 
+ *  uint8_t[len]	data
  * </pre>
  */
 extern Object* createObject(DataIn& in, bool dryRun=false);
@@ -47,28 +67,28 @@ extern Object* createObject(DataIn& in, bool dryRun=false);
  * A system profile is a set of object definitions.
  */
 class SystemProfile {
-	
+
 	/**
 	 * the selected profile.
 	 */
 	static profile_id_t current;
-	
+
 	/**
 	 * The root container for the selected profile. IF no profile is active, this is NULL.
 	 */
 	static Container* root;
-	
+
 	static FixedContainer systemRoot;
-	
+
 	static void setProfileOffset(profile_id_t id, eptr_t offset);
 	static eptr_t getProfileOffset(profile_id_t id);
 	static eptr_t getProfileEnd(profile_id_t id, bool includeOpen=false);
 	static void setCurrentProfile(profile_id_t id);
-	
+
 	static void closeOpenProfile();
 	static eptr_t compactObjectDefinitions();
-	
-	
+
+
 	static void streamObjectDefinitions(EepromDataIn& eepromReader);
 
 	/**
@@ -76,66 +96,66 @@ class SystemProfile {
 	 * active during this time and that they have no resources to clean up.)
 	 */
 	static void deactivateCurrentProfile();
-	
+
 	/**
-	 * Resets the stream to the region in eeprom for the currently active profile. 
+	 * Resets the stream to the region in eeprom for the currently active profile.
 	 * If there is no profile, it is set to the end of eeprom, length 0.
 	 */
 	static void profileWriteRegion(EepromStreamRegion& region, bool includeOpen=false);
 
 public:
-	
+
 	/**
 	 * The eeprom stream that maintains the current write position in eeprom for the current profile.
 	 * For open profiles, this keeps a pointer to the end of the profile.
 	 */
 	static EepromDataOut writer;
 
-	
+
 	/**
 	 * Initialize this system profile handler.
 	 */
 	static void initialize();
-	
+
 	/*
-	 * Load the profile last persisted. 
+	 * Load the profile last persisted.
 	 */
 	static void activateDefaultProfile();
-	
+
 	/**
 	 * Fetches the root container for the currently active profile.
 	 * Even if no profile is active, still returns a valid root container with just the current profile
-	 * value. 
+	 * value.
 	 */
 	static Container* rootContainer() {
 		return root;
 	}
-	
+
 	static Container* systemContainer() {
 		return &systemRoot;
 	}
-		
+
 	/**
 	 * Create a new profile.
 	 * @return the ID of the profile, or negative on error.
 	 */
 	static profile_id_t createProfile();
-		
+
 	/**
 	 * deletes a profile. All profiles with indices larger than this are moved down to one index lower.
 	 * All settings for the profile stored in persistent storage are removed and the space is freed up.
-	 * If the current profile is the one being deleted, the profile is deactivated first. 
+	 * If the current profile is the one being deleted, the profile is deactivated first.
 	 */
 	static profile_id_t deleteProfile(profile_id_t profile);
-	
+
 	/**
 	 * Activate the selected profile.
 	 * @param The profile to activate. Can be -1 to deactivate the profile.
 	 * The active profile is persistent.
 	 */
 	static bool activateProfile(profile_id_t index);
-	
-	
+
+
 	/**
 	 * Returns the id of the current profile, or -1 if no profile is active.
 	 * @return The currently active profile index, or -1 if no profile is active.
@@ -153,31 +173,31 @@ public:
 		if (end>getProfileOffset(-1))
 			setProfileOffset(-1, end);
 	}
-	
+
 	static void listDefinedProfiles(DataIn& in, DataOut& out);
-	
+
 	static void listEepromInstructionsTo(profile_id_t profile, DataOut& out);
-	
+
 	static void initializeEeprom();
 };
 
 /**
  * Parses a stream of object definitions, piping the valid definitions to an output stream.
- * Stops when the input stream doesn't contain a recognized object definition. 
+ * Stops when the input stream doesn't contain a recognized object definition.
  */
 class ObjectDefinitionWalker {
-	
+
 	DataIn* _in;		// using pointer to avoid non-POD warnings
-	
+
 public:
 	ObjectDefinitionWalker(DataIn& in):
 		_in(&in) {}
-						
+
 	/**
 	 * Writes the next object definition from the data input to the given output.
 	 * When the input stream is exhausted or the current position is not an object creation command,
-	 * the method returns false and the stream location is unchanged. 
-	 */							
+	 * the method returns false and the stream location is unchanged.
+	 */
 	bool writeNext(DataOut& out);
 };
 

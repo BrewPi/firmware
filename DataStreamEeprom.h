@@ -1,10 +1,24 @@
-#pragma once
 /*
- * DataStreamEeprom.h
+ * Copyright 2014-2015 Matthew McGowan.
  *
- * Created: 09/02/2014 07:47:12
- *  Author: mat
- */ 
+ * This file is part of Nice Firmware.
+ *
+ * BrewPi is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+#pragma once
 
 #include "DataStream.h"
 
@@ -17,17 +31,17 @@ template <class Offset, class Length> class StreamRegion
 		Offset _offset;
 		Length _length;
 
-	public:		
+	public:
 		Offset offset() { return _offset; }
 		Length length() { return _length; }
-			
+
 		void reset(Offset o, Length l) {
 			_offset = o;
 			_length = l;
 		}
 };
 
-struct EepromStreamRegion : public StreamRegion<eptr_t, uint16_t> 
+struct EepromStreamRegion : public StreamRegion<eptr_t, uint16_t>
 {
 };
 
@@ -40,7 +54,7 @@ struct EepromStreamRegion : public StreamRegion<eptr_t, uint16_t>
  */
 class EepromDataOut : public DataOut, public EepromStreamRegion
 {
-public:	
+public:
 	bool write(uint8_t value) {
 		if (_length) {
 			eepromAccess.writeByte(_offset++, value);
@@ -52,7 +66,7 @@ public:
 	void close() {
 		_length = 0;
 	}
-	
+
 };
 
 
@@ -64,7 +78,7 @@ struct EepromDataIn : public DataIn, public EepromStreamRegion
 {
 	bool hasNext() { return _length; }
 	uint8_t peek() { return eepromAccess.readByte(_offset); }
-		
+
 	uint8_t next() {
 		uint8_t result = 0;
 		if (_length) {
@@ -74,4 +88,4 @@ struct EepromDataIn : public DataIn, public EepromStreamRegion
 		return result;
 	}
 };
-	
+

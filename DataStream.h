@@ -1,9 +1,23 @@
 /*
- * DataStream.h
+ * Copyright 2014-2015 Matthew McGowan.
  *
- * Created: 06/02/2014 10:05:22
- *  Author: mat
- */ 
+ * This file is part of Nice Firmware.
+ *
+ * BrewPi is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
 
 #pragma once
 
@@ -20,7 +34,7 @@ struct DataOut
 	#ifdef STREAM_ANNOTATIONS
 	virtual void writeAnnotation(PCSTR data) {}
 	#endif
-	
+
 	/**
 	 * Writes a byte to the stream.
 	 * @return {@code true} if the byte was successfully written, false otherwise.
@@ -50,28 +64,28 @@ class BufferDataOut : public DataOut {
 	uint8_t size;
 	uint8_t pos;
 public:
-	
+
 	BufferDataOut(uint8_t* _buffer, uint8_t _size)
 		: buffer(_buffer), size(_size), pos(0)
 	{
 	}
-	
+
 	void reset() {
 		pos = 0;
 	}
-	
+
 	bool write(uint8_t data);
-	
+
 	uint8_t bytesWritten() { return pos; }
-		
+
 	const uint8_t* data() {
 		return buffer;
 	}
 };
 
 
-struct BlackholeDataOut : public DataOut {	
-	virtual bool write(uint8_t data) { return true; }	
+struct BlackholeDataOut : public DataOut {
+	virtual bool write(uint8_t data) { return true; }
 };
 
 /**
@@ -87,13 +101,13 @@ struct DataIn
 	virtual bool hasNext() =0;
 	virtual uint8_t next() =0;
 	virtual uint8_t peek() =0;
-	
-	#if OBJECT_VIRTUAL_DESTRUCTOR	
+
+	#if OBJECT_VIRTUAL_DESTRUCTOR
 	virtual ~DataIn() {}
 	#endif
-		
+
 	/*
-	 * Unconditional read of {@code length} bytes. 
+	 * Unconditional read of {@code length} bytes.
 	 */
 	void read(void* t, uint8_t length) {
 		uint8_t* target = (uint8_t*)t;
@@ -101,7 +115,7 @@ struct DataIn
 			*target++ = next();
 		}
 	}
-	
+
 	void push(DataOut& out, uint8_t length) {
 		while (length-->0 && hasNext()) {
 			out.write(next());
@@ -115,37 +129,37 @@ struct DataIn
  */
 class PipeDataIn : public DataIn
 {
-	DataIn* _in; 
+	DataIn* _in;
 	DataOut* _out;
 	bool success;
-	
-public:	
-	PipeDataIn(DataIn& in, DataOut& out) 
+
+public:
+	PipeDataIn(DataIn& in, DataOut& out)
 		: _in(&in), _out(&out), success(true)
-	{		
+	{
 	}
-	
+
 	bool pipeOk() { return success; }
-	
+
 	DataOut& pipeOut() { return *_out; }
-	
+
 	virtual uint8_t next() {
 		uint8_t val = _in->next();
 		bool result = _out->write(val);
 		success = success && result;
 		return val;
 	}
-	
+
 	virtual bool hasNext() { return _in->hasNext(); }
 	virtual uint8_t peek() { return _in->peek(); }
-	
+
 };
 
 class BufferDataIn : public DataIn {
 	const uint8_t* _data;
 	public:
 	BufferDataIn(const void* data) : _data((const uint8_t*)data) {}
-	
+
 	uint8_t next() { return *_data++; }
 	bool hasNext() { return true; }
 	uint8_t peek() { return *_data; }
@@ -157,14 +171,14 @@ class BufferDataIn : public DataIn {
 class RegionDataIn : public DataIn {
 	DataIn* in;
 	uint8_t len;
-public:	
+public:
 	RegionDataIn(DataIn& _in, uint8_t _len)
 	: in(&_in), len(_len) {}
-		
+
 	uint8_t next() { return hasNext() ? len--, in->next() : 0; }
 	bool hasNext() { return len && in->hasNext(); }
 	uint8_t peek() { return in->peek(); }
-	
+
 };
 
 /**
@@ -174,7 +188,7 @@ class DefaultMask : public DataIn
 {
 	uint8_t next() { return 0xFF; }
 	uint8_t peek() { return 0xFF; }
-	bool hasNext() { return true; }	
+	bool hasNext() { return true; }
 };
 
 
@@ -187,4 +201,4 @@ class DefaultMask : public DataIn
 		out->writeAnnotation(value);
 #else
 	#define WRITE_ANNOTATION(out, value)
-#endif	
+#endif
