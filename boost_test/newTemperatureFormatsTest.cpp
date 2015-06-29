@@ -523,6 +523,18 @@ BOOST_AUTO_TEST_CASE(temp_small_conversion_to_and_from_variable_length_string){
     }
 }
 
+BOOST_AUTO_TEST_CASE(temp_disabled_or_invalid_prints_null){
+    temp t = temp::disabled();
+    char s1[10];
+    const char * s2 = "null";
+    t.toString(s1, 3, 9);
+    BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
+
+    t = temp::invalid();
+    t.toString(s1, 3, 9);
+    BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 

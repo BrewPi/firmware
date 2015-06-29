@@ -82,7 +82,7 @@ public:
 
     // reserve lowest 5 values for special cases (invalid/disabled)
     static const fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::base_type min_val =
-            fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::min_val + 5;
+            fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::min_val + 2;
 
     // special value to indicate an invalid temp
     static const fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::base_type invalid_val =
@@ -111,8 +111,16 @@ public:
         return t;
     }
 
+    bool isDisabledOrInvalid(){
+        return (value_ < min_val);
+    }
+
     char * toString (char buf[], uint8_t numDecimals, uint8_t len){
-            return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
+        if (isDisabledOrInvalid()) {
+            strcpy_P(buf, PSTR("null"));
+            return buf;
+        }
+        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
     }
 
     bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum = max_val){
