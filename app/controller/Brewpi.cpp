@@ -55,7 +55,7 @@ void loop (void);
 TicksImpl ticks = TicksImpl(TICKS_IMPL_CONFIG);
 DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 
-ValueActuator alarm;
+BoolActuator alarm;
 UI ui;
 
 void setup()

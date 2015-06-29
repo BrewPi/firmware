@@ -13,7 +13,7 @@
 TEST_CASE("Test ActuatorOnOff class with ValueActuator as driver", "[actuatoronoff]") {
     srand(time(NULL));
     ticks.reset();
-    Actuator * v = new ValueActuator();
+    Actuator * v = new BoolActuator();
     const uint16_t minOn = 100;
     const uint16_t maxOn = 200;
     const uint16_t minOff = 300;

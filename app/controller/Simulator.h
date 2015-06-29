@@ -67,7 +67,7 @@ struct HeatPotential
 /**
  * Some pointer types to make casting nicer.
  */
-typedef ValueActuator*	PValueActuator;
+typedef BoolActuator*	PValueActuator;
 typedef Sensor<bool>*	PSensor;
 typedef ValueSensor<bool>*	PValueSensor;
 

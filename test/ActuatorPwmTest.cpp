@@ -11,7 +11,7 @@
 #include "main.h"
 
 
-uint8_t randomIntervalTest(ActuatorPwm* act, Actuator * target, uint8_t duty, int delayMax) {
+uint8_t randomIntervalTest(ActuatorPwm* act, Actuator * target, temp duty, int delayMax) {
     act->setPwm(duty);
     ticks_millis_t lowToHighTime = ticks.millis();
     ticks_millis_t highToLowTime = ticks.millis();
@@ -58,7 +58,7 @@ uint8_t randomIntervalTest(ActuatorPwm* act, Actuator * target, uint8_t duty, in
 
 TEST_CASE("Test ActuatorPWM class with ValueActuator as driver", "[actuatorpwm]") {
     srand(time(NULL));
-    Actuator * target = new ValueActuator();
+    Actuator * target = new BoolActuator();
     ActuatorPwm * act = new ActuatorPwm(target,4);
     // intToTemp is a macro to initialize temperatures in Celsius
 
@@ -161,7 +161,7 @@ TEST_CASE("Test ActuatorPWM class with min/max time limited On/Off actuator as d
     // test with minimum ON of 2 seconds, minimum off of 5 seconds and period 5 seconds
 
     srand(time(NULL));
-    Actuator * vAct = new ValueActuator();
+    Actuator * vAct = new BoolActuator();
     Actuator * onOffAct = new ActuatorOnOff(vAct, 2, 5);
     ActuatorPwm * act = new ActuatorPwm(onOffAct, 10);
 
@@ -174,7 +174,7 @@ TEST_CASE("Test ActuatorPWM class with min/max time limited On/Off actuator as d
 }
 
 TEST_CASE("Ramping PWM up faster than period gives correct average", "[actuatorpwmonoff]") {
-    Actuator * vAct = new ValueActuator();
+    Actuator * vAct = new BoolActuator();
     ActuatorPwm * act = new ActuatorPwm(vAct, 20);
     ticks_seconds_t timeHigh = 0;
     ticks_seconds_t timeLow = 0;
@@ -200,7 +200,7 @@ TEST_CASE("Ramping PWM up faster than period gives correct average", "[actuatorp
 }
 
 TEST_CASE("Ramping PWM down faster than period gives correct average", "[actuatorpwmonoff]") {
-    Actuator * vAct = new ValueActuator();
+    Actuator * vAct = new BoolActuator();
     ActuatorPwm * act = new ActuatorPwm(vAct, 20);
     ticks_seconds_t timeHigh = 0;
     ticks_seconds_t timeLow = 0;

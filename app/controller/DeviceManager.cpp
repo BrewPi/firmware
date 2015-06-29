@@ -54,7 +54,7 @@ class OneWire;
  * Defaults for sensors, actuators and temperature sensors when not defined in the eeprom.
  */
 ValueSensor<bool>      defaultSensor(false);    // off
-ValueActuator          defaultActuator;
+BoolActuator          defaultActuator;
 DisconnectedTempSensor defaultTempSensor;
 bool                   DeviceManager::firstDeviceOutput;
 
@@ -103,7 +103,7 @@ void * DeviceManager::createDevice(DeviceConfig & config,
 
             } else{
 #if BREWPI_SIMULATE
-                return new ValueActuator();
+                return new BoolActuator();
 #else
 
                 // use hardware actuators even for simulator
@@ -127,7 +127,7 @@ void * DeviceManager::createDevice(DeviceConfig & config,
             if (dt == DEVICETYPE_SWITCH_SENSOR){
                 return new ValueSensor<bool>(false);
             } else{
-                return new ValueActuator();
+                return new BoolActuator();
             }
 #else
             return new OneWireActuator(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.pio, config.hw.invert);

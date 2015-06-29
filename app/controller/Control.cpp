@@ -36,7 +36,7 @@ Control::Control()
 }
 
 extern ValueSensor<bool>      defaultSensor;
-extern ValueActuator          defaultActuator;
+extern BoolActuator          defaultActuator;
 extern DisconnectedTempSensor defaultTempSensor;
 
 void Control::initBackwardsCompatible(void)
