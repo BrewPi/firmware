@@ -50,6 +50,10 @@ public:
 		return _temperature;
 	}
 	
+	void setTemp(temp val){
+	    _temperature = val;
+	}
+
 	private:
 	temp _temperature;
 	bool _connected;

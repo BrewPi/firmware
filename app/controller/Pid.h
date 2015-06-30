@@ -17,6 +17,8 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+
 #pragma once
 
 #include "newTemperatureFormats.h"
@@ -24,12 +26,11 @@
 #include "TempSensorBasic.h"
 #include "Actuator.h"
 
-
 class Pid
 {
     public:
         Pid(BasicTempSensor * input,
-            Actuator *   output);
+            Actuator *        output);
 
         Pid(const Pid & orig);
 
@@ -53,6 +54,10 @@ class Pid
 
         void setMinMax(temp min,
                        temp max);
+
+        bool setInputSensor(BasicTempSensor * s);
+
+        bool setOutputActuator(Actuator * a);
 
     private:
         Actuator *        outputActuator;

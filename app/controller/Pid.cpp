@@ -21,15 +21,19 @@
 
 #include "Pid.h"
 
-Pid::Pid(BasicTempSensor * input, Actuator * output)
+Pid::Pid(BasicTempSensor * input,
+         Actuator *        output)
 {
     setConstants(temp(10.0), temp(0.2), temp(-1.5));
     setMinMax(temp::min(), temp::max());
 
-    error                 = 0;
-    derivative            = 0;
-    integral              = 0;
-    failedReadCount       = 0;
+    error           = 0;
+    derivative      = 0;
+    integral        = 0;
+    failedReadCount = 0;
+
+    setInputSensor(input);
+    setOutputActuator(output);
 }
 
 Pid::~Pid(){}
@@ -41,64 +45,70 @@ void Pid::setConstants(temp kp,
     Kp = kp;
     Ki = ki;
     Kd = kd;
-    Ka = temp(5.0)*Kp;
+    Ka = temp(5.0) * Kp;
 }
 
 void Pid::update()
 {
     temp inputVal;
 
-    if (!inputSensor || (inputVal = inputSensor->read())==TEMP_SENSOR_DISCONNECTED) {
+    if (!inputSensor || (inputVal = inputSensor -> read()).isDisabledOrInvalid()){
         // Could not read from input sensor
-        if(failedReadCount < 255){  // limit
+        if (failedReadCount < 255){    // limit
             failedReadCount++;
         }
+
         // Try to reconnect
-        if(inputSensor->init()){
-            if(failedReadCount>60){
+        if (inputSensor -> init()){
+            if (failedReadCount > 60){
                 // re-initialize filters if sensor has been lost longer than 60 seconds
-                inputVal = inputSensor->read();
+                inputVal = inputSensor -> read();
+
                 inputFilter.init(inputVal);
                 derivativeFilter.init(temp_precise(0.0));
+
                 failedReadCount = 0;
             }
         } else{
-            if(failedReadCount>60){
-                outputActuator->setActive(false);
+            if (failedReadCount > 60){
+                outputActuator -> setActive(false);
             }
+
             return;
         }
     }
 
-    inputFilter.add(inputSensor->read());
+    inputFilter.add(inputVal);
 
     error = setPoint - inputFilter.readOutput();
 
     temp_precise delta = inputFilter.readOutput() - inputFilter.readOldestOutput();
+
     derivativeFilter.add(delta);
 
     derivative = derivativeFilter.readOutput();
 
-
     // calculate PID parts.
-    p      = Kp * error;
-    i      = Ki * integral;
-    d      = Kp * derivative;
+    p = Kp * error;
+    i = Ki * integral;
+    d = Kp * derivative;
 
     temp_long pidResult = temp_long(p) + temp_long(i) + temp_long(d);
+    temp      output    = pidResult;    // will be constrained to -128/128 here
 
-    temp output = pidResult; // will be constrained to -128/128 here
-
-    if(output < min){
+    if (output < min){
         output = min;
     }
+
     if (output > max){
         output = max;
     }
 
     // update integral with anti-windup back calculation
-    integral = integral + error + Ka*(output-pidResult); // pidResult - output is zero when actuator is not saturated
+    // pidResult - output is zero when actuator is not saturated
+    integral = integral + error + Ka * (output - pidResult);
 
+    outputActuator -> setValue(output);
 }
 
 void Pid::setSetPoint(temp val)
@@ -106,6 +116,7 @@ void Pid::setSetPoint(temp val)
     if ((val - setPoint) > temp(0.25)){
         integral = 0;    // reset integrator for big jumps in setpoint
     }
+
     setPoint = val;
 }
 
@@ -116,11 +127,35 @@ void Pid::setMinMax(temp min,
     this -> max = max;
 }
 
-void Pid::setInputFilter(uint8_t b){
+void Pid::setInputFilter(uint8_t b)
+{
     inputFilter.setCoefficients(b);
 }
 
-void Pid::setDerivativeFilter(uint8_t b){
+void Pid::setDerivativeFilter(uint8_t b)
+{
     derivativeFilter.setCoefficients(b);
 }
 
+bool Pid::setInputSensor(BasicTempSensor * s)
+{
+    temp t = s -> read();
+
+    if (t.isDisabledOrInvalid()){
+        return false;    // could not read from sensor
+    }
+
+    inputSensor = s;
+
+    inputFilter.init(t);
+    derivativeFilter.init(0.0);
+
+    return true;
+}
+
+bool Pid::setOutputActuator(Actuator * a)
+{
+    outputActuator = a;
+
+    return true;
+}
