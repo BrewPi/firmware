@@ -34,7 +34,7 @@ class Actuator
     virtual ~Actuator() {}
     virtual void setActive(bool active) = 0;
 	virtual bool isActive() = 0;
-	virtual void write(temp val) = 0;
+	virtual void setValue(temp const& val) = 0;
 };
 
 
@@ -55,14 +55,16 @@ public:
 	    }
 	}
 	virtual bool isActive() { return value > min; }
-	virtual void write(temp val) {
+	virtual void setValue(temp const& val) {
 	    if(val < min){
-	        val = min;
+	        value = min;
 	    }
-	    if(val > max){
-	        val = max;
+	    else if(val > max){
+	        value = max;
 	    }
-	    value = val;
+	    else{
+	        value = val;
+	    }
 	}
 
 private:
@@ -82,7 +84,7 @@ public:
 
 	virtual void setActive(bool active) { state = active; }
 	virtual bool isActive() { return state; }
-	virtual void write(temp val) { state = val > temp(0.0);}
+	virtual void setValue(temp const& val) { state = val > temp(0.0);}
 
 private:
 	bool state;	

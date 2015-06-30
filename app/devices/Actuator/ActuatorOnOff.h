@@ -54,7 +54,7 @@ class ActuatorOnOff:
 
         void update();
 
-        void write(temp val){
+        void setValue(temp const& val){
             setActive(val > temp(0.0));
         }
 

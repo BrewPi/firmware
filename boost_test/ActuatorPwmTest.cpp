@@ -30,7 +30,7 @@
 
 
 temp randomIntervalTest(ActuatorPwm* act, Actuator * target, temp duty, int delayMax) {
-    act->write(duty);
+    act->setValue(duty);
     ticks_millis_t lowToHighTime = ticks.millis();
     ticks_millis_t highToLowTime = ticks.millis();
     ticks_millis_t totalHighTime = 0;
@@ -81,21 +81,21 @@ BOOST_AUTO_TEST_CASE( Test_ActuatorPWM_with_ValueActuator_as_driver) {
     Actuator * target = new BoolActuator();
     ActuatorPwm * act = new ActuatorPwm(target,4);
 
-    BOOST_CHECK(act->read() == temp(0.0)); // PWM value is initialized to 0
+    BOOST_CHECK(act->readValue() == temp(0.0)); // PWM value is initialized to 0
 
     // Test that PWM can be set and read
-    act->write(50.0);
-    BOOST_CHECK_EQUAL(act->read(), temp(50.0));
-    act->write(100.0);
-    BOOST_CHECK_EQUAL(act->read(), temp(100.0));
-    act->write(0.0);
-    BOOST_CHECK_EQUAL(act->read(), temp(0.0));
+    act->setValue(50.0);
+    BOOST_CHECK_EQUAL(act->readValue(), temp(50.0));
+    act->setValue(100.0);
+    BOOST_CHECK_EQUAL(act->readValue(), temp(100.0));
+    act->setValue(0.0);
+    BOOST_CHECK_EQUAL(act->readValue(), temp(0.0));
 
-    act->write(110.0);
-    BOOST_CHECK_EQUAL(act->read(), temp(100.0)); // max is 100
+    act->setValue(110.0);
+    BOOST_CHECK_EQUAL(act->readValue(), temp(100.0)); // max is 100
 
-    act->write(-50.0);
-    BOOST_CHECK_EQUAL(act->read(), temp(0.0)); // min is 0
+    act->setValue(-50.0);
+    BOOST_CHECK_EQUAL(act->readValue(), temp(0.0)); // min is 0
 }
 
 BOOST_AUTO_TEST_CASE(test_ticks_millis_to_increment_every_call) {
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(on_off_time_matches_duty_cycle_when_updating_every_ms) {
     ActuatorPwm * act = new ActuatorPwm(target,4);
 
     temp duty = 50.0;
-    act->write(duty);
+    act->setValue(duty);
     ticks_millis_t lowToHighTime1 = ticks.millis();
     ticks_millis_t highToLowTime1 = ticks.millis();
     ticks_millis_t lowToHighTime2 = ticks.millis();
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE(output_stays_low_with_value_0) {
     Actuator * target = new BoolActuator();
     ActuatorPwm * act = new ActuatorPwm(target,4);
 
-    act->write(0.0);
+    act->setValue(0.0);
     // wait target to go low
     while (target->isActive()) {
         delay(1);
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(output_stays_high_with_value_100) {
     Actuator * target = new BoolActuator();
     ActuatorPwm * act = new ActuatorPwm(target,4);
 
-    act->write(100.0);
+    act->setValue(100.0);
     // wait for target to go high
     while (!target->isActive()) {
         delay(1);
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_up_faster_than_period_gives_correct_average){
 
     for(int ramps = 0; ramps <100; ramps++){ // enough ramps to not be affected by time window
         for(temp v = temp(40.0); v <= temp(60.0); v = v + temp(0.25)){
-            act->write(v);
+            act->setValue(v);
             for(int j = 0; j < 100; j++){ // 10 seconds total
                 delay(100);
                 act->update();
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_down_faster_than_period_gives_correct_average){
 
       for(int ramps = 0; ramps <100; ramps++){ // enough ramps to not be affected by time window
           for(temp v = temp(60.0); v >= temp(40.0); v = v - temp(0.25)){
-              act->write(v);
+              act->setValue(v);
               for(int j = 0; j < 100; j++){ // 10 seconds total
                   delay(100);
                   act->update();

@@ -48,8 +48,8 @@ class ActuatorPwm : public Actuator
         ActuatorPwm(const ActuatorPwm &obj){};
 
 
-        temp read();
-        void write(temp val);
+        temp readValue();
+        void setValue(temp const& val);
 
         void update();
 
