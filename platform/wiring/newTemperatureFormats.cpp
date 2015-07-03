@@ -21,61 +21,60 @@
 
 // Converting constructors, which shift and constrain the value.
 
-temp::temp(const temp_precise& rhs){
-    unsigned char shift = temp_precise::fractional_bit_count - temp::fractional_bit_count;
+temp::temp(const temp_precise& rhs) {
+    unsigned char shift = temp_precise::fractional_bit_count
+            - temp::fractional_bit_count;
     this->value_ = rhs.value_ >> shift;
 }
 
-
-temp::temp(const temp_long& rhs){
+temp::temp(const temp_long& rhs) {
     // temp and temp_long have same number of fraction bits, no shifting needed
     static_assert(temp::fractional_bit_count == temp_long::fractional_bit_count,
             "temp and temp_long should have same number of fraction bits");
 
-    if(rhs.value_ < min_val){
+    if (rhs.value_ < min_val) {
         this->value_ = min_val;
-    }
-    else if(rhs.value_ > max_val){
+    } else if (rhs.value_ > max_val) {
         this->value_ = max_val;
-    }
-    else{
+    } else {
         this->value_ = rhs.value_;
     }
 }
 
-temp::temp(const temp_small& rhs){
-    const unsigned char shift = temp::fractional_bit_count - temp_small::fractional_bit_count;
+temp::temp(const temp_small& rhs) {
+    const unsigned char shift = temp::fractional_bit_count
+            - temp_small::fractional_bit_count;
     this->value_ = rhs.value_ << shift;
 }
 
-temp_precise::temp_precise(const temp& rhs){
+temp_precise::temp_precise(const temp& rhs) {
     // temp and temp_precise have same number of integer bits, so this will not overflow
     static_assert(temp::integer_bit_count == temp_precise::integer_bit_count,
-                "temp and temp_long should have same number of integer bits");
+            "temp and temp_long should have same number of integer bits");
 
-    unsigned char shift = temp_precise::fractional_bit_count - temp::fractional_bit_count;
+    unsigned char shift = temp_precise::fractional_bit_count
+            - temp::fractional_bit_count;
     this->value_ = rhs.value_ << shift;
 }
 
-temp_precise::temp_precise(const temp_long& rhs){
-    const unsigned char shift = temp_precise::fractional_bit_count - temp_long::fractional_bit_count;
+temp_precise::temp_precise(const temp_long& rhs) {
+    const unsigned char shift = temp_precise::fractional_bit_count
+            - temp_long::fractional_bit_count;
 
     // convert to temp first to make sure it fits
     temp t = rhs;
     this->value_ = t.value_ << shift;
 }
 
-temp_long::temp_long(const temp& rhs){
+temp_long::temp_long(const temp& rhs) {
     this->value_ = rhs.value_;
 }
 
-temp_long::temp_long(const temp_precise& rhs){
-    unsigned char shift = temp_precise::fractional_bit_count - temp_long::fractional_bit_count;
+temp_long::temp_long(const temp_precise& rhs) {
+    unsigned char shift = temp_precise::fractional_bit_count
+            - temp_long::fractional_bit_count;
     this->value_ = rhs.value_ >> shift;
 }
-
-
-
 
 // With operators for mixed types always returns the bigger type
 // which is automatically converted afterwards if assigned to a small type
@@ -83,7 +82,7 @@ temp_long::temp_long(const temp_precise& rhs){
 // Addition
 
 // this looks recursive, but it prevents ambiguity
-temp temp::operator+(temp const& rhs){
+temp temp::operator+(temp const& rhs) {
     temp result(*this);
     result += rhs;
     return result;
@@ -101,8 +100,7 @@ temp_long temp::operator+(temp_long const& rhs) {
     return result;
 }
 
-
-temp_long temp_long::operator+(temp_long const& rhs){
+temp_long temp_long::operator+(temp_long const& rhs) {
     temp_long result(*this);
     result += rhs;
     return result;
@@ -119,7 +117,6 @@ temp_long temp_long::operator+(temp const& rhs) {
     result += temp_long(rhs);
     return result;
 }
-
 
 temp_precise temp_precise::operator+(temp_precise const& rhs) {
     temp_precise result(*this);
@@ -139,11 +136,10 @@ temp_long temp_precise::operator+(temp_long const& rhs) {
     return result;
 }
 
-
 // Subtraction
 
 // this looks recursive, but it prevents ambiguity
-temp temp::operator-(temp const& rhs){
+temp temp::operator-(temp const& rhs) {
     temp result(*this);
     result -= rhs;
     return result;
@@ -160,7 +156,6 @@ temp_long temp::operator-(temp_long const& rhs) {
     result -= rhs;
     return result;
 }
-
 
 temp_long temp_long::operator-(temp_long const& rhs) {
     temp_long result(*this);
@@ -180,7 +175,6 @@ temp_long temp_long::operator-(temp const& rhs) {
     return result;
 }
 
-
 temp_precise temp_precise::operator-(temp_precise const& rhs) {
     temp_precise result(*this);
     result -= rhs;
@@ -199,10 +193,9 @@ temp_long temp_precise::operator-(temp_long const& rhs) {
     return result;
 }
 
-
 // Multiplication
 
-temp temp::operator*(temp const& rhs){
+temp temp::operator*(temp const& rhs) {
     temp result(*this);
     result *= rhs;
     return result;
@@ -219,7 +212,6 @@ temp_long temp::operator*(temp_long const& rhs) {
     result *= rhs;
     return result;
 }
-
 
 temp_long temp_long::operator*(temp_long const& rhs) {
     temp_long result(*this);
@@ -239,7 +231,6 @@ temp_long temp_long::operator*(temp const& rhs) {
     return result;
 }
 
-
 temp_precise temp_precise::operator*(temp_precise const& rhs) {
     temp_precise result(*this);
     result *= rhs;
@@ -258,16 +249,70 @@ temp_long temp_precise::operator*(temp_long const& rhs) {
     return result;
 }
 
+// Division
+
+temp temp::operator/(temp const& rhs) {
+    temp result(*this);
+    result /= rhs;
+    return result;
+}
+
+temp_precise temp::operator/(temp_precise const& rhs) {
+    temp_precise result(*this);
+    result /= rhs;
+    return result;
+}
+
+temp_long temp::operator/(temp_long const& rhs) {
+    temp_long result(*this);
+    result /= rhs;
+    return result;
+}
+
+temp_long temp_long::operator/(temp_long const& rhs) {
+    temp_long result(*this);
+    result /= rhs;
+    return result;
+}
+
+temp_long temp_long::operator/(temp_precise const& rhs) {
+    temp_long result(*this);
+    result /= temp_long(rhs);
+    return result;
+}
+
+temp_long temp_long::operator/(temp const& rhs) {
+    temp_long result(*this);
+    result /= temp_long(rhs);
+    return result;
+}
+
+temp_precise temp_precise::operator/(temp_precise const& rhs) {
+    temp_precise result(*this);
+    result /= rhs;
+    return result;
+}
+
+temp_precise temp_precise::operator/(temp const& rhs) {
+    temp_precise result(*this);
+    result /= temp_precise(rhs);
+    return result;
+}
+
+temp_long temp_precise::operator/(temp_long const& rhs) {
+    temp_long result(*this);
+    result /= temp_long(rhs);
+    return result;
+}
 
 // converts fixed point value to string, without using double/float
 // resulting string is always length len (including \0). Spaces are prepended to achieve that
-char * toStringImpl(
-        const int32_t raw, // raw value of fixed point
+char * toStringImpl(const int32_t raw, // raw value of fixed point
         const unsigned char F, // number of fraction bits
         char buf[], // target buffer
         const uint8_t numDecimals, // number of decimals to print
         const uint8_t len) // maximum number of characters to print
-{
+        {
 
     char const digit[] = "0123456789";
     char* p;
@@ -318,13 +363,12 @@ char * toStringImpl(
 }
 
 // Converts string into fixed point and returns bool on success.
-bool fromStringImpl(
-        int32_t * raw, // result is put in this variable upon success
+bool fromStringImpl(int32_t * raw, // result is put in this variable upon success
         unsigned char F, // number of fraction bits
         const char * s, // the string to convert
         int32_t minimum, // minimum value for result
         int32_t maximum) // maximum value for result
-{
+        {
     // receive new value as null terminated string: "19.20"
     int64_t newValue;
 
@@ -336,14 +380,14 @@ bool fromStringImpl(
     // Check if - is in the string
     bool positive = (0 == strchr(s, '-'));
 
-    newValue = strtol_impl(s, &end);// convert string to integer
+    newValue = strtol_impl(s, &end); // convert string to integer
     if (invalidStrtolResult(s, end)) {
         return false; // string was not valid
     }
     newValue = newValue << F; // shift to fixed point
 
     // find the point in the string to know whether we have decimals
-    decimalPtr = strchr(s, '.');// returns pointer to the point.
+    decimalPtr = strchr(s, '.'); // returns pointer to the point.
     if (decimalPtr != 0) {
         decimalPtr++; // skip decimal point
         // convert decimals to integer
@@ -359,7 +403,7 @@ bool fromStringImpl(
         }
     }
     newValue = positive ? newValue + decimalValue : newValue - decimalValue;
-    if (newValue >= minimum && newValue <= maximum){
+    if (newValue >= minimum && newValue <= maximum) {
         *raw = newValue;
         return true;
     }

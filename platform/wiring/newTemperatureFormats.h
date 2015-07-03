@@ -144,6 +144,10 @@ public:
     temp_precise operator*(temp_precise const& rhs);
     temp_long operator*(temp_long const& rhs);
 
+    temp operator/(temp const& rhs);
+    temp_precise operator/(temp_precise const& rhs);
+    temp_long operator/(temp_long const& rhs);
+
     friend class temp_precise;
     friend class temp_long;
     friend class temp_small;
@@ -183,6 +187,10 @@ public:
     temp_precise operator*(temp const& rhs);
     temp_long operator*(temp_long const& rhs);
 
+    temp_precise operator/(temp_precise const& rhs);
+    temp_precise operator/(temp const& rhs);
+    temp_long operator/(temp_long const& rhs);
+
 
     friend class temp;
     friend class temp_long;
@@ -221,6 +229,10 @@ public:
     temp_long operator*(temp_long const& rhs);
     temp_long operator*(temp const& rhs);
     temp_long operator*(temp_precise const& rhs);
+
+    temp_long operator/(temp_long const& rhs);
+    temp_long operator/(temp const& rhs);
+    temp_long operator/(temp_precise const& rhs);
 
     friend class temp;
     friend class temp_precise;
