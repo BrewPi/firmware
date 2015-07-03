@@ -41,35 +41,32 @@
 #define TEMP_SMALL_TYPE       int8_t
 #define TEMP_SMALL_INTBITS    3 // 3 integer bits (-8/+8), 4 fraction bits, 1 sign bit
 
-
 class temp;
 class temp_precise;
 class temp_long;
 class temp_small;
 
 // static function to convert to string, used by all formats in a wrapper
-char * toStringImpl(
-        const int32_t raw, // raw value of fixed point
+char * toStringImpl(const int32_t raw, // raw value of fixed point
         const unsigned char F, // number of fixed point bits
         char buf[], // target buffer
         const uint8_t numDecimals, // number of decimals to print
         const uint8_t len); // maximum number of characters to print
 
 // static function to convert from a string, used by all formats in a wrapper
-bool fromStringImpl(
-        int32_t * raw, // result is put in this variable upon success
+bool fromStringImpl(int32_t * raw, // result is put in this variable upon success
         const unsigned char F, // number of fraction bits
         const char * s, // the string to convert
         int32_t min, // the minimum value for the result
         int32_t max); // the maximum value for the result
 
-
-class temp : public fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>{
+class temp: public fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS> {
 
 public:
     using fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::fixed_point_base; // inherit constructors from base class
 
-    temp(){}
+    temp() {
+    }
 
     // converting copy constructor which removes the extra precision bits
     temp(temp_precise const& rhs);
@@ -86,36 +83,36 @@ public:
 
     // special value to indicate an invalid temp
     static const fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::base_type invalid_val =
-                fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::min_val;
+            fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::min_val;
 
     // special value to indicate an disabled temp
     static const fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::base_type disabled_val =
-                    fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::min_val + 1;
+            fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::min_val + 1;
 
     // function that returns temp object with value min
-    static temp min(){
+    static temp min() {
         temp t;
         t.value_ = min_val;
         return t;
     }
     // function that returns temp object with value min
-    static temp invalid(){
+    static temp invalid() {
         temp t;
         t.value_ = invalid_val;
         return t;
     }
     // function that returns temp object with value min
-    static temp disabled(){
+    static temp disabled() {
         temp t;
         t.value_ = disabled_val;
         return t;
     }
 
-    bool isDisabledOrInvalid(){
+    bool isDisabledOrInvalid() {
         return (value_ < min_val);
     }
 
-    char * toString (char buf[], uint8_t numDecimals, uint8_t len){
+    char * toString(char buf[], uint8_t numDecimals, uint8_t len) {
         if (isDisabledOrInvalid()) {
             strcpy_P(buf, PSTR("null"));
             return buf;
@@ -123,10 +120,12 @@ public:
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
     }
 
-    bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum = max_val){
+    bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum =
+            max_val) {
         int32_t tempValue;
-        bool success = fromStringImpl(&tempValue, fractional_bit_count, s, minimum, maximum);
-        if( success ){
+        bool success = fromStringImpl(&tempValue, fractional_bit_count, s,
+                minimum, maximum);
+        if (success) {
             value_ = tempValue;
         }
         return success;
@@ -153,13 +152,16 @@ public:
     friend class temp_small;
 };
 
-class temp_precise : public fpml::fixed_point_base<temp_precise, TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS> {
+class temp_precise: public fpml::fixed_point_base<temp_precise,
+        TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS> {
 
 public:
 
-    using fpml::fixed_point_base<temp_precise, TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS>::fixed_point_base; // inherit constructors from base class
+    using fpml::fixed_point_base<temp_precise, TEMP_PRECISE_TYPE,
+            TEMP_PRECISE_INTBITS>::fixed_point_base; // inherit constructors from base class
 
-    temp_precise(){}
+    temp_precise() {
+    }
 
     // converting copy constructor with shifts the value to have more fraction bits
     temp_precise(temp const& rhs);
@@ -167,12 +169,14 @@ public:
     // converting copy constructor with shifts the value to have more fraction bits and constrains the result to fit
     temp_precise(temp_long const& rhs);
 
-    char * toString (char buf[], uint8_t numDecimals, uint8_t len){
+    char * toString(char buf[], uint8_t numDecimals, uint8_t len) {
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
     }
 
-    bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum = max_val){
-        return fromStringImpl(&value_, fractional_bit_count, s, minimum, maximum);
+    bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum =
+            max_val) {
+        return fromStringImpl(&value_, fractional_bit_count, s, minimum,
+                maximum);
     }
 
     temp_precise operator+(temp_precise const& rhs);
@@ -191,18 +195,19 @@ public:
     temp_precise operator/(temp const& rhs);
     temp_long operator/(temp_long const& rhs);
 
-
     friend class temp;
     friend class temp_long;
     friend class temp_small;
 };
 
-class temp_long : public fpml::fixed_point_base<temp_long, TEMP_LONG_TYPE, TEMP_LONG_INTBITS> {
+class temp_long: public fpml::fixed_point_base<temp_long, TEMP_LONG_TYPE,
+        TEMP_LONG_INTBITS> {
 
 public:
     using fpml::fixed_point_base<temp_long, TEMP_LONG_TYPE, TEMP_LONG_INTBITS>::fixed_point_base; // inherit constructors from base class
 
-    temp_long(){}
+    temp_long() {
+    }
 
     // converting copy constructor from normal temp format
     temp_long(temp const& rhs);
@@ -210,12 +215,14 @@ public:
     // converting copy constructor which removes extra precision bits
     temp_long(temp_precise const& rhs);
 
-    char * toString (char buf[], uint8_t numDecimals, uint8_t len){
+    char * toString(char buf[], uint8_t numDecimals, uint8_t len) {
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
     }
 
-    bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum = max_val){
-        return fromStringImpl(&value_, fractional_bit_count, s, minimum, maximum);
+    bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum =
+            max_val) {
+        return fromStringImpl(&value_, fractional_bit_count, s, minimum,
+                maximum);
     }
 
     temp_long operator+(temp_long const& rhs);
@@ -239,21 +246,25 @@ public:
     friend class temp_small;
 };
 
-class temp_small : public fpml::fixed_point_base<temp_small, TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS> {
+class temp_small: public fpml::fixed_point_base<temp_small, TEMP_SMALL_TYPE,
+        TEMP_SMALL_INTBITS> {
 
 public:
     using fpml::fixed_point_base<temp_small, TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS>::fixed_point_base; // inherit constructors from base class
 
-    temp_small(){}
-
-    char * toString (char buf[], uint8_t numDecimals, uint8_t len){
-            return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
+    temp_small() {
     }
 
-    bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum = max_val){
+    char * toString(char buf[], uint8_t numDecimals, uint8_t len) {
+        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
+    }
+
+    bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum =
+            max_val) {
         int32_t tempValue;
-        bool success = fromStringImpl(&tempValue, fractional_bit_count, s, minimum, maximum);
-        if( success ){
+        bool success = fromStringImpl(&tempValue, fractional_bit_count, s,
+                minimum, maximum);
+        if (success) {
             value_ = tempValue;
         }
         return success;
@@ -263,5 +274,4 @@ public:
     friend class temp_precise;
     friend class temp_long;
 };
-
 

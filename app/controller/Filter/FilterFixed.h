@@ -121,11 +121,6 @@ class FixedFilter
             return yv[1];
         }
 
-        temp_precise readOldestOutput(void)
-        {
-            return yv[2];
-        }
-
         bool detectPosPeak(temp_precise * result);    // returns true if peak detected and puts peak in result
 
         bool detectNegPeak(temp_precise * result);    // returns true if peak detected and puts peak in result

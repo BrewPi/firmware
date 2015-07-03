@@ -82,16 +82,15 @@ void Pid::update()
 
     error = setPoint - inputFilter.readOutput();
 
-    temp_precise delta = inputFilter.readOutput() - inputFilter.readOldestOutput();
-
-    derivativeFilter.add(delta);
+    temp_precise delta = inputFilter.readOutput() - inputFilter.readPrevOutput();
+    derivativeFilter.add(delta * temp_precise(60.0)); // use slope per minute
 
     derivative = derivativeFilter.readOutput();
 
     // calculate PID parts.
     p = Kp * error;
-    i = Ki * integral;
-    d = Kp * derivative;
+    i = Ki * integral / temp_long(60.0); // from the user's perspective, the integral is per minute
+    d = Kd * derivative;
 
     temp_long pidResult = temp_long(p) + temp_long(i) + temp_long(d);
     temp      output    = pidResult;    // will be constrained to -128/128 here

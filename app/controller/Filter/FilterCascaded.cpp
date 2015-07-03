@@ -65,12 +65,12 @@ temp_precise FilterCascaded::add(const temp_precise & val)
 
 temp_precise FilterCascaded::readInput(void)
 {
-    return sections[0].readInput();    // return input of first section
+    return sections[0].readInput();    // return unfiltered input of first section
 }
 
 temp_precise FilterCascaded::readOutput(void)
 {
-    return sections[NUM_SECTIONS - 1].readOutput();    // return output of last section
+    return sections[NUM_SECTIONS - 1].readOutput();    // return output of last section (which is most filtered)
 }
 
 bool FilterCascaded::detectPosPeak(temp_precise * peak)
@@ -86,11 +86,6 @@ bool FilterCascaded::detectNegPeak(temp_precise * peak)
 temp_precise FilterCascaded::readPrevOutput(void)
 {
     return sections[NUM_SECTIONS - 1].readPrevOutput();    // return previous output of last section
-}
-
-temp_precise FilterCascaded::readOldestOutput(void)	// return oldest output in filter
-{
-    return sections[0].readOldestOutput();    // return output of last section
 }
 
 void FilterCascaded::init(temp_precise val)

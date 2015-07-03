@@ -50,8 +50,6 @@ class Pid
 
         void setDerivativeFilter(uint8_t b);
 
-        void setDoubleDerivativeFilter(uint8_t b);
-
         void setMinMax(temp min,
                        temp max);
 

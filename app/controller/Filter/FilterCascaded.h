@@ -68,8 +68,6 @@ class FilterCascaded
 
         temp_precise readPrevOutput(void);
 
-        temp_precise readOldestOutput(void);
-
         bool detectPosPeak(temp_precise * peak);
 
         bool detectNegPeak(temp_precise * peak);

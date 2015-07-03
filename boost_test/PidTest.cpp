@@ -91,5 +91,39 @@ BOOST_FIXTURE_TEST_CASE(just_proportional, Fixture)
     BOOST_CHECK_CLOSE(double(act->readValue()), 30.0, 1);
 }
 
+BOOST_FIXTURE_TEST_CASE(just_integral, Fixture)
+{
+    pid->setConstants(0.0, 5.0, 0.0);
+    pid->setSetPoint(21.0);
+
+    sensor->setTemp(20.0);
+
+    // update for 10 minutes
+    for(int i = 0; i < 600; i++){
+        pid->update();
+    }
+
+    // integrator result is error * Ki, per minute. So 10 minutes * 1 degree error * 5 = 50.0
+    BOOST_CHECK_CLOSE(double(act->readValue()), 50.0, 1);
+}
+
+BOOST_FIXTURE_TEST_CASE(just_derivative, Fixture)
+{
+    pid->setConstants(0.0, 0.0, -5.0);
+    pid->setSetPoint(20.0);
+
+    // update for 10 minutes
+    for(int i = 0; i <= 600; i++){
+        sensor->setTemp(temp(50.0) - temp(i*0.05));
+        pid->update();
+    }
+
+    BOOST_CHECK_EQUAL(sensor->read(), temp(20.0)); // sensor value should have gone from 50 to 20 in 10 minutes
+
+
+    // derivative is interpreted as degree per minute, in this case -3 deg / min. PID should be -3*-5 = 15.
+    BOOST_CHECK_CLOSE(double(act->readValue()), 15.0, 1);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
