@@ -29,17 +29,22 @@ FilterCascaded::FilterCascaded()
 {
     for (uint8_t i = 0; i < NUM_SECTIONS; i++)
     {
-        sections[i].setCoefficients(2);    // default to a b value of 2
+        sections[i].setFiltering(2);    // default to a b value of 2
     }
     init();
 }
 
-void FilterCascaded::setCoefficients(uint8_t bValue)
+void FilterCascaded::setFiltering(uint8_t bValue)
 {
     for (uint8_t i = 0; i < NUM_SECTIONS; i++)
     {
-        sections[i].setCoefficients(bValue);
+        sections[i].setFiltering(bValue);
     }
+}
+
+uint8_t FilterCascaded::getFiltering()
+{
+    return sections[0].getFiltering();
 }
 
 temp FilterCascaded::add(const temp & val)
@@ -94,4 +99,18 @@ void FilterCascaded::init(temp_precise val)
     {
         sections[i].init(val);
     }
+}
+
+uint16_t FilterCascaded::getDelay(){
+    return delayTimes[sections[0].b];
+}
+
+void FilterCascaded::setFilteringForDelay(uint16_t maxDelay){
+    uint8_t i;
+    for( i = 0; i < 6; i++ ){
+        if(maxDelay <= delayTimes[i+1]){
+            break;
+        }
+    }
+    setFiltering(i);
 }

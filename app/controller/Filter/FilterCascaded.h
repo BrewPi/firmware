@@ -21,7 +21,8 @@
 
 #pragma once
 
-//#include "Brewpi.h"
+// #include "Brewpi.h"
+
 #include "newTemperatureFormats.h"
 #include "FilterFixed.h"
 
@@ -29,7 +30,8 @@
 // For 3 sections the stop band attenuation is 3x the single section attenuation in dB.
 // The delay is longer too.
 
-/* See MATLAB script in FixedFilter.h for analysis
+/*
+ *  See MATLAB script in FixedFilter.h for analysis
  *       a=4,    b=0,    delay time = 9
  *       a=6,    b=1,    delay time = 20
  *       a=8,    b=2,    delay time = 43
@@ -38,7 +40,6 @@
  *       a=14,   b=5,    delay time = 360
  *       a=16,   b=6,    delay time = 723
  */
-
 #define NUM_SECTIONS 3
 class FilterCascaded
 {
@@ -50,19 +51,23 @@ class FilterCascaded
     public:
         FilterCascaded();
 
-        ~FilterCascaded()
-        {
-        }
+        ~FilterCascaded(){}
 
         void init(temp_precise val = temp_precise(0.0));
 
-        void setCoefficients(uint8_t bValue);
+        void setFiltering(uint8_t bValue);
+
+        uint8_t getFiltering();
+
+        void setFilteringForDelay(uint16_t maxDelay);
+
+        uint16_t getDelay();
 
         temp_precise add(const temp_precise & val);    // adds a value and returns the most recent filter output
 
         temp add(const temp & val);                    // adds a value and returns the most recent filter output as temp
 
-        temp_precise readInput(void);          // returns the most recent filter input
+        temp_precise readInput(void);                  // returns the most recent filter input
 
         temp_precise readOutput(void);
 
@@ -71,4 +76,6 @@ class FilterCascaded
         bool detectPosPeak(temp_precise * peak);
 
         bool detectNegPeak(temp_precise * peak);
+
+        const uint16_t delayTimes[7] = { 9, 20, 43, 88, 179, 360, 723 };
 };

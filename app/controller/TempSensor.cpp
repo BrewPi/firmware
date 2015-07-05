@@ -94,15 +94,15 @@ temperature TempSensor::detectNegPeak(void){
 }
 	
 void TempSensor::setFastFilterCoefficients(uint8_t b){
-	fastFilter.setCoefficients(b);
+	fastFilter.setFiltering(b);
 }
 	
 void TempSensor::setSlowFilterCoefficients(uint8_t b){
-	slowFilter.setCoefficients(b);
+	slowFilter.setFiltering(b);
 }
 
 void TempSensor::setSlopeFilterCoefficients(uint8_t b){
-	slopeFilter.setCoefficients(b);
+	slopeFilter.setFiltering(b);
 }
 
 BasicTempSensor& TempSensor::sensor() {

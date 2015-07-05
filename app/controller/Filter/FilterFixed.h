@@ -74,7 +74,9 @@
  */
 class FixedFilter
 {
-    public:
+    friend class FilterCascaded;
+
+    protected:
 
         // input and output arrays
         temp_precise xv[3];
@@ -85,7 +87,7 @@ class FixedFilter
     public:
         FixedFilter()
         {
-            setCoefficients(20);
+            setFiltering(20);
 
             /* default to a b value of 2 */
         }
@@ -96,10 +98,15 @@ class FixedFilter
 
         void init(temp_precise val = temp_precise(0.0));
 
-        void setCoefficients(uint8_t bValue)
+        void setFiltering(uint8_t bValue)
         {
             a = bValue * 2 + 4;
             b = bValue;
+        }
+
+        uint8_t getFiltering()
+        {
+            return b;
         }
 
         temp_precise add(temp_precise val);    // adds a value and returns the most recent filter output
