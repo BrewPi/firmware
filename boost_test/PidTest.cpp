@@ -27,9 +27,9 @@
 #include "ActuatorPwm.h"
 
 
-struct Fixture {
+struct PidTest {
 public:
-    Fixture(){
+    PidTest(){
         BOOST_TEST_MESSAGE( "setup PID test fixture" );
 
         sensor = new MockTempSensor(20.0);
@@ -42,8 +42,8 @@ public:
         pid->setInputFilter(0);
         pid->setDerivativeFilter(0);
     }
-    ~Fixture(){
-        BOOST_TEST_MESSAGE( "teardown PID test fixture" );
+    ~PidTest(){
+        BOOST_TEST_MESSAGE( "tear down PID test fixture" );
         delete sensor;
         delete vAct;
         delete act;
@@ -57,7 +57,7 @@ public:
 };
 
 // next line sets up the fixture for each test case in this suite
-BOOST_FIXTURE_TEST_SUITE( pid_test, Fixture )
+BOOST_FIXTURE_TEST_SUITE( pid_test, PidTest )
 
 BOOST_AUTO_TEST_CASE (mock_sensor){
     BasicTempSensor * s = new MockTempSensor(20.0);
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE (mock_sensor){
 }
 
 // using this fixture test case macro resets the fixture
-BOOST_FIXTURE_TEST_CASE(just_proportional, Fixture)
+BOOST_FIXTURE_TEST_CASE(just_proportional, PidTest)
 {
     pid->setConstants(10.0, 0.0, 0.0);
     pid->setSetPoint(21.0);
@@ -91,7 +91,7 @@ BOOST_FIXTURE_TEST_CASE(just_proportional, Fixture)
     BOOST_CHECK_CLOSE(double(act->readValue()), 30.0, 1);
 }
 
-BOOST_FIXTURE_TEST_CASE(just_integral, Fixture)
+BOOST_FIXTURE_TEST_CASE(just_integral, PidTest)
 {
     pid->setConstants(0.0, 5.0, 0.0);
     pid->setSetPoint(21.0);
@@ -107,7 +107,7 @@ BOOST_FIXTURE_TEST_CASE(just_integral, Fixture)
     BOOST_CHECK_CLOSE(double(act->readValue()), 50.0, 1);
 }
 
-BOOST_FIXTURE_TEST_CASE(just_derivative, Fixture)
+BOOST_FIXTURE_TEST_CASE(just_derivative, PidTest)
 {
     pid->setConstants(0.0, 0.0, -5.0);
     pid->setSetPoint(20.0);
@@ -123,6 +123,25 @@ BOOST_FIXTURE_TEST_CASE(just_derivative, Fixture)
 
     // derivative is interpreted as degree per minute, in this case -3 deg / min. PID should be -3*-5 = 15.
     BOOST_CHECK_CLOSE(double(act->readValue()), 15.0, 1);
+}
+
+
+BOOST_FIXTURE_TEST_CASE(lag_time_max_slope_detection, PidTest)
+{
+    pid->setConstants(50.0, 0.0, 0.0);
+    pid->setSetPoint(20.0);
+
+    // rise temp from 10 to 20 as cosine with period 600. Max slope should occur at 150 + filter lag (9)
+    // max slope should be pi: 5*2*pi/600 * 60 (slope is per minute).
+    for(int t = 0; t < 600; t++){
+        sensor->setTemp(temp(15.0 - 5 * cos(2*M_PI*double(t)/600)));
+        pid->update();
+    }
+
+    BOOST_CHECK_CLOSE(double(pid->getOutputLag()), 159.0, 5);
+    BOOST_CHECK_CLOSE(double(pid->getMaxDerivative()), 3.14, 1);
+    BOOST_CHECK_EQUAL(pid->getFiltering(), 2); // filter delay has been adjusted to b=2, delay time 39
+                                               // b=3, delay time 88, is more then lagTime/2
 }
 
 BOOST_AUTO_TEST_SUITE_END()

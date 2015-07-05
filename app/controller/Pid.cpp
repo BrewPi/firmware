@@ -34,6 +34,11 @@ Pid::Pid(BasicTempSensor * input,
 
     setInputSensor(input);
     setOutputActuator(output);
+
+    autotune = true;
+    tuning = false;
+    outputLag = 0;
+    maxDerivative = 0.0;
 }
 
 Pid::~Pid(){}
@@ -104,6 +109,33 @@ void Pid::update()
     // pidResult - output is zero when actuator is not saturated
     integral = integral + error + Ka * (output - pidResult);
 
+    static uint16_t lagTimer = 0;
+    if(autotune){
+        temp min = outputActuator->min();
+        temp max = outputActuator->max();
+        temp tuningThreshold = (max >> uint8_t(1)) + (min >> uint8_t(1));
+
+        // tune only when driving the output hard enough
+        tuning = (output > tuningThreshold);
+    }
+    else{
+        tuning = false;
+    }
+    if(tuning){
+        if(derivativeFilter.detectPosPeak(&maxDerivative)){
+            uint16_t filterDelay = derivativeFilter.getDelay();
+            outputLag = (lagTimer <filterDelay) ? 0  : lagTimer - filterDelay;
+
+            // set filters to 1/2 of lag time for max noise suppression that can still follow the input signal
+            inputFilter.setFilteringForDelay(outputLag/2);
+            derivativeFilter.setFilteringForDelay(outputLag/2);
+            tuning = false;
+        }
+        lagTimer++;
+    }
+    else{
+        lagTimer = 0;
+    }
 }
 
 void Pid::setSetPoint(temp val)
@@ -122,14 +154,23 @@ void Pid::setMinMax(temp min,
     this -> max = max;
 }
 
+void Pid::setFiltering(uint8_t b){
+    inputFilter.setFiltering(b);
+    derivativeFilter.setFiltering(b);
+}
+
+uint8_t Pid::getFiltering(){
+    return inputFilter.getFiltering();
+}
+
 void Pid::setInputFilter(uint8_t b)
 {
-    inputFilter.setCoefficients(b);
+    inputFilter.setFiltering(b);
 }
 
 void Pid::setDerivativeFilter(uint8_t b)
 {
-    derivativeFilter.setCoefficients(b);
+    derivativeFilter.setFiltering(b);
 }
 
 bool Pid::setInputSensor(BasicTempSensor * s)

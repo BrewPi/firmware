@@ -46,6 +46,10 @@ class Pid
                           temp ki,
                           temp kd);
 
+        void setFiltering(uint8_t b);
+
+        uint8_t getFiltering();
+
         void setInputFilter(uint8_t b);
 
         void setDerivativeFilter(uint8_t b);
@@ -56,6 +60,10 @@ class Pid
         bool setInputSensor(BasicTempSensor * s);
 
         bool setOutputActuator(LinearActuator * a);
+
+        uint16_t getOutputLag(){ return outputLag; };
+
+        temp_precise getMaxDerivative(){ return maxDerivative; };
 
     protected:
         LinearActuator *  outputActuator;
@@ -76,4 +84,9 @@ class Pid
         FilterCascaded    inputFilter;
         FilterCascaded    derivativeFilter;
         uint8_t           failedReadCount;
+
+        bool              autotune; // auto tuning enabled
+        bool              tuning; // tuning in this step response
+        uint16_t          outputLag;
+        temp_precise      maxDerivative;
 };
