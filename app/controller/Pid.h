@@ -30,7 +30,7 @@ class Pid
 {
     public:
         Pid(BasicTempSensor * input,
-            Actuator *        output);
+            LinearActuator * output);
 
         Pid(const Pid & orig);
 
@@ -55,10 +55,10 @@ class Pid
 
         bool setInputSensor(BasicTempSensor * s);
 
-        bool setOutputActuator(Actuator * a);
+        bool setOutputActuator(LinearActuator * a);
 
-    private:
-        Actuator *        outputActuator;
+    protected:
+        LinearActuator *  outputActuator;
         BasicTempSensor * inputSensor;
         temp              Kp;    // proportional gain
         temp              Ki;    // integral gain

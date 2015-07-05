@@ -23,6 +23,11 @@
 #include <stdint.h>
 #include "newTemperatureFormats.h"
 
+enum {
+    ACTUATOR_RANGE,
+    ACTUATOR_TOGGLE,
+    ACTUATOR_THRESHOLD
+};
 
 /*
  * An actuator simply turns something on or off.                        
@@ -32,16 +37,46 @@ class Actuator
 	public:
     Actuator(){}
     virtual ~Actuator() {}
+    virtual uint8_t type(){ return ACTUATOR_TOGGLE; };
     virtual void setActive(bool active) = 0;
 	virtual bool isActive() = 0;
-	virtual void setValue(temp const& val) = 0;
+};
+
+/*
+ * An LinearActuator has a linear range output between min and max
+ */
+class LinearActuator : public Actuator
+{
+    public:
+    LinearActuator(){}
+    virtual ~LinearActuator() {}
+    virtual uint8_t type(){ return ACTUATOR_RANGE; };
+    virtual void setValue(temp const& val) = 0;
+    virtual temp readValue() = 0;
+    virtual temp min() = 0;
+    virtual temp max() = 0;
+};
+
+/*
+ * An LinearActuator has a linear range output between min and max
+ */
+class ActuatorThreshold : public Actuator
+{
+    public:
+    ActuatorThreshold(){}
+    virtual ~ActuatorThreshold() {}
+    virtual uint8_t type(){ return ACTUATOR_THRESHOLD; };
+    virtual void setValue(temp const& val) = 0;
+    virtual temp readValue() = 0;
+    virtual temp onValue() = 0;
+    virtual temp offValue() = 0;
 };
 
 
 /*
- * An actuator that simply remembers the set value. This is primary used for testing.
+ * An linear actuator that simply remembers the set value. This is primary used for testing.
  */
-class ValueActuator
+class ValueActuator : public LinearActuator
 {
 public:
 	ValueActuator(temp initial, temp minVal, temp maxVal) : value(initial), min(minVal), max(maxVal) {}
@@ -66,6 +101,9 @@ public:
 	        value = val;
 	    }
 	}
+	virtual temp readValue(){
+	    return value;
+	}
 
 private:
 	temp value;
@@ -74,7 +112,7 @@ private:
 };
 
 /*
- * An actuator that simply remembers a true/false set value. This is primary used for testing.
+ * An toggle actuator that simply remembers a true/false set value. This is primary used for testing.
  */
 class BoolActuator : public Actuator
 {
@@ -84,7 +122,6 @@ public:
 
 	virtual void setActive(bool active) { state = active; }
 	virtual bool isActive() { return state; }
-	virtual void setValue(temp const& val) { state = val > temp(0.0);}
 
 private:
 	bool state;	

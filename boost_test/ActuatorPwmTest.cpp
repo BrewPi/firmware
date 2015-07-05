@@ -68,10 +68,10 @@ temp randomIntervalTest(ActuatorPwm* act, Actuator * target, temp duty, int dela
         
     }
     double avgDuty = double(totalHighTime) / (totalHighTime + totalLowTime);
-    temp avgDutyTemp = temp(round(avgDuty * ACT_PWM_MAX));
+    temp avgDutyTemp = temp(round(avgDuty * double(act->max())));
     output << "total high time: " << totalHighTime << "\n"
            << "total low time: " << totalLowTime << "\n"
-           << "avg duty: " << avgDutyTemp << "/" << ACT_PWM_MAX << "\n";
+           << "avg duty: " << avgDutyTemp << "/" << act->max() << "\n";
     return avgDutyTemp;
 }
 

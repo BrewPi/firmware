@@ -22,7 +22,7 @@
 #include "Pid.h"
 
 Pid::Pid(BasicTempSensor * input,
-         Actuator *        output)
+         LinearActuator *        output)
 {
     setConstants(temp(10.0), temp(0.2), temp(-1.5));
     setMinMax(temp::min(), temp::max());
@@ -95,19 +95,15 @@ void Pid::update()
     temp_long pidResult = temp_long(p) + temp_long(i) + temp_long(d);
     temp      output    = pidResult;    // will be constrained to -128/128 here
 
-    if (output < min){
-        output = min;
-    }
+    outputActuator -> setValue(output);
 
-    if (output > max){
-        output = max;
-    }
+    // get actual value from actuator
+    output = outputActuator->readValue();
 
     // update integral with anti-windup back calculation
     // pidResult - output is zero when actuator is not saturated
     integral = integral + error + Ka * (output - pidResult);
 
-    outputActuator -> setValue(output);
 }
 
 void Pid::setSetPoint(temp val)
@@ -152,9 +148,10 @@ bool Pid::setInputSensor(BasicTempSensor * s)
     return true;
 }
 
-bool Pid::setOutputActuator(Actuator * a)
+bool Pid::setOutputActuator(LinearActuator * a)
 {
     outputActuator = a;
 
     return true;
 }
+

@@ -6,7 +6,9 @@ ActuatorPwm::ActuatorPwm(Actuator* _target, uint16_t _period) : target(_target) 
     periodStartTime = 0;
     periodLate = 0;
     dutyLate = 0;
-    value = 0;
+    value = 0.0;
+    minVal = 0.0;
+    maxVal = 100.0;
     target->setActive(false);
     setPeriod(_period);
     recalculate();
@@ -24,11 +26,11 @@ temp ActuatorPwm::readValue() {
 
 void ActuatorPwm::setValue(temp const& val) {
     temp val_(val);
-    if (val_ <= min){
-        val_ = min;
+    if (val_ <= minVal){
+        val_ = minVal;
     }
-    if (val_ >= max){
-        val_ = max;
+    if (val_ >= maxVal){
+        val_ = maxVal;
     }
 
     if(value != val_){
@@ -46,11 +48,11 @@ void ActuatorPwm::update() {
     int32_t currentTime = ticks.millis();
     int32_t elapsedTime = currentTime - periodStartTime;
 
-    if ( value <= min ){
+    if ( value <= minVal ){
         target->setActive(false);
         return;
     }
-    if ( value >= max ){
+    if ( value >= maxVal ){
         target->setActive(true);
         return;
     }

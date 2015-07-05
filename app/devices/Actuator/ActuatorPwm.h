@@ -1,6 +1,6 @@
 /*
- * Copyright 2013 Matthew McGowan
- * Copyright 2013 BrewPi/Elco Jacobs.
+ * Copyright 2015 BrewPi/Elco Jacobs.
+ * Copyright 2015 Matthew McGowan
  *
  * This file is part of BrewPi.
  *
@@ -26,10 +26,8 @@
 #include "Ticks.h"
 #include <stdint.h>
 
-#define ACT_PWM_MIN 0.0
-#define ACT_PWM_MAX 100.0
 
-class ActuatorPwm : public Actuator
+class ActuatorPwm : public LinearActuator
 {
     private:
         Actuator *     target;
@@ -39,14 +37,21 @@ class ActuatorPwm : public Actuator
         int32_t        dutyTime;
         ticks_millis_t periodStartTime;
         int32_t  period;
-        const temp min = temp(ACT_PWM_MIN);
-        const temp max = temp(ACT_PWM_MAX);
+        temp minVal;
+        temp maxVal;
 
     public:
         ActuatorPwm(Actuator * _target, uint16_t _period);
 
         ActuatorPwm(const ActuatorPwm &obj){};
 
+        temp min(){
+            return minVal;
+        }
+
+        temp max(){
+            return maxVal;
+        }
 
         temp readValue();
         void setValue(temp const& val);
@@ -83,10 +88,10 @@ class ActuatorPwm : public Actuator
 
         void setActive(bool active){
             if(active){
-                value = max;
+                value = maxVal;
             }
             else{
-                value = min;
+                value = minVal;
             }
         }
 
