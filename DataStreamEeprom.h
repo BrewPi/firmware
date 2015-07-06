@@ -87,5 +87,6 @@ struct EepromDataIn : public DataIn, public EepromStreamRegion
 		}
 		return result;
 	}
+        unsigned available() { return _length; }
 };
 

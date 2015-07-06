@@ -22,7 +22,9 @@
 
 #include "DataStream.h"
 
-
+/**
+ * The primary communications interface.
+ */
 class Comms {
 
 	static DataOut& hexOut;

@@ -17,12 +17,26 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define BOOST_NO_EXCEPTIONS
+#define BOOST_DISABLE_ASSERTS
+
+#include <boost/iterator/transform_iterator.hpp>
+#include <boost/range/join.hpp>
+#include <boost/range/adaptor/transformed.hpp>
+
 #include "Platform.h"
 #include "Comms.h"
 #include "Commands.h"
 #include "Version.h"
 #include "Ticks.h"
 #include "Integration.h"
+
+
+#include "CompositeDataStream.h"
+
+#include <vector>
+#include <algorithm>
+#include <type_traits>
 
 // Rename Serial to piStream, to abstract it for later platform independence
 
@@ -58,15 +72,17 @@ StdIO comms;
 #define NICE_COMMS_USE_FLUSH 1
 #endif
 
-void Comms::init() {
-    comms.begin(57600);
-}
 
+/**
+ * Implements a DataIn interface on top of the static Comms stream.
+ * @return
+ */
 class CommsIn : public DataIn
 {
-	bool hasNext() { return comms; }			// hasNext true if stream is still open.
-	uint8_t next() { return comms.read(); }
-	uint8_t peek() { return comms.peek(); }
+	bool hasNext() override { return comms; }			// hasNext true if stream is still open.
+	uint8_t next() override { return comms.read(); }
+	uint8_t peek() override { return comms.peek(); }
+        unsigned available() override { return comms.available(); }
 };
 
 class CommsOut : public DataOut
@@ -84,9 +100,334 @@ public:
 CommsIn commsIn;
 CommsOut commsOut;
 
+
+
+/**
+ * Wraps a stream to provide the DataOut interface.
+ */
+template <class S>
+class StreamDataOut : public DataOut
+{
+protected:
+    S stream;
+public:
+
+    StreamDataOut(const S& _stream) : stream(_stream) {}
+
+    bool write(uint8_t data) {
+        return stream.write(data)!=0;
+    }
+
+    bool writeBuffer(const uint8_t* data, size_t length) {
+        return stream.write(data, length)==length;
+    }
+    void close();
+};
+
+template<> void StreamDataOut<TCPClient>::close()
+{
+    stream.stop();
+};
+
+/**
+ * Adapts a Stream instance to DataIn.
+ */
+template <class S>
+class StreamDataIn : public DataIn
+{
+protected:
+    S stream;
+public:
+
+    StreamDataIn(const S& _stream) : stream(_stream) {}
+
+    virtual bool hasNext() override {
+        return stream.available()>0;
+    }
+
+    virtual uint8_t next() override {
+        return stream.read();
+    };
+
+    virtual uint8_t peek() override {
+        return stream.peek();
+    }
+
+    virtual unsigned available() override {
+        return stream.available();
+    }
+
+};
+
+
+
+/**
+ * All active connections are maintained in a vector.
+ * A connection has
+ * why is a connection not a stream? (meaning arduino's combined read/write stream.)
+ * no universal way to know if the stream is still connected/open.
+ */
+
+template <typename D>
+struct Connection
+{
+    virtual DataOut& getDataOut()=0;
+    virtual DataIn& getDataIn()=0;
+    virtual bool connected()=0;
+
+    virtual D& getData()=0;
+    virtual void setData(D&& d)=0;
+
+};
+
+template <typename D>
+class ConnectionData : public Connection<D>
+{
+    D data;
+public:
+    virtual D& getData() { return data; }
+    virtual void setData(D&& d) { std::swap(data,d); }
+};
+
+template<typename D>
+struct CommsConnection : public ConnectionData<D>
+{
+    virtual DataOut& getDataOut() override {
+        return commsOut;
+    }
+
+    virtual DataIn& getDataIn() override {
+        return commsIn;
+    }
+
+    virtual bool connected() override {
+        return comms;
+    }
+};
+
+
+template <typename C, typename I, typename O, typename D>
+class AbstractConnection : public ConnectionData<D>
+{
+public:
+    typedef C connection_type;
+    using in_type = I;
+    using out_type = O;
+    using data_type = D;
+
+protected:
+    connection_type connection;
+    in_type in;
+    out_type out;
+
+
+public:
+    AbstractConnection() {}
+    AbstractConnection(const connection_type& _connection, const in_type& _in, const out_type& _out) :
+    connection(_connection), in(_in), out(_out) {}
+
+    virtual DataIn& getDataIn() override { return in; }
+    virtual DataOut& getDataOut() override { return out; }
+    virtual bool connected() override;
+
+};
+
+
+template <typename S, typename D>
+using AbstractStreamConnectionType = AbstractConnection<
+    typename std::enable_if<std::is_base_of<Stream, S>::value, S>::type,
+    StreamDataIn<S>,
+    StreamDataOut<S>,
+    D
+>;
+
+template <typename S, typename D>
+struct AbstractStreamConnection : public AbstractStreamConnectionType<S,D>
+{
+    using base_type = AbstractStreamConnectionType<S,D>;
+
+    AbstractStreamConnection(const S& _connection)
+            : base_type(_connection, _connection, _connection) {}
+
+};
+
+
+template <typename D>
+using AbstractTCPConnection = AbstractStreamConnection<TCPClient, D>;
+
+typedef bool ConnectionDataType;
+
+template<> bool AbstractStreamConnectionType<TCPClient,ConnectionDataType>::connected()
+{
+    return connection.connected();
+}
+
+
+typedef AbstractTCPConnection<ConnectionDataType> TCPConnection;
+
+template <typename D>
+struct ConnectionToDataOut : public std::function<DataOut&(Connection<D>&)>
+{
+    typedef typename std::function<DataOut&(Connection<D>&)> base_type;
+    typedef typename base_type::result_type result_type;
+    typedef typename base_type::argument_type argument_type;
+
+    auto operator()(argument_type connection) const -> result_type {
+        return connection.getDataOut();
+    }
+};
+
+template <typename D>
+struct ConnectionToDataIn : public std::function<DataIn&(Connection<D>&)>
+{
+    typedef std::function<DataIn&(Connection<D>&)> base_type;
+    typedef typename base_type::result_type result_type;
+    typedef typename base_type::argument_type argument_type;
+
+    auto operator()(Connection<D>& connection) const -> result_type {
+        return connection.getDataIn();
+    }
+};
+
+typedef Connection<ConnectionDataType> StandardConnection;
+
+
+typedef std::vector<TCPConnection> Connections;
+
+
+
+/**
+ *
+ */
+Connections connections;
+// we could combine all connections into a variant type and store in the connections
+// vector. Keeping them separate is simpler.
+static std::array<CommsConnection<ConnectionDataType>,1> commsConnections;
+
+template<typename C>
+bool isDisconnected(C& connection)
+{
+    return !connection.connected();
+}
+
+
+TCPClient acceptConnection()
+{
+    static TCPServer server(8332);
+    server.begin();
+    TCPClient accept = server.available();
+    return accept;
+}
+
+void manageConnection()
+{
+    // remove disconnected clients
+    connections.erase(std::remove_if(connections.begin(), connections.end(), isDisconnected<TCPConnection>), connections.end());
+
+    TCPClient client = acceptConnection();
+    if (client)
+        connections.push_back(TCPConnection(client));
+}
+
+template <typename T>
+struct ConnectionAsPointer : public std::function<StandardConnection&(T&)>
+{
+    typedef typename std::function<StandardConnection&(T)> base_type;
+    typedef typename base_type::result_type result_type;
+    typedef typename base_type::argument_type argument_type;
+
+    StandardConnection& operator()(T& connection) const {
+        return connection;
+    }
+};
+
 /*
+template <typename T>
+inline ConnectionAsPointer<T> ConnectionAsPointerFunctor() {
+    return ConnectionAsPointer<T>();
+}
+
+template <typename T>
+inline auto as_connection_ptr(T& source) -> decltype(boost::adaptors::transform(source, ConnectionAsPointerFunctor())) {
+    boost::adaptors::transform(source, ConnectionAsPointerFunctor());
+}
+*/
+
+auto all_connections() -> boost::range::joined_range<
+        boost::range_detail::transformed_range<ConnectionAsPointer<CommsConnection<ConnectionDataType> >, decltype(commsConnections) >,
+        boost::range_detail::transformed_range<ConnectionAsPointer<TCPConnection>, decltype(connections)> >
+{
+    auto first = boost::adaptors::transform(commsConnections, ConnectionAsPointer<CommsConnection<ConnectionDataType>>());
+    auto second = boost::adaptors::transform(connections, ConnectionAsPointer<TCPConnection>());
+
+    auto result = boost::join(first, second);
+    return result;
+}
+
+/**
+ * Iterator type that transforms all connections using a given transformation functor.
+ */
+template <typename TransformationFunctor> using ConnectionTransformIterator = typename decltype(boost::adaptors::transform(all_connections(), TransformationFunctor()))::iterator;
+
+
+template <typename TransformFunctor>
+auto fetch_streams() -> boost::iterator_range<typename decltype(boost::adaptors::transform(all_connections(), TransformFunctor()))::iterator>
+{
+    return boost::adaptors::transform(all_connections(), TransformFunctor());
+}
+
+
+typedef ConnectionToDataOut<ConnectionDataType> ToDataOutFunctor;
+typedef CompositeDataOut<ConnectionTransformIterator<ToDataOutFunctor>> CompositeDatOutType;
+
+typedef ConnectionToDataIn<ConnectionDataType> ToDataInFunctor;
+typedef CompositeDataIn<ConnectionTransformIterator<ToDataInFunctor>> CompositeDatInType;
+
+
+void f()
+{
+    std::function<boost::iterator_range<ConnectionTransformIterator<ToDataOutFunctor>>()> streams = fetch_streams<ToDataOutFunctor>;
+    CompositeDatOutType compositeOut(streams);
+}
+
+
+CompositeDatOutType compositeOut(&fetch_streams<ToDataOutFunctor>);
+//CompositeDatInType compositeIn(fetch_streams<ToDataInFunctor>);
+
+
+
+/**
+ * Transform each TCPClient into a DataOut instance.
+ */
+
+
+
+void Comms::init() {
+    comms.begin(57600);
+}
+
+
+#ifdef BOOST_NO_EXCEPTIONS
+
+
+namespace boost
+{
+
+    void throw_exception(std::exception const & e)
+    {
+
+    }
+
+}
+
+#endif
+
+
+
+/*
+ * A DataIn filter - wraps a DataIn instance and provides also a DataIn interface.
  * Filters out non-significant text - comment markers, whitespace, unrecognized characters.
- * The stream automatically closes on newline.
+ * The stream automatically closes on newline and hasNext() returns false.
  */
 class TextIn : public DataIn {
 	DataIn*	_in;
@@ -100,24 +441,29 @@ public:
 	TextIn(DataIn& in)
 	: _in(&in), data(0), hasData(0), commentLevel(0) {}
 
-	bool hasNext()
+	bool hasNext() override
 	{
 		fetchNextData(true);
 		return hasData;
 	}
 
-	uint8_t next()
+	uint8_t next() override
 	{
 		fetchNextData(false);
 		hasData = false;
 		return data;
 	}
 
-	uint8_t peek()
+	uint8_t peek() override
 	{
 		fetchNextData(true);
 		return data;
 	}
+
+        unsigned available() override
+        {
+            return hasNext();
+        }
 };
 
 /**
@@ -127,21 +473,23 @@ public:
 void TextIn::fetchNextData(bool optional) {
 
 	while (commentLevel>=0 && !hasData && _in->hasNext()) {
-		data = 0xFF;
-		uint8_t d = _in->next();
-		if (d=='[') {
-                    commentLevel++;
+                if (_in->available()) {
+                    data = 0xFF;
+                    uint8_t d = _in->next();
+                    if (d=='[') {
+                        commentLevel++;
+                    }
+                    else if (d==']') {
+                        commentLevel--;
+                    }
+                    else if (d=='\n' || d=='\r') {
+                        commentLevel = -1; data = 0;    // exit the loop on end of line
+                    }
+                    else if (!commentLevel && isHexadecimalDigit(d)) {
+                        hasData = true;
+                        data = d;
+                    }
                 }
-		else if (d==']') {
-                    commentLevel--;
-                }
-		else if (d=='\n' || d=='\r') {
-                    commentLevel = -1; data = 0;
-                }
-		else if (!commentLevel && isHexadecimalDigit(d)) {
-			hasData = true;
-			data = d;
-		}
 	}
 }
 
@@ -174,22 +522,38 @@ class HexTextToBinaryIn : public DataIn
 public:
 	HexTextToBinaryIn(DataIn& text) : _text(&text), char1(0), char2(0) {}
 
-	bool hasNext() {
+	bool hasNext() override {
 		fetchNextByte();
 		return char2;
 	}
 
-	uint8_t peek() {
+	uint8_t peek() override {
 		fetchNextByte();
 		return (h2d(char1)<<4) | h2d(char2);
 	}
 
-	uint8_t next()  {
+	uint8_t next() override  {
 		uint8_t r = peek();
 		char1 = 0; char2 = 0;
 		return r;
 	}
+
+        unsigned available() override {
+            return hasNext();
+        }
 };
+
+uint8_t blockingRead(DataIn& in, uint8_t closed)
+{
+    uint8_t result = closed;
+    while (in.hasNext()) {
+        if (in.available()) {
+            result = in.next();
+            break;
+        }
+    }
+    return result;
+}
 
 /**
  * Fetches the next byte from the stream.
@@ -204,14 +568,14 @@ void HexTextToBinaryIn::fetchNextByte()
 		return;
 
 	if (!char1) {
-		char1 = _text.next();
+                char1 = blockingRead(_text, 0);
 	}
 
 	if (!_text.hasNext())
 		return;
 
 	if (!char2) {
-		char2 = _text.next();
+		char2 = blockingRead(_text, 0);
 	}
 }
 
@@ -250,7 +614,7 @@ public:
 	}
 };
 
-BinaryToHexTextOut hexOut(commsOut);
+BinaryToHexTextOut hexOut(compositeOut);
 DataOut& Comms::hexOut = ::hexOut;
 bool prevConnected = false;
 
@@ -259,52 +623,54 @@ void Comms::resetOnCommandComplete() {
 	reset = true;
 }
 
+StandardConnection* handleConnection(StandardConnection& connection)
+{
+    static uint16_t connection_count = 0;
+    bool connected = connection.getData();
+    if (!connected) {
+        connection.setData(true);
+        connection_count++;
+        printVersion(connection.getDataOut());
+    }
+
+    return connection.getDataIn().available() ? &connection : nullptr;
+}
+
+void processCommand(StandardConnection* connection)
+{
+    DataIn& dataIn = connection->getDataIn();
+    while (dataIn.hasNext()) {
+              // there is some data ready to be processed											// form this point on, the system will block waiting for a complete command or newline.
+              TextIn textIn(dataIn);
+              HexTextToBinaryIn hexIn(textIn);
+              if (hexIn.hasNext()) {				// ignore blank newlines, annotations etc..
+                    handleCommand(hexIn, hexOut);
+                    while (hexIn.hasNext())	{			// todo - log a message about unconsumed data?
+                              hexIn.next();
+                    }
+            }
+            hexOut.close();
+    }
+
+}
+
 void Comms::receive() {
 
-	static uint16_t connections = 0;
-	// ensure that the Uno prints the version string on startup
-	// or that the leonardo prints it with each disconnect/connection made
-	bool b = comms;
-	if (b != prevConnected) {
-		printVersion(commsOut);
-                commsOut.flush();
-		prevConnected = b;
-		if (b)
-			connections++;
-	}
-#if 0
-	digitalWrite(13, prevConnected ? LOW : HIGH);
+        if (reset)
+            return;
 
-	// this is to keep the port busy so that disconnects are detected immediately
-	static byte count = 0;
-	if ((count = (count+1)&0x3F))
-		comms.write(' ');
-	else {
-		comms.write('[');
-		comms.print(connections);
-		comms.write(']');
-		comms.println();
-	}
-#endif
+        manageConnection();
 
-
-	if (!prevConnected || reset)	// reset received, don't process any more commands
-		return;
-
-	while (comms.available()>0) {                           // there is some data ready to be processed											// form this point on, the system will block waiting for a complete command or newline.
-		TextIn textIn(commsIn);
-		HexTextToBinaryIn hexIn(textIn);
-		if (hexIn.hasNext()) {				// ignore blank newlines, annotations etc..
-			handleCommand(hexIn, hexOut);
-                        while (hexIn.hasNext())	{			// todo - log a message about unconsumed data?
-                                hexIn.next();
-                        }
-                }
-		hexOut.close();
-		commsOut.flush();
-	}
-	if (reset) {
+        for (auto& connection : all_connections())
+        {
+            StandardConnection* c = handleConnection(connection);
+            if (c) {
+                processCommand(c);
+            }
+        }
+        if (reset) {
 		handleReset(true);					// do the hard reset
 	}
+
 }
 

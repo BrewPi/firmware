@@ -22,6 +22,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <algorithm>
 
 #ifndef DATASTREAM_ANNOTATIONS
 #define DATASTREAM_ANNOTATIONS DEBUG
@@ -29,6 +30,13 @@
 
 typedef uint8_t stream_size_t;
 
+/**
+ * An output stream that supports writing data. Optionally. annotations may also be written
+ * to the stream, although these are entirely optional and should provide only
+ * supplimental information.
+ * @param data
+ * @return
+ */
 struct DataOut
 {
 	#ifdef STREAM_ANNOTATIONS
@@ -58,7 +66,9 @@ struct DataOut
 	virtual void close() {}
 };
 
-
+/**
+ * An output stream that buffers data before writing.
+ */
 class BufferDataOut : public DataOut {
 	uint8_t* buffer;
 	uint8_t size;
@@ -74,7 +84,7 @@ public:
 		pos = 0;
 	}
 
-	bool write(uint8_t data);
+	virtual bool write(uint8_t data) override;
 
 	uint8_t bytesWritten() { return pos; }
 
@@ -83,13 +93,20 @@ public:
 	}
 };
 
-
+/**
+ * A DataOut implementation that discards all data.
+ */
 struct BlackholeDataOut : public DataOut {
 	virtual bool write(uint8_t data) { return true; }
 };
 
 /**
- * A data input stream.
+ * A data input stream. The stream contents may be determined asynchornously.
+ * hasNext() returns true if the stream may eventually produce a new item.
+ * next() fetches the next item from the stream. return value is undefined if available()==0.
+ * peek() retrieves the next data in the stream without removing it. Result is undefined if
+ * available() returns 0.
+ * available() the number of times read can be called to retrieve valid data.
  */
 struct DataIn
 {
@@ -101,6 +118,7 @@ struct DataIn
 	virtual bool hasNext() =0;
 	virtual uint8_t next() =0;
 	virtual uint8_t peek() =0;
+        virtual unsigned available() =0;
 
 	#if OBJECT_VIRTUAL_DESTRUCTOR
 	virtual ~DataIn() {}
@@ -116,6 +134,11 @@ struct DataIn
 		}
 	}
 
+        /**
+         * Writes the contents of this stream to an output stream.
+         * @param out
+         * @param length
+         */
 	void push(DataOut& out, uint8_t length) {
 		while (length-->0 && hasNext()) {
 			out.write(next());
@@ -125,7 +148,7 @@ struct DataIn
 
 
 /*
- * Reads data from a DataIn, and writes any fetched bytes to DataOut.
+ * Reads data from a DataIn, and writes the fetched bytes (if any) to DataOut.
  */
 class PipeDataIn : public DataIn
 {
@@ -150,19 +173,22 @@ public:
 		return val;
 	}
 
-	virtual bool hasNext() { return _in->hasNext(); }
-	virtual uint8_t peek() { return _in->peek(); }
+	virtual bool hasNext() override { return _in->hasNext(); }
+	virtual uint8_t peek() override { return _in->peek(); }
+        virtual unsigned available() override { return _in->available(); }
 
 };
 
 class BufferDataIn : public DataIn {
 	const uint8_t* _data;
-	public:
+// todo - pass the size of the data array?
+public:
 	BufferDataIn(const void* data) : _data((const uint8_t*)data) {}
 
 	uint8_t next() { return *_data++; }
 	bool hasNext() { return true; }
 	uint8_t peek() { return *_data; }
+        unsigned available() override { return 1; }
 };
 
 /**
@@ -175,22 +201,24 @@ public:
 	RegionDataIn(DataIn& _in, uint8_t _len)
 	: in(&_in), len(_len) {}
 
-	uint8_t next() { return hasNext() ? len--, in->next() : 0; }
-	bool hasNext() { return len && in->hasNext(); }
-	uint8_t peek() { return in->peek(); }
+	bool hasNext() override { return len && in->hasNext(); }
+	uint8_t next() override { return hasNext() ? len--, in->next() : 0; }
+	uint8_t peek() override { return in->peek(); }
+        unsigned available() override { return std::min(unsigned(len), in->available()); }
 
 };
 
 /**
- * A stream that provides the default mask.
+ * A stream that provides the default mask. All values returned are 0xFF. The stream
+ * is infinitely long.
  */
 class DefaultMask : public DataIn
 {
 	uint8_t next() { return 0xFF; }
 	uint8_t peek() { return 0xFF; }
 	bool hasNext() { return true; }
+        unsigned available() { return 1; }
 };
-
 
 
 #define WRITE_ANNOTATION_STR(out, value) \
