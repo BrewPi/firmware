@@ -34,10 +34,12 @@
 #include "Profile.h"
 #include "BangBangController.h"
 #include "ValueDisplay.h"
+#include "ValueActuator.h"
 
 #if defined(ARDUINO) || defined(SPARK)
 #include "OneWireBus.h"
 #include "OneWireTempSensor.h"
+#include "AnalogPinSensor.h"
 #endif
 
 #if BREWPI_SIMULATE && 0                // disable simulator for time being
@@ -251,8 +253,9 @@ ObjectFactory createObjectHandlers[] = {
 	PersistChangeValue::create,								// type 9
 	DISPLAY_OBJECT(DisplayValue::create),					// type A
 	DISPLAY_OBJECT(DisplayTemplate::create),				// type B
-//	ARDUINO_OBJECT(DigitalPinActuator::create),				// type C
+	ARDUINO_OBJECT(DigitalPinActuator::create),				// type C
 	IndirectValue::create,									// type D
+        ARDUINO_OBJECT(AnalogPinSensor::create),                                                // type E
 	NULL
 
 	// When defining a new object type, add the handler above the last NULL value (it's just there to make
