@@ -87,23 +87,28 @@ const uint8_t loadProfileDelay = 10;	// seconds
 
 class GlobalSettings
 {
-	uint8_t settings[10];
+    uint8_t settings[10];
 
     Object* externalValueHandler(container_id id)
     {
-		if (id==-1) return (Object*)10;	// size
-		if (id>9) return NULL;
-		return new ExternalValue(settings+id, 1);
-	}
+        if (id==-1) return (Object*)10;	// size
+        if (id>9) return NULL;
+        return new ExternalValue(settings+id, 1);
+    }
 };
 
 void setup()
 {
     eepromAccess.init();
 
-	SystemProfile::initialize();
+    SystemProfile::initialize();
 
-	Comms::init();
+    Comms::init();
+
+#ifdef SPARK
+    WiFi.connect(WIFI_CONNECT_NO_LISTEN);
+#endif
+
 
 #if 0
 	uint8_t start = ticks.seconds();
@@ -192,8 +197,8 @@ void process()
  */
 void brewpiLoop(void)
 {
-	process();
-	Comms::receive();
+    process();
+    Comms::receive();
 }
 
 void loop()
