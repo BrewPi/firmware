@@ -26,6 +26,8 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Ticks
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/UI
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/ValvesController
 
+INCLUDE_DIRS += $(BOOST_ROOT)
+
 CSRC += $(call target_files,../nice-firm,*.c)
 CPPSRC += $(call target_files,../nice-firm,*.cpp)
 
