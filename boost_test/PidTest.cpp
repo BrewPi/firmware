@@ -25,6 +25,7 @@
 #include "TempSensorMock.h"
 #include "Actuator.h"
 #include "ActuatorPwm.h"
+#include "runner.h"
 
 
 struct PidTest {
@@ -54,6 +55,33 @@ public:
     Actuator * vAct;
     ActuatorPwm * act;
     Pid * pid;
+};
+
+struct FridgeSim : public PidTest {
+    double airTemp = 20.0;
+    double beerTemp = 19.0;
+    double envTemp = 20.0;
+
+    double airCapacity = 1.0035 * 1.225 * 0.200; // heat capacity of dry air * density of air * 200L volume (in kJ per kelvin).
+    double beerCapacity = 4.2 * 1.0 * 20; // heat capacity water * density of water * 20L volume (in kJ per kelvin).
+
+    double heaterPower = 0.3; // 300W, in kW.
+
+    double envAirTransfer= 0.001;
+    double airBeerTransfer= 0.001;
+
+    double airEnergy = airTemp * airCapacity;
+    double beerEnergy = beerTemp * beerCapacity;
+
+    void updateSim(temp actuatorValue){ // input 1-100
+        airTemp += heaterPower * double(actuatorValue) / (100.0 * airCapacity);
+
+        airTemp += (envTemp - airTemp) * envAirTransfer;
+
+        airTemp += (beerTemp - airTemp) * airBeerTransfer / airCapacity;
+        beerTemp += (airTemp - beerTemp) * airBeerTransfer / beerCapacity;
+        sensor->setTemp(beerTemp);
+    }
 };
 
 // next line sets up the fixture for each test case in this suite
@@ -142,6 +170,23 @@ BOOST_FIXTURE_TEST_CASE(lag_time_max_slope_detection, PidTest)
     BOOST_CHECK_CLOSE(double(pid->getMaxDerivative()), 3.14, 1);
     BOOST_CHECK_EQUAL(pid->getFiltering(), 2); // filter delay has been adjusted to b=2, delay time 39
                                                // b=3, delay time 88, is more then lagTime/2
+}
+
+// Test heating fridge air based on beer temperature (non-cascaded control)
+BOOST_FIXTURE_TEST_CASE(lag_time_for_simulation, FridgeSim)
+{
+    pid->setConstants(100.0, 0.0, 0.0);
+    pid->setSetPoint(20.0);
+
+    output << "beer = [";
+    for(int t = 0; t < 1000; t++){
+        pid->update();
+        updateSim(act->readValue());
+        output << beerTemp << ",\n";
+    }
+    output << "]";
+    BOOST_TEST_MESSAGE("output lag is " << pid->getOutputLag());
+    BOOST_TEST_MESSAGE("max derivative is " << pid->getMaxDerivative());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
