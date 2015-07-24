@@ -33,14 +33,18 @@ EepromAccess eepromAccess;
 
 EepromManager::EepromManager()
 {
-	eepromSizeCheck();
+    eepromSizeCheck();
+}
+
+void EepromManager::init() 
+{    
 }
 
 
 bool EepromManager::hasSettings()
 {
-	uint8_t version = eepromAccess.readByte(pointerOffset(version));	
-	return (version==EEPROM_FORMAT_VERSION);
+    uint8_t version = eepromAccess.readByte(pointerOffset(version));	
+    return (version==EEPROM_FORMAT_VERSION);
 }
 
 void EepromManager::zapEeprom()
@@ -52,34 +56,34 @@ void EepromManager::zapEeprom()
 
 void EepromManager::initializeEeprom()
 {
-	// clear all eeprom
-	for (uint16_t offset=0; offset<EepromFormat::MAX_EEPROM_SIZE; offset++)
-		eepromAccess.writeByte(offset, 0);	
+    // clear all eeprom
+    for (uint16_t offset=0; offset<EepromFormat::MAX_EEPROM_SIZE; offset++)
+            eepromAccess.writeByte(offset, 0);	
 
-	deviceManager.setupUnconfiguredDevices();
+    deviceManager.setupUnconfiguredDevices();
 
-	// fetch the default values
-	tempControl.loadDefaultConstants();
-	tempControl.loadDefaultSettings();	
-	
-	// write the default constants 
-	for (uint8_t c=0; c<EepromFormat::MAX_CHAMBERS; c++) {
-		eptr_t pv = pointerOffset(chambers)+(c*sizeof(ChamberBlock)) ;
-		tempControl.storeConstants(pv+offsetof(ChamberBlock, chamberSettings.cc));
-		pv += offsetof(ChamberBlock, beer)+offsetof(BeerBlock, cs);
-		for (uint8_t b=0; b<ChamberBlock::MAX_BEERS; b++) {
-//			logDeveloper(PSTR("EepromManager - saving settings for beer %d at %d"), b, (uint16_t)pv);
-			tempControl.storeSettings(pv);	
-			pv += sizeof(BeerBlock);		// advance to next beer
-		}
-	}
+    // fetch the default values
+    tempControl.loadDefaultConstants();
+    tempControl.loadDefaultSettings();	
 
-	// set the version flag - so that storeDevice will work
-	eepromAccess.writeByte(0, EEPROM_FORMAT_VERSION);
-		
-	saveDefaultDevices();
-	// set state to startup
-	tempControl.init();
+    // write the default constants 
+    for (uint8_t c=0; c<EepromFormat::MAX_CHAMBERS; c++) {
+        eptr_t pv = pointerOffset(chambers)+(c*sizeof(ChamberBlock)) ;
+        tempControl.storeConstants(pv+offsetof(ChamberBlock, chamberSettings.cc));
+        pv += offsetof(ChamberBlock, beer)+offsetof(BeerBlock, cs);
+        for (uint8_t b=0; b<ChamberBlock::MAX_BEERS; b++) {
+//          logDeveloper(PSTR("EepromManager - saving settings for beer %d at %d"), b, (uint16_t)pv);
+            tempControl.storeSettings(pv);	
+            pv += sizeof(BeerBlock);		// advance to next beer
+        }
+    }
+
+    // set the version flag - so that storeDevice will work
+    eepromAccess.writeByte(0, EEPROM_FORMAT_VERSION);
+
+    saveDefaultDevices();
+    // set state to startup
+    tempControl.init();
 }
 
 uint8_t EepromManager::saveDefaultDevices() 

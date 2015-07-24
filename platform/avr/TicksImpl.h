@@ -36,7 +36,7 @@ typedef uint8_t ticks_seconds_tiny_t;
 	#define TICKS_IMPL_CONFIG
 #endif	// BREWPI_EMULATE
 
-extern TicksImpl ticks;
+extern TicksImpl TICKS;
 
 // Determine the type of delay required.
 // For emulation, don't delay, since time in the emulator is not real time, so the delay is meaningless.

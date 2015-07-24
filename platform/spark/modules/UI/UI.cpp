@@ -44,6 +44,7 @@ DisplayType DISPLAY_REF display = realDisplay;
 eGuiSettingsClass eGuiSettings;
 
 uint8_t UI::init() {
+    eGuiSettings.init();
     display.init();
 
     if (!D4D_Init(NULL))

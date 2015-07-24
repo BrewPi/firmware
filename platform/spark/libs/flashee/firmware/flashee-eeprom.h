@@ -160,6 +160,80 @@ public:
 
 };
 
+/**
+ * A flash device that delegates to the EEPROM wiring implementation.
+ */
+class EepromFlashDevice : public FlashDevice {
+    
+public:    
+    
+    EepromFlashDevice() {}
+    /**
+     * @return The size of each page in this flash device.
+     */
+    virtual page_size_t pageSize() const {
+        return 1;
+    }
+
+    /**
+     * @return The number of pages in this flash device.
+     */
+    virtual page_count_t pageCount() const {
+        return EEPROM.length();
+    }
+
+    virtual bool erasePage(flash_addr_t address) {
+        EEPROM.write(address, 0xFF);
+        return true;
+    }
+
+    virtual bool readPage(void* data, flash_addr_t address, page_size_t length) const {
+        uint8_t*  _data = (uint8_t*)data;
+        for (page_size_t i=0; i<length; i++) {
+            _data[i] = EEPROM.read(address+i);
+        }        
+        return true;
+    }
+
+    virtual bool writePage(const void* data, flash_addr_t address, page_size_t length) {
+        const uint8_t*  _data = (const uint8_t*)data;
+        for (page_size_t i=0; i<length; i++) {
+            EEPROM.write(address+i, _data[i]);
+        }        
+        return true;
+    }
+    
+    
+    /**
+     * Writes data to the flash memory, performing an erase beforehand if necessary
+     * to ensure the data is written correctly.
+     * @param data
+     * @param address
+     * @param length
+     * @return
+     */
+    virtual bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) {
+        return writePage(data, address, length);
+    }
+
+    /**
+     * Internally re-reorganizes the page's storage by passing the page contents via
+     * a buffer through a handler function and then writing the buffer back to
+     * memory.
+     *
+     * @param address
+     * @param handler
+     * @param data
+     * @param buf
+     * @param bufSize
+     * @return
+     */
+    virtual bool copyPage(flash_addr_t address, TransferHandler handler, void* data, uint8_t* buf, page_size_t bufSize) {
+        return false;
+    }
+    
+};
+
 #include "flashee-eeprom-impl.h"
 
 /**
@@ -491,6 +565,17 @@ Must align on a page boundary.
             return NULL;
         FlashDevice* multi = createMultiWrite(mapper);
         return new PageSpanFlashDevice(*multi);
+    }
+    
+    /**
+     * Create a new flash device based on the built-in EEPROM class. 
+     * @param start The offset in emulated eeprom the device memory should start at.
+     * @param end The offset in emulated eeprom the device memory ends at (exclusive.)
+     * @return The created device.
+     */
+    static FlashDevice* createEepromDevice(flash_addr_t start, flash_addr_t end) {
+        FlashDevice* base = new EepromFlashDevice();
+        return new FlashDeviceRegion(*base, start, end);
     }
 
     /**
