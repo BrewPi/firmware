@@ -26,11 +26,10 @@
 #include "Actuator.h"
 #include "Sensor.h"
 #include "PiLink.h"
-#include "Pins.h"
+#include "Board.h"
 #include "fixstl.h"
 #include "ActuatorPin.h"
 #include <functional>
-#include "brewpi_board.h"
 
 #define MAX_TEMP_SENSORS
 

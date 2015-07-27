@@ -22,12 +22,12 @@
 #include "../pictures.h"
 #include "../brewpi-logo.h"
 #include "../widget_color_scheme.h"
-#include "brewpi_board.h"
 #include "connected_device_widget.h"
 #include "spark_macros.h"
 #include "ModeControl.h"
 #include <string.h>
 #include <stdbool.h>
+#include "Board.h"
 
 #define INACTIVE_BG_COLOR D4D_COLOR_RGB(24,24,24)
 #define ACTIVE_BG_COLOR D4D_COLOR_RGB(140,0,25)
@@ -162,7 +162,7 @@ D4D_DECLARE_SCREEN_END()
 
 uint8_t ActuatorCount()
 {
-    return IsBoardRevC() ? 4 : 3;
+    return shieldIsV2() ? 4 : 3;
 }
 
 void ScreenDeviceTest_OnInit()

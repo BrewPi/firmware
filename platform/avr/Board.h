@@ -111,3 +111,8 @@
 #ifndef USE_INTERNAL_PULL_UP_RESISTORS
 #define USE_INTERNAL_PULL_UP_RESISTORS 1
 #endif
+
+
+uint8_t getShieldVersion(){
+	return BREWPI_STATIC_CONFIG;
+}

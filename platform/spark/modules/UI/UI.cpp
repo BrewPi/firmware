@@ -27,7 +27,7 @@
 #include "Display.h"
 #include "UIController.h"
 #include "Actuator.h"
-#include "brewpi_board.h"
+#include "Board.h"
 
 #include "../eGUI_screens/devicetest/device_test_screen.h"
 #include "../eGUI_screens/controller/controller_screen.h"
@@ -53,7 +53,7 @@ uint8_t UI::init() {
 
     D4D_SetOrientation(D4D_ORIENT_LANDSCAPE);
     #if BREWPI_BUZZER
-	buzzer.init();
+	buzzer.init(!shieldIsV2());
 	buzzer.beep(2, 100);
     #endif
 
@@ -115,10 +115,4 @@ void calibrateTouchScreen() {
 
 bool UI::inStartup() {
     return uiController.inStartup();
-}
-
-bool IsBoardRevC()
-{
-    // todo - detect board type.
-    return true;
 }

@@ -33,7 +33,7 @@ public:
     ~Buzzer() {
     };
 
-    void init(void);
+    void init(bool _invert);
 
     /**
      * Performs a number of beeps synchronously.

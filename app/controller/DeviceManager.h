@@ -27,7 +27,7 @@
 #include "Sensor.h"
 #include "TempSensor.h"
 #include "OneWireDevices.h"
-#include "Pins.h"
+#include "Board.h"
 #include "OneWire.h"
 
 /**

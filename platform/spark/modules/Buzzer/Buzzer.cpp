@@ -22,19 +22,13 @@
 
 #include "Brewpi.h"
 #include "Ticks.h"
-#include "Pins.h"
+#include "Board.h"
 #include "Buzzer.h"
 
 #if BREWPI_BUZZER
 
-void Buzzer::init(void) {
-    // set up square wave PWM for buzzer
-    
-    // Rev D has a pull down resistor, Rev C has a pull up resistor
-    // If the pin is low, it is Rev D and inversion is not needed
-    pinMode(alarmPin, INPUT);
-    wait.millis(1); // give time to change
-    invert = digitalRead(alarmPin);
+void Buzzer::init(bool _invert) {
+    invert = _invert;
     setActive(false);
     pinMode(alarmPin, OUTPUT);
 }

@@ -26,7 +26,7 @@
 #include "Menu.h"
 #include "TemperatureFormats.h"
 
-#include "Pins.h"
+#include "Board.h"
 #include "Display.h"
 #include "TempControl.h"
 #include "RotaryEncoder.h"
