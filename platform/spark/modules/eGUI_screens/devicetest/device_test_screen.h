@@ -34,10 +34,10 @@ D4D_EXTERN_OBJECT(scrDeviceTest_devices11);
 D4D_EXTERN_OBJECT(scrDeviceTest_devices20);
 D4D_EXTERN_OBJECT(scrDeviceTest_devices21);
 
+D4D_EXTERN_OBJECT(scrDeviceTest_actuator0)
 D4D_EXTERN_OBJECT(scrDeviceTest_actuator1)
 D4D_EXTERN_OBJECT(scrDeviceTest_actuator2)
 D4D_EXTERN_OBJECT(scrDeviceTest_actuator3)
-D4D_EXTERN_OBJECT(scrDeviceTest_actuator4)
 
 void ScreenDeviceTest_OnMain();
 void ScreenDeviceTest_OnActivate();

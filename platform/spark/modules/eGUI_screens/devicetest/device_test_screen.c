@@ -93,12 +93,12 @@ void SetActuatorButtonState(const D4D_OBJECT* pThis, D4D_BOOL state, uint8_t idx
     D4D_InvalidateObject(pThis, D4D_TRUE);
 }
 
-
+#define SCRBOOT_ACTUATOR_COUNT MAX_ACTUATOR_COUNT
 #define SCRBOOT_ACTUATOR_CX_GAP 4
 #define SCRBOOT_ACTUATOR_CX ((320-(SCRBOOT_ACTUATOR_COUNT*SCRBOOT_ACTUATOR_CX_GAP))/SCRBOOT_ACTUATOR_COUNT)
 
 #define D4D_DECLARE_ACTUATOR(idx)\
-     _D4D_DECLARE_ACTUATOR(scrDeviceTest_actuator##idx, idx, ((SCRBOOT_ACTUATOR_COUNT-(idx))*(SCRBOOT_ACTUATOR_CX+SCRBOOT_ACTUATOR_CX_GAP)), 190, SCRBOOT_ACTUATOR_CX, 50, FONT_ARIAL7, FONT_ARIAL7_BIG)
+     _D4D_DECLARE_ACTUATOR(scrDeviceTest_actuator##idx, idx, (idx*(SCRBOOT_ACTUATOR_CX+SCRBOOT_ACTUATOR_CX_GAP)), 190, SCRBOOT_ACTUATOR_CX, 50, FONT_ARIAL7, FONT_ARIAL7_BIG)
 
 #define D4D_ACTUATOR_FLAGS (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_BTN_F_3D | D4D_OBJECT_F_BEVEL_RAISED | D4D_BTN_F_CONT_RECT )
 
@@ -117,12 +117,11 @@ void SetActuatorButtonState(const D4D_OBJECT* pThis, D4D_BOOL state, uint8_t idx
     D4D_CLR_SCHEME name##scheme; \
     _D4D_DECLARE_BUTTON(D4D_CONST, name, name##text, x, y, cx, cy, 0, NULL, NULL, (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH ), NULL, NULL, &name##scheme, FONT_ARIAL7_BIG, NULL, ActuatorClicked, NULL);
 
-#define SCRBOOT_ACTUATOR_COUNT MAX_ACTUATOR_COUNT
 
+D4D_DECLARE_ACTUATOR(0);
 D4D_DECLARE_ACTUATOR(1);
 D4D_DECLARE_ACTUATOR(2);
 D4D_DECLARE_ACTUATOR(3);
-D4D_DECLARE_ACTUATOR(4);
 
 #define SCRBOOT_DEVICES_Y 65
 #define SCRBOOT_DEVICES_CX 104
@@ -143,10 +142,10 @@ D4D_DECLARE_STD_LABEL(scrDeviceTest_text1, "For instructions go to", TEST_TEXT_X
 D4D_DECLARE_STD_LABEL(scrDeviceTest_text2, "http://brewpi.com/spark-getting-started", TEST_TEXT_X, TEST_TEXT_CY*4, 320-TEST_TEXT_X, TEST_TEXT_CY, FONT_ARIAL7);
 
 D4D_DECLARE_STD_SCREEN_BEGIN(screen_devicetest, ScreenDeviceTest_)
-    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator1)
+	D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator0)
+	D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator1)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator2)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator3)
-    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator4)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices00)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices01)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices10)
@@ -167,16 +166,16 @@ uint8_t ActuatorCount()
 
 void ScreenDeviceTest_OnInit()
 {
-    D4D_EnableObject((D4D_OBJECT*)&scrDeviceTest_actuator4, ActuatorCount()>3);
+    D4D_EnableObject((D4D_OBJECT*)&scrDeviceTest_actuator0, ActuatorCount()>3);
 
     actuator_views_state[0] = D4D_TRUE; // mismatch with below to force update on init
     actuator_views_state[1] = D4D_TRUE;
     actuator_views_state[2] = D4D_TRUE;
     actuator_views_state[3] = D4D_TRUE;
-    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator1, D4D_FALSE, 0);
-    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator2, D4D_FALSE, 1);
-    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator3, D4D_FALSE, 2);
-    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator4, D4D_FALSE, 3);
+    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator0, D4D_FALSE, 0);
+    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator1, D4D_FALSE, 1);
+    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator2, D4D_FALSE, 2);
+    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator3, D4D_FALSE, 3);
 
 
 }

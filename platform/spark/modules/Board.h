@@ -28,8 +28,14 @@ extern "C" {
 
 #define oneWirePin 0x0 // actually the i2c address
 
+// A7 is the leftmost pin. V1 does not have A7 on the green connector
+
+#ifndef actuatorPin0
+#define actuatorPin0 A7
+#endif
+
 #ifndef actuatorPin1
-#define actuatorPin1 A0
+#define actuatorPin1 A6
 #endif
 
 #ifndef actuatorPin2
@@ -37,11 +43,7 @@ extern "C" {
 #endif
 
 #ifndef actuatorPin3
-#define actuatorPin3 A6
-#endif
-
-#ifndef actuatorPin4
-#define actuatorPin4 A7
+#define actuatorPin3 A0
 #endif
 
 #define alarmPin A2

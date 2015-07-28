@@ -51,7 +51,7 @@ const D4D_OBJECT* views[] = { &scrDeviceTest_devices00, &scrDeviceTest_devices10
 ConnectedDevicesManager mgr;
 ConnectedDevicesPresenter presenter(&mgr, views, 6);
 
-const D4D_OBJECT* actuator_views[] = { &scrDeviceTest_actuator1, &scrDeviceTest_actuator2, &scrDeviceTest_actuator3, &scrDeviceTest_actuator4 };
+const D4D_OBJECT* actuator_views[] = { &scrDeviceTest_actuator0, &scrDeviceTest_actuator1, &scrDeviceTest_actuator2, &scrDeviceTest_actuator3 };
 
 Actuator* actuatorForView(const D4D_OBJECT* pThis)
 {
@@ -67,13 +67,13 @@ Actuator* actuatorForView(const D4D_OBJECT* pThis)
 extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
 {
     int idx = -1;
-    if (pThis==&scrDeviceTest_actuator1)
+    if (pThis==&scrDeviceTest_actuator0)
         idx = 0;
-    else if (pThis==&scrDeviceTest_actuator2)
+    else if (pThis==&scrDeviceTest_actuator1)
         idx = 1;
-    if (pThis==&scrDeviceTest_actuator3)
+    if (pThis==&scrDeviceTest_actuator2)
         idx = 2;
-    if (pThis==&scrDeviceTest_actuator4)
+    if (pThis==&scrDeviceTest_actuator3)
         idx = 3;
 
     if (idx>=0) {
