@@ -55,7 +55,13 @@
 
 
 #ifndef BREWPI_BOARD
+#if PLATFORM_ID==0
     #define BREWPI_BOARD BREWPI_BOARD_SPARKCORE
+#elif PLATFORM_ID==6
+    #define BREWPI_BOARD BREWPI_BOARD_PHOTON
+#else
+#error Unknown Platform ID
+#endif
 #endif
 
 /*
