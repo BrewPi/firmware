@@ -22,19 +22,19 @@
 #include "application.h"
 #include "OneWireLowLevelInterface.h"
 
-#define DS248X_CONFIG_APU (1<<0)
-#define DS248X_CONFIG_PPM (1<<1)
-#define DS248X_CONFIG_SPU (1<<2)
-#define DS2484_CONFIG_WS  (1<<3)
+#define DS248X_CONFIG_APU (0x1<<0)
+#define DS248X_CONFIG_PPM (0x1<<1)
+#define DS248X_CONFIG_SPU (0x1<<2)
+#define DS2484_CONFIG_WS  (0x1<<3)
 
-#define DS248X_STATUS_BUSY 	(1<<0)
-#define DS248X_STATUS_PPD 	(1<<1)
-#define DS248X_STATUS_SD	(1<<2)
-#define DS248X_STATUS_LL	(1<<3)
-#define DS248X_STATUS_RST	(1<<4)
-#define DS248X_STATUS_SBR	(1<<5)
-#define DS248X_STATUS_TSB	(1<<6)
-#define DS248X_STATUS_DIR	(1<<7)
+#define DS248X_STATUS_BUSY 	(0x1<<0)
+#define DS248X_STATUS_PPD 	(0x1<<1)
+#define DS248X_STATUS_SD	(0x1<<2)
+#define DS248X_STATUS_LL	(0x1<<3)
+#define DS248X_STATUS_RST	(0x1<<4)
+#define DS248X_STATUS_SBR	(0x1<<5)
+#define DS248X_STATUS_TSB	(0x1<<6)
+#define DS248X_STATUS_DIR	(0x1<<7)
 
 // I2C commands
 #define DS248X_DRST	0xf0 // Device Reset
