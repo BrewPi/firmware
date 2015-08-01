@@ -22,7 +22,7 @@
 
 #include "Brewpi.h"
 #include "Ticks.h"
-#include "Pins.h"
+#include "Board.h"
 #include "Buzzer.h"
 
 #if BREWPI_BUZZER

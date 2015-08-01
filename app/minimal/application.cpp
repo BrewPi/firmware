@@ -7,21 +7,27 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 int act1 = A0;
 int act2 = A1;
 int act3 = A6;
+int act4 = A7;
 int buzz = A2;
+const bool invertBuzzer = false;
 
 void setup() {
     pinMode(act1, OUTPUT);
     pinMode(act2, OUTPUT);
     pinMode(act3, OUTPUT);
+    pinMode(act4, OUTPUT);
     pinMode(buzz, OUTPUT);
-    digitalWrite(buzz, LOW);
+    digitalWrite(buzz, !invertBuzzer);
     delay(200);
-    digitalWrite(buzz, HIGH);
+    digitalWrite(buzz, invertBuzzer);
 }
 
 void loop(){
-    digitalWrite(act1, HIGH);
-    delay(500);
-    digitalWrite(act1, LOW);
-    delay(500);
+    int actuators[4] = {act1, act2, act3, act4};
+    for(int i=0;i<4;i++){
+        digitalWrite(actuators[i], HIGH);
+        delay(500);
+        digitalWrite(actuators[i], LOW);
+        delay(500);
+    }
 }

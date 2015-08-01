@@ -23,23 +23,28 @@
 #include "Actuator.h"
 
 #if BREWPI_BUZZER
-class Buzzer : public ValueActuator
-{
-	public:
-	Buzzer(){};
-	~Buzzer(){};
-	
-	void init(void);
-	
-	/**
-	 * Performs a number of beeps synchronously.
-	 * @param numBeeps The number of beeps to emit
-	 * @param duration the duration of each beep
-	 */
-	void beep(uint8_t numBeeps, uint16_t duration);
-	
-	void setActive(bool active);
-	
+
+class Buzzer : public ValueActuator {
+public:
+    Buzzer() {
+        invert = false;
+    };
+
+    ~Buzzer() {
+    };
+
+    void init(bool _invert);
+
+    /**
+     * Performs a number of beeps synchronously.
+     * @param numBeeps The number of beeps to emit
+     * @param duration the duration of each beep
+     */
+    void beep(uint8_t numBeeps, uint16_t duration);
+
+    void setActive(bool active);
+private:
+    bool invert;
 };
 
 extern Buzzer buzzer;

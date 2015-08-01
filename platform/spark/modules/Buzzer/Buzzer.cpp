@@ -22,16 +22,14 @@
 
 #include "Brewpi.h"
 #include "Ticks.h"
-#include "Pins.h"
+#include "Board.h"
 #include "Buzzer.h"
 
 #if BREWPI_BUZZER
 
-#define BEEP_ON() digitalWrite(alarmPin, LOW);
-#define BEEP_OFF() digitalWrite(alarmPin, HIGH);
-
-void Buzzer::init(void) {
-    // set up square wave PWM for buzzer
+void Buzzer::init(bool _invert) {
+    invert = _invert;
+    setActive(false);
     pinMode(alarmPin, OUTPUT);
 }
 
@@ -39,18 +37,18 @@ void Buzzer::setActive(bool active) {
     if (active != this->isActive()) {
         ValueActuator::setActive(active);
         if (active) {
-            BEEP_ON();
+            digitalWrite(alarmPin, !invert);
         } else {
-            BEEP_OFF();
+            digitalWrite(alarmPin, invert);
         }
     }
 }
 
 void Buzzer::beep(uint8_t numBeeps, uint16_t duration) {
     for (uint8_t beepCount = 0; beepCount < numBeeps; beepCount++) {
-        BEEP_ON();
+        setActive(true);
         wait.millis(duration);
-        BEEP_OFF();
+        setActive(false);
         if (beepCount < numBeeps - 1) {
             wait.millis(duration); // not the last beep
         }

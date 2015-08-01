@@ -24,7 +24,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include "FastDigitalPin.h"
-#include "Pins.h"
+#include "Board.h"
 
 #include <util/delay.h>
 #include <util/atomic.h>

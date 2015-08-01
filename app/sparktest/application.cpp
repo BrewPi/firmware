@@ -50,8 +50,8 @@ void setup() {
 
     Serial.begin(57600);
     
-    //configure DS2482 to use active pull-up instead of pull-up resistor 
-    //configure returns 0 if it cannot find DS2482 connected 
+    //configure DS248X to use active pull-up instead of pull-up resistor 
+    //configure returns 0 if it cannot find DS248X connected 
     if (!ow.init()) {
         const char error[] = "OneWire initialization failed\n";
         Serial.print(error);

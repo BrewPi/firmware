@@ -8,7 +8,7 @@
 #pragma once
 
 #include "Brewpi.h"
-#include "Pins.h"
+#include "Board.h"
 
 class DigitalPinSensor : public SwitchSensor
 {

@@ -21,7 +21,7 @@
 
 #include "Brewpi.h"
 #include "TemperatureFormats.h"
-#include "Pins.h"
+#include "Board.h"
 #include "TempControl.h"
 #include "PiLink.h"
 #include "TempSensor.h"
