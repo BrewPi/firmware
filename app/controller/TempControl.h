@@ -27,6 +27,7 @@
 #include "Sensor.h"
 #include "EepromTypes.h"
 #include "ActuatorAutoOff.h"
+#include "ActuatorOnOff.h"
 #include "ActuatorPwm.h"
 #include "ModeControl.h"
 #include "Ticks.h"
@@ -228,6 +229,7 @@ class TempControl{
 	TEMP_CONTROL_FIELD TempSensor* beerSensor;
 	TEMP_CONTROL_FIELD TempSensor* fridgeSensor;
 	TEMP_CONTROL_FIELD BasicTempSensor* ambientSensor;
+	TEMP_CONTROL_FIELD ActuatorOnOff* chamberCoolerLimiter;
 	TEMP_CONTROL_FIELD ActuatorPwm* chamberHeater;
 	TEMP_CONTROL_FIELD ActuatorPwm* beerHeater;
 	TEMP_CONTROL_FIELD ActuatorPwm* chamberCooler;

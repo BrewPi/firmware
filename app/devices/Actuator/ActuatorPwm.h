@@ -26,10 +26,9 @@
 #include "Ticks.h"
 #include <stdint.h>
 
-class ActuatorPwm : public Actuator
+class ActuatorPwm : public DriverActuator
 {
     private:
-        Actuator *     target;
         uint8_t        pwm;
         int32_t        dutyLate;
         int32_t        periodLate;
@@ -39,8 +38,6 @@ class ActuatorPwm : public Actuator
 
     public:
         ActuatorPwm(Actuator * _target, uint16_t _period);
-
-        ActuatorPwm(const ActuatorPwm &obj){};
 
         void setPwm(uint8_t pwm);
 
@@ -65,11 +62,6 @@ class ActuatorPwm : public Actuator
 #if ACTUATOR_VIRTUAL
         virtual ~ActuatorPwm(){}
 #endif
-
-        Actuator * getTarget()
-        {
-            return target;
-        }
 
         void setTarget(Actuator * driver)
         {

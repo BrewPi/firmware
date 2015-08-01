@@ -46,6 +46,7 @@ BasicTempSensor * TempControl::ambientSensor = &defaultTempSensor;
 Actuator *        TempControl::light         = &defaultActuator;
 Actuator *        TempControl::fan           = &defaultActuator;
 ValueActuator     cameraLightState;
+ActuatorOnOff *   TempControl::chamberCoolerLimiter;
 ActuatorPwm *     TempControl::chamberHeater;
 ActuatorPwm *     TempControl::chamberCooler;
 ActuatorPwm *     TempControl::beerHeater;
@@ -217,7 +218,8 @@ void TempControl::init(void)
 
     if (chamberCooler == NULL)
     {
-        chamberCooler = new ActuatorPwm(&defaultActuator, ccDefaults.coolPwmPeriod);
+        chamberCoolerLimiter = new ActuatorOnOff(&defaultActuator); // time limited actuator
+        chamberCooler = new ActuatorPwm(chamberCoolerLimiter, ccDefaults.coolPwmPeriod);
     }
 
     if (beerHeater == NULL)
@@ -419,7 +421,7 @@ void TempControl::updateState(void)
             {    // fridge temperature is too high
                 tempControl.updateWaitTime(MIN_COOL_OFF_TIME, sinceCooling);
 
-                if (tempControl.chamberCooler -> getTarget() != &defaultActuator)
+                if (tempControl.chamberCooler -> getBareActuator() != &defaultActuator)
                 {
                     if (getWaitTime() > 0)
                     {
@@ -433,7 +435,8 @@ void TempControl::updateState(void)
             }
             else if (fridgeFast < (cs.fridgeSetting + cc.idleRangeLow))
             {    // fridge temperature is too low
-                if ((tempControl.chamberHeater -> getTarget() != &defaultActuator)
+                Actuator * pinAct = tempControl.chamberHeater -> getBareActuator();
+                if ((pinAct != &defaultActuator)
                         || (cc.lightAsHeater && (tempControl.light != &defaultActuator)))
                 {
                     state = HEATING;
@@ -472,7 +475,7 @@ void TempControl::updateState(void)
         case COOLING :
         case COOLING_MIN_TIME :
         {
-            if (tempControl.chamberCooler -> getTarget() == &defaultActuator)
+            if (tempControl.chamberCooler -> getBareActuator() == &defaultActuator)
             {
                 state = IDLE;    // cooler uninstalled
 
@@ -511,7 +514,7 @@ void TempControl::updateState(void)
 
         case HEATING :
         {
-            if (tempControl.chamberHeater -> getTarget() == &defaultActuator)
+            if (tempControl.chamberHeater -> getBareActuator() == &defaultActuator)
             {
                 state = IDLE;    // heater uninstalled
 

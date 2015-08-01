@@ -293,25 +293,18 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
             break;
 
         case DEVICETYPE_SWITCH_ACTUATOR :
-            if (*ppv != &defaultActuator){
-                DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_ACTUATOR, config.deviceFunction));
-
-                delete (Actuator *) *ppv;
-
-                *ppv = &defaultActuator;
-            }
-
-            break;
-
         case DEVICETYPE_PWM_ACTUATOR :
         {
-            Actuator * target = ((ActuatorPwm *) *ppv) -> getTarget();
-
-            if (target != &defaultActuator){
-                ((ActuatorPwm *) *ppv) -> setTarget(&defaultActuator);
+            Actuator ** target = (Actuator **) ppv;
+            if ((*target)->getDeviviceTarget() != 0){
+                target = (*target)->getDeviviceTarget(); // recursive call to unpack until at pin actuator
+            }
+            if (*target != &defaultActuator){
                 DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_ACTUATOR, config.deviceFunction));
 
-                delete target;
+                delete *target;
+
+                *target = &defaultActuator;
             }
         }
             break;
@@ -343,7 +336,6 @@ void DeviceManager::installDevice(DeviceConfig & config)
 
     BasicTempSensor * s;
     TempSensor *      ts;
-    Actuator *        act;
 
     switch (dt){
         case DEVICETYPE_NONE :
@@ -378,24 +370,24 @@ void DeviceManager::installDevice(DeviceConfig & config)
 
         case DEVICETYPE_SWITCH_ACTUATOR :
         case DEVICETYPE_SWITCH_SENSOR :
+        case DEVICETYPE_PWM_ACTUATOR :
+        {
             DEBUG_ONLY(logInfoInt(INFO_INSTALL_DEVICE, config.deviceFunction));
+            Actuator ** target = (Actuator **) ppv;
+            if ((*target)->getDeviviceTarget() != 0){
+                target = (*target)->getDeviviceTarget(); // recursive call to unpack until at pin/value actuator
+            }
 
-            *ppv = createDevice(config, dt);
+
+            *target = (Actuator *) createDevice(config, dt);
 
 #if (BREWPI_DEBUG > 0)
-            if (*ppv == NULL){
+            if (*target == NULL){
                 logErrorInt(ERROR_OUT_OF_MEMORY_FOR_DEVICE, config.deviceFunction);
             }
 #endif
-
-            break;
-
-        case DEVICETYPE_PWM_ACTUATOR :
-            DEBUG_ONLY(logInfoInt(INFO_INSTALL_DEVICE, config.deviceFunction));
-
-            act = (Actuator *) createDevice(config, dt);
-
-            ((ActuatorPwm *) *ppv) -> setTarget(act);
+        }
+        break;
     }
 }
 

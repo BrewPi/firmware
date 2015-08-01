@@ -46,7 +46,7 @@ void ActuatorOnOff::setActive(bool active)
     if (doUpdate){
         this -> active = active;
 
-        driver -> setActive(active);
+        target -> setActive(active);
 
         toggleTime = ticks.seconds();
     }

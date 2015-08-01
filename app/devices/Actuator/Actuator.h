@@ -30,12 +30,41 @@
 
 class Actuator
 {
-	public:
+public:
     Actuator(){}
     virtual ~Actuator() {}
     virtual void setActive(bool active) = 0;
 	virtual bool isActive() = 0;
 	virtual void write(uint8_t val) = 0;
+	virtual Actuator ** getDeviviceTarget(){
+	    return 0;  // recursive call for super classes until this level is reached.
+	}
+	virtual Actuator * getBareActuator(){
+	    return this;
+	}
+};
+
+class DriverActuator : public Actuator
+{
+public:
+    DriverActuator(Actuator * _target){
+        target = _target;
+    }
+    virtual ~DriverActuator(){};
+
+    Actuator * target;
+    Actuator ** getDeviviceTarget(){
+        if( target->getDeviviceTarget() == 0){
+            return &target; // this is bottom
+        }
+        else{
+            return target->getDeviviceTarget();  // this is not bottom
+        }
+    }
+
+    virtual Actuator * getBareActuator(){
+        return *getDeviviceTarget();
+    }
 };
 
 /*

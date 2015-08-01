@@ -27,20 +27,20 @@
 #include "Ticks.h"
 
 class ActuatorOnOff:
-    public Actuator
+    public DriverActuator
 {
     public:
-        ActuatorOnOff(Actuator * target,
+        ActuatorOnOff(Actuator * _target,
                       uint16_t   minOnTime = 120,
                       uint16_t   minOffTime = 300,
-                      uint16_t   maxOnTime = UINT16_MAX)
+                      uint16_t   maxOnTime = UINT16_MAX) : DriverActuator(_target)
         {
             this -> minOnTime  = minOnTime;
             this -> minOffTime = minOffTime;
             this -> maxOnTime  = maxOnTime;
-            this -> driver     = target;
+            this -> target     = _target;
             this -> toggleTime = 0;
-            this -> active     = target -> isActive();
+            this -> active     = _target -> isActive();
         }
 
         virtual ~ActuatorOnOff(){}
@@ -65,6 +65,5 @@ class ActuatorOnOff:
         uint16_t        maxOnTime;
         uint16_t        minOffTime;
         ticks_seconds_t toggleTime;
-        Actuator *      driver;
         bool            active;
 };
