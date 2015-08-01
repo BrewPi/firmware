@@ -1203,12 +1203,12 @@ DeviceType deviceType(DeviceFunction id)
         case DEVICE_CHAMBER_DOOR :
             return DEVICETYPE_SWITCH_SENSOR;
 
-        case DEVICE_CHAMBER_COOL :
         case DEVICE_CHAMBER_LIGHT :
         case DEVICE_CHAMBER_FAN :
         case DEVICE_BEER_COOL :
             return DEVICETYPE_SWITCH_ACTUATOR;
 
+        case DEVICE_CHAMBER_COOL :
         case DEVICE_CHAMBER_HEAT :
         case DEVICE_BEER_HEAT :
             return DEVICETYPE_PWM_ACTUATOR;

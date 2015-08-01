@@ -520,11 +520,14 @@ const PiLink::JsonOutput PiLink::jsonOutputCCMap[] PROGMEM = {
 	JSON_OUTPUT_CC_MAP(lightAsHeater, JOCC_UINT8),
 	JSON_OUTPUT_CC_MAP(rotaryHalfSteps, JOCC_UINT8),
 	
-	JSON_OUTPUT_CC_MAP(pwmPeriod, JOCC_UINT16),
-	JSON_OUTPUT_CC_MAP(fridgePwmAutoScale, JOCC_UINT8),
-	JSON_OUTPUT_CC_MAP(beerPwmAutoScale, JOCC_UINT8),
-	JSON_OUTPUT_CC_MAP(fridgePwmScale, JOCC_TEMP_DIFF),
-	JSON_OUTPUT_CC_MAP(beerPwmScale, JOCC_TEMP_DIFF)
+	JSON_OUTPUT_CC_MAP(heatPwmPeriod, JOCC_UINT16),
+	JSON_OUTPUT_CC_MAP(coolPwmPeriod, JOCC_UINT16),
+	JSON_OUTPUT_CC_MAP(fridgePwmKpHeat, JOCC_TEMP_DIFF),
+	JSON_OUTPUT_CC_MAP(fridgePwmKiHeat, JOCC_TEMP_DIFF),
+	JSON_OUTPUT_CC_MAP(fridgePwmKpCool, JOCC_TEMP_DIFF),
+    JSON_OUTPUT_CC_MAP(fridgePwmKiCool, JOCC_TEMP_DIFF),
+    JSON_OUTPUT_CC_MAP(beerPwmKpHeat, JOCC_TEMP_DIFF),
+    JSON_OUTPUT_CC_MAP(beerPwmKiHeat, JOCC_TEMP_DIFF)
 };
 
 void PiLink::sendJsonValues(char responseType, const JsonOutput* /*PROGMEM*/ jsonOutputMap, uint8_t mapCount) {
@@ -823,11 +826,14 @@ const PiLink::JsonParserConvert PiLink::jsonParserConverters[] PROGMEM = {
 	JSON_CONVERT(JSONKEY_lightAsHeater, &tempControl.cc.lightAsHeater, setBool),
 	JSON_CONVERT(JSONKEY_rotaryHalfSteps, &tempControl.cc.rotaryHalfSteps, setBool),
 	
-	JSON_CONVERT(JSONKEY_pwmPeriod, &tempControl.cc.pwmPeriod, setUint16),
-	JSON_CONVERT(JSONKEY_fridgePwmAutoScale, &tempControl.cc.fridgePwmAutoScale, setBool),
-	JSON_CONVERT(JSONKEY_beerPwmAutoScale, &tempControl.cc.beerPwmAutoScale, setBool),
-	JSON_CONVERT(JSONKEY_fridgePwmScale, &tempControl.cc.fridgePwmScale, setStringToFixedPoint),
-	JSON_CONVERT(JSONKEY_beerPwmScale, &tempControl.cc.beerPwmScale, setStringToFixedPoint),
+	JSON_CONVERT(JSONKEY_heatPwmPeriod, &tempControl.cc.heatPwmPeriod, setUint16),
+	JSON_CONVERT(JSONKEY_coolPwmPeriod, &tempControl.cc.coolPwmPeriod, setUint16),
+	JSON_CONVERT(JSONKEY_fridgePwmKpHeat, &tempControl.cc.fridgePwmKpHeat, setStringToFixedPoint),
+	JSON_CONVERT(JSONKEY_fridgePwmKiHeat, &tempControl.cc.fridgePwmKiHeat, setStringToFixedPoint),
+	JSON_CONVERT(JSONKEY_fridgePwmKpCool, &tempControl.cc.fridgePwmKpCool, setStringToFixedPoint),
+	JSON_CONVERT(JSONKEY_fridgePwmKiCool, &tempControl.cc.fridgePwmKiHeat, setStringToFixedPoint),
+	JSON_CONVERT(JSONKEY_beerPwmKpHeat, &tempControl.cc.beerPwmKpHeat, setStringToFixedPoint),
+	JSON_CONVERT(JSONKEY_beerPwmKiHeat, &tempControl.cc.beerPwmKiHeat, setStringToFixedPoint),
 
 	JSON_CONVERT(JSONKEY_fridgeFastFilter, MAKE_FILTER_SETTING_TARGET(FAST, FRIDGE), applyFilterSetting),
 	JSON_CONVERT(JSONKEY_fridgeSlowFilter, MAKE_FILTER_SETTING_TARGET(SLOW, FRIDGE), applyFilterSetting),

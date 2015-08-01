@@ -88,11 +88,15 @@ struct ControlConstants{
 	uint8_t lightAsHeater;		// use the light to heat rather than the configured heater device
 	uint8_t rotaryHalfSteps; // define whether to use full or half steps for the rotary encoder
 	temperature pidMax;
-    uint8_t pwmPeriod;
-	bool fridgePwmAutoScale;
-	bool beerPwmAutoScale;
-	fixed7_9 fridgePwmScale;
-	fixed7_9 beerPwmScale;
+    uint16_t heatPwmPeriod;
+    uint16_t coolPwmPeriod;
+	fixed7_9 fridgePwmKpHeat;
+	fixed7_9 fridgePwmKiHeat;
+	fixed7_9 fridgePwmKpCool;
+    fixed7_9 fridgePwmKiCool;
+    fixed7_9 beerPwmKpHeat;
+    fixed7_9 beerPwmKiHeat;
+
 };
 
 #define EEPROM_TC_SETTINGS_BASE_ADDRESS 0
@@ -226,7 +230,7 @@ class TempControl{
 	TEMP_CONTROL_FIELD BasicTempSensor* ambientSensor;
 	TEMP_CONTROL_FIELD ActuatorPwm* chamberHeater;
 	TEMP_CONTROL_FIELD ActuatorPwm* beerHeater;
-	TEMP_CONTROL_FIELD Actuator* chamberCooler; 
+	TEMP_CONTROL_FIELD ActuatorPwm* chamberCooler;
 	TEMP_CONTROL_FIELD Actuator* light;
 	TEMP_CONTROL_FIELD Actuator* fan;
 	TEMP_CONTROL_FIELD AutoOffActuator cameraLight;

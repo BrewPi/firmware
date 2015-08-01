@@ -43,11 +43,11 @@ extern DisconnectedTempSensor defaultTempSensor;
 TempSensor *      TempControl::beerSensor;
 TempSensor *      TempControl::fridgeSensor;
 BasicTempSensor * TempControl::ambientSensor = &defaultTempSensor;
-Actuator *        TempControl::chamberCooler = &defaultActuator;
 Actuator *        TempControl::light         = &defaultActuator;
 Actuator *        TempControl::fan           = &defaultActuator;
 ValueActuator     cameraLightState;
 ActuatorPwm *     TempControl::chamberHeater;
+ActuatorPwm *     TempControl::chamberCooler;
 ActuatorPwm *     TempControl::beerHeater;
 AutoOffActuator   TempControl::cameraLight(600, &cameraLightState);    // timeout 10 min
 Sensor<bool> *    TempControl::door = &defaultSensor;
@@ -163,17 +163,24 @@ ControlConstants const ccDefaults PROGMEM =
     /* pwmPeriod */
     4,
 
-    /* fridgePwmAutoScale */
-    false,
 
-    /* beerPwmAutoScale */
-    false,
+    /* fridgePwmKpHeat */
+    intToTempDiff(20),
 
-    /* fridgePwmScale */
-    intToTempDiff(5),
+    /* fridgePwmKiHeat */
+    intToTempDiff(2),
 
-    /* beerPwmScale */
-    intToTempDiff(5)
+    /* fridgePwmKpCool */
+    intToTempDiff(20),
+
+    /* fridgePwmKiCool */
+    intToTempDiff(2),
+
+    /* beerPwmKpHeat */
+    intToTempDiff(20),
+
+    /* beerPwmKiHeat */
+    intToTempDiff(2)
 };
 
 TempControl::TempControl()
@@ -205,12 +212,17 @@ void TempControl::init(void)
 
     if (chamberHeater == NULL)
     {
-        chamberHeater = new ActuatorPwm(&defaultActuator, ccDefaults.pwmPeriod);
+        chamberHeater = new ActuatorPwm(&defaultActuator, ccDefaults.heatPwmPeriod);
+    }
+
+    if (chamberCooler == NULL)
+    {
+        chamberCooler = new ActuatorPwm(&defaultActuator, ccDefaults.coolPwmPeriod);
     }
 
     if (beerHeater == NULL)
     {
-        beerHeater = new ActuatorPwm(&defaultActuator, ccDefaults.pwmPeriod);
+        beerHeater = new ActuatorPwm(&defaultActuator, ccDefaults.heatPwmPeriod);
     }
 
     updateTemperatures();
@@ -407,7 +419,7 @@ void TempControl::updateState(void)
             {    // fridge temperature is too high
                 tempControl.updateWaitTime(MIN_COOL_OFF_TIME, sinceCooling);
 
-                if (tempControl.chamberCooler != &defaultActuator)
+                if (tempControl.chamberCooler -> getTarget() != &defaultActuator)
                 {
                     if (getWaitTime() > 0)
                     {
@@ -460,7 +472,7 @@ void TempControl::updateState(void)
         case COOLING :
         case COOLING_MIN_TIME :
         {
-            if (tempControl.chamberCooler == &defaultActuator)
+            if (tempControl.chamberCooler -> getTarget() == &defaultActuator)
             {
                 state = IDLE;    // cooler uninstalled
 
@@ -550,6 +562,7 @@ void TempControl::updateEstimatedPeak(uint16_t timeLimit,
 
 void TempControl::updateOutputs(void)
 {
+    static long_temperature fridgeIntegrator = 0;
     if (cs.mode == MODE_TEST)
     {
         return;
@@ -564,29 +577,53 @@ void TempControl::updateOutputs(void)
     light -> setActive(isDoorOpen() || (cc.lightAsHeater && heating) || cameraLightState.isActive());
     fan -> setActive(heating || cooling);
 
-    // when still heating, or when waiting for the positive peak, keep updating PWM
-    // if
-    if (heating || ((state == WAITING_FOR_PEAK_DETECT) && doPosPeakDetect))
+    // when still heating/cooling, or when waiting for peak, keep updating PWM
+    if (heating || ((state == WAITING_FOR_PEAK_DETECT) && doPosPeakDetect) ||
+            cooling || ((state == WAITING_FOR_PEAK_DETECT) && doNegPeakDetect))
     {
-        temperature      fridgeError = cs.fridgeSetting - fridgeSensor -> readFastFiltered();
-        long_temperature duty        = multiplyFactorTemperatureDiff(cc.fridgePwmScale / 4,
-                                           fridgeError);    // returns -64/+64, divide by 4 to make it fit for now
+        long_temperature proportionalPart;
+        long_temperature integralPart;
+        long_temperature dutyLong;
+        long_temperature dutyConstrained;
+        long_temperature duty;
 
-        duty = tempDiffToInt(4 * duty);
-        duty = constrainTemp(duty, 0, 255);
-
-        chamberHeater -> setPwm(duty);
+        temperature fridgeError = cs.fridgeSetting - fridgeSensor -> readFastFiltered();
+        if(fridgeError > 0){
+            proportionalPart = multiplyFactorTemperatureDiff(cc.fridgePwmKpHeat / 4,
+                    fridgeError);    // returns -64/+64, divide by 4 to make it fit for now
+            integralPart = multiplyFactorTemperatureDiff(cc.fridgePwmKiHeat,
+                    fridgeIntegrator / 240); // also divide by 60, same as with tempControl PID
+            dutyLong = 4*(proportionalPart + integralPart); // scale back
+            dutyConstrained = constrainTemp(dutyLong, 0, 255);
+            duty = tempDiffToInt(dutyLong); // scale back to integer
+            chamberHeater -> setPwm(duty);
+            fridgeIntegrator = fridgeIntegrator + fridgeError + 5*cc.fridgePwmKiHeat*(dutyConstrained - dutyLong);
+        }
+        else{
+            proportionalPart = multiplyFactorTemperatureDiff(cc.fridgePwmKpCool / 4,
+                    fridgeError);    // returns -64/+64, divide by 4 to make it fit for now
+            integralPart = multiplyFactorTemperatureDiff(cc.fridgePwmKiCool,
+                    fridgeIntegrator / 240); // also divide by 60, same as with tempControl PID
+            dutyLong = 4*(proportionalPart + integralPart); // scale back
+            dutyConstrained = constrainTemp(dutyLong, 0, 255);
+            duty = -tempDiffToInt(dutyLong); // scale back to integer
+            chamberCooler -> setPwm(-duty);
+            fridgeIntegrator = fridgeIntegrator + fridgeError + 5*cc.fridgePwmKiHeat*(dutyConstrained - dutyLong);
+        }
     }
     else
     {
         chamberHeater -> setPwm(0);
+        chamberCooler -> setPwm(0);
     }
 }
 
 void TempControl::updatePwm(void)
 {
     chamberHeater -> updatePwm();
+    chamberCooler -> updatePwm();
     beerHeater -> updatePwm();
+
 }
 
 void TempControl::detectPeaks(void)
@@ -615,12 +652,6 @@ void TempControl::detectPeaks(void)
                     // if not heating, increase overshoot estimator. We heated too long.
                     increaseEstimator(&(cs.heatEstimator), error);
                 }
-
-                if (cc.fridgePwmAutoScale)
-                {
-                    // decrease PWM scaling
-                    decreaseEstimator(&(cc.fridgePwmScale), cv.beerDiff); // use actual difference here, not estimate
-                }
             }
 
             if (error < cc.heatingTargetLower)
@@ -632,11 +663,6 @@ void TempControl::detectPeaks(void)
                 {
                     // if not heating, decrease overshoot estimator. We heated too short.
                     decreaseEstimator(&(cs.heatEstimator), error);
-                }
-
-                if (cc.fridgePwmAutoScale)
-                {
-                    increaseEstimator(&(cc.fridgePwmScale), cv.beerDiff); // use actual difference here, not estimate
                 }
             }
 
@@ -798,8 +824,9 @@ void TempControl::loadConstants(eptr_t offset)
 {
     eepromAccess.readBlock((void *) &cc, offset, sizeof(ControlConstants));
     initFilters();
-    chamberHeater -> setPeriod(cc.pwmPeriod);
-    beerHeater -> setPeriod(cc.pwmPeriod);
+    chamberHeater -> setPeriod(cc.heatPwmPeriod);
+    beerHeater -> setPeriod(cc.heatPwmPeriod);
+    chamberCooler -> setPeriod(cc.coolPwmPeriod);
 }
 
 // write new settings to EEPROM to be able to reload them after a reset
