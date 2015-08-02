@@ -814,7 +814,7 @@ const PiLink::JsonParserConvert PiLink::jsonParserConverters[] PROGMEM = {
 	JSON_CONVERT(JSONKEY_fridgePwmKpHeat, &tempControl.cc.fridgePwmKpHeat, setStringToFixedPoint),
 	JSON_CONVERT(JSONKEY_fridgePwmKiHeat, &tempControl.cc.fridgePwmKiHeat, setStringToFixedPoint),
 	JSON_CONVERT(JSONKEY_fridgePwmKpCool, &tempControl.cc.fridgePwmKpCool, setStringToFixedPoint),
-	JSON_CONVERT(JSONKEY_fridgePwmKiCool, &tempControl.cc.fridgePwmKiHeat, setStringToFixedPoint),
+	JSON_CONVERT(JSONKEY_fridgePwmKiCool, &tempControl.cc.fridgePwmKiCool, setStringToFixedPoint),
 	JSON_CONVERT(JSONKEY_beerPwmKpHeat, &tempControl.cc.beerPwmKpHeat, setStringToFixedPoint),
 	JSON_CONVERT(JSONKEY_beerPwmKiHeat, &tempControl.cc.beerPwmKiHeat, setStringToFixedPoint),
 
