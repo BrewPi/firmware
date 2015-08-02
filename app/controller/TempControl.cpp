@@ -412,14 +412,12 @@ void TempControl::updateState(void)
                 state = IDLE;    // cooler uninstalled
                 break;
             }
-            lastCoolTime    = secs;
-            state = COOLING;     // set to cooling here, so the display of COOLING/COOLING_MIN_TIME is correct
-            // stop cooling when estimated fridge temp peak lands on target or if beer is already too cold (1/2 sensor bit idle zone)
-            if (fridgeFast <= cs.fridgeSetting)
+            if (chamberCooler->getPwm() == 0) // set state to IDLE when cooler PWM has gone to zero
             {
                 state = IDLE;
                 break;
             }
+            lastCoolTime    = secs;
         }
 
         break;
@@ -431,11 +429,12 @@ void TempControl::updateState(void)
                 state = IDLE;    // heater uninstalled
                 break;
             }
-            if (fridgeFast >= cs.fridgeSetting)
+            if (chamberHeater->getPwm() == 0) // set state to IDLE when heater PWM has gone to zero
             {
                 state = IDLE;
                 break;
             }
+            lastHeatTime    = secs;
         }
 
         break;
@@ -473,7 +472,7 @@ void TempControl::updateOutputs(void)
 
     if (heating)
     {
-    proportionalPart = multiplyFactorTemperatureDiff(cc.fridgePwmKpHeat / 4,
+        proportionalPart = multiplyFactorTemperatureDiff(cc.fridgePwmKpHeat / 4,
                 fridgeError);    // returns -64/+64, divide by 4 to make it fit for now
         integralPart = multiplyFactorTemperatureDiff(cc.fridgePwmKiHeat,
                 fridgeIntegrator / 240); // also divide by 60, same as with tempControl PID
