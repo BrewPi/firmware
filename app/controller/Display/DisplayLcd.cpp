@@ -195,13 +195,6 @@ void LcdDisplay::printState(void){
 				part1 = PSTR("Idl");
 				part2 = STR_ing_for;
 				break;
-			case WAITING_TO_COOL:
-				part1 = STR_Wait_to_;
-				part2 = STR_Cool;
-				break;
-			case WAITING_FOR_PEAK_DETECT:
-				part1 = PSTR("Waiting for peak");
-				break;
 			case COOLING:
 				part1 = STR_Cool;
 				part2 = STR_ing_for;
@@ -209,10 +202,6 @@ void LcdDisplay::printState(void){
 			case HEATING:
 				part1 = STR_Heat;
 				part2 = STR_ing_for;
-				break;
-			case COOLING_MIN_TIME:
-				part1 = STR_Cool;
-				part2 = STR__time_left;
 				break;
 			case DOOR_OPEN:
 				part1 = PSTR("Door open");
@@ -234,12 +223,6 @@ void LcdDisplay::printState(void){
 	}
 	else if(state==COOLING || state==HEATING){
 		time = sinceIdleTime;
-	}
-	else if(state==COOLING_MIN_TIME){
-		time = MIN_COOL_ON_TIME-sinceIdleTime;
-	}
-	else if(state == WAITING_TO_COOL){
-		time = tempControl.getWaitTime();
 	}
 	if(time != UINT16_MAX){
 		char timeString[10];

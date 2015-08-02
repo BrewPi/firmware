@@ -99,7 +99,6 @@ void brewpiLoop(void)
 		lastUpdate = ticks.millis();
 			
 		tempControl.updateTemperatures();
-		tempControl.detectPeaks();
 		tempControl.updatePID();
 		oldState = tempControl.getState();
 		tempControl.updateState();
@@ -110,7 +109,9 @@ void brewpiLoop(void)
 
         ui.update();
     }	
-    tempControl.updatePwm();
+    if(tempControl.getMode() != MODE_TEST){
+        tempControl.updatePwm();
+    }
     //listen for incoming serial connections while waiting to update
     piLink.receive();
 

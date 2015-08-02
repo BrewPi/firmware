@@ -32,14 +32,6 @@
 #include "ModeControl.h"
 #include "Ticks.h"
 
-// Set minimum off time to prevent short cycling the compressor in seconds
-const uint16_t MIN_COOL_OFF_TIME = 300;
-// Minimum on time for the cooler.
-const uint16_t MIN_COOL_ON_TIME = 120;
-// Time allowed for peak detection
-const uint16_t COOL_PEAK_DETECT_TIME = 900;
-const uint16_t HEAT_PEAK_DETECT_TIME = 900;
-
 // These two structs are stored in and loaded from EEPROM
 struct ControlSettings{
 	control_mode_t mode;
@@ -56,11 +48,6 @@ struct ControlVariables{
 	temperature p;
 	temperature i;
 	temperature d;
-	temperature estimatedPeak;
-	temperature negPeakEstimate; // last estimate
-	temperature posPeakEstimate;
-	temperature negPeak; // last detected peak
-	temperature posPeak;
 };
 
 struct ControlConstants{
@@ -73,12 +60,6 @@ struct ControlConstants{
 	temperature iMaxError;
 	temperature idleRangeHigh;
 	temperature idleRangeLow;
-	temperature heatingTargetUpper;
-	temperature heatingTargetLower;
-	temperature coolingTargetUpper;
-	temperature coolingTargetLower;
-	uint16_t maxHeatTimeForEstimate; // max time for heat estimate in seconds
-	uint16_t maxCoolTimeForEstimate; // max time for heat estimate in seconds
 	// for the filter coefficients the b value is stored. a is calculated from b.
 	uint8_t fridgeFastFilter;	// for display, logging and on-off control
 	uint8_t fridgeSlowFilter;	// for peak detection
@@ -110,10 +91,7 @@ enum states{
 	DOOR_OPEN,					// 2 used by the Display only
 	HEATING,					// 3
 	COOLING,					// 4
-	WAITING_TO_COOL,			// 5
-	WAITING_FOR_PEAK_DETECT,	// 6
-	COOLING_MIN_TIME,			// 7
-	NUM_STATES                  // 8
+	NUM_STATES                  // 5
 };
 
 #define TC_STATE_MASK 0x7;	// 3 bits
@@ -143,15 +121,12 @@ class TempControl{
 	~TempControl(){};
 	
 	TEMP_CONTROL_METHOD void init(void);
-	TEMP_CONTROL_METHOD void reset(void);
-	
+
 	TEMP_CONTROL_METHOD void updateTemperatures(void);
 	TEMP_CONTROL_METHOD void updatePID(void);
 	TEMP_CONTROL_METHOD void updateState(void);
 	TEMP_CONTROL_METHOD void updateOutputs(void);
 	TEMP_CONTROL_METHOD void updatePwm(void);
-
-	TEMP_CONTROL_METHOD void detectPeaks(void);
 	
 	TEMP_CONTROL_METHOD void loadSettings(eptr_t offset);
 	TEMP_CONTROL_METHOD void storeSettings(eptr_t offset);
@@ -188,24 +163,6 @@ class TempControl{
 		return state;
 	}
 	
-	TEMP_CONTROL_METHOD tcduration_t getWaitTime(void){
-		return waitTime;
-	}
-	
-	TEMP_CONTROL_METHOD void resetWaitTime(void){
-		waitTime = 0;
-	}
-	
-	// TEMP_CONTROL_METHOD void updateWaitTime(uint16_t newTimeLimit, uint16_t newTimeSince);
-	TEMP_CONTROL_METHOD void updateWaitTime(tcduration_t newTimeLimit, tcduration_t newTimeSince){
-		if(newTimeSince < newTimeLimit){
-			uint16_t newWaitTime = newTimeLimit - newTimeSince;
-			if(newWaitTime > waitTime){
-				waitTime = newWaitTime;
-			}
-		}
-	}
-	
 	TEMP_CONTROL_METHOD bool stateIsCooling(void);
 	TEMP_CONTROL_METHOD bool stateIsHeating(void);
 	TEMP_CONTROL_METHOD bool modeIsBeer(void){
@@ -220,11 +177,6 @@ class TempControl{
 		return isDoorOpen() ? DOOR_OPEN : getState();
 	}
 
-	private:
-	TEMP_CONTROL_METHOD void increaseEstimator(temperature * estimator, temperature error);
-	TEMP_CONTROL_METHOD void decreaseEstimator(temperature * estimator, temperature error);
-	
-	TEMP_CONTROL_METHOD void updateEstimatedPeak(uint16_t estimate, temperature estimator, uint16_t sinceIdle);
 	public:
 	TEMP_CONTROL_FIELD TempSensor* beerSensor;
 	TEMP_CONTROL_FIELD TempSensor* fridgeSensor;
@@ -251,16 +203,10 @@ class TempControl{
 	TEMP_CONTROL_FIELD tcduration_t lastIdleTime;
 	TEMP_CONTROL_FIELD tcduration_t lastHeatTime;
 	TEMP_CONTROL_FIELD tcduration_t lastCoolTime;
-	TEMP_CONTROL_FIELD tcduration_t waitTime;
-	
 	
 	// State variables
 	TEMP_CONTROL_FIELD states state;
-	TEMP_CONTROL_FIELD bool doPosPeakDetect;
-	TEMP_CONTROL_FIELD bool doNegPeakDetect;
 	TEMP_CONTROL_FIELD bool doorOpen;
-	
-
 
 	friend class TempControlState;
 };

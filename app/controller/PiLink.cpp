@@ -503,12 +503,6 @@ const PiLink::JsonOutput PiLink::jsonOutputCCMap[] PROGMEM = {
 	JSON_OUTPUT_CC_MAP(iMaxError, JOCC_TEMP_DIFF),
 	JSON_OUTPUT_CC_MAP(idleRangeHigh, JOCC_TEMP_DIFF),
 	JSON_OUTPUT_CC_MAP(idleRangeLow, JOCC_TEMP_DIFF),
-	JSON_OUTPUT_CC_MAP(heatingTargetUpper, JOCC_TEMP_DIFF),
-	JSON_OUTPUT_CC_MAP(heatingTargetLower, JOCC_TEMP_DIFF),
-	JSON_OUTPUT_CC_MAP(coolingTargetUpper, JOCC_TEMP_DIFF),
-	JSON_OUTPUT_CC_MAP(coolingTargetLower, JOCC_TEMP_DIFF),
-	JSON_OUTPUT_CC_MAP(maxHeatTimeForEstimate, JOCC_UINT16),
-	JSON_OUTPUT_CC_MAP(maxCoolTimeForEstimate, JOCC_UINT16),
 
 	JSON_OUTPUT_CC_MAP(fridgeFastFilter, JOCC_UINT8),
 	JSON_OUTPUT_CC_MAP(fridgeSlowFilter, JOCC_UINT8),
@@ -553,11 +547,6 @@ const PiLink::JsonOutput PiLink::jsonOutputCVMap[] PROGMEM = {
 	JSON_OUTPUT_CV_MAP(p, JOCC_FIXED_POINT),
 	JSON_OUTPUT_CV_MAP(i, JOCC_FIXED_POINT),
 	JSON_OUTPUT_CV_MAP(d, JOCC_FIXED_POINT),
-	JSON_OUTPUT_CV_MAP(estimatedPeak, JOCC_TEMP_FORMAT),
-	JSON_OUTPUT_CV_MAP(negPeakEstimate, JOCC_TEMP_FORMAT),
-	JSON_OUTPUT_CV_MAP(posPeakEstimate, JOCC_TEMP_FORMAT),
-	JSON_OUTPUT_CV_MAP(negPeak, JOCC_TEMP_FORMAT),
-	JSON_OUTPUT_CV_MAP(posPeak, JOCC_TEMP_FORMAT)	
 };
 
 // Send all control variables. Useful for debugging and choosing parameters
@@ -817,12 +806,6 @@ const PiLink::JsonParserConvert PiLink::jsonParserConverters[] PROGMEM = {
 	JSON_CONVERT(JSONKEY_iMaxError, &tempControl.cc.iMaxError, setStringToTempDiff),
 	JSON_CONVERT(JSONKEY_idleRangeHigh, &tempControl.cc.idleRangeHigh, setStringToTempDiff),
 	JSON_CONVERT(JSONKEY_idleRangeLow, &tempControl.cc.idleRangeLow, setStringToTempDiff),
-	JSON_CONVERT(JSONKEY_heatingTargetUpper, &tempControl.cc.heatingTargetUpper, setStringToTempDiff),
-	JSON_CONVERT(JSONKEY_heatingTargetLower, &tempControl.cc.heatingTargetLower, setStringToTempDiff),
-	JSON_CONVERT(JSONKEY_coolingTargetUpper, &tempControl.cc.coolingTargetUpper, setStringToTempDiff),
-	JSON_CONVERT(JSONKEY_coolingTargetLower, &tempControl.cc.coolingTargetLower, setStringToTempDiff),
-	JSON_CONVERT(JSONKEY_maxHeatTimeForEstimate, &tempControl.cc.maxHeatTimeForEstimate, setUint16),
-	JSON_CONVERT(JSONKEY_maxCoolTimeForEstimate, &tempControl.cc.maxCoolTimeForEstimate, setUint16),
 	JSON_CONVERT(JSONKEY_lightAsHeater, &tempControl.cc.lightAsHeater, setBool),
 	JSON_CONVERT(JSONKEY_rotaryHalfSteps, &tempControl.cc.rotaryHalfSteps, setBool),
 	

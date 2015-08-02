@@ -136,13 +136,6 @@ uint16_t fetch_time(states state)
     else if(state==COOLING || state==HEATING){
         time = sinceIdleTime;
     }
-    else if(state==COOLING_MIN_TIME){
-        time = MIN_COOL_ON_TIME-sinceIdleTime;
-    }	
-    else if(state == WAITING_TO_COOL || state == WAITING_FOR_PEAK_DETECT){
-        time = tempControl.getWaitTime();
-    }
-    
     return time;
 }
 
