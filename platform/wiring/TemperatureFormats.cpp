@@ -219,7 +219,7 @@ temperature constrainTemp(long_temperature valLong, temperature lower, temperatu
     if (val > upper) {
         return upper;
     }
-    return temperature(valLong);
+    return temperature(val);
 }
 
 temperature constrainTemp16(long_temperature val) {
