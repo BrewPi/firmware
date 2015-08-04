@@ -146,19 +146,19 @@ ControlConstants const ccDefaults PROGMEM =
     intToTempDiff(20),
 
     /* fridgePwmKiHeat */
-    intToTempDiff(2),
+    intToTempDiff(10),
 
     /* fridgePwmKpCool */
     intToTempDiff(20),
 
     /* fridgePwmKiCool */
-    intToTempDiff(2),
+    intToTempDiff(10),
 
     /* beerPwmKpHeat */
     intToTempDiff(20),
 
     /* beerPwmKiHeat */
-    intToTempDiff(2)
+    intToTempDiff(10)
 };
 
 TempControl::TempControl()
@@ -238,7 +238,10 @@ void TempControl::updateTemperatures(void)
 
 void TempControl::updatePID(void)
 {
-    static unsigned char integralUpdateCounter = 0;
+    // integral for calculations is divided by 60 (integral per minute).
+    // In other words, Ki is scaled *60, because it would have too little precision otherwise for low gains for fermentation
+    // but we need to track an unscaled one to make sure we also accumulate errors in the lowest bits
+    static long_temperature unscaledIntegral = 0;
 
     if (tempControl.modeIsBeer())
     {
@@ -257,67 +260,16 @@ void TempControl::updatePID(void)
 
         temperature fridgeFastFiltered = fridgeSensor -> readFastFiltered();
 
-        if (integralUpdateCounter++ == 60)
-        {
-            integralUpdateCounter = 0;
-
-            temperature integratorUpdate = cv.beerDiff;
-
-            // Only update integrator in IDLE, because thats when the fridge temp has reached the fridge setting.
-            // If the beer temp is still not correct, the fridge setting is too low/high and integrator action is needed.
-            if (state != IDLE)
-            {
-                integratorUpdate = 0;
-            }
-            else if (abs(integratorUpdate) < cc.iMaxError)
-            {
-                // difference is smaller than iMaxError
-                // check additional conditions to see if integrator should be active to prevent windup
-                bool updateSign     = (integratorUpdate > 0);    // 1 = positive, 0 = negative
-                bool integratorSign = (cv.diffIntegral > 0);
-
-                if (updateSign == integratorSign)
-                {
-                    // beerDiff and integrator have same sign. Integrator would be increased.
-                    // If actuator is already at max increasing actuator will only cause integrator windup.
-                    integratorUpdate = (cs.fridgeSetting >= cc.tempSettingMax) ? 0 : integratorUpdate;
-                    integratorUpdate = (cs.fridgeSetting <= cc.tempSettingMin) ? 0 : integratorUpdate;
-                    integratorUpdate = ((cs.fridgeSetting - cs.beerSetting) >= cc.pidMax) ? 0 : integratorUpdate;
-                    integratorUpdate = ((cs.beerSetting - cs.fridgeSetting) >= cc.pidMax) ? 0 : integratorUpdate;
-
-                    // cooling and fridge temp is more than 2 degrees from setting, actuator is saturated.
-                    integratorUpdate = (!updateSign && (fridgeFastFiltered > (cs.fridgeSetting + 1024)))
-                                       ? 0 : integratorUpdate;
-
-                    // heating and fridge temp is more than 2 degrees from setting, actuator is saturated.
-                    integratorUpdate = (updateSign && (fridgeFastFiltered < (cs.fridgeSetting - 1024)))
-                                       ? 0 : integratorUpdate;
-                }
-                else
-                {
-                    // integrator action is decreased. Decrease faster than increase.
-                    integratorUpdate = integratorUpdate * 2;
-                }
-            }
-            else
-            {
-                // decrease integral by 1/8 when far from the end value to reset the integrator
-                integratorUpdate = -(cv.diffIntegral >> 3);
-            }
-
-            cv.diffIntegral = cv.diffIntegral + integratorUpdate;
-        }
-
         // calculate PID parts. Use long_temperature to prevent overflow
         cv.p = multiplyFactorTemperatureDiff(cc.Kp, cv.beerDiff);
         cv.i = multiplyFactorTemperatureDiffLong(cc.Ki, cv.diffIntegral);
         cv.d = multiplyFactorTemperatureDiff(cc.Kd, cv.beerSlope);
 
-        long_temperature newFridgeSetting = cs.beerSetting;
+        long_temperature pidResult = cs.beerSetting;
 
-        newFridgeSetting += cv.p;
-        newFridgeSetting += cv.i;
-        newFridgeSetting += cv.d;
+        pidResult += cv.p;
+        pidResult += cv.i;
+        pidResult += cv.d;
 
         // constrain to tempSettingMin or beerSetting - pidMAx, whichever is lower.
         temperature lowerBound = (cs.beerSetting <= cc.tempSettingMin + cc.pidMax)
@@ -327,7 +279,28 @@ void TempControl::updatePID(void)
         temperature upperBound = (cs.beerSetting >= cc.tempSettingMax - cc.pidMax)
                                  ? cc.tempSettingMax : cs.beerSetting + cc.pidMax;
 
-        cs.fridgeSetting = constrainTemp(newFridgeSetting, lowerBound, upperBound);
+        cs.fridgeSetting = constrainTemp(pidResult, lowerBound, upperBound);
+
+        // The difference between fridge setting and fridge set point is fed back into the integrator
+        // If the actuator is saturated, this will reduce the integral
+        // If the fridge temp is near the set point, the integrator works as normal
+        long_temperature antiWindup = (pidResult - fridgeFastFiltered);
+
+        // Only allow it to bring the integrator back to zero
+        if((antiWindup > 0 && cv.diffIntegral < 0) ||
+                (antiWindup < 0 && cv.diffIntegral > 0)){
+            antiWindup = 0;
+        }
+
+        // antiWindup = constrainTemp(antiWindup, doubleToTempDiff(-5.0), doubleToTempDiff(5.0)); // allow max of 5x integratorUpdate maximum
+        long_temperature integratorUpdate = cv.beerDiff;
+        integratorUpdate -= antiWindup;
+
+        // Limit how fast the integral can change to prevent it from running away when differences are big
+        // This limits it to 5 degrees per minute
+        integratorUpdate = constrainTemp(integratorUpdate, doubleToTempDiff(-5.0), doubleToTempDiff(5.0));
+        unscaledIntegral += integratorUpdate;
+        cv.diffIntegral = unscaledIntegral / 60;
     }
     else if (cs.mode == MODE_FRIDGE_CONSTANT)
     {
@@ -466,8 +439,6 @@ void TempControl::updateOutputs(void)
     long_temperature dutyConstrained;
     uint16_t duty;
     temperature fridgeError = cs.fridgeSetting - fridgeSensor -> readFastFiltered();
-    temperature fridgeErrorForIntegral = constrainTemp(fridgeError, doubleToTempDiff(-1.0), doubleToTempDiff(1.0)); // prevent integral from growing too quicly
-
     long_temperature  antiWindup = 0;
 
     if (heating)
@@ -506,7 +477,9 @@ void TempControl::updateOutputs(void)
         chamberHeater -> setPwm(0);
         chamberCooler -> setPwm(0);
     }
-    fridgeIntegrator = fridgeIntegrator + fridgeErrorForIntegral + antiWindup;
+    // prevent integral from growing too quickly (5 deg per minute)
+    temperature integratorUpdate = constrainTemp(fridgeError + antiWindup, doubleToTempDiff(-5.0), doubleToTempDiff(5.0));
+    fridgeIntegrator += integratorUpdate;
 }
 
 void TempControl::updatePwm(void)
