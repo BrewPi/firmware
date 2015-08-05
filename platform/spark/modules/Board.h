@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Brewpi.h"
+#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #else

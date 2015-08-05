@@ -21,6 +21,7 @@
 
 
 #include "Brewpi.h"
+#include "Board.h"
 #include "BrewpiStrings.h"
 #include "DeviceManager.h"
 #include "TempControl.h"
@@ -947,11 +948,12 @@ void DeviceManager::enumeratePinDevices(EnumerateHardware & h,
 
         config.hw.pinNr  = pin;
 
-#if (BREWPI_STATIC_CONFIG < 3)
-        config.hw.invert = true;    // make inverted default, because Arduino shields have transistor on them
-#else
-        config.hw.invert = false;    // spark shield has buffer instead of transistor, does not invert
-#endif
+        if(getShieldVersion() < BREWPI_SHIELD_SPARK_V1){
+            config.hw.invert = true;    // make inverted default, because Arduino shields have transistor on them
+        }
+        else{
+            config.hw.invert = false;    // spark shield has buffer instead of transistor, does not invert
+        }
 
         handleEnumeratedDevice(config, h, callback, info);
     }
