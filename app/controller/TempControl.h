@@ -57,7 +57,6 @@ struct ControlConstants{
 	temperature Kp;
 	temperature Ki;
 	temperature Kd;
-	temperature iMaxError;
 	temperature idleRangeHigh;
 	temperature idleRangeLow;
 	// for the filter coefficients the b value is stored. a is calculated from b.

@@ -500,7 +500,6 @@ const PiLink::JsonOutput PiLink::jsonOutputCCMap[] PROGMEM = {
 	JSON_OUTPUT_CC_MAP(Ki, JOCC_FIXED_POINT),
 	JSON_OUTPUT_CC_MAP(Kd, JOCC_FIXED_POINT),
 
-	JSON_OUTPUT_CC_MAP(iMaxError, JOCC_TEMP_DIFF),
 	JSON_OUTPUT_CC_MAP(idleRangeHigh, JOCC_TEMP_DIFF),
 	JSON_OUTPUT_CC_MAP(idleRangeLow, JOCC_TEMP_DIFF),
 
@@ -803,7 +802,6 @@ const PiLink::JsonParserConvert PiLink::jsonParserConverters[] PROGMEM = {
 	JSON_CONVERT(JSONKEY_Ki, &tempControl.cc.Ki, setStringToFixedPoint),
 	JSON_CONVERT(JSONKEY_Kd, &tempControl.cc.Kd, setStringToFixedPoint),
 
-	JSON_CONVERT(JSONKEY_iMaxError, &tempControl.cc.iMaxError, setStringToTempDiff),
 	JSON_CONVERT(JSONKEY_idleRangeHigh, &tempControl.cc.idleRangeHigh, setStringToTempDiff),
 	JSON_CONVERT(JSONKEY_idleRangeLow, &tempControl.cc.idleRangeLow, setStringToTempDiff),
 	JSON_CONVERT(JSONKEY_lightAsHeater, &tempControl.cc.lightAsHeater, setBool),

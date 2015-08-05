@@ -95,9 +95,6 @@ ControlConstants const ccDefaults PROGMEM =
     /* Kd */
     doubleToTempDiff(1.5),    // -1.5
 
-    /* iMaxError */
-    doubleToTempDiff(1),    // 1 deg
-
     // Stay Idle when fridge temperature is in this range
 
     /* idleRangeHigh */
