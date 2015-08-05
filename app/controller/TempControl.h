@@ -131,6 +131,9 @@ class TempControl{
 	TEMP_CONTROL_METHOD void updateState(void);
 	TEMP_CONTROL_METHOD void updateOutputs(void);
 	TEMP_CONTROL_METHOD void updatePwm(void);
+	TEMP_CONTROL_METHOD long_temperature fridgePidResult(temp_diff Kp, temp_diff Ki, temp_diff Kd);
+	TEMP_CONTROL_METHOD long_temperature fridgePidResultHeat();
+	TEMP_CONTROL_METHOD long_temperature fridgePidResultCool();
 	
 	TEMP_CONTROL_METHOD void loadSettings(eptr_t offset);
 	TEMP_CONTROL_METHOD void storeSettings(eptr_t offset);
@@ -211,6 +214,8 @@ class TempControl{
 	// State variables
 	TEMP_CONTROL_FIELD states state;
 	TEMP_CONTROL_FIELD bool doorOpen;
+
+	TEMP_CONTROL_FIELD long_temperature fridgeIntegrator;
 
 	friend class TempControlState;
 };

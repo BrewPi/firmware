@@ -69,6 +69,8 @@ temperature TempControl::storedBeerSetting;
 tcduration_t                      TempControl::lastIdleTime;
 tcduration_t                      TempControl::lastHeatTime;
 tcduration_t                      TempControl::lastCoolTime;
+
+long_temperature TempControl::fridgeIntegrator;
 #endif
 
 ControlConstants const ccDefaults PROGMEM =
@@ -223,6 +225,7 @@ void TempControl::init(void)
     // For test purposes, set these to -3600 to eliminate waiting after reset
     lastHeatTime = 0;
     lastCoolTime = 0;
+    fridgeIntegrator = 0;
 }
 
 void updateSensor(TempSensor * sensor)
@@ -370,19 +373,18 @@ void TempControl::updateState(void)
                 break;
             }
 
-            if (fridgeFast > (cs.fridgeSetting + cc.idleRangeHigh))
-            {    // fridge temperature is too high
+            if (fridgePidResultHeat() > 0)
+            {
+                if (tempControl.chamberHeater -> getBareActuator() != &defaultActuator)
+                {
+                    state = HEATING;
+                }
+            }
+            else if (fridgePidResultCool() < 0)
+            {
                 if (tempControl.chamberCooler -> getBareActuator() != &defaultActuator)
                 {
                     state = COOLING;
-                }
-            }
-            else if (fridgeFast < (cs.fridgeSetting + cc.idleRangeLow))
-            {    // fridge temperature is too low
-                if ((tempControl.chamberHeater -> getBareActuator() != &defaultActuator)
-                        || (cc.lightAsHeater && (tempControl.light != &defaultActuator)))
-                {
-                    state = HEATING;
                 }
             }
             else
@@ -434,6 +436,33 @@ void TempControl::updateState(void)
     }
 }
 
+long_temperature TempControl::fridgePidResult(temp_diff Kp, temp_diff Ki, temp_diff Kd){
+    // make sure error does not overflow by calculating in steps
+    long_temperature fridgeErrorLong = cs.fridgeSetting;
+    fridgeErrorLong -= fridgeSensor -> readFastFiltered();
+    temperature fridgeError = constrainTemp16(fridgeErrorLong);
+    temperature fridgeDerivative = fridgeSensor -> readSlope();
+    long_temperature proportionalPart;
+    long_temperature integralPart;
+    long_temperature derivativePart;
+
+    proportionalPart = multiplyFactorTemperatureDiff(Kp / 4,
+            fridgeError);    // returns -64/+64, divide by 4 to make it fit for now
+    integralPart = multiplyFactorTemperatureDiff(Ki,
+            fridgeIntegrator / 240); // also divide by 60, same as with tempControl PID
+    derivativePart = multiplyFactorTemperatureDiff(Kd, fridgeDerivative);
+
+    return proportionalPart + integralPart + derivativePart;
+}
+
+long_temperature TempControl::fridgePidResultHeat(){
+    return fridgePidResult(cc.fridgePwmKpHeat, cc.fridgePwmKiHeat, cc.fridgePwmKdHeat);
+}
+
+long_temperature TempControl::fridgePidResultCool(){
+    return fridgePidResult(cc.fridgePwmKpCool, cc.fridgePwmKiCool, cc.fridgePwmKdCool);
+}
+
 void TempControl::updateOutputs(void)
 {
     static long_temperature fridgeIntegrator = 0;
@@ -450,29 +479,13 @@ void TempControl::updateOutputs(void)
     light -> setActive(isDoorOpen() || (cc.lightAsHeater && heating) || cameraLightState.isActive());
     fan -> setActive(heating || cooling);
 
-    long_temperature proportionalPart;
-    long_temperature integralPart;
-    long_temperature derivativePart;
     long_temperature dutyLong;
     long_temperature dutyConstrained;
     uint16_t duty;
-    // make sure error does not overflow by calculating in steps
-    long_temperature fridgeErrorLong = cs.fridgeSetting;
-    fridgeErrorLong -= fridgeSensor -> readFastFiltered();
-    temperature fridgeError = constrainTemp16(fridgeErrorLong);
-    temperature fridgeDerivative = fridgeSensor -> readSlope();
-
     long_temperature  antiWindup = 0;
 
-    if (heating)
-    {
-        proportionalPart = multiplyFactorTemperatureDiff(cc.fridgePwmKpHeat / 4,
-                fridgeError);    // returns -64/+64, divide by 4 to make it fit for now
-        integralPart = multiplyFactorTemperatureDiff(cc.fridgePwmKiHeat,
-                fridgeIntegrator / 240); // also divide by 60, same as with tempControl PID
-        derivativePart = multiplyFactorTemperatureDiff(cc.fridgePwmKdHeat, fridgeDerivative);
-
-        dutyLong = proportionalPart + integralPart + derivativePart;
+    if(heating){
+        dutyLong = fridgePidResultHeat();
         dutyConstrained = constrainTemp(dutyLong, 0, intToTempDiff(255)/4);
         duty = tempDiffToInt(4*dutyConstrained); // scale back to integer
 
@@ -485,13 +498,7 @@ void TempControl::updateOutputs(void)
         }
     }
     else if (cooling){
-        proportionalPart = multiplyFactorTemperatureDiff(cc.fridgePwmKpCool / 4,
-                fridgeError);    // returns -64/+64, divide by 4 to make it fit for now
-        integralPart = multiplyFactorTemperatureDiff(cc.fridgePwmKiCool,
-                fridgeIntegrator / 240); // also divide by 60, same as with tempControl PID
-        derivativePart = multiplyFactorTemperatureDiff(cc.fridgePwmKdCool, fridgeDerivative);
-
-        dutyLong = proportionalPart + integralPart; // scale back
+        dutyLong = fridgePidResultCool();
         dutyConstrained = constrainTemp(dutyLong, -intToTempDiff(255)/4, 0);
         duty = -tempDiffToInt(4*dutyConstrained); // scale back to integer
 
@@ -520,6 +527,11 @@ void TempControl::updateOutputs(void)
         upper = doubleToTempDiff(5.0);
         lower = doubleToTempDiff(-1.0);
     }
+
+    long_temperature fridgeErrorLong = cs.fridgeSetting;
+    fridgeErrorLong -= fridgeSensor -> readFastFiltered();
+    temperature fridgeError = constrainTemp16(fridgeErrorLong);
+
     temperature integratorUpdate = constrainTemp(fridgeError + antiWindup, lower, upper);
     fridgeIntegrator += integratorUpdate;
 }
