@@ -110,22 +110,22 @@ ControlConstants const ccDefaults PROGMEM =
     // The delay time is 3.33 * 2^b * number of cascades
 
     /* fridgeFastFilter */
-    1u,
+    0u,
 
     /* fridgeSlowFilter */
-    4u,
+    2u,
 
     /* fridgeSlopeFilter */
-    3u,
+    2u,
 
     /* beerFastFilter */
-    3u,
+    1u,
 
     /* beerSlowFilter */
-    4u,
+    2u,
 
     /* beerSlopeFilter */
-    4u,
+    2u,
 
     /* lightAsHeater */
     0,
@@ -146,19 +146,19 @@ ControlConstants const ccDefaults PROGMEM =
     intToTempDiff(20),
 
     /* fridgePwmKiHeat */
-    intToTempDiff(10),
+    intToTempDiff(4),
 
     /* fridgePwmKpCool */
     intToTempDiff(20),
 
     /* fridgePwmKiCool */
-    intToTempDiff(10),
+    intToTempDiff(1),
 
     /* beerPwmKpHeat */
     intToTempDiff(20),
 
     /* beerPwmKiHeat */
-    intToTempDiff(10)
+    intToTempDiff(4)
 };
 
 TempControl::TempControl()
