@@ -146,19 +146,19 @@ ControlConstants const ccDefaults PROGMEM =
     180, // 3 minutes
 
     /* fridgePwmKpHeat */
-    intToTempDiff(20),
+    intToTempDiff(10),
 
     /* fridgePwmKiHeat */
     intToTempDiff(4),
 
     /* fridgePwmKpCool */
-    intToTempDiff(20),
+    intToTempDiff(10),
 
     /* fridgePwmKiCool */
     intToTempDiff(1),
 
     /* beerPwmKpHeat */
-    intToTempDiff(20),
+    intToTempDiff(10),
 
     /* beerPwmKiHeat */
     intToTempDiff(4)
