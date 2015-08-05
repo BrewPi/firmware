@@ -255,7 +255,12 @@ void TempControl::updatePID(void)
         }
 
         // fridge setting is calculated with PID algorithm. Beer temperature error is input to PID
-        cv.beerDiff  = cs.beerSetting - beerSensor -> readSlowFiltered();
+
+        // make sure error does not overflow by calculating in steps
+        long_temperature beerDiffLong = cs.beerSetting;
+        beerDiffLong -= beerSensor -> readFastFiltered();
+        cv.beerDiff = constrainTemp16(beerDiffLong);
+
         cv.beerSlope = beerSensor -> readSlope();
 
         temperature fridgeFastFiltered = fridgeSensor -> readFastFiltered();
@@ -438,7 +443,11 @@ void TempControl::updateOutputs(void)
     long_temperature dutyLong;
     long_temperature dutyConstrained;
     uint16_t duty;
-    temperature fridgeError = cs.fridgeSetting - fridgeSensor -> readFastFiltered();
+    // make sure error does not overflow by calculating in steps
+    long_temperature fridgeErrorLong = cs.fridgeSetting;
+    fridgeErrorLong -= fridgeSensor -> readFastFiltered();
+    temperature fridgeError = constrainTemp16(fridgeErrorLong);
+
     long_temperature  antiWindup = 0;
 
     if (heating)
@@ -448,7 +457,7 @@ void TempControl::updateOutputs(void)
         integralPart = multiplyFactorTemperatureDiff(cc.fridgePwmKiHeat,
                 fridgeIntegrator / 240); // also divide by 60, same as with tempControl PID
         dutyLong = proportionalPart + integralPart;
-        dutyConstrained = constrainTemp(dutyLong, 0, MAX_TEMP); // MAX_TEMP ~64
+        dutyConstrained = constrainTemp(dutyLong, 0, intToTempDiff(255)/4);
         duty = tempDiffToInt(4*dutyConstrained); // scale back to integer
         chamberHeater -> setPwm(duty);
         chamberCooler -> setPwm(0);
@@ -463,7 +472,7 @@ void TempControl::updateOutputs(void)
         integralPart = multiplyFactorTemperatureDiff(cc.fridgePwmKiCool,
                 fridgeIntegrator / 240); // also divide by 60, same as with tempControl PID
         dutyLong = proportionalPart + integralPart; // scale back
-        dutyConstrained = constrainTemp(dutyLong, MIN_TEMP, 0); // MIN_TEMP ~ -64
+        dutyConstrained = constrainTemp(dutyLong, -intToTempDiff(255)/4, 0);
         duty = -tempDiffToInt(4*dutyConstrained); // scale back to integer
         chamberCooler -> setPwm(duty);
         chamberHeater -> setPwm(0);
