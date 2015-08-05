@@ -519,10 +519,13 @@ const PiLink::JsonOutput PiLink::jsonOutputCCMap[] PROGMEM = {
 	JSON_OUTPUT_CC_MAP(minCoolIdleTime, JOCC_UINT16),
 	JSON_OUTPUT_CC_MAP(fridgePwmKpHeat, JOCC_TEMP_DIFF),
 	JSON_OUTPUT_CC_MAP(fridgePwmKiHeat, JOCC_TEMP_DIFF),
+	JSON_OUTPUT_CC_MAP(fridgePwmKdHeat, JOCC_TEMP_DIFF),
 	JSON_OUTPUT_CC_MAP(fridgePwmKpCool, JOCC_TEMP_DIFF),
     JSON_OUTPUT_CC_MAP(fridgePwmKiCool, JOCC_TEMP_DIFF),
+    JSON_OUTPUT_CC_MAP(fridgePwmKdCool, JOCC_TEMP_DIFF),
     JSON_OUTPUT_CC_MAP(beerPwmKpHeat, JOCC_TEMP_DIFF),
-    JSON_OUTPUT_CC_MAP(beerPwmKiHeat, JOCC_TEMP_DIFF)
+    JSON_OUTPUT_CC_MAP(beerPwmKiHeat, JOCC_TEMP_DIFF),
+    JSON_OUTPUT_CC_MAP(beerPwmKdHeat, JOCC_TEMP_DIFF)
 };
 
 void PiLink::sendJsonValues(char responseType, const JsonOutput* /*PROGMEM*/ jsonOutputMap, uint8_t mapCount) {
@@ -815,10 +818,13 @@ const PiLink::JsonParserConvert PiLink::jsonParserConverters[] PROGMEM = {
 	JSON_CONVERT(JSONKEY_minCoolIdleTime, &tempControl.cc.minCoolIdleTime, setUint16),
 	JSON_CONVERT(JSONKEY_fridgePwmKpHeat, &tempControl.cc.fridgePwmKpHeat, setStringToFixedPoint),
 	JSON_CONVERT(JSONKEY_fridgePwmKiHeat, &tempControl.cc.fridgePwmKiHeat, setStringToFixedPoint),
+	JSON_CONVERT(JSONKEY_fridgePwmKdHeat, &tempControl.cc.fridgePwmKdHeat, setStringToFixedPoint),
 	JSON_CONVERT(JSONKEY_fridgePwmKpCool, &tempControl.cc.fridgePwmKpCool, setStringToFixedPoint),
 	JSON_CONVERT(JSONKEY_fridgePwmKiCool, &tempControl.cc.fridgePwmKiCool, setStringToFixedPoint),
+	JSON_CONVERT(JSONKEY_fridgePwmKdCool, &tempControl.cc.fridgePwmKdCool, setStringToFixedPoint),
 	JSON_CONVERT(JSONKEY_beerPwmKpHeat, &tempControl.cc.beerPwmKpHeat, setStringToFixedPoint),
 	JSON_CONVERT(JSONKEY_beerPwmKiHeat, &tempControl.cc.beerPwmKiHeat, setStringToFixedPoint),
+	JSON_CONVERT(JSONKEY_beerPwmKdHeat, &tempControl.cc.beerPwmKdHeat, setStringToFixedPoint),
 
 	JSON_CONVERT(JSONKEY_fridgeFastFilter, MAKE_FILTER_SETTING_TARGET(FAST, FRIDGE), applyFilterSetting),
 	JSON_CONVERT(JSONKEY_fridgeSlowFilter, MAKE_FILTER_SETTING_TARGET(SLOW, FRIDGE), applyFilterSetting),

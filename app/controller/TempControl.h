@@ -75,10 +75,13 @@ struct ControlConstants{
     uint16_t minCoolIdleTime;
 	fixed7_9 fridgePwmKpHeat;
 	fixed7_9 fridgePwmKiHeat;
+	fixed7_9 fridgePwmKdHeat;
 	fixed7_9 fridgePwmKpCool;
     fixed7_9 fridgePwmKiCool;
+    fixed7_9 fridgePwmKdCool;
     fixed7_9 beerPwmKpHeat;
     fixed7_9 beerPwmKiHeat;
+    fixed7_9 beerPwmKdHeat;
 
 };
 

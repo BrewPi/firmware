@@ -146,22 +146,31 @@ ControlConstants const ccDefaults PROGMEM =
     180, // 3 minutes
 
     /* fridgePwmKpHeat */
-    intToTempDiff(10),
+    intToTempDiff(20),
 
     /* fridgePwmKiHeat */
-    intToTempDiff(4),
+    intToTempDiff(5),
+
+    /* fridgePwmKdHeat */
+    doubleToTempDiff(-0.5),
 
     /* fridgePwmKpCool */
-    intToTempDiff(10),
+    intToTempDiff(20),
 
     /* fridgePwmKiCool */
-    intToTempDiff(1),
+    intToTempDiff(2),
+
+    /* fridgePwmKdCool */
+    doubleToTempDiff(-0.5),
 
     /* beerPwmKpHeat */
     intToTempDiff(10),
 
     /* beerPwmKiHeat */
-    intToTempDiff(4)
+    intToTempDiff(4),
+
+    /* beerPwmKdHeat */
+    intToTempDiff(-1)
 };
 
 TempControl::TempControl()
@@ -443,6 +452,7 @@ void TempControl::updateOutputs(void)
 
     long_temperature proportionalPart;
     long_temperature integralPart;
+    long_temperature derivativePart;
     long_temperature dutyLong;
     long_temperature dutyConstrained;
     uint16_t duty;
@@ -450,6 +460,7 @@ void TempControl::updateOutputs(void)
     long_temperature fridgeErrorLong = cs.fridgeSetting;
     fridgeErrorLong -= fridgeSensor -> readFastFiltered();
     temperature fridgeError = constrainTemp16(fridgeErrorLong);
+    temperature fridgeDerivative = fridgeSensor -> readSlope();
 
     long_temperature  antiWindup = 0;
 
@@ -459,12 +470,16 @@ void TempControl::updateOutputs(void)
                 fridgeError);    // returns -64/+64, divide by 4 to make it fit for now
         integralPart = multiplyFactorTemperatureDiff(cc.fridgePwmKiHeat,
                 fridgeIntegrator / 240); // also divide by 60, same as with tempControl PID
-        dutyLong = proportionalPart + integralPart;
+        derivativePart = multiplyFactorTemperatureDiff(cc.fridgePwmKdHeat, fridgeDerivative);
+
+        dutyLong = proportionalPart + integralPart + derivativePart;
         dutyConstrained = constrainTemp(dutyLong, 0, intToTempDiff(255)/4);
         duty = tempDiffToInt(4*dutyConstrained); // scale back to integer
+
         chamberHeater -> setPwm(duty);
         chamberCooler -> setPwm(0);
-        antiWindup = dutyConstrained - dutyLong; // anti windup gain is 5* integral gain
+
+        antiWindup = dutyConstrained - dutyLong;
         if(antiWindup > 0){
             antiWindup = 0;
         }
@@ -474,12 +489,16 @@ void TempControl::updateOutputs(void)
                 fridgeError);    // returns -64/+64, divide by 4 to make it fit for now
         integralPart = multiplyFactorTemperatureDiff(cc.fridgePwmKiCool,
                 fridgeIntegrator / 240); // also divide by 60, same as with tempControl PID
+        derivativePart = multiplyFactorTemperatureDiff(cc.fridgePwmKdCool, fridgeDerivative);
+
         dutyLong = proportionalPart + integralPart; // scale back
         dutyConstrained = constrainTemp(dutyLong, -intToTempDiff(255)/4, 0);
         duty = -tempDiffToInt(4*dutyConstrained); // scale back to integer
+
         chamberCooler -> setPwm(duty);
         chamberHeater -> setPwm(0);
-        long_temperature antiWindup = dutyConstrained - dutyLong; // anti windup gain is 5* proportional gain
+
+        antiWindup = dutyConstrained - dutyLong;
         if(antiWindup < 0){
             antiWindup = 0;
         }

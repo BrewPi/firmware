@@ -62,10 +62,13 @@ static const char JSONKEY_minCoolTime[] PROGMEM = "minCoolTime";
 static const char JSONKEY_minCoolIdleTime[] PROGMEM = "minCoolIdleTime";
 static const char JSONKEY_fridgePwmKpHeat[] PROGMEM = "fPwmKpHeat";
 static const char JSONKEY_fridgePwmKiHeat[] PROGMEM = "fPwmKiHeat";
+static const char JSONKEY_fridgePwmKdHeat[] PROGMEM = "fPwmKdHeat";
 static const char JSONKEY_fridgePwmKpCool[] PROGMEM = "fPwmKpCool";
 static const char JSONKEY_fridgePwmKiCool[] PROGMEM = "fPwmKiCool";
+static const char JSONKEY_fridgePwmKdCool[] PROGMEM = "fPwmKdCool";
 static const char JSONKEY_beerPwmKpHeat[] PROGMEM = "bPwmKpHeat";
 static const char JSONKEY_beerPwmKiHeat[] PROGMEM = "bPwmKiHeat";
+static const char JSONKEY_beerPwmKdHeat[] PROGMEM = "bPwmKdHeat";
 
 // variable;
 static const char JSONKEY_beerDiff[] PROGMEM = "beerDiff";

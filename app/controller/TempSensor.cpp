@@ -69,7 +69,7 @@ void TempSensor::update()
 		else if(diff_upper < -27){
 			diff = (-27l << 16);
 		}
-		slopeFilter.addDoublePrecision(1200*diff); // Multiply by 1200 (1h/4s), shift to single precision
+		slopeFilter.addDoublePrecision(1200*diff); // Multiply by 1200 (1h/3s), shift to single precision
 		prevOutputForSlope = slowFilterOutput;
 		updateCounter = 3;
 	}
