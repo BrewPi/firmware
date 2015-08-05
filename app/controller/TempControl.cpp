@@ -489,8 +489,19 @@ void TempControl::updateOutputs(void)
         chamberHeater -> setPwm(0);
         chamberCooler -> setPwm(0);
     }
-    // prevent integral from growing too quickly (5 deg per minute)
-    temperature integratorUpdate = constrainTemp(fridgeError + antiWindup, doubleToTempDiff(-5.0), doubleToTempDiff(5.0));
+    // prevent integral from growing too quickly
+    // allow it to go to zero faster
+    temperature lower;
+    temperature upper;
+    if (fridgeIntegrator > 0){
+        upper = doubleToTempDiff(1.0);
+        lower = doubleToTempDiff(-5.0);
+    }
+    else{
+        upper = doubleToTempDiff(5.0);
+        lower = doubleToTempDiff(-1.0);
+    }
+    temperature integratorUpdate = constrainTemp(fridgeError + antiWindup, lower, upper);
     fridgeIntegrator += integratorUpdate;
 }
 
