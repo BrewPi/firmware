@@ -515,6 +515,8 @@ const PiLink::JsonOutput PiLink::jsonOutputCCMap[] PROGMEM = {
 	
 	JSON_OUTPUT_CC_MAP(heatPwmPeriod, JOCC_UINT16),
 	JSON_OUTPUT_CC_MAP(coolPwmPeriod, JOCC_UINT16),
+	JSON_OUTPUT_CC_MAP(minCoolTime, JOCC_UINT16),
+	JSON_OUTPUT_CC_MAP(minCoolIdleTime, JOCC_UINT16),
 	JSON_OUTPUT_CC_MAP(fridgePwmKpHeat, JOCC_TEMP_DIFF),
 	JSON_OUTPUT_CC_MAP(fridgePwmKiHeat, JOCC_TEMP_DIFF),
 	JSON_OUTPUT_CC_MAP(fridgePwmKpCool, JOCC_TEMP_DIFF),
@@ -809,6 +811,8 @@ const PiLink::JsonParserConvert PiLink::jsonParserConverters[] PROGMEM = {
 	
 	JSON_CONVERT(JSONKEY_heatPwmPeriod, &tempControl.cc.heatPwmPeriod, setUint16),
 	JSON_CONVERT(JSONKEY_coolPwmPeriod, &tempControl.cc.coolPwmPeriod, setUint16),
+	JSON_CONVERT(JSONKEY_minCoolTime, &tempControl.cc.minCoolTime, setUint16),
+	JSON_CONVERT(JSONKEY_minCoolIdleTime, &tempControl.cc.minCoolIdleTime, setUint16),
 	JSON_CONVERT(JSONKEY_fridgePwmKpHeat, &tempControl.cc.fridgePwmKpHeat, setStringToFixedPoint),
 	JSON_CONVERT(JSONKEY_fridgePwmKiHeat, &tempControl.cc.fridgePwmKiHeat, setStringToFixedPoint),
 	JSON_CONVERT(JSONKEY_fridgePwmKpCool, &tempControl.cc.fridgePwmKpCool, setStringToFixedPoint),

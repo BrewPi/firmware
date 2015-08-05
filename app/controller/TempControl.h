@@ -71,6 +71,8 @@ struct ControlConstants{
 	temperature pidMax;
     uint16_t heatPwmPeriod;
     uint16_t coolPwmPeriod;
+    uint16_t minCoolTime;
+    uint16_t minCoolIdleTime;
 	fixed7_9 fridgePwmKpHeat;
 	fixed7_9 fridgePwmKiHeat;
 	fixed7_9 fridgePwmKpCool;

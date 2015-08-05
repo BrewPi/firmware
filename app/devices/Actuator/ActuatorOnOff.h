@@ -31,16 +31,16 @@ class ActuatorOnOff:
 {
     public:
         ActuatorOnOff(Actuator * _target,
-                      uint16_t   minOnTime = 120,
-                      uint16_t   minOffTime = 300,
-                      uint16_t   maxOnTime = UINT16_MAX) : DriverActuator(_target)
+                      uint16_t   _minOnTime = 120,
+                      uint16_t   _minOffTime = 180,
+                      uint16_t   _maxOnTime = UINT16_MAX) : DriverActuator(_target)
         {
-            this -> minOnTime  = minOnTime;
-            this -> minOffTime = minOffTime;
-            this -> maxOnTime  = maxOnTime;
-            this -> target     = _target;
-            this -> toggleTime = 0;
-            this -> active     = _target -> isActive();
+            minOnTime  = _minOnTime;
+            minOffTime = _minOffTime;
+            maxOnTime  = _maxOnTime;
+            target     = _target;
+            toggleTime = 0;
+            active     = _target -> isActive();
         }
 
         virtual ~ActuatorOnOff(){}
@@ -57,7 +57,13 @@ class ActuatorOnOff:
         void write(uint8_t val){
             setActive(val != 0);
         }
-
+        void setTimes(uint16_t   _minOnTime,
+                      uint16_t   _minOffTime,
+                      uint16_t   _maxOnTime = UINT16_MAX){
+            minOnTime = _minOnTime;
+            minOffTime = _minOffTime;
+            maxOnTime = _maxOnTime;
+        }
         ticks_seconds_t timeSinceToggle(void);
 
     private:

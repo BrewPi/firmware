@@ -137,7 +137,13 @@ ControlConstants const ccDefaults PROGMEM =
     4, // 4 seconds
 
     /* coolPwmPeriod */
-    600, // 10 minutes
+    600, // 1 minutes
+
+    /* minCoolTime*/
+    120, // 2 minutes
+
+    /* minCoolIdleTime*/
+    180, // 3 minutes
 
     /* fridgePwmKpHeat */
     intToTempDiff(20),
@@ -192,7 +198,7 @@ void TempControl::init(void)
 
     if (chamberCooler == NULL)
     {
-        chamberCoolerLimiter = new ActuatorOnOff(&defaultActuator); // time limited actuator
+        chamberCoolerLimiter = new ActuatorOnOff(&defaultActuator, ccDefaults.minCoolTime, ccDefaults.minCoolIdleTime); // time limited actuator
         chamberCooler = new ActuatorPwm(chamberCoolerLimiter, ccDefaults.coolPwmPeriod);
     }
 
@@ -493,7 +499,6 @@ void TempControl::updatePwm(void)
     chamberHeater -> updatePwm();
     chamberCooler -> updatePwm();
     beerHeater -> updatePwm();
-
 }
 
 tcduration_t TempControl::timeSinceCooling(void)
@@ -535,6 +540,7 @@ void TempControl::loadConstants(eptr_t offset)
     chamberHeater -> setPeriod(cc.heatPwmPeriod);
     beerHeater -> setPeriod(cc.heatPwmPeriod);
     chamberCooler -> setPeriod(cc.coolPwmPeriod);
+    chamberCoolerLimiter -> setTimes(cc.minCoolTime, cc.minCoolIdleTime);
 }
 
 // write new settings to EEPROM to be able to reload them after a reset
