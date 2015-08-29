@@ -195,7 +195,7 @@ class DS2413:
          */
         uint8_t senseMask(pio_t pio)
         {
-            return pio ? 0x3 : 0x1;    // assumes pio is either 0 or 1, which translates to masks 0x1 and 0x3
+            return pio ? 0x4 : 0x1;    // assumes pio is either 0 or 1, which translates to masks 0x1 and 0x3
         }
 
         /*
