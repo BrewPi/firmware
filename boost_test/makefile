@@ -1,8 +1,8 @@
 ## -*- Makefile -*-
 
-CCC = gcc
-CXX = g++
-LD = g++
+CCC = mingw32-gcc
+CXX = mingw32-g++
+LD = mingw32-g++
 CFLAGS = -g
 CCFLAGS = $(CFLAGS)
 CXXFLAGS = $(CFLAGS)

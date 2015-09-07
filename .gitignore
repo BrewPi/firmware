@@ -8,3 +8,4 @@ test/obj/
 *.o
 *.d
 .settings/
+*.pyc
