@@ -20,6 +20,11 @@ ticks_millis_t random_delay(int max);
 using namespace std;
 using namespace boost;
 
+static inline std::string boost_test_name(void){
+    return std::string(boost::unit_test::framework::current_test_case().p_name);
+}
+
+
 // #include <boost/test/output_test_stream.hpp>
 // boost::test_tools::output_test_stream output;
 

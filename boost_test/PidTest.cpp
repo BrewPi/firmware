@@ -26,6 +26,8 @@
 #include "Actuator.h"
 #include "ActuatorPwm.h"
 #include "runner.h"
+#include <iostream>
+#include <fstream>
 
 
 struct PidTest {
@@ -181,15 +183,15 @@ BOOST_FIXTURE_TEST_CASE(lag_time_for_simulation, FridgeSim)
     pid->setSetPoint(20.0);
     pid->setAutoTune(false);
 
-    output << "result = [";
+    ofstream csv("./test_results/" + boost_test_name() + ".csv");
+    csv << "beer, air, actuator" << endl;
     for(int t = 0; t < 5000; t++){
         pid->update();
         temp outputVal = act->readValue();
         updateSim(outputVal);
-        output << beerTemp << "," << airTemp << "," << outputVal << "; \n";
-
+        csv << beerTemp << "," << airTemp << "," << outputVal << endl;
     }
-    output << "]; plot(result)";
+    csv.close();
     BOOST_TEST_MESSAGE("output lag is " << pid->getOutputLag());
     BOOST_TEST_MESSAGE("max derivative is " << pid->getMaxDerivative());
 }

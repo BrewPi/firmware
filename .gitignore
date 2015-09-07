@@ -9,3 +9,5 @@ test/obj/
 *.d
 .settings/
 *.pyc
+test_results/*.csv
+.idea/
