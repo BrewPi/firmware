@@ -27,6 +27,9 @@ Pid::Pid(BasicTempSensor * input,
     setConstants(temp(10.0), temp(0.2), temp(-1.5));
     setMinMax(temp::min(), temp::max());
 
+    p = 0;
+    i = 0;
+    d = 0;
     error           = 0;
     derivative      = 0;
     integral        = 0;
@@ -35,10 +38,11 @@ Pid::Pid(BasicTempSensor * input,
     setInputSensor(input);
     setOutputActuator(output);
 
-    autotune = true;
+    autotune = false;
     tuning = false;
     outputLag = 0;
     maxDerivative = 0.0;
+    setPoint = temp::invalid_val;
 }
 
 Pid::~Pid(){}
@@ -56,6 +60,11 @@ void Pid::setConstants(temp kp,
 void Pid::update()
 {
     temp inputVal;
+    bool disable = false;
+
+    if( setPoint.isDisabledOrInvalid()){
+        disable = true;
+    }
 
     if (!inputSensor || (inputVal = inputSensor -> read()).isDisabledOrInvalid()){
         // Could not read from input sensor
@@ -76,11 +85,18 @@ void Pid::update()
             }
         } else{
             if (failedReadCount > 60){
-                outputActuator -> setActive(false);
+                disable = true;
             }
-
-            return;
         }
+    }
+
+    if ( disable ){
+        error = 0;
+        p = 0;
+        i = 0;
+        d = 0;
+        outputActuator -> setActive(false);
+        return;
     }
 
     inputFilter.add(inputVal);
@@ -109,18 +125,26 @@ void Pid::update()
     // pidResult - output is zero when actuator is not saturated
     integral = integral + error + Ka * (output - pidResult);
 
-    static uint16_t lagTimer = 0;
     if(autotune){
-        temp min = outputActuator->min();
-        temp max = outputActuator->max();
-        temp tuningThreshold = (max >> uint8_t(1)) + (min >> uint8_t(1));
+        tune();
+    }
+}
 
-        // tune only when driving the output hard enough
-        tuning = (output > tuningThreshold);
-    }
-    else{
-        tuning = false;
-    }
+void Pid::tune(){
+    static uint16_t lagTimer = 0;
+
+    temp min = outputActuator->min();
+    temp max = outputActuator->max();
+    temp tuningThreshold = (max >> uint8_t(1)) + (min >> uint8_t(1)); // (min + max) / 2
+
+
+
+    // tune only when driving the output hard enough
+    tuning = (outputActuator->readValue() > tuningThreshold);
+
+    // Detect when at max derivative, the time until this happens is the lag time
+    // Together with the maximum derivative, this is used to determine the PID parameters
+
     if(tuning){
         if(derivativeFilter.detectPosPeak(&maxDerivative)){
             uint16_t filterDelay = derivativeFilter.getDelay();
@@ -130,11 +154,26 @@ void Pid::update()
             inputFilter.setFilteringForDelay(outputLag/2);
             derivativeFilter.setFilteringForDelay(outputLag/2);
             tuning = false;
+
+            // set PID constants to Ziegler-Nichols tuned settings for a decay ratio of 0.25
+
+            temp_long RL = (temp_long(outputLag) * derivative);
+            if (RL < temp_long(1.0)){ // prevent divide by zero
+                Kp = 255.0;
+            }
+            else{
+                Kp = temp_long(255.0*1.2) / RL;
+            }
+
+            Ki = temp_long(2*255*outputLag);
+            Kd = temp_long(255/2*outputLag);
         }
-        lagTimer++;
+        else{
+            lagTimer++;
+        }
     }
     else{
-        lagTimer = 0;
+        lagTimer= 0;
     }
 }
 

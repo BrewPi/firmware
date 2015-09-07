@@ -65,13 +65,19 @@ class Pid
 
         temp_precise getMaxDerivative(){ return maxDerivative; };
 
+        bool isTuning(){ return tuning; };
+
+        void tune();
+
+        void setAutoTune(bool doTune) { autotune = doTune; };
+
     protected:
         LinearActuator *  outputActuator;
         BasicTempSensor * inputSensor;
-        temp              Kp;    // proportional gain
-        temp              Ki;    // integral gain
-        temp              Kd;    // derivative gain
-        temp              Ka;    // integrator anti windup gain
+        temp_long         Kp;    // proportional gain
+        temp_long         Ki;    // integral gain
+        temp_long         Kd;    // derivative gain
+        temp_long         Ka;    // integrator anti windup gain
         temp              min;
         temp              max;
         temp              setPoint;

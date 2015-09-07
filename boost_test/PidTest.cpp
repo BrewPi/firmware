@@ -158,6 +158,7 @@ BOOST_FIXTURE_TEST_CASE(lag_time_max_slope_detection, PidTest)
 {
     pid->setConstants(50.0, 0.0, 0.0);
     pid->setSetPoint(20.0);
+    pid->setAutoTune(true);
 
     // rise temp from 10 to 20 as cosine with period 600. Max slope should occur at 150 + filter lag (9)
     // max slope should be pi: 5*2*pi/600 * 60 (slope is per minute).
@@ -175,16 +176,20 @@ BOOST_FIXTURE_TEST_CASE(lag_time_max_slope_detection, PidTest)
 // Test heating fridge air based on beer temperature (non-cascaded control)
 BOOST_FIXTURE_TEST_CASE(lag_time_for_simulation, FridgeSim)
 {
+
     pid->setConstants(100.0, 0.0, 0.0);
     pid->setSetPoint(20.0);
+    pid->setAutoTune(false);
 
-    output << "beer = [";
-    for(int t = 0; t < 1000; t++){
+    output << "result = [";
+    for(int t = 0; t < 5000; t++){
         pid->update();
-        updateSim(act->readValue());
-        output << beerTemp << ",\n";
+        temp outputVal = act->readValue();
+        updateSim(outputVal);
+        output << beerTemp << "," << airTemp << "," << outputVal << "; \n";
+
     }
-    output << "]";
+    output << "]; plot(result)";
     BOOST_TEST_MESSAGE("output lag is " << pid->getOutputLag());
     BOOST_TEST_MESSAGE("max derivative is " << pid->getMaxDerivative());
 }
