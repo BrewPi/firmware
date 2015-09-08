@@ -30,7 +30,7 @@ Pid::Pid(BasicTempSensor * input,
     p = 0;
     i = 0;
     d = 0;
-    error           = 0;
+    inputError           = 0;
     derivative      = 0;
     integral        = 0;
     failedReadCount = 0;
@@ -47,14 +47,13 @@ Pid::Pid(BasicTempSensor * input,
 
 Pid::~Pid(){}
 
-void Pid::setConstants(temp kp,
-                       temp ki,
-                       temp kd)
+void Pid::setConstants(temp_long kp,
+                       temp_long ki,
+                       temp_long kd)
 {
     Kp = kp;
     Ki = ki;
     Kd = kd;
-    Ka = temp(5.0) * Kp;
 }
 
 void Pid::update()
@@ -91,7 +90,7 @@ void Pid::update()
     }
 
     if ( disable ){
-        error = 0;
+        inputError = 0;
         p = 0;
         i = 0;
         d = 0;
@@ -101,7 +100,7 @@ void Pid::update()
 
     inputFilter.add(inputVal);
 
-    error = setPoint - inputFilter.readOutput();
+    inputError = setPoint - inputFilter.readOutput();
 
     temp_precise delta = inputFilter.readOutput() - inputFilter.readPrevOutput();
     derivativeFilter.add(delta * temp_precise(60.0)); // use slope per minute
@@ -109,7 +108,7 @@ void Pid::update()
     derivative = derivativeFilter.readOutput();
 
     // calculate PID parts.
-    p = Kp * error;
+    p = Kp * inputError;
     i = Ki * integral / temp_long(60.0); // from the user's perspective, the integral is per minute
     d = Kd * derivative;
 
@@ -121,9 +120,13 @@ void Pid::update()
     // get actual value from actuator
     output = outputActuator->readValue();
 
+    integral = integral + inputError;
+
     // update integral with anti-windup back calculation
     // pidResult - output is zero when actuator is not saturated
-    integral = integral + error + Ka * (output - pidResult);
+    temp_long antiWindup = (pidResult - output);
+
+    integral = integral - antiWindup;
 
     if(autotune){
         tune();
@@ -179,9 +182,9 @@ void Pid::tune(){
 
 void Pid::setSetPoint(temp val)
 {
-    if ((val - setPoint) > temp(0.25)){
+    /*if ((val - setPoint) > temp(0.25)){
         integral = 0;    // reset integrator for big jumps in setpoint
-    }
+    }*/
 
     setPoint = val;
 }

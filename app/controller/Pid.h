@@ -42,9 +42,9 @@ class Pid
 
         void setSetPoint(temp val);
 
-        void setConstants(temp kp,
-                          temp ki,
-                          temp kd);
+        void setConstants(temp_long kp,
+                          temp_long ki,
+                          temp_long kd);
 
         void setFiltering(uint8_t b);
 
@@ -71,20 +71,20 @@ class Pid
 
         void setAutoTune(bool doTune) { autotune = doTune; };
 
-    protected:
+//    protected:
+    public:
         LinearActuator *  outputActuator;
         BasicTempSensor * inputSensor;
         temp_long         Kp;    // proportional gain
         temp_long         Ki;    // integral gain
         temp_long         Kd;    // derivative gain
-        temp_long         Ka;    // integrator anti windup gain
         temp              min;
         temp              max;
         temp              setPoint;
-        temp              p;
-        temp              i;
-        temp              d;
-        temp              error;
+        temp              inputError;
+        temp_long         p;
+        temp_long         i;
+        temp_long         d;
         temp_precise      derivative;
         temp_long         integral;
         FilterCascaded    inputFilter;

@@ -62,26 +62,32 @@ public:
 struct FridgeSim : public PidTest {
     double airTemp = 20.0;
     double beerTemp = 19.0;
-    double envTemp = 20.0;
+    double envTemp = 18.0;
 
-    double airCapacity = 1.0035 * 1.225 * 0.200; // heat capacity of dry air * density of air * 200L volume (in kJ per kelvin).
+    double airCapacity = 5 * 1.0035 * 1.225 * 0.200; // 5 * heat capacity of dry air * density of air * 200L volume (in kJ per kelvin).
     double beerCapacity = 4.2 * 1.0 * 20; // heat capacity water * density of water * 20L volume (in kJ per kelvin).
 
     double heaterPower = 0.3; // 300W, in kW.
 
-    double envAirTransfer= 0.001;
-    double airBeerTransfer= 0.001;
+    double envAirTransfer= 0.01;
+    double airBeerTransfer= 0.02;
 
     double airEnergy = airTemp * airCapacity;
     double beerEnergy = beerTemp * beerCapacity;
 
     void updateSim(temp actuatorValue){ // input 1-100
-        airTemp += heaterPower * double(actuatorValue) / (100.0 * airCapacity);
+        double airTempNew = airTemp;
+        double beerTempNew = beerTemp;
+        airTempNew += heaterPower * double(actuatorValue) / (100.0 * airCapacity);
 
-        airTemp += (envTemp - airTemp) * envAirTransfer;
+        airTempNew += (envTemp - airTemp) * envAirTransfer;
 
-        airTemp += (beerTemp - airTemp) * airBeerTransfer / airCapacity;
-        beerTemp += (airTemp - beerTemp) * airBeerTransfer / beerCapacity;
+        airTempNew += (beerTemp - airTemp) * airBeerTransfer / airCapacity;
+        beerTempNew += (airTemp - beerTemp) * airBeerTransfer / beerCapacity;
+
+        airTemp = airTempNew;
+        beerTemp = beerTempNew;
+
         sensor->setTemp(beerTemp);
     }
 };
@@ -176,24 +182,27 @@ BOOST_FIXTURE_TEST_CASE(lag_time_max_slope_detection, PidTest)
 }
 
 // Test heating fridge air based on beer temperature (non-cascaded control)
-BOOST_FIXTURE_TEST_CASE(lag_time_for_simulation, FridgeSim)
+BOOST_FIXTURE_TEST_CASE(double_step_response_simulation, FridgeSim)
 {
-
-    pid->setConstants(100.0, 0.0, 0.0);
-    pid->setSetPoint(20.0);
+    pid->setConstants(100.0, 10.0, 0.0);
     pid->setAutoTune(false);
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "beer, air, actuator" << endl;
-    for(int t = 0; t < 5000; t++){
+    csv << "setPoint, error, beer, air, actuator, p, i, d" << endl;
+    double setPoint = 20;
+    for(int t = 0; t < 10000; t++){
+        if(t==2500){
+            setPoint = 24;
+        }
+        pid->setSetPoint(setPoint);
         pid->update();
+
         temp outputVal = act->readValue();
         updateSim(outputVal);
-        csv << beerTemp << "," << airTemp << "," << outputVal << endl;
+        csv << setPoint << "," << (beerTemp - setPoint) << "," << beerTemp << "," << airTemp <<
+                "," << outputVal << "," << pid->p << "," << pid->i << "," << pid->d << endl;
     }
     csv.close();
-    BOOST_TEST_MESSAGE("output lag is " << pid->getOutputLag());
-    BOOST_TEST_MESSAGE("max derivative is " << pid->getMaxDerivative());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
