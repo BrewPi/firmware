@@ -169,7 +169,7 @@ BOOST_FIXTURE_TEST_CASE(auto_tuning_test, PidTest)
     pid->setAutoTune(true);
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setpoint, sensor, output lag, max derivative, actuator, p, i, d" << endl;
+    csv << "setpoint, sensor, output lag, max derivative, actuator, p, i, d, Kp, Ki, Kd" << endl;
 
     // rise temp from 20 to 30, with a delayed response
     for(int t = -50; t < 600; t++){
@@ -200,7 +200,8 @@ BOOST_FIXTURE_TEST_CASE(auto_tuning_test, PidTest)
         pid->update();
         csv << pid->getSetPoint() << ", " << sensorVal << ", " <<
                 pid->getOutputLag() << ",  "<< pid->getMaxDerivative() << ", " <<
-                act->readValue() << "," << pid->p << "," << pid->i << "," << pid->d << endl;
+                act->readValue() << "," << pid->p << "," << pid->i << "," << pid->d << "," <<
+                pid->Kp << "," << pid->Ki << "," << pid-> Kd << endl;
     }
     csv.close();
 
@@ -219,17 +220,17 @@ BOOST_FIXTURE_TEST_CASE(auto_tuning_test, PidTest)
     // Keep in mind that actuators outputs are 0-100 and derivative and integral are per minute
     BOOST_CHECK_CLOSE(double(pid->Kp) , 100 * 1.2/(6.0 * 2.5), 2);
     BOOST_CHECK_CLOSE(double(pid->Ki), double(pid->Kp) / (2 * 2.5), 2);
-    BOOST_CHECK_CLOSE(double(pid->Kd), double(pid->Kp) * 0.5 * 2.5, 2);
+    BOOST_CHECK_CLOSE(double(pid->Kd), double(pid->Kp) * -0.5 * 2.5, 2);
 }
 
 // Test heating fridge air based on beer temperature (non-cascaded control)
 BOOST_FIXTURE_TEST_CASE(double_step_response_simulation, FridgeSim)
 {
     pid->setConstants(100.0, 10.0, 0.0);
-    pid->setAutoTune(false);
+    pid->setAutoTune(true);
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setPoint, error, beer, air, actuator, p, i, d" << endl;
+    csv << "setPoint, error, beer, air, actuator, p, i, d, Kp, Ki, Kd" << endl;
     double setPoint = 20;
     for(int t = 0; t < 10000; t++){
         if(t==2500){
@@ -241,7 +242,8 @@ BOOST_FIXTURE_TEST_CASE(double_step_response_simulation, FridgeSim)
         temp outputVal = act->readValue();
         updateSim(outputVal);
         csv << setPoint << "," << (beerTemp - setPoint) << "," << beerTemp << "," << airTemp <<
-                "," << outputVal << "," << pid->p << "," << pid->i << "," << pid->d << endl;
+                "," << outputVal << "," << pid->p << "," << pid->i << "," << pid->d << ", " <<
+                pid->Kp << "," << pid->Ki << "," << pid-> Kd << endl;
     }
     csv.close();
 }

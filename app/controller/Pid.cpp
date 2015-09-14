@@ -115,6 +115,8 @@ void Pid::update()
     temp_long pidResult = temp_long(p) + temp_long(i) + temp_long(d);
     temp      output    = pidResult;    // will be constrained to -128/128 here
 
+    temp previousOutput = outputActuator->readValue();
+
     outputActuator -> setValue(output);
 
     // get actual value from actuator
@@ -127,11 +129,11 @@ void Pid::update()
     integral = integral + Ki * (inputError - antiWindup) / temp_long(60);
 
     if(autotune){
-        tune();
+        tune(output, previousOutput);
     }
 }
 
-void Pid::tune(){
+void Pid::tune(temp output, temp previousOutput){
     static uint16_t lagTimer = 0;
     static temp tuningStartTemp = inputFilter.readOutput();
 
@@ -139,10 +141,11 @@ void Pid::tune(){
     temp max = outputActuator->max();
     temp tuningThreshold = (max >> uint8_t(1)) + (min >> uint8_t(1)); // (min + max) / 2
 
-
-
-    // tune only when driving the output hard enough
-    tuning = (outputActuator->readValue() > tuningThreshold);
+    if(output == outputActuator->max() && previousOutput < tuningThreshold){
+        tuning = true; // only start tuning at a big step to the maximum output
+    }
+    // cancel tuning when the output is under the tuning threshold before maximum derivative is detected
+    tuning = tuning & (output > tuningThreshold);
 
     // Detect when at max derivative, the time until this happens is the lag time
     // Together with the maximum derivative, this is used to determine the PID parameters
@@ -156,7 +159,13 @@ void Pid::tune(){
 
             temp_long lag = temp_long(timeToMaxDerivative) / temp_long(60.0); // derivative and integral are per minute, scale back here
             temp_long riseTime = (inputFilter.readOutput() - tuningStartTemp)  / derivative;
+            if(riseTime < temp_long(0)){
+                riseTime = 0.0;
+            }
             lag = lag - riseTime; // rise time is not part of the lag
+            if(lag < temp_long(0)){
+                lag = 0.0;
+            }
 
             outputLag =  uint16_t(lag * temp_long(60)); // store outputlag in seconds
 
@@ -168,8 +177,14 @@ void Pid::tune(){
                 Kp = temp_long(100.0*1.2) / RL;
             }
 
-            Ki = Kp/(lag+lag);
-            Kd = Kp*lag*temp_long(0.5);
+            Kd = Kp*lag*temp_long(-0.5);
+
+            if(lag > temp_long(2)){
+                Ki = Kp/(lag+lag);
+            }
+            else{
+                Ki = Kp*temp_long(0.25);
+            }
 
             // The delay time of the filter is the time it takes to rise to 0.5 in a step response
             // This is almost the same as the rise time here. Set the filters so that they can track the fastest rise
@@ -181,7 +196,9 @@ void Pid::tune(){
             tuning = false; // tuning ready
         }
         else{
-            lagTimer++;
+            if(lagTimer < UINT16_MAX){
+                lagTimer++;
+            }
         }
     }
     else{

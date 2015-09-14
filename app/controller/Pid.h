@@ -69,7 +69,7 @@ class Pid
 
         bool isTuning(){ return tuning; };
 
-        void tune();
+        void tune(temp output, temp previousOutput);
 
         void setAutoTune(bool doTune) { autotune = doTune; };
 
