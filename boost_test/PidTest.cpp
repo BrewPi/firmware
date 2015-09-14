@@ -140,7 +140,7 @@ BOOST_FIXTURE_TEST_CASE(just_integral, PidTest)
     }
 
     // integrator result is error * Ki, per minute. So 10 minutes * 1 degree error * 5 = 50.0
-    BOOST_CHECK_CLOSE(double(act->readValue()), 50.0, 1);
+    BOOST_CHECK_CLOSE(double(act->readValue()), 50.0, 2);
 }
 
 BOOST_FIXTURE_TEST_CASE(just_derivative, PidTest)

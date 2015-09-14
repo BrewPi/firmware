@@ -109,7 +109,7 @@ void Pid::update()
 
     // calculate PID parts.
     p = Kp * inputError;
-    i = Ki * integral / temp_long(60.0); // from the user's perspective, the integral is per minute
+    i = integral; // integral is fed with Ki*error
     d = Kd * derivative;
 
     temp_long pidResult = temp_long(p) + temp_long(i) + temp_long(d);
@@ -120,13 +120,11 @@ void Pid::update()
     // get actual value from actuator
     output = outputActuator->readValue();
 
-    integral = integral + inputError;
-
     // update integral with anti-windup back calculation
     // pidResult - output is zero when actuator is not saturated
     temp_long antiWindup = (pidResult - output);
 
-    integral = integral - antiWindup;
+    integral = integral + Ki * (inputError - antiWindup) / temp_long(60);
 
     if(autotune){
         tune();
