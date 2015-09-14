@@ -61,7 +61,7 @@ public:
 
 struct FridgeSim : public PidTest {
     double airTemp = 20.0;
-    double beerTemp = 19.0;
+    double beerTemp = 20.0;
     double envTemp = 18.0;
 
     double airCapacity = 5 * 1.0035 * 1.225 * 0.200; // 5 * heat capacity of dry air * density of air * 200L volume (in kJ per kelvin).
@@ -75,7 +75,7 @@ struct FridgeSim : public PidTest {
     double airEnergy = airTemp * airCapacity;
     double beerEnergy = beerTemp * beerCapacity;
 
-    void updateSim(temp actuatorValue){ // input 1-100
+    void updateSimBeerControl(temp actuatorValue){ // input 1-100
         double airTempNew = airTemp;
         double beerTempNew = beerTemp;
         airTempNew += heaterPower * double(actuatorValue) / (100.0 * airCapacity);
@@ -89,6 +89,22 @@ struct FridgeSim : public PidTest {
         beerTemp = beerTempNew;
 
         sensor->setTemp(beerTemp);
+    }
+
+    void updateSimFridgeControl(temp actuatorValue){ // input 1-100
+       double airTempNew = airTemp;
+       double beerTempNew = beerTemp;
+       airTempNew += heaterPower * double(actuatorValue) / (100.0 * airCapacity);
+
+       airTempNew += (envTemp - airTemp) * envAirTransfer;
+
+       airTempNew += (beerTemp - airTemp) * airBeerTransfer / airCapacity;
+       beerTempNew += (airTemp - beerTemp) * airBeerTransfer / beerCapacity;
+
+       airTemp = airTempNew;
+       beerTemp = beerTempNew;
+
+       sensor->setTemp(airTempNew);
     }
 };
 
@@ -224,14 +240,14 @@ BOOST_FIXTURE_TEST_CASE(auto_tuning_test, PidTest)
 }
 
 // Test heating fridge air based on beer temperature (non-cascaded control)
-BOOST_FIXTURE_TEST_CASE(double_step_response_simulation, FridgeSim)
+BOOST_FIXTURE_TEST_CASE(double_step_response_beer_control, FridgeSim)
 {
     pid->setConstants(100.0, 10.0, 0.0);
     pid->setAutoTune(true);
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setPoint, error, beer, air, actuator, p, i, d, Kp, Ki, Kd" << endl;
-    double setPoint = 20;
+    csv << "setPoint, error, beer, air, actuator, p, i, d" << endl;
+    double setPoint = 21;
     for(int t = 0; t < 10000; t++){
         if(t==2500){
             setPoint = 24;
@@ -240,8 +256,35 @@ BOOST_FIXTURE_TEST_CASE(double_step_response_simulation, FridgeSim)
         pid->update();
 
         temp outputVal = act->readValue();
-        updateSim(outputVal);
+        updateSimBeerControl(outputVal);
         csv << setPoint << "," << (beerTemp - setPoint) << "," << beerTemp << "," << airTemp <<
+                "," << outputVal << "," << pid->p << "," << pid->i << "," << pid->d << endl;
+    }
+    csv.close();
+}
+
+// Test heating fridge air based on fridge temperature (non-cascaded control)
+BOOST_FIXTURE_TEST_CASE(double_step_response_fridge_control, FridgeSim)
+{
+    pid->setConstants(20.0, 5.0, 0.0);
+    pid->setAutoTune(false);
+
+    ofstream csv("./test_results/" + boost_test_name() + ".csv");
+    csv << "setPoint, error, beer, air, actuator, p, i, d, Kp, Ki, Kd" << endl;
+    double setPoint = 20;
+    for(int t = 0; t < 10000; t++){
+        if(t==500){
+            setPoint = 21;
+        }
+        if(t==2500){
+            setPoint = 24;
+        }
+        pid->setSetPoint(setPoint);
+        pid->update();
+
+        temp outputVal = act->readValue();
+        updateSimFridgeControl(outputVal);
+        csv << setPoint << "," << (airTemp - setPoint) << "," << beerTemp << "," << airTemp <<
                 "," << outputVal << "," << pid->p << "," << pid->i << "," << pid->d << ", " <<
                 pid->Kp << "," << pid->Ki << "," << pid-> Kd << endl;
     }
