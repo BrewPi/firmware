@@ -162,23 +162,64 @@ BOOST_FIXTURE_TEST_CASE(just_derivative, PidTest)
 }
 
 
-BOOST_FIXTURE_TEST_CASE(lag_time_max_slope_detection, PidTest)
+BOOST_FIXTURE_TEST_CASE(auto_tuning_test, PidTest)
 {
     pid->setConstants(50.0, 0.0, 0.0);
     pid->setSetPoint(20.0);
     pid->setAutoTune(true);
 
-    // rise temp from 10 to 20 as cosine with period 600. Max slope should occur at 150 + filter lag (9)
-    // max slope should be pi: 5*2*pi/600 * 60 (slope is per minute).
-    for(int t = 0; t < 600; t++){
-        sensor->setTemp(temp(15.0 - 5 * cos(2*M_PI*double(t)/600)));
-        pid->update();
-    }
+    ofstream csv("./test_results/" + boost_test_name() + ".csv");
+    csv << "setpoint, sensor, output lag, max derivative, actuator, p, i, d" << endl;
 
-    BOOST_CHECK_CLOSE(double(pid->getOutputLag()), 159.0, 5);
-    BOOST_CHECK_CLOSE(double(pid->getMaxDerivative()), 3.14, 1);
-    BOOST_CHECK_EQUAL(pid->getFiltering(), 2); // filter delay has been adjusted to b=2, delay time 39
-                                               // b=3, delay time 88, is more then lagTime/2
+    // rise temp from 20 to 30, with a delayed response
+    for(int t = -50; t < 600; t++){
+        // step response from 10 to 20 degrees with delay and slow transition
+        // rises from 20 at t=200 to 30 at t=300
+        // maximum derivative is 0.1 at t=250 and sensorVal=25
+        // rise time is 50
+        // the setpoint changes at 50, so the detected delay should be 150
+
+
+        if(t==0){
+            pid->setSetPoint(30.0);
+        }
+
+        temp sensorVal;
+        if(t <= 100){
+            sensorVal = 20;
+        }
+        else if(t <= 300){
+            double t_ = 0.01*(t-200); // scale so transition is at 200
+            sensorVal = 25 + 10 * t_ / (1 + ( t_* t_ ));
+        }
+        else{
+            sensorVal = 30;
+        }
+
+        sensor->setTemp(sensorVal);
+        pid->update();
+        csv << pid->getSetPoint() << ", " << sensorVal << ", " <<
+                pid->getOutputLag() << ",  "<< pid->getMaxDerivative() << ", " <<
+                act->readValue() << "," << pid->p << "," << pid->i << "," << pid->d << endl;
+    }
+    csv.close();
+
+    BOOST_CHECK_CLOSE(double(pid->getOutputLag()), 150, 1);
+    BOOST_CHECK_CLOSE(double(pid->getMaxDerivative()), 0.1 * 60, 1); // derivative is per minute
+    BOOST_CHECK_EQUAL(pid->getFiltering(), 1); // filter delay has been adjusted to b=1, delay time 20
+                                               // b=2, delay time 43, is more then 1/2 the rise time
+
+    // For Ziegler-Nichols tuning for a decay ratio of 0.25, the following conditions should be true:
+    // R = maximum derivative = 10 degrees / 100s = 0.1 deg/s = 6 deg/min
+    // L = lag time = 150s = 2.5 min
+    // Kp = 1.2 / (RL)
+    // Ki = Kp * 1/(2L)
+    // Kd = Kp * 0.5L
+
+    // Keep in mind that actuators outputs are 0-100 and derivative and integral are per minute
+    BOOST_CHECK_CLOSE(double(pid->Kp) , 100 * 1.2/(6.0 * 2.5), 2);
+    BOOST_CHECK_CLOSE(double(pid->Ki), double(pid->Kp) / (2 * 2.5), 2);
+    BOOST_CHECK_CLOSE(double(pid->Kd), double(pid->Kp) * 0.5 * 2.5, 2);
 }
 
 // Test heating fridge air based on beer temperature (non-cascaded control)

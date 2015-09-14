@@ -42,6 +42,8 @@ class Pid
 
         void setSetPoint(temp val);
 
+        temp getSetPoint(){ return setPoint; }
+
         void setConstants(temp_long kp,
                           temp_long ki,
                           temp_long kd);

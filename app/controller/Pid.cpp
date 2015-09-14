@@ -135,6 +135,7 @@ void Pid::update()
 
 void Pid::tune(){
     static uint16_t lagTimer = 0;
+    static temp tuningStartTemp = inputFilter.readOutput();
 
     temp min = outputActuator->min();
     temp max = outputActuator->max();
@@ -151,25 +152,35 @@ void Pid::tune(){
     if(tuning){
         if(derivativeFilter.detectPosPeak(&maxDerivative)){
             uint16_t filterDelay = derivativeFilter.getDelay();
-            outputLag = (lagTimer <filterDelay) ? 0  : lagTimer - filterDelay;
-
-            // set filters to 1/2 of lag time for max noise suppression that can still follow the input signal
-            inputFilter.setFilteringForDelay(outputLag/2);
-            derivativeFilter.setFilteringForDelay(outputLag/2);
-            tuning = false;
+            uint16_t timeToMaxDerivative = (lagTimer <filterDelay) ? 0  : lagTimer - filterDelay;
 
             // set PID constants to Ziegler-Nichols tuned settings for a decay ratio of 0.25
 
-            temp_long RL = (temp_long(outputLag) * derivative);
-            if (RL < temp_long(1.0)){ // prevent divide by zero
-                Kp = 255.0;
+            temp_long lag = temp_long(timeToMaxDerivative) / temp_long(60.0); // derivative and integral are per minute, scale back here
+            temp_long riseTime = (inputFilter.readOutput() - tuningStartTemp)  / derivative;
+            lag = lag - riseTime; // rise time is not part of the lag
+
+            outputLag =  uint16_t(lag * temp_long(60)); // store outputlag in seconds
+
+            temp_long RL = derivative * lag;
+            if (RL < temp_long(0.5)){ // prevent divide by zero
+                Kp = 240.0;
             }
             else{
-                Kp = temp_long(255.0*1.2) / RL;
+                Kp = temp_long(100.0*1.2) / RL;
             }
 
-            Ki = temp_long(2*255*outputLag);
-            Kd = temp_long(255/2*outputLag);
+            Ki = Kp/(lag+lag);
+            Kd = Kp*lag*temp_long(0.5);
+
+            // The delay time of the filter is the time it takes to rise to 0.5 in a step response
+            // This is almost the same as the rise time here. Set the filters so that they can track the fastest rise
+            // so rise time / 2, have to scale back to seconds again here
+
+            inputFilter.setFilteringForDelay(uint16_t(temp_long(30) * riseTime));
+            derivativeFilter.setFilteringForDelay(uint16_t(temp_long(30) * riseTime));
+
+            tuning = false; // tuning ready
         }
         else{
             lagTimer++;
@@ -177,6 +188,7 @@ void Pid::tune(){
     }
     else{
         lagTimer= 0;
+        tuningStartTemp = inputFilter.readOutput();
     }
 }
 
