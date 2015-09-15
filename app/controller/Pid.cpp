@@ -110,7 +110,7 @@ void Pid::update()
     // calculate PID parts.
     p = Kp * inputError;
     i = integral; // integral is fed with Ki*error
-    d = Kd * derivative;
+    d = temp_long(-1) * Kd * derivative;
 
     temp_long pidResult = temp_long(p) + temp_long(i) + temp_long(d);
     temp      output    = pidResult;    // will be constrained to -128/128 here
@@ -133,6 +133,8 @@ void Pid::update()
     }
 }
 
+// Tune the PID with the Ziegler-Nichols Open-Loop Tuning Method or Process Reaction Method
+// This determines the dead time and the reaction rate (max derivative) and calculates the PID parameters from that.
 void Pid::tune(temp output, temp previousOutput){
     static uint16_t lagTimer = 0;
     static temp tuningStartTemp = inputFilter.readOutput();
@@ -145,7 +147,13 @@ void Pid::tune(temp output, temp previousOutput){
         tuning = true; // only start tuning at a big step to the maximum output
     }
     // cancel tuning when the output is under the tuning threshold before maximum derivative is detected
-    tuning = tuning & (output > tuningThreshold);
+    if(output < tuningThreshold){
+        if(lagTimer > 2*(derivativeFilter.getDelay() + inputFilter.getDelay())){
+            tuning = false; // only stop tuning if filters have had time to settle
+        }
+    }
+
+    // TODO: when this happens, check the filter delay and see if the maximum still has to come
 
     // Detect when at max derivative, the time until this happens is the lag time
     // Together with the maximum derivative, this is used to determine the PID parameters
@@ -158,43 +166,34 @@ void Pid::tune(temp output, temp previousOutput){
             uint16_t filterDelay = derivativeFilter.getDelay();
             uint16_t timeToMaxDerivative = (lagTimer <filterDelay) ? 0  : lagTimer - filterDelay;
 
-            // set PID constants to Ziegler-Nichols tuned settings for a decay ratio of 0.25
+            // set PID constants to have no overshoot
 
-            temp_long lag = temp_long(timeToMaxDerivative) / temp_long(60.0); // derivative and integral are per minute, scale back here
+            temp_long deadTime = temp_long(timeToMaxDerivative) / temp_long(60.0); // derivative and integral are per minute, scale back here
             temp_long riseTime = (inputFilter.readOutput() - tuningStartTemp)  / derivative;
             if(riseTime < temp_long(0)){
                 riseTime = 0.0;
             }
-            lag = lag - riseTime; // rise time is not part of the lag
-            if(lag < temp_long(0)){
-                lag = 0.0;
-            }
+            deadTime = (deadTime > riseTime) ? deadTime - riseTime : temp_long(0); // rise time is not part of the dead time, eliminate it
 
-            outputLag =  uint16_t(lag * temp_long(60)); // store outputlag in seconds
+            outputLag =  uint16_t(deadTime * temp_long(60)); // store outputlag in seconds
 
-            temp_long RL = derivative * lag;
-            if (RL < temp_long(0.5)){ // prevent divide by zero
-                Kp = 240.0;
+            temp_long RL = derivative * deadTime;
+
+            if (RL < temp_long(0.25)){ // prevent divide by zero
+                Kp = 160.0;
             }
             else{
-                Kp = temp_long(100.0*1.2) / RL;
+                Kp = temp_long(100.0*0.4) / RL; // not aggressive. Quarter decay is 1.2 instead of 0.4. We don't want overshoot
             }
 
-            Kd = Kp*lag*temp_long(-0.5);
-
-            if(lag > temp_long(2)){
-                Ki = Kp/(lag+lag);
+            if(deadTime > temp_long(1)){
+                Ki = Kp/(deadTime+deadTime);
             }
             else{
-                Ki = Kp*temp_long(0.25);
+                Ki = Kp*temp_long(0.5);
             }
+            Kd = Kp*deadTime*temp_long(0.33);
 
-            // The delay time of the filter is the time it takes to rise to 0.5 in a step response
-            // This is almost the same as the rise time here. Set the filters so that they can track the fastest rise
-            // so rise time / 2, have to scale back to seconds again here
-
-            inputFilter.setFilteringForDelay(uint16_t(temp_long(30) * riseTime));
-            derivativeFilter.setFilteringForDelay(uint16_t(temp_long(30) * riseTime));
 
             tuning = false; // tuning ready
         }

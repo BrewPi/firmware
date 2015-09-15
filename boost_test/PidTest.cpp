@@ -161,7 +161,7 @@ BOOST_FIXTURE_TEST_CASE(just_integral, PidTest)
 
 BOOST_FIXTURE_TEST_CASE(just_derivative, PidTest)
 {
-    pid->setConstants(0.0, 0.0, -5.0);
+    pid->setConstants(0.0, 0.0, 5.0);
     pid->setSetPoint(20.0);
 
     // update for 10 minutes
@@ -223,8 +223,6 @@ BOOST_FIXTURE_TEST_CASE(auto_tuning_test, PidTest)
 
     BOOST_CHECK_CLOSE(double(pid->getOutputLag()), 150, 1);
     BOOST_CHECK_CLOSE(double(pid->getMaxDerivative()), 0.1 * 60, 1); // derivative is per minute
-    BOOST_CHECK_EQUAL(pid->getFiltering(), 1); // filter delay has been adjusted to b=1, delay time 20
-                                               // b=2, delay time 43, is more then 1/2 the rise time
 
     // For Ziegler-Nichols tuning for a decay ratio of 0.25, the following conditions should be true:
     // R = maximum derivative = 10 degrees / 100s = 0.1 deg/s = 6 deg/min
@@ -233,46 +231,27 @@ BOOST_FIXTURE_TEST_CASE(auto_tuning_test, PidTest)
     // Ki = Kp * 1/(2L)
     // Kd = Kp * 0.5L
 
+    // Here we use less agressive tuning to reduce overshoot
+    // Kp = 0.4 / (RL)
+    // Ki = Kp * 1/(2L)
+    // Kd = Kp * 0.33L
+
     // Keep in mind that actuators outputs are 0-100 and derivative and integral are per minute
-    BOOST_CHECK_CLOSE(double(pid->Kp) , 100 * 1.2/(6.0 * 2.5), 2);
-    BOOST_CHECK_CLOSE(double(pid->Ki), double(pid->Kp) / (2 * 2.5), 2);
-    BOOST_CHECK_CLOSE(double(pid->Kd), double(pid->Kp) * -0.5 * 2.5, 2);
+    BOOST_CHECK_CLOSE(double(pid->Kp) , 100 * 0.4/(6.0 * 2.5), 5);
+    BOOST_CHECK_CLOSE(double(pid->Ki), double(pid->Kp) / (2 * 2.5), 5);
+    BOOST_CHECK_CLOSE(double(pid->Kd), double(pid->Kp) * 0.33 * 2.5, 5);
 }
 
 // Test heating fridge air based on beer temperature (non-cascaded control)
 BOOST_FIXTURE_TEST_CASE(double_step_response_beer_control, FridgeSim)
 {
-    pid->setConstants(100.0, 10.0, 0.0);
+    pid->setConstants(100.0, 0.0, 0.0);
     pid->setAutoTune(true);
-
-    ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setPoint, error, beer, air, actuator, p, i, d" << endl;
-    double setPoint = 21;
-    for(int t = 0; t < 10000; t++){
-        if(t==2500){
-            setPoint = 24;
-        }
-        pid->setSetPoint(setPoint);
-        pid->update();
-
-        temp outputVal = act->readValue();
-        updateSimBeerControl(outputVal);
-        csv << setPoint << "," << (beerTemp - setPoint) << "," << beerTemp << "," << airTemp <<
-                "," << outputVal << "," << pid->p << "," << pid->i << "," << pid->d << endl;
-    }
-    csv.close();
-}
-
-// Test heating fridge air based on fridge temperature (non-cascaded control)
-BOOST_FIXTURE_TEST_CASE(double_step_response_fridge_control, FridgeSim)
-{
-    pid->setConstants(20.0, 5.0, 0.0);
-    pid->setAutoTune(false);
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "setPoint, error, beer, air, actuator, p, i, d, Kp, Ki, Kd" << endl;
     double setPoint = 20;
-    for(int t = 0; t < 10000; t++){
+    for(int t = 0; t < 6000; t++){
         if(t==500){
             setPoint = 21;
         }
@@ -283,10 +262,39 @@ BOOST_FIXTURE_TEST_CASE(double_step_response_fridge_control, FridgeSim)
         pid->update();
 
         temp outputVal = act->readValue();
+        updateSimBeerControl(outputVal);
+        csv << setPoint << "," << (beerTemp - setPoint) << "," << beerTemp << "," << airTemp << "," <<
+            outputVal << "," << pid->p << "," << pid->i << "," << pid->d << ", " <<
+            pid->Kp << "," << pid->Ki << "," << pid-> Kd << endl;
+    }
+    csv.close();
+}
+
+// Test heating fridge air based on fridge temperature (non-cascaded control)
+BOOST_FIXTURE_TEST_CASE(double_step_response_fridge_control, FridgeSim)
+{
+    pid->setConstants(100.0, 0.0, 0.0);
+    pid->setAutoTune(true);
+    pid->setFiltering(0);
+
+    ofstream csv("./test_results/" + boost_test_name() + ".csv");
+    csv << "setPoint, error, beer, air, actuator, p, i, d, Kp, Ki, Kd" << endl;
+    double setPoint = 20;
+    for(int t = 0; t < 6000; t++){
+        if(t==500){
+            setPoint = 24;
+        }
+        if(t==2500){
+            setPoint = 28;
+        }
+        pid->setSetPoint(setPoint);
+        pid->update();
+
+        temp outputVal = act->readValue();
         updateSimFridgeControl(outputVal);
-        csv << setPoint << "," << (airTemp - setPoint) << "," << beerTemp << "," << airTemp <<
-                "," << outputVal << "," << pid->p << "," << pid->i << "," << pid->d << ", " <<
-                pid->Kp << "," << pid->Ki << "," << pid-> Kd << endl;
+        csv << setPoint << "," << (airTemp - setPoint) << "," << beerTemp << "," << airTemp << "," <<
+            outputVal << "," << pid->p << "," << pid->i << "," << pid->d << ", " <<
+            pid->Kp << "," << pid->Ki << "," << pid-> Kd << endl;
     }
     csv.close();
 }
