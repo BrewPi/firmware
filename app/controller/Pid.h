@@ -63,6 +63,7 @@ class Pid
 
         bool setOutputActuator(LinearActuator * a);
 
+        /*
         uint16_t getOutputLag(){ return outputLag; };
 
         temp_precise getMaxDerivative(){ return maxDerivative; };
@@ -72,6 +73,7 @@ class Pid
         void tune(temp output, temp previousOutput);
 
         void setAutoTune(bool doTune) { autotune = doTune; };
+        */
 
 //    protected:
     public:
@@ -93,8 +95,10 @@ class Pid
         FilterCascaded    derivativeFilter;
         uint8_t           failedReadCount;
 
+        /*
         bool              autotune; // auto tuning enabled
         bool              tuning; // tuning in this step response
         uint16_t          outputLag;
         temp_precise      maxDerivative;
+        */
 };

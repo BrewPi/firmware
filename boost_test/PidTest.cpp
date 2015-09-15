@@ -177,7 +177,7 @@ BOOST_FIXTURE_TEST_CASE(just_derivative, PidTest)
     BOOST_CHECK_CLOSE(double(act->readValue()), 15.0, 1);
 }
 
-
+/*
 BOOST_FIXTURE_TEST_CASE(auto_tuning_test, PidTest)
 {
     pid->setConstants(50.0, 0.0, 0.0);
@@ -241,12 +241,13 @@ BOOST_FIXTURE_TEST_CASE(auto_tuning_test, PidTest)
     BOOST_CHECK_CLOSE(double(pid->Ki), double(pid->Kp) / (2 * 2.5), 5);
     BOOST_CHECK_CLOSE(double(pid->Kd), double(pid->Kp) * 0.33 * 2.5, 5);
 }
+*/
 
 // Test heating fridge air based on beer temperature (non-cascaded control)
 BOOST_FIXTURE_TEST_CASE(double_step_response_beer_control, FridgeSim)
 {
-    pid->setConstants(100.0, 0.0, 0.0);
-    pid->setAutoTune(true);
+    pid->setConstants(100.0, 5.0, 100.0);
+    // pid->setAutoTune(true);
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "setPoint, error, beer, air, actuator, p, i, d, Kp, Ki, Kd" << endl;
@@ -273,8 +274,8 @@ BOOST_FIXTURE_TEST_CASE(double_step_response_beer_control, FridgeSim)
 // Test heating fridge air based on fridge temperature (non-cascaded control)
 BOOST_FIXTURE_TEST_CASE(double_step_response_fridge_control, FridgeSim)
 {
-    pid->setConstants(100.0, 0.0, 0.0);
-    pid->setAutoTune(true);
+    pid->setConstants(20.0, 10.0, 0.0);
+//    pid->setAutoTune(true);
     pid->setFiltering(0);
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");

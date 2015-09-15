@@ -38,10 +38,10 @@ Pid::Pid(BasicTempSensor * input,
     setInputSensor(input);
     setOutputActuator(output);
 
-    autotune = false;
-    tuning = false;
-    outputLag = 0;
-    maxDerivative = 0.0;
+//    autotune = false;
+//    tuning = false;
+//    outputLag = 0;
+//    maxDerivative = 0.0;
     setPoint = temp::invalid_val;
 }
 
@@ -115,7 +115,7 @@ void Pid::update()
     temp_long pidResult = temp_long(p) + temp_long(i) + temp_long(d);
     temp      output    = pidResult;    // will be constrained to -128/128 here
 
-    temp previousOutput = outputActuator->readValue();
+//    temp previousOutput = outputActuator->readValue();
 
     outputActuator -> setValue(output);
 
@@ -127,11 +127,70 @@ void Pid::update()
     temp_long antiWindup = (pidResult - output);
 
     integral = integral + Ki * (inputError - antiWindup) / temp_long(60);
-
+/*
     if(autotune){
         tune(output, previousOutput);
     }
+*/
+
 }
+
+void Pid::setSetPoint(temp val)
+{
+    setPoint = val;
+}
+
+
+void Pid::setMinMax(temp min,
+                    temp max)
+{
+    this -> min = min;
+    this -> max = max;
+}
+
+void Pid::setFiltering(uint8_t b){
+    inputFilter.setFiltering(b);
+    derivativeFilter.setFiltering(b);
+}
+
+uint8_t Pid::getFiltering(){
+    return inputFilter.getFiltering();
+}
+
+void Pid::setInputFilter(uint8_t b)
+{
+    inputFilter.setFiltering(b);
+}
+
+void Pid::setDerivativeFilter(uint8_t b)
+{
+    derivativeFilter.setFiltering(b);
+}
+
+bool Pid::setInputSensor(BasicTempSensor * s)
+{
+    temp t = s -> read();
+
+    if (t.isDisabledOrInvalid()){
+        return false;    // could not read from sensor
+    }
+
+    inputSensor = s;
+
+    inputFilter.init(t);
+    derivativeFilter.init(0.0);
+
+    return true;
+}
+
+bool Pid::setOutputActuator(LinearActuator * a)
+{
+    outputActuator = a;
+
+    return true;
+}
+
+/*
 
 // Tune the PID with the Ziegler-Nichols Open-Loop Tuning Method or Process Reaction Method
 // This determines the dead time and the reaction rate (max derivative) and calculates the PID parameters from that.
@@ -209,61 +268,4 @@ void Pid::tune(temp output, temp previousOutput){
     }
 }
 
-void Pid::setSetPoint(temp val)
-{
-    /*if ((val - setPoint) > temp(0.25)){
-        integral = 0;    // reset integrator for big jumps in setpoint
-    }*/
-
-    setPoint = val;
-}
-
-void Pid::setMinMax(temp min,
-                    temp max)
-{
-    this -> min = min;
-    this -> max = max;
-}
-
-void Pid::setFiltering(uint8_t b){
-    inputFilter.setFiltering(b);
-    derivativeFilter.setFiltering(b);
-}
-
-uint8_t Pid::getFiltering(){
-    return inputFilter.getFiltering();
-}
-
-void Pid::setInputFilter(uint8_t b)
-{
-    inputFilter.setFiltering(b);
-}
-
-void Pid::setDerivativeFilter(uint8_t b)
-{
-    derivativeFilter.setFiltering(b);
-}
-
-bool Pid::setInputSensor(BasicTempSensor * s)
-{
-    temp t = s -> read();
-
-    if (t.isDisabledOrInvalid()){
-        return false;    // could not read from sensor
-    }
-
-    inputSensor = s;
-
-    inputFilter.init(t);
-    derivativeFilter.init(0.0);
-
-    return true;
-}
-
-bool Pid::setOutputActuator(LinearActuator * a)
-{
-    outputActuator = a;
-
-    return true;
-}
-
+*/
