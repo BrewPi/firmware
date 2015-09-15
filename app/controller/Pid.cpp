@@ -150,8 +150,11 @@ void Pid::tune(temp output, temp previousOutput){
     // Detect when at max derivative, the time until this happens is the lag time
     // Together with the maximum derivative, this is used to determine the PID parameters
 
-    if(tuning){
-        if(derivativeFilter.detectPosPeak(&maxDerivative)){
+    if(tuning){ // only for heating now
+        // if the derivative of the input starts falling, we have hit an inflection point
+        // Also check that the derivative is positive
+        if(derivativeFilter.isFalling() && (derivativeFilter.readOutput() > temp_precise(0))){
+            maxDerivative = derivativeFilter.readOutput(); // we're at the peak or past it
             uint16_t filterDelay = derivativeFilter.getDelay();
             uint16_t timeToMaxDerivative = (lagTimer <filterDelay) ? 0  : lagTimer - filterDelay;
 

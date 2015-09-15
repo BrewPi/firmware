@@ -88,6 +88,16 @@ bool FilterCascaded::detectNegPeak(temp_precise * peak)
     return sections[NUM_SECTIONS - 1].detectNegPeak(peak);    // detect peaks in last section
 }
 
+bool FilterCascaded::isRising()
+{
+    return sections[NUM_SECTIONS - 1].isRising(); // return true if in the last section output > previous output
+}
+
+bool FilterCascaded::isFalling()
+{
+    return sections[NUM_SECTIONS - 1].isFalling(); // return true if in the last section output < previous output
+}
+
 temp_precise FilterCascaded::readPrevOutput(void)
 {
     return sections[NUM_SECTIONS - 1].readPrevOutput();    // return previous output of last section

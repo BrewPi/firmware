@@ -73,3 +73,10 @@ bool FixedFilter::detectNegPeak(temp_precise * peak){
 	}
 }
 
+bool FixedFilter::isRising(){
+    return (yv[0] > yv[1]) && (yv[1] > yv[2]);
+}
+
+bool FixedFilter::isFalling(){
+    return (yv[0] < yv[1]) && (yv[1] < yv[2]);
+}

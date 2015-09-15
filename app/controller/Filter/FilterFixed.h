@@ -131,4 +131,8 @@ class FixedFilter
         bool detectPosPeak(temp_precise * result);    // returns true if peak detected and puts peak in result
 
         bool detectNegPeak(temp_precise * result);    // returns true if peak detected and puts peak in result
+
+        bool isRising();
+
+        bool isFalling();
 };

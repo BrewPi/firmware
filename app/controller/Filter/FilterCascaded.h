@@ -77,5 +77,9 @@ class FilterCascaded
 
         bool detectNegPeak(temp_precise * peak);
 
+        bool isRising();
+
+        bool isFalling();
+
         const uint16_t delayTimes[7] = { 9, 20, 43, 88, 179, 360, 723 };
 };
