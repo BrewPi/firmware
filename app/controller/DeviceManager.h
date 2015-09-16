@@ -28,7 +28,7 @@
 #include "Sensor.h"
 #include "TempSensor.h"
 #include "OneWireDevices.h"
-#include "Pins.h"
+#include "Board.h"
 #include "OneWire.h"
 
 /*
@@ -397,6 +397,7 @@ class DeviceManager
         static OneWire * oneWireBus(uint8_t pin);
 
         static bool firstDeviceOutput;
+    friend class ConnectedDevicesManager;
 };
 
 
