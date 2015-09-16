@@ -428,7 +428,7 @@
     <Compile Include="platform\avr\OneWirePin.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="platform\avr\Pins.h">
+    <Compile Include="platform\avr\Board.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="platform\avr\Platform.cpp">

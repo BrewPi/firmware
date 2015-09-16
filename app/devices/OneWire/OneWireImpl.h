@@ -8,11 +8,11 @@ typedef OneWirePin OneWireDriver;
 
 #else
 
-#if defined(ONEWIRE_DS2482)
+#if defined(ONEWIRE_DS248X)
 
-#include "DS2482.h"
+#include "DS248x.h"
 
-typedef DS2482 OneWireDriver;
+typedef DS248x OneWireDriver;
 
 #elif defined(ONEWIRE_PIN)
 

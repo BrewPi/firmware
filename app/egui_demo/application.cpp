@@ -11,6 +11,7 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 int act1 = A0;
 int act2 = A1;
 int act3 = A6;
+int act4 = A7;
 int buzz = A2;
 
 extern "C" {
@@ -21,6 +22,7 @@ void setup() {
     pinMode(act1, OUTPUT);
     pinMode(act2, OUTPUT);
     pinMode(act3, OUTPUT);
+    pinMode(act4, OUTPUT);
     pinMode(buzz, OUTPUT);
     
     // beep, beep

@@ -25,7 +25,7 @@
  */
 
 #ifndef BREWPI_STATIC_CONFIG
-#define BREWPI_STATIC_CONFIG BREWPI_SHIELD_SPARK_REV_C
+#define BREWPI_STATIC_CONFIG BREWPI_SHIELD_SPARK_V1
 #endif
 
 #ifndef FAST_DIGITAL_PIN 
@@ -55,7 +55,13 @@
 
 
 #ifndef BREWPI_BOARD
+#if PLATFORM_ID==0
     #define BREWPI_BOARD BREWPI_BOARD_SPARKCORE
+#elif PLATFORM_ID==6
+    #define BREWPI_BOARD BREWPI_BOARD_PHOTON
+#else
+#error Unknown Platform ID
+#endif
 #endif
 
 /*

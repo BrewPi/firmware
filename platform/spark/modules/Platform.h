@@ -20,7 +20,7 @@ typedef uint8_t DeviceAddress[8];
 
 #define PRINTF_PROGMEM "%s"             // devices with unified address space
 
-#define ONEWIRE_DS2482
+#define ONEWIRE_DS248X
 
 typedef uint32_t tcduration_t;
 typedef uint32_t ticks_millis_t;
