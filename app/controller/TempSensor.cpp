@@ -32,7 +32,7 @@ void TempSensor::init()
 			fastFilter.init(temp);
 			slowFilter.init(temp);
 			slopeFilter.init(0);
-			prevOutputForSlope = slowFilter.readOutputDoublePrecision();
+			prevOutputForSlope = slowFilter.readOutputPrecise();
 			failedReadCount = 0;
 		}		
 	}
@@ -57,10 +57,10 @@ void TempSensor::update()
 	// initialize first read for slope filter after (255-4) seconds. This prevents an influence for the startup inaccuracy.
 	if(updateCounter == 4){
 		// only happens once after startup.
-		prevOutputForSlope = slowFilter.readOutputDoublePrecision();
+		prevOutputForSlope = slowFilter.readOutputPrecise();
 	}
 	if(updateCounter <= 0){
-		temperature_precise slowFilterOutput = slowFilter.readOutputDoublePrecision();
+		temperature_precise slowFilterOutput = slowFilter.readOutputPrecise();
 		temperature_precise diff =  slowFilterOutput - prevOutputForSlope;
 		temperature diff_upper = diff >> 16;
 		if(diff_upper > 27){ // limit to prevent overflow INT_MAX/1200 = 27.14
@@ -81,7 +81,7 @@ temperature TempSensor::readFastFiltered(void){
 
 temperature TempSensor::readSlope(void){
 	// return slope per hour. 
-	temperature_precise doublePrecision = slopeFilter.readOutputDoublePrecision();
+	temperature_precise doublePrecision = slopeFilter.readOutputPrecise();
 	return doublePrecision>>16; // shift to single precision
 }
 
@@ -94,15 +94,15 @@ temperature TempSensor::detectNegPeak(void){
 }
 	
 void TempSensor::setFastFilterCoefficients(uint8_t b){
-	fastFilter.setCoefficients(b);
+	fastFilter.setFiltering(b);
 }
 	
 void TempSensor::setSlowFilterCoefficients(uint8_t b){
-	slowFilter.setCoefficients(b);
+	slowFilter.setFiltering(b);
 }
 
 void TempSensor::setSlopeFilterCoefficients(uint8_t b){
-	slopeFilter.setCoefficients(b);
+	slopeFilter.setFiltering(b);
 }
 
 BasicTempSensor& TempSensor::sensor() {

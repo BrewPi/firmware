@@ -395,8 +395,6 @@ class DeviceManager
 
         static OneWire * oneWireBus(uint8_t pin);
 
-    static bool firstDeviceOutput;
-
     friend class ConnectedDevicesManager;
 };
 

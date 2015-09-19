@@ -1,6 +1,6 @@
 /*
- * Copyright 2013 Matthew McGowan
- * Copyright 2013 BrewPi/Elco Jacobs.
+ * Copyright 2015 BrewPi/Elco Jacobs.
+ * Copyright 2015 Matthew McGowan
  *
  * This file is part of BrewPi.
  *
@@ -26,28 +26,33 @@
 #include "Ticks.h"
 #include <stdint.h>
 
-class ActuatorPwm : public DriverActuator
+class ActuatorPwm : public LinearActuator, public DriverActuator
 {
     private:
-        uint8_t        pwm;
+        temp_t           value;
         int32_t        dutyLate;
         int32_t        periodLate;
         int32_t        dutyTime;
         ticks_millis_t periodStartTime;
         int32_t  period;
+        temp_t minVal;
+        temp_t maxVal;
 
     public:
         ActuatorPwm(Actuator * _target, uint16_t _period);
 
-        void setPwm(uint8_t pwm);
-
-        void write(uint8_t val){
-            setPwm(val);
+        temp_t min(){
+            return minVal;
         }
 
-        uint8_t getPwm();
+        temp_t max(){
+            return maxVal;
+        }
 
-        void updatePwm();
+        temp_t readValue();
+        void setValue(temp_t const& val);
+
+        void update();
 
         ticks_millis_t getPeriod()
         {
@@ -56,7 +61,7 @@ class ActuatorPwm : public DriverActuator
 
         bool isActive()
         {
-            return (pwm > 0);
+            return (value > temp_t(0.0));
         }
 
 #if ACTUATOR_VIRTUAL
@@ -74,11 +79,13 @@ class ActuatorPwm : public DriverActuator
 
         void setActive(bool active){
             if(active){
-                pwm = 255;
+                value = maxVal;
             }
             else{
-                pwm = 0;
+                value = minVal;
             }
         }
 
+        // recalculates duty time based on value and dutyLate and periodLate
+        void recalculate();
 };

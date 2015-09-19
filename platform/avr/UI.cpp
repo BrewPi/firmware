@@ -34,7 +34,7 @@ void UI::showControllerPage()
 	display.printState();
 }
 
-extern ValueActuator alarm;
+extern BoolActuator alarm;
 void UI::ticks() {
 #if BREWPI_BUZZER
 	buzzer.setActive(alarm.isActive() && !buzzer.isActive());

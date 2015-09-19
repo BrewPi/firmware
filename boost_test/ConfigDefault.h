@@ -1,6 +1,5 @@
 /*
- * Copyright 2012-2013 BrewPi/Elco Jacobs.
- * Copyright 2013 Matthew McGowan.
+ * Copyright 2015 BrewPi/Elco Jacobs.
  *
  * This file is part of BrewPi.
  * 
@@ -20,25 +19,4 @@
 
 #pragma once
 
-#include "newTemperatureFormats.h"
-
-#define TEMP_SENSOR_DISCONNECTED temp::invalid()
-
-class BasicTempSensor
-{
-public:
-	virtual ~BasicTempSensor() { }
-	
-	virtual bool isConnected(void) = 0;
-	
-	/*
-	 * Attempt to (re-)initialize the sensor. 	 
-	 */
-	virtual bool init() =0;
-
-	/*
-	 * Fetch a new reading from the sensor
-	 */
-	virtual temp_t read() = 0;
-	
-};
+#define BREWPI_EMULATE 1

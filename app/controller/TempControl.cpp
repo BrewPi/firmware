@@ -36,7 +36,7 @@ TempControl                   tempControl;
 
 #if TEMP_CONTROL_STATIC
 extern ValueSensor<bool>      defaultSensor;
-extern ValueActuator          defaultActuator;
+extern BoolActuator          defaultActuator;
 extern DisconnectedTempSensor defaultTempSensor;
 
 // These sensors are switched out to implement multi-chamber.
@@ -45,8 +45,8 @@ TempSensor *      TempControl::fridgeSensor;
 BasicTempSensor * TempControl::ambientSensor = &defaultTempSensor;
 Actuator *        TempControl::light         = &defaultActuator;
 Actuator *        TempControl::fan           = &defaultActuator;
-ValueActuator     cameraLightState;
 ActuatorOnOff *   TempControl::chamberCoolerLimiter;
+BoolActuator     cameraLightState;
 ActuatorPwm *     TempControl::chamberHeater;
 ActuatorPwm *     TempControl::chamberCooler;
 ActuatorPwm *     TempControl::beerHeater;

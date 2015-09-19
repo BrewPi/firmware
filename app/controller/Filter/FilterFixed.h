@@ -21,8 +21,9 @@
 
 #pragma once
 
-#include "Brewpi.h"
-#include "TemperatureFormats.h"
+// #include "Brewpi.h"
+
+#include "newTemperatureFormats.h"
 
 /*
  *  This class implements an IIR low pass filter, with the following frequency response
@@ -55,6 +56,9 @@
  *       set(h,'FrequencyRange', 'Specify freq. vector');
  *       set(h,'FrequencyScale','Log')
  *       set(h,'FrequencyVector', logspace(-4,0,1000));
+ *       [amp, t] = stepz(H);
+ *       ind = find(amp>.5,1);
+ *       disp('delay time: '), disp(t(ind));
  *
  *       Here are the specifications for a single stage filter, for values a=2b+4
  *       The delay time is the time it takes to rise to 0.5 in a step response.
@@ -65,24 +69,25 @@
  *       a=8,    b=2,    delay time = 13
  *       a=10,   b=3,    delay time = 26
  *       a=12,   b=4,    delay time = 53
- *       a=14,   b=5,    delay time = 106
- *       a=16,   b=6,    delay time = 213
- *
+ *       a=14,   b=5,    delay time = 107
+ *       a=16,   b=6,    delay time = 214
  */
 class FixedFilter
 {
-    public:
+    friend class FilterCascaded;
+
+    protected:
 
         // input and output arrays
-        temperature_precise xv[3];
-        temperature_precise yv[3];
-        uint8_t             a;
-        uint8_t             b;
+        temp_precise_t xv[3];
+        temp_precise_t yv[3];
+        uint8_t      a;
+        uint8_t      b;
 
     public:
         FixedFilter()
         {
-            setCoefficients(20);
+            setFiltering(20);
 
             /* default to a b value of 2 */
         }
@@ -91,44 +96,43 @@ class FixedFilter
         {
         }
 
-        void init(temperature val);
+        void init(temp_precise_t val = temp_precise_t(0.0));
 
-        void setCoefficients(uint8_t bValue)
+        void setFiltering(uint8_t bValue)
         {
             a = bValue * 2 + 4;
             b = bValue;
         }
 
-        temperature add(temperature val);    // adds a value and returns the most recent filter output
-
-        temperature_precise addDoublePrecision(temperature_precise val);
-
-        temperature readOutput(void)
+        uint8_t getFiltering()
         {
-            return yv[0] >> 16;    // return 16 most significant bits of most recent output
+            return b;
         }
 
-        temperature readInput(void)
-        {
-            return xv[0] >> 16;    // return 16 most significant bits of most recent input
-        }
+        temp_precise_t add(temp_precise_t val);    // adds a value and returns the most recent filter output
 
-        temperature_precise readOutputDoublePrecision(void)
+        temp_t add(temp_t val);                    // adds a value and returns the most recent filter output
+
+        temp_precise_t readOutput(void)
         {
             return yv[0];
         }
 
-        temperature_precise readPrevOutputDoublePrecision(void)
+        temp_precise_t readInput(void)
+        {
+            return xv[0];
+        }
+
+        temp_precise_t readPrevOutput(void)
         {
             return yv[1];
         }
 
-        temperature_precise readOldestOutputDoublePrecision(void)
-        {
-            return yv[2];
-        }
+        bool detectPosPeak(temp_precise_t * result);    // returns true if peak detected and puts peak in result
 
-        temperature detectPosPeak(void);    // returns positive peak or INVALID_TEMP when no peak has been found
+        bool detectNegPeak(temp_precise_t * result);    // returns true if peak detected and puts peak in result
 
-        temperature detectNegPeak(void);    // returns negative peak or INVALID_TEMP when no peak has been found
+        bool isRising();
+
+        bool isFalling();
 };

@@ -6,32 +6,54 @@ ActuatorPwm::ActuatorPwm(Actuator* _target, uint16_t _period) : DriverActuator(_
     periodStartTime = 0;
     periodLate = 0;
     dutyLate = 0;
+    value = 0.0;
+    minVal = 0.0;
+    maxVal = 100.0;
     target->setActive(false);
     setPeriod(_period);
-    setPwm(0);
+    recalculate();
 }
 
-uint8_t ActuatorPwm::getPwm() {
-    return pwm;
+void ActuatorPwm::recalculate(){
+    temp_long_t newPeriod = temp_long_t(value) * temp_long_t(period) / temp_long_t(100);
+    temp_long_t correctionFactor = temp_long_t(period + periodLate) / temp_long_t(period);
+    dutyTime = int32_t(newPeriod * correctionFactor);
 }
 
-void ActuatorPwm::setPwm(uint8_t val) {
-    if(pwm != val){
-        pwm = val;
-        if(pwm != (val+1) || pwm != (val-1)){
+temp_t ActuatorPwm::readValue() {
+    return value;
+}
+
+void ActuatorPwm::setValue(temp_t const& val) {
+    temp_t val_(val);
+    if (val_ <= minVal){
+        val_ = minVal;
+    }
+    if (val_ >= maxVal){
+        val_ = maxVal;
+    }
+
+    if(value != val_){
+        temp_t delta = (val_ > value) ? val_ - value : value - val_;
+        value = val_;
+        if(delta > temp_t(1.0)){
             dutyLate = 0;
         }
     }
-    dutyTime = ((pwm * period) / 255)*(period + periodLate) / period;
+    recalculate();
 }
 
-void ActuatorPwm::updatePwm() {
+void ActuatorPwm::update() {
     int32_t adjDutyTime = dutyTime - dutyLate;
     int32_t currentTime = ticks.millis();
     int32_t elapsedTime = currentTime - periodStartTime;
 
-    if ( pwm == 0 ){
+    if ( value <= minVal ){
         target->setActive(false);
+        return;
+    }
+    if ( value >= maxVal ){
+        target->setActive(true);
         return;
     }
     if (target->isActive()) {
@@ -64,7 +86,7 @@ void ActuatorPwm::updatePwm() {
             periodLate = (periodLate < period / 2) ? periodLate : period / 2;
             // adjust next duty time to account for longer period due to infrequent updates
             // low period was longer, increase high period (duty cycle) with same ratio
-            dutyTime = ((pwm * period) / 255)*(period + periodLate) / period;
+            recalculate();
             periodStartTime = currentTime;
         }
     }

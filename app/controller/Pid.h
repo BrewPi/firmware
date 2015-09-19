@@ -19,17 +19,18 @@
 
 
 
-#include "TemperatureFormats.h"
-#include "FilterCascaded.h"
-#include "TempSensor.h"
-#include "ActuatorPwm.h"
-
 #pragma once
+
+#include "newTemperatureFormats.h"
+#include "FilterCascaded.h"
+#include "TempSensorBasic.h"
+#include "Actuator.h"
 
 class Pid
 {
     public:
-        Pid(TempSensor * input, Actuator * output);
+        Pid(BasicTempSensor * input,
+            LinearActuator * output);
 
         Pid(const Pid & orig);
 
@@ -37,41 +38,67 @@ class Pid
 
         void init();
 
-        fixed7_9 update(fixed7_9 input);
+        void update();
 
-        void setSetPoint(fixed7_9 val);
+        void setSetPoint(temp_t val);
 
-        void setConstants(fixed7_9 kp,
-                          fixed7_9 ki,
-                          fixed7_9 kd);
+        temp_t getSetPoint(){ return setPoint; }
+
+        void setConstants(temp_long_t kp,
+                          temp_long_t ki,
+                          temp_long_t kd);
+
+        void setFiltering(uint8_t b);
+
+        uint8_t getFiltering();
 
         void setInputFilter(uint8_t b);
 
         void setDerivativeFilter(uint8_t b);
 
-        void setDoubleDerivativeFilter(uint8_t b);
+        void setMinMax(temp_t min,
+                       temp_t max);
 
-        void setMinMax(fixed7_9 min,
-                       fixed7_9 max);
+        bool setInputSensor(BasicTempSensor * s);
 
-    private:
-        fixed7_9         Kp; // proportional gain
-        fixed7_9         Ki; // integral gain
-        fixed7_9         Kd; // derivative gain
-        fixed7_9         Ka; // integrator anti windup gain
-        fixed7_9         min;
-        fixed7_9         max;
-        fixed7_9         setPoint;
-        fixed7_9         output;
-        fixed7_9         p;
-        fixed7_9         i;
-        fixed7_9         d;
-        fixed7_9         error;
-        fixed7_9         derivative;
-        fixed7_9         doubleDerivative;
-        long_temperature integral;
-        uint8_t          integralUpdateCounter;
-        FilterCascaded   inputFilter;
-        FilterCascaded   derivativeFilter;
-        FilterCascaded   doubleDerivativeFilter;
+        bool setOutputActuator(LinearActuator * a);
+
+        /*
+        uint16_t getOutputLag(){ return outputLag; };
+
+        temp_precise getMaxDerivative(){ return maxDerivative; };
+
+        bool isTuning(){ return tuning; };
+
+        void tune(temp output, temp previousOutput);
+
+        void setAutoTune(bool doTune) { autotune = doTune; };
+        */
+
+//    protected:
+    public:
+        LinearActuator *  outputActuator;
+        BasicTempSensor * inputSensor;
+        temp_long_t         Kp;    // proportional gain
+        temp_long_t         Ki;    // integral gain
+        temp_long_t         Kd;    // derivative gain
+        temp_t              min;
+        temp_t              max;
+        temp_t              setPoint;
+        temp_t              inputError;
+        temp_long_t         p;
+        temp_long_t         i;
+        temp_long_t         d;
+        temp_precise_t      derivative;
+        temp_long_t         integral;
+        FilterCascaded    inputFilter;
+        FilterCascaded    derivativeFilter;
+        uint8_t           failedReadCount;
+
+        /*
+        bool              autotune; // auto tuning enabled
+        bool              tuning; // tuning in this step response
+        uint16_t          outputLag;
+        temp_precise      maxDerivative;
+        */
 };

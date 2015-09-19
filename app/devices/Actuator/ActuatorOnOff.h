@@ -54,8 +54,8 @@ class ActuatorOnOff:
 
         void update();
 
-        void write(uint8_t val){
-            setActive(val != 0);
+        void setValue(temp_t const& val){
+            setActive(val > temp_t(0.0));
         }
         void setTimes(uint16_t   _minOnTime,
                       uint16_t   _minOffTime,

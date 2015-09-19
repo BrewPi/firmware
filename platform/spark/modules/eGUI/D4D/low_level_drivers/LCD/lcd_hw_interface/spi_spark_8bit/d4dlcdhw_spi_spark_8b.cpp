@@ -151,7 +151,7 @@ static unsigned char D4DLCDHW_Init_Spi_Spark_8b(void) {
 #endif    
     );
 
-
+    
     SPI.setBitOrder(MSBFIRST);
     SPI.setDataMode(SPI_MODE0);
     

@@ -1,8 +1,8 @@
 ## -*- Makefile -*-
 
-CCC = gcc
-CXX = g++
-LD = g++
+CCC = mingw32-gcc
+CXX = mingw32-g++
+LD = mingw32-g++
 CFLAGS = -g
 CCFLAGS = $(CFLAGS)
 CXXFLAGS = $(CFLAGS)
@@ -35,39 +35,29 @@ rwildcard = $(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2
 # $2 the pattern to match, e.g. *.cpp
 target_files = $(patsubst $(SRC_ROOT)%,%,$(call rwildcard,$(SRC_ROOT)$1,$2))
 
-CSRC += $(call target_files,test,*.c)
-CPPSRC += $(call target_files,test,*.cpp)
+CSRC += $(call target_files,boost_test,*.c)
+CPPSRC += $(call target_files,boost_test,*.cpp)
 
-CPPSRC += $(SOURCE_PATH)platform/wiring/TemperatureFormats.cpp
-CPPSRC += $(SOURCE_PATH)app/controller/TemperatureControllerFormats.cpp
+CPPSRC += $(SOURCE_PATH)platform/wiring/newTemperatureFormats.cpp
+CPPSRC += $(SOURCE_PATH)platform/wiring/str_functions.cpp
+CPPSRC += $(SOURCE_PATH)app/controller/Filter/FilterFixed.cpp
+CPPSRC += $(SOURCE_PATH)app/controller/Filter/FilterCascaded.cpp
+CPPSRC += $(SOURCE_PATH)app/controller/Pid.cpp
 CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorPwm.cpp
 CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorOnOff.cpp
 
-
-INCLUDE_DIRS += $(SOURCE_PATH)app/controller
-INCLUDE_DIRS += $(SOURCE_PATH)app/devices
-INCLUDE_DIRS += $(SOURCE_PATH)app/devices/Actuator
-# INCLUDE_DIRS += $(SOURCE_PATH)app/devices/OneWire
-INCLUDE_DIRS += $(SOURCE_PATH)app/devices/TempSensor
-INCLUDE_DIRS += $(SOURCE_PATH)app/controller/Filter
-INCLUDE_DIRS += $(SOURCE_PATH)app/fallback
-INCLUDE_DIRS += $(SOURCE_PATH)platform/wiring
 ifeq ($(BOOST_ROOT),)
 $(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)
 endif
-INCLUDE_DIRS += $(BOOST)
-#$(error boost dir: $(BOOST_DIR))
+CFLAGS += -I$(BOOST_ROOT)
 
-#INCLUDE_DIRS += $(SOURCE_PATH)platform/spark
-#INCLUDE_DIRS += $(SOURCE_PATH)platform/spark/modules
-
-#INCLUDE_DIRS += $(WIRING)inc
-#INCLUDE_DIRS += $(HAL)/inc
-#INCLUDE_DIRS += $(HAL)/shared
-#INCLUDE_DIRS += $(SPARK)/main/inc
-#INCLUDE_DIRS += $(SPARK)/services/inc
-#INCLUDE_DIRS += $(SPARK)/services/inc
-
+INCLUDE_DIRS += $(SOURCE_PATH)platform/wiring
+INCLUDE_DIRS += $(SOURCE_PATH)app/controller
+INCLUDE_DIRS += $(SOURCE_PATH)app/controller/Filter
+INCLUDE_DIRS += $(SOURCE_PATH)app/fallback
+INCLUDE_DIRS += $(SOURCE_PATH)app/devices/TempSensor
+INCLUDE_DIRS += $(SOURCE_PATH)app/devices/Actuator
+INCLUDE_DIRS += $(SOURCE_PATH)app/devices/
 
 CFLAGS += $(patsubst %,-I$(SRC_ROOT)%,$(INCLUDE_DIRS)) -I.
 CFLAGS += -ffunction-sections -Wall

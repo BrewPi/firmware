@@ -22,6 +22,7 @@
 #include "Platform.h"
 #include <string.h>
 #include <stdarg.h>
+#include "str_functions.h"
 
 // See header file for details about the temp format used.
 
@@ -110,11 +111,6 @@ bool stringToTempDiff(temperature* result, const char * numberString) {
         return true;
     }
     return false;
-}
-
-bool invalidStrtolResult(const char * start, const char * end) {
-    return ((*end != '\0' && *end != '.' && *end != ' ') // parsing did not end at end of string, space or decimal point
-            || start == end); // no number found in string
 }
 
 bool stringToFixedPoint(long_temperature * result, const char * numberString) {
@@ -211,6 +207,16 @@ temperature tenthsToFixed(int temp) {
     return constrainTemp16(fixedPointTemp);
 }
 
+long_temperature constrainTempLong(long_temperature val, long_temperature lower, long_temperature upper) {
+    if (val < lower) {
+        return lower;
+    }
+    if (val > upper) {
+        return upper;
+    }
+    return val;
+}
+
 temperature constrainTemp(long_temperature valLong, temperature lower, temperature upper) {
     temperature val = constrainTemp16(valLong);
     if (val < lower) {
@@ -219,7 +225,7 @@ temperature constrainTemp(long_temperature valLong, temperature lower, temperatu
     if (val > upper) {
         return upper;
     }
-    return temperature(val);
+    return val;
 }
 
 temperature constrainTemp16(long_temperature val) {
@@ -229,7 +235,7 @@ temperature constrainTemp16(long_temperature val) {
     if (val > MAX_TEMP) {
         return MAX_TEMP;
     }
-    return val;
+    return temperature(val);
 }
 
 temperature multiplyFactorTemperatureLong(temperature factor, long_temperature b) {
@@ -246,32 +252,4 @@ temperature multiplyFactorTemperature(temperature factor, temperature b) {
 
 temperature multiplyFactorTemperatureDiff(temperature factor, temperature b) {
     return constrainTemp16(((long_temperature) factor * (long_temperature) b) >> TEMP_FIXED_POINT_BITS);
-}
-
-long int my_strtol(const char* str, char** tail) {
-    long val = 0;
-    bool positive = true;
-    *tail = (char*) str;
-    uint16_t read = 0;
-    while (1) {
-        if (**tail == '\0') {
-            break;
-        } else if (**tail == ' ') {
-            if (read != 0) {
-                break; // only leading zeros allowed
-            }
-        } else if (**tail == '-') {
-            positive = false;
-        } else if (**tail >= '0' && **tail <= '9') {
-            val = val * 10 + (**tail - '0');
-            read++;
-        } else {
-            break;
-        }
-        (*tail)++;
-    }
-    if (read == 0) {
-        *tail = (char*) str;
-    }
-    return positive ? val : -val;
 }

@@ -20,42 +20,51 @@
 
 
 #include "Control.h"
-
 #include <stddef.h>
-
 #include "../devices/Actuator/Actuator.h"
 #include "../devices/Sensor.h"
 #include "../devices/TempSensor/TempSensorDisconnected.h"
 
-
-Control::Control(){}
+Control::Control()
+{
+    beerSensor = NULL;
+    fridgeSensor = NULL;
+    ambientSensor = NULL;
+    chamberCooler = NULL;
+    chamberHeater = NULL;
+    beerHeater = NULL;
+}
 
 extern ValueSensor<bool>      defaultSensor;
-extern ValueActuator          defaultActuator;
+extern BoolActuator          defaultActuator;
 extern DisconnectedTempSensor defaultTempSensor;
 
 void Control::initBackwardsCompatible(void)
 {
-
     // this is for cases where the device manager hasn't configured beer/fridge sensor.
     if (beerSensor == NULL)
     {
         beerSensor = new TempSensor(TEMP_SENSOR_TYPE_BEER, &defaultTempSensor);
+
         beerSensor -> init();
     }
 
     if (fridgeSensor == NULL)
     {
         fridgeSensor = new TempSensor(TEMP_SENSOR_TYPE_FRIDGE, &defaultTempSensor);
+
         fridgeSensor -> init();
     }
 
-    if (chamberHeater == NULL){
+    if (chamberHeater == NULL)
+    {
         chamberHeater = new ActuatorPwm(&defaultActuator, 4);
     }
-    if (chamberCooler == NULL){
-            chamberCooler = new ActuatorPwm(&defaultActuator, 600);
-        }
+
+    if (chamberCooler == NULL)
+    {
+        chamberCooler = new ActuatorPwm(&defaultActuator, 600);
+    }
 
     if (beerHeater == NULL)
     {
@@ -65,19 +74,28 @@ void Control::initBackwardsCompatible(void)
     Pid * beerHeaterPid   = new Pid(beerSensor, beerHeater);
     Pid * fridgeHeaterPid = new Pid(fridgeSensor, chamberHeater);
     Pid * fridgeCoolerPid = new Pid(fridgeSensor, chamberCooler);
-    //Pid * beerToFridgePid = new Pid;
+
+    // Pid * beerToFridgePid = new Pid;
 
     pids.push_back(beerHeaterPid);
     pids.push_back(fridgeHeaterPid);
     pids.push_back(fridgeCoolerPid);
+
     // pids.push_back(beerToFridgePid);
 
-    for ( auto &i : pids ) {
-       // i->setConstants(doubleToTempDiff(5.0), doubleToTempDiff(0.2), doubleToTempDiff(-1.5));
-        i->setInputFilter(4u);
-        i->setDerivativeFilter(4u);
-        i->setDoubleDerivativeFilter(4u);
-        i->setMinMax(0, 255);
-    }
+
+   for ( auto &pid : pids ) {
+      // i->setConstants(doubleToTempDiff(5.0), doubleToTempDiff(0.2), doubleToTempDiff(-1.5));
+       pid->setInputFilter(4u);
+       pid->setDerivativeFilter(4u);
+       pid->setDoubleDerivativeFilter(4u);
+       pid->setMinMax(0, 255);
+   }
 }
 
+void Control::update(){
+    for ( auto &pid : pids ) {
+        pid->update();
+    }
+
+}

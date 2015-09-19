@@ -21,38 +21,73 @@
 #pragma once
 
 #include <stdint.h>
-#include "Devices.h"
+#include "newTemperatureFormats.h"
 
+enum {
+    ACTUATOR_RANGE,
+    ACTUATOR_TOGGLE,
+    ACTUATOR_THRESHOLD
+};
 
 /*
  * An actuator simply turns something on or off.                        
  */
-
 class Actuator
 {
 public:
     Actuator(){}
     virtual ~Actuator() {}
+    virtual uint8_t type(){ return ACTUATOR_TOGGLE; };
     virtual void setActive(bool active) = 0;
 	virtual bool isActive() = 0;
-	virtual void write(uint8_t val) = 0;
 	virtual Actuator ** getDeviviceTarget(){
 	    return 0;  // recursive call for super classes until this level is reached.
 	}
-	virtual Actuator * getBareActuator(){
-	    return this;
-	}
 };
 
+/*
+ * An LinearActuator has a linear range output between min and max
+ */
+class LinearActuator : public Actuator
+{
+public:
+    LinearActuator(){}
+    virtual ~LinearActuator() {}
+    virtual uint8_t type(){ return ACTUATOR_RANGE; };
+    virtual void setValue(temp_t const& val) = 0;
+    virtual temp_t readValue() = 0;
+    virtual temp_t min() = 0;
+    virtual temp_t max() = 0;
+};
+
+/*
+ * An ThresholdActuator has switches on at a certain threshold. TODO: add hysteresis
+ */
+class ActuatorThreshold : public Actuator
+{
+ActuatorThreshold(){}
+    virtual ~ActuatorThreshold() {}
+    virtual uint8_t type(){ return ACTUATOR_THRESHOLD; };
+    virtual void setValue(temp_t const& val) = 0;
+    virtual temp_t readValue() = 0;
+    virtual temp_t onValue() = 0;
+    virtual temp_t offValue() = 0;
+};
+
+/*
+ * A DriverActuator drivers another actuator, for example a PWM actuator can drive a pin actuator
+ */
 class DriverActuator : public Actuator
 {
+protected:
+    Actuator * target;
+
 public:
     DriverActuator(Actuator * _target){
         target = _target;
     }
     virtual ~DriverActuator(){};
 
-    Actuator * target;
     Actuator ** getDeviviceTarget(){
         if( target->getDeviviceTarget() == 0){
             return &target; // this is bottom
@@ -68,17 +103,54 @@ public:
 };
 
 /*
- * An actuator that simply remembers the set value. This is primary used for testing.
+ * An linear actuator that simply remembers the set value. This is primary used for testing.
  */
-class ValueActuator : public Actuator
+class ValueActuator : public LinearActuator
 {
 public:
-	ValueActuator() : state(false) {}
-	ValueActuator(bool initial) : state(initial) {}
+	ValueActuator(temp_t initial, temp_t minVal, temp_t maxVal) : value(initial), min(minVal), max(maxVal) {}
+
+	virtual void setActive(bool active) {
+	    if(active){
+	        value = max;
+	    }
+	    else{
+	        value = min;
+	    }
+	}
+	virtual bool isActive() { return value > min; }
+	virtual void setValue(temp_t const& val) {
+	    if(val < min){
+	        value = min;
+	    }
+	    else if(val > max){
+	        value = max;
+	    }
+	    else{
+	        value = val;
+	    }
+	}
+	virtual temp_t readValue(){
+	    return value;
+	}
+
+private:
+	temp_t value;
+	temp_t min;
+	temp_t max;
+};
+
+/*
+ * An toggle actuator that simply remembers a true/false set value. This is primary used for testing.
+ */
+class BoolActuator : public Actuator
+{
+public:
+	BoolActuator() : state(false) {}
+	BoolActuator(bool initial) : state(initial) {}
 
 	virtual void setActive(bool active) { state = active; }
 	virtual bool isActive() { return state; }
-	virtual void write(uint8_t val) {}
 
 private:
 	bool state;	

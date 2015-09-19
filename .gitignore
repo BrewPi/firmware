@@ -5,5 +5,9 @@ nbproject/private/
 revA/
 revC/
 test/obj/
-.cproject
+*.o
+*.d
 .settings/
+*.pyc
+test_results/*.csv
+.idea/
