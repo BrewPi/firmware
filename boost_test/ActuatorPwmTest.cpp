@@ -29,7 +29,7 @@
 #include "runner.h"
 
 
-temp randomIntervalTest(ActuatorPwm* act, Actuator * target, temp duty, int delayMax) {
+temp_t randomIntervalTest(ActuatorPwm* act, Actuator * target, temp_t duty, int delayMax) {
     act->setValue(duty);
     ticks_millis_t lowToHighTime = ticks.millis();
     ticks_millis_t highToLowTime = ticks.millis();
@@ -68,7 +68,7 @@ temp randomIntervalTest(ActuatorPwm* act, Actuator * target, temp duty, int dela
         
     }
     double avgDuty = double(totalHighTime) / (totalHighTime + totalLowTime);
-    temp avgDutyTemp = temp(round(avgDuty * double(act->max())));
+    temp_t avgDutyTemp = temp_t(round(avgDuty * double(act->max())));
     output << "total high time: " << totalHighTime << "\n"
            << "total low time: " << totalLowTime << "\n"
            << "avg duty: " << avgDutyTemp << "/" << act->max() << "\n";
@@ -81,21 +81,21 @@ BOOST_AUTO_TEST_CASE( Test_ActuatorPWM_with_ValueActuator_as_driver) {
     Actuator * target = new BoolActuator();
     ActuatorPwm * act = new ActuatorPwm(target,4);
 
-    BOOST_CHECK(act->readValue() == temp(0.0)); // PWM value is initialized to 0
+    BOOST_CHECK(act->readValue() == temp_t(0.0)); // PWM value is initialized to 0
 
     // Test that PWM can be set and read
     act->setValue(50.0);
-    BOOST_CHECK_EQUAL(act->readValue(), temp(50.0));
+    BOOST_CHECK_EQUAL(act->readValue(), temp_t(50.0));
     act->setValue(100.0);
-    BOOST_CHECK_EQUAL(act->readValue(), temp(100.0));
+    BOOST_CHECK_EQUAL(act->readValue(), temp_t(100.0));
     act->setValue(0.0);
-    BOOST_CHECK_EQUAL(act->readValue(), temp(0.0));
+    BOOST_CHECK_EQUAL(act->readValue(), temp_t(0.0));
 
     act->setValue(110.0);
-    BOOST_CHECK_EQUAL(act->readValue(), temp(100.0)); // max is 100
+    BOOST_CHECK_EQUAL(act->readValue(), temp_t(100.0)); // max is 100
 
     act->setValue(-50.0);
-    BOOST_CHECK_EQUAL(act->readValue(), temp(0.0)); // min is 0
+    BOOST_CHECK_EQUAL(act->readValue(), temp_t(0.0)); // min is 0
 }
 
 BOOST_AUTO_TEST_CASE(test_ticks_millis_to_increment_every_call) {
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(on_off_time_matches_duty_cycle_when_updating_every_ms) {
     Actuator * target = new BoolActuator();
     ActuatorPwm * act = new ActuatorPwm(target,4);
 
-    temp duty = 50.0;
+    temp_t duty = 50.0;
     act->setValue(duty);
     ticks_millis_t lowToHighTime1 = ticks.millis();
     ticks_millis_t highToLowTime1 = ticks.millis();
@@ -149,10 +149,10 @@ BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_random_update_intervals)
     srand(time(NULL));
     Actuator * target = new BoolActuator();
     ActuatorPwm * act = new ActuatorPwm(target,4);
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 50.0, 500), temp(50.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 3.0, 500), temp(3.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 1.0, 500), temp(1.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 99.0, 500), temp(99.0));
+    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 50.0, 500), temp_t(50.0));
+    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 3.0, 500), temp_t(3.0));
+    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 1.0, 500), temp_t(1.0));
+    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 99.0, 500), temp_t(99.0));
 }
 
 
@@ -202,9 +202,9 @@ BOOST_AUTO_TEST_CASE(ActuatorPWM_with_min_max_time_limited_OnOffActuator_as_driv
     ActuatorPwm * act = new ActuatorPwm(onOffAct, 10);
 
     // Test that average duty cycle is correct, even with minimum times enforced in the actuator
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 50.0, 500), temp(50.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 3.0, 500), temp(3.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 1.0, 500), temp(1.0));
+    BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 50.0, 500), temp_t(50.0));
+    BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 3.0, 500), temp_t(3.0));
+    BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 1.0, 500), temp_t(1.0));
     // BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 99.0, 500), temp(99.0)); // 99 not attainable due to minimum OFF time
 }
 
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_up_faster_than_period_gives_correct_average){
     ticks_seconds_t timeLow = 0;
 
     for(int ramps = 0; ramps <100; ramps++){ // enough ramps to not be affected by time window
-        for(temp v = temp(40.0); v <= temp(60.0); v = v + temp(0.25)){
+        for(temp_t v = temp_t(40.0); v <= temp_t(60.0); v = v + temp_t(0.25)){
             act->setValue(v);
             for(int j = 0; j < 100; j++){ // 10 seconds total
                 delay(100);
@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_down_faster_than_period_gives_correct_average){
       ticks_seconds_t timeLow = 0;
 
       for(int ramps = 0; ramps <100; ramps++){ // enough ramps to not be affected by time window
-          for(temp v = temp(60.0); v >= temp(40.0); v = v - temp(0.25)){
+          for(temp_t v = temp_t(60.0); v >= temp_t(40.0); v = v - temp_t(0.25)){
               act->setValue(v);
               for(int j = 0; j < 100; j++){ // 10 seconds total
                   delay(100);

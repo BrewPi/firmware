@@ -40,13 +40,13 @@ class Pid
 
         void update();
 
-        void setSetPoint(temp val);
+        void setSetPoint(temp_t val);
 
-        temp getSetPoint(){ return setPoint; }
+        temp_t getSetPoint(){ return setPoint; }
 
-        void setConstants(temp_long kp,
-                          temp_long ki,
-                          temp_long kd);
+        void setConstants(temp_long_t kp,
+                          temp_long_t ki,
+                          temp_long_t kd);
 
         void setFiltering(uint8_t b);
 
@@ -56,8 +56,8 @@ class Pid
 
         void setDerivativeFilter(uint8_t b);
 
-        void setMinMax(temp min,
-                       temp max);
+        void setMinMax(temp_t min,
+                       temp_t max);
 
         bool setInputSensor(BasicTempSensor * s);
 
@@ -79,18 +79,18 @@ class Pid
     public:
         LinearActuator *  outputActuator;
         BasicTempSensor * inputSensor;
-        temp_long         Kp;    // proportional gain
-        temp_long         Ki;    // integral gain
-        temp_long         Kd;    // derivative gain
-        temp              min;
-        temp              max;
-        temp              setPoint;
-        temp              inputError;
-        temp_long         p;
-        temp_long         i;
-        temp_long         d;
-        temp_precise      derivative;
-        temp_long         integral;
+        temp_long_t         Kp;    // proportional gain
+        temp_long_t         Ki;    // integral gain
+        temp_long_t         Kd;    // derivative gain
+        temp_t              min;
+        temp_t              max;
+        temp_t              setPoint;
+        temp_t              inputError;
+        temp_long_t         p;
+        temp_long_t         i;
+        temp_long_t         d;
+        temp_precise_t      derivative;
+        temp_long_t         integral;
         FilterCascaded    inputFilter;
         FilterCascaded    derivativeFilter;
         uint8_t           failedReadCount;

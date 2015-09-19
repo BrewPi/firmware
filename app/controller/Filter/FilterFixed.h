@@ -79,8 +79,8 @@ class FixedFilter
     protected:
 
         // input and output arrays
-        temp_precise xv[3];
-        temp_precise yv[3];
+        temp_precise_t xv[3];
+        temp_precise_t yv[3];
         uint8_t      a;
         uint8_t      b;
 
@@ -96,7 +96,7 @@ class FixedFilter
         {
         }
 
-        void init(temp_precise val = temp_precise(0.0));
+        void init(temp_precise_t val = temp_precise_t(0.0));
 
         void setFiltering(uint8_t bValue)
         {
@@ -109,28 +109,28 @@ class FixedFilter
             return b;
         }
 
-        temp_precise add(temp_precise val);    // adds a value and returns the most recent filter output
+        temp_precise_t add(temp_precise_t val);    // adds a value and returns the most recent filter output
 
-        temp add(temp val);                    // adds a value and returns the most recent filter output
+        temp_t add(temp_t val);                    // adds a value and returns the most recent filter output
 
-        temp_precise readOutput(void)
+        temp_precise_t readOutput(void)
         {
             return yv[0];
         }
 
-        temp_precise readInput(void)
+        temp_precise_t readInput(void)
         {
             return xv[0];
         }
 
-        temp_precise readPrevOutput(void)
+        temp_precise_t readPrevOutput(void)
         {
             return yv[1];
         }
 
-        bool detectPosPeak(temp_precise * result);    // returns true if peak detected and puts peak in result
+        bool detectPosPeak(temp_precise_t * result);    // returns true if peak detected and puts peak in result
 
-        bool detectNegPeak(temp_precise * result);    // returns true if peak detected and puts peak in result
+        bool detectNegPeak(temp_precise_t * result);    // returns true if peak detected and puts peak in result
 
         bool isRising();
 

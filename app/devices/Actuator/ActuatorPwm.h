@@ -31,30 +31,30 @@ class ActuatorPwm : public LinearActuator
 {
     private:
         Actuator *     target;
-        temp           value;
+        temp_t           value;
         int32_t        dutyLate;
         int32_t        periodLate;
         int32_t        dutyTime;
         ticks_millis_t periodStartTime;
         int32_t  period;
-        temp minVal;
-        temp maxVal;
+        temp_t minVal;
+        temp_t maxVal;
 
     public:
         ActuatorPwm(Actuator * _target, uint16_t _period);
 
         ActuatorPwm(const ActuatorPwm &obj){};
 
-        temp min(){
+        temp_t min(){
             return minVal;
         }
 
-        temp max(){
+        temp_t max(){
             return maxVal;
         }
 
-        temp readValue();
-        void setValue(temp const& val);
+        temp_t readValue();
+        void setValue(temp_t const& val);
 
         void update();
 
@@ -65,7 +65,7 @@ class ActuatorPwm : public LinearActuator
 
         bool isActive()
         {
-            return (value > temp(0.0));
+            return (value > temp_t(0.0));
         }
 
 #if ACTUATOR_VIRTUAL

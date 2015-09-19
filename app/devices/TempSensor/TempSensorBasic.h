@@ -39,6 +39,6 @@ public:
 	/*
 	 * Fetch a new reading from the sensor
 	 */
-	virtual temp read() = 0;
+	virtual temp_t read() = 0;
 	
 };

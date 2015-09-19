@@ -18,13 +18,13 @@
 #include "FilterFixed.h"
 #include <stdlib.h>
 
-temp FixedFilter::add(temp val){
-    temp_precise p = val;
+temp_t FixedFilter::add(temp_t val){
+    temp_precise_t p = val;
     // return output, converted back to normal precision
 	return add(p);
 }
 
-temp_precise FixedFilter::add(temp_precise val){
+temp_precise_t FixedFilter::add(temp_precise_t val){
 	xv[2] = xv[1];
 	xv[1] = xv[0];
 	xv[0] = val;
@@ -36,14 +36,14 @@ temp_precise FixedFilter::add(temp_precise val){
 	yv[0] = (yv[1] - yv[2]) + yv[1]; // expected value + 1*
 	yv[0] -= (yv[1]>>b); // expected value -1>>b*
     yv[0] += (yv[2]>>b); // expected value +1>>b*
-	temp_precise temporary = (xv[0]>>a) + (xv[1]>>uint8_t(a-1)) + (xv[2]>>a); // expected value +(1>>(a-2))
+	temp_precise_t temporary = (xv[0]>>a) + (xv[1]>>uint8_t(a-1)) + (xv[2]>>a); // expected value +(1>>(a-2))
 	temporary -= (yv[2]>>uint8_t(a-2)); // expected value -(1>>(a-2))
 	yv[0] += temporary;
 	
 	return yv[0];
 }
 
-void FixedFilter::init(temp_precise val){
+void FixedFilter::init(temp_precise_t val){
         xv[0] = val;
         xv[1] = val;
         xv[2] = val;
@@ -53,7 +53,7 @@ void FixedFilter::init(temp_precise val){
         yv[2] = val;
 }
 
-bool FixedFilter::detectPosPeak(temp_precise * peak){
+bool FixedFilter::detectPosPeak(temp_precise_t * peak){
 	if(yv[0] < yv[1] && yv[1] >= yv[2]){
 		*peak = yv[1];
 	    return true;
@@ -63,7 +63,7 @@ bool FixedFilter::detectPosPeak(temp_precise * peak){
 	}
 }
 
-bool FixedFilter::detectNegPeak(temp_precise * peak){
+bool FixedFilter::detectNegPeak(temp_precise_t * peak){
 	if(yv[0] > yv[1] && yv[1] <= yv[2]){
 	    *peak = yv[1];
         return true;

@@ -41,9 +41,9 @@
 #define TEMP_SMALL_TYPE       int8_t
 #define TEMP_SMALL_INTBITS    3 // 3 integer bits (-8/+8), 4 fraction bits, 1 sign bit
 
-class temp;
-class temp_precise;
-class temp_long;
+class temp_t;
+class temp_precise_t;
+class temp_long_t;
 class temp_small;
 
 // static function to convert to string, used by all formats in a wrapper
@@ -60,50 +60,50 @@ bool fromStringImpl(int32_t * raw, // result is put in this variable upon succes
         int32_t min, // the minimum value for the result
         int32_t max); // the maximum value for the result
 
-class temp: public fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS> {
+class temp_t: public fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS> {
 
 public:
-    using fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::fixed_point_base; // inherit constructors from base class
+    using fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::fixed_point_base; // inherit constructors from base class
 
-    temp() {
+    temp_t() {
     }
 
     // converting copy constructor which removes the extra precision bits
-    temp(temp_precise const& rhs);
+    temp_t(temp_precise_t const& rhs);
 
     // converting copy constructor which constrains to temp's limits
-    temp(temp_long const& rhs);
+    temp_t(temp_long_t const& rhs);
 
     // converting copy constructor which adds extra fraction and int bits
-    temp(temp_small const& rhs);
+    temp_t(temp_small const& rhs);
 
     // reserve lowest 5 values for special cases (invalid/disabled)
-    static const fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::base_type min_val =
-            fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::min_val + 2;
+    static const fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::base_type min_val =
+            fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::min_val + 2;
 
     // special value to indicate an invalid temp
-    static const fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::base_type invalid_val =
-            fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::min_val;
+    static const fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::base_type invalid_val =
+            fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::min_val;
 
     // special value to indicate an disabled temp
-    static const fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::base_type disabled_val =
-            fpml::fixed_point_base<temp, TEMP_TYPE, TEMP_INTBITS>::min_val + 1;
+    static const fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::base_type disabled_val =
+            fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::min_val + 1;
 
     // function that returns temp object with value min
-    static temp min() {
-        temp t;
+    static temp_t min() {
+        temp_t t;
         t.value_ = min_val;
         return t;
     }
     // function that returns temp object with value min
-    static temp invalid() {
-        temp t;
+    static temp_t invalid() {
+        temp_t t;
         t.value_ = invalid_val;
         return t;
     }
     // function that returns temp object with value min
-    static temp disabled() {
-        temp t;
+    static temp_t disabled() {
+        temp_t t;
         t.value_ = disabled_val;
         return t;
     }
@@ -131,43 +131,43 @@ public:
         return success;
     }
 
-    temp operator+(temp const& rhs);
-    temp_precise operator+(temp_precise const& rhs);
-    temp_long operator+(temp_long const& rhs);
+    temp_t operator+(temp_t const& rhs);
+    temp_precise_t operator+(temp_precise_t const& rhs);
+    temp_long_t operator+(temp_long_t const& rhs);
 
-    temp operator-(temp const& rhs);
-    temp_precise operator-(temp_precise const& rhs);
-    temp_long operator-(temp_long const& rhs);
+    temp_t operator-(temp_t const& rhs);
+    temp_precise_t operator-(temp_precise_t const& rhs);
+    temp_long_t operator-(temp_long_t const& rhs);
 
-    temp operator*(temp const& rhs);
-    temp_precise operator*(temp_precise const& rhs);
-    temp_long operator*(temp_long const& rhs);
+    temp_t operator*(temp_t const& rhs);
+    temp_precise_t operator*(temp_precise_t const& rhs);
+    temp_long_t operator*(temp_long_t const& rhs);
 
-    temp operator/(temp const& rhs);
-    temp_precise operator/(temp_precise const& rhs);
-    temp_long operator/(temp_long const& rhs);
+    temp_t operator/(temp_t const& rhs);
+    temp_precise_t operator/(temp_precise_t const& rhs);
+    temp_long_t operator/(temp_long_t const& rhs);
 
-    friend class temp_precise;
-    friend class temp_long;
+    friend class temp_precise_t;
+    friend class temp_long_t;
     friend class temp_small;
 };
 
-class temp_precise: public fpml::fixed_point_base<temp_precise,
+class temp_precise_t: public fpml::fixed_point_base<temp_precise_t,
         TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS> {
 
 public:
 
-    using fpml::fixed_point_base<temp_precise, TEMP_PRECISE_TYPE,
+    using fpml::fixed_point_base<temp_precise_t, TEMP_PRECISE_TYPE,
             TEMP_PRECISE_INTBITS>::fixed_point_base; // inherit constructors from base class
 
-    temp_precise() {
+    temp_precise_t() {
     }
 
     // converting copy constructor with shifts the value to have more fraction bits
-    temp_precise(temp const& rhs);
+    temp_precise_t(temp_t const& rhs);
 
     // converting copy constructor with shifts the value to have more fraction bits and constrains the result to fit
-    temp_precise(temp_long const& rhs);
+    temp_precise_t(temp_long_t const& rhs);
 
     char * toString(char buf[], uint8_t numDecimals, uint8_t len) {
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
@@ -179,41 +179,41 @@ public:
                 maximum);
     }
 
-    temp_precise operator+(temp_precise const& rhs);
-    temp_precise operator+(temp const& rhs);
-    temp_long operator+(temp_long const& rhs);
+    temp_precise_t operator+(temp_precise_t const& rhs);
+    temp_precise_t operator+(temp_t const& rhs);
+    temp_long_t operator+(temp_long_t const& rhs);
 
-    temp_precise operator-(temp_precise const& rhs);
-    temp_precise operator-(temp const& rhs);
-    temp_long operator-(temp_long const& rhs);
+    temp_precise_t operator-(temp_precise_t const& rhs);
+    temp_precise_t operator-(temp_t const& rhs);
+    temp_long_t operator-(temp_long_t const& rhs);
 
-    temp_precise operator*(temp_precise const& rhs);
-    temp_precise operator*(temp const& rhs);
-    temp_long operator*(temp_long const& rhs);
+    temp_precise_t operator*(temp_precise_t const& rhs);
+    temp_precise_t operator*(temp_t const& rhs);
+    temp_long_t operator*(temp_long_t const& rhs);
 
-    temp_precise operator/(temp_precise const& rhs);
-    temp_precise operator/(temp const& rhs);
-    temp_long operator/(temp_long const& rhs);
+    temp_precise_t operator/(temp_precise_t const& rhs);
+    temp_precise_t operator/(temp_t const& rhs);
+    temp_long_t operator/(temp_long_t const& rhs);
 
-    friend class temp;
-    friend class temp_long;
+    friend class temp_t;
+    friend class temp_long_t;
     friend class temp_small;
 };
 
-class temp_long: public fpml::fixed_point_base<temp_long, TEMP_LONG_TYPE,
+class temp_long_t: public fpml::fixed_point_base<temp_long_t, TEMP_LONG_TYPE,
         TEMP_LONG_INTBITS> {
 
 public:
-    using fpml::fixed_point_base<temp_long, TEMP_LONG_TYPE, TEMP_LONG_INTBITS>::fixed_point_base; // inherit constructors from base class
+    using fpml::fixed_point_base<temp_long_t, TEMP_LONG_TYPE, TEMP_LONG_INTBITS>::fixed_point_base; // inherit constructors from base class
 
-    temp_long() {
+    temp_long_t() {
     }
 
     // converting copy constructor from normal temp format
-    temp_long(temp const& rhs);
+    temp_long_t(temp_t const& rhs);
 
     // converting copy constructor which removes extra precision bits
-    temp_long(temp_precise const& rhs);
+    temp_long_t(temp_precise_t const& rhs);
 
     char * toString(char buf[], uint8_t numDecimals, uint8_t len) {
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
@@ -225,24 +225,24 @@ public:
                 maximum);
     }
 
-    temp_long operator+(temp_long const& rhs);
-    temp_long operator+(temp const& rhs);
-    temp_long operator+(temp_precise const& rhs);
+    temp_long_t operator+(temp_long_t const& rhs);
+    temp_long_t operator+(temp_t const& rhs);
+    temp_long_t operator+(temp_precise_t const& rhs);
 
-    temp_long operator-(temp_long const& rhs);
-    temp_long operator-(temp const& rhs);
-    temp_long operator-(temp_precise const& rhs);
+    temp_long_t operator-(temp_long_t const& rhs);
+    temp_long_t operator-(temp_t const& rhs);
+    temp_long_t operator-(temp_precise_t const& rhs);
 
-    temp_long operator*(temp_long const& rhs);
-    temp_long operator*(temp const& rhs);
-    temp_long operator*(temp_precise const& rhs);
+    temp_long_t operator*(temp_long_t const& rhs);
+    temp_long_t operator*(temp_t const& rhs);
+    temp_long_t operator*(temp_precise_t const& rhs);
 
-    temp_long operator/(temp_long const& rhs);
-    temp_long operator/(temp const& rhs);
-    temp_long operator/(temp_precise const& rhs);
+    temp_long_t operator/(temp_long_t const& rhs);
+    temp_long_t operator/(temp_t const& rhs);
+    temp_long_t operator/(temp_precise_t const& rhs);
 
-    friend class temp;
-    friend class temp_precise;
+    friend class temp_t;
+    friend class temp_precise_t;
     friend class temp_small;
 };
 
@@ -270,8 +270,8 @@ public:
         return success;
     }
 
-    friend class temp;
-    friend class temp_precise;
-    friend class temp_long;
+    friend class temp_t;
+    friend class temp_precise_t;
+    friend class temp_long_t;
 };
 

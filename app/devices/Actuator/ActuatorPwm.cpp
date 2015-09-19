@@ -15,17 +15,17 @@ ActuatorPwm::ActuatorPwm(Actuator* _target, uint16_t _period) : target(_target) 
 }
 
 void ActuatorPwm::recalculate(){
-    temp_long newPeriod = temp_long(value) * temp_long(period) / temp_long(100);
-    temp_long correctionFactor = temp_long(period + periodLate) / temp_long(period);
+    temp_long_t newPeriod = temp_long_t(value) * temp_long_t(period) / temp_long_t(100);
+    temp_long_t correctionFactor = temp_long_t(period + periodLate) / temp_long_t(period);
     dutyTime = int32_t(newPeriod * correctionFactor);
 }
 
-temp ActuatorPwm::readValue() {
+temp_t ActuatorPwm::readValue() {
     return value;
 }
 
-void ActuatorPwm::setValue(temp const& val) {
-    temp val_(val);
+void ActuatorPwm::setValue(temp_t const& val) {
+    temp_t val_(val);
     if (val_ <= minVal){
         val_ = minVal;
     }
@@ -34,9 +34,9 @@ void ActuatorPwm::setValue(temp const& val) {
     }
 
     if(value != val_){
-        temp delta = (val_ > value) ? val_ - value : value - val_;
+        temp_t delta = (val_ > value) ? val_ - value : value - val_;
         value = val_;
-        if(delta > temp(1.0)){
+        if(delta > temp_t(1.0)){
             dutyLate = 0;
         }
     }

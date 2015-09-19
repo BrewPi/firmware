@@ -24,8 +24,8 @@
 Pid::Pid(BasicTempSensor * input,
          LinearActuator *        output)
 {
-    setConstants(temp(10.0), temp(0.2), temp(-1.5));
-    setMinMax(temp::min(), temp::max());
+    setConstants(temp_t(10.0), temp_t(0.2), temp_t(-1.5));
+    setMinMax(temp_t::min(), temp_t::max());
 
     p = 0;
     i = 0;
@@ -42,14 +42,14 @@ Pid::Pid(BasicTempSensor * input,
 //    tuning = false;
 //    outputLag = 0;
 //    maxDerivative = 0.0;
-    setPoint = temp::invalid_val;
+    setPoint = temp_t::invalid_val;
 }
 
 Pid::~Pid(){}
 
-void Pid::setConstants(temp_long kp,
-                       temp_long ki,
-                       temp_long kd)
+void Pid::setConstants(temp_long_t kp,
+                       temp_long_t ki,
+                       temp_long_t kd)
 {
     Kp = kp;
     Ki = ki;
@@ -58,7 +58,7 @@ void Pid::setConstants(temp_long kp,
 
 void Pid::update()
 {
-    temp inputVal;
+    temp_t inputVal;
     bool disable = false;
 
     if( setPoint.isDisabledOrInvalid()){
@@ -78,7 +78,7 @@ void Pid::update()
                 inputVal = inputSensor -> read();
 
                 inputFilter.init(inputVal);
-                derivativeFilter.init(temp_precise(0.0));
+                derivativeFilter.init(temp_precise_t(0.0));
 
                 failedReadCount = 0;
             }
@@ -102,18 +102,18 @@ void Pid::update()
 
     inputError = setPoint - inputFilter.readOutput();
 
-    temp_precise delta = inputFilter.readOutput() - inputFilter.readPrevOutput();
-    derivativeFilter.add(delta * temp_precise(60.0)); // use slope per minute
+    temp_precise_t delta = inputFilter.readOutput() - inputFilter.readPrevOutput();
+    derivativeFilter.add(delta * temp_precise_t(60.0)); // use slope per minute
 
     derivative = derivativeFilter.readOutput();
 
     // calculate PID parts.
     p = Kp * inputError;
     i = integral; // integral is fed with Ki*error
-    d = temp_long(-1) * Kd * derivative;
+    d = temp_long_t(-1) * Kd * derivative;
 
-    temp_long pidResult = temp_long(p) + temp_long(i) + temp_long(d);
-    temp      output    = pidResult;    // will be constrained to -128/128 here
+    temp_long_t pidResult = temp_long_t(p) + temp_long_t(i) + temp_long_t(d);
+    temp_t      output    = pidResult;    // will be constrained to -128/128 here
 
 //    temp previousOutput = outputActuator->readValue();
 
@@ -124,9 +124,9 @@ void Pid::update()
 
     // update integral with anti-windup back calculation
     // pidResult - output is zero when actuator is not saturated
-    temp_long antiWindup = (pidResult - output);
+    temp_long_t antiWindup = (pidResult - output);
 
-    integral = integral + Ki * (inputError - antiWindup) / temp_long(60);
+    integral = integral + Ki * (inputError - antiWindup) / temp_long_t(60);
 /*
     if(autotune){
         tune(output, previousOutput);
@@ -135,14 +135,14 @@ void Pid::update()
 
 }
 
-void Pid::setSetPoint(temp val)
+void Pid::setSetPoint(temp_t val)
 {
     setPoint = val;
 }
 
 
-void Pid::setMinMax(temp min,
-                    temp max)
+void Pid::setMinMax(temp_t min,
+                    temp_t max)
 {
     this -> min = min;
     this -> max = max;
@@ -169,7 +169,7 @@ void Pid::setDerivativeFilter(uint8_t b)
 
 bool Pid::setInputSensor(BasicTempSensor * s)
 {
-    temp t = s -> read();
+    temp_t t = s -> read();
 
     if (t.isDisabledOrInvalid()){
         return false;    // could not read from sensor

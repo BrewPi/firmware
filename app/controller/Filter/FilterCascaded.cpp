@@ -47,17 +47,17 @@ uint8_t FilterCascaded::getFiltering()
     return sections[0].getFiltering();
 }
 
-temp FilterCascaded::add(const temp & val)
+temp_t FilterCascaded::add(const temp_t & val)
 {
-    temp_precise p = val;
+    temp_precise_t p = val;
 
     // return output, converted back to normal precision
     return add(p);
 }
 
-temp_precise FilterCascaded::add(const temp_precise & val)
+temp_precise_t FilterCascaded::add(const temp_precise_t & val)
 {
-    temp_precise temporary = val;
+    temp_precise_t temporary = val;
 
     // temporary is input for next section, which is the output of the previous section
     for (uint8_t i = 0; i < NUM_SECTIONS; i++)
@@ -68,22 +68,22 @@ temp_precise FilterCascaded::add(const temp_precise & val)
     return temporary;
 }
 
-temp_precise FilterCascaded::readInput(void)
+temp_precise_t FilterCascaded::readInput(void)
 {
     return sections[0].readInput();    // return unfiltered input of first section
 }
 
-temp_precise FilterCascaded::readOutput(void)
+temp_precise_t FilterCascaded::readOutput(void)
 {
     return sections[NUM_SECTIONS - 1].readOutput();    // return output of last section (which is most filtered)
 }
 
-bool FilterCascaded::detectPosPeak(temp_precise * peak)
+bool FilterCascaded::detectPosPeak(temp_precise_t * peak)
 {
     return sections[NUM_SECTIONS - 1].detectPosPeak(peak);    // detect peaks in last section
 }
 
-bool FilterCascaded::detectNegPeak(temp_precise * peak)
+bool FilterCascaded::detectNegPeak(temp_precise_t * peak)
 {
     return sections[NUM_SECTIONS - 1].detectNegPeak(peak);    // detect peaks in last section
 }
@@ -98,12 +98,12 @@ bool FilterCascaded::isFalling()
     return sections[NUM_SECTIONS - 1].isFalling(); // return true if in the last section output < previous output
 }
 
-temp_precise FilterCascaded::readPrevOutput(void)
+temp_precise_t FilterCascaded::readPrevOutput(void)
 {
     return sections[NUM_SECTIONS - 1].readPrevOutput();    // return previous output of last section
 }
 
-void FilterCascaded::init(temp_precise val)
+void FilterCascaded::init(temp_precise_t val)
 {
     for (uint8_t i = 0; i < NUM_SECTIONS; i++)
     {

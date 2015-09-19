@@ -51,10 +51,10 @@ class LinearActuator : public Actuator
     LinearActuator(){}
     virtual ~LinearActuator() {}
     virtual uint8_t type(){ return ACTUATOR_RANGE; };
-    virtual void setValue(temp const& val) = 0;
-    virtual temp readValue() = 0;
-    virtual temp min() = 0;
-    virtual temp max() = 0;
+    virtual void setValue(temp_t const& val) = 0;
+    virtual temp_t readValue() = 0;
+    virtual temp_t min() = 0;
+    virtual temp_t max() = 0;
 };
 
 /*
@@ -66,10 +66,10 @@ class ActuatorThreshold : public Actuator
     ActuatorThreshold(){}
     virtual ~ActuatorThreshold() {}
     virtual uint8_t type(){ return ACTUATOR_THRESHOLD; };
-    virtual void setValue(temp const& val) = 0;
-    virtual temp readValue() = 0;
-    virtual temp onValue() = 0;
-    virtual temp offValue() = 0;
+    virtual void setValue(temp_t const& val) = 0;
+    virtual temp_t readValue() = 0;
+    virtual temp_t onValue() = 0;
+    virtual temp_t offValue() = 0;
 };
 
 
@@ -79,7 +79,7 @@ class ActuatorThreshold : public Actuator
 class ValueActuator : public LinearActuator
 {
 public:
-	ValueActuator(temp initial, temp minVal, temp maxVal) : value(initial), min(minVal), max(maxVal) {}
+	ValueActuator(temp_t initial, temp_t minVal, temp_t maxVal) : value(initial), min(minVal), max(maxVal) {}
 
 	virtual void setActive(bool active) {
 	    if(active){
@@ -90,7 +90,7 @@ public:
 	    }
 	}
 	virtual bool isActive() { return value > min; }
-	virtual void setValue(temp const& val) {
+	virtual void setValue(temp_t const& val) {
 	    if(val < min){
 	        value = min;
 	    }
@@ -101,14 +101,14 @@ public:
 	        value = val;
 	    }
 	}
-	virtual temp readValue(){
+	virtual temp_t readValue(){
 	    return value;
 	}
 
 private:
-	temp value;
-	temp min;
-	temp max;
+	temp_t value;
+	temp_t min;
+	temp_t max;
 };
 
 /*

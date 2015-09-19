@@ -28,12 +28,12 @@ BOOST_AUTO_TEST_SUITE( filter_suite )
 BOOST_AUTO_TEST_CASE( filter_init )
 {
     FilterCascaded f;
-    BOOST_REQUIRE_EQUAL(f.readOutput(), temp_precise(0.0));
+    BOOST_REQUIRE_EQUAL(f.readOutput(), temp_precise_t(0.0));
 }
 
 long delayTime(FilterCascaded f){
-    temp_precise target = 100.0;
-    f.init(temp_precise(0.0));
+    temp_precise_t target = 100.0;
+    f.init(temp_precise_t(0.0));
     long addedSamples = 0;
     do{
         f.add(target);
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( filter_has_no_overshoot_and_approaches_input )
 {
     FilterCascaded f;
     f.setFiltering(3); // delay time 88
-    temp_precise input = 10.0;
+    temp_precise_t input = 10.0;
     for(int i=0; i<1000; i++){
         f.add(input);
         BOOST_REQUIRE_MESSAGE(double(f.readOutput()) <= 10.01, "output = " << f.readOutput());
@@ -101,9 +101,9 @@ BOOST_AUTO_TEST_CASE( peak_detect )
     int peaks_detected = 0;
 
     for(double t=0; t<5000; t++){
-        temp_precise val = amplitude * sin( t * 2 * M_PI / period );
+        temp_precise_t val = amplitude * sin( t * 2 * M_PI / period );
         f.add(val);
-        temp_precise peak;
+        temp_precise_t peak;
         if(t>10.0){
             if(f.detectPosPeak(&peak)){
                 BOOST_CHECK_CLOSE(double(peak), 10.0, 1);  // accept 1% margin due to filtering

@@ -75,7 +75,7 @@ struct FridgeSim : public PidTest {
     double airEnergy = airTemp * airCapacity;
     double beerEnergy = beerTemp * beerCapacity;
 
-    void updateSimBeerControl(temp actuatorValue){ // input 1-100
+    void updateSimBeerControl(temp_t actuatorValue){ // input 1-100
         double airTempNew = airTemp;
         double beerTempNew = beerTemp;
         airTempNew += heaterPower * double(actuatorValue) / (100.0 * airCapacity);
@@ -91,7 +91,7 @@ struct FridgeSim : public PidTest {
         sensor->setTemp(beerTemp);
     }
 
-    void updateSimFridgeControl(temp actuatorValue){ // input 1-100
+    void updateSimFridgeControl(temp_t actuatorValue){ // input 1-100
        double airTempNew = airTemp;
        double beerTempNew = beerTemp;
        airTempNew += heaterPower * double(actuatorValue) / (100.0 * airCapacity);
@@ -113,9 +113,9 @@ BOOST_FIXTURE_TEST_SUITE( pid_test, PidTest )
 
 BOOST_AUTO_TEST_CASE (mock_sensor){
     BasicTempSensor * s = new MockTempSensor(20.0);
-    temp t = s->read();
+    temp_t t = s->read();
 
-    BOOST_CHECK_EQUAL(t, temp(20.0));
+    BOOST_CHECK_EQUAL(t, temp_t(20.0));
 }
 
 // using this fixture test case macro resets the fixture
@@ -127,7 +127,7 @@ BOOST_FIXTURE_TEST_CASE(just_proportional, PidTest)
     sensor->setTemp(20.0);
 
     pid->update();
-    BOOST_CHECK_EQUAL(act->readValue(), temp(10.0));
+    BOOST_CHECK_EQUAL(act->readValue(), temp_t(10.0));
 
     // now try changing the temperature input
     sensor->setTemp(18.0);
@@ -166,11 +166,11 @@ BOOST_FIXTURE_TEST_CASE(just_derivative, PidTest)
 
     // update for 10 minutes
     for(int i = 0; i <= 600; i++){
-        sensor->setTemp(temp(50.0) - temp(i*0.05));
+        sensor->setTemp(temp_t(50.0) - temp_t(i*0.05));
         pid->update();
     }
 
-    BOOST_CHECK_EQUAL(sensor->read(), temp(20.0)); // sensor value should have gone from 50 to 20 in 10 minutes
+    BOOST_CHECK_EQUAL(sensor->read(), temp_t(20.0)); // sensor value should have gone from 50 to 20 in 10 minutes
 
 
     // derivative is interpreted as degree per minute, in this case -3 deg / min. PID should be -3*-5 = 15.
@@ -262,7 +262,7 @@ BOOST_FIXTURE_TEST_CASE(double_step_response_beer_control, FridgeSim)
         pid->setSetPoint(setPoint);
         pid->update();
 
-        temp outputVal = act->readValue();
+        temp_t outputVal = act->readValue();
         updateSimBeerControl(outputVal);
         csv << setPoint << "," << (beerTemp - setPoint) << "," << beerTemp << "," << airTemp << "," <<
             outputVal << "," << pid->p << "," << pid->i << "," << pid->d << ", " <<
@@ -291,7 +291,7 @@ BOOST_FIXTURE_TEST_CASE(double_step_response_fridge_control, FridgeSim)
         pid->setSetPoint(setPoint);
         pid->update();
 
-        temp outputVal = act->readValue();
+        temp_t outputVal = act->readValue();
         updateSimFridgeControl(outputVal);
         csv << setPoint << "," << (airTemp - setPoint) << "," << beerTemp << "," << airTemp << "," <<
             outputVal << "," << pid->p << "," << pid->i << "," << pid->d << ", " <<

@@ -53,7 +53,7 @@ class FilterCascaded
 
         ~FilterCascaded(){}
 
-        void init(temp_precise val = temp_precise(0.0));
+        void init(temp_precise_t val = temp_precise_t(0.0));
 
         void setFiltering(uint8_t bValue);
 
@@ -63,19 +63,19 @@ class FilterCascaded
 
         uint16_t getDelay();
 
-        temp_precise add(const temp_precise & val);    // adds a value and returns the most recent filter output
+        temp_precise_t add(const temp_precise_t & val);    // adds a value and returns the most recent filter output
 
-        temp add(const temp & val);                    // adds a value and returns the most recent filter output as temp
+        temp_t add(const temp_t & val);                    // adds a value and returns the most recent filter output as temp
 
-        temp_precise readInput(void);                  // returns the most recent filter input
+        temp_precise_t readInput(void);                  // returns the most recent filter input
 
-        temp_precise readOutput(void);
+        temp_precise_t readOutput(void);
 
-        temp_precise readPrevOutput(void);
+        temp_precise_t readPrevOutput(void);
 
-        bool detectPosPeak(temp_precise * peak);
+        bool detectPosPeak(temp_precise_t * peak);
 
-        bool detectNegPeak(temp_precise * peak);
+        bool detectNegPeak(temp_precise_t * peak);
 
         bool isRising();
 

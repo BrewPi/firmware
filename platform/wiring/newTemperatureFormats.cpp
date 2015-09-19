@@ -21,15 +21,15 @@
 
 // Converting constructors, which shift and constrain the value.
 
-temp::temp(const temp_precise& rhs) {
-    unsigned char shift = temp_precise::fractional_bit_count
-            - temp::fractional_bit_count;
+temp_t::temp_t(const temp_precise_t& rhs) {
+    unsigned char shift = temp_precise_t::fractional_bit_count
+            - temp_t::fractional_bit_count;
     this->value_ = rhs.value_ >> shift;
 }
 
-temp::temp(const temp_long& rhs) {
+temp_t::temp_t(const temp_long_t& rhs) {
     // temp and temp_long have same number of fraction bits, no shifting needed
-    static_assert(temp::fractional_bit_count == temp_long::fractional_bit_count,
+    static_assert(temp_t::fractional_bit_count == temp_long_t::fractional_bit_count,
             "temp and temp_long should have same number of fraction bits");
 
     if (rhs.value_ < min_val) {
@@ -41,38 +41,38 @@ temp::temp(const temp_long& rhs) {
     }
 }
 
-temp::temp(const temp_small& rhs) {
-    const unsigned char shift = temp::fractional_bit_count
+temp_t::temp_t(const temp_small& rhs) {
+    const unsigned char shift = temp_t::fractional_bit_count
             - temp_small::fractional_bit_count;
     this->value_ = rhs.value_ << shift;
 }
 
-temp_precise::temp_precise(const temp& rhs) {
+temp_precise_t::temp_precise_t(const temp_t& rhs) {
     // temp and temp_precise have same number of integer bits, so this will not overflow
-    static_assert(temp::integer_bit_count == temp_precise::integer_bit_count,
+    static_assert(temp_t::integer_bit_count == temp_precise_t::integer_bit_count,
             "temp and temp_long should have same number of integer bits");
 
-    unsigned char shift = temp_precise::fractional_bit_count
-            - temp::fractional_bit_count;
+    unsigned char shift = temp_precise_t::fractional_bit_count
+            - temp_t::fractional_bit_count;
     this->value_ = rhs.value_ << shift;
 }
 
-temp_precise::temp_precise(const temp_long& rhs) {
-    const unsigned char shift = temp_precise::fractional_bit_count
-            - temp_long::fractional_bit_count;
+temp_precise_t::temp_precise_t(const temp_long_t& rhs) {
+    const unsigned char shift = temp_precise_t::fractional_bit_count
+            - temp_long_t::fractional_bit_count;
 
     // convert to temp first to make sure it fits
-    temp t = rhs;
+    temp_t t = rhs;
     this->value_ = t.value_ << shift;
 }
 
-temp_long::temp_long(const temp& rhs) {
+temp_long_t::temp_long_t(const temp_t& rhs) {
     this->value_ = rhs.value_;
 }
 
-temp_long::temp_long(const temp_precise& rhs) {
-    unsigned char shift = temp_precise::fractional_bit_count
-            - temp_long::fractional_bit_count;
+temp_long_t::temp_long_t(const temp_precise_t& rhs) {
+    unsigned char shift = temp_precise_t::fractional_bit_count
+            - temp_long_t::fractional_bit_count;
     this->value_ = rhs.value_ >> shift;
 }
 
@@ -82,226 +82,226 @@ temp_long::temp_long(const temp_precise& rhs) {
 // Addition
 
 // this looks recursive, but it prevents ambiguity
-temp temp::operator+(temp const& rhs) {
-    temp result(*this);
+temp_t temp_t::operator+(temp_t const& rhs) {
+    temp_t result(*this);
     result += rhs;
     return result;
 }
 
-temp_precise temp::operator+(temp_precise const& rhs) {
-    temp_precise result(*this);
+temp_precise_t temp_t::operator+(temp_precise_t const& rhs) {
+    temp_precise_t result(*this);
     result += rhs;
     return result;
 }
 
-temp_long temp::operator+(temp_long const& rhs) {
-    temp_long result(*this);
+temp_long_t temp_t::operator+(temp_long_t const& rhs) {
+    temp_long_t result(*this);
     result += rhs;
     return result;
 }
 
-temp_long temp_long::operator+(temp_long const& rhs) {
-    temp_long result(*this);
+temp_long_t temp_long_t::operator+(temp_long_t const& rhs) {
+    temp_long_t result(*this);
     result += rhs;
     return result;
 }
 
-temp_long temp_long::operator+(temp_precise const& rhs) {
-    temp_long result(*this);
-    result += temp_long(rhs);
+temp_long_t temp_long_t::operator+(temp_precise_t const& rhs) {
+    temp_long_t result(*this);
+    result += temp_long_t(rhs);
     return result;
 }
 
-temp_long temp_long::operator+(temp const& rhs) {
-    temp_long result(*this);
-    result += temp_long(rhs);
+temp_long_t temp_long_t::operator+(temp_t const& rhs) {
+    temp_long_t result(*this);
+    result += temp_long_t(rhs);
     return result;
 }
 
-temp_precise temp_precise::operator+(temp_precise const& rhs) {
-    temp_precise result(*this);
+temp_precise_t temp_precise_t::operator+(temp_precise_t const& rhs) {
+    temp_precise_t result(*this);
     result += rhs;
     return result;
 }
 
-temp_precise temp_precise::operator+(temp const& rhs) {
-    temp_precise result(*this);
-    result += temp_precise(rhs);
+temp_precise_t temp_precise_t::operator+(temp_t const& rhs) {
+    temp_precise_t result(*this);
+    result += temp_precise_t(rhs);
     return result;
 }
 
-temp_long temp_precise::operator+(temp_long const& rhs) {
-    temp_long result(*this);
-    result += temp_long(rhs);
+temp_long_t temp_precise_t::operator+(temp_long_t const& rhs) {
+    temp_long_t result(*this);
+    result += temp_long_t(rhs);
     return result;
 }
 
 // Subtraction
 
 // this looks recursive, but it prevents ambiguity
-temp temp::operator-(temp const& rhs) {
-    temp result(*this);
+temp_t temp_t::operator-(temp_t const& rhs) {
+    temp_t result(*this);
     result -= rhs;
     return result;
 }
 
-temp_precise temp::operator-(temp_precise const& rhs) {
-    temp_precise result(*this);
+temp_precise_t temp_t::operator-(temp_precise_t const& rhs) {
+    temp_precise_t result(*this);
     result -= rhs;
     return result;
 }
 
-temp_long temp::operator-(temp_long const& rhs) {
-    temp_long result(*this);
+temp_long_t temp_t::operator-(temp_long_t const& rhs) {
+    temp_long_t result(*this);
     result -= rhs;
     return result;
 }
 
-temp_long temp_long::operator-(temp_long const& rhs) {
-    temp_long result(*this);
+temp_long_t temp_long_t::operator-(temp_long_t const& rhs) {
+    temp_long_t result(*this);
     result -= rhs;
     return result;
 }
 
-temp_long temp_long::operator-(temp_precise const& rhs) {
-    temp_long result(*this);
-    result -= temp_long(rhs);
+temp_long_t temp_long_t::operator-(temp_precise_t const& rhs) {
+    temp_long_t result(*this);
+    result -= temp_long_t(rhs);
     return result;
 }
 
-temp_long temp_long::operator-(temp const& rhs) {
-    temp_long result(*this);
-    result -= temp_long(rhs);
+temp_long_t temp_long_t::operator-(temp_t const& rhs) {
+    temp_long_t result(*this);
+    result -= temp_long_t(rhs);
     return result;
 }
 
-temp_precise temp_precise::operator-(temp_precise const& rhs) {
-    temp_precise result(*this);
+temp_precise_t temp_precise_t::operator-(temp_precise_t const& rhs) {
+    temp_precise_t result(*this);
     result -= rhs;
     return result;
 }
 
-temp_precise temp_precise::operator-(temp const& rhs) {
-    temp_precise result(*this);
-    result -= temp_precise(rhs);
+temp_precise_t temp_precise_t::operator-(temp_t const& rhs) {
+    temp_precise_t result(*this);
+    result -= temp_precise_t(rhs);
     return result;
 }
 
-temp_long temp_precise::operator-(temp_long const& rhs) {
-    temp_long result(*this);
-    result -= temp_long(rhs);
+temp_long_t temp_precise_t::operator-(temp_long_t const& rhs) {
+    temp_long_t result(*this);
+    result -= temp_long_t(rhs);
     return result;
 }
 
 // Multiplication
 
-temp temp::operator*(temp const& rhs) {
-    temp result(*this);
+temp_t temp_t::operator*(temp_t const& rhs) {
+    temp_t result(*this);
     result *= rhs;
     return result;
 }
 
-temp_precise temp::operator*(temp_precise const& rhs) {
-    temp_precise result(*this);
+temp_precise_t temp_t::operator*(temp_precise_t const& rhs) {
+    temp_precise_t result(*this);
     result *= rhs;
     return result;
 }
 
-temp_long temp::operator*(temp_long const& rhs) {
-    temp_long result(*this);
+temp_long_t temp_t::operator*(temp_long_t const& rhs) {
+    temp_long_t result(*this);
     result *= rhs;
     return result;
 }
 
-temp_long temp_long::operator*(temp_long const& rhs) {
-    temp_long result(*this);
+temp_long_t temp_long_t::operator*(temp_long_t const& rhs) {
+    temp_long_t result(*this);
     result *= rhs;
     return result;
 }
 
-temp_long temp_long::operator*(temp_precise const& rhs) {
-    temp_long result(*this);
-    result *= temp_long(rhs);
+temp_long_t temp_long_t::operator*(temp_precise_t const& rhs) {
+    temp_long_t result(*this);
+    result *= temp_long_t(rhs);
     return result;
 }
 
-temp_long temp_long::operator*(temp const& rhs) {
-    temp_long result(*this);
-    result *= temp_long(rhs);
+temp_long_t temp_long_t::operator*(temp_t const& rhs) {
+    temp_long_t result(*this);
+    result *= temp_long_t(rhs);
     return result;
 }
 
-temp_precise temp_precise::operator*(temp_precise const& rhs) {
-    temp_precise result(*this);
+temp_precise_t temp_precise_t::operator*(temp_precise_t const& rhs) {
+    temp_precise_t result(*this);
     result *= rhs;
     return result;
 }
 
-temp_precise temp_precise::operator*(temp const& rhs) {
-    temp_precise result(*this);
-    result *= temp_precise(rhs);
+temp_precise_t temp_precise_t::operator*(temp_t const& rhs) {
+    temp_precise_t result(*this);
+    result *= temp_precise_t(rhs);
     return result;
 }
 
-temp_long temp_precise::operator*(temp_long const& rhs) {
-    temp_long result(*this);
-    result *= temp_long(rhs);
+temp_long_t temp_precise_t::operator*(temp_long_t const& rhs) {
+    temp_long_t result(*this);
+    result *= temp_long_t(rhs);
     return result;
 }
 
 // Division
 
-temp temp::operator/(temp const& rhs) {
-    temp result(*this);
+temp_t temp_t::operator/(temp_t const& rhs) {
+    temp_t result(*this);
     result /= rhs;
     return result;
 }
 
-temp_precise temp::operator/(temp_precise const& rhs) {
-    temp_precise result(*this);
+temp_precise_t temp_t::operator/(temp_precise_t const& rhs) {
+    temp_precise_t result(*this);
     result /= rhs;
     return result;
 }
 
-temp_long temp::operator/(temp_long const& rhs) {
-    temp_long result(*this);
+temp_long_t temp_t::operator/(temp_long_t const& rhs) {
+    temp_long_t result(*this);
     result /= rhs;
     return result;
 }
 
-temp_long temp_long::operator/(temp_long const& rhs) {
-    temp_long result(*this);
+temp_long_t temp_long_t::operator/(temp_long_t const& rhs) {
+    temp_long_t result(*this);
     result /= rhs;
     return result;
 }
 
-temp_long temp_long::operator/(temp_precise const& rhs) {
-    temp_long result(*this);
-    result /= temp_long(rhs);
+temp_long_t temp_long_t::operator/(temp_precise_t const& rhs) {
+    temp_long_t result(*this);
+    result /= temp_long_t(rhs);
     return result;
 }
 
-temp_long temp_long::operator/(temp const& rhs) {
-    temp_long result(*this);
-    result /= temp_long(rhs);
+temp_long_t temp_long_t::operator/(temp_t const& rhs) {
+    temp_long_t result(*this);
+    result /= temp_long_t(rhs);
     return result;
 }
 
-temp_precise temp_precise::operator/(temp_precise const& rhs) {
-    temp_precise result(*this);
+temp_precise_t temp_precise_t::operator/(temp_precise_t const& rhs) {
+    temp_precise_t result(*this);
     result /= rhs;
     return result;
 }
 
-temp_precise temp_precise::operator/(temp const& rhs) {
-    temp_precise result(*this);
-    result /= temp_precise(rhs);
+temp_precise_t temp_precise_t::operator/(temp_t const& rhs) {
+    temp_precise_t result(*this);
+    result /= temp_precise_t(rhs);
     return result;
 }
 
-temp_long temp_precise::operator/(temp_long const& rhs) {
-    temp_long result(*this);
-    result /= temp_long(rhs);
+temp_long_t temp_precise_t::operator/(temp_long_t const& rhs) {
+    temp_long_t result(*this);
+    result /= temp_long_t(rhs);
     return result;
 }
 
