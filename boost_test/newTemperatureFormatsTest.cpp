@@ -433,6 +433,63 @@ BOOST_AUTO_TEST_CASE(temp_conversion_to_and_from_variable_length_string){
     }
 }
 
+BOOST_AUTO_TEST_CASE(temp_conversion_to_and_from_fixed_length_string_in_F_absolute){
+    for(double d = -127; d < 127; d += 0.1){
+        temp_t t = d;
+        char s1[12];
+        char s2[12];
+
+        // use 2 decimals here. Internal format is not accurate to 4, so returned format has some precision errors
+        t.toTempString(s1, 2, 10, 'F', true);
+        snprintf(s2, 12, "%9.02f", double(t)*9.0/5.0 + 32.0);
+        BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\" in F " << " converting " << t);
+
+        // use 4 decimals here, to ensure that input accuracy is higher than internal format
+        t.toTempString(s1, 4, 10, 'F', true);
+        snprintf(s2, 12, "%9.04f", double(t)*9.0/5.0 + 32.0);
+        temp_t t2;
+        BOOST_REQUIRE_MESSAGE(t2.fromTempString(s1, 'F', true), "Could not parse \"" << s1 << "\" in F to temp");
+        BOOST_REQUIRE_EQUAL(t,t2);
+    }
+
+    temp_t t = 1.0;
+    char const * s = "  266.0";
+    BOOST_REQUIRE_MESSAGE(t.fromString((char *) s) == false, "Value outside limits should not be accepted");
+    BOOST_REQUIRE_MESSAGE(t == temp_t(1.0), "and value should remain unchanged");
+
+    char const * s2 = " -202.0";
+    BOOST_REQUIRE_MESSAGE(t.fromString((char *) s2) == false, "Value outside limits should not be accepted");
+    BOOST_REQUIRE_MESSAGE(t == temp_t(1.0), "and value should remain unchanged");
+}
+
+BOOST_AUTO_TEST_CASE(temp_conversion_to_and_from_fixed_length_string_in_F_relative){
+    for(double d = -127; d < 127; d += 0.1){
+        temp_t t = d;
+        char s1[12];
+        char s2[12];
+
+        // use 2 decimals here. Internal format is not accurate to 4, so returned format has some precision errors
+        t.toTempString(s1, 2, 10, 'F', false);
+        snprintf(s2, 12, "%9.02f", double(t)*9.0/5.0);
+        BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\" in F relative" << " converting " << t);
+
+        // use 4 decimals here, to ensure that input accuracy is higher than internal format
+        t.toTempString(s1, 4, 10, 'F', false);
+        temp_t t2;
+        BOOST_REQUIRE_MESSAGE(t2.fromTempString(s1, 'F', false), "Could not parse \"" << s1 << "\" in F relative to temp");
+        BOOST_REQUIRE_EQUAL(t,t2);
+    }
+
+    temp_t t = 1.0;
+    char const * s = "  266.0";
+    BOOST_REQUIRE_MESSAGE(t.fromString((char *) s) == false, "Value outside limits should not be accepted");
+    BOOST_REQUIRE_MESSAGE(t == temp_t(1.0), "and value should remain unchanged");
+
+    char const * s2 = " -202.0";
+    BOOST_REQUIRE_MESSAGE(t.fromString((char *) s2) == false, "Value outside limits should not be accepted");
+    BOOST_REQUIRE_MESSAGE(t == temp_t(1.0), "and value should remain unchanged");
+}
+
 BOOST_AUTO_TEST_CASE(temp_long_conversion_to_and_from_fixed_length_string){
     for(double d = -200; d < 200; d += 0.1){
         temp_long_t t = d;
@@ -463,13 +520,51 @@ BOOST_AUTO_TEST_CASE(temp_long_conversion_to_and_from_variable_length_string){
     }
 }
 
+BOOST_AUTO_TEST_CASE(temp_long_conversion_to_and_from_fixed_length_string_in_F_absolute){
+    for(double d = -200; d < 200; d += 0.1){
+        temp_long_t t = d;
+        char s1[12];
+        char s2[12];
+
+        // use 2 decimals here. Internal format is not accurate to 4, so returned format has some precision errors
+        t.toTempString(s1, 2, 10, 'F', true);
+        snprintf(s2, 12, "%9.02f", double(t)*9.0/5.0 + 32.0);
+        BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\" in F " << " converting " << t);
+
+        // use 4 decimals here, to ensure that input accuracy is higher than internal format
+        t.toTempString(s1, 4, 12, 'F', true);
+        temp_long_t t2;
+        BOOST_REQUIRE_MESSAGE(t2.fromTempString(s1, 'F', true), "Could not parse \"" << s1 << "\" in F to temp_long_t");
+        BOOST_REQUIRE_EQUAL(t,t2);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(temp_long_conversion_to_and_from_fixed_length_string_in_F_relative){
+    for(double d = -200; d < 200; d += 0.1){
+        temp_long_t t = d;
+        char s1[12];
+        char s2[12];
+
+        // use 2 decimals here. Internal format is not accurate to 4, so returned format has some precision errors
+        t.toTempString(s1, 2, 10, 'F', false);
+        snprintf(s2, 12, "%9.02f", double(t)*9.0/5.0);
+        BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\" in F relative" << " converting " << t);
+
+        // use 4 decimals here, to ensure that input accuracy is higher than internal format
+        t.toTempString(s1, 4, 12, 'F', false);
+        temp_long_t t2;
+        BOOST_REQUIRE_MESSAGE(t2.fromTempString(s1, 'F', false), "Could not parse \"" << s1 << "\" in F relative to temp_long_t");
+        BOOST_REQUIRE_EQUAL(t,t2);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(temp_precise_conversion_to_and_from_fixed_length_string){
     for(double d = -127; d < 127; d += 0.1){
         temp_precise_t t = d;
         char s1[12];
         char s2[12];
-        t.toString(s1, 3, 9);
-        snprintf(s2, 12, "%8.03f", double(t));
+        t.toString(s1, 5, 11);
+        snprintf(s2, 12, "%10.05f", double(t));
         BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
 
         temp_precise_t t2;
@@ -493,17 +588,50 @@ BOOST_AUTO_TEST_CASE(temp_precise_conversion_to_and_from_variable_length_string)
     }
 }
 
+
+BOOST_AUTO_TEST_CASE(temp_precise_conversion_to_and_from_fixed_length_string_in_F_absolute){
+    for(double d = -127; d < 127; d += 0.1){
+        temp_precise_t t = d;
+        char s1[12];
+        char s2[12];
+
+        t.toTempString(s1, 5, 11, 'F', true);
+        snprintf(s2, 12, "%10.05f", double(t)*9.0/5.0 + 32.0);
+        BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\" in F " << " converting " << t);
+
+        temp_precise_t t2;
+        BOOST_REQUIRE_MESSAGE(t2.fromTempString(s1, 'F', true), "Could not parse \"" << s1 << "\" in F to temp_precise_t");
+        BOOST_REQUIRE_CLOSE(double(t),double(t2), 0.001); // check close to 0.001%, because input is not as precise as internal format
+    }
+}
+
+BOOST_AUTO_TEST_CASE(temp_precise_conversion_to_and_from_fixed_length_string_in_F_relative){
+    for(double d = -127; d < 127; d += 0.1){
+        temp_precise_t t = d;
+        char s1[12];
+        char s2[12];
+
+        t.toTempString(s1, 5, 11, 'F', false);
+        snprintf(s2, 12, "%10.05f", double(t)*9.0/5.0);
+        BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\" in F relative" << " converting " << t);
+
+        temp_precise_t t2;
+        BOOST_REQUIRE_MESSAGE(t2.fromTempString(s1, 'F', false), "Could not parse \"" << s1 << "\" in F relative to temp_precise_t");
+        BOOST_REQUIRE_CLOSE(double(t),double(t2), 0.001); // check close to 0.001%, because input is not as precise as internal format
+    }
+}
+
 BOOST_AUTO_TEST_CASE(temp_small_conversion_to_and_from_fixed_length_string){
     for(double d = -8; d < 8; d += 0.0625){
         temp_small t = d;
         char s1[12];
         char s2[12];
-        t.toString(s1, 3, 9);
+        t.toTempString(s1, 3, 9, 'C', false);
         snprintf(s2, 12, "%8.03f", round(double(t) * 1000.0) / 1000.0); // don't let snprintf do the rounding, it uses bankers rounding / round to even
         BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
 
         temp_small t2;
-        BOOST_REQUIRE_MESSAGE(t2.fromString(s1), "Could not parse \"" << s1 << "\"to small temp diff");
+        BOOST_REQUIRE_MESSAGE(t2.fromTempString(s1, 'C', false), "Could not parse \"" << s1 << "\"to small temp diff");
         BOOST_REQUIRE_EQUAL(t,t2);
     }
 }
@@ -513,12 +641,12 @@ BOOST_AUTO_TEST_CASE(temp_small_conversion_to_and_from_variable_length_string){
         temp_small t = d;
         char s1[12];
         char s2[12];
-        char * s3 = t.toString(s1, 3, 9);
+        char * s3 = t.toTempString(s1, 3, 9, 'C', false);
         snprintf(s2, 12, "%.03f", round(double(t) * 1000.0) / 1000.0); // don't let snprintf do the rounding, it uses bankers rounding / round to even
         BOOST_REQUIRE_MESSAGE(strcmp(s3, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
 
         temp_small t2;
-        BOOST_REQUIRE_MESSAGE(t2.fromString(s1), "Could not parse \"" << s1 << "\"to small temp diff");
+        BOOST_REQUIRE_MESSAGE(t2.fromTempString(s1, 'C', false), "Could not parse \"" << s1 << "\"to small temp diff");
         BOOST_REQUIRE_EQUAL(t,t2);
     }
 }

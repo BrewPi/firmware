@@ -311,7 +311,9 @@ char * toStringImpl(const int32_t raw, // raw value of fixed point
         const unsigned char F, // number of fraction bits
         char buf[], // target buffer
         const uint8_t numDecimals, // number of decimals to print
-        const uint8_t len) // maximum number of characters to print
+        const uint8_t len, // maximum number of characters to print
+        char format, // C or F
+        bool absolute) // is this an absolute temperature? need to subtract 32 for F
         {
 
     char const digit[] = "0123456789";
@@ -320,6 +322,14 @@ char * toStringImpl(const int32_t raw, // raw value of fixed point
 
     // Use larger type to prevent overflow.
     int64_t shifter = raw;
+
+    if(format =='F'){
+        int8_t rounder = (shifter < 0) ? -25 : 25;
+        shifter = (shifter * 90 + rounder) / 50;
+        if(absolute){
+            shifter += 32 << F;
+        }
+    }
 
     if (shifter < 0) {
         shifter = -shifter;
@@ -366,6 +376,8 @@ char * toStringImpl(const int32_t raw, // raw value of fixed point
 bool fromStringImpl(int32_t * raw, // result is put in this variable upon success
         unsigned char F, // number of fraction bits
         const char * s, // the string to convert
+        char format,
+        bool absolute,
         int32_t minimum, // minimum value for result
         int32_t maximum) // maximum value for result
         {
@@ -403,9 +415,16 @@ bool fromStringImpl(int32_t * raw, // result is put in this variable upon succes
         }
     }
     newValue = positive ? newValue + decimalValue : newValue - decimalValue;
+    if(format == 'F'){
+        if(absolute){
+            newValue -= 32 << F;
+        }
+        int8_t rounder = (newValue < 0) ? -45 : 45;
+        newValue = (newValue * 50 + rounder) / 90; // rounded conversion from F to C
+    }
     if (newValue >= minimum && newValue <= maximum) {
         *raw = newValue;
         return true;
     }
-    return false; // if value is not within limits, it is like invalid
+    return false; // if value is not within limits, it is likely invalid
 }

@@ -51,12 +51,16 @@ char * toStringImpl(const int32_t raw, // raw value of fixed point
         const unsigned char F, // number of fixed point bits
         char buf[], // target buffer
         const uint8_t numDecimals, // number of decimals to print
-        const uint8_t len); // maximum number of characters to print
+        const uint8_t len, // maximum number of characters to print
+        char format, // C or F
+        bool absolute); // is this an absolute temperature? need to subtract 32 for Fahrenheit
 
 // static function to convert from a string, used by all formats in a wrapper
 bool fromStringImpl(int32_t * raw, // result is put in this variable upon success
         const unsigned char F, // number of fraction bits
         const char * s, // the string to convert
+        char format, // C or F
+        bool absolute, // is this an absolute temperature? need to subtract 32 for Fahrenheit
         int32_t min, // the minimum value for the result
         int32_t max); // the maximum value for the result
 
@@ -117,18 +121,44 @@ public:
             strcpy_P(buf, PSTR("null"));
             return buf;
         }
-        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
+        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, 'C', false);
     }
 
-    bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum =
+    // converts a string in decimal notation to fixed point format
+    bool fromString(const char * s, int32_t minimum = min_val, int32_t maximum =
             max_val) {
         int32_t tempValue;
         bool success = fromStringImpl(&tempValue, fractional_bit_count, s,
-                minimum, maximum);
+                'C', false, minimum, maximum);
         if (success) {
             value_ = tempValue;
         }
         return success;
+    }
+
+    // converts a temperature in decimal notation to fixed point format
+    // for temperatures in C, this is the same as fromString
+    // for temperatures in F, it converts to the internal format in C
+    bool fromTempString(const char * s, char format, bool absolute, int32_t minimum = min_val, int32_t maximum =
+                max_val) {
+        int32_t tempValue;
+        bool success = fromStringImpl(&tempValue, fractional_bit_count, s,
+                format, absolute, minimum, maximum);
+        if (success) {
+            value_ = tempValue;
+        }
+        return success;
+    }
+
+    // converts a temperature in decimal notation to fixed point format
+    // for temperatures in C, this is the same as fromString
+    // for temperatures in F, it converts to the internal format in C
+    bool toTempString(char buf[], uint8_t numDecimals, uint8_t len, char format, bool absolute){
+        if (isDisabledOrInvalid()) {
+            strcpy_P(buf, PSTR("null"));
+            return buf;
+        }
+        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, format, absolute);
     }
 
     temp_t operator+(temp_t const& rhs);
@@ -170,14 +200,35 @@ public:
     temp_precise_t(temp_long_t const& rhs);
 
     char * toString(char buf[], uint8_t numDecimals, uint8_t len) {
-        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
+        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, 'C', false);
     }
 
     bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum =
             max_val) {
-        return fromStringImpl(&value_, fractional_bit_count, s, minimum,
-                maximum);
+        return fromStringImpl(&value_, fractional_bit_count, s,
+                'C', false, minimum, maximum);
     }
+
+   // converts a temperature in decimal notation to fixed point format
+   // for temperatures in C, this is the same as fromString
+   // for temperatures in F, it converts to the internal format in C
+   bool fromTempString(const char * s, char format, bool absolute, int32_t minimum = min_val, int32_t maximum =
+               max_val) {
+       int32_t tempValue;
+       bool success = fromStringImpl(&tempValue, fractional_bit_count, s,
+               format, absolute, minimum, maximum);
+       if (success) {
+           value_ = tempValue;
+       }
+       return success;
+   }
+
+   // converts a temperature in decimal notation to fixed point format
+   // for temperatures in C, this is the same as fromString
+   // for temperatures in F, it converts to the internal format in C
+   bool toTempString(char buf[], uint8_t numDecimals, uint8_t len, char format, bool absolute){
+       return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, format, absolute);
+   }
 
     temp_precise_t operator+(temp_precise_t const& rhs);
     temp_precise_t operator+(temp_t const& rhs);
@@ -216,13 +267,34 @@ public:
     temp_long_t(temp_precise_t const& rhs);
 
     char * toString(char buf[], uint8_t numDecimals, uint8_t len) {
-        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
+        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, 'C', false);
     }
 
     bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum =
             max_val) {
-        return fromStringImpl(&value_, fractional_bit_count, s, minimum,
-                maximum);
+        return fromStringImpl(&value_, fractional_bit_count, s,
+                'C', false, minimum, maximum);
+    }
+
+    // converts a temperature in decimal notation to fixed point format
+    // for temperatures in C, this is the same as fromString
+    // for temperatures in F, it converts to the internal format in C
+    bool fromTempString(const char * s, char format, bool absolute, int32_t minimum = min_val, int32_t maximum =
+               max_val) {
+       int32_t tempValue;
+       bool success = fromStringImpl(&tempValue, fractional_bit_count, s,
+               format, absolute, minimum, maximum);
+       if (success) {
+           value_ = tempValue;
+       }
+       return success;
+    }
+
+    // converts a temperature in decimal notation to fixed point format
+    // for temperatures in C, this is the same as fromString
+    // for temperatures in F, it converts to the internal format in C
+    bool toTempString(char buf[], uint8_t numDecimals, uint8_t len, char format, bool absolute){
+       return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, format, absolute);
     }
 
     temp_long_t operator+(temp_long_t const& rhs);
@@ -255,15 +327,15 @@ public:
     temp_small() {
     }
 
-    char * toString(char buf[], uint8_t numDecimals, uint8_t len) {
-        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len);
+    char * toTempString(char buf[], uint8_t numDecimals, uint8_t len, char format, bool absolute) {
+        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, format, absolute);
     }
 
-    bool fromString(char * const s, int32_t minimum = min_val, int32_t maximum =
-            max_val) {
+    bool fromTempString(char * const s, char format, bool absolute,
+            int32_t minimum = min_val, int32_t maximum = max_val) {
         int32_t tempValue;
         bool success = fromStringImpl(&tempValue, fractional_bit_count, s,
-                minimum, maximum);
+                format, absolute, minimum, maximum);
         if (success) {
             value_ = tempValue;
         }
