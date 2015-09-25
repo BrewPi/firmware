@@ -95,20 +95,6 @@ BOOST_AUTO_TEST_CASE( conversion_from_precise_to_normal_temp)
     BOOST_CHECK_EQUAL(t, temp_t(0.5));
 }
 
-
-BOOST_AUTO_TEST_CASE( conversion_from_small_to_normal_temp)
-{
-    // normal variable to convert from
-    temp_small ts0 = 0.5;
-    temp_t t0 = 0.5;
-
-    // conversion to normal format
-    temp_t t1 = ts0;
-
-    BOOST_CHECK_EQUAL(t0, t1);
-}
-
-
 BOOST_AUTO_TEST_CASE(conversion_to_double)
 {
     BOOST_CHECK_CLOSE(1.0, double(temp_t(1)), 1);
@@ -618,36 +604,6 @@ BOOST_AUTO_TEST_CASE(temp_precise_conversion_to_and_from_fixed_length_string_in_
         temp_precise_t t2;
         BOOST_REQUIRE_MESSAGE(t2.fromTempString(s1, 'F', false), "Could not parse \"" << s1 << "\" in F relative to temp_precise_t");
         BOOST_REQUIRE_CLOSE(double(t),double(t2), 0.001); // check close to 0.001%, because input is not as precise as internal format
-    }
-}
-
-BOOST_AUTO_TEST_CASE(temp_small_conversion_to_and_from_fixed_length_string){
-    for(double d = -8; d < 8; d += 0.0625){
-        temp_small t = d;
-        char s1[12];
-        char s2[12];
-        t.toTempString(s1, 3, 9, 'C', false);
-        snprintf(s2, 12, "%8.03f", round(double(t) * 1000.0) / 1000.0); // don't let snprintf do the rounding, it uses bankers rounding / round to even
-        BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
-
-        temp_small t2;
-        BOOST_REQUIRE_MESSAGE(t2.fromTempString(s1, 'C', false), "Could not parse \"" << s1 << "\"to small temp diff");
-        BOOST_REQUIRE_EQUAL(t,t2);
-    }
-}
-
-BOOST_AUTO_TEST_CASE(temp_small_conversion_to_and_from_variable_length_string){
-    for(double d = -8; d < 8; d += 0.0625){
-        temp_small t = d;
-        char s1[12];
-        char s2[12];
-        char * s3 = t.toTempString(s1, 3, 9, 'C', false);
-        snprintf(s2, 12, "%.03f", round(double(t) * 1000.0) / 1000.0); // don't let snprintf do the rounding, it uses bankers rounding / round to even
-        BOOST_REQUIRE_MESSAGE(strcmp(s3, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
-
-        temp_small t2;
-        BOOST_REQUIRE_MESSAGE(t2.fromTempString(s1, 'C', false), "Could not parse \"" << s1 << "\"to small temp diff");
-        BOOST_REQUIRE_EQUAL(t,t2);
     }
 }
 

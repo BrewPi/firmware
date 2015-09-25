@@ -37,14 +37,9 @@
 #define TEMP_PRECISE_TYPE       int32_t
 #define TEMP_PRECISE_INTBITS    7 // 7 integer bits (-128/128), 23 fraction bits, 1 sign bit)
 
-// used for small temperature differences, for example for sensor calibration
-#define TEMP_SMALL_TYPE       int8_t
-#define TEMP_SMALL_INTBITS    3 // 3 integer bits (-8/+8), 4 fraction bits, 1 sign bit
-
 class temp_t;
 class temp_precise_t;
 class temp_long_t;
-class temp_small;
 
 // static function to convert to string, used by all formats in a wrapper
 char * toStringImpl(const int32_t raw, // raw value of fixed point
@@ -77,9 +72,6 @@ public:
 
     // converting copy constructor which constrains to temp's limits
     temp_t(temp_long_t const& rhs);
-
-    // converting copy constructor which adds extra fraction and int bits
-    temp_t(temp_small const& rhs);
 
     // reserve lowest 5 values for special cases (invalid/disabled)
     static const fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::base_type min_val =
@@ -179,7 +171,6 @@ public:
 
     friend class temp_precise_t;
     friend class temp_long_t;
-    friend class temp_small;
 };
 
 class temp_precise_t: public fpml::fixed_point_base<temp_precise_t,
@@ -248,7 +239,6 @@ public:
 
     friend class temp_t;
     friend class temp_long_t;
-    friend class temp_small;
 };
 
 class temp_long_t: public fpml::fixed_point_base<temp_long_t, TEMP_LONG_TYPE,
@@ -315,35 +305,4 @@ public:
 
     friend class temp_t;
     friend class temp_precise_t;
-    friend class temp_small;
 };
-
-class temp_small: public fpml::fixed_point_base<temp_small, TEMP_SMALL_TYPE,
-        TEMP_SMALL_INTBITS> {
-
-public:
-    using fpml::fixed_point_base<temp_small, TEMP_SMALL_TYPE, TEMP_SMALL_INTBITS>::fixed_point_base; // inherit constructors from base class
-
-    temp_small() {
-    }
-
-    char * toTempString(char buf[], uint8_t numDecimals, uint8_t len, char format, bool absolute) {
-        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, format, absolute);
-    }
-
-    bool fromTempString(char * const s, char format, bool absolute,
-            int32_t minimum = min_val, int32_t maximum = max_val) {
-        int32_t tempValue;
-        bool success = fromStringImpl(&tempValue, fractional_bit_count, s,
-                format, absolute, minimum, maximum);
-        if (success) {
-            value_ = tempValue;
-        }
-        return success;
-    }
-
-    friend class temp_t;
-    friend class temp_precise_t;
-    friend class temp_long_t;
-};
-

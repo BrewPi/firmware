@@ -41,12 +41,6 @@ temp_t::temp_t(const temp_long_t& rhs) {
     }
 }
 
-temp_t::temp_t(const temp_small& rhs) {
-    const unsigned char shift = temp_t::fractional_bit_count
-            - temp_small::fractional_bit_count;
-    this->value_ = rhs.value_ << shift;
-}
-
 temp_precise_t::temp_precise_t(const temp_t& rhs) {
     // temp and temp_precise have same number of integer bits, so this will not overflow
     static_assert(temp_t::integer_bit_count == temp_precise_t::integer_bit_count,
