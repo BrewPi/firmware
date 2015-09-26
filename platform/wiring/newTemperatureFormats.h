@@ -104,11 +104,11 @@ public:
         return t;
     }
 
-    bool isDisabledOrInvalid() {
+    bool isDisabledOrInvalid() const {
         return (value_ < min_val);
     }
 
-    char * toString(char buf[], uint8_t numDecimals, uint8_t len) {
+    char * toString(char buf[], uint8_t numDecimals, uint8_t len) const {
         if (isDisabledOrInvalid()) {
             strcpy_P(buf, PSTR("null"));
             return buf;
@@ -145,7 +145,7 @@ public:
     // converts a temperature in decimal notation to fixed point format
     // for temperatures in C, this is the same as fromString
     // for temperatures in F, it converts to the internal format in C
-    bool toTempString(char buf[], uint8_t numDecimals, uint8_t len, char format, bool absolute){
+    char * toTempString(char buf[], uint8_t numDecimals, uint8_t len, char format, bool absolute) const {
         if (isDisabledOrInvalid()) {
             strcpy_P(buf, PSTR("null"));
             return buf;
@@ -190,7 +190,7 @@ public:
     // converting copy constructor with shifts the value to have more fraction bits and constrains the result to fit
     temp_precise_t(temp_long_t const& rhs);
 
-    char * toString(char buf[], uint8_t numDecimals, uint8_t len) {
+    char * toString(char buf[], uint8_t numDecimals, uint8_t len) const {
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, 'C', false);
     }
 
@@ -217,7 +217,7 @@ public:
    // converts a temperature in decimal notation to fixed point format
    // for temperatures in C, this is the same as fromString
    // for temperatures in F, it converts to the internal format in C
-   bool toTempString(char buf[], uint8_t numDecimals, uint8_t len, char format, bool absolute){
+   bool toTempString(char buf[], uint8_t numDecimals, uint8_t len, char format, bool absolute) const {
        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, format, absolute);
    }
 
@@ -256,7 +256,7 @@ public:
     // converting copy constructor which removes extra precision bits
     temp_long_t(temp_precise_t const& rhs);
 
-    char * toString(char buf[], uint8_t numDecimals, uint8_t len) {
+    char * toString(char buf[], uint8_t numDecimals, uint8_t len) const {
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, 'C', false);
     }
 
@@ -283,7 +283,7 @@ public:
     // converts a temperature in decimal notation to fixed point format
     // for temperatures in C, this is the same as fromString
     // for temperatures in F, it converts to the internal format in C
-    bool toTempString(char buf[], uint8_t numDecimals, uint8_t len, char format, bool absolute){
+    bool toTempString(char buf[], uint8_t numDecimals, uint8_t len, char format, bool absolute) const {
        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, format, absolute);
     }
 
