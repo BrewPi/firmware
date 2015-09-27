@@ -276,14 +276,14 @@ void PiLink::receive(void){
 	#define JSON_TIME		"t"
 	#define JSON_ROOM_TEMP  "rt"
 	
-	temperature beerTemp = -1, beerSet = -1, fridgeTemp = -1, fridgeSet = -1;
+	temp_t beerTemp = -1, beerSet = -1, fridgeTemp = -1, fridgeSet = -1;
 	double roomTemp = -1;
 	uint8_t state = 0xFF;
 	char* beerAnn; char* fridgeAnn;
 	
 	typedef char* PChar;
 	inline bool changed(uint8_t &a, uint8_t b) { uint8_t c = a; a=b; return b!=c; }
-	inline bool changed(temperature &a, temperature b) { temperature c = a; a=b; return b!=c; }
+	inline bool changed(temp_t &a, temp_t b) { temp_t c = a; a=b; return b!=c; }
 	inline bool changed(double &a, double b) { double c = a; a=b; return b!=c; }
 	inline bool changed(PChar &a, PChar b) { PChar c = a; a=b; return b!=c; }
 #else
@@ -303,7 +303,7 @@ void PiLink::receive(void){
 void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotation){
 	printResponse('T');	
 
-	temperature t;
+	temp_t t;
 	t = tempControl.getBeerTemp();
 	if (changed(beerTemp, t))
 		sendJsonTemp(PSTR(JSON_BEER_TEMP), t);
@@ -347,10 +347,10 @@ void PiLink::sendJsonAnnotation(const char* name, const char* annotation)
 	print_P(fmtAnn, annotation);
 }
 
-void PiLink::sendJsonTemp(const char* name, temperature temp)
+void PiLink::sendJsonTemp(const char* name, const temp_t & temp)
 {
 	char tempString[9];
-	tempToString(tempString, temp, 2, 9);
+	temp.toTempString(tempString, tempControl.cc.tempFormat, true, 2, 9);
 	printJsonName(name);
 	piStream.print(tempString);
 }
@@ -423,10 +423,8 @@ void PiLink::sendControlSettings(void){
 	printResponse('S');
 	ControlSettings& cs = tempControl.cs;
 	sendJsonPair(JSONKEY_mode, cs.mode);
-	sendJsonPair(JSONKEY_beerSetting, tempToString(tempString, cs.beerSetting, 2, 12));
-	sendJsonPair(JSONKEY_fridgeSetting, tempToString(tempString, cs.fridgeSetting, 2, 12));
-	sendJsonPair(JSONKEY_heatEstimator, fixedPointToString(tempString, cs.heatEstimator, 3, 12));
-	sendJsonPair(JSONKEY_coolEstimator, fixedPointToString(tempString, cs.coolEstimator, 3, 12));	
+	sendJsonPair(JSONKEY_beerSetting, cs.beerSetting.toTempString(tempString, 2, 12, tempControl.cc.tempFormat, true));
+	sendJsonPair(JSONKEY_fridgeSetting, cs.fridgeSetting.toTempString(tempString, 2, 12, tempControl.cc.tempFormat, true));
 	sendJsonClose();
 }
 
@@ -444,22 +442,22 @@ void PiLink::jsonOutputUint16(const char* key, uint8_t offset) {
 }
 
 /**
- * outputs the temperature at the given offset from tempControl.cc.
- * The temperature is assumed to be an internal fixed point value.
+ * outputs the temp_t at the given offset from tempControl.cc.
+ * The temp_t is assumed to be an internal fixed point value.
  */
 void PiLink::jsonOutputTempToString(const char* key,  uint8_t offset) {
 	char buf[12];
-	piLink.sendJsonPair(key, tempToString(buf, *((temperature*)(jsonOutputBase+offset)), 1, 12));
+	piLink.sendJsonPair(key, ((temp_t*)(jsonOutputBase+offset))->toTempString(buf, 1, 12, tempControl.cc.tempFormat, true));
 }
 
 void PiLink::jsonOutputFixedPointToString(const char* key, uint8_t offset) {
 	char buf[12];
-	piLink.sendJsonPair(key, fixedPointToString(buf, *((temperature*)(jsonOutputBase+offset)), 3, 12));
+	piLink.sendJsonPair(key, ((temp_t*)(jsonOutputBase+offset))->toString(buf, 1, 12));
 }
 
 void PiLink::jsonOutputTempDiffToString(const char* key, uint8_t offset) {
 	char buf[12];
-	piLink.sendJsonPair(key, tempDiffToString(buf, *((temperature*)(jsonOutputBase+offset)), 3, 12));
+	piLink.sendJsonPair(key, ((temp_t*)(jsonOutputBase+offset))->toTempString(buf, 1, 12, tempControl.cc.tempFormat, false));
 }
 
 void PiLink::jsonOutputChar(const char* key, uint8_t offset) {	
@@ -667,7 +665,7 @@ void PiLink::receiveJson(void){
 
 
 static const char STR_WEB_INTERFACE[] PROGMEM = "in web interface";
-static const char STR_TEMPERATURE_PROFILE[] PROGMEM = "by temperature profile";
+static const char STR_TEMPERATURE_PROFILE[] PROGMEM = "by temp_t profile";
 static const char STR_MODE[] PROGMEM = "Mode";
 static const char STR_BEER_TEMP[] PROGMEM = "Beer temp";
 static const char STR_FRIDGE_TEMP[] PROGMEM = "Fridge temp";
@@ -681,12 +679,12 @@ void PiLink::setMode(const char* val) {
 
 void PiLink::setBeerSetting(const char* val) {
 	const char* source = NULL;
-	temperature newTemp;
-	if(!stringToTemp(&newTemp, val)){
+	temp_t newTemp;
+	if(!newTemp.fromTempString(val, tempControl.cc.tempFormat, true)){
 		return; // could not parse value
 	}
 	if(tempControl.cs.mode == 'p'){
-		if(abs(newTemp-tempControl.cs.beerSetting) > 100){ // this excludes gradual updates under 0.2 degrees
+		if((newTemp-tempControl.cs.beerSetting) > temp_t(0.2) || (tempControl.cs.beerSetting - newTemp) > temp_t(0.2)){ // this excludes gradual updates under 0.2 degrees
 			source = STR_TEMPERATURE_PROFILE;
 		}
 	}
@@ -700,8 +698,8 @@ void PiLink::setBeerSetting(const char* val) {
 }
 
 void PiLink::setFridgeSetting(const char* val) {
-	temperature newTemp;
-	if(!stringToTemp(&newTemp, val)){
+    temp_t newTemp;
+    if(newTemp.fromTempString(val, tempControl.cc.tempFormat, true)){
 		return; // could not parse value
 	}
 	if(tempControl.cs.mode == 'f'){
@@ -741,7 +739,7 @@ void applyFilterSetting(const char* val, void* target) {
         #else
         	uint8_t offset = uint8_t((unsigned int) target);		// target is really just an integer
         #endif
-        
+    /*
 	FilterType filterType = FilterType(offset&3);
 	TempSensorTarget sensorTarget = TempSensorTarget(offset/3);
 	
@@ -754,21 +752,22 @@ void applyFilterSetting(const char* val, void* target) {
 		case SLOW: sensor->setSlowFilterCoefficients(value); break;
 		case SLOPE: sensor->setSlopeFilterCoefficients(value); break;
 	}
-	eepromManager.storeTempConstantsAndSettings();
+	eepromManager.storeTempConstantsAndSettings();*/
 }
 
-void setStringToFixedPoint(const char* value, temperature* target) {
-    if(stringToFixedPoint(target, value)){
+void setStringToFixedPoint(const char* value, temp_t* target) {
+    if(target->fromString(value)){
         eepromManager.storeTempConstantsAndSettings(); // value parsed correctly
     }
 }
-void setStringToTemp(const char* value, temperature* target) {
-    if(stringToTemp(target, value)){
+
+void setStringToTemp(const char* value, temp_t* target) {
+    if(target->fromTempString(value, tempControl.cc.tempFormat, true)){
         eepromManager.storeTempConstantsAndSettings(); // value parsed correctly
     }
 }
-void setStringToTempDiff(const char* value, temperature* target) {
-    if(stringToTempDiff(target, value)){
+void setStringToTempDiff(const char* value, temp_t* target) {
+    if(target->fromTempString(value, tempControl.cc.tempFormat, false)){
         eepromManager.storeTempConstantsAndSettings(); // value parsed correctly
     }
 }
@@ -793,9 +792,6 @@ const PiLink::JsonParserConvert PiLink::jsonParserConverters[] PROGMEM = {
 	JSON_CONVERT(JSONKEY_mode, NULL, setMode),
 	JSON_CONVERT(JSONKEY_beerSetting, NULL, setBeerSetting),
 	JSON_CONVERT(JSONKEY_fridgeSetting, NULL, setFridgeSetting),
-	
-	JSON_CONVERT(JSONKEY_heatEstimator, &tempControl.cs.heatEstimator, setStringToFixedPoint),
-	JSON_CONVERT(JSONKEY_coolEstimator, &tempControl.cs.coolEstimator, setStringToFixedPoint),
 	
 	JSON_CONVERT(JSONKEY_tempFormat, NULL, setTempFormat),
 	

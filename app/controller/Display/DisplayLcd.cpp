@@ -18,7 +18,7 @@
  */
 
 #include "Brewpi.h"
-#include "TemperatureFormats.h"
+#include "newTemperatureFormats.h"
 #include "BrewpiStrings.h"
 #include "Display.h"
 #include "DisplayLcd.h"
@@ -87,7 +87,7 @@ void LcdDisplay::printBeerTemp(void){
 }
 
 void LcdDisplay::printBeerSet(void){
-	temperature beerSet = tempControl.getBeerSetting();	
+	temp_t beerSet = tempControl.getBeerSetting();
 	printTemperatureAt(12, 1, beerSet);	
 }
 
@@ -98,29 +98,25 @@ void LcdDisplay::printFridgeTemp(void){
 }
 
 void LcdDisplay::printFridgeSet(void){	
-	temperature fridgeSet = tempControl.getFridgeSetting();	
+	temp_t fridgeSet = tempControl.getFridgeSetting();
 	if(flags & LCD_FLAG_DISPLAY_ROOM) // beer setting is not active
-		fridgeSet = DISABLED_TEMP;
+		fridgeSet = temp_t::disabled();
 	printTemperatureAt(12, 2, fridgeSet);	
 }
 
-void LcdDisplay::printTemperatureAt(uint8_t x, uint8_t y, temperature temp){
+void LcdDisplay::printTemperatureAt(uint8_t x, uint8_t y, temp_t temp){
 	lcd.setCursor(x,y);
 	printTemperature(temp);
 }
 
 
-void LcdDisplay::printTemperature(temperature temp){
-	if (isDisabledOrInvalid(temp)) {
+void LcdDisplay::printTemperature(temp_t temp){
+	if (temp.isDisabledOrInvalid()) {
 		lcd.print_P(PSTR(" --.-"));
 		return;
 	}
 	char tempString[9];
-	tempToString(tempString, temp, 1 , 9);
-	int8_t spacesToWrite = 5 - (int8_t) strlen(tempString); 
-	for(int8_t i = 0; i < spacesToWrite ;i++){
-		lcd.write(' ');
-	}
+	temp.toString(tempString, 1, 9);
 	lcd.print(tempString);
 }
 

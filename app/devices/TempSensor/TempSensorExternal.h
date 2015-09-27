@@ -21,7 +21,7 @@
 #pragma once
 
 #include "Brewpi.h"
-#include "TempSensor.h"
+#include "TempSensorBasic.h"
 
 /**
  * A temp sensor whose value is not read from the device, but set in code.
@@ -46,17 +46,17 @@ class ExternalTempSensor : public BasicTempSensor
 		return read()!=TEMP_SENSOR_DISCONNECTED;
 	}
 	
-	temperature read() {
+	temp_t read() {
 		if (!isConnected())
 			return TEMP_SENSOR_DISCONNECTED;
 		return _temperature;
 	}
 	
-	void setValue(temperature newTemp) {
+	void setValue(temp_t newTemp) {
 		_temperature = newTemp;		
 	}
 	
 	private:
-	temperature _temperature;
+	temp_t _temperature;
 	bool _connected;
 };

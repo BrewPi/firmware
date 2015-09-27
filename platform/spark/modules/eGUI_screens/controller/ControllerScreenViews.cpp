@@ -96,18 +96,18 @@ void ControllerScreen_Update()
     
     beerTempPresenter.update(tempControl.getBeerTemp(), tempControl.getBeerSetting());
     fridgeTempPresenter.update(tempControl.getFridgeTemp(), tempControl.getFridgeSetting());
-    roomTempPresenter.update(tempControl.getRoomTemp(), INVALID_TEMP, false);
+    roomTempPresenter.update(tempControl.getRoomTemp(), temp_t::invalid(), false);
     
 }
 
 
-void TemperatureProcessPresenter::asString(char* buf, temperature t, unsigned num_decimals, unsigned max_len)
+void TemperatureProcessPresenter::asString(char* buf, temp_t t, unsigned num_decimals, unsigned max_len)
 {
-    if (isDisabledOrInvalid(t)) {
+    if (t.isDisabledOrInvalid()) {
         strcpy(buf, "--.-");
     }
     else
-        tempToString(buf, t, num_decimals, max_len);
+        t.toString(buf, num_decimals, max_len);
 }
 
 const char* TemperatureProcessPresenter::ltrim(const char* s) {
@@ -115,7 +115,7 @@ const char* TemperatureProcessPresenter::ltrim(const char* s) {
     return s;
 }
 
-void TemperatureProcessPresenter::update(temperature current, temperature setpoint, bool has_setpoint)
+void TemperatureProcessPresenter::update(temp_t current, temp_t setpoint, bool has_setpoint)
 {
     char current_str[MAX_TEMP_LEN];
     char setpoint_str[MAX_TEMP_LEN];

@@ -29,17 +29,19 @@
 class ActuatorPwm : public LinearActuator, public DriverActuator
 {
     private:
-        temp_t           value;
+        temp_t         value;
         int32_t        dutyLate;
         int32_t        periodLate;
         int32_t        dutyTime;
         ticks_millis_t periodStartTime;
-        int32_t  period;
-        temp_t minVal;
-        temp_t maxVal;
+        int32_t        period;
+        temp_t         minVal;
+        temp_t         maxVal;
 
     public:
         ActuatorPwm(Actuator * _target, uint16_t _period);
+
+        virtual ~ActuatorPwm(){}
 
         temp_t min(){
             return minVal;
@@ -63,10 +65,6 @@ class ActuatorPwm : public LinearActuator, public DriverActuator
         {
             return (value > temp_t(0.0));
         }
-
-#if ACTUATOR_VIRTUAL
-        virtual ~ActuatorPwm(){}
-#endif
 
         void setTarget(Actuator * driver)
         {

@@ -557,11 +557,11 @@ int16_t DallasTemperature::calculateTemperature(const uint8_t* deviceAddress, ui
 int16_t DallasTemperature::getTempRaw(const uint8_t* deviceAddress) {
     ScratchPad scratchPad;
     if (!readScratchPadCRC(deviceAddress, scratchPad)) {
-        return DEVICE_DISCONNECTED;
+        return DEVICE_DISCONNECTED_RAW;
     }
     // return DEVICE_DISCONNECTED when a reset has been detected to force it to be reconfigured
     if (detectedReset(scratchPad)) {
-        return DEVICE_DISCONNECTED;
+        return DEVICE_DISCONNECTED_RAW;
     }
     return calculateTemperature(deviceAddress, scratchPad);
 }

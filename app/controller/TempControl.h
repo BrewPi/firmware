@@ -20,9 +20,9 @@
 #pragma once
 
 #include "Brewpi.h"
-#include "TemperatureFormats.h"
+#include "newTemperatureFormats.h"
 #include "Platform.h"
-#include "TempSensor.h"
+#include "TempSensorBasic.h"
 #include "Actuator.h"
 #include "Sensor.h"
 #include "EepromTypes.h"
@@ -35,30 +35,28 @@
 // These two structs are stored in and loaded from EEPROM
 struct ControlSettings{
 	control_mode_t mode;
-	temperature beerSetting;
-	temperature fridgeSetting;
-	temperature heatEstimator; // updated automatically by self learning algorithm
-	temperature coolEstimator; // updated automatically by self learning algorithm
+	temp_t beerSetting;
+	temp_t fridgeSetting;
 };
 
 struct ControlVariables{
-	temperature beerDiff;
-	long_temperature diffIntegral; // also uses 9 fraction bits, but more integer bits to prevent overflow
-	temperature beerSlope;
-	temperature p;
-	temperature i;
-	temperature d;
+	temp_t beerDiff;
+	temp_long_t diffIntegral; // also uses 9 fraction bits, but more integer bits to prevent overflow
+	temp_t beerSlope;
+	temp_t p;
+	temp_t i;
+	temp_t d;
 };
 
 struct ControlConstants{
 	char tempFormat;
-	temperature tempSettingMin;
-	temperature tempSettingMax;	
-	temperature Kp;
-	temperature Ki;
-	temperature Kd;
-	temperature idleRangeHigh;
-	temperature idleRangeLow;
+	temp_t tempSettingMin;
+	temp_t tempSettingMax;
+	temp_t Kp;
+	temp_t Ki;
+	temp_t Kd;
+	temp_t idleRangeHigh;
+	temp_t idleRangeLow;
 	// for the filter coefficients the b value is stored. a is calculated from b.
 	uint8_t fridgeFastFilter;	// for display, logging and on-off control
 	uint8_t fridgeSlowFilter;	// for peak detection
@@ -68,20 +66,20 @@ struct ControlConstants{
 	uint8_t beerSlopeFilter;	// for PID calculation
 	uint8_t lightAsHeater;		// use the light to heat rather than the configured heater device
 	uint8_t rotaryHalfSteps; // define whether to use full or half steps for the rotary encoder
-	temperature pidMax;
+	temp_t pidMax;
     uint16_t heatPwmPeriod;
     uint16_t coolPwmPeriod;
     uint16_t minCoolTime;
     uint16_t minCoolIdleTime;
-	fixed7_9 fridgePwmKpHeat;
-	fixed7_9 fridgePwmKiHeat;
-	fixed7_9 fridgePwmKdHeat;
-	fixed7_9 fridgePwmKpCool;
-    fixed7_9 fridgePwmKiCool;
-    fixed7_9 fridgePwmKdCool;
-    fixed7_9 beerPwmKpHeat;
-    fixed7_9 beerPwmKiHeat;
-    fixed7_9 beerPwmKdHeat;
+	temp_t fridgePwmKpHeat;
+	temp_t fridgePwmKiHeat;
+	temp_t fridgePwmKdHeat;
+	temp_t fridgePwmKpCool;
+    temp_t fridgePwmKiCool;
+    temp_t fridgePwmKdCool;
+    temp_t beerPwmKpHeat;
+    temp_t beerPwmKiHeat;
+    temp_t beerPwmKdHeat;
 
 };
 
@@ -131,10 +129,7 @@ class TempControl{
 	TEMP_CONTROL_METHOD void updateState(void);
 	TEMP_CONTROL_METHOD void updateOutputs(void);
 	TEMP_CONTROL_METHOD void updatePwm(void);
-	TEMP_CONTROL_METHOD long_temperature fridgePidResult(temp_diff Kp, temp_diff Ki, temp_diff Kd);
-	TEMP_CONTROL_METHOD long_temperature fridgePidResultHeat();
-	TEMP_CONTROL_METHOD long_temperature fridgePidResultCool();
-	
+
 	TEMP_CONTROL_METHOD void loadSettings(eptr_t offset);
 	TEMP_CONTROL_METHOD void storeSettings(eptr_t offset);
 	TEMP_CONTROL_METHOD void loadDefaultSettings(void);
@@ -149,15 +144,15 @@ class TempControl{
  	TEMP_CONTROL_METHOD tcduration_t timeSinceHeating(void);
   	TEMP_CONTROL_METHOD tcduration_t timeSinceIdle(void);
 	  
-	TEMP_CONTROL_METHOD temperature getBeerTemp(void);
-	TEMP_CONTROL_METHOD temperature getBeerSetting(void);
-	TEMP_CONTROL_METHOD void setBeerTemp(temperature newTemp);
+	TEMP_CONTROL_METHOD temp_t getBeerTemp(void);
+	TEMP_CONTROL_METHOD temp_t getBeerSetting(void);
+	TEMP_CONTROL_METHOD void setBeerTemp(temp_t newTemp);
 	
-	TEMP_CONTROL_METHOD temperature getFridgeTemp(void);
-	TEMP_CONTROL_METHOD temperature getFridgeSetting(void);
-	TEMP_CONTROL_METHOD void setFridgeTemp(temperature newTemp);
+	TEMP_CONTROL_METHOD temp_t getFridgeTemp(void);
+	TEMP_CONTROL_METHOD temp_t getFridgeSetting(void);
+	TEMP_CONTROL_METHOD void setFridgeTemp(temp_t newTemp);
 	
-	TEMP_CONTROL_METHOD temperature getRoomTemp(void) {
+	TEMP_CONTROL_METHOD temp_t getRoomTemp(void) {
 		return ambientSensor->read();
 	}
 		
@@ -185,8 +180,8 @@ class TempControl{
 	}
 
 	public:
-	TEMP_CONTROL_FIELD TempSensor* beerSensor;
-	TEMP_CONTROL_FIELD TempSensor* fridgeSensor;
+	TEMP_CONTROL_FIELD BasicTempSensor* beerSensor;
+	TEMP_CONTROL_FIELD BasicTempSensor* fridgeSensor;
 	TEMP_CONTROL_FIELD BasicTempSensor* ambientSensor;
 	TEMP_CONTROL_FIELD ActuatorOnOff* chamberCoolerLimiter;
 	TEMP_CONTROL_FIELD ActuatorPwm* chamberHeater;
@@ -204,7 +199,7 @@ class TempControl{
 
 	private:
 	// keep track of beer setting stored in EEPROM
-	TEMP_CONTROL_FIELD temperature storedBeerSetting;
+	TEMP_CONTROL_FIELD temp_t storedBeerSetting;
 
 	// Timers
 	TEMP_CONTROL_FIELD tcduration_t lastIdleTime;
@@ -215,8 +210,7 @@ class TempControl{
 	TEMP_CONTROL_FIELD states state;
 	TEMP_CONTROL_FIELD bool doorOpen;
 
-	TEMP_CONTROL_FIELD long_temperature fridgeIntegrator;
-
+	TEMP_CONTROL_FIELD temp_long_t fridgeIntegrator;
 	friend class TempControlState;
 };
 	

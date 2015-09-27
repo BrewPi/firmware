@@ -118,7 +118,7 @@ void * DeviceManager::createDevice(DeviceConfig & config,
             return new ExternalTempSensor(
                 false);    // initially disconnected, so init doesn't populate the filters with the default value of 0.0
 #else
-            return new OneWireTempSensor(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.calibration);
+            return new OneWireTempSensor(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.offset.calibration);
 #endif
 
 #if BREWPI_DS2413
@@ -131,7 +131,7 @@ void * DeviceManager::createDevice(DeviceConfig & config,
                 return new BoolActuator();
             }
 #else
-            return new OneWireActuator(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.pio, config.hw.invert);
+            return new OneWireActuator(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.offset.pio, config.hw.invert);
 #endif
 
 #endif
@@ -234,29 +234,15 @@ inline void ** deviceTarget(DeviceConfig & config)
     return ppv;
 }
 
-// A pointer to a "temp sensor" may be a TempSensor* or a BasicTempSensor* .
-// These functions allow uniform treatment.
-inline bool isBasicSensor(DeviceFunction function)
+inline BasicTempSensor & unwrapSensor(void * pv)
 {
-    // currently only ambient sensor is basic. The others are wrapped in a TempSensor.
-    return function == DEVICE_CHAMBER_ROOM_TEMP;
+    return *(BasicTempSensor *) pv;
 }
 
-inline BasicTempSensor & unwrapSensor(DeviceFunction f,
-        void *                                       pv)
-{
-    return isBasicSensor(f) ? *(BasicTempSensor *) pv : ((TempSensor *) pv) -> sensor();
-}
-
-inline void setSensor(DeviceFunction    f,
-                      void **           ppv,
+inline void setSensor(void **           ppv,
                       BasicTempSensor * sensor)
 {
-    if (isBasicSensor(f)){
-        *ppv = sensor;
-    } else{
-        ((TempSensor *) *ppv) -> setSensor(sensor);
-    }
+    *ppv = sensor;
 }
 
 /*
@@ -281,11 +267,9 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
 
         case DEVICETYPE_TEMP_SENSOR :
 
-            // sensor may be wrapped in a TempSensor class, or may stand alone.
-            s = &unwrapSensor(config.deviceFunction, *ppv);
-
+            s = &unwrapSensor(*ppv);
             if (s != &defaultTempSensor){
-                setSensor(config.deviceFunction, ppv, &defaultTempSensor);
+                *ppv = &defaultTempSensor;
                 DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_TEMP_SENSOR, config.deviceFunction));
 
                 delete s;
@@ -336,7 +320,6 @@ void DeviceManager::installDevice(DeviceConfig & config)
     }
 
     BasicTempSensor * s;
-    TempSensor *      ts;
 
     switch (dt){
         case DEVICETYPE_NONE :
@@ -352,16 +335,9 @@ void DeviceManager::installDevice(DeviceConfig & config)
                 logErrorInt(ERROR_OUT_OF_MEMORY_FOR_DEVICE, config.deviceFunction);
             }
 
-            if (isBasicSensor(config.deviceFunction)){
-                s -> init();
+            s -> init();
 
-                *ppv = s;
-            } else{
-                ts = ((TempSensor *) *ppv);
-
-                ts -> setSensor(s);
-                ts -> init();
-            }
+            *ppv = s;
 
 #if BREWPI_SIMULATE
             ((ExternalTempSensor *) s) -> setConnected(true);    // now connect the sensor after init is called
@@ -403,7 +379,7 @@ struct DeviceDefinition
     int8_t        invert;
     int8_t        pio;
     int8_t        deactivate;
-    int8_t        calibrationAdjust;
+    temp_t        calibrationAdjust;
     DeviceAddress address;
 
     /*
@@ -447,10 +423,9 @@ void handleDeviceDefinition(const char * key,
     if (key[0] == DEVICE_ATTRIB_ADDRESS){
         parseBytes(def -> address, val, 8);
     } else if (key[0] == DEVICE_ATTRIB_CALIBRATEADJUST){
-        temperature parsedVal;
-
-        if (stringToTempDiff(&parsedVal, val)){
-            def -> calibrationAdjust = fixed4_4(parsedVal >> (TEMP_FIXED_POINT_BITS - CALIBRATION_OFFSET_PRECISION));
+        temp_t parsedVal;
+        if(parsedVal.fromTempString(val, tempControl.cc.tempFormat, false)){
+            def -> calibrationAdjust = parsedVal;
         }
     } else if (idx >= 0){
         ((uint8_t *) def)[idx] = (uint8_t) atol(val);
@@ -509,13 +484,8 @@ void DeviceManager::parseDeviceDefinition(Stream & p)
     assignIfSet(dev.pinNr, &target.hw.pinNr);
 
 #if BREWPI_DS2413
-    assignIfSet(dev.pio, &target.hw.pio);
+    assignIfSet(dev.pio, &target.hw.offset.pio);
 #endif
-
-    if (dev.calibrationAdjust != -1)    // since this is a union, it also handles pio for 2413 sensors
-    {
-        target.hw.calibration = dev.calibrationAdjust;
-    }
 
     assignIfSet(dev.invert, (uint8_t *) &target.hw.invert);
 
@@ -713,14 +683,12 @@ void DeviceManager::printDevice(device_slot_t  slot,
 
 #if BREWPI_DS2413
     if (config.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2413){
-        printAttrib(p, DEVICE_ATTRIB_PIO, config.hw.pio);
+        printAttrib(p, DEVICE_ATTRIB_PIO, config.hw.offset.pio);
     }
 #endif
 
     if (config.deviceHardware == DEVICE_HARDWARE_ONEWIRE_TEMP){
-        tempDiffToString(buf,
-                         temperature(config.hw.calibration) << (TEMP_FIXED_POINT_BITS - CALIBRATION_OFFSET_PRECISION),
-                         3, 8);
+        config.hw.offset.calibration.toTempString(buf, 3, 8, tempControl.cc.tempFormat, false);
         p.print(",\"j\":");
         p.print(buf);
     }
@@ -830,7 +798,7 @@ device_slot_t findHardwareDevice(DeviceConfig & find)
             switch (find.deviceHardware){
 #if BREWPI_DS2413
                 case DEVICE_HARDWARE_ONEWIRE_2413 :
-                    match &= find.hw.pio == config.hw.pio;
+                    match &= find.hw.offset.pio == config.hw.offset.pio;
 
                     // fall through
 #endif
@@ -862,13 +830,13 @@ inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw,
     OneWireTempSensor sensor(
         bus, hw.address,
         0);    // NB: this value is uncalibrated, since we don't have the calibration offset until the device is configured
-    temperature temp = INVALID_TEMP;
+    temp_t temp = temp_t::invalid();
 
     if (sensor.init()){
         temp = sensor.read();
     }
 
-    tempToString(out, temp, 3, 9);
+    temp.toString(out, 3, 9);
 #else
     strcpy_P(out, PSTR("0.00"));
 #endif
@@ -1024,7 +992,7 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware & h,
 
                         // enumerate each pin separately
                         for (uint8_t i = 0; i < 2; i++){
-                            config.hw.pio = i;
+                            config.hw.offset.pio = i;
 
                             handleEnumeratedDevice(config, h, callback, info);
                         }
@@ -1135,7 +1103,7 @@ void UpdateDeviceState(DeviceDisplay & dd,
             ((Actuator *) *ppv) -> setActive(dd.write != 0);
         } else if (dt == DEVICETYPE_PWM_ACTUATOR){
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write));
-            ((ActuatorPwm *) *ppv) -> setPwm(dd.write);
+            ((ActuatorPwm *) *ppv) -> setValue(dd.write);
         }
     } else if (dd.value == 1){    // read values
         if (dt == DEVICETYPE_SWITCH_SENSOR){
@@ -1143,14 +1111,14 @@ void UpdateDeviceState(DeviceDisplay & dd,
                       (unsigned int) ((SwitchSensor *) *ppv) -> sense()
                       != 0);      // cheaper than itoa, because it overlaps with vsnprintf
         } else if (dt == DEVICETYPE_TEMP_SENSOR){
-            BasicTempSensor & s    = unwrapSensor(dc.deviceFunction, *ppv);
-            temperature       temp = s.read();
-
-            tempToString(val, temp, 3, 9);
+            BasicTempSensor & s = unwrapSensor(*ppv);
+            temp_t temp = s.read();
+            temp.toString(val, 3, 9);
         } else if (dt == DEVICETYPE_SWITCH_ACTUATOR){
             sprintf_P(val, STR_FMT_U, (unsigned int) ((Actuator *) *ppv) -> isActive() != 0);
         } else if (dt == DEVICETYPE_PWM_ACTUATOR){
-            sprintf_P(val, STR_FMT_U, ((ActuatorPwm *) *ppv) -> getPwm());
+            char buf[12];
+            sprintf_P(val, STR_FMT_U, ((ActuatorPwm *) *ppv) -> readValue().toString(buf,1,12));
         }
     }
 }

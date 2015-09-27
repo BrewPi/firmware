@@ -200,18 +200,7 @@ public:
 	}
 	
 	bool doorState() { return doorOpen; }
-
-	void setConnected(TempSensor* sensor, bool connected) 
-	{	
-		ExternalTempSensor& externalSensor = (ExternalTempSensor&)sensor->sensor();
-		externalSensor.setConnected(connected);
-	}
 	
-	bool getConnected(TempSensor* sensor) {
-		ExternalTempSensor& externalSensor = (ExternalTempSensor&)sensor->sensor();
-		return externalSensor.isConnected();		
-	}
-
 	void setSwitch(Sensor<bool>* sensor, bool newSetting) {
 		PValueSensor externalSensor = PValueSensor(sensor);
 		externalSensor->setValue(newSetting);
@@ -247,24 +236,18 @@ private:
 	void updateSensors()
 	{
 		// add noise to the simulated temperature
-		setTemp(tempControl.beerSensor, beerTemp+noise());
-		setTemp(tempControl.fridgeSensor, fridgeTemp+noise());
+		setBasicTemp(*(ExternalTempSensor*)tempControl.beerSensor, beerTemp+noise());
+		setBasicTemp(*(ExternalTempSensor*)tempControl.fridgeSensor, fridgeTemp+noise());
 		setBasicTemp(*(ExternalTempSensor*)tempControl.ambientSensor, currentRoomTemp);		
 	}
 
 	void setBasicTemp(ExternalTempSensor& sensor, double temp)
 	{						
-		temperature fixedTemp = doubleToTemp(temp);
+		temp_t fixedTemp = temp;
 		if (!deviceManager.isDefaultTempSensor(&sensor))
-			sensor.setValue(fixedTemp);				
+			sensor.setValue(fixedTemp);
 	}
 
-	void setTemp(TempSensor* sensor, double temp)
-	{
-		ExternalTempSensor& s = (ExternalTempSensor&)(sensor->sensor());
-		setBasicTemp(s, temp);
-	}
-	
 	double noise() {
 		return sensorNoise==0.0 ? 0.0 : random(sensorNoise*1000.0)/1000.0;
 	}
@@ -415,7 +398,7 @@ extern Simulator simulator;
  *	A run factor >1  runs as accelerated time. Accurate up to ca. 500.
  *	A run factor of -1 runs at full speed.
  */
-void setRunFactor(temperature factor);
+void setRunFactor(temp_t factor);
 
 /**
  * Callback for handling the simulator JSON config.

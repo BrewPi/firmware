@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "TempSensor.h"
+#include "TempSensorBasic.h"
 
 class DisconnectedTempSensor : public BasicTempSensor {
 	
@@ -31,7 +31,7 @@ public:
 		return read()!=TEMP_SENSOR_DISCONNECTED;
 	}
 	
-	temperature read() {
+	temp_t read() {
 		return TEMP_SENSOR_DISCONNECTED;
 	}	
 	

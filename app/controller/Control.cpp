@@ -17,7 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+/*
 
 #include "Control.h"
 #include <stddef.h>
@@ -38,6 +38,7 @@ Control::Control()
 extern ValueSensor<bool>      defaultSensor;
 extern BoolActuator          defaultActuator;
 extern DisconnectedTempSensor defaultTempSensor;
+
 
 void Control::initBackwardsCompatible(void)
 {
@@ -86,10 +87,9 @@ void Control::initBackwardsCompatible(void)
 
    for ( auto &pid : pids ) {
       // i->setConstants(doubleToTempDiff(5.0), doubleToTempDiff(0.2), doubleToTempDiff(-1.5));
-       pid->setInputFilter(4u);
-       pid->setDerivativeFilter(4u);
-       pid->setDoubleDerivativeFilter(4u);
-       pid->setMinMax(0, 255);
+       //pid->setInputFilter(4u);
+       //pid->setDerivativeFilter(4u);
+       //pid->setMinMax(0, 255);
    }
 }
 
@@ -99,3 +99,4 @@ void Control::update(){
     }
 
 }
+*/

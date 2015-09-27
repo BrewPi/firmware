@@ -18,6 +18,7 @@
  */
 
 #pragma once
+#if 0
 
 #include "Brewpi.h"
 #include <stdint.h>
@@ -111,8 +112,6 @@ bool stringToFixedPoint(temperature * result, const char * numberString);
 bool stringToFixedPoint(long_temperature * result, const char * numberString);
 bool stringToTempDiff(temperature * result, const char * string);
 bool stringToTemp(temperature * result, const char * string);
-bool stringToBool(bool * result, const char * numberString);
-bool stringToUint16(uint16_t * result, const char * numberString);
 
 int fixedToTenths(long_temperature temperature);
 temperature tenthsToFixed(int temperature);
@@ -149,3 +148,5 @@ inline bool isDisabledOrInvalid(temperature x){
     return (x == INVALID_TEMP || x == DISABLED_TEMP);
 }
 #define OPTIMIZE_TEMPERATURE_FORMATS 1 && OPTIMIZE_GLOBAL
+
+#endif

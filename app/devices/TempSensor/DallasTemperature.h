@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Brewpi.h"
-#include "TemperatureFormats.h"
 
 #define DALLASTEMPLIBVERSION "3.7.2"
 
@@ -107,9 +106,6 @@
 #define TEMP_11_BIT 0x5F // 11 bit
 #endif
 #define TEMP_12_BIT 0x7F // 12 bit
-
-// Error Codes
-#define DEVICE_DISCONNECTED INVALID_TEMP
 
 #if REQUIRESTEMPCONVERSION || REQUIRESALARMS
 #define DEVICE_DISCONNECTED_C -127

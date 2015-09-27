@@ -19,7 +19,7 @@
  */
 
 #include "Brewpi.h"
-#include "TemperatureFormats.h"
+#include "newTemperatureFormats.h"
 #include "OneWireTempSensor.h"
 #include "DallasTemperature.h"
 #include "OneWire.h"
@@ -59,10 +59,10 @@ bool OneWireTempSensor::init() {
     logDebug("init onewire sensor");
     // This quickly tests if the sensor is connected and initializes the reset detection if necessary.
     if (sensor){
-        // If this is the first conversion after power on, the device will return DEVICE_DISCONNECTED
+        // If this is the first conversion after power on, the device will return DEVICE_DISCONNECTED_RAW
         // Because HIGH_ALARM_TEMP will be copied from EEPROM
-        temperature temp = sensor->getTempRaw(sensorAddress);
-        if(temp == DEVICE_DISCONNECTED){
+        int16_t temp = sensor->getTempRaw(sensorAddress);
+        if(temp == DEVICE_DISCONNECTED_RAW){
             // Device was just powered on and should be initialized
             if(sensor->initConnection(sensorAddress)){
                 requestConversion();
@@ -71,7 +71,7 @@ bool OneWireTempSensor::init() {
             }
         }        
         DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temp));
-        success = temp != DEVICE_DISCONNECTED;
+        success = temp != DEVICE_DISCONNECTED_RAW;
         if(success){
             requestConversion(); // piggyback request for a new conversion
         }
@@ -99,24 +99,25 @@ void OneWireTempSensor::setConnected(bool connected) {
     }
 }
 
-temperature OneWireTempSensor::read() {
+temp_t OneWireTempSensor::read() {
 
     if (!connected)
         return TEMP_SENSOR_DISCONNECTED;
 
-    temperature temp = readAndConstrainTemp();
+    temp_t temp = readAndConstrainTemp();
     requestConversion();
     return temp;
 }
 
-temperature OneWireTempSensor::readAndConstrainTemp() {
-    temperature temp = sensor->getTempRaw(sensorAddress);
-    if (temp == DEVICE_DISCONNECTED) {
+temp_t OneWireTempSensor::readAndConstrainTemp() {
+    int16_t tempRaw = sensor->getTempRaw(sensorAddress);
+    if (tempRaw == DEVICE_DISCONNECTED_RAW) {
         setConnected(false);
-        return TEMP_SENSOR_DISCONNECTED;
+        return temp_t::invalid();
     }
 
-    const uint8_t shift = TEMP_FIXED_POINT_BITS - ONEWIRE_TEMP_SENSOR_PRECISION; // difference in precision between DS18B20 format and temperature adt
-    temp = constrainTemp(temp + calibrationOffset + (C_OFFSET >> shift), ((int) MIN_TEMP) >> shift, ((int) MAX_TEMP) >> shift) << shift;
-    return temp;
+    const uint8_t shift = temp_t::fractional_bit_count - ONEWIRE_TEMP_SENSOR_PRECISION; // difference in precision between DS18B20 format and temperature adt
+    temp_t temp;
+    temp.setRaw(tempRaw << shift);
+    return temp + calibrationOffset;
 }

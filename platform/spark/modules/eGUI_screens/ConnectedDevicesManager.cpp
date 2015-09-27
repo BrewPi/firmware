@@ -1,9 +1,10 @@
 #include "ConnectedDevicesManager.h"
 #include "UI.h"
 
-void valueAsText(const ConnectedDevice* device, char* buf, size_t len) {
+char * valueAsText(const ConnectedDevice* device, char* buf, size_t len) {
+    char * start = buf;
     if (device->dt==DEVICETYPE_TEMP_SENSOR) {        
-        tempToString(buf, device->value.temp, 1, len);        
+        start = device->value.temp.toString(buf, 1, len); // sets buf to first non-space character
     }
     else if (device->dt==DEVICETYPE_SWITCH_ACTUATOR || device->dt==DEVICETYPE_SWITCH_SENSOR) {
         strncpy(buf, device->value.state ? "On" : "Off", len);
@@ -12,6 +13,7 @@ void valueAsText(const ConnectedDevice* device, char* buf, size_t len) {
         buf[0] = 0;
     }
     buf[len-1] = 0;
+    return start;
 }
 
 void connectionAsText(const ConnectedDevice* device, char* buf, size_t len) {
@@ -53,7 +55,7 @@ void ConnectedDevicesManager::handleDevice(DeviceConfig* config, DeviceCallbackI
     if (config->deviceHardware == DEVICE_HARDWARE_ONEWIRE_TEMP) {     
         int slot = existingSlot(config);
         if (slot >= 0) { // found the device still active
-            temperature newTemp = devices[slot].pointer.tempSensor->read();
+            temp_t newTemp = devices[slot].pointer.tempSensor->read();
             if(newTemp == TEMP_SENSOR_DISCONNECTED){
                 devices[slot].lastSeen+=2;                
             } 
@@ -80,7 +82,7 @@ void ConnectedDevicesManager::handleDevice(DeviceConfig* config, DeviceCallbackI
                 device.dt = device.dh == DEVICE_HARDWARE_ONEWIRE_TEMP ? DEVICETYPE_TEMP_SENSOR : DEVICETYPE_SWITCH_ACTUATOR;
                 device.connection.type = deviceConnection(device.dh);
                 memcpy(device.connection.address, config->hw.address, 8);
-                device.value.temp = INVALID_TEMP; // flag invalid
+                device.value.temp = temp_t::invalid(); // flag invalid
                 device.pointer.tempSensor = (BasicTempSensor*) DeviceManager::createDevice(*config, device.dt);
                 if (!device.pointer.tempSensor || !device.pointer.tempSensor->init()) {
                     clearSlot(slot);

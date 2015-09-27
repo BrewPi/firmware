@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "TemperatureFormats.h"
+#include "newTemperatureFormats.h"
 #include "DisplayBase.h"
 
 #include "DisplayLcdImpl.h"
@@ -76,8 +76,8 @@ class LcdDisplay DISPLAY_SUPERCLASS
 	DISPLAY_METHOD void updateBacklight() { lcd.updateBacklight(); }
 	
 	// print a temperature
-	DISPLAY_METHOD void printTemperature(temperature temp);
-	DISPLAY_METHOD void printTemperatureAt(uint8_t x, uint8_t y, temperature temp);
+	DISPLAY_METHOD void printTemperature(temp_t temp);
+	DISPLAY_METHOD void printTemperatureAt(uint8_t x, uint8_t y, temp_t temp);
 
 	// print degree sign + C/F
 	DISPLAY_METHOD void printDegreeUnit(uint8_t x, uint8_t y);

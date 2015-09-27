@@ -30,7 +30,7 @@
 #include "Display.h"
 #include "TempControl.h"
 #include "PiLink.h"
-#include "TempSensor.h"
+#include "TempSensorBasic.h"
 #include "TempSensorMock.h"
 #include "TempSensorExternal.h"
 #include "Ticks.h"
@@ -78,8 +78,8 @@ void setup()
 #if BREWPI_SIMULATE
 	simulator.step();
 	// initialize the filters with the assigned initial temp value
-	tempControl.beerSensor->init();
-	tempControl.fridgeSensor->init();	
+	//tempControl.beerSensor->init();
+	//tempControl.fridgeSensor->init();
 #endif	
     if (resetEeprom)
         eepromManager.initializeEeprom();
@@ -98,19 +98,19 @@ void brewpiLoop(void)
     if(!ui.inStartup() && (ticks.millis() - lastUpdate >= (1000))) { //update settings every second
 		lastUpdate = ticks.millis();
 			
-		tempControl.updateTemperatures();
-		tempControl.updatePID();
+		//tempControl.updateTemperatures();
+		//tempControl.updatePID();
 		oldState = tempControl.getState();
 		tempControl.updateState();
 		if(oldState != tempControl.getState()){
 			piLink.printTemperatures(); // add a data point at every state transition
 		}
-		tempControl.updateOutputs();
+		// tempControl.updateOutputs();
 
         ui.update();
     }	
     if(tempControl.getMode() != MODE_TEST){
-        tempControl.updatePwm();
+        // tempControl.updatePwm();
     }
     //listen for incoming serial connections while waiting to update
     piLink.receive();

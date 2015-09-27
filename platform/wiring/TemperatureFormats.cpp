@@ -17,6 +17,8 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#if 0
+
 #include "Brewpi.h"
 #include "TemperatureFormats.h"
 #include "Platform.h"
@@ -31,13 +33,13 @@
 // returns pointer to the string
 // long_temperature is used to prevent overflow
 
-char * tempToString(char * s, long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength) {
-    if (isDisabledOrInvalid(rawValue)) {
+char * tempToString(char * s, temp_t rawValue, uint8_t numDecimals, uint8_t maxLength) {
+    if (rawValue.isDisabledOrInvalid()) {
         strcpy_P(s, PSTR("null"));
         return s;
     }
     rawValue = convertFromInternalTemp(rawValue);
-    return fixedPointToString(s, rawValue, numDecimals, maxLength);
+    return rawValue.toString(s, Value, numDecimals, maxLength);
 }
 
 char * tempDiffToString(char * s, long_temperature rawValue, uint8_t numDecimals, uint8_t maxLength) {
@@ -155,46 +157,6 @@ bool stringToFixedPoint(temperature * result, const char * numberString) {
     return false;
 }
 
-bool stringToBool(bool * result, const char * numberString) {
-    char* end;
-    if (0 == strcmp(PSTR("true"), numberString)) {
-        *result = true;
-        return true;
-    }
-    if (0 == strcmp(PSTR("false"), numberString)) {
-        *result = false;
-        return true;
-    }
-    uint8_t newValue = strtol_impl(numberString, &end); // only accept 0 and 1
-    if (invalidStrtolResult(numberString, end)) { // no number found in string
-        return false;
-    }
-    if (newValue > 1) {
-        return false;
-    }
-    *result = newValue;
-    return true;
-}
-
-// returns UINT16_MIN on failure
-
-bool stringToUint16(uint16_t* result, const char * numberString) {
-    char* end;
-    long newValue;
-    newValue = strtol_impl(numberString, &end); // only accept 0 and 1
-    if (invalidStrtolResult(numberString, end)) { // no number found in string
-        return false;
-    }
-    if (newValue > UINT16_MAX) {
-        *result = UINT16_MAX; // clip to max
-    } else if (newValue < 0) {
-        return false; // negative values are invalid
-    } else {
-
-        *result = newValue;
-    }
-    return true;
-}
 
 int fixedToTenths(long_temperature temp) {
     temp = convertFromInternalTemp(temp);
@@ -253,3 +215,5 @@ temperature multiplyFactorTemperature(temperature factor, temperature b) {
 temperature multiplyFactorTemperatureDiff(temperature factor, temperature b) {
     return constrainTemp16(((long_temperature) factor * (long_temperature) b) >> TEMP_FIXED_POINT_BITS);
 }
+
+#endif

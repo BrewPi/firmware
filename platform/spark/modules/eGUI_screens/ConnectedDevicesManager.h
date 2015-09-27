@@ -29,6 +29,7 @@
 #include "Board.h"
 #include "fixstl.h"
 #include "ActuatorPin.h"
+#include "newTemperatureFormats.h"
 #include <functional>
 
 #define MAX_TEMP_SENSORS
@@ -56,9 +57,13 @@ struct ConnectedDevice
     } connection;
 
     union Value {
-        temperature temp;       // dt==DEVICETYPE_TEMP_SENSOR
+        temp_t temp;       // dt==DEVICETYPE_TEMP_SENSOR
         bool state;             // dt==DEVICETYPE_SWITCH_SENSOR ||
                                 // dt==DEVICETYPE_ACTUATOR
+        Value(){} // needed because temp_t has non-trivial constructor
+        Value(const Value& v){
+            temp = v.temp; // copy biggest type
+        }
     } value;
 
     union Device {
@@ -69,7 +74,7 @@ struct ConnectedDevice
     } pointer;
 };
 
-void valueAsText(const ConnectedDevice* device, char* buf, size_t len);
+char * valueAsText(const ConnectedDevice* device, char* buf, size_t len);
 void connectionAsText(const ConnectedDevice* device, char* buf, size_t len);
 char* itoa(int i, char b[]);
 

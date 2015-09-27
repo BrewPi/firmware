@@ -20,6 +20,7 @@
 
 #pragma once
 #include <cstring>
+#include <stdint.h>
 
 long int my_strtol(const char* str, char** tail);
 
@@ -34,6 +35,10 @@ inline long int strtol_impl(const char* str, char** tail){
     return strol(str, tail, 10);
 }
 #endif
+
+bool stringToBool(bool * result, const char * numberString);
+
+bool stringToUint16(uint16_t * result, const char * numberString);
 
 // check if strtol function (which has set the end pointer) was successful.
 bool invalidStrtolResult(const char * start, const char * end);

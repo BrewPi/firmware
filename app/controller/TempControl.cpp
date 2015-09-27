@@ -20,17 +20,19 @@
 
 
 #include "Brewpi.h"
-#include "TemperatureFormats.h"
+#include "newTemperatureFormats.h"
 #include "Board.h"
 #include "TempControl.h"
 #include "PiLink.h"
-#include "TempSensor.h"
 #include "Ticks.h"
+#include "TempSensorBasic.h"
 #include "TempSensorMock.h"
-#include "EepromManager.h"
 #include "TempSensorDisconnected.h"
 #include "ModeControl.h"
+#include "EepromManager.h"
 #include "fixstl.h"
+
+#define DISABLED_TEMP temp_t::disabled()
 
 TempControl                   tempControl;
 
@@ -40,8 +42,8 @@ extern BoolActuator          defaultActuator;
 extern DisconnectedTempSensor defaultTempSensor;
 
 // These sensors are switched out to implement multi-chamber.
-TempSensor *      TempControl::beerSensor;
-TempSensor *      TempControl::fridgeSensor;
+BasicTempSensor * TempControl::beerSensor = &defaultTempSensor;
+BasicTempSensor * TempControl::fridgeSensor = &defaultTempSensor;
 BasicTempSensor * TempControl::ambientSensor = &defaultTempSensor;
 Actuator *        TempControl::light         = &defaultActuator;
 Actuator *        TempControl::fan           = &defaultActuator;
@@ -63,14 +65,14 @@ states TempControl::state;
 bool   TempControl::doorOpen;
 
 // keep track of beer setting stored in EEPROM
-temperature TempControl::storedBeerSetting;
+temp_t TempControl::storedBeerSetting;
 
 // Timers
-tcduration_t                      TempControl::lastIdleTime;
-tcduration_t                      TempControl::lastHeatTime;
-tcduration_t                      TempControl::lastCoolTime;
+tcduration_t    TempControl::lastIdleTime;
+tcduration_t    TempControl::lastHeatTime;
+tcduration_t    TempControl::lastCoolTime;
 
-long_temperature TempControl::fridgeIntegrator;
+temp_long_t TempControl::fridgeIntegrator;
 #endif
 
 ControlConstants const ccDefaults PROGMEM =
@@ -81,29 +83,29 @@ ControlConstants const ccDefaults PROGMEM =
     'C',
 
     /* tempSettingMin */
-    intToTemp(1),    // +1 deg Celsius
+    1.0,
 
     /* tempSettingMax */
-    intToTemp(110),    // +112 deg Celsius
+    127.0,
 
     // control defines, also in fixed point format (7 int bits, 9 frac bits), so multiplied by 2^9=512
 
     /* Kp */
-    doubleToTempDiff(5.0),    // +5
+    5.0,
 
     /* Ki */
-    doubleToTempDiff(0.25),    // +0.25
+    0.25,
 
     /* Kd */
-    doubleToTempDiff(1.5),    // -1.5
+    1.5,
 
     // Stay Idle when fridge temperature is in this range
 
     /* idleRangeHigh */
-    doubleToTempDiff(0.1),    // +0.1 deg Celsius
+    0.1,
 
     /* idleRangeLow */
-    doubleToTempDiff(-0.1),    // -0.1 deg Celsius
+    -0.1,
 
     // Set filter coefficients. This is the b value. See FilterFixed.h for delay times.
     // The delay time is 3.33 * 2^b * number of cascades
@@ -133,7 +135,7 @@ ControlConstants const ccDefaults PROGMEM =
     0,
 
     /* pidMax */
-    intToTempDiff(10),    // +/- 10 deg Celsius
+    10.0,
 
     /* heatPwmPeriod */
     4, // 4 seconds
@@ -148,59 +150,44 @@ ControlConstants const ccDefaults PROGMEM =
     180, // 3 minutes
 
     /* fridgePwmKpHeat */
-    intToTempDiff(20),
+    20.0,
 
     /* fridgePwmKiHeat */
-    intToTempDiff(5),
+    5.0,
 
     /* fridgePwmKdHeat */
-    doubleToTempDiff(-0.5),
+    -0.5,
 
     /* fridgePwmKpCool */
-    intToTempDiff(20),
+    20.0,
 
     /* fridgePwmKiCool */
-    intToTempDiff(2),
+    2.0,
 
     /* fridgePwmKdCool */
-    doubleToTempDiff(-0.5),
+    -0.5,
 
     /* beerPwmKpHeat */
-    intToTempDiff(10),
+    10.0,
 
     /* beerPwmKiHeat */
-    intToTempDiff(4),
+    4.0,
 
     /* beerPwmKdHeat */
-    intToTempDiff(-1)
+    -1.0
 };
 
 TempControl::TempControl()
 {
-}
+};
 
-;
+
 void TempControl::init(void)
 {
     state   = IDLE;
     cs.mode = MODE_OFF;
 
     cameraLight.setActive(false);
-
-    // this is for cases where the device manager hasn't configured beer/fridge sensor.
-    if (beerSensor == NULL)
-    {
-        beerSensor = new TempSensor(TEMP_SENSOR_TYPE_BEER, &defaultTempSensor);
-
-        beerSensor -> init();
-    }
-
-    if (fridgeSensor == NULL)
-    {
-        fridgeSensor = new TempSensor(TEMP_SENSOR_TYPE_FRIDGE, &defaultTempSensor);
-
-        fridgeSensor -> init();
-    }
 
     if (chamberHeater == NULL)
     {
@@ -228,21 +215,11 @@ void TempControl::init(void)
     fridgeIntegrator = 0;
 }
 
-void updateSensor(TempSensor * sensor)
-{
-    sensor -> update();
 
-    if (!sensor -> isConnected())
-    {
-        sensor -> init();
-    }
-}
 
 void TempControl::updateTemperatures(void)
 {
-    updateSensor(beerSensor);
-    updateSensor(fridgeSensor);
-
+    // TODO
     // Read ambient sensor to keep the value up to date. If no sensor is connected, this does nothing.
     // This prevents a delay in serial response because the value is not up to date.
     if (ambientSensor -> read() == TEMP_SENSOR_DISCONNECTED)
@@ -253,85 +230,11 @@ void TempControl::updateTemperatures(void)
 
 void TempControl::updatePID(void)
 {
-    // integral for calculations is divided by 60 (integral per minute).
-    // In other words, Ki is scaled *60, because it would have too little precision otherwise for low gains for fermentation
-    // but we need to track an unscaled one to make sure we also accumulate errors in the lowest bits
-    static long_temperature unscaledIntegral = 0;
-
-    if (tempControl.modeIsBeer())
-    {
-        if (isDisabledOrInvalid(cs.beerSetting))
-        {
-            // beer setting is not updated yet
-            // set fridge to unknown too
-            cs.fridgeSetting = DISABLED_TEMP;
-
-            return;
-        }
-
-        // fridge setting is calculated with PID algorithm. Beer temperature error is input to PID
-
-        // make sure error does not overflow by calculating in steps
-        long_temperature beerDiffLong = cs.beerSetting;
-        beerDiffLong -= beerSensor -> readFastFiltered();
-        cv.beerDiff = constrainTemp16(beerDiffLong);
-
-        cv.beerSlope = beerSensor -> readSlope();
-
-        temperature fridgeFastFiltered = fridgeSensor -> readFastFiltered();
-
-        // calculate PID parts. Use long_temperature to prevent overflow
-        cv.p = multiplyFactorTemperatureDiff(cc.Kp, cv.beerDiff);
-        cv.i = multiplyFactorTemperatureDiffLong(cc.Ki, cv.diffIntegral);
-        cv.d = multiplyFactorTemperatureDiff(cc.Kd, cv.beerSlope);
-
-        long_temperature pidResult = cs.beerSetting;
-
-        pidResult += cv.p;
-        pidResult += cv.i;
-        pidResult += cv.d;
-
-        // constrain to tempSettingMin or beerSetting - pidMAx, whichever is lower.
-        temperature lowerBound = (cs.beerSetting <= cc.tempSettingMin + cc.pidMax)
-                                 ? cc.tempSettingMin : cs.beerSetting - cc.pidMax;
-
-        // constrain to tempSettingMax or beerSetting + pidMAx, whichever is higher.
-        temperature upperBound = (cs.beerSetting >= cc.tempSettingMax - cc.pidMax)
-                                 ? cc.tempSettingMax : cs.beerSetting + cc.pidMax;
-
-        cs.fridgeSetting = constrainTemp(pidResult, lowerBound, upperBound);
-
-        // The difference between fridge setting and fridge set point is fed back into the integrator
-        // If the actuator is saturated, this will reduce the integral
-        // If the fridge temp is near the set point, the integrator works as normal
-        long_temperature antiWindup = (pidResult - fridgeFastFiltered);
-
-        // Only allow it to bring the integrator back to zero
-        if((antiWindup > 0 && cv.diffIntegral < 0) ||
-                (antiWindup < 0 && cv.diffIntegral > 0)){
-            antiWindup = 0;
-        }
-
-        // antiWindup = constrainTemp(antiWindup, doubleToTempDiff(-5.0), doubleToTempDiff(5.0)); // allow max of 5x integratorUpdate maximum
-        long_temperature integratorUpdate = cv.beerDiff;
-        integratorUpdate -= antiWindup;
-
-        // Limit how fast the integral can change to prevent it from running away when differences are big
-        // This limits it to 5 degrees per minute
-        integratorUpdate = constrainTemp(integratorUpdate, doubleToTempDiff(-5.0), doubleToTempDiff(5.0));
-        unscaledIntegral += integratorUpdate;
-        cv.diffIntegral = unscaledIntegral / 60;
-    }
-    else if (cs.mode == MODE_FRIDGE_CONSTANT)
-    {
-        // FridgeTemperature is set manually, disable beer setpoint
-        cs.beerSetting = DISABLED_TEMP;
-    }
 }
 
 void TempControl::updateState(void)
 {
-    // update state
+    /* // update state
     bool stayIdle    = false;
     bool newDoorOpen = door -> sense();
 
@@ -356,8 +259,8 @@ void TempControl::updateState(void)
         stayIdle = true;
     }
 
-    temperature     fridgeFast   = fridgeSensor -> readFastFiltered();
-    temperature     beerFast     = beerSensor -> readFastFiltered();
+    temp_t     fridgeFast   = fridgeSensor -> readFastFiltered();
+    temp_t     beerFast     = beerSensor -> readFastFiltered();
     ticks_seconds_t secs         = ticks.seconds();
 
     switch (state)
@@ -433,115 +336,9 @@ void TempControl::updateState(void)
 
         case DOOR_OPEN :
             break;    // do nothing
-    }
+    }*/
 }
 
-long_temperature TempControl::fridgePidResult(temp_diff Kp, temp_diff Ki, temp_diff Kd){
-    // make sure error does not overflow by calculating in steps
-    long_temperature fridgeErrorLong = cs.fridgeSetting;
-    fridgeErrorLong -= fridgeSensor -> readFastFiltered();
-    temperature fridgeError = constrainTemp16(fridgeErrorLong);
-    temperature fridgeDerivative = fridgeSensor -> readSlope();
-    long_temperature proportionalPart;
-    long_temperature integralPart;
-    long_temperature derivativePart;
-
-    proportionalPart = multiplyFactorTemperatureDiff(Kp / 4,
-            fridgeError);    // returns -64/+64, divide by 4 to make it fit for now
-    integralPart = multiplyFactorTemperatureDiff(Ki,
-            fridgeIntegrator / 240); // also divide by 60, same as with tempControl PID
-    derivativePart = multiplyFactorTemperatureDiff(Kd, fridgeDerivative);
-
-    return proportionalPart + integralPart + derivativePart;
-}
-
-long_temperature TempControl::fridgePidResultHeat(){
-    return fridgePidResult(cc.fridgePwmKpHeat, cc.fridgePwmKiHeat, cc.fridgePwmKdHeat);
-}
-
-long_temperature TempControl::fridgePidResultCool(){
-    return fridgePidResult(cc.fridgePwmKpCool, cc.fridgePwmKiCool, cc.fridgePwmKdCool);
-}
-
-void TempControl::updateOutputs(void)
-{
-    static long_temperature fridgeIntegrator = 0;
-    if (cs.mode == MODE_TEST)
-    {
-        return;
-    }
-
-    cameraLight.update();
-
-    bool heating = stateIsHeating();
-    bool cooling = stateIsCooling();
-
-    light -> setActive(isDoorOpen() || (cc.lightAsHeater && heating) || cameraLightState.isActive());
-    fan -> setActive(heating || cooling);
-
-    long_temperature dutyLong;
-    long_temperature dutyConstrained;
-    uint16_t duty;
-    long_temperature  antiWindup = 0;
-
-    if(heating){
-        dutyLong = fridgePidResultHeat();
-        dutyConstrained = constrainTemp(dutyLong, 0, intToTempDiff(255)/4);
-        duty = tempDiffToInt(4*dutyConstrained); // scale back to integer
-
-        chamberHeater -> setPwm(duty);
-        chamberCooler -> setPwm(0);
-
-        antiWindup = dutyConstrained - dutyLong;
-        if(antiWindup > 0){
-            antiWindup = 0;
-        }
-    }
-    else if (cooling){
-        dutyLong = fridgePidResultCool();
-        dutyConstrained = constrainTemp(dutyLong, -intToTempDiff(255)/4, 0);
-        duty = -tempDiffToInt(4*dutyConstrained); // scale back to integer
-
-        chamberCooler -> setPwm(duty);
-        chamberHeater -> setPwm(0);
-
-        antiWindup = dutyConstrained - dutyLong;
-        if(antiWindup < 0){
-            antiWindup = 0;
-        }
-    }
-    else
-    {
-        chamberHeater -> setPwm(0);
-        chamberCooler -> setPwm(0);
-    }
-    // prevent integral from growing too quickly
-    // allow it to go to zero faster
-    temperature lower;
-    temperature upper;
-    if (fridgeIntegrator > 0){
-        upper = doubleToTempDiff(1.0);
-        lower = doubleToTempDiff(-5.0);
-    }
-    else{
-        upper = doubleToTempDiff(5.0);
-        lower = doubleToTempDiff(-1.0);
-    }
-
-    long_temperature fridgeErrorLong = cs.fridgeSetting;
-    fridgeErrorLong -= fridgeSensor -> readFastFiltered();
-    temperature fridgeError = constrainTemp16(fridgeErrorLong);
-
-    temperature integratorUpdate = constrainTemp(fridgeError + antiWindup, lower, upper);
-    fridgeIntegrator += integratorUpdate;
-}
-
-void TempControl::updatePwm(void)
-{
-    chamberHeater -> updatePwm();
-    chamberCooler -> updatePwm();
-    beerHeater -> updatePwm();
-}
 
 tcduration_t TempControl::timeSinceCooling(void)
 {
@@ -578,7 +375,6 @@ void TempControl::storeConstants(eptr_t offset)
 void TempControl::loadConstants(eptr_t offset)
 {
     eepromAccess.readBlock((void *) &cc, offset, sizeof(ControlConstants));
-    initFilters();
     chamberHeater -> setPeriod(cc.heatPwmPeriod);
     beerHeater -> setPeriod(cc.heatPwmPeriod);
     chamberCooler -> setPeriod(cc.coolPwmPeriod);
@@ -607,18 +403,8 @@ void TempControl::loadSettings(eptr_t offset)
 void TempControl::loadDefaultConstants(void)
 {
     memcpy_P((void *) &tempControl.cc, (void *) &ccDefaults, sizeof(ControlConstants));
-    initFilters();
 }
 
-void TempControl::initFilters()
-{
-    fridgeSensor -> setFastFilterCoefficients(cc.fridgeFastFilter);
-    fridgeSensor -> setSlowFilterCoefficients(cc.fridgeSlowFilter);
-    fridgeSensor -> setSlopeFilterCoefficients(cc.fridgeSlopeFilter);
-    beerSensor -> setFastFilterCoefficients(cc.beerFastFilter);
-    beerSensor -> setSlowFilterCoefficients(cc.beerSlowFilter);
-    beerSensor -> setSlopeFilterCoefficients(cc.beerSlopeFilter);
-}
 
 void TempControl::setMode(char newMode,
                           bool force)
@@ -645,50 +431,52 @@ void TempControl::setMode(char newMode,
     }
 }
 
-temperature TempControl::getBeerTemp(void)
+temp_t TempControl::getBeerTemp(void)
 {
     if (beerSensor -> isConnected())
     {
-        return beerSensor -> readFastFiltered();
+        return beerSensor -> read();
     }
     else
     {
-        return INVALID_TEMP;
+        return temp_t::invalid();
     }
 }
 
-temperature TempControl::getBeerSetting(void)
+temp_t TempControl::getBeerSetting(void)
 {
     return cs.beerSetting;
 }
 
-temperature TempControl::getFridgeTemp(void)
+temp_t TempControl::getFridgeTemp(void)
 {
     if (fridgeSensor -> isConnected())
     {
-        return fridgeSensor -> readFastFiltered();
+        return fridgeSensor -> read();
     }
     else
     {
-        return INVALID_TEMP;
+        return temp_t::invalid();
     }
 }
 
-temperature TempControl::getFridgeSetting(void)
+temp_t TempControl::getFridgeSetting(void)
 {
     return cs.fridgeSetting;
 }
 
-void TempControl::setBeerTemp(temperature newTemp)
+void TempControl::setBeerTemp(temp_t newTemp)
 {
-    temperature oldBeerSetting = cs.beerSetting;
+    temp_t oldBeerSetting = cs.beerSetting;
 
     cs.beerSetting = newTemp;
 
     updatePID();
     updateState();
 
-    if ((cs.mode != MODE_BEER_PROFILE) || (abs(storedBeerSetting - newTemp) > intToTempDiff(1) / 4))
+    if ((cs.mode != MODE_BEER_PROFILE) ||
+            (storedBeerSetting - newTemp) > temp_t(0.25) ||
+            (newTemp - storedBeerSetting) > temp_t(0.25))
     {
         // more than 1/4 degree C difference with EEPROM
         // Do not store settings every time in profile mode, because EEPROM has limited number of write cycles.
@@ -698,7 +486,7 @@ void TempControl::setBeerTemp(temperature newTemp)
     }
 }
 
-void TempControl::setFridgeTemp(temperature newTemp)
+void TempControl::setFridgeTemp(temp_t newTemp)
 {
     cs.fridgeSetting = newTemp;
 

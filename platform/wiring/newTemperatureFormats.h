@@ -104,6 +104,10 @@ public:
         return t;
     }
 
+    void setRaw(TEMP_TYPE val){
+        value_= val;
+    }
+
     bool isDisabledOrInvalid() const {
         return (value_ < min_val);
     }

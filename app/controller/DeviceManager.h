@@ -26,7 +26,7 @@
 #include "Platform.h"
 #include "Actuator.h"
 #include "Sensor.h"
-#include "TempSensor.h"
+#include "TempSensorBasic.h"
 #include "OneWireDevices.h"
 #include "Board.h"
 #include "OneWire.h"
@@ -176,24 +176,25 @@ struct DeviceConfig
 		bool invert;							// for actuators/sensors, controls if the signal value is inverted.
 		bool deactivate;							// disable this device - the device will not be installed.
 		DeviceAddress address;					// for onewire devices, if address[0]==0 then use the first matching device type, otherwise use the device with the specific address
-		
+
         /*
          *  The pio and sensor calibration are never needed at the same time so they are a union.
 		 * To ensure the eeprom format is stable when including/excluding DS2413 support, ensure all fields are the same size.
 		 */
-        union
+        union Offset
         {
-#if BREWPI_DS2413
-			uint8_t pio;						// for ds2413 (deviceHardware==3) : the pio number (0,1)
-#endif			
 
-			int8_t /* fixed4_4 */ calibration;	// for temp sensors (deviceHardware==2), calibration adjustment to add to sensor readings
+		temp_t calibration;	// for temp sensors (deviceHardware==2), calibration adjustment to add to sensor readings
+        #if BREWPI_DS2413
+                uint8_t pio;                        // for ds2413 (deviceHardware==3) : the pio number (0,1)
+        #endif
+		Offset(){} // needed because temp_t constructor is non-trivial
+		Offset(const Offset& o){
+		    calibration = o.calibration; // copy bigger type
+		}
+		} offset;
 
-												// this is intentionally chosen to match the raw value precision returned by the ds18b20 sensors
-		};
 
-
-        uint8_t pwm;    // 0: PWM disabled, 1: PWM enabled
 	} hw;
 
 
@@ -394,6 +395,8 @@ class DeviceManager
         }
 
         static OneWire * oneWireBus(uint8_t pin);
+
+    static bool firstDeviceOutput;
 
     friend class ConnectedDevicesManager;
 };

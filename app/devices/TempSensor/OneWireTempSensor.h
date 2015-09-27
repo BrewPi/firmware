@@ -21,7 +21,7 @@
 #pragma once
 
 #include "Brewpi.h"
-#include "TempSensor.h"
+#include "TempSensorBasic.h"
 #include "DallasTemperature.h"
 #include "Ticks.h"
 
@@ -39,7 +39,7 @@ public:
 	 *    on the bus is used.
 	 * /param calibration	A temperature value that is added to all readings. This can be used to calibrate the sensor.	 
 	 */
-	OneWireTempSensor(OneWire* bus, DeviceAddress address, fixed4_4 calibrationOffset)
+	OneWireTempSensor(OneWire* bus, DeviceAddress address, temp_t calibrationOffset)
 	: oneWire(bus), sensor(NULL) {		
 		connected = true;  // assume connected. Transition from connected to disconnected prints a message.
 		memcpy(sensorAddress, address, sizeof(DeviceAddress));
@@ -53,7 +53,7 @@ public:
 	}		
 	
 	bool init();
-	temperature read();
+	temp_t read();
 	
 	private:
 
@@ -69,13 +69,13 @@ public:
 	 * Reads the temperature. If successful, constrains the temp to the range of the temperature type and
 	 * updates lastRequestTime. On successful, leaves lastRequestTime alone and returns DEVICE_DISCONNECTED.
 	 */
-	temperature readAndConstrainTemp();
+	temp_t readAndConstrainTemp();
 	
 	OneWire * oneWire;
 	DallasTemperature * sensor;
 	DeviceAddress sensorAddress;
 
-	fixed4_4 calibrationOffset;		
+	temp_t calibrationOffset;
 	bool connected;
 	
 };

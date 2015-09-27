@@ -20,6 +20,7 @@
 
 
 #include "str_functions.h"
+#include "platform.h"
 
 // custom string conversion functions that are smaller than standard versions
 
@@ -55,5 +56,47 @@ long int my_strtol(const char* str, char** tail) {
 bool invalidStrtolResult(const char * start, const char * end){
     return ((*end != '\0' && *end != '.' && *end != ' ') // parsing did not end at end of string, space or decimal point
             || start == end); // no number found in string
+}
+
+
+bool stringToBool(bool * result, const char * numberString) {
+    char* end;
+    if (0 == strcmp(PSTR("true"), numberString)) {
+        *result = true;
+        return true;
+    }
+    if (0 == strcmp(PSTR("false"), numberString)) {
+        *result = false;
+        return true;
+    }
+    uint8_t newValue = strtol_impl(numberString, &end); // only accept 0 and 1
+    if (invalidStrtolResult(numberString, end)) { // no number found in string
+        return false;
+    }
+    if (newValue > 1) {
+        return false;
+    }
+    *result = newValue;
+    return true;
+}
+
+// returns UINT16_MIN on failure
+
+bool stringToUint16(uint16_t* result, const char * numberString) {
+    char* end;
+    long newValue;
+    newValue = strtol_impl(numberString, &end); // only accept 0 and 1
+    if (invalidStrtolResult(numberString, end)) { // no number found in string
+        return false;
+    }
+    if (newValue > UINT16_MAX) {
+        *result = UINT16_MAX; // clip to max
+    } else if (newValue < 0) {
+        return false; // negative values are invalid
+    } else {
+
+        *result = newValue;
+    }
+    return true;
 }
 
