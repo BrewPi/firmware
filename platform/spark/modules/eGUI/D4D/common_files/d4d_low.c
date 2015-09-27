@@ -68,7 +68,7 @@
 
 #ifndef D4D_ORIENT_START
 #define D4D_ORIENT_START D4D_ORIENT_PORTRAIT
-#endif 
+#endif
 static D4D_ORIENTATION d4d_orientation = D4D_ORIENT_START;
 
 #ifdef D4D_LLD_TCH
@@ -726,6 +726,13 @@ Byte D4D_TCH_GetRawPosition(D4D_COOR *TouchPositionX, D4D_COOR *TouchPositionY)
   return D4D_LLD_TCH.D4DTCH_GetPositionRaw (TouchPositionX, TouchPositionY);
 }
 
+static volatile D4D_BOOL calibration_quit;
+
+void D4D_InterruptCalibrationScreen()
+{
+    calibration_quit = D4D_TRUE;
+}
+
 static void D4D_GetCalibrationPoint(Byte ix, Word* X, Word* Y, D4D_COLOR fore, D4D_COLOR bckg )
 {
   D4D_COOR tmp_x, tmp_y;
@@ -752,6 +759,8 @@ static void D4D_GetCalibrationPoint(Byte ix, Word* X, Word* Y, D4D_COLOR fore, D
   while (D4D_LLD_TCH.D4DTCH_GetPositionRaw ((unsigned short*)X, (unsigned short*)Y) == 0)
   {
       D4D_LLD_LCD.D4DLCD_Delay_ms (1);
+      if (calibration_quit)
+          return;
   }
 
   D4D_TCH_DrawCalibrationPoint(tmp_x, tmp_y, bckg);
@@ -770,6 +779,7 @@ static void D4D_GetCalibrationPoint(Byte ix, Word* X, Word* Y, D4D_COLOR fore, D
 //
 void D4D_TCH_Calibrate(D4D_COLOR fore, D4D_COLOR bckg)
 {
+    calibration_quit = D4D_FALSE;
     // Declare and initialize local variables
     D4D_STRING tmp_txtbuff;
     D4D_STR_PROPERTIES tmp_str_prty;
@@ -802,13 +812,15 @@ void D4D_TCH_Calibrate(D4D_COLOR fore, D4D_COLOR bckg)
     // Set touchscreen calibrated flag to FALSE
     d4d_tchCalib.ScreenCalibrated = 0;
 
-    while (d4d_tchCalib.ScreenCalibrated == 0)
+    while (d4d_tchCalib.ScreenCalibrated == 0 && !calibration_quit)
     {
         // Capture input calibration points
-        for(tmp_i=0;tmp_i<2;tmp_i++)
+        for(tmp_i=0;tmp_i<2 && !calibration_quit;tmp_i++)
         {
 
           D4D_GetCalibrationPoint(tmp_i, &X[tmp_i], &Y[tmp_i], fore, bckg);
+          if (calibration_quit)
+              return;
 
           if(D4D_GetFont(D4D_FONT_SYSTEM_DEFAULT) != NULL)
           {
@@ -830,6 +842,9 @@ void D4D_TCH_Calibrate(D4D_COLOR fore, D4D_COLOR bckg)
           D4D_LLD_LCD.D4DLCD_FlushBuffer(D4DLCD_FLSH_FORCE);
           D4D_LLD_LCD.D4DLCD_Delay_ms(1000);
         }
+
+        if (calibration_quit)
+            return;
 
         // convert captured values into Landscape orientation
         switch(d4d_orientation)
