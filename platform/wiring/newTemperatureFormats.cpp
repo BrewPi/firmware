@@ -48,7 +48,7 @@ temp_precise_t::temp_precise_t(const temp_t& rhs) {
 
     unsigned char shift = temp_precise_t::fractional_bit_count
             - temp_t::fractional_bit_count;
-    this->value_ = rhs.value_ << shift;
+    this->value_ = temp_precise_t::base_type(rhs.value_) << shift;
 }
 
 temp_precise_t::temp_precise_t(const temp_long_t& rhs) {
@@ -57,7 +57,7 @@ temp_precise_t::temp_precise_t(const temp_long_t& rhs) {
 
     // convert to temp first to make sure it fits
     temp_t t = rhs;
-    this->value_ = t.value_ << shift;
+    this->value_ = temp_precise_t::base_type(t.value_) << shift;
 }
 
 temp_long_t::temp_long_t(const temp_t& rhs) {

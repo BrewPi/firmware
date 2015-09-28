@@ -478,48 +478,48 @@ protected:
     /// Make gcc happy.
             typename U>
     /// Promote signed char to signed short.
-    struct promote_type<signed char, U> {
-        typedef signed short type;
+    struct promote_type<int8_t, U> {
+        typedef int16_t type;
     };
 
     template<
     /// Make gcc happy.
             typename U>
     /// Promote unsigned char to unsigned short.
-    struct promote_type<unsigned char, U> {
-        typedef unsigned short type;
+    struct promote_type<uint8_t, U> {
+        typedef uint16_t type;
     };
 
     template<
     /// Make gcc happy.
             typename U>
     /// Promote signed short to signed int.
-    struct promote_type<signed short, U> {
-        typedef signed int type;
+    struct promote_type<int16_t, U> {
+        typedef int32_t type;
     };
 
     template<
     /// Make gcc happy.
             typename U>
     /// Promote unsigned short to unsigned int.
-    struct promote_type<unsigned short, U> {
-        typedef unsigned int type;
+    struct promote_type<uint16_t, U> {
+        typedef uint32_t type;
     };
 
     template<
     /// Make gcc happy.
             typename U>
-    /// Promote signed int to signed long long.
-    struct promote_type<signed int, U> {
-        typedef signed long long type;
+    /// Promote signed int to signed long int.
+    struct promote_type<int32_t, U> {
+        typedef int64_t type;
     };
 
     template<
     /// Make gcc happy.
             typename U>
     /// Promote unsigned int to unsigned long long.
-    struct promote_type<unsigned int, U> {
-        typedef unsigned long long type;
+    struct promote_type<uint32_t, U> {
+        typedef uint64_t type;
     };
 
 public:
