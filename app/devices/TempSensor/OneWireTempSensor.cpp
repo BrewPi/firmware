@@ -19,7 +19,7 @@
  */
 
 #include "Brewpi.h"
-#include "newTemperatureFormats.h"
+#include "temperatureFormats.h"
 #include "OneWireTempSensor.h"
 #include "DallasTemperature.h"
 #include "OneWire.h"

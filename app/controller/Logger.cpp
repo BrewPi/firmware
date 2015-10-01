@@ -18,7 +18,7 @@
  */
 
 #include "Brewpi.h"
-#include "newTemperatureFormats.h"
+#include "temperatureFormats.h"
 #include "Platform.h"
 #include "BrewpiStrings.h"
 #include "Logger.h"

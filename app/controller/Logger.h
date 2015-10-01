@@ -20,7 +20,7 @@
 #pragma once
 
 #include <stdarg.h>
-#include "newTemperatureFormats.h"
+#include "temperatureFormats.h"
 #include "LogMessages.h"
 
 // define error id variable type to make it easy to bump to uint16 when needed

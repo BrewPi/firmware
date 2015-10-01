@@ -23,7 +23,7 @@
 
 // #include "Brewpi.h"
 
-#include "newTemperatureFormats.h"
+#include "temperatureFormats.h"
 #include "FilterFixed.h"
 
 // Use 3 filter sections. This gives excellent filtering, without adding too much delay.

@@ -29,7 +29,7 @@
 #include "Board.h"
 #include "fixstl.h"
 #include "ActuatorPin.h"
-#include "newTemperatureFormats.h"
+#include "temperatureFormats.h"
 #include <functional>
 
 #define MAX_TEMP_SENSORS

@@ -19,7 +19,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "newTemperatureFormats.h"
+#include "temperatureFormats.h"
 #include <cstdio>
 
 BOOST_AUTO_TEST_SUITE( temperature_suite )

@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "newTemperatureFormats.h"
+#include "temperatureFormats.h"
 
 #define TEMP_SENSOR_DISCONNECTED temp_t::invalid()
 

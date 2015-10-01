@@ -14,7 +14,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "Brewpi.h"
-#include "newTemperatureFormats.h"
+#include "temperatureFormats.h"
 #include "FilterFixed.h"
 #include <stdlib.h>
 

@@ -21,7 +21,7 @@
 #pragma once
 
 #include "Brewpi.h"
-#include "newTemperatureFormats.h"
+#include "temperatureFormats.h"
 #include "DeviceManager.h"
 #include "Logger.h"
 

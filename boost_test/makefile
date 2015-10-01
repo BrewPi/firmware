@@ -38,7 +38,7 @@ target_files = $(patsubst $(SRC_ROOT)%,%,$(call rwildcard,$(SRC_ROOT)$1,$2))
 CSRC += $(call target_files,boost_test,*.c)
 CPPSRC += $(call target_files,boost_test,*.cpp)
 
-CPPSRC += $(SOURCE_PATH)platform/wiring/newTemperatureFormats.cpp
+CPPSRC += $(SOURCE_PATH)platform/wiring/temperatureFormats.cpp
 CPPSRC += $(SOURCE_PATH)platform/wiring/str_functions.cpp
 CPPSRC += $(SOURCE_PATH)app/controller/Filter/FilterFixed.cpp
 CPPSRC += $(SOURCE_PATH)app/controller/Filter/FilterCascaded.cpp

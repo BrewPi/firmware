@@ -18,7 +18,7 @@
  */
 
 #include "Brewpi.h"
-#include "newTemperatureFormats.h"
+#include "temperatureFormats.h"
 #include "BrewpiStrings.h"
 #include "Display.h"
 #include "DisplayLcd.h"

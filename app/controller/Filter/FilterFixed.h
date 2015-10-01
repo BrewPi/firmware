@@ -23,7 +23,7 @@
 
 // #include "Brewpi.h"
 
-#include "newTemperatureFormats.h"
+#include "temperatureFormats.h"
 
 /*
  *  This class implements an IIR low pass filter, with the following frequency response

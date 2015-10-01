@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "newTemperatureFormats.h"
+#include "temperatureFormats.h"
 #include "DisplayBase.h"
 
 #include "DisplayLcdImpl.h"

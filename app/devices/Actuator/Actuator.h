@@ -21,7 +21,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "newTemperatureFormats.h"
+#include "temperatureFormats.h"
 
 enum {
     ACTUATOR_RANGE,

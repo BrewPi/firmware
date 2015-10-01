@@ -26,7 +26,7 @@ extern "C" {
 
 #include "controller_screen.h"
 #include "TempControl.h"
-#include "newTemperatureFormats.h"
+#include "temperatureFormats.h"
 
 bool set_background_color(const D4D_OBJECT* pThis, D4D_COLOR bg);
 

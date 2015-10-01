@@ -20,7 +20,7 @@
 
 
 #include "Brewpi.h"
-#include "newTemperatureFormats.h"
+#include "temperatureFormats.h"
 #include "FilterFixed.h"
 #include "FilterCascaded.h"
 #include <stdlib.h>

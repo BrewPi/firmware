@@ -17,7 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "newTemperatureFormats.h"
+#include "temperatureFormats.h"
 
 // Converting constructors, which shift and constrain the value.
 
