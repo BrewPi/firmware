@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <boost/test/unit_test.hpp>
 #include <stdio.h>      /* printf, scanf, puts, NULL */
 #include <iostream>
 #include <sstream>

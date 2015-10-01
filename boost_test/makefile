@@ -45,6 +45,7 @@ CPPSRC += $(SOURCE_PATH)app/controller/Filter/FilterCascaded.cpp
 CPPSRC += $(SOURCE_PATH)app/controller/Pid.cpp
 CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorPwm.cpp
 CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorOnOff.cpp
+CPPSRC += $(SOURCE_PATH)app/controller/SetPoint.cpp
 
 ifeq ($(BOOST_ROOT),)
 $(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)
