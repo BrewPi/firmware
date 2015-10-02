@@ -24,7 +24,7 @@
 class SetPoint {
 public:
     SetPoint(){};
-    ~SetPoint(){};
+    virtual ~SetPoint(){};
     virtual temp_t read() const = 0;
     virtual void write(temp_t val) = 0;
 };
@@ -33,7 +33,7 @@ public:
 class SetPointSimple : public SetPoint {
 public:
     SetPointSimple(temp_t val = temp_t::disabled()) : sp(val){}
-    ~SetPointSimple(){};
+    virtual ~SetPointSimple(){};
     virtual temp_t read() const{
         return sp;
     }
@@ -46,15 +46,15 @@ private:
 };
 
 
-// immutable SetPoint, always reading 'invalid' to indicate that the setpoint has not been configured
+// immutable SetPoint, always reading for example 'invalid' to indicate that the setpoint has not been configured
 class SetPointConstant: public SetPoint {
 public:
     SetPointConstant(const temp_t val): sp(val){}
     ~SetPointConstant(){};
-    virtual temp_t read() const{
+    temp_t read() const{
         return sp;
     }
-    virtual void write(temp_t val){
+    void write(temp_t val){
     }
 
 private:

@@ -20,9 +20,6 @@ void ActuatorPwm::recalculate(){
     dutyTime = int32_t(newPeriod * correctionFactor);
 }
 
-temp_t ActuatorPwm::readValue() {
-    return value;
-}
 
 void ActuatorPwm::setValue(temp_t const& val) {
     temp_t val_(val);

@@ -47,7 +47,7 @@ class ActuatorOnOff:
 
         void setActive(bool active);    // returns new actuator state
 
-        bool isActive()
+        bool isActive() const
         {
             return active;    // target->isActive(); - this takes 20 bytes more
         }
@@ -64,7 +64,7 @@ class ActuatorOnOff:
             minOffTime = _minOffTime;
             maxOnTime = _maxOnTime;
         }
-        ticks_seconds_t timeSinceToggle(void);
+        ticks_seconds_t timeSinceToggle(void) const;
 
     private:
         uint16_t        minOnTime;

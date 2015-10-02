@@ -43,15 +43,18 @@ class ActuatorPwm : public LinearActuator, public DriverActuator
 
         virtual ~ActuatorPwm(){}
 
-        temp_t min(){
+        temp_t min() const {
             return minVal;
         }
 
-        temp_t max(){
+        temp_t max() const {
             return maxVal;
         }
 
-        temp_t readValue();
+        temp_t readValue() const {
+            return value;
+        }
+
         void setValue(temp_t const& val);
 
         void update();
@@ -61,7 +64,7 @@ class ActuatorPwm : public LinearActuator, public DriverActuator
             return period;
         }
 
-        bool isActive()
+        bool isActive() const
         {
             return (value > temp_t(0.0));
         }

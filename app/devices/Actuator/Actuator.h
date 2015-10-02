@@ -37,10 +37,10 @@ class Actuator
 public:
     Actuator(){}
     virtual ~Actuator() {}
-    virtual uint8_t type(){ return ACTUATOR_TOGGLE; };
+    virtual uint8_t type() const{ return ACTUATOR_TOGGLE; };
     virtual void setActive(bool active) = 0;
-	virtual bool isActive() = 0;
-	virtual Actuator ** getDeviviceTarget(){
+	virtual bool isActive() const = 0;
+	virtual Actuator ** getDeviviceTarget() const{
 	    return 0;  // recursive call for super classes until this level is reached.
 	}
 };
@@ -53,11 +53,11 @@ class LinearActuator : public Actuator
 public:
     LinearActuator(){}
     virtual ~LinearActuator() {}
-    virtual uint8_t type(){ return ACTUATOR_RANGE; };
+    virtual uint8_t type() const { return ACTUATOR_RANGE; };
     virtual void setValue(temp_t const& val) = 0;
-    virtual temp_t readValue() = 0;
-    virtual temp_t min() = 0;
-    virtual temp_t max() = 0;
+    virtual temp_t readValue() const = 0;
+    virtual temp_t min() const = 0;
+    virtual temp_t max() const = 0;
 };
 
 /*
@@ -67,11 +67,11 @@ class ActuatorThreshold : public Actuator
 {
 ActuatorThreshold(){}
     virtual ~ActuatorThreshold() {}
-    virtual uint8_t type(){ return ACTUATOR_THRESHOLD; };
+    virtual uint8_t type() const{ return ACTUATOR_THRESHOLD; };
     virtual void setValue(temp_t const& val) = 0;
-    virtual temp_t readValue() = 0;
-    virtual temp_t onValue() = 0;
-    virtual temp_t offValue() = 0;
+    virtual temp_t readValue() const = 0;
+    virtual temp_t onValue() const = 0;
+    virtual temp_t offValue() const = 0;
 };
 
 /*
@@ -88,7 +88,7 @@ public:
     }
     virtual ~DriverActuator(){};
 
-    Actuator ** getDeviviceTarget(){
+    Actuator ** getDeviviceTarget() {
         if( target->getDeviviceTarget() == 0){
             return &target; // this is bottom
         }
@@ -97,13 +97,13 @@ public:
         }
     }
 
-    virtual Actuator * getBareActuator(){
-        return *getDeviviceTarget();
+    virtual Actuator * getBareActuator() {
+        return *(getDeviviceTarget());
     }
 };
 
 /*
- * An linear actuator that simply remembers the set value. This is primary used for testing.
+ * A linear actuator that simply remembers the set value. This is primary used for testing.
  */
 class ValueActuator : public LinearActuator
 {
@@ -118,7 +118,7 @@ public:
 	        value = min;
 	    }
 	}
-	virtual bool isActive() { return value > min; }
+	virtual bool isActive() const { return value > min; }
 	virtual void setValue(temp_t const& val) {
 	    if(val < min){
 	        value = min;
@@ -130,7 +130,7 @@ public:
 	        value = val;
 	    }
 	}
-	virtual temp_t readValue(){
+	virtual temp_t readValue() const{
 	    return value;
 	}
 
@@ -150,7 +150,7 @@ public:
 	BoolActuator(bool initial) : state(initial) {}
 
 	virtual void setActive(bool active) { state = active; }
-	virtual bool isActive() { return state; }
+	virtual bool isActive() const { return state; }
 
 private:
 	bool state;	
@@ -166,17 +166,17 @@ public:
     LinearActuatorInvalid() {}
 
     void setActive(bool active) {}
-    bool isActive(){
+    bool isActive() const {
         return false;
     }
     void setValue(temp_t const& val) {}
-    temp_t readValue(){
+    temp_t readValue() const {
         return temp_t::invalid();
     }
-    temp_t min(){
+    temp_t min() const {
         return temp_t::invalid();
     }
-    temp_t max(){
+    temp_t max() const {
         return temp_t::invalid();
     }
 };

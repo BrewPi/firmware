@@ -59,7 +59,7 @@ void ActuatorOnOff::update()
     }
 }
 
-ticks_seconds_t ActuatorOnOff::timeSinceToggle()
+ticks_seconds_t ActuatorOnOff::timeSinceToggle() const
 {
     return ticks.timeSince(toggleTime);
 }
