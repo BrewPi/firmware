@@ -137,7 +137,7 @@ void D4D_FlushOutput(void);
   void D4D_PutRawTouchScreen(D4D_BOOL touched, D4D_COOR x, D4D_COOR y);
   void D4D_ClearTouchScreenEvents(void);
   void D4D_CalibrateTouchScreen(void);
-  void D4D_InterruptCalibrateTouchScreen(void);
+  void D4D_InterruptCalibrationScreen(void);
   D4D_TOUCHSCREEN_CALIB D4D_GetTouchScreenCalibration(void);
   void D4D_SetTouchScreenCalibration(D4D_TOUCHSCREEN_CALIB newCalib);
 #else

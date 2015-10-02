@@ -752,16 +752,18 @@ static void D4D_GetCalibrationPoint(Byte ix, Word* X, Word* Y, D4D_COLOR fore, D
       tmp_y -= D4DTCH_CALIB_CROSS_OFFSET;
       break;
   }
+if (calibration_quit)
+    return;
 
   D4D_TCH_DrawCalibrationPoint(tmp_x, tmp_y, fore);
   D4D_LLD_LCD.D4DLCD_FlushBuffer(D4DLCD_FLSH_FORCE);
 
-  while (D4D_LLD_TCH.D4DTCH_GetPositionRaw ((unsigned short*)X, (unsigned short*)Y) == 0)
+  while (!calibration_quit && D4D_LLD_TCH.D4DTCH_GetPositionRaw ((unsigned short*)X, (unsigned short*)Y) == 0)
   {
       D4D_LLD_LCD.D4DLCD_Delay_ms (1);
-      if (calibration_quit)
-          return;
   }
+if (calibration_quit)
+    return;
 
   D4D_TCH_DrawCalibrationPoint(tmp_x, tmp_y, bckg);
 }
@@ -820,7 +822,7 @@ void D4D_TCH_Calibrate(D4D_COLOR fore, D4D_COLOR bckg)
 
           D4D_GetCalibrationPoint(tmp_i, &X[tmp_i], &Y[tmp_i], fore, bckg);
           if (calibration_quit)
-              return;
+              continue;
 
           if(D4D_GetFont(D4D_FONT_SYSTEM_DEFAULT) != NULL)
           {
@@ -844,7 +846,12 @@ void D4D_TCH_Calibrate(D4D_COLOR fore, D4D_COLOR bckg)
         }
 
         if (calibration_quit)
+        {
+            // this is needed or static void D4D_ManageTouchScreenEvents(void)
+            // will continually call back into this function
+            d4d_tchCalib.ScreenCalibrated = 1;
             return;
+        }
 
         // convert captured values into Landscape orientation
         switch(d4d_orientation)

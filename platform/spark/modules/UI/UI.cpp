@@ -34,6 +34,8 @@
 #include "../eGUI_screens/startup/startup_screen.h"
 #include "../eGUI_screens/screen_model.h"
 
+#include "freertos4core.h"
+
 extern "C" {
 #include "d4d.h"
 }
@@ -105,12 +107,37 @@ void UI::update()
     display.updateBacklight();
 }
 
+
+
+TimerHandle_t timer;
+
+void cancelCalibration(TimerHandle_t handle)
+{
+    D4D_InterruptCalibrationScreen();
+}
+
+void createTimer()
+{
+    timer = xTimerCreate("timer", 10*1000, false, NULL, cancelCalibration);
+    xTimerStart(timer, 0);
+}
+
+void destroyTimer()
+{
+    xTimerDelete(timer, 0);
+    timer = NULL;
+}
+
 /**
  * Show touch screen calibration screen store settings afterwards
  */
 void calibrateTouchScreen() {
+
+    createTimer();
     D4D_CalibrateTouchScreen();
+    destroyTimer();
     eGuiSettings.storeTouchCalib();
+
 }
 
 bool UI::inStartup() {
