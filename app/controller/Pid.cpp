@@ -22,7 +22,7 @@
 #include "Pid.h"
 #include "defaultDevices.h"
 
-Pid::Pid(BasicTempSensor * input = &defaultTempSensor,
+Pid::Pid(TempSensorBasic * input = &defaultTempSensor,
          LinearActuator * output = &defaultLinearActuator,
          SetPoint * setPoint = &defaultSetPoint)
 {
@@ -163,7 +163,7 @@ void Pid::setDerivativeFilter(uint8_t b)
     derivativeFilter.setFiltering(b);
 }
 
-bool Pid::setInputSensor(BasicTempSensor * s)
+bool Pid::setInputSensor(TempSensorBasic * s)
 {
     temp_t t = s -> read();
 

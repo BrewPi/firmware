@@ -180,9 +180,9 @@ class TempControl{
 	}
 
 	public:
-	TEMP_CONTROL_FIELD BasicTempSensor* beerSensor;
-	TEMP_CONTROL_FIELD BasicTempSensor* fridgeSensor;
-	TEMP_CONTROL_FIELD BasicTempSensor* ambientSensor;
+	TEMP_CONTROL_FIELD TempSensorBasic* beerSensor;
+	TEMP_CONTROL_FIELD TempSensorBasic* fridgeSensor;
+	TEMP_CONTROL_FIELD TempSensorBasic* ambientSensor;
 	TEMP_CONTROL_FIELD ActuatorOnOff* chamberCoolerLimiter;
 	TEMP_CONTROL_FIELD ActuatorPwm* chamberHeater;
 	TEMP_CONTROL_FIELD ActuatorPwm* beerHeater;

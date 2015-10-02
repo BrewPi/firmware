@@ -27,10 +27,10 @@
  * A temp sensor whose value is not read from the device, but set in code.
  * This is used by the simulator.
  */
-class ExternalTempSensor : public BasicTempSensor
+class TempSensorExternal : public TempSensorBasic
 {
 	public:
-	ExternalTempSensor(bool connected=false) : _temperature(0), _connected(false) 
+	TempSensorExternal(bool connected=false) : _temperature(0), _connected(false) 
 	{
 		setConnected(connected);
 	}

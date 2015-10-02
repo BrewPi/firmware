@@ -68,7 +68,7 @@ struct ConnectedDevice
 
     union Device {
         void* any;
-        BasicTempSensor* tempSensor;    // dt==DEVICETYPE_TEMP_SENSOR
+        TempSensorBasic* tempSensor;    // dt==DEVICETYPE_TEMP_SENSOR
         Actuator* actuator;             // dt==DEVICETYPE_ACTUATOR
         SwitchSensor* sensor;           // dt==DEVICETYPE_SWITCH_SENSOR
     } pointer;

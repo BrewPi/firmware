@@ -24,10 +24,10 @@
 
 #define TEMP_SENSOR_DISCONNECTED temp_t::invalid()
 
-class BasicTempSensor
+class TempSensorBasic
 {
 public:
-	virtual ~BasicTempSensor() { }
+	virtual ~TempSensorBasic() { }
 	
 	virtual bool isConnected(void) = 0;
 	

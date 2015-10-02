@@ -53,7 +53,7 @@ class OneWire;
 
 bool                   DeviceManager::firstDeviceOutput;
 
-bool DeviceManager::isDefaultTempSensor(BasicTempSensor * sensor)
+bool DeviceManager::isDefaultTempSensor(TempSensorBasic * sensor)
 {
     return sensor == &defaultTempSensor;
 }
@@ -143,7 +143,7 @@ void DeviceManager::disposeDevice(DeviceType dt,
             break;
 
         case DEVICETYPE_TEMP_SENSOR :
-            delete (BasicTempSensor *) device;
+            delete (TempSensorBasic *) device;
 
             break;
 
@@ -228,13 +228,13 @@ inline void ** deviceTarget(DeviceConfig & config)
     return ppv;
 }
 
-inline BasicTempSensor & unwrapSensor(void * pv)
+inline TempSensorBasic & unwrapSensor(void * pv)
 {
-    return *(BasicTempSensor *) pv;
+    return *(TempSensorBasic *) pv;
 }
 
 inline void setSensor(void **           ppv,
-                      BasicTempSensor * sensor)
+                      TempSensorBasic * sensor)
 {
     *ppv = sensor;
 }
@@ -253,7 +253,7 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
     }
 
     DeviceType        dt = deviceType(config.deviceFunction);
-    BasicTempSensor * s;
+    TempSensorBasic * s;
 
     switch (dt){
         case DEVICETYPE_NONE :
@@ -313,7 +313,7 @@ void DeviceManager::installDevice(DeviceConfig & config)
         return;
     }
 
-    BasicTempSensor * s;
+    TempSensorBasic * s;
 
     switch (dt){
         case DEVICETYPE_NONE :
@@ -323,7 +323,7 @@ void DeviceManager::installDevice(DeviceConfig & config)
             DEBUG_ONLY(logInfoInt(INFO_INSTALL_TEMP_SENSOR, config.deviceFunction));
 
             // sensor may be wrapped in a TempSensor class, or may stand alone.
-            s = (BasicTempSensor *) createDevice(config, dt);
+            s = (TempSensorBasic *) createDevice(config, dt);
 
             if (*ppv == NULL){
                 logErrorInt(ERROR_OUT_OF_MEMORY_FOR_DEVICE, config.deviceFunction);
@@ -1105,7 +1105,7 @@ void UpdateDeviceState(DeviceDisplay & dd,
                       (unsigned int) ((SwitchSensor *) *ppv) -> sense()
                       != 0);      // cheaper than itoa, because it overlaps with vsnprintf
         } else if (dt == DEVICETYPE_TEMP_SENSOR){
-            BasicTempSensor & s = unwrapSensor(*ppv);
+            TempSensorBasic & s = unwrapSensor(*ppv);
             temp_t temp = s.read();
             temp.toString(val, 3, 9);
         } else if (dt == DEVICETYPE_SWITCH_ACTUATOR){

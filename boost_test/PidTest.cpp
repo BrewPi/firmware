@@ -36,7 +36,7 @@ public:
     PidTest(){
         BOOST_TEST_MESSAGE( "setup PID test fixture" );
 
-        sensor = new MockTempSensor(20.0);
+        sensor = new TempSensorMock(20.0);
         vAct = new BoolActuator();
         act = new ActuatorPwm(vAct,4);
         sp = new SetPointSimple(20.0);
@@ -55,7 +55,7 @@ public:
         delete pid;
     }
 
-    MockTempSensor * sensor;
+    TempSensorMock * sensor;
     Actuator * vAct;
     ActuatorPwm * act;
     Pid * pid;
@@ -115,7 +115,7 @@ struct FridgeSim : public PidTest {
 BOOST_FIXTURE_TEST_SUITE( pid_test, PidTest )
 
 BOOST_AUTO_TEST_CASE (mock_sensor){
-    BasicTempSensor * s = new MockTempSensor(20.0);
+    TempSensorBasic * s = new TempSensorMock(20.0);
     temp_t t = s->read();
 
     BOOST_CHECK_EQUAL(t, temp_t(20.0));

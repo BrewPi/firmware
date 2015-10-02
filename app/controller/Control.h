@@ -46,9 +46,9 @@ class Control
         std::vector<Actuator*>   actuators;
 
         // pointers for compatibility with device manager
-        BasicTempSensor * beerSensor;
-        BasicTempSensor * fridgeSensor;
-        BasicTempSensor * ambientSensor;
+        TempSensorBasic * beerSensor;
+        TempSensorBasic * fridgeSensor;
+        TempSensorBasic * ambientSensor;
         Actuator *        chamberCooler;
         Actuator *        chamberHeater;
         Actuator *        beerHeater;

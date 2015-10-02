@@ -40,9 +40,9 @@ TempControl                   tempControl;
 #if TEMP_CONTROL_STATIC
 
 // These sensors are switched out to implement multi-chamber.
-BasicTempSensor * TempControl::beerSensor = &defaultTempSensor;
-BasicTempSensor * TempControl::fridgeSensor = &defaultTempSensor;
-BasicTempSensor * TempControl::ambientSensor = &defaultTempSensor;
+TempSensorBasic * TempControl::beerSensor = &defaultTempSensor;
+TempSensorBasic * TempControl::fridgeSensor = &defaultTempSensor;
+TempSensorBasic * TempControl::ambientSensor = &defaultTempSensor;
 Actuator *        TempControl::light         = &defaultActuator;
 Actuator *        TempControl::fan           = &defaultActuator;
 ActuatorOnOff *   TempControl::chamberCoolerLimiter;

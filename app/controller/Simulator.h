@@ -236,12 +236,12 @@ private:
 	void updateSensors()
 	{
 		// add noise to the simulated temperature
-		setBasicTemp(*(ExternalTempSensor*)tempControl.beerSensor, beerTemp+noise());
-		setBasicTemp(*(ExternalTempSensor*)tempControl.fridgeSensor, fridgeTemp+noise());
-		setBasicTemp(*(ExternalTempSensor*)tempControl.ambientSensor, currentRoomTemp);		
+		setBasicTemp(*(TempSensorExternal*)tempControl.beerSensor, beerTemp+noise());
+		setBasicTemp(*(TempSensorExternal*)tempControl.fridgeSensor, fridgeTemp+noise());
+		setBasicTemp(*(TempSensorExternal*)tempControl.ambientSensor, currentRoomTemp);		
 	}
 
-	void setBasicTemp(ExternalTempSensor& sensor, double temp)
+	void setBasicTemp(TempSensorExternal& sensor, double temp)
 	{						
 		temp_t fixedTemp = temp;
 		if (!deviceManager.isDefaultTempSensor(&sensor))

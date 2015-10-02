@@ -22,7 +22,7 @@
 
 #include "TempSensor.h"
 
-class TempSensorDisconnected : public BasicTempSensor {
+class TempSensorDisconnected : public TempSensorBasic {
 	
 public:
 	bool isConnected() { return false; }

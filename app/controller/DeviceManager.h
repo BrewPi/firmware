@@ -285,7 +285,7 @@ void UpdateDeviceState(DeviceDisplay & dd,
 class DeviceManager
 {
     public:
-        bool isDefaultTempSensor(BasicTempSensor * sensor);
+        bool isDefaultTempSensor(TempSensorBasic * sensor);
 	
         /*
 	 * Create the device corresponding to the give config.

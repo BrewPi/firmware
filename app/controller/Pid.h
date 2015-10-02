@@ -30,7 +30,7 @@
 class Pid
 {
     public:
-        Pid(BasicTempSensor * input,
+        Pid(TempSensorBasic * input,
             LinearActuator * output,
             SetPoint * setPoint);
 
@@ -57,9 +57,9 @@ class Pid
         void setMinMax(temp_t min,
                        temp_t max);
 
-        bool setInputSensor(BasicTempSensor * s);
+        bool setInputSensor(TempSensorBasic * s);
 
-        BasicTempSensor * getInputSensor(){
+        TempSensorBasic * getInputSensor(){
             return inputSensor;
         }
 
@@ -92,7 +92,7 @@ class Pid
 //    protected:
     public:
         LinearActuator *  outputActuator;
-        BasicTempSensor * inputSensor;
+        TempSensorBasic * inputSensor;
         SetPoint *        setPoint;
         temp_long_t       Kp;    // proportional gain
         temp_long_t       Ki;    // integral gain
