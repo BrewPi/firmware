@@ -19,5 +19,3 @@
  */
 
 #include "SetPoint.h"
-
-SetPointConstant defaultSetPoint(temp_t::invalid());

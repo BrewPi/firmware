@@ -35,11 +35,6 @@ Control::Control()
     beerHeater = NULL;
 }
 
-extern ValueSensor<bool>      defaultSensor;
-extern BoolActuator          defaultActuator;
-extern DisconnectedTempSensor defaultTempSensor;
-
-
 void Control::initBackwardsCompatible(void)
 {
     // this is for cases where the device manager hasn't configured beer/fridge sensor.

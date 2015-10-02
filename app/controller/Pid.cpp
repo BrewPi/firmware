@@ -20,9 +20,11 @@
 
 
 #include "Pid.h"
+#include "defaultDevices.h"
 
-Pid::Pid(BasicTempSensor * input,
-         LinearActuator *        output)
+Pid::Pid(BasicTempSensor * input = &defaultTempSensor,
+         LinearActuator * output = &defaultLinearActuator,
+         SetPoint * setPoint = &defaultSetPoint)
 {
     setConstants(temp_t(10.0), temp_t(0.2), temp_t(-1.5));
     setMinMax(temp_t::min(), temp_t::max());
@@ -37,12 +39,12 @@ Pid::Pid(BasicTempSensor * input,
 
     setInputSensor(input);
     setOutputActuator(output);
+    setSetPoint(setPoint);
 
 //    autotune = false;
 //    tuning = false;
 //    outputLag = 0;
 //    maxDerivative = 0.0;
-    setPoint = temp_t::invalid_val;
 }
 
 Pid::~Pid(){}
@@ -61,7 +63,7 @@ void Pid::update()
     temp_t inputVal;
     bool disable = false;
 
-    if( setPoint.isDisabledOrInvalid()){
+    if( setPoint->read().isDisabledOrInvalid()){
         disable = true;
     }
 
@@ -100,7 +102,7 @@ void Pid::update()
 
     inputFilter.add(inputVal);
 
-    inputError = setPoint - inputFilter.readOutput();
+    inputError = setPoint->read() - inputFilter.readOutput();
 
     temp_precise_t delta = inputFilter.readOutput() - inputFilter.readPrevOutput();
     derivativeFilter.add(delta * temp_precise_t(60.0)); // use slope per minute
@@ -134,12 +136,6 @@ void Pid::update()
 */
 
 }
-
-void Pid::setSetPoint(temp_t val)
-{
-    setPoint = val;
-}
-
 
 void Pid::setMinMax(temp_t min,
                     temp_t max)

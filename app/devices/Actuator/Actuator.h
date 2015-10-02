@@ -156,3 +156,27 @@ private:
 	bool state;	
 };
 
+
+/*
+ * An linear actuator that does nothing and always returns invalid().
+ */
+class LinearActuatorInvalid : public LinearActuator
+{
+public:
+    LinearActuatorInvalid() {}
+
+    void setActive(bool active) {}
+    bool isActive(){
+        return false;
+    }
+    void setValue(temp_t const& val) {}
+    temp_t readValue(){
+        return temp_t::invalid();
+    }
+    temp_t min(){
+        return temp_t::invalid();
+    }
+    temp_t max(){
+        return temp_t::invalid();
+    }
+};

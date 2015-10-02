@@ -31,15 +31,13 @@
 #include "ModeControl.h"
 #include "EepromManager.h"
 #include "fixstl.h"
+#include "defaultDevices.h"
 
 #define DISABLED_TEMP temp_t::disabled()
 
 TempControl                   tempControl;
 
 #if TEMP_CONTROL_STATIC
-extern ValueSensor<bool>      defaultSensor;
-extern BoolActuator          defaultActuator;
-extern DisconnectedTempSensor defaultTempSensor;
 
 // These sensors are switched out to implement multi-chamber.
 BasicTempSensor * TempControl::beerSensor = &defaultTempSensor;

@@ -25,12 +25,14 @@
 #include "FilterCascaded.h"
 #include "TempSensorBasic.h"
 #include "Actuator.h"
+#include "SetPoint.h"
 
 class Pid
 {
     public:
         Pid(BasicTempSensor * input,
-            LinearActuator * output);
+            LinearActuator * output,
+            SetPoint * setPoint);
 
         Pid(const Pid & orig);
 
@@ -39,10 +41,6 @@ class Pid
         void init();
 
         void update();
-
-        void setSetPoint(temp_t val);
-
-        temp_t getSetPoint(){ return setPoint; }
 
         void setConstants(temp_long_t kp,
                           temp_long_t ki,
@@ -61,7 +59,23 @@ class Pid
 
         bool setInputSensor(BasicTempSensor * s);
 
+        BasicTempSensor * getInputSensor(){
+            return inputSensor;
+        }
+
         bool setOutputActuator(LinearActuator * a);
+
+        Actuator * getOutputActuator(){
+            return outputActuator;
+        }
+
+        void setSetPoint(SetPoint * s){
+            setPoint = s;
+        }
+
+        SetPoint * getSetPoint(){
+            return setPoint;
+        }
 
         /*
         uint16_t getOutputLag(){ return outputLag; };
@@ -79,18 +93,18 @@ class Pid
     public:
         LinearActuator *  outputActuator;
         BasicTempSensor * inputSensor;
-        temp_long_t         Kp;    // proportional gain
-        temp_long_t         Ki;    // integral gain
-        temp_long_t         Kd;    // derivative gain
-        temp_t              min;
-        temp_t              max;
-        temp_t              setPoint;
-        temp_t              inputError;
-        temp_long_t         p;
-        temp_long_t         i;
-        temp_long_t         d;
-        temp_precise_t      derivative;
-        temp_long_t         integral;
+        SetPoint *        setPoint;
+        temp_long_t       Kp;    // proportional gain
+        temp_long_t       Ki;    // integral gain
+        temp_long_t       Kd;    // derivative gain
+        temp_t            min;
+        temp_t            max;
+        temp_t            inputError;
+        temp_long_t       p;
+        temp_long_t       i;
+        temp_long_t       d;
+        temp_precise_t    derivative;
+        temp_long_t       integral;
         FilterCascaded    inputFilter;
         FilterCascaded    derivativeFilter;
         uint8_t           failedReadCount;

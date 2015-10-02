@@ -20,6 +20,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Pid.h"
+#include "SetPoint.h"
 #include <cstdio>
 #include <math.h>
 #include "TempSensorMock.h"
@@ -38,8 +39,9 @@ public:
         sensor = new MockTempSensor(20.0);
         vAct = new BoolActuator();
         act = new ActuatorPwm(vAct,4);
+        sp = new SetPointSimple(20.0);
 
-        pid = new Pid(sensor, act);
+        pid = new Pid(sensor, act, sp);
 
         // set filtering to minimum.
         pid->setInputFilter(0);
@@ -57,6 +59,7 @@ public:
     Actuator * vAct;
     ActuatorPwm * act;
     Pid * pid;
+    SetPointSimple * sp;
 };
 
 struct FridgeSim : public PidTest {
@@ -122,7 +125,7 @@ BOOST_AUTO_TEST_CASE (mock_sensor){
 BOOST_FIXTURE_TEST_CASE(just_proportional, PidTest)
 {
     pid->setConstants(10.0, 0.0, 0.0);
-    pid->setSetPoint(21.0);
+    sp->write(21.0);
 
     sensor->setTemp(20.0);
 
@@ -146,7 +149,7 @@ BOOST_FIXTURE_TEST_CASE(just_proportional, PidTest)
 BOOST_FIXTURE_TEST_CASE(just_integral, PidTest)
 {
     pid->setConstants(0.0, 5.0, 0.0);
-    pid->setSetPoint(21.0);
+    sp->write(21.0);
 
     sensor->setTemp(20.0);
 
@@ -162,7 +165,7 @@ BOOST_FIXTURE_TEST_CASE(just_integral, PidTest)
 BOOST_FIXTURE_TEST_CASE(just_derivative, PidTest)
 {
     pid->setConstants(0.0, 0.0, 5.0);
-    pid->setSetPoint(20.0);
+    sp->write(20.0);
 
     // update for 10 minutes
     for(int i = 0; i <= 600; i++){
@@ -251,20 +254,20 @@ BOOST_FIXTURE_TEST_CASE(double_step_response_beer_control, FridgeSim)
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "setPoint, error, beer, air, actuator, p, i, d, Kp, Ki, Kd" << endl;
-    double setPoint = 20;
+    double SetPointDouble = 20;
     for(int t = 0; t < 6000; t++){
         if(t==500){
-            setPoint = 21;
+            SetPointDouble = 21;
         }
         if(t==2500){
-            setPoint = 24;
+            SetPointDouble = 24;
         }
-        pid->setSetPoint(setPoint);
+        sp->write(SetPointDouble);
         pid->update();
 
         temp_t outputVal = act->readValue();
         updateSimBeerControl(outputVal);
-        csv << setPoint << "," << (beerTemp - setPoint) << "," << beerTemp << "," << airTemp << "," <<
+        csv << SetPointDouble << "," << (beerTemp - SetPointDouble) << "," << beerTemp << "," << airTemp << "," <<
             outputVal << "," << pid->p << "," << pid->i << "," << pid->d << ", " <<
             pid->Kp << "," << pid->Ki << "," << pid-> Kd << endl;
     }
@@ -280,20 +283,20 @@ BOOST_FIXTURE_TEST_CASE(double_step_response_fridge_control, FridgeSim)
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "setPoint, error, beer, air, actuator, p, i, d, Kp, Ki, Kd" << endl;
-    double setPoint = 20;
+    double SetPointDouble = 20;
     for(int t = 0; t < 6000; t++){
         if(t==500){
-            setPoint = 24;
+            SetPointDouble = 24;
         }
         if(t==2500){
-            setPoint = 28;
+            SetPointDouble = 28;
         }
-        pid->setSetPoint(setPoint);
+        sp->write(SetPointDouble);
         pid->update();
 
         temp_t outputVal = act->readValue();
         updateSimFridgeControl(outputVal);
-        csv << setPoint << "," << (airTemp - setPoint) << "," << beerTemp << "," << airTemp << "," <<
+        csv << SetPointDouble << "," << (airTemp - SetPointDouble) << "," << beerTemp << "," << airTemp << "," <<
             outputVal << "," << pid->p << "," << pid->i << "," << pid->d << ", " <<
             pid->Kp << "," << pid->Ki << "," << pid-> Kd << endl;
     }

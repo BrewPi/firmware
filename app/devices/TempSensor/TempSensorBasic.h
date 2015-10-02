@@ -42,3 +42,5 @@ public:
 	virtual temp_t read() = 0;
 	
 };
+
+

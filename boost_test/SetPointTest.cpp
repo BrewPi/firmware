@@ -19,6 +19,7 @@
 
 
 #include "SetPoint.h"
+#include "defaultDevices.h"
 #include "runner.h"
 #include <boost/test/unit_test.hpp>
 

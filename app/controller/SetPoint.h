@@ -60,6 +60,3 @@ public:
 private:
     const temp_t sp;
 };
-
-
-extern SetPointConstant defaultSetPoint;

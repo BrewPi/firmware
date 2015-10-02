@@ -33,6 +33,7 @@
 #include "PiLink.h"
 #include "EepromFormat.h"
 #include "EepromManager.h"
+#include "defaultDevices.h"
 
 #define CALIBRATION_OFFSET_PRECISION (4)
 
@@ -50,13 +51,6 @@
 
 class OneWire;
 
-
-/*
- * Defaults for sensors, actuators and temperature sensors when not defined in the eeprom.
- */
-ValueSensor<bool>      defaultSensor(false);    // off
-BoolActuator          defaultActuator;
-DisconnectedTempSensor defaultTempSensor;
 bool                   DeviceManager::firstDeviceOutput;
 
 bool DeviceManager::isDefaultTempSensor(BasicTempSensor * sensor)
