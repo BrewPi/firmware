@@ -39,7 +39,7 @@ public:
     virtual ~Actuator() {}
     virtual uint8_t type() const{ return ACTUATOR_TOGGLE; };
     virtual void setActive(bool active) = 0;
-	virtual bool isActive() const = 0;
+	virtual bool isActive() = 0;
 	virtual Actuator ** getDeviviceTarget() const{
 	    return 0;  // recursive call for super classes until this level is reached.
 	}
@@ -118,7 +118,7 @@ public:
 	        value = min;
 	    }
 	}
-	virtual bool isActive() const { return value > min; }
+	virtual bool isActive() { return value > min; }
 	virtual void setValue(temp_t const& val) {
 	    if(val < min){
 	        value = min;
@@ -150,7 +150,7 @@ public:
 	ActuatorBool(bool initial) : state(initial) {}
 
 	virtual void setActive(bool active) { state = active; }
-	virtual bool isActive() const { return state; }
+	virtual bool isActive() { return state; }
 
 private:
 	bool state;	
@@ -166,7 +166,7 @@ public:
     ActuatorInvalid() {}
 
     void setActive(bool active) {}
-    bool isActive() const {
+    bool isActive() {
         return false;
     }
     void setValue(temp_t const& val) {}

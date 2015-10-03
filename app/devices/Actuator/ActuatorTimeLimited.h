@@ -47,7 +47,7 @@ class ActuatorTimeLimited:
 
         void setActive(bool active);    // returns new actuator state
 
-        bool isActive() const
+        bool isActive()
         {
             return active;    // target->isActive(); - this takes 20 bytes more
         }

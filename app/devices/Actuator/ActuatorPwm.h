@@ -64,7 +64,7 @@ class ActuatorPwm : public ActuatorRange, public ActuatorDriver
             return period;
         }
 
-        bool isActive() const
+        bool isActive()
         {
             return (value > temp_t(0.0));
         }

@@ -42,7 +42,7 @@ public:
     void setActive(bool active) {
         // do nothing, doesn't mean anything for a SetPoint Actuator
     }
-    bool isActive() const{
+    bool isActive(){
         temp_t referenceTemp = reference->read();
         if(referenceTemp.isDisabledOrInvalid()){
             return false;
