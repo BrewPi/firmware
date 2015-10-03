@@ -187,8 +187,8 @@ class TempControl{
 	TEMP_CONTROL_FIELD ActuatorPwm* chamberHeater;
 	TEMP_CONTROL_FIELD ActuatorPwm* beerHeater;
 	TEMP_CONTROL_FIELD ActuatorPwm* chamberCooler;
-	TEMP_CONTROL_FIELD Actuator* light;
-	TEMP_CONTROL_FIELD Actuator* fan;
+	TEMP_CONTROL_FIELD ActuatorDigital* light;
+	TEMP_CONTROL_FIELD ActuatorDigital* fan;
 	TEMP_CONTROL_FIELD AutoOffActuator cameraLight;
 	TEMP_CONTROL_FIELD Sensor<bool>* door;
 	

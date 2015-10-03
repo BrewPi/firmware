@@ -39,7 +39,7 @@ class ActuatorPwm : public ActuatorRange, public ActuatorDriver
         temp_t         maxVal;
 
     public:
-        ActuatorPwm(Actuator * _target, uint16_t _period);
+        ActuatorPwm(ActuatorDigital * _target, uint16_t _period);
 
         virtual ~ActuatorPwm(){}
 
@@ -64,27 +64,13 @@ class ActuatorPwm : public ActuatorRange, public ActuatorDriver
             return period;
         }
 
-        bool isActive()
-        {
-            return (value > temp_t(0.0));
-        }
-
-        void setTarget(Actuator * driver)
+        void setTarget(ActuatorDigital * driver)
         {
             target = driver;
         }
 
         void setPeriod(uint16_t sec){
             period = int32_t(sec) * 1000;
-        }
-
-        void setActive(bool active){
-            if(active){
-                value = maxVal;
-            }
-            else{
-                value = minVal;
-            }
         }
 
         // recalculates duty time based on value and dutyLate and periodLate

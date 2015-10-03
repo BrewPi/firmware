@@ -56,7 +56,7 @@ public:
     }
 
     TempSensorMock * sensor;
-    Actuator * vAct;
+    ActuatorDigital * vAct;
     ActuatorPwm * act;
     Pid * pid;
     SetPointSimple * sp;

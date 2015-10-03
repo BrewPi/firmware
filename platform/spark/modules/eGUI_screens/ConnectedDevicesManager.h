@@ -94,7 +94,7 @@ class ConnectedDevicesManager
     ConnectedDevice devices[MAX_CONNECTED_DEVICES];
     NotifyDevicesChanged changed;
 
-    Actuator* actuators[MAX_ACTUATOR_COUNT];
+    ActuatorDigital* actuators[MAX_ACTUATOR_COUNT];
 
     /**
      * Find a slot that matches the given device config.
@@ -189,7 +189,7 @@ public:
 
     void update();
 
-    Actuator* actuator(size_t index) {
+    ActuatorDigital* actuator(size_t index) {
         return actuators[index];
     }
 

@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_SUITE(ActuatorTimeLimited_with_bool_driver)
 BOOST_AUTO_TEST_CASE(minimum_off_time_and_maximum_on_time_are_honored) {
     srand(time(NULL));
     ticks.reset();
-    Actuator * v = new ActuatorBool();
+    ActuatorDigital * v = new ActuatorBool();
     const uint16_t minOn = 100;
     const uint16_t maxOn = 200;
     const uint16_t minOff = 300;
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(minimum_off_time_and_maximum_on_time_are_honored) {
 BOOST_AUTO_TEST_CASE(minimum_on_time_is_honored) {
     srand(time(NULL));
     ticks.reset();
-    Actuator * v = new ActuatorBool();
+    ActuatorDigital * v = new ActuatorBool();
     const uint16_t minOn = 100;
     const uint16_t maxOn = 200;
     const uint16_t minOff = 300;

@@ -27,10 +27,10 @@
 #include "Ticks.h"
 
 class ActuatorTimeLimited:
-    public ActuatorDriver
+    public ActuatorDriver, public ActuatorDigital
 {
     public:
-        ActuatorTimeLimited(Actuator * _target,
+        ActuatorTimeLimited(ActuatorDigital * _target,
                       uint16_t   _minOnTime = 120,
                       uint16_t   _minOffTime = 180,
                       uint16_t   _maxOnTime = UINT16_MAX) : ActuatorDriver(_target)
@@ -54,9 +54,6 @@ class ActuatorTimeLimited:
 
         void update();
 
-        void setValue(temp_t const& val){
-            setActive(val > temp_t(0.0));
-        }
         void setTimes(uint16_t   _minOnTime,
                       uint16_t   _minOffTime,
                       uint16_t   _maxOnTime = UINT16_MAX){

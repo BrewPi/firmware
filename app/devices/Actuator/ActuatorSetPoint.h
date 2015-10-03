@@ -39,17 +39,6 @@ public:
         maximum = maxi;
     }
 
-    void setActive(bool active) {
-        // do nothing, doesn't mean anything for a SetPoint Actuator
-    }
-    bool isActive(){
-        temp_t referenceTemp = reference->read();
-        if(referenceTemp.isDisabledOrInvalid()){
-            return false;
-        }
-        return target->read() != reference->read();
-    }
-
     void setValue(temp_t const& val) {
         temp_t offset = val;
         if(offset < minimum){

@@ -23,12 +23,13 @@
 #include "Actuator.h"
 #include <stdint.h>
 
-class AutoOffActuator : public Actuator {
+class AutoOffActuator : public ActuatorDigital {
 	
 public:
-	AutoOffActuator(uint16_t timeout, Actuator* target) {
+	AutoOffActuator(uint16_t timeout, ActuatorDigital* target) {
 		this->timeout = timeout;
 		this->target = target;
+		active = target->isActive();
 	}
 	
 	void setActive(bool active);
@@ -44,6 +45,6 @@ public:
 private:
 	uint16_t lastActiveTime;
 	uint16_t timeout;
-	Actuator* target;
+	ActuatorDigital* target;
 	bool active;
 };

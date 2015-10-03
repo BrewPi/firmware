@@ -2,7 +2,7 @@
 #include "ActuatorPwm.h"
 #include "Ticks.h"
 
-ActuatorPwm::ActuatorPwm(Actuator* _target, uint16_t _period) : ActuatorDriver(_target) {
+ActuatorPwm::ActuatorPwm(ActuatorDigital* _target, uint16_t _period) : ActuatorDriver(_target) {
     periodStartTime = 0;
     periodLate = 0;
     dutyLate = 0;

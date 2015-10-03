@@ -1094,7 +1094,7 @@ void UpdateDeviceState(DeviceDisplay & dd,
         // write value to a specific device. For now, only actuators are relevant targets
         if (dt == DEVICETYPE_SWITCH_ACTUATOR){
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write != 0));
-            ((Actuator *) *ppv) -> setActive(dd.write != 0);
+            ((ActuatorDigital *) *ppv) -> setActive(dd.write != 0);
         } else if (dt == DEVICETYPE_PWM_ACTUATOR){
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write));
             ((ActuatorPwm *) *ppv) -> setValue(dd.write);
@@ -1109,7 +1109,7 @@ void UpdateDeviceState(DeviceDisplay & dd,
             temp_t temp = s.read();
             temp.toString(val, 3, 9);
         } else if (dt == DEVICETYPE_SWITCH_ACTUATOR){
-            sprintf_P(val, STR_FMT_U, (unsigned int) ((Actuator *) *ppv) -> isActive() != 0);
+            sprintf_P(val, STR_FMT_U, (unsigned int) ((ActuatorDigital *) *ppv) -> isActive() != 0);
         } else if (dt == DEVICETYPE_PWM_ACTUATOR){
             char buf[12];
             sprintf_P(val, STR_FMT_U, ((ActuatorPwm *) *ppv) -> readValue().toString(buf,1,12));

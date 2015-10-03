@@ -30,25 +30,39 @@ enum {
 };
 
 /*
- * An actuator simply turns something on or off.                        
+ * An actuator can be driven by other classes and acts on something.
+ * Actuators can also drive other actuators, getDeviceTarget finds the lowest level actuator recursively
  */
 class Actuator
 {
 public:
     Actuator(){}
     virtual ~Actuator() {}
-    virtual uint8_t type() const{ return ACTUATOR_TOGGLE; };
-    virtual void setActive(bool active) = 0;
-	virtual bool isActive() = 0;
+    virtual uint8_t type() const = 0;
 	virtual Actuator ** getDeviviceTarget() const{
-	    return 0;  // recursive call for super classes until this level is reached.
+	    return 0;  // recursive call for composite classes until this level is reached.
 	}
 };
 
+
 /*
- * An LinearActuator has a linear range output between min and max
+ * An ActuatorDigital simply turns something on or off.
  */
-class ActuatorRange : public Actuator
+class ActuatorDigital : public virtual Actuator
+{
+public:
+    ActuatorDigital(){}
+    virtual ~ActuatorDigital() {}
+    virtual uint8_t type() const { return ACTUATOR_TOGGLE; };
+    virtual void setActive(bool active) = 0;
+    virtual bool isActive() = 0;
+};
+
+
+/*
+ * An ActuatorRange has a range output between min and max
+ */
+class ActuatorRange : public virtual Actuator
 {
 public:
     ActuatorRange(){}
@@ -63,11 +77,12 @@ public:
 /*
  * An ThresholdActuator has switches on at a certain threshold. TODO: add hysteresis
  */
-class ActuatorThreshold : public Actuator
+class ActuatorThreshold : public virtual Actuator
+
 {
 ActuatorThreshold(){}
     virtual ~ActuatorThreshold() {}
-    virtual uint8_t type() const{ return ACTUATOR_THRESHOLD; };
+    virtual uint8_t type() const { return ACTUATOR_THRESHOLD; };
     virtual void setValue(temp_t const& val) = 0;
     virtual temp_t readValue() const = 0;
     virtual temp_t onValue() const = 0;
@@ -75,22 +90,22 @@ ActuatorThreshold(){}
 };
 
 /*
- * A DriverActuator drivers another actuator, for example a PWM actuator can drive a pin actuator
+ * A DriverActuator drivers another digital actuator, for example a PWM actuator can drive a pin actuator
  */
-class ActuatorDriver : public Actuator
+class ActuatorDriver : public virtual Actuator
 {
 protected:
-    Actuator * target;
+    ActuatorDigital * target;
 
 public:
-    ActuatorDriver(Actuator * _target){
+    ActuatorDriver(ActuatorDigital * _target){
         target = _target;
     }
     virtual ~ActuatorDriver(){};
 
     Actuator ** getDeviviceTarget() {
         if( target->getDeviviceTarget() == 0){
-            return &target; // this is bottom
+            return (Actuator **) &target; // this is bottom
         }
         else{
             return target->getDeviviceTarget();  // this is not bottom
@@ -103,22 +118,14 @@ public:
 };
 
 /*
- * A linear actuator that simply remembers the set value. This is primary used for testing.
+ * A range actuator that simply remembers the set value. This is primary used for testing.
  */
 class ActuatorValue : public ActuatorRange
 {
 public:
 	ActuatorValue(temp_t initial, temp_t minVal, temp_t maxVal) : value(initial), min(minVal), max(maxVal) {}
+	virtual ~ActuatorValue(){}
 
-	virtual void setActive(bool active) {
-	    if(active){
-	        value = max;
-	    }
-	    else{
-	        value = min;
-	    }
-	}
-	virtual bool isActive() { return value > min; }
 	virtual void setValue(temp_t const& val) {
 	    if(val < min){
 	        value = min;
@@ -143,7 +150,7 @@ private:
 /*
  * An toggle actuator that simply remembers a true/false set value. This is primary used for testing.
  */
-class ActuatorBool : public Actuator
+class ActuatorBool : public ActuatorDigital
 {
 public:
 	ActuatorBool() : state(false) {}
@@ -153,7 +160,7 @@ public:
 	virtual bool isActive() { return state; }
 
 private:
-	bool state;	
+	bool state;
 };
 
 
@@ -165,10 +172,6 @@ class ActuatorInvalid : public ActuatorRange
 public:
     ActuatorInvalid() {}
 
-    void setActive(bool active) {}
-    bool isActive() {
-        return false;
-    }
     void setValue(temp_t const& val) {}
     temp_t readValue() const {
         return temp_t::invalid();

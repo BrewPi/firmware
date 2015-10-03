@@ -96,7 +96,7 @@ void Pid::update()
         p = 0;
         i = 0;
         d = 0;
-        outputActuator -> setActive(false);
+        outputActuator -> setValue(0.0);
         return;
     }
 

@@ -26,7 +26,7 @@
 #include "Actuator.h"
 
 class DigitalPinActuator:
-    public Actuator
+    public ActuatorDigital
 {
     private:
         bool    invert;

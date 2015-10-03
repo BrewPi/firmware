@@ -65,7 +65,7 @@ class Pid
 
         bool setOutputActuator(ActuatorRange * a);
 
-        Actuator * getOutputActuator(){
+        ActuatorRange * getOutputActuator(){
             return outputActuator;
         }
 
@@ -91,7 +91,7 @@ class Pid
 
 //    protected:
     public:
-        ActuatorRange *  outputActuator;
+        ActuatorRange *   outputActuator;
         TempSensorBasic * inputSensor;
         SetPoint *        setPoint;
         temp_long_t       Kp;    // proportional gain
