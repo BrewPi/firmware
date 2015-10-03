@@ -122,7 +122,7 @@ void Pid::update()
     outputActuator -> setValue(output);
 
     // get actual value from actuator
-    output = outputActuator->readValue();
+    output = outputActuator->getValue();
 
     // update integral with anti-windup back calculation
     // pidResult - output is zero when actuator is not saturated

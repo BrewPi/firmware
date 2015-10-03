@@ -81,21 +81,21 @@ BOOST_AUTO_TEST_CASE( Test_ActuatorPWM_with_ValueActuator_as_driver) {
     ActuatorDigital * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,4);
 
-    BOOST_CHECK(act->readValue() == temp_t(0.0)); // PWM value is initialized to 0
+    BOOST_CHECK(act->getValue() == temp_t(0.0)); // PWM value is initialized to 0
 
     // Test that PWM can be set and read
     act->setValue(50.0);
-    BOOST_CHECK_EQUAL(act->readValue(), temp_t(50.0));
+    BOOST_CHECK_EQUAL(act->getValue(), temp_t(50.0));
     act->setValue(100.0);
-    BOOST_CHECK_EQUAL(act->readValue(), temp_t(100.0));
+    BOOST_CHECK_EQUAL(act->getValue(), temp_t(100.0));
     act->setValue(0.0);
-    BOOST_CHECK_EQUAL(act->readValue(), temp_t(0.0));
+    BOOST_CHECK_EQUAL(act->getValue(), temp_t(0.0));
 
     act->setValue(110.0);
-    BOOST_CHECK_EQUAL(act->readValue(), temp_t(100.0)); // max is 100
+    BOOST_CHECK_EQUAL(act->getValue(), temp_t(100.0)); // max is 100
 
     act->setValue(-50.0);
-    BOOST_CHECK_EQUAL(act->readValue(), temp_t(0.0)); // min is 0
+    BOOST_CHECK_EQUAL(act->getValue(), temp_t(0.0)); // min is 0
 }
 
 BOOST_AUTO_TEST_CASE(test_ticks_millis_to_increment_every_call) {

@@ -35,12 +35,12 @@ BOOST_AUTO_TEST_CASE(set_value){
 
     BOOST_REQUIRE_EQUAL(reference.read(), temp_t(20.0));
     BOOST_REQUIRE_EQUAL(target.read(), temp_t(30.0));
-    BOOST_REQUIRE_EQUAL(act.readValue(), temp_t(10.0));
+    BOOST_REQUIRE_EQUAL(act.getValue(), temp_t(10.0));
 
     act.setValue(-10.0);
     BOOST_REQUIRE_EQUAL(reference.read(), temp_t(20.0));
     BOOST_REQUIRE_EQUAL(target.read(), temp_t(10.0));
-    BOOST_REQUIRE_EQUAL(act.readValue(), temp_t(-10.0));
+    BOOST_REQUIRE_EQUAL(act.getValue(), temp_t(-10.0));
 }
 
 BOOST_AUTO_TEST_CASE(min_max){
@@ -53,12 +53,12 @@ BOOST_AUTO_TEST_CASE(min_max){
 
     BOOST_REQUIRE_EQUAL(reference.read(), temp_t(20.0));
     BOOST_REQUIRE_EQUAL(target.read(), temp_t(30.0));
-    BOOST_REQUIRE_EQUAL(act.readValue(), temp_t(10.0));
+    BOOST_REQUIRE_EQUAL(act.getValue(), temp_t(10.0));
 
     act.setValue(-20.0);
     BOOST_REQUIRE_EQUAL(reference.read(), temp_t(20.0));
     BOOST_REQUIRE_EQUAL(target.read(), temp_t(10.0));
-    BOOST_REQUIRE_EQUAL(act.readValue(), temp_t(-10.0));
+    BOOST_REQUIRE_EQUAL(act.getValue(), temp_t(-10.0));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

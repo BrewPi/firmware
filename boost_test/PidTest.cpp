@@ -130,20 +130,20 @@ BOOST_FIXTURE_TEST_CASE(just_proportional, PidTest)
     sensor->setTemp(20.0);
 
     pid->update();
-    BOOST_CHECK_EQUAL(act->readValue(), temp_t(10.0));
+    BOOST_CHECK_EQUAL(act->getValue(), temp_t(10.0));
 
     // now try changing the temperature input
     sensor->setTemp(18.0);
     pid->update();
 
     // inputs are filtered, so output should still be close to the old value
-    BOOST_CHECK_CLOSE(double(act->readValue()), 10.0, 1);
+    BOOST_CHECK_CLOSE(double(act->getValue()), 10.0, 1);
 
     for(int i = 0; i<100; i++){
         pid->update();
     }
     // after a enough updates, filters have settled and new PID value is Kp*error
-    BOOST_CHECK_CLOSE(double(act->readValue()), 30.0, 1);
+    BOOST_CHECK_CLOSE(double(act->getValue()), 30.0, 1);
 }
 
 BOOST_FIXTURE_TEST_CASE(just_integral, PidTest)
@@ -159,7 +159,7 @@ BOOST_FIXTURE_TEST_CASE(just_integral, PidTest)
     }
 
     // integrator result is error * Ki, per minute. So 10 minutes * 1 degree error * 5 = 50.0
-    BOOST_CHECK_CLOSE(double(act->readValue()), 50.0, 2);
+    BOOST_CHECK_CLOSE(double(act->getValue()), 50.0, 2);
 }
 
 BOOST_FIXTURE_TEST_CASE(just_derivative, PidTest)
@@ -177,7 +177,7 @@ BOOST_FIXTURE_TEST_CASE(just_derivative, PidTest)
 
 
     // derivative is interpreted as degree per minute, in this case -3 deg / min. PID should be -3*-5 = 15.
-    BOOST_CHECK_CLOSE(double(act->readValue()), 15.0, 1);
+    BOOST_CHECK_CLOSE(double(act->getValue()), 15.0, 1);
 }
 
 /*
@@ -265,7 +265,7 @@ BOOST_FIXTURE_TEST_CASE(double_step_response_beer_control, FridgeSim)
         sp->write(SetPointDouble);
         pid->update();
 
-        temp_t outputVal = act->readValue();
+        temp_t outputVal = act->getValue();
         updateSimBeerControl(outputVal);
         csv << SetPointDouble << "," << (beerTemp - SetPointDouble) << "," << beerTemp << "," << airTemp << "," <<
             outputVal << "," << pid->p << "," << pid->i << "," << pid->d << ", " <<
@@ -294,7 +294,7 @@ BOOST_FIXTURE_TEST_CASE(double_step_response_fridge_control, FridgeSim)
         sp->write(SetPointDouble);
         pid->update();
 
-        temp_t outputVal = act->readValue();
+        temp_t outputVal = act->getValue();
         updateSimFridgeControl(outputVal);
         csv << SetPointDouble << "," << (airTemp - SetPointDouble) << "," << beerTemp << "," << airTemp << "," <<
             outputVal << "," << pid->p << "," << pid->i << "," << pid->d << ", " <<

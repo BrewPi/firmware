@@ -1112,7 +1112,7 @@ void UpdateDeviceState(DeviceDisplay & dd,
             sprintf_P(val, STR_FMT_U, (unsigned int) ((ActuatorDigital *) *ppv) -> isActive() != 0);
         } else if (dt == DEVICETYPE_PWM_ACTUATOR){
             char buf[12];
-            sprintf_P(val, STR_FMT_U, ((ActuatorPwm *) *ppv) -> readValue().toString(buf,1,12));
+            sprintf_P(val, STR_FMT_U, ((ActuatorPwm *) *ppv) -> getValue().toString(buf,1,12));
         }
     }
 }

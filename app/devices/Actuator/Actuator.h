@@ -69,7 +69,7 @@ public:
     virtual ~ActuatorRange() {}
     virtual uint8_t type() const { return ACTUATOR_RANGE; };
     virtual void setValue(temp_t const& val) = 0;
-    virtual temp_t readValue() const = 0;
+    virtual temp_t getValue() const = 0;
     virtual temp_t min() const = 0;
     virtual temp_t max() const = 0;
 };
@@ -137,7 +137,7 @@ public:
 	        value = val;
 	    }
 	}
-	virtual temp_t readValue() const{
+	virtual temp_t getValue() const{
 	    return value;
 	}
 
@@ -173,7 +173,7 @@ public:
     ActuatorInvalid() {}
 
     void setValue(temp_t const& val) {}
-    temp_t readValue() const {
+    temp_t getValue() const {
         return temp_t::invalid();
     }
     temp_t min() const {

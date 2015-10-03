@@ -50,7 +50,7 @@ public:
         target->write(reference->read() + offset);
     }
 
-    temp_t readValue() const{
+    temp_t getValue() const{
         return target->read() - reference->read();
     }
 
