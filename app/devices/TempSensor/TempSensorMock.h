@@ -47,7 +47,13 @@ public:
 	{
 		if (!isConnected())
 			return temp_t::invalid_val;
-		return _temperature;
+
+		// limit precision to mimic DS18B20 sensor
+		const uint8_t shift = temp_t::fractional_bit_count - 4; // DS18B20 has 0.0625 (1/16) degree C steps
+		temp_t rounder;
+		rounder.setRaw(1 << (shift-1));
+		temp_t quantified = ((_temperature + rounder) >> shift) << shift;
+		return quantified;
 	}
 	
 	void setTemp(temp_t val){
