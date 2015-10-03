@@ -81,7 +81,7 @@ void UI::showControllerPage() {
     display.printState();
 }
 
-extern BoolActuator alarm;
+extern ActuatorBool alarm;
 void UI::ticks()
 {
     D4D_TimeTickPut();

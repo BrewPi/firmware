@@ -45,8 +45,8 @@ TempSensorBasic * TempControl::fridgeSensor = &defaultTempSensor;
 TempSensorBasic * TempControl::ambientSensor = &defaultTempSensor;
 Actuator *        TempControl::light         = &defaultActuator;
 Actuator *        TempControl::fan           = &defaultActuator;
-ActuatorOnOff *   TempControl::chamberCoolerLimiter;
-BoolActuator     cameraLightState;
+ActuatorTimeLimited *   TempControl::chamberCoolerLimiter;
+ActuatorBool     cameraLightState;
 ActuatorPwm *     TempControl::chamberHeater;
 ActuatorPwm *     TempControl::chamberCooler;
 ActuatorPwm *     TempControl::beerHeater;
@@ -194,7 +194,7 @@ void TempControl::init(void)
 
     if (chamberCooler == NULL)
     {
-        chamberCoolerLimiter = new ActuatorOnOff(&defaultActuator, ccDefaults.minCoolTime, ccDefaults.minCoolIdleTime); // time limited actuator
+        chamberCoolerLimiter = new ActuatorTimeLimited(&defaultActuator, ccDefaults.minCoolTime, ccDefaults.minCoolIdleTime); // time limited actuator
         chamberCooler = new ActuatorPwm(chamberCoolerLimiter, ccDefaults.coolPwmPeriod);
     }
 

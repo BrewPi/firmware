@@ -26,8 +26,8 @@
 #include "Sensor.h"
 
 extern ValueSensor<bool>      defaultSensor;
-extern BoolActuator           defaultActuator;
-extern LinearActuatorInvalid  defaultLinearActuator; // always returns invalid
+extern ActuatorBool           defaultActuator;
+extern ActuatorInvalid  defaultLinearActuator; // always returns invalid
 extern TempSensorDisconnected defaultTempSensor;
 extern SetPointConstant       defaultSetPoint;
 

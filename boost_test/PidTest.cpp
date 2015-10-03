@@ -37,7 +37,7 @@ public:
         BOOST_TEST_MESSAGE( "setup PID test fixture" );
 
         sensor = new TempSensorMock(20.0);
-        vAct = new BoolActuator();
+        vAct = new ActuatorBool();
         act = new ActuatorPwm(vAct,4);
         sp = new SetPointSimple(20.0);
 

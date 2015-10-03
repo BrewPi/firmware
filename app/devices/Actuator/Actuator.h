@@ -48,11 +48,11 @@ public:
 /*
  * An LinearActuator has a linear range output between min and max
  */
-class LinearActuator : public Actuator
+class ActuatorRange : public Actuator
 {
 public:
-    LinearActuator(){}
-    virtual ~LinearActuator() {}
+    ActuatorRange(){}
+    virtual ~ActuatorRange() {}
     virtual uint8_t type() const { return ACTUATOR_RANGE; };
     virtual void setValue(temp_t const& val) = 0;
     virtual temp_t readValue() const = 0;
@@ -77,16 +77,16 @@ ActuatorThreshold(){}
 /*
  * A DriverActuator drivers another actuator, for example a PWM actuator can drive a pin actuator
  */
-class DriverActuator : public Actuator
+class ActuatorDriver : public Actuator
 {
 protected:
     Actuator * target;
 
 public:
-    DriverActuator(Actuator * _target){
+    ActuatorDriver(Actuator * _target){
         target = _target;
     }
-    virtual ~DriverActuator(){};
+    virtual ~ActuatorDriver(){};
 
     Actuator ** getDeviviceTarget() {
         if( target->getDeviviceTarget() == 0){
@@ -105,10 +105,10 @@ public:
 /*
  * A linear actuator that simply remembers the set value. This is primary used for testing.
  */
-class ValueActuator : public LinearActuator
+class ActuatorValue : public ActuatorRange
 {
 public:
-	ValueActuator(temp_t initial, temp_t minVal, temp_t maxVal) : value(initial), min(minVal), max(maxVal) {}
+	ActuatorValue(temp_t initial, temp_t minVal, temp_t maxVal) : value(initial), min(minVal), max(maxVal) {}
 
 	virtual void setActive(bool active) {
 	    if(active){
@@ -143,11 +143,11 @@ private:
 /*
  * An toggle actuator that simply remembers a true/false set value. This is primary used for testing.
  */
-class BoolActuator : public Actuator
+class ActuatorBool : public Actuator
 {
 public:
-	BoolActuator() : state(false) {}
-	BoolActuator(bool initial) : state(initial) {}
+	ActuatorBool() : state(false) {}
+	ActuatorBool(bool initial) : state(initial) {}
 
 	virtual void setActive(bool active) { state = active; }
 	virtual bool isActive() const { return state; }
@@ -160,10 +160,10 @@ private:
 /*
  * An linear actuator that does nothing and always returns invalid().
  */
-class LinearActuatorInvalid : public LinearActuator
+class ActuatorInvalid : public ActuatorRange
 {
 public:
-    LinearActuatorInvalid() {}
+    ActuatorInvalid() {}
 
     void setActive(bool active) {}
     bool isActive() const {

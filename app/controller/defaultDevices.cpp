@@ -21,7 +21,7 @@
 #include "defaultDevices.h"
 
 ValueSensor<bool>      defaultSensor(false);
-BoolActuator           defaultActuator;
-LinearActuatorInvalid  defaultLinearActuator; // always returns invalid
+ActuatorBool           defaultActuator;
+ActuatorInvalid  defaultLinearActuator; // always returns invalid
 TempSensorDisconnected defaultTempSensor;
 SetPointConstant       defaultSetPoint(temp_t::invalid());

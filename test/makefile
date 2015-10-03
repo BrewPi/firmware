@@ -41,7 +41,7 @@ CPPSRC += $(call target_files,test,*.cpp)
 CPPSRC += $(SOURCE_PATH)platform/wiring/TemperatureFormats.cpp
 CPPSRC += $(SOURCE_PATH)app/controller/TemperatureControllerFormats.cpp
 CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorPwm.cpp
-CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorOnOff.cpp
+CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorTimeLimited.cpp
 
 
 INCLUDE_DIRS += $(SOURCE_PATH)app/controller

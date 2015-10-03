@@ -23,7 +23,7 @@
 #include "defaultDevices.h"
 
 Pid::Pid(TempSensorBasic * input = &defaultTempSensor,
-         LinearActuator * output = &defaultLinearActuator,
+         ActuatorRange * output = &defaultLinearActuator,
          SetPoint * setPoint = &defaultSetPoint)
 {
     setConstants(temp_t(10.0), temp_t(0.2), temp_t(-1.5));
@@ -179,7 +179,7 @@ bool Pid::setInputSensor(TempSensorBasic * s)
     return true;
 }
 
-bool Pid::setOutputActuator(LinearActuator * a)
+bool Pid::setOutputActuator(ActuatorRange * a)
 {
     outputActuator = a;
 

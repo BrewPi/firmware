@@ -24,7 +24,7 @@
 #include <time.h>       /* time, to seed rand */
 
 #include "ActuatorPwm.h"
-#include "ActuatorOnOff.h"
+#include "ActuatorTimeLimited.h"
 #include <cstring>
 #include "runner.h"
 
@@ -78,7 +78,7 @@ temp_t randomIntervalTest(ActuatorPwm* act, Actuator * target, temp_t duty, int 
 BOOST_AUTO_TEST_SUITE(ActuatorPWM)
 
 BOOST_AUTO_TEST_CASE( Test_ActuatorPWM_with_ValueActuator_as_driver) {
-    Actuator * target = new BoolActuator();
+    Actuator * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,4);
 
     BOOST_CHECK(act->readValue() == temp_t(0.0)); // PWM value is initialized to 0
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(test_ticks_millis_to_increment_every_call) {
 
 BOOST_AUTO_TEST_CASE(on_off_time_matches_duty_cycle_when_updating_every_ms) {
     srand(time(NULL));
-    Actuator * target = new BoolActuator();
+    Actuator * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,4);
 
     temp_t duty = 50.0;
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(on_off_time_matches_duty_cycle_when_updating_every_ms) {
 
 BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_random_update_intervals) {
     srand(time(NULL));
-    Actuator * target = new BoolActuator();
+    Actuator * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,4);
     BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 50.0, 500), temp_t(50.0));
     BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 3.0, 500), temp_t(3.0));
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_random_update_intervals)
 
 
 BOOST_AUTO_TEST_CASE(output_stays_low_with_value_0) {
-    Actuator * target = new BoolActuator();
+    Actuator * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,4);
 
     act->setValue(0.0);
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE(output_stays_low_with_value_0) {
 }
 
 BOOST_AUTO_TEST_CASE(output_stays_high_with_value_100) {
-    Actuator * target = new BoolActuator();
+    Actuator * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,4);
 
     act->setValue(100.0);
@@ -197,8 +197,8 @@ BOOST_AUTO_TEST_CASE(ActuatorPWM_with_min_max_time_limited_OnOffActuator_as_driv
     // test with minimum ON of 2 seconds, minimum off of 5 seconds and period 5 seconds
 
     srand(time(NULL));
-    Actuator * vAct = new BoolActuator();
-    Actuator * onOffAct = new ActuatorOnOff(vAct, 2, 5);
+    Actuator * vAct = new ActuatorBool();
+    Actuator * onOffAct = new ActuatorTimeLimited(vAct, 2, 5);
     ActuatorPwm * act = new ActuatorPwm(onOffAct, 10);
 
     // Test that average duty cycle is correct, even with minimum times enforced in the actuator
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE(ActuatorPWM_with_min_max_time_limited_OnOffActuator_as_driv
 
 
 BOOST_AUTO_TEST_CASE(ramping_PWM_up_faster_than_period_gives_correct_average){
-    Actuator * vAct = new BoolActuator();
+    Actuator * vAct = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(vAct, 20);
     ticks_seconds_t timeHigh = 0;
     ticks_seconds_t timeLow = 0;
@@ -237,7 +237,7 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_up_faster_than_period_gives_correct_average){
 
 
 BOOST_AUTO_TEST_CASE(ramping_PWM_down_faster_than_period_gives_correct_average){
-    Actuator * vAct = new BoolActuator();
+    Actuator * vAct = new ActuatorBool();
       ActuatorPwm * act = new ActuatorPwm(vAct, 20);
       ticks_seconds_t timeHigh = 0;
       ticks_seconds_t timeLow = 0;

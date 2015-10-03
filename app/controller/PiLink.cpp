@@ -847,7 +847,7 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 	logWarning(WARNING_COULD_NOT_PROCESS_SETTING);
 }
 
-extern BoolActuator alarm;
+extern ActuatorBool alarm;
 void PiLink::soundAlarm(bool active)
 {
 	alarm.setActive(active);

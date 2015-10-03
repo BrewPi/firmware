@@ -19,10 +19,10 @@
 
 
 
-#include "ActuatorOnOff.h"
+#include "ActuatorTimeLimited.h"
 #include "Ticks.h"
 
-void ActuatorOnOff::setActive(bool active)
+void ActuatorTimeLimited::setActive(bool active)
 {
     bool doUpdate = true;
 
@@ -52,14 +52,14 @@ void ActuatorOnOff::setActive(bool active)
     }
 }
 
-void ActuatorOnOff::update()
+void ActuatorTimeLimited::update()
 {
     if (active && (timeSinceToggle() >= maxOnTime)){
         setActive(false);
     }
 }
 
-ticks_seconds_t ActuatorOnOff::timeSinceToggle() const
+ticks_seconds_t ActuatorTimeLimited::timeSinceToggle() const
 {
     return ticks.timeSince(toggleTime);
 }

@@ -30,7 +30,7 @@
  * An actuator or sensor that operates by communicating with a DS2413 device.
  *
  */
-class OneWireActuator:
+class ActuatorOneWire:
     public Actuator
 
 #if DS2413_SUPPORT_SENSE
@@ -40,7 +40,7 @@ class OneWireActuator:
 
 {
     public:
-        OneWireActuator(OneWire *     bus,
+        ActuatorOneWire(OneWire *     bus,
                         DeviceAddress address,
                         pio_t         pio,
                         bool          invert = true)

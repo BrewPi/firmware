@@ -26,10 +26,10 @@
 /*
  * A linear actuator that sets a setpoint to reference setpoint + actuator value
  */
-class SetPointActuator : public LinearActuator
+class ActuatorSetPoint : public ActuatorRange
 {
 public:
-    SetPointActuator(SetPoint * targ = &defaultSetPoint, // setpoint to manipulate
+    ActuatorSetPoint(SetPoint * targ = &defaultSetPoint, // setpoint to manipulate
                      const SetPoint * ref = &defaultSetPoint, //setpoint to offset from
                      temp_t mini = temp_t::min(), // minimum actuator value (targ - ref)
                      temp_t maxi = temp_t::max()){ // maximum actuator value

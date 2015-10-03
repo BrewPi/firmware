@@ -18,18 +18,18 @@
  */
 
 
-#include "SetPointActuator.h"
+#include "ActuatorSetPoint.h"
 #include "defaultDevices.h"
 #include "runner.h"
 #include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(SetPointActuatorTest)
+BOOST_AUTO_TEST_SUITE(ActuatorSetPointTest)
 
 BOOST_AUTO_TEST_CASE(set_value){
     SetPointSimple target(20.0);
     SetPointSimple reference(20.0);
 
-    SetPointActuator act(&target, &reference);
+    ActuatorSetPoint act(&target, &reference);
 
     act.setValue(10.0);
 
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(min_max){
     SetPointSimple target(20.0);
     SetPointSimple reference(20.0);
 
-    SetPointActuator act(&target, &reference, -10.0, 10.0);
+    ActuatorSetPoint act(&target, &reference, -10.0, 10.0);
 
     act.setValue(20.0);
 

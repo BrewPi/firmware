@@ -25,24 +25,24 @@
 #include <time.h>       /* time, to seed rand */
 #include <cstring>
 
-#include "ActuatorOnOff.h"
+#include "ActuatorTimeLimited.h"
 #include "Ticks.h"
 
 
-BOOST_AUTO_TEST_SUITE(ActuatorOnOff_with_bool_driver)
+BOOST_AUTO_TEST_SUITE(ActuatorTimeLimited_with_bool_driver)
 
 BOOST_AUTO_TEST_CASE(minimum_off_time_and_maximum_on_time_are_honored) {
     srand(time(NULL));
     ticks.reset();
-    Actuator * v = new BoolActuator();
+    Actuator * v = new ActuatorBool();
     const uint16_t minOn = 100;
     const uint16_t maxOn = 200;
     const uint16_t minOff = 300;
 
-    ActuatorOnOff * act = new ActuatorOnOff(v, minOn, minOff, maxOn);
+    ActuatorTimeLimited * act = new ActuatorTimeLimited(v, minOn, minOff, maxOn);
 
 
-    output << "\n\n**** Testing min OFF and max ON time for ActuatorOnOff ****\n\n";
+    output << "\n\n**** Testing min OFF and max ON time for ActuatorTimeLimited ****\n\n";
 
     while(ticks.seconds() < 10000) {
         bool stateBeforeUpdate = act->isActive();
@@ -78,14 +78,14 @@ BOOST_AUTO_TEST_CASE(minimum_off_time_and_maximum_on_time_are_honored) {
 BOOST_AUTO_TEST_CASE(minimum_on_time_is_honored) {
     srand(time(NULL));
     ticks.reset();
-    Actuator * v = new BoolActuator();
+    Actuator * v = new ActuatorBool();
     const uint16_t minOn = 100;
     const uint16_t maxOn = 200;
     const uint16_t minOff = 300;
 
-    ActuatorOnOff * act = new ActuatorOnOff(v, minOn, minOff, maxOn);
+    ActuatorTimeLimited * act = new ActuatorTimeLimited(v, minOn, minOff, maxOn);
 
-    output << ("\n\n**** Testing min ON time for ActuatorOnOff ****\n\n");
+    output << ("\n\n**** Testing min ON time for ActuatorTimeLimited ****\n\n");
     ticks_seconds_t time;
     do {
         delay(100);

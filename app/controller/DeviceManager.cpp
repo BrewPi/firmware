@@ -40,7 +40,7 @@
 #ifdef WIRING
 
 #include "OneWireTempSensor.h"
-#include "OneWireActuator.h"
+#include "ActuatorOneWire.h"
 #include "DS2413.h"
 #include "OneWire.h"
 #include "DallasTemperature.h"
@@ -125,7 +125,7 @@ void * DeviceManager::createDevice(DeviceConfig & config,
                 return new BoolActuator();
             }
 #else
-            return new OneWireActuator(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.offset.pio, config.hw.invert);
+            return new ActuatorOneWire(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.offset.pio, config.hw.invert);
 #endif
 
 #endif

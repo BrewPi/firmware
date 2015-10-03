@@ -281,10 +281,10 @@
     <Compile Include="app\devices\Actuator\ActuatorAutoOff.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\devices\Actuator\ActuatorOnOff.cpp">
+    <Compile Include="app\devices\Actuator\ActuatorTimeLimited.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\devices\Actuator\ActuatorOnOff.h">
+    <Compile Include="app\devices\Actuator\ActuatorTimeLimited.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\devices\Actuator\ActuatorPwm.cpp">
@@ -293,7 +293,7 @@
     <Compile Include="app\devices\Actuator\ActuatorPwm.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\devices\Actuator\OneWireActuator.h">
+    <Compile Include="app\devices\Actuator\ActuatorOneWire.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\devices\Devices.h">

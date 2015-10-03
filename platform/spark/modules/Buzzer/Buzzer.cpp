@@ -35,7 +35,7 @@ void Buzzer::init(bool _invert) {
 
 void Buzzer::setActive(bool active) {
     if (active != this->isActive()) {
-        BoolActuator::setActive(active);
+        ActuatorBool::setActive(active);
         if (active) {
             digitalWrite(alarmPin, !invert);
         } else {

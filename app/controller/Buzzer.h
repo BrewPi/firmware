@@ -24,7 +24,7 @@
 
 #if BREWPI_BUZZER
 
-class Buzzer : public BoolActuator {
+class Buzzer : public ActuatorBool {
 public:
     Buzzer() {
         invert = false;
