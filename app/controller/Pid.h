@@ -26,13 +26,14 @@
 #include "TempSensorBasic.h"
 #include "Actuator.h"
 #include "SetPoint.h"
+#include "defaultDevices.h"
 
 class Pid
 {
     public:
-        Pid(TempSensorBasic * input,
-            ActuatorRange * output,
-            SetPoint * setPoint);
+        Pid(TempSensorBasic * input = &defaultTempSensor,
+             ActuatorRange * output = &defaultLinearActuator,
+             SetPoint * setPoint = &defaultSetPoint);
 
         Pid(const Pid & orig);
 

@@ -20,11 +20,10 @@
 
 
 #include "Pid.h"
-#include "defaultDevices.h"
 
-Pid::Pid(TempSensorBasic * input = &defaultTempSensor,
-         ActuatorRange * output = &defaultLinearActuator,
-         SetPoint * setPoint = &defaultSetPoint)
+Pid::Pid(TempSensorBasic * input,
+         ActuatorRange * output,
+         SetPoint * setPoint)
 {
     setConstants(temp_t(10.0), temp_t(0.2), temp_t(-1.5));
     setMinMax(temp_t::min(), temp_t::max());
