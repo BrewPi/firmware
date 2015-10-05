@@ -114,13 +114,6 @@ struct FridgeSim : public PidTest {
 // next line sets up the fixture for each test case in this suite
 BOOST_FIXTURE_TEST_SUITE( pid_test, PidTest )
 
-BOOST_AUTO_TEST_CASE (mock_sensor){
-    TempSensorBasic * s = new TempSensorMock(20.0);
-    temp_t t = s->read();
-
-    BOOST_CHECK_EQUAL(t, temp_t(20.0));
-}
-
 // using this fixture test case macro resets the fixture
 BOOST_FIXTURE_TEST_CASE(just_proportional, PidTest)
 {
