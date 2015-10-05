@@ -45,7 +45,7 @@ public:
 
         coolerPin = new ActuatorBool();
         coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
-        cooler = new ActuatorPwm(heaterPin, 600); // period 10 min
+        cooler = new ActuatorPwm(coolerTimeLimited, 600); // period 10 min
 
         beerSet = new SetPointSimple(20.0);
         fridgeSet = new SetPointSimple(20.0);
@@ -221,11 +221,17 @@ struct SimBeerCooler : public StaticSetup {
     }
 
     void update(){
-        sim.update(heater->getValue(), cooler->getValue());
         beerSensor->setTemp(sim.beerTemp);
         fridgeSensor->setTemp(sim.airTemp);
         coolerPid->update();
-
+        cooler->update();
+        // because cooler is time limited, get actual output from pin
+        if(coolerPin->isActive()){
+            sim.update(heater->getValue(), 100.0);
+        } else{
+            sim.update(heater->getValue(), 0.0);
+        }
+        delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
 
@@ -241,10 +247,18 @@ struct SimFridgeCooler : public StaticSetup {
     }
 
     void update(){
-        sim.update(heater->getValue(), cooler->getValue());
         beerSensor->setTemp(sim.beerTemp);
         fridgeSensor->setTemp(sim.airTemp);
         coolerPid->update();
+        cooler->update();
+
+        // because cooler is time limited, get actual output from pin
+        if(coolerPin->isActive()){
+            sim.update(heater->getValue(), 100.0);
+        } else{
+            sim.update(heater->getValue(), 0.0);
+        }
+        delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
 
@@ -314,14 +328,14 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Fridge_Air, SimFridgeHeater)
 BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Beer, SimBeerCooler)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, cooler pwm, p, i, d" << endl;
+    csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, cooler pwm, p, i, d, cooler pin" << endl;
     double SetPointDouble = 21;
     for(int t = 0; t < 6000; t++){
         if(t==500){
             SetPointDouble = 19;
         }
         if(t==2500){
-            SetPointDouble = 15;
+            SetPointDouble = 18.5;
         }
         beerSet->write(SetPointDouble);
         update();
@@ -334,7 +348,8 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Beer, SimBeerCooler)
                 << cooler->getValue() << "," // actuator output
                 << coolerPid->p << "," // proportional action
                 << coolerPid->i << "," // integral action
-                << coolerPid->d // derivative action
+                << coolerPid->d << "," // derivative action
+                << coolerPin->isActive() // actual cooler pin state
                 << endl;
     }
     csv.close();
@@ -344,7 +359,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Beer, SimBeerCooler)
 BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air, SimFridgeCooler)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, cooler pwm, p, i, d" << endl;
+    csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, cooler pwm, p, i, d, cooler pin" << endl;
     double SetPointDouble = 21;
     for(int t = 0; t < 6000; t++){
         if(t==500){
@@ -364,7 +379,8 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air, SimFridgeCooler)
                 << cooler->getValue() << "," // actuator output
                 << coolerPid->p << "," // proportional action
                 << coolerPid->i << "," // integral action
-                << coolerPid->d // derivative action
+                << coolerPid->d << "," // derivative action
+                << coolerPin->isActive() // actual cooler pin state
                 << endl;
     }
     csv.close();
