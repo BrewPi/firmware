@@ -40,6 +40,10 @@ Pid::Pid(TempSensorBasic * input,
     setOutputActuator(output);
     setSetPoint(setPoint);
 
+    setInputFilter(0);
+    // some filtering necessary due to quantization causing steps in the temperature
+    setDerivativeFilter(2);
+
 //    autotune = false;
 //    tuning = false;
 //    outputLag = 0;

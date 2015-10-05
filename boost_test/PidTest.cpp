@@ -42,10 +42,6 @@ public:
         sp = new SetPointSimple(20.0);
 
         pid = new Pid(sensor, act, sp);
-
-        // set filtering to minimum.
-        pid->setInputFilter(0);
-        pid->setDerivativeFilter(0);
     }
     ~PidTest(){
         BOOST_TEST_MESSAGE( "tear down PID test fixture" );
@@ -243,6 +239,7 @@ BOOST_FIXTURE_TEST_CASE(auto_tuning_test, PidTest)
 BOOST_FIXTURE_TEST_CASE(double_step_response_beer_control, FridgeSim)
 {
     pid->setConstants(100.0, 5.0, 100.0);
+    pid->setDerivativeFilter(4);
     // pid->setAutoTune(true);
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
@@ -270,9 +267,9 @@ BOOST_FIXTURE_TEST_CASE(double_step_response_beer_control, FridgeSim)
 // Test heating fridge air based on fridge temperature (non-cascaded control)
 BOOST_FIXTURE_TEST_CASE(double_step_response_fridge_control, FridgeSim)
 {
-    pid->setConstants(20.0, 10.0, 0.0);
-//    pid->setAutoTune(true);
-    pid->setFiltering(0);
+    pid->setConstants(20.0, 10.0, -1.0);
+    pid->setDerivativeFilter(2);
+    //    pid->setAutoTune(true);
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "setPoint, error, beer, air, actuator, p, i, d, Kp, Ki, Kd" << endl;
