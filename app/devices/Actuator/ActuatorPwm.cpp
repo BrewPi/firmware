@@ -15,7 +15,7 @@ ActuatorPwm::ActuatorPwm(ActuatorDigital* _target, uint16_t _period) : ActuatorD
 }
 
 void ActuatorPwm::recalculate(){
-    temp_long_t newDutyTime = temp_long_t(value) * temp_long_t(period) / temp_long_t(100);
+    temp_long_t newDutyTime = temp_long_t(value) * (temp_long_t(period) / temp_long_t(100));
     temp_long_t correctionFactor = temp_long_t(period + periodLate) / temp_long_t(period);
     dutyTime = int32_t(newDutyTime * correctionFactor);
 }

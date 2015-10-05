@@ -155,6 +155,16 @@ BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_random_update_intervals)
     BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 99.0, 500), temp_t(99.0));
 }
 
+BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_long_period) {
+    srand(time(NULL));
+    ActuatorDigital * target = new ActuatorBool();
+    ActuatorPwm * act = new ActuatorPwm(target,3600);
+    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 50.0, 50000), temp_t(50.0));
+    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 3.0, 50000), temp_t(3.0));
+    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 1.0, 50000), temp_t(1.0));
+    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 99.0, 50000), temp_t(99.0));
+}
+
 
 
 BOOST_AUTO_TEST_CASE(output_stays_low_with_value_0) {
