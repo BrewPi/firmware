@@ -161,6 +161,7 @@ public:
     temp_precise_t operator+(temp_precise_t const& rhs);
     temp_long_t operator+(temp_long_t const& rhs);
 
+    temp_t operator-() const; // unary minus (change sign)
     temp_t operator-(temp_t const& rhs);
     temp_precise_t operator-(temp_precise_t const& rhs);
     temp_long_t operator-(temp_long_t const& rhs);
@@ -229,6 +230,7 @@ public:
     temp_precise_t operator+(temp_t const& rhs);
     temp_long_t operator+(temp_long_t const& rhs);
 
+    temp_precise_t operator-() const; // unary minus (change sign)
     temp_precise_t operator-(temp_precise_t const& rhs);
     temp_precise_t operator-(temp_t const& rhs);
     temp_long_t operator-(temp_long_t const& rhs);
@@ -295,6 +297,7 @@ public:
     temp_long_t operator+(temp_t const& rhs);
     temp_long_t operator+(temp_precise_t const& rhs);
 
+    temp_long_t operator-() const; // unary minus (change sign)
     temp_long_t operator-(temp_long_t const& rhs);
     temp_long_t operator-(temp_t const& rhs);
     temp_long_t operator-(temp_precise_t const& rhs);

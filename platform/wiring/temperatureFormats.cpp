@@ -130,6 +130,26 @@ temp_long_t temp_precise_t::operator+(temp_long_t const& rhs) {
     return result;
 }
 
+// Unary Minus (change sign)
+temp_t temp_t::operator-() const{
+    temp_t result(*this);
+    result.value_ = -result.value_;
+    return result;
+}
+
+temp_long_t temp_long_t ::operator-() const{
+    temp_long_t result(*this);
+    result.value_ = -result.value_;
+    return result;
+}
+
+temp_precise_t temp_precise_t::operator-() const{
+    temp_precise_t result(*this);
+    result.value_ = -result.value_;
+    return result;
+}
+
+
 // Subtraction
 
 // this looks recursive, but it prevents ambiguity

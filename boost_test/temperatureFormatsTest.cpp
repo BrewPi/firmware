@@ -365,9 +365,25 @@ BOOST_AUTO_TEST_CASE(subtraction_of_temp_precise_and_temp_long)
     BOOST_CHECK_EQUAL(t7, temp_long_t(290.0));
 }
 
+BOOST_AUTO_TEST_CASE(unary_minus)
+{
+    temp_t a = 1.0;
+    temp_long_t b = 2.0;
+    temp_precise_t c = 3.0;
+
+    temp_t d = -1.0;
+    temp_long_t e = -2.0;
+    temp_precise_t f = -3.0;
+
+    BOOST_CHECK_EQUAL(a, -d);
+    BOOST_CHECK_EQUAL(b, -e);
+    BOOST_CHECK_EQUAL(c, -f);
+
+    BOOST_CHECK_EQUAL(a, -(-a));
+}
 
 
-BOOST_AUTO_TEST_CASE(left_shift)
+BOOST_AUTO_TEST_CASE(right_shift)
 {
     temp_t t = 2.0;
     unsigned char a = 1;
