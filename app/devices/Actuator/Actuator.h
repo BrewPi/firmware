@@ -42,6 +42,7 @@ public:
 	virtual Actuator ** getDeviviceTarget() const{
 	    return 0;  // recursive call for composite classes until this level is reached.
 	}
+	virtual void update() = 0;
 };
 
 
@@ -115,6 +116,10 @@ public:
     virtual Actuator * getBareActuator() {
         return *(getDeviviceTarget());
     }
+
+    virtual void update(){
+        target->update();
+    }
 };
 
 /*
@@ -140,6 +145,7 @@ public:
 	virtual temp_t getValue() const{
 	    return value;
 	}
+	virtual void update(){}; //no actions required
 
 private:
 	temp_t value;
@@ -158,6 +164,8 @@ public:
 
 	virtual void setActive(bool active) { state = active; }
 	virtual bool isActive() { return state; }
+
+	virtual void update(){}; //no actions required
 
 private:
 	bool state;
@@ -182,4 +190,5 @@ public:
     temp_t max() const {
         return temp_t::invalid();
     }
+    virtual void update(){}; //no actions required
 };

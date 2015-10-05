@@ -62,6 +62,9 @@ public:
         return maximum;
     }
 
+    virtual void update(){}; //no actions required
+
+
 private:
     SetPoint * target;
     const SetPoint * reference;

@@ -41,6 +41,7 @@ void ActuatorPwm::setValue(temp_t const& val) {
 }
 
 void ActuatorPwm::update() {
+    target->update();
     int32_t adjDutyTime = dutyTime - dutyLate;
     int32_t currentTime = ticks.millis();
     int32_t elapsedTime = currentTime - periodStartTime;

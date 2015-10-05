@@ -54,6 +54,7 @@ void ActuatorTimeLimited::setActive(bool active)
 
 void ActuatorTimeLimited::update()
 {
+    target->update();
     if (active && (timeSinceToggle() >= maxOnTime)){
         setActive(false);
     }
