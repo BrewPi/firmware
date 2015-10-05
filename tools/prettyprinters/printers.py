@@ -3,7 +3,7 @@ import re
 
 
 class TempPrinter:
-    "Pretty Printer for temp"
+    "Pretty Printer for temp_t and temp_long_t"
 
     def __init__(self, val):
         self.val = val
@@ -15,7 +15,7 @@ class TempPrinter:
 
 
 class TempPrecisePrinter:
-    "Pretty Printer for temp_precise"
+    "Pretty Printer for temp_precise_t"
 
     def __init__(self, val):
         self.val = val
@@ -30,13 +30,13 @@ def brewpi_pretty(val):
     lookup_tag = val.type.tag
     if lookup_tag == None:
         return None
-    regex = re.compile('^temp$')
+    regex = re.compile('^temp_t$')
     if regex.match(lookup_tag):
         return TempPrinter(val)
-    regex = re.compile('^temp_long$')
+    regex = re.compile('^temp_long_t$')
     if regex.match(lookup_tag):
         return TempPrinter(val) # same nr of fraction bits
-    regex = re.compile('^temp_precise$')
+    regex = re.compile('^temp_precise_t$')
     if regex.match(lookup_tag):
         return TempPrecisePrinter(val)
 
