@@ -120,6 +120,141 @@ BOOST_FIXTURE_TEST_CASE(just_derivative, PidTest)
     BOOST_CHECK_CLOSE(double(act->getValue()), 15.0, 1);
 }
 
+
+// using this fixture test case macro resets the fixture
+BOOST_FIXTURE_TEST_CASE(just_proportional_cooling, PidTest)
+{
+    pid->setConstants(10.0, 0.0, 0.0);
+    pid->setActuatorIsNegative(true);
+    sp->write(19.0);
+
+    sensor->setTemp(20.0);
+
+    pid->update();
+    BOOST_CHECK_EQUAL(act->getValue(), temp_t(10.0));
+
+    // now try changing the temperature input
+    sensor->setTemp(22.0);
+    pid->update();
+
+    // inputs are filtered, so output should still be close to the old value
+    BOOST_CHECK_CLOSE(double(act->getValue()), 10.0, 1);
+
+    for(int i = 0; i<100; i++){
+        pid->update();
+    }
+    // after a enough updates, filters have settled and new PID value is Kp*error
+    BOOST_CHECK_CLOSE(double(act->getValue()), 30.0, 1);
+}
+
+BOOST_FIXTURE_TEST_CASE(just_integral_cooling, PidTest)
+{
+    pid->setConstants(0.0, 5.0, 0.0);
+    pid->setActuatorIsNegative(true);
+    sp->write(19.0);
+
+    sensor->setTemp(20.0);
+
+    // update for 10 minutes
+    for(int i = 0; i < 600; i++){
+        pid->update();
+    }
+
+    // integrator result is error * Ki, per minute. So 10 minutes * 1 degree error * 5 = 50.0
+    BOOST_CHECK_CLOSE(double(act->getValue()), 50.0, 2);
+}
+
+BOOST_FIXTURE_TEST_CASE(just_derivative_cooling, PidTest)
+{
+    pid->setConstants(0.0, 0.0, 5.0);
+    pid->setActuatorIsNegative(true);
+    sp->write(50.0);
+
+    // update for 10 minutes
+    for(int i = 0; i <= 600; i++){
+        sensor->setTemp(temp_t(20.0) + temp_t(i*0.05));
+        pid->update();
+    }
+
+    BOOST_CHECK_EQUAL(sensor->read(), temp_t(50.0)); // sensor value should have gone from 20 to 50 in 10 minutes
+
+
+    // derivative is interpreted as degree per minute, in this case 3 deg / min. PID should be 3*-5 = 15.
+
+    BOOST_CHECK_CLOSE(double(act->getValue()), 15.0, 1);
+}
+
+
+BOOST_FIXTURE_TEST_CASE(integrator_windup_heating, PidTest)
+{
+    pid->setConstants(0.0, 10.0, 0.0);
+    sp->write(22.0);
+
+    sensor->setTemp(20.0);
+
+    // update for 10 minutes, integrator will grow by 20 per minute
+    for(int i = 0; i < 600; i++){
+        pid->update();
+    }
+
+    BOOST_CHECK_CLOSE(double(act->getValue()), 100.0, 5); // actuator should be at maximum
+    BOOST_CHECK_CLOSE(double(pid->i), 100.0, 5); // integral part should be limited to 100
+}
+
+
+BOOST_FIXTURE_TEST_CASE(integrator_windup_cooling, PidTest)
+{
+    pid->setConstants(0.0, 10.0, 0.0);
+    pid->setActuatorIsNegative(true);
+    sp->write(18.0);
+
+    sensor->setTemp(20.0);
+
+    // update for 10 minutes, integrator will grow by 20 per minute
+    for(int i = 0; i < 600; i++){
+        pid->update();
+    }
+
+    BOOST_CHECK_CLOSE(double(act->getValue()), 100.0, 5); // actuator should be at maximum
+    BOOST_CHECK_CLOSE(double(pid->i), -100.0, 5); // integral part should be limited to -100
+}
+
+
+BOOST_FIXTURE_TEST_CASE(integrator_windup_heating_PI, PidTest)
+{
+    pid->setConstants(10.0, 10.0, 0.0);
+    sp->write(22.0);
+
+    sensor->setTemp(20.0);
+
+    // update for 10 minutes, integrator will grow by 20 per minute
+    for(int i = 0; i < 600; i++){
+        pid->update();
+    }
+
+    BOOST_CHECK_CLOSE(double(act->getValue()), 100.0, 5); // actuator should be at maximum
+    BOOST_CHECK_CLOSE(double(pid->i), 80.0, 5); // integral part should be limited to 80 (100 - proportional part)
+}
+
+
+BOOST_FIXTURE_TEST_CASE(integrator_windup_cooling_PI, PidTest)
+{
+    pid->setConstants(10.0, 10.0, 0.0);
+    pid->setActuatorIsNegative(true);
+    sp->write(18.0);
+
+    sensor->setTemp(20.0);
+
+    // update for 10 minutes, integrator will grow by 20 per minute
+    for(int i = 0; i < 600; i++){
+        pid->update();
+    }
+
+    BOOST_CHECK_CLOSE(double(act->getValue()), 100.0, 5); // actuator should be at maximum
+    BOOST_CHECK_CLOSE(double(pid->i), -80.0, 5); // integral part should be limited to -80 (-100 - proportional part)
+}
+
+
 /*
 BOOST_FIXTURE_TEST_CASE(auto_tuning_test, PidTest)
 {
