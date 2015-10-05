@@ -58,55 +58,6 @@ public:
     SetPointSimple * sp;
 };
 
-struct FridgeSim : public PidTest {
-    double airTemp = 20.0;
-    double beerTemp = 20.0;
-    double envTemp = 18.0;
-
-    double airCapacity = 5 * 1.0035 * 1.225 * 0.200; // 5 * heat capacity of dry air * density of air * 200L volume (in kJ per kelvin).
-    double beerCapacity = 4.2 * 1.0 * 20; // heat capacity water * density of water * 20L volume (in kJ per kelvin).
-
-    double heaterPower = 0.3; // 300W, in kW.
-
-    double envAirTransfer= 0.01;
-    double airBeerTransfer= 0.02;
-
-    double airEnergy = airTemp * airCapacity;
-    double beerEnergy = beerTemp * beerCapacity;
-
-    void updateSimBeerControl(temp_t actuatorValue){ // input 1-100
-        double airTempNew = airTemp;
-        double beerTempNew = beerTemp;
-        airTempNew += heaterPower * double(actuatorValue) / (100.0 * airCapacity);
-
-        airTempNew += (envTemp - airTemp) * envAirTransfer;
-
-        airTempNew += (beerTemp - airTemp) * airBeerTransfer / airCapacity;
-        beerTempNew += (airTemp - beerTemp) * airBeerTransfer / beerCapacity;
-
-        airTemp = airTempNew;
-        beerTemp = beerTempNew;
-
-        sensor->setTemp(beerTemp);
-    }
-
-    void updateSimFridgeControl(temp_t actuatorValue){ // input 1-100
-       double airTempNew = airTemp;
-       double beerTempNew = beerTemp;
-       airTempNew += heaterPower * double(actuatorValue) / (100.0 * airCapacity);
-
-       airTempNew += (envTemp - airTemp) * envAirTransfer;
-
-       airTempNew += (beerTemp - airTemp) * airBeerTransfer / airCapacity;
-       beerTempNew += (airTemp - beerTemp) * airBeerTransfer / beerCapacity;
-
-       airTemp = airTempNew;
-       beerTemp = beerTempNew;
-
-       sensor->setTemp(airTempNew);
-    }
-};
-
 // next line sets up the fixture for each test case in this suite
 BOOST_FIXTURE_TEST_SUITE( pid_test, PidTest )
 
@@ -234,64 +185,6 @@ BOOST_FIXTURE_TEST_CASE(auto_tuning_test, PidTest)
     BOOST_CHECK_CLOSE(double(pid->Kd), double(pid->Kp) * 0.33 * 2.5, 5);
 }
 */
-
-// Test heating fridge air based on beer temperature (non-cascaded control)
-BOOST_FIXTURE_TEST_CASE(double_step_response_beer_control, FridgeSim)
-{
-    pid->setConstants(100.0, 5.0, 100.0);
-    pid->setDerivativeFilter(4);
-    // pid->setAutoTune(true);
-
-    ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setPoint, error, beer, air, actuator, p, i, d, Kp, Ki, Kd" << endl;
-    double SetPointDouble = 20;
-    for(int t = 0; t < 6000; t++){
-        if(t==500){
-            SetPointDouble = 21;
-        }
-        if(t==2500){
-            SetPointDouble = 24;
-        }
-        sp->write(SetPointDouble);
-        pid->update();
-
-        temp_t outputVal = act->getValue();
-        updateSimBeerControl(outputVal);
-        csv << SetPointDouble << "," << (beerTemp - SetPointDouble) << "," << beerTemp << "," << airTemp << "," <<
-            outputVal << "," << pid->p << "," << pid->i << "," << pid->d << ", " <<
-            pid->Kp << "," << pid->Ki << "," << pid-> Kd << endl;
-    }
-    csv.close();
-}
-
-// Test heating fridge air based on fridge temperature (non-cascaded control)
-BOOST_FIXTURE_TEST_CASE(double_step_response_fridge_control, FridgeSim)
-{
-    pid->setConstants(20.0, 10.0, -1.0);
-    pid->setDerivativeFilter(2);
-    //    pid->setAutoTune(true);
-
-    ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setPoint, error, beer, air, actuator, p, i, d, Kp, Ki, Kd" << endl;
-    double SetPointDouble = 20;
-    for(int t = 0; t < 6000; t++){
-        if(t==500){
-            SetPointDouble = 24;
-        }
-        if(t==2500){
-            SetPointDouble = 28;
-        }
-        sp->write(SetPointDouble);
-        pid->update();
-
-        temp_t outputVal = act->getValue();
-        updateSimFridgeControl(outputVal);
-        csv << SetPointDouble << "," << (airTemp - SetPointDouble) << "," << beerTemp << "," << airTemp << "," <<
-            outputVal << "," << pid->p << "," << pid->i << "," << pid->d << ", " <<
-            pid->Kp << "," << pid->Ki << "," << pid-> Kd << endl;
-    }
-    csv.close();
-}
 
 BOOST_AUTO_TEST_SUITE_END()
 
