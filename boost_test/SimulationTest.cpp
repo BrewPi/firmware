@@ -98,41 +98,71 @@ public:
     SetPoint * fridgeSet;
 };
 
+/* This class simulates a fridge is a simple way:
+ * There are 3 heat capacities: the beer itself, the air in the fridge and the fridge walls.
+ * The heater heats the air in the fridge directly.
+ * The cooler cools the fridge walls, which in turn cool the fridge air.
+ * This causes an extra delay when cooling and a potential source of overshoot
+ */
+
+
 struct Simulation{
     Simulation(){
-        airTemp = 20.0;
         beerTemp = 20.0;
+        airTemp = 20.0;
+        wallTemp = 20.0;
         envTemp = 18.0;
-        airCapacity = 5 * 1.0035 * 1.225 * 0.200; // 5 * heat capacity of dry air * density of air * 200L volume (in kJ per kelvin).
+
         beerCapacity = 4.2 * 1.0 * 20; // heat capacity water * density of water * 20L volume (in kJ per kelvin).
+        airCapacity = 5 * 1.0035 * 1.225 * 0.200; // 5 * heat capacity of dry air * density of air * 200L volume (in kJ per kelvin).
+        // Moist air is much more complex, should calculate using enthalpy. Now just multiplied by 5.
+        wallCapacity = 5.0; // just a guess
+
         heaterPower = 0.3; // 300W, in kW.
-        envAirTransfer= 0.01;
+        coolerPower = 0.3; // 300W, in kW.
+
         airBeerTransfer= 0.02;
+        wallAirTransfer= 0.01;
+        envWallTransfer = 0.01;
+
     }
     virtual ~Simulation(){}
 
     void update(temp_t heaterValue, temp_t coolerValue){
-        double airTempNew = airTemp;
         double beerTempNew = beerTemp;
-        airTempNew += heaterPower * double(heaterValue) / (100.0 * airCapacity);
+        double airTempNew = airTemp;
+        double wallTempNew = wallTemp;
 
-        airTempNew += (envTemp - airTemp) * envAirTransfer;
-
-        airTempNew += (beerTemp - airTemp) * airBeerTransfer / airCapacity;
         beerTempNew += (airTemp - beerTemp) * airBeerTransfer / beerCapacity;
+
+        airTempNew += heaterPower * double(heaterValue) / (100.0 * airCapacity);
+        airTempNew += (wallTemp - airTemp) * wallAirTransfer / airCapacity;
+        airTempNew += (beerTemp - airTemp) * airBeerTransfer / airCapacity;
+
+        wallTempNew -= coolerPower * double(coolerValue) / (100.0 * wallCapacity);
+        wallTempNew += (envTemp - wallTemp) * envWallTransfer / wallCapacity;
+        wallTempNew += (airTemp - wallTemp) * wallAirTransfer/ wallCapacity;
 
         airTemp = airTempNew;
         beerTemp = beerTempNew;
+        wallTemp = wallTempNew;
     }
 
-    double airTemp;
     double beerTemp;
+    double airTemp;
+    double wallTemp;
     double envTemp;
-    double airCapacity;
+
     double beerCapacity;
+    double airCapacity;
+    double wallCapacity;
+
     double heaterPower;
-    double envAirTransfer;
+    double coolerPower;
+
     double airBeerTransfer;
+    double wallAirTransfer;
+    double envWallTransfer;
 };
 
 
@@ -179,7 +209,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Beer, SimBeerHeater)
     // pid->setAutoTune(true);
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setPoint, error, beer sensor, fridge air sensor, heater pwm, p, i, d" << endl;
+    csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, heater pwm, p, i, d" << endl;
     double SetPointDouble = 20;
     for(int t = 0; t < 6000; t++){
         if(t==500){
@@ -196,6 +226,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Beer, SimBeerHeater)
                 << (beerSensor->read() - beerSet->read()) << "," //error
                 << beerSensor->read() << "," // beer temp
                 << fridgeSensor->read() << "," // air temp
+                << sim.wallTemp << "," // fridge wall temperature
                 << heater->getValue() << "," // actuator output
                 << heaterPid->p << "," // proportional action
                 << heaterPid->i << "," // integral action
@@ -212,7 +243,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Fridge_Air, SimFridgeHeater)
     // pid->setAutoTune(true);
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setPoint, error, beer sensor, fridge air sensor, heater pwm, p, i, d" << endl;
+    csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, heater pwm, p, i, d" << endl;
     double SetPointDouble = 20;
     for(int t = 0; t < 6000; t++){
         if(t==500){
@@ -229,6 +260,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Fridge_Air, SimFridgeHeater)
                 << (fridgeSensor->read() - fridgeSet->read()) << "," //error
                 << beerSensor->read() << "," // beer temp
                 << fridgeSensor->read() << "," // air temp
+                << sim.wallTemp << "," // fridge wall temperature
                 << heater->getValue() << "," // actuator output
                 << heaterPid->p << "," // proportional action
                 << heaterPid->i << "," // integral action
