@@ -43,6 +43,7 @@ Pid::Pid(TempSensorBasic * input,
     setInputFilter(0);
     // some filtering necessary due to quantization causing steps in the temperature
     setDerivativeFilter(2);
+    actuatorIsNegative = false;
 
 //    autotune = false;
 //    tuning = false;
@@ -118,14 +119,16 @@ void Pid::update()
     d = temp_long_t(-1) * Kd * derivative;
 
     temp_long_t pidResult = temp_long_t(p) + temp_long_t(i) + temp_long_t(d);
-    temp_t      output    = pidResult;    // will be constrained to -128/128 here
 
-//    temp previousOutput = outputActuator->readValue();
+    // Get output to send to actuator. When actuator is a 'cooler', invert the result
+    temp_t      output    = (actuatorIsNegative) ? -pidResult : pidResult;
 
     outputActuator -> setValue(output);
 
     // get actual value from actuator
     output = outputActuator->getValue();
+    // When actuator is a 'cooler', invert the output again
+    output = (actuatorIsNegative) ? -output : output;
 
     // update integral with anti-windup back calculation
     // pidResult - output is zero when actuator is not saturated

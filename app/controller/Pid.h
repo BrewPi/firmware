@@ -78,6 +78,10 @@ class Pid
             return setPoint;
         }
 
+        void setActuatorIsNegative(bool setting){
+            actuatorIsNegative = setting;
+        }
+
         /*
         uint16_t getOutputLag(){ return outputLag; };
 
@@ -109,6 +113,7 @@ class Pid
         FilterCascaded    inputFilter;
         FilterCascaded    derivativeFilter;
         uint8_t           failedReadCount;
+        bool              actuatorIsNegative; // if true, the actuator lowers the input, e.g. a cooler
 
         /*
         bool              autotune; // auto tuning enabled

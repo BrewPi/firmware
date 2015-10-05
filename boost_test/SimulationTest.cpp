@@ -58,6 +58,7 @@ public:
 
         heaterPid->setOutputActuator(heater);
         coolerPid->setOutputActuator(cooler);
+        coolerPid->setActuatorIsNegative(true);
 
     }
     ~StaticSetup(){
@@ -122,7 +123,7 @@ struct Simulation{
         coolerPower = 0.3; // 300W, in kW.
 
         airBeerTransfer= 0.02;
-        wallAirTransfer= 0.01;
+        wallAirTransfer= 0.04;
         envWallTransfer = 0.01;
 
     }
@@ -215,7 +216,7 @@ struct SimBeerCooler : public StaticSetup {
         coolerPid->setSetPoint(beerSet);
         coolerPid->setInputFilter(0);
         coolerPid->setDerivativeFilter(4);
-        heaterPid->setConstants(-100.0, -5.0, 100.0);
+        coolerPid->setConstants(100.0, 5.0, -100.0);
 
     }
 
@@ -236,7 +237,7 @@ struct SimFridgeCooler : public StaticSetup {
         coolerPid->setSetPoint(fridgeSet);
         coolerPid->setInputFilter(0);
         coolerPid->setDerivativeFilter(2);
-        coolerPid->setConstants(-20.0, -10.0, 3.0);
+        coolerPid->setConstants(20.0, 5.0, -5.0);
     }
 
     void update(){
@@ -254,7 +255,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Beer, SimBeerHeater)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, heater pwm, p, i, d" << endl;
-    double SetPointDouble = 20;
+    double SetPointDouble = 19;
     for(int t = 0; t < 6000; t++){
         if(t==500){
             SetPointDouble = 21;
@@ -263,7 +264,6 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Beer, SimBeerHeater)
             SetPointDouble = 24;
         }
         beerSet->write(SetPointDouble);
-        heaterPid->update();
         update();
 
         csv     << beerSet->read() << "," // setpoint
@@ -285,7 +285,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Fridge_Air, SimFridgeHeater)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, heater pwm, p, i, d" << endl;
-    double SetPointDouble = 20;
+    double SetPointDouble = 19;
     for(int t = 0; t < 6000; t++){
         if(t==500){
             SetPointDouble = 24;
@@ -294,7 +294,6 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Fridge_Air, SimFridgeHeater)
             SetPointDouble = 28;
         }
         fridgeSet->write(SetPointDouble);
-        heaterPid->update();
         update();
 
         csv     << fridgeSet->read() << "," // setpoint
@@ -316,7 +315,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Beer, SimBeerCooler)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, cooler pwm, p, i, d" << endl;
-    double SetPointDouble = 20;
+    double SetPointDouble = 21;
     for(int t = 0; t < 6000; t++){
         if(t==500){
             SetPointDouble = 19;
@@ -325,7 +324,6 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Beer, SimBeerCooler)
             SetPointDouble = 15;
         }
         beerSet->write(SetPointDouble);
-        coolerPid->update();
         update();
 
         csv     << beerSet->read() << "," // setpoint
@@ -347,16 +345,15 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air, SimFridgeCooler)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, cooler pwm, p, i, d" << endl;
-    double SetPointDouble = 20;
+    double SetPointDouble = 21;
     for(int t = 0; t < 6000; t++){
         if(t==500){
-            SetPointDouble = 24;
+            SetPointDouble = 19;
         }
         if(t==2500){
-            SetPointDouble = 28;
+            SetPointDouble = 15;
         }
         fridgeSet->write(SetPointDouble);
-        coolerPid->update();
         update();
 
         csv     << fridgeSet->read() << "," // setpoint
