@@ -165,7 +165,11 @@ struct Simulation{
     double envWallTransfer;
 };
 
+/* Below are a few static setups that show how control can be set up.
+ * The first 4 are simple: a single actuator, acting on beer or fridge temperature
+ */
 
+// Just a heater, acting on beer temperature directly
 struct SimBeerHeater : public StaticSetup {
     Simulation sim;
     SimBeerHeater(){
@@ -173,6 +177,7 @@ struct SimBeerHeater : public StaticSetup {
         heaterPid->setSetPoint(beerSet);
         heaterPid->setInputFilter(0);
         heaterPid->setDerivativeFilter(4);
+        heaterPid->setConstants(100.0, 5.0, -100.0);
     }
 
     void update(){
@@ -183,6 +188,7 @@ struct SimBeerHeater : public StaticSetup {
     }
 };
 
+// Just a heater, acting on fridge temperature directly
 struct SimFridgeHeater : public StaticSetup {
     Simulation sim;
     SimFridgeHeater(){
@@ -190,6 +196,7 @@ struct SimFridgeHeater : public StaticSetup {
         heaterPid->setSetPoint(fridgeSet);
         heaterPid->setInputFilter(0);
         heaterPid->setDerivativeFilter(2);
+        heaterPid->setConstants(20.0, 10.0, -3.0);
     }
 
     void update(){
@@ -197,6 +204,46 @@ struct SimFridgeHeater : public StaticSetup {
         beerSensor->setTemp(sim.beerTemp);
         fridgeSensor->setTemp(sim.airTemp);
         heaterPid->update();
+    }
+};
+
+// Just a cooler, acting on beer temperature directly
+struct SimBeerCooler : public StaticSetup {
+    Simulation sim;
+    SimBeerCooler(){
+        coolerPid->setInputSensor(beerSensor);
+        coolerPid->setSetPoint(beerSet);
+        coolerPid->setInputFilter(0);
+        coolerPid->setDerivativeFilter(4);
+        heaterPid->setConstants(-100.0, -5.0, 100.0);
+
+    }
+
+    void update(){
+        sim.update(heater->getValue(), cooler->getValue());
+        beerSensor->setTemp(sim.beerTemp);
+        fridgeSensor->setTemp(sim.airTemp);
+        coolerPid->update();
+
+    }
+};
+
+// Just a cooler, acting on fridge temperature directly
+struct SimFridgeCooler : public StaticSetup {
+    Simulation sim;
+    SimFridgeCooler(){
+        coolerPid->setInputSensor(fridgeSensor);
+        coolerPid->setSetPoint(fridgeSet);
+        coolerPid->setInputFilter(0);
+        coolerPid->setDerivativeFilter(2);
+        coolerPid->setConstants(-20.0, -10.0, 3.0);
+    }
+
+    void update(){
+        sim.update(heater->getValue(), cooler->getValue());
+        beerSensor->setTemp(sim.beerTemp);
+        fridgeSensor->setTemp(sim.airTemp);
+        coolerPid->update();
     }
 };
 
@@ -205,9 +252,6 @@ BOOST_AUTO_TEST_SUITE( simulation_test)
 // Test heating fridge air based on beer temperature (non-cascaded control)
 BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Beer, SimBeerHeater)
 {
-    heaterPid->setConstants(100.0, 5.0, 100.0);
-    // pid->setAutoTune(true);
-
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, heater pwm, p, i, d" << endl;
     double SetPointDouble = 20;
@@ -223,7 +267,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Beer, SimBeerHeater)
         update();
 
         csv     << beerSet->read() << "," // setpoint
-                << (beerSensor->read() - beerSet->read()) << "," //error
+                << heaterPid->inputError << "," //error
                 << beerSensor->read() << "," // beer temp
                 << fridgeSensor->read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
@@ -236,12 +280,9 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Beer, SimBeerHeater)
     csv.close();
 }
 
-// Test heating fridge air based on fridge temperature (non-cascaded control)
+// Test heating fridge air based on fridge air temperature (non-cascaded control)
 BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Fridge_Air, SimFridgeHeater)
 {
-    heaterPid->setConstants(20.0, 10.0, -3.0);
-    // pid->setAutoTune(true);
-
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, heater pwm, p, i, d" << endl;
     double SetPointDouble = 20;
@@ -257,7 +298,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Fridge_Air, SimFridgeHeater)
         update();
 
         csv     << fridgeSet->read() << "," // setpoint
-                << (fridgeSensor->read() - fridgeSet->read()) << "," //error
+                << heaterPid->inputError << "," //error
                 << beerSensor->read() << "," // beer temp
                 << fridgeSensor->read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
@@ -265,6 +306,68 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Fridge_Air, SimFridgeHeater)
                 << heaterPid->p << "," // proportional action
                 << heaterPid->i << "," // integral action
                 << heaterPid->d // derivative action
+                << endl;
+    }
+    csv.close();
+}
+
+// Test cooling fridge air (via wall) based on beer temperature (non-cascaded control)
+BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Beer, SimBeerCooler)
+{
+    ofstream csv("./test_results/" + boost_test_name() + ".csv");
+    csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, cooler pwm, p, i, d" << endl;
+    double SetPointDouble = 20;
+    for(int t = 0; t < 6000; t++){
+        if(t==500){
+            SetPointDouble = 19;
+        }
+        if(t==2500){
+            SetPointDouble = 15;
+        }
+        beerSet->write(SetPointDouble);
+        coolerPid->update();
+        update();
+
+        csv     << beerSet->read() << "," // setpoint
+                << coolerPid->inputError << "," //error
+                << beerSensor->read() << "," // beer temp
+                << fridgeSensor->read() << "," // air temp
+                << sim.wallTemp << "," // fridge wall temperature
+                << cooler->getValue() << "," // actuator output
+                << coolerPid->p << "," // proportional action
+                << coolerPid->i << "," // integral action
+                << coolerPid->d // derivative action
+                << endl;
+    }
+    csv.close();
+}
+
+// Test cooling fridge air (via wall) based on fridge air temperature (non-cascaded control)
+BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air, SimFridgeCooler)
+{
+    ofstream csv("./test_results/" + boost_test_name() + ".csv");
+    csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, cooler pwm, p, i, d" << endl;
+    double SetPointDouble = 20;
+    for(int t = 0; t < 6000; t++){
+        if(t==500){
+            SetPointDouble = 24;
+        }
+        if(t==2500){
+            SetPointDouble = 28;
+        }
+        fridgeSet->write(SetPointDouble);
+        coolerPid->update();
+        update();
+
+        csv     << fridgeSet->read() << "," // setpoint
+                << coolerPid->inputError << "," //error
+                << beerSensor->read() << "," // beer temp
+                << fridgeSensor->read() << "," // air temp
+                << sim.wallTemp << "," // fridge wall temperature
+                << cooler->getValue() << "," // actuator output
+                << coolerPid->p << "," // proportional action
+                << coolerPid->i << "," // integral action
+                << coolerPid->d // derivative action
                 << endl;
     }
     csv.close();
