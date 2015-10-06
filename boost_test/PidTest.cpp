@@ -237,7 +237,7 @@ BOOST_FIXTURE_TEST_CASE(integrator_windup_heating_PI, PidTest)
 }
 
 
-BOOST_FIXTURE_TEST_CASE(integrator_windup_cooling_PI, PidTest)
+BOOST_FIXTURE_TEST_CASE(integrator_windup_cooling_PI_clipping, PidTest)
 {
     pid->setConstants(10.0, 10.0, 0.0);
     pid->setActuatorIsNegative(true);
@@ -245,7 +245,7 @@ BOOST_FIXTURE_TEST_CASE(integrator_windup_cooling_PI, PidTest)
 
     sensor->setTemp(20.0);
 
-    // update for 10 minutes, integrator will grow by 20 per minute
+    // update for 10 minutes, integrator will grow by -20 per minute
     for(int i = 0; i < 600; i++){
         pid->update();
     }

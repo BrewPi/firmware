@@ -115,16 +115,16 @@ struct Simulation{
         envTemp = 18.0;
 
         beerCapacity = 4.2 * 1.0 * 20; // heat capacity water * density of water * 20L volume (in kJ per kelvin).
-        airCapacity = 5 * 1.0035 * 1.225 * 0.200; // 5 * heat capacity of dry air * density of air * 200L volume (in kJ per kelvin).
-        // Moist air is much more complex, should calculate using enthalpy. Now just multiplied by 5.
+        airCapacity = 2 * 1.0035 * 1.225 * 0.200; // 2 * heat capacity of dry air * density of air * 200L volume (in kJ per kelvin).
+        // Moist air is much more complex, should calculate using enthalpy. Now just multiplied by 2.
         wallCapacity = 5.0; // just a guess
 
-        heaterPower = 0.3; // 300W, in kW.
-        coolerPower = 0.3; // 300W, in kW.
+        heaterPower = 0.2; // 200W, in kW.
+        coolerPower = 0.1; // 100W, in kW. Assuming 200W at 50% efficiency
 
-        airBeerTransfer= 0.02;
-        wallAirTransfer= 0.04;
-        envWallTransfer = 0.01;
+        airBeerTransfer= 0.01;
+        wallAirTransfer= 0.02;
+        envWallTransfer = 0.005; // losses to environment
 
     }
     virtual ~Simulation(){}
@@ -214,10 +214,9 @@ struct SimBeerCooler : public StaticSetup {
     SimBeerCooler(){
         coolerPid->setInputSensor(beerSensor);
         coolerPid->setSetPoint(beerSet);
-        coolerPid->setInputFilter(0);
+        coolerPid->setInputFilter(2);
         coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(100.0, 0.0, -100.0);
-
+        coolerPid->setConstants(30.0, 0.2, -100.0);
     }
 
     void update(){
@@ -242,8 +241,8 @@ struct SimFridgeCooler : public StaticSetup {
         coolerPid->setInputSensor(fridgeSensor);
         coolerPid->setSetPoint(fridgeSet);
         coolerPid->setInputFilter(0);
-        coolerPid->setDerivativeFilter(2);
-        coolerPid->setConstants(20.0, 5.0, -5.0);
+        coolerPid->setDerivativeFilter(4);
+        coolerPid->setConstants(3.0, 0.1, -1.0);
     }
 
     void update(){
@@ -330,11 +329,11 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Beer, SimBeerCooler)
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, cooler pwm, p, i, d, cooler pin" << endl;
     double SetPointDouble = 21;
-    for(int t = 0; t < 10000; t++){
+    for(int t = 0; t < 20000; t++){
         if(t==1000){
             SetPointDouble = 19;
         }
-        if(t==4000){
+        if(t==8000){
             SetPointDouble = 18.5;
         }
         beerSet->write(SetPointDouble);
@@ -364,11 +363,11 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air, SimFridgeCooler)
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, cooler pwm, p, i, d, cooler pin" << endl;
     double SetPointDouble = 21;
-    for(int t = 0; t < 10000; t++){
+    for(int t = 0; t < 20000; t++){
         if(t==1000){
             SetPointDouble = 19;
         }
-        if(t==4000){
+        if(t==8000){
             SetPointDouble = 15;
         }
         fridgeSet->write(SetPointDouble);
