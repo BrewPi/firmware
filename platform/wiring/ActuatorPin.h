@@ -53,4 +53,6 @@ class DigitalPinActuator:
         void write(uint8_t val)
         {
         }
+
+        void update(){} // do nothing on periodic update
 };

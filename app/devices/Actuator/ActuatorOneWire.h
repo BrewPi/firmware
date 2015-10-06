@@ -80,6 +80,8 @@ class ActuatorOneWire:
 #endif
         void write(uint8_t val){};
 
+        void update(){} // do nothing on periodic update
+
     private:
         DS2413 device;
         pio_t  pio;
