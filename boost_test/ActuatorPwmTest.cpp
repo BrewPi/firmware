@@ -192,31 +192,57 @@ BOOST_AUTO_TEST_CASE(output_stays_low_with_value_0) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(from_full_on_to_less_turns_off_at_right_time) {
-    ActuatorDigital * target = new ActuatorBool();
-    ActuatorPwm * act = new ActuatorPwm(target,4);
+BOOST_AUTO_TEST_CASE(on_big_positive_changes_go_high_immediately) {
+    ActuatorDigital * vAct = new ActuatorBool();
+    ActuatorDigital * limited = new ActuatorTimeLimited(vAct, 0, 0);
+    ActuatorPwm * act = new ActuatorPwm(limited, 100); // period is 100 seconds
 
-    act->setValue(0.0);
-    for (uint32_t i = 0; i < 5 * act->getPeriod(); i++) {
-        delay(1);
+    act->setValue(30);
+    for (uint32_t i = 0; i < 250 ; i++) { // 250 seconds
+        delay(1000);
         act->update();
     }
-    act->setValue(90.0);
-    // wait target to go high
-    while (!target->isActive()) {
-        delay(1);
+    BOOST_CHECK(!vAct->isActive()); // actuator is inactive
+    act->setValue(60.0);
+    act->update();
+    BOOST_CHECK(vAct->isActive()); // actuator turns on immediately
+
+    ticks_millis_t highTime = ticks.millis();
+    ticks_millis_t lowTime = ticks.millis();
+    while(vAct->isActive()){
+        delay(1000);
         act->update();
     }
-    ticks_millis_t momentHigh = ticks.millis();
+    lowTime = ticks.millis();
+    BOOST_CHECK_CLOSE(double(lowTime - highTime) / act->getPeriod(), 0.6, 2); // check that high period afterwards is correct
+}
 
-    // wait target to go low
-    while (target->isActive()) {
-        delay(1);
+
+BOOST_AUTO_TEST_CASE(on_big_negative_changes_go_low_immediately) {
+    ActuatorDigital * vAct = new ActuatorBool();
+    ActuatorDigital * limited = new ActuatorTimeLimited(vAct, 0, 0);
+    ActuatorPwm * act = new ActuatorPwm(limited, 100); // period is 100 seconds
+
+    act->setValue(60.0);
+    for (uint32_t i = 0; i < 250 ; i++) { // 250 seconds
+        delay(1000);
         act->update();
     }
-    ticks_millis_t momentLow = ticks.millis();
 
-    BOOST_REQUIRE_CLOSE(double(momentLow - momentHigh) / act->getPeriod(), 0.9, 2);
+    BOOST_CHECK(vAct->isActive()); // actuator is active
+    act->setValue(30.0);
+    act->update();
+    BOOST_CHECK(!vAct->isActive()); // actuator turns off immediately
+
+    ticks_millis_t lowTime = ticks.millis();
+    ticks_millis_t highTime = ticks.millis();
+
+    while(!vAct->isActive()){
+        delay(1000);
+        act->update();
+    }
+    highTime = ticks.millis();
+    BOOST_CHECK_CLOSE(double(highTime - lowTime) / act->getPeriod(), 0.7, 2); // check that low period afterwards is correct
 }
 
 
@@ -277,7 +303,7 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_up_faster_than_period_gives_correct_average){
     }
 
     double avgDuty = double(timeHigh) * 100.0 / (timeHigh + timeLow);
-    BOOST_CHECK_CLOSE(avgDuty, 50.0, 0.5);
+    BOOST_CHECK_CLOSE(avgDuty, 50.0, 2);
 }
 
 
@@ -304,7 +330,7 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_down_faster_than_period_gives_correct_average){
     }
 
     double avgDuty = double(timeHigh) * 100.0 / (timeHigh + timeLow);
-    BOOST_CHECK_CLOSE(avgDuty, 50.0, 0.5);
+    BOOST_CHECK_CLOSE(avgDuty, 50.0, 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
