@@ -382,6 +382,34 @@ BOOST_AUTO_TEST_CASE(unary_minus)
     BOOST_CHECK_EQUAL(a, -(-a));
 }
 
+BOOST_AUTO_TEST_CASE(multiplication_by_uint16){
+    temp_t a = 2.0;
+    uint16_t b = 5;
+    temp_long_t c = a*b;
+
+    BOOST_CHECK_EQUAL(c, temp_long_t(10.0));
+
+    BOOST_CHECK_EQUAL(temp_t(127.0) * uint16_t(UINT16_MAX), temp_long_t(127.0*65535));
+
+    temp_precise_t d = 2.0;
+    temp_long_t e = d*b;
+
+    BOOST_CHECK_EQUAL(e, temp_long_t(10.0));
+
+    BOOST_CHECK_EQUAL(temp_precise_t(127.0) * uint16_t(UINT16_MAX), temp_long_t(127.0*65535));
+
+    // check multiplying very low values, in lower precision bits of temp_precise
+    // values below are choosen to be able to be stored without loss of precision
+    BOOST_CHECK_EQUAL(temp_precise_t(0.0078125) * uint16_t(10000), temp_long_t(78.125)); // lower bits of temp_precise_t are not lost
+
+    // check multiplying high precision values, but with upper bits not zero.
+    BOOST_CHECK_EQUAL(temp_precise_t(0.5078125) * uint16_t(100), temp_long_t(50.78125));
+
+    // conversion between temp_precise and temp_long rounds down, due to the non rounded arithmetic shift.
+    // That's why the result below is 0.933594 instead of 0.9375
+    BOOST_CHECK_EQUAL(temp_precise_t(0.0156109333) * uint16_t(60), temp_long_t(0.933594));
+}
+
 
 BOOST_AUTO_TEST_CASE(right_shift)
 {

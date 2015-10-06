@@ -22,9 +22,9 @@
 // Converting constructors, which shift and constrain the value.
 
 temp_t::temp_t(const temp_precise_t& rhs) {
-    unsigned char shift = temp_precise_t::fractional_bit_count
+    const unsigned char shift = temp_precise_t::fractional_bit_count
             - temp_t::fractional_bit_count;
-    this->value_ = rhs.value_ >> shift;
+    this->value_ = rhs.value_ >> shift; // could result in a 1 bit error due to rounding
 }
 
 temp_t::temp_t(const temp_long_t& rhs) {
@@ -65,9 +65,9 @@ temp_long_t::temp_long_t(const temp_t& rhs) {
 }
 
 temp_long_t::temp_long_t(const temp_precise_t& rhs) {
-    unsigned char shift = temp_precise_t::fractional_bit_count
+    const unsigned char shift = temp_precise_t::fractional_bit_count
             - temp_long_t::fractional_bit_count;
-    this->value_ = rhs.value_ >> shift;
+    this->value_ = rhs.value_ >> shift; //// could result in a 1 bit error due to rounding
 }
 
 // With operators for mixed types always returns the bigger type
@@ -263,6 +263,25 @@ temp_long_t temp_precise_t::operator*(temp_long_t const& rhs) {
     return result;
 }
 
+// multiplication with uint16_t returns long temperature. Will be constrained later if assigned to temp_t
+temp_long_t temp_t::operator*(const uint16_t rhs) {
+    temp_long_t result(*this);
+    result.value_ *= rhs;
+    return result;
+}
+
+temp_long_t temp_precise_t::operator*(const uint16_t rhs) {
+    temp_long_t resultUpper(*this); // lower precision bits will be discarded
+    temp_precise_t resultLower(*this);
+    const uint8_t duplicatedBits = temp_precise_t::fractional_bit_count - temp_long_t::fractional_bit_count;
+
+    resultLower.value_ = resultLower.value_ & ((0x1 << duplicatedBits) - 1); // discard upper bits from lower, which are already in upper
+    resultUpper.value_ *= rhs;
+    resultLower.value_ *= rhs;
+
+    return resultUpper + resultLower;
+}
+
 // Division
 
 temp_t temp_t::operator/(temp_t const& rhs) {
@@ -316,6 +335,24 @@ temp_precise_t temp_precise_t::operator/(temp_t const& rhs) {
 temp_long_t temp_precise_t::operator/(temp_long_t const& rhs) {
     temp_long_t result(*this);
     result /= temp_long_t(rhs);
+    return result;
+}
+
+temp_t temp_t::operator/(const uint16_t rhs) {
+    temp_t result(*this);
+    result.value_ = (result.value_ + (rhs >> 1) ) / rhs; // rounded divide
+    return result;
+}
+
+temp_precise_t temp_precise_t::operator/(const uint16_t rhs) {
+    temp_precise_t result(*this);
+    result.value_ = (result.value_ + (rhs >> 1) ) / rhs; // rounded divide
+    return result;
+}
+
+temp_long_t temp_long_t::operator/(const uint16_t rhs) {
+    temp_long_t result(*this);
+    result.value_ = (result.value_ + (rhs >> 1) ) / rhs; // rounded divide
     return result;
 }
 

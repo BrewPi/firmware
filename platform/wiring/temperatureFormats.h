@@ -169,10 +169,12 @@ public:
     temp_t operator*(temp_t const& rhs);
     temp_precise_t operator*(temp_precise_t const& rhs);
     temp_long_t operator*(temp_long_t const& rhs);
+    temp_long_t operator*(const uint16_t rhs);
 
     temp_t operator/(temp_t const& rhs);
     temp_precise_t operator/(temp_precise_t const& rhs);
     temp_long_t operator/(temp_long_t const& rhs);
+    temp_t operator/(const uint16_t rhs);
 
     friend class temp_precise_t;
     friend class temp_long_t;
@@ -205,10 +207,10 @@ public:
                 'C', false, minimum, maximum);
     }
 
-   // converts a temperature in decimal notation to fixed point format
-   // for temperatures in C, this is the same as fromString
-   // for temperatures in F, it converts to the internal format in C
-   bool fromTempString(const char * s, char format, bool absolute, int32_t minimum = min_val, int32_t maximum =
+    // converts a temperature in decimal notation to fixed point format
+    // for temperatures in C, this is the same as fromString
+    // for temperatures in F, it converts to the internal format in C
+    bool fromTempString(const char * s, char format, bool absolute, int32_t minimum = min_val, int32_t maximum =
                max_val) {
        int32_t tempValue;
        bool success = fromStringImpl(&tempValue, fractional_bit_count, s,
@@ -217,14 +219,14 @@ public:
            value_ = tempValue;
        }
        return success;
-   }
+    }
 
-   // converts a temperature in decimal notation to fixed point format
-   // for temperatures in C, this is the same as fromString
-   // for temperatures in F, it converts to the internal format in C
-   bool toTempString(char buf[], uint8_t numDecimals, uint8_t len, char format, bool absolute) const {
+    // converts a temperature in decimal notation to fixed point format
+    // for temperatures in C, this is the same as fromString
+    // for temperatures in F, it converts to the internal format in C
+    bool toTempString(char buf[], uint8_t numDecimals, uint8_t len, char format, bool absolute) const {
        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, format, absolute);
-   }
+    }
 
     temp_precise_t operator+(temp_precise_t const& rhs);
     temp_precise_t operator+(temp_t const& rhs);
@@ -238,10 +240,12 @@ public:
     temp_precise_t operator*(temp_precise_t const& rhs);
     temp_precise_t operator*(temp_t const& rhs);
     temp_long_t operator*(temp_long_t const& rhs);
+    temp_long_t operator*(const uint16_t rhs);
 
     temp_precise_t operator/(temp_precise_t const& rhs);
     temp_precise_t operator/(temp_t const& rhs);
     temp_long_t operator/(temp_long_t const& rhs);
+    temp_precise_t operator/(const uint16_t rhs);
 
     friend class temp_t;
     friend class temp_long_t;
@@ -309,6 +313,7 @@ public:
     temp_long_t operator/(temp_long_t const& rhs);
     temp_long_t operator/(temp_t const& rhs);
     temp_long_t operator/(temp_precise_t const& rhs);
+    temp_long_t operator/(const uint16_t rhs);
 
     friend class temp_t;
     friend class temp_precise_t;
