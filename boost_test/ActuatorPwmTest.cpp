@@ -28,6 +28,7 @@
 #include <cstring>
 #include "runner.h"
 
+#define PRINT_TOGGLE_TIMES 0
 
 temp_t randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t duty, int delayMax) {
     act->setValue(duty);
@@ -38,9 +39,9 @@ temp_t randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t dut
 
     output << format("\n\n*** Results running 100 periods and random 0-%d ms update intervals,"
             "with duty cycle %u and period %u ***\n") % delayMax % duty % act->getPeriod();
-
+#if PRINT_TOGGLE_TIMES
     output << "\n\nl->h timestamp  h->l timestamp       high time       low time\n";
-
+#endif
     // run for 100 periods
     for (int i = 0; i < 100; i++) {
         do {
@@ -51,8 +52,10 @@ temp_t randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t dut
         if (i > 0) { // skip first cycle in totals, it can be incomplete
             totalHighTime += highTime;
         }
+#if PRINT_TOGGLE_TIMES
         output << format("_/  %10u \t \\_ %10u \t") % lowToHighTime % highToLowTime;
         output << format(" %10u ms \t") % highTime;
+#endif
         do {
             lowToHighTime = random_delay(delayMax);
             act->update();
@@ -60,10 +63,14 @@ temp_t randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t dut
         ticks_millis_t lowTime = lowToHighTime - highToLowTime;
         if (i > 0) { // skip first cycle in totals, it can have old duty cycle
             totalLowTime += lowTime;
+#if PRINT_TOGGLE_TIMES
             output << format("%10u ms \n") % lowTime;
+#endif
         }
         else{
+#if PRINT_TOGGLE_TIMES
             output << format("%10u ms (ignored)\n") % lowTime;
+#endif
         }
         
     }
@@ -137,8 +144,8 @@ BOOST_AUTO_TEST_CASE(on_off_time_matches_duty_cycle_when_updating_every_ms) {
     ticks_millis_t timeLow = lowToHighTime2 - highToLowTime1;
     double actualDuty = (timeHigh * 100.0) / (timeHigh + timeLow); // rounded result
     output << "*** Timestamps testing one period with duty cycle " << duty << " and period " << act->getPeriod() << "***\n";
-    output << "lowToHigh1:" << lowToHighTime1 << "\t"
-           << "highToLow1:" << highToLowTime1 <<" \t lowToHigh2" << lowToHighTime2 << "\n"
+    output << "lowToHigh1: " << lowToHighTime1 << "\t"
+           << "highToLow1: " << highToLowTime1 <<" \t lowToHigh2: " << lowToHighTime2 << "\n"
            << "time high: " << timeHigh << "\t"
            << "time low: " << timeLow << "\t"
            << "actual duty cycle: " << actualDuty;
@@ -184,6 +191,34 @@ BOOST_AUTO_TEST_CASE(output_stays_low_with_value_0) {
         BOOST_REQUIRE_MESSAGE(!target->isActive(), "Actuator was high at i=" << i);
     }
 }
+
+BOOST_AUTO_TEST_CASE(from_full_on_to_less_turns_off_at_right_time) {
+    ActuatorDigital * target = new ActuatorBool();
+    ActuatorPwm * act = new ActuatorPwm(target,4);
+
+    act->setValue(0.0);
+    for (uint32_t i = 0; i < 5 * act->getPeriod(); i++) {
+        delay(1);
+        act->update();
+    }
+    act->setValue(90.0);
+    // wait target to go high
+    while (!target->isActive()) {
+        delay(1);
+        act->update();
+    }
+    ticks_millis_t momentHigh = ticks.millis();
+
+    // wait target to go low
+    while (target->isActive()) {
+        delay(1);
+        act->update();
+    }
+    ticks_millis_t momentLow = ticks.millis();
+
+    BOOST_REQUIRE_CLOSE(double(momentLow - momentHigh) / act->getPeriod(), 0.9, 2);
+}
+
 
 BOOST_AUTO_TEST_CASE(output_stays_high_with_value_100) {
     ActuatorDigital * target = new ActuatorBool();
