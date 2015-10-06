@@ -105,8 +105,12 @@ void Pid::update()
     }
 
     inputFilter.add(inputVal);
-
+    temp_t inputErrorPrevious = inputError;
     inputError = setPoint->read() - inputFilter.readOutput();
+    if( (inputError - inputErrorPrevious) > temp_t (0.15) ||
+            (inputErrorPrevious - inputError)  > temp_t (0.15)){ // more then 2 bits (0.0625 of the input sensor)
+        integral = 0; // reset integral when the error changes significantly, most likely due to setpoint changes
+    }
 
     temp_precise_t delta = inputFilter.readOutput() - inputFilter.readPrevOutput();
     derivativeFilter.add(delta * temp_precise_t(60.0)); // use slope per minute
@@ -116,7 +120,7 @@ void Pid::update()
     // calculate PID parts.
     p = Kp * inputError;
     i = integral; // integral is fed with Ki*error
-    d = temp_long_t(-1) * Kd * derivative;
+    d = -Kd * derivative;
 
     temp_long_t pidResult = temp_long_t(p) + temp_long_t(i) + temp_long_t(d);
 
@@ -134,7 +138,7 @@ void Pid::update()
     // pidResult - output is zero when actuator is not saturated
     temp_long_t antiWindup = (pidResult - output);
 
-    integral = integral + Ki * (inputError - antiWindup) / temp_long_t(60);
+        integral = integral + Ki * (inputError - antiWindup) / temp_long_t(60);
 /*
     if(autotune){
         tune(output, previousOutput);
