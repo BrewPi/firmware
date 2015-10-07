@@ -176,6 +176,10 @@ public:
     temp_long_t operator/(temp_long_t const& rhs);
     temp_t operator/(const uint16_t rhs);
 
+    int8_t sign(){
+        return (value_ >= 0) ? 1 : -1;
+    }
+
     friend class temp_precise_t;
     friend class temp_long_t;
 };
@@ -247,6 +251,9 @@ public:
     temp_long_t operator/(temp_long_t const& rhs);
     temp_precise_t operator/(const uint16_t rhs);
 
+    int8_t sign(){
+        return (value_ >= 0) ? 1 : -1;
+    }
     friend class temp_t;
     friend class temp_long_t;
 };
@@ -314,6 +321,10 @@ public:
     temp_long_t operator/(temp_t const& rhs);
     temp_long_t operator/(temp_precise_t const& rhs);
     temp_long_t operator/(const uint16_t rhs);
+
+    int8_t sign(){
+        return (value_ >= 0) ? 1 : -1;
+    }
 
     friend class temp_t;
     friend class temp_precise_t;
