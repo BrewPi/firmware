@@ -217,7 +217,7 @@ struct SimBeerCooler : public StaticSetup {
         coolerPid->setSetPoint(beerSet);
         coolerPid->setInputFilter(4);
         coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(100.0, 2400, 180);
+        coolerPid->setConstants(50.0, 7200, 800);
     }
 
     void update(){
@@ -273,11 +273,11 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Beer, SimBeerHeater)
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, heater pwm, p, i, d" << endl;
     double SetPointDouble = 19;
-    for(int t = 0; t < 6000; t++){
-        if(t==500){
+    for(int t = 0; t < 20000; t++){
+        if(t==1000){
             SetPointDouble = 21;
         }
-        if(t==2500){
+        if(t==8000){
             SetPointDouble = 24;
         }
         beerSet->write(SetPointDouble);
@@ -303,11 +303,11 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Fridge_Air, SimFridgeHeater)
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, heater pwm, p, i, d" << endl;
     double SetPointDouble = 19;
-    for(int t = 0; t < 6000; t++){
-        if(t==500){
+    for(int t = 0; t < 20000; t++){
+        if(t==1000){
             SetPointDouble = 24;
         }
-        if(t==2500){
+        if(t==8000){
             SetPointDouble = 28;
         }
         fridgeSet->write(SetPointDouble);
@@ -333,11 +333,11 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Beer, SimBeerCooler)
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, cooler pwm, p, i, d, cooler pin" << endl;
     double SetPointDouble = 21;
-    for(int t = 0; t < 20000; t++){
+    for(int t = 0; t < 30000; t++){
         if(t==1000){
             SetPointDouble = 19;
         }
-        if(t==8000){
+        if(t==15000){
             SetPointDouble = 18.5;
         }
         beerSet->write(SetPointDouble);
