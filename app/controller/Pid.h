@@ -44,8 +44,8 @@ class Pid
         void update();
 
         void setConstants(temp_long_t kp,
-                          temp_long_t ki,
-                          temp_long_t kd);
+                          uint16_t Ti,
+                          uint16_t Td);
 
         void setFiltering(uint8_t b);
 
@@ -100,8 +100,8 @@ class Pid
         TempSensorBasic * inputSensor;
         SetPoint *        setPoint;
         temp_long_t       Kp;    // proportional gain
-        temp_long_t       Ki;    // integral gain
-        temp_long_t       Kd;    // derivative gain
+        uint16_t          Ti;    // integral time constant
+        uint16_t          Td;    // derivative time constant
         temp_t            min;
         temp_t            max;
         temp_t            inputError;

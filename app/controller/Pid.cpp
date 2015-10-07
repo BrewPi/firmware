@@ -25,7 +25,7 @@ Pid::Pid(TempSensorBasic * input,
          ActuatorRange * output,
          SetPoint * setPoint)
 {
-    setConstants(temp_t(10.0), temp_t(0.2), temp_t(-1.5));
+    setConstants(temp_t(10.0), 10, 120);
     setMinMax(temp_t::min(), temp_t::max());
 
     p = 0;
@@ -54,12 +54,12 @@ Pid::Pid(TempSensorBasic * input,
 Pid::~Pid(){}
 
 void Pid::setConstants(temp_long_t kp,
-                       temp_long_t ki,
-                       temp_long_t kd)
+                       uint16_t ti,
+                       uint16_t td)
 {
     Kp = kp;
-    Ki = ki;
-    Kd = kd;
+    Ti = ti;
+    Td = td;
 }
 
 void Pid::update()
@@ -113,14 +113,14 @@ void Pid::update()
     }
 
     temp_precise_t delta = inputFilter.readOutput() - inputFilter.readPrevOutput();
-    derivativeFilter.add(delta * temp_precise_t(60.0)); // use slope per minute
+    derivativeFilter.add(delta);
 
     derivative = derivativeFilter.readOutput();
 
     // calculate PID parts.
     p = Kp * inputError;
-    i = integral; // integral is fed with Ki*error
-    d = -Kd * derivative;
+    i = (Ti != 0) ? Kp * (integral/Ti) : temp_long_t(0.0);
+    d = -Kp * (derivative * Td);
 
     temp_long_t pidResult = temp_long_t(p) + temp_long_t(i) + temp_long_t(d);
 
@@ -136,9 +136,15 @@ void Pid::update()
 
     // update integral with anti-windup back calculation
     // pidResult - output is zero when actuator is not saturated
-    temp_long_t antiWindup = (pidResult - output);
+    temp_long_t antiWindup = (pidResult - temp_long_t(output)) * temp_long_t(1.5);
 
-        integral = integral + Ki * (inputError - antiWindup) / temp_long_t(60);
+    if(Ti == 0){ // 0 has been chosen to indicate that the integrator is disabled. This also prevents divide by zero.
+        integral = 0;
+    }
+    else{
+        integral = integral + inputError - antiWindup;
+    }
+
 /*
     if(autotune){
         tune(output, previousOutput);

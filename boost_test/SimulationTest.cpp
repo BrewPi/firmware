@@ -178,7 +178,7 @@ struct SimBeerHeater : public StaticSetup {
         heaterPid->setSetPoint(beerSet);
         heaterPid->setInputFilter(0);
         heaterPid->setDerivativeFilter(4);
-        heaterPid->setConstants(100.0, 5.0, -100.0);
+        heaterPid->setConstants(100.0, 2400, 180);
     }
 
     void update(){
@@ -197,7 +197,7 @@ struct SimFridgeHeater : public StaticSetup {
         heaterPid->setSetPoint(fridgeSet);
         heaterPid->setInputFilter(0);
         heaterPid->setDerivativeFilter(2);
-        heaterPid->setConstants(20.0, 10.0, -3.0);
+        heaterPid->setConstants(5.0, 120, 10);
     }
 
     void update(){
@@ -208,15 +208,16 @@ struct SimFridgeHeater : public StaticSetup {
     }
 };
 
+
 // Just a cooler, acting on beer temperature directly
 struct SimBeerCooler : public StaticSetup {
     Simulation sim;
     SimBeerCooler(){
         coolerPid->setInputSensor(beerSensor);
         coolerPid->setSetPoint(beerSet);
-        coolerPid->setInputFilter(2);
+        coolerPid->setInputFilter(4);
         coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(30.0, 0.2, -100.0);
+        coolerPid->setConstants(100.0, 2400, 180);
     }
 
     void update(){
@@ -242,7 +243,7 @@ struct SimFridgeCooler : public StaticSetup {
         coolerPid->setSetPoint(fridgeSet);
         coolerPid->setInputFilter(0);
         coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(3.0, 0.1, -1.0);
+        coolerPid->setConstants(3.0, 600, 60);
     }
 
     void update(){
@@ -261,7 +262,10 @@ struct SimFridgeCooler : public StaticSetup {
     }
 };
 
+
 BOOST_AUTO_TEST_SUITE( simulation_test)
+
+
 
 // Test heating fridge air based on beer temperature (non-cascaded control)
 BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Beer, SimBeerHeater)
