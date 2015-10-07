@@ -55,14 +55,6 @@ void ActuatorPwm::update() {
     int32_t currentTime = ticks.millis();
     int32_t elapsedTime = currentTime - periodStartTime;
 
-    if (value <= minVal) {
-        target->setActive(false);
-        return;
-    }
-    if (value >= maxVal) {
-        target->setActive(true);
-        return;
-    }
     if (target->isActive()) {
         if (elapsedTime >= adjDutyTime) {
             // end of duty cycle
@@ -83,9 +75,11 @@ void ActuatorPwm::update() {
                 // subtract duty cycle form duty late accumulator
                 dutyLate = dutyLate - dutyTime;
             } else {
-                target->setActive(true);
-                if (!target->isActive()) {
-                    return; // try next time
+                if(dutyTime > 0){
+                    target->setActive(true);
+                    if (!target->isActive()) {
+                        return; // try next time
+                    }
                 }
             }
             periodLate = elapsedTime - period;

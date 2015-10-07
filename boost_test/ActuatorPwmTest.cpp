@@ -27,6 +27,8 @@
 #include "ActuatorTimeLimited.h"
 #include <cstring>
 #include "runner.h"
+#include <iostream>
+#include <fstream>
 
 #define PRINT_TOGGLE_TIMES 0
 
@@ -265,7 +267,7 @@ BOOST_AUTO_TEST_CASE(output_stays_high_with_value_100) {
 
 
 BOOST_AUTO_TEST_CASE(ActuatorPWM_with_min_max_time_limited_OnOffActuator_as_driver){
-    // test with minimum ON of 2 seconds, minimum off of 5 seconds and period 5 seconds
+    // test with minimum ON of 2 seconds, minimum off of 5 seconds and period 10 seconds
 
     srand(time(NULL));
     ActuatorDigital * vAct = new ActuatorBool();
@@ -277,6 +279,47 @@ BOOST_AUTO_TEST_CASE(ActuatorPWM_with_min_max_time_limited_OnOffActuator_as_driv
     BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 3.0, 500), temp_t(3.0));
     BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 1.0, 500), temp_t(1.0));
     // BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 99.0, 500), temp(99.0)); // 99 not attainable due to minimum OFF time
+}
+
+
+BOOST_AUTO_TEST_CASE(when_switching_between_zero_and_low_value_average_is_correct){
+    // test with minimum ON of 2 seconds, minimum off of 5 seconds and period 5 seconds
+    ActuatorDigital * vAct = new ActuatorBool();
+    ActuatorDigital * onOffAct = new ActuatorTimeLimited(vAct, 20, 50);
+    ActuatorPwm * act = new ActuatorPwm(onOffAct, 100);
+
+    ticks_seconds_t timeHigh = 0;
+    ticks_seconds_t timeLow = 0;
+
+    ofstream csv("./test_results/" + boost_test_name() + ".csv");
+    csv << "value, pin" << endl;
+
+    for(int cycles = 0; cycles < 100; cycles++){
+        if(cycles %2 == 0){
+            act->setValue(4.0); // under minimum ON time of 20, doesn't trigger skipping ahead
+        }
+        else{
+            act->setValue(0.0);
+        }
+        for(int i = 0; i < 180; i++){ // 180 seconds, not full periods on purpose
+            delay(1000);
+            act->update();
+            if(vAct->isActive()){
+                timeHigh++;
+            }
+            else{
+                timeLow++;
+            }
+            csv     << act->getValue() << "," // setpoint
+                    << vAct->isActive() // actual cooler pin state
+                    << endl;
+        }
+    }
+
+    csv.close();
+
+    double avgDuty = double(timeHigh) * 100.0 / (timeHigh + timeLow);
+    BOOST_CHECK_CLOSE(avgDuty, 2, 5); // actuator will do about 20 pulses, so 5% error margin
 }
 
 
