@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 for file in glob.glob("*.csv"):
     data = np.genfromtxt(file, delimiter = ',', names = True)
 
-    plt.figure()
+    plt.figure(figsize=(10,20))
     plt.suptitle(file)
 
     num_plots = len(data.dtype.names)
@@ -24,6 +24,9 @@ for file in glob.glob("*.csv"):
         mng.frame.Maximize(True)
     elif plt.get_backend() == 'QT4Agg':
         mng.window.showMaximized()
-    
+
+    plt.savefig(file.rstrip('.csv') + '.pdf')
     plt.show()
+
+
 
