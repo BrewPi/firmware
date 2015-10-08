@@ -115,11 +115,11 @@ struct Simulation{
         envTemp = 18.0;
 
         beerCapacity = 4.2 * 1.0 * 20; // heat capacity water * density of water * 20L volume (in kJ per kelvin).
-        airCapacity = 2 * 1.0035 * 1.225 * 0.200; // 2 * heat capacity of dry air * density of air * 200L volume (in kJ per kelvin).
-        // Moist air is much more complex, should calculate using enthalpy. Now just multiplied by 2.
+        airCapacity = 1.005 * 1.225 * 0.200; // 2 * heat capacity of dry air * density of air * 200L volume (in kJ per kelvin).
+        // Moist air has only slightly higher heat capacity, 1.02 when saturated at 20C.
         wallCapacity = 5.0; // just a guess
 
-        heaterPower = 0.2; // 200W, in kW.
+        heaterPower = 0.1; // 100W, in kW.
         coolerPower = 0.1; // 100W, in kW. Assuming 200W at 50% efficiency
 
         airBeerTransfer= 0.01;
@@ -197,7 +197,7 @@ struct SimFridgeHeater : public StaticSetup {
         heaterPid->setSetPoint(fridgeSet);
         heaterPid->setInputFilter(0);
         heaterPid->setDerivativeFilter(2);
-        heaterPid->setConstants(5.0, 120, 10);
+        heaterPid->setConstants(5.0, 120, 0);
     }
 
     void update(){
@@ -251,6 +251,76 @@ struct SimFridgeCooler : public StaticSetup {
         fridgeSensor->setTemp(sim.airTemp);
         coolerPid->update();
         cooler->update();
+
+        // because cooler is time limited, get actual output from pin
+        if(coolerPin->isActive()){
+            sim.update(heater->getValue(), 100.0);
+        } else{
+            sim.update(heater->getValue(), 0.0);
+        }
+        delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
+    }
+};
+
+// A heater and a cooler, both acting on fridge temperature directly
+struct SimFridgeHeaterCooler : public StaticSetup {
+    Simulation sim;
+    SimFridgeHeaterCooler(){
+        coolerPid->setInputSensor(fridgeSensor);
+        coolerPid->setSetPoint(fridgeSet);
+        coolerPid->setInputFilter(0);
+        coolerPid->setDerivativeFilter(4);
+        coolerPid->setConstants(3.0, 600, 60);
+
+        heaterPid->setInputSensor(fridgeSensor);
+        heaterPid->setSetPoint(fridgeSet);
+        heaterPid->setInputFilter(0);
+        heaterPid->setDerivativeFilter(4);
+        heaterPid->setConstants(5.0, 120, 0);
+    }
+
+    void update(){
+        beerSensor->setTemp(sim.beerTemp);
+        fridgeSensor->setTemp(sim.airTemp);
+        heaterPid->update();
+        coolerPid->update();
+        cooler->update();
+        heater->update();
+
+        // because cooler is time limited, get actual output from pin
+        if(coolerPin->isActive()){
+            sim.update(heater->getValue(), 100.0);
+        } else{
+            sim.update(heater->getValue(), 0.0);
+        }
+        delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
+    }
+};
+
+// A heater and a cooler, both acting on fridge temperature directly
+struct SimBeerHeaterCooler : public StaticSetup {
+    Simulation sim;
+    SimBeerHeaterCooler(){
+        coolerPid->setInputSensor(beerSensor);
+        coolerPid->setSetPoint(beerSet);
+        coolerPid->setInputFilter(4);
+        coolerPid->setDerivativeFilter(4);
+        coolerPid->setConstants(50.0, 7200, 800);
+
+        heaterPid->setInputSensor(beerSensor);
+        heaterPid->setSetPoint(beerSet);
+        heaterPid->setInputFilter(4);
+        heaterPid->setDerivativeFilter(4);
+        heaterPid->setConstants(100.0, 2400, 180);
+    }
+
+    void update(){
+        beerSensor->setTemp(sim.beerTemp);
+        fridgeSensor->setTemp(sim.airTemp);
+        heaterPid->update();
+        coolerPid->update();
+        cooler->update();
+        heater->update();
 
         // because cooler is time limited, get actual output from pin
         if(coolerPin->isActive()){
@@ -391,6 +461,95 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air, SimFridgeCooler)
     }
     csv.close();
 }
+
+// Test heating and cooling fridge air based on fridge air temperature (non-cascaded control)
+BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Fridge_Air, SimFridgeHeaterCooler)
+{
+    ofstream csv("./test_results/" + boost_test_name() + ".csv");
+    csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, "
+            "cooler pwm, cooler P, cooler I, cooler D, "
+            "heater pwm, heater P, heater I, heater D, "
+            "heater pin, cooler pin" << endl;
+    double SetPointDouble = 20;
+    for(int t = 0; t < 40000; t++){
+        if(t==1000){
+            SetPointDouble = 19;
+        }
+        if(t > 8000 && t < 16000){
+            SetPointDouble -= 0.0001; // ramp down slowly
+        }
+
+        if(t > 20000 && t < 28000){
+            SetPointDouble -= 0.0001; // ramp up slowly
+        }
+
+        fridgeSet->write(SetPointDouble);
+        update();
+
+        csv     << fridgeSet->read() << "," // setpoint
+                << coolerPid->inputError << "," //error
+                << beerSensor->read() << "," // beer temp
+                << fridgeSensor->read() << "," // air temp
+                << sim.wallTemp << "," // fridge wall temperature
+                << cooler->getValue() << "," // actuator output
+                << coolerPid->p << "," // proportional action
+                << coolerPid->i << "," // integral action
+                << coolerPid->d << "," // derivative action
+                << heater->getValue() << "," // actuator output
+                << heaterPid->p << "," // proportional action
+                << heaterPid->i << "," // integral action
+                << heaterPid->d << "," // derivative action
+                << heaterPin->isActive() << "," // actual cooler pin state
+                << coolerPin->isActive() // actual cooler pin state
+                << endl;
+    }
+    csv.close();
+}
+
+// Test heating and cooling fridge air based on fridge air temperature (non-cascaded control)
+BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Beer, SimFridgeHeaterCooler)
+{
+    ofstream csv("./test_results/" + boost_test_name() + ".csv");
+    csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, "
+            "cooler pwm, cooler P, cooler I, cooler D, "
+            "heater pwm, heater P, heater I, heater D, "
+            "heater pin, cooler pin" << endl;
+    double SetPointDouble = 20;
+    for(int t = 0; t < 40000; t++){
+        if(t==1000){
+            SetPointDouble = 19;
+        }
+        if(t > 8000 && t < 16000){
+            SetPointDouble -= 0.0001; // ramp down slowly
+        }
+
+        if(t > 20000 && t < 28000){
+            SetPointDouble -= 0.0001; // ramp up slowly
+        }
+
+        beerSet->write(SetPointDouble);
+        update();
+
+        csv     << beerSet->read() << "," // setpoint
+                << coolerPid->inputError << "," //error
+                << beerSensor->read() << "," // beer temp
+                << fridgeSensor->read() << "," // air temp
+                << sim.wallTemp << "," // fridge wall temperature
+                << cooler->getValue() << "," // actuator output
+                << coolerPid->p << "," // proportional action
+                << coolerPid->i << "," // integral action
+                << coolerPid->d << "," // derivative action
+                << heater->getValue() << "," // actuator output
+                << heaterPid->p << "," // proportional action
+                << heaterPid->i << "," // integral action
+                << heaterPid->d << "," // derivative action
+                << heaterPin->isActive() << "," // actual cooler pin state
+                << coolerPin->isActive() // actual cooler pin state
+                << endl;
+    }
+    csv.close();
+}
+
 
 
 BOOST_AUTO_TEST_SUITE_END()
