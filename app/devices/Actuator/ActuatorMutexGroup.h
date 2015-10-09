@@ -21,14 +21,12 @@
 
 #include "Ticks.h"
 #include "Actuator.h"
-
 #include <vector>
 
 struct ActuatorPriority{
     ActuatorDigital * actuator;
-    int8_t priority; // valid priorities are 0-127
+    int8_t priority; // valid priorities are 0-127, at -128 the actuator is removed from the group
 };
-
 
 class ActuatorMutexGroup {
 public:
@@ -40,101 +38,57 @@ public:
 
     };
 
-    void registerActuator(ActuatorDigital * act, int8_t prio){
-        ActuatorPriority ap = {act, prio};
-        actuatorPriorities.push_back(ap);
-    }
+    void registerActuator(ActuatorDigital * act, int8_t prio);
+    void unRegisterActuator(uint8_t index);
 
-    uint8_t find(ActuatorDigital * act){
-        for (unsigned i=0; i<actuatorPriorities.size(); ++i){
-            if(actuatorPriorities[i].actuator == act){
-                return i;
-            }
-        }
-        return -1;
-    }
+    uint8_t find(ActuatorDigital * act);
 
-    void unRegisterActuator(uint8_t index){
-        actuatorPriorities.erase(actuatorPriorities.begin() + index);
-    }
-
-    bool requestActive(ActuatorDigital * requester, int8_t newPriority){
-        // loop over all actuators to see if my request has highest priority
-        // and if no other actuators are active
-
-        bool requestHonored = true;
-        ActuatorPriority * me = 0;
-
-        for (uint8_t i=0; i<actuatorPriorities.size(); ++i){
-            ActuatorPriority other = actuatorPriorities[i];
-
-            if(other.actuator == requester){
-                other.priority = newPriority; // update my own priority
-                me = &actuatorPriorities[i];
-            }
-            else{
-                if(other.priority > newPriority){
-                    requestHonored = false;
-                }
-                if(other.actuator->isActive()){
-                    requestHonored = false;
-                }
-            }
-            if(me && !requestHonored){
-                break;
-            }
-        }
-        if(!me){ // I was not in the list
-            registerActuator(requester, newPriority);
-            me = &actuatorPriorities.back();
-        }
-        if(getWaitTime() > 0){
-            requestHonored = false; // dead time has not passed
-        }
-        if(requestHonored){
-            lastActiveTime = ticks.millis();
-            me->priority = 0; // when the request is honored, set the priority to zero. Requester can re-request with higher prio.
-        }
-        return requestHonored;
-    }
-
-    void setDeadTime(ticks_millis_t time){
-        deadTime = time;
-        if(lastActiveTime == 0){
-            // lastActive has not been set yet, make sure deadTime does not get in the way of first request
-            lastActiveTime = ticks.millis() - deadTime;
-        }
-    }
+    bool requestActive(ActuatorDigital * requester, int8_t newPriority);
 
     ticks_millis_t getDeadTime(){
         return deadTime;
     }
+    void setDeadTime(ticks_millis_t);
 
-    ticks_millis_t getWaitTime(){
-        ticks_millis_t elapsed = ticks.timeSince(lastActiveTime);
-        if(elapsed >= deadTime){
-            return 0;
-        }
-        else{
-            return (deadTime - elapsed);
-        }
-    }
+    ticks_millis_t getWaitTime();
 
-    // update decreases all priorities by 1 and removes old requests.
-    void update(){
-        for (uint8_t i=0; i<actuatorPriorities.size(); ++i){
-            if(actuatorPriorities[i].priority == -128){
-                unRegisterActuator(i); // stale request, remove actuator from list
-            }
-            else{
-                actuatorPriorities[i].priority--;
-            }
-        }
-    }
+    void update();
 
 private:
     ticks_millis_t deadTime;
     ticks_millis_t lastActiveTime;
-    vector<ActuatorPriority> actuatorPriorities;
+    std::vector<ActuatorPriority> actuatorPriorities;
 };
 
+/* ActuatorMutexInterface should be inherited by abstract base classes for digital actuators
+ */
+
+class ActuatorMutexInterface {
+public:
+    ActuatorMutexInterface(){}
+    virtual ~ActuatorMutexInterface(){}
+
+    virtual void setMutex(ActuatorMutexGroup * mutex) = 0;
+    virtual ActuatorMutexGroup * getMutex() = 0;
+};
+
+/* ActuatorMutex base class should be inherited by lowest level digital actuators
+ * Only the lowest level should have a pointer to the mutex group
+ */
+
+class ActuatorMutexBase : public virtual ActuatorMutexInterface {
+public:
+    ActuatorMutexBase(){
+        mutexGroup = 0;
+    }
+    virtual ~ActuatorMutexBase(){}
+
+    void setMutex(ActuatorMutexGroup * mutex){
+        mutexGroup = mutex;
+    }
+    ActuatorMutexGroup * getMutex(){
+        return mutexGroup;
+    }
+private:
+    ActuatorMutexGroup * mutexGroup;
+};
