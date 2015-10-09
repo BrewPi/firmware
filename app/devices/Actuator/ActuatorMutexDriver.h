@@ -26,7 +26,7 @@
 /* A driver actuator to wrap a digital Actuator and block SetActive calls if the mutex group does does not honor the request
  */
 
-class ActuatorMutexDriver : public virtual ActuatorDriver{
+class ActuatorMutexDriver : public virtual ActuatorDriver, public ActuatorDigital{
 public:
     ActuatorMutexDriver(ActuatorDigital * target) : ActuatorDriver(target){
         mutexGroup = 0;
@@ -47,6 +47,10 @@ public:
         if(!active || !mutexGroup || mutexGroup->requestActive(target, priority)){
             target->setActive(active);
         }
+    }
+
+    void setActive(bool active){
+        setActive(active, 127); // when priority not specified, default to highest priority
     }
 
     bool isActive(){

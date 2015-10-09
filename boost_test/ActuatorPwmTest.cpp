@@ -26,6 +26,7 @@
 #include "ActuatorMocks.h"
 #include "ActuatorPwm.h"
 #include "ActuatorTimeLimited.h"
+#include "ActuatorMutexDriver.h"
 #include <cstring>
 #include "runner.h"
 #include <iostream>
@@ -375,6 +376,55 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_down_faster_than_period_gives_correct_average){
 
     double avgDuty = double(timeHigh) * 100.0 / (timeHigh + timeLow);
     BOOST_CHECK_CLOSE(avgDuty, 50.0, 2);
+}
+
+BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap){
+    ActuatorDigital * boolAct1 = new ActuatorBool();
+    ActuatorMutexDriver * mutexAct1 = new ActuatorMutexDriver(boolAct1);
+    ActuatorPwm * act1 = new ActuatorPwm(mutexAct1, 20);
+
+    ActuatorDigital * boolAct2 = new ActuatorBool();
+    ActuatorMutexDriver * mutexAct2 = new ActuatorMutexDriver(boolAct2);
+    ActuatorPwm * act2 = new ActuatorPwm(mutexAct2, 20);
+
+    ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
+    mutexAct1->setMutex(mutex);
+    mutexAct2->setMutex(mutex);
+
+    ticks_seconds_t timeHigh1 = 0;
+    ticks_seconds_t timeLow1 = 0;
+    ticks_seconds_t timeHigh2 = 0;
+    ticks_seconds_t timeLow2 = 0;
+
+    act1->setValue(20.0);
+    act2->setValue(20.0);
+
+    ticks_millis_t start = ticks.millis();
+
+    while(ticks.millis() - start < 1000000){ // run for 1000 seconds
+        act1->update();
+        act2->update();
+        delay(100);
+        if(boolAct1->isActive()){
+            timeHigh1++;
+        }
+        else{
+            timeLow1++;
+        }
+        if(boolAct2->isActive()){
+            timeHigh2++;
+        }
+        else{
+            timeLow2++;
+        }
+        BOOST_REQUIRE(!(boolAct1->isActive() && boolAct2->isActive())); // actuators cannot be active at the same time
+    }
+
+    double avgDuty1 = double(timeHigh1) * 100.0 / (timeHigh1 + timeLow1);
+    BOOST_CHECK_CLOSE(avgDuty1, 20.0, 1);
+
+    double avgDuty2 = double(timeHigh2) * 100.0 / (timeHigh2 + timeLow2);
+    BOOST_CHECK_CLOSE(avgDuty2, 20.0, 1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
