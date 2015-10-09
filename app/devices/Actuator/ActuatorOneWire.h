@@ -23,7 +23,7 @@
 #pragma once
 
 #include "Brewpi.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include "DS2413.h"
 
 /*

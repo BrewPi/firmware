@@ -23,6 +23,7 @@
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time, to seed rand */
 
+#include "ActuatorMocks.h"
 #include "ActuatorPwm.h"
 #include "ActuatorTimeLimited.h"
 #include <cstring>

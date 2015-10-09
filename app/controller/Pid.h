@@ -24,7 +24,7 @@
 #include "temperatureFormats.h"
 #include "FilterCascaded.h"
 #include "TempSensorBasic.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include "SetPoint.h"
 #include "defaultDevices.h"
 

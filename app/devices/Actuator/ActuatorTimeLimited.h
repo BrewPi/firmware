@@ -23,7 +23,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include "Ticks.h"
 
 class ActuatorTimeLimited:

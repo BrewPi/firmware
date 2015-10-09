@@ -23,7 +23,7 @@
 #pragma once
 
 #include "Platform.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 
 class DigitalPinActuator:
     public ActuatorDigital

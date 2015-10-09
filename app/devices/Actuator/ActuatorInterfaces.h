@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 #include "temperatureFormats.h"
+// #include "ActuatorMutexGroup.h"
 
 enum {
     ACTUATOR_RANGE,
@@ -49,7 +50,7 @@ public:
 /*
  * An ActuatorDigital simply turns something on or off.
  */
-class ActuatorDigital : public virtual Actuator
+class ActuatorDigital : public virtual Actuator //, public ActuatorMutexInterface
 {
 public:
     ActuatorDigital(){}
@@ -122,63 +123,29 @@ public:
     }
 };
 
+
 /*
- * A range actuator that simply remembers the set value. This is primary used for testing.
+ * An digital actuators that does absolutely nothing. Used as default actuator
  */
-class ActuatorValue : public ActuatorRange
+class ActuatorNop : public ActuatorDigital
 {
 public:
-	ActuatorValue(temp_t initial, temp_t minVal, temp_t maxVal) : value(initial), min(minVal), max(maxVal) {}
-	virtual ~ActuatorValue(){}
+    ActuatorNop(){}
+    ~ActuatorNop(){}
 
-	virtual void setValue(temp_t const& val) {
-	    if(val < min){
-	        value = min;
-	    }
-	    else if(val > max){
-	        value = max;
-	    }
-	    else{
-	        value = val;
-	    }
-	}
-	virtual temp_t getValue() const{
-	    return value;
-	}
-	virtual void update(){}; //no actions required
-
-private:
-	temp_t value;
-	temp_t min;
-	temp_t max;
+    virtual void setActive(bool active) {}
+    virtual bool isActive() { return false;}
+    virtual void update(){}
 };
 
 /*
- * An toggle actuator that simply remembers a true/false set value. This is primary used for testing.
- */
-class ActuatorBool : public ActuatorDigital
-{
-public:
-	ActuatorBool() : state(false) {}
-	ActuatorBool(bool initial) : state(initial) {}
-
-	virtual void setActive(bool active) { state = active; }
-	virtual bool isActive() { return state; }
-
-	virtual void update(){}; //no actions required
-
-private:
-	bool state;
-};
-
-
-/*
- * An linear actuator that does nothing and always returns invalid().
+ * An linear actuator that does nothing and always returns invalid(). Linear equavalent of ActuatorNop
  */
 class ActuatorInvalid : public ActuatorRange
 {
 public:
     ActuatorInvalid() {}
+    ~ActuatorInvalid() {}
 
     void setValue(temp_t const& val) {}
     temp_t getValue() const {
@@ -192,3 +159,5 @@ public:
     }
     virtual void update(){}; //no actions required
 };
+
+

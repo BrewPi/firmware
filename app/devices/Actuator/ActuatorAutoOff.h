@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include <stdint.h>
 
 class AutoOffActuator : public ActuatorDigital {

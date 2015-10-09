@@ -25,7 +25,7 @@
 #include "BrewpiStrings.h"
 #include "DeviceManager.h"
 #include "TempControl.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include "ActuatorPwm.h"
 #include "Sensor.h"
 #include "TempSensorDisconnected.h"

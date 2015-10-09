@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Ticks.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include <vector>
 
 struct ActuatorPriority{

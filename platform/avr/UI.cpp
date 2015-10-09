@@ -4,7 +4,7 @@
 #include "Display.h"
 #include "Buzzer.h"
 #include "Menu.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 
 DisplayType realDisplay;
 DisplayType DISPLAY_REF display = realDisplay;

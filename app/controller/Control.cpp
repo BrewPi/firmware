@@ -21,7 +21,7 @@
 
 #include "Control.h"
 #include <stddef.h>
-#include "../devices/Actuator/Actuator.h"
+#include "../devices/Actuator/ActuatorInterfaces.h"
 #include "../devices/Sensor.h"
 #include "../devices/TempSensor/TempSensorDisconnected.h"
 

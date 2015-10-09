@@ -19,7 +19,7 @@
 
  #pragma once
 
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include "SetPoint.h"
 #include "defaultDevices.h"
  

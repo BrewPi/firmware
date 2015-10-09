@@ -21,13 +21,13 @@
 #pragma once
 
 #include "TempSensorDisconnected.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include "SetPoint.h"
 #include "Sensor.h"
 
 extern ValueSensor<bool>      defaultSensor;
-extern ActuatorBool           defaultActuator;
-extern ActuatorInvalid  defaultLinearActuator; // always returns invalid
+extern ActuatorNop            defaultActuator;
+extern ActuatorInvalid        defaultLinearActuator; // always returns invalid and does nothing
 extern TempSensorDisconnected defaultTempSensor;
 extern SetPointConstant       defaultSetPoint;
 

@@ -272,7 +272,7 @@
     <Compile Include="app\controller\Version.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\devices\Actuator\Actuator.h">
+    <Compile Include="app\devices\Actuator\ActuatorInterfaces.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\devices\Actuator\ActuatorAutoOff.cpp">

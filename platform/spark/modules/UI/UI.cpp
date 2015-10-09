@@ -26,7 +26,7 @@
 #include "PiLink.h"
 #include "Display.h"
 #include "UIController.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include "Board.h"
 
 #include "../eGUI_screens/devicetest/device_test_screen.h"

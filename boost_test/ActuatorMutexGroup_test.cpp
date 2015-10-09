@@ -25,8 +25,9 @@
 #include <time.h>       /* time, to seed rand */
 #include <cstring>
 
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include "ActuatorTimeLimited.h"
+#include "ActuatorMocks.h"
 #include "Ticks.h"
 #include "ActuatorMutexGroup.h"
 

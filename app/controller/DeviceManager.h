@@ -24,7 +24,7 @@
 
 #include "Brewpi.h"
 #include "Platform.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include "Sensor.h"
 #include "TempSensorBasic.h"
 #include "OneWireDevices.h"

@@ -23,7 +23,7 @@
 #include "OneWireDevices.h"
 #include "DeviceManager.h"
 #include "TempSensorBasic.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include "Sensor.h"
 #include "PiLink.h"
 #include "Board.h"

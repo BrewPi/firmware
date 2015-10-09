@@ -35,7 +35,7 @@
 #include "Display.h"
 #include "PiLinkHandlers.h"
 #include "UI.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 
 
 #if BREWPI_SIMULATE

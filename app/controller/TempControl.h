@@ -23,7 +23,7 @@
 #include "temperatureFormats.h"
 #include "Platform.h"
 #include "TempSensorBasic.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include "Sensor.h"
 #include "EepromTypes.h"
 #include "ActuatorAutoOff.h"

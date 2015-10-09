@@ -19,7 +19,7 @@
 
 #include "ActuatorMutexGroup.h"
 #include "Ticks.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include <vector>
 
 void ActuatorMutexGroup::registerActuator(ActuatorDigital * act, int8_t prio){

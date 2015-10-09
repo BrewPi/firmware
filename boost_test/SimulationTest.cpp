@@ -24,7 +24,8 @@
 #include <cstdio>
 #include <math.h>
 #include "TempSensorMock.h"
-#include "Actuator.h"
+#include "ActuatorMocks.h"
+#include "ActuatorInterfaces.h"
 #include "ActuatorPwm.h"
 #include "ActuatorTimeLimited.h"
 #include "ActuatorSetPoint.h"
