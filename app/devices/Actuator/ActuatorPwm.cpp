@@ -1,6 +1,7 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorPwm.h"
 #include "Ticks.h"
+#include "ActuatorMutexDriver.h"
 
 ActuatorPwm::ActuatorPwm(ActuatorDigital* _target, uint16_t _period) :
     ActuatorDriver(_target) {
@@ -76,7 +77,12 @@ void ActuatorPwm::update() {
                 dutyLate = dutyLate - dutyTime;
             } else {
                 if(dutyTime > 0){
-                    target->setActive(true);
+                    if(target->type() == ACTUATOR_TOGGLE_MUTEX){
+                        reinterpret_cast<ActuatorMutexDriver*>(target)->setActive(true, priority());
+                    }
+                    else{
+                        target->setActive(true);
+                    }
                     if (!target->isActive()) {
                         return; // try next time
                     }
@@ -91,4 +97,16 @@ void ActuatorPwm::update() {
             periodStartTime = currentTime;
         }
     }
+}
+
+int8_t ActuatorPwm::priority(){
+    int32_t adjDutyTime = dutyTime - dutyLate;
+    int32_t priority = (adjDutyTime*100)/period;
+    if(priority > 127){
+        priority = 127;
+    }
+    if(priority < 0){
+        priority = 0;
+    }
+    return priority;
 }

@@ -75,4 +75,7 @@ class ActuatorPwm : public ActuatorRange, public ActuatorDriver
 
         // recalculates duty time based on value and dutyLate and periodLate
         void recalculate();
+
+        // calculates priority from dutyTime and dutyLate
+        int8_t priority();
 };

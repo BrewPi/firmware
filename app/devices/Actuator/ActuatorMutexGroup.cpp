@@ -60,6 +60,7 @@ bool ActuatorMutexGroup::requestActive(ActuatorDigital * requester, int8_t newPr
             }
             if(other.actuator->isActive()){
                 requestHonored = false;
+                lastActiveTime = ticks.millis();
             }
         }
         if(me && !requestHonored){
@@ -89,7 +90,7 @@ void ActuatorMutexGroup::setDeadTime(ticks_millis_t time){
 }
 
 ticks_millis_t ActuatorMutexGroup::getWaitTime(){
-    ticks_millis_t elapsed = ticks.timeSince(lastActiveTime);
+    ticks_millis_t elapsed = ticks.millis() - lastActiveTime;
     if(elapsed >= deadTime){
         return 0;
     }

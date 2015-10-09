@@ -59,36 +59,3 @@ private:
     ticks_millis_t lastActiveTime;
     std::vector<ActuatorPriority> actuatorPriorities;
 };
-
-/* ActuatorMutexInterface should be inherited by abstract base classes for digital actuators
- */
-
-class ActuatorMutexInterface {
-public:
-    ActuatorMutexInterface(){}
-    virtual ~ActuatorMutexInterface(){}
-
-    virtual void setMutex(ActuatorMutexGroup * mutex) = 0;
-    virtual ActuatorMutexGroup * getMutex() = 0;
-};
-
-/* ActuatorMutex base class should be inherited by lowest level digital actuators
- * Only the lowest level should have a pointer to the mutex group
- */
-
-class ActuatorMutexBase : public virtual ActuatorMutexInterface {
-public:
-    ActuatorMutexBase(){
-        mutexGroup = 0;
-    }
-    virtual ~ActuatorMutexBase(){}
-
-    void setMutex(ActuatorMutexGroup * mutex){
-        mutexGroup = mutex;
-    }
-    ActuatorMutexGroup * getMutex(){
-        return mutexGroup;
-    }
-private:
-    ActuatorMutexGroup * mutexGroup;
-};

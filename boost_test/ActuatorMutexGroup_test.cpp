@@ -30,22 +30,77 @@
 #include "ActuatorMocks.h"
 #include "Ticks.h"
 #include "ActuatorMutexGroup.h"
+#include "ActuatorMutexDriver.h"
 
-BOOST_AUTO_TEST_SUITE(ActuatorMutex)
+BOOST_AUTO_TEST_SUITE(ActuatorMutexTest)
 
 BOOST_AUTO_TEST_CASE(two_actuators_belonging_to_the_same_group_cannot_be_active_at_once) {
     ActuatorDigital * act1 = new ActuatorBool();
     ActuatorDigital * act2 = new ActuatorBool();
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
 
-    if(mutex->requestActive(act1, 5)){
-        act1->setActive(true);
+    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1);
+    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
+    actm1->setMutex(mutex);
+    actm2->setMutex(mutex);
+
+    actm1->setActive(true, 5);
+    BOOST_CHECK(actm1->isActive()); // actuator is first, so is allowed to go active
+    BOOST_CHECK(act1->isActive()); // target actuator is active
+
+    actm2->setActive(true, 10);
+    BOOST_CHECK(!act2->isActive()); // actuator 2 is not allowed to go active while act1 is still active
+
+    actm1->setActive(false, 5);
+    BOOST_CHECK(!act1->isActive());
+    actm1->setActive(true, 5);
+    BOOST_CHECK(!act1->isActive()); // second request to go active from act1 is blocked, because act2 has an open request with higher priority
+
+    actm2->setActive(true, 10);
+    BOOST_CHECK(act2->isActive()); // actuator 2 is now allowed to go active
+}
+
+
+BOOST_AUTO_TEST_CASE(dead_time_between_actuators_is_honored) {
+    ActuatorDigital * act1 = new ActuatorBool();
+    ActuatorDigital * act2 = new ActuatorBool();
+    ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
+
+    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1);
+    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
+    actm1->setMutex(mutex);
+    actm2->setMutex(mutex);
+
+    mutex->setDeadTime(10000); // 10 seconds dead time
+
+    actm1->setActive(true, 5);
+    BOOST_CHECK(actm1->isActive()); // actuator is first, so is allowed to go active
+    BOOST_CHECK(act1->isActive()); // target actuator is active
+
+    delay(1000);
+
+    actm2->setActive(true, 10);
+    BOOST_CHECK(!act2->isActive()); // actuator 2 is not allowed to go active while act1 is still active
+
+    actm1->setActive(false, 5);
+    BOOST_CHECK(!actm1->isActive());
+    actm1->setActive(true, 5);
+    BOOST_CHECK(!actm1->isActive()); // second request to go active from act1 is blocked, because act2 has an open request with higher priority
+
+    actm2->setActive(true, 10);
+    BOOST_CHECK(!actm2->isActive()); // actuator 2 is still not allowed to go active, because of dead time
+
+    int i;
+    for(i = 1; i<20; i++){
+        delay(1000);
+        actm2->setActive(true, 10);
+        if(actm2->isActive()){
+            break;
+        }
+
     }
-    BOOST_REQUIRE(mutex->requestActive(act1, 5)); // already active actuator request is allowed
-    BOOST_REQUIRE(mutex->requestActive(act1, 4)); // also with lower priority
-    BOOST_REQUIRE(!mutex->requestActive(act2, 1)); // second actuator request is not allowed
-    act1->setActive(false);
-    BOOST_REQUIRE(mutex->requestActive(act2, 1)); // until first actuator is disabled
+    BOOST_CHECK(actm2->isActive());
+    BOOST_CHECK_EQUAL(i,10); // act2 was allowed to go active after 10 seconds
 }
 
 BOOST_AUTO_TEST_SUITE_END()
