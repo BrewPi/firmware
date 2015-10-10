@@ -22,22 +22,30 @@
 #include "ActuatorInterfaces.h"
 #include <vector>
 
-void ActuatorMutexGroup::registerActuator(ActuatorDigital * act, int8_t prio){
+ActuatorPriority * ActuatorMutexGroup::registerActuator(ActuatorDigital * act, int8_t prio){
     ActuatorPriority ap = {act, prio};
     actuatorPriorities.push_back(ap);
+    return &actuatorPriorities.back();
 }
 
-uint8_t ActuatorMutexGroup::find(ActuatorDigital * act){
+size_t ActuatorMutexGroup::find(ActuatorDigital * act){
     for (unsigned i=0; i<actuatorPriorities.size(); ++i){
         if(actuatorPriorities[i].actuator == act){
             return i;
         }
     }
-    return -1;
+    return -1; // wraps around for size_t
 }
 
-void ActuatorMutexGroup::unRegisterActuator(uint8_t index){
+void ActuatorMutexGroup::unRegisterActuator(size_t index){
     actuatorPriorities.erase(actuatorPriorities.begin() + index);
+}
+
+void ActuatorMutexGroup::unRegisterActuator(ActuatorDigital * act){
+    size_t index = find(act);
+    if(index != size_t(-1)){
+        unRegisterActuator(index);
+    }
 }
 
 bool ActuatorMutexGroup::requestActive(ActuatorDigital * requester, int8_t newPriority){
@@ -45,9 +53,9 @@ bool ActuatorMutexGroup::requestActive(ActuatorDigital * requester, int8_t newPr
     // and if no other actuators are active
 
     bool requestHonored = true;
-    ActuatorPriority * me = 0;
+    ActuatorPriority * me = nullptr;
 
-    for (uint8_t i=0; i<actuatorPriorities.size(); ++i){
+    for (size_t i=0; i<actuatorPriorities.size(); ++i){
         ActuatorPriority other = actuatorPriorities[i];
 
         if(other.actuator == requester){
@@ -68,8 +76,7 @@ bool ActuatorMutexGroup::requestActive(ActuatorDigital * requester, int8_t newPr
         }
     }
     if(!me){ // I was not in the list
-        registerActuator(requester, newPriority);
-        me = &actuatorPriorities.back();
+        me = registerActuator(requester, newPriority);
     }
     if(getWaitTime() > 0){
         requestHonored = false; // dead time has not passed
@@ -99,13 +106,10 @@ ticks_millis_t ActuatorMutexGroup::getWaitTime(){
     }
 }
 
-// update decreases all priorities by 1 and removes old requests.
+// update decreases all priorities by 1, so that old requests lose their priority automatically
 void ActuatorMutexGroup::update(){
-    for (uint8_t i=0; i<actuatorPriorities.size(); ++i){
-        if(actuatorPriorities[i].priority == -128){
-            unRegisterActuator(i); // stale request, remove actuator from list
-        }
-        else{
+    for (size_t i=0; i<actuatorPriorities.size(); ++i){
+        if(actuatorPriorities[i].priority > -1){
             actuatorPriorities[i].priority--;
         }
     }

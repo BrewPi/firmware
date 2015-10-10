@@ -29,13 +29,16 @@
 class ActuatorMutexDriver : public virtual ActuatorDriver, public ActuatorDigital{
 public:
     ActuatorMutexDriver(ActuatorDigital * target) : ActuatorDriver(target){
-        mutexGroup = 0;
+        mutexGroup = nullptr;
     }
     virtual ~ActuatorMutexDriver(){}
 
     virtual uint8_t type() const { return ACTUATOR_TOGGLE_MUTEX; };
 
     void setMutex(ActuatorMutexGroup * mutex){
+        if(mutexGroup != nullptr){
+            mutexGroup->unRegisterActuator(target);
+        }
         mutexGroup = mutex;
     }
     ActuatorMutexGroup * getMutex(){

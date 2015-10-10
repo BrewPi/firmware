@@ -38,10 +38,11 @@ public:
 
     };
 
-    void registerActuator(ActuatorDigital * act, int8_t prio);
-    void unRegisterActuator(uint8_t index);
+    ActuatorPriority * registerActuator(ActuatorDigital * act, int8_t prio);
+    void unRegisterActuator(size_t index); // remove by index
+    void unRegisterActuator(ActuatorDigital * act); // remove by pointer
 
-    uint8_t find(ActuatorDigital * act);
+    size_t find(ActuatorDigital * act);
 
     bool requestActive(ActuatorDigital * requester, int8_t newPriority);
 

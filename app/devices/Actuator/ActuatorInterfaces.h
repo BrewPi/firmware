@@ -42,7 +42,7 @@ public:
     virtual ~Actuator() {}
     virtual uint8_t type() const = 0;
 	virtual Actuator ** getDeviviceTarget() const{
-	    return 0;  // recursive call for composite classes until this level is reached.
+	    return nullptr;  // recursive call for composite classes until this level is reached.
 	}
 	virtual void update() = 0;
 };
