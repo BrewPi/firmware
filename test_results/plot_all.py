@@ -1,7 +1,8 @@
 import glob
-import csv
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.backends.backend_pdf
+pdf = matplotlib.backends.backend_pdf.PdfPages("test-results-plots.pdf")
 
 for file in glob.glob("*.csv"):
     data = np.genfromtxt(file, delimiter = ',', names = True)
@@ -21,6 +22,8 @@ for file in glob.glob("*.csv"):
         if ymin < 0 < ymax:
             plt.axhline(0, hold=True, color = 'grey') # plot line through zero
 
+    pdf.savefig()
+
     mng = plt.get_current_fig_manager()
     if plt.get_backend() == 'TkAgg':
         mng.window.state('zoomed')
@@ -29,8 +32,12 @@ for file in glob.glob("*.csv"):
     elif plt.get_backend() == 'QT4Agg':
         mng.window.showMaximized()
 
-    plt.savefig(file.rstrip('.csv') + '.pdf')
+
     plt.show()
+    plt.close()
+
+pdf.close()
+
 
 
 
