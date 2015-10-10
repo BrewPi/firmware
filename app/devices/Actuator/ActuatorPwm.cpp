@@ -78,7 +78,7 @@ void ActuatorPwm::update() {
             } else {
                 if(dutyTime > 0){
                     if(target->type() == ACTUATOR_TOGGLE_MUTEX){
-                        reinterpret_cast<ActuatorMutexDriver*>(target)->setActive(true, priority());
+                        static_cast<ActuatorMutexDriver*>(target)->setActive(true, priority());
                     }
                     else{
                         target->setActive(true);
