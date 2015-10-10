@@ -29,6 +29,8 @@
 #include "ActuatorPwm.h"
 #include "ActuatorTimeLimited.h"
 #include "ActuatorSetPoint.h"
+#include "ActuatorMutexDriver.h"
+#include "ActuatorMutexGroup.h"
 #include "runner.h"
 #include <iostream>
 #include <fstream>
@@ -42,11 +44,14 @@ public:
         fridgeSensor = new TempSensorMock(20.0);
 
         heaterPin = new ActuatorBool();
-        heater = new ActuatorPwm(heaterPin, 4); // period 4s
+        heaterMutex = new ActuatorMutexDriver(heaterPin);
+        heater = new ActuatorPwm(heaterMutex, 4); // period 4s
 
         coolerPin = new ActuatorBool();
         coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
-        cooler = new ActuatorPwm(coolerTimeLimited, 600); // period 10 min
+        coolerMutex = new ActuatorMutexDriver(coolerTimeLimited);
+        cooler = new ActuatorPwm(coolerMutex, 600); // period 10 min
+        mutex = new ActuatorMutexGroup();
 
         beerSet = new SetPointSimple(20.0);
         fridgeSet = new SetPointSimple(20.0);
@@ -60,7 +65,6 @@ public:
         heaterPid->setOutputActuator(heater);
         coolerPid->setOutputActuator(cooler);
         coolerPid->setActuatorIsNegative(true);
-
     }
     ~StaticSetup(){
         BOOST_TEST_MESSAGE( "tear down PID test fixture" );
@@ -69,9 +73,16 @@ public:
 
         delete coolerPin;
         delete coolerTimeLimited;
-        delete heaterPin;
+        delete coolerMutex;
         delete cooler;
+
+        delete heaterPin;
+        delete heaterMutex;
         delete heater;
+
+        delete fridgeSetPointActuator;
+
+        delete mutex;
 
         delete heaterPid;
         delete coolerPid;
@@ -79,6 +90,7 @@ public:
 
         delete beerSet;
         delete fridgeSet;
+
     }
 
     TempSensorMock * beerSensor;
@@ -86,11 +98,16 @@ public:
 
     ActuatorDigital * coolerPin;
     ActuatorDigital * coolerTimeLimited;
-    ActuatorDigital * heaterPin;
+    ActuatorMutexDriver * coolerMutex;
     ActuatorRange * cooler;
+
+    ActuatorDigital * heaterPin;
+    ActuatorMutexDriver * heaterMutex;
     ActuatorRange * heater;
+
     ActuatorRange * fridgeSetPointActuator;
 
+    ActuatorMutexGroup * mutex;
 
     Pid * heaterPid;
     Pid * coolerPid;
@@ -278,6 +295,10 @@ struct SimFridgeHeaterCooler : public StaticSetup {
         heaterPid->setInputFilter(0);
         heaterPid->setDerivativeFilter(4);
         heaterPid->setConstants(5.0, 120, 0);
+
+        coolerMutex->setMutex(mutex);
+        heaterMutex->setMutex(mutex);
+        mutex->setDeadTime(1800000); // 30 minutes
     }
 
     void update(){
@@ -313,6 +334,10 @@ struct SimBeerHeaterCooler : public StaticSetup {
         heaterPid->setInputFilter(4);
         heaterPid->setDerivativeFilter(4);
         heaterPid->setConstants(100.0, 2400, 180);
+
+        coolerMutex->setMutex(mutex);
+        heaterMutex->setMutex(mutex);
+        mutex->setDeadTime(1800000); // 30 minutes
     }
 
     void update(){
@@ -477,15 +502,18 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Fridge_Air, Sim
             SetPointDouble = 19;
         }
         if(t > 8000 && t < 16000){
-            SetPointDouble -= 0.0001; // ramp down slowly
+            SetPointDouble -= 0.0005; // ramp down slowly
         }
 
         if(t > 20000 && t < 28000){
-            SetPointDouble -= 0.0001; // ramp up slowly
+            SetPointDouble -= 0.0005; // ramp up slowly
         }
 
         fridgeSet->write(SetPointDouble);
+
         update();
+
+        BOOST_CHECK_MESSAGE(! (heaterPin->isActive() && coolerPin->isActive()), "at " << t); // pins are not active at the same time
 
         csv     << fridgeSet->read() << "," // setpoint
                 << coolerPid->inputError << "," //error
@@ -530,6 +558,12 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Beer, SimFridge
 
         beerSet->write(SetPointDouble);
         update();
+
+        if((heaterPin->isActive() && coolerPin->isActive()) ){
+            update();
+        }
+
+        BOOST_CHECK( !(heaterPin->isActive() && coolerPin->isActive()) ); // pins are not active at the same time
 
         csv     << beerSet->read() << "," // setpoint
                 << coolerPid->inputError << "," //error
