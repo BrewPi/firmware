@@ -41,10 +41,14 @@ public:
     Actuator(){}
     virtual ~Actuator() {}
     virtual uint8_t type() const = 0;
-	virtual Actuator ** getDeviviceTarget() const{
-	    return nullptr;  // recursive call for composite classes until this level is reached.
+	Actuator * getBareActuator(){
+	    return doGetBareActuator();  // recursive call for composite driver classes, until a non-driver class is reached
 	}
 	virtual void update() = 0;
+private:
+	virtual Actuator * doGetBareActuator(){
+        return this;  // recursive call for composite driver classes, until a non-driver class is reached
+    }
 };
 
 
@@ -106,21 +110,18 @@ public:
     }
     virtual ~ActuatorDriver(){};
 
-    Actuator ** getDeviviceTarget() {
-        if( target->getDeviviceTarget() == 0){
-            return (Actuator **) &target; // this is bottom
-        }
-        else{
-            return target->getDeviviceTarget();  // this is not bottom
-        }
-    }
-
-    virtual Actuator * getBareActuator() {
-        return *(getDeviviceTarget());
-    }
-
     virtual void update(){
         target->update();
+    }
+
+private:
+    virtual Actuator * doGetBareActuator(){
+        if( target->getBareActuator() == target){
+            return target; // my target is bottom
+        }
+        else{
+            return target->getBareActuator(); // my target is not bottom
+        }
     }
 };
 

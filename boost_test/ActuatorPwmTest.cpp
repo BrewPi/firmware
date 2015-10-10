@@ -427,4 +427,13 @@ BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap){
     BOOST_CHECK_CLOSE(avgDuty2, 20.0, 1);
 }
 
+BOOST_AUTO_TEST_CASE(getBareActuator_gets_down_to_pin_actuator){
+    ActuatorDigital * coolerPin = new ActuatorBool();
+    ActuatorDigital * coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
+    ActuatorDigital * coolerMutex = new ActuatorMutexDriver(coolerTimeLimited);
+    ActuatorPwm * cooler = new ActuatorPwm(coolerMutex, 600); // period 10 min
+
+    BOOST_CHECK_EQUAL(cooler->getBareActuator(), (Actuator*) coolerPin);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

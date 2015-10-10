@@ -64,9 +64,9 @@ class ActuatorPwm : public ActuatorRange, public ActuatorDriver
             return period;
         }
 
-        void setTarget(ActuatorDigital * driver)
+        void setTarget(ActuatorDigital * t)
         {
-            target = driver;
+            target = t;
         }
 
         void setPeriod(uint16_t sec){
