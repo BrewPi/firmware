@@ -17,6 +17,10 @@ for file in glob.glob("*.csv"):
         plt.legend()
         count += 1
 
+        ymin, ymax = plt.ylim()
+        if ymin < 0 < ymax:
+            plt.axhline(0, hold=True, color = 'grey') # plot line through zero
+
     mng = plt.get_current_fig_manager()
     if plt.get_backend() == 'TkAgg':
         mng.window.state('zoomed')
