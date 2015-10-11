@@ -112,5 +112,9 @@ void ActuatorMutexGroup::update(){
         if(actuatorPriorities[i].priority > -1){
             actuatorPriorities[i].priority--;
         }
+        if(actuatorPriorities[i].actuator->isActive()){
+            lastActiveTime = ticks.millis();
+            lastActiveActuator = actuatorPriorities[i].actuator;
+        }
     }
 }

@@ -161,8 +161,36 @@ BOOST_AUTO_TEST_CASE(mutex_works_with_time_limited_actuator) {
     }
     actm2->setActive(true, 10);
     BOOST_CHECK(!act2->isActive()); // actuator 2 is not allowed to go active while act1 is still active
+}
+
+BOOST_AUTO_TEST_CASE(when_there_have_been_no_requests_for_a_while_dead_time_is_still_honored_on_new_request) {
+    // this test was introduced to make sure lastActiveTime is not only updated on requests
+
+    ActuatorDigital * act1 = new ActuatorBool();
+    ActuatorTimeLimited * act1tl = new ActuatorTimeLimited(act1, 10, 20);
+    ActuatorDigital * act2 = new ActuatorBool();
+
+    delay(20000); // let initial minimum off time pass
 
 
+    ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
+
+    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1tl);
+    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
+    actm1->setMutex(mutex);
+    actm2->setMutex(mutex);
+    mutex->setDeadTime(10000); // 10 seconds dead time
+
+    actm1->setActive(true, 5);
+
+    for(int i=0; i<200; i++){
+        mutex->update();
+        delay(1000);
+    }
+    actm1->setActive(false, 5);
+
+    actm2->setActive(true, 10);
+    BOOST_CHECK(!act2->isActive()); // not allowed, because of dead time
 }
 
 
