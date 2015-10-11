@@ -25,7 +25,7 @@ Pid::Pid(TempSensorBasic * input,
          ActuatorRange * output,
          SetPoint * setPoint)
 {
-    setConstants(temp_t(10.0), 10, 120);
+    setConstants(temp_t(0.0), 0, 0);
     setMinMax(temp_t::min(), temp_t::max());
 
     p = 0;
