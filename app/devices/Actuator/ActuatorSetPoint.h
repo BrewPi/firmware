@@ -62,6 +62,14 @@ public:
         return maximum;
     }
 
+    void setMin(temp_t min){
+        minimum = min;
+    }
+
+    void setMax(temp_t max){
+        maximum = max;
+    }
+
     virtual void update(){}; //no actions required
 
 
