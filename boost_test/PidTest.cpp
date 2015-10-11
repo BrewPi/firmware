@@ -286,3 +286,34 @@ BOOST_FIXTURE_TEST_CASE(auto_tuning_test, PidTest)
 
 BOOST_AUTO_TEST_SUITE_END()
 
+BOOST_AUTO_TEST_SUITE(pid_initialization) // a new suite without the fixture
+
+BOOST_AUTO_TEST_CASE(pid_can_update_after_bare_init_without_crashing){
+    Pid * p = new Pid();
+    p->update();
+}
+
+BOOST_AUTO_TEST_CASE(pid_can_update_with_only_actuator_defined){
+    TempSensorBasic * sensor = new TempSensorMock(20.0);
+    Pid * p = new Pid();
+    p->setInputSensor(sensor);
+    p->update();
+}
+
+BOOST_AUTO_TEST_CASE(pid_can_update_with_only_sensor_defined){
+    ActuatorDigital * pin = new ActuatorBool();
+    ActuatorRange * act = new ActuatorPwm(pin,4);
+    Pid * p = new Pid();
+    p->setOutputActuator(act);
+    p->update();
+}
+
+BOOST_AUTO_TEST_CASE(pid_can_update_with_only_setpoint_defined){
+    SetPoint * sp = new SetPointSimple(20.0);
+    Pid * p = new Pid();
+    p->setSetPoint(sp);
+    p->update();
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+

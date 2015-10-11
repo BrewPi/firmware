@@ -31,9 +31,9 @@
 class Pid
 {
     public:
-        Pid(TempSensorBasic * input = &defaultTempSensor,
-             ActuatorRange * output = &defaultLinearActuator,
-             SetPoint * setPoint = &defaultSetPoint);
+        Pid(TempSensorBasic * input, ActuatorRange * output, SetPoint * setPoint);
+
+        Pid() : Pid(&defaultTempSensor, &defaultLinearActuator, &defaultSetPoint){}
 
         Pid(const Pid & orig);
 

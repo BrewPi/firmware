@@ -71,7 +71,8 @@ void Pid::update()
         disable = true;
     }
 
-    if (!inputSensor || (inputVal = inputSensor -> read()).isDisabledOrInvalid()){
+    inputVal = inputSensor -> read();
+    if (inputVal.isDisabledOrInvalid()){
         // Could not read from input sensor
         if (failedReadCount < 255){    // limit
             failedReadCount++;
@@ -189,13 +190,12 @@ void Pid::setDerivativeFilter(uint8_t b)
 
 bool Pid::setInputSensor(TempSensorBasic * s)
 {
+    inputSensor = s;
     temp_t t = s -> read();
 
     if (t.isDisabledOrInvalid()){
         return false;    // could not read from sensor
     }
-
-    inputSensor = s;
 
     inputFilter.init(t);
     derivativeFilter.init(0.0);
