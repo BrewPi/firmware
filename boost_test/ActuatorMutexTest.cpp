@@ -103,6 +103,33 @@ BOOST_AUTO_TEST_CASE(dead_time_between_actuators_is_honored) {
     BOOST_CHECK_EQUAL(i,10); // act2 was allowed to go active after 10 seconds
 }
 
+
+BOOST_AUTO_TEST_CASE(dead_time_does_not_block_same_actuator_from_going_active_again) {
+    ActuatorDigital * act1 = new ActuatorBool();
+    ActuatorDigital * act2 = new ActuatorBool();
+    ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
+
+    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1);
+    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
+    actm1->setMutex(mutex);
+    actm2->setMutex(mutex);
+
+    mutex->setDeadTime(10000); // 10 seconds dead time
+
+    actm1->setActive(true, 5);
+    BOOST_CHECK(act1->isActive()); // target actuator is active
+
+    delay(1000);
+
+    actm1->setActive(false, 5);
+    BOOST_CHECK(!act1->isActive()); // target actuator is inactive
+
+    delay(1000);
+    actm1->setActive(true, 5);
+    BOOST_CHECK(act1->isActive()); // target actuator is active again
+}
+
+
 BOOST_AUTO_TEST_CASE(mutex_works_with_time_limited_actuator) {
     ActuatorDigital * act1 = new ActuatorBool();
     ActuatorTimeLimited * act1tl = new ActuatorTimeLimited(act1, 10, 20);
@@ -137,5 +164,7 @@ BOOST_AUTO_TEST_CASE(mutex_works_with_time_limited_actuator) {
 
 
 }
+
+
 BOOST_AUTO_TEST_SUITE_END()
 

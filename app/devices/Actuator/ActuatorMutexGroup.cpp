@@ -66,10 +66,11 @@ bool ActuatorMutexGroup::requestActive(ActuatorDigital * requester, int8_t newPr
             if(other.priority > newPriority){
                 requestHonored = false;
             }
-            if(other.actuator->isActive()){
-                requestHonored = false;
-                lastActiveTime = ticks.millis();
-            }
+        }
+        if(other.actuator->isActive()){
+            requestHonored = false;
+            lastActiveTime = ticks.millis();
+            lastActiveActuator = other.actuator;
         }
         if(me && !requestHonored){
             break;
@@ -78,11 +79,10 @@ bool ActuatorMutexGroup::requestActive(ActuatorDigital * requester, int8_t newPr
     if(!me){ // I was not in the list
         me = registerActuator(requester, newPriority);
     }
-    if(getWaitTime() > 0){
+    if(getWaitTime() > 0 && lastActiveActuator != requester){
         requestHonored = false; // dead time has not passed
     }
     if(requestHonored){
-        lastActiveTime = ticks.millis();
         me->priority = 0; // when the request is honored, set the priority to zero. Requester can re-request with higher prio.
     }
     return requestHonored;

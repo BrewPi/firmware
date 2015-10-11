@@ -33,6 +33,7 @@ public:
     ActuatorMutexGroup(){
         deadTime = 0;
         lastActiveTime = 0;
+        lastActiveActuator = nullptr;
     }
     ~ActuatorMutexGroup(){
 
@@ -56,7 +57,8 @@ public:
     void update();
 
 private:
-    ticks_millis_t deadTime;
+    ticks_millis_t deadTime; // minimum time between switching from one actuator to the other
     ticks_millis_t lastActiveTime;
+    ActuatorDigital * lastActiveActuator;
     std::vector<ActuatorPriority> actuatorPriorities;
 };
