@@ -325,17 +325,17 @@ struct SimFridgeHeaterCooler : public StaticSetup {
 struct SimBeerHeaterCooler : public StaticSetup {
     Simulation sim;
     SimBeerHeaterCooler(){
-        coolerPid->setInputSensor(fridgeSensor);
-        coolerPid->setSetPoint(fridgeSet);
-        coolerPid->setInputFilter(2);
+        coolerPid->setInputSensor(beerSensor);
+        coolerPid->setSetPoint(beerSet);
+        coolerPid->setInputFilter(4);
         coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(3.0, 600, 60);
+        coolerPid->setConstants(50.0, 3600, 50);
 
-        heaterPid->setInputSensor(fridgeSensor);
-        heaterPid->setSetPoint(fridgeSet);
-        heaterPid->setInputFilter(2);
+        heaterPid->setInputSensor(beerSensor);
+        heaterPid->setSetPoint(beerSet);
+        heaterPid->setInputFilter(4);
         heaterPid->setDerivativeFilter(4);
-        heaterPid->setConstants(5.0, 120, 0);
+        heaterPid->setConstants(50.0, 3600, 50);
 
         coolerMutex->setMutex(mutex);
         heaterMutex->setMutex(mutex);
