@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/BrewPi/firmware.svg?branch=feature%2Ftravis-ci)](https://travis-ci.org/BrewPi/firmware)
 
 This is the main source code repository  for the firmware on the BrewPi brewing temperature controller.
 
