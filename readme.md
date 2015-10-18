@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/BrewPi/firmware.svg?branch=feature%2Ftravis-ci)](https://travis-ci.org/BrewPi/firmware)
 
 This is the main source code repository  for the firmware on the BrewPi brewing temperature controller.
 
@@ -20,12 +21,9 @@ sudo python updater.py
 You can also upload to your controller from the BrewPi web interface. For the Spark Core, this requires that you already have a version of BrewPi running on it. If not, read how to flash via DFU below.
 
 
-## Building the firmware for Spark
+## Building the firmware for the Brewpi Spark
 If you want to make your own changes to the firmware, follow these steps:
 
-Clone this repository and [spark-firmware](https://github.com/spark/firmware)  to the same parent folder (e.g. 'brewpi'). This repository depends on the `spark-firmware` repository to build.
-
-- In the spark-firmware repo, change to the "feature/hal" branch: `git checkout feature/hal`
 - in the firmwarwe repo, it is recommended to change to the "develop" branch: `git checkout develop`
 
 Then browse to `platform/spark/` in the `firmware` repo and run make:
@@ -35,10 +33,15 @@ cd platform/spark
 make
 ```
 
+To build for the photon, use
+
+```
+cd platform/spark
+make PLATFORM=photon
+```
+
+
 This will build the binary to the file `platform/spark/target/brewpi.bin`. You can upload your new binary via the BrewPi web interface.
-
-The repository contains a NetBeans project. NetBeans is our editor of choice for development and hardware debugging.
-
 
 ## Flashing the firmware via DFU
 If uploading firmware via the web interface fails, you can flash new firmware to your Spark Core with dfu-util. Please refer to this [guide on our community forum](https://community.brewpi.com/t/flashing-the-core-without-the-web-interface-fresh-core-or-in-case-of-emergency/).
