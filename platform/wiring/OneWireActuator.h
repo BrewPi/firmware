@@ -55,8 +55,8 @@ public:
 	
 #if DS2413_SUPPORT_SENSE
 	bool sense() {
-		device.channelWrite(pio, 0);
-		return device.channelSense(pio, invert);	// on device failure, default is high for invert, low for regular.
+		device.channelWrite(pio, 1);	//Note that for a read to make sense the channel must be off (value written is 1).
+		return (device.channelSense(pio, invert)^invert);	// on device failure, default is high for invert, low for regular.
 	}
 #endif
 			
