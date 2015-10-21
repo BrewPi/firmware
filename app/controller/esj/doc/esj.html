@@ -1,0 +1,276 @@
+<h2>Introduction</h2>
+
+<p>ESJ is a JSON mapper for C++ with modest compiler requirements (No C++11) and zero reliance on 3rd party libraries. It is a very light-weight, easy to use system for inter-operating with web and database services. ESJ can be quickly added to existing code thus generating robust and well-formed JSON data.</p>
+
+<p>JSON (Javascript Object Notation) has become the format of choice for Web based data exchange.&nbsp; JSON is very expressive, easy to parse and read, and of course, has an extremely good fit with the Javascript language itself. In addition to its ubiquity in AJAX (or more accurately AJAJ) contexts, JSON is also a greate fit with Web-socket based communication.</p>
+
+<p>Less obviously perhaps, JSON is also very useful for persistant storage in suitably enabled databases. See PostgreSQL and MonetDB for two excellent examples of JSON database support.</p>
+
+<p>Possibly more unusually, the code has been deployed in embedded environments (via mbed on Freescale ARM Cortex-M4 K64F parts), greatly simplifying Web-socket data exchange for &#39;Internet of Things&#39; devices.</p>
+
+<p>The attached ZIP file includes projects for Visual Studio (2012) and XCode (Clang). The code is also warning free with g++, the on-line mbed compiler, as well as with the Keil ARM compiler</p>
+
+<p>The code is also hosted on Github. If you have any contributions or fixes you&#39;d like to share please do so via the <a href="https://github.com/g40/esj">ESJ repository</a>.</p>
+
+<h2>Background</h2>
+
+<p>For those unfamiliar with JSON do visit&nbsp;<a href="http://www.json.org">http://www.json.org</a>&nbsp;to see the language specification and links to a great variety of other resources, including language bindings, useful documentation, tools and the like.</p>
+
+<p>Another extremely useful web resource is the JSON &quot;lint&quot; tool at <a href="http://jsonlint.com/">http://jsonlint.com/</a>. This proved invaluable during the development of ESJ, so thanks to all concerned.</p>
+
+<h2>Using the code</h2>
+
+<p>Let us start with the canonical example for JSON serialization.&nbsp;</p>
+
+<pre lang="C++">
+
+//-----------------------------------------------------------------------------
+// Code support required for serialization.
+class JSONExample
+{
+public:
+	// to be JSON&#39;ised
+	std::string text;
+public:
+	// each class requires a public serialize function
+	void serialize(JSON::Adapter&amp; adapter)
+	{
+		// this pattern is required 
+		JSON::Class root(adapter,&quot;JSONExample&quot;);
+		// this is the last member variable we serialize so use the _T variant
+		JSON_T(adapter,text);
+	}
+};
+
+</pre>
+
+<ol>
+	<li><code>#include &quot;json_writer.h&quot;</code></li>
+	<li><code>#include &quot;json_reader.h&quot;</code></li>
+	<li>For each class you wish to serialize, add a public member function with a signature identical to that below: <code>void serialize(JSON::Adapter&amp; adapter)</code></li>
+	<li>Inside serialize() add a single declaration:&nbsp;<code>JSON::Class root(adapter,&quot;JSONExample&quot;);</code></li>
+	<li>For each member variable you wish to serialize, add a single declaration using the JSON_E or JSON_T macro. Given a <code>std::string</code> member called <code>text</code>, we have <code>JSON_T(adapter,text);</code></li>
+	<li>Finally use the templated <code>JSON::producer()</code> and <code>JSON::consumer()</code> functions as below</li>
+</ol>
+
+<pre lang="C++">
+
+// demonstrate how to first produce and then consume JSON strings
+int main(int argc,char* argv[])
+{
+	// try/catch omitted for brevity
+	// The JSON enabled class as above
+	JSONExample source;
+	source.text = &quot;Hello JSON World&quot;;
+	// create JSON from a producer
+	std::string json = JSON::producer&lt;JSONExample&gt;(source);
+	// and then create a new instance from a consumer ...
+	JSONExample sink = JSON::consumer&lt;JSONExample&gt;(json);
+	// we are done ...
+}
+
+</pre>
+
+<p>and that is it. The results of the serialization process can be seen below:</p>
+
+<pre lang="jscript">
+{&quot;JSONExample&quot;:{&quot;text&quot;:&quot;Hello JSON World&quot;}}
+</pre>
+
+<p>That pretty much covers the essentials. Now allow me to put draw a somewhat more detailed picture of the code snippets so far.</p>
+
+<p>In-box support is provided for the following C++ types:</p>
+
+<ol>
+	<li>std::string maps to JSON string.</li>
+	<li>std::wstring maps to JSON string with support for \UXXXX encoding and decoding.</li>
+	<li>int maps to JSON number (ignores the fractional part when de-serializing).</li>
+	<li>double also maps to JSON number.</li>
+	<li>bool maps to JSON true or false.</li>
+	<li>std::vector&lt;T&gt; maps directly to a JSON array. If <b>T</b> implements the correct serialize() function, then the serializer will work as expected for vectors of T.</li>
+	<li>The serializer will also correctly handle nested serializable instances, thus allowing fairly complex constructs to be easily transformed to and from JSON.</li>
+</ol>
+
+<p>As stated previously, the class needs to implement the serialize function. Members will be serialized when this function is called, with order, not surprisingly, following the order of the declarations. It is imperative the the JSON::Class instance always appear first as it controls some behind the curtains magic required to get object declarations out in the correct JSON format. As ever the use of macros is restricted to one-liners which are used for brevity. Somewhat annoyingly there are 2 macros which are used to add the serialization code for member variables and one needs to ensure they are ordered correctly. The JSON_E (JSON Element) is used for serialization support for all members save the <b>last</b>. Why? A quick look at the resulting JSON shows that code called by JSON_E generates a trailing comma character whilst the JSON_T (JSON Terminator) does not. Thus the requisite pattern of declarations is:</p>
+
+<ul style="list-style-type:none">
+	<li>JSON::Class root(adapter,&quot;name of C++ class&quot;);</li>
+	<li>JSON_E(adaptor,first_member_variable);</li>
+	<li>JSON_E(adaptor,...);</li>
+	<li>JSON_T(adaptor,last_member_variable);</li>
+</ul>
+
+<p>Any code which uses the <code>JSON</code> functions should be wrapped in <code>try/catch</code> blocks to ensure correct exception recovery.</p>
+
+<p>Finally, note that all directly relevant classes and functions are in the <code>JSON</code> namespace.</p>
+
+<h3>Security</h3>
+
+<p>Very little contemporary code that is Internet related can ignore security issues. In this particular case predictable attack vectors would be malformed or overlong strings for &#39;buffer-busting&#39; or illegal character sequences that might end up as exectuable code.</p>
+
+<p>The JSON scanner can be set to accept a maximum length string which helps mitigate resource-exhaustion type attacks. Character conversions, notably those from escaped hexadecimal \uXXXX to UTF16 or UTF32 are carefully handled, with the decoder throwing exceptions if there are illegal codepoints or truncated sequences.</p>
+
+<p>The JSON parser, which uses the recursive descent idiom, will obviously consume increasing amounts of stack when presented with a very deeply nested set of encodings. Although this condition is not explicitly checked in the parser, it is extremely easy to add: The <code>JSON::Class</code> constructor actually monitors the nesting of scopes and could throw an exception if an application-specific limit is reached.</p>
+
+<p>No warnings or errors are generated when the test bed is compiled using Visual Studio&#39;s Code Analysis mode.</p>
+
+<h2>Points of Interest</h2>
+
+<p>ESJ is implemented as a set of C++ header files. This significantly reduces the complexities of cross-platform tool-chain management and the like. The principle files are of interest are:</p>
+
+<ul style="list-style-type:none">
+	<li><code>json_adapter.h</code> Contains the definition of the interface to, and key streaming functions for the JSON::Adapter serializer code.</li>
+	<li><code>json_writer.h</code> Contains the implementations of the primitives for writing the supported types into a UTF8 string.</li>
+	<li><code>json_reader.h</code> Implements the primitives for the reader.</li>
+	<li><code>json_lexer.h</code> Contains a complete, stand-alone JSON tokeniser (useful in its own right, especially if you are operating in a really resource constrained environment).</li>
+	<li><code>stringer.h</code> Light-weight and type-safe replacement for sprintf and friends which overloads operator &lt;&lt; for creating formatted strings.</li>
+</ul>
+
+<p>Principal components with associations rendered in slightly non-standard UML (These diagrams are included in the source distribution as SVG files for better viewing)</p>
+
+<p><img height="578px" src="esj1.png" width="1006px" /></p>
+
+<p>Structurally speaking, JSON is written to a ISink derived class by the Writer, in the hierarchy to hand, the sink is a StringSink. JSON is read from an ISource derived class, in this case a StringSource. As their names imply, the internal containers for the JSON content are actually std::strings which will be a very good fit in many cases.</p>
+
+<p>It is worth pointing out that this architecture is also pretty flexible. If, for example, you wish to write your JSON direct to a socket or a file (let us say to avoid potentially large amounts of buffering), then you simply need to inherit from the JSON::ISink class and implement the relevant operator<<() functions as shown in the UML class diagram above.</p>
+
+<p>Subsidiary components:</p>
+
+<p><img height="405px" src="esj2.png" width="735px" /></p>
+
+
+<p>&nbsp;</p>
+
+<p>The main principle at work here is combining a set of free functions, (generically called <code>stream()</code> and all implemented within the <code>adapter</code> class), with another set of overloaded virtual functions implemented within the <code>Reader</code> and <code>Writer</code> classes, both of which inherit from <code>Adapter</code>.</p>
+
+
+<p>There are overloaded stream() functions for all of the core data types. Then there is a catch-all templated stream which expects its value paramter to implement the serialize() function. It is with this pattern of decomposition that the mechanism works.</p>
+
+<pre lang="C++">
+
+	// overloaded types for streaming primitives
+	void stream(Adapter&amp; adapter,std::string&amp; value)
+	void stream(Adapter&amp; adapter,int&amp; value);
+	void stream(Adapter&amp; adapter,double&amp; value);
+	void stream(Adapter&amp; adapter,bool&amp; value);
+
+	// templated stream function for all types implementing serialize()
+	template &lt;typename T&gt; void stream(Adapter&amp; adapter,T&amp; arg)
+	{	
+		// will fail if not implemented.
+		arg.serialize(adapter);
+	}
+
+</pre>
+
+<p>Along with functions of one-arity there is another overloaded set which will stream key/value pairs. In the case of the writer, the implementations are trivial, simply creating a correctly quoted string when required and appending (or outputting) the result to the destination. For example:</p>
+
+<pre lang="C++">
+
+		//---------------------------------------------------------------------
+		// write a key/value pair with optional continuation
+		virtual void serialize(const std::string&amp; key,std::string&amp; value,bool more) 
+		{
+			m_content &lt;&lt; &quot;\&quot;&quot; &lt;&lt; key &lt;&lt; Quote() &lt;&lt; &#39;:&#39; &lt;&lt; Quote();
+			m_content &lt;&lt; Chordia::escape(value) &lt;&lt; Quote() &lt;&lt; (more ? &quot;,&quot; : &quot;&quot;);
+		}
+
+</pre>
+
+<p>The equivalent read function works in concert with the JSON scanner like so:</p>
+
+<pre lang="C++">
+
+		//-----------------------------------------------------------------------------
+		// primitive to read type-checked key/value pair
+		virtual void serialize(const std::string&amp; key,std::string&amp; value,bool more)
+		{
+			// see implementation details in next snippet
+			GetNext(key,T_STRING,value,more);
+		}
+
+		//-----------------------------------------------------------------------------
+		// primitive to read type-checked key/value pair as in &quot;count&quot; : 123
+		void GetNext(const std::string&amp; key,TokenType type,std::string&amp; value,bool more)
+		{
+			// expecting a string token for &quot;key&quot;
+			GetNext(T_STRING);
+			// checked key name matches parsed value
+			throw_if(key != m_token.text,&quot;key does not match&quot;);
+			// next token
+			GetNext(T_COLON);
+			// get the next token and match type
+			GetNext(type);
+			// conversions from text are performed one level further up the stack
+			value = m_token.text;
+			// this has to be one of ,]}
+			if (more)
+			{
+				Next();
+			}
+		}
+		
+		//-----------------------------------------------------------------------------
+		// core type checking primitive. throws if token type not matched
+		virtual void GetNext(TokenType type)	
+		{
+			// get the next token from the scanner
+			TokenType next = Next();
+			// does the expected token type match? throw if not
+			throw_if(next != type,&quot;GetNext: type mismatch&quot;);
+		}
+
+</pre>
+
+<p>The only really tricky bit in the implementation is the code required to support JSON arrays. This is again handled in the adapter and uses the primitives shown in the previous snippets. This is the only case in which reading and writing are asymmetric. Firstly the reader has to correctly handle the case where it encounters an empty array <code>[]</code>, so the reader uses the lexer/scanner&#39;s peek capabilities to check the next token and procede accordingly:</p>
+
+<pre lang="C++">
+		// expecting &quot;key&quot;
+		adapter.serialize(key);
+		// expecting &#39;:&#39;
+		adapter.serialize(T_COLON);
+		// and next the opening &#39;[&#39;
+		adapter.serialize(T_ARRAY_BEGIN);
+		// cope with empty arrays so we need look-ahead here
+		if (adapter.peek(T_ARRAY_END))
+		{
+			// &#39;]&#39;
+			adapter.serialize(T_ARRAY_END);
+		}
+		else
+		{
+			// read the contents of the array
+		}
+		
+</pre>
+
+<h3>&nbsp;</h3>
+
+<h3>In Conclusion</h3>
+
+<p>It is useful to see how the C++ derived JSON is (correctly) represented within a Javascript environment. The image beow shows a JSON string that has been pasted into a Chrome console. The resulting Javascript object (j) is shown in the debugger. Note that the Hiragana string has been correctly translated from its UNICODE representation.&nbsp;</p>
+
+<p><img height="430px" src="chrome-console.jpg" width="772px" /></p>
+
+<p>None of the code should be controversial or compiler unfriendly. However users of older versions of Visual Studio may require a <code>stdint.h</code> clone to handle some of the <code>uintN_t</code> typedefs, which appear in some of the UTF8/UTF16/UTF32 conversion functions.</p>
+
+<p>A final word on the example code: This is essentially a set of modest unit tests for each component. There is also a somewhat more complex example <code>test_nesting()</code> that demonstrates and tests the serialization of a pair of more complex classes, one containing a vector of the other. It is the output of this test which generates the JSON shown in the Chrome console above.</p>
+
+
+<h2>Links</h2>
+
+<ul>
+	<li>JSON.org: <a href="http://www.json.org">www.json.org</a></li>
+	<li>JSON Lint: <a href="http://www.json.org">www.jsonlint.com</a></li>
+	<li>PostgeSQL: <a href="http://www.postgresql.org/">www.postgresql.org</a></li>
+	<li>MonetDB: <a href="https://www.monetdb.org/Home">www.monetdb.org</a></li>
+	<li>ESS: <a href="http://www.codeproject.com/Articles/35715/ESS-Extremely-Simple-Serialization-for-C">ESS</a></li>
+	<li>mbed: <a href="http://www.mbed.org">www.mbed.org</a></li>
+	<li>Github repository: <a href="https://github.com/g40/esj">github.com/g40/esj</a></li>
+</ul>
+
+<h2>History</h2>
+
+<p>Version 1.01 - 24th December 2014</p>
+
+<p>&nbsp;</p>
