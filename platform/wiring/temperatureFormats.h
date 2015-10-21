@@ -23,6 +23,8 @@
 #include <cstdlib>
 #include "str_functions.h"
 #include "fixstl.h"
+#include "json_writer.h"
+
 #undef constrain
 
 // used for temp and temp, 16 bits
@@ -156,6 +158,8 @@ public:
         }
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, format, absolute);
     }
+
+    void serialize(JSON::Adapter& adapter);
 
     temp_t operator+(temp_t const& rhs);
     temp_precise_t operator+(temp_precise_t const& rhs);
@@ -329,3 +333,17 @@ public:
     friend class temp_t;
     friend class temp_precise_t;
 };
+/*
+std::ostream& operator<<(std::ostream& ost, const temp_t& t)
+{
+
+    char temporary[10]; // max 3 integer digits, 4 decimals + period + minus sign + \0
+    char * noLeadingSpace = temporary;
+    noLeadingSpace = t.toString(temporary, 4, 10);
+
+    std::string s(noLeadingSpace);
+
+    ost<<s;
+    return ost;
+}
+*/

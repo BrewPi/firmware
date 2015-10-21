@@ -24,6 +24,10 @@
 #include "temperatureFormats.h"
 #include "ActuatorInterfaces.h"
 
+#include "json_writer.h"
+#include "json_reader.h"
+
+
 /*
  * A range actuator that simply remembers the set value. This is primary used for testing.
  */
@@ -57,6 +61,13 @@ public:
     }
     virtual void update(){}; //no actions required
 
+    void serialize(JSON::Adapter& adapter){
+        JSON::Class root(adapter, "ActuatorValue");
+        JSON_E(adapter, value);
+        JSON_E(adapter, minimum);
+        JSON_T(adapter, maximum);
+    }
+
     temp_t min() const{
         return minimum;
     }
@@ -84,6 +95,11 @@ public:
     virtual bool isActive() { return state; }
 
     virtual void update(){}; //no actions required
+
+    void serialize(JSON::Adapter& adapter){
+        JSON::Class root(adapter, "ActuatorBool");
+        JSON_T(adapter, state);
+    }
 
 private:
     bool state;

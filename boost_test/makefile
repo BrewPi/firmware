@@ -61,6 +61,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)app/fallback
 INCLUDE_DIRS += $(SOURCE_PATH)app/devices/TempSensor
 INCLUDE_DIRS += $(SOURCE_PATH)app/devices/Actuator
 INCLUDE_DIRS += $(SOURCE_PATH)app/devices/
+INCLUDE_DIRS += $(SOURCE_PATH)app/controller/esj
 
 CFLAGS += $(patsubst %,-I$(SRC_ROOT)%,$(INCLUDE_DIRS)) -I.
 CFLAGS += -ffunction-sections -Wall
