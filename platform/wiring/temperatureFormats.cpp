@@ -479,14 +479,3 @@ bool fromStringImpl(int32_t * raw, // result is put in this variable upon succes
     }
     return false; // if value is not within limits, it is likely invalid
 }
-
-
-void temp_t::serialize(JSON::Adapter& adapter){
-    char temporary[10]; // max 3 integer digits, 4 decimals + period + minus sign + \0
-    char * noLeadingSpace = temporary;
-    noLeadingSpace = toString(temporary, 4, 10);
-
-    std::string s(noLeadingSpace);
-
-    JSON_T(adapter, s);
-}

@@ -20,7 +20,10 @@
 #include <boost/test/unit_test.hpp>
 
 #include "temperatureFormats.h"
+#include <iostream>
 #include <cstdio>
+#include <boost/test/output_test_stream.hpp>
+using boost::test_tools::output_test_stream;
 
 BOOST_AUTO_TEST_SUITE( temperature_suite )
 
@@ -675,6 +678,19 @@ BOOST_AUTO_TEST_CASE(temp_disabled_or_invalid_prints_null){
     t = temp_t::invalid();
     t.toString(s1, 3, 9);
     BOOST_REQUIRE_MESSAGE(strcmp(s1, s2) == 0, "\"" << s1 << "\" should be \"" << s2 << "\"" << " converting " << t);
+}
+
+BOOST_AUTO_TEST_CASE(streaming_temp_t){
+    temp_t t = 30.0625;
+
+    output_test_stream test_stream;
+
+    std::ostream & stream = test_stream;
+
+    stream << t;
+
+    BOOST_CHECK( !test_stream.is_empty( false ) );
+    BOOST_CHECK( test_stream.is_equal( "30.0625" ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

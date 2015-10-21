@@ -64,6 +64,7 @@
 
 // requires lexer for token types.
 #include "json_lexer.h"
+#include "temperatureFormats.h"
 
 namespace JSON
 {
@@ -111,6 +112,7 @@ class Adapter
 	virtual void serialize(long&) = 0;
 	virtual void serialize(double&) = 0;
 	virtual void serialize(bool&) = 0;
+	virtual void serialize(temp_t&) = 0;
 	
 	// key/value pairs
 	virtual void serialize(const std::string&,std::wstring&,bool) = 0;
@@ -121,6 +123,7 @@ class Adapter
 	virtual void serialize(const std::string&,unsigned char&,bool) = 0;
 	virtual void serialize(const std::string&,double&,bool) = 0;
 	virtual void serialize(const std::string&,bool&,bool) = 0;
+	virtual void serialize(const std::string&,temp_t&,bool) = 0;
 
 };
 
@@ -201,6 +204,13 @@ inline void	stream(Adapter& adapter,bool& value)
 	adapter.serialize(value);
 }
 
+//-----------------------------------------------------------------------------
+inline void stream(Adapter& adapter,temp_t& value)
+{
+    //
+    adapter.serialize(value);
+}
+
 
 //-----------------------------------------------------------------------------
 // string
@@ -257,6 +267,13 @@ inline void stream(Adapter& adapter, const std::string& key, unsigned char& valu
 inline void	stream(Adapter& adapter,const std::string& key,bool& value,bool more)
 {
 	adapter.serialize(key,value,more);
+}
+
+//-----------------------------------------------------------------------------
+// bool
+inline void stream(Adapter& adapter,const std::string& key,temp_t& value,bool more)
+{
+    adapter.serialize(key,value,more);
 }
 
 

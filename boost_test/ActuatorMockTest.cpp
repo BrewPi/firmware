@@ -42,14 +42,11 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorMock) {
 }
 
 BOOST_AUTO_TEST_CASE(serialize_ActuatorValue) {
-    ActuatorValue act;
+    ActuatorValue act(10.0, 0.0, 30.0625);
     std::string json;
 
     json = JSON::producer<ActuatorValue>::convert(act);
-    BOOST_CHECK_EQUAL("{\"ActuatorBool\":{\"state\":false}}", json);
-/*
-    json = JSON::producer<ActuatorValue>::convert(act);
-    BOOST_CHECK_EQUAL("{\"ActuatorBool\":{\"state\":true}}", json);*/
+    BOOST_CHECK_EQUAL("{\"ActuatorValue\":{\"value\":10.0000,\"minimum\":0.0000,\"maximum\":30.0625}}", json);
 }
 
 
