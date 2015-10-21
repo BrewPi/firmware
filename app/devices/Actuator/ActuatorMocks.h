@@ -30,15 +30,23 @@
 class ActuatorValue : public ActuatorRange
 {
 public:
-    ActuatorValue(temp_t initial, temp_t minVal, temp_t maxVal) : value(initial), min(minVal), max(maxVal) {}
+    // construct without arguments, val = invalid, min and max are defaults
+    ActuatorValue() : value(temp_t::invalid()), minimum(temp_t::min()), maximum(temp_t::max()){}
+
+    // construct with just val, min and max are defaults
+    ActuatorValue(temp_t initial) : value(initial), minimum(temp_t::min()), maximum(temp_t::max()){}
+
+    // construct with val, min, max
+    ActuatorValue(temp_t initial, temp_t minVal, temp_t maxVal) : value(initial), minimum(minVal), maximum(maxVal) {}
+
     virtual ~ActuatorValue(){}
 
     virtual void setValue(temp_t const& val) {
-        if(val < min){
-            value = min;
+        if(val < minimum){
+            value = minimum;
         }
-        else if(val > max){
-            value = max;
+        else if(val > maximum){
+            value = maximum;
         }
         else{
             value = val;
@@ -49,10 +57,18 @@ public:
     }
     virtual void update(){}; //no actions required
 
+    temp_t min() const{
+        return minimum;
+    }
+
+    temp_t max() const{
+        return maximum;
+    }
+
 private:
     temp_t value;
-    temp_t min;
-    temp_t max;
+    temp_t minimum;
+    temp_t maximum;
 };
 
 /*
