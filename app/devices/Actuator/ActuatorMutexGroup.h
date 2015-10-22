@@ -56,6 +56,12 @@ public:
 
     void update();
 
+    void serialize(JSON::Adapter& adapter){
+        JSON::Class root(adapter, "ActuatorMutexGroup");
+        JSON_E(adapter, deadTime);
+        JSON_T(adapter, lastActiveTime);
+    }
+
 private:
     ticks_millis_t deadTime; // minimum time between switching from one actuator to the other
     ticks_millis_t lastActiveTime;

@@ -26,47 +26,55 @@
 #include "ActuatorInterfaces.h"
 #include "Ticks.h"
 
-class ActuatorTimeLimited:
-    public ActuatorDriver, public ActuatorDigital
+class ActuatorTimeLimited: public ActuatorDriver, public ActuatorDigital
 {
-    public:
-        ActuatorTimeLimited(ActuatorDigital * _target,
-                      uint16_t   _minOnTime = 120,
-                      uint16_t   _minOffTime = 180,
-                      uint16_t   _maxOnTime = UINT16_MAX) : ActuatorDriver(_target)
-        {
-            minOnTime  = _minOnTime;
-            minOffTime = _minOffTime;
-            maxOnTime  = _maxOnTime;
-            target     = _target;
-            toggleTime = 0;
-            active     = _target -> isActive();
-        }
+public:
+    ActuatorTimeLimited(ActuatorDigital * _target,
+            ticks_seconds_t   _minOnTime = 120,
+            ticks_seconds_t   _minOffTime = 180,
+            ticks_seconds_t   _maxOnTime = UINT16_MAX) : ActuatorDriver(_target)
+    {
+        minOnTime  = _minOnTime;
+        minOffTime = _minOffTime;
+        maxOnTime  = _maxOnTime;
+        toggleTime = 0;
+        target     = _target;
+        active     = _target -> isActive();
+    }
 
-        virtual ~ActuatorTimeLimited(){}
+    virtual ~ActuatorTimeLimited(){}
 
-        void setActive(bool active);    // returns new actuator state
+    void setActive(bool active);    // returns new actuator state
 
-        bool isActive()
-        {
-            return active;    // target->isActive(); - this takes 20 bytes more
-        }
+    bool isActive()
+    {
+        return active;    // target->isActive(); - this takes 20 bytes more
+    }
 
-        void update();
+    void update();
 
-        void setTimes(uint16_t   _minOnTime,
-                      uint16_t   _minOffTime,
-                      uint16_t   _maxOnTime = UINT16_MAX){
-            minOnTime = _minOnTime;
-            minOffTime = _minOffTime;
-            maxOnTime = _maxOnTime;
-        }
-        ticks_seconds_t timeSinceToggle(void) const;
+    void setTimes(ticks_seconds_t   _minOnTime,
+                  ticks_seconds_t   _minOffTime,
+                  ticks_seconds_t   _maxOnTime = UINT16_MAX){
+        minOnTime = _minOnTime;
+        minOffTime = _minOffTime;
+        maxOnTime = _maxOnTime;
+    }
+    ticks_seconds_t timeSinceToggle(void) const;
+
+    void serialize(JSON::Adapter& adapter){
+        JSON::Class root(adapter, "ActuatorTimeLimited");
+        target->serialize(adapter);
+        JSON_E(adapter, minOnTime);
+        JSON_E(adapter, minOffTime);
+        JSON_E(adapter, maxOnTime);
+        JSON_E(adapter, active);
+    }
 
     private:
-        uint16_t        minOnTime;
-        uint16_t        maxOnTime;
-        uint16_t        minOffTime;
-        ticks_seconds_t toggleTime;
+        ticks_seconds_t        minOnTime;
+        ticks_seconds_t        maxOnTime;
+        ticks_seconds_t        minOffTime;
+        ticks_seconds_t        toggleTime;
         bool            active;
 };

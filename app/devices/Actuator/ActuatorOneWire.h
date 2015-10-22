@@ -82,6 +82,14 @@ class ActuatorOneWire:
 
         void update(){} // do nothing on periodic update
 
+        void serialize(JSON::Adapter& adapter){
+            JSON::Class root(adapter, "ActuatorOneWire");
+            JSON_E(adapter, pio);
+            JSON_E(adapter, invert);
+            JSON::stream(adapter, "active", isActive(), true);
+            JSON_T(adapter, target);
+        }
+
     private:
         DS2413 device;
         pio_t  pio;

@@ -72,6 +72,16 @@ public:
 
     virtual void update(){}; //no actions required
 
+    void serialize(JSON::Adapter& adapter){
+        JSON::Class root(adapter, "ActuatorTimeLimited");
+        temp_t reference = this->reference->read();
+        temp_t target = this->target->read();
+        JSON_E(adapter, target);
+        JSON_E(adapter, reference);
+        JSON_E(adapter, minimum);
+        JSON_T(adapter, maximum);
+    }
+
 
 private:
     SetPoint * target;

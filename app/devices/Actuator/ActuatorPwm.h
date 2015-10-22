@@ -78,4 +78,13 @@ class ActuatorPwm : public ActuatorRange, public ActuatorDriver
 
         // calculates priority from dutyTime and dutyLate
         int8_t priority();
+
+        void serialize(JSON::Adapter& adapter){
+            JSON::Class root(adapter, "ActuatorPwm");
+            target->serialize(adapter);
+            JSON_E(adapter, value);
+            JSON_E(adapter, period);
+            JSON_E(adapter, minVal);
+            JSON_T(adapter, maxVal);
+        }
 };

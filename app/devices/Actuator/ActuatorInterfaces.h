@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 #include "temperatureFormats.h"
-// #include "ActuatorMutexGroup.h"
+#include "json_adapter.h"
 
 enum {
     ACTUATOR_RANGE,
@@ -45,6 +45,8 @@ public:
 	    return doGetBareActuator();  // recursive call for composite driver classes, until a non-driver class is reached
 	}
 	virtual void update() = 0;
+	virtual void serialize(JSON::Adapter& adapter) = 0;
+
 private:
 	virtual Actuator * doGetBareActuator(){
         return this;  // recursive call for composite driver classes, until a non-driver class is reached
@@ -138,6 +140,13 @@ public:
     virtual void setActive(bool active) {}
     virtual bool isActive() { return false;}
     virtual void update(){}
+
+    void serialize(JSON::Adapter& adapter){
+        bool state = isActive();
+
+        JSON::Class root(adapter, "ActuatorNop");
+        JSON_T(adapter, state);
+    }
 };
 
 /*
@@ -160,6 +169,17 @@ public:
         return temp_t::invalid();
     }
     virtual void update(){}; //no actions required
+
+    void serialize(JSON::Adapter& adapter){
+        bool value = getValue();
+        temp_t minimum = min();
+        temp_t maximum = max();
+
+        JSON::Class root(adapter, "ActuatorInvalid");
+        JSON_E(adapter, value);
+        JSON_E(adapter, minimum);
+        JSON_T(adapter, maximum);
+    }
 };
 
 
