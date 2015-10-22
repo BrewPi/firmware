@@ -319,15 +319,36 @@ inline void stream(Adapter& adapter,T& arg)
 // serialize a single instance of T. 
 // Highlights an asymmetry in JSON (or more likely Javascript ...)
 template <typename T>
-inline void stream(Adapter& adapter,const std::string& /*key*/,T& value,bool more)
+inline void stream(Adapter& adapter,const std::string& key,T& value,bool more)
 {
-	// handle the value
-	value.serialize(adapter);
-	if (more)
-	{
-		// handle the trailing comma if this is part of a sequence
-		adapter.serialize(T_COMMA);
-	}
+    // use class pointer function below
+    stream(adapter,key, &value, more);
+}
+
+//-----------------------------------------------------------------------------
+// serialize a single instance of T, where T is a class pointer.
+template <typename T>
+inline void stream(Adapter& adapter,const std::string& key,T * value,bool more)
+{
+    // handle the value
+    adapter.serialize(key);
+    adapter.serialize(T_COLON);
+
+    if(value != nullptr){
+        adapter.serialize(T_OBJ_BEGIN);
+        value->serialize(adapter);
+        adapter.serialize(T_OBJ_END);
+    }
+    else{
+        adapter.serialize(T_NULL);
+    }
+
+
+    if (more)
+    {
+        // handle the trailing comma if this is part of a sequence
+        adapter.serialize(T_COMMA);
+    }
 }
 
 
@@ -500,8 +521,11 @@ inline void stream_classes(Adapter& adapter,const std::string& key,std::vector<T
 			}
 			
 			// emit/check "type_name"
+			m_pAdapter->serialize("class");
+			m_pAdapter->serialize(T_COLON);
 			m_pAdapter->serialize(type_name);
-			//
+			m_pAdapter->serialize(T_COMMA);
+			m_pAdapter->serialize("variables");
 			m_pAdapter->serialize(T_COLON);
 			// constructor emits opening scope
 			m_pAdapter->serialize(T_OBJ_BEGIN);

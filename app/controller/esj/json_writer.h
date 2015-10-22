@@ -309,7 +309,7 @@ namespace JSON
 	class producer
 	{
 		public:
-		static std::string convert(serializable_type& source)
+		static std::string convert(serializable_type * source)
 		{
 			Chordia::stringer json;
 			// by default serialize to a string
@@ -317,7 +317,7 @@ namespace JSON
 			// create a writer
 			JSON::Writer writer(&ssi);
 			// serialize the instance
-			source.serialize(writer);
+			source->serialize(writer);
 			// and get the JSON string from the sink
 			//
 #ifdef _INTEGRATED
@@ -329,6 +329,9 @@ namespace JSON
 #else
 			return json.c_str();
 #endif
+		}
+		static inline std::string convert(serializable_type & source){
+		    return convert(&source);
 		}
 	};
 }
