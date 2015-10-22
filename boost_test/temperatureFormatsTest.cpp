@@ -693,6 +693,58 @@ BOOST_AUTO_TEST_CASE(streaming_temp_t){
     BOOST_CHECK( test_stream.is_equal( "30.0625" ) );
 }
 
+BOOST_AUTO_TEST_CASE(streaming_temp_precise_t){
+    temp_precise_t t = 30.0625;
+
+    output_test_stream test_stream;
+
+    std::ostream & stream = test_stream;
+
+    stream << t;
+
+    BOOST_CHECK( !test_stream.is_empty( false ) );
+    BOOST_CHECK( test_stream.is_equal( "30.06250000" ) );
+}
+
+BOOST_AUTO_TEST_CASE(streaming_temp_long_t){
+    temp_long_t t = 230.0625;
+
+    output_test_stream test_stream;
+
+    std::ostream & stream = test_stream;
+
+    stream << t;
+
+    BOOST_CHECK( !test_stream.is_empty( false ) );
+    BOOST_CHECK( test_stream.is_equal( "230.0625" ) );
+}
+
+BOOST_AUTO_TEST_CASE(streaming_temp_long_t_max){
+    temp_long_t t = temp_long_t::max();
+
+    output_test_stream test_stream;
+
+    std::ostream & stream = test_stream;
+
+    stream << t;
+
+    BOOST_CHECK( !test_stream.is_empty( false ) );
+    BOOST_CHECK( test_stream.is_equal( "8388607.9961" ) );
+}
+
+BOOST_AUTO_TEST_CASE(streaming_temp_long_t_min){
+    temp_long_t t = temp_long_t::min();
+
+    output_test_stream test_stream;
+
+    std::ostream & stream = test_stream;
+
+    stream << t;
+
+    BOOST_CHECK( !test_stream.is_empty( false ) );
+    BOOST_CHECK( test_stream.is_equal( "-8388608.0000" ) );
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 

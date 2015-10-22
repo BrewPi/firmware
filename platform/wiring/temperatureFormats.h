@@ -242,6 +242,14 @@ public:
        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, format, absolute);
     }
 
+    std::string toCstring(){
+        char temporary[15]; // max 3 integer digits, 8 decimals + period + minus sign + \0
+        char * noLeadingSpace = temporary;
+        noLeadingSpace = toString(temporary, 8, 15);
+
+        return std::string(noLeadingSpace);
+    }
+
     temp_precise_t operator+(temp_precise_t const& rhs);
     temp_precise_t operator+(temp_t const& rhs);
     temp_long_t operator+(temp_long_t const& rhs);
@@ -293,6 +301,14 @@ public:
                 'C', false, minimum, maximum);
     }
 
+    std::string toCstring(){
+        char temporary[15]; // max 7 integer digits, 4 decimals + period + minus sign + \0
+        char * noLeadingSpace = temporary;
+        noLeadingSpace = toString(temporary, 4, 15);
+
+        return std::string(noLeadingSpace);
+    }
+
     // converts a temperature in decimal notation to fixed point format
     // for temperatures in C, this is the same as fromString
     // for temperatures in F, it converts to the internal format in C
@@ -342,6 +358,18 @@ public:
 
 template <class T>
 inline T& operator<< (T& os, temp_t& t){
+
+    return os << t.toCstring();
+}
+
+template <class T>
+inline T& operator<< (T& os, temp_precise_t& t){
+
+    return os << t.toCstring();
+}
+
+template <class T>
+inline T& operator<< (T& os, temp_long_t& t){
 
     return os << t.toCstring();
 }
