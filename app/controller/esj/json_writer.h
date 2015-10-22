@@ -224,6 +224,9 @@ namespace JSON
 			case T_COLON:
 				delimiter = ":";
 				break;
+			case T_NULL:
+                delimiter = "null";
+				break;
             default:
                     ok = false;
 			}
