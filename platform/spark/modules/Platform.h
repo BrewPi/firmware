@@ -3,6 +3,7 @@
 #include "math.h"
 
 #define WIRING 1
+#define PARTICLE_WIFI 1
 
 #define strcpy_P strcpy
 #define strlcpy_P strncpy
