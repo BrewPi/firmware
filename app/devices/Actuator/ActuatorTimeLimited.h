@@ -64,11 +64,11 @@ public:
 
     void serialize(JSON::Adapter& adapter){
         JSON::Class root(adapter, "ActuatorTimeLimited");
-        target->serialize(adapter);
         JSON_E(adapter, minOnTime);
         JSON_E(adapter, minOffTime);
         JSON_E(adapter, maxOnTime);
         JSON_E(adapter, active);
+        JSON_T(adapter, target);
     }
 
     private:

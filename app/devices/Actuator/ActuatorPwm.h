@@ -81,10 +81,10 @@ class ActuatorPwm : public ActuatorRange, public ActuatorDriver
 
         void serialize(JSON::Adapter& adapter){
             JSON::Class root(adapter, "ActuatorPwm");
-            target->serialize(adapter);
             JSON_E(adapter, value);
             JSON_E(adapter, period);
             JSON_E(adapter, minVal);
-            JSON_T(adapter, maxVal);
+            JSON_E(adapter, maxVal);
+            JSON_T(adapter, target);
         }
 };

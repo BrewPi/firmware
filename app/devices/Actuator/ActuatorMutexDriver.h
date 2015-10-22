@@ -62,14 +62,8 @@ public:
 
     void serialize(JSON::Adapter& adapter){
         JSON::Class root(adapter, "ActuatorMutexDriver");
-        target->serialize(adapter);
-        if(mutexGroup != nullptr){
-            mutexGroup->serialize(adapter);
-        }
-        else{
-            int temp = 0;
-            JSON::stream(adapter, "mutexGroup", temp, false);
-        }
+        JSON_E(adapter, mutexGroup);
+        JSON_T(adapter, target);
     }
 
 private:

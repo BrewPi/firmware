@@ -84,10 +84,10 @@ class ActuatorOneWire:
 
         void serialize(JSON::Adapter& adapter){
             JSON::Class root(adapter, "ActuatorOneWire");
+            bool active = isActive();
+            JSON_E(adapter, active);
             JSON_E(adapter, pio);
-            JSON_E(adapter, invert);
-            JSON::stream(adapter, "active", isActive(), true);
-            JSON_T(adapter, target);
+            JSON_T(adapter, invert);
         }
 
     private:
