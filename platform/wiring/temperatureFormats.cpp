@@ -394,13 +394,13 @@ char * toStringImpl(const int32_t raw, // raw value of fixed point
 
     p = &buf[len - 1]; // start at the end of buffer
     *p = '\0';
-    std::div_t dv { };
+    lldiv_t dv { };
     dv.quot = shifter;
     do { //Move back, inserting digits as u go
         if (p == &buf[len - 1 - numDecimals]) {
             *--p = '.'; // insert decimal point at right moment
         } else {
-            dv = std::div(dv.quot, 10);
+            dv = lldiv(dv.quot, 10);
             if ((dv.quot || dv.rem)) { // check if end of digits
                 *--p = digit[std::abs(dv.rem)];
             } else if ((p - buf) > (len - numDecimals - 3)) { // still need to print some leading zeros
