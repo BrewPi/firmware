@@ -113,6 +113,8 @@ class Adapter
 	virtual void serialize(double&) = 0;
 	virtual void serialize(bool&) = 0;
 	virtual void serialize(temp_t&) = 0;
+	virtual void serialize(temp_precise_t&) = 0;
+	virtual void serialize(temp_long_t&) = 0;
 	
 	// key/value pairs
 	virtual void serialize(const std::string&,std::wstring&,bool) = 0;
@@ -124,6 +126,8 @@ class Adapter
 	virtual void serialize(const std::string&,double&,bool) = 0;
 	virtual void serialize(const std::string&,bool&,bool) = 0;
 	virtual void serialize(const std::string&,temp_t&,bool) = 0;
+	virtual void serialize(const std::string&,temp_precise_t&,bool) = 0;
+	virtual void serialize(const std::string&,temp_long_t&,bool) = 0;
 
 };
 
@@ -210,6 +214,18 @@ inline void stream(Adapter& adapter,temp_t& value)
     //
     adapter.serialize(value);
 }
+//-----------------------------------------------------------------------------
+inline void stream(Adapter& adapter,temp_precise_t& value)
+{
+    //
+    adapter.serialize(value);
+}
+//-----------------------------------------------------------------------------
+inline void stream(Adapter& adapter,temp_long_t& value)
+{
+    //
+    adapter.serialize(value);
+}
 
 
 //-----------------------------------------------------------------------------
@@ -270,12 +286,25 @@ inline void	stream(Adapter& adapter,const std::string& key,bool& value,bool more
 }
 
 //-----------------------------------------------------------------------------
-// bool
+// temp_t
 inline void stream(Adapter& adapter,const std::string& key,temp_t& value,bool more)
 {
     adapter.serialize(key,value,more);
 }
 
+//-----------------------------------------------------------------------------
+// temp_precise_t
+inline void stream(Adapter& adapter,const std::string& key,temp_precise_t& value,bool more)
+{
+    adapter.serialize(key,value,more);
+}
+
+//-----------------------------------------------------------------------------
+// temp_long_t
+inline void stream(Adapter& adapter,const std::string& key,temp_long_t& value,bool more)
+{
+    adapter.serialize(key,value,more);
+}
 
 //-----------------------------------------------------------------------------
 // arbitrary type T. must implement serialize with the correct signature

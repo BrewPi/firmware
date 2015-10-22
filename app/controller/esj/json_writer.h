@@ -78,6 +78,8 @@ namespace JSON
 		virtual ISink& operator<<(const double&) = 0;
 		virtual ISink& operator<<(const bool&) = 0;
 		virtual ISink& operator<<(const temp_t&) = 0;
+		virtual ISink& operator<<(const temp_precise_t&) = 0;
+		virtual ISink& operator<<(const temp_long_t&) = 0;
 
 	};
 
@@ -102,6 +104,8 @@ namespace JSON
 		virtual ISink& operator<<(const double& arg)		{ (*_sink) << arg; return (*this); }
 		virtual ISink& operator<<(const bool& arg)			{ (*_sink) << arg; return (*this); }
 		virtual ISink& operator<<(const temp_t& arg)        { (*_sink) << arg; return (*this); }
+		virtual ISink& operator<<(const temp_precise_t& arg){ (*_sink) << arg; return (*this); }
+		virtual ISink& operator<<(const temp_long_t& arg)   { (*_sink) << arg; return (*this); }
 	};
 
 	//-------------------------------------------------------------------------
@@ -174,7 +178,16 @@ namespace JSON
 
 		virtual void serialize(const std::string& key,temp_t& value,bool more)
         {
-            // literal true of false
+            (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
+        }
+
+		virtual void serialize(const std::string& key,temp_precise_t& value,bool more)
+        {
+            (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
+        }
+
+		virtual void serialize(const std::string& key,temp_long_t& value,bool more)
+        {
             (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
         }
 
@@ -269,6 +282,18 @@ namespace JSON
 
 		//---------------------------------------------------------------------
         virtual void serialize(temp_t& value)
+        {
+            (*_sink) << value;
+        }
+
+        //---------------------------------------------------------------------
+        virtual void serialize(temp_precise_t& value)
+        {
+            (*_sink) << value;
+        }
+
+        //---------------------------------------------------------------------
+        virtual void serialize(temp_long_t& value)
         {
             (*_sink) << value;
         }
