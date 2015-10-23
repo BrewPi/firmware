@@ -37,7 +37,7 @@
 #include "PiLinkHandlers.h"
 #include "UI.h"
 #include "Actuator.h"
-
+#include <algorithm>  //provides remove_if
 
 #if BREWPI_SIMULATE
 #include "Simulator.h"
@@ -76,11 +76,21 @@
 #endif        
 #endif
 
+
+#ifdef PARTICLE_WIFI
+    TCPServer wifiStream(8332);
+#endif
+
+
 bool PiLink::firstPair;
 char PiLink::printfBuff[PRINTF_BUFFER_SIZE];
-                
+std::vector<TCPClient> clients; //TCPServer clients
+Stream *curStream;
+
 void PiLink::init(void){
 	piStream.begin(57600);	
+	wifiStream.begin();
+	curStream=(Stream *)(&piStream);
 }
 
 // create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
@@ -89,8 +99,8 @@ void PiLink::print_P(const char *fmt, ... ){
 	va_start (args, fmt );
 	vsnprintf_P(printfBuff, PRINTF_BUFFER_SIZE, fmt, args);
 	va_end (args);
-	if(SERIAL_READY(piStream)){ // if Serial connected (on Leonardo)
-		piStream.print(printfBuff);
+	if(SERIAL_READY(curStream)){ // if Serial connected (on Leonardo)
+		curStream->print(printfBuff);
 	}
 }
 
@@ -101,24 +111,53 @@ void PiLink::print(char *fmt, ... ){
 	vsnprintf(printfBuff, PRINTF_BUFFER_SIZE, fmt, args);
 	va_end (args);
 	if(SERIAL_READY(piStream)){
-		piStream.print(printfBuff);
+		curStream->print(printfBuff);
 	}	
 }
 
 void PiLink::printNewLine(){
-	piStream.println();
+	curStream->println();
 }
 
 
 void printNibble(uint8_t n)
 {
 	n &= 0xF;
-	piStream.print((char)(n>=10 ? n-10+'A' : n+'0'));
+	curStream->print((char)(n>=10 ? n-10+'A' : n+'0'));
 }
 
-void PiLink::receive(void){
-	while (piStream.available() > 0) {
-		char inByte = piStream.read();              
+template<typename C>
+bool isDisconnected(C& connection)
+{
+    return !connection.connected();
+}
+
+
+void PiLink::receive(void) {
+	if (piStream.available()) {
+		curStream=(Stream *)(&piStream);
+		receiveStream();
+	}
+
+	// check for new clients
+	TCPClient client = wifiStream.available();
+	if (client.connected()) {
+		clients.push_back(client);
+	}
+	// remove disconnected clients
+    clients.erase(std::remove_if(clients.begin(), clients.end(), isDisconnected<TCPClient>), clients.end());
+
+
+	// process client streams
+	for(std::vector<TCPClient>::size_type i = 0; i != clients.size(); i++) {
+		curStream=(Stream *)(&clients[i]);
+		receiveStream();
+	}
+}
+
+void PiLink::receiveStream(void){
+	while (curStream->available() > 0) {
+		char inByte = curStream->read();
 		switch(inByte){
 		case ' ':
 		case '\n':
@@ -186,13 +225,13 @@ void PiLink::receive(void){
 			break;
 		case 'l': // Display content requested
 			printResponse('L');						
-			piStream.print('[');
+			curStream->print('[');
 			char stringBuffer[21];
 			for(uint8_t i=0;i<4;i++){
 				display.getLine(i, stringBuffer);
 				print_P(PSTR("\"%s\""), stringBuffer);
 				char close = (i<3) ? ',':']';
-				piStream.print(close);
+				curStream->print(close);
 			}							
 			printNewLine();						
 			break;
@@ -228,17 +267,17 @@ void PiLink::receive(void){
 
 		case 'd': // list devices in eeprom order
 			openListResponse('d');
-			deviceManager.listDevices(piStream);
+			deviceManager.listDevices(*curStream);
 			closeListResponse();
 			break;
 
 		case 'U': // update device		
-			deviceManager.parseDeviceDefinition(piStream);
+			deviceManager.parseDeviceDefinition(*curStream);
 			break;
 			
 		case 'h': // hardware query
 			openListResponse('h');
-			deviceManager.enumerateHardwareToStream(piStream);
+			deviceManager.enumerateHardwareToStream(*curStream);
 			closeListResponse();
 			break;
 
@@ -353,7 +392,7 @@ void PiLink::sendJsonTemp(const char* name, temperature temp)
 	char tempString[9];
 	tempToString(tempString, temp, 2, 9);
 	printJsonName(name);
-	piStream.print(tempString);
+	curStream->print(tempString);
 }
 
 void PiLink::printTemperatures(void){
@@ -382,18 +421,18 @@ void PiLink::printFridgeAnnotation(const char * annotation, ...){
 }	 
  	  
 void PiLink::printResponse(char type) {
-	piStream.print(type);
-	piStream.print(':');
+	curStream->print(type);
+	curStream->print(':');
 	firstPair = true;
 }
 
 void PiLink::openListResponse(char type) {
 	printResponse(type);
-	piStream.print('[');
+	curStream->print('[');
 }
 
 void PiLink::closeListResponse() {
-	piStream.print(']');
+	curStream->print(']');
 	printNewLine();
 }
 
@@ -408,13 +447,13 @@ void PiLink::debugMessage(const char * message, ...){
 	va_start (args, message );
 	vsnprintf_P(printfBuff, PRINTF_BUFFER_SIZE, message, args);
 	va_end (args);
-	piStream.print(printfBuff);
+	curStream->print(printfBuff);
 	printNewLine();
 }
 
 
 void PiLink::sendJsonClose() {
-	piStream.print('}');
+	curStream->print('}');
 	printNewLine();
 }
 
@@ -562,27 +601,27 @@ void PiLink::sendControlVariables(void){
 void PiLink::printJsonName(const char * name)
 {
 	printJsonSeparator();
-	piStream.print('"');
+	curStream->print('"');
 	print_P(name);
-	piStream.print('"');
-	piStream.print(':');
+	curStream->print('"');
+	curStream->print(':');
 }
 
 inline void PiLink::printJsonSeparator() {
-	piStream.print(firstPair ? '{' : ',');	
+	curStream->print(firstPair ? '{' : ',');
 	firstPair = false;
 }
 
 void PiLink::sendJsonPair(const char * name, const char * val){
 	printJsonName(name);
-	piStream.print(val);
+	curStream->print(val);
 }
 
 void PiLink::sendJsonPair(const char * name, char val){
 	printJsonName(name);
-	piStream.print('"');
-	piStream.print(val);
-	piStream.print('"');
+	curStream->print('"');
+	curStream->print(val);
+	curStream->print('"');
 }
 
 void PiLink::sendJsonPair(const char * name, uint16_t val){
@@ -597,14 +636,14 @@ void PiLink::sendJsonPair(const char * name, uint8_t val) {
 int readNext()
 {
 	uint16_t retries = 0;
-	while (piStream.available()==0) {
+	while (curStream->available()==0) {
 		wait.microseconds(100);
 		retries++;
 		if(retries >= 10000){
 			return -1;
 		}
 	}
-	return piStream.read();		
+	return curStream->read();
 }
 /**
  * Parses a token from the piStream.
@@ -852,5 +891,5 @@ void PiLink::soundAlarm(bool active)
 
 
 #ifndef ARDUINO
-void PiLink::print(char c) { piStream.print(c); }
+void PiLink::print(char c) { curStream->print(c); }
 #endif

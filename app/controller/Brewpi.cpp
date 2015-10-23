@@ -37,6 +37,7 @@
 #include "Sensor.h"
 #include "SettingsManager.h"
 #include "UI.h"
+#include "mdns/MDNS.h"
 
 #if BREWPI_SIMULATE
 	#include "Simulator.h"
@@ -57,9 +58,19 @@ DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 
 ValueActuator alarm;
 UI ui;
+MDNS mdns;
+
 
 void setup()
 {
+#ifdef PARTICLE_WIFI
+	//we want wifi but no particle cloud
+	SYSTEM_MODE(SEMI_AUTOMATIC);
+    //load WIFI
+    WiFi.on();
+    WiFi.connect();
+#endif
+
     bool resetEeprom = platform_init();
     eepromManager.init();
 	ui.init();
@@ -68,6 +79,22 @@ void setup()
     logDebug("started");
     tempControl.init();
     settingsManager.loadSettings();
+
+#ifdef PARTICLE_WIFI
+    bool success = mdns.setHostname(System.deviceID());
+    if (success) {
+    	logDebug("mDNS: set hostname");
+        success = mdns.setService("tcp", "brewpi", 8332, System.deviceID());
+    }
+    if (success) {
+    	logDebug("mDNS: set service");
+        success = mdns.begin();
+    }
+    if(success){
+    	logDebug("mDNS: begun");
+    }
+#endif
+
 
     uint32_t start = millis();
     uint32_t delay = ui.showStartupPage();
@@ -113,6 +140,9 @@ void brewpiLoop(void)
 
 	//listen for incoming serial connections while waiting to update
 	piLink.receive();
+#ifdef PARTICLE_WIFI
+    mdns.processQueries();
+#endif
 
 }
 

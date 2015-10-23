@@ -24,6 +24,7 @@
 #include "TemperatureFormats.h"
 #include "DeviceManager.h"
 #include "Logger.h"
+#include <vector>
 
 #define PRINTF_BUFFER_SIZE 128
 
@@ -36,6 +37,7 @@ class PiLink{
 	// There can only be one PiLink object, so functions are static
 	static void init(void);
 	static void receive(void);
+	static void receiveStream(void);
 	
 	static void printFridgeAnnotation(const char * annotation, ...);	
 	static void printBeerAnnotation(const char * annotation, ...);
