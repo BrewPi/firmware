@@ -83,10 +83,15 @@ void setup()
 #ifdef PARTICLE_WIFI
     bool success = mdns.setHostname(System.deviceID());
     if (success) {
+    	logDebug("mDNS: set hostname");
         success = mdns.setService("tcp", "brewpi", 8332, System.deviceID());
     }
     if (success) {
+    	logDebug("mDNS: set service");
         success = mdns.begin();
+    }
+    if(success){
+    	logDebug("mDNS: begun");
     }
 #endif
 

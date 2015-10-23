@@ -1,4 +1,5 @@
 #include "MDNS.h"
+#include "PiLink.h"
 
 bool MDNS::setHostname(String hostname) {
     bool success = hostname.length() < MAX_LABEL_SIZE && isAlphaDigitHyphen(hostname);
@@ -66,6 +67,7 @@ int MDNS::processQueries() {
     uint16_t remotePort = 0;
 
     if (n > 0) {
+    	logDebug("%d:Got UDP Packet", millis());
         buffer->read(udp);
         
         remotePort = udp->remotePort();
@@ -82,6 +84,7 @@ int MDNS::processQueries() {
             /*uint16_t arcount = */buffer->readUInt16();
 
             // Spark.publish("splunk/mdns/processQueries", "Query " + String(flags, HEX) + " " + String(qdcount, HEX), 60, PRIVATE);
+            logDebug("splunk/mdns/processQueries Query flags:0x%x qdcount:0x%x",flags,qdcount);
 
             if ((flags & 0x8000) == 0) {
                 while (qdcount-- > 0) {
@@ -92,6 +95,10 @@ int MDNS::processQueries() {
                         uint16_t cls = buffer->readUInt16();
 
                         // Spark.publish("splunk/mdns/processQueries", "Query " + matcher->getLastName() + " " + String(type, HEX) + " " + String(cls, HEX) + " " + matchedName, 60, PRIVATE);
+                        char strbuf[30];
+                        String lastName=matcher->getLastName();
+                        lastName.toCharArray(strbuf, 30);
+                        logDebug("splunk/mdns/processQueries Query lastname:%s type:0x%x, cls:0x%x matchedName:%d",strbuf,type,cls,matchedName);
 
                         if (matchedName >= 0) {
     
