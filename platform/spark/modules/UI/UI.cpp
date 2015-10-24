@@ -116,7 +116,7 @@ void cancelCalibration()
 
 void createTimer()
 {
-    timer = new Timer(3*1000, cancelCalibration);
+    timer = new Timer(60*1000, cancelCalibration);
     if (timer)
         timer->start();
 }
