@@ -26,21 +26,21 @@
 class TempSensorMock : public TempSensorBasic
 {
 public:	
-	TempSensorMock(temp_t initial) : _temperature(initial), _connected(true) { }
+	TempSensorMock(temp_t initial) : value(initial), connected(true) { }
 	
-	void setConnected(bool connected)
+	void setConnected(bool _connected)
 	{
-		_connected = connected;
+		connected = _connected;
 	}
 	
-	bool isConnected() { return _connected; }
+	bool isConnected() { return connected; }
 
 	bool init() {
 		return read().isDisabledOrInvalid();
 	}
 	
 	void add(temp_t delta){
-	    _temperature += delta;
+	    value += delta;
 	}
 
 	temp_t read()
@@ -52,16 +52,16 @@ public:
 		const uint8_t shift = temp_t::fractional_bit_count - 4; // DS18B20 has 0.0625 (1/16) degree C steps
 		temp_t rounder;
 		rounder.setRaw(1 << (shift-1));
-		temp_t quantified = ((_temperature + rounder) >> shift) << shift;
+		temp_t quantified = ((value + rounder) >> shift) << shift;
 		return quantified;
 	}
 	
 	void setTemp(temp_t val){
-	    _temperature = val;
+	    value = val;
 	}
 
 	private:
-	temp_t _temperature;
-	bool _connected;
+	temp_t value;
+	bool connected;
 };
 

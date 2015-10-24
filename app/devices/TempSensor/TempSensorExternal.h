@@ -30,14 +30,14 @@
 class TempSensorExternal : public TempSensorBasic
 {
 	public:
-	TempSensorExternal(bool connected=false) : _temperature(0.0), _connected(false)
+	TempSensorExternal(bool connected=false) : value(0.0), connected(false)
 	{
 		setConnected(connected);
 	}
 
-	void setConnected(bool connected)
+	void setConnected(bool _connected)
 	{
-		this->_connected = connected;
+		this->connected = _connected;
 	}
 
 	bool isConnected() { return _connected; }
@@ -49,14 +49,14 @@ class TempSensorExternal : public TempSensorBasic
 	temp_t read() {
 		if (!isConnected())
 			return TEMP_SENSOR_DISCONNECTED;
-		return _temperature;
+		return value;
 	}
 	
 	void setValue(temp_t newTemp) {
-		_temperature = newTemp;		
+		value = newTemp;		
 	}
 	
 	private:
-	temp_t _temperature;
-	bool _connected;
+	temp_t value;
+	bool connected;
 };
