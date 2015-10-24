@@ -21,6 +21,7 @@
 #pragma once
 
 #include "temperatureFormats.h"
+#include "json_writer.h"
 
 #define TEMP_SENSOR_DISCONNECTED temp_t::invalid()
 
@@ -41,6 +42,7 @@ public:
 	 */
 	virtual temp_t read() = 0;
 	
+	virtual void serialize(JSON::Adapter& adapter) = 0;
 };
 
 

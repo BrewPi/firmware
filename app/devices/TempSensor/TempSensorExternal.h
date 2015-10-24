@@ -56,6 +56,12 @@ class TempSensorExternal : public TempSensorBasic
 		value = newTemp;		
 	}
 	
+    void serialize(JSON::Adapter& adapter){
+        JSON::Class root(adapter, "TempSensorDisconnected");
+        JSON_E(adapter, value);
+        JSON_T(adapter, connected);
+    }
+
 	private:
 	temp_t value;
 	bool connected;

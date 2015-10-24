@@ -35,5 +35,12 @@ public:
 		return TEMP_SENSOR_DISCONNECTED;
 	}	
 	
+    void serialize(JSON::Adapter& adapter){
+        temp_t value = read();
+        bool connected = false;
+        JSON::Class root(adapter, "TempSensorDisconnected");
+        JSON_E(adapter, value);
+        JSON_T(adapter, connected);
+    }
 };
 

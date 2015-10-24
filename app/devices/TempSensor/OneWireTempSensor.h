@@ -64,6 +64,15 @@ public:
 		wait.millis(750);
 	}
 
+	void serialize(JSON::Adapter& adapter){
+        temp_t value = read();
+        bool connected = false;
+        JSON::Class root(adapter, "OneWireTempSensor");
+        JSON_E(adapter, value);
+        JSON_E(adapter, connected);
+        JSON_E(adapter, sensorAddress);
+        JSON_T(adapter, calibrationOffset);
+    }
 	
 	/**
 	 * Reads the temperature. If successful, constrains the temp to the range of the temperature type and
