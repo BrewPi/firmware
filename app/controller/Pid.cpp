@@ -26,8 +26,6 @@ Pid::Pid(TempSensorBasic * input,
          SetPoint * setPoint)
 {
     setConstants(temp_t(0.0), 0, 0);
-    setMinMax(temp_t::min(), temp_t::max());
-
     p = 0;
     i = 0;
     d = 0;
@@ -160,13 +158,6 @@ void Pid::update()
     }
 */
 
-}
-
-void Pid::setMinMax(temp_t min,
-                    temp_t max)
-{
-    this -> min = min;
-    this -> max = max;
 }
 
 void Pid::setFiltering(uint8_t b){

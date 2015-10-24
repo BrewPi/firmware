@@ -102,8 +102,6 @@ class Pid
         temp_long_t       Kp;    // proportional gain
         uint16_t          Ti;    // integral time constant
         uint16_t          Td;    // derivative time constant
-        temp_t            min;
-        temp_t            max;
         temp_t            inputError;
         temp_long_t       p;
         temp_long_t       i;
