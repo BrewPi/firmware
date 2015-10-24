@@ -59,6 +59,7 @@
 #include "json_adapter.h"
 #endif
 #include "temperatureFormats.h"
+#include <stdint.h>
 
 namespace JSON
 {
@@ -72,9 +73,12 @@ namespace JSON
 		virtual ISink& operator<<(const std::string&) = 0;
 		virtual ISink& operator<<(const std::wstring&) = 0;
 		virtual ISink& operator<<(const char&) = 0;
-		virtual ISink& operator<<(const int&) = 0;
-		virtual ISink& operator<<(const unsigned int&) = 0;
-		virtual ISink& operator<<(const long&) = 0;
+		virtual ISink& operator<<(const int8_t&) = 0;
+		virtual ISink& operator<<(const int16_t&) = 0;
+		virtual ISink& operator<<(const int32_t&) = 0;
+		virtual ISink& operator<<(const uint8_t&) = 0;
+        virtual ISink& operator<<(const uint16_t&) = 0;
+        virtual ISink& operator<<(const uint32_t&) = 0;
 		virtual ISink& operator<<(const double&) = 0;
 		virtual ISink& operator<<(const bool&) = 0;
 		virtual ISink& operator<<(const temp_t&) = 0;
@@ -98,10 +102,13 @@ namespace JSON
 		virtual ISink& operator<<(const std::string& arg)	{ (*_sink) << arg; return (*this); }
 		virtual ISink& operator<<(const std::wstring& arg)	{ (*_sink) << arg; return (*this); }
 		virtual ISink& operator<<(const char& arg)			{ (*_sink) << arg; return (*this); }
-		virtual ISink& operator<<(const int& arg)			{ (*_sink) << arg; return (*this); }
-		virtual ISink& operator<<(const long& arg)			{ (*_sink) << arg; return (*this); }
-		virtual ISink& operator<<(const unsigned int& arg)	{ (*_sink) << arg; return (*this); }
-		virtual ISink& operator<<(const double& arg)		{ (*_sink) << arg; return (*this); }
+		virtual ISink& operator<<(const int8_t& arg)    	{ (*_sink) << arg; return (*this); }
+		virtual ISink& operator<<(const int16_t& arg)       { (*_sink) << arg; return (*this); }
+		virtual ISink& operator<<(const int32_t& arg)       { (*_sink) << arg; return (*this); }
+		virtual ISink& operator<<(const uint8_t& arg)       { (*_sink) << arg; return (*this); }
+        virtual ISink& operator<<(const uint16_t& arg)      { (*_sink) << arg; return (*this); }
+        virtual ISink& operator<<(const uint32_t& arg)      { (*_sink) << arg; return (*this); }
+        virtual ISink& operator<<(const double& arg)		{ (*_sink) << arg; return (*this); }
 		virtual ISink& operator<<(const bool& arg)			{ (*_sink) << arg; return (*this); }
 		virtual ISink& operator<<(const temp_t& arg)        { (*_sink) << arg; return (*this); }
 		virtual ISink& operator<<(const temp_precise_t& arg){ (*_sink) << arg; return (*this); }
@@ -145,25 +152,35 @@ namespace JSON
 			(*_sink) << Quote() << key << Quote() << ':' << Quote() << Chordia::escape(Chordia::w2n(value)) << Quote() << (more ? "," : "");
 		}
 
-		virtual void serialize(const std::string& key,int& value,bool more) 
+		virtual void serialize(const std::string& key,int8_t& value,bool more)
 		{
 			(*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
 		}
 		
-		virtual void serialize(const std::string& key,unsigned int& value,bool more) 
-		{
-			(*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
-		}
+		virtual void serialize(const std::string& key,int16_t& value,bool more)
+        {
+            (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
+        }
 
-		virtual void serialize(const std::string& key,long& value,bool more) 
-		{
-			(*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
-		}
+		virtual void serialize(const std::string& key,int32_t& value,bool more)
+        {
+            (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
+        }
 
-		virtual void serialize(const std::string& key,unsigned char& value,bool more)
-		{
-			(*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
-		}
+        virtual void serialize(const std::string& key,uint8_t& value,bool more)
+        {
+            (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
+        }
+
+        virtual void serialize(const std::string& key,uint16_t& value,bool more)
+        {
+            (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
+        }
+
+        virtual void serialize(const std::string& key,uint32_t& value,bool more)
+        {
+            (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
+        }
 
 		virtual void serialize(const std::string& key,double& value,bool more) 
 		{
@@ -254,22 +271,40 @@ namespace JSON
 		}
 
 		//---------------------------------------------------------------------
-		virtual void serialize(int& value)
+		virtual void serialize(int8_t& value)
 		{
 			(*_sink) << value;
 		}
 
 		//---------------------------------------------------------------------
-		virtual void serialize(unsigned int& value)
-		{
-			(*_sink) << value;
-		}
+		virtual void serialize(int16_t& value)
+        {
+            (*_sink) << value;
+        }
 
 		//---------------------------------------------------------------------
-		virtual void serialize(long& value)
-		{
-			(*_sink) << value;
-		}
+        virtual void serialize(int32_t& value)
+        {
+            (*_sink) << value;
+        }
+
+        //---------------------------------------------------------------------
+        virtual void serialize(uint8_t& value)
+        {
+            (*_sink) << value;
+        }
+
+        //---------------------------------------------------------------------
+        virtual void serialize(uint16_t& value)
+        {
+            (*_sink) << value;
+        }
+
+        //---------------------------------------------------------------------
+        virtual void serialize(uint32_t& value)
+        {
+            (*_sink) << value;
+        }
 
 		//---------------------------------------------------------------------
 		virtual void serialize(double& value)

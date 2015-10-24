@@ -61,6 +61,7 @@
 #include <string>
 #include <list>
 #include <stack>
+#include <stdint.h>
 
 // requires lexer for token types.
 #include "json_lexer.h"
@@ -107,10 +108,13 @@ class Adapter
 	virtual void serialize(const std::string&) = 0;
 	virtual void serialize(std::wstring&) = 0;
 	virtual void serialize(std::string&) = 0;
-	virtual void serialize(int&) = 0;
-	virtual void serialize(unsigned int&) = 0;
-	virtual void serialize(long&) = 0;
-	virtual void serialize(double&) = 0;
+	virtual void serialize(int8_t&) = 0;
+	virtual void serialize(int16_t&) = 0;
+	virtual void serialize(int32_t&) = 0;
+	virtual void serialize(uint8_t&) = 0;
+    virtual void serialize(uint16_t&) = 0;
+    virtual void serialize(uint32_t&) = 0;
+    virtual void serialize(double&) = 0;
 	virtual void serialize(bool&) = 0;
 	virtual void serialize(temp_t&) = 0;
 	virtual void serialize(temp_precise_t&) = 0;
@@ -119,11 +123,13 @@ class Adapter
 	// key/value pairs
 	virtual void serialize(const std::string&,std::wstring&,bool) = 0;
 	virtual void serialize(const std::string&,std::string&,bool) = 0;
-	virtual void serialize(const std::string&,int&,bool) = 0;
-	virtual void serialize(const std::string&,unsigned int&,bool) = 0;
-	virtual void serialize(const std::string&,long&,bool) = 0;
-	virtual void serialize(const std::string&,unsigned char&,bool) = 0;
-	virtual void serialize(const std::string&,double&,bool) = 0;
+	virtual void serialize(const std::string&,int8_t&,bool) = 0;
+	virtual void serialize(const std::string&,int16_t&,bool) = 0;
+	virtual void serialize(const std::string&,int32_t&,bool) = 0;
+	virtual void serialize(const std::string&,uint8_t&,bool) = 0;
+    virtual void serialize(const std::string&,uint16_t&,bool) = 0;
+    virtual void serialize(const std::string&,uint32_t&,bool) = 0;
+    virtual void serialize(const std::string&,double&,bool) = 0;
 	virtual void serialize(const std::string&,bool&,bool) = 0;
 	virtual void serialize(const std::string&,temp_t&,bool) = 0;
 	virtual void serialize(const std::string&,temp_precise_t&,bool) = 0;
@@ -181,17 +187,45 @@ inline void stream(Adapter& adapter,std::wstring& value)
 }
 
 //-----------------------------------------------------------------------------
-inline void stream(Adapter& adapter,int& value)
+inline void stream(Adapter& adapter,int8_t& value)
 {
 	//
 	adapter.serialize(value);
 }
 
 //-----------------------------------------------------------------------------
-inline void stream(Adapter& adapter,long& value)
+inline void stream(Adapter& adapter,int16_t& value)
 {
-	//
-	adapter.serialize(value);
+    //
+    adapter.serialize(value);
+}
+
+//-----------------------------------------------------------------------------
+inline void stream(Adapter& adapter,int32_t& value)
+{
+    //
+    adapter.serialize(value);
+}
+
+//-----------------------------------------------------------------------------
+inline void stream(Adapter& adapter, uint8_t& value)
+{
+    //
+    adapter.serialize(value);
+}
+
+//-----------------------------------------------------------------------------
+inline void stream(Adapter& adapter, uint16_t& value)
+{
+    //
+    adapter.serialize(value);
+}
+
+//-----------------------------------------------------------------------------
+inline void stream(Adapter& adapter, uint32_t& value)
+{
+    //
+    adapter.serialize(value);
 }
 
 //-----------------------------------------------------------------------------
@@ -252,30 +286,45 @@ inline void	stream(Adapter& adapter,const std::string& key,double& value,bool mo
 }
 
 //-----------------------------------------------------------------------------
-// int
-inline void	stream(Adapter& adapter,const std::string& key,int& value,bool more)
+// int8_t
+inline void	stream(Adapter& adapter,const std::string& key,int8_t& value,bool more)
 {
 	adapter.serialize(key,value,more);
 }
 
 //-----------------------------------------------------------------------------
-// int
-inline void	stream(Adapter& adapter,const std::string& key,unsigned int& value,bool more)
+// int16_t
+inline void stream(Adapter& adapter,const std::string& key,int16_t& value,bool more)
 {
-	adapter.serialize(key,value,more);
+    adapter.serialize(key,value,more);
 }
 
 //-----------------------------------------------------------------------------
-// long
-inline void	stream(Adapter& adapter,const std::string& key,long& value,bool more)
+// int32_t
+inline void stream(Adapter& adapter,const std::string& key,int32_t& value,bool more)
 {
-	adapter.serialize(key,value,more);
+    adapter.serialize(key,value,more);
 }
 
 //-----------------------------------------------------------------------------
-inline void stream(Adapter& adapter, const std::string& key, unsigned char& value, bool more) 
+// uint8_t
+inline void stream(Adapter& adapter,const std::string& key,uint8_t& value,bool more)
 {
-	adapter.serialize(key,value,more);
+    adapter.serialize(key,value,more);
+}
+
+//-----------------------------------------------------------------------------
+// uint16_t
+inline void stream(Adapter& adapter,const std::string& key,uint16_t& value,bool more)
+{
+    adapter.serialize(key,value,more);
+}
+
+//-----------------------------------------------------------------------------
+// uint32_t
+inline void stream(Adapter& adapter,const std::string& key,uint32_t& value,bool more)
+{
+    adapter.serialize(key,value,more);
 }
 
 //-----------------------------------------------------------------------------

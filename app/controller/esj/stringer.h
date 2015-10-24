@@ -129,18 +129,35 @@ namespace Chordia
 	}
 
 	//-------------------------------------------------------------------------
-	inline std::string toString(int value, int base = 10)
+	inline std::string toString(int8_t value, int base = 10)
 	{
 		return toString((int64_t)value,base);
 	}
 
     
-	inline std::string toString(unsigned int value, int base = 10)
-	{
-		return toString((int64_t)value,base);
-	}
+	inline std::string toString(int16_t value, int base = 10)
+    {
+        return toString((int64_t)value,base);
+    }
+
+	inline std::string toString(int32_t value, int base = 10)
+    {
+        return toString((int64_t)value,base);
+    }
+
+	//-------------------------------------------------------------------------
+    inline std::string toString(uint8_t value, int base = 10)
+    {
+        return toString((int64_t)value,base);
+    }
+
+
+    inline std::string toString(uint16_t value, int base = 10)
+    {
+        return toString((int64_t)value,base);
+    }
     
-    inline std::string toString(long value, int base = 10)
+    inline std::string toString(uint32_t value, int base = 10)
     {
         return toString((int64_t)value,base);
     }
@@ -552,7 +569,7 @@ public:
 	}
 
 	//-------------------------------------------------------------------------
-	stringer& operator<<(int arg)
+	stringer& operator<<(int8_t arg)
 	{
 		//
 		m_buffer += toString(arg,10);
@@ -560,21 +577,43 @@ public:
 	}
 
 	//-------------------------------------------------------------------------
-	stringer& operator<<(unsigned int arg)
-	{
-		//
-		m_buffer += toString(arg,10);
-		return (*this);
-	}
+    stringer& operator<<(int16_t arg)
+    {
+        //
+        m_buffer += toString(arg,10);
+        return (*this);
+    }
+
+	//-------------------------------------------------------------------------
+    stringer& operator<<(int32_t arg)
+    {
+        //
+        m_buffer += toString(arg,10);
+        return (*this);
+    }
+
+    stringer& operator<<(uint8_t arg)
+    {
+        //
+        m_buffer += toString(arg,10);
+        return (*this);
+    }
 
     //-------------------------------------------------------------------------
-    stringer& operator<<(long arg)
+    stringer& operator<<(uint16_t arg)
     {
         //
         m_buffer += toString(arg,10);
         return (*this);
     }
     
+    //-------------------------------------------------------------------------
+    stringer& operator<<(uint32_t arg)
+    {
+        //
+        m_buffer += toString(arg,10);
+        return (*this);
+    }
 
 	//-------------------------------------------------------------------------
 	stringer& operator<<(double arg)
