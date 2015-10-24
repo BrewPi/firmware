@@ -27,6 +27,7 @@
 #include "ActuatorInterfaces.h"
 #include "SetPoint.h"
 #include "defaultDevices.h"
+#include "json_writer.h"
 
 class Pid
 {
@@ -80,6 +81,23 @@ class Pid
 
         void setActuatorIsNegative(bool setting){
             actuatorIsNegative = setting;
+        }
+
+        void serialize(JSON::Adapter& adapter){
+            JSON::Class root(adapter, "Pid");
+            JSON_E(adapter, setPoint);
+            JSON_E(adapter, inputSensor);
+
+            JSON_E(adapter, inputError);
+            JSON_E(adapter, Kp);
+            JSON_E(adapter, Ti);
+            JSON_E(adapter, Td);
+            JSON_E(adapter, p);
+            JSON_E(adapter, i);
+            JSON_E(adapter, d);
+
+            JSON_E(adapter, actuatorIsNegative);
+            JSON_T(adapter, outputActuator);
         }
 
         /*

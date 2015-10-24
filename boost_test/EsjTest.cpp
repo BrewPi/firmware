@@ -28,6 +28,8 @@
 #include "ActuatorMutexDriver.h"
 #include "ActuatorPwm.h"
 #include "ActuatorSetPoint.h"
+#include "TempSensorMock.h"
+#include "Pid.h"
 #include "SetPoint.h"
 #include "json_writer.h"
 #include "json_reader.h"
@@ -194,6 +196,70 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
         R"("target":{"class":"SetPointSimple","variables":{"setPoint":25.0000}},)"
         R"("reference":{"class":"SetPointConstant","variables":{)"
         R"("setPoint":20.0000}},"minimum":-10.0000,"maximum":10.0000}})";
+
+    BOOST_CHECK_EQUAL(valid, json);
+}
+
+BOOST_AUTO_TEST_CASE(serialize_Pid) {
+    TempSensorBasic * sensor = new TempSensorMock(20.0);
+    ActuatorDigital * boolAct = new ActuatorBool();
+    ActuatorRange * pwmAct = new ActuatorPwm(boolAct,4);
+    SetPoint * sp = new SetPointSimple(20.0);
+    Pid * pid = new Pid(sensor, pwmAct, sp);
+
+    std::string json = JSON::producer<Pid>::convert(pid);
+
+/* With some extra whitespace, the valid output looks like this:
+{
+    "class": "Pid",
+    "variables": {
+        "setPoint": {
+            "class": "SetPointSimple",
+            "variables": {
+                "setPoint": 20.0000
+            }
+        },
+        "inputSensor": {
+            "class": "TempSensorMock",
+            "variables": {
+                "value": 20.0000,
+                "connected": true
+            }
+        },
+        "inputError": 0,
+        "Kp": 0.0000,
+        "Ti": 0,
+        "Td": 0,
+        "p": 0.0000,
+        "i": 0.0000,
+        "d": 0.0000,
+        "actuatorIsNegative": false,
+        "outputActuator": {
+            "class": "ActuatorPwm",
+            "variables": {
+                "value": 0.0000,
+                "period": 4000,
+                "minVal": 0.0000,
+                "maxVal": 100.0000,
+                "target": {
+                    "class": "ActuatorBool",
+                    "variables": {
+                        "state": false
+                    }
+                }
+            }
+        }
+    }
+}
+*/
+
+    std::string valid = R"({"class":"Pid","variables":{)"
+        R"("setPoint":{"class":"SetPointSimple","variables":{"setPoint":20.0000}},)"
+        R"("inputSensor":{"class":"TempSensorMock","variables":{"value":20.0000,"connected":true}},)"
+        R"("inputError":0.0000,"Kp":0.0000,"Ti":0,"Td":0,"p":0.0000,"i":0.0000,"d":0.0000,)"
+        R"("actuatorIsNegative":false,"outputActuator":{"class":"ActuatorPwm",)"
+        R"("variables":{"value":0.0000,"period":4000,"minVal":0.0000,"maxVal":100.0000,)"
+        R"("target":{"class":"ActuatorBool","variables":{"state":false}}}}}})";
 
     BOOST_CHECK_EQUAL(valid, json);
 }
