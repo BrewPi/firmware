@@ -27,6 +27,8 @@
 #include "ActuatorTimeLimited.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorPwm.h"
+#include "ActuatorSetPoint.h"
+#include "SetPoint.h"
 #include "json_writer.h"
 #include "json_reader.h"
 
@@ -47,10 +49,10 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators) {
 {
     "class": "ActuatorPwm",
     "variables": {
-        "value": 0,
+        "value": 0.0000,
         "period": 20000,
-        "minVal": 0,
-        "maxVal": 100,
+        "minVal": 0.0000,
+        "maxVal": 100.0000,
         "target": {
             "class": "ActuatorMutexDriver",
             "variables": {
@@ -92,10 +94,10 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
 {
     "class": "ActuatorPwm",
     "variables": {
-        "value": 0,
+        "value": 0.0000,
         "period": 600000,
-        "minVal": 0,
-        "maxVal": 100,
+        "minVal": 0.0000,
+        "maxVal": 100.0000,
         "target": {
             "class": "ActuatorMutexDriver",
             "variables": {
@@ -141,6 +143,61 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
 
     BOOST_CHECK_EQUAL(valid, json);
 }
+
+BOOST_AUTO_TEST_CASE(serialize_setpoint) {
+    SetPoint * sp1 = new SetPointSimple();
+    SetPoint * sp2 = new SetPointConstant(20.0);
+
+
+    std::string json = JSON::producer<SetPoint>::convert(sp1);
+    std::string valid = R"({"class":"SetPointSimple","variables":{"setPoint":null}})";
+
+    BOOST_CHECK_EQUAL(valid, json);
+
+    json = JSON::producer<SetPoint>::convert(sp2);
+    valid = R"({"class":"SetPointConstant","variables":{"setPoint":20.0000}})";
+
+    BOOST_CHECK_EQUAL(valid, json);
+}
+
+BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
+    SetPoint * sp1 = new SetPointSimple();
+    SetPoint * sp2 = new SetPointConstant(20.0);
+    ActuatorRange * act = new ActuatorSetPoint(sp1, sp2, -10.0, 10.0);
+    act->setValue(5.0); // should set sp1 to sp2 + 5.0 = 25.0;
+
+    std::string json = JSON::producer<ActuatorRange>::convert(act);
+
+/* With some extra whitespace, the valid output looks like this:
+    {
+        "class": "ActuatorSetPoint",
+        "variables": {
+            "target": {
+                "class": "SetPointSimple",
+                "variables": {
+                    "setPoint": 25.0000
+                }
+            },
+            "reference": {
+                "class": "SetPointConstant",
+                "variables": {
+                    "setPoint": 20.0000
+                }
+            },
+            "minimum": -10.0000,
+            "maximum": 10.0000
+        }
+    }
+*/
+
+    std::string valid = R"({"class":"ActuatorSetPoint","variables":{)"
+        R"("target":{"class":"SetPointSimple","variables":{"setPoint":25.0000}},)"
+        R"("reference":{"class":"SetPointConstant","variables":{)"
+        R"("setPoint":20.0000}},"minimum":-10.0000,"maximum":10.0000}})";
+
+    BOOST_CHECK_EQUAL(valid, json);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 

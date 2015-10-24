@@ -30,7 +30,7 @@ class ActuatorSetPoint : public ActuatorRange
 {
 public:
     ActuatorSetPoint(SetPoint * targ = &defaultSetPoint, // setpoint to manipulate
-                     const SetPoint * ref = &defaultSetPoint, //setpoint to offset from
+                     SetPoint * ref = &defaultSetPoint, //setpoint to offset from
                      temp_t mini = temp_t::min(), // minimum actuator value (targ - ref)
                      temp_t maxi = temp_t::max()){ // maximum actuator value
         target = targ;
@@ -73,9 +73,7 @@ public:
     virtual void update(){}; //no actions required
 
     void serialize(JSON::Adapter& adapter){
-        JSON::Class root(adapter, "ActuatorTimeLimited");
-        temp_t reference = this->reference->read();
-        temp_t target = this->target->read();
+        JSON::Class root(adapter, "ActuatorSetPoint");
         JSON_E(adapter, target);
         JSON_E(adapter, reference);
         JSON_E(adapter, minimum);
@@ -85,7 +83,7 @@ public:
 
 private:
     SetPoint * target;
-    const SetPoint * reference;
+    SetPoint * reference;
     temp_t minimum;
     temp_t maximum;
 };
