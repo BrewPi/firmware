@@ -55,7 +55,7 @@ bool                   DeviceManager::firstDeviceOutput;
 
 bool DeviceManager::isDefaultTempSensor(TempSensorBasic * sensor)
 {
-    return sensor == &defaultTempSensor;
+    return sensor == &defaultTempSensorBasic;
 }
 
 /*
@@ -262,8 +262,8 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
         case DEVICETYPE_TEMP_SENSOR :
 
             s = &unwrapSensor(*ppv);
-            if (s != &defaultTempSensor){
-                *ppv = &defaultTempSensor;
+            if (s != &defaultTempSensorBasic){
+                *ppv = &defaultTempSensorBasic;
                 DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_TEMP_SENSOR, config.deviceFunction));
 
                 delete s;

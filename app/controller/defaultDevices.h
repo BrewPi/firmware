@@ -28,7 +28,7 @@
 extern ValueSensor<bool>      defaultSensor;
 extern ActuatorNop            defaultActuator;
 extern ActuatorInvalid        defaultLinearActuator; // always returns invalid and does nothing
-extern TempSensorDisconnected defaultTempSensor;
+extern TempSensorDisconnected defaultTempSensorBasic;
 extern SetPointConstant       defaultSetPoint;
 
 

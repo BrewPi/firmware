@@ -22,6 +22,6 @@
 
 ValueSensor<bool>      defaultSensor(false);
 ActuatorNop            defaultActuator;
-ActuatorInvalid  defaultLinearActuator; // always returns invalid
-TempSensorDisconnected defaultTempSensor;
+ActuatorInvalid        defaultLinearActuator; // always returns invalid
+TempSensorDisconnected defaultTempSensorBasic;
 SetPointConstant       defaultSetPoint(temp_t::invalid());

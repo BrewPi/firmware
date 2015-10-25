@@ -26,7 +26,7 @@
 BOOST_AUTO_TEST_SUITE(DefaultDevicesTest)
 
 BOOST_AUTO_TEST_CASE(defaultTempSensor_works_with_all_TempSensorBasic_functions){
-    TempSensorBasic * sensor = &defaultTempSensor;
+    TempSensorBasic * sensor = &defaultTempSensorBasic;
 
     BOOST_CHECK_EQUAL(sensor->isConnected(), false);
 
