@@ -27,14 +27,15 @@
 #include "ActuatorInterfaces.h"
 #include "SetPoint.h"
 #include "defaultDevices.h"
+#include "Nameable.h"
 #include "json_writer.h"
 
-class Pid
+class Pid : public Nameable
 {
     public:
         Pid(TempSensorBasic * input, ActuatorRange * output, SetPoint * setPoint);
 
-        Pid() : Pid(&defaultTempSensor, &defaultLinearActuator, &defaultSetPoint){}
+        Pid() : Pid(&defaultTempSensorBasic, &defaultLinearActuator, &defaultSetPoint){}
 
         Pid(const Pid & orig);
 
@@ -85,6 +86,9 @@ class Pid
 
         void serialize(JSON::Adapter& adapter){
             JSON::Class root(adapter, "Pid");
+            std::string name(getName()); // get name as std string for json_writer
+            JSON_E(adapter, name);
+
             JSON_E(adapter, setPoint);
             JSON_E(adapter, inputSensor);
 
