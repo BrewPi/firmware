@@ -1,0 +1,18 @@
+/*
+ * Nameable.cpp
+ *
+ *  Created on: 25 okt. 2015
+ *      Author: Elco
+ */
+
+#include "Nameable.h"
+
+Nameable::Nameable() {
+    // TODO Auto-generated constructor stub
+
+}
+
+Nameable::~Nameable() {
+    // TODO Auto-generated destructor stub
+}
+
