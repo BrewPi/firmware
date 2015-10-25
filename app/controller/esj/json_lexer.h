@@ -218,7 +218,7 @@ public:
 		}
 	}
 };
-
+/*
 //-----------------------------------------------------------------------------
 // throw with a suitable error message if the condition is true
 inline void throw_if(ISource* pSource,bool condition,std::string msg)
@@ -518,7 +518,7 @@ public:
 		return m_pSource->Line();
 	}
 };
-
+*/
 }
 
 #endif
