@@ -43,7 +43,17 @@
 #include <ctype.h>
 #include <string.h>
 
-#if defined(_MSC_VER)
+#if PLATFORM_ID == 0 || PLATFORM_ID == 6
+// embedded build for spark core or photon
+#include "arm/json_ex.h"
+#include "arm/convert.h"
+
+#define _IS_NAN(arg) std::isnan(arg)
+#define _IS_INF(arg) std::isinf(arg)
+#define __PLATFORM_THROW(arg) // throw (arg)
+typedef int32_t int_size;
+
+#elif defined(_MSC_VER)
 
 #include "windows\convert.h"
 #include "windows\json_ex.h"
