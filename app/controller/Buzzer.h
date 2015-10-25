@@ -21,6 +21,7 @@
 
 #include "Brewpi.h"
 #include "ActuatorInterfaces.h"
+#include "ActuatorMocks.h"
 
 #if BREWPI_BUZZER
 

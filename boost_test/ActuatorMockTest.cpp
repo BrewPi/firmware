@@ -25,7 +25,6 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorMocks.h"
 #include "json_writer.h"
-#include "json_reader.h"
 
 BOOST_AUTO_TEST_SUITE(ActuatorMockTest)
 

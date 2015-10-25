@@ -3,6 +3,7 @@ here_files = $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/$1/$2))
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/Display
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/Filter
+INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/esj
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/Actuator
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/OneWire

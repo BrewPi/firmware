@@ -7,12 +7,3 @@
 
 #include "Nameable.h"
 
-Nameable::Nameable() {
-    // TODO Auto-generated constructor stub
-
-}
-
-Nameable::~Nameable() {
-    // TODO Auto-generated destructor stub
-}
-

@@ -33,6 +33,7 @@
 #include "TempSensorBasic.h"
 #include "TempSensorMock.h"
 #include "TempSensorExternal.h"
+#include "ActuatorMocks.h"
 #include "Ticks.h"
 #include "Sensor.h"
 #include "SettingsManager.h"

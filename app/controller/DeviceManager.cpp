@@ -276,7 +276,7 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
         case DEVICETYPE_PWM_ACTUATOR :
         {
             Actuator ** target = (Actuator **) ppv;
-            if ((*target)->getDeviviceTarget() != 0){
+            /*if ((*target)->getDeviviceTarget() != 0){
                 target = (*target)->getDeviviceTarget(); // recursive call to unpack until at pin actuator
             }
             if (*target != &defaultActuator){
@@ -285,7 +285,7 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
                 delete *target;
 
                 *target = &defaultActuator;
-            }
+            }*/
         }
             break;
 
@@ -346,9 +346,9 @@ void DeviceManager::installDevice(DeviceConfig & config)
         {
             DEBUG_ONLY(logInfoInt(INFO_INSTALL_DEVICE, config.deviceFunction));
             Actuator ** target = (Actuator **) ppv;
-            if ((*target)->getDeviviceTarget() != 0){
+            /*if ((*target)->getDeviviceTarget() != 0){
                 target = (*target)->getDeviviceTarget(); // recursive call to unpack until at pin/value actuator
-            }
+            }*/
 
 
             *target = (Actuator *) createDevice(config, dt);

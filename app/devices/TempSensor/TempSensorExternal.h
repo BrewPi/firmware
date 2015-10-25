@@ -40,7 +40,7 @@ class TempSensorExternal : public TempSensorBasic
 		this->connected = _connected;
 	}
 
-	bool isConnected() { return _connected; }
+	bool isConnected() { return connected; }
 
 	bool init() {
 		return read()!=TEMP_SENSOR_DISCONNECTED;

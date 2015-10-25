@@ -24,6 +24,7 @@
 #include "TempSensorExternal.h"
 #include "Logger.h"
 #include "DeviceManager.h"
+#include "ActuatorMocks.h"
 
 /**
  * Thermal mass of air per unit volume, per degree.

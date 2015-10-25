@@ -25,8 +25,6 @@
 #include "ActuatorInterfaces.h"
 
 #include "json_writer.h"
-#include "json_reader.h"
-
 
 /*
  * A range actuator that simply remembers the set value. This is primary used for testing.

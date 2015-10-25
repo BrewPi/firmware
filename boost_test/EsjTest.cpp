@@ -33,7 +33,6 @@
 #include "Pid.h"
 #include "SetPoint.h"
 #include "json_writer.h"
-#include "json_reader.h"
 
 BOOST_AUTO_TEST_SUITE(EsjTest)
 

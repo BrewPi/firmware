@@ -54,5 +54,14 @@ class DigitalPinActuator:
         {
         }
 
+        void serialize(JSON::Adapter& adapter){
+            JSON::Class root(adapter, "ActuatorPin");
+            bool state = isActive();
+            JSON_E(adapter, state);
+            JSON_E(adapter, pin);
+            JSON_T(adapter, invert);
+        }
+
+
         void update(){} // do nothing on periodic update
 };
