@@ -524,10 +524,12 @@ public:
 
 	//-------------------------------------------------------------------------
 	// for debug support
+#if defined(ESJ_DEBUG)
 	stringer(const char* file,int line)
 	{
 		(*this) << file << "(" << line << ") : ";
 	}
+#endif
 
 	//-------------------------------------------------------------------------
 	stringer& operator<<(char arg)
@@ -649,20 +651,20 @@ public:
 };  // class
 
 //-----------------------------------------------------------------------------
+#if defined(ESJ_DEBUG)
 // debug support
 static void Debug(const stringer& sb)
 {
 #if (defined(_WINDOWS_))
-	OutputDebugStringA(sb.c_str());
+    OutputDebugStringA(sb.c_str());
 #elif (defined(__MACH__))
-	//NSLog(@"%s",(char*)sb.c_str());
-	std::cout << sb.c_str();
+    //NSLog(@"%s",(char*)sb.c_str());
+    std::cout << sb.c_str();
 #else
 
 #endif
 }
 
-#if defined(_DEBUG) || defined(DEBUG)
 #define DBMSG(sb)	Debug(Chordia::stringer(__FILE__,__LINE__) << sb << "\r\n");
 #else
 #define DBMSG(sb)	
