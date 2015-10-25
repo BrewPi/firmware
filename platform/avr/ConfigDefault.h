@@ -118,4 +118,6 @@
 #define DS2413_SUPPORT_SENSE 0
 #endif
 
-
+#ifndef ROTARY_HALF_STEPS
+#define ROTARY_HALF_STEPS 1
+#endif

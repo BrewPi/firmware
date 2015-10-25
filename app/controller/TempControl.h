@@ -64,7 +64,6 @@ struct ControlConstants{
 	uint8_t beerFastFilter;	// for display and logging
 	uint8_t beerSlowFilter;	// for on/off control algorithm
 	uint8_t beerSlopeFilter;	// for PID calculation
-	uint8_t rotaryHalfSteps; // define whether to use full or half steps for the rotary encoder
 	temp_t pidMax;
     uint16_t heatPwmPeriod;
     uint16_t coolPwmPeriod;

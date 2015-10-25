@@ -124,9 +124,6 @@ ControlConstants const ccDefaults PROGMEM =
     /* beerSlopeFilter */
     2u,
 
-    /* rotaryHalfSteps */
-    0,
-
     /* pidMax */
     10.0,
 
