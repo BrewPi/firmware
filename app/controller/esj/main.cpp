@@ -27,6 +27,7 @@
 
 */
 
+#if 0
 
 #include <iostream>
 #include <string>
@@ -704,3 +705,5 @@ void SystemInit()
 
 }
 #endif
+
+#endif // #if 0 to exclude entire file
