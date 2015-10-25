@@ -1099,14 +1099,6 @@ void DeviceManager::listDevices(Stream & p)
 
     piLink.parseJson(HandleDeviceDisplay, (void *) &dd);
 
-    if (dd.id == -2){
-        if (dd.write >= 0){
-            tempControl.cameraLight.setActive(dd.write != 0);
-        }
-
-        return;
-    }
-
     deviceManager.beginDeviceOutput();
 
     for (device_slot_t idx = 0; deviceManager.allDevices(dc, idx); idx++){

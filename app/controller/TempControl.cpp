@@ -46,11 +46,9 @@ TempSensorBasic * TempControl::ambientSensor = &defaultTempSensorBasic;
 ActuatorDigital *        TempControl::light         = &defaultActuator;
 ActuatorDigital *        TempControl::fan           = &defaultActuator;
 ActuatorTimeLimited *   TempControl::chamberCoolerLimiter;
-ActuatorBool     cameraLightState;
 ActuatorPwm *     TempControl::chamberHeater;
 ActuatorPwm *     TempControl::chamberCooler;
 ActuatorPwm *     TempControl::beerHeater;
-AutoOffActuator   TempControl::cameraLight(600, &cameraLightState);    // timeout 10 min
 Sensor<bool> *    TempControl::door = &defaultSensor;
 
 // Control parameters
@@ -126,9 +124,6 @@ ControlConstants const ccDefaults PROGMEM =
     /* beerSlopeFilter */
     2u,
 
-    /* lightAsHeater */
-    0,
-
     /* rotaryHalfSteps */
     0,
 
@@ -184,8 +179,6 @@ void TempControl::init(void)
 {
     state   = IDLE;
     cs.mode = MODE_OFF;
-
-    cameraLight.setActive(false);
 
     if (chamberHeater == NULL)
     {

@@ -36,6 +36,7 @@
 #include "PiLinkHandlers.h"
 #include "UI.h"
 #include "ActuatorInterfaces.h"
+#include "ActuatorMocks.h"
 
 
 #if BREWPI_SIMULATE
@@ -507,10 +508,7 @@ const PiLink::JsonOutput PiLink::jsonOutputCCMap[] PROGMEM = {
 	JSON_OUTPUT_CC_MAP(beerFastFilter, JOCC_UINT8),
 	JSON_OUTPUT_CC_MAP(beerSlowFilter, JOCC_UINT8),
 	JSON_OUTPUT_CC_MAP(beerSlopeFilter, JOCC_UINT8),
-	
-	JSON_OUTPUT_CC_MAP(lightAsHeater, JOCC_UINT8),
-	JSON_OUTPUT_CC_MAP(rotaryHalfSteps, JOCC_UINT8),
-	
+
 	JSON_OUTPUT_CC_MAP(heatPwmPeriod, JOCC_UINT16),
 	JSON_OUTPUT_CC_MAP(coolPwmPeriod, JOCC_UINT16),
 	JSON_OUTPUT_CC_MAP(minCoolTime, JOCC_UINT16),
@@ -805,8 +803,6 @@ const PiLink::JsonParserConvert PiLink::jsonParserConverters[] PROGMEM = {
 
 	JSON_CONVERT(JSONKEY_idleRangeHigh, &tempControl.cc.idleRangeHigh, setStringToTempDiff),
 	JSON_CONVERT(JSONKEY_idleRangeLow, &tempControl.cc.idleRangeLow, setStringToTempDiff),
-	JSON_CONVERT(JSONKEY_lightAsHeater, &tempControl.cc.lightAsHeater, setBool),
-	JSON_CONVERT(JSONKEY_rotaryHalfSteps, &tempControl.cc.rotaryHalfSteps, setBool),
 	
 	JSON_CONVERT(JSONKEY_heatPwmPeriod, &tempControl.cc.heatPwmPeriod, setUint16),
 	JSON_CONVERT(JSONKEY_coolPwmPeriod, &tempControl.cc.coolPwmPeriod, setUint16),
