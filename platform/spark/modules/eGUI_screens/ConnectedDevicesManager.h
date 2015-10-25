@@ -20,7 +20,6 @@
 #pragma once
 
 #include "EepromManager.h"		// for clear()
-#include "OneWireDevices.h"
 #include "DeviceManager.h"
 #include "TempSensorBasic.h"
 #include "ActuatorInterfaces.h"
@@ -31,6 +30,7 @@
 #include "ActuatorPin.h"
 #include "temperatureFormats.h"
 #include <functional>
+#include "OneWireAddress.h"
 
 #define MAX_TEMP_SENSORS
 

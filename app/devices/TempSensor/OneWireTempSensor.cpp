@@ -21,9 +21,10 @@
 #include "Brewpi.h"
 #include "temperatureFormats.h"
 #include "OneWireTempSensor.h"
+
+#include "OneWireAddress.h"
 #include "DallasTemperature.h"
 #include "OneWire.h"
-#include "OneWireDevices.h"
 #include "PiLink.h"
 #include "Ticks.h"
 

@@ -1,6 +1,6 @@
 /*
- * Copyright 2013 BrewPi/Elco Jacobs.
- * Copyright 2013 Matthew McGowan
+ * Copyright 2015 BrewPi/Elco Jacobs.
+ * Copyright 2015 Matthew McGowan
  *
  * This file is part of BrewPi.
  * 
@@ -18,9 +18,34 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Brewpi.h"
+
+#pragma once
+
+#include <stdint.h>
+
+/* old implementation */
 
 void parseBytes(uint8_t* data, const char* s, uint8_t len);
 void printBytes(const uint8_t* data, uint8_t len, char* buf);
-
 typedef uint8_t DeviceAddress[8];
+
+/* new implementation ? */
+
+class OneWireAddress{
+public:
+    OneWireAddress(){}
+
+    void parse(const char* s);
+    void print(char* buf, uint8_t len);
+
+    uint8_t &operator[](uint8_t i){
+        return address[i];
+    }
+
+    operator uint8_t *(){ // for compatibility with OneWire classes that take a uint8_t *
+        return address;
+    }
+
+private:
+    uint8_t address[8];
+};

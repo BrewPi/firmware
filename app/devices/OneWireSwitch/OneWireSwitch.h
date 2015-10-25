@@ -8,9 +8,9 @@
 #pragma once
 
 #include "OneWire.h"
+#include "OneWireAddress.h"
 #include <string.h>
 
-typedef uint8_t DeviceAddress[8];
 
 class OneWireSwitch {
 public:

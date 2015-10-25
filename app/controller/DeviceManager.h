@@ -27,9 +27,9 @@
 #include "ActuatorInterfaces.h"
 #include "Sensor.h"
 #include "TempSensorBasic.h"
-#include "OneWireDevices.h"
 #include "Board.h"
 #include "OneWire.h"
+#include "OneWireAddress.h"
 
 /*
  * A user has freedom to connect various devices to the controller, either via extending the oneWire bus,
@@ -157,8 +157,6 @@ inline DeviceOwner deviceOwner(DeviceFunction id)
 {
     return (id == 0) ? DEVICE_OWNER_NONE : (id >= DEVICE_BEER_FIRST) ? DEVICE_OWNER_BEER : DEVICE_OWNER_CHAMBER;
 }	
-
-typedef uint8_t DeviceAddress[8];
 
 /*
  * A union of all device types.

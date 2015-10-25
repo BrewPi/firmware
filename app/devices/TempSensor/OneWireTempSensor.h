@@ -22,6 +22,7 @@
 
 #include "Brewpi.h"
 #include "TempSensorBasic.h"
+#include "OneWireAddress.h"
 #include "DallasTemperature.h"
 #include "Ticks.h"
 
@@ -70,7 +71,10 @@ public:
         JSON::Class root(adapter, "OneWireTempSensor");
         JSON_E(adapter, value);
         JSON_E(adapter, connected);
-        JSON_E(adapter, sensorAddress);
+        char addressBuf[17];
+        printBytes(sensorAddress, 8, addressBuf); // print to hex string
+        std::string address(addressBuf); // convert to std string
+        JSON_E(adapter, address);
         JSON_T(adapter, calibrationOffset);
     }
 	

@@ -34,6 +34,7 @@
 #include "EepromFormat.h"
 #include "EepromManager.h"
 #include "defaultDevices.h"
+#include "OneWireAddress.h"
 
 #define CALIBRATION_OFFSET_PRECISION (4)
 
@@ -694,36 +695,6 @@ bool DeviceManager::allDevices(DeviceConfig & config,
                                uint8_t        deviceIndex)
 {
     return eepromManager.fetchDevice(config, deviceIndex);
-}
-
-void parseBytes(uint8_t *    data,
-                const char * s,
-                uint8_t      len)
-{
-    char c;
-
-    while ((c = *s++)){
-        uint8_t d = ((c >= 'A') ? c - 'A' + 10 : c - '0') << 4;
-
-        c       = *s++;
-        d       |= ((c >= 'A') ? c - 'A' + 10 : c - '0');
-        *data++ = d;
-    }
-}
-
-void printBytes(const uint8_t * data,
-                uint8_t         len,
-                char *          buf)    // prints 8-bit data in hex
-{
-    for (int i = 0; i < len; i++){
-        uint8_t b = (data[i] >> 4) & 0x0f;
-
-        *buf++ = ((b > 9) ? b - 10 + 'A' : b + '0');
-        b      = data[i] & 0x0f;
-        *buf++ = ((b > 9) ? b - 10 + 'A' : b + '0');
-    }
-
-    *buf = 0;
 }
 
 void DeviceManager::OutputEnumeratedDevices(DeviceConfig * config,
