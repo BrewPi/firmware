@@ -29,6 +29,7 @@
 #include "ActuatorPwm.h"
 #include "ActuatorSetPoint.h"
 #include "TempSensorMock.h"
+#include "TempSensor.h"
 #include "Pid.h"
 #include "SetPoint.h"
 #include "json_writer.h"
@@ -265,6 +266,16 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
     BOOST_CHECK_EQUAL(valid, json);
 }
 
+BOOST_AUTO_TEST_CASE(serialize_TempSensor) {
+    TempSensorBasic * s = new TempSensorMock(20.0);
+    TempSensor * sensor = new TempSensor(s, "test");
+
+    std::string json = JSON::producer<TempSensor>::convert(sensor);
+    std::string valid = R"({"class":"TempSensor","variables":{"name":"test","sensor":{)"
+        R"("class":"TempSensorMock","variables":{"value":20.0000,"connected":true}}}})";
+
+    BOOST_CHECK_EQUAL(valid, json);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 
