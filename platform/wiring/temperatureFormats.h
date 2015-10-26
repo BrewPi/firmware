@@ -23,7 +23,6 @@
 #include <cstdlib>
 #include "str_functions.h"
 #include "fixstl.h"
-#include <iostream>
 
 #undef constrain
 
@@ -158,7 +157,7 @@ public:
         }
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, format, absolute);
     }
-    std::string toCstring(){
+    std::string toCstring() const{
         char temporary[10]; // max 3 integer digits, 4 decimals + period + minus sign + \0
         char * noLeadingSpace = temporary;
         noLeadingSpace = toString(temporary, 4, 10);
@@ -242,7 +241,7 @@ public:
        return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, format, absolute);
     }
 
-    std::string toCstring(){
+    std::string toCstring() const{
         char temporary[15]; // max 3 integer digits, 8 decimals + period + minus sign + \0
         char * noLeadingSpace = temporary;
         noLeadingSpace = toString(temporary, 8, 15);
@@ -301,7 +300,7 @@ public:
                 'C', false, minimum, maximum);
     }
 
-    std::string toCstring(){
+    std::string toCstring() const{
         char temporary[15]; // max 7 integer digits, 4 decimals + period + minus sign + \0
         char * noLeadingSpace = temporary;
         noLeadingSpace = toString(temporary, 4, 15);
@@ -355,21 +354,3 @@ public:
     friend class temp_t;
     friend class temp_precise_t;
 };
-
-template <class T>
-inline T& operator<< (T& os, temp_t& t){
-
-    return os << t.toCstring();
-}
-
-template <class T>
-inline T& operator<< (T& os, temp_precise_t& t){
-
-    return os << t.toCstring();
-}
-
-template <class T>
-inline T& operator<< (T& os, temp_long_t& t){
-
-    return os << t.toCstring();
-}
