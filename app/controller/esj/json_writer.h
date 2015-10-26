@@ -110,9 +110,9 @@ namespace JSON
         virtual ISink& operator<<(const uint32_t& arg)      { (*_sink) << arg; return (*this); }
         virtual ISink& operator<<(const double& arg)		{ (*_sink) << arg; return (*this); }
 		virtual ISink& operator<<(const bool& arg)			{ (*_sink) << arg; return (*this); }
-		virtual ISink& operator<<(const temp_t& arg)        { (*_sink) << arg; return (*this); }
-		virtual ISink& operator<<(const temp_precise_t& arg){ (*_sink) << arg; return (*this); }
-		virtual ISink& operator<<(const temp_long_t& arg)   { (*_sink) << arg; return (*this); }
+		virtual ISink& operator<<(const temp_t& arg)        { (*_sink) << arg.toCstring(); return (*this); }
+		virtual ISink& operator<<(const temp_precise_t& arg){ (*_sink) << arg.toCstring(); return (*this); }
+		virtual ISink& operator<<(const temp_long_t& arg)   { (*_sink) << arg.toCstring(); return (*this); }
 	};
 
 	//-------------------------------------------------------------------------
@@ -195,17 +195,17 @@ namespace JSON
 
 		virtual void serialize(const std::string& key,temp_t& value,bool more)
         {
-            (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
+            (*_sink) << Quote() << key << Quote() << ':' << value.toCstring() << (more ? "," : "");
         }
 
 		virtual void serialize(const std::string& key,temp_precise_t& value,bool more)
         {
-            (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
+            (*_sink) << Quote() << key << Quote() << ':' << value.toCstring() << (more ? "," : "");
         }
 
 		virtual void serialize(const std::string& key,temp_long_t& value,bool more)
         {
-            (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
+            (*_sink) << Quote() << key << Quote() << ':' << value.toCstring() << (more ? "," : "");
         }
 
 		//---------------------------------------------------------------------
@@ -321,19 +321,19 @@ namespace JSON
 		//---------------------------------------------------------------------
         virtual void serialize(temp_t& value)
         {
-            (*_sink) << value;
+            (*_sink) << value.toCstring();
         }
 
         //---------------------------------------------------------------------
         virtual void serialize(temp_precise_t& value)
         {
-            (*_sink) << value;
+            (*_sink) << value.toCstring();
         }
 
         //---------------------------------------------------------------------
         virtual void serialize(temp_long_t& value)
         {
-            (*_sink) << value;
+            (*_sink) << value.toCstring();
         }
 	};
 

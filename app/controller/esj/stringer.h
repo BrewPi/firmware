@@ -617,6 +617,27 @@ public:
         return (*this);
     }
 
+    stringer& operator<<(const temp_t& arg)
+    {
+        //
+        m_buffer += arg.toCstring();
+        return (*this);
+    }
+
+    stringer& operator<<(const temp_precise_t& arg)
+    {
+        //
+        m_buffer += arg.toCstring();
+        return (*this);
+    }
+
+    stringer& operator<<(const temp_long_t& arg)
+    {
+        //
+        m_buffer += arg.toCstring();
+        return (*this);
+    }
+
 	//-------------------------------------------------------------------------
 	stringer& operator<<(double arg)
 	{
