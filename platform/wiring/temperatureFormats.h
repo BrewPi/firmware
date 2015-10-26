@@ -63,9 +63,16 @@ bool fromStringImpl(int32_t * raw, // result is put in this variable upon succes
 class temp_t: public fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS> {
 
 public:
-    using fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::fixed_point_base; // inherit constructors from base class
+    temp_t(){}
 
-    temp_t() {
+    // copy constructor
+    temp_t(temp_t const& rhs){
+        value_ = rhs.value_;
+    }
+
+    // constructor from base class, needed for inherited operators to work
+    temp_t(fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS> const& rhs) :
+        fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>(rhs){
     }
 
     // converting copy constructor which removes the extra precision bits
@@ -74,9 +81,15 @@ public:
     // converting copy constructor which constrains to temp's limits
     temp_t(temp_long_t const& rhs);
 
+    // construction from double, use base class constructor
+    temp_t(double d) : fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>(d){}
+
     // reserve lowest 5 values for special cases (invalid/disabled)
     static const fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::base_type min_val =
             fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::min_val + 2;
+
+    static const fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::base_type max_val =
+            fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::max_val;
 
     // special value to indicate an invalid temp
     static const fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::base_type invalid_val =
@@ -92,13 +105,21 @@ public:
         t.value_ = min_val;
         return t;
     }
-    // function that returns temp object with value min
+
+    // function that returns temp object with value max
+    static temp_t max() {
+        temp_t t;
+        t.value_ = max_val;
+        return t;
+    }
+
+    // function that returns temp object with value invalid
     static temp_t invalid() {
         temp_t t;
         t.value_ = invalid_val;
         return t;
     }
-    // function that returns temp object with value min
+    // function that returns temp object with value disabled
     static temp_t disabled() {
         temp_t t;
         t.value_ = disabled_val;
@@ -197,18 +218,26 @@ class temp_precise_t: public fpml::fixed_point_base<temp_precise_t,
         TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS> {
 
 public:
+    temp_precise_t(){}
 
-    using fpml::fixed_point_base<temp_precise_t, TEMP_PRECISE_TYPE,
-            TEMP_PRECISE_INTBITS>::fixed_point_base; // inherit constructors from base class
-
-    temp_precise_t() {
+    // copy constructor
+    temp_precise_t(temp_precise_t const& rhs){
+        value_ = rhs.value_;
     }
 
-    // converting copy constructor with shifts the value to have more fraction bits
+    // constructor from base class, needed for inherited operators to work
+    temp_precise_t(fpml::fixed_point_base<temp_precise_t, TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS> const& rhs) :
+        fpml::fixed_point_base<temp_precise_t, TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS>(rhs){
+    }
+
+    // converting copy constructor which shifts the value to have more fraction bits
     temp_precise_t(temp_t const& rhs);
 
-    // converting copy constructor with shifts the value to have more fraction bits and constrains the result to fit
+    // converting copy constructor which shifts the value to have more fraction bits and constrains the result to fit
     temp_precise_t(temp_long_t const& rhs);
+
+    // construction from double, use base class constructor
+    temp_precise_t(double d) : fpml::fixed_point_base<temp_precise_t, TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS>(d){}
 
     char * toString(char buf[], uint8_t numDecimals, uint8_t len) const {
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, 'C', false);
@@ -279,9 +308,16 @@ class temp_long_t: public fpml::fixed_point_base<temp_long_t, TEMP_LONG_TYPE,
         TEMP_LONG_INTBITS> {
 
 public:
-    using fpml::fixed_point_base<temp_long_t, TEMP_LONG_TYPE, TEMP_LONG_INTBITS>::fixed_point_base; // inherit constructors from base class
+    temp_long_t(){}
 
-    temp_long_t() {
+    // copy constructor
+    temp_long_t(temp_long_t const& rhs){
+        value_ = rhs.value_;
+    }
+
+    // constructor from base class, needed for inherited operators to work
+    temp_long_t(fpml::fixed_point_base<temp_long_t, TEMP_LONG_TYPE, TEMP_LONG_INTBITS> const& rhs) :
+        fpml::fixed_point_base<temp_long_t, TEMP_LONG_TYPE, TEMP_LONG_INTBITS>(rhs){
     }
 
     // converting copy constructor from normal temp format
@@ -289,6 +325,9 @@ public:
 
     // converting copy constructor which removes extra precision bits
     temp_long_t(temp_precise_t const& rhs);
+
+    // construction from double, use base class constructor
+    temp_long_t(double d) : fpml::fixed_point_base<temp_long_t, TEMP_LONG_TYPE, TEMP_LONG_INTBITS>(d){}
 
     char * toString(char buf[], uint8_t numDecimals, uint8_t len) const {
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, 'C', false);
