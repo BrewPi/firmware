@@ -34,7 +34,7 @@ public:
     virtual ~Nameable(){};
 
     void setName(const char * newName){
-        strncpy(name, newName, 15); // doesn't overwrite last character
+        strncpy(name, newName, MAX_NAME_LENGTH); // doesn't overwrite last character
     }
 
     const char * getName(){
