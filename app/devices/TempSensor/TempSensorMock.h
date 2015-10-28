@@ -43,6 +43,10 @@ public:
 	    value += delta;
 	}
 
+	void update(){
+	    // nop for this mock sensor
+	}
+
 	temp_t read()
 	{
 		if (!isConnected())

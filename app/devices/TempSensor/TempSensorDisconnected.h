@@ -33,7 +33,11 @@ public:
 	
 	temp_t read() {
 		return TEMP_SENSOR_DISCONNECTED;
-	}	
+	}
+
+    void update(){
+        // nop for this mock sensor
+    }
 	
     void serialize(JSON::Adapter& adapter){
         temp_t value = read();

@@ -46,6 +46,10 @@ class TempSensorExternal : public TempSensorBasic
 		return read()!=TEMP_SENSOR_DISCONNECTED;
 	}
 	
+    void update(){
+        // nop for this mock sensor
+    }
+
 	temp_t read() {
 		if (!isConnected())
 			return TEMP_SENSOR_DISCONNECTED;

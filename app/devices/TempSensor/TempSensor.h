@@ -52,6 +52,13 @@ public:
 	}
 
 	/*
+     * Update the sensor if the value is cached
+     */
+	void update(){
+	    sensor->update();
+	}
+
+	/*
 	 * Fetch a new reading from the sensor
 	 */
 	inline temp_t read(){

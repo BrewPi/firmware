@@ -105,9 +105,12 @@ temp_t OneWireTempSensor::read() {
     if (!connected)
         return TEMP_SENSOR_DISCONNECTED;
 
-    temp_t temp = readAndConstrainTemp();
+    return cachedValue;
+}
+
+void OneWireTempSensor::update(){
+    cachedValue = readAndConstrainTemp();
     requestConversion();
-    return temp;
 }
 
 temp_t OneWireTempSensor::readAndConstrainTemp() {

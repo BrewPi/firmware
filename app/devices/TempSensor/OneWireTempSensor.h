@@ -45,6 +45,7 @@ public:
 		connected = true;  // assume connected. Transition from connected to disconnected prints a message.
 		memcpy(sensorAddress, address, sizeof(DeviceAddress));
 		this->calibrationOffset = calibrationOffset;
+		cachedValue = TEMP_SENSOR_DISCONNECTED;
 	};
 	
 	~OneWireTempSensor();
@@ -54,7 +55,8 @@ public:
 	}		
 	
 	bool init();
-	temp_t read();
+	temp_t read(); // return cached value
+	void update(); // read from hardware sensor
 	
 	private:
 
@@ -89,6 +91,7 @@ public:
 	DeviceAddress sensorAddress;
 
 	temp_t calibrationOffset;
+	temp_t cachedValue;
 	bool connected;
 	
 };

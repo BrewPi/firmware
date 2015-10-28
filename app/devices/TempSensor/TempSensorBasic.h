@@ -37,8 +37,13 @@ public:
 	 */
 	virtual bool init() =0;
 
+    /*
+     * Update the value from hardware (if the result is cached)
+     */
+    virtual void update() = 0;
+
 	/*
-	 * Fetch a new reading from the sensor
+	 * Read the sensor, returns cached value set in update()
 	 */
 	virtual temp_t read() = 0;
 	
