@@ -22,37 +22,59 @@
 #pragma once
 
 #include <vector>
-
 #include "Pid.h"
-#include "ActuatorPwm.h"
+#include "ActuatorInterfaces.h"
 #include "TempSensor.h"
+#include "ActuatorMutexGroup.h"
 
 class Control
 {
-    public:
-        Control();
+public:
+    Control();
 
-        ~Control(){}
+    ~Control();
 
-        void init(void);
-        void initBackwardsCompatible(void);
+    void update();
 
-        void reset(void);
+    std::vector<TempSensor*> sensors;
+    std::vector<Pid*>        pids;
+    std::vector<Actuator*>   actuators;
 
-        void update(void);
+    // static setup below, we should support generating this dynamically later
+protected:
+    TempSensorBasic * fridgeSensor;
+    TempSensorBasic * beer1Sensor;
+    TempSensorBasic * beer2Sensor;
 
-        std::vector<TempSensor*> sensors;
-        std::vector<Pid*>        pids;
-        std::vector<Actuator*>   actuators;
+    TempSensor * fridgeSensorNamed;
+    TempSensor * beer1SensorNamed;
+    TempSensor * beer2SensorNamed;
 
-        // pointers for compatibility with device manager
-        TempSensorBasic * beerSensor;
-        TempSensorBasic * fridgeSensor;
-        TempSensorBasic * ambientSensor;
-        Actuator *        chamberCooler;
-        Actuator *        chamberHeater;
-        Actuator *        beerHeater;
+    ActuatorDigital * coolerPin;
+    ActuatorDigital * coolerTimeLimited;
+    ActuatorDigital * coolerMutex;
+    ActuatorRange * cooler;
 
+    ActuatorDigital * heater1Pin;
+    ActuatorDigital * heater1Mutex;
+    ActuatorRange * heater1;
+
+    ActuatorDigital * heater2Pin;
+    ActuatorDigital * heater2Mutex;
+    ActuatorRange *   heater2;
+
+    ActuatorRange * fridgeSetPointActuator;
+
+    ActuatorMutexGroup * mutex;
+
+    Pid * heater1Pid;
+    Pid * heater2Pid;
+    Pid * coolerPid;
+    Pid * beerToFridgePid;
+
+    SetPoint * beer1Set;
+    SetPoint * beer2Set;
+    SetPoint * fridgeSet;
 };
 
 
