@@ -80,6 +80,7 @@ class Adapter
 	public:
 
 	Adapter() : _count(0) {}
+	virtual ~Adapter(){}
 
 	// must be implemented
 	virtual bool storing() = 0;

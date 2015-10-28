@@ -97,6 +97,7 @@ namespace JSON
 	public:
 		//
 		StringSink(Chordia::stringer* sink) : _sink(sink)	{}
+		virtual ~StringSink(){}
 		//
 		virtual ISink& operator<<(const char* arg)			{ (*_sink) << arg; return (*this); }
 		virtual ISink& operator<<(const std::string& arg)	{ (*_sink) << arg; return (*this); }
@@ -134,6 +135,7 @@ namespace JSON
 		//---------------------------------------------------------------------
 		//
 		Writer(ISink* sink) : _sink(sink) {}
+		virtual ~Writer(){}
 
 		//---------------------------------------------------------------------
 		//

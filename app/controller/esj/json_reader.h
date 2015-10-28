@@ -170,6 +170,8 @@ namespace JSON
 			m_pScanner(&scanner)
 		{}
 
+		virtual ~Reader(){}
+
 		//-----------------------------------------------------------------------------
 		virtual bool storing() { return false; }
 
