@@ -31,6 +31,7 @@
 #include "ActuatorSetPoint.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMutexGroup.h"
+#include "json_writer.h"
 
 Control::Control()
 {
@@ -134,4 +135,10 @@ void Control::update(){
     }
 }
 
-Control control;
+void Control::serialize(JSON::Adapter& adapter){
+    JSON::Class root(adapter, "Control");
+    JSON_E(adapter, pids);
+    JSON_E(adapter, sensors);
+    JSON_T(adapter, actuators);
+}
+

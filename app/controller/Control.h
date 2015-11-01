@@ -26,6 +26,7 @@
 #include "ActuatorInterfaces.h"
 #include "TempSensor.h"
 #include "ActuatorMutexGroup.h"
+#include "json_writer.h"
 
 class Control
 {
@@ -35,6 +36,8 @@ public:
     ~Control();
 
     void update();
+
+    void serialize(JSON::Adapter& adapter);
 
     std::vector<TempSensor*> sensors;
     std::vector<Pid*>        pids;
@@ -76,6 +79,3 @@ protected:
     SetPoint * beer2Set;
     SetPoint * fridgeSet;
 };
-
-
-extern Control control;

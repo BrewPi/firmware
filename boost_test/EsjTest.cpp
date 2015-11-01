@@ -32,6 +32,7 @@
 #include "TempSensor.h"
 #include "Pid.h"
 #include "SetPoint.h"
+#include "Control.h"
 #include "json_writer.h"
 
 BOOST_AUTO_TEST_SUITE(EsjTest)
@@ -274,6 +275,17 @@ BOOST_AUTO_TEST_CASE(serialize_TempSensor) {
         R"("class":"TempSensorMock","variables":{"value":20.0000,"connected":true}}}})";
 
     BOOST_CHECK_EQUAL(valid, json);
+}
+
+BOOST_AUTO_TEST_CASE(serialize_control) {
+
+    Control * control = new Control();
+
+    std::string json;
+
+    json = JSON::producer<Control>::convert(control);
+
+    BOOST_TEST_MESSAGE("Control JSON = " << json); // use --log_level=all to see in stdout
 }
 
 BOOST_AUTO_TEST_SUITE_END()
