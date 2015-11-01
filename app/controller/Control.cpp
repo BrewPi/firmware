@@ -58,11 +58,11 @@ Control::Control()
     coolerMutex = new ActuatorMutexDriver(coolerTimeLimited, mutex);
     cooler = new ActuatorPwm(coolerMutex, 900); // period 15 min
 
-    fridgeSetPointActuator = new ActuatorSetPoint(fridgeSet, beer1Set);
-
     beer1Set = new SetPointSimple();
     beer2Set = new SetPointSimple();
     fridgeSet = new SetPointSimple();
+
+    fridgeSetPointActuator = new ActuatorSetPoint(fridgeSet, beer1Set);
 
     heater1Pid = new Pid(fridgeSensor, heater1, fridgeSet);
 
