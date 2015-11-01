@@ -366,6 +366,15 @@ inline void stream(Adapter& adapter,T& arg)
 }
 
 //-----------------------------------------------------------------------------
+// arbitrary type T*. must implement serialize with the correct signature
+template <typename T>
+inline void stream(Adapter& adapter,T* arg)
+{
+    //
+    arg->serialize(adapter);
+}
+
+//-----------------------------------------------------------------------------
 // serialize a single instance of T. 
 // Highlights an asymmetry in JSON (or more likely Javascript ...)
 template <typename T>
