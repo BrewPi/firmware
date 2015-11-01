@@ -431,12 +431,12 @@ inline void stream_primitives(Adapter& adapter,const std::string& key,std::vecto
 		if (it != value.end())
 		{
 			// VC2012 cannot disambiguate the type of T when a vector of bool is used.
-			T t = (*it);
+			T* t = (it);
 			stream(adapter,t);
 			for (++it; it != value.end(); ++it)
 			{
 				adapter.serialize(T_COMMA);
-				t = (*it);
+				t = it;
 				stream(adapter,t);
 			}
 		}
