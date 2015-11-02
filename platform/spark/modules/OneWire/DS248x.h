@@ -55,15 +55,14 @@ public:
 
     DS248x(uint8_t address) : mAddress(address) {
         mAddress = 0x18 | mAddress;
-        init();
     }
-  
+
     virtual ~DS248x(){};
 
     bool init();
-    
+
     bool configure(uint8_t config);
-    
+
     uint8_t pinNr(){
         return mAddress & 0b11; // return lower bits of I2C address instead of pin
     }
@@ -72,7 +71,7 @@ public:
     // the bus to come high, if it doesn't then it is broken or shorted
     // and we return a 0;
     //
-    // Returns 1 if a device asserted a presence pulse, 0 otherwise.   
+    // Returns 1 if a device asserted a presence pulse, 0 otherwise.
     bool reset();
 
     void write(uint8_t b, uint8_t power = 0);
@@ -94,7 +93,7 @@ public:
     uint8_t hasTimeout() {
         return mTimeout;
     }
-    
+
     //--------------------------------------------------------------------------
     // Use the DS248X help command '1-Wire triplet' to perform one bit of a
     // 1-Wire search.
