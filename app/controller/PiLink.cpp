@@ -715,7 +715,7 @@ void setFilter(const char* value, uint8_t* target) {
     uint16_t received;
     if(stringToUint16(&received, value)){
         uint8_t setting = received;
-        tempControl.applyFilterSetting(setting, target);
+        *target = setting;
         eepromManager.storeTempConstantsAndSettings(); // value parsed correctly
     }
 }

@@ -25,6 +25,9 @@
 #include "Pid.h"
 #include "ActuatorInterfaces.h"
 #include "TempSensor.h"
+#include "ActuatorMutexDriver.h"
+#include "ActuatorPwm.h"
+#include "ActuatorTimeLimited.h"
 #include "ActuatorMutexGroup.h"
 #include "json_writer.h"
 #include "ActuatorSetPoint.h"
@@ -56,17 +59,17 @@ protected:
     TempSensor * beer2SensorNamed;
 
     ActuatorDigital * coolerPin;
-    ActuatorDigital * coolerTimeLimited;
-    ActuatorDigital * coolerMutex;
-    ActuatorRange * cooler;
+    ActuatorTimeLimited * coolerTimeLimited;
+    ActuatorMutexDriver * coolerMutex;
+    ActuatorPwm * cooler;
 
     ActuatorDigital * heater1Pin;
-    ActuatorDigital * heater1Mutex;
-    ActuatorRange * heater1;
+    ActuatorMutexDriver * heater1Mutex;
+    ActuatorPwm * heater1;
 
     ActuatorDigital * heater2Pin;
-    ActuatorDigital * heater2Mutex;
-    ActuatorRange *   heater2;
+    ActuatorMutexDriver * heater2Mutex;
+    ActuatorPwm * heater2;
 
     ActuatorSetPoint * fridgeSetPointActuator;
 

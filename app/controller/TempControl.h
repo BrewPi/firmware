@@ -114,6 +114,7 @@ public:
     void loadDefaultConstants(void);
 
     void loadSettingsAndConstants(void);
+    void updateConstants(void); // copy tempControl to control
 
     tcduration_t timeSinceCooling(void);
     tcduration_t timeSinceHeating(void);
@@ -161,7 +162,6 @@ public:
         return control.beer2Sensor->read();
     }
 
-    void applyFilterSetting(uint8_t setting, uint8_t * target);
 
 public:
     // Control parameters

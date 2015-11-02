@@ -105,12 +105,13 @@ void TempControl::loadDefaultSettings()
 void TempControl::storeConstants(eptr_t offset)
 {
     eepromAccess.writeBlock(offset, (void *) &cc, sizeof(ControlConstants));
+    updateConstants();
 }
 
 void TempControl::loadConstants(eptr_t offset)
 {
     eepromAccess.readBlock((void *) &cc, offset, sizeof(ControlConstants));
-    // TODO init Control actuators and filters
+    updateConstants();
 }
 
 // write new settings to EEPROM to be able to reload them after a reset
@@ -134,9 +135,11 @@ void TempControl::loadSettings(eptr_t offset)
     setFridgeTemp(cs.fridgeSetting);
 }
 
+
 void TempControl::loadDefaultConstants(void)
 {
     memcpy_P((void *) &tempControl.cc, (void *) &ccDefaults, sizeof(ControlConstants));
+    updateConstants();
 }
 
 
@@ -175,33 +178,6 @@ void TempControl::setFridgeTemp(temp_t newTemp) {
     eepromManager.storeTempSettings();
 }
 
-void TempControl::applyFilterSetting(uint8_t setting, uint8_t * target){
-    if(target == &cc.heater1_infilt){
-        control.heater1Pid->setInputFilter(setting);
-    }
-    else if(target == &cc.heater1_dfilt){
-        control.heater1Pid->setDerivativeFilter(setting);
-    }
-    else if(target == &cc.heater2_infilt){
-        control.heater2Pid->setInputFilter(setting);
-    }
-    else if(target == &cc.heater2_dfilt){
-        control.heater2Pid->setDerivativeFilter(setting);
-    }
-    else if(target == &cc.cooler_infilt){
-        control.coolerPid->setInputFilter(setting);
-    }
-    else if(target == &cc.cooler_dfilt){
-        control.coolerPid->setDerivativeFilter(setting);
-    }
-    else if(target == &cc.beer2fridge_infilt){
-        control.beerToFridgePid->setInputFilter(setting);
-    }
-    else if(target == &cc.beer2fridge_dfilt){
-        control.beerToFridgePid->setDerivativeFilter(setting);
-    }
-}
-
 control_mode_t ModeControl_GetMode()
 {
     return tempControl.getMode();
@@ -214,4 +190,46 @@ control_mode_t ModeControl_SetMode(control_mode_t mode)
     tempControl.setMode(mode, true);
 
     return prev;
+}
+
+// loads settings in tempControl to control, overwriting all existing settings
+// This is temporary fix, until settings are stored elsewhere
+// Overwriting with the same value should not have any side effects
+// updating all settings when only one has changed is a temporary fix. TODO
+void TempControl::updateConstants()
+{
+    //settings for heater 1
+    control.heater1Pid->Kp = cc.heater1_kp;
+    control.heater1Pid->Ti = cc.heater1_ti;
+    control.heater1Pid->Td = cc.heater1_td;
+
+    //settings for heater 2
+    control.heater2Pid->Kp = cc.heater2_kp;
+    control.heater2Pid->Ti = cc.heater2_ti;
+    control.heater2Pid->Td = cc.heater2_td;
+
+    //settings for cooler
+    control.coolerPid->Kp = cc.cooler_kp;
+    control.coolerPid->Ti = cc.cooler_ti;
+    control.coolerPid->Td = cc.cooler_td;
+
+    //settings for beer2fridge PID
+    control.beerToFridgePid->Kp = cc.beer2fridge_kp;
+    control.beerToFridgePid->Ti = cc.beer2fridge_ti;
+    control.beerToFridgePid->Td = cc.beer2fridge_td;
+
+    control.cooler->setPeriod(cc.coolerPwmPeriod);
+    control.heater1->setPeriod(cc.heater1PwmPeriod);
+    control.heater2->setPeriod(cc.heater2PwmPeriod);
+
+    control.coolerTimeLimited->setTimes(cc.minCoolTime, cc.minCoolIdleTime);
+
+    control.heater1Pid->setInputFilter(cc.heater1_infilt);
+    control.heater1Pid->setDerivativeFilter(cc.heater1_dfilt);
+    control.heater2Pid->setInputFilter(cc.heater2_infilt);
+    control.heater2Pid->setDerivativeFilter(cc.heater2_dfilt);
+    control.coolerPid->setInputFilter(cc.cooler_infilt);
+    control.coolerPid->setDerivativeFilter(cc.cooler_dfilt);
+    control.beerToFridgePid->setInputFilter(cc.beer2fridge_infilt);
+    control.beerToFridgePid->setDerivativeFilter(cc.beer2fridge_dfilt);
 }
