@@ -37,7 +37,8 @@
 #include "UI.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorMocks.h"
-
+#include "Control.h"
+#include "json_writer.h"
 
 #if BREWPI_SIMULATE
 #include "Simulator.h"
@@ -160,8 +161,9 @@ void PiLink::receive(void){
 		case 'c': // Control constants requested
 			sendControlConstants();
 			break;
-		case 'v': // Control variables requested
-			sendControlVariables();
+
+		case 'v': // Control variables requested, send Control Object as json
+		    sendControlVariables();
 			break;
 		case 'n':
 			// v version
@@ -539,19 +541,11 @@ void PiLink::sendControlConstants(void){
 	sendJsonValues('C', jsonOutputCCMap, sizeof(jsonOutputCCMap)/sizeof(jsonOutputCCMap[0]));	
 }
 
-const PiLink::JsonOutput PiLink::jsonOutputCVMap[] PROGMEM = {
-	JSON_OUTPUT_CV_MAP(beerDiff, JOCC_TEMP_DIFF),
-	JSON_OUTPUT_CV_MAP(diffIntegral, JOCC_TEMP_DIFF),
-	JSON_OUTPUT_CV_MAP(beerSlope, JOCC_TEMP_DIFF),
-	JSON_OUTPUT_CV_MAP(p, JOCC_FIXED_POINT),
-	JSON_OUTPUT_CV_MAP(i, JOCC_FIXED_POINT),
-	JSON_OUTPUT_CV_MAP(d, JOCC_FIXED_POINT),
-};
-
-// Send all control variables. Useful for debugging and choosing parameters
+// This function now sends the entire Control object as json using ESJ
 void PiLink::sendControlVariables(void){
-	jsonOutputBase = (uint8_t*)&tempControl.cv;
-	sendJsonValues('V', jsonOutputCVMap, sizeof(jsonOutputCVMap)/sizeof(jsonOutputCVMap[0]));
+    std::string json;
+    json = JSON::producer<Control>::convert(control);
+    piStream.print(json.c_str());
 }
 
 void PiLink::printJsonName(const char * name)

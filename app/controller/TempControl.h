@@ -34,15 +34,6 @@ struct ControlSettings {
     temp_t fridgeSetting;
 };
 
-struct ControlVariables {
-    temp_t beerDiff;
-    temp_long_t diffIntegral; // also uses 9 fraction bits, but more integer bits to prevent overflow
-    temp_t beerSlope;
-    temp_t p;
-    temp_t i;
-    temp_t d;
-};
-
 struct ControlConstants {
     char tempFormat;
 
@@ -167,7 +158,6 @@ public:
     // Control parameters
     ControlConstants cc;
     ControlSettings cs;
-    ControlVariables cv;
 
 private:
     // keep track of beer setting stored in EEPROM

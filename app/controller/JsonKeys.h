@@ -25,6 +25,7 @@
 #include <avr/pgmspace.h>
 #endif
 
+// settings
 static const char JSONKEY_mode[] PROGMEM = "mode";
 static const char JSONKEY_beerSetting[] PROGMEM = "beerSet";
 static const char JSONKEY_fridgeSetting[] PROGMEM = "fridgeSet";
@@ -61,15 +62,6 @@ static const char JSONKEY_minCoolIdleTime[] PROGMEM = "minCoolIdleTime";
 static const char JSONKEY_heater1PwmPeriod[] PROGMEM = "heater1PwmPeriod";
 static const char JSONKEY_heater2PwmPeriod[] PROGMEM = "heater2PwmPeriod";
 static const char JSONKEY_coolerPwmPeriod[] PROGMEM = "coolerPwmPeriod";
-
-
-// variable;
-static const char JSONKEY_beerDiff[] PROGMEM = "beerDiff";
-static const char JSONKEY_diffIntegral[] PROGMEM = "diffIntegral";
-static const char JSONKEY_beerSlope[] PROGMEM = "beerSlope";
-static const char JSONKEY_p[] PROGMEM = "p";
-static const char JSONKEY_i[] PROGMEM = "i";
-static const char JSONKEY_d[] PROGMEM = "d";
 
 static const char JSONKEY_logType[] PROGMEM = "logType";
 static const char JSONKEY_logID[] PROGMEM = "logID";
