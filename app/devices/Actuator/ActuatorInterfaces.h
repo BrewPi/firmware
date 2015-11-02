@@ -107,9 +107,7 @@ protected:
     ActuatorDigital * target;
 
 public:
-    ActuatorDriver(ActuatorDigital * _target){
-        target = _target;
-    }
+    ActuatorDriver(ActuatorDigital * _target) : target(_target){}
     virtual ~ActuatorDriver(){};
 
     virtual void update(){

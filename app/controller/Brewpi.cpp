@@ -93,7 +93,6 @@ void setup()
 void brewpiLoop(void)
 {
 	static unsigned long lastUpdate = -1000; // init at -1000 to update immediately
-	uint8_t oldState;
         ui.ticks();
         
     if(!ui.inStartup() && (ticks.millis() - lastUpdate >= (1000))) { //update settings every second
@@ -101,18 +100,11 @@ void brewpiLoop(void)
 			
 		//tempControl.updateTemperatures();
 		//tempControl.updatePID();
-		oldState = tempControl.getState();
-		tempControl.updateState();
-		if(oldState != tempControl.getState()){
-			piLink.printTemperatures(); // add a data point at every state transition
-		}
+		piLink.printTemperatures(); // add a data point at every state transition
 		// tempControl.updateOutputs();
 
         ui.update();
     }	
-    if(tempControl.getMode() != MODE_TEST){
-        // tempControl.updatePwm();
-    }
     //listen for incoming serial connections while waiting to update
     piLink.receive();
 

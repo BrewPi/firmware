@@ -61,7 +61,7 @@ void LcdDisplay::init(void){
 void LcdDisplay::printAllTemperatures(void){
 	// alternate between beer and room temp
 	if (flags & LCD_FLAG_ALTERNATE_ROOM) {
-		bool displayRoom = ((ticks.seconds()&0x08)==0) && !BREWPI_SIMULATE && tempControl.ambientSensor->isConnected();
+		bool displayRoom = ((ticks.seconds()&0x08)==0) && !tempControl.getRoomTemp().isDisabledOrInvalid();
 		if (displayRoom ^ ((flags & LCD_FLAG_DISPLAY_ROOM)!=0)) {	// transition
 			flags = displayRoom ? flags | LCD_FLAG_DISPLAY_ROOM : flags & ~LCD_FLAG_DISPLAY_ROOM;
 			printStationaryText();
@@ -93,7 +93,7 @@ void LcdDisplay::printBeerSet(void){
 
 void LcdDisplay::printFridgeTemp(void){	
 	printTemperatureAt(6,2, flags & LCD_FLAG_DISPLAY_ROOM ?
-		tempControl.ambientSensor->read() :
+		tempControl.getRoomTemp() :
 		tempControl.getFridgeTemp());
 }
 
@@ -180,7 +180,7 @@ void LcdDisplay::printMode(void){
 // print the current state on the last line of the lcd
 void LcdDisplay::printState(void){
 	uint16_t time = UINT16_MAX; // init to max
-	uint8_t state = tempControl.getDisplayState();
+	uint8_t state = tempControl.getState();
 	if(state != stateOnDisplay){ //only print static text when state has changed
 		stateOnDisplay = state;
 		// Reprint state and clear rest of the line

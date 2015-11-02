@@ -321,7 +321,7 @@ struct SimFridgeHeaterCooler : public StaticSetup {
     }
 };
 
-// A heater and a cooler, both acting on fridge temperature directly
+// A heater and a cooler, both acting on beer temperature directly
 struct SimBeerHeaterCooler : public StaticSetup {
     Simulation sim;
     SimBeerHeaterCooler(){

@@ -64,6 +64,8 @@ Control::Control()
     fridgeSet = new SetPointSimple();
 
     fridgeSetPointActuator = new ActuatorSetPoint(fridgeSet, beer1Set);
+    fridgeSetPointActuator->setMin(-10.0);
+    fridgeSetPointActuator->setMax(10.0);
 
     heater1Pid = new Pid(fridgeSensor, heater1, fridgeSet);
     heater1Pid->setName("heater1");
@@ -98,6 +100,8 @@ Control::Control()
     setpoints.push_back(beer1SetNamed);
     setpoints.push_back(beer2SetNamed);
     setpoints.push_back(fridgeSetNamed);
+
+    mutex->setDeadTime(1800000); // 30 minutes
 }
 
 Control::~Control(){
@@ -159,3 +163,4 @@ void Control::serialize(JSON::Adapter& adapter){
     JSON_T(adapter, setpoints);
 }
 
+Control control;

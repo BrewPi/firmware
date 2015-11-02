@@ -328,7 +328,7 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
 		sendJsonAnnotation(PSTR(JSON_FRIDGE_ANN), fridgeAnnotation);
 		
 	t = tempControl.getRoomTemp();
-	if (tempControl.ambientSensor->isConnected() && changed(roomTemp, t))
+	if (changed(roomTemp, t))
 		sendJsonTemp(PSTR(JSON_ROOM_TEMP), tempControl.getRoomTemp());
 		
 	if (changed(state, tempControl.getState()))
@@ -491,37 +491,36 @@ const PiLink::JsonOutputHandler PiLink::JsonOutputHandlers[] = {
 
 const PiLink::JsonOutput PiLink::jsonOutputCCMap[] PROGMEM = {
 	JSON_OUTPUT_CC_MAP(tempFormat, JOCC_CHAR),
-	JSON_OUTPUT_CC_MAP(tempSettingMin, JOCC_TEMP_FORMAT),
-	JSON_OUTPUT_CC_MAP(tempSettingMax, JOCC_TEMP_FORMAT),
-	JSON_OUTPUT_CC_MAP(pidMax, JOCC_TEMP_DIFF),
 
-	JSON_OUTPUT_CC_MAP(Kp, JOCC_FIXED_POINT),
-	JSON_OUTPUT_CC_MAP(Ki, JOCC_FIXED_POINT),
-	JSON_OUTPUT_CC_MAP(Kd, JOCC_FIXED_POINT),
+	JSON_OUTPUT_CC_MAP(heater1_kp, JOCC_FIXED_POINT),
+	JSON_OUTPUT_CC_MAP(heater1_ti, JOCC_UINT16),
+	JSON_OUTPUT_CC_MAP(heater1_td, JOCC_UINT16),
+	JSON_OUTPUT_CC_MAP(heater1_infilt, JOCC_UINT8),
+	JSON_OUTPUT_CC_MAP(heater1_dfilt, JOCC_UINT8),
 
-	JSON_OUTPUT_CC_MAP(idleRangeHigh, JOCC_TEMP_DIFF),
-	JSON_OUTPUT_CC_MAP(idleRangeLow, JOCC_TEMP_DIFF),
+	JSON_OUTPUT_CC_MAP(heater2_kp, JOCC_FIXED_POINT),
+    JSON_OUTPUT_CC_MAP(heater2_ti, JOCC_UINT16),
+    JSON_OUTPUT_CC_MAP(heater2_td, JOCC_UINT16),
+    JSON_OUTPUT_CC_MAP(heater2_infilt, JOCC_UINT8),
+    JSON_OUTPUT_CC_MAP(heater2_dfilt, JOCC_UINT8),
 
-	JSON_OUTPUT_CC_MAP(fridgeFastFilter, JOCC_UINT8),
-	JSON_OUTPUT_CC_MAP(fridgeSlowFilter, JOCC_UINT8),
-	JSON_OUTPUT_CC_MAP(fridgeSlopeFilter, JOCC_UINT8),
-	JSON_OUTPUT_CC_MAP(beerFastFilter, JOCC_UINT8),
-	JSON_OUTPUT_CC_MAP(beerSlowFilter, JOCC_UINT8),
-	JSON_OUTPUT_CC_MAP(beerSlopeFilter, JOCC_UINT8),
+    JSON_OUTPUT_CC_MAP(cooler_kp, JOCC_FIXED_POINT),
+    JSON_OUTPUT_CC_MAP(cooler_ti, JOCC_UINT16),
+    JSON_OUTPUT_CC_MAP(cooler_td, JOCC_UINT16),
+    JSON_OUTPUT_CC_MAP(cooler_infilt, JOCC_UINT8),
+    JSON_OUTPUT_CC_MAP(cooler_dfilt, JOCC_UINT8),
 
-	JSON_OUTPUT_CC_MAP(heatPwmPeriod, JOCC_UINT16),
-	JSON_OUTPUT_CC_MAP(coolPwmPeriod, JOCC_UINT16),
+    JSON_OUTPUT_CC_MAP(beer2fridge_kp, JOCC_FIXED_POINT),
+    JSON_OUTPUT_CC_MAP(beer2fridge_ti, JOCC_UINT16),
+    JSON_OUTPUT_CC_MAP(beer2fridge_td, JOCC_UINT16),
+    JSON_OUTPUT_CC_MAP(beer2fridge_infilt, JOCC_UINT8),
+    JSON_OUTPUT_CC_MAP(beer2fridge_dfilt, JOCC_UINT8),
+
 	JSON_OUTPUT_CC_MAP(minCoolTime, JOCC_UINT16),
 	JSON_OUTPUT_CC_MAP(minCoolIdleTime, JOCC_UINT16),
-	JSON_OUTPUT_CC_MAP(fridgePwmKpHeat, JOCC_TEMP_DIFF),
-	JSON_OUTPUT_CC_MAP(fridgePwmKiHeat, JOCC_TEMP_DIFF),
-	JSON_OUTPUT_CC_MAP(fridgePwmKdHeat, JOCC_TEMP_DIFF),
-	JSON_OUTPUT_CC_MAP(fridgePwmKpCool, JOCC_TEMP_DIFF),
-    JSON_OUTPUT_CC_MAP(fridgePwmKiCool, JOCC_TEMP_DIFF),
-    JSON_OUTPUT_CC_MAP(fridgePwmKdCool, JOCC_TEMP_DIFF),
-    JSON_OUTPUT_CC_MAP(beerPwmKpHeat, JOCC_TEMP_DIFF),
-    JSON_OUTPUT_CC_MAP(beerPwmKiHeat, JOCC_TEMP_DIFF),
-    JSON_OUTPUT_CC_MAP(beerPwmKdHeat, JOCC_TEMP_DIFF)
+	JSON_OUTPUT_CC_MAP(heater1PwmPeriod, JOCC_UINT16),
+	JSON_OUTPUT_CC_MAP(heater2PwmPeriod, JOCC_UINT16),
+	JSON_OUTPUT_CC_MAP(coolerPwmPeriod, JOCC_UINT16)
 };
 
 void PiLink::sendJsonValues(char responseType, const JsonOutput* /*PROGMEM*/ jsonOutputMap, uint8_t mapCount) {
@@ -712,49 +711,11 @@ void PiLink::setTempFormat(const char* val) {
 	eepromManager.storeTempConstantsAndSettings();
 }
 
-
-// todo - move these structs to PROGMEM.
-enum FilterType { FAST, SLOW, SLOPE };
-enum TempSensorTarget { FRIDGE, BEER };
-
-static uint8_t* const filterSettings[] = {
-		&tempControl.cc.fridgeFastFilter,
-		&tempControl.cc.fridgeSlowFilter,
-		&tempControl.cc.fridgeSlopeFilter,
-		&tempControl.cc.beerFastFilter,
-		&tempControl.cc.beerSlowFilter,
-		&tempControl.cc.beerSlopeFilter		
-	};
-	
-#define MAKE_FILTER_SETTING_TARGET(filterType, sensorTarget)  (void*)(uint8_t(filterType)+uint8_t(sensorTarget)*3)
-
-void applyFilterSetting(const char* val, void* target) {
-	// the cast was  (uint8_t(uint16_t(target), changed to unsigned int so that the
-	// first cast is the same width as a pointer, avoiding a warning
-	// On x64 builds, unsigned int is still 32 bits, so cast to uint64_t instead
-	#if defined(_M_X64) || defined(__amd64__)
-		uint8_t offset = uint8_t((uint64_t) target);		// target is really just an integer
-        #else
-        	uint8_t offset = uint8_t((unsigned int) target);		// target is really just an integer
-        #endif
-    /*
-	FilterType filterType = FilterType(offset&3);
-	TempSensorTarget sensorTarget = TempSensorTarget(offset/3);
-	
-	uint8_t value = atol(val);
-	uint8_t* const location = filterSettings[offset];
-	*location = value;
-	TempSensor* sensor = sensorTarget ? tempControl.beerSensor : tempControl.fridgeSensor;
-	switch (filterType) {
-		case FAST: sensor->setFastFilterCoefficients(value); break;
-		case SLOW: sensor->setSlowFilterCoefficients(value); break;
-		case SLOPE: sensor->setSlopeFilterCoefficients(value); break;
-	}
-	eepromManager.storeTempConstantsAndSettings();*/
-}
-
-void setStringToFixedPoint(const char* value, temp_t* target) {
-    if(target->fromString(value)){
+void setFilter(const char* value, uint8_t* target) {
+    uint16_t received;
+    if(stringToUint16(&received, value)){
+        uint8_t setting = received;
+        tempControl.applyFilterSetting(setting, target);
         eepromManager.storeTempConstantsAndSettings(); // value parsed correctly
     }
 }
@@ -764,7 +725,14 @@ void setStringToTemp(const char* value, temp_t* target) {
         eepromManager.storeTempConstantsAndSettings(); // value parsed correctly
     }
 }
+
 void setStringToTempDiff(const char* value, temp_t* target) {
+    if(target->fromTempString(value, tempControl.cc.tempFormat, false)){
+        eepromManager.storeTempConstantsAndSettings(); // value parsed correctly
+    }
+}
+
+void setStringToTempDiffLong(const char* value, temp_long_t* target) {
     if(target->fromTempString(value, tempControl.cc.tempFormat, false)){
         eepromManager.storeTempConstantsAndSettings(); // value parsed correctly
     }
@@ -793,37 +761,31 @@ const PiLink::JsonParserConvert PiLink::jsonParserConverters[] PROGMEM = {
 	
 	JSON_CONVERT(JSONKEY_tempFormat, NULL, setTempFormat),
 	
-	JSON_CONVERT(JSONKEY_tempSettingMin, &tempControl.cc.tempSettingMin, setStringToTemp),
-	JSON_CONVERT(JSONKEY_tempSettingMax, &tempControl.cc.tempSettingMax, setStringToTemp),
-	JSON_CONVERT(JSONKEY_pidMax, &tempControl.cc.pidMax, setStringToTempDiff),
-
-	JSON_CONVERT(JSONKEY_Kp, &tempControl.cc.Kp, setStringToFixedPoint),
-	JSON_CONVERT(JSONKEY_Ki, &tempControl.cc.Ki, setStringToFixedPoint),
-	JSON_CONVERT(JSONKEY_Kd, &tempControl.cc.Kd, setStringToFixedPoint),
-
-	JSON_CONVERT(JSONKEY_idleRangeHigh, &tempControl.cc.idleRangeHigh, setStringToTempDiff),
-	JSON_CONVERT(JSONKEY_idleRangeLow, &tempControl.cc.idleRangeLow, setStringToTempDiff),
-	
-	JSON_CONVERT(JSONKEY_heatPwmPeriod, &tempControl.cc.heatPwmPeriod, setUint16),
-	JSON_CONVERT(JSONKEY_coolPwmPeriod, &tempControl.cc.coolPwmPeriod, setUint16),
+	JSON_CONVERT(JSONKEY_heater1_kp, &tempControl.cc.heater1_kp, setStringToTempDiffLong),
+	JSON_CONVERT(JSONKEY_heater1_ti, &tempControl.cc.heater1_ti, setUint16),
+	JSON_CONVERT(JSONKEY_heater1_td, &tempControl.cc.heater1_td,setUint16),
+	JSON_CONVERT(JSONKEY_heater1_infilt, &tempControl.cc.heater1_infilt, setFilter),
+	JSON_CONVERT(JSONKEY_heater1_dfilt, &tempControl.cc.heater1_dfilt, setFilter),
+	JSON_CONVERT(JSONKEY_heater2_kp, &tempControl.cc.heater2_kp, setStringToTempDiffLong),
+	JSON_CONVERT(JSONKEY_heater2_ti, &tempControl.cc.heater2_ti, setUint16),
+	JSON_CONVERT(JSONKEY_heater2_td, &tempControl.cc.heater2_td, setUint16),
+	JSON_CONVERT(JSONKEY_heater2_infilt, &tempControl.cc.heater2_infilt, setFilter),
+	JSON_CONVERT(JSONKEY_heater2_dfilt, &tempControl.cc.heater2_dfilt, setFilter),
+	JSON_CONVERT(JSONKEY_cooler_kp, &tempControl.cc.cooler_kp, setStringToTempDiffLong),
+	JSON_CONVERT(JSONKEY_cooler_ti, &tempControl.cc.cooler_ti, setUint16),
+	JSON_CONVERT(JSONKEY_cooler_td, &tempControl.cc.cooler_td, setUint16),
+	JSON_CONVERT(JSONKEY_cooler_infilt, &tempControl.cc.cooler_infilt, setFilter),
+	JSON_CONVERT(JSONKEY_cooler_dfilt, &tempControl.cc.cooler_dfilt, setFilter),
+	JSON_CONVERT(JSONKEY_beer2fridge_kp, &tempControl.cc.beer2fridge_kp, setStringToTempDiffLong),
+	JSON_CONVERT(JSONKEY_beer2fridge_ti, &tempControl.cc.beer2fridge_ti, setUint16),
+	JSON_CONVERT(JSONKEY_beer2fridge_td, &tempControl.cc.beer2fridge_td, setUint16),
+	JSON_CONVERT(JSONKEY_beer2fridge_infilt, &tempControl.cc.beer2fridge_infilt, setFilter),
+	JSON_CONVERT(JSONKEY_beer2fridge_dfilt, &tempControl.cc.beer2fridge_dfilt, setFilter),
 	JSON_CONVERT(JSONKEY_minCoolTime, &tempControl.cc.minCoolTime, setUint16),
 	JSON_CONVERT(JSONKEY_minCoolIdleTime, &tempControl.cc.minCoolIdleTime, setUint16),
-	JSON_CONVERT(JSONKEY_fridgePwmKpHeat, &tempControl.cc.fridgePwmKpHeat, setStringToFixedPoint),
-	JSON_CONVERT(JSONKEY_fridgePwmKiHeat, &tempControl.cc.fridgePwmKiHeat, setStringToFixedPoint),
-	JSON_CONVERT(JSONKEY_fridgePwmKdHeat, &tempControl.cc.fridgePwmKdHeat, setStringToFixedPoint),
-	JSON_CONVERT(JSONKEY_fridgePwmKpCool, &tempControl.cc.fridgePwmKpCool, setStringToFixedPoint),
-	JSON_CONVERT(JSONKEY_fridgePwmKiCool, &tempControl.cc.fridgePwmKiCool, setStringToFixedPoint),
-	JSON_CONVERT(JSONKEY_fridgePwmKdCool, &tempControl.cc.fridgePwmKdCool, setStringToFixedPoint),
-	JSON_CONVERT(JSONKEY_beerPwmKpHeat, &tempControl.cc.beerPwmKpHeat, setStringToFixedPoint),
-	JSON_CONVERT(JSONKEY_beerPwmKiHeat, &tempControl.cc.beerPwmKiHeat, setStringToFixedPoint),
-	JSON_CONVERT(JSONKEY_beerPwmKdHeat, &tempControl.cc.beerPwmKdHeat, setStringToFixedPoint),
-
-	JSON_CONVERT(JSONKEY_fridgeFastFilter, MAKE_FILTER_SETTING_TARGET(FAST, FRIDGE), applyFilterSetting),
-	JSON_CONVERT(JSONKEY_fridgeSlowFilter, MAKE_FILTER_SETTING_TARGET(SLOW, FRIDGE), applyFilterSetting),
-	JSON_CONVERT(JSONKEY_fridgeSlopeFilter, MAKE_FILTER_SETTING_TARGET(SLOPE, FRIDGE), applyFilterSetting),
-	JSON_CONVERT(JSONKEY_beerFastFilter, MAKE_FILTER_SETTING_TARGET(FAST, BEER), applyFilterSetting),
-	JSON_CONVERT(JSONKEY_beerSlowFilter, MAKE_FILTER_SETTING_TARGET(SLOW, BEER), applyFilterSetting),
-	JSON_CONVERT(JSONKEY_beerSlopeFilter, MAKE_FILTER_SETTING_TARGET(SLOPE, BEER), applyFilterSetting)
+	JSON_CONVERT(JSONKEY_heater1PwmPeriod, &tempControl.cc.heater1PwmPeriod, setUint16),
+	JSON_CONVERT(JSONKEY_heater2PwmPeriod, &tempControl.cc.heater2PwmPeriod, setUint16),
+	JSON_CONVERT(JSONKEY_coolerPwmPeriod, &tempControl.cc.coolerPwmPeriod, setUint16)
 	
 };
 

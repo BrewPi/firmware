@@ -290,13 +290,18 @@ class DeviceManager
 	 * @param config	The DeviceConfig describing the device to create.
 	 * @param dt		The device type indicating the type of device to create (where hardware type is not unambiguous.)	
 	 */
+
         static void * createDevice(DeviceConfig & config,
                                    DeviceType     dt);
 
         static void disposeDevice(DeviceType dt,
                                   void *     device);
 
-    static void setupUnconfiguredDevices();
+        static void ** deviceTarget(DeviceConfig & config);
+
+        static void UpdateDeviceState(DeviceDisplay & dd, DeviceConfig & dc, char * val);
+
+        static void setupUnconfiguredDevices();
 
     /*
      * Determines if the given device config is complete. 

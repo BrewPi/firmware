@@ -27,6 +27,7 @@
 #include "TempSensor.h"
 #include "ActuatorMutexGroup.h"
 #include "json_writer.h"
+#include "ActuatorSetPoint.h"
 
 class Control
 {
@@ -67,7 +68,7 @@ protected:
     ActuatorDigital * heater2Mutex;
     ActuatorRange *   heater2;
 
-    ActuatorRange * fridgeSetPointActuator;
+    ActuatorSetPoint * fridgeSetPointActuator;
 
     ActuatorMutexGroup * mutex;
 
@@ -83,4 +84,9 @@ protected:
     SetPointNamed * beer1SetNamed;
     SetPointNamed * beer2SetNamed;
     SetPointNamed * fridgeSetNamed;
+
+    friend class TempControl;
+    friend class DeviceManager;
 };
+
+extern Control control;

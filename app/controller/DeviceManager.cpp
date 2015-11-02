@@ -166,7 +166,7 @@ void DeviceManager::disposeDevice(DeviceType dt,
  * For Temperature sensors, the returned pointer points to a TempSensor*. The basic device can be fetched by calling
  * TempSensor::getSensor().
  */
-inline void ** deviceTarget(DeviceConfig & config)
+void ** DeviceManager::deviceTarget(DeviceConfig & config)
 {
     // for multichamber, will write directly to the multi-chamber managed storage.
     // later...
@@ -178,10 +178,10 @@ inline void ** deviceTarget(DeviceConfig & config)
 
     switch (config.deviceFunction){
         case DEVICE_CHAMBER_ROOM_TEMP :
-            ppv = (void **) &tempControl.ambientSensor;
+            ppv = (void **) &control.beer2Sensor;
 
             break;
-
+/*
         case DEVICE_CHAMBER_DOOR :
             ppv = (void **) &tempControl.door;
 
@@ -191,34 +191,34 @@ inline void ** deviceTarget(DeviceConfig & config)
             ppv = (void **) &tempControl.light;
 
             break;
-
+*/
         case DEVICE_CHAMBER_HEAT :
-            ppv = (void **) &tempControl.chamberHeater;
+            ppv = (void **) &control.heater1Pin;
 
             break;
 
         case DEVICE_BEER_HEAT :
-            ppv = (void **) &tempControl.beerHeater;
+            ppv = (void **) &control.heater2Pin;
 
             break;
 
         case DEVICE_CHAMBER_COOL :
-            ppv = (void **) &tempControl.chamberCooler;
+            ppv = (void **) &control.coolerPin;
 
             break;
 
         case DEVICE_CHAMBER_TEMP :
-            ppv = (void **) &tempControl.fridgeSensor;
+            ppv = (void **) &control.fridgeSensor;
 
             break;
-
+/*
         case DEVICE_CHAMBER_FAN :
             ppv = (void **) &tempControl.fan;
 
             break;
-
+*/
         case DEVICE_BEER_TEMP :
-            ppv = (void **) &tempControl.beerSensor;
+            ppv = (void **) &control.beer1Sensor;
 
             break;
 
@@ -278,16 +278,16 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
             Actuator ** target = (Actuator **) ppv;
             /*if ((*target)->getDeviviceTarget() != 0){
                 target = (*target)->getDeviviceTarget(); // recursive call to unpack until at pin actuator
-            }
+            }*/
             if (*target != &defaultActuator){
                 DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_ACTUATOR, config.deviceFunction));
 
                 delete *target;
 
                 *target = &defaultActuator;
-            }*/
+            }
         }
-            break;
+        break;
 
         case DEVICETYPE_SWITCH_SENSOR :
             if (*ppv != &defaultSensor){
@@ -1045,7 +1045,7 @@ void HandleDeviceDisplay(const char * key,
     }
 }
 
-void UpdateDeviceState(DeviceDisplay & dd,
+void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
                        DeviceConfig &  dc,
                        char *          val)
 {
@@ -1130,7 +1130,7 @@ DeviceType deviceType(DeviceFunction id)
         case DEVICE_CHAMBER_COOL :
         case DEVICE_CHAMBER_HEAT :
         case DEVICE_BEER_HEAT :
-            return DEVICETYPE_PWM_ACTUATOR;
+            return DEVICETYPE_SWITCH_ACTUATOR;
 
         case DEVICE_CHAMBER_TEMP :
         case DEVICE_CHAMBER_ROOM_TEMP :
