@@ -19,7 +19,11 @@
 
 #include <boost/test/unit_test.hpp>
 
+// yes this is hacky, but it allows us to some private variables without adding a lot of getters
+#define protected public
 #include "Pid.h"
+#undef protected
+
 #include "SetPoint.h"
 #include <cstdio>
 #include <math.h>

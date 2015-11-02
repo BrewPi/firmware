@@ -46,8 +46,8 @@ class Pid : public Nameable
         void update();
 
         void setConstants(temp_long_t kp,
-                          uint16_t Ti,
-                          uint16_t Td);
+                          uint16_t ti,
+                          uint16_t td);
 
         void setFiltering(uint8_t b);
 
@@ -116,8 +116,7 @@ class Pid : public Nameable
         void setAutoTune(bool doTune) { autotune = doTune; };
         */
 
-//    protected:
-    public:
+    protected:
         ActuatorRange *   outputActuator;
         TempSensorBasic * inputSensor;
         SetPoint *        setPoint;
@@ -141,4 +140,6 @@ class Pid : public Nameable
         uint16_t          outputLag;
         temp_precise      maxDerivative;
         */
+
+    friend class TempControl;
 };
