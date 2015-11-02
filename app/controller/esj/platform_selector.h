@@ -43,6 +43,8 @@
 #include <ctype.h>
 #include <string.h>
 
+#define ESJ_DISABLE_DOUBLE
+
 #if PLATFORM_ID == 0 || PLATFORM_ID == 6
 // embedded build for spark core or photon
 #include "arm/json_ex.h"

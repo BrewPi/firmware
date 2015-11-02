@@ -79,7 +79,9 @@ namespace JSON
 		virtual ISink& operator<<(const uint8_t&) = 0;
         virtual ISink& operator<<(const uint16_t&) = 0;
         virtual ISink& operator<<(const uint32_t&) = 0;
+#ifndef ESJ_DISABLE_DOUBLE
 		virtual ISink& operator<<(const double&) = 0;
+#endif
 		virtual ISink& operator<<(const bool&) = 0;
 		virtual ISink& operator<<(const temp_t&) = 0;
 		virtual ISink& operator<<(const temp_precise_t&) = 0;
@@ -109,7 +111,9 @@ namespace JSON
 		virtual ISink& operator<<(const uint8_t& arg)       { (*_sink) << arg; return (*this); }
         virtual ISink& operator<<(const uint16_t& arg)      { (*_sink) << arg; return (*this); }
         virtual ISink& operator<<(const uint32_t& arg)      { (*_sink) << arg; return (*this); }
+#ifndef ESJ_DISABLE_DOUBLE
         virtual ISink& operator<<(const double& arg)		{ (*_sink) << arg; return (*this); }
+#endif
 		virtual ISink& operator<<(const bool& arg)			{ (*_sink) << arg; return (*this); }
 		virtual ISink& operator<<(const temp_t& arg)        { (*_sink) << arg.toCstring(); return (*this); }
 		virtual ISink& operator<<(const temp_precise_t& arg){ (*_sink) << arg.toCstring(); return (*this); }
@@ -184,10 +188,12 @@ namespace JSON
             (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
         }
 
+#ifndef ESJ_DISABLE_DOUBLE
 		virtual void serialize(const std::string& key,double& value,bool more) 
 		{
 			(*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
 		}
+#endif
 
 		virtual void serialize(const std::string& key,bool& value,bool more) 
 		{
@@ -308,11 +314,13 @@ namespace JSON
             (*_sink) << value;
         }
 
+#ifndef ESJ_DISABLE_DOUBLE
 		//---------------------------------------------------------------------
 		virtual void serialize(double& value)
 		{
 			(*_sink) << value;
 		}
+#endif
 
 		//---------------------------------------------------------------------
 		virtual void serialize(bool& value)

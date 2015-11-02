@@ -69,6 +69,7 @@ namespace Chordia
 		return toInt(arg.c_str());
 	}
 
+#ifndef ESJ_DISABLE_DOUBLE
 	//-------------------------------------------------------------------------
 	inline double toDouble(const char* arg)
 	{
@@ -80,6 +81,7 @@ namespace Chordia
 	{
 		return toDouble(arg.c_str());
 	}
+#endif
 
 	//-------------------------------------------------------------------------
 	// rather tricksy in place string reversal
@@ -162,6 +164,7 @@ namespace Chordia
         return toString((int64_t)value,base);
     }
     
+#ifndef ESJ_DISABLE_DOUBLE
 
 #ifdef _MSC_VER
 	//-------------------------------------------------------------------------
@@ -378,6 +381,8 @@ namespace Chordia
 			return ret;
 		}
 	};
+
+#endif
 
 	//-----------------------------------------------------------------------------
 	// bytes to upper-case hex - skipping the overhead of std::string conversion
@@ -638,6 +643,7 @@ public:
         return (*this);
     }
 
+#ifndef ESJ_DISABLE_DOUBLE
 	//-------------------------------------------------------------------------
 	stringer& operator<<(double arg)
 	{
@@ -645,6 +651,7 @@ public:
 		m_buffer += Chordia::DoubleConverter<>::Convert(arg);
 		return (*this);
 	}
+#endif
 
 	//-------------------------------------------------------------------------
 	const char* c_str() const

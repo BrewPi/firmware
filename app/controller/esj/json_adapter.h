@@ -115,7 +115,9 @@ class Adapter
 	virtual void serialize(uint8_t&) = 0;
     virtual void serialize(uint16_t&) = 0;
     virtual void serialize(uint32_t&) = 0;
+#ifndef ESJ_DISABLE_DOUBLE
     virtual void serialize(double&) = 0;
+#endif
 	virtual void serialize(bool&) = 0;
 	virtual void serialize(temp_t&) = 0;
 	virtual void serialize(temp_precise_t&) = 0;
@@ -130,7 +132,9 @@ class Adapter
 	virtual void serialize(const std::string&,uint8_t&,bool) = 0;
     virtual void serialize(const std::string&,uint16_t&,bool) = 0;
     virtual void serialize(const std::string&,uint32_t&,bool) = 0;
+#ifndef ESJ_DISABLE_DOUBLE
     virtual void serialize(const std::string&,double&,bool) = 0;
+#endif
 	virtual void serialize(const std::string&,bool&,bool) = 0;
 	virtual void serialize(const std::string&,temp_t&,bool) = 0;
 	virtual void serialize(const std::string&,temp_precise_t&,bool) = 0;
@@ -229,12 +233,14 @@ inline void stream(Adapter& adapter, uint32_t& value)
     adapter.serialize(value);
 }
 
+#ifndef ESJ_DISABLE_DOUBLE
 //-----------------------------------------------------------------------------
 inline void	stream(Adapter& adapter,double& value)
 {
 	//
 	adapter.serialize(value);
 }
+#endif
 
 //-----------------------------------------------------------------------------
 inline void	stream(Adapter& adapter,bool& value)
@@ -279,12 +285,14 @@ inline void stream(Adapter& adapter,const std::string& key,std::wstring& value,b
 	adapter.serialize(key,value,more);
 }
 
+#ifndef ESJ_DISABLE_DOUBLE
 //-----------------------------------------------------------------------------
 // doubles
 inline void	stream(Adapter& adapter,const std::string& key,double& value,bool more)
 {
 	adapter.serialize(key,value,more);
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // int8_t
