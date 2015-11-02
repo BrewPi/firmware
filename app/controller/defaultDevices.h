@@ -25,10 +25,10 @@
 #include "SetPoint.h"
 #include "Sensor.h"
 
-extern ValueSensor<bool>      defaultSensor;
-extern ActuatorNop            defaultActuator;
-extern ActuatorInvalid        defaultLinearActuator; // always returns invalid and does nothing
-extern TempSensorDisconnected defaultTempSensorBasic;
-extern SetPointConstant       defaultSetPoint;
+ValueSensor<bool> & defaultSensor();
+ActuatorNop & defaultActuator();
+ActuatorInvalid & defaultLinearActuator(); // always returns invalid and does nothing
+TempSensorDisconnected & defaultTempSensorBasic();
+SetPointConstant & defaultSetPoint();
 
 

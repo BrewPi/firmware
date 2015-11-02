@@ -29,8 +29,8 @@
 class ActuatorSetPoint : public ActuatorRange
 {
 public:
-    ActuatorSetPoint(SetPoint * targ = &defaultSetPoint, // setpoint to manipulate
-                     SetPoint * ref = &defaultSetPoint, //setpoint to offset from
+    ActuatorSetPoint(SetPoint * targ = &defaultSetPoint(), // setpoint to manipulate
+                     SetPoint * ref = &defaultSetPoint(), //setpoint to offset from
                      temp_t mini = temp_t::min(), // minimum actuator value (targ - ref)
                      temp_t maxi = temp_t::max()) :  // maximum actuator value
         target(targ),

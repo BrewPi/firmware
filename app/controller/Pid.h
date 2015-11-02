@@ -35,7 +35,7 @@ class Pid : public Nameable
     public:
         Pid(TempSensorBasic * input, ActuatorRange * output, SetPoint * setPoint);
 
-        Pid() : Pid(&defaultTempSensorBasic, &defaultLinearActuator, &defaultSetPoint){}
+        Pid() : Pid(&defaultTempSensorBasic(), &defaultLinearActuator(), &defaultSetPoint()){}
 
         Pid(const Pid & orig);
 

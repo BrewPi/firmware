@@ -56,7 +56,7 @@ bool                   DeviceManager::firstDeviceOutput;
 
 bool DeviceManager::isDefaultTempSensor(TempSensorBasic * sensor)
 {
-    return sensor == &defaultTempSensorBasic;
+    return sensor == &defaultTempSensorBasic();
 }
 
 /*
@@ -263,8 +263,8 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
         case DEVICETYPE_TEMP_SENSOR :
 
             s = &unwrapSensor(*ppv);
-            if (s != &defaultTempSensorBasic){
-                *ppv = &defaultTempSensorBasic;
+            if (s != &defaultTempSensorBasic()){
+                *ppv = &defaultTempSensorBasic();
                 DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_TEMP_SENSOR, config.deviceFunction));
 
                 delete s;
@@ -279,23 +279,23 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
             /*if ((*target)->getDeviviceTarget() != 0){
                 target = (*target)->getDeviviceTarget(); // recursive call to unpack until at pin actuator
             }*/
-            if (*target != &defaultActuator){
+            if (*target != &defaultActuator()){
                 DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_ACTUATOR, config.deviceFunction));
 
                 delete *target;
 
-                *target = &defaultActuator;
+                *target = &defaultActuator();
             }
         }
         break;
 
         case DEVICETYPE_SWITCH_SENSOR :
-            if (*ppv != &defaultSensor){
+            if (*ppv != &defaultSensor()){
                 DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_SWITCH_SENSOR, config.deviceFunction));
 
                 delete (SwitchSensor *) *ppv;
 
-                *ppv = &defaultSensor;
+                *ppv = &defaultSensor();
             }
 
             break;
