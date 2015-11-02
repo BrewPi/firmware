@@ -84,11 +84,27 @@ class Pid : public Nameable
             actuatorIsNegative = setting;
         }
 
+        void enable(){
+            enabled = true;
+        }
+
+        void disable(bool turnOffOutputActuator){
+            enabled = false;
+            inputError = 0;
+            p = 0;
+            i = 0;
+            d = 0;
+            if(turnOffOutputActuator){
+                outputActuator -> setValue(0.0);
+            }
+        }
+
+
         void serialize(JSON::Adapter& adapter){
             JSON::Class root(adapter, "Pid");
             std::string name(getName()); // get name as std string for json_writer
             JSON_E(adapter, name);
-
+            JSON_E(adapter, enabled);
             JSON_E(adapter, setPoint);
             JSON_E(adapter, inputSensor);
 
@@ -133,7 +149,7 @@ class Pid : public Nameable
         FilterCascaded    derivativeFilter;
         uint8_t           failedReadCount;
         bool              actuatorIsNegative; // if true, the actuator lowers the input, e.g. a cooler
-
+        bool              enabled;
         /*
         bool              autotune; // auto tuning enabled
         bool              tuning; // tuning in this step response

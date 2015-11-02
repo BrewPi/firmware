@@ -152,7 +152,21 @@ void TempControl::setMode(char newMode,
     {
         setBeerTemp(DISABLED_TEMP);
         setFridgeTemp(DISABLED_TEMP);
+        control.heater1Pid->disable(true);
+        control.coolerPid->disable(true);
+        control.beerToFridgePid->disable(false);
     }
+    else if (newMode == MODE_BEER_CONSTANT || newMode == MODE_BEER_PROFILE){
+        control.heater1Pid->enable();
+        control.coolerPid->enable();
+        control.beerToFridgePid->enable();
+    }
+    else if (newMode != MODE_FRIDGE_CONSTANT){
+        control.heater1Pid->enable();
+        control.coolerPid->enable();
+        control.beerToFridgePid->disable(false);
+    }
+    cs.mode = newMode;
     eepromManager.storeTempSettings();
 }
 

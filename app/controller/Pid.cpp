@@ -42,6 +42,7 @@ Pid::Pid(TempSensorBasic * input,
     // some filtering necessary due to quantization causing steps in the temperature
     setDerivativeFilter(2);
     actuatorIsNegative = false;
+    enabled = true;
 
 //    autotune = false;
 //    tuning = false;
@@ -63,7 +64,7 @@ void Pid::setConstants(temp_long_t kp,
 void Pid::update()
 {
     temp_t inputVal;
-    bool disable = false;
+    bool disable = !enabled;
 
     if( setPoint->read().isDisabledOrInvalid()){
         disable = true;
@@ -95,11 +96,6 @@ void Pid::update()
     }
 
     if ( disable ){
-        inputError = 0;
-        p = 0;
-        i = 0;
-        d = 0;
-        outputActuator -> setValue(0.0);
         return;
     }
 
