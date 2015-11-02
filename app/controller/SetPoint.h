@@ -20,6 +20,7 @@
 #pragma once
 
 #include "temperatureFormats.h"
+#include "Nameable.h"
 #include "json_writer.h"
 
 class SetPoint {
@@ -34,42 +35,66 @@ public:
 
 class SetPointSimple : public SetPoint {
 public:
-    SetPointSimple(temp_t val = temp_t::disabled()) : setPoint(val){}
+    SetPointSimple(temp_t val = temp_t::disabled()) : value(val){}
     virtual ~SetPointSimple(){};
     virtual temp_t read() const{
-        return setPoint;
+        return value;
     }
     virtual void write(temp_t val){
-        setPoint = val;
+        value = val;
     }
 
     void serialize(JSON::Adapter& adapter){
         JSON::Class root(adapter, "SetPointSimple");
-        JSON_T(adapter, setPoint);
+        JSON_T(adapter, value);
     }
 
 private:
-    temp_t setPoint;
+    temp_t value;
 };
 
 
 // immutable SetPoint, always reading for example 'invalid' to indicate that the setpoint has not been configured
 class SetPointConstant: public SetPoint {
 public:
-    SetPointConstant(const temp_t val): setPoint(val){}
+    SetPointConstant(const temp_t val): value(val){}
     ~SetPointConstant(){};
     temp_t read() const{
-        return setPoint;
+        return value;
     }
     void write(temp_t val){
     }
 
     void serialize(JSON::Adapter& adapter){
-        temp_t setPoint = this->setPoint; // create non-const copy for template resolution to work
+        temp_t value = this->value; // create non-const copy for template resolution to work
         JSON::Class root(adapter, "SetPointConstant");
-        JSON_T(adapter, setPoint);
+        JSON_T(adapter, value);
     }
 
 private:
-    const temp_t setPoint;
+    const temp_t value;
+};
+
+class SetPointNamed : public SetPoint, public Nameable {
+public:
+    SetPointNamed(SetPoint * sp, const char * n) : setPoint(sp){
+        setName(n);
+    }
+    ~SetPointNamed(){}
+    inline temp_t read() const{
+        return setPoint->read();
+    }
+    inline void write(temp_t val){
+        setPoint->write(val);
+    }
+    void serialize(JSON::Adapter& adapter){
+        JSON::Class root(adapter, "SetPointNamed");
+        std::string name(getName()); // get name as std string for json_writer
+        JSON_E(adapter, name);
+        JSON_T(adapter, setPoint);
+    }
+
+
+private:
+    SetPoint * setPoint;
 };

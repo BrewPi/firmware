@@ -39,6 +39,7 @@ public:
 
     void serialize(JSON::Adapter& adapter);
 
+    std::vector<SetPointNamed*> setpoints;
     std::vector<TempSensor*> sensors;
     std::vector<Pid*>        pids;
     std::vector<Actuator*>   actuators;
@@ -78,4 +79,8 @@ protected:
     SetPoint * beer1Set;
     SetPoint * beer2Set;
     SetPoint * fridgeSet;
+
+    SetPointNamed * beer1SetNamed;
+    SetPointNamed * beer2SetNamed;
+    SetPointNamed * fridgeSetNamed;
 };

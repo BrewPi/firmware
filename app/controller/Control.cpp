@@ -66,13 +66,17 @@ Control::Control()
     fridgeSetPointActuator = new ActuatorSetPoint(fridgeSet, beer1Set);
 
     heater1Pid = new Pid(fridgeSensor, heater1, fridgeSet);
+    heater1Pid->setName("heater1");
 
     coolerPid = new Pid(fridgeSensor, cooler, fridgeSet);
     coolerPid->setActuatorIsNegative(true);
+    coolerPid->setName("cooler");
 
     heater2Pid = new Pid(beer2Sensor, heater2, beer2Set);
+    coolerPid->setName("heater2");
 
     beerToFridgePid = new Pid(beer1Sensor, fridgeSetPointActuator, beer1Set);
+    beerToFridgePid->setName("beer2fridge");
 
     pids.push_back(heater1Pid);
     pids.push_back(heater2Pid);
@@ -86,6 +90,14 @@ Control::Control()
     actuators.push_back(cooler);
     actuators.push_back(heater1);
     actuators.push_back(heater2);
+
+    beer1SetNamed = new SetPointNamed(beer1Set, "beer1set");
+    beer2SetNamed = new SetPointNamed(beer1Set, "beer2set");
+    fridgeSetNamed = new SetPointNamed(beer1Set, "fridgeset");
+
+    setpoints.push_back(beer1SetNamed);
+    setpoints.push_back(beer2SetNamed);
+    setpoints.push_back(fridgeSetNamed);
 }
 
 Control::~Control(){
@@ -104,6 +116,10 @@ Control::~Control(){
     delete beer1Set;
     delete beer2Set;
     delete fridgeSet;
+
+    delete beer1SetNamed;
+    delete beer2SetNamed;
+    delete fridgeSetNamed;
 
     delete beer1SensorNamed;
     delete beer2SensorNamed;
@@ -139,6 +155,7 @@ void Control::serialize(JSON::Adapter& adapter){
     JSON::Class root(adapter, "Control");
     JSON_E(adapter, pids);
     JSON_E(adapter, sensors);
-    JSON_T(adapter, actuators);
+    JSON_E(adapter, actuators);
+    JSON_T(adapter, setpoints);
 }
 

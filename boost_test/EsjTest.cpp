@@ -153,12 +153,12 @@ BOOST_AUTO_TEST_CASE(serialize_setpoint) {
 
 
     std::string json = JSON::producer<SetPoint>::convert(sp1);
-    std::string valid = R"({"class":"SetPointSimple","variables":{"setPoint":null}})";
+    std::string valid = R"({"class":"SetPointSimple","variables":{"value":null}})";
 
     BOOST_CHECK_EQUAL(valid, json);
 
     json = JSON::producer<SetPoint>::convert(sp2);
-    valid = R"({"class":"SetPointConstant","variables":{"setPoint":20.0000}})";
+    valid = R"({"class":"SetPointConstant","variables":{"value":20.0000}})";
 
     BOOST_CHECK_EQUAL(valid, json);
 }
@@ -178,13 +178,13 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
             "target": {
                 "class": "SetPointSimple",
                 "variables": {
-                    "setPoint": 25.0000
+                    "value": 25.0000
                 }
             },
             "reference": {
                 "class": "SetPointConstant",
                 "variables": {
-                    "setPoint": 20.0000
+                    "value": 20.0000
                 }
             },
             "minimum": -10.0000,
@@ -194,9 +194,9 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
 */
 
     std::string valid = R"({"class":"ActuatorSetPoint","variables":{)"
-        R"("target":{"class":"SetPointSimple","variables":{"setPoint":25.0000}},)"
+        R"("target":{"class":"SetPointSimple","variables":{"value":25.0000}},)"
         R"("reference":{"class":"SetPointConstant","variables":{)"
-        R"("setPoint":20.0000}},"minimum":-10.0000,"maximum":10.0000}})";
+        R"("value":20.0000}},"minimum":-10.0000,"maximum":10.0000}})";
 
     BOOST_CHECK_EQUAL(valid, json);
 }
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
         "setPoint": {
             "class": "SetPointSimple",
             "variables": {
-                "setPoint": 20.0000
+                "value": 20.0000
             }
         },
         "inputSensor": {
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
 */
 
     std::string valid = R"({"class":"Pid","variables":{"name":"",)"
-        R"("setPoint":{"class":"SetPointSimple","variables":{"setPoint":20.0000}},)"
+        R"("setPoint":{"class":"SetPointSimple","variables":{"value":20.0000}},)"
         R"("inputSensor":{"class":"TempSensorMock","variables":{"value":20.0000,"connected":true}},)"
         R"("inputError":0.0000,"Kp":0.0000,"Ti":0,"Td":0,"p":0.0000,"i":0.0000,"d":0.0000,)"
         R"("actuatorIsNegative":false,"outputActuator":{"class":"ActuatorPwm",)"
