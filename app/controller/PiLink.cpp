@@ -543,9 +543,11 @@ void PiLink::sendControlConstants(void){
 
 // This function now sends the entire Control object as json using ESJ
 void PiLink::sendControlVariables(void){
-    std::string json;
-    json = JSON::producer<Control>::convert(control);
+    piStream.print('V');
+    piStream.print(':');
+    std::string json = JSON::producer<Control>::convert(control);
     piStream.print(json.c_str());
+    piStream.println();
 }
 
 void PiLink::printJsonName(const char * name)
