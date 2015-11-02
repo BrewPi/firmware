@@ -82,7 +82,7 @@ void eepromSizeCheck() {
  * Increment this value each time a change is made that is not backwardly-compatible.
  * Either the eeprom will be reset to defaults, or external code will re-establish the values via the piLink interface. 
  */
-#define EEPROM_FORMAT_VERSION 5
+#define EEPROM_FORMAT_VERSION 6
 
 /*
  * Version history:
@@ -92,4 +92,5 @@ void eepromSizeCheck() {
  * rev 3: deactivate flag in DeviceConfig, and additinoal padding to allow for some future expansion.
  * rev 4: added padding at start and reduced device count to 16. We can always increase later.
  * rev 5: PWM actuators alpha/temporary release. Changes in control constants, control variables. Removed peak detection and added PWM settings.
+ * rev 6: Entirely new control structure, new temp format, new actuator classes, etc (2-11-2015)
  */
