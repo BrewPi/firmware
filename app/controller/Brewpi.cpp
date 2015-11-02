@@ -97,17 +97,14 @@ void brewpiLoop(void)
         
     if(!ui.inStartup() && (ticks.millis() - lastUpdate >= (1000))) { //update settings every second
 		lastUpdate = ticks.millis();
-			
-		//tempControl.updateTemperatures();
-		//tempControl.updatePID();
-		piLink.printTemperatures(); // add a data point at every state transition
-		// tempControl.updateOutputs();
-
+		control.update();
         ui.update();
-    }	
+    }
+
+    control.updateActuators(); // update actuators as often as possible for PWM
+
     //listen for incoming serial connections while waiting to update
     piLink.receive();
-
 }
 
 void loop() {

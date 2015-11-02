@@ -142,14 +142,24 @@ Control::~Control(){
 }
 
 void Control::update(){
+    updateSensors();
+    updatePids();
+    updateActuators();
+}
+
+void Control::updatePids(){
+    for ( auto &actuator : actuators ) {
+        actuator->update();
+    }
+}
+
+void Control::updateSensors(){
     for ( auto &sensor : sensors ) {
         sensor->update();
     }
+}
 
-    for ( auto &pid : pids ) {
-        pid->update();
-    }
-
+void Control::updateActuators(){
     for ( auto &actuator : actuators ) {
         actuator->update();
     }

@@ -39,7 +39,11 @@ public:
 
     ~Control();
 
-    void update();
+    void update(); // update everything
+
+    void updateSensors();
+    void updatePids();
+    void updateActuators();
 
     void serialize(JSON::Adapter& adapter);
 
