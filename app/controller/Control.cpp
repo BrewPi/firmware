@@ -163,6 +163,7 @@ void Control::updateActuators(){
     for ( auto &actuator : actuators ) {
         actuator->update();
     }
+    mutex->update();
 }
 
 void Control::serialize(JSON::Adapter& adapter){
