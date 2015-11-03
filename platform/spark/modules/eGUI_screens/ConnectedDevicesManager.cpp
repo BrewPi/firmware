@@ -55,6 +55,7 @@ void ConnectedDevicesManager::handleDevice(DeviceConfig* config, DeviceCallbackI
     if (config->deviceHardware == DEVICE_HARDWARE_ONEWIRE_TEMP) {     
         int slot = existingSlot(config);
         if (slot >= 0) { // found the device still active
+            devices[slot].pointer.tempSensor->update();
             temp_t newTemp = devices[slot].pointer.tempSensor->read();
             if(newTemp == TEMP_SENSOR_DISCONNECTED){
                 devices[slot].lastSeen+=2;                

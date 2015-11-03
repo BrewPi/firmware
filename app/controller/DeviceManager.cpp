@@ -798,6 +798,7 @@ inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw,
     temp_t temp = temp_t::invalid();
 
     if (sensor.init()){
+        sensor.update();
         temp = sensor.read();
     }
 
@@ -1077,6 +1078,7 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
                       != 0);      // cheaper than itoa, because it overlaps with vsnprintf
         } else if (dt == DEVICETYPE_TEMP_SENSOR){
             TempSensorBasic & s = unwrapSensor(*ppv);
+            s.update();
             temp_t temp = s.read();
             temp.toString(val, 3, 9);
         } else if (dt == DEVICETYPE_SWITCH_ACTUATOR){
