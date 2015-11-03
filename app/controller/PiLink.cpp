@@ -353,9 +353,9 @@ void PiLink::sendJsonAnnotation(const char* name, const char* annotation)
 void PiLink::sendJsonTemp(const char* name, const temp_t & temp)
 {
 	char tempString[9];
-	temp.toTempString(tempString, tempControl.cc.tempFormat, true, 2, 9);
+	char * withoutSpaces = temp.toTempString(tempString, 2, 9, tempControl.cc.tempFormat, true);
 	printJsonName(name);
-	piStream.print(tempString);
+	piStream.print(withoutSpaces);
 }
 
 void PiLink::printTemperatures(void){
