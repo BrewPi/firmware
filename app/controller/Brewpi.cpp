@@ -25,6 +25,7 @@
  * 'ArduinoFunctions.cpp' includes all the source files from Arduino that are used. You might have to edit it if you are not using a Leonardo.
  * That is all that is needed! No hassle with makefiles and compiling libraries.
  */
+#include "Platform.h"
 #include "Brewpi.h"
 #include "Ticks.h"
 #include "Display.h"
@@ -76,6 +77,11 @@ void setup()
         ui.ticks();
     }
     
+    // initialize OneWire
+    if (!primaryOneWireBus.init()) {
+        logError(ERROR_ONEWIRE_INIT_FAILED);
+    }
+
 #if BREWPI_SIMULATE
 	simulator.step();
 	// initialize the filters with the assigned initial temp value

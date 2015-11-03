@@ -20,11 +20,17 @@
 #pragma once
 
 #include "Brewpi.h"
+#include "OneWire.h"
+
 #include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #else
 #include <stdbool.h>
+#endif
+
+#if !BREWPI_SIMULATE
+extern OneWire primaryOneWireBus;
 #endif
 
 #define oneWirePin 0x0 // actually the i2c address

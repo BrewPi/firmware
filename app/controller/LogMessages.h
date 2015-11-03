@@ -29,7 +29,7 @@
 */
 
 /* bump this version number when changing this file and copy the new version to the brewpi-script repository. */
-#define BREWPI_LOG_MESSAGES_VERSION 1
+#define BREWPI_LOG_MESSAGES_VERSION 2
 
 #define MSG(errorID, errorString, ...) errorID
 
@@ -52,6 +52,8 @@ enum errorMessages{
 // PiLink.cpp
 	MSG(ERROR_EXPECTED_BRACKET, "Expected { got %c", character),
 	
+	MSG(ERROR_ONEWIRE_INIT_FAILED, "OneWire initialization failed")
+
 }; // END enum errorMessages
 
 enum warningMessages{
