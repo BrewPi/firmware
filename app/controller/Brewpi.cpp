@@ -68,8 +68,6 @@ void setup()
 	piLink.init();
 
     logDebug("started");
-    tempControl.init();
-    settingsManager.loadSettings();
 
     uint32_t start = ticks.millis();
     uint32_t delay = ui.showStartupPage();
@@ -81,6 +79,9 @@ void setup()
     if (!primaryOneWireBus.init()) {
         logError(ERROR_ONEWIRE_INIT_FAILED);
     }
+    tempControl.init();
+    settingsManager.loadSettings();
+
 
 #if BREWPI_SIMULATE
 	simulator.step();
