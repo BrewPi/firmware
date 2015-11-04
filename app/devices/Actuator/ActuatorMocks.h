@@ -102,3 +102,61 @@ public:
 private:
     bool state;
 };
+
+
+/*
+ * An digital actuators that does absolutely nothing. Used as default actuator
+ */
+class ActuatorNop : public ActuatorDigital
+{
+public:
+    ActuatorNop(){}
+    ~ActuatorNop(){}
+
+    virtual void setActive(bool active) {}
+    virtual bool isActive() { return false;}
+    virtual void update(){}
+    bool isDriver() const { return false; }
+
+    void serialize(JSON::Adapter& adapter){
+        bool state = isActive();
+
+        JSON::Class root(adapter, "ActuatorNop");
+        JSON_T(adapter, state);
+    }
+};
+
+/*
+ * An linear actuator that does nothing and always returns invalid(). Linear equavalent of ActuatorNop
+ */
+class ActuatorInvalid : public ActuatorRange
+{
+public:
+    ActuatorInvalid() {}
+    ~ActuatorInvalid() {}
+
+    void setValue(temp_t const& val) {}
+    temp_t getValue() const {
+        return temp_t::invalid();
+    }
+    temp_t min() const {
+        return temp_t::invalid();
+    }
+    temp_t max() const {
+        return temp_t::invalid();
+    }
+    virtual void update(){}; //no actions required
+
+    bool isDriver() const { return false; }
+
+    void serialize(JSON::Adapter& adapter){
+        bool value = getValue();
+        temp_t minimum = min();
+        temp_t maximum = max();
+
+        JSON::Class root(adapter, "ActuatorInvalid");
+        JSON_E(adapter, value);
+        JSON_E(adapter, minimum);
+        JSON_T(adapter, maximum);
+    }
+};

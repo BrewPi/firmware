@@ -22,6 +22,7 @@
 
 #include "TempSensorDisconnected.h"
 #include "ActuatorInterfaces.h"
+#include "ActuatorMocks.h"
 #include "SetPoint.h"
 #include "Sensor.h"
 

@@ -427,13 +427,28 @@ BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap){
     BOOST_CHECK_CLOSE(avgDuty2, 20.0, 1);
 }
 
-BOOST_AUTO_TEST_CASE(getBareActuator_gets_down_to_pin_actuator){
+BOOST_AUTO_TEST_CASE(install_and_uninstall_final_actuator){
     ActuatorDigital * coolerPin = new ActuatorBool();
-    ActuatorDigital * coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
-    ActuatorDigital * coolerMutex = new ActuatorMutexDriver(coolerTimeLimited);
+    ActuatorTimeLimited * coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
+    ActuatorMutexDriver * coolerMutex = new ActuatorMutexDriver(coolerTimeLimited);
     ActuatorPwm * cooler = new ActuatorPwm(coolerMutex, 600); // period 10 min
 
-    BOOST_CHECK_EQUAL(cooler->getBareActuator(), (Actuator*) coolerPin);
+    BOOST_CHECK_EQUAL(coolerTimeLimited->getTarget(), coolerPin);
+
+    BOOST_CHECK(cooler->unInstallActuatorFinalTarget()); // returns true on successful uninstall
+    BOOST_CHECK_EQUAL(cooler->getTarget(), coolerMutex); // unchanged
+    BOOST_CHECK_EQUAL(coolerMutex->getTarget(), coolerTimeLimited); // unchanged
+    BOOST_CHECK_EQUAL(coolerTimeLimited->getTarget(), &defaultActuator()); // replaced by default actuator
+
+    BOOST_CHECK(!cooler->unInstallActuatorFinalTarget()); // returns false, when target is already default actuator
+
+    coolerPin = new ActuatorBool(); // uninstall deleted the previous instance, need to recreate!
+    BOOST_CHECK(cooler->installActuatorFinalTarget(coolerPin)); // returns true on successful install
+    BOOST_CHECK_EQUAL(cooler->getTarget(), coolerMutex); // unchanged
+    BOOST_CHECK_EQUAL(coolerMutex->getTarget(), coolerTimeLimited); // unchanged
+    BOOST_CHECK_EQUAL(coolerTimeLimited->getTarget(), coolerPin); // replaced by default coolerPin again
+
+    BOOST_CHECK(!cooler->installActuatorFinalTarget(coolerPin)); // returns false when actuator was already installed
 }
 
 BOOST_AUTO_TEST_SUITE_END()

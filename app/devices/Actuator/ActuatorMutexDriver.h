@@ -21,6 +21,8 @@
 
 #include <stdint.h>
 #include "temperatureFormats.h"
+#include "ActuatorInterfaces.h"
+#include "ActuatorDriver.h"
 #include "ActuatorMutexGroup.h"
 
 /* A driver actuator to wrap a digital Actuator and block SetActive calls if the mutex group does does not honor the request

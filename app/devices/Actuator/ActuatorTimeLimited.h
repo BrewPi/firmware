@@ -24,6 +24,7 @@
 
 #include <stdint.h>
 #include "ActuatorInterfaces.h"
+#include "ActuatorDriver.h"
 #include "Ticks.h"
 
 class ActuatorTimeLimited: public ActuatorDriver, public ActuatorDigital

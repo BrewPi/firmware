@@ -1,6 +1,6 @@
 /*
- * Copyright 2013 Matthew McGowan
- * Copyright 2013 BrewPi/Elco Jacobs.
+ * Copyright 2015 Matthew McGowan
+ * Copyright 2015 BrewPi/Elco Jacobs.
  *
  * This file is part of BrewPi.
  * 
@@ -31,6 +31,8 @@ enum {
     ACTUATOR_TOGGLE_MUTEX
 };
 
+
+class ActuatorDigital;
 /*
  * An actuator can be driven by other classes and acts on something.
  * Actuators can also drive other actuators, getDeviceTarget finds the lowest level actuator recursively
@@ -44,6 +46,15 @@ public:
 	Actuator * getBareActuator(){
 	    return doGetBareActuator();  // recursive call for composite driver classes, until a non-driver class is reached
 	}
+    // install pin/mock actuator at the lowest level, returns Actuator that was installed
+    // Returns true if a device was uninstalled, so the driver knows to update its own pointer
+	bool installActuatorFinalTarget(ActuatorDigital * a){
+	    return doInstallActuatorFinalTarget(a);  // recursive call for composite driver classes, until a non-driver class is reached
+	}
+	// uninstall pi n/mock actuator at the lowest level, return success (true = an actuator was uninstalled)
+	bool unInstallActuatorFinalTarget(){
+	    return doUnInstallActuatorFinalTarget();
+	}
 	virtual void update() = 0;
 	virtual void serialize(JSON::Adapter& adapter) = 0;
 
@@ -51,6 +62,13 @@ private:
 	virtual Actuator * doGetBareActuator(){
         return this;  // recursive call for composite driver classes, until a non-driver class is reached
     }
+	virtual bool doInstallActuatorFinalTarget(ActuatorDigital * a){
+	    return false; // does nothing for non-driver actuators
+	}
+
+	virtual bool doUnInstallActuatorFinalTarget(){
+	    return false; // does nothing for non-driver actuators
+	}
 };
 
 
@@ -96,88 +114,6 @@ ActuatorThreshold(){}
     virtual temp_t readValue() const = 0;
     virtual temp_t onValue() const = 0;
     virtual temp_t offValue() const = 0;
-};
-
-/*
- * A DriverActuator drivers another digital actuator, for example a PWM actuator can drive a pin actuator
- */
-class ActuatorDriver : public virtual Actuator
-{
-protected:
-    ActuatorDigital * target;
-
-public:
-    ActuatorDriver(ActuatorDigital * _target) : target(_target){}
-    virtual ~ActuatorDriver(){};
-
-    virtual void update(){
-        target->update();
-    }
-
-private:
-    virtual Actuator * doGetBareActuator(){
-        if( target->getBareActuator() == target){
-            return target; // my target is bottom
-        }
-        else{
-            return target->getBareActuator(); // my target is not bottom
-        }
-    }
-};
-
-
-/*
- * An digital actuators that does absolutely nothing. Used as default actuator
- */
-class ActuatorNop : public ActuatorDigital
-{
-public:
-    ActuatorNop(){}
-    ~ActuatorNop(){}
-
-    virtual void setActive(bool active) {}
-    virtual bool isActive() { return false;}
-    virtual void update(){}
-
-    void serialize(JSON::Adapter& adapter){
-        bool state = isActive();
-
-        JSON::Class root(adapter, "ActuatorNop");
-        JSON_T(adapter, state);
-    }
-};
-
-/*
- * An linear actuator that does nothing and always returns invalid(). Linear equavalent of ActuatorNop
- */
-class ActuatorInvalid : public ActuatorRange
-{
-public:
-    ActuatorInvalid() {}
-    ~ActuatorInvalid() {}
-
-    void setValue(temp_t const& val) {}
-    temp_t getValue() const {
-        return temp_t::invalid();
-    }
-    temp_t min() const {
-        return temp_t::invalid();
-    }
-    temp_t max() const {
-        return temp_t::invalid();
-    }
-    virtual void update(){}; //no actions required
-
-    void serialize(JSON::Adapter& adapter){
-        bool value = getValue();
-        temp_t minimum = min();
-        temp_t maximum = max();
-
-        JSON::Class root(adapter, "ActuatorInvalid");
-        JSON_E(adapter, value);
-        JSON_E(adapter, minimum);
-        JSON_T(adapter, maximum);
-    }
 };
 
 

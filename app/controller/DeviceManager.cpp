@@ -188,17 +188,17 @@ void ** DeviceManager::deviceTarget(DeviceConfig & config)
             break;
 */
         case DEVICE_CHAMBER_HEAT :
-            ppv = (void **) &control.heater1Pin;
+            ppv = (void **) &control.heater1;
 
             break;
 
         case DEVICE_BEER_HEAT :
-            ppv = (void **) &control.heater2Pin;
+            ppv = (void **) &control.heater2;
 
             break;
 
         case DEVICE_CHAMBER_COOL :
-            ppv = (void **) &control.coolerPin;
+            ppv = (void **) &control.cooler;
 
             break;
 
@@ -259,12 +259,8 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
             /*if ((*target)->getDeviviceTarget() != 0){
                 target = (*target)->getDeviviceTarget(); // recursive call to unpack until at pin actuator
             }*/
-            if (*target != &defaultActuator()){
+            if ((*target)->unInstallActuatorFinalTarget()){
                 DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_ACTUATOR, config.deviceFunction));
-
-                delete *target;
-
-                *target = &defaultActuator();
             }
         }
         break;
@@ -320,7 +316,6 @@ void DeviceManager::installDevice(DeviceConfig & config)
             break;
 
         case DEVICETYPE_SWITCH_ACTUATOR :
-        case DEVICETYPE_SWITCH_SENSOR :
         case DEVICETYPE_PWM_ACTUATOR :
         {
             DEBUG_ONLY(logInfoInt(INFO_INSTALL_DEVICE, config.deviceFunction));
@@ -329,8 +324,8 @@ void DeviceManager::installDevice(DeviceConfig & config)
                 target = (*target)->getDeviviceTarget(); // recursive call to unpack until at pin/value actuator
             }*/
 
-
-            *target = (Actuator *) createDevice(config, dt);
+            ActuatorDigital * newActuator = (ActuatorDigital *) createDevice(config, dt);
+            (*target)->installActuatorFinalTarget(newActuator);
 
 #if (BREWPI_DEBUG > 0)
             if (*target == NULL){

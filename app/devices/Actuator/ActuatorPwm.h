@@ -23,6 +23,7 @@
 #pragma once
 
 #include "ActuatorInterfaces.h"
+#include "ActuatorDriver.h"
 #include "Ticks.h"
 #include <stdint.h>
 
