@@ -215,6 +215,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
     "class": "Pid",
     "variables": {
         "name":"",
+        "enabled":true,
         "setPoint": {
             "class": "SetPointSimple",
             "variables": {
@@ -255,7 +256,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
 }
 */
 
-    std::string valid = R"({"class":"Pid","variables":{"name":"",)"
+    std::string valid = R"({"class":"Pid","variables":{"name":"","enabled":true,)"
         R"("setPoint":{"class":"SetPointSimple","variables":{"value":20.0000}},)"
         R"("inputSensor":{"class":"TempSensorMock","variables":{"value":20.0000,"connected":true}},)"
         R"("inputError":0.0000,"Kp":0.0000,"Ti":0,"Td":0,"p":0.0000,"i":0.0000,"d":0.0000,)"
