@@ -36,13 +36,9 @@
 Control::Control()
 {
     // set up static devices for backwards compatibility with tempControl
-    beer1Sensor = &defaultTempSensorBasic();
-    beer2Sensor = &defaultTempSensorBasic();
-    fridgeSensor = &defaultTempSensorBasic();
-
-    beer1SensorNamed = new TempSensor(beer1Sensor, "beer1");
-    beer2SensorNamed = new TempSensor(beer2Sensor, "beer2");
-    fridgeSensorNamed = new TempSensor(fridgeSensor, "fridge");
+    beer1Sensor = new TempSensor(&defaultTempSensorBasic(), "beer1");
+    beer2Sensor = new TempSensor(&defaultTempSensorBasic(), "beer2");
+    fridgeSensor = new TempSensor(&defaultTempSensorBasic(), "fridge");
 
     mutex = new ActuatorMutexGroup();
 
@@ -85,9 +81,9 @@ Control::Control()
     pids.push_back(coolerPid);
     pids.push_back(beerToFridgePid);
 
-    sensors.push_back(fridgeSensorNamed);
-    sensors.push_back(beer1SensorNamed);
-    sensors.push_back(beer2SensorNamed);
+    sensors.push_back(fridgeSensor);
+    sensors.push_back(beer1Sensor);
+    sensors.push_back(beer2Sensor);
 
     actuators.push_back(cooler);
     actuators.push_back(heater1);
@@ -124,10 +120,6 @@ Control::~Control(){
     delete beer1SetNamed;
     delete beer2SetNamed;
     delete fridgeSetNamed;
-
-    delete beer1SensorNamed;
-    delete beer2SensorNamed;
-    delete fridgeSensorNamed;
 
     delete mutex;
 

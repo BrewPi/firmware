@@ -52,12 +52,7 @@
 
 class OneWire;
 
-bool                   DeviceManager::firstDeviceOutput;
-
-bool DeviceManager::isDefaultTempSensor(TempSensorBasic * sensor)
-{
-    return sensor == &defaultTempSensorBasic();
-}
+bool DeviceManager::firstDeviceOutput;
 
 /*
  * Sets devices to their unconfigured states. Each device is initialized to a static no-op instance.
@@ -229,17 +224,6 @@ void ** DeviceManager::deviceTarget(DeviceConfig & config)
     return ppv;
 }
 
-inline TempSensorBasic & unwrapSensor(void * pv)
-{
-    return *(TempSensorBasic *) pv;
-}
-
-inline void setSensor(void **           ppv,
-                      TempSensorBasic * sensor)
-{
-    *ppv = sensor;
-}
-
 /*
  * Removes an installed device.
  * /param config The device to remove. The fields that are used are
@@ -254,22 +238,18 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
     }
 
     DeviceType        dt = deviceType(config.deviceFunction);
-    TempSensorBasic * s;
 
     switch (dt){
         case DEVICETYPE_NONE :
             break;
 
         case DEVICETYPE_TEMP_SENSOR :
-
-            s = &unwrapSensor(*ppv);
-            if (s != &defaultTempSensorBasic()){
-                *ppv = &defaultTempSensorBasic();
+        {
+            TempSensor * s = (TempSensor *) (*ppv);
+            if(s->uninstallSensor()){
                 DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_TEMP_SENSOR, config.deviceFunction));
-
-                delete s;
             }
-
+        }
             break;
 
         case DEVICETYPE_SWITCH_ACTUATOR :
@@ -314,30 +294,29 @@ void DeviceManager::installDevice(DeviceConfig & config)
         return;
     }
 
-    TempSensorBasic * s;
-
     switch (dt){
         case DEVICETYPE_NONE :
             break;
 
         case DEVICETYPE_TEMP_SENSOR :
+        {
             DEBUG_ONLY(logInfoInt(INFO_INSTALL_TEMP_SENSOR, config.deviceFunction));
 
             // sensor may be wrapped in a TempSensor class, or may stand alone.
-            s = (TempSensorBasic *) createDevice(config, dt);
+            TempSensorBasic * s = (TempSensorBasic *) createDevice(config, dt);
 
-            if (*ppv == NULL){
+            if (s == NULL){
                 logErrorInt(ERROR_OUT_OF_MEMORY_FOR_DEVICE, config.deviceFunction);
             }
-
-            s -> init();
-
-            *ppv = s;
+            else{
+                s -> init();
+                ((TempSensor *) *ppv)->installSensor(s);
 
 #if BREWPI_SIMULATE
             ((ExternalTempSensor *) s) -> setConnected(true);    // now connect the sensor after init is called
 #endif
-
+            }
+        }
             break;
 
         case DEVICETYPE_SWITCH_ACTUATOR :
@@ -1077,9 +1056,9 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
                       (unsigned int) ((SwitchSensor *) *ppv) -> sense()
                       != 0);      // cheaper than itoa, because it overlaps with vsnprintf
         } else if (dt == DEVICETYPE_TEMP_SENSOR){
-            TempSensorBasic & s = unwrapSensor(*ppv);
-            s.update();
-            temp_t temp = s.read();
+            TempSensorBasic * s = (TempSensorBasic*) *ppv;
+            s->update();
+            temp_t temp = s->read();
             temp.toString(val, 3, 9);
         } else if (dt == DEVICETYPE_SWITCH_ACTUATOR){
             sprintf_P(val, STR_FMT_U, (unsigned int) ((ActuatorDigital *) *ppv) -> isActive() != 0);

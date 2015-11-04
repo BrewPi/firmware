@@ -54,13 +54,9 @@ public:
 
     // static setup below, we should support generating this dynamically later
 protected:
-    TempSensorBasic * fridgeSensor;
-    TempSensorBasic * beer1Sensor;
-    TempSensorBasic * beer2Sensor;
-
-    TempSensor * fridgeSensorNamed;
-    TempSensor * beer1SensorNamed;
-    TempSensor * beer2SensorNamed;
+    TempSensor * fridgeSensor;
+    TempSensor * beer1Sensor;
+    TempSensor * beer2Sensor;
 
     ActuatorDigital * coolerPin;
     ActuatorTimeLimited * coolerTimeLimited;

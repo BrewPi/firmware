@@ -26,46 +26,72 @@
 #include "json_writer.h"
 #include "Nameable.h"
 
-class TempSensor : public TempSensorBasic, public Nameable
-{
+class TempSensor: public TempSensorBasic, public Nameable {
 public:
-    TempSensor() : sensor(&defaultTempSensorBasic()){}
-    TempSensor(TempSensorBasic * s) : sensor(s){}
-    TempSensor(const char * initialName) : sensor(&defaultTempSensorBasic()){
+    TempSensor() :
+            sensor(&defaultTempSensorBasic()) {
+    }
+    TempSensor(TempSensorBasic * s) :
+            sensor(s) {
+    }
+    TempSensor(const char * initialName) :
+            sensor(&defaultTempSensorBasic()) {
         setName(initialName);
     }
-    TempSensor(TempSensorBasic * s, const char * initialName) : sensor(s){
+    TempSensor(TempSensorBasic * s, const char * initialName) :
+            sensor(s) {
         setName(initialName);
     }
 
-	~TempSensor() { }
-	
-	inline bool isConnected(void){
-	    return sensor->isConnected();
-	}
-	
-	/*
-	 * Attempt to (re-)initialize the sensor. 	 
-	 */
-	inline bool init(){
-	    return sensor->init();
-	}
+    ~TempSensor() {
+    }
 
-	/*
+    void installSensor(TempSensorBasic * s) {
+        uninstallSensor();
+        sensor = s;
+    }
+
+    TempSensorBasic * getSensor() {
+        return sensor;
+    }
+
+    bool uninstallSensor(){
+        if(sensor == &defaultTempSensorBasic()){
+            return false;
+        }
+        else{
+            delete sensor;
+            sensor = &defaultTempSensorBasic();
+            return true;
+        }
+    }
+
+    inline bool isConnected(void) {
+        return sensor->isConnected();
+    }
+
+    /*
+     * Attempt to (re-)initialize the sensor.
+     */
+    inline bool init() {
+        return sensor->init();
+    }
+
+    /*
      * Update the sensor if the value is cached
      */
-	void update(){
-	    sensor->update();
-	}
+    void update() {
+        sensor->update();
+    }
 
-	/*
-	 * Fetch a new reading from the sensor
-	 */
-	inline temp_t read(){
-	    return sensor->read();
-	}
-	
-    void serialize(JSON::Adapter& adapter){
+    /*
+     * Fetch a new reading from the sensor
+     */
+    inline temp_t read() {
+        return sensor->read();
+    }
+
+    void serialize(JSON::Adapter& adapter) {
         JSON::Class root(adapter, "TempSensor");
         std::string name(getName()); // get name as std string for json_writer
         JSON_E(adapter, name);
@@ -73,7 +99,6 @@ public:
     }
 
 private:
-	TempSensorBasic * sensor;
+    TempSensorBasic * sensor;
 };
-
 
