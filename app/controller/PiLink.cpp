@@ -450,17 +450,17 @@ void PiLink::jsonOutputUint16(const char* key, uint8_t offset) {
  */
 void PiLink::jsonOutputTempToString(const char* key,  uint8_t offset) {
 	char buf[12];
-	piLink.sendJsonPair(key, ((temp_t*)(jsonOutputBase+offset))->toTempString(buf, 1, 12, tempControl.cc.tempFormat, true));
+	piLink.sendJsonPair(key, ((temp_t*)(jsonOutputBase+offset))->toTempString(buf, 2, 12, tempControl.cc.tempFormat, true));
 }
 
 void PiLink::jsonOutputFixedPointToString(const char* key, uint8_t offset) {
 	char buf[12];
-	piLink.sendJsonPair(key, ((temp_t*)(jsonOutputBase+offset))->toString(buf, 1, 12));
+	piLink.sendJsonPair(key, ((temp_t*)(jsonOutputBase+offset))->toString(buf, 2, 12));
 }
 
 void PiLink::jsonOutputTempDiffToString(const char* key, uint8_t offset) {
 	char buf[12];
-	piLink.sendJsonPair(key, ((temp_t*)(jsonOutputBase+offset))->toTempString(buf, 1, 12, tempControl.cc.tempFormat, false));
+	piLink.sendJsonPair(key, ((temp_t*)(jsonOutputBase+offset))->toTempString(buf, 2, 12, tempControl.cc.tempFormat, false));
 }
 
 void PiLink::jsonOutputChar(const char* key, uint8_t offset) {	
@@ -595,7 +595,7 @@ int readNext()
 			return -1;
 		}
 	}
-	return piStream.read();		
+	return piStream.read();
 }
 /**
  * Parses a token from the piStream.

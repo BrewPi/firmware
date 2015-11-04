@@ -775,8 +775,7 @@ inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw,
         sensor.update();
         temp = sensor.read();
     }
-
-    temp.toString(out, 3, 9);
+    temp.toTempString(out, 3, 9, tempControl.cc.tempFormat, true);
 #else
     strcpy_P(out, PSTR("0.00"));
 #endif
@@ -1035,7 +1034,8 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
     if (ppv == NULL){
         return;
     }
-
+    /* removed code to write to actuators from device manager.
+     * Has not been tested enough and is incompatible with PWM actuators
     if (dd.write >= 0){
         // write value to a specific device. For now, only actuators are relevant targets
         if (dt == DEVICETYPE_SWITCH_ACTUATOR){
@@ -1045,7 +1045,8 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write));
             ((ActuatorPwm *) *ppv) -> setValue(dd.write);
         }
-    } else if (dd.value == 1){    // read values
+    } else */
+    if (dd.value == 1){    // read values
         if (dt == DEVICETYPE_SWITCH_SENSOR){
             sprintf_P(val, STR_FMT_U,
                       (unsigned int) ((SwitchSensor *) *ppv) -> sense()
@@ -1054,12 +1055,11 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
             TempSensorBasic * s = (TempSensorBasic*) *ppv;
             s->update();
             temp_t temp = s->read();
-            temp.toString(val, 3, 9);
+            temp.toTempString(val, 3, 9, tempControl.cc.tempFormat, true);
         } else if (dt == DEVICETYPE_SWITCH_ACTUATOR){
             sprintf_P(val, STR_FMT_U, (unsigned int) ((ActuatorDigital *) *ppv) -> isActive() != 0);
         } else if (dt == DEVICETYPE_PWM_ACTUATOR){
-            char buf[12];
-            sprintf_P(val, STR_FMT_U, ((ActuatorPwm *) *ppv) -> getValue().toString(buf,1,12));
+            ((ActuatorPwm *) *ppv) -> getValue().toString(val,1,5);
         }
     }
 }
@@ -1100,13 +1100,13 @@ DeviceType deviceType(DeviceFunction id)
 
         case DEVICE_CHAMBER_LIGHT :
         case DEVICE_CHAMBER_FAN :
-        case DEVICE_BEER_COOL :
             return DEVICETYPE_SWITCH_ACTUATOR;
 
         case DEVICE_CHAMBER_COOL :
         case DEVICE_CHAMBER_HEAT :
         case DEVICE_BEER_HEAT :
-            return DEVICETYPE_SWITCH_ACTUATOR;
+        case DEVICE_BEER_COOL :
+            return DEVICETYPE_PWM_ACTUATOR;
 
         case DEVICE_CHAMBER_TEMP :
         case DEVICE_CHAMBER_ROOM_TEMP :

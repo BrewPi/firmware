@@ -115,8 +115,8 @@ void LcdDisplay::printTemperature(temp_t temp){
 		lcd.print_P(PSTR(" --.-"));
 		return;
 	}
-	char tempString[9];
-	temp.toString(tempString, 1, 9);
+	char tempString[7]; // max 6 characters and \0: -100.0
+	temp.toTempString(tempString, 1, 7, tempControl.cc.tempFormat, true);
 	lcd.print(tempString);
 }
 
