@@ -110,6 +110,14 @@ temp_t OneWireTempSensor::read() {
 
 void OneWireTempSensor::update(){
     cachedValue = readAndConstrainTemp();
+
+    if(cachedValue.isDisabledOrInvalid()){
+        // Try to reconnect once
+        if (init()){
+            // successfully re-initialized
+            cachedValue = readAndConstrainTemp();
+        }
+    }
     requestConversion();
 }
 

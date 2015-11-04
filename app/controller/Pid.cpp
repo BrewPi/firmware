@@ -32,7 +32,7 @@ Pid::Pid(TempSensorBasic * input,
     inputError           = 0;
     derivative      = 0;
     integral        = 0;
-    failedReadCount = 0;
+    failedReadCount = 255; // start at 255, so inputFilter is refreshed at first valid read
 
     setInputSensor(input);
     setOutputActuator(output);
@@ -76,23 +76,16 @@ void Pid::update()
         if (failedReadCount < 255){    // limit
             failedReadCount++;
         }
-
-        // Try to reconnect
-        if (inputSensor -> init()){
-            if (failedReadCount > 60){
-                // re-initialize filters if sensor has been lost longer than 60 seconds
-                inputVal = inputSensor -> read();
-
-                inputFilter.init(inputVal);
-                derivativeFilter.init(temp_precise_t(0.0));
-
-                failedReadCount = 0;
-            }
-        } else{
-            if (failedReadCount > 60){
-                disable = true;
-            }
+        if (failedReadCount > 20){
+            disable = true; // disable PID if sensor is lost for more than 20 seconds
         }
+    }
+    else{
+        if (failedReadCount > 60){ // filters are stale, re-initialize them
+            inputFilter.init(inputVal);
+            derivativeFilter.init(temp_precise_t(0.0));
+        }
+        failedReadCount = 0;
     }
 
     if ( disable ){
