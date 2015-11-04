@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(on_big_positive_changes_go_high_immediately) {
         act->update();
     }
     lowTime = ticks.millis();
-    BOOST_CHECK_CLOSE(double(lowTime - highTime) / act->getPeriod(), 0.6, 2); // check that high period afterwards is correct
+    BOOST_CHECK_CLOSE(double(lowTime - highTime) / (1000*act->getPeriod()), 0.6, 2); // check that high period afterwards is correct
 }
 
 
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE(on_big_negative_changes_go_low_immediately) {
         act->update();
     }
     highTime = ticks.millis();
-    BOOST_CHECK_CLOSE(double(highTime - lowTime) / act->getPeriod(), 0.7, 2); // check that low period afterwards is correct
+    BOOST_CHECK_CLOSE(double(highTime - lowTime) / (1000*act->getPeriod()), 0.7, 2); // check that low period afterwards is correct
 }
 
 

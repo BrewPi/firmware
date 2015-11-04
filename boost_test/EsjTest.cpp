@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators) {
     "class": "ActuatorPwm",
     "variables": {
         "value": 0.0000,
-        "period": 20000,
+        "period": 20,
         "minVal": 0.0000,
         "maxVal": 100.0000,
         "target": {
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators) {
 */
 
     std::string valid = R"({"class":"ActuatorPwm","variables":{"value":0.0000,)"
-                        R"("period":20000,"minVal":0.0000,"maxVal":100.0000,)"
+                        R"("period":20,"minVal":0.0000,"maxVal":100.0000,)"
                         R"("target":{"class":"ActuatorMutexDriver",)"
                         R"("variables":{"mutexGroup":null,)"
                         R"("target":{"class":"ActuatorBool",)"
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
     "class": "ActuatorPwm",
     "variables": {
         "value": 0.0000,
-        "period": 600000,
+        "period": 600,
         "minVal": 0.0000,
         "maxVal": 100.0000,
         "target": {
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
 
 
     std::string valid = R"({"class":"ActuatorPwm","variables":{"value":0.0000,)"
-                        R"("period":600000,"minVal":0.0000,"maxVal":100.0000,)"
+                        R"("period":600,"minVal":0.0000,"maxVal":100.0000,)"
                         R"("target":{"class":"ActuatorMutexDriver",)"
                         R"("variables":{"mutexGroup":{"class":"ActuatorMutexGroup",)"
                         R"("variables":{"deadTime":0,"lastActiveTime":0}},)"
@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
             "class": "ActuatorPwm",
             "variables": {
                 "value": 0.0000,
-                "period": 4000,
+                "period": 4,
                 "minVal": 0.0000,
                 "maxVal": 100.0000,
                 "target": {
@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
         R"("inputSensor":{"class":"TempSensorMock","variables":{"value":20.0000,"connected":true}},)"
         R"("inputError":0.0000,"Kp":0.0000,"Ti":0,"Td":0,"p":0.0000,"i":0.0000,"d":0.0000,)"
         R"("actuatorIsNegative":false,"outputActuator":{"class":"ActuatorPwm",)"
-        R"("variables":{"value":0.0000,"period":4000,"minVal":0.0000,"maxVal":100.0000,)"
+        R"("variables":{"value":0.0000,"period":4,"minVal":0.0000,"maxVal":100.0000,)"
         R"("target":{"class":"ActuatorBool","variables":{"state":false}}}}}})";
 
     BOOST_CHECK_EQUAL(valid, json);

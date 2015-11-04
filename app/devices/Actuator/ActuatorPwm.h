@@ -35,7 +35,7 @@ class ActuatorPwm : public ActuatorRange, public ActuatorDriver
         int32_t        periodLate;
         int32_t        dutyTime;
         ticks_millis_t periodStartTime;
-        int32_t        period;
+        int32_t        period_ms;
         temp_t         minVal;
         temp_t         maxVal;
 
@@ -60,9 +60,9 @@ class ActuatorPwm : public ActuatorRange, public ActuatorDriver
 
         void update();
 
-        ticks_millis_t getPeriod()
+        ticks_seconds_t getPeriod()
         {
-            return period;
+            return period_ms / 1000; // return in seconds, same as set period
         }
 
         void setTarget(ActuatorDigital * t)
@@ -71,7 +71,7 @@ class ActuatorPwm : public ActuatorRange, public ActuatorDriver
         }
 
         void setPeriod(uint16_t sec){
-            period = int32_t(sec) * 1000;
+            period_ms = int32_t(sec) * 1000;
         }
 
         // recalculates duty time based on value and dutyLate and periodLate
@@ -83,6 +83,7 @@ class ActuatorPwm : public ActuatorRange, public ActuatorDriver
         void serialize(JSON::Adapter& adapter){
             JSON::Class root(adapter, "ActuatorPwm");
             JSON_E(adapter, value);
+            ticks_seconds_t period = getPeriod(); // don't use member directly, but value in seconds
             JSON_E(adapter, period);
             JSON_E(adapter, minVal);
             JSON_E(adapter, maxVal);
