@@ -122,16 +122,18 @@ public:
         return control.beer1Set->read();
     }
     states getState(void) {
-        temp_t heat = control.heater1->getValue();
-        temp_t cool = control.cooler->getValue();
-
+        // For cooling, show actual compressor pin ON state
+        // For heating, show heating when PWM is active
         if (control.coolerPin->isActive()) {
-            lastCoolTime = ticks.millis();
+            lastCoolTime = ticks.seconds();
             return COOLING;
-        } else if (heat > temp_t(1.0) && heat > cool) {
-            lastCoolTime = ticks.millis();
+        } else if (control.heater1Pin->isActive()) {
+            lastHeatTime = ticks.seconds();
             return HEATING;
-        } else {
+        } else if (timeSinceHeating() <= 2*control.heater1->getPeriod()){
+            return HEATING; // in low period of PWM
+        }
+        else{
             lastIdleTime = ticks.millis();
             return IDLE;
         }
