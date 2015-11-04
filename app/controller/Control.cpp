@@ -140,8 +140,8 @@ void Control::update(){
 }
 
 void Control::updatePids(){
-    for ( auto &actuator : actuators ) {
-        actuator->update();
+    for ( auto &pid : pids ) {
+        pid->update();
     }
 }
 
