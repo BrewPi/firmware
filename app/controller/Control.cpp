@@ -71,7 +71,7 @@ Control::Control()
     coolerPid->setName("cooler");
 
     heater2Pid = new Pid(beer2Sensor, heater2, beer2Set);
-    coolerPid->setName("heater2");
+    heater2Pid->setName("heater2");
 
     beerToFridgePid = new Pid(beer1Sensor, fridgeSetPointActuator, beer1Set);
     beerToFridgePid->setName("beer2fridge");
