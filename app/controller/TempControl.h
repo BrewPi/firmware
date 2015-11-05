@@ -110,7 +110,7 @@ public:
     temp_t getBeerTemp(void) {
         return control.beer1Sensor->read();
     }
-	void setMode(control_mode_t newMode, bool force=false);
+	void setMode(control_mode_t newMode, bool store);
 	control_mode_t getMode(void) {
 		return cs.mode;
 	}
@@ -137,7 +137,7 @@ public:
     bool modeIsBeer(void) {
         return (cs.mode == MODE_BEER_CONSTANT || cs.mode == MODE_BEER_PROFILE);
     }
-    void setBeerTemp(temp_t newTemp);
+    void setBeerTemp(temp_t newTemp, bool store);
 
     temp_t getFridgeTemp(void) {
         return control.fridgeSensor->read();
@@ -145,7 +145,7 @@ public:
     temp_t getFridgeSetting(void) {
         return control.fridgeSet->read();
     }
-    void setFridgeTemp(temp_t newTemp);
+    void setFridgeTemp(temp_t newTemp, bool store);
 
     temp_t getRoomTemp(void) {
         return control.beer2Sensor->read();

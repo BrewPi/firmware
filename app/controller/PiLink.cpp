@@ -666,7 +666,7 @@ static const char STR_FMT_SET_TO[] PROGMEM = PRINTF_PROGMEM " set to %s " PRINTF
 
 void PiLink::setMode(const char* val) {
 	char mode = val[0];
-	tempControl.setMode(mode);
+	tempControl.setMode(mode, true);
 	piLink.printFridgeAnnotation(STR_FMT_SET_TO, STR_MODE, val, STR_WEB_INTERFACE);
 }
 
@@ -687,18 +687,18 @@ void PiLink::setBeerSetting(const char* val) {
 	if (source){
 		printBeerAnnotation(STR_FMT_SET_TO, STR_BEER_TEMP, val, source);
 	}
-	tempControl.setBeerTemp(newTemp);		
+	tempControl.setBeerTemp(newTemp, true);
 }
 
 void PiLink::setFridgeSetting(const char* val) {
     temp_t newTemp;
-    if(newTemp.fromTempString(val, tempControl.cc.tempFormat, true)){
+    if(!newTemp.fromTempString(val, tempControl.cc.tempFormat, true)){
 		return; // could not parse value
 	}
 	if(tempControl.cs.mode == 'f'){
 		printFridgeAnnotation(STR_FMT_SET_TO, STR_FRIDGE_TEMP, val, STR_WEB_INTERFACE);
 	}
-	tempControl.setFridgeTemp(newTemp);	
+	tempControl.setFridgeTemp(newTemp, true);
 }
 
 void PiLink::setTempFormat(const char* val) {

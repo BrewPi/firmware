@@ -93,13 +93,13 @@ tcduration_t TempControl::timeSinceIdle(void)
 void TempControl::loadDefaultSettings()
 {
 #if BREWPI_EMULATE
-    setMode(MODE_BEER_CONSTANT);
+    setMode(MODE_BEER_CONSTANT, false);
 #else
-    setMode(MODE_TEST);
+    setMode(MODE_TEST, false);
 #endif
 
-    setBeerTemp(DISABLED_TEMP); // start with no temp settings
-    setFridgeTemp(DISABLED_TEMP);
+    setBeerTemp(DISABLED_TEMP, false); // start with no temp settings
+    setFridgeTemp(DISABLED_TEMP, false);
 }
 
 void TempControl::storeConstants(eptr_t offset)
@@ -130,9 +130,9 @@ void TempControl::loadSettings(eptr_t offset)
 
     storedBeerSetting = cs.beerSetting;
 
-    setMode(cs.mode, true);    // force the mode update
-    setBeerTemp(cs.beerSetting);
-    setFridgeTemp(cs.fridgeSetting);
+    setMode(cs.mode, false);
+    setBeerTemp(cs.beerSetting, false);
+    setFridgeTemp(cs.fridgeSetting, false);
 }
 
 
@@ -144,14 +144,14 @@ void TempControl::loadDefaultConstants(void)
 
 
 void TempControl::setMode(char newMode,
-                          bool force)
+                          bool store)
 {
     logDebug("TempControl::setMode from %c to %c", cs.mode, newMode);
 
     if (newMode == MODE_OFF)
     {
-        setBeerTemp(DISABLED_TEMP);
-        setFridgeTemp(DISABLED_TEMP);
+        setBeerTemp(DISABLED_TEMP, true);
+        setFridgeTemp(DISABLED_TEMP, true);
         control.heater1Pid->disable(true);
         control.coolerPid->disable(true);
         control.beerToFridgePid->disable(false);
@@ -161,22 +161,25 @@ void TempControl::setMode(char newMode,
         control.coolerPid->enable();
         control.beerToFridgePid->enable();
     }
-    else if (newMode != MODE_FRIDGE_CONSTANT){
+    else if (newMode == MODE_FRIDGE_CONSTANT){
+        setBeerTemp(DISABLED_TEMP, true);
         control.heater1Pid->enable();
         control.coolerPid->enable();
         control.beerToFridgePid->disable(false);
     }
     cs.mode = newMode;
-    eepromManager.storeTempSettings();
+    if(store){
+        eepromManager.storeTempSettings();
+    }
 }
 
-void TempControl::setBeerTemp(temp_t newTemp) {
+void TempControl::setBeerTemp(temp_t newTemp, bool store) {
     control.beer1Set->write(newTemp);
     cs.beerSetting = newTemp;
 
-    if ((cs.mode != MODE_BEER_PROFILE) ||
+    if (store && ((cs.mode != MODE_BEER_PROFILE) ||
             (storedBeerSetting - newTemp) > temp_t(0.25) ||
-            (newTemp - storedBeerSetting) > temp_t(0.25))
+            (newTemp - storedBeerSetting) > temp_t(0.25)))
     {
         // more than 1/4 degree C difference with EEPROM
         // Do not store settings every time in profile mode, because EEPROM has limited number of write cycles.
@@ -186,10 +189,12 @@ void TempControl::setBeerTemp(temp_t newTemp) {
     }
 }
 
-void TempControl::setFridgeTemp(temp_t newTemp) {
+void TempControl::setFridgeTemp(temp_t newTemp, bool store) {
     control.fridgeSet->write(newTemp);
     cs.fridgeSetting = newTemp;
-    eepromManager.storeTempSettings();
+    if(store){
+        eepromManager.storeTempSettings();
+    }
 }
 
 control_mode_t ModeControl_GetMode()
