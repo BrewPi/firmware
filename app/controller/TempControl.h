@@ -124,10 +124,10 @@ public:
     states getState(void) {
         // For cooling, show actual compressor pin ON state
         // For heating, show heating when PWM is active
-        if (control.coolerPin->isActive()) {
+        if (control.coolerMutex->isActive()) {
             lastCoolTime = ticks.seconds();
             return COOLING;
-        } else if (control.heater1Pin->isActive()) {
+        } else if (control.heater1Mutex->isActive()) {
             lastHeatTime = ticks.seconds();
             return HEATING;
         } else if (timeSinceHeating() <= 2*control.heater1->getPeriod()){

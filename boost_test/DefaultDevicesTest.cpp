@@ -26,7 +26,7 @@
 BOOST_AUTO_TEST_SUITE(DefaultDevicesTest)
 
 BOOST_AUTO_TEST_CASE(defaultTempSensor_works_with_all_TempSensorBasic_functions){
-    TempSensorBasic * sensor = &defaultTempSensorBasic();
+    TempSensorBasic * sensor = defaultTempSensorBasic();
 
     BOOST_CHECK_EQUAL(sensor->isConnected(), false);
 
@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(defaultTempSensor_works_with_all_TempSensorBasic_functions)
 }
 
 BOOST_AUTO_TEST_CASE(defaultSetPoint_works_for_all_SetPoint_functions){
-    SetPoint * setpoint = &defaultSetPoint();
+    SetPoint * setpoint = defaultSetPoint();
 
     setpoint->write(20.0); // doesn't return anything, just should not crash
 
@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(defaultSetPoint_works_for_all_SetPoint_functions){
 }
 
 BOOST_AUTO_TEST_CASE(defaultLinearActuator_works_for_all_ActuatorRange_functions){
-    ActuatorRange * act = &defaultLinearActuator();
+    ActuatorRange * act = defaultLinearActuator();
 
     BOOST_CHECK_EQUAL(act->getBareActuator(), act);
     BOOST_CHECK_EQUAL(act->type(), ACTUATOR_RANGE);

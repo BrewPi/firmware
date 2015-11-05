@@ -36,22 +36,19 @@
 Control::Control()
 {
     // set up static devices for backwards compatibility with tempControl
-    beer1Sensor = new TempSensor(&defaultTempSensorBasic(), "beer1");
-    beer2Sensor = new TempSensor(&defaultTempSensorBasic(), "beer2");
-    fridgeSensor = new TempSensor(&defaultTempSensorBasic(), "fridge");
+    beer1Sensor = new TempSensor(defaultTempSensorBasic(), "beer1");
+    beer2Sensor = new TempSensor(defaultTempSensorBasic(), "beer2");
+    fridgeSensor = new TempSensor(defaultTempSensorBasic(), "fridge");
 
     mutex = new ActuatorMutexGroup();
 
-    heater1Pin = &defaultActuator();
-    heater1Mutex = new ActuatorMutexDriver(heater1Pin, mutex);
+    heater1Mutex = new ActuatorMutexDriver(defaultActuator(), mutex);
     heater1 = new ActuatorPwm(heater1Mutex, 4); // period 4s
 
-    heater2Pin = &defaultActuator();
-    heater2Mutex = new ActuatorMutexDriver(heater1Pin, mutex);
+    heater2Mutex = new ActuatorMutexDriver(defaultActuator(), mutex);
     heater2 = new ActuatorPwm(heater2Mutex, 4); // period 4s
 
-    coolerPin = &defaultActuator();
-    coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
+    coolerTimeLimited = new ActuatorTimeLimited(defaultActuator(), 120, 180); // 2 min minOn time, 3 min minOff
     coolerMutex = new ActuatorMutexDriver(coolerTimeLimited, mutex);
     cooler = new ActuatorPwm(coolerMutex, 900); // period 15 min
 

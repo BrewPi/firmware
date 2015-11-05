@@ -26,10 +26,10 @@
 #include "SetPoint.h"
 #include "Sensor.h"
 
-ValueSensor<bool> & defaultSensor();
-ActuatorNop & defaultActuator();
-ActuatorInvalid & defaultLinearActuator(); // always returns invalid and does nothing
-TempSensorDisconnected & defaultTempSensorBasic();
-SetPointConstant & defaultSetPoint();
+ValueSensor<bool> * defaultSensor();
+ActuatorNop * defaultActuator();
+ActuatorInvalid * defaultLinearActuator(); // always returns invalid and does nothing
+TempSensorDisconnected * defaultTempSensorBasic();
+SetPointConstant * defaultSetPoint();
 
 

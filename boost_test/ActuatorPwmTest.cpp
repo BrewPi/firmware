@@ -438,7 +438,7 @@ BOOST_AUTO_TEST_CASE(install_and_uninstall_final_actuator){
     BOOST_CHECK(cooler->unInstallActuatorFinalTarget()); // returns true on successful uninstall
     BOOST_CHECK_EQUAL(cooler->getTarget(), coolerMutex); // unchanged
     BOOST_CHECK_EQUAL(coolerMutex->getTarget(), coolerTimeLimited); // unchanged
-    BOOST_CHECK_EQUAL(coolerTimeLimited->getTarget(), &defaultActuator()); // replaced by default actuator
+    BOOST_CHECK_EQUAL(coolerTimeLimited->getTarget(), defaultActuator()); // replaced by default actuator
 
     BOOST_CHECK(!cooler->unInstallActuatorFinalTarget()); // returns false, when target is already default actuator
 

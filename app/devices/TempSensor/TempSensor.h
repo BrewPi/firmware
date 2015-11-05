@@ -29,13 +29,13 @@
 class TempSensor: public TempSensorBasic, public Nameable {
 public:
     TempSensor() :
-            sensor(&defaultTempSensorBasic()) {
+            sensor(defaultTempSensorBasic()) {
     }
     TempSensor(TempSensorBasic * s) :
             sensor(s) {
     }
     TempSensor(const char * initialName) :
-            sensor(&defaultTempSensorBasic()) {
+            sensor(defaultTempSensorBasic()) {
         setName(initialName);
     }
     TempSensor(TempSensorBasic * s, const char * initialName) :
@@ -56,12 +56,12 @@ public:
     }
 
     bool uninstallSensor(){
-        if(sensor == &defaultTempSensorBasic()){
+        if(sensor == defaultTempSensorBasic()){
             return false;
         }
         else{
             delete sensor;
-            sensor = &defaultTempSensorBasic();
+            sensor = defaultTempSensorBasic();
             return true;
         }
     }

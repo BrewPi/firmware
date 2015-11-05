@@ -42,8 +42,6 @@ public:
         target->update();
     }
 
-    bool isDriver() const { return true; }
-
     ActuatorDigital * getTarget(){ return target; }
 
     virtual Actuator * doGetBareActuator(){
@@ -61,7 +59,7 @@ public:
             if(target == a){
                 return false; // actuator was already installed
             }
-            if(target != &defaultActuator()){
+            if(target != defaultActuator()){
                 delete target; // target is only referenced here and should be deleted
             }
             target = a;
@@ -73,7 +71,7 @@ public:
     }
 
     bool doUnInstallActuatorFinalTarget(){
-        return installActuatorFinalTarget(&defaultActuator());
+        return installActuatorFinalTarget(defaultActuator());
     }
 };
 

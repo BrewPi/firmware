@@ -266,12 +266,12 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
         break;
 
         case DEVICETYPE_SWITCH_SENSOR :
-            if (*ppv != &defaultSensor()){
+            if (*ppv != defaultSensor()){
                 DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_SWITCH_SENSOR, config.deviceFunction));
 
                 delete (SwitchSensor *) *ppv;
 
-                *ppv = &defaultSensor();
+                *ppv = defaultSensor();
             }
 
             break;

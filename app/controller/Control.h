@@ -58,16 +58,13 @@ protected:
     TempSensor * beer1Sensor;
     TempSensor * beer2Sensor;
 
-    ActuatorDigital * coolerPin;
     ActuatorTimeLimited * coolerTimeLimited;
     ActuatorMutexDriver * coolerMutex;
     ActuatorPwm * cooler;
 
-    ActuatorDigital * heater1Pin;
     ActuatorMutexDriver * heater1Mutex;
     ActuatorPwm * heater1;
 
-    ActuatorDigital * heater2Pin;
     ActuatorMutexDriver * heater2Mutex;
     ActuatorPwm * heater2;
 
