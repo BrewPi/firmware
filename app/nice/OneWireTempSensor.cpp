@@ -21,14 +21,15 @@
 #include "Brewpi.h"
 #include "Logger.h"
 #include "OneWireTempSensor.h"
+
+#include "OneWireAddress.h"
 #include "DallasTemperature.h"
 #include "OneWire.h"
-#include "OneWireDevices.h"
 #include "PiLink.h"
 #include "Ticks.h"
 
 /**
- * Initializes the temperature sensor.
+ * Initializes the temp_t sensor.
  * This method is called when the sensor is first created and also any time the sensor reports it's disconnected.
  * If the result is TEMP_SENSOR_DISCONNECTED then subsequent calls to read() will also return TEMP_SENSOR_DISCONNECTED.
  * Clients should attempt to re-initialize the sensor by calling init() again. 
@@ -47,7 +48,7 @@ bool OneWireTempSensor::init(){
 		// the init method doesn't have to wait.
 		// however, waiting ensures that the sensor has power to do a full conversion. 
 		//waitForConversion();
-		//temperature temp = readAndConstrainTemp();
+		//temp_t temp = readAndConstrainTemp();
 		//DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temp));
 		success = true; //temp!=DEVICE_DISCONNECTED && requestConversion();
 	}	
@@ -81,25 +82,25 @@ void OneWireTempSensor::setConnected(bool connected) {
 	#endif
 }
 
-temperature OneWireTempSensor::read(){
+temp_t OneWireTempSensor::read(){
 	
     if (!connected)
             return TEMP_SENSOR_DISCONNECTED;
 
-    temperature temp = readAndConstrainTemp();
+    temp_t temp = readAndConstrainTemp();
     requestConversion();
     return temp;
 }
 
-temperature OneWireTempSensor::readAndConstrainTemp()
+temp_t OneWireTempSensor::readAndConstrainTemp()
 {
-    temperature temp = sensor.getTempRaw(sensorAddress);
+    temp_t temp = sensor.getTempRaw(sensorAddress);
     if(temp == DEVICE_DISCONNECTED){
             setConnected(false);
             return TEMP_SENSOR_DISCONNECTED;
     }
 
-    const uint8_t shift = TEMP_FIXED_POINT_BITS-ONEWIRE_TEMP_SENSOR_PRECISION; // difference in precision between DS18B20 format and temperature adt
+    const uint8_t shift = TEMP_FIXED_POINT_BITS-ONEWIRE_TEMP_SENSOR_PRECISION; // difference in precision between DS18B20 format and temp_t adt
     temp = constrainTemp(temp+calibrationOffset+(C_OFFSET>>shift), ((int) MIN_TEMP)>>shift, ((int) MAX_TEMP)>>shift)<<shift;
     return temp;
 }

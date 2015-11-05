@@ -23,7 +23,7 @@
 #include "../widget_color_scheme.h"
 #include "../fonts.h"
 #include "startup_screen.h"
-#include "Version.h"
+#include "Brewpi.h"
 
 D4D_DECLARE_STD_PICTURE(scrStartup_logo, 100, 40, 120, 80, &bmp_brewpi_logo_black_120_80);
 D4D_DECLARE_COLOR_LABEL(scrStartup_version, "BrewPi " VERSION_STRING, 0, 140, 320, 15, FONT_SMALL, D4D_CONST, D4D_COLOR_BLACK, D4D_COLOR_BLACK);

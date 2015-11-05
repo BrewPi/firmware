@@ -62,7 +62,7 @@ const WIDGET_COLOR_SCHEME color_scheme_connection = {
 
 void ActuatorClicked(D4D_OBJECT* pThis);
 
-void SetActuatorButtonState(const D4D_OBJECT* pThis, D4D_BOOL state, uint8_t idx)
+void SetActuatorButtonState(D4D_OBJECT* pThis, D4D_BOOL state, uint8_t idx)
 {
     if(actuator_views_state[idx]==state){
         return; // already up to date

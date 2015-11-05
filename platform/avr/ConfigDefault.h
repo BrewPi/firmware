@@ -49,7 +49,7 @@
  * Enable DS2413 Actuators. 
  */
 #ifndef BREWPI_DS2413
-#define BREWPI_DS2413 0
+#define BREWPI_DS2413 1
 #endif
 
 /**
@@ -118,4 +118,6 @@
 #define DS2413_SUPPORT_SENSE 0
 #endif
 
-
+#ifndef ROTARY_HALF_STEPS
+#define ROTARY_HALF_STEPS 1
+#endif

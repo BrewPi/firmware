@@ -1,7 +1,7 @@
 #include "Brewpi.h"
 #include "application.h"
 #if PLATFORM_ID==0
-#include "ymodem/ymodem.h"
+#include "Ymodem/Ymodem.h"
 #endif
 #include "flashee-eeprom.h"
 #include "EepromManager.h"

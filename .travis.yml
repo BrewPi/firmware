@@ -2,9 +2,10 @@ language: cpp
 before_install:
 - sudo apt-get update
 install:
-- "./ci/install_arm_gcc.sh && ./ci/install_gcc.sh"
+- ./ci/install_arm_gcc.sh
+- source ./ci/install_boost.sh
 script:
-- "./ci/build.sh"
+- ./ci/build.sh
 notification:
   secure: dx1/7uGTPro7IWmz2JjO+m+Zz7rEi79ilR/zlr9dhKmqqRdukFI5DhixY7SRfUxJ4IsztfaUOxYe8V8+f9y7itLuQ1sxDJEsatTIzKM+J+wyQa4+Sx/0b0fSiyYqinkacYB8W0RwEZymgXsEwrKOBwvuyA/Y2W0EF0QB902Xi+U=
 notifications:

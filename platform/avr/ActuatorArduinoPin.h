@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 #include "Platform.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include "FastDigitalPin.h"
 
 template<uint8_t pin, bool invert>

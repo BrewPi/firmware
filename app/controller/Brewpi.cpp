@@ -25,14 +25,16 @@
  * 'ArduinoFunctions.cpp' includes all the source files from Arduino that are used. You might have to edit it if you are not using a Leonardo.
  * That is all that is needed! No hassle with makefiles and compiling libraries.
  */
+#include "Platform.h"
 #include "Brewpi.h"
 #include "Ticks.h"
 #include "Display.h"
 #include "TempControl.h"
 #include "PiLink.h"
-#include "TempSensor.h"
+#include "TempSensorBasic.h"
 #include "TempSensorMock.h"
 #include "TempSensorExternal.h"
+#include "ActuatorMocks.h"
 #include "Ticks.h"
 #include "Sensor.h"
 #include "SettingsManager.h"
@@ -55,34 +57,38 @@ void loop (void);
 TicksImpl ticks = TicksImpl(TICKS_IMPL_CONFIG);
 DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 
-ValueActuator alarm;
+ActuatorBool alarm;
 UI ui;
 
 void setup()
 {
     bool resetEeprom = platform_init();
     eepromManager.init();
+    if (resetEeprom)
+        eepromManager.initializeEeprom();
 	ui.init();
 	piLink.init();
 
     logDebug("started");
-    tempControl.init();
-    settingsManager.loadSettings();
 
-    uint32_t start = millis();
+    uint32_t start = ticks.millis();
     uint32_t delay = ui.showStartupPage();
-    while (millis()-start <= delay) {
+    while (ticks.millis()-start <= delay) {
         ui.ticks();
     }
     
+    // initialize OneWire
+    if (!primaryOneWireBus.init()) {
+        logError(ERROR_ONEWIRE_INIT_FAILED);
+    }
+
 #if BREWPI_SIMULATE
 	simulator.step();
 	// initialize the filters with the assigned initial temp value
-	tempControl.beerSensor->init();
-	tempControl.fridgeSensor->init();	
+	//tempControl.beerSensor->init();
+	//tempControl.fridgeSensor->init();
 #endif	
-    if (resetEeprom)
-        eepromManager.initializeEeprom();
+    settingsManager.loadSettings();
 
     ui.showControllerPage();
     			
@@ -92,28 +98,18 @@ void setup()
 void brewpiLoop(void)
 {
 	static unsigned long lastUpdate = -1000; // init at -1000 to update immediately
-	uint8_t oldState;
         ui.ticks();
         
     if(!ui.inStartup() && (ticks.millis() - lastUpdate >= (1000))) { //update settings every second
 		lastUpdate = ticks.millis();
-			
-		tempControl.updateTemperatures();
-		tempControl.detectPeaks();
-		tempControl.updatePID();
-		oldState = tempControl.getState();
-		tempControl.updateState();
-		if(oldState != tempControl.getState()){
-			piLink.printTemperatures(); // add a data point at every state transition
-		}
-		tempControl.updateOutputs();
+		control.update();
+        ui.update();
+    }
 
-		ui.update();
-	}	
+    control.updateActuators(); // update actuators as often as possible for PWM
 
-	//listen for incoming serial connections while waiting to update
-	piLink.receive();
-
+    //listen for incoming serial connections while waiting to update
+    piLink.receive();
 }
 
 void loop() {

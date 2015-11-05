@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectVersion>6.1</ProjectVersion>
+    <ProjectVersion>6.2</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8.CPP</ToolchainName>
     <ProjectGuid>{c0415566-e0bc-45db-8e53-cc52899284fe}</ProjectGuid>
     <avrdevice>ATmega328P</avrdevice>
@@ -69,15 +69,15 @@
     </com_atmel_avrdbg_tool_simulator>
     <AsfFrameworkConfig>
       <framework-data>
-        <options />
-        <configurations />
-        <files />
-        <documentation help="" />
-        <offline-documentation help="" />
-        <dependencies>
-          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.6.0" />
-        </dependencies>
-      </framework-data>
+  <options />
+  <configurations />
+  <files />
+  <documentation help="" />
+  <offline-documentation help="" />
+  <dependencies>
+    <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.10.1" />
+  </dependencies>
+</framework-data>
     </AsfFrameworkConfig>
     <CacheFlash>true</CacheFlash>
     <ProgFlashFromRam>true</ProgFlashFromRam>
@@ -107,6 +107,7 @@
     <ListValues>
       <Value>ARDUINO=104</Value>
       <Value>F_CPU=16000000L</Value>
+      <Value>__STDC_LIMIT_MACROS</Value>
     </ListValues>
   </avrgcccpp.compiler.symbols.DefSymbols>
   <avrgcccpp.compiler.directories.IncludePaths>
@@ -119,6 +120,11 @@
       <Value>../app/devices</Value>
       <Value>../app/devices/OneWire</Value>
       <Value>../app/controller</Value>
+      <Value>../app/controller/Display</Value>
+      <Value>../app/controller/Filter</Value>
+      <Value>../app/devices/Actuator</Value>
+      <Value>../app/devices/OneWireSwitch</Value>
+      <Value>../app/devices/TempSensor</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
   <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
@@ -167,6 +173,15 @@
     <Compile Include="app\controller\DeviceManager.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="app\controller\Display\DisplayBase.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\controller\Display\DisplayLcd.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\controller\Display\DisplayLcd.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="app\controller\EepromFormat.h">
       <SubType>compile</SubType>
     </Compile>
@@ -176,16 +191,16 @@
     <Compile Include="app\controller\EepromManager.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\controller\FilterCascaded.cpp">
+    <Compile Include="app\controller\Filter\FilterCascaded.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\controller\FilterCascaded.h">
+    <Compile Include="app\controller\Filter\FilterCascaded.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\controller\FilterFixed.cpp">
+    <Compile Include="app\controller\Filter\FilterFixed.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\controller\FilterFixed.h">
+    <Compile Include="app\controller\Filter\FilterFixed.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\controller\JsonKeys.h">
@@ -257,37 +272,55 @@
     <Compile Include="app\controller\Version.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\devices\Actuator.h">
+    <Compile Include="app\devices\Actuator\ActuatorInterfaces.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\devices\ActuatorAutoOff.cpp">
+    <Compile Include="app\devices\Actuator\ActuatorAutoOff.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\devices\ActuatorAutoOff.h">
+    <Compile Include="app\devices\Actuator\ActuatorAutoOff.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\Actuator\ActuatorTimeLimited.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\Actuator\ActuatorTimeLimited.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\Actuator\ActuatorPwm.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\Actuator\ActuatorPwm.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\Actuator\ActuatorOneWire.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\devices\Devices.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="app\devices\Display.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="app\devices\Display.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="app\devices\DisplayBase.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="app\devices\DisplayLcd.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="app\devices\DisplayLcd.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\devices\EepromAccess.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\devices\EepromTypes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\OneWireSwitch\DS2408.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\OneWireSwitch\DS2408.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\OneWireSwitch\DS2413.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\OneWireSwitch\DS2413.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\OneWireSwitch\OneWireSwitch.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\OneWireSwitch\OneWireSwitch.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\devices\OneWire\OneWire.cpp">
@@ -305,19 +338,37 @@
     <Compile Include="app\devices\Sensor.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\devices\TempSensorBasic.h">
+    <Compile Include="app\devices\TempSensor\DallasTemperature.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\devices\TempSensorDisconnected.h">
+    <Compile Include="app\devices\TempSensor\DallasTemperature.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\devices\TempSensorExternal.h">
+    <Compile Include="app\devices\TempSensor\OneWireTempSensor.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\devices\TempSensorMock.h">
+    <Compile Include="app\devices\TempSensor\OneWireTempSensor.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\TempSensor\TempSensorBasic.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\TempSensor\TempSensorDisconnected.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\TempSensor\TempSensorExternal.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\TempSensor\TempSensorMock.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\devices\Ticks.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\ValvesController.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="app\devices\ValvesController.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\fallback\AppConfig.h">
@@ -345,6 +396,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="platform\avr\ConfigDefault.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="platform\avr\DisplayLcdImpl.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="platform\avr\EepromAccessImpl.h">
@@ -407,18 +461,6 @@
     <Compile Include="platform\wiring\ActuatorPin.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="platform\wiring\DallasTemperature.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="platform\wiring\DallasTemperature.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="platform\wiring\DS2413.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="platform\wiring\DS2413.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="platform\wiring\fixstl.h">
       <SubType>compile</SubType>
     </Compile>
@@ -426,15 +468,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="platform\wiring\NullLcdDriver.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="platform\wiring\OneWireActuator.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="platform\wiring\OneWireTempSensor.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="platform\wiring\OneWireTempSensor.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="platform\wiring\SensorPin.h">
@@ -449,8 +482,13 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="app\controller\" />
+    <Folder Include="app\controller\Display\" />
+    <Folder Include="app\controller\Filter\" />
     <Folder Include="app\devices\" />
+    <Folder Include="app\devices\Actuator\" />
+    <Folder Include="app\devices\OneWireSwitch\" />
     <Folder Include="app\devices\OneWire\" />
+    <Folder Include="app\devices\TempSensor\" />
     <Folder Include="app\fallback\" />
     <Folder Include="app" />
     <Folder Include="platform" />

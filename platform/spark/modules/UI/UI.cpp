@@ -26,13 +26,14 @@
 #include "PiLink.h"
 #include "Display.h"
 #include "UIController.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include "Board.h"
 
 #include "../eGUI_screens/devicetest/device_test_screen.h"
 #include "../eGUI_screens/controller/controller_screen.h"
 #include "../eGUI_screens/startup/startup_screen.h"
 #include "../eGUI_screens/screen_model.h"
+
 
 extern "C" {
 #include "d4d.h"
@@ -69,6 +70,7 @@ uint32_t UI::showStartupPage()
     }
 
     uiController.beginStartup();
+    ticks(); // render
     return 0;
 }
 
@@ -81,7 +83,7 @@ void UI::showControllerPage() {
     display.printState();
 }
 
-extern ValueActuator alarm;
+extern ActuatorBool alarm;
 void UI::ticks()
 {
     D4D_TimeTickPut();
@@ -105,12 +107,38 @@ void UI::update()
     display.updateBacklight();
 }
 
+
+Timer* timer = nullptr;
+
+void cancelCalibration()
+{
+    D4D_InterruptCalibrationScreen();
+}
+
+void createTimer()
+{
+    timer = new Timer(60*1000, cancelCalibration);
+    if (timer)
+        timer->start();
+}
+
+void destroyTimer()
+{
+    delete timer;
+    timer = NULL;
+}
+
+
 /**
  * Show touch screen calibration screen store settings afterwards
  */
 void calibrateTouchScreen() {
+
+    createTimer();
     D4D_CalibrateTouchScreen();
+    destroyTimer();
     eGuiSettings.storeTouchCalib();
+
 }
 
 bool UI::inStartup() {

@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1052.3622"
+   height="744.09448"
+   id="svg4642"
+   version="1.1"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="esj2.svg">
+  <defs
+     id="defs4644" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.6"
+     inkscape:cx="420.82287"
+     inkscape:cy="350.27984"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="px"
+     showgrid="false"
+     inkscape:showpageshadow="false"
+     inkscape:window-width="1274"
+     inkscape:window-height="723"
+     inkscape:window-x="501"
+     inkscape:window-y="85"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata4647">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     transform="translate(0,144.09449)">
+    <g
+       transform="matrix(0.64014555,0,0,0.72991147,-944.73133,-7.104212)"
+       id="g4962"
+       inkscape:export-filename="R:\src\include\esj\doc\esj2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <g
+         transform="translate(831.44233,1013.0247)"
+         id="node1"
+         class="node">
+        <title
+           id="title3651">1</title>
+        <polygon
+           points="901,-887.5 901,-887.5 901,-986.5 1109,-986.5 1109,-887.5 "
+           id="polygon3653"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="1005"
+           y="-971.29999"
+           font-size="14.00"
+           id="text3655"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">json_exception</text>
+        <polyline
+           points="901,-963.5 1109,-963.5 "
+           id="polyline3657"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="1005"
+           y="-948.29999"
+           font-size="14.00"
+           id="text3659"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'" />
+        <polyline
+           points="901,-940.5 1109,-940.5 "
+           id="polyline3661"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="1005"
+           y="-925.29999"
+           font-size="14.00"
+           id="text3663"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">const char * what(void)</text>
+        <text
+           x="1005"
+           y="-910.29999"
+           font-size="14.00"
+           id="text3665"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void json_exception(const char *)</text>
+        <text
+           x="1005"
+           y="-895.29999"
+           font-size="14.00"
+           id="text3667"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void ~json_exception(void)</text>
+      </g>
+      <g
+         transform="translate(600.15724,1134.6487)"
+         id="node2"
+         class="node">
+        <title
+           id="title3670">2</title>
+        <polygon
+           points="1127.5,-902.5 1127.5,-902.5 1127.5,-971.5 1336.5,-971.5 1336.5,-902.5 "
+           id="polygon3672"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="1232"
+           y="-956.29999"
+           font-size="14.00"
+           id="text3674"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">DoubleConverter</text>
+        <polyline
+           points="1127.5,-948.5 1336.5,-948.5 "
+           id="polyline3676"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="1232"
+           y="-933.29999"
+           font-size="14.00"
+           id="text3678"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'" />
+        <polyline
+           points="1127.5,-925.5 1336.5,-925.5 "
+           id="polyline3680"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="1232"
+           y="-910.29999"
+           font-size="14.00"
+           id="text3682"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">std::string Convert(double,double)</text>
+      </g>
+      <g
+         transform="translate(600.15724,1475.5948)"
+         id="node13"
+         class="node">
+        <title
+           id="title4142">13</title>
+        <polygon
+           points="1532,-902.5 1532,-902.5 1532,-971.5 1764,-971.5 1764,-902.5 "
+           id="polygon4144"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="1648"
+           y="-956.29999"
+           font-size="14.00"
+           id="text4146"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">producer</text>
+        <polyline
+           points="1532,-948.5 1764,-948.5 "
+           id="polyline4148"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="1648"
+           y="-933.29999"
+           font-size="14.00"
+           id="text4150"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'" />
+        <polyline
+           points="1532,-925.5 1764,-925.5 "
+           id="polyline4152"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="1648"
+           y="-910.29999"
+           font-size="14.00"
+           id="text4154"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">std::string convert(serializable_type &amp;)</text>
+      </g>
+      <g
+         transform="translate(342.95228,1363.94)"
+         id="node15"
+         class="node">
+        <title
+           id="title4157">15</title>
+        <polygon
+           points="1782,-902.5 1782,-902.5 1782,-971.5 2048,-971.5 2048,-902.5 "
+           id="polygon4159"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="1915"
+           y="-956.29999"
+           font-size="14.00"
+           id="text4161"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">consumer</text>
+        <polyline
+           points="1782,-948.5 2048,-948.5 "
+           id="polyline4163"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="1915"
+           y="-933.29999"
+           font-size="14.00"
+           id="text4165"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'" />
+        <polyline
+           points="1782,-925.5 2048,-925.5 "
+           id="polyline4167"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="1915"
+           y="-910.29999"
+           font-size="14.00"
+           id="text4169"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">serializable_type convert(const std::string &amp;)</text>
+      </g>
+      <g
+         transform="translate(4,1021)"
+         id="node16"
+         class="node">
+        <title
+           id="title4172">16</title>
+        <polygon
+           points="2428,-872.5 2066,-872.5 2066,-872.5 2066,-1001.5 2428,-1001.5 "
+           id="polygon4174"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="2247"
+           y="-986.29999"
+           font-size="14.00"
+           id="text4176"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">CPTSnap</text>
+        <polyline
+           points="2066,-978.5 2428,-978.5 "
+           id="polyline4178"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="2247"
+           y="-963.29999"
+           font-size="14.00"
+           id="text4180"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Interval m_value</text>
+        <polyline
+           points="2066,-955.5 2428,-955.5 "
+           id="polyline4182"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="2247"
+           y="-940.29999"
+           font-size="14.00"
+           id="text4184"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Chordia::CPTSnap &amp; operator=(const Chordia::CPTSnap &amp;)</text>
+        <text
+           x="2247"
+           y="-925.29999"
+           font-size="14.00"
+           id="text4186"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Interval value(void)</text>
+        <text
+           x="2247"
+           y="-910.29999"
+           font-size="14.00"
+           id="text4188"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void CPTSnap(void)</text>
+        <text
+           x="2247"
+           y="-895.29999"
+           font-size="14.00"
+           id="text4190"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void CPTSnap(const Chordia::CPTSnap &amp;)</text>
+        <text
+           x="2247"
+           y="-880.29999"
+           font-size="14.00"
+           id="text4192"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void CPTSnap(const Interval &amp;)</text>
+      </g>
+      <g
+         transform="translate(-412.71192,1202.4392)"
+         id="node17"
+         class="node">
+        <title
+           id="title4195">17</title>
+        <polygon
+           points="2446,-857.5 2446,-857.5 2446,-1016.5 2884,-1016.5 2884,-857.5 "
+           id="polygon4197"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="2665"
+           y="-1001.3"
+           font-size="14.00"
+           id="text4199"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">CPTInterval</text>
+        <polyline
+           points="2446,-993.5 2884,-993.5 "
+           id="polyline4201"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="2665"
+           y="-978.29999"
+           font-size="14.00"
+           id="text4203"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Interval m_interval</text>
+        <polyline
+           points="2446,-970.5 2884,-970.5 "
+           id="polyline4205"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="2665"
+           y="-955.29999"
+           font-size="14.00"
+           id="text4207"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">double ms(void)</text>
+        <text
+           x="2665"
+           y="-940.29999"
+           font-size="14.00"
+           id="text4209"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">double us(void)</text>
+        <text
+           x="2665"
+           y="-925.29999"
+           font-size="14.00"
+           id="text4211"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Interval Diff(const Chordia::CPTSnap &amp;,const Chordia::CPTSnap &amp;)</text>
+        <text
+           x="2665"
+           y="-910.29999"
+           font-size="14.00"
+           id="text4213"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">double Scale(Chordia::CPTInterval::Unit)</text>
+        <text
+           x="2665"
+           y="-895.29999"
+           font-size="14.00"
+           id="text4215"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void CPTInterval(void)</text>
+        <text
+           x="2665"
+           y="-880.29999"
+           font-size="14.00"
+           id="text4217"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void CPTInterval(const Chordia::CPTSnap &amp;,const Chordia::CPTSnap &amp;)</text>
+        <text
+           x="2665"
+           y="-865.29999"
+           font-size="14.00"
+           id="text4219"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void CPTInterval(const Chordia::CPTSnap &amp;)</text>
+      </g>
+      <g
+         transform="translate(-307.03856,993.08628)"
+         id="node18"
+         class="node">
+        <title
+           id="title4222">18</title>
+        <polygon
+           points="2902.5,-902.5 2902.5,-902.5 2902.5,-971.5 3099.5,-971.5 3099.5,-902.5 "
+           id="polygon4224"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="3001"
+           y="-956.29999"
+           font-size="14.00"
+           id="text4226"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSONExample</text>
+        <polyline
+           points="2902.5,-948.5 3099.5,-948.5 "
+           id="polyline4228"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="3001"
+           y="-933.29999"
+           font-size="14.00"
+           id="text4230"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">std::string text</text>
+        <polyline
+           points="2902.5,-925.5 3099.5,-925.5 "
+           id="polyline4232"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="3001"
+           y="-910.29999"
+           font-size="14.00"
+           id="text4234"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(JSON::Adapter &amp;)</text>
+      </g>
+      <g
+         transform="translate(-536.32981,1112.7165)"
+         id="node19"
+         class="node">
+        <title
+           id="title4237">19</title>
+        <polygon
+           points="3117.5,-887.5 3117.5,-887.5 3117.5,-986.5 3362.5,-986.5 3362.5,-887.5 "
+           id="polygon4239"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="3240"
+           y="-971.29999"
+           font-size="14.00"
+           id="text4241"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">InnerExample</text>
+        <polyline
+           points="3117.5,-963.5 3362.5,-963.5 "
+           id="polyline4243"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="3240"
+           y="-948.29999"
+           font-size="14.00"
+           id="text4245"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">std::string text</text>
+        <polyline
+           points="3117.5,-940.5 3362.5,-940.5 "
+           id="polyline4247"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="3240"
+           y="-925.29999"
+           font-size="14.00"
+           id="text4249"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool operator==(const InnerExample &amp;)</text>
+        <text
+           x="3240"
+           y="-910.29999"
+           font-size="14.00"
+           id="text4251"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(JSON::Adapter &amp;)</text>
+        <text
+           x="3240"
+           y="-895.29999"
+           font-size="14.00"
+           id="text4253"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void InnerExample(const char *)</text>
+      </g>
+      <g
+         transform="translate(-540.31748,1102.7473)"
+         id="node20"
+         class="node">
+        <title
+           id="title4256">20</title>
+        <polygon
+           points="3116,-534 3116,-738 3364,-738 3364,-534 3116,-534 "
+           id="polygon4258"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="3240"
+           y="-722.79999"
+           font-size="14.00"
+           id="text4260"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">OuterExample</text>
+        <polyline
+           points="3116,-715 3364,-715 "
+           id="polyline4262"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="3240"
+           y="-699.79999"
+           font-size="14.00"
+           id="text4264"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool bool_data</text>
+        <text
+           x="3240"
+           y="-684.79999"
+           font-size="14.00"
+           id="text4266"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">std::vector&lt;double&gt; double_data</text>
+        <text
+           x="3240"
+           y="-669.79999"
+           font-size="14.00"
+           id="text4268"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">std::wstring hiragana</text>
+        <text
+           x="3240"
+           y="-654.79999"
+           font-size="14.00"
+           id="text4270"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">std::vector&lt;int&gt; int_data</text>
+        <text
+           x="3240"
+           y="-639.79999"
+           font-size="14.00"
+           id="text4272"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">InnerExample m_inner</text>
+        <text
+           x="3240"
+           y="-624.79999"
+           font-size="14.00"
+           id="text4274"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">std::vector&lt;std::string&gt; string_data</text>
+        <text
+           x="3240"
+           y="-609.79999"
+           font-size="14.00"
+           id="text4276"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">std::vector&lt;bool&gt; v_bool_data</text>
+        <text
+           x="3240"
+           y="-594.79999"
+           font-size="14.00"
+           id="text4278"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">std::vector&lt;InnerExample&gt; v_inner_data</text>
+        <polyline
+           points="3116,-587 3364,-587 "
+           id="polyline4280"
+           style="fill:none;stroke:#000000" />
+        <text
+           x="3240"
+           y="-571.79999"
+           font-size="14.00"
+           id="text4282"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool operator==(const OuterExample &amp;)</text>
+        <text
+           x="3240"
+           y="-556.79999"
+           font-size="14.00"
+           id="text4284"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(JSON::Adapter &amp;)</text>
+        <text
+           x="3240"
+           y="-541.79999"
+           font-size="14.00"
+           id="text4286"
+           style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void OuterExample(void)</text>
+      </g>
+      <g
+         transform="matrix(1,0,0,0.92685008,-534.33597,1046.7395)"
+         id="edge11"
+         class="edge">
+        <title
+           id="title4289">19:port-&gt;20</title>
+        <path
+           d="m 3374.21,-951.453 c 77.74,8.901 10.16,124.564 -54.04,213.051"
+           id="path4291"
+           inkscape:connector-curvature="0"
+           style="fill:none;stroke:#000000" />
+        <polygon
+           points="3373.74,-946.971 3368.99,-951.732 3373.99,-951.465 3373.99,-951.465 3373.99,-951.465 3368.99,-951.732 3374.23,-955.958 3364,-952 3364,-952 3364,-952 "
+           id="polygon4293"
+           style="fill:#000000;stroke:#000000" />
+      </g>
+    </g>
+  </g>
+</svg>
