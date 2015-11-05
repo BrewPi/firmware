@@ -93,10 +93,6 @@ public:
     }
     ;
 
-    void init(void) {
-
-    }
-
     void loadSettings(eptr_t offset);
     void storeSettings(eptr_t offset);
     void loadDefaultSettings(void);

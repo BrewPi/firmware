@@ -70,6 +70,7 @@ uint32_t UI::showStartupPage()
     }
 
     uiController.beginStartup();
+    ticks(); // render
     return 0;
 }
 

@@ -64,6 +64,8 @@ void setup()
 {
     bool resetEeprom = platform_init();
     eepromManager.init();
+    if (resetEeprom)
+        eepromManager.initializeEeprom();
 	ui.init();
 	piLink.init();
 
@@ -79,9 +81,6 @@ void setup()
     if (!primaryOneWireBus.init()) {
         logError(ERROR_ONEWIRE_INIT_FAILED);
     }
-    tempControl.init();
-    settingsManager.loadSettings();
-
 
 #if BREWPI_SIMULATE
 	simulator.step();
@@ -89,8 +88,7 @@ void setup()
 	//tempControl.beerSensor->init();
 	//tempControl.fridgeSensor->init();
 #endif	
-    if (resetEeprom)
-        eepromManager.initializeEeprom();
+    settingsManager.loadSettings();
 
     ui.showControllerPage();
     			
