@@ -20,7 +20,7 @@
 
 
 #include "str_functions.h"
-#include "platform.h"
+#include "Platform.h"
 
 // custom string conversion functions that are smaller than standard versions
 

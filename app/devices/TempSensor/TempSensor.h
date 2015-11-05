@@ -21,7 +21,7 @@
 #pragma once
 
 #include "temperatureFormats.h"
-#include "tempSensorBasic.h"
+#include "TempSensorBasic.h"
 #include "defaultDevices.h"
 #include "json_writer.h"
 #include "Nameable.h"
