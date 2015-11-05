@@ -112,7 +112,7 @@ void LcdDisplay::printTemperatureAt(uint8_t x, uint8_t y, temp_t temp){
 
 void LcdDisplay::printTemperature(temp_t temp){
 	if (temp.isDisabledOrInvalid()) {
-		lcd.print_P(PSTR(" --.-"));
+		lcd.print_P(PSTR("  --.-"));
 		return;
 	}
 	char tempString[7]; // max 6 characters and \0: -100.0
