@@ -130,10 +130,12 @@ Control::~Control(){
     actuators.clear();
 }
 
+// This update function should be called every second
 void Control::update(){
     updateSensors();
     updatePids();
     updateActuators();
+    mutex->update();
 }
 
 void Control::updatePids(){
@@ -142,6 +144,7 @@ void Control::updatePids(){
     }
 }
 
+// The actuator update should be called often to generate the PWM signal
 void Control::updateSensors(){
     for ( auto &sensor : sensors ) {
         sensor->update();
@@ -152,7 +155,6 @@ void Control::updateActuators(){
     for ( auto &actuator : actuators ) {
         actuator->update();
     }
-    mutex->update();
 }
 
 void Control::serialize(JSON::Adapter& adapter){
