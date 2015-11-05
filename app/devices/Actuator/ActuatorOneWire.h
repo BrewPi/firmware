@@ -31,7 +31,7 @@
  *
  */
 class ActuatorOneWire:
-    public ActuatorDigital
+    private ActuatorBottom, public ActuatorDigital
 
 #if DS2413_SUPPORT_SENSE
             ,

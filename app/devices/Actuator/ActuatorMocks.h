@@ -23,13 +23,14 @@
 #include <stdint.h>
 #include "temperatureFormats.h"
 #include "ActuatorInterfaces.h"
+#include "ActuatorBottom.h"
 
 #include "json_writer.h"
 
 /*
  * A range actuator that simply remembers the set value. This is primary used for testing.
  */
-class ActuatorValue : public ActuatorRange
+class ActuatorValue : private ActuatorBottom, public ActuatorRange
 {
 public:
     // construct without arguments, val = invalid, min and max are defaults
@@ -83,7 +84,7 @@ private:
 /*
  * An toggle actuator that simply remembers a true/false set value. This is primary used for testing.
  */
-class ActuatorBool : public ActuatorDigital
+class ActuatorBool : private ActuatorBottom, public ActuatorDigital
 {
 public:
     ActuatorBool() : state(false) {}
@@ -107,7 +108,7 @@ private:
 /*
  * An digital actuators that does absolutely nothing. Used as default actuator
  */
-class ActuatorNop : public ActuatorDigital
+class ActuatorNop : private ActuatorBottom, public ActuatorDigital
 {
 public:
     ActuatorNop(){}
@@ -129,7 +130,7 @@ public:
 /*
  * An linear actuator that does nothing and always returns invalid(). Linear equavalent of ActuatorNop
  */
-class ActuatorInvalid : public ActuatorRange
+class ActuatorInvalid : private ActuatorBottom, public ActuatorRange
 {
 public:
     ActuatorInvalid() {}

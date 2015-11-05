@@ -59,16 +59,10 @@ public:
 	virtual void serialize(JSON::Adapter& adapter) = 0;
 
 private:
-	virtual Actuator * doGetBareActuator(){
-        return this;  // recursive call for composite driver classes, until a non-driver class is reached
-    }
-	virtual bool doInstallActuatorFinalTarget(ActuatorDigital * a){
-	    return false; // does nothing for non-driver actuators
-	}
-
-	virtual bool doUnInstallActuatorFinalTarget(){
-	    return false; // does nothing for non-driver actuators
-	}
+	// implemented by ActuatorDriver or ActuatorBottom
+	virtual Actuator * doGetBareActuator() = 0;
+	virtual bool doInstallActuatorFinalTarget(ActuatorDigital * a) = 0;
+	virtual bool doUnInstallActuatorFinalTarget() = 0;
 };
 
 

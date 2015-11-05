@@ -26,7 +26,7 @@
 /*
  * A linear actuator that sets a setpoint to reference setpoint + actuator value
  */
-class ActuatorSetPoint : public ActuatorRange
+class ActuatorSetPoint : private ActuatorBottom, public ActuatorRange
 {
 public:
     ActuatorSetPoint(SetPoint * targ = defaultSetPoint(), // setpoint to manipulate

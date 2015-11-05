@@ -24,9 +24,10 @@
 
 #include "Platform.h"
 #include "ActuatorInterfaces.h"
+#include "ActuatorBottom.h"
 
 class DigitalPinActuator:
-    public ActuatorDigital
+    private ActuatorBottom, public ActuatorDigital
 {
     private:
         bool    invert;

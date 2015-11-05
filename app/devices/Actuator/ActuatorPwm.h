@@ -27,7 +27,7 @@
 #include "Ticks.h"
 #include <stdint.h>
 
-class ActuatorPwm : public ActuatorRange, public ActuatorDriver
+class ActuatorPwm : public ActuatorDriver, public ActuatorRange
 {
     private:
         temp_t         value;
