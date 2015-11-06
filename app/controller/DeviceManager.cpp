@@ -47,6 +47,7 @@
 #include "DallasTemperature.h"
 #include "ActuatorPin.h"
 #include "SensorPin.h"
+#include "ValveController.h"
 
 #endif
 
@@ -123,6 +124,11 @@ void * DeviceManager::createDevice(DeviceConfig & config,
 #else
             return new ActuatorOneWire(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.offset.pio, config.hw.invert);
 #endif
+#endif
+
+#if BREWPI_DS2408
+        case DEVICE_HARDWARE_ONEWIRE_2408 :
+            return new ValveController(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.offset.pio);
 
 #endif
 
@@ -150,8 +156,8 @@ void DeviceManager::disposeDevice(DeviceType dt,
 
         case DEVICETYPE_SWITCH_ACTUATOR :
         case DEVICETYPE_PWM_ACTUATOR :
+        case DEVICETYPE_VALVE_ACTUATOR :
             delete (Actuator *) device;
-
             break;
     }
 }
@@ -275,6 +281,8 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
             }
 
             break;
+        case DEVICETYPE_VALVE_ACTUATOR :
+            break; // not installed for now, only exists in device list
     }
 }
 
@@ -334,6 +342,8 @@ void DeviceManager::installDevice(DeviceConfig & config)
 #endif
         }
         break;
+        case DEVICETYPE_VALVE_ACTUATOR :
+        break; // not installed for now, only exists in device list
     }
 }
 
@@ -370,7 +380,7 @@ const char DEVICE_ATTRIB_INVERT          = 'x';
 const char DEVICE_ATTRIB_DEACTIVATED     = 'd';
 const char DEVICE_ATTRIB_ADDRESS         = 'a';
 
-#if BREWPI_DS2413
+#if BREWPI_DS2413 || BREWPI_DS2408
 const char DEVICE_ATTRIB_PIO             = 'n';
 #endif
 
@@ -601,12 +611,14 @@ inline bool hasInvert(DeviceHardware hw)
 
 inline bool hasOnewire(DeviceHardware hw)
 {
+    return hw == DEVICE_HARDWARE_ONEWIRE_TEMP
 #if BREWPI_DS2413
-    return (hw == DEVICE_HARDWARE_ONEWIRE_2413) || (hw == DEVICE_HARDWARE_ONEWIRE_TEMP);
-#else
-    return hw == DEVICE_HARDWARE_ONEWIRE_TEMP;
+            || (hw == DEVICE_HARDWARE_ONEWIRE_2413)
 #endif
-
+#if BREWPI_DS2408
+            || (hw == DEVICE_HARDWARE_ONEWIRE_2408)
+#endif
+    ;
 }
 
 void DeviceManager::printDevice(device_slot_t  slot,
@@ -650,8 +662,15 @@ void DeviceManager::printDevice(device_slot_t  slot,
         p.print('"');
     }
 
+#if BREWPI_DS2413 || BREWPI_DS2408
+    if (false // to be able to use || below
 #if BREWPI_DS2413
-    if (config.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2413){
+            || config.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2413
+#endif
+#if BREWPI_DS2408
+            || config.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2408
+#endif
+            ){
         printAttrib(p, DEVICE_ATTRIB_PIO, config.hw.offset.pio);
     }
 #endif
@@ -737,6 +756,7 @@ device_slot_t findHardwareDevice(DeviceConfig & find)
             switch (find.deviceHardware){
 #if BREWPI_DS2413
                 case DEVICE_HARDWARE_ONEWIRE_2413 :
+                case DEVICE_HARDWARE_ONEWIRE_2408 :
                     match &= find.hw.offset.pio == config.hw.offset.pio;
 
                     // fall through
@@ -762,7 +782,7 @@ device_slot_t findHardwareDevice(DeviceConfig & find)
 }
 
 inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw,
-        char *                                                        out)
+                                               char * out)
 {
 #if !BREWPI_SIMULATE
     OneWire *         bus = oneWireBus(hw.pinNr);
@@ -779,7 +799,26 @@ inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw,
 #else
     strcpy_P(out, PSTR("0.00"));
 #endif
+}
 
+inline void DeviceManager::readValve(DeviceConfig::Hardware hw,
+                                     char * out)
+{
+    OneWire * bus = oneWireBus(hw.pinNr);
+    ValveController valve(
+        bus, hw.address,
+        hw.offset.pio);
+    uint8_t valveState = valve.read(true);
+    sprintf_P(out, STR_FMT_U, (unsigned int) valveState);
+}
+
+inline void DeviceManager::writeValve(DeviceConfig::Hardware hw, uint8_t value)
+{
+    OneWire * bus = oneWireBus(hw.pinNr);
+    ValveController valve(
+        bus, hw.address,
+        hw.offset.pio);
+    valve.write(ValveController::ValveActions(value));
 }
 
 void DeviceManager::handleEnumeratedDevice(DeviceConfig & config,
@@ -814,9 +853,10 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig & config,
         switch (config.deviceHardware){
             case DEVICE_HARDWARE_ONEWIRE_TEMP :
                 readTempSensorValue(config.hw, info -> value);
-
                 break;
-
+            case DEVICE_HARDWARE_ONEWIRE_2408:
+                readValve(config.hw, info -> value);
+                break;
             // unassigned pins could be input or output so we can't determine any other details from here.
             // values can be read once the pin has been assigned a function
             default :
@@ -910,13 +950,16 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware & h,
 #if BREWPI_DS2413
                     case DS2413_FAMILY_ID :
                         config.deviceHardware = DEVICE_HARDWARE_ONEWIRE_2413;
-
+                        break;
+#endif
+#if BREWPI_DS2408
+                    case DS2408_FAMILY_ID :
+                        config.deviceHardware = DEVICE_HARDWARE_ONEWIRE_2408;
                         break;
 #endif
 
                     case DS18B20MODEL :
                         config.deviceHardware = DEVICE_HARDWARE_ONEWIRE_TEMP;
-
                         break;
 
                     default :
@@ -924,18 +967,19 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware & h,
                 }
 
                 switch (config.deviceHardware){
+#if BREWPI_DS2413 || BREWPI_DS2408
 #if BREWPI_DS2413
-
-                    // for 2408 this will require iterating 0..7
                     case DEVICE_HARDWARE_ONEWIRE_2413 :
-
+#endif
+#if BREWPI_DS2408
+                    case DEVICE_HARDWARE_ONEWIRE_2408 : // 2408 will show as 2 valves
+#endif
                         // enumerate each pin separately
                         for (uint8_t i = 0; i < 2; i++){
                             config.hw.offset.pio = i;
 
                             handleEnumeratedDevice(config, h, callback, info);
                         }
-
                         break;
 #endif
 
@@ -1031,22 +1075,23 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
 
     void ** ppv = deviceTarget(dc);
 
-    if (ppv == NULL){
+    if (ppv == NULL && dt != DEVICETYPE_VALVE_ACTUATOR){ // make an exception for valves, which only exist in the device list
         return;
     }
-    /* removed code to write to actuators from device manager.
-     * Has not been tested enough and is incompatible with PWM actuators
     if (dd.write >= 0){
         // write value to a specific device. For now, only actuators are relevant targets
+        if (dt == DEVICETYPE_VALVE_ACTUATOR){
+            writeValve(dc.hw, dd.write);
+        }
         if (dt == DEVICETYPE_SWITCH_ACTUATOR){
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write != 0));
             ((ActuatorDigital *) *ppv) -> setActive(dd.write != 0);
         } else if (dt == DEVICETYPE_PWM_ACTUATOR){
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write));
-            ((ActuatorPwm *) *ppv) -> setValue(dd.write);
+            temp_t value = dd.write;
+            ((ActuatorPwm *) *ppv) -> setValue(value);
         }
-    } else */
-    if (dd.value == 1){    // read values
+    } else if (dd.value == 1){    // read values
         if (dt == DEVICETYPE_SWITCH_SENSOR){
             sprintf_P(val, STR_FMT_U,
                       (unsigned int) ((SwitchSensor *) *ppv) -> sense()
@@ -1060,6 +1105,8 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
             sprintf_P(val, STR_FMT_U, (unsigned int) ((ActuatorDigital *) *ppv) -> isActive() != 0);
         } else if (dt == DEVICETYPE_PWM_ACTUATOR){
             ((ActuatorPwm *) *ppv) -> getValue().toString(val,1,5);
+        } else if (dt == DEVICETYPE_VALVE_ACTUATOR){
+            readValve(dc.hw, val);
         }
     }
 }
@@ -1113,6 +1160,9 @@ DeviceType deviceType(DeviceFunction id)
         case DEVICE_BEER_TEMP :
         case DEVICE_BEER_TEMP2 :
             return DEVICETYPE_TEMP_SENSOR;
+
+        case DEVICE_CHAMBER_MANUAL_VALVE:
+            return DEVICETYPE_VALVE_ACTUATOR;
 
         default :
             return DEVICETYPE_NONE;

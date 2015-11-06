@@ -84,7 +84,7 @@ enum infoMessages{
 	MSG(INFO_INSTALL_SWITCH_SENSOR, "installing switch sensor with function %d", config.deviceFunction),
 	MSG(INFO_INSTALL_DEVICE, "Installing device f=%d", config.deviceFunction),
 	MSG(INFO_MATCHING_DEVICE, "Matching device at slot %d", out.slot),
-	MSG(INFO_SETTING_ACTIVATOR_STATE, "Setting activator state %d", state),
+	MSG(INFO_SETTING_ACTUATOR_VALUE, "Setting actuator value %d", val),
 			
 // PiLink.cpp
 	MSG(INFO_RECEIVED_SETTING, "Received new setting: %s = %s", key, val),

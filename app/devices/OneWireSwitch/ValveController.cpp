@@ -19,24 +19,13 @@
 
 #include "ValveController.h"
 
-ValveController::ValveController() :
-    switchState(0xff), // Set outputs and inputs to OFF state
-    sense(0b11), // Set sense to OFF state (in between)
-    act(0b11), // set output to OFF (not open/closed, no action)
-    channel('X') // Let 'X' mean that the channel is undefined
-{
-}
-
-ValveController::~ValveController() {
-}
-
 /*
  * Updates the status of the member variables from what is read back from the valve
  * Checks whether the valve are is done with opening/closing and stops driving it.
  */
 
 uint8_t maskSenseBits(uint8_t input){
-    return input & 0b00110011;
+    return input | 0b00110011;
 }
 uint8_t maskWriteBitsA(uint8_t input){
     return input & 0b00111111;
@@ -46,7 +35,7 @@ uint8_t maskWriteBitsB(uint8_t input){
 }
 
 void ValveController::update() {
-    switchState = accessRead();
+    switchState = device.accessRead();
     // content of switchState:
     // bit 7-6: Valve A action: 01 = open, 10 = close, 11 = off, 00 = off but LEDS on
     // bit 5-4: Valve A status: 01 = opened, 10 = closed, 11 = in between
@@ -55,7 +44,7 @@ void ValveController::update() {
 
     uint8_t output = switchState;
 
-    if(channel == 'A'){
+    if(pio == 0){
         act = (switchState >> 6) & 0x3;
         sense = (switchState >> 4) & 0x3;
         if (act == sense) {
@@ -63,7 +52,7 @@ void ValveController::update() {
             output |= (uint8_t(ValveActions::OFF) << 6);
         }
     }
-    else if(channel == 'B'){
+    else if(pio == 1){
         act = (switchState >> 2) & 0x3;
         sense = switchState & 0x3;
         if (act == sense) {
@@ -72,7 +61,7 @@ void ValveController::update() {
         }
     }
     if (output != switchState) {
-        accessWrite(maskSenseBits(output)); // write new state, but ensure keep sense bits as inputs
+        device.accessWrite(maskSenseBits(output)); // write new state, but ensure keep sense bits as inputs
     }
 }
 
@@ -87,14 +76,14 @@ void ValveController::write(ValveActions action) {
     update();
     uint8_t action_ = uint8_t(action);
     uint8_t output = maskSenseBits(switchState);
-    if(channel == 'A'){
+    if(pio == 0){
         output = maskWriteBitsA(output);
         output |= action_ << 6;
-        accessWrite(output);
+        device.accessWrite(output);
     }
-    else if(channel == 'B'){
+    else if(pio == 1){
         output = maskWriteBitsB(output);
         output |= action_ << 2;
-        accessWrite(output);
+        device.accessWrite(output);
     }
 }

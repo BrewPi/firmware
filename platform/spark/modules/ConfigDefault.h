@@ -39,6 +39,13 @@
 #define BREWPI_DS2413 1
 #endif
 
+/**
+ * Enable DS2408 Actuators.
+ */
+#ifndef BREWPI_DS2408
+#define BREWPI_DS2408 1
+#endif
+
 #ifndef BREWPI_BUZZER
     #define BREWPI_BUZZER 1
 #endif

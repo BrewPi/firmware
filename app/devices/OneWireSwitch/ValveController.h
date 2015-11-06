@@ -20,16 +20,26 @@
 #pragma once
 #include "DS2408.h"
 #include "ActuatorInterfaces.h"
+#include "ActuatorBottom.h"
 
-class ValveController : public ActuatorDigital, public DS2408 {
+class ValveController :
+    private ActuatorBottom, public ActuatorDigital{
 public:
-    ValveController();
-    virtual ~ValveController();
+    ValveController(OneWire *     bus,
+                    DeviceAddress address,
+                    pio_t         pio_) :
+                    switchState(0xff), // Set outputs and inputs to OFF state
+                    sense(0b11), // Set sense to OFF state (in between)
+                    act(0b11),   // set output to OFF (not open/closed, no action)
+                    pio(pio_){  //
+        device.init(bus, address);
+    }
+    virtual ~ValveController(){};
 
     enum class ValveActions : uint8_t {
         OFF_LOW = 0b00,
-        CLOSE = 0b10,
         OPEN = 0b01,
+        CLOSE = 0b10,
         OFF = 0b11
     };
     
@@ -62,10 +72,17 @@ public:
         write(ValveActions::OFF);
     }
 
+    void serialize(JSON::Adapter& adapter){
+        JSON::Class root(adapter, "Valve");
+        JSON_E(adapter, pio);
+        JSON_T(adapter, sense);
+    }
+
 protected:
     uint8_t switchState; // state bits of the entire switch
     uint8_t sense; // sensed value (feedback)
     uint8_t act; // written value (actuator)
-    char channel; // A or B
+    pio_t pio; // 0=A or 1=B
+    DS2408 device;
 };
 
