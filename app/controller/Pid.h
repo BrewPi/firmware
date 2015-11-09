@@ -57,9 +57,6 @@ class Pid : public Nameable
 
         void setDerivativeFilter(uint8_t b);
 
-        void setMinMax(temp_t min,
-                       temp_t max);
-
         bool setInputSensor(TempSensorBasic * s);
 
         TempSensorBasic * getInputSensor(){

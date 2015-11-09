@@ -94,7 +94,7 @@ void Pid::update()
 
     inputFilter.add(inputVal);
     temp_t inputErrorPrevious = inputError;
-    inputError = setPoint->read() - inputFilter.readOutput();
+    inputError = inputFilter.readOutput() - setPoint->read();
     if( (inputError - inputErrorPrevious) > temp_t (0.15) ||
             (inputErrorPrevious - inputError)  > temp_t (0.15)){ // more then 2 bits (0.0625 of the input sensor)
         integral = 0; // reset integral when the error changes significantly, most likely due to setpoint changes
@@ -106,7 +106,7 @@ void Pid::update()
     derivative = derivativeFilter.readOutput();
 
     // calculate PID parts.
-    p = Kp * inputError;
+    p = Kp * -inputError;
     i = (Ti != 0) ? Kp * (integral/Ti) : temp_long_t(0.0);
     d = -Kp * (derivative * Td);
 
@@ -126,7 +126,7 @@ void Pid::update()
     // pidResult - output is zero when actuator is not saturated
     temp_long_t antiWindup = (pidResult - temp_long_t(output));
 
-    integral = integral + inputError;
+    integral = integral - inputError;
 
     if(Ti == 0){ // 0 has been chosen to indicate that the integrator is disabled. This also prevents divide by zero.
         integral = 0;
