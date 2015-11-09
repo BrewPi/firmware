@@ -60,7 +60,7 @@ public:
         hltHeaterPid = new Pid();
         mashToHltPid = new Pid();
 
-        hltSetPointActuator = new ActuatorSetPoint(hltSet, mashSet);
+        hltSetPointActuator = new ActuatorSetPoint(hltSet, hltSensor, mashSet);
 
         hltHeaterPid->setOutputActuator(hltHeater);
         mashToHltPid->setOutputActuator(hltSetPointActuator);

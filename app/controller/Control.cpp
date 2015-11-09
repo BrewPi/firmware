@@ -56,7 +56,7 @@ Control::Control()
     beer2Set = new SetPointSimple();
     fridgeSet = new SetPointSimple();
 
-    fridgeSetPointActuator = new ActuatorSetPoint(fridgeSet, beer1Set);
+    fridgeSetPointActuator = new ActuatorSetPoint(fridgeSet, fridgeSensor, beer1Set);
     fridgeSetPointActuator->setMin(-10.0);
     fridgeSetPointActuator->setMax(10.0);
 

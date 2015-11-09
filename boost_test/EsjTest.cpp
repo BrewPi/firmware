@@ -166,7 +166,8 @@ BOOST_AUTO_TEST_CASE(serialize_setpoint) {
 BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
     SetPoint * sp1 = new SetPointSimple();
     SetPoint * sp2 = new SetPointConstant(20.0);
-    ActuatorRange * act = new ActuatorSetPoint(sp1, sp2, -10.0, 10.0);
+    TempSensorBasic * sens1 = new TempSensorMock(20.0);
+    ActuatorRange * act = new ActuatorSetPoint(sp1, sens1, sp2, -10.0, 10.0);
     act->setValue(5.0); // should set sp1 to sp2 + 5.0 = 25.0;
 
     std::string json = JSON::producer<ActuatorRange>::convert(act);
@@ -175,13 +176,20 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
     {
         "class": "ActuatorSetPoint",
         "variables": {
-            "target": {
+            "targetSetPoint": {
                 "class": "SetPointSimple",
                 "variables": {
                     "value": 25.0000
                 }
             },
-            "reference": {
+            "targetSensor": {
+                "class": "TempSensorMock",
+                "variables": {
+                    "value": 20.0000,
+                    "connected": true
+                }
+            },
+            "referenceSetPoint": {
                 "class": "SetPointConstant",
                 "variables": {
                     "value": 20.0000
@@ -194,8 +202,9 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
 */
 
     std::string valid = R"({"class":"ActuatorSetPoint","variables":{)"
-        R"("target":{"class":"SetPointSimple","variables":{"value":25.0000}},)"
-        R"("reference":{"class":"SetPointConstant","variables":{)"
+        R"("targetSetPoint":{"class":"SetPointSimple","variables":{"value":25.0000}},)"
+        R"("targetSensor":{"class":"TempSensorMock","variables":{"value":20.0000,"connected":true}},)"
+        R"("referenceSetPoint":{"class":"SetPointConstant","variables":{)"
         R"("value":20.0000}},"minimum":-10.0000,"maximum":10.0000}})";
 
     BOOST_CHECK_EQUAL(valid, json);

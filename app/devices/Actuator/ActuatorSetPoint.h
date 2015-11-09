@@ -21,6 +21,7 @@
 
 #include "ActuatorInterfaces.h"
 #include "SetPoint.h"
+#include "TempSensorBasic.h"
 #include "defaultDevices.h"
  
 /*
@@ -29,12 +30,14 @@
 class ActuatorSetPoint : private ActuatorBottom, public ActuatorRange
 {
 public:
-    ActuatorSetPoint(SetPoint * targ = defaultSetPoint(), // setpoint to manipulate
-                     SetPoint * ref = defaultSetPoint(), //setpoint to offset from
+    ActuatorSetPoint(SetPoint * targSetPoint = defaultSetPoint(), // set point to manipulate
+                     TempSensorBasic * targSensor = defaultTempSensorBasic(), // sensor to go with target setpoint
+                     SetPoint * refSetPoint = defaultSetPoint(), //set point to offset from
                      temp_t mini = temp_t::min(), // minimum actuator value (targ - ref)
                      temp_t maxi = temp_t::max()) :  // maximum actuator value
-        target(targ),
-        reference(ref),
+        targetSetPoint(targSetPoint),
+        targetSensor(targSensor),
+        referenceSetPoint(refSetPoint),
         minimum(mini),
         maximum(maxi){
     }
@@ -47,11 +50,14 @@ public:
         else if(offset > maximum){
             offset = maximum;
         }
-        target->write(reference->read() + offset);
+        targetSetPoint->write(referenceSetPoint->read() + offset);
     }
 
+    // getValue returns difference between sensor and reference, because that is the actual actuator value.
+    // By returning the actually achieved value, instead of the difference between the setpoints,
+    // a PID can read back the actual actuator value and perform integrator anti-windup
     temp_t getValue() const{
-        return target->read() - reference->read();
+        return targetSensor->read() - referenceSetPoint->read();
     }
 
     temp_t min() const{
@@ -74,16 +80,18 @@ public:
 
     void serialize(JSON::Adapter& adapter){
         JSON::Class root(adapter, "ActuatorSetPoint");
-        JSON_E(adapter, target);
-        JSON_E(adapter, reference);
+        JSON_E(adapter, targetSetPoint);
+        JSON_E(adapter, targetSensor);
+        JSON_E(adapter, referenceSetPoint);
         JSON_E(adapter, minimum);
         JSON_T(adapter, maximum);
     }
 
 
 private:
-    SetPoint * target;
-    SetPoint * reference;
+    SetPoint * targetSetPoint;
+    TempSensorBasic * targetSensor;
+    SetPoint * referenceSetPoint;
     temp_t minimum;
     temp_t maximum;
 };
