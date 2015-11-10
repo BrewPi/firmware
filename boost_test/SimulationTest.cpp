@@ -266,7 +266,7 @@ struct SimFridgeCooler : public StaticSetup {
         coolerPid->setSetPoint(fridgeSet);
         coolerPid->setInputFilter(2);
         coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(3.0, 600, 60);
+        coolerPid->setConstants(5.0, 600, 60);
     }
 
     void update(){
@@ -293,13 +293,13 @@ struct SimFridgeHeaterCooler : public StaticSetup {
         coolerPid->setSetPoint(fridgeSet);
         coolerPid->setInputFilter(2);
         coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(3.0, 600, 60);
+        coolerPid->setConstants(5.0, 600, 60);
 
         heaterPid->setInputSensor(fridgeSensor);
         heaterPid->setSetPoint(fridgeSet);
         heaterPid->setInputFilter(2);
         heaterPid->setDerivativeFilter(4);
-        heaterPid->setConstants(5.0, 120, 0);
+        heaterPid->setConstants(10.0, 120, 0);
 
         coolerMutex->setMutex(mutex);
         heaterMutex->setMutex(mutex);
@@ -373,20 +373,20 @@ struct SimCascadedHeaterCooler : public StaticSetup {
         coolerPid->setSetPoint(fridgeSet);
         coolerPid->setInputFilter(2);
         coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(3.0, 600, 60);
+        coolerPid->setConstants(5.0, 600, 60);
 
         heaterPid->setInputSensor(fridgeSensor);
         heaterPid->setSetPoint(fridgeSet);
         heaterPid->setInputFilter(2);
         heaterPid->setDerivativeFilter(4);
-        heaterPid->setConstants(5.0, 120, 0);
+        heaterPid->setConstants(10.0, 120, 0);
 
 
         beerToFridgePid->setInputSensor(beerSensor);
         beerToFridgePid->setSetPoint(beerSet);
         beerToFridgePid->setInputFilter(4);
         beerToFridgePid->setDerivativeFilter(4);
-        beerToFridgePid->setConstants(2.0, 7200, 50);
+        beerToFridgePid->setConstants(5.0, 3600, 50);
         fridgeSetPointActuator->setMin(-10.0);
         fridgeSetPointActuator->setMax(10.0);
 
@@ -641,7 +641,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Control, SimCascadedHeaterCooler)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "beer setpoint, beer sensor, beer error, "
-            "b2f P, b2f I, b2f D, b2f PID, "
+            "b2f P, b2f I, b2f D, b2f PID, b2f actual,"
             "fridge setpoint, fridge air sensor, fridge wall temp, "
             "cooler pwm, cooler P, cooler I, cooler D, "
             "heater pwm, heater P, heater I, heater D, "
@@ -671,7 +671,8 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Control, SimCascadedHeaterCooler)
                 << beerToFridgePid->p << "," // proportional action
                 << beerToFridgePid->i << "," // integral action
                 << beerToFridgePid->d << "," // derivative action
-                << fridgeSetPointActuator->getValue() << "," // beer-fridge difference
+                << beerToFridgePid->p + beerToFridgePid->i + beerToFridgePid->d << "," // PID output
+                << fridgeSetPointActuator->getValue() << "," // beer-fridge actual difference
 
                 << fridgeSet->read() << "," // fridge setpoint
                 << fridgeSensor->read() << "," // air temp
