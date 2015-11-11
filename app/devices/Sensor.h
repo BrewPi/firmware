@@ -33,6 +33,7 @@ class ValueSensor : public Sensor<T>
 {
 public:	
 	ValueSensor(T initial) : value(initial) {}
+	virtual ~ValueSensor(){}
 
 	virtual T sense() {
 		return (T)0;

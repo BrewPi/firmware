@@ -156,9 +156,10 @@ void DeviceManager::disposeDevice(DeviceType dt,
 
         case DEVICETYPE_SWITCH_ACTUATOR :
         case DEVICETYPE_PWM_ACTUATOR :
-        case DEVICETYPE_VALVE_ACTUATOR :
             delete (Actuator *) device;
             break;
+        case DEVICETYPE_MANUAL_ACTUATOR :
+            break; // no action needed as no device has been created
     }
 }
 
@@ -281,7 +282,7 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
             }
 
             break;
-        case DEVICETYPE_VALVE_ACTUATOR :
+        case DEVICETYPE_MANUAL_ACTUATOR :
             break; // not installed for now, only exists in device list
     }
 }
@@ -342,7 +343,7 @@ void DeviceManager::installDevice(DeviceConfig & config)
 #endif
         }
         break;
-        case DEVICETYPE_VALVE_ACTUATOR :
+        case DEVICETYPE_MANUAL_ACTUATOR :
         break; // not installed for now, only exists in device list
     }
 }
@@ -821,6 +822,19 @@ inline void DeviceManager::writeValve(DeviceConfig::Hardware hw, uint8_t value)
     valve.write(ValveController::ValveActions(value));
 }
 
+inline void DeviceManager::writePin(DeviceConfig::Hardware hw, uint8_t value)
+{
+    bool active = value != 0;
+    digitalWrite(hw.pinNr, (active ^ hw.invert) ? HIGH : LOW);
+}
+
+inline void DeviceManager::readPin(DeviceConfig::Hardware hw,
+                                   char * out){
+    unsigned int state = digitalRead(hw.pinNr) ^ hw.invert;
+    sprintf_P(out, STR_FMT_U, state);
+}
+
+
 void DeviceManager::handleEnumeratedDevice(DeviceConfig & config,
         EnumerateHardware &                               h,
         EnumDevicesCallback                               callback,
@@ -1075,13 +1089,18 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
 
     void ** ppv = deviceTarget(dc);
 
-    if (ppv == NULL && dt != DEVICETYPE_VALVE_ACTUATOR){ // make an exception for valves, which only exist in the device list
+    if (ppv == NULL && dt != DEVICETYPE_MANUAL_ACTUATOR){ // make an exception for valves, which only exist in the device list
         return;
     }
     if (dd.write >= 0){
         // write value to a specific device. For now, only actuators are relevant targets
-        if (dt == DEVICETYPE_VALVE_ACTUATOR){
-            writeValve(dc.hw, dd.write);
+        if (dt == DEVICETYPE_MANUAL_ACTUATOR){
+            if(dc.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2408){
+                writeValve(dc.hw, dd.write);
+            }
+            if(dc.deviceHardware == DEVICE_HARDWARE_PIN){
+                writePin(dc.hw, dd.write);
+            }
         }
         if (dt == DEVICETYPE_SWITCH_ACTUATOR){
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write != 0));
@@ -1105,8 +1124,14 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
             sprintf_P(val, STR_FMT_U, (unsigned int) ((ActuatorDigital *) *ppv) -> isActive() != 0);
         } else if (dt == DEVICETYPE_PWM_ACTUATOR){
             ((ActuatorPwm *) *ppv) -> getValue().toString(val,1,5);
-        } else if (dt == DEVICETYPE_VALVE_ACTUATOR){
-            readValve(dc.hw, val);
+        } else if (dt == DEVICETYPE_MANUAL_ACTUATOR){
+            if(dc.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2408){
+                readValve(dc.hw, val);
+            }
+            if(dc.deviceHardware == DEVICE_HARDWARE_PIN){
+                readPin(dc.hw, val);
+            }
+
         }
     }
 }
@@ -1161,8 +1186,8 @@ DeviceType deviceType(DeviceFunction id)
         case DEVICE_BEER_TEMP2 :
             return DEVICETYPE_TEMP_SENSOR;
 
-        case DEVICE_CHAMBER_MANUAL_VALVE:
-            return DEVICETYPE_VALVE_ACTUATOR;
+        case DEVICE_CHAMBER_MANUAL_ACTUATOR:
+            return DEVICETYPE_MANUAL_ACTUATOR;
 
         default :
             return DEVICETYPE_NONE;
