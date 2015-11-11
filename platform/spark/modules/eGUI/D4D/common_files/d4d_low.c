@@ -651,7 +651,9 @@ void D4D_TCH_GetCalibratedPosition(D4D_COOR *TouchPositionX, D4D_COOR *TouchPosi
   if (d4d_tchCalib.ScreenCalibrated)
   {
     // Screen has been touched and calibrated. Is X offset > touch position?
-    if (d4d_tchCalib.TouchScreenXoffset > *TouchPositionX)
+    // Or is TouchScreenXBitsPerPixelx16 zero (invalid calibration causing divide by zero)
+    if (d4d_tchCalib.TouchScreenXoffset > *TouchPositionX ||
+            d4d_tchCalib.TouchScreenXBitsPerPixelx16 == 0)
     {
         // Offset > touch postion. Force Touch position = offset
         *TouchPositionX = 0;
@@ -669,7 +671,8 @@ void D4D_TCH_GetCalibratedPosition(D4D_COOR *TouchPositionX, D4D_COOR *TouchPosi
 
 
     // Is Y offset > touch position?
-    if (d4d_tchCalib.TouchScreenYoffset > *TouchPositionY)
+    if (d4d_tchCalib.TouchScreenYoffset > *TouchPositionY ||
+        d4d_tchCalib.TouchScreenYBitsPerPixelx16 == 0)
     {
         // Offset > touch postion. Force Touch position = offset
         *TouchPositionY = 0;
