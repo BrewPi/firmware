@@ -40,7 +40,9 @@ public:
         OFF_LOW = 0b00,
         OPEN = 0b01,
         CLOSE = 0b10,
-        OFF = 0b11
+        OFF = 0b11,
+        OPENING = 4,
+        CLOSING = 5
     };
     
     void update();

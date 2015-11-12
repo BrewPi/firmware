@@ -69,6 +69,14 @@ uint8_t ValveController::read(bool doUpdate) {
     if (doUpdate) {
         update();
     }
+    if(sense == 3){
+        if(act == uint8_t(ValveActions::OPEN)){
+            return uint8_t(ValveActions::OPENING);
+        }
+        if(act == uint8_t(ValveActions::CLOSE)){
+            return uint8_t(ValveActions::CLOSING);
+        }
+    }
     return sense;
 }
 
