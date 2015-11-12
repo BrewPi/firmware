@@ -126,7 +126,8 @@ void Pid::update()
     // pidResult - output is zero when actuator is not saturated
     // Anti windup gain is 10.0
     temp_long_t antiWindup = pidResult - temp_long_t(output);
-    antiWindup *= 10.0;
+    temp_long_t antiWindupGain = 10.0;
+    antiWindup *= antiWindupGain;
 
     integral = integral - inputError;
 
@@ -138,9 +139,7 @@ void Pid::update()
         integral = 0;
     }
     else{
-        if(integral.sign() == antiWindup.sign()){ // make sure anti-windup is towards zero
-            integral -= antiWindup;
-        }
+        integral -= antiWindup/Ti;
     }
 
 /*
