@@ -1,0 +1,1 @@
+INCLUDE_DIRS += $(PROJECT_ROOT)/lib

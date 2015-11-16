@@ -140,7 +140,7 @@ template<int SIZE> class StaticTemplateContainer : public OpenContainer
 
 		void prepare(Object* item, prepare_t& time) {
 			if (item)
-				time = max(time, item->prepare());
+				time = std::max(time, item->prepare());
 		}
 
 	public:
@@ -219,7 +219,7 @@ class FixedContainer : public OpenContainer
 
 		void prepare(Object* item, prepare_t& time) {
 			if (item)
-				time = max(time, item->prepare());
+				time = std::max(time, item->prepare());
 		}
 
 	public:

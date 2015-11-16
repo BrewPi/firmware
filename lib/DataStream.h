@@ -166,7 +166,7 @@ public:
 
 	DataOut& pipeOut() { return *_out; }
 
-	virtual uint8_t next() {
+	virtual uint8_t next() override {
 		uint8_t val = _in->next();
 		bool result = _out->write(val);
 		success = success && result;
@@ -185,9 +185,9 @@ class BufferDataIn : public DataIn {
 public:
 	BufferDataIn(const void* data) : _data((const uint8_t*)data) {}
 
-	uint8_t next() { return *_data++; }
-	bool hasNext() { return true; }
-	uint8_t peek() { return *_data; }
+	uint8_t next() override { return *_data++; }
+	bool hasNext() override { return true; }
+	uint8_t peek() override { return *_data; }
         unsigned available() override { return 1; }
 };
 

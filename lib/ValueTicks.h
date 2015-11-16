@@ -23,6 +23,18 @@
 #include "Ticks.h"
 #include "StreamUtil.h"
 
+
+// return time that has passed since timeStamp, take overflow into account
+inline ticks_seconds_t timeSince(ticks_seconds_t currentTime, ticks_seconds_t previousTime){
+	if(currentTime>=previousTime){
+		return currentTime - previousTime;
+	}
+	else{
+		// overflow has occurred
+		return (currentTime + 1440) - (previousTime +1440); // add a day to both for calculation
+	}
+}
+
 /*
  * Allows time to run normally, or allows external code to manipulate time for testing and simulation.
  * The original ticks instance has been renamed baseticks, and this provides the current (real) time

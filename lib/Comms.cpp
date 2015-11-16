@@ -25,10 +25,10 @@
 #include <boost/range/adaptor/transformed.hpp>
 
 #include "Platform.h"
-#include "Comms.h"
-#include "Commands.h"
 #include "Version.h"
 #include "Ticks.h"
+#include "Comms.h"
+#include "Commands.h"
 #include "Integration.h"
 
 
@@ -37,8 +37,7 @@
 #include <vector>
 #include <algorithm>
 #include <type_traits>
-
-// Rename Serial to piStream, to abstract it for later platform independence
+#include <array>
 
 #if NICE_EMULATE
 class MockSerial : public Stream
@@ -60,6 +59,36 @@ class MockSerial : public Stream
 static MockSerial comms;
 
 #elif !defined(ARDUINO) && !defined(SPARK)
+class Stream {};
+
+class StdIO : public Stream {
+public:
+    StdIO();
+
+    void print(char c);
+    void print(const char* c);
+    void printNewLine();
+    void println();
+    int available();
+    void begin(unsigned long);
+
+    int read();
+    int peek();
+
+    size_t write(uint8_t w);
+    size_t write(const uint8_t* data, uint8_t len) {
+        return write(data, size_t(len));
+    }
+    void flush();
+    operator bool() { return true; }
+
+private:
+    std::istream& in;
+    FILE* out;
+};
+
+#include <CommsStdIO.inc>
+
 StdIO comms;
 #else
 #define comms Serial
@@ -124,10 +153,12 @@ public:
     void close();
 };
 
+#ifdef SPARK
 template<> void StreamDataOut<TCPClient>::close()
 {
     stream.stop();
 };
+#endif
 
 /**
  * Adapts a Stream instance to DataIn.
@@ -251,11 +282,11 @@ struct AbstractStreamConnection : public AbstractStreamConnectionType<S,D>
 
 };
 
+typedef bool ConnectionDataType;
 
+#ifdef SPARK
 template <typename D>
 using AbstractTCPConnection = AbstractStreamConnection<TCPClient, D>;
-
-typedef bool ConnectionDataType;
 
 template<> bool AbstractStreamConnectionType<TCPClient,ConnectionDataType>::connected()
 {
@@ -264,6 +295,7 @@ template<> bool AbstractStreamConnectionType<TCPClient,ConnectionDataType>::conn
 
 
 typedef AbstractTCPConnection<ConnectionDataType> TCPConnection;
+#endif
 
 template <typename D>
 struct ConnectionToDataOut : public std::function<DataOut&(Connection<D>&)>
@@ -291,15 +323,16 @@ struct ConnectionToDataIn : public std::function<DataIn&(Connection<D>&)>
 
 typedef Connection<ConnectionDataType> StandardConnection;
 
-
+#ifdef SPARK
 typedef std::vector<TCPConnection> Connections;
-
-
-
 /**
  *
  */
 Connections connections;
+
+#endif
+
+
 // we could combine all connections into a variant type and store in the connections
 // vector. Keeping them separate is simpler.
 static std::array<CommsConnection<ConnectionDataType>,1> commsConnections;
@@ -310,7 +343,7 @@ bool isDisconnected(C& connection)
     return !connection.connected();
 }
 
-
+#ifdef SPARK
 TCPClient acceptConnection()
 {
     static TCPServer server(8332);
@@ -328,6 +361,12 @@ void manageConnection()
     if (client)
         connections.push_back(TCPConnection(client));
 }
+#else
+void manageConnection()
+{
+
+}
+#endif
 
 template <typename T>
 struct ConnectionAsPointer : public std::function<StandardConnection&(T&)>
@@ -353,6 +392,7 @@ inline auto as_connection_ptr(T& source) -> decltype(boost::adaptors::transform(
 }
 */
 
+#ifdef SPARK
 auto all_connections() -> boost::range::joined_range<
         boost::range_detail::transformed_range<ConnectionAsPointer<CommsConnection<ConnectionDataType> >, decltype(commsConnections) >,
         boost::range_detail::transformed_range<ConnectionAsPointer<TCPConnection>, decltype(connections)> >
@@ -363,6 +403,13 @@ auto all_connections() -> boost::range::joined_range<
     auto result = boost::join(first, second);
     return result;
 }
+#else
+auto all_connections() -> boost::range_detail::transformed_range<ConnectionAsPointer<CommsConnection<ConnectionDataType> >, decltype(commsConnections) >
+{
+	 auto first = boost::adaptors::transform(commsConnections, ConnectionAsPointer<CommsConnection<ConnectionDataType>>());
+	 return first;
+}
+#endif
 
 /**
  * Iterator type that transforms all connections using a given transformation functor.
@@ -465,6 +512,13 @@ public:
             return hasNext();
         }
 };
+
+#if !defined(ARDUINO) || !defined(SPARK)
+bool isHexadecimalDigit(char c)
+{
+	return isdigit(c) || (c>='A' && c<='F') || (c>='a' || c<='f');
+}
+#endif
 
 /**
  * Fetches the next significant data byte from the stream.

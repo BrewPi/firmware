@@ -36,7 +36,7 @@ void handleCommand(DataIn& data, DataOut& out);
  * during command processing, so that actions can be taken before the command response is sent.
  * The second call (exit==true) is called to perform the actual reset.
  */
-extern void handleReset(bool exit=true);
+void handleReset(bool exit=true);
 
 /**
  * Removes deleted object definitions from the current profile eeprom block.

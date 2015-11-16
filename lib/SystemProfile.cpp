@@ -58,10 +58,6 @@ typedef int8_t system_profile_t;
 // having time as a system service is a compromise over lose-coupling/dependency injection vs convenience
 EepromBlock system_id(SYSTEM_PROFILE_ID_OFFSET, 1);
 
-/* Configure the counter and delay timer. The actual type of these will vary depending upon the environment.
- * They are non-virtual to keep code	 size minimal, so typedefs and preprocessing are used to select the actual compile-time type used. */
-TicksImpl baseticks = TicksImpl(TICKS_IMPL_CONFIG);
-DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 ScaledTicksValue ticks;
 
 EepromDataOut SystemProfile::writer;

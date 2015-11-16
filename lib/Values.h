@@ -103,7 +103,7 @@ const container_id MAX_CONTAINER_ID = 127;
  */
 struct Container : public Object
 {
-	virtual object_t objectType() { return otContainer; }
+	virtual object_t objectType() override { return otContainer; }
 
 	/**
 	 * Fetches the object with the given id.
@@ -137,7 +137,7 @@ public:
 	/**
 	 * Deletes the item. This assumes item was created on-demand by the item() method.
 	 */
-	virtual void returnItem(container_id id, Object* item) {
+	virtual void returnItem(Object* item) override {
 		delete_object(item);
 	}
 };

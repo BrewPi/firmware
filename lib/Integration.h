@@ -17,11 +17,35 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef INTEGRATION_H
 #define	INTEGRATION_H
 
 #include "Comms.h"
+#include "SystemProfile.h"
+#include "Commands.h"
+
+
+/**
+ * Function prototype expected by the commands implementation to perform
+ * a reset.
+ * @param exit false on first call, true on second call. The first call (exit==false) is
+ * during command processing, so that actions can be taken before the command response is sent.
+ * The second call (exit==true) is called to perform the actual reset.
+ */
+void handleReset(bool exit);
+
+
+/**
+ * Application-provided method to create a new root container for the profile.
+ * The application can create default objects in the root container.
+ */
+extern Container* createRootContainer();
+
+/**
+ *
+ */
+extern Object* createApplicationObject(ObjectDefinition& def, bool dryRun);
+
 
 extern void printVersion(DataOut& out);
 
