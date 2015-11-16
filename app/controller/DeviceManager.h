@@ -51,7 +51,7 @@ inline bool isDefinedSlot(device_slot_t s)
     return s >= 0;
 }
 
-const device_slot_t MAX_DEVICE_SLOT = 16;		// exclusive
+const device_slot_t MAX_DEVICE_SLOT = 32;		// exclusive
 const device_slot_t INVALID_SLOT = -1;
 
 /*
