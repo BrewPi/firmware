@@ -94,4 +94,5 @@ void ValveController::write(ValveActions action) {
         output |= action_ << 2;
         device.accessWrite(output);
     }
+    update();
 }
