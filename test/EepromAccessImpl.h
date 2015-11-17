@@ -2,4 +2,4 @@
 
 #include "ArrayEepromAccess.h"
 
-typedef ArrayEepromAccess EepromAccess;
+typedef ArrayEepromAccess<1024> EepromAccess;

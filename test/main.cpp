@@ -80,4 +80,4 @@ int main()
 
 
 Ticks baseticks;
-ArrayEepromAccess eepromAccess;
+EepromAccess eepromAccess;
