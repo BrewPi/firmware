@@ -105,11 +105,11 @@ public:
 	/**
 	 * Returns a transient value item.
 	 */
-	Object* item(container_id id) {
+	Object* item(container_id id) override {
 		return externalValue(id);
 	}
 
-	void returnItem(container_id id, Object* item) {
+	void returnItem(container_id id, Object* item) override {
 #if OBJECT_VIRTUAL_DESTRUCTOR
 		delete item;
 #else
@@ -117,7 +117,7 @@ public:
 #endif
 	}
 
-	container_id size() {
+	container_id size() override {
 		return container_id(pointer_scalar(externalValue(-1)));
 	}
 };
@@ -143,7 +143,7 @@ public:
 
 	object_t objectType() {
             fetchTarget();
-		return previous==NULL ? otObject : previous->objectType();
+		return previous==NULL ? ObjectFlags::Object : previous->objectType();
 	}
 
 	prepare_t prepare() {

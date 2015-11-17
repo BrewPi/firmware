@@ -39,9 +39,7 @@ typedef uint8_t stream_size_t;
  */
 struct DataOut
 {
-	#ifdef STREAM_ANNOTATIONS
-	virtual void writeAnnotation(PCSTR data) {}
-	#endif
+	virtual void writeAnnotation(const char* data) {}
 
 	/**
 	 * Writes a byte to the stream.

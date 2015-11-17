@@ -39,7 +39,7 @@
 #include <type_traits>
 #include <array>
 
-#if NICE_EMULATE
+#if CONTROLBOX_EMULATE
 class MockSerial : public Stream
 {
 	public:
@@ -92,13 +92,13 @@ private:
 StdIO comms;
 #else
 #define comms Serial
-	#define NICE_COMMS_USE_FLUSH 0
+	#define CONTROLBOX_COMMS_USE_FLUSH 0
 // for serial, flush waits until the output has been flushed. The flush is there just to ensure the output is not
 // buffered, which it never is with serial.
 #endif
 
-#ifndef NICE_COMMS_USE_FLUSH
-#define NICE_COMMS_USE_FLUSH 1
+#ifndef CONtROLBOX_COMMS_USE_FLUSH
+#define CONTROLBOX_COMMS_USE_FLUSH 1
 #endif
 
 
@@ -117,9 +117,21 @@ class CommsIn : public DataIn
 class CommsOut : public DataOut
 {
 public:
-	bool write(uint8_t data) { comms.write(data); return true; }
+	void writeAnnotation(const char* s) {
+		if (s && *s) {
+			write('[');
+			writeBuffer(s, strlen(s));
+			write(']');
+			write('\n');
+		}
+	}
+
+	bool write(uint8_t data) {
+		comms.write(data);
+		return true;
+	}
 	void flush() {
-	#if NICE_COMMS_USE_FLUSH		// only flush for those stream types that require it
+	#if CONTROLBOX_COMMS_USE_FLUSH		// only flush for those stream types that require it
 		comms.flush();
 	#endif
 	}
@@ -220,6 +232,9 @@ public:
     virtual void setData(D&& d) { std::swap(data,d); }
 };
 
+/**
+ * A connection that delegates to the global commsOut and commsIn instances.
+ */
 template<typename D>
 struct CommsConnection : public ConnectionData<D>
 {
@@ -684,7 +699,7 @@ StandardConnection* handleConnection(StandardConnection& connection)
     if (!connected) {
         connection.setData(true);
         connection_count++;
-        printVersion(connection.getDataOut());
+        connectionStarted(connection.getDataOut());
     }
 
     return connection.getDataIn().available() ? &connection : nullptr;

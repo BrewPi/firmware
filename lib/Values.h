@@ -31,20 +31,21 @@ const container_id INVALID_ID = (container_id)(-1);
 
 typedef uint16_t prepare_t;
 
-
-enum ObjectType {
-	otObject = 0,
-	otValue = 4,			// 0x000001xx are for value types. Base value type is stream only readable.
-	otValueWrite = 5,		// value is writable (either state and/or stream as indicated.)
-	otValueState = 6,		// value state is readable
-	otValueWriteState = 7,	// value state is writable (and readable) and streamable
-	otWritableFlag = 1,		// flag for writable values
-	otValueStateFlag = 2,	// flag for values that can get set state
-	otContainer = 8,
-	otOpenContainerFlag = 1,// value to flag that a container supports the OpenContainer interface (that the container is writable.)
-	otNotLogged = 16,		// flag to indicate that a value is not logged normally
-	otStaticlyAllocated = 32
+namespace ObjectFlags {
+enum Enum {
+	Object = 0,
+	Value = 4,			// 0x000001xx are for value types. Base value type is stream only readable.
+	ValueWrite = 5,		// value is writable (either state and/or stream as indicated.)
+	ValueState = 6,		// value state is readable
+	ValueWriteState = 7,	// value state is writable (and readable) and streamable
+	WritableFlag = 1,		// flag for writable values
+	ValueStateFlag = 2,	// flag for values that can get set state
+	Container = 8,
+	OpenContainerFlag = 1,// value to flag that a container supports the OpenContainer interface (that the container is writable.)
+	NotLogged = 16,		// flag to indicate that a value is n logged normally
+	StaticlyAllocated = 32
 };
+}
 
 typedef uint8_t object_t;
 
@@ -67,7 +68,12 @@ typedef uint8_t object_t;
 
 struct Object
 {
-	virtual object_t objectType() { return otObject; }
+	/**
+	 * Determines the type of object this is.
+	 * @return A value of the object_t enumeration indicating the type of object
+	 * this is.
+	 */
+	virtual object_t objectType() { return ObjectFlags::Object; }
 
 	/**
 	 * Notifies this object that it has been created and is operational in the system.
@@ -103,7 +109,7 @@ const container_id MAX_CONTAINER_ID = 127;
  */
 struct Container : public Object
 {
-	virtual object_t objectType() override { return otContainer; }
+	virtual object_t objectType() override { return ObjectFlags::Container; }
 
 	/**
 	 * Fetches the object with the given id.
@@ -115,8 +121,13 @@ struct Container : public Object
 
 	/**
 	 * Returns a previously fetched item back the container.
+	 * @param id		The id the idem had in this container.
+	 * @param item	The object to return to the container.
+	 *
+	 * This method should be called after each successful call to
+	 * {@link #item}
 	 */
-	virtual void returnItem(Object* item) { }
+	virtual void returnItem(container_id id, Object* item) { }
 
 	/*
 	 * The maximum number of items in this container. Calling {@link #item()} at an index less than this value
@@ -137,7 +148,7 @@ public:
 	/**
 	 * Deletes the item. This assumes item was created on-demand by the item() method.
 	 */
-	virtual void returnItem(Object* item) override {
+	virtual void returnItem(container_id id, Object* item) override {
 		delete_object(item);
 	}
 };
@@ -149,7 +160,7 @@ public:
 class OpenContainer : public Container
 {
 public:
-	object_t objectType() { return otContainer | otOpenContainerFlag; }
+	object_t objectType() { return ObjectFlags::Container | ObjectFlags::OpenContainerFlag; }
 
 	/*
 	 * Add the given object to the container at the given slot.
@@ -185,7 +196,7 @@ public:
  */
 class Value : public Object {
 public:
-	virtual object_t objectType() { return otValue; }	// basic value type - read only stream
+	virtual object_t objectType() { return ObjectFlags::Value; }	// basic value type - read only stream
 	virtual void readTo(DataOut& out)=0;
 	virtual uint8_t streamSize()=0;			// the size this value occupies in the stream.
 
@@ -194,7 +205,7 @@ public:
 
 class WritableValue : public Value {
 public:
-	virtual object_t objectType() { return otValueWrite; }
+	virtual object_t objectType() { return ObjectFlags::ValueWrite; }
 	virtual void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn)=0;
 
 	static uint8_t nextMaskedByte(uint8_t current, DataIn& dataIn, DataIn& maskIn) {
@@ -265,7 +276,7 @@ class MixinReadValue
         {}
 
 		object_t objectType() {
-			return otValue | otValueStateFlag;
+			return ObjectFlags::Value | ObjectFlags::ValueStateFlag;
 		}
 
         T read() {
@@ -299,7 +310,7 @@ public:
 	{}
 
 	object_t objectType() {
-		return otValue | otValueStateFlag | otWritableFlag;
+		return ObjectFlags::Value | ObjectFlags::ValueStateFlag | ObjectFlags::WritableFlag;
 	}
 
 };
@@ -372,10 +383,26 @@ class ValueSource
  * Definition parameters for creating a new object.
  */
 struct ObjectDefinition {
-	DataIn* in;		// stream providing definition data for this object
-	uint8_t len;		// number of bytes in the stream for this object definition
+	/**
+	 * This stream provides the definition data for this object
+	 */
+	DataIn* in;
+
+	/**
+	 * The number of bytes in the stream for the object definition
+	 */
+	uint8_t len;
+
+	/**
+	 * The application defined type of this object.
+	 */
 	uint8_t type;
 
+	/**
+	 * Ensure all the data is read from the datastream. This is only required
+	 * if the application doesn't read all of the data. (Calling this when
+	 * all the data has been read is a no-op.)
+	 */
 	void spool();
 };
 
@@ -385,32 +412,32 @@ inline bool hasFlags(uint8_t value, uint8_t flags) {
 
 inline bool isContainer(Object* o)
 {
-	return o!=NULL && (hasFlags(o->objectType(), otContainer));
+	return o!=NULL && (hasFlags(o->objectType(), ObjectFlags::Container));
 }
 
 inline bool isOpenContainer(Object* o)
 {
-	return o!=NULL && (hasFlags(o->objectType(), (otContainer|otOpenContainerFlag)));
+	return o!=NULL && (hasFlags(o->objectType(), (ObjectFlags::Container|ObjectFlags::OpenContainerFlag)));
 }
 
 inline bool isValue(Object* o)
 {
-	return o!=NULL && (hasFlags(o->objectType(), otValue));
+	return o!=NULL && (hasFlags(o->objectType(), ObjectFlags::Value));
 }
 
 inline bool isLoggedValue(Object* o)
 {
-	return o!=NULL && (o->objectType() & (otValue|otNotLogged))==otValue;
+	return o!=NULL && (o->objectType() & (ObjectFlags::Value|ObjectFlags::NotLogged))==ObjectFlags::Value;
 }
 
 inline bool isDynamicallyAllocated(Object* o)
 {
-	return o!=NULL && (o->objectType() & otStaticlyAllocated)==0;
+	return o!=NULL && (o->objectType() & ObjectFlags::StaticlyAllocated)==0;
 }
 
 inline bool isWritable(Object* o)
 {
-	return o!=NULL && (hasFlags(o->objectType(), otWritableFlag));
+	return o!=NULL && (hasFlags(o->objectType(), ObjectFlags::WritableFlag));
 }
 
 

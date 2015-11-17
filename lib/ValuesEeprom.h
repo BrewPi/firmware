@@ -68,7 +68,7 @@ protected:
 	}
 
 
-	object_t objectType() { return otValue | otWritableFlag; }
+	object_t objectType() { return ObjectFlags::Value | ObjectFlags::WritableFlag; }
 
 };
 

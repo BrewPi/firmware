@@ -36,18 +36,37 @@ void handleReset(bool exit);
 
 
 /**
- * Application-provided method to create a new root container for the profile.
+ * Application-provided method to create a new root container for the currently active profile.
  * The application can create default objects in the root container.
  */
 extern Container* createRootContainer();
 
 /**
+ * Create an application supplied object. The object definition describes the
+ * type of object to create and the initialization data.
  *
  */
 extern Object* createApplicationObject(ObjectDefinition& def, bool dryRun);
 
+/**
+ * This function is called when a connection has been established.
+ * Typically the application will output some annotations such as
+ * the application version or other data needed to establish the
+ * protocol between this device and the
+ */
+extern void connectionStarted(DataOut& out);
 
-extern void printVersion(DataOut& out);
+/**
+ * Initialize the controlbox.
+ */
+void controlbox_setup(size_t loadProfileDelay);
+
+/**
+ * Run the background loop for control box processing.
+ */
+void controlbox_loop();
+
+
 
 #endif	/* INTEGRATION_H */
 

@@ -55,6 +55,7 @@ struct EepromStreamRegion : public StreamRegion<eptr_t, uint16_t>
 class EepromDataOut : public DataOut, public EepromStreamRegion
 {
 public:
+
 	bool write(uint8_t value) {
 		if (_length) {
 			eepromAccess.writeByte(_offset++, value);
