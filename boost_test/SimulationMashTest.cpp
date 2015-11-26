@@ -114,15 +114,15 @@ public:
 
 struct MashSimulation{
     MashSimulation(){
-        mashTemp = 60.0;
-        hltTemp = 70.0;
-        envTemp = 25.0;
-        coilInTemp = 65;
-        coilOutTemp = 65;
-        mashInTemp = 64;
+        mashTemp = 20.0;
+        hltTemp = 20.0;
+        envTemp = 20.0;
+        coilInTemp = 20;
+        coilOutTemp = 20;
+        mashInTemp = 20;
 
-        mashVolume = 25;
-        hltVolume = 40;
+        mashVolume = 18;
+        hltVolume = 36;
 
         hltCapacity = 4.2 * 1.0 * hltVolume; // heat capacity water * density of water * 20L volume (in kJ per degree C).
         mashCapacity = 4.2 * 1.0 * mashVolume;
@@ -130,10 +130,12 @@ struct MashSimulation{
         hltHeaterPower = 3.5; // 3500W, in kW.
 
         coilTransfer = 0.8; // percentage of temperature difference picked up in HLT coil
-        flowRate = 5.0/60; // 5 liter per minute, in L/s.
+        flowRate = 10.0/60; // 5 liter per minute, in L/s.
         kettleEnvTransfer = 0.01; // losses to environment
         mashToCoilLoss = 0.05; // losses between mash tun and coil
         coilToMashLoss = 0.03; // losses between mash tun and coil
+
+        mashPumping = true;
     }
 
     virtual ~MashSimulation(){}
@@ -142,16 +144,20 @@ struct MashSimulation{
         double mashTempNew = mashTemp;
         double hltTempNew = hltTemp;
 
-        coilInTemp = mashTemp - (mashTemp - envTemp) * mashToCoilLoss;
-        coilOutTemp = coilInTemp + (hltTemp - coilInTemp) * coilTransfer;
-        mashInTemp = coilOutTemp - (coilOutTemp - envTemp) * coilToMashLoss;
+        if(mashPumping){
+            coilInTemp = mashTemp - (mashTemp - envTemp) * mashToCoilLoss;
+            coilOutTemp = coilInTemp + (hltTemp - coilInTemp) * coilTransfer;
+            mashInTemp = coilOutTemp - (coilOutTemp - envTemp) * coilToMashLoss;
 
-        mashTempNew = (mashTemp * (mashVolume - flowRate) + mashInTemp*flowRate) / mashVolume;
-        hltTempNew = hltTemp;
+            // coil transfer
+            mashTempNew = (mashTemp * (mashVolume - flowRate) + mashInTemp*flowRate) / mashVolume;
+            hltTempNew -= (coilOutTemp - coilInTemp) * flowRate / hltCapacity;
+        }
 
+        // heater
         hltTempNew += hltHeaterPower * double(heaterValue) / (100.0 * hltCapacity);
-        hltTempNew -= (coilOutTemp - coilInTemp) * flowRate / hltCapacity;
 
+        // environment loss
         mashTempNew -= (mashTemp - envTemp) * kettleEnvTransfer / mashCapacity;
         hltTempNew -= (hltTemp - envTemp) * kettleEnvTransfer / hltCapacity;
 
@@ -179,6 +185,7 @@ struct MashSimulation{
     double kettleEnvTransfer;
     double mashToCoilLoss;
     double coilToMashLoss;
+    bool mashPumping;
 };
 
 /* Below are a few static setups that show how control can be set up.
@@ -193,7 +200,7 @@ struct SimMashDirect : public MashStaticSetup {
         hltHeaterPid->setSetPoint(mashSet);
         hltHeaterPid->setInputFilter(2);
         hltHeaterPid->setDerivativeFilter(2);
-        hltHeaterPid->setConstants(100.0, 600, 60);
+        hltHeaterPid->setConstants(50.0, 300, 30);
     }
 
     void update(){
@@ -212,17 +219,17 @@ struct SimMashCascaded : public MashStaticSetup {
         hltHeaterPid->setInputSensor(hltSensor);
         hltHeaterPid->setSetPoint(hltSet);
         hltHeaterPid->setInputFilter(2);
-        hltHeaterPid->setDerivativeFilter(4);
-        hltHeaterPid->setConstants(100.0, 120, 0);
+        hltHeaterPid->setDerivativeFilter(2);
+        hltHeaterPid->setConstants(50.0, 300, 30);
 
 
         mashToHltPid->setInputSensor(mashSensor);
         mashToHltPid->setSetPoint(mashSet);
-        mashToHltPid->setInputFilter(4);
-        mashToHltPid->setDerivativeFilter(4);
-        mashToHltPid->setConstants(1.0, 300, 60);
-        hltSetPointActuator->setMin(-10.0);
-        hltSetPointActuator->setMax(10.0);
+        mashToHltPid->setInputFilter(2);
+        mashToHltPid->setDerivativeFilter(2);
+        mashToHltPid->setConstants(0.5, 300, 120);
+        hltSetPointActuator->setMin(-5.0);
+        hltSetPointActuator->setMax(5.0);
     }
 
     void update(){
@@ -242,6 +249,7 @@ struct SimMashCascaded : public MashStaticSetup {
 
 
 BOOST_AUTO_TEST_SUITE( mash_simulation_test)
+#if 0
 
 // Test heating HLT based on mash out temperature (non-cascaded control)
 BOOST_FIXTURE_TEST_CASE(Simulate_HLT_Heater_Acts_On_MashTemp, SimMashDirect)
@@ -294,6 +302,53 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Mash_Cascaded_Control, SimMashCascaded)
         }*/
 
         mashSet->write(SetPointDouble);
+        update();
+
+        csv     << mashSet->read() << "," // setpoint
+                << mashSensor->read() << "," // mash temp
+                << mashToHltPid->inputError << "," // mash error
+                << hltSet->read() << "," // hlt setpoint
+                << hltSensor->read() << "," // hlt temp
+                << hltHeaterPid->inputError << "," // hlt error
+
+                << mashToHltPid->p << "," // proportional action
+                << mashToHltPid->i << "," // integral action
+                << mashToHltPid->d << "," // derivative action
+                << mashToHltPid->p + mashToHltPid->i + mashToHltPid->d << "," // PID output
+                << hltSetPointActuator->getValue() << "," // Actually realized output
+
+                << hltHeater->getValue() << "," // actuator output heater
+                << hltHeaterPid->p << "," // proportional action
+                << hltHeaterPid->i << "," // integral action
+                << hltHeaterPid->d  // derivative action
+                << endl;
+    }
+    csv.close();
+}
+#endif
+
+// Test HLT constant first, then switch to mash constant
+BOOST_FIXTURE_TEST_CASE(Simulate_Switch_from_HTL_to_Cascaded_Control, SimMashCascaded)
+{
+    ofstream csv("./test_results/" + boost_test_name() + ".csv");
+    csv << "mash setpoint, mash out sensor, mash error, "
+            "hlt setpoint, hlt temp, hlt error,"
+            "mash2hlt P, mash2hlt I, mash2hlt D, mash2hlt PID, mash2hlt realized output,"
+            "heater pwm, heater P, heater I, heater D"
+            << endl;
+
+    // set PIDs for HLT constant mode (disable automatic HLT set point)
+    mashToHltPid->disable(false);
+    hltSet->write(70.0);
+    sim.mashPumping = false;
+
+    for(int t = 0; t < 10800; t++){
+        if(t == 3600){
+            // change to cascaded control (enable automatic HLT set point)
+            mashSet->write(65.0);
+            mashToHltPid->enable();
+            sim.mashPumping = true;
+        }
         update();
 
         csv     << mashSet->read() << "," // setpoint
