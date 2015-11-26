@@ -51,7 +51,7 @@ inline bool isDefinedSlot(device_slot_t s)
     return s >= 0;
 }
 
-const device_slot_t MAX_DEVICE_SLOT = 16;		// exclusive
+const device_slot_t MAX_DEVICE_SLOT = 32;		// exclusive
 const device_slot_t INVALID_SLOT = -1;
 
 /*
@@ -66,7 +66,7 @@ enum DeviceFunction
     DEVICE_CHAMBER_HEAT = 2, DEVICE_CHAMBER_COOL = 3, DEVICE_CHAMBER_LIGHT = 4,    // actuator
     DEVICE_CHAMBER_TEMP = 5, DEVICE_CHAMBER_ROOM_TEMP = 6,                         // temp sensors
     DEVICE_CHAMBER_FAN = 7,                                                        // a fan in the chamber
-    DEVICE_CHAMBER_RESERVED1 = 8,                                                  // reserved for future use
+    DEVICE_CHAMBER_MANUAL_ACTUATOR = 8,                                            // no function, but installed for manual action
 
 	// carboy devices
     DEVICE_BEER_FIRST = 9, DEVICE_BEER_TEMP = DEVICE_BEER_FIRST,                   // primary beer temp sensor
@@ -88,7 +88,8 @@ enum DeviceType
     DEVICETYPE_TEMP_SENSOR = 1,                                                    /* BasicTempSensor - OneWire */
     DEVICETYPE_SWITCH_SENSOR = 2,                                                  /* SwitchSensor - direct pin and onewire are supported */
     DEVICETYPE_SWITCH_ACTUATOR = 3,                                                /* Actuator - both direct pin and onewire are supported */
-    DEVICETYPE_PWM_ACTUATOR = 4    /* PWM Actuator - switch actuator wrapped by a PWM actuator class */
+    DEVICETYPE_PWM_ACTUATOR = 4,    /* PWM Actuator - switch actuator wrapped by a PWM actuator class */
+    DEVICETYPE_MANUAL_ACTUATOR = 5,  /* Valve actuator, a digital valve which can be opened and closed */
 };
 
 enum DeviceConnection
@@ -108,22 +109,31 @@ enum DeviceHardware
     DEVICE_HARDWARE_ONEWIRE_TEMP = 2,                                              // a onewire temperature sensor
 
 #if BREWPI_DS2413
-            DEVICE_HARDWARE_ONEWIRE_2413 = 3    // a onewire 2-channel PIO input or output.
-#endif	
+    DEVICE_HARDWARE_ONEWIRE_2413 = 3,    // a onewire 2-channel PIO input or output.
+#endif
 
+#if BREWPI_DS2408
+    DEVICE_HARDWARE_ONEWIRE_2408 = 4    // a onewire 8-channel PIO input or output.
+#endif
 };
 
 inline bool isAssignable(DeviceType     type,
                          DeviceHardware hardware)
 {
     return ((hardware == DEVICE_HARDWARE_PIN)
-            && ((type == DEVICETYPE_SWITCH_ACTUATOR) || (type == DEVICETYPE_SWITCH_SENSOR) || type == DEVICETYPE_PWM_ACTUATOR))
+            && (type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_SWITCH_SENSOR
+                    || type == DEVICETYPE_PWM_ACTUATOR || type == DEVICETYPE_MANUAL_ACTUATOR))
 
 #if BREWPI_DS2413
             || ((hardware == DEVICE_HARDWARE_ONEWIRE_2413)
                 && ((type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_PWM_ACTUATOR)
                     || (DS2413_SUPPORT_SENSE && (type == DEVICETYPE_SWITCH_SENSOR))))
-#endif	
+#endif
+
+#if BREWPI_DS2408
+            || ((hardware == DEVICE_HARDWARE_ONEWIRE_2408)
+                && (type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_MANUAL_ACTUATOR))
+#endif
 
     || ((hardware == DEVICE_HARDWARE_ONEWIRE_TEMP)
         && (type == DEVICETYPE_TEMP_SENSOR)) || ((hardware == DEVICE_HARDWARE_NONE) && (type == DEVICETYPE_NONE));
@@ -131,11 +141,15 @@ inline bool isAssignable(DeviceType     type,
 
 inline bool isOneWire(DeviceHardware hardware)
 {
+    return
 #if BREWPI_DS2413
-    return (hardware == DEVICE_HARDWARE_ONEWIRE_2413) || (hardware == DEVICE_HARDWARE_ONEWIRE_TEMP);
-#else
-    return hardware == DEVICE_HARDWARE_ONEWIRE_TEMP;
-#endif	
+    (hardware == DEVICE_HARDWARE_ONEWIRE_2413) ||
+#endif
+#if BREWPI_DS2408
+    (hardware == DEVICE_HARDWARE_ONEWIRE_2408) ||
+#endif
+
+    (hardware == DEVICE_HARDWARE_ONEWIRE_TEMP);
 }
 
 inline bool isDigitalPin(DeviceHardware hardware)
@@ -183,7 +197,7 @@ struct DeviceConfig
         {
 
 		temp_t calibration;	// for temp sensors (deviceHardware==2), calibration adjustment to add to sensor readings
-        #if BREWPI_DS2413
+        #if BREWPI_DS2413 || BREWPI_DS2408
                 uint8_t pio;                        // for ds2413 (deviceHardware==3) : the pio number (0,1)
         #endif
 		Offset(){} // needed because temp_t constructor is non-trivial
@@ -388,6 +402,18 @@ class DeviceManager
 
         static void readTempSensorValue(DeviceConfig::Hardware hw,
                                         char *                 out);
+
+        static void readValve(DeviceConfig::Hardware hw,
+                              char *                 out);
+
+        static void writeValve(DeviceConfig::Hardware hw,
+                               uint8_t value);
+
+        static void writePin(DeviceConfig::Hardware hw,
+                             uint8_t value);
+
+        static void readPin(DeviceConfig::Hardware hw,
+                            char *                 out);
 
         static void * createOneWireGPIO(DeviceConfig & config,
                                         DeviceType     dt);

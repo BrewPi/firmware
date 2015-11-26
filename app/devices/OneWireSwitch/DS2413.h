@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "../OneWireSwitch/OneWireSwitch.h"
+#include "OneWireSwitch.h"
 
 typedef uint8_t pio_t;
 

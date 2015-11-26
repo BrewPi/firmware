@@ -46,8 +46,8 @@ struct ChamberBlock
 
 struct EepromFormat
 {
-	static const uint16_t MAX_EEPROM_SIZE = 896;
-	static const uint8_t MAX_CHAMBERS = 4;
+	static const uint16_t MAX_EEPROM_SIZE = 1024;
+	static const uint8_t MAX_CHAMBERS = 1;
 	static const uint8_t MAX_DEVICES = MAX_DEVICE_SLOT;
 
 	uint8_t version;

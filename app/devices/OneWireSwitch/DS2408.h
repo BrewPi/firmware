@@ -21,7 +21,7 @@
 #pragma once
 
 #include <inttypes.h>
-#include "../OneWireSwitch/OneWireSwitch.h"
+#include "OneWireSwitch.h"
 
 typedef uint8_t pio_t;
 

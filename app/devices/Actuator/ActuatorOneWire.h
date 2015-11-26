@@ -24,6 +24,7 @@
 
 #include "Brewpi.h"
 #include "ActuatorInterfaces.h"
+#include "ActuatorBottom.h"
 #include "DS2413.h"
 
 /*
