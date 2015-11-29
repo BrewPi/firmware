@@ -79,7 +79,9 @@ class ActuatorOneWire:
             return device.sense(pio, invert);    // on device failure, default is high for invert, low for regular.
         }
 #endif
-        void write(uint8_t val){};
+        void write(uint8_t val){
+            setActive(val != 0);
+        };
 
         void update(){} // do nothing on periodic update
 

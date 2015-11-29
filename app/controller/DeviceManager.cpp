@@ -828,9 +828,22 @@ inline void DeviceManager::writePin(DeviceConfig::Hardware hw, uint8_t value)
     digitalWrite(hw.pinNr, (active ^ hw.invert) ? HIGH : LOW);
 }
 
-inline void DeviceManager::readPin(DeviceConfig::Hardware hw,
-                                   char * out){
+inline void DeviceManager::readPin(DeviceConfig::Hardware hw, char * out){
     unsigned int state = digitalRead(hw.pinNr) ^ hw.invert;
+    sprintf_P(out, STR_FMT_U, state);
+}
+
+inline void DeviceManager::writeOneWirePin(DeviceConfig::Hardware hw, uint8_t value)
+{
+    OneWire * bus = oneWireBus(hw.pinNr);
+    ActuatorOneWire pin(bus, hw.address, hw.offset.pio, hw.invert);
+    pin.write(value);
+}
+
+inline void DeviceManager::readOneWirePin(DeviceConfig::Hardware hw, char * out){
+    OneWire * bus = oneWireBus(hw.pinNr);
+    ActuatorOneWire pin(bus, hw.address, hw.offset.pio, hw.invert);
+    unsigned int state = pin.isActive();
     sprintf_P(out, STR_FMT_U, state);
 }
 
@@ -1101,6 +1114,9 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
             if(dc.deviceHardware == DEVICE_HARDWARE_PIN){
                 writePin(dc.hw, dd.write);
             }
+            if(dc.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2413){
+                writeOneWirePin(dc.hw, dd.write);
+            }
         }
         if (dt == DEVICETYPE_SWITCH_ACTUATOR){
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write != 0));
@@ -1131,7 +1147,9 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
             if(dc.deviceHardware == DEVICE_HARDWARE_PIN){
                 readPin(dc.hw, val);
             }
-
+            if(dc.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2413){
+                readOneWirePin(dc.hw, val);
+            }
         }
     }
 }

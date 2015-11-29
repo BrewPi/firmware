@@ -126,7 +126,7 @@ inline bool isAssignable(DeviceType     type,
 
 #if BREWPI_DS2413
             || ((hardware == DEVICE_HARDWARE_ONEWIRE_2413)
-                && ((type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_PWM_ACTUATOR)
+                && ((type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_PWM_ACTUATOR || type == DEVICETYPE_MANUAL_ACTUATOR)
                     || (DS2413_SUPPORT_SENSE && (type == DEVICETYPE_SWITCH_SENSOR))))
 #endif
 
@@ -404,16 +404,22 @@ class DeviceManager
                                         char *                 out);
 
         static void readValve(DeviceConfig::Hardware hw,
-                              char *                 out);
+                              char * out);
 
         static void writeValve(DeviceConfig::Hardware hw,
                                uint8_t value);
 
+        static void readPin(DeviceConfig::Hardware hw,
+                            char * out);
+
         static void writePin(DeviceConfig::Hardware hw,
                              uint8_t value);
 
-        static void readPin(DeviceConfig::Hardware hw,
-                            char *                 out);
+        static void readOneWirePin(DeviceConfig::Hardware hw,
+                                   char * out);
+
+        static void writeOneWirePin(DeviceConfig::Hardware hw,
+                                    uint8_t value);
 
         static void * createOneWireGPIO(DeviceConfig & config,
                                         DeviceType     dt);
