@@ -33,13 +33,15 @@ public:
     ActuatorMutexDriver(ActuatorDigital * target) : ActuatorDriver(target), mutexGroup(nullptr){}
     ActuatorMutexDriver(ActuatorDigital * target, ActuatorMutexGroup * m) : ActuatorDriver(target), mutexGroup(m){}
 
-    virtual ~ActuatorMutexDriver(){}
+    virtual ~ActuatorMutexDriver(){
+        setMutex(nullptr);
+    }
 
     virtual uint8_t type() const { return ACTUATOR_TOGGLE_MUTEX; };
 
     void setMutex(ActuatorMutexGroup * mutex){
         if(mutexGroup != nullptr){
-            mutexGroup->unRegisterActuator(target);
+            mutexGroup->unRegisterActuator(this);
         }
         mutexGroup = mutex;
     }
@@ -49,7 +51,7 @@ public:
 
     // To activate actuator, permission is asked from mutexGroup, false is always allowed
     void setActive(bool active, int8_t priority){
-        if(!active || !mutexGroup || mutexGroup->requestActive(target, priority)){
+        if(!active || !mutexGroup || mutexGroup->requestActive(this, priority)){
             target->setActive(active);
         }
     }
