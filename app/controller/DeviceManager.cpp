@@ -778,6 +778,10 @@ device_slot_t findHardwareDevice(DeviceConfig & find)
                 // fall through
                 case DEVICE_HARDWARE_PIN :
                     match &= find.hw.pinNr == config.hw.pinNr;
+                    break;
+                case DEVICE_HARDWARE_NONE:
+                    match = false; // don't return a match for no type
+                    break;
                 default :    // this should not happen - if it does the device will be returned as matching.
                     break;
             }
