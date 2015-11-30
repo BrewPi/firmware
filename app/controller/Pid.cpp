@@ -126,7 +126,7 @@ void Pid::update()
     // pidResult - output is zero when actuator is not saturated
     // Anti windup gain is 10.0
     temp_long_t antiWindup = pidResult - temp_long_t(output);
-    temp_long_t antiWindupGain = 10.0;
+    temp_long_t antiWindupGain = temp_long_t(Ti) / Kp;
     antiWindup *= antiWindupGain;
 
     // if derivative part is canceling more than half the proportional part, disable integration
@@ -139,12 +139,16 @@ void Pid::update()
     if(Ti == 0){ // 0 has been chosen to indicate that the integrator is disabled. This also prevents divide by zero.
         integral = 0;
     }
-    else if(integral.sign() != (integral-antiWindup).sign()){
-        // anti-windup would make integral cross zero
-        integral = 0;
-    }
-    else{
-        integral -= antiWindup/Ti;
+    else if(integral.sign() == antiWindup.sign()){ // make sure anti-windup is towards zero
+        temp_long_t newIntegral = integral-antiWindup;
+
+        if(integral.sign() != newIntegral.sign()){
+            // anti-windup would make integral cross zero
+            integral = 0;
+        }
+        else{
+            integral = newIntegral;
+        }
     }
 
 /*
