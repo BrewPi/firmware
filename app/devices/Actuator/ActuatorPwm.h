@@ -74,8 +74,11 @@ class ActuatorPwm : public ActuatorDriver, public ActuatorRange
             period_ms = int32_t(sec) * 1000;
         }
 
-        // recalculates duty time based on value and dutyLate and periodLate
+        // recalculates duty time based on configured period
         void recalculate();
+
+        // recalculates duty time based on expected period
+        void recalculate(int32_t expectedPeriod);
 
         // calculates priority from dutyTime and dutyLate
         int8_t priority();

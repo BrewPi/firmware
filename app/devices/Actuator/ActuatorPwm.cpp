@@ -17,11 +17,12 @@ ActuatorPwm::ActuatorPwm(ActuatorDigital* _target, uint16_t _period) :
 }
 
 void ActuatorPwm::recalculate() {
-    temp_long_t newDutyTime = temp_long_t(value)
-            * (temp_long_t(period_ms) / temp_long_t(100));
-    temp_long_t correctionFactor = temp_long_t(period_ms + periodLate)
-            / temp_long_t(period_ms);
-    dutyTime = int32_t(newDutyTime * correctionFactor);
+    recalculate(period_ms);
+}
+
+void ActuatorPwm::recalculate(int32_t expectedPeriod) {
+    // shift by 6 makes calculation work for period up to 11 hours
+    dutyTime = int32_t(temp_long_t(value) << uint8_t(6)) * ((expectedPeriod + 50) / 100) >> 6;
 }
 
 void ActuatorPwm::setValue(temp_t const& val) {
@@ -36,16 +37,21 @@ void ActuatorPwm::setValue(temp_t const& val) {
     if (value != val_) {
         temp_t delta = val_ - value;
         value = val_;
-        recalculate();
         if(delta > temp_t(5.0)){
             // big positive change, go high immediately by starting a new period
             dutyLate = 0;
             periodLate = 0;
+            recalculate();
             periodStartTime = ticks.millis() - period_ms;
+
         }
         else if(delta < temp_t(-5.0)){
             // big negative change, go to low part of period immediately
+            recalculate();
             periodStartTime = ticks.millis() - dutyTime + dutyLate;
+        }
+        else{
+            recalculate(period_ms + periodLate);
         }
     }
 }
@@ -93,7 +99,7 @@ void ActuatorPwm::update() {
             periodLate = (periodLate < period_ms / 2) ? periodLate : period_ms / 2;
             // adjust next duty time to account for longer period due to infrequent updates
             // low period was longer, increase high period (duty cycle) with same ratio
-            recalculate();
+            recalculate(period_ms + periodLate);
             periodStartTime = currentTime;
         }
     }
