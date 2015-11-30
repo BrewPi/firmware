@@ -72,7 +72,7 @@ class DS2413:
             bool    ok      = false;
             uint8_t retries = 5;
 
-            if (!useCached ||!cacheIsValid())
+            if (!useCached || !cacheIsValid())
             {
                 // read a fresh value form the device
                 do
@@ -93,11 +93,11 @@ class DS2413:
 
             if (set)
             {
-                newVal |= mask;
+                newVal &= ~mask; // 0 means latch transistor is active
             }
             else
             {
-                newVal &= ~mask;
+                newVal |= mask; // 1 means latch transistor is inactive
             }
 
             if (oldVal == newVal)
@@ -114,7 +114,7 @@ class DS2413:
         }
 
         /*
-         * Read the latch state of an output.
+         * Read the latch state of an output. True means latch is active
          * /param pio               pin number to read
          * /param defaultValue      value to return when the read fails
          * /param useCached         do not read current pin state from device, but use cached state
@@ -123,13 +123,12 @@ class DS2413:
                        bool defaultValue,
                        bool useCached)
         {
-            if(!useCached){
+            if(!useCached || !cacheIsValid()){
                 update();
             }
 
-            if (cacheIsValid())
-            {
-                return ((cachedState & latchReadMask(pio)) != 0);
+            if(cacheIsValid()){
+                return ((cachedState & latchReadMask(pio)) == 0);
             }
             else
             {

@@ -63,8 +63,7 @@ class ActuatorOneWire:
         void setActive(bool active)
         {
             // todo: alarm when write fails
-            // Low is active for BrewPi DS2413 board (0 means output transistor active)
-            device.latchWrite(pio, (!active) ^ invert, true);
+            device.latchWrite(pio, active ^ invert, true);
         }
 
         bool isActive()
