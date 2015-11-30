@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(output_stays_low_with_value_0) {
         delay(1);
         act->update();
     }
-    for (uint32_t i = 0; i < 10 * act->getPeriod(); i++) {
+    for (uint32_t i = 0; i < 10 * act->getPeriod() * 1000; i++) {
         delay(1);
         act->update();
 
@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE(output_stays_high_with_value_100) {
         delay(1);
         act->update();
     }
-    for (uint32_t i = 0; i < 10 * act->getPeriod(); i++) {
+    for (uint32_t i = 0; i < 10 * act->getPeriod() * 1000; i++) {
         delay(1);
         act->update();
         BOOST_REQUIRE_MESSAGE(target->isActive(), "Actuator was low at i=" << i);
@@ -281,7 +281,7 @@ BOOST_AUTO_TEST_CASE(ActuatorPWM_with_min_max_time_limited_OnOffActuator_as_driv
     BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 50.0, 500), temp_t(50.0));
     BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 3.0, 500), temp_t(3.0));
     BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 1.0, 500), temp_t(1.0));
-    // BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 99.0, 500), temp(99.0)); // 99 not attainable due to minimum OFF time
+    BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 99.0, 500), temp_t(99.0)); // 99 not attainable due to minimum OFF time
 }
 
 

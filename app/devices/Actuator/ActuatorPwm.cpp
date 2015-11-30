@@ -65,12 +65,22 @@ void ActuatorPwm::update() {
     if (target->isActive()) {
         if (elapsedTime >= adjDutyTime) {
             // end of duty cycle
-            target->setActive(false);
-            // check if turning the output off has succeeded (OnOff actuator could stay active due to time limit)
-            if (target->isActive()) {
-                return; // try next time
+            int32_t lowTime = period_ms - dutyTime;
+            if(periodLate >= lowTime){
+                // built up low periods are higher then required low time, skip a low cycle
+                recalculate();
+                periodLate -= lowTime;
+                // dutyLate -= (period_ms - dutyTime);
+                periodStartTime = currentTime;
             }
-            dutyLate += elapsedTime - dutyTime;
+            else{
+                target->setActive(false);
+                // check if turning the output off has succeeded (OnOff actuator could stay active due to time limit)
+                if (target->isActive()) {
+                    return; // try next time
+                }
+                dutyLate += elapsedTime - dutyTime;
+            }
         }
     }
     if (!target->isActive()) { // <- do not replace with else if
