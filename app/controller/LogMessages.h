@@ -52,7 +52,8 @@ enum errorMessages{
 // PiLink.cpp
 	MSG(ERROR_EXPECTED_BRACKET, "Expected { got %c", character),
 	
-	MSG(ERROR_ONEWIRE_INIT_FAILED, "OneWire initialization failed")
+	MSG(ERROR_ONEWIRE_INIT_FAILED, "OneWire initialization failed"),
+	MSG(ERROR_DEVICE_ALREADY_INSTALLED, "This hardware device is already installed at slot %d. Uninstall it first.", slot)
 
 }; // END enum errorMessages
 

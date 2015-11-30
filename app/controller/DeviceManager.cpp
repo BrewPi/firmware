@@ -54,6 +54,7 @@
 class OneWire;
 
 bool DeviceManager::firstDeviceOutput;
+device_slot_t findHardwareDevice(DeviceConfig & find);
 
 /*
  * Sets devices to their unconfigured states. Each device is initialized to a static no-op instance.
@@ -493,8 +494,16 @@ void DeviceManager::parseDeviceDefinition(Stream & p)
 
         // also remove any existing device for the new function, since install overwrites any existing definition.
         uninstallDevice(target);
-        installDevice(target);
-        eepromManager.storeDevice(target, dev.id);
+
+        device_slot_t slot = findHardwareDevice(target);
+        if(slot != INVALID_SLOT){
+            // if this hardware has already been installed to a different slot, skip install
+            logErrorInt(ERROR_DEVICE_ALREADY_INSTALLED, slot);
+        }
+        else{
+            installDevice(target);
+            eepromManager.storeDevice(target, dev.id);
+        }
     } else{
         logError(ERROR_DEVICE_DEFINITION_UPDATE_SPEC_INVALID);
     }
@@ -744,7 +753,7 @@ inline bool matchAddress(uint8_t * detected,
  * A device's location is:
  *   pinNr  for simple digital pin devices
  *   pinNr+address for one-wire devices
- *   pinNr+address+pio for 2413
+ *   pinNr+address+pio for 2413 and 2408
  */
 device_slot_t findHardwareDevice(DeviceConfig & find)
 {
