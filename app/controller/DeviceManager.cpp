@@ -1139,7 +1139,7 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
         } else if (dt == DEVICETYPE_SWITCH_ACTUATOR){
             sprintf_P(val, STR_FMT_U, (unsigned int) ((ActuatorDigital *) *ppv) -> isActive() != 0);
         } else if (dt == DEVICETYPE_PWM_ACTUATOR){
-            ((ActuatorPwm *) *ppv) -> getValue().toString(val,1,5);
+            ((ActuatorPwm *) *ppv) -> getValue().toString(val,1,6);
         } else if (dt == DEVICETYPE_MANUAL_ACTUATOR){
             if(dc.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2408){
                 readValve(dc.hw, val);
