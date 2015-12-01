@@ -107,7 +107,7 @@ void TemperatureProcessPresenter::asString(char* buf, temp_t t, unsigned num_dec
         strcpy(buf, "--.-");
     }
     else
-        t.toString(buf, num_decimals, max_len);
+        t.toTempString(buf, num_decimals, max_len, tempControl.cc.tempFormat, true);
 }
 
 const char* TemperatureProcessPresenter::ltrim(const char* s) {

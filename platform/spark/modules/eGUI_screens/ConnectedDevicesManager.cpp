@@ -1,10 +1,11 @@
 #include "ConnectedDevicesManager.h"
+#include "TempControl.h"
 #include "UI.h"
 
 char * valueAsText(const ConnectedDevice* device, char* buf, size_t len) {
     char * start = buf;
     if (device->dt==DEVICETYPE_TEMP_SENSOR) {        
-        start = device->value.temp.toString(buf, 1, len); // sets buf to first non-space character
+        start = device->value.temp.toTempString(buf, 1, len, tempControl.cc.tempFormat, true); // sets buf to first non-space character
     }
     else if (device->dt==DEVICETYPE_SWITCH_ACTUATOR || device->dt==DEVICETYPE_SWITCH_SENSOR) {
         strncpy(buf, device->value.state ? "On" : "Off", len);
