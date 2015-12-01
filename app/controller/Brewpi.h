@@ -66,4 +66,4 @@ enum {
 #endif
 #include "AppConfigDefault.h"
 
-#define VERSION_STRING "0.3.0a"
+#define VERSION_STRING "0.4.0"
