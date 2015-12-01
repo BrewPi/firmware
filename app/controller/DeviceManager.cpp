@@ -55,6 +55,7 @@ class OneWire;
 
 bool DeviceManager::firstDeviceOutput;
 device_slot_t findHardwareDevice(DeviceConfig & find);
+device_slot_t findDeviceFunction(DeviceConfig & find);
 
 /*
  * Sets devices to their unconfigured states. Each device is initialized to a static no-op instance.
@@ -435,6 +436,10 @@ void assignIfSet(int8_t    value,
     }
 }
 
+bool isUniqueFunction(int8_t f){
+    return (f != DEVICE_CHAMBER_MANUAL_ACTUATOR && f != DEVICE_NONE);
+}
+
 /*
  * Updates the device definition. Only changes that result in a valid device, with no conflicts with other devices
  * are allowed.
@@ -496,11 +501,20 @@ void DeviceManager::parseDeviceDefinition(Stream & p)
         uninstallDevice(target);
 
         device_slot_t slot = findHardwareDevice(target);
+        bool install = true;
         if(slot != INVALID_SLOT){
             // if this hardware has already been installed to a different slot, skip install
             logErrorInt(ERROR_DEVICE_ALREADY_INSTALLED, slot);
+            install = false;
         }
-        else{
+        if(isUniqueFunction(target.deviceFunction)){
+            slot = findDeviceFunction(target);
+            if(slot != INVALID_SLOT){
+                logErrorInt(ERROR_FUNCTION_ALREADY_INSTALLED, slot);
+                install = false;
+            }
+        }
+        if(install){
             installDevice(target);
             eepromManager.storeDevice(target, dev.id);
         }
@@ -792,6 +806,24 @@ device_slot_t findHardwareDevice(DeviceConfig & find)
         }
     }
 
+    return INVALID_SLOT;
+}
+
+/*
+ * Find a device based on the function.
+ */
+device_slot_t findDeviceFunction(DeviceConfig & find)
+{
+    DeviceConfig config;
+
+    for (device_slot_t slot = 0; deviceManager.allDevices(config, slot); slot++){
+        if (find.deviceFunction == config.deviceFunction){
+            bool match = true;
+            if (match){
+                return slot;
+            }
+        }
+    }
     return INVALID_SLOT;
 }
 

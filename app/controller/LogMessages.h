@@ -53,7 +53,8 @@ enum errorMessages{
 	MSG(ERROR_EXPECTED_BRACKET, "Expected { got %c", character),
 	
 	MSG(ERROR_ONEWIRE_INIT_FAILED, "OneWire initialization failed"),
-	MSG(ERROR_DEVICE_ALREADY_INSTALLED, "This hardware device is already installed at slot %d. Uninstall it first.", slot)
+	MSG(ERROR_DEVICE_ALREADY_INSTALLED, "This hardware device is already installed at slot %d. Uninstall it first.", slot),
+	MSG(ERROR_FUNCTION_ALREADY_INSTALLED, "This device function is already installed at slot %d. Uninstall it first.", slot)
 
 }; // END enum errorMessages
 
