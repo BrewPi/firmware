@@ -61,6 +61,7 @@ ControlConstants const ccDefaults PROGMEM =
     50, // beer2fridge_td
     4, // beer2fridge_infilt
     4, // beer2fridge_dfilt
+    5, // beer2fridge_pidMax
     120, // minCoolTime
     180, // minCoolIdleTime
     4, // heater1PwmPeriod
@@ -251,4 +252,6 @@ void TempControl::updateConstants()
     control.coolerPid->setDerivativeFilter(cc.cooler_dfilt);
     control.beerToFridgePid->setInputFilter(cc.beer2fridge_infilt);
     control.beerToFridgePid->setDerivativeFilter(cc.beer2fridge_dfilt);
+    control.fridgeSetPointActuator->setMin(-cc.beer2fridge_pidMax);
+    control.fridgeSetPointActuator->setMax(cc.beer2fridge_pidMax);
 }

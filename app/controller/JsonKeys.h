@@ -56,6 +56,7 @@ static const char JSONKEY_beer2fridge_ti[] PROGMEM = "beer2fridge_ti";
 static const char JSONKEY_beer2fridge_td[] PROGMEM = "beer2fridge_td";
 static const char JSONKEY_beer2fridge_infilt[] PROGMEM = "beer2fridge_infilt";
 static const char JSONKEY_beer2fridge_dfilt[] PROGMEM = "beer2fridge_dfilt";
+static const char JSONKEY_beer2fridge_pidMax[] PROGMEM = "beer2fridge_pidMax";
 
 static const char JSONKEY_minCoolTime[] PROGMEM = "minCoolTime";
 static const char JSONKEY_minCoolIdleTime[] PROGMEM = "minCoolIdleTime";

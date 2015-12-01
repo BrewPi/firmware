@@ -64,6 +64,7 @@ struct ControlConstants {
     uint16_t beer2fridge_td;
     uint8_t beer2fridge_infilt;
     uint8_t beer2fridge_dfilt;
+    temp_t beer2fridge_pidMax;
 
     uint16_t minCoolTime;
     uint16_t minCoolIdleTime;

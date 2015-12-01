@@ -82,7 +82,7 @@ void eepromSizeCheck() {
  * Increment this value each time a change is made that is not backwardly-compatible.
  * Either the eeprom will be reset to defaults, or external code will re-establish the values via the piLink interface. 
  */
-#define EEPROM_FORMAT_VERSION 6
+#define EEPROM_FORMAT_VERSION 7
 
 /*
  * Version history:

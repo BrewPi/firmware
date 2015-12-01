@@ -518,6 +518,7 @@ const PiLink::JsonOutput PiLink::jsonOutputCCMap[] PROGMEM = {
     JSON_OUTPUT_CC_MAP(beer2fridge_td, JOCC_UINT16),
     JSON_OUTPUT_CC_MAP(beer2fridge_infilt, JOCC_UINT8),
     JSON_OUTPUT_CC_MAP(beer2fridge_dfilt, JOCC_UINT8),
+    JSON_OUTPUT_CC_MAP(beer2fridge_pidMax, JOCC_TEMP_DIFF),
 
 	JSON_OUTPUT_CC_MAP(minCoolTime, JOCC_UINT16),
 	JSON_OUTPUT_CC_MAP(minCoolIdleTime, JOCC_UINT16),
@@ -778,6 +779,8 @@ const PiLink::JsonParserConvert PiLink::jsonParserConverters[] PROGMEM = {
 	JSON_CONVERT(JSONKEY_beer2fridge_td, &tempControl.cc.beer2fridge_td, setUint16),
 	JSON_CONVERT(JSONKEY_beer2fridge_infilt, &tempControl.cc.beer2fridge_infilt, setFilter),
 	JSON_CONVERT(JSONKEY_beer2fridge_dfilt, &tempControl.cc.beer2fridge_dfilt, setFilter),
+	JSON_CONVERT(JSONKEY_beer2fridge_pidMax, &tempControl.cc.beer2fridge_pidMax, setStringToTempDiffLong),
+
 	JSON_CONVERT(JSONKEY_minCoolTime, &tempControl.cc.minCoolTime, setUint16),
 	JSON_CONVERT(JSONKEY_minCoolIdleTime, &tempControl.cc.minCoolIdleTime, setUint16),
 	JSON_CONVERT(JSONKEY_heater1PwmPeriod, &tempControl.cc.heater1PwmPeriod, setUint16),
