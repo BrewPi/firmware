@@ -35,6 +35,7 @@
 #include "Display.h"
 #include "PiLinkHandlers.h"
 #include "UI.h"
+#include "Buzzer.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorMocks.h"
 #include "Control.h"
@@ -801,10 +802,9 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 	logWarning(WARNING_COULD_NOT_PROCESS_SETTING);
 }
 
-extern ActuatorBool alarm;
 void PiLink::soundAlarm(bool active)
 {
-	alarm.setActive(active);
+	buzzer.setActive(active);
 }
 
 

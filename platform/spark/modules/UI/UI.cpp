@@ -83,16 +83,11 @@ void UI::showControllerPage() {
     display.printState();
 }
 
-extern ActuatorBool alarm;
 void UI::ticks()
 {
     D4D_TimeTickPut();
     D4D_CheckTouchScreen();
     D4D_Poll();
-
-    #if BREWPI_BUZZER
-	buzzer.setActive(alarm.isActive() && !buzzer.isActive());
-    #endif
 }
 
 UIController uiController;

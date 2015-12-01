@@ -36,9 +36,6 @@ void UI::showControllerPage()
 
 extern ActuatorBool alarm;
 void UI::ticks() {
-#if BREWPI_BUZZER
-	buzzer.setActive(alarm.isActive() && !buzzer.isActive());
-#endif
 
 #if BREWPI_MENU
 	if(rotaryEncoder.pushed()){

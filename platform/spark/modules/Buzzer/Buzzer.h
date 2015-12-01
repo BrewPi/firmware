@@ -1,57 +1,56 @@
 /*
- * Buzzer.cpp
- *
- * Copyright 2015 BrewPi.
+ * Copyright 2012-2013 BrewPi/Elco Jacobs.
  *
  * This file is part of BrewPi.
- *
+ * 
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * BrewPi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
 
 #include "Brewpi.h"
-#include "Ticks.h"
-#include "Board.h"
-#include "Buzzer.h"
+#include "ActuatorPin.h"
 
 #if BREWPI_BUZZER
 
-void Buzzer::init(bool invert){
-    if(pin != nullptr){
-        delete pin;
+class Buzzer{
+public:
+    Buzzer() {
+        pin = nullptr;
     }
-    pin = new DigitalPinActuator(alarmPin, invert);
-}
 
-void Buzzer::setActive(bool active){
-    if(pin != nullptr){
-        pin->setActive(active);
-    }
-}
-
-
-void Buzzer::beep(uint8_t numBeeps, uint16_t duration) {
-    for (uint8_t beepCount = 0; beepCount < numBeeps; beepCount++) {
-        setActive(true);
-        wait.millis(duration);
-        setActive(false);
-        if (beepCount < numBeeps - 1) {
-            wait.millis(duration); // not the last beep
+    ~Buzzer() {
+        if(pin != nullptr){
+            delete pin;
         }
     }
-}
 
-Buzzer buzzer;
+    void init(bool invert);
 
+
+    /**
+     * Performs a number of beeps synchronously.
+     * @param numBeeps The number of beeps to emit
+     * @param duration the duration of each beep
+     */
+    void beep(uint8_t numBeeps, uint16_t duration);
+
+    void setActive(bool active);
+
+private:
+    DigitalPinActuator * pin;
+};
+
+extern Buzzer buzzer;
 #endif
