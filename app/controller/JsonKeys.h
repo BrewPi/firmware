@@ -64,5 +64,7 @@ static const char JSONKEY_heater1PwmPeriod[] PROGMEM = "heater1PwmPeriod";
 static const char JSONKEY_heater2PwmPeriod[] PROGMEM = "heater2PwmPeriod";
 static const char JSONKEY_coolerPwmPeriod[] PROGMEM = "coolerPwmPeriod";
 
+static const char JSONKEY_mutexDeadTime[] PROGMEM = "deadTime";
+
 static const char JSONKEY_logType[] PROGMEM = "logType";
 static const char JSONKEY_logID[] PROGMEM = "logID";

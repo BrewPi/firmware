@@ -67,6 +67,7 @@ ControlConstants const ccDefaults PROGMEM =
     4, // heater1PwmPeriod
     4, // heater2PwmPeriod
     900, // coolerPwmPeriod
+    1800, // mutexDeadTime
 };
 
 TempControl::TempControl()
@@ -254,4 +255,5 @@ void TempControl::updateConstants()
     control.beerToFridgePid->setDerivativeFilter(cc.beer2fridge_dfilt);
     control.fridgeSetPointActuator->setMin(-cc.beer2fridge_pidMax);
     control.fridgeSetPointActuator->setMax(cc.beer2fridge_pidMax);
+    control.mutex->setDeadTime(cc.mutexDeadTime * 1000);
 }

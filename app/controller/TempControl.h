@@ -71,6 +71,7 @@ struct ControlConstants {
     uint16_t heater1PwmPeriod;
     uint16_t heater2PwmPeriod;
     uint16_t coolerPwmPeriod;
+    uint16_t mutexDeadTime;
 };
 
 #define EEPROM_TC_SETTINGS_BASE_ADDRESS 0

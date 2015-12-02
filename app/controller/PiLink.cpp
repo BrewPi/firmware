@@ -524,7 +524,8 @@ const PiLink::JsonOutput PiLink::jsonOutputCCMap[] PROGMEM = {
 	JSON_OUTPUT_CC_MAP(minCoolIdleTime, JOCC_UINT16),
 	JSON_OUTPUT_CC_MAP(heater1PwmPeriod, JOCC_UINT16),
 	JSON_OUTPUT_CC_MAP(heater2PwmPeriod, JOCC_UINT16),
-	JSON_OUTPUT_CC_MAP(coolerPwmPeriod, JOCC_UINT16)
+	JSON_OUTPUT_CC_MAP(coolerPwmPeriod, JOCC_UINT16),
+	JSON_OUTPUT_CC_MAP(mutexDeadTime, JOCC_UINT16)
 };
 
 void PiLink::sendJsonValues(char responseType, const JsonOutput* /*PROGMEM*/ jsonOutputMap, uint8_t mapCount) {
@@ -785,8 +786,8 @@ const PiLink::JsonParserConvert PiLink::jsonParserConverters[] PROGMEM = {
 	JSON_CONVERT(JSONKEY_minCoolIdleTime, &tempControl.cc.minCoolIdleTime, setUint16),
 	JSON_CONVERT(JSONKEY_heater1PwmPeriod, &tempControl.cc.heater1PwmPeriod, setUint16),
 	JSON_CONVERT(JSONKEY_heater2PwmPeriod, &tempControl.cc.heater2PwmPeriod, setUint16),
-	JSON_CONVERT(JSONKEY_coolerPwmPeriod, &tempControl.cc.coolerPwmPeriod, setUint16)
-	
+	JSON_CONVERT(JSONKEY_coolerPwmPeriod, &tempControl.cc.coolerPwmPeriod, setUint16),
+	JSON_CONVERT(JSONKEY_mutexDeadTime, &tempControl.cc.mutexDeadTime, setUint16)
 };
 
 void PiLink::processJsonPair(const char * key, const char * val, void* pv){
