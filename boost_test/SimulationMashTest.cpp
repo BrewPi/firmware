@@ -249,7 +249,6 @@ struct SimMashCascaded : public MashStaticSetup {
 
 
 BOOST_AUTO_TEST_SUITE( mash_simulation_test)
-#if 0
 
 // Test heating HLT based on mash out temperature (non-cascaded control)
 BOOST_FIXTURE_TEST_CASE(Simulate_HLT_Heater_Acts_On_MashTemp, SimMashDirect)
@@ -289,17 +288,11 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Mash_Cascaded_Control, SimMashCascaded)
             "heater pwm, heater P, heater I, heater D"
             << endl;
     double SetPointDouble = 68;
-    for(int t = 0; t < 7200; t++){
-        /*if(t==1000){
-            SetPointDouble = 19;
-        }
-        if(t > 8000 && t < 16000){
-            SetPointDouble -= 0.0001; // ramp down slowly
-        }
+    for(int t = 0; t < 10800; t++){
 
-        if(t > 20000 && t < 28000){
-            SetPointDouble -= 0.0001; // ramp up slowly
-        }*/
+        if(t > 3600 && t < 4200){
+            SetPointDouble += (5.0/600); // ramp up slowly, 5 degrees in 10 minutes
+        }
 
         mashSet->write(SetPointDouble);
         update();
@@ -325,7 +318,6 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Mash_Cascaded_Control, SimMashCascaded)
     }
     csv.close();
 }
-#endif
 
 // Test HLT constant first, then switch to mash constant
 BOOST_FIXTURE_TEST_CASE(Simulate_Switch_from_HTL_to_Cascaded_Control, SimMashCascaded)

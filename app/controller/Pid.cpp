@@ -95,9 +95,9 @@ void Pid::update()
     inputFilter.add(inputVal);
     temp_t inputErrorPrevious = inputError;
     inputError = inputFilter.readOutput() - setPoint->read();
-    if( (inputError - inputErrorPrevious) > temp_t (0.15) ||
-            (inputErrorPrevious - inputError)  > temp_t (0.15)){ // more then 2 bits (0.0625 of the input sensor)
-        integral = 0; // reset integral when the error changes significantly, most likely due to setpoint changes
+    if( (inputError - inputErrorPrevious) > temp_t (1) ||
+            (inputErrorPrevious - inputError)  > temp_t (1)){ // more then 2 bits (0.0625 of the input sensor)
+        integral = 0; // reset integral when the error changes significantly, most likely due to setpoint changes, because the temperature is filtered.
     }
 
     temp_precise_t delta = inputFilter.readOutput() - inputFilter.readPrevOutput();
@@ -107,7 +107,7 @@ void Pid::update()
 
     // calculate PID parts.
     p = Kp * -inputError;
-    i = (Ti != 0) ? Kp * (integral/Ti) : temp_long_t(0.0);
+    i = (Ti != 0) ? (integral/Ti) : temp_long_t(0.0);
     d = -Kp * (derivative * Td);
 
     temp_long_t pidResult = temp_long_t(p) + temp_long_t(i) + temp_long_t(d);
@@ -124,31 +124,29 @@ void Pid::update()
 
     // update integral with anti-windup back calculation
     // pidResult - output is zero when actuator is not saturated
-    // Anti windup gain is 10.0
+    // Anti windup gain is 5
     temp_long_t antiWindup = pidResult - temp_long_t(output);
-    temp_long_t antiWindupGain = temp_long_t(Ti) / Kp;
-    antiWindup *= antiWindupGain;
+    antiWindup *= 5;
 
     // if derivative part is canceling more than half the proportional part, disable integration
     // otherwise add input error to integral
     if( ((p + (d + d)) > temp_long_t(0) && (p > temp_long_t(0))) ||
            ((p + (d + d)) < temp_long_t(0) && (p < temp_long_t(0))) ){
-        integral = integral - inputError;
+        integral = integral + p;
     }
 
     if(Ti == 0){ // 0 has been chosen to indicate that the integrator is disabled. This also prevents divide by zero.
         integral = 0;
     }
-    else if(integral.sign() == antiWindup.sign()){ // make sure anti-windup is towards zero
-        temp_long_t newIntegral = integral-antiWindup;
 
-        if(integral.sign() != newIntegral.sign()){
-            // anti-windup would make integral cross zero
-            integral = 0;
-        }
-        else{
-            integral = newIntegral;
-        }
+    temp_long_t newIntegral = integral-antiWindup;
+
+    if(integral.sign() != newIntegral.sign()){
+        // anti-windup would make integral cross zero
+        integral = 0;
+    }
+    else{
+        integral = newIntegral;
     }
 
 /*
