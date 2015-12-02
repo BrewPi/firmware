@@ -136,12 +136,7 @@ void Pid::update()
     temp_long_t antiWindup = pidResult - temp_long_t(output);
     antiWindup *= 5;
 
-    // if derivative part is canceling more than half the proportional part, disable integration
-    // otherwise add input error to integral
-    if( ((p + (d + d)) > temp_long_t(0) && (p > temp_long_t(0))) ||
-           ((p + (d + d)) < temp_long_t(0) && (p < temp_long_t(0))) ){
-        integral = integral + p;
-    }
+    integral = integral + p;
 
     if(Ti == 0){ // 0 has been chosen to indicate that the integrator is disabled. This also prevents divide by zero.
         integral = 0;
