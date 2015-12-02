@@ -23,6 +23,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/OneWire
 # INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/ScrollBox
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Ticks
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/UI
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Buzzer
 
 CSRC += $(call target_files,app/controller,*.c)
 CPPSRC += $(call target_files,app/controller,*.cpp)
