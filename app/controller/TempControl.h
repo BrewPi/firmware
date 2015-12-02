@@ -131,7 +131,7 @@ public:
             return HEATING; // in low period of PWM
         }
         else{
-            lastIdleTime = ticks.millis();
+            lastIdleTime = ticks.seconds();
             return IDLE;
         }
     }
