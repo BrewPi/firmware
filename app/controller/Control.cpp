@@ -50,7 +50,7 @@ Control::Control()
 
     coolerTimeLimited = new ActuatorTimeLimited(defaultActuator(), 120, 180); // 2 min minOn time, 3 min minOff
     coolerMutex = new ActuatorMutexDriver(coolerTimeLimited, mutex);
-    cooler = new ActuatorPwm(coolerMutex, 900); // period 15 min
+    cooler = new ActuatorPwm(coolerMutex, 1200); // period 20 min
 
     beer1Set = new SetPointSimple();
     beer2Set = new SetPointSimple();

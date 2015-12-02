@@ -51,8 +51,8 @@ ControlConstants const ccDefaults PROGMEM =
     0, // heater2_td
     2, // heater2_infilt
     4, // heater2_dfilt
-    3.0, // cooler_kp
-    600, // cooler_ti
+    5.0, // cooler_kp
+    1800, // cooler_ti
     60, // cooler_td
     2, // cooler_infilt
     4, // cooler_dfilt
@@ -61,12 +61,12 @@ ControlConstants const ccDefaults PROGMEM =
     50, // beer2fridge_td
     4, // beer2fridge_infilt
     4, // beer2fridge_dfilt
-    5, // beer2fridge_pidMax
+    10, // beer2fridge_pidMax
     120, // minCoolTime
     180, // minCoolIdleTime
     4, // heater1PwmPeriod
     4, // heater2PwmPeriod
-    900, // coolerPwmPeriod
+    1200, // coolerPwmPeriod
     1800, // mutexDeadTime
 };
 

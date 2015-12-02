@@ -54,7 +54,7 @@ public:
         coolerPin = new ActuatorBool();
         coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
         coolerMutex = new ActuatorMutexDriver(coolerTimeLimited);
-        cooler = new ActuatorPwm(coolerMutex, 600); // period 10 min
+        cooler = new ActuatorPwm(coolerMutex, 1200); // period 20 min
         mutex = new ActuatorMutexGroup();
 
         beerSet = new SetPointSimple(20.0);
@@ -201,7 +201,7 @@ struct SimBeerHeater : public StaticSetup {
         heaterPid->setSetPoint(beerSet);
         heaterPid->setInputFilter(2);
         heaterPid->setDerivativeFilter(4);
-        heaterPid->setConstants(100.0, 3600, 200);
+        heaterPid->setConstants(100.0, 7200, 1200);
     }
 
     void update(){
@@ -240,7 +240,7 @@ struct SimBeerCooler : public StaticSetup {
         coolerPid->setSetPoint(beerSet);
         coolerPid->setInputFilter(4);
         coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(100.0, 3600, 50);
+        coolerPid->setConstants(50.0, 3600, 50);
     }
 
     void update(){
