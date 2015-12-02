@@ -102,27 +102,35 @@ void UI::update()
     display.updateBacklight();
 }
 
+#ifndef FREERTOS
+    #define FREERTOS 1
+#endif
 
 Timer* timer = nullptr;
 
 void cancelCalibration()
 {
+#if FREERTOS
     D4D_InterruptCalibrationScreen();
+#endif
 }
 
 void createTimer()
 {
+#if FREERTOS
     timer = new Timer(60*1000, cancelCalibration);
     if (timer)
         timer->start();
+#endif
 }
 
 void destroyTimer()
 {
+#if FREERTOS
     delete timer;
     timer = NULL;
+#endif
 }
-
 
 /**
  * Show touch screen calibration screen store settings afterwards

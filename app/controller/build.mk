@@ -42,6 +42,14 @@ $(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environmen
 endif
 CFLAGS += -I$(BOOST_ROOT)
 
+ifeq ("$(PLATFORM_ID)","0")
+# disable freertos for the core, until we have more free space.
+FREERTOS=0
+CFLAGS += -DFREERTOS=0
+# disable big logo on the core, until we have more free space
+CFLAGS += -DBREWPI_BIG_LOGO=0
+endif
+
 SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
 include $(SRC_EGUI)/egui.mk
 
