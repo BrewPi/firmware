@@ -64,10 +64,11 @@ void Pid::setConstants(temp_long_t kp,
 void Pid::update()
 {
     temp_t inputVal;
-    bool disable = !enabled;
+    bool validSetPoint = true;
+    bool validSensor = true;
 
     if( setPoint->read().isDisabledOrInvalid()){
-        disable = true;
+        validSetPoint = false;
     }
 
     inputVal = inputSensor -> read();
@@ -77,7 +78,7 @@ void Pid::update()
             failedReadCount++;
         }
         if (failedReadCount > 20){
-            disable = true; // disable PID if sensor is lost for more than 20 seconds
+            validSensor = false; // disable PID if sensor is lost for more than 20 seconds
         }
     }
     else{
@@ -88,20 +89,27 @@ void Pid::update()
         failedReadCount = 0;
     }
 
-    if ( disable ){
+    if(validSensor){
+        inputFilter.add(inputVal);
+        temp_precise_t delta = inputFilter.readOutput() - inputFilter.readPrevOutput();
+        derivativeFilter.add(delta);
+
+        if(validSetPoint){
+            temp_t inputErrorPrevious = inputError;
+            inputError = inputFilter.readOutput() - setPoint->read();
+            if( (inputError - inputErrorPrevious) > temp_t (1) ||
+                    (inputErrorPrevious - inputError)  > temp_t (1)){ // more then 2 bits (0.0625 of the input sensor)
+                integral = 0; // reset integral when the error changes significantly, most likely due to setpoint changes, because the temperature is filtered.
+            }
+        }
+    }
+
+    if(!enabled || !validSensor || !validSetPoint){
+        p = 0;
+        i = 0;
+        d = 0;
         return;
     }
-
-    inputFilter.add(inputVal);
-    temp_t inputErrorPrevious = inputError;
-    inputError = inputFilter.readOutput() - setPoint->read();
-    if( (inputError - inputErrorPrevious) > temp_t (1) ||
-            (inputErrorPrevious - inputError)  > temp_t (1)){ // more then 2 bits (0.0625 of the input sensor)
-        integral = 0; // reset integral when the error changes significantly, most likely due to setpoint changes, because the temperature is filtered.
-    }
-
-    temp_precise_t delta = inputFilter.readOutput() - inputFilter.readPrevOutput();
-    derivativeFilter.add(delta);
 
     derivative = derivativeFilter.readOutput();
 
