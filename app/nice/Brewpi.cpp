@@ -85,6 +85,8 @@ class GlobalSettings {
 
 void setup()
 {    	
+        eepromAccess.init();
+
 	SystemProfile::initialize();
 	
 	Comms::init();

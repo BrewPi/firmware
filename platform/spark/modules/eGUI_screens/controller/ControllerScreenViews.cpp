@@ -42,7 +42,6 @@ const char* ControllerStatePresenter::state_name[] {
     "HEATING",
     "COOLING",
     "COOL IN...",
-    "HEAT IN...",
     "PEAK DET.",
     "COOLING.",
     "HEATING."
@@ -50,15 +49,13 @@ const char* ControllerStatePresenter::state_name[] {
 
 D4D_COLOR ControllerStatePresenter::state_color[] = {
 	IDLE_COLOR,                     // 0
-	STATE_OFF_COLOR,					// 1
-	DOOR_OPEN_COLOR,					// 2 used by the Display only
+	STATE_OFF_COLOR,				// 1
+	DOOR_OPEN_COLOR,				// 2 used by the Display only
 	HEATING_COLOR,					// 3
 	COOLING_COLOR,					// 4
 	WAITING_TO_COOL_COLOR,			// 5
-	WAITING_TO_HEAT_COLOR,			// 6
-	WAITING_FOR_PEAK_DETECT_COLOR,	// 7
-	COOLING_MIN_TIME_COLOR,			// 8
-	HEATING_MIN_TIME_COLOR			// 9	    
+	WAITING_FOR_PEAK_DETECT_COLOR,	// 6
+	COOLING_MIN_TIME_COLOR,			// 7
 };
 
 
@@ -99,18 +96,18 @@ void ControllerScreen_Update()
     
     beerTempPresenter.update(tempControl.getBeerTemp(), tempControl.getBeerSetting());
     fridgeTempPresenter.update(tempControl.getFridgeTemp(), tempControl.getFridgeSetting());
-    roomTempPresenter.update(tempControl.getRoomTemp(), INVALID_TEMP, false);
+    roomTempPresenter.update(tempControl.getRoomTemp(), temp_t::invalid(), false);
     
 }
 
 
-void TemperatureProcessPresenter::asString(char* buf, temperature t, unsigned num_decimals, unsigned max_len)
+void TemperatureProcessPresenter::asString(char* buf, temp_t t, unsigned num_decimals, unsigned max_len)
 {
-    if (isDisabledOrInvalid(t)) {
+    if (t.isDisabledOrInvalid()) {
         strcpy(buf, "--.-");
     }
     else
-        tempToString(buf, t, num_decimals, max_len);
+        t.toTempString(buf, num_decimals, max_len, tempControl.cc.tempFormat, true);
 }
 
 const char* TemperatureProcessPresenter::ltrim(const char* s) {
@@ -118,7 +115,7 @@ const char* TemperatureProcessPresenter::ltrim(const char* s) {
     return s;
 }
 
-void TemperatureProcessPresenter::update(temperature current, temperature setpoint, bool has_setpoint)
+void TemperatureProcessPresenter::update(temp_t current, temp_t setpoint, bool has_setpoint)
 {
     char current_str[MAX_TEMP_LEN];
     char setpoint_str[MAX_TEMP_LEN];
@@ -139,16 +136,6 @@ uint16_t fetch_time(states state)
     else if(state==COOLING || state==HEATING){
         time = sinceIdleTime;
     }
-    else if(state==COOLING_MIN_TIME){
-        time = MIN_COOL_ON_TIME-sinceIdleTime;
-    }	
-    else if(state==HEATING_MIN_TIME){
-        time = MIN_HEAT_ON_TIME-sinceIdleTime;
-    }
-    else if(state == WAITING_TO_COOL || state == WAITING_TO_HEAT || state == WAITING_FOR_PEAK_DETECT){
-        time = tempControl.getWaitTime();
-    }
-    
     return time;
 }
 

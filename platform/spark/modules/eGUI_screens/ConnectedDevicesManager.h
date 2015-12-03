@@ -20,16 +20,17 @@
 #pragma once
 
 #include "EepromManager.h"		// for clear()
-#include "OneWireDevices.h"
 #include "DeviceManager.h"
 #include "TempSensorBasic.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include "Sensor.h"
 #include "PiLink.h"
 #include "Board.h"
 #include "fixstl.h"
 #include "ActuatorPin.h"
+#include "temperatureFormats.h"
 #include <functional>
+#include "OneWireAddress.h"
 
 #define MAX_TEMP_SENSORS
 
@@ -56,20 +57,24 @@ struct ConnectedDevice
     } connection;
 
     union Value {
-        temperature temp;       // dt==DEVICETYPE_TEMP_SENSOR
+        temp_t temp;       // dt==DEVICETYPE_TEMP_SENSOR
         bool state;             // dt==DEVICETYPE_SWITCH_SENSOR ||
                                 // dt==DEVICETYPE_ACTUATOR
+        Value(){} // needed because temp_t has non-trivial constructor
+        Value(const Value& v){
+            temp = v.temp; // copy biggest type
+        }
     } value;
 
     union Device {
         void* any;
-        BasicTempSensor* tempSensor;    // dt==DEVICETYPE_TEMP_SENSOR
+        TempSensorBasic* tempSensor;    // dt==DEVICETYPE_TEMP_SENSOR
         Actuator* actuator;             // dt==DEVICETYPE_ACTUATOR
         SwitchSensor* sensor;           // dt==DEVICETYPE_SWITCH_SENSOR
     } pointer;
 };
 
-void valueAsText(const ConnectedDevice* device, char* buf, size_t len);
+char * valueAsText(const ConnectedDevice* device, char* buf, size_t len);
 void connectionAsText(const ConnectedDevice* device, char* buf, size_t len);
 char* itoa(int i, char b[]);
 
@@ -89,7 +94,7 @@ class ConnectedDevicesManager
     ConnectedDevice devices[MAX_CONNECTED_DEVICES];
     NotifyDevicesChanged changed;
 
-    Actuator* actuators[MAX_ACTUATOR_COUNT];
+    ActuatorDigital* actuators[MAX_ACTUATOR_COUNT];
 
     /**
      * Find a slot that matches the given device config.
@@ -184,7 +189,7 @@ public:
 
     void update();
 
-    Actuator* actuator(size_t index) {
+    ActuatorDigital* actuator(size_t index) {
         return actuators[index];
     }
 

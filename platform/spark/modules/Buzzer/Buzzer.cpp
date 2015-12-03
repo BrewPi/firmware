@@ -27,22 +27,19 @@
 
 #if BREWPI_BUZZER
 
-void Buzzer::init(bool _invert) {
-    invert = _invert;
-    setActive(false);
-    pinMode(alarmPin, OUTPUT);
+void Buzzer::init(bool invert){
+    if(pin != nullptr){
+        delete pin;
+    }
+    pin = new DigitalPinActuator(alarmPin, invert);
 }
 
-void Buzzer::setActive(bool active) {
-    if (active != this->isActive()) {
-        ValueActuator::setActive(active);
-        if (active) {
-            digitalWrite(alarmPin, !invert);
-        } else {
-            digitalWrite(alarmPin, invert);
-        }
+void Buzzer::setActive(bool active){
+    if(pin != nullptr){
+        pin->setActive(active);
     }
 }
+
 
 void Buzzer::beep(uint8_t numBeeps, uint16_t duration) {
     for (uint8_t beepCount = 0; beepCount < numBeeps; beepCount++) {

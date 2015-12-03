@@ -18,7 +18,7 @@
  */
 
 #include "Brewpi.h"
-#include "TemperatureFormats.h"
+#include "temperatureFormats.h"
 #include "Platform.h"
 #include "BrewpiStrings.h"
 #include "Logger.h"
@@ -44,11 +44,8 @@ void Logger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * varTyp
 			case 's': // string
 				piLink.print_P(LOG_STRING_FORMAT, va_arg(args, char*));
 				break;
-			case 't': // temperature in fixed_7_9 format
-				piLink.print_P(LOG_STRING_FORMAT, tempToString(buf, va_arg(args,int), 1, 12));
-			break;
-			case 'f': // fixed point value
-				piLink.print_P(LOG_STRING_FORMAT, fixedPointToString(buf, (temperature) va_arg(args,int), 3, 12));
+			case 't': // temperature in fixed point format
+				piLink.print_P(LOG_STRING_FORMAT, (*(temp_t *) va_arg(args,void*)).toString(buf, 3, 12));
 			break;			
 		}
 		if(varTypes[++index]){

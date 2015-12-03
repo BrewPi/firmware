@@ -29,7 +29,7 @@
 */
 
 /* bump this version number when changing this file and copy the new version to the brewpi-script repository. */
-#define BREWPI_LOG_MESSAGES_VERSION 1
+#define BREWPI_LOG_MESSAGES_VERSION 2
 
 #define MSG(errorID, errorString, ...) errorID
 
@@ -52,6 +52,10 @@ enum errorMessages{
 // PiLink.cpp
 	MSG(ERROR_EXPECTED_BRACKET, "Expected { got %c", character),
 	
+	MSG(ERROR_ONEWIRE_INIT_FAILED, "OneWire initialization failed"),
+	MSG(ERROR_DEVICE_ALREADY_INSTALLED, "This hardware device is already installed at slot %d. Uninstall it first.", slot),
+	MSG(ERROR_FUNCTION_ALREADY_INSTALLED, "This device function is already installed at slot %d. Uninstall it first.", slot)
+
 }; // END enum errorMessages
 
 enum warningMessages{
@@ -82,7 +86,7 @@ enum infoMessages{
 	MSG(INFO_INSTALL_SWITCH_SENSOR, "installing switch sensor with function %d", config.deviceFunction),
 	MSG(INFO_INSTALL_DEVICE, "Installing device f=%d", config.deviceFunction),
 	MSG(INFO_MATCHING_DEVICE, "Matching device at slot %d", out.slot),
-	MSG(INFO_SETTING_ACTIVATOR_STATE, "Setting activator state %d", state),
+	MSG(INFO_SETTING_ACTUATOR_VALUE, "Setting actuator value %d", val),
 			
 // PiLink.cpp
 	MSG(INFO_RECEIVED_SETTING, "Received new setting: %s = %s", key, val),

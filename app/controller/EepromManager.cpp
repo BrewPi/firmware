@@ -50,15 +50,14 @@ bool EepromManager::hasSettings()
 void EepromManager::zapEeprom()
 {
 	for (uint16_t offset=0; offset<EepromFormat::MAX_EEPROM_SIZE; offset++)
-		eepromAccess.writeByte(offset, 0xFF);		
+		eepromAccess.writeByte(offset, 0);
 }
 
 
 void EepromManager::initializeEeprom()
 {
     // clear all eeprom
-    for (uint16_t offset=0; offset<EepromFormat::MAX_EEPROM_SIZE; offset++)
-            eepromAccess.writeByte(offset, 0);	
+    zapEeprom();
 
     deviceManager.setupUnconfiguredDevices();
 
@@ -82,8 +81,6 @@ void EepromManager::initializeEeprom()
     eepromAccess.writeByte(0, EEPROM_FORMAT_VERSION);
 
     saveDefaultDevices();
-    // set state to startup
-    tempControl.init();
 }
 
 uint8_t EepromManager::saveDefaultDevices() 

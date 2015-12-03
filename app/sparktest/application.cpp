@@ -98,7 +98,12 @@ void printOneWireAdresses(void){
 
 void ballValvesSerialTest(){
     uint8_t addr[8];
-    ow.search(addr); //get first address from bus
+
+    if (!ow.search(addr)) { // Search for first device on bus
+            debugBox.println("Could not find OneWire device.");
+    }
+
+
     ValvesController valves;
     valves.init(&ow, addr);
     

@@ -96,8 +96,8 @@ public:
         if(change != ADDED){
             // skip printing value when sensor has just been connected
             // and value is still null
-            valueAsText(device, buf, sizeof(buf));
-            view.setValueText(buf);
+            char * text = valueAsText(device, buf, sizeof(buf));
+            view.setValueText(text);
         }
 
         connectionAsText(device, buf, sizeof(buf));

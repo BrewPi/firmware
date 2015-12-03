@@ -36,7 +36,14 @@
  * Enable DS2413 Actuators. 
  */
 #ifndef BREWPI_DS2413
-#define BREWPI_DS2413 0 // TODO
+#define BREWPI_DS2413 1
+#endif
+
+/**
+ * Enable DS2408 Actuators.
+ */
+#ifndef BREWPI_DS2408
+#define BREWPI_DS2408 1
 #endif
 
 #ifndef BREWPI_BUZZER

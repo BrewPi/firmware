@@ -23,17 +23,17 @@
 #include "Brewpi.h"
 #include "TempSensor.h"
 
-class MockTempSensor : public BasicTempSensor
+class TempSensorMock : public TempSensorBasic
 {
 public:	
-	MockTempSensor(temperature initial, temperature delta) : _temperature(initial), _delta(delta), _connected(true) { }
+	MockTempSensor(temperature initial, temperature delta) : _temperature(initial), _delta(delta), connected(true) { }
 	
-	void setConnected(bool connected)
+	void setConnected(bool connected_)
 	{
-		_connected = connected;
+		connected = connected_;
 	}
 	
-	bool isConnected() { return _connected; }
+	bool isConnected() { return connected; }
 
 	bool init() {
 		return read()!=TEMP_SENSOR_DISCONNECTED;
@@ -59,6 +59,6 @@ public:
 	private:
 	temperature _temperature;	
 	temperature _delta;	
-	bool _connected;
+	bool connected;
 };
 

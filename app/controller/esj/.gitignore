@@ -1,0 +1,57 @@
+# Compiled Object files
+*.axf
+*.slo
+*.lo
+*.o
+*.obj
+*.suo
+*.opensdf
+*.sdf
+*.vcxproj.filters
+*.vcxproj.user
+*.zip
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# build folders
+debug/
+release/
+vault/
+
+#xcode
+project.xcworkspace/
+xcuserdata/
+
+#
+*.uvopt
+*.uvgui.*
+*.*.bak
+*.crf
+*.d
+*.dep
+*.lst
+*.lnp
+*.map
+*.inp
+*.build_log.*

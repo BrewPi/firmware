@@ -26,13 +26,14 @@
 #include "PiLink.h"
 #include "Display.h"
 #include "UIController.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 #include "Board.h"
 
 #include "../eGUI_screens/devicetest/device_test_screen.h"
 #include "../eGUI_screens/controller/controller_screen.h"
 #include "../eGUI_screens/startup/startup_screen.h"
 #include "../eGUI_screens/screen_model.h"
+
 
 extern "C" {
 #include "d4d.h"
@@ -69,6 +70,7 @@ uint32_t UI::showStartupPage()
     }
 
     uiController.beginStartup();
+    ticks(); // render
     return 0;
 }
 
@@ -81,16 +83,11 @@ void UI::showControllerPage() {
     display.printState();
 }
 
-extern ValueActuator alarm;
 void UI::ticks()
 {
     D4D_TimeTickPut();
     D4D_CheckTouchScreen();
     D4D_Poll();
-
-    #if BREWPI_BUZZER
-	buzzer.setActive(alarm.isActive() && !buzzer.isActive());
-    #endif
 }
 
 UIController uiController;
@@ -105,12 +102,46 @@ void UI::update()
     display.updateBacklight();
 }
 
+#ifndef FREERTOS
+    #define FREERTOS 1
+#endif
+
+Timer* timer = nullptr;
+
+void cancelCalibration()
+{
+#if FREERTOS
+    D4D_InterruptCalibrationScreen();
+#endif
+}
+
+void createTimer()
+{
+#if FREERTOS
+    timer = new Timer(60*1000, cancelCalibration);
+    if (timer)
+        timer->start();
+#endif
+}
+
+void destroyTimer()
+{
+#if FREERTOS
+    delete timer;
+    timer = NULL;
+#endif
+}
+
 /**
  * Show touch screen calibration screen store settings afterwards
  */
 void calibrateTouchScreen() {
+
+    createTimer();
     D4D_CalibrateTouchScreen();
+    destroyTimer();
     eGuiSettings.storeTouchCalib();
+
 }
 
 bool UI::inStartup() {

@@ -19,7 +19,7 @@ MIT license, all text above must be included in any redistribution
 
 // Hack to get this to work in Spark IDE
 #include "../Adafruit_mfGFX/Adafruit_mfGFX.h"
-
+#include "Platform.h"
 typedef unsigned char prog_uchar;
 
 #define ILI9341_TFTWIDTH  240

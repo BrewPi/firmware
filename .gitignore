@@ -5,3 +5,38 @@ nbproject/private/
 revA/
 revC/
 test/obj/
+.settings/
+.idea/
+*.pyc
+test_results/*.csv
+test_results/*.pdf
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+*.d
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
