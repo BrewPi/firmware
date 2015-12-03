@@ -56,6 +56,9 @@ public:
 		const uint8_t shift = temp_t::fractional_bit_count - 4; // DS18B20 has 0.0625 (1/16) degree C steps
 		temp_t rounder;
 		rounder.setRaw(1 << (shift-1));
+		temp_t noise;
+		noise.setRaw(rand() % (1 << (shift-1))); // noise max 1/2 bit
+		rounder += noise;
 		temp_t quantified = ((value + rounder) >> shift) << shift;
 		return quantified;
 	}
@@ -73,5 +76,6 @@ public:
 	private:
 	temp_t value;
 	bool connected;
+	bool noise;
 };
 
