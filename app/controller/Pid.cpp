@@ -95,12 +95,7 @@ void Pid::update()
         derivativeFilter.add(delta);
 
         if(validSetPoint){
-            temp_t inputErrorPrevious = inputError;
             inputError = inputFilter.readOutput() - setPoint->read();
-            if( (inputError - inputErrorPrevious) > temp_t (1) ||
-                    (inputErrorPrevious - inputError)  > temp_t (1)){ // more then 2 bits (0.0625 of the input sensor)
-                integral = 0; // reset integral when the error changes significantly, most likely due to setpoint changes, because the temperature is filtered.
-            }
         }
     }
 
