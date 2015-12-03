@@ -427,13 +427,13 @@ BOOST_AUTO_TEST_CASE(right_shift)
 
 BOOST_AUTO_TEST_CASE(sign_function)
 {
-    BOOST_CHECK_EQUAL(temp_t(0.0).sign(), 1);
+    BOOST_CHECK_EQUAL(temp_t(0.0).sign(), 0);
     BOOST_CHECK_EQUAL(temp_t(2.0).sign(), 1);
     BOOST_CHECK_EQUAL(temp_t(-2.0).sign(), -1);
-    BOOST_CHECK_EQUAL(temp_precise_t(0.0).sign(), 1);
+    BOOST_CHECK_EQUAL(temp_precise_t(0.0).sign(), 0);
     BOOST_CHECK_EQUAL(temp_precise_t(2.0).sign(), 1);
     BOOST_CHECK_EQUAL(temp_precise_t(-2.0).sign(), -1);
-    BOOST_CHECK_EQUAL(temp_long_t(0.0).sign(), 1);
+    BOOST_CHECK_EQUAL(temp_long_t(0.0).sign(), 0);
     BOOST_CHECK_EQUAL(temp_long_t(2.0).sign(), 1);
     BOOST_CHECK_EQUAL(temp_long_t(-2.0).sign(), -1);
 }

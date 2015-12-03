@@ -207,6 +207,9 @@ public:
     temp_t operator/(const uint16_t rhs);
 
     int8_t sign(){
+        if(value_ == 0){
+            return 0;
+        }
         return (value_ >= 0) ? 1 : -1;
     }
 
@@ -298,6 +301,9 @@ public:
     temp_precise_t operator/(const uint16_t rhs);
 
     int8_t sign(){
+        if(value_ == 0){
+            return 0;
+        }
         return (value_ >= 0) ? 1 : -1;
     }
     friend class temp_t;
@@ -387,7 +393,10 @@ public:
     temp_long_t operator/(const uint16_t rhs);
 
     int8_t sign(){
-        return (value_ >= 0) ? 1 : -1;
+        if(value_ == 0){
+            return 0;
+        }
+        return (value_ > 0) ? 1 : -1;
     }
 
     friend class temp_t;

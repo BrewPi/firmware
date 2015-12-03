@@ -114,8 +114,8 @@ public:
 
 struct MashSimulation{
     MashSimulation(){
-        mashTemp = 20.0;
-        hltTemp = 20.0;
+        mashTemp = 60.0;
+        hltTemp = 60.0;
         envTemp = 20.0;
         coilInTemp = 20;
         coilOutTemp = 20;

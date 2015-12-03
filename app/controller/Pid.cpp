@@ -130,26 +130,28 @@ void Pid::update()
     // When actuator is a 'cooler', invert the output again
     output = (actuatorIsNegative) ? -output : output;
 
-    // update integral with anti-windup back calculation
-    // pidResult - output is zero when actuator is not saturated
-    // Anti windup gain is 5
-    temp_long_t antiWindup = pidResult - temp_long_t(output);
-    antiWindup *= 5;
-
-    integral = integral + p;
-
     if(Ti == 0){ // 0 has been chosen to indicate that the integrator is disabled. This also prevents divide by zero.
         integral = 0;
     }
-
-    temp_long_t newIntegral = integral-antiWindup;
-
-    if(integral.sign() != newIntegral.sign()){
-        // anti-windup would make integral cross zero
-        integral = 0;
-    }
     else{
-        integral = newIntegral;
+
+        // update integral with anti-windup back calculation
+        // pidResult - output is zero when actuator is not saturated
+        // Anti windup gain is 5
+        temp_long_t antiWindup = 0;
+        if(integral.sign() * p.sign() == 1){ // only apply anti-windup if integral is growing due to error
+            antiWindup = pidResult - temp_long_t(output);
+            antiWindup *= 5;
+        }
+        temp_long_t integralUpdate = p - antiWindup;
+
+        if(integral.sign() * (integral+integralUpdate).sign() != -1){
+            integral += integralUpdate;
+        }
+        else{
+            // update would make integral cross zero
+            integral = 0;
+        }
     }
 
 /*
