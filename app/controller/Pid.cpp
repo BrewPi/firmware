@@ -135,22 +135,45 @@ void Pid::update()
     }
     else{
 
+        // if derivative part is canceling more than half the proportional part, disable integration
+        // otherwise add input error to integral
+        // this prevents integrator windup when the input is changing quickly
+        // the integrator is for correcting steady state errors, so if we are not in steady state, don't increase the integral
+        if( ((p + (d + d)) > temp_long_t(0) && (p > temp_long_t(0))) ||
+               ((p + (d + d)) < temp_long_t(0) && (p < temp_long_t(0))) ){
+            integral = integral + p;
+        }
+
         // update integral with anti-windup back calculation
         // pidResult - output is zero when actuator is not saturated
-        // Anti windup gain is 5
+        // when the actuator is close the to pidResult (setpoint), disable anti-windup
+        // this prevens small fluctuations from keeping the integrator at zero
+        // also only apply anti-windup when it will
         temp_long_t antiWindup = 0;
-        if(integral.sign() * p.sign() == 1){ // only apply anti-windup if integral is growing due to error
-            antiWindup = pidResult - temp_long_t(output);
-            antiWindup *= 5;
-        }
-        temp_long_t integralUpdate = p - antiWindup;
+        temp_long_t closeThreshold = Kp;
 
-        if(integral.sign() * (integral+integralUpdate).sign() != -1){
-            integral += integralUpdate;
+        temp_t noAntiWindupMin = output - closeThreshold;
+        temp_t noAntiWindupMax = output + closeThreshold;
+
+        if(noAntiWindupMin < outputActuator->min()){
+            noAntiWindupMin = outputActuator->min();
         }
-        else{
-            // update would make integral cross zero
-            integral = 0;
+        if(noAntiWindupMax > outputActuator->max()){
+            noAntiWindupMax = outputActuator->max();
+        }
+
+        if(temp_t(pidResult) <  noAntiWindupMin || temp_t(pidResult) > noAntiWindupMax){
+            antiWindup = pidResult - output;
+            antiWindup *= 5; // Anti windup gain is 5
+        }
+        // only apply anti-winup if it will decrease the integral and prevent crossing through zero
+        if(integral.sign() * antiWindup.sign() == 1){
+            if((integral - antiWindup).sign() != integral.sign()){
+                integral = 0;
+            }
+            else{
+                integral -= antiWindup;
+            }
         }
     }
 

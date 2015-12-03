@@ -200,7 +200,7 @@ struct SimMashDirect : public MashStaticSetup {
         hltHeaterPid->setSetPoint(mashSet);
         hltHeaterPid->setInputFilter(2);
         hltHeaterPid->setDerivativeFilter(2);
-        hltHeaterPid->setConstants(50.0, 300, 30);
+        hltHeaterPid->setConstants(50.0, 300, 120);
     }
 
     void update(){
