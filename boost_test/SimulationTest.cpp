@@ -145,8 +145,8 @@ struct Simulation{
         heaterPower = 0.1; // 100W, in kW.
         coolerPower = 0.1; // 100W, in kW. Assuming 200W at 50% efficiency
 
-        airBeerTransfer= 0.01;
-        wallAirTransfer= 0.02;
+        airBeerTransfer= 1.0/600; // about 10 minutes to equalize
+        wallAirTransfer= 1.0/300; // about 5 minutes to equalize
         envWallTransfer = 0.001; // losses to environment
 
         heaterToBeer = 0.0; // ratio of heater transfered directly to beer instead of fridge air
@@ -685,5 +685,61 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Control, SimCascadedHeaterCooler)
     csv.close();
 }
 
+
+// Test heating and cooling fridge air based on just a glass of water as beer (cascaded control)
+BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Cool_Small_Volume, SimCascadedHeaterCooler)
+{
+    ofstream csv("./test_results/" + boost_test_name() + ".csv");
+    csv << "1#beer setpoint, 1#beer sensor, 2#beer error, "
+           "3#b2f P, 3#b2f I, 3#b2f D, 3#b2f PID, 3#b2f actual,"
+           "1#fridge setpoint, 1#fridge air sensor, 1#fridge wall temp, "
+           "6#cooler pwm, 4#cooler P, 4#cooler I, 4#cooler D, "
+           "6#heater pwm, 5#heater P, 5#heater I, 5#heater D, "
+           "7a#cooler pin, 7a#heater pin" << endl;
+
+    sim.beerCapacity = 4.2 * 1.0 * 0.2; // heat capacity water * density of water * 0.2L volume (in kJ per kelvin).
+    sim.airBeerTransfer = 0.001;
+
+    beerToFridgePid->setConstants(1.0, 180, 60);
+
+    for(int t = 0; t < 10000; t++){
+        if(t==2000){
+            beerSet->write(5.0);
+        }
+
+        update();
+
+        BOOST_CHECK( !(heaterPin->isActive() && coolerPin->isActive()) ); // pins are not active at the same time
+
+        csv     << beerSet->read() << "," // setpoint
+                << beerSensor->read() << "," // beer temp
+                << beerToFridgePid->inputError << "," // beer error
+
+                << beerToFridgePid->p << "," // proportional action
+                << beerToFridgePid->i << "," // integral action
+                << beerToFridgePid->d << "," // derivative action
+                << beerToFridgePid->p + beerToFridgePid->i + beerToFridgePid->d << "," // PID output
+                << fridgeSetPointActuator->getValue() << "," // beer-fridge actual difference
+
+                << fridgeSet->read() << "," // fridge setpoint
+                << fridgeSensor->read() << "," // air temp
+                << sim.wallTemp << "," // fridge wall temperature
+
+                << cooler->getValue() << "," // actuator output
+                << coolerPid->p << "," // proportional action
+                << coolerPid->i << "," // integral action
+                << coolerPid->d << "," // derivative action
+
+                << heater->getValue() << "," // actuator output
+                << heaterPid->p << "," // proportional action
+                << heaterPid->i << "," // integral action
+                << heaterPid->d << "," // derivative action
+
+                << coolerPin->isActive() << "," // actual cooler pin state
+                << heaterPin->isActive() // actual cooler pin state
+                << endl;
+    }
+    csv.close();
+}
 
 BOOST_AUTO_TEST_SUITE_END()
