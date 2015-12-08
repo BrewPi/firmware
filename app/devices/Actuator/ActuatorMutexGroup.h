@@ -33,7 +33,7 @@ public:
     ActuatorMutexGroup(){
         deadTime = 0;
         lastActiveTime = 0;
-        lastActiveActuator = nullptr;
+        lastActive = {nullptr, -1};
     }
     ~ActuatorMutexGroup(){
 
@@ -65,6 +65,10 @@ public:
 private:
     ticks_millis_t deadTime; // minimum time between switching from one actuator to the other
     ticks_millis_t lastActiveTime;
-    ActuatorDigital * lastActiveActuator;
+
+    // copy of the last active actuator and its priority. Copy because actuator can be removed from list
+    ActuatorPriority lastActive;
+
+    // a list of all actuators and their priority
     std::vector<ActuatorPriority> actuatorPriorities;
 };
