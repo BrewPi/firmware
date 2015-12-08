@@ -49,7 +49,7 @@ public:
 
         heaterPin = new ActuatorBool();
         heaterMutex = new ActuatorMutexDriver(heaterPin);
-        heater = new ActuatorPwm(heaterMutex, 4); // period 4s
+        heater = new ActuatorPwm(heaterMutex, 20); // period 20s, because update steps are 1 second
 
         coolerPin = new ActuatorBool();
         coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
@@ -136,17 +136,20 @@ struct Simulation{
         airTemp = 20.0;
         wallTemp = 20.0;
         envTemp = 24.0;
+        heaterTemp = 24.0;
 
         beerCapacity = 4.2 * 1.0 * 20; // heat capacity water * density of water * 20L volume (in kJ per kelvin).
-        airCapacity = 1.005 * 1.225 * 0.200; // 2 * heat capacity of dry air * density of air * 200L volume (in kJ per kelvin).
+        airCapacity = 1.005 * 1.225 * 0.200; // heat capacity of dry air * density of air * 200L volume (in kJ per kelvin).
         // Moist air has only slightly higher heat capacity, 1.02 when saturated at 20C.
         wallCapacity = 5.0; // just a guess
+        heaterCapacity = 1.0; // also a guess, to simulate that heater first heats itself, then starts heating the air
 
         heaterPower = 0.1; // 100W, in kW.
         coolerPower = 0.1; // 100W, in kW. Assuming 200W at 50% efficiency
 
-        airBeerTransfer= 1.0/600; // about 10 minutes to equalize
-        wallAirTransfer= 1.0/300; // about 5 minutes to equalize
+        airBeerTransfer= 1.0/300; // about 5 minutes time constant
+        wallAirTransfer= 1.0/300; // about 5 minutes time constant
+        heaterAirTransfer= 1.0/300; // about 5 minutes time constant
         envWallTransfer = 0.001; // losses to environment
 
         heaterToBeer = 0.0; // ratio of heater transfered directly to beer instead of fridge air
@@ -159,20 +162,25 @@ struct Simulation{
         double beerTempNew = beerTemp;
         double airTempNew = airTemp;
         double wallTempNew = wallTemp;
+        double heaterTempNew = heaterTemp;
 
         beerTempNew += (airTemp - beerTemp) * airBeerTransfer / beerCapacity;
 
         if(heaterActive){
-            airTempNew += heaterPower * heaterToAir / airCapacity;
-            beerTempNew += heaterPower * heaterToBeer / beerCapacity;
+            heaterTempNew += heaterPower / heaterCapacity;
         }
         if(coolerActive){
             wallTempNew -= coolerPower / wallCapacity;
         }
 
+        airTempNew += (heaterTemp - airTemp) * heaterAirTransfer / airCapacity;
         airTempNew += (wallTemp - airTemp) * wallAirTransfer / airCapacity;
         airTempNew += (beerTemp - airTemp) * airBeerTransfer / airCapacity;
 
+
+        beerTempNew += (airTemp - beerTemp) * airBeerTransfer / beerCapacity;
+
+        heaterTempNew += (airTemp - heaterTemp) * heaterAirTransfer / heaterCapacity;
 
         wallTempNew += (envTemp - wallTemp) * envWallTransfer / wallCapacity;
         wallTempNew += (airTemp - wallTemp) * wallAirTransfer/ wallCapacity;
@@ -180,16 +188,19 @@ struct Simulation{
         airTemp = airTempNew;
         beerTemp = beerTempNew;
         wallTemp = wallTempNew;
+        heaterTemp = heaterTempNew;
     }
 
     double beerTemp;
     double airTemp;
     double wallTemp;
     double envTemp;
+    double heaterTemp;
 
     double beerCapacity;
     double airCapacity;
     double wallCapacity;
+    double heaterCapacity;
 
     double heaterPower;
     double coolerPower;
@@ -197,6 +208,7 @@ struct Simulation{
     double airBeerTransfer;
     double wallAirTransfer;
     double envWallTransfer;
+    double heaterAirTransfer;
 
     double heaterToBeer;
     double heaterToAir;
@@ -214,14 +226,16 @@ struct SimBeerHeater : public StaticSetup {
         heaterPid->setSetPoint(beerSet);
         heaterPid->setInputFilter(2);
         heaterPid->setDerivativeFilter(4);
-        heaterPid->setConstants(100.0, 7200, 1200);
+        heaterPid->setConstants(200.0, 3600, 200);
     }
 
     void update(){
         beerSensor->setTemp(sim.beerTemp);
         fridgeSensor->setTemp(sim.airTemp);
         heaterPid->update();
+        heater->update();
         sim.update(heaterPin->isActive(), coolerPin->isActive());
+        delay(1000); // simulate actual time passing for pin state and mutex group
     }
 };
 
@@ -240,8 +254,10 @@ struct SimFridgeHeater : public StaticSetup {
         beerSensor->setTemp(sim.beerTemp);
         fridgeSensor->setTemp(sim.airTemp);
         heaterPid->update();
+        heater->update();
 
         sim.update(heaterPin->isActive(), coolerPin->isActive());
+        delay(1000); // simulate actual time passing for pin state and mutex group
     }
 };
 
@@ -252,9 +268,9 @@ struct SimBeerCooler : public StaticSetup {
     SimBeerCooler(){
         coolerPid->setInputSensor(beerSensor);
         coolerPid->setSetPoint(beerSet);
-        coolerPid->setInputFilter(4);
-        coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(50.0, 3600, 50);
+        coolerPid->setInputFilter(2);
+        coolerPid->setDerivativeFilter(6);
+        coolerPid->setConstants(200.0, 3600, 120);
     }
 
     void update(){
@@ -333,13 +349,13 @@ struct SimBeerHeaterCooler : public StaticSetup {
         coolerPid->setSetPoint(beerSet);
         coolerPid->setInputFilter(4);
         coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(50.0, 3600, 50);
+        coolerPid->setConstants(200.0, 3600, 120);
 
         heaterPid->setInputSensor(beerSensor);
         heaterPid->setSetPoint(beerSet);
         heaterPid->setInputFilter(4);
         heaterPid->setDerivativeFilter(4);
-        heaterPid->setConstants(50.0, 3600, 50);
+        heaterPid->setConstants(200.0, 3600, 120);
 
         coolerMutex->setMutex(mutex);
         heaterMutex->setMutex(mutex);
