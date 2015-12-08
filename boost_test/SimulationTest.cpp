@@ -149,21 +149,31 @@ struct Simulation{
         wallAirTransfer= 0.02;
         envWallTransfer = 0.001; // losses to environment
 
+        heaterToBeer = 0.0; // ratio of heater transfered directly to beer instead of fridge air
+        heaterToAir = 1.0 - heaterToBeer;
+
     }
     virtual ~Simulation(){}
 
-    void update(temp_t heaterValue, temp_t coolerValue){
+    void update(bool heaterActive, bool coolerActive){
         double beerTempNew = beerTemp;
         double airTempNew = airTemp;
         double wallTempNew = wallTemp;
 
         beerTempNew += (airTemp - beerTemp) * airBeerTransfer / beerCapacity;
 
-        airTempNew += heaterPower * double(heaterValue) / (100.0 * airCapacity);
+        if(heaterActive){
+            airTempNew += heaterPower * heaterToAir / airCapacity;
+            beerTempNew += heaterPower * heaterToBeer / beerCapacity;
+        }
+        if(coolerActive){
+            wallTempNew -= coolerPower / wallCapacity;
+        }
+
         airTempNew += (wallTemp - airTemp) * wallAirTransfer / airCapacity;
         airTempNew += (beerTemp - airTemp) * airBeerTransfer / airCapacity;
 
-        wallTempNew -= coolerPower * double(coolerValue) / (100.0 * wallCapacity);
+
         wallTempNew += (envTemp - wallTemp) * envWallTransfer / wallCapacity;
         wallTempNew += (airTemp - wallTemp) * wallAirTransfer/ wallCapacity;
 
@@ -187,6 +197,9 @@ struct Simulation{
     double airBeerTransfer;
     double wallAirTransfer;
     double envWallTransfer;
+
+    double heaterToBeer;
+    double heaterToAir;
 };
 
 /* Below are a few static setups that show how control can be set up.
@@ -205,10 +218,10 @@ struct SimBeerHeater : public StaticSetup {
     }
 
     void update(){
-        sim.update(heater->getValue(), cooler->getValue());
         beerSensor->setTemp(sim.beerTemp);
         fridgeSensor->setTemp(sim.airTemp);
         heaterPid->update();
+        sim.update(heaterPin->isActive(), coolerPin->isActive());
     }
 };
 
@@ -224,10 +237,11 @@ struct SimFridgeHeater : public StaticSetup {
     }
 
     void update(){
-        sim.update(heater->getValue(), cooler->getValue());
         beerSensor->setTemp(sim.beerTemp);
         fridgeSensor->setTemp(sim.airTemp);
         heaterPid->update();
+
+        sim.update(heaterPin->isActive(), coolerPin->isActive());
     }
 };
 
@@ -248,12 +262,8 @@ struct SimBeerCooler : public StaticSetup {
         fridgeSensor->setTemp(sim.airTemp);
         coolerPid->update();
         cooler->update();
-        // because cooler is time limited, get actual output from pin
-        if(coolerPin->isActive()){
-            sim.update(heater->getValue(), 100.0);
-        } else{
-            sim.update(heater->getValue(), 0.0);
-        }
+
+        sim.update(heaterPin->isActive(), coolerPin->isActive());
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
@@ -275,12 +285,7 @@ struct SimFridgeCooler : public StaticSetup {
         coolerPid->update();
         cooler->update();
 
-        // because cooler is time limited, get actual output from pin
-        if(coolerPin->isActive()){
-            sim.update(heater->getValue(), 100.0);
-        } else{
-            sim.update(heater->getValue(), 0.0);
-        }
+        sim.update(heaterPin->isActive(), coolerPin->isActive());
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
@@ -315,12 +320,7 @@ struct SimFridgeHeaterCooler : public StaticSetup {
         heater->update();
         mutex->update();
 
-        // because cooler is time limited, get actual output from pin
-        if(coolerPin->isActive()){
-            sim.update(heater->getValue(), 100.0);
-        } else{
-            sim.update(heater->getValue(), 0.0);
-        }
+        sim.update(heaterPin->isActive(), coolerPin->isActive());
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
@@ -355,12 +355,7 @@ struct SimBeerHeaterCooler : public StaticSetup {
         heater->update();
         mutex->update();
 
-        // because cooler is time limited, get actual output from pin
-        if(coolerPin->isActive()){
-            sim.update(heater->getValue(), 100.0);
-        } else{
-            sim.update(heater->getValue(), 0.0);
-        }
+        sim.update(heaterPin->isActive(), coolerPin->isActive());
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
@@ -406,12 +401,7 @@ struct SimCascadedHeaterCooler : public StaticSetup {
         fridgeSetPointActuator->update();
         mutex->update();
 
-        // because cooler is time limited, get actual output from pin
-        if(coolerPin->isActive()){
-            sim.update(heater->getValue(), 100.0);
-        } else{
-            sim.update(heater->getValue(), 0.0);
-        }
+        sim.update(heaterPin->isActive(), coolerPin->isActive());
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
