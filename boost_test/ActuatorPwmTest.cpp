@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE(when_switching_between_zero_and_low_value_average_is_correc
     ticks_seconds_t timeLow = 0;
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "value, pin" << endl;
+    csv << "1#value, 2a#pin" << endl;
 
     for(int cycles = 0; cycles < 100; cycles++){
         if(cycles %2 == 0){

@@ -147,7 +147,7 @@ struct Simulation{
 
         airBeerTransfer= 0.01;
         wallAirTransfer= 0.02;
-        envWallTransfer = 0.002; // losses to environment
+        envWallTransfer = 0.001; // losses to environment
 
     }
     virtual ~Simulation(){}
@@ -425,7 +425,7 @@ BOOST_AUTO_TEST_SUITE( simulation_test)
 BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Beer, SimBeerHeater)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, heater pwm, p, i, d" << endl;
+    csv << "1#beer setPoint, 2#error, 1#beer sensor, 1#fridge air sensor, 1#fridge wall temp, 3#heater pwm, 4#p, 4#i, 4#d" << endl;
     double SetPointDouble = 19;
     for(int t = 0; t < 20000; t++){
         if(t==1000){
@@ -455,7 +455,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Beer, SimBeerHeater)
 BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Fridge_Air, SimFridgeHeater)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, heater pwm, p, i, d" << endl;
+    csv << "1#fridge setPoint, 2#error, 1#beer sensor, 1#fridge air sensor, 1#fridge wall temp, 3#heater pwm, 4#p, 4#i, 4#d" << endl;
     double SetPointDouble = 19;
     for(int t = 0; t < 20000; t++){
         if(t==1000){
@@ -485,7 +485,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Fridge_Air, SimFridgeHeater)
 BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Beer, SimBeerCooler)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, cooler pwm, p, i, d, cooler pin" << endl;
+    csv << "1#setPoint, 2#error, 1#beer sensor, 1#fridge air sensor, 1#fridge wall temp, 3#cooler pwm, 4#p, 4#i, 4#d, 5a#cooler pin" << endl;
     double SetPointDouble = 21;
     for(int t = 0; t < 30000; t++){
         if(t==1000){
@@ -516,7 +516,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Beer, SimBeerCooler)
 BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air, SimFridgeCooler)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, cooler pwm, p, i, d, cooler pin" << endl;
+    csv << "1#setPoint, 2#error, 1#beer sensor, 1#fridge air sensor, 1#fridge wall temp, 3#cooler pwm, 4#p, 4#i, 4#d, 5a#cooler pin" << endl;
     double SetPointDouble = 21;
     for(int t = 0; t < 20000; t++){
         if(t==1000){
@@ -547,10 +547,10 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air, SimFridgeCooler)
 BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Fridge_Air, SimFridgeHeaterCooler)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, "
-            "cooler pwm, cooler P, cooler I, cooler D, "
-            "heater pwm, heater P, heater I, heater D, "
-            "heater pin, cooler pin" << endl;
+    csv << "1#beer setPoint, 2#error, 1#beer sensor, 1#fridge air sensor, 1#fridge wall temp, "
+                "4#cooler pwm, 3#cooler P, 3#cooler I, 3#cooler D, "
+                "4#heater pwm, 3#heater P, 3#heater I, 3#heater D, "
+                "5a#cooler pin, 5a#heater pin" << endl;
     double SetPointDouble = 20;
     for(int t = 0; t < 40000; t++){
         if(t==1000){
@@ -583,8 +583,8 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Fridge_Air, Sim
                 << heaterPid->p << "," // proportional action
                 << heaterPid->i << "," // integral action
                 << heaterPid->d << "," // derivative action
-                << heaterPin->isActive() << "," // actual cooler pin state
-                << coolerPin->isActive() // actual cooler pin state
+                << coolerPin->isActive() << "," // actual cooler pin state
+                << heaterPin->isActive() // actual cooler pin state
                 << endl;
     }
     csv.close();
@@ -594,10 +594,10 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Fridge_Air, Sim
 BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Beer, SimBeerHeaterCooler)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setPoint, error, beer sensor, fridge air sensor, fridge wall temp, "
-            "cooler pwm, cooler P, cooler I, cooler D, "
-            "heater pwm, heater P, heater I, heater D, "
-            "heater pin, cooler pin" << endl;
+    csv << "1#beer setPoint, 2#error, 1#beer sensor, 1#fridge air sensor, 1#fridge wall temp, "
+            "4#cooler pwm, 3#cooler P, 3#cooler I, 3#cooler D, "
+            "4#heater pwm, 3#heater P, 3#heater I, 3#heater D, "
+            "5a#cooler pin, 5a#heater pin" << endl;
     double SetPointDouble = 20;
     for(int t = 0; t < 40000; t++){
         if(t==1000){
@@ -629,8 +629,8 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Beer, SimBeerHe
                 << heaterPid->p << "," // proportional action
                 << heaterPid->i << "," // integral action
                 << heaterPid->d << "," // derivative action
-                << heaterPin->isActive() << "," // actual cooler pin state
-                << coolerPin->isActive() // actual cooler pin state
+                << coolerPin->isActive() << "," // actual cooler pin state
+                << heaterPin->isActive() // actual cooler pin state
                 << endl;
     }
     csv.close();
@@ -640,14 +640,14 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Beer, SimBeerHe
 BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Control, SimCascadedHeaterCooler)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "beer setpoint, beer sensor, beer error, "
-            "b2f P, b2f I, b2f D, b2f PID, b2f actual,"
-            "fridge setpoint, fridge air sensor, fridge wall temp, "
-            "cooler pwm, cooler P, cooler I, cooler D, "
-            "heater pwm, heater P, heater I, heater D, "
-            "heater pin, cooler pin" << endl;
+    csv << "1#beer setpoint, 1#beer sensor, 2#beer error, "
+           "3#b2f P, 3#b2f I, 3#b2f D, 3#b2f PID, 3#b2f actual,"
+           "4#fridge setpoint, 4#fridge air sensor, 4#fridge wall temp, "
+           "7#cooler pwm, 5#cooler P, 5#cooler I, 5#cooler D, "
+           "7#heater pwm, 6#heater P, 6#heater I, 6#heater D, "
+           "8a#cooler pin, 8a#heater pin" << endl;
     double SetPointDouble = 20;
-    for(int t = 0; t < 40000; t++){
+    for(int t = 0; t < 50000; t++){
         if(t==1000){
             SetPointDouble = 19;
         }
@@ -688,8 +688,8 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Control, SimCascadedHeaterCooler)
                 << heaterPid->i << "," // integral action
                 << heaterPid->d << "," // derivative action
 
-                << heaterPin->isActive() << "," // actual cooler pin state
-                << coolerPin->isActive() // actual cooler pin state
+                << coolerPin->isActive() << "," // actual cooler pin state
+                << heaterPin->isActive() // actual cooler pin state
                 << endl;
     }
     csv.close();

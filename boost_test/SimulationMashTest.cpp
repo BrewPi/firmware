@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_SUITE( mash_simulation_test)
 BOOST_FIXTURE_TEST_CASE(Simulate_HLT_Heater_Acts_On_MashTemp, SimMashDirect)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "setPoint, error, mash out sensor, hlt sensor, mash in temp, heater pwm, p, i, d" << endl;
+    csv << "1# mash setPoint, 2#error, 1#mash out sensor, 1#hlt sensor, 1#mash in temp, 3#heater pwm, 4#p, 4#i, 4#d" << endl;
     double SetPointDouble = 68;
     for(int t = 0; t < 7200; t++){
         /*if(t==600){
@@ -282,10 +282,10 @@ BOOST_FIXTURE_TEST_CASE(Simulate_HLT_Heater_Acts_On_MashTemp, SimMashDirect)
 BOOST_FIXTURE_TEST_CASE(Simulate_Mash_Cascaded_Control, SimMashCascaded)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "mash setpoint, mash out sensor, mash error, "
-            "hlt setpoint, hlt temp, hlt error,"
-            "mash2hlt P, mash2hlt I, mash2hlt D, mash2hlt PID, mash2hlt realized output,"
-            "heater pwm, heater P, heater I, heater D"
+    csv << "1#mash setpoint, 1#mash out sensor, 2#mash error, "
+            "1#hlt setpoint, 1#hlt temp, 2#hlt error,"
+            "3#mash2hlt P, 3#mash2hlt I, 3#mash2hlt D, 3#mash2hlt PID, 3#mash2hlt realized output,"
+            "4#heater pwm, 4#heater P, 4#heater I, 4#heater D"
             << endl;
     double SetPointDouble = 68;
     for(int t = 0; t < 10800; t++){
@@ -323,10 +323,10 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Mash_Cascaded_Control, SimMashCascaded)
 BOOST_FIXTURE_TEST_CASE(Simulate_Switch_from_HTL_to_Cascaded_Control, SimMashCascaded)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "mash setpoint, mash out sensor, mash error, "
-            "hlt setpoint, hlt temp, hlt error,"
-            "mash2hlt P, mash2hlt I, mash2hlt D, mash2hlt PID, mash2hlt realized output,"
-            "heater pwm, heater P, heater I, heater D"
+    csv << "1#mash setpoint, 1#mash out sensor, 2#mash error, "
+                "1#hlt setpoint, 1#hlt temp, 2#hlt error,"
+                "3#mash2hlt P, 3#mash2hlt I, 3#mash2hlt D, 3#mash2hlt PID, 3#mash2hlt realized output,"
+                "4#heater pwm, 4#heater P, 4#heater I, 4#heater D"
             << endl;
 
     // set PIDs for HLT constant mode (disable automatic HLT set point)
