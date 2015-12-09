@@ -45,9 +45,6 @@ void ActuatorMutexGroup::unRegisterActuator(ActuatorDigital * act){
     size_t index = find(act);
     if(index != size_t(-1)){
         unRegisterActuator(index);
-        if(lastActive.actuator == act){
-            lastActive = {nullptr, -1};
-        }
     }
 }
 
@@ -73,7 +70,7 @@ bool ActuatorMutexGroup::requestActive(ActuatorDigital * requester, int8_t newPr
         if(other->actuator->isActive()){
             requestHonored = false;
             lastActiveTime = ticks.millis();
-            lastActive = *other;
+            lastActiveActuator = other->actuator;
         }
         if(me && !requestHonored){
             break;
@@ -82,7 +79,7 @@ bool ActuatorMutexGroup::requestActive(ActuatorDigital * requester, int8_t newPr
     if(!me){ // I was not in the list
         me = registerActuator(requester, newPriority);
     }
-    if(getWaitTime() > 0 && lastActive.actuator != requester){
+    if(getWaitTime() > 0 && lastActiveActuator != requester){
         requestHonored = false; // dead time has not passed
     }
 
@@ -110,19 +107,12 @@ ticks_millis_t ActuatorMutexGroup::getWaitTime(){
 // update decreases all priorities by 1, so that old requests lose their priority automatically
 void ActuatorMutexGroup::update(){
     for (size_t i=0; i<actuatorPriorities.size(); ++i){
+        if(actuatorPriorities[i].priority > -1){
+            actuatorPriorities[i].priority--;
+        }
         if(actuatorPriorities[i].actuator->isActive()){
             lastActiveTime = ticks.millis();
-            lastActive = actuatorPriorities[i];
-        }
-        if(lastActive.priority < actuatorPriorities[i].priority){
-            if(lastActive.actuator != nullptr && lastActive.actuator != actuatorPriorities[i].actuator){
-                // new candidate has higher priority than currently active actuator
-                // (try to) disable currently active actuator
-                lastActive.actuator->setActive(false);
-            }
-        }
-        if(actuatorPriorities[i].priority > -127){
-            actuatorPriorities[i].priority--;
+            lastActiveActuator = actuatorPriorities[i].actuator;
         }
     }
 }
