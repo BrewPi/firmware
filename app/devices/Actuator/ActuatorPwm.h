@@ -35,6 +35,8 @@ class ActuatorPwm : public ActuatorDriver, public ActuatorRange
         int32_t        periodLate;
         int32_t        dutyTime;
         ticks_millis_t periodStartTime;
+        ticks_millis_t lowTime;
+        ticks_millis_t highTime;
         int32_t        period_ms;
         temp_t         minVal;
         temp_t         maxVal;
@@ -52,9 +54,7 @@ class ActuatorPwm : public ActuatorDriver, public ActuatorRange
             return maxVal;
         }
 
-        temp_t getValue() const {
-            return value;
-        }
+        temp_t getValue() const;
 
         void setValue(temp_t const& val);
 

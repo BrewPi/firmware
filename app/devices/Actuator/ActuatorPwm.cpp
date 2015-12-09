@@ -6,6 +6,7 @@
 ActuatorPwm::ActuatorPwm(ActuatorDigital* _target, uint16_t _period) :
     ActuatorDriver(_target) {
     periodStartTime = ticks.millis();
+    lowTime = 0;
     periodLate = 0;
     dutyLate = 0;
     value = 0.0;
@@ -56,6 +57,34 @@ void ActuatorPwm::setValue(temp_t const& val) {
     }
 }
 
+// returns the actual achieved PWM value, not the set value
+temp_t ActuatorPwm::getValue() const {
+    ticks_millis_t windowDuration = period_ms;// + periodLate;
+    ticks_millis_t currentTime = ticks.millis();
+    ticks_millis_t windowStartTime = currentTime - windowDuration;
+    ticks_millis_t totalHigh = 0;
+    if(lowTime > highTime){
+        // pulse is finished
+        totalHigh = lowTime - highTime;
+        if(highTime < windowStartTime){
+            windowDuration = currentTime - highTime; // pulse is far in the past
+        }
+    }
+    else{
+        if(highTime > windowStartTime){ // low to high transition is in window
+            totalHigh += ticks.millis() - highTime;
+            if(lowTime > windowStartTime){ // high to low transition is in window
+                totalHigh += lowTime - windowStartTime;
+            }
+            else{
+                return value; // return set value when high after long low period
+            }
+        }
+    }
+    temp_t pastValue = totalHigh / ((windowDuration + 50) / 100);
+    return (value < pastValue) ? value : pastValue;
+}
+
 void ActuatorPwm::update() {
     target->update();
     int32_t adjDutyTime = dutyTime - dutyLate;
@@ -65,11 +94,11 @@ void ActuatorPwm::update() {
     if (target->isActive()) {
         if (elapsedTime >= adjDutyTime) {
             // end of duty cycle
-            int32_t lowTime = period_ms - dutyTime;
-            if(periodLate >= lowTime){
+            int32_t lowDuration = (period_ms > dutyTime) ? period_ms - dutyTime : 0;
+            if(periodLate >= lowDuration){
                 // built up low periods are higher then required low time, skip a low cycle
                 recalculate();
-                periodLate -= lowTime;
+                periodLate -= lowDuration;
                 // dutyLate -= (period_ms - dutyTime);
                 periodStartTime = currentTime;
             }
@@ -80,6 +109,7 @@ void ActuatorPwm::update() {
                     return; // try next time
                 }
                 dutyLate += elapsedTime - dutyTime;
+                lowTime = ticks.millis();
             }
         }
     }
@@ -102,6 +132,7 @@ void ActuatorPwm::update() {
                     if (!target->isActive()) {
                         return; // try next time
                     }
+                    highTime = ticks.millis();
                 }
             }
             periodLate = elapsedTime - period_ms;
