@@ -140,6 +140,9 @@ public:
     temp_t getValue() const {
         return temp_t::invalid();
     }
+    temp_t readValue() const {
+        return temp_t::invalid();
+    }
     temp_t min() const {
         return temp_t::invalid();
     }

@@ -37,15 +37,17 @@ BOOST_AUTO_TEST_CASE(set_value){
 
     BOOST_REQUIRE_EQUAL(referenceSetPoint.read(), temp_t(20.0));
     BOOST_REQUIRE_EQUAL(targetSetPoint.read(), temp_t(30.0));
-    BOOST_REQUIRE_EQUAL(act.getValue(), temp_t(0.0)); // value is still zero, because targetSensor has not changed
+    BOOST_REQUIRE_EQUAL(act.getValue(), temp_t(10.0)); // difference between setpoints is now 10
+    BOOST_REQUIRE_EQUAL(act.readValue(), temp_t(0.0)); // actual value is still zero, because targetSensor has not changed
 
     targetSensor.setTemp(30.0);
-    BOOST_REQUIRE_EQUAL(act.getValue(), temp_t(10.0)); // value is 10 when sensor has reached setpoint
+    BOOST_REQUIRE_EQUAL(act.readValue(), temp_t(10.0)); // actual value is 10 when sensor has reached setpoint
 
     act.setValue(-10.0);
     BOOST_REQUIRE_EQUAL(referenceSetPoint.read(), temp_t(20.0));
     BOOST_REQUIRE_EQUAL(targetSetPoint.read(), temp_t(10.0));
-    BOOST_REQUIRE_EQUAL(act.getValue(), temp_t(10.0)); // value is still -10, because targetSensor has not changed
+    BOOST_REQUIRE_EQUAL(act.getValue(), temp_t(-10.0)); // difference between setpoints is now 10
+    BOOST_REQUIRE_EQUAL(act.readValue(), temp_t(10.0)); // value is still -10, because targetSensor has not changed
 
     targetSensor.setTemp(10.0);
     BOOST_REQUIRE_EQUAL(act.getValue(), temp_t(-10.0)); // value is -10 when sensor has reached setpoint

@@ -58,7 +58,7 @@ void ActuatorPwm::setValue(temp_t const& val) {
 }
 
 // returns the actual achieved PWM value, not the set value
-temp_t ActuatorPwm::getValue() const {
+temp_t ActuatorPwm::readValue() const {
     ticks_millis_t windowDuration = period_ms;// + periodLate;
     ticks_millis_t currentTime = ticks.millis();
     ticks_millis_t windowStartTime = currentTime - windowDuration;
@@ -82,7 +82,7 @@ temp_t ActuatorPwm::getValue() const {
         }
     }
     temp_t pastValue = totalHigh / ((windowDuration + 50) / 100);
-    return (value < pastValue) ? value : pastValue;
+    return pastValue;
 }
 
 void ActuatorPwm::update() {

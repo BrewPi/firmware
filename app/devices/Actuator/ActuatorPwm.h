@@ -54,7 +54,11 @@ class ActuatorPwm : public ActuatorDriver, public ActuatorRange
             return maxVal;
         }
 
-        temp_t getValue() const;
+        temp_t readValue() const;
+
+        temp_t getValue() const {
+            return value;
+        }
 
         void setValue(temp_t const& val);
 

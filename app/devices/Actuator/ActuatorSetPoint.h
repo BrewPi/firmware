@@ -53,10 +53,14 @@ public:
         targetSetPoint->write(referenceSetPoint->read() + offset);
     }
 
+    temp_t getValue() const{
+        return targetSetPoint->read() - referenceSetPoint->read();
+    }
+
     // getValue returns difference between sensor and reference, because that is the actual actuator value.
     // By returning the actually achieved value, instead of the difference between the setpoints,
     // a PID can read back the actual actuator value and perform integrator anti-windup
-    temp_t getValue() const{
+    temp_t readValue() const{
         return targetSensor->read() - referenceSetPoint->read();
     }
 
@@ -83,6 +87,10 @@ public:
         JSON_E(adapter, targetSetPoint);
         JSON_E(adapter, targetSensor);
         JSON_E(adapter, referenceSetPoint);
+        temp_t output = getValue();
+        JSON_E(adapter, output);
+        temp_t achieved = readValue();
+        JSON_E(adapter, achieved);
         JSON_E(adapter, minimum);
         JSON_T(adapter, maximum);
     }
