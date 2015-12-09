@@ -29,6 +29,6 @@ void AutoOffActuator::setActive(bool active)
 }
 
 void AutoOffActuator::update() {
-    if (ticks.timeSince(lastActiveTime)>=timeout)
+    if (ticks.timeSinceSeconds(lastActiveTime)>=timeout)
             setActive(false);
 }

@@ -190,7 +190,7 @@ void SpiLcd::resetBacklightTimer(void){
 }
 
 void SpiLcd::updateBacklight(void){
-	bool backLightOutput = BREWPI_SIMULATE || ticks.timeSince(_backlightTime) > BACKLIGHT_AUTO_OFF_PERIOD;
+	bool backLightOutput = BREWPI_SIMULATE || ticks.timeSinceSeconds(_backlightTime) > BACKLIGHT_AUTO_OFF_PERIOD;
 	bitWrite(_spiByte, LCD_SHIFT_BACKLIGHT, backLightOutput); // 1=OFF, 0=ON	
 }
 

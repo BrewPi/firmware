@@ -12,9 +12,15 @@
 
 
 // return time that has passed since timeStamp, take overflow into account
-ticks_seconds_t HardwareTicks::timeSince(ticks_seconds_t previousTime){
+ticks_seconds_t HardwareTicks::timeSinceSeconds(ticks_seconds_t previousTime){
 	ticks_seconds_t currentTime = TICKS.seconds();
-	return ::timeSince(currentTime, previousTime);
+	return ::timeSinceSeconds(currentTime, previousTime);
+}
+
+// return time that has passed since timeStamp, take overflow into account
+ticks_millis_t HardwareTicks::timeSinceMillis(ticks_millis_t previousTime){
+    ticks_millis_t currentTime = TICKS.millis();
+    return ::timeSinceMillis(currentTime, previousTime);
 }
 
 ticks_seconds_t HardwareTicks::seconds() { return ::millis()/1000; }
