@@ -669,6 +669,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Control, SimCascadedHeaterCooler)
         if(t==1000){
             SetPointDouble = 19;
         }
+
         if(t > 8000 && t < 16000){
             SetPointDouble -= 0.0001; // ramp down slowly
         }
@@ -734,6 +735,10 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Cool_Small_Volume, SimCascadedHeaterCo
 
     for(int t = 0; t < 10000; t++){
         if(t==2000){
+            beerSet->write(5.0);
+        }
+
+        if(t==6000){
             beerSet->write(5.0);
         }
 

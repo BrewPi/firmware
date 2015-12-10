@@ -6,7 +6,6 @@
 ActuatorPwm::ActuatorPwm(ActuatorDigital* _target, uint16_t _period) :
     ActuatorDriver(_target) {
     periodStartTime = ticks.millis();
-    lowTime = 0;
     periodLate = 0;
     dutyLate = 0;
     value = 0.0;
@@ -14,16 +13,17 @@ ActuatorPwm::ActuatorPwm(ActuatorDigital* _target, uint16_t _period) :
     maxVal = 100.0;
     target->setActive(false);
     setPeriod(_period);
-    recalculate();
+    // at init, pretend last high period was tiny spike in the past
+    lowToHighTime = periodStartTime - period_ms;
+    highToLowTime = lowToHighTime + 2;
+    cycleTime = period_ms;
+    dutyTime = calculateDutyTime(period_ms);
 }
 
-void ActuatorPwm::recalculate() {
-    recalculate(period_ms);
-}
-
-void ActuatorPwm::recalculate(int32_t expectedPeriod) {
+int32_t ActuatorPwm::calculateDutyTime(int32_t expectedPeriod) {
     // shift by 6 makes calculation work for period up to 11 hours
-    dutyTime = int32_t(temp_long_t(value) << uint8_t(6)) * ((expectedPeriod + 50) / 100) >> 6;
+    int32_t duty = int32_t(temp_long_t(value) << uint8_t(6)) * ((expectedPeriod + 50) / 100) >> 6;
+    return duty;
 }
 
 void ActuatorPwm::setValue(temp_t const& val) {
@@ -36,52 +36,45 @@ void ActuatorPwm::setValue(temp_t const& val) {
     }
 
     if (value != val_) {
-        temp_t delta = val_ - value;
         value = val_;
-        if(delta > temp_t(5.0)){
-            // big positive change, go high immediately by starting a new period
-            dutyLate = 0;
-            periodLate = 0;
-            recalculate();
-            periodStartTime = ticks.millis() - period_ms;
-
-        }
-        else if(delta < temp_t(-5.0)){
-            // big negative change, go to low part of period immediately
-            recalculate();
-            periodStartTime = ticks.millis() - dutyTime + dutyLate;
-        }
-        else{
-            recalculate(period_ms + periodLate);
-        }
+        dutyTime = calculateDutyTime(period_ms + periodLate);
     }
 }
 
 // returns the actual achieved PWM value, not the set value
 temp_t ActuatorPwm::readValue() const {
-    ticks_millis_t windowDuration = period_ms;// + periodLate;
-    ticks_millis_t currentTime = ticks.millis();
-    ticks_millis_t windowStartTime = currentTime - windowDuration;
+    ticks_millis_t windowDuration = cycleTime; // previous time between two pulses
     ticks_millis_t totalHigh = 0;
-    if(lowTime > highTime){
-        // pulse is finished
-        totalHigh = lowTime - highTime;
-        if(highTime < windowStartTime){
-            windowDuration = currentTime - highTime; // pulse is far in the past
+    ticks_millis_t sinceLowToHigh = ticks.timeSinceMillis(lowToHighTime);
+    ticks_millis_t sinceHighToLow = ticks.timeSinceMillis(highToLowTime);
+    if(sinceLowToHigh > sinceHighToLow){
+        // pulse is finished, in the low period:   ___|--|__
+        totalHigh = sinceLowToHigh - sinceHighToLow;
+        if(sinceLowToHigh > windowDuration){
+            windowDuration = sinceLowToHigh; // pulse is far in the past  _|--|_____________
         }
     }
     else{
-        if(highTime > windowStartTime){ // low to high transition is in window
-            totalHigh += ticks.millis() - highTime;
-            if(lowTime > windowStartTime){ // high to low transition is in window
-                totalHigh += lowTime - windowStartTime;
+        if(sinceLowToHigh <= windowDuration){
+            // low to high transition is in window (still high)  __________|---
+            if(sinceHighToLow >= windowDuration){
+                // high after a long low period, extend window   --|______________________|-
+                ; // keep cycle time as window.
+                // not using windowDuration = sinceHighToLow, because this is only valid if previous cycle
+                // showed that we are running skip cycles
             }
             else{
-                return value; // return set value when high after long low period
+                // high to low transition is in window (windown start was high)  ---|_____|----
+                totalHigh += windowDuration - sinceHighToLow;
             }
+            totalHigh += sinceLowToHigh;
+        }
+        else{
+            // entire window is high
+            return 100.0;
         }
     }
-    temp_t pastValue = totalHigh / ((windowDuration + 50) / 100);
+    temp_t pastValue = temp_long_t(totalHigh) / temp_long_t(((windowDuration + 50) / 100));
     return pastValue;
 }
 
@@ -91,16 +84,22 @@ void ActuatorPwm::update() {
     int32_t currentTime = ticks.millis();
     int32_t elapsedTime = currentTime - periodStartTime;
 
+    int32_t sinceLowToHigh = ticks.timeSinceMillis(lowToHighTime);
+    int32_t sinceHighToLow = ticks.timeSinceMillis(highToLowTime);
+    int32_t lastHighDuration = sinceLowToHigh - sinceHighToLow;
+
     if (target->isActive()) {
         if (elapsedTime >= adjDutyTime) {
             // end of duty cycle
             int32_t lowDuration = (period_ms > dutyTime) ? period_ms - dutyTime : 0;
             if(periodLate >= lowDuration){
                 // built up low periods are higher then required low time, skip a low cycle
-                recalculate();
+                dutyTime = calculateDutyTime(period_ms);
                 periodLate -= lowDuration;
                 // dutyLate -= (period_ms - dutyTime);
                 periodStartTime = currentTime;
+                cycleTime = period_ms;
+                highToLowTime = 0; // set to zero to indicate we are stringing high periods together
             }
             else{
                 target->setActive(false);
@@ -108,39 +107,62 @@ void ActuatorPwm::update() {
                 if (target->isActive()) {
                     return; // try next time
                 }
-                dutyLate += elapsedTime - dutyTime;
-                lowTime = ticks.millis();
+                int32_t thisDutyLate = elapsedTime - dutyTime;
+                dutyLate += thisDutyLate;
+                if(highToLowTime != 0){
+                    cycleTime = ticks.timeSinceMillis(highToLowTime);
+                }
+                highToLowTime =currentTime;
             }
         }
     }
-    if (!target->isActive()) { // <- do not replace with else if
-        if (elapsedTime >= period_ms) {
+    else if (!target->isActive()) {
+        bool goHigh = false;
+        bool newPeriod = false;
+        if (lastHighDuration > 0 && lastHighDuration < calculateDutyTime(sinceLowToHigh) - dutyLate){
+            // new PWM value is higher than what was achieved in  cycle so far.
+            // staying low longer is bad
+            // The shortened cycle would have period sinceLowTime
+            // The duty would be lastHighDuration.
+            // If this duty is already lower than the target, staying low will only make things worse.
+            goHigh = true;
+        }
+        else if (elapsedTime >= period_ms) {
             // end of PWM cycle
             if (adjDutyTime < 0) {
                 // skip going high for 1 period when previous periods built up
                 // more than one entire duty cycle (duty is ahead)
                 // subtract duty cycle form duty late accumulator
                 dutyLate = dutyLate - dutyTime;
+                newPeriod = true;
             } else {
                 if(dutyTime > 0){
-                    if(target->type() == ACTUATOR_TOGGLE_MUTEX){
-                        static_cast<ActuatorMutexDriver*>(target)->setActive(true, priority());
-                    }
-                    else{
-                        target->setActive(true);
-                    }
-                    if (!target->isActive()) {
-                        return; // try next time
-                    }
-                    highTime = ticks.millis();
+                    goHigh = true;
                 }
             }
+        }
+        if(goHigh){
+            if(target->type() == ACTUATOR_TOGGLE_MUTEX){
+                static_cast<ActuatorMutexDriver*>(target)->setActive(true, priority());
+            }
+            else{
+                target->setActive(true);
+            }
+            if(target->isActive()){
+                newPeriod = true;
+                cycleTime = ticks.timeSinceMillis(lowToHighTime);
+                lowToHighTime = currentTime;
+            }
+        }
+        if(newPeriod){
             periodLate = elapsedTime - period_ms;
+            // make sure it is positive
+            periodLate = (periodLate > 0) ? periodLate : 0;
             // limit to half of the period
             periodLate = (periodLate < period_ms / 2) ? periodLate : period_ms / 2;
             // adjust next duty time to account for longer period due to infrequent updates
             // low period was longer, increase high period (duty cycle) with same ratio
-            recalculate(period_ms + periodLate);
+            dutyTime = calculateDutyTime(period_ms + periodLate);
             periodStartTime = currentTime;
         }
     }

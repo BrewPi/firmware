@@ -154,14 +154,14 @@ void Pid::update()
             antiWindup = pidResult - output;
             antiWindup *= 5; // Anti windup gain is 5 when clipping to min/max
         }
-        else{ // actuator is not reaching set value due to physics or limits in its target actuator
+        else{ // actuator could be not reaching set value due to physics or limits in its target actuator
             temp_long_t closeThreshold = Kp + Kp;
             temp_t noAntiWindupMin = output - closeThreshold;
             temp_t noAntiWindupMax = output + closeThreshold;
 
-            if(temp_t(pidResult) <  noAntiWindupMin || temp_t(pidResult) > noAntiWindupMax){
+            if(achievedOutput <  noAntiWindupMin || achievedOutput > noAntiWindupMax){
                 antiWindup = pidResult - achievedOutput;
-                antiWindup *= 1; // Anti windup gain is 1 for this kind of windup
+                // antiWindup *= 1; // Anti windup gain is 1 for this kind of windup
             }
         }
 
@@ -175,13 +175,6 @@ void Pid::update()
             }
         }
     }
-
-/*
-    if(autotune){
-        tune(output, previousOutput);
-    }
-*/
-
 }
 
 void Pid::setFiltering(uint8_t b){
