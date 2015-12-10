@@ -620,25 +620,49 @@ BOOST_AUTO_TEST_CASE(fluctuating_pwm_value_gives_correct_average_with_time_limit
 }
 
 
-BOOST_AUTO_TEST_CASE(decreasing_pwm_value_after_long_high_time){
+BOOST_AUTO_TEST_CASE(decreasing_pwm_value_after_long_high_time_and_mutex_wait){
+    ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
+    mutex->setDeadTime(100000);
+
+    // actuator that prevents other actuator from going high
+    ActuatorDigital * blocker = new ActuatorBool();
+    ActuatorMutexDriver * blockerMutex = new ActuatorMutexDriver(blocker, mutex);
+
+
     ActuatorDigital * boolAct = new ActuatorBool();
-    ActuatorPwm * pwmAct = new ActuatorPwm(boolAct, 20);
+    ActuatorMutexDriver * mutexAct = new ActuatorMutexDriver(boolAct, mutex);
+    ActuatorPwm * pwmAct = new ActuatorPwm(mutexAct, 20);
 
     ticks_millis_t start = ticks.millis();
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-            csv << "1#set value, 1#read value, 2a#pin" << endl;
+    csv << "1#set value, 1#read value, 2a#pin" << endl;
+
+    // trigger dead time of mutex
+    blockerMutex->setActive(true);
+    mutex->update();
+    BOOST_CHECK(blocker->isActive());
+    blockerMutex->setActive(false);
+    BOOST_CHECK_EQUAL(mutex->getWaitTime(), 99999); // -1 due to millis() call in update
+
 
     double pwmValue = 100;
 
-    while(ticks.millis() - start < 300000){ // run for 300 seconds
-
-        if(ticks.millis() - start > 100000){ // start decreasing after 100 s
-            pwmValue -= 0.1; // decrease slowly
+    while(ticks.millis() - start < 1500000){ // run for 1500 seconds
+        if(ticks.millis() - start < 100000){
+            BOOST_REQUIRE(!boolAct->isActive()); // mutex group dead time keeps actuator low
         }
-        pwmAct->setValue(pwmValue);
 
+        pwmAct->setValue(pwmValue);
+        mutex->update();
         pwmAct->update();
+
+        if(ticks.millis() - start > 200000){ // start decreasing after 200 s
+            pwmValue -= 0.01; // decrease slowly, with 0.1 degree per second
+            // maximum difference between history based value and setpoint is 4
+            BOOST_CHECK_LE(abs(double(pwmAct->getValue() - pwmAct->readValue())), 4);
+        }
+
         delay(100);
         csv     << pwmAct->getValue() << ","
                 << pwmAct->readValue() << ","

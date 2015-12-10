@@ -155,11 +155,21 @@ void ActuatorPwm::update() {
             }
         }
         if(newPeriod){
-            periodLate = elapsedTime - period_ms;
-            // make sure it is positive
-            periodLate = (periodLate > 0) ? periodLate : 0;
-            // limit to half of the period
-            periodLate = (periodLate < period_ms / 2) ? periodLate : period_ms / 2;
+            if(readValue() < maxVal * temp_t(0.2)){
+                // If target actuator was kept low externally, periodLate should not be used.
+                // This could be due to the mutex group blocking going active, for example.
+                // If the read value is under 20% of maximum, this is not likely to be normal behavior
+                // If the value is low, the effect of doing this during normal behavior is small,
+                // because periodLate is used to stretch scale the dutyCycle, which is small in that case.
+                periodLate = 0;
+            }
+            else{
+                periodLate = elapsedTime - period_ms;
+                // make sure it is positive
+                periodLate = (periodLate > 0) ? periodLate : 0;
+                // limit to half of the period
+                periodLate = (periodLate < period_ms / 2) ? periodLate : period_ms / 2;
+            }
             // adjust next duty time to account for longer period due to infrequent updates
             // low period was longer, increase high period (duty cycle) with same ratio
             dutyTime = calculateDutyTime(period_ms + periodLate);
