@@ -207,10 +207,7 @@ public:
     temp_t operator/(const uint16_t rhs);
 
     int8_t sign(){
-        if(value_ == 0){
-            return 0;
-        }
-        return (value_ >= 0) ? 1 : -1;
+        return (value_ > 0) - (value_ < 0);
     }
 
     friend class temp_precise_t;
@@ -241,6 +238,10 @@ public:
 
     // construction from double, use base class constructor
     temp_precise_t(double d) : fpml::fixed_point_base<temp_precise_t, TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS>(d){}
+
+    void setRaw(TEMP_PRECISE_TYPE val){
+        value_= val;
+    }
 
     char * toString(char buf[], uint8_t numDecimals, uint8_t len) const {
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, 'C', false);
@@ -301,10 +302,7 @@ public:
     temp_precise_t operator/(const uint16_t rhs);
 
     int8_t sign(){
-        if(value_ == 0){
-            return 0;
-        }
-        return (value_ >= 0) ? 1 : -1;
+        return (value_ > 0) - (value_ < 0);
     }
     friend class temp_t;
     friend class temp_long_t;
@@ -334,6 +332,10 @@ public:
 
     // construction from double, use base class constructor
     temp_long_t(double d) : fpml::fixed_point_base<temp_long_t, TEMP_LONG_TYPE, TEMP_LONG_INTBITS>(d){}
+
+    void setRaw(TEMP_LONG_TYPE val){
+        value_= val;
+    }
 
     char * toString(char buf[], uint8_t numDecimals, uint8_t len) const {
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, 'C', false);
@@ -393,10 +395,7 @@ public:
     temp_long_t operator/(const uint16_t rhs);
 
     int8_t sign(){
-        if(value_ == 0){
-            return 0;
-        }
-        return (value_ > 0) ? 1 : -1;
+        return (value_ > 0) - (value_ < 0);
     }
 
     friend class temp_t;
