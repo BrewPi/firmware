@@ -92,12 +92,25 @@ void Pid::update()
     if(validSensor){
         inputFilter.add(inputVal);
         temp_precise_t delta = inputFilter.readOutput() - inputFilter.readPrevOutput();
-        derivativeFilter.add(delta);
+
+        // prevent overflow in shift. Add to derivative filter shifted, because of limited precision for such low values
+        temp_precise_t deltaClipped = delta;
+        temp_precise_t max = temp_precise_t::max() >> uint8_t(10);
+        temp_precise_t min = temp_precise_t::min() >> uint8_t(10);
+        if(deltaClipped > max){
+            deltaClipped = max;
+        }
+        else if(deltaClipped < min){
+            deltaClipped = min;
+        }
+        derivativeFilter.add(deltaClipped << uint8_t(10));
 
         if(validSetPoint){
             inputError = inputFilter.readOutput() - setPoint->read();
         }
     }
+
+    derivative = derivativeFilter.readOutput() >> uint8_t(10);
 
     if(!enabled || !validSensor || !validSetPoint){
         p = 0;
@@ -105,8 +118,6 @@ void Pid::update()
         d = 0;
         return;
     }
-
-    derivative = derivativeFilter.readOutput();
 
     // calculate PID parts.
     p = Kp * -inputError;
