@@ -79,6 +79,9 @@
 
 #ifdef PARTICLE_WIFI
     TCPServer wifiStream(8332);
+    String hostname=String(HOSTNAME);
+    IPAddress syslogServer(SYSLOGSERVER);
+    Syslog syslog(hostname,syslogServer,514);
 #endif
 
 
@@ -158,6 +161,7 @@ void PiLink::receive(void) {
 void PiLink::receiveStream(void){
 	while (curStream->available() > 0) {
 		char inByte = curStream->read();
+		logDebug("Received:%c",inByte);
 		switch(inByte){
 		case ' ':
 		case '\n':
@@ -448,6 +452,11 @@ void PiLink::debugMessage(const char * message, ...){
 	vsnprintf_P(printfBuff, PRINTF_BUFFER_SIZE, message, args);
 	va_end (args);
 	curStream->print(printfBuff);
+	piStream.print(printfBuff);
+#ifdef PARTICLE_WIFI
+	String strBuff=String(printfBuff);
+	syslog.log(strBuff);
+#endif
 	printNewLine();
 }
 

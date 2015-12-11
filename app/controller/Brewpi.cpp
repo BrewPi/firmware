@@ -65,10 +65,15 @@ void setup()
 {
 #ifdef PARTICLE_WIFI
 	//we want wifi but no particle cloud
-	SYSTEM_MODE(SEMI_AUTOMATIC);
+	SYSTEM_THREAD(ENABLED); // this is required to keep WiFi.connect from blocking
+	SYSTEM_MODE(MANUAL);
     //load WIFI
     WiFi.on();
     WiFi.connect();
+    int lastConnectAttempt=millis();
+    while (millis()-lastConnectAttempt < 30000 && !WiFi.ready()) { // Give WiFi up to 30 seconds to connect before we give up on it.
+     		delay(100);
+     }
 #endif
 
     bool resetEeprom = platform_init();

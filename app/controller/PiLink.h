@@ -24,9 +24,18 @@
 #include "TemperatureFormats.h"
 #include "DeviceManager.h"
 #include "Logger.h"
+#ifdef PARTICLE_WIFI
+#include "syslog.h"
+#endif
 #include <vector>
 
 #define PRINTF_BUFFER_SIZE 128
+
+
+#ifdef PARTICLE_WIFI
+#define HOSTNAME "brewpi.bakersapex.com"
+#define SYSLOGSERVER 192,168,8,20
+#endif
 
 class DeviceConfig;
 

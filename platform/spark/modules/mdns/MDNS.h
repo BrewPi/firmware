@@ -62,6 +62,7 @@ class MDNS {
 
         uint16_t port;
         TxtData * txtData = new TxtData();
+        bool begun; // track if the server is running
 
         void writeARecord();
         void writePTRRecord();

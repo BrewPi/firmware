@@ -47,20 +47,26 @@ bool MDNS::addTXTEntry(String key, String value) {
 }
 
 bool MDNS::begin() {
-    // Wait for WiFi to connect
-    while (!WiFi.ready()) {
+    // Make sure WiFi is connected
+    if (WiFi.ready()) {
+
+    	udp->begin(MDNS_PORT);
+    	IPAddress mdnsdomain(224,0,0,251); // mDNS broadcast domain
+    	udp->joinMulticast(mdnsdomain); // join mDNS broadcast domain
+
+    	// TODO: Probing + announcing
+    	begun=true;
+    	return true;
+    } else {
+    	begun=false;
+    	return false;
     }
-
-    udp->begin(MDNS_PORT);
-    IPAddress mdnsdomain(224,0,0,251); // mDNS broadcast domain
-    udp->joinMulticast(mdnsdomain); // join mDNS broadcast domain
-
-    // TODO: Probing + announcing
-
-    return true;
 }
 
 int MDNS::processQueries() {
+	if (!begun) {
+		return 0;
+	}
     uint16_t n = udp->parsePacket();
 
     uint8_t responses = 0;
@@ -73,7 +79,7 @@ int MDNS::processQueries() {
         remotePort = udp->remotePort();
 
         udp->flush();
-        udp->stop();
+        //udp->stop();
 
         if (buffer->available() >= 12) {
             /*uint16_t id = */buffer->readUInt16();
@@ -180,7 +186,9 @@ int MDNS::processQueries() {
             }
         }
 
-        udp->begin(MDNS_PORT);
+        //udp->begin(MDNS_PORT);
+        //IPAddress mdnsdomain(224,0,0,251); // mDNS broadcast domain
+        //udp->joinMulticast(mdnsdomain); // join mDNS broadcast domain
 
         if (buffer->available() > 0) {
             udp->beginPacket(IPAddress(224, 0, 0, 251), remotePort);
