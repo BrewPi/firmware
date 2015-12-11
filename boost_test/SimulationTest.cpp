@@ -135,8 +135,8 @@ struct Simulation{
         beerTemp = 20.0;
         airTemp = 20.0;
         wallTemp = 20.0;
-        envTemp = 24.0;
-        heaterTemp = 24.0;
+        envTemp = 20.0;
+        heaterTemp = 20.0;
 
         beerCapacity = 4.2 * 1.0 * 20; // heat capacity water * density of water * 20L volume (in kJ per kelvin).
         airCapacity = 1.005 * 1.225 * 0.200; // heat capacity of dry air * density of air * 200L volume (in kJ per kelvin).
@@ -147,9 +147,9 @@ struct Simulation{
         heaterPower = 0.1; // 100W, in kW.
         coolerPower = 0.1; // 100W, in kW. Assuming 200W at 50% efficiency
 
-        airBeerTransfer= 1.0/300; // about 5 minutes time constant
-        wallAirTransfer= 1.0/300; // about 5 minutes time constant
-        heaterAirTransfer= 1.0/300; // about 5 minutes time constant
+        airBeerTransfer= 1.0/300;
+        wallAirTransfer= 1.0/300;
+        heaterAirTransfer= 1.0/30;
         envWallTransfer = 0.001; // losses to environment
 
         heaterToBeer = 0.0; // ratio of heater transfered directly to beer instead of fridge air
@@ -224,9 +224,11 @@ struct SimBeerHeater : public StaticSetup {
     SimBeerHeater(){
         heaterPid->setInputSensor(beerSensor);
         heaterPid->setSetPoint(beerSet);
-        heaterPid->setInputFilter(2);
+        heaterPid->setInputFilter(1);
         heaterPid->setDerivativeFilter(4);
-        heaterPid->setConstants(200.0, 3600, 200);
+        heaterPid->setConstants(60.0, 7200, 500);
+
+        sim.envTemp = 16.0;
     }
 
     void update(){
@@ -245,9 +247,11 @@ struct SimFridgeHeater : public StaticSetup {
     SimFridgeHeater(){
         heaterPid->setInputSensor(fridgeSensor);
         heaterPid->setSetPoint(fridgeSet);
-        heaterPid->setInputFilter(2);
-        heaterPid->setDerivativeFilter(2);
-        heaterPid->setConstants(5.0, 120, 0);
+        heaterPid->setInputFilter(1);
+        heaterPid->setDerivativeFilter(4);
+        heaterPid->setConstants(10.0, 600, 60);
+
+        sim.envTemp = 16.0;
     }
 
     void update(){
@@ -269,8 +273,10 @@ struct SimBeerCooler : public StaticSetup {
         coolerPid->setInputSensor(beerSensor);
         coolerPid->setSetPoint(beerSet);
         coolerPid->setInputFilter(2);
-        coolerPid->setDerivativeFilter(6);
-        coolerPid->setConstants(200.0, 3600, 120);
+        coolerPid->setDerivativeFilter(5);
+        coolerPid->setConstants(40.0, 7200, 1200);
+
+        sim.envTemp = 24.0;
     }
 
     void update(){
@@ -290,9 +296,11 @@ struct SimFridgeCooler : public StaticSetup {
     SimFridgeCooler(){
         coolerPid->setInputSensor(fridgeSensor);
         coolerPid->setSetPoint(fridgeSet);
-        coolerPid->setInputFilter(2);
-        coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(5.0, 600, 60);
+        coolerPid->setInputFilter(1);
+        coolerPid->setDerivativeFilter(5);
+        coolerPid->setConstants(10.0, 1800, 200);
+
+        sim.envTemp = 24.0;
     }
 
     void update(){
@@ -312,19 +320,19 @@ struct SimFridgeHeaterCooler : public StaticSetup {
     SimFridgeHeaterCooler(){
         coolerPid->setInputSensor(fridgeSensor);
         coolerPid->setSetPoint(fridgeSet);
-        coolerPid->setInputFilter(2);
+        coolerPid->setInputFilter(1);
         coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(5.0, 600, 60);
+        coolerPid->setConstants(10.0, 1800, 200);
 
         heaterPid->setInputSensor(fridgeSensor);
         heaterPid->setSetPoint(fridgeSet);
-        heaterPid->setInputFilter(2);
+        heaterPid->setInputFilter(1);
         heaterPid->setDerivativeFilter(4);
-        heaterPid->setConstants(10.0, 120, 0);
+        heaterPid->setConstants(10.0, 1800, 60);
 
         coolerMutex->setMutex(mutex);
         heaterMutex->setMutex(mutex);
-        mutex->setDeadTime(1800000); // 30 minutes
+        mutex->setDeadTime(3600000); // 60 minutes
     }
 
     void update(){
@@ -347,19 +355,19 @@ struct SimBeerHeaterCooler : public StaticSetup {
     SimBeerHeaterCooler(){
         coolerPid->setInputSensor(beerSensor);
         coolerPid->setSetPoint(beerSet);
-        coolerPid->setInputFilter(4);
+        coolerPid->setInputFilter(1);
         coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(200.0, 3600, 120);
+        coolerPid->setConstants(40.0, 7200, 1200);
 
         heaterPid->setInputSensor(beerSensor);
         heaterPid->setSetPoint(beerSet);
-        heaterPid->setInputFilter(4);
+        heaterPid->setInputFilter(1);
         heaterPid->setDerivativeFilter(4);
-        heaterPid->setConstants(200.0, 3600, 120);
+        heaterPid->setConstants(60.0, 7200, 500);
 
         coolerMutex->setMutex(mutex);
         heaterMutex->setMutex(mutex);
-        mutex->setDeadTime(1800000); // 30 minutes
+        mutex->setDeadTime(3600000); // 60 minutes
     }
 
     void update(){
@@ -382,28 +390,28 @@ struct SimCascadedHeaterCooler : public StaticSetup {
     SimCascadedHeaterCooler(){
         coolerPid->setInputSensor(fridgeSensor);
         coolerPid->setSetPoint(fridgeSet);
-        coolerPid->setInputFilter(2);
+        coolerPid->setInputFilter(1);
         coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(5.0, 600, 60);
+        coolerPid->setConstants(10.0, 1800, 200);
 
         heaterPid->setInputSensor(fridgeSensor);
         heaterPid->setSetPoint(fridgeSet);
-        heaterPid->setInputFilter(2);
+        heaterPid->setInputFilter(1);
         heaterPid->setDerivativeFilter(4);
-        heaterPid->setConstants(10.0, 120, 0);
+        heaterPid->setConstants(10.0, 600, 60);
 
 
         beerToFridgePid->setInputSensor(beerSensor);
         beerToFridgePid->setSetPoint(beerSet);
-        beerToFridgePid->setInputFilter(4);
+        beerToFridgePid->setInputFilter(1);
         beerToFridgePid->setDerivativeFilter(4);
-        beerToFridgePid->setConstants(5.0, 3600, 50);
+        beerToFridgePid->setConstants(2.0, 7200, 1200);
         fridgeSetPointActuator->setMin(-10.0);
         fridgeSetPointActuator->setMax(10.0);
 
         coolerMutex->setMutex(mutex);
         heaterMutex->setMutex(mutex);
-        mutex->setDeadTime(1800000); // 30 minutes
+        mutex->setDeadTime(3600000); // 60 minutes
     }
 
     void update(){
@@ -423,7 +431,7 @@ struct SimCascadedHeaterCooler : public StaticSetup {
 };
 
 
-BOOST_AUTO_TEST_SUITE( simulation_test)
+BOOST_AUTO_TEST_SUITE(simulation_test)
 
 
 
@@ -434,7 +442,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Beer, SimBeerHeater)
     csv << "1#beer setPoint, 2#error, 1#beer sensor, 1#fridge air sensor, 1#fridge wall temp, "
             "3#heater pwm, 3#heater achieved pwm, 4#p, 4#i, 4#d" << endl;
     double SetPointDouble = 19;
-    for(int t = 0; t < 20000; t++){
+    for(int t = 0; t < 60000; t++){
         if(t==1000){
             SetPointDouble = 21;
         }
@@ -731,7 +739,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Cool_Small_Volume, SimCascadedHeaterCo
     sim.beerCapacity = 4.2 * 1.0 * 0.2; // heat capacity water * density of water * 0.2L volume (in kJ per kelvin).
     sim.airBeerTransfer = 0.001;
 
-    beerToFridgePid->setConstants(1.0, 180, 60);
+    beerToFridgePid->setConstants(0.5, 1800, 180);
 
     for(int t = 0; t < 10000; t++){
         if(t==2000){
