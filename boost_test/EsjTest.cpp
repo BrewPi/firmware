@@ -195,6 +195,8 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
                     "value": 20.0000
                 }
             },
+            "output": 5.0000,
+            "achieved": 0.0000,
             "minimum": -10.0000,
             "maximum": 10.0000
         }
@@ -205,7 +207,7 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
         R"("targetSetPoint":{"class":"SetPointSimple","variables":{"value":25.0000}},)"
         R"("targetSensor":{"class":"TempSensorMock","variables":{"value":20.0000,"connected":true}},)"
         R"("referenceSetPoint":{"class":"SetPointConstant","variables":{)"
-        R"("value":20.0000}},"minimum":-10.0000,"maximum":10.0000}})";
+        R"("value":20.0000}},"output":5.0000,"achieved":0.0000,"minimum":-10.0000,"maximum":10.0000}})";
 
     BOOST_CHECK_EQUAL(valid, json);
 }

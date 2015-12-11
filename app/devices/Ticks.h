@@ -33,6 +33,29 @@
  * If that implementation doesn't implement the Ticks interface as expected, it will fail to compile.
  */
 
+
+// return time that has passed since timeStamp, take overflow into account
+inline ticks_seconds_t timeSinceSeconds(ticks_seconds_t currentTime, ticks_seconds_t previousTime) {
+    if(currentTime>=previousTime){
+        return currentTime - previousTime;
+    }
+    else{
+        // overflow has occurred
+        return (currentTime + 1440) - (previousTime +1440); // add a day to both for calculation
+    }
+}
+
+// return time that has passed since timeStamp, take overflow into account
+inline ticks_millis_t timeSinceMillis(ticks_millis_t currentTime, ticks_millis_t previousTime) {
+    if(currentTime>=previousTime){
+        return currentTime - previousTime;
+    }
+    else{
+        // overflow has occurred
+        return (currentTime + 1440000) - (previousTime +1440000); // add a day to both for calculation
+    }
+}
+
 /**
  * A Ticks implementation that increments the millis count each time it is called.
  * This is used for testing.
@@ -44,7 +67,8 @@ public:
 	ticks_millis_t millis() { return _ticks+=_increment; }
 	ticks_micros_t micros() { return _ticks+=_increment; }	
 	ticks_seconds_t seconds() { return millis()/1000; }
-	ticks_seconds_t timeSince(ticks_seconds_t timeStamp) { return seconds() - timeStamp; }
+	ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) { return ::timeSinceSeconds(seconds(), timeStamp); }
+	ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) {  return ::timeSinceMillis(millis(), timeStamp); }
 	void reset(void){ _ticks = 0; };
 private:
 
@@ -63,7 +87,8 @@ class ExternalTicks {
 	ticks_millis_t millis() { return _ticks; }
 	ticks_micros_t micros() { return _ticks*1000; }	
 	ticks_seconds_t seconds() { return millis()/1000; }	
-	ticks_seconds_t timeSince(ticks_seconds_t timeStamp);
+	ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp);
+	ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp);
 			
 	void setMillis(ticks_millis_t now)	{ _ticks = now; }
 	void incMillis(ticks_millis_t advance)	{ _ticks += advance; }
@@ -83,15 +108,5 @@ public:
 	void microseconds(uint32_t micros) { }
 };
 
-// return time that has passed since timeStamp, take overflow into account
-inline ticks_seconds_t timeSince(ticks_seconds_t currentTime, ticks_seconds_t previousTime) {
-	if(currentTime>=previousTime){
-		return currentTime - previousTime;
-	}
-	else{
-		// overflow has occurred
-		return (currentTime + 1440) - (previousTime +1440); // add a day to both for calculation
-	}
-}
 
 #include "TicksImpl.h"

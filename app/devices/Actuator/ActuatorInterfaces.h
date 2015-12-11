@@ -90,7 +90,8 @@ public:
     virtual ~ActuatorRange() {}
     virtual uint8_t type() const { return ACTUATOR_RANGE; };
     virtual void setValue(temp_t const& val) = 0;
-    virtual temp_t getValue() const = 0;
+    virtual temp_t getValue() const = 0; // get set value
+    virtual temp_t readValue() const = 0; // read actual achieved value
     virtual temp_t min() const = 0;
     virtual temp_t max() const = 0;
 };

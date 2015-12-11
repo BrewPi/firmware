@@ -57,7 +57,7 @@ bool blinkLoop(
 	uint16_t lastChangeTime = ticks.seconds();
 	uint8_t blinkTimer = 0;
 	
-	while(ticks.timeSince(lastChangeTime) < MENU_TIMEOUT){ // time out at 10 seconds
+	while(ticks.timeSinceSeconds(lastChangeTime) < MENU_TIMEOUT){ // time out at 10 seconds
 		if(rotaryEncoder.changed()){
 			lastChangeTime = ticks.seconds();
 			blinkTimer = 0;
@@ -172,7 +172,7 @@ void pickTempSetting(ReadTemp readTemp, WriteTemp writeTemp, const char* tempNam
 
 	uint8_t blinkTimer = 0;
 	uint16_t lastChangeTime = ticks.seconds();
-	while(ticks.timeSince(lastChangeTime) < MENU_TIMEOUT){ // time out at 10 seconds
+	while(ticks.timeSinceSeconds(lastChangeTime) < MENU_TIMEOUT){ // time out at 10 seconds
 		if(rotaryEncoder.changed()){
 			lastChangeTime = ticks.seconds();
 			blinkTimer = 0;

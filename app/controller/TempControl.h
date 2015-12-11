@@ -128,7 +128,7 @@ public:
         } else if (control.heater1Mutex->isActive()) {
             lastHeatTime = ticks.seconds();
             return HEATING;
-        } else if (timeSinceHeating() <= 2*control.heater1->getPeriod()){
+        } else if (control.heater1->getPeriod() < 10 && timeSinceHeating() <= 2*control.heater1->getPeriod()){
             return HEATING; // in low period of PWM
         }
         else{

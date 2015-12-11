@@ -92,12 +92,25 @@ void Pid::update()
     if(validSensor){
         inputFilter.add(inputVal);
         temp_precise_t delta = inputFilter.readOutput() - inputFilter.readPrevOutput();
-        derivativeFilter.add(delta);
+
+        // prevent overflow in shift. Add to derivative filter shifted, because of limited precision for such low values
+        temp_precise_t deltaClipped = delta;
+        temp_precise_t max = temp_precise_t::max() >> uint8_t(10);
+        temp_precise_t min = temp_precise_t::min() >> uint8_t(10);
+        if(deltaClipped > max){
+            deltaClipped = max;
+        }
+        else if(deltaClipped < min){
+            deltaClipped = min;
+        }
+        derivativeFilter.add(deltaClipped << uint8_t(10));
 
         if(validSetPoint){
             inputError = inputFilter.readOutput() - setPoint->read();
         }
     }
+
+    derivative = derivativeFilter.readOutput() >> uint8_t(10);
 
     if(!enabled || !validSensor || !validSetPoint){
         p = 0;
@@ -105,8 +118,6 @@ void Pid::update()
         d = 0;
         return;
     }
-
-    derivative = derivativeFilter.readOutput();
 
     // calculate PID parts.
     p = Kp * -inputError;
@@ -120,10 +131,15 @@ void Pid::update()
 
     outputActuator -> setValue(output);
 
-    // get actual value from actuator
+    // get the value that is clipped to the actuator's range
     output = outputActuator->getValue();
     // When actuator is a 'cooler', invert the output again
     output = (actuatorIsNegative) ? -output : output;
+
+    // get the actual achieved value in actuator. This could differ due to slowness time/mutex limits
+    temp_t achievedOutput = outputActuator->readValue();
+    // When actuator is a 'cooler', invert the output again
+    achievedOutput = (actuatorIsNegative) ? -achievedOutput : achievedOutput;
 
     if(Ti == 0){ // 0 has been chosen to indicate that the integrator is disabled. This also prevents divide by zero.
         integral = 0;
@@ -143,24 +159,23 @@ void Pid::update()
         // pidResult - output is zero when actuator is not saturated
         // when the actuator is close the to pidResult (setpoint), disable anti-windup
         // this prevens small fluctuations from keeping the integrator at zero
-        // also only apply anti-windup when it will
+
         temp_long_t antiWindup = 0;
-        temp_long_t closeThreshold = Kp;
-
-        temp_t noAntiWindupMin = output - closeThreshold;
-        temp_t noAntiWindupMax = output + closeThreshold;
-
-        if(noAntiWindupMin < outputActuator->min()){
-            noAntiWindupMin = outputActuator->min();
-        }
-        if(noAntiWindupMax > outputActuator->max()){
-            noAntiWindupMax = outputActuator->max();
-        }
-
-        if(temp_t(pidResult) <  noAntiWindupMin || temp_t(pidResult) > noAntiWindupMax){
+        if(pidResult != temp_long_t(output)){ // clipped to actuator min or max set in target actuator
             antiWindup = pidResult - output;
-            antiWindup *= 5; // Anti windup gain is 5
+            antiWindup *= 5; // Anti windup gain is 5 when clipping to min/max
         }
+        else{ // actuator could be not reaching set value due to physics or limits in its target actuator
+            temp_long_t closeThreshold = Kp;
+            temp_t noAntiWindupMin = output - closeThreshold;
+            temp_t noAntiWindupMax = output + closeThreshold;
+            // do not apply anti-windup if close to target. Always apply when actuator is at zero.
+            if(achievedOutput == temp_t(0.0) || achievedOutput <  noAntiWindupMin || achievedOutput > noAntiWindupMax){
+                antiWindup = pidResult - achievedOutput;
+                // antiWindup *= 1; // Anti windup gain is 1 for this kind of windup
+            }
+        }
+
         // only apply anti-winup if it will decrease the integral and prevent crossing through zero
         if(integral.sign() * antiWindup.sign() == 1){
             if((integral - antiWindup).sign() != integral.sign()){
@@ -171,13 +186,6 @@ void Pid::update()
             }
         }
     }
-
-/*
-    if(autotune){
-        tune(output, previousOutput);
-    }
-*/
-
 }
 
 void Pid::setFiltering(uint8_t b){
