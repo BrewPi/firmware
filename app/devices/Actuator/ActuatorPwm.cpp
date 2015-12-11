@@ -48,7 +48,7 @@ temp_t ActuatorPwm::readValue() const {
     ticks_millis_t sinceLowToHigh = ticks.timeSinceMillis(lowToHighTime);
     ticks_millis_t sinceHighToLow = ticks.timeSinceMillis(highToLowTime);
     if(sinceLowToHigh > sinceHighToLow){
-        // pulse is finished, in the low period:   ___|--|__
+        // pulse is finished, and we are in the low period:   ___|--|__
         totalHigh = sinceLowToHigh - sinceHighToLow;
         if(sinceLowToHigh > windowDuration){
             windowDuration = sinceLowToHigh; // pulse is far in the past  _|--|_____________
@@ -59,12 +59,17 @@ temp_t ActuatorPwm::readValue() const {
             // low to high transition is in window (still high)  __________|---
             if(sinceHighToLow >= windowDuration){
                 // high after a long low period, extend window   --|______________________|-
-                ; // keep cycle time as window.
+                // keep cycle time as window.
                 // not using windowDuration = sinceHighToLow, because this is only valid if previous cycle
                 // showed that we are running skip cycles
+                if(int32_t(windowDuration) > 2*period_ms && dutyTime > period_ms/4){
+                    // was low abnormally long before going high for a duty over 25%
+                    // probably actuator was held at zero. Assume a normal window for the future
+                    windowDuration = period_ms;
+                }
             }
             else{
-                // high to low transition is in window (windown start was high)  ---|_____|----
+                // high to low transition is in window (window start was high)  ---|_____|----
                 totalHigh += windowDuration - sinceHighToLow;
             }
             totalHigh += sinceLowToHigh;
@@ -119,6 +124,7 @@ void ActuatorPwm::update() {
     else if (!target->isActive()) {
         bool goHigh = false;
         bool newPeriod = false;
+        int32_t estimatedCycleTime = 0;
         if (lastHighDuration > 0 && lastHighDuration < calculateDutyTime(sinceLowToHigh) - dutyLate){
             // new PWM value is higher than what was achieved in  cycle so far.
             // staying low longer is bad
@@ -126,6 +132,8 @@ void ActuatorPwm::update() {
             // The duty would be lastHighDuration.
             // If this duty is already lower than the target, staying low will only make things worse.
             goHigh = true;
+            // do not recalculate cycle time, we can estimate it better here
+            // estimatedCycleTime = sinceHighToLow + dutyTime; // last low period + expected high period
         }
         else if (elapsedTime >= period_ms) {
             // end of PWM cycle
@@ -150,7 +158,12 @@ void ActuatorPwm::update() {
             }
             if(target->isActive()){
                 newPeriod = true;
-                cycleTime = ticks.timeSinceMillis(lowToHighTime);
+                if(estimatedCycleTime){
+                    cycleTime = estimatedCycleTime; // already had an estimate from ending cycle early
+                }
+                else{
+                    cycleTime = ticks.timeSinceMillis(lowToHighTime);
+                }
                 lowToHighTime = currentTime;
             }
         }

@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(on_off_time_matches_duty_cycle_when_updating_every_ms) {
            << "time high: " << timeHigh << "\t"
            << "time low: " << timeLow << "\t"
            << "actual duty cycle: " << actualDuty;
-    BOOST_CHECK_CLOSE(actualDuty, 50.0, 0.1);
+    BOOST_CHECK_CLOSE(actualDuty, 50.0, 0.5);
 }
 
 BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_random_update_intervals) {
@@ -591,8 +591,8 @@ BOOST_AUTO_TEST_CASE(fluctuating_pwm_value_gives_correct_average_with_time_limit
     double timeLow = 0.0;
     ticks_millis_t loopTime = ticks.millis();
     while(ticks.millis() - start < 1000000){ // run for 1000 seconds
-        // fluctuate with a period of 100 seconds around 50 with amplitude 50
-        pwmValue = 50.0 + 50.0 * sin(3.14159265*2 * ticks.millis()/100000);
+        // fluctuate with a period of 200 seconds around 50 with amplitude 50
+        pwmValue = 50.0 - 50.0 * cos(3.14159265*2 * (ticks.millis()-start)/200000);
         pwmAct->setValue(pwmValue);
 
         pwmAct->update();
