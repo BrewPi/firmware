@@ -41,25 +41,25 @@ ControlConstants const ccDefaults PROGMEM =
 {
     // Do Not change the order of these initializations!
     'C', // tempFormat
-    5.0, // heater1_kp
-    120, // heater1_ti
-    0, // heater1_td
-    2, // heater1_infilt
+    10.0, // heater1_kp
+    600, // heater1_ti
+    60, // heater1_td
+    1, // heater1_infilt
     4, // heater1_dfilt
-    5.0, // heater2_kp
-    120, // heater2_ti
-    0, // heater2_td
-    2, // heater2_infilt
+    10.0, // heater2_kp
+    600, // heater2_ti
+    60, // heater2_td
+    1, // heater2_infilt
     4, // heater2_dfilt
-    5.0, // cooler_kp
+    10.0, // cooler_kp
     1800, // cooler_ti
-    60, // cooler_td
-    2, // cooler_infilt
+    200, // cooler_td
+    1, // cooler_infilt
     4, // cooler_dfilt
     2.0, // beer2fridge_kp
     7200, // beer2fridge_ti
-    50, // beer2fridge_td
-    4, // beer2fridge_infilt
+    1200, // beer2fridge_td
+    1, // beer2fridge_infilt
     4, // beer2fridge_dfilt
     10, // beer2fridge_pidMax
     120, // minCoolTime
