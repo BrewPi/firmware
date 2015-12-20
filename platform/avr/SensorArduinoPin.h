@@ -9,7 +9,7 @@
 
 #include "Brewpi.h"
 #include "FastDigitalPin.h"
-#include "Pins.h"
+#include "Board.h"
 
 /* A SwitchSensor whose state is provided by a hardware pin. 
   By using a template, the compiler can inline and optimize the call to digitalRead to a single instruction.

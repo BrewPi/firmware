@@ -162,12 +162,11 @@ void RotaryEncoder::process(uint8_t currPinA, uint8_t currPinB){
 	unsigned char pinstate = (currPinB << 1) | currPinA;
 
 	// Determine new state from the pins and state table.
-	if(tempControl.cc.rotaryHalfSteps){
+#if ROTARY_HALF_STEPS
 		state = pgm_read_byte(&(hs_ttable[state & 0xf][pinstate]));	
-	}
-	else{
+#else
 		state = pgm_read_byte(&(ttable[state & 0xf][pinstate]));	
-	}
+#endif
 	
 	// Get emit bits, ie the generated event.	
 	uint8_t dir = state & 0x30;

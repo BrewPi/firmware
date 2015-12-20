@@ -20,7 +20,7 @@
 #pragma once
 
 #include <stdarg.h>
-#include "TemperatureFormats.h"
+#include "temperatureFormats.h"
 #include "LogMessages.h"
 
 // define error id variable type to make it easy to bump to uint16 when needed
@@ -46,7 +46,7 @@ extern Logger logger;
 	inline void logErrorString(uint8_t debugId, const char * val){
 		logger.logMessageVaArg('E', debugId, "s", val);
 	}
-	inline void logErrorTemp(uint8_t debugId, temperature temp){
+	inline void logErrorTemp(uint8_t debugId, temp_t * temp){
 		logger.logMessageVaArg('E', debugId, "t", temp);
 	}
 	inline void logErrorIntInt(uint8_t debugId, int val1, int val2){
@@ -74,7 +74,7 @@ extern Logger logger;
 	inline void logWarningString(uint8_t debugId, const char * val){
 		logger.logMessageVaArg('W', debugId, "s", val);
 	}
-	inline void logWarningTemp(uint8_t debugId, temperature temp){
+	inline void logWarningTemp(uint8_t debugId, temp_t * temp){
 		logger.logMessageVaArg('W', debugId, "t", temp);
 	}
 	inline void logWarningIntString(uint8_t debugId, int val1, const char *val2){
@@ -98,7 +98,7 @@ extern Logger logger;
 		inline void logInfoString(uint8_t debugId, const char * val){
 			logger.logMessageVaArg('I', debugId, "s", val);
 		}
-		inline void logInfoTemp(uint8_t debugId, temperature temp){
+		inline void logInfoTemp(uint8_t debugId, temp_t * temp){
 			logger.logMessageVaArg('I', debugId, "t", temp);
 		}
 		inline void logInfoIntString(uint8_t debugId, int val1, const char * val2){
@@ -107,10 +107,10 @@ extern Logger logger;
 		inline void logInfoStringString(uint8_t debugId, const char * val1, const char * val2){
 			logger.logMessageVaArg('I', debugId, "ss", val1, val2);
 		}
-		inline void logInfoIntStringTemp(uint8_t debugId, int val1, const char * val2, temperature val3){
+		inline void logInfoIntStringTemp(uint8_t debugId, int val1, const char * val2, temp_t * val3){
 			logger.logMessageVaArg('I', debugId, "dst", val1, val2, val3);
 		}
-		inline void logInfoTempTempFixedFixed(uint8_t debugId, temperature t1, temperature t2, temperature f1, temperature f2){
+		inline void logInfoTempTempFixedFixed(uint8_t debugId, temp_t * t1, temp_t * t2, temp_t * f1, temp_t * f2){
 			logger.logMessageVaArg('I', debugId, "ttff", t1, t2, f1, f2);
 		}
 #else

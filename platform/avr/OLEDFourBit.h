@@ -27,7 +27,7 @@
 
 #include <inttypes.h>
 #include "Print.h"
-#include "Pins.h"
+#include "Board.h"
 
 // commands
 #define LCD_CLEARDISPLAY 0x01

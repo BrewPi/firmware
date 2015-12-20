@@ -1,0 +1,13 @@
+language: cpp
+before_install:
+- sudo apt-get update
+install:
+- ./ci/install_arm_gcc.sh
+- source ./ci/install_boost.sh
+script:
+- ./ci/build.sh
+notification:
+  secure: dx1/7uGTPro7IWmz2JjO+m+Zz7rEi79ilR/zlr9dhKmqqRdukFI5DhixY7SRfUxJ4IsztfaUOxYe8V8+f9y7itLuQ1sxDJEsatTIzKM+J+wyQa4+Sx/0b0fSiyYqinkacYB8W0RwEZymgXsEwrKOBwvuyA/Y2W0EF0QB902Xi+U=
+notifications:
+  slack:
+    secure: AoLzFHi7c7sRdcsMIzCgG3amg/1acImECO21Q3LXf6i6++ytqrvgTiQMQp9k1XJq+WVlrRiP7NDl3o8oMQv9nR/xrNXhosYHXVHAYY/B1nh4jl4pp8hPTMQUJcac64w1zbJMMqlABbawelVg8qF4zn+TNX+io8APERoycBpQgT4=

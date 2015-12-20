@@ -3,11 +3,20 @@ $(MAKECMDGOALS) %: run_make
 
 .PHONY: run_make
 
-APPDIR = ../../firmware
+mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
+current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
+
+
+PARTICLE_FIRMWARE=firmware
+
+APPDIR = $(abspath $(current_dir)/../../..)
 SPARKDIR = $(APPDIR)/platform/spark
 APP ?= controller
+APP_MAKEFILE = app/$(APP)/build.mk
+# include exported definitions for the app now
+-include $(APPDIR)/app/$(APP)/env.mk
 
 run_make:
-	@$(MAKE) -e -C ../../../spark-firmware/main APPDIR=$(APPDIR) \
-	USER_MAKEFILE=app/$(APP)/build.mk \
-	TARGET_FILE=brewpi TARGET_DIR=$(SPARKDIR)/target $(MAKEOVERRIDES) $(MAKECMDGOALS) 
+	@$(MAKE) -e -C $(PARTICLE_FIRMWARE)/main APPDIR=$(APPDIR) \
+	USER_MAKEFILE=$(APP_MAKEFILE) \
+	TARGET_FILE=brewpi TARGET_DIR=$(SPARKDIR)/target  BUILD_PATH_BASE=$(SPARKDIR)/target $(MAKEOVERRIDES) $(MAKECMDGOALS) 

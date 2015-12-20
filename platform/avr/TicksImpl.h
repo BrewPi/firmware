@@ -9,12 +9,7 @@
 #ifndef TICKSIMPL_H_
 #define TICKSIMPL_H_
 
-typedef uint16_t tcduration_t;
-typedef uint32_t ticks_millis_t;
-typedef uint32_t ticks_micros_t;
-typedef uint16_t ticks_seconds_t;
-typedef uint8_t ticks_seconds_tiny_t;
-
+#include "Platform.h"
 #include "TicksWiring.h"
 
 // Determine the type of Ticks needed

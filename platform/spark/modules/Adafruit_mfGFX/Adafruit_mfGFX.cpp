@@ -12,7 +12,7 @@ paired with a hardware-specific library for each display device we carry
 
 Adafruit invests time and resources providing this open source code, please
 support Adafruit & open-source hardware by purchasing products from Adafruit!
- 
+
 Copyright (c) 2013 Adafruit Industries.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "fonts.h"
 
 
+#ifndef pgm_read_byte
 #define pgm_read_byte(addr) (*(const uint8_t *)(addr))
+#endif
 
 Adafruit_GFX::Adafruit_GFX(int16_t w, int16_t h) :
 WIDTH(w), HEIGHT(h) {
@@ -524,7 +526,7 @@ void Adafruit_GFX::setTextSize(uint8_t s) {
 }
 
 void Adafruit_GFX::setTextColor(uint16_t c) {
-    // For 'transparent' background, we'll set the bg 
+    // For 'transparent' background, we'll set the bg
     // to the same as fg instead of using a flag
     textcolor = textbgcolor = c;
 }

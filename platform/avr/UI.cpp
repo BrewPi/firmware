@@ -4,7 +4,7 @@
 #include "Display.h"
 #include "Buzzer.h"
 #include "Menu.h"
-#include "Actuator.h"
+#include "ActuatorInterfaces.h"
 
 DisplayType realDisplay;
 DisplayType DISPLAY_REF display = realDisplay;
@@ -34,11 +34,8 @@ void UI::showControllerPage()
 	display.printState();
 }
 
-extern ValueActuator alarm;
+extern ActuatorBool alarm;
 void UI::ticks() {
-#if BREWPI_BUZZER
-	buzzer.setActive(alarm.isActive() && !buzzer.isActive());
-#endif
 
 #if BREWPI_MENU
 	if(rotaryEncoder.pushed()){

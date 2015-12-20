@@ -31,13 +31,13 @@
  */
 // todo - rename this TemperatureSensor
 // rename the old TempSensor as FilteredTemperatureSensor
-class BasicTempSensor : public Container
+class TempSensorBasic : public Container
 {
 	BasicReadValue<temperature> tempValue;
 	BasicReadValue<bool> connected;
 	
 public:
-	virtual ~BasicTempSensor() { }
+	virtual ~TempSensorBasic() { }
 	
 	/**
 	 * Fetches the values from the temp sensor and assigns them to local values.

@@ -26,7 +26,7 @@ extern "C" {
 
 #include "controller_screen.h"
 #include "TempControl.h"
-#include "TemperatureFormats.h"
+#include "temperatureFormats.h"
 
 bool set_background_color(const D4D_OBJECT* pThis, D4D_COLOR bg);
 
@@ -131,11 +131,11 @@ public:
         view_(view), bg_col(col)
     {}
     
-    static void asString(char* buf, temperature t, unsigned num_decimals, unsigned max_len);
+    static void asString(char* buf, temp_t t, unsigned num_decimals, unsigned max_len);
     
     static const char* ltrim(const char* s);
         
-    void update(temperature current, temperature setpoint, bool has_setpoint=true);
+    void update(temp_t current, temp_t setpoint, bool has_setpoint=true);
 };
 
 class ControllerModeView

@@ -25,7 +25,7 @@
  */
 
 #ifndef BREWPI_STATIC_CONFIG
-#define BREWPI_STATIC_CONFIG BREWPI_SHIELD_SPARK_REV_C
+#define BREWPI_STATIC_CONFIG BREWPI_SHIELD_SPARK_V1
 #endif
 
 #ifndef FAST_DIGITAL_PIN 
@@ -36,7 +36,14 @@
  * Enable DS2413 Actuators. 
  */
 #ifndef BREWPI_DS2413
-#define BREWPI_DS2413 0 // TODO
+#define BREWPI_DS2413 1
+#endif
+
+/**
+ * Enable DS2408 Actuators.
+ */
+#ifndef BREWPI_DS2408
+#define BREWPI_DS2408 1
 #endif
 
 #ifndef BREWPI_BUZZER
@@ -55,7 +62,13 @@
 
 
 #ifndef BREWPI_BOARD
+#if PLATFORM_ID==0
     #define BREWPI_BOARD BREWPI_BOARD_SPARKCORE
+#elif PLATFORM_ID==6
+    #define BREWPI_BOARD BREWPI_BOARD_PHOTON
+#else
+#error Unknown Platform ID
+#endif
 #endif
 
 /*

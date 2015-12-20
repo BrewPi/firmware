@@ -1,0 +1,271 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="297mm" height="210mm" id="svg5625">
+  <defs />
+  <metadata id="metadata5631">
+  </metadata>
+  <g id="layer1">
+    <g transform="matrix(0.60885666,0,0,0.56813238,18.594894,63.66776)" id="g5378">
+      <g transform="translate(4,1021)" id="node3" class="node">
+        <title>3</title>
+        <polygon points="0,-489 0,-489 0,-783 314,-783 314,-489 " id="polygon3687" style="fill:none;stroke:#000000" />
+        <text x="157" y="-767.79999" font-size="14.00" id="text3689" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">stringer</text>
+        <polyline points="0,-760 314,-760 " id="polyline3691" style="fill:none;stroke:#000000" />
+        <text x="157" y="-744.79999" font-size="14.00" id="text3693" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">std::string m_buffer</text>
+        <polyline points="0,-737 314,-737 " id="polyline3695" style="fill:none;stroke:#000000" />
+        <text x="157" y="-721.79999" font-size="14.00" id="text3697" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">const char * c_str(void)</text>
+        <text x="157" y="-706.79999" font-size="14.00" id="text3699" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void clear(void)</text>
+        <text x="157" y="-691.79999" font-size="14.00" id="text3701" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool empty(void)</text>
+        <text x="157" y="-676.79999" font-size="14.00" id="text3703" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Chordia::stringer &amp; operator&lt;&lt;(char)</text>
+        <text x="157" y="-661.79999" font-size="14.00" id="text3705" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Chordia::stringer &amp; operator&lt;&lt;(const char *)</text>
+        <text x="157" y="-646.79999" font-size="14.00" id="text3707" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Chordia::stringer &amp; operator&lt;&lt;(const std::string &amp;)</text>
+        <text x="157" y="-631.79999" font-size="14.00" id="text3709" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Chordia::stringer &amp; operator&lt;&lt;(const std::wstring &amp;)</text>
+        <text x="157" y="-616.79999" font-size="14.00" id="text3711" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Chordia::stringer &amp; operator&lt;&lt;(bool)</text>
+        <text x="157" y="-601.79999" font-size="14.00" id="text3713" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Chordia::stringer &amp; operator&lt;&lt;(int)</text>
+        <text x="157" y="-586.79999" font-size="14.00" id="text3715" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Chordia::stringer &amp; operator&lt;&lt;(double)</text>
+        <text x="157" y="-571.79999" font-size="14.00" id="text3717" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">size_t size(void)</text>
+        <text x="157" y="-556.79999" font-size="14.00" id="text3719" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void stringer(void)</text>
+        <text x="157" y="-541.79999" font-size="14.00" id="text3721" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void stringer(const Chordia::stringer &amp;)</text>
+        <text x="157" y="-526.79999" font-size="14.00" id="text3723" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void stringer(const std::string &amp;)</text>
+        <text x="157" y="-511.79999" font-size="14.00" id="text3725" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void stringer(const char *)</text>
+        <text x="157" y="-496.79999" font-size="14.00" id="text3727" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void stringer(const char *,int)</text>
+      </g>
+      <g transform="translate(4,1021)" id="node11" class="node">
+        <title>11</title>
+        <polygon points="12,-120.5 12,-120.5 12,-294.5 302,-294.5 302,-120.5 " id="polygon3732" style="fill:none;stroke:#000000" />
+        <text x="157" y="-279.29999" font-size="14.00" id="text3734" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">StringSink</text>
+        <polyline points="12,-271.5 302,-271.5 " id="polyline3736" style="fill:none;stroke:#000000" />
+        <text x="157" y="-256.29999" font-size="14.00" id="text3738" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Chordia::stringer * _sink</text>
+        <polyline points="12,-248.5 302,-248.5 " id="polyline3740" style="fill:none;stroke:#000000" />
+        <text x="157" y="-233.3" font-size="14.00" id="text3742" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::ISink &amp; operator&lt;&lt;(const char *)</text>
+        <text x="157" y="-218.3" font-size="14.00" id="text3744" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::ISink &amp; operator&lt;&lt;(const std::string &amp;)</text>
+        <text x="157" y="-203.3" font-size="14.00" id="text3746" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::ISink &amp; operator&lt;&lt;(const std::wstring &amp;)</text>
+        <text x="157" y="-188.3" font-size="14.00" id="text3748" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::ISink &amp; operator&lt;&lt;(const char &amp;)</text>
+        <text x="157" y="-173.3" font-size="14.00" id="text3750" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::ISink &amp; operator&lt;&lt;(const int &amp;)</text>
+        <text x="157" y="-158.3" font-size="14.00" id="text3752" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::ISink &amp; operator&lt;&lt;(const double &amp;)</text>
+        <text x="157" y="-143.3" font-size="14.00" id="text3754" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::ISink &amp; operator&lt;&lt;(const bool &amp;)</text>
+        <text x="157" y="-128.3" font-size="14.00" id="text3756" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void StringSink(Chordia::stringer *)</text>
+      </g>
+      <g transform="translate(4,1021)" id="edge7" class="edge">
+        <title>3:port-&gt;11</title>
+        <path d="m 319.061,-739.615 c 7.76,45.196 -1.808,238.76 -5.061,251.115 -18.411,69.928 -58.489,140.9 -93.543,193.893" id="path3761" style="fill:none;stroke:#000000" />
+        <polygon points="318.972,-739.823 318.972,-739.823 316.986,-744.411 323.102,-741.61 315,-749 315,-749 315,-749 314.842,-738.035 316.986,-744.411 318.972,-739.823 " id="polygon3763" style="fill:#000000;stroke:#000000" />
+      </g>
+      <g transform="translate(4,1021)" id="node4" class="node">
+        <title>4</title>
+        <polygon points="1033.5,-594 1033.5,-594 1033.5,-678 1182.5,-678 1182.5,-594 " id="polygon3768" style="fill:none;stroke:#000000" />
+        <text x="1108" y="-662.79999" font-size="14.00" id="text3770" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Token</text>
+        <polyline points="1033.5,-655 1182.5,-655 " id="polyline3772" style="fill:none;stroke:#000000" />
+        <text x="1108" y="-639.79999" font-size="14.00" id="text3774" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">std::string text</text>
+        <text x="1108" y="-624.79999" font-size="14.00" id="text3776" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::TokenType type</text>
+        <polyline points="1033.5,-617 1182.5,-617 " id="polyline3778" style="fill:none;stroke:#000000" />
+        <text x="1108" y="-601.79999" font-size="14.00" id="text3780" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void Token(void)</text>
+      </g>
+      <g transform="translate(4,1021)" id="node14" class="node">
+        <title>14</title>
+        <polygon points="962.5,-0.5 962.5,-0.5 962.5,-414.5 1377.5,-414.5 1377.5,-0.5 " id="polygon3785" style="fill:none;stroke:#000000" />
+        <text x="1170" y="-399.29999" font-size="14.00" id="text3787" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Reader</text>
+        <polyline points="962.5,-391.5 1377.5,-391.5 " id="polyline3789" style="fill:none;stroke:#000000" />
+        <text x="1170" y="-376.29999" font-size="14.00" id="text3791" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::Scanner * m_pScanner</text>
+        <text x="1170" y="-361.29999" font-size="14.00" id="text3793" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::Token m_token</text>
+        <text x="1170" y="-346.29999" font-size="14.00" id="text3795" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">std::stack&lt;Token&gt; m_tokens</text>
+        <polyline points="962.5,-338.5 1377.5,-338.5 " id="polyline3797" style="fill:none;stroke:#000000" />
+        <text x="1170" y="-323.29999" font-size="14.00" id="text3799" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool more(void)</text>
+        <text x="1170" y="-308.29999" font-size="14.00" id="text3801" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool peek(JSON::TokenType)</text>
+        <text x="1170" y="-293.29999" font-size="14.00" id="text3803" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(JSON::TokenType)</text>
+        <text x="1170" y="-278.29999" font-size="14.00" id="text3805" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;,std::string &amp;,bool)</text>
+        <text x="1170" y="-263.29999" font-size="14.00" id="text3807" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;,std::wstring &amp;,bool)</text>
+        <text x="1170" y="-248.3" font-size="14.00" id="text3809" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;,int &amp;,bool)</text>
+        <text x="1170" y="-233.3" font-size="14.00" id="text3811" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;,double &amp;,bool)</text>
+        <text x="1170" y="-218.3" font-size="14.00" id="text3813" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;,bool &amp;,bool)</text>
+        <text x="1170" y="-203.3" font-size="14.00" id="text3815" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;)</text>
+        <text x="1170" y="-188.3" font-size="14.00" id="text3817" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(std::string &amp;)</text>
+        <text x="1170" y="-173.3" font-size="14.00" id="text3819" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(std::wstring &amp;)</text>
+        <text x="1170" y="-158.3" font-size="14.00" id="text3821" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(int &amp;)</text>
+        <text x="1170" y="-143.3" font-size="14.00" id="text3823" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(double &amp;)</text>
+        <text x="1170" y="-128.3" font-size="14.00" id="text3825" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(bool &amp;)</text>
+        <text x="1170" y="-113.3" font-size="14.00" id="text3827" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool storing(void)</text>
+        <text x="1170" y="-98.300003" font-size="14.00" id="text3829" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void GetNext(JSON::TokenType)</text>
+        <text x="1170" y="-83.300003" font-size="14.00" id="text3831" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void GetNext(const std::string &amp;,JSON::TokenType,std::string &amp;,bool)</text>
+        <text x="1170" y="-68.300003" font-size="14.00" id="text3833" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::TokenType Next(void)</text>
+        <text x="1170" y="-53.299999" font-size="14.00" id="text3835" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool _Peek(JSON::TokenType)</text>
+        <text x="1170" y="-38.299999" font-size="14.00" id="text3837" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool loop_or_end(JSON::TokenType,JSON::TokenType)</text>
+        <text x="1170" y="-23.299999" font-size="14.00" id="text3839" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void throw_if(bool,std::string)</text>
+        <text x="1170" y="-8.3000002" font-size="14.00" id="text3841" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void Reader(JSON::Scanner &amp;)</text>
+      </g>
+      <g transform="translate(4,1021)" id="edge10" class="edge">
+        <title>4:port-&gt;14</title>
+        <path d="m 1188.83,-627.068 c 5.92,28.6 2.24,121.374 -3.38,212.331" id="path3846" style="fill:none;stroke:#000000" />
+        <polygon points="1188.75,-627.202 1188.75,-627.202 1186.38,-631.601 1192.71,-629.342 1184,-636 1184,-636 1184,-636 1184.8,-625.063 1186.38,-631.601 1188.75,-627.202 " id="polygon3848" style="fill:#000000;stroke:#000000" />
+      </g>
+      <g transform="translate(4,1021)" id="node5" class="node">
+        <title>5</title>
+        <polygon points="1354.5,-857.5 1354.5,-857.5 1354.5,-1016.5 1513.5,-1016.5 1513.5,-857.5 " id="polygon3853" style="fill:none;stroke:#000000" />
+        <text x="1434" y="-1001.3" font-size="14.00" id="text3855" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">ISource</text>
+        <polyline points="1354.5,-993.5 1513.5,-993.5 " id="polyline3857" style="fill:none;stroke:#000000" />
+        <text x="1434" y="-978.29999" font-size="14.00" id="text3859" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'" />
+        <polyline points="1354.5,-970.5 1513.5,-970.5 " id="polyline3861" style="fill:none;stroke:#000000" />
+        <text x="1434" y="-955.29999" font-size="14.00" id="text3863" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">int Col(void)</text>
+        <text x="1434" y="-940.29999" font-size="14.00" id="text3865" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">int Line(void)</text>
+        <text x="1434" y="-925.29999" font-size="14.00" id="text3867" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool Match(const char *)</text>
+        <text x="1434" y="-910.29999" font-size="14.00" id="text3869" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">char Next(void)</text>
+        <text x="1434" y="-895.29999" font-size="14.00" id="text3871" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">char Peek(void)</text>
+        <text x="1434" y="-880.29999" font-size="14.00" id="text3873" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void Pushback(void)</text>
+        <text x="1434" y="-865.29999" font-size="14.00" id="text3875" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void ~ISource(void)</text>
+      </g>
+      <g transform="translate(4,1021)" id="node6" class="node">
+        <title>6</title>
+        <polygon points="1201,-519 1201,-519 1201,-753 1433,-753 1433,-519 " id="polygon3880" style="fill:none;stroke:#000000" />
+        <text x="1317" y="-737.79999" font-size="14.00" id="text3882" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">StringSource</text>
+        <polyline points="1201,-730 1433,-730 " id="polyline3884" style="fill:none;stroke:#000000" />
+        <text x="1317" y="-714.79999" font-size="14.00" id="text3886" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">int m_col</text>
+        <text x="1317" y="-699.79999" font-size="14.00" id="text3888" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">int m_line</text>
+        <text x="1317" y="-684.79999" font-size="14.00" id="text3890" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">const char * m_pc</text>
+        <text x="1317" y="-669.79999" font-size="14.00" id="text3892" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">const char * m_pe</text>
+        <text x="1317" y="-654.79999" font-size="14.00" id="text3894" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">const char * m_ps</text>
+        <polyline points="1201,-647 1433,-647 " id="polyline3896" style="fill:none;stroke:#000000" />
+        <text x="1317" y="-631.79999" font-size="14.00" id="text3898" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">int Col(void)</text>
+        <text x="1317" y="-616.79999" font-size="14.00" id="text3900" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">int Line(void)</text>
+        <text x="1317" y="-601.79999" font-size="14.00" id="text3902" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool Match(const char *)</text>
+        <text x="1317" y="-586.79999" font-size="14.00" id="text3904" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">char Next(void)</text>
+        <text x="1317" y="-571.79999" font-size="14.00" id="text3906" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">char Peek(void)</text>
+        <text x="1317" y="-556.79999" font-size="14.00" id="text3908" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void Pushback(void)</text>
+        <text x="1317" y="-541.79999" font-size="14.00" id="text3910" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void Track(char)</text>
+        <text x="1317" y="-526.79999" font-size="14.00" id="text3912" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void StringSource(const char *,size_t)</text>
+      </g>
+      <g transform="translate(4,1021)" id="edge1" class="edge">
+        <title>5-&gt;6</title>
+        <path d="m 1399.54,-847.936 c -11.63,29.725 -24.8,63.373 -37.14,94.924" id="path3917" style="fill:none;stroke:#000000" />
+        <polygon points="1402.87,-846.853 1396.36,-849.404 1396.36,-849.404 1403.26,-857.441 " id="polygon3919" style="fill:none;stroke:#000000" />
+      </g>
+      <g transform="translate(4,1021)" id="node7" class="node">
+        <title>7</title>
+        <polygon points="1451,-549 1451,-549 1451,-723 1649,-723 1649,-549 " id="polygon3924" style="fill:none;stroke:#000000" />
+        <text x="1550" y="-707.79999" font-size="14.00" id="text3926" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Scanner</text>
+        <polyline points="1451,-700 1649,-700 " id="polyline3928" style="fill:none;stroke:#000000" />
+        <text x="1550" y="-684.79999" font-size="14.00" id="text3930" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::ISource * m_pSource</text>
+        <polyline points="1451,-677 1649,-677 " id="polyline3932" style="fill:none;stroke:#000000" />
+        <text x="1550" y="-661.79999" font-size="14.00" id="text3934" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">int Col(void)</text>
+        <text x="1550" y="-646.79999" font-size="14.00" id="text3936" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">int Line(void)</text>
+        <text x="1550" y="-631.79999" font-size="14.00" id="text3938" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::Token Scan(void)</text>
+        <text x="1550" y="-616.79999" font-size="14.00" id="text3940" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">uint8_t fromHex(char)</text>
+        <text x="1550" y="-601.79999" font-size="14.00" id="text3942" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool issign(char)</text>
+        <text x="1550" y="-586.79999" font-size="14.00" id="text3944" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::Token readNumber(char)</text>
+        <text x="1550" y="-571.79999" font-size="14.00" id="text3946" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::Token readString(char)</text>
+        <text x="1550" y="-556.79999" font-size="14.00" id="text3948" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void Scanner(JSON::ISource &amp;)</text>
+      </g>
+      <g transform="translate(4,1021)" id="edge5" class="edge">
+        <title>5:port-&gt;7</title>
+        <path d="m 1518.1,-972.3 c 4.01,28.375 4.37,109.589 4.9,115.3 4.13,44.253 10.03,93.357 15.26,133.927" id="path3953" style="fill:none;stroke:#000000" />
+        <polygon points="1518.04,-972.474 1518.04,-972.474 1516.52,-977.237 1522.33,-973.843 1515,-982 1515,-982 1515,-982 1513.76,-971.105 1516.52,-977.237 1518.04,-972.474 " id="polygon3955" style="fill:#000000;stroke:#000000" />
+      </g>
+      <g transform="translate(4,1021)" id="edge9" class="edge">
+        <title>7:port-&gt;14</title>
+        <path d="m 1446.13,-679.554 c -6.94,42.935 0.79,218.048 -4.13,228.554 -15.77,33.657 -38.63,64.638 -64.49,92.398" id="path3960" style="fill:none;stroke:#000000" />
+        <polygon points="1446.21,-679.745 1446.21,-679.745 1448.11,-684.372 1450.38,-678.041 1450,-689 1450,-689 1450,-689 1442.05,-681.449 1448.11,-684.372 1446.21,-679.745 " id="polygon3962" style="fill:#000000;stroke:#000000" />
+      </g>
+      <g transform="translate(4,1021)" id="node8" class="node">
+        <title>8</title>
+        <polygon points="641.5,-451.5 641.5,-451.5 641.5,-820.5 954.5,-820.5 954.5,-451.5 " id="polygon3967" style="fill:none;stroke:#000000" />
+        <text x="798" y="-805.29999" font-size="14.00" id="text3969" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Adapter</text>
+        <polyline points="641.5,-797.5 954.5,-797.5 " id="polyline3971" style="fill:none;stroke:#000000" />
+        <text x="798" y="-782.29999" font-size="14.00" id="text3973" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">int _count</text>
+        <text x="798" y="-767.29999" font-size="14.00" id="text3975" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool _vector</text>
+        <polyline points="641.5,-759.5 954.5,-759.5 " id="polyline3977" style="fill:none;stroke:#000000" />
+        <text x="798" y="-744.29999" font-size="14.00" id="text3979" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">int dec(void)</text>
+        <text x="798" y="-729.29999" font-size="14.00" id="text3981" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">int inc(void)</text>
+        <text x="798" y="-714.29999" font-size="14.00" id="text3983" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool is_vector(void)</text>
+        <text x="798" y="-699.29999" font-size="14.00" id="text3985" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool more(void)</text>
+        <text x="798" y="-684.29999" font-size="14.00" id="text3987" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool peek(JSON::TokenType)</text>
+        <text x="798" y="-669.29999" font-size="14.00" id="text3989" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(JSON::TokenType)</text>
+        <text x="798" y="-654.29999" font-size="14.00" id="text3991" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;)</text>
+        <text x="798" y="-639.29999" font-size="14.00" id="text3993" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(std::wstring &amp;)</text>
+        <text x="798" y="-624.29999" font-size="14.00" id="text3995" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(std::string &amp;)</text>
+        <text x="798" y="-609.29999" font-size="14.00" id="text3997" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(int &amp;)</text>
+        <text x="798" y="-594.29999" font-size="14.00" id="text3999" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(double &amp;)</text>
+        <text x="798" y="-579.29999" font-size="14.00" id="text4001" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(bool &amp;)</text>
+        <text x="798" y="-564.29999" font-size="14.00" id="text4003" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;,std::wstring &amp;,bool)</text>
+        <text x="798" y="-549.29999" font-size="14.00" id="text4005" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;,std::string &amp;,bool)</text>
+        <text x="798" y="-534.29999" font-size="14.00" id="text4007" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;,int &amp;,bool)</text>
+        <text x="798" y="-519.29999" font-size="14.00" id="text4009" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;,double &amp;,bool)</text>
+        <text x="798" y="-504.29999" font-size="14.00" id="text4011" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;,bool &amp;,bool)</text>
+        <text x="798" y="-489.29999" font-size="14.00" id="text4013" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool storing(void)</text>
+        <text x="798" y="-474.29999" font-size="14.00" id="text4015" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void vector(bool)</text>
+        <text x="798" y="-459.29999" font-size="14.00" id="text4017" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void Adapter(void)</text>
+      </g>
+      <g transform="translate(4,1021)" id="node9" class="node">
+        <title>9</title>
+        <polygon points="652,-165.5 652,-165.5 652,-249.5 944,-249.5 944,-165.5 " id="polygon4022" style="fill:none;stroke:#000000" />
+        <text x="798" y="-234.3" font-size="14.00" id="text4024" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Class</text>
+        <polyline points="652,-226.5 944,-226.5 " id="polyline4026" style="fill:none;stroke:#000000" />
+        <text x="798" y="-211.3" font-size="14.00" id="text4028" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::Adapter * m_pAdapter</text>
+        <polyline points="652,-203.5 944,-203.5 " id="polyline4030" style="fill:none;stroke:#000000" />
+        <text x="798" y="-188.3" font-size="14.00" id="text4032" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void Class(JSON::Adapter &amp;,const std::string &amp;)</text>
+        <text x="798" y="-173.3" font-size="14.00" id="text4034" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void ~Class(void)</text>
+      </g>
+      <g transform="translate(4,1021)" id="edge6" class="edge">
+        <title>8:port-&gt;9</title>
+        <path d="m 966.15,-777.062 c 57.43,23.793 8.555,259.74 -11.15,326.062 -23.355,78.605 -80.918,155.721 -119.467,201.186" id="path4039" style="fill:none;stroke:#000000" />
+        <polygon points="965.822,-777.124 965.822,-777.124 960.911,-778.062 966.667,-781.544 956,-779 956,-779 956,-779 964.978,-772.704 960.911,-778.062 965.822,-777.124 " id="polygon4041" style="fill:#000000;stroke:#000000" />
+      </g>
+      <g transform="translate(4,1021)" id="node12" class="node">
+        <title>12</title>
+        <polygon points="320.5,-68 320.5,-68 320.5,-347 633.5,-347 633.5,-68 " id="polygon4046" style="fill:none;stroke:#000000" />
+        <text x="477" y="-331.79999" font-size="14.00" id="text4048" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">Writer</text>
+        <polyline points="320.5,-324 633.5,-324 " id="polyline4050" style="fill:none;stroke:#000000" />
+        <text x="477" y="-308.79999" font-size="14.00" id="text4052" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::ISink * _sink</text>
+        <polyline points="320.5,-301 633.5,-301 " id="polyline4054" style="fill:none;stroke:#000000" />
+        <text x="477" y="-285.79999" font-size="14.00" id="text4056" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;,std::string &amp;,bool)</text>
+        <text x="477" y="-270.79999" font-size="14.00" id="text4058" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;,std::wstring &amp;,bool)</text>
+        <text x="477" y="-255.8" font-size="14.00" id="text4060" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;,int &amp;,bool)</text>
+        <text x="477" y="-240.8" font-size="14.00" id="text4062" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;,double &amp;,bool)</text>
+        <text x="477" y="-225.8" font-size="14.00" id="text4064" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;,bool &amp;,bool)</text>
+        <text x="477" y="-210.8" font-size="14.00" id="text4066" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(const std::string &amp;)</text>
+        <text x="477" y="-195.8" font-size="14.00" id="text4068" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(JSON::TokenType)</text>
+        <text x="477" y="-180.8" font-size="14.00" id="text4070" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(std::string &amp;)</text>
+        <text x="477" y="-165.8" font-size="14.00" id="text4072" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(std::wstring &amp;)</text>
+        <text x="477" y="-150.8" font-size="14.00" id="text4074" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(int &amp;)</text>
+        <text x="477" y="-135.8" font-size="14.00" id="text4076" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(double &amp;)</text>
+        <text x="477" y="-120.8" font-size="14.00" id="text4078" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void serialize(bool &amp;)</text>
+        <text x="477" y="-105.8" font-size="14.00" id="text4080" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">bool storing(void)</text>
+        <text x="477" y="-90.800003" font-size="14.00" id="text4082" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">const char * Quote(void)</text>
+        <text x="477" y="-75.800003" font-size="14.00" id="text4084" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">void Writer(JSON::ISink *)</text>
+      </g>
+      <g transform="translate(4,1021)" id="edge3" class="edge">
+        <title>8-&gt;12</title>
+        <path d="m 653.589,-443.127 c -24.365,32.373 -49.229,65.409 -72.316,96.084" id="path4089" style="fill:none;stroke:#000000" />
+        <polygon points="656.554,-441.246 650.961,-445.456 650.961,-445.456 659.771,-451.341 " id="polygon4091" style="fill:none;stroke:#000000" />
+      </g>
+      <g transform="translate(4,1021)" id="edge4" class="edge">
+        <title>8-&gt;14</title>
+        <path d="m 961.289,-447.789 c 9.561,10.963 19.204,22.019 28.825,33.049" id="path4096" style="fill:none;stroke:#000000" />
+        <polygon points="963.894,-450.126 958.619,-445.525 958.619,-445.525 954.683,-455.362 " id="polygon4098" style="fill:none;stroke:#000000" />
+      </g>
+      <g transform="translate(4,1021)" id="node10" class="node">
+        <title>10</title>
+        <polygon points="332,-556.5 332,-556.5 332,-715.5 622,-715.5 622,-556.5 " id="polygon4103" style="fill:none;stroke:#000000" />
+        <text x="477" y="-700.29999" font-size="14.00" id="text4105" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">ISink</text>
+        <polyline points="332,-692.5 622,-692.5 " id="polyline4107" style="fill:none;stroke:#000000" />
+        <text x="477" y="-677.29999" font-size="14.00" id="text4109" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'" />
+        <polyline points="332,-669.5 622,-669.5 " id="polyline4111" style="fill:none;stroke:#000000" />
+        <text x="477" y="-654.29999" font-size="14.00" id="text4113" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::ISink &amp; operator&lt;&lt;(const char *)</text>
+        <text x="477" y="-639.29999" font-size="14.00" id="text4115" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::ISink &amp; operator&lt;&lt;(const std::string &amp;)</text>
+        <text x="477" y="-624.29999" font-size="14.00" id="text4117" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::ISink &amp; operator&lt;&lt;(const std::wstring &amp;)</text>
+        <text x="477" y="-609.29999" font-size="14.00" id="text4119" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::ISink &amp; operator&lt;&lt;(const char &amp;)</text>
+        <text x="477" y="-594.29999" font-size="14.00" id="text4121" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::ISink &amp; operator&lt;&lt;(const int &amp;)</text>
+        <text x="477" y="-579.29999" font-size="14.00" id="text4123" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::ISink &amp; operator&lt;&lt;(const double &amp;)</text>
+        <text x="477" y="-564.29999" font-size="14.00" id="text4125" style="font-size:14px;text-anchor:middle;font-family:'Times New Roman,serif'">JSON::ISink &amp; operator&lt;&lt;(const bool &amp;)</text>
+      </g>
+      <g transform="translate(4,1021)" id="edge2" class="edge">
+        <title>10-&gt;11</title>
+        <path d="m 411.511,-548.441 c -30.59,40.492 -67.47,89.395 -100.511,133.441 -29.588,39.442 -62.253,83.212 -89.858,120.266" id="path4130" style="fill:none;stroke:#000000" />
+        <polygon points="414.306,-546.335 408.721,-550.555 408.721,-550.555 417.542,-556.423 " id="polygon4132" style="fill:none;stroke:#000000" />
+      </g>
+      <g transform="translate(4,1021)" id="edge8" class="edge">
+        <title>10:port-&gt;12</title>
+        <path d="m 628.037,-672.19 c 4.966,26.592 -3.733,104.921 -6.037,116.19 -14.599,71.412 -43.987,146.539 -72.513,208.597" id="path4137" style="fill:none;stroke:#000000" />
+        <polygon points="627.964,-672.319 627.964,-672.319 625.482,-676.659 631.87,-674.552 623,-681 623,-681 623,-681 624.057,-670.085 625.482,-676.659 627.964,-672.319 " id="polygon4139" style="fill:#000000;stroke:#000000" />
+      </g>
+    </g>
+  </g>
+</svg>
