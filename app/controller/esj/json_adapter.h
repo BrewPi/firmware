@@ -588,14 +588,12 @@ inline void stream_classes(Adapter& adapter,const std::string& key,std::vector<T
 			}
 			
 			// emit/check "type_name"
-			m_pAdapter->serialize("class");
+			// constructor emits opening scope
+			// print {kind: <type name>,
+			m_pAdapter->serialize("kind");
 			m_pAdapter->serialize(T_COLON);
 			m_pAdapter->serialize(type_name);
 			m_pAdapter->serialize(T_COMMA);
-			m_pAdapter->serialize("variables");
-			m_pAdapter->serialize(T_COLON);
-			// constructor emits opening scope
-			m_pAdapter->serialize(T_OBJ_BEGIN);
 		}
 
 		// this is a bit nasty as it causes a double exception
@@ -603,7 +601,6 @@ inline void stream_classes(Adapter& adapter,const std::string& key,std::vector<T
 		~Class()
 		{
 			// destructor emits closing scope(s)
-			m_pAdapter->serialize(T_OBJ_END);
 
 			// is this the final scope?
 			int count = m_pAdapter->dec();

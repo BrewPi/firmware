@@ -50,34 +50,26 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators) {
 
     /* With some extra whitespace, the valid output looks like this:
 {
-    "class": "ActuatorPwm",
-    "variables": {
-        "value": 0.0000,
-        "period": 20,
-        "minVal": 0.0000,
-        "maxVal": 100.0000,
+    "kind": "ActuatorPwm",
+    "value": 0.0000,
+    "period": 20,
+    "minVal": 0.0000,
+    "maxVal": 100.0000,
+    "target": {
+        "kind": "ActuatorMutexDriver",
+        "mutexGroup": null,
         "target": {
-            "class": "ActuatorMutexDriver",
-            "variables": {
-                "mutexGroup": null,
-                "target": {
-                    "class": "ActuatorBool",
-                    "variables": {
-                        "state": false
-                    }
-                }
-            }
+            "kind": "ActuatorBool",
+            "state": false
         }
     }
 }
 */
 
-    std::string valid = R"({"class":"ActuatorPwm","variables":{"value":0.0000,)"
+    std::string valid = R"({"kind":"ActuatorPwm","value":0.0000,)"
                         R"("period":20,"minVal":0.0000,"maxVal":100.0000,)"
-                        R"("target":{"class":"ActuatorMutexDriver",)"
-                        R"("variables":{"mutexGroup":null,)"
-                        R"("target":{"class":"ActuatorBool",)"
-                        R"("variables":{"state":false}}}}}})";
+                        R"("target":{"kind":"ActuatorMutexDriver","mutexGroup":null,)"
+                        R"("target":{"kind":"ActuatorBool","state":false}}})";
     BOOST_CHECK_EQUAL(valid, json);
 }
 
@@ -95,37 +87,27 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
 
 /* With some extra whitespace, the valid output looks like this:
 {
-    "class": "ActuatorPwm",
-    "variables": {
-        "value": 0.0000,
-        "period": 600,
-        "minVal": 0.0000,
-        "maxVal": 100.0000,
+    "kind": "ActuatorPwm",
+    "value": 0.0000,
+    "period": 600,
+    "minVal": 0.0000,
+    "maxVal": 100.0000,
+    "target": {
+        "kind": "ActuatorMutexDriver",
+        "mutexGroup": {
+            "kind": "ActuatorMutexGroup",
+            "deadTime": 0,
+            "lastActiveTime": 0
+        },
         "target": {
-            "class": "ActuatorMutexDriver",
-            "variables": {
-                "mutexGroup": {
-                    "class": "ActuatorMutexGroup",
-                    "variables": {
-                        "deadTime": 0,
-                        "lastActiveTime": 0
-                    }
-                },
-                "target": {
-                    "class": "ActuatorTimeLimited",
-                    "variables": {
-                        "minOnTime": 120,
-                        "minOffTime": 180,
-                        "maxOnTime": 65535,
-                        "active": false,
-                        "target": {
-                            "class": "ActuatorBool",
-                            "variables": {
-                                "state": false
-                            }
-                        }
-                    }
-                }
+            "kind": "ActuatorTimeLimited",
+            "minOnTime": 120,
+            "minOffTime": 180,
+            "maxOnTime": 65535,
+            "active": false,
+            "target": {
+                "kind": "ActuatorBool",
+                 "state": false
             }
         }
     }
@@ -133,15 +115,12 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
 */
 
 
-    std::string valid = R"({"class":"ActuatorPwm","variables":{"value":0.0000,)"
+    std::string valid = R"({"kind":"ActuatorPwm","value":0.0000,)"
                         R"("period":600,"minVal":0.0000,"maxVal":100.0000,)"
-                        R"("target":{"class":"ActuatorMutexDriver",)"
-                        R"("variables":{"mutexGroup":{"class":"ActuatorMutexGroup",)"
-                        R"("variables":{"deadTime":0,"lastActiveTime":0}},)"
-                        R"("target":{"class":"ActuatorTimeLimited",)"
-                        R"("variables":{"minOnTime":120,"minOffTime":180,"maxOnTime":65535,)"
-                        R"("active":false,"target":{"class":"ActuatorBool",)"
-                        R"("variables":{"state":false}}}}}}}})";
+                        R"("target":{"kind":"ActuatorMutexDriver","mutexGroup":)"
+                        R"({"kind":"ActuatorMutexGroup","deadTime":0,"lastActiveTime":0},)"
+                        R"("target":{"kind":"ActuatorTimeLimited","minOnTime":120,"minOffTime":180,"maxOnTime":65535,)"
+                        R"("active":false,"target":{"kind":"ActuatorBool","state":false}}}})";
 
 
     BOOST_CHECK_EQUAL(valid, json);
@@ -153,12 +132,12 @@ BOOST_AUTO_TEST_CASE(serialize_setpoint) {
 
 
     std::string json = JSON::producer<SetPoint>::convert(sp1);
-    std::string valid = R"({"class":"SetPointSimple","variables":{"value":null}})";
+    std::string valid = R"({"kind":"SetPointSimple","value":null})";
 
     BOOST_CHECK_EQUAL(valid, json);
 
     json = JSON::producer<SetPoint>::convert(sp2);
-    valid = R"({"class":"SetPointConstant","variables":{"value":20.0000}})";
+    valid = R"({"kind":"SetPointConstant","value":20.0000})";
 
     BOOST_CHECK_EQUAL(valid, json);
 }
@@ -174,40 +153,32 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
 
 /* With some extra whitespace, the valid output looks like this:
     {
-        "class": "ActuatorSetPoint",
-        "variables": {
-            "targetSetPoint": {
-                "class": "SetPointSimple",
-                "variables": {
-                    "value": 25.0000
-                }
-            },
-            "targetSensor": {
-                "class": "TempSensorMock",
-                "variables": {
-                    "value": 20.0000,
-                    "connected": true
-                }
-            },
-            "referenceSetPoint": {
-                "class": "SetPointConstant",
-                "variables": {
-                    "value": 20.0000
-                }
-            },
-            "output": 5.0000,
-            "achieved": 0.0000,
-            "minimum": -10.0000,
-            "maximum": 10.0000
-        }
+        "kind": "ActuatorSetPoint",
+        "targetSetPoint": {
+            "kind": "SetPointSimple"
+            "value": 25.0000
+        },
+        "targetSensor": {
+            "kind": "TempSensorMock",
+            "value": 20.0000,
+            "connected": true
+        },
+        "referenceSetPoint": {
+            "kind": "SetPointConstant",
+            "value": 20.0000
+        },
+        "output": 5.0000,
+        "achieved": 0.0000,
+        "minimum": -10.0000,
+        "maximum": 10.0000
     }
 */
 
-    std::string valid = R"({"class":"ActuatorSetPoint","variables":{)"
-        R"("targetSetPoint":{"class":"SetPointSimple","variables":{"value":25.0000}},)"
-        R"("targetSensor":{"class":"TempSensorMock","variables":{"value":20.0000,"connected":true}},)"
-        R"("referenceSetPoint":{"class":"SetPointConstant","variables":{)"
-        R"("value":20.0000}},"output":5.0000,"achieved":0.0000,"minimum":-10.0000,"maximum":10.0000}})";
+    std::string valid = R"({"kind":"ActuatorSetPoint",)"
+        R"("targetSetPoint":{"kind":"SetPointSimple","value":25.0000},)"
+        R"("targetSensor":{"kind":"TempSensorMock","value":20.0000,"connected":true},)"
+        R"("referenceSetPoint":{"kind":"SetPointConstant","value":20.0000},)"
+        R"("output":5.0000,"achieved":0.0000,"minimum":-10.0000,"maximum":10.0000})";
 
     BOOST_CHECK_EQUAL(valid, json);
 }
@@ -223,57 +194,47 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
 
 /* With some extra whitespace, the valid output looks like this:
 {
-    "class": "Pid",
-    "variables": {
-        "name":"",
-        "enabled":true,
-        "setPoint": {
-            "class": "SetPointSimple",
-            "variables": {
-                "value": 20.0000
-            }
-        },
-        "inputSensor": {
-            "class": "TempSensorMock",
-            "variables": {
-                "value": 20.0000,
-                "connected": true
-            }
-        },
-        "inputError": 0,
-        "Kp": 0.0000,
-        "Ti": 0,
-        "Td": 0,
-        "p": 0.0000,
-        "i": 0.0000,
-        "d": 0.0000,
-        "actuatorIsNegative": false,
-        "outputActuator": {
-            "class": "ActuatorPwm",
-            "variables": {
-                "value": 0.0000,
-                "period": 4,
-                "minVal": 0.0000,
-                "maxVal": 100.0000,
-                "target": {
-                    "class": "ActuatorBool",
-                    "variables": {
-                        "state": false
-                    }
-                }
-            }
+    "kind": "Pid",
+    "name":"",
+    "enabled":true,
+    "setPoint": {
+        "kind": "SetPointSimple",
+        "value": 20.0000
+    },
+    "inputSensor": {
+        "kind": "TempSensorMock",
+        "value": 20.0000,
+        "connected": true
+    },
+    "inputError": 0,
+    "Kp": 0.0000,
+    "Ti": 0,
+    "Td": 0,
+    "p": 0.0000,
+    "i": 0.0000,
+    "d": 0.0000,
+    "actuatorIsNegative": false,
+    "outputActuator": {
+        "kind": "ActuatorPwm",
+        "value": 0.0000,
+        "period": 4,
+        "minVal": 0.0000,
+        "maxVal": 100.0000,
+        "target": {
+            "kind": "ActuatorBool",
+            "state": false
         }
     }
 }
 */
 
-    std::string valid = R"({"class":"Pid","variables":{"name":"","enabled":true,)"
-        R"("setPoint":{"class":"SetPointSimple","variables":{"value":20.0000}},)"
-        R"("inputSensor":{"class":"TempSensorMock","variables":{"value":20.0000,"connected":true}},)"
+    std::string valid = R"({"kind":"Pid","name":"","enabled":true,)"
+        R"("setPoint":{"kind":"SetPointSimple","value":20.0000},)"
+        R"("inputSensor":{"kind":"TempSensorMock","value":20.0000,"connected":true},)"
         R"("inputError":0.0000,"Kp":0.0000,"Ti":0,"Td":0,"p":0.0000,"i":0.0000,"d":0.0000,)"
-        R"("actuatorIsNegative":false,"outputActuator":{"class":"ActuatorPwm",)"
-        R"("variables":{"value":0.0000,"period":4,"minVal":0.0000,"maxVal":100.0000,)"
-        R"("target":{"class":"ActuatorBool","variables":{"state":false}}}}}})";
+        R"("actuatorIsNegative":false,"outputActuator":{"kind":"ActuatorPwm",)"
+        R"("value":0.0000,"period":4,"minVal":0.0000,"maxVal":100.0000,)"
+        R"("target":{"kind":"ActuatorBool","state":false}}})";
 
     BOOST_CHECK_EQUAL(valid, json);
 }
@@ -283,8 +244,8 @@ BOOST_AUTO_TEST_CASE(serialize_TempSensor) {
     TempSensor * sensor = new TempSensor(s, "test");
 
     std::string json = JSON::producer<TempSensor>::convert(sensor);
-    std::string valid = R"({"class":"TempSensor","variables":{"name":"test","sensor":{)"
-        R"("class":"TempSensorMock","variables":{"value":20.0000,"connected":true}}}})";
+    std::string valid = R"({"kind":"TempSensor","name":"test","sensor":{)"
+        R"("kind":"TempSensorMock","value":20.0000,"connected":true}})";
 
     BOOST_CHECK_EQUAL(valid, json);
 }
