@@ -120,6 +120,37 @@ namespace JSON
 		virtual ISink& operator<<(const temp_long_t& arg)   { (*_sink) << arg.toCstring(); return (*this); }
 	};
 
+
+	//-----------------------------------------------------------------------------
+	// An alternative to stringsink which writes prints directly to a stream (serial)
+	class SerialSink : public ISink
+	{
+	    //
+	    Stream & out;
+
+	public:
+	    SerialSink(Stream & out_) : out(out_){}
+	    virtual ~SerialSink(){}
+	    //
+	    virtual ISink& operator<<(const char* arg)          { out.print(arg); return (*this); }
+	    virtual ISink& operator<<(const std::string& arg)   { out.print(arg.c_str()); return (*this); }
+	    virtual ISink& operator<<(const std::wstring& arg)  { out.print(Chordia::convert(arg).c_str()); return (*this); }
+	    virtual ISink& operator<<(const char& arg)          { out.print(arg); return (*this); }
+	    virtual ISink& operator<<(const int8_t& arg)        { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
+	    virtual ISink& operator<<(const int16_t& arg)       { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
+	    virtual ISink& operator<<(const int32_t& arg)       { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
+	    virtual ISink& operator<<(const uint8_t& arg)       { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
+	    virtual ISink& operator<<(const uint16_t& arg)      { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
+	    virtual ISink& operator<<(const uint32_t& arg)      { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
+	#ifndef ESJ_DISABLE_DOUBLE
+	    virtual ISink& operator<<(const double& arg)        { out.print(arg); return (*this); }
+	#endif
+	    virtual ISink& operator<<(const bool& arg)          { out.print((arg ? "true" : "false")); return (*this); }
+	    virtual ISink& operator<<(const temp_t& arg)        { out.print(arg.toCstring().c_str()); return (*this); }
+	    virtual ISink& operator<<(const temp_precise_t& arg){ out.print(arg.toCstring().c_str()); return (*this); }
+	    virtual ISink& operator<<(const temp_long_t& arg)   { out.print(arg.toCstring().c_str()); return (*this); }
+	};
+
 	//-------------------------------------------------------------------------
 	// for serializing (writing) JSON
 
@@ -379,6 +410,27 @@ namespace JSON
 		    return convert(&source);
 		}
 	};
+
+
+	//-----------------------------------------------------------------------------
+    // template the writer. usage is:
+    // JSON::producer<JSONExample>::convert(source);
+    template <typename serializable_type>
+    class serial_producer
+    {
+        public:
+        static void convert(serializable_type * source, Stream & sink)
+        {
+            SerialSink ssi(sink);
+            // create a writer
+            JSON::Writer writer(&ssi);
+            // serialize the instance
+            source->serialize(writer);
+        }
+        static inline void convert(serializable_type & source, Stream & sink){
+            convert(&source, sink);
+        }
+    };
 }
 
 

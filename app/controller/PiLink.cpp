@@ -548,8 +548,7 @@ void PiLink::sendControlConstants(void){
 void PiLink::sendControlVariables(void){
     piStream.print('V');
     piStream.print(':');
-    std::string json = JSON::producer<Control>::convert(control);
-    piStream.print(json.c_str());
+    JSON::serial_producer<Control>::convert(control, piStream);
     piStream.println();
 }
 
