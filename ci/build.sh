@@ -1,3 +1,7 @@
 
-make -C platform/spark PLATFORM=core
-make -C platform/spark PLATFORM=photon
+pushd platform/spark 
+./build-all.sh
+ex=$?
+popd
+
+exit $ex
