@@ -414,7 +414,7 @@ namespace JSON
 
 	//-----------------------------------------------------------------------------
     // template the writer. usage is:
-    // JSON::producer<JSONExample>::convert(source);
+    // JSON::producer<JSONExample>::convert(source, stream);
     template <typename serializable_type>
     class serial_producer
     {
