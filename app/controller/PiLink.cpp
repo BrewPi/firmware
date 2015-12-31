@@ -548,8 +548,7 @@ void PiLink::sendControlConstants(void){
 void PiLink::sendControlVariables(void){
     piStream.print('V');
     piStream.print(':');
-    std::string json = JSON::producer<Control>::convert(control);
-    piStream.print(json.c_str());
+    JSON::serial_producer<Control>::convert(control, piStream);
     piStream.println();
 }
 
@@ -737,6 +736,18 @@ void setStringToTempDiffLong(const char* value, temp_long_t* target) {
     }
 }
 
+void setStringToFixed(const char* value, temp_long_t* target) {
+    if(target->fromTempString(value, 'C', false)){
+        eepromManager.storeTempConstantsAndSettings(); // value parsed correctly
+    }
+}
+
+void setStringToFixedLong(const char* value, temp_long_t* target) {
+    if(target->fromTempString(value, 'C', false)){
+        eepromManager.storeTempConstantsAndSettings(); // value parsed correctly
+    }
+}
+
 void setUint16(const char* value, uint16_t* target) {
     if(stringToUint16(target, value)){
         eepromManager.storeTempConstantsAndSettings(); // value parsed correctly
@@ -760,27 +771,27 @@ const PiLink::JsonParserConvert PiLink::jsonParserConverters[] PROGMEM = {
 	
 	JSON_CONVERT(JSONKEY_tempFormat, NULL, setTempFormat),
 	
-	JSON_CONVERT(JSONKEY_heater1_kp, &tempControl.cc.heater1_kp, setStringToTempDiffLong),
+	JSON_CONVERT(JSONKEY_heater1_kp, &tempControl.cc.heater1_kp, setStringToFixedLong),
 	JSON_CONVERT(JSONKEY_heater1_ti, &tempControl.cc.heater1_ti, setUint16),
 	JSON_CONVERT(JSONKEY_heater1_td, &tempControl.cc.heater1_td,setUint16),
 	JSON_CONVERT(JSONKEY_heater1_infilt, &tempControl.cc.heater1_infilt, setFilter),
 	JSON_CONVERT(JSONKEY_heater1_dfilt, &tempControl.cc.heater1_dfilt, setFilter),
-	JSON_CONVERT(JSONKEY_heater2_kp, &tempControl.cc.heater2_kp, setStringToTempDiffLong),
+	JSON_CONVERT(JSONKEY_heater2_kp, &tempControl.cc.heater2_kp, setStringToFixedLong),
 	JSON_CONVERT(JSONKEY_heater2_ti, &tempControl.cc.heater2_ti, setUint16),
 	JSON_CONVERT(JSONKEY_heater2_td, &tempControl.cc.heater2_td, setUint16),
 	JSON_CONVERT(JSONKEY_heater2_infilt, &tempControl.cc.heater2_infilt, setFilter),
 	JSON_CONVERT(JSONKEY_heater2_dfilt, &tempControl.cc.heater2_dfilt, setFilter),
-	JSON_CONVERT(JSONKEY_cooler_kp, &tempControl.cc.cooler_kp, setStringToTempDiffLong),
+	JSON_CONVERT(JSONKEY_cooler_kp, &tempControl.cc.cooler_kp, setStringToFixedLong),
 	JSON_CONVERT(JSONKEY_cooler_ti, &tempControl.cc.cooler_ti, setUint16),
 	JSON_CONVERT(JSONKEY_cooler_td, &tempControl.cc.cooler_td, setUint16),
 	JSON_CONVERT(JSONKEY_cooler_infilt, &tempControl.cc.cooler_infilt, setFilter),
 	JSON_CONVERT(JSONKEY_cooler_dfilt, &tempControl.cc.cooler_dfilt, setFilter),
-	JSON_CONVERT(JSONKEY_beer2fridge_kp, &tempControl.cc.beer2fridge_kp, setStringToTempDiffLong),
+	JSON_CONVERT(JSONKEY_beer2fridge_kp, &tempControl.cc.beer2fridge_kp, setStringToFixedLong),
 	JSON_CONVERT(JSONKEY_beer2fridge_ti, &tempControl.cc.beer2fridge_ti, setUint16),
 	JSON_CONVERT(JSONKEY_beer2fridge_td, &tempControl.cc.beer2fridge_td, setUint16),
 	JSON_CONVERT(JSONKEY_beer2fridge_infilt, &tempControl.cc.beer2fridge_infilt, setFilter),
 	JSON_CONVERT(JSONKEY_beer2fridge_dfilt, &tempControl.cc.beer2fridge_dfilt, setFilter),
-	JSON_CONVERT(JSONKEY_beer2fridge_pidMax, &tempControl.cc.beer2fridge_pidMax, setStringToTempDiffLong),
+	JSON_CONVERT(JSONKEY_beer2fridge_pidMax, &tempControl.cc.beer2fridge_pidMax, setStringToFixedLong),
 
 	JSON_CONVERT(JSONKEY_minCoolTime, &tempControl.cc.minCoolTime, setUint16),
 	JSON_CONVERT(JSONKEY_minCoolIdleTime, &tempControl.cc.minCoolIdleTime, setUint16),
