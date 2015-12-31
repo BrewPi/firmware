@@ -1,8 +1,9 @@
 
+
 function makeit()
 {
 	echo "building $*"
-    make -C .  all $*
+    make -C . -s  all $*
 if [[ "$?" -eq 0 ]]; then
   echo "✓ SUCCESS"
 else
