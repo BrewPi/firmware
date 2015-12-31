@@ -27,11 +27,11 @@
 #include "ActuatorInterfaces.h"
 #include "SetPoint.h"
 #include "defaultDevices.h"
-#include "Nameable.h"
-#include "json_writer.h"
+#include "ControllerMixins.h"
 
-class Pid : public Nameable
+class Pid : public PidMixin
 {
+
     public:
         Pid(TempSensorBasic * input, ActuatorRange * output, SetPoint * setPoint);
 
@@ -96,27 +96,6 @@ class Pid : public Nameable
             }
         }
 
-
-        void serialize(JSON::Adapter& adapter){
-            JSON::Class root(adapter, "Pid");
-            std::string name(getName()); // get name as std string for json_writer
-            JSON_E(adapter, name);
-            JSON_E(adapter, enabled);
-            JSON_E(adapter, setPoint);
-            JSON_E(adapter, inputSensor);
-
-            JSON_E(adapter, inputError);
-            JSON_E(adapter, Kp);
-            JSON_E(adapter, Ti);
-            JSON_E(adapter, Td);
-            JSON_E(adapter, p);
-            JSON_E(adapter, i);
-            JSON_E(adapter, d);
-
-            JSON_E(adapter, actuatorIsNegative);
-            JSON_T(adapter, outputActuator);
-        }
-
         /*
         uint16_t getOutputLag(){ return outputLag; };
 
@@ -155,4 +134,5 @@ class Pid : public Nameable
         */
 
     friend class TempControl;
+    friend class PidMixin;
 };

@@ -23,10 +23,9 @@
 #include "temperatureFormats.h"
 #include "TempSensorBasic.h"
 #include "defaultDevices.h"
-#include "json_writer.h"
-#include "Nameable.h"
+#include "ControllerMixins.h"
 
-class TempSensor: public TempSensorBasic, public Nameable {
+class TempSensor: public TempSensorBasic, public TempSensorMixin {
 public:
     TempSensor() :
             sensor(defaultTempSensorBasic()) {
@@ -91,14 +90,8 @@ public:
         return sensor->read();
     }
 
-    void serialize(JSON::Adapter& adapter) {
-        JSON::Class root(adapter, "TempSensor");
-        std::string name(getName()); // get name as std string for json_writer
-        JSON_E(adapter, name);
-        JSON_T(adapter, sensor);
-    }
-
 private:
     TempSensorBasic * sensor;
+    friend class TempSensorMixin;
 };
 
