@@ -2,7 +2,7 @@
 function makeit()
 {
 	echo "building $*"
-    make -s  all $*
+    make -C .  all $*
 if [[ "$?" -eq 0 ]]; then
   echo "✓ SUCCESS"
 else
@@ -17,7 +17,6 @@ function makeapp()
 	makeit PLATFORM=photon $*
 }
 
-
+pwd
 makeapp APP=controller
-
 makeapp APP=cbox
