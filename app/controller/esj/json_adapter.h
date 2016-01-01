@@ -61,6 +61,7 @@
 #include <string>
 #include <list>
 #include <stack>
+#include <vector>
 #include <stdint.h>
 
 // requires lexer for token types.
