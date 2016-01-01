@@ -154,7 +154,7 @@ public:
     bool isDriver() const { return false; }
 
     void serialize(JSON::Adapter& adapter){
-        bool value = int(getValue());
+        temp_t value = getValue();
         temp_t minimum = min();
         temp_t maximum = max();
 
