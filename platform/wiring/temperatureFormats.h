@@ -62,6 +62,8 @@ bool fromStringImpl(int32_t * raw, // result is put in this variable upon succes
 
 class temp_t: public fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS> {
 
+    using base = fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>;
+
 public:
     temp_t(){}
 
@@ -69,6 +71,8 @@ public:
     temp_t(temp_t const& rhs){
         value_ = rhs.value_;
     }
+
+    temp_t(base::base_type value) : base(value){}
 
     // constructor from base class, needed for inherited operators to work
     temp_t(fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS> const& rhs) :
@@ -82,7 +86,7 @@ public:
     temp_t(temp_long_t const& rhs);
 
     // construction from double, use base class constructor
-    temp_t(double d) : fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>(d){}
+   // temp_t(double d) : fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>(d){}
 
     // reserve lowest 5 values for special cases (invalid/disabled)
     static const fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::base_type min_val =
@@ -96,8 +100,9 @@ public:
             fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::min_val;
 
     // special value to indicate an disabled temp
-    static const fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::base_type disabled_val =
-            fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::min_val + 1;
+    static const base::base_type disabled_val = base::min_val + 1;
+
+    static const base::base_type zero = base::base_type(0);
 
     // function that returns temp object with value min
     static temp_t min() {
@@ -217,6 +222,8 @@ public:
 class temp_precise_t: public fpml::fixed_point_base<temp_precise_t,
         TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS> {
 
+    using base = fpml::fixed_point_base<temp_precise_t,
+            TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS>;
 public:
     temp_precise_t(){}
 
@@ -224,6 +231,8 @@ public:
     temp_precise_t(temp_precise_t const& rhs){
         value_ = rhs.value_;
     }
+
+    temp_precise_t(base::base_type value) : base(value) {}
 
     // constructor from base class, needed for inherited operators to work
     temp_precise_t(fpml::fixed_point_base<temp_precise_t, TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS> const& rhs) :
@@ -237,7 +246,7 @@ public:
     temp_precise_t(temp_long_t const& rhs);
 
     // construction from double, use base class constructor
-    temp_precise_t(double d) : fpml::fixed_point_base<temp_precise_t, TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS>(d){}
+    //temp_precise_t(double d) : fpml::fixed_point_base<temp_precise_t, TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS>(d){}
 
     void setRaw(TEMP_PRECISE_TYPE val){
         value_= val;
@@ -311,6 +320,9 @@ public:
 class temp_long_t: public fpml::fixed_point_base<temp_long_t, TEMP_LONG_TYPE,
         TEMP_LONG_INTBITS> {
 
+    using base = fpml::fixed_point_base<temp_long_t, TEMP_LONG_TYPE,
+            TEMP_LONG_INTBITS>;
+
 public:
     temp_long_t(){}
 
@@ -318,6 +330,8 @@ public:
     temp_long_t(temp_long_t const& rhs){
         value_ = rhs.value_;
     }
+
+    temp_long_t(base::base_type value) : base(value) {}
 
     // constructor from base class, needed for inherited operators to work
     temp_long_t(fpml::fixed_point_base<temp_long_t, TEMP_LONG_TYPE, TEMP_LONG_INTBITS> const& rhs) :
@@ -331,7 +345,7 @@ public:
     temp_long_t(temp_precise_t const& rhs);
 
     // construction from double, use base class constructor
-    temp_long_t(double d) : fpml::fixed_point_base<temp_long_t, TEMP_LONG_TYPE, TEMP_LONG_INTBITS>(d){}
+    //temp_long_t(double d) : fpml::fixed_point_base<temp_long_t, TEMP_LONG_TYPE, TEMP_LONG_INTBITS>(d){}
 
     void setRaw(TEMP_LONG_TYPE val){
         value_= val;
