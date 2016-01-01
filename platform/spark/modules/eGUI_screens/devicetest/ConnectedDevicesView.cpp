@@ -48,8 +48,19 @@ void ConnectedDevicesPresenter::notifyChanged(const ConnectedDevicesManager* mgr
 
 
 const D4D_OBJECT* views[] = { &scrDeviceTest_devices00, &scrDeviceTest_devices10, &scrDeviceTest_devices20, &scrDeviceTest_devices01, &scrDeviceTest_devices11, &scrDeviceTest_devices21 };
-ConnectedDevicesManager mgr;
-ConnectedDevicesPresenter presenter(&mgr, views, 6);
+
+ConnectedDevicesManager* connectedDevicesManager()
+{
+    static ConnectedDevicesManager* mgr = new ConnectedDevicesManager();
+    return mgr;
+}
+
+ConnectedDevicesPresenter* connectedDevicesPresenter()
+{
+    static ConnectedDevicesPresenter* presenter = new ConnectedDevicesPresenter(connectedDevicesManager(), views, 6);
+    return presenter;
+}
+
 
 const D4D_OBJECT* actuator_views[] = { &scrDeviceTest_actuator0, &scrDeviceTest_actuator1, &scrDeviceTest_actuator2, &scrDeviceTest_actuator3 };
 
@@ -58,7 +69,7 @@ ActuatorDigital* actuatorForView(const D4D_OBJECT* pThis)
     ActuatorDigital* actuator = NULL;
     for (unsigned i=0; i<arraySize(actuator_views); i++) {
         if (actuator_views[i]==pThis) {
-            actuator = mgr.actuator(i);
+            actuator = connectedDevicesManager()->actuator(i);
         }
     }
     return actuator;
@@ -77,7 +88,7 @@ extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
         idx = 3;
 
     if (idx>=0) {
-        ActuatorDigital* actuator = mgr.actuator(idx);
+        ActuatorDigital* actuator = connectedDevicesManager()->actuator(idx);
         bool active = !actuator->isActive();
         actuator->setActive(active);
         SetActuatorButtonState(pThis, active, idx);
@@ -86,6 +97,8 @@ extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
 
 void ScreenDeviceTest_OnMain()
 {
+    connectedDevicesPresenter();
+
     for (unsigned i=0; i<arraySize(actuator_views); i++) {
         const D4D_OBJECT* obj = actuator_views[i];
         ActuatorDigital* actuator = actuatorForView(obj);
@@ -98,7 +111,7 @@ void ScreenDeviceTest_OnMain()
     // make sure updating is only taking 25% of CPU time
     if (now-last>=4*updateTime) {
         last = now;
-        mgr.update();
+        connectedDevicesManager()->update();
         updateTime = millis()-now;
     }
 }
