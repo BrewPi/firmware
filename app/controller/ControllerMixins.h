@@ -5,24 +5,27 @@
 
 class BaseMixin {};
 
-struct Serializable
+class Serializable
 {
+public:
     virtual void serialize(JSON::Adapter& adapter) = 0;
 };
 
-struct TempSensorBasicMixin : public virtual Serializable
+class TempSensorBasicMixin : public virtual Serializable
 {
-
+public:
 };
 
-struct TempSensorMixin : public virtual Nameable, public virtual Serializable
+class TempSensorMixin : public virtual Nameable, public virtual Serializable
 {
+public:
     virtual void serialize(JSON::Adapter& adapter) override;
 
 };
 
-struct PidMixin : public Nameable
+class PidMixin : public Nameable
 {
+public:
     void serialize(JSON::Adapter& adapter);
 
 };
