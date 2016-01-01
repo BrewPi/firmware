@@ -111,18 +111,6 @@ BOOST_AUTO_TEST_CASE( Test_ActuatorPWM_with_ValueActuator_as_driver) {
     BOOST_CHECK_EQUAL(act->getValue(), temp_t(0.0)); // min is 0
 }
 
-BOOST_AUTO_TEST_CASE(test_ticks_millis_to_increment_every_call) {
-    output << "Testing time:";
-    ticks_millis_t start = ticks.millis();
-    ticks_millis_t time;
-    for (ticks_millis_t i = start + 1; i <= start + 10; i++) {
-        time = ticks.millis();
-        output << time << ' ';
-        BOOST_REQUIRE_EQUAL(i, time);
-    }
-    output << ".\n";
-}
-
 BOOST_AUTO_TEST_CASE(on_off_time_matches_duty_cycle_when_updating_every_ms) {
     srand(time(NULL));
     ActuatorDigital * target = new ActuatorBool();
@@ -643,7 +631,7 @@ BOOST_AUTO_TEST_CASE(decreasing_pwm_value_after_long_high_time_and_mutex_wait){
     mutex->update();
     BOOST_CHECK(blocker->isActive());
     blockerMutex->setActive(false);
-    BOOST_CHECK_EQUAL(mutex->getWaitTime(), 99999); // -1 due to millis() call in update
+    BOOST_CHECK_EQUAL(mutex->getWaitTime(), 100000);
 
 
     double pwmValue = 100;
@@ -697,6 +685,7 @@ BOOST_AUTO_TEST_CASE(install_and_uninstall_final_actuator){
         cooler->update();
         heater->update();
         mutex->update();
+        delay(100);
     }
 
     BOOST_CHECK(cooler->unInstallActuatorFinalTarget()); // returns true on successful uninstall
@@ -713,6 +702,7 @@ BOOST_AUTO_TEST_CASE(install_and_uninstall_final_actuator){
         cooler->update();
         heater->update();
         mutex->update();
+        delay(100);
     }
 
     BOOST_CHECK(!cooler->unInstallActuatorFinalTarget()); // returns false, when target is already default actuator
@@ -735,6 +725,7 @@ BOOST_AUTO_TEST_CASE(install_and_uninstall_final_actuator){
         cooler->update();
         heater->update();
         mutex->update();
+        delay(100);
     }
 
     BOOST_CHECK(!cooler->installActuatorFinalTarget(coolerPin)); // returns false when actuator was already installed
