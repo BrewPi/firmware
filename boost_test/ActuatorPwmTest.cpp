@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE(on_big_positive_changes_shortened_cycle_has_correct_value) 
     ActuatorDigital * limited = new ActuatorTimeLimited(vAct, 0, 0);
     ActuatorPwm * act = new ActuatorPwm(limited, 100); // period is 100 seconds
 
-    act->setValue(30);
+    act->setValue(short(30));
     ticks_millis_t start = ticks.millis();
     ticks_millis_t periodStart;
     while(ticks.millis() - start < 250000) { // 250 seconds
@@ -690,8 +690,8 @@ BOOST_AUTO_TEST_CASE(install_and_uninstall_final_actuator){
 
     // make sure actuator is added to the mutex group
 
-    cooler->setValue(50);
-    heater->setValue(50);
+    cooler->setValue(short(50));
+    heater->setValue(short(50));
     ticks_millis_t start = ticks.millis();
     while(ticks.millis() - start < 100000){ // run for 100 seconds
         cooler->update();

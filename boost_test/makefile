@@ -1,8 +1,8 @@
 ## -*- Makefile -*-
 
-CCC = mingw32-gcc
-CXX = mingw32-g++
-LD = mingw32-g++
+CCC = gcc
+CXX = g++
+LD = g++
 CFLAGS = -g
 CCFLAGS = $(CFLAGS)
 CXXFLAGS = $(CFLAGS)
@@ -40,9 +40,10 @@ CPPSRC += $(call target_files,boost_test,*.cpp)
 
 CPPSRC += $(SOURCE_PATH)platform/wiring/temperatureFormats.cpp
 CPPSRC += $(SOURCE_PATH)platform/wiring/str_functions.cpp
+CPPSRC += $(SOURCE_PATH)app/controller/ControllerMixins.cpp
 CPPSRC += $(SOURCE_PATH)app/controller/Filter/FilterFixed.cpp
 CPPSRC += $(SOURCE_PATH)app/controller/Filter/FilterCascaded.cpp
-CPPSRC += $(SOURCE_PATH)app/controller/Pid.cpp
+CPPSRC += $(SOURCE_PATH)app/devices/Pid.cpp
 CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorPwm.cpp
 CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorTimeLimited.cpp
 CPPSRC += $(SOURCE_PATH)app/controller/SetPoint.cpp
@@ -72,12 +73,12 @@ CFLAGS += -Werror=deprecated-declarations
 
 # Generate dependency files automatically.
 CFLAGS += -MD -MP -MF $@.d
-CFLAGS += -DSPARK=1
 CFLAGS += -DDEBUG_BUILD
-
+# OSX includes sys/wait.h which defines "wait"
+CFLAGS += -D_SYS_WAIT_H_
 CPPFLAGS += -std=gnu++11
-
-LDFLAGS +=  -Wl,--gc-sections 
+# doesn't work on osx
+#LDFLAGS +=  -Wl,--gc-sections 
 
 # Collect all object and dep files
 ALLOBJ += $(addprefix $(BUILD_PATH), $(CSRC:.c=.o))

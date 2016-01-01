@@ -76,6 +76,6 @@ public:
 	private:
 	temp_t value;
 	bool connected;
-	bool noise;
+	//bool noise;
 };
 

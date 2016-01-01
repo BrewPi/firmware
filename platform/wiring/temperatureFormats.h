@@ -21,6 +21,7 @@
 #include "Platform.h"
 #include <fixed_point.h>
 #include <cstdlib>
+#include <string>
 #include "str_functions.h"
 #include "fixstl.h"
 
@@ -86,7 +87,7 @@ public:
     temp_t(temp_long_t const& rhs);
 
     // construction from double, use base class constructor
-   // temp_t(double d) : fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>(d){}
+    temp_t(double d) : fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>(d){}
 
     // reserve lowest 5 values for special cases (invalid/disabled)
     static const fpml::fixed_point_base<temp_t, TEMP_TYPE, TEMP_INTBITS>::base_type min_val =
@@ -246,7 +247,7 @@ public:
     temp_precise_t(temp_long_t const& rhs);
 
     // construction from double, use base class constructor
-    //temp_precise_t(double d) : fpml::fixed_point_base<temp_precise_t, TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS>(d){}
+    temp_precise_t(double d) : fpml::fixed_point_base<temp_precise_t, TEMP_PRECISE_TYPE, TEMP_PRECISE_INTBITS>(d){}
 
     void setRaw(TEMP_PRECISE_TYPE val){
         value_= val;
@@ -345,7 +346,7 @@ public:
     temp_long_t(temp_precise_t const& rhs);
 
     // construction from double, use base class constructor
-    //temp_long_t(double d) : fpml::fixed_point_base<temp_long_t, TEMP_LONG_TYPE, TEMP_LONG_INTBITS>(d){}
+    temp_long_t(double d) : fpml::fixed_point_base<temp_long_t, TEMP_LONG_TYPE, TEMP_LONG_INTBITS>(d){}
 
     void setRaw(TEMP_LONG_TYPE val){
         value_= val;

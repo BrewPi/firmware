@@ -87,10 +87,10 @@ class Pid : public PidMixin
 
         void disable(bool turnOffOutputActuator){
             enabled = false;
-            inputError = 0;
-            p = 0;
-            i = 0;
-            d = 0;
+            inputError = decltype(inputError)::base_type(0);
+            p = decltype(p)::base_type(0);
+            i = decltype(i)::base_type(0);
+            d = decltype(d)::base_type(0);
             if(turnOffOutputActuator){
                 outputActuator -> setValue(0.0);
             }

@@ -128,7 +128,7 @@ public:
 };
 
 /*
- * An linear actuator that does nothing and always returns invalid(). Linear equavalent of ActuatorNop
+ * An linear actuator that does nothing and always returns invalid(). Linear equivalent of ActuatorNop
  */
 class ActuatorInvalid : private ActuatorBottom, public ActuatorRange
 {
@@ -154,7 +154,7 @@ public:
     bool isDriver() const { return false; }
 
     void serialize(JSON::Adapter& adapter){
-        bool value = getValue();
+        bool value = int(getValue());
         temp_t minimum = min();
         temp_t maximum = max();
 

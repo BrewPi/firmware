@@ -834,7 +834,7 @@ inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw,
     OneWire *         bus = oneWireBus(hw.pinNr);
     OneWireTempSensor sensor(
         bus, hw.address,
-        0);    // NB: this value is uncalibrated, since we don't have the calibration offset until the device is configured
+        short(0));    // NB: this value is uncalibrated, since we don't have the calibration offset until the device is configured
     temp_t temp = temp_t::invalid();
 
     if (sensor.init()){
@@ -1168,7 +1168,7 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
             ((ActuatorDigital *) *ppv) -> setActive(dd.write != 0);
         } else if (dt == DEVICETYPE_PWM_ACTUATOR){
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write));
-            temp_t value = dd.write;
+            temp_t value = temp_t::base_type(dd.write);
             ((ActuatorPwm *) *ppv) -> setValue(value);
         }
     } else if (dd.value == 1){    // read values
