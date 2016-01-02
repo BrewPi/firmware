@@ -75,7 +75,8 @@ CFLAGS += -Werror=deprecated-declarations
 CFLAGS += -MD -MP -MF $@.d
 CFLAGS += -DDEBUG_BUILD
 # OSX includes sys/wait.h which defines "wait"
-CFLAGS += -D_SYS_WAIT_H_
+CFLAGS += -D_SYS_WAIT_H_ -D_SYS_WAIT_H
+
 CPPFLAGS += -std=gnu++11
 # doesn't work on osx
 #LDFLAGS +=  -Wl,--gc-sections 
