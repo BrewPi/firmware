@@ -438,7 +438,7 @@ bool fromStringImpl(int32_t * raw, // result is put in this variable upon succes
     // larger type to prevent overflow
     int64_t decimalValue = 0;
 
-    char* decimalPtr;
+    const char* decimalPtr;
     char* end;
     // Check if - is in the string
     bool positive = (0 == strchr(s, '-'));
