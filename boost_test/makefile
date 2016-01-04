@@ -50,6 +50,7 @@ CPPSRC += $(SOURCE_PATH)app/controller/SetPoint.cpp
 CPPSRC += $(SOURCE_PATH)app/controller/defaultDevices.cpp
 CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorMutexGroup.cpp
 CPPSRC += $(SOURCE_PATH)app/controller/Control.cpp
+CPPSRC += $(SOURCE_PATH)app/devices/OneWire/OneWireAddress.cpp
 
 ifeq ($(BOOST_ROOT),)
 $(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)
@@ -62,6 +63,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)app/controller/Filter
 INCLUDE_DIRS += $(SOURCE_PATH)app/fallback
 INCLUDE_DIRS += $(SOURCE_PATH)app/devices/TempSensor
 INCLUDE_DIRS += $(SOURCE_PATH)app/devices/Actuator
+INCLUDE_DIRS += $(SOURCE_PATH)app/devices/OneWire
 INCLUDE_DIRS += $(SOURCE_PATH)app/devices/
 INCLUDE_DIRS += $(SOURCE_PATH)app/controller/esj
 

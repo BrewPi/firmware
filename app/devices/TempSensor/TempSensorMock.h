@@ -22,8 +22,9 @@
 
 #include "Brewpi.h"
 #include "TempSensorBasic.h"
+#include "ControllerMixins.h"
 
-class TempSensorMock : public TempSensorBasic
+class TempSensorMock : public TempSensorBasic, public TempSensorMockMixin
 {
 public:	
 	TempSensorMock(temp_t initial) : value(initial), connected(true) { }
@@ -67,15 +68,11 @@ public:
 	    value = val;
 	}
 
-    void serialize(JSON::Adapter& adapter){
-        JSON::Class root(adapter, "TempSensorMock");
-        JSON_E(adapter, value);
-        JSON_T(adapter, connected);
-    }
-
 	private:
 	temp_t value;
 	bool connected;
 	//bool noise;
+
+	friend class TempSensorMockMixin;
 };
 

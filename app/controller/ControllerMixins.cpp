@@ -22,34 +22,95 @@
 #include "Pid.h"
 #include "TempSensor.h"
 #include "TempSensorBasic.h"
+#include "TempSensorMock.h"
+#include "OneWireTempSensor.h"
+#include "TempSensorExternal.h"
+
+// These macros are equivalent to ESJ, except for that they add obj-> in front of the member variable name
+
+// Serializable element with more elements to follow (alternative to JSON_E)
+#define JSON_OE(json_adapter,class_member)  JSON::stream(json_adapter,_ASTRING(#class_member),obj->class_member,true)
+// Serializable terminator, keep things simple for the JSON writer. No stream manipulations required (alternative to JSON_T)
+#define JSON_OT(json_adapter,class_member)  JSON::stream(json_adapter,_ASTRING(#class_member),obj->class_member,false)
+
+
 
 void PidMixin::serialize(JSON::Adapter & adapter)
 {
-    Pid * pid = (Pid *) this;
+    Pid * obj = (Pid *) this;
 
     JSON::Class root(adapter, "Pid");
     std::string name(getName());    // get name as std string for json_writer
     JSON_E(adapter, name);
-    JSON::stream(adapter, "enabled", pid -> enabled, true);
-    JSON::stream(adapter, "setPoint", pid -> setPoint, true);
-    JSON::stream(adapter, "inputSensor", pid -> inputSensor, true);
-    JSON::stream(adapter, "inputError", pid -> inputError, true);
-    JSON::stream(adapter, "Kp", pid -> Kp, true);
-    JSON::stream(adapter, "Ti", pid -> Ti, true);
-    JSON::stream(adapter, "Td", pid -> Td, true);
-    JSON::stream(adapter, "p", pid -> p, true);
-    JSON::stream(adapter, "i", pid -> i, true);
-    JSON::stream(adapter, "d", pid -> d, true);
-    JSON::stream(adapter, "actuatorIsNegative", pid -> actuatorIsNegative, true);
-    JSON::stream(adapter, "outputActuator", pid -> outputActuator, false);
+    JSON_OE(adapter, enabled);
+    JSON_OE(adapter, setPoint);
+    JSON_OE(adapter, inputSensor);
+    JSON_OE(adapter, inputError);
+    JSON_OE(adapter, Kp);
+    JSON_OE(adapter, Ti);
+    JSON_OE(adapter, Td);
+    JSON_OE(adapter, p);
+    JSON_OE(adapter, i);
+    JSON_OE(adapter, d);
+    JSON_OE(adapter, actuatorIsNegative);
+    JSON_OT(adapter, outputActuator);
 }
+
 
 void TempSensorMixin::serialize(JSON::Adapter & adapter)
 {
-    TempSensor * sensor = (TempSensor *) this;
+    TempSensor * obj = (TempSensor *) this;
 
     JSON::Class root(adapter, "TempSensor");
-    std::string name(sensor -> getName());    // get name as std string for json_writer
+    std::string name(getName());    // get name as std string for json_writer
     JSON_E(adapter, name);
-    JSON::stream(adapter, "sensor", sensor -> sensor, false);
+    JSON_OT(adapter, sensor);
+}
+
+
+void TempSensorMockMixin::serialize(JSON::Adapter& adapter){
+    TempSensorMock * obj = (TempSensorMock *) this;
+
+    JSON::Class root(adapter, "TempSensorMock");
+    JSON_OE(adapter, value);
+    JSON_OT(adapter, connected);
+}
+
+
+void OneWireTempSensorMixin::serialize(JSON::Adapter& adapter){
+    OneWireTempSensor * obj = (OneWireTempSensor *) this;
+
+    JSON::Class root(adapter, "OneWireTempSensor");
+
+    temp_t value = obj->read();
+    JSON_E(adapter, value);
+
+    bool connected = obj->isConnected();
+    JSON_E(adapter, connected);
+
+    char addressBuf[17];
+    printBytes(obj->sensorAddress, 8, addressBuf); // print to hex string
+    std::string address(addressBuf); // convert to std string
+    JSON_E(adapter, address);
+
+    JSON_OT(adapter, calibrationOffset);
+}
+
+
+void TempSensorDisconnectedMixin::serialize(JSON::Adapter& adapter){
+    TempSensorDisconnected * obj = (TempSensorDisconnected *) this;
+
+    temp_t value = obj->read();
+    bool connected = false;
+    JSON::Class root(adapter, "TempSensorDisconnected");
+    JSON_E(adapter, value);
+    JSON_T(adapter, connected);
+}
+
+void TempSensorExternalMixin::serialize(JSON::Adapter& adapter){
+    TempSensorExternal * obj = (TempSensorExternal *) this;
+
+    JSON::Class root(adapter, "TempSensorExternal");
+    JSON_OE(adapter, value);
+    JSON_OT(adapter, connected);
 }

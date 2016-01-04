@@ -40,3 +40,4 @@ test_results/*.pdf
 *.exe
 *.out
 *.app
+*.launch
