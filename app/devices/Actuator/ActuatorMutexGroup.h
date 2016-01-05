@@ -22,13 +22,15 @@
 #include "Ticks.h"
 #include "ActuatorInterfaces.h"
 #include <vector>
+#include "ControllerMixins.h"
 
 struct ActuatorPriority{
     ActuatorDigital * actuator;
     int8_t priority; // valid priorities are 0-127, at -128 the actuator is removed from the group
 };
 
-class ActuatorMutexGroup {
+class ActuatorMutexGroup : public ActuatorMutexGroupMixin
+{
 public:
     ActuatorMutexGroup(){
         deadTime = 0;
@@ -56,15 +58,11 @@ public:
 
     void update();
 
-    void serialize(JSON::Adapter& adapter){
-        JSON::Class root(adapter, "ActuatorMutexGroup");
-        JSON_E(adapter, deadTime);
-        JSON_T(adapter, lastActiveTime);
-    }
-
 private:
     ticks_millis_t deadTime; // minimum time between switching from one actuator to the other
     ticks_millis_t lastActiveTime;
     ActuatorDigital * lastActiveActuator;
     std::vector<ActuatorPriority> actuatorPriorities;
+
+friend class ActuatorMutexGroupMixin;
 };

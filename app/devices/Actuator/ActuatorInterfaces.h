@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include "temperatureFormats.h"
 #include "json_adapter.h"
+#include "ControllerMixins.h"
 
 enum {
     ACTUATOR_RANGE,
@@ -37,7 +38,7 @@ class ActuatorDigital;
  * An actuator can be driven by other classes and acts on something.
  * Actuators can also drive other actuators, getDeviceTarget finds the lowest level actuator recursively
  */
-class Actuator
+class Actuator: public ActuatorMixin
 {
 public:
     Actuator(){}
@@ -56,20 +57,21 @@ public:
 	    return doUnInstallActuatorFinalTarget();
 	}
 	virtual void update() = 0;
-	virtual void serialize(JSON::Adapter& adapter) = 0;
 
 private:
 	// implemented by ActuatorDriver or ActuatorBottom
 	virtual Actuator * doGetBareActuator() = 0;
 	virtual bool doInstallActuatorFinalTarget(ActuatorDigital * a) = 0;
 	virtual bool doUnInstallActuatorFinalTarget() = 0;
+
+	friend class ActuatorMixin;
 };
 
 
 /*
  * An ActuatorDigital simply turns something on or off.
  */
-class ActuatorDigital : public virtual Actuator //, public ActuatorMutexInterface
+class ActuatorDigital : public virtual Actuator
 {
 public:
     ActuatorDigital(){}
@@ -77,6 +79,8 @@ public:
     virtual uint8_t type() const { return ACTUATOR_TOGGLE; };
     virtual void setActive(bool active) = 0;
     virtual bool isActive() = 0;
+
+    friend class ActuatorDigitalMixin;
 };
 
 

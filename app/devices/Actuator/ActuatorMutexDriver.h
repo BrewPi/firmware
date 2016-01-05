@@ -24,11 +24,12 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorDriver.h"
 #include "ActuatorMutexGroup.h"
+#include "ControllerMixins.h"
 
 /* A driver actuator to wrap a digital Actuator and block SetActive calls if the mutex group does does not honor the request
  */
 
-class ActuatorMutexDriver : public virtual ActuatorDriver, public ActuatorDigital{
+class ActuatorMutexDriver : public virtual ActuatorDriver, public ActuatorDigital, public ActuatorMutexDriverMixin{
 public:
     ActuatorMutexDriver(ActuatorDigital * target) : ActuatorDriver(target), mutexGroup(nullptr){}
     ActuatorMutexDriver(ActuatorDigital * target, ActuatorMutexGroup * m) : ActuatorDriver(target), mutexGroup(m){}
@@ -64,14 +65,10 @@ public:
         return target->isActive();
     }
 
-    void serialize(JSON::Adapter& adapter){
-        JSON::Class root(adapter, "ActuatorMutexDriver");
-        JSON_E(adapter, mutexGroup);
-        JSON_T(adapter, target);
-    }
-
 private:
     ActuatorMutexGroup * mutexGroup;
+
+friend class ActuatorMutexDriverMixin;
 };
 
 

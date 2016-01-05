@@ -23,11 +23,12 @@
 #include "SetPoint.h"
 #include "TempSensorBasic.h"
 #include "defaultDevices.h"
+#include "ControllerMixins.h"
  
 /*
  * A linear actuator that sets a setpoint to reference setpoint + actuator value
  */
-class ActuatorSetPoint : private ActuatorBottom, public ActuatorRange
+class ActuatorSetPoint : private ActuatorBottom, public ActuatorRange, public ActuatorSetPointMixin
 {
 public:
     ActuatorSetPoint(SetPoint * targSetPoint = defaultSetPoint(), // set point to manipulate
@@ -82,24 +83,12 @@ public:
 
     virtual void update(){}; //no actions required
 
-    void serialize(JSON::Adapter& adapter){
-        JSON::Class root(adapter, "ActuatorSetPoint");
-        JSON_E(adapter, targetSetPoint);
-        JSON_E(adapter, targetSensor);
-        JSON_E(adapter, referenceSetPoint);
-        temp_t output = getValue();
-        JSON_E(adapter, output);
-        temp_t achieved = readValue();
-        JSON_E(adapter, achieved);
-        JSON_E(adapter, minimum);
-        JSON_T(adapter, maximum);
-    }
-
-
 private:
     SetPoint * targetSetPoint;
     TempSensorBasic * targetSensor;
     SetPoint * referenceSetPoint;
     temp_t minimum;
     temp_t maximum;
+
+    friend class ActuatorSetPointMixin;
 };

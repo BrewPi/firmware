@@ -25,8 +25,18 @@
 #include "TempSensorMock.h"
 #include "OneWireTempSensor.h"
 #include "TempSensorExternal.h"
+#include "ValveController.h"
+#include "ActuatorInterFaces.h"
+#include "ActuatorTimeLimited.h"
+#include "ActuatorSetPoint.h"
+#include "ActuatorPwm.h"
+#include "ActuatorOneWire.h"
+#include "ActuatorMutexGroup.h"
+#include "ActuatorMutexDriver.h"
+#include "ActuatorMocks.h"
 
 // These macros are equivalent to ESJ, except for that they add obj-> in front of the member variable name
+// use JSON_E for local variables and JSON_OE for member variables of the obj pointer
 
 // Serializable element with more elements to follow (alternative to JSON_E)
 #define JSON_OE(json_adapter,class_member)  JSON::stream(json_adapter,_ASTRING(#class_member),obj->class_member,true)
@@ -113,4 +123,114 @@ void TempSensorExternalMixin::serialize(JSON::Adapter& adapter){
     JSON::Class root(adapter, "TempSensorExternal");
     JSON_OE(adapter, value);
     JSON_OT(adapter, connected);
+}
+
+void ValveControllerMixin::serialize(JSON::Adapter& adapter){
+    ValveController * obj = (ValveController *) this;
+
+    JSON::Class root(adapter, "ValveController");
+    JSON_OE(adapter, pio);
+    JSON_OT(adapter, sense);
+}
+
+void ActuatorTimeLimitedMixin::serialize(JSON::Adapter& adapter){
+    ActuatorTimeLimited * obj = (ActuatorTimeLimited *) this;
+
+    JSON::Class root(adapter, "ActuatorTimeLimited");
+    JSON_OE(adapter, minOnTime);
+    JSON_OE(adapter, minOffTime);
+    JSON_OE(adapter, maxOnTime);
+    JSON_OE(adapter, active);
+    JSON_OT(adapter, target);
+}
+
+void ActuatorSetPointMixin::serialize(JSON::Adapter& adapter){
+    ActuatorSetPoint * obj = (ActuatorSetPoint *) this;
+
+    JSON::Class root(adapter, "ActuatorSetPoint");
+    JSON_OE(adapter, targetSetPoint);
+    JSON_OE(adapter, targetSensor);
+    JSON_OE(adapter, referenceSetPoint);
+    temp_t output = obj->getValue();
+    JSON_E(adapter, output);
+    temp_t achieved = obj->readValue();
+    JSON_E(adapter, achieved);
+    JSON_OE(adapter, minimum);
+    JSON_OT(adapter, maximum);
+}
+
+void ActuatorPwmMixin::serialize(JSON::Adapter& adapter){
+    ActuatorPwm * obj = (ActuatorPwm *) this;
+
+    JSON::Class root(adapter, "ActuatorPwm");
+    JSON_OE(adapter, value);
+    ticks_seconds_t period = obj->getPeriod(); // don't use member directly, but value in seconds
+    JSON_E(adapter, period);
+    JSON_OE(adapter, minVal);
+    JSON_OE(adapter, maxVal);
+    JSON_OT(adapter, target);
+}
+
+void ActuatorOneWireMixin::serialize(JSON::Adapter& adapter){
+    ActuatorOneWire * obj = (ActuatorOneWire *) this;
+
+    JSON::Class root(adapter, "ActuatorOneWire");
+    bool active = obj->isActive();
+    JSON_E(adapter, active);
+    JSON_OE(adapter, pio);
+    JSON_OT(adapter, invert);
+}
+
+void ActuatorMutexGroupMixin::serialize(JSON::Adapter& adapter){
+    ActuatorMutexGroup * obj = (ActuatorMutexGroup *) this;
+
+    JSON::Class root(adapter, "ActuatorMutexGroup");
+    JSON_OE(adapter, deadTime);
+    JSON_OT(adapter, lastActiveTime);
+}
+
+
+void ActuatorMutexDriverMixin::serialize(JSON::Adapter& adapter){
+    ActuatorMutexDriver * obj = (ActuatorMutexDriver *) this;
+
+    JSON::Class root(adapter, "ActuatorMutexDriver");
+    JSON_OE(adapter, mutexGroup);
+    JSON_OT(adapter, target);
+}
+
+void ActuatorValueMixin::serialize(JSON::Adapter& adapter){
+    ActuatorValue * obj = (ActuatorValue *) this;
+
+    JSON::Class root(adapter, "ActuatorValue");
+    JSON_OE(adapter, value);
+    JSON_OE(adapter, minimum);
+    JSON_OT(adapter, maximum);
+}
+
+void ActuatorBoolMixin::serialize(JSON::Adapter& adapter){
+    ActuatorBool * obj = (ActuatorBool *) this;
+
+    JSON::Class root(adapter, "ActuatorBool");
+    JSON_OT(adapter, state);
+}
+
+void ActuatorNopMixin::serialize(JSON::Adapter& adapter){
+    ActuatorNop * obj = (ActuatorNop *) this;
+
+    JSON::Class root(adapter, "ActuatorNop");
+    bool state = obj->isActive();
+    JSON_T(adapter, state);
+}
+
+void ActuatorInvalidMixin::serialize(JSON::Adapter& adapter){
+    ActuatorInvalid * obj = (ActuatorInvalid *) this;
+
+    temp_t value = obj->getValue();
+    temp_t minimum = obj->min();
+    temp_t maximum = obj-> max();
+
+    JSON::Class root(adapter, "ActuatorInvalid");
+    JSON_E(adapter, value);
+    JSON_E(adapter, minimum);
+    JSON_T(adapter, maximum);
 }

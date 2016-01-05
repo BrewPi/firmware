@@ -53,3 +53,80 @@ public:
     void serialize(JSON::Adapter& adapter) override;
 };
 
+class ValveControllerMixin : public virtual Serializable
+{
+public:
+    void serialize(JSON::Adapter& adapter) override;
+};
+
+class ActuatorMixin : public virtual Serializable {};
+
+
+class ActuatorTimeLimitedMixin : public virtual Serializable
+{
+public:
+    void serialize(JSON::Adapter& adapter) override;
+};
+
+class ActuatorSetPointMixin : public virtual Serializable
+{
+public:
+    void serialize(JSON::Adapter& adapter) override;
+};
+
+class ActuatorPwmMixin : public virtual Serializable
+{
+public:
+    void serialize(JSON::Adapter& adapter) override;
+};
+
+class ActuatorOneWireMixin : public virtual Serializable
+{
+public:
+    void serialize(JSON::Adapter& adapter) override;
+};
+
+class ActuatorMutexGroupMixin : public virtual Serializable
+{
+public:
+    void serialize(JSON::Adapter& adapter) override;
+};
+
+class ActuatorMutexDriverMixin : public virtual Serializable
+{
+public:
+    void serialize(JSON::Adapter& adapter) override;
+};
+
+class ActuatorValueMixin : public virtual Serializable
+{
+public:
+    void serialize(JSON::Adapter& adapter) override;
+};
+
+class ActuatorBoolMixin : public virtual Serializable
+{
+public:
+    void serialize(JSON::Adapter& adapter) override;
+};
+
+class ActuatorNopMixin : public virtual Serializable
+{
+public:
+    void serialize(JSON::Adapter& adapter) override;
+};
+
+class ActuatorInvalidMixin : public virtual Serializable
+{
+public:
+    void serialize(JSON::Adapter& adapter) override;
+};
+
+
+
+
+
+
+
+
+

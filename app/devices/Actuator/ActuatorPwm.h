@@ -26,8 +26,9 @@
 #include "ActuatorDriver.h"
 #include "Ticks.h"
 #include <stdint.h>
+#include "ControllerMixins.h"
 
-class ActuatorPwm : public ActuatorDriver, public ActuatorRange
+class ActuatorPwm : public ActuatorDriver, public ActuatorRange, public ActuatorPwmMixin
 {
     private:
         temp_t         value;
@@ -86,13 +87,5 @@ class ActuatorPwm : public ActuatorDriver, public ActuatorRange
         // calculates priority from dutyTime and dutyLate
         int8_t priority();
 
-        void serialize(JSON::Adapter& adapter){
-            JSON::Class root(adapter, "ActuatorPwm");
-            JSON_E(adapter, value);
-            ticks_seconds_t period = getPeriod(); // don't use member directly, but value in seconds
-            JSON_E(adapter, period);
-            JSON_E(adapter, minVal);
-            JSON_E(adapter, maxVal);
-            JSON_T(adapter, target);
-        }
+        friend class ActuatorPwmMixin;
 };
