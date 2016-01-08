@@ -26,7 +26,7 @@
 #include "OneWireTempSensor.h"
 #include "TempSensorExternal.h"
 #include "ValveController.h"
-#include "ActuatorInterFaces.h"
+#include "ActuatorInterfaces.h"
 #include "ActuatorTimeLimited.h"
 #include "ActuatorSetPoint.h"
 #include "ActuatorPwm.h"
