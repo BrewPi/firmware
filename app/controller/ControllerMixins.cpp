@@ -25,12 +25,10 @@
 #include "TempSensorMock.h"
 #include "OneWireTempSensor.h"
 #include "TempSensorExternal.h"
-#include "ValveController.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorTimeLimited.h"
 #include "ActuatorSetPoint.h"
 #include "ActuatorPwm.h"
-#include "ActuatorOneWire.h"
 #include "ActuatorMutexGroup.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMocks.h"
@@ -38,6 +36,8 @@
 
 #if WIRING
 #include "ActuatorPin.h"
+#include "ActuatorOneWire.h"
+#include "ValveController.h"
 #endif
 
 // These macros are equivalent to ESJ, except for that they add obj-> in front of the member variable name
@@ -130,14 +130,6 @@ void TempSensorExternalMixin::doSerialize(JSON::Adapter& adapter){
     JSON_OT(adapter, connected);
 }
 
-void ValveControllerMixin::doSerialize(JSON::Adapter& adapter){
-    ValveController * obj = (ValveController *) this;
-
-    JSON::Class root(adapter, "ValveController");
-    JSON_OE(adapter, pio);
-    JSON_OT(adapter, sense);
-}
-
 void ActuatorTimeLimitedMixin::doSerialize(JSON::Adapter& adapter){
     ActuatorTimeLimited * obj = (ActuatorTimeLimited *) this;
 
@@ -174,16 +166,6 @@ void ActuatorPwmMixin::doSerialize(JSON::Adapter& adapter){
     JSON_OE(adapter, minVal);
     JSON_OE(adapter, maxVal);
     JSON_OT(adapter, target);
-}
-
-void ActuatorOneWireMixin::doSerialize(JSON::Adapter& adapter){
-    ActuatorOneWire * obj = (ActuatorOneWire *) this;
-
-    JSON::Class root(adapter, "ActuatorOneWire");
-    bool active = obj->isActive();
-    JSON_E(adapter, active);
-    JSON_OE(adapter, pio);
-    JSON_OT(adapter, invert);
 }
 
 void ActuatorMutexGroupMixin::doSerialize(JSON::Adapter& adapter){
@@ -249,6 +231,24 @@ void ActuatorPinMixin::doSerialize(JSON::Adapter& adapter){
     JSON::Class root(adapter, "ActuatorPin");
     JSON_E(adapter, state);
     JSON_OE(adapter, pin);
+    JSON_OT(adapter, invert);
+}
+
+void ValveControllerMixin::doSerialize(JSON::Adapter& adapter){
+    ValveController * obj = (ValveController *) this;
+
+    JSON::Class root(adapter, "ValveController");
+    JSON_OE(adapter, pio);
+    JSON_OT(adapter, sense);
+}
+
+void ActuatorOneWireMixin::doSerialize(JSON::Adapter& adapter){
+    ActuatorOneWire * obj = (ActuatorOneWire *) this;
+
+    JSON::Class root(adapter, "ActuatorOneWire");
+    bool active = obj->isActive();
+    JSON_E(adapter, active);
+    JSON_OE(adapter, pio);
     JSON_OT(adapter, invert);
 }
 #endif

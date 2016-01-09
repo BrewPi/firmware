@@ -6,6 +6,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/Filter
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/esj
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/Actuator
+INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/Actuator/wiring
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/OneWire
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/OneWireSwitch
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/TempSensor

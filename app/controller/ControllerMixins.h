@@ -76,13 +76,6 @@ protected:
     ~TempSensorExternalMixin(){}
 };
 
-class ValveControllerMixin : public virtual Serializable
-{
-private:
-    virtual void doSerialize(JSON::Adapter& adapter) override;
-protected:
-    ~ValveControllerMixin(){}
-};
 
 class ActuatorMixin : public virtual Serializable {
 protected:
@@ -112,14 +105,6 @@ private:
     virtual void doSerialize(JSON::Adapter& adapter) override;
 protected:
     ~ActuatorPwmMixin(){}
-};
-
-class ActuatorOneWireMixin : public virtual Serializable
-{
-private:
-    virtual void doSerialize(JSON::Adapter& adapter) override;
-protected:
-    ~ActuatorOneWireMixin(){}
 };
 
 class ActuatorMutexGroupMixin : public virtual Serializable
@@ -177,16 +162,6 @@ protected:
     ~ActuatorDigitalMixin(){}
 };
 
-#if WIRING
-class ActuatorPinMixin : public virtual Serializable
-{
-private:
-    virtual void doSerialize(JSON::Adapter& adapter) override;
-protected:
-    ~ActuatorPinMixin(){}
-};
-#endif
-
 class SetPointMixin : public virtual Serializable
 {
 protected:
@@ -218,6 +193,28 @@ protected:
 };
 
 
+#if WIRING
+class ActuatorPinMixin : public virtual Serializable
+{
+private:
+    virtual void doSerialize(JSON::Adapter& adapter) override;
+protected:
+    ~ActuatorPinMixin(){}
+};
 
+class ValveControllerMixin : public virtual Serializable
+{
+private:
+    virtual void doSerialize(JSON::Adapter& adapter) override;
+protected:
+    ~ValveControllerMixin(){}
+};
 
-
+class ActuatorOneWireMixin : public virtual Serializable
+{
+private:
+    virtual void doSerialize(JSON::Adapter& adapter) override;
+protected:
+    ~ActuatorOneWireMixin(){}
+};
+#endif
