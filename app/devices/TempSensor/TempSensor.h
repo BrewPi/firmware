@@ -33,14 +33,6 @@ public:
     TempSensor(TempSensorBasic * s) :
             sensor(s) {
     }
-    TempSensor(const char * initialName) :
-            sensor(defaultTempSensorBasic()) {
-        setName(initialName);
-    }
-    TempSensor(TempSensorBasic * s, const char * initialName) :
-            sensor(s) {
-        setName(initialName);
-    }
 
     ~TempSensor() {
     }

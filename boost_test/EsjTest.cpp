@@ -241,7 +241,8 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
 
 BOOST_AUTO_TEST_CASE(serialize_TempSensor) {
     TempSensorBasic * s = new TempSensorMock(20.0);
-    TempSensor * sensor = new TempSensor(s, "test");
+    TempSensor * sensor = new TempSensor(s);
+    sensor->setName("test");
 
     std::string json = JSON::producer<TempSensor>::convert(sensor);
     std::string valid = R"({"kind":"TempSensor","name":"test","sensor":{)"
