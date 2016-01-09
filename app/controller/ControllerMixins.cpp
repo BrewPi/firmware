@@ -34,6 +34,7 @@
 #include "ActuatorMutexGroup.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMocks.h"
+#include "ActuatorPin.h"
 
 // These macros are equivalent to ESJ, except for that they add obj-> in front of the member variable name
 // use JSON_E for local variables and JSON_OE for member variables of the obj pointer
@@ -45,7 +46,7 @@
 
 
 
-void PidMixin::serialize(JSON::Adapter & adapter)
+void PidMixin::doSerialize(JSON::Adapter & adapter)
 {
     Pid * obj = (Pid *) this;
 
@@ -67,7 +68,7 @@ void PidMixin::serialize(JSON::Adapter & adapter)
 }
 
 
-void TempSensorMixin::serialize(JSON::Adapter & adapter)
+void TempSensorMixin::doSerialize(JSON::Adapter & adapter)
 {
     TempSensor * obj = (TempSensor *) this;
 
@@ -78,7 +79,7 @@ void TempSensorMixin::serialize(JSON::Adapter & adapter)
 }
 
 
-void TempSensorMockMixin::serialize(JSON::Adapter& adapter){
+void TempSensorMockMixin::doSerialize(JSON::Adapter& adapter){
     TempSensorMock * obj = (TempSensorMock *) this;
 
     JSON::Class root(adapter, "TempSensorMock");
@@ -87,7 +88,7 @@ void TempSensorMockMixin::serialize(JSON::Adapter& adapter){
 }
 
 
-void OneWireTempSensorMixin::serialize(JSON::Adapter& adapter){
+void OneWireTempSensorMixin::doSerialize(JSON::Adapter& adapter){
     OneWireTempSensor * obj = (OneWireTempSensor *) this;
 
     JSON::Class root(adapter, "OneWireTempSensor");
@@ -107,7 +108,7 @@ void OneWireTempSensorMixin::serialize(JSON::Adapter& adapter){
 }
 
 
-void TempSensorDisconnectedMixin::serialize(JSON::Adapter& adapter){
+void TempSensorDisconnectedMixin::doSerialize(JSON::Adapter& adapter){
     TempSensorDisconnected * obj = (TempSensorDisconnected *) this;
 
     temp_t value = obj->read();
@@ -117,7 +118,7 @@ void TempSensorDisconnectedMixin::serialize(JSON::Adapter& adapter){
     JSON_T(adapter, connected);
 }
 
-void TempSensorExternalMixin::serialize(JSON::Adapter& adapter){
+void TempSensorExternalMixin::doSerialize(JSON::Adapter& adapter){
     TempSensorExternal * obj = (TempSensorExternal *) this;
 
     JSON::Class root(adapter, "TempSensorExternal");
@@ -125,7 +126,7 @@ void TempSensorExternalMixin::serialize(JSON::Adapter& adapter){
     JSON_OT(adapter, connected);
 }
 
-void ValveControllerMixin::serialize(JSON::Adapter& adapter){
+void ValveControllerMixin::doSerialize(JSON::Adapter& adapter){
     ValveController * obj = (ValveController *) this;
 
     JSON::Class root(adapter, "ValveController");
@@ -133,7 +134,7 @@ void ValveControllerMixin::serialize(JSON::Adapter& adapter){
     JSON_OT(adapter, sense);
 }
 
-void ActuatorTimeLimitedMixin::serialize(JSON::Adapter& adapter){
+void ActuatorTimeLimitedMixin::doSerialize(JSON::Adapter& adapter){
     ActuatorTimeLimited * obj = (ActuatorTimeLimited *) this;
 
     JSON::Class root(adapter, "ActuatorTimeLimited");
@@ -144,7 +145,7 @@ void ActuatorTimeLimitedMixin::serialize(JSON::Adapter& adapter){
     JSON_OT(adapter, target);
 }
 
-void ActuatorSetPointMixin::serialize(JSON::Adapter& adapter){
+void ActuatorSetPointMixin::doSerialize(JSON::Adapter& adapter){
     ActuatorSetPoint * obj = (ActuatorSetPoint *) this;
 
     JSON::Class root(adapter, "ActuatorSetPoint");
@@ -159,7 +160,7 @@ void ActuatorSetPointMixin::serialize(JSON::Adapter& adapter){
     JSON_OT(adapter, maximum);
 }
 
-void ActuatorPwmMixin::serialize(JSON::Adapter& adapter){
+void ActuatorPwmMixin::doSerialize(JSON::Adapter& adapter){
     ActuatorPwm * obj = (ActuatorPwm *) this;
 
     JSON::Class root(adapter, "ActuatorPwm");
@@ -171,7 +172,7 @@ void ActuatorPwmMixin::serialize(JSON::Adapter& adapter){
     JSON_OT(adapter, target);
 }
 
-void ActuatorOneWireMixin::serialize(JSON::Adapter& adapter){
+void ActuatorOneWireMixin::doSerialize(JSON::Adapter& adapter){
     ActuatorOneWire * obj = (ActuatorOneWire *) this;
 
     JSON::Class root(adapter, "ActuatorOneWire");
@@ -181,7 +182,7 @@ void ActuatorOneWireMixin::serialize(JSON::Adapter& adapter){
     JSON_OT(adapter, invert);
 }
 
-void ActuatorMutexGroupMixin::serialize(JSON::Adapter& adapter){
+void ActuatorMutexGroupMixin::doSerialize(JSON::Adapter& adapter){
     ActuatorMutexGroup * obj = (ActuatorMutexGroup *) this;
 
     JSON::Class root(adapter, "ActuatorMutexGroup");
@@ -190,7 +191,7 @@ void ActuatorMutexGroupMixin::serialize(JSON::Adapter& adapter){
 }
 
 
-void ActuatorMutexDriverMixin::serialize(JSON::Adapter& adapter){
+void ActuatorMutexDriverMixin::doSerialize(JSON::Adapter& adapter){
     ActuatorMutexDriver * obj = (ActuatorMutexDriver *) this;
 
     JSON::Class root(adapter, "ActuatorMutexDriver");
@@ -198,7 +199,7 @@ void ActuatorMutexDriverMixin::serialize(JSON::Adapter& adapter){
     JSON_OT(adapter, target);
 }
 
-void ActuatorValueMixin::serialize(JSON::Adapter& adapter){
+void ActuatorValueMixin::doSerialize(JSON::Adapter& adapter){
     ActuatorValue * obj = (ActuatorValue *) this;
 
     JSON::Class root(adapter, "ActuatorValue");
@@ -207,14 +208,14 @@ void ActuatorValueMixin::serialize(JSON::Adapter& adapter){
     JSON_OT(adapter, maximum);
 }
 
-void ActuatorBoolMixin::serialize(JSON::Adapter& adapter){
+void ActuatorBoolMixin::doSerialize(JSON::Adapter& adapter){
     ActuatorBool * obj = (ActuatorBool *) this;
 
     JSON::Class root(adapter, "ActuatorBool");
     JSON_OT(adapter, state);
 }
 
-void ActuatorNopMixin::serialize(JSON::Adapter& adapter){
+void ActuatorNopMixin::doSerialize(JSON::Adapter& adapter){
     ActuatorNop * obj = (ActuatorNop *) this;
 
     JSON::Class root(adapter, "ActuatorNop");
@@ -222,7 +223,7 @@ void ActuatorNopMixin::serialize(JSON::Adapter& adapter){
     JSON_T(adapter, state);
 }
 
-void ActuatorInvalidMixin::serialize(JSON::Adapter& adapter){
+void ActuatorInvalidMixin::doSerialize(JSON::Adapter& adapter){
     ActuatorInvalid * obj = (ActuatorInvalid *) this;
 
     temp_t value = obj->getValue();
@@ -233,4 +234,15 @@ void ActuatorInvalidMixin::serialize(JSON::Adapter& adapter){
     JSON_E(adapter, value);
     JSON_E(adapter, minimum);
     JSON_T(adapter, maximum);
+}
+
+void ActuatorPinMixin::doSerialize(JSON::Adapter& adapter){
+    ActuatorPin * obj = (ActuatorPin *) this;
+
+    bool state = obj->isActive();
+
+    JSON::Class root(adapter, "ActuatorPin");
+    JSON_E(adapter, state);
+    JSON_OE(adapter, pin);
+    JSON_OT(adapter, invert);
 }

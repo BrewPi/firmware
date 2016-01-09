@@ -26,8 +26,8 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorBottom.h"
 
-class DigitalPinActuator:
-    private ActuatorBottom, public ActuatorDigital
+class ActuatorPin:
+    private ActuatorBottom, public ActuatorDigital, public ActuatorPinMixin
 {
     private:
         bool    invert;
@@ -55,14 +55,6 @@ class DigitalPinActuator:
         {
         }
 
-        void serialize(JSON::Adapter& adapter){
-            JSON::Class root(adapter, "ActuatorPin");
-            bool state = isActive();
-            JSON_E(adapter, state);
-            JSON_E(adapter, pin);
-            JSON_T(adapter, invert);
-        }
-
-
         void update(){} // do nothing on periodic update
+    friend class ActuatorPinMixin;
 };
