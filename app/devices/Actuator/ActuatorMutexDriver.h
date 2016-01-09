@@ -29,12 +29,12 @@
 /* A driver actuator to wrap a digital Actuator and block SetActive calls if the mutex group does does not honor the request
  */
 
-class ActuatorMutexDriver : public virtual ActuatorDriver, public ActuatorDigital, public ActuatorMutexDriverMixin{
+class ActuatorMutexDriver final : public virtual ActuatorDriver, public ActuatorDigital, public ActuatorMutexDriverMixin{
 public:
     ActuatorMutexDriver(ActuatorDigital * target) : ActuatorDriver(target), mutexGroup(nullptr){}
     ActuatorMutexDriver(ActuatorDigital * target, ActuatorMutexGroup * m) : ActuatorDriver(target), mutexGroup(m){}
 
-    virtual ~ActuatorMutexDriver(){
+    ~ActuatorMutexDriver(){
         setMutex(nullptr);
     }
 

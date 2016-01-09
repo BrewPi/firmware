@@ -32,7 +32,7 @@
  * An actuator or sensor that operates by communicating with a DS2413 device.
  *
  */
-class ActuatorOneWire:
+class ActuatorOneWire final:
     private ActuatorBottom, public ActuatorDigital, public ActuatorOneWireMixin
 
 #if DS2413_SUPPORT_SENSE
@@ -49,6 +49,7 @@ class ActuatorOneWire:
         {
             init(bus, address, pio, invert);
         }
+        ~ActuatorOneWire() = default;
 
         void init(OneWire *     bus,
                   DeviceAddress address,

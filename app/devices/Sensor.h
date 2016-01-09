@@ -29,11 +29,11 @@ template<class T> class Sensor
 };
 
 template <class T>
-class ValueSensor : public Sensor<T>
+class ValueSensor final : public Sensor<T>
 {
 public:	
 	ValueSensor(T initial) : value(initial) {}
-	virtual ~ValueSensor(){}
+	~ValueSensor(){}
 
 	virtual T sense() {
 		return (T)0;

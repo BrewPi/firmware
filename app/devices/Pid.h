@@ -29,7 +29,7 @@
 #include "defaultDevices.h"
 #include "ControllerMixins.h"
 
-class Pid : public PidMixin
+class Pid final : public PidMixin
 {
 
     public:
@@ -39,7 +39,7 @@ class Pid : public PidMixin
 
         Pid(const Pid & orig);
 
-        virtual ~Pid();
+        ~Pid() = default;
 
         void init();
 

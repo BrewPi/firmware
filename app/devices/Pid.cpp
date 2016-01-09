@@ -50,8 +50,6 @@ Pid::Pid(TempSensorBasic * input,
 //    maxDerivative = 0.0;
 }
 
-Pid::~Pid(){}
-
 void Pid::setConstants(temp_long_t kp,
                        uint16_t ti,
                        uint16_t td)

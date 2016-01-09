@@ -29,7 +29,7 @@
 /*
  * A range actuator that simply remembers the set value. This is primary used for testing.
  */
-class ActuatorValue : private ActuatorBottom, public ActuatorRange, public ActuatorValueMixin
+class ActuatorValue final : private ActuatorBottom, public ActuatorRange, public ActuatorValueMixin
 {
 public:
     // construct without arguments, val = invalid, min and max are defaults
@@ -41,7 +41,7 @@ public:
     // construct with val, min, max
     ActuatorValue(temp_t initial, temp_t minVal, temp_t maxVal) : value(initial), minimum(minVal), maximum(maxVal) {}
 
-    virtual ~ActuatorValue(){}
+    ~ActuatorValue() = default;
 
     virtual void setValue(temp_t const& val) {
         if(val < minimum){
@@ -78,11 +78,12 @@ friend class ActuatorValueMixin;
 /*
  * An toggle actuator that simply remembers a true/false set value. This is primary used for testing.
  */
-class ActuatorBool : private ActuatorBottom, public ActuatorDigital, public ActuatorBoolMixin
+class ActuatorBool final : private ActuatorBottom, public ActuatorDigital, public ActuatorBoolMixin
 {
 public:
     ActuatorBool() : state(false) {}
     ActuatorBool(bool initial) : state(initial) {}
+    ~ActuatorBool() = default;
 
     virtual void setActive(bool active) { state = active; }
     virtual bool isActive() { return state; }
@@ -99,11 +100,11 @@ friend class ActuatorBoolMixin;
 /*
  * An digital actuators that does absolutely nothing. Used as default actuator
  */
-class ActuatorNop : private ActuatorBottom, public ActuatorDigital, public ActuatorNopMixin
+class ActuatorNop final : private ActuatorBottom, public ActuatorDigital, public ActuatorNopMixin
 {
 public:
     ActuatorNop(){}
-    ~ActuatorNop(){}
+    ~ActuatorNop() = default;
 
     virtual void setActive(bool active) {}
     virtual bool isActive() { return false;}
@@ -116,11 +117,11 @@ friend class ActuatorNopMixin;
 /*
  * An linear actuator that does nothing and always returns invalid(). Linear equivalent of ActuatorNop
  */
-class ActuatorInvalid : private ActuatorBottom, public ActuatorRange, public ActuatorInvalidMixin
+class ActuatorInvalid final : private ActuatorBottom, public ActuatorRange, public ActuatorInvalidMixin
 {
 public:
     ActuatorInvalid() {}
-    ~ActuatorInvalid() {}
+    ~ActuatorInvalid() = default;
 
     void setValue(temp_t const& val) {}
     temp_t getValue() const {

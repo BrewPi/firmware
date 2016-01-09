@@ -28,7 +28,7 @@
 /*
  * A linear actuator that sets a setpoint to reference setpoint + actuator value
  */
-class ActuatorSetPoint : private ActuatorBottom, public ActuatorRange, public ActuatorSetPointMixin
+class ActuatorSetPoint final : private ActuatorBottom, public ActuatorRange, public ActuatorSetPointMixin
 {
 public:
     ActuatorSetPoint(SetPoint * targSetPoint = defaultSetPoint(), // set point to manipulate
@@ -42,6 +42,7 @@ public:
         minimum(mini),
         maximum(maxi){
     }
+    ~ActuatorSetPoint() = default;
 
     void setValue(temp_t const& val) {
         temp_t offset = val;

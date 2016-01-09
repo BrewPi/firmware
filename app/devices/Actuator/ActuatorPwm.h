@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include "ControllerMixins.h"
 
-class ActuatorPwm : public ActuatorDriver, public ActuatorRange, public ActuatorPwmMixin
+class ActuatorPwm final : public ActuatorDriver, public ActuatorRange, public ActuatorPwmMixin
 {
     private:
         temp_t         value;
@@ -47,7 +47,7 @@ class ActuatorPwm : public ActuatorDriver, public ActuatorRange, public Actuator
     public:
         ActuatorPwm(ActuatorDigital * _target, uint16_t _period);
 
-        virtual ~ActuatorPwm(){}
+        ~ActuatorPwm(){}
 
         temp_t min() const {
             return minVal;

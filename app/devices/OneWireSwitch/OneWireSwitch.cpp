@@ -7,10 +7,6 @@
 
 #include "OneWireSwitch.h"
 
-OneWireSwitch::OneWireSwitch(){}
-
-OneWireSwitch::~OneWireSwitch(){}
-
 /*
  * Initializes this OneWire slave.
  * /param oneWire The oneWire bus the device is connected to

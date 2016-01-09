@@ -28,7 +28,7 @@
 #include "Ticks.h"
 #include "ControllerMixins.h"
 
-class ActuatorTimeLimited: public ActuatorDriver, public ActuatorDigital, public ActuatorTimeLimitedMixin
+class ActuatorTimeLimited final : public ActuatorDriver, public ActuatorDigital, public ActuatorTimeLimitedMixin
 {
 public:
     ActuatorTimeLimited(ActuatorDigital * _target,
@@ -44,7 +44,7 @@ public:
         active     = _target -> isActive();
     }
 
-    virtual ~ActuatorTimeLimited(){}
+    ~ActuatorTimeLimited() = default;
 
     void setActive(bool active);    // returns new actuator state
 

@@ -29,7 +29,7 @@ struct ActuatorPriority{
     int8_t priority; // valid priorities are 0-127, at -128 the actuator is removed from the group
 };
 
-class ActuatorMutexGroup : public ActuatorMutexGroupMixin
+class ActuatorMutexGroup final : public ActuatorMutexGroupMixin
 {
 public:
     ActuatorMutexGroup(){
@@ -37,10 +37,10 @@ public:
         lastActiveTime = 0;
         lastActiveActuator = nullptr;
     }
-    ~ActuatorMutexGroup(){
 
-    };
+    ~ActuatorMutexGroup() = default;
 
+public:
     ActuatorPriority * registerActuator(ActuatorDigital * act, int8_t prio);
     void unRegisterActuator(size_t index); // remove by index
     void unRegisterActuator(ActuatorDigital * act); // remove by pointer

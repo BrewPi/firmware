@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "json_adapter.h"
 #include "Nameable.h"
@@ -107,6 +107,17 @@ protected:
     ~ActuatorPwmMixin() = default;
 };
 
+<<<<<<< Updated upstream
+=======
+class ActuatorOneWireMixin : public virtual Serializable
+{
+private:
+    void doSerialize(JSON::Adapter& adapter) final;
+protected:
+    ~ActuatorOneWireMixin() = default;
+};
+
+>>>>>>> Stashed changes
 class ActuatorMutexGroupMixin : public virtual Serializable
 {
 private:
@@ -162,6 +173,27 @@ protected:
     ~ActuatorDigitalMixin() = default;
 };
 
+<<<<<<< Updated upstream
+=======
+#if WIRING
+class ActuatorPinMixin : public virtual Serializable
+{
+private:
+    void doSerialize(JSON::Adapter& adapter) final;
+protected:
+    ~ActuatorPinMixin() = default;
+};
+
+class ValveControllerMixin : public virtual Serializable
+{
+private:
+    void doSerialize(JSON::Adapter& adapter) final;
+protected:
+    ~ValveControllerMixin() = default;
+};
+#endif
+
+>>>>>>> Stashed changes
 class SetPointMixin : public virtual Serializable
 {
 protected:
@@ -199,7 +231,7 @@ class ActuatorPinMixin : public virtual Serializable
 private:
     virtual void doSerialize(JSON::Adapter& adapter) override;
 protected:
-    ~ActuatorPinMixin() = default;
+    ~ActuatorPinMixin(){}
 };
 
 class ValveControllerMixin : public virtual Serializable
@@ -207,7 +239,7 @@ class ValveControllerMixin : public virtual Serializable
 private:
     virtual void doSerialize(JSON::Adapter& adapter) override;
 protected:
-    ~ValveControllerMixin() = default;
+    ~ValveControllerMixin(){}
 };
 
 class ActuatorOneWireMixin : public virtual Serializable
@@ -215,6 +247,6 @@ class ActuatorOneWireMixin : public virtual Serializable
 private:
     virtual void doSerialize(JSON::Adapter& adapter) override;
 protected:
-    ~ActuatorOneWireMixin() = default;
+    ~ActuatorOneWireMixin(){}
 };
 #endif

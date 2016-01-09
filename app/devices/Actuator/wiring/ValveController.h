@@ -23,7 +23,7 @@
 #include "ActuatorBottom.h"
 #include "ControllerMixins.h"
 
-class ValveController :
+class ValveController final :
     private ActuatorBottom, public ActuatorDigital, public ValveControllerMixin{
 public:
     ValveController(OneWire *     bus,
@@ -35,7 +35,7 @@ public:
                     pio(pio_){  //
         device.init(bus, address);
     }
-    virtual ~ValveController(){};
+    ~ValveController() = default;
 
     enum class ValveActions : uint8_t {
         OFF_LOW = 0b00,

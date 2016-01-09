@@ -26,9 +26,12 @@
 
 class OneWireSwitch {
 public:
-    OneWireSwitch();
-    OneWireSwitch(const OneWireSwitch& orig);
-    virtual ~OneWireSwitch();
+    OneWireSwitch(){
+        oneWire = nullptr;
+    }
+protected:
+    ~OneWireSwitch() = default;
+public:
 
     void init(OneWire* oneWire, DeviceAddress address);
     DeviceAddress& getDeviceAddress();

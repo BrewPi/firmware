@@ -28,7 +28,8 @@
 class TempSensorBasic : virtual public TempSensorBasicMixin
 {
 public:
-	virtual ~TempSensorBasic() { }
+    TempSensorBasic() = default;
+	virtual ~TempSensorBasic() = default;
 	
 	virtual bool isConnected(void) = 0;
 	

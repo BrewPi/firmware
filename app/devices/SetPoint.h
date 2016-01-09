@@ -25,17 +25,17 @@
 class SetPoint : public SetPointMixin{
 public:
     SetPoint(){};
-    virtual ~SetPoint(){};
+    virtual ~SetPoint() = default;
     virtual temp_t read() const = 0;
     virtual void write(temp_t val) = 0;
 friend class SetPointMixin;
 };
 
 
-class SetPointSimple : public SetPoint, public SetPointSimpleMixin {
+class SetPointSimple final : public SetPoint, public SetPointSimpleMixin {
 public:
     SetPointSimple(temp_t val = temp_t::disabled()) : value(val){}
-    virtual ~SetPointSimple(){};
+    ~SetPointSimple() = default;
     virtual temp_t read() const{
         return value;
     }
@@ -50,10 +50,10 @@ friend class SetPointSimpleMixin;
 
 
 // immutable SetPoint, always reading for example 'invalid' to indicate that the setpoint has not been configured
-class SetPointConstant: public SetPoint, public SetPointConstantMixin {
+class SetPointConstant final : public SetPoint, public SetPointConstantMixin {
 public:
     SetPointConstant(const temp_t val): value(val){}
-    ~SetPointConstant(){};
+    ~SetPointConstant() = default;
     temp_t read() const{
         return value;
     }
@@ -66,10 +66,10 @@ private:
 friend class SetPointConstantMixin;
 };
 
-class SetPointNamed : public SetPoint, public SetPointNamedMixin {
+class SetPointNamed final : public SetPoint, public SetPointNamedMixin {
 public:
     SetPointNamed(SetPoint * sp) : setPoint(sp){}
-    ~SetPointNamed(){}
+    ~SetPointNamed() = default;
 
     inline temp_t read() const{
         return setPoint->read();

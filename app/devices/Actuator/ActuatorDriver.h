@@ -36,8 +36,10 @@ protected:
 
 public:
     ActuatorDriver(ActuatorDigital * _target) : target(_target){}
-    virtual ~ActuatorDriver(){};
+protected:
+    ~ActuatorDriver(){}; // should not be destructed through this base class
 
+public:
     virtual void update(){
         target->update();
     }
