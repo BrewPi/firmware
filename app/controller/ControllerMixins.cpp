@@ -34,6 +34,7 @@
 #include "ActuatorMutexGroup.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMocks.h"
+#include "SetPoint.h"
 
 #if WIRING
 #include "ActuatorPin.h"
@@ -251,3 +252,27 @@ void ActuatorPinMixin::doSerialize(JSON::Adapter& adapter){
     JSON_OT(adapter, invert);
 }
 #endif
+
+void SetPointSimpleMixin::doSerialize(JSON::Adapter& adapter){
+    SetPointSimple * obj = (SetPointSimple *) this;
+
+    JSON::Class root(adapter, "SetPointSimple");
+    JSON_OT(adapter, value);
+}
+
+void SetPointConstantMixin::doSerialize(JSON::Adapter& adapter){
+    SetPointConstant * obj = (SetPointConstant *) this;
+
+    temp_t value = obj->value; // create non-const copy for template resolution to work
+    JSON::Class root(adapter, "SetPointConstant");
+    JSON_T(adapter, value);
+}
+
+void SetPointNamedMixin::doSerialize(JSON::Adapter& adapter){
+    SetPointNamed * obj = (SetPointNamed *) this;
+
+    JSON::Class root(adapter, "SetPointNamed");
+    std::string name(getName()); // get name as std string for json_writer
+    JSON_E(adapter, name);
+    JSON_OT(adapter, setPoint);
+}

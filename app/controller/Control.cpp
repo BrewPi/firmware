@@ -86,9 +86,12 @@ Control::Control()
     actuators.push_back(heater1);
     actuators.push_back(heater2);
 
-    beer1SetNamed = new SetPointNamed(beer1Set, "beer1set");
-    beer2SetNamed = new SetPointNamed(beer2Set, "beer2set");
-    fridgeSetNamed = new SetPointNamed(fridgeSet, "fridgeset");
+    beer1SetNamed = new SetPointNamed(beer1Set);
+    beer1SetNamed->setName("beer1set");
+    beer2SetNamed = new SetPointNamed(beer2Set);
+    beer1SetNamed->setName("beer2set");
+    fridgeSetNamed = new SetPointNamed(fridgeSet);
+    fridgeSetNamed->setName("fridgeset");
 
     setpoints.push_back(beer1SetNamed);
     setpoints.push_back(beer2SetNamed);

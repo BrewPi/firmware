@@ -187,7 +187,35 @@ protected:
 };
 #endif
 
+class SetPointMixin : public virtual Serializable
+{
+protected:
+    ~SetPointMixin(){}
+};
 
+class SetPointSimpleMixin : public virtual Serializable
+{
+private:
+    virtual void doSerialize(JSON::Adapter& adapter) override;
+protected:
+    ~SetPointSimpleMixin(){}
+};
+
+class SetPointConstantMixin : public virtual Serializable
+{
+private:
+    virtual void doSerialize(JSON::Adapter& adapter) override;
+protected:
+    ~SetPointConstantMixin(){}
+};
+
+class SetPointNamedMixin : public virtual Nameable, public virtual Serializable
+{
+private:
+    virtual void doSerialize(JSON::Adapter& adapter) override;
+protected:
+    ~SetPointNamedMixin(){}
+};
 
 
 
