@@ -34,7 +34,10 @@
 #include "ActuatorMutexGroup.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMocks.h"
+
+#if WIRING
 #include "ActuatorPin.h"
+#endif
 
 // These macros are equivalent to ESJ, except for that they add obj-> in front of the member variable name
 // use JSON_E for local variables and JSON_OE for member variables of the obj pointer
@@ -236,6 +239,7 @@ void ActuatorInvalidMixin::doSerialize(JSON::Adapter& adapter){
     JSON_T(adapter, maximum);
 }
 
+#if WIRING
 void ActuatorPinMixin::doSerialize(JSON::Adapter& adapter){
     ActuatorPin * obj = (ActuatorPin *) this;
 
@@ -246,3 +250,4 @@ void ActuatorPinMixin::doSerialize(JSON::Adapter& adapter){
     JSON_OE(adapter, pin);
     JSON_OT(adapter, invert);
 }
+#endif

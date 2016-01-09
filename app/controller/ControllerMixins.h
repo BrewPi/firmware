@@ -177,6 +177,7 @@ protected:
     ~ActuatorDigitalMixin(){}
 };
 
+#if WIRING
 class ActuatorPinMixin : public virtual Serializable
 {
 private:
@@ -184,7 +185,7 @@ private:
 protected:
     ~ActuatorPinMixin(){}
 };
-
+#endif
 
 
 
