@@ -253,7 +253,7 @@ ObjectFactory createObjectHandlers[] = {
 	PersistChangeValue::create,								// type 9
 	DISPLAY_OBJECT(DisplayValue::create),					// type A
 	DISPLAY_OBJECT(DisplayTemplate::create),				// type B
-	ARDUINO_OBJECT(DigitalPinActuator::create),				// type C
+	ARDUINO_OBJECT(ActuatorPin::create),				// type C
 	IndirectValue::create,									// type D
         ARDUINO_OBJECT(AnalogPinSensor::create),                                                // type E
 	NULL

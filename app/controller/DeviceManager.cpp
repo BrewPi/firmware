@@ -101,7 +101,7 @@ void * DeviceManager::createDevice(DeviceConfig & config,
 #else
 
                 // use hardware actuators even for simulator
-                return new DigitalPinActuator(config.hw.pinNr, config.hw.invert);
+                return new ActuatorPin(config.hw.pinNr, config.hw.invert);
 #endif
 
             }

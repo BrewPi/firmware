@@ -73,7 +73,7 @@ public:
 /**
  *
  */
-class DigitalPinActuator : public Value, public Actuator
+class ActuatorPin : public Value, public Actuator
 {
 private:
 	bool invert;
@@ -81,7 +81,7 @@ private:
 	bool active;
 public:
 
-	DigitalPinActuator(uint8_t pin, bool invert) {
+	ActuatorPin(uint8_t pin, bool invert) {
 		this->invert = invert;
 		this->pin = pin;
 		setActive(false);
@@ -115,7 +115,7 @@ public:
 	 */
 	static Object* create(ObjectDefinition& def) {
 		uint8_t v = def.in->next();
-		return new_object(DigitalPinActuator(v&0x7f, v&0x80));
+		return new_object(ActuatorPin(v&0x7f, v&0x80));
 	}
 
 };

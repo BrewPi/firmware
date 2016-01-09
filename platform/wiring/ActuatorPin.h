@@ -34,10 +34,10 @@ class DigitalPinActuator:
         uint8_t pin;
 
     public:
-        DigitalPinActuator(uint8_t pin,
+        ActuatorPin(uint8_t pin,
                            bool    invert);
 
-        ~DigitalPinActuator()
+        ~ActuatorPin()
         {
         }
 
