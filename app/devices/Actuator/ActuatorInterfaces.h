@@ -41,8 +41,8 @@ class ActuatorDigital;
 class Actuator: public ActuatorMixin
 {
 public:
-    Actuator(){}
-    virtual ~Actuator() {}
+    Actuator() = default;
+    virtual ~Actuator() = default;
     virtual uint8_t type() const = 0;
 	Actuator * getBareActuator(){
 	    return doGetBareActuator();  // recursive call for composite driver classes, until a non-driver class is reached
@@ -74,9 +74,9 @@ private:
 class ActuatorDigital : public virtual Actuator
 {
 public:
-    ActuatorDigital(){}
-    virtual ~ActuatorDigital() {}
-    virtual uint8_t type() const { return ACTUATOR_TOGGLE; };
+    ActuatorDigital() = default;
+    virtual ~ActuatorDigital() = default;
+    virtual uint8_t type() const override { return ACTUATOR_TOGGLE; };
     virtual void setActive(bool active) = 0;
     virtual bool isActive() = 0;
 
@@ -90,9 +90,9 @@ public:
 class ActuatorRange : public virtual Actuator
 {
 public:
-    ActuatorRange(){}
-    virtual ~ActuatorRange() {}
-    virtual uint8_t type() const { return ACTUATOR_RANGE; };
+    ActuatorRange() = default;
+    virtual ~ActuatorRange() = default;
+    virtual uint8_t type() const override { return ACTUATOR_RANGE; };
     virtual void setValue(temp_t const& val) = 0;
     virtual temp_t getValue() const = 0; // get set value
     virtual temp_t readValue() const = 0; // read actual achieved value
@@ -106,9 +106,9 @@ public:
 class ActuatorThreshold : public virtual Actuator
 
 {
-ActuatorThreshold(){}
-    virtual ~ActuatorThreshold() {}
-    virtual uint8_t type() const { return ACTUATOR_THRESHOLD; };
+ActuatorThreshold() = default;
+    virtual ~ActuatorThreshold() = default;
+    virtual uint8_t type() const override { return ACTUATOR_THRESHOLD; };
     virtual void setValue(temp_t const& val) = 0;
     virtual temp_t readValue() const = 0;
     virtual temp_t onValue() const = 0;

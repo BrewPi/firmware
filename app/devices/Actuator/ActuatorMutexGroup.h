@@ -40,7 +40,6 @@ public:
 
     ~ActuatorMutexGroup() = default;
 
-public:
     ActuatorPriority * registerActuator(ActuatorDigital * act, int8_t prio);
     void unRegisterActuator(size_t index); // remove by index
     void unRegisterActuator(ActuatorDigital * act); // remove by pointer

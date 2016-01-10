@@ -43,7 +43,7 @@ public:
 
     ~ActuatorValue() = default;
 
-    virtual void setValue(temp_t const& val) {
+    void setValue(temp_t const& val) {
         if(val < minimum){
             value = minimum;
         }
@@ -54,10 +54,10 @@ public:
             value = val;
         }
     }
-    virtual temp_t getValue() const{
+    temp_t getValue() const{
         return value;
     }
-    virtual void update(){}; //no actions required
+    void update(){}; //no actions required
 
     temp_t min() const{
         return minimum;
@@ -85,10 +85,10 @@ public:
     ActuatorBool(bool initial) : state(initial) {}
     ~ActuatorBool() = default;
 
-    virtual void setActive(bool active) { state = active; }
-    virtual bool isActive() { return state; }
+    void setActive(bool active) { state = active; }
+    bool isActive() { return state; }
 
-    virtual void update(){}; //no actions required
+    void update(){}; //no actions required
 
 private:
     bool state;
@@ -106,9 +106,9 @@ public:
     ActuatorNop(){}
     ~ActuatorNop() = default;
 
-    virtual void setActive(bool active) {}
-    virtual bool isActive() { return false;}
-    virtual void update(){}
+    void setActive(bool active) {}
+    bool isActive() { return false;}
+    void update(){}
     bool isDriver() const { return false; }
 
 friend class ActuatorNopMixin;
@@ -136,7 +136,7 @@ public:
     temp_t max() const {
         return temp_t::invalid();
     }
-    virtual void update(){}; //no actions required
+    void update(){}; //no actions required
 
     bool isDriver() const { return false; }
 

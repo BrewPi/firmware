@@ -24,7 +24,7 @@
 
 class SetPoint : public SetPointMixin{
 public:
-    SetPoint(){};
+    SetPoint() = default;
     virtual ~SetPoint() = default;
     virtual temp_t read() const = 0;
     virtual void write(temp_t val) = 0;
@@ -36,10 +36,10 @@ class SetPointSimple final : public SetPoint, public SetPointSimpleMixin {
 public:
     SetPointSimple(temp_t val = temp_t::disabled()) : value(val){}
     ~SetPointSimple() = default;
-    virtual temp_t read() const{
+    temp_t read() const final {
         return value;
     }
-    virtual void write(temp_t val){
+    void write (temp_t val) final {
         value = val;
     }
 
@@ -54,10 +54,10 @@ class SetPointConstant final : public SetPoint, public SetPointConstantMixin {
 public:
     SetPointConstant(const temp_t val): value(val){}
     ~SetPointConstant() = default;
-    temp_t read() const{
+    temp_t read() const final{
         return value;
     }
-    void write(temp_t val){
+    void write(temp_t val) final { // does nothing
     }
 
 private:
@@ -71,10 +71,10 @@ public:
     SetPointNamed(SetPoint * sp) : setPoint(sp){}
     ~SetPointNamed() = default;
 
-    inline temp_t read() const{
+    temp_t read() const final{
         return setPoint->read();
     }
-    inline void write(temp_t val){
+    void write(temp_t val) final{
         setPoint->write(val);
     }
 

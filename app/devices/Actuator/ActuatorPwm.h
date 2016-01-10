@@ -47,25 +47,25 @@ class ActuatorPwm final : public ActuatorDriver, public ActuatorRange, public Ac
     public:
         ActuatorPwm(ActuatorDigital * _target, uint16_t _period);
 
-        ~ActuatorPwm(){}
+        ~ActuatorPwm() = default;
 
-        temp_t min() const {
+        temp_t min() const final {
             return minVal;
         }
 
-        temp_t max() const {
+        temp_t max() const final {
             return maxVal;
         }
 
-        temp_t readValue() const;
+        temp_t readValue() const final;
 
-        temp_t getValue() const {
+        temp_t getValue() const final {
             return value;
         }
 
-        void setValue(temp_t const& val);
+        void setValue(temp_t const& val) final;
 
-        void update();
+        void update() final;
 
         ticks_seconds_t getPeriod()
         {

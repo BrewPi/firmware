@@ -40,8 +40,8 @@
 #if DISPLAY_POLYMORPHIC
 class Display{
 	public:
-	Display(){};	
-	DISPLAY_METHOD ~Display();
+	Display() = default;
+	DISPLAY_METHOD ~Display = default;
 		
 	// initializes the lcd display
 	DISPLAY_METHOD void init(void) DISPLAY_METHOD_PURE_VIRTUAL;

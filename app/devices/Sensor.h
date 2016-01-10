@@ -23,9 +23,10 @@
 template<class T> class Sensor
 {	
 	public:	
-	virtual T sense()=0;
-	
-	virtual ~Sensor() {}
+    Sensor() = default;
+    virtual ~Sensor() = default;
+
+    virtual T sense() = 0;
 };
 
 template <class T>
@@ -33,7 +34,7 @@ class ValueSensor final : public Sensor<T>
 {
 public:	
 	ValueSensor(T initial) : value(initial) {}
-	~ValueSensor(){}
+	~ValueSensor() = default;
 
 	virtual T sense() {
 		return (T)0;

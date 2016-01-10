@@ -51,7 +51,7 @@ class FilterCascaded
     public:
         FilterCascaded();
 
-        ~FilterCascaded(){}
+        ~FilterCascaded() = default;
 
         void init(temp_precise_t val = temp_precise_t(0.0));
 

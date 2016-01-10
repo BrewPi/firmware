@@ -26,7 +26,7 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorBottom.h"
 
-class ActuatorPin:
+class ActuatorPin final:
     private ActuatorBottom, public ActuatorDigital, public ActuatorPinMixin
 {
     private:
@@ -37,9 +37,7 @@ class ActuatorPin:
         ActuatorPin(uint8_t pin,
                            bool    invert);
 
-        ~ActuatorPin()
-        {
-        }
+        ~ActuatorPin() = default;
 
         inline void setActive(bool active)
         {

@@ -46,14 +46,14 @@ public:
 
     ~ActuatorTimeLimited() = default;
 
-    void setActive(bool active);    // returns new actuator state
+    void setActive(bool active) final;    // returns new actuator state
 
-    bool isActive()
+    bool isActive() final
     {
         return active;    // target->isActive(); - this takes 20 bytes more
     }
 
-    void update();
+    void update() final;
 
     void setTimes(ticks_seconds_t   _minOnTime,
                   ticks_seconds_t   _minOffTime,

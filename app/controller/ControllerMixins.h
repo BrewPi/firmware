@@ -12,14 +12,15 @@ class BaseMixin {};
 class Serializable
 {
 public:
-    Serializable(){}
+    Serializable() = default;
+protected:
+    ~Serializable() = default;
+public:
     inline void serialize(JSON::Adapter& adapter){
         doSerialize(adapter);
     };
 private:
     virtual void doSerialize(JSON::Adapter& adapter) = 0;
-protected:
-    ~Serializable() = default;
 };
 
 class TempSensorBasicMixin : public virtual Serializable
@@ -197,7 +198,7 @@ protected:
 class ActuatorPinMixin : public virtual Serializable
 {
 private:
-    virtual void doSerialize(JSON::Adapter& adapter) override;
+    void doSerialize(JSON::Adapter& adapter) final;
 protected:
     ~ActuatorPinMixin() = default;
 };
@@ -205,7 +206,7 @@ protected:
 class ValveControllerMixin : public virtual Serializable
 {
 private:
-    virtual void doSerialize(JSON::Adapter& adapter) override;
+    void doSerialize(JSON::Adapter& adapter) final;
 protected:
     ~ValveControllerMixin() = default;
 };
@@ -213,7 +214,7 @@ protected:
 class ActuatorOneWireMixin : public virtual Serializable
 {
 private:
-    virtual void doSerialize(JSON::Adapter& adapter) override;
+    void doSerialize(JSON::Adapter& adapter) final;
 protected:
     ~ActuatorOneWireMixin() = default;
 };

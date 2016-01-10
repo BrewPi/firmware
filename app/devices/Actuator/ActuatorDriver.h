@@ -37,16 +37,16 @@ protected:
 public:
     ActuatorDriver(ActuatorDigital * _target) : target(_target){}
 protected:
-    ~ActuatorDriver(){}; // should not be destructed through this base class
+    ~ActuatorDriver() = default; // should not be destructed through this base class
 
 public:
-    virtual void update(){
+    virtual void update() override {
         target->update();
     }
 
     ActuatorDigital * getTarget(){ return target; }
 
-    virtual Actuator * doGetBareActuator(){
+    Actuator * doGetBareActuator() final {
         if( target->getBareActuator() == target){
             return target; // my target is bottom
         }
@@ -55,7 +55,7 @@ public:
         }
     }
 
-    virtual bool doInstallActuatorFinalTarget(ActuatorDigital * a){
+    bool doInstallActuatorFinalTarget(ActuatorDigital * a) final{
         if(target->getBareActuator() == target){
             // I am the lowest level driver. my target is the bottom target
             if(target == a){
@@ -72,7 +72,7 @@ public:
         }
     }
 
-    bool doUnInstallActuatorFinalTarget(){
+    bool doUnInstallActuatorFinalTarget() final {
         return installActuatorFinalTarget(defaultActuator());
     }
 };

@@ -44,7 +44,7 @@ public:
     }
     ~ActuatorSetPoint() = default;
 
-    void setValue(temp_t const& val) {
+    void setValue(temp_t const& val) final {
         temp_t offset = val;
         if(offset < minimum){
             offset = minimum;
@@ -55,34 +55,34 @@ public:
         targetSetPoint->write(referenceSetPoint->read() + offset);
     }
 
-    temp_t getValue() const{
+    temp_t getValue() const final {
         return targetSetPoint->read() - referenceSetPoint->read();
     }
 
     // getValue returns difference between sensor and reference, because that is the actual actuator value.
     // By returning the actually achieved value, instead of the difference between the setpoints,
     // a PID can read back the actual actuator value and perform integrator anti-windup
-    temp_t readValue() const{
+    temp_t readValue() const final{
         return targetSensor->read() - referenceSetPoint->read();
     }
 
-    temp_t min() const{
+    temp_t min() const final {
         return minimum;
     }
 
-    temp_t max() const{
+    temp_t max() const final {
         return maximum;
     }
 
-    void setMin(temp_t min){
+    void setMin(temp_t min) {
         minimum = min;
     }
 
-    void setMax(temp_t max){
+    void setMax(temp_t max) {
         maximum = max;
     }
 
-    virtual void update(){}; //no actions required
+    void update() final {}; //no actions required
 
 private:
     SetPoint * targetSetPoint;
