@@ -28,15 +28,15 @@ public:
     ActuatorBottom() = default;
 protected:
     ~ActuatorBottom() = default;
-private:
-    Actuator * doGetBareActuator() final {
+public:
+    Actuator * getBareActuator() final {
         return this;  // recursive call for composite driver classes, until a non-driver class is reached
     }
-    bool doInstallActuatorFinalTarget(ActuatorDigital * a) final {
+    bool installActuatorFinalTarget(ActuatorDigital * a) final {
         return false; // does nothing for non-driver actuators
     }
 
-    bool doUnInstallActuatorFinalTarget() final {
+    bool uninstallActuatorFinalTarget() final {
         return false; // does nothing for non-driver actuators
     }
 };

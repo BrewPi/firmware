@@ -50,7 +50,7 @@
 
 
 
-void PidMixin::doSerialize(JSON::Adapter & adapter)
+void PidMixin::serialize(JSON::Adapter & adapter)
 {
     Pid * obj = (Pid *) this;
 
@@ -72,7 +72,7 @@ void PidMixin::doSerialize(JSON::Adapter & adapter)
 }
 
 
-void TempSensorMixin::doSerialize(JSON::Adapter & adapter)
+void TempSensorMixin::serialize(JSON::Adapter & adapter)
 {
     TempSensor * obj = (TempSensor *) this;
 
@@ -83,7 +83,7 @@ void TempSensorMixin::doSerialize(JSON::Adapter & adapter)
 }
 
 
-void TempSensorMockMixin::doSerialize(JSON::Adapter& adapter){
+void TempSensorMockMixin::serialize(JSON::Adapter& adapter){
     TempSensorMock * obj = (TempSensorMock *) this;
 
     JSON::Class root(adapter, "TempSensorMock");
@@ -92,7 +92,7 @@ void TempSensorMockMixin::doSerialize(JSON::Adapter& adapter){
 }
 
 
-void OneWireTempSensorMixin::doSerialize(JSON::Adapter& adapter){
+void OneWireTempSensorMixin::serialize(JSON::Adapter& adapter){
     OneWireTempSensor * obj = (OneWireTempSensor *) this;
 
     JSON::Class root(adapter, "OneWireTempSensor");
@@ -112,7 +112,7 @@ void OneWireTempSensorMixin::doSerialize(JSON::Adapter& adapter){
 }
 
 
-void TempSensorDisconnectedMixin::doSerialize(JSON::Adapter& adapter){
+void TempSensorDisconnectedMixin::serialize(JSON::Adapter& adapter){
     TempSensorDisconnected * obj = (TempSensorDisconnected *) this;
 
     temp_t value = obj->read();
@@ -122,7 +122,7 @@ void TempSensorDisconnectedMixin::doSerialize(JSON::Adapter& adapter){
     JSON_T(adapter, connected);
 }
 
-void TempSensorExternalMixin::doSerialize(JSON::Adapter& adapter){
+void TempSensorExternalMixin::serialize(JSON::Adapter& adapter){
     TempSensorExternal * obj = (TempSensorExternal *) this;
 
     JSON::Class root(adapter, "TempSensorExternal");
@@ -130,7 +130,7 @@ void TempSensorExternalMixin::doSerialize(JSON::Adapter& adapter){
     JSON_OT(adapter, connected);
 }
 
-void ActuatorTimeLimitedMixin::doSerialize(JSON::Adapter& adapter){
+void ActuatorTimeLimitedMixin::serialize(JSON::Adapter& adapter){
     ActuatorTimeLimited * obj = (ActuatorTimeLimited *) this;
 
     JSON::Class root(adapter, "ActuatorTimeLimited");
@@ -141,7 +141,7 @@ void ActuatorTimeLimitedMixin::doSerialize(JSON::Adapter& adapter){
     JSON_OT(adapter, target);
 }
 
-void ActuatorSetPointMixin::doSerialize(JSON::Adapter& adapter){
+void ActuatorSetPointMixin::serialize(JSON::Adapter& adapter){
     ActuatorSetPoint * obj = (ActuatorSetPoint *) this;
 
     JSON::Class root(adapter, "ActuatorSetPoint");
@@ -156,7 +156,7 @@ void ActuatorSetPointMixin::doSerialize(JSON::Adapter& adapter){
     JSON_OT(adapter, maximum);
 }
 
-void ActuatorPwmMixin::doSerialize(JSON::Adapter& adapter){
+void ActuatorPwmMixin::serialize(JSON::Adapter& adapter){
     ActuatorPwm * obj = (ActuatorPwm *) this;
 
     JSON::Class root(adapter, "ActuatorPwm");
@@ -168,7 +168,7 @@ void ActuatorPwmMixin::doSerialize(JSON::Adapter& adapter){
     JSON_OT(adapter, target);
 }
 
-void ActuatorMutexGroupMixin::doSerialize(JSON::Adapter& adapter){
+void ActuatorMutexGroupMixin::serialize(JSON::Adapter& adapter){
     ActuatorMutexGroup * obj = (ActuatorMutexGroup *) this;
 
     JSON::Class root(adapter, "ActuatorMutexGroup");
@@ -177,7 +177,7 @@ void ActuatorMutexGroupMixin::doSerialize(JSON::Adapter& adapter){
 }
 
 
-void ActuatorMutexDriverMixin::doSerialize(JSON::Adapter& adapter){
+void ActuatorMutexDriverMixin::serialize(JSON::Adapter& adapter){
     ActuatorMutexDriver * obj = (ActuatorMutexDriver *) this;
 
     JSON::Class root(adapter, "ActuatorMutexDriver");
@@ -185,7 +185,7 @@ void ActuatorMutexDriverMixin::doSerialize(JSON::Adapter& adapter){
     JSON_OT(adapter, target);
 }
 
-void ActuatorValueMixin::doSerialize(JSON::Adapter& adapter){
+void ActuatorValueMixin::serialize(JSON::Adapter& adapter){
     ActuatorValue * obj = (ActuatorValue *) this;
 
     JSON::Class root(adapter, "ActuatorValue");
@@ -194,14 +194,14 @@ void ActuatorValueMixin::doSerialize(JSON::Adapter& adapter){
     JSON_OT(adapter, maximum);
 }
 
-void ActuatorBoolMixin::doSerialize(JSON::Adapter& adapter){
+void ActuatorBoolMixin::serialize(JSON::Adapter& adapter){
     ActuatorBool * obj = (ActuatorBool *) this;
 
     JSON::Class root(adapter, "ActuatorBool");
     JSON_OT(adapter, state);
 }
 
-void ActuatorNopMixin::doSerialize(JSON::Adapter& adapter){
+void ActuatorNopMixin::serialize(JSON::Adapter& adapter){
     ActuatorNop * obj = (ActuatorNop *) this;
 
     JSON::Class root(adapter, "ActuatorNop");
@@ -209,7 +209,7 @@ void ActuatorNopMixin::doSerialize(JSON::Adapter& adapter){
     JSON_T(adapter, state);
 }
 
-void ActuatorInvalidMixin::doSerialize(JSON::Adapter& adapter){
+void ActuatorInvalidMixin::serialize(JSON::Adapter& adapter){
     ActuatorInvalid * obj = (ActuatorInvalid *) this;
 
     temp_t value = obj->getValue();
@@ -223,7 +223,7 @@ void ActuatorInvalidMixin::doSerialize(JSON::Adapter& adapter){
 }
 
 #if WIRING
-void ActuatorPinMixin::doSerialize(JSON::Adapter& adapter){
+void ActuatorPinMixin::serialize(JSON::Adapter& adapter){
     ActuatorPin * obj = (ActuatorPin *) this;
 
     bool state = obj->isActive();
@@ -234,7 +234,7 @@ void ActuatorPinMixin::doSerialize(JSON::Adapter& adapter){
     JSON_OT(adapter, invert);
 }
 
-void ValveControllerMixin::doSerialize(JSON::Adapter& adapter){
+void ValveControllerMixin::serialize(JSON::Adapter& adapter){
     ValveController * obj = (ValveController *) this;
 
     JSON::Class root(adapter, "ValveController");
@@ -242,7 +242,7 @@ void ValveControllerMixin::doSerialize(JSON::Adapter& adapter){
     JSON_OT(adapter, sense);
 }
 
-void ActuatorOneWireMixin::doSerialize(JSON::Adapter& adapter){
+void ActuatorOneWireMixin::serialize(JSON::Adapter& adapter){
     ActuatorOneWire * obj = (ActuatorOneWire *) this;
 
     JSON::Class root(adapter, "ActuatorOneWire");
@@ -253,14 +253,14 @@ void ActuatorOneWireMixin::doSerialize(JSON::Adapter& adapter){
 }
 #endif
 
-void SetPointSimpleMixin::doSerialize(JSON::Adapter& adapter){
+void SetPointSimpleMixin::serialize(JSON::Adapter& adapter){
     SetPointSimple * obj = (SetPointSimple *) this;
 
     JSON::Class root(adapter, "SetPointSimple");
     JSON_OT(adapter, value);
 }
 
-void SetPointConstantMixin::doSerialize(JSON::Adapter& adapter){
+void SetPointConstantMixin::serialize(JSON::Adapter& adapter){
     SetPointConstant * obj = (SetPointConstant *) this;
 
     temp_t value = obj->value; // create non-const copy for template resolution to work
@@ -268,7 +268,7 @@ void SetPointConstantMixin::doSerialize(JSON::Adapter& adapter){
     JSON_T(adapter, value);
 }
 
-void SetPointNamedMixin::doSerialize(JSON::Adapter& adapter){
+void SetPointNamedMixin::serialize(JSON::Adapter& adapter){
     SetPointNamed * obj = (SetPointNamed *) this;
 
     JSON::Class root(adapter, "SetPointNamed");

@@ -688,8 +688,8 @@ BOOST_AUTO_TEST_CASE(install_and_uninstall_final_actuator){
         delay(100);
     }
 
-    BOOST_CHECK(cooler->unInstallActuatorFinalTarget()); // returns true on successful uninstall
-    BOOST_CHECK(heater->unInstallActuatorFinalTarget()); // returns true on successful uninstall
+    BOOST_CHECK(cooler->uninstallActuatorFinalTarget()); // returns true on successful uninstall
+    BOOST_CHECK(heater->uninstallActuatorFinalTarget()); // returns true on successful uninstall
     BOOST_CHECK_EQUAL(cooler->getTarget(), coolerMutex); // unchanged
     BOOST_CHECK_EQUAL(coolerMutex->getTarget(), coolerTimeLimited); // unchanged
     BOOST_CHECK_EQUAL(coolerTimeLimited->getTarget(), defaultActuator()); // replaced by default actuator
@@ -705,8 +705,8 @@ BOOST_AUTO_TEST_CASE(install_and_uninstall_final_actuator){
         delay(100);
     }
 
-    BOOST_CHECK(!cooler->unInstallActuatorFinalTarget()); // returns false, when target is already default actuator
-    BOOST_CHECK(!heater->unInstallActuatorFinalTarget()); // returns false, when target is already default actuator
+    BOOST_CHECK(!cooler->uninstallActuatorFinalTarget()); // returns false, when target is already default actuator
+    BOOST_CHECK(!heater->uninstallActuatorFinalTarget()); // returns false, when target is already default actuator
 
     coolerPin = new ActuatorBool(); // uninstall deleted the previous instance, need to recreate!
     heaterPin = new ActuatorBool(); // uninstall deleted the previous instance, need to recreate!

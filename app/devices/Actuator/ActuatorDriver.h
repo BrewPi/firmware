@@ -47,7 +47,7 @@ public:
     ActuatorDigital * getTarget(){ return target; }
 
 private:
-    Actuator * doGetBareActuator() final {
+    Actuator * getBareActuator() final {
         if( target->getBareActuator() == target){
             return target; // my target is bottom
         }
@@ -56,7 +56,7 @@ private:
         }
     }
 
-    bool doInstallActuatorFinalTarget(ActuatorDigital * a) final{
+    bool installActuatorFinalTarget(ActuatorDigital * a) final{
         if(target->getBareActuator() == target){
             // I am the lowest level driver. my target is the bottom target
             if(target == a){
@@ -73,7 +73,7 @@ private:
         }
     }
 
-    bool doUnInstallActuatorFinalTarget() final {
+    bool uninstallActuatorFinalTarget() final {
         return installActuatorFinalTarget(defaultActuator());
     }
 };

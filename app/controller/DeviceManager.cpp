@@ -268,7 +268,7 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
             /*if ((*target)->getDeviviceTarget() != 0){
                 target = (*target)->getDeviviceTarget(); // recursive call to unpack until at pin actuator
             }*/
-            if ((*target)->unInstallActuatorFinalTarget()){
+            if ((*target)->uninstallActuatorFinalTarget()){
                 DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_ACTUATOR, config.deviceFunction));
             }
         }

@@ -43,26 +43,19 @@ class Actuator: public ActuatorMixin
 public:
     Actuator() = default;
     virtual ~Actuator() = default;
-    virtual uint8_t type() const = 0;
-	Actuator * getBareActuator(){
-	    return doGetBareActuator();  // recursive call for composite driver classes, until a non-driver class is reached
-	}
-    // install pin/mock actuator at the lowest level, returns Actuator that was installed
-    // Returns true if a device was uninstalled, so the driver knows to update its own pointer
-	bool installActuatorFinalTarget(ActuatorDigital * a){
-	    return doInstallActuatorFinalTarget(a);  // recursive call for composite driver classes, until a non-driver class is reached
-	}
-	// uninstall pi n/mock actuator at the lowest level, return success (true = an actuator was uninstalled)
-	bool unInstallActuatorFinalTarget(){
-	    return doUnInstallActuatorFinalTarget();
-	}
-	virtual void update() = 0;
 
-private:
-	// implemented by ActuatorDriver or ActuatorBottom
-	virtual Actuator * doGetBareActuator() = 0;
-	virtual bool doInstallActuatorFinalTarget(ActuatorDigital * a) = 0;
-	virtual bool doUnInstallActuatorFinalTarget() = 0;
+    virtual uint8_t type() const = 0;
+    virtual void update() = 0;
+
+	// next 3 functions are implemented by ActuatorDriver or ActuatorBottom
+
+	// recursive call for composite driver classes, until a non-driver class is reached
+	virtual Actuator * getBareActuator() = 0;
+	// install pin/mock actuator at the lowest level, returns Actuator that was installed
+	    // Returns true if a device was uninstalled, so the driver knows to update its own pointer
+	virtual bool installActuatorFinalTarget(ActuatorDigital * a) = 0;
+	// uninstall pi n/mock actuator at the lowest level, return success (true = an actuator was uninstalled)
+	virtual bool uninstallActuatorFinalTarget() = 0;
 
 	friend class ActuatorMixin;
 };
