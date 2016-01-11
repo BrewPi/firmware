@@ -18,6 +18,7 @@ APP ?= controller
 APP_MAKEFILE = app/$(APP)/build.mk
 # include exported definitions for the app now
 -include $(APPDIR)/app/$(APP)/env.mk
+include $(SPARKDIR)/firmware/build/platform-id.mk
 
 run_make:
 	@$(MAKE) -e -C $(PARTICLE_FIRMWARE)/main APPDIR=$(APPDIR) \
