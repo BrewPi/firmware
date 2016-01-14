@@ -46,7 +46,6 @@ public:
 
     ActuatorDigital * getTarget(){ return target; }
 
-private:
     Actuator * getBareActuator() final {
         if( target->getBareActuator() == target){
             return target; // my target is bottom
