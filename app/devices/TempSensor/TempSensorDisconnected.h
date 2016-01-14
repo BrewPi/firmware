@@ -26,13 +26,13 @@
 class TempSensorDisconnected : public TempSensorBasic, public TempSensorDisconnectedMixin {
 	
 public:
-	bool isConnected() { return false; }
+	bool isConnected() const { return false; }
 
 	bool init() {
 		return read()!=TEMP_SENSOR_DISCONNECTED;
 	}
 	
-	temp_t read() {
+	temp_t read() const {
 		return TEMP_SENSOR_DISCONNECTED;
 	}
 

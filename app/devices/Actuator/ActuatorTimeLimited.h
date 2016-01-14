@@ -48,7 +48,7 @@ public:
 
     void setActive(bool active) final;    // returns new actuator state
 
-    bool isActive() final
+    bool isActive() const final
     {
         return active;    // target->isActive(); - this takes 20 bytes more
     }

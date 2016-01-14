@@ -53,7 +53,7 @@ class DS2413:
          *  The DS2413 returns data in the last 4 bits, the upper 4 bits are the complement.
          * An XOR operation of the two should give 0 as result
          */
-        bool cacheIsValid()
+        bool cacheIsValid() const
         {
             return ((cachedState & 0x0f) == (((~cachedState) & 0xf0) >> 4));
         }
@@ -127,6 +127,12 @@ class DS2413:
                 update();
             }
 
+            return latchReadCached(pio, defaultValue);
+        }
+
+        bool latchReadCached(pio_t pio,
+                       bool defaultValue) const
+        {
             if(cacheIsValid()){
                 return ((cachedState & latchReadMask(pio)) == 0);
             }
@@ -140,13 +146,13 @@ class DS2413:
         uint8_t cachedState;
 
         // assumes pio is either 0 or 1, which translates to masks 0x8 and 0x2
-        uint8_t latchReadMask(pio_t pio)
+        uint8_t latchReadMask(pio_t pio) const
         {
             return pio ? 0x8 : 0x2;
         }
 
         // assumes pio is either 0 or 1, which translates to masks 0x1 and 0x2
-        uint8_t latchWriteMask(pio_t pio)
+        uint8_t latchWriteMask(pio_t pio) const
         {
             return pio ? 0x2 : 0x1;
         }
@@ -192,7 +198,7 @@ class DS2413:
         /*
          * Returns bitmask to extract the sense channel for the given pin from a read
          */
-        uint8_t senseMask(pio_t pio)
+        uint8_t senseMask(pio_t pio) const
         {
             return pio ? 0x4 : 0x1;    // assumes pio is either 0 or 1, which translates to masks 0x1 and 0x3
         }

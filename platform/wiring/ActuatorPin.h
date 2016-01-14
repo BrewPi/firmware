@@ -44,7 +44,7 @@ class ActuatorPin final:
             digitalWrite(pin, (active ^ invert) ? HIGH : LOW);
         }
 
-        inline bool isActive()
+        inline bool isActive() const
         {
             return ((digitalRead(pin) != LOW) ^ invert);
         }

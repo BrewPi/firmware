@@ -31,7 +31,7 @@ public:
     TempSensorBasic() = default;
 	virtual ~TempSensorBasic() = default;
 	
-	virtual bool isConnected(void) = 0;
+	virtual bool isConnected(void) const = 0;
 	
 	/*
 	 * Attempt to (re-)initialize the sensor. 	 
@@ -46,7 +46,7 @@ public:
 	/*
 	 * Read the sensor, returns cached value set in update()
 	 */
-	virtual temp_t read() = 0;
+	virtual temp_t read() const = 0;
 
 };
 

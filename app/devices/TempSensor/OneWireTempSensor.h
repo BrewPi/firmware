@@ -50,12 +50,12 @@ public:
 	
 	~OneWireTempSensor();
 	
-	bool isConnected(void){
+	bool isConnected(void) const{
 		return connected;
 	}		
 	
 	bool init();
-	temp_t read(); // return cached value
+	temp_t read() const; // return cached value
 	void update(); // read from hardware sensor
 	
 	private:

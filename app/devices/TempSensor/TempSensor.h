@@ -57,7 +57,7 @@ public:
         }
     }
 
-    inline bool isConnected(void) {
+    inline bool isConnected(void) const {
         return sensor->isConnected();
     }
 
@@ -78,7 +78,7 @@ public:
     /*
      * Fetch a new reading from the sensor
      */
-    inline temp_t read() {
+    inline temp_t read() const {
         return sensor->read();
     }
 

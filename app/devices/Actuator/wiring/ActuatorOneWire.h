@@ -68,9 +68,9 @@ class ActuatorOneWire final:
             device.latchWrite(pio, active ^ invert, true);
         }
 
-        bool isActive()
+        bool isActive() const
         {
-            return device.latchRead(pio, false, true) ^ invert;
+            return device.latchReadCached(pio, false) ^ invert;
         }
 
 #if DS2413_SUPPORT_SENSE

@@ -100,7 +100,7 @@ void OneWireTempSensor::setConnected(bool connected) {
     }
 }
 
-temp_t OneWireTempSensor::read() {
+temp_t OneWireTempSensor::read() const {
 
     if (!connected)
         return TEMP_SENSOR_DISCONNECTED;

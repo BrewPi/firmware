@@ -61,7 +61,7 @@ public:
         setActive(active, 127); // when priority not specified, default to highest priority
     }
 
-    bool isActive() final {
+    bool isActive() const final {
         return target->isActive();
     }
 

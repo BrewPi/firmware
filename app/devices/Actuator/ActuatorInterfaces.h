@@ -71,7 +71,7 @@ public:
     virtual ~ActuatorDigital() = default;
     virtual uint8_t type() const override { return ACTUATOR_TOGGLE; };
     virtual void setActive(bool active) = 0;
-    virtual bool isActive() = 0;
+    virtual bool isActive() const = 0;
 
     friend class ActuatorDigitalMixin;
 };

@@ -34,7 +34,7 @@ public:
 		connected = _connected;
 	}
 	
-	bool isConnected() { return connected; }
+	bool isConnected() const { return connected; }
 
 	bool init() {
 		return read().isDisabledOrInvalid();
@@ -48,7 +48,7 @@ public:
 	    // nop for this mock sensor
 	}
 
-	temp_t read()
+	temp_t read() const
 	{
 		if (!isConnected())
 			return temp_t::invalid_val;

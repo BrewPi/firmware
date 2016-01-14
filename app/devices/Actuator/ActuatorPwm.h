@@ -67,7 +67,7 @@ class ActuatorPwm final : public ActuatorDriver, public ActuatorRange, public Ac
 
         void update() final;
 
-        ticks_seconds_t getPeriod()
+        ticks_seconds_t getPeriod() const
         {
             return period_ms / 1000; // return in seconds, same as set period
         }

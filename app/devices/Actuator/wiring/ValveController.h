@@ -56,7 +56,7 @@ public:
         }
     }
 
-    bool isActive(){
+    bool isActive() const{
         // return active when not closed, so a half open valve also returns active
         return sense != uint8_t(ValveActions::CLOSE);
     }

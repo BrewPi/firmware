@@ -86,7 +86,7 @@ public:
     ~ActuatorBool() = default;
 
     void setActive(bool active) { state = active; }
-    bool isActive() { return state; }
+    bool isActive() const { return state; }
 
     void update(){}; //no actions required
 
@@ -107,7 +107,7 @@ public:
     ~ActuatorNop() = default;
 
     void setActive(bool active) {}
-    bool isActive() { return false;}
+    bool isActive() const { return false;}
     void update(){}
     bool isDriver() const { return false; }
 
