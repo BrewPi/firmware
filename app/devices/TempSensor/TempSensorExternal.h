@@ -41,17 +41,17 @@ class TempSensorExternal : public TempSensorBasic, public TempSensorExternalMixi
 		this->connected = _connected;
 	}
 
-	bool isConnected() { return connected; }
+	bool isConnected() const { return connected; }
 
-	bool init() {
+	bool init() final {
 		return read()!=TEMP_SENSOR_DISCONNECTED;
 	}
 	
-    void update(){
+    void update() final {
         // nop for this mock sensor
     }
 
-	temp_t read() {
+	temp_t read() const final {
 		if (!isConnected())
 			return TEMP_SENSOR_DISCONNECTED;
 		return value;

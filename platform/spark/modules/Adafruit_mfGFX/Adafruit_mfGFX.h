@@ -47,7 +47,8 @@ class Adafruit_GFX : public Print {
   void setRotation(uint8_t r);
   void setFont(uint8_t f);
 
-  virtual size_t write(uint8_t);
+  using Print::write;
+  size_t write(uint8_t) final;
 
 
   int16_t height(void);

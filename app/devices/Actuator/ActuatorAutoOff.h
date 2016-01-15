@@ -35,13 +35,11 @@ public:
 	
 	void setActive(bool active);
 	
-	bool isActive() {
+	bool isActive() const final {
 		return active; //target->isActive(); - this takes 20 bytes more
 	}
 	
     void update();
-
-    void write(uint8_t val){};
         
 private:
 	uint16_t lastActiveTime;

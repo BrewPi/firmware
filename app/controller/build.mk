@@ -64,4 +64,6 @@ GIT_VERSION = $(shell cd $(SOURCE_PATH); git describe --long)
 $(info using $(GIT_VERSION) as build name)
 CFLAGS += -DBUILD_NAME="$(GIT_VERSION)"
 
-CFLAGS += -Wall
+CFLAGS += -Wall 
+CFLAGS += -Woverloaded-virtual
+ 
