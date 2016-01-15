@@ -36,7 +36,7 @@
 
 #define PRINT_TOGGLE_TIMES 0
 
-temp_t randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t duty, int delayMax) {
+double randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t duty, int delayMax) {
     act->setValue(duty);
     ticks_millis_t lowToHighTime = ticks.millis();
     ticks_millis_t highToLowTime = ticks.millis();
@@ -80,12 +80,11 @@ temp_t randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t dut
         }
         
     }
-    double avgDuty = double(totalHighTime) / (totalHighTime + totalLowTime);
-    temp_t avgDutyTemp = temp_t(round(avgDuty * double(act->max())));
+    double avgDuty = double(totalHighTime) / (totalHighTime + totalLowTime) * double(act->max());
     output << "total high time: " << totalHighTime << "\n"
            << "total low time: " << totalLowTime << "\n"
-           << "avg duty: " << avgDutyTemp << "/" << act->max() << "\n";
-    return avgDutyTemp;
+           << "avg duty: " << avgDuty << "/" << act->max() << "\n";
+    return avgDuty;
 }
 
 BOOST_AUTO_TEST_SUITE(ActuatorPWM)
@@ -150,20 +149,21 @@ BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_random_update_intervals)
     srand(time(NULL));
     ActuatorDigital * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,4);
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 50.0, 500), temp_t(50.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 3.0, 500), temp_t(3.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 1.0, 500), temp_t(1.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 99.0, 500), temp_t(99.0));
+    // check within 0.5 points accurate
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 50.0, 500), 50.0, 1);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 3.0, 500), 3.0, 16.7);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 1.0, 500), 1.0, 50);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 99.0, 500), 99.0, 0.5);
 }
 
 BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_long_period) {
     srand(time(NULL));
     ActuatorDigital * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,3600);
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 50.0, 50000), temp_t(50.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 3.0, 50000), temp_t(3.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 1.0, 50000), temp_t(1.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 99.0, 50000), temp_t(99.0));
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 50.0, 500), 50.0, 1);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 3.0, 500), 3.0, 16.7);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 1.0, 500), 1.0, 50);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 99.0, 500), 99.0, 0.5);
 }
 
 
@@ -299,10 +299,10 @@ BOOST_AUTO_TEST_CASE(ActuatorPWM_with_min_max_time_limited_OnOffActuator_as_driv
     ActuatorPwm * act = new ActuatorPwm(onOffAct, 10);
 
     // Test that average duty cycle is correct, even with minimum times enforced in the actuator
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 50.0, 500), temp_t(50.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 3.0, 500), temp_t(3.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 1.0, 500), temp_t(1.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 99.0, 500), temp_t(99.0)); // 99 not attainable due to minimum OFF time
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, vAct, 50.0, 500), 50.0, 1);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, vAct, 3.0, 500), 3.0, 16.7);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, vAct, 1.0, 500), 1.0, 50);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, vAct, 99.0, 500), 99.0, 0.5);
 }
 
 
