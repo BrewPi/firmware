@@ -48,6 +48,47 @@ private:
 friend class SetPointSimpleMixin;
 };
 
+class SetPointMinMax final : public SetPoint, public SetPointMinMaxMixin {
+public:
+    SetPointMinMax(temp_t val = temp_t::disabled()) : value(val),
+                                                      min(temp_t::min()),
+                                                      max(temp_t::max()){}
+    ~SetPointMinMax() = default;
+    temp_t read() const final {
+        return value;
+    }
+    void write (temp_t val) final {
+        if(val < min){
+            value = min;
+        }
+        else if(val > max){
+            value = max;
+        }
+        else{
+            value = val;
+        }
+    }
+    void setMin(temp_t t){
+        min = t;
+    }
+    void setMax(temp_t t){
+        max = t;
+    }
+    temp_t getMin(){
+        return min;
+    }
+    temp_t getMax(){
+        return max;
+    }
+
+private:
+    temp_t value;
+    temp_t min;
+    temp_t max;
+friend class SetPointMinMaxMixin;
+};
+
+
 
 // immutable SetPoint, always reading for example 'invalid' to indicate that the setpoint has not been configured
 class SetPointConstant final : public SetPoint, public SetPointConstantMixin {

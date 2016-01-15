@@ -303,3 +303,14 @@ void SetPointNamedMixin::serialize(JSON::Adapter & adapter)
     JSON_E(adapter, name);
     JSON_OT(adapter, setPoint);
 }
+
+void SetPointMinMaxMixin::serialize(JSON::Adapter & adapter)
+{
+    SetPointMinMax * obj = static_cast<SetPointMinMax *>(this);
+
+    JSON::Class root(adapter, "SetPointMinMax");
+    JSON_OE(adapter, value);
+    JSON_OE(adapter, min);
+    JSON_OT(adapter, max);
+}
+

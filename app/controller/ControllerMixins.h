@@ -181,6 +181,14 @@ protected:
     ~SetPointConstantMixin() = default;
 };
 
+class SetPointMinMaxMixin : public virtual Serializable
+{
+public:
+    void serialize(JSON::Adapter& adapter) final;
+protected:
+    ~SetPointMinMaxMixin() = default;
+};
+
 class SetPointNamedMixin : public virtual Nameable, public virtual Serializable
 {
 public:
