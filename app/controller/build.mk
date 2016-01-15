@@ -65,5 +65,5 @@ $(info using $(GIT_VERSION) as build name)
 CFLAGS += -DBUILD_NAME="$(GIT_VERSION)"
 
 CFLAGS += -Wall 
-CFLAGS += -Woverloaded-virtual
+CPPFLAGS += -Woverloaded-virtual
  
