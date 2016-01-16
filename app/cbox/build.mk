@@ -8,6 +8,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/Filter
 
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/Actuator
+INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/Filter
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/OneWire
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/TempSensor
 INCLUDE_DIRS += $(SOURCE_PATH)/app/fallback
