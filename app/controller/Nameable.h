@@ -31,8 +31,6 @@ public:
         name[0] = '\0';
         name[MAX_NAME_LENGTH] = '\0'; // ensure last character is always \0
     }
-
-protected:
     ~Nameable() = default;
 
 public:
