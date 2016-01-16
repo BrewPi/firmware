@@ -104,6 +104,9 @@ Control::Control()
 }
 
 Control::~Control(){
+    // in practice this is never used since the instance is global
+
+#if 0
     delete heater1Mutex;
     delete heater1;
 
@@ -134,6 +137,7 @@ Control::~Control(){
     pids.clear();
     sensors.clear();
     actuators.clear();
+#endif
 }
 
 // This update function should be called every second
