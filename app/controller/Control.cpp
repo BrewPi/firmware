@@ -104,9 +104,10 @@ Control::Control()
 }
 
 Control::~Control(){
-    // in practice this is never used since the instance is global
-
-#if 0
+#if defined(ARDUINO) || defined(SPARK)
+    // global control object is static and never destroyed.
+    // omit proper destructor to save space.
+#else
     delete heater1Mutex;
     delete heater1;
 
