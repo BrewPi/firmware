@@ -1,15 +1,14 @@
 /*
- * Copyright 2015 BrewPi/Elco Jacobs.
- * Copyright 2015 Matthew McGowan.
+ * Copyright 2014-2015 Matthew McGowan.
  *
- * This file is part of BrewPi.
+ * This file is part of Nice Firmware.
  *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * BrewPi is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -19,15 +18,4 @@
  */
 
 
-
-#include "ActuatorPin.h"
-
-ActuatorPin::ActuatorPin(uint8_t pin,
-        bool                                   invert)
-{
-    this -> invert = invert;
-    this -> pin    = pin;
-
-    setActive(false);
-    pinMode(pin, OUTPUT);
-}
+#include "ValueActuator.h"

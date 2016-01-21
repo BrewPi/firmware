@@ -24,20 +24,21 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorDriver.h"
 #include "ActuatorMutexGroup.h"
+#include "ControllerMixins.h"
 
 /* A driver actuator to wrap a digital Actuator and block SetActive calls if the mutex group does does not honor the request
  */
 
-class ActuatorMutexDriver : public virtual ActuatorDriver, public ActuatorDigital{
+class ActuatorMutexDriver final : public ActuatorDriver, public ActuatorDigital, public ActuatorMutexDriverMixin{
 public:
     ActuatorMutexDriver(ActuatorDigital * target) : ActuatorDriver(target), mutexGroup(nullptr){}
     ActuatorMutexDriver(ActuatorDigital * target, ActuatorMutexGroup * m) : ActuatorDriver(target), mutexGroup(m){}
 
-    virtual ~ActuatorMutexDriver(){
+    ~ActuatorMutexDriver(){
         setMutex(nullptr);
     }
 
-    virtual uint8_t type() const { return ACTUATOR_TOGGLE_MUTEX; };
+    uint8_t type() const final { return ACTUATOR_TOGGLE_MUTEX; };
 
     void setMutex(ActuatorMutexGroup * mutex){
         if(mutexGroup != nullptr){
@@ -50,28 +51,24 @@ public:
     }
 
     // To activate actuator, permission is asked from mutexGroup, false is always allowed
-    void setActive(bool active, int8_t priority){
+    void setActive(bool active, int8_t priority) {
         if(!active || !mutexGroup || mutexGroup->requestActive(this, priority)){
             target->setActive(active);
         }
     }
 
-    void setActive(bool active){
+    void setActive(bool active) final{
         setActive(active, 127); // when priority not specified, default to highest priority
     }
 
-    bool isActive(){
+    bool isActive() const final {
         return target->isActive();
-    }
-
-    void serialize(JSON::Adapter& adapter){
-        JSON::Class root(adapter, "ActuatorMutexDriver");
-        JSON_E(adapter, mutexGroup);
-        JSON_T(adapter, target);
     }
 
 private:
     ActuatorMutexGroup * mutexGroup;
+
+friend class ActuatorMutexDriverMixin;
 };
 
 

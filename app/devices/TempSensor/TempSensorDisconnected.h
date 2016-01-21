@@ -21,17 +21,18 @@
 #pragma once
 
 #include "TempSensorBasic.h"
+#include "ControllerMixins.h"
 
-class TempSensorDisconnected : public TempSensorBasic {
+class TempSensorDisconnected : public TempSensorBasic, public TempSensorDisconnectedMixin {
 	
 public:
-	bool isConnected() { return false; }
+	bool isConnected() const { return false; }
 
 	bool init() {
 		return read()!=TEMP_SENSOR_DISCONNECTED;
 	}
 	
-	temp_t read() {
+	temp_t read() const {
 		return TEMP_SENSOR_DISCONNECTED;
 	}
 
@@ -39,12 +40,6 @@ public:
         // nop for this mock sensor
     }
 	
-    void serialize(JSON::Adapter& adapter){
-        temp_t value = read();
-        bool connected = false;
-        JSON::Class root(adapter, "TempSensorDisconnected");
-        JSON_E(adapter, value);
-        JSON_T(adapter, connected);
-    }
+    friend class TempSensorDisconnectedMixin;
 };
 

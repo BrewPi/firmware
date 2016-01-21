@@ -3,6 +3,9 @@ $(MAKECMDGOALS) %: run_make
 
 .PHONY: run_make
 
+unexport CC
+unexport CXX
+
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
 
@@ -15,8 +18,9 @@ APP ?= controller
 APP_MAKEFILE = app/$(APP)/build.mk
 # include exported definitions for the app now
 -include $(APPDIR)/app/$(APP)/env.mk
+include $(SPARKDIR)/firmware/build/platform-id.mk
 
 run_make:
 	@$(MAKE) -e -C $(PARTICLE_FIRMWARE)/main APPDIR=$(APPDIR) \
 	USER_MAKEFILE=$(APP_MAKEFILE) \
-	TARGET_FILE=brewpi TARGET_DIR=$(SPARKDIR)/target  BUILD_PATH_BASE=$(SPARKDIR)/target $(MAKEOVERRIDES) $(MAKECMDGOALS) 
+	TARGET_DIR=$(SPARKDIR)/target/$(APP)-$(PLATFORM)  BUILD_PATH_BASE=$(SPARKDIR)/target $(MAKEOVERRIDES) $(MAKECMDGOALS) 

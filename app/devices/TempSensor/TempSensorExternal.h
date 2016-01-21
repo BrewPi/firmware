@@ -22,12 +22,13 @@
 
 #include "Brewpi.h"
 #include "TempSensorBasic.h"
+#include "ControllerMixins.h"
 
 /**
  * A temp sensor whose value is not read from the device, but set in code.
  * This is used by the simulator.
  */
-class TempSensorExternal : public TempSensorBasic
+class TempSensorExternal : public TempSensorBasic, public TempSensorExternalMixin
 {
 	public:
 	TempSensorExternal(bool connected=false) : value(0.0), connected(false)
@@ -40,17 +41,17 @@ class TempSensorExternal : public TempSensorBasic
 		this->connected = _connected;
 	}
 
-	bool isConnected() { return connected; }
+	bool isConnected() const { return connected; }
 
-	bool init() {
+	bool init() final {
 		return read()!=TEMP_SENSOR_DISCONNECTED;
 	}
 	
-    void update(){
+    void update() final {
         // nop for this mock sensor
     }
 
-	temp_t read() {
+	temp_t read() const final {
 		if (!isConnected())
 			return TEMP_SENSOR_DISCONNECTED;
 		return value;
@@ -59,14 +60,10 @@ class TempSensorExternal : public TempSensorBasic
 	void setValue(temp_t newTemp) {
 		value = newTemp;		
 	}
-	
-    void serialize(JSON::Adapter& adapter){
-        JSON::Class root(adapter, "TempSensorDisconnected");
-        JSON_E(adapter, value);
-        JSON_T(adapter, connected);
-    }
 
 	private:
 	temp_t value;
 	bool connected;
+
+	friend class TempSensorExternalMixin;
 };

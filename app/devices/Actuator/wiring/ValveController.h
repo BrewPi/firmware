@@ -21,9 +21,10 @@
 #include "DS2408.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorBottom.h"
+#include "ControllerMixins.h"
 
-class ValveController :
-    private ActuatorBottom, public ActuatorDigital{
+class ValveController final :
+    private ActuatorBottom, public ActuatorDigital, public ValveControllerMixin{
 public:
     ValveController(OneWire *     bus,
                     DeviceAddress address,
@@ -34,7 +35,7 @@ public:
                     pio(pio_){  //
         device.init(bus, address);
     }
-    virtual ~ValveController(){};
+    ~ValveController() = default;
 
     enum class ValveActions : uint8_t {
         OFF_LOW = 0b00,
@@ -55,7 +56,7 @@ public:
         }
     }
 
-    bool isActive(){
+    bool isActive() const{
         // return active when not closed, so a half open valve also returns active
         return sense != uint8_t(ValveActions::CLOSE);
     }
@@ -74,17 +75,13 @@ public:
         write(ValveActions::OFF);
     }
 
-    void serialize(JSON::Adapter& adapter){
-        JSON::Class root(adapter, "Valve");
-        JSON_E(adapter, pio);
-        JSON_T(adapter, sense);
-    }
-
 protected:
     uint8_t switchState; // state bits of the entire switch
     uint8_t sense; // sensed value (feedback)
     uint8_t act; // written value (actuator)
     pio_t pio; // 0=A or 1=B
     DS2408 device;
+
+    friend class ValveControllerMixin;
 };
 

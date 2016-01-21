@@ -33,7 +33,8 @@ typedef uint8_t DeviceAddress[8];
 
 class OneWireAddress{
 public:
-    OneWireAddress(){}
+    OneWireAddress() = default;
+    ~OneWireAddress() = default;
 
     void parse(const char* s);
     void print(char* buf, uint8_t len);

@@ -21,16 +21,17 @@
 #pragma once
 
 #include "temperatureFormats.h"
-#include "json_writer.h"
+#include "ControllerMixins.h"
 
 #define TEMP_SENSOR_DISCONNECTED temp_t::invalid()
 
-class TempSensorBasic
+class TempSensorBasic : virtual public TempSensorBasicMixin
 {
 public:
-	virtual ~TempSensorBasic() { }
+    TempSensorBasic() = default;
+	virtual ~TempSensorBasic() = default;
 	
-	virtual bool isConnected(void) = 0;
+	virtual bool isConnected(void) const = 0;
 	
 	/*
 	 * Attempt to (re-)initialize the sensor. 	 
@@ -45,9 +46,8 @@ public:
 	/*
 	 * Read the sensor, returns cached value set in update()
 	 */
-	virtual temp_t read() = 0;
-	
-	virtual void serialize(JSON::Adapter& adapter) = 0;
+	virtual temp_t read() const = 0;
+
 };
 
 

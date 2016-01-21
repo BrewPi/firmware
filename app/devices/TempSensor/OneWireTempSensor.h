@@ -31,7 +31,7 @@ class OneWire;
 
 #define ONEWIRE_TEMP_SENSOR_PRECISION (4)
 
-class OneWireTempSensor : public TempSensorBasic {
+class OneWireTempSensor : public TempSensorBasic, public OneWireTempSensorMixin {
 public:	
 	/**
 	 * Constructs a new onewire temp sensor.
@@ -50,12 +50,12 @@ public:
 	
 	~OneWireTempSensor();
 	
-	bool isConnected(void){
+	bool isConnected(void) const{
 		return connected;
 	}		
 	
 	bool init();
-	temp_t read(); // return cached value
+	temp_t read() const; // return cached value
 	void update(); // read from hardware sensor
 	
 	private:
@@ -66,19 +66,6 @@ public:
 	{
 		wait.millis(750);
 	}
-
-	void serialize(JSON::Adapter& adapter){
-        temp_t value = read();
-        bool connected = false;
-        JSON::Class root(adapter, "OneWireTempSensor");
-        JSON_E(adapter, value);
-        JSON_E(adapter, connected);
-        char addressBuf[17];
-        printBytes(sensorAddress, 8, addressBuf); // print to hex string
-        std::string address(addressBuf); // convert to std string
-        JSON_E(adapter, address);
-        JSON_T(adapter, calibrationOffset);
-    }
 	
 	/**
 	 * Reads the temperature. If successful, constrains the temp to the range of the temperature type and
@@ -94,4 +81,5 @@ public:
 	temp_t cachedValue;
 	bool connected;
 	
+	friend class OneWireTempSensorMixin;
 };

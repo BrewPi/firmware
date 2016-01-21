@@ -49,7 +49,7 @@ public:
     void setActive(bool active);
 
 private:
-    DigitalPinActuator * pin;
+    ActuatorPin * pin;
 };
 
 extern Buzzer buzzer;

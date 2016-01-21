@@ -1,12 +1,16 @@
 here_files = $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/$1/$2))
 
 
-INCLUDE_DIRS += $(SOURCE_PATH)/app/nice
-INCLUDE_DIRS += $(SOURCE_PATH)/../nice-firm
+INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller
+INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/esj
+INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/Filter
 
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices
+INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/Actuator
+INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/Filter
 INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/OneWire
+INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/TempSensor
 INCLUDE_DIRS += $(SOURCE_PATH)/app/fallback
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/wiring
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark
@@ -26,6 +30,10 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Ticks
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/UI
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/ValvesController
 
+INCLUDE_DIRS += $(SOURCE_PATH)/../controlbox/lib
+
+INCLUDE_DIRS += $(BOOST_ROOT)
+
 CSRC += $(call target_files,../nice-firm,*.c)
 CPPSRC += $(call target_files,../nice-firm,*.cpp)
 
@@ -42,12 +50,9 @@ CPPSRC += $(call here_files,platform/spark/modules/nice,*.cpp)
 CPPSRC += $(call here_files,platform/spark/modules/EEPROM,*.cpp)
 CPPSRC += $(call here_files,app/devices/OneWire,*.cpp)
 CPPSRC += $(call here_files,platform/spark/modules/OneWire,*.cpp)
-CPPSRC += platform/wiring/TemperatureFormats.cpp
-
-#CSRC += $(call here_files,platform/spark/modules/EEPROM,*.c)
-#CPPSRC += $(call here_files,platform/spark/modules/EEPROM,*.cpp)
-
-
+CPPSRC += platform/wiring/temperatureFormats.cpp
+CSRC += $(call here_files,platform/spark/modules/EEPROM,*.c)
+CPPSRC += $(call here_files,platform/spark/modules/EEPROM,*.cpp)
 
 SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
 #include $(SRC_EGUI)/egui.mk
@@ -55,8 +60,6 @@ SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
 $(info source path $(SOURCE_PATH))
 LIBS_DIR = $(SOURCE_PATH)/platform/spark/libs
 include $(LIBS_DIR)/libs.mk
-
-CFLAGS += -fdata-sections
 
 GIT_VERSION = $(shell cd $(SOURCE_PATH); git describe --long)
 $(info using $(GIT_VERSION) as build name)

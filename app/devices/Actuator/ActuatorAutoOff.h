@@ -23,24 +23,23 @@
 #include "ActuatorInterfaces.h"
 #include <stdint.h>
 
-class AutoOffActuator : public ActuatorDigital {
+class AutoOffActuator final : public ActuatorDigital {
 	
 public:
 	AutoOffActuator(uint16_t timeout, ActuatorDigital* target) {
 		this->timeout = timeout;
 		this->target = target;
 		active = target->isActive();
+		lastActiveTime = 0;
 	}
 	
 	void setActive(bool active);
 	
-	bool isActive() {
+	bool isActive() const final {
 		return active; //target->isActive(); - this takes 20 bytes more
 	}
 	
     void update();
-
-    void write(uint8_t val){};
         
 private:
 	uint16_t lastActiveTime;

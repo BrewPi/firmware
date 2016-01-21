@@ -142,6 +142,24 @@ BOOST_AUTO_TEST_CASE(serialize_setpoint) {
     BOOST_CHECK_EQUAL(valid, json);
 }
 
+BOOST_AUTO_TEST_CASE(serialize_setpointMinMax) {
+    SetPointMinMax * sp1 = new SetPointMinMax();
+
+    std::string json = JSON::producer<SetPointMinMax>::convert(sp1);
+    std::string valid = R"({"kind":"SetPointMinMax","value":null,"min":-127.9922,"max":127.9961})";
+
+    BOOST_CHECK_EQUAL(valid, json);
+
+    sp1->write(20.0);
+    sp1->setMin(-10.0);
+    sp1->setMax(30.0);
+
+    json = JSON::producer<SetPointMinMax>::convert(sp1);
+    valid = R"({"kind":"SetPointMinMax","value":20.0000,"min":-10.0000,"max":30.0000})";
+
+    BOOST_CHECK_EQUAL(valid, json);
+}
+
 BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
     SetPoint * sp1 = new SetPointSimple();
     SetPoint * sp2 = new SetPointConstant(20.0);
@@ -241,7 +259,8 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
 
 BOOST_AUTO_TEST_CASE(serialize_TempSensor) {
     TempSensorBasic * s = new TempSensorMock(20.0);
-    TempSensor * sensor = new TempSensor(s, "test");
+    TempSensor * sensor = new TempSensor(s);
+    sensor->setName("test");
 
     std::string json = JSON::producer<TempSensor>::convert(sensor);
     std::string valid = R"({"kind":"TempSensor","name":"test","sensor":{)"

@@ -103,6 +103,7 @@ BOOST_FIXTURE_TEST_CASE(proportional_plus_integral, PidTest)
     for(int i = 0; i < 600; i++){
         pid->update();
         act->update();
+        delay(1000);
     }
 
     // integrator result is Kp * error * 1 / Ti, So 10* 600 * 1 degree error / 600 = 10.0
@@ -122,6 +123,7 @@ BOOST_FIXTURE_TEST_CASE(proportional_plus_derivative, PidTest)
         sensor->setTemp(temp_t(20.0) + temp_t(i*0.015625));
         pid->update();
         act->update();
+        delay(1000);
     }
 
     BOOST_CHECK_EQUAL(sensor->read(), temp_t(29.375)); // sensor value should have gone up 9.375 degrees
@@ -155,6 +157,7 @@ BOOST_FIXTURE_TEST_CASE(just_proportional_cooling, PidTest)
     for(int i = 0; i<100; i++){
         pid->update();
         act->update();
+        delay(1000);
     }
     // after a enough updates, filters have settled and new PID value is Kp*error
     BOOST_CHECK_CLOSE(double(act->getValue()), 30.0, 1);
@@ -172,6 +175,7 @@ BOOST_FIXTURE_TEST_CASE(proportional_plus_integral_cooling, PidTest)
     for(int i = 0; i < 600; i++){
         pid->update();
         act->update();
+        delay(1000);
     }
 
     // integrator result is error / Ti * time, So 600 * 1 degree error / 60 = 10.0
@@ -189,6 +193,7 @@ BOOST_FIXTURE_TEST_CASE(proportional_plus_derivative_cooling, PidTest)
         sensor->setTemp(temp_t(20.0) - temp_t(i*0.015625));
         pid->update();
         act->update();
+        delay(1000);
     }
 
     BOOST_CHECK_EQUAL(sensor->read(), temp_t(10.625)); // sensor value should have gone up 9.375 degrees
@@ -206,6 +211,7 @@ BOOST_FIXTURE_TEST_CASE(integrator_windup_heating_PI, PidTest)
     for(int i = 0; i < 1200; i++){
         pid->update();
         act->update();
+        delay(1000);
     }
 
     BOOST_CHECK_CLOSE(double(act->getValue()), 100.0, 5); // actuator should be at maximum
@@ -223,6 +229,7 @@ BOOST_FIXTURE_TEST_CASE(integrator_windup_cooling_PI, PidTest)
     for(int i = 0; i < 1200; i++){
         pid->update();
         act->update();
+        delay(1000);
     }
 
     BOOST_CHECK_CLOSE(double(act->getValue()), 100.0, 5); // actuator should be at maximum

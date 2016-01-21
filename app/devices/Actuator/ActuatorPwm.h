@@ -26,8 +26,9 @@
 #include "ActuatorDriver.h"
 #include "Ticks.h"
 #include <stdint.h>
+#include "ControllerMixins.h"
 
-class ActuatorPwm : public ActuatorDriver, public ActuatorRange
+class ActuatorPwm final : public ActuatorDriver, public ActuatorRange, public ActuatorPwmMixin
 {
     private:
         temp_t         value;
@@ -46,27 +47,27 @@ class ActuatorPwm : public ActuatorDriver, public ActuatorRange
     public:
         ActuatorPwm(ActuatorDigital * _target, uint16_t _period);
 
-        virtual ~ActuatorPwm(){}
+        ~ActuatorPwm() = default;
 
-        temp_t min() const {
+        temp_t min() const final {
             return minVal;
         }
 
-        temp_t max() const {
+        temp_t max() const final {
             return maxVal;
         }
 
-        temp_t readValue() const;
+        temp_t readValue() const final;
 
-        temp_t getValue() const {
+        temp_t getValue() const final {
             return value;
         }
 
-        void setValue(temp_t const& val);
+        void setValue(temp_t const& val) final;
 
-        void update();
+        void update() final;
 
-        ticks_seconds_t getPeriod()
+        ticks_seconds_t getPeriod() const
         {
             return period_ms / 1000; // return in seconds, same as set period
         }
@@ -86,13 +87,5 @@ class ActuatorPwm : public ActuatorDriver, public ActuatorRange
         // calculates priority from dutyTime and dutyLate
         int8_t priority();
 
-        void serialize(JSON::Adapter& adapter){
-            JSON::Class root(adapter, "ActuatorPwm");
-            JSON_E(adapter, value);
-            ticks_seconds_t period = getPeriod(); // don't use member directly, but value in seconds
-            JSON_E(adapter, period);
-            JSON_E(adapter, minVal);
-            JSON_E(adapter, maxVal);
-            JSON_T(adapter, target);
-        }
+        friend class ActuatorPwmMixin;
 };

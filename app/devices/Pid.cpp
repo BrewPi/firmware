@@ -26,12 +26,12 @@ Pid::Pid(TempSensorBasic * input,
          SetPoint * setPoint)
 {
     setConstants(temp_t(0.0), 0, 0);
-    p = 0;
-    i = 0;
-    d = 0;
-    inputError           = 0;
-    derivative      = 0;
-    integral        = 0;
+    p = decltype(p)::base_type(0);
+    i = decltype(i)::base_type(0);
+    d = decltype(p)::base_type(0);
+    inputError           = decltype(inputError)::base_type(0);
+    derivative      = decltype(derivative)::base_type(0);
+    integral        = decltype(integral)::base_type(0);
     failedReadCount = 255; // start at 255, so inputFilter is refreshed at first valid read
 
     setInputSensor(input);
@@ -49,8 +49,6 @@ Pid::Pid(TempSensorBasic * input,
 //    outputLag = 0;
 //    maxDerivative = 0.0;
 }
-
-Pid::~Pid(){}
 
 void Pid::setConstants(temp_long_t kp,
                        uint16_t ti,
@@ -113,9 +111,9 @@ void Pid::update()
     derivative = derivativeFilter.readOutput() >> uint8_t(10);
 
     if(!enabled || !validSensor || !validSetPoint){
-        p = 0;
-        i = 0;
-        d = 0;
+        p = decltype(p)::base_type(0);
+        i = decltype(i)::base_type(0);
+        d = decltype(p)::base_type(0);
         return;
     }
 
@@ -142,16 +140,16 @@ void Pid::update()
     achievedOutput = (actuatorIsNegative) ? -achievedOutput : achievedOutput;
 
     if(Ti == 0){ // 0 has been chosen to indicate that the integrator is disabled. This also prevents divide by zero.
-        integral = 0;
+        integral = decltype(integral)::base_type(0);
     }
     else{
-
+        temp_long_t zero(temp_long_t::base_type(0));
         // if derivative part is canceling more than half the proportional part, disable integration
         // otherwise add input error to integral
         // this prevents integrator windup when the input is changing quickly
         // the integrator is for correcting steady state errors, so if we are not in steady state, don't increase the integral
-        if( ((p + (d + d)) > temp_long_t(0) && (p > temp_long_t(0))) ||
-               ((p + (d + d)) < temp_long_t(0) && (p < temp_long_t(0))) ){
+        if( ((p + (d + d)) > zero && (p > zero)) ||
+               ((p + (d + d)) < zero && (p < zero)) ){
             integral = integral + p;
         }
 
@@ -160,7 +158,7 @@ void Pid::update()
         // when the actuator is close the to pidResult (setpoint), disable anti-windup
         // this prevens small fluctuations from keeping the integrator at zero
 
-        temp_long_t antiWindup = 0;
+        temp_long_t antiWindup(temp_long_t::base_type(0));
         if(pidResult != temp_long_t(output)){ // clipped to actuator min or max set in target actuator
             antiWindup = pidResult - output;
             antiWindup *= 5; // Anti windup gain is 5 when clipping to min/max
@@ -176,10 +174,10 @@ void Pid::update()
             }
         }
 
-        // only apply anti-winup if it will decrease the integral and prevent crossing through zero
+        // only apply anti-windup if it will decrease the integral and prevent crossing through zero
         if(integral.sign() * antiWindup.sign() == 1){
             if((integral - antiWindup).sign() != integral.sign()){
-                integral = 0;
+                integral = decltype(integral)::base_type(0);
             }
             else{
                 integral -= antiWindup;

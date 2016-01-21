@@ -96,7 +96,7 @@ class FixedFilter
         {
         }
 
-        void init(temp_precise_t val = temp_precise_t(0.0));
+        void init(temp_precise_t val = temp_precise_t(temp_precise_t::base_type(0)));
 
         void setFiltering(uint8_t bValue)
         {

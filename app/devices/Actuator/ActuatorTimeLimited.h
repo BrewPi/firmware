@@ -26,8 +26,9 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorDriver.h"
 #include "Ticks.h"
+#include "ControllerMixins.h"
 
-class ActuatorTimeLimited: public ActuatorDriver, public ActuatorDigital
+class ActuatorTimeLimited final : public ActuatorDriver, public ActuatorDigital, public ActuatorTimeLimitedMixin
 {
 public:
     ActuatorTimeLimited(ActuatorDigital * _target,
@@ -43,16 +44,16 @@ public:
         active     = _target -> isActive();
     }
 
-    virtual ~ActuatorTimeLimited(){}
+    ~ActuatorTimeLimited() = default;
 
-    void setActive(bool active);    // returns new actuator state
+    void setActive(bool active) final;    // returns new actuator state
 
-    bool isActive()
+    bool isActive() const final
     {
         return active;    // target->isActive(); - this takes 20 bytes more
     }
 
-    void update();
+    void update() final;
 
     void setTimes(ticks_seconds_t   _minOnTime,
                   ticks_seconds_t   _minOffTime,
@@ -63,19 +64,12 @@ public:
     }
     ticks_seconds_t timeSinceToggle(void) const;
 
-    void serialize(JSON::Adapter& adapter){
-        JSON::Class root(adapter, "ActuatorTimeLimited");
-        JSON_E(adapter, minOnTime);
-        JSON_E(adapter, minOffTime);
-        JSON_E(adapter, maxOnTime);
-        JSON_E(adapter, active);
-        JSON_T(adapter, target);
-    }
+private:
+    ticks_seconds_t        minOnTime;
+    ticks_seconds_t        maxOnTime;
+    ticks_seconds_t        minOffTime;
+    ticks_seconds_t        toggleTime;
+    bool                   active;
 
-    private:
-        ticks_seconds_t        minOnTime;
-        ticks_seconds_t        maxOnTime;
-        ticks_seconds_t        minOffTime;
-        ticks_seconds_t        toggleTime;
-        bool            active;
+    friend class ActuatorTimeLimitedMixin;
 };

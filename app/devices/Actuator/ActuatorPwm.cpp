@@ -79,7 +79,7 @@ temp_t ActuatorPwm::readValue() const {
             return 100.0;
         }
     }
-    temp_t pastValue = temp_long_t(totalHigh) / temp_long_t(((windowDuration + 50) / 100));
+    temp_t pastValue = temp_long_t(temp_long_t::base_type(totalHigh)) / temp_long_t(temp_long_t::base_type((windowDuration + 50) / 100));
     return pastValue;
 }
 

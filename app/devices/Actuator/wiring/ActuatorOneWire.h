@@ -26,13 +26,14 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorBottom.h"
 #include "DS2413.h"
+#include "ControllerMixins.h"
 
 /*
  * An actuator or sensor that operates by communicating with a DS2413 device.
  *
  */
-class ActuatorOneWire:
-    private ActuatorBottom, public ActuatorDigital
+class ActuatorOneWire final:
+    private ActuatorBottom, public ActuatorDigital, public ActuatorOneWireMixin
 
 #if DS2413_SUPPORT_SENSE
             ,
@@ -48,6 +49,7 @@ class ActuatorOneWire:
         {
             init(bus, address, pio, invert);
         }
+        ~ActuatorOneWire() = default;
 
         void init(OneWire *     bus,
                   DeviceAddress address,
@@ -66,9 +68,9 @@ class ActuatorOneWire:
             device.latchWrite(pio, active ^ invert, true);
         }
 
-        bool isActive()
+        bool isActive() const
         {
-            return device.latchRead(pio, false, true) ^ invert;
+            return device.latchReadCached(pio, false) ^ invert;
         }
 
 #if DS2413_SUPPORT_SENSE
@@ -85,16 +87,11 @@ class ActuatorOneWire:
 
         void update(){} // do nothing on periodic update
 
-        void serialize(JSON::Adapter& adapter){
-            JSON::Class root(adapter, "ActuatorOneWire");
-            bool active = isActive();
-            JSON_E(adapter, active);
-            JSON_E(adapter, pio);
-            JSON_T(adapter, invert);
-        }
 
     private:
         DS2413 device;
         pio_t  pio;
         bool   invert;
+
+    friend class ActuatorOneWireMixin;
 };

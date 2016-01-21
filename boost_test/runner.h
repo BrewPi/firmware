@@ -14,7 +14,7 @@
 #include <boost/format.hpp>
 #include "Ticks.h"
 
-// delay ms milliseconds and redturn current time afterwards
+// delay ms milliseconds and return current time afterwards
 ticks_millis_t delay(int ms);
 ticks_millis_t random_delay(int max);
 

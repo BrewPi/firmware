@@ -24,15 +24,19 @@
 
 // Bottom class to be inherited by non-driver actuators
 class ActuatorBottom : public virtual Actuator {
-private:
-    Actuator * doGetBareActuator(){
+public:
+    ActuatorBottom() = default;
+protected:
+    ~ActuatorBottom() = default;
+public:
+    Actuator * getBareActuator() final {
         return this;  // recursive call for composite driver classes, until a non-driver class is reached
     }
-    bool doInstallActuatorFinalTarget(ActuatorDigital * a){
+    bool installActuatorFinalTarget(ActuatorDigital * a) final {
         return false; // does nothing for non-driver actuators
     }
 
-    bool doUnInstallActuatorFinalTarget(){
+    bool uninstallActuatorFinalTarget() final {
         return false; // does nothing for non-driver actuators
     }
 };

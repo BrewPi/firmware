@@ -24,13 +24,12 @@
 #include "temperatureFormats.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorBottom.h"
-
-#include "json_writer.h"
+#include "ControllerMixins.h"
 
 /*
  * A range actuator that simply remembers the set value. This is primary used for testing.
  */
-class ActuatorValue : private ActuatorBottom, public ActuatorRange
+class ActuatorValue final : private ActuatorBottom, public ActuatorRange, public ActuatorValueMixin
 {
 public:
     // construct without arguments, val = invalid, min and max are defaults
@@ -42,9 +41,9 @@ public:
     // construct with val, min, max
     ActuatorValue(temp_t initial, temp_t minVal, temp_t maxVal) : value(initial), minimum(minVal), maximum(maxVal) {}
 
-    virtual ~ActuatorValue(){}
+    ~ActuatorValue() = default;
 
-    virtual void setValue(temp_t const& val) {
+    void setValue(temp_t const& val) {
         if(val < minimum){
             value = minimum;
         }
@@ -55,17 +54,10 @@ public:
             value = val;
         }
     }
-    virtual temp_t getValue() const{
+    temp_t getValue() const{
         return value;
     }
-    virtual void update(){}; //no actions required
-
-    void serialize(JSON::Adapter& adapter){
-        JSON::Class root(adapter, "ActuatorValue");
-        JSON_E(adapter, value);
-        JSON_E(adapter, minimum);
-        JSON_T(adapter, maximum);
-    }
+    void update(){}; //no actions required
 
     temp_t min() const{
         return minimum;
@@ -79,62 +71,57 @@ private:
     temp_t value;
     temp_t minimum;
     temp_t maximum;
+
+friend class ActuatorValueMixin;
 };
 
 /*
  * An toggle actuator that simply remembers a true/false set value. This is primary used for testing.
  */
-class ActuatorBool : private ActuatorBottom, public ActuatorDigital
+class ActuatorBool final : private ActuatorBottom, public ActuatorDigital, public ActuatorBoolMixin
 {
 public:
     ActuatorBool() : state(false) {}
     ActuatorBool(bool initial) : state(initial) {}
+    ~ActuatorBool() = default;
 
-    virtual void setActive(bool active) { state = active; }
-    virtual bool isActive() { return state; }
+    void setActive(bool active) { state = active; }
+    bool isActive() const { return state; }
 
-    virtual void update(){}; //no actions required
-
-    void serialize(JSON::Adapter& adapter){
-        JSON::Class root(adapter, "ActuatorBool");
-        JSON_T(adapter, state);
-    }
+    void update(){}; //no actions required
 
 private:
     bool state;
+
+friend class ActuatorBoolMixin;
 };
 
 
 /*
  * An digital actuators that does absolutely nothing. Used as default actuator
  */
-class ActuatorNop : private ActuatorBottom, public ActuatorDigital
+class ActuatorNop final : private ActuatorBottom, public ActuatorDigital, public ActuatorNopMixin
 {
 public:
     ActuatorNop(){}
-    ~ActuatorNop(){}
+    ~ActuatorNop() = default;
 
-    virtual void setActive(bool active) {}
-    virtual bool isActive() { return false;}
-    virtual void update(){}
+    void setActive(bool active) {}
+    bool isActive() const { return false;}
+    void update(){}
     bool isDriver() const { return false; }
 
-    void serialize(JSON::Adapter& adapter){
-        bool state = isActive();
-
-        JSON::Class root(adapter, "ActuatorNop");
-        JSON_T(adapter, state);
-    }
+friend class ActuatorNopMixin;
 };
 
 /*
- * An linear actuator that does nothing and always returns invalid(). Linear equavalent of ActuatorNop
+ * An linear actuator that does nothing and always returns invalid(). Linear equivalent of ActuatorNop
  */
-class ActuatorInvalid : private ActuatorBottom, public ActuatorRange
+class ActuatorInvalid final : private ActuatorBottom, public ActuatorRange, public ActuatorInvalidMixin
 {
 public:
     ActuatorInvalid() {}
-    ~ActuatorInvalid() {}
+    ~ActuatorInvalid() = default;
 
     void setValue(temp_t const& val) {}
     temp_t getValue() const {
@@ -149,18 +136,9 @@ public:
     temp_t max() const {
         return temp_t::invalid();
     }
-    virtual void update(){}; //no actions required
+    void update(){}; //no actions required
 
     bool isDriver() const { return false; }
 
-    void serialize(JSON::Adapter& adapter){
-        bool value = getValue();
-        temp_t minimum = min();
-        temp_t maximum = max();
-
-        JSON::Class root(adapter, "ActuatorInvalid");
-        JSON_E(adapter, value);
-        JSON_E(adapter, minimum);
-        JSON_T(adapter, maximum);
-    }
+friend class ActuatorInvalidMixin;
 };

@@ -36,7 +36,7 @@
 
 #define PRINT_TOGGLE_TIMES 0
 
-temp_t randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t duty, int delayMax) {
+double randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t duty, int delayMax) {
     act->setValue(duty);
     ticks_millis_t lowToHighTime = ticks.millis();
     ticks_millis_t highToLowTime = ticks.millis();
@@ -80,12 +80,11 @@ temp_t randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t dut
         }
         
     }
-    double avgDuty = double(totalHighTime) / (totalHighTime + totalLowTime);
-    temp_t avgDutyTemp = temp_t(round(avgDuty * double(act->max())));
+    double avgDuty = double(totalHighTime) / (totalHighTime + totalLowTime) * double(act->max());
     output << "total high time: " << totalHighTime << "\n"
            << "total low time: " << totalLowTime << "\n"
-           << "avg duty: " << avgDutyTemp << "/" << act->max() << "\n";
-    return avgDutyTemp;
+           << "avg duty: " << avgDuty << "/" << act->max() << "\n";
+    return avgDuty;
 }
 
 BOOST_AUTO_TEST_SUITE(ActuatorPWM)
@@ -109,18 +108,6 @@ BOOST_AUTO_TEST_CASE( Test_ActuatorPWM_with_ValueActuator_as_driver) {
 
     act->setValue(-50.0);
     BOOST_CHECK_EQUAL(act->getValue(), temp_t(0.0)); // min is 0
-}
-
-BOOST_AUTO_TEST_CASE(test_ticks_millis_to_increment_every_call) {
-    output << "Testing time:";
-    ticks_millis_t start = ticks.millis();
-    ticks_millis_t time;
-    for (ticks_millis_t i = start + 1; i <= start + 10; i++) {
-        time = ticks.millis();
-        output << time << ' ';
-        BOOST_REQUIRE_EQUAL(i, time);
-    }
-    output << ".\n";
 }
 
 BOOST_AUTO_TEST_CASE(on_off_time_matches_duty_cycle_when_updating_every_ms) {
@@ -162,20 +149,21 @@ BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_random_update_intervals)
     srand(time(NULL));
     ActuatorDigital * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,4);
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 50.0, 500), temp_t(50.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 3.0, 500), temp_t(3.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 1.0, 500), temp_t(1.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 99.0, 500), temp_t(99.0));
+    // check within 0.5 points accurate
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 50.0, 500), 50.0, 1);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 3.0, 500), 3.0, 16.7);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 1.0, 500), 1.0, 50);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 99.0, 500), 99.0, 0.5);
 }
 
 BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_long_period) {
     srand(time(NULL));
     ActuatorDigital * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,3600);
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 50.0, 50000), temp_t(50.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 3.0, 50000), temp_t(3.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 1.0, 50000), temp_t(1.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, target, 99.0, 50000), temp_t(99.0));
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 50.0, 500), 50.0, 1);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 3.0, 500), 3.0, 16.7);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 1.0, 500), 1.0, 50);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 99.0, 500), 99.0, 0.5);
 }
 
 
@@ -203,7 +191,7 @@ BOOST_AUTO_TEST_CASE(on_big_positive_changes_shortened_cycle_has_correct_value) 
     ActuatorDigital * limited = new ActuatorTimeLimited(vAct, 0, 0);
     ActuatorPwm * act = new ActuatorPwm(limited, 100); // period is 100 seconds
 
-    act->setValue(30);
+    act->setValue(short(30));
     ticks_millis_t start = ticks.millis();
     ticks_millis_t periodStart;
     while(ticks.millis() - start < 250000) { // 250 seconds
@@ -311,10 +299,10 @@ BOOST_AUTO_TEST_CASE(ActuatorPWM_with_min_max_time_limited_OnOffActuator_as_driv
     ActuatorPwm * act = new ActuatorPwm(onOffAct, 10);
 
     // Test that average duty cycle is correct, even with minimum times enforced in the actuator
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 50.0, 500), temp_t(50.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 3.0, 500), temp_t(3.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 1.0, 500), temp_t(1.0));
-    BOOST_CHECK_EQUAL(randomIntervalTest(act, vAct, 99.0, 500), temp_t(99.0)); // 99 not attainable due to minimum OFF time
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, vAct, 50.0, 500), 50.0, 1);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, vAct, 3.0, 500), 3.0, 16.7);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, vAct, 1.0, 500), 1.0, 50);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, vAct, 99.0, 500), 99.0, 0.5);
 }
 
 
@@ -643,7 +631,7 @@ BOOST_AUTO_TEST_CASE(decreasing_pwm_value_after_long_high_time_and_mutex_wait){
     mutex->update();
     BOOST_CHECK(blocker->isActive());
     blockerMutex->setActive(false);
-    BOOST_CHECK_EQUAL(mutex->getWaitTime(), 99999); // -1 due to millis() call in update
+    BOOST_CHECK_EQUAL(mutex->getWaitTime(), 100000);
 
 
     double pwmValue = 100;
@@ -690,17 +678,18 @@ BOOST_AUTO_TEST_CASE(install_and_uninstall_final_actuator){
 
     // make sure actuator is added to the mutex group
 
-    cooler->setValue(50);
-    heater->setValue(50);
+    cooler->setValue(short(50));
+    heater->setValue(short(50));
     ticks_millis_t start = ticks.millis();
     while(ticks.millis() - start < 100000){ // run for 100 seconds
         cooler->update();
         heater->update();
         mutex->update();
+        delay(100);
     }
 
-    BOOST_CHECK(cooler->unInstallActuatorFinalTarget()); // returns true on successful uninstall
-    BOOST_CHECK(heater->unInstallActuatorFinalTarget()); // returns true on successful uninstall
+    BOOST_CHECK(cooler->uninstallActuatorFinalTarget()); // returns true on successful uninstall
+    BOOST_CHECK(heater->uninstallActuatorFinalTarget()); // returns true on successful uninstall
     BOOST_CHECK_EQUAL(cooler->getTarget(), coolerMutex); // unchanged
     BOOST_CHECK_EQUAL(coolerMutex->getTarget(), coolerTimeLimited); // unchanged
     BOOST_CHECK_EQUAL(coolerTimeLimited->getTarget(), defaultActuator()); // replaced by default actuator
@@ -713,10 +702,11 @@ BOOST_AUTO_TEST_CASE(install_and_uninstall_final_actuator){
         cooler->update();
         heater->update();
         mutex->update();
+        delay(100);
     }
 
-    BOOST_CHECK(!cooler->unInstallActuatorFinalTarget()); // returns false, when target is already default actuator
-    BOOST_CHECK(!heater->unInstallActuatorFinalTarget()); // returns false, when target is already default actuator
+    BOOST_CHECK(!cooler->uninstallActuatorFinalTarget()); // returns false, when target is already default actuator
+    BOOST_CHECK(!heater->uninstallActuatorFinalTarget()); // returns false, when target is already default actuator
 
     coolerPin = new ActuatorBool(); // uninstall deleted the previous instance, need to recreate!
     heaterPin = new ActuatorBool(); // uninstall deleted the previous instance, need to recreate!
@@ -735,6 +725,7 @@ BOOST_AUTO_TEST_CASE(install_and_uninstall_final_actuator){
         cooler->update();
         heater->update();
         mutex->update();
+        delay(100);
     }
 
     BOOST_CHECK(!cooler->installActuatorFinalTarget(coolerPin)); // returns false when actuator was already installed

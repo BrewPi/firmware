@@ -41,4 +41,18 @@ BOOST_AUTO_TEST_CASE(default_setpoint_is_immutable){
     BOOST_REQUIRE_EQUAL(sp->read(), temp_t::invalid()); // value is still 'disabled'
 }
 
+BOOST_AUTO_TEST_CASE(SetPointMinMax_constrains_setpoint){
+    SetPointMinMax sp;
+
+    sp.write(15.0);
+    sp.setMin(10.0);
+    sp.setMax(30.0);
+
+    BOOST_REQUIRE_EQUAL(sp.read(), temp_t(15.0));
+    sp.write(40.0);
+    BOOST_REQUIRE_EQUAL(sp.read(), temp_t(30.0));
+    sp.write(5.0);
+    BOOST_REQUIRE_EQUAL(sp.read(), temp_t(10.0));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

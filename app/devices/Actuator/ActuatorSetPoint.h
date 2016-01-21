@@ -23,11 +23,12 @@
 #include "SetPoint.h"
 #include "TempSensorBasic.h"
 #include "defaultDevices.h"
+#include "ControllerMixins.h"
  
 /*
  * A linear actuator that sets a setpoint to reference setpoint + actuator value
  */
-class ActuatorSetPoint : private ActuatorBottom, public ActuatorRange
+class ActuatorSetPoint final : private ActuatorBottom, public ActuatorRange, public ActuatorSetPointMixin
 {
 public:
     ActuatorSetPoint(SetPoint * targSetPoint = defaultSetPoint(), // set point to manipulate
@@ -41,8 +42,9 @@ public:
         minimum(mini),
         maximum(maxi){
     }
+    ~ActuatorSetPoint() = default;
 
-    void setValue(temp_t const& val) {
+    void setValue(temp_t const& val) final {
         temp_t offset = val;
         if(offset < minimum){
             offset = minimum;
@@ -53,48 +55,34 @@ public:
         targetSetPoint->write(referenceSetPoint->read() + offset);
     }
 
-    temp_t getValue() const{
+    temp_t getValue() const final {
         return targetSetPoint->read() - referenceSetPoint->read();
     }
 
     // getValue returns difference between sensor and reference, because that is the actual actuator value.
     // By returning the actually achieved value, instead of the difference between the setpoints,
     // a PID can read back the actual actuator value and perform integrator anti-windup
-    temp_t readValue() const{
+    temp_t readValue() const final{
         return targetSensor->read() - referenceSetPoint->read();
     }
 
-    temp_t min() const{
+    temp_t min() const final {
         return minimum;
     }
 
-    temp_t max() const{
+    temp_t max() const final {
         return maximum;
     }
 
-    void setMin(temp_t min){
+    void setMin(temp_t min) {
         minimum = min;
     }
 
-    void setMax(temp_t max){
+    void setMax(temp_t max) {
         maximum = max;
     }
 
-    virtual void update(){}; //no actions required
-
-    void serialize(JSON::Adapter& adapter){
-        JSON::Class root(adapter, "ActuatorSetPoint");
-        JSON_E(adapter, targetSetPoint);
-        JSON_E(adapter, targetSensor);
-        JSON_E(adapter, referenceSetPoint);
-        temp_t output = getValue();
-        JSON_E(adapter, output);
-        temp_t achieved = readValue();
-        JSON_E(adapter, achieved);
-        JSON_E(adapter, minimum);
-        JSON_T(adapter, maximum);
-    }
-
+    void update() final {}; //no actions required
 
 private:
     SetPoint * targetSetPoint;
@@ -102,4 +90,6 @@ private:
     SetPoint * referenceSetPoint;
     temp_t minimum;
     temp_t maximum;
+
+    friend class ActuatorSetPointMixin;
 };

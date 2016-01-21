@@ -3,6 +3,7 @@ before_install:
 - sudo apt-get update
 install:
 - ./ci/install_arm_gcc.sh
+- ./platform/spark/firmware/ci/install_gcc.sh
 - source ./ci/install_boost.sh
 script:
 - ./ci/build.sh

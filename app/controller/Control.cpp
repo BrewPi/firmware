@@ -36,9 +36,12 @@
 Control::Control()
 {
     // set up static devices for backwards compatibility with tempControl
-    beer1Sensor = new TempSensor(defaultTempSensorBasic(), "beer1");
-    beer2Sensor = new TempSensor(defaultTempSensorBasic(), "beer2");
-    fridgeSensor = new TempSensor(defaultTempSensorBasic(), "fridge");
+    beer1Sensor = new TempSensor(defaultTempSensorBasic());
+    beer1Sensor->setName("beer1");
+    beer2Sensor = new TempSensor(defaultTempSensorBasic());
+    beer2Sensor->setName("beer2");
+    fridgeSensor = new TempSensor(defaultTempSensorBasic());
+    fridgeSensor->setName("fridge");
 
     mutex = new ActuatorMutexGroup();
 
@@ -86,9 +89,12 @@ Control::Control()
     actuators.push_back(heater1);
     actuators.push_back(heater2);
 
-    beer1SetNamed = new SetPointNamed(beer1Set, "beer1set");
-    beer2SetNamed = new SetPointNamed(beer2Set, "beer2set");
-    fridgeSetNamed = new SetPointNamed(fridgeSet, "fridgeset");
+    beer1SetNamed = new SetPointNamed(beer1Set);
+    beer1SetNamed->setName("beer1set");
+    beer2SetNamed = new SetPointNamed(beer2Set);
+    beer1SetNamed->setName("beer2set");
+    fridgeSetNamed = new SetPointNamed(fridgeSet);
+    fridgeSetNamed->setName("fridgeset");
 
     setpoints.push_back(beer1SetNamed);
     setpoints.push_back(beer2SetNamed);
@@ -98,6 +104,10 @@ Control::Control()
 }
 
 Control::~Control(){
+#if defined(ARDUINO) || defined(SPARK)
+    // global control object is static and never destroyed.
+    // omit proper destructor to save space.
+#else
     delete heater1Mutex;
     delete heater1;
 
@@ -128,6 +138,7 @@ Control::~Control(){
     pids.clear();
     sensors.clear();
     actuators.clear();
+#endif
 }
 
 // This update function should be called every second
