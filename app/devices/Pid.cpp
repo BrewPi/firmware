@@ -143,20 +143,12 @@ void Pid::update()
         integral = decltype(integral)::base_type(0);
     }
     else{
-        temp_long_t zero(temp_long_t::base_type(0));
-        // if derivative part is canceling more than half the proportional part, disable integration
-        // otherwise add input error to integral
-        // this prevents integrator windup when the input is changing quickly
-        // the integrator is for correcting steady state errors, so if we are not in steady state, don't increase the integral
-        if( ((p + (d + d)) > zero && (p > zero)) ||
-               ((p + (d + d)) < zero && (p < zero)) ){
-            integral = integral + p;
-        }
-
         // update integral with anti-windup back calculation
         // pidResult - output is zero when actuator is not saturated
         // when the actuator is close the to pidResult (setpoint), disable anti-windup
         // this prevens small fluctuations from keeping the integrator at zero
+
+        integral = integral + p;
 
         temp_long_t antiWindup(temp_long_t::base_type(0));
         if(pidResult != temp_long_t(output)){ // clipped to actuator min or max set in target actuator
