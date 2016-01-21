@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
                         R"("target":{"kind":"ActuatorMutexDriver","mutexGroup":)"
                         R"({"kind":"ActuatorMutexGroup","deadTime":0,"lastActiveTime":0},)"
                         R"("target":{"kind":"ActuatorTimeLimited","minOnTime":120,"minOffTime":180,"maxOnTime":65535,)"
-                        R"("active":false,"target":{"kind":"ActuatorBool","state":false}}}})";
+                        R"("state":false,"target":{"kind":"ActuatorBool","state":false}}}})";
 
 
     BOOST_CHECK_EQUAL(valid, json);

@@ -102,7 +102,24 @@ BOOST_AUTO_TEST_CASE(minimum_on_time_is_honored) {
         BOOST_REQUIRE(act->isActive());
     }
     output << "Was ON for " << time - onMoment << "seconds\n";
+}
 
+BOOST_AUTO_TEST_CASE(correct_state_is_returned_with_actuatorNop) {
+    ActuatorDigital * v = new ActuatorNop();
+    const uint16_t minOn = 100;
+    const uint16_t maxOn = 200;
+    const uint16_t minOff = 300;
+
+    ActuatorTimeLimited * act = new ActuatorTimeLimited(v, minOn, minOff, maxOn);
+
+    act->setActive(false); // make sure cached state is correct
+    BOOST_CHECK(!act->isActive());
+
+    delay(minOff*2000); // ensure minOffTime is not blocking the change
+
+    act->setActive(true);
+    // ActuatorNop cannot go active, so cached state state should stay inactive too.
+    BOOST_CHECK(!act->isActive());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -41,7 +41,7 @@ public:
         maxOnTime  = _maxOnTime;
         toggleTime = 0;
         target     = _target;
-        active     = _target -> isActive();
+        state      = _target -> isActive();
     }
 
     ~ActuatorTimeLimited() = default;
@@ -50,7 +50,7 @@ public:
 
     bool isActive() const final
     {
-        return active;    // target->isActive(); - this takes 20 bytes more
+        return state;    // target->isActive(); - this takes 20 bytes more
     }
 
     void update() final;
@@ -69,7 +69,8 @@ private:
     ticks_seconds_t        maxOnTime;
     ticks_seconds_t        minOffTime;
     ticks_seconds_t        toggleTime;
-    bool                   active;
+    // shadow copy to prevent sending unnecessary updates to target
+    bool                   state;
 
     friend class ActuatorTimeLimitedMixin;
 };

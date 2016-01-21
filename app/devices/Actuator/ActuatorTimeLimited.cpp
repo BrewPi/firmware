@@ -22,40 +22,37 @@
 #include "ActuatorTimeLimited.h"
 #include "Ticks.h"
 
-void ActuatorTimeLimited::setActive(bool active)
+void ActuatorTimeLimited::setActive(bool newState)
 {
-    bool doUpdate = true;
+    bool oldState = state;
 
-    if (this -> active == active){
-        doUpdate = false;    // nothing to do
-    }
-
-    if (this -> active &&!active){
+    if (oldState && !newState){
         if (timeSinceToggle() <= minOnTime){
-            doUpdate = false;    // do not turn off before minOnTime has passed
+            newState = true;    // do not turn off before minOnTime has passed
             // use <= because stored value is truncated in divide from milliseconds to seconds
         }
     }
 
-    if (!this -> active && active){
+    if (!oldState && newState){
         if (timeSinceToggle() <= minOffTime){
-            doUpdate = false;    // do not turn on before minOffTime has passed
+            newState = false;    // do not turn on before minOffTime has passed
         }
     }
 
-    if (doUpdate){
-        this -> active = active;
+    if (oldState != newState){
+        target -> setActive(newState);
+        state = target -> isActive();
 
-        target -> setActive(active);
-
-        toggleTime = ticks.seconds();
+        if(oldState != state){
+            toggleTime = ticks.seconds();
+        }
     }
 }
 
 void ActuatorTimeLimited::update()
 {
     ActuatorDriver::update();
-    if (active && (timeSinceToggle() >= maxOnTime)){
+    if (state && (timeSinceToggle() >= maxOnTime)){
         setActive(false);
     }
 }

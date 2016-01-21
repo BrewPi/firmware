@@ -143,7 +143,7 @@ void ActuatorTimeLimitedMixin::serialize(JSON::Adapter & adapter)
     JSON_OE(adapter, minOnTime);
     JSON_OE(adapter, minOffTime);
     JSON_OE(adapter, maxOnTime);
-    JSON_OE(adapter, active);
+    JSON_OE(adapter, state);
     JSON_OT(adapter, target);
 }
 
@@ -269,9 +269,9 @@ void ActuatorOneWireMixin::serialize(JSON::Adapter & adapter)
 
     JSON::Class root(adapter, "ActuatorOneWire");
 
-    bool active = obj -> isActive();
+    bool state = obj -> isActive();
 
-    JSON_E(adapter, active);
+    JSON_E(adapter, state);
     JSON_OE(adapter, pio);
     JSON_OT(adapter, invert);
 }
