@@ -162,7 +162,7 @@ void Pid::update()
             // do not apply anti-windup if close to target. Always apply when actuator is at zero.
             if(achievedOutput == temp_t(0.0) || achievedOutput <  noAntiWindupMin || achievedOutput > noAntiWindupMax){
                 antiWindup = pidResult - achievedOutput;
-                // antiWindup *= 1; // Anti windup gain is 1 for this kind of windup
+                antiWindup *= 3; // Anti windup gain is 3 for this kind of windup
             }
         }
 
