@@ -24,6 +24,7 @@
 #include "spark_wiring_network.h"
 #include "system_network.h"
 #include "cellular_hal.h"
+#include "spark_wiring_cellularsignal.h"
 
 #if Wiring_Cellular
 
@@ -58,9 +59,45 @@ public:
         // todo
     }
 
+    void listen(bool begin=true) {
+        network_listen(*this, begin ? 0 : 1, NULL);
+    }
+
+    bool listening(void) {
+        return network_listening(*this, 0, NULL);
+    }
+
     bool ready()
     {
         return network_ready(*this, 0,  NULL);
+    }
+
+    CellularSignal RSSI();
+
+    template<typename... Targs>
+    inline int command(const char* format, Targs... Fargs)
+    {
+        return cellular_command(NULL, NULL, 10000, format, Fargs...);
+    }
+
+    template<typename... Targs>
+    inline int command(system_tick_t timeout_ms, const char* format, Targs... Fargs)
+    {
+        return cellular_command(NULL, NULL, timeout_ms, format, Fargs...);
+    }
+
+    template<typename T, typename... Targs>
+    inline int command(int (*cb)(int type, const char* buf, int len, T* param),
+            T* param, const char* format, Targs... Fargs)
+    {
+        return cellular_command((_CALLBACKPTR_MDM)cb, (void*)param, 10000, format, Fargs...);
+    }
+
+    template<typename T, typename... Targs>
+    inline int command(int (*cb)(int type, const char* buf, int len, T* param),
+            T* param, system_tick_t timeout_ms, const char* format, Targs... Fargs)
+    {
+        return cellular_command((_CALLBACKPTR_MDM)cb, (void*)param, timeout_ms, format, Fargs...);
     }
 };
 

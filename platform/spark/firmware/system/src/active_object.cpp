@@ -22,7 +22,7 @@
 #include <string.h>
 #include "active_object.h"
 #include "concurrent_hal.h"
-
+#include "timer_hal.h"
 
 void ActiveObjectBase::start_thread()
 {
@@ -40,39 +40,34 @@ void ActiveObjectBase::run()
     std::lock_guard<std::mutex> lck (_start);
     started = true;
 
+    uint32_t last_background_run = 0;
     for (;;)
     {
-        Item item = nullptr;
-        if (take(item) && item)
-        {
-            Message& msg = *item;
-            msg();
+    	uint32_t now;
+        if (!process())
+		{
+        	configuration.background_task();
         }
-        else
+        else if ((now=HAL_Timer_Get_Milli_Seconds())-last_background_run > configuration.take_wait)
         {
-            configuration.background_task();
+        	last_background_run = now;
+        	configuration.background_task();
         }
     }
-
 }
 
-/*
-void ActiveObjectBase::invoke_impl(void* fn, void* data, size_t len)
+bool ActiveObjectBase::process()
 {
-    if (isCurrentThread()) {        // run synchronously since we are already on the thread
-        Item(Item::active_fn_t(fn), data).invoke();
+    bool result = false;
+    Item item = nullptr;
+    if (take(item) && item)
+    {
+        Message& msg = *item;
+        msg();
+        result = true;
     }
-    else {
-        // allocate storage for the message
-        void* copy = data;
-        if (data && len) {
-            copy = malloc(len);
-            memcpy(copy, data, len);
-        }
-        put(Item(Item::active_fn_t(fn), copy));
-    }
+    return result;
 }
-*/
 
 void ActiveObjectBase::run_active_object(ActiveObjectBase* object)
 {

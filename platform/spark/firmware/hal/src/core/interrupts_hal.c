@@ -71,14 +71,14 @@ static exti_channel exti_channels[16];
 
 
 
-void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* data, InterruptMode mode, void* reserved)
+void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* data, InterruptMode mode, HAL_InterruptExtraConfiguration* config)
 {
   uint8_t GPIO_PortSource = 0;    //variable to hold the port number
 
   //EXTI structure to init EXT
-  EXTI_InitTypeDef EXTI_InitStructure;
+  EXTI_InitTypeDef EXTI_InitStructure = {0};
   //NVIC structure to set up NVIC controller
-  NVIC_InitTypeDef NVIC_InitStructure;
+  NVIC_InitTypeDef NVIC_InitStructure = {0};
 
   //Map the Spark pin to the appropriate port and pin on the STM32
   GPIO_TypeDef *gpio_port = PIN_MAP[pin].gpio_peripheral;
@@ -140,11 +140,16 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
     //configure NVIC
     //select NVIC channel to configure
     NVIC_InitStructure.NVIC_IRQChannel = GPIO_IRQn[GPIO_PinSource];
-    if(GPIO_PinSource > 4)
-      NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 14;
-    else
-      NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 13;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    if (config == NULL) {
+      if(GPIO_PinSource > 4)
+        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 14;
+      else
+        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 13;
+      NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    } else {
+      NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = config->IRQChannelPreemptionPriority;
+      NVIC_InitStructure.NVIC_IRQChannelSubPriority = config->IRQChannelSubPriority;
+    }
     //enable IRQ channel
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     //update NVIC registers
@@ -162,7 +167,7 @@ void HAL_Interrupts_Detach(uint16_t pin)
   EXTI_ClearITPendingBit(gpio_pin);
 
   //EXTI structure to init EXT
-  EXTI_InitTypeDef EXTI_InitStructure;
+  EXTI_InitTypeDef EXTI_InitStructure = {0};
 
   if(gpio_pin != EXTI_Line2 || gpio_pin != EXTI_Line11)
   {
@@ -195,6 +200,16 @@ void HAL_Interrupts_Disable_All(void)
   NVIC_DisableIRQ(EXTI3_IRQn);
   NVIC_DisableIRQ(EXTI4_IRQn);
   NVIC_DisableIRQ(EXTI9_5_IRQn);
+}
+
+void HAL_Interrupts_Suspend(void)
+{
+  // Untested/Unsupported
+}
+
+void HAL_Interrupts_Restore(void)
+{
+  // Untested/Unsupported
 }
 
 /*******************************************************************************

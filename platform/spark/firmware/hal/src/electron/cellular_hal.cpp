@@ -1,8 +1,6 @@
 
 #include "cellular_hal.h"
 #include "modem/mdm_hal.h"
-#include "wlan_hal.h"
-
 
 #define CHECK_SUCCESS(x) { if (!(x)) return -1; }
 
@@ -16,8 +14,6 @@ cellular_result_t  cellular_on(void* reserved)
 
 cellular_result_t  cellular_init(void* reserved)
 {
-    //MDMParser::DevStatus devStatus = {};
-    //CHECK_SUCCESS(electronMDM.init(&devStatus));
     CHECK_SUCCESS(electronMDM.init());
     return 0;
 }
@@ -30,8 +26,6 @@ cellular_result_t  cellular_off(void* reserved)
 
 cellular_result_t  cellular_register(void* reserved)
 {
-    //MDMParser::DevStatus netStatus = {};
-    //CHECK_SUCCESS(electronMDM.registerNet(&netStatus, (system_tick_t) 300000);
     CHECK_SUCCESS(electronMDM.registerNet());
     return 0;
 }
@@ -72,7 +66,10 @@ cellular_result_t  cellular_gprs_detach(void* reserved)
 
 cellular_result_t cellular_device_info(CellularDevice* device, void* reserved)
 {
-    const MDMParser::DevStatus* status = electronMDM.getDevStatus();
+    const DevStatus* status = electronMDM.getDevStatus();
+    if (!*status->ccid)
+        electronMDM.init(); // attempt to fetch the info again in case the SIM card has been inserted.
+    // this would benefit from an unsolicited event to call electronMDM.init() automatically on sim card insert)
     strncpy(device->imei, status->imei, sizeof(device->imei));
     strncpy(device->iccid, status->ccid, sizeof(device->iccid));
     return 0;
@@ -100,13 +97,43 @@ CellularCredentials* cellular_credentials_get(void* reserved)
 
 bool cellular_sim_ready(void* reserved)
 {
-    const MDMParser::DevStatus* status = electronMDM.getDevStatus();
-    return status->sim == MDMParser::SIM_READY;
+    const DevStatus* status = electronMDM.getDevStatus();
+    return status->sim == SIM_READY;
 }
 
 // Todo rename me, and allow the different connect, disconnect etc. timeouts be set by the HAL
-uint32_t HAL_WLAN_SetNetWatchDog(uint32_t timeOutInuS)
+uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInuS)
 {
     return 0;
 }
 
+void cellular_cancel(bool cancel, bool calledFromISR, void*)
+{
+    if (cancel) {
+        electronMDM.cancel();
+    } else {
+        electronMDM.resume();
+    }
+}
+
+cellular_result_t cellular_signal(CellularSignalHal &signal, void* reserved)
+{
+    NetStatus status;
+    CHECK_SUCCESS(electronMDM.getSignalStrength(status));
+    signal.rssi = status.rssi;
+    signal.qual = status.qual;
+    return 0;
+}
+
+cellular_result_t cellular_command(_CALLBACKPTR_MDM cb, void* param,
+                          system_tick_t timeout_ms, const char* format, ...)
+{
+    char buf[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buf, sizeof(buf), format, args);
+    va_end(args);
+    electronMDM.sendFormated(buf);
+
+    return electronMDM.waitFinalResp((MDMParser::_CALLBACKPTR)cb, (void*)param, timeout_ms);
+}

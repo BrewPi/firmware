@@ -32,6 +32,7 @@
 #include "inet_hal.h"
 #include "socket_hal.h"
 #include "timer_hal.h"
+#include "net_hal.h"
 
 
 #ifdef	__cplusplus
@@ -71,12 +72,6 @@ typedef enum
 {
   ANT_INTERNAL = 0, ANT_EXTERNAL = 1, ANT_AUTO = 3
 } WLanSelectAntenna_TypeDef;
-
-typedef struct __attribute__((__packed__))  _WLanConfig_t {
-    uint16_t size;
-    NetworkConfig nw;
-    uint8_t uaSSID[33];
-} WLanConfig;
 
 typedef int wlan_result_t;
 
@@ -197,28 +192,8 @@ void welan_set_error_count();
 
 void SPARK_WLAN_SmartConfigProcess();
 
-uint32_t HAL_WLAN_SetNetWatchDog(uint32_t timeOutInuS);
-
 void HAL_WLAN_notify_simple_config_done();
 
-/**
- * Notification that the wifi network has been connected to.
- */
-void HAL_WLAN_notify_connected();
-void HAL_WLAN_notify_disconnected();
-
-/**
- * Notification that an IP address has been received via DHCP.
- * todo - what with the case of static IP config?
- */
-void HAL_WLAN_notify_dhcp(bool dhcp);
-
-void HAL_WLAN_notify_can_shutdown();
-
-/**
- * Notification that an open socket has been closed.
- */
-void HAL_WLAN_notify_socket_closed(sock_handle_t socket);
 
 /**
  * Select the Wi-Fi antenna.
@@ -285,6 +260,15 @@ typedef void (*wlan_scan_result_t)(WiFiAccessPoint* ap, void* cookie);
  * @return negative on error.
  */
 int wlan_scan(wlan_scan_result_t callback, void* cookie);
+
+/**
+ * Lists all WLAN credentials currently stored on the device
+ * @param callback  The callback that receives each stored AP
+ * @param callback_data An opaque handle that is passed to the callback.
+ * @return count of stored credentials, negative on error.
+ */
+
+int wlan_get_credentials(wlan_scan_result_t callback, void* callback_data);
 
 #ifdef	__cplusplus
 }
