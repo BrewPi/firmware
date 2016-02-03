@@ -41,16 +41,16 @@ CPPSRC += $(call target_files,boost_test,*.cpp)
 CPPSRC += $(SOURCE_PATH)platform/wiring/temperatureFormats.cpp
 CPPSRC += $(SOURCE_PATH)platform/wiring/str_functions.cpp
 CPPSRC += $(SOURCE_PATH)app/controller/ControllerMixins.cpp
-CPPSRC += $(SOURCE_PATH)app/devices/Filter/FilterFixed.cpp
-CPPSRC += $(SOURCE_PATH)app/devices/Filter/FilterCascaded.cpp
-CPPSRC += $(SOURCE_PATH)app/devices/Pid.cpp
-CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorPwm.cpp
-CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorTimeLimited.cpp
-CPPSRC += $(SOURCE_PATH)app/devices/SetPoint.cpp
+CPPSRC += $(SOURCE_PATH)lib/src/FilterFixed.cpp
+CPPSRC += $(SOURCE_PATH)lib/src/FilterCascaded.cpp
+CPPSRC += $(SOURCE_PATH)lib/src/Pid.cpp
+CPPSRC += $(SOURCE_PATH)lib/src/ActuatorPwm.cpp
+CPPSRC += $(SOURCE_PATH)lib/src/ActuatorTimeLimited.cpp
+CPPSRC += $(SOURCE_PATH)lib/src/SetPoint.cpp
 CPPSRC += $(SOURCE_PATH)app/controller/defaultDevices.cpp
-CPPSRC += $(SOURCE_PATH)app/devices/Actuator/ActuatorMutexGroup.cpp
+CPPSRC += $(SOURCE_PATH)lib/src/ActuatorMutexGroup.cpp
 CPPSRC += $(SOURCE_PATH)app/controller/Control.cpp
-CPPSRC += $(SOURCE_PATH)app/devices/OneWire/OneWireAddress.cpp
+CPPSRC += $(SOURCE_PATH)lib/src/OneWireAddress.cpp
 
 ifeq ($(BOOST_ROOT),)
 $(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)
@@ -61,10 +61,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)platform/wiring
 INCLUDE_DIRS += $(SOURCE_PATH)app/controller
 INCLUDE_DIRS += $(SOURCE_PATH)app/devices/Filter
 INCLUDE_DIRS += $(SOURCE_PATH)app/fallback
-INCLUDE_DIRS += $(SOURCE_PATH)app/devices/TempSensor
-INCLUDE_DIRS += $(SOURCE_PATH)app/devices/Actuator
-INCLUDE_DIRS += $(SOURCE_PATH)app/devices/OneWire
-INCLUDE_DIRS += $(SOURCE_PATH)app/devices/
+INCLUDE_DIRS += $(SOURCE_PATH)lib/inc
 INCLUDE_DIRS += $(SOURCE_PATH)app/controller/esj
 
 CFLAGS += $(patsubst %,-I$(SRC_ROOT)%,$(INCLUDE_DIRS)) -I.
