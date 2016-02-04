@@ -36,7 +36,7 @@ friend class SetPointMixin;
 };
 
 
-class SetPointSimple : public SetPoint, public SetPointSimpleMixin {
+class SetPointSimple : virtual public SetPoint, public SetPointSimpleMixin {
 public:
     SetPointSimple(temp_t val = temp_t::disabled()) : value(val){}
     ~SetPointSimple() = default;
@@ -52,7 +52,7 @@ protected:
 friend class SetPointSimpleMixin;
 };
 
-class SetPointMinMax : public SetPoint, public SetPointMinMaxMixin {
+class SetPointMinMax : virtual public SetPoint, public SetPointMinMaxMixin {
 public:
     SetPointMinMax(temp_t val = temp_t::disabled()) : value(val),
                                                       min(temp_t::min()),
@@ -95,7 +95,7 @@ friend class SetPointMinMaxMixin;
 
 
 // immutable SetPoint, always reading for example 'invalid' to indicate that the setpoint has not been configured
-class SetPointConstant : public SetPoint, public SetPointConstantMixin {
+class SetPointConstant : virtual public SetPoint, public SetPointConstantMixin {
 public:
     SetPointConstant(const temp_t val): value(val){}
     ~SetPointConstant() = default;
@@ -111,7 +111,7 @@ protected:
 friend class SetPointConstantMixin;
 };
 
-class SetPointNamed : public SetPoint, public SetPointNamedMixin {
+class SetPointNamed : virtual public SetPoint, public SetPointNamedMixin {
 public:
     SetPointNamed(SetPoint * sp) : setPoint(sp){}
     ~SetPointNamed() = default;

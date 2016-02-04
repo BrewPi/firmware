@@ -305,9 +305,6 @@ public:
     operator CONTROL_LIB_NAMESPACE::SetPoint*() {
         return &setpoint();
     }
-
-    temp_t read()  { return setpoint().read(); }
-    void write(temp_t temp) { setpoint().write(temp); }
 };
 
 
@@ -374,13 +371,6 @@ public:
 
     operator CONTROL_LIB_NAMESPACE::TempSensorBasic*() { return &sensor(); }
     operator const CONTROL_LIB_NAMESPACE::TempSensorBasic*() const { return &sensor(); }
-
-    bool init() { return sensor().init(); }
-
-    void update() { sensor().update(); }
-
-    temp_t read() const { return sensor().read(); }
-
 };
 
 
@@ -397,9 +387,6 @@ public:
     virtual CONTROL_LIB_NAMESPACE::TempSensorBasic& sensor() const override {
         return *this->getSensor();
     }
-
-    void update() { base::update(); }
-    temp_t read() const { return base::read(); }
 
     void serialize(JSON::Adapter & adapter) override;
 };
@@ -428,7 +415,7 @@ public:
 };
 
 
-class TempSensorMock : public CONTROL_LIB_NAMESPACE::TempSensorMock, public TempSensorBasic
+class TempSensorMock : public CONTROL_LIB_NAMESPACE::TempSensorMock, public ::TempSensorBasic
 {
     using base = CONTROL_LIB_NAMESPACE::TempSensorMock;
 public:
