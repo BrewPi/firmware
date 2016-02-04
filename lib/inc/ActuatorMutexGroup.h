@@ -23,13 +23,17 @@
 #include "ActuatorInterfaces.h"
 #include <vector>
 #include "ControllerMixins.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
+
 
 struct ActuatorPriority{
     ActuatorDigital * actuator;
     int8_t priority; // valid priorities are 0-127, at -128 the actuator is removed from the group
 };
 
-class ActuatorMutexGroup final : public ActuatorMutexGroupMixin
+class ActuatorMutexGroup : public ActuatorMutexGroupMixin
 {
 public:
     ActuatorMutexGroup(){
@@ -57,7 +61,7 @@ public:
 
     void update();
 
-private:
+protected:
     ticks_millis_t deadTime; // minimum time between switching from one actuator to the other
     ticks_millis_t lastActiveTime;
     ActuatorDigital * lastActiveActuator;
@@ -65,3 +69,5 @@ private:
 
 friend class ActuatorMutexGroupMixin;
 };
+
+CONTROL_LIB_END

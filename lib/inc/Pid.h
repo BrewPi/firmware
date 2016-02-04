@@ -28,8 +28,12 @@
 #include "SetPoint.h"
 #include "defaultDevices.h"
 #include "ControllerMixins.h"
+#include "ControlLib.h"
 
-class Pid final : public PidMixin
+CONTROL_LIB_BEGIN
+
+
+class Pid : public PidMixin
 {
 
     public:
@@ -133,6 +137,7 @@ class Pid final : public PidMixin
         temp_precise      maxDerivative;
         */
 
-    friend class TempControl;
     friend class PidMixin;
 };
+
+CONTROL_LIB_END

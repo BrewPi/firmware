@@ -33,6 +33,9 @@
 #include "ActuatorMutexGroup.h"
 #include "json_writer.h"
 
+using CONTROL_LIB_NAMESPACE::defaultActuator;
+using CONTROL_LIB_NAMESPACE::defaultTempSensorBasic;
+
 Control::Control()
 {
     // set up static devices for backwards compatibility with tempControl
@@ -59,21 +62,21 @@ Control::Control()
     beer2Set = new SetPointSimple();
     fridgeSet = new SetPointSimple();
 
-    fridgeSetPointActuator = new ActuatorSetPoint(fridgeSet, fridgeSensor, beer1Set);
+    fridgeSetPointActuator = new ActuatorSetPoint(*fridgeSet, *fridgeSensor, *beer1Set);
     fridgeSetPointActuator->setMin(-10.0);
     fridgeSetPointActuator->setMax(10.0);
 
-    heater1Pid = new Pid(fridgeSensor, heater1, fridgeSet);
+    heater1Pid = new Pid(*fridgeSensor, *heater1, *fridgeSet);
     heater1Pid->setName("heater1");
 
-    coolerPid = new Pid(fridgeSensor, cooler, fridgeSet);
+    coolerPid = new Pid(*fridgeSensor, *cooler, *fridgeSet);
     coolerPid->setActuatorIsNegative(true);
     coolerPid->setName("cooler");
 
-    heater2Pid = new Pid(beer2Sensor, heater2, beer2Set);
+    heater2Pid = new Pid(*beer2Sensor, *heater2, *beer2Set);
     heater2Pid->setName("heater2");
 
-    beerToFridgePid = new Pid(beer1Sensor, fridgeSetPointActuator, beer1Set);
+    beerToFridgePid = new Pid(*beer1Sensor, *fridgeSetPointActuator, *beer1Set);
     beerToFridgePid->setName("beer2fridge");
 
     pids.push_back(heater1Pid);
@@ -89,11 +92,11 @@ Control::Control()
     actuators.push_back(heater1);
     actuators.push_back(heater2);
 
-    beer1SetNamed = new SetPointNamed(beer1Set);
+    beer1SetNamed = new SetPointNamed(*beer1Set);
     beer1SetNamed->setName("beer1set");
-    beer2SetNamed = new SetPointNamed(beer2Set);
+    beer2SetNamed = new SetPointNamed(*beer2Set);
     beer1SetNamed->setName("beer2set");
-    fridgeSetNamed = new SetPointNamed(fridgeSet);
+    fridgeSetNamed = new SetPointNamed(*fridgeSet);
     fridgeSetNamed->setName("fridgeset");
 
     setpoints.push_back(beer1SetNamed);
@@ -164,7 +167,7 @@ void Control::updateSensors(){
 
 void Control::updateActuators(){
     for ( auto &actuator : actuators ) {
-        actuator->update();
+        actuator->actuator().update();
     }
 }
 

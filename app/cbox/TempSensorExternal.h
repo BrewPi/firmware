@@ -56,7 +56,7 @@ class TempSensorExternal : public TempSensorBasic
 		value = newTemp;		
 	}
 	
-	private:
+protected:
 	temperature value;
 	bool _connected;
 };

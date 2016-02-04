@@ -22,11 +22,15 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorBottom.h"
 #include "ControllerMixins.h"
+#include "ControlLib.h"
 
-class ValveController final :
+CONTROL_LIB_BEGIN
+
+
+class ValveController  :
     private ActuatorBottom, public ActuatorDigital, public ValveControllerMixin{
 public:
-    ValveController(OneWire *     bus,
+    ValveController(::OneWire *     bus,
                     DeviceAddress address,
                     pio_t         pio_) :
                     switchState(0xff), // Set outputs and inputs to OFF state
@@ -85,3 +89,4 @@ protected:
     friend class ValveControllerMixin;
 };
 
+CONTROL_LIB_END

@@ -2,6 +2,10 @@
 #include "ActuatorPwm.h"
 #include "Ticks.h"
 #include "ActuatorMutexDriver.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
+
 
 ActuatorPwm::ActuatorPwm(ActuatorDigital* _target, uint16_t _period) :
     ActuatorDriver(_target) {
@@ -202,3 +206,6 @@ int8_t ActuatorPwm::priority(){
     }
     return priority;
 }
+
+
+CONTROL_LIB_END

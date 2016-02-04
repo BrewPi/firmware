@@ -21,6 +21,9 @@
 
 #include "ActuatorTimeLimited.h"
 #include "Ticks.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
 
 void ActuatorTimeLimited::setActive(bool newState)
 {
@@ -61,3 +64,5 @@ ticks_seconds_t ActuatorTimeLimited::timeSinceToggle() const
 {
     return ticks.timeSinceSeconds(toggleTime);
 }
+
+CONTROL_LIB_END

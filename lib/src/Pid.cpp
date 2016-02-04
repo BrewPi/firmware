@@ -20,6 +20,10 @@
 
 
 #include "Pid.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
+
 
 Pid::Pid(TempSensorBasic * input,
          ActuatorRange * output,
@@ -298,3 +302,4 @@ void Pid::tune(temp output, temp previousOutput){
 }
 
 */
+CONTROL_LIB_END

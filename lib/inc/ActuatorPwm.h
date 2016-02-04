@@ -27,10 +27,13 @@
 #include "Ticks.h"
 #include <stdint.h>
 #include "ControllerMixins.h"
+#include "ControlLib.h"
 
-class ActuatorPwm final : public ActuatorDriver, public ActuatorRange, public ActuatorPwmMixin
+CONTROL_LIB_BEGIN
+
+class ActuatorPwm : public ActuatorDriver, public ActuatorRange, public ActuatorPwmMixin
 {
-    private:
+    protected:
         temp_t         value;
         int32_t        dutyLate;
         int32_t        periodLate;
@@ -89,3 +92,5 @@ class ActuatorPwm final : public ActuatorDriver, public ActuatorRange, public Ac
 
         friend class ActuatorPwmMixin;
 };
+
+CONTROL_LIB_END

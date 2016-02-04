@@ -21,6 +21,9 @@
 
 #include <stdint.h>
 #include "ActuatorInterfaces.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
 
 // Bottom class to be inherited by non-driver actuators
 class ActuatorBottom : public virtual Actuator {
@@ -40,3 +43,5 @@ public:
         return false; // does nothing for non-driver actuators
     }
 };
+
+CONTROL_LIB_END

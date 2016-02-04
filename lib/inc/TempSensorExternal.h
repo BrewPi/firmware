@@ -23,6 +23,9 @@
 #include "Brewpi.h"
 #include "TempSensorBasic.h"
 #include "ControllerMixins.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
 
 /**
  * A temp sensor whose value is not read from the device, but set in code.
@@ -61,9 +64,12 @@ class TempSensorExternal : public TempSensorBasic, public TempSensorExternalMixi
 		value = newTemp;		
 	}
 
-	private:
+	protected:
 	temp_t value;
 	bool connected;
 
 	friend class TempSensorExternalMixin;
 };
+
+
+CONTROL_LIB_END

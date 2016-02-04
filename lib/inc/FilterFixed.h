@@ -24,6 +24,10 @@
 // #include "Brewpi.h"
 
 #include "temperatureFormats.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
+
 
 /*
  *  This class implements an IIR low pass filter, with the following frequency response
@@ -136,3 +140,5 @@ class FixedFilter
 
         bool isFalling();
 };
+
+CONTROL_LIB_END

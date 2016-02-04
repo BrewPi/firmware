@@ -27,6 +27,9 @@
 #include "OneWire.h"
 #include "PiLink.h"
 #include "Ticks.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
 
 
 OneWireTempSensor::~OneWireTempSensor() {
@@ -133,3 +136,6 @@ temp_t OneWireTempSensor::readAndConstrainTemp() {
     temp.setRaw(tempRaw << shift);
     return temp + calibrationOffset;
 }
+
+
+CONTROL_LIB_END

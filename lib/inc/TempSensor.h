@@ -24,6 +24,10 @@
 #include "TempSensorBasic.h"
 #include "defaultDevices.h"
 #include "ControllerMixins.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
+
 
 class TempSensor: public TempSensorBasic, public TempSensorMixin {
 public:
@@ -42,7 +46,7 @@ public:
         sensor = s;
     }
 
-    TempSensorBasic * getSensor() {
+    TempSensorBasic * getSensor() const {
         return sensor;
     }
 
@@ -82,8 +86,8 @@ public:
         return sensor->read();
     }
 
-private:
+protected:
     TempSensorBasic * sensor;
-    friend class TempSensorMixin;
 };
 
+CONTROL_LIB_END

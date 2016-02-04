@@ -21,6 +21,10 @@
 #include "Ticks.h"
 #include "ActuatorInterfaces.h"
 #include <vector>
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
+
 
 ActuatorPriority * ActuatorMutexGroup::registerActuator(ActuatorDigital * act, int8_t prio){
     ActuatorPriority ap = {act, prio};
@@ -116,3 +120,5 @@ void ActuatorMutexGroup::update(){
         }
     }
 }
+
+CONTROL_LIB_END

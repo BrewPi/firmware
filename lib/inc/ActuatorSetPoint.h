@@ -25,10 +25,15 @@
 #include "defaultDevices.h"
 #include "ControllerMixins.h"
  
+#include "ControlLib.h"
+
+
+CONTROL_LIB_BEGIN
+
 /*
  * A linear actuator that sets a setpoint to reference setpoint + actuator value
  */
-class ActuatorSetPoint final : private ActuatorBottom, public ActuatorRange, public ActuatorSetPointMixin
+class ActuatorSetPoint : private ActuatorBottom, public ActuatorRange, public ActuatorSetPointMixin
 {
 public:
     ActuatorSetPoint(SetPoint * targSetPoint = defaultSetPoint(), // set point to manipulate
@@ -84,12 +89,13 @@ public:
 
     void update() final {}; //no actions required
 
-private:
+protected:  // for now make protected, ideally we just have
     SetPoint * targetSetPoint;
     TempSensorBasic * targetSensor;
     SetPoint * referenceSetPoint;
     temp_t minimum;
     temp_t maximum;
 
-    friend class ActuatorSetPointMixin;
 };
+
+CONTROL_LIB_END

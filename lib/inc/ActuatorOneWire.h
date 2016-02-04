@@ -27,13 +27,17 @@
 #include "ActuatorBottom.h"
 #include "DS2413.h"
 #include "ControllerMixins.h"
+#include "OneWire.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
 
 /*
  * An actuator or sensor that operates by communicating with a DS2413 device.
  *
  */
-class ActuatorOneWire final:
-    private ActuatorBottom, public ActuatorDigital, public ActuatorOneWireMixin
+class ActuatorOneWire:
+    private ActuatorBottom, public ActuatorDigital
 
 #if DS2413_SUPPORT_SENSE
             ,
@@ -42,7 +46,7 @@ class ActuatorOneWire final:
 
 {
     public:
-        ActuatorOneWire(OneWire *     bus,
+        ActuatorOneWire(::OneWire *     bus,
                         DeviceAddress address,
                         pio_t         pio,
                         bool          invert = true)
@@ -51,7 +55,7 @@ class ActuatorOneWire final:
         }
         ~ActuatorOneWire() = default;
 
-        void init(OneWire *     bus,
+        void init(::OneWire *     bus,
                   DeviceAddress address,
                   pio_t         pio,
                   bool          invert = true)
@@ -88,10 +92,12 @@ class ActuatorOneWire final:
         void update(){} // do nothing on periodic update
 
 
-    private:
+    protected:
         DS2413 device;
         pio_t  pio;
         bool   invert;
 
     friend class ActuatorOneWireMixin;
 };
+
+CONTROL_LIB_END

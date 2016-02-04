@@ -21,8 +21,12 @@
 
 #include "temperatureFormats.h"
 #include "ControllerMixins.h"
+#include "ControlLib.h"
 
-class SetPoint : public SetPointMixin{
+CONTROL_LIB_BEGIN
+
+
+class SetPoint : public SetPointMixin {
 public:
     SetPoint() = default;
     virtual ~SetPoint() = default;
@@ -32,7 +36,7 @@ friend class SetPointMixin;
 };
 
 
-class SetPointSimple final : public SetPoint, public SetPointSimpleMixin {
+class SetPointSimple : public SetPoint, public SetPointSimpleMixin {
 public:
     SetPointSimple(temp_t val = temp_t::disabled()) : value(val){}
     ~SetPointSimple() = default;
@@ -43,12 +47,12 @@ public:
         value = val;
     }
 
-private:
+protected:
     temp_t value;
 friend class SetPointSimpleMixin;
 };
 
-class SetPointMinMax final : public SetPoint, public SetPointMinMaxMixin {
+class SetPointMinMax : public SetPoint, public SetPointMinMaxMixin {
 public:
     SetPointMinMax(temp_t val = temp_t::disabled()) : value(val),
                                                       min(temp_t::min()),
@@ -81,7 +85,7 @@ public:
         return max;
     }
 
-private:
+protected:
     temp_t value;
     temp_t min;
     temp_t max;
@@ -91,7 +95,7 @@ friend class SetPointMinMaxMixin;
 
 
 // immutable SetPoint, always reading for example 'invalid' to indicate that the setpoint has not been configured
-class SetPointConstant final : public SetPoint, public SetPointConstantMixin {
+class SetPointConstant : public SetPoint, public SetPointConstantMixin {
 public:
     SetPointConstant(const temp_t val): value(val){}
     ~SetPointConstant() = default;
@@ -101,13 +105,13 @@ public:
     void write(temp_t val) final { // does nothing
     }
 
-private:
+protected:
     const temp_t value;
 
 friend class SetPointConstantMixin;
 };
 
-class SetPointNamed final : public SetPoint, public SetPointNamedMixin {
+class SetPointNamed : public SetPoint, public SetPointNamedMixin {
 public:
     SetPointNamed(SetPoint * sp) : setPoint(sp){}
     ~SetPointNamed() = default;
@@ -119,8 +123,10 @@ public:
         setPoint->write(val);
     }
 
-private:
+protected:
     SetPoint * setPoint;
 
 friend class SetPointNamedMixin;
 };
+
+CONTROL_LIB_END

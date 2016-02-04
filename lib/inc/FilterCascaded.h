@@ -21,10 +21,11 @@
 
 #pragma once
 
-// #include "Brewpi.h"
-
 #include "temperatureFormats.h"
 #include "FilterFixed.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
 
 // Use 3 filter sections. This gives excellent filtering, without adding too much delay.
 // For 3 sections the stop band attenuation is 3x the single section attenuation in dB.
@@ -83,3 +84,5 @@ class FilterCascaded
 
         const uint16_t delayTimes[7] = { 9, 20, 43, 88, 179, 360, 723 };
 };
+
+CONTROL_LIB_END

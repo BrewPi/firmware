@@ -25,6 +25,10 @@
 #include "ActuatorInterfaces.h"
 #include "json_adapter.h"
 #include "defaultDevices.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
+
 
 /*
  * A DriverActuator drivers another digital actuator, for example a PWM actuator can drive a pin actuator
@@ -77,3 +81,4 @@ public:
     }
 };
 
+CONTROL_LIB_END

@@ -34,8 +34,10 @@
 #include "SetPoint.h"
 #include "Control.h"
 #include "json_writer.h"
+#include "Controller.h"
 
 BOOST_AUTO_TEST_SUITE(EsjTest)
+
 
 BOOST_AUTO_TEST_CASE(serialize_nested_actuators) {
     //ActuatorBool * actBool = new ActuatorBool();
@@ -75,15 +77,15 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators) {
 
 BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
     ActuatorDigital* coolerPin = new ActuatorBool();
-    ActuatorDigital* coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
+    ActuatorDigital* coolerTimeLimited = new ActuatorTimeLimited(*coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
-    ActuatorDigital* coolerMutex = new ActuatorMutexDriver(coolerTimeLimited, mutex);
-    ActuatorRange* cooler = new ActuatorPwm(coolerMutex, 600); // period 10 min
+    ActuatorDigital* coolerMutex = new ActuatorMutexDriver(*coolerTimeLimited, mutex);
+    ActuatorPwm* cooler = new ActuatorPwm(*coolerMutex, 600); // period 10 min
 
 
     std::string json;
 
-    json = JSON::producer<ActuatorRange>::convert(cooler);
+    json = JSON::producer<ActuatorPwm>::convert(cooler);
 
 /* With some extra whitespace, the valid output looks like this:
 {
@@ -127,8 +129,8 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
 }
 
 BOOST_AUTO_TEST_CASE(serialize_setpoint) {
-    SetPoint * sp1 = new SetPointSimple();
-    SetPoint * sp2 = new SetPointConstant(20.0);
+    SetPointSimple * sp1 = new SetPointSimple();
+    SetPointConstant * sp2 = new SetPointConstant(20.0);
 
 
     std::string json = JSON::producer<SetPoint>::convert(sp1);
@@ -164,8 +166,8 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
     SetPoint * sp1 = new SetPointSimple();
     SetPoint * sp2 = new SetPointConstant(20.0);
     TempSensorBasic * sens1 = new TempSensorMock(20.0);
-    ActuatorRange * act = new ActuatorSetPoint(sp1, sens1, sp2, -10.0, 10.0);
-    act->setValue(5.0); // should set sp1 to sp2 + 5.0 = 25.0;
+    ActuatorRange * act = new ActuatorSetPoint(&sp1->setpoint(), &sens1->sensor(), &sp2->setpoint(), -10.0, 10.0);
+    act->actuator().setValue(5.0); // should set sp1 to sp2 + 5.0 = 25.0;
 
     std::string json = JSON::producer<ActuatorRange>::convert(act);
 
@@ -204,9 +206,9 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
 BOOST_AUTO_TEST_CASE(serialize_Pid) {
     TempSensorBasic * sensor = new TempSensorMock(20.0);
     ActuatorDigital * boolAct = new ActuatorBool();
-    ActuatorRange * pwmAct = new ActuatorPwm(boolAct,4);
+    ActuatorRange * pwmAct = new ActuatorPwm(*boolAct,4);
     SetPoint * sp = new SetPointSimple(20.0);
-    Pid * pid = new Pid(sensor, pwmAct, sp);
+    Pid * pid = new Pid(*sensor, &pwmAct->actuator(), &sp->setpoint());
 
     std::string json = JSON::producer<Pid>::convert(pid);
 

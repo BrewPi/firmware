@@ -24,6 +24,8 @@
 #include "runner.h"
 #include <boost/test/unit_test.hpp>
 
+CONTROL_LIB_USING
+
 BOOST_AUTO_TEST_SUITE(ActuatorSetPointTest)
 
 BOOST_AUTO_TEST_CASE(set_value){

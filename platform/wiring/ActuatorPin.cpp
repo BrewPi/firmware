@@ -22,6 +22,8 @@
 
 #include "ActuatorPin.h"
 
+CONTROL_LIB_BEGIN
+
 ActuatorPin::ActuatorPin(uint8_t pin,
         bool                                   invert)
 {
@@ -31,3 +33,5 @@ ActuatorPin::ActuatorPin(uint8_t pin,
     setActive(false);
     pinMode(pin, OUTPUT);
 }
+
+CONTROL_LIB_END

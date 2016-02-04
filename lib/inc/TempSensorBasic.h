@@ -22,10 +22,13 @@
 
 #include "temperatureFormats.h"
 #include "ControllerMixins.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
 
 #define TEMP_SENSOR_DISCONNECTED temp_t::invalid()
 
-class TempSensorBasic : virtual public TempSensorBasicMixin
+class TempSensorBasic : public TempSensorBasicMixin
 {
 public:
     TempSensorBasic() = default;
@@ -50,4 +53,5 @@ public:
 
 };
 
+CONTROL_LIB_END
 

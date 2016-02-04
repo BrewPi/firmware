@@ -28,6 +28,9 @@
 #include "ActuatorTimeLimited.h"
 #include "ActuatorMocks.h"
 #include "Ticks.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_USING
 
 
 BOOST_AUTO_TEST_SUITE(ActuatorTimeLimited_with_bool_driver)

@@ -19,6 +19,8 @@
  */
 
 #pragma once
+#include "ControlLib.h"
+
 
 template<class T> class Sensor
 {	
@@ -49,5 +51,4 @@ private:
 };
 
 typedef Sensor<bool> SwitchSensor;
-
 

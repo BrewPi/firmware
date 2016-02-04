@@ -18,6 +18,9 @@
  */
 
 #include "ValveController.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
 
 /*
  * Updates the status of the member variables from what is read back from the valve
@@ -96,3 +99,5 @@ void ValveController::write(ValveActions action) {
     }
     update();
 }
+
+CONTROL_LIB_END

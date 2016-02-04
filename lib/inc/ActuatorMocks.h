@@ -25,11 +25,15 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorBottom.h"
 #include "ControllerMixins.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
+
 
 /*
  * A range actuator that simply remembers the set value. This is primary used for testing.
  */
-class ActuatorValue final : private ActuatorBottom, public ActuatorRange, public ActuatorValueMixin
+class ActuatorValue : private ActuatorBottom, public ActuatorRange, public ActuatorValueMixin
 {
 public:
     // construct without arguments, val = invalid, min and max are defaults
@@ -67,7 +71,7 @@ public:
         return maximum;
     }
 
-private:
+protected:
     temp_t value;
     temp_t minimum;
     temp_t maximum;
@@ -78,7 +82,7 @@ friend class ActuatorValueMixin;
 /*
  * An toggle actuator that simply remembers a true/false set value. This is primary used for testing.
  */
-class ActuatorBool final : private ActuatorBottom, public ActuatorDigital, public ActuatorBoolMixin
+class ActuatorBool : private ActuatorBottom, public ActuatorDigital, public ActuatorBoolMixin
 {
 public:
     ActuatorBool() : state(false) {}
@@ -90,7 +94,7 @@ public:
 
     void update(){}; //no actions required
 
-private:
+protected:
     bool state;
 
 friend class ActuatorBoolMixin;
@@ -100,7 +104,7 @@ friend class ActuatorBoolMixin;
 /*
  * An digital actuators that does absolutely nothing. Used as default actuator
  */
-class ActuatorNop final : private ActuatorBottom, public ActuatorDigital, public ActuatorNopMixin
+class ActuatorNop : private ActuatorBottom, public ActuatorDigital, public ActuatorNopMixin
 {
 public:
     ActuatorNop(){}
@@ -117,7 +121,7 @@ friend class ActuatorNopMixin;
 /*
  * An linear actuator that does nothing and always returns invalid(). Linear equivalent of ActuatorNop
  */
-class ActuatorInvalid final : private ActuatorBottom, public ActuatorRange, public ActuatorInvalidMixin
+class ActuatorInvalid : private ActuatorBottom, public ActuatorRange, public ActuatorInvalidMixin
 {
 public:
     ActuatorInvalid() {}
@@ -142,3 +146,5 @@ public:
 
 friend class ActuatorInvalidMixin;
 };
+
+CONTROL_LIB_END

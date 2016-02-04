@@ -26,10 +26,16 @@
 #include "SetPoint.h"
 #include "Sensor.h"
 
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
+
+// Objects that the library requires the application to instantiate.
+
 ValueSensor<bool> * defaultSensor();
 ActuatorNop * defaultActuator();
 ActuatorInvalid * defaultLinearActuator(); // always returns invalid and does nothing
-TempSensorDisconnected * defaultTempSensorBasic();
+TempSensorBasic * defaultTempSensorBasic();
 SetPointConstant * defaultSetPoint();
 
-
+CONTROL_LIB_END

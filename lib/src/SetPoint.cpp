@@ -19,3 +19,10 @@
  */
 
 #include "SetPoint.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
+
+
+
+CONTROL_LIB_END

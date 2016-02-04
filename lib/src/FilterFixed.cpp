@@ -17,6 +17,10 @@
 #include "temperatureFormats.h"
 #include "FilterFixed.h"
 #include <stdlib.h>
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
+
 
 temp_t FixedFilter::add(temp_t val){
     temp_precise_t p = val;
@@ -80,3 +84,6 @@ bool FixedFilter::isRising(){
 bool FixedFilter::isFalling(){
     return (yv[0] < yv[1]) && (yv[1] < yv[2]);
 }
+
+
+CONTROL_LIB_END

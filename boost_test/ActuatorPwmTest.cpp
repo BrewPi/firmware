@@ -34,6 +34,9 @@
 #include <fstream>
 #include <math.h> // for sin
 
+CONTROL_LIB_USING
+
+
 #define PRINT_TOGGLE_TIMES 0
 
 double randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t duty, int delayMax) {

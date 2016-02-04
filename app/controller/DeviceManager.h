@@ -30,6 +30,7 @@
 #include "Board.h"
 #include "OneWire.h"
 #include "OneWireAddress.h"
+#include "Controller.h"
 
 /*
  * A user has freedom to connect various devices to the controller, either via extending the oneWire bus,

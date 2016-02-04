@@ -22,6 +22,9 @@
 
 #include "TempSensorBasic.h"
 #include "ControllerMixins.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
 
 class TempSensorDisconnected : public TempSensorBasic, public TempSensorDisconnectedMixin {
 	
@@ -43,3 +46,4 @@ public:
     friend class TempSensorDisconnectedMixin;
 };
 
+CONTROL_LIB_END

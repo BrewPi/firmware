@@ -19,6 +19,9 @@
 
 #include "ActuatorAutoOff.h"
 #include "Ticks.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
 
 void AutoOffActuator::setActive(bool active)
 {
@@ -32,3 +35,6 @@ void AutoOffActuator::update() {
     if (ticks.timeSinceSeconds(lastActiveTime)>=timeout)
             setActive(false);
 }
+
+
+CONTROL_LIB_END

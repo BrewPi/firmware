@@ -25,9 +25,13 @@
 #include "OneWireAddress.h"
 #include "DallasTemperature.h"
 #include "Ticks.h"
+#include "ControlLib.h"
 
 class DallasTemperature;
 class OneWire;
+
+
+CONTROL_LIB_BEGIN
 
 #define ONEWIRE_TEMP_SENSOR_PRECISION (4)
 
@@ -58,7 +62,7 @@ public:
 	temp_t read() const; // return cached value
 	void update(); // read from hardware sensor
 	
-	private:
+	protected:
 
 	void setConnected(bool connected);
 	void requestConversion();
@@ -83,3 +87,5 @@ public:
 	
 	friend class OneWireTempSensorMixin;
 };
+
+CONTROL_LIB_END

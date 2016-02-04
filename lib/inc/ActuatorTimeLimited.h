@@ -27,8 +27,11 @@
 #include "ActuatorDriver.h"
 #include "Ticks.h"
 #include "ControllerMixins.h"
+#include "ControlLib.h"
 
-class ActuatorTimeLimited final : public ActuatorDriver, public ActuatorDigital, public ActuatorTimeLimitedMixin
+CONTROL_LIB_BEGIN
+
+class ActuatorTimeLimited : public ActuatorDriver, public ActuatorDigital, public ActuatorTimeLimitedMixin
 {
 public:
     ActuatorTimeLimited(ActuatorDigital * _target,
@@ -64,7 +67,7 @@ public:
     }
     ticks_seconds_t timeSinceToggle(void) const;
 
-private:
+protected:
     ticks_seconds_t        minOnTime;
     ticks_seconds_t        maxOnTime;
     ticks_seconds_t        minOffTime;
@@ -74,3 +77,5 @@ private:
 
     friend class ActuatorTimeLimitedMixin;
 };
+
+CONTROL_LIB_END

@@ -23,8 +23,11 @@
 #include "Brewpi.h"
 #include "TempSensorBasic.h"
 #include "ControllerMixins.h"
+#include "ControlLib.h"
 
-class TempSensorMock : public TempSensorBasic, public TempSensorMockMixin
+CONTROL_LIB_BEGIN
+
+class TempSensorMock : public TempSensorBasic
 {
 public:	
 	TempSensorMock(temp_t initial) : value(initial), connected(true) { }
@@ -68,11 +71,11 @@ public:
 	    value = val;
 	}
 
-	private:
+protected:
 	temp_t value;
 	bool connected;
 	//bool noise;
 
-	friend class TempSensorMockMixin;
 };
 
+CONTROL_LIB_END

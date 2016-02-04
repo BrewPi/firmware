@@ -24,6 +24,10 @@
 #include "FilterFixed.h"
 #include "FilterCascaded.h"
 #include <stdlib.h>
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
+
 
 FilterCascaded::FilterCascaded()
 {
@@ -124,3 +128,6 @@ void FilterCascaded::setFilteringForDelay(uint16_t maxDelay){
     }
     setFiltering(i);
 }
+
+
+CONTROL_LIB_END

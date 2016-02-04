@@ -26,10 +26,15 @@
 #include "ActuatorMutexGroup.h"
 #include "ControllerMixins.h"
 
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
+
+
 /* A driver actuator to wrap a digital Actuator and block SetActive calls if the mutex group does does not honor the request
  */
 
-class ActuatorMutexDriver final : public ActuatorDriver, public ActuatorDigital, public ActuatorMutexDriverMixin{
+class ActuatorMutexDriver : public ActuatorDriver, public ActuatorDigital, public ActuatorMutexDriverMixin{
 public:
     ActuatorMutexDriver(ActuatorDigital * target) : ActuatorDriver(target), mutexGroup(nullptr){}
     ActuatorMutexDriver(ActuatorDigital * target, ActuatorMutexGroup * m) : ActuatorDriver(target), mutexGroup(m){}
@@ -65,11 +70,11 @@ public:
         return target->isActive();
     }
 
-private:
+protected:
     ActuatorMutexGroup * mutexGroup;
 
 friend class ActuatorMutexDriverMixin;
 };
 
 
-
+CONTROL_LIB_END

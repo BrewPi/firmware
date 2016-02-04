@@ -24,6 +24,9 @@
 #include "temperatureFormats.h"
 #include "json_adapter.h"
 #include "ControllerMixins.h"
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
 
 enum {
     ACTUATOR_RANGE,
@@ -64,7 +67,7 @@ public:
 /*
  * An ActuatorDigital simply turns something on or off.
  */
-class ActuatorDigital : public virtual Actuator
+class ActuatorDigital : public virtual Actuator, public ActuatorDigitalMixin
 {
 public:
     ActuatorDigital() = default;
@@ -80,7 +83,7 @@ public:
 /*
  * An ActuatorRange has a range output between min and max
  */
-class ActuatorRange : public virtual Actuator
+class ActuatorRange : public virtual Actuator, public ActuatorRangeMixin
 {
 public:
     ActuatorRange() = default;
@@ -108,4 +111,6 @@ ActuatorThreshold() = default;
     virtual temp_t offValue() const = 0;
 };
 
+
+CONTROL_LIB_END
 

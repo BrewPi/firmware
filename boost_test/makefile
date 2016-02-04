@@ -40,7 +40,7 @@ CPPSRC += $(call target_files,boost_test,*.cpp)
 
 CPPSRC += $(SOURCE_PATH)platform/wiring/temperatureFormats.cpp
 CPPSRC += $(SOURCE_PATH)platform/wiring/str_functions.cpp
-CPPSRC += $(SOURCE_PATH)app/controller/ControllerMixins.cpp
+CPPSRC += $(SOURCE_PATH)app/controller/Controller.cpp
 CPPSRC += $(SOURCE_PATH)lib/src/FilterFixed.cpp
 CPPSRC += $(SOURCE_PATH)lib/src/FilterCascaded.cpp
 CPPSRC += $(SOURCE_PATH)lib/src/Pid.cpp

@@ -22,6 +22,9 @@
 
 #include "ActuatorInterfaces.h"
 #include <stdint.h>
+#include "ControlLib.h"
+
+CONTROL_LIB_BEGIN
 
 class AutoOffActuator final : public ActuatorDigital {
 	
@@ -47,3 +50,5 @@ private:
 	ActuatorDigital* target;
 	bool active;
 };
+
+CONTROL_LIB_END

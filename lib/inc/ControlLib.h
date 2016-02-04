@@ -1,56 +1,37 @@
 /*
- * Copyright 2012-2013 BrewPi/Elco Jacobs.
+ * Copyright 2015 BrewPi.
  *
  * This file is part of BrewPi.
- * 
+ *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * BrewPi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
 
-#include "Brewpi.h"
-#include "Controller.h"
+#define CONTROL_LIB_NAMESPACE brewpi::control
 
-#if BREWPI_BUZZER
+#define CONTROL_LIB_USING \
+    using namespace brewpi::control;
 
-class Buzzer{
-public:
-    Buzzer() {
-        pin = nullptr;
-    }
+/**
+ * Opens the namespace for the control library.
+ */
+#define CONTROL_LIB_BEGIN \
+    namespace brewpi { namespace control {
 
-    ~Buzzer() {
-        if(pin != nullptr){
-            delete pin;
-        }
-    }
-
-    void init(bool invert);
-
-
-    /**
-     * Performs a number of beeps synchronously.
-     * @param numBeeps The number of beeps to emit
-     * @param duration the duration of each beep
-     */
-    void beep(uint8_t numBeeps, uint16_t duration);
-
-    void setActive(bool active);
-
-private:
-    ActuatorPin * pin;
-};
-
-extern Buzzer buzzer;
-#endif
+/**
+ * Closes the namespace for the control library
+ */
+#define CONTROL_LIB_END \
+    }}
