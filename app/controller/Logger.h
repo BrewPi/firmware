@@ -28,8 +28,8 @@
 
 class Logger{
 	public:
-	Logger(){};
-	~Logger(){};
+	Logger() = default;
+	~Logger() = default;
 	
 	static void logMessageVaArg(const char type, LOG_ID_TYPE errorID, const char * varTypes, ...);
 };

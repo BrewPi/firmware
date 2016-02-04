@@ -120,6 +120,7 @@ namespace JSON
 		virtual ISink& operator<<(const temp_long_t& arg)   { (*_sink) << arg.toCstring(); return (*this); }
 	};
 
+#if defined(ARDUINO) || defined(SPARK) // todo -  need a WIRING define
 
 	//-----------------------------------------------------------------------------
 	// An alternative to stringsink which writes prints directly to a stream (serial)
@@ -150,6 +151,7 @@ namespace JSON
 	    virtual ISink& operator<<(const temp_precise_t& arg){ out.print(arg.toCstring().c_str()); return (*this); }
 	    virtual ISink& operator<<(const temp_long_t& arg)   { out.print(arg.toCstring().c_str()); return (*this); }
 	};
+#endif
 
 	//-------------------------------------------------------------------------
 	// for serializing (writing) JSON
@@ -411,10 +413,10 @@ namespace JSON
 		}
 	};
 
-
+#if defined(SPARK) || defined(ARDUINO)
 	//-----------------------------------------------------------------------------
     // template the writer. usage is:
-    // JSON::producer<JSONExample>::convert(source);
+    // JSON::producer<JSONExample>::convert(source, stream);
     template <typename serializable_type>
     class serial_producer
     {
@@ -431,6 +433,8 @@ namespace JSON
             convert(&source, sink);
         }
     };
+#endif
+
 }
 
 

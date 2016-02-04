@@ -34,8 +34,10 @@
 #include "SetPoint.h"
 #include "Control.h"
 #include "json_writer.h"
+#include "Controller.h"
 
 BOOST_AUTO_TEST_SUITE(EsjTest)
+
 
 BOOST_AUTO_TEST_CASE(serialize_nested_actuators) {
     //ActuatorBool * actBool = new ActuatorBool();
@@ -75,15 +77,15 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators) {
 
 BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
     ActuatorDigital* coolerPin = new ActuatorBool();
-    ActuatorDigital* coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
+    ActuatorDigital* coolerTimeLimited = new ActuatorTimeLimited(*coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
-    ActuatorDigital* coolerMutex = new ActuatorMutexDriver(coolerTimeLimited, mutex);
-    ActuatorRange* cooler = new ActuatorPwm(coolerMutex, 600); // period 10 min
+    ActuatorDigital* coolerMutex = new ActuatorMutexDriver(*coolerTimeLimited, mutex);
+    ActuatorPwm* cooler = new ActuatorPwm(*coolerMutex, 600); // period 10 min
 
 
     std::string json;
 
-    json = JSON::producer<ActuatorRange>::convert(cooler);
+    json = JSON::producer<ActuatorPwm>::convert(cooler);
 
 /* With some extra whitespace, the valid output looks like this:
 {
@@ -120,15 +122,15 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
                         R"("target":{"kind":"ActuatorMutexDriver","mutexGroup":)"
                         R"({"kind":"ActuatorMutexGroup","deadTime":0,"lastActiveTime":0},)"
                         R"("target":{"kind":"ActuatorTimeLimited","minOnTime":120,"minOffTime":180,"maxOnTime":65535,)"
-                        R"("active":false,"target":{"kind":"ActuatorBool","state":false}}}})";
+                        R"("state":false,"target":{"kind":"ActuatorBool","state":false}}}})";
 
 
     BOOST_CHECK_EQUAL(valid, json);
 }
 
 BOOST_AUTO_TEST_CASE(serialize_setpoint) {
-    SetPoint * sp1 = new SetPointSimple();
-    SetPoint * sp2 = new SetPointConstant(20.0);
+    SetPointSimple * sp1 = new SetPointSimple();
+    SetPointConstant * sp2 = new SetPointConstant(20.0);
 
 
     std::string json = JSON::producer<SetPoint>::convert(sp1);
@@ -142,12 +144,30 @@ BOOST_AUTO_TEST_CASE(serialize_setpoint) {
     BOOST_CHECK_EQUAL(valid, json);
 }
 
+BOOST_AUTO_TEST_CASE(serialize_setpointMinMax) {
+    SetPointMinMax * sp1 = new SetPointMinMax();
+
+    std::string json = JSON::producer<SetPointMinMax>::convert(sp1);
+    std::string valid = R"({"kind":"SetPointMinMax","value":null,"min":-127.9922,"max":127.9961})";
+
+    BOOST_CHECK_EQUAL(valid, json);
+
+    sp1->write(20.0);
+    sp1->setMin(-10.0);
+    sp1->setMax(30.0);
+
+    json = JSON::producer<SetPointMinMax>::convert(sp1);
+    valid = R"({"kind":"SetPointMinMax","value":20.0000,"min":-10.0000,"max":30.0000})";
+
+    BOOST_CHECK_EQUAL(valid, json);
+}
+
 BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
     SetPoint * sp1 = new SetPointSimple();
     SetPoint * sp2 = new SetPointConstant(20.0);
     TempSensorBasic * sens1 = new TempSensorMock(20.0);
-    ActuatorRange * act = new ActuatorSetPoint(sp1, sens1, sp2, -10.0, 10.0);
-    act->setValue(5.0); // should set sp1 to sp2 + 5.0 = 25.0;
+    ActuatorRange * act = new ActuatorSetPoint(&sp1->setpoint(), &sens1->sensor(), &sp2->setpoint(), -10.0, 10.0);
+    act->actuator().setValue(5.0); // should set sp1 to sp2 + 5.0 = 25.0;
 
     std::string json = JSON::producer<ActuatorRange>::convert(act);
 
@@ -186,9 +206,9 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
 BOOST_AUTO_TEST_CASE(serialize_Pid) {
     TempSensorBasic * sensor = new TempSensorMock(20.0);
     ActuatorDigital * boolAct = new ActuatorBool();
-    ActuatorRange * pwmAct = new ActuatorPwm(boolAct,4);
+    ActuatorRange * pwmAct = new ActuatorPwm(*boolAct,4);
     SetPoint * sp = new SetPointSimple(20.0);
-    Pid * pid = new Pid(sensor, pwmAct, sp);
+    Pid * pid = new Pid(*sensor, &pwmAct->actuator(), &sp->setpoint());
 
     std::string json = JSON::producer<Pid>::convert(pid);
 
@@ -241,7 +261,8 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
 
 BOOST_AUTO_TEST_CASE(serialize_TempSensor) {
     TempSensorBasic * s = new TempSensorMock(20.0);
-    TempSensor * sensor = new TempSensor(s, "test");
+    TempSensor * sensor = new TempSensor(s);
+    sensor->setName("test");
 
     std::string json = JSON::producer<TempSensor>::convert(sensor);
     std::string valid = R"({"kind":"TempSensor","name":"test","sensor":{)"

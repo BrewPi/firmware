@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Brewpi.h"
-#include "ActuatorPin.h"
+#include "Controller.h"
 
 #if BREWPI_BUZZER
 
@@ -49,7 +49,7 @@ public:
     void setActive(bool active);
 
 private:
-    DigitalPinActuator * pin;
+    ActuatorPin * pin;
 };
 
 extern Buzzer buzzer;

@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( conversion_from_precise_to_normal_temp)
 
 BOOST_AUTO_TEST_CASE(conversion_to_double)
 {
-    BOOST_CHECK_CLOSE(1.0, double(temp_t(1)), 1);
+    BOOST_CHECK_CLOSE(1.0, double(temp_t(short(1))), 1);
     BOOST_CHECK_CLOSE(1.0, double(temp_precise_t(1)), 1);
     BOOST_CHECK_CLOSE(1.0, double(temp_long_t(1)), 1);
 }
@@ -132,13 +132,13 @@ BOOST_AUTO_TEST_CASE(multiplication)
 
 BOOST_AUTO_TEST_CASE(overflowing_multiplication_is_constrained)
 {
-    temp_t t1 = 120;
-    temp_t t2 = 120;
+    temp_t t1 = short(120);
+    temp_t t2 = short(120);
 
     BOOST_REQUIRE_EQUAL(t1*t2, temp_t::max());
 
-    t1 = -120;
-    t2 = 120;
+    t1 = short(-120);
+    t2 = short(120);
 
     // only check close, min is 2 epsilon higher to reserve place for invalid and disabled temp
     // multiplication in base fixed point class does not take this +2 offset into account
@@ -215,13 +215,13 @@ BOOST_AUTO_TEST_CASE(addition)
 
 BOOST_AUTO_TEST_CASE(overflowing_addition_is_constrained)
 {
-    temp_t t1 = 120;
-    temp_t t2 = 120;
+    temp_t t1 = short(120);
+    temp_t t2 = short(120);
 
     BOOST_REQUIRE_EQUAL(t1+t2, temp_t::max());
 
-    t1 = -120;
-    t2 = -120;
+    t1 = short(-120);
+    t2 = short(-120);
 
     // only check close, min is 2 epsilon higher to reserve place for invalid and disabled temp
     // multiplication in base fixed point class does not take this +2 offset into account
@@ -303,13 +303,13 @@ BOOST_AUTO_TEST_CASE(subtraction)
 
 BOOST_AUTO_TEST_CASE(overflowing_subtraction_is_constrained)
 {
-    temp_t t1 = 120;
-    temp_t t2 = -120;
+    temp_t t1 = temp_t::base_type(120);
+    temp_t t2 = temp_t::base_type(-120);
 
     BOOST_REQUIRE_EQUAL(t1-t2, temp_t::max());
 
-    t1 = -120;
-    t2 = 120;
+    t1 = temp_t::base_type(-120);
+    t2 = temp_t::base_type(120);
 
     // only check close, min is 2 epsilon higher to reserve place for invalid and disabled temp
     // multiplication in base fixed point class does not take this +2 offset into account

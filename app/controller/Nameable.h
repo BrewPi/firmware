@@ -31,13 +31,15 @@ public:
         name[0] = '\0';
         name[MAX_NAME_LENGTH] = '\0'; // ensure last character is always \0
     }
-    virtual ~Nameable(){};
+    ~Nameable() = default;
+
+public:
 
     void setName(const char * newName){
         strncpy(name, newName, MAX_NAME_LENGTH); // doesn't overwrite last character
     }
 
-    const char * getName(){
+    const char * getName() const{
         return name;
     }
 

@@ -39,6 +39,9 @@
 #include "runner.h"
 #include <iostream>
 #include <fstream>
+#include "ControlLib.h"
+
+CONTROL_LIB_USING
 
 struct MashStaticSetup{
 public:

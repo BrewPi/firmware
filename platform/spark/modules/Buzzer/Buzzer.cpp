@@ -31,12 +31,12 @@ void Buzzer::init(bool invert){
     if(pin != nullptr){
         delete pin;
     }
-    pin = new DigitalPinActuator(alarmPin, invert);
+    pin = new ActuatorPin(alarmPin, invert);
 }
 
 void Buzzer::setActive(bool active){
     if(pin != nullptr){
-        pin->setActive(active);
+        pin->actuator().setActive(active);
     }
 }
 

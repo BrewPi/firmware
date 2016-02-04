@@ -61,7 +61,7 @@ ControlConstants const ccDefaults PROGMEM =
     1200, // beer2fridge_td
     1, // beer2fridge_infilt
     4, // beer2fridge_dfilt
-    10, // beer2fridge_pidMax
+    10.0, // beer2fridge_pidMax
     120, // minCoolTime
     180, // minCoolIdleTime
     4, // heater1PwmPeriod

@@ -61,6 +61,7 @@
 #include <string>
 #include <list>
 #include <stack>
+#include <vector>
 #include <stdint.h>
 
 // requires lexer for token types.
@@ -546,8 +547,13 @@ inline void stream_classes(Adapter& adapter,const std::string& key,std::vector<T
 				T t;
 				adapter.serialize(T_OBJ_BEGIN);
 				// read off adapter
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#ifdef SPARK
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 				stream(adapter,t);
-
+#pragma GCC diagnostic pop
 				adapter.serialize(T_OBJ_END); 
 				// push back into vector
 				value.push_back(t);

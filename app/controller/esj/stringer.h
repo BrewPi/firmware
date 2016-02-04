@@ -36,6 +36,7 @@
 #define STRINGER_H
 
 #include "platform_selector.h"
+#include "temperatureFormats.h"
 
 namespace Chordia
 {
