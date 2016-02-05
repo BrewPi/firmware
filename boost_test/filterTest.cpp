@@ -23,6 +23,10 @@
 #include <cstdio>
 #include <math.h>
 
+#include "ControlLib.h"
+
+CONTROL_LIB_USING
+
 BOOST_AUTO_TEST_SUITE( filter_suite )
 
 BOOST_AUTO_TEST_CASE( filter_init )

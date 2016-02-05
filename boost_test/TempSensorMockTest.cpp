@@ -22,6 +22,9 @@
 #include "runner.h"
 #include <boost/test/unit_test.hpp>
 #include <math.h>
+#include "ControlLib.h"
+
+CONTROL_LIB_USING
 
 BOOST_AUTO_TEST_SUITE(TempSensorMockTest)
 

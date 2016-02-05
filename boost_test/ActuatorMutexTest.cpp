@@ -32,6 +32,8 @@
 #include "ActuatorMutexGroup.h"
 #include "ActuatorMutexDriver.h"
 
+CONTROL_LIB_USING
+
 BOOST_AUTO_TEST_SUITE(ActuatorMutexTest)
 
 BOOST_AUTO_TEST_CASE(two_actuators_belonging_to_the_same_group_cannot_be_active_at_once) {

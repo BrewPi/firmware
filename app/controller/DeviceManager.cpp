@@ -23,6 +23,7 @@
 #include "Brewpi.h"
 #include "Board.h"
 #include "BrewpiStrings.h"
+#include "defaultDevices.h"
 #include "DeviceManager.h"
 #include "TempControl.h"
 #include "ActuatorInterfaces.h"
@@ -33,7 +34,6 @@
 #include "PiLink.h"
 #include "EepromFormat.h"
 #include "EepromManager.h"
-#include "defaultDevices.h"
 #include "OneWireAddress.h"
 
 #define CALIBRATION_OFFSET_PRECISION (4)
@@ -56,6 +56,9 @@ class OneWire;
 bool DeviceManager::firstDeviceOutput;
 device_slot_t findHardwareDevice(DeviceConfig & find);
 device_slot_t findDeviceFunction(DeviceConfig & find);
+
+using CONTROL_LIB_NAMESPACE::defaultSensor;
+using CONTROL_LIB_NAMESPACE::defaultTempSensorBasic;
 
 /*
  * Sets devices to their unconfigured states. Each device is initialized to a static no-op instance.
@@ -268,7 +271,7 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
             /*if ((*target)->getDeviviceTarget() != 0){
                 target = (*target)->getDeviviceTarget(); // recursive call to unpack until at pin actuator
             }*/
-            if ((*target)->uninstallActuatorFinalTarget()){
+            if ((*target)->actuator().uninstallActuatorFinalTarget()){
                 DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_ACTUATOR, config.deviceFunction));
             }
         }
@@ -316,8 +319,8 @@ void DeviceManager::installDevice(DeviceConfig & config)
                 logErrorInt(ERROR_OUT_OF_MEMORY_FOR_DEVICE, config.deviceFunction);
             }
             else{
-                s -> init();
-                ((TempSensor *) *ppv)->installSensor(s);
+                s -> sensor().init();
+                ((TempSensor *) *ppv)->installSensor(*s);
 
 #if BREWPI_SIMULATE
             ((ExternalTempSensor *) s) -> setConnected(true);    // now connect the sensor after init is called
@@ -336,7 +339,7 @@ void DeviceManager::installDevice(DeviceConfig & config)
             }*/
 
             ActuatorDigital * newActuator = (ActuatorDigital *) createDevice(config, dt);
-            (*target)->installActuatorFinalTarget(newActuator);
+            (*target)->actuator().installActuatorFinalTarget(*newActuator);
 
 #if (BREWPI_DEBUG > 0)
             if (*target == NULL){
@@ -888,7 +891,7 @@ inline void DeviceManager::writeOneWirePin(DeviceConfig::Hardware hw, uint8_t va
 inline void DeviceManager::readOneWirePin(DeviceConfig::Hardware hw, char * out){
     OneWire * bus = oneWireBus(hw.pinNr);
     ActuatorOneWire pin(bus, hw.address, hw.offset.pio, hw.invert);
-    unsigned int state = pin.isActive();
+    unsigned int state = pin.actuator().isActive();
     sprintf_P(out, STR_FMT_U, state);
 }
 
@@ -1165,7 +1168,7 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
         }
         if (dt == DEVICETYPE_SWITCH_ACTUATOR){
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write != 0));
-            ((ActuatorDigital *) *ppv) -> setActive(dd.write != 0);
+            ((ActuatorDigital *) *ppv) ->actuator(). setActive(dd.write != 0);
         } else if (dt == DEVICETYPE_PWM_ACTUATOR){
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write));
             temp_t value = temp_t::base_type(dd.write);
@@ -1178,11 +1181,11 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
                       != 0);      // cheaper than itoa, because it overlaps with vsnprintf
         } else if (dt == DEVICETYPE_TEMP_SENSOR){
             TempSensorBasic * s = (TempSensorBasic*) *ppv;
-            s->update();
-            temp_t temp = s->read();
+            s->sensor().update();
+            temp_t temp = s->sensor().read();
             temp.toTempString(val, 3, 9, tempControl.cc.tempFormat, true);
         } else if (dt == DEVICETYPE_SWITCH_ACTUATOR){
-            sprintf_P(val, STR_FMT_U, (unsigned int) ((ActuatorDigital *) *ppv) -> isActive() != 0);
+            sprintf_P(val, STR_FMT_U, (unsigned int) ((ActuatorDigital *) *ppv) -> actuator().isActive() != 0);
         } else if (dt == DEVICETYPE_PWM_ACTUATOR){
             ((ActuatorPwm *) *ppv) -> getValue().toString(val,1,6);
         } else if (dt == DEVICETYPE_MANUAL_ACTUATOR){

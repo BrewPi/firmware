@@ -4,14 +4,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)/app/controller
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/Display
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/Filter
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/esj
-INCLUDE_DIRS += $(SOURCE_PATH)/app/devices
-INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/Actuator
-INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/Actuator/wiring
-INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/Filter
-INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/OneWire
-INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/OneWireSwitch
-INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/TempSensor
-INCLUDE_DIRS += $(SOURCE_PATH)/app/devices/Display
+INCLUDE_DIRS += $(SOURCE_PATH)/lib/inc
 INCLUDE_DIRS += $(SOURCE_PATH)/app/fallback
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/wiring
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark
@@ -30,8 +23,8 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Buzzer
 CSRC += $(call target_files,app/controller,*.c)
 CPPSRC += $(call target_files,app/controller,*.cpp)
 
-CSRC += $(call target_files,app/devices,*.c)
-CPPSRC += $(call target_files,app/devices,*.cpp)
+CSRC += $(call target_files,lib/src,*.c)
+CPPSRC += $(call target_files,lib/src,*.cpp)
 
 CSRC += $(call target_files,platform/wiring/,*.c)
 CPPSRC += $(call target_files,platform/wiring/,*.cpp)

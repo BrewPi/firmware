@@ -34,7 +34,8 @@
 #include "runner.h"
 #include <iostream>
 #include <fstream>
-
+#include "Controller.h"
+#include "ControlLib.h"
 
 struct PidTest {
 public:
@@ -43,7 +44,7 @@ public:
 
         sensor = new TempSensorMock(20.0);
         vAct = new ActuatorBool();
-        act = new ActuatorPwm(vAct,4);
+        act = new ActuatorPwm(*vAct,4);
         sp = new SetPointSimple(20.0);
 
         pid = new Pid(sensor, act, sp);
@@ -313,7 +314,7 @@ BOOST_AUTO_TEST_CASE(pid_can_update_after_bare_init_without_crashing){
 }
 
 BOOST_AUTO_TEST_CASE(pid_can_update_with_only_actuator_defined){
-    TempSensorBasic * sensor = new TempSensorMock(20.0);
+    TempSensorMock * sensor = new TempSensorMock(20.0);
     Pid * p = new Pid();
     p->setInputSensor(sensor);
     p->update();
@@ -321,16 +322,16 @@ BOOST_AUTO_TEST_CASE(pid_can_update_with_only_actuator_defined){
 
 BOOST_AUTO_TEST_CASE(pid_can_update_with_only_sensor_defined){
     ActuatorDigital * pin = new ActuatorBool();
-    ActuatorRange * act = new ActuatorPwm(pin,4);
+    ActuatorRange * act = new ActuatorPwm(*pin,4);
     Pid * p = new Pid();
-    p->setOutputActuator(act);
+    p->setOutputActuator(&act->actuator());
     p->update();
 }
 
 BOOST_AUTO_TEST_CASE(pid_can_update_with_only_setpoint_defined){
     SetPoint * sp = new SetPointSimple(20.0);
     Pid * p = new Pid();
-    p->setSetPoint(sp);
+    p->setSetPoint(&sp->setpoint());
     p->update();
 }
 

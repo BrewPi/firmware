@@ -26,7 +26,6 @@
 #include "Ticks.h"
 #include "OneWireBus.h"
 
-
 class DallasTemperature;
 class OneWire;
 
@@ -80,7 +79,7 @@ public:
 	bool init();
 	temperature read();
 	
-	private:
+protected:
 
 	void setConnected(bool connected);
 	bool requestConversion();
@@ -95,7 +94,7 @@ public:
 	 * updates lastRequestTime. On successful, leaves lastRequestTime alone and returns DEVICE_DISCONNECTED.
 	 */
 	temperature readAndConstrainTemp();
-	
+
 	DallasTemperature sensor;
 	// todo - consider moving this into eeprom
 	DeviceAddress sensorAddress;

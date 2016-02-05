@@ -10,6 +10,7 @@
 #include "Brewpi.h"
 #include "Board.h"
 
+
 class DigitalPinSensor : public SwitchSensor
 {
 private:

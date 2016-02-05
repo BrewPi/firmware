@@ -23,6 +23,9 @@
 #include "runner.h"
 #include <boost/test/unit_test.hpp>
 
+CONTROL_LIB_USING
+
+
 BOOST_AUTO_TEST_SUITE(DefaultDevicesTest)
 
 BOOST_AUTO_TEST_CASE(defaultTempSensor_works_with_all_TempSensorBasic_functions){

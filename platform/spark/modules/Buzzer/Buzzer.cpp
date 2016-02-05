@@ -36,7 +36,7 @@ void Buzzer::init(bool invert){
 
 void Buzzer::setActive(bool active){
     if(pin != nullptr){
-        pin->setActive(active);
+        pin->actuator().setActive(active);
     }
 }
 

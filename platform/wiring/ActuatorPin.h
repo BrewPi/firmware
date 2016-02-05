@@ -26,10 +26,12 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorBottom.h"
 
-class ActuatorPin final:
+CONTROL_LIB_BEGIN
+
+class ActuatorPin :
     private ActuatorBottom, public ActuatorDigital, public ActuatorPinMixin
 {
-    private:
+    protected:
         bool    invert;
         uint8_t pin;
 
@@ -56,3 +58,5 @@ class ActuatorPin final:
         void update(){} // do nothing on periodic update
     friend class ActuatorPinMixin;
 };
+
+CONTROL_LIB_END
