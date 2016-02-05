@@ -1,22 +1,99 @@
-## v0.4.7
+## v0.4.9
+
+### FEATURES
+
+- Support for CAN Bus [#790](https://github.com/spark/firmware/pull/790)
+- [blockOnOverrun()]((https://docs.particle.io/reference/firmware/photon/#blockonoverrun-)) on hardware serial to allow applications to disable the default flow control. 
+- [availableForWrite()]((https://docs.particle.io/reference/firmware/photon/#availableforwrite-)) on hardware serial to allow applications to implement flow control. [#798](https://github.com/spark/firmware/issues/798)
+- [WiFi.BSSID()](https://docs.particle.io/reference/firmware/photon/#wifi-bssid-) to retrieve the 6-byte MAC address of the connected AP. [#816](https://github.com/spark/firmware/pull/816)
+- [attachInterrupt()](https://docs.particle.io/reference/firmware/photon/#attachinterrupt-) configurable interrupt priority [#806](https://github.com/spark/firmware/issues/806)
+- [Time.local()](https://docs.particle.io/reference/firmware/photon/#local-) retrieves the current time in the configured timezone. [#783](https://github.com/spark/firmware/issues/783)
+- [photon] [WiFi.getCredentials()](https://docs.particle.io/reference/firmware/photon/#wifi-getcredentials-) lists configured credentials.  [#759](https://github.com/spark/firmware/issues/759)
+- variable frequency PWM via [analogWrite(pin,value,hz)](https://docs.particle.io/reference/firmware/photon/#analogwrite-) [#756](https://github.com/spark/firmware/pull/756)
+- [ATOMIC_BLOCK()](https://docs.particle.io/reference/firmware/photon/#atomic_block-) and [SINGLE_THREADED_BLOCK()](https://docs.particle.io/reference/firmware/photon/#single_threaded_block-) declarations for atomicity and thread scheduling control. [#758](https://github.com/spark/firmware/issues/758)
+- [API](https://docs.particle.io/reference/firmware/photon/#synchronizing-access-to-shared-system-resources) for Guarding resources for use between threads. 
+- System events for individual button clicks and a run of button clicks. [#818](https://github.com/spark/firmware/issues/818)
+- 
+
+### ENHANCEMENTS
+
+- [System.freeMemory()](https://docs.particle.io/reference/firmware/photon/#system-freememory-) shows an accurate value for free memory rather than the highwater mark for the heap. 
+- [threading] Entering listening mode does not block the system thread. [#788](https://github.com/spark/firmware/issues/788)
+- [threading] System times out waiting for unresponsive application when attempting to reset. [#763](https://github.com/spark/firmware/issues/763)
+- [threading] `Particle.publish()` doesn't block when in listening mode.  [#761](https://github.com/spark/firmware/issues/761)  
+- [threading]. `delay()`/`Particle.process()` pumps application events.
+- Serial, Serial1, SPI and EEPROM global objects guaranteed to be initialized before use. (Prevents White breathing LED if Serial used in a global instance constructor.)
+- [Software Timers]((https://docs.particle.io/reference/firmware/photon/#software-timers) have an option for one-shot timers, and support class member function callbacks. 
+
+### BUGFIXES
+
+- RSA key generation would sometimes produce invalid keys. [#779](https://github.com/spark/firmware/pull/779)
+- Static IP configuration was not being used. 
+- Interrupt on WKP with class method as an ISR [#819](https://github.com/spark/firmware/issues/819)
+- Memory leak configuring WiFi credentials via SoftAP (TCP/HTTP)
+- SPI DMA transfer callback invoked too early [#791](https://github.com/spark/firmware/issues/791)
+- Unset `wiced_result_t` for tcp clients in `socket_send`.  [#773](https://github.com/spark/firmware/issues/773)
+- Update bootloader to support `System.enterSafeMode()`. [#751](https://github.com/spark/firmware/issues/751)
+- [threading] `WiFi.listen(false)` remains in listen mode. [#743](https://github.com/spark/firmware/issues/743)
+- Factory Reset doesn't clear WiFi credentials until `network.connect()`. [#736](https://github.com/spark/firmware/issues/736)
+- Comparison between `IPAddress` objects does not always work.  [#715](https://github.com/spark/firmware/issues/715)
+- P1 dfu-util 0.8 does not read/write from External Flash. [#706](https://github.com/spark/firmware/issues/706)
+- DFU errors writing to flash silently ignored. [#813](https://github.com/spark/firmware/pull/813) 
+- [threading] heap allocation not thread-safe. [#826](https://github.com/spark/firmware/issues/826)
+- System crash when button interrupt occurs during i2c transmission. [#709](https://github.com/spark/firmware/issues/709)
+- [photon] 'analogWrite()` to DAC pins.  [#671](https://github.com/spark/firmware/issues/671)  
+- [photon] `analogWrite()` to DAC pins requires `pinMode()` each time. [#662](https://github.com/spark/firmware/issues/662)  
+- [photon] `System.sleep(pin,edge)` doesn't wake.  [#655](https://github.com/spark/firmware/issues/655)
+  
+
+## v0.4.8-rc.1
+
+### FEATURE
+
+- factory firmware uses full modular firmware [#749](https://github.com/spark/firmware/pull/749). No need for UpdateZero.
+
+- `Timer.changePeriod()` [#720](https://github.com/spark/firmware/pull/720)
+
+### BUGFIXES
+
+- [photon] hang when UDP::stop() is called [#742](https://github.com/spark/firmware/issues/742)
+- [photon] I2C hangs with no pullup resistors [#713](https://github.com/spark/firmware/issues/713)
 
 ## v0.4.7
 
 ### FEATURES
- - [photon] Software Timers
- - [pulseIn(pin, value)](https://docs.particle.io/reference/firmware/photon/#pulsein-) now available for all devices.
- - `WiFi.dnsServerIP()` and `WiFi.dhcpServerIP()`
 
+ - [Software Timers](https://docs.particle.io/reference/firmware/photon/#software-timers)
+ - [pulseIn(pin, value)](https://docs.particle.io/reference/firmware/photon/#pulsein-) now available for all devices.
+ - [WiFi.dnsServerIP()](https://docs.particle.io/reference/firmware/core/#wifi-dnsserverip-) and [WiFi.dhcpServerIP()](https://docs.particle.io/reference/firmware/core/#wifi-dhcpserverip-)
+ - [serialEvent()](https://docs.particle.io/reference/firmware/core/#serialevent-)
+ - [GCC virtual device](https://github.com/spark/firmware/tree/develop/hal/src/gcc#device-configuration)
+ - [System.version()](https://docs.particle.io/reference/firmware/photon/#system-version-) to retrieve the version of system firmware [#688](https://github.com/spark/firmware/issues/688)
+ - Firmware control of [OTA updates](https://docs.particle.io/reference/firmware/core/#ota-updates) can happen [#375](https://github.com/spark/firmware/issues/375)
+
+### ENHANCEMENTS
+
+ - [multithreading] Application thread continues to run in listening mode
+ - [multithreading] `Particle.process()` called from the application thread pumps application messages [#659](https://github.com/spark/firmware/issues/659)
+ - `Particle.variable()` supports `String`s [#657](https://github.com/spark/firmware/issues/657)
+ - Simplified [Particle.variable()](https://docs.particle.io/reference/firmware/photon/#variables) API - variable type parameter is optional, and variables are passed by reference so  `&`'s are not required.
+ - I2C will generate STOP and SW Reset immediately if Slave Acknowledge failure is detected (must use pull-up resistors), instead of taking 100ms. [commit](https://github.com/spark/firmware/commit/893aa523990752a2afcda4ffa5bba3f66e047014)
 
 ### BUGFIXES
 
+ - TCPClient unstable [#672](https://github.com/spark/firmware/issues/672)
+ - Photon frequently SOS's immediately following cloud re-connect [#663](https://github.com/spark/firmware/issues/663)
  - `String.toLower()` has no affect on string. [#665](https://github.com/spark/firmware/issues/665)
  - SOS due to WICED socket handlers being called when socket is disposed. [#663](https://github.com/spark/firmware/issues/663) [#672](https://github.com/spark/firmware/issues/672)
  - Application constructors executed after RTOS startup so that HAL_Delay_Milliseconds() can be called. This may mean that `STARTUP()` code executes just a little later than before, but
     can safely use all public APIs.
- - Esure bootloader region is write protected.
+ - Ensure bootloader region is write protected.
  - White breathing LED on exiting listening mode. [#682](https://github.com/spark/firmware/issues/682)
  - WICED not resolving DNS names with 4 parts (it was trying to decode as an IP address.)
+ - SoftAP via HTTP would fail on Safari due to request sent as multiple TCP packets. Fixed WICED HTTP server.  [#680](https://github.com/spark/firmware/issues/680)
+ - Retained variables are not persisting, even without reset or deep sleep. [#661](https://github.com/spark/firmware/issues/661)
+ - Backup RAM enabled for monolithic builds [#667](https://github.com/spark/firmware/issues/667)
+ - Pure virtual call on creation of low priority std::thread [#652](https://github.com/spark/firmware/issues/652)
 
 
 ## v0.4.6

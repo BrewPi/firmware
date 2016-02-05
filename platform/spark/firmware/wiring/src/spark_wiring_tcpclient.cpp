@@ -94,11 +94,11 @@ int TCPClient::connect(IPAddress ip, uint16_t port, network_interface_t nif)
             tSocketAddr.sa_data[5] = ip[3];
 
 
-            uint32_t ot = HAL_WLAN_SetNetWatchDog(S2M(MAX_SEC_WAIT_CONNECT));
+            uint32_t ot = HAL_NET_SetNetWatchDog(S2M(MAX_SEC_WAIT_CONNECT));
             DEBUG("_sock %d connect",_sock);
             connected = (socket_connect(_sock, &tSocketAddr, sizeof(tSocketAddr)) == 0 ? 1 : 0);
             DEBUG("_sock %d connected=%d",_sock, connected);
-            HAL_WLAN_SetNetWatchDog(ot);
+            HAL_NET_SetNetWatchDog(ot);
             _remoteIP = ip;
             if(!connected)
             {
@@ -140,9 +140,9 @@ int TCPClient::available()
         if ( _total < arraySize(_buffer))
         {
             int ret = socket_receive(_sock, _buffer + _total , arraySize(_buffer)-_total, 0);
-            DEBUG("recv(=%d)",ret);
             if (ret > 0)
             {
+                DEBUG("recv(=%d)",ret);
                 if (_total == 0) _offset = 0;
                 _total += ret;
             }

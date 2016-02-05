@@ -34,6 +34,9 @@
 #include "filesystem.h"
 #include "service_debug.h"
 #include "device_config.h"
+#include "hal_platform.h"
+#include <boost/crc.hpp>  // for boost::crc_32_type
+
 
 using std::cout;
 
@@ -52,13 +55,6 @@ extern "C" int main(int argc, char* argv[])
     }
     return 0;
 }
-
-class Stream;
-extern "C" bool Ymodem_Serial_Flash_Update(Stream *serialObj, uint32_t sFlashAddress)
-{
-    return false;
-}
-
 
 /**
  * Output debug info to standard output.
@@ -150,7 +146,7 @@ void HAL_Core_Enter_Bootloader(void)
     MSG("Enter bootloader not implemented.");
 }
 
-void HAL_Core_Enter_Stop_Mode(uint16_t wakeUpPin, uint16_t edgeTriggerMode)
+void HAL_Core_Enter_Stop_Mode(uint16_t wakeUpPin, uint16_t edgeTriggerMode, long seconds)
 {
     MSG("Stop mode not implemented.");
 }
@@ -235,9 +231,12 @@ crc32(uint32_t crc, const uint8_t* buf, size_t size)
  * @param  BufferSize: Size of the buffer to be computed
  * @retval 32-bit CRC
  */
-uint32_t HAL_Core_Compute_CRC32(uint8_t *pBuffer, uint32_t bufferSize)
+uint32_t HAL_Core_Compute_CRC32(const uint8_t *pBuffer, uint32_t bufferSize)
 {
-    return crc32(0, pBuffer, bufferSize);
+	boost::crc_32_type  result;
+	result.process_bytes(pBuffer, bufferSize);
+	return result.checksum();
+    //return crc32(0, pBuffer, bufferSize);
 }
 
 // todo find a technique that allows accessor functions to be inlined while still keeping
@@ -259,13 +258,10 @@ void HAL_Bootloader_Lock(bool lock)
 {
 }
 
-uint32_t HAL_Core_Compute_CRC32(const uint8_t *pBuffer, uint32_t bufferSize)
-{
-    return 0;
-}
-
 uint16_t HAL_Bootloader_Get_Flag(BootloaderFlag flag)
 {
+	if (flag==BOOTLOADER_FLAG_STARTUP_MODE)
+		return 0xFF;
     return 0xFFFF;
 }
 
@@ -295,5 +291,57 @@ int HAL_Feature_Set(HAL_Feature feature, bool enabled)
 
 bool HAL_Feature_Get(HAL_Feature feature)
 {
+    switch (feature)
+    {
+        case FEATURE_CLOUD_UDP:
+        {
+        		uint8_t value = false;
+#if HAL_PLATFORM_CLOUD_UDP
+        		value = (deviceConfig.get_protocol()==PROTOCOL_DTLS);
+#endif
+        		return value;
+        }
+    }
     return false;
 }
+
+#if HAL_PLATFORM_CLOUD_UDP
+
+#include "dtls_session_persist.h"
+SessionPersistOpaque session;
+
+int HAL_System_Backup_Save(size_t offset, const void* buffer, size_t length, void* reserved)
+{
+    if (offset==0 && length==sizeof(SessionPersistOpaque))
+    {
+        memcpy(&session, buffer, length);
+        return 0;
+    }
+    return -1;
+}
+
+int HAL_System_Backup_Restore(size_t offset, void* buffer, size_t max_length, size_t* length, void* reserved)
+{
+    if (offset==0 && max_length>=sizeof(SessionPersistOpaque) && session.size==sizeof(SessionPersistOpaque))
+    {
+        *length = sizeof(SessionPersistOpaque);
+        memcpy(buffer, &session, sizeof(session));
+        return 0;
+    }
+    return -1;
+}
+
+
+#else
+
+int HAL_System_Backup_Save(size_t offset, const void* buffer, size_t length, void* reserved)
+{
+    return -1;
+}
+
+int HAL_System_Backup_Restore(size_t offset, void* buffer, size_t max_length, size_t* length, void* reserved)
+{
+    return -1;
+}
+
+#endif

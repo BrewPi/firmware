@@ -46,7 +46,7 @@ CPPSRC += $(call target_files,$(WIRING_SRC),spark_wiring_print.cpp)
 CPPSRC += $(call target_files,$(WIRING_SRC),string_convert.cpp)
 CPPSRC += $(call target_files,$(SYSTEM)src/,system_utilities.cpp)
 CPPSRC += $(call target_files,$(SYSTEM)src/,system_mode.cpp)
-$(info $(CPPSRC))
+CPPSRC += $(call target_files,$(SYSTEM)src/,system_string_interpolate.cpp)
 
 # Paths to dependent projects, referenced from root of this project
 LIB_SERVICES = services/
@@ -73,7 +73,7 @@ CFLAGS += -Werror=deprecated-declarations
 
 # Generate dependency files automatically.
 CFLAGS += -MD -MP -MF $@.d
-CFLAGS += -DSPARK=1
+CFLAGS += -DSPARK=1 -DPLATFORM_ID=3
 CFLAGS += -DDEBUG_BUILD
 
 CPPFLAGS += -std=gnu++11
@@ -86,7 +86,10 @@ ALLOBJ += $(addprefix $(BUILD_PATH), $(CPPSRC:.cpp=.o))
 ALLDEPS += $(addprefix $(BUILD_PATH), $(CSRC:.c=.o.d))
 ALLDEPS += $(addprefix $(BUILD_PATH), $(CPPSRC:.cpp=.o.d))
 
-all: runner
+all: runner run
+
+run:
+	$(TARGETDIR)$(TARGET)
 
 runner: $(TARGETDIR)$(TARGET)
 

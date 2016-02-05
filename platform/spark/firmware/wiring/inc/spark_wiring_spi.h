@@ -120,6 +120,7 @@ extern SPIClass SPI;
 #endif  // SPI1
 
 extern SPIClass SPI1;
+
 #endif  // Wiring_SPI1
 
 #if Wiring_SPI2
@@ -128,6 +129,7 @@ extern SPIClass SPI1;
 #endif  // SPI2
 
 extern SPIClass SPI2;
+
 #endif  // Wiring_SPI2
 
 #endif  // SPARK_WIRING_NO_SPI

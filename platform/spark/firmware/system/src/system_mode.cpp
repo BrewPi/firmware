@@ -19,7 +19,6 @@
 
 #include "system_mode.h"
 #include "system_task.h"
-
 static System_Mode_TypeDef current_mode = DEFAULT;
 
 
@@ -42,6 +41,7 @@ void set_system_mode(System_Mode_TypeDef mode)
     current_mode = mode;
     switch (mode)
     {
+    		case DEFAULT:   // DEFULT can't happen in practice since it's cleared above. just keeps gcc happy.
         case SAFE_MODE:
         case AUTOMATIC:
             SPARK_CLOUD_CONNECT = 1;
@@ -65,9 +65,10 @@ System_Mode_TypeDef system_mode()
     return current_mode;
 }
 
+
 #if PLATFORM_THREADING
 
-static spark::feature::State system_thread_enable = spark::feature::DISABLED;
+static volatile spark::feature::State system_thread_enable = spark::feature::DISABLED;
 
 void system_thread_set_state(spark::feature::State state, void*)
 {
