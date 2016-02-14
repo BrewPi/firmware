@@ -46,7 +46,7 @@ This will build the binary to the file `platform/spark/target/brewpi.bin`. You c
 ## Flashing the firmware via DFU
 If uploading firmware via the web interface fails, you can flash new firmware to your Spark Core with dfu-util. Please refer to this [guide on our community forum](https://community.brewpi.com/t/flashing-the-core-without-the-web-interface-fresh-core-or-in-case-of-emergency/).
 
-You can also build the firmware and flash directly by running `make progra-dfu` from `platform/spark`.
+You can also build the firmware and flash directly by running `make program-dfu` from `platform/spark`.
 
 
 ## Building the firmware for Arduino
