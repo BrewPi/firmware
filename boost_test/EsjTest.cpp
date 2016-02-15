@@ -18,7 +18,6 @@
 */
 
 #include <boost/test/unit_test.hpp>
-
 #include "runner.h"
 #include <string>
 
@@ -38,10 +37,10 @@
 BOOST_AUTO_TEST_SUITE(EsjTest)
 
 BOOST_AUTO_TEST_CASE(serialize_nested_actuators) {
-    //ActuatorBool * actBool = new ActuatorBool();
-    //ActuatorTimeLimited * actTl = new ActuatorTimeLimited(actBool, 10, 20);
-    ActuatorBool * boolAct1 = new ActuatorBool();
-    ActuatorMutexDriver * mutexAct1 = new ActuatorMutexDriver(boolAct1);
+    //std::shared_ptr<ActuatorBool> actBool = std::make_shared<ActuatorBool>();
+    //std::shared_ptr<ActuatorTimeLimited> actTl = std::make_shared<ActuatorTimeLimited>(actBool, 10, 20);
+    std::shared_ptr<ActuatorBool> boolAct1 = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorMutexDriver> mutexAct1 = std::make_shared<ActuatorMutexDriver>(boolAct1);
     ActuatorPwm * act1 = new ActuatorPwm (mutexAct1, 20);
 
     std::string json;
@@ -74,16 +73,16 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators) {
 }
 
 BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
-    ActuatorDigital* coolerPin = new ActuatorBool();
-    ActuatorDigital* coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
+    std::shared_ptr<ActuatorDigital> coolerPin = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorDigital> coolerTimeLimited = std::make_shared<ActuatorTimeLimited>(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
-    ActuatorDigital* coolerMutex = new ActuatorMutexDriver(coolerTimeLimited, mutex);
-    ActuatorRange* cooler = new ActuatorPwm(coolerMutex, 600); // period 10 min
+    std::shared_ptr<ActuatorDigital> coolerMutex = std::make_shared<ActuatorMutexDriver>(coolerTimeLimited, mutex);
+    std::shared_ptr<ActuatorRange> cooler = std::make_shared<ActuatorPwm>(coolerMutex, 600); // period 10 min
 
 
     std::string json;
 
-    json = JSON::producer<ActuatorRange>::convert(cooler);
+    json = JSON::producer<ActuatorRange>::convert(cooler.get());
 
 /* With some extra whitespace, the valid output looks like this:
 {
@@ -164,10 +163,10 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
     SetPoint * sp1 = new SetPointSimple();
     SetPoint * sp2 = new SetPointConstant(20.0);
     TempSensorBasic * sens1 = new TempSensorMock(20.0);
-    ActuatorRange * act = new ActuatorSetPoint(sp1, sens1, sp2, -10.0, 10.0);
+    std::shared_ptr<ActuatorRange> act = std::make_shared<ActuatorSetPoint>(sp1, sens1, sp2, -10.0, 10.0);
     act->setValue(5.0); // should set sp1 to sp2 + 5.0 = 25.0;
 
-    std::string json = JSON::producer<ActuatorRange>::convert(act);
+    std::string json = JSON::producer<ActuatorRange>::convert(act.get());
 
 /* With some extra whitespace, the valid output looks like this:
     {
@@ -203,8 +202,8 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
 
 BOOST_AUTO_TEST_CASE(serialize_Pid) {
     TempSensorBasic * sensor = new TempSensorMock(20.0);
-    ActuatorDigital * boolAct = new ActuatorBool();
-    ActuatorRange * pwmAct = new ActuatorPwm(boolAct,4);
+    std::shared_ptr<ActuatorDigital> boolAct = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorRange> pwmAct = std::make_shared<ActuatorPwm>(boolAct,4);
     SetPoint * sp = new SetPointSimple(20.0);
     Pid * pid = new Pid(sensor, pwmAct, sp);
 

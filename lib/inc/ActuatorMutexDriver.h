@@ -31,8 +31,8 @@
 
 class ActuatorMutexDriver final : public ActuatorDriver, public ActuatorDigital, public ActuatorMutexDriverMixin{
 public:
-    ActuatorMutexDriver(ActuatorDigital * target) : ActuatorDriver(target), mutexGroup(nullptr){}
-    ActuatorMutexDriver(ActuatorDigital * target, ActuatorMutexGroup * m) : ActuatorDriver(target), mutexGroup(m){}
+    ActuatorMutexDriver(std::shared_ptr<ActuatorDigital> target) : ActuatorDriver(target), mutexGroup(nullptr){}
+    ActuatorMutexDriver(std::shared_ptr<ActuatorDigital> target, ActuatorMutexGroup * m) : ActuatorDriver(target), mutexGroup(m){}
 
     ~ActuatorMutexDriver(){
         setMutex(nullptr);

@@ -47,14 +47,14 @@ public:
         beerSensor = new TempSensorMock(20.0);
         fridgeSensor = new TempSensorMock(20.0);
 
-        heaterPin = new ActuatorBool();
-        heaterMutex = new ActuatorMutexDriver(heaterPin);
-        heater = new ActuatorPwm(heaterMutex, 20); // period 20s, because update steps are 1 second
+        heaterPin = std::make_shared<ActuatorBool>();
+        heaterMutex = std::make_shared<ActuatorMutexDriver>(heaterPin);
+        heater = std::make_shared<ActuatorPwm>(heaterMutex, 20); // period 20s, because update steps are 1 second
 
-        coolerPin = new ActuatorBool();
-        coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
-        coolerMutex = new ActuatorMutexDriver(coolerTimeLimited);
-        cooler = new ActuatorPwm(coolerMutex, 1200); // period 20 min
+        coolerPin = std::make_shared<ActuatorBool>();
+        coolerTimeLimited = std::make_shared<ActuatorTimeLimited>(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
+        coolerMutex = std::make_shared<ActuatorMutexDriver>(coolerTimeLimited);
+        cooler = std::make_shared<ActuatorPwm>(coolerMutex, 1200); // period 20 min
         mutex = new ActuatorMutexGroup();
 
         beerSet = new SetPointSimple(20.0);
@@ -64,7 +64,7 @@ public:
         coolerPid = new Pid();
         beerToFridgePid = new Pid();
 
-        fridgeSetPointActuator = new ActuatorSetPoint(fridgeSet, fridgeSensor, beerSet);
+        fridgeSetPointActuator = std::make_shared<ActuatorSetPoint>(fridgeSet, fridgeSensor, beerSet);
 
         heaterPid->setOutputActuator(heater);
         coolerPid->setOutputActuator(cooler);
@@ -75,18 +75,6 @@ public:
         BOOST_TEST_MESSAGE( "tear down PID test fixture" );
         delete beerSensor;
         delete fridgeSensor;
-
-        delete coolerPin;
-        delete coolerTimeLimited;
-        delete coolerMutex;
-        delete cooler;
-
-        delete heaterPin;
-        delete heaterMutex;
-        delete heater;
-
-        delete fridgeSetPointActuator;
-
         delete mutex;
 
         delete heaterPid;
@@ -101,16 +89,16 @@ public:
     TempSensorMock * beerSensor;
     TempSensorMock * fridgeSensor;
 
-    ActuatorDigital * coolerPin;
-    ActuatorDigital * coolerTimeLimited;
-    ActuatorMutexDriver * coolerMutex;
-    ActuatorRange * cooler;
+    std::shared_ptr<ActuatorDigital> coolerPin;
+    std::shared_ptr<ActuatorDigital> coolerTimeLimited;
+    std::shared_ptr<ActuatorMutexDriver> coolerMutex;
+    std::shared_ptr<ActuatorRange> cooler;
 
-    ActuatorDigital * heaterPin;
-    ActuatorMutexDriver * heaterMutex;
-    ActuatorRange * heater;
+    std::shared_ptr<ActuatorDigital> heaterPin;
+    std::shared_ptr<ActuatorMutexDriver> heaterMutex;
+    std::shared_ptr<ActuatorRange> heater;
 
-    ActuatorSetPoint * fridgeSetPointActuator;
+    std::shared_ptr<ActuatorSetPoint> fridgeSetPointActuator;
 
     ActuatorMutexGroup * mutex;
 

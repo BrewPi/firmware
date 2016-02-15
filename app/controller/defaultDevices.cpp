@@ -19,19 +19,20 @@
  */
 
 #include "defaultDevices.h"
+#include <memory>
 
 ValueSensor<bool> * defaultSensor(){
     static ValueSensor<bool> * s = new ValueSensor<bool>(false);
     return s;
 }
 
-ActuatorNop * defaultActuator(){
-    static ActuatorNop * a = new ActuatorNop;
+std::shared_ptr<ActuatorDigital> defaultActuator(){
+    static std::shared_ptr<ActuatorDigital> a = std::make_shared<ActuatorNop>();
     return a;
 }
 
-ActuatorInvalid * defaultLinearActuator(){ // always returns invalid and does nothing
-    static ActuatorInvalid * a = new ActuatorInvalid;
+std::shared_ptr<ActuatorRange> defaultLinearActuator(){ // always returns invalid and does nothing
+    static std::shared_ptr<ActuatorRange> a = std::make_shared<ActuatorInvalid>();
     return a;
 }
 

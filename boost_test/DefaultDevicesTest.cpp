@@ -44,9 +44,9 @@ BOOST_AUTO_TEST_CASE(defaultSetPoint_works_for_all_SetPoint_functions){
 }
 
 BOOST_AUTO_TEST_CASE(defaultLinearActuator_works_for_all_ActuatorRange_functions){
-    ActuatorRange * act = defaultLinearActuator();
+    std::shared_ptr<ActuatorRange> act = defaultLinearActuator();
 
-    BOOST_CHECK_EQUAL(act->getBareActuator(), act);
+    BOOST_CHECK_EQUAL(act->getBareActuator(), act.get());
     BOOST_CHECK_EQUAL(act->type(), ACTUATOR_RANGE);
 
     BOOST_CHECK_EQUAL(act->getValue(), temp_t::invalid());

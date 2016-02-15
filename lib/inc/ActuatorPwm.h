@@ -45,7 +45,7 @@ class ActuatorPwm final : public ActuatorDriver, public ActuatorRange, public Ac
         temp_t         maxVal;
 
     public:
-        ActuatorPwm(ActuatorDigital * _target, uint16_t _period);
+        ActuatorPwm(std::shared_ptr<ActuatorDigital> _target, uint16_t _period);
 
         ~ActuatorPwm() = default;
 
@@ -72,7 +72,7 @@ class ActuatorPwm final : public ActuatorDriver, public ActuatorRange, public Ac
             return period_ms / 1000; // return in seconds, same as set period
         }
 
-        void setTarget(ActuatorDigital * t)
+        void setTarget(std::shared_ptr<ActuatorDigital> t)
         {
             target = t;
         }

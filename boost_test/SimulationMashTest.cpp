@@ -50,9 +50,9 @@ public:
 
         mutex = new ActuatorMutexGroup();
 
-        hltHeaterPin = new ActuatorBool();
-        hltHeaterMutex = new ActuatorMutexDriver(hltHeaterPin);
-        hltHeater = new ActuatorPwm(hltHeaterMutex, 4); // period 4s
+        hltHeaterPin = std::make_shared<ActuatorBool>();
+        hltHeaterMutex = std::make_shared<ActuatorMutexDriver>(hltHeaterPin);
+        hltHeater = std::make_shared<ActuatorPwm>(hltHeaterMutex, 4); // period 4s
 
         mashSet = new SetPointSimple(20.0);
         hltSet = new SetPointSimple(20.0);
@@ -60,7 +60,7 @@ public:
         hltHeaterPid = new Pid();
         mashToHltPid = new Pid();
 
-        hltSetPointActuator = new ActuatorSetPoint(hltSet, hltSensor, mashSet);
+        hltSetPointActuator = std::make_shared<ActuatorSetPoint>(hltSet, hltSensor, mashSet);
 
         hltHeaterPid->setOutputActuator(hltHeater);
         mashToHltPid->setOutputActuator(hltSetPointActuator);
@@ -69,12 +69,6 @@ public:
         BOOST_TEST_MESSAGE( "tear down mash test fixture" );
         delete mashSensor;
         delete hltSensor;
-
-        delete hltHeaterPin;
-        delete hltHeaterMutex;
-        delete hltHeater;
-
-        delete hltSetPointActuator;
 
         delete mutex;
 
@@ -89,11 +83,10 @@ public:
     TempSensorMock * mashSensor;
     TempSensorMock * hltSensor;
 
-    ActuatorDigital * hltHeaterPin;
-    ActuatorMutexDriver * hltHeaterMutex;
-    ActuatorRange * hltHeater;
-
-    ActuatorSetPoint * hltSetPointActuator;
+    std::shared_ptr<ActuatorDigital> hltHeaterPin;
+    std::shared_ptr<ActuatorDigital> hltHeaterMutex;
+    std::shared_ptr<ActuatorRange> hltHeater;
+    std::shared_ptr<ActuatorSetPoint> hltSetPointActuator;
 
     ActuatorMutexGroup * mutex;
 

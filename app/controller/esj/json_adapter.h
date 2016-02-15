@@ -67,6 +67,7 @@
 // requires lexer for token types.
 #include "json_lexer.h"
 #include "temperatureFormats.h"
+#include <memory>
 
 namespace JSON
 {
@@ -383,6 +384,24 @@ inline void stream(Adapter& adapter,T* arg)
     arg->serialize(adapter);
 }
 
+
+//-----------------------------------------------------------------------------
+// shared_ptr<T>.
+template <typename T>
+inline void stream(Adapter& adapter, std::shared_ptr<T> arg)
+{
+    //
+    arg.get()->serialize(adapter);
+}
+
+//-----------------------------------------------------------------------------
+// shared_ptr<T>.
+template <typename T>
+inline void stream(Adapter& adapter,const std::string& key, std::shared_ptr<T> & value,bool more)
+{
+    stream(adapter,key, value.get(), more);
+}
+
 //-----------------------------------------------------------------------------
 // serialize a single instance of T. 
 // Highlights an asymmetry in JSON (or more likely Javascript ...)
@@ -392,6 +411,7 @@ inline void stream(Adapter& adapter,const std::string& key,T& value,bool more)
     // use class pointer function below
     stream(adapter,key, &value, more);
 }
+
 
 //-----------------------------------------------------------------------------
 // serialize a single instance of T, where T is a class pointer.

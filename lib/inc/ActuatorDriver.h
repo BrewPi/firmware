@@ -32,10 +32,10 @@
 class ActuatorDriver : public virtual Actuator
 {
 protected:
-    ActuatorDigital * target;
+    std::shared_ptr<ActuatorDigital> target;
 
 public:
-    ActuatorDriver(ActuatorDigital * _target) : target(_target){}
+    ActuatorDriver(std::shared_ptr<ActuatorDigital> _target) : target(_target){}
 protected:
     ~ActuatorDriver() = default; // should not be destructed through this base class
 
@@ -44,25 +44,22 @@ public:
         target->update();
     }
 
-    ActuatorDigital * getTarget(){ return target; }
+    std::shared_ptr<ActuatorDigital> & getTarget() { return target; }
 
-    Actuator * getBareActuator() final {
-        if( target->getBareActuator() == target){
-            return target; // my target is bottom
+    const Actuator * getBareActuator() const final {
+        if( target->getBareActuator() == target.get()){
+            return target.get(); // my target is bottom
         }
         else{
             return target->getBareActuator(); // my target is not bottom
         }
     }
 
-    bool installActuatorFinalTarget(ActuatorDigital * a) final{
-        if(target->getBareActuator() == target){
+    bool installActuatorFinalTarget(const std::shared_ptr<ActuatorDigital> & a) final{
+        if(target->getBareActuator() == target.get()){
             // I am the lowest level driver. my target is the bottom target
             if(target == a){
                 return false; // actuator was already installed
-            }
-            if(target != defaultActuator()){
-                delete target; // target is only referenced here and should be deleted
             }
             target = a;
             return true; // installed new actuator

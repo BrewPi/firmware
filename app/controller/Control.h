@@ -50,7 +50,7 @@ public:
     std::vector<SetPointNamed*> setpoints;
     std::vector<TempSensor*> sensors;
     std::vector<Pid*>        pids;
-    std::vector<Actuator*>   actuators;
+    std::vector<std::shared_ptr<Actuator>> actuators;
 
     // static setup below, we should support generating this dynamically later
 protected:
@@ -58,17 +58,17 @@ protected:
     TempSensor * beer1Sensor;
     TempSensor * beer2Sensor;
 
-    ActuatorTimeLimited * coolerTimeLimited;
-    ActuatorMutexDriver * coolerMutex;
-    ActuatorPwm * cooler;
+    std::shared_ptr<ActuatorTimeLimited> coolerTimeLimited;
+    std::shared_ptr<ActuatorMutexDriver> coolerMutex;
+    std::shared_ptr<ActuatorPwm> cooler;
 
-    ActuatorMutexDriver * heater1Mutex;
-    ActuatorPwm * heater1;
+    std::shared_ptr<ActuatorMutexDriver> heater1Mutex;
+    std::shared_ptr<ActuatorPwm> heater1;
 
-    ActuatorMutexDriver * heater2Mutex;
-    ActuatorPwm * heater2;
+    std::shared_ptr<ActuatorMutexDriver> heater2Mutex;
+    std::shared_ptr<ActuatorPwm> heater2;
 
-    ActuatorSetPoint * fridgeSetPointActuator;
+    std::shared_ptr<ActuatorSetPoint> fridgeSetPointActuator;
 
     ActuatorMutexGroup * mutex;
 

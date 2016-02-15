@@ -45,21 +45,21 @@ Control::Control()
 
     mutex = new ActuatorMutexGroup();
 
-    heater1Mutex = new ActuatorMutexDriver(defaultActuator(), mutex);
-    heater1 = new ActuatorPwm(heater1Mutex, 4); // period 4s
+    heater1Mutex = std::make_shared<ActuatorMutexDriver>(defaultActuator(), mutex);
+    heater1 = std::make_shared<ActuatorPwm>(heater1Mutex, 4); // period 4s
 
-    heater2Mutex = new ActuatorMutexDriver(defaultActuator(), mutex);
-    heater2 = new ActuatorPwm(heater2Mutex, 4); // period 4s
+    heater2Mutex = std::make_shared<ActuatorMutexDriver>(defaultActuator(), mutex);
+    heater2 = std::make_shared<ActuatorPwm>(heater2Mutex, 4); // period 4s
 
-    coolerTimeLimited = new ActuatorTimeLimited(defaultActuator(), 120, 180); // 2 min minOn time, 3 min minOff
-    coolerMutex = new ActuatorMutexDriver(coolerTimeLimited, mutex);
-    cooler = new ActuatorPwm(coolerMutex, 1200); // period 20 min
+    coolerTimeLimited = std::make_shared<ActuatorTimeLimited>(defaultActuator(), 120, 180); // 2 min minOn time, 3 min minOff
+    coolerMutex = std::make_shared<ActuatorMutexDriver>(coolerTimeLimited, mutex);
+    cooler = std::make_shared<ActuatorPwm>(coolerMutex, 1200); // period 20 min
 
     beer1Set = new SetPointSimple();
     beer2Set = new SetPointSimple();
     fridgeSet = new SetPointSimple();
 
-    fridgeSetPointActuator = new ActuatorSetPoint(fridgeSet, fridgeSensor, beer1Set);
+    fridgeSetPointActuator = std::make_shared<ActuatorSetPoint>(fridgeSet, fridgeSensor, beer1Set);
     fridgeSetPointActuator->setMin(-10.0);
     fridgeSetPointActuator->setMax(10.0);
 
@@ -108,18 +108,6 @@ Control::~Control(){
     // global control object is static and never destroyed.
     // omit proper destructor to save space.
 #else
-    delete heater1Mutex;
-    delete heater1;
-
-    delete heater2Mutex;
-    delete heater2;
-
-    delete coolerTimeLimited;
-    delete coolerMutex;
-    delete cooler;
-
-    delete fridgeSetPointActuator;
-
     delete beer1Set;
     delete beer2Set;
     delete fridgeSet;
