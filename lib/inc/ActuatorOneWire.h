@@ -60,6 +60,7 @@ class ActuatorOneWire final:
             this -> pio    = pio;
 
             device.init(bus, address);
+            device.update();
         }
 
         void setActive(bool active)

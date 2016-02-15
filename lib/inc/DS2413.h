@@ -142,6 +142,14 @@ class DS2413:
             }
         }
 
+        /*
+         * Performs a simultaneous read of both channels and saves value to the cache.
+         */
+        void update()
+        {
+            cachedState = accessRead();
+        }
+
     private:
         uint8_t cachedState;
 
@@ -155,14 +163,6 @@ class DS2413:
         uint8_t latchWriteMask(pio_t pio) const
         {
             return pio ? 0x2 : 0x1;
-        }
-
-        /*
-         * Performs a simultaneous read of both channels and saves value to the cache.
-         */
-        void update()
-        {
-            cachedState = accessRead();
         }
 
         /*
