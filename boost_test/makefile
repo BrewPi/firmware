@@ -51,6 +51,7 @@ CPPSRC += $(SOURCE_PATH)app/controller/defaultDevices.cpp
 CPPSRC += $(SOURCE_PATH)lib/src/ActuatorMutexGroup.cpp
 CPPSRC += $(SOURCE_PATH)app/controller/Control.cpp
 CPPSRC += $(SOURCE_PATH)lib/src/OneWireAddress.cpp
+CPPSRC += $(SOURCE_PATH)app/controller/SmartPtrContainerDemo.cpp
 
 ifeq ($(BOOST_ROOT),)
 $(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)
