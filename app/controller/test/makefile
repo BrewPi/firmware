@@ -11,15 +11,10 @@ RMDIR = rm -f -r
 MKDIR = mkdir -p
 
 # root of the project relative to this folder
-SRC_ROOT=../
+SRC_ROOT=../../../
 
 # location of this folder relative to the root
-SRC_PATH=test
-SPARK=../spark-firmware/
-WIRING=$(SPARK)/wiring/
-HAL=$(SPARK)/hal/
-WIRING_SRC=$(WIRING)src/
-
+SRC_PATH=app/controller/test
 TARGETDIR=obj/
 TARGET=runner
 
@@ -35,34 +30,45 @@ rwildcard = $(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2
 # $2 the pattern to match, e.g. *.cpp
 target_files = $(patsubst $(SRC_ROOT)%,%,$(call rwildcard,$(SRC_ROOT)$1,$2))
 
-CSRC += $(call target_files,boost_test,*.c)
-CPPSRC += $(call target_files,boost_test,*.cpp)
+# add all tests and test runner dependecies (target_files is recursive)
+CSRC += $(call target_files,app/controller/test,*.c)
+CPPSRC += $(call target_files,app/controller/test,*.cpp)
 
-CPPSRC += $(SOURCE_PATH)platform/wiring/temperatureFormats.cpp
-CPPSRC += $(SOURCE_PATH)platform/wiring/str_functions.cpp
-CPPSRC += $(SOURCE_PATH)app/controller/ControllerMixins.cpp
-CPPSRC += $(SOURCE_PATH)lib/src/FilterFixed.cpp
-CPPSRC += $(SOURCE_PATH)lib/src/FilterCascaded.cpp
-CPPSRC += $(SOURCE_PATH)lib/src/Pid.cpp
-CPPSRC += $(SOURCE_PATH)lib/src/ActuatorPwm.cpp
-CPPSRC += $(SOURCE_PATH)lib/src/ActuatorTimeLimited.cpp
-CPPSRC += $(SOURCE_PATH)lib/src/SetPoint.cpp
-CPPSRC += $(SOURCE_PATH)app/controller/defaultDevices.cpp
-CPPSRC += $(SOURCE_PATH)lib/src/ActuatorMutexGroup.cpp
+# add test runner and dependencies
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/test/inc
+CSRC += $(call target_files,platform/test/src,*.c)
+CPPSRC += $(call target_files,platform/test/src,*.cpp)
+
+# add all tests
+CSRC += $(call target_files,controller/test,*.c)
+CPPSRC += $(call target_files,controller/test,*.cpp)
+
+# add all lib source files
+INCLUDE_DIRS += $(SOURCE_PATH)/lib/inc
+CSRC += $(call target_files,lib/src,*.c)
+CPPSRC += $(call target_files,lib/src,*.cpp)
+
+#include controller specific mixins
+INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/mixins
+CSRC += $(call target_files,app/controller/mixins,*.c)
+CPPSRC += $(call target_files,app/controller/mixins,*.cpp)
+
+
+# esj dependencies
+INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/esj
+
+# and control object
 CPPSRC += $(SOURCE_PATH)app/controller/Control.cpp
-CPPSRC += $(SOURCE_PATH)lib/src/OneWireAddress.cpp
+
 
 ifeq ($(BOOST_ROOT),)
 $(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)
 endif
 CFLAGS += -I$(BOOST_ROOT)
 
-INCLUDE_DIRS += $(SOURCE_PATH)platform/wiring
-INCLUDE_DIRS += $(SOURCE_PATH)app/controller
-INCLUDE_DIRS += $(SOURCE_PATH)app/devices/Filter
-INCLUDE_DIRS += $(SOURCE_PATH)app/fallback
-INCLUDE_DIRS += $(SOURCE_PATH)lib/inc
-INCLUDE_DIRS += $(SOURCE_PATH)app/controller/esj
+#INCLUDE_DIRS += $(SOURCE_PATH)app/fallback
+INCLUDE_DIRS += $(SOURCE_PATH)/lib/inc
+INCLUDE_DIRS += $(SOURCE_PATH)/app/controller
 
 CFLAGS += $(patsubst %,-I$(SRC_ROOT)%,$(INCLUDE_DIRS)) -I.
 CFLAGS += -ffunction-sections -Wall
@@ -126,6 +132,9 @@ clean:
 	$(RM) $(ALLOBJ) $(ALLDEPS) $(TARGETDIR)$(TARGET)
 	$(RMDIR) $(TARGETDIR)
 	@echo
+
+# print variable by invoking make print-VARIABLE as VARIABLE = the_value_of_the_variable
+print-%  : ; @echo $* = $($*)
 
 .PHONY: all clean runner
 .SECONDARY:

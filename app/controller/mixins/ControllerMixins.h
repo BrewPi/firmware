@@ -3,7 +3,7 @@
 #include "json_adapter.h"
 #include "Nameable.h"
 
-/* Using template method pattern to keep virtual functions private
+/*
  * Using protected non-virtual destructors to prevent destruction through base class
  */
 
@@ -207,8 +207,6 @@ protected:
     ~SetPointNamedMixin() = default;
 };
 
-
-#if WIRING
 class ActuatorPinMixin : public virtual VirtualSerializable
 {
 public:
@@ -232,4 +230,4 @@ public:
 protected:
     ~ActuatorOneWireMixin() = default;
 };
-#endif
+

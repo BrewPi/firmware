@@ -1,5 +1,4 @@
 #pragma once
-#include "Brewpi.h"
 
 // You can exclude certain features from OneWire.  In theory, this
 // might save some space.  In practice, the compiler automatically

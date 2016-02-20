@@ -18,16 +18,13 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Brewpi.h"
 #include "temperatureFormats.h"
 #include "OneWireTempSensor.h"
-
 #include "OneWireAddress.h"
 #include "DallasTemperature.h"
 #include "OneWire.h"
-#include "PiLink.h"
 #include "Ticks.h"
-
+#include "Logger.h"
 
 OneWireTempSensor::~OneWireTempSensor() {
     delete sensor;

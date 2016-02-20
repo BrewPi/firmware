@@ -1,9 +1,11 @@
 here_files = $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/$1/$2))
+exclude_files = $(filter-out $(addsuffix /%,$(EXCLUDES)),$(NEWSRC))
 
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/Display
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/Filter
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/esj
+INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/mixins
 INCLUDE_DIRS += $(SOURCE_PATH)/lib/inc
 INCLUDE_DIRS += $(SOURCE_PATH)/app/fallback
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/wiring
@@ -22,6 +24,9 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Buzzer
 
 CSRC += $(call target_files,app/controller,*.c)
 CPPSRC += $(call target_files,app/controller,*.cpp)
+
+CEXCLUDES += $(call target_files,app/controller/test,*.c)
+CPPEXCLUDES += $(call target_files,app/controller/test,*.cpp) 
 
 CSRC += $(call target_files,lib/src,*.c)
 CPPSRC += $(call target_files,lib/src,*.cpp)
@@ -60,4 +65,7 @@ CFLAGS += -DBUILD_NAME="$(GIT_VERSION)"
 
 CFLAGS += -Wall 
 CPPFLAGS += -Woverloaded-virtual
- 
+
+CSRC := $(filter-out $(CEXCLUDES),$(CSRC))
+CPPSRC := $(filter-out $(CPPEXCLUDES),$(CPPSRC)) 
+

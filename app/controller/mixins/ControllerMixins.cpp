@@ -242,9 +242,9 @@ void ActuatorInvalidMixin::serialize(JSON::Adapter & adapter)
     JSON_T(adapter, maximum);
 }
 
-#if WIRING
 void ActuatorPinMixin::serialize(JSON::Adapter & adapter)
 {
+#if WIRING
     ActuatorPin * obj   = static_cast<ActuatorPin *>(this);
     bool          state = obj -> isActive();
 
@@ -252,19 +252,23 @@ void ActuatorPinMixin::serialize(JSON::Adapter & adapter)
     JSON_E(adapter, state);
     JSON_OE(adapter, pin);
     JSON_OT(adapter, invert);
+#endif
 }
 
 void ValveControllerMixin::serialize(JSON::Adapter & adapter)
 {
+#if WIRING
     ValveController * obj = static_cast<ValveController *>(this);
 
     JSON::Class root(adapter, "ValveController");
     JSON_OE(adapter, pio);
     JSON_OT(adapter, sense);
+#endif
 }
 
 void ActuatorOneWireMixin::serialize(JSON::Adapter & adapter)
 {
+#if WIRING
     ActuatorOneWire * obj = static_cast<ActuatorOneWire *>(this);
 
     JSON::Class root(adapter, "ActuatorOneWire");
@@ -274,8 +278,9 @@ void ActuatorOneWireMixin::serialize(JSON::Adapter & adapter)
     JSON_E(adapter, state);
     JSON_OE(adapter, pio);
     JSON_OT(adapter, invert);
-}
 #endif
+}
+
 
 void SetPointSimpleMixin::serialize(JSON::Adapter & adapter)
 {

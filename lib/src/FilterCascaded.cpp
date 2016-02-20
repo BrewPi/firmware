@@ -18,8 +18,6 @@
  */
 
 
-
-#include "Brewpi.h"
 #include "temperatureFormats.h"
 #include "FilterFixed.h"
 #include "FilterCascaded.h"

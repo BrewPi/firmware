@@ -23,7 +23,6 @@
 #include <stdint.h>
 #include "temperatureFormats.h"
 #include "ActuatorInterfaces.h"
-#include "json_adapter.h"
 #include "defaultDevices.h"
 
 /*

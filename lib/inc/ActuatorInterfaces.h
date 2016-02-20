@@ -22,7 +22,6 @@
 
 #include <stdint.h>
 #include "temperatureFormats.h"
-#include "json_adapter.h"
 #include "ControllerMixins.h"
 
 enum {

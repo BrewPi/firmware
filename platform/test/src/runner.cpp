@@ -44,14 +44,13 @@
 
 
 #include "Platform.h"
-#include "ConfigDefault.h"
+// #include "ConfigDefault.h"
 #include "Ticks.h"
 
-
 ExternalTicks ticks;
+NoOpDelay wait;
 
 // delay ms milliseconds and return current time afterwards
-
 ticks_millis_t delay(int ms) {
     ticks.incMillis(ms);
     return ticks.millis();

@@ -36,6 +36,12 @@ public:
     // Read a bit.
     uint8_t read_bit(void) { return 0; }
     
+#if ONEWIRE_SEARCH
+
+    void search_triplet(uint8_t*, uint8_t*, uint8_t*){};
+
+#endif
+
 };
 
 

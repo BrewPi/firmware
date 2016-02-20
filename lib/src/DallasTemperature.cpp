@@ -10,10 +10,8 @@
 // MDMA: added conditional compile for different facets of the API
 // MDMA: added reset detection support so calling code knows to re-initialize the sensor
 
-#include "Brewpi.h"
 #include "DallasTemperature.h"
 #include "Ticks.h"
-#include "Logger.h"
 
 DallasTemperature::DallasTemperature(OneWire* _oneWire)
 #if REQUIRESALARMS

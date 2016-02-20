@@ -20,35 +20,6 @@
 
 #pragma once
 
-// Enable printing debug only log messages and debug only wrapped statements
-#ifndef BREWPI_DEBUG
-#define BREWPI_DEBUG 0
-#endif
-
-#if BREWPI_DEBUG>0
-	#define DEBUG_ONLY(x) x
-#else
-	#define DEBUG_ONLY(x)
-#endif
-
-
-// Set which debug messages are printed
-#ifndef BREWPI_LOG_ERRORS
-#define BREWPI_LOG_ERRORS 1
-#endif
-
-#ifndef BREWPI_LOG_WARNINGS
-#define BREWPI_LOG_WARNINGS 1 
-#endif 
-
-#ifndef BREWPI_LOG_INFO
-#define BREWPI_LOG_INFO 1
-#endif
-
-#ifndef BREWPI_LOG_DEBUG
-#define BREWPI_LOG_DEBUG 0
-#endif
-
 /**
  * This flag virtualizes as much of the hardware as possible, so the code can be run in the AvrStudio simulator, which
  * only emulates the microcontroller, not any attached peripherals.

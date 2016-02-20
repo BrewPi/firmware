@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Brewpi.h"
-
 #define DALLASTEMPLIBVERSION "3.7.2"
 
 // This library is free software; you can redistribute it and/or

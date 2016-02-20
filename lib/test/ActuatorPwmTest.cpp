@@ -149,11 +149,10 @@ BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_random_update_intervals)
     srand(time(NULL));
     ActuatorDigital * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,4);
-    // check within 0.5 points accurate
-    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 50.0, 500), 50.0, 1);
-    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 3.0, 500), 3.0, 16.7);
-    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 1.0, 500), 1.0, 50);
-    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 99.0, 500), 99.0, 0.5);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 50.0, 500), 50.0, 2); // between 49 and 51
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 3.0, 500), 3.0, 16.7); // between 2.5 and 3.5
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 1.0, 500), 1.0, 50); // between 0.5 and 1.5
+    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 99.0, 500), 99.0, 0.5); // between 98.5 and 99.5
 }
 
 BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_long_period) {

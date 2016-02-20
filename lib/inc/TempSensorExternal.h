@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "Brewpi.h"
 #include "TempSensorBasic.h"
 #include "ControllerMixins.h"
 

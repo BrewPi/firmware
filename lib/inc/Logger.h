@@ -23,6 +23,37 @@
 #include "temperatureFormats.h"
 #include "LogMessages.h"
 
+
+// Enable printing debug only log messages and debug only wrapped statements
+#ifndef BREWPI_DEBUG
+#define BREWPI_DEBUG 0
+#endif
+
+#if BREWPI_DEBUG>0
+    #define DEBUG_ONLY(x) x
+#else
+    #define DEBUG_ONLY(x)
+#endif
+
+
+// Set which debug messages are printed
+#ifndef BREWPI_LOG_ERRORS
+#define BREWPI_LOG_ERRORS 1
+#endif
+
+#ifndef BREWPI_LOG_WARNINGS
+#define BREWPI_LOG_WARNINGS 1
+#endif
+
+#ifndef BREWPI_LOG_INFO
+#define BREWPI_LOG_INFO 1
+#endif
+
+#ifndef BREWPI_LOG_DEBUG
+#define BREWPI_LOG_DEBUG 0
+#endif
+
+
 // define error id variable type to make it easy to bump to uint16 when needed
 #define LOG_ID_TYPE uint8_t
 
@@ -131,3 +162,6 @@ extern Logger logger;
 #else
 	#define logDebug(string, ...) {}
 #endif
+
+// The following function should be implemented by the application in a cpp file:
+// void Logger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * varTypes, ...){
