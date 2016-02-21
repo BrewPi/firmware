@@ -8,7 +8,13 @@ else
 fi
 }
 
-pushd boost_test
+pushd lib/test
+make
+result=$?
+popd
+status $result
+
+pushd app/controller/test
 make
 result=$?
 popd
