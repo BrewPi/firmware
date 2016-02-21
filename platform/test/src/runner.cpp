@@ -44,7 +44,6 @@
 
 
 #include "Platform.h"
-// #include "ConfigDefault.h"
 #include "Ticks.h"
 
 ExternalTicks ticks;

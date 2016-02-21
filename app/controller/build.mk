@@ -1,6 +1,3 @@
-here_files = $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/$1/$2))
-exclude_files = $(filter-out $(addsuffix /%,$(EXCLUDES)),$(NEWSRC))
-
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/Display
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/Filter
@@ -17,7 +14,6 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Display
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/EEPROM
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/eGUI_screens
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/OneWire
-# INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/ScrollBox
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Ticks
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/UI
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Buzzer
