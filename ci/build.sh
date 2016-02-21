@@ -27,5 +27,8 @@ popd
 
 status $result
 
-./boost_test/obj/runner
+./lib/test/obj/runner
+status $?
+
+./app/controller/test/obj/runner
 status $?
