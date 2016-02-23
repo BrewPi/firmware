@@ -5,6 +5,7 @@ install:
 - ./ci/install_arm_gcc.sh
 - ./platform/spark/firmware/ci/install_gcc.sh
 - source ./ci/install_boost.sh
+- ./ci/install_crc32.sh
 script:
 - ./ci/build.sh
 notification:

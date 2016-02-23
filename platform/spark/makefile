@@ -20,6 +20,13 @@ APP_MAKEFILE = app/$(APP)/build.mk
 -include $(APPDIR)/app/$(APP)/env.mk
 include $(PARTICLE_FIRMWARE)/build/platform-id.mk
 
+ifneq ("$(OS)","Windows_NT")
+crc32 := $(shell command -v crc32 2>/dev/null)
+ifndef crc32
+$(error crc32 command not found)
+endif
+endif
+
 run_make:
 	@$(MAKE) -e -C $(PARTICLE_FIRMWARE)/main APPDIR=$(APPDIR) \
 	USER_MAKEFILE=$(APP_MAKEFILE) \
