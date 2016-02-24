@@ -25,7 +25,7 @@ rwildcard = $(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2
 target_files += $(patsubst $(PROJECT_ROOT)/%,%,$(call rwildcard,$(PROJECT_ROOT)/$1,$2))
 
 CPPSRC += $(call target_files,lib/,*.cpp)
-CPPSRC += $(call target_files,test/,*.cpp)
+CPPSRC += $(call target_files,app/test/,*.cpp)
 
 include $(call rwildcard,$(PROJECT_ROOT)/,include.mk)
 
