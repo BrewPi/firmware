@@ -11,7 +11,7 @@ RMDIR = rm -f -r
 MKDIR = mkdir -p
 
 PROJECT_ROOT=.
-LIB_ROOT=$(PROJECT_ROOT)/lib
+LIB_ROOT=$(PROJECT_ROOT)/src/lib
 COMMON_BUILD=$(PROJECT_ROOT)/build
 
 TARGETDIR=$(COMMON_BUILD)/target/final
@@ -24,7 +24,7 @@ TARGET=controlbox
 rwildcard = $(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 target_files += $(patsubst $(PROJECT_ROOT)/%,%,$(call rwildcard,$(PROJECT_ROOT)/$1,$2))
 
-CPPSRC += $(call target_files,lib/,*.cpp)
+CPPSRC += $(call target_files,src/lib/,*.cpp)
 CPPSRC += $(call target_files,app/test/,*.cpp)
 
 include $(call rwildcard,$(PROJECT_ROOT)/,include.mk)
