@@ -23,12 +23,13 @@
 #pragma once
 
 #include "ActuatorInterfaces.h"
-#include "ActuatorDriver.h"
 #include "Ticks.h"
 #include <stdint.h>
+
+#include "ActuatorForwarder.h"
 #include "ControllerMixins.h"
 
-class ActuatorPwm final : public ActuatorDriver, public ActuatorRange, public ActuatorPwmMixin
+class ActuatorPwm final : public ActuatorForwarder, public ActuatorRange, public ActuatorPwmMixin
 {
     private:
         temp_t         value;

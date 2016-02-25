@@ -268,7 +268,7 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
             /*if ((*target)->getDeviviceTarget() != 0){
                 target = (*target)->getDeviviceTarget(); // recursive call to unpack until at pin actuator
             }*/
-            if ((*target)->uninstallActuatorFinalTarget()){
+            if ((*target)->removeNonForwarder()){
                 DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_ACTUATOR, config.deviceFunction));
             }
         }
@@ -336,7 +336,7 @@ void DeviceManager::installDevice(DeviceConfig & config)
             }*/
 
             ActuatorDigital * newActuator = (ActuatorDigital *) createDevice(config, dt);
-            (*target)->installActuatorFinalTarget(newActuator);
+            (*target)->replaceNonForwarder(newActuator);
 
 #if (BREWPI_DEBUG > 0)
             if (*target == NULL){

@@ -23,24 +23,24 @@
 #pragma once
 
 #include <stdint.h>
+
+#include "ActuatorForwarder.h"
 #include "ActuatorInterfaces.h"
-#include "ActuatorDriver.h"
 #include "Ticks.h"
 #include "ControllerMixins.h"
 
-class ActuatorTimeLimited final : public ActuatorDriver, public ActuatorDigital, public ActuatorTimeLimitedMixin
+class ActuatorTimeLimited final : public ActuatorForwarder, public ActuatorDigital, public ActuatorTimeLimitedMixin
 {
 public:
     ActuatorTimeLimited(ActuatorDigital * _target,
             ticks_seconds_t   _minOnTime = 120,
             ticks_seconds_t   _minOffTime = 180,
-            ticks_seconds_t   _maxOnTime = UINT16_MAX) : ActuatorDriver(_target)
+            ticks_seconds_t   _maxOnTime = UINT16_MAX) : ActuatorForwarder(_target)
     {
         minOnTime  = _minOnTime;
         minOffTime = _minOffTime;
         maxOnTime  = _maxOnTime;
         toggleTime = 0;
-        target     = _target;
         state      = _target -> isActive();
     }
 

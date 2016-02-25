@@ -23,13 +23,12 @@
 #include <stdint.h>
 #include "temperatureFormats.h"
 #include "ActuatorInterfaces.h"
-#include "ActuatorBottom.h"
 #include "ControllerMixins.h"
 
 /*
  * A range actuator that simply remembers the set value. This is primary used for testing.
  */
-class ActuatorValue final : private ActuatorBottom, public ActuatorRange, public ActuatorValueMixin
+class ActuatorValue final : public ActuatorRange, public ActuatorValueMixin
 {
 public:
     // construct without arguments, val = invalid, min and max are defaults
@@ -78,7 +77,7 @@ friend class ActuatorValueMixin;
 /*
  * An toggle actuator that simply remembers a true/false set value. This is primary used for testing.
  */
-class ActuatorBool final : private ActuatorBottom, public ActuatorDigital, public ActuatorBoolMixin
+class ActuatorBool final : public ActuatorDigital, public ActuatorBoolMixin
 {
 public:
     ActuatorBool() : state(false) {}
@@ -100,7 +99,7 @@ friend class ActuatorBoolMixin;
 /*
  * An digital actuators that does absolutely nothing. Used as default actuator
  */
-class ActuatorNop final : private ActuatorBottom, public ActuatorDigital, public ActuatorNopMixin
+class ActuatorNop final : public ActuatorDigital, public ActuatorNopMixin
 {
 public:
     ActuatorNop(){}
@@ -109,7 +108,6 @@ public:
     void setActive(bool active) {}
     bool isActive() const { return false;}
     void update(){}
-    bool isDriver() const { return false; }
 
 friend class ActuatorNopMixin;
 };
@@ -117,7 +115,7 @@ friend class ActuatorNopMixin;
 /*
  * An linear actuator that does nothing and always returns invalid(). Linear equivalent of ActuatorNop
  */
-class ActuatorInvalid final : private ActuatorBottom, public ActuatorRange, public ActuatorInvalidMixin
+class ActuatorInvalid final : public ActuatorRange, public ActuatorInvalidMixin
 {
 public:
     ActuatorInvalid() {}
@@ -137,8 +135,6 @@ public:
         return temp_t::invalid();
     }
     void update(){}; //no actions required
-
-    bool isDriver() const { return false; }
 
 friend class ActuatorInvalidMixin;
 };

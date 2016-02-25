@@ -134,3 +134,9 @@ class ActuatorOneWireMixin {
 protected:
     ~ActuatorOneWireMixin() = default;
 };
+
+class ActuatorForwarderMixin {
+protected:
+    ~ActuatorForwarderMixin() = default;
+};
+

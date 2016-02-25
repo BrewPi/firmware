@@ -46,16 +46,6 @@ public:
     virtual uint8_t type() const = 0;
     virtual void update() = 0;
 
-	// next 3 functions are implemented by ActuatorDriver or ActuatorBottom
-
-	// recursive call for composite driver classes, until a non-driver class is reached
-	virtual Actuator * getBareActuator() = 0;
-	// install pin/mock actuator at the lowest level, returns Actuator that was installed
-	    // Returns true if a device was uninstalled, so the driver knows to update its own pointer
-	virtual bool installActuatorFinalTarget(ActuatorDigital * a) = 0;
-	// uninstall pi n/mock actuator at the lowest level, return success (true = an actuator was uninstalled)
-	virtual bool uninstallActuatorFinalTarget() = 0;
-
 	friend class ActuatorMixin;
 };
 

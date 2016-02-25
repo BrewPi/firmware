@@ -20,11 +20,9 @@
 #pragma once
 #include "DS2408.h"
 #include "ActuatorInterfaces.h"
-#include "ActuatorBottom.h"
 #include "ControllerMixins.h"
 
-class ValveController final :
-    private ActuatorBottom, public ActuatorDigital, public ValveControllerMixin{
+class ValveController final : public ActuatorDigital, public ValveControllerMixin {
 public:
     ValveController(OneWire *     bus,
                     DeviceAddress address,

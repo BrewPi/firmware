@@ -24,7 +24,6 @@
 
 #include "Brewpi.h"
 #include "ActuatorInterfaces.h"
-#include "ActuatorBottom.h"
 #include "DS2413.h"
 #include "ControllerMixins.h"
 
@@ -33,7 +32,7 @@
  *
  */
 class ActuatorOneWire final:
-    private ActuatorBottom, public ActuatorDigital, public ActuatorOneWireMixin
+    public ActuatorDigital, public ActuatorOneWireMixin
 
 #if DS2413_SUPPORT_SENSE
             ,

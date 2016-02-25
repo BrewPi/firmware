@@ -20,25 +20,30 @@
 #pragma once
 
 #include <stdint.h>
+
+#include "ActuatorForwarder.h"
 #include "temperatureFormats.h"
 #include "ActuatorInterfaces.h"
-#include "ActuatorDriver.h"
 #include "ActuatorMutexGroup.h"
 #include "ControllerMixins.h"
 
 /* A driver actuator to wrap a digital Actuator and block SetActive calls if the mutex group does does not honor the request
  */
 
-class ActuatorMutexDriver final : public ActuatorDriver, public ActuatorDigital, public ActuatorMutexDriverMixin{
+class ActuatorMutexDriver final : public ActuatorForwarder, public ActuatorDigital, public ActuatorMutexDriverMixin{
 public:
-    ActuatorMutexDriver(ActuatorDigital * target) : ActuatorDriver(target), mutexGroup(nullptr){}
-    ActuatorMutexDriver(ActuatorDigital * target, ActuatorMutexGroup * m) : ActuatorDriver(target), mutexGroup(m){}
+    ActuatorMutexDriver(ActuatorDigital * target) : ActuatorForwarder(target), mutexGroup(nullptr){}
+    ActuatorMutexDriver(ActuatorDigital * target, ActuatorMutexGroup * m) : ActuatorForwarder(target), mutexGroup(m){}
 
     ~ActuatorMutexDriver(){
         setMutex(nullptr);
     }
 
     uint8_t type() const final { return ACTUATOR_TOGGLE_MUTEX; };
+
+    void update() final {
+        target->update();
+    }
 
     void setMutex(ActuatorMutexGroup * mutex){
         if(mutexGroup != nullptr){

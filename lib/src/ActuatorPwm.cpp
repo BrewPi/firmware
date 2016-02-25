@@ -1,10 +1,11 @@
+#include <stdint.h>
 #include "ActuatorInterfaces.h"
 #include "ActuatorPwm.h"
 #include "Ticks.h"
 #include "ActuatorMutexDriver.h"
 
 ActuatorPwm::ActuatorPwm(ActuatorDigital* _target, uint16_t _period) :
-    ActuatorDriver(_target) {
+                         ActuatorForwarder(_target) {
     periodStartTime = ticks.millis();
     periodLate = 0;
     dutyLate = 0;
@@ -200,5 +201,5 @@ int8_t ActuatorPwm::priority(){
     if(priority < 0){
         priority = 0;
     }
-    return priority;
+    return int8_t(priority);
 }

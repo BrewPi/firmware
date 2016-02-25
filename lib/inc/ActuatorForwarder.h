@@ -1,4 +1,5 @@
 /*
+ * Copyright 2015 Matthew McGowan
  * Copyright 2015 BrewPi/Elco Jacobs.
  *
  * This file is part of BrewPi.
@@ -20,23 +21,30 @@
 #pragma once
 
 #include <stdint.h>
-#include "ActuatorInterfaces.h"
+#include "ControllerMixins.h"
 
-// Bottom class to be inherited by non-driver actuators
-class ActuatorBottom : public virtual Actuator {
-public:
-    ActuatorBottom() = default;
+class ActuatorDigital;
+
+/*
+ * A forwarding actuator drives another digital actuator, for example a PWM actuator can drive a pin actuator
+ */
+class ActuatorForwarder : public ActuatorForwarderMixin
+{
 protected:
-    ~ActuatorBottom() = default;
+    ActuatorDigital * target;
+
 public:
-    Actuator * getBareActuator() final {
-        return this;  // recursive call for composite driver classes, until a non-driver class is reached
-    }
-    bool installActuatorFinalTarget(ActuatorDigital * a) final {
-        return false; // does nothing for non-driver actuators
+    ActuatorForwarder(ActuatorDigital * _target) : target(_target){}
+protected:
+    ~ActuatorForwarder() = default; // should not be destructed through this base class
+
+public:
+    ActuatorDigital * getTarget(){
+        return target;
     }
 
-    bool uninstallActuatorFinalTarget() final {
-        return false; // does nothing for non-driver actuators
+    void setTarget(ActuatorDigital * target_){
+        target = target_;
     }
 };
+

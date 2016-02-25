@@ -51,7 +51,7 @@ void ActuatorTimeLimited::setActive(bool newState)
 
 void ActuatorTimeLimited::update()
 {
-    ActuatorDriver::update();
+    target->update();
     if (state && (timeSinceToggle() >= maxOnTime)){
         setActive(false);
     }
