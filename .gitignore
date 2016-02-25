@@ -41,3 +41,5 @@ test_results/*.pdf
 *.out
 *.app
 *.launch
+.cproject
+.project
