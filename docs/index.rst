@@ -1,12 +1,15 @@
 Welcome to the BrewPi firmware documentation!
 ================================================
 
-Contents:
+Contents
+--------
 
 .. toctree::
    :maxdepth: 2
    
-   actuators
+   actuators/actuators
+   
+.. toctree::
    readme
 
 
