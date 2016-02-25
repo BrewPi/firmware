@@ -309,7 +309,7 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 
 # otherwise, readthedocs.org uses their theme by default, so no need to specify it
 
-github_doc_root = 'https://github.com/BrewPi/firmware/tree/feature/docs'
+github_doc_root = 'https://github.com/BrewPi/firmware/tree/develop/docs'
 
 def setup(app):
     app.add_config_value('recommonmark_config', {
