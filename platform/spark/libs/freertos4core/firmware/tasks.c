@@ -2199,8 +2199,8 @@ BaseType_t xSwitchRequired = pdFALSE;
 
 #endif /* configUSE_APPLICATION_TASK_TAG */
 /*-----------------------------------------------------------*/
-
-void __attribute__((used)) vTaskSwitchContext( void )
+void vTaskSwitchContext( void ) __attribute__((used));
+void vTaskSwitchContext( void )
 {
 	if( uxSchedulerSuspended != ( UBaseType_t ) pdFALSE )
 	{
@@ -4080,7 +4080,7 @@ TickType_t uxReturn;
 					#endif /* INCLUDE_vTaskSuspend */
 
 					traceTASK_NOTIFY_WAIT_BLOCK();
-
+					
 					/* All ports are written to allow a yield in a critical
 					section (some will yield immediately, others wait until the
 					critical section exits) - but it is not something that
@@ -4102,7 +4102,7 @@ TickType_t uxReturn;
 		taskENTER_CRITICAL();
 		{
 			traceTASK_NOTIFY_WAIT();
-
+			
 			if( pulNotificationValue != NULL )
 			{
 				/* Output the current notification value, which may or may not
@@ -4317,7 +4317,7 @@ TickType_t uxReturn;
 			}
 
 			traceTASK_NOTIFY_FROM_ISR();
-
+			
 			/* If the task is in the blocked state specifically to wait for a
 			notification then unblock it now. */
 			if( eOriginalNotifyState == eWaitingNotification )
@@ -4398,7 +4398,7 @@ TickType_t uxReturn;
 			/* 'Giving' is equivalent to incrementing a count in a counting
 			semaphore. */
 			( pxTCB->ulNotifiedValue )++;
-
+			
 			traceTASK_NOTIFY_GIVE_FROM_ISR();
 
 			/* If the task is in the blocked state specifically to wait for a
