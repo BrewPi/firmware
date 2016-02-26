@@ -1,2 +1,0 @@
-
-INCLUDE_DIRS += $(TARGET_HAL_PATH)/shared

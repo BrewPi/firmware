@@ -1,3 +1,0 @@
-BOOTLOADER_SRC_COREV1_PATH = $(BOOTLOADER_MODULE_PATH)/src/core
-
-CSRC += $(call target_files,$(BOOTLOADER_SRC_COREV1_PATH)/,*.c)

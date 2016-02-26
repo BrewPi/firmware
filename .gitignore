@@ -1,10 +1,3 @@
-platform/spark/target/
-Debug/
-nbproject/private/
-*.atsuo
-revA/
-revC/
-test/obj/
 # Compiled Object files
 *.slo
 *.lo

@@ -154,7 +154,7 @@ void vPortSetupTimerInterrupt( void );
 /*
  * Exception handlers.
  */
-void xPortPendSVHandler( void ) __attribute__ (( naked ));
+void xPortPendSVHandler( void ) __attribute__ (( naked, used ));
 void xPortSysTickHandler( void );
 void vPortSVCHandler( void ) __attribute__ (( naked ));
 

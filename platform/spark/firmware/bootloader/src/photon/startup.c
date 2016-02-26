@@ -1,3 +1,0 @@
-void platform_startup()
-{
-}
