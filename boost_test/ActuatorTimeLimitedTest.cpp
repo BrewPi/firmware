@@ -35,12 +35,12 @@ BOOST_AUTO_TEST_SUITE(ActuatorTimeLimited_with_bool_driver)
 BOOST_AUTO_TEST_CASE(minimum_off_time_and_maximum_on_time_are_honored) {
     srand(time(NULL));
     ticks.reset();
-    ActuatorDigital * v = new ActuatorBool();
+    std::shared_ptr<ActuatorDigital> v = std::make_shared<ActuatorBool>();
     const uint16_t minOn = 100;
     const uint16_t maxOn = 200;
     const uint16_t minOff = 300;
 
-    ActuatorTimeLimited * act = new ActuatorTimeLimited(v, minOn, minOff, maxOn);
+    std::shared_ptr<ActuatorTimeLimited> act = std::make_shared<ActuatorTimeLimited>(v, minOn, minOff, maxOn);
 
 
     output << "\n\n**** Testing min OFF and max ON time for ActuatorTimeLimited ****\n\n";
@@ -79,12 +79,12 @@ BOOST_AUTO_TEST_CASE(minimum_off_time_and_maximum_on_time_are_honored) {
 BOOST_AUTO_TEST_CASE(minimum_on_time_is_honored) {
     srand(time(NULL));
     ticks.reset();
-    ActuatorDigital * v = new ActuatorBool();
+    std::shared_ptr<ActuatorDigital> v = std::make_shared<ActuatorBool>();
     const uint16_t minOn = 100;
     const uint16_t maxOn = 200;
     const uint16_t minOff = 300;
 
-    ActuatorTimeLimited * act = new ActuatorTimeLimited(v, minOn, minOff, maxOn);
+    std::shared_ptr<ActuatorTimeLimited> act = std::make_shared<ActuatorTimeLimited>(v, minOn, minOff, maxOn);
 
     output << ("\n\n**** Testing min ON time for ActuatorTimeLimited ****\n\n");
     ticks_seconds_t time;
@@ -105,12 +105,12 @@ BOOST_AUTO_TEST_CASE(minimum_on_time_is_honored) {
 }
 
 BOOST_AUTO_TEST_CASE(correct_state_is_returned_with_actuatorNop) {
-    ActuatorDigital * v = new ActuatorNop();
+    std::shared_ptr<ActuatorDigital> v = std::make_shared<ActuatorNop>();
     const uint16_t minOn = 100;
     const uint16_t maxOn = 200;
     const uint16_t minOff = 300;
 
-    ActuatorTimeLimited * act = new ActuatorTimeLimited(v, minOn, minOff, maxOn);
+    std::shared_ptr<ActuatorTimeLimited> act = std::make_shared<ActuatorTimeLimited>(v, minOn, minOff, maxOn);
 
     act->setActive(false); // make sure cached state is correct
     BOOST_CHECK(!act->isActive());

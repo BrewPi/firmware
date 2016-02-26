@@ -35,12 +35,12 @@
 BOOST_AUTO_TEST_SUITE(ActuatorMutexTest)
 
 BOOST_AUTO_TEST_CASE(two_actuators_belonging_to_the_same_group_cannot_be_active_at_once) {
-    ActuatorDigital * act1 = new ActuatorBool();
-    ActuatorDigital * act2 = new ActuatorBool();
+    std::shared_ptr<ActuatorDigital> act1 = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorDigital> act2 = std::make_shared<ActuatorBool>();
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
 
-    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1);
-    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
+    std::shared_ptr<ActuatorMutexDriver> actm1 = std::make_shared<ActuatorMutexDriver>(act1);
+    std::shared_ptr<ActuatorMutexDriver> actm2 = std::make_shared<ActuatorMutexDriver>(act2);
     actm1->setMutex(mutex);
     actm2->setMutex(mutex);
 
@@ -62,12 +62,12 @@ BOOST_AUTO_TEST_CASE(two_actuators_belonging_to_the_same_group_cannot_be_active_
 
 
 BOOST_AUTO_TEST_CASE(dead_time_between_actuators_is_honored) {
-    ActuatorDigital * act1 = new ActuatorBool();
-    ActuatorDigital * act2 = new ActuatorBool();
+    std::shared_ptr<ActuatorDigital> act1 = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorDigital> act2 = std::make_shared<ActuatorBool>();
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
 
-    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1);
-    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
+    std::shared_ptr<ActuatorMutexDriver> actm1 = std::make_shared<ActuatorMutexDriver>(act1);
+    std::shared_ptr<ActuatorMutexDriver> actm2 = std::make_shared<ActuatorMutexDriver>(act2);
     actm1->setMutex(mutex);
     actm2->setMutex(mutex);
 
@@ -105,12 +105,12 @@ BOOST_AUTO_TEST_CASE(dead_time_between_actuators_is_honored) {
 
 
 BOOST_AUTO_TEST_CASE(dead_time_does_not_block_same_actuator_from_going_active_again) {
-    ActuatorDigital * act1 = new ActuatorBool();
-    ActuatorDigital * act2 = new ActuatorBool();
+    std::shared_ptr<ActuatorDigital> act1 = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorDigital> act2 = std::make_shared<ActuatorBool>();
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
 
-    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1);
-    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
+    std::shared_ptr<ActuatorMutexDriver> actm1 = std::make_shared<ActuatorMutexDriver>(act1);
+    std::shared_ptr<ActuatorMutexDriver> actm2 = std::make_shared<ActuatorMutexDriver>(act2);
     actm1->setMutex(mutex);
     actm2->setMutex(mutex);
 
@@ -131,17 +131,17 @@ BOOST_AUTO_TEST_CASE(dead_time_does_not_block_same_actuator_from_going_active_ag
 
 
 BOOST_AUTO_TEST_CASE(mutex_works_with_time_limited_actuator) {
-    ActuatorDigital * act1 = new ActuatorBool();
-    ActuatorTimeLimited * act1tl = new ActuatorTimeLimited(act1, 10, 20);
-    ActuatorDigital * act2 = new ActuatorBool();
+    std::shared_ptr<ActuatorDigital> act1 = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorTimeLimited> act1tl = std::make_shared<ActuatorTimeLimited>(act1, 10, 20);
+    std::shared_ptr<ActuatorDigital> act2 = std::make_shared<ActuatorBool>();
 
     delay(20000); // let initial minimum off time pass
 
 
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
 
-    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1tl);
-    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
+    std::shared_ptr<ActuatorMutexDriver> actm1 = std::make_shared<ActuatorMutexDriver>(act1tl);
+    std::shared_ptr<ActuatorMutexDriver> actm2 = std::make_shared<ActuatorMutexDriver>(act2);
     actm1->setMutex(mutex);
     actm2->setMutex(mutex);
 
@@ -166,17 +166,17 @@ BOOST_AUTO_TEST_CASE(mutex_works_with_time_limited_actuator) {
 BOOST_AUTO_TEST_CASE(when_there_have_been_no_requests_for_a_while_dead_time_is_still_honored_on_new_request) {
     // this test was introduced to make sure lastActiveTime is not only updated on requests
 
-    ActuatorDigital * act1 = new ActuatorBool();
-    ActuatorTimeLimited * act1tl = new ActuatorTimeLimited(act1, 10, 20);
-    ActuatorDigital * act2 = new ActuatorBool();
+    std::shared_ptr<ActuatorDigital> act1 = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorTimeLimited> act1tl = std::make_shared<ActuatorTimeLimited>(act1, 10, 20);
+    std::shared_ptr<ActuatorDigital> act2 = std::make_shared<ActuatorBool>();
 
     delay(20000); // let initial minimum off time pass
 
 
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
 
-    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1tl);
-    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
+    std::shared_ptr<ActuatorMutexDriver> actm1 = std::make_shared<ActuatorMutexDriver>(act1tl);
+    std::shared_ptr<ActuatorMutexDriver> actm2 = std::make_shared<ActuatorMutexDriver>(act2);
     actm1->setMutex(mutex);
     actm2->setMutex(mutex);
     mutex->setDeadTime(10000); // 10 seconds dead time

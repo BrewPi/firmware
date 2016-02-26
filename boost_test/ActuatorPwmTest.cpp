@@ -90,8 +90,8 @@ double randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t dut
 BOOST_AUTO_TEST_SUITE(ActuatorPWM)
 
 BOOST_AUTO_TEST_CASE( Test_ActuatorPWM_with_ValueActuator_as_driver) {
-    ActuatorDigital * target = new ActuatorBool();
-    ActuatorPwm * act = new ActuatorPwm(target,4);
+    std::shared_ptr<ActuatorDigital> target = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorPwm> act = std::make_shared<ActuatorPwm>(target,4);
 
     BOOST_CHECK(act->getValue() == temp_t(0.0)); // PWM value is initialized to 0
 
@@ -112,8 +112,8 @@ BOOST_AUTO_TEST_CASE( Test_ActuatorPWM_with_ValueActuator_as_driver) {
 
 BOOST_AUTO_TEST_CASE(on_off_time_matches_duty_cycle_when_updating_every_ms) {
     srand(time(NULL));
-    ActuatorDigital * target = new ActuatorBool();
-    ActuatorPwm * act = new ActuatorPwm(target,4);
+    std::shared_ptr<ActuatorDigital> target = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorPwm> act = std::make_shared<ActuatorPwm>(target,4);
 
     temp_t duty = 50.0;
     act->setValue(duty);
@@ -147,30 +147,30 @@ BOOST_AUTO_TEST_CASE(on_off_time_matches_duty_cycle_when_updating_every_ms) {
 
 BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_random_update_intervals) {
     srand(time(NULL));
-    ActuatorDigital * target = new ActuatorBool();
-    ActuatorPwm * act = new ActuatorPwm(target,4);
+    std::shared_ptr<ActuatorDigital> target = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorPwm> act = std::make_shared<ActuatorPwm>(target,4);
     // check within 0.5 points accurate
-    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 50.0, 500), 50.0, 1);
-    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 3.0, 500), 3.0, 16.7);
-    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 1.0, 500), 1.0, 50);
-    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 99.0, 500), 99.0, 0.5);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act.get(), target.get(), 50.0, 500), 50.0, 1);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act.get(), target.get(), 3.0, 500), 3.0, 16.7);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act.get(), target.get(), 1.0, 500), 1.0, 50);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act.get(), target.get(), 99.0, 500), 99.0, 0.5);
 }
 
 BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_long_period) {
     srand(time(NULL));
-    ActuatorDigital * target = new ActuatorBool();
-    ActuatorPwm * act = new ActuatorPwm(target,3600);
-    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 50.0, 500), 50.0, 1);
-    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 3.0, 500), 3.0, 16.7);
-    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 1.0, 500), 1.0, 50);
-    BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 99.0, 500), 99.0, 0.5);
+    std::shared_ptr<ActuatorDigital> target = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorPwm> act = std::make_shared<ActuatorPwm>(target,3600);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act.get(), target.get(), 50.0, 500), 50.0, 1);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act.get(), target.get(), 3.0, 500), 3.0, 16.7);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act.get(), target.get(), 1.0, 500), 1.0, 50);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act.get(), target.get(), 99.0, 500), 99.0, 0.5);
 }
 
 
 
 BOOST_AUTO_TEST_CASE(output_stays_low_with_value_0) {
-    ActuatorDigital * target = new ActuatorBool();
-    ActuatorPwm * act = new ActuatorPwm(target,4);
+    std::shared_ptr<ActuatorDigital> target = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorPwm> act = std::make_shared<ActuatorPwm>(target,4);
 
     act->setValue(0.0);
     // wait target to go low
@@ -187,9 +187,9 @@ BOOST_AUTO_TEST_CASE(output_stays_low_with_value_0) {
 }
 
 BOOST_AUTO_TEST_CASE(on_big_positive_changes_shortened_cycle_has_correct_value) {
-    ActuatorDigital * vAct = new ActuatorBool();
-    ActuatorDigital * limited = new ActuatorTimeLimited(vAct, 0, 0);
-    ActuatorPwm * act = new ActuatorPwm(limited, 100); // period is 100 seconds
+    std::shared_ptr<ActuatorDigital> vAct = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorDigital> limited = std::make_shared<ActuatorTimeLimited>(vAct, 0, 0);
+    std::shared_ptr<ActuatorPwm> act = std::make_shared<ActuatorPwm>(limited, 100); // period is 100 seconds
 
     act->setValue(short(30));
     ticks_millis_t start = ticks.millis();
@@ -230,9 +230,9 @@ BOOST_AUTO_TEST_CASE(on_big_positive_changes_shortened_cycle_has_correct_value) 
 
 
 BOOST_AUTO_TEST_CASE(on_big_negative_changes_go_low_immediately) {
-    ActuatorDigital * vAct = new ActuatorBool();
-    ActuatorDigital * limited = new ActuatorTimeLimited(vAct, 0, 0);
-    ActuatorPwm * act = new ActuatorPwm(limited, 100); // period is 100 seconds
+    std::shared_ptr<ActuatorDigital> vAct = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorDigital> limited = std::make_shared<ActuatorTimeLimited>(vAct, 0, 0);
+    std::shared_ptr<ActuatorPwm> act = std::make_shared<ActuatorPwm>(limited, 100); // period is 100 seconds
 
     ticks_millis_t lastLowTimeBeforeChange = ticks.millis();
     act->setValue(60.0);
@@ -273,8 +273,8 @@ BOOST_AUTO_TEST_CASE(on_big_negative_changes_go_low_immediately) {
 
 
 BOOST_AUTO_TEST_CASE(output_stays_high_with_value_100) {
-    ActuatorDigital * target = new ActuatorBool();
-    ActuatorPwm * act = new ActuatorPwm(target,4);
+    std::shared_ptr<ActuatorDigital> target = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorPwm> act = std::make_shared<ActuatorPwm>(target,4);
 
     act->setValue(100.0);
     // wait for target to go high
@@ -294,23 +294,23 @@ BOOST_AUTO_TEST_CASE(ActuatorPWM_with_min_max_time_limited_OnOffActuator_as_driv
     // test with minimum ON of 2 seconds, minimum off of 5 seconds and period 10 seconds
 
     srand(time(NULL));
-    ActuatorDigital * vAct = new ActuatorBool();
-    ActuatorDigital * onOffAct = new ActuatorTimeLimited(vAct, 2, 5);
-    ActuatorPwm * act = new ActuatorPwm(onOffAct, 10);
+    std::shared_ptr<ActuatorDigital> vAct = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorDigital> onOffAct = std::make_shared<ActuatorTimeLimited>(vAct, 2, 5);
+    std::shared_ptr<ActuatorPwm> act = std::make_shared<ActuatorPwm>(onOffAct, 10);
 
     // Test that average duty cycle is correct, even with minimum times enforced in the actuator
-    BOOST_CHECK_CLOSE(randomIntervalTest(act, vAct, 50.0, 500), 50.0, 1);
-    BOOST_CHECK_CLOSE(randomIntervalTest(act, vAct, 3.0, 500), 3.0, 16.7);
-    BOOST_CHECK_CLOSE(randomIntervalTest(act, vAct, 1.0, 500), 1.0, 50);
-    BOOST_CHECK_CLOSE(randomIntervalTest(act, vAct, 99.0, 500), 99.0, 0.5);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act.get(), vAct.get(), 50.0, 500), 50.0, 1);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act.get(), vAct.get(), 3.0, 500), 3.0, 16.7);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act.get(), vAct.get(), 1.0, 500), 1.0, 50);
+    BOOST_CHECK_CLOSE(randomIntervalTest(act.get(), vAct.get(), 99.0, 500), 99.0, 0.5);
 }
 
 
 BOOST_AUTO_TEST_CASE(when_switching_between_zero_and_low_value_average_is_correct){
     // test with minimum ON of 2 seconds, minimum off of 5 seconds and period 5 seconds
-    ActuatorDigital * vAct = new ActuatorBool();
-    ActuatorDigital * onOffAct = new ActuatorTimeLimited(vAct, 20, 50);
-    ActuatorPwm * act = new ActuatorPwm(onOffAct, 100);
+    std::shared_ptr<ActuatorDigital> vAct = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorDigital> onOffAct = std::make_shared<ActuatorTimeLimited>(vAct, 20, 50);
+    std::shared_ptr<ActuatorPwm> act = std::make_shared<ActuatorPwm>(onOffAct, 100);
 
     ticks_seconds_t timeHigh = 0;
     ticks_seconds_t timeLow = 0;
@@ -348,8 +348,8 @@ BOOST_AUTO_TEST_CASE(when_switching_between_zero_and_low_value_average_is_correc
 
 
 BOOST_AUTO_TEST_CASE(ramping_PWM_up_faster_than_period_gives_correct_average){
-    ActuatorDigital * vAct = new ActuatorBool();
-    ActuatorPwm * act = new ActuatorPwm(vAct, 20);
+    std::shared_ptr<ActuatorDigital> vAct = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorPwm> act = std::make_shared<ActuatorPwm>(vAct, 20);
     ticks_seconds_t timeHigh = 0;
     ticks_seconds_t timeLow = 0;
 
@@ -375,8 +375,8 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_up_faster_than_period_gives_correct_average){
 
 
 BOOST_AUTO_TEST_CASE(ramping_PWM_down_faster_than_period_gives_correct_average){
-    ActuatorDigital * vAct = new ActuatorBool();
-    ActuatorPwm * act = new ActuatorPwm(vAct, 20);
+    std::shared_ptr<ActuatorDigital> vAct = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorPwm> act = std::make_shared<ActuatorPwm>(vAct, 20);
     ticks_seconds_t timeHigh = 0;
     ticks_seconds_t timeLow = 0;
 
@@ -401,13 +401,13 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_down_faster_than_period_gives_correct_average){
 }
 
 BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap){
-    ActuatorDigital * boolAct1 = new ActuatorBool();
-    ActuatorMutexDriver * mutexAct1 = new ActuatorMutexDriver(boolAct1);
-    ActuatorPwm * act1 = new ActuatorPwm(mutexAct1, 10);
+    std::shared_ptr<ActuatorDigital> boolAct1 = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorMutexDriver> mutexAct1 = std::make_shared<ActuatorMutexDriver>(boolAct1);
+    std::shared_ptr<ActuatorPwm> act1 = std::make_shared<ActuatorPwm>(mutexAct1, 10);
 
-    ActuatorDigital * boolAct2 = new ActuatorBool();
-    ActuatorMutexDriver * mutexAct2 = new ActuatorMutexDriver(boolAct2);
-    ActuatorPwm * act2 = new ActuatorPwm(mutexAct2, 10);
+    std::shared_ptr<ActuatorDigital> boolAct2 = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorMutexDriver> mutexAct2 = std::make_shared<ActuatorMutexDriver>(boolAct2);
+    std::shared_ptr<ActuatorPwm> act2 = std::make_shared<ActuatorPwm>(mutexAct2, 10);
 
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
     mutex->setDeadTime(0);
@@ -460,8 +460,8 @@ BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap){
 }
 
 BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct){
-    ActuatorDigital * boolAct = new ActuatorBool();
-    ActuatorPwm * pwmAct = new ActuatorPwm(boolAct, 20);
+    std::shared_ptr<ActuatorDigital> boolAct = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorPwm> pwmAct = std::make_shared<ActuatorPwm>(boolAct, 20);
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "1#set value, 1#read value, 2a#pin" << endl;
@@ -493,9 +493,9 @@ BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct){
 
 
 BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct_with_time_limited_actuator){
-    ActuatorDigital * boolAct = new ActuatorBool();
-    ActuatorDigital * timeLimitedAct = new ActuatorTimeLimited(boolAct, 2, 5);
-    ActuatorPwm * pwmAct = new ActuatorPwm(timeLimitedAct, 20);
+    std::shared_ptr<ActuatorDigital> boolAct = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorDigital> timeLimitedAct = std::make_shared<ActuatorTimeLimited>(boolAct, 2, 5);
+    std::shared_ptr<ActuatorPwm> pwmAct = std::make_shared<ActuatorPwm>(timeLimitedAct, 20);
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "1#set value, 1#read value, 2a#pin" << endl;
@@ -528,8 +528,8 @@ BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct_w
 
 
 BOOST_AUTO_TEST_CASE(slowly_changing_pwm_value_reads_back_as_correct_value){
-    ActuatorDigital * boolAct = new ActuatorBool();
-    ActuatorPwm * pwmAct = new ActuatorPwm(boolAct, 20);
+    std::shared_ptr<ActuatorDigital> boolAct = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorPwm> pwmAct = std::make_shared<ActuatorPwm>(boolAct, 20);
 
     pwmAct->setValue(0.0);
     ticks_millis_t start = ticks.millis();
@@ -561,9 +561,9 @@ BOOST_AUTO_TEST_CASE(slowly_changing_pwm_value_reads_back_as_correct_value){
 
 
 BOOST_AUTO_TEST_CASE(fluctuating_pwm_value_gives_correct_average_with_time_limited_actuator){
-    ActuatorDigital * boolAct = new ActuatorBool();
-    ActuatorDigital * timeLimitedAct = new ActuatorTimeLimited(boolAct, 2, 5);
-    ActuatorPwm * pwmAct = new ActuatorPwm(timeLimitedAct, 20);
+    std::shared_ptr<ActuatorDigital> boolAct = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorDigital> timeLimitedAct = std::make_shared<ActuatorTimeLimited>(boolAct, 2, 5);
+    std::shared_ptr<ActuatorPwm> pwmAct = std::make_shared<ActuatorPwm>(timeLimitedAct, 20);
 
     pwmAct->setValue(5.0); // set to a value with duty cycle lower than time limit
     ticks_millis_t start = ticks.millis();
@@ -613,13 +613,13 @@ BOOST_AUTO_TEST_CASE(decreasing_pwm_value_after_long_high_time_and_mutex_wait){
     mutex->setDeadTime(100000);
 
     // actuator that prevents other actuator from going high
-    ActuatorDigital * blocker = new ActuatorBool();
-    ActuatorMutexDriver * blockerMutex = new ActuatorMutexDriver(blocker, mutex);
+    std::shared_ptr<ActuatorDigital> blocker = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorMutexDriver> blockerMutex = std::make_shared<ActuatorMutexDriver>(blocker, mutex);
 
 
-    ActuatorDigital * boolAct = new ActuatorBool();
-    ActuatorMutexDriver * mutexAct = new ActuatorMutexDriver(boolAct, mutex);
-    ActuatorPwm * pwmAct = new ActuatorPwm(mutexAct, 20);
+    std::shared_ptr<ActuatorDigital> boolAct = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorMutexDriver> mutexAct = std::make_shared<ActuatorMutexDriver>(boolAct, mutex);
+    std::shared_ptr<ActuatorPwm> pwmAct = std::make_shared<ActuatorPwm>(mutexAct, 20);
 
     ticks_millis_t start = ticks.millis();
 
@@ -665,14 +665,14 @@ BOOST_AUTO_TEST_CASE(decreasing_pwm_value_after_long_high_time_and_mutex_wait){
 BOOST_AUTO_TEST_CASE(install_and_uninstall_final_actuator){
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
     mutex->setDeadTime(1000);
-    ActuatorDigital * coolerPin = new ActuatorBool();
-    ActuatorTimeLimited * coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
-    ActuatorMutexDriver * coolerMutex = new ActuatorMutexDriver(coolerTimeLimited, mutex);
-    ActuatorPwm * cooler = new ActuatorPwm(coolerMutex, 10); // period 10 min
+    std::shared_ptr<ActuatorDigital> coolerPin = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorTimeLimited> coolerTimeLimited = std::make_shared<ActuatorTimeLimited>(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
+    std::shared_ptr<ActuatorMutexDriver> coolerMutex = std::make_shared<ActuatorMutexDriver>(coolerTimeLimited, mutex);
+    std::shared_ptr<ActuatorPwm> cooler = std::make_shared<ActuatorPwm>(coolerMutex, 10); // period 10 min
 
-    ActuatorDigital * heaterPin = new ActuatorBool();
-    ActuatorMutexDriver * heaterMutex = new ActuatorMutexDriver(heaterPin, mutex);
-    ActuatorPwm * heater = new ActuatorPwm(heaterMutex, 4); // period 4s
+    std::shared_ptr<ActuatorDigital> heaterPin = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorMutexDriver> heaterMutex = std::make_shared<ActuatorMutexDriver>(heaterPin, mutex);
+    std::shared_ptr<ActuatorPwm> heater = std::make_shared<ActuatorPwm>(heaterMutex, 4); // period 4s
 
     BOOST_CHECK_EQUAL(coolerTimeLimited->getTarget(), coolerPin);
 
@@ -708,8 +708,8 @@ BOOST_AUTO_TEST_CASE(install_and_uninstall_final_actuator){
     BOOST_CHECK(!cooler->uninstallActuatorFinalTarget()); // returns false, when target is already default actuator
     BOOST_CHECK(!heater->uninstallActuatorFinalTarget()); // returns false, when target is already default actuator
 
-    coolerPin = new ActuatorBool(); // uninstall deleted the previous instance, need to recreate!
-    heaterPin = new ActuatorBool(); // uninstall deleted the previous instance, need to recreate!
+    coolerPin = std::make_shared<ActuatorBool>(); // uninstall deleted the previous instance, need to recreate!
+    heaterPin = std::make_shared<ActuatorBool>(); // uninstall deleted the previous instance, need to recreate!
 
     BOOST_CHECK(cooler->installActuatorFinalTarget(coolerPin)); // returns true on successful install
     BOOST_CHECK(heater->installActuatorFinalTarget(heaterPin)); // returns true on successful install

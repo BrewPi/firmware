@@ -21,6 +21,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <memory>
 #include "temperatureFormats.h"
 #include "json_adapter.h"
 #include "ControllerMixins.h"
@@ -50,10 +51,10 @@ public:
 	// next 3 functions are implemented by ActuatorDriver or ActuatorBottom
 
 	// recursive call for composite driver classes, until a non-driver class is reached
-	virtual Actuator * getBareActuator() = 0;
+	virtual const Actuator * getBareActuator() const = 0;
 	// install pin/mock actuator at the lowest level, returns Actuator that was installed
 	    // Returns true if a device was uninstalled, so the driver knows to update its own pointer
-	virtual bool installActuatorFinalTarget(ActuatorDigital * a) = 0;
+	virtual bool installActuatorFinalTarget(const std::shared_ptr<ActuatorDigital> & a) = 0;
 	// uninstall pi n/mock actuator at the lowest level, return success (true = an actuator was uninstalled)
 	virtual bool uninstallActuatorFinalTarget() = 0;
 

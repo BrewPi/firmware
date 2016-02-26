@@ -27,8 +27,8 @@
 #include "Sensor.h"
 
 ValueSensor<bool> * defaultSensor();
-ActuatorNop * defaultActuator();
-ActuatorInvalid * defaultLinearActuator(); // always returns invalid and does nothing
+std::shared_ptr<ActuatorDigital> defaultActuator();
+std::shared_ptr<ActuatorRange> defaultLinearActuator();
 TempSensorDisconnected * defaultTempSensorBasic();
 SetPointConstant * defaultSetPoint();
 

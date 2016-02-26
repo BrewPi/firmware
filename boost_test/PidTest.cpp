@@ -42,8 +42,8 @@ public:
         BOOST_TEST_MESSAGE( "setup PID test fixture" );
 
         sensor = new TempSensorMock(20.0);
-        vAct = new ActuatorBool();
-        act = new ActuatorPwm(vAct,4);
+        vAct = std::make_shared<ActuatorBool>();
+        act = std::make_shared<ActuatorPwm>(vAct,4);
         sp = new SetPointSimple(20.0);
 
         pid = new Pid(sensor, act, sp);
@@ -51,14 +51,12 @@ public:
     ~PidTest(){
         BOOST_TEST_MESSAGE( "tear down PID test fixture" );
         delete sensor;
-        delete vAct;
-        delete act;
         delete pid;
     }
 
     TempSensorMock * sensor;
-    ActuatorDigital * vAct;
-    ActuatorPwm * act;
+    std::shared_ptr<ActuatorDigital> vAct;
+    std::shared_ptr<ActuatorRange> act;
     Pid * pid;
     SetPointSimple * sp;
 };
@@ -320,8 +318,8 @@ BOOST_AUTO_TEST_CASE(pid_can_update_with_only_actuator_defined){
 }
 
 BOOST_AUTO_TEST_CASE(pid_can_update_with_only_sensor_defined){
-    ActuatorDigital * pin = new ActuatorBool();
-    ActuatorRange * act = new ActuatorPwm(pin,4);
+    std::shared_ptr<ActuatorDigital> pin = std::make_shared<ActuatorBool>();
+    std::shared_ptr<ActuatorRange> act = std::make_shared<ActuatorPwm>(pin,4);
     Pid * p = new Pid();
     p->setOutputActuator(act);
     p->update();

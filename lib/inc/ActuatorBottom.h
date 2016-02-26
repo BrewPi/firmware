@@ -29,10 +29,10 @@ public:
 protected:
     ~ActuatorBottom() = default;
 public:
-    Actuator * getBareActuator() final {
+    const Actuator * getBareActuator() const final {
         return this;  // recursive call for composite driver classes, until a non-driver class is reached
     }
-    bool installActuatorFinalTarget(ActuatorDigital * a) final {
+    bool installActuatorFinalTarget(const std::shared_ptr<ActuatorDigital> & a) final {
         return false; // does nothing for non-driver actuators
     }
 

@@ -31,7 +31,7 @@
 class ActuatorTimeLimited final : public ActuatorDriver, public ActuatorDigital, public ActuatorTimeLimitedMixin
 {
 public:
-    ActuatorTimeLimited(ActuatorDigital * _target,
+    ActuatorTimeLimited(std::shared_ptr<ActuatorDigital> _target,
             ticks_seconds_t   _minOnTime = 120,
             ticks_seconds_t   _minOffTime = 180,
             ticks_seconds_t   _maxOnTime = UINT16_MAX) : ActuatorDriver(_target)
