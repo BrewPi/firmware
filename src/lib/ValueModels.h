@@ -22,6 +22,7 @@
 
 #include "pointer_scalar.h"
 #include "Values.h"
+#include "ValuesEeprom.h"
 
 /**
  * A streamable value whose data resizes externally.

@@ -22,6 +22,7 @@
 #include "Commands.h"
 #include "Ticks.h"
 #include "ValueTicks.h"
+#include "ValuesEeprom.h"
 
 
 const uint8_t EEPROM_HEADER_SIZE = 2;

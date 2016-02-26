@@ -22,7 +22,6 @@
 
 #include "DataStream.h"
 #include "Values.h"
-#include "ValuesEeprom.h"
 
 typedef char* pchar;
 typedef const char* cpchar;

@@ -20,7 +20,6 @@
 #include "Values.h"
 #include "Commands.h"
 #include "DataStream.h"
-#include "ValuesEeprom.h"
 #include "GenericContainer.h"
 #include "SystemProfile.h"
 #include "Comms.h"
