@@ -47,7 +47,7 @@ public:
 
     void serialize(JSON::Adapter& adapter);
 
-    std::vector<SetPointNamed*> setpoints;
+    std::vector<SetPoint*> setpoints;
     std::vector<TempSensor*> sensors;
     std::vector<Pid*>        pids;
     std::vector<Actuator*>   actuators;
@@ -77,13 +77,9 @@ protected:
     Pid * coolerPid;
     Pid * beerToFridgePid;
 
-    SetPoint * beer1Set;
-    SetPoint * beer2Set;
-    SetPoint * fridgeSet;
-
-    SetPointNamed * beer1SetNamed;
-    SetPointNamed * beer2SetNamed;
-    SetPointNamed * fridgeSetNamed;
+    SetPointSimple * beer1Set;
+    SetPointSimple * beer2Set;
+    SetPointSimple * fridgeSet;
 
     friend class TempControl;
     friend class DeviceManager;

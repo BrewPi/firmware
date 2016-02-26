@@ -205,6 +205,7 @@ protected:
 };
 
 class SetPointSimpleMixin :
+        public Nameable,
         public virtual VirtualSerializable
 {
 public:
@@ -229,16 +230,6 @@ public:
     void serialize(JSON::Adapter& adapter) final;
 protected:
     ~SetPointMinMaxMixin() = default;
-};
-
-class SetPointNamedMixin :
-        public Nameable,
-        public virtual VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) final;
-protected:
-    ~SetPointNamedMixin() = default;
 };
 
 class ActuatorPinMixin :

@@ -115,11 +115,6 @@ protected:
     ~SetPointMinMaxMixin() = default;
 };
 
-class SetPointNamedMixin {
-protected:
-    ~SetPointNamedMixin() = default;
-};
-
 class ActuatorPinMixin {
 protected:
     ~ActuatorPinMixin() = default;

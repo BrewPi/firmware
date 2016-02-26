@@ -106,21 +106,3 @@ private:
 
 friend class SetPointConstantMixin;
 };
-
-class SetPointNamed final : public SetPoint, public SetPointNamedMixin {
-public:
-    SetPointNamed(SetPoint * sp) : setPoint(sp){}
-    ~SetPointNamed() = default;
-
-    temp_t read() const final{
-        return setPoint->read();
-    }
-    void write(temp_t val) final{
-        setPoint->write(val);
-    }
-
-private:
-    SetPoint * setPoint;
-
-friend class SetPointNamedMixin;
-};

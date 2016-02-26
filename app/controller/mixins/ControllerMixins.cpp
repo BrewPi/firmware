@@ -287,6 +287,8 @@ void SetPointSimpleMixin::serialize(JSON::Adapter & adapter)
     SetPointSimple * obj = static_cast<SetPointSimple *>(this);
 
     JSON::Class root(adapter, "SetPointSimple");
+    std::string name(getName());    // get name as std string for json_writer
+    JSON_E(adapter, name);
     JSON_OT(adapter, value);
 }
 
@@ -297,16 +299,6 @@ void SetPointConstantMixin::serialize(JSON::Adapter & adapter)
 
     JSON::Class root(adapter, "SetPointConstant");
     JSON_T(adapter, value);
-}
-
-void SetPointNamedMixin::serialize(JSON::Adapter & adapter)
-{
-    SetPointNamed * obj = static_cast<SetPointNamed *>(this);
-
-    JSON::Class root(adapter, "SetPointNamed");
-    std::string name(getName());    // get name as std string for json_writer
-    JSON_E(adapter, name);
-    JSON_OT(adapter, setPoint);
 }
 
 void SetPointMinMaxMixin::serialize(JSON::Adapter & adapter)

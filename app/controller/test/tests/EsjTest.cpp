@@ -129,15 +129,21 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
 BOOST_AUTO_TEST_CASE(serialize_setpoint) {
     SetPoint * sp1 = new SetPointSimple();
     SetPoint * sp2 = new SetPointConstant(20.0);
-
+    SetPointSimple * sp3 = new SetPointSimple(25.0625);
+    sp3->setName("test");
 
     std::string json = JSON::producer<SetPoint>::convert(sp1);
-    std::string valid = R"({"kind":"SetPointSimple","value":null})";
+    std::string valid = R"({"kind":"SetPointSimple","name":"","value":null})";
 
     BOOST_CHECK_EQUAL(valid, json);
 
     json = JSON::producer<SetPoint>::convert(sp2);
     valid = R"({"kind":"SetPointConstant","value":20.0000})";
+
+    BOOST_CHECK_EQUAL(valid, json);
+
+    json = JSON::producer<SetPoint>::convert(sp3);
+    valid = R"({"kind":"SetPointSimple","name":"test","value":25.0625})";
 
     BOOST_CHECK_EQUAL(valid, json);
 }
@@ -173,7 +179,8 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
     {
         "kind": "ActuatorSetPoint",
         "targetSetPoint": {
-            "kind": "SetPointSimple"
+            "kind": "SetPointSimple",
+            "name": "",
             "value": 25.0000
         },
         "targetSensor": {
@@ -193,7 +200,7 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
 */
 
     std::string valid = R"({"kind":"ActuatorSetPoint",)"
-        R"("targetSetPoint":{"kind":"SetPointSimple","value":25.0000},)"
+        R"("targetSetPoint":{"kind":"SetPointSimple","name":"","value":25.0000},)"
         R"("targetSensor":{"kind":"TempSensorMock","value":20.0000,"connected":true},)"
         R"("referenceSetPoint":{"kind":"SetPointConstant","value":20.0000},)"
         R"("output":5.0000,"achieved":0.0000,"minimum":-10.0000,"maximum":10.0000})";
@@ -217,6 +224,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
     "enabled":true,
     "setPoint": {
         "kind": "SetPointSimple",
+        "name":"",
         "value": 20.0000
     },
     "inputSensor": {
@@ -247,7 +255,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
 */
 
     std::string valid = R"({"kind":"Pid","name":"","enabled":true,)"
-        R"("setPoint":{"kind":"SetPointSimple","value":20.0000},)"
+        R"("setPoint":{"kind":"SetPointSimple","name":"","value":20.0000},)"
         R"("inputSensor":{"kind":"TempSensorMock","value":20.0000,"connected":true},)"
         R"("inputError":0.0000,"Kp":0.0000,"Ti":0,"Td":0,"p":0.0000,"i":0.0000,"d":0.0000,)"
         R"("actuatorIsNegative":false,"outputActuator":{"kind":"ActuatorPwm",)"
