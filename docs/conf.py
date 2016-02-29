@@ -32,6 +32,10 @@ import os
 extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.todo',
+    'sphinx.ext.viewcode',
+    'breathe',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -299,13 +303,32 @@ source_parsers = {
 }
 
 # on_rtd is whether we are on readthedocs.org
-import os
+import platform, subprocess, os
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 if not on_rtd:  # only import and set the theme if we're building docs locally
     import sphinx_rtd_theme
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
+
+# Breathe extension variables
+breathe_projects = { "BrewPi Firmware": "_doxygen/xml/" }
+breathe_default_project = "BrewPi Firmware"
+
+
+def run_doxygen():
+    """Run the doxygen make command in the designated folder"""
+
+    read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+
+    if read_the_docs_build:
+        try:
+            retcode = subprocess.call("cd %s; doxygen" % folder, shell=True)
+            if retcode < 0:
+                sys.stderr.write("doxygen terminated by signal %s" % (-retcode))
+        except OSError as e:
+            sys.stderr.write("doxygen execution failed: %s" % e)
 
 # otherwise, readthedocs.org uses their theme by default, so no need to specify it
 
@@ -317,3 +340,5 @@ def setup(app):
             'auto_toc_tree_section': 'Contents',
             }, True)
     app.add_transform(AutoStructify)
+
+    run_doxygen()

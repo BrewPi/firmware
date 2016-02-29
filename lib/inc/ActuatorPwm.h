@@ -29,6 +29,11 @@
 #include "ActuatorForwarder.h"
 #include "ControllerMixins.h"
 
+/*!
+	ActuatorPWM drives a digital actuator and makes it available as range actuator, by quickly turning it on and off repeatedly.
+
+
+*/
 class ActuatorPwm final : public ActuatorForwarder, public ActuatorRange, public ActuatorPwmMixin
 {
     private:

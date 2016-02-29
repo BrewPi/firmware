@@ -43,3 +43,4 @@ test_results/*.pdf
 *.launch
 .cproject
 .project
+docs/_doxygen/
