@@ -3,24 +3,19 @@
 /**
  * Called by HAL_Core_Config() to setup SysTick_Configuration() if necessary.
  */
-void HAL_Core_Config_systick_configuration();
+void HAL_Core_Config_systick_configuration(void);
 
 /**
  * Called by HAL_Core_Config() to allow the HAL implementation to override
  * the interrupt table if required.
  */
-void HAL_Core_Setup_override_interrupts();
+void HAL_Core_Setup_override_interrupts(void);
 
 /**
  * Called by HAL_Core_Setup() to perform any post-setup config after the
  * watchdog has been disabled.
  */
-void HAL_Core_Setup_finalize();
-
-/**
- * The entrypoint called from startup_stm32f2xx.s
- */
-int main(void);
+void HAL_Core_Setup_finalize(void);
 
 /**
  * The entrypoint to start system firmware and the application.
@@ -52,6 +47,10 @@ void HAL_USART3_Handler(void);
 void HAL_USART4_Handler(void);
 void HAL_USART5_Handler(void);
 void ADC_irq();
+void CAN1_TX_irq(void);
+void CAN1_RX0_irq(void);
+void CAN1_RX1_irq(void);
+void CAN1_SCE_irq(void);
 void TIM1_CC_irq(void);
 void TIM2_irq(void);
 void TIM3_irq(void);
@@ -66,16 +65,18 @@ void TIM8_CC_irq(void);
 void TIM1_BRK_TIM9_irq(void);
 void TIM1_UP_TIM10_irq(void);
 void TIM1_TRG_COM_TIM11_irq(void);
-void CAN2_TX_irq();
-void CAN2_RX0_irq();
-void CAN2_RX1_irq();
-void CAN2_SCE_irq();
+void CAN2_TX_irq(void);
+void CAN2_RX0_irq(void);
+void CAN2_RX1_irq(void);
+void CAN2_SCE_irq(void);
 void I2C1_EV_irq(void);
 void I2C1_ER_irq(void);
 void I2C3_EV_irq(void);
 void I2C3_ER_irq(void);
 void DMA1_Stream7_irq(void);
 void DMA2_Stream5_irq(void);
+void DMA1_Stream2_irq(void);
+void DMA2_Stream2_irq_override(void);
 
 void EXTI0_IRQHandler(void);
 void EXTI1_IRQHandler(void);

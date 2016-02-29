@@ -26,6 +26,7 @@
 /* Define caddr_t as char* */
 #include <sys/types.h>
 
+#include "malloc.h"
 /* Define abort() */
 #include <stdlib.h>
 #include "debug.h"
@@ -63,30 +64,6 @@ void CallConstructors(void)
 
 
 void *__dso_handle = NULL;
-}
-
-/*
- * Implement C++ new/delete operators using the heap
- */
-
-void *operator new(size_t size)
-{
-	return malloc(size);
-}
-
-void *operator new[](size_t size)
-{
-	return malloc(size);
-}
-
-void operator delete(void *p)
-{
-	free(p);
-}
-
-void operator delete[](void *p)
-{
-	free(p);
 }
 
 extern "C" {
@@ -129,7 +106,8 @@ caddr_t _sbrk(int incr)
 
 uint32_t freeheap()
 {
-    return &__Stack_Init-heap_end;
+	struct mallinfo info = mallinfo();
+    return &__Stack_Init-heap_end + info.fordblks;
 }
 
 /* Bare metal, no processes, so error */
@@ -271,19 +249,6 @@ int _read(int file, char *ptr, int len) {
 }
 #endif
 
-/* Default implementation for call made to pure virtual function. */
-void __cxa_pure_virtual() {
-  PANIC(PureVirtualCall,"Call on pure virtual");
-  while (1);
-}
-
-/* Provide default implemenation for __cxa_guard_acquire() and
- * __cxa_guard_release(). Note: these must be revisited if a multitasking
- * OS is ported to this platform. */
-__extension__ typedef int __guard __attribute__((mode (__DI__)));
-int __cxa_guard_acquire(__guard *g) {return !*(char *)(g);};
-void __cxa_guard_release (__guard *g) {*(char *)g = 1;};
-void __cxa_guard_abort (__guard *) {};
 
 /*
 int _write(int file, char *ptr, int len) { return 0; }
@@ -296,11 +261,3 @@ int _isatty(int file) { return 0; }
 
 } /* extern "C" */
 
-namespace __gnu_cxx {
-
-void __verbose_terminate_handler()
-{
-    abort();
-}
-
-}

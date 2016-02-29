@@ -66,24 +66,34 @@ typedef struct exti_channel {
 //Array to hold user ISR function pointers
 static exti_channel exti_channels[16];
 
+typedef struct exti_state {
+    uint32_t imr;
+    uint32_t emr;
+    uint32_t rtsr;
+    uint32_t ftsr;
+} exti_state;
+
+static exti_state exti_saved_state;
+
 /* Extern variables ----------------------------------------------------------*/
 
 /* Private function prototypes -----------------------------------------------*/
 
-void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* data, InterruptMode mode, void* reserved)
+void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* data, InterruptMode mode, HAL_InterruptExtraConfiguration* config)
 {
   uint8_t GPIO_PortSource = 0;    //variable to hold the port number
 
   //EXTI structure to init EXT
-  EXTI_InitTypeDef EXTI_InitStructure;
+  EXTI_InitTypeDef EXTI_InitStructure = {0};
   //NVIC structure to set up NVIC controller
-  NVIC_InitTypeDef NVIC_InitStructure;
+  NVIC_InitTypeDef NVIC_InitStructure = {0};
 
   //Map the Spark pin to the appropriate port and pin on the STM32
   STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
   GPIO_TypeDef *gpio_port = PIN_MAP[pin].gpio_peripheral;
   uint16_t gpio_pin = PIN_MAP[pin].gpio_pin;
   uint8_t GPIO_PinSource = PIN_MAP[pin].gpio_pin_source;
+
 
   //Clear pending EXTI interrupt flag for the selected pin
   EXTI_ClearITPendingBit(gpio_pin);
@@ -146,8 +156,13 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
   //configure NVIC
   //select NVIC channel to configure
   NVIC_InitStructure.NVIC_IRQChannel = GPIO_IRQn[GPIO_PinSource];
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 14;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  if (config == NULL) {
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 14;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  } else {
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = config->IRQChannelPreemptionPriority;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = config->IRQChannelSubPriority;
+  }
   //enable IRQ channel
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   //update NVIC registers
@@ -165,7 +180,7 @@ void HAL_Interrupts_Detach(uint16_t pin)
   EXTI_ClearITPendingBit(gpio_pin);
 
   //EXTI structure to init EXT
-  EXTI_InitTypeDef EXTI_InitStructure;
+  EXTI_InitTypeDef EXTI_InitStructure = {0};
 
   //Select the appropriate EXTI line
   EXTI_InitStructure.EXTI_Line = gpio_pin;
@@ -204,6 +219,22 @@ void HAL_Interrupts_Disable_All(void)
   NVIC_DisableIRQ(EXTI4_IRQn);
   NVIC_DisableIRQ(EXTI9_5_IRQn);
   NVIC_DisableIRQ(EXTI15_10_IRQn);
+}
+
+void HAL_Interrupts_Suspend(void) {
+  exti_saved_state.imr = EXTI->IMR;
+  exti_saved_state.emr = EXTI->EMR;
+  exti_saved_state.rtsr = EXTI->RTSR;
+  exti_saved_state.ftsr = EXTI->FTSR;
+
+  EXTI_DeInit();
+}
+
+void HAL_Interrupts_Restore(void) {
+  EXTI->IMR = exti_saved_state.imr;
+  EXTI->EMR = exti_saved_state.emr;
+  EXTI->RTSR = exti_saved_state.rtsr;
+  EXTI->FTSR = exti_saved_state.ftsr;
 }
 
 /*******************************************************************************

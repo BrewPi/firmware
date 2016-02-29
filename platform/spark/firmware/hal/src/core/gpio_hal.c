@@ -76,7 +76,7 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
   GPIO_TypeDef *gpio_port = PIN_MAP[pin].gpio_peripheral;
   pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
 
-  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitTypeDef GPIO_InitStructure = {0};
 
   if (gpio_port == GPIOA )
   {
@@ -213,6 +213,15 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
     volatile uint32_t timeoutStart = SYSTEM_TICK_COUNTER; // total 3 seconds for entire function!
 
     /* If already on the value we want to measure, wait for the next one.
+     * Time out after 3 seconds so we don't block the background tasks
+     */
+    while (pinReadFast(pin) == value) {
+        if (SYSTEM_TICK_COUNTER - timeoutStart > 216000000UL) {
+            return 0;
+        }
+    }
+
+    /* Wait until the start of the pulse.
      * Time out after 3 seconds so we don't block the background tasks
      */
     while (pinReadFast(pin) != value) {

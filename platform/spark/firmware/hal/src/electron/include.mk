@@ -19,13 +19,9 @@ ifdef UBLOX_PHONE_NUM
 CFLAGS += -DUBLOX_PHONE_NUM='"$(UBLOX_PHONE_NUM)"'
 endif
 
-# if we are being compiled with platform as a dependency, then also include
-# implementation headers.
-ifneq (,$(findstring platform,$(DEPENDENCIES)))
 INCLUDE_DIRS += $(HAL_SRC_ELECTRON_INCL_PATH)
 INCLUDE_DIRS += $(HAL_INCL_STM32F2XX_PATH)
 INCLUDE_DIRS += $(HAL_INCL_STM32_PATH)
-endif
 
 HAL_LINK ?= $(findstring hal,$(MAKE_DEPENDENCIES))
 
@@ -34,9 +30,12 @@ ifneq (,$(HAL_LINK))
 LINKER_FILE=$(HAL_SRC_ELECTRON_INCL_PATH)/app_no_bootloader.ld
 LINKER_DEPS=$(LINKER_FILE)
 
-LDFLAGS += --specs=nano.specs -lc -lnosys
+LDFLAGS += -L$(COMMON_BUILD)/arm/linker/stm32f2xx
+LINKER_DEPS += $(NEWLIB_TWEAK_SPECS)
+LDFLAGS += --specs=nano.specs --specs=$(NEWLIB_TWEAK_SPECS)
 LDFLAGS += -T$(LINKER_FILE)
 LDFLAGS += -Wl,--defsym,__STACKSIZE__=1400
+
 # support for external linker file
 
 # todo - factor out common code with photon include.mk

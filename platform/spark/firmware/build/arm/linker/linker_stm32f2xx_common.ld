@@ -97,14 +97,8 @@ SECTIONS
    	 _edata = . ;
     } >RAM AT>APP_FLASH
 
-      .backup :
-    {
-        link_global_retained_initial_values = LOADADDR( .backup ); /* This is the location in flash of the initial values of retained global variables */
-        link_global_retained_start = .;
-        *(.retained_user*)
-        link_global_retained_end = .;
-        . = ALIGN(., 4);
-    }>BACKUPSRAM AT> APP_FLASH
+	INCLUDE backup_ram_system.ld
+	INCLUDE backup_ram_user.ld
 
     /* This is the uninitialized data section */
     .bss :

@@ -12,6 +12,7 @@ INCLUDE_DIRS += $(HAL_SRC_STM32_PATH)
 
 # C source files included in this build.
 CSRC += $(call target_files,$(HAL_SRC_COREV1_PATH)/,*.c)
+CSRC += $(call target_files,$(HAL_SRC_STM32_PATH)/,*.c)
 
 
 # C++ source files included in this build.
@@ -21,4 +22,7 @@ CPPSRC += $(call target_files,$(HAL_SRC_STM32_PATH)/,*.cpp)
 
 # ASM source files included in this build.
 ASRC +=
+
+# Stick to some POSIX-conforming API to disable BSD extensions
+CFLAGS += -D_POSIX_C_SOURCE=200809
 

@@ -173,8 +173,8 @@ public:
 
     wiced_tcp_socket_t* get_socket() { return socket; }
 
-    int write(const void* buffer, size_t len, bool flush=false) {
-        int result = WICED_TCPIP_INVALID_SOCKET;
+    wiced_result_t write(const void* buffer, size_t len, bool flush=false) {
+        wiced_result_t result = WICED_TCPIP_INVALID_SOCKET;
         if (socket) {
             result = wiced_tcp_send_buffer(socket, buffer, uint16_t(len));
         }
@@ -511,19 +511,20 @@ public:
     bool remove(socket_t* item)
     {
         bool removed = false;
-            if (items==item) {
-                items = item->next;
-            removed = true;
-        }
+		if (items==item) {
+			items = item->next;
+			removed = true;
+		}
         else
         {
-                socket_t* current = items;
+			socket_t* current = items;
             while (current) {
                 if (current->next==item) {
                     current->next = item->next;
                     removed = true;
                     break;
                 }
+                current = current->next;
             }
         }
         return removed;
@@ -819,6 +820,8 @@ sock_result_t socket_receive(sock_handle_t sd, void* buffer, socklen_t len, syst
             bytes_read = read_packet_and_dispose(server_client->packet, buffer, len, server_client->get_socket(), _timeout);
         }
     }
+    if (bytes_read<0)
+    		DEBUG("socket_receive on %d returned %d", sd, bytes_read);
     return bytes_read;
 }
 
@@ -993,7 +996,7 @@ sock_result_t socket_send(sock_handle_t sd, const void* buffer, socklen_t len)
         }
         else if (is_client(socket)) {
             tcp_server_client_t* server_client = client(socket);
-            result = server_client->write(buffer, len);
+            wiced_result = server_client->write(buffer, len);
         }
         if (!wiced_result)
             DEBUG("Write %d bytes to socket %d result=%d", (int)len, (int)sd, wiced_result);
@@ -1049,7 +1052,7 @@ sock_result_t socket_receivefrom(sock_handle_t sd, void* buffer, socklen_t bufLe
             wiced_packet_delete(packet);
         }
     }
-    return result!=WICED_SUCCESS ? as_sock_result(result) : sock_result_t(read_len);
+    return result!=WICED_SUCCESS && result!=WICED_TIMEOUT ? as_sock_result(result) : sock_result_t(read_len);
 }
 
 

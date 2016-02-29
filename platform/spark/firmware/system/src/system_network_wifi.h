@@ -75,6 +75,7 @@ protected:
 
     virtual void on_start_listening() override
     {
+        notify_cannot_shutdown();
         /* If WiFi module is connected, disconnect it */
         network_disconnect(0, 0, NULL);
 
@@ -92,11 +93,6 @@ protected:
     void connect_init() override
     {
         wlan_connect_init();
-
-        if (wlan_reset_credentials_store_required())
-        {
-            wlan_reset_credentials_store();
-        }
 
         Set_NetApp_Timeout();
     }
@@ -132,9 +128,10 @@ public:
     }
 
 
-    void connect_cancel() override
+    void connect_cancel(bool cancel, bool calledFromISR) override
     {
-        wlan_connect_cancel(true);
+        if (cancel)
+            wlan_connect_cancel(calledFromISR);
     }
 
     bool has_credentials() override
@@ -172,6 +169,11 @@ public:
     void setup() override
     {
         wlan_setup();
+
+        if (wlan_reset_credentials_store_required())
+        {
+            wlan_reset_credentials_store();
+        }
     }
 
     void fetch_ipconfig(WLanConfig* target) override

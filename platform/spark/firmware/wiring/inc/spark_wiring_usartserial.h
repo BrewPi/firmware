@@ -35,6 +35,7 @@ class USARTSerial : public Stream
 {
 private:
   HAL_USART_Serial _serial;
+  bool _blocking;
 public:
   USARTSerial(HAL_USART_Serial serial, Ring_Buffer *rx_buffer, Ring_Buffer *tx_buffer);
   virtual ~USARTSerial() {};
@@ -43,6 +44,9 @@ public:
   void halfduplex(bool);
   void end();
 
+  virtual void blockOnOverrun(bool);
+
+  virtual int availableForWrite(void);
   virtual int available(void);
   virtual int peek(void);
   virtual int read(void);
@@ -91,22 +95,27 @@ inline void __handleSerialEvent(USARTSerial& serial, void (*handler)(void))
 
 
 #ifndef SPARK_WIRING_NO_USART_SERIAL
-extern USARTSerial Serial1;
+#define Serial1 __fetch_global_Serial1()
+extern USARTSerial& __fetch_global_Serial1();
 
 #if Wiring_Serial2
-extern USARTSerial Serial2;
+#define Serial2 __fetch_global_Serial2()
+extern USARTSerial& __fetch_global_Serial2();
 #endif
 
 #if Wiring_Serial3
-extern USARTSerial Serial3;
+#define Serial3 __fetch_global_Serial3()
+extern USARTSerial& __fetch_global_Serial3();
 #endif
 
 #if Wiring_Serial4
-extern USARTSerial Serial4;
+#define Serial4 __fetch_global_Serial4()
+extern USARTSerial& __fetch_global_Serial4();
 #endif
 
 #if Wiring_Serial5
-extern USARTSerial Serial5;
+#define Serial5 __fetch_global_Serial5()
+extern USARTSerial& __fetch_global_Serial5();
 #endif
 
 #endif

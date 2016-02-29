@@ -28,6 +28,7 @@
 #include "system_sleep.h"
 #include "spark_protocol_functions.h"
 #include "spark_wiring_system.h"
+#include "spark_wiring_watchdog.h"
 #include "interrupts_hal.h"
 #include <functional>
 
@@ -40,10 +41,85 @@ typedef std::function<void (const char*, const char*)> wiring_event_handler_t;
 #define CLOUD_FN(x,y) (x)
 #endif
 
+class PublishFlag
+{
+public:
+	typedef uint8_t flag_t;
+	PublishFlag(flag_t flag) : flag_(flag) {}
+
+	explicit operator flag_t() const { return flag_; }
+
+	flag_t flag() const { return flag_; }
+
+private:
+	flag_t flag_;
+
+
+};
+
+const PublishFlag PUBLIC(PUBLISH_EVENT_FLAG_PUBLIC);
+const PublishFlag PRIVATE(PUBLISH_EVENT_FLAG_PRIVATE);
+const PublishFlag NO_ACK(PUBLISH_EVENT_FLAG_NO_ACK);
+
+
 class CloudClass {
 
 
 public:
+
+
+    static inline bool variable(const char* varKey, const bool& var)
+    {
+        return variable(varKey, &var, BOOLEAN);
+    }
+
+    static inline bool variable(const char* varKey, const int& var)
+    {
+        return variable(varKey, &var, INT);
+    }
+#if PLATFORM_ID!=3
+    // compiling with gcc this function duplicates the previous one.
+    static inline bool variable(const char* varKey, const int32_t& var)
+    {
+        return variable(varKey, &var, INT);
+    }
+#endif
+    static inline bool variable(const char* varKey, const uint32_t& var)
+    {
+        return variable(varKey, &var, INT);
+    }
+
+#if PLATFORM_ID!=3
+    static bool variable(const char* varKey, const float& var)
+    __attribute__((error("Please change the variable from type `float` to `double` for use with Particle.variable().")));
+#endif
+
+    static inline bool variable(const char* varKey, const double& var)
+    {
+        return variable(varKey, &var, DOUBLE);
+    }
+
+    static inline bool variable(const char* varKey, const String& var)
+    {
+        return variable(varKey, &var, STRING);
+    }
+
+    static inline bool variable(const char* varKey, const char* var)
+    {
+        return variable(varKey, var, STRING);
+    }
+
+    template<std::size_t N>
+    static inline bool variable(const char* varKey, const char var[N])
+    {
+        return variable(varKey, var, STRING);
+    }
+
+    template<std::size_t N>
+    static inline bool variable(const char* varKey, const unsigned char var[N])
+    {
+        return variable(varKey, var, STRING);
+    }
 
     static inline bool variable(const char *varKey, const uint8_t* userVar, const CloudVariableTypeString& userVarType)
     {
@@ -53,6 +129,11 @@ public:
     template<typename T> static inline bool variable(const char *varKey, const typename T::varref userVar, const T& userVarType)
     {
         return CLOUD_FN(spark_variable(varKey, (const void*)userVar, T::value(), NULL), false);
+    }
+
+    static inline bool variable(const char *varKey, const int32_t* userVar, const CloudVariableTypeInt& userVarType)
+    {
+        return CLOUD_FN(spark_variable(varKey, (const void*)userVar, CloudVariableTypeInt::value(), NULL), false);
     }
 
     static inline bool variable(const char *varKey, const uint32_t* userVar, const CloudVariableTypeInt& userVarType)
@@ -67,12 +148,16 @@ public:
         static_assert(sizeof(T)==0, "\n\nUse Particle.variable(\"name\", myVar, STRING); without & in front of myVar\n\n");
         return false;
     }
+
     template<typename T>
     static inline bool variable(const T *varKey, const String *userVar, const CloudVariableTypeString& userVarType)
     {
-        static_assert(sizeof(T)==0, "\n\nIn Particle.variable(\"name\", myVar, STRING); myVar must be declared as char myVar[] not String myVar\n\n");
-        return false;
+        spark_variable_t extra;
+        extra.size = sizeof(extra);
+        extra.update = update_string_variable;
+        return CLOUD_FN(spark_variable(varKey, userVar, CloudVariableTypeString::value(), &extra), false);
     }
+
     template<typename T>
     static inline bool variable(const T *varKey, const String &userVar, const CloudVariableTypeString& userVarType)
     {
@@ -108,27 +193,33 @@ public:
       function(funcKey, std::bind(func, instance, _1));
     }
 
-    bool publish(const char *eventName, Spark_Event_TypeDef eventType=PUBLIC)
+    inline bool publish(const char *eventName, PublishFlag eventType=PUBLIC)
     {
-        return CLOUD_FN(spark_send_event(eventName, NULL, 60, eventType, NULL), false);
+        return CLOUD_FN(spark_send_event(eventName, NULL, 60, PublishFlag::flag_t(eventType), NULL), false);
     }
 
-    bool publish(const char *eventName, const char *eventData, Spark_Event_TypeDef eventType=PUBLIC)
+    inline bool publish(const char *eventName, const char *eventData, PublishFlag eventType=PUBLIC)
     {
-        return CLOUD_FN(spark_send_event(eventName, eventData, 60, eventType, NULL), false);
+        return CLOUD_FN(spark_send_event(eventName, eventData, 60, PublishFlag::flag_t(eventType), NULL), false);
     }
 
-    bool publish(const char *eventName, const char *eventData, int ttl, Spark_Event_TypeDef eventType=PUBLIC)
+    inline bool publish(const char *eventName, const char *eventData, PublishFlag f1, PublishFlag f2)
     {
-        return CLOUD_FN(spark_send_event(eventName, eventData, ttl, eventType, NULL), false);
+        return CLOUD_FN(spark_send_event(eventName, eventData, 60, f1.flag()+f2.flag(), NULL), false);
     }
 
-    bool subscribe(const char *eventName, EventHandler handler, Spark_Subscription_Scope_TypeDef scope=ALL_DEVICES)
+
+    inline bool publish(const char *eventName, const char *eventData, int ttl, PublishFlag eventType=PUBLIC)
+    {
+        return CLOUD_FN(spark_send_event(eventName, eventData, ttl, PublishFlag::flag_t(eventType), NULL), false);
+    }
+
+    inline bool subscribe(const char *eventName, EventHandler handler, Spark_Subscription_Scope_TypeDef scope=ALL_DEVICES)
     {
         return CLOUD_FN(spark_subscribe(eventName, handler, NULL, scope, NULL, NULL), false);
     }
 
-    bool subscribe(const char *eventName, EventHandler handler, const char *deviceID)
+    inline bool subscribe(const char *eventName, EventHandler handler, const char *deviceID)
     {
         return CLOUD_FN(spark_subscribe(eventName, handler, NULL, MY_DEVICES, deviceID, NULL), false);
     }
@@ -175,9 +266,13 @@ public:
     { SystemClass::sleep(wakeUpPin, edgeTriggerMode, seconds); }
 
     static bool connected(void) { return spark_connected(); }
+    static bool disconnected(void) { return !connected(); }
     static void connect(void) { spark_connect(); }
     static void disconnect(void) { spark_disconnect(); }
-    static void process(void) { spark_process(); }
+    static void process(void) {
+    		application_checkin();
+    		spark_process();
+    }
     static String deviceID(void) { return SystemClass::deviceID(); }
 
 private:
@@ -188,7 +283,7 @@ private:
 
     static void call_wiring_event_handler(const void* param, const char *event_name, const char *data);
 
-    SparkProtocol* sp() { return spark_protocol_instance(); }
+    ProtocolFacade* sp() { return spark_protocol_instance(); }
 
     bool subscribe_wiring(const char *eventName, wiring_event_handler_t handler, Spark_Subscription_Scope_TypeDef scope, const char *deviceID = NULL)
     {
@@ -205,6 +300,12 @@ private:
         }
         return success;
 #endif
+    }
+
+    static const void* update_string_variable(const char* name, Spark_Data_TypeDef type, const void* var, void* reserved)
+    {
+        const String* s = (const String*)var;
+        return s->c_str();
     }
 };
 

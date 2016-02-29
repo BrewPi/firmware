@@ -23,6 +23,22 @@
 
 #include "testapi.h"
 
+#if Wiring_WiFi == 1
+
+test(api_wifi_config)
+{
+	IPAddress address;
+	uint8_t* ether = nullptr;
+	String ssid;
+	API_COMPILE(ssid=WiFi.SSID());
+	API_COMPILE(address=WiFi.localIP());
+	API_COMPILE(address=WiFi.dnsServerIP());
+	API_COMPILE(address=WiFi.dhcpServerIP());
+	API_COMPILE(address=WiFi.gatewayIP());
+	API_COMPILE(ether=WiFi.macAddress(ether));
+	API_COMPILE(ether=WiFi.BSSID(ether));
+}
+
 test(api_wifi_resolve) {
 
     API_COMPILE(WiFi.resolve(String("abc.def.com")));
@@ -158,3 +174,18 @@ test(api_wifi_ipconfig)
     API_COMPILE(address=WiFi.dhcpServerIP());
     (void)address;
 }
+
+test(api_wifi_get_credentials)
+{
+    WiFiAccessPoint ap[10];
+    int found = WiFi.getCredentials(ap, 10);
+    for (int i=0; i<found; i++) {
+        Serial.print("ssid: ");
+        Serial.println(ap[i].ssid);
+        Serial.println(ap[i].security);
+        Serial.println(ap[i].channel);
+        Serial.println(ap[i].rssi);
+    }
+}
+
+#endif
