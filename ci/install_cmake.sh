@@ -7,8 +7,8 @@ mkdir -p .cache/cmake
     wget --no-check-certificate http://cmake.org/files/v3.4/$file -O $dl
 )
 tar -xzf $dl                        
-export CXX="g++-4.9" 
-export CC="gcc-4.9"
+export CXX="/usr/bin/g++-4.9" 
+export CC="/usr/bin/gcc-4.9"
 export cmake=./cmake-3.4.3-Linux-x86_64/bin/cmake
 
 
