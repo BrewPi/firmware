@@ -9,5 +9,5 @@ fi
 }
 
 
-$(cmake) . && make
+$cmake . && make
 
