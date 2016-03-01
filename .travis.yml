@@ -1,11 +1,10 @@
 sudo: false
 os:
- - linux
+- linux
 language: cpp
 cache:
   directories:
-  - .cache
-
+  - ".cache"
 addons:
   apt:
     sources:
@@ -13,16 +12,12 @@ addons:
     packages:
     - gcc-4.9
     - g++-4.9
-
 install:
 - mkdir -p .cache
-#- ./ci/install_arm_gcc.sh
-#- ./platform/spark/firmware/ci/install_gcc.sh
 - source ./ci/install_boost.sh
 - source ./ci/install_cmake.sh
-
 script:
-- ./ci/build.sh
+- "./ci/build.sh"
 notifications:
   slack:
-    secure: AoLzFHi7c7sRdcsMIzCgG3amg/1acImECO21Q3LXf6i6++ytqrvgTiQMQp9k1XJq+WVlrRiP7NDl3o8oMQv9nR/xrNXhosYHXVHAYY/B1nh4jl4pp8hPTMQUJcac64w1zbJMMqlABbawelVg8qF4zn+TNX+io8APERoycBpQgT4=
+    secure: NntdRLK+mG30ejmd7YoSA01QAGkyKCYIF6PokOj5gMjGQQC1GFc1K2DuATN89WfJ9XbIrYF2UB2J9yc1duMS3hjPCmVKb47Tk9nJhbj2ES9Vt1d4ht24CurqRvXm1cgknDz/oUiFVFNVWifu/uiaLlBpHRuhiaVV9zucqnDadObpeimovaHgT+PdzmmD+zQqpKcSaqn3eaMtuc2Bj6b34KDBA/ptw1zRUoc/kp/G5BOgbyGig6Li1JAj1lInZTsbqikbH7LY9/YnGf3eVtMCyBs/D8jHqnJggW3Naqk+HlYwRYs5OZBxH2ZVV8Ed1azLvnmYjCok5aVUX9SGs7LCUHB2Xa2NI+KRqchqFQ5OyFAXDDFr3AsiGDtBIgBvQG2TVtyKvtUQROFlZuopr9qSqZFsv92eJTcsQadJ+PXMGjS5p1F+vejmIPGcyWyo7jEjX+l9qGmJPm65EK2dUz2NHl66Pbz20Mftci7rN4ikeFHoPcoMwK60gNQW9AWhOZoI2UYr1ieYH7QPLajNiJCfAMziLZ7kXHgeSCLeQs4xOqTPNmw6V2cds4NYkTxI8vndYsbyJjpUgvrhdaXne6NslEjfDZgRmXJFBT3o0jcmNO2bOVLIRE3aamDFRNon6iMVbvUSoT/6DG4c/WV61SZKXFfJv/Ny7dylUVdUU5fVf4Y=
