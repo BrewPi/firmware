@@ -23,7 +23,7 @@
 #include "GenericContainer.h"
 #include "SystemProfile.h"
 #include "Comms.h"
-#include <stdlib.h>
+#include <string.h>
 
 /**
  * The no-op command simply echoes the response until the end of stream.
