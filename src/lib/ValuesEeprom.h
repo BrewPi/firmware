@@ -17,15 +17,14 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #pragma once
 
 #include "DataStream.h"
 #include "Values.h"
 #include "EepromAccess.h"
 #include "DataStreamEeprom.h"
-#include "SystemProfile.h"
 #include "StreamUtil.h"
+#include "Static.h"
 
 /**
  * Base class for a read-write value in eeprom. This class is responsible for moving the data
@@ -34,17 +33,23 @@
 class EepromBaseValue : public Value  {
 
 protected:
+#if !CONTROLBOX_STATIC
+	EepromAccess& eepromAccess;
+
+	EepromBaseValue(EepromAccess& ea) : eepromAccess(ea){}
+#endif
+
 
 	void _readTo(DataOut& out, eptr_t offset, uint8_t size)
 	{
-		EepromDataIn in;
+		EepromDataIn in cb_nonstatic_decl((eepromAccess));
 		in.reset(offset, size);
 		in.push(out, size);
 	}
 
 	void _writeFrom(DataIn& in, eptr_t offset, uint8_t size)
 	{
-		EepromDataOut out;
+		EepromDataOut out cb_nonstatic_decl((eepromAccess));
 		out.reset(offset, size);
 		in.push(out, size);
 	}
@@ -84,6 +89,8 @@ protected:
 
 public:
 
+    cb_nonstatic_decl(EepromValue(EepromAccess& ea):EepromBaseValue(ea){})
+
 	void rehydrated(eptr_t address)
 	{
 		this->address = address;
@@ -102,83 +109,10 @@ public:
 
 	static Object* create(ObjectDefinition& defn)
 	{
-		return new_object(EepromValue());
+		return new_object(EepromValue(cb_nonstatic_decl(defn.eepromAccess())));
 	}
 };
 
-
-/**
- * Streams an eeprom value of a given fixed size.
- */
-class EepromBlock : public EepromBaseValue
-{
-	protected:
-		eptr_t _offset;
-		uint8_t _size;
-
-	public:
-		EepromBlock(eptr_t offset, uint8_t size) : _offset(offset), _size(size) {}
-
-		void readTo(DataOut& out) {
-			_readTo(out, _offset, _size);
-		}
-
-        void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn) {
-            _writeMaskedFrom(dataIn, maskIn, _size, _offset);
-        }
-
-		eptr_t eeprom_offset() { return _offset; }
-		uint8_t streamSize() { return _size; }
-};
-
-
-/**
- * A value that saves the state to eeprom when the difference between the persisted value and the current
- * value is greater than a given threshold.
- */
-class PersistChangeValue : EepromValue
-{
-	int16_t currentValue;
-
-public:
-
-	int16_t difference() {
-		return readPointer(eeprom_offset()+2);
-	}
-
-	int16_t savedValue() {
-		return readPointer(eeprom_offset());
-	}
-
-	void rehydrated(eptr_t address) {
-		EepromValue::rehydrated(address);
-		currentValue = savedValue();
-	}
-
-	void readTo(DataOut& out) {
-		out.write(uint8_t(currentValue>>8));
-		out.write(uint8_t(currentValue&0xFF));
-	}
-
-	void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn) {
-		// to save space, we don't bother allowing masking against the source
-		currentValue = int16_t(readMaskedByte(dataIn, maskIn))<<8 | readMaskedByte(dataIn, maskIn);
-		if (abs(currentValue-savedValue())>difference())
-			writePointer(eeprom_offset(), currentValue);
-	}
-
-	uint8_t streamSize() {
-		return 2;
-	}
-
-	/**
-	 * 2 bytes: current value
-	 * 2 bytes: difference threshold to save
-	 */
-	static Object* create(ObjectDefinition& def) {
-		return new_object(PersistChangeValue());
-	}
-};
 
 #if 0
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Matthew McGowan.
+ * Copyright 2015 Matthew McGowan.
  *
  * This file is part of Nice Firmware.
  *
@@ -17,23 +17,9 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
 
-#include "ValuesProgmem.h"
-#include "Platform.h"
+#include "Values.h"
+#include "Integration.h"
 
-#ifdef ARDUINO
-#include "avr/pgmspace.h"
-#endif
 
-void ProgmemStringValue::readTo(DataOut& out) {
-	const char* v = value;
-	uint8_t b;
-	do {
-		b = pgm_read_byte(v++);
-		out.write(b);
-	} while (b);
-}
-
-uint8_t ProgmemStringValue::streamSize() {
-	return strlen_P(value);
-}

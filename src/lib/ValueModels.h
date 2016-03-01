@@ -22,6 +22,7 @@
 
 #include "pointer_scalar.h"
 #include "Values.h"
+#include "ValuesEeprom.h"
 
 /**
  * A streamable value whose data resizes externally.
@@ -134,21 +135,36 @@ class IndirectValue : public EepromValue
 private:
 	Value* previous;
 
-        void fetchTarget() {
-                EepromDataIn data;
+	cb_nonstatic_decl(Container* root_;)
+
+	void fetchTarget() {
+		EepromDataIn data cb_nonstatic_decl((eepromAccess));
 		data.reset(address, eepromAccess.readByte(address-1));
-		previous = (Value*)lookupUserObject(data);
-        }
+		previous = (Value*)lookupUserObject(root(), data);
+	}
 public:
 
+#if !CONTROLBOX_STATIC
+	IndirectValue(EepromAccess& ea, Container* root) : EepromValue(ea), root_(root) {}
+#endif
+
+	inline Container* root()
+	{
+#if CONTROLBOX_STATIC
+		return systemProfile.rootContainer();
+#else
+		return root_;
+#endif
+	}
+
 	object_t objectType() {
-            fetchTarget();
+		fetchTarget();
 		return previous==NULL ? ObjectFlags::Object : previous->objectType();
 	}
 
 	prepare_t prepare() {
-            fetchTarget();
-                return previous==NULL ? 0 : previous->prepare();
+		fetchTarget();
+		return previous==NULL ? 0 : previous->prepare();
 	}
 
 	uint8_t streamSize() { return previous->streamSize(); }
@@ -156,7 +172,7 @@ public:
 	void writeMaskedFrom(DataIn& dataIn, DataIn& maskedIn) { if (previous) previous->writeMaskedFrom(dataIn, maskedIn); }
 
 	static Object* create(ObjectDefinition& def)
-        {
-            return new_object(IndirectValue());
-        }
+	{
+		return new_object(IndirectValue(cb_nonstatic_decl(def.eepromAccess(), def.root)));
+	}
 };

@@ -25,7 +25,6 @@
 #include <boost/range/adaptor/transformed.hpp>
 
 #include "Platform.h"
-#include "Version.h"
 #include "Ticks.h"
 #include "Comms.h"
 #include "Commands.h"
@@ -56,7 +55,7 @@ class MockSerial : public Stream
 	operator bool() { return true; }
 };
 
-static MockSerial comms;
+static MockSerial commsDevice;
 
 #elif !defined(ARDUINO) && !defined(SPARK)
 class Stream {};
@@ -89,9 +88,9 @@ private:
 
 #include <CommsStdIO.inc>
 
-StdIO comms;
+StdIO commsDevice;
 #else
-#define comms Serial
+#define commsDevice Serial
 	#define CONTROLBOX_COMMS_USE_FLUSH 0
 // for serial, flush waits until the output has been flushed. The flush is there just to ensure the output is not
 // buffered, which it never is with serial.
@@ -108,10 +107,10 @@ StdIO comms;
  */
 class CommsIn : public DataIn
 {
-	bool hasNext() override { return comms; }			// hasNext true if stream is still open.
-	uint8_t next() override { return comms.read(); }
-	uint8_t peek() override { return comms.peek(); }
-        unsigned available() override { return comms.available(); }
+	bool hasNext() override { return commsDevice; }			// hasNext true if stream is still open.
+	uint8_t next() override { return commsDevice.read(); }
+	uint8_t peek() override { return commsDevice.peek(); }
+        unsigned available() override { return commsDevice.available(); }
 };
 
 class CommsOut : public DataOut
@@ -127,12 +126,12 @@ public:
 	}
 
 	bool write(uint8_t data) {
-		comms.write(data);
+		commsDevice.write(data);
 		return true;
 	}
 	void flush() {
 	#if CONTROLBOX_COMMS_USE_FLUSH		// only flush for those stream types that require it
-		comms.flush();
+		commsDevice.flush();
 	#endif
 	}
 };
@@ -247,7 +246,7 @@ struct CommsConnection : public ConnectionData<D>
     }
 
     virtual bool connected() override {
-        return comms;
+        return commsDevice;
     }
 };
 
@@ -462,10 +461,10 @@ CompositeDatOutType compositeOut(&fetch_streams<ToDataOutFunctor>);
  * Transform each TCPClient into a DataOut instance.
  */
 
-
-
 void Comms::init() {
-    comms.begin(57600);
+	prevConnected = false;
+	reset = false;
+    commsDevice.begin(57600);
 }
 
 
@@ -683,63 +682,96 @@ public:
 	}
 };
 
-BinaryToHexTextOut hexOut(compositeOut);
-DataOut& Comms::hexOut = ::hexOut;
-bool prevConnected = false;
+cb_static_decl(BinaryToHexTextOut hexOut(compositeOut);)
+cb_static_decl(DataOut& Comms::hexOut = ::hexOut;)
+cb_static_decl(bool Comms::prevConnected;)
+cb_static_decl(bool Comms::reset;)
+cb_static_decl(Comms comms;)
 
-bool reset = false;
+
 void Comms::resetOnCommandComplete() {
 	reset = true;
 }
 
-StandardConnection* handleConnection(StandardConnection& connection)
+StandardConnection* handleConnection(
+#if !CONTROLBOX_STATIC
+		Comms& comms,
+#endif
+		StandardConnection& connection)
 {
     static uint16_t connection_count = 0;
     bool connected = connection.getData();
     if (!connected) {
         connection.setData(true);
         connection_count++;
-        connectionStarted(connection.getDataOut());
+		cb_nonstatic_decl(comms.)connectionStarted(connection.getDataOut());
     }
 
     return connection.getDataIn().available() ? &connection : nullptr;
 }
 
-void processCommand(StandardConnection* connection)
+#if CONTROLBOX_STATIC
+#define cmd_callback(x) commands.x
+#else
+#define cmd_callback(x) commands_ptr->x
+#endif
+
+inline void Comms::connectionStarted(DataOut& out)
+{
+	cmd_callback(connectionStarted(out));
+}
+
+inline void Comms::handleCommand(DataIn& in, DataOut& out)
+{
+	cmd_callback(handleCommand(in, out));
+}
+
+void processCommand(
+#if !CONTROLBOX_STATIC
+		Comms& comms,
+		DataOut& hexOut,
+#endif
+		StandardConnection* connection)
 {
     DataIn& dataIn = connection->getDataIn();
     while (dataIn.hasNext()) {
-              // there is some data ready to be processed											// form this point on, the system will block waiting for a complete command or newline.
-              TextIn textIn(dataIn);
-              HexTextToBinaryIn hexIn(textIn);
-              if (hexIn.hasNext()) {				// ignore blank newlines, annotations etc..
-                    handleCommand(hexIn, hexOut);
-                    while (hexIn.hasNext())	{			// todo - log a message about unconsumed data?
-                              hexIn.next();
-                    }
-            }
-            hexOut.close();
+		  // there is some data ready to be processed											// form this point on, the system will block waiting for a complete command or newline.
+		  TextIn textIn(dataIn);
+		  HexTextToBinaryIn hexIn(textIn);
+		  if (hexIn.hasNext()) {				// ignore blank newlines, annotations etc..
+				comms.handleCommand(hexIn, hexOut);
+				while (hexIn.hasNext())	{			// todo - log a message about unconsumed data?
+						  hexIn.next();
+				}
+		}
+		hexOut.close();
     }
-
 }
 
-void Comms::receive() {
+void Comms::receive()
+{
+	if (reset)
+		return;
 
-        if (reset)
-            return;
+	manageConnection();
 
-        manageConnection();
-
-        for (auto& connection : all_connections())
-        {
-            StandardConnection* c = handleConnection(connection);
-            if (c) {
-                processCommand(c);
-            }
-        }
-        if (reset) {
-		handleReset(true);					// do the hard reset
+	for (auto& connection : all_connections())
+	{
+		StandardConnection* c = handleConnection(
+#if !CONTROLBOX_STATIC
+				*this,
+#endif
+				connection);
+		if (c) {
+			processCommand(
+#if !CONTROLBOX_STATIC
+					*this, hexOut,
+#endif
+					c);
+		}
 	}
-
+	if (reset) {
+		cmd_callback(handleReset(true));					// do the hard reset
+	}
 }
 

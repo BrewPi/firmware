@@ -23,7 +23,10 @@
 #include "Comms.h"
 #include "SystemProfile.h"
 #include "Commands.h"
+#include "Static.h"
 
+
+#if CONTROLBOX_STATIC
 
 /**
  * Function prototype expected by the commands implementation to perform
@@ -66,7 +69,7 @@ void controlbox_setup(size_t loadProfileDelay);
  */
 void controlbox_loop();
 
-
+#endif
 
 #endif	/* INTEGRATION_H */
 

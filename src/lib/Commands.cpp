@@ -20,22 +20,14 @@
 #include "Values.h"
 #include "Commands.h"
 #include "DataStream.h"
-#include "ValuesEeprom.h"
 #include "GenericContainer.h"
 #include "SystemProfile.h"
 #include "Comms.h"
 
 /**
- * A command handler function. This is the signature of commands.
- * @param in	The data stream providing input to the command.
- * @param out	The data stream that accepts output from the command.
- */
-typedef void (*CommandHandler)(DataIn& in, DataOut& out);
-
-/**
  * The no-op command simply echoes the response until the end of stream.
  */
-void noopCommandHandler(DataIn& _in, DataOut& out)
+void Commands::noopCommandHandler(DataIn& _in, DataOut& out)
 {
 	while (_in.hasNext());
 }
@@ -57,12 +49,12 @@ void readValue(Object* root, DataIn& in, DataOut& out) {
  * Implements the read value command. Accepts multiple ID chains and outputs each chain plus the
  * data for that object, or a 0-byte block if the object is not known or is not readable.
  */
-void readValueCommandHandler(DataIn& in, DataOut& out) {
-	readValue(rootContainer(), in, out);
+void Commands::readValueCommandHandler(DataIn& in, DataOut& out) {
+	readValue(systemProfile.rootContainer(), in, out);
 }
 
-void readSystemValueCommandHandler(DataIn& in, DataOut& out) {
-	readValue(SystemProfile::systemContainer(), in, out);
+void Commands::readSystemValueCommandHandler(DataIn& in, DataOut& out) {
+	readValue(systemProfile.systemContainer(), in, out);
 }
 
 /**
@@ -86,23 +78,23 @@ void setValue(Object* root, DataIn& in, DataIn& mask, DataOut& out) {
 }
 
 
-void setValueCommandHandler(DataIn& in, DataOut& out) {
+void Commands::setValueCommandHandler(DataIn& in, DataOut& out) {
 	DefaultMask defaultMask;
-	setValue(rootContainer(), in, defaultMask, out);
+	setValue(systemProfile.rootContainer(), in, defaultMask, out);
 }
 
-void setMaskValueCommandHandler(DataIn& in, DataOut& out) {
+void Commands::setMaskValueCommandHandler(DataIn& in, DataOut& out) {
 	// the mask is given as the input stream - the data are interleaved.
-	setValue(rootContainer(), in, in, out);
+	setValue(systemProfile.rootContainer(), in, in, out);
 }
 
-void setSystemValueCommandHandler(DataIn& in, DataOut& out) {
+void Commands::setSystemValueCommandHandler(DataIn& in, DataOut& out) {
 	DefaultMask defaultMask;
-	setValue(SystemProfile::systemContainer(), in, defaultMask, out);
+	setValue(systemProfile.systemContainer(), in, defaultMask, out);
 }
 
-void setSystemMaskValueCommandHandler(DataIn& in, DataOut& out) {
-	setValue(SystemProfile::systemContainer(), in, in, out);
+void Commands::setSystemMaskValueCommandHandler(DataIn& in, DataOut& out) {
+	setValue(systemProfile.systemContainer(), in, in, out);
 }
 
 /**
@@ -126,10 +118,10 @@ enum RehydrateErrors {
  * the definition block.
  * @return 0 on success, an error code on failure.
  */
-uint8_t rehydrateObject(eptr_t offset, PipeDataIn& in, bool dryRun)
+uint8_t Commands::rehydrateObject(eptr_t offset, PipeDataIn& in, bool dryRun)
 {
 	container_id lastID;
-	OpenContainer* target = lookupUserOpenContainer(in, lastID);			// find the container where the object will be added
+	OpenContainer* target = lookupUserOpenContainer(systemProfile.rootContainer(), in, lastID);			// find the container where the object will be added
 
 	Object* newObject = createObject(in, dryRun);			// read the type and create args
 
@@ -149,12 +141,17 @@ uint8_t rehydrateObject(eptr_t offset, PipeDataIn& in, bool dryRun)
 	return error;
 }
 
-Object* createObject(DataIn& in, bool dryRun)
+Object* Commands::createObject(DataIn& in, bool dryRun)
 {
 	uint8_t type = in.next();
 	uint8_t len = in.next();
 	RegionDataIn region(in, len);							// limit stream to actual data block
-	ObjectDefinition def = { &region, len, type };
+	ObjectDefinition def = {
+#if !CONTROLBOX_STATIC
+			eepromAccess, systemProfile.rootContainer(),
+#endif
+			&region, len, type
+	};
 	Object* newObject = createApplicationObject(def, dryRun);			// read the type and create args
 	def.spool();			// ensure stream is read fully
 	return newObject;
@@ -163,9 +160,10 @@ Object* createObject(DataIn& in, bool dryRun)
 /**
  * Creates a new object at a specific location.
  */
-void createObjectCommandHandler(DataIn& _in, DataOut& out)
+void Commands::createObjectCommandHandler(DataIn& _in, DataOut& out)
 {
-	PipeDataIn in(_in, systemProfile.writer);		// pipe object creation command to eeprom
+	EepromDataOut& writer = systemProfile.persistence();
+	PipeDataIn in(_in, writer);		// pipe object creation command to eeprom
 
 	// todo - streaming the object creation command to eeprom is elegant and simple (little code)
 	// but wasteful of space. Each object definition requires a minimum of 4 bytes overhead:
@@ -174,14 +172,14 @@ void createObjectCommandHandler(DataIn& _in, DataOut& out)
 	// 0xTT - object type id - will not need 256 of these, so this is a candidate for combining with the command id
 	// 0xLL - number of data blocks - this could be implicit?
 
-	eptr_t offset = systemProfile.writer.offset();          // save current eeprom pointer - this is where the object definition is written.
+	eptr_t offset = writer.offset();          // save current eeprom pointer - this is where the object definition is written.
 	// write the command id placeholder to eeprom (since that's already been consumed)
-	systemProfile.writer.write(CMD_INVALID);			// value for partial write, will go a back when successfully completed and write this again
+	writer.write(CMD_INVALID);			// value for partial write, will go a back when successfully completed and write this again
 	uint8_t error_code = rehydrateObject(offset, in, false);
 	if (!error_code) {
 		eepromAccess.writeByte(offset, CMD_CREATE_OBJECT);	// finalize creation in eeprom
 	}
-	systemProfile.setOpenProfileEnd(systemProfile.writer.offset());	// save end of open profile
+	systemProfile.setOpenProfileEnd(writer.offset());	// save end of open profile
 	out.write(error_code);						// status is index it was created at
 }
 
@@ -189,10 +187,17 @@ void createObjectCommandHandler(DataIn& _in, DataOut& out)
  * Finds the corresponding create object command in eeprom and marks it as invalid. The command is then ignored,
  * and will be removed from eeprom next time eeprom is compacted.
  */
-void removeEepromCreateCommand(BufferDataOut& id) {
-	EepromDataIn eepromData;
+void Commands::removeEepromCreateCommand(BufferDataOut& id) {
+	EepromDataIn eepromData cb_nonstatic_decl((eepromAccess));
 	systemProfile.profileReadRegion(systemProfile.currentProfile(), eepromData);
-	ObjectDefinitionWalker walker(eepromData);
+	Commands& cmds =
+#if CONTROLBOX_STATIC
+			commands
+#else
+			*this
+#endif
+			;
+	ObjectDefinitionWalker walker(cmds, eepromData);
 	uint8_t buf[MAX_CONTAINER_DEPTH+1];
 	BufferDataOut capture(buf, MAX_CONTAINER_DEPTH+1);	// save the contents of the eeprom
 
@@ -201,7 +206,7 @@ void removeEepromCreateCommand(BufferDataOut& id) {
 		if (capture.bytesWritten()) {					// valid entry written
 			// compare captured id with the id we are looking for
 			if (!memcmp(capture.data()+1, id.data(), id.bytesWritten())) {
-				eepromAccess.writeByte(offset, CMD_DISPOSED_OBJECT);
+				eepromAccess.writeByte(offset, Commands::CMD_DISPOSED_OBJECT);
 			}
 			capture.reset();
 		}
@@ -209,10 +214,10 @@ void removeEepromCreateCommand(BufferDataOut& id) {
 	}
 }
 
-uint8_t deleteObject(DataIn& id) {
+uint8_t Commands::deleteObject(DataIn& id) {
 	int8_t lastID;
 	uint8_t error = -1;
-	OpenContainer* obj = lookupUserOpenContainer(id, lastID);	// find the container and the ID in the chain to remove
+	OpenContainer* obj = lookupUserOpenContainer(systemProfile.rootContainer(), id, lastID);	// find the container and the ID in the chain to remove
 	if (obj && lastID>=0 && lastID<obj->size()) {
 		obj->remove(lastID);
 		error = 0;
@@ -224,7 +229,7 @@ uint8_t deleteObject(DataIn& id) {
  * Handles the delete object command.
  *
  */
-void deleteObjectCommandHandler(DataIn& in, DataOut& out)
+void Commands::deleteObjectCommandHandler(DataIn& in, DataOut& out)
 {
 	uint8_t buf[MAX_CONTAINER_DEPTH+1];
 	BufferDataOut idCapture(buf, MAX_CONTAINER_DEPTH+1);	// buffer to capture id
@@ -238,10 +243,10 @@ void deleteObjectCommandHandler(DataIn& in, DataOut& out)
 /**
  * Walks the eeprom and writes out the construction definitions.
  */
-void listObjectsCommandHandler(DataIn& _in, DataOut& out)
+void Commands::listObjectsCommandHandler(DataIn& _in, DataOut& out)
 {
 	profile_id_t profile = _in.next();
-	SystemProfile::listEepromInstructionsTo(profile, out);
+	systemProfile.listEepromInstructionsTo(profile, out);
 }
 
 void fetchNextSlot(Object* obj, DataIn& in, DataOut& out)
@@ -254,25 +259,25 @@ void fetchNextSlot(Object* obj, DataIn& in, DataOut& out)
 	out.write(slot);
 }
 
-void freeSlotCommandHandler(DataIn& in, DataOut& out)
+void Commands::freeSlotCommandHandler(DataIn& in, DataOut& out)
 {
-	Object* obj = lookupUserObject(in);
+	Object* obj = lookupUserObject(systemProfile.rootContainer(), in);
 	fetchNextSlot(obj, in, out);
 }
 
-void freeSlotRootCommandHandler(DataIn& in, DataOut& out)
+void Commands::freeSlotRootCommandHandler(DataIn& in, DataOut& out)
 {
-	Object* obj = rootContainer();
+	Object* obj = systemProfile.rootContainer();
 	fetchNextSlot(obj, in, out);
 }
 
-void deleteProfileCommandHandler(DataIn& in, DataOut& out) {
+void Commands::deleteProfileCommandHandler(DataIn& in, DataOut& out) {
 	uint8_t profile_id = in.next();
 	uint8_t result = systemProfile.deleteProfile(profile_id);
 	out.write(result);
 }
 
-void createProfileCommandHandler(DataIn& in, DataOut& out) {
+void Commands::createProfileCommandHandler(DataIn& in, DataOut& out) {
 	uint8_t result = systemProfile.createProfile();
 	out.write(result);
 }
@@ -300,15 +305,15 @@ bool logValuesCallback(Object* o, void* data, container_id* id, bool enter) {
 	return false;
 }
 
-void logValuesImpl(container_id* ids, DataOut& out) {
-	walkRoot(logValuesCallback, NULL, ids);
+void Commands::logValuesImpl(container_id* ids, DataOut& out) {
+	walkRoot(systemProfile.rootContainer(), logValuesCallback, NULL, ids);
 }
 
-void logValuesCommandHandler(DataIn& in, DataOut& out) {
+void Commands::logValuesCommandHandler(DataIn& in, DataOut& out) {
 	uint8_t flags = in.next();
-	Object* source = rootContainer();
+	Object* source = systemProfile.rootContainer();
 	if (flags & 1) {
-		source = lookupUserObject(in);
+		source = lookupUserObject(systemProfile.rootContainer(), in);
 	}
 	if (source) {
 		container_id ids[MAX_CONTAINER_DEPTH];
@@ -316,43 +321,47 @@ void logValuesCommandHandler(DataIn& in, DataOut& out) {
 	}
 }
 
-void resetCommandHandler(DataIn& in, DataOut& out) {
+void Commands::resetCommandHandler(DataIn& in, DataOut& out) {
 	uint8_t flags = in.next();
 	if (flags&1)
 		systemProfile.initializeEeprom();
-        handleReset(false);
+	handleReset(false);
 	out.write(0);
 	if (flags&2)
-		Comms::resetOnCommandComplete();
+		comms.resetOnCommandComplete();
 }
 
-void activateProfileCommandHandler(DataIn& in, DataOut& out) {
+void Commands::activateProfileCommandHandler(DataIn& in, DataOut& out) {
 	profile_id_t id = in.next();
-	bool result = SystemProfile::activateProfile(id);
+	bool result = systemProfile.activateProfile(id);
 	out.write(result ? 0 : -1);
 }
 
+void Commands::listDefinedProfilesCommandHandler(DataIn& in, DataOut& out)
+{
+	systemProfile.listDefinedProfiles(in, out);
+}
 
-CommandHandler handlers[] = {
-	noopCommandHandler,				// 0x00
-	readValueCommandHandler,		// 0x01
-	setValueCommandHandler,			// 0x02
-	createObjectCommandHandler,		// 0x03
-	deleteObjectCommandHandler,		// 0x04
-	listObjectsCommandHandler,		// 0x05
-	freeSlotCommandHandler,			// 0x06
-	createProfileCommandHandler,	// 0x07
-	deleteProfileCommandHandler,	// 0x08
-	activateProfileCommandHandler,	// 0x09
-	logValuesCommandHandler,		// 0x0A
-	resetCommandHandler,			// 0x0B
-	freeSlotRootCommandHandler,		// 0x0C
-	noopCommandHandler,				// 0x0D
-	SystemProfile::listDefinedProfiles,	// 0x0E
-	readSystemValueCommandHandler,	// 0x0F
-	setSystemValueCommandHandler,	// 0x10
-	setMaskValueCommandHandler,		// 0x11
-	setSystemMaskValueCommandHandler// 0x12
+CommandHandler Commands::handlers[] = {
+	&Commands::noopCommandHandler,				// 0x00
+	&Commands::readValueCommandHandler,		// 0x01
+	&Commands::setValueCommandHandler,			// 0x02
+	&Commands::createObjectCommandHandler,		// 0x03
+	&Commands::deleteObjectCommandHandler,		// 0x04
+	&Commands::listObjectsCommandHandler,		// 0x05
+	&Commands::freeSlotCommandHandler,			// 0x06
+	&Commands::createProfileCommandHandler,	// 0x07
+	&Commands::deleteProfileCommandHandler,	// 0x08
+	&Commands::activateProfileCommandHandler,	// 0x09
+	&Commands::logValuesCommandHandler,		// 0x0A
+	&Commands::resetCommandHandler,			// 0x0B
+	&Commands::freeSlotRootCommandHandler,		// 0x0C
+	&Commands::noopCommandHandler,				// 0x0D
+	&Commands::listDefinedProfilesCommandHandler,	// 0x0E
+	&Commands::readSystemValueCommandHandler,	// 0x0F
+	&Commands::setSystemValueCommandHandler,	// 0x10
+	&Commands::setMaskValueCommandHandler,		// 0x11
+	&Commands::setSystemMaskValueCommandHandler// 0x12
 };
 
 /*
@@ -360,15 +369,22 @@ CommandHandler handlers[] = {
  * @param dataIn The request data. The first byte is the command id. The stream is assumed to contain at least
  *   this data.
  */
-void handleCommand(DataIn& dataIn, DataOut& dataOut)
+void Commands::handleCommand(DataIn& dataIn, DataOut& dataOut)
 {
 	PipeDataIn pipeIn = PipeDataIn(dataIn, dataOut);	// ensure command input is also piped to output
 	uint8_t cmd_id = pipeIn.next();						// command type code
 	if (cmd_id>sizeof(handlers)/sizeof(handlers[0]))	// check range
 		cmd_id = 0;
-	handlers[cmd_id](pipeIn, dataOut);					// do it!
+	(
+#if !CONTROLBOX_STATIC
+	// invoke as a non-static member function
+	this->*
+#endif
+	handlers[cmd_id])(pipeIn, dataOut);					// do it!
 }
 
 
-
+#if CONTROLBOX_STATIC
+Commands commands;
+#endif
 

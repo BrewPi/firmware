@@ -215,6 +215,9 @@ public:
 	}
 };
 
+/**
+ * An mixin for objects that want to know where in the persisted data their definition is stored.
+ */
 class RehydratedAwareObject : public Object
 {
 	eptr_t address;
@@ -225,7 +228,7 @@ public:
 	}
 
 	eptr_t eeprom_offset() { return address; }
-	uint8_t streamSize() { return eepromAccess.readByte(address-1); }
+	uint8_t streamSize(cb_nonstatic_decl(EepromAccess& eepromAccess)) { return eepromAccess.readByte(address-1); }
 
 };
 
@@ -383,6 +386,16 @@ class ValueSource
  * Definition parameters for creating a new object.
  */
 struct ObjectDefinition {
+
+#if !CONTROLBOX_STATIC
+	EepromAccess& ea;
+
+	Container* root;
+
+	EepromAccess& eepromAccess() { return ea; }
+#endif
+
+
 	/**
 	 * This stream provides the definition data for this object
 	 */
@@ -440,12 +453,6 @@ inline bool isWritable(Object* o)
 	return o!=NULL && (hasFlags(o->objectType(), ObjectFlags::WritableFlag));
 }
 
-
-/**
- * The host app should provide the root container, configured with any defaults for the app.
- */
-Container* rootContainer();
-
 /*
  * Callback function for enumerating objects.
  * The function can return true to stop enumeration.
@@ -462,11 +469,12 @@ bool walkContainer(Container* c, EnumObjectsFn callback, void* data, container_i
 
 bool walkObject(Object* obj, EnumObjectsFn callback, void* data, container_id* id, container_id* end);
 
+
 /**
  * Enumerate all objects the root container and child containers.
  */
-inline bool walkRoot(EnumObjectsFn callback, void* data, container_id* id) {
-	return walkContainer(rootContainer(), callback, data, id, id);
+inline bool walkRoot(Container* root, EnumObjectsFn callback, void* data, container_id* id) {
+	return walkContainer(root, callback, data, id, id);
 }
 
 /**
@@ -483,11 +491,11 @@ Container* lookupContainer(Object* current, DataIn& data, int8_t& lastID);
 /**
  * Read the id chain from the stream and resolve the corresponding object.
  */
-Object* lookupUserObject(DataIn& data);
+Object* lookupUserObject(Container* root, DataIn& data);
 
 /**
  * Read the id chain from the stream and resolve the container and the final index.
  */
-OpenContainer* lookupUserOpenContainer(DataIn& data, int8_t& lastID);
+OpenContainer* lookupUserOpenContainer(Container* root, DataIn& data, int8_t& lastID);
 
 int16_t read2BytesFrom(Value* value);

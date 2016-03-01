@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Matthew McGowan.
+ * Copyright 2015 Matthew McGowan.
  *
  * This file is part of Nice Firmware.
  *
@@ -17,31 +17,27 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #pragma once
 
-#include "DataStream.h"
+#include "Static.h"
 
-/**
- * The primary communications interface.
- */
-class Comms {
+#if !CONTROLBOX_STATIC
 
-	static DataOut& hexOut;
+typedef uint16_t eptr_t;
+#define INVALID_EPTR (0)
 
-public:
-	static void init();
+struct EepromAccess
+{
+	virtual uint8_t readByte(eptr_t offset) const=0;
+	virtual void writeByte(eptr_t offset, uint8_t value)=0;
+	virtual void readBlock(void* target, eptr_t offset, uint16_t size) const=0;
+	virtual void writeBlock(eptr_t target, const void* source, uint16_t size)=0;
 
-	/*
-	 * Read and process from the commms link.
-	 */
-	static void receive();
+	virtual size_t length() const=0;
 
-	static void resetOnCommandComplete();
-
-	/**
-	 * Output stream. Used to write data after command processing.
-	 */
-	static DataOut& dataOut() { return hexOut; }
 };
+
+#endif
+
+#include "EepromAccessImpl.h"
 

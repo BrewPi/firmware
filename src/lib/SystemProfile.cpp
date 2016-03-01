@@ -17,11 +17,12 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+#include "Static.h"
 #include "SystemProfile.h"
 #include "Commands.h"
 #include "Ticks.h"
 #include "ValueTicks.h"
+#include "ValuesEeprom.h"
 
 
 const uint8_t EEPROM_HEADER_SIZE = 2;
@@ -56,65 +57,79 @@ typedef int8_t system_profile_t;
  */
 
 // having time as a system service is a compromise over lose-coupling/dependency injection vs convenience
-EepromBlock system_id(SYSTEM_PROFILE_ID_OFFSET, 1);
+cb_static_decl(EepromBlock SystemProfile::system_id(SYSTEM_PROFILE_ID_OFFSET, 1);)
 
-ScaledTicksValue ticks;
+cb_static_decl(ScaledTicksValue ticks;)
 
-EepromDataOut SystemProfile::writer;
-profile_id_t SystemProfile::current;
-Container* SystemProfile::root = NULL;
-Object* systemRootItems[2];
-FixedContainer SystemProfile::systemRoot(sizeof(systemRootItems)/sizeof(systemRootItems[0]), systemRootItems);
+cb_static_decl(EepromDataOut SystemProfile::writer;)
+cb_static_decl(profile_id_t SystemProfile::current;)
+cb_static_decl(Container* SystemProfile::root = NULL;)
+cb_static_decl(Object* systemRootItems[2];)
+cb_static_decl(FixedContainer SystemProfile::systemRoot(sizeof(systemRootItems)/sizeof(systemRootItems[0]), systemRootItems);)
 
 
+#if !CONTROLBOX_STATIC
+SystemProfile::SystemProfile(EepromAccess& access, size_t count, Object** objects)
+: eepromAccess(access), system_id(access,SYSTEM_PROFILE_ID_OFFSET,1), root(nullptr), systemRoot(count, objects), writer(access) {}
+
+#endif
+
+
+#if CONTROLBOX_STATIC
+#define invoke_cmd_method(x) commands.x
+#else
+#define invoke_cmd_method(x) commands_ptr->x
+#endif
 
 /**
  * equivalent to /dev/null. Used for discarding output.
  */
 BlackholeDataOut blackhole;
 
-eptr_t readPointer(eptr_t address) {
+eptr_t readPointer(EepromAccess& eepromAccess, eptr_t address) {
 	return  eptr_t(eepromAccess.readByte(address))<<8 |
                 eepromAccess.readByte(address+1);
 }
 
-void writePointer(eptr_t address, eptr_t v) {
+void writePointer(EepromAccess& eepromAccess, eptr_t address, eptr_t v) {
 	eepromAccess.writeByte(address, v>>8);
 	eepromAccess.writeByte(address+1, v&0xFF);
 }
 
-inline void writeEepromRange(eptr_t start, eptr_t end, uint8_t data) {
+inline void writeEepromRange(EepromAccess& eepromAccess, eptr_t start, eptr_t end, uint8_t data) {
 	while (start<end) {
 		eepromAccess.writeByte(start++, data);
 	}
 }
 
 void SystemProfile::initializeEeprom() {
-	writeEepromRange(0, eepromAccess.length(), 0xFF);
+	writeEepromRange(eepromAccess, 0, eepromAccess.length(), 0xFF);
 }
 
 void SystemProfile::initialize() {
 
+#if CONTROLBOX_STATIC
 	// build system objects
 	systemRoot.add(0, &system_id);
 	systemRoot.add(1, &ticks);
+#endif
 
 	current = SYSTEM_PROFILE_DEFAULT;
-	if (readPointer(0)==SYSTEM_PROFILE_EEPROM_HEADER) {
+	if (readPointer(eepromAccess, 0)==SYSTEM_PROFILE_EEPROM_HEADER) {
 		// no initialization required
 	}
 	else {
-		writePointer(SYSTEM_PROFILE_ID_OFFSET, -1);            // id and reserved
+		writePointer(eepromAccess, SYSTEM_PROFILE_ID_OFFSET, -1);            // id and reserved
 
 		// clear the fat
-		writeEepromRange(SYSTEM_PROFILE_FAT, SYSTEM_PROFILE_DATA_OFFSET, 0);
+		writeEepromRange(eepromAccess, SYSTEM_PROFILE_FAT, SYSTEM_PROFILE_DATA_OFFSET, 0);
 
 		setProfileOffset(-1, SYSTEM_PROFILE_DATA_OFFSET);   // set the marker for the last profile
 
 		// reset profile store
-		writeEepromRange(SYSTEM_PROFILE_DATA_OFFSET, eepromAccess.length(), 0xFF);
+		writeEepromRange(eepromAccess, SYSTEM_PROFILE_DATA_OFFSET, eepromAccess.length(), 0xFF);
 
-		writePointer(0, SYSTEM_PROFILE_EEPROM_HEADER);          // no write the version string once the eeprom is stable and initialized.
+		writePointer(eepromAccess, 0, SYSTEM_PROFILE_EEPROM_HEADER);          // no write the version string once the eeprom is stable and initialized.
 
 #if !SYSTEM_PROFILE_ENABLE
 		activateProfile(0);
@@ -178,8 +193,8 @@ bool SystemProfile::activateProfile(profile_id_t profile) {
 		}
 		setCurrentProfile(profile);								// persist the change
 		if (profile>=0) {
-			root = createRootContainer();
-			EepromDataIn eepromReader;
+			root = invoke_cmd_method(createRootContainer());
+			EepromDataIn eepromReader cb_nonstatic_decl((eepromAccess));
 			profileReadRegion(profile, eepromReader);			// get region in eeprom for the profile
 			streamObjectDefinitions(eepromReader);
 			profileWriteRegion(writer, true);		// reset to available region (allow open profile)
@@ -188,6 +203,7 @@ bool SystemProfile::activateProfile(profile_id_t profile) {
 	}
 	return true;
 }
+
 
 void SystemProfile::streamObjectDefinitions(EepromDataIn& eepromReader)
 {
@@ -198,7 +214,7 @@ void SystemProfile::streamObjectDefinitions(EepromDataIn& eepromReader)
 		// if cmd is not create object then just parse the contents but don't instantiate.
 		eptr_t offset = eepromReader.offset();
 		uint8_t cmd = reader.next();
-		if (rehydrateObject(offset, reader, cmd!=CMD_CREATE_OBJECT) && cmd==CMD_CREATE_OBJECT) {
+		if (invoke_cmd_method(rehydrateObject(offset, reader, cmd!=Commands::CMD_CREATE_OBJECT)) && cmd==Commands::CMD_CREATE_OBJECT) {
 			// todo - what to do with errors? at least log errors.
 			// if error creating object, attempt a reset. Write a reset count to eeprom to avoid endless resets.
 		}
@@ -238,10 +254,10 @@ profile_id_t SystemProfile::deleteProfile(profile_id_t profile) {
 		uint8_t b = eepromAccess.readByte(end++);
 		eepromAccess.writeByte(start++, b);
 	}
-	writeEepromRange(start, eepromAccess.length(), 0xFF);
+	writeEepromRange(eepromAccess, start, eepromAccess.length(), 0xFF);
 
-        // update the start/end of the writable region
-        profileWriteRegion(writer, true);
+	// update the start/end of the writable region
+	profileWriteRegion(writer, true);
 	return profile;
 #else
 	return -1;	// not supported
@@ -254,11 +270,11 @@ eptr_t profileFAT(profile_id_t id) {
 }
 
 void SystemProfile::setProfileOffset(profile_id_t profile, eptr_t addr) {
-	writePointer(profileFAT(profile), addr);
+	writePointer(eepromAccess, profileFAT(profile), addr);
 }
 
 eptr_t SystemProfile::getProfileOffset(profile_id_t profile) {
-	return readPointer(profileFAT(profile));
+	return readPointer(eepromAccess, profileFAT(profile));
 }
 
 
@@ -268,7 +284,8 @@ eptr_t SystemProfile::getProfileOffset(profile_id_t profile) {
 bool deleteDynamicallyAllocatedObject(Object* obj, void* data, container_id* id, bool enter) {
 	if (!enter && isDynamicallyAllocated(obj)) {		// delete on exit, so that all children are processed first
 		BufferDataIn idStream(id);						// stream the id
-		deleteObject(idStream);							// delete the object
+		Commands* cmds = (Commands*)(data);
+		cmds->deleteObject(idStream);							// delete the object
 	}
 	return false;										// continue traversal
 }
@@ -296,7 +313,7 @@ void SystemProfile::deactivateCurrentProfile() {
 
 	// delete all the objects that were dynamically allocated.
 	container_id id[MAX_CONTAINER_DEPTH];				// buffer for id during traversal
-	walkRoot(deleteDynamicallyAllocatedObject, NULL, id);
+	walkRoot(rootContainer(), deleteDynamicallyAllocatedObject, NULL, id);
 	current = -1;
 
 	if (isDynamicallyAllocated(root))
@@ -387,10 +404,11 @@ void SystemProfile::listDefinedProfiles(DataIn& in, DataOut& out) {
 #endif
 }
 
+#if CONTROLBOX_STATIC
 Container* rootContainer() {
-	return SystemProfile::rootContainer();
+	return systemProfile.rootContainer();
 }
-
+#endif
 
 /**
  * Writes the next object definition from the data input to the given output.
@@ -402,13 +420,13 @@ bool ObjectDefinitionWalker::writeNext(DataOut& out) {
 		return false;
 
 	int8_t next = _in->peek();
-	bool valid =  ((next&0x7F)==CMD_CREATE_OBJECT);
+	bool valid =  ((next&0x7F)==Commands::CMD_CREATE_OBJECT);
 	if (valid) {
 		PipeDataIn pipe(*_in, next<0 ? blackhole : out);	// next<0 if command not fully completed, so output is discarded
 		pipe.next();										// fetch the next value already peek'ed at so this is written to the output stream
-		/*Object* target = */lookupUserObject(pipe);			// find the container where the object will be added
+		/*Object* target = */lookupUserObject(_commands.rootContainer(), pipe);			// find the container where the object will be added
 		// todo - could flag warning if target is NULL
-		createObject(pipe, true);							// dry run for create object, just want data to be output
+		_commands.createObject(pipe, true);							// dry run for create object, just want data to be output
 	}
 	return valid;
 }
@@ -420,9 +438,9 @@ bool ObjectDefinitionWalker::writeNext(DataOut& out) {
  * This method assumes SystemProfile::writer points to the last written location at the end of the profile.
  */
 eptr_t SystemProfile::compactObjectDefinitions() {
-	EepromDataOut eepromData;
+	EepromDataOut eepromData cb_nonstatic_decl((eepromAccess));
 	profile_id_t current = SystemProfile::currentProfile();
-	systemProfile.profileReadRegion(current, eepromData);
+	profileReadRegion(current, eepromData);
 	listEepromInstructionsTo(current, eepromData);
 	return eepromData.offset();
 }
@@ -431,9 +449,16 @@ eptr_t SystemProfile::compactObjectDefinitions() {
  * Enumerates all the create object instructions in eeprom to an output stream.
  */
 void SystemProfile::listEepromInstructionsTo(profile_id_t profile, DataOut& out) {
-	EepromDataIn eepromData;
-	systemProfile.profileReadRegion(profile, eepromData);
-	ObjectDefinitionWalker walker(eepromData);
+	EepromDataIn eepromData cb_nonstatic_decl((eepromAccess));
+	profileReadRegion(profile, eepromData);
+	Commands& cmds =
+#if CONTROLBOX_STATIC
+			commands
+#else
+			*commands_ptr
+#endif
+				;
+	ObjectDefinitionWalker walker(cmds, eepromData);
 	while (walker.writeNext(out)) {}
 }
 
