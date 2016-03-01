@@ -33,21 +33,164 @@ class Box
 {
 	EepromAccess& eepromAccess_;
 	Ticks& ticks_;
-	Comms& comms_;
+	Comms comms_;
 	SystemProfile systemProfile_;
 	Commands commands_;
 
 public:
-	Box(EepromAccess& eepromAccess, Ticks& ticks, Comms& comms, CommandCallbacks& callbacks, Object** values, size_t size)
-	: eepromAccess_(eepromAccess), ticks_(ticks), comms_(comms),
-	  systemProfile_(eepromAccess, size, values), commands_(comms, systemProfile_, callbacks, eepromAccess)
+	Box(EepromAccess& eepromAccess, Ticks& ticks, DataOut& out, CommandCallbacks& callbacks, Object** values, size_t size)
+	: eepromAccess_(eepromAccess), ticks_(ticks), comms_(out),
+	  systemProfile_(eepromAccess, size, values), commands_(comms_, systemProfile_, callbacks, eepromAccess)
 	{
 
 	}
 };
 
-class AllCallbacks : public CommandCallbacks, public Ticks, public EepromAccess, public Comms
+/**
+ * Factor the callbacks into a separate class to avoid multiple inheritance.
+ */
+struct AllCallbacks
 {
+	/* Ticks */
+	virtual ticks_millis_t millis()=0;
+
+	/* Eeprom */
+
+	virtual uint8_t readByte(eptr_t offset) const=0;
+	virtual void writeByte(eptr_t offset, uint8_t value)=0;
+	virtual void readBlock(void* target, eptr_t offset, uint16_t size) const=0;
+	virtual void writeBlock(eptr_t target, const void* source, uint16_t size)=0;
+
+	virtual size_t length() const=0;
+
+	/* Callbacks */
+
+	/**
+	 * Application-provided function that creates an object from the object definition.
+	 */
+	virtual Object* createApplicationObject(ObjectDefinition& def, bool dryRun=false)=0;
+
+	/**
+	 * Function prototype expected by the commands implementation to perform
+	 * a reset.
+	 * @param exit false on first call, true on second call. The first call (exit==false) is
+	 * during command processing, so that actions can be taken before the command response is sent.
+	 * The second call (exit==true) is called to perform the actual reset.
+	 */
+	virtual void handleReset(bool exit=true)=0;
+
+	virtual void connectionStarted(DataOut& out)=0;
+
+	virtual Container* createRootContainer()=0;
+
+	/* DataOut */
+
+	virtual void writeAnnotation(const char* data)=0;
+
+	/**
+	 * Writes a byte to the stream.
+	 * @return {@code true} if the byte was successfully written, false otherwise.
+	 */
+	virtual bool write(uint8_t data)=0;
+
+	/**
+	 * Writes a number of bytes to the stream.
+	 * @param data	The address of the data to write.
+	 * @param len	The number of bytes to write.
+	 * @return {@code true} if the byte was successfully written, false otherwise.
+	 */
+	virtual bool writeBuffer(const void* data, stream_size_t len)=0;
+
+	virtual void close()=0;
+};
+
+class AllCallbacksDelegate : public CommandCallbacks, public Ticks, public EepromAccess, public DataOut
+{
+	AllCallbacks& cb;
+
+public:
+	AllCallbacksDelegate(AllCallbacks& cb_) : cb(cb_) {}
+
+	/* Ticks */
+	virtual ticks_millis_t millis() {
+		return cb.millis();
+	}
+
+	/* Eeprom */
+
+	virtual uint8_t readByte(eptr_t offset) const {
+		return cb.readByte(offset);
+	}
+	virtual void writeByte(eptr_t offset, uint8_t value) {
+		return cb.writeByte(offset, value);
+	}
+	virtual void readBlock(void* target, eptr_t offset, uint16_t size) const {
+		return cb.readBlock(target, offset, size);
+	}
+	virtual void writeBlock(eptr_t target, const void* source, uint16_t size) {
+		return cb.writeBlock(target, source, size);
+	}
+
+	virtual size_t length() const {
+		return cb.length();
+	}
+
+	/* Callbacks */
+
+	/**
+	 * Application-provided function that creates an object from the object definition.
+	 */
+	virtual Object* createApplicationObject(ObjectDefinition& def, bool dryRun=false) {
+		return cb.createApplicationObject(def, dryRun);
+	}
+
+	/**
+	 * Function prototype expected by the commands implementation to perform
+	 * a reset.
+	 * @param exit false on first call, true on second call. The first call (exit==false) is
+	 * during command processing, so that actions can be taken before the command response is sent.
+	 * The second call (exit==true) is called to perform the actual reset.
+	 */
+	virtual void handleReset(bool exit=true) {
+		return cb.handleReset(exit);
+	}
+
+	virtual void connectionStarted(DataOut& out) {
+		return cb.connectionStarted(out);
+	}
+
+	virtual Container* createRootContainer() {
+		return cb.createRootContainer();
+	}
+
+	/* DataOut */
+
+	virtual void writeAnnotation(const char* data) {
+		cb.writeAnnotation(data);
+	}
+
+	/**
+	 * Writes a byte to the stream.
+	 * @return {@code true} if the byte was successfully written, false otherwise.
+	 */
+	virtual bool write(uint8_t data) {
+		return cb.write(data);
+	}
+
+	/**
+	 * Writes a number of bytes to the stream.
+	 * @param data	The address of the data to write.
+	 * @param len	The number of bytes to write.
+	 * @return {@code true} if the byte was successfully written, false otherwise.
+	 */
+	virtual bool writeBuffer(const void* data, stream_size_t len) {
+		return cb.writeBuffer(data, len);
+	}
+
+	virtual void close() {
+		cb.close();
+	}
+
 };
 
 /**
@@ -56,7 +199,7 @@ class AllCallbacks : public CommandCallbacks, public Ticks, public EepromAccess,
 class AllInOneBox : public Box
 {
 public:
-	AllInOneBox(AllCallbacks& cb, Object** values=nullptr, size_t size=0)
+	AllInOneBox(AllCallbacksDelegate& cb, Object** values=nullptr, size_t size=0)
 		: Box(cb, cb, cb, cb, values, size)
 	{}
 
