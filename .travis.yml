@@ -5,7 +5,7 @@ cache:
   - .cache
 
 install:
-- [[ -d .cache ]] || mkdir .cache
+- mkdir -p .cache
 #- ./ci/install_arm_gcc.sh
 #- ./platform/spark/firmware/ci/install_gcc.sh
 - source ./ci/install_boost.sh
