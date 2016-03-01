@@ -314,7 +314,7 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # otherwise, readthedocs.org uses their theme by default, so no need to specify it
 
-doxygen_output_dir = "_static/doxygen/"
+doxygen_output_dir = "_build/doxygen/"
 if not os.path.exists(doxygen_output_dir):
     os.makedirs(doxygen_output_dir)
 
@@ -328,9 +328,8 @@ breathe_default_project = "BrewPi Firmware"
 doxy_html_dir = os.path.join(os.path.dirname(__file__), doxygen_output_dir, 'html')
 
 doxylink = {
-        'doxylink' : ('_static/doxygen/doxylink.tag', doxy_html_dir),
+        'doxylink' : ('_build/doxygen/doxylink.tag', doxy_html_dir),
 }
-
 
 def run_doxygen():
     """Run the doxygen command in the current folder"""
