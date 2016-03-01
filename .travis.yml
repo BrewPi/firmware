@@ -1,4 +1,6 @@
 sudo: false
+os:
+ - linux
 language: cpp
 cache:
   directories:
@@ -6,16 +8,21 @@ cache:
 
 addons:
   apt:
-    packages:
-      - cmake
     sources:
-      - kalakris-cmake
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-4.8
+    - g++-4.8
 
 install:
 - mkdir -p .cache
 #- ./ci/install_arm_gcc.sh
 #- ./platform/spark/firmware/ci/install_gcc.sh
 - source ./ci/install_boost.sh
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget --no-check-certificate http://cmake.org/files/v3.4/cmake-3.4.3-Linux-x86_64.tar.gz       ;fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then tar -xzf cmake-3.4.3-Linux-x86_64.tar.gz                                                      ;fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi                             ;fi
+
 script:
 - ./ci/build.sh
 notifications:
