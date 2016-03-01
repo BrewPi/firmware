@@ -19,12 +19,11 @@ install:
 #- ./ci/install_arm_gcc.sh
 #- ./platform/spark/firmware/ci/install_gcc.sh
 - source ./ci/install_boost.sh
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget --no-check-certificate http://cmake.org/files/v3.4/cmake-3.4.3-Linux-x86_64.tar.gz       ;fi
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then tar -xzf cmake-3.4.3-Linux-x86_64.tar.gz                                                      ;fi
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi                             ;fi
+- source ./ci/install_cmake.sh
 
 script:
-- ./ci/build.sh
+- ./cmake-3.4.3-Linux-x86_64/bin/cmake .
+- make
 notifications:
   slack:
     secure: AoLzFHi7c7sRdcsMIzCgG3amg/1acImECO21Q3LXf6i6++ytqrvgTiQMQp9k1XJq+WVlrRiP7NDl3o8oMQv9nR/xrNXhosYHXVHAYY/B1nh4jl4pp8hPTMQUJcac64w1zbJMMqlABbawelVg8qF4zn+TNX+io8APERoycBpQgT4=
