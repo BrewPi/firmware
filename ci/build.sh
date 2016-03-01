@@ -11,5 +11,5 @@ fi
 : ${CC:=gcc}
 : ${CXX:=g++}
 : ${cmake:=cmake}
-$cmake  -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX . && make VERBOSE=1
+$cmake  -D CMAKE_C_COMPILER=$CC -D CMAKE_CXX_COMPILER=$CXX . && make VERBOSE=1
 
