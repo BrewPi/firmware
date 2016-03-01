@@ -24,7 +24,6 @@
 #include <boost/range/join.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 
-#include "Platform.h"
 #include "Ticks.h"
 #include "Comms.h"
 #include "Commands.h"

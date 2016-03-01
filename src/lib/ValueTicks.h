@@ -20,9 +20,10 @@
 
 #pragma once
 
+#include "Values.h"
 #include "Ticks.h"
 #include "StreamUtil.h"
-
+#include "Static.h"
 
 // return time that has passed since timeStamp, take overflow into account
 inline ticks_seconds_t timeSince(ticks_seconds_t currentTime, ticks_seconds_t previousTime){
@@ -48,8 +49,12 @@ class ScaledTicksValue : public WritableValue
 	ticks_millis_t timerStart;
 	uint16_t scale;
 
+#if !CONTROLBOX_STATIC
+	Ticks& baseticks;
+#endif
+
 public:
-	ScaledTicksValue() : logicalStart(0), timerStart(0), scale(1) {}
+	ScaledTicksValue(cb_nonstatic_decl(Ticks& base)) : logicalStart(0), timerStart(0), scale(1) cb_nonstatic_decl(,baseticks(base)) {}
 
 	ticks_millis_t millis() {
 		uint32_t now_offset = baseticks.millis()-timerStart;

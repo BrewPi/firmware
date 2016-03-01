@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "timems.h"
+#include <stdint.h>
 
 typedef uint32_t tcduration_t;
 typedef uint32_t ticks_millis_t;
@@ -29,22 +29,26 @@ typedef uint32_t ticks_seconds_t;
 typedef uint8_t ticks_seconds_tiny_t;
 
 
+
+#if CONTROLBOX_STATIC
+#include "TicksImpl.h"
+
+extern Ticks baseticks;
+
+#else
+
+
 class Ticks
 {
 public:
-	ticks_millis_t millis()
-	{
-		return millisSinceStartup();
-	}
+	virtual ticks_millis_t millis()=0;
 };
 
 class Delay
 {
 public:
-	void wait(ticks_millis_t delay)
-	{
-	}
+	virtual void wait(ticks_millis_t delay)=0;
 };
 
 
-extern Ticks baseticks;
+#endif

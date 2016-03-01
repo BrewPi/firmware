@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <stdlib.h>
 #include "Values.h"
 #include "Memops.h"
 

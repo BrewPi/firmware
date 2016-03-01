@@ -34,10 +34,13 @@ struct EepromAccess
 	virtual void writeBlock(eptr_t target, const void* source, uint16_t size)=0;
 
 	virtual size_t length() const=0;
-
 };
+
+#else
+
+#include "EepromAccessImpl.h"
+
 
 #endif
 
-#include "EepromAccessImpl.h"
 
