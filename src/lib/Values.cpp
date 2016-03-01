@@ -118,12 +118,12 @@ OpenContainer* lookupOpenContainer(Object* current, DataIn& data, int8_t& lastID
 	return isOpenContainer(current) ? (OpenContainer*)current : NULL;
 }
 
-Object* lookupUserObject(DataIn& data) {
-	return lookupObject(rootContainer(), data);
+Object* lookupUserObject(Container* root, DataIn& data) {
+	return lookupObject(root, data);
 }
 
-OpenContainer* lookupUserOpenContainer(DataIn& data, int8_t& lastID) {
-	return lookupOpenContainer(rootContainer(), data, lastID);
+OpenContainer* lookupUserOpenContainer(Container* root, DataIn& data, int8_t& lastID) {
+	return lookupOpenContainer(root, data, lastID);
 }
 
 

@@ -1,7 +1,7 @@
 /*
- * Copyright 2014-2015 Matthew McGowan.
+ * Copyright 2016 Matthew McGowan.
  *
- * This file is part of Nice Firmware.
+ * This file is part of Controlbox.
  *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,24 +17,16 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "ValuesProgmem.h"
-#include "Platform.h"
-
-#ifdef ARDUINO
-#include "avr/pgmspace.h"
+#ifndef CONTROLBOX_STATIC
+#define CONTROLBOX_STATIC 1
 #endif
 
-void ProgmemStringValue::readTo(DataOut& out) {
-	const char* v = value;
-	uint8_t b;
-	do {
-		b = pgm_read_byte(v++);
-		out.write(b);
-	} while (b);
-}
-
-uint8_t ProgmemStringValue::streamSize() {
-	return strlen_P(value);
-}
-
+#if CONTROLBOX_STATIC
+#define cb_static static
+#define cb_static_decl(...) __VA_ARGS__
+#define cb_nonstatic_decl(...)
+#else
+#define cb_static
+#define cb_static_decl(...)
+#define cb_nonstatic_decl(...) __VA_ARGS__
+#endif

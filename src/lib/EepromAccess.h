@@ -1,27 +1,43 @@
 /*
- * Copyright 2013 BrewPi/Elco Jacobs.
- * Copyright 2013 Matthew McGowan.
+ * Copyright 2015 Matthew McGowan.
  *
- * This file is part of BrewPi.
- * 
+ * This file is part of Nice Firmware.
+ *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
- * BrewPi is distributed in the hope that it will be useful,
+ *
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
 
-#include "EepromTypes.h"
+#include "Static.h"
+
+#if !CONTROLBOX_STATIC
+
+typedef uint16_t eptr_t;
+#define INVALID_EPTR (0)
+
+struct EepromAccess
+{
+	virtual uint8_t readByte(eptr_t offset) const=0;
+	virtual void writeByte(eptr_t offset, uint8_t value)=0;
+	virtual void readBlock(void* target, eptr_t offset, uint16_t size) const=0;
+	virtual void writeBlock(eptr_t target, const void* source, uint16_t size)=0;
+
+	virtual size_t length() const=0;
+
+};
+
+#endif
 
 #include "EepromAccessImpl.h"
 
-extern EepromAccess eepromAccess;

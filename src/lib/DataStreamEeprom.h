@@ -54,7 +54,10 @@ struct EepromStreamRegion : public StreamRegion<eptr_t, uint16_t>
  */
 class EepromDataOut : public DataOut, public EepromStreamRegion
 {
+	cb_nonstatic_decl(EepromAccess& eepromAccess;)
 public:
+
+	cb_nonstatic_decl(EepromDataOut(EepromAccess& ea) :eepromAccess(ea) {})
 
 	bool write(uint8_t value) {
 		if (_length) {
@@ -64,6 +67,7 @@ public:
 		}
 		return false;
 	}
+
 	void close() {
 		_length = 0;
 	}
@@ -75,8 +79,13 @@ public:
  * A data input stream that reads from a region of eeprom.
  * @see EepromAccess
  */
-struct EepromDataIn : public DataIn, public EepromStreamRegion
+class EepromDataIn : public DataIn, public EepromStreamRegion
 {
+	cb_nonstatic_decl(EepromAccess& eepromAccess;)
+public:
+
+	cb_nonstatic_decl(EepromDataIn(EepromAccess& ea):eepromAccess(ea) {})
+
 	bool hasNext() { return _length; }
 	uint8_t peek() { return eepromAccess.readByte(_offset); }
 

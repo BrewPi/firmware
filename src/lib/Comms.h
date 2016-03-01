@@ -20,28 +20,58 @@
 
 #pragma once
 
+#include "Static.h"
 #include "DataStream.h"
+
+class Commands;
 
 /**
  * The primary communications interface.
  */
 class Comms {
 
-	static DataOut& hexOut;
+	cb_static DataOut& hexOut;
+	cb_static bool prevConnected;
+	cb_static bool reset;
 
 public:
-	static void init();
+
+#if !CONTROLBOX_STATIC
+private:
+	Commands* commands_ptr;
+
+
+public:
+	Comms(DataOut& hexOut_) : hexOut(hexOut_), prevConnected(false), reset(false) {}
+
+	void setCommands(Commands& commands)
+	{
+		commands_ptr = &commands;
+	}
+#endif
+
+	inline void connectionStarted(DataOut& out);
+
+	inline void handleCommand(DataIn& in, DataOut& out);
+
+	cb_static void init();
 
 	/*
 	 * Read and process from the commms link.
 	 */
-	static void receive();
+	cb_static void receive();
 
-	static void resetOnCommandComplete();
+	cb_static void resetOnCommandComplete();
 
 	/**
 	 * Output stream. Used to write data after command processing.
 	 */
-	static DataOut& dataOut() { return hexOut; }
+	cb_static DataOut& dataOut() { return hexOut; }
 };
 
+#if CONTROLBOX_STATIC
+	/**
+	 * The global instance. Allows the same calling code to be used for static and non-static methods.
+	 */
+	extern Comms comms;
+#endif

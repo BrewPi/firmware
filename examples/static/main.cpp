@@ -3,6 +3,7 @@
 #include "ArrayEepromAccess.h"
 #include "ValueTicks.h"
 #include "ValueModels.h"
+#include "PersistChangeValue.h"
 
 bool quit = false;
 
@@ -35,7 +36,7 @@ Container* createRootContainer()
 }
 
 
-ObjectFactory createObjectHandlers[] = {
+Commands::ObjectFactory createObjectHandlers[] = {
 	nullFactory,                                            // type 0
 	CurrentTicksValue::create,								// type 1
 	DynamicContainer::create,								// type 2
