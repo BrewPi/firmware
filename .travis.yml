@@ -4,6 +4,13 @@ cache:
   directories:
   - .cache
 
+addons:
+  apt:
+    packages:
+      - cmake
+    sources:
+      - kalakris-cmake
+
 install:
 - mkdir -p .cache
 #- ./ci/install_arm_gcc.sh

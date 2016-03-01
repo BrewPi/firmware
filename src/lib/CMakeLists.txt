@@ -1,6 +1,19 @@
 
 
-set(srcs Commands.cpp Comms.cpp DataStream.cpp GenericContainer.cpp Integration.cpp Memops.cpp SystemProfile.cpp Values.cpp ValuesEeprom.cpp) 
+set(srcs "\
+Commands.cpp \
+Comms.cpp \
+DataStream.cpp \
+GenericContainer.cpp \
+Integration.cpp \
+Memops.cpp \
+SystemProfile.cpp \
+Values.cpp \
+ValuesEeprom.cpp \
+") 
+
+separate_arguments(srcs)
+
 
 FUNCTION(PREPEND var prefix)
    SET(listVar "")
