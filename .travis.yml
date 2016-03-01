@@ -11,8 +11,8 @@ addons:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    - gcc-4.8
-    - g++-4.8
+    - gcc-4.9
+    - g++-4.9
 
 install:
 - mkdir -p .cache
@@ -22,8 +22,7 @@ install:
 - source ./ci/install_cmake.sh
 
 script:
-- ./cmake-3.4.3-Linux-x86_64/bin/cmake .
-- make
+- ./ci/build.sh
 notifications:
   slack:
     secure: AoLzFHi7c7sRdcsMIzCgG3amg/1acImECO21Q3LXf6i6++ytqrvgTiQMQp9k1XJq+WVlrRiP7NDl3o8oMQv9nR/xrNXhosYHXVHAYY/B1nh4jl4pp8hPTMQUJcac64w1zbJMMqlABbawelVg8qF4zn+TNX+io8APERoycBpQgT4=
