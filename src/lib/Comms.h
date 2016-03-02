@@ -22,6 +22,7 @@
 
 #include "Static.h"
 #include "DataStream.h"
+#include <string.h>
 
 #if !CONTROLBOX_STATIC
 #include <array>
