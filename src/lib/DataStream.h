@@ -116,7 +116,7 @@ struct DataIn
 	virtual bool hasNext() =0;
 	virtual uint8_t next() =0;
 	virtual uint8_t peek() =0;
-        virtual unsigned available() =0;
+	virtual unsigned available() =0;
 
 	#if OBJECT_VIRTUAL_DESTRUCTOR
 	virtual ~DataIn() {}
@@ -144,6 +144,17 @@ struct DataIn
 	}
 };
 
+
+/**
+ * A DataIn that provides no data.
+ */
+class EmptyDataIn : public DataIn
+{
+	virtual bool hasNext() override { return false; }
+	virtual uint8_t next() override { return 0; }
+	virtual uint8_t peek() override { return 0; }
+	virtual unsigned available() override { return 0; }
+};
 
 /*
  * Reads data from a DataIn, and writes the fetched bytes (if any) to DataOut.
@@ -173,10 +184,14 @@ public:
 
 	virtual bool hasNext() override { return _in->hasNext(); }
 	virtual uint8_t peek() override { return _in->peek(); }
-        virtual unsigned available() override { return _in->available(); }
+	virtual unsigned available() override { return _in->available(); }
 
 };
 
+
+/**
+ * Provides a DataIn stream from a static buffer of data. The caller is assumed to know how long the buffer is..??!!?
+ */
 class BufferDataIn : public DataIn {
 	const uint8_t* _data;
 // todo - pass the size of the data array?
@@ -186,7 +201,7 @@ public:
 	uint8_t next() override { return *_data++; }
 	bool hasNext() override { return true; }
 	uint8_t peek() override { return *_data; }
-        unsigned available() override { return 1; }
+	unsigned available() override { return 1; }
 };
 
 /**
@@ -202,7 +217,7 @@ public:
 	bool hasNext() override { return len && in->hasNext(); }
 	uint8_t next() override { return hasNext() ? len--, in->next() : 0; }
 	uint8_t peek() override { return in->peek(); }
-        unsigned available() override { return std::min(unsigned(len), in->available()); }
+	unsigned available() override { return std::min(unsigned(len), in->available()); }
 
 };
 
@@ -215,7 +230,7 @@ class DefaultMask : public DataIn
 	uint8_t next() { return 0xFF; }
 	uint8_t peek() { return 0xFF; }
 	bool hasNext() { return true; }
-        unsigned available() { return 1; }
+	unsigned available() { return 1; }
 };
 
 

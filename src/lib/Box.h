@@ -38,19 +38,43 @@ class Box
 	Commands commands_;
 
 public:
-	Box(EepromAccess& eepromAccess, Ticks& ticks, DataOut& out, CommandCallbacks& callbacks, Object** values, size_t size)
-	: eepromAccess_(eepromAccess), ticks_(ticks), comms_(out),
+	Box(StandardConnection& connection, EepromAccess& eepromAccess, Ticks& ticks, CommandCallbacks& callbacks, Object** values, size_t size)
+	: eepromAccess_(eepromAccess), ticks_(ticks), comms_(connection),
 	  systemProfile_(eepromAccess, size, values), commands_(comms_, systemProfile_, callbacks, eepromAccess)
 	{
+	}
 
+	void initialize()
+	{
+		systemProfile_.initialize();
+		systemProfile_.activateDefaultProfile();
+		comms_.init();
 	}
 };
+
 
 /**
  * Factor the callbacks into a separate class to avoid multiple inheritance.
  */
 struct AllCallbacks
 {
+	/* Connection */
+    virtual DataOut& getDataOut()=0;
+    virtual DataIn& getDataIn()=0;
+    virtual bool connected()=0;
+
+    /**
+     * Retrieve the most-recently assigned value to the user data item.
+     */
+    virtual StandardConnectionDataType& getData()=0;
+
+    /**
+     * Assign a value to the user data item.
+     */
+    virtual void setData(StandardConnectionDataType&& d)=0;
+
+
+
 	/* Ticks */
 	virtual ticks_millis_t millis()=0;
 
@@ -104,12 +128,40 @@ struct AllCallbacks
 	virtual void close()=0;
 };
 
-class AllCallbacksDelegate : public CommandCallbacks, public Ticks, public EepromAccess, public DataOut
+
+class AllCallbacksDelegate : public StandardConnection, public CommandCallbacks, public Ticks, public EepromAccess, public DataOut
 {
 	AllCallbacks& cb;
 
 public:
 	AllCallbacksDelegate(AllCallbacks& cb_) : cb(cb_) {}
+
+
+	/* Connection */
+    virtual DataOut& getDataOut() {
+    		return cb.getDataOut();
+    }
+    virtual DataIn& getDataIn() {
+    		return cb.getDataIn();
+    }
+    virtual bool connected() {
+    		return cb.connected();
+    }
+
+    /**
+     * Retrieve the most-recently assigned value to the user data item.
+     */
+    virtual StandardConnectionDataType& getData() {
+    		return cb.getData();
+    }
+
+    /**
+     * Assign a value to the user data item.
+     */
+    virtual void setData(StandardConnectionDataType&& d) {
+    		cb.setData(std::move(d));
+    }
+
 
 	/* Ticks */
 	virtual ticks_millis_t millis() {

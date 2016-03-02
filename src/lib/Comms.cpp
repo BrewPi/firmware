@@ -54,7 +54,7 @@ class MockSerial : public Stream
 	operator bool() { return true; }
 };
 
-static MockSerial commsDevice;
+cb_static_decl(static MockSerial commsDevice;)
 
 #elif !defined(ARDUINO) && !defined(SPARK)
 class Stream {};
@@ -87,7 +87,7 @@ private:
 
 #include <CommsStdIO.inc>
 
-StdIO commsDevice;
+cb_static_decl(StdIO commsDevice;)
 #else
 #define commsDevice Serial
 	#define CONTROLBOX_COMMS_USE_FLUSH 0
@@ -99,21 +99,37 @@ StdIO commsDevice;
 #define CONTROLBOX_COMMS_USE_FLUSH 1
 #endif
 
-
+#if CONTROLBOX_STATIC
 /**
  * Implements a DataIn interface on top of the static Comms stream.
  * @return
  */
 class CommsIn : public DataIn
 {
+public:
 	bool hasNext() override { return commsDevice; }			// hasNext true if stream is still open.
 	uint8_t next() override { return commsDevice.read(); }
 	uint8_t peek() override { return commsDevice.peek(); }
-        unsigned available() override { return commsDevice.available(); }
+	unsigned available() override { return commsDevice.available(); }
+};
+#endif
+
+struct CommsWriter
+{
+	virtual void write(uint8_t data)=0;
 };
 
+/**
+ * Implements the `DataOut` interface in terms of the current comms device.
+ */
 class CommsOut : public DataOut
 {
+#if !CONTROLBOX_STATIC
+	CommsWriter& commsDevice;
+public:
+	CommsOut(CommsWriter& s) : commsDevice(s) {}
+#endif
+
 public:
 	void writeAnnotation(const char* s) {
 		if (s && *s) {
@@ -129,17 +145,15 @@ public:
 		return true;
 	}
 	void flush() {
-	#if CONTROLBOX_COMMS_USE_FLUSH		// only flush for those stream types that require it
+	#if CONTROLBOX_STATIC && CONTROLBOX_COMMS_USE_FLUSH		// only flush for those stream types that require it
 		commsDevice.flush();
 	#endif
 	}
 };
 
 // low-level binary in/out streams
-CommsIn commsIn;
-CommsOut commsOut;
-
-
+cb_static_decl(CommsIn commsIn;)
+cb_static_decl(CommsOut commsOut;)
 
 /**
  * Wraps a stream to provide the DataOut interface.
@@ -201,34 +215,7 @@ public:
 };
 
 
-
-/**
- * All active connections are maintained in a vector.
- * A connection has
- * why is a connection not a stream? (meaning arduino's combined read/write stream.)
- * no universal way to know if the stream is still connected/open.
- */
-
-template <typename D>
-struct Connection
-{
-    virtual DataOut& getDataOut()=0;
-    virtual DataIn& getDataIn()=0;
-    virtual bool connected()=0;
-
-    virtual D& getData()=0;
-    virtual void setData(D&& d)=0;
-
-};
-
-template <typename D>
-class ConnectionData : public Connection<D>
-{
-    D data;
-public:
-    virtual D& getData() { return data; }
-    virtual void setData(D&& d) { std::swap(data,d); }
-};
+#if CONTROLBOX_STATIC
 
 /**
  * A connection that delegates to the global commsOut and commsIn instances.
@@ -236,6 +223,7 @@ public:
 template<typename D>
 struct CommsConnection : public ConnectionData<D>
 {
+
     virtual DataOut& getDataOut() override {
         return commsOut;
     }
@@ -249,6 +237,7 @@ struct CommsConnection : public ConnectionData<D>
     }
 };
 
+#endif
 
 template <typename C, typename I, typename O, typename D>
 class AbstractConnection : public ConnectionData<D>
@@ -295,13 +284,11 @@ struct AbstractStreamConnection : public AbstractStreamConnectionType<S,D>
 
 };
 
-typedef bool ConnectionDataType;
-
 #ifdef SPARK
 template <typename D>
 using AbstractTCPConnection = AbstractStreamConnection<TCPClient, D>;
 
-template<> bool AbstractStreamConnectionType<TCPClient,ConnectionDataType>::connected()
+template<> bool AbstractStreamConnectionType<TCPClient,StandardConnectionDataType>::connected()
 {
     return connection.connected();
 }
@@ -334,21 +321,19 @@ struct ConnectionToDataIn : public std::function<DataIn&(Connection<D>&)>
     }
 };
 
-typedef Connection<ConnectionDataType> StandardConnection;
-
 #ifdef SPARK
 typedef std::vector<TCPConnection> Connections;
 /**
  *
  */
-Connections connections;
+cb_static_decl(Connections connections;)
 
 #endif
 
 
 // we could combine all connections into a variant type and store in the connections
 // vector. Keeping them separate is simpler.
-static std::array<CommsConnection<ConnectionDataType>,1> commsConnections;
+cb_static_decl(std::array<CommsConnection<StandardConnectionDataType>,1> commsConnections;)
 
 template<typename C>
 bool isDisconnected(C& connection)
@@ -405,6 +390,9 @@ inline auto as_connection_ptr(T& source) -> decltype(boost::adaptors::transform(
 }
 */
 
+#if CONTROLBOX_STATIC
+// determine the static list of connections
+
 #ifdef SPARK
 auto all_connections() -> boost::range::joined_range<
         boost::range_detail::transformed_range<ConnectionAsPointer<CommsConnection<ConnectionDataType> >, decltype(commsConnections) >,
@@ -417,12 +405,13 @@ auto all_connections() -> boost::range::joined_range<
     return result;
 }
 #else
-auto all_connections() -> boost::range_detail::transformed_range<ConnectionAsPointer<CommsConnection<ConnectionDataType> >, decltype(commsConnections) >
+auto all_connections() -> boost::range_detail::transformed_range<ConnectionAsPointer<CommsConnection<StandardConnectionDataType> >, decltype(commsConnections) >
 {
-	 auto first = boost::adaptors::transform(commsConnections, ConnectionAsPointer<CommsConnection<ConnectionDataType>>());
+	 auto first = boost::adaptors::transform(commsConnections, ConnectionAsPointer<CommsConnection<StandardConnectionDataType>>());
 	 return first;
 }
-#endif
+#endif	// SPARK
+
 
 /**
  * Iterator type that transforms all connections using a given transformation functor.
@@ -437,10 +426,11 @@ auto fetch_streams() -> boost::iterator_range<typename decltype(boost::adaptors:
 }
 
 
-typedef ConnectionToDataOut<ConnectionDataType> ToDataOutFunctor;
+
+typedef ConnectionToDataOut<StandardConnectionDataType> ToDataOutFunctor;
 typedef CompositeDataOut<ConnectionTransformIterator<ToDataOutFunctor>> CompositeDatOutType;
 
-typedef ConnectionToDataIn<ConnectionDataType> ToDataInFunctor;
+typedef ConnectionToDataIn<StandardConnectionDataType> ToDataInFunctor;
 typedef CompositeDataIn<ConnectionTransformIterator<ToDataInFunctor>> CompositeDatInType;
 
 
@@ -454,6 +444,9 @@ void f()
 CompositeDatOutType compositeOut(&fetch_streams<ToDataOutFunctor>);
 //CompositeDatInType compositeIn(fetch_streams<ToDataInFunctor>);
 
+#endif	// CONTROLBOX_STATIC
+
+
 
 
 /**
@@ -463,21 +456,17 @@ CompositeDatOutType compositeOut(&fetch_streams<ToDataOutFunctor>);
 void Comms::init() {
 	prevConnected = false;
 	reset = false;
-    commsDevice.begin(57600);
+    cb_static_decl(commsDevice.begin(57600);)
 }
 
 
 #ifdef BOOST_NO_EXCEPTIONS
 
-
 namespace boost
 {
-
     void throw_exception(std::exception const & e)
     {
-
     }
-
 }
 
 #endif
@@ -540,75 +529,26 @@ bool isHexadecimalDigit(char c)
 void TextIn::fetchNextData(bool optional) {
 
 	while (commentLevel>=0 && !hasData && _in->hasNext()) {
-                if (_in->available()) {
-                    data = 0xFF;
-                    uint8_t d = _in->next();
-                    if (d=='[') {
-                        commentLevel++;
-                    }
-                    else if (d==']') {
-                        commentLevel--;
-                    }
-                    else if (d=='\n' || d=='\r') {
-                        commentLevel = -1; data = 0;    // exit the loop on end of line
-                    }
-                    else if (!commentLevel && isHexadecimalDigit(d)) {
-                        hasData = true;
-                        data = d;
-                    }
-                }
+		if (_in->available()) {
+			data = 0xFF;
+			uint8_t d = _in->next();
+			if (d=='[') {
+				commentLevel++;
+			}
+			else if (d==']') {
+				commentLevel--;
+			}
+			else if (d=='\n' || d=='\r') {
+				commentLevel = -1; data = 0;    // exit the loop on end of line
+			}
+			else if (!commentLevel && isHexadecimalDigit(d)) {
+				hasData = true;
+				data = d;
+			}
+		}
 	}
 }
 
-/**
- * Converts a hex digit to the corresponding binary value.
- */
-uint8_t h2d(unsigned char hex)
-{
-	if (hex > '9')
-		hex -= 7; // 'A' is 0x41, 'a' is 0x61. -7 =  0x3A, 0x5A
-	return (hex & 0xf);
-}
-
-unsigned char d2h(uint8_t bin)
-{
-	return bin+(bin>9 ? 'A'-10 : '0');
-}
-
-/*
- * Converts pairs of hex digit characters into the corresponding binary value.
- */
-class HexTextToBinaryIn : public DataIn
-{
-	DataIn* _text;	// store as pointer to avoid non-POD warnings
-	uint8_t char1;	// Text character for upper nibble
-	uint8_t char2;	// Text character for lower nibble
-
-	void fetchNextByte();
-
-public:
-	HexTextToBinaryIn(DataIn& text) : _text(&text), char1(0), char2(0) {}
-
-	bool hasNext() override {
-		fetchNextByte();
-		return char2;
-	}
-
-	uint8_t peek() override {
-		fetchNextByte();
-		return (h2d(char1)<<4) | h2d(char2);
-	}
-
-	uint8_t next() override  {
-		uint8_t r = peek();
-		char1 = 0; char2 = 0;
-		return r;
-	}
-
-        unsigned available() override {
-            return hasNext();
-        }
-};
 
 uint8_t blockingRead(DataIn& in, uint8_t closed)
 {
@@ -635,7 +575,7 @@ void HexTextToBinaryIn::fetchNextByte()
 		return;
 
 	if (!char1) {
-                char1 = blockingRead(_text, 0);
+		char1 = blockingRead(_text, 0);
 	}
 
 	if (!_text.hasNext())
@@ -646,40 +586,6 @@ void HexTextToBinaryIn::fetchNextByte()
 	}
 }
 
-class BinaryToHexTextOut : public DataOut {
-
-	DataOut* _out;
-
-public:
-
-	BinaryToHexTextOut(DataOut& out) : _out(&out) {}
-
-	/**
-	 * Annotations are written as is to the stream, surrouned by annotation marks.
-	 */
-	void writeAnnotation(const char* data) {
-		_out->write('[');
-		_out->writeBuffer(data, strlen(data));
-		_out->write(']');
-	}
-
-	/**
-	 * Data is written as hex-encoded
-	 */
-	bool write(uint8_t data) {
-		_out->write(d2h((data&0xF0)>>4));
-		_out->write(d2h((data&0xF)));
-		_out->write(' ');
-		return true;
-	}
-
-	/**
-	 * Rather than closing the global stream, write a newline to signify the end of this command.
-	 */
-	void close() {
-		_out->write('\n');
-	}
-};
 
 cb_static_decl(BinaryToHexTextOut hexOut(compositeOut);)
 cb_static_decl(DataOut& Comms::hexOut = ::hexOut;)
@@ -728,15 +634,16 @@ inline void Comms::handleCommand(DataIn& in, DataOut& out)
 void processCommand(
 #if !CONTROLBOX_STATIC
 		Comms& comms,
-		DataOut& hexOut,
 #endif
 		StandardConnection* connection)
 {
     DataIn& dataIn = connection->getDataIn();
+    DataOut& dataOut = connection->getDataOut();
     while (dataIn.hasNext()) {
 		  // there is some data ready to be processed											// form this point on, the system will block waiting for a complete command or newline.
 		  TextIn textIn(dataIn);
 		  HexTextToBinaryIn hexIn(textIn);
+		  BinaryToHexTextOut hexOut(dataOut);
 		  if (hexIn.hasNext()) {				// ignore blank newlines, annotations etc..
 				comms.handleCommand(hexIn, hexOut);
 				while (hexIn.hasNext())	{			// todo - log a message about unconsumed data?
@@ -764,7 +671,7 @@ void Comms::receive()
 		if (c) {
 			processCommand(
 #if !CONTROLBOX_STATIC
-					*this, hexOut,
+					*this,
 #endif
 					c);
 		}

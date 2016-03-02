@@ -10,15 +10,21 @@ SCENARIO("A created event is sent to listeners after an object is created")
 	{
 		Mock<AllCallbacks> mock;
 		AllCallbacksDelegate d(mock.get());
-		AllInOneBox box(d);
-	}
-	WHEN("")
-	{
 
-	}
-	THEN("")
-	{
+		EmptyDataIn dataIn;
+		BlackholeDataOut dataOut;
 
+		When(Method(mock, getDataIn)).Return(dataIn);
+		When(Method(mock, getDataOut)).Return(dataOut);
+
+		WHEN("")
+		{
+			AllInOneBox box(d);
+		}
+		THEN("")
+		{
+
+		}
 	}
 
 }

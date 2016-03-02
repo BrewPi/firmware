@@ -50,7 +50,7 @@ bool updateCallback(Object* o, void* data, container_id* id, bool enter) {
  */
 void logValues(container_id* ids)
 {
-	DataOut& out = Comms::dataOut();
+	DataOut& out = comms.dataOut();
 	out.write(Commands::CMD_LOG_VALUES_AUTO);
 	commands.logValuesImpl(ids, out);
 	out.close();
