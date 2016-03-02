@@ -43,3 +43,6 @@ test_results/*.pdf
 *.launch
 .cproject
 .project
+
+# automatically generated doxygen files
+docs/_static/doxygen/

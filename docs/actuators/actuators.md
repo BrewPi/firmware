@@ -7,5 +7,6 @@ Complete actuator behavior (PWM, time limits, mutual exclusion) is formed by cha
 .. toctree::
 
 	actuator-interfaces
+	actuator-pwm
 
 ```	

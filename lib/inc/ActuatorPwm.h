@@ -29,64 +29,109 @@
 #include "ActuatorForwarder.h"
 #include "ControllerMixins.h"
 
+/**
+	ActuatorPWM drives a digital actuator and makes it available as range actuator, by quickly turning it on and off repeatedly.
+
+
+ */
 class ActuatorPwm final : public ActuatorForwarder, public ActuatorRange, public ActuatorPwmMixin
 {
-    private:
-        temp_t         value;
-        int32_t        dutyLate;
-        int32_t        periodLate;
-        int32_t        dutyTime;
-        ticks_millis_t periodStartTime;
-        ticks_millis_t highToLowTime;
-        ticks_millis_t lowToHighTime;
-        // last elapsed time between two pulses. Could be different from period due to cycle skipping
-        int32_t        cycleTime;
-        int32_t        period_ms;
-        temp_t         minVal;
-        temp_t         maxVal;
+private:
+    temp_t         value;
+    int32_t        dutyLate;
+    int32_t        periodLate;
+    int32_t        dutyTime;
+    ticks_millis_t periodStartTime;
+    ticks_millis_t highToLowTime;
+    ticks_millis_t lowToHighTime;
+    // last elapsed time between two pulses. Could be different from period due to cycle skipping
+    int32_t        cycleTime;
+    int32_t        period_ms;
+    temp_t         minVal;
+    temp_t         maxVal;
 
-    public:
-        ActuatorPwm(ActuatorDigital * _target, uint16_t _period);
+public:
+    /** Constructor.
+     *  @param _target Digital actuator to be toggled with PWM
+     *  @param _period PWM period in seconds
+     *  @sa getPeriod(), setPeriod(), getTarget(), setTarget()
+     */
+    ActuatorPwm(ActuatorDigital * _target, uint16_t _period);
 
-        ~ActuatorPwm() = default;
+    ~ActuatorPwm() = default;
 
-        temp_t min() const final {
-            return minVal;
-        }
+    /** Returns minimum value
+     */
+    temp_t min() const final {
+        return minVal;
+    }
 
-        temp_t max() const final {
-            return maxVal;
-        }
+    /** Returns maximum value
+     */
+    temp_t max() const final {
+        return maxVal;
+    }
 
-        temp_t readValue() const final;
+    /** ActuatorPWM keeps track of the last high and low transition.
+     *  This function returns the actually achieved value. This can differ from
+     *  the set value, because the target actuator is not toggling.
+     *
+     * @return achieved duty cycle in fixed point.
+     */
+    temp_t readValue() const final;
 
-        temp_t getValue() const final {
-            return value;
-        }
+    /** Returns the set duty cycle
+     * @return duty cycle setting in fixed point
+     */
+    temp_t getValue() const final {
+        return value;
+    }
 
-        void setValue(temp_t const& val) final;
+    /** Sets a new duty cycle
+     * @param val new duty cycle in fixed point
+     */
+    void setValue(temp_t const& val) final;
 
-        void update() final;
+    //** Calculates whether the target should toggle and tries to toggle it if necessary
+    /** Each update, the PWM actuator checks whether it should toggle to achieve the set duty cycle.
+     * It checks wether the output pin toggled and updates it's internal counters to keep track of
+     * the achieved duty cycle. When it toggles late, it tries to compensate for this in the next cycle.
+     * To maintain the correct duty cycle average, it can make the next high time shorter or longer.
+     * If needed, it can even skip going high or low. This will happen, for example, when the target is
+     * a time limited actuator with a minimum on and/or off time.
+     */
+    void update() final;
 
-        ticks_seconds_t getPeriod() const
-        {
-            return period_ms / 1000; // return in seconds, same as set period
-        }
+    /** returns the PWM period
+     * @return PWM period in seconds
+     */
+    ticks_seconds_t getPeriod() const
+    {
+        return period_ms / 1000; // return in seconds, same as set period
+    }
 
-        void setTarget(ActuatorDigital * t)
-        {
-            target = t;
-        }
+    /** sets the PWM period
+     * @param sec new period in seconds
+     */
+    void setPeriod(uint16_t sec){
+        period_ms = int32_t(sec) * 1000;
+    }
 
-        void setPeriod(uint16_t sec){
-            period_ms = int32_t(sec) * 1000;
-        }
 
-        // calculates duty time based on expected period
-        int32_t calculateDutyTime(int32_t expectedPeriod);
 
-        // calculates priority from dutyTime and dutyLate
-        int8_t priority();
+private:
+    /** Calculates priority to be used with the MutexDriver.
+     * Actuators will get a higher priority if their duty cycle is higher, or they are far behind
+     * @return priority for this actuator to become active
+     * @sa MutexDriver
+     */
+    int8_t priority();
 
-        friend class ActuatorPwmMixin;
+    /** Calculates duty time based on expected period
+     * @param expectedPeriod estimate of the duration of the period in ms
+     * @return duration of the high period in ms
+     */
+    int32_t calculateDutyTime(int32_t expectedPeriod);
+
+    friend class ActuatorPwmMixin;
 };

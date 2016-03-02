@@ -8,16 +8,7 @@ Contents
    :maxdepth: 2
    
    actuators/actuators
+   doxygen
    
 .. toctree::
    readme
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
