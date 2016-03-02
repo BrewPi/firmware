@@ -30,6 +30,8 @@ import distutils.spawn
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src'))
 extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
@@ -82,7 +84,7 @@ language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = ['_build', 'src']
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -297,7 +299,6 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 
 # add modules directory to path for local imports
 sys.path.append(os.path.join(os.path.dirname(__file__), "modules"))
-import sphinxcontrib.doxylink
 
 # add support for markdown
 import recommonmark
@@ -361,5 +362,4 @@ def setup(app):
             'auto_toc_tree_section': 'Contents',
             }, True)
     app.add_transform(AutoStructify)
-
     run_doxygen()

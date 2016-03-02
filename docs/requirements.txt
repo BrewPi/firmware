@@ -26,4 +26,4 @@ sphinx-rtd-theme==0.1.9
 tornado==4.3
 watchdog==0.8.3
 breathe==4.1.0
-sphinxcontrib-doxylink==1.3
+-e "git+https://github.com/elcojacobs/sphinx-contrib#egg=sphinxcontrib-doxylink&subdirectory=doxylink"
