@@ -347,6 +347,7 @@ def run_doxygen():
             if retcode < 0:
                 sys.stderr.write("doxygen terminated by signal %s\n" % (-retcode))
             retcode = subprocess.call("cp -rf ./_build/doxygen/html ./_build/html/doxygen", shell=True)
+            retcode = subprocess.call("cp -rf ./_build/doxygen/xml ./_build/html/doxygen/xml", shell=True)
         except OSError as e:
             sys.stderr.write("doxygen execution failed: %s\n" % e)
     else:
