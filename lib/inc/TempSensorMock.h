@@ -36,7 +36,7 @@ public:
 	bool isConnected() const { return connected; }
 
 	bool init() {
-		return read().isDisabledOrInvalid();
+		return !read().isDisabledOrInvalid();
 	}
 	
 	void add(temp_t delta){
@@ -50,7 +50,7 @@ public:
 	temp_t read() const
 	{
 		if (!isConnected())
-			return temp_t::invalid_val;
+			return temp_t::invalid();
 
 		// limit precision to mimic DS18B20 sensor
 		const uint8_t shift = temp_t::fractional_bit_count - 4; // DS18B20 has 0.0625 (1/16) degree C steps

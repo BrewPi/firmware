@@ -32,6 +32,22 @@ BOOST_AUTO_TEST_CASE (mock_sensor_init){
     BOOST_CHECK_EQUAL(t, temp_t(20.0));
 }
 
+BOOST_AUTO_TEST_CASE (unconnected_mock_sensor_will_return_invalid){
+    TempSensorMock * s = new TempSensorMock(20.0);
+    s->setConnected(false);
+    temp_t t = s->read();
+
+    BOOST_CHECK_EQUAL(t, temp_t::invalid());
+}
+
+BOOST_AUTO_TEST_CASE (unconnected_mock_sensor_will_false_on_init){
+    TempSensorMock * s = new TempSensorMock(20.0);
+    BOOST_CHECK(s->init());
+
+    s->setConnected(false);
+    BOOST_CHECK(!s->init());
+}
+
 BOOST_AUTO_TEST_CASE(test_limited_precision){
     TempSensorMock t(20.0);
 
