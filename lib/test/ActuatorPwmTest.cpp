@@ -630,7 +630,7 @@ BOOST_AUTO_TEST_CASE(decreasing_pwm_value_after_long_high_time_and_mutex_wait){
     mutex->update();
     BOOST_CHECK(blocker->isActive());
     blockerMutex->setActive(false);
-    BOOST_CHECK_EQUAL(mutex->getWaitTime(), 100000);
+    BOOST_CHECK_EQUAL(mutex->getWaitTime(), 100000u);
 
 
     double pwmValue = 100;
