@@ -18,15 +18,33 @@
  */
 
 #include "TempSensorFallback.h"
+#include "LogMessages.h"
+#include "Logger.h"
 
-/*
-TempSensorFallback::TempSensorFallback() {
-    // TODO Auto-generated constructor stub
-
+temp_t TempSensorFallback::read() const {
+    if(onBackupSensor){
+        return backup->read();
+    }
+    else{
+        return main->read();
+    }
 }
 
-TempSensorFallback::~TempSensorFallback() {
-    // TODO Auto-generated destructor stub
+void TempSensorFallback::update() {
+    if(main->isConnected()){
+        if(onBackupSensor){
+            // return to main sensor and log message
+            logInfo(BACK_ON_MAIN_SENSOR);
+        }
+        onBackupSensor = false;
+    }
+    else{
+        if(backup->isConnected()){
+            if(!onBackupSensor){
+                // this is the first time falling back
+                logWarning(FALLING_BACK_ON_BACKUP_SENSOR);
+            }
+            onBackupSensor = true;
+        }
+    }
 }
-
-*/

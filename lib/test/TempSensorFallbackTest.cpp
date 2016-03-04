@@ -23,6 +23,7 @@
 #include "runner.h"
 #include <boost/test/unit_test.hpp>
 #include <math.h>
+#include <boost/test/output_test_stream.hpp>
 
 BOOST_AUTO_TEST_SUITE(TempSensorFallbackTest)
 
@@ -119,6 +120,47 @@ BOOST_FIXTURE_TEST_CASE (fallback_sensor_inits_active_sensor, FallbackFixture){
     beerSensor->setConnected(false); // init of beer sensor will return false now too
     successful_init = fridgeSensorWithFallback->init(); // will return false, because now beer sensor init fails
     BOOST_CHECK(!successful_init);
+}
+
+BOOST_FIXTURE_TEST_CASE (fallback_sensor_log_messages, FallbackFixture){
+    using boost::test_tools::output_test_stream;
+
+    output_test_stream test_stream;
+    output = &test_stream; // redirect logger output to test stream
+    // last argument to test stream functions sets to flush the stream after the call when true
+
+    fridgeSensorWithFallback->update();
+    BOOST_CHECK(test_stream.is_empty());
+
+    fridgeSensor->setConnected(false);
+    fridgeSensorWithFallback->update();
+    BOOST_CHECK(!test_stream.is_empty(false)); // update has generated a log message
+    BOOST_CHECK(test_stream.is_equal("LOG MESSAGE: {W: 4, V: []}\n", true));
+
+    fridgeSensorWithFallback->update();
+    BOOST_CHECK(test_stream.is_empty(false)); // no more messages are generated
+
+    fridgeSensor->setConnected(true);
+    fridgeSensorWithFallback->update();
+    BOOST_CHECK(!test_stream.is_empty(false)); // when sensor comes back, a log message is generated
+    BOOST_CHECK(test_stream.is_equal("LOG MESSAGE: {I: 21, V: []}\n", true));
+
+    fridgeSensor->setConnected(true);
+    fridgeSensorWithFallback->update();
+    BOOST_CHECK(test_stream.is_empty(false)); // but only once
+
+    beerSensor->setConnected(false);
+    fridgeSensorWithFallback->update();
+    BOOST_CHECK(test_stream.is_empty(false)); // disconnecting the backup sensor does not result in a message
+
+    fridgeSensor->setConnected(false);
+    fridgeSensorWithFallback->update();
+    BOOST_CHECK(test_stream.is_empty(false)); // When backup is not connected, it is not used for fallback. No messages.
+
+    beerSensor->setConnected(true);
+    fridgeSensorWithFallback->update();
+    BOOST_CHECK(!test_stream.is_empty(false)); // But when it becomes available, while the main sensor is still unavailable, it is used
+    BOOST_CHECK(test_stream.is_equal("LOG MESSAGE: {W: 4, V: []}\n", true)); // and the correct message is logged
 }
 
 BOOST_AUTO_TEST_SUITE_END()
