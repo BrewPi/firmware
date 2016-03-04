@@ -25,31 +25,31 @@
 
 void Logger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * varTypes, ...){
 	va_list args;
-	output << "LOG MESSAGE:";
-	output << type << " ";
-	output << errorID << ", V: [";
+	*output << "LOG MESSAGE: {";
+	*output << type << ": ";
+	*output << int(errorID) << ", V: [";
 	va_start (args, varTypes);
 	uint8_t index = 0;
 	char buf[12];
 	while(varTypes[index]){
 		switch(varTypes[index]){	
 			case 'd': // integer, signed or unsigned
-				output << va_arg(args, int);
+				*output << va_arg(args, int);
 				break;
 			case 's': // string
-				output << va_arg(args, char*);
+				*output << va_arg(args, char*);
 				break;
 			case 't': // temperature in fixed point format
-				output << ((temp_t *) va_arg(args,void*))->toString(buf, 3, 12);
+				*output << ((temp_t *) va_arg(args,void*))->toString(buf, 3, 12);
 			break;			
 		}
 		if(varTypes[++index]){
-			output << ',';
+			*output << ',';
 		}
 	}
 	va_end (args);
-	output << (']');
-	output << "}\n";
+	*output << (']');
+	*output << "}\n";
 }
 
 Logger logger;

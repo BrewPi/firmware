@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(minimum_off_time_and_maximum_on_time_are_honored) {
     ActuatorTimeLimited * act = new ActuatorTimeLimited(v, minOn, minOff, maxOn);
 
 
-    output << "\n\n**** Testing min OFF and max ON time for ActuatorTimeLimited ****\n\n";
+    *output << "\n\n**** Testing min OFF and max ON time for ActuatorTimeLimited ****\n\n";
 
     while(ticks.seconds() < 10000) {
         bool stateBeforeUpdate = act->isActive();
@@ -53,14 +53,14 @@ BOOST_AUTO_TEST_CASE(minimum_off_time_and_maximum_on_time_are_honored) {
         act->update(); // turns off the actuator when max on time has passed
 
         if(stateBeforeUpdate != act->isActive()){
-            output << "Turned ";
+            *output << "Turned ";
             if(stateBeforeUpdate){
-                output << "ON";
+                *output << "ON";
             }
             else{
-                output << "OFF";
+                *output << "OFF";
             }
-            output << " at time " << time << "ms\n";
+            *output << " at time " << time << "ms\n";
         }
 
         if(time < minOff*1000) {
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(minimum_on_time_is_honored) {
 
     ActuatorTimeLimited * act = new ActuatorTimeLimited(v, minOn, minOff, maxOn);
 
-    output << ("\n\n**** Testing min ON time for ActuatorTimeLimited ****\n\n");
+    *output << ("\n\n**** Testing min ON time for ActuatorTimeLimited ****\n\n");
     ticks_seconds_t time;
     do {
         delay(100);
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(minimum_on_time_is_honored) {
         time = ticks.seconds();
         BOOST_REQUIRE(act->isActive());
     }
-    output << "Was ON for " << time - onMoment << "seconds\n";
+    *output << "Was ON for " << time - onMoment << "seconds\n";
 }
 
 BOOST_AUTO_TEST_CASE(correct_state_is_returned_with_actuatorNop) {

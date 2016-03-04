@@ -43,10 +43,10 @@ double randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t dut
     ticks_millis_t totalHighTime = 0;
     ticks_millis_t totalLowTime = 0;
 
-    output << format("\n\n*** Results running 100 periods and random 0-%d ms update intervals,"
+    *output << format("\n\n*** Results running 100 periods and random 0-%d ms update intervals,"
             "with duty cycle %u and period %u ***\n") % delayMax % duty % act->getPeriod();
 #if PRINT_TOGGLE_TIMES
-    output << "\n\nl->h timestamp  h->l timestamp       high time       low time\n";
+    *output << "\n\nl->h timestamp  h->l timestamp       high time       low time\n";
 #endif
     // run for 100 periods
     for (int i = 0; i < 100; i++) {
@@ -59,8 +59,8 @@ double randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t dut
             totalHighTime += highTime;
         }
 #if PRINT_TOGGLE_TIMES
-        output << format("_/  %10u \t \\_ %10u \t") % lowToHighTime % highToLowTime;
-        output << format(" %10u ms \t") % highTime;
+        *output << format("_/  %10u \t \\_ %10u \t") % lowToHighTime % highToLowTime;
+        *output << format(" %10u ms \t") % highTime;
 #endif
         do {
             lowToHighTime = random_delay(delayMax);
@@ -70,18 +70,18 @@ double randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t dut
         if (i > 0) { // skip first cycle in totals, it can have old duty cycle
             totalLowTime += lowTime;
 #if PRINT_TOGGLE_TIMES
-            output << format("%10u ms \n") % lowTime;
+            *output << format("%10u ms \n") % lowTime;
 #endif
         }
         else{
 #if PRINT_TOGGLE_TIMES
-            output << format("%10u ms (ignored)\n") % lowTime;
+            *output << format("%10u ms (ignored)\n") % lowTime;
 #endif
         }
         
     }
     double avgDuty = double(totalHighTime) / (totalHighTime + totalLowTime) * double(act->max());
-    output << "total high time: " << totalHighTime << "\n"
+    *output << "total high time: " << totalHighTime << "\n"
            << "total low time: " << totalLowTime << "\n"
            << "avg duty: " << avgDuty << "/" << act->max() << "\n";
     return avgDuty;
@@ -136,12 +136,12 @@ BOOST_AUTO_TEST_CASE(on_off_time_matches_duty_cycle_when_updating_every_ms) {
     ticks_millis_t timeHigh = highToLowTime1 - lowToHighTime1;
     ticks_millis_t timeLow = lowToHighTime2 - highToLowTime1;
     double actualDuty = (timeHigh * 100.0) / (timeHigh + timeLow); // rounded result
-    output << "*** Timestamps testing one period with duty cycle " << duty << " and period " << act->getPeriod() << "***\n";
-    output << "lowToHigh1: " << lowToHighTime1 << "\t"
-           << "highToLow1: " << highToLowTime1 <<" \t lowToHigh2: " << lowToHighTime2 << "\n"
-           << "time high: " << timeHigh << "\t"
-           << "time low: " << timeLow << "\t"
-           << "actual duty cycle: " << actualDuty;
+    *output << "*** Timestamps testing one period with duty cycle " << duty << " and period " << act->getPeriod() << "***\n";
+    *output << "lowToHigh1: " << lowToHighTime1 << "\t"
+            << "highToLow1: " << highToLowTime1 <<" \t lowToHigh2: " << lowToHighTime2 << "\n"
+            << "time high: " << timeHigh << "\t"
+            << "time low: " << timeLow << "\t"
+            << "actual duty cycle: " << actualDuty;
     BOOST_CHECK_CLOSE(actualDuty, 50.0, 0.5);
 }
 

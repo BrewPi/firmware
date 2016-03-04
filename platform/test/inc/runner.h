@@ -29,4 +29,5 @@ static inline std::string boost_test_name(void){
 // #include <boost/test/output_test_stream.hpp>
 // boost::test_tools::output_test_stream output;
 
-#define output cout
+// output can be redirected, initialized to cout in runner.
+extern ostream * output;

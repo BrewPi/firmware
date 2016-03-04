@@ -42,7 +42,7 @@
 // Quick and dirty included version without linking to prebuild library
 #include <boost/test/included/unit_test.hpp>
 
-
+#include "runner.h"
 #include "Platform.h"
 #include "Ticks.h"
 
@@ -61,3 +61,5 @@ ticks_millis_t random_delay(int max) {
     int ms = rand() % (max - 1);
     return delay(ms);
 }
+
+ostream * output = &cout;
