@@ -64,47 +64,60 @@ BOOST_AUTO_TEST_CASE (fallback_sensor_without_arguments_defaults_to_default_sens
 BOOST_FIXTURE_TEST_CASE (fallback_sensor_returns_main_sensor_value, FallbackFixture){
     temp_t t = fridgeSensorWithFallback->read();
     BOOST_CHECK_EQUAL(t, temp_t(initialFridgeTemp));
+
+    fridgeSensorWithFallback->update();
+    t = fridgeSensorWithFallback->read();
+    BOOST_CHECK_EQUAL(t, temp_t(initialFridgeTemp)); // still on main sensor
 }
 
 
-BOOST_FIXTURE_TEST_CASE (fallback_sensor_returns_backup_when_main_is_invalid, FallbackFixture){
+BOOST_FIXTURE_TEST_CASE (fallback_sensor_returns_backup_when_main_is_disconnected, FallbackFixture){
     temp_t t = fridgeSensorWithFallback->read();
     BOOST_CHECK_EQUAL(t, temp_t(initialFridgeTemp));
 
     fridgeSensor->setConnected(false);
-
     t = fridgeSensorWithFallback->read();
+    BOOST_CHECK_EQUAL(t, temp_t::invalid()); // still pointing at fridge temp, but now invalid
 
-    BOOST_CHECK_EQUAL(t, temp_t(initialBeerTemp));
+    fridgeSensorWithFallback->update();
+    t = fridgeSensorWithFallback->read();
+    BOOST_CHECK_EQUAL(t, temp_t(initialBeerTemp)); // but not after update
 }
 
 
 BOOST_FIXTURE_TEST_CASE (fallback_sensor_is_connected_when_main_or_backup_is_connected, FallbackFixture){
     fridgeSensor->setConnected(true);
     beerSensor->setConnected(true);
+    fridgeSensorWithFallback->update();
     BOOST_CHECK(fridgeSensorWithFallback->isConnected());
 
     fridgeSensor->setConnected(true);
     beerSensor->setConnected(false);
+    fridgeSensorWithFallback->update();
     BOOST_CHECK(fridgeSensorWithFallback->isConnected());
 
     fridgeSensor->setConnected(false);
     beerSensor->setConnected(true);
+    fridgeSensorWithFallback->update();
     BOOST_CHECK(fridgeSensorWithFallback->isConnected());
 
     fridgeSensor->setConnected(false);
     beerSensor->setConnected(false);
+    fridgeSensorWithFallback->update();
     BOOST_CHECK(!fridgeSensorWithFallback->isConnected());
 }
 
 
-BOOST_FIXTURE_TEST_CASE (fallback_sensor_init_falls_back_on_backup_sensor, FallbackFixture){
-    fridgeSensor->setConnected(false); // init of fridge sensor will return false
-    bool successful_init = fridgeSensorWithFallback->init(); // will return true, because backup inits successfully
-    BOOST_CHECK(successful_init);
+BOOST_FIXTURE_TEST_CASE (fallback_sensor_inits_active_sensor, FallbackFixture){
+    fridgeSensor->setConnected(false); // init of fridge sensor will return false now
+    bool successful_init = fridgeSensorWithFallback->init(); // will return false
+    BOOST_CHECK(!successful_init);
+
+    fridgeSensorWithFallback->update(); // this should switch to fallback sensor
+    successful_init = fridgeSensorWithFallback->init(); // will return true, because now beer sensor inits successfully
 
     beerSensor->setConnected(false); // init of beer sensor will return false now too
-    successful_init = fridgeSensorWithFallback->init(); // will return false, because now both sensors are invalid
+    successful_init = fridgeSensorWithFallback->init(); // will return false, because now beer sensor init fails
     BOOST_CHECK(!successful_init);
 }
 

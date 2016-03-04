@@ -30,57 +30,56 @@
  */
 class TempSensorFallback : public TempSensorBasic{
 public:
-    TempSensorFallback() : main(defaultTempSensorBasic()), backup(defaultTempSensorBasic())
+    TempSensorFallback() : main(defaultTempSensorBasic()), backup(defaultTempSensorBasic()), onBackupSensor(false)
     {
     };
 
-    TempSensorFallback(TempSensorBasic * m, TempSensorBasic * b) : main(m), backup(b)
+    TempSensorFallback(TempSensorBasic * m, TempSensorBasic * b) : main(m), backup(b), onBackupSensor(false)
     {
     };
     virtual ~TempSensorFallback(){};
 
     /**
      * Check if sensor is connected
-     * @return bool: true if main or backup sensor is connected
+     * @return bool: true if active sensor is connected
      */
     inline bool isConnected(void) const final {
-        return main->isConnected() || backup->isConnected();
+        if(onBackupSensor){
+            return backup->isConnected();
+        }
+        else{
+            return main->isConnected();
+        }
     }
 
     /**
-     * Attempt to (re-)initialize the sensor.
-     * If it does not initialize correctly, use the backup sensor
+     * Attempt to (re-)initialize the active sensor.
      *
-     * @return bool: true if either sensor or backup sensor was initialized correctly
+     * @return bool: true if active sensor was initialized correctly
      */
     inline bool init() final {
-        return main->init() || backup->init();
-    }
-
-    /**
-     * Read the main sensor, but if it is unavailable/invalid, read the backup sensor instead
-     * @return temp_t: temperature of main sensor if available, otherwise temperature of backups sensor
-     */
-    inline temp_t read() const final {
-        temp_t val;
-        val = main->read();
-        if(val.isDisabledOrInvalid()){
-            val = backup->read();
+        if(onBackupSensor){
+            return backup->init();
         }
-        return val;
+        else{
+            return main->init();
+        }
     }
 
     /**
-     * Update function is a no-op for the fallback sensor.
-     * The main and backup sensor are updated elsewhere.
-     * Updating them here too would create more updates than needed
+     * Read the currently used sensor (main or backup)
+     * @return temp_t: temperature of sensor
      */
-    inline void update() final {
-        // update does nothing
-    }
+    temp_t read() const final;
+
+    /**
+     * update() checks if the main sensor is connected and switches between the main and backup sensor
+     */
+    void update() final;
 
 private:
     TempSensorBasic * main;
     TempSensorBasic * backup;
+    bool onBackupSensor;
 };
 
