@@ -277,6 +277,66 @@ BOOST_AUTO_TEST_CASE(serialize_TempSensor) {
     BOOST_CHECK_EQUAL(valid, json);
 }
 
+BOOST_AUTO_TEST_CASE(serialize_TempSensorFallback) {
+    TempSensorMock * mainMock = new TempSensorMock(20.0);
+    TempSensor * main = new TempSensor(mainMock);
+    main->setName("main");
+
+    TempSensorMock * backupMock = new TempSensorMock(21.0);
+    TempSensor * backup = new TempSensor(backupMock);
+    backup->setName("backup");
+
+    TempSensorFallback * sensor = new TempSensorFallback(main, backup);
+
+
+    std::string json = JSON::producer<TempSensorFallback>::convert(sensor);
+
+    // Valid output looks like this with whitespace:
+    std::string valid = \
+    R"({                                      )"
+    R"(    "kind": "TempSensorFallback",      )"
+    R"(    "onBackupSensor": false,           )"
+    R"(    "sensor": {                        )"
+    R"(        "kind": "TempSensor",          )"
+    R"(        "name": "main",                )"
+    R"(        "sensor": {                    )"
+    R"(            "kind": "TempSensorMock",  )"
+    R"(            "value": 20.0000,          )"
+    R"(            "connected": true          )"
+    R"(        }                              )"
+    R"(    }                                  )"
+    R"(}                                      )";
+
+
+    // now disconnect the main sensor
+    mainMock->setConnected(false);
+    sensor->update();
+
+    // and check output again
+    json = JSON::producer<TempSensorFallback>::convert(sensor);
+
+    // Valid output looks like this with whitespace:
+    valid = \
+    R"({                                      )"
+    R"(    "kind": "TempSensorFallback",      )"
+    R"(    "onBackupSensor": true,            )"
+    R"(    "sensor": {                        )"
+    R"(        "kind": "TempSensor",          )"
+    R"(        "name": "backup",              )"
+    R"(        "sensor": {                    )"
+    R"(            "kind": "TempSensorMock",  )"
+    R"(            "value": 21.0000,          )"
+    R"(            "connected": true          )"
+    R"(        }                              )"
+    R"(    }                                  )"
+    R"(}                                      )";
+
+    erase_all(valid, " "); // remove spaces from valid string
+
+    BOOST_CHECK_EQUAL(valid, json);
+}
+
+
 BOOST_AUTO_TEST_CASE(serialize_control) {
 
     Control * control = new Control();

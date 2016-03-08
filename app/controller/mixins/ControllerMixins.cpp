@@ -27,6 +27,7 @@
 #include "TempSensorMock.h"
 #include "OneWireTempSensor.h"
 #include "TempSensorExternal.h"
+#include "TempSensorFallback.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorTimeLimited.h"
 #include "ActuatorSetPoint.h"
@@ -133,6 +134,16 @@ void TempSensorExternalMixin::serialize(JSON::Adapter & adapter)
     JSON::Class root(adapter, "TempSensorExternal");
     JSON_OE(adapter, value);
     JSON_OT(adapter, connected);
+}
+
+void TempSensorFallbackMixin::serialize(JSON::Adapter & adapter)
+{
+    TempSensorFallback * obj = static_cast<TempSensorFallback *>(this);
+
+    JSON::Class root(adapter, "TempSensorFallback");
+    JSON_OE(adapter, onBackupSensor);
+    TempSensorBasic * sensor = obj->activeSensor();
+    JSON_T(adapter, sensor);
 }
 
 void ActuatorTimeLimitedMixin::serialize(JSON::Adapter & adapter)

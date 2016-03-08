@@ -54,6 +54,16 @@ protected:
     ~TempSensorMixin() = default;
 };
 
+
+class TempSensorFallbackMixin :
+        public virtual VirtualSerializable
+{
+public:
+    void serialize(JSON::Adapter& adapter) final;
+protected:
+    ~TempSensorFallbackMixin() = default;
+};
+
 class PidMixin :
         public Nameable,
         public Serializable
