@@ -28,7 +28,7 @@
  * Class that forwards all calls to another temperature sensor,
  * but when it is unavailable falls back onto a backup sensor
  */
-class TempSensorFallback : public TempSensorBasic{
+class TempSensorFallback : public TempSensorBasic, public TempSensorFallbackMixin {
 public:
     TempSensorFallback() : main(defaultTempSensorBasic()), backup(defaultTempSensorBasic()), onBackupSensor(false)
     {
@@ -40,16 +40,19 @@ public:
     virtual ~TempSensorFallback(){};
 
     /**
+     * Returns currently active sensor
+     * @return TempSensorBasic *: currently active sensor, main or backup
+     */
+    TempSensorBasic * activeSensor() const {
+        return onBackupSensor ? backup : main;
+    }
+
+    /**
      * Check if sensor is connected
      * @return bool: true if active sensor is connected
      */
     inline bool isConnected(void) const final {
-        if(onBackupSensor){
-            return backup->isConnected();
-        }
-        else{
-            return main->isConnected();
-        }
+        return activeSensor()->isConnected();
     }
 
     /**
@@ -58,12 +61,7 @@ public:
      * @return bool: true if active sensor was initialized correctly
      */
     inline bool init() final {
-        if(onBackupSensor){
-            return backup->init();
-        }
-        else{
-            return main->init();
-        }
+        return activeSensor()->init();
     }
 
     /**
@@ -81,5 +79,7 @@ private:
     TempSensorBasic * main;
     TempSensorBasic * backup;
     bool onBackupSensor;
+
+friend class TempSensorFallbackMixin;
 };
 

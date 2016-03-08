@@ -75,14 +75,17 @@ BOOST_FIXTURE_TEST_CASE (fallback_sensor_returns_main_sensor_value, FallbackFixt
 BOOST_FIXTURE_TEST_CASE (fallback_sensor_returns_backup_when_main_is_disconnected, FallbackFixture){
     temp_t t = fridgeSensorWithFallback->read();
     BOOST_CHECK_EQUAL(t, temp_t(initialFridgeTemp));
+    BOOST_CHECK(fridgeSensorWithFallback->activeSensor() == fridgeSensor);
 
     fridgeSensor->setConnected(false);
     t = fridgeSensorWithFallback->read();
     BOOST_CHECK_EQUAL(t, temp_t::invalid()); // still pointing at fridge temp, but now invalid
+    BOOST_CHECK(fridgeSensorWithFallback->activeSensor() == fridgeSensor);
 
     fridgeSensorWithFallback->update();
     t = fridgeSensorWithFallback->read();
     BOOST_CHECK_EQUAL(t, temp_t(initialBeerTemp)); // but not after update
+    BOOST_CHECK(fridgeSensorWithFallback->activeSensor() == beerSensor);
 }
 
 

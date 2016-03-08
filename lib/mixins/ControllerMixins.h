@@ -19,6 +19,11 @@ protected:
     ~TempSensorMixin() = default;
 };
 
+class TempSensorFallbackMixin {
+protected:
+    ~TempSensorFallbackMixin() = default;
+};
+
 class PidMixin {
 protected:
     ~PidMixin() = default;

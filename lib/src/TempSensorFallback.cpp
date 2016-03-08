@@ -22,12 +22,7 @@
 #include "Logger.h"
 
 temp_t TempSensorFallback::read() const {
-    if(onBackupSensor){
-        return backup->read();
-    }
-    else{
-        return main->read();
-    }
+    return activeSensor()->read();
 }
 
 void TempSensorFallback::update() {
