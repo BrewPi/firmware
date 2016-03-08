@@ -164,6 +164,8 @@ BOOST_FIXTURE_TEST_CASE (fallback_sensor_log_messages, FallbackFixture){
     fridgeSensorWithFallback->update();
     BOOST_CHECK(!test_stream.is_empty(false)); // But when it becomes available, while the main sensor is still unavailable, it is used
     BOOST_CHECK(test_stream.is_equal("LOG MESSAGE: {W: 4, V: []}\n", true)); // and the correct message is logged
+
+    output = &cout; // don't forget to set back to cout, because test stream will go out of scope
 }
 
 BOOST_AUTO_TEST_SUITE_END()
