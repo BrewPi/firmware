@@ -25,6 +25,7 @@
 #include "Pid.h"
 #include "ActuatorInterfaces.h"
 #include "TempSensor.h"
+#include "TempSensorFallback.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorPwm.h"
 #include "ActuatorTimeLimited.h"
@@ -48,7 +49,7 @@ public:
     void serialize(JSON::Adapter& adapter);
 
     std::vector<SetPoint*> setpoints;
-    std::vector<TempSensor*> sensors;
+    std::vector<TempSensorBasic*> sensors;
     std::vector<Pid*>        pids;
     std::vector<Actuator*>   actuators;
 
@@ -57,6 +58,9 @@ protected:
     TempSensor * fridgeSensor;
     TempSensor * beer1Sensor;
     TempSensor * beer2Sensor;
+
+    TempSensorFallback * heaterInputSensor;
+    TempSensorFallback * coolerInputSensor;
 
     ActuatorTimeLimited * coolerTimeLimited;
     ActuatorMutexDriver * coolerMutex;

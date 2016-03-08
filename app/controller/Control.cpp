@@ -63,10 +63,12 @@ Control::Control()
     fridgeSetPointActuator->setMin(-10.0);
     fridgeSetPointActuator->setMax(10.0);
 
-    heater1Pid = new Pid(fridgeSensor, heater1, fridgeSet);
+    heaterInputSensor = new TempSensorFallback(fridgeSensor, beer1Sensor);
+    heater1Pid = new Pid(heaterInputSensor, heater1, fridgeSet);
     heater1Pid->setName("heater1");
 
-    coolerPid = new Pid(fridgeSensor, cooler, fridgeSet);
+    coolerInputSensor = new TempSensorFallback(fridgeSensor, beer1Sensor);
+    coolerPid = new Pid(coolerInputSensor, cooler, fridgeSet);
     coolerPid->setActuatorIsNegative(true);
     coolerPid->setName("cooler");
 
@@ -84,6 +86,8 @@ Control::Control()
     sensors.push_back(fridgeSensor);
     sensors.push_back(beer1Sensor);
     sensors.push_back(beer2Sensor);
+    sensors.push_back(coolerInputSensor);
+    sensors.push_back(heaterInputSensor);
 
     actuators.push_back(cooler);
     actuators.push_back(heater1);
@@ -163,10 +167,10 @@ void Control::updateActuators(){
 
 void Control::serialize(JSON::Adapter& adapter){
     JSON::Class root(adapter, "Control");
-    JSON_E(adapter, pids);
-    JSON_E(adapter, sensors);
-    JSON_E(adapter, actuators);
-    JSON_T(adapter, setpoints);
+    JSON_T(adapter, pids);
+    //JSON_E(adapter, sensors);
+    //JSON_E(adapter, actuators);
+    //JSON_T(adapter, setpoints);
 }
 
 Control control;

@@ -18,6 +18,7 @@
 */
 
 #include <boost/test/unit_test.hpp>
+#include <boost/algorithm/string/erase.hpp>
 
 #include "runner.h"
 #include <string>
@@ -44,32 +45,28 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators) {
     ActuatorMutexDriver * mutexAct1 = new ActuatorMutexDriver(boolAct1);
     ActuatorPwm * act1 = new ActuatorPwm (mutexAct1, 20);
 
-    std::string json;
+    std::string json = JSON::producer<ActuatorPwm>::convert(act1);
 
-    json = JSON::producer<ActuatorPwm>::convert(act1);
+    // With some extra whitespace, the valid output looks like this:
+    std::string valid = \
+    R"({                                         )"
+    R"(    "kind": "ActuatorPwm",                )"
+    R"(    "value": 0.0000,                      )"
+    R"(    "period": 20,                         )"
+    R"(    "minVal": 0.0000,                     )"
+    R"(    "maxVal": 100.0000,                   )"
+    R"(    "target": {                           )"
+    R"(        "kind": "ActuatorMutexDriver",    )"
+    R"(        "mutexGroup": null,               )"
+    R"(        "target": {                       )"
+    R"(            "kind": "ActuatorBool",       )"
+    R"(            "state": false                )"
+    R"(        }                                 )"
+    R"(    }                                     )"
+    R"(}                                         )";
 
-    /* With some extra whitespace, the valid output looks like this:
-{
-    "kind": "ActuatorPwm",
-    "value": 0.0000,
-    "period": 20,
-    "minVal": 0.0000,
-    "maxVal": 100.0000,
-    "target": {
-        "kind": "ActuatorMutexDriver",
-        "mutexGroup": null,
-        "target": {
-            "kind": "ActuatorBool",
-            "state": false
-        }
-    }
-}
-*/
+    erase_all(valid, " "); // remove spaces from valid string
 
-    std::string valid = R"({"kind":"ActuatorPwm","value":0.0000,)"
-                        R"("period":20,"minVal":0.0000,"maxVal":100.0000,)"
-                        R"("target":{"kind":"ActuatorMutexDriver","mutexGroup":null,)"
-                        R"("target":{"kind":"ActuatorBool","state":false}}})";
     BOOST_CHECK_EQUAL(valid, json);
 }
 
@@ -81,47 +78,38 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
     ActuatorRange* cooler = new ActuatorPwm(coolerMutex, 600); // period 10 min
 
 
-    std::string json;
+    std::string json = JSON::producer<ActuatorRange>::convert(cooler);
 
-    json = JSON::producer<ActuatorRange>::convert(cooler);
+    // With some extra whitespace, the valid output looks like this:
+    std::string valid = \
+    R"({                                             )"
+    R"(    "kind": "ActuatorPwm",                    )"
+    R"(    "value": 0.0000,                          )"
+    R"(    "period": 600,                            )"
+    R"(    "minVal": 0.0000,                         )"
+    R"(    "maxVal": 100.0000,                       )"
+    R"(    "target": {                               )"
+    R"(        "kind": "ActuatorMutexDriver",        )"
+    R"(        "mutexGroup": {                       )"
+    R"(            "kind": "ActuatorMutexGroup",     )"
+    R"(            "deadTime": 0,                    )"
+    R"(            "lastActiveTime": 0               )"
+    R"(        },                                    )"
+    R"(        "target": {                           )"
+    R"(            "kind": "ActuatorTimeLimited",    )"
+    R"(            "minOnTime": 120,                 )"
+    R"(            "minOffTime": 180,                )"
+    R"(            "maxOnTime": 65535,               )"
+    R"(            "state": false,                   )"
+    R"(            "target": {                       )"
+    R"(                "kind": "ActuatorBool",       )"
+    R"(                 "state": false               )"
+    R"(            }                                 )"
+    R"(        }                                     )"
+    R"(    }                                         )"
+    R"(}                                             )";
 
-/* With some extra whitespace, the valid output looks like this:
-{
-    "kind": "ActuatorPwm",
-    "value": 0.0000,
-    "period": 600,
-    "minVal": 0.0000,
-    "maxVal": 100.0000,
-    "target": {
-        "kind": "ActuatorMutexDriver",
-        "mutexGroup": {
-            "kind": "ActuatorMutexGroup",
-            "deadTime": 0,
-            "lastActiveTime": 0
-        },
-        "target": {
-            "kind": "ActuatorTimeLimited",
-            "minOnTime": 120,
-            "minOffTime": 180,
-            "maxOnTime": 65535,
-            "active": false,
-            "target": {
-                "kind": "ActuatorBool",
-                 "state": false
-            }
-        }
-    }
-}
-*/
-
-
-    std::string valid = R"({"kind":"ActuatorPwm","value":0.0000,)"
-                        R"("period":600,"minVal":0.0000,"maxVal":100.0000,)"
-                        R"("target":{"kind":"ActuatorMutexDriver","mutexGroup":)"
-                        R"({"kind":"ActuatorMutexGroup","deadTime":0,"lastActiveTime":0},)"
-                        R"("target":{"kind":"ActuatorTimeLimited","minOnTime":120,"minOffTime":180,"maxOnTime":65535,)"
-                        R"("state":false,"target":{"kind":"ActuatorBool","state":false}}}})";
-
+    erase_all(valid, " "); // remove spaces from valid string
 
     BOOST_CHECK_EQUAL(valid, json);
 }
@@ -175,35 +163,31 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
 
     std::string json = JSON::producer<ActuatorRange>::convert(act);
 
-/* With some extra whitespace, the valid output looks like this:
-    {
-        "kind": "ActuatorSetPoint",
-        "targetSetPoint": {
-            "kind": "SetPointSimple",
-            "name": "",
-            "value": 25.0000
-        },
-        "targetSensor": {
-            "kind": "TempSensorMock",
-            "value": 20.0000,
-            "connected": true
-        },
-        "referenceSetPoint": {
-            "kind": "SetPointConstant",
-            "value": 20.0000
-        },
-        "output": 5.0000,
-        "achieved": 0.0000,
-        "minimum": -10.0000,
-        "maximum": 10.0000
-    }
-*/
+    // With some extra whitespace, the valid output looks like this:
+    std::string valid = \
+    R"({                                      )"
+    R"(    "kind": "ActuatorSetPoint",        )"
+    R"(    "targetSetPoint": {                )"
+    R"(        "kind": "SetPointSimple",      )"
+    R"(        "name": "",                    )"
+    R"(        "value": 25.0000               )"
+    R"(    },                                 )"
+    R"(    "targetSensor": {                  )"
+    R"(        "kind": "TempSensorMock",      )"
+    R"(        "value": 20.0000,              )"
+    R"(        "connected": true              )"
+    R"(    },                                 )"
+    R"(    "referenceSetPoint": {             )"
+    R"(        "kind": "SetPointConstant",    )"
+    R"(        "value": 20.0000               )"
+    R"(    },                                 )"
+    R"(    "output": 5.0000,                  )"
+    R"(    "achieved": 0.0000,                )"
+    R"(    "minimum": -10.0000,               )"
+    R"(    "maximum": 10.0000                 )"
+    R"(}                                      )";
 
-    std::string valid = R"({"kind":"ActuatorSetPoint",)"
-        R"("targetSetPoint":{"kind":"SetPointSimple","name":"","value":25.0000},)"
-        R"("targetSensor":{"kind":"TempSensorMock","value":20.0000,"connected":true},)"
-        R"("referenceSetPoint":{"kind":"SetPointConstant","value":20.0000},)"
-        R"("output":5.0000,"achieved":0.0000,"minimum":-10.0000,"maximum":10.0000})";
+    erase_all(valid, " "); // remove spaces from valid string
 
     BOOST_CHECK_EQUAL(valid, json);
 }
@@ -217,50 +201,44 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
 
     std::string json = JSON::producer<Pid>::convert(pid);
 
-/* With some extra whitespace, the valid output looks like this:
-{
-    "kind": "Pid",
-    "name":"",
-    "enabled":true,
-    "setPoint": {
-        "kind": "SetPointSimple",
-        "name":"",
-        "value": 20.0000
-    },
-    "inputSensor": {
-        "kind": "TempSensorMock",
-        "value": 20.0000,
-        "connected": true
-    },
-    "inputError": 0,
-    "Kp": 0.0000,
-    "Ti": 0,
-    "Td": 0,
-    "p": 0.0000,
-    "i": 0.0000,
-    "d": 0.0000,
-    "actuatorIsNegative": false,
-    "outputActuator": {
-        "kind": "ActuatorPwm",
-        "value": 0.0000,
-        "period": 4,
-        "minVal": 0.0000,
-        "maxVal": 100.0000,
-        "target": {
-            "kind": "ActuatorBool",
-            "state": false
-        }
-    }
-}
-*/
+    // With some extra whitespace, the valid output looks like this:
+    std::string valid = \
+    R"({                                      )"
+    R"(    "kind": "Pid",                     )"
+    R"(    "name":"",                         )"
+    R"(    "enabled":true,                    )"
+    R"(    "setPoint": {                      )"
+    R"(        "kind": "SetPointSimple",      )"
+    R"(        "name":"",                     )"
+    R"(        "value": 20.0000               )"
+    R"(    },                                 )"
+    R"(    "inputSensor": {                   )"
+    R"(        "kind": "TempSensorMock",      )"
+    R"(        "value": 20.0000,              )"
+    R"(        "connected": true              )"
+    R"(    },                                 )"
+    R"(    "inputError": 0.0000,              )"
+    R"(    "Kp": 0.0000,                      )"
+    R"(    "Ti": 0,                           )"
+    R"(    "Td": 0,                           )"
+    R"(    "p": 0.0000,                       )"
+    R"(    "i": 0.0000,                       )"
+    R"(    "d": 0.0000,                       )"
+    R"(    "actuatorIsNegative": false,       )"
+    R"(    "outputActuator": {                )"
+    R"(        "kind": "ActuatorPwm",         )"
+    R"(        "value": 0.0000,               )"
+    R"(        "period": 4,                   )"
+    R"(        "minVal": 0.0000,              )"
+    R"(        "maxVal": 100.0000,            )"
+    R"(        "target": {                    )"
+    R"(            "kind": "ActuatorBool",    )"
+    R"(            "state": false             )"
+    R"(        }                              )"
+    R"(    }                                  )"
+    R"(}                                      )";
 
-    std::string valid = R"({"kind":"Pid","name":"","enabled":true,)"
-        R"("setPoint":{"kind":"SetPointSimple","name":"","value":20.0000},)"
-        R"("inputSensor":{"kind":"TempSensorMock","value":20.0000,"connected":true},)"
-        R"("inputError":0.0000,"Kp":0.0000,"Ti":0,"Td":0,"p":0.0000,"i":0.0000,"d":0.0000,)"
-        R"("actuatorIsNegative":false,"outputActuator":{"kind":"ActuatorPwm",)"
-        R"("value":0.0000,"period":4,"minVal":0.0000,"maxVal":100.0000,)"
-        R"("target":{"kind":"ActuatorBool","state":false}}})";
+    erase_all(valid, " "); // remove spaces from valid string
 
     BOOST_CHECK_EQUAL(valid, json);
 }
@@ -345,7 +323,217 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
 
     json = JSON::producer<Control>::convert(control);
 
-    BOOST_TEST_MESSAGE("Control JSON = " << json); // use --log_level=all to see in stdout
+    std::string valid = \
+    R"({                                                     )"
+    R"( "kind": "Control",                                   )"
+    R"( "pids": [{                                           )"
+    R"(     "kind": "Pid",                                   )"
+    R"(     "name": "heater1",                               )"
+    R"(     "enabled": true,                                 )"
+    R"(     "setPoint": {                                    )"
+    R"(         "kind": "SetPointSimple",                    )"
+    R"(         "name": "fridgeset",                         )"
+    R"(         "value": null                                )"
+    R"(     },                                               )"
+    R"(     "inputSensor": {                                 )"
+    R"(         "kind": "TempSensorFallback",                )"
+    R"(         "onBackupSensor": false,                     )"
+    R"(         "sensor": {                                  )"
+    R"(             "kind": "TempSensor",                    )"
+    R"(             "name": "fridge",                        )"
+    R"(             "sensor": {                              )"
+    R"(                 "kind": "TempSensorDisconnected",    )"
+    R"(                 "value": null,                       )"
+    R"(                 "connected": false                   )"
+    R"(             }                                        )"
+    R"(         }                                            )"
+    R"(     },                                               )"
+    R"(     "inputError": 0.0000,                            )"
+    R"(     "Kp": 0.0000,                                    )"
+    R"(     "Ti": 0,                                         )"
+    R"(     "Td": 0,                                         )"
+    R"(     "p": 0.0000,                                     )"
+    R"(     "i": 0.0000,                                     )"
+    R"(     "d": 0.0000,                                     )"
+    R"(     "actuatorIsNegative": false,                     )"
+    R"(     "outputActuator": {                              )"
+    R"(         "kind": "ActuatorPwm",                       )"
+    R"(         "value": 0.0000,                             )"
+    R"(         "period": 4,                                 )"
+    R"(         "minVal": 0.0000,                            )"
+    R"(         "maxVal": 100.0000,                          )"
+    R"(         "target": {                                  )"
+    R"(             "kind": "ActuatorMutexDriver",           )"
+    R"(             "mutexGroup": {                          )"
+    R"(                 "kind": "ActuatorMutexGroup",        )"
+    R"(                 "deadTime": 1800000,                 )"
+    R"(                 "lastActiveTime": 4293167296         )"
+    R"(             },                                       )"
+    R"(             "target": {                              )"
+    R"(                 "kind": "ActuatorNop",               )"
+    R"(                 "state": false                       )"
+    R"(             }                                        )"
+    R"(         }                                            )"
+    R"(     }                                                )"
+    R"( }, {                                                 )"
+    R"(     "kind": "Pid",                                   )"
+    R"(     "name": "heater2",                               )"
+    R"(     "enabled": true,                                 )"
+    R"(     "setPoint": {                                    )"
+    R"(         "kind": "SetPointSimple",                    )"
+    R"(         "name": "beer2set",                          )"
+    R"(         "value": null                                )"
+    R"(     },                                               )"
+    R"(     "inputSensor": {                                 )"
+    R"(         "kind": "TempSensor",                        )"
+    R"(         "name": "beer2",                             )"
+    R"(         "sensor": {                                  )"
+    R"(             "kind": "TempSensorDisconnected",        )"
+    R"(             "value": null,                           )"
+    R"(             "connected": false                       )"
+    R"(         }                                            )"
+    R"(     },                                               )"
+    R"(     "inputError": 0.0000,                            )"
+    R"(     "Kp": 0.0000,                                    )"
+    R"(     "Ti": 0,                                         )"
+    R"(     "Td": 0,                                         )"
+    R"(     "p": 0.0000,                                     )"
+    R"(     "i": 0.0000,                                     )"
+    R"(     "d": 0.0000,                                     )"
+    R"(     "actuatorIsNegative": false,                     )"
+    R"(     "outputActuator": {                              )"
+    R"(         "kind": "ActuatorPwm",                       )"
+    R"(         "value": 0.0000,                             )"
+    R"(         "period": 4,                                 )"
+    R"(         "minVal": 0.0000,                            )"
+    R"(         "maxVal": 100.0000,                          )"
+    R"(         "target": {                                  )"
+    R"(             "kind": "ActuatorMutexDriver",           )"
+    R"(             "mutexGroup": {                          )"
+    R"(                 "kind": "ActuatorMutexGroup",        )"
+    R"(                 "deadTime": 1800000,                 )"
+    R"(                 "lastActiveTime": 4293167296         )"
+    R"(             },                                       )"
+    R"(             "target": {                              )"
+    R"(                 "kind": "ActuatorNop",               )"
+    R"(                 "state": false                       )"
+    R"(             }                                        )"
+    R"(         }                                            )"
+    R"(     }                                                )"
+    R"( }, {                                                 )"
+    R"(     "kind": "Pid",                                   )"
+    R"(     "name": "cooler",                                )"
+    R"(     "enabled": true,                                 )"
+    R"(     "setPoint": {                                    )"
+    R"(         "kind": "SetPointSimple",                    )"
+    R"(         "name": "fridgeset",                         )"
+    R"(         "value": null                                )"
+    R"(     },                                               )"
+    R"(     "inputSensor": {                                 )"
+    R"(         "kind": "TempSensorFallback",                )"
+    R"(         "onBackupSensor": false,                     )"
+    R"(         "sensor": {                                  )"
+    R"(             "kind": "TempSensor",                    )"
+    R"(             "name": "fridge",                        )"
+    R"(             "sensor": {                              )"
+    R"(                 "kind": "TempSensorDisconnected",    )"
+    R"(                 "value": null,                       )"
+    R"(                 "connected": false                   )"
+    R"(             }                                        )"
+    R"(         }                                            )"
+    R"(     },                                               )"
+    R"(     "inputError": 0.0000,                            )"
+    R"(     "Kp": 0.0000,                                    )"
+    R"(     "Ti": 0,                                         )"
+    R"(     "Td": 0,                                         )"
+    R"(     "p": 0.0000,                                     )"
+    R"(     "i": 0.0000,                                     )"
+    R"(     "d": 0.0000,                                     )"
+    R"(     "actuatorIsNegative": true,                      )"
+    R"(     "outputActuator": {                              )"
+    R"(         "kind": "ActuatorPwm",                       )"
+    R"(         "value": 0.0000,                             )"
+    R"(         "period": 1200,                              )"
+    R"(         "minVal": 0.0000,                            )"
+    R"(         "maxVal": 100.0000,                          )"
+    R"(         "target": {                                  )"
+    R"(             "kind": "ActuatorMutexDriver",           )"
+    R"(             "mutexGroup": {                          )"
+    R"(                 "kind": "ActuatorMutexGroup",        )"
+    R"(                 "deadTime": 1800000,                 )"
+    R"(                 "lastActiveTime": 4293167296         )"
+    R"(             },                                       )"
+    R"(             "target": {                              )"
+    R"(                 "kind": "ActuatorTimeLimited",       )"
+    R"(                 "minOnTime": 120,                    )"
+    R"(                 "minOffTime": 180,                   )"
+    R"(                 "maxOnTime": 65535,                  )"
+    R"(                 "state": false,                      )"
+    R"(                 "target": {                          )"
+    R"(                     "kind": "ActuatorNop",           )"
+    R"(                     "state": false                   )"
+    R"(                 }                                    )"
+    R"(             }                                        )"
+    R"(         }                                            )"
+    R"(     }                                                )"
+    R"( }, {                                                 )"
+    R"(     "kind": "Pid",                                   )"
+    R"(     "name": "beer2fridge",                           )"
+    R"(     "enabled": true,                                 )"
+    R"(     "setPoint": {                                    )"
+    R"(         "kind": "SetPointSimple",                    )"
+    R"(         "name": "beer1set",                          )"
+    R"(         "value": null                                )"
+    R"(     },                                               )"
+    R"(     "inputSensor": {                                 )"
+    R"(         "kind": "TempSensor",                        )"
+    R"(         "name": "beer1",                             )"
+    R"(         "sensor": {                                  )"
+    R"(             "kind": "TempSensorDisconnected",        )"
+    R"(             "value": null,                           )"
+    R"(             "connected": false                       )"
+    R"(         }                                            )"
+    R"(     },                                               )"
+    R"(     "inputError": 0.0000,                            )"
+    R"(     "Kp": 0.0000,                                    )"
+    R"(     "Ti": 0,                                         )"
+    R"(     "Td": 0,                                         )"
+    R"(     "p": 0.0000,                                     )"
+    R"(     "i": 0.0000,                                     )"
+    R"(     "d": 0.0000,                                     )"
+    R"(     "actuatorIsNegative": false,                     )"
+    R"(     "outputActuator": {                              )"
+    R"(         "kind": "ActuatorSetPoint",                  )"
+    R"(         "targetSetPoint": {                          )"
+    R"(             "kind": "SetPointSimple",                )"
+    R"(             "name": "fridgeset",                     )"
+    R"(             "value": null                            )"
+    R"(         },                                           )"
+    R"(         "targetSensor": {                            )"
+    R"(             "kind": "TempSensor",                    )"
+    R"(             "name": "fridge",                        )"
+    R"(             "sensor": {                              )"
+    R"(                 "kind": "TempSensorDisconnected",    )"
+    R"(                 "value": null,                       )"
+    R"(                 "connected": false                   )"
+    R"(             }                                        )"
+    R"(         },                                           )"
+    R"(         "referenceSetPoint": {                       )"
+    R"(             "kind": "SetPointSimple",                )"
+    R"(             "name": "beer1set",                      )"
+    R"(             "value": null                            )"
+    R"(         },                                           )"
+    R"(         "output": 0.0000,                            )"
+    R"(         "achieved": -0.0039,                         )"
+    R"(         "minimum": -10.0000,                         )"
+    R"(         "maximum": 10.0000                           )"
+    R"(     }                                                )"
+    R"( }]                                                   )"
+    R"(}                                                     )";
+
+    erase_all(valid, " "); // remove spaces from valid string
+
+    BOOST_CHECK_EQUAL(valid, json);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
