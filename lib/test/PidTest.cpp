@@ -236,6 +236,43 @@ BOOST_FIXTURE_TEST_CASE(integrator_windup_cooling_PI, PidTest)
     BOOST_CHECK_CLOSE(double(pid->i), -80.0, 5); // integral part should be limited to 40 (-100 - proportional part)
 }
 
+BOOST_AUTO_TEST_CASE(inputError_is_invalid_and_actuator_zero_when_input_is_invalid_longer_than_10_s){
+    SetPoint * sp = new SetPointSimple(25.0); // setpoint is higher than temperature, actuator will heat
+    TempSensorMock * sensor = new TempSensorMock(20.0);
+    ActuatorDigital * pin = new ActuatorBool();
+    ActuatorRange * act = new ActuatorPwm(pin,4);
+    Pid * p = new Pid();
+
+    p->setSetPoint(sp);
+    p->setInputSensor(sensor);
+    p->setOutputActuator(act);
+    p->setConstants(10.0, 0.0, 0.0);
+    p->update();
+    BOOST_CHECK_EQUAL(act->getValue(), temp_t(50.0)); // 10.0*(25.0-20.0)
+
+    sensor->setConnected(false);
+    p->update();
+
+    // last values will be remembered during invalid input shorter than updates
+    for(int i=0;i<20;i++){
+        p->update(); // is normally called every second
+        if(i < 9){
+            // before being unavailable for 10 seconds
+            BOOST_CHECK_EQUAL(p->inputError, temp_t(-5.0));
+            BOOST_CHECK_EQUAL(act->getValue(), temp_t(50.0)); // 10.0*(25.0-20.0)
+        }
+        else{
+            // after being unavailable for 10 seconds
+            BOOST_CHECK_EQUAL(p->inputError, temp_t::invalid()); // input error is marked as invalid
+            BOOST_CHECK_EQUAL(act->getValue(), temp_t(0.0)); // actuator is zero
+        }
+    }
+
+
+
+    BOOST_CHECK_EQUAL(p->inputError, temp_t::invalid());
+    BOOST_CHECK_EQUAL(act->getValue(), temp_t(0.0));
+}
 
 /*
 BOOST_FIXTURE_TEST_CASE(auto_tuning_test, PidTest)

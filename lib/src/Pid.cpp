@@ -70,13 +70,12 @@ void Pid::update()
     }
 
     inputVal = inputSensor -> read();
-    if (inputVal.isDisabledOrInvalid()){
+    validSensor = !inputVal.isDisabledOrInvalid();
+
+    if (!validSensor){
         // Could not read from input sensor
         if (failedReadCount < 255){    // limit
             failedReadCount++;
-        }
-        if (failedReadCount > 20){
-            validSensor = false; // disable PID if sensor is lost for more than 20 seconds
         }
     }
     else{
@@ -87,7 +86,9 @@ void Pid::update()
         failedReadCount = 0;
     }
 
-    if(validSensor){
+    bool tooManyFailedReads = false;
+
+    if(validSensor){ // only update internal filters and inputError if input sensor is valid
         inputFilter.add(inputVal);
         temp_precise_t delta = inputFilter.readOutput() - inputFilter.readPrevOutput();
 
@@ -102,25 +103,31 @@ void Pid::update()
             deltaClipped = min;
         }
         derivativeFilter.add(deltaClipped << uint8_t(10));
+        derivative = derivativeFilter.readOutput() >> uint8_t(10);
 
         if(validSetPoint){
             inputError = inputFilter.readOutput() - setPoint->read();
         }
     }
+    else{
+        if(failedReadCount > 10){
+            tooManyFailedReads = true; // after 10 failed reads, disable pid
+        }
 
-    derivative = derivativeFilter.readOutput() >> uint8_t(10);
-
-    if(!enabled || !validSensor || !validSetPoint){
-        p = decltype(p)::base_type(0);
-        i = decltype(i)::base_type(0);
-        d = decltype(p)::base_type(0);
-        return;
     }
 
-    // calculate PID parts.
-    p = Kp * -inputError;
-    i = (Ti != 0) ? (integral/Ti) : temp_long_t(0.0);
-    d = -Kp * (derivative * Td);
+    if(!enabled || tooManyFailedReads || !validSetPoint){
+        inputError = temp_t::invalid();
+        p = decltype(p)(0.0);
+        i = decltype(i)(0.0);
+        d = decltype(p)(0.0);
+    }
+    else{
+        // calculate PID parts.
+        p = Kp * -inputError;
+        i = (Ti != 0) ? (integral/Ti) : temp_long_t(0.0);
+        d = -Kp * (derivative * Td);
+    }
 
     temp_long_t pidResult = temp_long_t(p) + temp_long_t(i) + temp_long_t(d);
 
