@@ -525,7 +525,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(             "value": null                            )"
     R"(         },                                           )"
     R"(         "output": 0.0000,                            )"
-    R"(         "achieved": -0.0039,                         )"
+    R"(         "achieved": null,                            )"
     R"(         "minimum": -10.0000,                         )"
     R"(         "maximum": 10.0000                           )"
     R"(     }                                                )"
