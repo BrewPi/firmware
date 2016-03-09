@@ -51,11 +51,13 @@ class DS2413:
 
         /*
          *  The DS2413 returns data in the last 4 bits, the upper 4 bits are the complement.
-         * An XOR operation of the two should give 0 as result
          */
         bool cacheIsValid() const
         {
-            return ((cachedState & 0x0f) == (((~cachedState) & 0xf0) >> 4));
+            uint8_t upperInverted = (~cachedState & 0xf0) >> 4;
+            uint8_t lower = cachedState & 0x0f;
+
+            return upperInverted == lower;
         }
 
         /*
