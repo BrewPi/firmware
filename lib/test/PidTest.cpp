@@ -34,7 +34,7 @@
 #include "runner.h"
 #include <iostream>
 #include <fstream>
-
+#include "ActuatorSetPoint.h"
 
 struct PidTest {
 public:
@@ -272,6 +272,64 @@ BOOST_AUTO_TEST_CASE(inputError_is_invalid_and_actuator_zero_when_input_is_inval
 
     BOOST_CHECK_EQUAL(p->inputError, temp_t::invalid());
     BOOST_CHECK_EQUAL(act->getValue(), temp_t(0.0));
+}
+
+
+BOOST_AUTO_TEST_CASE(pid_driving_setpoint_actuator){
+    SetPoint * sp = new SetPointSimple(25.0); // setpoint is higher than temperature, actuator will heat
+    TempSensorMock * sensor = new TempSensorMock(20.0);
+
+    TempSensorMock * targetSensor = new TempSensorMock(20.0);
+    SetPointSimple * targetSetpoint = new SetPointSimple(20.0);
+
+    ActuatorSetPoint * act = new ActuatorSetPoint(targetSetpoint, targetSensor, sp);
+    Pid * p = new Pid();
+
+    p->setSetPoint(sp);
+    p->setInputSensor(sensor);
+    p->setOutputActuator(act);
+    p->setConstants(2.0, 40, 0);
+    p->update();
+
+    // first check correct behavior under normal conditions
+    // actuator value will be (sp-sensor)*kp = (25-20)*2 = 10;
+    BOOST_CHECK_EQUAL(act->getValue(), temp_t(10.0));
+
+    // setpoint will be reference sp + actuator value = 35
+    BOOST_CHECK_EQUAL(targetSetpoint->read(), temp_t(35.0));
+
+    // achieved actuator value will be targetSensor - reference setpoint (sp) = 20.0 - 25.0
+    BOOST_CHECK_EQUAL(act->readValue(), temp_t(-5.0));
+
+    for(int i=0; i<10; i++){
+        p->update();
+    }
+    // integrator will stay at zero due to anti-windup (actuator is not reaching target)
+    BOOST_CHECK_EQUAL(act->getValue(), temp_t(10.0)); // still just proportional
+
+    // but if target sensor is reaching value, the integrator will increase
+    targetSensor->setTemp(35.0);
+    p->update(); // integral will increase with p (10)
+    p->update(); // integral is updated after setting output (lags 1 update), so do 2 updates
+
+    BOOST_CHECK_EQUAL(act->getValue(), temp_t(10.25)); // proportional (10) + integral (integral/Ti) (10/40=0.25)
+
+    // now check how the pid responds to a disconnected target sensor
+    targetSensor->setConnected(false);
+    targetSensor->update();
+    p->update();
+
+    // setpoint will still be set, because this is what scales the actuators from (for example)
+    // beer temp -> fridge temp setting -> actuators
+    // the feedback of the actual fridge temp is lost, but the setpoint should still be set
+
+    BOOST_CHECK_EQUAL(act->getValue(), temp_t(10.5)); // +0.25 because of another actuator increase
+
+    // setpoint will be reference sp + actuator value = 35.5
+    BOOST_CHECK_EQUAL(targetSetpoint->read(), temp_t(35.5));
+
+    // achieved actuator value will be invalid
+    BOOST_CHECK_EQUAL(act->readValue(), temp_t::invalid());
 }
 
 /*

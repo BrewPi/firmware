@@ -63,6 +63,10 @@ public:
     // By returning the actually achieved value, instead of the difference between the setpoints,
     // a PID can read back the actual actuator value and perform integrator anti-windup
     temp_t readValue() const final{
+        temp_t targetTemp = targetSensor->read();
+        if(targetTemp.isDisabledOrInvalid()){
+            return temp_t::invalid();
+        }
         return targetSensor->read() - referenceSetPoint->read();
     }
 

@@ -35,22 +35,22 @@ BOOST_AUTO_TEST_CASE(set_value){
 
     act.setValue(10.0);
 
-    BOOST_REQUIRE_EQUAL(referenceSetPoint.read(), temp_t(20.0));
-    BOOST_REQUIRE_EQUAL(targetSetPoint.read(), temp_t(30.0));
-    BOOST_REQUIRE_EQUAL(act.getValue(), temp_t(10.0)); // difference between setpoints is now 10
-    BOOST_REQUIRE_EQUAL(act.readValue(), temp_t(0.0)); // actual value is still zero, because targetSensor has not changed
+    BOOST_CHECK_EQUAL(referenceSetPoint.read(), temp_t(20.0));
+    BOOST_CHECK_EQUAL(targetSetPoint.read(), temp_t(30.0));
+    BOOST_CHECK_EQUAL(act.getValue(), temp_t(10.0)); // difference between setpoints is now 10
+    BOOST_CHECK_EQUAL(act.readValue(), temp_t(0.0)); // actual value is still zero, because targetSensor has not changed
 
     targetSensor.setTemp(30.0);
     BOOST_REQUIRE_EQUAL(act.readValue(), temp_t(10.0)); // actual value is 10 when sensor has reached setpoint
 
     act.setValue(-10.0);
-    BOOST_REQUIRE_EQUAL(referenceSetPoint.read(), temp_t(20.0));
-    BOOST_REQUIRE_EQUAL(targetSetPoint.read(), temp_t(10.0));
-    BOOST_REQUIRE_EQUAL(act.getValue(), temp_t(-10.0)); // difference between setpoints is now 10
-    BOOST_REQUIRE_EQUAL(act.readValue(), temp_t(10.0)); // value is still -10, because targetSensor has not changed
+    BOOST_CHECK_EQUAL(referenceSetPoint.read(), temp_t(20.0));
+    BOOST_CHECK_EQUAL(targetSetPoint.read(), temp_t(10.0));
+    BOOST_CHECK_EQUAL(act.getValue(), temp_t(-10.0)); // difference between setpoints is now 10
+    BOOST_CHECK_EQUAL(act.readValue(), temp_t(10.0)); // value is still -10, because targetSensor has not changed
 
     targetSensor.setTemp(10.0);
-    BOOST_REQUIRE_EQUAL(act.getValue(), temp_t(-10.0)); // value is -10 when sensor has reached setpoint
+    BOOST_CHECK_EQUAL(act.getValue(), temp_t(-10.0)); // value is -10 when sensor has reached setpoint
 }
 
 BOOST_AUTO_TEST_CASE(min_max){
@@ -63,15 +63,33 @@ BOOST_AUTO_TEST_CASE(min_max){
     act.setValue(20.0);
     targetSensor.setTemp(30.0);
 
-    BOOST_REQUIRE_EQUAL(referenceSetPoint.read(), temp_t(20.0));
-    BOOST_REQUIRE_EQUAL(targetSetPoint.read(), temp_t(30.0));
-    BOOST_REQUIRE_EQUAL(act.getValue(), temp_t(10.0));
+    BOOST_CHECK_EQUAL(referenceSetPoint.read(), temp_t(20.0));
+    BOOST_CHECK_EQUAL(targetSetPoint.read(), temp_t(30.0));
+    BOOST_CHECK_EQUAL(act.getValue(), temp_t(10.0));
 
     act.setValue(-20.0);
     targetSensor.setTemp(10.0);
-    BOOST_REQUIRE_EQUAL(referenceSetPoint.read(), temp_t(20.0));
-    BOOST_REQUIRE_EQUAL(targetSetPoint.read(), temp_t(10.0));
-    BOOST_REQUIRE_EQUAL(act.getValue(), temp_t(-10.0));
+    BOOST_CHECK_EQUAL(referenceSetPoint.read(), temp_t(20.0));
+    BOOST_CHECK_EQUAL(targetSetPoint.read(), temp_t(10.0));
+    BOOST_CHECK_EQUAL(act.getValue(), temp_t(-10.0));
+}
+
+BOOST_AUTO_TEST_CASE(when_target_sensor_is_invalid_actuator_value_is_invalid){
+    SetPointSimple targetSetPoint(20.0);
+    SetPointSimple referenceSetPoint(20.0);
+    TempSensorMock targetSensor(20.0);
+
+    ActuatorSetPoint act(&targetSetPoint, &targetSensor, &referenceSetPoint, -10.0, 10.0);
+    act.setValue(20.0);
+    targetSensor.setTemp(30.0);
+
+    targetSensor.setConnected(false);
+    act.update();
+
+    BOOST_CHECK_EQUAL(referenceSetPoint.read(), temp_t(20.0));
+    BOOST_CHECK_EQUAL(targetSetPoint.read(), temp_t(30.0));
+    BOOST_CHECK_EQUAL(act.getValue(), temp_t(10.0)); // set value
+    BOOST_CHECK_EQUAL(act.readValue(), temp_t::invalid()); // achieved value
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -141,11 +141,6 @@ void Pid::update()
     // When actuator is a 'cooler', invert the output again
     output = (actuatorIsNegative) ? -output : output;
 
-    // get the actual achieved value in actuator. This could differ due to slowness time/mutex limits
-    temp_t achievedOutput = outputActuator->readValue();
-    // When actuator is a 'cooler', invert the output again
-    achievedOutput = (actuatorIsNegative) ? -achievedOutput : achievedOutput;
-
     if(Ti == 0){ // 0 has been chosen to indicate that the integrator is disabled. This also prevents divide by zero.
         integral = decltype(integral)::base_type(0);
     }
@@ -163,13 +158,22 @@ void Pid::update()
             antiWindup *= 5; // Anti windup gain is 5 when clipping to min/max
         }
         else{ // actuator could be not reaching set value due to physics or limits in its target actuator
-            temp_long_t closeThreshold = Kp;
-            temp_t noAntiWindupMin = output - closeThreshold;
-            temp_t noAntiWindupMax = output + closeThreshold;
-            // do not apply anti-windup if close to target. Always apply when actuator is at zero.
-            if(achievedOutput == temp_t(0.0) || achievedOutput <  noAntiWindupMin || achievedOutput > noAntiWindupMax){
-                antiWindup = pidResult - achievedOutput;
-                antiWindup *= 3; // Anti windup gain is 3 for this kind of windup
+            // get the actual achieved value in actuator. This could differ due to slowness time/mutex limits
+            temp_t achievedOutput = outputActuator->readValue();
+            if(!achievedOutput.isDisabledOrInvalid()){ // only apply anti-windup when it is possible to read back the actual value
+
+                // When actuator is a 'cooler', invert the output again
+                achievedOutput = (actuatorIsNegative) ? -achievedOutput : achievedOutput;
+
+                temp_long_t closeThreshold = Kp;
+                temp_t noAntiWindupMin = output - closeThreshold;
+                temp_t noAntiWindupMax = output + closeThreshold;
+
+                // do not apply anti-windup if close to target. Always apply when actuator is at zero.
+                if(achievedOutput == temp_t(0.0) || achievedOutput <  noAntiWindupMin || achievedOutput > noAntiWindupMax){
+                    antiWindup = pidResult - achievedOutput;
+                    antiWindup *= 3; // Anti windup gain is 3 for this kind of windup
+                }
             }
         }
 
