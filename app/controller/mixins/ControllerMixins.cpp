@@ -199,7 +199,8 @@ void ActuatorMutexGroupMixin::serialize(JSON::Adapter & adapter)
 
     JSON::Class root(adapter, "ActuatorMutexGroup");
     JSON_OE(adapter, deadTime);
-    JSON_OT(adapter, lastActiveTime);
+    ticks_millis_t waitTime = obj->getWaitTime();
+    JSON_T(adapter, waitTime);
 }
 
 void ActuatorMutexDriverMixin::serialize(JSON::Adapter & adapter)

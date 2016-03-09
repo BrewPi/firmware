@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
     R"(        "mutexGroup": {                       )"
     R"(            "kind": "ActuatorMutexGroup",     )"
     R"(            "deadTime": 0,                    )"
-    R"(            "lastActiveTime": 0               )"
+    R"(            "waitTime": 0                     )"
     R"(        },                                    )"
     R"(        "target": {                           )"
     R"(            "kind": "ActuatorTimeLimited",    )"
@@ -316,8 +316,9 @@ BOOST_AUTO_TEST_CASE(serialize_TempSensorFallback) {
 
 
 BOOST_AUTO_TEST_CASE(serialize_control) {
-
+    ticks.reset();
     Control * control = new Control();
+    control->update();
 
     std::string json;
 
@@ -348,7 +349,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(             }                                        )"
     R"(         }                                            )"
     R"(     },                                               )"
-    R"(     "inputError": 0.0000,                            )"
+    R"(     "inputError": null,                              )"
     R"(     "Kp": 0.0000,                                    )"
     R"(     "Ti": 0,                                         )"
     R"(     "Td": 0,                                         )"
@@ -367,7 +368,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(             "mutexGroup": {                          )"
     R"(                 "kind": "ActuatorMutexGroup",        )"
     R"(                 "deadTime": 1800000,                 )"
-    R"(                 "lastActiveTime": 4293167296         )"
+    R"(                 "waitTime": 0                        )"
     R"(             },                                       )"
     R"(             "target": {                              )"
     R"(                 "kind": "ActuatorNop",               )"
@@ -393,7 +394,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(             "connected": false                       )"
     R"(         }                                            )"
     R"(     },                                               )"
-    R"(     "inputError": 0.0000,                            )"
+    R"(     "inputError": null,                              )"
     R"(     "Kp": 0.0000,                                    )"
     R"(     "Ti": 0,                                         )"
     R"(     "Td": 0,                                         )"
@@ -412,7 +413,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(             "mutexGroup": {                          )"
     R"(                 "kind": "ActuatorMutexGroup",        )"
     R"(                 "deadTime": 1800000,                 )"
-    R"(                 "lastActiveTime": 4293167296         )"
+    R"(                 "waitTime": 0                        )"
     R"(             },                                       )"
     R"(             "target": {                              )"
     R"(                 "kind": "ActuatorNop",               )"
@@ -442,7 +443,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(             }                                        )"
     R"(         }                                            )"
     R"(     },                                               )"
-    R"(     "inputError": 0.0000,                            )"
+    R"(     "inputError": null,                              )"
     R"(     "Kp": 0.0000,                                    )"
     R"(     "Ti": 0,                                         )"
     R"(     "Td": 0,                                         )"
@@ -461,7 +462,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(             "mutexGroup": {                          )"
     R"(                 "kind": "ActuatorMutexGroup",        )"
     R"(                 "deadTime": 1800000,                 )"
-    R"(                 "lastActiveTime": 4293167296         )"
+    R"(                 "waitTime": 0                        )"
     R"(             },                                       )"
     R"(             "target": {                              )"
     R"(                 "kind": "ActuatorTimeLimited",       )"
@@ -494,7 +495,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(             "connected": false                       )"
     R"(         }                                            )"
     R"(     },                                               )"
-    R"(     "inputError": 0.0000,                            )"
+    R"(     "inputError": null,                              )"
     R"(     "Kp": 0.0000,                                    )"
     R"(     "Ti": 0,                                         )"
     R"(     "Td": 0,                                         )"
