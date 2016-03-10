@@ -86,6 +86,15 @@ public:
 
     }
 
+    void update(){
+        hltHeaterPid->update();
+        mashToHltPid->update();
+
+        hltSetPointActuator->update();
+        hltHeater->update();
+        mutex->update();
+    }
+
     TempSensorMock * mashSensor;
     TempSensorMock * hltSensor;
 
@@ -204,10 +213,11 @@ struct SimMashDirect : public MashStaticSetup {
     }
 
     void update(){
-        sim.update(hltHeater->getValue());
+        MashStaticSetup::update();
         mashSensor->setTemp(sim.mashTemp);
         hltSensor->setTemp(sim.hltTemp);
-        hltHeaterPid->update();
+        sim.update(hltHeater->getValue());
+        delay(1000);
     }
 };
 
@@ -233,16 +243,10 @@ struct SimMashCascaded : public MashStaticSetup {
     }
 
     void update(){
+        MashStaticSetup::update();
         mashSensor->setTemp(sim.mashTemp);
         hltSensor->setTemp(sim.hltTemp);
-        mashToHltPid->update();
-        hltHeaterPid->update();
-        hltHeater->update();
-        hltSetPointActuator->update();
-        mutex->update();
-
         sim.update(hltHeater->getValue());
-
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
@@ -254,12 +258,18 @@ BOOST_AUTO_TEST_SUITE( mash_simulation_test)
 BOOST_FIXTURE_TEST_CASE(Simulate_HLT_Heater_Acts_On_MashTemp, SimMashDirect)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
-    csv << "1# mash setPoint, 2#error, 1#mash out sensor, 1#hlt sensor, 1#mash in temp, 3#heater pwm, 3# header realized pwm, 4#p, 4#i, 4#d" << endl;
+    csv << "1# mash setPoint, 2#error, 1#mash out sensor, 1#hlt sensor, 1#mash in temp, 3#heater pwm, 3# heater realized pwm, 4#p, 4#i, 4#d" << endl;
     double SetPointDouble = 68;
     for(int t = 0; t < 7200; t++){
-        /*if(t==600){
-            SetPointDouble = 68;
-        }*/
+
+        if(t > 2600 && t < 3200){
+            SetPointDouble += (5.0/600); // ramp up slowly, 5 degrees in 10 minutes
+        }
+
+        if(t > 4600 && t < 6400){
+            SetPointDouble += (5.0/1200); // ramp up slowly, 5 degrees in 20 minutes
+        }
+
         mashSet->write(SetPointDouble);
         update();
 
