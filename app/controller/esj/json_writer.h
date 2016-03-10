@@ -101,23 +101,23 @@ namespace JSON
 		StringSink(Chordia::stringer* sink) : _sink(sink)	{}
 		virtual ~StringSink(){}
 		//
-		virtual ISink& operator<<(const char* arg)			{ (*_sink) << arg; return (*this); }
-		virtual ISink& operator<<(const std::string& arg)	{ (*_sink) << arg; return (*this); }
-		virtual ISink& operator<<(const std::wstring& arg)	{ (*_sink) << arg; return (*this); }
-		virtual ISink& operator<<(const char& arg)			{ (*_sink) << arg; return (*this); }
-		virtual ISink& operator<<(const int8_t& arg)    	{ (*_sink) << arg; return (*this); }
-		virtual ISink& operator<<(const int16_t& arg)       { (*_sink) << arg; return (*this); }
-		virtual ISink& operator<<(const int32_t& arg)       { (*_sink) << arg; return (*this); }
-		virtual ISink& operator<<(const uint8_t& arg)       { (*_sink) << arg; return (*this); }
-        virtual ISink& operator<<(const uint16_t& arg)      { (*_sink) << arg; return (*this); }
-        virtual ISink& operator<<(const uint32_t& arg)      { (*_sink) << arg; return (*this); }
+		virtual ISink& operator<<(const char* arg)	override final		    { (*_sink) << arg; return (*this); }
+		virtual ISink& operator<<(const std::string& arg) override final	{ (*_sink) << arg; return (*this); }
+		virtual ISink& operator<<(const std::wstring& arg) override final	{ (*_sink) << arg; return (*this); }
+		virtual ISink& operator<<(const char& arg) override final			{ (*_sink) << arg; return (*this); }
+		virtual ISink& operator<<(const int8_t& arg) override final     	{ (*_sink) << arg; return (*this); }
+		virtual ISink& operator<<(const int16_t& arg) override final        { (*_sink) << arg; return (*this); }
+		virtual ISink& operator<<(const int32_t& arg) override final        { (*_sink) << arg; return (*this); }
+		virtual ISink& operator<<(const uint8_t& arg) override final        { (*_sink) << arg; return (*this); }
+        virtual ISink& operator<<(const uint16_t& arg) override final       { (*_sink) << arg; return (*this); }
+        virtual ISink& operator<<(const uint32_t& arg) override final       { (*_sink) << arg; return (*this); }
 #ifndef ESJ_DISABLE_DOUBLE
         virtual ISink& operator<<(const double& arg)		{ (*_sink) << arg; return (*this); }
 #endif
-		virtual ISink& operator<<(const bool& arg)			{ (*_sink) << arg; return (*this); }
-		virtual ISink& operator<<(const temp_t& arg)        { (*_sink) << arg.toCstring(); return (*this); }
-		virtual ISink& operator<<(const temp_precise_t& arg){ (*_sink) << arg.toCstring(); return (*this); }
-		virtual ISink& operator<<(const temp_long_t& arg)   { (*_sink) << arg.toCstring(); return (*this); }
+		virtual ISink& operator<<(const bool& arg) override final			{ (*_sink) << arg; return (*this); }
+		virtual ISink& operator<<(const temp_t& arg) override final         { (*_sink) << arg.toCstring(); return (*this); }
+		virtual ISink& operator<<(const temp_precise_t& arg) override final { (*_sink) << arg.toCstring(); return (*this); }
+		virtual ISink& operator<<(const temp_long_t& arg) override final   { (*_sink) << arg.toCstring(); return (*this); }
 	};
 
 #if defined(ARDUINO) || defined(SPARK) // todo -  need a WIRING define
@@ -133,23 +133,23 @@ namespace JSON
 	    SerialSink(Stream & out_) : out(out_){}
 	    virtual ~SerialSink(){}
 	    //
-	    virtual ISink& operator<<(const char* arg)          { out.print(arg); return (*this); }
-	    virtual ISink& operator<<(const std::string& arg)   { out.print(arg.c_str()); return (*this); }
-	    virtual ISink& operator<<(const std::wstring& arg)  { out.print(Chordia::convert(arg).c_str()); return (*this); }
-	    virtual ISink& operator<<(const char& arg)          { out.print(arg); return (*this); }
-	    virtual ISink& operator<<(const int8_t& arg)        { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
-	    virtual ISink& operator<<(const int16_t& arg)       { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
-	    virtual ISink& operator<<(const int32_t& arg)       { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
-	    virtual ISink& operator<<(const uint8_t& arg)       { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
-	    virtual ISink& operator<<(const uint16_t& arg)      { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
-	    virtual ISink& operator<<(const uint32_t& arg)      { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
+	    virtual ISink& operator<<(const char* arg) override final           { out.print(arg); return (*this); }
+	    virtual ISink& operator<<(const std::string& arg) override final    { out.print(arg.c_str()); return (*this); }
+	    virtual ISink& operator<<(const std::wstring& arg) override final   { out.print(Chordia::convert(arg).c_str()); return (*this); }
+	    virtual ISink& operator<<(const char& arg) override final           { out.print(arg); return (*this); }
+	    virtual ISink& operator<<(const int8_t& arg) override final         { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
+	    virtual ISink& operator<<(const int16_t& arg) override final        { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
+	    virtual ISink& operator<<(const int32_t& arg) override final        { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
+	    virtual ISink& operator<<(const uint8_t& arg) override final        { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
+	    virtual ISink& operator<<(const uint16_t& arg) override final       { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
+	    virtual ISink& operator<<(const uint32_t& arg) override final       { out.print(Chordia::toString(arg,10).c_str()); return (*this); }
 	#ifndef ESJ_DISABLE_DOUBLE
-	    virtual ISink& operator<<(const double& arg)        { out.print(arg); return (*this); }
+	    virtual ISink& operator<<(const double& arg) override final         { out.print(arg); return (*this); }
 	#endif
-	    virtual ISink& operator<<(const bool& arg)          { out.print((arg ? "true" : "false")); return (*this); }
-	    virtual ISink& operator<<(const temp_t& arg)        { out.print(arg.toCstring().c_str()); return (*this); }
-	    virtual ISink& operator<<(const temp_precise_t& arg){ out.print(arg.toCstring().c_str()); return (*this); }
-	    virtual ISink& operator<<(const temp_long_t& arg)   { out.print(arg.toCstring().c_str()); return (*this); }
+	    virtual ISink& operator<<(const bool& arg) override final           { out.print((arg ? "true" : "false")); return (*this); }
+	    virtual ISink& operator<<(const temp_t& arg) override final         { out.print(arg.toCstring().c_str()); return (*this); }
+	    virtual ISink& operator<<(const temp_precise_t& arg) override final { out.print(arg.toCstring().c_str()); return (*this); }
+	    virtual ISink& operator<<(const temp_long_t& arg) override final    { out.print(arg.toCstring().c_str()); return (*this); }
 	};
 #endif
 
@@ -176,47 +176,47 @@ namespace JSON
 
 		//---------------------------------------------------------------------
 		//
-		virtual bool storing() { return true; }
+		virtual bool storing() override final { return true; }
 
 		//---------------------------------------------------------------------
 		// write a key/value pair with optional continuation
-		virtual void serialize(const std::string& key,std::string& value,bool more) 
+		virtual void serialize(const std::string& key,std::string& value,bool more) override final
 		{
 			(*_sink) << "\"" << key << Quote() << ':' << Quote() << Chordia::escape(value) << Quote() << (more ? "," : "");
 		}
 
 
-		virtual void serialize(const std::string& key,std::wstring& value,bool more) 
+		virtual void serialize(const std::string& key,std::wstring& value,bool more) override final
 		{
 			(*_sink) << Quote() << key << Quote() << ':' << Quote() << Chordia::escape(Chordia::w2n(value)) << Quote() << (more ? "," : "");
 		}
 
-		virtual void serialize(const std::string& key,int8_t& value,bool more)
+		virtual void serialize(const std::string& key,int8_t& value,bool more) override final
 		{
 			(*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
 		}
 		
-		virtual void serialize(const std::string& key,int16_t& value,bool more)
+		virtual void serialize(const std::string& key,int16_t& value,bool more) override final
         {
             (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
         }
 
-		virtual void serialize(const std::string& key,int32_t& value,bool more)
+		virtual void serialize(const std::string& key,int32_t& value,bool more) override final
         {
             (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
         }
 
-        virtual void serialize(const std::string& key,uint8_t& value,bool more)
+        virtual void serialize(const std::string& key,uint8_t& value,bool more) override final
         {
             (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
         }
 
-        virtual void serialize(const std::string& key,uint16_t& value,bool more)
+        virtual void serialize(const std::string& key,uint16_t& value,bool more) override final
         {
             (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
         }
 
-        virtual void serialize(const std::string& key,uint32_t& value,bool more)
+        virtual void serialize(const std::string& key,uint32_t& value,bool more) override final
         {
             (*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
         }
@@ -228,37 +228,37 @@ namespace JSON
 		}
 #endif
 
-		virtual void serialize(const std::string& key,bool& value,bool more) 
+		virtual void serialize(const std::string& key,bool& value,bool more) override final
 		{
 			// literal true of false
 			(*_sink) << Quote() << key << Quote() << ':' << value << (more ? "," : "");
 		}
 
-		virtual void serialize(const std::string& key,temp_t& value,bool more)
+		virtual void serialize(const std::string& key,temp_t& value,bool more) override final
         {
             (*_sink) << Quote() << key << Quote() << ':' << value.toCstring() << (more ? "," : "");
         }
 
-		virtual void serialize(const std::string& key,temp_precise_t& value,bool more)
+		virtual void serialize(const std::string& key,temp_precise_t& value,bool more) override final
         {
             (*_sink) << Quote() << key << Quote() << ':' << value.toCstring() << (more ? "," : "");
         }
 
-		virtual void serialize(const std::string& key,temp_long_t& value,bool more)
+		virtual void serialize(const std::string& key,temp_long_t& value,bool more) override final
         {
             (*_sink) << Quote() << key << Quote() << ':' << value.toCstring() << (more ? "," : "");
         }
 
 		//---------------------------------------------------------------------
 		// write a literal
-		virtual void serialize(const std::string& value)
+		virtual void serialize(const std::string& value) override final
 		{
 			(*_sink) << Quote() << value << Quote() ;
 		}
 
 		//---------------------------------------------------------------------
 		// write a delimiter
-		virtual void serialize(TokenType type)
+		virtual void serialize(TokenType type) override final
 		{
             bool ok = true;
 			const char* delimiter = 0;
@@ -297,7 +297,7 @@ namespace JSON
 
 		//---------------------------------------------------------------------
 		// serialize a string value. needs to handle escape sequences
-		virtual void serialize(std::string& value)
+		virtual void serialize(std::string& value) override final
 		{
 			(*_sink) << Quote() << Chordia::escape(value) << Quote() ;
 		}
@@ -306,43 +306,43 @@ namespace JSON
 		// needs to convert to JSON \u encoding for
 		// any characters outside of UTF8
 
-		virtual void serialize(std::wstring& value)
+		virtual void serialize(std::wstring& value) override final
 		{
 			(*_sink) << Quote() << Chordia::escape(Chordia::w2n(value)) << Quote() ;
 		}
 
 		//---------------------------------------------------------------------
-		virtual void serialize(int8_t& value)
+		virtual void serialize(int8_t& value) override final
 		{
 			(*_sink) << value;
 		}
 
 		//---------------------------------------------------------------------
-		virtual void serialize(int16_t& value)
+		virtual void serialize(int16_t& value) override final
         {
             (*_sink) << value;
         }
 
 		//---------------------------------------------------------------------
-        virtual void serialize(int32_t& value)
+        virtual void serialize(int32_t& value) override final
         {
             (*_sink) << value;
         }
 
         //---------------------------------------------------------------------
-        virtual void serialize(uint8_t& value)
+        virtual void serialize(uint8_t& value) override final
         {
             (*_sink) << value;
         }
 
         //---------------------------------------------------------------------
-        virtual void serialize(uint16_t& value)
+        virtual void serialize(uint16_t& value) override final
         {
             (*_sink) << value;
         }
 
         //---------------------------------------------------------------------
-        virtual void serialize(uint32_t& value)
+        virtual void serialize(uint32_t& value) override final
         {
             (*_sink) << value;
         }
@@ -356,25 +356,25 @@ namespace JSON
 #endif
 
 		//---------------------------------------------------------------------
-		virtual void serialize(bool& value)
+		virtual void serialize(bool& value) override final
 		{
 			(*_sink) << value;
 		}
 
 		//---------------------------------------------------------------------
-        virtual void serialize(temp_t& value)
+        virtual void serialize(temp_t& value) override final
         {
             (*_sink) << value.toCstring();
         }
 
         //---------------------------------------------------------------------
-        virtual void serialize(temp_precise_t& value)
+        virtual void serialize(temp_precise_t& value) override final
         {
             (*_sink) << value.toCstring();
         }
 
         //---------------------------------------------------------------------
-        virtual void serialize(temp_long_t& value)
+        virtual void serialize(temp_long_t& value) override final
         {
             (*_sink) << value.toCstring();
         }

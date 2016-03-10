@@ -123,7 +123,7 @@ public:
 
 //-----------------------------------------------------------------------------
 // A string source
-class StringSource : public ISource
+class StringSource final : public ISource
 {
 	//
 	const char* m_ps;
@@ -151,19 +151,19 @@ public:
 	}
 
 	// for error reporting
-	virtual int Line() const
+	virtual int Line() const override final
 	{
 		return m_line;
 	}
 
 	// for error reporting
-	virtual int Col() const
+	virtual int Col() const override final
 	{
 		return m_col;
 	}
 
 	// get the next character
-	virtual char Next()
+	virtual char Next() override final
 	{
 		char ret = '\0';
 		if (m_pc < m_pe)
@@ -175,7 +175,7 @@ public:
 	}
 
 	// peek the next character
-	virtual char Peek()
+	virtual char Peek() override final
 	{
 		char ret = '\0';
 		if (m_pc < m_pe)
@@ -186,7 +186,7 @@ public:
 	}
 
 	// speculative look-ahead. advance if matched
-	virtual bool Match(const char* arg)
+	virtual bool Match(const char* arg) override final
 	{
 		bool matched = true;
 		const char* pc = m_pc;
@@ -210,7 +210,7 @@ public:
 	}
 
 	// pushback. should probably 
-	virtual void Pushback()
+	virtual void Pushback() override final
 	{
 		if (m_pc > m_ps)
 		{
