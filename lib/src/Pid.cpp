@@ -43,6 +43,7 @@ Pid::Pid(TempSensorBasic * input,
     setDerivativeFilter(2);
     actuatorIsNegative = false;
     enabled = true;
+    previousSetPoint = temp_t::invalid();
 
 //    autotune = false;
 //    tuning = false;
@@ -90,23 +91,36 @@ void Pid::update()
 
     if(validSensor){ // only update internal filters and inputError if input sensor is valid
         inputFilter.add(inputVal);
-        temp_precise_t delta = inputFilter.readOutput() - inputFilter.readPrevOutput();
-
-        // prevent overflow in shift. Add to derivative filter shifted, because of limited precision for such low values
-        temp_precise_t deltaClipped = delta;
-        temp_precise_t max = temp_precise_t::max() >> uint8_t(10);
-        temp_precise_t min = temp_precise_t::min() >> uint8_t(10);
-        if(deltaClipped > max){
-            deltaClipped = max;
-        }
-        else if(deltaClipped < min){
-            deltaClipped = min;
-        }
-        derivativeFilter.add(deltaClipped << uint8_t(10));
-        derivative = derivativeFilter.readOutput() >> uint8_t(10);
 
         if(validSetPoint){
-            inputError = inputFilter.readOutput() - setPoint->read();
+            temp_t currentSetPoint = setPoint->read();
+            if(previousSetPoint.isDisabledOrInvalid()){
+                previousSetPoint = currentSetPoint;
+            }
+            temp_precise_t previousError = inputFilter.readPrevOutput() - previousSetPoint;
+            temp_precise_t currentError = inputFilter.readOutput() - currentSetPoint;
+            temp_precise_t delta = currentError - previousError;
+            previousSetPoint = currentSetPoint;
+
+            inputError = currentError; // store input error, as temp_t, instead of temp_precise_t
+
+            // Add to derivative filter shifted, because of limited precision for such low values
+            // Limit to 0.125 degree per second, to prevent overflow in shift and to eliminate setpoint changes
+            // 128/1024 = 0.125 C/s.
+            temp_precise_t deltaClipped = delta;
+            temp_precise_t max = temp_precise_t::max() >> uint8_t(10);
+            temp_precise_t min = temp_precise_t::min() >> uint8_t(10);
+            if(deltaClipped > max){
+                deltaClipped = max;
+            }
+            else if(deltaClipped < min){
+                deltaClipped = min;
+            }
+            derivativeFilter.add(deltaClipped << uint8_t(10));
+            derivative = derivativeFilter.readOutput() >> uint8_t(10);
+        }
+        else{
+            derivativeFilter.add(temp_precise_t(0.0));
         }
     }
     else{

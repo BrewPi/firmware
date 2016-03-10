@@ -132,6 +132,9 @@ class Pid final : public PidMixin
         uint16_t          outputLag;
         temp_precise      maxDerivative;
         */
+    private:
+        // remember previous setpoint, to be able to take the derivative of the error, instead of the input
+        temp_t            previousSetPoint;
 
     friend class TempControl;
     friend class PidMixin;
