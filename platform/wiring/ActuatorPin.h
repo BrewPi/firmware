@@ -37,22 +37,18 @@ class ActuatorPin final: public ActuatorDigital, public ActuatorPinMixin
 
         ~ActuatorPin() = default;
 
-        inline void setActive(bool active)
+        void setActive(bool active) override final
         {
             digitalWrite(pin, (active ^ invert) ? HIGH : LOW);
         }
 
-        inline bool isActive() const
+        bool isActive() const override final
         {
             return ((digitalRead(pin) != LOW) ^ invert);
         }
 
-        void write(uint8_t val)
-        {
-        }
-
-        void update(){} // do nothing on periodic update
-        void fastUpdate(){} // do nothing on fast update
+        void update() override final {} // do nothing on periodic update
+        void fastUpdate() override final {} // do nothing on fast update
 
     friend class ActuatorPinMixin;
 };

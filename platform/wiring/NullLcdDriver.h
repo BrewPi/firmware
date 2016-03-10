@@ -59,7 +59,7 @@ class NullLcdDriver : public Print {
 	void createChar(uint8_t, uint8_t[]);
 	void setCursor(uint8_t, uint8_t);
 
-	virtual size_t write(uint8_t);
+	virtual size_t write(uint8_t) override final;
 
 	void print_P(const char * str){ // print a string stored in PROGMEM
 		char buf[21]; // create buffer in RAM

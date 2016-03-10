@@ -39,7 +39,7 @@ class TempSensorMockMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~TempSensorMockMixin() = default;
 };
@@ -49,7 +49,7 @@ class TempSensorMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~TempSensorMixin() = default;
 };
@@ -59,7 +59,7 @@ class TempSensorFallbackMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~TempSensorFallbackMixin() = default;
 };
@@ -78,7 +78,7 @@ class OneWireTempSensorMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~OneWireTempSensorMixin() = default;
 };
@@ -87,7 +87,7 @@ class TempSensorDisconnectedMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~TempSensorDisconnectedMixin() = default;
 };
@@ -96,7 +96,7 @@ class TempSensorExternalMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~TempSensorExternalMixin() = default;
 };
@@ -122,7 +122,7 @@ class ActuatorTimeLimitedMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~ActuatorTimeLimitedMixin() = default;
 };
@@ -131,7 +131,7 @@ class ActuatorSetPointMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~ActuatorSetPointMixin() = default;
 };
@@ -140,7 +140,7 @@ class ActuatorPwmMixin :
         public virtual  VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~ActuatorPwmMixin() = default;
 };
@@ -158,7 +158,7 @@ class ActuatorMutexDriverMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~ActuatorMutexDriverMixin() = default;
 };
@@ -167,7 +167,7 @@ class ActuatorValueMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~ActuatorValueMixin() = default;};
 
@@ -175,7 +175,7 @@ class ActuatorBoolMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~ActuatorBoolMixin() = default;
 };
@@ -184,7 +184,7 @@ class ActuatorNopMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~ActuatorNopMixin() = default;
 };
@@ -193,7 +193,7 @@ class ActuatorInvalidMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~ActuatorInvalidMixin() = default;
 };
@@ -202,7 +202,7 @@ class ActuatorDigitalMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~ActuatorDigitalMixin() = default;
 };
@@ -219,7 +219,7 @@ class SetPointSimpleMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~SetPointSimpleMixin() = default;
 };
@@ -228,7 +228,7 @@ class SetPointConstantMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~SetPointConstantMixin() = default;
 };
@@ -237,7 +237,7 @@ class SetPointMinMaxMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~SetPointMinMaxMixin() = default;
 };
@@ -246,7 +246,7 @@ class ActuatorPinMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~ActuatorPinMixin() = default;
 };
@@ -255,7 +255,7 @@ class ValveControllerMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~ValveControllerMixin() = default;
 };
@@ -264,7 +264,7 @@ class ActuatorOneWireMixin :
         public virtual VirtualSerializable
 {
 public:
-    void serialize(JSON::Adapter& adapter) final;
+    void serialize(JSON::Adapter& adapter) override final;
 protected:
     ~ActuatorOneWireMixin() = default;
 };

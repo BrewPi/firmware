@@ -46,16 +46,16 @@ public:
 
     ~ActuatorTimeLimited() = default;
 
-    void setActive(bool active) final;    // returns new actuator state
+    void setActive(bool active) override final;    // returns new actuator state
 
-    bool isActive() const final
+    bool isActive() const override final
     {
         return state;    // target->isActive(); - this takes 20 bytes more
     }
 
-    void update() final;
+    void update() override final;
 
-    void fastUpdate() final {} // time limit is in seconds, no fast update needed
+    void fastUpdate() override final {} // time limit is in seconds, no fast update needed
 
 
     void setTimes(ticks_seconds_t   _minOnTime,

@@ -33,15 +33,15 @@ public:
 		lastActiveTime = 0;
 	}
 	
-	void setActive(bool active);
+	void setActive(bool active) override final;
 	
-	bool isActive() const final {
+	bool isActive() const override final {
 		return active; //target->isActive(); - this takes 20 bytes more
 	}
 	
-    void update() final;
+    void update() override final;
 
-    void fastUpdate() final{} // no fast update needed because timeout is in seconds
+    void fastUpdate() override final{} // no fast update needed because timeout is in seconds
 
         
 private:

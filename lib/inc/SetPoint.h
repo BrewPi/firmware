@@ -36,10 +36,10 @@ class SetPointSimple final : public SetPoint, public SetPointSimpleMixin {
 public:
     SetPointSimple(temp_t val = temp_t::disabled()) : value(val){}
     ~SetPointSimple() = default;
-    temp_t read() const final {
+    temp_t read() const override final {
         return value;
     }
-    void write (temp_t val) final {
+    void write (temp_t val) override final {
         value = val;
     }
 
@@ -54,10 +54,10 @@ public:
                                                       min(temp_t::min()),
                                                       max(temp_t::max()){}
     ~SetPointMinMax() = default;
-    temp_t read() const final {
+    temp_t read() const override final {
         return value;
     }
-    void write (temp_t val) final {
+    void write (temp_t val) override final {
         if(val < min){
             value = min;
         }
@@ -95,10 +95,10 @@ class SetPointConstant final : public SetPoint, public SetPointConstantMixin {
 public:
     SetPointConstant(const temp_t val): value(val){}
     ~SetPointConstant() = default;
-    temp_t read() const final{
+    temp_t read() const override final{
         return value;
     }
-    void write(temp_t val) final { // does nothing
+    void write(temp_t val) override final { // does nothing
     }
 
 private:

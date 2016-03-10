@@ -65,6 +65,15 @@ CFLAGS += -DBUILD_NAME="$(GIT_VERSION)"
 CFLAGS += -Wall 
 CPPFLAGS += -Woverloaded-virtual
 
+# the following warnings can help find opportunities for impromevent in virtual functions
+# they are disabled in the default build, because the dependencies (particle firmware, flashee) have many violations 
+
+# Warn when virtual functions are overriden without override/override final specifier (requires gcc 5.1)
+# CPPFLAGS += -Wsuggest-override
+# Warn when functions and classes can be marked final
+# CPPFLAGS += -Wsuggest-final-types
+# CPPFLAGS += -Wsuggest-final-methods
+
 CSRC := $(filter-out $(CEXCLUDES),$(CSRC))
 CPPSRC := $(filter-out $(CPPEXCLUDES),$(CPPSRC)) 
 

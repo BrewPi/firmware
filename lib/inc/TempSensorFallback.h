@@ -51,7 +51,7 @@ public:
      * Check if sensor is connected
      * @return bool: true if active sensor is connected
      */
-    inline bool isConnected(void) const final {
+    inline bool isConnected(void) const override final {
         return activeSensor()->isConnected();
     }
 
@@ -60,7 +60,7 @@ public:
      *
      * @return bool: true if active sensor was initialized correctly
      */
-    inline bool init() final {
+    inline bool init() override final {
         return activeSensor()->init();
     }
 
@@ -68,12 +68,12 @@ public:
      * Read the currently used sensor (main or backup)
      * @return temp_t: temperature of sensor
      */
-    temp_t read() const final;
+    temp_t read() const override final;
 
     /**
      * update() checks if the main sensor is connected and switches between the main and backup sensor
      */
-    void update() final;
+    void update() override final;
 
 private:
     TempSensorBasic * main;

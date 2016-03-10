@@ -23,20 +23,20 @@
 #include "TempSensorBasic.h"
 #include "ControllerMixins.h"
 
-class TempSensorDisconnected : public TempSensorBasic, public TempSensorDisconnectedMixin {
+class TempSensorDisconnected final : public TempSensorBasic, public TempSensorDisconnectedMixin {
 	
 public:
-	bool isConnected() const { return false; }
+	bool isConnected() const override final { return false; }
 
-	bool init() {
+	bool init() override final {
 		return read()!=TEMP_SENSOR_DISCONNECTED;
 	}
 	
-	temp_t read() const {
+	temp_t read() const override final {
 		return TEMP_SENSOR_DISCONNECTED;
 	}
 
-    void update(){
+    void update() override final {
         // nop for this mock sensor
     }
 	

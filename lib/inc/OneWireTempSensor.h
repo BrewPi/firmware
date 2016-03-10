@@ -30,7 +30,7 @@ class OneWire;
 
 #define ONEWIRE_TEMP_SENSOR_PRECISION (4)
 
-class OneWireTempSensor : public TempSensorBasic, public OneWireTempSensorMixin {
+class OneWireTempSensor final : public TempSensorBasic, public OneWireTempSensorMixin {
 public:	
 	/**
 	 * Constructs a new onewire temp sensor.
@@ -49,13 +49,13 @@ public:
 	
 	~OneWireTempSensor();
 	
-	bool isConnected(void) const{
+	bool isConnected(void) const override final {
 		return connected;
 	}		
 	
-	bool init();
-	temp_t read() const; // return cached value
-	void update(); // read from hardware sensor
+	bool init() override final ;
+	temp_t read() const override final ; // return cached value
+	void update() override final ; // read from hardware sensor
 	
 	private:
 

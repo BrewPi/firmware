@@ -42,7 +42,7 @@ public:
 
     ~ActuatorValue() = default;
 
-    void setValue(temp_t const& val) final {
+    void setValue(temp_t const& val) override final {
         if(val < minimum){
             value = minimum;
         }
@@ -53,17 +53,17 @@ public:
             value = val;
         }
     }
-    temp_t getValue() const final {
+    temp_t getValue() const override final {
         return value;
     }
-    void update() final {}
-    void fastUpdate() final {}
+    void update() override final {}
+    void fastUpdate() override final {}
 
-    temp_t min() const final {
+    temp_t min() const override final {
         return minimum;
     }
 
-    temp_t max() const final {
+    temp_t max() const override final {
         return maximum;
     }
 
@@ -85,11 +85,11 @@ public:
     ActuatorBool(bool initial) : state(initial) {}
     ~ActuatorBool() = default;
 
-    void setActive(bool active) final { state = active; }
-    bool isActive() const final { return state; }
+    void setActive(bool active) override final { state = active; }
+    bool isActive() const override final { return state; }
 
-    void update() final {}
-    void fastUpdate() final {}
+    void update() override final {}
+    void fastUpdate() override final {}
 
 private:
     bool state;
@@ -107,10 +107,10 @@ public:
     ActuatorNop(){}
     ~ActuatorNop() = default;
 
-    void setActive(bool active) final {}
-    bool isActive() const final { return false;}
-    void update() final {}
-    void fastUpdate() final {}
+    void setActive(bool active) override final {}
+    bool isActive() const override final { return false;}
+    void update() override final {}
+    void fastUpdate() override final {}
 
 friend class ActuatorNopMixin;
 };
@@ -124,21 +124,21 @@ public:
     ActuatorInvalid() {}
     ~ActuatorInvalid() = default;
 
-    void setValue(temp_t const& val) final {}
-    temp_t getValue() const final {
+    void setValue(temp_t const& val) override final {}
+    temp_t getValue() const override final {
         return temp_t::invalid();
     }
-    temp_t readValue() const final {
+    temp_t readValue() const override final {
         return temp_t::invalid();
     }
-    temp_t min() const final {
+    temp_t min() const override final {
         return temp_t::invalid();
     }
-    temp_t max() const final {
+    temp_t max() const override final {
         return temp_t::invalid();
     }
-    void update() final {}
-    void fastUpdate() final {}
+    void update() override final {}
+    void fastUpdate() override final {}
 
 friend class ActuatorInvalidMixin;
 };

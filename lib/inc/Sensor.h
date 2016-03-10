@@ -36,7 +36,7 @@ public:
 	ValueSensor(T initial) : value(initial) {}
 	~ValueSensor() = default;
 
-	virtual T sense() {
+	virtual T sense() override final {
 		return (T)0;
 	}
 	

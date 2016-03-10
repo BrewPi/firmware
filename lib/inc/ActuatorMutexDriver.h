@@ -39,13 +39,13 @@ public:
         setMutex(nullptr);
     }
 
-    uint8_t type() const final { return ACTUATOR_TOGGLE_MUTEX; };
+    uint8_t type() const override final { return ACTUATOR_TOGGLE_MUTEX; };
 
-    void update() final {
+    void update() override final {
         target->update();
     }
 
-    void fastUpdate() final {
+    void fastUpdate() override final {
         target->fastUpdate();
     }
 
@@ -75,11 +75,11 @@ public:
         }
     }
 
-    void setActive(bool active) final{
+    void setActive(bool active) override final{
         setActive(active, 127); // when priority not specified, default to highest priority
     }
 
-    bool isActive() const final {
+    bool isActive() const override final {
         return target->isActive();
     }
 

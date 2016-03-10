@@ -62,13 +62,13 @@ class ActuatorOneWire final:
             device.update();
         }
 
-        void setActive(bool active) final
+        void setActive(bool active) override final
         {
             // todo: alarm when write fails
             device.latchWrite(pio, active ^ invert, true);
         }
 
-        bool isActive() const final
+        bool isActive() const override final
         {
             return device.latchReadCached(pio, false) ^ invert;
         }
@@ -85,11 +85,11 @@ class ActuatorOneWire final:
             setActive(val != 0);
         };
 
-        void update() final{
+        void update() override final{
             device.update();
         }
 
-        void fastUpdate() final {} // no actions needed
+        void fastUpdate() override final {} // no actions needed
 
 
     private:

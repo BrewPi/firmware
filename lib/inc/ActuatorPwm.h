@@ -65,13 +65,13 @@ public:
 
     /** Returns minimum value
      */
-    temp_t min() const final {
+    temp_t min() const override final {
         return minVal;
     }
 
     /** Returns maximum value
      */
-    temp_t max() const final {
+    temp_t max() const override final {
         return maxVal;
     }
 
@@ -81,19 +81,19 @@ public:
      *
      * @return achieved duty cycle in fixed point.
      */
-    temp_t readValue() const final;
+    temp_t readValue() const override final;
 
     /** Returns the set duty cycle
      * @return duty cycle setting in fixed point
      */
-    temp_t getValue() const final {
+    temp_t getValue() const override final {
         return value;
     }
 
     /** Sets a new duty cycle
      * @param val new duty cycle in fixed point
      */
-    void setValue(temp_t const& val) final;
+    void setValue(temp_t const& val) override final;
 
     //** Calculates whether the target should toggle and tries to toggle it if necessary
     /** Each update, the PWM actuator checks whether it should toggle to achieve the set duty cycle.
@@ -103,12 +103,12 @@ public:
      * If needed, it can even skip going high or low. This will happen, for example, when the target is
      * a time limited actuator with a minimum on and/or off time.
      */
-    void fastUpdate() final;
+    void fastUpdate() override final;
 
     /**
      * Periodic update (every second). Same as fast update, but calls periodic update on target too.
      */
-    void update() final {
+    void update() override final {
         target->update();
         fastUpdate();
     };

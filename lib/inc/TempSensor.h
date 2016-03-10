@@ -25,7 +25,7 @@
 #include "defaultDevices.h"
 #include "ControllerMixins.h"
 
-class TempSensor: public TempSensorBasic, public TempSensorMixin {
+class TempSensor final : public TempSensorBasic, public TempSensorMixin {
 public:
     TempSensor() :
             sensor(defaultTempSensorBasic()) {
@@ -57,28 +57,28 @@ public:
         }
     }
 
-    inline bool isConnected(void) const {
+    inline bool isConnected(void) const override final {
         return sensor->isConnected();
     }
 
     /*
      * Attempt to (re-)initialize the sensor.
      */
-    inline bool init() {
+    inline bool init() override final {
         return sensor->init();
     }
 
     /*
      * Update the sensor if the value is cached
      */
-    void update() {
+    void update() override final {
         sensor->update();
     }
 
     /*
      * Fetch a new reading from the sensor
      */
-    inline temp_t read() const {
+    inline temp_t read() const override final {
         return sensor->read();
     }
 

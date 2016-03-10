@@ -23,7 +23,7 @@
 #include "TempSensorBasic.h"
 #include "ControllerMixins.h"
 
-class TempSensorMock : public TempSensorBasic, public TempSensorMockMixin
+class TempSensorMock final : public TempSensorBasic, public TempSensorMockMixin
 {
 public:	
 	TempSensorMock(temp_t initial) : value(initial), connected(true) { }
@@ -33,9 +33,9 @@ public:
 		connected = _connected;
 	}
 	
-	bool isConnected() const { return connected; }
+	bool isConnected() const override final { return connected; }
 
-	bool init() {
+	bool init() override final {
 		return !read().isDisabledOrInvalid();
 	}
 	
@@ -43,11 +43,11 @@ public:
 	    value += delta;
 	}
 
-	void update(){
+	void update() override final {
 	    // nop for this mock sensor
 	}
 
-	temp_t read() const
+	temp_t read() const override final
 	{
 		if (!isConnected())
 			return temp_t::invalid();

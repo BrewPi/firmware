@@ -58,9 +58,9 @@ public:
 
     ActuatorForwarder * cast();
 
-    ActuatorInstallHelper * getNonForwarder() final;
+    ActuatorInstallHelper * getNonForwarder() override final;
 
-    bool replaceNonForwarder(ActuatorDigital * a) final;
+    bool replaceNonForwarder(ActuatorDigital * a) override final;
 
-    bool removeNonForwarder() final;
+    bool removeNonForwarder() override final;
 };

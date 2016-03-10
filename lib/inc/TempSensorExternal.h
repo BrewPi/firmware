@@ -27,7 +27,7 @@
  * A temp sensor whose value is not read from the device, but set in code.
  * This is used by the simulator.
  */
-class TempSensorExternal : public TempSensorBasic, public TempSensorExternalMixin
+class TempSensorExternal final : public TempSensorBasic, public TempSensorExternalMixin
 {
 	public:
 	TempSensorExternal(bool connected=false) : value(0.0), connected(false)
@@ -40,17 +40,17 @@ class TempSensorExternal : public TempSensorBasic, public TempSensorExternalMixi
 		this->connected = _connected;
 	}
 
-	bool isConnected() const { return connected; }
+	bool isConnected() const override final { return connected; }
 
-	bool init() final {
+	bool init() override final {
 		return read()!=TEMP_SENSOR_DISCONNECTED;
 	}
 	
-    void update() final {
+    void update() override final {
         // nop for this mock sensor
     }
 
-	temp_t read() const final {
+	temp_t read() const override final {
 		if (!isConnected())
 			return TEMP_SENSOR_DISCONNECTED;
 		return value;

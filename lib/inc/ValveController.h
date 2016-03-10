@@ -44,11 +44,11 @@ public:
         CLOSING = 5
     };
     
-    void update();
+    void update() override final;
 
-    void fastUpdate(){} // valves are slow. Fast update is nop to limit OneWire traffic
+    void fastUpdate() override final {} // valves are slow. Fast update is nop to limit OneWire traffic
 
-    void setActive(bool active){
+    void setActive(bool active) override final {
         if(active){
             open();
         }
@@ -57,7 +57,7 @@ public:
         }
     }
 
-    bool isActive() const{
+    bool isActive() const override final {
         // return active when not closed, so a half open valve also returns active
         return sense != uint8_t(ValveActions::CLOSE);
     }
