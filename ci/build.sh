@@ -25,6 +25,13 @@ pushd platform/spark
 result=$?
 popd
 
+if [ $result -eq 0 ]; then
+   mkdir -p deploy
+   TAG=$(git tag -l --contains HEAD)
+   cp platform/spark/target/controller-core/controller.bin deploy/brewpi-$TAG-core.bin
+   cp platform/spark/target/controller-photon/controller.bin deploy/brewpi-$TAG-photon.bin
+fi
+
 status $result
 
 ./lib/test/obj/runner

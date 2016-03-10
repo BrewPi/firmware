@@ -46,3 +46,4 @@ test_results/*.pdf
 
 # automatically generated doxygen files
 docs/_static/doxygen/
+deploy/
