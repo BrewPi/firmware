@@ -61,12 +61,17 @@ public:
 
     // To activate actuator, permission is asked from mutexGroup, false is always allowed
     void setActive(bool active, int8_t priority) {
-        if(!mutexGroup || mutexGroup->request(this, active, priority)){
-            target->setActive(active);
-            if(target->isActive() != active){
-                // if setting the target failed, cancel the request to prevent blocking other actuators
-                 mutexGroup->cancelRequest(this);
+        if(mutexGroup){
+            if(mutexGroup->request(this, active, priority)){
+                target->setActive(active);
+                if(target->isActive() != active){
+                    // if setting the target failed, cancel the request to prevent blocking other actuators
+                     mutexGroup->cancelRequest(this);
+                }
             }
+        }
+        else{
+            target->setActive(active); // if mutex group is not set, just pass on the call
         }
     }
 
