@@ -146,6 +146,11 @@ void Control::update(){
     mutex->update();
 }
 
+// This update function should be called every second
+void Control::fastUpdate(){
+    fastUpdateActuators();
+}
+
 void Control::updatePids(){
     for ( auto &pid : pids ) {
         pid->update();
@@ -162,6 +167,12 @@ void Control::updateSensors(){
 void Control::updateActuators(){
     for ( auto &actuator : actuators ) {
         actuator->update();
+    }
+}
+
+void Control::fastUpdateActuators(){
+    for ( auto &actuator : actuators ) {
+        actuator->fastUpdate();
     }
 }
 

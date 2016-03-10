@@ -45,6 +45,9 @@ public:
     };
     
     void update();
+
+    void fastUpdate(){} // valves are slow. Fast update is nop to limit OneWire traffic
+
     void setActive(bool active){
         if(active){
             open();

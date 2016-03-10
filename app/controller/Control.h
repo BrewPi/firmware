@@ -41,10 +41,12 @@ public:
     ~Control();
 
     void update(); // update everything
+    void fastUpdate(); // update things that need fast updating (like PWM)
 
     void updateSensors();
     void updatePids();
     void updateActuators();
+    void fastUpdateActuators();
 
     void serialize(JSON::Adapter& adapter);
 

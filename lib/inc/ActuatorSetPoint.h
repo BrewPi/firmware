@@ -87,6 +87,7 @@ public:
     }
 
     void update() final {}; //no actions required
+    void fastUpdate() final {}; //no actions required
 
 private:
     SetPoint * targetSetPoint;

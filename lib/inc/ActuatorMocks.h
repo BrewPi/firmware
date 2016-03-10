@@ -42,7 +42,7 @@ public:
 
     ~ActuatorValue() = default;
 
-    void setValue(temp_t const& val) {
+    void setValue(temp_t const& val) final {
         if(val < minimum){
             value = minimum;
         }
@@ -53,16 +53,17 @@ public:
             value = val;
         }
     }
-    temp_t getValue() const{
+    temp_t getValue() const final {
         return value;
     }
-    void update(){}; //no actions required
+    void update() final {}
+    void fastUpdate() final {}
 
-    temp_t min() const{
+    temp_t min() const final {
         return minimum;
     }
 
-    temp_t max() const{
+    temp_t max() const final {
         return maximum;
     }
 
@@ -84,10 +85,11 @@ public:
     ActuatorBool(bool initial) : state(initial) {}
     ~ActuatorBool() = default;
 
-    void setActive(bool active) { state = active; }
-    bool isActive() const { return state; }
+    void setActive(bool active) final { state = active; }
+    bool isActive() const final { return state; }
 
-    void update(){}; //no actions required
+    void update() final {}
+    void fastUpdate() final {}
 
 private:
     bool state;
@@ -105,9 +107,10 @@ public:
     ActuatorNop(){}
     ~ActuatorNop() = default;
 
-    void setActive(bool active) {}
-    bool isActive() const { return false;}
-    void update(){}
+    void setActive(bool active) final {}
+    bool isActive() const final { return false;}
+    void update() final {}
+    void fastUpdate() final {}
 
 friend class ActuatorNopMixin;
 };
@@ -121,20 +124,21 @@ public:
     ActuatorInvalid() {}
     ~ActuatorInvalid() = default;
 
-    void setValue(temp_t const& val) {}
-    temp_t getValue() const {
+    void setValue(temp_t const& val) final {}
+    temp_t getValue() const final {
         return temp_t::invalid();
     }
-    temp_t readValue() const {
+    temp_t readValue() const final {
         return temp_t::invalid();
     }
-    temp_t min() const {
+    temp_t min() const final {
         return temp_t::invalid();
     }
-    temp_t max() const {
+    temp_t max() const final {
         return temp_t::invalid();
     }
-    void update(){}; //no actions required
+    void update() final {}
+    void fastUpdate() final {}
 
 friend class ActuatorInvalidMixin;
 };

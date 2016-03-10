@@ -44,7 +44,8 @@ public:
     virtual ~Actuator() = default;
 
     virtual uint8_t type() const = 0;
-    virtual void update() = 0;
+    virtual void update() = 0; // period update (every second)
+    virtual void fastUpdate() = 0; // fast update (as often as possible)
 
 	friend class ActuatorMixin;
 };

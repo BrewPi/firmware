@@ -45,6 +45,10 @@ public:
         target->update();
     }
 
+    void fastUpdate() final {
+        target->fastUpdate();
+    }
+
     void setMutex(ActuatorMutexGroup * mutex){
         if(mutexGroup != nullptr){
             mutexGroup->unRegisterActuator(this);

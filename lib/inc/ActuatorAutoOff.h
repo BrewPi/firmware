@@ -39,7 +39,10 @@ public:
 		return active; //target->isActive(); - this takes 20 bytes more
 	}
 	
-    void update();
+    void update() final;
+
+    void fastUpdate() final{} // no fast update needed because timeout is in seconds
+
         
 private:
 	uint16_t lastActiveTime;

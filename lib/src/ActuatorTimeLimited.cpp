@@ -52,6 +52,7 @@ void ActuatorTimeLimited::setActive(bool newState)
 void ActuatorTimeLimited::update()
 {
     target->update();
+    state = target->isActive(); // make sure state is always up to date with target
     if (state && (timeSinceToggle() >= maxOnTime)){
         setActive(false);
     }

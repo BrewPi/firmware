@@ -55,6 +55,9 @@ public:
 
     void update() final;
 
+    void fastUpdate() final {} // time limit is in seconds, no fast update needed
+
+
     void setTimes(ticks_seconds_t   _minOnTime,
                   ticks_seconds_t   _minOffTime,
                   ticks_seconds_t   _maxOnTime = UINT16_MAX){

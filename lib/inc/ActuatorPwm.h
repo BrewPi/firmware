@@ -100,7 +100,15 @@ public:
      * If needed, it can even skip going high or low. This will happen, for example, when the target is
      * a time limited actuator with a minimum on and/or off time.
      */
-    void update() final;
+    void fastUpdate() final;
+
+    /**
+     * Periodic update (every second). Same as fast update, but calls periodic update on target too.
+     */
+    void update() final {
+        target->update();
+        fastUpdate();
+    };
 
     /** returns the PWM period
      * @return PWM period in seconds

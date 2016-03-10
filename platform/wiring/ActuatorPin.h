@@ -52,5 +52,7 @@ class ActuatorPin final: public ActuatorDigital, public ActuatorPinMixin
         }
 
         void update(){} // do nothing on periodic update
+        void fastUpdate(){} // do nothing on fast update
+
     friend class ActuatorPinMixin;
 };

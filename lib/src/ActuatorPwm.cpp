@@ -84,8 +84,8 @@ temp_t ActuatorPwm::readValue() const {
     return pastValue;
 }
 
-void ActuatorPwm::update() {
-    target->update();
+void ActuatorPwm::fastUpdate() {
+    target->fastUpdate();
     int32_t adjDutyTime = dutyTime - dutyLate;
     int32_t currentTime = ticks.millis();
     int32_t elapsedTime = currentTime - periodStartTime;

@@ -23,6 +23,7 @@
 #pragma once
 
 #include "OneWireSwitch.h"
+#include "Logger.h"
 
 typedef uint8_t pio_t;
 
@@ -43,186 +44,100 @@ typedef uint8_t pio_t;
 class DS2413:
     public OneWireSwitch
 {
-    public:
-        DS2413()
-        {
-            cachedState = 0;
-        }
+public:
+    DS2413() : cachedState(0), connected(false)
+    {
+    }
 
-        /*
-         *  The DS2413 returns data in the last 4 bits, the upper 4 bits are the complement.
-         */
-        bool cacheIsValid() const
-        {
-            uint8_t upperInverted = (~cachedState & 0xf0) >> 4;
-            uint8_t lower = cachedState & 0x0f;
+    /**
+     *  The DS2413 returns data in the last 4 bits, the upper 4 bits are the complement.
+     *  This allows checking wether the data is valid
+     *  @return: whether data is valid (upper bits are complement of lower bits)
+     */
+    bool cacheIsValid() const;
 
-            return upperInverted == lower;
-        }
+    /**
+     * Writes to the latch for a given PIO.
+     * @param pio           channel/pin to write
+     * @param set           1 to switch the open drain ON (pin low), 0 to switch it off.
+     * @param useCached     do not read the pin states from the device
+     * @return              true on success, false on failure
+     */
+    bool latchWrite(pio_t pio,
+                    bool  set,
+                    bool  useCached);
 
-        /*
-         * Writes to the latch for a given PIO.
-         * /param pio           channel/pin to write
-         * /param set           1 to switch the open drain ON (pin low), 0 to switch it off.
-         * /param useCached     do not read the pin states from the device
-         * /return              true on success, false on failure
-         */
-        bool latchWrite(pio_t pio,
-                        bool  set,
-                        bool  useCached)
-        {
-            bool    ok      = false;
-            uint8_t retries = 5;
+    /**
+     * Read the latch state of an output. True means latch is active
+     * @param pio               pin number to read
+     * @param defaultValue      value to return when the read fails
+     * @param useCached         do not read current pin state from device, but use cached state
+     */
+    bool latchRead(pio_t pio,
+                   bool defaultValue,
+                   bool useCached);
 
-            if (!useCached || !cacheIsValid())
-            {
-                // read a fresh value form the device
-                do
-                {
-                    update();
-                }
-                while (!cacheIsValid() && (retries-- > 0));
+    bool latchReadCached(pio_t pio,
+                   bool defaultValue) const;
+    /**
+     * Periodic update to make sure the cache is valid.
+     * Performs a simultaneous read of both channels and saves value to the cache.
+     * When read fails, prints a warning that the DS2413 is disconnected/
+     */
+    void update();
 
-                if (!cacheIsValid())
-                {
-                    return false;    // cannot read from device successfully
-                }
-            }
 
-            uint8_t mask   = latchWriteMask(pio);
-            uint8_t oldVal = writeByteFromCache();
-            uint8_t newVal = oldVal;
+private:
+    uint8_t cachedState; /** last value of read */
+    bool connected; /** stores whether last read was succesful */
 
-            if (set)
-            {
-                newVal &= ~mask; // 0 means latch transistor is active
-            }
-            else
-            {
-                newVal |= mask; // 1 means latch transistor is inactive
-            }
+    // assumes pio is either 0 or 1, which translates to masks 0x8 and 0x2
+    inline uint8_t latchReadMask(pio_t pio) const
+    {
+        return pio ? 0x8 : 0x2;
+    }
 
-            if (oldVal == newVal)
-            {
-                ok = true;    // skip write if already correct value to reduce OneWire communication
-            }
-            else
-            {
-                ok = channelWriteAll(newVal);
-                update();
-            }
+    // assumes pio is either 0 or 1, which translates to masks 0x1 and 0x2
+    inline uint8_t latchWriteMask(pio_t pio) const
+    {
+        return pio ? 0x2 : 0x1;
+    }
 
-            return ok;
-        }
+    /*
+     * Writes all a bit field of all channel latch states
+     */
+    inline bool channelWriteAll(uint8_t values)
+    {
+        return accessWrite(values);
+    }
 
-        /*
-         * Read the latch state of an output. True means latch is active
-         * /param pio               pin number to read
-         * /param defaultValue      value to return when the read fails
-         * /param useCached         do not read current pin state from device, but use cached state
-         */
-        bool latchRead(pio_t pio,
-                       bool defaultValue,
-                       bool useCached)
-        {
-            if(!useCached || !cacheIsValid()){
-                update();
-            }
-
-            return latchReadCached(pio, defaultValue);
-        }
-
-        bool latchReadCached(pio_t pio,
-                       bool defaultValue) const
-        {
-            if(cacheIsValid()){
-                return ((cachedState & latchReadMask(pio)) == 0);
-            }
-            else
-            {
-                return defaultValue;
-            }
-        }
-
-        /*
-         * Performs a simultaneous read of both channels and saves value to the cache.
-         */
-        void update()
-        {
-            cachedState = accessRead();
-        }
-
-    private:
-        uint8_t cachedState;
-
-        // assumes pio is either 0 or 1, which translates to masks 0x8 and 0x2
-        uint8_t latchReadMask(pio_t pio) const
-        {
-            return pio ? 0x8 : 0x2;
-        }
-
-        // assumes pio is either 0 or 1, which translates to masks 0x1 and 0x2
-        uint8_t latchWriteMask(pio_t pio) const
-        {
-            return pio ? 0x2 : 0x1;
-        }
-
-        /*
-         * Writes all a bit field of all channel latch states
-         */
-        bool channelWriteAll(uint8_t values)
-        {
-            return accessWrite(values);
-        }
-
-        /*
-         *  Rearranges latch state bits from cached read to last write bit field.
-         */
-        uint8_t writeByteFromCache()
-        {
-            uint8_t returnval = 0;
-
-            for (uint8_t i = 0; i < 2; i++)
-            {
-                if (cachedState & latchReadMask(i))
-                {
-                    returnval |= latchWriteMask(i);
-                }
-            }
-
-            return returnval;
-        }
+    /**
+     *  Rearranges latch state bits from cached read to last write bit field.
+     *  @return bits in order suitable for writing (different order than read)
+     */
+    uint8_t writeByteFromCache();
 
 #if DS2413_SUPPORT_SENSE
 
-    public:
+public:
 
-        /*
-         * Returns bitmask to extract the sense channel for the given pin from a read
-         */
-        uint8_t senseMask(pio_t pio) const
-        {
-            return pio ? 0x4 : 0x1;    // assumes pio is either 0 or 1, which translates to masks 0x1 and 0x3
-        }
+    /**
+     * Returns bitmask to extract the sense channel for the given pin from a read
+     * @return bitmask which can be used to extract the bit corresponding to the channel
+     */
+    inline uint8_t senseMask(pio_t pio) const
+    {
+        return pio ? 0x4 : 0x1;    // assumes pio is either 0 or 1, which translates to masks 0x1 and 0x3
+    }
 
-        /*
-         * Reads the output state of a given channel, defaulting to a given value on error.
-         * Note that for a read to make sense the channel must be off (value written is 1).
-         */
-        bool sense(pio_t pio,
-                   bool  defaultValue)
-        {
-            update();
+    /**
+     * Reads the output state of a given channel, defaulting to a given value on error.
+     * Note that for a read to make sense the channel must be off (value written is 1).
+     * @return value of channel when cache is valid, defautl value if cache is not valid
+     */
+    bool sense(pio_t pio,
+               bool  defaultValue);
 
-            if (cacheIsValid())
-            {
-                return ((cachedState & senseMask(pio)) != 0);
-            }
-            else
-            {
-                return defaultValue;
-            }
-        }
 #endif
 
 };

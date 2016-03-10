@@ -70,7 +70,9 @@ enum warningMessages{
 	MSG(WARNING_START_IN_SAFE_MODE, "EEPROM Settings not available. Starting in safe mode."),
 
 // TempSensorFallback.cpp
-	MSG(FALLING_BACK_ON_BACKUP_SENSOR, "Falling back on backup sensor.")
+	MSG(FALLING_BACK_ON_BACKUP_SENSOR, "Falling back on backup sensor."),
+
+	MSG(DS2413_DISCONNECTED, "OneWire actuator (DS2413) disconnected, address %s", addressString)
 
 }; // END enum warningMessages
 
@@ -106,5 +108,8 @@ enum infoMessages{
 	MSG(INFO_NEGATIVE_DRIFT, "No peak detected. Drifting down after cooling, current temp: %s, estimated peak: %s. Previous cool estimator: %s, New cool estimator: %s..", temperature, temperature, estimator, estimator),
 
 	// TempSensorFallback.cpp
-    MSG(BACK_ON_MAIN_SENSOR, "Back on main sensor instead of backup sensor.")
+    MSG(BACK_ON_MAIN_SENSOR, "Back on main sensor instead of backup sensor."),
+
+	// DS2413.cpp
+	MSG(DS2413_CONNECTED, "OneWire actuator (DS2413) connected, address %s", addressString)
 }; // END enum infoMessages
