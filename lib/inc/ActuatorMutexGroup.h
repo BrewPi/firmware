@@ -46,7 +46,15 @@ public:
 
     size_t find(ActuatorDigital * act);
 
-    bool requestActive(ActuatorDigital * requester, int8_t newPriority);
+    bool request(ActuatorDigital * requester, bool active, int8_t newPriority);
+
+    /**
+     * Cancels an open request, by setting the priority to -1.
+     * This can be used when a request is honored, but the actuator could not go active for other reasons.
+     * The request should then be canceled to prevent holding back other actuators
+     * @param requester: pointer to actuator previously requested to go active
+     */
+    void cancelRequest(ActuatorDigital * requester);
 
     ticks_millis_t getDeadTime(){
         return deadTime;

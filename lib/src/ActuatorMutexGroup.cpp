@@ -48,12 +48,18 @@ void ActuatorMutexGroup::unRegisterActuator(ActuatorDigital * act){
     }
 }
 
-bool ActuatorMutexGroup::requestActive(ActuatorDigital * requester, int8_t newPriority){
+bool ActuatorMutexGroup::request(ActuatorDigital * requester, bool active, int8_t newPriority){
     // loop over all actuators to see if my request has highest priority
     // and if no other actuators are active
 
+    bool otherActuatorActive = false;
+    bool highestPriority = true;
     bool requestHonored = true;
     ActuatorPriority * me = nullptr;
+
+    if(!active){
+        newPriority = -1; // set requester priority to -1, because its not waiting to go active anymore
+    }
 
     for (size_t i=0; i<actuatorPriorities.size(); ++i){
         ActuatorPriority * other = &actuatorPriorities[i];
@@ -64,14 +70,16 @@ bool ActuatorMutexGroup::requestActive(ActuatorDigital * requester, int8_t newPr
         }
         else{
             if(other->priority > newPriority){
-                requestHonored = false;
+                highestPriority = false;
             }
         }
         if(other->actuator->isActive()){
-            requestHonored = false;
+            otherActuatorActive = true;
             lastActiveTime = ticks.millis();
             lastActiveActuator = other->actuator;
         }
+        // always allow false, otherwise allow when no one else is active and me has highest priority
+        requestHonored = active ? !otherActuatorActive && highestPriority : true;
         if(me && !requestHonored){
             break;
         }
@@ -79,11 +87,15 @@ bool ActuatorMutexGroup::requestActive(ActuatorDigital * requester, int8_t newPr
     if(!me){ // I was not in the list
         me = registerActuator(requester, newPriority);
     }
-    if(getWaitTime() > 0 && lastActiveActuator != requester){
+    if(active && getWaitTime() > 0 && lastActiveActuator != requester){
         requestHonored = false; // dead time has not passed
     }
 
     return requestHonored;
+}
+
+void ActuatorMutexGroup::cancelRequest(ActuatorDigital * requester){
+    request(requester, false, -1);
 }
 
 void ActuatorMutexGroup::setDeadTime(ticks_millis_t time){

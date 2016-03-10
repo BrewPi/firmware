@@ -399,7 +399,7 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_down_faster_than_period_gives_correct_average){
     BOOST_CHECK_CLOSE(avgDuty, 50.0, 2);
 }
 
-BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap){
+BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap_with_equal_duty){
     ActuatorDigital * boolAct1 = new ActuatorBool();
     ActuatorMutexDriver * mutexAct1 = new ActuatorMutexDriver(boolAct1);
     ActuatorPwm * act1 = new ActuatorPwm(mutexAct1, 10);
@@ -456,6 +456,124 @@ BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap){
 
     double avgDuty2 = double(timeHigh2) * 100.0 / (timeHigh2 + timeLow2);
     BOOST_CHECK_CLOSE(avgDuty2, 20.0, 2); // small error possible due to test window influence
+}
+
+BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap_with_different_duty){
+    ActuatorDigital * boolAct1 = new ActuatorBool();
+    ActuatorMutexDriver * mutexAct1 = new ActuatorMutexDriver(boolAct1);
+    ActuatorPwm * act1 = new ActuatorPwm(mutexAct1, 10);
+
+    ActuatorDigital * boolAct2 = new ActuatorBool();
+    ActuatorMutexDriver * mutexAct2 = new ActuatorMutexDriver(boolAct2);
+    ActuatorPwm * act2 = new ActuatorPwm(mutexAct2, 10);
+
+    ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
+    mutex->setDeadTime(0);
+    mutexAct1->setMutex(mutex);
+    mutexAct2->setMutex(mutex);
+
+    ticks_seconds_t timeHigh1 = 0;
+    ticks_seconds_t timeLow1 = 0;
+    ticks_seconds_t timeHigh2 = 0;
+    ticks_seconds_t timeLow2 = 0;
+
+    act1->setValue(60.0);
+    act2->setValue(20.0);
+
+    act1->update();
+    act2->update();
+    ticks_millis_t start = ticks.millis();
+
+    ofstream csv("./test_results/" + boost_test_name() + ".csv");
+        csv << "1a#pin1, 1a#pin2" << endl;
+
+    while(ticks.millis() - start <= 100000){ // run for 100 seconds
+        act1->update();
+        act2->update();
+        mutex->update();
+        if(boolAct1->isActive()){
+            timeHigh1++;
+        }
+        else{
+            timeLow1++;
+        }
+        if(boolAct2->isActive()){
+            timeHigh2++;
+        }
+        else{
+            timeLow2++;
+        }
+        BOOST_REQUIRE(!(boolAct1->isActive() && boolAct2->isActive())); // actuators cannot be active at the same time
+        csv     << boolAct1->isActive() << ","
+                << boolAct2->isActive()
+                << endl;
+        delay(100);
+    }
+
+    double avgDuty1 = double(timeHigh1) * 100.0 / (timeHigh1 + timeLow1);
+    BOOST_CHECK_CLOSE(avgDuty1, 60.0, 2); // small error possible due to test window influence
+
+    double avgDuty2 = double(timeHigh2) * 100.0 / (timeHigh2 + timeLow2);
+    BOOST_CHECK_CLOSE(avgDuty2, 20.0, 2); // small error possible due to test window influence
+}
+
+BOOST_AUTO_TEST_CASE(mutex_actuator_which_cannot_go_active_cannot_block_other_actuator){
+    ActuatorDigital * boolAct1 = new ActuatorBool();
+    ActuatorMutexDriver * mutexAct1 = new ActuatorMutexDriver(boolAct1);
+    ActuatorPwm * act1 = new ActuatorPwm(mutexAct1, 10);
+
+    ActuatorDigital * boolAct2 = new ActuatorNop(); // actuator which can never go active
+    ActuatorMutexDriver * mutexAct2 = new ActuatorMutexDriver(boolAct2);
+    ActuatorPwm * act2 = new ActuatorPwm(mutexAct2, 10);
+
+    ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
+    mutex->setDeadTime(0);
+    mutexAct1->setMutex(mutex);
+    mutexAct2->setMutex(mutex);
+
+    ticks_seconds_t timeHigh1 = 0;
+    ticks_seconds_t timeLow1 = 0;
+    ticks_seconds_t timeHigh2 = 0;
+    ticks_seconds_t timeLow2 = 0;
+
+    act1->setValue(20.0);
+    act2->setValue(40.0);  // <-- act2 will have higher priority due to higher duty cycle
+
+    act1->update();
+    act2->update();
+    ticks_millis_t start = ticks.millis();
+
+    ofstream csv("./test_results/" + boost_test_name() + ".csv");
+        csv << "1a#pin1, 1a#pin2" << endl;
+
+    while(ticks.millis() - start <= 100000){ // run for 100 seconds
+        act1->update();
+        act2->update();
+        mutex->update();
+        if(boolAct1->isActive()){
+            timeHigh1++;
+        }
+        else{
+            timeLow1++;
+        }
+        if(boolAct2->isActive()){
+            timeHigh2++;
+        }
+        else{
+            timeLow2++;
+        }
+        BOOST_REQUIRE(!(boolAct1->isActive() && boolAct2->isActive())); // actuators cannot be active at the same time
+        csv     << boolAct1->isActive() << ","
+                << boolAct2->isActive()
+                << endl;
+        delay(100);
+    }
+
+    double avgDuty1 = double(timeHigh1) * 100.0 / (timeHigh1 + timeLow1);
+    BOOST_CHECK_CLOSE(avgDuty1, 20.0, 2); // small error possible due to test window influence
+
+    double avgDuty2 = double(timeHigh2) * 100.0 / (timeHigh2 + timeLow2);
+    BOOST_CHECK_CLOSE(avgDuty2, 0.0, 2); // Nop actuator cannot go active
 }
 
 BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct){

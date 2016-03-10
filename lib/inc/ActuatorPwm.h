@@ -29,6 +29,9 @@
 #include "ActuatorForwarder.h"
 #include "ControllerMixins.h"
 
+#undef min
+#undef max
+
 /**
 	ActuatorPWM drives a digital actuator and makes it available as range actuator, by quickly turning it on and off repeatedly.
 
