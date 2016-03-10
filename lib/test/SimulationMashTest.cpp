@@ -207,8 +207,8 @@ struct SimMashDirect : public MashStaticSetup {
     SimMashDirect(){
         hltHeaterPid->setInputSensor(mashSensor);
         hltHeaterPid->setSetPoint(mashSet);
-        hltHeaterPid->setInputFilter(2);
-        hltHeaterPid->setDerivativeFilter(2);
+        hltHeaterPid->setInputFilter(1);
+        hltHeaterPid->setDerivativeFilter(1);
         hltHeaterPid->setConstants(50.0, 300, 120);
     }
 
@@ -228,8 +228,8 @@ struct SimMashCascaded : public MashStaticSetup {
     SimMashCascaded(){
         hltHeaterPid->setInputSensor(hltSensor);
         hltHeaterPid->setSetPoint(hltSet);
-        hltHeaterPid->setInputFilter(2);
-        hltHeaterPid->setDerivativeFilter(2);
+        hltHeaterPid->setInputFilter(1);
+        hltHeaterPid->setDerivativeFilter(1);
         hltHeaterPid->setConstants(50.0, 300, 30);
 
 
