@@ -135,6 +135,7 @@ void Pid::update()
         p = decltype(p)(0.0);
         i = decltype(i)(0.0);
         d = decltype(p)(0.0);
+        return;
     }
     else{
         // calculate PID parts.
