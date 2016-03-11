@@ -135,13 +135,16 @@ void Pid::update()
         p = decltype(p)(0.0);
         i = decltype(i)(0.0);
         d = decltype(p)(0.0);
-        return;
     }
     else{
         // calculate PID parts.
         p = Kp * -inputError;
         i = (Ti != 0) ? (integral/Ti) : temp_long_t(0.0);
         d = -Kp * (derivative * Td);
+    }
+
+    if(!enabled){
+        return;
     }
 
     temp_long_t pidResult = temp_long_t(p) + temp_long_t(i) + temp_long_t(d);
