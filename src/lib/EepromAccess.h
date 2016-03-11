@@ -20,6 +20,8 @@
 #pragma once
 
 #include "Static.h"
+#include <cstdint>
+#include <cstddef>
 
 #if !CONTROLBOX_STATIC
 

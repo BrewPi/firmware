@@ -27,7 +27,7 @@
 
 // return time that has passed since timeStamp, take overflow into account
 inline ticks_seconds_t timeSince(ticks_seconds_t currentTime, ticks_seconds_t previousTime){
-	if(currentTime>=previousTime){
+	if(currentTime>=previousTime) {
 		return currentTime - previousTime;
 	}
 	else{

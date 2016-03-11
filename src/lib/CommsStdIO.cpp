@@ -1,4 +1,5 @@
-#include <iostream>
+#include "CommsStdIO.h"
+
 
 #if defined(WIN32)
 static int is_pipe = 0;
@@ -14,7 +15,7 @@ StdIO::StdIO()
   is_pipe = !GetConsoleMode(input_handle, &dw);
 #endif
 }
-    
+
 void StdIO::print(char c) {
     fputc(c,out);
 }
@@ -29,6 +30,7 @@ void StdIO::println() {
     printNewLine();
 }
 
+#if 0
 #if defined(WIN32)
 int input_available()
 {
@@ -56,7 +58,7 @@ int input_available()
     return _kbhit() != 0; /* In "text-mode" without GUI */
 }
 
-int StdIO::available() { 
+int StdIO::available() {
     return input_available();
 }
 #else
@@ -66,34 +68,46 @@ int StdIO::available() {
 
 int StdIO::available() {
     struct pollfd fds;
-     int ret;
      fds.fd = 0; /* this is STDIN */
      fds.events = POLLIN;
-     ret = poll(&fds, 1, 0);
-     if(ret == 1)
-	   return 1;
+     fds.revents = 0;
+     int ret = poll(&fds, 1, 0);
+     if (ret > 0 && (fds.revents & POLLIN))
+        return 1;
      else
-    	 	 return 0;
+        return 0;
 }
 #endif
 
-void StdIO::begin(unsigned long) 
+#endif
+
+int StdIO::available() {
+    return in.available();
+}
+
+void StdIO::begin(unsigned long)
 {
 }
 
-size_t StdIO::write(uint8_t w) { 
+size_t StdIO::write(uint8_t w) {
     fputc(w, out);
+    fflush(out);
     return 1;
 }
 
-int StdIO::read() {                     
-    char c;
-    in.get(c);
-    return c;
+int StdIO::read() {
+    return in.next();
 }
 
 void StdIO::flush() { fflush(out); }
 
 int StdIO::peek() {
-	return 0;	// todo
+	return in.peek();
+}
+
+template<> void StreamDataOut<StdIO>::close() {
+}
+
+template<> bool StreamDataIn<StdIO>::hasNext() {
+    return stream;
 }

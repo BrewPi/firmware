@@ -75,7 +75,7 @@ public:
 		return eeprom_size;
 	}
 
-	uint16_t length()
+	size_t length() const override
 	{
 		return eepromLength();
 	}

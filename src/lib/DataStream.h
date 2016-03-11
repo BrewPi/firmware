@@ -99,8 +99,8 @@ struct BlackholeDataOut : public DataOut {
 };
 
 /**
- * A data input stream. The stream contents may be determined asynchornously.
- * hasNext() returns true if the stream may eventually produce a new item.
+ * A data input stream. The stream contents may be determined asynchronously.
+ * hasNext() returns true if the stream may eventually produce a new item, false if the stream is closed.
  * next() fetches the next item from the stream. return value is undefined if available()==0.
  * peek() retrieves the next data in the stream without removing it. Result is undefined if
  * available() returns 0.
@@ -109,13 +109,25 @@ struct BlackholeDataOut : public DataOut {
 struct DataIn
 {
 	/*
-	 * Determines if there is more data in this stream.
-	 * The result from next/peek is undefined if this returns false.
-	 * Note that this is not dependent upon time, but if the stream is still open.
+	 * Determines if there is potentially more data in this stream.
+	 * Note that this is not dependent upon time and asynchronous delivery of data, but if the stream is still open.
 	 */
 	virtual bool hasNext() =0;
+
+	/**
+	 * Retrieves the next byte of data. The return value is only valid when `hasNext()` returns true.
+	 */
 	virtual uint8_t next() =0;
+
+	/**
+	 * Retrieves the next byte of data without removing it from the stream. The result is only valid if `available`
+	 * previously returned a non-zero value.
+	 */
 	virtual uint8_t peek() =0;
+
+	/**
+	 * Determines how many bytes are available for reading from the stream without blocking.
+	 */
 	virtual unsigned available() =0;
 
 	#if OBJECT_VIRTUAL_DESTRUCTOR

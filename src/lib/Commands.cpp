@@ -30,7 +30,7 @@
  */
 void Commands::noopCommandHandler(DataIn& _in, DataOut& out)
 {
-	while (_in.hasNext());
+	while (_in.hasNext()) { _in.next(); }
 }
 
 void readValue(Object* root, DataIn& in, DataOut& out) {
@@ -388,4 +388,6 @@ void Commands::handleCommand(DataIn& dataIn, DataOut& dataOut)
 #if CONTROLBOX_STATIC
 Commands commands;
 #endif
+
+
 

@@ -72,6 +72,113 @@ public:
 };
 
 
+/**
+ * Adapts a Stream instance to DataIn.
+ */
+template <class S>
+class StreamDataIn : public DataIn
+{
+protected:
+    S& stream;
+public:
+
+    StreamDataIn(S& _stream) : stream(_stream) {}
+
+    virtual bool hasNext() override {
+        return stream.available()>0;
+    }
+
+    virtual uint8_t next() override {
+        return stream.read();
+    };
+
+    virtual uint8_t peek() override {
+        return stream.peek();
+    }
+
+    virtual unsigned available() override {
+        return stream.available();
+    }
+
+};
+
+
+/**
+ * Wraps a stream to provide the DataOut interface.
+ */
+template <class S>
+class StreamDataOut : public DataOut
+{
+protected:
+    S& stream;
+public:
+
+    StreamDataOut(S& _stream) : stream(_stream) {}
+
+    bool write(uint8_t data) {
+        return stream.write(data)!=0;
+    }
+
+    bool writeBuffer(const uint8_t* data, size_t length) {
+        return stream.write(data, length)==length;
+    }
+
+    void close();
+
+	StreamDataOut& operator=(const StreamDataOut& rhs)=delete;
+};
+
+
+
+template <typename C, typename I, typename O, typename D>
+class AbstractConnection : public ConnectionData<D>
+{
+public:
+    typedef C connection_type;
+    using in_type = I;
+    using out_type = O;
+    using data_type = D;
+
+protected:
+    connection_type& connection;
+    in_type& in;
+    out_type& out;
+
+
+public:
+    AbstractConnection()=default;
+    ~AbstractConnection()=default;
+    AbstractConnection(connection_type& _connection, in_type& _in, out_type& _out) :
+	    connection(_connection), in(_in), out(_out) {}
+
+    virtual DataIn& getDataIn() override { return in; }
+    virtual DataOut& getDataOut() override { return out; }
+    virtual bool connected() override=0;
+
+};
+
+// Todo - need a WIRING define
+#if defined(ARDUINO) || defined(SPARK)
+template <typename S, typename D>
+using AbstractStreamConnectionType = AbstractConnection<
+    typename std::enable_if<std::is_base_of<Stream, S>::value, S>::type,
+    StreamDataIn<S>,
+    StreamDataOut<S>,
+    D
+>;
+
+template <typename S, typename D>
+struct AbstractStreamConnection : public AbstractStreamConnectionType<S,D>
+{
+    using base_type = AbstractStreamConnectionType<S,D>;
+
+    AbstractStreamConnection(const S& _connection)
+            : base_type(_connection, _connection, _connection) {}
+
+};
+#endif
+
+
 typedef bool StandardConnectionDataType;
 
 /**
@@ -106,16 +213,19 @@ class HexTextToBinaryIn : public DataIn
 
 	void fetchNextByte();
 
+    bool hasData() { return char2; }
+
 public:
 	HexTextToBinaryIn(DataIn& text) : _text(&text), char1(0), char2(0) {}
 
 	bool hasNext() override {
-		fetchNextByte();
-		return char2;
+		return hasData() || _text->hasNext();
 	}
 
 	uint8_t peek() override {
-		fetchNextByte();
+		while (!hasData() && _text->hasNext()) {
+            fetchNextByte();
+        }
 		return (h2d(char1)<<4) | h2d(char2);
 	}
 
@@ -125,9 +235,10 @@ public:
 		return r;
 	}
 
-        unsigned available() override {
-            return hasNext();
-        }
+    unsigned available() override {
+        fetchNextByte();
+        return hasData();
+    }
 };
 
 
@@ -149,6 +260,7 @@ public:
 		_out->write('[');
 		_out->writeBuffer(data, strlen(data));
 		_out->write(']');
+        _out->write('\n');
 	}
 
 	/**

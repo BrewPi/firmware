@@ -57,35 +57,8 @@ class MockSerial : public Stream
 cb_static_decl(static MockSerial commsDevice;)
 
 #elif !defined(ARDUINO) && !defined(SPARK)
-class Stream {};
 
-class StdIO : public Stream {
-public:
-    StdIO();
-
-    void print(char c);
-    void print(const char* c);
-    void printNewLine();
-    void println();
-    int available();
-    void begin(unsigned long);
-
-    int read();
-    int peek();
-
-    size_t write(uint8_t w);
-    size_t write(const uint8_t* data, uint8_t len) {
-        return write(data, size_t(len));
-    }
-    void flush();
-    operator bool() { return true; }
-
-private:
-    std::istream& in;
-    FILE* out;
-};
-
-#include <CommsStdIO.inc>
+#include <CommsStdIO.h>
 
 cb_static_decl(StdIO commsDevice;)
 #else
@@ -155,27 +128,6 @@ public:
 cb_static_decl(CommsIn commsIn;)
 cb_static_decl(CommsOut commsOut;)
 
-/**
- * Wraps a stream to provide the DataOut interface.
- */
-template <class S>
-class StreamDataOut : public DataOut
-{
-protected:
-    S stream;
-public:
-
-    StreamDataOut(const S& _stream) : stream(_stream) {}
-
-    bool write(uint8_t data) {
-        return stream.write(data)!=0;
-    }
-
-    bool writeBuffer(const uint8_t* data, size_t length) {
-        return stream.write(data, length)==length;
-    }
-    void close();
-};
 
 #ifdef SPARK
 template<> void StreamDataOut<TCPClient>::close()
@@ -183,36 +135,6 @@ template<> void StreamDataOut<TCPClient>::close()
     stream.stop();
 };
 #endif
-
-/**
- * Adapts a Stream instance to DataIn.
- */
-template <class S>
-class StreamDataIn : public DataIn
-{
-protected:
-    S stream;
-public:
-
-    StreamDataIn(const S& _stream) : stream(_stream) {}
-
-    virtual bool hasNext() override {
-        return stream.available()>0;
-    }
-
-    virtual uint8_t next() override {
-        return stream.read();
-    };
-
-    virtual uint8_t peek() override {
-        return stream.peek();
-    }
-
-    virtual unsigned available() override {
-        return stream.available();
-    }
-
-};
 
 
 #if CONTROLBOX_STATIC
@@ -238,51 +160,6 @@ struct CommsConnection : public ConnectionData<D>
 };
 
 #endif
-
-template <typename C, typename I, typename O, typename D>
-class AbstractConnection : public ConnectionData<D>
-{
-public:
-    typedef C connection_type;
-    using in_type = I;
-    using out_type = O;
-    using data_type = D;
-
-protected:
-    connection_type connection;
-    in_type in;
-    out_type out;
-
-
-public:
-    AbstractConnection() {}
-    AbstractConnection(const connection_type& _connection, const in_type& _in, const out_type& _out) :
-    connection(_connection), in(_in), out(_out) {}
-
-    virtual DataIn& getDataIn() override { return in; }
-    virtual DataOut& getDataOut() override { return out; }
-    virtual bool connected() override;
-
-};
-
-
-template <typename S, typename D>
-using AbstractStreamConnectionType = AbstractConnection<
-    typename std::enable_if<std::is_base_of<Stream, S>::value, S>::type,
-    StreamDataIn<S>,
-    StreamDataOut<S>,
-    D
->;
-
-template <typename S, typename D>
-struct AbstractStreamConnection : public AbstractStreamConnectionType<S,D>
-{
-    using base_type = AbstractStreamConnectionType<S,D>;
-
-    AbstractStreamConnection(const S& _connection)
-            : base_type(_connection, _connection, _connection) {}
-
-};
 
 #ifdef SPARK
 template <typename D>
@@ -477,22 +354,28 @@ namespace boost
  * A DataIn filter - wraps a DataIn instance and provides also a DataIn interface.
  * Filters out non-significant text - comment markers, whitespace, unrecognized characters.
  * The stream automatically closes on newline and hasNext() returns false.
+ * Once a character has been received, the underlying stream is continually polled for characters until
+ * the stream is closed by the newline.
+ *
+ * The result of this is that lines are polled non-blocking while no data is available, and when data is available
+ * the stream blocks for each character until the entire line is read.
  */
 class TextIn : public DataIn {
 	DataIn*	_in;
 	uint8_t data;
 	bool hasData;
+    bool inLine;
 	int8_t commentLevel;	// -1 indicates end of stream
 
 	void fetchNextData(bool optional);
 
 public:
 	TextIn(DataIn& in)
-	: _in(&in), data(0), hasData(0), commentLevel(0) {}
+	: _in(&in), data(0), hasData(0), commentLevel(0), inLine(false) {}
 
 	bool hasNext() override
 	{
-		fetchNextData(true);
+        fetchNextData(true);
 		return hasData;
 	}
 
@@ -509,29 +392,37 @@ public:
 		return data;
 	}
 
-        unsigned available() override
-        {
-            return hasNext();
-        }
+    unsigned available() override
+    {
+        return hasNext();
+    }
+
+
+    bool isClosed()
+    {
+        return commentLevel<0;
+    }
 };
 
 #if !defined(ARDUINO) || !defined(SPARK)
 bool isHexadecimalDigit(char c)
 {
-	return isdigit(c) || (c>='A' && c<='F') || (c>='a' || c<='f');
+	return isdigit(c) || (c>='A' && c<='F') || (c>='a' && c<='f');
 }
 #endif
 
 /**
  * Fetches the next significant data byte from the stream.
  * Sets hasData and data.
+ * @param set to true if more data is optional, true if data is expected and should be waited for.
  */
 void TextIn::fetchNextData(bool optional) {
-
-	while (commentLevel>=0 && !hasData && _in->hasNext()) {
+    optional = !inLine;
+	while (commentLevel>=0 && !hasData && (_in->hasNext() || !optional)) {
 		if (_in->available()) {
 			data = 0xFF;
 			uint8_t d = _in->next();
+            inLine = true;
 			if (d=='[') {
 				commentLevel++;
 			}
@@ -540,13 +431,15 @@ void TextIn::fetchNextData(bool optional) {
 			}
 			else if (d=='\n' || d=='\r') {
 				commentLevel = -1; data = 0;    // exit the loop on end of line
-			}
+	            inLine = false;
+            }
 			else if (!commentLevel && isHexadecimalDigit(d)) {
 				hasData = true;
 				data = d;
 			}
 		}
 	}
+
 }
 
 
@@ -567,7 +460,7 @@ uint8_t blockingRead(DataIn& in, uint8_t closed)
  */
 void HexTextToBinaryIn::fetchNextByte()
 {
-	if (char1)		// already have data
+	if (char2)		// already have data
 		return;
 
 	DataIn& _text = *this->_text;
@@ -575,14 +468,14 @@ void HexTextToBinaryIn::fetchNextByte()
 		return;
 
 	if (!char1) {
-		char1 = blockingRead(_text, 0);
+		char1 = blockingRead(_text, 0xFF);
 	}
 
 	if (!_text.hasNext())
 		return;
 
 	if (!char2) {
-		char2 = blockingRead(_text, 0);
+		char2 = blockingRead(_text, 0xFF);
 	}
 }
 
@@ -609,7 +502,8 @@ StandardConnection* handleConnection(
     if (!connected) {
         connection.setData(true);
         connection_count++;
-		cb_nonstatic_decl(comms.)connectionStarted(connection.getDataOut());
+		BinaryToHexTextOut out(connection.getDataOut());
+		cb_nonstatic_decl(comms.)connectionStarted(out);
     }
 
     return connection.getDataIn().available() ? &connection : nullptr;
@@ -631,6 +525,9 @@ inline void Comms::handleCommand(DataIn& in, DataOut& out)
 	cmd_callback(handleCommand(in, out));
 }
 
+/**
+ * Called when the connection has at least one byte of data for the next command line.
+ */
 void processCommand(
 #if !CONTROLBOX_STATIC
 		Comms& comms,
@@ -639,7 +536,7 @@ void processCommand(
 {
     DataIn& dataIn = connection->getDataIn();
     DataOut& dataOut = connection->getDataOut();
-    while (dataIn.hasNext()) {
+    while (dataIn.available()) {
 		  // there is some data ready to be processed											// form this point on, the system will block waiting for a complete command or newline.
 		  TextIn textIn(dataIn);
 		  HexTextToBinaryIn hexIn(textIn);

@@ -3,6 +3,7 @@
 set(srcs "\
 Commands.cpp \
 Comms.cpp \
+CommsStdIO.cpp \
 DataStream.cpp \
 GenericContainer.cpp \
 Integration.cpp \

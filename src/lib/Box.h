@@ -36,20 +36,70 @@ class Box
 	Comms comms_;
 	SystemProfile systemProfile_;
 	Commands commands_;
+	bool logValuesFlag;
 
 public:
 	Box(StandardConnection& connection, EepromAccess& eepromAccess, Ticks& ticks, CommandCallbacks& callbacks, Object** values, size_t size)
 	: eepromAccess_(eepromAccess), ticks_(ticks), comms_(connection),
-	  systemProfile_(eepromAccess, size, values), commands_(comms_, systemProfile_, callbacks, eepromAccess)
+	  systemProfile_(eepromAccess, size, values), commands_(comms_, systemProfile_, callbacks, eepromAccess), logValuesFlag(false)
 	{
 	}
 
-	void initialize()
+	void setup()
 	{
 		systemProfile_.initialize();
 		systemProfile_.activateDefaultProfile();
 		comms_.init();
 	}
+
+	void loop()
+	{
+		process();
+		comms_.receive();
+	}
+
+private:
+
+	/**
+	 * prepare: start of a new control loop and determine how long any asynchronous operations will take.
+	 * update: fetch data from the environment, read sensor values, compute settings etc..
+	 */
+	void process()
+	{
+		container_id ids[MAX_CONTAINER_DEPTH];
+
+	    prepare_t d = 0;
+	    Container* root = systemProfile_.rootContainer();
+	    if (root)
+	        d = root->prepare();
+
+	    uint32_t end = ticks_.millis()+d;
+	    while (ticks_.millis()<end) {
+	        comms_.receive();
+	    }
+
+	    Container* root2 = systemProfile_.rootContainer();
+	        // root may have been changed by commands, so original prepare may not be valid
+	        // should watch out for newly created objects, since these will then also need preparing
+		if (root==root2 && root) {
+	        root->update();
+
+	        if (logValuesFlag) {
+	            logValuesFlag = false;
+	            logValues(ids);
+	        }
+	    }
+	}
+
+	void logValues(container_id* ids)
+	{
+		DataOut& out = comms_.dataOut();
+		out.write(Commands::CMD_LOG_VALUES_AUTO);
+		commands_.logValuesImpl(ids, out);
+		out.close();
+	}
+
+
 };
 
 
