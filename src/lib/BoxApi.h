@@ -38,13 +38,13 @@ public:
 class IStreamDataIn : public DataIn
 {
     std::istream& in;
-
+    uint8_t prev;
 public:
 
     IStreamDataIn(std::istream& in_) : in(in_) {}
 
     virtual bool hasNext() override {
-        return !in.eof();
+        return in.peek()!=EOF;
     }
 
     virtual uint8_t next() override {
@@ -69,7 +69,6 @@ public:
 class OStreamDataOut : public DataOut
 {
     std::ostream& out;
-
 public:
 
     OStreamDataOut(std::ostream& out_) : out(out_) {}
@@ -85,7 +84,7 @@ public:
 class response_exception : public std::exception {};
 class invalid_cmd_response : public response_exception {};
 class missing_cmd_response : public response_exception {};
-
+class command_failed : public response_exception {};
 
 class BoxApi
 {
@@ -120,6 +119,17 @@ public:
         return Profile(profile_id);
     }
 
+    void create_object(uint8_t index, uint8_t objtype)
+    {
+        uint8_t error = (response(exec(format("03 %02x %02x", index, objtype))));
+        if (error)
+            throw command_failed();
+    }
+
+    std::string run_command(std::string cmd)
+    {
+        return exec(cmd);
+    }
 
 protected:
 
@@ -163,9 +173,11 @@ protected:
         OStreamDataOut outResult(strResult);
         BinaryToHexTextOut cmdResult(outResult);
 
+        int length = 0;
         // write the remainder out
         while (cmd.hasNext()) {
             cmdResult.write(cmd.next());
+            length++;
         }
 
         return strResult.str();

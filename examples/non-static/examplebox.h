@@ -54,10 +54,18 @@ class ExampleBox : public CommandCallbacks
 
 public:
 
-    ExampleBox(const std::string& eeprom_, Object** objs=nullptr, size_t count=0) :
+    ExampleBox(const std::string& eeprom_="", Object** objs=nullptr, size_t count=0) :
             quit(false), box(connection, eepromAccess, ticks, *this, objs, count), eeprom(eeprom_) {}
 
     Box& get_box() { return box; }
+
+    enum class object_type : uint8_t {
+        ValueTicksScaled = 1
+    };
+
+    static constexpr inline uint8_t as_int(object_type t) {
+        return static_cast<uint8_t>(t);
+    }
 
     void run()
     {
@@ -127,7 +135,7 @@ public:
 
         switch (type)
         {
-            case 1:
+            case as_int(object_type::ValueTicksScaled):
                 return new ScaledTicksValue(ticks);
 
             default:

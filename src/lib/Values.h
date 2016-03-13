@@ -457,12 +457,14 @@ inline bool isWritable(Object* o)
  * Callback function for enumerating objects.
  * The function can return true to stop enumeration.
  *
+ * @param id	The start of the id chain
+ * @param end	The end of the id chain. When this is equal to id, the function callback pertains to the root container.
  * @param enter	When {@code true} this call is entering this portion of the hierarchy. This is called before any
  *   child objects have been enumerated.
  *		When {@code false} this call is exiting this portion of the hierarchy. This is called after all
  *   child objects have been enumerated.
  */
-typedef bool (*EnumObjectsFn)(Object* obj, void* data, container_id* id, bool enter);
+typedef bool (*EnumObjectsFn)(Object* obj, void* data, const container_id* id, const container_id* end, bool enter);
 
 
 bool walkContainer(Container* c, EnumObjectsFn callback, void* data, container_id* id, container_id* end);

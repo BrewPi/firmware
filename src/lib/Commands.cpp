@@ -286,7 +286,7 @@ void Commands::createProfileCommandHandler(DataIn& in, DataOut& out) {
 /**
  * Writes an ID chain to the stream.
  */
-void writeID(container_id* id, DataOut& out) {
+void writeID(const container_id* id, DataOut& out) {
 	do {
 		out.write(*id);
 	} while (*id++<0);
@@ -295,7 +295,7 @@ void writeID(container_id* id, DataOut& out) {
 /**
  * Hierarchy traversal callback
  */
-bool logValuesCallback(Object* o, void* data, container_id* id, bool enter) {
+bool logValuesCallback(Object* o, void* data, const container_id* id, const container_id* end, bool enter) {
 	DataOut& out = *(DataOut*)data;
 	if (enter && isLoggedValue(o)) {
 		Value* r = (Value*)o;
@@ -312,14 +312,26 @@ void Commands::logValuesImpl(container_id* ids, DataOut& out) {
 
 void Commands::logValuesCommandHandler(DataIn& in, DataOut& out) {
 	uint8_t flags = in.next();
-	Object* source = systemProfile.rootContainer();
-	if (flags & 1) {
-		source = lookupUserObject(systemProfile.rootContainer(), in);
+    // read the ID into a buffer
+    container_id ids[MAX_CONTAINER_DEPTH];
+
+	if (flags & 1)  {
+        uint8_t idx = 0;
+        uint8_t id;
+        do
+        {
+            id = in.next();
+            ids[idx++] = id;
+        }
+        while (id & 0x80);
+        BufferDataIn buffer(ids);
+
+		Object* source = lookupUserObject(systemProfile.rootContainer(), buffer);
+        walkObject(source, logValuesCallback, &out, ids, ids+idx);
 	}
-	if (source) {
-		container_id ids[MAX_CONTAINER_DEPTH];
-		walkObject(source, logValuesCallback, &out, ids, ids);
-	}
+    else {
+        walkContainer(systemProfile.rootContainer(), logValuesCallback, &out, ids, ids);
+    }
 }
 
 void Commands::resetCommandHandler(DataIn& in, DataOut& out) {
@@ -345,24 +357,24 @@ void Commands::listDefinedProfilesCommandHandler(DataIn& in, DataOut& out)
 
 CommandHandler Commands::handlers[] = {
 	&Commands::noopCommandHandler,				// 0x00
-	&Commands::readValueCommandHandler,		// 0x01
+	&Commands::readValueCommandHandler,		    // 0x01
 	&Commands::setValueCommandHandler,			// 0x02
 	&Commands::createObjectCommandHandler,		// 0x03
 	&Commands::deleteObjectCommandHandler,		// 0x04
 	&Commands::listObjectsCommandHandler,		// 0x05
 	&Commands::freeSlotCommandHandler,			// 0x06
-	&Commands::createProfileCommandHandler,	// 0x07
-	&Commands::deleteProfileCommandHandler,	// 0x08
+	&Commands::createProfileCommandHandler,	    // 0x07
+	&Commands::deleteProfileCommandHandler,	    // 0x08
 	&Commands::activateProfileCommandHandler,	// 0x09
-	&Commands::logValuesCommandHandler,		// 0x0A
-	&Commands::resetCommandHandler,			// 0x0B
+	&Commands::logValuesCommandHandler,		    // 0x0A
+	&Commands::resetCommandHandler,			    // 0x0B
 	&Commands::freeSlotRootCommandHandler,		// 0x0C
 	&Commands::noopCommandHandler,				// 0x0D
 	&Commands::listDefinedProfilesCommandHandler,	// 0x0E
 	&Commands::readSystemValueCommandHandler,	// 0x0F
 	&Commands::setSystemValueCommandHandler,	// 0x10
 	&Commands::setMaskValueCommandHandler,		// 0x11
-	&Commands::setSystemMaskValueCommandHandler// 0x12
+	&Commands::setSystemMaskValueCommandHandler // 0x12
 };
 
 /*

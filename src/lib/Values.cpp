@@ -21,7 +21,9 @@
 #include "Values.h"
 
 /**
- * /param obj - Assumed to be a container.
+ * @param obj - Assumed to be a container.
+ * @param id
+ * @param end   The end of the current id chain. When equal to id, the system is walking the root container.
  */
 bool walkContainer(Container* c, EnumObjectsFn callback, void* data, container_id* id, container_id* end)
 {
@@ -29,7 +31,7 @@ bool walkContainer(Container* c, EnumObjectsFn callback, void* data, container_i
 	for (int8_t i=0; i<count; i++) {
 		Object* o = c->item(i);
 		*end = i;
-		if (walkObject(o, callback, data, id, end))
+		if (walkObject(o, callback, data, id, end+1))
 			return true;
 	}
 	return false;
@@ -37,9 +39,10 @@ bool walkContainer(Container* c, EnumObjectsFn callback, void* data, container_i
 
 /**
  * Recursively walks all objects in a container hierarchy.
+ * Assumes that the id chain has already been populated with the id of the object.
  */
 bool walkObject(Object* obj, EnumObjectsFn callback, void* data, container_id* id, container_id* end) {
-	if (callback(obj, data, id, true))
+	if (callback(obj, data, id, end, true))
 		return true;
 
 	if (isContainer(obj)) {
@@ -48,7 +51,7 @@ bool walkObject(Object* obj, EnumObjectsFn callback, void* data, container_id* i
 		*--end &= 0x7F;		// remove last bit
 	}
 
-	if (callback(obj, data, id, false))
+	if (callback(obj, data, id, end, false))
 		return true;
 
 	return false;
@@ -139,3 +142,4 @@ int16_t read2BytesFrom(Value* value) {
 	value->readTo(out);
 	return int16_t(result[0])<<8 | result[1];
 }
+

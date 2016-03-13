@@ -281,7 +281,7 @@ eptr_t SystemProfile::getProfileOffset(profile_id_t profile) {
 /**
  * Deletes objects after any child objects have been deleted. Callback from container traversal.
  */
-bool deleteDynamicallyAllocatedObject(Object* obj, void* data, container_id* id, bool enter) {
+bool deleteDynamicallyAllocatedObject(Object* obj, void* data, const container_id* id, const container_id* end, bool enter) {
 	if (!enter && isDynamicallyAllocated(obj)) {		// delete on exit, so that all children are processed first
 		BufferDataIn idStream(id);						// stream the id
 		Commands* cmds = (Commands*)(data);
