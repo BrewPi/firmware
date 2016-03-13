@@ -3,7 +3,7 @@
  *
  * This file is part of Nice Firmware.
  *
- * BrewPi is free software: you can redistribute it and/or modify
+ * Controlbox is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #define BOOST_NO_EXCEPTIONS
@@ -350,59 +350,6 @@ namespace boost
 
 
 
-/*
- * A DataIn filter - wraps a DataIn instance and provides also a DataIn interface.
- * Filters out non-significant text - comment markers, whitespace, unrecognized characters.
- * The stream automatically closes on newline and hasNext() returns false.
- * Once a character has been received, the underlying stream is continually polled for characters until
- * the stream is closed by the newline.
- *
- * The result of this is that lines are polled non-blocking while no data is available, and when data is available
- * the stream blocks for each character until the entire line is read.
- */
-class TextIn : public DataIn {
-	DataIn*	_in;
-	uint8_t data;
-	bool hasData;
-    bool inLine;
-	int8_t commentLevel;	// -1 indicates end of stream
-
-	void fetchNextData(bool optional);
-
-public:
-	TextIn(DataIn& in)
-	: _in(&in), data(0), hasData(0), commentLevel(0), inLine(false) {}
-
-	bool hasNext() override
-	{
-        fetchNextData(true);
-		return hasData;
-	}
-
-	uint8_t next() override
-	{
-		fetchNextData(false);
-		hasData = false;
-		return data;
-	}
-
-	uint8_t peek() override
-	{
-		fetchNextData(true);
-		return data;
-	}
-
-    unsigned available() override
-    {
-        return hasNext();
-    }
-
-
-    bool isClosed()
-    {
-        return commentLevel<0;
-    }
-};
 
 #if !defined(ARDUINO) || !defined(SPARK)
 bool isHexadecimalDigit(char c)
@@ -418,7 +365,7 @@ bool isHexadecimalDigit(char c)
  */
 void TextIn::fetchNextData(bool optional) {
     optional = !inLine;
-	while (commentLevel>=0 && !hasData && (_in->hasNext() || !optional)) {
+	while (commentLevel>=0 && !hasData && (_in->hasNext())) {
 		if (_in->available()) {
 			data = 0xFF;
 			uint8_t d = _in->next();

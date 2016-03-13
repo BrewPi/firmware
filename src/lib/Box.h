@@ -3,7 +3,7 @@
  *
  * This file is part of Nice Firmware.
  *
- * BrewPi is free software: you can redistribute it and/or modify
+ * Controlbox is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
@@ -56,6 +56,14 @@ public:
 	{
 		process();
 		comms_.receive();
+	}
+
+	/**
+	 * Runs a command directly using the given input and output.
+	 */
+	void runCommand(DataIn& in, DataOut& out)
+	{
+		comms_.handleCommand(in, out);
 	}
 
 private:

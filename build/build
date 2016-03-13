@@ -1,1 +1,1 @@
-cmake .. && make all
+cmake .. $*  && make all

@@ -7,7 +7,7 @@ GET_PROPERTY(cbox_lib_inc GLOBAL PROPERTY cbox_lib_inc)
 separate_arguments(cbox_lib_src)
 separate_arguments(cbox_lib_inc)
 
-set(example_shared_src ../shared/timems.cpp)
+set(example_shared_src ${cbox_examples}/shared/timems.cpp)
 
 add_executable(example_non_static main.cpp ${cbox_lib_src} ${example_shared_src})
 target_compile_definitions(example_non_static PUBLIC CONTROLBOX_STATIC=0)

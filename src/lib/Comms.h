@@ -3,7 +3,7 @@
  *
  * This file is part of Nice Firmware.
  *
- * BrewPi is free software: you can redistribute it and/or modify
+ * Controlbox is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -187,6 +187,62 @@ typedef bool StandardConnectionDataType;
 typedef Connection<StandardConnectionDataType> StandardConnection;
 
 
+
+/*
+ * A DataIn filter - wraps a DataIn instance and provides also a DataIn interface.
+ * Filters out non-significant text - comment markers, whitespace, unrecognized characters.
+ * The stream automatically closes on newline and hasNext() returns false.
+ * Once a character has been received, the underlying stream is continually polled for characters until
+ * the stream is closed by the newline.
+ *
+ * The result of this is that lines are polled non-blocking while no data is available, and when data is available
+ * the stream blocks for each character until the entire line is read.
+ */
+class TextIn : public DataIn {
+    DataIn*	_in;
+    uint8_t data;
+    bool hasData;
+    bool inLine;
+    int8_t commentLevel;	// -1 indicates end of stream
+
+    void fetchNextData(bool optional);
+
+public:
+    TextIn(DataIn& in)
+            : _in(&in), data(0), hasData(0), commentLevel(0), inLine(false) {}
+
+    bool hasNext() override
+    {
+        fetchNextData(true);
+        return hasData;
+    }
+
+    uint8_t next() override
+    {
+        fetchNextData(false);
+        hasData = false;
+        return data;
+    }
+
+    uint8_t peek() override
+    {
+        fetchNextData(true);
+        return data;
+    }
+
+    unsigned available() override
+    {
+        return hasNext();
+    }
+
+
+    bool isClosed()
+    {
+        return commentLevel<0;
+    }
+};
+
+
 /**
  * Converts a hex digit to the corresponding binary value.
  */
@@ -194,12 +250,12 @@ inline uint8_t h2d(unsigned char hex)
 {
 	if (hex > '9')
 		hex -= 7; // 'A' is 0x41, 'a' is 0x61. -7 =  0x3A, 0x5A
-	return (hex & 0xf);
+	return uint8_t(hex & 0xf);
 }
 
-inline unsigned char d2h(uint8_t bin)
+inline uint8_t d2h(uint8_t bin)
 {
-	return bin+(bin>9 ? 'A'-10 : '0');
+	return uint8_t(bin+(bin>9 ? 'A'-10 : '0'));
 }
 
 /*
@@ -237,7 +293,7 @@ public:
 
     unsigned available() override {
         fetchNextByte();
-        return hasData();
+        return hasData() ? 1 : 0;
     }
 };
 
@@ -254,11 +310,11 @@ public:
 	BinaryToHexTextOut(DataOut& out) : _out(&out) {}
 
 	/**
-	 * Annotations are written as is to the stream, surrouned by annotation marks.
+	 * Annotations are written as is to the stream, surrounded by annotation marks.
 	 */
 	void writeAnnotation(const char* data) {
 		_out->write('[');
-		_out->writeBuffer(data, strlen(data));
+		_out->writeBuffer(data, stream_size_t(strlen(data)));
 		_out->write(']');
         _out->write('\n');
 	}
@@ -267,8 +323,8 @@ public:
 	 * Data is written as hex-encoded
 	 */
 	bool write(uint8_t data) {
-		_out->write(d2h((data&0xF0)>>4));
-		_out->write(d2h((data&0xF)));
+		_out->write(d2h(uint8_t(data&0xF0)>>4));
+		_out->write(d2h(uint8_t(data&0xF)));
 		_out->write(' ');
 		return true;
 	}

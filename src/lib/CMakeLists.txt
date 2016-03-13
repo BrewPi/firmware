@@ -1,17 +1,17 @@
 
 
-set(srcs "\
-Commands.cpp \
-Comms.cpp \
-CommsStdIO.cpp \
-DataStream.cpp \
-GenericContainer.cpp \
-Integration.cpp \
-Memops.cpp \
-SystemProfile.cpp \
-Values.cpp \
-ValuesEeprom.cpp \
-") 
+set(srcs
+Commands.cpp
+Comms.cpp
+CommsStdIO.cpp
+DataStream.cpp
+GenericContainer.cpp
+Integration.cpp
+Memops.cpp
+SystemProfile.cpp
+Values.cpp
+ValuesEeprom.cpp
+)
 
 separate_arguments(srcs)
 

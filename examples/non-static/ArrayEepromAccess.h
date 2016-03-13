@@ -1,21 +1,20 @@
 /*
- * Copyright 2013 BrewPi/Elco Jacobs.
  * Copyright 2013 Matthew McGowan.
  *
- * This file is part of BrewPi.
+ * This file is part of Controlbox.
  * 
- * BrewPi is free software: you can redistribute it and/or modify
+ * Controlbox is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * BrewPi is distributed in the hope that it will be useful,
+ * Controlbox is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
@@ -24,6 +23,8 @@
 #include "assert.h"
 #include "string.h"
 #include "EepromAccess.h"
+#include <iostream>
+
 
 template <size_t eeprom_size>
 class ArrayEepromAccess : public EepromAccess
@@ -33,6 +34,19 @@ public:
 	{
 		memset(data, -1, eepromLength());
 	}
+
+	void load(std::istream& in)
+	{
+        unsigned offset = 0;
+        in.read((char*)data, length());
+	}
+
+	void save(std::ostream& out)
+	{
+		out.write((const char*)eepromData(), length());
+        clearChanged();
+	}
+
 
 	uint8_t readByte(eptr_t offset) const override
 	{
@@ -96,6 +110,11 @@ protected:
 	{
 		changed = true;
 	}
+
+    void clearChanged()
+    {
+        changed = false;
+    }
 
 	bool isValidRange(uint16_t offset, uint16_t size) const
 	{
