@@ -30,6 +30,7 @@
 #include "timems.h"
 #include <iostream>
 #include <fstream>
+#include "stdarg.h"
 
 class SystemTicks : public Ticks
 {
@@ -111,7 +112,7 @@ public:
         vsprintf(buf, fmt, args);
         va_end(args);
         BinaryToHexTextOut out(connection.getDataOut());
-        // todo - the connection should support annotations natively for the type of protocol
+        // todo - the connection should support annotations itself for the type of protocol
         out.writeAnnotation(buf);
     }
 

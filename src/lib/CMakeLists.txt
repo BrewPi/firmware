@@ -15,7 +15,6 @@ ValuesEeprom.cpp
 
 separate_arguments(srcs)
 
-
 FUNCTION(PREPEND var prefix)
    SET(listVar "")
    FOREACH(f ${ARGN})
@@ -35,7 +34,11 @@ else()
 	message(SEND_ERROR "BOOST_ROOT environment varaible not defined.")
 endif()
 
+set(cbox_lib_deps "")
+set(cbox_lib_deps ${cbox_lib_deps} pthread)
+
 set_property(GLOBAL PROPERTY cbox_lib_src ${cbox_lib_src})
 set_property(GLOBAL PROPERTY cbox_lib_inc ${cbox_lib_inc})
+set_property(GLOBAL PROPERTY cbox_lib_deps ${cbox_lib_deps})
+
 set_property(GLOBAL PROPERTY cbox_lib_dir ${CMAKE_CURRENT_SOURCE_DIR})
- 
