@@ -2,12 +2,10 @@
 # retrieve the source and include paths for the library
 GET_PROPERTY(cbox_lib_src GLOBAL PROPERTY cbox_lib_src)
 GET_PROPERTY(cbox_lib_inc GLOBAL PROPERTY cbox_lib_inc)
-GET_PROPERTY(cbox_lib_deps GLOBAL PROPERTY cbox_lib_deps)
 
 # convert from a single string to a list
 separate_arguments(cbox_lib_src)
 separate_arguments(cbox_lib_inc)
-separate_arguments(cbox_lib_deps)
 
 set(example_shared_src ../shared/timems.cpp ../../src/lib/CommsStdIO.cpp)
 
@@ -17,4 +15,6 @@ target_compile_definitions(example_static PUBLIC CONTROLBOX_STATIC=1)
 target_include_directories(example_static PUBLIC ${cbox_lib_inc} ../shared)
 target_include_directories(example_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
+GET_PROPERTY(cbox_lib_deps GLOBAL PROPERTY cbox_lib_deps)
+separate_arguments(cbox_lib_deps)
 target_link_libraries(example_static ${cbox_lib_deps})

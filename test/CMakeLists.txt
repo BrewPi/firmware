@@ -28,3 +28,8 @@ enable_testing()
 add_test(NAME unit_tests COMMAND cbtest)
 
 add_custom_target(run_tests COMMAND cbtest -r junit DEPENDS cbtest)
+
+GET_PROPERTY(cbtest GLOBAL PROPERTY cbox_lib_deps)
+separate_arguments(cbox_lib_deps)
+target_link_libraries(example_static ${cbox_lib_deps})
+
