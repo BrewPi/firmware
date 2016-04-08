@@ -2,6 +2,8 @@
 
 #include "flashee-eeprom.h"
 
+#include "EepromTypes.h"
+
 namespace Flashee {
     class FlashDevice;
 };

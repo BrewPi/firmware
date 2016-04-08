@@ -4,7 +4,7 @@
 #include "Ymodem/Ymodem.h"
 #endif
 #include "flashee-eeprom.h"
-#include "EepromManager.h"
+#include "EepromAccess.h"
 
 SYSTEM_MODE(SEMI_AUTOMATIC);
 
