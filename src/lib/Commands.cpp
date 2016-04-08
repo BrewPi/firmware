@@ -315,22 +315,24 @@ void Commands::logValuesCommandHandler(DataIn& in, DataOut& out) {
     // read the ID into a buffer
     container_id ids[MAX_CONTAINER_DEPTH];
 
-	if (flags & 1)  {
-        uint8_t idx = 0;
-        uint8_t id;
-        do
-        {
-            id = in.next();
-            ids[idx++] = id;
-        }
-        while (id & 0x80);
-        BufferDataIn buffer(ids);
+    if (systemProfile.rootContainer()) {
+		if (flags & 1)  {
+			uint8_t idx = 0;
+			uint8_t id;
+			do
+			{
+				id = in.next();
+				ids[idx++] = id;
+			}
+			while (id & 0x80);
+			BufferDataIn buffer(ids);
 
-		Object* source = lookupUserObject(systemProfile.rootContainer(), buffer);
-        walkObject(source, logValuesCallback, &out, ids, ids+idx);
-	}
-    else {
-        walkContainer(systemProfile.rootContainer(), logValuesCallback, &out, ids, ids);
+			Object* source = lookupUserObject(systemProfile.rootContainer(), buffer);
+			walkObject(source, logValuesCallback, &out, ids, ids+idx);
+		}
+		else {
+			walkContainer(systemProfile.rootContainer(), logValuesCallback, &out, ids, ids);
+		}
     }
 }
 

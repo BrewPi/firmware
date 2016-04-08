@@ -1,12 +1,14 @@
+
+#include "ControlboxWiring.h"
+
+#if !CONTROLBOX_WIRING
+#include "Comms.h"
 #include <iostream>
 #include <string>
 #include <thread>
 #include <queue>
 
-#include "Comms.h"
-
 class Stream {};
-
 
 
 // trying to peek from stdio is problematic
@@ -95,12 +97,14 @@ class StdIOConnection : public AbstractConnection<StdIO, StreamDataIn<StdIO>, St
 
 public:
 	StdIOConnection()
-		: in(stdio), out(stdio), base(stdio, in, out)
+		: base(stdio, in, out), in(stdio), out(stdio)
 	{
 	}
 
-	bool connected()
+	bool connected() override
 	{
 		return stdio;
 	}
 };
+
+#endif
