@@ -19,5 +19,6 @@ public:
 	}
 };
 
+typedef Ticks TicksImpl;
 
 

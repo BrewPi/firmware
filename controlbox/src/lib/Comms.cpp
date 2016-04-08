@@ -68,7 +68,7 @@ cb_static_decl(StdIO commsDevice;)
 // buffered, which it never is with serial.
 #endif
 
-#ifndef CONtROLBOX_COMMS_USE_FLUSH
+#ifndef CONTROLBOX_COMMS_USE_FLUSH
 #define CONTROLBOX_COMMS_USE_FLUSH 1
 #endif
 
@@ -132,7 +132,7 @@ cb_static_decl(CommsOut commsOut;)
 #ifdef SPARK
 template<> void StreamDataOut<TCPClient>::close()
 {
-    stream.stop();
+    stream->stop();
 };
 #endif
 
@@ -165,13 +165,13 @@ struct CommsConnection : public ConnectionData<D>
 template <typename D>
 using AbstractTCPConnection = AbstractStreamConnection<TCPClient, D>;
 
-template<> bool AbstractStreamConnectionType<TCPClient,StandardConnectionDataType>::connected()
+typedef AbstractTCPConnection<StandardConnectionDataType> TCPConnection;
+
+template<> bool AbstractStreamConnectionType<TCPClient, StandardConnectionDataType>::connected()
 {
-    return connection.connected();
+    return connection->connected();
 }
 
-
-typedef AbstractTCPConnection<ConnectionDataType> TCPConnection;
 #endif
 
 template <typename D>
@@ -233,8 +233,10 @@ void manageConnection()
     connections.erase(std::remove_if(connections.begin(), connections.end(), isDisconnected<TCPConnection>), connections.end());
 
     TCPClient client = acceptConnection();
-    if (client)
-        connections.push_back(TCPConnection(client));
+    if (client) {
+    		TCPConnection connection(client);
+        connections.push_back(connection);
+    }
 }
 #else
 void manageConnection()
@@ -272,10 +274,10 @@ inline auto as_connection_ptr(T& source) -> decltype(boost::adaptors::transform(
 
 #ifdef SPARK
 auto all_connections() -> boost::range::joined_range<
-        boost::range_detail::transformed_range<ConnectionAsPointer<CommsConnection<ConnectionDataType> >, decltype(commsConnections) >,
+        boost::range_detail::transformed_range<ConnectionAsPointer<CommsConnection<StandardConnectionDataType> >, decltype(commsConnections) >,
         boost::range_detail::transformed_range<ConnectionAsPointer<TCPConnection>, decltype(connections)> >
 {
-    auto first = boost::adaptors::transform(commsConnections, ConnectionAsPointer<CommsConnection<ConnectionDataType>>());
+    auto first = boost::adaptors::transform(commsConnections, ConnectionAsPointer<CommsConnection<StandardConnectionDataType>>());
     auto second = boost::adaptors::transform(connections, ConnectionAsPointer<TCPConnection>());
 
     auto result = boost::join(first, second);

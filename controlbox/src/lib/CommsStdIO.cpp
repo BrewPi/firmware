@@ -1,5 +1,6 @@
 #include "CommsStdIO.h"
 
+#if !CONTROLBOX_WIRING
 
 #if defined(WIN32)
 static int is_pipe = 0;
@@ -111,3 +112,5 @@ template<> void StreamDataOut<StdIO>::close() {
 template<> bool StreamDataIn<StdIO>::hasNext() {
     return stream;
 }
+
+#endif

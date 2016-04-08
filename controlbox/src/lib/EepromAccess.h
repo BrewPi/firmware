@@ -42,6 +42,8 @@ struct EepromAccess
 
 #include "EepromAccessImpl.h"
 
+extern EepromAccess eepromAccess;
+
 
 #endif
 
