@@ -146,7 +146,7 @@ void HAL_USART_Init(HAL_USART_Serial serial, Ring_Buffer *rx_buffer, Ring_Buffer
 	usartMap[serial]->usart_tx_buffer = tx_buffer;
 
 	memset(usartMap[serial]->usart_rx_buffer, 0, sizeof(Ring_Buffer));
-	memset(usartMap[serial]->usart_rx_buffer, 0, sizeof(Ring_Buffer));
+	memset(usartMap[serial]->usart_tx_buffer, 0, sizeof(Ring_Buffer));
 
 	usartMap[serial]->usart_enabled = false;
 	usartMap[serial]->usart_transmitting = false;
@@ -261,7 +261,7 @@ void HAL_USART_End(HAL_USART_Serial serial)
     // ...
 
     memset(usartMap[serial]->usart_rx_buffer, 0, sizeof(Ring_Buffer));
-    memset(usartMap[serial]->usart_rx_buffer, 0, sizeof(Ring_Buffer));
+    memset(usartMap[serial]->usart_tx_buffer, 0, sizeof(Ring_Buffer));
 
     usartMap[serial]->usart_enabled = false;
     usartMap[serial]->usart_transmitting = false;
@@ -310,6 +310,12 @@ int32_t HAL_USART_Available_Data(HAL_USART_Serial serial)
 {
 	return (unsigned int)(SERIAL_BUFFER_SIZE + usartMap[serial]->usart_rx_buffer->head - usartMap[serial]->usart_rx_buffer->tail) % SERIAL_BUFFER_SIZE;
 }
+
+int32_t HAL_USART_Available_Data_For_Write(HAL_USART_Serial serial)
+{
+    return (unsigned int)(SERIAL_BUFFER_SIZE + usartMap[serial]->usart_tx_buffer->head - usartMap[serial]->usart_tx_buffer->tail) % SERIAL_BUFFER_SIZE;
+}
+
 
 int32_t HAL_USART_Read_Data(HAL_USART_Serial serial)
 {
@@ -384,12 +390,12 @@ static void HAL_USART_Handler(HAL_USART_Serial serial)
 		}
 	}
 
-	// // If Overrun occurs, clear the OVR condition
-	// if (USART_GetFlagStatus(usartMap[serial]->usart_peripheral, USART_FLAG_ORE) != RESET)
-	// {
-	// 	(void)USART_ReceiveData(usartMap[serial]->usart_peripheral);
-	// 	USART_ClearITPendingBit (usartMap[serial]->usart_peripheral, USART_IT_ORE);
-	// }
+    	if (USART_GetFlagStatus(usartMap[serial]->usart_peripheral, USART_FLAG_ORE) != RESET)
+    	{
+    		// If Overrun flag is still set, clear it
+        	(void)USART_ReceiveData(usartMap[serial]->usart_peripheral);
+    	}
+
 }
 
 // Serial1 interrupt handler

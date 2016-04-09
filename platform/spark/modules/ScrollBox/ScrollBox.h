@@ -21,8 +21,10 @@ public:
     void scroll(void);
     void update(void);
     void printSpaces(uint16_t num);
-       
-    virtual size_t write(uint8_t);
+
+    using Print::write;
+    size_t write(uint8_t) final;
+
 private:
     
     Adafruit_ILI9341 * tft;

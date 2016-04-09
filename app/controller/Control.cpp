@@ -36,9 +36,12 @@
 Control::Control()
 {
     // set up static devices for backwards compatibility with tempControl
-    beer1Sensor = new TempSensor(defaultTempSensorBasic(), "beer1");
-    beer2Sensor = new TempSensor(defaultTempSensorBasic(), "beer2");
-    fridgeSensor = new TempSensor(defaultTempSensorBasic(), "fridge");
+    beer1Sensor = new TempSensor(defaultTempSensorBasic());
+    beer1Sensor->setName("beer1");
+    beer2Sensor = new TempSensor(defaultTempSensorBasic());
+    beer2Sensor->setName("beer2");
+    fridgeSensor = new TempSensor(defaultTempSensorBasic());
+    fridgeSensor->setName("fridge");
 
     mutex = new ActuatorMutexGroup();
 
@@ -60,10 +63,12 @@ Control::Control()
     fridgeSetPointActuator->setMin(-10.0);
     fridgeSetPointActuator->setMax(10.0);
 
-    heater1Pid = new Pid(fridgeSensor, heater1, fridgeSet);
+    heaterInputSensor = new TempSensorFallback(fridgeSensor, beer1Sensor);
+    heater1Pid = new Pid(heaterInputSensor, heater1, fridgeSet);
     heater1Pid->setName("heater1");
 
-    coolerPid = new Pid(fridgeSensor, cooler, fridgeSet);
+    coolerInputSensor = new TempSensorFallback(fridgeSensor, beer1Sensor);
+    coolerPid = new Pid(coolerInputSensor, cooler, fridgeSet);
     coolerPid->setActuatorIsNegative(true);
     coolerPid->setName("cooler");
 
@@ -81,23 +86,29 @@ Control::Control()
     sensors.push_back(fridgeSensor);
     sensors.push_back(beer1Sensor);
     sensors.push_back(beer2Sensor);
+    sensors.push_back(coolerInputSensor);
+    sensors.push_back(heaterInputSensor);
 
     actuators.push_back(cooler);
     actuators.push_back(heater1);
     actuators.push_back(heater2);
 
-    beer1SetNamed = new SetPointNamed(beer1Set, "beer1set");
-    beer2SetNamed = new SetPointNamed(beer2Set, "beer2set");
-    fridgeSetNamed = new SetPointNamed(fridgeSet, "fridgeset");
+    beer1Set->setName("beer1set");
+    beer2Set->setName("beer2set");
+    fridgeSet->setName("fridgeset");
 
-    setpoints.push_back(beer1SetNamed);
-    setpoints.push_back(beer2SetNamed);
-    setpoints.push_back(fridgeSetNamed);
+    setpoints.push_back(beer1Set);
+    setpoints.push_back(beer2Set);
+    setpoints.push_back(fridgeSet);
 
     mutex->setDeadTime(1800000); // 30 minutes
 }
 
 Control::~Control(){
+#if defined(ARDUINO) || defined(SPARK)
+    // global control object is static and never destroyed.
+    // omit proper destructor to save space.
+#else
     delete heater1Mutex;
     delete heater1;
 
@@ -114,10 +125,6 @@ Control::~Control(){
     delete beer2Set;
     delete fridgeSet;
 
-    delete beer1SetNamed;
-    delete beer2SetNamed;
-    delete fridgeSetNamed;
-
     delete mutex;
 
     delete heater1Pid;
@@ -128,6 +135,7 @@ Control::~Control(){
     pids.clear();
     sensors.clear();
     actuators.clear();
+#endif
 }
 
 // This update function should be called every second
@@ -136,6 +144,11 @@ void Control::update(){
     updatePids();
     updateActuators();
     mutex->update();
+}
+
+// This update function should be called every second
+void Control::fastUpdate(){
+    fastUpdateActuators();
 }
 
 void Control::updatePids(){
@@ -157,12 +170,18 @@ void Control::updateActuators(){
     }
 }
 
+void Control::fastUpdateActuators(){
+    for ( auto &actuator : actuators ) {
+        actuator->fastUpdate();
+    }
+}
+
 void Control::serialize(JSON::Adapter& adapter){
     JSON::Class root(adapter, "Control");
-    JSON_E(adapter, pids);
-    JSON_E(adapter, sensors);
-    JSON_E(adapter, actuators);
-    JSON_T(adapter, setpoints);
+    JSON_T(adapter, pids);
+    //JSON_E(adapter, sensors);
+    //JSON_E(adapter, actuators);
+    //JSON_T(adapter, setpoints);
 }
 
 Control control;

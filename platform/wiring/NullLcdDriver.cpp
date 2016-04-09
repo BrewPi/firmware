@@ -30,7 +30,7 @@ void NullLcdDriver::init()
 }
 
 void NullLcdDriver::begin(uint8_t cols, uint8_t lines) {
-	_numlines = lines;
+	_numlines = (lines <=4) ? lines : 4;
 	_currline = 0;
 	_currpos = 0;
   

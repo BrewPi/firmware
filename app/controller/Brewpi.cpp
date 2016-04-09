@@ -89,6 +89,8 @@ void setup()
 #endif	
     settingsManager.loadSettings();
 
+    control.update();
+
     ui.showControllerPage();
     			
 	logDebug("init complete");
@@ -105,7 +107,7 @@ void brewpiLoop(void)
         ui.update();
     }
 
-    control.updateActuators(); // update actuators as often as possible for PWM
+    control.fastUpdate(); // update actuators as often as possible for PWM
 
     //listen for incoming serial connections while waiting to update
     piLink.receive();

@@ -24,45 +24,31 @@
 
 #include "Platform.h"
 #include "ActuatorInterfaces.h"
-#include "ActuatorBottom.h"
 
-class DigitalPinActuator:
-    private ActuatorBottom, public ActuatorDigital
+class ActuatorPin final: public ActuatorDigital, public ActuatorPinMixin
 {
     private:
         bool    invert;
         uint8_t pin;
 
     public:
-        DigitalPinActuator(uint8_t pin,
+        ActuatorPin(uint8_t pin,
                            bool    invert);
 
-        ~DigitalPinActuator()
-        {
-        }
+        ~ActuatorPin() = default;
 
-        inline void setActive(bool active)
+        void setActive(bool active) override final
         {
             digitalWrite(pin, (active ^ invert) ? HIGH : LOW);
         }
 
-        inline bool isActive()
+        bool isActive() const override final
         {
             return ((digitalRead(pin) != LOW) ^ invert);
         }
 
-        void write(uint8_t val)
-        {
-        }
+        void update() override final {} // do nothing on periodic update
+        void fastUpdate() override final {} // do nothing on fast update
 
-        void serialize(JSON::Adapter& adapter){
-            JSON::Class root(adapter, "ActuatorPin");
-            bool state = isActive();
-            JSON_E(adapter, state);
-            JSON_E(adapter, pin);
-            JSON_T(adapter, invert);
-        }
-
-
-        void update(){} // do nothing on periodic update
+    friend class ActuatorPinMixin;
 };

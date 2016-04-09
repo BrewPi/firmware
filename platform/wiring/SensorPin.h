@@ -10,7 +10,7 @@
 #include "Brewpi.h"
 #include "Board.h"
 
-class DigitalPinSensor : public SwitchSensor
+class DigitalPinSensor final : public SwitchSensor
 {
 private:
 	bool invert;
@@ -25,7 +25,7 @@ public:
 		this->pin = pin;		
 	}
 	
-	virtual bool sense() {
+	virtual bool sense() override final{
 		return digitalRead(pin) ^ invert;
 	}	
 };

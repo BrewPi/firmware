@@ -22,10 +22,10 @@
 #include <inttypes.h>
 #include "LowPassFilter.h"
 
-class BrewPiTouch {
+class BrewPiTouch final {
 public:
     BrewPiTouch(uint8_t cs, uint8_t irq);
-    virtual ~BrewPiTouch();
+    ~BrewPiTouch();
     void init(uint8_t configuration = BrewPiTouch::START);
     bool update(uint16_t numSamples = 8);
     int16_t getXRaw();

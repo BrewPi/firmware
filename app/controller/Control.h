@@ -25,6 +25,7 @@
 #include "Pid.h"
 #include "ActuatorInterfaces.h"
 #include "TempSensor.h"
+#include "TempSensorFallback.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorPwm.h"
 #include "ActuatorTimeLimited.h"
@@ -40,15 +41,17 @@ public:
     ~Control();
 
     void update(); // update everything
+    void fastUpdate(); // update things that need fast updating (like PWM)
 
     void updateSensors();
     void updatePids();
     void updateActuators();
+    void fastUpdateActuators();
 
     void serialize(JSON::Adapter& adapter);
 
-    std::vector<SetPointNamed*> setpoints;
-    std::vector<TempSensor*> sensors;
+    std::vector<SetPoint*> setpoints;
+    std::vector<TempSensorBasic*> sensors;
     std::vector<Pid*>        pids;
     std::vector<Actuator*>   actuators;
 
@@ -57,6 +60,9 @@ protected:
     TempSensor * fridgeSensor;
     TempSensor * beer1Sensor;
     TempSensor * beer2Sensor;
+
+    TempSensorFallback * heaterInputSensor;
+    TempSensorFallback * coolerInputSensor;
 
     ActuatorTimeLimited * coolerTimeLimited;
     ActuatorMutexDriver * coolerMutex;
@@ -77,13 +83,9 @@ protected:
     Pid * coolerPid;
     Pid * beerToFridgePid;
 
-    SetPoint * beer1Set;
-    SetPoint * beer2Set;
-    SetPoint * fridgeSet;
-
-    SetPointNamed * beer1SetNamed;
-    SetPointNamed * beer2SetNamed;
-    SetPointNamed * fridgeSetNamed;
+    SetPointSimple * beer1Set;
+    SetPointSimple * beer2Set;
+    SetPointSimple * fridgeSet;
 
     friend class TempControl;
     friend class DeviceManager;

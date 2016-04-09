@@ -101,7 +101,7 @@ void * DeviceManager::createDevice(DeviceConfig & config,
 #else
 
                 // use hardware actuators even for simulator
-                return new DigitalPinActuator(config.hw.pinNr, config.hw.invert);
+                return new ActuatorPin(config.hw.pinNr, config.hw.invert);
 #endif
 
             }
@@ -268,7 +268,7 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
             /*if ((*target)->getDeviviceTarget() != 0){
                 target = (*target)->getDeviviceTarget(); // recursive call to unpack until at pin actuator
             }*/
-            if ((*target)->unInstallActuatorFinalTarget()){
+            if ((*target)->removeNonForwarder()){
                 DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_ACTUATOR, config.deviceFunction));
             }
         }
@@ -336,7 +336,7 @@ void DeviceManager::installDevice(DeviceConfig & config)
             }*/
 
             ActuatorDigital * newActuator = (ActuatorDigital *) createDevice(config, dt);
-            (*target)->installActuatorFinalTarget(newActuator);
+            (*target)->replaceNonForwarder(newActuator);
 
 #if (BREWPI_DEBUG > 0)
             if (*target == NULL){
@@ -834,7 +834,7 @@ inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw,
     OneWire *         bus = oneWireBus(hw.pinNr);
     OneWireTempSensor sensor(
         bus, hw.address,
-        0);    // NB: this value is uncalibrated, since we don't have the calibration offset until the device is configured
+        short(0));    // NB: this value is uncalibrated, since we don't have the calibration offset until the device is configured
     temp_t temp = temp_t::invalid();
 
     if (sensor.init()){
@@ -1168,7 +1168,7 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
             ((ActuatorDigital *) *ppv) -> setActive(dd.write != 0);
         } else if (dt == DEVICETYPE_PWM_ACTUATOR){
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write));
-            temp_t value = dd.write;
+            temp_t value = temp_t::base_type(dd.write);
             ((ActuatorPwm *) *ppv) -> setValue(value);
         }
     } else if (dd.value == 1){    // read values

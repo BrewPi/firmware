@@ -28,8 +28,13 @@
 class NullLcdDriver : public Print {
 	public:
 	// Constants are set in initializer list of constructor
-	NullLcdDriver(){};
-	~NullLcdDriver(){};
+	NullLcdDriver(){
+	    _numlines = 0;
+	    _currpos = 0;
+	    _currline = 0;
+	    _bufferOnly = true;
+	}
+	~NullLcdDriver() = default;
 	
 	void init();
 
@@ -54,7 +59,7 @@ class NullLcdDriver : public Print {
 	void createChar(uint8_t, uint8_t[]);
 	void setCursor(uint8_t, uint8_t);
 
-	virtual size_t write(uint8_t);
+	virtual size_t write(uint8_t) override final;
 
 	void print_P(const char * str){ // print a string stored in PROGMEM
 		char buf[21]; // create buffer in RAM
@@ -92,7 +97,7 @@ class NullLcdDriver : public Print {
 	uint8_t _currline;
 	uint8_t _currpos;
 	uint8_t _numlines;
-	
+
 	bool	_bufferOnly;
 
 	char content[4][21]; // always keep a copy of the display content in this variable

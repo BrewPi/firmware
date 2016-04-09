@@ -30,7 +30,7 @@
 #include <string.h>
 #include "service_debug.h"
 
-uint32_t HAL_WLAN_SetNetWatchDog(uint32_t timeOutInMS)
+uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 {
     return 0;
 }
@@ -79,9 +79,9 @@ wlan_result_t wlan_connect_finalize()
 {
     // enable connection from stored profiles
     HAL_Delay_Milliseconds(1000);
-    HAL_WLAN_notify_connected();
+    HAL_NET_notify_connected();
     INFO("Virtual WLAN connected");
-    HAL_WLAN_notify_dhcp(true);
+    HAL_NET_notify_dhcp(true);
     return 0;
 }
 
@@ -193,4 +193,9 @@ void wlan_set_ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* netmas
 int wlan_scan(wlan_scan_result_t callback, void* cookie)
 {
     return -1;
+}
+
+int wlan_get_credentials(wlan_scan_result_t callback, void* callback_data)
+{
+	return -1;
 }

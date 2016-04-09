@@ -29,8 +29,8 @@ typedef enum
 #define RGB_COLOR_CYAN		0x00FFFF
 #define RGB_COLOR_MAGENTA	0xFF00FF
 #define RGB_COLOR_WHITE		0xFFFFFF
-#define RGB_COLOR_ORANGE  0xFF6000
-
+#define RGB_COLOR_ORANGE        0xFF6000
+#define RGB_COLOR_GREY          0x1F1F1F
 
 void LED_SetRGBColor(uint32_t RGB_Color);
 void LED_SetSignalingColor(uint32_t RGB_Color);
@@ -43,6 +43,8 @@ void LED_On(Led_TypeDef Led);
 void LED_Off(Led_TypeDef Led);
 void LED_Toggle(Led_TypeDef Led);
 void LED_Fade(Led_TypeDef Led);
+uint32_t LED_GetColor(uint32_t index, void* reserved);
+
 
 uint8_t Get_LED_Brightness();
 // Hardware interface

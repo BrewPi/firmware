@@ -22,7 +22,7 @@
 
 #include "ActuatorPin.h"
 
-DigitalPinActuator::DigitalPinActuator(uint8_t pin,
+ActuatorPin::ActuatorPin(uint8_t pin,
         bool                                   invert)
 {
     this -> invert = invert;
