@@ -870,6 +870,7 @@ inline void DeviceManager::writeValve(DeviceConfig::Hardware hw, uint8_t value)
 inline void DeviceManager::writePin(DeviceConfig::Hardware hw, uint8_t value)
 {
     bool active = value != 0;
+    pinMode(hw.pinNr, OUTPUT);
     digitalWrite(hw.pinNr, (active ^ hw.invert) ? HIGH : LOW);
 }
 
