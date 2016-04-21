@@ -109,6 +109,85 @@ extern "C" const D4DLCDHW_FUNCTIONS d4dlcdhw_spi_spark_8b ={
   *
   ******************************************************************/
 
+#define SCREEN_DATA_BUFFER_SIZE 320
+
+static uint8_t tx_buffer[2][SCREEN_DATA_BUFFER_SIZE];
+/**
+ * The index of the currently active buffer. This buffer is written to by calls to
+ */
+static int8_t active_buffer_idx = 0;
+
+/**
+ * The byte offset in the active buffer where the next byte can be written to.
+ */
+static uint16_t active_buffer_offset = 0;
+
+/**
+ * The buffer that is currently being read by DMA. When -1, no buffer is being read.
+ */
+static volatile int8_t dma_buffer_idx = -1;
+
+/**
+ * Determines if there is data to send.
+ */
+inline uint8_t hasPendingDataToSend()
+{
+	return active_buffer_offset;
+}
+
+/**
+ * Waits for the asynchronous transfer to complete.
+ */
+inline void waitForTransferToComplete()
+{
+	while (dma_buffer_idx>=0);
+}
+
+/**
+ * Notification that the DMA transfer was complete.
+ */
+void transferComplete()
+{
+	dma_buffer_idx = -1;
+	D4DLCD_DEASSERT_CS;
+}
+
+inline void scheduleTransfer(uint8_t* data, uint16_t length)
+{
+	waitForTransferToComplete();
+#if 0
+	D4DLCD_ASSERT_CS;
+	SPI.transfer(data, tx_buffer[2], length, transferComplete);
+#else
+	while (length-->0) {
+		D4DLCD_ASSERT_CS;
+		SPI.transfer(*data++);
+	    D4DLCD_DEASSERT_CS;
+	}
+	transferComplete();
+#endif
+}
+
+/**
+ * Ensures any pending data to send to the device is flushed asynchronously.
+ * To wait for the data to be flushed, call waitForTransferComplete().
+ */
+inline void flushData()
+{
+	if (hasPendingDataToSend())
+	{
+		scheduleTransfer(tx_buffer[active_buffer_idx], active_buffer_offset);
+		active_buffer_idx++;
+		active_buffer_idx &= 1;
+		active_buffer_offset = 0;
+
+		if (active_buffer_idx==dma_buffer_idx)
+			waitForTransferToComplete();
+	}
+}
+
+
+
 /**************************************************************//*!
   *
   * Functions bodies
@@ -152,11 +231,11 @@ static unsigned char D4DLCDHW_Init_Spi_Spark_8b(void) {
     );
 
     
+    SPI.begin(D4DLCD_CS);
+
     SPI.setBitOrder(MSBFIRST);
     SPI.setDataMode(SPI_MODE0);
     
-    SPI.begin(D4DLCD_CS);
-
     D4DLCD_DEASSERT_RESET;
     D4DLCDHW_Delay_Spi_Spark_8b(5);
     D4DLCD_ASSERT_RESET;
@@ -194,11 +273,23 @@ static unsigned char D4DLCDHW_DeInit_Spi_Spark_8b(void) {
 //-----------------------------------------------------------------------------
 
 static void D4DLCDHW_SendDataWord_Spi_Spark_8b(unsigned short value) {
-    D4DLCD_ASSERT_CS;
+#if 1
+	tx_buffer[active_buffer_idx][active_buffer_offset++] = value;
+
+	if (active_buffer_offset==SCREEN_DATA_BUFFER_SIZE)
+	{
+		flushData();
+	}
+
+
+#else
+
+	D4DLCD_ASSERT_CS;
     // Send data byte
     SPI.transfer(value);
 
     D4DLCD_DEASSERT_CS;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -212,8 +303,15 @@ static void D4DLCDHW_SendDataWord_Spi_Spark_8b(unsigned short value) {
 //-----------------------------------------------------------------------------
 
 static void D4DLCDHW_SendCmdWord_Spi_Spark_8b(unsigned short cmd) {
-    D4DLCD_ASSERT_DC; // DataCmd := 0
-    D4DLCDHW_SendDataWord_Spi_Spark_8b(cmd);
+	flushData();
+    waitForTransferToComplete();
+
+	D4DLCD_ASSERT_DC; // DataCmd := 0
+	D4DLCD_ASSERT_CS;
+    // Send data byte
+    SPI.transfer(cmd);
+
+    D4DLCD_DEASSERT_CS;
     D4DLCD_DEASSERT_DC; // DataCmd := 1
 }
 
@@ -322,7 +420,9 @@ static unsigned char D4DLCDHW_PinCtl_Spi_Spark_8b(D4DLCDHW_PINS pinId, D4DHW_PIN
 //-----------------------------------------------------------------------------
 
 static void D4DLCD_FlushBuffer_Spi_Spark_8b(D4DLCD_FLUSH_MODE mode) {
-    D4D_UNUSED(mode);
+    if (true || mode==D4DLCD_FLSH_SCR_END || mode==D4DLCD_FLSH_FORCE) {
+    		flushData();
+    }
 }
 
 
