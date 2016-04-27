@@ -53,6 +53,9 @@ SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
 LIBS_DIR = $(SOURCE_PATH)/platform/spark/libs
 include $(LIBS_DIR)/libs.mk
 
+INCLUDE_DIRS += $(LIBS_DIR)/mdns/firmware
+CPPSRC += $(call here_files,platform/spark/libs/mdns/firmware,*.cpp)
+
 GIT_VERSION = $(shell cd $(SOURCE_PATH); git describe --long)
 $(info using $(GIT_VERSION) as build name)
 CFLAGS += -DBUILD_NAME="$(GIT_VERSION)"

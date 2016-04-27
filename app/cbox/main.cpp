@@ -10,7 +10,9 @@
 #include "Commands.h"
 
 #include "Platform.h"
+#include "MDNS.h"
 
+SYSTEM_THREAD(ENABLED);
 
 void connectionStarted(DataOut& out)
 {
@@ -59,16 +61,35 @@ Object* createApplicationObject(ObjectDefinition& def, bool dryRun)
 	return result;
 }
 
+MDNS mdns;
 
 void setup()
 {
 	platform_init();
-	controlbox_setup(0);
+
+	WiFi.on();
+	if (WiFi.hasCredentials()) {
+		WiFi.connect();
+		waitFor(WiFi.ready, 30*1000);
+
+		if (WiFi.ready()) {
+			String id = System.deviceID();
+			bool success = mdns.setHostname(id)
+			  && mdns.addService("tcp", "brewpi", 8332, id)
+			  && mdns.begin();
+			if (!success) {
+				Comms::dataOut().writeAnnotation(mdns.getStatus().c_str());
+			}
+		}
+	}
 }
+
+
 
 void loop()
 {
 	controlbox_loop();
+	mdns.processQueries();
 }
 
 
