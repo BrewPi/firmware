@@ -128,15 +128,6 @@ public:
 cb_static_decl(CommsIn commsIn;)
 cb_static_decl(CommsOut commsOut;)
 
-
-#ifdef SPARK
-template<> void StreamDataOut<TCPClient>::close()
-{
-    stream->stop();
-};
-#endif
-
-
 #if CONTROLBOX_STATIC
 
 /**
@@ -162,18 +153,47 @@ struct CommsConnection : public ConnectionData<D>
 #endif
 
 #ifdef SPARK
-template <typename D>
-using AbstractTCPConnection = AbstractStreamConnection<TCPClient, D>;
 
+/**
+ * Delegate DataOut::close() to TCPClient::stop()
+ */
+template<> void StreamDataOut<TCPClient>::close()
+{
+    stream->stop();
+};
+
+/**
+ * An  AbstractTCPConnection uses a TCPClient as the stream type.
+ */
+template <typename D>
+using AbstractTCPConnection = AbstractStreamValueConnection<TCPClient, D>;
+
+/**
+ * The TCPConnection type
+ */
 typedef AbstractTCPConnection<StandardConnectionDataType> TCPConnection;
 
+/**
+ * Specializes AbstractStreamConnectionType for TCPClient.
+ */
 template<> bool AbstractStreamConnectionType<TCPClient, StandardConnectionDataType>::connected()
 {
     return connection->connected();
 }
 
+/**
+ * A vector of TCPConnection instances for connected clients.
+ */
+using NetworkConnections = std::vector<TCPConnection>;
+/**
+ * The static list of connections.
+ */
+cb_static_decl(NetworkConnections connections;)
 #endif
 
+/**
+ * A std::function that fetches the corresponding DataOut interface from a connection.
+ */
 template <typename D>
 struct ConnectionToDataOut : public std::function<DataOut&(Connection<D>&)>
 {
@@ -186,6 +206,9 @@ struct ConnectionToDataOut : public std::function<DataOut&(Connection<D>&)>
     }
 };
 
+/**
+ * A std::function that fetches the DataIn from a connection.
+ */
 template <typename D>
 struct ConnectionToDataIn : public std::function<DataIn&(Connection<D>&)>
 {
@@ -198,18 +221,9 @@ struct ConnectionToDataIn : public std::function<DataIn&(Connection<D>&)>
     }
 };
 
-#ifdef SPARK
-typedef std::vector<TCPConnection> Connections;
 /**
- *
+ * The comms connection.
  */
-cb_static_decl(Connections connections;)
-
-#endif
-
-
-// we could combine all connections into a variant type and store in the connections
-// vector. Keeping them separate is simpler.
 cb_static_decl(std::array<CommsConnection<StandardConnectionDataType>,1> commsConnections;)
 
 template<typename C>
@@ -218,11 +232,19 @@ bool isDisconnected(C& connection)
     return !connection.connected();
 }
 
-#ifdef SPARK
+#if defined(SPARK) && CONTROLBOX_STATIC
+
+/**
+ * Fetch a connection from the TCP server.
+ */
 TCPClient acceptConnection()
 {
     static TCPServer server(8332);
-    server.begin();
+    static bool started = false;
+    if (!started) {
+    		started = true;
+    		server.begin();
+    }
     TCPClient accept = server.available();
     return accept;
 }
@@ -233,7 +255,7 @@ void manageConnection()
     connections.erase(std::remove_if(connections.begin(), connections.end(), isDisconnected<TCPConnection>), connections.end());
 
     TCPClient client = acceptConnection();
-    if (client) {
+    if (client.connected()) {
     		TCPConnection connection(client);
         connections.push_back(connection);
     }
@@ -245,8 +267,11 @@ void manageConnection()
 }
 #endif
 
+/**
+ * A standard function that converts a connection to a pointer.
+ */
 template <typename T>
-struct ConnectionAsPointer : public std::function<StandardConnection&(T&)>
+struct ConnectionAsReference : public std::function<StandardConnection&(T&)>
 {
     typedef typename std::function<StandardConnection&(T)> base_type;
     typedef typename base_type::result_type result_type;
@@ -270,23 +295,23 @@ inline auto as_connection_ptr(T& source) -> decltype(boost::adaptors::transform(
 */
 
 #if CONTROLBOX_STATIC
-// determine the static list of connections
+// determine the global list of connections
 
 #ifdef SPARK
 auto all_connections() -> boost::range::joined_range<
-        boost::range_detail::transformed_range<ConnectionAsPointer<CommsConnection<StandardConnectionDataType> >, decltype(commsConnections) >,
-        boost::range_detail::transformed_range<ConnectionAsPointer<TCPConnection>, decltype(connections)> >
+        boost::range_detail::transformed_range<ConnectionAsReference<CommsConnection<StandardConnectionDataType> >, decltype(commsConnections) >,
+        boost::range_detail::transformed_range<ConnectionAsReference<TCPConnection>, decltype(connections)> >
 {
-    auto first = boost::adaptors::transform(commsConnections, ConnectionAsPointer<CommsConnection<StandardConnectionDataType>>());
-    auto second = boost::adaptors::transform(connections, ConnectionAsPointer<TCPConnection>());
+    auto first = boost::adaptors::transform(commsConnections, ConnectionAsReference<CommsConnection<StandardConnectionDataType>>());
+    auto second = boost::adaptors::transform(connections, ConnectionAsReference<TCPConnection>());
 
     auto result = boost::join(first, second);
     return result;
 }
 #else
-auto all_connections() -> boost::range_detail::transformed_range<ConnectionAsPointer<CommsConnection<StandardConnectionDataType> >, decltype(commsConnections) >
+auto all_connections() -> boost::range_detail::transformed_range<ConnectionAsReference<CommsConnection<StandardConnectionDataType> >, decltype(commsConnections) >
 {
-	 auto first = boost::adaptors::transform(commsConnections, ConnectionAsPointer<CommsConnection<StandardConnectionDataType>>());
+	 auto first = boost::adaptors::transform(commsConnections, ConnectionAsReference<CommsConnection<StandardConnectionDataType>>());
 	 return first;
 }
 #endif	// SPARK
@@ -295,22 +320,21 @@ auto all_connections() -> boost::range_detail::transformed_range<ConnectionAsPoi
 /**
  * Iterator type that transforms all connections using a given transformation functor.
  */
-template <typename TransformationFunctor> using ConnectionTransformIterator = typename decltype(boost::adaptors::transform(all_connections(), TransformationFunctor()))::iterator;
+template <typename TransformationFunctor>
+using ConnectionTransformIterator = typename decltype(boost::adaptors::transform(all_connections(), TransformationFunctor()))::iterator;
 
-
+/**
+ *
+ */
 template <typename TransformFunctor>
 auto fetch_streams() -> boost::iterator_range<typename decltype(boost::adaptors::transform(all_connections(), TransformFunctor()))::iterator>
 {
     return boost::adaptors::transform(all_connections(), TransformFunctor());
 }
 
-
-
-typedef ConnectionToDataOut<StandardConnectionDataType> ToDataOutFunctor;
-typedef CompositeDataOut<ConnectionTransformIterator<ToDataOutFunctor>> CompositeDatOutType;
-
-typedef ConnectionToDataIn<StandardConnectionDataType> ToDataInFunctor;
-typedef CompositeDataIn<ConnectionTransformIterator<ToDataInFunctor>> CompositeDatInType;
+using ToDataOutFunctor = ConnectionToDataOut<StandardConnectionDataType>;
+using CompositeDatOutType = CompositeDataOut<ConnectionTransformIterator<ToDataOutFunctor>>;
+CompositeDatOutType compositeOut(&fetch_streams<ToDataOutFunctor>);
 
 
 void f()
@@ -319,9 +343,9 @@ void f()
     CompositeDatOutType compositeOut(streams);
 }
 
-
-CompositeDatOutType compositeOut(&fetch_streams<ToDataOutFunctor>);
-//CompositeDatInType compositeIn(fetch_streams<ToDataInFunctor>);
+// using ToDataInFunctor = ConnectionToDataIn<StandardConnectionDataType>;
+// using CompositeDatInType = CompositeDataIn<ConnectionTransformIterator<ToDataInFunctor>>;
+// CompositeDatInType compositeIn(&fetch_streams<ToDataInFunctor>);
 
 #endif	// CONTROLBOX_STATIC
 

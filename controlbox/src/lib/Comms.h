@@ -33,10 +33,12 @@ class Commands;
 
 
 /**
+ * Represents a connection to an endpoint. The details of the endpoint are not provided here.
  * A connection has these components:
+ *
  * - a stream for input data (DataIn)
  * - a stream for output data (DatOut)
- * - a connected flag
+ * - a connected flag: indicates if this connection can read/write data to the resource
  * - associated user data
  *
  */
@@ -50,25 +52,29 @@ struct Connection
     /**
      * Retrieve the most-recently assigned value to the user data item.
      */
-    virtual D& getData()=0;
+    virtual const D& getData()=0;
 
     /**
      * Assign a value to the user data item.
      */
     virtual void setData(D&& d)=0;
+    virtual void setData(const D& d)=0;
 
 };
 
 /**
  * Connection implementation helper that adds storage for the user data and trivial accessor/mutator methods.
  */
-template <typename D>
+template <typename D, D defaultValue = D(0)>
 class ConnectionData : public Connection<D>
 {
     D data;
 public:
-    virtual D& getData() { return data; }
-    virtual void setData(D&& d) { std::swap(data,d); }
+    ConnectionData() : data(defaultValue) {}
+    virtual const D& getData() { return data; }
+    virtual void setData(D&& d) { data = d; }
+    virtual void setData(const D& d) { data = d; }
+
 };
 
 
@@ -110,7 +116,11 @@ template <class S>
 class StreamDataOut : public DataOut
 {
 protected:
-    S* stream;
+    /**
+     * The stream type that is adapted to a DataOut instance.
+     * non-NULL.
+     */
+	S* stream;
 public:
 
     StreamDataOut(S& _stream) : stream(&_stream) {}
@@ -123,6 +133,9 @@ public:
         return stream->write(data, length)==length;
     }
 
+    /**
+     * The close method is defined by the specific template instantiation.
+     */
     void close();
 
 	//StreamDataOut& operator=(const StreamDataOut& rhs)=delete;
@@ -167,6 +180,9 @@ using AbstractStreamConnectionType = AbstractConnection<
     D
 >;
 
+/**
+ * Maintains a reference to the stream.
+ */
 template <typename S, typename D>
 class AbstractStreamConnection : public AbstractStreamConnectionType<S,D>
 {
@@ -179,7 +195,31 @@ public:
     AbstractStreamConnection(S& _connection) :
     		base_type(_connection, streamIn, streamOut), streamIn(_connection), streamOut(_connection) {}
 
+    AbstractStreamConnection(const AbstractStreamConnection& other) = delete;
+
 };
+
+/**
+ * Maintains the stream by value.
+ */
+template <typename S, typename D>
+class AbstractStreamValueConnection : public AbstractStreamConnection<S,D>
+{
+    using base_type = AbstractStreamConnection<S,D>;
+
+    S stream;
+public:
+    AbstractStreamValueConnection(S& _connection) : base_type(stream), stream(_connection) {}
+
+    AbstractStreamValueConnection(const AbstractStreamValueConnection& other) :
+    		base_type(stream), stream(other.stream) {
+    		D data = this->getData();
+    		this->setData(data);
+    }
+
+};
+
+
 #endif
 
 
