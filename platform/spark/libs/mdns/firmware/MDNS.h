@@ -27,6 +27,11 @@ public:
 
   bool processQueries();
 
+  const String& getStatus()
+  {
+	  return status;
+  }
+
 private:
 
   struct QueryHeader {
