@@ -130,7 +130,6 @@ struct AllCallbacks
      * Assign a value to the user data item.
      */
     virtual void setData(StandardConnectionDataType&& d)=0;
-    virtual void setData(const StandardConnectionDataType& d)=0;
 
 
 
@@ -223,10 +222,6 @@ public:
      */
     virtual void setData(StandardConnectionDataType&& d) {
     		cb.setData(std::move(d));
-    }
-
-    virtual void setData(const StandardConnectionDataType& d) {
-    		cb.setData(d);
     }
 
 
