@@ -61,6 +61,9 @@ struct DataOut
 		}
 		return true;
 	}
+
+	virtual void flush() {}
+
 	virtual void close() {}
 };
 
