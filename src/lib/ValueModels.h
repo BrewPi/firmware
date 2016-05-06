@@ -24,25 +24,35 @@
 #include "Values.h"
 #include "ValuesEeprom.h"
 #include "SystemProfile.h"
-/**
- * A streamable value whose data resizes externally.
- */
-// TODO - factor ExternalValue, eeprom value and progmem value - all have address and size.
-class ExternalValue : public WritableValue
+
+class ExternalReadOnlyValue : public Value
 {
-	void* _pValue;
-	uint8_t _size;
-
+protected:
+	void* const _pValue;
+	uint8_t const _size;
 public:
-
-	ExternalValue(void* pValue, uint8_t size) {
-		_pValue = pValue;
-		_size = size;
-	}
+	ExternalReadOnlyValue(void* pValue, uint8_t size) :
+		_pValue(pValue), _size(size) {}
 
 	void readTo(DataOut& out) {
 		out.writeBuffer(_pValue, _size);
 	}
+
+	uint8_t streamSize() {
+		return _size;
+	}
+
+};
+
+/**
+ * A streamable value whose data resizes externally.
+ */
+// TODO - factor ExternalValue, eeprom value and progmem value - all have address and size.
+class ExternalValue : public ExternalReadOnlyValue, public WritableValue
+{
+public:
+
+	ExternalValue(void* pValue, uint8_t size) : ExternalReadOnlyValue(pValue, size) {}
 
 	void writeMaskedFrom(DataIn& in, DataIn& mask) {
 		uint8_t* p = (uint8_t*)_pValue;
@@ -50,10 +60,6 @@ public:
 			*p = nextMaskedByte(*p, in, mask);
 			p++;
 		}
-	}
-
-	uint8_t streamSize() {
-		return _size;
 	}
 };
 
