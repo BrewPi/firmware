@@ -13,13 +13,14 @@ SCENARIO("A created event is sent to listeners after an object is created")
 
 		EmptyDataIn dataIn;
 		BlackholeDataOut dataOut;
+		FixedContainer root(0, nullptr);
 
 		When(Method(mock, getDataIn)).Return(dataIn);
 		When(Method(mock, getDataOut)).Return(dataOut);
 
 		WHEN("")
 		{
-			AllInOneBox box(d);
+			AllInOneBox box(root, d);
 		}
 		THEN("")
 		{
