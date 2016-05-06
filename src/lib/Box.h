@@ -130,7 +130,6 @@ struct AllCallbacks
      * Assign a value to the user data item.
      */
     virtual void setData(StandardConnectionDataType&& d)=0;
-    virtual void setData(const StandardConnectionDataType& d)=0;
 
 
 
@@ -162,7 +161,7 @@ struct AllCallbacks
 	 */
 	virtual void handleReset(bool exit=true)=0;
 
-	virtual void connectionStarted(DataOut& out)=0;
+	virtual void connectionStarted(StandardConnection& connection, DataOut& out)=0;
 
 	virtual Container* createRootContainer()=0;
 
@@ -214,15 +213,15 @@ public:
     		return cb.getData();
     }
 
+    virtual const StandardConnectionDataType& getData() const {
+    		return cb.getData();
+    }
+
     /**
      * Assign a value to the user data item.
      */
     virtual void setData(StandardConnectionDataType&& d) {
     		cb.setData(std::move(d));
-    }
-
-    virtual void setData(const StandardConnectionDataType& d) {
-    		cb.setData(d);
     }
 
 
@@ -270,8 +269,8 @@ public:
 		return cb.handleReset(exit);
 	}
 
-	virtual void connectionStarted(DataOut& out) {
-		return cb.connectionStarted(out);
+	virtual void connectionStarted(StandardConnection& connection, DataOut& out) {
+		return cb.connectionStarted(connection, out);
 	}
 
 	virtual Container* createRootContainer() {
