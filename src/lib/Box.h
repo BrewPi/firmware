@@ -39,9 +39,9 @@ class Box
 	bool logValuesFlag;
 
 public:
-	Box(StandardConnection& connection, EepromAccess& eepromAccess, Ticks& ticks, CommandCallbacks& callbacks, Object** values, size_t size)
+	Box(StandardConnection& connection, EepromAccess& eepromAccess, Ticks& ticks, CommandCallbacks& callbacks, Container& systemRoot)
 	: eepromAccess_(eepromAccess), ticks_(ticks), comms_(connection),
-	  systemProfile_(eepromAccess, size, values), commands_(comms_, systemProfile_, callbacks, eepromAccess), logValuesFlag(false)
+	  systemProfile_(eepromAccess, systemRoot), commands_(comms_, systemProfile_, callbacks, eepromAccess), logValuesFlag(false)
 	{
 	}
 
@@ -313,8 +313,8 @@ public:
 class AllInOneBox : public Box
 {
 public:
-	AllInOneBox(AllCallbacksDelegate& cb, Object** values=nullptr, size_t size=0)
-		: Box(cb, cb, cb, cb, values, size)
+	AllInOneBox(Container& container, AllCallbacksDelegate& cb)
+		: Box(cb, cb, cb, cb, container)
 	{}
 
 

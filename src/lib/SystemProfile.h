@@ -90,7 +90,7 @@ class SystemProfile {
 	/**
 	 * The system container. This provides fixed services independently from the selected profile.
 	 */
-	cb_static FixedContainer systemRoot;
+	cb_static Container& systemRoot;
 
 	cb_static void setProfileOffset(profile_id_t id, eptr_t offset);
 	cb_static eptr_t getProfileOffset(profile_id_t id);
@@ -144,7 +144,7 @@ public:
 	/**
 	 * Constructor that injects dependencies.
 	 */
-	SystemProfile(EepromAccess& eeprom, size_t count, Object** objs);
+	SystemProfile(EepromAccess& eeprom, Container& systemRootContainer);
 
 	void setCommands(Commands& cmds) {
 		commands_ptr = &cmds;

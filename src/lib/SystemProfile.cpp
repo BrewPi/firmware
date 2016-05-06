@@ -56,21 +56,20 @@ typedef int8_t system_profile_t;
  *	  end
  */
 
-// having time as a system service is a compromise over lose-coupling/dependency injection vs convenience
-cb_static_decl(EepromBlock SystemProfile::system_id(SYSTEM_PROFILE_ID_OFFSET, 1);)
+//cb_static_decl(EepromBlock SystemProfile::system_id(SYSTEM_PROFILE_ID_OFFSET, 1);)
 
 cb_static_decl(ScaledTicksValue ticks;)
 
 cb_static_decl(EepromDataOut SystemProfile::writer;)
 cb_static_decl(profile_id_t SystemProfile::current;)
 cb_static_decl(Container* SystemProfile::root = NULL;)
-cb_static_decl(Object* systemRootItems[2];)
-cb_static_decl(FixedContainer SystemProfile::systemRoot(sizeof(systemRootItems)/sizeof(systemRootItems[0]), systemRootItems);)
+cb_static_decl(Container& SystemProfile::systemRoot = systemRootContainer();)
+
 
 
 #if !CONTROLBOX_STATIC
-SystemProfile::SystemProfile(EepromAccess& access, size_t count, Object** objects)
-: eepromAccess(access), system_id(access,SYSTEM_PROFILE_ID_OFFSET,1), root(nullptr), systemRoot(count, objects), writer(access) {}
+SystemProfile::SystemProfile(EepromAccess& access, Container& systemRootContainer)
+: eepromAccess(access), system_id(access,SYSTEM_PROFILE_ID_OFFSET,1), root(nullptr), systemRoot(systemRootContainer), writer(access) {}
 
 #endif
 
@@ -107,12 +106,6 @@ void SystemProfile::initializeEeprom() {
 }
 
 void SystemProfile::initialize() {
-
-#if CONTROLBOX_STATIC
-	// build system objects
-	systemRoot.add(0, &system_id);
-	systemRoot.add(1, &ticks);
-#endif
 
 	current = SYSTEM_PROFILE_DEFAULT;
 	if (readPointer(eepromAccess, 0)==SYSTEM_PROFILE_EEPROM_HEADER) {
