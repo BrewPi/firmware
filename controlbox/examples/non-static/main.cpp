@@ -28,7 +28,7 @@ int main(int argc, char** argv)
 	if (argc>1) {
 		eeprom = argv[1];
 	}
-	ExampleBox box(eeprom, nullptr, 0);
+	ExampleBox box(eeprom);
     box.initialize();
 	box.run();
     box.shutdown();

@@ -224,6 +224,8 @@ class FixedContainer : public OpenContainer
 		}
 
 	public:
+		FixedContainer() : FixedContainer(0, nullptr) {}
+
 		FixedContainer(container_id size, Object** items)
 		: SIZE(size), _items(items) {
 
