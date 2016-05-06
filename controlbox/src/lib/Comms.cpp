@@ -111,6 +111,7 @@ public:
 			write(']');
 			write('\n');
 		}
+		flush();
 	}
 
 	bool write(uint8_t data) {
@@ -153,6 +154,15 @@ struct CommsConnection : public ConnectionData<D>
 #endif
 
 #ifdef SPARK
+
+/**
+ * Delegate DataOut::close() to TCPClient::stop()
+ */
+template<> void StreamDataOut<TCPClient>::flush()
+{
+	// TCPClient on 0.5.0 firmware discards any unwritten data
+};
+
 
 /**
  * Delegate DataOut::close() to TCPClient::stop()
@@ -471,12 +481,15 @@ StandardConnection* handleConnection(
 		StandardConnection& connection)
 {
     static uint16_t connection_count = 0;
-    bool connected = connection.getData();
-    if (!connected) {
-        connection.setData(true);
-        connection_count++;
+    StandardConnectionDataType& data = connection.getData();
+    if (!data.connected || (data.callback_until_first_request && !data.request_received && (++data.next_announcement>100))) {
+    		if (!data.connected) {
+    			data.connected = true;
+			connection_count++;
+    		}
 		BinaryToHexTextOut out(connection.getDataOut());
-		cb_nonstatic_decl(comms.)connectionStarted(out);
+		cb_nonstatic_decl(comms.)connectionStarted(connection, out);
+		data.next_announcement = 0;
     }
 
     return connection.getDataIn().available() ? &connection : nullptr;
@@ -488,9 +501,9 @@ StandardConnection* handleConnection(
 #define cmd_callback(x) commands_ptr->x
 #endif
 
-inline void Comms::connectionStarted(DataOut& out)
+inline void Comms::connectionStarted(StandardConnection& connection, DataOut& out)
 {
-	cmd_callback(connectionStarted(out));
+	cmd_callback(connectionStarted(connection, out));
 }
 
 inline void Comms::handleCommand(DataIn& in, DataOut& out)
@@ -519,6 +532,7 @@ void processCommand(
 				while (hexIn.hasNext())	{			// todo - log a message about unconsumed data?
 						  hexIn.next();
 				}
+				connection->getData().request_received = true;
 		}
 		hexOut.close();
     }

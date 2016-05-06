@@ -20,7 +20,7 @@ void handleReset(bool reset)
 	quit = true;
 }
 
-void connectionStarted(DataOut& out)
+void connectionStarted(StandardConnection& connection, DataOut& out)
 {
 	out.writeAnnotation("hello world");
 }

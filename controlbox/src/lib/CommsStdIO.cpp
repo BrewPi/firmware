@@ -113,4 +113,8 @@ template<> bool StreamDataIn<StdIO>::hasNext() {
     return stream;
 }
 
+template<> void StreamDataOut<StdIO>::flush() {
+	stream->flush();
+}
+
 #endif

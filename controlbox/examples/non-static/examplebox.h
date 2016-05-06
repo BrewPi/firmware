@@ -157,7 +157,7 @@ public:
 
     bool should_quit() { return quit; }
 
-    virtual void connectionStarted(DataOut& out)
+    virtual void connectionStarted(StandardConnection& connectino, DataOut& out)
     {
         out.writeAnnotation("Example app at your service.");
     }

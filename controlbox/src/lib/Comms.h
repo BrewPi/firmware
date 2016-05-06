@@ -52,29 +52,24 @@ struct Connection
     /**
      * Retrieve the most-recently assigned value to the user data item.
      */
-    virtual const D& getData()=0;
-
-    /**
-     * Assign a value to the user data item.
-     */
-    virtual void setData(D&& d)=0;
-    virtual void setData(const D& d)=0;
+    virtual D& getData()=0;
+    virtual const D& getData() const=0;
 
 };
 
 /**
  * Connection implementation helper that adds storage for the user data and trivial accessor/mutator methods.
  */
-template <typename D, D defaultValue = D(0)>
+template <typename D>
 class ConnectionData : public Connection<D>
 {
     D data;
 public:
-    ConnectionData() : data(defaultValue) {}
-    virtual const D& getData() { return data; }
-    virtual void setData(D&& d) { data = d; }
-    virtual void setData(const D& d) { data = d; }
-
+    ConnectionData() {
+    		memset(&data, 0, sizeof(data)); // todo - must be a better way than this, e.g. templated initialization function?
+    }
+    virtual D& getData() { return data; }
+    virtual const D& getData() const { return data; }
 };
 
 
@@ -132,6 +127,8 @@ public:
     bool writeBuffer(const uint8_t* data, size_t length) {
         return stream->write(data, length)==length;
     }
+
+    void flush();
 
     /**
      * The close method is defined by the specific template instantiation.
@@ -212,9 +209,9 @@ public:
     AbstractStreamValueConnection(S& _connection) : base_type(stream), stream(_connection) {}
 
     AbstractStreamValueConnection(const AbstractStreamValueConnection& other) :
-    		base_type(stream), stream(other.stream) {
-    		D data = this->getData();
-    		this->setData(data);
+    		base_type(stream), stream(other.stream)
+    {
+    		this->getData() = other.getData();
     }
 
 };
@@ -223,7 +220,20 @@ public:
 #endif
 
 
-typedef bool StandardConnectionDataType;
+struct StandardConnectionDataType
+{
+	bool connected;
+
+	bool callback_until_first_request;
+
+	uint32_t next_announcement;
+
+	/**
+	 * Initially false, set to true
+	 */
+	bool request_received;
+
+};
 
 /**
  * A connection with a boolean flag to indicate if it has been initialized or not.
@@ -421,7 +431,7 @@ public:
 
 #endif
 
-	void connectionStarted(DataOut& out);
+	void connectionStarted(StandardConnection& connection, DataOut& out);
 
 	void handleCommand(DataIn& in, DataOut& out);
 
