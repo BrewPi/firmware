@@ -1,4 +1,5 @@
 #include "Brewpi.h"
+#include "Platform.h"
 #include "application.h"
 #if PLATFORM_ID==0
 #include "Ymodem/Ymodem.h"
@@ -43,3 +44,10 @@ bool platform_init()
     eepromAccess.init();
     return initialize;
 }
+
+void platform_device_id(data_block_ref& id)
+{
+	id.data = (void*)ID1;
+	id.size = 12;
+}
+

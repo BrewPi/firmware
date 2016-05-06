@@ -23,6 +23,17 @@ void connectionStarted(StandardConnection& connection, DataOut& out)
 	data.callback_until_first_request = true;
 }
 
+
+Container& systemRootContainer()
+{
+	static data_block_ref id;
+	platform_device_id(id);
+	static ExternalReadOnlyValue idValue(id.data, id.size);
+	static Object* values[] = { &idValue, &ticks };
+	static FixedContainer root(2, values);
+	return root;
+}
+
 /**
  * Provide the root container for the current profile. This should be dynamically allocated
  * (since it will be disposed by calling delete.)
