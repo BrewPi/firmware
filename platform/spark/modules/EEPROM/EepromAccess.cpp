@@ -1,4 +1,6 @@
 
+#if PLATFORM_ID!=3
+
 #include "SparkEepromRegions.h"
 #include "EepromAccessImpl.h"
 
@@ -13,3 +15,4 @@ void SparkEepromAccess::init()
 #endif
 }
 
+#endif

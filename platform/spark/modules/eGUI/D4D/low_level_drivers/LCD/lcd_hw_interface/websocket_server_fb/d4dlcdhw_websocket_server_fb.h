@@ -31,35 +31,32 @@
 *
 ***************************************************************************//*!
 *
-* @file      d4dlcd_frame_buffer.h
+* @file      d4dlcdhw_websocket_server_fb.h
 *
 * @author     Petr Gargulak
 *
-* @version   0.0.2.0
+* @version   0.0.1.0
 *
-* @date      Aug-30-2010
+* @date      Jun-29-2010
 *
-* @brief     D4D driver - frame_buffer lcd driver function header file
+* @brief     D4D driver - template_fb hardware lcd driver function header file
 *
 *******************************************************************************/
 
-#ifndef __D4DLCD_FRAMEBUFFER_H
-#define __D4DLCD_FRAMEBUFFER_H
+#ifndef __D4DLCDHW_TEMPLATEFB_H
+#define __D4DLCDHW_TEMPLATEFB_H
 
-  #if (D4D_MK_STR(D4D_LLD_LCD) == d4dlcd_frame_buffer_ID)
+  #if (D4D_MK_STR(D4D_LLD_LCD_HW) == d4dlcdhw_websocket_server_fb_ID)
 
     /******************************************************************************
     * Includes
     ******************************************************************************/
-    //#include "d4dlcd_frame_buffer_cfg.h"
+    #include "d4dlcdhw_websocket_server_fb_cfg.h"
 
     /******************************************************************************
     * Constants
     ******************************************************************************/
 
-   	#ifndef D4DLCDHWFB_DIRECT_MEM_ACCESS
-   		#define D4DLCDHWFB_DIRECT_MEM_ACCESS 0
-   	#endif
     /******************************************************************************
     * Types
     ******************************************************************************/
@@ -72,29 +69,12 @@
     * Global variables
     ******************************************************************************/
 
-		#ifdef D4D_LLD_LCD_HW
-		  extern const D4DLCDHWFB_FUNCTIONS D4D_LLD_LCD_HW;
-		#endif
-
-		  typedef struct WriteRegion {
-			unsigned long win_cur_addr;
-			unsigned long win_cur_w;
-			unsigned long win_cur_h;
-
-			unsigned long win_x;
-			unsigned long win_y;
-			unsigned long win_width;
-			unsigned long win_height;
-		  } WriteRegion;
-
-		  extern WriteRegion writeRegion;
-
     /******************************************************************************
     * Global functions
     ******************************************************************************/
 
   #endif
-#endif /* __D4DLCD_FRAMEBUFFER_H */
+#endif /* __D4DLCDHW_TEMPLATEFB_H */
 
 
 

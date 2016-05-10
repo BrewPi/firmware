@@ -3,7 +3,6 @@
 #if PLATFORM_ID==0
 #include "Ymodem/Ymodem.h"
 #endif
-#include "flashee-eeprom.h"
 #include "EepromManager.h"
 
 SYSTEM_MODE(SEMI_AUTOMATIC);

@@ -78,7 +78,11 @@
 
 
 // Please define a used low LCD driver
+#if PLATFORM_ID!=3
 #define D4D_LLD_LCD d4dlcd_ili9341   // the name of low level driver descriptor structure
+#else
+#define D4D_LLD_LCD d4dlcd_frame_buffer
+#endif
 
 // List of implemented low level LCD hw interface drivers
 
@@ -103,8 +107,11 @@
 // d4dlcdhw_spi_spark_8b - low level hw interface driver for hardware SPI with 8 bit for the Spark Core
   
 // Please (if it's needed) define a used LCD hw interface driver
+#if PLATFORM_ID!=3
 #define D4D_LLD_LCD_HW d4dlcdhw_spi_spark_8b   // the name of LCD hw interface driver descriptor structure
-
+#else
+#define D4D_LLD_LCD_HW d4dlcdhw_websocket_server_fb
+#endif
 
 /**************************************************************//*!
 *
