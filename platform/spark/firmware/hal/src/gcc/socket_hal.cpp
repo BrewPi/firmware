@@ -330,6 +330,10 @@ uint8_t socket_handle_valid(sock_handle_t handle) {
     return handle<SOCKET_COUNT ? is_valid(tcp_from(handle)) : is_valid(udp_from(handle));
 }
 
+sock_result_t socket_create_tcp_server(uint16_t port, network_interface_t nif)
+{
+	return socket_handle_invalid();
+}
 
 sock_handle_t socket_handle_invalid()
 {
