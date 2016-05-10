@@ -1,5 +1,7 @@
 #pragma once
 
+#if PLATFORM_ID!=3
+
 #include "flashee-eeprom.h"
 
 #include "EepromTypes.h"
@@ -36,3 +38,12 @@ public:
 };
 
 typedef SparkEepromAccess EepromAccess;
+
+#else
+
+#include "ArrayEepromAccess.h"
+
+typedef ArrayEepromAccess<1024> EepromAccess;
+
+
+#endif

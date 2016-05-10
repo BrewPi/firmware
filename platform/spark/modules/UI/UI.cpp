@@ -102,11 +102,17 @@ void UI::update()
     display.updateBacklight();
 }
 
+#if PLATFORM_ID==3
+#define FREERTOS 0
+#endif
+
 #ifndef FREERTOS
     #define FREERTOS 1
 #endif
 
+#if FREERTOS
 Timer* timer = nullptr;
+#endif
 
 void cancelCalibration()
 {

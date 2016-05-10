@@ -707,7 +707,12 @@ void D4D_TCH_GetCalibratedPosition(D4D_COOR *TouchPositionX, D4D_COOR *TouchPosi
         *TouchPositionX = (D4D_COOR)(D4D_SCREEN_SIZE_LONGER_SIDE - *TouchPositionX);
         *TouchPositionY = (D4D_COOR)(D4D_SCREEN_SIZE_SHORTER_SIDE - *TouchPositionY);
         break;
-          }
+
+      case D4D_ORIENT_LANDSCAPE180:
+    	  // nothing to do
+        break;
+
+	  }
   }
 }
 

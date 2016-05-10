@@ -4,7 +4,6 @@
 #if PLATFORM_ID==0
 #include "Ymodem/Ymodem.h"
 #endif
-#include "flashee-eeprom.h"
 #include "EepromAccess.h"
 
 SYSTEM_MODE(SEMI_AUTOMATIC);
@@ -47,7 +46,13 @@ bool platform_init()
 
 void platform_device_id(data_block_ref& id)
 {
+#if PLATFORM_ID!=3
 	id.data = (void*)ID1;
 	id.size = 12;
+#else
+	static uint8_t device_id[1] = { 0 };
+	id.data = device_id;
+	id.size = 1;
+#endif
 }
 
