@@ -48,6 +48,8 @@
 #include "dct.h"
 #include "hal_platform.h"
 #include "malloc.h"
+#include "usb_hal.h"
+#include "usart_hal.h"
 
 #define STOP_MODE_EXIT_CONDITION_PIN 0x01
 #define STOP_MODE_EXIT_CONDITION_RTC 0x02
@@ -383,7 +385,21 @@ void HAL_Core_Enter_Stop_Mode(uint16_t wakeUpPin, uint16_t edgeTriggerMode, long
     if (!((wakeUpPin < TOTAL_PINS) && (wakeUpPin >= 0) && (edgeTriggerMode <= FALLING)) && seconds <= 0)
         return;
 
-    HAL_disable_irq();
+    SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
+
+    // Disable USB Serial (detach)
+    USB_USART_Init(0);
+
+    // Flush all USARTs
+    for (int usart = 0; usart < TOTAL_USARTS; usart++)
+    {
+        if (HAL_USART_Is_Enabled(usart))
+        {
+            HAL_USART_Flush_Data(usart);
+        }
+    }
+
+    int32_t state = HAL_disable_irq();
 
     uint32_t exit_conditions = 0x00;
 
@@ -455,7 +471,11 @@ void HAL_Core_Enter_Stop_Mode(uint16_t wakeUpPin, uint16_t edgeTriggerMode, long
     HAL_Interrupts_Restore();
 
     // Successfully exited STOP mode
-    HAL_enable_irq(0);
+    HAL_enable_irq(state);
+
+    SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
+
+    USB_USART_Init(9600);
 }
 
 void HAL_Core_Execute_Stop_Mode(void)
@@ -1046,11 +1066,11 @@ bool HAL_Feature_Get(HAL_Feature feature)
 #include "deepsleep_hal_impl.h"
 #include <string.h>
 
-retained_system SessionPersistOpaque session;
+retained_system SessionPersistDataOpaque session;
 
 int HAL_System_Backup_Save(size_t offset, const void* buffer, size_t length, void* reserved)
 {
-	if (offset==0 && length==sizeof(SessionPersistOpaque))
+	if (offset==0 && length==sizeof(SessionPersistDataOpaque))
 	{
 		memcpy(&session, buffer, length);
 		return 0;
@@ -1060,9 +1080,9 @@ int HAL_System_Backup_Save(size_t offset, const void* buffer, size_t length, voi
 
 int HAL_System_Backup_Restore(size_t offset, void* buffer, size_t max_length, size_t* length, void* reserved)
 {
-	if (offset==0 && max_length>=sizeof(SessionPersistOpaque) && session.size==sizeof(SessionPersistOpaque))
+	if (offset==0 && max_length>=sizeof(SessionPersistDataOpaque) && session.size==sizeof(SessionPersistDataOpaque))
 	{
-		*length = sizeof(SessionPersistOpaque);
+		*length = sizeof(SessionPersistDataOpaque);
 		memcpy(buffer, &session, sizeof(session));
 		return 0;
 	}

@@ -51,6 +51,16 @@ void SPIClass::begin(uint16_t ss_pin)
   HAL_SPI_Begin(_spi, ss_pin);
 }
 
+void SPIClass::begin(SPI_Mode mode, uint16_t ss_pin)
+{
+  if (ss_pin >= TOTAL_PINS)
+  {
+    return;
+  }
+
+  HAL_SPI_Begin_Ext(_spi, mode, ss_pin, NULL);
+}
+
 void SPIClass::end()
 {
   HAL_SPI_End(_spi);
@@ -149,6 +159,12 @@ byte SPIClass::transfer(byte _data)
 void SPIClass::transfer(void* tx_buffer, void* rx_buffer, size_t length, wiring_spi_dma_transfercomplete_callback_t user_callback)
 {
   HAL_SPI_DMA_Transfer(_spi, tx_buffer, rx_buffer, length, user_callback);
+  if (user_callback == NULL) {
+    HAL_SPI_TransferStatus st;
+    do {
+      HAL_SPI_DMA_Transfer_Status(_spi, &st);
+    } while(st.transfer_ongoing);
+  }
 }
 
 void SPIClass::attachInterrupt()
@@ -164,4 +180,19 @@ void SPIClass::detachInterrupt()
 bool SPIClass::isEnabled()
 {
   return HAL_SPI_Is_Enabled(_spi);
+}
+
+void SPIClass::onSelect(wiring_spi_select_callback_t user_callback)
+{
+  HAL_SPI_Set_Callback_On_Select(_spi, user_callback, NULL);
+}
+
+void SPIClass::transferCancel()
+{
+  HAL_SPI_DMA_Transfer_Cancel(_spi);
+}
+
+int32_t SPIClass::available()
+{
+  return HAL_SPI_DMA_Transfer_Status(_spi, NULL);
 }

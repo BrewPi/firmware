@@ -102,13 +102,13 @@ public:
     TempSensorMock * fridgeSensor;
 
     ActuatorDigital * coolerPin;
-    ActuatorDigital * coolerTimeLimited;
+    ActuatorTimeLimited * coolerTimeLimited;
     ActuatorMutexDriver * coolerMutex;
-    ActuatorRange * cooler;
+    ActuatorPwm * cooler;
 
     ActuatorDigital * heaterPin;
     ActuatorMutexDriver * heaterMutex;
-    ActuatorRange * heater;
+    ActuatorPwm * heater;
 
     ActuatorSetPoint * fridgeSetPointActuator;
 
@@ -564,6 +564,47 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air, SimFridgeCooler)
     }
     csv.close();
 }
+
+
+// Test cooling fridge air (via wall) based on fridge air temperature (non-cascaded control)
+// This time with a long PWM period and minimum ON time.
+// The fridge will respond quickly, but the actuator is slow to respond to the quickly changing input.
+BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air_With_Long_Period_And_Long_Minimum_On_Time, SimFridgeCooler)
+{
+    ofstream csv("./test_results/" + boost_test_name() + ".csv");
+    csv << "1#setPoint, 2#error, 1#beer sensor, 1#fridge air sensor, 1#fridge wall temp, "
+            "3#cooler pwm, 3#cooler achieved pwm, 4#p, 4#i, 4#d, 5a#cooler pin" << endl;
+    double SetPointDouble = 21;
+
+    cooler->setPeriod(3600);
+    coolerTimeLimited->setTimes(600, 120);
+
+    for(int t = 0; t < 50000; t++){
+        if(t==1000){
+            SetPointDouble = 19;
+        }
+        if(t==8000){
+            SetPointDouble = 5; // will require integral action here
+        }
+        fridgeSet->write(SetPointDouble);
+        update();
+
+        csv     << fridgeSet->read() << "," // setpoint
+                << coolerPid->inputError << "," //error
+                << beerSensor->read() << "," // beer temp
+                << fridgeSensor->read() << "," // air temp
+                << sim.wallTemp << "," // fridge wall temperature
+                << cooler->getValue() << "," // actuator output
+                << cooler->readValue() << "," // achieved output
+                << coolerPid->p << "," // proportional action
+                << coolerPid->i << "," // integral action
+                << coolerPid->d << "," // derivative action
+                << coolerPin->isActive() // actual cooler pin state
+                << endl;
+    }
+    csv.close();
+}
+
 
 // Test heating and cooling fridge air based on fridge air temperature (non-cascaded control)
 BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Fridge_Air, SimFridgeHeaterCooler)

@@ -175,23 +175,25 @@ void Pid::update()
             antiWindup = pidResult - output;
             antiWindup *= 5; // Anti windup gain is 5 when clipping to min/max
         }
-        else{ // actuator could be not reaching set value due to physics or limits in its target actuator
-            // get the actual achieved value in actuator. This could differ due to slowness time/mutex limits
+        else{ // Actuator could be not reaching set value due to physics or limits in its target actuator
+              // Get the actual achieved value in actuator. This could differ due to slowness time/mutex limits
             temp_t achievedOutput = outputActuator->readValue();
             if(!achievedOutput.isDisabledOrInvalid()){ // only apply anti-windup when it is possible to read back the actual value
-
                 // When actuator is a 'cooler', invert the output again
-                achievedOutput = (actuatorIsNegative) ? -achievedOutput : achievedOutput;
+                temp_long_t achievedOutputWithCorrectSign = (actuatorIsNegative) ? -achievedOutput : achievedOutput;
 
-                temp_long_t closeThreshold = Kp;
-                temp_t noAntiWindupMin = output - closeThreshold;
-                temp_t noAntiWindupMax = output + closeThreshold;
-
-                // do not apply anti-windup if close to target. Always apply when actuator is at zero.
-                if(achievedOutput == temp_t(0.0) || achievedOutput <  noAntiWindupMin || achievedOutput > noAntiWindupMax){
-                    antiWindup = pidResult - achievedOutput;
-                    antiWindup *= 3; // Anti windup gain is 3 for this kind of windup
+                // if the proportional part is bigger than what has been achieved by the actuator, apply anti-windup
+                if(actuatorIsNegative){
+                    if(p < achievedOutputWithCorrectSign){
+                        antiWindup = (p - achievedOutputWithCorrectSign);
+                    }
                 }
+                else{
+                    if(p > achievedOutputWithCorrectSign){
+                        antiWindup = (p - achievedOutputWithCorrectSign);
+                    }
+                }
+                antiWindup *= 3; // Anti windup gain is 3 for this kind of windup
             }
         }
 
