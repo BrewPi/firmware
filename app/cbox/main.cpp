@@ -17,11 +17,13 @@ SYSTEM_THREAD(ENABLED);
 void connectionStarted(StandardConnection& connection, DataOut& out)
 {
 	out.writeAnnotation("\"a\":\"brewpi\",\"v\":\"0.3.0\"");
+	out.flush();
 #if PLATFORM_ID!=3
 	StandardConnectionDataType& data = connection.getData();
 	// this is needed since the Photon writes data to serial before it's
 	// connected and the data may be discarded on some platforms.
 	data.callback_until_first_request = true;
+	wait.millis(100);
 #endif
 }
 
