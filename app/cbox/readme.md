@@ -24,10 +24,11 @@ Since the cbox app doesn't presently connect to the cloud, most of the options a
 ```
 touch device_key.der
 touch server_key.der
-./cbox -i 000000000000000000000001
+./cbox -i 112233445566778899AABBCC
 ```
 
 You should then see:
+
 ```
 ["a":"brewpi","v":"0.3.0"]
 ```
@@ -36,20 +37,32 @@ You should then see:
 
 For demo/testing - the system container provides the device ID and system time. 
 
+Starting the executable responds with an app name and version string
+
 ```
 ./cbox -i 112233445566778899AABBCC
 ["a":"brewpi","v":"0.3.0"]
-0f 00
+```
+
+You can then issue a command:
+
+```
+0F 00
+```
+
+which responds with
+
+```
 0F 00 00 0C 11 22 33 44 55 66 77 88 99 AA BB CC 
 ```
 
-The command `0f 00` means read from the system container, object id 00. This is where the ID is stored. The response is the original command `0f 00` followed by `00` (success), then `0C` (12 bytes of data) and finally the 12 id bytes. 
+The command `0f 00` means read from the system container, object id 00. This is where the device ID is stored. The response is the original command `0f 00` followed by `00` (success), then `0C` (12 bytes of data) and finally the 12 id bytes. 
 
 The system time can also be retrieved:
 
 ```
 0f 01
-0F 01 [cmd] 00 [ok response] 06 [6 bytes] 01 09 00 00 [timestamp in ms - little endian] 01 00 [time factor - 0x01 - normal.] 
+0F 01 [cmd replay] 00 [ok response] 06 [6 bytes] 01 09 00 00 [timestamp in ms - little endian] 01 00 [time factor - 0x01 - normal.] 
 ```
 
 
