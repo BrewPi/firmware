@@ -12,6 +12,9 @@
 #include "Platform.h"
 #include "MDNS.h"
 
+DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
+
+
 SYSTEM_THREAD(ENABLED);
 
 void connectionStarted(StandardConnection& connection, DataOut& out)
