@@ -340,12 +340,25 @@ sock_handle_t socket_handle_invalid()
     return SOCKET_INVALID;
 }
 
-sock_result_t socket_join_multicast(const HAL_IPAddress* addr, network_interface_t nif, void* reserved)
+sock_result_t socket_join_multicast(const HAL_IPAddress* addr, network_interface_t nif, socket_multicast_info_t* info)
 {
+	if (info) {
+		sock_handle_t socket = info->sock_handle;
+		if (socket>=SOCKET_COUNT)
+		{
+			auto& s = udp_from(socket);
+			ip::address_v4 address(addr->ipv4);
+			DEBUG("join multicast %s", address.to_string().c_str());
+			s.set_option(ip::multicast::enable_loopback(true));
+			boost::asio::ip::multicast::join_group option(address);
+			s.set_option(option);
+			return 0;
+		}
+	}
     return -1;
 }
 
-sock_result_t socket_leave_multicast(const HAL_IPAddress* addr, network_interface_t nif, void* reserved)
+sock_result_t socket_leave_multicast(const HAL_IPAddress* addr, network_interface_t nif, socket_multicast_info_t* reserved)
 {
 	return -1;
 }
