@@ -41,7 +41,7 @@
  * Since the data has to be persisted to EEPROM, references to the actual uses of the devices have to be encoded.
  * This is the function of the deviceID.
  */
-class DeviceConfig;
+struct DeviceConfig;
 
 
 typedef int8_t device_slot_t;

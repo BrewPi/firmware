@@ -43,6 +43,9 @@ public:
 
     void fastUpdate() override final{} // no fast update needed because timeout is in seconds
 
+    void serialize(JSON::Adapter& adapter) final override {
+    		// what to do here?
+    }
         
 private:
 	uint16_t lastActiveTime;

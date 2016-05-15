@@ -401,6 +401,8 @@ void WebSocketsServer::messageRecived(WSclient_t * client, WSopcode_t opcode, ui
         case WSop_binary:
             type = WStype_BIN;
             break;
+        default:
+        		break;
     }
 
     runCbEvent(client->num, type, payload, lenght);

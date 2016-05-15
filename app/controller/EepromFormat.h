@@ -57,7 +57,8 @@ struct EepromFormat
 	DeviceConfig devices[MAX_DEVICES];
 };
 
-
+#ifdef ARDUINO
+// __attribute
 // check at compile time that the structure will fit into eeprom
 void eepromSizeTooLarge()
 __attribute__((error("EEPROM data is > 1024 bytes")));
@@ -68,6 +69,11 @@ void eepromSizeCheck() {
 		eepromSizeTooLarge();
 	}
 }
+#else
+static inline __attribute__((always_inline)) void eepromSizeCheck() {
+	static_assert((sizeof(EepromFormat) <= EepromFormat::MAX_EEPROM_SIZE), "EEPROM data is too large.");
+}
+#endif
 
 
 /**  
