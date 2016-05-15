@@ -48,7 +48,7 @@
 #include "common_files/d4d_private.h"    // include the private header file that contains perprocessor macros as D4D_MK_STR
 
 
-#define D4DLCDHWFB_DIRECT_MEM_ACCESS 1
+// #define D4DLCDHWFB_DIRECT_MEM_ACCESS 1
 
 // identification string of driver - must be same as name D4DLCD_FUNCTIONS structure + "_ID"
 // it is used for enable the code for compilation
