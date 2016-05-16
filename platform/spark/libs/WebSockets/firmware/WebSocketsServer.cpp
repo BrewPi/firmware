@@ -346,14 +346,14 @@ bool WebSocketsServer::newClient(WEBSOCKETS_NETWORK_CLASS * TCPclient) {
 
 #if (WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP8266)
             client->isSSL = false;
-            client->tcp->setNoDelay(true);
+            client->tcp->setNoDelay	(true);
 #endif
-#if (WEBSOCKETS_NETWORK_TYPE != NETWORK_ESP8266_ASYNC)
+#if (WEBSOCKETS_NETWORK_TYPE != NETWORK_ESP8266_ASYNC) && ((WEBSOCKETS_NETWORK_TYPE != NETWORK_PARTICLE))
             // set Timeout for readBytesUntil and readStringUntil
             client->tcp->setTimeout(WEBSOCKETS_TCP_TIMEOUT);
 #endif
             client->status = WSC_HEADER;
-#if (WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP8266) || (WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP8266_ASYNC)
+#if (WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP8266) || (WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP8266_ASYNC || WEBSOCKETS_NETWORK_TYPE == NETWORK_PARTICLE)
             IPAddress ip = client->tcp->remoteIP();
             DEBUG_WEBSOCKETS("[WS-Server][%d] new client from %d.%d.%d.%d\n", client->num, ip[0], ip[1], ip[2], ip[3]);
 #else
@@ -679,32 +679,37 @@ void WebSocketsServer::handleHeader(WSclient_t * client, String * headerLine) {
 
             client->status = WSC_CONNECTED;
 
-            client->tcp->write("HTTP/1.1 101 Switching Protocols\r\n"
+            String response;
+            response.reserve(256);
+
+            const char* prefix = "HTTP/1.1 101 Switching Protocols\r\n"
                     "Server: arduino-WebSocketsServer\r\n"
-                    "Upgrade: websocket\r\n"
                     "Connection: Upgrade\r\n"
                     "Sec-WebSocket-Version: 13\r\n"
-                    "Sec-WebSocket-Accept: ");
-            client->tcp->write((const uint8_t*)sKey.c_str(), sKey.length());
+                    "Sec-WebSocket-Accept: ";
+            response += prefix;
+            	response += sKey;
+            	response += "\r\n";
 
             if(_origin.length() > 0) {
-                String origin = "\r\nAccess-Control-Allow-Origin: ";
-                origin += _origin;
-                origin += "\r\n";
-                client->tcp->write((const uint8_t*)origin.c_str(), origin.length());
+                response += "Access-Control-Allow-Origin: ";
+                response += _origin;
+                response += "\r\n";
             }
 
             if(client->cProtocol.length() > 0) {
-                String protocol = "\r\nSec-WebSocket-Protocol: ";
-                protocol += _protocol;
-                protocol += "\r\n";
-                client->tcp->write((const uint8_t*)protocol.c_str(), protocol.length());
-            } else {
-                client->tcp->write("\r\n");
+                response += "Sec-WebSocket-Protocol: ";
+                response += _protocol;
+                response += "\r\n";
             }
 
+            response += "Upgrade: websocket\r\n";
+
+
             // header end
-            client->tcp->write("\r\n");
+            response += ("\r\n");
+
+            client->tcp->write((const uint8_t*)response.c_str(), response.length());
 
             headerDone(client);
 
