@@ -124,12 +124,50 @@ struct __attribute__((packed)) Pixel
 	}
 };
 
+extern "C" void websocket_touch(uint16_t x, uint16_t y);
+
+class DisplayServer;
+class DisplayBuffer
+{
+	static const uint32_t count = D4D_SCREEN_SIZE_LONGER_SIDE*D4D_SCREEN_SIZE_SHORTER_SIDE;
+	D4D_COLOR pixels[count];
+public:
+
+	inline void set_pixel(uint32_t offset, D4D_COLOR color)
+	{
+		// addresses are given as offsets
+		if (offset<count)
+			pixels[offset] = color;
+	}
+
+	void push(DisplayServer& server);
+};
+
+static_assert(sizeof(D4D_COLOR)==2, "expected D4D_COLOR to be 16-bit");
+
+class NoOpDisplayBuffer
+{
+	inline void set_pixel(uint32_t offset, D4D_COLOR color) {
+
+	}
+
+	void push(DisplayServer& server) {}
+};
+
+#if PLATFORM_ID==3
+typedef DisplayBuffer DisplayBufferImpl;
+#else
+typedef NoOpDisplayBuffer DisplayBufferImpl;
+#endif
+
+
 class DisplayServer
 {
 	WebSocketsServer server;
 
-	const static int pixel_count = 320;
+	const static int pixel_count = D4D_SCREEN_SIZE_LONGER_SIDE;
 	std::vector<Pixel> pixels;
+	DisplayBufferImpl buffer;
 
 public:
 	DisplayServer(uint16_t port, const String& origin) : server(port, origin) {
@@ -154,12 +192,42 @@ public:
 		return true;
 	}
 
+	void process_command(const uint8_t* data, size_t length)
+	{
+		if (length>=1) {
+			int cmd = data[0];
+			DEBUG("command %d, %d", cmd, length);
+			switch (cmd) {
+			case 1:
+				if (length>=5) {
+					uint16_t x = *((uint16_t*)(data+1));
+					uint16_t y = *((uint16_t*)(data+3));
+					websocket_touch(x, y);
+					DEBUG("touch %d, %d", x, y);
+				}
+				break;
+			}
+		}
+	}
+
 	void handleEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length)
 	{
 		switch (type) {
 		case WStype_CONNECTED:
-			// invalidate the new screen (global complete redraw, not individual objects)
-			D4D_InvalidateScreen(D4D_GetActiveScreen(), D4D_TRUE);
+			{
+				buffer.push(*this);
+
+				D4D_SCREEN* screen = D4D_GetActiveScreen();
+				// invalidate the new screen (global complete redraw, not individual objects)
+				// D4D_InvalidateScreen(D4D_GetActiveScreen(), D4D_TRUE);
+				if (screen) {
+					D4D_InvalidateScreen(screen, D4D_TRUE);
+					D4D_RedrawScreen(screen);
+				}
+			}
+			break;
+		case WStype_BIN:
+			process_command(payload, length);
 			break;
 		default:
 			break;
@@ -176,13 +244,22 @@ public:
 		}
 	}
 
-	void add_pixel(uint32_t offset, uint32_t color)
+	void add_pixel(uint32_t offset, D4D_COLOR color)
 	{
 		if (pixels.size()==pixels.capacity())
 			flush();
 		pixels.push_back(Pixel(offset, color));
+		buffer.set_pixel(offset, color);
 	}
 };
+
+void DisplayBuffer::push(DisplayServer& server)
+{
+	for (uint32_t i=0; i<count; i++)
+		server.add_pixel(i, pixels[i]);
+	server.flush();
+}
+
 
 DisplayServer server(0x1cd0, "*"); // 7376
 
@@ -226,7 +303,7 @@ static void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t
   *******************************************************************************/
   static void D4DLCDHW_WriteData_WebsocketServerFb(unsigned long addr, D4D_COLOR value)
   {
-	  server.add_pixel(uint32_t(addr), uint32_t(value));
+	  server.add_pixel(uint32_t(addr>>1), value);
   }
 
 //  D4D_COLOR buffer[D4D_SCREEN_SIZE_LONGER_SIDE*D4D_SCREEN_SIZE_SHORTER_SIDE];
@@ -256,6 +333,7 @@ static void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t
 	  desc.lcd_x_max = D4D_SCREEN_SIZE_LONGER_SIDE;
 	  desc.lcd_y_max = D4D_SCREEN_SIZE_SHORTER_SIDE;
 	  desc.bpp_byte = sizeof(D4D_COLOR);
+	  static_assert(sizeof(D4D_COLOR)==2, "expected 16-bits per pixel");
 	  return &desc;
   }
 

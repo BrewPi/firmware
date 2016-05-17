@@ -121,7 +121,6 @@
 
 
 	static D4DLCD_ORIENTATION lcd_orient = Portrait;
-	static D4DLCD_ORIENTATION hw_orient  = Portrait;
 	static D4DLCD_FRAMEBUFF_DESC* p_fbDesc = NULL;
 
 
@@ -160,14 +159,14 @@
 
   	if(p_fbDesc->lcd_x_max < p_fbDesc->lcd_y_max)
   	{
-  		hw_orient  = Portrait;
+  		lcd_orient  = Portrait;
   	}
   	else
   	{
-  		hw_orient  = Landscape;
+  		lcd_orient  = Landscape;
   	}
 
-	pix_cnt = (unsigned long)(p_fbDesc->lcd_x_max * p_fbDesc->lcd_y_max);
+  	pix_cnt = (unsigned long)(p_fbDesc->lcd_x_max * p_fbDesc->lcd_y_max);
 
 	bpp_byte = p_fbDesc->bpp_byte;
 
@@ -265,13 +264,6 @@
 	lcd_orient = new_orientation;
 	uint32_t width = writeRegion.max_width;
 	uint32_t height = writeRegion.max_height;
-	if (new_orientation==D4D_ORIENT_LANDSCAPE || new_orientation==D4D_ORIENT_LANDSCAPE180)
-	{
-		uint32_t tmp = width;
-		width = height;
-		height = tmp;
-	}
-
 	D4DLCD_SetWindow_FrameBuffer(0, 0, width, height);
   	return 1;
   }
