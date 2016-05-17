@@ -340,8 +340,8 @@ typedef enum
 typedef struct
 {
   unsigned char ScreenCalibrated;               ///< Boolean if the values are valid
-  unsigned short TouchScreenXoffset;            ///< Input value offset in axis X
-  unsigned short TouchScreenYoffset;            ///< Input value offset in axis Y
+  short TouchScreenXoffset;            ///< Input value offset in axis X
+  short TouchScreenYoffset;            ///< Input value offset in axis Y
   unsigned short TouchScreenXBitsPerPixelx16;   ///< Input value gain per 16 pixels in axis X
   unsigned short TouchScreenYBitsPerPixelx16;   ///< Input value gain per 16 pixels in axis Y
 }D4D_TOUCHSCREEN_CALIB;
