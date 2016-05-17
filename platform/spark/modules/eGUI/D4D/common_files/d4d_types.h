@@ -127,6 +127,7 @@
   #define  D4D_MCF54      53      ///< The group of MCU with CORE MCF54 (ColdFire 4)
   #define  D4D_MPC51      60      ///< The group of MCU with CORE MCP51 (Power PC)
   #define  D4D_MK         80      ///< The group of MCU with CORE MK    (Kinetis family)
+#define D4D_PARTICLE		100			/// Particle HAL
 /**@}*/
 
 
@@ -146,37 +147,38 @@
 * @{
 *******************************************************************************/
 #if (D4D_USE_STANDARD_TYPES != D4D_TRUE)
+#include <stdint.h>
   #ifndef Byte
     /*! @brief Type definition of Byte (unsigned 8-bit). */
-    typedef unsigned char       Byte;
+    typedef uint8_t       Byte;
   #endif
   #ifndef sByte
     /*! @brief Type definition of sByte (signed 8-bit). */
-    typedef signed char         sByte;
+    typedef int8_t        sByte;
   #endif
   #ifndef Word
     /*! @brief Type definition of Word (unsigned 16-bit). */
-    typedef unsigned short      Word;
+    typedef uint16_t      Word;
   #endif
   #ifndef sWord
     /*! @brief Type definition of sWord (signed 16-bit). */
-    typedef signed short        sWord;
+    typedef int16_t        sWord;
   #endif
   #ifndef LWord
     /*! @brief Type definition of LWord (unsigned 32-bit). */
-    typedef unsigned long       LWord;
+    typedef uint32_t       LWord;
   #endif
   #ifndef sLWord
     /*! @brief Type definition of sLWord (signed 32-bit). */
-    typedef signed long         sLWord;
+    typedef int32_t         sLWord;
   #endif
   #ifndef DLWord
     /*! @brief Type definition of DLWord (unsigned 64-bit). */
-    typedef unsigned long long  DLWord;
+    typedef uint64_t  DLWord;
   #endif
   #ifndef sDLWord
     /*! @brief Type definition of sDLWord (signed 64-bit). */
-    typedef signed long long    sDLWord;
+    typedef int64_t    sDLWord;
   #endif
 
   #ifndef NULL
@@ -199,14 +201,14 @@
   typedef Word D4D_BOOL;
   typedef Word D4D_INDEX;
   typedef sWord D4D_INDEX_DELTA;
-#elif (D4D_MCU_TYPE == D4D_MCF51) || (D4D_MCU_TYPE == D4D_MCF52) || (D4D_MCU_TYPE == D4D_MPC51) || (D4D_MCU_TYPE == D4D_MK)
+#elif (D4D_MCU_TYPE == D4D_MCF51) || (D4D_MCU_TYPE == D4D_MCF52) || (D4D_MCU_TYPE == D4D_MPC51) || (D4D_MCU_TYPE == D4D_MK) || (D4D_MCU_TYPE == D4D_PARTICLE)
   /*! @brief Type definition of eGUI boolean. */
-  typedef LWord D4D_BOOL;
+  typedef uint8_t D4D_BOOL;
   /*! @brief Type definition of eGUI general index variables.*/
   typedef LWord D4D_INDEX;
   /*! @brief Type definition of eGUI general index variables for signed offsets.*/
   typedef sLWord D4D_INDEX_DELTA;
-#else
+  #else
   #error "Unsupported MCU type for D4D_BOOL type!"
 #endif
 
