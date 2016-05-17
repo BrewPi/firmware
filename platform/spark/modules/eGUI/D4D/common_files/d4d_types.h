@@ -258,18 +258,6 @@ typedef struct
   D4D_COOR tabOffset;   ///< Start offset of tabulator
 }D4D_TAB;
 
-// Color type definition
-#if ((D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB888) || (D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB666))
-  /*! @brief Type definition of eGUI color variables.*/
-  typedef LWord D4D_COLOR;
-#elif ((D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB565) || (D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB555))
-  typedef Word D4D_COLOR;
-#elif ((D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB332) || (D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_MONO))
-  typedef Byte D4D_COLOR;
-#else
-  #error D4D_COLOR not defined due to unsupported D4D system color.
-#endif
-
 #ifndef D4D_WCHAR_TYPE
 /*! @brief User type definition of eGUI wide char.*/
   #define  D4D_WCHAR_TYPE unsigned short
@@ -369,6 +357,13 @@ typedef struct
 /******************************************************************************
 * Macros
 ******************************************************************************/
+
+#include "d4d_scheme.h"
+
+// there's a circular dependency -
+// this file required D4D_COLOR_SCHEME, which is defined in d4d_scheme.h
+// while d4d_scheme.h requires D4D_COLOR which is defined in here, based on the scheme.
+// So I moved the D4D_Color definition to d4d_scheme.h
 
 
 
