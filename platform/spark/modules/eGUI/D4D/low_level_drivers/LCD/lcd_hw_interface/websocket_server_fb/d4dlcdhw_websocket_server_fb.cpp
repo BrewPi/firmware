@@ -132,16 +132,21 @@ class DisplayServer
 	std::vector<Pixel> pixels;
 
 public:
-	DisplayServer(uint16_t port) : server(port) {
+	DisplayServer(uint16_t port, const String& origin) : server(port, origin) {
 		pixels.reserve(pixel_count);
 	}
 
 	bool start()
 	{
-		server.onEvent(webSocketEvent);
 		server.begin();
+		server.onEvent(webSocketEvent);
 		INFO("started DisplayServer");
 		return true;
+	}
+
+	void loop()
+	{
+		server.loop();
 	}
 
 	bool stop()
@@ -175,12 +180,15 @@ public:
 	{
 		if (pixels.size()==pixels.capacity())
 			flush();
-
 		pixels.push_back(Pixel(offset, color));
 	}
 };
 
-DisplayServer server(0x1cd0); // 7376
+DisplayServer server(0x1cd0, "*"); // 7376
+
+extern "C" void loop_ws_display() {
+	server.loop();
+}
 
 static void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length)
 {
@@ -274,6 +282,9 @@ static void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t
   static void D4DLCD_FlushBuffer_WebsocketServerFb(D4DLCD_FLUSH_MODE mode)
   {
 	  server.flush();
+	  if (mode == D4DLCD_FLSH_FORCE) {
+		  server.loop();
+	  }
   }
 
   /*! @} End of doxd4d_tch_func                                               */
