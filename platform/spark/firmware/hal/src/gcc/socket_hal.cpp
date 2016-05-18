@@ -23,19 +23,22 @@
  ******************************************************************************
  */
 #include "device_globals.h"
+
+#undef ERROR
+
+// socklen_t is defined by boost to be signed, so we do a little switcheroo here
+#define socklen_t hal_socklen_t
+typedef uint32_t hal_socklen_t;
+
 #include "socket_hal.h"
 #include "inet_hal.h"
 #include "core_msg.h"
 #include <vector>
+#include "service_debug.h"
 
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wmissing-braces"
 #include <boost/array.hpp>
-
-// conflict of types
-#define socklen_t boost_socklen_t
-#include <boost/asio.hpp>
-#undef socklen_t
 
 #include <boost/system/system_error.hpp>
 
