@@ -1,16 +1,16 @@
 
 ifneq (,$(findstring hal,$(MAKE_DEPENDENCIES)))
 
-LDFLAGS += -lc
+LDFLAGS += -static
 
 
 # additional libraries required by gcc build
-ifdef SYSTEMROOT
-LIBS += boost_system-mgw48-mt-1_57 ws2_32 wsock32
+ifeq ($(MAKE_OS),WINDOWS)
+LIBS += boost_system ws2_32
 else
 LIBS += boost_system
 endif
-LIBS += boost_program_options boost_random boost_thread
+LIBS += boost_program_options boost_random
 
 LIB_DIRS += $(BOOST_ROOT)/stage/lib
 
