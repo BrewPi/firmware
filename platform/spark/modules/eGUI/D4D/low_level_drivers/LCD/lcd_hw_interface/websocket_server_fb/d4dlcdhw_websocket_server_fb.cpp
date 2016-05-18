@@ -124,7 +124,8 @@ struct __attribute__((packed)) Pixel
 	}
 };
 
-extern "C" void websocket_touch(uint16_t x, uint16_t y);
+extern "C" void websocket_touch(uint16_t x, uint16_t y, uint8_t pressed);
+extern "C" void websocket_touch_clear();
 
 class DisplayServer;
 class DisplayBuffer
@@ -200,11 +201,12 @@ public:
 			int cmd = data[0];
 			DEBUG("command %d, %d", cmd, length);
 			switch (cmd) {
+			case 2:
 			case 1:
 				if (length>=5) {
 					uint16_t x = *((uint16_t*)(data+1));
 					uint16_t y = *((uint16_t*)(data+3));
-					websocket_touch(x, y);
+					websocket_touch(x, y, cmd==1);
 					DEBUG("touch %d, %d", x, y);
 				}
 				break;
@@ -212,11 +214,16 @@ public:
 		}
 	}
 
+	void clear_touch() {
+		websocket_touch_clear();
+	}
+
 	void handleEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length)
 	{
 		switch (type) {
 		case WStype_CONNECTED:
 			{
+				clear_touch();
 				// send the current screen to the new client
 				if (!buffer.push(*this)) {
 
@@ -229,6 +236,9 @@ public:
 					}
 				}
 			}
+			break;
+		case WStype_DISCONNECTED:
+			clear_touch();
 			break;
 		case WStype_BIN:
 			process_command(payload, length);

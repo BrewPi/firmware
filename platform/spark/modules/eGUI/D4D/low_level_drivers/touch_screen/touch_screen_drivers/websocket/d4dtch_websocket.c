@@ -139,7 +139,7 @@
   }
 
 
-	  unsigned short touch_x, touch_y, touch_valid;
+	  unsigned short touch_x, touch_y, touch_valid, touch_pressed;
 
   /**************************************************************************/ /*!
   * @brief   Reads  touch screen and returns raw uncompensated X, Y coordinates if screen touched
@@ -154,17 +154,24 @@
 	  if (touch_valid) {
 		  *TouchPositionX = touch_x;
 		  *TouchPositionY = touch_y;
-		  touch_valid = 0;
+		  // if the device is still pressed, then continue returning these values.
+		  touch_valid = touch_pressed;
 		  return 1;
 	  }
      return 0;
   }
 
-void websocket_touch(uint16_t x, uint16_t y)
+void websocket_touch_clear() {
+	touch_valid = 0;
+	touch_pressed = 0;
+}
+
+void websocket_touch(uint16_t x, uint16_t y, uint8_t pressed)
 {
 	touch_x = D4D_SCREEN_SIZE_LONGER_SIDE-x;
 	touch_y = D4D_SCREEN_SIZE_SHORTER_SIDE-y;
-	touch_valid = 1;
+	//touch_valid = 1;
+	touch_valid = pressed;
 }
 
   /*! @} End of doxd4d_tch_func                                         */
