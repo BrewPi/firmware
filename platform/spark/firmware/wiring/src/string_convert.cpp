@@ -110,7 +110,10 @@ char* itoa(int a, char* buffer, int radix){
 	return buffer;
 }
 
-__attribute__((weak)) char* utoa(unsigned a, char* buffer, int radix) {
+#if PLATFORM_ID!=3
+__attribute__((weak))
+#endif
+char* utoa(unsigned a, char* buffer, int radix) {
     return ultoa(a, buffer, radix);
 }
 
