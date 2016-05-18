@@ -140,7 +140,7 @@ public:
 			pixels[offset] = color;
 	}
 
-	void push(DisplayServer& server);
+	bool push(DisplayServer& server);
 };
 
 static_assert(sizeof(D4D_COLOR)==2, "expected D4D_COLOR to be 16-bit");
@@ -151,7 +151,9 @@ class NoOpDisplayBuffer
 
 	}
 
-	void push(DisplayServer& server) {}
+	bool push(DisplayServer& server) {
+		return false;
+	}
 };
 
 #if PLATFORM_ID==3
@@ -215,14 +217,16 @@ public:
 		switch (type) {
 		case WStype_CONNECTED:
 			{
-				buffer.push(*this);
+				// send the current screen to the new client
+				if (!buffer.push(*this)) {
 
-				D4D_SCREEN* screen = D4D_GetActiveScreen();
-				// invalidate the new screen (global complete redraw, not individual objects)
-				// D4D_InvalidateScreen(D4D_GetActiveScreen(), D4D_TRUE);
-				if (screen) {
-					D4D_InvalidateScreen(screen, D4D_TRUE);
-					D4D_RedrawScreen(screen);
+					D4D_SCREEN* screen = D4D_GetActiveScreen();
+					// invalidate the new screen (global complete redraw, not individual objects)
+					// D4D_InvalidateScreen(D4D_GetActiveScreen(), D4D_TRUE);
+					if (screen) {
+						D4D_InvalidateScreen(screen, D4D_TRUE);
+						D4D_RedrawScreen(screen);
+					}
 				}
 			}
 			break;
@@ -253,11 +257,12 @@ public:
 	}
 };
 
-void DisplayBuffer::push(DisplayServer& server)
+bool DisplayBuffer::push(DisplayServer& server)
 {
 	for (uint32_t i=0; i<count; i++)
 		server.add_pixel(i, pixels[i]);
 	server.flush();
+	return true;
 }
 
 
