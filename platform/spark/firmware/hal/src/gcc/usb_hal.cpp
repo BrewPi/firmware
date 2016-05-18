@@ -28,11 +28,21 @@
 #include <stdint.h>
 #include <iostream>
 #include <stdio.h>
+#include <unistd.h>
+#ifndef _WIN32
 #include <sys/poll.h>
 #include <termios.h>
-#include <unistd.h>
+#else
+#include <windows.h>
+#include <conio.h>
+#endif
 
 uint32_t last_baudRate;
+#ifdef WIN32
+HANDLE input_handle;
+bool is_pipe;
+#endif
+
 /*******************************************************************************
  * Function Name  : USB_USART_Init
  * Description    : Start USB-USART protocol.
@@ -42,6 +52,12 @@ uint32_t last_baudRate;
 void USB_USART_Init(uint32_t baudRate)
 {
     last_baudRate = baudRate;
+
+#ifdef WIN32
+ DWORD dw;
+  input_handle = GetStdHandle(STD_INPUT_HANDLE);
+  is_pipe = !GetConsoleMode(input_handle, &dw);
+#endif
 }
 
 /*******************************************************************************
@@ -52,10 +68,36 @@ void USB_USART_Init(uint32_t baudRate)
  *******************************************************************************/
 uint8_t USB_USART_Available_Data(void)
 {
+#ifdef WIN32
+  DWORD nchars;
+  /* When using Standard C input functions, also check if there
+   is anything in the buffer. After a call to such functions,
+   the input waiting in the pipe will be copied to the buffer,
+   and the call to PeekNamedPipe can indicate no input available.
+   Setting stdin to unbuffered was not enough, IIRC */
+  if (stdin->_cnt > 0)
+    return 1;
+  if (is_pipe)
+  {
+    /* When running under a GUI, you will end here. */
+    if (!PeekNamedPipe(input_handle, NULL, 0, NULL, &nchars, NULL))
+      /* Something went wrong. Probably the parent program exited.
+         Could call exit() here. Returning 1 will make the next call
+         to the input function return EOF, where this should be
+         caught then. */
+      return 1;
+
+    return (nchars != 0);
+  }
+  else
+    return _kbhit() != 0; /* In "text-mode" without GUI */
+
+#else
     struct pollfd stdin_poll = { .fd = STDIN_FILENO
             , .events = POLLIN | POLLRDBAND | POLLRDNORM | POLLPRI };
     int ret = poll(&stdin_poll, 1, 0);
     return ret;
+#endif
 }
 
 int32_t last = -1;
