@@ -252,12 +252,12 @@ public:
 
     bool subscribe(const char *eventName, wiring_event_handler_t handler, Spark_Subscription_Scope_TypeDef scope=ALL_DEVICES)
     {
-        return subscribe_wiring(eventName, handler, scope);
+        return CLOUD_FN(subscribe_wiring(eventName, handler, scope), false);
     }
 
     bool subscribe(const char *eventName, wiring_event_handler_t handler, const char *deviceID)
     {
-        return subscribe_wiring(eventName, handler, MY_DEVICES, deviceID);
+        return CLOUD_FN(subscribe_wiring(eventName, handler, MY_DEVICES, deviceID), false);
     }
 
     template <typename T>
@@ -312,6 +312,7 @@ public:
 
 private:
 
+#ifndef SPARK_NO_CLOUD
     static bool register_function(cloud_function_t fn, void* data, const char* funcKey);
     static int call_raw_user_function(void* data, const char* param, void* reserved);
     static int call_std_user_function(void* data, const char* param, void* reserved);
@@ -325,9 +326,6 @@ private:
 
     bool subscribe_wiring(const char *eventName, wiring_event_handler_t handler, Spark_Subscription_Scope_TypeDef scope, const char *deviceID = NULL)
     {
-#ifdef SPARK_NO_CLOUD
-        return false;
-#else
         bool success = false;
         if (handler) // if the call-wrapper has wrapped a callable object
         {
@@ -337,8 +335,8 @@ private:
             }
         }
         return success;
-#endif
     }
+#endif
 
     static const void* update_string_variable(const char* name, Spark_Data_TypeDef type, const void* var, void* reserved)
     {
@@ -351,6 +349,7 @@ private:
     constexpr static bool IsStringLiteral(const T& param) {
       return std::is_array<T>::value && std::is_same<typename std::remove_extent<T>::type, char>::value;
     }
+
 };
 
 

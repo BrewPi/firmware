@@ -1,5 +1,7 @@
 #include "spark_wiring_cloud.h"
 
+#ifndef SPARK_NO_CLOUD
+
 int CloudClass::call_raw_user_function(void* data, const char* param, void* reserved)
 {
     user_function_int_str_t* fn = (user_function_int_str_t*)(data);
@@ -29,3 +31,5 @@ bool CloudClass::register_function(cloud_function_t fn, void* data, const char* 
     desc.funcKey = funcKey;
     return spark_function(NULL, (user_function_int_str_t*)&desc, NULL);
 }
+
+#endif
