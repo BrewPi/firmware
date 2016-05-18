@@ -1,7 +1,5 @@
 #pragma once
 
-#if PLATFORM_ID!=3
-
 #include "flashee-eeprom.h"
 
 namespace Flashee {
@@ -37,11 +35,4 @@ public:
 
 typedef SparkEepromAccess EepromAccess;
 
-#else
 
-#include "ArrayEepromAccess.h"
-
-typedef ArrayEepromAccess<1024> EepromAccess;
-
-
-#endif
