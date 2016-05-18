@@ -9,8 +9,6 @@ extern "C" {
 #ifdef WIN32
 // MinGW doesn't provide strnlen
 size_t strnlen( const char* start, size_t maxlen );
-#else
-#error windows
 #endif
 
 
