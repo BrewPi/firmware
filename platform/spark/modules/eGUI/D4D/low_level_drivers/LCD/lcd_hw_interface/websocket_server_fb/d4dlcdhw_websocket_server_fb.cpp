@@ -327,9 +327,8 @@ static void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t
   *******************************************************************************/
   static D4DLCD_FRAMEBUFF_DESC* D4DLCDHW_GetFbDescriptor_WebsocketServerFb(void)
   {
-	  static_assert(sizeof(void*)<=sizeof(D4DLCD_FRAMEBUFF_DESC::fb_start_addr), "cannot cast to a long");
 	  static D4DLCD_FRAMEBUFF_DESC desc;
-	  desc.fb_start_addr = 0; // (unsigned long)&buffer;
+	  desc.fb_start_addr = 0;
 	  desc.lcd_x_max = D4D_SCREEN_SIZE_LONGER_SIDE;
 	  desc.lcd_y_max = D4D_SCREEN_SIZE_SHORTER_SIDE;
 	  desc.bpp_byte = sizeof(D4D_COLOR);
