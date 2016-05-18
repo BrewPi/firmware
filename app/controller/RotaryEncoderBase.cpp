@@ -205,3 +205,20 @@ bool RotaryEncoder::changed(void){
 	}
 	return 0;
 }
+
+#if !BREWPI_TOARY_ENCODER
+
+void RotaryEncoder::init(void)
+{
+}
+
+void RotaryEncoder::setRange(int16_t start, int16_t minVal, int16_t maxVal)
+{
+}
+
+int16_t RotaryEncoder::read(void)
+{
+	return 0;
+}
+
+#endif
