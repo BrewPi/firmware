@@ -22,7 +22,8 @@ else
 # boost now uses i686 as the target architecture for 32-bit targets
 # need to specify this to avoid duplicate sections of different sizes. 
 # http://stackoverflow.com/a/29736626/326480
-CFLAGS += -march=i686 -gc-sections
+CFLAGS += -march=i686 
+LDFLAGS += -Wl,-gc-sections
 endif
 
 ASFLAGS +=  -g3
