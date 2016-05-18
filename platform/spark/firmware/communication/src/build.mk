@@ -8,7 +8,7 @@ TARGET_SRC_PATH = src
 
 
 # C source files included in this build.
-CSRC += $(TARGET_SRC_PATH)/strnlen.c
+CSRC += 
 
 # C++ source files included in this build.
 CPPSRC += $(TARGET_SRC_PATH)/coap.cpp
@@ -27,6 +27,7 @@ CPPSRC += $(TARGET_SRC_PATH)/protocol.cpp
 CPPSRC += $(TARGET_SRC_PATH)/messages.cpp
 CPPSRC += $(TARGET_SRC_PATH)/chunked_transfer.cpp
 CPPSRC += $(TARGET_SRC_PATH)/coap_channel.cpp
+CPPSRC += $(TARGET_SRC_PATH)/strnlen.cpp
 
 # ASM source files included in this build.
 ASRC +=
