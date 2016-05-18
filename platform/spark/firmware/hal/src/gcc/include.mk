@@ -6,11 +6,11 @@ LDFLAGS += -static
 
 # additional libraries required by gcc build
 ifeq ($(MAKE_OS),WINDOWS)
-LIBS += boost_system ws2_32
+LIBS += boost_system-mt ws2_32 mswsock
 else
-LIBS += boost_system
+LIBS += boost_system-mt
 endif
-LIBS += boost_program_options boost_random
+LIBS += boost_program_options-mt boost_random-mt boost_thread-mt
 
 LIB_DIRS += $(BOOST_ROOT)/stage/lib
 
