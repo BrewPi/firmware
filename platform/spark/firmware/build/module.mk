@@ -35,8 +35,13 @@ endif
 
 # fixes build errors on ubuntu with arm gcc 5.3.1
 # GNU_SOURCE is needed for isascii/toascii
+
+
+ifneq ("$(PLATFORM_ID)","3")
+CFLAGS += -D_WINSOCK_H
+CFLAGS += -D_GNU_SOURCE 
 # WINSOCK_H stops select.h from being used which conflicts with CC3000 headers
-CFLAGS += -D_GNU_SOURCE -D_WINSOCK_H
+endif
 
 # Collect all object and dep files
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.o))
