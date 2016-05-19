@@ -78,16 +78,21 @@ uint8_t USB_USART_Available_Data(void)
     timeout.tv_usec = 0;
     int ret = select(1, &rfds, NULL, NULL, &timeout);
 #else
-    struct pollfd stdin_poll = { .fd = STDIN_FILENO
-            , .events = POLLIN | POLLRDBAND | POLLRDNORM | POLLPRI };
-    int ret = poll(&stdin_poll, 1, 0);
+  fd_set in;
+  FD_ZERO(&in);
+  FD_SET(STDIN_FILENO, &in);
+  struct timeval tv = {0};
+
+  int retval = select(1, &in, NULL, NULL, &tv);
+  if (retval <= 0)
+	  return 0;
+  return retval;
 #endif
 /*// for some reason it stops working when we return -1
  * if(ret <= 0){
          return 0;
     }
     else{
-        return ret;
     }
 */
     return ret;
