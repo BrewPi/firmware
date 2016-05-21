@@ -38,10 +38,10 @@
 #endif
 
 uint32_t last_baudRate;
+fd_set stdin_fdset;
 #ifdef WIN32
 HANDLE input_handle;
 bool is_pipe;
-fd_set rfds;
 #endif
 
 /*******************************************************************************
@@ -55,13 +55,12 @@ void USB_USART_Init(uint32_t baudRate)
     last_baudRate = baudRate;
 
 #ifdef WIN32
- DWORD dw;
-  input_handle = GetStdHandle(STD_INPUT_HANDLE);
-  is_pipe = !GetConsoleMode(input_handle, &dw);
-  /* Watch stdin (fd 0) to see when it has input. */
-  FD_ZERO(&rfds);
-  FD_SET(0, &rfds);
+    DWORD dw;
+    input_handle = GetStdHandle(STD_INPUT_HANDLE);
+    is_pipe = !GetConsoleMode(input_handle, &dw);
 #endif
+    FD_ZERO(&stdin_fdset);
+    FD_SET(STDIN_FILENO, &stdin_fdset);
 }
 
 /*******************************************************************************
@@ -72,30 +71,13 @@ void USB_USART_Init(uint32_t baudRate)
  *******************************************************************************/
 uint8_t USB_USART_Available_Data(void)
 {
-#ifdef WIN32
-    struct timeval timeout;
-    timeout.tv_sec = 0; // do not wait for input
-    timeout.tv_usec = 0;
-    int ret = select(1, &rfds, NULL, NULL, &timeout);
-#else
-  fd_set in;
-  FD_ZERO(&in);
-  FD_SET(STDIN_FILENO, &in);
-  struct timeval tv = {0};
-
-  int retval = select(1, &in, NULL, NULL, &tv);
-  if (retval <= 0)
-	  return 0;
-  return retval;
-#endif
-/*// for some reason it stops working when we return -1
- * if(ret <= 0){
-         return 0;
-    }
-    else{
-    }
-*/
-    return ret;
+    struct timeval tv = {0, 1};
+    int retval = select(1, &stdin_fdset, NULL, NULL, &tv);
+    if (retval <= 0)
+        retval = 0;
+        volatile int error = WSAGetLastError();
+        return error;
+    return retval;
 }
 
 int32_t last = -1;
@@ -108,7 +90,7 @@ int32_t last = -1;
  *******************************************************************************/
 int32_t USB_USART_Receive_Data(uint8_t peek)
 {
-    if (last<0 && USB_USART_Available_Data()) {
+    if (last<0 && USB_USART_Available_Data() > 0) {
         uint8_t data = 0;
         if (read(0, &data, 1))
             last = data;
