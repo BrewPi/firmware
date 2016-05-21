@@ -41,6 +41,7 @@ uint32_t last_baudRate;
 #ifdef WIN32
 HANDLE input_handle;
 bool is_pipe;
+fd_set rfds;
 #endif
 
 /*******************************************************************************
@@ -57,6 +58,9 @@ void USB_USART_Init(uint32_t baudRate)
  DWORD dw;
   input_handle = GetStdHandle(STD_INPUT_HANDLE);
   is_pipe = !GetConsoleMode(input_handle, &dw);
+  /* Watch stdin (fd 0) to see when it has input. */
+  FD_ZERO(&rfds);
+  FD_SET(0, &rfds);
 #endif
 }
 
@@ -64,40 +68,29 @@ void USB_USART_Init(uint32_t baudRate)
  * Function Name  : USB_USART_Available_Data.
  * Description    : Return the length of available data received from USB.
  * Input          : None.
- * Return         : Length.
+ * Return         : Non zero when data is available.
  *******************************************************************************/
 uint8_t USB_USART_Available_Data(void)
 {
 #ifdef WIN32
-  DWORD nchars;
-  /* When using Standard C input functions, also check if there
-   is anything in the buffer. After a call to such functions,
-   the input waiting in the pipe will be copied to the buffer,
-   and the call to PeekNamedPipe can indicate no input available.
-   Setting stdin to unbuffered was not enough, IIRC */
-  if (stdin->_cnt > 0)
-    return 1;
-  if (is_pipe)
-  {
-    /* When running under a GUI, you will end here. */
-    if (!PeekNamedPipe(input_handle, NULL, 0, NULL, &nchars, NULL))
-      /* Something went wrong. Probably the parent program exited.
-         Could call exit() here. Returning 1 will make the next call
-         to the input function return EOF, where this should be
-         caught then. */
-      return 1;
-
-    return (nchars != 0);
-  }
-  else
-    return _kbhit() != 0; /* In "text-mode" without GUI */
-
+    struct timeval timeout;
+    timeout.tv_sec = 0; // do not wait for input
+    timeout.tv_usec = 0;
+    int ret = select(1, &rfds, NULL, NULL, &timeout);
 #else
     struct pollfd stdin_poll = { .fd = STDIN_FILENO
             , .events = POLLIN | POLLRDBAND | POLLRDNORM | POLLPRI };
     int ret = poll(&stdin_poll, 1, 0);
-    return ret;
 #endif
+/*// for some reason it stops working when we return -1
+ * if(ret <= 0){
+         return 0;
+    }
+    else{
+        return ret;
+    }
+*/
+    return ret;
 }
 
 int32_t last = -1;
