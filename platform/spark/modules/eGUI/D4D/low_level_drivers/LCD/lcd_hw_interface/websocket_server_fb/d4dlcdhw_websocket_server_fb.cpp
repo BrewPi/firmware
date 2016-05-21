@@ -218,24 +218,30 @@ public:
 		websocket_touch_clear();
 	}
 
+	void handleConnection()
+	{
+		// todo - only clear the touch screen on the first connection.
+		// todo - only send the screen data to the connecting client, not to all clients.
+		clear_touch();
+
+		// send the current screen to the new client
+		if (!buffer.push(*this)) {
+
+			D4D_SCREEN* screen = D4D_GetActiveScreen();
+			// invalidate the new screen (global complete redraw, not individual objects)
+			// D4D_InvalidateScreen(D4D_GetActiveScreen(), D4D_TRUE);
+			if (screen) {
+				D4D_InvalidateScreen(screen, D4D_TRUE);
+				D4D_RedrawScreen(screen);
+			}
+		}
+	}
+
 	void handleEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length)
 	{
 		switch (type) {
 		case WStype_CONNECTED:
-			{
-				clear_touch();
-				// send the current screen to the new client
-				if (!buffer.push(*this)) {
-
-					D4D_SCREEN* screen = D4D_GetActiveScreen();
-					// invalidate the new screen (global complete redraw, not individual objects)
-					// D4D_InvalidateScreen(D4D_GetActiveScreen(), D4D_TRUE);
-					if (screen) {
-						D4D_InvalidateScreen(screen, D4D_TRUE);
-						D4D_RedrawScreen(screen);
-					}
-				}
-			}
+			handleConnection();
 			break;
 		case WStype_DISCONNECTED:
 			clear_touch();
