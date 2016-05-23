@@ -140,7 +140,10 @@ inline uint16_t hasPendingDataToSend()
  */
 inline void waitForTransferToComplete()
 {
-	while (dma_buffer_idx>=0);
+    HAL_SPI_TransferStatus st;
+    do {
+      HAL_SPI_DMA_Transfer_Status(HAL_SPI_INTERFACE1, &st);
+    } while(st.transfer_ongoing);
 }
 
 /**
@@ -157,8 +160,7 @@ inline void scheduleTransfer(uint8_t* data, uint16_t length)
 	waitForTransferToComplete();
 	D4DLCD_ASSERT_CS;
 #if 1 // DMA
-	SPI.transfer(data, NULL, length, NULL);
-	transferComplete();
+	SPI.transfer(data, NULL, length, transferComplete);
 #else
 	while (length-->0) {
 		SPI.transfer(*data++);
