@@ -3,7 +3,6 @@
 #if PLATFORM_ID==0
 #include "Ymodem/Ymodem.h"
 #endif
-#include "flashee-eeprom.h"
 #include "EepromManager.h"
 
 SYSTEM_MODE(SEMI_AUTOMATIC);
@@ -41,5 +40,9 @@ bool platform_init()
         EEPROM.write(1, EEPROM_MAGIC2);
     }
     eepromAccess.init();
+#if PLATFORM_ID==3
+    WiFi.connect();
+    waitUntil(WiFi.ready);
+#endif
     return initialize;
 }

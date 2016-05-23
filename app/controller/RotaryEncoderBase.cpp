@@ -114,6 +114,7 @@ volatile bool RotaryEncoder::pushFlag;
 #define HS_R_START_M 0x3
 #define HS_R_CW_BEGIN_M 0x4
 #define HS_R_CCW_BEGIN_M 0x5
+#if ROTARY_HALF_STEPS
 const uint8_t PROGMEM hs_ttable[7][4] = {
 	// R_START (00)
 	{HS_R_START_M,            HS_R_CW_BEGIN,     HS_R_CCW_BEGIN,  R_START},
@@ -129,6 +130,7 @@ const uint8_t PROGMEM hs_ttable[7][4] = {
 	{HS_R_START_M,            HS_R_CCW_BEGIN_M,  HS_R_START_M,    R_START | DIR_CCW},
 	{R_START, R_START, R_START, R_START}
 };
+#endif
 
 // Use the full-step state table (emits a code at 00 only)
 #define R_CW_FINAL 0x1
@@ -138,6 +140,7 @@ const uint8_t PROGMEM hs_ttable[7][4] = {
 #define R_CCW_FINAL 0x5
 #define R_CCW_NEXT 0x6
 
+#if !ROTARY_HALF_STEPS
 const uint8_t PROGMEM ttable[7][4] = {
 	// R_START
 	{R_START,    R_CW_BEGIN,  R_CCW_BEGIN, R_START},
@@ -154,7 +157,7 @@ const uint8_t PROGMEM ttable[7][4] = {
 	// R_CCW_NEXT
 	{R_CCW_NEXT, R_CCW_FINAL, R_CCW_BEGIN, R_START},
 };
-
+#endif
 
 void RotaryEncoder::process(uint8_t currPinA, uint8_t currPinB){
 	static uint8_t state=R_START;
@@ -202,3 +205,20 @@ bool RotaryEncoder::changed(void){
 	}
 	return 0;
 }
+
+#if !BREWPI_TOARY_ENCODER
+
+void RotaryEncoder::init(void)
+{
+}
+
+void RotaryEncoder::setRange(int16_t start, int16_t minVal, int16_t maxVal)
+{
+}
+
+int16_t RotaryEncoder::read(void)
+{
+	return 0;
+}
+
+#endif

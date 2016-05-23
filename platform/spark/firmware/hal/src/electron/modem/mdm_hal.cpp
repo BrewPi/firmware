@@ -57,7 +57,7 @@ std::recursive_mutex mdm_mutex;
 //! registration done check helper (no need to poll further)
 #define REG_DONE(r)     ((r == REG_HOME) || (r == REG_ROAMING) || (r == REG_DENIED))
 //! helper to make sure that lock unlock pair is always balanced
-#define LOCK()		std::lock_guard<std::recursive_mutex> __mdm_guard(mdm_mutex);
+#define LOCK()      std::lock_guard<std::recursive_mutex> __mdm_guard(mdm_mutex);
 //! helper to make sure that lock unlock pair is always balanced
 #define UNLOCK()
 
@@ -288,9 +288,8 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                 } else if ((sscanf(cmd, "UUSOCL: %d", &a) == 1)) {
                     int socket = _findSocket(a);
                     DEBUG_D("Socket %d: handle %d closed by remote host\r\n", socket, a);
-                    if ((socket != MDM_SOCKET_ERROR) && _sockets[socket].connected) {
-                        _sockets[socket].open = false;
-                        _sockets[socket].connected = false;
+                    if (socket != MDM_SOCKET_ERROR) {
+                        _socketFree(socket);
                     }
                 }
 
@@ -650,20 +649,6 @@ bool MDMParser::init(DevStatus* status)
             goto failure;
         _dev.lpm = LPM_ACTIVE;
     }
-    // setup the GPRS network registration URC (Unsolicited Response Code)
-    // 0: (default value and factory-programmed value): network registration URC disabled
-    // 1: network registration URC enabled
-    // 2: network registration and location information URC enabled
-    sendFormated("AT+CGREG=2\r\n");
-    if (RESP_OK != waitFinalResp())
-        goto failure;
-    // setup the network registration URC (Unsolicited Response Code)
-    // 0: (default value and factory-programmed value): network registration URC disabled
-    // 1: network registration URC enabled
-    // 2: network registration and location information URC enabled
-    sendFormated("AT+CREG=2\r\n");
-    if (RESP_OK != waitFinalResp())
-        goto failure;
     // Setup SMS in text mode
     sendFormated("AT+CMGF=1\r\n");
     if (RESP_OK != waitFinalResp())
@@ -771,22 +756,42 @@ bool MDMParser::registerNet(NetStatus* status /*= NULL*/, system_tick_t timeout_
 {
     LOCK();
     if (_init && _pwr) {
-        system_tick_t start = HAL_Timer_Get_Milli_Seconds();
         MDM_INFO("\r\n[ Modem::register ] = = = = = = = = = = = = = =");
-        while (!checkNetStatus(status) && !TIMEOUT(start, timeout_ms) && !_cancel_all_operations) {
+        // Check to see if we are already connected. If so don't issue these
+        // commands as they will knock us off the cellular network.
+        if (checkNetStatus() == false) {
+            // setup the GPRS network registration URC (Unsolicited Response Code)
+            // 0: (default value and factory-programmed value): network registration URC disabled
+            // 1: network registration URC enabled
+            // 2: network registration and location information URC enabled
+            sendFormated("AT+CGREG=2\r\n");
+            if (RESP_OK != waitFinalResp())
+                goto failure;
+            // setup the network registration URC (Unsolicited Response Code)
+            // 0: (default value and factory-programmed value): network registration URC disabled
+            // 1: network registration URC enabled
+            // 2: network registration and location information URC enabled
+            sendFormated("AT+CREG=2\r\n");
+            if (RESP_OK != waitFinalResp())
+                goto failure;
+            // Now check every 15 seconds for 5 minutes to see if we're connected to the tower (GSM and GPRS)
             system_tick_t start = HAL_Timer_Get_Milli_Seconds();
-            while ((HAL_Timer_Get_Milli_Seconds() - start < 15000UL) && !_cancel_all_operations); // just wait
-            //HAL_Delay_Milliseconds(15000);
+            while (!checkNetStatus(status) && !TIMEOUT(start, timeout_ms) && !_cancel_all_operations) {
+                system_tick_t start = HAL_Timer_Get_Milli_Seconds();
+                while ((HAL_Timer_Get_Milli_Seconds() - start < 15000UL) && !_cancel_all_operations); // just wait
+                //HAL_Delay_Milliseconds(15000);
+            }
+            if (_net.csd == REG_DENIED) MDM_ERROR("CSD Registration Denied\r\n");
+            if (_net.psd == REG_DENIED) MDM_ERROR("PSD Registration Denied\r\n");
+            // if (_net.csd == REG_DENIED || _net.psd == REG_DENIED) {
+            //     sendFormated("AT+CEER\r\n");
+            //     waitFinalResp();
+            // }
         }
-        if (_net.csd == REG_DENIED) MDM_ERROR("CSD Registration Denied\r\n");
-        if (_net.psd == REG_DENIED) MDM_ERROR("PSD Registration Denied\r\n");
-        // if (_net.csd == REG_DENIED || _net.psd == REG_DENIED) {
-        //     sendFormated("AT+CEER\r\n");
-        //     waitFinalResp();
-        // }
         UNLOCK();
         return REG_OK(_net.csd) && REG_OK(_net.psd);
     }
+failure:
     UNLOCK();
     return false;
 }
@@ -849,6 +854,173 @@ bool MDMParser::getSignalStrength(NetStatus &status)
     }
     UNLOCK();
     return ok;
+}
+
+bool MDMParser::getDataUsage(MDM_DataUsage &data)
+{
+    bool ok = false;
+    LOCK();
+    if (_init && _pwr) {
+        MDM_INFO("\r\n[ Modem::getDataUsage ] = = = = = = = = = =");
+        sendFormated("AT+UGCNTRD\r\n");
+        if (RESP_OK == waitFinalResp(_cbUGCNTRD, &_data_usage)) {
+            ok = true;
+            data.cid = _data_usage.cid;
+            data.tx_session = _data_usage.tx_session;
+            data.rx_session = _data_usage.rx_session;
+            data.tx_total = _data_usage.tx_total;
+            data.rx_total = _data_usage.rx_total;
+        }
+    }
+    UNLOCK();
+    return ok;
+}
+
+void MDMParser::_setBandSelectString(MDM_BandSelect &data, char* bands, int index /*= 0*/) {
+    char band[5];
+    for (int x=index; x<data.count; x++) {
+        sprintf(band, "%d", data.band[x]);
+        strcat(bands, band);
+        if ((x+1) < data.count) strcat(bands, ",");
+    }
+}
+
+bool MDMParser::setBandSelect(MDM_BandSelect &data)
+{
+    bool ok = false;
+    LOCK();
+    if (_init && _pwr) {
+        MDM_INFO("\r\n[ Modem::setBandSelect ] = = = = = = = = = =");
+
+        char bands_to_set[22] = "";
+        _setBandSelectString(data, bands_to_set, 0);
+        if (strcmp(bands_to_set,"") == 0)
+            goto failure;
+
+        // create default bands string
+        MDM_BandSelect band_avail;
+        if (!getBandAvailable(band_avail))
+            goto failure;
+
+        char band_defaults[22] = "";
+        if (band_avail.band[0] == BAND_DEFAULT)
+            _setBandSelectString(band_avail, band_defaults, 1);
+
+        // create selected bands string
+        MDM_BandSelect band_sel;
+        if (!getBandSelect(band_sel))
+            goto failure;
+
+        char bands_selected[22] = "";
+        _setBandSelectString(band_sel, bands_selected, 0);
+
+        if (strcmp(bands_to_set, "0") == 0) {
+            if (strcmp(bands_selected, band_defaults) == 0) {
+                ok = true;
+                goto success;
+            }
+        }
+
+        if (strcmp(bands_selected, bands_to_set) != 0) {
+            sendFormated("AT+UBANDSEL=%s\r\n", bands_to_set);
+            if (RESP_OK == waitFinalResp(NULL,NULL,10000)) {
+                ok = true;
+            }
+        }
+        else {
+            ok = true;
+        }
+    }
+success:
+    UNLOCK();
+    return ok;
+failure:
+    UNLOCK();
+    return false;
+}
+
+bool MDMParser::getBandSelect(MDM_BandSelect &data)
+{
+    bool ok = false;
+    LOCK();
+    if (_init && _pwr) {
+        MDM_BandSelect data_sel;
+        MDM_INFO("\r\n[ Modem::getBandSelect ] = = = = = = = = = =");
+        sendFormated("AT+UBANDSEL?\r\n");
+        if (RESP_OK == waitFinalResp(_cbBANDSEL, &data_sel)) {
+            ok = true;
+            memcpy(&data, &data_sel, sizeof(MDM_BandSelect));
+        }
+    }
+    UNLOCK();
+    return ok;
+}
+
+bool MDMParser::getBandAvailable(MDM_BandSelect &data)
+{
+    bool ok = false;
+    LOCK();
+    if (_init && _pwr) {
+        MDM_BandSelect data_avail;
+        MDM_INFO("\r\n[ Modem::getBandAvailable ] = = = = = = = = = =");
+        sendFormated("AT+UBANDSEL=?\r\n");
+        if (RESP_OK == waitFinalResp(_cbBANDAVAIL, &data_avail)) {
+            ok = true;
+            memcpy(&data, &data_avail, sizeof(MDM_BandSelect));
+        }
+    }
+    UNLOCK();
+    return ok;
+}
+
+int MDMParser::_cbUGCNTRD(int type, const char* buf, int len, MDM_DataUsage* data)
+{
+    if ((type == TYPE_PLUS) && data) {
+        int a,b,c,d,e;
+        // +UGCNTRD: 31,2704,1819,2724,1839\r\n
+        // +UGCNTRD: <cid>,<tx_sess_bytes>,<rx_sess_bytes>,<tx_total_bytes>,<rx_total_bytes>
+        if (sscanf(buf, "\r\n+UGCNTRD: %d,%d,%d,%d,%d\r\n", &a,&b,&c,&d,&e) == 5) {
+            data->cid = a;
+            data->tx_session = b;
+            data->rx_session = c;
+            data->tx_total = d;
+            data->rx_total = e;
+        }
+    }
+    return WAIT;
+}
+
+int MDMParser::_cbBANDAVAIL(int type, const char* buf, int len, MDM_BandSelect* data)
+{
+    if ((type == TYPE_PLUS) && data) {
+        int c;
+        int b[5];
+        // \r\n+UBANDSEL: (0,850,900,1800,1900)\r\n
+        if ((c = sscanf(buf, "\r\n+UBANDSEL: (%d,%d,%d,%d,%d)\r\n", &b[0],&b[1],&b[2],&b[3],&b[4])) > 0) {
+            for (int i=0; i<c; i++) {
+                data->band[i] = (MDM_Band)b[i];
+            }
+            data->count = c;
+        }
+    }
+    return WAIT;
+}
+
+int MDMParser::_cbBANDSEL(int type, const char* buf, int len, MDM_BandSelect* data)
+{
+    if ((type == TYPE_PLUS) && data) {
+        int c;
+        int b[4];
+        // \r\n+UBANDSEL: 850\r\n
+        // \r\n+UBANDSEL: 850,1900\r\n
+        if ((c = sscanf(buf, "\r\n+UBANDSEL: %d,%d,%d,%d\r\n", &b[0],&b[1],&b[2],&b[3])) > 0) {
+            for (int i=0; i<c; i++) {
+                data->band[i] = (MDM_Band)b[i];
+            }
+            data->count = c;
+        }
+    }
+    return WAIT;
 }
 
 int MDMParser::_cbCOPS(int type, const char* buf, int len, NetStatus* status)
@@ -1496,19 +1668,19 @@ int MDMParser::socketSend(int socket, const char * buf, int len)
             blk = cnt;
         bool ok = false;
         {
-			LOCK();
-			if (ISSOCKET(socket)) {
-				sendFormated("AT+USOWR=%d,%d\r\n",_sockets[socket].handle,blk);
-				if (RESP_PROMPT == waitFinalResp()) {
-					HAL_Delay_Milliseconds(50);
-					send(buf, blk);
-					if (RESP_OK == waitFinalResp())
-						ok = true;
-				}
-			}
-			UNLOCK();
+            LOCK();
+            if (ISSOCKET(socket)) {
+                sendFormated("AT+USOWR=%d,%d\r\n",_sockets[socket].handle,blk);
+                if (RESP_PROMPT == waitFinalResp()) {
+                    HAL_Delay_Milliseconds(50);
+                    send(buf, blk);
+                    if (RESP_OK == waitFinalResp())
+                        ok = true;
+                }
+            }
+            UNLOCK();
         }
-		if (!ok)
+        if (!ok)
             return MDM_SOCKET_ERROR;
         buf += blk;
         cnt -= blk;
@@ -1526,17 +1698,17 @@ int MDMParser::socketSendTo(int socket, MDM_IP ip, int port, const char * buf, i
             blk = cnt;
         bool ok = false;
         {
-			LOCK();
-			if (ISSOCKET(socket)) {
-				sendFormated("AT+USOST=%d,\"" IPSTR "\",%d,%d\r\n",_sockets[socket].handle,IPNUM(ip),port,blk);
-				if (RESP_PROMPT == waitFinalResp()) {
-					HAL_Delay_Milliseconds(50);
-					send(buf, blk);
-					if (RESP_OK == waitFinalResp())
-						ok = true;
-				}
-			}
-			UNLOCK();
+            LOCK();
+            if (ISSOCKET(socket)) {
+                sendFormated("AT+USOST=%d,\"" IPSTR "\",%d,%d\r\n",_sockets[socket].handle,IPNUM(ip),port,blk);
+                if (RESP_PROMPT == waitFinalResp()) {
+                    HAL_Delay_Milliseconds(50);
+                    send(buf, blk);
+                    if (RESP_OK == waitFinalResp())
+                        ok = true;
+                }
+            }
+            UNLOCK();
         }
         if (!ok)
             return MDM_SOCKET_ERROR;
@@ -1550,10 +1722,10 @@ int MDMParser::socketReadable(int socket)
 {
     int pending = MDM_SOCKET_ERROR;
     if (_cancel_all_operations)
-    		return MDM_SOCKET_ERROR;
+            return MDM_SOCKET_ERROR;
     LOCK();
     if (ISSOCKET(socket) && _sockets[socket].connected) {
-    		//DEBUG_D("socketReadable(%d)\r\n", socket);
+            //DEBUG_D("socketReadable(%d)\r\n", socket);
         // allow to receive unsolicited commands
         waitFinalResp(NULL, NULL, 0);
         if (_sockets[socket].connected)
@@ -1581,54 +1753,71 @@ int MDMParser::_cbUSORD(int type, const char* buf, int len, USORDparam* param)
 int MDMParser::socketRecv(int socket, char* buf, int len)
 {
     int cnt = 0;
-    // DEBUG_D("socketRecv(%d,%d)\r\n", socket, len);
+/*
+    DEBUG_D("socketRecv(%d,%d)\r\n", socket, len);
 #ifdef MDM_DEBUG
     memset(buf, '\0', len);
 #endif
+*/
     system_tick_t start = HAL_Timer_Get_Milli_Seconds();
     while (len) {
+        // DEBUG_D("socketRecv: LEN: %d\r\n", len);
         int blk = MAX_SIZE; // still need space for headers and unsolicited  commands
         if (len < blk) blk = len;
         bool ok = false;
         {
-        	LOCK();
-			if (ISSOCKET(socket)) {
-				if (_sockets[socket].connected) {
-					if (blk > 0) {
-						DEBUG_D("socketRecv: _cbUSORD\r\n");
-						sendFormated("AT+USORD=%d,%d\r\n",_sockets[socket].handle, blk);
-						USORDparam param;
-						param.buf = buf;
-						if (RESP_OK == waitFinalResp(_cbUSORD, &param)) {
-							blk = param.len;
-							_sockets[socket].pending -= blk;
-							len -= blk;
-							cnt += blk;
-							buf += blk;
-							ok = true;
-						}
-					} else if (!TIMEOUT(start, _sockets[socket].timeout_ms)) {
-						// DEBUG_D("socketRecv: WAIT FOR URCs\r\n");
-						ok = (WAIT == waitFinalResp(NULL,NULL,0)); // wait for URCs
-					} else {
-						// DEBUG_D("socketRecv: TIMEOUT\r\n");
-						len = 0;
-						ok = true;
-					}
-				} else {
-					// DEBUG_D("socketRecv: SOCKET NOT CONNECTED\r\n");
-					len = 0;
-					ok = true;
-				}
-			}
-			UNLOCK();
+            LOCK();
+            if (ISSOCKET(socket)) {
+                if (_sockets[socket].connected) {
+                    int available = socketReadable(socket);
+                    if (available<0)  {
+                        // DEBUG_D("socketRecv: SOCKET CLOSED or NO AVAIL DATA\r\n");
+                        // Socket may have been closed remotely during read, or no more data to read.
+                        // Zero the `len` to break out of the while(len), and set `ok` to true so
+                        // we return the `cnt` recv'd up until the socket was closed.
+                        len = 0;
+                        ok = true;
+                    }
+                    else
+                    {
+                        if (blk > available)    // only read up to the amount available. When 0,
+                            blk = available;// skip reading and check timeout.
+                        if (blk > 0) {
+                            DEBUG_D("socketRecv: _cbUSORD\r\n");
+                            sendFormated("AT+USORD=%d,%d\r\n",_sockets[socket].handle, blk);
+                            USORDparam param;
+                            param.buf = buf;
+                            if (RESP_OK == waitFinalResp(_cbUSORD, &param)) {
+                                blk = param.len;
+                                _sockets[socket].pending -= blk;
+                                len -= blk;
+                                cnt += blk;
+                                buf += blk;
+                                ok = true;
+                            }
+                        } else if (!TIMEOUT(start, _sockets[socket].timeout_ms)) {
+                            // DEBUG_D("socketRecv: WAIT FOR URCs\r\n");
+                            ok = (WAIT == waitFinalResp(NULL,NULL,0)); // wait for URCs
+                        } else {
+                            // DEBUG_D("socketRecv: TIMEOUT\r\n");
+                            len = 0;
+                            ok = true;
+                        }
+                    }
+                } else {
+                    // DEBUG_D("socketRecv: SOCKET NOT CONNECTED\r\n");
+                    len = 0;
+                    ok = true;
+                }
+            }
+            UNLOCK();
         }
-		if (!ok) {
+        if (!ok) {
             // DEBUG_D("socketRecv: ERROR\r\n");
             return MDM_SOCKET_ERROR;
         }
     }
-    //DEBUG_D("socketRecv: %d \"%*s\"\r\n", cnt, cnt, buf-cnt);
+    // DEBUG_D("socketRecv: %d \"%*s\"\r\n", cnt, cnt, buf-cnt);
     return cnt;
 }
 
@@ -1663,31 +1852,31 @@ int MDMParser::socketRecvFrom(int socket, MDM_IP* ip, int* port, char* buf, int 
         if (len < blk) blk = len;
         bool ok = false;
         {
-				LOCK();
-			if (ISSOCKET(socket)) {
-				if (blk > 0) {
-					sendFormated("AT+USORF=%d,%d\r\n",_sockets[socket].handle, blk);
-					USORFparam param;
-					param.buf = buf;
-					if (RESP_OK == waitFinalResp(_cbUSORF, &param)) {
-						*ip = param.ip;
-						*port = param.port;
-						blk = param.len;
-						_sockets[socket].pending -= blk;
-						len -= blk;
-						cnt += blk;
-						buf += blk;
-						len = 0; // done
-						ok = true;
-					}
-				} else if (!TIMEOUT(start, _sockets[socket].timeout_ms)) {
-					ok = (WAIT == waitFinalResp(NULL,NULL,0)); // wait for URCs
-				} else {
-					len = 0; // no more data and socket closed or timed-out
-					ok = true;
-				}
-			}
-			UNLOCK();
+                LOCK();
+            if (ISSOCKET(socket)) {
+                if (blk > 0) {
+                    sendFormated("AT+USORF=%d,%d\r\n",_sockets[socket].handle, blk);
+                    USORFparam param;
+                    param.buf = buf;
+                    if (RESP_OK == waitFinalResp(_cbUSORF, &param)) {
+                        *ip = param.ip;
+                        *port = param.port;
+                        blk = param.len;
+                        _sockets[socket].pending -= blk;
+                        len -= blk;
+                        cnt += blk;
+                        buf += blk;
+                        len = 0; // done
+                        ok = true;
+                    }
+                } else if (!TIMEOUT(start, _sockets[socket].timeout_ms)) {
+                    ok = (WAIT == waitFinalResp(NULL,NULL,0)); // wait for URCs
+                } else {
+                    len = 0; // no more data and socket closed or timed-out
+                    ok = true;
+                }
+            }
+            UNLOCK();
         }
         if (!ok) {
             DEBUG_D("socketRecv: ERROR\r\n");

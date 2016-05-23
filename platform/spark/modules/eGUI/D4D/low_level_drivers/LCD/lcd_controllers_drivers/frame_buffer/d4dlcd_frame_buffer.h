@@ -76,6 +76,20 @@
 		  extern const D4DLCDHWFB_FUNCTIONS D4D_LLD_LCD_HW;
 		#endif
 
+		  typedef struct WriteRegion {
+			unsigned long win_cur_addr;
+			uint16_t win_cur_w;
+			uint16_t win_cur_h;
+
+			uint16_t win_x;
+			uint16_t win_y;
+			uint16_t win_width;
+			uint16_t win_height;
+			uint16_t max_width, max_height;
+		  } WriteRegion;
+
+		  extern WriteRegion writeRegion;
+
     /******************************************************************************
     * Global functions
     ******************************************************************************/

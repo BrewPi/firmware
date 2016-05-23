@@ -56,6 +56,12 @@ public:
     temp_t getValue() const override final {
         return value;
     }
+
+    virtual temp_t readValue() const override final {
+    		return getValue();
+    }
+
+
     void update() override final {}
     void fastUpdate() override final {}
 

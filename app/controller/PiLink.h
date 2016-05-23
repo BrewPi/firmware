@@ -27,7 +27,7 @@
 
 #define PRINTF_BUFFER_SIZE 128
 
-class DeviceConfig;
+struct DeviceConfig;
 
 
 class PiLink{

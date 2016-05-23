@@ -35,8 +35,13 @@ endif
 
 # fixes build errors on ubuntu with arm gcc 5.3.1
 # GNU_SOURCE is needed for isascii/toascii
+
+
+ifneq ("$(PLATFORM_ID)","3")
+CFLAGS += -D_WINSOCK_H
+CFLAGS += -D_GNU_SOURCE 
 # WINSOCK_H stops select.h from being used which conflicts with CC3000 headers
-CFLAGS += -D_GNU_SOURCE -D_WINSOCK_H
+endif
 
 # Collect all object and dep files
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.o))
@@ -47,9 +52,12 @@ ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.o.d))
 ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CPPSRC:.cpp=.o.d))
 ALLDEPS += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/arm/%,%,$(ASRC:.S=.o.d)))
 
+CLOUD_FLASH_URL ?= https://api.spark.io/v1/devices/$(SPARK_CORE_ID)\?access_token=$(SPARK_ACCESS_TOKEN)
 
 # All Target
-all: $(MAKE_DEPENDENCIES) $(TARGET) postbuild
+all: $(TARGET) postbuild
+
+build_dependencies: $(MAKE_DEPENDENCIES)
 
 elf: $(TARGET_BASE).elf
 bin: $(TARGET_BASE).bin
@@ -82,7 +90,7 @@ ifeq ("$(wildcard $(PARTICLE_SERIAL_DEV))","")
 	@echo Serial device PARTICLE_SERIAL_DEV : $(PARTICLE_SERIAL_DEV) not available
 else
 	@echo Entering dfu bootloader mode:
-	stty -f $(PARTICLE_SERIAL_DEV) $(START_DFU_FLASHER_SERIAL_SPEED)
+	$(SERIAL_SWITCHER) $(START_DFU_FLASHER_SERIAL_SPEED) $(PARTICLE_SERIAL_DEV)
 	sleep 1
 endif
 endif
@@ -104,7 +112,7 @@ ifeq ("$(wildcard $(PARTICLE_SERIAL_DEV))","")
 	@echo Serial device PARTICLE_SERIAL_DEV : $(PARTICLE_SERIAL_DEV) not available
 else
 	@echo Entering serial programmer mode:
-	stty -f $(PARTICLE_SERIAL_DEV) $(START_YMODEM_FLASHER_SERIAL_SPEED)
+	$(SERIAL_SWITCHER) $(START_YMODEM_FLASHER_SERIAL_SPEED) $(PARTICLE_SERIAL_DEV)
 	sleep 1
 	@echo Flashing using serial ymodem protocol:
 # Got some issue currently in getting 'sz' working
@@ -183,14 +191,14 @@ endif
 	$(call echo,)
 
 
-$(TARGET_BASE).elf : $(ALLOBJ) $(LIB_DEPS) $(LINKER_DEPS)
+$(TARGET_BASE).elf : build_dependencies $(ALLOBJ) $(LIB_DEPS) $(LINKER_DEPS)
 	$(call echo,'Building target: $@')
 	$(call echo,'Invoking: ARM GCC C++ Linker')
 	$(VERBOSE)$(MKDIR) $(dir $@)
 	$(VERBOSE)$(CPP) $(CFLAGS) $(ALLOBJ) --output $@ $(LDFLAGS)
 	$(call echo,)
 
-$(TARGET_BASE)$(EXECUTABLE_EXTENSION) : $(ALLOBJ) $(LIB_DEPS) $(LINKER_DEPS)
+$(TARGET_BASE)$(EXECUTABLE_EXTENSION) : build_dependencies $(ALLOBJ) $(LIB_DEPS) $(LINKER_DEPS)
 	$(call echo,'Building target: $@')
 	$(call echo,'Invoking: GCC C++ Linker')
 	$(VERBOSE)$(MKDIR) $(dir $@)

@@ -10,7 +10,8 @@ extern "C" {
 char *ltoa(long N, char *str, int base);
 
 //convert unsigned long to string
-char* ultoa(unsigned long a, char* buffer, int radix, char pad=1);
+char* ultoa_pad(unsigned long a, char* buffer, int radix, char pad=1);
+char* ultoa(unsigned long a, char* buffer, int radix);
 
 //convert unsigned int to string
 char* utoa(unsigned a, char* buffer, int radix);

@@ -549,7 +549,7 @@ inline void stream_classes(Adapter& adapter,const std::string& key,std::vector<T
 				// read off adapter
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wuninitialized"
-#ifdef SPARK
+#if defined(SPARK) && PLATFORM_ID!=3
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 				stream(adapter,t);
