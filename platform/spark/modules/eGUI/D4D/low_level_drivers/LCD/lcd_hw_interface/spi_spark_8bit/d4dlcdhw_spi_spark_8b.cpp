@@ -130,7 +130,7 @@ static volatile int8_t dma_buffer_idx = -1;
 /**
  * Determines if there is data to send.
  */
-inline uint8_t hasPendingDataToSend()
+inline uint16_t hasPendingDataToSend()
 {
 	return active_buffer_offset;
 }
@@ -178,7 +178,7 @@ inline void flushData()
 	{
 		scheduleTransfer(tx_buffer[active_buffer_idx], active_buffer_offset);
 		active_buffer_idx++;
-		active_buffer_idx &= 1;
+		active_buffer_idx &= 0x1;
 		active_buffer_offset = 0;
 
 		if (active_buffer_idx==dma_buffer_idx)
@@ -276,7 +276,7 @@ static void D4DLCDHW_SendDataWord_Spi_Spark_8b(unsigned short value) {
 #if 1
 	tx_buffer[active_buffer_idx][active_buffer_offset++] = value;
 
-	if (active_buffer_offset==SCREEN_DATA_BUFFER_SIZE)
+	if (active_buffer_offset>=SCREEN_DATA_BUFFER_SIZE)
 	{
 		flushData();
 	}
