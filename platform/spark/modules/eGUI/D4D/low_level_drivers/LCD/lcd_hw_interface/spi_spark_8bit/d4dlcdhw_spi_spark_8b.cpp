@@ -155,9 +155,9 @@ void transferComplete()
 inline void scheduleTransfer(uint8_t* data, uint16_t length)
 {
 	waitForTransferToComplete();
-#if 0
+#if 1 // DMA
 	D4DLCD_ASSERT_CS;
-	SPI.transfer(data, tx_buffer[2], length, transferComplete);
+	SPI.transfer(data, NULL, length, transferComplete);
 #else
 	while (length-->0) {
 		D4DLCD_ASSERT_CS;
