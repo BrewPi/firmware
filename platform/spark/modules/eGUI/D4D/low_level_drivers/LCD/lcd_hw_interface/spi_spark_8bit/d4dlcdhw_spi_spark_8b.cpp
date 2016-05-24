@@ -140,10 +140,7 @@ inline uint16_t hasPendingDataToSend()
  */
 inline void waitForTransferToComplete()
 {
-    HAL_SPI_TransferStatus st;
-    do {
-      HAL_SPI_DMA_Transfer_Status(HAL_SPI_INTERFACE1, &st);
-    } while(st.transfer_ongoing);
+	while (dma_buffer_idx>=0);
 }
 
 /**
