@@ -151,16 +151,17 @@ inline void waitForTransferToComplete()
  */
 void transferComplete()
 {
-	dma_buffer_idx = -1;
 	D4DLCD_DEASSERT_CS;
+	dma_buffer_idx = -1;
 }
 
-inline void scheduleTransfer(uint8_t* data, uint16_t length)
+inline void scheduleTransfer(int8_t tx_buffer_idx, uint16_t length)
 {
 	waitForTransferToComplete();
 	D4DLCD_ASSERT_CS;
 #if 1 // DMA
-	SPI.transfer(data, NULL, length, transferComplete);
+	dma_buffer_idx = tx_buffer_idx;
+	SPI.transfer(tx_buffer[tx_buffer_idx], NULL, length, transferComplete);
 #else
 	while (length-->0) {
 		SPI.transfer(*data++);
@@ -177,13 +178,16 @@ inline void flushData()
 {
 	if (hasPendingDataToSend())
 	{
-		scheduleTransfer(tx_buffer[active_buffer_idx], active_buffer_offset);
-		active_buffer_idx++;
-		active_buffer_idx &= 0x1;
-		active_buffer_offset = 0;
+		scheduleTransfer(active_buffer_idx, active_buffer_offset);
+		int8_t new_active_idx = (active_buffer_idx + 1) & 0x1;
 
-		if (active_buffer_idx==dma_buffer_idx)
+		if (new_active_idx==dma_buffer_idx){
+		    // is this even possible with a 2 line buffer?
+		    // scheduleTransfer waits for the previous transfer to complete.
 			waitForTransferToComplete();
+		}
+		active_buffer_offset = 0;
+		active_buffer_idx = new_active_idx;
 	}
 }
 
