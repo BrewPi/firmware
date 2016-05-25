@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "platform.h"
+#include "Platform.h"
 #include <functional>
 
 template <class T>
