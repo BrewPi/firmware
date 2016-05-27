@@ -39,11 +39,13 @@ template <typename Iterator> using DataOutRangeProvider = std::function<DataOutR
 template <typename Iterator>
 class CompositeDataOut : public DataOut
 {
-    using Streams = DataOutRangeProvider<Iterator>;
-    Streams streams;
+public:
+	using Streams = DataOutRangeProvider<Iterator>;
+private:
+	Streams streams;
 
 public:
-    CompositeDataOut(Streams _streams) : streams(_streams) {}
+    CompositeDataOut(const Streams& _streams) : streams(_streams) {}
 
     CompositeDataOut(const CompositeDataOut&) = delete;
     CompositeDataOut()=delete;

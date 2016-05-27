@@ -344,7 +344,8 @@ auto fetch_streams() -> boost::iterator_range<typename decltype(boost::adaptors:
 
 using ToDataOutFunctor = ConnectionToDataOut<StandardConnectionDataType>;
 using CompositeDatOutType = CompositeDataOut<ConnectionTransformIterator<ToDataOutFunctor>>;
-CompositeDatOutType compositeOut(&fetch_streams<ToDataOutFunctor>);
+auto fetchStreams = fetch_streams<ToDataOutFunctor>;
+CompositeDatOutType compositeOut(fetchStreams);
 
 
 void f()
