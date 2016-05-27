@@ -264,7 +264,7 @@ Command response::
 
     01          read value command
     id          variable length ID
-    type-id		the type-id of the object
+    type-id		the type-id of the object being read. 0 if not known.
     expectedsize        the size of the data block expected
     actualsize          length of the next data block. Will be 0 for if id does not identify a valid readable value, or
         the expected size was non-zero and not equal to the actual data block size.
@@ -282,7 +282,7 @@ Command request::
 
     02          write value command id
     id          object to write to
-    type-id		the type of the object being written to
+    type-id		the type of the object being written to. 0 if not known.
     size        the size of the data to follow
     data[size]  the value to write
 
