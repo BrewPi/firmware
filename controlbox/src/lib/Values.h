@@ -195,10 +195,23 @@ public:
  * (a streamed read operation.)
  */
 class Value : public Object {
+	uint8_t _typeID;
 public:
+	Value(uint8_t typeID=0) : _typeID(typeID) {}
+
 	virtual object_t objectType() { return ObjectFlags::Value; }	// basic value type - read only stream
 	virtual void readTo(DataOut& out)=0;
 	virtual uint8_t streamSize()=0;			// the size this value occupies in the stream.
+
+	/**
+	 * The application-defined type for this object.
+	 * The value is 0 for system objects.
+	 */
+	virtual uint8_t typeID() { return _typeID; }
+
+	void setTypeID(uint8_t typeID) {
+		_typeID = typeID;
+	}
 
 	virtual void writeMaskedFrom(DataIn& in, DataIn& mask){};	// default is a no-op. Caller always checks if item is writable first.
 };

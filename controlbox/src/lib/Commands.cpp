@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Matthew McGowan.
+ * Copyright 2014-2016 Matthew McGowan.
  *
  * This file is part of Nice Firmware.
  *
@@ -33,11 +33,16 @@ void Commands::noopCommandHandler(DataIn& _in, DataOut& out)
 	while (_in.hasNext()) { _in.next(); }
 }
 
+bool checkType(uint8_t typeID, Value* value) {
+	return !typeID || value->typeID()==typeID;
+}
+
 void readValue(Object* root, DataIn& in, DataOut& out) {
 	Object* o = lookupObject(root, in);		// read the object and pipe read data to output
-	uint8_t available = in.next();		// number of bytes expected
+	uint8_t typeID = in.next();
+	uint8_t available = in.next();			// number of bytes expected
 	Value* v = (Value*)o;
-	if (isValue(o) && (available==v->streamSize() || available==0)) {
+	if (isValue(o) && (available==v->streamSize() || available==0) && checkType(typeID, v)) {
 		out.write(v->streamSize());
 		v->readTo(out);
 	}
@@ -64,8 +69,9 @@ void Commands::readSystemValueCommandHandler(DataIn& in, DataOut& out) {
 void setValue(Object* root, DataIn& in, DataIn& mask, DataOut& out) {
 	Object* o = lookupObject(root, in);		// fetch the id and the object
 	Value* v = (Value*)o;
+	uint8_t typeID = in.next();
 	uint8_t available = in.next();
-	if (isWritable(o) && (v->streamSize()==available)) {		// if it's writable and the correct number of bytes were parsed.
+	if (isWritable(o) && (v->streamSize()==available) && checkType(typeID, v)) {		// if it's writable and the correct number of bytes were parsed.
 		v->writeMaskedFrom(in, mask);									// assign from stream
 		out.write(v->streamSize());							// now write out actual value
 		v->readTo(out);
@@ -154,6 +160,10 @@ Object* Commands::createObject(DataIn& in, bool dryRun)
 			&region, len, type
 	};
 	Object* newObject = createApplicationObject(def, dryRun);			// read the type and create args
+	if (isValue(newObject)) {
+		Value* value = reinterpret_cast<Value*>(newObject);
+		value->setTypeID(type);
+	}
 	def.spool();			// ensure stream is read fully
 	return newObject;
 }
@@ -300,6 +310,7 @@ bool logValuesCallback(Object* o, void* data, const container_id* id, const cont
 	if (enter && isLoggedValue(o)) {
 		Value* r = (Value*)o;
 		writeID(id, out);
+		out.write(r->typeID());
 		out.write(r->streamSize());
 		r->readTo(out);
 	}
