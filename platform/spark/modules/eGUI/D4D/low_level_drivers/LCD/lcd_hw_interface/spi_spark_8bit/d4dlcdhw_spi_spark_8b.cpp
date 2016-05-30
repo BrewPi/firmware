@@ -238,13 +238,6 @@ static unsigned char D4DLCDHW_Init_Spi_Spark_8b(void) {
 
     SPI.setBitOrder(MSBFIRST);
     SPI.setDataMode(SPI_MODE0);
-    
-    D4DLCD_DEASSERT_RESET;
-    D4DLCDHW_Delay_Spi_Spark_8b(5);
-    D4DLCD_ASSERT_RESET;
-    D4DLCDHW_Delay_Spi_Spark_8b(20);
-    D4DLCD_DEASSERT_RESET;
-    D4DLCDHW_Delay_Spi_Spark_8b(150);
 
     return 1;
 }
