@@ -157,12 +157,12 @@ inline void scheduleTransfer(int8_t tx_buffer_idx, uint16_t length)
 {
 	waitForTransferToComplete();
 	D4DLCD_ASSERT_CS;
-#if 1 // DMA
+#if 0 // DMA
 	dma_buffer_idx = tx_buffer_idx;
 	SPI.transfer(tx_buffer[tx_buffer_idx], NULL, length, transferComplete);
 #else
-	while (length-->0) {
-		SPI.transfer(*data++);
+	for(int i=0; i < length; i++){
+	    SPI.transfer(tx_buffer[tx_buffer_idx][i]);
 	}
 	transferComplete();
 #endif
