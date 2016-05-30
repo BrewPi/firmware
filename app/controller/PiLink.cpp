@@ -82,7 +82,13 @@ bool PiLink::firstPair;
 char PiLink::printfBuff[PRINTF_BUFFER_SIZE];
                 
 void PiLink::init(void){
-	piStream.begin(57600);	
+	piStream.begin(57600);
+}
+
+void PiLink::flushInput(void){
+	while (piStream.available() > 0) {
+		char inByte = piStream.read();
+	}
 }
 
 // create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
