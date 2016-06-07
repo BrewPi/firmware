@@ -39,9 +39,9 @@ class Box
 	bool logValuesFlag;
 
 public:
-	Box(StandardConnection& connection, EepromAccess& eepromAccess, Ticks& ticks, CommandCallbacks& callbacks, Object** values, size_t size)
+	Box(StandardConnection& connection, EepromAccess& eepromAccess, Ticks& ticks, CommandCallbacks& callbacks, Container& systemRoot)
 	: eepromAccess_(eepromAccess), ticks_(ticks), comms_(connection),
-	  systemProfile_(eepromAccess, size, values), commands_(comms_, systemProfile_, callbacks, eepromAccess), logValuesFlag(false)
+	  systemProfile_(eepromAccess, systemRoot), commands_(comms_, systemProfile_, callbacks, eepromAccess), logValuesFlag(false)
 	{
 	}
 
@@ -161,7 +161,7 @@ struct AllCallbacks
 	 */
 	virtual void handleReset(bool exit=true)=0;
 
-	virtual void connectionStarted(DataOut& out)=0;
+	virtual void connectionStarted(StandardConnection& connection, DataOut& out)=0;
 
 	virtual Container* createRootContainer()=0;
 
@@ -210,6 +210,10 @@ public:
      * Retrieve the most-recently assigned value to the user data item.
      */
     virtual StandardConnectionDataType& getData() {
+    		return cb.getData();
+    }
+
+    virtual const StandardConnectionDataType& getData() const {
     		return cb.getData();
     }
 
@@ -265,8 +269,8 @@ public:
 		return cb.handleReset(exit);
 	}
 
-	virtual void connectionStarted(DataOut& out) {
-		return cb.connectionStarted(out);
+	virtual void connectionStarted(StandardConnection& connection, DataOut& out) {
+		return cb.connectionStarted(connection, out);
 	}
 
 	virtual Container* createRootContainer() {
@@ -309,8 +313,8 @@ public:
 class AllInOneBox : public Box
 {
 public:
-	AllInOneBox(AllCallbacksDelegate& cb, Object** values=nullptr, size_t size=0)
-		: Box(cb, cb, cb, cb, values, size)
+	AllInOneBox(Container& container, AllCallbacksDelegate& cb)
+		: Box(cb, cb, cb, cb, container)
 	{}
 
 

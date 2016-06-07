@@ -20,7 +20,15 @@ void handleReset(bool reset)
 	quit = true;
 }
 
-void connectionStarted(DataOut& out)
+Container& systemRootContainer()
+{
+	static Object* systemRootItems[2];
+	static FixedContainer systemRoot(sizeof(systemRootItems)/sizeof(systemRootItems[0]), systemRootItems);
+	return systemRoot;
+}
+
+
+void connectionStarted(StandardConnection& connection, DataOut& out)
 {
 	out.writeAnnotation("hello world");
 }

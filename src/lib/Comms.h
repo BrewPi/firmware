@@ -33,10 +33,12 @@ class Commands;
 
 
 /**
+ * Represents a connection to an endpoint. The details of the endpoint are not provided here.
  * A connection has these components:
+ *
  * - a stream for input data (DataIn)
  * - a stream for output data (DatOut)
- * - a connected flag
+ * - a connected flag: indicates if this connection can read/write data to the resource
  * - associated user data
  *
  */
@@ -51,11 +53,7 @@ struct Connection
      * Retrieve the most-recently assigned value to the user data item.
      */
     virtual D& getData()=0;
-
-    /**
-     * Assign a value to the user data item.
-     */
-    virtual void setData(D&& d)=0;
+    virtual const D& getData() const=0;
 
 };
 
@@ -67,8 +65,11 @@ class ConnectionData : public Connection<D>
 {
     D data;
 public:
+    ConnectionData() {
+    		memset(&data, 0, sizeof(data)); // todo - must be a better way than this, e.g. templated initialization function?
+    }
     virtual D& getData() { return data; }
-    virtual void setData(D&& d) { std::swap(data,d); }
+    virtual const D& getData() const { return data; }
 };
 
 
@@ -79,25 +80,25 @@ template <class S>
 class StreamDataIn : public DataIn
 {
 protected:
-    S& stream;
+    S* stream;
 public:
 
-    StreamDataIn(S& _stream) : stream(_stream) {}
+    StreamDataIn(S& _stream) : stream(&_stream) {}
 
     virtual bool hasNext() override {
-        return stream.available()>0;
+        return stream->available()>0;
     }
 
     virtual uint8_t next() override {
-        return stream.read();
+        return stream->read();
     };
 
     virtual uint8_t peek() override {
-        return stream.peek();
+        return stream->peek();
     }
 
     virtual unsigned available() override {
-        return stream.available();
+        return stream->available();
     }
 
 };
@@ -110,22 +111,31 @@ template <class S>
 class StreamDataOut : public DataOut
 {
 protected:
-    S& stream;
+    /**
+     * The stream type that is adapted to a DataOut instance.
+     * non-NULL.
+     */
+	S* stream;
 public:
 
-    StreamDataOut(S& _stream) : stream(_stream) {}
+    StreamDataOut(S& _stream) : stream(&_stream) {}
 
-    bool write(uint8_t data) {
-        return stream.write(data)!=0;
+    bool write(uint8_t data) override {
+        return stream->write(data)!=0;
     }
 
-    bool writeBuffer(const uint8_t* data, size_t length) {
-        return stream.write(data, length)==length;
+    virtual bool writeBuffer(const void* data, stream_size_t length) override {
+    		return stream->write((const uint8_t*)data, length)==length;
     }
 
-    void close();
+    void flush() override;
 
-	StreamDataOut& operator=(const StreamDataOut& rhs)=delete;
+    /**
+     * The close method is defined by the specific template instantiation.
+     */
+    void close() override;
+
+	//StreamDataOut& operator=(const StreamDataOut& rhs)=delete;
 };
 
 
@@ -140,25 +150,25 @@ public:
     using data_type = D;
 
 protected:
-    connection_type& connection;
-    in_type& in;
-    out_type& out;
+    connection_type* connection;
+    in_type* in;
+    out_type* out;
 
 
 public:
     AbstractConnection()=default;
     ~AbstractConnection()=default;
     AbstractConnection(connection_type& _connection, in_type& _in, out_type& _out) :
-	    connection(_connection), in(_in), out(_out) {}
+	    connection(&_connection), in(&_in), out(&_out) {}
 
-    virtual DataIn& getDataIn() override { return in; }
-    virtual DataOut& getDataOut() override { return out; }
-    virtual bool connected() override=0;
+    virtual DataIn& getDataIn() override { return *in; }
+    virtual DataOut& getDataOut() override { return *out; }
+    virtual bool connected() override { return true; }
 
 };
 
-// Todo - need a WIRING define
-#if defined(ARDUINO) || defined(SPARK)
+#include "ControlboxWiring.h"
+#if CONTROLBOX_WIRING
 template <typename S, typename D>
 using AbstractStreamConnectionType = AbstractConnection<
     typename std::enable_if<std::is_base_of<Stream, S>::value, S>::type,
@@ -167,19 +177,63 @@ using AbstractStreamConnectionType = AbstractConnection<
     D
 >;
 
+/**
+ * Maintains a reference to the stream.
+ */
 template <typename S, typename D>
-struct AbstractStreamConnection : public AbstractStreamConnectionType<S,D>
+class AbstractStreamConnection : public AbstractStreamConnectionType<S,D>
 {
     using base_type = AbstractStreamConnectionType<S,D>;
 
-    AbstractStreamConnection(const S& _connection)
-            : base_type(_connection, _connection, _connection) {}
+    StreamDataIn<S> streamIn;
+    StreamDataOut<S> streamOut;
+
+public:
+    AbstractStreamConnection(S& _connection) :
+    		base_type(_connection, streamIn, streamOut), streamIn(_connection), streamOut(_connection) {}
+
+    AbstractStreamConnection(const AbstractStreamConnection& other) = delete;
 
 };
+
+/**
+ * Maintains the stream by value.
+ */
+template <typename S, typename D>
+class AbstractStreamValueConnection : public AbstractStreamConnection<S,D>
+{
+    using base_type = AbstractStreamConnection<S,D>;
+
+    S stream;
+public:
+    AbstractStreamValueConnection(S& _connection) : base_type(stream), stream(_connection) {}
+
+    AbstractStreamValueConnection(const AbstractStreamValueConnection& other) :
+    		base_type(stream), stream(other.stream)
+    {
+    		this->getData() = other.getData();
+    }
+
+};
+
+
 #endif
 
 
-typedef bool StandardConnectionDataType;
+struct StandardConnectionDataType
+{
+	bool connected;
+
+	bool callback_until_first_request;
+
+	uint32_t next_announcement;
+
+	/**
+	 * Initially false, set to true
+	 */
+	bool request_received;
+
+};
 
 /**
  * A connection with a boolean flag to indicate if it has been initialized or not.
@@ -209,7 +263,7 @@ class TextIn : public DataIn {
 
 public:
     TextIn(DataIn& in)
-            : _in(&in), data(0), hasData(0), commentLevel(0), inLine(false) {}
+            : _in(&in), data(0), hasData(0), inLine(false), commentLevel(0) {}
 
     bool hasNext() override
     {
@@ -333,11 +387,10 @@ public:
 	 * Rather than closing the global stream, write a newline to signify the end of this command.
 	 */
 	void close() {
+		_out->write('\r');
 		_out->write('\n');
 	}
 };
-
-
 
 
 /**
@@ -378,7 +431,7 @@ public:
 
 #endif
 
-	void connectionStarted(DataOut& out);
+	void connectionStarted(StandardConnection& connection, DataOut& out);
 
 	void handleCommand(DataIn& in, DataOut& out);
 

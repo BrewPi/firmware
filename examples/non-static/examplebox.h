@@ -51,11 +51,12 @@ class ExampleBox : public CommandCallbacks
     StdIOConnection connection;
     Box box;
     std::string eeprom;
+    FixedContainer systemRoot;
 
 public:
 
-    ExampleBox(const std::string& eeprom_="", Object** objs=nullptr, size_t count=0) :
-            quit(false), box(connection, eepromAccess, ticks, *this, objs, count), eeprom(eeprom_) {}
+    ExampleBox(const std::string& eeprom_="") :
+            quit(false), box(connection, eepromAccess, ticks, *this, systemRoot), eeprom(eeprom_) {}
 
     Box& get_box() { return box; }
 
@@ -157,10 +158,18 @@ public:
 
     bool should_quit() { return quit; }
 
-    virtual void connectionStarted(DataOut& out)
+    virtual void connectionStarted(StandardConnection& connectino, DataOut& out)
     {
         out.writeAnnotation("Example app at your service.");
     }
+
+    Container& systemRootContainer()
+    {
+		static Object* systemRootItems[2];
+		static FixedContainer systemRoot(sizeof(systemRootItems)/sizeof(systemRootItems[0]), systemRootItems);
+		return systemRoot;
+    }
+
 
     virtual Container* createRootContainer()
     {

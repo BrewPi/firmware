@@ -60,7 +60,7 @@ extern Object* createApplicationObject(ObjectDefinition& def, bool dryRun=false)
 extern void handleReset(bool exit=true);
 
 
-extern void connectionStarted(DataOut& out);
+extern void connectionStarted(StandardConnection& connection, DataOut& out);
 
 
 #else
@@ -81,7 +81,7 @@ struct CommandCallbacks
 	 */
 	virtual void handleReset(bool exit=true)=0;
 
-	virtual void connectionStarted(DataOut& out)=0;
+	virtual void connectionStarted(StandardConnection& connection, DataOut& out)=0;
 
 	virtual Container* createRootContainer()=0;
 };
@@ -148,8 +148,8 @@ public:
 		return command_callback_fn(createRootContainer());
 	}
 
-	inline cb_static void connectionStarted(DataOut& out) {
-		command_callback_fn(connectionStarted(out));
+	inline cb_static void connectionStarted(StandardConnection& connection, DataOut& out) {
+		command_callback_fn(connectionStarted(connection, out));
 	}
 
 	inline cb_static Object* createApplicationObject(ObjectDefinition& def, bool dryRun=false) {
