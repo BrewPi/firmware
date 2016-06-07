@@ -464,7 +464,8 @@ Writes out the values for all objects in a container.
 Command Request::
 
     0x0A    log values command id
-    flags   0 to log all values, 1 to restrict values to the following id
+    flags   0x01 - when set, restrict values to the following id, otherwise log all values in the specified root
+            0x02 - when set, use the system root container, otherwise use the current profile root. 
     [id*]   optional id chain to restrict
 
 Command Response::
@@ -472,7 +473,9 @@ Command Response::
     0x0A    log values command id
     flags   from request
     [id*]   optional id from request
+    status	0 on success, <0 on error. 
     repeat
+    	    0x01		indicates a new object value
         id      variable length ID chain
         type-id	the type of the object
         size    length of the next datablock. Will be 0 for if id does not identify a valid readable value.
