@@ -120,20 +120,20 @@ public:
 
     StreamDataOut(S& _stream) : stream(&_stream) {}
 
-    bool write(uint8_t data) {
+    bool write(uint8_t data) override {
         return stream->write(data)!=0;
     }
 
-    bool writeBuffer(const uint8_t* data, size_t length) {
-        return stream->write(data, length)==length;
+    virtual bool writeBuffer(const void* data, stream_size_t length) override {
+    		return stream->write((const uint8_t*)data, length)==length;
     }
 
-    void flush();
+    void flush() override;
 
     /**
      * The close method is defined by the specific template instantiation.
      */
-    void close();
+    void close() override;
 
 	//StreamDataOut& operator=(const StreamDataOut& rhs)=delete;
 };

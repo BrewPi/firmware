@@ -231,7 +231,7 @@ struct ConnectionToDataIn : public std::function<DataIn&(Connection<D>&)>
     }
 };
 
-typedef std::array<CommsConnection<StandardConnectionDataType>,1> CommsConnections;
+cb_static_decl(typedef std::array<CommsConnection<StandardConnectionDataType>,1> CommsConnections;)
 
 /**
  * The comms connection.
@@ -308,25 +308,21 @@ inline auto as_connection_ptr(T& source) -> decltype(boost::adaptors::transform(
 #if CONTROLBOX_STATIC
 // determine the global list of connections
 
-#if defined(SPARK) && 0
-auto all_connections() -> boost::range::joined_range<
-        boost::range_detail::transformed_range<ConnectionAsReference<CommsConnection<StandardConnectionDataType> >, decltype(commsConnections) >,
-        boost::range_detail::transformed_range<ConnectionAsReference<TCPConnection>, decltype(connections)> >
+#if defined(SPARK)
+auto all_connections() -> boost::range::joined_range<boost::range_detail::transformed_range<ConnectionAsReference, std::array<CommsConnection<StandardConnectionDataType>, 1u> >, boost::range_detail::transformed_range<ConnectionAsReference, std::vector<AbstractStreamValueConnection<TCPClient, StandardConnectionDataType> > > >
 {
-    auto first = boost::adaptors::transform(commsConnections, ConnectionAsReference<CommsConnection<StandardConnectionDataType>>());
-    auto second = boost::adaptors::transform(connections, ConnectionAsReference<TCPConnection>());
+    auto first = boost::adaptors::transform(commsConnections, ConnectionAsReference());
 
+    auto second = boost::adaptors::transform(connections, ConnectionAsReference());
     auto result = boost::join(first, second);
     return result;
 }
 #else
-auto all_connections() -> boost::range_detail::transformed_range<ConnectionAsReference, decltype(commsConnections) >
+auto all_connections() -> decltype(boost::adaptors::transform(commsConnections, ConnectionAsReference()))
 {
-	 auto first = boost::adaptors::transform(commsConnections, ConnectionAsReference());
-	 return first;
+    return boost::adaptors::transform(commsConnections, ConnectionAsReference());
 }
-#endif	// SPARK
-
+#endif
 
 /**
  * Iterator type that transforms all connections using a given transformation functor.
@@ -340,7 +336,7 @@ using ConnectionTransformIterator = typename decltype(boost::adaptors::transform
 template <typename TransformFunctor>
 // was auto fetch_streams() -> boost::iterator_range<typename decltype(boost::adaptors::transform(all_connections(), TransformFunctor()))::iterator>
 // but this causes arm gcc 5.2 to segfault during linking
-auto fetch_streams() -> boost::iterator_range<boost::iterators::transform_iterator<boost::range_detail::default_constructible_unary_fn_wrapper<ConnectionToDataOut<Connection<StandardConnectionDataType> >, DataOut&>, boost::iterators::transform_iterator<boost::range_detail::default_constructible_unary_fn_wrapper<ConnectionAsReference, Connection<StandardConnectionDataType>&>, CommsConnection<StandardConnectionDataType>*>> >
+auto fetch_streams() -> decltype(boost::adaptors::transform(all_connections(), TransformFunctor()))
 {
     return boost::adaptors::transform(all_connections(), TransformFunctor());
 }
@@ -365,6 +361,7 @@ void f()
     std::function<boost::iterator_range<ConnectionTransformIterator<ToDataOutFunctor>>()> streams = fetch_streams<ToDataOutFunctor>;
     CompositeDatOutType compositeOut(streams);
 }
+#endif
 
 // using ToDataInFunctor = ConnectionToDataIn<StandardConnectionDataType>;
 // using CompositeDatInType = CompositeDataIn<ConnectionTransformIterator<ToDataInFunctor>>;
@@ -577,4 +574,3 @@ void Comms::receive()
 		cmd_callback(handleReset(true));					// do the hard reset
 	}
 }
-#endif

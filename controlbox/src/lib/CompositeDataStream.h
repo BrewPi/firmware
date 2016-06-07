@@ -30,11 +30,17 @@ template <typename Iterator> using DataInRange = boost::iterator_range<Iterator>
 template <typename Iterator> using DataOutRange = boost::iterator_range<Iterator>;
 
 template <typename Iterator> using DataInRangeProvider = std::function<DataInRange<Iterator>(void)>;
+
+/**
+ * A function that provides an iterator range, over the given type of iterator.
+ */
 template <typename Iterator> using DataOutRangeProvider = std::function<DataOutRange<Iterator>(void)>;
 
 
 /**
- * A composite output stream.
+ * A composite output stream - as data is streamed it is written to all streams in a given iterator range.
+ *
+ * @param Iterator The iterator type that enumerates the streams.
  */
 template <typename Iterator>
 class CompositeDataOut : public DataOut
@@ -72,6 +78,9 @@ public:
 
 };
 
+/**
+ * A composite data input stream. Each stream is checked for valid input, and the contents read until the stream reports it has no more data.
+ */
 template <typename Iterator>
 class CompositeDataIn : public DataIn
 {
