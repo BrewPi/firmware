@@ -190,14 +190,16 @@ public:
 
 };
 
+typedef uint8_t obj_type_t;
+
 /**
  * A basic value type. All values are as a minimum stream readable, meaning they can push their value to a stream
  * (a streamed read operation.)
  */
 class Value : public Object {
-	uint8_t _typeID;
+	obj_type_t _typeID;
 public:
-	Value(uint8_t typeID=0) : _typeID(typeID) {}
+	Value(obj_type_t typeID=0) : _typeID(typeID) {}
 
 	virtual object_t objectType() { return ObjectFlags::Value; }	// basic value type - read only stream
 	virtual void readTo(DataOut& out)=0;
@@ -207,9 +209,9 @@ public:
 	 * The application-defined type for this object.
 	 * The value is 0 for system objects.
 	 */
-	virtual uint8_t typeID() { return _typeID; }
+	virtual obj_type_t typeID() { return _typeID; }
 
-	void setTypeID(uint8_t typeID) {
+	void setTypeID(obj_type_t typeID) {
 		_typeID = typeID;
 	}
 
@@ -422,7 +424,7 @@ struct ObjectDefinition {
 	/**
 	 * The application defined type of this object.
 	 */
-	uint8_t type;
+	obj_type_t type;
 
 	/**
 	 * Ensure all the data is read from the datastream. This is only required

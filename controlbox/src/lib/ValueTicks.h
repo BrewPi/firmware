@@ -97,6 +97,10 @@ public:
 		return ::timeSince(currentTime, previousTime);
 	}
 
+	static Object* create(ObjectDefinition& defn) {
+		return nullptr;
+	}
+
 };
 
 /**
