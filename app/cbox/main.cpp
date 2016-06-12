@@ -35,7 +35,13 @@ Container& systemRootContainer()
 {
 	static data_block_ref id;
 	platform_device_id(id);
+
 	static ExternalReadOnlyValue idValue(id.data, id.size);
+	idValue.setTypeID(0);		// this is just a buffer  for the ID
+	ticks.setTypeID(1);
+	// todo - lookup the type ID from the xxx::create function. This can
+	// be resolved at compile-time.
+
 	static Object* values[] = { &idValue, &ticks };
 	static FixedContainer root(2, values);
 	return root;
@@ -55,7 +61,7 @@ Container* createRootContainer()
 
 Commands::ObjectFactory createObjectHandlers[] = {
 	nullFactory,                                            // type 0
-	CurrentTicksValue::create,								// type 1
+	ScaledTicksValue::create,								// type 1
 	DynamicContainer::create,								// type 2
 	EepromValue::create,									// type 3
 	PersistChangeValue::create,								// type 4
