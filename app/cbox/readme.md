@@ -15,6 +15,12 @@ From the root of this repo
 cd platform/spark
 make APP=cbox PLATFORM=gcc
 ```
+The cross-compiled app should be built with gcc 5. gcc 6 does not work.
+You can easily do this by installing the packages gcc-5 and g++-5, and then running:
+```
+make CC=gcc-5 CXX=g++-5 PLATFORM=gcc APP=cbox
+```
+
 The resulting executable is  found at `target/cbox-gcc/cbox`.
 
 The cross compiled app is built on Particle's cross compile support for their firmware. To see options, run `cbox -h`. 
