@@ -17,7 +17,7 @@ make APP=cbox PLATFORM=gcc
 ```
 The resulting executable is  found at `target/cbox-gcc/cbox`.
 
-The cross compiled app is build on Particle's cross compile support for their firmware. To see options, run `cbox -h`. 
+The cross compiled app is built on Particle's cross compile support for their firmware. To see options, run `cbox -h`. 
 
 Since the cbox app doesn't presently connect to the cloud, most of the options aren't relevant here. The executable still requires device keys, but these can be simply empty files. The device ID is needed. This is either passed as a command line parameter, or stored in a config file:
 
@@ -76,6 +76,7 @@ https://raw.githubusercontent.com/BrewPi/brewpi-developerdocs/develop/source/bre
 
 On a fresh device, run these commands:
 
+```
 07 	    # create profile
 [ 00 ] # profile 00 created
 
@@ -93,5 +94,5 @@ On a fresh device, run these commands:
 
 0A 00  # dump all values in the current profile
 [ 00 04 F1 5F 09 00 ]  # index 00, value F1 5F 09 00, which is little endian notation for 0x00095FF1, the time the device has been online in milliseconds. 
-
+```
 
