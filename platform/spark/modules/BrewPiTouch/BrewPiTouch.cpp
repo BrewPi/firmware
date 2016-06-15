@@ -27,7 +27,8 @@
 #include <vector>
 #include <algorithm>
 
-BrewPiTouch::BrewPiTouch(uint8_t cs, uint8_t irq) : pinCS(cs), pinIRQ(irq) {
+
+BrewPiTouch::BrewPiTouch(SPIArbiter & spia, uint8_t cs, uint8_t irq) : _spi(spia),  pinCS(cs), pinIRQ(irq) {
 }
 
 BrewPiTouch::~BrewPiTouch() {
@@ -48,11 +49,12 @@ void BrewPiTouch::init(uint8_t configuration) {
     setStabilityThreshold(); // default threshold
     pinMode(pinCS, OUTPUT);
     pinMode(pinIRQ, INPUT);
-    // SPI is initialized externally
+    _spi.setClockDivider(SPI_CLOCK_DIV64);
+    _spi.setClockDivider(SPI_MODE0);
+    _spi.begin(pinCS);
+    _spi.transfer(config);
+    _spi.end();
 
-    digitalWrite(pinCS, LOW);
-    spiWrite(config);
-    digitalWrite(pinCS, HIGH);
     filterX.init(width/2);
     filterX.setCoefficients(SETTLING_TIME_25_SAMPLES);
     filterY.init(height/2);
@@ -76,22 +78,12 @@ bool BrewPiTouch::is12bit() {
     return (config & MODE) ? 0 : 1;
 }
 
-void BrewPiTouch::spiWrite(uint8_t c) {
-    SPI.transfer(c);
-}
-
-uint8_t BrewPiTouch::spiRead() {
-    uint8_t r = 0;
-    r = SPI.transfer(0x00);
-    return r;
-}
-
 uint16_t BrewPiTouch::readChannel() {
     uint16_t data;
-    data = SPI.transfer(0x00);
+    data = _spi.transfer(0);
     if (is12bit()) {
         data = data << 8;
-        data += SPI.transfer(0x00);
+        data += _spi.transfer(0);
         data = data >> 4;
     }
     return data;
@@ -132,8 +124,7 @@ bool BrewPiTouch::update(uint16_t numSamples) {
     std::vector<int16_t> samplesX;
     std::vector<int16_t> samplesY;
 
-    digitalWrite(pinCS, LOW);
-
+    _spi.begin();
     bool valid = true;
     for (uint16_t i = 0; i < numSamples; i++) {
         if (!isTouched()) {
@@ -142,10 +133,10 @@ bool BrewPiTouch::update(uint16_t numSamples) {
         }
         pinMode(pinIRQ, OUTPUT); // reverse bias diode during conversion
         digitalWrite(pinIRQ, LOW); // as recommended in SBAA028
-        spiWrite((config & CHMASK) | CHX); // select channel x
+        _spi.transfer((config & CHMASK) | CHX); // select channel x
         samplesX.push_back(readChannel());
 
-        spiWrite((config & CHMASK) | CHY); // select channel y
+        _spi.transfer((config & CHMASK) | CHY); // select channel y
         samplesY.push_back(readChannel());
         pinMode(pinIRQ, INPUT); // Set back to input
     }
@@ -158,8 +149,7 @@ bool BrewPiTouch::update(uint16_t numSamples) {
         filterX.add(samplesX[middle]);
         filterY.add(samplesY[middle]);
     }
-
-    digitalWrite(pinCS, HIGH);
+    _spi.end();
     return valid && isStable();
 }
 

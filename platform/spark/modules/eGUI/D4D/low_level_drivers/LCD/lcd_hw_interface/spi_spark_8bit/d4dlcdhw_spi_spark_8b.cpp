@@ -129,6 +129,12 @@ static uint16_t active_buffer_offset = 0;
 static volatile int8_t dma_buffer_idx = -1;
 
 /**
+ * Managed SPI interface, which remembers and re-applies settings when needed.
+ * SPI Arbiter locks and unlocks SPI.
+ */
+SPIUser SpiLCD(GlobalSPIArbiter);
+
+/**
  * Determines if there is data to send.
  */
 inline uint16_t hasPendingDataToSend()
@@ -149,20 +155,20 @@ inline void waitForTransferToComplete()
  */
 void transferComplete()
 {
-	D4DLCD_DEASSERT_CS;
+	SpiLCD.end();
 	dma_buffer_idx = -1;
 }
 
 inline void scheduleTransfer(int8_t tx_buffer_idx, uint16_t length)
 {
 	waitForTransferToComplete();
-	D4DLCD_ASSERT_CS;
+	SpiLCD.begin();
 #if 0 // DMA
 	dma_buffer_idx = tx_buffer_idx;
-	SPI.transfer(tx_buffer[tx_buffer_idx], NULL, length, transferComplete);
+	SpiLCD.transfer(tx_buffer[tx_buffer_idx], NULL, length, transferComplete);
 #else
 	for(int i=0; i < length; i++){
-	    SPI.transfer(tx_buffer[tx_buffer_idx][i]);
+	    SpiLCD.transfer(tx_buffer[tx_buffer_idx][i]);
 	}
 	transferComplete();
 #endif
@@ -220,24 +226,30 @@ static unsigned char D4DLCDHW_Init_Spi_Spark_8b(void) {
     D4DLCD_INIT_CS;
     D4DLCD_INIT_DC;
 
-    // Serial clock cycle is min 150ns from ILI93841 datasheet, which equals 6.7 MHz
-    // But touch screen driver (XPT2046) needs 200ns low, 200ns high.
-    // 1 /( 72 MHz / 29) = 403 ns. Prescaler of 32 gives a bit of margin.
-    SPI.setClockDivider(
+    // Serial clock cycle is min 100ns from ILI93841 datasheet, when writing.
+    // It is 150ns when reading, but we do not read from the display.
+
+    // We can drive the display up to 10 mHz
+    // On the Core, we can go up to clock div 8 (72 Mhz / 8 = 9 Mhz)
+    // On the Photon, we can go up to clock div16 (120 Mhz / 16 = 7.5 Mhz).
+
+    SpiLCD.setClockDivider(
 #if PLATFORM_ID==0
-    SPI_CLOCK_DIV32
+    SPI_CLOCK_DIV8
 #elif PLATFORM_ID==6
-    SPI_CLOCK_DIV64
+    SPI_CLOCK_DIV16
 #else
 #error Unknown platform
-#endif    
+#endif
     );
 
-    
-    SPI.begin(D4DLCD_CS);
 
-    SPI.setBitOrder(MSBFIRST);
-    SPI.setDataMode(SPI_MODE0);
+    SpiLCD.setBitOrder(MSBFIRST);
+    SpiLCD.setDataMode(SPI_MODE0);
+    
+    SpiLCD.begin(D4DLCD_CS);
+    SpiLCD.end();
+
 
     return 1;
 }
@@ -255,6 +267,7 @@ static unsigned char D4DLCDHW_Init_Spi_Spark_8b(void) {
 //-----------------------------------------------------------------------------
 
 static unsigned char D4DLCDHW_DeInit_Spi_Spark_8b(void) {
+    SpiLCD.end();
     return 0;
 }
 
@@ -280,11 +293,11 @@ static void D4DLCDHW_SendDataWord_Spi_Spark_8b(unsigned short value) {
 
 #else
 
-	D4DLCD_ASSERT_CS;
+	SpiLCD.begin();
     // Send data byte
-    SPI.transfer(value);
+    SpiLCD.transfer(value);
 
-    D4DLCD_DEASSERT_CS;
+    SpiLCD.end();
 #endif
 }
 
@@ -303,11 +316,11 @@ static void D4DLCDHW_SendCmdWord_Spi_Spark_8b(unsigned short cmd) {
     waitForTransferToComplete();
 
 	D4DLCD_ASSERT_DC; // DataCmd := 0
-	D4DLCD_ASSERT_CS;
+	SpiLCD.begin();
     // Send data byte
-    SPI.transfer(cmd);
+    SpiLCD.transfer(cmd);
 
-    D4DLCD_DEASSERT_CS;
+    SpiLCD.end();
     D4DLCD_DEASSERT_DC; // DataCmd := 1
 }
 
@@ -327,7 +340,7 @@ static unsigned short D4DLCDHW_ReadDataWord_Spi_Spark_8b(void) {
     /*D4DLCD_DEASSERT_DC;
     D4DLCD_ASSERT_CS;
     digitalWrite(_cs, LOW);
-    unsigned short r = SPI.transfer(0x00);
+    unsigned short r = SpiLCD.transfer(0x00);
     D4DLCD_DEASSERT_CS;
     return r;*/
     return 0;
