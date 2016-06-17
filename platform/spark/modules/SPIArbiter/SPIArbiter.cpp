@@ -35,7 +35,7 @@ void SPIArbiter::apply(SPIConfiguration& client){
         clockDivider_ = client.getClockDivider();
         spi_.setClockDivider(clockDivider_);
     }
-    if(ss_pin_ != 255){
+    if(ss_pin_ != UINT16_MAX){
         digitalWrite(ss_pin_, HIGH); // unselect previous client
     }
     digitalWrite(client.getSSPin(), LOW); // select new client

@@ -33,7 +33,7 @@ public:
 
     inline bool try_lock()
     {
-#if PLATFORM_THREADING
+#if 0 // PLATFORM_THREADING
         return !os_mutex_recursive_trylock(_get_mutex());
 #else
         return true;
@@ -42,14 +42,14 @@ public:
 
     inline void lock()
     {
-#if PLATFORM_THREADING
+#if 0 // PLATFORM_THREADING
         os_mutex_recursive_lock(_get_mutex());
 #endif
     }
 
     inline void unlock()
     {
-#if PLATFORM_THREADING
+#if 0 // PLATFORM_THREADING
         os_mutex_recursive_unlock(_get_mutex());
 #endif
     }
@@ -58,6 +58,10 @@ public:
 
 class SPIConfiguration
 {
+public:
+    SPIConfiguration() : mode_(SPI_MODE0), bitOrder_(MSBFIRST), clockDivider_(SPI_CLOCK_DIV128), ss_pin_(UINT16_MAX){}
+    ~SPIConfiguration() = default;
+
 protected:
     uint8_t mode_;
     uint8_t bitOrder_;
@@ -80,18 +84,18 @@ class SPIArbiter : private SPIConfiguration, public GuardedResource<SPIArbiter>
 
 
     void apply(SPIConfiguration& client);
-    os_mutex_recursive_t get_mutex() { return mutex_; }
+    // os_mutex_recursive_t get_mutex() { return mutex_; }
 
     friend class GuardedResource<SPIArbiter>;
 
 public:
 
     SPIArbiter(SPIClass& spi) : current_(nullptr), spi_(spi), mutex_(nullptr) {
-        os_mutex_recursive_create(&mutex_);
+        // os_mutex_recursive_create(&mutex_);
     }
 
     ~SPIArbiter() {
-        os_mutex_recursive_destroy(&mutex_);
+        // os_mutex_recursive_destroy(&mutex_);
     }
 
     inline bool try_begin(SPIConfiguration& client) {
@@ -103,7 +107,7 @@ public:
     }
 
     inline void begin(SPIConfiguration& client) {
-        // lock();
+        lock();
         current_ = &client;
         apply(client);
     }
@@ -112,8 +116,8 @@ public:
         if (isClient(client)) {
             current_ = nullptr;
             digitalWrite(ss_pin_, HIGH); // unselect client
-            ss_pin_ = 255; // set ss_pin to 255 to indicate no active client
-            //unlock();
+            ss_pin_ = UINT16_MAX; // set ss_pin to UINT16_MAX to indicate no active client
+            unlock();
         }
     }
 
@@ -159,9 +163,7 @@ public:
     SPIUser(SPIArbiter& spi) : spi_(spi) {}
 
     inline void begin() {
-        if(ss_pin_ != 255){
-            begin(ss_pin_);
-        }
+        spi_.begin(*this);
     }
 
     inline void begin(uint16_t ss_pin) {
