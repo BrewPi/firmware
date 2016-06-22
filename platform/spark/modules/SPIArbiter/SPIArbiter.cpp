@@ -35,10 +35,20 @@ void SPIArbiter::apply(SPIConfiguration& client){
         clockDivider_ = client.getClockDivider();
         spi_.setClockDivider(clockDivider_);
     }
-    if(ss_pin_ != UINT16_MAX){
-        digitalWrite(ss_pin_, HIGH); // unselect previous client
+    if (ss_pin_!=client.getSSPin()) {
+		if(ss_pin_ != UINT16_MAX){
+			digitalWrite(ss_pin_, HIGH); // unselect previous client
+		}
+		ss_pin_ = client.getSSPin();
+		digitalWrite(ss_pin_, LOW); // select new client
+	    spi_.begin(ss_pin_);
     }
-    digitalWrite(client.getSSPin(), LOW); // select new client
+}
+
+void SPIArbiter::unapply() {
+	digitalWrite(ss_pin_, HIGH); // unselect pin
+	ss_pin_ = UINT16_MAX;
+	spi_.end();
 }
 
 SPIArbiter GlobalSPIArbiter(SPI);

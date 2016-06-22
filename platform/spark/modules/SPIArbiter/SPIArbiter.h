@@ -82,7 +82,7 @@ class SPIArbiter : private SPIConfiguration, public GuardedResource<SPIArbiter>
     SPIClass& spi_;
     os_mutex_recursive_t mutex_;
 
-
+    void unapply();
     void apply(SPIConfiguration& client);
     // os_mutex_recursive_t get_mutex() { return mutex_; }
 
@@ -115,8 +115,7 @@ public:
     inline void end(SPIConfiguration& client) {
         if (isClient(client)) {
             current_ = nullptr;
-            digitalWrite(ss_pin_, HIGH); // unselect client
-            ss_pin_ = UINT16_MAX; // set ss_pin to UINT16_MAX to indicate no active client
+            unapply();
             unlock();
         }
     }
