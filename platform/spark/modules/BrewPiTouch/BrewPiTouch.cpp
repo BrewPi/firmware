@@ -50,7 +50,7 @@ void BrewPiTouch::init(uint8_t configuration) {
     pinMode(pinCS, OUTPUT);
     pinMode(pinIRQ, INPUT);
     _spi.setClockDivider(SPI_CLOCK_DIV64);
-    _spi.setClockDivider(SPI_MODE0);
+    _spi.setDataMode(SPI_MODE0);
     _spi.begin(pinCS);
     _spi.transfer(config);
     _spi.end();
