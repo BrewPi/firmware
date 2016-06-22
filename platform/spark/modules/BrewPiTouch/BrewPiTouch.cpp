@@ -124,8 +124,12 @@ bool BrewPiTouch::update(uint16_t numSamples) {
     std::vector<int16_t> samplesX;
     std::vector<int16_t> samplesY;
 
-    _spi.begin();
     bool valid = true;
+
+    if (!isTouched()) {
+    	return false; // exit immediately when not touched to prevent claiming SPI
+    }
+    _spi.begin();
     for (uint16_t i = 0; i < numSamples; i++) {
         if (!isTouched()) {
             valid = false;
