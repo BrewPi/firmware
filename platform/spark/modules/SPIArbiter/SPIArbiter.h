@@ -23,6 +23,9 @@
 #include "Platform.h"
 #include <functional>
 
+const uint16_t SS_PIN_NONE = UINT16_MAX - 1;
+const uint16_t SS_PIN_UNINITIALIZED = UINT16_MAX;
+
 template <class T>
 class GuardedResource {
 public:
@@ -59,7 +62,7 @@ public:
 class SPIConfiguration
 {
 public:
-    SPIConfiguration() : mode_(SPI_MODE0), bitOrder_(MSBFIRST), clockDivider_(SPI_CLOCK_DIV128), ss_pin_(UINT16_MAX){}
+    SPIConfiguration() : mode_(SPI_MODE0), bitOrder_(MSBFIRST), clockDivider_(SPI_CLOCK_DIV128), ss_pin_(SS_PIN_UNINITIALIZED){}
     ~SPIConfiguration() = default;
 
 protected:

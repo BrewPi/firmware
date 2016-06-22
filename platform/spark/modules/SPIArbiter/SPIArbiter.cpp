@@ -21,6 +21,17 @@
 #include "SPIArbiter.h"
 
 void SPIArbiter::apply(SPIConfiguration& client){
+    if(ss_pin_ == SS_PIN_UNINITIALIZED){
+    	// first time using the SPI, initialize it.
+		// this applies Particle defaults, so do it before configuring the mode, clock and bit order.
+		// only do it when the SPI is first used.
+		spi_.begin(client.getSSPin());
+    }
+
+	if (ss_pin_!= client.getSSPin()){
+		ss_pin_ = client.getSSPin();
+		digitalWrite(ss_pin_, LOW); // select new client
+    }
     if (mode_!=client.getMode()) {
         mode_ = client.getMode();
         spi_.setDataMode(mode_);
@@ -35,20 +46,12 @@ void SPIArbiter::apply(SPIConfiguration& client){
         clockDivider_ = client.getClockDivider();
         spi_.setClockDivider(clockDivider_);
     }
-    if (ss_pin_!=client.getSSPin()) {
-		if(ss_pin_ != UINT16_MAX){
-			digitalWrite(ss_pin_, HIGH); // unselect previous client
-		}
-		ss_pin_ = client.getSSPin();
-		digitalWrite(ss_pin_, LOW); // select new client
-	    spi_.begin(ss_pin_);
-    }
 }
 
 void SPIArbiter::unapply() {
 	digitalWrite(ss_pin_, HIGH); // unselect pin
-	ss_pin_ = UINT16_MAX;
-	spi_.end();
+	ss_pin_ = SS_PIN_NONE;
+	// spi_.end(); do not end global SPI, leave SPI Active.
 }
 
 SPIArbiter GlobalSPIArbiter(SPI);
