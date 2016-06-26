@@ -228,16 +228,17 @@ static unsigned char D4DLCDHW_Init_Spi_Spark_8b(void) {
 
     // Serial clock cycle is min 100ns from ILI93841 datasheet, when writing.
     // It is 150ns when reading, but we do not read from the display.
-
     // We can drive the display up to 10 mHz
-    // On the Core, we can go up to clock div 8 (72 Mhz / 8 = 9 Mhz)
-    // On the Photon, we can go up to clock div16 (120 Mhz / 16 = 7.5 Mhz).
+    // SPI base clock on the Photon is fclk/2.
+    // On the Core, we'll go up to clock div 8 (72 Mhz / 8 = 9 Mhz)
+    // On the Photon, we'll go up to clock div 8 (120 Mhz / 2 / 8 = 7.5 Mhz).
+    // Oscilloscope measurements have shown that faster clock speeds degrade signal quality too much.
 
     SpiLCD.setClockDivider(
 #if PLATFORM_ID==0
     SPI_CLOCK_DIV8
 #elif PLATFORM_ID==6
-    SPI_CLOCK_DIV16
+    SPI_CLOCK_DIV8
 #else
 #error Unknown platform
 #endif
