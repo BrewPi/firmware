@@ -163,7 +163,7 @@ inline void scheduleTransfer(int8_t tx_buffer_idx, uint16_t length)
 {
 	waitForTransferToComplete();
 	SpiLCD.begin();
-#if 0 // DMA
+#if PLATFORM_THREADING // use DMA on the photon
 	dma_buffer_idx = tx_buffer_idx;
 	SpiLCD.transfer(tx_buffer[tx_buffer_idx], NULL, length, transferComplete);
 #else
