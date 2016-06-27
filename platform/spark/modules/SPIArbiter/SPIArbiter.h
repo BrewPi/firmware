@@ -36,7 +36,7 @@ public:
 
     inline bool try_lock()
     {
-#if 0 // PLATFORM_THREADING
+#if PLATFORM_THREADING
         return !os_mutex_recursive_trylock(_get_mutex());
 #else
         return true;
@@ -45,14 +45,14 @@ public:
 
     inline void lock()
     {
-#if 0 // PLATFORM_THREADING
+#if PLATFORM_THREADING
         os_mutex_recursive_lock(_get_mutex());
 #endif
     }
 
     inline void unlock()
     {
-#if 0 // PLATFORM_THREADING
+#if PLATFORM_THREADING
         os_mutex_recursive_unlock(_get_mutex());
 #endif
     }
@@ -87,18 +87,18 @@ class SPIArbiter : private SPIConfiguration, public GuardedResource<SPIArbiter>
 
     void unapply();
     void apply(SPIConfiguration& client);
-    // os_mutex_recursive_t get_mutex() { return mutex_; }
+    os_mutex_recursive_t get_mutex() { return mutex_; }
 
     friend class GuardedResource<SPIArbiter>;
 
 public:
 
     SPIArbiter(SPIClass& spi) : current_(nullptr), spi_(spi), mutex_(nullptr) {
-        // os_mutex_recursive_create(&mutex_);
+        os_mutex_recursive_create(&mutex_);
     }
 
     ~SPIArbiter() {
-        // os_mutex_recursive_destroy(&mutex_);
+        os_mutex_recursive_destroy(&mutex_);
     }
 
     inline bool try_begin(SPIConfiguration& client) {
