@@ -84,6 +84,7 @@ static unsigned char D4DLCDHW_PinCtl_Spi_Spark_8b(D4DLCDHW_PINS pinId, D4DHW_PIN
 static void D4DLCD_FlushBuffer_Spi_Spark_8b(D4DLCD_FLUSH_MODE mode);
 static void D4DLCDHW_Delay_Spi_Spark_8b(unsigned short period);
 
+#define LCD_USE_DMA 1
 
 /**************************************************************//*!
   *
@@ -163,7 +164,7 @@ inline void scheduleTransfer(int8_t tx_buffer_idx, uint16_t length)
 {
 	waitForTransferToComplete();
 	SpiLCD.begin();
-#if PLATFORM_THREADING // use DMA on the photon
+#if PLATFORM_THREADING && LCD_USE_DMA  // use DMA on the photon
 	dma_buffer_idx = tx_buffer_idx;
 	SpiLCD.transfer(tx_buffer[tx_buffer_idx], NULL, length, transferComplete);
 #else
