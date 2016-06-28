@@ -94,11 +94,15 @@ class SPIArbiter : private SPIConfiguration, public GuardedResource<SPIArbiter>
 public:
 
     SPIArbiter(SPIClass& spi) : current_(nullptr), spi_(spi), mutex_(nullptr) {
+#if PLATFORM_THREADING
         os_mutex_recursive_create(&mutex_);
+#endif
     }
 
     ~SPIArbiter() {
+#if PLATFORM_THREADING
         os_mutex_recursive_destroy(&mutex_);
+#endif
     }
 
     inline bool try_begin(SPIConfiguration& client) {
