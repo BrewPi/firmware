@@ -124,8 +124,7 @@ public:
     }
 
     /*
-     * transfer locks the SPI arbiter, performs the transfer of a single byte and unlocks it again.
-     * it also asserts the SS PIN
+     * transfer assumes the SPI has already been acquired by calling begin()
      */
     inline uint8_t transfer(SPIConfiguration& client, uint8_t data) {
         if (isClient(client)) {

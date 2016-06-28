@@ -75,5 +75,5 @@ private:
     
     void spiWrite(uint8_t c);
     uint8_t spiRead(void);
-    uint16_t readChannel();
+    uint16_t readChannel(uint8_t channel);
 };

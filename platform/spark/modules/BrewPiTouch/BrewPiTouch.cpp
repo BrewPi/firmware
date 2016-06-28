@@ -48,7 +48,10 @@ void BrewPiTouch::init(uint8_t configuration) {
     yOffset = 0;
     setStabilityThreshold(); // default threshold
     pinMode(pinCS, OUTPUT);
-    pinMode(pinIRQ, INPUT);
+    pinMode(pinIRQ, INPUT_PULLUP);
+    // clock base is 120/2 = 60Mhz on the Photon and 72 Mhz on the core.
+    // Minimum clock cycle is 200 + 200 = 400 ns
+    // Fmax = 2.5 Mhz. 60 Mhz / 2.5 MHz = 24. Clock div of 32 is within margins
     _spi.setClockDivider(SPI_CLOCK_DIV64);
     _spi.setDataMode(SPI_MODE0);
     _spi.begin(pinCS);
@@ -78,14 +81,18 @@ bool BrewPiTouch::is12bit() {
     return (config & MODE) ? 0 : 1;
 }
 
-uint16_t BrewPiTouch::readChannel() {
+uint16_t BrewPiTouch::readChannel(uint8_t channel) {
     uint16_t data;
+    _spi.begin(); // will drive CS pin low, needed for conversion timing
+    _spi.transfer((config & CHMASK) | channel); // select channel x/y
+    delayMicroseconds(1); // make sure conversion is complete, without checking busy pin
     data = _spi.transfer(0);
     if (is12bit()) {
         data = data << 8;
         data += _spi.transfer(0);
         data = data >> 4;
     }
+    _spi.end(); // will drive CS pin high again
     return data;
 }
 
@@ -129,20 +136,13 @@ bool BrewPiTouch::update(uint16_t numSamples) {
     if (!isTouched()) {
     	return false; // exit immediately when not touched to prevent claiming SPI
     }
-    _spi.begin();
     for (uint16_t i = 0; i < numSamples; i++) {
         if (!isTouched()) {
             valid = false;
             break;
         }
-        pinMode(pinIRQ, OUTPUT); // reverse bias diode during conversion
-        digitalWrite(pinIRQ, LOW); // as recommended in SBAA028
-        _spi.transfer((config & CHMASK) | CHX); // select channel x
-        samplesX.push_back(readChannel());
-
-        _spi.transfer((config & CHMASK) | CHY); // select channel y
-        samplesY.push_back(readChannel());
-        pinMode(pinIRQ, INPUT); // Set back to input
+        samplesX.push_back(readChannel(CHX));
+        samplesY.push_back(readChannel(CHY));
     }
     if (valid) {
         // get median
@@ -153,7 +153,6 @@ bool BrewPiTouch::update(uint16_t numSamples) {
         filterX.add(samplesX[middle]);
         filterY.add(samplesY[middle]);
     }
-    _spi.end();
     return valid && isStable();
 }
 
