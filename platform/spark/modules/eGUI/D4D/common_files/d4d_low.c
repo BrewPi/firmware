@@ -852,7 +852,7 @@ void D4D_TCH_Calibrate(D4D_COLOR fore, D4D_COLOR bckg)
           }
 
           D4D_LLD_LCD.D4DLCD_FlushBuffer(D4DLCD_FLSH_FORCE);
-          D4D_LLD_LCD.D4DLCD_Delay_ms(10);
+          D4D_LLD_LCD.D4DLCD_Delay_ms(500);
         }
 
         if (calibration_quit)
