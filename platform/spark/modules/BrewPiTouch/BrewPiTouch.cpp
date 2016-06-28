@@ -52,7 +52,7 @@ void BrewPiTouch::init(uint8_t configuration) {
     // clock base is 120/2 = 60Mhz on the Photon and 72 Mhz on the core.
     // Minimum clock cycle is 200 + 200 = 400 ns
     // Fmax = 2.5 Mhz. 60 Mhz / 2.5 MHz = 24. Clock div of 32 is within margins
-    _spi.setClockDivider(SPI_CLOCK_DIV64);
+    _spi.setClockDivider(SPI_CLOCK_DIV32);
     _spi.setDataMode(SPI_MODE0);
     _spi.begin(pinCS);
     _spi.transfer(config);
