@@ -433,6 +433,7 @@ static unsigned char D4DLCDHW_PinCtl_Spi_Spark_8b(D4DLCDHW_PINS pinId, D4DHW_PIN
 static void D4DLCD_FlushBuffer_Spi_Spark_8b(D4DLCD_FLUSH_MODE mode) {
     if (true || mode==D4DLCD_FLSH_SCR_END || mode==D4DLCD_FLSH_FORCE) {
     		flushData();
+    		waitForTransferToComplete(); // wait for last DMA transfer to complete
     }
 }
 
