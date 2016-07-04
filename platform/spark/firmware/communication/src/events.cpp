@@ -24,6 +24,7 @@
   */
 #include "events.h"
 #include <string.h>
+#include "strnlen.h"
 
 // Private, used by two subscription variants below
 uint8_t *subscription_prelude(uint8_t buf[], uint16_t message_id,

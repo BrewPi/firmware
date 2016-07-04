@@ -127,6 +127,7 @@
   #define  D4D_MCF54      53      ///< The group of MCU with CORE MCF54 (ColdFire 4)
   #define  D4D_MPC51      60      ///< The group of MCU with CORE MCP51 (Power PC)
   #define  D4D_MK         80      ///< The group of MCU with CORE MK    (Kinetis family)
+#define D4D_PARTICLE		100			/// Particle HAL
 /**@}*/
 
 
@@ -146,37 +147,38 @@
 * @{
 *******************************************************************************/
 #if (D4D_USE_STANDARD_TYPES != D4D_TRUE)
+#include <stdint.h>
   #ifndef Byte
     /*! @brief Type definition of Byte (unsigned 8-bit). */
-    typedef unsigned char       Byte;
+    typedef uint8_t       Byte;
   #endif
   #ifndef sByte
     /*! @brief Type definition of sByte (signed 8-bit). */
-    typedef signed char         sByte;
+    typedef int8_t        sByte;
   #endif
   #ifndef Word
     /*! @brief Type definition of Word (unsigned 16-bit). */
-    typedef unsigned short      Word;
+    typedef uint16_t      Word;
   #endif
   #ifndef sWord
     /*! @brief Type definition of sWord (signed 16-bit). */
-    typedef signed short        sWord;
+    typedef int16_t        sWord;
   #endif
   #ifndef LWord
     /*! @brief Type definition of LWord (unsigned 32-bit). */
-    typedef unsigned long       LWord;
+    typedef uint32_t       LWord;
   #endif
   #ifndef sLWord
     /*! @brief Type definition of sLWord (signed 32-bit). */
-    typedef signed long         sLWord;
+    typedef int32_t         sLWord;
   #endif
   #ifndef DLWord
     /*! @brief Type definition of DLWord (unsigned 64-bit). */
-    typedef unsigned long long  DLWord;
+    typedef uint64_t  DLWord;
   #endif
   #ifndef sDLWord
     /*! @brief Type definition of sDLWord (signed 64-bit). */
-    typedef signed long long    sDLWord;
+    typedef int64_t    sDLWord;
   #endif
 
   #ifndef NULL
@@ -199,14 +201,14 @@
   typedef Word D4D_BOOL;
   typedef Word D4D_INDEX;
   typedef sWord D4D_INDEX_DELTA;
-#elif (D4D_MCU_TYPE == D4D_MCF51) || (D4D_MCU_TYPE == D4D_MCF52) || (D4D_MCU_TYPE == D4D_MPC51) || (D4D_MCU_TYPE == D4D_MK)
+#elif (D4D_MCU_TYPE == D4D_MCF51) || (D4D_MCU_TYPE == D4D_MCF52) || (D4D_MCU_TYPE == D4D_MPC51) || (D4D_MCU_TYPE == D4D_MK) || (D4D_MCU_TYPE == D4D_PARTICLE)
   /*! @brief Type definition of eGUI boolean. */
-  typedef LWord D4D_BOOL;
+  typedef uint8_t D4D_BOOL;
   /*! @brief Type definition of eGUI general index variables.*/
   typedef LWord D4D_INDEX;
   /*! @brief Type definition of eGUI general index variables for signed offsets.*/
   typedef sLWord D4D_INDEX_DELTA;
-#else
+  #else
   #error "Unsupported MCU type for D4D_BOOL type!"
 #endif
 
@@ -255,18 +257,6 @@ typedef struct
   D4D_COOR* pTabTable;  ///< Pointer to tabulator table
   D4D_COOR tabOffset;   ///< Start offset of tabulator
 }D4D_TAB;
-
-// Color type definition
-#if ((D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB888) || (D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB666))
-  /*! @brief Type definition of eGUI color variables.*/
-  typedef LWord D4D_COLOR;
-#elif ((D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB565) || (D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB555))
-  typedef Word D4D_COLOR;
-#elif ((D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB332) || (D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_MONO))
-  typedef Byte D4D_COLOR;
-#else
-  #error D4D_COLOR not defined due to unsupported D4D system color.
-#endif
 
 #ifndef D4D_WCHAR_TYPE
 /*! @brief User type definition of eGUI wide char.*/
@@ -350,8 +340,8 @@ typedef enum
 typedef struct
 {
   unsigned char ScreenCalibrated;               ///< Boolean if the values are valid
-  unsigned short TouchScreenXoffset;            ///< Input value offset in axis X
-  unsigned short TouchScreenYoffset;            ///< Input value offset in axis Y
+  short TouchScreenXoffset;            ///< Input value offset in axis X
+  short TouchScreenYoffset;            ///< Input value offset in axis Y
   unsigned short TouchScreenXBitsPerPixelx16;   ///< Input value gain per 16 pixels in axis X
   unsigned short TouchScreenYBitsPerPixelx16;   ///< Input value gain per 16 pixels in axis Y
 }D4D_TOUCHSCREEN_CALIB;
@@ -367,6 +357,13 @@ typedef struct
 /******************************************************************************
 * Macros
 ******************************************************************************/
+
+#include "d4d_scheme.h"
+
+// there's a circular dependency -
+// this file required D4D_COLOR_SCHEME, which is defined in d4d_scheme.h
+// while d4d_scheme.h requires D4D_COLOR which is defined in here, based on the scheme.
+// So I moved the D4D_Color definition to d4d_scheme.h
 
 
 

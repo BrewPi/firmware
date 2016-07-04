@@ -8,7 +8,7 @@ TARGET_SRC_PATH = src
 
 
 # C source files included in this build.
-CSRC +=
+CSRC += 
 
 # C++ source files included in this build.
 CPPSRC += $(TARGET_SRC_PATH)/coap.cpp
@@ -22,13 +22,16 @@ CPPSRC += $(TARGET_SRC_PATH)/eckeygen.cpp
 CPPSRC += $(TARGET_SRC_PATH)/lightssl_message_channel.cpp
 CPPSRC += $(TARGET_SRC_PATH)/dtls_message_channel.cpp
 CPPSRC += $(TARGET_SRC_PATH)/dtls_protocol.cpp
+CPPSRC += $(TARGET_SRC_PATH)/lightssl_protocol.cpp
 CPPSRC += $(TARGET_SRC_PATH)/protocol.cpp
 CPPSRC += $(TARGET_SRC_PATH)/messages.cpp
 CPPSRC += $(TARGET_SRC_PATH)/chunked_transfer.cpp
 CPPSRC += $(TARGET_SRC_PATH)/coap_channel.cpp
+CPPSRC += $(TARGET_SRC_PATH)/strnlen.cpp
 
 # ASM source files included in this build.
 ASRC +=
 
 CPPFLAGS += -std=gnu++11
 
+CFLAGS += -DMBEDTLS_CONFIG_FILE="<mbedtls_config.h>"

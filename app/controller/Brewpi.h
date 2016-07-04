@@ -41,6 +41,7 @@ enum {
 #define BREWPI_BOARD_MEGA 'm'
 #define BREWPI_BOARD_SPARKCORE 'x'
 #define BREWPI_BOARD_PHOTON 'y'
+#define BREWPI_BOARD_GCC 'z'
 #define BREWPI_BOARD_UNKNOWN '?'
 
 

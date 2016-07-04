@@ -154,7 +154,7 @@ class FSDirList {
         
 private:
     
-    FSDirList(FSDir& dir_) : dir(dir) {}
+    FSDirList(FSDir& dir_) : dir(dir_) {}
     
     bool next() {
         return f_readdir(&dir.dir, &fno)!=FR_OK || !*fno.fname;        

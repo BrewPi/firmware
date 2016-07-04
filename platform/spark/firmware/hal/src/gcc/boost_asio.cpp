@@ -19,4 +19,7 @@
 #ifdef __clang__
 #pragma GCC diagnostic ignored "-Wunused-local-typedef"
 #endif
+#ifdef _WIN32
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
 #include <boost/asio/impl/src.hpp>

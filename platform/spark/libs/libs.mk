@@ -14,3 +14,10 @@ LDFLAGS += -u vTaskSwitchContext
 endif
 endif
 
+INCLUDE_DIRS += $(LIBS_DIR)/WebSockets/firmware
+CPPSRC += $(call here_files,platform/spark/libs/WebSockets/firmware,*.cpp)
+CSRC += $(call here_files,platform/spark/libs/WebSockets/firmware/libb64,*.c)
+CSRC += $(call here_files,platform/spark/libs/WebSockets/firmware/libsha1,*.c)
+
+
+

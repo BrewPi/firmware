@@ -24,9 +24,17 @@ extern "C" {
 #include "d4d.h"
 }
 
-#include "flashee-eeprom.h"
 #include "SparkEepromRegions.h"
 
+#if PLATFORM_ID!=3
+#include "flashee-eeprom.h"
+#else
+#include "EepromAccessImpl.h"
+// HACK!
+extern EepromAccess eepromAccess;
+
+
+#endif
 
 // Reserve 32 bytes for touch calibration settings to have room for growth
 union calibrationSettingsArea {
@@ -39,7 +47,24 @@ union calibrationSettingsArea {
 #define NEXT_ADDRESS (TOUCH_CALIB_ADDRESS + sizeof(calibrationSettingsArea)
 
 class eGuiSettingsClass {
-    Flashee::FlashDevice* flash;
+#if PLATFORM_ID!=3		// todo - this should be implemented in the GCC HAL, mapping eeprom to a file/memory array
+	Flashee::FlashDevice* flash;
+#else
+	struct FlashDevice
+	{
+		static void read(void* target, size_t offset, size_t len)
+		{
+			eepromAccess.readBlock(target, offset, len);
+		}
+
+		static void write(const void* source, size_t offset, size_t len)
+		{
+			eepromAccess.writeBlock(offset, source, len);
+		}
+	};
+
+	FlashDevice* flash;
+#endif
 
 public:
 
@@ -48,6 +73,8 @@ public:
         flash = Flashee::Devices::createAddressErase(4096 * EEPROM_EGUI_SETTINGS_START_BLOCK, 4096 * EEPROM_EGUI_SETTINGS_END_BLOCK);
 #elif PLATFORM_ID==6
         flash = Flashee::Devices::createEepromDevice(EEPROM_EGUI_SETTINGS_START_BLOCK, EEPROM_EGUI_SETTINGS_END_BLOCK);
+#elif PLATFORM_ID==3
+        // no-op
 #else
 #error Unknown Product ID
 #endif
