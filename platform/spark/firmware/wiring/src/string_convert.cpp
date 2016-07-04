@@ -63,8 +63,13 @@ char *ltoa(long N, char *str, int base)
       return str;
 }
 
+char* ultoa(unsigned long a, char* buffer, int radix) {
+	return ultoa_pad(a, buffer, radix);
+}
+
+
 //convert unsigned long to string
-char* ultoa(unsigned long a, char* buffer, int radix, char pad){
+char* ultoa_pad(unsigned long a, char* buffer, int radix, char pad){
 	if(radix<2 || radix>36){
 		return NULL;
 	}
@@ -105,7 +110,10 @@ char* itoa(int a, char* buffer, int radix){
 	return buffer;
 }
 
-__attribute__((weak)) char* utoa(unsigned a, char* buffer, int radix) {
+#if PLATFORM_ID!=3
+__attribute__((weak))
+#endif
+char* utoa(unsigned a, char* buffer, int radix) {
     return ultoa(a, buffer, radix);
 }
 

@@ -78,13 +78,14 @@
 
 		  typedef struct WriteRegion {
 			unsigned long win_cur_addr;
-			unsigned long win_cur_w;
-			unsigned long win_cur_h;
+			uint16_t win_cur_w;
+			uint16_t win_cur_h;
 
-			unsigned long win_x;
-			unsigned long win_y;
-			unsigned long win_width;
-			unsigned long win_height;
+			uint16_t win_x;
+			uint16_t win_y;
+			uint16_t win_width;
+			uint16_t win_height;
+			uint16_t max_width, max_height;
 		  } WriteRegion;
 
 		  extern WriteRegion writeRegion;

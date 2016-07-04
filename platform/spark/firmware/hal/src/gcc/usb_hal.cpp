@@ -28,11 +28,22 @@
 #include <stdint.h>
 #include <iostream>
 #include <stdio.h>
+#include <unistd.h>
+#ifndef _WIN32
 #include <sys/poll.h>
 #include <termios.h>
-#include <unistd.h>
+#else
+#include <windows.h>
+#include <conio.h>
+#endif
 
 uint32_t last_baudRate;
+fd_set stdin_fdset;
+#ifdef WIN32
+HANDLE input_handle;
+bool is_pipe;
+#endif
+
 /*******************************************************************************
  * Function Name  : USB_USART_Init
  * Description    : Start USB-USART protocol.
@@ -42,21 +53,31 @@ uint32_t last_baudRate;
 void USB_USART_Init(uint32_t baudRate)
 {
     last_baudRate = baudRate;
-    std::cout.setf(std::ios::unitbuf);
+
+#ifdef WIN32
+    DWORD dw;
+    input_handle = GetStdHandle(STD_INPUT_HANDLE);
+    is_pipe = !GetConsoleMode(input_handle, &dw);
+#endif
+    FD_ZERO(&stdin_fdset);
+    FD_SET(STDIN_FILENO, &stdin_fdset);
 }
 
 /*******************************************************************************
  * Function Name  : USB_USART_Available_Data.
  * Description    : Return the length of available data received from USB.
  * Input          : None.
- * Return         : Length.
+ * Return         : Non zero when data is available.
  *******************************************************************************/
 uint8_t USB_USART_Available_Data(void)
 {
-    struct pollfd stdin_poll = { .fd = STDIN_FILENO
-            , .events = POLLIN | POLLRDBAND | POLLRDNORM | POLLPRI };
-    int ret = poll(&stdin_poll, 1, 0);
-    return ret;
+    struct timeval tv = {0, 1};
+    int retval = select(1, &stdin_fdset, NULL, NULL, &tv);
+    if (retval <= 0)
+        retval = 0;
+        volatile int error = WSAGetLastError();
+        return error;
+    return retval;
 }
 
 int32_t last = -1;
@@ -69,7 +90,7 @@ int32_t last = -1;
  *******************************************************************************/
 int32_t USB_USART_Receive_Data(uint8_t peek)
 {
-    if (last<0 && USB_USART_Available_Data()) {
+    if (last<0 && USB_USART_Available_Data() > 0) {
         uint8_t data = 0;
         if (read(0, &data, 1))
             last = data;

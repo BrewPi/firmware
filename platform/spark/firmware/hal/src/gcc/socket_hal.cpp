@@ -23,19 +23,22 @@
  ******************************************************************************
  */
 #include "device_globals.h"
+
+#undef ERROR
+
+// socklen_t is defined by boost to be signed, so we do a little switcheroo here
+#define socklen_t hal_socklen_t
+typedef uint32_t hal_socklen_t;
+
 #include "socket_hal.h"
 #include "inet_hal.h"
 #include "core_msg.h"
 #include <vector>
+#include "service_debug.h"
 
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wmissing-braces"
 #include <boost/array.hpp>
-
-// conflict of types
-#define socklen_t boost_socklen_t
-#include <boost/asio.hpp>
-#undef socklen_t
 
 #include <boost/system/system_error.hpp>
 
@@ -49,25 +52,25 @@ boost::asio::io_service device_io_service;
 boost::system::error_code ec;
 
 boost::array<ip::tcp::socket, SOCKET_COUNT> tcp_handles = {
-        ip::tcp::socket(device_io_service),
-        ip::tcp::socket(device_io_service),
-        ip::tcp::socket(device_io_service),
-        ip::tcp::socket(device_io_service),
-        ip::tcp::socket(device_io_service),
-        ip::tcp::socket(device_io_service),
-        ip::tcp::socket(device_io_service),
-        ip::tcp::socket(device_io_service)
+    ip::tcp::socket(device_io_service),
+    ip::tcp::socket(device_io_service),
+    ip::tcp::socket(device_io_service),
+    ip::tcp::socket(device_io_service),
+    ip::tcp::socket(device_io_service),
+    ip::tcp::socket(device_io_service),
+    ip::tcp::socket(device_io_service),
+    ip::tcp::socket(device_io_service)
 };
 
 boost::array<ip::udp::socket, SOCKET_COUNT> udp_handles = {
-        ip::udp::socket(device_io_service),
-        ip::udp::socket(device_io_service),
-        ip::udp::socket(device_io_service),
-        ip::udp::socket(device_io_service),
-        ip::udp::socket(device_io_service),
-        ip::udp::socket(device_io_service),
-        ip::udp::socket(device_io_service),
-        ip::udp::socket(device_io_service)
+    ip::udp::socket(device_io_service),
+    ip::udp::socket(device_io_service),
+    ip::udp::socket(device_io_service),
+    ip::udp::socket(device_io_service),
+    ip::udp::socket(device_io_service),
+    ip::udp::socket(device_io_service),
+    ip::udp::socket(device_io_service),
+    ip::udp::socket(device_io_service)
 };
 
 
@@ -84,12 +87,12 @@ ip::udp::socket& invalid_udp() {
 
 bool is_tcp_socket(sock_handle_t sd)
 {
-    return sd<SOCKET_COUNT;
+	return sd<SOCKET_COUNT;
 }
 
 bool is_udp_socket(sock_handle_t sd)
 {
-    return sd>=SOCKET_COUNT && sd<SOCKET_MAX;
+	return sd>=SOCKET_COUNT && sd<SOCKET_MAX;
 }
 
 
@@ -282,11 +285,11 @@ sock_result_t socket_receive(sock_handle_t sd, void* buffer, socklen_t len, syst
     std::size_t available = command.get();
     sock_result_t result = 0;
     if (_timeout || available)
-        available = handle.read_some(boost::asio::buffer(buffer, len), ec);
+    available = handle.read_some(boost::asio::buffer(buffer, len), ec);
     result = ec.value() ? -abs(ec.value()) : available;
     if (ec.value()) {
         if (ec.value() == boost::system::errc::resource_deadlock_would_occur || // EDEADLK (35)
-                ec.value() == boost::system::errc::resource_unavailable_try_again) { // EAGAIN (11)
+            ec.value() == boost::system::errc::resource_unavailable_try_again) { // EAGAIN (11)
             result = 0; // No data available
         } else {
             DEBUG("socket receive error: %d %s, read=%d", ec.value(), ec.message().c_str(), available);
@@ -320,22 +323,22 @@ sock_result_t socket_create_nonblocking_server(sock_handle_t sock, uint16_t port
 
 sock_result_t socket_receivefrom(sock_handle_t sock, void* buffer, socklen_t bufLen, uint32_t flags, sockaddr_t* addr, socklen_t* addrsize)
 {
-    ip::udp::endpoint endpoint;
-    auto& socket = udp_from(sock);
+	ip::udp::endpoint endpoint;
+	auto& socket = udp_from(sock);
 
-    int count = socket.receive_from(boost::asio::buffer(buffer, bufLen), endpoint, 0, ec);
-    if (addr && addrsize && *addrsize>=6u) {
-        uint16_t port = endpoint.port();
-        addr->sa_data[0] = port >> 8;
-        addr->sa_data[1] = port & 0xFF;
-        uint32_t ip = endpoint.address().to_v4().to_ulong();
-        addr->sa_data[2] = (ip >> 24) & 0xFF;
-        addr->sa_data[3] = (ip >> 16) & 0xFF;
-        addr->sa_data[4] = (ip >> 8) & 0xFF;
-        addr->sa_data[5] = (ip >> 0) & 0xFF;
-    }
+	int count = socket.receive_from(boost::asio::buffer(buffer, bufLen), endpoint, 0, ec);
+	if (addr && addrsize && *addrsize>=6u) {
+		uint16_t port = endpoint.port();
+		addr->sa_data[0] = port >> 8;
+		addr->sa_data[1] = port & 0xFF;
+		uint32_t ip = endpoint.address().to_v4().to_ulong();
+		addr->sa_data[2] = (ip >> 24) & 0xFF;
+		addr->sa_data[3] = (ip >> 16) & 0xFF;
+		addr->sa_data[4] = (ip >> 8) & 0xFF;
+		addr->sa_data[5] = (ip >> 0) & 0xFF;
+	}
 
-    sock_handle_t result = ec.value();
+	sock_handle_t result = ec.value();
 
     if (result == boost::asio::error::would_block)
         return 0;
@@ -346,7 +349,7 @@ sock_result_t socket_receivefrom(sock_handle_t sock, void* buffer, socklen_t buf
     else
         DEBUG("result: %d %s", ec.value(), ec.message().c_str());
 
-    return result ? result : count;
+	return result ? result : count;
 }
 
 sock_result_t socket_sendto(sock_handle_t sd, const void* buffer, socklen_t len, uint32_t flags, sockaddr_t* addr, socklen_t addr_size)
@@ -358,14 +361,14 @@ sock_result_t socket_sendto(sock_handle_t sd, const void* buffer, socklen_t len,
     ip::address_v4::bytes_type address = {{ dest[0], dest[1], dest[2], dest[3] }};
     ip::udp::endpoint endpoint(boost::asio::ip::address_v4(address),port);
 
-    auto& socket = udp_from(sd);
-    int count = socket.send_to(boost::asio::buffer(buffer, len), endpoint, 0, ec);
+	auto& socket = udp_from(sd);
+	int count = socket.send_to(boost::asio::buffer(buffer, len), endpoint, 0, ec);
 
-    sock_handle_t result = ec.value();
+	sock_handle_t result = ec.value();
     if (result == boost::asio::error::would_block)
         return 0;
 
-    return result ? result : count;
+	return result ? result : count;
 }
 
 
@@ -379,9 +382,9 @@ uint8_t socket_active_status(sock_handle_t socket)
 {
     bool open;
     if (socket>=SOCKET_COUNT)
-        open = udp_from(socket).is_open();
+    		open = udp_from(socket).is_open();
     else
-        open = tcp_from(socket).is_open();
+    		open = tcp_from(socket).is_open();
     return open ? SOCKET_STATUS_ACTIVE : SOCKET_STATUS_INACTIVE;
 }
 
@@ -393,15 +396,15 @@ sock_result_t socket_close(sock_handle_t socket)
     }
     else if (socket>=SOCKET_COUNT)
     {
-        auto& s = udp_from(socket);
-        s.shutdown(boost::asio::ip::udp::socket::shutdown_both, ec);
-        udp_from(socket).close();
+    		auto& s = udp_from(socket);
+    		s.shutdown(boost::asio::ip::udp::socket::shutdown_both, ec);
+    		udp_from(socket).close();
     }
     else
     {
-        auto& s = tcp_from(socket);
-        s.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-        s.close();
+    		auto& s = tcp_from(socket);
+		s.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+    		s.close();
     }
     return 0;
 }
@@ -409,7 +412,7 @@ sock_result_t socket_close(sock_handle_t socket)
 
 sock_handle_t socket_create(uint8_t family, uint8_t type, uint8_t protocol, uint16_t port, network_interface_t nif)
 {
-    bool udp = protocol==IPPROTO_UDP;
+	bool udp = protocol==IPPROTO_UDP;
     sock_handle_t handle = udp ? next_unused_udp() : next_unused_tcp();
     if (handle==SOCKET_INVALID)
         return -1;
@@ -485,7 +488,7 @@ sock_result_t socket_join_multicast(const HAL_IPAddress* addr, network_interface
 
 sock_result_t socket_leave_multicast(const HAL_IPAddress* addr, network_interface_t nif, socket_multicast_info_t* reserved)
 {
-    return -1;
+	return -1;
 }
 
 sock_result_t socket_peer(sock_handle_t sd, sock_peer_t* peer, void* reserved)

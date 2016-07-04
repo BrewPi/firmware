@@ -85,6 +85,21 @@
   #define D4D_COLOR_SYSTEM D4D_COLOR_SYSTEM_RGB565
 #endif
 
+
+// Color type definition
+#if ((D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB888) || (D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB666))
+  /*! @brief Type definition of eGUI color variables.*/
+  typedef LWord D4D_COLOR;
+#error
+#elif ((D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB565) || (D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB555))
+  typedef Word D4D_COLOR;
+#elif ((D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_RGB332) || (D4D_COLOR_SYSTEM == D4D_COLOR_SYSTEM_MONO))
+  typedef Byte D4D_COLOR;
+#else
+  #error D4D_COLOR not defined due to unsupported D4D system color.
+#endif
+
+
 //Colors definition
 /*!
   @defgroup doxd4d_scheme_const_colors D4D SCHEME Defined standard colors

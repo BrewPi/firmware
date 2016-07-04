@@ -48,7 +48,7 @@
 #include "common_files/d4d_private.h"    // include the private header file that contains perprocessor macros as D4D_MK_STR
 
 
-#define D4DLCDHWFB_DIRECT_MEM_ACCESS 1
+// #define D4DLCDHWFB_DIRECT_MEM_ACCESS 1
 
 // identification string of driver - must be same as name D4DLCD_FUNCTIONS structure + "_ID"
 // it is used for enable the code for compilation
@@ -80,7 +80,7 @@
   static void D4DLCD_Flush_FrameBuffer(D4DLCD_FLUSH_MODE mode);
   static unsigned char D4DLCD_DeInit_FrameBuffer(void);
 
-	static void D4DLCD_ComputeCurAdrr(void);
+	static void D4DLCD_Advance(void);
 
   /**************************************************************//*!
   *
@@ -111,17 +111,16 @@
 
   	  WriteRegion writeRegion;
 
-	static signed long win_const1;
-	static signed long win_const2;
-	static signed long win_const3;
+	static int32_t win_home_addr;
+	static int32_t win_y_inc;
+	static int32_t win_x_inc;
 
-	static unsigned long pix_cnt;
+	static int32_t pix_cnt;
 
-	static unsigned long bpp_byte;
+	static int8_t bpp_byte;
 
 
 	static D4DLCD_ORIENTATION lcd_orient = Portrait;
-	static D4DLCD_ORIENTATION hw_orient  = Portrait;
 	static D4DLCD_FRAMEBUFF_DESC* p_fbDesc = NULL;
 
 
@@ -153,19 +152,21 @@
   		return 0;
 
   	writeRegion.win_cur_addr = p_fbDesc->fb_start_addr;
+  	writeRegion.max_width = p_fbDesc->lcd_x_max;
+  	writeRegion.max_height = p_fbDesc->lcd_y_max;
   	writeRegion.win_width = 0;
   	writeRegion.win_height = 0;
 
   	if(p_fbDesc->lcd_x_max < p_fbDesc->lcd_y_max)
   	{
-  		hw_orient  = Portrait;
+  		lcd_orient  = Portrait;
   	}
   	else
   	{
-  		hw_orient  = Landscape;
+  		lcd_orient  = Landscape;
   	}
 
-	pix_cnt = (unsigned long)(p_fbDesc->lcd_x_max * p_fbDesc->lcd_y_max);
+  	pix_cnt = (unsigned long)(p_fbDesc->lcd_x_max * p_fbDesc->lcd_y_max);
 
 	bpp_byte = p_fbDesc->bpp_byte;
 
@@ -187,6 +188,12 @@
   	return D4D_LLD_LCD_HW.D4DLCDHW_DeInit();
   }
 
+  uint32_t address_for(uint16_t x, uint16_t y)
+  {
+	  return (p_fbDesc->fb_start_addr +
+			  (((p_fbDesc->lcd_x_max * y) + x) * bpp_byte));
+  }
+
   //-----------------------------------------------------------------------------
   // FUNCTION:    D4DLCD_SetWindow_FrameBuffer
   // SCOPE:       Low Level Driver API function
@@ -204,40 +211,41 @@
   {
 	  writeRegion.win_x = x1;
 	  writeRegion.win_y = y1;
-
-	  writeRegion.win_cur_w = writeRegion.win_width = (unsigned short)(x2 - x1);
-	  writeRegion.win_cur_h = writeRegion.win_height = (unsigned short)(y2 - y1);
+	  writeRegion.win_cur_w = 0;
+	  writeRegion.win_cur_h = 0;
+	  writeRegion.win_width = (unsigned short)(x2 - x1);
+	  writeRegion.win_height = (unsigned short)(y2 - y1);
 
 	switch(lcd_orient)
   	{
-  		case Portrait:
-			win_const1 = (signed long)(p_fbDesc->fb_start_addr + (p_fbDesc->lcd_x_max * writeRegion.win_y + writeRegion.win_x) * bpp_byte);
-			win_const2 = (signed long)((p_fbDesc->lcd_x_max - writeRegion.win_width) * bpp_byte);
-			win_const3 = (signed long)(bpp_byte);
+  		case Landscape:
+			win_home_addr = address_for(x1, y1);
+			win_y_inc = (writeRegion.max_width - writeRegion.win_width) * bpp_byte;
+			win_x_inc = (bpp_byte);
   			break;
-
-  		case Portrait180:
-			win_const1 = (signed long)((p_fbDesc->fb_start_addr + (pix_cnt * bpp_byte)) - (p_fbDesc->lcd_x_max * writeRegion.win_y + writeRegion.win_x) * bpp_byte);
-			win_const2 = (signed long)((p_fbDesc->lcd_x_max - writeRegion.win_width) * -1 * bpp_byte);
-			win_const3 = (signed long)(-1 * bpp_byte);
-			break;
 
   		case Landscape180:
-				win_const1 = (signed long)(p_fbDesc->fb_start_addr + (p_fbDesc->lcd_x_max * writeRegion.win_x + p_fbDesc->lcd_x_max - writeRegion.win_y) * bpp_byte);
-				win_const2 = (signed long)((writeRegion.win_width * p_fbDesc->lcd_x_max + 1) * -1 * bpp_byte);
-				win_const3 = (signed long)((p_fbDesc->lcd_x_max) * bpp_byte);
+  			win_home_addr = (signed long)((p_fbDesc->fb_start_addr + (pix_cnt * bpp_byte)) - (p_fbDesc->lcd_x_max * writeRegion.win_y + writeRegion.win_x) * bpp_byte);
+			win_y_inc = (signed long)((p_fbDesc->lcd_x_max - writeRegion.win_width) * -1 * bpp_byte);
+			win_x_inc = (signed long)(-1 * bpp_byte);
+			break;
+
+  		case Portrait180:
+  			win_home_addr = (signed long)(p_fbDesc->fb_start_addr + (p_fbDesc->lcd_x_max * writeRegion.win_x + p_fbDesc->lcd_x_max - writeRegion.win_y) * bpp_byte);
+			win_y_inc = (signed long)((writeRegion.win_width * p_fbDesc->lcd_x_max + 1) * -1 * bpp_byte);
+			win_x_inc = (signed long)((p_fbDesc->lcd_x_max) * bpp_byte);
   			break;
 
-  		case Landscape:
-				win_const1 = (signed long)((p_fbDesc->fb_start_addr + (pix_cnt * bpp_byte)) - (p_fbDesc->lcd_x_max * writeRegion.win_x + p_fbDesc->lcd_x_max - writeRegion.win_y) * bpp_byte);
-				win_const2 = (signed long)((writeRegion.win_width * p_fbDesc->lcd_x_max + 1) * bpp_byte);
-				win_const3 = (signed long)((p_fbDesc->lcd_x_max) * -1 * bpp_byte);
+  		case Portrait:
+  			win_home_addr = (signed long)((p_fbDesc->fb_start_addr + (pix_cnt * bpp_byte)) - (p_fbDesc->lcd_x_max * writeRegion.win_x + p_fbDesc->lcd_x_max - writeRegion.win_y) * bpp_byte);
+			win_y_inc = (signed long)((writeRegion.win_width * p_fbDesc->lcd_x_max + 1) * bpp_byte);
+			win_x_inc = (signed long)((p_fbDesc->lcd_x_max) * -1 * bpp_byte);
   			break;
 
   	}
 
+	writeRegion.win_cur_addr = win_home_addr;
 
-	D4DLCD_ComputeCurAdrr();
 	return 1;
   }
 
@@ -253,27 +261,10 @@
   //-----------------------------------------------------------------------------
   static unsigned char D4DLCD_SetOrientation_FrameBuffer(D4DLCD_ORIENTATION new_orientation)
   {
-
-  	if(hw_orient == Portrait)
-  		lcd_orient = new_orientation;
-  	else
-  	{
-  		switch(new_orientation)
-  		{
-  			case Portrait:
-  				lcd_orient = Landscape;
-  				break;
-  		        case Portrait180:
-  				lcd_orient = Landscape180;
-  				break;
-  			case Landscape:
-  				lcd_orient = Portrait;
-  				break;
-  			case Landscape180:
-  				lcd_orient = Portrait180;
-  				break;
-  		}
-  	}
+	lcd_orient = new_orientation;
+	uint32_t width = writeRegion.max_width;
+	uint32_t height = writeRegion.max_height;
+	D4DLCD_SetWindow_FrameBuffer(0, 0, width, height);
   	return 1;
   }
 
@@ -294,16 +285,15 @@
         if(value != D4D_COLOR_TRANSPARENT)
 #endif
   	  *((D4D_COLOR*)writeRegion.win_cur_addr) = value;
-  	D4DLCD_ComputeCurAdrr();
 
   	#else
 #ifdef D4D_COLOR_TRANSPARENT
         if(value != D4D_COLOR_TRANSPARENT)
 #endif
    	      D4D_LLD_LCD_HW.D4DLCDHW_WriteData(writeRegion.win_cur_addr, value);
-  	D4DLCD_ComputeCurAdrr();
-
   	#endif
+        D4DLCD_Advance();
+
   }
 
   //-----------------------------------------------------------------------------
@@ -318,17 +308,7 @@
   //-----------------------------------------------------------------------------
   static D4D_COLOR D4DLCD_Read_PixelColor_FrameBuffer(void)
   {
-  	D4D_COLOR value;
-
-  	#if D4DLCDHWFB_DIRECT_MEM_ACCESS == 1
-			value = *((D4D_COLOR*)writeRegion.win_cur_addr);
-			D4DLCD_ComputeCurAdrr();
-			return value;
-  	#else
-			value = D4D_LLD_LCD_HW.D4DLCDHW_ReadData(writeRegion.win_cur_addr);
-			D4DLCD_ComputeCurAdrr();
-			return value;
-  	#endif
+  	return 0;
   }
 
   //-----------------------------------------------------------------------------
@@ -347,9 +327,10 @@
   }
 
 
-  static inline void D4DLCD_ComputeCurAdrr(void)
+  static inline void D4DLCD_Advance()
   {
-	  writeRegion.win_cur_w++;
+	  // cur_w, cur_h are relative to the current window region
+	  	writeRegion.win_cur_w++;
 		if(writeRegion.win_cur_w > writeRegion.win_width)
 		{
 			writeRegion.win_cur_w = 0;
@@ -357,13 +338,14 @@
 			if(writeRegion.win_cur_h > writeRegion.win_height)
 			{
 				writeRegion.win_cur_h = 0;
-				writeRegion.win_cur_addr = (unsigned long)(win_const1);
+				writeRegion.win_cur_addr = (win_home_addr);
 			}
 			else
-				writeRegion.win_cur_addr += win_const2;
+				writeRegion.win_cur_addr += win_y_inc;
 		}
 		else
-			writeRegion.win_cur_addr += win_const3;
+			writeRegion.win_cur_addr += win_x_inc;
+
   }
 
 

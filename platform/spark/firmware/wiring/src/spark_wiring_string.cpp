@@ -53,11 +53,11 @@ void dtoa (double val, unsigned char prec, char *sout) {
     unsigned long first = (unsigned long)(fixed / scale);
     unsigned long second = (unsigned long)(fixed % scale);
 
-    ultoa(first, sout, 10, 1);
+    ultoa_pad(first, sout, 10, 1);
     if (prec) {
         sout += strlen(sout);
         *sout++ = '.';
-        ultoa(second, sout, 10, prec);
+        ultoa_pad(second, sout, 10, prec);
     }
 }
 

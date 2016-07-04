@@ -88,6 +88,7 @@ void UI::ticks()
     D4D_TimeTickPut();
     D4D_CheckTouchScreen();
     D4D_Poll();
+    D4D_FlushOutput();
 }
 
 UIController uiController;

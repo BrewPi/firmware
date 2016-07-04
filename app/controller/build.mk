@@ -53,10 +53,8 @@ endif
 SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
 include $(SRC_EGUI)/egui.mk
 
-ifneq ("$(PLATFORM_ID)","3")
 LIBS_DIR = $(SOURCE_PATH)/platform/spark/libs
 include $(LIBS_DIR)/libs.mk
-endif
 
 CFLAGS += -fdata-sections
 

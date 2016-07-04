@@ -1,5 +1,6 @@
 /**************************************************************************
 *
+* Copyright 2016 by Matthew McGowan.
 * Copyright 2014 by Petr Gargulak. eGUI Community.
 * Copyright 2009-2013 by Petr Gargulak. Freescale Semiconductor, Inc.
 *
@@ -29,24 +30,16 @@
 * and the GNU Lesser General Public License along with this program.
 * If not, see <http://www.gnu.org/licenses/>.
 *
-***************************************************************************//*!
-*
-* @file      d4dlcdhw_websocket_server_fb.c
-*
-* @author     Petr Gargulak
-*
-* @version   0.0.7.0
-*
-* @date      Jan-14-2014
-*
-* @brief     D4D driver - template_fb hardware lcd driver source c file
-*
-******************************************************************************/
+*/
 
+extern "C" {
 #include "d4d.h"            // include of all public items (types, function etc) of D4D driver
 #include "common_files/d4d_lldapi.h"     // include non public low level driver interface header file (types, function prototypes, enums etc. )
 #include "common_files/d4d_private.h"    // include the private header file that contains perprocessor macros as D4D_MK_STR
-
+}
+#include "application.h"
+#include "WebSocketsServer.h"
+#include <vector>
 
 /******************************************************************************
 * D4D LCD HW Driver setting  constants
@@ -93,7 +86,7 @@
   // the main structure that contains low level driver api functions
   // the name fo this structure is used for recognizing of configured low level driver of whole D4D
   // so this name has to be used in main configuration header file of D4D driver to enable this driver
-  const D4DLCDHWFB_FUNCTIONS d4dlcdhw_websocket_server_fb =
+  extern "C" const D4DLCDHWFB_FUNCTIONS d4dlcdhw_websocket_server_fb __attribute__((used)) =
   {
     D4DLCDHW_Init_WebsocketServerFb,
     D4DLCDHW_WriteData_WebsocketServerFb,
@@ -115,6 +108,191 @@
   *
   ******************************************************************/
 
+static void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length);
+
+struct __attribute__((packed)) Pixel
+{
+	uint32_t address_;
+	uint32_t color_;
+
+	Pixel() = default;
+	~Pixel() = default;
+
+	Pixel(uint32_t address, uint32_t color)
+	: address_(address), color_(color)
+	{
+	}
+};
+
+extern "C" void websocket_touch(uint16_t x, uint16_t y, uint8_t pressed);
+extern "C" void websocket_touch_clear();
+
+class DisplayServer;
+class DisplayBuffer
+{
+	static const uint32_t count = D4D_SCREEN_SIZE_LONGER_SIDE*D4D_SCREEN_SIZE_SHORTER_SIDE;
+	D4D_COLOR pixels[count];
+public:
+
+	inline void set_pixel(uint32_t offset, D4D_COLOR color)
+	{
+		// addresses are given as offsets
+		if (offset<count)
+			pixels[offset] = color;
+	}
+
+	bool push(DisplayServer& server);
+};
+
+static_assert(sizeof(D4D_COLOR)==2, "expected D4D_COLOR to be 16-bit");
+
+class NoOpDisplayBuffer
+{
+	inline void set_pixel(uint32_t offset, D4D_COLOR color) {
+
+	}
+
+	bool push(DisplayServer& server) {
+		return false;
+	}
+};
+
+#if PLATFORM_ID==3
+typedef DisplayBuffer DisplayBufferImpl;
+#else
+typedef NoOpDisplayBuffer DisplayBufferImpl;
+#endif
+
+
+class DisplayServer
+{
+	WebSocketsServer server;
+
+	const static int pixel_count = D4D_SCREEN_SIZE_LONGER_SIDE;
+	std::vector<Pixel> pixels;
+	DisplayBufferImpl buffer;
+
+public:
+	DisplayServer(uint16_t port, const String& origin) : server(port, origin) {
+		pixels.reserve(pixel_count);
+	}
+
+	bool start()
+	{
+		server.begin();
+		server.onEvent(webSocketEvent);
+		INFO("started DisplayServer");
+		return true;
+	}
+
+	void loop()
+	{
+		server.loop();
+	}
+
+	bool stop()
+	{
+		return true;
+	}
+
+	void process_command(const uint8_t* data, size_t length)
+	{
+		if (length>=1) {
+			int cmd = data[0];
+			DEBUG("command %d, %d", cmd, length);
+			switch (cmd) {
+			case 2:
+			case 1:
+				if (length>=5) {
+					uint16_t x = *((uint16_t*)(data+1));
+					uint16_t y = *((uint16_t*)(data+3));
+					websocket_touch(x, y, cmd==1);
+					DEBUG("touch %d, %d", x, y);
+				}
+				break;
+			}
+		}
+	}
+
+	void clear_touch() {
+		websocket_touch_clear();
+	}
+
+	void handleConnection()
+	{
+		// todo - only clear the touch screen on the first connection.
+		// todo - only send the screen data to the connecting client, not to all clients.
+		clear_touch();
+
+		// send the current screen to the new client
+		if (!buffer.push(*this)) {
+
+			D4D_SCREEN* screen = D4D_GetActiveScreen();
+			// invalidate the new screen (global complete redraw, not individual objects)
+			// D4D_InvalidateScreen(D4D_GetActiveScreen(), D4D_TRUE);
+			if (screen) {
+				D4D_InvalidateScreen(screen, D4D_TRUE);
+				D4D_RedrawScreen(screen);
+			}
+		}
+	}
+
+	void handleEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length)
+	{
+		switch (type) {
+		case WStype_CONNECTED:
+			handleConnection();
+			break;
+		case WStype_DISCONNECTED:
+			clear_touch();
+			break;
+		case WStype_BIN:
+			process_command(payload, length);
+			break;
+		default:
+			break;
+		}
+	}
+
+	void flush()
+	{
+		uint32_t size = pixels.size();
+		if (size) {
+			Pixel* data = pixels.data();
+			server.broadcastBIN((const uint8_t*)data, sizeof(Pixel)*size);
+			pixels.clear();
+		}
+	}
+
+	void add_pixel(uint32_t offset, D4D_COLOR color)
+	{
+		if (pixels.size()==pixels.capacity())
+			flush();
+		pixels.push_back(Pixel(offset, color));
+		buffer.set_pixel(offset, color);
+	}
+};
+
+bool DisplayBuffer::push(DisplayServer& server)
+{
+	for (uint32_t i=0; i<count; i++)
+		server.add_pixel(i, pixels[i]);
+	server.flush();
+	return true;
+}
+
+
+DisplayServer server(0x1cd0, "*"); // 7376
+
+extern "C" void loop_ws_display() {
+	server.loop();
+}
+
+static void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length)
+{
+	server.handleEvent(num, type, payload, length);
+}
+
 
   /**************************************************************************/ /*!
   * @brief   The function is used for initialization of this low level driver
@@ -123,9 +301,7 @@
   *******************************************************************************/
   static unsigned char D4DLCDHW_Init_WebsocketServerFb(void)
   {
-	  // create the websocket server and register callbacks
-
-     return 0; // failed because there in template is no code
+	  return server.start();
   }
 
 
@@ -136,9 +312,7 @@
   *******************************************************************************/
   static unsigned char D4DLCDHW_DeInit_WebsocketServerFb(void)
   {
-	  // dispose the websocket server
-
-     return 0; // failed because there in template is no code
+	  return server.stop();
   }
 
   /**************************************************************************/ /*!
@@ -150,10 +324,10 @@
   *******************************************************************************/
   static void D4DLCDHW_WriteData_WebsocketServerFb(unsigned long addr, D4D_COLOR value)
   {
-	  // no-op - we use direct memory access and only flush once the window has been written out.
-
+	  server.add_pixel(uint32_t(addr>>1), value);
   }
 
+//  D4D_COLOR buffer[D4D_SCREEN_SIZE_LONGER_SIDE*D4D_SCREEN_SIZE_SHORTER_SIDE];
 
   /**************************************************************************/ /*!
   * @brief   The function reads the one pixel variable from frame buffer
@@ -161,13 +335,11 @@
   * @return  the pixel value
   * @note    This function reads one pixel from specified address in frame buffer
   *******************************************************************************/
-  static D4D_COLOR D4DLCDHW_ReadDataWord_WebsocketServerFb(unsigned long addr)
+  static D4D_COLOR D4DLCDHW_ReadData_WebsocketServerFb(unsigned long addr)
   {
 	  return 0;
   }
 
-
-  D4D_COLOR buffer[D4D_SCREEN_SIZE_LONGER_SIDE][D4D_SCREEN_SIZE_SHORTER_SIDE];
 
   /**************************************************************************/ /*!
   * @brief   The function return the pointer on filled frame buffer descriptor
@@ -177,10 +349,11 @@
   static D4DLCD_FRAMEBUFF_DESC* D4DLCDHW_GetFbDescriptor_WebsocketServerFb(void)
   {
 	  static D4DLCD_FRAMEBUFF_DESC desc;
-	  desc.fb_start_addr = &buffer;
+	  desc.fb_start_addr = 0;
 	  desc.lcd_x_max = D4D_SCREEN_SIZE_LONGER_SIDE;
 	  desc.lcd_y_max = D4D_SCREEN_SIZE_SHORTER_SIDE;
 	  desc.bpp_byte = sizeof(D4D_COLOR);
+	  static_assert(sizeof(D4D_COLOR)==2, "expected 16-bits per pixel");
 	  return &desc;
   }
 
@@ -206,7 +379,10 @@
   *******************************************************************************/
   static void D4DLCD_FlushBuffer_WebsocketServerFb(D4DLCD_FLUSH_MODE mode)
   {
-	  // write out unflushed data
+	  server.flush();
+	  if (mode == D4DLCD_FLSH_FORCE) {
+		  server.loop();
+	  }
   }
 
   /*! @} End of doxd4d_tch_func                                               */

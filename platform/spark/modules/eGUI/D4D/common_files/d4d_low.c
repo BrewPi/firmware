@@ -769,6 +769,8 @@ if (calibration_quit)
   while (!calibration_quit && D4D_LLD_TCH.D4DTCH_GetPositionRaw ((unsigned short*)X, (unsigned short*)Y) == 0)
   {
       D4D_LLD_LCD.D4DLCD_Delay_ms (1);
+      // allow background processing
+      D4D_FlushOutput();
   }
 if (calibration_quit)
     return;
@@ -850,7 +852,7 @@ void D4D_TCH_Calibrate(D4D_COLOR fore, D4D_COLOR bckg)
           }
 
           D4D_LLD_LCD.D4DLCD_FlushBuffer(D4DLCD_FLSH_FORCE);
-          D4D_LLD_LCD.D4DLCD_Delay_ms(1000);
+          D4D_LLD_LCD.D4DLCD_Delay_ms(10);
         }
 
         if (calibration_quit)

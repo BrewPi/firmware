@@ -129,8 +129,11 @@
 // d4dtch_tsc2046_brewpi - driver for touch screen driven by TSC2046 / XPT2046 via BrewPiTouch class with filtering
 
 // Please define a used touch screen driver if touch screen is used in project
+#if PLATFORM_ID!=3
 #define D4D_LLD_TCH d4dtch_tsc2046_brewpi
-
+#else
+#define D4D_LLD_TCH d4dtch_websocket
+#endif
 
 // List of implemented low level Touch screen hw interface drivers
 
@@ -214,13 +217,13 @@
 //D4D_MPC51 	- MobileGT
 //D4D_MK 		- Kinetis
 
+#define D4D_MCU_TYPE D4D_PARTICLE
+
+//#define D4D_MCU_BUS_CLOCK 72000000L  /* Mcu bus clock in Hz mainly for few delay loops in low level*/
+
 /******************************************************************************
 * Constants
 ******************************************************************************/
-
-#define D4D_MCU_TYPE D4D_MK
-
-#define D4D_MCU_BUS_CLOCK 72000000L  /* Mcu bus clock in Hz mainly for few delay loops in low level*/
 
 #define D4D_ORIENT_START D4D_ORIENT_LANDSCAPE
 

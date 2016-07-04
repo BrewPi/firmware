@@ -29,7 +29,7 @@
 void fill(int8_t* p, uint8_t size);
 void clear(uint8_t* p, uint8_t size);
 
-class DeviceConfig;
+struct DeviceConfig;
 
 
 // todo - the Eeprom manager should avoid too frequent saves to the eeprom since it supports 100,000 writes. 

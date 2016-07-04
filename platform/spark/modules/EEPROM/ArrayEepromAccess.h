@@ -23,6 +23,11 @@
 #include "assert.h"
 #include "string.h"
 
+/**
+ * This is here in case we want to not persist eeprom.
+ * It was used as a placeholder until the virtual device HAL
+ * supported eeprom persistence.
+ */
 template <size_t eeprom_size>
 class ArrayEepromAccess
 {

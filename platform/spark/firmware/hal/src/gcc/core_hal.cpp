@@ -37,7 +37,8 @@
 #include "hal_platform.h"
 #include "interrupts_hal.h"
 #include <boost/crc.hpp>  // for boost::crc_32_type
-
+#include "eeprom_file.h"
+#include "eeprom_hal.h"
 
 using std::cout;
 
@@ -48,10 +49,17 @@ void setLoggerLevel(LoggerOutputLevel level)
     set_logger_output(debug_output_, level);
 }
 
+const char* eeprom_bin = "eeprom.bin";
+
 extern "C" int main(int argc, char* argv[])
 {
     setLoggerLevel(NO_LOG_LEVEL);
     if (read_device_config(argc, argv)) {
+    		// init the eeprom so that a file of size 0 can be used to trigger the save.
+    		HAL_EEPROM_Init();
+    		if (exists_file(eeprom_bin)) {
+    			GCC_EEPROM_Load(eeprom_bin);
+    		}
         app_setup_and_loop();
     }
     return 0;

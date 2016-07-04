@@ -302,8 +302,11 @@ void DeviceManager::installDevice(DeviceConfig & config)
     }
 
     switch (dt){
+
         case DEVICETYPE_NONE :
             break;
+        case DEVICETYPE_SWITCH_SENSOR :
+        		break;
 
         case DEVICETYPE_TEMP_SENSOR :
         {
@@ -346,7 +349,8 @@ void DeviceManager::installDevice(DeviceConfig & config)
         }
         break;
         case DEVICETYPE_MANUAL_ACTUATOR :
-        break; // not installed for now, only exists in device list
+        	break; // not installed for now, only exists in device list
+
     }
 }
 
@@ -388,8 +392,8 @@ const char DEVICE_ATTRIB_PIO             = 'n';
 #endif
 
 const char DEVICE_ATTRIB_CALIBRATEADJUST = 'j';    // value to add to temp sensors to bring to correct temperature
-const char DEVICE_ATTRIB_VALUE           = 'v';    // print current values
-const char DEVICE_ATTRIB_WRITE           = 'w';    // write value to device
+//const char DEVICE_ATTRIB_VALUE           = 'v';    // print current values
+//const char DEVICE_ATTRIB_WRITE           = 'w';    // write value to device
 const char DEVICE_ATTRIB_TYPE            = 't';
 
 void handleDeviceDefinition(const char * key,

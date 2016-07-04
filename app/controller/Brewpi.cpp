@@ -93,6 +93,9 @@ void setup()
 
     ui.showControllerPage();
     			
+    // flush any waiting input.
+    // Linux can put garbage in the serial input buffer during connect
+    piLink.flushInput();
 	logDebug("init complete");
 }
 
