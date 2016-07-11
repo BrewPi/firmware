@@ -36,6 +36,15 @@ struct data_block_ref {
 	size_t size;
 };
 
+
+#ifdef PLATFORM_THREADING
+extern ApplicationWatchdog appWatchdog;
+#else
+// define dummy watchdog checkin for when the watchdog is not available
+#define appWatchdog.checkin()
+#endif
+
+
 /**
  * Retrieves a pointer to the device id.
  */
