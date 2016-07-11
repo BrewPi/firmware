@@ -1,9 +1,11 @@
 #include "Brewpi.h"
+#include "Platform.h"
 #include "application.h"
+#include "deviceid_hal.h"
 #if PLATFORM_ID==0
 #include "Ymodem/Ymodem.h"
 #endif
-#include "EepromManager.h"
+#include "EepromAccess.h"
 
 SYSTEM_MODE(SEMI_AUTOMATIC);
 
@@ -29,9 +31,18 @@ void eraseExternalFlash()
 #endif    
 }
 
+
+#if PLATFORM_ID==3
+static uint8_t device_id[12];
+#endif
+
 bool platform_init()
 {            
-    bool initialize = (EEPROM.read(0)!=EEPROM_MAGIC1 || EEPROM.read(1)!=EEPROM_MAGIC2);
+#if PLATFORM_ID==3
+	HAL_device_ID(device_id, 12);
+#endif
+
+	bool initialize = (EEPROM.read(0)!=EEPROM_MAGIC1 || EEPROM.read(1)!=EEPROM_MAGIC2);
     if (initialize) {
         
         eraseExternalFlash();
@@ -46,3 +57,20 @@ bool platform_init()
 #endif
     return initialize;
 }
+
+/**
+ * In the cbox app, this is called as part of global construction, which is
+ * too early for the gcc device to have feched the device id, so it's initialized
+ * properly in platform_init() after the gcc command args have been parsed.
+ */
+void platform_device_id(data_block_ref& id)
+{
+#if PLATFORM_ID!=3
+	id.data = (void*)ID1;
+	id.size = 12;
+#else
+	id.data = device_id;
+	id.size = 12;
+#endif
+}
+

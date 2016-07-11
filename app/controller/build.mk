@@ -21,6 +21,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/SPIArbiter
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Ticks
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/UI
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Buzzer
+INCLUDE_DIRS += $(SOURCE_PATH)/app
 
 CSRC += $(call target_files,app/controller,*.c)
 CPPSRC += $(call target_files,app/controller,*.cpp)

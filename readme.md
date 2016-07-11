@@ -67,3 +67,9 @@ Unless stated elsewhere, file headers or otherwise, all files herein are license
 Contributions to our firmware are very welcome. Please contact us first via our [community forum](https://community.brewpi.com/) to discuss what you want to code to make sure that it aligns with our road map.
 
 Please send pull requests against the develop branch. We can only accept your pull request if you have signed our [Contributor License Agreement (CLA)](http://www.brewpi.com/cla/).
+
+## Controlbox
+
+Controlbox is the framework that we are using to build the next version of brewpi. 
+
+It's still work in progress - checkout the [readme](./app/cbox/readme.md) for details.
