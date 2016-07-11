@@ -30,3 +30,13 @@ typedef uint32_t ticks_seconds_t;
 typedef uint8_t ticks_seconds_tiny_t;
 
 bool platform_init();
+
+struct data_block_ref {
+	void* data;
+	size_t size;
+};
+
+/**
+ * Retrieves a pointer to the device id.
+ */
+void platform_device_id(data_block_ref& id);

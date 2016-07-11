@@ -143,93 +143,93 @@ bool is_valid(ip::udp::socket& handle) {
 
 class TCPServer
 {
-	uint16_t _port;
+    uint16_t _port;
 
-	ip::tcp::acceptor acceptor;
+    ip::tcp::acceptor acceptor;
 
-	void accept_handler(const boost::system::error_code& error)
-	{
-		if (!error)
-		{
-			start_accept();
-		}
-	}
+    void accept_handler(const boost::system::error_code& error)
+    {
+        if (!error)
+        {
+            start_accept();
+        }
+    }
 
-	sock_handle_t start_accept()
-	{
-		sock_handle_t handle = next_unused_tcp();
-		if (!socket_handle_valid(handle))
-			return handle;
+    sock_handle_t start_accept()
+    {
+        sock_handle_t handle = next_unused_tcp();
+        if (!socket_handle_valid(handle))
+            return handle;
 
-		ip::tcp::socket& sock = tcp_from(handle);
-		acceptor.accept(sock);
-		return handle;
-	}
+        ip::tcp::socket& sock = tcp_from(handle);
+        acceptor.accept(sock);
+        return handle;
+    }
 
 
 public:
-	TCPServer(uint16_t port)
-		: _port(port),
-		  acceptor(device_io_service, ip::tcp::endpoint(ip::tcp::v4(), port))
-	{
-		acceptor.non_blocking(true);
-	}
+    TCPServer(uint16_t port)
+: _port(port),
+  acceptor(device_io_service, ip::tcp::endpoint(ip::tcp::v4(), port))
+{
+        acceptor.non_blocking(true);
+}
 
-	~TCPServer()
-	{
-		acceptor.cancel();
-	}
+    ~TCPServer()
+    {
+        acceptor.cancel();
+    }
 
-	sock_handle_t accept()
-	{
-		sock_handle_t handle = next_unused_tcp();
-		if (!socket_handle_valid(handle))
-			return handle;
+    sock_handle_t accept()
+    {
+        sock_handle_t handle = next_unused_tcp();
+        if (!socket_handle_valid(handle))
+            return handle;
 
-		ip::tcp::socket& sock = tcp_from(handle);
+        ip::tcp::socket& sock = tcp_from(handle);
 
-		acceptor.accept(sock, ec);
-		return !ec ? handle : socket_handle_invalid();
-	}
+        acceptor.accept(sock, ec);
+        return !ec ? handle : socket_handle_invalid();
+    }
 
 
 };
 
 class TCPServers
 {
-	std::vector<TCPServer*> servers;
+    std::vector<TCPServer*> servers;
 public:
 
-	bool is_valid(sock_handle_t handle) {
-		return handle>=SOCKET_MAX && handle<SOCKET_MAX+servers.size();
-	}
+    bool is_valid(sock_handle_t handle) {
+        return handle>=SOCKET_MAX && handle<SOCKET_MAX+servers.size();
+    }
 
-	TCPServer* from(sock_handle_t handle)
-	{
-		if (!is_valid(handle))
-			return nullptr;
+    TCPServer* from(sock_handle_t handle)
+    {
+        if (!is_valid(handle))
+            return nullptr;
 
-		return servers[handle-SOCKET_MAX];
-	}
+        return servers[handle-SOCKET_MAX];
+    }
 
-	sock_handle_t add(TCPServer* server)
-	{
-		if (!server)
-			return SOCKET_INVALID;
-		size_t handle = servers.size();
-		servers.push_back(server);
-		return SOCKET_MAX + handle;
-	}
+    sock_handle_t add(TCPServer* server)
+    {
+        if (!server)
+            return SOCKET_INVALID;
+        size_t handle = servers.size();
+        servers.push_back(server);
+        return SOCKET_MAX + handle;
+    }
 
-	void dispose(sock_handle_t handle)
-	{
-		if (is_valid(handle)) {
-			size_t index = handle-SOCKET_MAX;
-			TCPServer* server = servers[index];
-			servers[index] = nullptr;
-			delete server;
-		}
-	}
+    void dispose(sock_handle_t handle)
+    {
+        if (is_valid(handle)) {
+            size_t index = handle-SOCKET_MAX;
+            TCPServer* server = servers[index];
+            servers[index] = nullptr;
+            delete server;
+        }
+    }
 };
 
 
@@ -238,17 +238,17 @@ TCPServers servers;
 
 sock_result_t socket_create_tcp_server(uint16_t port, network_interface_t nif)
 {
-	DEBUG("Creating TCP Server on port %d", port);
-	TCPServer* server = new TCPServer(port);
-	return servers.add(server);
+    DEBUG("Creating TCP Server on port %d", port);
+    TCPServer* server = new TCPServer(port);
+    return servers.add(server);
 }
 
 sock_result_t socket_accept(sock_handle_t handle)
 {
-	TCPServer* server = servers.from(handle);
-	if (!server)
-		return socket_handle_invalid();
-	return server->accept();
+    TCPServer* server = servers.from(handle);
+    if (!server)
+        return socket_handle_invalid();
+    return server->accept();
 }
 
 
@@ -285,7 +285,7 @@ sock_result_t socket_receive(sock_handle_t sd, void* buffer, socklen_t len, syst
     std::size_t available = command.get();
     sock_result_t result = 0;
     if (_timeout || available)
-    		available = handle.read_some(boost::asio::buffer(buffer, len), ec);
+    available = handle.read_some(boost::asio::buffer(buffer, len), ec);
     result = ec.value() ? -abs(ec.value()) : available;
     if (ec.value()) {
         if (ec.value() == boost::system::errc::resource_deadlock_would_occur || // EDEADLK (35)
@@ -340,14 +340,14 @@ sock_result_t socket_receivefrom(sock_handle_t sock, void* buffer, socklen_t buf
 
 	sock_handle_t result = ec.value();
 
-	if (result == boost::asio::error::would_block)
+    if (result == boost::asio::error::would_block)
         return 0;
-   if (result==boost::asio::error::try_again)
-	   return 0;
-	if (!result)
-		DEBUG("count: %d", count);
-	else
-		DEBUG("result: %d %s", ec.value(), ec.message().c_str());
+    if (result==boost::asio::error::try_again)
+        return 0;
+    if (!result)
+        DEBUG("count: %d", count);
+    else
+        DEBUG("result: %d %s", ec.value(), ec.message().c_str());
 
 	return result ? result : count;
 }
@@ -390,11 +390,11 @@ uint8_t socket_active_status(sock_handle_t socket)
 
 sock_result_t socket_close(sock_handle_t socket)
 {
-	if (servers.is_valid(socket))
-	{
-		servers.dispose(socket);
-	}
-	else if (socket>=SOCKET_COUNT)
+    if (servers.is_valid(socket))
+    {
+        servers.dispose(socket);
+    }
+    else if (socket>=SOCKET_COUNT)
     {
     		auto& s = udp_from(socket);
     		s.shutdown(boost::asio::ip::udp::socket::shutdown_both, ec);
@@ -456,10 +456,10 @@ sock_handle_t socket_create(uint8_t family, uint8_t type, uint8_t protocol, uint
 
 uint8_t socket_handle_valid(sock_handle_t handle) {
     if (handle==SOCKET_INVALID)
-    		return false;
-	if (handle>=SOCKET_MAX)
-    		return servers.is_valid(handle);
-	return handle<SOCKET_COUNT ? is_valid(tcp_from(handle)) : is_valid(udp_from(handle));
+        return false;
+    if (handle>=SOCKET_MAX)
+        return servers.is_valid(handle);
+    return handle<SOCKET_COUNT ? is_valid(tcp_from(handle)) : is_valid(udp_from(handle));
 }
 
 
@@ -468,12 +468,25 @@ sock_handle_t socket_handle_invalid()
     return SOCKET_INVALID;
 }
 
-sock_result_t socket_join_multicast(const HAL_IPAddress* addr, network_interface_t nif, void* reserved)
+sock_result_t socket_join_multicast(const HAL_IPAddress* addr, network_interface_t nif, socket_multicast_info_t* info)
 {
+    if (info) {
+        sock_handle_t socket = info->sock_handle;
+        if (socket>=SOCKET_COUNT)
+        {
+            auto& s = udp_from(socket);
+            ip::address_v4 address(addr->ipv4);
+            DEBUG("join multicast %s", address.to_string().c_str());
+            s.set_option(ip::multicast::enable_loopback(true));
+            boost::asio::ip::multicast::join_group option(address);
+            s.set_option(option);
+            return 0;
+        }
+    }
     return -1;
 }
 
-sock_result_t socket_leave_multicast(const HAL_IPAddress* addr, network_interface_t nif, void* reserved)
+sock_result_t socket_leave_multicast(const HAL_IPAddress* addr, network_interface_t nif, socket_multicast_info_t* reserved)
 {
 	return -1;
 }

@@ -1,7 +1,11 @@
 language: cpp
 
-before_install:
+cache:
+  directories:
+  - ".cache"
 
+before_install:
+- mkdir -p .cache
 - sudo apt-get update
 
 install:
