@@ -37,11 +37,14 @@ struct data_block_ref {
 };
 
 
-#ifdef PLATFORM_THREADING
+#if PLATFORM_THREADING
 extern ApplicationWatchdog appWatchdog;
+inline void watchdogCheckin(){
+	appWatchdog.checkin();
+}
 #else
 // define dummy watchdog checkin for when the watchdog is not available
-#define appWatchdog.checkin()
+inline void watchdogCheckin(){}
 #endif
 
 

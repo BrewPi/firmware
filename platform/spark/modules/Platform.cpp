@@ -58,7 +58,7 @@ bool platform_init()
     return initialize;
 }
 
-#ifdef PLATFORM_THREADING
+#if PLATFORM_THREADING
 // Reset the system after 60 seconds if the application is unresponsive
 // The timeout of 60 seconds will reset automatically each time loop() is called, or manually by calling wd.checkin()
 ApplicationWatchdog appWatchdog(60000, System.reset);
