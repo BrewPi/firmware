@@ -75,7 +75,12 @@ uint8_t USB_USART_Available_Data(void)
     int retval = select(1, &stdin_fdset, NULL, NULL, &tv);
     if (retval <= 0)
         retval = 0;
+#if ( defined(_WIN32) || defined(_WIN32_WCE) ) && !defined(EFIX64) && \
+  !defined(EFI32)
         volatile int error = WSAGetLastError();
+#else
+        volatile int error = errno;
+#endif
         return error;
     return retval;
 }
