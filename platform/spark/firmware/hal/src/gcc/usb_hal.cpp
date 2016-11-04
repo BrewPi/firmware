@@ -73,7 +73,7 @@ uint8_t USB_USART_Available_Data(void)
 {
     struct timeval tv = {0, 1};
     int retval = select(1, &stdin_fdset, NULL, NULL, &tv);
-    if (retval <= 0)
+    if (retval < 0) {
         retval = 0;
 #if ( defined(_WIN32) || defined(_WIN32_WCE) ) && !defined(EFIX64) && \
   !defined(EFI32)
@@ -81,7 +81,8 @@ uint8_t USB_USART_Available_Data(void)
 #else
         volatile int error = errno;
 #endif
-        return error;
+        	(void)error;
+    }
     return retval;
 }
 
