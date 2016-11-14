@@ -102,7 +102,7 @@ void setup()
 void brewpiLoop(void)
 {
 	static unsigned long lastUpdate = -1000; // init at -1000 to update immediately
-        ui.ticks();
+    ui.ticks();
         
     if(!ui.inStartup() && (ticks.millis() - lastUpdate >= (1000))) { //update settings every second
 		lastUpdate = ticks.millis();

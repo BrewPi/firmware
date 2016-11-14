@@ -110,7 +110,7 @@ const D4D_TOUCHSCREEN_LIMITS d4dtchhw_tsc2046_brewpi_limits ={
   *
   ******************************************************************/
 
-BrewPiTouch touch(D4DTCH_CS, D4DTCH_IRQ);
+BrewPiTouch touch(GlobalSPIArbiter, D4DTCH_CS, D4DTCH_IRQ);
 
 /**************************************************************//*!
   *

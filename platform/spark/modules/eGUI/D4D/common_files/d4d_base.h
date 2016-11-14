@@ -170,7 +170,7 @@
 /*! @brief This macro is used to enable calling flush output with drawing each elementary graphic element.
            If not defined, the flushing after each elementary part is disabled as a default.*/
 #ifndef D4D_LLD_FLUSH_ELEMENT
-  #define D4D_LLD_FLUSH_ELEMENT D4D_FALSE
+  #define D4D_LLD_FLUSH_ELEMENT D4D_TRUE
 #endif
 
 /*! @brief This macro is used to enable some extra debug functionality.

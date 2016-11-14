@@ -127,7 +127,7 @@
   #define D4DLCD_DEASSERT_RESET digitalWrite(D4DLCD_RESET, HIGH)
 #else
   #define D4DLCD_INIT_RESET 
-  #define D4DLCD_ASSERT_RESET D4DLCDHW_SendCmdWord_Spi_Spark_8b(0x01)
+  #define D4DLCD_ASSERT_RESET
   #define D4DLCD_DEASSERT_RESET 
 #endif
 

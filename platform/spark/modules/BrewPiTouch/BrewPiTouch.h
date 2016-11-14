@@ -20,11 +20,12 @@
 #pragma once
 
 #include <inttypes.h>
+#include "SPIArbiter.h"
 #include "LowPassFilter.h"
 
 class BrewPiTouch final {
 public:
-    BrewPiTouch(uint8_t cs, uint8_t irq);
+    BrewPiTouch(SPIArbiter & spia, uint8_t cs, uint8_t irq);
     ~BrewPiTouch();
     void init(uint8_t configuration = BrewPiTouch::START);
     bool update(uint16_t numSamples = 8);
@@ -40,7 +41,9 @@ public:
     bool isTouched();
     bool isStable();
     void setStabilityThreshold(int16_t treshold = 40);
-       
+
+    SPIUser _spi;
+
     enum controlBits {
         START = 0x80,
         AN2    = 0x40,
@@ -72,5 +75,5 @@ private:
     
     void spiWrite(uint8_t c);
     uint8_t spiRead(void);
-    uint16_t readChannel();
+    uint16_t readChannel(uint8_t channel);
 };
