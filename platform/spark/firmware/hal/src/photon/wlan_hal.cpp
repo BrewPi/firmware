@@ -38,18 +38,46 @@
 #include "delay_hal.h"
 #include "dct_hal.h"
 #include "concurrent_hal.h"
+#include "wwd_resources.h"
 
 // dns.h includes a class member, which doesn't compile in C++
 #define class clazz
 #include "dns.h"
 #undef class
 
+/**
+ * Retrieves the country code from the DCT region.
+ */
+wiced_country_code_t fetch_country_code()
+{
+    const uint8_t* code = (const uint8_t*)dct_read_app_data(DCT_COUNTRY_CODE_OFFSET);
+
+    wiced_country_code_t result =
+        wiced_country_code_t(MK_CNTRY(code[0], code[1], hex_nibble(code[2])));
+
+    // if Japan explicitly configured, lower tx power for TELEC certification
+    if (result == WICED_COUNTRY_JAPAN)
+    {
+        wwd_select_nvram_image_resource(1, nullptr);
+    }
+
+    // if no country configured, use Japan WiFi config for compatibility with older firmware
+    if (code[0] == 0xFF || code[0] == 0)
+    {
+        result = WICED_COUNTRY_JAPAN;
+    }
+    return result;
+}
+
 bool initialize_dct(platform_dct_wifi_config_t* wifi_config, bool force=false)
 {
     bool changed = false;
-    wiced_country_code_t country = WICED_COUNTRY_JAPAN;
+    wiced_country_code_t country = fetch_country_code();
     if (force || wifi_config->device_configured!=WICED_TRUE || wifi_config->country_code!=country) {
-        memset(wifi_config, 0, sizeof(*wifi_config));
+        if (!wifi_config->device_configured)
+        {
+            memset(wifi_config, 0, sizeof(*wifi_config));
+        }
         wifi_config->country_code = country;
         wifi_config->device_configured = WICED_TRUE;
         changed = true;
@@ -150,10 +178,10 @@ int wlan_connect_init()
 
 bool to_wiced_ip_address(wiced_ip_address_t& wiced, const dct_ip_address_v4_t& dct)
 {
-    if (dct!=0) {
-        wiced.ip.v4 = dct;
-        wiced.version = WICED_IPV4;
-    }
+	if (dct!=0) {
+		wiced.ip.v4 = dct;
+		wiced.version = WICED_IPV4;
+	}
     return (dct!=0);
 }
 
@@ -239,6 +267,7 @@ int wlan_select_antenna(WLanSelectAntenna_TypeDef antenna)
 
 wlan_result_t wlan_activate()
 {
+    wlan_initialize_dct();
     wlan_result_t result = wiced_wlan_connectivity_init();
     if (!result)
         wiced_network_register_link_callback(HAL_NET_notify_connected, HAL_NET_notify_disconnected, WICED_STA_INTERFACE);
@@ -418,7 +447,7 @@ wiced_security_t toSecurity(const char* ssid, unsigned ssid_len, WLanSecurityTyp
 
 bool equals_ssid(const char* ssid, wiced_ssid_t& current)
 {
-    return (strlen(ssid)==current.length) && !memcmp(ssid, current.value, current.length);
+	return (strlen(ssid)==current.length) && !memcmp(ssid, current.value, current.length);
 }
 
 static bool wifi_creds_changed;
@@ -435,18 +464,18 @@ wiced_result_t add_wiced_wifi_credentials(const char *ssid, uint16_t ssidLen, co
 
         // find a slot with the same ssid
         for (unsigned i=0; i<CONFIG_AP_LIST_SIZE; i++) {
-            if (equals_ssid(ssid, wifi_config->stored_ap_list[i].details.SSID)) {
-                replace = i;
-                break;
-            }
+        		if (equals_ssid(ssid, wifi_config->stored_ap_list[i].details.SSID)) {
+        			replace = i;
+        			break;
+        		}
         }
 
         if (replace < 0)
-        {
-            // shuffle all slots along
-            memmove(wifi_config->stored_ap_list+1, wifi_config->stored_ap_list, sizeof(wiced_config_ap_entry_t)*(CONFIG_AP_LIST_SIZE-1));
-            replace = 0;
-        }
+        	{
+			// shuffle all slots along
+			memmove(wifi_config->stored_ap_list+1, wifi_config->stored_ap_list, sizeof(wiced_config_ap_entry_t)*(CONFIG_AP_LIST_SIZE-1));
+			replace = 0;
+        	}
         wiced_config_ap_entry_t& entry = wifi_config->stored_ap_list[replace];
         memset(&entry, 0, sizeof(entry));
         passwordLen = std::min(passwordLen, uint16_t(64));
@@ -576,7 +605,7 @@ void wlan_fetch_ipconfig(WLanConfig* config)
         config->uaSSID[len] = 0;
 
         if (config->size>=WLanConfig_Size_V2) {
-            memcpy(config->BSSID, ap_info.BSSID.octet, sizeof(config->BSSID));
+        		memcpy(config->BSSID, ap_info.BSSID.octet, sizeof(config->BSSID));
         }
     }
     // todo DNS and DHCP servers
