@@ -35,8 +35,10 @@
 #include "service_debug.h"
 #include "device_config.h"
 #include "hal_platform.h"
+#include "interrupts_hal.h"
 #include <boost/crc.hpp>  // for boost::crc_32_type
-
+#include "eeprom_file.h"
+#include "eeprom_hal.h"
 
 using std::cout;
 
@@ -47,10 +49,17 @@ void setLoggerLevel(LoggerOutputLevel level)
     set_logger_output(debug_output_, level);
 }
 
+const char* eeprom_bin = "eeprom.bin";
+
 extern "C" int main(int argc, char* argv[])
 {
     setLoggerLevel(NO_LOG_LEVEL);
     if (read_device_config(argc, argv)) {
+    		// init the eeprom so that a file of size 0 can be used to trigger the save.
+    		HAL_EEPROM_Init();
+    		if (exists_file(eeprom_bin)) {
+    			GCC_EEPROM_Load(eeprom_bin);
+    		}
         app_setup_and_loop();
     }
     return 0;
@@ -156,7 +165,7 @@ void HAL_Core_Execute_Stop_Mode(void)
     MSG("Stop mode not implemented.");
 }
 
-void HAL_Core_Enter_Standby_Mode(void)
+void HAL_Core_Enter_Standby_Mode(uint32_t seconds, void* reserved)
 {
     MSG("Standby mode not implemented.");
 }
@@ -308,11 +317,11 @@ bool HAL_Feature_Get(HAL_Feature feature)
 #if HAL_PLATFORM_CLOUD_UDP
 
 #include "dtls_session_persist.h"
-SessionPersistOpaque session;
+SessionPersistDataOpaque session;
 
 int HAL_System_Backup_Save(size_t offset, const void* buffer, size_t length, void* reserved)
 {
-    if (offset==0 && length==sizeof(SessionPersistOpaque))
+    if (offset==0 && length==sizeof(SessionPersistDataOpaque))
     {
         memcpy(&session, buffer, length);
         return 0;
@@ -322,9 +331,9 @@ int HAL_System_Backup_Save(size_t offset, const void* buffer, size_t length, voi
 
 int HAL_System_Backup_Restore(size_t offset, void* buffer, size_t max_length, size_t* length, void* reserved)
 {
-    if (offset==0 && max_length>=sizeof(SessionPersistOpaque) && session.size==sizeof(SessionPersistOpaque))
+    if (offset==0 && max_length>=sizeof(SessionPersistDataOpaque) && session.size==sizeof(SessionPersistDataOpaque))
     {
-        *length = sizeof(SessionPersistOpaque);
+        *length = sizeof(SessionPersistDataOpaque);
         memcpy(buffer, &session, sizeof(session));
         return 0;
     }
@@ -345,3 +354,17 @@ int HAL_System_Backup_Restore(size_t offset, void* buffer, size_t max_length, si
 }
 
 #endif
+
+int32_t HAL_Core_Backup_Register(uint32_t BKP_DR)
+{
+    return -1;
+}
+
+void HAL_Core_Write_Backup_Register(uint32_t BKP_DR, uint32_t Data)
+{
+}
+
+uint32_t HAL_Core_Read_Backup_Register(uint32_t BKP_DR)
+{
+    return 0xFFFFFFFF;
+}

@@ -78,7 +78,7 @@ void HAL_Core_Execute_Stop_Mode(void)
 {
 }
 
-void HAL_Core_Enter_Standby_Mode(void)
+void HAL_Core_Enter_Standby_Mode(uint32_t seconds, void* reserved)
 {
 }
 
@@ -143,4 +143,18 @@ bool HAL_Feature_Get(HAL_Feature feature)
 int HAL_Set_System_Config(hal_system_config_t config_item, const void* data, unsigned length)
 {
     return -1;
+}
+
+int32_t HAL_Core_Backup_Register(uint32_t BKP_DR)
+{
+    return -1;
+}
+
+void HAL_Core_Write_Backup_Register(uint32_t BKP_DR, uint32_t Data)
+{
+}
+
+uint32_t HAL_Core_Read_Backup_Register(uint32_t BKP_DR)
+{
+    return 0xFFFFFFFF;
 }

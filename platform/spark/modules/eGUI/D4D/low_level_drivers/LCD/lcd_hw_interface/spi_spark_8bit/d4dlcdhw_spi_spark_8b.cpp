@@ -49,6 +49,7 @@ extern "C" {
 #include "common_files/d4d_private.h"    // include the private header file that contains perprocessor macros as D4D_MK_STR
 }
 #include "application.h"
+#include "SPIArbiter.h"
 
 // identification string of driver - must be same as name D4DTCH_FUNCTIONS structure + "_ID"
 // it is used for enable the code for compilation
@@ -83,6 +84,7 @@ static unsigned char D4DLCDHW_PinCtl_Spi_Spark_8b(D4DLCDHW_PINS pinId, D4DHW_PIN
 static void D4DLCD_FlushBuffer_Spi_Spark_8b(D4DLCD_FLUSH_MODE mode);
 static void D4DLCDHW_Delay_Spi_Spark_8b(unsigned short period);
 
+#define LCD_USE_DMA 1
 
 /**************************************************************//*!
   *
@@ -108,6 +110,93 @@ extern "C" const D4DLCDHW_FUNCTIONS d4dlcdhw_spi_spark_8b ={
   * Local variables
   *
   ******************************************************************/
+
+#define SCREEN_DATA_BUFFER_SIZE 320
+
+static uint8_t tx_buffer[2][SCREEN_DATA_BUFFER_SIZE];
+/**
+ * The index of the currently active buffer. This buffer is written to by calls to
+ */
+static int8_t active_buffer_idx = 0;
+
+/**
+ * The byte offset in the active buffer where the next byte can be written to.
+ */
+static uint16_t active_buffer_offset = 0;
+
+/**
+ * The buffer that is currently being read by DMA. When -1, no buffer is being read.
+ */
+static volatile int8_t dma_buffer_idx = -1;
+
+/**
+ * Managed SPI interface, which remembers and re-applies settings when needed.
+ * SPI Arbiter locks and unlocks SPI.
+ */
+SPIUser SpiLCD(GlobalSPIArbiter);
+
+/**
+ * Determines if there is data to send.
+ */
+inline uint16_t hasPendingDataToSend()
+{
+	return active_buffer_offset;
+}
+
+/**
+ * Waits for the asynchronous transfer to complete.
+ */
+inline void waitForTransferToComplete()
+{
+	while (dma_buffer_idx>=0);
+}
+
+/**
+ * Notification that the DMA transfer was complete.
+ */
+void transferComplete()
+{
+	SpiLCD.end();
+	dma_buffer_idx = -1;
+}
+
+inline void scheduleTransfer(int8_t tx_buffer_idx, uint16_t length)
+{
+	waitForTransferToComplete();
+	SpiLCD.begin();
+#if PLATFORM_THREADING && LCD_USE_DMA  // use DMA on the photon
+	dma_buffer_idx = tx_buffer_idx;
+	SpiLCD.transfer(tx_buffer[tx_buffer_idx], NULL, length, transferComplete);
+#else
+	for(int i=0; i < length; i++){
+	    SpiLCD.transfer(tx_buffer[tx_buffer_idx][i]);
+	}
+	transferComplete();
+#endif
+}
+
+/**
+ * Ensures any pending data to send to the device is flushed asynchronously.
+ * To wait for the data to be flushed, call waitForTransferComplete().
+ */
+inline void flushData()
+{
+	if (hasPendingDataToSend())
+	{
+		scheduleTransfer(active_buffer_idx, active_buffer_offset);
+		int8_t new_active_idx = (active_buffer_idx + 1) & 0x1;
+
+		if (new_active_idx==dma_buffer_idx){
+		    // is this even possible with a 2 line buffer?
+		    // scheduleTransfer waits for the previous transfer to complete.
+			waitForTransferToComplete();
+		}
+		active_buffer_offset = 0;
+		active_buffer_idx = new_active_idx;
+	}
+}
+
+
 
 /**************************************************************//*!
   *
@@ -138,31 +227,31 @@ static unsigned char D4DLCDHW_Init_Spi_Spark_8b(void) {
     D4DLCD_INIT_CS;
     D4DLCD_INIT_DC;
 
-    // Serial clock cycle is min 150ns from ILI93841 datasheet, which equals 6.7 MHz
-    // But touch screen driver (XPT2046) needs 200ns low, 200ns high.
-    // 1 /( 72 MHz / 29) = 403 ns. Prescaler of 32 gives a bit of margin.
-    SPI.setClockDivider(
+    // Serial clock cycle is min 100ns from ILI93841 datasheet, when writing.
+    // It is 150ns when reading, but we do not read from the display.
+    // We can drive the display up to 10 mHz
+    // SPI base clock on the Photon is fclk/2.
+    // On the Core, we'll go up to clock div 8 (72 Mhz / 8 = 9 Mhz)
+    // On the Photon, we'll go up to clock div 8 (120 Mhz / 2 / 8 = 7.5 Mhz).
+    // Oscilloscope measurements have shown that faster clock speeds degrade signal quality too much.
+
+    SpiLCD.setClockDivider(
 #if PLATFORM_ID==0
-    SPI_CLOCK_DIV32
+    SPI_CLOCK_DIV8
 #elif PLATFORM_ID==6
-    SPI_CLOCK_DIV64
+    SPI_CLOCK_DIV8
 #else
 #error Unknown platform
-#endif    
+#endif
     );
 
-    
-    SPI.setBitOrder(MSBFIRST);
-    SPI.setDataMode(SPI_MODE0);
-    
-    SPI.begin(D4DLCD_CS);
 
-    D4DLCD_DEASSERT_RESET;
-    D4DLCDHW_Delay_Spi_Spark_8b(5);
-    D4DLCD_ASSERT_RESET;
-    D4DLCDHW_Delay_Spi_Spark_8b(20);
-    D4DLCD_DEASSERT_RESET;
-    D4DLCDHW_Delay_Spi_Spark_8b(150);
+    SpiLCD.setBitOrder(MSBFIRST);
+    SpiLCD.setDataMode(SPI_MODE0);
+    
+    SpiLCD.begin(D4DLCD_CS);
+    SpiLCD.end();
+
 
     return 1;
 }
@@ -180,6 +269,7 @@ static unsigned char D4DLCDHW_Init_Spi_Spark_8b(void) {
 //-----------------------------------------------------------------------------
 
 static unsigned char D4DLCDHW_DeInit_Spi_Spark_8b(void) {
+    SpiLCD.end();
     return 0;
 }
 
@@ -194,11 +284,23 @@ static unsigned char D4DLCDHW_DeInit_Spi_Spark_8b(void) {
 //-----------------------------------------------------------------------------
 
 static void D4DLCDHW_SendDataWord_Spi_Spark_8b(unsigned short value) {
-    D4DLCD_ASSERT_CS;
-    // Send data byte
-    SPI.transfer(value);
+#if 1
+	tx_buffer[active_buffer_idx][active_buffer_offset++] = value;
 
-    D4DLCD_DEASSERT_CS;
+	if (active_buffer_offset>=SCREEN_DATA_BUFFER_SIZE)
+	{
+		flushData();
+	}
+
+
+#else
+
+	SpiLCD.begin();
+    // Send data byte
+    SpiLCD.transfer(value);
+
+    SpiLCD.end();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -212,8 +314,15 @@ static void D4DLCDHW_SendDataWord_Spi_Spark_8b(unsigned short value) {
 //-----------------------------------------------------------------------------
 
 static void D4DLCDHW_SendCmdWord_Spi_Spark_8b(unsigned short cmd) {
-    D4DLCD_ASSERT_DC; // DataCmd := 0
-    D4DLCDHW_SendDataWord_Spi_Spark_8b(cmd);
+	flushData();
+    waitForTransferToComplete();
+
+	D4DLCD_ASSERT_DC; // DataCmd := 0
+	SpiLCD.begin();
+    // Send data byte
+    SpiLCD.transfer(cmd);
+
+    SpiLCD.end();
     D4DLCD_DEASSERT_DC; // DataCmd := 1
 }
 
@@ -233,7 +342,7 @@ static unsigned short D4DLCDHW_ReadDataWord_Spi_Spark_8b(void) {
     /*D4DLCD_DEASSERT_DC;
     D4DLCD_ASSERT_CS;
     digitalWrite(_cs, LOW);
-    unsigned short r = SPI.transfer(0x00);
+    unsigned short r = SpiLCD.transfer(0x00);
     D4DLCD_DEASSERT_CS;
     return r;*/
     return 0;
@@ -322,7 +431,10 @@ static unsigned char D4DLCDHW_PinCtl_Spi_Spark_8b(D4DLCDHW_PINS pinId, D4DHW_PIN
 //-----------------------------------------------------------------------------
 
 static void D4DLCD_FlushBuffer_Spi_Spark_8b(D4DLCD_FLUSH_MODE mode) {
-    D4D_UNUSED(mode);
+    if (true || mode==D4DLCD_FLSH_SCR_END || mode==D4DLCD_FLSH_FORCE) {
+    		flushData();
+    		waitForTransferToComplete(); // wait for last DMA transfer to complete
+    }
 }
 
 

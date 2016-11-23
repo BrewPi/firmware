@@ -30,3 +30,25 @@ typedef uint32_t ticks_seconds_t;
 typedef uint8_t ticks_seconds_tiny_t;
 
 bool platform_init();
+
+struct data_block_ref {
+	void* data;
+	size_t size;
+};
+
+
+#if PLATFORM_THREADING
+extern ApplicationWatchdog appWatchdog;
+inline void watchdogCheckin(){
+	appWatchdog.checkin();
+}
+#else
+// define dummy watchdog checkin for when the watchdog is not available
+inline void watchdogCheckin(){}
+#endif
+
+
+/**
+ * Retrieves a pointer to the device id.
+ */
+void platform_device_id(data_block_ref& id);

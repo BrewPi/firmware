@@ -144,6 +144,11 @@ static D4DLCD_ORIENTATION d4dlcd_orientation = Landscape;
 
 static unsigned char D4DLCD_Init_ili9341(void) {
     D4D_LLD_LCD_HW.D4DLCDHW_Init(); // init low level hardware driver (e.g. SPI)
+
+    D4DLCD_Delay_ms_ili9341(20);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0x01);
+    D4DLCD_Delay_ms_ili9341(150);
+
     D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xEF);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x03);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x80);

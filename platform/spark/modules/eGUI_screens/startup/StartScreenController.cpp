@@ -25,6 +25,7 @@
 #include "../BrewPiTouch/BrewPiTouch.h"
 #include "UI.h"
 #include "UIController.h"
+#include "d4dtch_tsc2046_brewpi_cfg.h"
 
 D4D_EXTERN_SCREEN(screen_startup);
 
@@ -69,6 +70,8 @@ public:
 // really would have liked to have this on the stack, but can't with re-entrant coding model.
 StartupScreenModel model;
 
+
+
 extern BrewPiTouch touch;
  
 void ScrStartup_OnInit()
@@ -92,17 +95,23 @@ void ScrStartup_OnMain()
 void ScrStartup_OnActivate()
 {    
     model.start();
-    touch.setStabilityThreshold(16000); // set to high Threshold to disable filter    
+// would ideally like to make this conditional on using the brewpi touch driver
+#if PLATFORM_ID!=3
+    touch.setStabilityThreshold(16000); // set to high Threshold to disable filter
+#endif
 }
 
 void ScrStartup_OnDeactivate()
 {
     if (model.touched()){
+#if PLATFORM_ID!=3
         touch.setStabilityThreshold(5); // require extra stable reading
+#endif
         calibrateTouchScreen();
     }
-    
-    touch.setStabilityThreshold(); // reset to default    
+#if PLATFORM_ID!=3
+    touch.setStabilityThreshold(); // reset to default
+#endif
 }
 
 Byte ScrStartup_OnObjectMsg(D4D_MESSAGE* pMsg)

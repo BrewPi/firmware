@@ -30,12 +30,8 @@
 #include "semphr.h"
 #include "timers.h"
 #include "stm32f2xx.h"
+#include "interrupts_hal.h"
 #include <mutex>
-
-inline bool isISR()
-{
-	return (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0;
-}
 
 // For OpenOCD FreeRTOS support
 extern const int  __attribute__((used)) uxTopUsedPriority = configMAX_PRIORITIES;
@@ -314,7 +310,7 @@ static_assert(portMAX_DELAY==CONCURRENT_WAIT_FOREVER, "expected portMAX_DELAY==C
 
 int os_queue_put(os_queue_t queue, const void* item, system_tick_t delay)
 {
-	if (isISR())
+	if (HAL_IsISR())
 		return xQueueSendFromISR(queue, item, nullptr)!=pdTRUE;
 	else
 		return xQueueSend(queue, item, delay)!=pdTRUE;
@@ -467,4 +463,9 @@ int os_timer_change(os_timer_t timer, os_timer_change_t change, bool fromISR, un
 int os_timer_destroy(os_timer_t timer, void* reserved)
 {
     return xTimerDelete(timer, CONCURRENT_WAIT_FOREVER)!=pdPASS;
+}
+
+int os_timer_is_active(os_timer_t timer, void* reserved)
+{
+    return xTimerIsTimerActive(timer) != pdFALSE;
 }

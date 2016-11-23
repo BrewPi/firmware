@@ -17,9 +17,11 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Display
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/EEPROM
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/eGUI_screens
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/OneWire
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/SPIArbiter
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Ticks
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/UI
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Buzzer
+INCLUDE_DIRS += $(SOURCE_PATH)/app
 
 CSRC += $(call target_files,app/controller,*.c)
 CPPSRC += $(call target_files,app/controller,*.cpp)
@@ -52,7 +54,6 @@ endif
 SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
 include $(SRC_EGUI)/egui.mk
 
-$(info source path $(SOURCE_PATH))
 LIBS_DIR = $(SOURCE_PATH)/platform/spark/libs
 include $(LIBS_DIR)/libs.mk
 

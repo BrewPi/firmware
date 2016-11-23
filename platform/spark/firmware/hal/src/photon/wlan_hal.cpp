@@ -37,18 +37,47 @@
 #include "wwd_sdpcm.h"
 #include "delay_hal.h"
 #include "dct_hal.h"
+#include "concurrent_hal.h"
+#include "wwd_resources.h"
 
 // dns.h includes a class member, which doesn't compile in C++
 #define class clazz
 #include "dns.h"
 #undef class
 
+/**
+ * Retrieves the country code from the DCT region.
+ */
+wiced_country_code_t fetch_country_code()
+{
+    const uint8_t* code = (const uint8_t*)dct_read_app_data(DCT_COUNTRY_CODE_OFFSET);
+
+    wiced_country_code_t result =
+        wiced_country_code_t(MK_CNTRY(code[0], code[1], hex_nibble(code[2])));
+
+    // if Japan explicitly configured, lower tx power for TELEC certification
+    if (result == WICED_COUNTRY_JAPAN)
+    {
+        wwd_select_nvram_image_resource(1, nullptr);
+    }
+
+    // if no country configured, use Japan WiFi config for compatibility with older firmware
+    if (code[0] == 0xFF || code[0] == 0)
+    {
+        result = WICED_COUNTRY_JAPAN;
+    }
+    return result;
+}
+
 bool initialize_dct(platform_dct_wifi_config_t* wifi_config, bool force=false)
 {
     bool changed = false;
-    wiced_country_code_t country = WICED_COUNTRY_JAPAN;
+    wiced_country_code_t country = fetch_country_code();
     if (force || wifi_config->device_configured!=WICED_TRUE || wifi_config->country_code!=country) {
-        memset(wifi_config, 0, sizeof(*wifi_config));
+        if (!wifi_config->device_configured)
+        {
+            memset(wifi_config, 0, sizeof(*wifi_config));
+        }
         wifi_config->country_code = country;
         wifi_config->device_configured = WICED_TRUE;
         changed = true;
@@ -156,12 +185,20 @@ bool to_wiced_ip_address(wiced_ip_address_t& wiced, const dct_ip_address_v4_t& d
     return (dct!=0);
 }
 
+void wlan_connect_timeout(os_timer_t t)
+{
+    wlan_connect_cancel(false);
+}
+
 /**
  * Do what is needed to finalize the connection.
  * @return
  */
 wlan_result_t wlan_connect_finalize()
 {
+    os_timer_t cancel_timer = 0;
+    os_timer_create(&cancel_timer, 60000, &wlan_connect_timeout, nullptr, false /* oneshot */, nullptr);
+
     // enable connection from stored profiles
     wlan_result_t result = wiced_interface_up(WICED_STA_INTERFACE);
     if (!result) {
@@ -194,6 +231,10 @@ wlan_result_t wlan_connect_finalize()
     // DHCP happens synchronously
     HAL_NET_notify_dhcp(!result);
     wiced_network_up_cancel = 0;
+
+    if (cancel_timer) {
+        os_timer_destroy(cancel_timer, nullptr);
+    }
     return result;
 }
 
@@ -226,6 +267,7 @@ int wlan_select_antenna(WLanSelectAntenna_TypeDef antenna)
 
 wlan_result_t wlan_activate()
 {
+    wlan_initialize_dct();
     wlan_result_t result = wiced_wlan_connectivity_init();
     if (!result)
         wiced_network_register_link_callback(HAL_NET_notify_connected, HAL_NET_notify_disconnected, WICED_STA_INTERFACE);

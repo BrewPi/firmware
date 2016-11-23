@@ -64,9 +64,115 @@ test(SERIAL1_ReadWriteSucceedsInLoopbackWithTxRxShorted) {
     Serial1.begin(9600);
     Serial1.println(test);
     serialReadLine(&Serial1, message, 9, 1000);//1 sec timeout
+    Serial1.end();
     // then
     assertTrue(strncmp(test, message, 5)==0);
 }
+
+test(SERIAL1_ReadWriteParity8N1SucceedsInLoopbackWithTxRxShorted) {
+        //The following code will test all the important USART Serial1 routines
+        char test[] = "hello";
+        char message[10];
+        // when
+        Serial1.begin(9600, SERIAL_8N1);
+        Serial1.println(test);
+        serialReadLine(&Serial1, message, 9, 1000);//1 sec timeout
+	Serial1.end();
+        // then
+        assertTrue(strncmp(test, message, 5)==0);
+}
+
+test(SERIAL1_ReadWriteParity8E1SucceedsInLoopbackWithTxRxShorted) {
+        //The following code will test all the important USART Serial1 routines
+        char test[] = "hello";
+        char message[10];
+        // when
+        Serial1.begin(9600, SERIAL_8E1);
+        Serial1.println(test);
+        serialReadLine(&Serial1, message, 9, 1000);//1 sec timeout
+	Serial1.end();
+        // then
+        assertTrue(strncmp(test, message, 5)==0);
+}
+
+test(SERIAL1_ReadWriteParity8O1SucceedsInLoopbackWithTxRxShorted) {
+        //The following code will test all the important USART Serial1 routines
+        char test[] = "hello";
+        char message[10];
+        // when
+        Serial1.begin(9600, SERIAL_8O1);
+        Serial1.println(test);
+        serialReadLine(&Serial1, message, 9, 1000);//1 sec timeout
+	Serial1.end();
+        // then
+        assertTrue(strncmp(test, message, 5)==0);
+}
+
+test(SERIAL1_ReadWriteParity8N2SucceedsInLoopbackWithTxRxShorted) {
+        //The following code will test all the important USART Serial1 routines
+        char test[] = "hello";
+        char message[10];
+        // when
+        Serial1.begin(9600, SERIAL_8N2);
+        Serial1.println(test);
+        serialReadLine(&Serial1, message, 9, 1000);//1 sec timeout
+	Serial1.end();
+        // then
+        assertTrue(strncmp(test, message, 5)==0);
+}
+
+test(SERIAL1_ReadWriteParity8E2SucceedsInLoopbackWithTxRxShorted) {
+        //The following code will test all the important USART Serial1 routines
+        char test[] = "hello";
+        char message[10];
+        // when
+        Serial1.begin(9600, SERIAL_8E2);
+        Serial1.println(test);
+        serialReadLine(&Serial1, message, 9, 1000);//1 sec timeout
+	Serial1.end();
+        // then
+        assertTrue(strncmp(test, message, 5)==0);
+}
+
+test(SERIAL1_ReadWriteParity8O2SucceedsInLoopbackWithTxRxShorted) {
+        //The following code will test all the important USART Serial1 routines
+        char test[] = "hello";
+        char message[10];
+        // when
+        Serial1.begin(9600, SERIAL_8O2);
+        Serial1.println(test);
+        serialReadLine(&Serial1, message, 9, 1000);//1 sec timeout
+	Serial1.end();
+        // then
+        assertTrue(strncmp(test, message, 5)==0);
+}
+
+test(SERIAL1_ReadWriteParity9N1SucceedsInLoopbackWithTxRxShorted) {
+        //The following code will test all the important USART Serial1 routines
+        char test[] = "hello";
+        char message[10];
+        // when
+        Serial1.begin(9600, SERIAL_9N1);
+        Serial1.println(test);
+        serialReadLine(&Serial1, message, 9, 1000);//1 sec timeout
+	Serial1.end();
+        // then
+        assertTrue(strncmp(test, message, 5)==0);
+}
+
+test(SERIAL1_ReadWriteParity9N2SucceedsInLoopbackWithTxRxShorted) {
+        //The following code will test all the important USART Serial1 routines
+        char test[] = "hello";
+        char message[10];
+        // when
+        Serial1.begin(9600, SERIAL_9N2);
+        Serial1.println(test);
+        serialReadLine(&Serial1, message, 9, 1000);//1 sec timeout
+	Serial1.end();
+        // then
+        assertTrue(strncmp(test, message, 5)==0);
+}
+
 
 #if (PLATFORM_ID == 0)
 test(SERIAL2_ReadWriteSucceedsInLoopbackWithD0D1Shorted) {
@@ -81,3 +187,52 @@ test(SERIAL2_ReadWriteSucceedsInLoopbackWithD0D1Shorted) {
     assertTrue(strncmp(test, message, 5)==0);
 }
 #endif
+
+test(SERIAL1_AvailableForWriteWorksCorrectly) {
+    Serial1.begin(9600);
+    assertEqual(Serial1.isEnabled(), true);
+
+    // Initially there should be SERIAL_BUFFER_SIZE available in TX buffer
+    assertEqual(Serial1.availableForWrite(), SERIAL_BUFFER_SIZE);
+
+    // Disable Serial1 IRQ to prevent it from sending data
+    NVIC_DisableIRQ(USART1_IRQn);
+    // Write (SERIAL_BUFFER_SIZE / 2) bytes into TX buffer
+    for (int i = 0; i < SERIAL_BUFFER_SIZE / 2; i++) {
+        Serial1.write('a');
+    }
+    // There should be (SERIAL_BUFFER_SIZE / 2) bytes available in TX buffer
+    assertEqual(Serial1.availableForWrite(), SERIAL_BUFFER_SIZE / 2);
+
+    // Write (SERIAL_BUFFER_SIZE / 2 - 1) bytes into TX buffer
+    for (int i = 0; i < SERIAL_BUFFER_SIZE / 2 - 1; i++) {
+        Serial1.write('b');
+    }
+    // There should only be 1 byte available in TX buffer
+    assertEqual(Serial1.availableForWrite(), 1);
+    // Enable Serial1 IRQ again to send out the data from TX buffer
+    NVIC_EnableIRQ(USART1_IRQn);
+    delay(100);
+
+    // There should be SERIAL_BUFFER_SIZE available in TX buffer again
+    assertEqual(Serial1.availableForWrite(), SERIAL_BUFFER_SIZE);
+
+    // At this point tx_buffer->head = (SERIAL_BUFFER_SIZE - 1), tx_buffer->tail = (SERIAL_BUFFER_SIZE - 1)
+    // Now test that availableForWrite() returns correct results for cases where tx_buffer->head < tx_buffer->tail
+    // Disable Serial1 IRQ again to prevent it from sending data
+    NVIC_DisableIRQ(USART1_IRQn);
+    // Write (SERIAL_BUFFER_SIZE / 2 + 1) bytes into TX buffer
+    for (int i = 0; i < SERIAL_BUFFER_SIZE / 2 + 1; i++) {
+        Serial1.write('c');
+    }
+    // There should be (SERIAL_BUFFER_SIZE / 2) bytes available in TX buffer
+    assertEqual(Serial1.availableForWrite(), SERIAL_BUFFER_SIZE / 2);
+    // Enable Serial1 IRQ again to send out the data from TX buffer
+    NVIC_EnableIRQ(USART1_IRQn);
+    delay(100);
+
+    // There should be SERIAL_BUFFER_SIZE available in TX buffer again
+    assertEqual(Serial1.availableForWrite(), SERIAL_BUFFER_SIZE);
+
+    Serial1.end();
+}

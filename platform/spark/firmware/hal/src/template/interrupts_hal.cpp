@@ -33,6 +33,10 @@ void HAL_Interrupts_Detach(uint16_t pin)
 {
 }
 
+void HAL_Interrupts_Detach_Ext(uint16_t pin, uint8_t keepHandler, void* reserved)
+{
+}
+
 void HAL_Interrupts_Enable_All(void)
 {
 }
@@ -47,6 +51,17 @@ void HAL_Interrupts_Suspend(void)
 
 void HAL_Interrupts_Restore(void)
 {
+}
+
+
+uint8_t HAL_Set_System_Interrupt_Handler(hal_irq_t irq, const HAL_InterruptCallback* callback, HAL_InterruptCallback* previous, void* reserved)
+{
+	return 0;
+}
+
+uint8_t HAL_Get_System_Interrupt_Handler(hal_irq_t irq, HAL_InterruptCallback* callback, void* reserved)
+{
+	return 0;
 }
 
 /*******************************************************************************

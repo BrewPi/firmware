@@ -28,6 +28,7 @@
 #include "system_update.h"
 #include "spark_macros.h"
 #include "string.h"
+#include "core_hal.h"
 #include "system_tick_hal.h"
 #include "watchdog_hal.h"
 #include "wlan_hal.h"
@@ -110,7 +111,7 @@ void manage_network_connection()
     }
     else
     {
-        if (!SPARK_WLAN_STARTED || (SPARK_CLOUD_CONNECT && !network.connected()))
+        if (!SPARK_WLAN_STARTED || (spark_cloud_flag_auto_connect() && !network.connected()))
         {
             INFO("Network Connect: %s", (!SPARK_WLAN_STARTED) ? "!SPARK_WLAN_STARTED" : "SPARK_CLOUD_CONNECT && !network.connected()");
             network.connect();
@@ -212,7 +213,7 @@ void establish_cloud_connection()
 
         INFO("Cloud: connecting");
         LED_On(LED_RGB);
-        int connect_result = Spark_Connect();
+        int connect_result = spark_cloud_socket_connect();
         if (connect_result >= 0)
         {
             cfod_count = 0;
@@ -293,7 +294,7 @@ void handle_cloud_connection(bool force_events)
 
 void manage_cloud_connection(bool force_events)
 {
-    if (SPARK_CLOUD_CONNECT == 0)
+    if (spark_cloud_flag_auto_connect() == 0)
     {
         cloud_disconnect();
     }
@@ -406,8 +407,8 @@ void system_delay_ms(unsigned long ms, bool force_no_background_loop=false)
 {
 	// if not threading, or we are the application thread, then implement delay
 	// as a background message pump
-    if (!system_thread_get_state(NULL) ||
-        APPLICATION_THREAD_CURRENT()) {
+    if ((!system_thread_get_state(NULL) || APPLICATION_THREAD_CURRENT()) && !HAL_IsISR())
+    {
     		system_delay_pump(ms, force_no_background_loop);
     }
     else
@@ -425,7 +426,7 @@ void cloud_disconnect(bool closeSocket)
     {
         INFO("Cloud: disconnecting");
         if (closeSocket)
-        Spark_Disconnect();
+        spark_cloud_socket_disconnect();
 
         SPARK_FLASH_UPDATE = 0;
         SPARK_CLOUD_CONNECTED = 0;

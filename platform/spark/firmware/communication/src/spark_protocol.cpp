@@ -32,6 +32,8 @@
 #include "service_debug.h"
 #include "messages.h"
 
+#include "strnlen.h"
+
 using namespace particle::protocol;
 
 #if 0

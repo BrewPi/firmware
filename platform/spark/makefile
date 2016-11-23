@@ -1,5 +1,5 @@
 
-$(MAKECMDGOALS) %: run_make
+$(MAKECMDGOALS) : run_make
 
 .PHONY: run_make
 
@@ -22,5 +22,5 @@ include $(PARTICLE_FIRMWARE)/build/platform-id.mk
 
 run_make:
 	@$(MAKE) -e -C $(PARTICLE_FIRMWARE)/main APPDIR=$(APPDIR) \
-	USER_MAKEFILE=$(APP_MAKEFILE) \
+	USER_MAKEFILE=$(APP_MAKEFILE) EXTRA_CFLAGS=-D_SYS_WAIT_H_ \
 	TARGET_DIR=$(SPARKDIR)/target/$(APP)-$(PLATFORM)  BUILD_PATH_BASE=$(SPARKDIR)/target $(MAKEOVERRIDES) $(MAKECMDGOALS) 

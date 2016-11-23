@@ -93,6 +93,8 @@
 
   #ifdef MQX_CPU
     // do nothing
+#elif (D4D_MCU_TYPE == D4D_PARTICLE)
+// not used
   #elif (D4D_MCU_TYPE == D4D_HCS08)
 
   #define MCU_BUS_CYCLES_100US_WITHOUT_OVERHEAD (MCU_BUS_CYCLES_100US - 18)
@@ -258,6 +260,10 @@
 
   void D4DLCD_Delay_ms_Common(unsigned short period)   //delay routine (milliseconds)
   {
+#ifdef PARTICLE
+	  extern void HAL_Delay_Milliseconds(unsigned period);
+	  HAL_Delay_Milliseconds(period);
+#else
 
     #ifdef MQX_CPU
     	_time_delay(period);
@@ -269,5 +275,5 @@
 	        period--;
 	    }
     #endif
-
+#endif
   }

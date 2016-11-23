@@ -168,7 +168,7 @@ static Byte D4D_Divide8(Word num, Byte div)
     return 0;
 #elif (D4D_MCU_TYPE == D4D_HC12) || (D4D_MCU_TYPE == D4D_HCS12) || (D4D_MCU_TYPE == D4D_HCS12X)
     return (Byte)(num/div);
-#elif (D4D_MCU_TYPE == D4D_MCF51) || (D4D_MCU_TYPE == D4D_MCF52) || (D4D_MCU_TYPE == D4D_MPC51) || (D4D_MCU_TYPE == D4D_MK)
+#elif (D4D_MCU_TYPE == D4D_MCF51) || (D4D_MCU_TYPE == D4D_MCF52) || (D4D_MCU_TYPE == D4D_MPC51) || (D4D_MCU_TYPE == D4D_MK) || (D4D_MCU_TYPE == D4D_PARTICLE)
     return (Byte)(num/div);
 #else
   #error "Not supported MCU for D4D math divide!"

@@ -30,6 +30,11 @@
 #include "pinmap_impl.h"
 #include <stddef.h>
 #include "service_debug.h"
+#include "interrupts_hal.h"
+
+#ifdef LOG_SOURCE_CATEGORY
+  LOG_SOURCE_CATEGORY("hal.i2c")
+#endif // LOG_SOURCE_CATEGORY
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -49,6 +54,27 @@
 #define TOTAL_I2C   1
 #endif
 
+#define I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED_NO_ADDR ((uint32_t)0x00070080)
+
+#define WAIT_TIMED(what) ({ \
+    uint32_t _micros = HAL_Timer_Get_Micro_Seconds();                           \
+    bool res = true;                                                            \
+    while((what))                                                               \
+    {                                                                           \
+        int32_t dt = (HAL_Timer_Get_Micro_Seconds() - _micros);                 \
+        bool nok = ((EVENT_TIMEOUT < dt)                                         \
+                   && (what))                                                   \
+                   || (dt < 0);                                                   \
+        if (nok)                                                                \
+        {                                                                       \
+            res = false;                                                        \
+            break;                                                              \
+        }                                                                       \
+    }                                                                           \
+    res;                                                                        \
+})
+
+
 /* Private typedef -----------------------------------------------------------*/
 typedef enum I2C_Num_Def {
     I2C1_D0_D1 = 0
@@ -57,6 +83,12 @@ typedef enum I2C_Num_Def {
    ,I2C3_PM_SDA_SCL = 2
 #endif
 } I2C_Num_Def;
+
+typedef enum I2C_Transaction_Ending_Condition {
+    I2C_ENDING_UNKNOWN,
+    I2C_ENDING_STOP,
+    I2C_ENDING_START
+} I2C_Transaction_Ending_Condition;
 
 /* Private variables ---------------------------------------------------------*/
 typedef struct STM32_I2C_Info {
@@ -94,6 +126,8 @@ typedef struct STM32_I2C_Info {
 
     I2C_Mode mode;
     volatile bool ackFailure;
+    volatile uint8_t prevEnding;
+    uint8_t clkStretchingEnabled;
 } STM32_I2C_Info;
 
 /*
@@ -139,6 +173,8 @@ static void HAL_I2C_SoftwareReset(HAL_I2C_Interface i2c)
 
     /* Apply I2C configuration after enabling it */
     I2C_Init(i2cMap[i2c]->I2C_Peripheral, &i2cMap[i2c]->I2C_InitStructure);
+
+    i2cMap[i2c]->prevEnding = I2C_ENDING_UNKNOWN;
 }
 
 void HAL_I2C_Init(HAL_I2C_Interface i2c, void* reserved)
@@ -171,6 +207,9 @@ void HAL_I2C_Init(HAL_I2C_Interface i2c, void* reserved)
     i2cMap[i2c]->transmitting = 0;
 
     i2cMap[i2c]->ackFailure = false;
+    i2cMap[i2c]->prevEnding = I2C_ENDING_UNKNOWN;
+
+    i2cMap[i2c]->clkStretchingEnabled = 1;
 }
 
 void HAL_I2C_Set_Speed(HAL_I2C_Interface i2c, uint32_t speed, void* reserved)
@@ -193,6 +232,8 @@ void HAL_I2C_Stretch_Clock(HAL_I2C_Interface i2c, bool stretch, void* reserved)
     {
         I2C_StretchClockCmd(i2cMap[i2c]->I2C_Peripheral, DISABLE);
     }
+
+    i2cMap[i2c]->clkStretchingEnabled = stretch;
 }
 
 void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* reserved)
@@ -207,6 +248,7 @@ void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* 
 
     i2cMap[i2c]->mode = mode;
     i2cMap[i2c]->ackFailure = false;
+    i2cMap[i2c]->prevEnding = I2C_ENDING_UNKNOWN;
 
     /* Enable I2C clock */
     *i2cMap[i2c]->I2C_RCC_APBRegister |= i2cMap[i2c]->I2C_RCC_APBClockEnable;
@@ -256,6 +298,8 @@ void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* 
     if(i2cMap[i2c]->mode != I2C_MODE_MASTER)
     {
         I2C_ITConfig(i2cMap[i2c]->I2C_Peripheral, I2C_IT_EVT | I2C_IT_BUF, ENABLE);
+
+        HAL_I2C_Stretch_Clock(i2c, i2cMap[i2c]->clkStretchingEnabled, NULL);
     }
 
     /* Enable the I2C peripheral */
@@ -279,8 +323,12 @@ void HAL_I2C_End(HAL_I2C_Interface i2c, void* reserved)
 
 uint32_t HAL_I2C_Request_Data(HAL_I2C_Interface i2c, uint8_t address, uint8_t quantity, uint8_t stop, void* reserved)
 {
-    uint32_t _micros;
     uint8_t bytesRead = 0;
+    int state;
+
+    /* Implementation based on ST AN2824
+     * http://www.st.com/st-web-ui/static/active/jp/resource/technical/document/application_note/CD00209826.pdf
+     */
 
     // clamp to buffer length
     if(quantity > BUFFER_LENGTH)
@@ -288,19 +336,32 @@ uint32_t HAL_I2C_Request_Data(HAL_I2C_Interface i2c, uint8_t address, uint8_t qu
         quantity = BUFFER_LENGTH;
     }
 
-    /* Send START condition */
-    I2C_GenerateSTART(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+    // Pre-configure ACK/NACK
+    I2C_AcknowledgeConfig(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+    I2C_NACKPositionConfig(i2cMap[i2c]->I2C_Peripheral, I2C_NACKPosition_Current);
 
-    _micros = HAL_Timer_Get_Micro_Seconds();
-    while(!I2C_CheckEvent(i2cMap[i2c]->I2C_Peripheral, I2C_EVENT_MASTER_MODE_SELECT))
+    if (i2cMap[i2c]->prevEnding != I2C_ENDING_START)
     {
-        if(EVENT_TIMEOUT < (HAL_Timer_Get_Micro_Seconds() - _micros))
+        /* While the I2C Bus is busy */
+        if (!WAIT_TIMED(I2C_GetFlagStatus(i2cMap[i2c]->I2C_Peripheral, I2C_FLAG_BUSY)))
         {
             /* SW Reset the I2C Peripheral */
             HAL_I2C_SoftwareReset(i2c);
 
             return 0;
         }
+
+        /* Send START condition */
+        I2C_GenerateSTART(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+
+        if (!WAIT_TIMED(!I2C_CheckEvent(i2cMap[i2c]->I2C_Peripheral, I2C_EVENT_MASTER_MODE_SELECT)))
+        {
+            /* SW Reset the I2C Peripheral */
+            HAL_I2C_SoftwareReset(i2c);
+
+            return 0;
+        }
+
     }
 
     /* Initialized variables here to minimize delays
@@ -312,126 +373,183 @@ uint32_t HAL_I2C_Request_Data(HAL_I2C_Interface i2c, uint8_t address, uint8_t qu
     /* Ensure ackFailure flag is cleared */
     i2cMap[i2c]->ackFailure = false;
 
-    /* Set ACK/NACK prior to I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED check
-     * to minimize delays between sending of slave addr and read loop.
-     * I2C_CheckEvent() will clear ADDR bit and allow SCL clocks to run, so we don't
-     * have much time to check/set this correctly while I2C is in operation.
-     */
-    if (quantity == 1)
-        /* Disable Acknowledgement */
-        I2C_AcknowledgeConfig(i2cMap[i2c]->I2C_Peripheral, DISABLE);
-    else
-        I2C_AcknowledgeConfig(i2cMap[i2c]->I2C_Peripheral, ENABLE);
-
     /* Send Slave address for read */
     I2C_Send7bitAddress(i2cMap[i2c]->I2C_Peripheral, address << 1, I2C_Direction_Receiver);
 
-    _micros = HAL_Timer_Get_Micro_Seconds();
-    while(!I2C_CheckEvent(i2cMap[i2c]->I2C_Peripheral, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))
+    if((!WAIT_TIMED(!I2C_GetFlagStatus(i2cMap[i2c]->I2C_Peripheral, I2C_FLAG_ADDR) && !i2cMap[i2c]->ackFailure)) ||
+        i2cMap[i2c]->ackFailure)
     {
-        /* STOP/RESET immediately if ACK failure detected */
-        if(EVENT_TIMEOUT < (HAL_Timer_Get_Micro_Seconds() - _micros) || i2cMap[i2c]->ackFailure)
+        /* Send STOP Condition */
+        I2C_GenerateSTOP(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+
+        /* Wait to make sure that STOP control bit has been cleared */
+        if (!WAIT_TIMED(i2cMap[i2c]->I2C_Peripheral->CR1 & I2C_CR1_STOP))
         {
-            /* Send STOP Condition */
+            /* SW Reset the I2C Peripheral */
+            HAL_I2C_SoftwareReset(i2c);
+        }
+
+        /* Ensure ackFailure flag is cleared */
+        i2cMap[i2c]->ackFailure = false;
+
+        return 0;
+    }
+
+    if (quantity == 1)
+    {
+        I2C_AcknowledgeConfig(i2cMap[i2c]->I2C_Peripheral, DISABLE);
+
+        state = HAL_disable_irq();
+        // Clear I2C_FLAG_ADDR flag by reading SR2
+        (void)i2cMap[i2c]->I2C_Peripheral->SR2;
+        if (stop)
             I2C_GenerateSTOP(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+        else
+            I2C_GenerateSTART(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+        HAL_enable_irq(state);
 
-            /* Wait to make sure that STOP control bit has been cleared */
-            _micros = HAL_Timer_Get_Micro_Seconds();
-            while(i2cMap[i2c]->I2C_Peripheral->CR1 & I2C_CR1_STOP)
-            {
-                if(EVENT_TIMEOUT < (HAL_Timer_Get_Micro_Seconds() - _micros))
-                {
-                    break;
-                }
-            }
-
+        // Wait for RXNE
+        if (!WAIT_TIMED(I2C_GetFlagStatus(i2cMap[i2c]->I2C_Peripheral, I2C_FLAG_RXNE) == RESET))
+        {
             /* SW Reset the I2C Peripheral */
             HAL_I2C_SoftwareReset(i2c);
 
-            /* Ensure ackFailure flag is cleared */
-            i2cMap[i2c]->ackFailure = false;
+            return 0;
+        }
+
+        *(pBuffer++) = I2C_ReceiveData(i2cMap[i2c]->I2C_Peripheral);
+        bytesRead = 1;
+    }
+    else if (quantity == 2)
+    {
+        I2C_NACKPositionConfig(i2cMap[i2c]->I2C_Peripheral, I2C_NACKPosition_Next);
+
+        state = HAL_disable_irq();
+        // Clear I2C_FLAG_ADDR flag by reading SR2
+        (void)i2cMap[i2c]->I2C_Peripheral->SR2;
+        I2C_AcknowledgeConfig(i2cMap[i2c]->I2C_Peripheral, DISABLE);
+        HAL_enable_irq(state);
+
+        if (!WAIT_TIMED(I2C_GetFlagStatus(i2cMap[i2c]->I2C_Peripheral, I2C_FLAG_BTF) == RESET))
+        {
+            /* SW Reset the I2C Peripheral */
+            HAL_I2C_SoftwareReset(i2c);
 
             return 0;
         }
+
+        state = HAL_disable_irq();
+        if (stop)
+            I2C_GenerateSTOP(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+        else
+            I2C_GenerateSTART(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+
+        *(pBuffer++) = I2C_ReceiveData(i2cMap[i2c]->I2C_Peripheral);
+        HAL_enable_irq(state);
+
+        *(pBuffer++) = I2C_ReceiveData(i2cMap[i2c]->I2C_Peripheral);
+        bytesRead = 2;
+    }
+    else if (quantity > 2)
+    {
+        /*
+         * This case differs a bit from AN2824 for STM32F2:
+         * For N >2 -byte reception, from N-2 data reception
+         * - Wait until BTF = 1 (data N-2 in DR, data N-1 in shift register, SCL stretched low until
+         *   data N-2 is read)
+         * - Set ACK low
+         * - Read data N-2
+         * - Wait until BTF = 1 (data N-1 in DR, data N in shift register, SCL stretched low until a
+         *   data N-1 is read)
+         * - Set STOP high
+         * - Read data N-1 and N
+         */
+
+        // Clear I2C_FLAG_ADDR flag by reading SR2
+        (void)i2cMap[i2c]->I2C_Peripheral->SR2;
+        while(numByteToRead > 3)
+        {
+            if (!WAIT_TIMED(I2C_GetFlagStatus(i2cMap[i2c]->I2C_Peripheral, I2C_FLAG_BTF) == RESET))
+            {
+                /* SW Reset the I2C Peripheral */
+                HAL_I2C_SoftwareReset(i2c);
+
+                return 0;
+            }
+
+            *(pBuffer++) = I2C_ReceiveData(i2cMap[i2c]->I2C_Peripheral);
+            bytesRead++;
+            numByteToRead--;
+        }
+
+        // Last 3 bytes
+        if (!WAIT_TIMED(I2C_GetFlagStatus(i2cMap[i2c]->I2C_Peripheral, I2C_FLAG_BTF) == RESET))
+        {
+            /* SW Reset the I2C Peripheral */
+            HAL_I2C_SoftwareReset(i2c);
+
+            return 0;
+        }
+
+        I2C_AcknowledgeConfig(i2cMap[i2c]->I2C_Peripheral, DISABLE);
+
+        // Byte N-2
+        *(pBuffer++) = I2C_ReceiveData(i2cMap[i2c]->I2C_Peripheral);
+        if (!WAIT_TIMED(I2C_GetFlagStatus(i2cMap[i2c]->I2C_Peripheral, I2C_FLAG_BTF) == RESET))
+        {
+            /* SW Reset the I2C Peripheral */
+            HAL_I2C_SoftwareReset(i2c);
+
+            return 0;
+        }
+
+        if (stop)
+            I2C_GenerateSTOP(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+        else
+            I2C_GenerateSTART(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+
+        // Byte N-1
+        *(pBuffer++) = I2C_ReceiveData(i2cMap[i2c]->I2C_Peripheral);
+
+        // Byte N
+        *(pBuffer++) = I2C_ReceiveData(i2cMap[i2c]->I2C_Peripheral);
+
+        bytesRead += 3;
+        numByteToRead = 0;
+    }
+    else
+    {
+        // Zero-byte read
+        // Clear I2C_FLAG_ADDR flag by reading SR2
+        (void)i2cMap[i2c]->I2C_Peripheral->SR2;
+        if (stop)
+            I2C_GenerateSTOP(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+        else
+            I2C_GenerateSTART(i2cMap[i2c]->I2C_Peripheral, ENABLE);
     }
 
-    /* DATA on SDA --> Shift Register (SR) [8 clocks by SCL] --> Data Register (DR) --> ACK/NACK (9th clock)
-     *
-     * SINGLE BYTE READ
-     *  - SCL will run immediately after ADDR bit is cleared by reading SR2 (any I2C_CheckEvent)
-     *  - DR will be empty
-     *  - 1st byte from slave will be transferred to DR after 8th SCL clock
-     *  - ACK/NACK will be sent immediately (SCL will run 9th clock)
-     *
-     * 2 BYTES LEFT TO READ
-     *  - DR is not yet empty (2nd last byte is in DR; it was ACKed on its xfer to DR)
-     *  - Last byte is being assembled in SR
-     *  - SCL will be stretched after 8th clock (SR full) until DR is empty
-     *  - Reading DR for 2nd last byte will then move last byte to DR and send ACK/NACK
-     *
-     * While there is data to be read, perform blocking read into buffer
-     */
-    while(numByteToRead)
+    if (stop)
     {
-        /* Wait for DR to be full. As soon as DR is full, the byte that was xfer'd from SR
-         * to DR will be ACK/NACK'd. So it is important to enable/disable ACK bit ahead of this event
-         */
-        _micros = HAL_Timer_Get_Micro_Seconds();
-        while(I2C_GetFlagStatus(i2cMap[i2c]->I2C_Peripheral, I2C_FLAG_RXNE) == RESET)
-        {
-            if(EVENT_TIMEOUT < (HAL_Timer_Get_Micro_Seconds() - _micros))
-            {
-                /* SW Reset the I2C Peripheral */
-                HAL_I2C_SoftwareReset(i2c);
-
-                return 0;
-            }
-        }
-
-        switch  (numByteToRead) {
-            case 2:
-                /* Disable Acknowledgement on last byte which is being assembled in SR,
-                 * 2nd last byte is in the DR and as soon as we read the 2nd last byte
-                 * below, last byte will be moved into DR and ACK/NACK will be sent.
-                 */
-                I2C_AcknowledgeConfig(i2cMap[i2c]->I2C_Peripheral, DISABLE);
-                break;
-
-            case 1:
-                /* Send STOP Condition */
-                if (stop == true)
-                        I2C_GenerateSTOP(i2cMap[i2c]->I2C_Peripheral, ENABLE);
-                break;
-
-            default:
-                break;
-        }
-
-        /* Read the byte out of the Data Register that was received from the Slave.
-         * This will enable the transfer of the next byte (if any) from the Shift Register to
-         * the Data Register and also will send ACK/NACK for that byte
-         */
-        *pBuffer = I2C_ReceiveData(i2cMap[i2c]->I2C_Peripheral);
-
-        bytesRead++;
-
-        /* Point to the next location where the byte read will be saved */
-        pBuffer++;
-
-        /* Decrement the read bytes counter */
-        numByteToRead--;
-
         /* Wait to make sure that STOP control bit has been cleared */
-        _micros = HAL_Timer_Get_Micro_Seconds();
-        while(i2cMap[i2c]->I2C_Peripheral->CR1 & I2C_CR1_STOP)
+        if (!WAIT_TIMED(i2cMap[i2c]->I2C_Peripheral->CR1 & I2C_CR1_STOP))
         {
-            if(EVENT_TIMEOUT < (HAL_Timer_Get_Micro_Seconds() - _micros))
-            {
-                /* SW Reset the I2C Peripheral */
-                HAL_I2C_SoftwareReset(i2c);
+            /* SW Reset the I2C Peripheral */
+            HAL_I2C_SoftwareReset(i2c);
 
-                return 0;
-            }
+            return 0;
+        }
+        i2cMap[i2c]->prevEnding = I2C_ENDING_STOP;
+    }
+    else
+    {
+        i2cMap[i2c]->prevEnding = I2C_ENDING_START;
+
+        if (!WAIT_TIMED(!I2C_CheckEvent(i2cMap[i2c]->I2C_Peripheral, I2C_EVENT_MASTER_MODE_SELECT)))
+        {
+            /* SW Reset the I2C Peripheral */
+            HAL_I2C_SoftwareReset(i2c);
+
+            return 0;
         }
     }
 
@@ -455,28 +573,21 @@ void HAL_I2C_Begin_Transmission(HAL_I2C_Interface i2c, uint8_t address, void* re
 
 uint8_t HAL_I2C_End_Transmission(HAL_I2C_Interface i2c, uint8_t stop, void* reserved)
 {
-    uint32_t _micros;
-
-    _micros = HAL_Timer_Get_Micro_Seconds();
-    /* While the I2C Bus is busy */
-    while(I2C_GetFlagStatus(i2cMap[i2c]->I2C_Peripheral, I2C_FLAG_BUSY))
+    if (i2cMap[i2c]->prevEnding != I2C_ENDING_START)
     {
-        if(EVENT_TIMEOUT < (HAL_Timer_Get_Micro_Seconds() - _micros))
+        /* While the I2C Bus is busy */
+        if (!WAIT_TIMED(I2C_GetFlagStatus(i2cMap[i2c]->I2C_Peripheral, I2C_FLAG_BUSY)))
         {
             /* SW Reset the I2C Peripheral */
             HAL_I2C_SoftwareReset(i2c);
 
             return 1;
         }
-    }
 
-    /* Send START condition */
-    I2C_GenerateSTART(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+        /* Send START condition */
+        I2C_GenerateSTART(i2cMap[i2c]->I2C_Peripheral, ENABLE);
 
-    _micros = HAL_Timer_Get_Micro_Seconds();
-    while(!I2C_CheckEvent(i2cMap[i2c]->I2C_Peripheral, I2C_EVENT_MASTER_MODE_SELECT))
-    {
-        if(EVENT_TIMEOUT < (HAL_Timer_Get_Micro_Seconds() - _micros))
+        if (!WAIT_TIMED(!I2C_CheckEvent(i2cMap[i2c]->I2C_Peripheral, I2C_EVENT_MASTER_MODE_SELECT)))
         {
             /* SW Reset the I2C Peripheral */
             HAL_I2C_SoftwareReset(i2c);
@@ -491,70 +602,56 @@ uint8_t HAL_I2C_End_Transmission(HAL_I2C_Interface i2c, uint8_t stop, void* rese
     /* Send Slave address for write */
     I2C_Send7bitAddress(i2cMap[i2c]->I2C_Peripheral, i2cMap[i2c]->txAddress, I2C_Direction_Transmitter);
 
-    _micros = HAL_Timer_Get_Micro_Seconds();
-    while(!I2C_CheckEvent(i2cMap[i2c]->I2C_Peripheral, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))
+    if((!WAIT_TIMED(!I2C_GetFlagStatus(i2cMap[i2c]->I2C_Peripheral, I2C_FLAG_ADDR) && !i2cMap[i2c]->ackFailure)) ||
+        i2cMap[i2c]->ackFailure)
     {
-        /* STOP/RESET immediately if ACK failure detected */
-        if(EVENT_TIMEOUT < (HAL_Timer_Get_Micro_Seconds() - _micros) || i2cMap[i2c]->ackFailure)
+        /* Send STOP Condition */
+        I2C_GenerateSTOP(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+
+        /* Wait to make sure that STOP control bit has been cleared */
+        if (!WAIT_TIMED(i2cMap[i2c]->I2C_Peripheral->CR1 & I2C_CR1_STOP))
         {
-            /* Send STOP Condition */
-            I2C_GenerateSTOP(i2cMap[i2c]->I2C_Peripheral, ENABLE);
-
-            /* Wait to make sure that STOP control bit has been cleared */
-            _micros = HAL_Timer_Get_Micro_Seconds();
-            while(i2cMap[i2c]->I2C_Peripheral->CR1 & I2C_CR1_STOP)
-            {
-                if(EVENT_TIMEOUT < (HAL_Timer_Get_Micro_Seconds() - _micros))
-                {
-                    break;
-                }
-            }
-
             /* SW Reset the I2C Peripheral */
             HAL_I2C_SoftwareReset(i2c);
-
-            /* Ensure ackFailure flag is cleared */
-            i2cMap[i2c]->ackFailure = false;
-
-            return 3;
         }
+
+        /* Ensure ackFailure flag is cleared */
+        i2cMap[i2c]->ackFailure = false;
+
+        return 3;
+    }
+
+    if (!WAIT_TIMED(!I2C_CheckEvent(i2cMap[i2c]->I2C_Peripheral, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED_NO_ADDR)))
+    {
+        /* SW Reset the I2C Peripheral */
+        HAL_I2C_SoftwareReset(i2c);
+
+        return 31;
     }
 
     uint8_t *pBuffer = i2cMap[i2c]->txBuffer;
     uint8_t NumByteToWrite = i2cMap[i2c]->txBufferLength;
 
+    if (NumByteToWrite)
+    {
+        // Send first byte
+        I2C_SendData(i2cMap[i2c]->I2C_Peripheral, *pBuffer);
+        pBuffer++;
+        NumByteToWrite--;
+    }
+
     /* While there is data to be written */
     while(NumByteToWrite--)
     {
-        /* Send the current byte to slave */
-        I2C_SendData(i2cMap[i2c]->I2C_Peripheral, *pBuffer);
-
-        /* Point to the next byte to be written */
-        pBuffer++;
-
-        _micros = HAL_Timer_Get_Micro_Seconds();
-        while(!I2C_CheckEvent(i2cMap[i2c]->I2C_Peripheral, I2C_EVENT_MASTER_BYTE_TRANSMITTING))
+        if (!WAIT_TIMED(I2C_GetFlagStatus(i2cMap[i2c]->I2C_Peripheral, I2C_FLAG_BTF) == RESET))
         {
-            if(EVENT_TIMEOUT < (HAL_Timer_Get_Micro_Seconds() - _micros))
-            {
-                /* SW Reset the I2C Peripheral */
-                HAL_I2C_SoftwareReset(i2c);
+            /* SW Reset the I2C Peripheral */
+            HAL_I2C_SoftwareReset(i2c);
 
-                return 4;
-            }
+            return 5;
         }
 
-        _micros = HAL_Timer_Get_Micro_Seconds();
-        while(I2C_GetFlagStatus(i2cMap[i2c]->I2C_Peripheral, I2C_FLAG_BTF) == RESET)
-        {
-            if(EVENT_TIMEOUT < (HAL_Timer_Get_Micro_Seconds() - _micros))
-            {
-                /* SW Reset the I2C Peripheral */
-                HAL_I2C_SoftwareReset(i2c);
-
-                return 5;
-            }
-        }
+        I2C_SendData(i2cMap[i2c]->I2C_Peripheral, *(pBuffer++));
     }
 
     /* Send STOP Condition */
@@ -562,6 +659,30 @@ uint8_t HAL_I2C_End_Transmission(HAL_I2C_Interface i2c, uint8_t stop, void* rese
     {
         /* Send STOP condition */
         I2C_GenerateSTOP(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+
+        if (!WAIT_TIMED(i2cMap[i2c]->I2C_Peripheral->CR1 & I2C_CR1_STOP))
+        {
+            /* SW Reset the I2C Peripheral */
+            HAL_I2C_SoftwareReset(i2c);
+
+            return 6;
+        }
+        i2cMap[i2c]->prevEnding = I2C_ENDING_STOP;
+    }
+    else
+    {
+        i2cMap[i2c]->prevEnding = I2C_ENDING_START;
+
+        /* Send START condition */
+        I2C_GenerateSTART(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+
+        if (!WAIT_TIMED(!I2C_CheckEvent(i2cMap[i2c]->I2C_Peripheral, I2C_EVENT_MASTER_MODE_SELECT)))
+        {
+            /* SW Reset the I2C Peripheral */
+            HAL_I2C_SoftwareReset(i2c);
+
+            return 7;
+        }
     }
 
     // reset tx buffer iterator vars
@@ -734,8 +855,41 @@ void I2C3_ER_irq(void)
 
 static void HAL_I2C_EV_InterruptHandler(HAL_I2C_Interface i2c)
 {
+    /* According to reference manual Figure 219 (http://www.st.com/web/en/resource/technical/document/reference_manual/CD00225773.pdf):
+     * 3. After checking the SR1 register content, the user should perform the complete clearing sequence for each
+     * flag found set.
+     * Thus, for ADDR and STOPF flags, the following sequence is required inside the I2C interrupt routine:
+     * READ SR1
+     * if (ADDR == 1) {READ SR1; READ SR2}
+     * if (STOPF == 1) {READ SR1; WRITE CR1}
+     * The purpose is to make sure that both ADDR and STOPF flags are cleared if both are found set
+     */
+    uint32_t sr1 = I2C_ReadRegister(i2cMap[i2c]->I2C_Peripheral, I2C_Register_SR1);
+    
+    /* EV4 */
+    if (sr1 & I2C_EVENT_SLAVE_STOP_DETECTED)
+    {
+        /* software sequence to clear STOPF */
+        I2C_GetFlagStatus(i2cMap[i2c]->I2C_Peripheral, I2C_FLAG_STOPF);
+        // Restore clock stretching settings
+        // This will also clear EV4
+        I2C_StretchClockCmd(i2cMap[i2c]->I2C_Peripheral, i2cMap[i2c]->clkStretchingEnabled ? ENABLE : DISABLE);
+        //I2C_Cmd(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+
+        i2cMap[i2c]->rxBufferLength = i2cMap[i2c]->rxBufferIndex;
+        i2cMap[i2c]->rxBufferIndex = 0;
+
+        if(NULL != i2cMap[i2c]->callback_onReceive)
+        {
+            // alert user program
+            i2cMap[i2c]->callback_onReceive(i2cMap[i2c]->rxBufferLength);
+        }
+    }
+
+    uint32_t st = I2C_GetLastEvent(i2cMap[i2c]->I2C_Peripheral);
+
     /* Process Last I2C Event */
-    switch (I2C_GetLastEvent(i2cMap[i2c]->I2C_Peripheral))
+    switch (st)
     {
     /********** Slave Transmitter Events ************/
 
@@ -752,6 +906,7 @@ static void HAL_I2C_EV_InterruptHandler(HAL_I2C_Interface i2c)
         }
 
         i2cMap[i2c]->txBufferIndex = 0;
+
         break;
 
     /* Check on EV3 */
@@ -760,6 +915,13 @@ static void HAL_I2C_EV_InterruptHandler(HAL_I2C_Interface i2c)
         if (i2cMap[i2c]->txBufferIndex < i2cMap[i2c]->txBufferLength)
         {
             I2C_SendData(i2cMap[i2c]->I2C_Peripheral, i2cMap[i2c]->txBuffer[i2cMap[i2c]->txBufferIndex++]);
+        }
+        else
+        {
+            // If no data is loaded into DR register and clock stretching is enabled,
+            // the device will continue pulling SCL low. To avoid that, disable clock stretching
+            // when the tx buffer is exhausted to release SCL.
+            I2C_StretchClockCmd(i2cMap[i2c]->I2C_Peripheral, DISABLE);
         }
         break;
 
@@ -774,23 +936,11 @@ static void HAL_I2C_EV_InterruptHandler(HAL_I2C_Interface i2c)
     /* Check on EV2*/
     case I2C_EVENT_SLAVE_BYTE_RECEIVED:
     case (I2C_EVENT_SLAVE_BYTE_RECEIVED | I2C_SR1_BTF):
-        i2cMap[i2c]->rxBuffer[i2cMap[i2c]->rxBufferIndex++] = I2C_ReceiveData(i2cMap[i2c]->I2C_Peripheral);
-        break;
-
-    /* Check on EV4 */
-    case I2C_EVENT_SLAVE_STOP_DETECTED:
-        /* software sequence to clear STOPF */
-        I2C_GetFlagStatus(i2cMap[i2c]->I2C_Peripheral, I2C_FLAG_STOPF);
-        I2C_Cmd(i2cMap[i2c]->I2C_Peripheral, ENABLE);
-
-        i2cMap[i2c]->rxBufferLength = i2cMap[i2c]->rxBufferIndex;
-        i2cMap[i2c]->rxBufferIndex = 0;
-
-        if(NULL != i2cMap[i2c]->callback_onReceive)
-        {
-            // alert user program
-            i2cMap[i2c]->callback_onReceive(i2cMap[i2c]->rxBufferLength);
-        }
+        // Prevent RX buffer overflow
+        if (i2cMap[i2c]->rxBufferIndex < BUFFER_LENGTH)
+            i2cMap[i2c]->rxBuffer[i2cMap[i2c]->rxBufferIndex++] = I2C_ReceiveData(i2cMap[i2c]->I2C_Peripheral);
+        else
+            (void)I2C_ReceiveData(i2cMap[i2c]->I2C_Peripheral);
         break;
 
     default:

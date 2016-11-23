@@ -141,12 +141,28 @@ bool spark_function(const char *funcKey, p_user_function_int_str_t pFunc, void* 
 bool spark_send_event(const char* name, const char* data, int ttl, uint32_t flags, void* reserved);
 bool spark_subscribe(const char *eventName, EventHandler handler, void* handler_data,
         Spark_Subscription_Scope_TypeDef scope, const char* deviceID, void* reserved);
+void spark_unsubscribe(void *reserved);
+bool spark_sync_time(void *reserved);
 
 
 void spark_process(void);
-void spark_connect(void);
-void spark_disconnect(void);    // should be set connected since it manages the connection state)
-bool spark_connected(void);
+bool spark_cloud_flag_connected(void);
+
+/**
+ * Sets the auto-connect state to true. The cloud will be connected by the system.
+ */
+void spark_cloud_flag_connect(void);
+
+/**
+ * Sets the auto-connect state to false. The cloud will be disconnected by the system.
+ */
+void spark_cloud_flag_disconnect(void);    // should be set connected since it manages the connection state)
+
+/**
+ * Determines if the system will attempt to connect or disconnect from the cloud.
+ */
+bool spark_cloud_flag_auto_connect(void);
+
 ProtocolFacade* system_cloud_protocol_instance(void);
 
 

@@ -22,7 +22,7 @@
 
 #if Wiring_WiFi == 1
 
-test(wifi_resolve_3_levels)
+test(WIFI_01_resolve_3_levels)
 {
     IPAddress address = WiFi.resolve("pool.ntp.org");
     assertNotEqual(address[0], 0);
@@ -34,7 +34,7 @@ test(wifi_resolve_3_levels)
     assertTrue(compare==address);
 }
 
-test(wifi_resolve_4_levels)
+test(WIFI_02_resolve_4_levels)
 {
     IPAddress address = WiFi.resolve("north-america.pool.ntp.org");
     assertNotEqual(address[0], 0);
@@ -61,7 +61,7 @@ void checkEtherAddress(const uint8_t* address)
 	assertNotEqual(sum, 0);
 }
 
-test(wifi_config)
+test(WIFI_03_config)
 {
 	checkIPAddress("local", WiFi.localIP());
 
@@ -88,6 +88,13 @@ test(wifi_config)
 	assertTrue(WiFi.BSSID(ether2)==ether2);
 	checkEtherAddress(ether);
 	assertTrue(!memcmp(ether, ether2, 6))
+}
+
+test(WIFI_04_scan)
+{
+	WiFiAccessPoint aps[20];
+	int apsFound = WiFi.scan(aps, 20);
+	assertMoreOrEqual(apsFound, 1);
 }
 
 #endif
