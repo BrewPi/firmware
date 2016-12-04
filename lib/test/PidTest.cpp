@@ -57,7 +57,7 @@ public:
     }
 
     TempSensorMock * sensor;
-    ActuatorDigital * vAct;
+    ActuatorDigitalInterface * vAct;
     ActuatorPwm * act;
     Pid * pid;
     SetPointSimple * sp;
@@ -239,8 +239,8 @@ BOOST_FIXTURE_TEST_CASE(integrator_windup_cooling_PI, PidTest)
 BOOST_AUTO_TEST_CASE(inputError_is_invalid_and_actuator_zero_when_input_is_invalid_longer_than_10_s){
     SetPoint * sp = new SetPointSimple(25.0); // setpoint is higher than temperature, actuator will heat
     TempSensorMock * sensor = new TempSensorMock(20.0);
-    ActuatorDigital * pin = new ActuatorBool();
-    ActuatorRange * act = new ActuatorPwm(pin,4);
+    ActuatorDigitalInterface * pin = new ActuatorBool();
+    ActuatorRangeInterface * act = new ActuatorPwm(pin,4);
     Pid * p = new Pid();
 
     p->setSetPoint(sp);
@@ -415,8 +415,8 @@ BOOST_AUTO_TEST_CASE(pid_can_update_with_only_actuator_defined){
 }
 
 BOOST_AUTO_TEST_CASE(pid_can_update_with_only_sensor_defined){
-    ActuatorDigital * pin = new ActuatorBool();
-    ActuatorRange * act = new ActuatorPwm(pin,4);
+    ActuatorDigitalInterface * pin = new ActuatorBool();
+    ActuatorRangeInterface * act = new ActuatorPwm(pin,4);
     Pid * p = new Pid();
     p->setOutputActuator(act);
     p->update();

@@ -19,7 +19,7 @@
 
 #pragma once
 
-class ActuatorDigital;
+class ActuatorDigitalInterface;
 class ActuatorForwarder;
 
 
@@ -36,7 +36,7 @@ public:
     }
     // install pin or mock actuator at the lowest level, returns true if Actuator a was installed
     // Forwarding actuators override this function
-    virtual bool replaceNonForwarder(ActuatorDigital * a){
+    virtual bool replaceNonForwarder(ActuatorDigitalInterface * a){
         return false;
     }
     // uninstall pin or mock actuator at the lowest level, return success (true = an actuator was uninstalled)
@@ -60,7 +60,7 @@ public:
 
     ActuatorInstallHelper * getNonForwarder() override final;
 
-    bool replaceNonForwarder(ActuatorDigital * a) override final;
+    bool replaceNonForwarder(ActuatorDigitalInterface * a) override final;
 
     bool removeNonForwarder() override final;
 };

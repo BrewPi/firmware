@@ -22,13 +22,13 @@
 #include "ActuatorInterfaces.h"
 #include <vector>
 
-ActuatorPriority * ActuatorMutexGroup::registerActuator(ActuatorDigital * act, int8_t prio){
+ActuatorPriority * ActuatorMutexGroup::registerActuator(ActuatorDigitalInterface * act, int8_t prio){
     ActuatorPriority ap = {act, prio};
     actuatorPriorities.push_back(ap);
     return &actuatorPriorities.back();
 }
 
-size_t ActuatorMutexGroup::find(ActuatorDigital * act){
+size_t ActuatorMutexGroup::find(ActuatorDigitalInterface * act){
     for (unsigned i=0; i<actuatorPriorities.size(); ++i){
         if(actuatorPriorities[i].actuator == act){
             return i;
@@ -41,14 +41,14 @@ void ActuatorMutexGroup::unRegisterActuator(size_t index){
     actuatorPriorities.erase(actuatorPriorities.begin() + index);
 }
 
-void ActuatorMutexGroup::unRegisterActuator(ActuatorDigital * act){
+void ActuatorMutexGroup::unRegisterActuator(ActuatorDigitalInterface * act){
     size_t index = find(act);
     if(index != size_t(-1)){
         unRegisterActuator(index);
     }
 }
 
-bool ActuatorMutexGroup::request(ActuatorDigital * requester, bool active, int8_t newPriority){
+bool ActuatorMutexGroup::request(ActuatorDigitalInterface * requester, bool active, int8_t newPriority){
     // loop over all actuators to see if my request has highest priority
     // and if no other actuators are active
 
@@ -94,7 +94,7 @@ bool ActuatorMutexGroup::request(ActuatorDigital * requester, bool active, int8_
     return requestHonored;
 }
 
-void ActuatorMutexGroup::cancelRequest(ActuatorDigital * requester){
+void ActuatorMutexGroup::cancelRequest(ActuatorDigitalInterface * requester){
     request(requester, false, -1);
 }
 

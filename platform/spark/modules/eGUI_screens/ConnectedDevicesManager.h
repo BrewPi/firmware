@@ -69,7 +69,7 @@ struct ConnectedDevice
     union Device {
         void* any;
         TempSensorBasic* tempSensor;    // dt==DEVICETYPE_TEMP_SENSOR
-        Actuator* actuator;             // dt==DEVICETYPE_ACTUATOR
+        ActuatorInterface* actuator;             // dt==DEVICETYPE_ACTUATOR
         SwitchSensor* sensor;           // dt==DEVICETYPE_SWITCH_SENSOR
     } pointer;
 };
@@ -94,7 +94,7 @@ class ConnectedDevicesManager
     ConnectedDevice devices[MAX_CONNECTED_DEVICES];
     NotifyDevicesChanged changed;
 
-    ActuatorDigital* actuators[MAX_ACTUATOR_COUNT];
+    ActuatorDigitalInterface* actuators[MAX_ACTUATOR_COUNT];
 
     /**
      * Find a slot that matches the given device config.
@@ -189,7 +189,7 @@ public:
 
     void update();
 
-    ActuatorDigital* actuator(size_t index) {
+    ActuatorDigitalInterface* actuator(size_t index) {
         return actuators[index];
     }
 

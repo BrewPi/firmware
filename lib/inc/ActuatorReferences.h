@@ -28,13 +28,13 @@
  * An ActuatorDigitalReference holds a pointer to a digital actuator
  * when the actuator is not set (null) it points to the default actuator
  */
-class ActuatorDigitalReference : public virtual ActuatorDigital
+class ActuatorDigitalReference : public virtual ActuatorDigitalInterface
 {
 public:
     ActuatorDigitalReference() : target(nullptr) {};
     ~ActuatorDigitalReference() = default;
 
-    uint8_t type() const override {
+    uint8_t interfaceType() const override {
         return ACTUATOR_TOGGLE;
     };
 
@@ -46,7 +46,7 @@ public:
         return ref()->isActive();
     }
 
-    void setTarget(ActuatorDigital * act){
+    void setTarget(ActuatorDigitalInterface * act){
         target = act;
     }
 
@@ -55,14 +55,14 @@ public:
     }
 
 private:
-    ActuatorDigital * ref() const {
+    ActuatorDigitalInterface * ref() const {
         if (target == nullptr){
            return defaultActuator();
         }
         return target;
     }
 
-    ActuatorDigital * target;
+    ActuatorDigitalInterface * target;
 };
 
 
@@ -70,13 +70,13 @@ private:
  * An ActuatorRangeReference holds a pointer to a range (linear) actuator
  * when the actuator is not set (null) it points to the default linear actuator
  */
-class ActuatorRangeReference : public virtual ActuatorRange
+class ActuatorRangeReference : public virtual ActuatorRangeInterface
 {
 public:
     ActuatorRangeReference() : target(nullptr) {};
     ~ActuatorRangeReference() = default;
 
-    uint8_t type() const override {
+    uint8_t interfaceType() const override {
         return ACTUATOR_RANGE;
     };
 
@@ -96,7 +96,7 @@ public:
         return ref()->max();
     }
 
-    void setTarget(ActuatorRange * act){
+    void setTarget(ActuatorRangeInterface * act){
         target = act;
     }
 
@@ -105,13 +105,13 @@ public:
     }
 
 private:
-    ActuatorRange * ref() const {
+    ActuatorRangeInterface * ref() const {
         if (target == nullptr){
            return defaultLinearActuator();
         }
         return target;
     }
 
-    ActuatorRange * target;
+    ActuatorRangeInterface * target;
 };
 

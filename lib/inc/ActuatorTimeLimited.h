@@ -29,10 +29,10 @@
 #include "Ticks.h"
 #include "ControllerMixins.h"
 
-class ActuatorTimeLimited final : public ActuatorForwarder, public ActuatorDigital, public ActuatorTimeLimitedMixin
+class ActuatorTimeLimited final : public ActuatorForwarder, public ActuatorDigitalInterface, public ActuatorTimeLimitedMixin
 {
 public:
-    ActuatorTimeLimited(ActuatorDigital * _target,
+    ActuatorTimeLimited(ActuatorDigitalInterface * _target,
             ticks_seconds_t   _minOnTime = 120,
             ticks_seconds_t   _minOffTime = 180,
             ticks_seconds_t   _maxOnTime = UINT16_MAX) : ActuatorForwarder(_target)

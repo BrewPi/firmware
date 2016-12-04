@@ -158,7 +158,7 @@ void DeviceManager::disposeDevice(DeviceType dt,
 
         case DEVICETYPE_SWITCH_ACTUATOR :
         case DEVICETYPE_PWM_ACTUATOR :
-            delete (Actuator *) device;
+            delete (ActuatorInterface *) device;
             break;
         case DEVICETYPE_MANUAL_ACTUATOR :
             break; // no action needed as no device has been created
@@ -264,7 +264,7 @@ void DeviceManager::uninstallDevice(DeviceConfig & config)
         case DEVICETYPE_SWITCH_ACTUATOR :
         case DEVICETYPE_PWM_ACTUATOR :
         {
-            Actuator ** target = (Actuator **) ppv;
+            ActuatorInterface ** target = (ActuatorInterface **) ppv;
             /*if ((*target)->getDeviviceTarget() != 0){
                 target = (*target)->getDeviviceTarget(); // recursive call to unpack until at pin actuator
             }*/
@@ -333,12 +333,12 @@ void DeviceManager::installDevice(DeviceConfig & config)
         case DEVICETYPE_PWM_ACTUATOR :
         {
             DEBUG_ONLY(logInfoInt(INFO_INSTALL_DEVICE, config.deviceFunction));
-            Actuator ** target = (Actuator **) ppv;
+            ActuatorInterface ** target = (ActuatorInterface **) ppv;
             /*if ((*target)->getDeviviceTarget() != 0){
                 target = (*target)->getDeviviceTarget(); // recursive call to unpack until at pin/value actuator
             }*/
 
-            ActuatorDigital * newActuator = (ActuatorDigital *) createDevice(config, dt);
+            ActuatorDigitalInterface * newActuator = (ActuatorDigitalInterface *) createDevice(config, dt);
             (*target)->replaceNonForwarder(newActuator);
 
 #if (BREWPI_DEBUG > 0)
@@ -1170,7 +1170,7 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
         }
         if (dt == DEVICETYPE_SWITCH_ACTUATOR){
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write != 0));
-            ((ActuatorDigital *) *ppv) -> setActive(dd.write != 0);
+            ((ActuatorDigitalInterface *) *ppv) -> setActive(dd.write != 0);
         } else if (dt == DEVICETYPE_PWM_ACTUATOR){
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write));
             temp_t value = temp_t::base_type(dd.write);
@@ -1187,7 +1187,7 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
             temp_t temp = s->read();
             temp.toTempString(val, 3, 9, tempControl.cc.tempFormat, true);
         } else if (dt == DEVICETYPE_SWITCH_ACTUATOR){
-            sprintf_P(val, STR_FMT_U, (unsigned int) ((ActuatorDigital *) *ppv) -> isActive() != 0);
+            sprintf_P(val, STR_FMT_U, (unsigned int) ((ActuatorDigitalInterface *) *ppv) -> isActive() != 0);
         } else if (dt == DEVICETYPE_PWM_ACTUATOR){
             ((ActuatorPwm *) *ppv) -> getValue().toString(val,1,6);
         } else if (dt == DEVICETYPE_MANUAL_ACTUATOR){

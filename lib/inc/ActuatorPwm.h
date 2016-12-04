@@ -37,7 +37,7 @@
 
 
  */
-class ActuatorPwm final : public ActuatorForwarder, public ActuatorRange, public ActuatorPwmMixin
+class ActuatorPwm final : public ActuatorForwarder, public ActuatorRangeInterface, public ActuatorPwmMixin
 {
 private:
     temp_t         value;
@@ -59,7 +59,7 @@ public:
      *  @param _period PWM period in seconds
      *  @sa getPeriod(), setPeriod(), getTarget(), setTarget()
      */
-    ActuatorPwm(ActuatorDigital * _target, uint16_t _period);
+    ActuatorPwm(ActuatorDigitalInterface * _target, uint16_t _period);
 
     ~ActuatorPwm() = default;
 

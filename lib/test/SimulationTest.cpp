@@ -101,12 +101,12 @@ public:
     TempSensorMock * beerSensor;
     TempSensorMock * fridgeSensor;
 
-    ActuatorDigital * coolerPin;
+    ActuatorDigitalInterface * coolerPin;
     ActuatorTimeLimited * coolerTimeLimited;
     ActuatorMutexDriver * coolerMutex;
     ActuatorPwm * cooler;
 
-    ActuatorDigital * heaterPin;
+    ActuatorDigitalInterface * heaterPin;
     ActuatorMutexDriver * heaterMutex;
     ActuatorPwm * heater;
 

@@ -25,7 +25,7 @@
 #include "Platform.h"
 #include "ActuatorInterfaces.h"
 
-class ActuatorPin final: public ActuatorDigital, public ActuatorPinMixin
+class ActuatorPin final: public ActuatorDigitalInterface, public ActuatorPinMixin
 {
     private:
         bool    invert;
@@ -33,7 +33,7 @@ class ActuatorPin final: public ActuatorDigital, public ActuatorPinMixin
 
     public:
         ActuatorPin(uint8_t pin,
-                           bool    invert);
+                    bool    invert);
 
         ~ActuatorPin() = default;
 

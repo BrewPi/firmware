@@ -30,16 +30,16 @@
 /* A driver actuator to wrap a digital Actuator and block SetActive calls if the mutex group does does not honor the request
  */
 
-class ActuatorMutexDriver final : public ActuatorForwarder, public ActuatorDigital, public ActuatorMutexDriverMixin{
+class ActuatorMutexDriver final : public ActuatorForwarder, public ActuatorDigitalInterface, public ActuatorMutexDriverMixin{
 public:
-    ActuatorMutexDriver(ActuatorDigital * target) : ActuatorForwarder(target), mutexGroup(nullptr){}
-    ActuatorMutexDriver(ActuatorDigital * target, ActuatorMutexGroup * m) : ActuatorForwarder(target), mutexGroup(m){}
+    ActuatorMutexDriver(ActuatorDigitalInterface * target) : ActuatorForwarder(target), mutexGroup(nullptr){}
+    ActuatorMutexDriver(ActuatorDigitalInterface * target, ActuatorMutexGroup * m) : ActuatorForwarder(target), mutexGroup(m){}
 
     ~ActuatorMutexDriver(){
         setMutex(nullptr);
     }
 
-    uint8_t type() const override final { return ACTUATOR_TOGGLE_MUTEX; };
+    uint8_t interfaceType() const override final { return ACTUATOR_TOGGLE_MUTEX; };
 
     void update() override final {
         target->update();

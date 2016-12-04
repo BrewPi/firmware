@@ -33,7 +33,7 @@ class Pid final : public PidMixin
 {
 
     public:
-        Pid(TempSensorBasic * input, ActuatorRange * output, SetPoint * setPoint);
+        Pid(TempSensorBasic * input, ActuatorRangeInterface * output, SetPoint * setPoint);
 
         Pid() : Pid(defaultTempSensorBasic(), defaultLinearActuator(), defaultSetPoint()){}
 
@@ -63,9 +63,9 @@ class Pid final : public PidMixin
             return inputSensor;
         }
 
-        bool setOutputActuator(ActuatorRange * a);
+        bool setOutputActuator(ActuatorRangeInterface * a);
 
-        ActuatorRange * getOutputActuator(){
+        ActuatorRangeInterface * getOutputActuator(){
             return outputActuator;
         }
 
@@ -109,7 +109,7 @@ class Pid final : public PidMixin
         */
 
     protected:
-        ActuatorRange *   outputActuator;
+        ActuatorRangeInterface *   outputActuator;
         TempSensorBasic * inputSensor;
         SetPoint *        setPoint;
         temp_long_t       Kp;    // proportional gain

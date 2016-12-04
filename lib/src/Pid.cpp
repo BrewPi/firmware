@@ -22,7 +22,7 @@
 #include "Pid.h"
 
 Pid::Pid(TempSensorBasic * input,
-         ActuatorRange * output,
+         ActuatorRangeInterface * output,
          SetPoint * setPoint)
 {
     setConstants(temp_t(0.0), 0, 0);
@@ -243,7 +243,7 @@ bool Pid::setInputSensor(TempSensorBasic * s)
     return true;
 }
 
-bool Pid::setOutputActuator(ActuatorRange * a)
+bool Pid::setOutputActuator(ActuatorRangeInterface * a)
 {
     outputActuator = a;
 

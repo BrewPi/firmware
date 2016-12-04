@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include "ControllerMixins.h"
 
-class ActuatorDigital;
+class ActuatorDigitalInterface;
 
 /*
  * A forwarding actuator drives another digital actuator, for example a PWM actuator can drive a pin actuator
@@ -31,19 +31,19 @@ class ActuatorDigital;
 class ActuatorForwarder : public ActuatorForwarderMixin
 {
 protected:
-    ActuatorDigital * target;
+    ActuatorDigitalInterface * target;
 
 public:
-    ActuatorForwarder(ActuatorDigital * _target) : target(_target){}
+    ActuatorForwarder(ActuatorDigitalInterface * _target) : target(_target){}
 protected:
     ~ActuatorForwarder() = default; // should not be destructed through this base class
 
 public:
-    ActuatorDigital * getTarget(){
+    ActuatorDigitalInterface * getTarget(){
         return target;
     }
 
-    void setTarget(ActuatorDigital * target_){
+    void setTarget(ActuatorDigitalInterface * target_){
         target = target_;
     }
 };

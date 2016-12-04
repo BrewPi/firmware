@@ -22,7 +22,7 @@
 #include "ActuatorInterfaces.h"
 #include "ControllerMixins.h"
 
-class ValveController final : public ActuatorDigital, public ValveControllerMixin {
+class ValveController final : public ActuatorDigitalInterface, public ValveControllerMixin {
 public:
     ValveController(OneWire *     bus,
                     DeviceAddress address,

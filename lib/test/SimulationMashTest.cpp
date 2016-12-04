@@ -98,9 +98,9 @@ public:
     TempSensorMock * mashSensor;
     TempSensorMock * hltSensor;
 
-    ActuatorDigital * hltHeaterPin;
+    ActuatorDigitalInterface * hltHeaterPin;
     ActuatorMutexDriver * hltHeaterMutex;
-    ActuatorRange * hltHeater;
+    ActuatorRangeInterface * hltHeater;
 
     ActuatorSetPoint * hltSetPointActuator;
 

@@ -32,6 +32,7 @@
 #include "ActuatorMutexGroup.h"
 #include "json_writer.h"
 #include "ActuatorSetPoint.h"
+#include "ActuatorReferences.h"
 
 class Control
 {
@@ -53,7 +54,7 @@ public:
     std::vector<SetPoint*> setpoints;
     std::vector<TempSensorBasic*> sensors;
     std::vector<Pid*>        pids;
-    std::vector<Actuator*>   actuators;
+    std::vector<ActuatorInterface*>   actuators;
 
     // static setup below, we should support generating this dynamically later
 protected:

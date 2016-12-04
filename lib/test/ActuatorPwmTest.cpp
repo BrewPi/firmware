@@ -36,7 +36,7 @@
 
 #define PRINT_TOGGLE_TIMES 0
 
-double randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t duty, int delayMax) {
+double randomIntervalTest(ActuatorPwm* act, ActuatorDigitalInterface * target, temp_t duty, int delayMax) {
     act->setValue(duty);
     ticks_millis_t lowToHighTime = ticks.millis();
     ticks_millis_t highToLowTime = ticks.millis();
@@ -90,7 +90,7 @@ double randomIntervalTest(ActuatorPwm* act, ActuatorDigital * target, temp_t dut
 BOOST_AUTO_TEST_SUITE(ActuatorPWM)
 
 BOOST_AUTO_TEST_CASE( Test_ActuatorPWM_with_ValueActuator_as_driver) {
-    ActuatorDigital * target = new ActuatorBool();
+    ActuatorDigitalInterface * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,4);
 
     BOOST_CHECK(act->getValue() == temp_t(0.0)); // PWM value is initialized to 0
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( Test_ActuatorPWM_with_ValueActuator_as_driver) {
 
 BOOST_AUTO_TEST_CASE(on_off_time_matches_duty_cycle_when_updating_every_ms) {
     srand(time(NULL));
-    ActuatorDigital * target = new ActuatorBool();
+    ActuatorDigitalInterface * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,4);
 
     temp_t duty = 50.0;
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(on_off_time_matches_duty_cycle_when_updating_every_ms) {
 
 BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_random_update_intervals) {
     srand(time(NULL));
-    ActuatorDigital * target = new ActuatorBool();
+    ActuatorDigitalInterface * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,4);
     BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 50.0, 500), 50.0, 2); // between 49 and 51
     BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 3.0, 500), 3.0, 16.7); // between 2.5 and 3.5
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_random_update_intervals)
 
 BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_long_period) {
     srand(time(NULL));
-    ActuatorDigital * target = new ActuatorBool();
+    ActuatorDigitalInterface * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,3600);
     BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 50.0, 500), 50.0, 1);
     BOOST_CHECK_CLOSE(randomIntervalTest(act, target, 3.0, 500), 3.0, 16.7);
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(average_duty_cycle_is_correct_with_long_period) {
 
 
 BOOST_AUTO_TEST_CASE(output_stays_low_with_value_0) {
-    ActuatorDigital * target = new ActuatorBool();
+    ActuatorDigitalInterface * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,4);
 
     act->setValue(0.0);
@@ -186,8 +186,8 @@ BOOST_AUTO_TEST_CASE(output_stays_low_with_value_0) {
 }
 
 BOOST_AUTO_TEST_CASE(on_big_positive_changes_shortened_cycle_has_correct_value) {
-    ActuatorDigital * vAct = new ActuatorBool();
-    ActuatorDigital * limited = new ActuatorTimeLimited(vAct, 0, 0);
+    ActuatorDigitalInterface * vAct = new ActuatorBool();
+    ActuatorDigitalInterface * limited = new ActuatorTimeLimited(vAct, 0, 0);
     ActuatorPwm * act = new ActuatorPwm(limited, 100); // period is 100 seconds
 
     act->setValue(short(30));
@@ -229,8 +229,8 @@ BOOST_AUTO_TEST_CASE(on_big_positive_changes_shortened_cycle_has_correct_value) 
 
 
 BOOST_AUTO_TEST_CASE(on_big_negative_changes_go_low_immediately) {
-    ActuatorDigital * vAct = new ActuatorBool();
-    ActuatorDigital * limited = new ActuatorTimeLimited(vAct, 0, 0);
+    ActuatorDigitalInterface * vAct = new ActuatorBool();
+    ActuatorDigitalInterface * limited = new ActuatorTimeLimited(vAct, 0, 0);
     ActuatorPwm * act = new ActuatorPwm(limited, 100); // period is 100 seconds
 
     ticks_millis_t lastLowTimeBeforeChange = ticks.millis();
@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE(on_big_negative_changes_go_low_immediately) {
 
 
 BOOST_AUTO_TEST_CASE(output_stays_high_with_value_100) {
-    ActuatorDigital * target = new ActuatorBool();
+    ActuatorDigitalInterface * target = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(target,4);
 
     act->setValue(100.0);
@@ -293,8 +293,8 @@ BOOST_AUTO_TEST_CASE(ActuatorPWM_with_min_max_time_limited_OnOffActuator_as_driv
     // test with minimum ON of 2 seconds, minimum off of 5 seconds and period 10 seconds
 
     srand(time(NULL));
-    ActuatorDigital * vAct = new ActuatorBool();
-    ActuatorDigital * onOffAct = new ActuatorTimeLimited(vAct, 2, 5);
+    ActuatorDigitalInterface * vAct = new ActuatorBool();
+    ActuatorDigitalInterface * onOffAct = new ActuatorTimeLimited(vAct, 2, 5);
     ActuatorPwm * act = new ActuatorPwm(onOffAct, 10);
 
     // Test that average duty cycle is correct, even with minimum times enforced in the actuator
@@ -307,8 +307,8 @@ BOOST_AUTO_TEST_CASE(ActuatorPWM_with_min_max_time_limited_OnOffActuator_as_driv
 
 BOOST_AUTO_TEST_CASE(when_switching_between_zero_and_low_value_average_is_correct){
     // test with minimum ON of 2 seconds, minimum off of 5 seconds and period 5 seconds
-    ActuatorDigital * vAct = new ActuatorBool();
-    ActuatorDigital * onOffAct = new ActuatorTimeLimited(vAct, 20, 50);
+    ActuatorDigitalInterface * vAct = new ActuatorBool();
+    ActuatorDigitalInterface * onOffAct = new ActuatorTimeLimited(vAct, 20, 50);
     ActuatorPwm * act = new ActuatorPwm(onOffAct, 100);
 
     ticks_seconds_t timeHigh = 0;
@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE(when_switching_between_zero_and_low_value_average_is_correc
 
 
 BOOST_AUTO_TEST_CASE(ramping_PWM_up_faster_than_period_gives_correct_average){
-    ActuatorDigital * vAct = new ActuatorBool();
+    ActuatorDigitalInterface * vAct = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(vAct, 20);
     ticks_seconds_t timeHigh = 0;
     ticks_seconds_t timeLow = 0;
@@ -374,7 +374,7 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_up_faster_than_period_gives_correct_average){
 
 
 BOOST_AUTO_TEST_CASE(ramping_PWM_down_faster_than_period_gives_correct_average){
-    ActuatorDigital * vAct = new ActuatorBool();
+    ActuatorDigitalInterface * vAct = new ActuatorBool();
     ActuatorPwm * act = new ActuatorPwm(vAct, 20);
     ticks_seconds_t timeHigh = 0;
     ticks_seconds_t timeLow = 0;
@@ -400,11 +400,11 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_down_faster_than_period_gives_correct_average){
 }
 
 BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap_with_equal_duty){
-    ActuatorDigital * boolAct1 = new ActuatorBool();
+    ActuatorDigitalInterface * boolAct1 = new ActuatorBool();
     ActuatorMutexDriver * mutexAct1 = new ActuatorMutexDriver(boolAct1);
     ActuatorPwm * act1 = new ActuatorPwm(mutexAct1, 10);
 
-    ActuatorDigital * boolAct2 = new ActuatorBool();
+    ActuatorDigitalInterface * boolAct2 = new ActuatorBool();
     ActuatorMutexDriver * mutexAct2 = new ActuatorMutexDriver(boolAct2);
     ActuatorPwm * act2 = new ActuatorPwm(mutexAct2, 10);
 
@@ -459,11 +459,11 @@ BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap_with_equal_duty){
 }
 
 BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap_with_different_duty){
-    ActuatorDigital * boolAct1 = new ActuatorBool();
+    ActuatorDigitalInterface * boolAct1 = new ActuatorBool();
     ActuatorMutexDriver * mutexAct1 = new ActuatorMutexDriver(boolAct1);
     ActuatorPwm * act1 = new ActuatorPwm(mutexAct1, 10);
 
-    ActuatorDigital * boolAct2 = new ActuatorBool();
+    ActuatorDigitalInterface * boolAct2 = new ActuatorBool();
     ActuatorMutexDriver * mutexAct2 = new ActuatorMutexDriver(boolAct2);
     ActuatorPwm * act2 = new ActuatorPwm(mutexAct2, 10);
 
@@ -518,11 +518,11 @@ BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap_with_different_duty){
 }
 
 BOOST_AUTO_TEST_CASE(mutex_actuator_which_cannot_go_active_cannot_block_other_actuator){
-    ActuatorDigital * boolAct1 = new ActuatorBool();
+    ActuatorDigitalInterface * boolAct1 = new ActuatorBool();
     ActuatorMutexDriver * mutexAct1 = new ActuatorMutexDriver(boolAct1);
     ActuatorPwm * act1 = new ActuatorPwm(mutexAct1, 10);
 
-    ActuatorDigital * boolAct2 = new ActuatorNop(); // actuator which can never go active
+    ActuatorDigitalInterface * boolAct2 = new ActuatorNop(); // actuator which can never go active
     ActuatorMutexDriver * mutexAct2 = new ActuatorMutexDriver(boolAct2);
     ActuatorPwm * act2 = new ActuatorPwm(mutexAct2, 10);
 
@@ -577,7 +577,7 @@ BOOST_AUTO_TEST_CASE(mutex_actuator_which_cannot_go_active_cannot_block_other_ac
 }
 
 BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct){
-    ActuatorDigital * boolAct = new ActuatorBool();
+    ActuatorDigitalInterface * boolAct = new ActuatorBool();
     ActuatorPwm * pwmAct = new ActuatorPwm(boolAct, 20);
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
@@ -610,8 +610,8 @@ BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct){
 
 
 BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct_with_time_limited_actuator){
-    ActuatorDigital * boolAct = new ActuatorBool();
-    ActuatorDigital * timeLimitedAct = new ActuatorTimeLimited(boolAct, 2, 5);
+    ActuatorDigitalInterface * boolAct = new ActuatorBool();
+    ActuatorDigitalInterface * timeLimitedAct = new ActuatorTimeLimited(boolAct, 2, 5);
     ActuatorPwm * pwmAct = new ActuatorPwm(timeLimitedAct, 20);
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
@@ -645,7 +645,7 @@ BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct_w
 
 
 BOOST_AUTO_TEST_CASE(slowly_changing_pwm_value_reads_back_as_correct_value){
-    ActuatorDigital * boolAct = new ActuatorBool();
+    ActuatorDigitalInterface * boolAct = new ActuatorBool();
     ActuatorPwm * pwmAct = new ActuatorPwm(boolAct, 20);
 
     pwmAct->setValue(0.0);
@@ -678,8 +678,8 @@ BOOST_AUTO_TEST_CASE(slowly_changing_pwm_value_reads_back_as_correct_value){
 
 
 BOOST_AUTO_TEST_CASE(fluctuating_pwm_value_gives_correct_average_with_time_limited_actuator){
-    ActuatorDigital * boolAct = new ActuatorBool();
-    ActuatorDigital * timeLimitedAct = new ActuatorTimeLimited(boolAct, 2, 5);
+    ActuatorDigitalInterface * boolAct = new ActuatorBool();
+    ActuatorDigitalInterface * timeLimitedAct = new ActuatorTimeLimited(boolAct, 2, 5);
     ActuatorPwm * pwmAct = new ActuatorPwm(timeLimitedAct, 20);
 
     pwmAct->setValue(5.0); // set to a value with duty cycle lower than time limit
@@ -730,11 +730,11 @@ BOOST_AUTO_TEST_CASE(decreasing_pwm_value_after_long_high_time_and_mutex_wait){
     mutex->setDeadTime(100000);
 
     // actuator that prevents other actuator from going high
-    ActuatorDigital * blocker = new ActuatorBool();
+    ActuatorDigitalInterface * blocker = new ActuatorBool();
     ActuatorMutexDriver * blockerMutex = new ActuatorMutexDriver(blocker, mutex);
 
 
-    ActuatorDigital * boolAct = new ActuatorBool();
+    ActuatorDigitalInterface * boolAct = new ActuatorBool();
     ActuatorMutexDriver * mutexAct = new ActuatorMutexDriver(boolAct, mutex);
     ActuatorPwm * pwmAct = new ActuatorPwm(mutexAct, 20);
 

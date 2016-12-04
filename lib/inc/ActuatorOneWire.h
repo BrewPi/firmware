@@ -32,7 +32,7 @@
  *
  */
 class ActuatorOneWire final:
-    public ActuatorDigital, public ActuatorOneWireMixin
+    public ActuatorDigitalInterface, public ActuatorOneWireMixin
 
 #if DS2413_SUPPORT_SENSE
             ,

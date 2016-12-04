@@ -71,14 +71,14 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators) {
 }
 
 BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
-    ActuatorDigital* coolerPin = new ActuatorBool();
-    ActuatorDigital* coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
+    ActuatorDigitalInterface* coolerPin = new ActuatorBool();
+    ActuatorDigitalInterface* coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
-    ActuatorDigital* coolerMutex = new ActuatorMutexDriver(coolerTimeLimited, mutex);
-    ActuatorRange* cooler = new ActuatorPwm(coolerMutex, 600); // period 10 min
+    ActuatorDigitalInterface* coolerMutex = new ActuatorMutexDriver(coolerTimeLimited, mutex);
+    ActuatorRangeInterface* cooler = new ActuatorPwm(coolerMutex, 600); // period 10 min
 
 
-    std::string json = JSON::producer<ActuatorRange>::convert(cooler);
+    std::string json = JSON::producer<ActuatorRangeInterface>::convert(cooler);
 
     // With some extra whitespace, the valid output looks like this:
     std::string valid = \
@@ -158,10 +158,10 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
     SetPoint * sp1 = new SetPointSimple();
     SetPoint * sp2 = new SetPointConstant(20.0);
     TempSensorBasic * sens1 = new TempSensorMock(20.0);
-    ActuatorRange * act = new ActuatorSetPoint(sp1, sens1, sp2, -10.0, 10.0);
+    ActuatorRangeInterface * act = new ActuatorSetPoint(sp1, sens1, sp2, -10.0, 10.0);
     act->setValue(5.0); // should set sp1 to sp2 + 5.0 = 25.0;
 
-    std::string json = JSON::producer<ActuatorRange>::convert(act);
+    std::string json = JSON::producer<ActuatorRangeInterface>::convert(act);
 
     // With some extra whitespace, the valid output looks like this:
     std::string valid = \
@@ -194,8 +194,8 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
 
 BOOST_AUTO_TEST_CASE(serialize_Pid) {
     TempSensorBasic * sensor = new TempSensorMock(20.0);
-    ActuatorDigital * boolAct = new ActuatorBool();
-    ActuatorRange * pwmAct = new ActuatorPwm(boolAct,4);
+    ActuatorDigitalInterface * boolAct = new ActuatorBool();
+    ActuatorRangeInterface * pwmAct = new ActuatorPwm(boolAct,4);
     SetPoint * sp = new SetPointSimple(20.0);
     Pid * pid = new Pid(sensor, pwmAct, sp);
 

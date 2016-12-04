@@ -35,12 +35,12 @@ BOOST_AUTO_TEST_SUITE(ActuatorInstallHelperTest)
 BOOST_AUTO_TEST_CASE(install_and_uninstall_final_actuator){
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
     mutex->setDeadTime(1000);
-    ActuatorDigital * coolerPin = new ActuatorBool();
+    ActuatorDigitalInterface * coolerPin = new ActuatorBool();
     ActuatorTimeLimited * coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
     ActuatorMutexDriver * coolerMutex = new ActuatorMutexDriver(coolerTimeLimited, mutex);
     ActuatorPwm * cooler = new ActuatorPwm(coolerMutex, 10); // period 10 min
 
-    ActuatorDigital * heaterPin = new ActuatorBool();
+    ActuatorDigitalInterface * heaterPin = new ActuatorBool();
     ActuatorMutexDriver * heaterMutex = new ActuatorMutexDriver(heaterPin, mutex);
     ActuatorPwm * heater = new ActuatorPwm(heaterMutex, 4); // period 4s
 

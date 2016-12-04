@@ -37,7 +37,7 @@ ActuatorInstallHelper * ActuatorInstallHelperForwarder::getNonForwarder() {
     }
 }
 
-bool ActuatorInstallHelperForwarder::replaceNonForwarder(ActuatorDigital * a) {
+bool ActuatorInstallHelperForwarder::replaceNonForwarder(ActuatorDigitalInterface * a) {
     ActuatorForwarder * af = cast();
     if(af->getTarget()->getNonForwarder() == af->getTarget()){
         // I am the lowest level driver. my target is the bottom target

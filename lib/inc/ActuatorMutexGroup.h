@@ -25,7 +25,7 @@
 #include "ControllerMixins.h"
 
 struct ActuatorPriority{
-    ActuatorDigital * actuator;
+    ActuatorDigitalInterface * actuator;
     int8_t priority; // valid priorities are 0-127, at -128 the actuator is removed from the group
 };
 
@@ -40,13 +40,13 @@ public:
 
     ~ActuatorMutexGroup() = default;
 
-    ActuatorPriority * registerActuator(ActuatorDigital * act, int8_t prio);
+    ActuatorPriority * registerActuator(ActuatorDigitalInterface * act, int8_t prio);
     void unRegisterActuator(size_t index); // remove by index
-    void unRegisterActuator(ActuatorDigital * act); // remove by pointer
+    void unRegisterActuator(ActuatorDigitalInterface * act); // remove by pointer
 
-    size_t find(ActuatorDigital * act);
+    size_t find(ActuatorDigitalInterface * act);
 
-    bool request(ActuatorDigital * requester, bool active, int8_t newPriority);
+    bool request(ActuatorDigitalInterface * requester, bool active, int8_t newPriority);
 
     /**
      * Cancels an open request, by setting the priority to -1.
@@ -54,7 +54,7 @@ public:
      * The request should then be canceled to prevent holding back other actuators
      * @param requester: pointer to actuator previously requested to go active
      */
-    void cancelRequest(ActuatorDigital * requester);
+    void cancelRequest(ActuatorDigitalInterface * requester);
 
     ticks_millis_t getDeadTime(){
         return deadTime;
@@ -68,7 +68,7 @@ public:
 private:
     ticks_millis_t deadTime; // minimum time between switching from one actuator to the other
     ticks_millis_t lastActiveTime;
-    ActuatorDigital * lastActiveActuator;
+    ActuatorDigitalInterface * lastActiveActuator;
     std::vector<ActuatorPriority> actuatorPriorities;
 
 friend class ActuatorMutexGroupMixin;

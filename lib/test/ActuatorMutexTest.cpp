@@ -35,8 +35,8 @@
 BOOST_AUTO_TEST_SUITE(ActuatorMutexTest)
 
 BOOST_AUTO_TEST_CASE(two_actuators_belonging_to_the_same_group_cannot_be_active_at_once) {
-    ActuatorDigital * act1 = new ActuatorBool();
-    ActuatorDigital * act2 = new ActuatorBool();
+    ActuatorDigitalInterface * act1 = new ActuatorBool();
+    ActuatorDigitalInterface * act2 = new ActuatorBool();
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
 
     ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1);
@@ -62,8 +62,8 @@ BOOST_AUTO_TEST_CASE(two_actuators_belonging_to_the_same_group_cannot_be_active_
 
 
 BOOST_AUTO_TEST_CASE(dead_time_between_actuators_is_honored) {
-    ActuatorDigital * act1 = new ActuatorBool();
-    ActuatorDigital * act2 = new ActuatorBool();
+    ActuatorDigitalInterface * act1 = new ActuatorBool();
+    ActuatorDigitalInterface * act2 = new ActuatorBool();
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
 
     ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1);
@@ -105,8 +105,8 @@ BOOST_AUTO_TEST_CASE(dead_time_between_actuators_is_honored) {
 
 
 BOOST_AUTO_TEST_CASE(dead_time_does_not_block_same_actuator_from_going_active_again) {
-    ActuatorDigital * act1 = new ActuatorBool();
-    ActuatorDigital * act2 = new ActuatorBool();
+    ActuatorDigitalInterface * act1 = new ActuatorBool();
+    ActuatorDigitalInterface * act2 = new ActuatorBool();
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
 
     ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1);
@@ -131,9 +131,9 @@ BOOST_AUTO_TEST_CASE(dead_time_does_not_block_same_actuator_from_going_active_ag
 
 
 BOOST_AUTO_TEST_CASE(mutex_works_with_time_limited_actuator) {
-    ActuatorDigital * act1 = new ActuatorBool();
+    ActuatorDigitalInterface * act1 = new ActuatorBool();
     ActuatorTimeLimited * act1tl = new ActuatorTimeLimited(act1, 10, 20);
-    ActuatorDigital * act2 = new ActuatorBool();
+    ActuatorDigitalInterface * act2 = new ActuatorBool();
 
     delay(20000); // let initial minimum off time pass
 
@@ -166,9 +166,9 @@ BOOST_AUTO_TEST_CASE(mutex_works_with_time_limited_actuator) {
 BOOST_AUTO_TEST_CASE(when_there_have_been_no_requests_for_a_while_dead_time_is_still_honored_on_new_request) {
     // this test was introduced to make sure lastActiveTime is not only updated on requests
 
-    ActuatorDigital * act1 = new ActuatorBool();
+    ActuatorDigitalInterface * act1 = new ActuatorBool();
     ActuatorTimeLimited * act1tl = new ActuatorTimeLimited(act1, 10, 20);
-    ActuatorDigital * act2 = new ActuatorBool();
+    ActuatorDigitalInterface * act2 = new ActuatorBool();
 
     delay(20000); // let initial minimum off time pass
 

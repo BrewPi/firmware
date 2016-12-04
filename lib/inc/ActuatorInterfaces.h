@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include "temperatureFormats.h"
 #include "ControllerMixins.h"
+#include "fixstl.h" // removes min/max macros defined in Arduino.h
 
 enum {
     ACTUATOR_RANGE,
@@ -32,18 +33,18 @@ enum {
 };
 
 
-class ActuatorDigital;
+class ActuatorDigitalInterface;
 /*
  * An actuator can be driven by other classes and acts on something.
  * Actuators can also drive other actuators, getDeviceTarget finds the lowest level actuator recursively
  */
-class Actuator: public ActuatorMixin
+class ActuatorInterface: public ActuatorMixin
 {
 public:
-    Actuator() = default;
-    virtual ~Actuator() = default;
+    ActuatorInterface() = default;
+    virtual ~ActuatorInterface() = default;
 
-    virtual uint8_t type() const = 0;
+    virtual uint8_t interfaceType() const = 0;
     virtual void update() = 0; // period update (every second)
     virtual void fastUpdate() = 0; // fast update (as often as possible)
 
@@ -54,12 +55,12 @@ public:
 /*
  * An ActuatorDigital simply turns something on or off.
  */
-class ActuatorDigital : public virtual Actuator
+class ActuatorDigitalInterface : public virtual ActuatorInterface
 {
 public:
-    ActuatorDigital() = default;
-    virtual ~ActuatorDigital() = default;
-    virtual uint8_t type() const override { return ACTUATOR_TOGGLE; };
+    ActuatorDigitalInterface() = default;
+    virtual ~ActuatorDigitalInterface() = default;
+    virtual uint8_t interfaceType() const override { return ACTUATOR_TOGGLE; };
     virtual void setActive(bool active) = 0;
     virtual bool isActive() const = 0;
 
@@ -70,12 +71,12 @@ public:
 /*
  * An ActuatorRange has a range output between min and max
  */
-class ActuatorRange : public virtual Actuator
+class ActuatorRangeInterface : public virtual ActuatorInterface
 {
 public:
-    ActuatorRange() = default;
-    virtual ~ActuatorRange() = default;
-    virtual uint8_t type() const override { return ACTUATOR_RANGE; };
+    ActuatorRangeInterface() = default;
+    virtual ~ActuatorRangeInterface() = default;
+    virtual uint8_t interfaceType() const override { return ACTUATOR_RANGE; };
     virtual void setValue(temp_t const& val) = 0;
     virtual temp_t getValue() const = 0; // get set value
     virtual temp_t readValue() const = 0; // read actual achieved value
@@ -86,12 +87,12 @@ public:
 /*
  * An ThresholdActuator has switches on at a certain threshold. TODO: add hysteresis
  */
-class ActuatorThreshold : public virtual Actuator
+class ActuatorThresholdInterface : public virtual ActuatorInterface
 
 {
-ActuatorThreshold() = default;
-    virtual ~ActuatorThreshold() = default;
-    virtual uint8_t type() const override { return ACTUATOR_THRESHOLD; };
+ActuatorThresholdInterface() = default;
+    virtual ~ActuatorThresholdInterface() = default;
+    virtual uint8_t interfaceType() const override { return ACTUATOR_THRESHOLD; };
     virtual void setValue(temp_t const& val) = 0;
     virtual temp_t readValue() const = 0;
     virtual temp_t onValue() const = 0;

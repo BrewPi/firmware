@@ -4,7 +4,7 @@
 #include "Ticks.h"
 #include "ActuatorMutexDriver.h"
 
-ActuatorPwm::ActuatorPwm(ActuatorDigital* _target, uint16_t _period) :
+ActuatorPwm::ActuatorPwm(ActuatorDigitalInterface* _target, uint16_t _period) :
                          ActuatorForwarder(_target) {
     periodStartTime = ticks.millis();
     periodLate = 0;
@@ -151,7 +151,7 @@ void ActuatorPwm::fastUpdate() {
             }
         }
         if(goHigh){
-            if(target->type() == ACTUATOR_TOGGLE_MUTEX){
+            if(target->interfaceType() == ACTUATOR_TOGGLE_MUTEX){
                 static_cast<ActuatorMutexDriver*>(target)->setActive(true, priority());
             }
             else{
