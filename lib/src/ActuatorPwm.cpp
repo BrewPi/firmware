@@ -151,12 +151,7 @@ void ActuatorPwm::fastUpdate() {
             }
         }
         if(goHigh){
-            if(target->interfaceType() == ACTUATOR_TOGGLE_MUTEX){
-                static_cast<ActuatorMutexDriver*>(target)->setActive(true, priority());
-            }
-            else{
-                target->setActive(true);
-            }
+            target->setActive(true, priority());
             if(target->isActive()){
                 newPeriod = true;
                 if(estimatedCycleTime){

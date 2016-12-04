@@ -46,7 +46,7 @@ public:
 
     ~ActuatorTimeLimited() = default;
 
-    void setActive(bool active) override final;    // returns new actuator state
+    void setActive(bool active, int8_t priority = 127) override final;    // returns new actuator state
 
     bool isActive() const override final
     {

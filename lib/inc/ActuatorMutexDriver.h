@@ -39,8 +39,6 @@ public:
         setMutex(nullptr);
     }
 
-    uint8_t interfaceType() const override final { return ACTUATOR_TOGGLE_MUTEX; };
-
     void update() override final {
         target->update();
     }
@@ -60,7 +58,8 @@ public:
     }
 
     // To activate actuator, permission is asked from mutexGroup, false is always allowed
-    void setActive(bool active, int8_t priority) {
+    // when priority not specified, default to highest priority
+    void setActive(bool active, int8_t priority = 127) override final{
         if(mutexGroup){
             if(mutexGroup->request(this, active, priority)){
                 target->setActive(active);
@@ -73,10 +72,6 @@ public:
         else{
             target->setActive(active); // if mutex group is not set, just pass on the call
         }
-    }
-
-    void setActive(bool active) override final{
-        setActive(active, 127); // when priority not specified, default to highest priority
     }
 
     bool isActive() const override final {

@@ -37,7 +37,7 @@ class ActuatorPin final: public ActuatorDigitalInterface, public ActuatorPinMixi
 
         ~ActuatorPin() = default;
 
-        void setActive(bool active) override final
+        void setActive(bool active, int8_t priority = 127) override final
         {
             digitalWrite(pin, (active ^ invert) ? HIGH : LOW);
         }

@@ -22,7 +22,7 @@
 #include "ActuatorTimeLimited.h"
 #include "Ticks.h"
 
-void ActuatorTimeLimited::setActive(bool newState)
+void ActuatorTimeLimited::setActive(bool newState, int8_t priority)
 {
     bool oldState = state;
 

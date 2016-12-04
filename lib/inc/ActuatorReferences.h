@@ -34,11 +34,7 @@ public:
     ActuatorDigitalReference() : target(nullptr) {};
     ~ActuatorDigitalReference() = default;
 
-    uint8_t interfaceType() const override {
-        return ACTUATOR_TOGGLE;
-    };
-
-    void setActive(bool active) override {
+    void setActive(bool active, int8_t priority = 127) override {
         ref()->setActive(active);
     }
 
@@ -75,10 +71,6 @@ class ActuatorRangeReference : public virtual ActuatorRangeInterface
 public:
     ActuatorRangeReference() : target(nullptr) {};
     ~ActuatorRangeReference() = default;
-
-    uint8_t interfaceType() const override {
-        return ACTUATOR_RANGE;
-    };
 
     void setValue(temp_t const& val) {
         ref()->setValue(val);

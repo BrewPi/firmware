@@ -62,7 +62,7 @@ class ActuatorOneWire final:
             device.update();
         }
 
-        void setActive(bool active) override final
+        void setActive(bool active, int8_t priority = 127) override final
         {
             // todo: alarm when write fails
             device.latchWrite(pio, active ^ invert, true);

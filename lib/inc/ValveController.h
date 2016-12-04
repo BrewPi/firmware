@@ -48,7 +48,7 @@ public:
 
     void fastUpdate() override final {} // valves are slow. Fast update is nop to limit OneWire traffic
 
-    void setActive(bool active) override final {
+    void setActive(bool active, int8_t priority) override final {
         if(active){
             open();
         }

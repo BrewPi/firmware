@@ -20,15 +20,17 @@
 #include "ActuatorAutoOff.h"
 #include "Ticks.h"
 
-void AutoOffActuator::setActive(bool active)
+void AutoOffActuator::setActive(bool active, int8_t priority)
 {
     this->active = active;
     target->setActive(active);
-    if (active)
-            lastActiveTime = ticks.seconds();
+    if (active){
+        lastActiveTime = ticks.seconds();
+    }
 }
 
 void AutoOffActuator::update() {
-    if (ticks.timeSinceSeconds(lastActiveTime)>=timeout)
-            setActive(false);
+    if (ticks.timeSinceSeconds(lastActiveTime)>=timeout){
+        setActive(false);
+    }
 }

@@ -28,8 +28,7 @@
 enum {
     ACTUATOR_RANGE,
     ACTUATOR_TOGGLE,
-    ACTUATOR_THRESHOLD,
-    ACTUATOR_TOGGLE_MUTEX
+    ACTUATOR_THRESHOLD
 };
 
 
@@ -60,8 +59,8 @@ class ActuatorDigitalInterface : public virtual ActuatorInterface
 public:
     ActuatorDigitalInterface() = default;
     virtual ~ActuatorDigitalInterface() = default;
-    virtual uint8_t interfaceType() const override { return ACTUATOR_TOGGLE; };
-    virtual void setActive(bool active) = 0;
+    uint8_t interfaceType() const override final { return ACTUATOR_TOGGLE; };
+    virtual void setActive(bool active, int8_t priority = 127) = 0;
     virtual bool isActive() const = 0;
 
     friend class ActuatorDigitalMixin;
@@ -76,7 +75,7 @@ class ActuatorRangeInterface : public virtual ActuatorInterface
 public:
     ActuatorRangeInterface() = default;
     virtual ~ActuatorRangeInterface() = default;
-    virtual uint8_t interfaceType() const override { return ACTUATOR_RANGE; };
+    uint8_t interfaceType() const override final { return ACTUATOR_RANGE; };
     virtual void setValue(temp_t const& val) = 0;
     virtual temp_t getValue() const = 0; // get set value
     virtual temp_t readValue() const = 0; // read actual achieved value
@@ -92,7 +91,7 @@ class ActuatorThresholdInterface : public virtual ActuatorInterface
 {
 ActuatorThresholdInterface() = default;
     virtual ~ActuatorThresholdInterface() = default;
-    virtual uint8_t interfaceType() const override { return ACTUATOR_THRESHOLD; };
+    uint8_t interfaceType() const override final { return ACTUATOR_THRESHOLD; };
     virtual void setValue(temp_t const& val) = 0;
     virtual temp_t readValue() const = 0;
     virtual temp_t onValue() const = 0;

@@ -33,7 +33,7 @@ public:
 		lastActiveTime = 0;
 	}
 	
-	void setActive(bool active) override final;
+	void setActive(bool active, int8_t priority = 127) override final;
 	
 	bool isActive() const override final {
 		return active; //target->isActive(); - this takes 20 bytes more

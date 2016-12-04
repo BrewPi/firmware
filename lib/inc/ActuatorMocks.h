@@ -91,7 +91,7 @@ public:
     ActuatorBool(bool initial) : state(initial) {}
     ~ActuatorBool() = default;
 
-    void setActive(bool active) override final { state = active; }
+    void setActive(bool active, int8_t priority = 127) override final { state = active; }
     bool isActive() const override final { return state; }
 
     void update() override final {}
@@ -113,7 +113,7 @@ public:
     ActuatorNop(){}
     ~ActuatorNop() = default;
 
-    void setActive(bool active) override final {}
+    void setActive(bool active, int8_t priority = 127) override final {}
     bool isActive() const override final { return false;}
     void update() override final {}
     void fastUpdate() override final {}
