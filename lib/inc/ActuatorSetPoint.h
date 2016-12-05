@@ -21,7 +21,7 @@
 
 #include "ActuatorInterfaces.h"
 #include "SetPoint.h"
-#include "TempSensorBasic.h"
+#include "TempSensorInterface.h"
 #include "defaultDevices.h"
 #include "ControllerMixins.h"
  
@@ -32,7 +32,7 @@ class ActuatorSetPoint final : public ActuatorRangeInterface, public ActuatorSet
 {
 public:
     ActuatorSetPoint(SetPoint * targSetPoint = defaultSetPoint(), // set point to manipulate
-                     TempSensorBasic * targSensor = defaultTempSensorBasic(), // sensor to go with target setpoint
+                     TempSensorInterface * targSensor = defaultTempSensor(), // sensor to go with target setpoint
                      SetPoint * refSetPoint = defaultSetPoint(), //set point to offset from
                      temp_t mini = temp_t::min(), // minimum actuator value (targ - ref)
                      temp_t maxi = temp_t::max()) :  // maximum actuator value
@@ -91,7 +91,7 @@ public:
 
 private:
     SetPoint * targetSetPoint;
-    TempSensorBasic * targetSensor;
+    TempSensorInterface * targetSensor;
     SetPoint * referenceSetPoint;
     temp_t minimum;
     temp_t maximum;

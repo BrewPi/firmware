@@ -52,7 +52,7 @@ public:
     void serialize(JSON::Adapter& adapter);
 
     std::vector<SetPoint*> setpoints;
-    std::vector<TempSensorBasic*> sensors;
+    std::vector<TempSensorInterface*> sensors;
     std::vector<Pid*>        pids;
     std::vector<ActuatorInterface*>   actuators;
 

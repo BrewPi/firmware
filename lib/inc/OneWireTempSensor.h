@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "TempSensorBasic.h"
+#include "TempSensorInterface.h"
 #include "OneWireAddress.h"
 #include "DallasTemperature.h"
 #include "Ticks.h"
@@ -30,7 +30,7 @@ class OneWire;
 
 #define ONEWIRE_TEMP_SENSOR_PRECISION (4)
 
-class OneWireTempSensor final : public TempSensorBasic, public OneWireTempSensorMixin {
+class OneWireTempSensor final : public TempSensorInterface, public OneWireTempSensorMixin {
 public:	
 	/**
 	 * Constructs a new onewire temp sensor.

@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(serialize_setpointMinMax) {
 BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
     SetPoint * sp1 = new SetPointSimple();
     SetPoint * sp2 = new SetPointConstant(20.0);
-    TempSensorBasic * sens1 = new TempSensorMock(20.0);
+    TempSensorInterface * sens1 = new TempSensorMock(20.0);
     ActuatorRangeInterface * act = new ActuatorSetPoint(sp1, sens1, sp2, -10.0, 10.0);
     act->setValue(5.0); // should set sp1 to sp2 + 5.0 = 25.0;
 
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
 }
 
 BOOST_AUTO_TEST_CASE(serialize_Pid) {
-    TempSensorBasic * sensor = new TempSensorMock(20.0);
+    TempSensorInterface * sensor = new TempSensorMock(20.0);
     ActuatorDigitalInterface * boolAct = new ActuatorBool();
     ActuatorRangeInterface * pwmAct = new ActuatorPwm(boolAct,4);
     SetPoint * sp = new SetPointSimple(20.0);
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
 }
 
 BOOST_AUTO_TEST_CASE(serialize_TempSensor) {
-    TempSensorBasic * s = new TempSensorMock(20.0);
+    TempSensorInterface * s = new TempSensorMock(20.0);
     TempSensor * sensor = new TempSensor(s);
     sensor->setName("test");
 

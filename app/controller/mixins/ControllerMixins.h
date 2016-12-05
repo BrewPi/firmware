@@ -28,11 +28,11 @@ public:
     virtual void serialize(JSON::Adapter& adapter) = 0;
 };
 
-class TempSensorBasicMixin :
+class TempSensorInterfaceMixin :
         public virtual VirtualSerializable
 {
 protected:
-    ~TempSensorBasicMixin() = default;
+    ~TempSensorInterfaceMixin() = default;
 };
 
 class TempSensorMockMixin :

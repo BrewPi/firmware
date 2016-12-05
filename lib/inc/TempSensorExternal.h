@@ -20,14 +20,14 @@
 
 #pragma once
 
-#include "TempSensorBasic.h"
+#include "TempSensorInterface.h"
 #include "ControllerMixins.h"
 
 /**
  * A temp sensor whose value is not read from the device, but set in code.
  * This is used by the simulator.
  */
-class TempSensorExternal final : public TempSensorBasic, public TempSensorExternalMixin
+class TempSensorExternal final : public TempSensorInterface, public TempSensorExternalMixin
 {
 	public:
 	TempSensorExternal(bool connected=false) : value(0.0), connected(false)

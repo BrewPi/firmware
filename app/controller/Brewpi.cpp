@@ -31,7 +31,7 @@
 #include "Display.h"
 #include "TempControl.h"
 #include "PiLink.h"
-#include "TempSensorBasic.h"
+#include "TempSensorInterface.h"
 #include "TempSensorMock.h"
 #include "TempSensorExternal.h"
 #include "ActuatorMocks.h"

@@ -26,7 +26,7 @@
 #include "Platform.h"
 #include "ActuatorInterfaces.h"
 #include "Sensor.h"
-#include "TempSensorBasic.h"
+#include "TempSensorInterface.h"
 #include "Board.h"
 #include "OneWire.h"
 #include "OneWireAddress.h"
@@ -297,7 +297,7 @@ void UpdateDeviceState(DeviceDisplay & dd,
 class DeviceManager
 {
     public:
-        bool isDefaultTempSensor(TempSensorBasic * sensor);
+        bool isDefaultTempSensor(TempSensorInterface * sensor);
 	
         /*
 	 * Create the device corresponding to the give config.

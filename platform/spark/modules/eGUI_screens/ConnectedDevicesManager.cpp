@@ -85,7 +85,7 @@ void ConnectedDevicesManager::handleDevice(DeviceConfig* config, DeviceCallbackI
                 device.connection.type = deviceConnection(device.dh);
                 memcpy(device.connection.address, config->hw.address, 8);
                 device.value.temp = temp_t::invalid(); // flag invalid
-                device.pointer.tempSensor = (TempSensorBasic*) DeviceManager::createDevice(*config, device.dt);
+                device.pointer.tempSensor = (TempSensorInterface*) DeviceManager::createDevice(*config, device.dt);
                 if (!device.pointer.tempSensor || !device.pointer.tempSensor->init()) {
                     clearSlot(slot);
                     device.lastSeen = -1; // don't send REMOVED event since no added event has been sent

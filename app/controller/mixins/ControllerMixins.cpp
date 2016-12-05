@@ -23,7 +23,7 @@
 #include "ControllerMixins.h"
 #include "Pid.h"
 #include "TempSensor.h"
-#include "TempSensorBasic.h"
+#include "TempSensorInterface.h"
 #include "TempSensorMock.h"
 #include "OneWireTempSensor.h"
 #include "TempSensorExternal.h"
@@ -142,7 +142,7 @@ void TempSensorFallbackMixin::serialize(JSON::Adapter & adapter)
 
     JSON::Class root(adapter, "TempSensorFallback");
     JSON_OE(adapter, onBackupSensor);
-    TempSensorBasic * sensor = obj->activeSensor();
+    TempSensorInterface * sensor = obj->activeSensor();
     JSON_T(adapter, sensor);
 }
 

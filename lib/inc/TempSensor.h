@@ -21,38 +21,38 @@
 #pragma once
 
 #include "temperatureFormats.h"
-#include "TempSensorBasic.h"
+#include "TempSensorInterface.h"
 #include "defaultDevices.h"
 #include "ControllerMixins.h"
 
-class TempSensor final : public TempSensorBasic, public TempSensorMixin {
+class TempSensor final : public TempSensorInterface, public TempSensorMixin {
 public:
     TempSensor() :
-            sensor(defaultTempSensorBasic()) {
+            sensor(defaultTempSensor()) {
     }
-    TempSensor(TempSensorBasic * s) :
+    TempSensor(TempSensorInterface * s) :
             sensor(s) {
     }
 
     ~TempSensor() {
     }
 
-    void installSensor(TempSensorBasic * s) {
+    void installSensor(TempSensorInterface * s) {
         uninstallSensor();
         sensor = s;
     }
 
-    TempSensorBasic * getSensor() {
+    TempSensorInterface * getSensor() {
         return sensor;
     }
 
     bool uninstallSensor(){
-        if(sensor == defaultTempSensorBasic()){
+        if(sensor == defaultTempSensor()){
             return false;
         }
         else{
             delete sensor;
-            sensor = defaultTempSensorBasic();
+            sensor = defaultTempSensor();
             return true;
         }
     }
@@ -83,7 +83,7 @@ public:
     }
 
 private:
-    TempSensorBasic * sensor;
+    TempSensorInterface * sensor;
     friend class TempSensorMixin;
 };
 

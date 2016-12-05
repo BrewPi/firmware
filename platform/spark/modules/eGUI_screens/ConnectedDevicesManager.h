@@ -21,7 +21,7 @@
 
 #include "EepromManager.h"		// for clear()
 #include "DeviceManager.h"
-#include "TempSensorBasic.h"
+#include "TempSensorInterface.h"
 #include "ActuatorInterfaces.h"
 #include "Sensor.h"
 #include "PiLink.h"
@@ -68,7 +68,7 @@ struct ConnectedDevice
 
     union Device {
         void* any;
-        TempSensorBasic* tempSensor;    // dt==DEVICETYPE_TEMP_SENSOR
+        TempSensorInterface* tempSensor;    // dt==DEVICETYPE_TEMP_SENSOR
         ActuatorInterface* actuator;             // dt==DEVICETYPE_ACTUATOR
         SwitchSensor* sensor;           // dt==DEVICETYPE_SWITCH_SENSOR
     } pointer;

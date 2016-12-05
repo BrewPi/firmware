@@ -55,7 +55,7 @@ public:
 
 
 BOOST_AUTO_TEST_CASE (fallback_sensor_without_arguments_defaults_to_default_sensor){
-    TempSensorBasic * s = new TempSensorFallback();
+    TempSensorInterface * s = new TempSensorFallback();
     temp_t t = s->read();
 
     BOOST_CHECK_EQUAL(t, temp_t::invalid());

@@ -36,11 +36,11 @@
 Control::Control()
 {
     // set up static devices for backwards compatibility with tempControl
-    beer1Sensor = new TempSensor(defaultTempSensorBasic());
+    beer1Sensor = new TempSensor(defaultTempSensor());
     beer1Sensor->setName("beer1");
-    beer2Sensor = new TempSensor(defaultTempSensorBasic());
+    beer2Sensor = new TempSensor(defaultTempSensor());
     beer2Sensor->setName("beer2");
-    fridgeSensor = new TempSensor(defaultTempSensorBasic());
+    fridgeSensor = new TempSensor(defaultTempSensor());
     fridgeSensor->setName("fridge");
 
     mutex = new ActuatorMutexGroup();

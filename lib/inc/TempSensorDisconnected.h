@@ -20,10 +20,10 @@
 
 #pragma once
 
-#include "TempSensorBasic.h"
+#include "TempSensorInterface.h"
 #include "ControllerMixins.h"
 
-class TempSensorDisconnected final : public TempSensorBasic, public TempSensorDisconnectedMixin {
+class TempSensorDisconnected final : public TempSensorInterface, public TempSensorDisconnectedMixin {
 	
 public:
 	bool isConnected() const override final { return false; }

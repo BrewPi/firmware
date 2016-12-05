@@ -29,7 +29,7 @@
 ValueSensor<bool> * defaultSensor();
 ActuatorNop * defaultActuator();
 ActuatorInvalid * defaultLinearActuator(); // always returns invalid and does nothing
-TempSensorDisconnected * defaultTempSensorBasic();
+TempSensorDisconnected * defaultTempSensor();
 SetPointConstant * defaultSetPoint();
 
 

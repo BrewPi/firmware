@@ -25,11 +25,11 @@
 
 #define TEMP_SENSOR_DISCONNECTED temp_t::invalid()
 
-class TempSensorBasic : virtual public TempSensorBasicMixin
+class TempSensorInterface : virtual public TempSensorInterfaceMixin
 {
 public:
-    TempSensorBasic() = default;
-	virtual ~TempSensorBasic() = default;
+    TempSensorInterface() = default;
+	virtual ~TempSensorInterface() = default;
 	
 	virtual bool isConnected(void) const = 0;
 	

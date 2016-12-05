@@ -147,7 +147,7 @@ void DeviceManager::disposeDevice(DeviceType dt,
             break;
 
         case DEVICETYPE_TEMP_SENSOR :
-            delete (TempSensorBasic *) device;
+            delete (TempSensorInterface *) device;
 
             break;
 
@@ -313,7 +313,7 @@ void DeviceManager::installDevice(DeviceConfig & config)
             DEBUG_ONLY(logInfoInt(INFO_INSTALL_TEMP_SENSOR, config.deviceFunction));
 
             // sensor may be wrapped in a TempSensor class, or may stand alone.
-            TempSensorBasic * s = (TempSensorBasic *) createDevice(config, dt);
+            TempSensorInterface * s = (TempSensorInterface *) createDevice(config, dt);
 
             if (s == NULL){
                 logErrorInt(ERROR_OUT_OF_MEMORY_FOR_DEVICE, config.deviceFunction);
@@ -1182,7 +1182,7 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
                       (unsigned int) ((SwitchSensor *) *ppv) -> sense()
                       != 0);      // cheaper than itoa, because it overlaps with vsnprintf
         } else if (dt == DEVICETYPE_TEMP_SENSOR){
-            TempSensorBasic * s = (TempSensorBasic*) *ppv;
+            TempSensorInterface * s = (TempSensorInterface*) *ppv;
             s->update();
             temp_t temp = s->read();
             temp.toTempString(val, 3, 9, tempControl.cc.tempFormat, true);

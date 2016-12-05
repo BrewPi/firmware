@@ -408,7 +408,7 @@ BOOST_AUTO_TEST_CASE(pid_can_update_after_bare_init_without_crashing){
 }
 
 BOOST_AUTO_TEST_CASE(pid_can_update_with_only_actuator_defined){
-    TempSensorBasic * sensor = new TempSensorMock(20.0);
+    TempSensorInterface * sensor = new TempSensorMock(20.0);
     Pid * p = new Pid();
     p->setInputSensor(sensor);
     p->update();

@@ -4,9 +4,9 @@
  * Using protected non-virtual destructors to prevent destruction through base class
  */
 
-class TempSensorBasicMixin {
+class TempSensorInterfaceMixin {
 protected:
-    ~TempSensorBasicMixin() = default;
+    ~TempSensorInterfaceMixin() = default;
 };
 
 class TempSensorMockMixin {
