@@ -24,13 +24,7 @@
 #include "temperatureFormats.h"
 #include "ControllerMixins.h"
 #include "fixstl.h" // removes min/max macros defined in Arduino.h
-
-enum {
-    ACTUATOR_RANGE,
-    ACTUATOR_TOGGLE,
-    ACTUATOR_THRESHOLD
-};
-
+#include "interfaceType.h"
 
 class ActuatorDigitalInterface;
 /*
@@ -59,7 +53,7 @@ class ActuatorDigitalInterface : public virtual ActuatorInterface
 public:
     ActuatorDigitalInterface() = default;
     virtual ~ActuatorDigitalInterface() = default;
-    uint8_t interfaceType() const override final { return ACTUATOR_TOGGLE; };
+    uint8_t interfaceType() const override final { return getInterfaceType(this); };
     virtual void setActive(bool active, int8_t priority = 127) = 0;
     virtual bool isActive() const = 0;
 
@@ -75,7 +69,7 @@ class ActuatorRangeInterface : public virtual ActuatorInterface
 public:
     ActuatorRangeInterface() = default;
     virtual ~ActuatorRangeInterface() = default;
-    uint8_t interfaceType() const override final { return ACTUATOR_RANGE; };
+    uint8_t interfaceType() const override final { return getInterfaceType(this); };
     virtual void setValue(temp_t const& val) = 0;
     virtual temp_t getValue() const = 0; // get set value
     virtual temp_t readValue() const = 0; // read actual achieved value
@@ -91,7 +85,7 @@ class ActuatorThresholdInterface : public virtual ActuatorInterface
 {
 ActuatorThresholdInterface() = default;
     virtual ~ActuatorThresholdInterface() = default;
-    uint8_t interfaceType() const override final { return ACTUATOR_THRESHOLD; };
+    uint8_t interfaceType() const override final { return getInterfaceType(this); };
     virtual void setValue(temp_t const& val) = 0;
     virtual temp_t readValue() const = 0;
     virtual temp_t onValue() const = 0;
