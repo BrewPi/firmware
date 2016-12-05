@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(defaultSetPoint_works_for_all_SetPoint_functions){
 BOOST_AUTO_TEST_CASE(defaultLinearActuator_works_for_all_ActuatorRangeInterface_functions){
     ActuatorRangeInterface * act = defaultLinearActuator();
 
-    BOOST_CHECK_EQUAL(act->interfaceType(), ACTUATOR_RANGE);
+    BOOST_CHECK_EQUAL(act->interfaceType(), 11);
 
     BOOST_CHECK_EQUAL(act->getValue(), temp_t::invalid());
     act->setValue(50.0); // should do nothing
