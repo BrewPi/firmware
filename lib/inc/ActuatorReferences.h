@@ -28,7 +28,7 @@
  * An ActuatorDigitalReference holds a pointer to a digital actuator
  * when the actuator is not set (null) it points to the default actuator
  */
-class ActuatorDigitalReference : public virtual ActuatorDigitalInterface
+class ActuatorDigitalReference final : public virtual ActuatorDigitalInterface
 {
 public:
     ActuatorDigitalReference() : target(nullptr) {};
