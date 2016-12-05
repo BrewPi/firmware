@@ -21,11 +21,13 @@
 #pragma once
 
 #include "temperatureFormats.h"
+#include "Interface.h"
 #include "ControllerMixins.h"
+
 
 #define TEMP_SENSOR_DISCONNECTED temp_t::invalid()
 
-class TempSensorInterface : virtual public TempSensorInterfaceMixin
+class TempSensorInterface : public Interface, virtual public TempSensorInterfaceMixin
 {
 public:
     TempSensorInterface() = default;
@@ -47,6 +49,8 @@ public:
 	 * Read the sensor, returns cached value set in update()
 	 */
 	virtual temp_t read() const = 0;
+
+	uint8_t interfaceType() const override final { return Interface::getType(this); };
 
 };
 

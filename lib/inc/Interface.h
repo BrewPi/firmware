@@ -26,13 +26,23 @@ class ActuatorThresholdInterface;
 class TempSensorInterface;
 class SetPointInterface;
 
-// Actuators
-inline uint8_t getInterfaceType(const ActuatorDigitalInterface*) { return 10; }
-inline uint8_t getInterfaceType(const ActuatorRangeInterface*) { return 11; }
-inline uint8_t getInterfaceType(const ActuatorThresholdInterface*) { return 12; }
+class Interface {
+public:
+	Interface() = default;
+protected:
+    virtual ~Interface() = default;
+public:
+	virtual uint8_t interfaceType() const = 0;
 
-// Sensors
-inline uint8_t getInterfaceType(TempSensorInterface*){ return 50; }
+protected:
+	// Actuators
+	inline static uint8_t getType(ActuatorDigitalInterface const * const) { return 10; }
+	inline static uint8_t getType(ActuatorRangeInterface const * const) { return 11; }
+	inline static uint8_t getType(ActuatorThresholdInterface const * const) { return 12; }
 
-// SetPoints
-inline uint8_t getInterfaceType(SetPointInterface*){ return 100; }
+	// Sensors
+	inline static uint8_t getType(TempSensorInterface const * const){ return 50; }
+
+	// SetPoints
+	inline static uint8_t getType(SetPointInterface const * const){ return 100; }
+};
