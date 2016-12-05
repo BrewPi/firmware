@@ -28,7 +28,7 @@
  * An ActuatorDigitalReference holds a pointer to a digital actuator
  * when the actuator is not set (null) it points to the default actuator
  */
-class ActuatorDigitalReference final : public virtual ActuatorDigitalInterface
+class ActuatorDigitalReference final : public ActuatorDigitalInterface
 {
 public:
     ActuatorDigitalReference() : target(nullptr) {};
@@ -66,7 +66,7 @@ private:
  * An ActuatorRangeReference holds a pointer to a range (linear) actuator
  * when the actuator is not set (null) it points to the default linear actuator
  */
-class ActuatorRangeReference : public virtual ActuatorRangeInterface
+class ActuatorRangeReference final : public ActuatorRangeInterface
 {
 public:
     ActuatorRangeReference() : target(nullptr) {};

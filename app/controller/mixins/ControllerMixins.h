@@ -102,12 +102,12 @@ protected:
 };
 
 
-class ActuatorMixin :
+class ActuatorInterfaceMixin :
         public virtual VirtualSerializable,
         public virtual ActuatorInstallHelper
 {
 protected:
-    ~ActuatorMixin() = default;
+    ~ActuatorInterfaceMixin() = default;
 };
 
 class ActuatorForwarderMixin :
@@ -198,14 +198,6 @@ protected:
     ~ActuatorInvalidMixin() = default;
 };
 
-class ActuatorDigitalMixin :
-        public virtual VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) override final;
-protected:
-    ~ActuatorDigitalMixin() = default;
-};
 
 class SetPointMixin :
         public virtual VirtualSerializable

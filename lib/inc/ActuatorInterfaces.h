@@ -31,7 +31,7 @@ class ActuatorDigitalInterface ;
  * An actuator can be driven by other classes and acts on something.
  * Actuators can also drive other actuators, getDeviceTarget finds the lowest level actuator recursively
  */
-class ActuatorInterface: public Interface, public ActuatorMixin
+class ActuatorInterface: public virtual Interface, public virtual ActuatorInterfaceMixin
 {
 public:
     ActuatorInterface() = default;
@@ -40,7 +40,7 @@ public:
     virtual void update() = 0; // period update (every second)
     virtual void fastUpdate() = 0; // fast update (as often as possible)
 
-	friend class ActuatorMixin;
+	friend class ActuatorInterfaceMixin;
 };
 
 

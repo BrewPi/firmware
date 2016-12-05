@@ -45,9 +45,9 @@ protected:
 };
 
 
-class ActuatorMixin {
+class ActuatorInterfaceMixin {
 protected:
-    ~ActuatorMixin() = default;
+    ~ActuatorInterfaceMixin() = default;
 };
 
 
