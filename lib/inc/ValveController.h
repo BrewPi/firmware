@@ -35,6 +35,14 @@ public:
     }
     ~ValveController() = default;
 
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    inline void accept(AbstractVisitor & v) final {
+    	v.visit(*this);
+    }
+
     enum class ValveActions : uint8_t {
         OFF_LOW = 0b00,
         OPEN = 0b01,

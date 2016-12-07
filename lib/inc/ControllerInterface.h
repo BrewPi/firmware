@@ -1,5 +1,6 @@
 /*
- * Copyright 2015 BrewPi Elco Jacobs / Matthew McGowan
+ * Copyright 2015 Matthew McGowan
+ * Copyright 2015 BrewPi/Elco Jacobs.
  *
  * This file is part of BrewPi.
  * 
@@ -17,20 +18,17 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ActuatorAutoOff.h"
-#include "Ticks.h"
+#pragma once
 
-void AutoOffActuator::setActive(bool active, int8_t priority)
+#include <stdint.h>
+#include "fixstl.h" // removes min/max macros defined in Arduino.h
+#include "Interface.h"
+
+class ControllerInterface: public virtual Interface
 {
-    this->active = active;
-    target->setActive(active);
-    if (active){
-        lastActiveTime = ticks.seconds();
-    }
-}
+public:
+	ControllerInterface() = default;
+    virtual ~ControllerInterface() = default;
 
-void AutoOffActuator::update() {
-    if (ticks.timeSinceSeconds(lastActiveTime)>=timeout){
-        setActive(false);
-    }
-}
+    void fastUpdate() final {}; // fast update not needed for controllers
+};

@@ -28,8 +28,9 @@
 #include "SetPoint.h"
 #include "defaultDevices.h"
 #include "ControllerMixins.h"
+#include "ControllerInterface.h"
 
-class Pid final : public PidMixin
+class Pid final : public ControllerInterface, public PidMixin
 {
 
     public:
@@ -40,6 +41,14 @@ class Pid final : public PidMixin
         Pid(const Pid & orig);
 
         ~Pid() = default;
+
+        /**
+         * Accept function for visitor pattern
+         * @param dispatcher Visitor to process this class
+         */
+        inline void accept(AbstractVisitor & v) final {
+        	v.visit(*this);
+        }
 
         void init();
 

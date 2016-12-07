@@ -42,6 +42,10 @@ public:
 
     ~ActuatorValue() = default;
 
+    void accept(AbstractVisitor & v) override final{
+    	v.visit(*this);
+    }
+
     void setValue(temp_t const& val) override final {
         if(val < minimum){
             value = minimum;
@@ -91,6 +95,10 @@ public:
     ActuatorBool(bool initial) : state(initial) {}
     ~ActuatorBool() = default;
 
+    void accept(AbstractVisitor & v) override final{
+    	v.visit(*this);
+    }
+
     void setActive(bool active, int8_t priority = 127) override final { state = active; }
     bool isActive() const override final { return state; }
 
@@ -113,6 +121,10 @@ public:
     ActuatorNop(){}
     ~ActuatorNop() = default;
 
+    void accept(AbstractVisitor & v) override final{
+    	v.visit(*this);
+    }
+
     void setActive(bool active, int8_t priority = 127) override final {}
     bool isActive() const override final { return false;}
     void update() override final {}
@@ -129,6 +141,10 @@ class ActuatorInvalid final : public ActuatorRangeInterface, public ActuatorInva
 public:
     ActuatorInvalid() {}
     ~ActuatorInvalid() = default;
+
+    void accept(AbstractVisitor & v) override final{
+    	v.visit(*this);
+    }
 
     void setValue(temp_t const& val) override final {}
     temp_t getValue() const override final {

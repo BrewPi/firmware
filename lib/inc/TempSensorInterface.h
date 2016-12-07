@@ -40,18 +40,12 @@ public:
 	 */
 	virtual bool init() =0;
 
-    /*
-     * Update the value from hardware (if the result is cached)
-     */
-    virtual void update() = 0;
+    void fastUpdate() final {}; // fast update not needed for temp sensors
 
 	/*
 	 * Read the sensor, returns cached value set in update()
 	 */
 	virtual temp_t read() const = 0;
-
-	uint8_t interfaceType() const override final { return Interface::getType(this); };
-
 };
 
 

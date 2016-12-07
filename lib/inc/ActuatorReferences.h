@@ -28,11 +28,21 @@
  * An ActuatorDigitalReference holds a pointer to a digital actuator
  * when the actuator is not set (null) it points to the default actuator
  */
-class ActuatorDigitalReference final : public ActuatorDigitalInterface
+class ActuatorDigitalReference final :
+    public ActuatorDigitalInterface,
+    public ActuatorDigitalReferenceMixin
 {
 public:
     ActuatorDigitalReference() : target(nullptr) {};
     ~ActuatorDigitalReference() = default;
+
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    inline void accept(AbstractVisitor & v) final {
+    	v.visit(*this);
+    }
 
     void setActive(bool active, int8_t priority = 127) override {
         ref()->setActive(active);
@@ -66,7 +76,9 @@ private:
  * An ActuatorRangeReference holds a pointer to a range (linear) actuator
  * when the actuator is not set (null) it points to the default linear actuator
  */
-class ActuatorRangeReference final : public ActuatorRangeInterface
+class ActuatorRangeReference final :
+    public ActuatorRangeInterface,
+    public ActuatorRangeReferenceMixin
 {
 public:
     ActuatorRangeReference() : target(nullptr) {};

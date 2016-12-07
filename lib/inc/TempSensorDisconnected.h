@@ -26,6 +26,10 @@
 class TempSensorDisconnected final : public TempSensorInterface, public TempSensorDisconnectedMixin {
 	
 public:
+    void accept(AbstractVisitor & v) override final{
+    	v.visit(*this);
+    }
+
 	bool isConnected() const override final { return false; }
 
 	bool init() override final {

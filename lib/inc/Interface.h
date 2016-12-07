@@ -19,30 +19,18 @@
 
 #pragma once
 #include <stdint.h>
+#include "ControllerMixins.h"
+#include "AbstractVisitor.h"
 
-class ActuatorDigitalInterface;
-class ActuatorRangeInterface;
-class ActuatorThresholdInterface;
-class TempSensorInterface;
-class SetPointInterface;
-
-class Interface {
+class Interface :
+    virtual public InterfaceMixin
+{
 public:
 	Interface() = default;
 protected:
     virtual ~Interface() = default;
 public:
-	virtual uint8_t interfaceType() const = 0;
-
-protected:
-	// Actuators
-	inline static uint8_t getType(ActuatorDigitalInterface const * const) { return 10; }
-	inline static uint8_t getType(ActuatorRangeInterface const * const) { return 11; }
-	inline static uint8_t getType(ActuatorThresholdInterface const * const) { return 12; }
-
-	// Sensors
-	inline static uint8_t getType(TempSensorInterface const * const){ return 50; }
-
-	// SetPoints
-	inline static uint8_t getType(SetPointInterface const * const){ return 100; }
+    virtual void update() = 0;
+    virtual void fastUpdate() = 0;
+	virtual void accept(AbstractVisitor & v) = 0;
 };

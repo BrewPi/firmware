@@ -40,6 +40,14 @@ public:
     virtual ~TempSensorFallback(){};
 
     /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    inline void accept(AbstractVisitor & v) final {
+    	v.visit(*this);
+    }
+
+    /**
      * Returns currently active sensor
      * @return TempSensorInterface *: currently active sensor, main or backup
      */

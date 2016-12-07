@@ -29,9 +29,6 @@
 #include "ActuatorForwarder.h"
 #include "ControllerMixins.h"
 
-#undef min
-#undef max
-
 /**
 	ActuatorPWM drives a digital actuator and makes it available as range actuator, by quickly turning it on and off repeatedly.
 
@@ -62,6 +59,14 @@ public:
     ActuatorPwm(ActuatorDigitalInterface * _target, uint16_t _period);
 
     ~ActuatorPwm() = default;
+
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    inline void accept(AbstractVisitor & v) final {
+    	v.visit(*this);
+    }
 
     /** Returns minimum value
      */

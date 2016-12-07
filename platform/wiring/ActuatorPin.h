@@ -37,6 +37,10 @@ class ActuatorPin final: public ActuatorDigitalInterface, public ActuatorPinMixi
 
         ~ActuatorPin() = default;
 
+        inline void accept(AbstractVisitor & v) final {
+        	v.visit(*this);
+        }
+
         void setActive(bool active, int8_t priority = 127) override final
         {
             digitalWrite(pin, (active ^ invert) ? HIGH : LOW);

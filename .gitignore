@@ -4,7 +4,8 @@ nbproject/private/
 *.atsuo
 revA/
 revC/
-test/obj/
+lib/test/obj/
+app/*/test/obj/
 .settings/
 .idea/
 *.pyc
@@ -48,3 +49,4 @@ test_results/*.pdf
 docs/_static/doxygen/
 deploy/
 controlbox/build
+

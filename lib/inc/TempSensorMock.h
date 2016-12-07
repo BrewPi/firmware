@@ -26,8 +26,16 @@
 class TempSensorMock final : public TempSensorInterface, public TempSensorMockMixin
 {
 public:	
-	TempSensorMock(temp_t initial) : value(initial), connected(true) { }
+	TempSensorMock(temp_t initial) : value(initial), connected(true) {}
 	
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    inline void accept(AbstractVisitor & v) final {
+    	v.visit(*this);
+    }
+
 	void setConnected(bool _connected)
 	{
 		connected = _connected;

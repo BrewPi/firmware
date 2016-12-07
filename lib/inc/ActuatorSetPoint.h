@@ -44,6 +44,14 @@ public:
     }
     ~ActuatorSetPoint() = default;
 
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    inline void accept(AbstractVisitor & v) final {
+    	v.visit(*this);
+    }
+
     void setValue(temp_t const& val) override final {
         temp_t offset = val;
         if(offset < minimum){

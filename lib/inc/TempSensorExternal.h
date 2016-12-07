@@ -35,6 +35,14 @@ class TempSensorExternal final : public TempSensorInterface, public TempSensorEx
 		setConnected(connected);
 	}
 
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    inline void accept(AbstractVisitor & v) final {
+    	v.visit(*this);
+    }
+
 	void setConnected(bool _connected)
 	{
 		this->connected = _connected;

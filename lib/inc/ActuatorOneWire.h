@@ -22,22 +22,19 @@
 
 #pragma once
 
-#include "Brewpi.h"
+#include "ControllerMixins.h"
 #include "ActuatorInterfaces.h"
 #include "DS2413.h"
-#include "ControllerMixins.h"
+
 
 /*
  * An actuator or sensor that operates by communicating with a DS2413 device.
  *
  */
 class ActuatorOneWire final:
-    public ActuatorDigitalInterface, public ActuatorOneWireMixin
-
-#if DS2413_SUPPORT_SENSE
-            ,
-    SwitchSensor
-#endif
+    public ActuatorDigitalInterface,
+    public ActuatorOneWireMixin,
+    public SwitchSensor
 
 {
     public:
@@ -49,6 +46,10 @@ class ActuatorOneWire final:
             init(bus, address, pio, invert);
         }
         ~ActuatorOneWire() = default;
+
+        inline void accept(AbstractVisitor & v) final {
+        	v.visit(*this);
+        }
 
         void init(OneWire *     bus,
                   DeviceAddress address,
@@ -73,14 +74,13 @@ class ActuatorOneWire final:
             return device.latchReadCached(pio, false) ^ invert;
         }
 
-#if DS2413_SUPPORT_SENSE
         bool sense()
         {
             device.latchWrite(pio, 0, false);
 
             return device.sense(pio, invert);    // on device failure, default is high for invert, low for regular.
         }
-#endif
+
         void write(uint8_t val) {
             setActive(val != 0);
         };

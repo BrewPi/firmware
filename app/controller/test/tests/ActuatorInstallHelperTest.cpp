@@ -21,6 +21,7 @@
 
 #include "runner.h"
 
+#include "ControllerMixins.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorMutexGroup.h"
 #include "ActuatorMutexDriver.h"

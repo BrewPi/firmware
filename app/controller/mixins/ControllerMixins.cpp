@@ -36,6 +36,7 @@
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMocks.h"
 #include "SetPoint.h"
+#include "SerializeVisitor.h"
 
 #if WIRING
 
@@ -53,8 +54,13 @@
 // Serializable terminator, keep things simple for the JSON writer. No stream manipulations required (alternative to JSON_T)
 #define JSON_OT(json_adapter,class_member)  JSON::stream(json_adapter,_ASTRING(#class_member),obj->class_member,false)
 
+void InterfaceMixin::serialize(JSON::Adapter & adapter){
+    SerializeVisitor v(adapter);
+    this->accept(v);
+}
 
-void PidMixin::serialize(JSON::Adapter & adapter)
+
+void PidMixin::serializeImpl(JSON::Adapter & adapter)
 {
     Pid * obj = static_cast<Pid *>(this);
 
@@ -75,7 +81,7 @@ void PidMixin::serialize(JSON::Adapter & adapter)
     JSON_OT(adapter, outputActuator);
 }
 
-void TempSensorMixin::serialize(JSON::Adapter & adapter)
+void TempSensorMixin::serializeImpl(JSON::Adapter & adapter)
 {
     TempSensor * obj = static_cast<TempSensor *>(this);
 
@@ -85,7 +91,7 @@ void TempSensorMixin::serialize(JSON::Adapter & adapter)
     JSON_OT(adapter, sensor);
 }
 
-void TempSensorMockMixin::serialize(JSON::Adapter & adapter)
+void TempSensorMockMixin::serializeImpl(JSON::Adapter & adapter)
 {
     TempSensorMock * obj = static_cast<TempSensorMock *>(this);
 
@@ -94,7 +100,7 @@ void TempSensorMockMixin::serialize(JSON::Adapter & adapter)
     JSON_OT(adapter, connected);
 }
 
-void OneWireTempSensorMixin::serialize(JSON::Adapter & adapter)
+void OneWireTempSensorMixin::serializeImpl(JSON::Adapter & adapter)
 {
     OneWireTempSensor * obj = static_cast<OneWireTempSensor *>(this);
 
@@ -116,7 +122,7 @@ void OneWireTempSensorMixin::serialize(JSON::Adapter & adapter)
     JSON_OT(adapter, calibrationOffset);
 }
 
-void TempSensorDisconnectedMixin::serialize(JSON::Adapter & adapter)
+void TempSensorDisconnectedMixin::serializeImpl(JSON::Adapter & adapter)
 {
     TempSensorDisconnected * obj       = static_cast<TempSensorDisconnected *>(this);
     temp_t                   value     = obj -> read();
@@ -127,7 +133,7 @@ void TempSensorDisconnectedMixin::serialize(JSON::Adapter & adapter)
     JSON_T(adapter, connected);
 }
 
-void TempSensorExternalMixin::serialize(JSON::Adapter & adapter)
+void TempSensorExternalMixin::serializeImpl(JSON::Adapter & adapter)
 {
     TempSensorExternal * obj = static_cast<TempSensorExternal *>(this);
 
@@ -136,7 +142,7 @@ void TempSensorExternalMixin::serialize(JSON::Adapter & adapter)
     JSON_OT(adapter, connected);
 }
 
-void TempSensorFallbackMixin::serialize(JSON::Adapter & adapter)
+void TempSensorFallbackMixin::serializeImpl(JSON::Adapter & adapter)
 {
     TempSensorFallback * obj = static_cast<TempSensorFallback *>(this);
 
@@ -146,7 +152,7 @@ void TempSensorFallbackMixin::serialize(JSON::Adapter & adapter)
     JSON_T(adapter, sensor);
 }
 
-void ActuatorTimeLimitedMixin::serialize(JSON::Adapter & adapter)
+void ActuatorTimeLimitedMixin::serializeImpl(JSON::Adapter & adapter)
 {
     ActuatorTimeLimited * obj = static_cast<ActuatorTimeLimited *>(this);
 
@@ -158,7 +164,7 @@ void ActuatorTimeLimitedMixin::serialize(JSON::Adapter & adapter)
     JSON_OT(adapter, target);
 }
 
-void ActuatorSetPointMixin::serialize(JSON::Adapter & adapter)
+void ActuatorSetPointMixin::serializeImpl(JSON::Adapter & adapter)
 {
     ActuatorSetPoint * obj = static_cast<ActuatorSetPoint *>(this);
 
@@ -178,7 +184,7 @@ void ActuatorSetPointMixin::serialize(JSON::Adapter & adapter)
     JSON_OT(adapter, maximum);
 }
 
-void ActuatorPwmMixin::serialize(JSON::Adapter & adapter)
+void ActuatorPwmMixin::serializeImpl(JSON::Adapter & adapter)
 {
     ActuatorPwm * obj = static_cast<ActuatorPwm *>(this);
 
@@ -193,7 +199,7 @@ void ActuatorPwmMixin::serialize(JSON::Adapter & adapter)
     JSON_OT(adapter, target);
 }
 
-void ActuatorMutexGroupMixin::serialize(JSON::Adapter & adapter)
+void ActuatorMutexGroupMixin::serializeImpl(JSON::Adapter & adapter)
 {
     ActuatorMutexGroup * obj = static_cast<ActuatorMutexGroup *>(this);
 
@@ -203,7 +209,7 @@ void ActuatorMutexGroupMixin::serialize(JSON::Adapter & adapter)
     JSON_T(adapter, waitTime);
 }
 
-void ActuatorMutexDriverMixin::serialize(JSON::Adapter & adapter)
+void ActuatorMutexDriverMixin::serializeImpl(JSON::Adapter & adapter)
 {
     ActuatorMutexDriver * obj = static_cast<ActuatorMutexDriver *>(this);
 
@@ -212,7 +218,7 @@ void ActuatorMutexDriverMixin::serialize(JSON::Adapter & adapter)
     JSON_OT(adapter, target);
 }
 
-void ActuatorValueMixin::serialize(JSON::Adapter & adapter)
+void ActuatorValueMixin::serializeImpl(JSON::Adapter & adapter)
 {
     ActuatorValue * obj = static_cast<ActuatorValue *>(this);
 
@@ -222,7 +228,7 @@ void ActuatorValueMixin::serialize(JSON::Adapter & adapter)
     JSON_OT(adapter, maximum);
 }
 
-void ActuatorBoolMixin::serialize(JSON::Adapter & adapter)
+void ActuatorBoolMixin::serializeImpl(JSON::Adapter & adapter)
 {
     ActuatorBool * obj = static_cast<ActuatorBool *>(this);
 
@@ -230,7 +236,7 @@ void ActuatorBoolMixin::serialize(JSON::Adapter & adapter)
     JSON_OT(adapter, state);
 }
 
-void ActuatorNopMixin::serialize(JSON::Adapter & adapter)
+void ActuatorNopMixin::serializeImpl(JSON::Adapter & adapter)
 {
     ActuatorNop * obj = static_cast<ActuatorNop *>(this);
 
@@ -241,7 +247,7 @@ void ActuatorNopMixin::serialize(JSON::Adapter & adapter)
     JSON_T(adapter, state);
 }
 
-void ActuatorInvalidMixin::serialize(JSON::Adapter & adapter)
+void ActuatorInvalidMixin::serializeImpl(JSON::Adapter & adapter)
 {
     ActuatorInvalid * obj     = static_cast<ActuatorInvalid *>(this);
     temp_t            value   = obj -> getValue();
@@ -254,7 +260,7 @@ void ActuatorInvalidMixin::serialize(JSON::Adapter & adapter)
     JSON_T(adapter, maximum);
 }
 
-void ActuatorPinMixin::serialize(JSON::Adapter & adapter)
+void ActuatorPinMixin::serializeImpl(JSON::Adapter & adapter)
 {
 #if WIRING
     ActuatorPin * obj   = static_cast<ActuatorPin *>(this);
@@ -267,7 +273,7 @@ void ActuatorPinMixin::serialize(JSON::Adapter & adapter)
 #endif
 }
 
-void ValveControllerMixin::serialize(JSON::Adapter & adapter)
+void ValveControllerMixin::serializeImpl(JSON::Adapter & adapter)
 {
 #if WIRING
     ValveController * obj = static_cast<ValveController *>(this);
@@ -278,7 +284,7 @@ void ValveControllerMixin::serialize(JSON::Adapter & adapter)
 #endif
 }
 
-void ActuatorOneWireMixin::serialize(JSON::Adapter & adapter)
+void ActuatorOneWireMixin::serializeImpl(JSON::Adapter & adapter)
 {
 #if WIRING
     ActuatorOneWire * obj = static_cast<ActuatorOneWire *>(this);
@@ -294,7 +300,7 @@ void ActuatorOneWireMixin::serialize(JSON::Adapter & adapter)
 }
 
 
-void SetPointSimpleMixin::serialize(JSON::Adapter & adapter)
+void SetPointSimpleMixin::serializeImpl(JSON::Adapter & adapter)
 {
     SetPointSimple * obj = static_cast<SetPointSimple *>(this);
 
@@ -304,7 +310,7 @@ void SetPointSimpleMixin::serialize(JSON::Adapter & adapter)
     JSON_OT(adapter, value);
 }
 
-void SetPointConstantMixin::serialize(JSON::Adapter & adapter)
+void SetPointConstantMixin::serializeImpl(JSON::Adapter & adapter)
 {
     SetPointConstant * obj   = static_cast<SetPointConstant *>(this);
     temp_t             value = obj -> value;    // create non-const copy for template resolution to work
@@ -313,7 +319,7 @@ void SetPointConstantMixin::serialize(JSON::Adapter & adapter)
     JSON_T(adapter, value);
 }
 
-void SetPointMinMaxMixin::serialize(JSON::Adapter & adapter)
+void SetPointMinMaxMixin::serializeImpl(JSON::Adapter & adapter)
 {
     SetPointMinMax * obj = static_cast<SetPointMinMax *>(this);
 
@@ -323,3 +329,12 @@ void SetPointMinMaxMixin::serialize(JSON::Adapter & adapter)
     JSON_OT(adapter, max);
 }
 
+void ActuatorRangeReferenceMixin::serializeImpl(JSON::Adapter & adapter)
+{
+#warning TODO: implemnet serialization
+}
+
+void ActuatorDigitalReferenceMixin::serializeImpl(JSON::Adapter & adapter)
+{
+#warning TODO: implemnet serialization
+}

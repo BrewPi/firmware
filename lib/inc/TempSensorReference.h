@@ -28,6 +28,14 @@ public:
 	TempSensorReference() : target(nullptr) {};
 	~TempSensorReference() = default;
 
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    inline void accept(AbstractVisitor & v) final {
+    	v.visit(*this);
+    }
+
     void setTarget(TempSensorInterface * s) {
         target = s;
     }

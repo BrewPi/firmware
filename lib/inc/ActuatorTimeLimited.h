@@ -46,6 +46,14 @@ public:
 
     ~ActuatorTimeLimited() = default;
 
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    inline void accept(AbstractVisitor & v) final {
+    	v.visit(*this);
+    }
+
     void setActive(bool active, int8_t priority = 127) override final;    // returns new actuator state
 
     bool isActive() const override final

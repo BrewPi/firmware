@@ -31,5 +31,3 @@ ActuatorNop * defaultActuator();
 ActuatorInvalid * defaultLinearActuator(); // always returns invalid and does nothing
 TempSensorDisconnected * defaultTempSensor();
 SetPointConstant * defaultSetPoint();
-
-

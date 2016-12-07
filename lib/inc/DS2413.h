@@ -26,11 +26,6 @@
 #include "Logger.h"
 
 typedef uint8_t pio_t;
-
-#ifndef DS2413_SUPPORT_SENSE
-#define DS2413_SUPPORT_SENSE 1
-#endif
-
 #define  DS2413_FAMILY_ID 0x3A
 
 /*
@@ -117,8 +112,6 @@ private:
      */
     uint8_t writeByteFromCache();
 
-#if DS2413_SUPPORT_SENSE
-
 public:
 
     /**
@@ -137,7 +130,5 @@ public:
      */
     bool sense(pio_t pio,
                bool  defaultValue);
-
-#endif
 
 };
