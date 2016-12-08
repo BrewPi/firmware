@@ -59,13 +59,11 @@ public:
 	virtual void visit(ActuatorMutexGroup& thisRef) = 0;
 	virtual void visit(ActuatorNop& thisRef) = 0;
 	virtual void visit(ActuatorOneWire& thisRef) = 0;
-	virtual void visit(ActuatorPin& thisRef) = 0;
 	virtual void visit(ActuatorPwm& thisRef) = 0;
 	virtual void visit(ActuatorRangeReference& thisRef) = 0;
 	virtual void visit(ActuatorSetPoint& thisRef) = 0;
 	virtual void visit(ActuatorTimeLimited& thisRef) = 0;
 	virtual void visit(ActuatorValue& thisRef) = 0;
-	virtual void visit(OneWireTempSensor& thisRef) = 0;
 	virtual void visit(Pid& thisRef) = 0;
 	virtual void visit(SetPointConstant& thisRef) = 0;
 	virtual void visit(SetPointMinMax& thisRef) = 0;
@@ -75,5 +73,9 @@ public:
 	virtual void visit(TempSensorExternal& thisRef) = 0;
 	virtual void visit(TempSensorFallback& thisRef) = 0;
 	virtual void visit(TempSensorMock& thisRef) = 0;
+	virtual void visit(OneWireTempSensor& thisRef) = 0;
 	virtual void visit(ValveController& thisRef) = 0;
+#if WIRING
+	virtual void visit(ActuatorPin& thisRef) = 0;
+#endif
 };

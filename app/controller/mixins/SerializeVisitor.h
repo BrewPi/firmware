@@ -20,6 +20,7 @@
 #pragma once
 #include "AbstractVisitor.h"
 #include "json_adapter.h"
+#include "Platform.h"
 
 
 class SerializeVisitor :
@@ -36,13 +37,11 @@ public:
     void visit(ActuatorMutexGroup& thisRef) final;
     void visit(ActuatorNop& thisRef) final;
     void visit(ActuatorOneWire& thisRef) final;
-    void visit(ActuatorPin& thisRef) final;
     void visit(ActuatorPwm& thisRef) final;
     void visit(ActuatorRangeReference& thisRef) final;
     void visit(ActuatorSetPoint& thisRef) final;
     void visit(ActuatorTimeLimited& thisRef) final;
     void visit(ActuatorValue& thisRef) final;
-    void visit(OneWireTempSensor& thisRef) final;
     void visit(Pid& thisRef) final;
     void visit(SetPointConstant& thisRef) final;
     void visit(SetPointMinMax& thisRef) final;
@@ -52,7 +51,11 @@ public:
     void visit(TempSensorExternal& thisRef) final;
     void visit(TempSensorFallback& thisRef) final;
     void visit(TempSensorMock& thisRef) final;
+    void visit(OneWireTempSensor& thisRef) final;
     void visit(ValveController& thisRef) final;
+#if WIRING
+    void visit(ActuatorPin& thisRef) final;
+#endif
 
 private:
     JSON::Adapter& adapter;

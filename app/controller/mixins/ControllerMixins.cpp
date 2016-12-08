@@ -37,13 +37,11 @@
 #include "ActuatorMocks.h"
 #include "SetPoint.h"
 #include "SerializeVisitor.h"
-
-#if WIRING
-
-#include "ActuatorPin.h"
 #include "ActuatorOneWire.h"
 #include "ValveController.h"
 
+#if WIRING
+#include "ActuatorPin.h"
 #endif
 
 // These macros are equivalent to ESJ, except for that they add obj-> in front of the member variable name

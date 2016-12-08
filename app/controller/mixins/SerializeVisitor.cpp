@@ -18,12 +18,12 @@
  */
 
 #include "SerializeVisitor.h"
+#include "Platform.h"
 
 #include "ActuatorMocks.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorReferences.h"
 #include "ActuatorMutexDriver.h"
-#include "ActuatorPin.h"
 #include "ActuatorPwm.h"
 #include "ActuatorOneWire.h"
 #include "SetPoint.h"
@@ -32,12 +32,16 @@
 #include "TempSensorExternal.h"
 #include "TempSensorFallback.h"
 #include "TempSensorMock.h"
-#include "ValveController.h"
 #include "Pid.h"
 #include "OneWireSwitch.h"
-#include "OneWireTempSensor.h"
 #include "ActuatorTimeLimited.h"
 #include "ActuatorSetPoint.h"
+#include "OneWireTempSensor.h"
+#include "ValveController.h"
+
+#if WIRING
+#include "ActuatorPin.h"
+#endif
 
 void SerializeVisitor::visit(ActuatorBool& thisRef) {
     thisRef.serializeImpl(adapter);
@@ -60,10 +64,6 @@ void SerializeVisitor::visit(ActuatorNop& thisRef) {
 void SerializeVisitor::visit(ActuatorOneWire& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(ActuatorPin& thisRef) {
-    thisRef.serializeImpl(adapter);
-}
-
 void SerializeVisitor::visit(ActuatorPwm& thisRef) {
     thisRef.serializeImpl(adapter);
 }
@@ -77,9 +77,6 @@ void SerializeVisitor::visit(ActuatorTimeLimited& thisRef) {
     thisRef.serializeImpl(adapter);
 }
 void SerializeVisitor::visit(ActuatorValue& thisRef) {
-    thisRef.serializeImpl(adapter);
-}
-void SerializeVisitor::visit(OneWireTempSensor& thisRef) {
     thisRef.serializeImpl(adapter);
 }
 void SerializeVisitor::visit(Pid& thisRef) {
@@ -109,6 +106,14 @@ void SerializeVisitor::visit(TempSensorFallback& thisRef) {
 void SerializeVisitor::visit(TempSensorMock& thisRef) {
     thisRef.serializeImpl(adapter);
 }
+void SerializeVisitor::visit(OneWireTempSensor& thisRef) {
+    thisRef.serializeImpl(adapter);
+}
 void SerializeVisitor::visit(ValveController& thisRef) {
     thisRef.serializeImpl(adapter);
 }
+#if WIRING
+void SerializeVisitor::visit(ActuatorPin& thisRef) {
+    thisRef.serializeImpl(adapter);
+}
+#endif
