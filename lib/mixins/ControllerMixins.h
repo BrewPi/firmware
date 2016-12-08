@@ -1,142 +1,37 @@
 ﻿#pragma once
 
 /* Empty Mixins. Application can include non-empty mixins instead of this file
- * Using protected non-virtual destructors to prevent destruction through base class
  */
 
-class TempSensorInterfaceMixin {
-protected:
-    ~TempSensorInterfaceMixin() = default;
-};
-
-class TempSensorMockMixin {
-protected:
-    ~TempSensorMockMixin() = default;
-};
-
-class TempSensorMixin {
-protected:
-    ~TempSensorMixin() = default;
-};
-
-class TempSensorFallbackMixin {
-protected:
-    ~TempSensorFallbackMixin() = default;
-};
-
-class PidMixin {
-protected:
-    ~PidMixin() = default;
-};
-
-class OneWireTempSensorMixin {
-protected:
-    ~OneWireTempSensorMixin() = default;
-};
-
-class TempSensorDisconnectedMixin {
-protected:
-    ~TempSensorDisconnectedMixin() = default;
-};
-
-class TempSensorExternalMixin {
-protected:
-    ~TempSensorExternalMixin() = default;
-};
-
-
-class ActuatorInterfaceMixin {
-protected:
-    ~ActuatorInterfaceMixin() = default;
-};
-
-
-class ActuatorTimeLimitedMixin {
-protected:
-    ~ActuatorTimeLimitedMixin() = default;
-};
-
-class ActuatorSetPointMixin {
-protected:
-    ~ActuatorSetPointMixin() = default;
-};
-
-class ActuatorPwmMixin {
-protected:
-    ~ActuatorPwmMixin() = default;
-};
-
-class ActuatorMutexGroupMixin {
-protected:
-    ~ActuatorMutexGroupMixin() = default;
-};
-
-class ActuatorMutexDriverMixin {
-protected:
-    ~ActuatorMutexDriverMixin() = default;
-};
-
-class ActuatorValueMixin {
-protected:
-    ~ActuatorValueMixin() = default;};
-
-class ActuatorBoolMixin {
-protected:
-    ~ActuatorBoolMixin() = default;
-};
-
-class ActuatorNopMixin {
-protected:
-    ~ActuatorNopMixin() = default;
-};
-
-class ActuatorInvalidMixin {
-protected:
-    ~ActuatorInvalidMixin() = default;
-};
-
-class ActuatorDigitalMixin {
-protected:
-    ~ActuatorDigitalMixin() = default;
-};
-
-class SetPointMixin {
-protected:
-    ~SetPointMixin() = default;
-};
-
-class SetPointSimpleMixin {
-protected:
-    ~SetPointSimpleMixin() = default;
-};
-
-class SetPointConstantMixin {
-protected:
-    ~SetPointConstantMixin() = default;
-};
-
-class SetPointMinMaxMixin {
-protected:
-    ~SetPointMinMaxMixin() = default;
-};
-
-class ActuatorPinMixin {
-protected:
-    ~ActuatorPinMixin() = default;
-};
-
-class ValveControllerMixin {
-protected:
-    ~ValveControllerMixin() = default;
-};
-
-class ActuatorOneWireMixin {
-protected:
-    ~ActuatorOneWireMixin() = default;
-};
-
-class ActuatorForwarderMixin {
-protected:
-    ~ActuatorForwarderMixin() = default;
-};
-
+class InterfaceMixin {};
+class ActuatorInterfaceMixin {};
+class ActuatorDigitalInterfaceMixin {};
+class ActuatorRangeInterfaceMixin {};
+class ActuatorThresholdInterfaceMixin {};
+class TempSensorInterfaceMixin {};
+class TempSensorMockMixin {};
+class TempSensorMixin {};
+class TempSensorFallbackMixin {};
+class PidMixin {};
+class OneWireTempSensorMixin {};
+class TempSensorDisconnectedMixin {};
+class TempSensorExternalMixin {};
+class ActuatorForwarderMixin {};
+class ActuatorTimeLimitedMixin {};
+class ActuatorSetPointMixin {};
+class ActuatorPwmMixin {};
+class ActuatorMutexGroupMixin {};
+class ActuatorMutexDriverMixin {};
+class ActuatorValueMixin {};
+class ActuatorBoolMixin {};
+class ActuatorNopMixin {};
+class ActuatorInvalidMixin {};
+class SetPointMixin {};
+class SetPointSimpleMixin {};
+class SetPointConstantMixin {};
+class SetPointMinMaxMixin {};
+class ActuatorPinMixin {};
+class ValveControllerMixin {};
+class ActuatorOneWireMixin {};
+class ActuatorRangeReferenceMixin {};
+class ActuatorDigitalReferenceMixin {};
