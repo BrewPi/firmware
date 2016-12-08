@@ -166,9 +166,9 @@ protected:
     ~ActuatorInvalidMixin() = default;
 };
 
-class SetPointMixin {
+class SetPointInterfaceMixin {
 protected:
-    ~SetPointMixin() = default;
+    ~SetPointInterfaceMixin() = default;
 };
 
 class SetPointSimpleMixin: public Nameable {

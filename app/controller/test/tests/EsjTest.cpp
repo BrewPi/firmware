@@ -115,22 +115,22 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
 }
 
 BOOST_AUTO_TEST_CASE(serialize_setpoint) {
-    SetPoint * sp1 = new SetPointSimple();
-    SetPoint * sp2 = new SetPointConstant(20.0);
+    SetPointInterface * sp1 = new SetPointSimple();
+    SetPointInterface * sp2 = new SetPointConstant(20.0);
     SetPointSimple * sp3 = new SetPointSimple(25.0625);
     sp3->setName("test");
 
-    std::string json = JSON::producer<SetPoint>::convert(sp1);
+    std::string json = JSON::producer<SetPointInterface>::convert(sp1);
     std::string valid = R"({"kind":"SetPointSimple","name":"","value":null})";
 
     BOOST_CHECK_EQUAL(valid, json);
 
-    json = JSON::producer<SetPoint>::convert(sp2);
+    json = JSON::producer<SetPointInterface>::convert(sp2);
     valid = R"({"kind":"SetPointConstant","value":20.0000})";
 
     BOOST_CHECK_EQUAL(valid, json);
 
-    json = JSON::producer<SetPoint>::convert(sp3);
+    json = JSON::producer<SetPointInterface>::convert(sp3);
     valid = R"({"kind":"SetPointSimple","name":"test","value":25.0625})";
 
     BOOST_CHECK_EQUAL(valid, json);
@@ -155,8 +155,8 @@ BOOST_AUTO_TEST_CASE(serialize_setpointMinMax) {
 }
 
 BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
-    SetPoint * sp1 = new SetPointSimple();
-    SetPoint * sp2 = new SetPointConstant(20.0);
+    SetPointInterface * sp1 = new SetPointSimple();
+    SetPointInterface * sp2 = new SetPointConstant(20.0);
     TempSensorInterface * sens1 = new TempSensorMock(20.0);
     ActuatorRangeInterface * act = new ActuatorSetPoint(sp1, sens1, sp2, -10.0, 10.0);
     act->setValue(5.0); // should set sp1 to sp2 + 5.0 = 25.0;
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
     TempSensorInterface * sensor = new TempSensorMock(20.0);
     ActuatorDigitalInterface * boolAct = new ActuatorBool();
     ActuatorRangeInterface * pwmAct = new ActuatorPwm(boolAct,4);
-    SetPoint * sp = new SetPointSimple(20.0);
+    SetPointInterface * sp = new SetPointSimple(20.0);
     Pid * pid = new Pid(sensor, pwmAct, sp);
 
     std::string json = JSON::producer<Pid>::convert(pid);

@@ -109,8 +109,8 @@ public:
     Pid * hltHeaterPid;
     Pid * mashToHltPid;
 
-    SetPoint * mashSet;
-    SetPoint * hltSet;
+    SetPointInterface * mashSet;
+    SetPointInterface * hltSet;
 };
 
 /* This class simulates a mashing process.

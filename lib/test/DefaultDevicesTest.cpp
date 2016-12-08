@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(defaultTempSensor_works_with_all_TempSensorInterface_functi
 }
 
 BOOST_AUTO_TEST_CASE(defaultSetPoint_works_for_all_SetPoint_functions){
-    SetPoint * setpoint = defaultSetPoint();
+    SetPointInterface * setpoint = defaultSetPoint();
 
     setpoint->write(20.0); // doesn't return anything, just should not crash
 

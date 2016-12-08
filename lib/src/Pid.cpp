@@ -23,7 +23,7 @@
 
 Pid::Pid(TempSensorInterface * input,
          ActuatorRangeInterface * output,
-         SetPoint * setPoint)
+         SetPointInterface * setPoint)
 {
     setConstants(temp_t(0.0), 0, 0);
     p = decltype(p)::base_type(0);

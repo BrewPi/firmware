@@ -23,19 +23,19 @@
 #include "ControllerMixins.h"
 #include "Interface.h"
 
-class SetPoint : public virtual Interface, public SetPointMixin{
+class SetPointInterface : public virtual Interface, public SetPointInterfaceMixin{
 public:
-    SetPoint() = default;
-    virtual ~SetPoint() = default;
+    SetPointInterface() = default;
+    virtual ~SetPointInterface() = default;
     virtual temp_t read() const = 0;
     virtual void write(temp_t val) = 0;
     void update() final {}; // periodic update not needed for setpoints
     void fastUpdate() final {}; // fast update not needed for setpoints
-friend class SetPointMixin;
+friend class SetPointInterfaceMixin;
 };
 
 
-class SetPointSimple final : public SetPoint, public SetPointSimpleMixin {
+class SetPointSimple final : public SetPointInterface, public SetPointSimpleMixin {
 public:
     SetPointSimple(temp_t val = temp_t::disabled()) : value(val){}
     ~SetPointSimple() = default;
@@ -60,7 +60,7 @@ private:
 friend class SetPointSimpleMixin;
 };
 
-class SetPointMinMax final : public SetPoint, public SetPointMinMaxMixin {
+class SetPointMinMax final : public SetPointInterface, public SetPointMinMaxMixin {
 public:
     SetPointMinMax(temp_t val = temp_t::disabled()) : value(val),
                                                       min(temp_t::min()),
@@ -112,7 +112,7 @@ friend class SetPointMinMaxMixin;
 
 
 // immutable SetPoint, always reading for example 'invalid' to indicate that the setpoint has not been configured
-class SetPointConstant final : public SetPoint, public SetPointConstantMixin {
+class SetPointConstant final : public SetPointInterface, public SetPointConstantMixin {
 public:
     SetPointConstant(const temp_t val): value(val){}
     ~SetPointConstant() = default;

@@ -26,7 +26,7 @@ class ActuatorValueMixin {};
 class ActuatorBoolMixin {};
 class ActuatorNopMixin {};
 class ActuatorInvalidMixin {};
-class SetPointMixin {};
+class SetPointInterfaceMixin {};
 class SetPointSimpleMixin {};
 class SetPointConstantMixin {};
 class SetPointMinMaxMixin {};

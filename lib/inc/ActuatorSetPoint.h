@@ -31,9 +31,9 @@
 class ActuatorSetPoint final : public ActuatorRangeInterface, public ActuatorSetPointMixin
 {
 public:
-    ActuatorSetPoint(SetPoint * targSetPoint = defaultSetPoint(), // set point to manipulate
+    ActuatorSetPoint(SetPointInterface * targSetPoint = defaultSetPoint(), // set point to manipulate
                      TempSensorInterface * targSensor = defaultTempSensor(), // sensor to go with target setpoint
-                     SetPoint * refSetPoint = defaultSetPoint(), //set point to offset from
+                     SetPointInterface * refSetPoint = defaultSetPoint(), //set point to offset from
                      temp_t mini = temp_t::min(), // minimum actuator value (targ - ref)
                      temp_t maxi = temp_t::max()) :  // maximum actuator value
         targetSetPoint(targSetPoint),
@@ -98,9 +98,9 @@ public:
     void fastUpdate() override final {}; //no actions required
 
 private:
-    SetPoint * targetSetPoint;
+    SetPointInterface * targetSetPoint;
     TempSensorInterface * targetSensor;
-    SetPoint * referenceSetPoint;
+    SetPointInterface * referenceSetPoint;
     temp_t minimum;
     temp_t maximum;
 

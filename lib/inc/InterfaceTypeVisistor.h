@@ -25,7 +25,7 @@ class ActuatorDigitalInterface;
 class ActuatorRangeInterface;
 class ActuatorThresholdInterface;
 class TempSensorInterface;
-class SetPoint;
+class SetPointInterface;
 class ControllerInterface;
 
 class InterfaceTypeVisitor : public AbstractVisitor {
@@ -43,7 +43,7 @@ public:
 	void visit(TempSensorInterface const * const) final { lastType = 50; }
 
 	// SetPoints
-	void visit(SetPoint const * const) final { lastType = 100; }
+	void visit(SetPointInterface const * const) final { lastType = 100; }
 	void visit(ControllerInterface const * const) final { lastType = 150; }
 
 	uint8_t getType(){

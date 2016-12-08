@@ -118,8 +118,8 @@ public:
     Pid * coolerPid;
     Pid * beerToFridgePid;
 
-    SetPoint * beerSet;
-    SetPoint * fridgeSet;
+    SetPointInterface * beerSet;
+    SetPointInterface * fridgeSet;
 };
 
 /* This class simulates a fridge is a simple way:

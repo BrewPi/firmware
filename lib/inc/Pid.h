@@ -34,7 +34,7 @@ class Pid final : public ControllerInterface, public PidMixin
 {
 
     public:
-        Pid(TempSensorInterface * input, ActuatorRangeInterface * output, SetPoint * setPoint);
+        Pid(TempSensorInterface * input, ActuatorRangeInterface * output, SetPointInterface * setPoint);
 
         Pid() : Pid(defaultTempSensor(), defaultLinearActuator(), defaultSetPoint()){}
 
@@ -78,11 +78,11 @@ class Pid final : public ControllerInterface, public PidMixin
             return outputActuator;
         }
 
-        void setSetPoint(SetPoint * s){
+        void setSetPoint(SetPointInterface * s){
             setPoint = s;
         }
 
-        SetPoint * getSetPoint(){
+        SetPointInterface * getSetPoint(){
             return setPoint;
         }
 
@@ -120,7 +120,7 @@ class Pid final : public ControllerInterface, public PidMixin
     protected:
         ActuatorRangeInterface *   outputActuator;
         TempSensorInterface * inputSensor;
-        SetPoint *        setPoint;
+        SetPointInterface *        setPoint;
         temp_long_t       Kp;    // proportional gain
         uint16_t          Ti;    // integral time constant
         uint16_t          Td;    // derivative time constant
