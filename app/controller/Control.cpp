@@ -20,6 +20,7 @@
 
 
 #include "Control.h"
+#include "Platform.h"
 
 #include <vector>
 #include "Pid.h"
@@ -78,28 +79,30 @@ Control::Control()
     beerToFridgePid = new Pid(beer1Sensor, fridgeSetPointActuator, beer1Set);
     beerToFridgePid->setName("beer2fridge");
 
-    pids.push_back(heater1Pid);
-    pids.push_back(heater2Pid);
-    pids.push_back(coolerPid);
-    pids.push_back(beerToFridgePid);
-
-    sensors.push_back(fridgeSensor);
-    sensors.push_back(beer1Sensor);
-    sensors.push_back(beer2Sensor);
-    sensors.push_back(coolerInputSensor);
-    sensors.push_back(heaterInputSensor);
-
-    actuators.push_back(cooler);
-    actuators.push_back(heater1);
-    actuators.push_back(heater2);
-
     beer1Set->setName("beer1set");
     beer2Set->setName("beer2set");
     fridgeSet->setName("fridgeset");
 
-    setpoints.push_back(beer1Set);
-    setpoints.push_back(beer2Set);
-    setpoints.push_back(fridgeSet);
+    objects.push_back(heater1Pid);
+    objects.push_back(heater2Pid);
+    objects.push_back(coolerPid);
+    objects.push_back(beerToFridgePid);
+
+    objects.push_back(fridgeSensor);
+    objects.push_back(beer1Sensor);
+    objects.push_back(beer2Sensor);
+    objects.push_back(coolerInputSensor);
+    objects.push_back(heaterInputSensor);
+
+    objects.push_back(cooler);
+    objects.push_back(heater1);
+    objects.push_back(heater2);
+
+    objects.push_back(beer1Set);
+    objects.push_back(beer2Set);
+    objects.push_back(fridgeSet);
+
+    objects.push_back(mutex);
 
     mutex->setDeadTime(1800000); // 30 minutes
 }
@@ -132,56 +135,26 @@ Control::~Control(){
     delete coolerPid;
     delete beerToFridgePid;
 
-    pids.clear();
-    sensors.clear();
-    actuators.clear();
+    objects.clear();
 #endif
 }
 
 // This update function should be called every second
 void Control::update(){
-    updateSensors();
-    updatePids();
-    updateActuators();
-    mutex->update();
+    for ( auto &obj : objects ) {
+        obj->update();
+    }
 }
 
-// This update function should be called every second
 void Control::fastUpdate(){
-    fastUpdateActuators();
-}
-
-void Control::updatePids(){
-    for ( auto &pid : pids ) {
-        pid->update();
-    }
-}
-
-// The actuator update should be called often to generate the PWM signal
-void Control::updateSensors(){
-    for ( auto &sensor : sensors ) {
-        sensor->update();
-    }
-}
-
-void Control::updateActuators(){
-    for ( auto &actuator : actuators ) {
-        actuator->update();
-    }
-}
-
-void Control::fastUpdateActuators(){
-    for ( auto &actuator : actuators ) {
-        actuator->fastUpdate();
+    for ( auto &obj : objects ) {
+    	obj->fastUpdate();
     }
 }
 
 void Control::serialize(JSON::Adapter& adapter){
     JSON::Class root(adapter, "Control");
-    JSON_T(adapter, pids);
-    //JSON_E(adapter, sensors);
-    //JSON_E(adapter, actuators);
-    //JSON_T(adapter, setpoints);
+    JSON_T(adapter, objects);
 }
 
 Control control;

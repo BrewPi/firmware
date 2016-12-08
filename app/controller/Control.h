@@ -44,17 +44,9 @@ public:
     void update(); // update everything
     void fastUpdate(); // update things that need fast updating (like PWM)
 
-    void updateSensors();
-    void updatePids();
-    void updateActuators();
-    void fastUpdateActuators();
-
     void serialize(JSON::Adapter& adapter);
 
-    std::vector<SetPoint*> setpoints;
-    std::vector<TempSensorInterface*> sensors;
-    std::vector<Pid*>        pids;
-    std::vector<ActuatorInterface*>   actuators;
+    std::vector<Interface*> objects;
 
     // static setup below, we should support generating this dynamically later
 protected:
