@@ -1,10 +1,5 @@
 /**
- ******************************************************************************
- * @file    wiced_stubs.h
- * @authors Matthew McGowan
- * @date    10 February 2015
- ******************************************************************************
-  Copyright (c) 2015 Particle Industries, Inc.  All rights reserved.
+  Copyright (c) 2016 Particle Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -21,18 +16,11 @@
  ******************************************************************************
  */
 
-#ifndef WICED_STUBS_H
-#define	WICED_STUBS_H
+#ifndef USB_SETTINGS_H_
+#define USB_SETTINGS_H_
 
-typedef struct resource_hnd_t {
+#define USB_RX_BUFFER_SIZE              256
 
-} resource_hnd_t;
+//#define USB_SERIAL_USERSPACE_BUFFERS    0
 
-const resource_hnd_t* wwd_firmware_image_resource(void);
-
-const resource_hnd_t* wwd_nvram_image_resource(void);
-
-
-
-#endif	/* WICED_STUBS_H */
-
+#endif /* USB_SETTINGS_H_ */

@@ -32,7 +32,7 @@
 #include "runner.h"
 #include <iostream>
 #include <fstream>
-#include <math.h> // for sin
+#include <cmath> // for sin
 
 #define PRINT_TOGGLE_TIMES 0
 

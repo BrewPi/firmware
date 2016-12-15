@@ -1,4 +1,84 @@
-## v0.5.0-rc.2
+## v0.5.3 (same as v0.5.3-rc.3)
+
+### ENHANCEMENTS
+
+- Automatically adds vendored libraries from the `lib` directory for extended application projects [#1053](https://github.com/spark/firmware/pull/1053)
+
+### INTERNAL
+
+- Feature/vendorlibraries [#1009](https://github.com/spark/firmware/pull/1009)
+
+
+## v0.5.3-rc.2
+
+### FEATURE
+
+- DTR/RTS support (open/closed detection: `Serial.isConnected()`). [#1073](https://github.com/spark/firmware/pull/1073)
+
+### ENHANCEMENTS
+
+- [Electron] System firmware is now aware of system-part3 to allow OTA/YModem upgrade from >=0.5.3-rc.2 to >=0.6.0-rc.1
+
+### BUGFIXES
+
+- added HAL_IsISR() which is used to skip calling the background loop from delay(). fixes [#673](https://github.com/spark/firmware/issue/673)
+- Fixes an issue of USB Serial erroneously switching to closed state. [#1073](https://github.com/spark/firmware/pull/1073)
+- RTC wakeup time now calculated right before entering SLEEP_MODE_DEEP. Fixes [#1043](https://github.com/spark/firmware/issue/1043)
+- STOP mode should retain user interrupt handler. Fixes [#1029](https://github.com/spark/firmware/issue/1029)
+
+
+## v0.5.3-rc.1
+
+### BUGFIXES
+
+- SoftAP mode persisting when setup complete if Wi-Fi was off. [#971](https://github.com/spark/firmware/issues/971)
+- Free memory allocated for previous system interrupt handler [#951](https://github.com/spark/firmware/pull/951) fixes [#927](https://github.com/spark/firmware/issues/927)
+- availableForWrite() was reporting bytes available instead of bytes available for write [#1020](https://github.com/spark/firmware/pull/1020) and [#1017](https://github.com/spark/firmware/issues/1017)
+- `millis()`/`micros()` are now atomic to ensure monotonic values. Fixes [#916](https://github.com/spark/firmware/issues/916), [#925](https://github.com/spark/firmware/issues/925) and [#1042](https://github.com/spark/firmware/issues/1042)
+- Fixes to I2C Slave mode implementation with clock stretching enabled [#931](https://github.com/spark/firmware/pull/931)
+- General I2C Improvements and MCP23017 tests [#1047](https://github.com/spark/firmware/pull/1047)
+- Rebuilt Wiced_Network_LwIP_FreeRTOS.a WWD_for_SDIO_FreeRTOS.a on OSX [#1057](https://github.com/spark/firmware/pull/1057) fixes Local build stalling on object dump [#1049](https://github.com/spark/firmware/issues/1049)
+- `digitalRead()` interfered with `analogRead()` [#1006](https://github.com/spark/firmware/pull/1006) fixes [#993](https://github.com/spark/firmware/issues/993)
+- Validates that module dependencies would still be satisfied after the module from the "ota_module" location is flashed (via OTA or YMODEM flashing) [#1063](https://github.com/spark/firmware/pull/1063)
+
+
+## v0.5.2 (same as v0.5.2-rc.1)
+
+### ENHANCEMENTS
+
+- [Photon/P1] Restores the default WICED country to Japan [#1014](https://github.com/spark/firmware/pull/1014)
+
+### BUGFIXES
+
+- .syncTime() and .unsubscribe() called on the system thread. Prevents issues when multiple threads try to send messages through the cloud connection or manage the network state shared memory. [#1041](https://github.com/spark/firmware/pull/1041)
+
+
+## v0.5.1 (same as v0.5.1-rc.2)
+
+### FEATURES
+
+- [Electron] Added support in HAL for a SMS received callback handler.
+
+
+## v0.5.1-rc.1
+
+### FEATURES
+
+- Wi-Fi Country Code can be set to configure the available channels and power transmission. [#942](https://github.com/spark/firmware/pull/942)
+
+### ENHANCEMENTS
+
+- ARM GCC 5.3.1 compiler support
+
+### BUGFIXES
+
+- [Photon/P1] Fix a timing-critical bug in WICED that causes system freeze. [#877](https://github.com/spark/firmware/issues/877)
+- Tone not available on A7 after stop-mode sleep. [#938](https://github.com/spark/firmware/issues/938) 
+- Regression in EEPROM emulation size. [#983](https://github.com/spark/firmware/pull/983)
+- [Electron] Wrong bitmask is provided for 4208 setting in power management [#987](https://github.com/spark/firmware/pull/987)
+
+
+## v0.5.0 (same as v0.5.0-rc.2)
 
 ### FEATURES
 
@@ -13,6 +93,7 @@
 
 - Soft AP Claim code fix [#956](https://github.com/spark/firmware/pull/956)
 - Variable template fix [#952](https://github.com/spark/firmware/pull/952)
+- TCPClient on Electron not receiving all of the data for small files [#896](https://github.com/spark/firmware/issues/896) 
 
 ## v0.5.0-rc.1
 
@@ -46,7 +127,6 @@
 ### BUGFIXES
 
 - targets `program-cloud`, `program-dfu` can be used without requiring `all` and will built the firmware correctly. [#899](https://github.com/spark/firmware/issues/899)
-- TCPClient on Electron not receiving all of the data for small files [#896](https://github.com/spark/firmware/issues/896) 
 - [Electron] Free socket when the socket is closed remotely [#885](https://github.com/spark/firmware/pull/885)
 - Extended CAN filters [#857](https://github.com/spark/firmware/pull/857)
 - I2C does not ensure a stop condition completes correctly in endTransmission [#856](https://github.com/spark/firmware/pull/856)
