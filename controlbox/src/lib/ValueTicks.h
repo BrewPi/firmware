@@ -89,7 +89,7 @@ public:
 	 *   4-bytes	uint32	The number of milliseconds passed since poweron.
 	 *   2-bytes	uint16	The time scaling. a 16-bit integer.
 	 */
-	uint8_t streamSize() { return 6; }
+	uint8_t readStreamSize() { return 6; }
 
 	// return time that has passed since timeStamp, take overflow into account
 	ticks_seconds_t timeSince(ticks_seconds_t previousTime) {
@@ -124,7 +124,7 @@ public:
 		writePlatformEndianBytes(&millis, 4, out);
 	}
 
-	uint8_t streamSize()
+	uint8_t readStreamSize()
 	{
 		return sizeof(ticks_millis_t);
 	}

@@ -49,5 +49,4 @@ public:
 	virtual void wait(ticks_millis_t delay)=0;
 };
 
-
 #endif

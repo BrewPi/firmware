@@ -203,7 +203,7 @@ public:
 
 	virtual object_t objectType() { return ObjectFlags::Value; }	// basic value type - read only stream
 	virtual void readTo(DataOut& out)=0;
-	virtual uint8_t streamSize()=0;			// the size this value occupies in the stream.
+	virtual uint8_t readStreamSize()=0;			// the size this value occupies in the stream.
 
 	/**
 	 * The application-defined type for this object.
@@ -215,14 +215,13 @@ public:
 		_typeID = typeID;
 	}
 
-	virtual void writeMaskedFrom(DataIn& in, DataIn& mask){};	// default is a no-op. Caller always checks if item is writable first.
 };
 
 class WritableValue : public Value {
 public:
 	virtual object_t objectType() { return ObjectFlags::ValueWrite; }
 	virtual void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn)=0;
-
+	virtual uint8_t writeStreamSize() { return readStreamSize(); }
 	static uint8_t nextMaskedByte(uint8_t current, DataIn& dataIn, DataIn& maskIn) {
 			uint8_t next = dataIn.next();
 			uint8_t mask = maskIn.next();
@@ -243,7 +242,7 @@ public:
 	}
 
 	eptr_t eeprom_offset() { return address; }
-	uint8_t streamSize(cb_nonstatic_decl(EepromAccess& eepromAccess)) { return eepromAccess.readByte(address-1); }
+	uint8_t readStreamSize(cb_nonstatic_decl(EepromAccess& eepromAccess)) { return eepromAccess.readByte(address-1); }
 
 };
 
@@ -313,7 +312,7 @@ class MixinReadValue
 			out.writeBuffer(&value, sizeof(value));
 		}
 
-		uint8_t streamSize() { return sizeof(this->value); }
+		uint8_t readStreamSize() { return sizeof(this->value); }
 };
 
 /**
@@ -353,8 +352,8 @@ public:
 		inherited::readTo(out);
 	}
 
-	uint8_t streamSize() {
-		return inherited::streamSize();
+	uint8_t readStreamSize() {
+		return inherited::readStreamSize();
 	}
 
 };
@@ -386,8 +385,8 @@ public:
 		inherited::readTo(out);
 	}
 
-	uint8_t streamSize() {
-		return inherited::streamSize();
+	uint8_t readStreamSize() {
+		return inherited::readStreamSize();
 	}
 };
 

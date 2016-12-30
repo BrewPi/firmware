@@ -8,6 +8,8 @@
 
 bool quit = false;
 
+ScaledTicksValue ticks;
+
 /**
  * Function prototype expected by the commands implementation to perform
  * a reset.
