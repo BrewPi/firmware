@@ -1,4 +1,4 @@
-
+#pragma once
 #include "Values.h"
 #include "OneWire.h"
 #include "Board.h"

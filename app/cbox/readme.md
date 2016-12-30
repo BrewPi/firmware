@@ -72,7 +72,7 @@ The system time can also be retrieved:
 ```
 ## Enumerating the default onewire bus
 
-Enter the command
+To list the addresses of devices on the bus
 
 ```
 10 [system object write] 02 [id] 00 [type] 01 [data-len] 02 [data]
@@ -85,6 +85,106 @@ For example, with two temperature sensors connected, the response is
 ```
 10 02 00 01 02 [echo command] 00 [success result] 28 FE D8 73 06 00 00 EE [first address] 28 ED C9 73 06 00 00 5D [second address]
 ```
+
+# Creating Objects
+
+Before creating new objects, the system needs to have a profile created and activated. 
+
+## Creating and activating a profile
+
+First confirm there are no profiles defined
+
+```
+0E [list profiles]
+```
+
+which should respond with
+
+```
+0E [command echo] FF [no active profile] [empty list of profiles]
+```
+
+Then create a profile
+
+```
+07 [create profile]
+```
+
+which gives the response
+
+```
+07 [create profile] 00 [profile created with id 0]
+```
+
+The profile is created, but not yet active:
+
+```
+0e [list profiles]
+```
+
+gives 
+
+```
+07 [list profiles] FF [no active profile] 00 [profile id 0]
+```
+
+The profile is activated by
+
+```
+09 [activate profile] 00 [index]
+``
+
+which responds with
+
+```
+09 [activate profile] 00 [index] 00 [success]
+```
+
+With the profile active, you can now proceed to create objects. 
+The created profile and making it active are persistent operations, so the device will be in the same state when power is cycled.
+
+## Temperature sensors
+
+### Installing 
+
+A new temperature sensor is installed via the Create Object command.
+Be sure to install it to a new slot (use the find-slot command if needed.)
+
+```
+03 [create object] 00 [id-chain] 06 [temp sensor] 08 [size] 28 ED C9 73 06 00 00 5D [address]
+```
+03 [create object] 01 [id-chain] 06 [temp sensor] 08 [size] 28 FE D8 73 06 00 00 EE
+
+If successful, the system appends `00` to the command, indicating success.
+
+You can check the object is stored in the profile by the list profile command:
+
+```
+05 [list profile] 00 [profile 0]
+```
+
+responds with
+
+```
+05 [list profile] 00 [profile 0] 03 [create object] 00 [slot 0] 06 [type] 08 [8-bytes of data] 28 ED C9 73 06 00 00 5D [onewire address]
+
+```
+
+### Reading the temperature value
+
+```
+01 [read] 00 [id] 
+```
+
+responds with
+
+```
+01 [read] 00 [id] 00 [success] 00 [type] 00 [datalen=unknown] 01 [connected] 80 17 00 00 [temperature]
+```
+
+The temperature is in little-endian format, so the value is 0x00001780.
+This is a fixed point number, scaled by 256, so divide by 256 to get the value of 23.625. 
+
 
 
 ## Protocol Docs

@@ -1,5 +1,6 @@
 
-#include <OneWireBusCBox.h>
+#include "OneWireBusCBox.h"
+#include "OneWireTempSensorCBox.h"
 #include "EepromTypes.h"
 #include "EepromAccessImpl.h"
 
@@ -34,6 +35,7 @@ void connectionStarted(StandardConnection& connection, DataOut& out)
 #endif
 }
 
+OneWireBusCBox oneWireBus;
 
 Container& systemRootContainer()
 {
@@ -45,8 +47,6 @@ Container& systemRootContainer()
 	ticks.setTypeID(1);
 	// todo - lookup the type ID from the xxx::create function. This can
 	// be resolved at compile-time.
-
-	static OneWireBusCBox oneWireBus;
 
 	static Object* values[] = { &idValue, &ticks, &oneWireBus };
 	static FixedContainer root(arraySize(values), values);
@@ -72,6 +72,7 @@ Commands::ObjectFactory createObjectHandlers[] = {
 	EepromValue::create,									// type 3
 	PersistChangeValue::create,								// type 4
 	IndirectValue::create,									// type 5
+	OneWireTempSensorCBox::create,					// type 6
 	NULL
 
 	// When defining a new object type, add the handler above the last NULL value (it's just there to make
