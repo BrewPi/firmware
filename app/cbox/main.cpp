@@ -13,6 +13,7 @@
 #include "MDNS.h"
 
 DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
+ScaledTicksValue ticks;
 
 
 SYSTEM_THREAD(ENABLED);
