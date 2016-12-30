@@ -46,8 +46,8 @@ void ActuatorPwm::setValue(temp_t const& val) {
 temp_t ActuatorPwm::readValue() const {
     ticks_millis_t windowDuration = cycleTime; // previous time between two pulses
     ticks_millis_t totalHigh = 0;
-    ticks_millis_t sinceLowToHigh = ticks.timeSinceMillis(lowToHighTime);
-    ticks_millis_t sinceHighToLow = ticks.timeSinceMillis(highToLowTime);
+    ticks_millis_t sinceLowToHigh = timeSinceMillis(ticks.millis(), lowToHighTime);
+    ticks_millis_t sinceHighToLow = timeSinceMillis(ticks.millis(), highToLowTime);
     if(sinceLowToHigh > sinceHighToLow){
         // pulse is finished, and we are in the low period:   ___|--|__
         totalHigh = sinceLowToHigh - sinceHighToLow;
@@ -90,8 +90,8 @@ void ActuatorPwm::fastUpdate() {
     int32_t currentTime = ticks.millis();
     int32_t elapsedTime = currentTime - periodStartTime;
 
-    int32_t sinceLowToHigh = ticks.timeSinceMillis(lowToHighTime);
-    int32_t sinceHighToLow = ticks.timeSinceMillis(highToLowTime);
+    int32_t sinceLowToHigh = timeSinceMillis(ticks.millis(), lowToHighTime);
+    int32_t sinceHighToLow = timeSinceMillis(ticks.millis(), highToLowTime);
     int32_t lastHighDuration = sinceLowToHigh - sinceHighToLow;
 
     if (target->isActive()) {
@@ -116,7 +116,7 @@ void ActuatorPwm::fastUpdate() {
                 int32_t thisDutyLate = elapsedTime - dutyTime;
                 dutyLate += thisDutyLate;
                 if(highToLowTime != 0){
-                    cycleTime = ticks.timeSinceMillis(highToLowTime);
+                    cycleTime = timeSinceMillis(ticks.millis(), highToLowTime);
                 }
                 highToLowTime =currentTime;
             }
@@ -163,7 +163,7 @@ void ActuatorPwm::fastUpdate() {
                     cycleTime = estimatedCycleTime; // already had an estimate from ending cycle early
                 }
                 else{
-                    cycleTime = ticks.timeSinceMillis(lowToHighTime);
+                    cycleTime = timeSinceMillis(ticks.millis(), lowToHighTime);
                 }
                 lowToHighTime = currentTime;
             }

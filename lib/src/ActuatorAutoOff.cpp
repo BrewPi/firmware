@@ -25,10 +25,10 @@ void AutoOffActuator::setActive(bool active)
     this->active = active;
     target->setActive(active);
     if (active)
-            lastActiveTime = ticks.seconds();
+		lastActiveTime = ticks.seconds();
 }
 
 void AutoOffActuator::update() {
-    if (ticks.timeSinceSeconds(lastActiveTime)>=timeout)
-            setActive(false);
+    if (::timeSinceSeconds(ticks.seconds(), lastActiveTime)>=timeout)
+		setActive(false);
 }

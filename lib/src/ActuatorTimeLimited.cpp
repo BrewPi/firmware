@@ -60,5 +60,5 @@ void ActuatorTimeLimited::update()
 
 ticks_seconds_t ActuatorTimeLimited::timeSinceToggle() const
 {
-    return ticks.timeSinceSeconds(toggleTime);
+    return timeSinceSeconds(ticks.seconds(), toggleTime);
 }
