@@ -100,6 +100,8 @@ MDNS mdns;
 void setup()
 {
 	Serial.begin(9600);
+	eepromAccess.init();
+	controlbox_setup(0);
 	platform_init();
 
 	WiFi.on();
