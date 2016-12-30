@@ -79,17 +79,17 @@ TempControl::TempControl()
 
 tcduration_t TempControl::timeSinceCooling(void)
 {
-    return ticks.timeSinceSeconds(lastCoolTime);
+    return timeSinceSeconds(ticks.seconds(), lastCoolTime);
 }
 
 tcduration_t TempControl::timeSinceHeating(void)
 {
-    return ticks.timeSinceSeconds(lastHeatTime);
+    return timeSinceSeconds(ticks.seconds(), lastHeatTime);
 }
 
 tcduration_t TempControl::timeSinceIdle(void)
 {
-    return ticks.timeSinceSeconds(lastIdleTime);
+    return timeSinceSeconds(ticks.seconds(), lastIdleTime);
 }
 
 void TempControl::loadDefaultSettings()
