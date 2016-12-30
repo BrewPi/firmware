@@ -20,8 +20,6 @@
 #include "Static.h"
 #include "SystemProfile.h"
 #include "Commands.h"
-#include "Ticks.h"
-#include "ValueTicks.h"
 #include "ValuesEeprom.h"
 
 
@@ -57,8 +55,6 @@ typedef int8_t system_profile_t;
  */
 
 //cb_static_decl(EepromBlock SystemProfile::system_id(SYSTEM_PROFILE_ID_OFFSET, 1);)
-
-cb_static_decl(ScaledTicksValue ticks;)
 
 cb_static_decl(EepromDataOut SystemProfile::writer;)
 cb_static_decl(profile_id_t SystemProfile::current;)

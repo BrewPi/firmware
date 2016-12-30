@@ -42,8 +42,9 @@ void readValue(Object* root, DataIn& in, DataOut& out) {
 	uint8_t typeID = in.next();
 	uint8_t available = in.next();			// number of bytes expected
 	Value* v = (Value*)o;
-	if (isValue(o) && (available==v->streamSize() || available==0) && checkType(typeID, v)) {
-		out.write(v->streamSize());
+	uint8_t expected;
+	if (isValue(o) && ((expected=v->readStreamSize())==available || available==0) && checkType(typeID, v)) {
+		out.write(expected);
 		v->readTo(out);
 	}
 	else {								// not a readable object, flag as 0 length
@@ -68,12 +69,13 @@ void Commands::readSystemValueCommandHandler(DataIn& in, DataOut& out) {
  */
 void setValue(Object* root, DataIn& in, DataIn& mask, DataOut& out) {
 	Object* o = lookupObject(root, in);		// fetch the id and the object
-	Value* v = (Value*)o;
+	WritableValue* v = (WritableValue*)o;
 	uint8_t typeID = in.next();
 	uint8_t available = in.next();
-	if (isWritable(o) && (v->streamSize()==available) && checkType(typeID, v)) {		// if it's writable and the correct number of bytes were parsed.
+	uint8_t expected;
+	if (isWritable(o) && ((expected=v->writeStreamSize())==available || expected==0) && checkType(typeID, v)) {		// if it's writable and the correct number of bytes were parsed.
 		v->writeMaskedFrom(in, mask);									// assign from stream
-		out.write(v->streamSize());							// now write out actual value
+		out.write(v->readStreamSize());							// now write out actual value
 		v->readTo(out);
 	}
 	else {													// either not writable or invalid size
@@ -312,7 +314,7 @@ bool logValuesCallback(Object* o, void* data, const container_id* id, const cont
 		out.write(1);					// ID of "read command"
 		writeID(id, out);
 		out.write(r->typeID());
-		out.write(r->streamSize());
+		out.write(r->readStreamSize());
 		r->readTo(out);
 	}
 	return false;

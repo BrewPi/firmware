@@ -43,7 +43,7 @@ public:
         writePlatformEndianBytes(&value, sizeof(value), out);
     }
 
-    uint8_t streamSize() {
+    uint8_t readStreamSize() {
         return sizeof(analog_value_t);
     }
 

@@ -58,7 +58,8 @@ public:
 			writePointer(eepromAccess, eeprom_offset(), currentValue);
 	}
 
-	uint8_t streamSize() {
+	uint8_t readStreamSize() {
+		// todo - why is it hard-coded to 2 bytes?
 		return 2;
 	}
 
