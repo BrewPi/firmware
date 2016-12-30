@@ -70,6 +70,21 @@ The system time can also be retrieved:
 0f 01
 0F 01 00 [cmd replay] 00 [ok response] 06 [6 bytes] 01 09 00 00 [timestamp in ms - little endian] 01 00 [time factor - 0x01 - normal.] 
 ```
+## Enumerating the default onewire bus
+
+Enter the command
+
+```
+10 [system object write] 02 [id] 00 [type] 01 [data-len] 02 [data]
+```
+
+The device responds with the same command, plus `00` to acknowledge the request, and then the 8-bytes for each address discovered on the one wire bus. 
+
+For example, with two temperature sensors connected, the response is
+
+```
+10 02 00 01 02 [echo command] 00 [success result] 28 FE D8 73 06 00 00 EE [first address] 28 ED C9 73 06 00 00 5D [second address]
+```
 
 
 ## Protocol Docs
@@ -101,4 +116,10 @@ On a fresh device, run these commands:
 0A 00  # dump all values in the current profile
 [ 00 04 F1 5F 09 00 ]  # index 00, value F1 5F 09 00, which is little endian notation for 0x00095FF1, the time the device has been online in milliseconds. 
 ```
+
+## Application objects
+
+### OneWire
+
+The OneWire object provides a one-wire bus. The application instantiates this as part of the board configuration.
 

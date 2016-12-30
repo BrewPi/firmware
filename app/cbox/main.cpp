@@ -1,4 +1,5 @@
 
+#include <OneWireBusCBox.h>
 #include "EepromTypes.h"
 #include "EepromAccessImpl.h"
 
@@ -8,12 +9,14 @@
 #include "ValueModels.h"
 #include "PersistChangeValue.h"
 #include "Commands.h"
-
 #include "Platform.h"
 #include "MDNS.h"
 
 DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 ScaledTicksValue ticks;
+
+// todo - add a system object that describes the application version
+// from this, the protocol of all objects can be determined by the client.
 
 
 SYSTEM_THREAD(ENABLED);
@@ -43,8 +46,10 @@ Container& systemRootContainer()
 	// todo - lookup the type ID from the xxx::create function. This can
 	// be resolved at compile-time.
 
-	static Object* values[] = { &idValue, &ticks };
-	static FixedContainer root(2, values);
+	static OneWireBusCBox oneWireBus;
+
+	static Object* values[] = { &idValue, &ticks, &oneWireBus };
+	static FixedContainer root(arraySize(values), values);
 	return root;
 }
 
@@ -124,4 +129,6 @@ void loop()
 
 
 TicksImpl baseticks;
+
+
 EepromAccess eepromAccess;
