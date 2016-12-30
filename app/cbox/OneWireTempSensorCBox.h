@@ -24,6 +24,7 @@ public:
 		// this works, but is kind of backwards, since the sensor caches the current value, and then
 		// sends a conversion request. It would be clearer if there is a
 		// separate "prepare" phase and then a fetch phase (which is the model expected here.)
+		sensor.update();
 		return 750;
 	}
 
@@ -32,7 +33,6 @@ public:
 	  * todo - output connected flag?
 	  */
 	virtual void readTo(DataOut& out) override {
-		sensor.update();
 		bool connected = sensor.isConnected();
 		out.write(connected ? 01 : 00);
 		if (connected) {
