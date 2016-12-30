@@ -71,7 +71,10 @@ void USB_USART_Init(uint32_t baudRate)
  *******************************************************************************/
 uint8_t USB_USART_Available_Data(void)
 {
-    struct timeval tv = {0, 1};
+    FD_ZERO(&stdin_fdset);
+    FD_SET(STDIN_FILENO, &stdin_fdset);
+
+    struct timeval tv = {0};
     int retval = select(1, &stdin_fdset, NULL, NULL, &tv);
     if (retval < 0) {
         retval = 0;
