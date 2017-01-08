@@ -46,13 +46,10 @@ struct DeviceConfig;
 
 typedef int8_t device_slot_t;
 
-inline bool isDefinedSlot(device_slot_t s)
-{
-    return s >= 0;
-}
-
 const device_slot_t MAX_DEVICE_SLOT = 32;		// exclusive
 const device_slot_t INVALID_SLOT = -1;
+bool isDefinedSlot(device_slot_t s);
+
 
 /*
  * Describes the logical function of each device. 
@@ -117,60 +114,16 @@ enum DeviceHardware
 #endif
 };
 
-inline bool isAssignable(DeviceType     type,
-                         DeviceHardware hardware)
-{
-    return ((hardware == DEVICE_HARDWARE_PIN)
-            && (type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_SWITCH_SENSOR
-                    || type == DEVICETYPE_PWM_ACTUATOR || type == DEVICETYPE_MANUAL_ACTUATOR))
-
-#if BREWPI_DS2413
-            || ((hardware == DEVICE_HARDWARE_ONEWIRE_2413)
-                && ((type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_PWM_ACTUATOR || type == DEVICETYPE_MANUAL_ACTUATOR)
-                    || (DS2413_SUPPORT_SENSE && (type == DEVICETYPE_SWITCH_SENSOR))))
-#endif
-
-#if BREWPI_DS2408
-            || ((hardware == DEVICE_HARDWARE_ONEWIRE_2408)
-                && (type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_MANUAL_ACTUATOR))
-#endif
-
-    || ((hardware == DEVICE_HARDWARE_ONEWIRE_TEMP)
-        && (type == DEVICETYPE_TEMP_SENSOR)) || ((hardware == DEVICE_HARDWARE_NONE) && (type == DEVICETYPE_NONE));
-}
-
-inline bool isOneWire(DeviceHardware hardware)
-{
-    return
-#if BREWPI_DS2413
-    (hardware == DEVICE_HARDWARE_ONEWIRE_2413) ||
-#endif
-#if BREWPI_DS2408
-    (hardware == DEVICE_HARDWARE_ONEWIRE_2408) ||
-#endif
-
-    (hardware == DEVICE_HARDWARE_ONEWIRE_TEMP);
-}
-
-inline bool isDigitalPin(DeviceHardware hardware)
-{
-    return hardware == DEVICE_HARDWARE_PIN;
-}
-
-inline DeviceConnection deviceConnection(DeviceHardware hardware)
-{
-    return isOneWire(hardware) ? DEVICE_CONNECTION_ONEWIRE : DEVICE_CONNECTION_PIN;
-}
-
-extern DeviceType deviceType(DeviceFunction id);
+bool isAssignable(DeviceType     type, DeviceHardware hardware);
+bool isOneWire(DeviceHardware hardware);
+bool isDigitalPin(DeviceHardware hardware);
+DeviceConnection deviceConnection(DeviceHardware hardware);
 
 /*
  * Determines where this devices belongs.
  */
-inline DeviceOwner deviceOwner(DeviceFunction id)
-{
-    return (id == 0) ? DEVICE_OWNER_NONE : (id >= DEVICE_BEER_FIRST) ? DEVICE_OWNER_BEER : DEVICE_OWNER_CHAMBER;
-}	
+DeviceOwner deviceOwner(DeviceFunction id);
+extern DeviceType deviceType(DeviceFunction id);
 
 /*
  * A union of all device types.

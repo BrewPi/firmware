@@ -39,7 +39,7 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    inline void accept(AbstractVisitor & v) final {
+    void accept(AbstractVisitor & v) final {
     	v.visit(*this);
     }
 
@@ -74,13 +74,13 @@ public:
 
     void write(ValveActions action);
 
-    inline void open(){
+    void open(){
         write(ValveActions::OPEN);
     }
-    inline void close(){
+    void close(){
         write(ValveActions::CLOSE);
     }
-    inline void stop(){ // can be used to stop the valve half way
+    void stop(){ // can be used to stop the valve half way
         write(ValveActions::OFF);
     }
 

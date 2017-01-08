@@ -41,7 +41,7 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    inline void accept(AbstractVisitor & v) final {
+    void accept(AbstractVisitor & v) final {
     	v.visit(*this);
     }
 
@@ -65,14 +65,14 @@ public:
         }
     }
 
-    inline bool isConnected(void) const override final {
+    bool isConnected(void) const override final {
         return sensor->isConnected();
     }
 
     /*
      * Attempt to (re-)initialize the sensor.
      */
-    inline bool init() override final {
+    bool init() override final {
         return sensor->init();
     }
 
@@ -86,7 +86,7 @@ public:
     /*
      * Fetch a new reading from the sensor
      */
-    inline temp_t read() const override final {
+    temp_t read() const override final {
         return sensor->read();
     }
 

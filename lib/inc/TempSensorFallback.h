@@ -43,7 +43,7 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    inline void accept(AbstractVisitor & v) final {
+    void accept(AbstractVisitor & v) final {
     	v.visit(*this);
     }
 
@@ -59,7 +59,7 @@ public:
      * Check if sensor is connected
      * @return bool: true if active sensor is connected
      */
-    inline bool isConnected(void) const override final {
+    bool isConnected(void) const override final {
         return activeSensor()->isConnected();
     }
 
@@ -68,7 +68,7 @@ public:
      *
      * @return bool: true if active sensor was initialized correctly
      */
-    inline bool init() override final {
+    bool init() override final {
         return activeSensor()->init();
     }
 

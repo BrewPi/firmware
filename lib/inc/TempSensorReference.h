@@ -32,7 +32,7 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    inline void accept(AbstractVisitor & v) final {
+    void accept(AbstractVisitor & v) final {
     	v.visit(*this);
     }
 
@@ -44,11 +44,11 @@ public:
     	target = nullptr;
     }
 
-    inline bool isConnected(void) const override final {
+    bool isConnected(void) const override final {
         return ref()->isConnected();
     }
 
-    inline bool init() override final {
+    bool init() override final {
         return ref()->init();
     }
 
@@ -56,7 +56,7 @@ public:
     	ref()->update();
     }
 
-    inline temp_t read() const override final {
+    temp_t read() const override final {
         return ref()->read();
     }
 

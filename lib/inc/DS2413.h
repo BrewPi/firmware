@@ -87,13 +87,13 @@ private:
     bool connected; /** stores whether last read was succesful */
 
     // assumes pio is either 0 or 1, which translates to masks 0x8 and 0x2
-    inline uint8_t latchReadMask(pio_t pio) const
+    uint8_t latchReadMask(pio_t pio) const
     {
         return pio ? 0x8 : 0x2;
     }
 
     // assumes pio is either 0 or 1, which translates to masks 0x1 and 0x2
-    inline uint8_t latchWriteMask(pio_t pio) const
+    uint8_t latchWriteMask(pio_t pio) const
     {
         return pio ? 0x2 : 0x1;
     }
@@ -101,7 +101,7 @@ private:
     /*
      * Writes all a bit field of all channel latch states
      */
-    inline bool channelWriteAll(uint8_t values)
+    bool channelWriteAll(uint8_t values)
     {
         return accessWrite(values);
     }
@@ -118,7 +118,7 @@ public:
      * Returns bitmask to extract the sense channel for the given pin from a read
      * @return bitmask which can be used to extract the bit corresponding to the channel
      */
-    inline uint8_t senseMask(pio_t pio) const
+    uint8_t senseMask(pio_t pio) const
     {
         return pio ? 0x4 : 0x1;    // assumes pio is either 0 or 1, which translates to masks 0x1 and 0x3
     }
