@@ -39,7 +39,7 @@ public:
         setMutex(nullptr);
     }
 
-    void accept(AbstractVisitor & v) override final{
+    void accept(VisitorBase & v) override final{
     	v.visit(*this);
     }
 

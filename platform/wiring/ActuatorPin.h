@@ -37,7 +37,7 @@ class ActuatorPin final: public ActuatorDigitalInterface, public ActuatorPinMixi
 
         ~ActuatorPin() = default;
 
-        void accept(AbstractVisitor & v) final {
+        void accept(VisitorBase & v) final {
         	v.visit(*this);
         }
 

@@ -48,35 +48,35 @@ class TempSensorFallback;
 class TempSensorMock;
 class ValveController;
 
-class AbstractVisitor {
+class VisitorBase {
 protected:
-    virtual ~AbstractVisitor() = default;
+    virtual ~VisitorBase() = default;
 
 public:
-	virtual void visit(ActuatorBool& thisRef) = 0;
-	virtual void visit(ActuatorDigitalReference& thisRef) = 0;
-	virtual void visit(ActuatorInvalid& thisRef) = 0;
-	virtual void visit(ActuatorMutexDriver& thisRef) = 0;
-	virtual void visit(ActuatorMutexGroup& thisRef) = 0;
-	virtual void visit(ActuatorNop& thisRef) = 0;
-	virtual void visit(ActuatorOneWire& thisRef) = 0;
-	virtual void visit(ActuatorPwm& thisRef) = 0;
-	virtual void visit(ActuatorRangeReference& thisRef) = 0;
-	virtual void visit(ActuatorSetPoint& thisRef) = 0;
-	virtual void visit(ActuatorTimeLimited& thisRef) = 0;
-	virtual void visit(ActuatorValue& thisRef) = 0;
-	virtual void visit(Pid& thisRef) = 0;
-	virtual void visit(SetPointConstant& thisRef) = 0;
-	virtual void visit(SetPointMinMax& thisRef) = 0;
-	virtual void visit(SetPointSimple& thisRef) = 0;
-	virtual void visit(TempSensor& thisRef) = 0;
-	virtual void visit(TempSensorDisconnected& thisRef) = 0;
-	virtual void visit(TempSensorExternal& thisRef) = 0;
-	virtual void visit(TempSensorFallback& thisRef) = 0;
-	virtual void visit(TempSensorMock& thisRef) = 0;
-	virtual void visit(OneWireTempSensor& thisRef) = 0;
-	virtual void visit(ValveController& thisRef) = 0;
+	virtual void visit(ActuatorBool& thisRef){};
+	virtual void visit(ActuatorDigitalReference& thisRef){};
+	virtual void visit(ActuatorInvalid& thisRef){};
+	virtual void visit(ActuatorMutexDriver& thisRef){};
+	virtual void visit(ActuatorMutexGroup& thisRef){};
+	virtual void visit(ActuatorNop& thisRef){};
+	virtual void visit(ActuatorOneWire& thisRef){};
+	virtual void visit(ActuatorPwm& thisRef){};
+	virtual void visit(ActuatorRangeReference& thisRef){};
+	virtual void visit(ActuatorSetPoint& thisRef){};
+	virtual void visit(ActuatorTimeLimited& thisRef){};
+	virtual void visit(ActuatorValue& thisRef){};
+	virtual void visit(Pid& thisRef){};
+	virtual void visit(SetPointConstant& thisRef){};
+	virtual void visit(SetPointMinMax& thisRef){};
+	virtual void visit(SetPointSimple& thisRef){};
+	virtual void visit(TempSensor& thisRef){};
+	virtual void visit(TempSensorDisconnected& thisRef){};
+	virtual void visit(TempSensorExternal& thisRef){};
+	virtual void visit(TempSensorFallback& thisRef){};
+	virtual void visit(TempSensorMock& thisRef){};
+	virtual void visit(OneWireTempSensor& thisRef){};
+	virtual void visit(ValveController& thisRef){};
 #if WIRING
-	virtual void visit(ActuatorPin& thisRef) = 0;
+	virtual void visit(ActuatorPin& thisRef){};
 #endif
 };

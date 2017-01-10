@@ -36,7 +36,7 @@
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMocks.h"
 #include "SetPoint.h"
-#include "SerializeVisitor.h"
+#include "VisitorSerialize.h"
 #include "ActuatorOneWire.h"
 #include "ValveController.h"
 
@@ -53,7 +53,7 @@
 #define JSON_OT(json_adapter,class_member)  JSON::stream(json_adapter,_ASTRING(#class_member),obj->class_member,false)
 
 void InterfaceMixin::serialize(JSON::Adapter & adapter){
-    SerializeVisitor v(adapter);
+    VisitorSerialize v(adapter);
     this->accept(v);
 }
 

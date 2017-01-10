@@ -1,10 +1,9 @@
 ﻿#pragma once
 
+#include "VisitorBase.h"
 #include "json_adapter.h"
 #include "Nameable.h"
 #include "ActuatorInstallHelper.h"
-#include "AbstractVisitor.h"
-
 /*
  * Using protected non-virtual destructors to prevent destruction through base class
  */
@@ -15,7 +14,7 @@ protected:
     ~InterfaceMixin() = default;
 public:
     void serialize(JSON::Adapter& adapter);
-    virtual void accept(AbstractVisitor& v) = 0;
+    virtual void accept(VisitorBase& v) = 0;
 };
 
 class ActuatorInterfaceMixin :

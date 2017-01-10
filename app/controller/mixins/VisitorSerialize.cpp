@@ -17,7 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SerializeVisitor.h"
+#include "VisitorSerialize.h"
 #include "Platform.h"
 
 #include "ActuatorMocks.h"
@@ -43,77 +43,77 @@
 #include "ActuatorPin.h"
 #endif
 
-void SerializeVisitor::visit(ActuatorBool& thisRef) {
+void VisitorSerialize::visit(ActuatorBool& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(ActuatorDigitalReference& thisRef) {
+void VisitorSerialize::visit(ActuatorDigitalReference& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(ActuatorInvalid& thisRef) {
+void VisitorSerialize::visit(ActuatorInvalid& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(ActuatorMutexDriver& thisRef) {
+void VisitorSerialize::visit(ActuatorMutexDriver& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(ActuatorMutexGroup& thisRef) {
+void VisitorSerialize::visit(ActuatorMutexGroup& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(ActuatorNop& thisRef) {
+void VisitorSerialize::visit(ActuatorNop& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(ActuatorOneWire& thisRef) {
+void VisitorSerialize::visit(ActuatorOneWire& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(ActuatorPwm& thisRef) {
+void VisitorSerialize::visit(ActuatorPwm& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(ActuatorRangeReference& thisRef) {
+void VisitorSerialize::visit(ActuatorRangeReference& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(ActuatorSetPoint& thisRef) {
+void VisitorSerialize::visit(ActuatorSetPoint& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(ActuatorTimeLimited& thisRef) {
+void VisitorSerialize::visit(ActuatorTimeLimited& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(ActuatorValue& thisRef) {
+void VisitorSerialize::visit(ActuatorValue& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(Pid& thisRef) {
+void VisitorSerialize::visit(Pid& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(SetPointConstant& thisRef) {
+void VisitorSerialize::visit(SetPointConstant& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(SetPointMinMax& thisRef) {
+void VisitorSerialize::visit(SetPointMinMax& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(SetPointSimple& thisRef) {
+void VisitorSerialize::visit(SetPointSimple& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(TempSensor& thisRef) {
+void VisitorSerialize::visit(TempSensor& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(TempSensorDisconnected& thisRef) {
+void VisitorSerialize::visit(TempSensorDisconnected& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(TempSensorExternal& thisRef) {
+void VisitorSerialize::visit(TempSensorExternal& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(TempSensorFallback& thisRef) {
+void VisitorSerialize::visit(TempSensorFallback& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(TempSensorMock& thisRef) {
+void VisitorSerialize::visit(TempSensorMock& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(OneWireTempSensor& thisRef) {
+void VisitorSerialize::visit(OneWireTempSensor& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void SerializeVisitor::visit(ValveController& thisRef) {
+void VisitorSerialize::visit(ValveController& thisRef) {
     thisRef.serializeImpl(adapter);
 }
 #if WIRING
-void SerializeVisitor::visit(ActuatorPin& thisRef) {
+void VisitorSerialize::visit(ActuatorPin& thisRef) {
     thisRef.serializeImpl(adapter);
 }
 #endif

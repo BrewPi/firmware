@@ -47,7 +47,7 @@ class ActuatorOneWire final:
         }
         ~ActuatorOneWire() = default;
 
-        void accept(AbstractVisitor & v) final {
+        void accept(VisitorBase & v) final {
         	v.visit(*this);
         }
 

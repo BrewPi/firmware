@@ -39,7 +39,7 @@ class TempSensorExternal final : public TempSensorInterface, public TempSensorEx
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    void accept(AbstractVisitor & v) final {
+    void accept(VisitorBase & v) final {
     	v.visit(*this);
     }
 

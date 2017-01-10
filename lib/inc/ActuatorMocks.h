@@ -42,7 +42,7 @@ public:
 
     ~ActuatorValue() = default;
 
-    void accept(AbstractVisitor & v) override final{
+    void accept(VisitorBase & v) override final{
     	v.visit(*this);
     }
 
@@ -95,7 +95,7 @@ public:
     ActuatorBool(bool initial) : state(initial) {}
     ~ActuatorBool() = default;
 
-    void accept(AbstractVisitor & v) override final{
+    void accept(VisitorBase & v) override final{
     	v.visit(*this);
     }
 
@@ -121,7 +121,7 @@ public:
     ActuatorNop(){}
     ~ActuatorNop() = default;
 
-    void accept(AbstractVisitor & v) override final{
+    void accept(VisitorBase & v) override final{
     	v.visit(*this);
     }
 
@@ -142,7 +142,7 @@ public:
     ActuatorInvalid() {}
     ~ActuatorInvalid() = default;
 
-    void accept(AbstractVisitor & v) override final{
+    void accept(VisitorBase & v) override final{
     	v.visit(*this);
     }
 

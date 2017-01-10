@@ -18,17 +18,17 @@
  */
 
 #pragma once
-#include "AbstractVisitor.h"
+#include "VisitorBase.h"
 #include "json_adapter.h"
 #include "Platform.h"
 
 
-class SerializeVisitor :
-    public AbstractVisitor
+class VisitorSerialize :
+    public VisitorBase
 {
 public:
-    SerializeVisitor(JSON::Adapter& a) : adapter(a){}
-    ~SerializeVisitor() = default;
+    VisitorSerialize(JSON::Adapter& a) : adapter(a){}
+    ~VisitorSerialize() = default;
 
     void visit(ActuatorBool& thisRef) final;
     void visit(ActuatorDigitalReference& thisRef) final;

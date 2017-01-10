@@ -42,7 +42,7 @@ public:
 
     ~ActuatorMutexGroup() = default;
 
-    void accept(AbstractVisitor & v) {
+    void accept(VisitorBase & v) {
     	v.visit(*this);
     }
 

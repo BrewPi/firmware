@@ -20,7 +20,7 @@
 #pragma once
 #include <stdint.h>
 #include "ControllerMixins.h"
-#include "AbstractVisitor.h"
+#include "VisitorBase.h"
 
 class Interface :
     virtual public InterfaceMixin
@@ -32,5 +32,5 @@ protected:
 public:
     virtual void update() = 0;
     virtual void fastUpdate() = 0;
-	virtual void accept(AbstractVisitor & v) = 0;
+	virtual void accept(VisitorBase & v) = 0;
 };
