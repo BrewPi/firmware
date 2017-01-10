@@ -23,7 +23,7 @@
 #include "VisitorBase.h"
 
 class Interface :
-    virtual public InterfaceMixin
+    public InterfaceMixin
 {
 public:
 	Interface() = default;

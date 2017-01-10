@@ -14,7 +14,6 @@ protected:
     ~InterfaceMixin() = default;
 public:
     void serialize(JSON::Adapter& adapter);
-    virtual void accept(VisitorBase& v) = 0;
 };
 
 class ActuatorInterfaceMixin :

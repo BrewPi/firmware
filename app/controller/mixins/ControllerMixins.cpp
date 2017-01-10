@@ -53,8 +53,9 @@
 #define JSON_OT(json_adapter,class_member)  JSON::stream(json_adapter,_ASTRING(#class_member),obj->class_member,false)
 
 void InterfaceMixin::serialize(JSON::Adapter & adapter){
+    Interface * obj = static_cast<Interface *>(this);
     VisitorSerialize v(adapter);
-    this->accept(v);
+    obj->accept(v);
 }
 
 
