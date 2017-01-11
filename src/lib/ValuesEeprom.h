@@ -57,7 +57,7 @@ protected:
 	/**
 	 * Writes masked data to eeprom starting at the given address.
 	 */
-	void _writeMaskedFrom(DataIn& dataIn, DataIn& maskIn, int8_t length,
+	void _writeMaskedFrom(DataIn& dataIn, DataIn& maskIn, uint8_t length,
                                                         eptr_t address) {
 		while (--length>=0) {
 			uint8_t current = eepromAccess.readByte(address);

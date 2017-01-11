@@ -31,7 +31,7 @@
  */
 class Box
 {
-	EepromAccess& eepromAccess_;
+	//EepromAccess& eepromAccess_;
 	Ticks& ticks_;
 	Comms comms_;
 	SystemProfile systemProfile_;
@@ -40,7 +40,7 @@ class Box
 
 public:
 	Box(StandardConnection& connection, EepromAccess& eepromAccess, Ticks& ticks, CommandCallbacks& callbacks, Container& systemRoot)
-	: eepromAccess_(eepromAccess), ticks_(ticks), comms_(connection),
+	: /*eepromAccess_(eepromAccess),*/ ticks_(ticks), comms_(connection),
 	  systemProfile_(eepromAccess, systemRoot), commands_(comms_, systemProfile_, callbacks, eepromAccess), logValuesFlag(false)
 	{
 	}
@@ -102,7 +102,7 @@ private:
 	void logValues(container_id* ids)
 	{
 		DataOut& out = comms_.dataOut();
-		out.write(Commands::CMD_LOG_VALUES_AUTO);
+		out.write(int(Commands::CMD_LOG_VALUES_AUTO));
 		commands_.logValuesImpl(ids, out);
 		out.close();
 	}
@@ -143,14 +143,14 @@ struct AllCallbacks
 	virtual void readBlock(void* target, eptr_t offset, uint16_t size) const=0;
 	virtual void writeBlock(eptr_t target, const void* source, uint16_t size)=0;
 
-	virtual size_t length() const=0;
+	virtual eptr_t length() const=0;
 
 	/* Callbacks */
 
 	/**
 	 * Application-provided function that creates an object from the object definition.
 	 */
-	virtual uint8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun=false)=0;
+	virtual int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun=false)=0;
 
 	/**
 	 * Function prototype expected by the commands implementation to perform
@@ -245,7 +245,7 @@ public:
 		return cb.writeBlock(target, source, size);
 	}
 
-	virtual size_t length() const {
+	virtual eptr_t length() const {
 		return cb.length();
 	}
 

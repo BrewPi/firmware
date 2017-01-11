@@ -106,7 +106,7 @@ public:
 	 * @param eeprom_address offset in eeprom that defines the data for this object. the length
 	 * Preceeding this address is the length, then id_chain, and before that, the creation command. (0x03)
 	 */
-	virtual void rehydrated(eptr_t eeprom_address) {}
+	virtual void rehydrated(eptr_t /*eeprom_address*/) {}
 
 	/**
 	 * Prepare this object for subsequent updates.
@@ -141,7 +141,7 @@ struct Container : public Object
 	 *
 	 * After retrieving the item, callers must call returnItem()
 	 */
-	virtual Object* item(container_id id) { return NULL; }
+	virtual Object* item(container_id /*id*/) { return NULL; }
 
 	/**
 	 * Returns a previously fetched item back the container.
@@ -151,7 +151,7 @@ struct Container : public Object
 	 * This method should be called after each successful call to
 	 * {@link #item}
 	 */
-	virtual void returnItem(container_id id, Object* item) { }
+	virtual void returnItem(container_id /*id*/, Object* /*item*/) { }
 
 	/*
 	 * The maximum number of items in this container. Calling {@link #item()} at an index less than this value
@@ -172,7 +172,7 @@ public:
 	/**
 	 * Deletes the item. This assumes item was created on-demand by the item() method.
 	 */
-	virtual void returnItem(container_id id, Object* item) override {
+	virtual void returnItem(container_id /*id*/, Object* item) override {
 		delete_object(item);
 	}
 };
@@ -196,7 +196,7 @@ public:
 	 * to make additional slots available, it should do so, but this is an optional operation for
 	 * fixed size containers.
 	 */
-	virtual bool add(container_id index, Object* item) { return false; }
+	virtual bool add(container_id /*index*/, Object* /*item*/) { return false; }
 
 	/**
 	 * Determines the next available free slot in this container.
@@ -210,7 +210,7 @@ public:
 	 * @param id	The id of the item to remove.
 	 * If there is no item at the given index, or the item has already been removed the method does nothing.
 	 */
-	virtual void remove(container_id id) { }
+	virtual void remove(container_id /*id*/) { }
 
 };
 

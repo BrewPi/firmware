@@ -81,9 +81,9 @@ class CommsIn : public DataIn
 {
 public:
 	bool hasNext() override { return commsDevice; }			// hasNext true if stream is still open.
-	uint8_t next() override { return commsDevice.read(); }
-	uint8_t peek() override { return commsDevice.peek(); }
-	unsigned available() override { return commsDevice.available(); }
+	uint8_t next() override { return uint8_t(commsDevice.read()); }
+	uint8_t peek() override { return uint8_t(commsDevice.peek()); }
+	unsigned available() override { return uint8_t(commsDevice.available()); }
 };
 #endif
 
@@ -107,7 +107,7 @@ public:
 	void writeAnnotation(const char* s) {
 		if (s && *s) {
 			write('[');
-			writeBuffer(s, strlen(s));
+			writeBuffer(s, uint8_t(strlen(s)));
 			write(']');
 			write('\n');
 		}
@@ -426,7 +426,7 @@ void TextIn::fetchNextData(bool optional) {
 				commentLevel = -1; data = 0;    // exit the loop on end of line
 	            inLine = false;
             }
-			else if (!commentLevel && isHexadecimalDigit(d)) {
+			else if (!commentLevel && isHexadecimalDigit(char(d))) {
 				hasData = true;
 				data = d;
 			}

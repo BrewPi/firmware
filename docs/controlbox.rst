@@ -38,6 +38,9 @@ In practice, the comms interface will take these forms:
 * spark core (wireless): TCP server running on the spark core
 * desktop simulator: stdin/stdout to process
 
+The comms interface may optionally use chunking of message (e.g. a newline after each message), although
+this isn't stricly necessary as each message has a predictable length.
+
 
 Objects
 -------
@@ -173,9 +176,6 @@ object container as their starting point.
 The system objects are provided outside of the container hierarchy.
 Despite the name (which will probably change!) they are provided by the application.
 System objects cannot be created nor deleted via the command interface.
-
-todo - provide commands to list the system objects configuration, and list the system objects values
-
 
 Comms Interface Format
 ----------------------
@@ -381,18 +381,17 @@ Command request::
 Command response::
 
     0x05    list profile command id
-    profile_id  the profile listed
-    status      <0 on error
+    profile_id	the profile requested
+    status		status code
     repeat
         0x03    create object command id
         id+     variable length id chain
         type	the object type
         len     length of object params
         [len]   object params
+    0x00			list terminator
 
 (Note that the repeated part of the response is the same data passed to the Create Object command.)
-
-todo - result when profile is not valid?
 
 Free Slot Command
 ^^^^^^^^^^^^^^^^^
@@ -473,7 +472,7 @@ Command Request::
     0x0A    log values command id
     flags   0x01 - when set, restrict values to the following id, otherwise log all values in the specified root
             0x02 - when set, use the system root container, otherwise use the current profile root. 
-    [id*]   optional id chain to restrict
+    [id*]   optional id chain to restrict when bit 0 set in flags
 
 Command Response::
 
@@ -481,14 +480,15 @@ Command Response::
     flags   from request
     [id*]   optional id from request
     status	0 on success, <0 on error. 
-    repeat
-        0x01	indicates a logged object value
+    repeat		(only if status is success)
+    	    0x01		indicates a new object value
         id      variable length ID chain
         type-id	the type of the object
         size    length of the next datablock. Will be 0 for if id does not identify a valid readable value.
         data[size]  the value
+    0x00	 	end of list
 
-The response data is the same as the read values command response
+The response data is the same as the read values command.
 
 
 Reset
@@ -561,10 +561,11 @@ Command response::
     id          variable length ID
     type			expected type
     expectedsize        the size of the data block expected
-    type			actual type or <0 on error
+	type			actual type
     actualsize          length of the next data block. Will be 0 for if id does not identify a valid readable value, or
         the expected size was non-zero and not equal to the actual data block size.
     data[size]  the value
+
 
 
 Write System Value
@@ -576,8 +577,8 @@ Command request::
 
     0x10        write system value command id
     id          object to write to
-    type			the type of the object being written to
-    size        the size of the data to follow
+    type			the type of the object being written to. Can be 00 if not known.
+    size        the size of the data to follow. Can be 00 if not known
     data[size]  the value to write
 
 Command response::
@@ -587,7 +588,7 @@ Command response::
     type			the system object type
     size        requested size of data to write
     data[size]  requested data to write
-    type			the actual system object type or <0 on error
+    type			the actual system object type
     size        actual data size
     data[size]  actual data
 

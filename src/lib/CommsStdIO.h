@@ -76,8 +76,13 @@ public:
 
     size_t write(uint8_t w);
     size_t write(const uint8_t* data, uint8_t len) {
-        return write(data, size_t(len));
+    		uint8_t count = len;
+    		while (count --> 0) {
+    			write(*data++);
+    		}
+    		return len;
     }
+
     void flush();
     operator bool() { return in.hasNext(); }
 

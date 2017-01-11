@@ -30,23 +30,27 @@ container_id DynamicContainer::next() {
 	return !((sz+1)&0x80) ? sz : -1;
 }
 
-bool DynamicContainer::expand(uint8_t sz)
+bool DynamicContainer::expand(unsigned sz_)
 {
+	if (sz_>=unsigned(std::numeric_limits<container_id>::max()))
+		return false;
+	container_id sz = container_id(sz_);
+
 	// some useful details on malloc/realloc here - http://www.nongnu.org/avr-libc/user-manual/malloc.html
-	void* _newitems = realloc(_items, sz*sizeof(Object*));
+	void* _newitems = realloc(_items, sz_*sizeof(Object*));
 	if (_newitems) {
-		uint8_t prev_sz = size();
+		container_id prev_sz = size();
 		_items = (Object**)_newitems;
 		while (prev_sz<sz)	{
 			assign(prev_sz++, NULL);
 		}
-        setSize(sz);
+        setSize(container_id(sz));
 	}
 	return _newitems!=0;
 }
 
 bool DynamicContainer::add(container_id slot, Object* item) {
-	if (slot<0 || (slot>=size() && !expand(slot+1)))
+	if (slot<0 || (slot>=size() && !expand(unsigned(slot)+1)))
 		return false;
 	remove(slot);
 	assign(slot, item);

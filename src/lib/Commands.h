@@ -33,32 +33,36 @@ typedef const char* cpchar;
 class Commands;
 
 enum CommandError : uint16_t {
-	no_error = 0,
-	unknown_error = 1,
-	stream_error = 2,
-	profile_not_active = 3,
+	// the <<8 is there to force the values into 16-bit space
+	// this ensures the compiler generates an error when attempting to
+	// assign to a 8-bit result without using the errorCode() conversion.
+	no_error = 0<<8,
+	unknown_error = 1<<8,
+	stream_error = 2<<8,
+	profile_not_active = 3<<8,
 
-	insufficient_persistent_storage = 16,
-	insufficient_heap = 17,
+	insufficient_persistent_storage = 16<<8,
+	insufficient_heap = 17<<8,
 
-	object_not_writable = 32,
-	object_not_readable = 33,
-	object_not_creatable = 34,
-	object_not_deletable = 35,
-	object_not_container = 36,
-	object_not_open_container = 37,
-	container_full = 38,
+	object_not_writable = 32<<8,
+	object_not_readable = 33<<8,
+	object_not_creatable = 34<<8,
+	object_not_deletable = 35<<8,
+	object_not_container = 36<<8,
+	object_not_open_container = 37<<8,
+	container_full = 38<<8,
 
-	invalid_parameter = 64,
-	invalid_object_id = 65,
-	invalid_type = 66,
-	invalid_size = 67,
-	invalid_profile = 68,
-	invalid_id = 69,
+	invalid_parameter = 64<<8,
+	invalid_object_id = 65<<8,
+	invalid_type = 66<<8,
+	invalid_size = 67<<8,
+	invalid_profile = 68<<8,
+	invalid_id = 69<<8
+
 };
 
 inline constexpr int8_t errorCode(CommandError error) {
-	return (int8_t)(-error);
+	return (int8_t)(-(error>>8));
 }
 
 
@@ -216,7 +220,7 @@ public:
 	typedef Object* (*ObjectFactory)(ObjectDefinition& def);
 
 
-	enum CommandID {
+	enum CommandID : uint8_t {
 		CMD_NONE = 0,				// no-op
 
 	   	CMD_READ_VALUE = 1,			// read a value
