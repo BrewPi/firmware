@@ -34,11 +34,11 @@ public:
 #endif
 
 	int16_t difference() {
-		return readPointer(eepromAccess, eeprom_offset()+2);
+		return int16_t(readPointer(eepromAccess, eeprom_offset()+2));
 	}
 
 	int16_t savedValue() {
-		return readPointer(eepromAccess, eeprom_offset());
+		return int16_t(readPointer(eepromAccess, eeprom_offset()));
 	}
 
 	void rehydrated(eptr_t address) {
@@ -53,9 +53,9 @@ public:
 
 	void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn) {
 		// to save space, we don't bother allowing masking against the source
-		currentValue = int16_t(readMaskedByte(dataIn, maskIn))<<8 | readMaskedByte(dataIn, maskIn);
+		currentValue = int16_t((readMaskedByte(dataIn, maskIn))<<8 | readMaskedByte(dataIn, maskIn));
 		if (abs(currentValue-savedValue())>difference())
-			writePointer(eepromAccess, eeprom_offset(), currentValue);
+			writePointer(eepromAccess, eeprom_offset(), eptr_t(currentValue));
 	}
 
 	uint8_t readStreamSize() {

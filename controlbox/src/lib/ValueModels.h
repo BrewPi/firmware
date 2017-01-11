@@ -116,7 +116,7 @@ public:
 		return externalValue(id);
 	}
 
-	void returnItem(container_id id, Object* item) override {
+	void returnItem(container_id /*id*/, Object* item) override {
 #if OBJECT_VIRTUAL_DESTRUCTOR
 		delete item;
 #else

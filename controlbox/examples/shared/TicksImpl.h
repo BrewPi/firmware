@@ -7,7 +7,7 @@ class Ticks
 public:
 	ticks_millis_t millis()
 	{
-		return millisSinceStartup();
+		return ticks_millis_t(millisSinceStartup());
 	}
 };
 

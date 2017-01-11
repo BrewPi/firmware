@@ -41,7 +41,7 @@ void readValue(Object* root, DataIn& in, DataOut& out) {
 	Object* o = lookupObject(root, in);		// read the object and pipe read data to output
 	uint8_t typeID = in.next();
 	uint8_t available = in.next();			// number of bytes expected
-	uint8_t code = 0;
+	int8_t code = 0;
 	uint8_t expectedSize;
 	Value* v = (Value*)o;
 
@@ -59,7 +59,7 @@ void readValue(Object* root, DataIn& in, DataOut& out) {
 	}
 
 	if (code) {
-		out.write(code);
+		out.write(uint8_t(code));
 	} else {
 		out.write(v->typeID());
 		out.write(expectedSize);
@@ -103,7 +103,7 @@ void setValue(Object* root, DataIn& in, DataIn& mask, DataOut& out) {
 	}
 
 	if (code) {
-		out.write(code);										// write 0 bytes (indicates failure)
+		out.write(uint8_t(code));										// write 0 bytes (indicates failure)
 	}
 	else {
 		v->writeMaskedFrom(in, mask);									// assign from stream
@@ -252,12 +252,12 @@ void Commands::createObjectCommandHandler(DataIn& _in, DataOut& out)
 	eptr_t offset = writer.offset();          // save current eeprom pointer - this is where the object definition is written.
 	// write the command id placeholder to eeprom (since that's already been consumed)
 	writer.write(CMD_INVALID);			// value for partial write, will go a back when successfully completed and write this again
-	uint8_t error_code = rehydrateObject(offset, in, false);
+	int8_t error_code = rehydrateObject(offset, in, false);
 	if (!error_code) {
 		eepromAccess.writeByte(offset, CMD_CREATE_OBJECT);	// finalize creation in eeprom
 	}
 	systemProfile.setOpenProfileEnd(writer.offset());	// save end of open profile
-	out.write(error_code);						// status is index it was created at
+	out.write(uint8_t(error_code));						// status is index it was created at
 }
 
 /**
@@ -296,12 +296,12 @@ int8_t Commands::deleteObject(DataIn& id) {
 	OpenContainer* container = nullptr;
 	int8_t error = lookupUserOpenContainer(systemProfile.rootContainer(), id, lastID, container);	// find the container and the ID in the chain to remove
 	if (!error && lastID>=container->size()) {
-		error = invalid_id;
+		error = errorCode(invalid_id);
 	}
 
 	if (!error) {
 		Object* target = container->item(lastID);
-		error = target ? target->typeID() : 0;
+		error = target ? int8_t(target->typeID()) : 0;
 		container->remove(lastID);
 	}
 	return error;
@@ -319,7 +319,7 @@ void Commands::deleteObjectCommandHandler(DataIn& in, DataOut& out)
 	int8_t error = deleteObject(idPipe);
 	if (error>=0)
 		removeEepromCreateCommand(idCapture);
-	out.write(error);
+	out.write(uint8_t(error));
 }
 
 /**
@@ -329,8 +329,10 @@ void Commands::listObjectsCommandHandler(DataIn& _in, DataOut& out)
 {
 	// todo - perhaps profile ID -1 could mean list the system container
     // todo - how to flag an invalid profile (currently no results)
-	profile_id_t profile = _in.next();
+	profile_id_t profile = profile_id_t(_in.next());
+	out.write(0)	;	// status. TODO: check that the profile ID is valid
 	systemProfile.listEepromInstructionsTo(profile, out);
+	out.write(0);	// list terminator
 }
 
 
@@ -345,7 +347,7 @@ container_id fetchNextSlot(OpenContainer* container)
 
 
 void freeSlot(Container* root, DataIn& in, DataOut& out) {
-	uint8_t status;
+	int8_t status;
 	if (!root) {
 		status = errorCode(profile_not_active);
 	}
@@ -356,7 +358,7 @@ void freeSlot(Container* root, DataIn& in, DataOut& out) {
 			status = fetchNextSlot(container);
 		}
 	}
-	out.write(status);
+	out.write(uint8_t(status));
 }
 
 void Commands::freeSlotCommandHandler(DataIn& in, DataOut& out)
@@ -370,14 +372,14 @@ void Commands::freeSlotRootCommandHandler(DataIn& in, DataOut& out)
 }
 
 void Commands::deleteProfileCommandHandler(DataIn& in, DataOut& out) {
-	uint8_t profile_id = in.next();
-	uint8_t result = systemProfile.deleteProfile(profile_id);
-	out.write(result);
+	profile_id_t profile_id = profile_id_t(in.next());
+	int8_t result = systemProfile.deleteProfile(profile_id);
+	out.write(uint8_t(result));
 }
 
 void Commands::createProfileCommandHandler(DataIn& in, DataOut& out) {
-	uint8_t result = systemProfile.createProfile();
-	out.write(result);
+	int8_t result = systemProfile.createProfile();
+	out.write(uint8_t(result));
 }
 
 /**
@@ -385,7 +387,7 @@ void Commands::createProfileCommandHandler(DataIn& in, DataOut& out) {
  */
 void writeID(const container_id* id, DataOut& out) {
 	do {
-		out.write(*id);
+		out.write(uint8_t(*id));
 	} while (*id++<0);
 }
 
@@ -396,7 +398,7 @@ bool logValuesCallback(Object* o, void* data, const container_id* id, const cont
 	DataOut& out = *(DataOut*)data;
 	if (enter && isLoggedValue(o)) {
 		Value* r = (Value*)o;
-		out.write(1);					// ID of "read command"
+		out.write(uint8_t(1));					// ID of "read command"
 		writeID(id, out);
 		out.write(r->typeID());
 		out.write(r->readStreamSize());
@@ -421,16 +423,16 @@ void Commands::logValuesCommandHandler(DataIn& in, DataOut& out) {
 
     Container* root = (flags & LOG_FLAGS_SYSTEM_CONTAINER) ? systemProfile.systemContainer() : systemProfile.rootContainer();
 
-    uint8_t error = errorCode(profile_not_active);
+    int8_t error = errorCode(profile_not_active);
     if (root) {
 	    // read the ID into a buffer (also used for iterating the container hierarchy.)
 	    container_id ids[MAX_CONTAINER_DEPTH];
 		if (flags & LOG_FLAGS_IDCHAIN)  {
 			uint8_t idx = 0;
-			uint8_t id;
+			container_id id;
 			do
 			{
-				id = in.next();
+				id = container_id(in.next());
 				ids[idx++] = id;
 			}
 			while (id & 0x80);
@@ -441,17 +443,19 @@ void Commands::logValuesCommandHandler(DataIn& in, DataOut& out) {
 				error = errorCode(no_error);
 				out.write(0);		// success
 				walkObject(source, logValuesCallback, &out, ids, ids+idx);
+				out.write(0);		// list terminator
 			}
 		}
 		else {
 			error = errorCode(no_error);
 			out.write(0);
 			walkContainer(root, logValuesCallback, &out, ids, ids);
+			out.write(0);		// list terminator
 		}
-		}
-    if (error<0) {
-    		out.write(error);
 	}
+    if (error<0) {
+    		out.write(uint8_t(error));
+    }
 }
 
 void Commands::resetCommandHandler(DataIn& in, DataOut& out) {
@@ -465,7 +469,7 @@ void Commands::resetCommandHandler(DataIn& in, DataOut& out) {
 }
 
 void Commands::activateProfileCommandHandler(DataIn& in, DataOut& out) {
-	profile_id_t id = in.next();
+	profile_id_t id = profile_id_t(in.next());
 	bool activated = systemProfile.activateProfile(id);
 	out.write(activated ? 0 : errorCode(invalid_profile));
 }

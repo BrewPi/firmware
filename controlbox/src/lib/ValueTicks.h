@@ -97,7 +97,7 @@ public:
 		return ::timeSince(currentTime, previousTime);
 	}
 
-	static Object* create(ObjectDefinition& defn) {
+	static Object* create(ObjectDefinition& /*defn*/) {
 		return nullptr;
 	}
 
@@ -129,7 +129,7 @@ public:
 		return sizeof(ticks_millis_t);
 	}
 
-	static Object* create(ObjectDefinition& def) {
+	static Object* create(ObjectDefinition& /*def*/) {
 		// no parameters required
 		return new_object(CurrentTicksValue());
 	}

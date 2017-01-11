@@ -38,7 +38,7 @@ public:
 
     virtual ticks_millis_t millis()
     {
-        return millisSinceStartup();
+        return ticks_millis_t(millisSinceStartup());
     }
 };
 
@@ -145,7 +145,7 @@ public:
         }
         int8_t error = no_error;
         if (!result) {
-        		error = insufficient_heap;
+        		error = errorCode(insufficient_heap);
         }
         return error;
     }
