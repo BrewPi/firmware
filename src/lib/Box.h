@@ -150,7 +150,7 @@ struct AllCallbacks
 	/**
 	 * Application-provided function that creates an object from the object definition.
 	 */
-	virtual Object* createApplicationObject(ObjectDefinition& def, bool dryRun=false)=0;
+	virtual uint8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun=false)=0;
 
 	/**
 	 * Function prototype expected by the commands implementation to perform
@@ -254,8 +254,8 @@ public:
 	/**
 	 * Application-provided function that creates an object from the object definition.
 	 */
-	virtual Object* createApplicationObject(ObjectDefinition& def, bool dryRun=false) {
-		return cb.createApplicationObject(def, dryRun);
+	virtual int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun=false) {
+		return cb.createApplicationObject(result, def, dryRun);
 	}
 
 	/**

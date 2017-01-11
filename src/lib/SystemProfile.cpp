@@ -136,7 +136,7 @@ void SystemProfile::initialize() {
  */
 profile_id_t SystemProfile::createProfile() {
 
-	profile_id_t idx = -1;
+	profile_id_t idx = insufficient_persistent_storage;
 
 	closeOpenProfile();
 
@@ -223,8 +223,8 @@ profile_id_t SystemProfile::deleteProfile(profile_id_t profile) {
 	}
 
 	eptr_t start = getProfileOffset(profile);
-        if (!start || profile<0)             // profile not defined
-            return 0;
+	if (!start || profile<0)             // profile not defined
+		return invalid_profile;
 
 	eptr_t end = getProfileEnd(profile);
 
@@ -249,7 +249,7 @@ profile_id_t SystemProfile::deleteProfile(profile_id_t profile) {
 	profileWriteRegion(writer, true);
 	return profile;
 #else
-	return -1;	// not supported
+	return invalid_profile;	// not supported
 #endif
 }
 
@@ -415,7 +415,8 @@ bool ObjectDefinitionWalker::writeNext(DataOut& out) {
 		pipe.next();										// fetch the next value already peek'ed at so this is written to the output stream
 		/*Object* target = */lookupUserObject(_commands.rootContainer(), pipe);			// find the container where the object will be added
 		// todo - could flag warning if target is NULL
-		_commands.createObject(pipe, true);							// dry run for create object, just want data to be output
+		Object* obj;
+		_commands.createObject(obj, pipe, true);							// dry run for create object, just want data to be output
 	}
 	return valid;
 }
@@ -439,6 +440,8 @@ eptr_t SystemProfile::compactObjectDefinitions() {
  */
 void SystemProfile::listEepromInstructionsTo(profile_id_t profile, DataOut& out) {
 	EepromDataIn eepromData cb_nonstatic_decl((eepromAccess));
+	int8_t error = no_error;
+	out.write(error);	// todo - determine if profile is valid
 	profileReadRegion(profile, eepromData);
 	Commands& cmds =
 #if CONTROLBOX_STATIC
