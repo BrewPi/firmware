@@ -47,7 +47,17 @@ enum Enum {
 };
 }
 
+/**
+ * System flags for an object type. Objects are classified as
+ * containers, open containers, readable, writable.
+ */
 typedef uint8_t object_t;
+
+/**
+ * Application defined type id. The maximum value is 127.
+ */
+typedef uint8_t obj_type_t;
+
 
 // if no objects require cleanup, then we can do away with the virtual destructor, saving quite a bit of space (several hundred bytes.)
 #ifndef OBJECT_VIRTUAL_DESTRUCTOR
@@ -68,12 +78,26 @@ typedef uint8_t object_t;
 
 struct Object
 {
+	obj_type_t _typeID;
+public:
+	Object(obj_type_t typeID=0) : _typeID(typeID) {}
+
+
+	virtual ~Object() = default;
+
 	/**
-	 * Determines the type of object this is.
+	 * Determines the system type of object this is.
 	 * @return A value of the object_t enumeration indicating the type of object
 	 * this is.
 	 */
 	virtual object_t objectType() { return ObjectFlags::Object; }
+
+	/**
+	 * The application defined typeID for this object instance.
+	 */
+	virtual obj_type_t typeID() { return _typeID; }
+
+	void setTypeID(obj_type_t type) { _typeID = type; }
 
 	/**
 	 * Notifies this object that it has been created and is operational in the system.
@@ -190,26 +214,17 @@ public:
 
 };
 
-typedef uint8_t obj_type_t;
-
 /**
  * A basic value type. All values are as a minimum stream readable, meaning they can push their value to a stream
  * (a streamed read operation.)
  */
 class Value : public Object {
-	obj_type_t _typeID;
+
 public:
-	Value(obj_type_t typeID=0) : _typeID(typeID) {}
 
 	virtual object_t objectType() { return ObjectFlags::Value; }	// basic value type - read only stream
 	virtual void readTo(DataOut& out)=0;
 	virtual uint8_t readStreamSize()=0;			// the size this value occupies in the stream.
-
-	/**
-	 * The application-defined type for this object.
-	 * The value is 0 for system objects.
-	 */
-	virtual obj_type_t typeID() { return _typeID; }
 
 	void setTypeID(obj_type_t typeID) {
 		_typeID = typeID;
@@ -513,5 +528,11 @@ Object* lookupUserObject(Container* root, DataIn& data);
  * Read the id chain from the stream and resolve the container and the final index.
  */
 OpenContainer* lookupUserOpenContainer(Container* root, DataIn& data, int8_t& lastID);
+
+/**
+ * Fetches the object at the given id, and retrieves the last ID.
+ */
+Object* lookupObject(Object* current, DataIn& data, int8_t& lastID);
+
 
 int16_t read2BytesFrom(Value* value);

@@ -540,7 +540,7 @@ void processCommand(
 		  if (hexIn.hasNext()) {				// ignore blank newlines, annotations etc..
 				comms.handleCommand(hexIn, hexOut);
 				while (hexIn.hasNext())	{			// todo - log a message about unconsumed data?
-						  hexIn.next();
+					hexIn.next();
 				}
 				connection->getData().request_received = true;
 		}

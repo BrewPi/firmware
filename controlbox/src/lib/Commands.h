@@ -32,6 +32,36 @@ typedef const char* cpchar;
 
 class Commands;
 
+enum CommandError : uint16_t {
+	no_error = 0,
+	unknown_error = 1,
+	stream_error = 2,
+	profile_not_active = 3,
+
+	insufficient_persistent_storage = 16,
+	insufficient_heap = 17,
+
+	object_not_writable = 32,
+	object_not_readable = 33,
+	object_not_creatable = 34,
+	object_not_deletable = 35,
+	object_not_container = 36,
+	object_not_open_container = 37,
+	container_full = 38,
+
+	invalid_parameter = 64,
+	invalid_object_id = 65,
+	invalid_type = 66,
+	invalid_size = 67,
+	invalid_profile = 68,
+	invalid_id = 69,
+};
+
+inline constexpr int8_t errorCode(CommandError error) {
+	return (int8_t)(-error);
+}
+
+
 /**
  * A command handler function. This is the signature of commands.
  * @param in	The data stream providing input to the command.
@@ -48,7 +78,7 @@ typedef void (Commands::*CommandHandler)(DataIn& in, DataOut& out);
 /**
  * Application-provided function that creates an object from the object definition.
  */
-extern Object* createApplicationObject(ObjectDefinition& def, bool dryRun=false);
+extern int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun=false);
 
 /**
  * Function prototype expected by the commands implementation to perform
@@ -70,7 +100,7 @@ struct CommandCallbacks
 	/**
 	 * Application-provided function that creates an object from the object definition.
 	 */
-	virtual Object* createApplicationObject(ObjectDefinition& def, bool dryRun=false)=0;
+	virtual int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun=false)=0;
 
 	/**
 	 * Function prototype expected by the commands implementation to perform
@@ -115,8 +145,7 @@ class Commands
 	cb_static void setMaskValueCommandHandler(DataIn& in, DataOut& out);
 	cb_static void setSystemMaskValueCommandHandler(DataIn& in, DataOut& out);
 
-
-	cb_static Object* createObject(DataIn& in, bool dryRun);
+	cb_static int8_t createObject(Object*& result, DataIn& in, bool dryRun);
 	cb_static void removeEepromCreateCommand(BufferDataOut& id);
 
 public:
@@ -152,8 +181,8 @@ public:
 		command_callback_fn(connectionStarted(connection, out));
 	}
 
-	inline cb_static Object* createApplicationObject(ObjectDefinition& def, bool dryRun=false) {
-		return (command_callback_fn(createApplicationObject(def, dryRun)));
+	inline cb_static int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun=false) {
+		return (command_callback_fn(createApplicationObject(result, def, dryRun)));
 	}
 
 	inline cb_static void handleReset(bool exit=true) {
@@ -173,13 +202,13 @@ public:
 	 * @param	in		Commands for the object, starting after the command id.
 	 * @return	>=0 on success, <0 on error.
 	 */
-	cb_static uint8_t rehydrateObject(eptr_t offset, PipeDataIn& in, bool dryRun=false);
+	cb_static int8_t rehydrateObject(eptr_t offset, PipeDataIn& in, bool dryRun=false);
 
 
 	/**
 	 * Delete an object (but not the definition in eeprom.)
 	 */
-	cb_static uint8_t deleteObject(DataIn& id);
+	cb_static int8_t deleteObject(DataIn& id);
 
 	/**
 	 * Prototype for object factories.

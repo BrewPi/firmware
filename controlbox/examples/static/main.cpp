@@ -67,14 +67,23 @@ Commands::ObjectFactory createObjectHandlers[] = {
  * It's critical that the create code reads len bytes from the stream so that the data is
  * Spooled to eeprom to the persisted object definition.
  */
-Object* createApplicationObject(ObjectDefinition& def, bool dryRun)
+int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun)
 {
 	uint8_t type = def.type;
-	if (dryRun || type>=sizeof(createObjectHandlers)/sizeof(createObjectHandlers[0]))
-		type = 0;		// null object creator. Ensures stream is properly consumed even for invalid type values.
+	int8_t error = errorCode(no_error);
+	if (type>=sizeof(createObjectHandlers)/sizeof(createObjectHandlers[0])) {
+		error = errorCode(invalid_type);
+	}
+	else {
+		if (dryRun)
+			type = 0;		// null object creator. Ensures stream is properly consumed even for invalid type values.
 
-	Object* result = createObjectHandlers[type](def);
-	return result;
+		result = createObjectHandlers[type](def);
+		if (!result) {
+			error = errorCode(insufficient_heap);
+		}
+	}
+	return error;
 }
 
 
