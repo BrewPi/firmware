@@ -32,7 +32,7 @@
 #include "ActuatorMutexGroup.h"
 #include "json_writer.h"
 #include "ActuatorSetPoint.h"
-#include "ActuatorReferences.h"
+
 
 class Control
 {

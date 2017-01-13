@@ -20,7 +20,6 @@
 #pragma once
 #include "ActuatorMocks.h"
 #include "ActuatorInterfaces.h"
-#include "ActuatorReferences.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorPwm.h"
 #include "ActuatorOneWire.h"
@@ -45,14 +44,12 @@ public:
     ~VisitorCast() = default;
 public:
     void visit(ActuatorBool& thisRef) final { this->process(thisRef); };
-    void visit(ActuatorDigitalReference& thisRef) final { this->process(thisRef); };
     void visit(ActuatorInvalid& thisRef) final { this->process(thisRef); };
     void visit(ActuatorMutexDriver& thisRef) final { this->process(thisRef); };
     void visit(ActuatorMutexGroup& thisRef) final { this->process(thisRef); };
     void visit(ActuatorNop& thisRef) final { this->process(thisRef); };
     void visit(ActuatorOneWire& thisRef) final { this->process(thisRef); };
     void visit(ActuatorPwm& thisRef) final { this->process(thisRef); };
-    void visit(ActuatorRangeReference& thisRef) final { this->process(thisRef); };
     void visit(ActuatorSetPoint& thisRef) final { this->process(thisRef); };
     void visit(ActuatorTimeLimited& thisRef) final { this->process(thisRef); };
     void visit(ActuatorValue& thisRef) final { this->process(thisRef); };

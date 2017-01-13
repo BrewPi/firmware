@@ -24,6 +24,7 @@
 
 #include "ControllerMixins.h"
 #include "ActuatorInterfaces.h"
+#include "Sensor.h"
 #include "DS2413.h"
 
 

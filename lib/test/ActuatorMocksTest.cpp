@@ -25,7 +25,20 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorMocks.h"
 
-BOOST_AUTO_TEST_SUITE(ActuatorMockTest)
+BOOST_AUTO_TEST_SUITE(ActuatorMocksTest)
+
+BOOST_AUTO_TEST_CASE(ActuatorBoolTest) {
+    ActuatorBool * act = new ActuatorBool();
+
+    BOOST_CHECK(!act->isActive()); // defaults to false
+
+    act->setActive(true);
+    BOOST_CHECK(act->isActive()); // can be set to true
+
+    act->setActive(false);
+    BOOST_CHECK(!act->isActive()); // can be set to true
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 

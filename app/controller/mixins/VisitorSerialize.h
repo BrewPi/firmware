@@ -31,14 +31,12 @@ public:
     ~VisitorSerialize() = default;
 
     void visit(ActuatorBool& thisRef) final;
-    void visit(ActuatorDigitalReference& thisRef) final;
     void visit(ActuatorInvalid& thisRef) final;
     void visit(ActuatorMutexDriver& thisRef) final;
     void visit(ActuatorMutexGroup& thisRef) final;
     void visit(ActuatorNop& thisRef) final;
     void visit(ActuatorOneWire& thisRef) final;
     void visit(ActuatorPwm& thisRef) final;
-    void visit(ActuatorRangeReference& thisRef) final;
     void visit(ActuatorSetPoint& thisRef) final;
     void visit(ActuatorTimeLimited& thisRef) final;
     void visit(ActuatorValue& thisRef) final;

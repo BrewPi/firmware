@@ -22,7 +22,6 @@
 
 #include "ActuatorMocks.h"
 #include "ActuatorInterfaces.h"
-#include "ActuatorReferences.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorPwm.h"
 #include "ActuatorOneWire.h"
@@ -46,9 +45,6 @@
 void VisitorSerialize::visit(ActuatorBool& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void VisitorSerialize::visit(ActuatorDigitalReference& thisRef) {
-    thisRef.serializeImpl(adapter);
-}
 void VisitorSerialize::visit(ActuatorInvalid& thisRef) {
     thisRef.serializeImpl(adapter);
 }
@@ -65,9 +61,6 @@ void VisitorSerialize::visit(ActuatorOneWire& thisRef) {
     thisRef.serializeImpl(adapter);
 }
 void VisitorSerialize::visit(ActuatorPwm& thisRef) {
-    thisRef.serializeImpl(adapter);
-}
-void VisitorSerialize::visit(ActuatorRangeReference& thisRef) {
     thisRef.serializeImpl(adapter);
 }
 void VisitorSerialize::visit(ActuatorSetPoint& thisRef) {

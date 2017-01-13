@@ -24,7 +24,6 @@
 // Visitor should be implemented for all classes that can be accessed through an interface,
 // but not for the interfaces themselves.
 class ActuatorBool;
-class ActuatorDigitalReference;
 class ActuatorInvalid;
 class ActuatorMutexDriver;
 class ActuatorMutexGroup;
@@ -32,7 +31,6 @@ class ActuatorNop;
 class ActuatorOneWire;
 class ActuatorPin;
 class ActuatorPwm;
-class ActuatorRangeReference;
 class ActuatorSetPoint;
 class ActuatorTimeLimited;
 class ActuatorValue;
@@ -54,14 +52,12 @@ protected:
 
 public:
 	virtual void visit(ActuatorBool& thisRef) = 0;
-	virtual void visit(ActuatorDigitalReference& thisRef) = 0;
 	virtual void visit(ActuatorInvalid& thisRef) = 0;
 	virtual void visit(ActuatorMutexDriver& thisRef) = 0;
 	virtual void visit(ActuatorMutexGroup& thisRef) = 0;
 	virtual void visit(ActuatorNop& thisRef) = 0;
 	virtual void visit(ActuatorOneWire& thisRef) = 0;
 	virtual void visit(ActuatorPwm& thisRef) = 0;
-	virtual void visit(ActuatorRangeReference& thisRef) = 0;
 	virtual void visit(ActuatorSetPoint& thisRef) = 0;
 	virtual void visit(ActuatorTimeLimited& thisRef) = 0;
 	virtual void visit(ActuatorValue& thisRef) = 0;
