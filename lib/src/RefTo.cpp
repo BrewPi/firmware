@@ -21,19 +21,23 @@
 
 template<>
 ActuatorDigitalInterface * defaultTarget<ActuatorDigitalInterface>(){
-    return defaultActuator();
+    static ActuatorNop s;
+    return &s;
 }
 template<>
 ActuatorRangeInterface * defaultTarget<ActuatorRangeInterface>(){
-    return defaultLinearActuator();
+    static ActuatorInvalid a;
+    return &a;
 }
 
 template<>
 TempSensorInterface * defaultTarget<TempSensorInterface>(){
-    return defaultTempSensor();
+    static TempSensorDisconnected t;
+    return &t;
 }
 
 template<>
 SetPointInterface * defaultTarget<SetPointInterface>(){
-    return defaultSetPoint();
+    static SetPointConstant sp(temp_t::invalid());
+    return &sp;
 }

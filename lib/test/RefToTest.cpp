@@ -25,7 +25,6 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorMocks.h"
 #include "TempSensorMock.h"
-#include "defaultDevices.h"
 #include "RefTo.h"
 
 struct RefToFixture{
@@ -77,7 +76,7 @@ BOOST_FIXTURE_TEST_SUITE( RefToTest, RefToFixture )
 BOOST_AUTO_TEST_CASE(unset_RefTo_returns_default_actuator) {
     RefTo<ActuatorDigitalInterface> ref;
 
-    BOOST_CHECK_EQUAL(ref.get(), defaultActuator());
+    BOOST_CHECK_EQUAL(ref.get(), defaultTarget<ActuatorDigitalInterface>());
 }
 
 BOOST_AUTO_TEST_CASE(RefTo_pointing_to_wrong_type_returns_default_actuator_for_requested_interface) {
@@ -88,7 +87,7 @@ BOOST_AUTO_TEST_CASE(RefTo_pointing_to_wrong_type_returns_default_actuator_for_r
 
     RefTo<TempSensorInterface> refWrongType(lookup);
 
-    BOOST_CHECK_EQUAL(refWrongType.get(), defaultTempSensor()); // device at index 1 is act2
+    BOOST_CHECK_EQUAL(refWrongType.get(), defaultTarget<TempSensorInterface>()); // device at index 1 is act2
 }
 
 BOOST_AUTO_TEST_CASE(RefTo_can_be_used_as_a_pointer) {
@@ -106,7 +105,7 @@ BOOST_AUTO_TEST_CASE(RefTo_can_set_to_a_different_lookup) {
     BOOST_CHECK_EQUAL(ref.get(), act2); // device at index 1 is act2
 
     auto lookup2 = VectorIndexLookup(0, devices);
-    ref.set(lookup2);
+    ref.setLookup(lookup2);
 
     BOOST_CHECK_EQUAL(ref.get(), act1); // device at index 1 is now act1
 }
@@ -119,7 +118,6 @@ BOOST_AUTO_TEST_CASE(Lookup_can_be_deleted_after_passing_to_reference) {
 
     BOOST_CHECK_EQUAL(ref.get(), act2); // device at index 1 is act2
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()
 

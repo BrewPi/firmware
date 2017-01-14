@@ -23,11 +23,10 @@
 #include <stdint.h>
 #include <functional>
 #include "ActuatorInterfaces.h"
-#include "defaultDevices.h"
 #include "VisitorCast.h"
 
 template<class T>
-T * defaultTarget();
+T* defaultTarget();
 
 template<class T>
 class RefTo {
@@ -36,16 +35,19 @@ public:
     RefTo(std::function<Interface* ()> lookup) : lookup(lookup){};
     ~RefTo() = default;
 
-    void set(std::function<Interface* ()> newLookup){
+    void setLookup(std::function<Interface* ()> newLookup){
         lookup = newLookup;
+    }
+    std::function<Interface* ()>  getLookup(){
+        return lookup;
     }
 
     T* get(){
-        if(!lookup){
-            return defaultTarget<T>();
+        T* specializedTarget = nullptr;
+        if(lookup){
+            Interface* target = lookup();
+            specializedTarget = asInterface<T>(target);
         }
-        Interface* target = lookup();
-        T* specializedTarget = asInterface<T>(target);
         return (specializedTarget) ? specializedTarget : defaultTarget<T>();
     }
 
