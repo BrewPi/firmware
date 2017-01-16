@@ -29,17 +29,15 @@
 #include "defaultDevices.h"
 #include "ControllerMixins.h"
 #include "ControllerInterface.h"
+#include "RefTo.h"
 
 class Pid final : public ControllerInterface, public PidMixin
 {
 
     public:
-        Pid(TempSensorInterface * input, ActuatorRangeInterface * output, SetPointInterface * setPoint);
-
-        Pid() : Pid(defaultTempSensor(), defaultLinearActuator(), defaultSetPoint()){}
-
-        Pid(const Pid & orig);
-
+        Pid(std::function<Interface* ()> input = nullptr ,
+            std::function<Interface* ()> output = nullptr,
+            std::function<Interface* ()> setPoint = nullptr);
         ~Pid() = default;
 
         /**
@@ -66,26 +64,6 @@ class Pid final : public ControllerInterface, public PidMixin
 
         void setDerivativeFilter(uint8_t b);
 
-        bool setInputSensor(TempSensorInterface * s);
-
-        TempSensorInterface * getInputSensor(){
-            return inputSensor;
-        }
-
-        bool setOutputActuator(ActuatorRangeInterface * a);
-
-        ActuatorRangeInterface * getOutputActuator(){
-            return outputActuator;
-        }
-
-        void setSetPoint(SetPointInterface * s){
-            setPoint = s;
-        }
-
-        SetPointInterface * getSetPoint(){
-            return setPoint;
-        }
-
         void setActuatorIsNegative(bool setting){
             actuatorIsNegative = setting;
         }
@@ -101,9 +79,13 @@ class Pid final : public ControllerInterface, public PidMixin
             i = decltype(i)::base_type(0);
             d = decltype(d)::base_type(0);
             if(turnOffOutputActuator){
-                outputActuator -> setValue(0.0);
+                output().setValue(0.0);
             }
         }
+
+        void setInput(std::function<Interface* ()> _input);
+        void setOutput(std::function<Interface* ()> _output);
+        void setSetPoint(std::function<Interface* ()> _setpoint);
 
         /*
         uint16_t getOutputLag(){ return outputLag; };
@@ -118,16 +100,16 @@ class Pid final : public ControllerInterface, public PidMixin
         */
 
     protected:
-        ActuatorRangeInterface *   outputActuator;
-        TempSensorInterface * inputSensor;
-        SetPointInterface *        setPoint;
+        RefTo<TempSensorInterface> input;
+        RefTo<ActuatorRangeInterface> output;
+        RefTo<SetPointInterface> setPoint;
         temp_long_t       Kp;    // proportional gain
         uint16_t          Ti;    // integral time constant
         uint16_t          Td;    // derivative time constant
-        temp_t            inputError;
         temp_long_t       p;
         temp_long_t       i;
         temp_long_t       d;
+        temp_t            inputError;
         temp_precise_t    derivative;
         temp_long_t       integral;
         FilterCascaded    inputFilter;

@@ -21,31 +21,29 @@
 
 #include "Pid.h"
 
-Pid::Pid(TempSensorInterface * input,
-         ActuatorRangeInterface * output,
-         SetPointInterface * setPoint)
+Pid::Pid(std::function<Interface* ()> _input, std::function<Interface* ()> _output, std::function<Interface* ()> _setPoint) :
+         Kp(0.0),
+         Ti(0),
+         Td(0),
+         p(decltype(p)::base_type(0)),
+         i(decltype(i)::base_type(0)),
+         d(decltype(p)::base_type(0)),
+         inputError(decltype(inputError)::base_type(0)),
+         derivative(decltype(derivative)::base_type(0)),
+         integral(decltype(integral)::base_type(0)),
+         failedReadCount(255), // start at 255, so inputFilter is refreshed at first valid read
+         actuatorIsNegative(false),
+         enabled(true),
+         previousSetPoint(temp_t::invalid())
 {
-    setConstants(temp_t(0.0), 0, 0);
-    p = decltype(p)::base_type(0);
-    i = decltype(i)::base_type(0);
-    d = decltype(p)::base_type(0);
-    inputError           = decltype(inputError)::base_type(0);
-    derivative      = decltype(derivative)::base_type(0);
-    integral        = decltype(integral)::base_type(0);
-    failedReadCount = 255; // start at 255, so inputFilter is refreshed at first valid read
-
-    setInputSensor(input);
-    setOutputActuator(output);
-    setSetPoint(setPoint);
+    input.setLookup(_input);
+    output.setLookup(_output);
+    setPoint.setLookup(_setPoint);
 
     setInputFilter(0);
     // some filtering necessary due to quantization causing steps in the temperature
     setDerivativeFilter(2);
-    actuatorIsNegative = false;
-    enabled = true;
-    previousSetPoint = temp_t::invalid();
-
-//    autotune = false;
+    //    autotune = false;
 //    tuning = false;
 //    outputLag = 0;
 //    maxDerivative = 0.0;
@@ -62,16 +60,10 @@ void Pid::setConstants(temp_long_t kp,
 
 void Pid::update()
 {
-    temp_t inputVal;
-    bool validSetPoint = true;
-    bool validSensor = true;
-
-    if( setPoint->read().isDisabledOrInvalid()){
-        validSetPoint = false;
-    }
-
-    inputVal = inputSensor -> read();
-    validSensor = !inputVal.isDisabledOrInvalid();
+    temp_t currentSetPoint = setPoint().read();
+    temp_t inputVal = input().read();
+    bool validSensor = !inputVal.isDisabledOrInvalid();
+    bool validSetPoint = !currentSetPoint.isDisabledOrInvalid();
 
     if (!validSensor){
         // Could not read from input sensor
@@ -93,7 +85,6 @@ void Pid::update()
         inputFilter.add(inputVal);
 
         if(validSetPoint){
-            temp_t currentSetPoint = setPoint->read();
             if(previousSetPoint.isDisabledOrInvalid()){
                 previousSetPoint = currentSetPoint;
             }
@@ -150,14 +141,15 @@ void Pid::update()
     temp_long_t pidResult = temp_long_t(p) + temp_long_t(i) + temp_long_t(d);
 
     // Get output to send to actuator. When actuator is a 'cooler', invert the result
-    temp_t      output    = (actuatorIsNegative) ? -pidResult : pidResult;
+    temp_t      outputValue    = (actuatorIsNegative) ? -pidResult : pidResult;
 
-    outputActuator -> setValue(output);
+    auto  & outputActuator = output();
+    outputActuator.setValue(outputValue);
 
     // get the value that is clipped to the actuator's range
-    output = outputActuator->getValue();
+    outputValue = outputActuator.getValue();
     // When actuator is a 'cooler', invert the output again
-    output = (actuatorIsNegative) ? -output : output;
+    outputValue = (actuatorIsNegative) ? -outputValue : outputValue;
 
     if(Ti == 0){ // 0 has been chosen to indicate that the integrator is disabled. This also prevents divide by zero.
         integral = decltype(integral)::base_type(0);
@@ -171,13 +163,13 @@ void Pid::update()
         integral = integral + p;
 
         temp_long_t antiWindup(temp_long_t::base_type(0));
-        if(pidResult != temp_long_t(output)){ // clipped to actuator min or max set in target actuator
-            antiWindup = pidResult - output;
+        if(pidResult != temp_long_t(outputValue)){ // clipped to actuator min or max set in target actuator
+            antiWindup = pidResult - outputValue;
             antiWindup *= 5; // Anti windup gain is 5 when clipping to min/max
         }
         else{ // Actuator could be not reaching set value due to physics or limits in its target actuator
               // Get the actual achieved value in actuator. This could differ due to slowness time/mutex limits
-            temp_t achievedOutput = outputActuator->readValue();
+            temp_t achievedOutput = outputActuator.readValue();
             if(!achievedOutput.isDisabledOrInvalid()){ // only apply anti-windup when it is possible to read back the actual value
                 // When actuator is a 'cooler', invert the output again
                 temp_long_t achievedOutputWithCorrectSign = (actuatorIsNegative) ? -achievedOutput : achievedOutput;
@@ -228,26 +220,19 @@ void Pid::setDerivativeFilter(uint8_t b)
     derivativeFilter.setFiltering(b);
 }
 
-bool Pid::setInputSensor(TempSensorInterface * s)
+void Pid::setInput(std::function<Interface* ()> _input)
 {
-    inputSensor = s;
-    temp_t t = s -> read();
-
-    if (t.isDisabledOrInvalid()){
-        return false;    // could not read from sensor
-    }
-
-    inputFilter.init(t);
-    derivativeFilter.init(0.0);
-
-    return true;
+    input.setLookup(_input);
 }
 
-bool Pid::setOutputActuator(ActuatorRangeInterface * a)
+void Pid::setOutput(std::function<Interface* ()> _output)
 {
-    outputActuator = a;
+    output.setLookup(_output);
+}
 
-    return true;
+void Pid::setSetPoint(std::function<Interface* ()> _setpoint)
+{
+    setPoint.setLookup(_setpoint);
 }
 
 /*

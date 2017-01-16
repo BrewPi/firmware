@@ -22,17 +22,30 @@
 
 #include <stdint.h>
 #include <functional>
+#include "Interface.h"
+#include "SetPoint.h"
+#include "TempSensorInterface.h"
 #include "ActuatorInterfaces.h"
-#include "VisitorCast.h"
 
 template<class T>
 T* defaultTarget();
 
 template<class T>
+T* asInterface(Interface* i);
+
+
+// explicit instantiation of template functions is done in cpp file.
+// declare extern here to prevent circular include errors
+extern template ActuatorDigitalInterface* asInterface<ActuatorDigitalInterface>(Interface*);
+extern template ActuatorRangeInterface* asInterface<ActuatorRangeInterface>(Interface*);
+extern template TempSensorInterface* asInterface<TempSensorInterface>(Interface*);
+extern template SetPointInterface* asInterface<SetPointInterface>(Interface*);
+
+template<class T>
 class RefTo {
 public:
-    RefTo() : lookup(nullptr){};
-    RefTo(std::function<Interface* ()> lookup) : lookup(lookup){};
+    RefTo(){};
+    RefTo(std::function<Interface* ()> lookup) : lookup(std::move(lookup)){};
     ~RefTo() = default;
 
     void setLookup(std::function<Interface* ()> newLookup){
@@ -46,13 +59,15 @@ public:
         T* specializedTarget = nullptr;
         if(lookup){
             Interface* target = lookup();
-            specializedTarget = asInterface<T>(target);
+            if(target){
+                specializedTarget = asInterface<T>(target);
+            }
         }
         return (specializedTarget) ? specializedTarget : defaultTarget<T>();
     }
 
-    T* operator ->() {
-        return get();
+    T& operator()() {
+        return *get();
     }
 
 private:
@@ -61,3 +76,15 @@ private:
     std::function<Interface* ()> lookup;
 };
 
+// simple lookup class that just keeps a pointer to its target
+class PtrLookup {
+public:
+    PtrLookup(Interface * target) : target(target) {}
+    ~PtrLookup() = default;
+
+    Interface * operator()(){
+        return target;
+    }
+private:
+    Interface* target;
+};

@@ -35,6 +35,7 @@
 #include <iostream>
 #include <fstream>
 #include "ActuatorSetPoint.h"
+#include "RefTo.h"
 
 struct PidTest {
 public:
@@ -46,7 +47,7 @@ public:
         act = new ActuatorPwm(vAct,4);
         sp = new SetPointSimple(20.0);
 
-        pid = new Pid(sensor, act, sp);
+        pid = new Pid(PtrLookup(sensor), PtrLookup(act), PtrLookup(sp));
     }
     ~PidTest(){
         BOOST_TEST_MESSAGE( "tear down PID test fixture" );
@@ -59,8 +60,8 @@ public:
     TempSensorMock * sensor;
     ActuatorDigitalInterface * vAct;
     ActuatorPwm * act;
-    Pid * pid;
     SetPointSimple * sp;
+    Pid * pid;
 };
 
 // next line sets up the fixture for each test case in this suite
@@ -241,11 +242,8 @@ BOOST_AUTO_TEST_CASE(inputError_is_invalid_and_actuator_zero_when_input_is_inval
     TempSensorMock * sensor = new TempSensorMock(20.0);
     ActuatorDigitalInterface * pin = new ActuatorBool();
     ActuatorRangeInterface * act = new ActuatorPwm(pin,4);
-    Pid * p = new Pid();
+    Pid * p = new Pid(PtrLookup(sensor), PtrLookup(act), PtrLookup(sp));
 
-    p->setSetPoint(sp);
-    p->setInputSensor(sensor);
-    p->setOutputActuator(act);
     p->setConstants(10.0, 0.0, 0.0);
     p->update();
     BOOST_CHECK_EQUAL(act->getValue(), temp_t(50.0)); // 10.0*(25.0-20.0)
@@ -268,8 +266,6 @@ BOOST_AUTO_TEST_CASE(inputError_is_invalid_and_actuator_zero_when_input_is_inval
         }
     }
 
-
-
     BOOST_CHECK_EQUAL(p->inputError, temp_t::invalid());
     BOOST_CHECK_EQUAL(act->getValue(), temp_t(0.0));
 }
@@ -278,16 +274,12 @@ BOOST_AUTO_TEST_CASE(inputError_is_invalid_and_actuator_zero_when_input_is_inval
 BOOST_AUTO_TEST_CASE(pid_driving_setpoint_actuator){
     SetPointInterface * sp = new SetPointSimple(25.0); // setpoint is higher than temperature, actuator will heat
     TempSensorMock * sensor = new TempSensorMock(20.0);
-
     TempSensorMock * targetSensor = new TempSensorMock(20.0);
     SetPointSimple * targetSetpoint = new SetPointSimple(20.0);
 
     ActuatorSetPoint * act = new ActuatorSetPoint(targetSetpoint, targetSensor, sp);
-    Pid * p = new Pid();
+    Pid * p = new Pid(PtrLookup(sensor), PtrLookup(act), PtrLookup(sp));
 
-    p->setSetPoint(sp);
-    p->setInputSensor(sensor);
-    p->setOutputActuator(act);
     p->setConstants(2.0, 40, 0);
     p->update();
 
@@ -410,7 +402,7 @@ BOOST_AUTO_TEST_CASE(pid_can_update_after_bare_init_without_crashing){
 BOOST_AUTO_TEST_CASE(pid_can_update_with_only_actuator_defined){
     TempSensorInterface * sensor = new TempSensorMock(20.0);
     Pid * p = new Pid();
-    p->setInputSensor(sensor);
+    p->setInput(PtrLookup(sensor));
     p->update();
 }
 
@@ -418,14 +410,14 @@ BOOST_AUTO_TEST_CASE(pid_can_update_with_only_sensor_defined){
     ActuatorDigitalInterface * pin = new ActuatorBool();
     ActuatorRangeInterface * act = new ActuatorPwm(pin,4);
     Pid * p = new Pid();
-    p->setOutputActuator(act);
+    p->setOutput(PtrLookup(act));
     p->update();
 }
 
 BOOST_AUTO_TEST_CASE(pid_can_update_with_only_setpoint_defined){
     SetPointInterface * sp = new SetPointSimple(20.0);
     Pid * p = new Pid();
-    p->setSetPoint(sp);
+    p->setSetPoint(PtrLookup(sp));
     p->update();
 }
 

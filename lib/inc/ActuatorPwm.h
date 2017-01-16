@@ -25,8 +25,6 @@
 #include "ActuatorInterfaces.h"
 #include "Ticks.h"
 #include <stdint.h>
-
-#include "ActuatorForwarder.h"
 #include "ControllerMixins.h"
 
 /**
@@ -34,9 +32,10 @@
 
 
  */
-class ActuatorPwm final : public ActuatorForwarder, public ActuatorRangeInterface, public ActuatorPwmMixin
+class ActuatorPwm final : public ActuatorRangeInterface, public ActuatorPwmMixin
 {
 private:
+    ActuatorDigitalInterface * target;
     temp_t         value;
     int32_t        dutyLate;
     int32_t        periodLate;

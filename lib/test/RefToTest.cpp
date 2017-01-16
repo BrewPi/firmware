@@ -26,6 +26,8 @@
 #include "ActuatorMocks.h"
 #include "TempSensorMock.h"
 #include "RefTo.h"
+#include "SetPoint.h"
+#include "ActuatorSetPoint.h"
 
 struct RefToFixture{
 public:
@@ -90,12 +92,12 @@ BOOST_AUTO_TEST_CASE(RefTo_pointing_to_wrong_type_returns_default_actuator_for_r
     BOOST_CHECK_EQUAL(refWrongType.get(), defaultTarget<TempSensorInterface>()); // device at index 1 is act2
 }
 
-BOOST_AUTO_TEST_CASE(RefTo_can_be_used_as_a_pointer) {
+BOOST_AUTO_TEST_CASE(RefTo_can_be_used_as_a_ActuatorDigital) {
     auto lookup = VectorIndexLookup(1, devices);
     RefTo<ActuatorDigitalInterface> ref(lookup);
 
     BOOST_CHECK(!act2->isActive()); // default value is false
-    ref->setActive(true);
+    ref().setActive(true);
     BOOST_CHECK(act2->isActive()); // value has been set to true via reference
 }
 
@@ -118,6 +120,19 @@ BOOST_AUTO_TEST_CASE(Lookup_can_be_deleted_after_passing_to_reference) {
 
     BOOST_CHECK_EQUAL(ref.get(), act2); // device at index 1 is act2
 }
+
+BOOST_AUTO_TEST_CASE(RefTo_SetPointActuator) {
+    SetPointInterface * sp1 = new SetPointSimple(20.0);
+    SetPointInterface * sp2 = new SetPointSimple(20.0);
+    TempSensorInterface * sensor = new TempSensorMock(20.0);
+    Interface * spa = new ActuatorSetPoint(sp1, sensor, sp2);
+    auto lookup = PtrLookup(spa);
+    RefTo<ActuatorRangeInterface> ref(lookup);
+
+    BOOST_CHECK_EQUAL(ref.get(), spa);
+}
+
+
 
 BOOST_AUTO_TEST_SUITE_END()
 

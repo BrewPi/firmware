@@ -39,6 +39,7 @@
 #include <iostream>
 #include <fstream>
 
+
 struct StaticSetup{
 public:
     StaticSetup(){
@@ -66,10 +67,10 @@ public:
 
         fridgeSetPointActuator = new ActuatorSetPoint(fridgeSet, fridgeSensor, beerSet);
 
-        heaterPid->setOutputActuator(heater);
-        coolerPid->setOutputActuator(cooler);
+        heaterPid->setOutput(PtrLookup(heater));
+        coolerPid->setOutput(PtrLookup(cooler));
         coolerPid->setActuatorIsNegative(true);
-        beerToFridgePid->setOutputActuator(fridgeSetPointActuator);
+        beerToFridgePid->setOutput(PtrLookup(fridgeSetPointActuator));
     }
     ~StaticSetup(){
         BOOST_TEST_MESSAGE( "tear down PID test fixture" );
@@ -218,12 +219,14 @@ struct Simulation{
  * The first 4 are simple: a single actuator, acting on beer or fridge temperature
  */
 
+
+
 // Just a heater, acting on beer temperature directly
 struct SimBeerHeater : public StaticSetup {
     Simulation sim;
     SimBeerHeater(){
-        heaterPid->setInputSensor(beerSensor);
-        heaterPid->setSetPoint(beerSet);
+        heaterPid->setInput(PtrLookup(beerSensor));
+        heaterPid->setSetPoint(PtrLookup(beerSet));
         heaterPid->setInputFilter(1);
         heaterPid->setDerivativeFilter(4);
         heaterPid->setConstants(60.0, 7200, 500);
@@ -245,8 +248,8 @@ struct SimBeerHeater : public StaticSetup {
 struct SimFridgeHeater : public StaticSetup {
     Simulation sim;
     SimFridgeHeater(){
-        heaterPid->setInputSensor(fridgeSensor);
-        heaterPid->setSetPoint(fridgeSet);
+        heaterPid->setInput(PtrLookup(fridgeSensor));
+        heaterPid->setSetPoint(PtrLookup(fridgeSet));
         heaterPid->setInputFilter(1);
         heaterPid->setDerivativeFilter(4);
         heaterPid->setConstants(10.0, 600, 60);
@@ -270,8 +273,8 @@ struct SimFridgeHeater : public StaticSetup {
 struct SimBeerCooler : public StaticSetup {
     Simulation sim;
     SimBeerCooler(){
-        coolerPid->setInputSensor(beerSensor);
-        coolerPid->setSetPoint(beerSet);
+        coolerPid->setInput(PtrLookup(beerSensor));
+        coolerPid->setSetPoint(PtrLookup(beerSet));
         coolerPid->setInputFilter(2);
         coolerPid->setDerivativeFilter(5);
         coolerPid->setConstants(40.0, 7200, 1200);
@@ -294,8 +297,8 @@ struct SimBeerCooler : public StaticSetup {
 struct SimFridgeCooler : public StaticSetup {
     Simulation sim;
     SimFridgeCooler(){
-        coolerPid->setInputSensor(fridgeSensor);
-        coolerPid->setSetPoint(fridgeSet);
+        coolerPid->setInput(PtrLookup(fridgeSensor));
+        coolerPid->setSetPoint(PtrLookup(fridgeSet));
         coolerPid->setInputFilter(1);
         coolerPid->setDerivativeFilter(5);
         coolerPid->setConstants(10.0, 1800, 200);
@@ -318,14 +321,14 @@ struct SimFridgeCooler : public StaticSetup {
 struct SimFridgeHeaterCooler : public StaticSetup {
     Simulation sim;
     SimFridgeHeaterCooler(){
-        coolerPid->setInputSensor(fridgeSensor);
-        coolerPid->setSetPoint(fridgeSet);
+        coolerPid->setInput(PtrLookup(fridgeSensor));
+        coolerPid->setSetPoint(PtrLookup(fridgeSet));
         coolerPid->setInputFilter(1);
         coolerPid->setDerivativeFilter(4);
         coolerPid->setConstants(10.0, 1800, 200);
 
-        heaterPid->setInputSensor(fridgeSensor);
-        heaterPid->setSetPoint(fridgeSet);
+        heaterPid->setInput(PtrLookup(fridgeSensor));
+        heaterPid->setSetPoint(PtrLookup(fridgeSet));
         heaterPid->setInputFilter(1);
         heaterPid->setDerivativeFilter(4);
         heaterPid->setConstants(10.0, 1800, 60);
@@ -353,14 +356,14 @@ struct SimFridgeHeaterCooler : public StaticSetup {
 struct SimBeerHeaterCooler : public StaticSetup {
     Simulation sim;
     SimBeerHeaterCooler(){
-        coolerPid->setInputSensor(beerSensor);
-        coolerPid->setSetPoint(beerSet);
+        coolerPid->setInput(PtrLookup(beerSensor));
+        coolerPid->setSetPoint(PtrLookup(beerSet));
         coolerPid->setInputFilter(1);
         coolerPid->setDerivativeFilter(4);
         coolerPid->setConstants(40.0, 7200, 1200);
 
-        heaterPid->setInputSensor(beerSensor);
-        heaterPid->setSetPoint(beerSet);
+        heaterPid->setInput(PtrLookup(beerSensor));
+        heaterPid->setSetPoint(PtrLookup(beerSet));
         heaterPid->setInputFilter(1);
         heaterPid->setDerivativeFilter(4);
         heaterPid->setConstants(60.0, 7200, 500);
@@ -388,21 +391,21 @@ struct SimBeerHeaterCooler : public StaticSetup {
 struct SimCascadedHeaterCooler : public StaticSetup {
     Simulation sim;
     SimCascadedHeaterCooler(){
-        coolerPid->setInputSensor(fridgeSensor);
-        coolerPid->setSetPoint(fridgeSet);
+        coolerPid->setInput(PtrLookup(fridgeSensor));
+        coolerPid->setSetPoint(PtrLookup(fridgeSet));
         coolerPid->setInputFilter(1);
         coolerPid->setDerivativeFilter(4);
         coolerPid->setConstants(10.0, 1800, 200);
 
-        heaterPid->setInputSensor(fridgeSensor);
-        heaterPid->setSetPoint(fridgeSet);
+        heaterPid->setInput(PtrLookup(fridgeSensor));
+        heaterPid->setSetPoint(PtrLookup(fridgeSet));
         heaterPid->setInputFilter(1);
         heaterPid->setDerivativeFilter(4);
         heaterPid->setConstants(10.0, 600, 60);
 
 
-        beerToFridgePid->setInputSensor(beerSensor);
-        beerToFridgePid->setSetPoint(beerSet);
+        beerToFridgePid->setInput(PtrLookup(beerSensor));
+        beerToFridgePid->setSetPoint(PtrLookup(beerSet));
         beerToFridgePid->setInputFilter(1);
         beerToFridgePid->setDerivativeFilter(4);
         beerToFridgePid->setConstants(2.0, 7200, 1200);
@@ -829,3 +832,4 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Cool_Small_Volume, SimCascadedHeaterCo
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+

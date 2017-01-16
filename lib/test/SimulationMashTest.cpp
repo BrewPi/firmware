@@ -62,8 +62,8 @@ public:
 
         hltSetPointActuator = new ActuatorSetPoint(hltSet, hltSensor, mashSet);
 
-        hltHeaterPid->setOutputActuator(hltHeater);
-        mashToHltPid->setOutputActuator(hltSetPointActuator);
+        hltHeaterPid->setOutput(PtrLookup(hltHeater));
+        mashToHltPid->setOutput(PtrLookup(hltSetPointActuator));
     }
     ~MashStaticSetup(){
         BOOST_TEST_MESSAGE( "tear down mash test fixture" );
@@ -205,8 +205,8 @@ struct MashSimulation{
 struct SimMashDirect : public MashStaticSetup {
     MashSimulation sim;
     SimMashDirect(){
-        hltHeaterPid->setInputSensor(mashSensor);
-        hltHeaterPid->setSetPoint(mashSet);
+        hltHeaterPid->setInput(PtrLookup(mashSensor));
+        hltHeaterPid->setSetPoint(PtrLookup(mashSet));
         hltHeaterPid->setInputFilter(1);
         hltHeaterPid->setDerivativeFilter(1);
         hltHeaterPid->setConstants(50.0, 300, 120);
@@ -226,15 +226,15 @@ struct SimMashDirect : public MashStaticSetup {
 struct SimMashCascaded : public MashStaticSetup {
     MashSimulation sim;
     SimMashCascaded(){
-        hltHeaterPid->setInputSensor(hltSensor);
-        hltHeaterPid->setSetPoint(hltSet);
+        hltHeaterPid->setInput(PtrLookup(hltSensor));
+        hltHeaterPid->setSetPoint(PtrLookup(hltSet));
         hltHeaterPid->setInputFilter(1);
         hltHeaterPid->setDerivativeFilter(1);
         hltHeaterPid->setConstants(50.0, 300, 30);
 
 
-        mashToHltPid->setInputSensor(mashSensor);
-        mashToHltPid->setSetPoint(mashSet);
+        mashToHltPid->setInput(PtrLookup(mashSensor));
+        mashToHltPid->setSetPoint(PtrLookup(mashSet));
         mashToHltPid->setInputFilter(2);
         mashToHltPid->setDerivativeFilter(2);
         mashToHltPid->setConstants(0.5, 300, 120);

@@ -21,7 +21,6 @@
 
 #include <stdint.h>
 
-#include "ActuatorForwarder.h"
 #include "temperatureFormats.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorMutexGroup.h"
@@ -30,10 +29,10 @@
 /* A driver actuator to wrap a digital Actuator and block SetActive calls if the mutex group does does not honor the request
  */
 
-class ActuatorMutexDriver final : public ActuatorForwarder, public ActuatorDigitalInterface, public ActuatorMutexDriverMixin{
+class ActuatorMutexDriver final : public ActuatorDigitalInterface, public ActuatorMutexDriverMixin{
 public:
-    ActuatorMutexDriver(ActuatorDigitalInterface * target) : ActuatorForwarder(target), mutexGroup(nullptr){}
-    ActuatorMutexDriver(ActuatorDigitalInterface * target, ActuatorMutexGroup * m) : ActuatorForwarder(target), mutexGroup(m){}
+    ActuatorMutexDriver(ActuatorDigitalInterface * target) : target(target), mutexGroup(nullptr){}
+    ActuatorMutexDriver(ActuatorDigitalInterface * target, ActuatorMutexGroup * m) : target(target), mutexGroup(m){}
 
     ~ActuatorMutexDriver(){
         setMutex(nullptr);
@@ -83,6 +82,7 @@ public:
     }
 
 private:
+    ActuatorDigitalInterface * target;
     ActuatorMutexGroup * mutexGroup;
 
 friend class ActuatorMutexDriverMixin;
