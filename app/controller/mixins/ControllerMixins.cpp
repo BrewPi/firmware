@@ -67,8 +67,8 @@ void PidMixin::serializeImpl(JSON::Adapter & adapter)
     std::string name(getName());    // get name as std string for json_writer
     JSON_E(adapter, name);
     JSON_OE(adapter, enabled);
-    JSON_OE(adapter, setPoint);
-    JSON_OE(adapter, inputSensor);
+    JSON_OE(adapter, setPoint());
+    JSON_OE(adapter, input());
     JSON_OE(adapter, inputError);
     JSON_OE(adapter, Kp);
     JSON_OE(adapter, Ti);
@@ -77,7 +77,7 @@ void PidMixin::serializeImpl(JSON::Adapter & adapter)
     JSON_OE(adapter, i);
     JSON_OE(adapter, d);
     JSON_OE(adapter, actuatorIsNegative);
-    JSON_OT(adapter, outputActuator);
+    JSON_OT(adapter, output());
 }
 
 void TempSensorMixin::serializeImpl(JSON::Adapter & adapter)

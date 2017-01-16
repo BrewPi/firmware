@@ -36,6 +36,9 @@
 #include "OneWireTempSensor.h"
 #include "ValveController.h"
 #include "VisitorBase.h"
+#if WIRING
+#include "ActuatorPin.h"
+#endif
 
 template< class T >
 class VisitorCast : public VisitorBase {
