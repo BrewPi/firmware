@@ -211,18 +211,5 @@ protected:
     ~ActuatorOneWireMixin() = default;
 };
 
-class ActuatorRangeReferenceMixin {
-public:
-    void serializeImpl(JSON::Adapter& adapter);
-protected:
-    ~ActuatorRangeReferenceMixin() = default;
-};
-
-class ActuatorDigitalReferenceMixin {
-public:
-    void serializeImpl(JSON::Adapter& adapter);
-protected:
-    ~ActuatorDigitalReferenceMixin() = default;
-};
 
 

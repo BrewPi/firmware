@@ -32,5 +32,4 @@ class SetPointMinMaxMixin {};
 class ActuatorPinMixin {};
 class ValveControllerMixin {};
 class ActuatorOneWireMixin {};
-class ActuatorRangeReferenceMixin {};
 class ActuatorDigitalReferenceMixin {};

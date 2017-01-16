@@ -328,12 +328,3 @@ void SetPointMinMaxMixin::serializeImpl(JSON::Adapter & adapter)
     JSON_OT(adapter, max);
 }
 
-void ActuatorRangeReferenceMixin::serializeImpl(JSON::Adapter & adapter)
-{
-#warning TODO: implemnet serialization
-}
-
-void ActuatorDigitalReferenceMixin::serializeImpl(JSON::Adapter & adapter)
-{
-#warning TODO: implemnet serialization
-}
