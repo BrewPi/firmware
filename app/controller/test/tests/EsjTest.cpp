@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
     ActuatorDigitalInterface * boolAct = new ActuatorBool();
     ActuatorRangeInterface * pwmAct = new ActuatorPwm(boolAct,4);
     SetPointInterface * sp = new SetPointSimple(20.0);
-    Pid * pid = new Pid(sensor, pwmAct, sp);
+    Pid * pid = new Pid(PtrLookup(sensor), PtrLookup(pwmAct), PtrLookup(sp));
 
     std::string json = JSON::producer<Pid>::convert(pid);
 
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
     R"(        "name":"",                     )"
     R"(        "value": 20.0000               )"
     R"(    },                                 )"
-    R"(    "inputSensor": {                   )"
+    R"(    "input": {                         )"
     R"(        "kind": "TempSensorMock",      )"
     R"(        "value": 20.0000,              )"
     R"(        "connected": true              )"
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
     R"(    "i": 0.0000,                       )"
     R"(    "d": 0.0000,                       )"
     R"(    "actuatorIsNegative": false,       )"
-    R"(    "outputActuator": {                )"
+    R"(    "output": {                        )"
     R"(        "kind": "ActuatorPwm",         )"
     R"(        "value": 0.0000,               )"
     R"(        "period": 4,                   )"
@@ -336,7 +336,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(         "name": "fridgeset",                         )"
     R"(         "value": null                                )"
     R"(     },                                               )"
-    R"(     "inputSensor": {                                 )"
+    R"(     "input": {                                       )"
     R"(         "kind": "TempSensorFallback",                )"
     R"(         "onBackupSensor": false,                     )"
     R"(         "sensor": {                                  )"
@@ -357,7 +357,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(     "i": 0.0000,                                     )"
     R"(     "d": 0.0000,                                     )"
     R"(     "actuatorIsNegative": false,                     )"
-    R"(     "outputActuator": {                              )"
+    R"(     "output": {                                      )"
     R"(         "kind": "ActuatorPwm",                       )"
     R"(         "value": 0.0000,                             )"
     R"(         "period": 4,                                 )"
@@ -385,7 +385,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(         "name": "beer2set",                          )"
     R"(         "value": null                                )"
     R"(     },                                               )"
-    R"(     "inputSensor": {                                 )"
+    R"(     "input": {                                       )"
     R"(         "kind": "TempSensor",                        )"
     R"(         "name": "beer2",                             )"
     R"(         "sensor": {                                  )"
@@ -402,7 +402,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(     "i": 0.0000,                                     )"
     R"(     "d": 0.0000,                                     )"
     R"(     "actuatorIsNegative": false,                     )"
-    R"(     "outputActuator": {                              )"
+    R"(     "output": {                                      )"
     R"(         "kind": "ActuatorPwm",                       )"
     R"(         "value": 0.0000,                             )"
     R"(         "period": 4,                                 )"
@@ -430,7 +430,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(         "name": "fridgeset",                         )"
     R"(         "value": null                                )"
     R"(     },                                               )"
-    R"(     "inputSensor": {                                 )"
+    R"(     "input": {                                       )"
     R"(         "kind": "TempSensorFallback",                )"
     R"(         "onBackupSensor": false,                     )"
     R"(         "sensor": {                                  )"
@@ -451,7 +451,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(     "i": 0.0000,                                     )"
     R"(     "d": 0.0000,                                     )"
     R"(     "actuatorIsNegative": true,                      )"
-    R"(     "outputActuator": {                              )"
+    R"(     "output": {                                      )"
     R"(         "kind": "ActuatorPwm",                       )"
     R"(         "value": 0.0000,                             )"
     R"(         "period": 1200,                              )"
@@ -486,7 +486,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(         "name": "beer1set",                          )"
     R"(         "value": null                                )"
     R"(     },                                               )"
-    R"(     "inputSensor": {                                 )"
+    R"(     "input": {                                       )"
     R"(         "kind": "TempSensor",                        )"
     R"(         "name": "beer1",                             )"
     R"(         "sensor": {                                  )"
@@ -503,7 +503,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(     "i": 0.0000,                                     )"
     R"(     "d": 0.0000,                                     )"
     R"(     "actuatorIsNegative": false,                     )"
-    R"(     "outputActuator": {                              )"
+    R"(     "output": {                                      )"
     R"(         "kind": "ActuatorSetPoint",                  )"
     R"(         "targetSetPoint": {                          )"
     R"(             "kind": "SetPointSimple",                )"

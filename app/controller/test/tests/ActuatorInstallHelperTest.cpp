@@ -30,6 +30,7 @@
 #include "ActuatorMocks.h"
 #include "defaultDevices.h"
 
+/* Will be replaced with lookup functions. ActuatorInstallHelper will be obsolete.
 
 BOOST_AUTO_TEST_SUITE(ActuatorInstallHelperTest)
 
@@ -104,4 +105,4 @@ BOOST_AUTO_TEST_CASE(install_and_uninstall_final_actuator){
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-
+*/
