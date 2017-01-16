@@ -33,6 +33,7 @@
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMutexGroup.h"
 #include "json_writer.h"
+#include "VisitorCast.h"
 
 Control::Control()
 {
@@ -154,7 +155,14 @@ void Control::fastUpdate(){
 
 void Control::serialize(JSON::Adapter& adapter){
     JSON::Class root(adapter, "Control");
-    JSON_T(adapter, objects);
+    std::vector<Pid *> pids;
+    for ( auto &obj : objects ) {
+        Pid * pid = asInterface<Pid>(obj);
+        if(pid){
+            pids.push_back(pid);
+        }
+    }
+    JSON_T(adapter, pids);
 }
 
 Control control;
