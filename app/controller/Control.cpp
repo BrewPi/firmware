@@ -155,11 +155,13 @@ void Control::fastUpdate(){
 
 void Control::serialize(JSON::Adapter& adapter){
     JSON::Class root(adapter, "Control");
-    std::vector<Pid *> pids;
+    std::vector<Interface *> pids;
+    VisitorCast<Pid> vcp;
+    // filter out only PIDs
     for ( auto &obj : objects ) {
-        Pid * pid = asInterface<Pid>(obj);
-        if(pid){
-            pids.push_back(pid);
+        obj->accept(vcp);
+        if(vcp.getCastResult() != nullptr){
+            pids.push_back(obj);
         }
     }
     JSON_T(adapter, pids);
