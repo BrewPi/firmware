@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators) {
     //ActuatorBool * actBool = new ActuatorBool();
     //ActuatorTimeLimited * actTl = new ActuatorTimeLimited(actBool, 10, 20);
     ActuatorBool * boolAct1 = new ActuatorBool();
-    ActuatorMutexDriver * mutexAct1 = new ActuatorMutexDriver(boolAct1);
+    ActuatorMutexDriver * mutexAct1 = new ActuatorMutexDriver(PtrLookup(boolAct1));
     ActuatorPwm * act1 = new ActuatorPwm (mutexAct1, 20);
 
     std::string json = JSON::producer<ActuatorPwm>::convert(act1);
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
     ActuatorDigitalInterface* coolerPin = new ActuatorBool();
     ActuatorDigitalInterface* coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
-    ActuatorDigitalInterface* coolerMutex = new ActuatorMutexDriver(coolerTimeLimited, mutex);
+    ActuatorDigitalInterface* coolerMutex = new ActuatorMutexDriver(PtrLookup(coolerTimeLimited, mutex));
     ActuatorRangeInterface* cooler = new ActuatorPwm(coolerMutex, 600); // period 10 min
 
 

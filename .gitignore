@@ -11,6 +11,7 @@ app/*/test/obj/
 *.pyc
 test_results/*.csv
 test_results/*.pdf
+.pydevproject
 
 # Compiled Object files
 *.slo

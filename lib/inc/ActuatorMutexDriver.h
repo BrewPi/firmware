@@ -24,6 +24,7 @@
 #include "temperatureFormats.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorMutexGroup.h"
+#include "RefTo.h"
 #include "ControllerMixins.h"
 
 /* A driver actuator to wrap a digital Actuator and block SetActive calls if the mutex group does does not honor the request
@@ -31,8 +32,10 @@
 
 class ActuatorMutexDriver final : public ActuatorDigitalInterface, public ActuatorMutexDriverMixin{
 public:
-    ActuatorMutexDriver(ActuatorDigitalInterface * target) : target(target), mutexGroup(nullptr){}
-    ActuatorMutexDriver(ActuatorDigitalInterface * target, ActuatorMutexGroup * m) : target(target), mutexGroup(m){}
+    ActuatorMutexDriver(std::function<Interface* ()> _target, std::function<Interface* ()> _mutexGroup = nullptr){
+        target.setLookup(_target);
+        mutexGroup.setLookup(_mutexGroup);
+    }
 
     ~ActuatorMutexDriver(){
         setMutex(nullptr);
@@ -43,47 +46,44 @@ public:
     }
 
     void update() override final {
-        target->update();
+        target().update();
     }
 
     void fastUpdate() override final {
-        target->fastUpdate();
+        target().fastUpdate();
     }
 
-    void setMutex(ActuatorMutexGroup * mutex){
-        if(mutexGroup != nullptr){
-            mutexGroup->unRegisterActuator(this);
+    void setMutex(std::function<Interface* ()> _mutexGroup){
+        if(mutexGroup.get() != nullptr){
+            mutexGroup().unRegisterActuator(this);
         }
-        mutexGroup = mutex;
-    }
-    ActuatorMutexGroup * getMutex(){
-        return mutexGroup;
+        mutexGroup.setLookup(_mutexGroup);
     }
 
     // To activate actuator, permission is asked from mutexGroup, false is always allowed
     // when priority not specified, default to highest priority
     void setActive(bool active, int8_t priority = 127) override final{
-        if(mutexGroup){
-            if(mutexGroup->request(this, active, priority)){
-                target->setActive(active);
-                if(target->isActive() != active){
+        if(mutexGroup.get()){
+            if(mutexGroup().request(this, active, priority)){
+                target().setActive(active);
+                if(target().isActive() != active){
                     // if setting the target failed, cancel the request to prevent blocking other actuators
-                     mutexGroup->cancelRequest(this);
+                     mutexGroup().cancelRequest(this);
                 }
             }
         }
         else{
-            target->setActive(active); // if mutex group is not set, just pass on the call
+            target().setActive(active); // if mutex group is not set, just pass on the call
         }
     }
 
     bool isActive() const override final {
-        return target->isActive();
+        return target().isActive();
     }
 
 private:
-    ActuatorDigitalInterface * target;
-    ActuatorMutexGroup * mutexGroup;
+    RefTo<ActuatorDigitalInterface> target;
+    RefTo<ActuatorMutexGroup> mutexGroup;
 
 friend class ActuatorMutexDriverMixin;
 };

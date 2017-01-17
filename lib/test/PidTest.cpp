@@ -44,7 +44,7 @@ public:
 
         sensor = new TempSensorMock(20.0);
         vAct = new ActuatorBool();
-        act = new ActuatorPwm(vAct,4);
+        act = new ActuatorPwm(PtrLookup(vAct),4);
         sp = new SetPointSimple(20.0);
 
         pid = new Pid(PtrLookup(sensor), PtrLookup(act), PtrLookup(sp));
@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE(inputError_is_invalid_and_actuator_zero_when_input_is_inval
     SetPointInterface * sp = new SetPointSimple(25.0); // setpoint is higher than temperature, actuator will heat
     TempSensorMock * sensor = new TempSensorMock(20.0);
     ActuatorDigitalInterface * pin = new ActuatorBool();
-    ActuatorRangeInterface * act = new ActuatorPwm(pin,4);
+    ActuatorRangeInterface * act = new ActuatorPwm(PtrLookup(pin),4);
     Pid * p = new Pid(PtrLookup(sensor), PtrLookup(act), PtrLookup(sp));
 
     p->setConstants(10.0, 0.0, 0.0);
@@ -408,7 +408,7 @@ BOOST_AUTO_TEST_CASE(pid_can_update_with_only_actuator_defined){
 
 BOOST_AUTO_TEST_CASE(pid_can_update_with_only_sensor_defined){
     ActuatorDigitalInterface * pin = new ActuatorBool();
-    ActuatorRangeInterface * act = new ActuatorPwm(pin,4);
+    ActuatorRangeInterface * act = new ActuatorPwm(PtrLookup(pin),4);
     Pid * p = new Pid();
     p->setOutput(PtrLookup(act));
     p->update();

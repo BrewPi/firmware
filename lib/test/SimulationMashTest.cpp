@@ -51,8 +51,8 @@ public:
         mutex = new ActuatorMutexGroup();
 
         hltHeaterPin = new ActuatorBool();
-        hltHeaterMutex = new ActuatorMutexDriver(hltHeaterPin);
-        hltHeater = new ActuatorPwm(hltHeaterMutex, 4); // period 4s
+        hltHeaterMutex = new ActuatorMutexDriver(PtrLookup(hltHeaterPin));
+        hltHeater = new ActuatorPwm(PtrLookup(hltHeaterMutex), 4); // period 4s
 
         mashSet = new SetPointSimple(20.0);
         hltSet = new SetPointSimple(20.0);

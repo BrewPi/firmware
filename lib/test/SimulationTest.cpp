@@ -49,13 +49,13 @@ public:
         fridgeSensor = new TempSensorMock(20.0);
 
         heaterPin = new ActuatorBool();
-        heaterMutex = new ActuatorMutexDriver(heaterPin);
-        heater = new ActuatorPwm(heaterMutex, 20); // period 20s, because update steps are 1 second
+        heaterMutex = new ActuatorMutexDriver(PtrLookup(heaterPin));
+        heater = new ActuatorPwm(PtrLookup(heaterMutex), 20); // period 20s, because update steps are 1 second
 
         coolerPin = new ActuatorBool();
         coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
-        coolerMutex = new ActuatorMutexDriver(coolerTimeLimited);
-        cooler = new ActuatorPwm(coolerMutex, 1200); // period 20 min
+        coolerMutex = new ActuatorMutexDriver(PtrLookup(coolerTimeLimited));
+        cooler = new ActuatorPwm(PtrLookup(coolerMutex), 1200); // period 20 min
         mutex = new ActuatorMutexGroup();
 
         beerSet = new SetPointSimple(20.0);
@@ -333,8 +333,8 @@ struct SimFridgeHeaterCooler : public StaticSetup {
         heaterPid->setDerivativeFilter(4);
         heaterPid->setConstants(10.0, 1800, 60);
 
-        coolerMutex->setMutex(mutex);
-        heaterMutex->setMutex(mutex);
+        coolerMutex->setMutex(PtrLookup(mutex));
+        heaterMutex->setMutex(PtrLookup(mutex));
         mutex->setDeadTime(3600000); // 60 minutes
     }
 
@@ -368,8 +368,8 @@ struct SimBeerHeaterCooler : public StaticSetup {
         heaterPid->setDerivativeFilter(4);
         heaterPid->setConstants(60.0, 7200, 500);
 
-        coolerMutex->setMutex(mutex);
-        heaterMutex->setMutex(mutex);
+        coolerMutex->setMutex(PtrLookup(mutex));
+        heaterMutex->setMutex(PtrLookup(mutex));
         mutex->setDeadTime(3600000); // 60 minutes
     }
 
@@ -412,8 +412,8 @@ struct SimCascadedHeaterCooler : public StaticSetup {
         fridgeSetPointActuator->setMin(-10.0);
         fridgeSetPointActuator->setMax(10.0);
 
-        coolerMutex->setMutex(mutex);
-        heaterMutex->setMutex(mutex);
+        coolerMutex->setMutex(PtrLookup(mutex));
+        heaterMutex->setMutex(PtrLookup(mutex));
         mutex->setDeadTime(3600000); // 60 minutes
     }
 

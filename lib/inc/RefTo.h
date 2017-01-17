@@ -55,7 +55,7 @@ public:
         return lookup;
     }
 
-    T* get(){
+    T* get() const {
         T* specializedTarget = nullptr;
         if(lookup){
             Interface* target = lookup();
@@ -66,7 +66,7 @@ public:
         return (specializedTarget) ? specializedTarget : defaultTarget<T>();
     }
 
-    T& operator()() {
+    T& operator()() const {
         return *get();
     }
 

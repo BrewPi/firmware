@@ -46,10 +46,16 @@ SetPointInterface * defaultTarget<SetPointInterface>(){
     return &sp;
 }
 
+template<>
+ActuatorMutexGroup * defaultTarget<ActuatorMutexGroup>(){
+    return nullptr; // ActuatorMutexDriver checks for nullptr, so this should be safe
+}
+
 // explicit instantiation of template functions
 template ActuatorDigitalInterface* asInterface<ActuatorDigitalInterface>(Interface*);
 template ActuatorRangeInterface* asInterface<ActuatorRangeInterface>(Interface*);
 template TempSensorInterface* asInterface<TempSensorInterface>(Interface*);
 template SetPointInterface* asInterface<SetPointInterface>(Interface*);
+template ActuatorMutexGroup* asInterface<ActuatorMutexGroup>(Interface*);
 
 

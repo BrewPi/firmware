@@ -39,10 +39,10 @@ BOOST_AUTO_TEST_CASE(two_actuators_belonging_to_the_same_group_cannot_be_active_
     ActuatorDigitalInterface * act2 = new ActuatorBool();
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
 
-    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1);
-    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
-    actm1->setMutex(mutex);
-    actm2->setMutex(mutex);
+    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(PtrLookup(act1));
+    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(PtrLookup(act2));
+    actm1->setMutex(PtrLookup(mutex));
+    actm2->setMutex(PtrLookup(mutex));
 
     actm1->setActive(true, 5);
     BOOST_CHECK(actm1->isActive()); // actuator is first, so is allowed to go active
@@ -66,10 +66,10 @@ BOOST_AUTO_TEST_CASE(dead_time_between_actuators_is_honored) {
     ActuatorDigitalInterface * act2 = new ActuatorBool();
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
 
-    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1);
-    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
-    actm1->setMutex(mutex);
-    actm2->setMutex(mutex);
+    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(PtrLookup(act1));
+    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(PtrLookup(act2));
+    actm1->setMutex(PtrLookup(mutex));
+    actm2->setMutex(PtrLookup(mutex));
 
     mutex->setDeadTime(10000); // 10 seconds dead time
 
@@ -109,10 +109,10 @@ BOOST_AUTO_TEST_CASE(dead_time_does_not_block_same_actuator_from_going_active_ag
     ActuatorDigitalInterface * act2 = new ActuatorBool();
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
 
-    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1);
-    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
-    actm1->setMutex(mutex);
-    actm2->setMutex(mutex);
+    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(PtrLookup(act1));
+    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(PtrLookup(act2));
+    actm1->setMutex(PtrLookup(mutex));
+    actm2->setMutex(PtrLookup(mutex));
 
     mutex->setDeadTime(10000); // 10 seconds dead time
 
@@ -140,10 +140,10 @@ BOOST_AUTO_TEST_CASE(mutex_works_with_time_limited_actuator) {
 
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
 
-    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1tl);
-    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
-    actm1->setMutex(mutex);
-    actm2->setMutex(mutex);
+    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(PtrLookup(act1tl));
+    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(PtrLookup(act2));
+    actm1->setMutex(PtrLookup(mutex));
+    actm2->setMutex(PtrLookup(mutex));
 
 
     actm1->setActive(true, 5);
@@ -175,10 +175,10 @@ BOOST_AUTO_TEST_CASE(when_there_have_been_no_requests_for_a_while_dead_time_is_s
 
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
 
-    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1tl);
-    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
-    actm1->setMutex(mutex);
-    actm2->setMutex(mutex);
+    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(PtrLookup(act1tl));
+    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(PtrLookup(act2));
+    actm1->setMutex(PtrLookup(mutex));
+    actm2->setMutex(PtrLookup(mutex));
     mutex->setDeadTime(10000); // 10 seconds dead time
 
     actm1->setActive(true, 5);

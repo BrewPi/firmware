@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 BrewPi/Elco Jacobs.
+ * Copyright 2017 BrewPi/Elco Jacobs.
  *
  * This file is part of BrewPi.
  *
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(casting_interfaces_to_specialized_interfaces){
     // Instantiate some test objects
     TempSensorMock * sensor = new TempSensorMock(20.0);
     ActuatorBool * boolAct = new ActuatorBool();
-    ActuatorPwm * pwmAct = new ActuatorPwm(boolAct,4);
+    ActuatorPwm * pwmAct = new ActuatorPwm(PtrLookup(boolAct),4);
 
     // and some generic pointers to them
     Interface * _sensor = sensor;

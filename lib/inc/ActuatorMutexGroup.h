@@ -47,10 +47,8 @@ public:
     }
 
     ActuatorPriority * registerActuator(ActuatorDigitalInterface * act, int8_t prio);
-    void unRegisterActuator(size_t index); // remove by index
     void unRegisterActuator(ActuatorDigitalInterface * act); // remove by pointer
 
-    size_t find(ActuatorDigitalInterface * act);
 
     bool request(ActuatorDigitalInterface * requester, bool active, int8_t newPriority);
 
@@ -74,6 +72,9 @@ public:
     void fastUpdate() final {} // not needed
 
 private:
+    void unRegisterActuator(size_t index); // remove by index
+    size_t find(ActuatorDigitalInterface * act);
+
     ticks_millis_t deadTime; // minimum time between switching from one actuator to the other
     ticks_millis_t lastActiveTime;
     ActuatorDigitalInterface * lastActiveActuator;
