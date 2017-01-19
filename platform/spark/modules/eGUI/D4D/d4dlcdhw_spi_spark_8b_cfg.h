@@ -50,9 +50,7 @@
   * includes
   ******************************************************************************/
 
-  //#include "derivative.h"       /* include peripheral declarations and more for S08 and CV1 */
-  //#include "support_common.h" /* include peripheral declarations and more for CV2 */
-
+#include "Board.h"
 
   /******************************************************************************
   * Constants
@@ -69,12 +67,12 @@
   * Signals definition
   *******************************************/
 // PB3, D4
-  #define D4DLCD_CS              D4         // CS
+  #define D4DLCD_CS              PIN_LCD_CS         // CS
 //#define D4DLCD_CS_PORT         TODO      // CS
 //#define D4DLCD_CS_DDR          TODO     // CS
 
 // PA15, D5
-  #define D4DLCD_DC              D5         // DC
+  #define D4DLCD_DC              PIN_LCD_DC         // DC
 //  #define D4DLCD_DC_PORT         TODO      // DC
 //  #define D4DLCD_DC_DDR          TODO     // DC
 
@@ -98,7 +96,7 @@
   #define D4DLCD_ASSERT_DC PIN_MAP[D4DLCD_DC].gpio_peripheral->BRR = PIN_MAP[D4DLCD_DC].gpio_pin;
   #define D4DLCD_DEASSERT_DC PIN_MAP[D4DLCD_DC].gpio_peripheral->BSRR = PIN_MAP[D4DLCD_DC].gpio_pin;
 
-#elif PLATFORM_ID==6
+#elif PLATFORM_ID==6 || PLATFORM_ID==8
   #define D4DLCD_INIT_CS pinMode(D4DLCD_CS, OUTPUT)
   #define D4DLCD_DEASSERT_CS HAL_Pin_Map()[D4DLCD_CS].gpio_peripheral->BSRRL = HAL_Pin_Map()[D4DLCD_CS].gpio_pin;
   #define D4DLCD_ASSERT_CS HAL_Pin_Map()[D4DLCD_CS].gpio_peripheral->BSRRH = HAL_Pin_Map()[D4DLCD_CS].gpio_pin;

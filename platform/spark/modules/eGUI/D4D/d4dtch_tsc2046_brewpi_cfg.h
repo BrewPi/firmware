@@ -51,7 +51,7 @@
   // include here what the driver need for run for example "derivative.h"
   // #include "derivative.h"    /* include peripheral declarations and more for S08 and CV1 */
 
-#include "d4dlcdhw_spi_spark_8b_cfg.h"
+#include "Board.h"
 
   /******************************************************************************
   * Constants
@@ -59,8 +59,8 @@
 
   // define here what you need to be configurable
 
-#define D4DTCH_CS  D3
-#define D4DTCH_IRQ D2
+#define D4DTCH_CS  PIN_TOUCH_CS
+#define D4DTCH_IRQ PIN_TOUCH_IRQ
 
 
 #endif /* __D4DLCD_TSC2046_BREWPI_CFG_H */

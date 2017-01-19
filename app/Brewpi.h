@@ -33,7 +33,8 @@ enum {
 	BREWPI_SHIELD_REV_A,
 	BREWPI_SHIELD_REV_C,
 	BREWPI_SHIELD_SPARK_V1,
-	BREWPI_SHIELD_SPARK_V2
+	BREWPI_SHIELD_SPARK_V2,
+	BREWPI_SHIELD_SPARK_V3,
 };
 
 #define BREWPI_BOARD_LEONARDO 'l'
@@ -41,6 +42,7 @@ enum {
 #define BREWPI_BOARD_MEGA 'm'
 #define BREWPI_BOARD_SPARKCORE 'x'
 #define BREWPI_BOARD_PHOTON 'y'
+#define BREWPI_BOARD_P1 'p'
 #define BREWPI_BOARD_GCC 'z'
 #define BREWPI_BOARD_UNKNOWN '?'
 
@@ -67,4 +69,4 @@ enum {
 #endif
 #include "AppConfigDefault.h"
 
-#define VERSION_STRING "0.4.4"
+#define VERSION_STRING "0.5.0"

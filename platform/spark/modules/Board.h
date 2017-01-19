@@ -37,34 +37,66 @@ extern "C" {
 
 #define oneWirePin 0x0 // actually the i2c address
 
+#if PLATFORM_ID == 8
+
 // A7 is the leftmost pin. V1 does not have A7 on the green connector
+#define PIN_ACTUATOR0 P1S0
+#define PIN_ACTUATOR_BOTTOM1 P1S0
+#define PIN_ACTUATOR1 P1S1
+#define PIN_ACTUATOR_BOTTOM2 P1S1
+#define PIN_ACTUATOR2 D4
+#define PIN_ACTUATOR_TOP1 D4
+#define PIN_ACTUATOR_TOP1_DIR D5
+#define PIN_ACTUATOR3 P1S5
+#define PIN_ACTUATOR_TOP2 P1S5
+#define PIN_ACTUATOR_TOP2_DIR D3
+#define PIN_ACTUATOR_TOP3 P1S4
 
-#ifndef actuatorPin0
-#define actuatorPin0 A7
+#define PIN_ALARM WKP
+
+#define PIN_5V_ENABLE D7
+#define PIN_12V_ENABLE D6
+
+#define RS485_TX_EN DAC
+#define RS485_TX TX
+#define RS485_RX RX
+
+#define PIN_TOUCH_CS P1S2
+#define PIN_TOUCH_IRQ A1
+#define PIN_LCD_CS A2
+#define PIN_LCD_DC A0
+#define PIN_SD_CS P1S4
+
+
+#else
+
+// A7 is the leftmost pin. V1 does not have A7 on the green connector
+#define PIN_ACTUATOR0 A7
+#define PIN_ACTUATOR1 A6
+#define PIN_ACTUATOR2 A1
+#define PIN_ACTUATOR3 A0
+#define PIN_ALARM A2
+
+#define RS485_TX_EN D6
+#define RS485_TX TX
+#define RS485_RX RX
+
+#define PIN_TOUCH_CS D3
+#define PIN_TOUCH_IRQ D2
+#define PIN_LCD_CS D4
+#define PIN_LCD_DC D5
+#define PIN_SD_CS D7
+
 #endif
 
-#ifndef actuatorPin1
-#define actuatorPin1 A6
-#endif
-
-#ifndef actuatorPin2
-#define actuatorPin2 A1
-#endif
-
-#ifndef actuatorPin3
-#define actuatorPin3 A0
-#endif
-
-#define alarmPin A2
+#define MAX_ACTUATOR_COUNT (4)
 
 #define BREWPI_INVERT_ACTUATORS 0
-
 // Spark Core shield has no digital input pins
 #ifndef USE_INTERNAL_PULL_UP_RESISTORS
 #define USE_INTERNAL_PULL_UP_RESISTORS 0
 #endif
 
-#define MAX_ACTUATOR_COUNT (4)
 
 uint8_t getShieldVersion();
 

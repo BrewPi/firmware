@@ -22,15 +22,18 @@
 #include "Ticks.h"
 
 uint8_t getShieldVersion(){
+#if PLATFORM_ID == 8 // P1
+    return BREWPI_SHIELD_SPARK_V3;
+#endif
 	static uint8_t shield = 255;
 
 	// only auto-detect once
 	if(shield == 255){
 		// V2 has a pull down resistor, V1 has a pull up resistor on the alarm pin
 		// If the pin is low, it is V2
-		pinMode(alarmPin, INPUT);
+		pinMode(PIN_ALARM, INPUT);
 		wait.millis(1); // give time to change
-		if(digitalRead(alarmPin)){
+		if(digitalRead(PIN_ALARM)){
 			shield = BREWPI_SHIELD_SPARK_V1;
 		}
 		else{

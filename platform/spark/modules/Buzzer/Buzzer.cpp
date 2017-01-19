@@ -31,7 +31,7 @@ void Buzzer::init(bool invert){
     if(pin != nullptr){
         delete pin;
     }
-    pin = new ActuatorPin(alarmPin, invert);
+    pin = new ActuatorPin(PIN_ALARM, invert);
 }
 
 void Buzzer::setActive(bool active){

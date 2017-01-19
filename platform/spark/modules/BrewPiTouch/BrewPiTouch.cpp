@@ -28,7 +28,7 @@
 #include <algorithm>
 
 
-BrewPiTouch::BrewPiTouch(SPIArbiter & spia, uint8_t cs, uint8_t irq) : _spi(spia),  pinCS(cs), pinIRQ(irq) {
+BrewPiTouch::BrewPiTouch(SPIArbiter & spia, const uint8_t cs, const uint8_t irq) : _spi(spia),  pinCS(cs), pinIRQ(irq) {
 }
 
 BrewPiTouch::~BrewPiTouch() {

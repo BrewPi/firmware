@@ -166,10 +166,10 @@ public:
         }
 
         // todo - pull the definitions of the static devices from the device manager.
-        actuators[0] = new ActuatorPin(actuatorPin0, BREWPI_INVERT_ACTUATORS);
-        actuators[1] = new ActuatorPin(actuatorPin1, BREWPI_INVERT_ACTUATORS);
-        actuators[2] = new ActuatorPin(actuatorPin2, BREWPI_INVERT_ACTUATORS);
-        actuators[3] = new ActuatorPin(actuatorPin3, BREWPI_INVERT_ACTUATORS);
+        actuators[0] = new ActuatorPin(PIN_ACTUATOR0, BREWPI_INVERT_ACTUATORS);
+        actuators[1] = new ActuatorPin(PIN_ACTUATOR1, BREWPI_INVERT_ACTUATORS);
+        actuators[2] = new ActuatorPin(PIN_ACTUATOR2, BREWPI_INVERT_ACTUATORS);
+        actuators[3] = new ActuatorPin(PIN_ACTUATOR3, BREWPI_INVERT_ACTUATORS);
     }
 
     ~ConnectedDevicesManager() {

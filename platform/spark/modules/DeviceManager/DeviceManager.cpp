@@ -22,10 +22,10 @@ int8_t  DeviceManager::enumerateActuatorPins(uint8_t offset)
 		offset += 1; // V1 does not have actuatorPin0 (A7), skip it
 	}
     switch (offset) {
-        case 0: return actuatorPin0;
-        case 1: return actuatorPin1;
-        case 2: return actuatorPin2;
-        case 3: return actuatorPin3;
+        case 0: return PIN_ACTUATOR0;
+        case 1: return PIN_ACTUATOR1;
+        case 2: return PIN_ACTUATOR2;
+        case 3: return PIN_ACTUATOR3;
         default: return -1;
     }
 }
