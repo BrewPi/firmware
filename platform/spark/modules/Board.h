@@ -66,6 +66,7 @@ extern "C" {
 #define PIN_LCD_CS A2
 #define PIN_LCD_DC A0
 #define PIN_SD_CS P1S4
+#define PIN_LCD_BACKLIGHT D2
 
 
 #else
