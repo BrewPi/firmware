@@ -146,116 +146,117 @@ static unsigned char D4DLCD_Init_ili9341(void) {
     D4D_LLD_LCD_HW.D4DLCDHW_Init(); // init low level hardware driver (e.g. SPI)
 
     D4DLCD_Delay_ms_ili9341(20);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0x01);
-    D4DLCD_Delay_ms_ili9341(150);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0x01); // software reset
+    D4DLCD_Delay_ms_ili9341(5);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0x11); // leave sleep mode
+    D4DLCD_Delay_ms_ili9341(120);
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xEF);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x03);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x80);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x02);
-
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xCF);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xCF); // Power control B
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0XC1);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0X30);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x83); // VGH and VGL voltage levels
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0X30); // discharge path enable for esd protection
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xED);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xED); // Power on sequence control
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x64);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x03);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0X12);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0X81);
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xE8);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xE8); // driver timing control
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x85);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x78);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x01);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x79);
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xCB);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xCB); // power control A
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x39);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x2C);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x34);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x02);
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xF7);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xF7); // Pump ratio control
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x20);
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xEA);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xEA); // Driver timing control
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(ILI9341_PWCTR1); //Power control 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x23); //VRH[5:0] 
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(ILI9341_PWCTR2); //Power control 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x10); //SAP[2:0];BT[3:0] 
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xC1);    //Power control
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x11);   //SAP[2:0];BT[3:0]
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(ILI9341_VMCTR1); //VCM control 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x3e);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x28);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xC5);    //VCM control 1
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x34);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x3D);
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(ILI9341_VMCTR2); //VCM control2 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x86); //--
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xC7);    //VCM control 2
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0xC0);
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(ILI9341_MADCTL); // Memory Access Control 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(ILI9341_MADCTL_MX | ILI9341_MADCTL_BGR);
-
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(ILI9341_PIXFMT);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x55);
-
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(ILI9341_FRMCTR1);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x18);
-
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(ILI9341_DFUNCTR); // Display Function Control 
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0x36);    // Memory Access Control
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x08);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x82);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x27);
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xF2); // 3Gamma Function Disable 
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0x3A);     // Pixel format
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x55);  //16bit
+
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xB1);       // Frame rate
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x1D);  //61Hz
+
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xB6);    // Display Function Control
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0A);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0xE2);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x27);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(ILI9341_GAMMASET); //Gamma curve selected 
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xb7); //Entry mode
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x07);
+
+
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xF2);    // 3Gamma Function Disable
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x08);
+
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0x26);    //Gamma curve selected
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x01);
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(ILI9341_GMCTRP1); //Set Gamma 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0F);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x31);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x2B);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0C);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0E);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x08);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x4E);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0xF1);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x37);
+
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xE0); //positive gamma correction
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x1f);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x1a);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x18);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0a);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0f);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x06);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x45);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x87);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x32);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0a);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x07);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x02);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x07);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x05);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
+
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xE1); //negamma correction
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x25);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x27);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x05);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x10);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x03);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0E);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x09);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x3a);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x78);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x4d);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x05);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x18);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0d);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x38);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x3a);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x1f);
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(ILI9341_GMCTRN1); //Set Gamma 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0E);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x14);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x03);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x11);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x07);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x31);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0xC1);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x48);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x08);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0F);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0C);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x31);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x36);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0F);
-
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(ILI9341_SLPOUT); //Exit Sleep 
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0x11);    //Exit Sleep
     D4DLCD_Delay_ms_ili9341(120);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(ILI9341_DISPON); //Display on 
-
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0x29);    //Display on
+    D4DLCD_Delay_ms_ili9341(50);
 
     return 1;
 
