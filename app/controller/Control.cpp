@@ -20,6 +20,7 @@
 
 
 #include "Control.h"
+#include "Platform.h"
 
 #include <vector>
 #include "Pid.h"
