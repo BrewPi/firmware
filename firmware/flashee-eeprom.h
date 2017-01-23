@@ -28,7 +28,7 @@
 #include "FlashIO.h"
 
 namespace Flashee {
-      
+
 typedef uint32_t flash_addr_t;
 typedef uint32_t page_size_t;
 typedef uint32_t page_count_t;
@@ -72,6 +72,16 @@ public:
         return write(s, address, strlen(s)+(includeNull?1:0));
     }
 
+    template <typename T> inline bool write(const T& data, flash_addr_t address)
+    {
+        return write(&data, address, sizeof(data));
+    }
+
+    template <typename T> inline bool read(T& data, flash_addr_t address)
+    {
+        return read(&data, address, sizeof(data));
+    }
+
     /**
      * Converts a page index [0,N) into the corresponding read/write address.
      * @param page  The page to convert to an address.
@@ -80,7 +90,7 @@ public:
     flash_addr_t pageAddress(page_count_t page) const {
         return flash_addr_t(page) * pageSize();
     }
-    
+
     page_count_t addressPage(flash_addr_t address) const {
         return address/pageSize();
     }
@@ -159,6 +169,82 @@ public:
     virtual bool copyPage(flash_addr_t address, TransferHandler handler, void* data, uint8_t* buf, page_size_t bufSize) = 0;
 
 };
+
+#if defined(SPARK)
+/**
+ * A flash device that delegates to the EEPROM wiring implementation.
+ */
+class EepromFlashDevice : public FlashDevice {
+
+public:
+
+    EepromFlashDevice() {}
+    /**
+     * @return The size of each page in this flash device.
+     */
+    virtual page_size_t pageSize() const {
+        return 1;
+    }
+
+    /**
+     * @return The number of pages in this flash device.
+     */
+    virtual page_count_t pageCount() const {
+        return EEPROM.length();
+    }
+
+    virtual bool erasePage(flash_addr_t address) {
+        EEPROM.write(address, 0xFF);
+        return true;
+    }
+
+    virtual bool readPage(void* data, flash_addr_t address, page_size_t length) const {
+        uint8_t*  _data = (uint8_t*)data;
+        for (page_size_t i=0; i<length; i++) {
+            _data[i] = EEPROM.read(address+i);
+        }
+        return true;
+    }
+
+    virtual bool writePage(const void* data, flash_addr_t address, page_size_t length) {
+        const uint8_t*  _data = (const uint8_t*)data;
+        for (page_size_t i=0; i<length; i++) {
+            EEPROM.write(address+i, _data[i]);
+        }
+        return true;
+    }
+
+
+    /**
+     * Writes data to the flash memory, performing an erase beforehand if necessary
+     * to ensure the data is written correctly.
+     * @param data
+     * @param address
+     * @param length
+     * @return
+     */
+    virtual bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) {
+        return writePage(data, address, length);
+    }
+
+    /**
+     * Internally re-reorganizes the page's storage by passing the page contents via
+     * a buffer through a handler function and then writing the buffer back to
+     * memory.
+     *
+     * @param address
+     * @param handler
+     * @param data
+     * @param buf
+     * @param bufSize
+     * @return
+     */
+    virtual bool copyPage(flash_addr_t address, TransferHandler handler, void* data, uint8_t* buf, page_size_t bufSize) {
+        return false;
+    }
+
+};
+#endif
 
 #include "flashee-eeprom-impl.h"
 
@@ -254,6 +340,14 @@ public:
             capacity_(flash.pageAddress(flash.pageCount())), size_(0) {
     }
 
+    template<typename T> inline page_size_t write(const T& data) {
+        return write(&data, sizeof(data));
+    }
+
+    template<typename T> inline page_size_t read(T& data) const {
+        return read(&data, sizeof(data));
+    }
+
 
     page_size_t write(const void* buf, page_size_t length) {
         return write_impl(buf, length, true);
@@ -309,7 +403,7 @@ public:
         page_size_t free = capacity_ - size_ - (read_pointer % flash.pageSize());
         return free;
     }
-    
+
 };
 
 class FlashStream {
@@ -338,6 +432,11 @@ public:
     void read(void* buf, page_size_t length) {
         flash.read(buf, address, length);
         advance(length);
+    }
+
+    template<typename T> inline void read(T& data)
+    {
+        read(&data, sizeof(T));
     }
 
     uint8_t read() {
@@ -373,6 +472,12 @@ public:
 
     FlashWriter(FlashDevice* device, flash_addr_t start=0)
             : FlashStream(*device, start) {}
+
+
+    template<typename T> inline void write(const T& data)
+    {
+        write(&data, sizeof(T));
+    }
 
     void write(const void* buf, page_size_t length) {
         flash.write(buf, address, length);
@@ -432,8 +537,30 @@ public:
      * The hides the actual location in external flash - so the
      * the first writable address is 0x000000.
      * @return A reference to the user accessible flash.
+     *
+     * When running on the Core or P1, this region points to data stored in the onboard external SPI flash.
+     * When running on the Photon, this region points to the EEPROM emulation. (So flashee is just a wrapper
+     * for code-compatibility - no wear levelling is done.)
      */
     static FlashDeviceRegion& userFlash();
+
+    static FlashDevice* createDefaultStore()
+    {
+#if defined(SPARK)
+    #if PLATFORM_ID<3
+            return createAddressErase();
+    #elif PLATFORM_ID==4 || PLATFORM_ID==6 || PLATFORM_ID==10
+            return new EepromFlashDevice();
+    #elif PLATFORM_ID==5 || PLATFORM_ID==7 || PLATFORM_ID==8
+           // P1
+            return createAddressErase();
+    #else
+    #error Unknown Platform
+    #endif
+#else
+    return &userFlash();
+#endif
+    }
 
     static FlashDevice* createUserFlashRegion(flash_addr_t startAddress, flash_addr_t endAddress, page_count_t minPageCount=1) {
         if (((endAddress-startAddress)/userFlash().pageSize())<minPageCount)
@@ -482,7 +609,7 @@ Must align on a page boundary.
      * @param endAddress
      * @param pageCount
      * @return The FlashDevice created or {@code NULL} if the region could not be allocated.
-     * 
+     *
      *  NB: This method has the same requirements for start and end addresses as createWearLevelErase()
      */
     static FlashDevice* createAddressErase(flash_addr_t startAddress = 0, flash_addr_t endAddress = flash_addr_t(-1), page_count_t freePageCount = 2) {
@@ -493,6 +620,19 @@ Must align on a page boundary.
         return new PageSpanFlashDevice(*multi);
     }
 
+#if defined(SPARK)
+    /**
+     * Create a new flash device based on the built-in EEPROM class.
+     * @param start The offset in emulated eeprom the device memory should start at.
+     * @param end The offset in emulated eeprom the device memory ends at (exclusive.)
+     * @return The created device.
+     */
+    static FlashDevice* createEepromDevice(flash_addr_t start, flash_addr_t end) {
+        FlashDevice* base = new EepromFlashDevice();
+        return new FlashDeviceRegion(*base, start, end);
+    }
+#endif
+
     /**
      * Creates a circular buffer that uses the pages given for storage.
      */
@@ -500,24 +640,24 @@ Must align on a page boundary.
         FlashDevice* device = createUserFlashRegion(startAddress, endAddress, 2);
         return device ? new CircularBuffer(*device) : NULL;
     }
-        
-    /** 
+
+    /**
      * Allocates a region of flash for storing a FAT filesystem. If an existing filesystem
      * has alredy been created elsewhere, that volume is closed. (Only one volume can be
      * accessed at a time.)
-     * 
+     *
      * @param startAddress  The starting address for the allocated region.
      * @param endAddress    The ending address (exclusive) for the allocated region.
-     * @param pfs           The address of the FATFS structure for this filesystem. 
+     * @param pfs           The address of the FATFS structure for this filesystem.
      *  This is typically statically allocated.
      * @param format        When true, the storage will be formatted.
-     * 
+     *
      * NB: this method has the same requirements for start and end addresses as createWearLevelErase().
      */
-    static FRESULT createFATRegion(flash_addr_t startAddress, flash_addr_t endAddress, 
+    static FRESULT createFATRegion(flash_addr_t startAddress, flash_addr_t endAddress,
         FATFS* pfs, FormatCmd formatCmd=FORMAT_CMD_FORMAT_IF_NEEDED);
-        
-    
+
+
 };
 
 } // namespace

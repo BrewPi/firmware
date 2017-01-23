@@ -26,6 +26,10 @@ template <class T> T min(T a, T b) {
 }
 #endif
 
+#ifndef PLATFORM_ID
+#define PLATFORM_ID 0  // core
+#endif
+
 inline uint8_t* as_bytes(void* buf) {
     return (uint8_t*) buf;
 }
@@ -50,7 +54,7 @@ class FakeFlashDevice : public FlashDevice {
     page_size_t pageSize_;
     uint8_t* data_;
     bool allowPageSpan;
-    
+
 public:
 
     FakeFlashDevice(page_count_t pageCount, page_size_t pageSize, bool pageSpan=false) :
@@ -189,14 +193,14 @@ protected:
             if (region->isExcluded(pageOffset + i)) {
                 as_bytes(buf)[i] = 0xFF;
             }
+            // else leave the buffer as is
         }
     }
 
     /**
      * A no-op copy handler - the buffer contents are not modified but simply copied as is.
      */
-    static void copyPageHandler(page_size_t pageOffset, void* data, uint8_t* buf, page_size_t bufLen) {
-    }
+    static void copyPageHandler(page_size_t pageOffset, void* data, uint8_t* buf, page_size_t bufLen) { }
 
 
     /**
@@ -521,7 +525,7 @@ public:
  * This exists so that we can easily test the internal parts of the page mapper,
  * without having to resort to friend classes or including gtest in production
  * code.
- * 
+ *
  * @param page_index_t  The size needed to store the range of physical pages.
  */
 template <class page_index_t = uint8_t>
@@ -672,7 +676,7 @@ public:
         page_index_t free = nextFreePage(randomPage() % maxPage());
         if (readHeader(free) != 0xFFFF) // if the header is clean the rest will be.
             flash.erasePage(flash.pageAddress(free));
-        assignLogicalPage(page, free);        
+        assignLogicalPage(page, free);
         setPageInUse(free, true);
         if (persistInUse) {
             writeHeader(free, uint16_t(page) | 0x7F00); // bit 15 clear means in use.
@@ -794,7 +798,7 @@ public:
                     setPageInUse(physicalPage, false);
 #if PAGE_MAPPER_PRE_ALLOCATE_PAGES
                     allocateLogicalPage(page);
-#endif                    
+#endif
                     success = true;
                 }
             }
@@ -802,7 +806,7 @@ public:
         return success;
     }
 
-    inline bool writePage(const void* data, flash_addr_t address, page_size_t length) {        
+    inline bool writePage(const void* data, flash_addr_t address, page_size_t length) {
         // assume for now that it's within a single block. will deal with multiple blocks later
         return flash.writePage(data, physicalAddress(address, pageSize()), length);
     }
@@ -844,12 +848,12 @@ public:
         // bring new page online now that it is completely written
         this->writeHeader(newPage, uint16_t(logicalPage) | 0x7F00); // bit 15 clear means in use.)
         // a power failure here would mean either the new or the old page are found, depending upon their order in flash
-        this->writeHeader(oldPage, 0);          
+        this->writeHeader(oldPage, 0);
         // now the old page is discarded
         this->setPageInUse(oldPage, false);
         return offset == size;
     }
-        
+
 };
 
 /**
@@ -936,7 +940,7 @@ public:
      * @return
      */
     bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) {
-        uint8_t buf[STACK_BUFFER_SIZE];        
+        uint8_t buf[STACK_BUFFER_SIZE];
         return isValidAddress(address, length) ? TranslatingFlashDevice::writeErasePageBuf(data, address, length, buf, sizeof(buf)) : false;
     }
 
@@ -961,7 +965,7 @@ public:
         uint8_t bitmap = *slot;
         if (!bitmap)
             return 0;
-        
+
         // NB: this also works for the special case when the bitmap is 0xFF,
         // meaning, uninitialised. The resulting index will be 0, which returns the bitmap, 0xFF
         int index = 0; // find the last used index.
@@ -981,7 +985,7 @@ public:
         }
         return index;
     }
-    
+
     /**
      * Writes a byte value to the slot. The byte is written in the current slot.
      * A slot is 8 bytes wide. The first byte is a bitmap, and subsequent 7 bytes
@@ -1025,7 +1029,7 @@ public:
      * Compacts the data in a slot.
      * @param slot
      */
-    static void compactSlot(uint8_t* slot) {
+    static void compactSlot(uint8_t* slot) {  // todo if bitmap is 0xFF or 0xFE, then do nothing - the slot is already as small as it can be.
         uint8_t value = readSlot(slot);
         memset(slot, 0xFF, SLOT_SIZE);
         writeSlot(value, slot);
@@ -1072,7 +1076,7 @@ class MultiWriteFlashStore : public FlashDevice, private MultiWriteSlotAccess {
     static void compactPageExcludeRegionHandler(page_size_t pageOffset, void* data, uint8_t* buf, const page_size_t bufLen) {
         FlashExcludeRegion* region = (FlashExcludeRegion*) data;
         for (page_size_t i = 0; i < (bufLen & ~(SLOT_SIZE - 1)); i += SLOT_SIZE) {
-            if (region->isExcluded(pageOffset + i))
+            if (region->isExcluded(pageOffset + (i>>SLOT_SIZE_SHIFT)))
                 memset(as_bytes(buf) + i, 0xFF, SLOT_SIZE); // slot is uninitialized - will be written later.
             else
                 compactSlot(as_bytes(buf) + i);
@@ -1147,7 +1151,7 @@ public:
                     // data+i(length-offset))
                     page_size_t addressOffset = address % pageSize();
                     FlashExcludeRegion region = {addressOffset + offset, addressOffset + offset + length};
-                    if (!flash.copyPage(address, &compactPageExcludeRegionHandler, &region, buf, bufSize))
+                    if (!flash.copyPage(toPhysicalAddress(address), &compactPageExcludeRegionHandler, &region, buf, bufSize))
                         break;
 
                     // now copy the data block to the freshly initialized page
@@ -1285,10 +1289,20 @@ public:
 
 };
 
-
 #ifdef SPARK
-#include "sst25vf_spi.h"
+#if PLATFORM_ID==0
+    #include "sst25vf_spi.h"
+    // newer versions of the Particle firmware define this.
+    // Fill in the missing definitions when compiling against 0.3.4
+    #ifndef HAS_SERIAL_FLASH
+        #define HAS_SERIAL_FLASH
+        #define sFLASH_PAGECOUNT (512)
+    #endif
+#elif defined(HAS_SERIAL_FLASH)
+#include "spi_flash.h"
+#endif
 
+#ifdef HAS_SERIAL_FLASH
 class SparkExternalFlashDevice : public FlashDevice {
 
     /**
@@ -1302,7 +1316,7 @@ class SparkExternalFlashDevice : public FlashDevice {
      * @return The number of pages in this flash device.
      */
     virtual page_count_t pageCount() const {
-        return 512;
+        return sFLASH_PAGECOUNT;
     }
 
     virtual bool erasePage(flash_addr_t address) {
@@ -1362,6 +1376,7 @@ class SparkExternalFlashDevice : public FlashDevice {
     }
 
 };
+#endif // HAS_SERIAL_FLASH
 #endif // SPARK
 
 #endif

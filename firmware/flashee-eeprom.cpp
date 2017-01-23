@@ -32,25 +32,37 @@
 #endif
 
 
-namespace Flashee {    
-    
+namespace Flashee {
+
 FlashDevice::~FlashDevice() { }
 
 /**
  * By wrapping the static instances in a function we ensure the objects are initialized
  * before they are used. With module-level statics, this is not a guarantee since
- * constructors in different modules are called in arbitrary order. 
+ * constructors in different modules are called in arbitrary order.
  * @return The FlashDevice that provides access to the user accessible flash region.
  */
-FlashDeviceRegion& Devices::userFlash() 
+FlashDeviceRegion& Devices::userFlash()
 {
-#ifdef SPARK
-    static SparkExternalFlashDevice directFlash;
+#if defined(SPARK)
+    #if defined(HAS_SERIAL_FLASH)
+        static SparkExternalFlashDevice directFlash;
+        #if PLATFORM_ID<3
+                // the Core reserves the first 512kB of the external flash for system use
+                static FlashDeviceRegion userRegion(directFlash, 0x80000, 0x200000);
+        #else
+                // other platforms with external serial flash
+                static FlashDeviceRegion userRegion(directFlash, 0x0, sFLASH_PAGESIZE*sFLASH_PAGECOUNT);
+        #endif
+    #else
+        static EepromFlashDevice directFlash;
+        static FlashDeviceRegion userRegion(directFlash,0, directFlash.length());
+    #endif
 #else
+    // emulation/testing
     static FakeFlashDevice directFlash(512, 4096);
-#endif
     static FlashDeviceRegion userRegion(directFlash, 0x80000, 0x200000);
-    
+#endif
     return userRegion;
 }
 
@@ -77,7 +89,7 @@ bool FlashDevice::comparePage(const void* data, flash_addr_t address, page_size_
 }
 #endif
 
-FRESULT Devices::createFATRegion(flash_addr_t startAddress, flash_addr_t endAddress, 
+FRESULT Devices::createFATRegion(flash_addr_t startAddress, flash_addr_t endAddress,
     FATFS* pfs, FormatCmd formatCmd) {
     FlashDevice* device = createMultiPageEraseImpl(startAddress, endAddress, 2);
     if (device==NULL)
@@ -101,14 +113,14 @@ FRESULT low_level_format() {
     fat_flash->eraseAll();
     FRESULT result = f_mkfs("", 1, sector_size);
     if (result==FR_OK && !is_formatted())
-        result = FR_DISK_ERR;        
+        result = FR_DISK_ERR;
     return result;
 }
 
 bool needs_low_level_format() {
     uint8_t sig[2];
     fat_flash->read(sig, 510, 2);
-    return ((sig[0]!=0x55 && sig[1]!=0xAA) && (sig[0]&sig[1])!=0xFF);   
+    return ((sig[0]!=0x55 && sig[1]!=0xAA) && (sig[0]&sig[1])!=0xFF);
 }
 
 FRESULT f_setFlashDevice(FlashDevice* device, FATFS* pfs, FormatCmd cmd) {
@@ -116,17 +128,17 @@ FRESULT f_setFlashDevice(FlashDevice* device, FATFS* pfs, FormatCmd cmd) {
     fat_flash = device;
     if (!fat_flash)
         return FR_OK;
-    
+
     FRESULT result = f_mount(pfs, "", 0);
-    if (result==FR_OK) {   
+    if (result==FR_OK) {
         bool formatRequired = cmd==Flashee::FORMAT_CMD_FORMAT || (cmd==Flashee::FORMAT_CMD_FORMAT_IF_NEEDED && !is_formatted());
         if (formatRequired) {
             result = low_level_format();
-        }    
+        }
     }
     if (result==FR_OK) {
         FIL fil;
-        result = f_open(&fil, "@@@@123~.tmp", FA_OPEN_EXISTING);        
+        result = f_open(&fil, "@@@@123~.tmp", FA_OPEN_EXISTING);
         if (result==FR_NO_FILE)     // expected not to exist, if not formatted, will return FR_NO_FILESYSTEM
             result = FR_OK;
     }
@@ -142,8 +154,8 @@ DSTATUS disk_initialize (
 )
 {
     DSTATUS status = STA_NOINIT;
-    if (!pdrv) {            
-        // determine if boot sector is present, if not, then erase area    
+    if (!pdrv) {
+        // determine if boot sector is present, if not, then erase area
         if (needs_low_level_format()) {
             low_level_format();
         }
@@ -207,7 +219,7 @@ DRESULT disk_write (
     if (!pdrv) {
         result = fat_flash->write(buff, sector*sector_size, count*sector_size) ?
             RES_OK : RES_PARERR;
-    }        
+    }
     DEBUG_DISKIO("disk_write(%d, %x, %ul, %u)->%d", pdrv, buff, sector, count, result);
     return result;
 }
@@ -254,13 +266,13 @@ DWORD get_fattime() {
     int hour = Time.hour(now);
     int min = Time.minute(now);
     int sec = Time.second(now);
-    
-    DWORD time = 
+
+    DWORD time =
         ((year-1980)<<25) | (month<<21) | (day<<16) | (hour << 11) | (min << 5) | (sec/2);
     return time;
 #else
     return 0;
-#endif    
+#endif
 }
 
 }
