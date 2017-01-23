@@ -44,18 +44,32 @@ extern "C" {
 #define PIN_ACTUATOR_BOTTOM1 P1S0
 #define PIN_ACTUATOR1 P1S1
 #define PIN_ACTUATOR_BOTTOM2 P1S1
-#define PIN_ACTUATOR2 D4
-#define PIN_ACTUATOR_TOP1 D4
-#define PIN_ACTUATOR_TOP1_DIR D5
 #define PIN_ACTUATOR3 P1S5
 #define PIN_ACTUATOR_TOP2 P1S5
-#define PIN_ACTUATOR_TOP2_DIR D3
 #define PIN_ACTUATOR_TOP3 P1S4
 
-#define PIN_ALARM WKP
+#if !defined(SWD_JTAG_ENABLE)
+#define PIN_ACTUATOR_TOP2_DIR D3
+#define PIN_ACTUATOR_TOP1 D4
+#define PIN_ACTUATOR2 D4
+#define PIN_ACTUATOR_TOP1_DIR D5
+#else
+#define PIN_ACTUATOR_TOP2_DIR (-1)
+#define PIN_ACTUATOR_TOP1 (-1)
+#define PIN_ACTUATOR2 (-1)
+#define PIN_ACTUATOR_TOP1_DIR (-1)
+#endif
 
-#define PIN_5V_ENABLE D7
+#if !defined(SWD_JTAG_ENABLE) && !defined(SWD_ENABLE)
 #define PIN_12V_ENABLE D6
+#define PIN_5V_ENABLE D7
+#else
+#define PIN_12V_ENABLE -1
+#define PIN_5V_ENABLE -1
+#endif
+
+
+#define PIN_ALARM WKP
 
 #define RS485_TX_EN DAC
 #define RS485_TX TX

@@ -66,25 +66,16 @@
   /*******************************************
   * Signals definition
   *******************************************/
-// PB3, D4
-  #define D4DLCD_CS              PIN_LCD_CS         // CS
-//#define D4DLCD_CS_PORT         TODO      // CS
-//#define D4DLCD_CS_DDR          TODO     // CS
 
-// PA15, D5
+  #define D4DLCD_CS              PIN_LCD_CS         // CS
   #define D4DLCD_DC              PIN_LCD_DC         // DC
-//  #define D4DLCD_DC_PORT         TODO      // DC
-//  #define D4DLCD_DC_DDR          TODO     // DC
 
 // No HW reset, use software reset
 //  #define D4DLCD_RESET           255       // RESET
 //  #define D4DLCD_RESET_PORT      PTCD      // RESET
 //  #define D4DLCD_RESET_DDR       PTCDD     // RESET
 
-  //#define D4DLCD_BACKLIGHT       0         // BACKLIGHT
-  //#define D4DLCD_BACKLIGHT_PORT  PTCD      // BACKLIGHT
-  //#define D4DLCD_BACKLIGHT_DDR   PTCDD     // BACKLIGHT
-
+//  #define D4DLCD_BACKLIGHT       0         // BACKLIGHT
 
   /*********** Power macros - for modification uncomment and modify ***********/
 
