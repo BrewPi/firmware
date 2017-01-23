@@ -184,7 +184,7 @@ static unsigned char D4DTCH_GetPositionRaw_Tsc2046_brewpi(unsigned short *TouchP
     unsigned short *TouchPositionY) {
     if(touch.update()){
         *TouchPositionX = touch.getXRaw();
-        *TouchPositionY = touch.getYRaw();
+        *TouchPositionY = D4DTCH_FULL_SCALE - touch.getYRaw();
         return 1;
     }   
     return 0;

@@ -193,7 +193,7 @@ static unsigned char D4DLCD_Init_ili9341(void) {
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0xC0);
 
     D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0x36);    // Memory Access Control
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x08);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(ILI9341_MADCTL_MV | ILI9341_MADCTL_BGR);
 
     D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0x3A);     // Pixel format
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x55);  //16bit
@@ -202,9 +202,9 @@ static unsigned char D4DLCD_Init_ili9341(void) {
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x1D);  //61Hz
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xB6);    // Display Function Control
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(ILI9341_DFUNCTR);    // Display Function Control
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0A);
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0xE2);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x82);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x27);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
 
