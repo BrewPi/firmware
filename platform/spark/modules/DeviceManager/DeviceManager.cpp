@@ -18,7 +18,7 @@ OneWire* DeviceManager::oneWireBus(uint8_t pin) {
 
 int8_t  DeviceManager::enumerateActuatorPins(uint8_t offset)
 {
-	if(!shieldIsV2()){
+	if(shieldIsV1()){
 		offset += 1; // V1 does not have actuatorPin0 (A7), skip it
 	}
     switch (offset) {

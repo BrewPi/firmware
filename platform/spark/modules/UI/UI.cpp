@@ -55,7 +55,6 @@ uint8_t UI::init() {
     D4D_SetOrientation(D4D_ORIENT_LANDSCAPE180);
 #endif
     #if BREWPI_BUZZER
-	buzzer.init(!shieldIsV2());
 	buzzer.beep(2, 100);
     #endif
 

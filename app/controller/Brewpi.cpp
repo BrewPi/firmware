@@ -61,6 +61,7 @@ UI ui;
 
 void setup()
 {
+    boardInit();
     bool resetEeprom = platform_init();
     eepromManager.init();
     if (resetEeprom) {
@@ -68,6 +69,9 @@ void setup()
     }
 	ui.init();
 	piLink.init();
+	// flush any waiting input.
+    // Linux can put garbage in the serial input buffer during connect
+    piLink.flushInput();
 
     logDebug("started");
 
@@ -94,9 +98,6 @@ void setup()
 
     ui.showControllerPage();
     			
-    // flush any waiting input.
-    // Linux can put garbage in the serial input buffer during connect
-    piLink.flushInput();
 	logDebug("init complete");
 }
 

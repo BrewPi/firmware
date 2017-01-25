@@ -161,7 +161,7 @@ D4D_DECLARE_SCREEN_END()
 
 uint8_t ActuatorCount()
 {
-    return shieldIsV2() ? 4 : 3;
+    return shieldIsV1() ? 3 : 4;
 }
 
 void ScreenDeviceTest_OnInit()
