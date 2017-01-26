@@ -58,8 +58,8 @@ void ConnectedDevicesManager::handleDevice(DeviceConfig* config, DeviceCallbackI
         if (slot >= 0) { // found the device still active
             devices[slot].pointer.tempSensor->update();
             temp_t newTemp = devices[slot].pointer.tempSensor->read();
-            if(newTemp == TEMP_SENSOR_DISCONNECTED){
-                devices[slot].lastSeen+=2;                
+            if(newTemp.isDisabledOrInvalid()){
+                devices[slot].lastSeen+=2;
             } 
             else {
                 devices[slot].lastSeen = 0; // seen this one now

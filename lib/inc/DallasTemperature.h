@@ -59,7 +59,7 @@
 
 // reset detection - ensures that getTemp returns only a valid value from a previous call to requestTemperature
 #ifndef REQUIRESRESETDETECTION
-#define REQUIRESRESETDETECTION !REQUIRESALARMS
+#define REQUIRESRESETDETECTION (!REQUIRESALARMS)
 #endif
 
 #include <inttypes.h>
