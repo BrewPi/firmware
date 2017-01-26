@@ -25,7 +25,7 @@ bool readAlarmPin(){
     pinMode(PIN_ALARM, INPUT);
     wait.millis(1); // give time to change
     bool result = digitalRead(PIN_ALARM);
-    pinMode(PIN_ALARM, INPUT);
+    pinMode(PIN_ALARM, OUTPUT);
     return result;
 }
 
@@ -61,14 +61,13 @@ void boardInit(){
     // 5V on RJ12 enabled by default, 12V disabled to prevent damaging wrongly connected peripherals
     digitalWrite(PIN_5V_ENABLE, HIGH);
 
-    pinMode(PIN_ALARM, OUTPUT);
     digitalWrite(PIN_ALARM, LOW);
     pinMode(PIN_LCD_BACKLIGHT, OUTPUT);
+    digitalWrite(PIN_LCD_BACKLIGHT, HIGH);
 #else
     pinMode(PIN_ACTUATOR1, OUTPUT);
     pinMode(PIN_ACTUATOR2, OUTPUT);
     pinMode(PIN_ACTUATOR3, OUTPUT);
-    pinMode(PIN_ALARM, OUTPUT);
     if (shieldIsV1()){
         digitalWrite(PIN_ALARM, HIGH); // alarm is inverted on V1
     }
@@ -76,6 +75,7 @@ void boardInit(){
         pinMode(PIN_ACTUATOR0, OUTPUT); // actuator 0 is not available on V1, but is on V2
     }
 #endif
+    pinMode(PIN_ALARM, OUTPUT);
 
     pinMode(RS485_TX, OUTPUT);
     pinMode(RS485_RX, INPUT);

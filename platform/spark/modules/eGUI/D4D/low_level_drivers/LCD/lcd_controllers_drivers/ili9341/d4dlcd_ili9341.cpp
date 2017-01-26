@@ -182,18 +182,24 @@ static unsigned char D4DLCD_Init_ili9341(void) {
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
 
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xC1);    //Power control
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xC1);    //Power control 2
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x11);   //SAP[2:0];BT[3:0]
 
+#if PLATFORM_ID == 8 // V3
     D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xC5);    //VCM control 1
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x34);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x3D);
 
     D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xC7);    //VCM control 2
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0xC0);
+#else
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xC5);    //VCM control 1
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x3e);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x28);
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0x36);    // Memory Access Control
-    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(ILI9341_MADCTL_MV | ILI9341_MADCTL_BGR);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xC7);    //VCM control 2
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x86);
+#endif
 
     D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0x3A);     // Pixel format
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x55);  //16bit
@@ -218,7 +224,7 @@ static unsigned char D4DLCD_Init_ili9341(void) {
     D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0x26);    //Gamma curve selected
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x01);
 
-
+#if PLATFORM_ID == 8 // V3
     D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xE0); //positive gamma correction
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x1f);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x1a);
@@ -236,7 +242,7 @@ static unsigned char D4DLCD_Init_ili9341(void) {
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x05);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
 
-    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xE1); //negamma correction
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xE1); //negative gamma correction
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x25);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x27);
@@ -252,6 +258,42 @@ static unsigned char D4DLCD_Init_ili9341(void) {
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x38);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x3a);
     D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x1f);
+
+#else
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xE0); //positive gamma correction
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0F);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x31);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x2B);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0C);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0E);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x08);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x4E);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0xF1);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x37);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x07);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x10);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x03);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0E);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x09);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
+
+    D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0xE1); //negative gamma correction
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x00);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0E);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x14);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x03);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x11);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x07);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x31);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0xC1);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x48);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x08);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0F);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0C);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x31);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x36);
+    D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(0x0F);
+#endif
 
     D4D_LLD_LCD_HW.D4DLCDHW_SendCmdWord(0x11);    //Exit Sleep
     D4DLCD_Delay_ms_ili9341(120);
@@ -315,6 +357,30 @@ static unsigned char D4DLCD_SetOrientation_ili9341(D4DLCD_ORIENTATION new_orient
 
     switch (new_orientation) {
         default: // Invalid! Fall through to landscape mode
+#if PLATFORM_ID == 8 // display is 180 degrees rotated on V3
+        case Landscape180:
+            D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(
+                    ILI9341_MADCTL_MV | ILI9341_MADCTL_MY | ILI9341_MADCTL_MX
+                    | ILI9341_MADCTL_BGR);
+            width = D4D_SCREEN_SIZE_LONGER_SIDE;
+            height = D4D_SCREEN_SIZE_SHORTER_SIDE;
+            break;
+        case Portrait180:
+            D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(ILI9341_MADCTL_MY | ILI9341_MADCTL_BGR);
+            width = D4D_SCREEN_SIZE_SHORTER_SIDE;
+            height = D4D_SCREEN_SIZE_LONGER_SIDE;
+            break;
+        case Landscape:
+            D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(ILI9341_MADCTL_MV | ILI9341_MADCTL_BGR);
+            width = D4D_SCREEN_SIZE_LONGER_SIDE;
+            height = D4D_SCREEN_SIZE_SHORTER_SIDE;
+            break;
+        case Portrait:
+            D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(ILI9341_MADCTL_MX | ILI9341_MADCTL_BGR);
+            width = D4D_SCREEN_SIZE_SHORTER_SIDE;
+            height = D4D_SCREEN_SIZE_LONGER_SIDE;
+            break;
+#else
         case Landscape:
             D4D_LLD_LCD_HW.D4DLCDHW_SendDataWord(
                     ILI9341_MADCTL_MV | ILI9341_MADCTL_MY | ILI9341_MADCTL_MX
@@ -337,6 +403,7 @@ static unsigned char D4DLCD_SetOrientation_ili9341(D4DLCD_ORIENTATION new_orient
             width = D4D_SCREEN_SIZE_SHORTER_SIDE;
             height = D4D_SCREEN_SIZE_LONGER_SIDE;
             break;
+#endif
     }
     (void) D4DLCD_SetWindow_ili9341(0, 0, height, width); // x is shorter side in display
     return 1;

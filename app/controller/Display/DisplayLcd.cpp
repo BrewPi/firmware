@@ -44,11 +44,6 @@ static const char STR_ing_for[] PROGMEM = "ing for";
 static const char STR_empty_string[] PROGMEM = "";
 
 void LcdDisplay::init(void){
-#if PLATFORM_ID == 8
-    pinMode(PIN_LCD_BACKLIGHT, OUTPUT);
-    digitalWrite(PIN_LCD_BACKLIGHT, true);
-#endif
-
 	stateOnDisplay = 0xFF; // set to unknown state to force update
 	flags = LCD_FLAG_ALTERNATE_ROOM;
 	lcd.init(); // initialize LCD

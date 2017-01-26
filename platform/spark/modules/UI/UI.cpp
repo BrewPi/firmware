@@ -49,11 +49,9 @@ uint8_t UI::init() {
     eGuiSettings.init();
     display.init();
 
-    if (!D4D_Init(NULL))
+    if (!D4D_Init(NULL)){
         return 1;
-#if PLATFORM_ID == 8
-    D4D_SetOrientation(D4D_ORIENT_LANDSCAPE180);
-#endif
+    }
     #if BREWPI_BUZZER
 	buzzer.beep(2, 100);
     #endif
