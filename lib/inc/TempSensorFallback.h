@@ -23,6 +23,7 @@
 #include "TempSensorInterface.h"
 #include "ControllerMixins.h"
 #include "defaultDevices.h"
+#include "RefTo.h"
 
 /**
  * Class that forwards all calls to another temperature sensor,
@@ -30,14 +31,13 @@
  */
 class TempSensorFallback : public TempSensorInterface, public TempSensorFallbackMixin {
 public:
-    TempSensorFallback() : main(defaultTempSensor()), backup(defaultTempSensor()), onBackupSensor(false)
+    TempSensorFallback(std::function<Interface* ()> m, std::function<Interface* ()> b) : onBackupSensor(false)
     {
+        main.setLookup(m);
+        backup.setLookup(b);
     };
-
-    TempSensorFallback(TempSensorInterface * m, TempSensorInterface * b) : main(m), backup(b), onBackupSensor(false)
-    {
-    };
-    virtual ~TempSensorFallback(){};
+    TempSensorFallback() : onBackupSensor(false){}
+    ~TempSensorFallback() = default;
 
     /**
      * Accept function for visitor pattern
@@ -51,8 +51,8 @@ public:
      * Returns currently active sensor
      * @return TempSensorInterface *: currently active sensor, main or backup
      */
-    TempSensorInterface * activeSensor() const {
-        return onBackupSensor ? backup : main;
+    TempSensorInterface & activeSensor() const {
+        return onBackupSensor ? backup() : main();
     }
 
     /**
@@ -60,7 +60,7 @@ public:
      * @return bool: true if active sensor is connected
      */
     bool isConnected(void) const override final {
-        return activeSensor()->isConnected();
+        return activeSensor().isConnected();
     }
 
     /**
@@ -69,7 +69,7 @@ public:
      * @return bool: true if active sensor was initialized correctly
      */
     bool init() override final {
-        return activeSensor()->init();
+        return activeSensor().init();
     }
 
     /**
@@ -84,8 +84,8 @@ public:
     void update() override final;
 
 private:
-    TempSensorInterface * main;
-    TempSensorInterface * backup;
+    RefTo<TempSensorInterface> main;
+    RefTo<TempSensorInterface> backup;
     bool onBackupSensor;
 
 friend class TempSensorFallbackMixin;
