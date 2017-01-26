@@ -277,7 +277,7 @@ BOOST_AUTO_TEST_CASE(pid_driving_setpoint_actuator){
     TempSensorMock * targetSensor = new TempSensorMock(20.0);
     SetPointSimple * targetSetpoint = new SetPointSimple(20.0);
 
-    ActuatorSetPoint * act = new ActuatorSetPoint(targetSetpoint, targetSensor, sp);
+    ActuatorSetPoint * act = new ActuatorSetPoint(PtrLookup(targetSetpoint), PtrLookup(targetSensor), PtrLookup(sp));
     Pid * p = new Pid(PtrLookup(sensor), PtrLookup(act), PtrLookup(sp));
 
     p->setConstants(2.0, 40, 0);

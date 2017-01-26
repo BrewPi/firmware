@@ -65,7 +65,7 @@ public:
         coolerPid = new Pid();
         beerToFridgePid = new Pid();
 
-        fridgeSetPointActuator = new ActuatorSetPoint(fridgeSet, fridgeSensor, beerSet);
+        fridgeSetPointActuator = new ActuatorSetPoint(PtrLookup(fridgeSet), PtrLookup(fridgeSensor), PtrLookup(beerSet));
 
         heaterPid->setOutput(PtrLookup(heater));
         coolerPid->setOutput(PtrLookup(cooler));

@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE(RefTo_SetPointActuator) {
     SetPointInterface * sp1 = new SetPointSimple(20.0);
     SetPointInterface * sp2 = new SetPointSimple(20.0);
     TempSensorInterface * sensor = new TempSensorMock(20.0);
-    Interface * spa = new ActuatorSetPoint(sp1, sensor, sp2);
+    Interface * spa = new ActuatorSetPoint(PtrLookup(sp1), PtrLookup(sensor), PtrLookup(sp2));
     auto lookup = PtrLookup(spa);
     RefTo<ActuatorRangeInterface> ref(lookup);
 
