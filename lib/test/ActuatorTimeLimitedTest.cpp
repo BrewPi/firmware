@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(minimum_off_time_and_maximum_on_time_are_honored) {
     const uint16_t maxOn = 200;
     const uint16_t minOff = 300;
 
-    ActuatorTimeLimited * act = new ActuatorTimeLimited(v, minOn, minOff, maxOn);
+    ActuatorTimeLimited * act = new ActuatorTimeLimited(PtrLookup(v), minOn, minOff, maxOn);
 
 
     *output << "\n\n**** Testing min OFF and max ON time for ActuatorTimeLimited ****\n\n";
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(minimum_on_time_is_honored) {
     const uint16_t maxOn = 200;
     const uint16_t minOff = 300;
 
-    ActuatorTimeLimited * act = new ActuatorTimeLimited(v, minOn, minOff, maxOn);
+    ActuatorTimeLimited * act = new ActuatorTimeLimited(PtrLookup(v), minOn, minOff, maxOn);
 
     *output << ("\n\n**** Testing min ON time for ActuatorTimeLimited ****\n\n");
     ticks_seconds_t time;
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(correct_state_is_returned_with_actuatorNop) {
     const uint16_t maxOn = 200;
     const uint16_t minOff = 300;
 
-    ActuatorTimeLimited * act = new ActuatorTimeLimited(v, minOn, minOff, maxOn);
+    ActuatorTimeLimited * act = new ActuatorTimeLimited(PtrLookup(v), minOn, minOff, maxOn);
 
     act->setActive(false); // make sure cached state is correct
     BOOST_CHECK(!act->isActive());

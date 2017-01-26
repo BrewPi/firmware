@@ -27,21 +27,22 @@
 #include "ActuatorInterfaces.h"
 #include "Ticks.h"
 #include "ControllerMixins.h"
+#include "RefTo.h"
 
 class ActuatorTimeLimited final : public ActuatorDigitalInterface, public ActuatorTimeLimitedMixin
 {
 public:
-    ActuatorTimeLimited(ActuatorDigitalInterface * _target,
+    ActuatorTimeLimited(std::function<Interface *()> _target,
             ticks_seconds_t   _minOnTime = 120,
             ticks_seconds_t   _minOffTime = 180,
             ticks_seconds_t   _maxOnTime = UINT16_MAX) :
-        target(_target),
         minOnTime(_minOnTime),
         maxOnTime(_maxOnTime),
         minOffTime(_minOffTime),
         toggleTime(0)
     {
-        state      = _target -> isActive();
+        target.setLookup(_target);
+        state = target().isActive();
     }
 
     ~ActuatorTimeLimited() = default;
@@ -76,7 +77,7 @@ public:
     ticks_seconds_t timeSinceToggle(void) const;
 
 private:
-    ActuatorDigitalInterface * target;
+    RefTo<ActuatorDigitalInterface> target;
     ticks_seconds_t        minOnTime;
     ticks_seconds_t        maxOnTime;
     ticks_seconds_t        minOffTime;

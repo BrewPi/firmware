@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE(output_stays_low_with_value_0) {
 
 BOOST_AUTO_TEST_CASE(on_big_positive_changes_shortened_cycle_has_correct_value) {
     ActuatorDigitalInterface * vAct = new ActuatorBool();
-    ActuatorDigitalInterface * limited = new ActuatorTimeLimited(vAct, 0, 0);
+    ActuatorDigitalInterface * limited = new ActuatorTimeLimited(PtrLookup(vAct), 0, 0);
     ActuatorPwm * act = new ActuatorPwm(PtrLookup(limited), 100); // period is 100 seconds
 
     act->setValue(short(30));
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE(on_big_positive_changes_shortened_cycle_has_correct_value) 
 
 BOOST_AUTO_TEST_CASE(on_big_negative_changes_go_low_immediately) {
     ActuatorDigitalInterface * vAct = new ActuatorBool();
-    ActuatorDigitalInterface * limited = new ActuatorTimeLimited(vAct, 0, 0);
+    ActuatorDigitalInterface * limited = new ActuatorTimeLimited(PtrLookup(vAct), 0, 0);
     ActuatorPwm * act = new ActuatorPwm(PtrLookup(limited), 100); // period is 100 seconds
 
     ticks_millis_t lastLowTimeBeforeChange = ticks.millis();
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(ActuatorPWM_with_min_max_time_limited_OnOffActuator_as_driv
 
     srand(time(NULL));
     ActuatorDigitalInterface * vAct = new ActuatorBool();
-    ActuatorDigitalInterface * onOffAct = new ActuatorTimeLimited(vAct, 2, 5);
+    ActuatorDigitalInterface * onOffAct = new ActuatorTimeLimited(PtrLookup(vAct), 2, 5);
     ActuatorPwm * act = new ActuatorPwm(PtrLookup(onOffAct), 10);
 
     // Test that average duty cycle is correct, even with minimum times enforced in the actuator
@@ -308,7 +308,7 @@ BOOST_AUTO_TEST_CASE(ActuatorPWM_with_min_max_time_limited_OnOffActuator_as_driv
 BOOST_AUTO_TEST_CASE(when_switching_between_zero_and_low_value_average_is_correct){
     // test with minimum ON of 2 seconds, minimum off of 5 seconds and period 5 seconds
     ActuatorDigitalInterface * vAct = new ActuatorBool();
-    ActuatorDigitalInterface * onOffAct = new ActuatorTimeLimited(vAct, 20, 50);
+    ActuatorDigitalInterface * onOffAct = new ActuatorTimeLimited(PtrLookup(vAct), 20, 50);
     ActuatorPwm * act = new ActuatorPwm(PtrLookup(onOffAct), 100);
 
     ticks_seconds_t timeHigh = 0;
@@ -611,7 +611,7 @@ BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct){
 
 BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct_with_time_limited_actuator){
     ActuatorDigitalInterface * boolAct = new ActuatorBool();
-    ActuatorDigitalInterface * timeLimitedAct = new ActuatorTimeLimited(boolAct, 2, 5);
+    ActuatorDigitalInterface * timeLimitedAct = new ActuatorTimeLimited(PtrLookup(boolAct), 2, 5);
     ActuatorPwm * pwmAct = new ActuatorPwm(PtrLookup(timeLimitedAct), 20);
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
@@ -679,7 +679,7 @@ BOOST_AUTO_TEST_CASE(slowly_changing_pwm_value_reads_back_as_correct_value){
 
 BOOST_AUTO_TEST_CASE(fluctuating_pwm_value_gives_correct_average_with_time_limited_actuator){
     ActuatorDigitalInterface * boolAct = new ActuatorBool();
-    ActuatorDigitalInterface * timeLimitedAct = new ActuatorTimeLimited(boolAct, 2, 5);
+    ActuatorDigitalInterface * timeLimitedAct = new ActuatorTimeLimited(PtrLookup(boolAct), 2, 5);
     ActuatorPwm * pwmAct = new ActuatorPwm(PtrLookup(timeLimitedAct), 20);
 
     pwmAct->setValue(5.0); // set to a value with duty cycle lower than time limit

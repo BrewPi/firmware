@@ -53,7 +53,7 @@ public:
         heater = new ActuatorPwm(PtrLookup(heaterMutex), 20); // period 20s, because update steps are 1 second
 
         coolerPin = new ActuatorBool();
-        coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
+        coolerTimeLimited = new ActuatorTimeLimited(PtrLookup(coolerPin), 120, 180); // 2 min minOn time, 3 min minOff
         coolerMutex = new ActuatorMutexDriver(PtrLookup(coolerTimeLimited));
         cooler = new ActuatorPwm(PtrLookup(coolerMutex), 1200); // period 20 min
         mutex = new ActuatorMutexGroup();
