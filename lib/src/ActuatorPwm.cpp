@@ -4,20 +4,6 @@
 #include "Ticks.h"
 #include "ActuatorMutexDriver.h"
 
-temp_t         value;
-    int32_t        dutyLate;
-    int32_t        periodLate;
-    int32_t        dutyTime;
-    ticks_millis_t periodStartTime;
-    ticks_millis_t highToLowTime;
-    ticks_millis_t lowToHighTime;
-    // last elapsed time between two pulses. Could be different from period due to cycle skipping
-    int32_t        cycleTime;
-    int32_t        period_ms;
-    temp_t         minVal;
-    temp_t         maxVal;
-    ActuatorDigitalInterface * target;
-
 ActuatorPwm::ActuatorPwm(std::function<Interface* ()> _target, uint16_t _period) :
     value(0.0),
     dutyLate(0),
