@@ -91,9 +91,9 @@ extern "C" {
 
 #define PIN_ALARM WKP
 
-#define RS485_TX_EN DAC
-#define RS485_TX TX
-#define RS485_RX RX
+#define PIN_RS485_TX_EN DAC
+#define PIN_RS485_TX TX
+#define PIN_RS485_RX RX
 
 #define PIN_TOUCH_CS P1S2
 #define PIN_TOUCH_IRQ A1
@@ -112,9 +112,9 @@ extern "C" {
 #define PIN_ACTUATOR3 A0
 #define PIN_ALARM A2
 
-#define RS485_TX_EN D6
-#define RS485_TX TX
-#define RS485_RX RX
+#define PIN_RS485_TX_EN D6
+#define PIN_RS485_TX TX
+#define PIN_RS485_RX RX
 
 #define PIN_TOUCH_CS D3
 #define PIN_TOUCH_IRQ D2

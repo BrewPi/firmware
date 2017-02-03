@@ -77,9 +77,9 @@ void boardInit(){
 #endif
     pinMode(PIN_ALARM, OUTPUT);
 
-    pinMode(RS485_TX, OUTPUT);
-    pinMode(RS485_RX, INPUT);
-    pinMode(RS485_TX_EN, OUTPUT);
+    pinMode(PIN_RS485_TX, OUTPUT);
+    pinMode(PIN_RS485_RX, INPUT);
+    pinMode(PIN_RS485_TX_EN, OUTPUT);
 
     digitalWrite(PIN_TOUCH_CS, HIGH);
     pinMode(PIN_TOUCH_CS, OUTPUT);
