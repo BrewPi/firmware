@@ -4,15 +4,15 @@
 #include "Ticks.h"
 #include "ActuatorMutexDriver.h"
 
-ActuatorPwm::ActuatorPwm(std::function<Interface* ()> _target, uint16_t _period) :
+ActuatorPwm::ActuatorPwm(ActuatorDigitalInterface & _target, uint16_t _period) :
+    target(_target),
     value(0.0),
     dutyLate(0),
     periodLate(0),
     minVal(0.0),
     maxVal(100.0)
 {
-    target.setLookup(_target);
-    target().setActive(false);
+    target.setActive(false);
     setPeriod(_period); // sets period_ms
     periodStartTime = ticks.millis();
     // at init, pretend last high period was tiny spike in the past
@@ -86,7 +86,7 @@ temp_t ActuatorPwm::readValue() const {
 }
 
 void ActuatorPwm::fastUpdate() {
-    target().fastUpdate();
+    target.fastUpdate();
     int32_t adjDutyTime = dutyTime - dutyLate;
     int32_t currentTime = ticks.millis();
     int32_t elapsedTime = currentTime - periodStartTime;
@@ -95,7 +95,7 @@ void ActuatorPwm::fastUpdate() {
     int32_t sinceHighToLow = ticks.timeSinceMillis(highToLowTime);
     int32_t lastHighDuration = sinceLowToHigh - sinceHighToLow;
 
-    if (target().isActive()) {
+    if (target.isActive()) {
         if (elapsedTime >= adjDutyTime) {
             // end of duty cycle
             int32_t lowDuration = (period_ms > dutyTime) ? period_ms - dutyTime : 0;
@@ -109,9 +109,9 @@ void ActuatorPwm::fastUpdate() {
                 highToLowTime = 0; // set to zero to indicate we are stringing high periods together
             }
             else{
-                target().setActive(false);
+                target.setActive(false);
                 // check if turning the output off has succeeded (OnOff actuator could stay active due to time limit)
-                if (target().isActive()) {
+                if (target.isActive()) {
                     return; // try next time
                 }
                 int32_t thisDutyLate = elapsedTime - dutyTime;
@@ -123,7 +123,7 @@ void ActuatorPwm::fastUpdate() {
             }
         }
     }
-    else if (!target().isActive()) {
+    else if (!target.isActive()) {
         bool goHigh = false;
         bool newPeriod = false;
         int32_t estimatedCycleTime = 0;
@@ -152,8 +152,8 @@ void ActuatorPwm::fastUpdate() {
             }
         }
         if(goHigh){
-            target().setActive(true, priority());
-            if(target().isActive()){
+            target.setActive(true, priority());
+            if(target.isActive()){
                 newPeriod = true;
                 if(estimatedCycleTime){
                     cycleTime = estimatedCycleTime; // already had an estimate from ending cycle early

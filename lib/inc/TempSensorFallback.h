@@ -31,12 +31,12 @@
  */
 class TempSensorFallback : public TempSensorInterface, public TempSensorFallbackMixin {
 public:
-    TempSensorFallback(std::function<Interface* ()> m, std::function<Interface* ()> b) : onBackupSensor(false)
+    TempSensorFallback(TempSensorInterface & m, TempSensorInterface & b) :
+        main(m),
+        backup(b),
+        onBackupSensor(false)
     {
-        main.setLookup(m);
-        backup.setLookup(b);
     };
-    TempSensorFallback() : onBackupSensor(false){}
     ~TempSensorFallback() = default;
 
     /**
@@ -52,7 +52,7 @@ public:
      * @return TempSensorInterface *: currently active sensor, main or backup
      */
     TempSensorInterface & activeSensor() const {
-        return onBackupSensor ? backup() : main();
+        return onBackupSensor ? backup : main;
     }
 
     /**
@@ -84,8 +84,8 @@ public:
     void update() override final;
 
 private:
-    RefTo<TempSensorInterface> main;
-    RefTo<TempSensorInterface> backup;
+    TempSensorInterface& main;
+    TempSensorInterface& backup;
     bool onBackupSensor;
 
 friend class TempSensorFallbackMixin;

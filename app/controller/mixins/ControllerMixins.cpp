@@ -21,8 +21,9 @@
 
 
 #include "ControllerMixins.h"
+
+#include "TempSensorDelegate.h"
 #include "Pid.h"
-#include "TempSensor.h"
 #include "TempSensorInterface.h"
 #include "TempSensorMock.h"
 #include "OneWireTempSensor.h"
@@ -83,7 +84,7 @@ void PidMixin::serializeImpl(JSON::Adapter & adapter)
     JSON_T(adapter, output);
 }
 
-void TempSensorMixin::serializeImpl(JSON::Adapter & adapter)
+void TempSensorDelegateMixin::serializeImpl(JSON::Adapter & adapter)
 {
     TempSensor * obj = static_cast<TempSensor *>(this);
 

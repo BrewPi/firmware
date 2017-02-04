@@ -32,17 +32,17 @@
 class ActuatorSetPoint final : public ActuatorRangeInterface, public ActuatorSetPointMixin
 {
 public:
-    ActuatorSetPoint(std::function<Interface* ()> _targSetPoint, // set point to manipulate
-                     std::function<Interface* ()> _targSensor, // sensor to go with target setpoint
-                     std::function<Interface* ()> _refSetPoint, //set point to offset from
-                     temp_t mini = temp_t::min(), // minimum actuator value (targ - ref)
-                     temp_t maxi = temp_t::max()) :  // maximum actuator value
-        minimum(mini),
-        maximum(maxi)
+    ActuatorSetPoint(SetPointInterface & _targSetPoint, // set point to manipulate
+                     TempSensorInterface & _targSensor, // sensor to go with target setpoint
+                     SetPointInterface & _refSetPoint, //set point to offset from
+                     temp_t _min = temp_t::min(), // minimum actuator value (targ - ref)
+                     temp_t _max = temp_t::max()) :  // maximum actuator value
+        targetSetPoint(_targSetPoint),
+        targetSensor(_targSensor),
+        referenceSetPoint(_refSetPoint),
+        minimum(_min),
+        maximum(_max)
     {
-        targetSetPoint.setLookup(_targSetPoint);
-        targetSensor.setLookup(_targSensor);
-        referenceSetPoint.setLookup(_refSetPoint);
     }
     ~ActuatorSetPoint() = default;
 
@@ -62,22 +62,23 @@ public:
         else if(offset > maximum){
             offset = maximum;
         }
-        targetSetPoint().write(referenceSetPoint().read() + offset);
+        targetSetPoint.write(referenceSetPoint.read() + offset);
     }
 
     temp_t getValue() const override final {
-        return targetSetPoint().read() - referenceSetPoint().read();
+        return targetSetPoint.read() - referenceSetPoint.read();
     }
 
     // getValue returns difference between sensor and reference, because that is the actual actuator value.
     // By returning the actually achieved value, instead of the difference between the setpoints,
     // a PID can read back the actual actuator value and perform integrator anti-windup
     temp_t readValue() const override final{
-        temp_t targetTemp = targetSensor().read();
-        if(targetTemp.isDisabledOrInvalid()){
+        temp_t targetTemp = targetSensor.read();
+        temp_t referenceTemp = referenceSetPoint.read();
+        if(targetTemp.isDisabledOrInvalid() || referenceTemp.isDisabledOrInvalid()){
             return temp_t::invalid();
         }
-        return targetSensor().read() - referenceSetPoint().read();
+        return targetTemp - referenceTemp;
     }
 
     temp_t min() const override final {
@@ -100,9 +101,9 @@ public:
     void fastUpdate() override final {}; //no actions required
 
 private:
-    RefTo<SetPointInterface> targetSetPoint;
-    RefTo<TempSensorInterface> targetSensor;
-    RefTo<SetPointInterface> referenceSetPoint;
+    SetPointInterface & targetSetPoint;
+    TempSensorInterface & targetSensor;
+    SetPointInterface & referenceSetPoint;
     temp_t minimum;
     temp_t maximum;
 

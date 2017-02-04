@@ -53,11 +53,11 @@ protected:
     ~TempSensorMockMixin() = default;
 };
 
-class TempSensorMixin: public Nameable {
+class TempSensorDelegateMixin: public Nameable {
 public:
     void serializeImpl(JSON::Adapter& adapter);
 protected:
-    ~TempSensorMixin() = default;
+    ~TempSensorDelegateMixin() = default;
 };
 
 class TempSensorFallbackMixin {

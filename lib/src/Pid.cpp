@@ -21,7 +21,10 @@
 
 #include "Pid.h"
 
-Pid::Pid(std::function<Interface* ()> _input, std::function<Interface* ()> _output, std::function<Interface* ()> _setPoint) :
+Pid::Pid(TempSensorInterface & _input, ActuatorRangeInterface & _output, SetPointInterface & _setPoint) :
+         input(_input),
+         output(_output),
+         setPoint(_setPoint),
          Kp(0.0),
          Ti(0),
          Td(0),
@@ -36,10 +39,6 @@ Pid::Pid(std::function<Interface* ()> _input, std::function<Interface* ()> _outp
          enabled(true),
          previousSetPoint(temp_t::invalid())
 {
-    input.setLookup(_input);
-    output.setLookup(_output);
-    setPoint.setLookup(_setPoint);
-
     setInputFilter(0);
     // some filtering necessary due to quantization causing steps in the temperature
     setDerivativeFilter(2);
@@ -60,8 +59,8 @@ void Pid::setConstants(temp_long_t kp,
 
 void Pid::update()
 {
-    temp_t currentSetPoint = setPoint().read();
-    temp_t inputVal = input().read();
+    temp_t currentSetPoint = setPoint.read();
+    temp_t inputVal = input.read();
     bool validSensor = !inputVal.isDisabledOrInvalid();
     bool validSetPoint = !currentSetPoint.isDisabledOrInvalid();
 
@@ -143,11 +142,10 @@ void Pid::update()
     // Get output to send to actuator. When actuator is a 'cooler', invert the result
     temp_t      outputValue    = (actuatorIsNegative) ? -pidResult : pidResult;
 
-    auto  & outputActuator = output();
-    outputActuator.setValue(outputValue);
+    output.setValue(outputValue);
 
     // get the value that is clipped to the actuator's range
-    outputValue = outputActuator.getValue();
+    outputValue = output.getValue();
     // When actuator is a 'cooler', invert the output again
     outputValue = (actuatorIsNegative) ? -outputValue : outputValue;
 
@@ -169,7 +167,7 @@ void Pid::update()
         }
         else{ // Actuator could be not reaching set value due to physics or limits in its target actuator
               // Get the actual achieved value in actuator. This could differ due to slowness time/mutex limits
-            temp_t achievedOutput = outputActuator.readValue();
+            temp_t achievedOutput = output.readValue();
             if(!achievedOutput.isDisabledOrInvalid()){ // only apply anti-windup when it is possible to read back the actual value
                 // When actuator is a 'cooler', invert the output again
                 temp_long_t achievedOutputWithCorrectSign = (actuatorIsNegative) ? -achievedOutput : achievedOutput;
@@ -218,21 +216,6 @@ void Pid::setInputFilter(uint8_t b)
 void Pid::setDerivativeFilter(uint8_t b)
 {
     derivativeFilter.setFiltering(b);
-}
-
-void Pid::setInput(std::function<Interface* ()> _input)
-{
-    input.setLookup(_input);
-}
-
-void Pid::setOutput(std::function<Interface* ()> _output)
-{
-    output.setLookup(_output);
-}
-
-void Pid::setSetPoint(std::function<Interface* ()> _setpoint)
-{
-    setPoint.setLookup(_setpoint);
 }
 
 /*

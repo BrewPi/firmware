@@ -26,7 +26,7 @@ temp_t TempSensorFallback::read() const {
 }
 
 void TempSensorFallback::update() {
-    if(main().isConnected()){
+    if(main.isConnected()){
         if(onBackupSensor){
             // return to main sensor and log message
             logInfo(BACK_ON_MAIN_SENSOR);
@@ -34,7 +34,7 @@ void TempSensorFallback::update() {
         onBackupSensor = false;
     }
     else{
-        if(backup().isConnected()){
+        if(backup.isConnected()){
             if(!onBackupSensor){
                 // this is the first time falling back
                 logWarning(FALLING_BACK_ON_BACKUP_SENSOR);

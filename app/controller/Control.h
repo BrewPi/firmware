@@ -22,9 +22,10 @@
 #pragma once
 
 #include <vector>
+
+#include "TempSensorDelegate.h"
 #include "Pid.h"
 #include "ActuatorInterfaces.h"
-#include "TempSensor.h"
 #include "TempSensorFallback.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorPwm.h"

@@ -45,6 +45,10 @@ class TempSensorExternal;
 class TempSensorFallback;
 class TempSensorMock;
 class ValveController;
+class TempSensorDelegate;
+class ActuatorToggleDelegate;
+class ActuatorRangeDelegate;
+class SetPointDelegate;
 
 class VisitorBase {
 protected:
@@ -65,13 +69,16 @@ public:
 	virtual void visit(SetPointConstant& thisRef) = 0;
 	virtual void visit(SetPointMinMax& thisRef) = 0;
 	virtual void visit(SetPointSimple& thisRef) = 0;
-	virtual void visit(TempSensor& thisRef) = 0;
 	virtual void visit(TempSensorDisconnected& thisRef) = 0;
 	virtual void visit(TempSensorExternal& thisRef) = 0;
 	virtual void visit(TempSensorFallback& thisRef) = 0;
 	virtual void visit(TempSensorMock& thisRef) = 0;
 	virtual void visit(OneWireTempSensor& thisRef) = 0;
 	virtual void visit(ValveController& thisRef) = 0;
+	virtual void visit(TempSensorDelegate& thisRef) = 0;
+	virtual void visit(ActuatorToggleDelegate& thisRef) = 0;
+	virtual void visit(ActuatorRangeDelegate& thisRef) = 0;
+	virtual void visit(SetPointDelegate& thisRef) = 0;
 #if WIRING
 	virtual void visit(ActuatorPin& thisRef) = 0;
 #endif

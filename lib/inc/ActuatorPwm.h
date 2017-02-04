@@ -22,11 +22,11 @@
 
 #pragma once
 
-#include <stdint.h>
 #include "ActuatorInterfaces.h"
 #include "Ticks.h"
-#include "RefTo.h"
+#include <stdint.h>
 #include "ControllerMixins.h"
+
 /**
 	ActuatorPWM drives a digital actuator and makes it available as range actuator, by quickly turning it on and off repeatedly.
 
@@ -35,7 +35,7 @@
 class ActuatorPwm final : public ActuatorRangeInterface, public ActuatorPwmMixin
 {
 private:
-    RefTo<ActuatorDigitalInterface> target;
+    ActuatorDigitalInterface & target;
     temp_t         value;
     int32_t        dutyLate;
     int32_t        periodLate;
@@ -55,7 +55,7 @@ public:
      *  @param _period PWM period in seconds
      *  @sa getPeriod(), setPeriod(), getTarget(), setTarget()
      */
-    ActuatorPwm(std::function<Interface *()> _target, uint16_t _period);
+    ActuatorPwm(ActuatorDigitalInterface & _target, uint16_t _period);
 
     ~ActuatorPwm() = default;
 
@@ -113,7 +113,7 @@ public:
      * Periodic update (every second). Same as fast update, but calls periodic update on target too.
      */
     void update() override final {
-        target().update();
+        target.update();
         fastUpdate();
     };
 

@@ -18,6 +18,8 @@
  */
 
 #include "VisitorSerialize.h"
+
+#include "TempSensorDelegate.h"
 #include "Platform.h"
 
 #include "ActuatorMocks.h"
@@ -26,7 +28,6 @@
 #include "ActuatorPwm.h"
 #include "ActuatorOneWire.h"
 #include "SetPoint.h"
-#include "TempSensor.h"
 #include "TempSensorDisconnected.h"
 #include "TempSensorExternal.h"
 #include "TempSensorFallback.h"

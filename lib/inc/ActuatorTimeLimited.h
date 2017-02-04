@@ -32,17 +32,17 @@
 class ActuatorTimeLimited final : public ActuatorDigitalInterface, public ActuatorTimeLimitedMixin
 {
 public:
-    ActuatorTimeLimited(std::function<Interface *()> _target,
+    ActuatorTimeLimited(ActuatorDigitalInterface & _target,
             ticks_seconds_t   _minOnTime = 120,
             ticks_seconds_t   _minOffTime = 180,
             ticks_seconds_t   _maxOnTime = UINT16_MAX) :
+        target(_target),
         minOnTime(_minOnTime),
         maxOnTime(_maxOnTime),
         minOffTime(_minOffTime),
         toggleTime(0)
     {
-        target.setLookup(_target);
-        state = target().isActive();
+        state = target.isActive();
     }
 
     ~ActuatorTimeLimited() = default;
@@ -77,7 +77,7 @@ public:
     ticks_seconds_t timeSinceToggle(void) const;
 
 private:
-    RefTo<ActuatorDigitalInterface> target;
+    ActuatorDigitalInterface & target;
     ticks_seconds_t        minOnTime;
     ticks_seconds_t        maxOnTime;
     ticks_seconds_t        minOffTime;

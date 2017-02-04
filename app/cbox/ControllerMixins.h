@@ -9,7 +9,7 @@ class ActuatorRangeInterfaceMixin {};
 class ActuatorThresholdInterfaceMixin {};
 class TempSensorInterfaceMixin {};
 class TempSensorMockMixin {};
-class TempSensorMixin {};
+class TempSensorDelegateMixin {};
 class TempSensorFallbackMixin {};
 class PidMixin {};
 class OneWireTempSensorMixin {};

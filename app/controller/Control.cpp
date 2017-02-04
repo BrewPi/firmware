@@ -28,7 +28,7 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorPwm.h"
 #include "ActuatorTimeLimited.h"
-#include "TempSensor.h"
+#include "TempSensorDelegate.h"
 #include "ActuatorSetPoint.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMutexGroup.h"
@@ -66,18 +66,18 @@ Control::Control()
     fridgeSetPointActuator->setMax(10.0);
 
     heaterInputSensor = new TempSensorFallback(fridgeSensor, beer1Sensor);
-    heater1Pid = new Pid(PtrLookup(heaterInputSensor), PtrLookup(heater1), PtrLookup(fridgeSet));
+    heater1Pid = new Pid(heaterInputSensor, heater1, fridgeSet);
     heater1Pid->setName("heater1");
 
     coolerInputSensor = new TempSensorFallback(fridgeSensor, beer1Sensor);
-    coolerPid = new Pid(PtrLookup(coolerInputSensor), PtrLookup(cooler), PtrLookup(fridgeSet));
+    coolerPid = new Pid(coolerInputSensor, cooler, fridgeSet);
     coolerPid->setActuatorIsNegative(true);
     coolerPid->setName("cooler");
 
-    heater2Pid = new Pid(PtrLookup(beer2Sensor), PtrLookup(heater2), PtrLookup(beer2Set));
+    heater2Pid = new Pid(beer2Sensor, heater2, beer2Set);
     heater2Pid->setName("heater2");
 
-    beerToFridgePid = new Pid(PtrLookup(beer1Sensor), PtrLookup(fridgeSetPointActuator), PtrLookup(beer1Set));
+    beerToFridgePid = new Pid(beer1Sensor, fridgeSetPointActuator, beer1Set);
     beerToFridgePid->setName("beer2fridge");
 
     beer1Set->setName("beer1set");

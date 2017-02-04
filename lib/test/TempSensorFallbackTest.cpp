@@ -34,94 +34,83 @@ BOOST_AUTO_TEST_SUITE(TempSensorFallbackTest)
  */
 struct FallbackFixture{
 public:
-    FallbackFixture(){
-        beerSensor = new TempSensorMock(initialBeerTemp);
-        fridgeSensor = new TempSensorMock(initialFridgeTemp);
-        fridgeSensorWithFallback = new TempSensorFallback(PtrLookup(fridgeSensor), PtrLookup(beerSensor));
+    FallbackFixture() :
+        beerSensor(initialBeerTemp),
+        fridgeSensor(initialFridgeTemp),
+        fridgeSensorWithFallback(fridgeSensor, beerSensor)
+    {
     }
     ~FallbackFixture(){
-        BOOST_TEST_MESSAGE( "tear down PID test fixture" );
-        delete beerSensor;
-        delete fridgeSensor;
-        delete fridgeSensorWithFallback;
     }
 
-    TempSensorMock * beerSensor;
-    TempSensorMock * fridgeSensor;
-    TempSensorFallback * fridgeSensorWithFallback;
     temp_t const initialFridgeTemp = 20.0;
     temp_t const initialBeerTemp = 25.0;
+    TempSensorMock beerSensor;
+    TempSensorMock fridgeSensor;
+    TempSensorFallback fridgeSensorWithFallback;
 };
 
 
-BOOST_AUTO_TEST_CASE (fallback_sensor_without_arguments_defaults_to_default_sensor){
-    TempSensorInterface * s = new TempSensorFallback();
-    temp_t t = s->read();
-
-    BOOST_CHECK_EQUAL(t, temp_t::invalid());
-}
-
-
 BOOST_FIXTURE_TEST_CASE (fallback_sensor_returns_main_sensor_value, FallbackFixture){
-    temp_t t = fridgeSensorWithFallback->read();
-    BOOST_CHECK_EQUAL(t, temp_t(initialFridgeTemp));
+    temp_t t = fridgeSensorWithFallback.read();
+    BOOST_CHECK_EQUAL(t, initialFridgeTemp);
 
-    fridgeSensorWithFallback->update();
-    t = fridgeSensorWithFallback->read();
+    fridgeSensorWithFallback.update();
+    t = fridgeSensorWithFallback.read();
     BOOST_CHECK_EQUAL(t, temp_t(initialFridgeTemp)); // still on main sensor
 }
 
 
 BOOST_FIXTURE_TEST_CASE (fallback_sensor_returns_backup_when_main_is_disconnected, FallbackFixture){
-    temp_t t = fridgeSensorWithFallback->read();
+    temp_t t = fridgeSensorWithFallback.read();
     BOOST_CHECK_EQUAL(t, temp_t(initialFridgeTemp));
-    BOOST_CHECK(&fridgeSensorWithFallback->activeSensor() == fridgeSensor);
+    BOOST_CHECK(&fridgeSensorWithFallback.activeSensor() == &fridgeSensor);
 
-    fridgeSensor->setConnected(false);
-    t = fridgeSensorWithFallback->read();
+    fridgeSensor.setConnected(false);
+    t = fridgeSensorWithFallback.read();
     BOOST_CHECK_EQUAL(t, temp_t::invalid()); // still pointing at fridge temp, but now invalid
-    BOOST_CHECK(&fridgeSensorWithFallback->activeSensor() == fridgeSensor);
+    BOOST_CHECK(&fridgeSensorWithFallback.activeSensor() == &fridgeSensor);
 
-    fridgeSensorWithFallback->update();
-    t = fridgeSensorWithFallback->read();
+    fridgeSensorWithFallback.update();
+    t = fridgeSensorWithFallback.read();
     BOOST_CHECK_EQUAL(t, temp_t(initialBeerTemp)); // but not after update
-    BOOST_CHECK(&fridgeSensorWithFallback->activeSensor() == beerSensor);
+    BOOST_CHECK(&fridgeSensorWithFallback.activeSensor() == &beerSensor);
 }
 
 
 BOOST_FIXTURE_TEST_CASE (fallback_sensor_is_connected_when_main_or_backup_is_connected, FallbackFixture){
-    fridgeSensor->setConnected(true);
-    beerSensor->setConnected(true);
-    fridgeSensorWithFallback->update();
-    BOOST_CHECK(fridgeSensorWithFallback->isConnected());
+    fridgeSensor.setConnected(true);
+    beerSensor.setConnected(true);
+    fridgeSensorWithFallback.update();
+    BOOST_CHECK(fridgeSensorWithFallback.isConnected());
 
-    fridgeSensor->setConnected(true);
-    beerSensor->setConnected(false);
-    fridgeSensorWithFallback->update();
-    BOOST_CHECK(fridgeSensorWithFallback->isConnected());
+    fridgeSensor.setConnected(true);
+    beerSensor.setConnected(false);
+    fridgeSensorWithFallback.update();
+    BOOST_CHECK(fridgeSensorWithFallback.isConnected());
 
-    fridgeSensor->setConnected(false);
-    beerSensor->setConnected(true);
-    fridgeSensorWithFallback->update();
-    BOOST_CHECK(fridgeSensorWithFallback->isConnected());
+    fridgeSensor.setConnected(false);
+    beerSensor.setConnected(true);
+    fridgeSensorWithFallback.update();
+    BOOST_CHECK(fridgeSensorWithFallback.isConnected());
 
-    fridgeSensor->setConnected(false);
-    beerSensor->setConnected(false);
-    fridgeSensorWithFallback->update();
-    BOOST_CHECK(!fridgeSensorWithFallback->isConnected());
+    fridgeSensor.setConnected(false);
+    beerSensor.setConnected(false);
+    fridgeSensorWithFallback.update();
+    BOOST_CHECK(!fridgeSensorWithFallback.isConnected());
 }
 
 
 BOOST_FIXTURE_TEST_CASE (fallback_sensor_inits_active_sensor, FallbackFixture){
-    fridgeSensor->setConnected(false); // init of fridge sensor will return false now
-    bool successful_init = fridgeSensorWithFallback->init(); // will return false
+    fridgeSensor.setConnected(false); // init of fridge sensor will return false now
+    bool successful_init = fridgeSensorWithFallback.init(); // will return false
     BOOST_CHECK(!successful_init);
 
-    fridgeSensorWithFallback->update(); // this should switch to fallback sensor
-    successful_init = fridgeSensorWithFallback->init(); // will return true, because now beer sensor inits successfully
+    fridgeSensorWithFallback.update(); // this should switch to fallback sensor
+    successful_init = fridgeSensorWithFallback.init(); // will return true, because now beer sensor inits successfully
 
-    beerSensor->setConnected(false); // init of beer sensor will return false now too
-    successful_init = fridgeSensorWithFallback->init(); // will return false, because now beer sensor init fails
+    beerSensor.setConnected(false); // init of beer sensor will return false now too
+    successful_init = fridgeSensorWithFallback.init(); // will return false, because now beer sensor init fails
     BOOST_CHECK(!successful_init);
 }
 
@@ -132,36 +121,36 @@ BOOST_FIXTURE_TEST_CASE (fallback_sensor_log_messages, FallbackFixture){
     output = &test_stream; // redirect logger output to test stream
     // last argument to test stream functions sets to flush the stream after the call when true
 
-    fridgeSensorWithFallback->update();
+    fridgeSensorWithFallback.update();
     BOOST_CHECK(test_stream.is_empty());
 
-    fridgeSensor->setConnected(false);
-    fridgeSensorWithFallback->update();
+    fridgeSensor.setConnected(false);
+    fridgeSensorWithFallback.update();
     BOOST_CHECK(!test_stream.is_empty(false)); // update has generated a log message
     BOOST_CHECK(test_stream.is_equal("LOG MESSAGE: {W: 4, V: []}\n", true));
 
-    fridgeSensorWithFallback->update();
+    fridgeSensorWithFallback.update();
     BOOST_CHECK(test_stream.is_empty(false)); // no more messages are generated
 
-    fridgeSensor->setConnected(true);
-    fridgeSensorWithFallback->update();
+    fridgeSensor.setConnected(true);
+    fridgeSensorWithFallback.update();
     BOOST_CHECK(!test_stream.is_empty(false)); // when sensor comes back, a log message is generated
     BOOST_CHECK(test_stream.is_equal("LOG MESSAGE: {I: 21, V: []}\n", true));
 
-    fridgeSensor->setConnected(true);
-    fridgeSensorWithFallback->update();
+    fridgeSensor.setConnected(true);
+    fridgeSensorWithFallback.update();
     BOOST_CHECK(test_stream.is_empty(false)); // but only once
 
-    beerSensor->setConnected(false);
-    fridgeSensorWithFallback->update();
+    beerSensor.setConnected(false);
+    fridgeSensorWithFallback.update();
     BOOST_CHECK(test_stream.is_empty(false)); // disconnecting the backup sensor does not result in a message
 
-    fridgeSensor->setConnected(false);
-    fridgeSensorWithFallback->update();
+    fridgeSensor.setConnected(false);
+    fridgeSensorWithFallback.update();
     BOOST_CHECK(test_stream.is_empty(false)); // When backup is not connected, it is not used for fallback. No messages.
 
-    beerSensor->setConnected(true);
-    fridgeSensorWithFallback->update();
+    beerSensor.setConnected(true);
+    fridgeSensorWithFallback.update();
     BOOST_CHECK(!test_stream.is_empty(false)); // But when it becomes available, while the main sensor is still unavailable, it is used
     BOOST_CHECK(test_stream.is_equal("LOG MESSAGE: {W: 4, V: []}\n", true)); // and the correct message is logged
 

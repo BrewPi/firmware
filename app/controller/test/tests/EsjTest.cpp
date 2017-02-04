@@ -23,6 +23,7 @@
 #include "runner.h"
 #include <string>
 
+#include "TempSensorDelegate.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorMocks.h"
 #include "ActuatorTimeLimited.h"
@@ -30,7 +31,6 @@
 #include "ActuatorPwm.h"
 #include "ActuatorSetPoint.h"
 #include "TempSensorMock.h"
-#include "TempSensor.h"
 #include "Pid.h"
 #include "SetPoint.h"
 #include "Control.h"
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators) {
     //ActuatorBool * actBool = new ActuatorBool();
     //ActuatorTimeLimited * actTl = new ActuatorTimeLimited(actBool, 10, 20);
     ActuatorBool * boolAct1 = new ActuatorBool();
-    ActuatorMutexDriver * mutexAct1 = new ActuatorMutexDriver(PtrLookup(boolAct1));
+    ActuatorMutexDriver * mutexAct1 = new ActuatorMutexDriver(boolAct1);
     ActuatorPwm * act1 = new ActuatorPwm (mutexAct1, 20);
 
     std::string json = JSON::producer<ActuatorPwm>::convert(act1);
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
     ActuatorDigitalInterface* coolerPin = new ActuatorBool();
     ActuatorDigitalInterface* coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
     ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
-    ActuatorDigitalInterface* coolerMutex = new ActuatorMutexDriver(PtrLookup(coolerTimeLimited, mutex));
+    ActuatorDigitalInterface* coolerMutex = new ActuatorMutexDriver(coolerTimeLimited, mutex);
     ActuatorRangeInterface* cooler = new ActuatorPwm(coolerMutex, 600); // period 10 min
 
 
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
     ActuatorDigitalInterface * boolAct = new ActuatorBool();
     ActuatorRangeInterface * pwmAct = new ActuatorPwm(boolAct,4);
     SetPointInterface * sp = new SetPointSimple(20.0);
-    Pid * pid = new Pid(PtrLookup(sensor), PtrLookup(pwmAct), PtrLookup(sp));
+    Pid * pid = new Pid(sensor, pwmAct, sp);
 
     std::string json = JSON::producer<Pid>::convert(pid);
 

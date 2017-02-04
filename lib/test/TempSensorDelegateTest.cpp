@@ -1,5 +1,5 @@
 /*
-* Copyright 2015 BrewPi/Elco Jacobs.
+* Copyright 2017 BrewPi/Elco Jacobs.
 *
 * This file is part of BrewPi.
 *
@@ -19,10 +19,12 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include "TempSensorDelegate.h"
 #include "runner.h"
-#include "TempSensor.h"
 
-BOOST_AUTO_TEST_SUITE(TempSensorTest)
+// Todo
+
+BOOST_AUTO_TEST_SUITE(TempSensorDelegateTest)
 
 BOOST_AUTO_TEST_SUITE_END()
 
