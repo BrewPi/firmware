@@ -55,7 +55,7 @@ public:
     	v.visit(*this);
     }
 
-    void setActive(bool active, int8_t priority = 127) override final;    // returns new actuator state
+    void setActive(bool active, int8_t priority = 127) override final;
 
     bool isActive() const override final
     {

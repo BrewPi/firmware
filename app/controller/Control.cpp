@@ -35,109 +35,73 @@
 #include "json_writer.h"
 #include "VisitorCast.h"
 
-Control::Control()
+Control::Control() :
+    fridgeSensor(),
+    beer1Sensor(),
+    beer2Sensor(),
+    fridgeSensorWithFallback(fridgeSensor, beer1Sensor), // fall back to beer sensor if fridge sensor is unavailable
+    beer1Set(),
+    beer2Set(),
+    fridgeSet(),
+    mutex(),
+    coolerToggle(),
+    coolerTimeLimited(coolerToggle, 120, 180), // 2 min minOn time, 3 min minOff
+    coolerMutex(coolerTimeLimited, &mutex),
+    coolerPwm(coolerMutex, 1200), // period 20 min
+    coolerPid(fridgeSensorWithFallback, coolerPwm, fridgeSet),
+    heater1Toggle(),
+    heater1Mutex(heater1Toggle, &mutex),
+    heater1Pwm(heater1Mutex, 4), // period 4s
+    heater1Pid(fridgeSensorWithFallback, heater1Pwm, fridgeSet),
+    heater2Toggle(),
+    heater2Mutex(heater2Toggle, &mutex),
+    heater2Pwm(heater2Mutex, 4), // period 4s
+    heater2Pid(beer2Sensor, heater2Pwm, beer2Set),
+    fridgeSetPointActuator(fridgeSet, fridgeSensor, beer1Set),
+    beerToFridgePid(beer1Sensor, fridgeSetPointActuator, beer1Set)
 {
     // set up static devices for backwards compatibility with tempControl
-    beer1Sensor = new TempSensor(defaultTempSensor());
-    beer1Sensor->setName("beer1");
-    beer2Sensor = new TempSensor(defaultTempSensor());
-    beer2Sensor->setName("beer2");
-    fridgeSensor = new TempSensor(defaultTempSensor());
-    fridgeSensor->setName("fridge");
+    coolerPid.setActuatorIsNegative(true);
+    mutex.setDeadTime(1800000); // 30 minutes
+    fridgeSetPointActuator.setMin(-10.0);
+    fridgeSetPointActuator.setMax(10.0);
 
-    mutex = new ActuatorMutexGroup();
+    beer1Sensor.setName("beer1");
+    beer2Sensor.setName("beer2");
+    fridgeSensor.setName("fridge");
+    coolerToggle.setName("cooler");
+    heater1Toggle.setName("heater1");
+    heater2Toggle.setName("heater2");
+    heater1Pid.setName("heater1pid");
+    heater2Pid.setName("heater2pid");
+    coolerPid.setName("coolerpid");
+    beerToFridgePid.setName("beer2fridgepid");
+    beer1Set.setName("beer1set");
+    beer2Set.setName("beer2set");
+    fridgeSet.setName("fridgeset");
 
-    heater1Mutex = new ActuatorMutexDriver(defaultActuator(), mutex);
-    heater1 = new ActuatorPwm(heater1Mutex, 4); // period 4s
+    objects.push_back(&fridgeSensor);
+    objects.push_back(&beer1Sensor);
+    objects.push_back(&beer2Sensor);
+    objects.push_back(&fridgeSensorWithFallback);
 
-    heater2Mutex = new ActuatorMutexDriver(defaultActuator(), mutex);
-    heater2 = new ActuatorPwm(heater2Mutex, 4); // period 4s
+    objects.push_back(&beer1Set);
+    objects.push_back(&beer2Set);
+    objects.push_back(&fridgeSet);
 
-    coolerTimeLimited = new ActuatorTimeLimited(defaultActuator(), 120, 180); // 2 min minOn time, 3 min minOff
-    coolerMutex = new ActuatorMutexDriver(coolerTimeLimited, mutex);
-    cooler = new ActuatorPwm(coolerMutex, 1200); // period 20 min
+    objects.push_back(&mutex);
 
-    beer1Set = new SetPointSimple();
-    beer2Set = new SetPointSimple();
-    fridgeSet = new SetPointSimple();
+    objects.push_back(&heater1Pid);
+    objects.push_back(&heater2Pid);
+    objects.push_back(&coolerPid);
+    objects.push_back(&beerToFridgePid);
 
-    fridgeSetPointActuator = new ActuatorSetPoint(fridgeSet, fridgeSensor, beer1Set);
-    fridgeSetPointActuator->setMin(-10.0);
-    fridgeSetPointActuator->setMax(10.0);
-
-    heaterInputSensor = new TempSensorFallback(fridgeSensor, beer1Sensor);
-    heater1Pid = new Pid(heaterInputSensor, heater1, fridgeSet);
-    heater1Pid->setName("heater1");
-
-    coolerInputSensor = new TempSensorFallback(fridgeSensor, beer1Sensor);
-    coolerPid = new Pid(coolerInputSensor, cooler, fridgeSet);
-    coolerPid->setActuatorIsNegative(true);
-    coolerPid->setName("cooler");
-
-    heater2Pid = new Pid(beer2Sensor, heater2, beer2Set);
-    heater2Pid->setName("heater2");
-
-    beerToFridgePid = new Pid(beer1Sensor, fridgeSetPointActuator, beer1Set);
-    beerToFridgePid->setName("beer2fridge");
-
-    beer1Set->setName("beer1set");
-    beer2Set->setName("beer2set");
-    fridgeSet->setName("fridgeset");
-
-    objects.push_back(heater1Pid);
-    objects.push_back(heater2Pid);
-    objects.push_back(coolerPid);
-    objects.push_back(beerToFridgePid);
-
-    objects.push_back(fridgeSensor);
-    objects.push_back(beer1Sensor);
-    objects.push_back(beer2Sensor);
-    objects.push_back(coolerInputSensor);
-    objects.push_back(heaterInputSensor);
-
-    objects.push_back(cooler);
-    objects.push_back(heater1);
-    objects.push_back(heater2);
-
-    objects.push_back(beer1Set);
-    objects.push_back(beer2Set);
-    objects.push_back(fridgeSet);
-
-    objects.push_back(mutex);
-
-    mutex->setDeadTime(1800000); // 30 minutes
+    objects.push_back(&coolerPwm);
+    objects.push_back(&heater1Pwm);
+    objects.push_back(&heater2Pwm);
 }
 
 Control::~Control(){
-#if defined(ARDUINO) || defined(SPARK)
-    // global control object is static and never destroyed.
-    // omit proper destructor to save space.
-#else
-    delete heater1Mutex;
-    delete heater1;
-
-    delete heater2Mutex;
-    delete heater2;
-
-    delete coolerTimeLimited;
-    delete coolerMutex;
-    delete cooler;
-
-    delete fridgeSetPointActuator;
-
-    delete beer1Set;
-    delete beer2Set;
-    delete fridgeSet;
-
-    delete mutex;
-
-    delete heater1Pid;
-    delete heater2Pid;
-    delete coolerPid;
-    delete beerToFridgePid;
-
-    objects.clear();
-#endif
 }
 
 // This update function should be called every second

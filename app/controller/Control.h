@@ -23,7 +23,6 @@
 
 #include <vector>
 
-#include "TempSensorDelegate.h"
 #include "Pid.h"
 #include "ActuatorInterfaces.h"
 #include "TempSensorFallback.h"
@@ -33,6 +32,9 @@
 #include "ActuatorMutexGroup.h"
 #include "json_writer.h"
 #include "ActuatorSetPoint.h"
+#include "TempSensorDelegate.h"
+#include "ActuatorToggleDelegate.h"
+
 
 
 class Control
@@ -51,35 +53,35 @@ public:
 
     // static setup below, we should support generating this dynamically later
 protected:
-    TempSensor * fridgeSensor;
-    TempSensor * beer1Sensor;
-    TempSensor * beer2Sensor;
+    TempSensorDelegate fridgeSensor;
+    TempSensorDelegate beer1Sensor;
+    TempSensorDelegate beer2Sensor;
+    TempSensorFallback fridgeSensorWithFallback;
+    SetPointSimple beer1Set;
+    SetPointSimple beer2Set;
+    SetPointSimple fridgeSet;
+    ActuatorMutexGroup mutex;
 
-    TempSensorFallback * heaterInputSensor;
-    TempSensorFallback * coolerInputSensor;
 
-    ActuatorTimeLimited * coolerTimeLimited;
-    ActuatorMutexDriver * coolerMutex;
-    ActuatorPwm * cooler;
+    ActuatorToggleDelegate coolerToggle;
+    ActuatorTimeLimited coolerTimeLimited;
+    ActuatorMutexDriver coolerMutex;
+    ActuatorPwm coolerPwm;
+    Pid coolerPid;
 
-    ActuatorMutexDriver * heater1Mutex;
-    ActuatorPwm * heater1;
+    ActuatorToggleDelegate heater1Toggle;
+    ActuatorMutexDriver heater1Mutex;
+    ActuatorPwm heater1Pwm;
+    Pid heater1Pid;
 
-    ActuatorMutexDriver * heater2Mutex;
-    ActuatorPwm * heater2;
+    ActuatorToggleDelegate heater2Toggle;
+    ActuatorMutexDriver heater2Mutex;
+    ActuatorPwm heater2Pwm;
+    Pid heater2Pid;
 
-    ActuatorSetPoint * fridgeSetPointActuator;
+    ActuatorSetPoint fridgeSetPointActuator;
+    Pid beerToFridgePid;
 
-    ActuatorMutexGroup * mutex;
-
-    Pid * heater1Pid;
-    Pid * heater2Pid;
-    Pid * coolerPid;
-    Pid * beerToFridgePid;
-
-    SetPointSimple * beer1Set;
-    SetPointSimple * beer2Set;
-    SetPointSimple * fridgeSet;
 
     friend class TempControl;
     friend class DeviceManager;

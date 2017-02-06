@@ -44,13 +44,16 @@ public:
     void visit(SetPointConstant& thisRef) final;
     void visit(SetPointMinMax& thisRef) final;
     void visit(SetPointSimple& thisRef) final;
-    void visit(TempSensor& thisRef) final;
     void visit(TempSensorDisconnected& thisRef) final;
     void visit(TempSensorExternal& thisRef) final;
     void visit(TempSensorFallback& thisRef) final;
     void visit(TempSensorMock& thisRef) final;
     void visit(OneWireTempSensor& thisRef) final;
     void visit(ValveController& thisRef) final;
+    void visit(TempSensorDelegate& thisRef) final;
+    void visit(ActuatorToggleDelegate& thisRef) final;
+    void visit(ActuatorRangeDelegate& thisRef) final;
+    void visit(SetPointDelegate& thisRef) final;
 #if WIRING
     void visit(ActuatorPin& thisRef) final;
 #endif

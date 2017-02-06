@@ -15,7 +15,6 @@ class PidMixin {};
 class OneWireTempSensorMixin {};
 class TempSensorDisconnectedMixin {};
 class TempSensorExternalMixin {};
-class ActuatorForwarderMixin {};
 class ActuatorTimeLimitedMixin {};
 class ActuatorSetPointMixin {};
 class ActuatorPwmMixin {};

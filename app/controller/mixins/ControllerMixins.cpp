@@ -22,7 +22,6 @@
 
 #include "ControllerMixins.h"
 
-#include "TempSensorDelegate.h"
 #include "Pid.h"
 #include "TempSensorInterface.h"
 #include "TempSensorMock.h"
@@ -40,6 +39,10 @@
 #include "VisitorSerialize.h"
 #include "ActuatorOneWire.h"
 #include "ValveController.h"
+#include "TempSensorDelegate.h"
+#include "ActuatorToggleDelegate.h"
+#include "ActuatorRangeDelegate.h"
+#include "SetPointDelegate.h"
 
 #if WIRING
 #include "ActuatorPin.h"
@@ -68,10 +71,8 @@ void PidMixin::serializeImpl(JSON::Adapter & adapter)
     std::string name(getName());    // get name as std string for json_writer
     JSON_E(adapter, name);
     JSON_OE(adapter, enabled);
-    Interface & setPoint = obj->setPoint();
-    JSON_E(adapter, setPoint);
-    TempSensorInterface & input = obj->input();
-    JSON_E(adapter, input);
+    JSON_OE(adapter, setPoint);
+    JSON_OE(adapter, input);
     JSON_OE(adapter, inputError);
     JSON_OE(adapter, Kp);
     JSON_OE(adapter, Ti);
@@ -80,18 +81,7 @@ void PidMixin::serializeImpl(JSON::Adapter & adapter)
     JSON_OE(adapter, i);
     JSON_OE(adapter, d);
     JSON_OE(adapter, actuatorIsNegative);
-    ActuatorRangeInterface& output = obj->output();
-    JSON_T(adapter, output);
-}
-
-void TempSensorDelegateMixin::serializeImpl(JSON::Adapter & adapter)
-{
-    TempSensor * obj = static_cast<TempSensor *>(this);
-
-    JSON::Class root(adapter, "TempSensor");
-    std::string name(getName());    // get name as std string for json_writer
-    JSON_E(adapter, name);
-    JSON_OT(adapter, sensor);
+    JSON_OT(adapter, output);
 }
 
 void TempSensorMockMixin::serializeImpl(JSON::Adapter & adapter)
@@ -151,7 +141,7 @@ void TempSensorFallbackMixin::serializeImpl(JSON::Adapter & adapter)
 
     JSON::Class root(adapter, "TempSensorFallback");
     JSON_OE(adapter, onBackupSensor);
-    TempSensorInterface * sensor = obj->activeSensor();
+    TempSensorInterface & sensor = obj->activeSensor();
     JSON_T(adapter, sensor);
 }
 
@@ -330,5 +320,49 @@ void SetPointMinMaxMixin::serializeImpl(JSON::Adapter & adapter)
     JSON_OE(adapter, value);
     JSON_OE(adapter, min);
     JSON_OT(adapter, max);
+}
+
+void TempSensorDelegateMixin::serializeImpl(JSON::Adapter & adapter)
+{
+    TempSensorDelegate * obj = static_cast<TempSensorDelegate *>(this);
+
+    JSON::Class root(adapter, "TempSensorDelegate");
+    std::string name(getName());    // get name as std string for json_writer
+    JSON_E(adapter, name);
+    Interface & sensor = obj->sensor();
+    JSON_T(adapter, sensor);
+}
+
+void ActuatorToggleDelegateMixin::serializeImpl(JSON::Adapter & adapter)
+{
+    ActuatorToggleDelegate * obj = static_cast<ActuatorToggleDelegate *>(this);
+
+    JSON::Class root(adapter, "ActuatorToggleDelegate");
+    std::string name(getName());    // get name as std string for json_writer
+    JSON_E(adapter, name);
+    Interface & actuator = obj->actuator();
+    JSON_T(adapter, actuator);
+}
+
+void ActuatorRangeDelegateMixin::serializeImpl(JSON::Adapter & adapter)
+{
+    ActuatorRangeDelegate * obj = static_cast<ActuatorRangeDelegate *>(this);
+
+    JSON::Class root(adapter, "ActuatorRangeDelegate");
+    std::string name(getName());    // get name as std string for json_writer
+    JSON_E(adapter, name);
+    Interface & actuator = obj->actuator();
+    JSON_T(adapter, actuator);
+}
+
+void SetPointDelegateMixin::serializeImpl(JSON::Adapter & adapter)
+{
+    SetPointDelegate * obj = static_cast<SetPointDelegate *>(this);
+
+    JSON::Class root(adapter, "SetPointDelegate");
+    std::string name(getName());    // get name as std string for json_writer
+    JSON_E(adapter, name);
+    Interface & setpoint = obj->setpoint();
+    JSON_T(adapter, setpoint);
 }
 

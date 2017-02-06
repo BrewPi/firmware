@@ -25,8 +25,9 @@
 #include "RefTo.h"
 
 
-class ActuatorToggleDelegate : public virtual ActuatorDigitalInterface
-    , public virtual ActuatorToggleDelegateMixin
+class ActuatorToggleDelegate :
+    public virtual ActuatorDigitalInterface,
+    public ActuatorToggleDelegateMixin
 {
 public:
     ActuatorToggleDelegate() = default;
@@ -49,6 +50,14 @@ public:
 
     void accept(VisitorBase & v) final {
         v.visit(*this);
+    }
+
+    void update() final {
+        actuator().update();
+    }
+
+    void fastUpdate() final {
+        actuator().fastUpdate();
     }
 
     void setActive(bool active, int8_t priority = 127) final {

@@ -39,7 +39,6 @@ class Pid;
 class SetPointConstant;
 class SetPointMinMax;
 class SetPointSimple;
-class TempSensor;
 class TempSensorDisconnected;
 class TempSensorExternal;
 class TempSensorFallback;

@@ -24,8 +24,9 @@
 #include "Interface.h"
 #include "RefTo.h"
 
-class SetPointDelegate : public virtual SetPointInterface
-    , public virtual SetPointDelegateMixin
+class SetPointDelegate :
+    public virtual SetPointInterface,
+    public SetPointDelegateMixin
 {
 public:
     SetPointDelegate() = default;

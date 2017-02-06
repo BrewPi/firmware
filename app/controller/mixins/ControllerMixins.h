@@ -3,7 +3,6 @@
 #include "VisitorBase.h"
 #include "json_adapter.h"
 #include "Nameable.h"
-#include "ActuatorInstallHelper.h"
 /*
  * Using protected non-virtual destructors to prevent destruction through base class
  */
@@ -16,20 +15,16 @@ public:
     void serialize(JSON::Adapter& adapter);
 };
 
-class ActuatorInterfaceMixin :
-    public virtual ActuatorInstallHelper
+class ActuatorInterfaceMixin
 {
 protected:
     ~ActuatorInterfaceMixin() = default;
 };
 
-
-
 class ActuatorDigitalInterfaceMixin {
 protected:
     ~ActuatorDigitalInterfaceMixin() = default;
 };
-
 
 class ActuatorRangeInterfaceMixin {
 protected:
@@ -51,13 +46,6 @@ public:
     void serializeImpl(JSON::Adapter& adapter);
 protected:
     ~TempSensorMockMixin() = default;
-};
-
-class TempSensorDelegateMixin: public Nameable {
-public:
-    void serializeImpl(JSON::Adapter& adapter);
-protected:
-    ~TempSensorDelegateMixin() = default;
 };
 
 class TempSensorFallbackMixin {
@@ -93,12 +81,6 @@ public:
     void serializeImpl(JSON::Adapter& adapter);
 protected:
     ~TempSensorExternalMixin() = default;
-};
-
-
-class ActuatorForwarderMixin: public ActuatorInstallHelperForwarder {
-protected:
-    ~ActuatorForwarderMixin() = default;
 };
 
 class ActuatorTimeLimitedMixin {
@@ -211,5 +193,30 @@ protected:
     ~ActuatorOneWireMixin() = default;
 };
 
+class TempSensorDelegateMixin: public Nameable {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~TempSensorDelegateMixin() = default;
+};
 
+class ActuatorToggleDelegateMixin: public Nameable {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~ActuatorToggleDelegateMixin() = default;
+};
 
+class ActuatorRangeDelegateMixin: public Nameable {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~ActuatorRangeDelegateMixin() = default;
+};
+
+class SetPointDelegateMixin: public Nameable {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~SetPointDelegateMixin() = default;
+};

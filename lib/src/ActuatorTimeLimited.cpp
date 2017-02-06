@@ -40,7 +40,7 @@ void ActuatorTimeLimited::setActive(bool newState, int8_t priority)
     }
 
     if (oldState != newState){
-        target.setActive(newState);
+        target.setActive(newState, priority);
         state = target.isActive();
 
         if(oldState != state){

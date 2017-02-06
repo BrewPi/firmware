@@ -239,9 +239,9 @@ void TempControl::updateConstants()
     control.beerToFridgePid->Ti = cc.beer2fridge_ti;
     control.beerToFridgePid->Td = cc.beer2fridge_td;
 
-    control.cooler->setPeriod(cc.coolerPwmPeriod);
-    control.heater1->setPeriod(cc.heater1PwmPeriod);
-    control.heater2->setPeriod(cc.heater2PwmPeriod);
+    control.coolerPwm->setPeriod(cc.coolerPwmPeriod);
+    control.heater1Pwm->setPeriod(cc.heater1PwmPeriod);
+    control.heater2Pwm->setPeriod(cc.heater2PwmPeriod);
 
     control.coolerTimeLimited->setTimes(cc.minCoolTime, cc.minCoolIdleTime);
 

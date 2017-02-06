@@ -19,7 +19,6 @@
 
 #include "VisitorSerialize.h"
 
-#include "TempSensorDelegate.h"
 #include "Platform.h"
 
 #include "ActuatorMocks.h"
@@ -38,6 +37,10 @@
 #include "ActuatorSetPoint.h"
 #include "OneWireTempSensor.h"
 #include "ValveController.h"
+#include "TempSensorDelegate.h"
+#include "ActuatorToggleDelegate.h"
+#include "ActuatorRangeDelegate.h"
+#include "SetPointDelegate.h"
 
 #if WIRING
 #include "ActuatorPin.h"
@@ -85,9 +88,6 @@ void VisitorSerialize::visit(SetPointMinMax& thisRef) {
 void VisitorSerialize::visit(SetPointSimple& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void VisitorSerialize::visit(TempSensor& thisRef) {
-    thisRef.serializeImpl(adapter);
-}
 void VisitorSerialize::visit(TempSensorDisconnected& thisRef) {
     thisRef.serializeImpl(adapter);
 }
@@ -106,6 +106,19 @@ void VisitorSerialize::visit(OneWireTempSensor& thisRef) {
 void VisitorSerialize::visit(ValveController& thisRef) {
     thisRef.serializeImpl(adapter);
 }
+void VisitorSerialize::visit(TempSensorDelegate& thisRef) {
+    thisRef.serializeImpl(adapter);
+}
+void VisitorSerialize::visit(ActuatorToggleDelegate& thisRef) {
+    thisRef.serializeImpl(adapter);
+}
+void VisitorSerialize::visit(ActuatorRangeDelegate& thisRef) {
+    thisRef.serializeImpl(adapter);
+}
+void VisitorSerialize::visit(SetPointDelegate& thisRef) {
+    thisRef.serializeImpl(adapter);
+}
+
 #if WIRING
 void VisitorSerialize::visit(ActuatorPin& thisRef) {
     thisRef.serializeImpl(adapter);
