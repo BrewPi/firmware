@@ -41,19 +41,38 @@ extern template ActuatorRangeInterface* asInterface<ActuatorRangeInterface>(Inte
 extern template TempSensorInterface* asInterface<TempSensorInterface>(Interface*);
 extern template SetPointInterface* asInterface<SetPointInterface>(Interface*);
 
-template<class T>
-class RefTo {
-public:
-    RefTo(){};
-    RefTo(std::function<Interface* ()> lookup) : lookup(std::move(lookup)){};
-    ~RefTo() = default;
 
+class RefToGeneric {
+public:
+    RefToGeneric(){};
+    RefToGeneric(std::function<Interface* ()> lookup) : lookup(std::move(lookup)){};
+    ~RefToGeneric() = default;
     void setLookup(std::function<Interface* ()> newLookup){
         lookup = newLookup;
     }
     std::function<Interface* ()>  getLookup(){
         return lookup;
     }
+    Interface* get() const {
+        return lookup();
+    }
+    Interface& operator()() const {
+        return *get();
+    }
+
+protected:
+    // callable loopup object, must implement () operator
+    // and hold information required for lookup
+    std::function<Interface* ()> lookup;
+};
+
+template<class T>
+class RefTo : public RefToGeneric {
+public:
+    RefTo(){};
+    RefTo(std::function<Interface* ()> lookup) : RefToGeneric(lookup){};
+    ~RefTo() = default;
+
 
     T* get() const {
         T* specializedTarget = nullptr;
@@ -69,11 +88,6 @@ public:
     T& operator()() const {
         return *get();
     }
-
-private:
-    // callable loopup object, must implement () operator
-    // and hold information required for lookup
-    std::function<Interface* ()> lookup;
 };
 
 // simple lookup class that just keeps a pointer to its target
