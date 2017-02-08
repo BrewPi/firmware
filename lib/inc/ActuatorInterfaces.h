@@ -23,7 +23,6 @@
 #include <stdint.h>
 #include "ControllerMixins.h"
 #include "temperatureFormats.h"
-#include "fixstl.h" // removes min/max macros defined in Arduino.h
 #include "Interface.h"
 
 /*

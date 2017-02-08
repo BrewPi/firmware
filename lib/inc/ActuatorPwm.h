@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include <stdint.h>
 #include "ActuatorInterfaces.h"
 #include "Ticks.h"
 #include <stdint.h>
