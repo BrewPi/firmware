@@ -45,7 +45,7 @@ class TempSensorFallback;
 class TempSensorMock;
 class ValveController;
 class TempSensorDelegate;
-class ActuatorToggleDelegate;
+class ActuatorDigitalDelegate;
 class ActuatorAnalogDelegate;
 class SetPointDelegate;
 
@@ -75,7 +75,7 @@ public:
 	virtual void visit(OneWireTempSensor& thisRef) = 0;
 	virtual void visit(ValveController& thisRef) = 0;
 	virtual void visit(TempSensorDelegate& thisRef) = 0;
-	virtual void visit(ActuatorToggleDelegate& thisRef) = 0;
+	virtual void visit(ActuatorDigitalDelegate& thisRef) = 0;
 	virtual void visit(ActuatorAnalogDelegate& thisRef) = 0;
 	virtual void visit(SetPointDelegate& thisRef) = 0;
 #if WIRING

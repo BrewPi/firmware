@@ -25,16 +25,16 @@
 #include "RefTo.h"
 
 
-class ActuatorToggleDelegate :
+class ActuatorDigitalDelegate :
     public virtual ActuatorDigital,
-    public ActuatorToggleDelegateMixin
+    public ActuatorDigitalDelegateMixin
 {
 public:
-    ActuatorToggleDelegate() = default;
-    ActuatorToggleDelegate(std::function<Interface * ()> lookup) {
+    ActuatorDigitalDelegate() = default;
+    ActuatorDigitalDelegate(std::function<Interface * ()> lookup) {
         actuator.setLookup(lookup);
     }
-    virtual ~ActuatorToggleDelegate() = default;
+    virtual ~ActuatorDigitalDelegate() = default;
 
     void setLookup(std::function<Interface* ()> lookup) {
         actuator.setLookup(lookup);
@@ -71,5 +71,5 @@ public:
 private:
     RefTo<ActuatorDigital> actuator;
 
-    friend class ActuatorToggleDelegateMixin;
+    friend class ActuatorDigitalDelegateMixin;
 };

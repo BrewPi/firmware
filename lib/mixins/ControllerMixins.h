@@ -31,6 +31,6 @@ class ActuatorPinMixin {};
 class ValveControllerMixin {};
 class ActuatorOneWireMixin {};
 class TempSensorDelegateMixin {};
-class ActuatorToggleDelegateMixin {};
+class ActuatorDigitalDelegateMixin {};
 class ActuatorAnalogDelegateMixin {};
 class SetPointDelegateMixin {};

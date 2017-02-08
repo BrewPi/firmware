@@ -194,11 +194,11 @@ protected:
     ~TempSensorDelegateMixin() = default;
 };
 
-class ActuatorToggleDelegateMixin: public Nameable {
+class ActuatorDigitalDelegateMixin: public Nameable {
 public:
     void serializeImpl(JSON::Adapter& adapter);
 protected:
-    ~ActuatorToggleDelegateMixin() = default;
+    ~ActuatorDigitalDelegateMixin() = default;
 };
 
 class ActuatorAnalogDelegateMixin: public Nameable {

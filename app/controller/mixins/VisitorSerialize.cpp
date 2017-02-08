@@ -38,7 +38,7 @@
 #include "OneWireTempSensor.h"
 #include "ValveController.h"
 #include "TempSensorDelegate.h"
-#include "ActuatorToggleDelegate.h"
+#include "ActuatorDigitalDelegate.h"
 #include "ActuatorAnalogDelegate.h"
 #include "SetPointDelegate.h"
 
@@ -109,7 +109,7 @@ void VisitorSerialize::visit(ValveController& thisRef) {
 void VisitorSerialize::visit(TempSensorDelegate& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void VisitorSerialize::visit(ActuatorToggleDelegate& thisRef) {
+void VisitorSerialize::visit(ActuatorDigitalDelegate& thisRef) {
     thisRef.serializeImpl(adapter);
 }
 void VisitorSerialize::visit(ActuatorAnalogDelegate& thisRef) {

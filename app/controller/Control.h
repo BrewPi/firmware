@@ -33,7 +33,7 @@
 #include "json_writer.h"
 #include "ActuatorSetPoint.h"
 #include "TempSensorDelegate.h"
-#include "ActuatorToggleDelegate.h"
+#include "ActuatorDigitalDelegate.h"
 
 
 
@@ -64,18 +64,18 @@ protected:
     ActuatorMutexGroup mutex;
 
 
-    ActuatorToggleDelegate coolerToggle;
+    ActuatorDigitalDelegate coolerToggle;
     ActuatorTimeLimited coolerTimeLimited;
     ActuatorMutexDriver coolerMutex;
     ActuatorPwm coolerPwm;
     Pid coolerPid;
 
-    ActuatorToggleDelegate heater1Toggle;
+    ActuatorDigitalDelegate heater1Toggle;
     ActuatorMutexDriver heater1Mutex;
     ActuatorPwm heater1Pwm;
     Pid heater1Pid;
 
-    ActuatorToggleDelegate heater2Toggle;
+    ActuatorDigitalDelegate heater2Toggle;
     ActuatorMutexDriver heater2Mutex;
     ActuatorPwm heater2Pwm;
     Pid heater2Pid;

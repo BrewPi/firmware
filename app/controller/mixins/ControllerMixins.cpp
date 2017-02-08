@@ -40,7 +40,7 @@
 #include "ActuatorOneWire.h"
 #include "ValveController.h"
 #include "TempSensorDelegate.h"
-#include "ActuatorToggleDelegate.h"
+#include "ActuatorDigitalDelegate.h"
 #include "ActuatorAnalogDelegate.h"
 #include "SetPointDelegate.h"
 
@@ -333,11 +333,11 @@ void TempSensorDelegateMixin::serializeImpl(JSON::Adapter & adapter)
     JSON_T(adapter, sensor);
 }
 
-void ActuatorToggleDelegateMixin::serializeImpl(JSON::Adapter & adapter)
+void ActuatorDigitalDelegateMixin::serializeImpl(JSON::Adapter & adapter)
 {
-    ActuatorToggleDelegate * obj = static_cast<ActuatorToggleDelegate *>(this);
+    ActuatorDigitalDelegate * obj = static_cast<ActuatorDigitalDelegate *>(this);
 
-    JSON::Class root(adapter, "ActuatorToggleDelegate");
+    JSON::Class root(adapter, "ActuatorDigitalDelegate");
     std::string name(getName());    // get name as std string for json_writer
     JSON_E(adapter, name);
     Interface & actuator = obj->actuator();
