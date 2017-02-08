@@ -20,10 +20,10 @@
 
 #pragma once
 
-#include "TempSensorInterface.h"
+#include "TempSensor.h"
 #include "ControllerMixins.h"
 
-class TempSensorDisconnected final : public TempSensorInterface, public TempSensorDisconnectedMixin {
+class TempSensorDisconnected final : public TempSensor, public TempSensorDisconnectedMixin {
 	
 public:
     void accept(VisitorBase & v) final{

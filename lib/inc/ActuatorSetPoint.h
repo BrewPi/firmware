@@ -21,7 +21,7 @@
 
 #include "ActuatorInterfaces.h"
 #include "SetPoint.h"
-#include "TempSensorInterface.h"
+#include "TempSensor.h"
 #include "defaultDevices.h"
 #include "ControllerMixins.h"
 #include "RefTo.h"
@@ -29,12 +29,12 @@
 /*
  * A linear actuator that sets a setpoint to reference setpoint + actuator value
  */
-class ActuatorSetPoint final : public ActuatorRangeInterface, public ActuatorSetPointMixin
+class ActuatorSetPoint final : public ActuatorRange, public ActuatorSetPointMixin
 {
 public:
-    ActuatorSetPoint(SetPointInterface & _targSetPoint, // set point to manipulate
-                     TempSensorInterface & _targSensor, // sensor to go with target setpoint
-                     SetPointInterface & _refSetPoint, //set point to offset from
+    ActuatorSetPoint(SetPoint & _targSetPoint, // set point to manipulate
+                     TempSensor & _targSensor, // sensor to go with target setpoint
+                     SetPoint & _refSetPoint, //set point to offset from
                      temp_t _min = temp_t::min(), // minimum actuator value (targ - ref)
                      temp_t _max = temp_t::max()) :  // maximum actuator value
         targetSetPoint(_targSetPoint),
@@ -101,9 +101,9 @@ public:
     void fastUpdate() override final {}; //no actions required
 
 private:
-    SetPointInterface & targetSetPoint;
-    TempSensorInterface & targetSensor;
-    SetPointInterface & referenceSetPoint;
+    SetPoint & targetSetPoint;
+    TempSensor & targetSensor;
+    SetPoint & referenceSetPoint;
     temp_t minimum;
     temp_t maximum;
 

@@ -23,7 +23,7 @@
 
 #include "temperatureFormats.h"
 #include "FilterCascaded.h"
-#include "TempSensorInterface.h"
+#include "TempSensor.h"
 #include "ActuatorInterfaces.h"
 #include "SetPoint.h"
 #include "defaultDevices.h"
@@ -35,9 +35,9 @@ class Pid final : public ControllerInterface, public PidMixin
 {
 
     public:
-        Pid(TempSensorInterface & _input,
-            ActuatorRangeInterface & _output,
-            SetPointInterface & _setPoint);
+        Pid(TempSensor & _input,
+            ActuatorRange & _output,
+            SetPoint & _setPoint);
         ~Pid() = default;
 
         /**
@@ -96,9 +96,9 @@ class Pid final : public ControllerInterface, public PidMixin
         */
 
     protected:
-        TempSensorInterface & input;
-        ActuatorRangeInterface & output;
-        SetPointInterface & setPoint;
+        TempSensor & input;
+        ActuatorRange & output;
+        SetPoint & setPoint;
         temp_long_t       Kp;    // proportional gain
         uint16_t          Ti;    // integral time constant
         uint16_t          Td;    // derivative time constant

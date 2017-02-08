@@ -15,24 +15,24 @@ public:
     void serialize(JSON::Adapter& adapter);
 };
 
-class ActuatorDigitalInterfaceMixin {
+class ActuatorDigitalMixin {
 protected:
-    ~ActuatorDigitalInterfaceMixin() = default;
+    ~ActuatorDigitalMixin() = default;
 };
 
-class ActuatorRangeInterfaceMixin {
+class ActuatorRangeMixin {
 protected:
-    ~ActuatorRangeInterfaceMixin() = default;
+    ~ActuatorRangeMixin() = default;
 };
 
-class ActuatorThresholdInterfaceMixin {
+class ActuatorThresholdMixin {
 protected:
-    ~ActuatorThresholdInterfaceMixin() = default;
+    ~ActuatorThresholdMixin() = default;
 };
 
-class TempSensorInterfaceMixin {
+class TempSensorMixin {
 protected:
-    ~TempSensorInterfaceMixin() = default;
+    ~TempSensorMixin() = default;
 };
 
 class TempSensorMockMixin {
@@ -140,9 +140,9 @@ protected:
     ~ActuatorInvalidMixin() = default;
 };
 
-class SetPointInterfaceMixin {
+class SetPointMixin {
 protected:
-    ~SetPointInterfaceMixin() = default;
+    ~SetPointMixin() = default;
 };
 
 class SetPointSimpleMixin: public Nameable {

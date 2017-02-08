@@ -26,7 +26,7 @@
 #include "Platform.h"
 #include "ActuatorInterfaces.h"
 #include "Sensor.h"
-#include "TempSensorInterface.h"
+#include "TempSensor.h"
 #include "Board.h"
 #include "OneWire.h"
 #include "OneWireAddress.h"

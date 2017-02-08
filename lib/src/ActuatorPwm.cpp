@@ -4,7 +4,7 @@
 #include "Ticks.h"
 #include "ActuatorMutexDriver.h"
 
-ActuatorPwm::ActuatorPwm(ActuatorDigitalInterface & _target, uint16_t _period) :
+ActuatorPwm::ActuatorPwm(ActuatorDigital & _target, uint16_t _period) :
     target(_target),
     value(0.0),
     dutyLate(0),

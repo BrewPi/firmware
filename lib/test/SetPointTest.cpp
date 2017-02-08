@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(init_write_read){
 }
 
 BOOST_AUTO_TEST_CASE(default_setpoint_is_immutable){
-    SetPointInterface * sp = defaultSetPoint();
+    SetPoint * sp = defaultSetPoint();
 
     BOOST_REQUIRE_EQUAL(sp->read(), temp_t::invalid()); // value is 'disabled'
     sp->write(temp_t(21.1));

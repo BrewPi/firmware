@@ -28,7 +28,7 @@
 /*
  * A range actuator that simply remembers the set value. This is primary used for testing.
  */
-class ActuatorValue final : public ActuatorRangeInterface, public ActuatorValueMixin
+class ActuatorValue final : public ActuatorRange, public ActuatorValueMixin
 {
 public:
     // construct without arguments, val = invalid, min and max are defaults
@@ -88,7 +88,7 @@ friend class ActuatorValueMixin;
 /*
  * An toggle actuator that simply remembers a true/false set value. This is primary used for testing.
  */
-class ActuatorBool final : public ActuatorDigitalInterface, public ActuatorBoolMixin
+class ActuatorBool final : public ActuatorDigital, public ActuatorBoolMixin
 {
 public:
     ActuatorBool() : state(false) {}
@@ -115,7 +115,7 @@ friend class ActuatorBoolMixin;
 /*
  * An digital actuators that does absolutely nothing. Used as default actuator
  */
-class ActuatorNop final : public ActuatorDigitalInterface, public ActuatorNopMixin
+class ActuatorNop final : public ActuatorDigital, public ActuatorNopMixin
 {
 public:
     ActuatorNop(){}
@@ -136,7 +136,7 @@ friend class ActuatorNopMixin;
 /*
  * An linear actuator that does nothing and always returns invalid(). Linear equivalent of ActuatorNop
  */
-class ActuatorInvalid final : public ActuatorRangeInterface, public ActuatorInvalidMixin
+class ActuatorInvalid final : public ActuatorRange, public ActuatorInvalidMixin
 {
 public:
     ActuatorInvalid() {}

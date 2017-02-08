@@ -21,7 +21,7 @@
 
 #include "EepromManager.h"		// for clear()
 #include "DeviceManager.h"
-#include "TempSensorInterface.h"
+#include "TempSensor.h"
 #include "ActuatorInterfaces.h"
 #include "Sensor.h"
 #include "PiLink.h"
@@ -90,7 +90,7 @@ class ConnectedDevicesManager
     ConnectedDevice devices[MAX_CONNECTED_DEVICES];
     NotifyDevicesChanged changed;
 
-    ActuatorDigitalInterface* actuators[MAX_ACTUATOR_COUNT];
+    ActuatorDigital* actuators[MAX_ACTUATOR_COUNT];
 
     /**
      * Find a slot that matches the given device config.
@@ -185,7 +185,7 @@ public:
 
     void update();
 
-    ActuatorDigitalInterface* actuator(size_t index) {
+    ActuatorDigital* actuator(size_t index) {
         return actuators[index];
     }
 

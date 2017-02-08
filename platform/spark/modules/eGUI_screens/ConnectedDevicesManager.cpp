@@ -56,7 +56,7 @@ void ConnectedDevicesManager::handleDevice(DeviceConfig* config, DeviceCallbackI
     if (config->deviceHardware == DEVICE_HARDWARE_ONEWIRE_TEMP) {     
         int slot = existingSlot(config);
         if (slot >= 0) { // found the device still active
-            TempSensorInterface * sensor = asInterface<TempSensorInterface>(devices[slot].pointer);
+            TempSensor * sensor = asInterface<TempSensor>(devices[slot].pointer);
             sensor->update();
             temp_t newTemp = sensor->read();
             if(newTemp == TEMP_SENSOR_DISCONNECTED){
@@ -87,7 +87,7 @@ void ConnectedDevicesManager::handleDevice(DeviceConfig* config, DeviceCallbackI
                 memcpy(device.connection.address, config->hw.address, 8);
                 device.value.temp = temp_t::invalid(); // flag invalid
                 device.pointer = DeviceManager::createDevice(*config, device.dt);
-                if (!device.pointer || !asInterface<TempSensorInterface>(device.pointer)->init()) {
+                if (!device.pointer || !asInterface<TempSensor>(device.pointer)->init()) {
                     clearSlot(slot);
                     device.lastSeen = -1; // don't send REMOVED event since no added event has been sent
                 } else

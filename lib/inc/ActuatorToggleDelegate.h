@@ -26,7 +26,7 @@
 
 
 class ActuatorToggleDelegate :
-    public virtual ActuatorDigitalInterface,
+    public virtual ActuatorDigital,
     public ActuatorToggleDelegateMixin
 {
 public:
@@ -69,7 +69,7 @@ public:
     }
 
 private:
-    RefTo<ActuatorDigitalInterface> actuator;
+    RefTo<ActuatorDigital> actuator;
 
     friend class ActuatorToggleDelegateMixin;
 };

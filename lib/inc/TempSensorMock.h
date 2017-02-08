@@ -20,10 +20,10 @@
 
 #pragma once
 
-#include "TempSensorInterface.h"
+#include "TempSensor.h"
 #include "ControllerMixins.h"
 
-class TempSensorMock final : public TempSensorInterface, public TempSensorMockMixin
+class TempSensorMock final : public TempSensor, public TempSensorMockMixin
 {
 public:	
 	TempSensorMock(temp_t initial) : value(initial), connected(true) {}

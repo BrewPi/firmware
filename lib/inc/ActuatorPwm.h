@@ -33,10 +33,10 @@
 
 
  */
-class ActuatorPwm final : public ActuatorRangeInterface, public ActuatorPwmMixin
+class ActuatorPwm final : public ActuatorRange, public ActuatorPwmMixin
 {
 private:
-    ActuatorDigitalInterface & target;
+    ActuatorDigital & target;
     temp_t         value;
     int32_t        dutyLate;
     int32_t        periodLate;
@@ -56,7 +56,7 @@ public:
      *  @param _period PWM period in seconds
      *  @sa getPeriod(), setPeriod(), getTarget(), setTarget()
      */
-    ActuatorPwm(ActuatorDigitalInterface & _target, uint16_t _period);
+    ActuatorPwm(ActuatorDigital & _target, uint16_t _period);
 
     ~ActuatorPwm() = default;
 

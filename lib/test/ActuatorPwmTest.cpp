@@ -36,7 +36,7 @@
 
 #define PRINT_TOGGLE_TIMES 0
 
-double randomIntervalTest(ActuatorPwm & act, ActuatorDigitalInterface & target, temp_t duty, int delayMax) {
+double randomIntervalTest(ActuatorPwm & act, ActuatorDigital & target, temp_t duty, int delayMax) {
     act.setValue(duty);
     ticks_millis_t lowToHighTime = ticks.millis();
     ticks_millis_t highToLowTime = ticks.millis();

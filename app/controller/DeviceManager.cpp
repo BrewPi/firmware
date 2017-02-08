@@ -1035,17 +1035,17 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd, DeviceConfig &  dc, ch
         }
         else if (dt == DEVICETYPE_SWITCH_ACTUATOR){
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write != 0));
-            asInterface<ActuatorDigitalInterface>(devices[idx])->setActive(dd.write != 0);
+            asInterface<ActuatorDigital>(devices[idx])->setActive(dd.write != 0);
         }
     } else if (dd.value == 1){    // read values
         // todo add switch sensors
         if (dt == DEVICETYPE_TEMP_SENSOR){
-            auto s = asInterface<TempSensorInterface>(devices[idx]);
+            auto s = asInterface<TempSensor>(devices[idx]);
             s->update();
             temp_t temp = s->read();
             temp.toTempString(val, 3, 9, tempControl.cc.tempFormat, true);
         } else if (dt == DEVICETYPE_SWITCH_ACTUATOR){
-            sprintf_P(val, STR_FMT_U, (unsigned int) asInterface<ActuatorDigitalInterface>(devices[idx])->isActive() != 0);
+            sprintf_P(val, STR_FMT_U, (unsigned int) asInterface<ActuatorDigital>(devices[idx])->isActive() != 0);
         } else if (dc.deviceFunction == DEVICE_CHAMBER_MANUAL_ACTUATOR){
             if(dc.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2408){
                 readValve(dc.hw, val);

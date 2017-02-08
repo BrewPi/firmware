@@ -33,7 +33,7 @@
  *
  */
 class ActuatorOneWire final:
-    public ActuatorDigitalInterface,
+    public ActuatorDigital,
     public ActuatorOneWireMixin,
     public SwitchSensor
 

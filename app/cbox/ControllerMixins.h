@@ -3,10 +3,10 @@
 /* Empty Mixins. */
 
 class InterfaceMixin {};
-class ActuatorDigitalInterfaceMixin {};
-class ActuatorRangeInterfaceMixin {};
-class ActuatorThresholdInterfaceMixin {};
-class TempSensorInterfaceMixin {};
+class ActuatorDigitalMixin {};
+class ActuatorRangeMixin {};
+class ActuatorThresholdMixin {};
+class TempSensorMixin {};
 class TempSensorMockMixin {};
 class TempSensorDelegateMixin {};
 class TempSensorFallbackMixin {};
@@ -23,7 +23,7 @@ class ActuatorValueMixin {};
 class ActuatorBoolMixin {};
 class ActuatorNopMixin {};
 class ActuatorInvalidMixin {};
-class SetPointInterfaceMixin {};
+class SetPointMixin {};
 class SetPointSimpleMixin {};
 class SetPointConstantMixin {};
 class SetPointMinMaxMixin {};

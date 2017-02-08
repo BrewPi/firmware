@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
     auto cooler = ActuatorPwm(coolerMutex, 600); // period 10 min
 
 
-    std::string json = JSON::producer<ActuatorRangeInterface>::convert(cooler);
+    std::string json = JSON::producer<ActuatorRange>::convert(cooler);
 
     // With some extra whitespace, the valid output looks like this:
     std::string valid = \
@@ -118,17 +118,17 @@ BOOST_AUTO_TEST_CASE(serialize_setpoint) {
     auto sp3 = SetPointSimple(25.0625);
     sp3.setName("test");
 
-    std::string json = JSON::producer<SetPointInterface>::convert(sp1);
+    std::string json = JSON::producer<SetPoint>::convert(sp1);
     std::string valid = R"({"kind":"SetPointSimple","name":"","value":null})";
 
     BOOST_CHECK_EQUAL(valid, json);
 
-    json = JSON::producer<SetPointInterface>::convert(sp2);
+    json = JSON::producer<SetPoint>::convert(sp2);
     valid = R"({"kind":"SetPointConstant","value":20.0000})";
 
     BOOST_CHECK_EQUAL(valid, json);
 
-    json = JSON::producer<SetPointInterface>::convert(sp3);
+    json = JSON::producer<SetPoint>::convert(sp3);
     valid = R"({"kind":"SetPointSimple","name":"test","value":25.0625})";
 
     BOOST_CHECK_EQUAL(valid, json);
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
     auto act = ActuatorSetPoint(sp1, sens1, sp2, -10.0, 10.0);
     act.setValue(5.0); // should set sp1 to sp2 + 5.0 = 25.0;
 
-    std::string json = JSON::producer<ActuatorRangeInterface>::convert(act);
+    std::string json = JSON::producer<ActuatorRange>::convert(act);
 
     // With some extra whitespace, the valid output looks like this:
     std::string valid = \

@@ -20,12 +20,12 @@
 #pragma once
 
 #include "temperatureFormats.h"
-#include "TempSensorInterface.h"
+#include "TempSensor.h"
 #include "defaultDevices.h"
 #include "ControllerMixins.h"
 #include "RefTo.h"
 
-class TempSensorDelegate final : public TempSensorInterface, public TempSensorDelegateMixin {
+class TempSensorDelegate final : public TempSensor, public TempSensorDelegateMixin {
 public:
     TempSensorDelegate(){}
     TempSensorDelegate(std::function<Interface * ()> lookup) {
@@ -68,7 +68,7 @@ public:
     }
 
 private:
-    RefTo<TempSensorInterface> sensor;
+    RefTo<TempSensor> sensor;
     friend class TempSensorDelegateMixin;
 };
 

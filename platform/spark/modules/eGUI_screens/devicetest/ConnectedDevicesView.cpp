@@ -64,9 +64,9 @@ ConnectedDevicesPresenter* connectedDevicesPresenter()
 
 const D4D_OBJECT* actuator_views[] = { &scrDeviceTest_actuator0, &scrDeviceTest_actuator1, &scrDeviceTest_actuator2, &scrDeviceTest_actuator3 };
 
-ActuatorDigitalInterface* actuatorForView(const D4D_OBJECT* pThis)
+ActuatorDigital* actuatorForView(const D4D_OBJECT* pThis)
 {
-    ActuatorDigitalInterface* actuator = NULL;
+    ActuatorDigital* actuator = NULL;
     for (unsigned i=0; i<arraySize(actuator_views); i++) {
         if (actuator_views[i]==pThis) {
             actuator = connectedDevicesManager()->actuator(i);
@@ -88,7 +88,7 @@ extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
         idx = 3;
 
     if (idx>=0) {
-        ActuatorDigitalInterface* actuator = connectedDevicesManager()->actuator(idx);
+        ActuatorDigital* actuator = connectedDevicesManager()->actuator(idx);
         bool active = !actuator->isActive();
         actuator->setActive(active);
         SetActuatorButtonState(pThis, active, idx);
@@ -101,7 +101,7 @@ void ScreenDeviceTest_OnMain()
 
     for (unsigned i=0; i<arraySize(actuator_views); i++) {
         const D4D_OBJECT* obj = actuator_views[i];
-        ActuatorDigitalInterface* actuator = actuatorForView(obj);
+        ActuatorDigital* actuator = actuatorForView(obj);
         SetActuatorButtonState(obj, actuator->isActive(), i);
     }
 

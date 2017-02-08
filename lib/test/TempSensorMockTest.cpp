@@ -26,7 +26,7 @@
 BOOST_AUTO_TEST_SUITE(TempSensorMockTest)
 
 BOOST_AUTO_TEST_CASE (mock_sensor_init){
-    TempSensorInterface * s = new TempSensorMock(20.0);
+    TempSensor * s = new TempSensorMock(20.0);
     temp_t t = s->read();
 
     BOOST_CHECK_EQUAL(t, temp_t(20.0));

@@ -350,7 +350,7 @@
     <Compile Include="app\devices\TempSensor\OneWireTempSensor.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="app\devices\TempSensor\TempSensorInterface.h">
+    <Compile Include="app\devices\TempSensor\TempSensor.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="app\devices\TempSensor\TempSensorDisconnected.h">

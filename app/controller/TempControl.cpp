@@ -25,7 +25,7 @@
 #include "TempControl.h"
 #include "PiLink.h"
 #include "Ticks.h"
-#include "TempSensorInterface.h"
+#include "TempSensor.h"
 #include "TempSensorMock.h"
 #include "TempSensorDisconnected.h"
 #include "ModeControl.h"

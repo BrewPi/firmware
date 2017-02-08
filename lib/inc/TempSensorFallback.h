@@ -20,7 +20,7 @@
 #pragma once
 
 #include "temperatureFormats.h"
-#include "TempSensorInterface.h"
+#include "TempSensor.h"
 #include "ControllerMixins.h"
 #include "defaultDevices.h"
 #include "RefTo.h"
@@ -29,9 +29,9 @@
  * Class that forwards all calls to another temperature sensor,
  * but when it is unavailable falls back onto a backup sensor
  */
-class TempSensorFallback : public TempSensorInterface, public TempSensorFallbackMixin {
+class TempSensorFallback : public TempSensor, public TempSensorFallbackMixin {
 public:
-    TempSensorFallback(TempSensorInterface & m, TempSensorInterface & b) :
+    TempSensorFallback(TempSensor & m, TempSensor & b) :
         main(m),
         backup(b),
         onBackupSensor(false)
@@ -49,9 +49,9 @@ public:
 
     /**
      * Returns currently active sensor
-     * @return TempSensorInterface *: currently active sensor, main or backup
+     * @return TempSensor *: currently active sensor, main or backup
      */
-    TempSensorInterface & activeSensor() const {
+    TempSensor & activeSensor() const {
         return onBackupSensor ? backup : main;
     }
 
@@ -84,8 +84,8 @@ public:
     void update() override final;
 
 private:
-    TempSensorInterface& main;
-    TempSensorInterface& backup;
+    TempSensor& main;
+    TempSensor& backup;
     bool onBackupSensor;
 
 friend class TempSensorFallbackMixin;

@@ -41,9 +41,9 @@ BOOST_AUTO_TEST_CASE(casting_interfaces_to_specialized_interfaces){
     Interface * _boolAct = boolAct;
     Interface * _pwmAct = pwmAct;
 
-    // create a visitor that returns ActuatorRangeInterface pointers when the cast is possible.
-    VisitorCast<ActuatorRangeInterface> ranger;
-    ActuatorRangeInterface * act;
+    // create a visitor that returns ActuatorRange pointers when the cast is possible.
+    VisitorCast<ActuatorRange> ranger;
+    ActuatorRange * act;
 
     // try some impossible casts, these should return nullptr
     sensor->accept(ranger); // A temp sensor cannot be cast to a range actuator
@@ -68,10 +68,10 @@ BOOST_AUTO_TEST_CASE(casting_interfaces_to_specialized_interfaces){
     BOOST_REQUIRE_EQUAL(act, pwmAct);
 
     // test helper function for testing just one type
-    act = asInterface<ActuatorRangeInterface>(_boolAct);
+    act = asInterface<ActuatorRange>(_boolAct);
     BOOST_REQUIRE_EQUAL(act, static_cast<decltype(act)>(nullptr));
 
-    act = asInterface<ActuatorRangeInterface>(_pwmAct);
+    act = asInterface<ActuatorRange>(_pwmAct);
     BOOST_REQUIRE_EQUAL(act, pwmAct);
 }
 BOOST_AUTO_TEST_SUITE_END()

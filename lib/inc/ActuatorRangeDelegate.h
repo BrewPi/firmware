@@ -29,7 +29,7 @@
  * An ActuatorDigital simply turns something on or off.
  */
 class ActuatorRangeDelegate :
-    public virtual ActuatorRangeInterface,
+    public virtual ActuatorRange,
     public ActuatorRangeDelegateMixin
 {
 public:
@@ -84,7 +84,7 @@ public:
     }
 
 private:
-    RefTo<ActuatorRangeInterface> actuator;
+    RefTo<ActuatorRange> actuator;
 
     friend class ActuatorRangeDelegateMixin;
 };

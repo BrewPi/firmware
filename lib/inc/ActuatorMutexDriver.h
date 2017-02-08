@@ -29,10 +29,10 @@
 /* A driver actuator to wrap a digital Actuator and block SetActive calls if the mutex group does does not honor the request
  */
 
-class ActuatorMutexDriver final : public ActuatorDigitalInterface, public ActuatorMutexDriverMixin{
+class ActuatorMutexDriver final : public ActuatorDigital, public ActuatorMutexDriverMixin{
 public:
-    ActuatorMutexDriver(ActuatorDigitalInterface & target) : target(target), mutexGroup(nullptr){}
-    ActuatorMutexDriver(ActuatorDigitalInterface & target, ActuatorMutexGroup * m) : target(target), mutexGroup(m){}
+    ActuatorMutexDriver(ActuatorDigital & target) : target(target), mutexGroup(nullptr){}
+    ActuatorMutexDriver(ActuatorDigital & target, ActuatorMutexGroup * m) : target(target), mutexGroup(m){}
 
     ~ActuatorMutexDriver(){
         setMutex(nullptr);
@@ -82,7 +82,7 @@ public:
     }
 
 private:
-    ActuatorDigitalInterface & target;
+    ActuatorDigital & target;
     ActuatorMutexGroup * mutexGroup;
 
 friend class ActuatorMutexDriverMixin;

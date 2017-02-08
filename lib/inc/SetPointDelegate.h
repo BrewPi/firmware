@@ -25,7 +25,7 @@
 #include "RefTo.h"
 
 class SetPointDelegate :
-    public virtual SetPointInterface,
+    public virtual SetPoint,
     public SetPointDelegateMixin
 {
 public:
@@ -62,7 +62,7 @@ public:
     }
 
 private:
-    RefTo<SetPointInterface> setpoint;
+    RefTo<SetPoint> setpoint;
 
     friend class SetPointDelegateMixin;
 };

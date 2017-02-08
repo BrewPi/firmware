@@ -29,10 +29,10 @@
 #include "ControllerMixins.h"
 #include "RefTo.h"
 
-class ActuatorTimeLimited final : public ActuatorDigitalInterface, public ActuatorTimeLimitedMixin
+class ActuatorTimeLimited final : public ActuatorDigital, public ActuatorTimeLimitedMixin
 {
 public:
-    ActuatorTimeLimited(ActuatorDigitalInterface & _target,
+    ActuatorTimeLimited(ActuatorDigital & _target,
             ticks_seconds_t   _minOnTime = 120,
             ticks_seconds_t   _minOffTime = 180,
             ticks_seconds_t   _maxOnTime = UINT16_MAX) :
@@ -77,7 +77,7 @@ public:
     ticks_seconds_t timeSinceToggle(void) const;
 
 private:
-    ActuatorDigitalInterface & target;
+    ActuatorDigital & target;
     ticks_seconds_t        minOnTime;
     ticks_seconds_t        maxOnTime;
     ticks_seconds_t        minOffTime;

@@ -24,24 +24,24 @@
 #include "VisitorCast.h"
 
 template<>
-ActuatorDigitalInterface * defaultTarget<ActuatorDigitalInterface>(){
+ActuatorDigital * defaultTarget<ActuatorDigital>(){
     static ActuatorNop s;
     return &s;
 }
 template<>
-ActuatorRangeInterface * defaultTarget<ActuatorRangeInterface>(){
+ActuatorRange * defaultTarget<ActuatorRange>(){
     static ActuatorInvalid a;
     return &a;
 }
 
 template<>
-TempSensorInterface * defaultTarget<TempSensorInterface>(){
+TempSensor * defaultTarget<TempSensor>(){
     static TempSensorDisconnected t;
     return &t;
 }
 
 template<>
-SetPointInterface * defaultTarget<SetPointInterface>(){
+SetPoint * defaultTarget<SetPoint>(){
     static SetPointConstant sp(temp_t::invalid());
     return &sp;
 }
@@ -52,10 +52,10 @@ ActuatorMutexGroup * defaultTarget<ActuatorMutexGroup>(){
 }
 
 // explicit instantiation of template functions
-template ActuatorDigitalInterface* asInterface<ActuatorDigitalInterface>(Interface*);
-template ActuatorRangeInterface* asInterface<ActuatorRangeInterface>(Interface*);
-template TempSensorInterface* asInterface<TempSensorInterface>(Interface*);
-template SetPointInterface* asInterface<SetPointInterface>(Interface*);
+template ActuatorDigital* asInterface<ActuatorDigital>(Interface*);
+template ActuatorRange* asInterface<ActuatorRange>(Interface*);
+template TempSensor* asInterface<TempSensor>(Interface*);
+template SetPoint* asInterface<SetPoint>(Interface*);
 template ActuatorMutexGroup* asInterface<ActuatorMutexGroup>(Interface*);
 
 

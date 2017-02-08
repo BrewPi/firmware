@@ -76,25 +76,25 @@ private:
 BOOST_FIXTURE_TEST_SUITE( RefToTest, RefToFixture )
 
 BOOST_AUTO_TEST_CASE(unset_RefTo_returns_default_actuator) {
-    RefTo<ActuatorDigitalInterface> ref;
+    RefTo<ActuatorDigital> ref;
 
-    BOOST_CHECK_EQUAL(ref.get(), defaultTarget<ActuatorDigitalInterface>());
+    BOOST_CHECK_EQUAL(ref.get(), defaultTarget<ActuatorDigital>());
 }
 
 BOOST_AUTO_TEST_CASE(RefTo_pointing_to_wrong_type_returns_default_actuator_for_requested_interface) {
     auto lookup = VectorIndexLookup(1, devices);
-    RefTo<ActuatorDigitalInterface> ref(lookup);
+    RefTo<ActuatorDigital> ref(lookup);
 
     BOOST_CHECK_EQUAL(ref.get(), act2); // device at index 1 is act2
 
-    RefTo<TempSensorInterface> refWrongType(lookup);
+    RefTo<TempSensor> refWrongType(lookup);
 
-    BOOST_CHECK_EQUAL(refWrongType.get(), defaultTarget<TempSensorInterface>()); // device at index 1 is act2
+    BOOST_CHECK_EQUAL(refWrongType.get(), defaultTarget<TempSensor>()); // device at index 1 is act2
 }
 
 BOOST_AUTO_TEST_CASE(RefTo_can_be_used_as_a_ActuatorDigital) {
     auto lookup = VectorIndexLookup(1, devices);
-    RefTo<ActuatorDigitalInterface> ref(lookup);
+    RefTo<ActuatorDigital> ref(lookup);
 
     BOOST_CHECK(!act2->isActive()); // default value is false
     ref().setActive(true);
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(RefTo_can_be_used_as_a_ActuatorDigital) {
 
 BOOST_AUTO_TEST_CASE(RefTo_can_set_to_a_different_lookup) {
     auto lookup = VectorIndexLookup(1, devices);
-    RefTo<ActuatorDigitalInterface> ref(lookup);
+    RefTo<ActuatorDigital> ref(lookup);
     BOOST_CHECK_EQUAL(ref.get(), act2); // device at index 1 is act2
 
     auto lookup2 = VectorIndexLookup(0, devices);
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE(RefTo_can_set_to_a_different_lookup) {
 
 BOOST_AUTO_TEST_CASE(Lookup_can_be_deleted_after_passing_to_reference) {
     auto lookup = new VectorIndexLookup(1, devices);
-    RefTo<ActuatorDigitalInterface> ref(*lookup);
+    RefTo<ActuatorDigital> ref(*lookup);
 
     delete lookup;
 
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(RefTo_SetPointActuator) {
     auto sensor = TempSensorMock(20.0);
     Interface * spa = new ActuatorSetPoint(sp1, sensor, sp2);
     auto lookup = PtrLookup(spa);
-    RefTo<ActuatorRangeInterface> ref(lookup);
+    RefTo<ActuatorRange> ref(lookup);
 
     BOOST_CHECK_EQUAL(ref.get(), spa);
 }
