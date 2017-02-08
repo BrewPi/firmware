@@ -27,7 +27,6 @@ class Interface :
 {
 public:
 	Interface() = default;
-protected:
     virtual ~Interface() = default;
 public:
     virtual void update() = 0;

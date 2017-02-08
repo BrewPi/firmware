@@ -31,6 +31,7 @@
 #include "temperatureFormats.h"
 #include <functional>
 #include "OneWireAddress.h"
+#include "RefTo.h"
 
 #define MAX_TEMP_SENSORS
 
@@ -66,12 +67,7 @@ struct ConnectedDevice
         }
     } value;
 
-    union Device {
-        void* any;
-        TempSensorInterface* tempSensor;    // dt==DEVICETYPE_TEMP_SENSOR
-        ActuatorInterface* actuator;             // dt==DEVICETYPE_ACTUATOR
-        SwitchSensor* sensor;           // dt==DEVICETYPE_SWITCH_SENSOR
-    } pointer;
+    Interface * pointer;
 };
 
 char * valueAsText(const ConnectedDevice* device, char* buf, size_t len);
@@ -110,7 +106,7 @@ class ConnectedDevicesManager
             if (config->deviceHardware==device.dh) {        // same hardware type
                 if (device.connection.type==DEVICE_CONNECTION_ONEWIRE &&
                     !memcmp(device.connection.address, config->hw.address, 8) &&
-                    (!active || (device.pointer.any && device.lastSeen >= 0 && device.lastSeen <= 2)))
+                    (!active || (device.pointer && device.lastSeen >= 0 && device.lastSeen <= 2)))
                 {
                 slot = i;
                 break;
@@ -127,7 +123,7 @@ class ConnectedDevicesManager
         int slot = -1;
         for (int i = 0; i < MAX_CONNECTED_DEVICES; i++) {
             ConnectedDevice& device = devices[i];
-            if (!device.pointer.any || device.lastSeen > 2) {
+            if (!device.pointer || device.lastSeen > 2) {
                 slot = i;
                 break;
             }
@@ -137,10 +133,10 @@ class ConnectedDevicesManager
 
     void clearSlot(int slot) {
         ConnectedDevice& connectedDevice = devices[slot];
-        DeviceManager::disposeDevice(connectedDevice.dt, connectedDevice.pointer.any);
-        if (connectedDevice.pointer.any)
+        delete connectedDevice.pointer;
+        if (connectedDevice.pointer)
             connectedDevice.lastSeen = 0; // flag to send the REMOVED event
-        connectedDevice.pointer.any = NULL;
+        connectedDevice.pointer = nullptr;
     }
 
     static void deviceCallback(DeviceConfig* config, DeviceCallbackInfo* info) {
@@ -151,7 +147,7 @@ class ConnectedDevicesManager
     void handleDevice(DeviceConfig* config, DeviceCallbackInfo* info);
 
     void sendRemoveEvent(int i) {
-        if (!devices[i].pointer.any && devices[i].lastSeen != -1) {
+        if (!devices[i].pointer && devices[i].lastSeen != -1) {
             devices[i].lastSeen = -1;
             changed(this, i, devices + i, REMOVED);
         }

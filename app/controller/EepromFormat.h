@@ -48,7 +48,7 @@ struct EepromFormat
 {
 	static const uint16_t MAX_EEPROM_SIZE = 1024;
 	static const uint8_t MAX_CHAMBERS = 1;
-	static const uint8_t MAX_DEVICES = MAX_DEVICE_SLOT;
+	static const uint8_t MAX_DEVICES = NUM_DEVICE_SLOTS;
 
 	uint8_t version;
 	uint8_t numChambers;		// todo - remove this - and increase reserved space.

@@ -110,7 +110,7 @@ bool EepromManager::applySettings()
 	for (uint8_t index = 0; fetchDevice(deviceConfig, index); index++)
 	{	
 		if (deviceManager.isDeviceValid(deviceConfig, deviceConfig, index))
-			deviceManager.installDevice(deviceConfig);
+			deviceManager.createAndInstallDevice(deviceConfig, index);
 		else {
 			clear((uint8_t*)&deviceConfig, sizeof(deviceConfig));
 			eepromManager.storeDevice(deviceConfig, index);

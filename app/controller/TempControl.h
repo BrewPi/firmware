@@ -150,7 +150,7 @@ public:
     void setFridgeTemp(temp_t newTemp, bool store);
 
     temp_t getRoomTemp(void) {
-        return control.beer2Sensor.read();
+        return control.roomSensor.read();
     }
 
 
