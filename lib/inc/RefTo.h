@@ -37,7 +37,7 @@ T* asInterface(Interface* i);
 // explicit instantiation of template functions is done in cpp file.
 // declare extern here to prevent circular include errors
 extern template ActuatorDigital* asInterface<ActuatorDigital>(Interface*);
-extern template ActuatorRange* asInterface<ActuatorRange>(Interface*);
+extern template ActuatorAnalog* asInterface<ActuatorAnalog>(Interface*);
 extern template TempSensor* asInterface<TempSensor>(Interface*);
 extern template SetPoint* asInterface<SetPoint>(Interface*);
 

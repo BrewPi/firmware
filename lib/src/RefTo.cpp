@@ -29,7 +29,7 @@ ActuatorDigital * defaultTarget<ActuatorDigital>(){
     return &s;
 }
 template<>
-ActuatorRange * defaultTarget<ActuatorRange>(){
+ActuatorAnalog * defaultTarget<ActuatorAnalog>(){
     static ActuatorInvalid a;
     return &a;
 }
@@ -53,7 +53,7 @@ ActuatorMutexGroup * defaultTarget<ActuatorMutexGroup>(){
 
 // explicit instantiation of template functions
 template ActuatorDigital* asInterface<ActuatorDigital>(Interface*);
-template ActuatorRange* asInterface<ActuatorRange>(Interface*);
+template ActuatorAnalog* asInterface<ActuatorAnalog>(Interface*);
 template TempSensor* asInterface<TempSensor>(Interface*);
 template SetPoint* asInterface<SetPoint>(Interface*);
 template ActuatorMutexGroup* asInterface<ActuatorMutexGroup>(Interface*);

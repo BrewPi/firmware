@@ -21,7 +21,7 @@
 
 #include "Pid.h"
 
-Pid::Pid(TempSensor & _input, ActuatorRange & _output, SetPoint & _setPoint) :
+Pid::Pid(TempSensor & _input, ActuatorAnalog & _output, SetPoint & _setPoint) :
          input(_input),
          output(_output),
          setPoint(_setPoint),

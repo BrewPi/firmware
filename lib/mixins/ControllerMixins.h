@@ -5,7 +5,7 @@
 
 class InterfaceMixin {};
 class ActuatorDigitalMixin {};
-class ActuatorRangeMixin {};
+class ActuatorAnalogMixin {};
 class ActuatorThresholdMixin {};
 class TempSensorMixin {};
 class TempSensorMockMixin {};
@@ -32,5 +32,5 @@ class ValveControllerMixin {};
 class ActuatorOneWireMixin {};
 class TempSensorDelegateMixin {};
 class ActuatorToggleDelegateMixin {};
-class ActuatorRangeDelegateMixin {};
+class ActuatorAnalogDelegateMixin {};
 class SetPointDelegateMixin {};

@@ -37,7 +37,7 @@
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMutexGroup.h"
 #include "TempSensorDelegate.h"
-#include "ActuatorRangeDelegate.h"
+#include "ActuatorAnalogDelegate.h"
 #include "SetPointDelegate.h"
 #include "runner.h"
 #include <iostream>
@@ -87,12 +87,12 @@ public:
     ActuatorSetPoint hltSetPointActuator;
 
     TempSensorDelegate hltHeaterPidInput;
-    ActuatorRangeDelegate hltHeaterPidOutput;
+    ActuatorAnalogDelegate hltHeaterPidOutput;
     SetPointDelegate hltHeaterPidSetPoint;
     Pid hltHeaterPid;
 
     TempSensorDelegate mashToHltPidInput;
-    ActuatorRangeDelegate mashToHltPidOutput;
+    ActuatorAnalogDelegate mashToHltPidOutput;
     SetPointDelegate mashToHltPidSetPoint;
     Pid mashToHltPid;
 

@@ -4,7 +4,7 @@
 
 class InterfaceMixin {};
 class ActuatorDigitalMixin {};
-class ActuatorRangeMixin {};
+class ActuatorAnalogMixin {};
 class ActuatorThresholdMixin {};
 class TempSensorMixin {};
 class TempSensorMockMixin {};

@@ -20,9 +20,9 @@ protected:
     ~ActuatorDigitalMixin() = default;
 };
 
-class ActuatorRangeMixin {
+class ActuatorAnalogMixin {
 protected:
-    ~ActuatorRangeMixin() = default;
+    ~ActuatorAnalogMixin() = default;
 };
 
 class ActuatorThresholdMixin {
@@ -201,11 +201,11 @@ protected:
     ~ActuatorToggleDelegateMixin() = default;
 };
 
-class ActuatorRangeDelegateMixin: public Nameable {
+class ActuatorAnalogDelegateMixin: public Nameable {
 public:
     void serializeImpl(JSON::Adapter& adapter);
 protected:
-    ~ActuatorRangeDelegateMixin() = default;
+    ~ActuatorAnalogDelegateMixin() = default;
 };
 
 class SetPointDelegateMixin: public Nameable {

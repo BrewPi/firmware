@@ -33,7 +33,7 @@
 
 
  */
-class ActuatorPwm final : public ActuatorRange, public ActuatorPwmMixin
+class ActuatorPwm final : public ActuatorAnalog, public ActuatorPwmMixin
 {
 private:
     ActuatorDigital & target;

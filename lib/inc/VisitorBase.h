@@ -46,7 +46,7 @@ class TempSensorMock;
 class ValveController;
 class TempSensorDelegate;
 class ActuatorToggleDelegate;
-class ActuatorRangeDelegate;
+class ActuatorAnalogDelegate;
 class SetPointDelegate;
 
 class VisitorBase {
@@ -76,7 +76,7 @@ public:
 	virtual void visit(ValveController& thisRef) = 0;
 	virtual void visit(TempSensorDelegate& thisRef) = 0;
 	virtual void visit(ActuatorToggleDelegate& thisRef) = 0;
-	virtual void visit(ActuatorRangeDelegate& thisRef) = 0;
+	virtual void visit(ActuatorAnalogDelegate& thisRef) = 0;
 	virtual void visit(SetPointDelegate& thisRef) = 0;
 #if WIRING
 	virtual void visit(ActuatorPin& thisRef) = 0;

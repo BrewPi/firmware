@@ -38,7 +38,7 @@
 #include "VisitorBase.h"
 #include "TempSensorDelegate.h"
 #include "ActuatorToggleDelegate.h"
-#include "ActuatorRangeDelegate.h"
+#include "ActuatorAnalogDelegate.h"
 #include "SetPointDelegate.h"
 
 #if WIRING
@@ -73,7 +73,7 @@ public:
     void visit(ValveController& thisRef) final { this->process(thisRef); };
     void visit(TempSensorDelegate& thisRef) final { this->process(thisRef); };
     void visit(ActuatorToggleDelegate& thisRef) final { this->process(thisRef); };
-    void visit(ActuatorRangeDelegate& thisRef) final { this->process(thisRef); };
+    void visit(ActuatorAnalogDelegate& thisRef) final { this->process(thisRef); };
     void visit(SetPointDelegate& thisRef) final { this->process(thisRef); };
 #if WIRING
     void visit(ActuatorPin& thisRef) final { this->process(thisRef); };

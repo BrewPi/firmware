@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(RefTo_SetPointActuator) {
     auto sensor = TempSensorMock(20.0);
     Interface * spa = new ActuatorSetPoint(sp1, sensor, sp2);
     auto lookup = PtrLookup(spa);
-    RefTo<ActuatorRange> ref(lookup);
+    RefTo<ActuatorAnalog> ref(lookup);
 
     BOOST_CHECK_EQUAL(ref.get(), spa);
 }

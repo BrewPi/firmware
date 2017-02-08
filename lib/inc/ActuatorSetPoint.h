@@ -29,7 +29,7 @@
 /*
  * A linear actuator that sets a setpoint to reference setpoint + actuator value
  */
-class ActuatorSetPoint final : public ActuatorRange, public ActuatorSetPointMixin
+class ActuatorSetPoint final : public ActuatorAnalog, public ActuatorSetPointMixin
 {
 public:
     ActuatorSetPoint(SetPoint & _targSetPoint, // set point to manipulate

@@ -36,7 +36,7 @@
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMutexGroup.h"
 #include "TempSensorDelegate.h"
-#include "ActuatorRangeDelegate.h"
+#include "ActuatorAnalogDelegate.h"
 #include "SetPointDelegate.h"
 
 #include "runner.h"
@@ -90,12 +90,12 @@ public:
     ActuatorSetPoint fridgeSetPointActuator;
 
     TempSensorDelegate heaterPidInput;
-    ActuatorRangeDelegate heaterPidOutput;
+    ActuatorAnalogDelegate heaterPidOutput;
     SetPointDelegate heaterPidSetPoint;
     Pid heaterPid;
 
     TempSensorDelegate coolerPidInput;
-    ActuatorRangeDelegate coolerPidOutput;
+    ActuatorAnalogDelegate coolerPidOutput;
     SetPointDelegate coolerPidSetPoint;
     Pid coolerPid;
 

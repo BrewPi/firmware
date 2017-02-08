@@ -28,16 +28,16 @@
 /*
  * An ActuatorDigital simply turns something on or off.
  */
-class ActuatorRangeDelegate :
-    public virtual ActuatorRange,
-    public ActuatorRangeDelegateMixin
+class ActuatorAnalogDelegate :
+    public virtual ActuatorAnalog,
+    public ActuatorAnalogDelegateMixin
 {
 public:
-    ActuatorRangeDelegate() = default;
-    ActuatorRangeDelegate(std::function<Interface * ()> lookup) {
+    ActuatorAnalogDelegate() = default;
+    ActuatorAnalogDelegate(std::function<Interface * ()> lookup) {
         actuator.setLookup(lookup);
     }
-    virtual ~ActuatorRangeDelegate() = default;
+    virtual ~ActuatorAnalogDelegate() = default;
 
 
     void setLookup(std::function<Interface* ()> lookup) {
@@ -84,7 +84,7 @@ public:
     }
 
 private:
-    RefTo<ActuatorRange> actuator;
+    RefTo<ActuatorAnalog> actuator;
 
-    friend class ActuatorRangeDelegateMixin;
+    friend class ActuatorAnalogDelegateMixin;
 };

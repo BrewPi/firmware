@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
     auto cooler = ActuatorPwm(coolerMutex, 600); // period 10 min
 
 
-    std::string json = JSON::producer<ActuatorRange>::convert(cooler);
+    std::string json = JSON::producer<ActuatorAnalog>::convert(cooler);
 
     // With some extra whitespace, the valid output looks like this:
     std::string valid = \
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
     auto act = ActuatorSetPoint(sp1, sens1, sp2, -10.0, 10.0);
     act.setValue(5.0); // should set sp1 to sp2 + 5.0 = 25.0;
 
-    std::string json = JSON::producer<ActuatorRange>::convert(act);
+    std::string json = JSON::producer<ActuatorAnalog>::convert(act);
 
     // With some extra whitespace, the valid output looks like this:
     std::string valid = \

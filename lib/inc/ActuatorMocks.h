@@ -28,7 +28,7 @@
 /*
  * A range actuator that simply remembers the set value. This is primary used for testing.
  */
-class ActuatorValue final : public ActuatorRange, public ActuatorValueMixin
+class ActuatorValue final : public ActuatorAnalog, public ActuatorValueMixin
 {
 public:
     // construct without arguments, val = invalid, min and max are defaults
@@ -136,7 +136,7 @@ friend class ActuatorNopMixin;
 /*
  * An linear actuator that does nothing and always returns invalid(). Linear equivalent of ActuatorNop
  */
-class ActuatorInvalid final : public ActuatorRange, public ActuatorInvalidMixin
+class ActuatorInvalid final : public ActuatorAnalog, public ActuatorInvalidMixin
 {
 public:
     ActuatorInvalid() {}

@@ -41,7 +41,7 @@
 #include "ValveController.h"
 #include "TempSensorDelegate.h"
 #include "ActuatorToggleDelegate.h"
-#include "ActuatorRangeDelegate.h"
+#include "ActuatorAnalogDelegate.h"
 #include "SetPointDelegate.h"
 
 #if WIRING
@@ -344,11 +344,11 @@ void ActuatorToggleDelegateMixin::serializeImpl(JSON::Adapter & adapter)
     JSON_T(adapter, actuator);
 }
 
-void ActuatorRangeDelegateMixin::serializeImpl(JSON::Adapter & adapter)
+void ActuatorAnalogDelegateMixin::serializeImpl(JSON::Adapter & adapter)
 {
-    ActuatorRangeDelegate * obj = static_cast<ActuatorRangeDelegate *>(this);
+    ActuatorAnalogDelegate * obj = static_cast<ActuatorAnalogDelegate *>(this);
 
-    JSON::Class root(adapter, "ActuatorRangeDelegate");
+    JSON::Class root(adapter, "ActuatorAnalogDelegate");
     std::string name(getName());    // get name as std string for json_writer
     JSON_E(adapter, name);
     Interface & actuator = obj->actuator();

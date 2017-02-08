@@ -41,13 +41,13 @@ public:
 
 
 /*
- * An ActuatorRange has a range output between min and max
+ * An ActuatorAnalog has a range output between min and max
  */
-class ActuatorRange : public virtual Interface, public virtual ActuatorRangeMixin
+class ActuatorAnalog : public virtual Interface, public virtual ActuatorAnalogMixin
 {
 public:
-    ActuatorRange() = default;
-    virtual ~ActuatorRange() = default;
+    ActuatorAnalog() = default;
+    virtual ~ActuatorAnalog() = default;
     virtual void setValue(temp_t const& val) = 0;
     virtual temp_t getValue() const = 0; // get set value
     virtual temp_t readValue() const = 0; // read actual achieved value

@@ -36,7 +36,7 @@ class Pid final : public ControllerInterface, public PidMixin
 
     public:
         Pid(TempSensor & _input,
-            ActuatorRange & _output,
+            ActuatorAnalog & _output,
             SetPoint & _setPoint);
         ~Pid() = default;
 
@@ -97,7 +97,7 @@ class Pid final : public ControllerInterface, public PidMixin
 
     protected:
         TempSensor & input;
-        ActuatorRange & output;
+        ActuatorAnalog & output;
         SetPoint & setPoint;
         temp_long_t       Kp;    // proportional gain
         uint16_t          Ti;    // integral time constant
