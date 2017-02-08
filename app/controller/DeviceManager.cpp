@@ -109,7 +109,7 @@ DeviceConnection deviceConnection(DeviceHardware hardware)
  * Sets devices to their unconfigured states. Each device is initialized to a static no-op instance.
  * This method is idempotent, and is called each time the eeprom is reset.
  */
-void DeviceManager::setupUnconfiguredDevices()
+void DeviceManager::setupUnconfiguredDevices(bool eraseEeprom)
 {
     // right now, uninstall doesn't care about chamber/beer distinction.
     // but this will need to match beer/function when multiferment is available
@@ -118,7 +118,7 @@ void DeviceManager::setupUnconfiguredDevices()
     for (device_slot_t i = 0; i < NUM_DEVICE_SLOTS; i++){
         cfg.deviceFunction = DeviceFunction(i);
 
-        uninstallDevice(cfg, i);
+        uninstallDevice(cfg, i, eraseEeprom);
     }
 }
 
@@ -180,10 +180,10 @@ bool DeviceManager::createAndInstallDevice(DeviceConfig config, device_slot_t sl
         logErrorInt(ERROR_OUT_OF_MEMORY_FOR_DEVICE, config.deviceFunction);
         return false;
     }
-    return installDevice(device, config, slot);
+    return installDevice(device, config, slot, true);
 }
 
-bool DeviceManager::installDevice(Interface * device, DeviceConfig config, device_slot_t slot)
+bool DeviceManager::installDevice(Interface * device, DeviceConfig config, device_slot_t slot, bool storeEeprom)
 {
     if(!isDefinedSlot(slot)){
         return false;
@@ -225,7 +225,9 @@ bool DeviceManager::installDevice(Interface * device, DeviceConfig config, devic
     if(device == nullptr){
         config.deviceFunction = DEVICE_NONE; // if the device ptr is cleared, also clear EEPROM slot
     }
-    eepromManager.storeDevice(config, slot);
+    if(storeEeprom){
+        eepromManager.storeDevice(config, slot);
+    }
     return true;
 }
 
@@ -234,11 +236,11 @@ bool DeviceManager::installDevice(Interface * device, DeviceConfig config, devic
  * /param config The device to remove. The fields that are used are
  *              chamber, beer, hardware and function.
  */
-void DeviceManager::uninstallDevice(DeviceConfig & config, device_slot_t slot)
+void DeviceManager::uninstallDevice(DeviceConfig & config, device_slot_t slot, bool eraseEeprom)
 {
     if(isDefinedSlot(slot)){
         Interface * device = devices[slot];
-        installDevice(nullptr, config, slot);
+        installDevice(nullptr, config, slot, eraseEeprom);
         delete device;
         devices[slot] = nullptr;
     }
@@ -390,17 +392,17 @@ void DeviceManager::parseDeviceDefinition(Stream & p)
 
         // remove the device from another slot if that slot has the same hardware
         device_slot_t oldHardwareSlot = findHardwareDevice(target);
-        uninstallDevice(target, oldHardwareSlot);
+        uninstallDevice(target, oldHardwareSlot, true);
 
 
         if(isUniqueFunction(target.deviceFunction)){ // check if function can only be installed once
             // remove the device from another slot if that slot has the same function
             device_slot_t oldFunctionSlot = findDeviceFunction(target);
-            uninstallDevice(target, oldFunctionSlot);
+            uninstallDevice(target, oldFunctionSlot, true);
         }
 
-        // remove the existing device from the target slot
-        uninstallDevice(original, dev.id);
+        // remove the existing device from the target slot, no need to erase EEPROM because we'll overwrite it
+        uninstallDevice(original, dev.id, false);
 
         createAndInstallDevice(target, dev.id);
     } else{

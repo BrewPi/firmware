@@ -34,7 +34,7 @@ void SettingsManager::loadSettings()
 		tempControl.loadDefaultSettings();
 		tempControl.loadDefaultConstants();
 		
-		deviceManager.setupUnconfiguredDevices();
+		deviceManager.setupUnconfiguredDevices(false); // remove all devices, but do not erase EEPROM
 
 		logWarning(WARNING_START_IN_SAFE_MODE);
 	}

@@ -260,7 +260,7 @@ public:
 
     static void UpdateDeviceState(DeviceDisplay & dd, DeviceConfig & dc, char * val, device_slot_t idx);
 
-    static void setupUnconfiguredDevices();
+    static void setupUnconfiguredDevices(bool eraseEeprom);
 
     /*
      * Determines if the given device config is complete. 
@@ -274,9 +274,9 @@ public:
      */
     static bool createAndInstallDevice(DeviceConfig config, device_slot_t slot);
 
-    static bool installDevice(Interface * device, DeviceConfig config, device_slot_t slot);
+    static bool installDevice(Interface * device, DeviceConfig config, device_slot_t slot, bool storeEeprom);
 
-    static void uninstallDevice(DeviceConfig & config, device_slot_t slot);
+    static void uninstallDevice(DeviceConfig & config, device_slot_t slot, bool eraseEeprom);
 
     static void parseDeviceDefinition(Stream & p);
 
