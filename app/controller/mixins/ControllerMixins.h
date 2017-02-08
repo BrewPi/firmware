@@ -15,12 +15,6 @@ public:
     void serialize(JSON::Adapter& adapter);
 };
 
-class ActuatorInterfaceMixin
-{
-protected:
-    ~ActuatorInterfaceMixin() = default;
-};
-
 class ActuatorDigitalInterfaceMixin {
 protected:
     ~ActuatorDigitalInterfaceMixin() = default;

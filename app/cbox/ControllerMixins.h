@@ -3,7 +3,6 @@
 /* Empty Mixins. */
 
 class InterfaceMixin {};
-class ActuatorInterfaceMixin {};
 class ActuatorDigitalInterfaceMixin {};
 class ActuatorRangeInterfaceMixin {};
 class ActuatorThresholdInterfaceMixin {};

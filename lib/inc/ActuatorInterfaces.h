@@ -26,25 +26,9 @@
 #include "Interface.h"
 
 /*
- * An actuator can be driven by other classes and acts on something.
- * Actuators can also drive other actuators, getDeviceTarget finds the lowest level actuator recursively
- */
-class ActuatorInterface: public virtual Interface
-    , public virtual ActuatorInterfaceMixin
-{
-public:
-    ActuatorInterface() = default;
-    virtual ~ActuatorInterface() = default;
-
-    friend class ActuatorInterfaceMixin;
-};
-
-
-/*
  * An ActuatorDigital simply turns something on or off.
  */
-class ActuatorDigitalInterface : public virtual ActuatorInterface
-    , public virtual ActuatorDigitalInterfaceMixin
+class ActuatorDigitalInterface : public virtual Interface, public virtual ActuatorDigitalInterfaceMixin
 {
 public:
     ActuatorDigitalInterface() = default;
@@ -59,8 +43,7 @@ public:
 /*
  * An ActuatorRange has a range output between min and max
  */
-class ActuatorRangeInterface : public virtual ActuatorInterface
-    , public virtual ActuatorRangeInterfaceMixin
+class ActuatorRangeInterface : public virtual Interface, public virtual ActuatorRangeInterfaceMixin
 {
 public:
     ActuatorRangeInterface() = default;
@@ -75,8 +58,7 @@ public:
 /*
  * An ThresholdActuator has switches on at a certain threshold. TODO: add hysteresis
  */
-class ActuatorThresholdInterface : public virtual ActuatorInterface
-    , public virtual ActuatorThresholdInterfaceMixin
+class ActuatorThresholdInterface : public virtual Interface, public virtual ActuatorThresholdInterfaceMixin
 {
 ActuatorThresholdInterface() = default;
     virtual ~ActuatorThresholdInterface() = default;
