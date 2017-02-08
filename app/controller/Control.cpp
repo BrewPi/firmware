@@ -70,7 +70,7 @@ Control::Control() :
     fridgeSensor.setName("fridge");
     beer1Sensor.setName("beer1");
     beer2Sensor.setName("beer2");
-    beer2Sensor.setName("room");
+    roomSensor.setName("room");
     coolerToggle.setName("cooler");
     heater1Toggle.setName("heater1");
     heater2Toggle.setName("heater2");
