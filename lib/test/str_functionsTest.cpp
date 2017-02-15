@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE( my_strtol_test )
     char * end2;
     long result;
     long result2;
-    for(long i = -LONG_MIN; i<LONG_MAX*.99;i+=LONG_MAX*0.001){
+    for(long i = LONG_MIN; i < LONG_MAX*.99;i+=LONG_MAX*0.001){
         snprintf(s, 21, "%ld", i);
         result = strtol(s, &end, 10);
         result2 = my_strtol(s, &end2);

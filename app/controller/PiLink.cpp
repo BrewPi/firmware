@@ -331,10 +331,10 @@ uint8_t state = 0xFF;
 char* beerAnn; char* fridgeAnn;
 
 typedef char* PChar;
-inline bool changed(uint8_t &a, uint8_t b) { uint8_t c = a; a=b; return b!=c; }
-inline bool changed(temp_t &a, temp_t b) { temp_t c = a; a=b; return b!=c; }
-inline bool changed(double &a, double b) { double c = a; a=b; return b!=c; }
-inline bool changed(PChar &a, PChar b) { PChar c = a; a=b; return b!=c; }
+bool changed(uint8_t &a, uint8_t b) { uint8_t c = a; a=b; return b!=c; }
+bool changed(temp_t &a, temp_t b) { temp_t c = a; a=b; return b!=c; }
+bool changed(double &a, double b) { double c = a; a=b; return b!=c; }
+bool changed(PChar &a, PChar b) { PChar c = a; a=b; return b!=c; }
 #else
 #define JSON_BEER_TEMP  "BeerTemp"
 #define JSON_BEER_SET	"BeerSet"
@@ -606,7 +606,7 @@ void PiLink::printJsonName(const char * name)
     piStream.print(':');
 }
 
-inline void PiLink::printJsonSeparator() {
+void PiLink::printJsonSeparator() {
     piStream.print(firstPair ? '{' : ',');
     firstPair = false;
 }

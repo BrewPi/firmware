@@ -4,12 +4,14 @@ nbproject/private/
 *.atsuo
 revA/
 revC/
-test/obj/
+lib/test/obj/
+app/*/test/obj/
 .settings/
 .idea/
 *.pyc
 test_results/*.csv
 test_results/*.pdf
+.pydevproject
 
 # Compiled Object files
 *.slo
@@ -48,3 +50,4 @@ test_results/*.pdf
 docs/_static/doxygen/
 deploy/
 controlbox/build
+

@@ -135,7 +135,6 @@ uint8_t DS2413::writeByteFromCache()
     return returnval;
 }
 
-#if DS2413_SUPPORT_SENSE
 bool DS2413::sense(pio_t pio,
            bool  defaultValue)
 {
@@ -150,4 +149,3 @@ bool DS2413::sense(pio_t pio,
         return defaultValue;
     }
 }
-#endif

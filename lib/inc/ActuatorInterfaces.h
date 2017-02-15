@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include "temperatureFormats.h"
 #include "ControllerMixins.h"
+#include "fixstl.h" // removes min/max macros defined in Arduino.h
 
 enum {
     ACTUATOR_RANGE,

@@ -63,8 +63,9 @@ void setup()
 {
     bool resetEeprom = platform_init();
     eepromManager.init();
-    if (resetEeprom)
+    if (resetEeprom) {
         eepromManager.initializeEeprom();
+    }
 	ui.init();
 	piLink.init();
 

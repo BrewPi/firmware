@@ -57,6 +57,62 @@ bool DeviceManager::firstDeviceOutput;
 device_slot_t findHardwareDevice(DeviceConfig & find);
 device_slot_t findDeviceFunction(DeviceConfig & find);
 
+
+
+bool isAssignable(DeviceType     type,
+                         DeviceHardware hardware)
+{
+    return ((hardware == DEVICE_HARDWARE_PIN)
+            && (type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_SWITCH_SENSOR
+                    || type == DEVICETYPE_PWM_ACTUATOR || type == DEVICETYPE_MANUAL_ACTUATOR))
+
+#if BREWPI_DS2413
+            || ((hardware == DEVICE_HARDWARE_ONEWIRE_2413)
+                && ((type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_PWM_ACTUATOR || type == DEVICETYPE_MANUAL_ACTUATOR)
+                    || (DS2413_SUPPORT_SENSE && (type == DEVICETYPE_SWITCH_SENSOR))))
+#endif
+
+#if BREWPI_DS2408
+            || ((hardware == DEVICE_HARDWARE_ONEWIRE_2408)
+                && (type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_MANUAL_ACTUATOR))
+#endif
+
+    || ((hardware == DEVICE_HARDWARE_ONEWIRE_TEMP)
+        && (type == DEVICETYPE_TEMP_SENSOR)) || ((hardware == DEVICE_HARDWARE_NONE) && (type == DEVICETYPE_NONE));
+}
+
+bool isOneWire(DeviceHardware hardware)
+{
+    return
+#if BREWPI_DS2413
+    (hardware == DEVICE_HARDWARE_ONEWIRE_2413) ||
+#endif
+#if BREWPI_DS2408
+    (hardware == DEVICE_HARDWARE_ONEWIRE_2408) ||
+#endif
+
+    (hardware == DEVICE_HARDWARE_ONEWIRE_TEMP);
+}
+
+bool isDigitalPin(DeviceHardware hardware)
+{
+    return hardware == DEVICE_HARDWARE_PIN;
+}
+
+DeviceConnection deviceConnection(DeviceHardware hardware)
+{
+    return isOneWire(hardware) ? DEVICE_CONNECTION_ONEWIRE : DEVICE_CONNECTION_PIN;
+}
+
+/*
+ * Determines where this devices belongs.
+ */
+DeviceOwner deviceOwner(DeviceFunction id)
+{
+    return (id == 0) ? DEVICE_OWNER_NONE : (id >= DEVICE_BEER_FIRST) ? DEVICE_OWNER_BEER : DEVICE_OWNER_CHAMBER;
+}
+
+
 /*
  * Sets devices to their unconfigured states. Each device is initialized to a static no-op instance.
  * This method is idempotent, and is called each time the eeprom is reset.
@@ -627,7 +683,7 @@ void printAttrib(Print & p,
     p.print(tempString);
 }
 
-inline bool hasInvert(DeviceHardware hw)
+bool hasInvert(DeviceHardware hw)
 {
 #if BREWPI_DS2413
     return (hw == DEVICE_HARDWARE_PIN) || (hw == DEVICE_HARDWARE_ONEWIRE_2413);
@@ -637,7 +693,7 @@ inline bool hasInvert(DeviceHardware hw)
 
 }
 
-inline bool hasOnewire(DeviceHardware hw)
+bool hasOnewire(DeviceHardware hw)
 {
     return hw == DEVICE_HARDWARE_ONEWIRE_TEMP
 #if BREWPI_DS2413
@@ -749,9 +805,9 @@ void handleHardwareSpec(const char * key,
     }
 }
 
-inline bool matchAddress(uint8_t * detected,
-                         uint8_t * configured,
-                         uint8_t   count)
+bool matchAddress(uint8_t * detected,
+                  uint8_t * configured,
+                  uint8_t   count)
 {
     if (!configured[0]){
         return true;
@@ -944,6 +1000,12 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig & config,
     // logDebug("Passing device to callback");
     callback(&config, info);
 }
+
+bool isDefinedSlot(device_slot_t s)
+{
+    return INVALID_SLOT < s && s < MAX_DEVICE_SLOT;
+}
+
 
 /*
  * Enumerate the static devices that are permanently installed.
