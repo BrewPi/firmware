@@ -340,15 +340,18 @@ sock_result_t socket_receivefrom(sock_handle_t sock, void* buffer, socklen_t buf
 
 	sock_handle_t result = ec.value();
 
-    if (result == boost::asio::error::would_block)
+    if (result == boost::asio::error::would_block){
         return 0;
-    if (result==boost::asio::error::try_again)
+    }
+    if (result==boost::asio::error::try_again){
         return 0;
-    if (!result)
+    }
+    if (!result){
         DEBUG("count: %d", count);
-    else
+    }
+    else{
         DEBUG("result: %d %s", ec.value(), ec.message().c_str());
-
+    }
 	return result ? result : count;
 }
 
@@ -365,9 +368,9 @@ sock_result_t socket_sendto(sock_handle_t sd, const void* buffer, socklen_t len,
 	int count = socket.send_to(boost::asio::buffer(buffer, len), endpoint, 0, ec);
 
 	sock_handle_t result = ec.value();
-    if (result == boost::asio::error::would_block)
+    if (result == boost::asio::error::would_block){
         return 0;
-
+    }
 	return result ? result : count;
 }
 
