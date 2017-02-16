@@ -35,6 +35,14 @@ public:
     }
     ~ValveController() = default;
 
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    void accept(VisitorBase & v) final {
+    	v.visit(*this);
+    }
+
     enum class ValveActions : uint8_t {
         OFF_LOW = 0b00,
         OPEN = 0b01,
@@ -48,7 +56,7 @@ public:
 
     void fastUpdate() override final {} // valves are slow. Fast update is nop to limit OneWire traffic
 
-    void setActive(bool active) override final {
+    void setActive(bool active, int8_t priority) override final {
         if(active){
             open();
         }
@@ -66,13 +74,13 @@ public:
 
     void write(ValveActions action);
 
-    inline void open(){
+    void open(){
         write(ValveActions::OPEN);
     }
-    inline void close(){
+    void close(){
         write(ValveActions::CLOSE);
     }
-    inline void stop(){ // can be used to stop the valve half way
+    void stop(){ // can be used to stop the valve half way
         write(ValveActions::OFF);
     }
 

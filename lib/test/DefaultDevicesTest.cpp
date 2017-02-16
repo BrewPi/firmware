@@ -25,8 +25,8 @@
 
 BOOST_AUTO_TEST_SUITE(DefaultDevicesTest)
 
-BOOST_AUTO_TEST_CASE(defaultTempSensor_works_with_all_TempSensorBasic_functions){
-    TempSensorBasic * sensor = defaultTempSensorBasic();
+BOOST_AUTO_TEST_CASE(defaultTempSensor_works_with_all_TempSensor_functions){
+    TempSensor * sensor = defaultTempSensor();
 
     BOOST_CHECK_EQUAL(sensor->isConnected(), false);
 
@@ -43,10 +43,8 @@ BOOST_AUTO_TEST_CASE(defaultSetPoint_works_for_all_SetPoint_functions){
     BOOST_CHECK_EQUAL(setpoint->read(), temp_t::invalid()); // value should still be invalid
 }
 
-BOOST_AUTO_TEST_CASE(defaultLinearActuator_works_for_all_ActuatorRange_functions){
-    ActuatorRange * act = defaultLinearActuator();
-
-    BOOST_CHECK_EQUAL(act->type(), ACTUATOR_RANGE);
+BOOST_AUTO_TEST_CASE(defaultLinearActuator_works_for_all_ActuatorAnalog_functions){
+    ActuatorAnalog * act = defaultLinearActuator();
 
     BOOST_CHECK_EQUAL(act->getValue(), temp_t::invalid());
     act->setValue(50.0); // should do nothing

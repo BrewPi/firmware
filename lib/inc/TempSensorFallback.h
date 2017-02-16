@@ -20,30 +20,38 @@
 #pragma once
 
 #include "temperatureFormats.h"
-#include "TempSensorBasic.h"
+#include "TempSensor.h"
 #include "ControllerMixins.h"
 #include "defaultDevices.h"
+#include "RefTo.h"
 
 /**
  * Class that forwards all calls to another temperature sensor,
  * but when it is unavailable falls back onto a backup sensor
  */
-class TempSensorFallback : public TempSensorBasic, public TempSensorFallbackMixin {
+class TempSensorFallback : public TempSensor, public TempSensorFallbackMixin {
 public:
-    TempSensorFallback() : main(defaultTempSensorBasic()), backup(defaultTempSensorBasic()), onBackupSensor(false)
+    TempSensorFallback(TempSensor & m, TempSensor & b) :
+        main(m),
+        backup(b),
+        onBackupSensor(false)
     {
     };
+    ~TempSensorFallback() = default;
 
-    TempSensorFallback(TempSensorBasic * m, TempSensorBasic * b) : main(m), backup(b), onBackupSensor(false)
-    {
-    };
-    virtual ~TempSensorFallback(){};
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    void accept(VisitorBase & v) final {
+    	v.visit(*this);
+    }
 
     /**
      * Returns currently active sensor
-     * @return TempSensorBasic *: currently active sensor, main or backup
+     * @return TempSensor *: currently active sensor, main or backup
      */
-    TempSensorBasic * activeSensor() const {
+    TempSensor & activeSensor() const {
         return onBackupSensor ? backup : main;
     }
 
@@ -51,8 +59,8 @@ public:
      * Check if sensor is connected
      * @return bool: true if active sensor is connected
      */
-    inline bool isConnected(void) const override final {
-        return activeSensor()->isConnected();
+    bool isConnected(void) const override final {
+        return activeSensor().isConnected();
     }
 
     /**
@@ -60,8 +68,8 @@ public:
      *
      * @return bool: true if active sensor was initialized correctly
      */
-    inline bool init() override final {
-        return activeSensor()->init();
+    bool init() override final {
+        return activeSensor().init();
     }
 
     /**
@@ -76,8 +84,8 @@ public:
     void update() override final;
 
 private:
-    TempSensorBasic * main;
-    TempSensorBasic * backup;
+    TempSensor& main;
+    TempSensor& backup;
     bool onBackupSensor;
 
 friend class TempSensorFallbackMixin;

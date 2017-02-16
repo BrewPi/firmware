@@ -34,8 +34,9 @@
  */
 class ActuatorOneWire final:
     public ActuatorDigital,
-    public SwitchSensor,
-    public ActuatorOneWireMixin
+    public ActuatorOneWireMixin,
+    public SwitchSensor
+
 {
     public:
         ActuatorOneWire(OneWire *     bus,
@@ -46,6 +47,10 @@ class ActuatorOneWire final:
             init(bus, address, pio, invert);
         }
         ~ActuatorOneWire() = default;
+
+        void accept(VisitorBase & v) final {
+        	v.visit(*this);
+        }
 
         void init(OneWire *     bus,
                   DeviceAddress address,
@@ -59,7 +64,7 @@ class ActuatorOneWire final:
             device.update();
         }
 
-        void setActive(bool active) override final
+        void setActive(bool active, int8_t priority = 127) override final
         {
             // todo: alarm when write fails
             device.latchWrite(pio, active ^ invert, true);

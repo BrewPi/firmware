@@ -397,9 +397,8 @@ uint16_t OneWire::crc16(const uint8_t* input, uint16_t len, uint16_t crc) {
                 crc >>= 8;
 
         if (oddparity[cdata & 0x0F] ^ oddparity[cdata >> 4]){
-            crc ^= 0xC001;
+                crc ^= 0xC001;
         }
-
         cdata <<= 6;
         crc ^= cdata;
         cdata <<= 1;

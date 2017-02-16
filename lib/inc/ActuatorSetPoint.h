@@ -21,28 +21,38 @@
 
 #include "ActuatorInterfaces.h"
 #include "SetPoint.h"
-#include "TempSensorBasic.h"
+#include "TempSensor.h"
 #include "defaultDevices.h"
 #include "ControllerMixins.h"
- 
+#include "RefTo.h"
+
 /*
  * A linear actuator that sets a setpoint to reference setpoint + actuator value
  */
-class ActuatorSetPoint final : public ActuatorRange, public ActuatorSetPointMixin
+class ActuatorSetPoint final : public ActuatorAnalog, public ActuatorSetPointMixin
 {
 public:
-    ActuatorSetPoint(SetPoint * targSetPoint = defaultSetPoint(), // set point to manipulate
-                     TempSensorBasic * targSensor = defaultTempSensorBasic(), // sensor to go with target setpoint
-                     SetPoint * refSetPoint = defaultSetPoint(), //set point to offset from
-                     temp_t mini = temp_t::min(), // minimum actuator value (targ - ref)
-                     temp_t maxi = temp_t::max()) :  // maximum actuator value
-        targetSetPoint(targSetPoint),
-        targetSensor(targSensor),
-        referenceSetPoint(refSetPoint),
-        minimum(mini),
-        maximum(maxi){
+    ActuatorSetPoint(SetPoint & _targSetPoint, // set point to manipulate
+                     TempSensor & _targSensor, // sensor to go with target setpoint
+                     SetPoint & _refSetPoint, //set point to offset from
+                     temp_t _min = temp_t::min(), // minimum actuator value (targ - ref)
+                     temp_t _max = temp_t::max()) :  // maximum actuator value
+        targetSetPoint(_targSetPoint),
+        targetSensor(_targSensor),
+        referenceSetPoint(_refSetPoint),
+        minimum(_min),
+        maximum(_max)
+    {
     }
     ~ActuatorSetPoint() = default;
+
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    void accept(VisitorBase & v) final {
+    	v.visit(*this);
+    }
 
     void setValue(temp_t const& val) override final {
         temp_t offset = val;
@@ -52,22 +62,23 @@ public:
         else if(offset > maximum){
             offset = maximum;
         }
-        targetSetPoint->write(referenceSetPoint->read() + offset);
+        targetSetPoint.write(referenceSetPoint.read() + offset);
     }
 
     temp_t getValue() const override final {
-        return targetSetPoint->read() - referenceSetPoint->read();
+        return targetSetPoint.read() - referenceSetPoint.read();
     }
 
     // getValue returns difference between sensor and reference, because that is the actual actuator value.
     // By returning the actually achieved value, instead of the difference between the setpoints,
     // a PID can read back the actual actuator value and perform integrator anti-windup
     temp_t readValue() const override final{
-        temp_t targetTemp = targetSensor->read();
-        if(targetTemp.isDisabledOrInvalid()){
+        temp_t targetTemp = targetSensor.read();
+        temp_t referenceTemp = referenceSetPoint.read();
+        if(targetTemp.isDisabledOrInvalid() || referenceTemp.isDisabledOrInvalid()){
             return temp_t::invalid();
         }
-        return targetSensor->read() - referenceSetPoint->read();
+        return targetTemp - referenceTemp;
     }
 
     temp_t min() const override final {
@@ -90,9 +101,9 @@ public:
     void fastUpdate() override final {}; //no actions required
 
 private:
-    SetPoint * targetSetPoint;
-    TempSensorBasic * targetSensor;
-    SetPoint * referenceSetPoint;
+    SetPoint & targetSetPoint;
+    TempSensor & targetSensor;
+    SetPoint & referenceSetPoint;
     temp_t minimum;
     temp_t maximum;
 

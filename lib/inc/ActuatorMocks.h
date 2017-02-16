@@ -28,7 +28,7 @@
 /*
  * A range actuator that simply remembers the set value. This is primary used for testing.
  */
-class ActuatorValue final : public ActuatorRange, public ActuatorValueMixin
+class ActuatorValue final : public ActuatorAnalog, public ActuatorValueMixin
 {
 public:
     // construct without arguments, val = invalid, min and max are defaults
@@ -41,6 +41,10 @@ public:
     ActuatorValue(temp_t initial, temp_t minVal, temp_t maxVal) : value(initial), minimum(minVal), maximum(maxVal) {}
 
     ~ActuatorValue() = default;
+
+    void accept(VisitorBase & v) override final{
+    	v.visit(*this);
+    }
 
     void setValue(temp_t const& val) override final {
         if(val < minimum){
@@ -91,7 +95,11 @@ public:
     ActuatorBool(bool initial) : state(initial) {}
     ~ActuatorBool() = default;
 
-    void setActive(bool active) override final { state = active; }
+    void accept(VisitorBase & v) override final{
+    	v.visit(*this);
+    }
+
+    void setActive(bool active, int8_t priority = 127) override final { state = active; }
     bool isActive() const override final { return state; }
 
     void update() override final {}
@@ -113,7 +121,11 @@ public:
     ActuatorNop(){}
     ~ActuatorNop() = default;
 
-    void setActive(bool active) override final {}
+    void accept(VisitorBase & v) override final{
+    	v.visit(*this);
+    }
+
+    void setActive(bool active, int8_t priority = 127) override final {}
     bool isActive() const override final { return false;}
     void update() override final {}
     void fastUpdate() override final {}
@@ -124,11 +136,15 @@ friend class ActuatorNopMixin;
 /*
  * An linear actuator that does nothing and always returns invalid(). Linear equivalent of ActuatorNop
  */
-class ActuatorInvalid final : public ActuatorRange, public ActuatorInvalidMixin
+class ActuatorInvalid final : public ActuatorAnalog, public ActuatorInvalidMixin
 {
 public:
     ActuatorInvalid() {}
     ~ActuatorInvalid() = default;
+
+    void accept(VisitorBase & v) override final{
+    	v.visit(*this);
+    }
 
     void setValue(temp_t const& val) override final {}
     temp_t getValue() const override final {

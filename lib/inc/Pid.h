@@ -23,23 +23,30 @@
 
 #include "temperatureFormats.h"
 #include "FilterCascaded.h"
-#include "TempSensorBasic.h"
+#include "TempSensor.h"
 #include "ActuatorInterfaces.h"
 #include "SetPoint.h"
 #include "defaultDevices.h"
 #include "ControllerMixins.h"
+#include "ControllerInterface.h"
+#include "RefTo.h"
 
-class Pid final : public PidMixin
+class Pid final : public ControllerInterface, public PidMixin
 {
 
     public:
-        Pid(TempSensorBasic * input, ActuatorRange * output, SetPoint * setPoint);
-
-        Pid() : Pid(defaultTempSensorBasic(), defaultLinearActuator(), defaultSetPoint()){}
-
-        Pid(const Pid & orig);
-
+        Pid(TempSensor & _input,
+            ActuatorAnalog & _output,
+            SetPoint & _setPoint);
         ~Pid() = default;
+
+        /**
+         * Accept function for visitor pattern
+         * @param dispatcher Visitor to process this class
+         */
+        void accept(VisitorBase & v) final {
+        	v.visit(*this);
+        }
 
         void init();
 
@@ -57,26 +64,6 @@ class Pid final : public PidMixin
 
         void setDerivativeFilter(uint8_t b);
 
-        bool setInputSensor(TempSensorBasic * s);
-
-        TempSensorBasic * getInputSensor(){
-            return inputSensor;
-        }
-
-        bool setOutputActuator(ActuatorRange * a);
-
-        ActuatorRange * getOutputActuator(){
-            return outputActuator;
-        }
-
-        void setSetPoint(SetPoint * s){
-            setPoint = s;
-        }
-
-        SetPoint * getSetPoint(){
-            return setPoint;
-        }
-
         void setActuatorIsNegative(bool setting){
             actuatorIsNegative = setting;
         }
@@ -92,7 +79,7 @@ class Pid final : public PidMixin
             i = decltype(i)::base_type(0);
             d = decltype(d)::base_type(0);
             if(turnOffOutputActuator){
-                outputActuator -> setValue(0.0);
+                output.setValue(0.0);
             }
         }
 
@@ -109,16 +96,16 @@ class Pid final : public PidMixin
         */
 
     protected:
-        ActuatorRange *   outputActuator;
-        TempSensorBasic * inputSensor;
-        SetPoint *        setPoint;
+        TempSensor & input;
+        ActuatorAnalog & output;
+        SetPoint & setPoint;
         temp_long_t       Kp;    // proportional gain
         uint16_t          Ti;    // integral time constant
         uint16_t          Td;    // derivative time constant
-        temp_t            inputError;
         temp_long_t       p;
         temp_long_t       i;
         temp_long_t       d;
+        temp_t            inputError;
         temp_precise_t    derivative;
         temp_long_t       integral;
         FilterCascaded    inputFilter;

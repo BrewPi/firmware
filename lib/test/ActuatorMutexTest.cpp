@@ -35,162 +35,161 @@
 BOOST_AUTO_TEST_SUITE(ActuatorMutexTest)
 
 BOOST_AUTO_TEST_CASE(two_actuators_belonging_to_the_same_group_cannot_be_active_at_once) {
-    ActuatorDigital * act1 = new ActuatorBool();
-    ActuatorDigital * act2 = new ActuatorBool();
-    ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
+    auto act1 = ActuatorBool();
+    auto act2 = ActuatorBool();
+    auto mutex = ActuatorMutexGroup();
 
-    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1);
-    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
-    actm1->setMutex(mutex);
-    actm2->setMutex(mutex);
+    auto actm1 = ActuatorMutexDriver(act1);
+    auto actm2 = ActuatorMutexDriver(act2);
+    actm1.setMutex(&mutex);
+    actm2.setMutex(&mutex);
 
-    actm1->setActive(true, 5);
-    BOOST_CHECK(actm1->isActive()); // actuator is first, so is allowed to go active
-    BOOST_CHECK(act1->isActive()); // target actuator is active
+    actm1.setActive(true, 5);
+    BOOST_CHECK(actm1.isActive()); // actuator is first, so is allowed to go active
+    BOOST_CHECK(act1.isActive()); // target actuator is active
 
-    actm2->setActive(true, 10);
-    BOOST_CHECK(!act2->isActive()); // actuator 2 is not allowed to go active while act1 is still active
+    actm2.setActive(true, 10);
+    BOOST_CHECK(!act2.isActive()); // actuator 2 is not allowed to go active while act1 is still active
 
-    actm1->setActive(false, 5);
-    BOOST_CHECK(!act1->isActive());
-    actm1->setActive(true, 5);
-    BOOST_CHECK(!act1->isActive()); // second request to go active from act1 is blocked, because act2 has an open request with higher priority
+    actm1.setActive(false, 5);
+    BOOST_CHECK(!act1.isActive());
+    actm1.setActive(true, 5);
+    BOOST_CHECK(!act1.isActive()); // second request to go active from act1 is blocked, because act2 has an open request with higher priority
 
-    actm2->setActive(true, 10);
-    BOOST_CHECK(act2->isActive()); // actuator 2 is now allowed to go active
+    actm2.setActive(true, 10);
+    BOOST_CHECK(act2.isActive()); // actuator 2 is now allowed to go active
 }
 
 
 BOOST_AUTO_TEST_CASE(dead_time_between_actuators_is_honored) {
-    ActuatorDigital * act1 = new ActuatorBool();
-    ActuatorDigital * act2 = new ActuatorBool();
-    ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
+    auto act1 = ActuatorBool();
+    auto act2 = ActuatorBool();
+    auto mutex = ActuatorMutexGroup();
 
-    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1);
-    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
-    actm1->setMutex(mutex);
-    actm2->setMutex(mutex);
+    auto actm1 = ActuatorMutexDriver(act1);
+    auto actm2 = ActuatorMutexDriver(act2);
+    actm1.setMutex(&mutex);
+    actm2.setMutex(&mutex);
 
-    mutex->setDeadTime(10000); // 10 seconds dead time
+    mutex.setDeadTime(10000); // 10 seconds dead time
 
-    actm1->setActive(true, 5);
-    BOOST_CHECK(actm1->isActive()); // actuator is first, so is allowed to go active
-    BOOST_CHECK(act1->isActive()); // target actuator is active
+    actm1.setActive(true, 5);
+    BOOST_CHECK(actm1.isActive()); // actuator is first, so is allowed to go active
+    BOOST_CHECK(act1.isActive()); // target actuator is active
 
     delay(1000);
 
-    actm2->setActive(true, 10);
-    BOOST_CHECK(!act2->isActive()); // actuator 2 is not allowed to go active while act1 is still active
+    actm2.setActive(true, 10);
+    BOOST_CHECK(!act2.isActive()); // actuator 2 is not allowed to go active while act1 is still active
 
-    actm1->setActive(false, 5);
-    BOOST_CHECK(!actm1->isActive());
-    actm1->setActive(true, 5);
-    BOOST_CHECK(!actm1->isActive()); // second request to go active from act1 is blocked, because act2 has an open request with higher priority
+    actm1.setActive(false, 5);
+    BOOST_CHECK(!actm1.isActive());
+    actm1.setActive(true, 5);
+    BOOST_CHECK(!actm1.isActive()); // second request to go active from act1 is blocked, because act2 has an open request with higher priority
 
-    actm2->setActive(true, 10);
-    BOOST_CHECK(!actm2->isActive()); // actuator 2 is still not allowed to go active, because of dead time
+    actm2.setActive(true, 10);
+    BOOST_CHECK(!actm2.isActive()); // actuator 2 is still not allowed to go active, because of dead time
 
     int i;
     for(i = 1; i<20; i++){
         delay(1000);
-        actm2->setActive(true, 10);
-        if(actm2->isActive()){
+        actm2.setActive(true, 10);
+        if(actm2.isActive()){
             break;
         }
 
     }
-    BOOST_CHECK(actm2->isActive());
+    BOOST_CHECK(actm2.isActive());
     BOOST_CHECK_EQUAL(i,10); // act2 was allowed to go active after 10 seconds
 }
 
 
 BOOST_AUTO_TEST_CASE(dead_time_does_not_block_same_actuator_from_going_active_again) {
-    ActuatorDigital * act1 = new ActuatorBool();
-    ActuatorDigital * act2 = new ActuatorBool();
-    ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
+    auto act1 = ActuatorBool();
+    auto act2 = ActuatorBool();
+    auto mutex = ActuatorMutexGroup();
 
-    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1);
-    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
-    actm1->setMutex(mutex);
-    actm2->setMutex(mutex);
+    auto actm1 = ActuatorMutexDriver(act1);
+    auto actm2 = ActuatorMutexDriver(act2);
+    actm1.setMutex(&mutex);
+    actm2.setMutex(&mutex);
 
-    mutex->setDeadTime(10000); // 10 seconds dead time
+    mutex.setDeadTime(10000); // 10 seconds dead time
 
-    actm1->setActive(true, 5);
-    BOOST_CHECK(act1->isActive()); // target actuator is active
-
-    delay(1000);
-
-    actm1->setActive(false, 5);
-    BOOST_CHECK(!act1->isActive()); // target actuator is inactive
+    actm1.setActive(true, 5);
+    BOOST_CHECK(act1.isActive()); // target actuator is active
 
     delay(1000);
-    actm1->setActive(true, 5);
-    BOOST_CHECK(act1->isActive()); // target actuator is active again
+
+    actm1.setActive(false, 5);
+    BOOST_CHECK(!act1.isActive()); // target actuator is inactive
+
+    delay(1000);
+    actm1.setActive(true, 5);
+    BOOST_CHECK(act1.isActive()); // target actuator is active again
 }
 
 
 BOOST_AUTO_TEST_CASE(mutex_works_with_time_limited_actuator) {
-    ActuatorDigital * act1 = new ActuatorBool();
-    ActuatorTimeLimited * act1tl = new ActuatorTimeLimited(act1, 10, 20);
-    ActuatorDigital * act2 = new ActuatorBool();
+    auto act1 = ActuatorBool();
+    auto act1tl = ActuatorTimeLimited(act1, 10, 20);
+    auto act2 = ActuatorBool();
 
     delay(20000); // let initial minimum off time pass
 
+    auto mutex = ActuatorMutexGroup();
 
-    ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
-
-    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1tl);
-    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
-    actm1->setMutex(mutex);
-    actm2->setMutex(mutex);
+    auto actm1 = ActuatorMutexDriver(act1tl);
+    auto actm2 = ActuatorMutexDriver(act2);
+    actm1.setMutex(&mutex);
+    actm2.setMutex(&mutex);
 
 
-    actm1->setActive(true, 5);
-    BOOST_CHECK(act1->isActive()); // target actuator is active
-
-    for(int i=0; i<200; i++){
-        mutex->update(); // does not pass time
-    }
-
-    actm1->setActive(false, 5);
-    BOOST_CHECK(act1->isActive()); // target actuator is still active due to time limit
+    actm1.setActive(true, 5);
+    BOOST_CHECK(act1.isActive()); // target actuator is active
 
     for(int i=0; i<200; i++){
-        mutex->update();
+        mutex.update(); // does not pass time
     }
-    actm2->setActive(true, 10);
-    BOOST_CHECK(!act2->isActive()); // actuator 2 is not allowed to go active while act1 is still active
+
+    actm1.setActive(false, 5);
+    BOOST_CHECK(act1.isActive()); // target actuator is still active due to time limit
+
+    for(int i=0; i<200; i++){
+        mutex.update();
+    }
+    actm2.setActive(true, 10);
+    BOOST_CHECK(!act2.isActive()); // actuator 2 is not allowed to go active while act1 is still active
 }
 
 BOOST_AUTO_TEST_CASE(when_there_have_been_no_requests_for_a_while_dead_time_is_still_honored_on_new_request) {
     // this test was introduced to make sure lastActiveTime is not only updated on requests
 
-    ActuatorDigital * act1 = new ActuatorBool();
-    ActuatorTimeLimited * act1tl = new ActuatorTimeLimited(act1, 10, 20);
-    ActuatorDigital * act2 = new ActuatorBool();
+    auto act1 = ActuatorBool();
+    auto act1tl = ActuatorTimeLimited(act1, 10, 20);
+    auto act2 = ActuatorBool();
 
     delay(20000); // let initial minimum off time pass
 
 
-    ActuatorMutexGroup * mutex = new ActuatorMutexGroup();
+    auto mutex = ActuatorMutexGroup();
 
-    ActuatorMutexDriver * actm1 = new ActuatorMutexDriver(act1tl);
-    ActuatorMutexDriver * actm2 = new ActuatorMutexDriver(act2);
-    actm1->setMutex(mutex);
-    actm2->setMutex(mutex);
-    mutex->setDeadTime(10000); // 10 seconds dead time
+    auto actm1 = ActuatorMutexDriver(act1tl);
+    auto actm2 = ActuatorMutexDriver(act2);
+    actm1.setMutex(&mutex);
+    actm2.setMutex(&mutex);
+    mutex.setDeadTime(10000); // 10 seconds dead time
 
-    actm1->setActive(true, 5);
+    actm1.setActive(true, 5);
 
     for(int i=0; i<200; i++){
-        mutex->update();
+        mutex.update();
         delay(1000);
     }
-    actm1->setActive(false, 5);
+    actm1.setActive(false, 5);
 
-    actm2->setActive(true, 10);
-    BOOST_CHECK(!act2->isActive()); // not allowed, because of dead time
+    actm2.setActive(true, 10);
+    BOOST_CHECK(!act2.isActive()); // not allowed, because of dead time
 }
 
 

@@ -1,271 +1,216 @@
 ﻿#pragma once
 
+#include "VisitorBase.h"
 #include "json_adapter.h"
 #include "Nameable.h"
-#include "ActuatorInstallHelper.h"
-
 /*
  * Using protected non-virtual destructors to prevent destruction through base class
  */
 
-class Serializable
+class InterfaceMixin
 {
-public:
-    Serializable() = default;
 protected:
-    ~Serializable() = default;
+    ~InterfaceMixin() = default;
 public:
     void serialize(JSON::Adapter& adapter);
 };
 
-class VirtualSerializable
-{
-public:
-    VirtualSerializable() = default;
-protected:
-    ~VirtualSerializable() = default;
-public:
-    virtual void serialize(JSON::Adapter& adapter) = 0;
-};
-
-class TempSensorBasicMixin :
-        public virtual VirtualSerializable
-{
-protected:
-    ~TempSensorBasicMixin() = default;
-};
-
-class TempSensorMockMixin :
-        public virtual VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) override final;
-protected:
-    ~TempSensorMockMixin() = default;
-};
-
-class TempSensorMixin :
-        public Nameable,
-        public virtual VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) override final;
-protected:
-    ~TempSensorMixin() = default;
-};
-
-
-class TempSensorFallbackMixin :
-        public virtual VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) override final;
-protected:
-    ~TempSensorFallbackMixin() = default;
-};
-
-class PidMixin :
-        public Nameable,
-        public Serializable
-{
-public:
-    void serialize(JSON::Adapter& adapter);
-protected:
-    ~PidMixin() = default;
-};
-
-class OneWireTempSensorMixin :
-        public virtual VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) override final;
-protected:
-    ~OneWireTempSensorMixin() = default;
-};
-
-class TempSensorDisconnectedMixin :
-        public virtual VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) override final;
-protected:
-    ~TempSensorDisconnectedMixin() = default;
-};
-
-class TempSensorExternalMixin :
-        public virtual VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) override final;
-protected:
-    ~TempSensorExternalMixin() = default;
-};
-
-
-class ActuatorMixin :
-        public virtual VirtualSerializable,
-        public virtual ActuatorInstallHelper
-{
-protected:
-    ~ActuatorMixin() = default;
-};
-
-class ActuatorForwarderMixin :
-        public ActuatorInstallHelperForwarder
-{
-protected:
-    ~ActuatorForwarderMixin() = default;
-};
-
-
-class ActuatorTimeLimitedMixin :
-        public virtual VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) override final;
-protected:
-    ~ActuatorTimeLimitedMixin() = default;
-};
-
-class ActuatorSetPointMixin :
-        public virtual VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) override final;
-protected:
-    ~ActuatorSetPointMixin() = default;
-};
-
-class ActuatorPwmMixin :
-        public virtual  VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) override final;
-protected:
-    ~ActuatorPwmMixin() = default;
-};
-
-class ActuatorMutexGroupMixin :
-        public Serializable
-{
-public:
-    void serialize(JSON::Adapter& adapter);
-protected:
-    ~ActuatorMutexGroupMixin() = default;
-};
-
-class ActuatorMutexDriverMixin :
-        public virtual VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) override final;
-protected:
-    ~ActuatorMutexDriverMixin() = default;
-};
-
-class ActuatorValueMixin :
-        public virtual VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) override final;
-protected:
-    ~ActuatorValueMixin() = default;};
-
-class ActuatorBoolMixin :
-        public virtual VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) override final;
-protected:
-    ~ActuatorBoolMixin() = default;
-};
-
-class ActuatorNopMixin :
-        public virtual VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) override final;
-protected:
-    ~ActuatorNopMixin() = default;
-};
-
-class ActuatorInvalidMixin :
-        public virtual VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) override final;
-protected:
-    ~ActuatorInvalidMixin() = default;
-};
-
-class ActuatorDigitalMixin :
-        public virtual VirtualSerializable
-{
-public:
-    void serialize(JSON::Adapter& adapter) override final;
+class ActuatorDigitalMixin {
 protected:
     ~ActuatorDigitalMixin() = default;
 };
 
-class SetPointMixin :
-        public virtual VirtualSerializable
-{
+class ActuatorAnalogMixin {
+protected:
+    ~ActuatorAnalogMixin() = default;
+};
+
+class ActuatorThresholdMixin {
+protected:
+    ~ActuatorThresholdMixin() = default;
+};
+
+class TempSensorMixin {
+protected:
+    ~TempSensorMixin() = default;
+};
+
+class TempSensorMockMixin {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~TempSensorMockMixin() = default;
+};
+
+class TempSensorFallbackMixin {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~TempSensorFallbackMixin() = default;
+};
+
+class PidMixin: public Nameable {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~PidMixin() = default;
+};
+
+class OneWireTempSensorMixin {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~OneWireTempSensorMixin() = default;
+};
+
+class TempSensorDisconnectedMixin {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~TempSensorDisconnectedMixin() = default;
+};
+
+class TempSensorExternalMixin {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~TempSensorExternalMixin() = default;
+};
+
+class ActuatorTimeLimitedMixin {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~ActuatorTimeLimitedMixin() = default;
+};
+
+class ActuatorSetPointMixin {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~ActuatorSetPointMixin() = default;
+};
+
+class ActuatorPwmMixin {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~ActuatorPwmMixin() = default;
+};
+
+class ActuatorMutexGroupMixin {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~ActuatorMutexGroupMixin() = default;
+};
+
+class ActuatorMutexDriverMixin {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~ActuatorMutexDriverMixin() = default;
+};
+
+class ActuatorValueMixin {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~ActuatorValueMixin() = default;
+};
+
+class ActuatorBoolMixin {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~ActuatorBoolMixin() = default;
+};
+
+class ActuatorNopMixin {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~ActuatorNopMixin() = default;
+};
+
+class ActuatorInvalidMixin {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~ActuatorInvalidMixin() = default;
+};
+
+class SetPointMixin {
 protected:
     ~SetPointMixin() = default;
 };
 
-class SetPointSimpleMixin :
-        public Nameable,
-        public virtual VirtualSerializable
-{
+class SetPointSimpleMixin: public Nameable {
 public:
-    void serialize(JSON::Adapter& adapter) override final;
+    void serializeImpl(JSON::Adapter& adapter);
 protected:
     ~SetPointSimpleMixin() = default;
 };
 
-class SetPointConstantMixin :
-        public virtual VirtualSerializable
-{
+class SetPointConstantMixin {
 public:
-    void serialize(JSON::Adapter& adapter) override final;
+    void serializeImpl(JSON::Adapter& adapter);
 protected:
     ~SetPointConstantMixin() = default;
 };
 
-class SetPointMinMaxMixin :
-        public virtual VirtualSerializable
-{
+class SetPointMinMaxMixin {
 public:
-    void serialize(JSON::Adapter& adapter) override final;
+    void serializeImpl(JSON::Adapter& adapter);
 protected:
     ~SetPointMinMaxMixin() = default;
 };
 
-class ActuatorPinMixin :
-        public virtual VirtualSerializable
-{
+class ActuatorPinMixin {
 public:
-    void serialize(JSON::Adapter& adapter) override final;
+    void serializeImpl(JSON::Adapter& adapter);
 protected:
     ~ActuatorPinMixin() = default;
 };
 
-class ValveControllerMixin :
-        public virtual VirtualSerializable
-{
+class ValveControllerMixin {
 public:
-    void serialize(JSON::Adapter& adapter) override final;
+    void serializeImpl(JSON::Adapter& adapter);
 protected:
     ~ValveControllerMixin() = default;
 };
 
-class ActuatorOneWireMixin :
-        public virtual VirtualSerializable
-{
+class ActuatorOneWireMixin {
 public:
-    void serialize(JSON::Adapter& adapter) override final;
+    void serializeImpl(JSON::Adapter& adapter);
 protected:
     ~ActuatorOneWireMixin() = default;
 };
 
+class TempSensorDelegateMixin: public Nameable {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~TempSensorDelegateMixin() = default;
+};
+
+class ActuatorDigitalDelegateMixin: public Nameable {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~ActuatorDigitalDelegateMixin() = default;
+};
+
+class ActuatorAnalogDelegateMixin: public Nameable {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~ActuatorAnalogDelegateMixin() = default;
+};
+
+class SetPointDelegateMixin: public Nameable {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~SetPointDelegateMixin() = default;
+};

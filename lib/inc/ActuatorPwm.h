@@ -26,21 +26,17 @@
 #include "ActuatorInterfaces.h"
 #include "Ticks.h"
 #include <stdint.h>
-
-#include "ActuatorForwarder.h"
 #include "ControllerMixins.h"
-
-#undef min
-#undef max
 
 /**
 	ActuatorPWM drives a digital actuator and makes it available as range actuator, by quickly turning it on and off repeatedly.
 
 
  */
-class ActuatorPwm final : public ActuatorForwarder, public ActuatorRange, public ActuatorPwmMixin
+class ActuatorPwm final : public ActuatorAnalog, public ActuatorPwmMixin
 {
 private:
+    ActuatorDigital & target;
     temp_t         value;
     int32_t        dutyLate;
     int32_t        periodLate;
@@ -60,9 +56,17 @@ public:
      *  @param _period PWM period in seconds
      *  @sa getPeriod(), setPeriod(), getTarget(), setTarget()
      */
-    ActuatorPwm(ActuatorDigital * _target, uint16_t _period);
+    ActuatorPwm(ActuatorDigital & _target, uint16_t _period);
 
     ~ActuatorPwm() = default;
+
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    void accept(VisitorBase & v) final {
+    	v.visit(*this);
+    }
 
     /** Returns minimum value
      */
@@ -110,7 +114,7 @@ public:
      * Periodic update (every second). Same as fast update, but calls periodic update on target too.
      */
     void update() override final {
-        target->update();
+        target.update();
         fastUpdate();
     };
 

@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(set_value){
     SetPointSimple referenceSetPoint(20.0);
     TempSensorMock targetSensor(20.0);
 
-    ActuatorSetPoint act(&targetSetPoint, &targetSensor, &referenceSetPoint);
+    auto act = ActuatorSetPoint(targetSetPoint, targetSensor, referenceSetPoint);
 
     act.setValue(10.0);
 
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(min_max){
     SetPointSimple referenceSetPoint(20.0);
     TempSensorMock targetSensor(20.0);
 
-    ActuatorSetPoint act(&targetSetPoint, &targetSensor, &referenceSetPoint, -10.0, 10.0);
+    auto act = ActuatorSetPoint(targetSetPoint, targetSensor, referenceSetPoint, -10.0, 10.0);
 
     act.setValue(20.0);
     targetSensor.setTemp(30.0);
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(when_target_sensor_is_invalid_actuator_value_is_invalid){
     SetPointSimple referenceSetPoint(20.0);
     TempSensorMock targetSensor(20.0);
 
-    ActuatorSetPoint act(&targetSetPoint, &targetSensor, &referenceSetPoint, -10.0, 10.0);
+    auto act = ActuatorSetPoint(targetSetPoint, targetSensor, referenceSetPoint, -10.0, 10.0);
     act.setValue(20.0);
     targetSensor.setTemp(30.0);
 
