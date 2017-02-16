@@ -1,6 +1,7 @@
 #pragma once
 
-/* Empty Mixins. */
+/* Empty Mixins.
+ */
 
 class InterfaceMixin {};
 class ActuatorDigitalMixin {};
@@ -8,7 +9,6 @@ class ActuatorAnalogMixin {};
 class ActuatorThresholdMixin {};
 class TempSensorMixin {};
 class TempSensorMockMixin {};
-class TempSensorDelegateMixin {};
 class TempSensorFallbackMixin {};
 class PidMixin {};
 class OneWireTempSensorMixin {};
@@ -30,4 +30,7 @@ class SetPointMinMaxMixin {};
 class ActuatorPinMixin {};
 class ValveControllerMixin {};
 class ActuatorOneWireMixin {};
-class ActuatorDigitalReferenceMixin {};
+class TempSensorDelegateMixin {};
+class ActuatorDigitalDelegateMixin {};
+class ActuatorAnalogDelegateMixin {};
+class SetPointDelegateMixin {};

@@ -21,7 +21,6 @@
 #pragma once
 
 #include "Platform.h"
-#include "TicksElapsed.h"
 #include <stdint.h>
 
 
