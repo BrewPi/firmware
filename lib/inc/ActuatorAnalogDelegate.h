@@ -64,24 +64,18 @@ public:
         actuator().fastUpdate();
     }
 
-    void setValue(temp_t const& val) final {
-        actuator().setValue(val);
+    void set(temp_t const& val) final {
+        actuator().set(val);
     }
 
-    temp_t getValue() const final {
-        return actuator().getValue();
+    temp_t setting() const final {
+        return actuator().setting();
     }
 
-    temp_t readValue() const final {
-        return actuator().readValue();
-    }
-    temp_t min() const final {
-        return actuator().min();
+    temp_t value() const final {
+        return actuator().value();
     }
 
-    temp_t max() const final {
-        return actuator().max();
-    }
 
 private:
     RefTo<ActuatorAnalog> actuator;

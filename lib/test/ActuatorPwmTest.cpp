@@ -37,7 +37,7 @@
 #define PRINT_TOGGLE_TIMES 0
 
 double randomIntervalTest(ActuatorPwm & act, ActuatorDigital & target, temp_t duty, int delayMax) {
-    act.setValue(duty);
+    act.set(duty);
     ticks_millis_t lowToHighTime = ticks.millis();
     ticks_millis_t highToLowTime = ticks.millis();
     ticks_millis_t totalHighTime = 0;
@@ -93,21 +93,21 @@ BOOST_AUTO_TEST_CASE( Test_ActuatorPWM_with_ValueActuator_as_driver) {
     auto target = ActuatorBool();
     auto act = ActuatorPwm(target,4);
 
-    BOOST_CHECK(act.getValue() == temp_t(0.0)); // PWM value is initialized to 0
+    BOOST_CHECK(act.setting() == temp_t(0.0)); // PWM value is initialized to 0
 
     // Test that PWM can be set and read
-    act.setValue(50.0);
-    BOOST_CHECK_EQUAL(act.getValue(), temp_t(50.0));
-    act.setValue(100.0);
-    BOOST_CHECK_EQUAL(act.getValue(), temp_t(100.0));
-    act.setValue(0.0);
-    BOOST_CHECK_EQUAL(act.getValue(), temp_t(0.0));
+    act.set(50.0);
+    BOOST_CHECK_EQUAL(act.setting(), temp_t(50.0));
+    act.set(100.0);
+    BOOST_CHECK_EQUAL(act.setting(), temp_t(100.0));
+    act.set(0.0);
+    BOOST_CHECK_EQUAL(act.setting(), temp_t(0.0));
 
-    act.setValue(110.0);
-    BOOST_CHECK_EQUAL(act.getValue(), temp_t(100.0)); // max is 100
+    act.set(110.0);
+    BOOST_CHECK_EQUAL(act.setting(), temp_t(100.0)); // max is 100
 
-    act.setValue(-50.0);
-    BOOST_CHECK_EQUAL(act.getValue(), temp_t(0.0)); // min is 0
+    act.set(-50.0);
+    BOOST_CHECK_EQUAL(act.setting(), temp_t(0.0)); // min is 0
 }
 
 BOOST_AUTO_TEST_CASE(on_off_time_matches_duty_cycle_when_updating_every_ms) {
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(on_off_time_matches_duty_cycle_when_updating_every_ms) {
     auto act = ActuatorPwm(target,4);
 
     temp_t duty = 50.0;
-    act.setValue(duty);
+    act.set(duty);
     ticks_millis_t lowToHighTime1 = ticks.millis();
     ticks_millis_t highToLowTime1 = ticks.millis();
     ticks_millis_t lowToHighTime2 = ticks.millis();
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(output_stays_low_with_value_0) {
     auto target = ActuatorBool();
     auto act = ActuatorPwm(target,4);
 
-    act.setValue(0.0);
+    act.set(0.0);
     // wait target to go low
     while (target.isActive()) {
         delay(1);
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE(on_big_positive_changes_shortened_cycle_has_correct_value) 
     auto limited = ActuatorTimeLimited(vAct, 0, 0);
     auto act = ActuatorPwm(limited, 100); // period is 100 seconds
 
-    act.setValue(short(30));
+    act.set(short(30));
     ticks_millis_t start = ticks.millis();
     ticks_millis_t periodStart;
     while(ticks.millis() - start < 250000) { // 250 seconds
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE(on_big_positive_changes_shortened_cycle_has_correct_value) 
     }
 
     BOOST_CHECK(!vAct.isActive()); // actuator is inactive, ~50 seconds into 3rd cycle
-    act.setValue(50.0);
+    act.set(50.0);
     while (!vAct.isActive()) {
         delay(1000);
         act.update();
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE(on_big_negative_changes_go_low_immediately) {
     auto act = ActuatorPwm(limited, 100); // period is 100 seconds
 
     ticks_millis_t lastLowTimeBeforeChange = ticks.millis();
-    act.setValue(60.0);
+    act.set(60.0);
     for (uint32_t i = 0; i < 250 ; i++) { // 250 seconds
         delay(1000);
         act.update();
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE(on_big_negative_changes_go_low_immediately) {
     }
 
     BOOST_CHECK(vAct.isActive()); // actuator is active
-    act.setValue(30.0);
+    act.set(30.0);
     act.update();
     BOOST_CHECK(!vAct.isActive()); // actuator turns off immediately
 
@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE(output_stays_high_with_value_100) {
     auto target = ActuatorBool();
     auto act = ActuatorPwm(target,4);
 
-    act.setValue(100.0);
+    act.set(100.0);
     // wait for target to go high
     while (!target.isActive()) {
         delay(1);
@@ -319,10 +319,10 @@ BOOST_AUTO_TEST_CASE(when_switching_between_zero_and_low_value_average_is_correc
 
     for(int cycles = 0; cycles < 100; cycles++){
         if(cycles %2 == 0){
-            act.setValue(4.0); // under minimum ON time of 20, doesn't trigger skipping ahead
+            act.set(4.0); // under minimum ON time of 20, doesn't trigger skipping ahead
         }
         else{
-            act.setValue(0.0);
+            act.set(0.0);
         }
         for(int i = 0; i < 180; i++){ // 180 seconds, not full periods on purpose
             delay(1000);
@@ -333,7 +333,7 @@ BOOST_AUTO_TEST_CASE(when_switching_between_zero_and_low_value_average_is_correc
             else{
                 timeLow++;
             }
-            csv     << act.getValue() << "," // setpoint
+            csv     << act.setting() << "," // setpoint
                     << vAct.isActive() // actual cooler pin state
                     << endl;
         }
@@ -354,7 +354,7 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_up_faster_than_period_gives_correct_average){
 
     for(int ramps = 0; ramps <100; ramps++){ // enough ramps to not be affected by time window
         for(temp_t v = temp_t(40.0); v <= temp_t(60.0); v = v + temp_t(0.25)){
-            act.setValue(v);
+            act.set(v);
             for(int j = 0; j < 100; j++){ // 10 seconds total
                 delay(100);
                 act.update();
@@ -381,7 +381,7 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_down_faster_than_period_gives_correct_average){
 
     for(int ramps = 0; ramps <100; ramps++){ // enough ramps to not be affected by time window
         for(temp_t v = temp_t(60.0); v >= temp_t(40.0); v = v - temp_t(0.25)){
-          act.setValue(v);
+          act.set(v);
           for(int j = 0; j < 100; j++){ // 10 seconds total
               delay(100);
               act.update();
@@ -418,8 +418,8 @@ BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap_with_equal_duty){
     ticks_seconds_t timeHigh2 = 0;
     ticks_seconds_t timeLow2 = 0;
 
-    act1.setValue(20.0);
-    act2.setValue(20.0);
+    act1.set(20.0);
+    act2.set(20.0);
 
     act1.update();
     act2.update();
@@ -477,8 +477,8 @@ BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap_with_different_duty){
     ticks_seconds_t timeHigh2 = 0;
     ticks_seconds_t timeLow2 = 0;
 
-    act1.setValue(60.0);
-    act2.setValue(20.0);
+    act1.set(60.0);
+    act2.set(20.0);
 
     act1.update();
     act2.update();
@@ -536,8 +536,8 @@ BOOST_AUTO_TEST_CASE(mutex_actuator_which_cannot_go_active_cannot_block_other_ac
     ticks_seconds_t timeHigh2 = 0;
     ticks_seconds_t timeLow2 = 0;
 
-    act1.setValue(20.0);
-    act2.setValue(40.0);  // <-- act2 will have higher priority due to higher duty cycle
+    act1.set(20.0);
+    act2.set(40.0);  // <-- act2 will have higher priority due to higher duty cycle
 
     act1.update();
     act2.update();
@@ -583,7 +583,7 @@ BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct){
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "1#set value, 1#read value, 2a#pin" << endl;
 
-    pwmAct.setValue(20.0);
+    pwmAct.set(20.0);
     ticks_millis_t start = ticks.millis();
     while(ticks.millis() - start < 200000){ // run for 200 seconds to dial in cycle time
         pwmAct.update();
@@ -596,12 +596,12 @@ BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct){
     double sum = 0.0;
     while(ticks.millis() - start < 500000){ // run for 500 seconds
         pwmAct.update();
-        csv     << pwmAct.getValue() << ","
-                << pwmAct.readValue() << ","
+        csv     << pwmAct.setting() << ","
+                << pwmAct.value() << ","
                 << boolAct.isActive()
                 << endl;
         count++;
-        sum += double(pwmAct.readValue());
+        sum += double(pwmAct.value());
         delay(100);
     }
     double average = sum/count;
@@ -617,7 +617,7 @@ BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct_w
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "1#set value, 1#read value, 2a#pin" << endl;
 
-    pwmAct.setValue(5.0); // set to a value with duty cycle lower than time limit
+    pwmAct.set(5.0); // set to a value with duty cycle lower than time limit
 
     ticks_millis_t start = ticks.millis();
     while(ticks.millis() - start < 100000){ // run for 100 seconds to dial in cycle time
@@ -631,12 +631,12 @@ BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct_w
     double sum = 0.0;
     while(ticks.millis() - start < 1000000){ // run for 1000 seconds
         pwmAct.update();
-        csv     << pwmAct.getValue() << ","
-                << pwmAct.readValue() << ","
+        csv     << pwmAct.setting() << ","
+                << pwmAct.value() << ","
                 << boolAct.isActive()
                 << endl;
         count++;
-        sum += double(pwmAct.readValue());
+        sum += double(pwmAct.value());
         delay(100);
     }
     double average = sum/count;
@@ -648,7 +648,7 @@ BOOST_AUTO_TEST_CASE(slowly_changing_pwm_value_reads_back_as_correct_value){
     auto boolAct = ActuatorBool();
     auto pwmAct = ActuatorPwm(boolAct, 20);
 
-    pwmAct.setValue(0.0);
+    pwmAct.set(0.0);
     ticks_millis_t start = ticks.millis();
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
@@ -659,20 +659,20 @@ BOOST_AUTO_TEST_CASE(slowly_changing_pwm_value_reads_back_as_correct_value){
     while(ticks.millis() - start < 3000000){ // run for 3000 seconds
         // fluctuate with a period of 1000 seconds around 50 with amplitude 60, so some clipping will occur
         pwmValue = 50.0 - 60.0 * cos(3.14159265*2 * (ticks.millis() - start)/1000000); // starts at zero
-        pwmAct.setValue(pwmValue);
+        pwmAct.set(pwmValue);
 
         if(pwmValue < 0.1){
-            pwmAct.setValue(pwmValue);
+            pwmAct.set(pwmValue);
         }
 
         pwmAct.update();
         delay(100);
-        csv     << pwmAct.getValue() << ","
-                << pwmAct.readValue() << ","
+        csv     << pwmAct.setting() << ","
+                << pwmAct.value() << ","
                 << boolAct.isActive()
                 << endl;
         // maximum from one cylce to the next is maximum derivative * pwm period = 60*2*pi/1000 * 20 = 7.5398
-        BOOST_CHECK_LE(abs(double(pwmAct.getValue() - pwmAct.readValue())), 7.5398); // read back value stays within 5% of set value
+        BOOST_CHECK_LE(abs(double(pwmAct.setting() - pwmAct.value())), 7.5398); // read back value stays within 5% of set value
     }
 }
 
@@ -682,7 +682,7 @@ BOOST_AUTO_TEST_CASE(fluctuating_pwm_value_gives_correct_average_with_time_limit
     auto timeLimitedAct = ActuatorTimeLimited(boolAct, 2, 5);
     auto pwmAct = ActuatorPwm(timeLimitedAct, 20);
 
-    pwmAct.setValue(5.0); // set to a value with duty cycle lower than time limit
+    pwmAct.set(5.0); // set to a value with duty cycle lower than time limit
     ticks_millis_t start = ticks.millis();
 
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
@@ -698,16 +698,16 @@ BOOST_AUTO_TEST_CASE(fluctuating_pwm_value_gives_correct_average_with_time_limit
     while(ticks.millis() - start < 1000000){ // run for 1000 seconds
         // fluctuate with a period of 200 seconds around 50 with amplitude 50
         pwmValue = 50.0 - 50.0 * cos(3.14159265*2 * (ticks.millis()-start)/200000);
-        pwmAct.setValue(pwmValue);
+        pwmAct.set(pwmValue);
 
         pwmAct.update();
         delay(100);
-        csv     << pwmAct.getValue() << ","
-                << pwmAct.readValue() << ","
+        csv     << pwmAct.setting() << ","
+                << pwmAct.value() << ","
                 << boolAct.isActive()
                 << endl;
         count++;
-        sum += double(pwmAct.readValue());
+        sum += double(pwmAct.value());
         ticks_millis_t prevLoopTime = loopTime;
         loopTime = delay(200);
         if(boolAct.isActive()){
@@ -758,19 +758,19 @@ BOOST_AUTO_TEST_CASE(decreasing_pwm_value_after_long_high_time_and_mutex_wait){
             BOOST_REQUIRE(!boolAct.isActive()); // mutex group dead time keeps actuator low
         }
 
-        pwmAct.setValue(pwmValue);
+        pwmAct.set(pwmValue);
         mutex.update();
         pwmAct.update();
 
         if(ticks.millis() - start > 200000){ // start decreasing after 200 s
             pwmValue -= 0.01; // decrease slowly, with 0.1 degree per second
             // maximum difference between history based value and setpoint is 4
-            BOOST_CHECK_LE(abs(double(pwmAct.getValue() - pwmAct.readValue())), 4);
+            BOOST_CHECK_LE(abs(double(pwmAct.setting() - pwmAct.value())), 4);
         }
 
         delay(100);
-        csv     << pwmAct.getValue() << ","
-                << pwmAct.readValue() << ","
+        csv     << pwmAct.setting() << ","
+                << pwmAct.value() << ","
                 << boolAct.isActive()
                 << endl;
     }

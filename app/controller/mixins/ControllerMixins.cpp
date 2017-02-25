@@ -166,11 +166,11 @@ void ActuatorSetPointMixin::serializeImpl(JSON::Adapter & adapter)
     JSON_OE(adapter, targetSensor);
     JSON_OE(adapter, referenceSetPoint);
 
-    temp_t output = obj -> getValue();
+    temp_t output = obj -> setting();
 
     JSON_E(adapter, output);
 
-    temp_t achieved = obj -> readValue();
+    temp_t achieved = obj -> value();
 
     JSON_E(adapter, achieved);
     JSON_OE(adapter, minimum);
@@ -182,7 +182,7 @@ void ActuatorPwmMixin::serializeImpl(JSON::Adapter & adapter)
     ActuatorPwm * obj = static_cast<ActuatorPwm *>(this);
 
     JSON::Class root(adapter, "ActuatorPwm");
-    JSON_OE(adapter, value);
+    JSON_OE(adapter, setting);
 
     ticks_seconds_t period = obj -> getPeriod();    // don't use member directly, but value in seconds
 
@@ -216,7 +216,7 @@ void ActuatorValueMixin::serializeImpl(JSON::Adapter & adapter)
     ActuatorValue * obj = static_cast<ActuatorValue *>(this);
 
     JSON::Class root(adapter, "ActuatorValue");
-    JSON_OE(adapter, value);
+    JSON_OE(adapter, currentValue);
     JSON_OE(adapter, minimum);
     JSON_OT(adapter, maximum);
 }
@@ -243,14 +243,10 @@ void ActuatorNopMixin::serializeImpl(JSON::Adapter & adapter)
 void ActuatorInvalidMixin::serializeImpl(JSON::Adapter & adapter)
 {
     ActuatorInvalid * obj     = static_cast<ActuatorInvalid *>(this);
-    temp_t            value   = obj -> getValue();
-    temp_t            minimum = obj -> min();
-    temp_t            maximum = obj -> max();
+    temp_t            value   = obj -> setting();
 
     JSON::Class root(adapter, "ActuatorInvalid");
-    JSON_E(adapter, value);
-    JSON_E(adapter, minimum);
-    JSON_T(adapter, maximum);
+    JSON_T(adapter, value);
 }
 
 void ActuatorPinMixin::serializeImpl(JSON::Adapter & adapter)

@@ -25,6 +25,7 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorMocks.h"
 #include "TempSensorMock.h"
+#include "SensorSetPointPair.h"
 #include "RefTo.h"
 #include "SetPoint.h"
 #include "ActuatorSetPoint.h"
@@ -124,8 +125,12 @@ BOOST_AUTO_TEST_CASE(Lookup_can_be_deleted_after_passing_to_reference) {
 BOOST_AUTO_TEST_CASE(RefTo_SetPointActuator) {
     auto sp1 = SetPointSimple(20.0);
     auto sp2 = SetPointSimple(20.0);
-    auto sensor = TempSensorMock(20.0);
-    Interface * spa = new ActuatorSetPoint(sp1, sensor, sp2);
+    auto sensor1 = TempSensorMock(20.0);
+    auto sensor2 = TempSensorMock(20.0);
+
+    auto pair1 = SensorSetPointPair(sensor1, sp1);
+    auto pair2 = SensorSetPointPair(sensor2, sp2);
+    Interface * spa = new ActuatorSetPoint(pair1, pair2);
     auto lookup = PtrLookup(spa);
     RefTo<ActuatorAnalog> ref(lookup);
 

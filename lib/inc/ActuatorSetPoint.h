@@ -20,11 +20,8 @@
  #pragma once
 
 #include "ActuatorInterfaces.h"
-#include "SetPoint.h"
-#include "TempSensor.h"
-#include "defaultDevices.h"
 #include "ControllerMixins.h"
-#include "RefTo.h"
+#include "ProcessValue.h"
 
 /*
  * A linear actuator that sets a setpoint to reference setpoint + actuator value
@@ -32,16 +29,16 @@
 class ActuatorSetPoint final : public ActuatorAnalog, public ActuatorSetPointMixin
 {
 public:
-    ActuatorSetPoint(SetPoint & _targSetPoint, // set point to manipulate
-                     TempSensor & _targSensor, // sensor to go with target setpoint
-                     SetPoint & _refSetPoint, //set point to offset from
+    ActuatorSetPoint(ProcessValue & _target, // process value to manipulate
+                     ProcessValue & _reference, // process value to offset from
                      temp_t _min = temp_t::min(), // minimum actuator value (targ - ref)
                      temp_t _max = temp_t::max()) :  // maximum actuator value
-        targetSetPoint(_targSetPoint),
-        targetSensor(_targSensor),
-        referenceSetPoint(_refSetPoint),
+        target(_target),
+        reference(_reference),
+        offset(0.0),
         minimum(_min),
-        maximum(_max)
+        maximum(_max),
+        useReferenceSetting(true)
     {
     }
     ~ActuatorSetPoint() = default;
@@ -54,38 +51,45 @@ public:
     	v.visit(*this);
     }
 
-    void setValue(temp_t const& val) override final {
-        temp_t offset = val;
-        if(offset < minimum){
+    temp_t readReference() const {
+        return (useReferenceSetting) ? reference.setting() : reference.value();
+    }
+
+    void set(temp_t const& val) override final {
+        if(val < minimum){
             offset = minimum;
         }
-        else if(offset > maximum){
+        else if(val> maximum){
             offset = maximum;
         }
-        targetSetPoint.write(referenceSetPoint.read() + offset);
+        else{
+            offset = val;
+        }
+        update();
     }
 
-    temp_t getValue() const override final {
-        return targetSetPoint.read() - referenceSetPoint.read();
+    temp_t setting() const override final {
+        return offset;
     }
 
-    // getValue returns difference between sensor and reference, because that is the actual actuator value.
+    // value() returns the actually achieved offset
     // By returning the actually achieved value, instead of the difference between the setpoints,
     // a PID can read back the actual actuator value and perform integrator anti-windup
-    temp_t readValue() const override final{
-        temp_t targetTemp = targetSensor.read();
-        temp_t referenceTemp = referenceSetPoint.read();
-        if(targetTemp.isDisabledOrInvalid() || referenceTemp.isDisabledOrInvalid()){
+    temp_t value() const override final{
+        temp_t targetValue = target.value();
+        temp_t referenceValue = readReference();
+
+        if(targetValue.isDisabledOrInvalid() || referenceValue.isDisabledOrInvalid()){
             return temp_t::invalid();
         }
-        return targetTemp - referenceTemp;
+        return targetValue - referenceValue;
     }
 
-    temp_t min() const override final {
+    temp_t min() const {
         return minimum;
     }
 
-    temp_t max() const override final {
+    temp_t max() const {
         return maximum;
     }
 
@@ -97,15 +101,28 @@ public:
         maximum = max;
     }
 
-    void update() override final {}; //no actions required
+    void setReferenceSettingOrValue(bool useSetting) {
+        useReferenceSetting = useSetting;
+    }
+
+    void update() override final {
+        temp_t referenceValue = readReference();
+        if(referenceValue.isDisabledOrInvalid()){
+            target.set(temp_t::invalid());
+            return;
+        }
+        temp_t targetValue = referenceValue + offset;
+        target.set(targetValue);
+    };
     void fastUpdate() override final {}; //no actions required
 
 private:
-    SetPoint & targetSetPoint;
-    TempSensor & targetSensor;
-    SetPoint & referenceSetPoint;
+    ProcessValue & target; // process value to manipulate
+    ProcessValue & reference; // process value to offset from
+    temp_t offset;
     temp_t minimum;
     temp_t maximum;
+    bool useReferenceSetting; // use setting of reference and not actual value if true (default)
 
     friend class ActuatorSetPointMixin;
 };

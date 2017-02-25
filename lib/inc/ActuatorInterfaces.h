@@ -24,6 +24,7 @@
 #include "ControllerMixins.h"
 #include "temperatureFormats.h"
 #include "Interface.h"
+#include "ProcessValue.h"
 
 /*
  * An ActuatorDigital simply turns something on or off.
@@ -43,29 +44,15 @@ public:
 /*
  * An ActuatorAnalog has a range output between min and max
  */
-class ActuatorAnalog : public virtual Interface, public virtual ActuatorAnalogMixin
+class ActuatorAnalog :
+        public virtual ProcessValue,
+        public virtual ActuatorAnalogMixin
 {
 public:
     ActuatorAnalog() = default;
     virtual ~ActuatorAnalog() = default;
-    virtual void setValue(temp_t const& val) = 0;
-    virtual temp_t getValue() const = 0; // get set value
-    virtual temp_t readValue() const = 0; // read actual achieved value
-    virtual temp_t min() const = 0;
-    virtual temp_t max() const = 0;
-};
 
-/*
- * An ThresholdActuator has switches on at a certain threshold. TODO: add hysteresis
- */
-class ActuatorThreshold: public virtual Interface, public virtual ActuatorThresholdMixin
-{
-    ActuatorThreshold() = default;
-    virtual ~ActuatorThreshold() = default;
-    virtual void setValue(temp_t const& val) = 0;
-    virtual temp_t readValue() const = 0;
-    virtual temp_t onValue() const = 0;
-    virtual temp_t offValue() const = 0;
+    friend class ActuatorAnalogMixin;
 };
 
 

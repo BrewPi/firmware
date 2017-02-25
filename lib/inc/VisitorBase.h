@@ -48,6 +48,8 @@ class TempSensorDelegate;
 class ActuatorDigitalDelegate;
 class ActuatorAnalogDelegate;
 class SetPointDelegate;
+class SensorSetPointPair;
+class ProcessValueDelegate;
 
 class VisitorBase {
 protected:
@@ -78,6 +80,8 @@ public:
 	virtual void visit(ActuatorDigitalDelegate& thisRef) = 0;
 	virtual void visit(ActuatorAnalogDelegate& thisRef) = 0;
 	virtual void visit(SetPointDelegate& thisRef) = 0;
+	virtual void visit(ProcessValueDelegate& thisRef) = 0;
+	virtual void visit(SensorSetPointPair& thisRef) = 0;
 #if WIRING
 	virtual void visit(ActuatorPin& thisRef) = 0;
 #endif

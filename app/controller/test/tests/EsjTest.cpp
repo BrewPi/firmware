@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
     auto sp2 = SetPointConstant(20.0);
     auto sens1 = TempSensorMock(20.0);
     auto act = ActuatorSetPoint(sp1, sens1, sp2, -10.0, 10.0);
-    act.setValue(5.0); // should set sp1 to sp2 + 5.0 = 25.0;
+    act.set(5.0); // should set sp1 to sp2 + 5.0 = 25.0;
 
     std::string json = JSON::producer<ActuatorAnalog>::convert(act);
 

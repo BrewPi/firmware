@@ -39,7 +39,9 @@
 #include "TempSensorDelegate.h"
 #include "ActuatorAnalogDelegate.h"
 #include "ActuatorDigitalDelegate.h"
+#include "ProcessValueDelegate.h"
 #include "SetPointDelegate.h"
+#include "SensorSetPointPair.h"
 
 #if WIRING
 #include "ActuatorPin.h"
@@ -75,6 +77,8 @@ public:
     void visit(ActuatorDigitalDelegate& thisRef) final { this->process(thisRef); };
     void visit(ActuatorAnalogDelegate& thisRef) final { this->process(thisRef); };
     void visit(SetPointDelegate& thisRef) final { this->process(thisRef); };
+    void visit(ProcessValueDelegate& thisRef) final { this->process(thisRef); };
+    void visit(SensorSetPointPair& thisRef) final { this->process(thisRef); };
 #if WIRING
     void visit(ActuatorPin& thisRef) final { this->process(thisRef); };
 #endif
