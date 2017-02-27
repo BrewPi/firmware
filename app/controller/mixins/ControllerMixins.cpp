@@ -41,7 +41,7 @@
 #include "ValveController.h"
 #include "TempSensorDelegate.h"
 #include "ActuatorDigitalDelegate.h"
-#include "ActuatorAnalogDelegate.h"
+#include "ProcessValueDelegate.h"
 #include "SetPointDelegate.h"
 
 #if WIRING
@@ -340,15 +340,15 @@ void ActuatorDigitalDelegateMixin::serializeImpl(JSON::Adapter & adapter)
     JSON_T(adapter, actuator);
 }
 
-void ActuatorAnalogDelegateMixin::serializeImpl(JSON::Adapter & adapter)
+void ProcessValueDelegateMixin::serializeImpl(JSON::Adapter & adapter)
 {
-    ActuatorAnalogDelegate * obj = static_cast<ActuatorAnalogDelegate *>(this);
+    ProcessValueDelegate * obj = static_cast<ProcessValueDelegate *>(this);
 
-    JSON::Class root(adapter, "ActuatorAnalogDelegate");
+    JSON::Class root(adapter, "ProcessValueDelegate");
     std::string name(getName());    // get name as std string for json_writer
     JSON_E(adapter, name);
-    Interface & actuator = obj->actuator();
-    JSON_T(adapter, actuator);
+    Interface & delegate = obj->delegate();
+    JSON_T(adapter, delegate);
 }
 
 void SetPointDelegateMixin::serializeImpl(JSON::Adapter & adapter)

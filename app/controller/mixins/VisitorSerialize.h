@@ -52,7 +52,7 @@ public:
     void visit(ValveController& thisRef) final;
     void visit(TempSensorDelegate& thisRef) final;
     void visit(ActuatorDigitalDelegate& thisRef) final;
-    void visit(ActuatorAnalogDelegate& thisRef) final;
+    void visit(ProcessValueDelegate& thisRef) final;
     void visit(SetPointDelegate& thisRef) final;
 #if WIRING
     void visit(ActuatorPin& thisRef) final;

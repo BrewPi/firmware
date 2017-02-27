@@ -39,7 +39,6 @@
 #include "ValveController.h"
 #include "TempSensorDelegate.h"
 #include "ActuatorDigitalDelegate.h"
-#include "ActuatorAnalogDelegate.h"
 #include "SetPointDelegate.h"
 
 #if WIRING
@@ -112,7 +111,7 @@ void VisitorSerialize::visit(TempSensorDelegate& thisRef) {
 void VisitorSerialize::visit(ActuatorDigitalDelegate& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void VisitorSerialize::visit(ActuatorAnalogDelegate& thisRef) {
+void VisitorSerialize::visit(ProcessValueDelegate& thisRef) {
     thisRef.serializeImpl(adapter);
 }
 void VisitorSerialize::visit(SetPointDelegate& thisRef) {

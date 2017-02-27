@@ -37,7 +37,6 @@
 #include "ValveController.h"
 #include "VisitorBase.h"
 #include "TempSensorDelegate.h"
-#include "ActuatorAnalogDelegate.h"
 #include "ActuatorDigitalDelegate.h"
 #include "ProcessValueDelegate.h"
 #include "SetPointDelegate.h"
@@ -75,7 +74,6 @@ public:
     void visit(ValveController& thisRef) final { this->process(thisRef); };
     void visit(TempSensorDelegate& thisRef) final { this->process(thisRef); };
     void visit(ActuatorDigitalDelegate& thisRef) final { this->process(thisRef); };
-    void visit(ActuatorAnalogDelegate& thisRef) final { this->process(thisRef); };
     void visit(SetPointDelegate& thisRef) final { this->process(thisRef); };
     void visit(ProcessValueDelegate& thisRef) final { this->process(thisRef); };
     void visit(SensorSetPointPair& thisRef) final { this->process(thisRef); };

@@ -78,7 +78,6 @@ public:
 	virtual void visit(ValveController& thisRef) = 0;
 	virtual void visit(TempSensorDelegate& thisRef) = 0;
 	virtual void visit(ActuatorDigitalDelegate& thisRef) = 0;
-	virtual void visit(ActuatorAnalogDelegate& thisRef) = 0;
 	virtual void visit(SetPointDelegate& thisRef) = 0;
 	virtual void visit(ProcessValueDelegate& thisRef) = 0;
 	virtual void visit(SensorSetPointPair& thisRef) = 0;
