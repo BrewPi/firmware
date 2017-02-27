@@ -38,7 +38,7 @@ public:
         offset(0.0),
         minimum(_min),
         maximum(_max),
-        useReferenceSetting(true)
+        useReferenceValue(false)
     {
     }
     ~ActuatorOffset() = default;
@@ -52,7 +52,7 @@ public:
     }
 
     temp_t readReference() const {
-        return (useReferenceSetting) ? reference.setting() : reference.value();
+        return (useReferenceValue) ? reference.value() : reference.setting();
     }
 
     void set(temp_t const& val) override final {
@@ -102,7 +102,7 @@ public:
     }
 
     void setReferenceSettingOrValue(bool useSetting) {
-        useReferenceSetting = useSetting;
+        useReferenceValue = useSetting;
     }
 
     void update() override final {
@@ -122,7 +122,7 @@ private:
     temp_t offset;
     temp_t minimum;
     temp_t maximum;
-    bool useReferenceSetting; // use setting of reference and not actual value if true (default)
+    bool useReferenceValue; // use setting of reference and not actual value if false (default)
 
     friend class ActuatorOffsetMixin;
 };

@@ -43,6 +43,7 @@
 #include "ActuatorDigitalDelegate.h"
 #include "ProcessValueDelegate.h"
 #include "SetPointDelegate.h"
+#include "SensorSetPointPair.h"
 
 #if WIRING
 #include "ActuatorPin.h"
@@ -71,8 +72,8 @@ void PidMixin::serializeImpl(JSON::Adapter & adapter)
     std::string name(getName());    // get name as std string for json_writer
     JSON_E(adapter, name);
     JSON_OE(adapter, enabled);
-    JSON_OE(adapter, setPoint);
     JSON_OE(adapter, input);
+    JSON_OE(adapter, output);
     JSON_OE(adapter, inputError);
     JSON_OE(adapter, Kp);
     JSON_OE(adapter, Ti);
@@ -80,8 +81,7 @@ void PidMixin::serializeImpl(JSON::Adapter & adapter)
     JSON_OE(adapter, p);
     JSON_OE(adapter, i);
     JSON_OE(adapter, d);
-    JSON_OE(adapter, actuatorIsNegative);
-    JSON_OT(adapter, output);
+    JSON_OT(adapter, actuatorIsNegative);
 }
 
 void TempSensorMockMixin::serializeImpl(JSON::Adapter & adapter)
@@ -162,16 +162,13 @@ void ActuatorOffsetMixin::serializeImpl(JSON::Adapter & adapter)
     ActuatorOffset * obj = static_cast<ActuatorOffset *>(this);
 
     JSON::Class root(adapter, "ActuatorOffset");
-    JSON_OE(adapter, targetSetPoint);
-    JSON_OE(adapter, targetSensor);
-    JSON_OE(adapter, referenceSetPoint);
+    JSON_OE(adapter, target);
+    JSON_OE(adapter, reference);
+    JSON_OE(adapter, useReferenceValue);
 
-    temp_t output = obj -> setting();
-
-    JSON_E(adapter, output);
-
+    temp_t setting = obj -> setting();
+    JSON_E(adapter, setting);
     temp_t achieved = obj -> value();
-
     JSON_E(adapter, achieved);
     JSON_OE(adapter, minimum);
     JSON_OT(adapter, maximum);
@@ -182,7 +179,7 @@ void ActuatorPwmMixin::serializeImpl(JSON::Adapter & adapter)
     ActuatorPwm * obj = static_cast<ActuatorPwm *>(this);
 
     JSON::Class root(adapter, "ActuatorPwm");
-    JSON_OE(adapter, setting);
+    JSON_OE(adapter, dutySetting);
 
     ticks_seconds_t period = obj -> getPeriod();    // don't use member directly, but value in seconds
 
@@ -325,8 +322,8 @@ void TempSensorDelegateMixin::serializeImpl(JSON::Adapter & adapter)
     JSON::Class root(adapter, "TempSensorDelegate");
     std::string name(getName());    // get name as std string for json_writer
     JSON_E(adapter, name);
-    Interface & sensor = obj->sensor();
-    JSON_T(adapter, sensor);
+    Interface & delegate = obj->delegate();
+    JSON_T(adapter, delegate);
 }
 
 void ActuatorDigitalDelegateMixin::serializeImpl(JSON::Adapter & adapter)
@@ -336,8 +333,8 @@ void ActuatorDigitalDelegateMixin::serializeImpl(JSON::Adapter & adapter)
     JSON::Class root(adapter, "ActuatorDigitalDelegate");
     std::string name(getName());    // get name as std string for json_writer
     JSON_E(adapter, name);
-    Interface & actuator = obj->actuator();
-    JSON_T(adapter, actuator);
+    Interface & delegate = obj->delegate();
+    JSON_T(adapter, delegate);
 }
 
 void ProcessValueDelegateMixin::serializeImpl(JSON::Adapter & adapter)
@@ -358,7 +355,16 @@ void SetPointDelegateMixin::serializeImpl(JSON::Adapter & adapter)
     JSON::Class root(adapter, "SetPointDelegate");
     std::string name(getName());    // get name as std string for json_writer
     JSON_E(adapter, name);
-    Interface & setpoint = obj->setpoint();
-    JSON_T(adapter, setpoint);
+    Interface & delegate = obj->delegate();
+    JSON_T(adapter, delegate);
+}
+
+void SensorSetPointPairMixin::serializeImpl(JSON::Adapter & adapter)
+{
+    SensorSetPointPair * obj = static_cast<SensorSetPointPair *>(this);
+
+    JSON::Class root(adapter, "SensorSetPointPair");
+    JSON_OE(adapter, sensor);
+    JSON_OT(adapter, setPoint);
 }
 

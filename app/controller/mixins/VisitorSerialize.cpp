@@ -40,6 +40,8 @@
 #include "TempSensorDelegate.h"
 #include "ActuatorDigitalDelegate.h"
 #include "SetPointDelegate.h"
+#include "SensorSetPointPair.h"
+#include "ProcessValueDelegate.h"
 
 #if WIRING
 #include "ActuatorPin.h"
@@ -115,6 +117,9 @@ void VisitorSerialize::visit(ProcessValueDelegate& thisRef) {
     thisRef.serializeImpl(adapter);
 }
 void VisitorSerialize::visit(SetPointDelegate& thisRef) {
+    thisRef.serializeImpl(adapter);
+}
+void VisitorSerialize::visit(SensorSetPointPair& thisRef) {
     thisRef.serializeImpl(adapter);
 }
 

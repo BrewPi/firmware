@@ -54,6 +54,7 @@ public:
     void visit(ActuatorDigitalDelegate& thisRef) final;
     void visit(ProcessValueDelegate& thisRef) final;
     void visit(SetPointDelegate& thisRef) final;
+    void visit(SensorSetPointPair& thisRef) final;
 #if WIRING
     void visit(ActuatorPin& thisRef) final;
 #endif

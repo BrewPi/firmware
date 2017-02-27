@@ -26,50 +26,37 @@
 
 
 class ActuatorDigitalDelegate :
-    public virtual ActuatorDigital,
+    public ActuatorDigital,
+    public Delegate<ActuatorDigital>,
     public ActuatorDigitalDelegateMixin
 {
 public:
     ActuatorDigitalDelegate() = default;
     ActuatorDigitalDelegate(std::function<Interface * ()> lookup) {
-        actuator.setLookup(lookup);
+        delegate.setLookup(lookup);
     }
     virtual ~ActuatorDigitalDelegate() = default;
-
-    void setLookup(std::function<Interface* ()> lookup) {
-        actuator.setLookup(lookup);
-    }
-
-    void unsetLookup() {
-        actuator.setLookup(nullptr);
-    }
-
-    std::function<Interface * ()> getLookup() {
-        return actuator.getLookup();
-    }
 
     void accept(VisitorBase & v) final {
         v.visit(*this);
     }
 
     void update() final {
-        actuator().update();
+        delegate().update();
     }
 
     void fastUpdate() final {
-        actuator().fastUpdate();
+        delegate().fastUpdate();
     }
 
     void setActive(bool active, int8_t priority = 127) final {
-        actuator().setActive(active, priority);
+        delegate().setActive(active, priority);
     }
 
     bool isActive() const final {
-        return actuator().isActive();
+        return delegate().isActive();
     }
 
-private:
-    RefTo<ActuatorDigital> actuator;
 
-    friend class ActuatorDigitalDelegateMixin;
+friend class ActuatorDigitalDelegateMixin;
 };

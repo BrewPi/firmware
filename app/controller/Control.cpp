@@ -45,21 +45,24 @@ Control::Control() :
     beer2Set(),
     fridgeSet(),
     mutex(),
+    fridge(fridgeSensorWithFallback, fridgeSet),
+    beer1(beer1Sensor, beer1Set),
+    beer2(beer2Sensor, beer2Set),
     coolerToggle(),
     coolerTimeLimited(coolerToggle, 120, 180), // 2 min minOn time, 3 min minOff
     coolerMutex(coolerTimeLimited, &mutex),
     coolerPwm(coolerMutex, 1200), // period 20 min
-    coolerPid(fridgeSensorWithFallback, coolerPwm, fridgeSet),
+    coolerPid(fridge, coolerPwm),
     heater1Toggle(),
     heater1Mutex(heater1Toggle, &mutex),
     heater1Pwm(heater1Mutex, 4), // period 4s
-    heater1Pid(fridgeSensorWithFallback, heater1Pwm, fridgeSet),
+    heater1Pid(fridge, heater1Pwm),
     heater2Toggle(),
     heater2Mutex(heater2Toggle, &mutex),
     heater2Pwm(heater2Mutex, 4), // period 4s
-    heater2Pid(beer2Sensor, heater2Pwm, beer2Set),
-    fridgeSetPointActuator(fridgeSet, fridgeSensor, beer1Set),
-    beerToFridgePid(beer1Sensor, fridgeSetPointActuator, beer1Set)
+    heater2Pid(beer2, heater2Pwm),
+    fridgeSetPointActuator(fridge, beer1),
+    beerToFridgePid(beer1, fridgeSetPointActuator)
 {
     // set up static devices for backwards compatibility with tempControl
     coolerPid.setActuatorIsNegative(true);

@@ -34,3 +34,6 @@ class TempSensorDelegateMixin {};
 class ActuatorDigitalDelegateMixin {};
 class ActuatorAnalogDelegateMixin {};
 class SetPointDelegateMixin {};
+class ProcessValueMixin {};
+class SensorSetPointPairMixin {};
+class ProcessValueDelegateMixin {};

@@ -36,7 +36,7 @@ class SensorSetPointPair :
 public:
     SensorSetPointPair(TempSensor & _sensor, SetPoint & _setpoint) :
         sensor(_sensor),
-        setpoint(_setpoint)
+        setPoint(_setpoint)
     {}
 
     ~SensorSetPointPair() = default;
@@ -53,11 +53,11 @@ public:
     void fastUpdate() final {};
 
     void set(temp_t const& setting) override final {
-        setpoint.write(setting);
+        setPoint.write(setting);
     }
 
     temp_t setting() const override final {
-        return setpoint.read();
+        return setPoint.read();
     }
 
     temp_t value() const override final {
@@ -67,6 +67,6 @@ public:
 
 private:
     TempSensor & sensor;
-    SetPoint & setpoint;
+    SetPoint & setPoint;
     friend class SensorSetPointPairMixin;
 };

@@ -34,6 +34,7 @@
 #include "ActuatorOffset.h"
 #include "TempSensorDelegate.h"
 #include "ActuatorDigitalDelegate.h"
+#include "SensorSetPointPair.h"
 
 
 
@@ -63,6 +64,9 @@ protected:
     SetPointSimple fridgeSet;
     ActuatorMutexGroup mutex;
 
+    SensorSetPointPair fridge;
+    SensorSetPointPair beer1;
+    SensorSetPointPair beer2;
 
     ActuatorDigitalDelegate coolerToggle;
     ActuatorTimeLimited coolerTimeLimited;
