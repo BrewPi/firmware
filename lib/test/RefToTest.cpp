@@ -28,7 +28,7 @@
 #include "SensorSetPointPair.h"
 #include "RefTo.h"
 #include "SetPoint.h"
-#include "ActuatorSetPoint.h"
+#include "ActuatorOffset.h"
 
 struct RefToFixture{
 public:
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(RefTo_SetPointActuator) {
 
     auto pair1 = SensorSetPointPair(sensor1, sp1);
     auto pair2 = SensorSetPointPair(sensor2, sp2);
-    Interface * spa = new ActuatorSetPoint(pair1, pair2);
+    Interface * spa = new ActuatorOffset(pair1, pair2);
     auto lookup = PtrLookup(spa);
     RefTo<ActuatorAnalog> ref(lookup);
 

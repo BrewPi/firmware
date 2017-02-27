@@ -31,7 +31,7 @@ class ActuatorNop;
 class ActuatorOneWire;
 class ActuatorPin;
 class ActuatorPwm;
-class ActuatorSetPoint;
+class ActuatorOffset;
 class ActuatorTimeLimited;
 class ActuatorValue;
 class OneWireTempSensor;
@@ -63,7 +63,7 @@ public:
 	virtual void visit(ActuatorNop& thisRef) = 0;
 	virtual void visit(ActuatorOneWire& thisRef) = 0;
 	virtual void visit(ActuatorPwm& thisRef) = 0;
-	virtual void visit(ActuatorSetPoint& thisRef) = 0;
+	virtual void visit(ActuatorOffset& thisRef) = 0;
 	virtual void visit(ActuatorTimeLimited& thisRef) = 0;
 	virtual void visit(ActuatorValue& thisRef) = 0;
 	virtual void visit(Pid& thisRef) = 0;

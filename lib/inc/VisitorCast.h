@@ -31,7 +31,7 @@
 #include "Pid.h"
 #include "OneWireSwitch.h"
 #include "ActuatorTimeLimited.h"
-#include "ActuatorSetPoint.h"
+#include "ActuatorOffset.h"
 #include "OneWireTempSensor.h"
 #include "TempSensorDelegate.h"
 #include "ValveController.h"
@@ -60,7 +60,7 @@ public:
     void visit(ActuatorNop& thisRef) final { this->process(thisRef); };
     void visit(ActuatorOneWire& thisRef) final { this->process(thisRef); };
     void visit(ActuatorPwm& thisRef) final { this->process(thisRef); };
-    void visit(ActuatorSetPoint& thisRef) final { this->process(thisRef); };
+    void visit(ActuatorOffset& thisRef) final { this->process(thisRef); };
     void visit(ActuatorTimeLimited& thisRef) final { this->process(thisRef); };
     void visit(ActuatorValue& thisRef) final { this->process(thisRef); };
     void visit(Pid& thisRef) final { this->process(thisRef); };

@@ -84,11 +84,11 @@ protected:
     ~ActuatorTimeLimitedMixin() = default;
 };
 
-class ActuatorSetPointMixin {
+class ActuatorOffsetMixin {
 public:
     void serializeImpl(JSON::Adapter& adapter);
 protected:
-    ~ActuatorSetPointMixin() = default;
+    ~ActuatorOffsetMixin() = default;
 };
 
 class ActuatorPwmMixin {

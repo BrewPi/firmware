@@ -30,7 +30,7 @@
 #include "TempSensorFallback.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorTimeLimited.h"
-#include "ActuatorSetPoint.h"
+#include "ActuatorOffset.h"
 #include "ActuatorPwm.h"
 #include "ActuatorMutexGroup.h"
 #include "ActuatorMutexDriver.h"
@@ -157,11 +157,11 @@ void ActuatorTimeLimitedMixin::serializeImpl(JSON::Adapter & adapter)
     JSON_OT(adapter, target);
 }
 
-void ActuatorSetPointMixin::serializeImpl(JSON::Adapter & adapter)
+void ActuatorOffsetMixin::serializeImpl(JSON::Adapter & adapter)
 {
-    ActuatorSetPoint * obj = static_cast<ActuatorSetPoint *>(this);
+    ActuatorOffset * obj = static_cast<ActuatorOffset *>(this);
 
-    JSON::Class root(adapter, "ActuatorSetPoint");
+    JSON::Class root(adapter, "ActuatorOffset");
     JSON_OE(adapter, targetSetPoint);
     JSON_OE(adapter, targetSensor);
     JSON_OE(adapter, referenceSetPoint);

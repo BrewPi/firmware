@@ -29,7 +29,7 @@
 #include "ActuatorTimeLimited.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorPwm.h"
-#include "ActuatorSetPoint.h"
+#include "ActuatorOffset.h"
 #include "TempSensorMock.h"
 #include "Pid.h"
 #include "SetPoint.h"
@@ -152,11 +152,11 @@ BOOST_AUTO_TEST_CASE(serialize_setpointMinMax) {
     BOOST_CHECK_EQUAL(valid, json);
 }
 
-BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
+BOOST_AUTO_TEST_CASE(serialize_ActuatorOffset) {
     auto sp1 = SetPointSimple();
     auto sp2 = SetPointConstant(20.0);
     auto sens1 = TempSensorMock(20.0);
-    auto act = ActuatorSetPoint(sp1, sens1, sp2, -10.0, 10.0);
+    auto act = ActuatorOffset(sp1, sens1, sp2, -10.0, 10.0);
     act.set(5.0); // should set sp1 to sp2 + 5.0 = 25.0;
 
     std::string json = JSON::producer<ActuatorAnalog>::convert(act);
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorSetPoint) {
     // With some extra whitespace, the valid output looks like this:
     std::string valid = \
     R"({                                      )"
-    R"(    "kind": "ActuatorSetPoint",        )"
+    R"(    "kind": "ActuatorOffset",        )"
     R"(    "targetSetPoint": {                )"
     R"(        "kind": "SetPointSimple",      )"
     R"(        "name": "",                    )"
@@ -514,7 +514,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
     R"(     "d": 0.0000,                                     )"
     R"(     "actuatorIsNegative": false,                     )"
     R"(     "output": {                                      )"
-    R"(         "kind": "ActuatorSetPoint",                  )"
+    R"(         "kind": "ActuatorOffset",                  )"
     R"(         "targetSetPoint": {                          )"
     R"(             "kind": "SetPointSimple",                )"
     R"(             "name": "fridgeset",                     )"

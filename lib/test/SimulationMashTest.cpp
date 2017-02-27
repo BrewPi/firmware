@@ -33,7 +33,7 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorPwm.h"
 #include "ActuatorTimeLimited.h"
-#include "ActuatorSetPoint.h"
+#include "ActuatorOffset.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMutexGroup.h"
 #include "ProcessValueDelegate.h"
@@ -89,7 +89,7 @@ public:
     SetPointSimple mashSet;
     SensorSetPointPair hlt;
     SensorSetPointPair mash;
-    ActuatorSetPoint hltOffsetActuator;
+    ActuatorOffset hltOffsetActuator;
 
     ProcessValueDelegate hltHeaterPidInput;
     ProcessValueDelegate hltHeaterPidOutput;

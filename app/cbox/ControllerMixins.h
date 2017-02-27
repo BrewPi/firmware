@@ -15,7 +15,7 @@ class OneWireTempSensorMixin {};
 class TempSensorDisconnectedMixin {};
 class TempSensorExternalMixin {};
 class ActuatorTimeLimitedMixin {};
-class ActuatorSetPointMixin {};
+class ActuatorOffsetMixin {};
 class ActuatorPwmMixin {};
 class ActuatorMutexGroupMixin {};
 class ActuatorMutexDriverMixin {};

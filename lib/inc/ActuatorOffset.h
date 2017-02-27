@@ -26,10 +26,10 @@
 /*
  * A linear actuator that sets a setpoint to reference setpoint + actuator value
  */
-class ActuatorSetPoint final : public ActuatorAnalog, public ActuatorSetPointMixin
+class ActuatorOffset final : public ActuatorAnalog, public ActuatorOffsetMixin
 {
 public:
-    ActuatorSetPoint(ProcessValue & _target, // process value to manipulate
+    ActuatorOffset(ProcessValue & _target, // process value to manipulate
                      ProcessValue & _reference, // process value to offset from
                      temp_t _min = temp_t::min(), // minimum actuator value (targ - ref)
                      temp_t _max = temp_t::max()) :  // maximum actuator value
@@ -41,7 +41,7 @@ public:
         useReferenceSetting(true)
     {
     }
-    ~ActuatorSetPoint() = default;
+    ~ActuatorOffset() = default;
 
     /**
      * Accept function for visitor pattern
@@ -124,5 +124,5 @@ private:
     temp_t maximum;
     bool useReferenceSetting; // use setting of reference and not actual value if true (default)
 
-    friend class ActuatorSetPointMixin;
+    friend class ActuatorOffsetMixin;
 };

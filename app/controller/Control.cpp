@@ -29,7 +29,7 @@
 #include "ActuatorPwm.h"
 #include "ActuatorTimeLimited.h"
 #include "TempSensorDelegate.h"
-#include "ActuatorSetPoint.h"
+#include "ActuatorOffset.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMutexGroup.h"
 #include "json_writer.h"

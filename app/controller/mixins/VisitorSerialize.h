@@ -37,7 +37,7 @@ public:
     void visit(ActuatorNop& thisRef) final;
     void visit(ActuatorOneWire& thisRef) final;
     void visit(ActuatorPwm& thisRef) final;
-    void visit(ActuatorSetPoint& thisRef) final;
+    void visit(ActuatorOffset& thisRef) final;
     void visit(ActuatorTimeLimited& thisRef) final;
     void visit(ActuatorValue& thisRef) final;
     void visit(Pid& thisRef) final;

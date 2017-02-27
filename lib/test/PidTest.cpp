@@ -34,7 +34,7 @@
 #include "runner.h"
 #include <iostream>
 #include <fstream>
-#include "ActuatorSetPoint.h"
+#include "ActuatorOffset.h"
 #include "SensorSetPointPair.h"
 
 struct PidTest {
@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE(pid_driving_setpoint_actuator){
     auto input = SensorSetPointPair(sensor, sp);
     auto target = SensorSetPointPair(targetSensor, targetSetpoint);
 
-    auto act = ActuatorSetPoint(target, input);
+    auto act = ActuatorOffset(target, input);
 
     auto p = Pid(input, act);
 

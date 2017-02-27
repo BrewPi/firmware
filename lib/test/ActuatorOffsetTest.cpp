@@ -18,14 +18,14 @@
  */
 
 
-#include "ActuatorSetPoint.h"
+#include "ActuatorOffset.h"
 #include "defaultDevices.h"
 #include "TempSensorMock.h"
 #include "SensorSetPointPair.h"
 #include "runner.h"
 #include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(ActuatorSetPointTest)
+BOOST_AUTO_TEST_SUITE(ActuatorOffsetTest)
 
 BOOST_AUTO_TEST_CASE(set_value){
     SetPointSimple targetSetPoint(20.0);
@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(set_value){
     SensorSetPointPair target(targetSensor, targetSetPoint);
     SensorSetPointPair reference(referenceSensor, referenceSetPoint);
 
-    auto act = ActuatorSetPoint(target, reference);
+    auto act = ActuatorOffset(target, reference);
 
     act.set(10.0);
 
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(min_max){
     SensorSetPointPair target(targetSensor, targetSetPoint);
     SensorSetPointPair reference(referenceSensor, referenceSetPoint);
 
-    auto act = ActuatorSetPoint(target, reference, -10.0, 10.0);
+    auto act = ActuatorOffset(target, reference, -10.0, 10.0);
 
     act.set(20.0);
     targetSensor.setTemp(30.0);
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(when_target_sensor_is_invalid_actuator_value_is_invalid){
     SensorSetPointPair target(targetSensor, targetSetPoint);
     SensorSetPointPair reference(referenceSensor, referenceSetPoint);
 
-    auto act = ActuatorSetPoint(target, reference, -10.0, 10.0);
+    auto act = ActuatorOffset(target, reference, -10.0, 10.0);
     act.set(20.0);
     targetSensor.setTemp(30.0);
 

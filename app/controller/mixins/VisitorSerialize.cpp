@@ -34,7 +34,7 @@
 #include "Pid.h"
 #include "OneWireSwitch.h"
 #include "ActuatorTimeLimited.h"
-#include "ActuatorSetPoint.h"
+#include "ActuatorOffset.h"
 #include "OneWireTempSensor.h"
 #include "ValveController.h"
 #include "TempSensorDelegate.h"
@@ -67,7 +67,7 @@ void VisitorSerialize::visit(ActuatorOneWire& thisRef) {
 void VisitorSerialize::visit(ActuatorPwm& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void VisitorSerialize::visit(ActuatorSetPoint& thisRef) {
+void VisitorSerialize::visit(ActuatorOffset& thisRef) {
     thisRef.serializeImpl(adapter);
 }
 void VisitorSerialize::visit(ActuatorTimeLimited& thisRef) {

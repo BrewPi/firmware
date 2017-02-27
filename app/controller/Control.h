@@ -31,7 +31,7 @@
 #include "ActuatorTimeLimited.h"
 #include "ActuatorMutexGroup.h"
 #include "json_writer.h"
-#include "ActuatorSetPoint.h"
+#include "ActuatorOffset.h"
 #include "TempSensorDelegate.h"
 #include "ActuatorDigitalDelegate.h"
 
@@ -80,7 +80,7 @@ protected:
     ActuatorPwm heater2Pwm;
     Pid heater2Pid;
 
-    ActuatorSetPoint fridgeSetPointActuator;
+    ActuatorOffset fridgeSetPointActuator;
     Pid beerToFridgePid;
 
 
