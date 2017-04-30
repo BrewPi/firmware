@@ -1,6 +1,6 @@
 /*
- * Copyright 2012-2013 BrewPi/Elco Jacobs.
- * Copyright 2013 Matthew McGowan.
+ * Copyright 2015 Matthew McGowan
+ * Copyright 2015 BrewPi/Elco Jacobs.
  *
  * This file is part of BrewPi.
  * 
@@ -20,34 +20,15 @@
 
 #pragma once
 
-#include "temperatureFormats.h"
-#include "ControllerMixins.h"
+#include <stdint.h>
+#include "fixstl.h" // removes min/max macros defined in Arduino.h
+#include "Interface.h"
 
-#define TEMP_SENSOR_DISCONNECTED temp_t::invalid()
-
-class TempSensorBasic : virtual public TempSensorBasicMixin
+class ControllerInterface: public virtual Interface
 {
 public:
-    TempSensorBasic() = default;
-	virtual ~TempSensorBasic() = default;
-	
-	virtual bool isConnected(void) const = 0;
-	
-	/*
-	 * Attempt to (re-)initialize the sensor. 	 
-	 */
-	virtual bool init() =0;
+	ControllerInterface() = default;
+    virtual ~ControllerInterface() = default;
 
-    /*
-     * Update the value from hardware (if the result is cached)
-     */
-    virtual void update() = 0;
-
-	/*
-	 * Read the sensor, returns cached value set in update()
-	 */
-	virtual temp_t read() const = 0;
-
+    void fastUpdate() final {}; // fast update not needed for controllers
 };
-
-

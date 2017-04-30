@@ -35,7 +35,7 @@ struct EepromAccess
 	virtual void readBlock(void* target, eptr_t offset, uint16_t size) const=0;
 	virtual void writeBlock(eptr_t target, const void* source, uint16_t size)=0;
 
-	virtual size_t length() const=0;
+	virtual eptr_t length() const=0;
 };
 
 #else

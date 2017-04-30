@@ -20,23 +20,27 @@
 
 #pragma once
 
-#include "TempSensorBasic.h"
+#include "TempSensor.h"
 #include "ControllerMixins.h"
 
-class TempSensorDisconnected final : public TempSensorBasic, public TempSensorDisconnectedMixin {
+class TempSensorDisconnected final : public TempSensor, public TempSensorDisconnectedMixin {
 	
 public:
-	bool isConnected() const override final { return false; }
+    void accept(VisitorBase & v) final{
+    	v.visit(*this);
+    }
 
-	bool init() override final {
+	bool isConnected() const final { return false; }
+
+	bool init() final {
 		return read()!=TEMP_SENSOR_DISCONNECTED;
 	}
 	
-	temp_t read() const override final {
+	temp_t read() const final {
 		return TEMP_SENSOR_DISCONNECTED;
 	}
 
-    void update() override final {
+    void update() final {
         // nop for this mock sensor
     }
 	

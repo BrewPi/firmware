@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "TempSensorBasic.h"
+#include "TempSensor.h"
 #include "OneWireAddress.h"
 #include "DallasTemperature.h"
 #include "Ticks.h"
@@ -30,7 +30,7 @@ class OneWire;
 
 #define ONEWIRE_TEMP_SENSOR_PRECISION (4)
 
-class OneWireTempSensor final : public TempSensorBasic, public OneWireTempSensorMixin {
+class OneWireTempSensor final : public TempSensor, public OneWireTempSensorMixin {
 public:	
 	/**
 	 * Constructs a new onewire temp sensor.
@@ -48,7 +48,15 @@ public:
 	};
 	
 	~OneWireTempSensor();
-	
+
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    void accept(VisitorBase & v) final {
+    	v.visit(*this);
+    }
+
 	bool isConnected(void) const override final {
 		return connected;
 	}		

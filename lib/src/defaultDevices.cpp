@@ -36,7 +36,7 @@ ActuatorInvalid * defaultLinearActuator(){ // always returns invalid and does no
 }
 
 
-TempSensorDisconnected * defaultTempSensorBasic(){
+TempSensorDisconnected * defaultTempSensor(){
     static TempSensorDisconnected * t = new TempSensorDisconnected;
     return t;
 }

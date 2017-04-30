@@ -129,14 +129,14 @@ public:
     virtual uint8_t next() override {
         findNext();
         if (nextStream==nullptr || nextStream==this)
-            return -1;
+            return uint8_t(-1);
         return nextStream->next();
     }
 
     virtual uint8_t peek() override {
         findNext();
         if (nextStream==nullptr || nextStream==this)
-            return -1;
+        		return uint8_t(-1);
         return nextStream->peek();
     }
 

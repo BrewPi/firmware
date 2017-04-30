@@ -32,94 +32,76 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorPwm.h"
 #include "ActuatorTimeLimited.h"
-#include "ActuatorSetPoint.h"
+#include "ActuatorOffset.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMutexGroup.h"
+#include "ProcessValueDelegate.h"
+#include "SensorSetPointPair.h"
+#include "SetPointDelegate.h"
+
 #include "runner.h"
 #include <iostream>
 #include <fstream>
 
+
 struct StaticSetup{
 public:
-    StaticSetup(){
+    StaticSetup() :
+        fridgeSensor(20.0),
+        fridgeSet(20.0),
+        fridge(fridgeSensor, fridgeSet),
+        beerSensor(20.0),
+        beerSet(20.0),
+        beer(beerSensor, beerSet),
+        heaterPin(),
+        coolerPin(),
+        mutex(),
+        heaterMutex(heaterPin),
+        coolerMutex(coolerPin),
+        heater(heaterMutex, 20), // period 20s, because update steps are 1 second
+        coolerTimeLimited(coolerMutex, 120, 180), // 2 min minOn time, 3 min minOff
+        cooler(coolerMutex, 1200), // period 20 min
+
+        fridgeOffsetActuator(fridge, beer),
+
+        heaterPid(heaterPidInput, heaterPidOutput),
+        coolerPid(coolerPidInput, coolerPidOutput),
+        beerToFridgePid(beer, fridgeOffsetActuator)
+    {
         BOOST_TEST_MESSAGE( "setup PID test fixture" );
-
-        beerSensor = new TempSensorMock(20.0);
-        fridgeSensor = new TempSensorMock(20.0);
-
-        heaterPin = new ActuatorBool();
-        heaterMutex = new ActuatorMutexDriver(heaterPin);
-        heater = new ActuatorPwm(heaterMutex, 20); // period 20s, because update steps are 1 second
-
-        coolerPin = new ActuatorBool();
-        coolerTimeLimited = new ActuatorTimeLimited(coolerPin, 120, 180); // 2 min minOn time, 3 min minOff
-        coolerMutex = new ActuatorMutexDriver(coolerTimeLimited);
-        cooler = new ActuatorPwm(coolerMutex, 1200); // period 20 min
-        mutex = new ActuatorMutexGroup();
-
-        beerSet = new SetPointSimple(20.0);
-        fridgeSet = new SetPointSimple(20.0);
-
-        heaterPid = new Pid();
-        coolerPid = new Pid();
-        beerToFridgePid = new Pid();
-
-        fridgeSetPointActuator = new ActuatorSetPoint(fridgeSet, fridgeSensor, beerSet);
-
-        heaterPid->setOutputActuator(heater);
-        coolerPid->setOutputActuator(cooler);
-        coolerPid->setActuatorIsNegative(true);
-        beerToFridgePid->setOutputActuator(fridgeSetPointActuator);
+        heaterPidOutput.setLookup(PtrLookup(&heater));
+        coolerPidOutput.setLookup(PtrLookup(&cooler));
+        coolerPid.setActuatorIsNegative(true);
     }
     ~StaticSetup(){
         BOOST_TEST_MESSAGE( "tear down PID test fixture" );
-        delete beerSensor;
-        delete fridgeSensor;
-
-        delete coolerPin;
-        delete coolerTimeLimited;
-        delete coolerMutex;
-        delete cooler;
-
-        delete heaterPin;
-        delete heaterMutex;
-        delete heater;
-
-        delete fridgeSetPointActuator;
-
-        delete mutex;
-
-        delete heaterPid;
-        delete coolerPid;
-        delete beerToFridgePid;
-
-        delete beerSet;
-        delete fridgeSet;
-
     }
 
-    TempSensorMock * beerSensor;
-    TempSensorMock * fridgeSensor;
+    TempSensorMock fridgeSensor;
+    SetPointSimple fridgeSet;
+    SensorSetPointPair fridge;
+    TempSensorMock beerSensor;
+    SetPointSimple beerSet;
+    SensorSetPointPair beer;
+    ActuatorBool heaterPin;
+    ActuatorBool coolerPin;
+    ActuatorMutexGroup mutex;
+    ActuatorMutexDriver heaterMutex;
+    ActuatorMutexDriver coolerMutex;
+    ActuatorPwm heater;
+    ActuatorTimeLimited coolerTimeLimited;
+    ActuatorPwm cooler;
+    ActuatorOffset fridgeOffsetActuator;
 
-    ActuatorDigital * coolerPin;
-    ActuatorTimeLimited * coolerTimeLimited;
-    ActuatorMutexDriver * coolerMutex;
-    ActuatorPwm * cooler;
+    ProcessValueDelegate heaterPidInput;
+    ProcessValueDelegate heaterPidOutput;
+    Pid heaterPid;
 
-    ActuatorDigital * heaterPin;
-    ActuatorMutexDriver * heaterMutex;
-    ActuatorPwm * heater;
+    ProcessValueDelegate coolerPidInput;
+    ProcessValueDelegate coolerPidOutput;
+    Pid coolerPid;
 
-    ActuatorSetPoint * fridgeSetPointActuator;
-
-    ActuatorMutexGroup * mutex;
-
-    Pid * heaterPid;
-    Pid * coolerPid;
-    Pid * beerToFridgePid;
-
-    SetPoint * beerSet;
-    SetPoint * fridgeSet;
+    Pid beerToFridgePid;
 };
 
 /* This class simulates a fridge is a simple way:
@@ -218,25 +200,26 @@ struct Simulation{
  * The first 4 are simple: a single actuator, acting on beer or fridge temperature
  */
 
+
+
 // Just a heater, acting on beer temperature directly
 struct SimBeerHeater : public StaticSetup {
     Simulation sim;
     SimBeerHeater(){
-        heaterPid->setInputSensor(beerSensor);
-        heaterPid->setSetPoint(beerSet);
-        heaterPid->setInputFilter(1);
-        heaterPid->setDerivativeFilter(4);
-        heaterPid->setConstants(60.0, 7200, 500);
+        heaterPidInput.setLookup(PtrLookup(&beer));
+        heaterPid.setInputFilter(1);
+        heaterPid.setDerivativeFilter(4);
+        heaterPid.setConstants(60.0, 7200, 500);
 
         sim.envTemp = 16.0;
     }
 
     void update(){
-        beerSensor->setTemp(sim.beerTemp);
-        fridgeSensor->setTemp(sim.airTemp);
-        heaterPid->update();
-        heater->update();
-        sim.update(heaterPin->isActive(), coolerPin->isActive());
+        beerSensor.setTemp(sim.beerTemp);
+        fridgeSensor.setTemp(sim.airTemp);
+        heaterPid.update();
+        heater.update();
+        sim.update(heaterPin.isActive(), coolerPin.isActive());
         delay(1000); // simulate actual time passing for pin state and mutex group
     }
 };
@@ -245,22 +228,21 @@ struct SimBeerHeater : public StaticSetup {
 struct SimFridgeHeater : public StaticSetup {
     Simulation sim;
     SimFridgeHeater(){
-        heaterPid->setInputSensor(fridgeSensor);
-        heaterPid->setSetPoint(fridgeSet);
-        heaterPid->setInputFilter(1);
-        heaterPid->setDerivativeFilter(4);
-        heaterPid->setConstants(10.0, 600, 60);
+        heaterPidInput.setLookup(PtrLookup(&fridge));
+        heaterPid.setInputFilter(1);
+        heaterPid.setDerivativeFilter(4);
+        heaterPid.setConstants(10.0, 600, 60);
 
         sim.envTemp = 16.0;
     }
 
     void update(){
-        beerSensor->setTemp(sim.beerTemp);
-        fridgeSensor->setTemp(sim.airTemp);
-        heaterPid->update();
-        heater->update();
+        beerSensor.setTemp(sim.beerTemp);
+        fridgeSensor.setTemp(sim.airTemp);
+        heaterPid.update();
+        heater.update();
 
-        sim.update(heaterPin->isActive(), coolerPin->isActive());
+        sim.update(heaterPin.isActive(), coolerPin.isActive());
         delay(1000); // simulate actual time passing for pin state and mutex group
     }
 };
@@ -270,22 +252,21 @@ struct SimFridgeHeater : public StaticSetup {
 struct SimBeerCooler : public StaticSetup {
     Simulation sim;
     SimBeerCooler(){
-        coolerPid->setInputSensor(beerSensor);
-        coolerPid->setSetPoint(beerSet);
-        coolerPid->setInputFilter(2);
-        coolerPid->setDerivativeFilter(5);
-        coolerPid->setConstants(40.0, 7200, 1200);
+        coolerPidInput.setLookup(PtrLookup(&beer));
+        coolerPid.setInputFilter(2);
+        coolerPid.setDerivativeFilter(5);
+        coolerPid.setConstants(40.0, 7200, 1200);
 
         sim.envTemp = 24.0;
     }
 
     void update(){
-        beerSensor->setTemp(sim.beerTemp);
-        fridgeSensor->setTemp(sim.airTemp);
-        coolerPid->update();
-        cooler->update();
+        beerSensor.setTemp(sim.beerTemp);
+        fridgeSensor.setTemp(sim.airTemp);
+        coolerPid.update();
+        cooler.update();
 
-        sim.update(heaterPin->isActive(), coolerPin->isActive());
+        sim.update(heaterPin.isActive(), coolerPin.isActive());
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
@@ -294,22 +275,21 @@ struct SimBeerCooler : public StaticSetup {
 struct SimFridgeCooler : public StaticSetup {
     Simulation sim;
     SimFridgeCooler(){
-        coolerPid->setInputSensor(fridgeSensor);
-        coolerPid->setSetPoint(fridgeSet);
-        coolerPid->setInputFilter(1);
-        coolerPid->setDerivativeFilter(5);
-        coolerPid->setConstants(10.0, 1800, 200);
+        coolerPidInput.setLookup(PtrLookup(&fridge));
+        coolerPid.setInputFilter(1);
+        coolerPid.setDerivativeFilter(5);
+        coolerPid.setConstants(10.0, 1800, 200);
 
         sim.envTemp = 24.0;
     }
 
     void update(){
-        beerSensor->setTemp(sim.beerTemp);
-        fridgeSensor->setTemp(sim.airTemp);
-        coolerPid->update();
-        cooler->update();
+        beerSensor.setTemp(sim.beerTemp);
+        fridgeSensor.setTemp(sim.airTemp);
+        coolerPid.update();
+        cooler.update();
 
-        sim.update(heaterPin->isActive(), coolerPin->isActive());
+        sim.update(heaterPin.isActive(), coolerPin.isActive());
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
@@ -318,33 +298,31 @@ struct SimFridgeCooler : public StaticSetup {
 struct SimFridgeHeaterCooler : public StaticSetup {
     Simulation sim;
     SimFridgeHeaterCooler(){
-        coolerPid->setInputSensor(fridgeSensor);
-        coolerPid->setSetPoint(fridgeSet);
-        coolerPid->setInputFilter(1);
-        coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(10.0, 1800, 200);
+        coolerPidInput.setLookup(PtrLookup(&fridge));
+        coolerPid.setInputFilter(1);
+        coolerPid.setDerivativeFilter(4);
+        coolerPid.setConstants(10.0, 1800, 200);
 
-        heaterPid->setInputSensor(fridgeSensor);
-        heaterPid->setSetPoint(fridgeSet);
-        heaterPid->setInputFilter(1);
-        heaterPid->setDerivativeFilter(4);
-        heaterPid->setConstants(10.0, 1800, 60);
+        heaterPidInput.setLookup(PtrLookup(&fridge));
+        heaterPid.setInputFilter(1);
+        heaterPid.setDerivativeFilter(4);
+        heaterPid.setConstants(10.0, 1800, 60);
 
-        coolerMutex->setMutex(mutex);
-        heaterMutex->setMutex(mutex);
-        mutex->setDeadTime(3600000); // 60 minutes
+        coolerMutex.setMutex(&mutex);
+        heaterMutex.setMutex(&mutex);
+        mutex.setDeadTime(3600000); // 60 minutes
     }
 
     void update(){
-        beerSensor->setTemp(sim.beerTemp);
-        fridgeSensor->setTemp(sim.airTemp);
-        heaterPid->update();
-        coolerPid->update();
-        cooler->update();
-        heater->update();
-        mutex->update();
+        beerSensor.setTemp(sim.beerTemp);
+        fridgeSensor.setTemp(sim.airTemp);
+        heaterPid.update();
+        coolerPid.update();
+        cooler.update();
+        heater.update();
+        mutex.update();
 
-        sim.update(heaterPin->isActive(), coolerPin->isActive());
+        sim.update(heaterPin.isActive(), coolerPin.isActive());
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
@@ -353,33 +331,31 @@ struct SimFridgeHeaterCooler : public StaticSetup {
 struct SimBeerHeaterCooler : public StaticSetup {
     Simulation sim;
     SimBeerHeaterCooler(){
-        coolerPid->setInputSensor(beerSensor);
-        coolerPid->setSetPoint(beerSet);
-        coolerPid->setInputFilter(1);
-        coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(40.0, 7200, 1200);
+        coolerPidInput.setLookup(PtrLookup(&beer));
+        coolerPid.setInputFilter(1);
+        coolerPid.setDerivativeFilter(4);
+        coolerPid.setConstants(40.0, 7200, 1200);
 
-        heaterPid->setInputSensor(beerSensor);
-        heaterPid->setSetPoint(beerSet);
-        heaterPid->setInputFilter(1);
-        heaterPid->setDerivativeFilter(4);
-        heaterPid->setConstants(60.0, 7200, 500);
+        heaterPidInput.setLookup(PtrLookup(&beer));
+        heaterPid.setInputFilter(1);
+        heaterPid.setDerivativeFilter(4);
+        heaterPid.setConstants(60.0, 7200, 500);
 
-        coolerMutex->setMutex(mutex);
-        heaterMutex->setMutex(mutex);
-        mutex->setDeadTime(3600000); // 60 minutes
+        coolerMutex.setMutex(&mutex);
+        heaterMutex.setMutex(&mutex);
+        mutex.setDeadTime(3600000); // 60 minutes
     }
 
     void update(){
-        beerSensor->setTemp(sim.beerTemp);
-        fridgeSensor->setTemp(sim.airTemp);
-        heaterPid->update();
-        coolerPid->update();
-        cooler->update();
-        heater->update();
-        mutex->update();
+        beerSensor.setTemp(sim.beerTemp);
+        fridgeSensor.setTemp(sim.airTemp);
+        heaterPid.update();
+        coolerPid.update();
+        cooler.update();
+        heater.update();
+        mutex.update();
 
-        sim.update(heaterPin->isActive(), coolerPin->isActive());
+        sim.update(heaterPin.isActive(), coolerPin.isActive());
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
@@ -388,44 +364,39 @@ struct SimBeerHeaterCooler : public StaticSetup {
 struct SimCascadedHeaterCooler : public StaticSetup {
     Simulation sim;
     SimCascadedHeaterCooler(){
-        coolerPid->setInputSensor(fridgeSensor);
-        coolerPid->setSetPoint(fridgeSet);
-        coolerPid->setInputFilter(1);
-        coolerPid->setDerivativeFilter(4);
-        coolerPid->setConstants(10.0, 1800, 200);
+        coolerPidInput.setLookup(PtrLookup(&fridge));
+        coolerPid.setInputFilter(1);
+        coolerPid.setDerivativeFilter(4);
+        coolerPid.setConstants(10.0, 1800, 200);
 
-        heaterPid->setInputSensor(fridgeSensor);
-        heaterPid->setSetPoint(fridgeSet);
-        heaterPid->setInputFilter(1);
-        heaterPid->setDerivativeFilter(4);
-        heaterPid->setConstants(10.0, 600, 60);
+        heaterPidInput.setLookup(PtrLookup(&fridge));
+        heaterPid.setInputFilter(1);
+        heaterPid.setDerivativeFilter(4);
+        heaterPid.setConstants(10.0, 600, 60);
 
+        beerToFridgePid.setInputFilter(1);
+        beerToFridgePid.setDerivativeFilter(4);
+        beerToFridgePid.setConstants(2.0, 7200, 1200);
+        fridgeOffsetActuator.setMin(-10.0);
+        fridgeOffsetActuator.setMax(10.0);
 
-        beerToFridgePid->setInputSensor(beerSensor);
-        beerToFridgePid->setSetPoint(beerSet);
-        beerToFridgePid->setInputFilter(1);
-        beerToFridgePid->setDerivativeFilter(4);
-        beerToFridgePid->setConstants(2.0, 7200, 1200);
-        fridgeSetPointActuator->setMin(-10.0);
-        fridgeSetPointActuator->setMax(10.0);
-
-        coolerMutex->setMutex(mutex);
-        heaterMutex->setMutex(mutex);
-        mutex->setDeadTime(3600000); // 60 minutes
+        coolerMutex.setMutex(&mutex);
+        heaterMutex.setMutex(&mutex);
+        mutex.setDeadTime(3600000); // 60 minutes
     }
 
     void update(){
-        beerSensor->setTemp(sim.beerTemp);
-        fridgeSensor->setTemp(sim.airTemp);
-        heaterPid->update();
-        coolerPid->update();
-        beerToFridgePid->update();
-        cooler->update();
-        heater->update();
-        fridgeSetPointActuator->update();
-        mutex->update();
+        beerSensor.setTemp(sim.beerTemp);
+        fridgeSensor.setTemp(sim.airTemp);
+        heaterPid.update();
+        coolerPid.update();
+        beerToFridgePid.update();
+        cooler.update();
+        heater.update();
+        fridgeOffsetActuator.update();
+        mutex.update();
 
-        sim.update(heaterPin->isActive(), coolerPin->isActive());
+        sim.update(heaterPin.isActive(), coolerPin.isActive());
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
@@ -449,19 +420,19 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Beer, SimBeerHeater)
         if(t==8000){
             SetPointDouble = 24;
         }
-        beerSet->write(SetPointDouble);
+        beerSet.write(SetPointDouble);
         update();
 
-        csv     << beerSet->read() << "," // setpoint
-                << heaterPid->inputError << "," //error
-                << beerSensor->read() << "," // beer temp
-                << fridgeSensor->read() << "," // air temp
+        csv     << beerSet.read() << "," // setpoint
+                << heaterPid.inputError << "," //error
+                << beerSensor.read() << "," // beer temp
+                << fridgeSensor.read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
-                << heater->getValue() << "," // actuator output
-                << heater->readValue() << "," // achieved  output
-                << heaterPid->p << "," // proportional action
-                << heaterPid->i << "," // integral action
-                << heaterPid->d // derivative action
+                << heater.setting() << "," // actuator output
+                << heater.value() << "," // achieved  output
+                << heaterPid.p << "," // proportional action
+                << heaterPid.i << "," // integral action
+                << heaterPid.d // derivative action
                 << endl;
     }
     csv.close();
@@ -481,19 +452,19 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Fridge_Air, SimFridgeHeater)
         if(t==8000){
             SetPointDouble = 28;
         }
-        fridgeSet->write(SetPointDouble);
+        fridgeSet.write(SetPointDouble);
         update();
 
-        csv     << fridgeSet->read() << "," // setpoint
-                << heaterPid->inputError << "," //error
-                << beerSensor->read() << "," // beer temp
-                << fridgeSensor->read() << "," // air temp
+        csv     << fridgeSet.read() << "," // setpoint
+                << heaterPid.inputError << "," //error
+                << beerSensor.read() << "," // beer temp
+                << fridgeSensor.read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
-                << heater->getValue() << "," // actuator output
-                << heater->readValue() << "," // achieved output
-                << heaterPid->p << "," // proportional action
-                << heaterPid->i << "," // integral action
-                << heaterPid->d // derivative action
+                << heater.setting() << "," // actuator output
+                << heater.value() << "," // achieved output
+                << heaterPid.p << "," // proportional action
+                << heaterPid.i << "," // integral action
+                << heaterPid.d // derivative action
                 << endl;
     }
     csv.close();
@@ -513,20 +484,20 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Beer, SimBeerCooler)
         if(t==15000){
             SetPointDouble = 18.5;
         }
-        beerSet->write(SetPointDouble);
+        beerSet.write(SetPointDouble);
         update();
 
-        csv     << beerSet->read() << "," // setpoint
-                << coolerPid->inputError << "," //error
-                << beerSensor->read() << "," // beer temp
-                << fridgeSensor->read() << "," // air temp
+        csv     << beerSet.read() << "," // setpoint
+                << coolerPid.inputError << "," //error
+                << beerSensor.read() << "," // beer temp
+                << fridgeSensor.read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
-                << cooler->getValue() << "," // actuator output
-                << cooler->readValue() << "," // achieved output
-                << coolerPid->p << "," // proportional action
-                << coolerPid->i << "," // integral action
-                << coolerPid->d << "," // derivative action
-                << coolerPin->isActive() // actual cooler pin state
+                << cooler.setting() << "," // actuator output
+                << cooler.value() << "," // achieved output
+                << coolerPid.p << "," // proportional action
+                << coolerPid.i << "," // integral action
+                << coolerPid.d << "," // derivative action
+                << coolerPin.isActive() // actual cooler pin state
                 << endl;
     }
     csv.close();
@@ -546,20 +517,20 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air, SimFridgeCooler)
         if(t==8000){
             SetPointDouble = 15;
         }
-        fridgeSet->write(SetPointDouble);
+        fridgeSet.write(SetPointDouble);
         update();
 
-        csv     << fridgeSet->read() << "," // setpoint
-                << coolerPid->inputError << "," //error
-                << beerSensor->read() << "," // beer temp
-                << fridgeSensor->read() << "," // air temp
+        csv     << fridgeSet.read() << "," // setpoint
+                << coolerPid.inputError << "," //error
+                << beerSensor.read() << "," // beer temp
+                << fridgeSensor.read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
-                << cooler->getValue() << "," // actuator output
-                << cooler->readValue() << "," // achieved output
-                << coolerPid->p << "," // proportional action
-                << coolerPid->i << "," // integral action
-                << coolerPid->d << "," // derivative action
-                << coolerPin->isActive() // actual cooler pin state
+                << cooler.setting() << "," // actuator output
+                << cooler.value() << "," // achieved output
+                << coolerPid.p << "," // proportional action
+                << coolerPid.i << "," // integral action
+                << coolerPid.d << "," // derivative action
+                << coolerPin.isActive() // actual cooler pin state
                 << endl;
     }
     csv.close();
@@ -576,8 +547,8 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air_With_Long_Period_
             "3#cooler pwm, 3#cooler achieved pwm, 4#p, 4#i, 4#d, 5a#cooler pin" << endl;
     double SetPointDouble = 21;
 
-    cooler->setPeriod(3600);
-    coolerTimeLimited->setTimes(600, 120);
+    cooler.setPeriod(3600);
+    coolerTimeLimited.setTimes(600, 120);
 
     for(int t = 0; t < 50000; t++){
         if(t==1000){
@@ -586,20 +557,20 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air_With_Long_Period_
         if(t==8000){
             SetPointDouble = 5; // will require integral action here
         }
-        fridgeSet->write(SetPointDouble);
+        fridgeSet.write(SetPointDouble);
         update();
 
-        csv     << fridgeSet->read() << "," // setpoint
-                << coolerPid->inputError << "," //error
-                << beerSensor->read() << "," // beer temp
-                << fridgeSensor->read() << "," // air temp
+        csv     << fridgeSet.read() << "," // setpoint
+                << coolerPid.inputError << "," //error
+                << beerSensor.read() << "," // beer temp
+                << fridgeSensor.read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
-                << cooler->getValue() << "," // actuator output
-                << cooler->readValue() << "," // achieved output
-                << coolerPid->p << "," // proportional action
-                << coolerPid->i << "," // integral action
-                << coolerPid->d << "," // derivative action
-                << coolerPin->isActive() // actual cooler pin state
+                << cooler.setting() << "," // actuator output
+                << cooler.value() << "," // achieved output
+                << coolerPid.p << "," // proportional action
+                << coolerPid.i << "," // integral action
+                << coolerPid.d << "," // derivative action
+                << coolerPin.isActive() // actual cooler pin state
                 << endl;
     }
     csv.close();
@@ -627,29 +598,29 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Fridge_Air, Sim
             SetPointDouble -= 0.0005; // ramp up slowly
         }
 
-        fridgeSet->write(SetPointDouble);
+        fridgeSet.write(SetPointDouble);
 
         update();
 
-        BOOST_CHECK_MESSAGE(! (heaterPin->isActive() && coolerPin->isActive()), "at " << t); // pins are not active at the same time
+        BOOST_CHECK_MESSAGE(! (heaterPin.isActive() && coolerPin.isActive()), "at " << t); // pins are not active at the same time
 
-        csv     << fridgeSet->read() << "," // setpoint
-                << coolerPid->inputError << "," //error
-                << beerSensor->read() << "," // beer temp
-                << fridgeSensor->read() << "," // air temp
+        csv     << fridgeSet.read() << "," // setpoint
+                << coolerPid.inputError << "," //error
+                << beerSensor.read() << "," // beer temp
+                << fridgeSensor.read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
-                << cooler->getValue() << "," // actuator output
-                << cooler->readValue() << "," // achieved output
-                << coolerPid->p << "," // proportional action
-                << coolerPid->i << "," // integral action
-                << coolerPid->d << "," // derivative action
-                << heater->getValue() << "," // actuator output
-                << heater->readValue() << "," // achieved output
-                << heaterPid->p << "," // proportional action
-                << heaterPid->i << "," // integral action
-                << heaterPid->d << "," // derivative action
-                << coolerPin->isActive() << "," // actual cooler pin state
-                << heaterPin->isActive() // actual cooler pin state
+                << cooler.setting() << "," // actuator output
+                << cooler.value() << "," // achieved output
+                << coolerPid.p << "," // proportional action
+                << coolerPid.i << "," // integral action
+                << coolerPid.d << "," // derivative action
+                << heater.setting() << "," // actuator output
+                << heater.value() << "," // achieved output
+                << heaterPid.p << "," // proportional action
+                << heaterPid.i << "," // integral action
+                << heaterPid.d << "," // derivative action
+                << coolerPin.isActive() << "," // actual cooler pin state
+                << heaterPin.isActive() // actual cooler pin state
                 << endl;
     }
     csv.close();
@@ -676,28 +647,28 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Beer, SimBeerHe
             SetPointDouble -= 0.0001; // ramp up slowly
         }
 
-        beerSet->write(SetPointDouble);
+        beerSet.write(SetPointDouble);
         update();
 
-        BOOST_CHECK( !(heaterPin->isActive() && coolerPin->isActive()) ); // pins are not active at the same time
+        BOOST_CHECK( !(heaterPin.isActive() && coolerPin.isActive()) ); // pins are not active at the same time
 
-        csv     << beerSet->read() << "," // setpoint
-                << coolerPid->inputError << "," //error
-                << beerSensor->read() << "," // beer temp
-                << fridgeSensor->read() << "," // air temp
+        csv     << beerSet.read() << "," // setpoint
+                << coolerPid.inputError << "," //error
+                << beerSensor.read() << "," // beer temp
+                << fridgeSensor.read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
-                << cooler->getValue() << "," // actuator output
-                << cooler->readValue() << "," // achieved output
-                << coolerPid->p << "," // proportional action
-                << coolerPid->i << "," // integral action
-                << coolerPid->d << "," // derivative action
-                << heater->getValue() << "," // actuator output
-                << heater->readValue() << "," // achieved output
-                << heaterPid->p << "," // proportional action
-                << heaterPid->i << "," // integral action
-                << heaterPid->d << "," // derivative action
-                << coolerPin->isActive() << "," // actual cooler pin state
-                << heaterPin->isActive() // actual cooler pin state
+                << cooler.setting() << "," // actuator output
+                << cooler.value() << "," // achieved output
+                << coolerPid.p << "," // proportional action
+                << coolerPid.i << "," // integral action
+                << coolerPid.d << "," // derivative action
+                << heater.setting() << "," // actuator output
+                << heater.value() << "," // achieved output
+                << heaterPid.p << "," // proportional action
+                << heaterPid.i << "," // integral action
+                << heaterPid.d << "," // derivative action
+                << coolerPin.isActive() << "," // actual cooler pin state
+                << heaterPin.isActive() // actual cooler pin state
                 << endl;
     }
     csv.close();
@@ -727,39 +698,39 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Control, SimCascadedHeaterCooler)
             SetPointDouble -= 0.0001; // ramp up slowly
         }
 
-        beerSet->write(SetPointDouble);
+        beerSet.write(SetPointDouble);
         update();
 
-        BOOST_CHECK( !(heaterPin->isActive() && coolerPin->isActive()) ); // pins are not active at the same time
+        BOOST_CHECK( !(heaterPin.isActive() && coolerPin.isActive()) ); // pins are not active at the same time
 
-        csv     << beerSet->read() << "," // setpoint
-                << beerSensor->read() << "," // beer temp
-                << beerToFridgePid->inputError << "," // beer error
+        csv     << beerSet.read() << "," // setpoint
+                << beerSensor.read() << "," // beer temp
+                << beerToFridgePid.inputError << "," // beer error
 
-                << beerToFridgePid->p << "," // proportional action
-                << beerToFridgePid->i << "," // integral action
-                << beerToFridgePid->d << "," // derivative action
-                << beerToFridgePid->p + beerToFridgePid->i + beerToFridgePid->d << "," // PID output
-                << fridgeSetPointActuator->getValue() << "," // beer-fridge actual difference
+                << beerToFridgePid.p << "," // proportional action
+                << beerToFridgePid.i << "," // integral action
+                << beerToFridgePid.d << "," // derivative action
+                << beerToFridgePid.p + beerToFridgePid.i + beerToFridgePid.d << "," // PID output
+                << fridgeOffsetActuator.setting() << "," // beer-fridge actual difference
 
-                << fridgeSet->read() << "," // fridge setpoint
-                << fridgeSensor->read() << "," // air temp
+                << fridgeSet.read() << "," // fridge setpoint
+                << fridgeSensor.read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
 
-                << cooler->getValue() << "," // actuator output
-                << cooler->readValue() << "," // achieved output
-                << coolerPid->p << "," // proportional action
-                << coolerPid->i << "," // integral action
-                << coolerPid->d << "," // derivative action
+                << cooler.setting() << "," // actuator output
+                << cooler.value() << "," // achieved output
+                << coolerPid.p << "," // proportional action
+                << coolerPid.i << "," // integral action
+                << coolerPid.d << "," // derivative action
 
-                << heater->getValue() << "," // actuator output
-                << heater->readValue() << "," // achieved output
-                << heaterPid->p << "," // proportional action
-                << heaterPid->i << "," // integral action
-                << heaterPid->d << "," // derivative action
+                << heater.setting() << "," // actuator output
+                << heater.value() << "," // achieved output
+                << heaterPid.p << "," // proportional action
+                << heaterPid.i << "," // integral action
+                << heaterPid.d << "," // derivative action
 
-                << coolerPin->isActive() << "," // actual cooler pin state
-                << heaterPin->isActive() // actual cooler pin state
+                << coolerPin.isActive() << "," // actual cooler pin state
+                << heaterPin.isActive() // actual cooler pin state
                 << endl;
     }
     csv.close();
@@ -780,52 +751,53 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Cool_Small_Volume, SimCascadedHeaterCo
     sim.beerCapacity = 4.2 * 1.0 * 0.2; // heat capacity water * density of water * 0.2L volume (in kJ per kelvin).
     sim.airBeerTransfer = 0.001;
 
-    beerToFridgePid->setConstants(0.5, 1800, 180);
+    beerToFridgePid.setConstants(0.5, 1800, 180);
 
     for(int t = 0; t < 10000; t++){
         if(t==2000){
-            beerSet->write(5.0);
+            beerSet.write(5.0);
         }
 
         if(t==6000){
-            beerSet->write(5.0);
+            beerSet.write(5.0);
         }
 
         update();
 
-        BOOST_CHECK( !(heaterPin->isActive() && coolerPin->isActive()) ); // pins are not active at the same time
+        BOOST_CHECK( !(heaterPin.isActive() && coolerPin.isActive()) ); // pins are not active at the same time
 
-        csv     << beerSet->read() << "," // setpoint
-                << beerSensor->read() << "," // beer temp
-                << beerToFridgePid->inputError << "," // beer error
+        csv     << beerSet.read() << "," // setpoint
+                << beerSensor.read() << "," // beer temp
+                << beerToFridgePid.inputError << "," // beer error
 
-                << beerToFridgePid->p << "," // proportional action
-                << beerToFridgePid->i << "," // integral action
-                << beerToFridgePid->d << "," // derivative action
-                << beerToFridgePid->p + beerToFridgePid->i + beerToFridgePid->d << "," // PID output
-                << fridgeSetPointActuator->getValue() << "," // beer-fridge actual difference
+                << beerToFridgePid.p << "," // proportional action
+                << beerToFridgePid.i << "," // integral action
+                << beerToFridgePid.d << "," // derivative action
+                << beerToFridgePid.p + beerToFridgePid.i + beerToFridgePid.d << "," // PID output
+                << fridgeOffsetActuator.setting() << "," // beer-fridge actual difference
 
-                << fridgeSet->read() << "," // fridge setpoint
-                << fridgeSensor->read() << "," // air temp
+                << fridgeSet.read() << "," // fridge setpoint
+                << fridgeSensor.read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
 
-                << cooler->getValue() << "," // actuator output
-                << cooler->readValue() << "," // achieved output
-                << coolerPid->p << "," // proportional action
-                << coolerPid->i << "," // integral action
-                << coolerPid->d << "," // derivative action
+                << cooler.setting() << "," // actuator output
+                << cooler.value() << "," // achieved output
+                << coolerPid.p << "," // proportional action
+                << coolerPid.i << "," // integral action
+                << coolerPid.d << "," // derivative action
 
-                << heater->getValue() << "," // actuator output
-                << heater->readValue() << "," // achieved output
-                << heaterPid->p << "," // proportional action
-                << heaterPid->i << "," // integral action
-                << heaterPid->d << "," // derivative action
+                << heater.setting() << "," // actuator output
+                << heater.value() << "," // achieved output
+                << heaterPid.p << "," // proportional action
+                << heaterPid.i << "," // integral action
+                << heaterPid.d << "," // derivative action
 
-                << coolerPin->isActive() << "," // actual cooler pin state
-                << heaterPin->isActive() // actual cooler pin state
+                << coolerPin.isActive() << "," // actual cooler pin state
+                << heaterPin.isActive() // actual cooler pin state
                 << endl;
     }
     csv.close();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+

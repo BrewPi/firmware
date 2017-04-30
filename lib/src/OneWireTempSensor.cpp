@@ -41,9 +41,6 @@ bool OneWireTempSensor::init() {
     // save address and pinNr for log messages
     char addressString[17];
     printBytes(sensorAddress, 8, addressString);
-#if BREWPI_DEBUG
-    uint8_t pinNr = oneWire->pinNr();
-#endif
 
     bool success = false;
 
@@ -68,9 +65,10 @@ bool OneWireTempSensor::init() {
                 temp = sensor->getTempRaw(sensorAddress);            
             }
         }        
-        DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temp));
+        DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, oneWire->pinNr(), addressString, temp));
         success = temp != DEVICE_DISCONNECTED_RAW;
         if(success){
+        		cachedValue = temp;
             requestConversion(); // piggyback request for a new conversion
         }
     }

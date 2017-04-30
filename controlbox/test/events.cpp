@@ -1,5 +1,9 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+
 #include "catch.hpp"
 #include "fakeit.hpp"
+#pragma GCC diagnostic pop
 #include "Box.h"
 
 using namespace fakeit;

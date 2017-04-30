@@ -32,7 +32,7 @@ class ProgmemStringValue : public Value
 		ProgmemStringValue(const char* v) : value(v)  {}
 
 		virtual void readTo(DataOut& out);
-		virtual uint8_t streamSize();
+		virtual uint8_t readStreamSize();
 
 };
 

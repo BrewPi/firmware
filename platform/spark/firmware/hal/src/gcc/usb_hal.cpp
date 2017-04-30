@@ -71,12 +71,21 @@ void USB_USART_Init(uint32_t baudRate)
  *******************************************************************************/
 uint8_t USB_USART_Available_Data(void)
 {
-    struct timeval tv = {0, 1};
+    FD_ZERO(&stdin_fdset);
+    FD_SET(STDIN_FILENO, &stdin_fdset);
+
+    struct timeval tv = {0};
     int retval = select(1, &stdin_fdset, NULL, NULL, &tv);
-    if (retval <= 0)
+    if (retval < 0) {
         retval = 0;
+#if ( defined(_WIN32) || defined(_WIN32_WCE) ) && !defined(EFIX64) && \
+  !defined(EFI32)
         volatile int error = WSAGetLastError();
-        return error;
+#else
+        volatile int error = errno;
+#endif
+        	(void)error;
+    }
     return retval;
 }
 

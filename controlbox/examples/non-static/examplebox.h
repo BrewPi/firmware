@@ -38,7 +38,7 @@ public:
 
     virtual ticks_millis_t millis()
     {
-        return millisSinceStartup();
+        return ticks_millis_t(millisSinceStartup());
     }
 };
 
@@ -128,8 +128,9 @@ public:
     /**
      * Application-provided function that creates an object from the object definition.
      */
-    virtual Object* createApplicationObject(ObjectDefinition& def, bool dryRun=false)
+    virtual int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun=false)
     {
+    		// todo - validate the type and that the type is creatable
         uint8_t type = def.type;
         if (dryRun)		// consume the stream without creating an object
             type = 0;
@@ -137,11 +138,16 @@ public:
         switch (type)
         {
             case as_int(object_type::ValueTicksScaled):
-                return new ScaledTicksValue(ticks);
+                result = new ScaledTicksValue(ticks);
 
             default:
-                return nullFactory(def);
+                result = nullFactory(def);
         }
+        int8_t error = no_error;
+        if (!result) {
+        		error = errorCode(insufficient_heap);
+        }
+        return error;
     }
 
     /**

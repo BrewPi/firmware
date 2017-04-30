@@ -90,15 +90,15 @@ public:
     }
 
     virtual uint8_t next() override {
-        return stream->read();
+        return uint8_t(stream->read());
     };
 
     virtual uint8_t peek() override {
-        return stream->peek();
+        return uint8_t(stream->peek());
     }
 
     virtual unsigned available() override {
-        return stream->available();
+        return unsigned(stream->available());
     }
 
 };
@@ -336,7 +336,7 @@ public:
 		while (!hasData() && _text->hasNext()) {
             fetchNextByte();
         }
-		return (h2d(char1)<<4) | h2d(char2);
+		return uint8_t((h2d(char1)<<4) | h2d(char2));
 	}
 
 	uint8_t next() override  {
@@ -410,7 +410,7 @@ private:
 	BinaryToHexTextOut hexOut;
 
 public:
-	Comms(StandardConnection& connection) : hexOut(connection.getDataOut()), prevConnected(false), reset(false), connection_(connection) {}
+	Comms(StandardConnection& connection) : prevConnected(false), reset(false), connection_(connection), hexOut(connection.getDataOut()) {}
 
 	void setCommands(Commands& commands)
 	{
@@ -419,7 +419,7 @@ public:
 
 	inline std::array<std::reference_wrapper<StandardConnection>,1> all_connections()
 	{
-		std::array<std::reference_wrapper<StandardConnection>,1> result = { std::ref(connection_) };
+		std::array<std::reference_wrapper<StandardConnection>,1> result = { { std::ref(connection_) } };
 		return result;
 	}
 #else
