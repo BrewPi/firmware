@@ -23,6 +23,7 @@
 #include "Platform.h"
 #include <stdint.h>
 
+
 /**
  * Ticks - interface to a millisecond timer
  *
@@ -32,11 +33,13 @@
  * If that implementation doesn't implement the Ticks interface as expected, it will fail to compile.
  */
 
+
 // return time that has passed since timeStamp, take overflow into account
 ticks_seconds_t timeSinceSeconds(ticks_seconds_t currentTime, ticks_seconds_t previousTime);
 
 // return time that has passed since timeStamp, take overflow into account
 ticks_millis_t timeSinceMillis(ticks_millis_t currentTime, ticks_millis_t previousTime);
+
 
 /**
  * A Ticks implementation that increments the millis count each time it is called.

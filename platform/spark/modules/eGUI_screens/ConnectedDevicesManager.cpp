@@ -56,10 +56,14 @@ void ConnectedDevicesManager::handleDevice(DeviceConfig* config, DeviceCallbackI
     if (config->deviceHardware == DEVICE_HARDWARE_ONEWIRE_TEMP) {     
         int slot = existingSlot(config);
         if (slot >= 0) { // found the device still active
-            devices[slot].pointer.tempSensor->update();
-            temp_t newTemp = devices[slot].pointer.tempSensor->read();
-            if(newTemp.isDisabledOrInvalid()){
-                devices[slot].lastSeen+=2;
+            TempSensor * sensor = asInterface<TempSensor>(devices[slot].pointer);
+            if(sensor == nullptr){
+                return;
+            }
+            sensor->update();
+            temp_t newTemp = sensor->read();
+            if(newTemp == TEMP_SENSOR_DISCONNECTED){
+                devices[slot].lastSeen+=2;                
             } 
             else {
                 devices[slot].lastSeen = 0; // seen this one now
@@ -85,8 +89,9 @@ void ConnectedDevicesManager::handleDevice(DeviceConfig* config, DeviceCallbackI
                 device.connection.type = deviceConnection(device.dh);
                 memcpy(device.connection.address, config->hw.address, 8);
                 device.value.temp = temp_t::invalid(); // flag invalid
-                device.pointer.tempSensor = (TempSensorBasic*) DeviceManager::createDevice(*config, device.dt);
-                if (!device.pointer.tempSensor || !device.pointer.tempSensor->init()) {
+                device.pointer = DeviceManager::createDevice(*config, device.dt);
+                auto sensor = asInterface<TempSensor>(device.pointer);
+                if (!sensor || !sensor->init()) {
                     clearSlot(slot);
                     device.lastSeen = -1; // don't send REMOVED event since no added event has been sent
                 } else
@@ -108,7 +113,7 @@ void ConnectedDevicesManager::update()
 
     // increment the last seen for all devices        
     for (int i = 0; i < MAX_CONNECTED_DEVICES; i++) {
-        if (devices[i].pointer.any)
+        if (devices[i].pointer)
             devices[i].lastSeen++;
     }
     DeviceManager::enumerateHardware(spec, deviceCallback, &info);

@@ -21,69 +21,31 @@
 #pragma once
 
 #include "temperatureFormats.h"
-#include "TempSensorBasic.h"
-#include "defaultDevices.h"
+#include "Interface.h"
 #include "ControllerMixins.h"
 
-class TempSensor final : public TempSensorBasic, public TempSensorMixin {
+
+#define TEMP_SENSOR_DISCONNECTED temp_t::invalid()
+
+class TempSensor : public Interface, virtual public TempSensorMixin
+{
 public:
-    TempSensor() :
-            sensor(defaultTempSensorBasic()) {
-    }
-    TempSensor(TempSensorBasic * s) :
-            sensor(s) {
-    }
+    TempSensor() = default;
+	virtual ~TempSensor() = default;
+	
+	virtual bool isConnected(void) const = 0;
+	
+	/*
+	 * Attempt to (re-)initialize the sensor. 	 
+	 */
+	virtual bool init() =0;
 
-    ~TempSensor() {
-    }
+    void fastUpdate() final {}; // fast update not needed for temp sensors
 
-    void installSensor(TempSensorBasic * s) {
-        uninstallSensor();
-        sensor = s;
-    }
-
-    TempSensorBasic * getSensor() {
-        return sensor;
-    }
-
-    bool uninstallSensor(){
-        if(sensor == defaultTempSensorBasic()){
-            return false;
-        }
-        else{
-            delete sensor;
-            sensor = defaultTempSensorBasic();
-            return true;
-        }
-    }
-
-    inline bool isConnected(void) const override final {
-        return sensor->isConnected();
-    }
-
-    /*
-     * Attempt to (re-)initialize the sensor.
-     */
-    inline bool init() override final {
-        return sensor->init();
-    }
-
-    /*
-     * Update the sensor if the value is cached
-     */
-    void update() override final {
-        sensor->update();
-    }
-
-    /*
-     * Fetch a new reading from the sensor
-     */
-    inline temp_t read() const override final {
-        return sensor->read();
-    }
-
-private:
-    TempSensorBasic * sensor;
-    friend class TempSensorMixin;
+	/*
+	 * Read the sensor, returns cached value set in update()
+	 */
+	virtual temp_t read() const = 0;
 };
+
 

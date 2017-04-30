@@ -57,28 +57,29 @@ bool DeviceManager::firstDeviceOutput;
 device_slot_t findHardwareDevice(DeviceConfig & find);
 device_slot_t findDeviceFunction(DeviceConfig & find);
 
+Interface * DeviceManager::devices[NUM_DEVICE_SLOTS];
 
-
-bool isAssignable(DeviceType     type,
-                         DeviceHardware hardware)
+bool isAssignable(DeviceFunction function,
+                  DeviceHardware hardware)
 {
+    auto type = deviceType(function, hardware);
     return ((hardware == DEVICE_HARDWARE_PIN)
-            && (type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_SWITCH_SENSOR
-                    || type == DEVICETYPE_PWM_ACTUATOR || type == DEVICETYPE_MANUAL_ACTUATOR))
+            && (type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_SWITCH_SENSOR))
 
 #if BREWPI_DS2413
             || ((hardware == DEVICE_HARDWARE_ONEWIRE_2413)
-                && ((type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_PWM_ACTUATOR || type == DEVICETYPE_MANUAL_ACTUATOR)
+                && ((type == DEVICETYPE_SWITCH_ACTUATOR )
                     || (DS2413_SUPPORT_SENSE && (type == DEVICETYPE_SWITCH_SENSOR))))
 #endif
 
 #if BREWPI_DS2408
             || ((hardware == DEVICE_HARDWARE_ONEWIRE_2408)
-                && (type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_MANUAL_ACTUATOR))
+                && (type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_VALVE))
 #endif
 
-    || ((hardware == DEVICE_HARDWARE_ONEWIRE_TEMP)
-        && (type == DEVICETYPE_TEMP_SENSOR)) || ((hardware == DEVICE_HARDWARE_NONE) && (type == DEVICETYPE_NONE));
+            || ((hardware == DEVICE_HARDWARE_ONEWIRE_TEMP)
+                && (type == DEVICETYPE_TEMP_SENSOR))
+            || ((hardware == DEVICE_HARDWARE_NONE) && (type == DEVICETYPE_NONE));
 }
 
 bool isOneWire(DeviceHardware hardware)
@@ -105,38 +106,26 @@ DeviceConnection deviceConnection(DeviceHardware hardware)
 }
 
 /*
- * Determines where this devices belongs.
- */
-DeviceOwner deviceOwner(DeviceFunction id)
-{
-    return (id == 0) ? DEVICE_OWNER_NONE : (id >= DEVICE_BEER_FIRST) ? DEVICE_OWNER_BEER : DEVICE_OWNER_CHAMBER;
-}
-
-
-/*
  * Sets devices to their unconfigured states. Each device is initialized to a static no-op instance.
  * This method is idempotent, and is called each time the eeprom is reset.
  */
-void DeviceManager::setupUnconfiguredDevices()
+void DeviceManager::setupUnconfiguredDevices(bool eraseEeprom)
 {
     // right now, uninstall doesn't care about chamber/beer distinction.
     // but this will need to match beer/function when multiferment is available
     DeviceConfig cfg;
 
-    cfg.chamber = 1;
-    cfg.beer    = 1;
-
-    for (uint8_t i = 0; i < DEVICE_MAX; i++){
+    for (device_slot_t i = 0; i < NUM_DEVICE_SLOTS; i++){
         cfg.deviceFunction = DeviceFunction(i);
 
-        uninstallDevice(cfg);
+        uninstallDevice(cfg, i, eraseEeprom);
     }
 }
 
 /*
  * Creates a new device for the given config.
  */
-void * DeviceManager::createDevice(DeviceConfig & config,
+Interface * DeviceManager::createDevice(DeviceConfig & config,
                                    DeviceType     dt)
 {
     switch (config.deviceHardware){
@@ -144,149 +133,102 @@ void * DeviceManager::createDevice(DeviceConfig & config,
             break;
 
         case DEVICE_HARDWARE_PIN :
-            if (dt == DEVICETYPE_SWITCH_SENSOR){
-#if BREWPI_SIMULATE
-                return new ValueSensor<bool>(false);
-#else
-                return new DigitalPinSensor(config.hw.pinNr, config.hw.invert);
-#endif
-
-            } else{
-#if BREWPI_SIMULATE
-                return new BoolActuator();
-#else
-
-                // use hardware actuators even for simulator
-                return new ActuatorPin(config.hw.pinNr, config.hw.invert);
-#endif
-
-            }
+            // No sense support for now
+            return new ActuatorPin(config.hw.pinNr, config.hw.invert);
         case DEVICE_HARDWARE_ONEWIRE_TEMP :
-
-#if BREWPI_SIMULATE
-            return new ExternalTempSensor(
-                false);    // initially disconnected, so init doesn't populate the filters with the default value of 0.0
-#else
-            return new OneWireTempSensor(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.offset.calibration);
-#endif
-
+        {
+            auto sensor = new OneWireTempSensor(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.offset.calibration);
+            sensor->init();
+            return sensor;
+        }
+        break;
 #if BREWPI_DS2413
         case DEVICE_HARDWARE_ONEWIRE_2413 :
-
-#if BREWPI_SIMULATE
-            if (dt == DEVICETYPE_SWITCH_SENSOR){
-                return new ValueSensor<bool>(false);
-            } else{
-                return new BoolActuator();
-            }
-#else
             return new ActuatorOneWire(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.offset.pio, config.hw.invert);
-#endif
 #endif
 
 #if BREWPI_DS2408
         case DEVICE_HARDWARE_ONEWIRE_2408 :
             return new ValveController(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.offset.pio);
-
 #endif
-
     }
-
-    return NULL;
+    return nullptr;
 }
 
-void DeviceManager::disposeDevice(DeviceType dt,
-                                  void *     device)
-{
-    switch (dt){
-        case DEVICETYPE_NONE :
-            break;
+class DeviceListLookup {
+public:
+    DeviceListLookup(uint8_t _slot) : slot(_slot){}
+    ~DeviceListLookup() = default;
 
-        case DEVICETYPE_TEMP_SENSOR :
-            delete (TempSensorBasic *) device;
-
-            break;
-
-        case DEVICETYPE_SWITCH_SENSOR :
-            delete (SwitchSensor *) device;
-
-            break;
-
-        case DEVICETYPE_SWITCH_ACTUATOR :
-        case DEVICETYPE_PWM_ACTUATOR :
-            delete (Actuator *) device;
-            break;
-        case DEVICETYPE_MANUAL_ACTUATOR :
-            break; // no action needed as no device has been created
+    Interface * operator()(){
+        return DeviceManager::fetch(slot);
     }
-}
+private:
+    uint8_t slot;
+};
 
 /*
- * Returns the pointer to where the device pointer resides. This can be used to delete the current device and install a new one.
- * For Temperature sensors, the returned pointer points to a TempSensor*. The basic device can be fetched by calling
- * TempSensor::getSensor().
+ * Creates and installs a device
  */
-void ** DeviceManager::deviceTarget(DeviceConfig & config)
-{
-    // for multichamber, will write directly to the multi-chamber managed storage.
-    // later...
-    if ((config.chamber > 1) || (config.beer > 1)){
-        return NULL;
-    }
+bool DeviceManager::createAndInstallDevice(DeviceConfig config, device_slot_t slot){
 
-    void ** ppv;
+    // deduct device type from function and hardware for now
+    DeviceType dt  = deviceType(config.deviceFunction, config.deviceHardware);
+    Interface * device = nullptr;
+    device = DeviceManager::createDevice(config, dt);
+    if (device == nullptr && config.deviceFunction != DEVICE_NONE){
+        logErrorInt(ERROR_OUT_OF_MEMORY_FOR_DEVICE, config.deviceFunction);
+        return false;
+    }
+    return installDevice(device, config, slot, true);
+}
+
+bool DeviceManager::installDevice(Interface * device, DeviceConfig config, device_slot_t slot, bool storeEeprom)
+{
+    if(!isDefinedSlot(slot)){
+        return false;
+    }
+    devices[slot] = device;
+    // create lookup object for passing to delegates
+    // if we are uninstalling a device (device = nullptr), set the lookup of the old function to nullptr
+    std::function<Interface* ()> lookup = nullptr;
+    if(device != nullptr){
+        lookup = DeviceListLookup(slot);
+    }
 
     switch (config.deviceFunction){
-        case DEVICE_CHAMBER_ROOM_TEMP :
-            ppv = (void **) &control.beer2Sensor;
-
+        case DEVICE_NONE :
             break;
-/*
-        case DEVICE_CHAMBER_DOOR :
-            ppv = (void **) &tempControl.door;
-
+        case DEVICE_CHAMBER_HEAT:
+            control.heater1Toggle.setLookup(lookup);
             break;
-
-        case DEVICE_CHAMBER_LIGHT :
-            ppv = (void **) &tempControl.light;
-
-            break;
-*/
-        case DEVICE_CHAMBER_HEAT :
-            ppv = (void **) &control.heater1;
-
-            break;
-
-        case DEVICE_BEER_HEAT :
-            ppv = (void **) &control.heater2;
-
-            break;
-
         case DEVICE_CHAMBER_COOL :
-            ppv = (void **) &control.cooler;
-
+            control.coolerToggle.setLookup(lookup);
             break;
-
         case DEVICE_CHAMBER_TEMP :
-            ppv = (void **) &control.fridgeSensor;
-
+            control.fridgeSensor.setLookup(lookup);
             break;
-/*
-        case DEVICE_CHAMBER_FAN :
-            ppv = (void **) &tempControl.fan;
-
-            break;
-*/
-        case DEVICE_BEER_TEMP :
-            ppv = (void **) &control.beer1Sensor;
-
+        case DEVICE_CHAMBER_ROOM_TEMP :
+            control.roomSensor.setLookup(lookup);
             break;
 
-        default :
-            ppv = NULL;
+        case DEVICE_BEER_FIRST:
+            control.beer1Sensor.setLookup(lookup);
+            break;
+
+        case DEVICE_BEER_TEMP2:
+            control.beer2Sensor.setLookup(lookup);
+            break;
+        case DEVICE_CHAMBER_MANUAL_ACTUATOR :
+        	break; // not installed for now, only exists in device list
     }
-
-    return ppv;
+    if(device == nullptr){
+        config.deviceFunction = DEVICE_NONE; // if the device ptr is cleared, also clear EEPROM slot
+    }
+    if(storeEeprom){
+        eepromManager.storeDevice(config, slot);
+    }
+    return true;
 }
 
 /*
@@ -294,119 +236,13 @@ void ** DeviceManager::deviceTarget(DeviceConfig & config)
  * /param config The device to remove. The fields that are used are
  *              chamber, beer, hardware and function.
  */
-void DeviceManager::uninstallDevice(DeviceConfig & config)
+void DeviceManager::uninstallDevice(DeviceConfig & config, device_slot_t slot, bool eraseEeprom)
 {
-    void ** ppv = deviceTarget(config);
-
-    if (ppv == NULL){
-        return;
-    }
-
-    DeviceType        dt = deviceType(config.deviceFunction);
-
-    switch (dt){
-        case DEVICETYPE_NONE :
-            break;
-
-        case DEVICETYPE_TEMP_SENSOR :
-        {
-            TempSensor * s = (TempSensor *) (*ppv);
-            if(s->uninstallSensor()){
-                DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_TEMP_SENSOR, config.deviceFunction));
-            }
-        }
-            break;
-
-        case DEVICETYPE_SWITCH_ACTUATOR :
-        case DEVICETYPE_PWM_ACTUATOR :
-        {
-            Actuator ** target = (Actuator **) ppv;
-            /*if ((*target)->getDeviviceTarget() != 0){
-                target = (*target)->getDeviviceTarget(); // recursive call to unpack until at pin actuator
-            }*/
-            if ((*target)->removeNonForwarder()){
-                DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_ACTUATOR, config.deviceFunction));
-            }
-        }
-        break;
-
-        case DEVICETYPE_SWITCH_SENSOR :
-            if (*ppv != defaultSensor()){
-                DEBUG_ONLY(logInfoInt(INFO_UNINSTALL_SWITCH_SENSOR, config.deviceFunction));
-
-                delete (SwitchSensor *) *ppv;
-
-                *ppv = defaultSensor();
-            }
-
-            break;
-        case DEVICETYPE_MANUAL_ACTUATOR :
-            break; // not installed for now, only exists in device list
-    }
-}
-
-/*
- * Creates and installs a device in the current chamber.
- */
-void DeviceManager::installDevice(DeviceConfig & config)
-{
-    DeviceType dt  = deviceType(config.deviceFunction);
-    void **    ppv = deviceTarget(config);
-
-    if ((ppv == NULL) || config.hw.deactivate){
-        return;
-    }
-
-    switch (dt){
-
-        case DEVICETYPE_NONE :
-            break;
-        case DEVICETYPE_SWITCH_SENSOR :
-        		break;
-
-        case DEVICETYPE_TEMP_SENSOR :
-        {
-            DEBUG_ONLY(logInfoInt(INFO_INSTALL_TEMP_SENSOR, config.deviceFunction));
-
-            // sensor may be wrapped in a TempSensor class, or may stand alone.
-            TempSensorBasic * s = (TempSensorBasic *) createDevice(config, dt);
-
-            if (s == NULL){
-                logErrorInt(ERROR_OUT_OF_MEMORY_FOR_DEVICE, config.deviceFunction);
-            }
-            else{
-                s -> init();
-                ((TempSensor *) *ppv)->installSensor(s);
-
-#if BREWPI_SIMULATE
-            ((ExternalTempSensor *) s) -> setConnected(true);    // now connect the sensor after init is called
-#endif
-            }
-        }
-            break;
-
-        case DEVICETYPE_SWITCH_ACTUATOR :
-        case DEVICETYPE_PWM_ACTUATOR :
-        {
-            DEBUG_ONLY(logInfoInt(INFO_INSTALL_DEVICE, config.deviceFunction));
-            Actuator ** target = (Actuator **) ppv;
-            /*if ((*target)->getDeviviceTarget() != 0){
-                target = (*target)->getDeviviceTarget(); // recursive call to unpack until at pin/value actuator
-            }*/
-
-            ActuatorDigital * newActuator = (ActuatorDigital *) createDevice(config, dt);
-            (*target)->replaceNonForwarder(newActuator);
-
-#if (BREWPI_DEBUG > 0)
-            if (*target == NULL){
-                logErrorInt(ERROR_OUT_OF_MEMORY_FOR_DEVICE, config.deviceFunction);
-            }
-#endif
-        }
-        break;
-        case DEVICETYPE_MANUAL_ACTUATOR :
-        	break; // not installed for now, only exists in device list
-
+    if(isDefinedSlot(slot)){
+        Interface * device = devices[slot];
+        installDevice(nullptr, config, slot, eraseEeprom);
+        delete device;
+        devices[slot] = nullptr;
     }
 }
 
@@ -511,7 +347,7 @@ void DeviceManager::parseDeviceDefinition(Stream & p)
     fill((int8_t *) &dev, sizeof(dev));
     piLink.parseJson(&handleDeviceDefinition, &dev);
 
-    if (!inRangeInt8(dev.id, 0, MAX_DEVICE_SLOT))    // no device id given, or it's out of range, can't do anything else.
+    if (!inRangeInt8(dev.id, 0, NUM_DEVICE_SLOTS))    // no device id given, or it's out of range, can't do anything else.
     {
         return;
     }
@@ -548,36 +384,27 @@ void DeviceManager::parseDeviceDefinition(Stream & p)
         clear((uint8_t *) &target, sizeof(target));
     }
 
-    bool           valid = isDeviceValid(target, original, dev.id);
+    bool valid = isDeviceValid(target, original, dev.id);
     DeviceConfig * print = &original;
 
     if (valid){
         print = &target;
 
-        // remove the device associated with the previous function
-        uninstallDevice(original);
+        // remove the device from another slot if that slot has the same hardware
+        device_slot_t oldHardwareSlot = findHardwareDevice(target);
+        uninstallDevice(target, oldHardwareSlot, true);
 
-        // also remove any existing device for the new function, since install overwrites any existing definition.
-        uninstallDevice(target);
 
-        device_slot_t slot = findHardwareDevice(target);
-        bool install = true;
-        if(slot != INVALID_SLOT){
-            // if this hardware has already been installed to a different slot, skip install
-            logErrorInt(ERROR_DEVICE_ALREADY_INSTALLED, slot);
-            install = false;
+        if(isUniqueFunction(target.deviceFunction)){ // check if function can only be installed once
+            // remove the device from another slot if that slot has the same function
+            device_slot_t oldFunctionSlot = findDeviceFunction(target);
+            uninstallDevice(target, oldFunctionSlot, true);
         }
-        if(isUniqueFunction(target.deviceFunction)){
-            slot = findDeviceFunction(target);
-            if(slot != INVALID_SLOT){
-                logErrorInt(ERROR_FUNCTION_ALREADY_INSTALLED, slot);
-                install = false;
-            }
-        }
-        if(install){
-            installDevice(target);
-            eepromManager.storeDevice(target, dev.id);
-        }
+
+        // remove the existing device from the target slot, no need to erase EEPROM because we'll overwrite it
+        uninstallDevice(original, dev.id, false);
+
+        createAndInstallDevice(target, dev.id);
     } else{
         logError(ERROR_DEVICE_DEFINITION_UPDATE_SPEC_INVALID);
     }
@@ -609,41 +436,22 @@ bool DeviceManager::isDeviceValid(DeviceConfig & config,
      *  More refined checks that may cause confusing results are not yet implemented. See todo below.
      */
 
-    /* chamber and beer within range. */
-    if (!inRangeUInt8(config.chamber, 0, EepromFormat::MAX_CHAMBERS)){
-        logErrorInt(ERROR_INVALID_CHAMBER, config.chamber);
-
-        return false;
-    }
-
-    /* 0 is allowed - represents a chamber device not assigned to a specific beer */
-    if (!inRangeUInt8(config.beer, 0, ChamberBlock::MAX_BEERS)){
-        logErrorInt(ERROR_INVALID_BEER, config.beer);
-
-        return false;
-    }
-
-    if (!inRangeUInt8(config.deviceFunction, 0, DEVICE_MAX - 1)){
+    if (!inRangeUInt8(config.deviceFunction, 0, DEVICE_FUNCTION_MAX - 1)){
         logErrorInt(ERROR_INVALID_DEVICE_FUNCTION, config.deviceFunction);
 
         return false;
     }
 
-    DeviceOwner owner = deviceOwner(config.deviceFunction);
-
-    if (!(((owner == DEVICE_OWNER_BEER) && config.beer) || ((owner == DEVICE_OWNER_CHAMBER) && config.chamber)
-            || ((owner == DEVICE_OWNER_NONE) &&!config.beer &&!config.chamber))){
-        logErrorIntIntInt(ERROR_INVALID_DEVICE_CONFIG_OWNER, owner, config.beer, config.chamber);
-
+    if(!isDefinedSlot(deviceIndex)){
         return false;
     }
 
     // todo - find device at another index with the same chamber/beer/function spec.
     // with duplicate function defined for the same beer, that they will both try to create/delete the device in the target location.
     // The highest id will win.
-    DeviceType dt = deviceType(config.deviceFunction);
+    DeviceType dt = deviceType(config.deviceFunction, config.deviceHardware);
 
-    if (!isAssignable(dt, config.deviceHardware)){
+    if (!isAssignable(config.deviceFunction, config.deviceHardware)){
         logErrorIntInt(ERROR_CANNOT_ASSIGN_TO_HARDWARE, dt, config.deviceHardware);
 
         return false;
@@ -711,7 +519,7 @@ void DeviceManager::printDevice(device_slot_t  slot,
                                 Print &        p)
 {
     char       buf[17];
-    DeviceType dt = deviceType(config.deviceFunction);
+    DeviceType dt = deviceType(config.deviceFunction, config.deviceHardware);
 
     if (!firstDeviceOutput){
         // p.print('\n');
@@ -887,7 +695,7 @@ device_slot_t findDeviceFunction(DeviceConfig & find)
     return INVALID_SLOT;
 }
 
-inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw,
+void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw,
                                                char * out)
 {
 #if !BREWPI_SIMULATE
@@ -907,7 +715,7 @@ inline void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw,
 #endif
 }
 
-inline void DeviceManager::readValve(DeviceConfig::Hardware hw,
+void DeviceManager::readValve(DeviceConfig::Hardware hw,
                                      char * out)
 {
     OneWire * bus = oneWireBus(hw.pinNr);
@@ -918,7 +726,7 @@ inline void DeviceManager::readValve(DeviceConfig::Hardware hw,
     sprintf_P(out, STR_FMT_U, (unsigned int) valveState);
 }
 
-inline void DeviceManager::writeValve(DeviceConfig::Hardware hw, uint8_t value)
+void DeviceManager::writeValve(DeviceConfig::Hardware hw, uint8_t value)
 {
     OneWire * bus = oneWireBus(hw.pinNr);
     ValveController valve(
@@ -927,26 +735,26 @@ inline void DeviceManager::writeValve(DeviceConfig::Hardware hw, uint8_t value)
     valve.write(ValveController::ValveActions(value));
 }
 
-inline void DeviceManager::writePin(DeviceConfig::Hardware hw, uint8_t value)
+void DeviceManager::writePin(DeviceConfig::Hardware hw, uint8_t value)
 {
     bool active = value != 0;
     pinMode(hw.pinNr, OUTPUT);
     digitalWrite(hw.pinNr, (active ^ hw.invert) ? HIGH : LOW);
 }
 
-inline void DeviceManager::readPin(DeviceConfig::Hardware hw, char * out){
+void DeviceManager::readPin(DeviceConfig::Hardware hw, char * out){
     unsigned int state = digitalRead(hw.pinNr) ^ hw.invert;
     sprintf_P(out, STR_FMT_U, state);
 }
 
-inline void DeviceManager::writeOneWirePin(DeviceConfig::Hardware hw, uint8_t value)
+void DeviceManager::writeOneWirePin(DeviceConfig::Hardware hw, uint8_t value)
 {
     OneWire * bus = oneWireBus(hw.pinNr);
     ActuatorOneWire pin(bus, hw.address, hw.offset.pio, hw.invert);
     pin.write(value);
 }
 
-inline void DeviceManager::readOneWirePin(DeviceConfig::Hardware hw, char * out){
+void DeviceManager::readOneWirePin(DeviceConfig::Hardware hw, char * out){
     OneWire * bus = oneWireBus(hw.pinNr);
     ActuatorOneWire pin(bus, hw.address, hw.offset.pio, hw.invert);
     unsigned int state = pin.isActive();
@@ -959,7 +767,7 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig & config,
         EnumDevicesCallback                               callback,
         DeviceCallbackInfo *                              info)
 {
-    if (h.function &&!isAssignable(deviceType(DeviceFunction(h.function)), config.deviceHardware)){
+    if (h.function &&!isAssignable(DeviceFunction(h.function), config.deviceHardware)){
         return;    // device not applicable for required function
     }
 
@@ -1003,7 +811,7 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig & config,
 
 bool isDefinedSlot(device_slot_t s)
 {
-    return INVALID_SLOT < s && s < MAX_DEVICE_SLOT;
+    return INVALID_SLOT < s && s < NUM_DEVICE_SLOTS;
 }
 
 
@@ -1080,7 +888,7 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware & h,
         // logDebug("Enumerating one-wire devices on pin %d", pin);
         OneWire * wire = oneWireBus(pin);
 
-        if (wire != NULL){
+        if (wire != nullptr){
             wire -> reset_search();
 
             while (wire -> search(config.hw.address)){
@@ -1202,24 +1010,19 @@ void HandleDeviceDisplay(const char * key,
     }
 }
 
-void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
-                       DeviceConfig &  dc,
-                       char *          val)
+void DeviceManager::UpdateDeviceState(DeviceDisplay & dd, DeviceConfig &  dc, char * val, device_slot_t idx)
 {
-    DeviceType dt = deviceType(dc.deviceFunction);
+    DeviceType dt = deviceType(dc.deviceFunction, dc. deviceHardware);
 
     if (dt == DEVICETYPE_NONE){
         return;
     }
-
-    void ** ppv = deviceTarget(dc);
-
-    if (ppv == NULL && dt != DEVICETYPE_MANUAL_ACTUATOR){ // make an exception for valves, which only exist in the device list
+    if(!isDefinedSlot(idx)){
         return;
     }
     if (dd.write >= 0){
         // write value to a specific device. For now, only actuators are relevant targets
-        if (dt == DEVICETYPE_MANUAL_ACTUATOR){
+        if (dc.deviceFunction == DEVICE_CHAMBER_MANUAL_ACTUATOR){
             if(dc.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2408){
                 writeValve(dc.hw, dd.write);
             }
@@ -1230,29 +1033,28 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd,
                 writeOneWirePin(dc.hw, dd.write);
             }
         }
-        if (dt == DEVICETYPE_SWITCH_ACTUATOR){
+        else if (dt == DEVICETYPE_SWITCH_ACTUATOR){
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write != 0));
-            ((ActuatorDigital *) *ppv) -> setActive(dd.write != 0);
-        } else if (dt == DEVICETYPE_PWM_ACTUATOR){
-            DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write));
-            temp_t value = temp_t::base_type(dd.write);
-            ((ActuatorPwm *) *ppv) -> setValue(value);
+            auto act = asInterface<ActuatorDigital>(devices[idx]);
+            if(act != nullptr){
+                act->setActive(dd.write != 0);
+            }
         }
     } else if (dd.value == 1){    // read values
-        if (dt == DEVICETYPE_SWITCH_SENSOR){
-            sprintf_P(val, STR_FMT_U,
-                      (unsigned int) ((SwitchSensor *) *ppv) -> sense()
-                      != 0);      // cheaper than itoa, because it overlaps with vsnprintf
-        } else if (dt == DEVICETYPE_TEMP_SENSOR){
-            TempSensorBasic * s = (TempSensorBasic*) *ppv;
-            s->update();
-            temp_t temp = s->read();
-            temp.toTempString(val, 3, 9, tempControl.cc.tempFormat, true);
+        // todo add switch sensors
+        if (dt == DEVICETYPE_TEMP_SENSOR){
+            auto s = asInterface<TempSensor>(devices[idx]);
+            if(s != nullptr){
+                s->update();
+                temp_t temp = s->read();
+                temp.toTempString(val, 3, 9, tempControl.cc.tempFormat, true);
+            }
         } else if (dt == DEVICETYPE_SWITCH_ACTUATOR){
-            sprintf_P(val, STR_FMT_U, (unsigned int) ((ActuatorDigital *) *ppv) -> isActive() != 0);
-        } else if (dt == DEVICETYPE_PWM_ACTUATOR){
-            ((ActuatorPwm *) *ppv) -> getValue().toString(val,1,6);
-        } else if (dt == DEVICETYPE_MANUAL_ACTUATOR){
+            auto act = asInterface<ActuatorDigital>(devices[idx]);
+            if(act != nullptr){
+                sprintf_P(val, STR_FMT_U, (unsigned int) act->isActive() != 0);
+            }
+        } else if (dc.deviceFunction == DEVICE_CHAMBER_MANUAL_ACTUATOR){
             if(dc.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2408){
                 readValve(dc.hw, val);
             }
@@ -1285,7 +1087,7 @@ void DeviceManager::listDevices(Stream & p)
 
             val[0] = 0;
 
-            UpdateDeviceState(dd, dc, val);
+            UpdateDeviceState(dd, dc, val, idx);
             deviceManager.printDevice(idx, dc, val, p);
         }
     }
@@ -1294,31 +1096,35 @@ void DeviceManager::listDevices(Stream & p)
 /*
  * Determines the class of device for the given DeviceID.
  */
-DeviceType deviceType(DeviceFunction id)
+DeviceType deviceType(DeviceFunction func, DeviceHardware hw)
 {
-    switch (id){
+    switch (func){
         case DEVICE_CHAMBER_DOOR :
             return DEVICETYPE_SWITCH_SENSOR;
 
         case DEVICE_CHAMBER_LIGHT :
         case DEVICE_CHAMBER_FAN :
-            return DEVICETYPE_SWITCH_ACTUATOR;
-
         case DEVICE_CHAMBER_COOL :
         case DEVICE_CHAMBER_HEAT :
         case DEVICE_BEER_HEAT :
         case DEVICE_BEER_COOL :
-            return DEVICETYPE_PWM_ACTUATOR;
-
+            return DEVICETYPE_SWITCH_ACTUATOR;
         case DEVICE_CHAMBER_TEMP :
         case DEVICE_CHAMBER_ROOM_TEMP :
         case DEVICE_BEER_TEMP :
         case DEVICE_BEER_TEMP2 :
             return DEVICETYPE_TEMP_SENSOR;
-
         case DEVICE_CHAMBER_MANUAL_ACTUATOR:
-            return DEVICETYPE_MANUAL_ACTUATOR;
-
+#if BREWPI_DS2408
+            if(hw == DEVICE_HARDWARE_ONEWIRE_2408){
+                return DEVICETYPE_VALVE;
+            }
+            else{
+                return DEVICETYPE_SWITCH_ACTUATOR;
+            }
+#else
+            return DEVICETYPE_SWITCH_ACTUATOR;
+#endif
         default :
             return DEVICETYPE_NONE;
     }

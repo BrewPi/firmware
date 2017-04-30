@@ -135,6 +135,7 @@ uint8_t DS2413::writeByteFromCache()
     return returnval;
 }
 
+
 bool DS2413::sense(pio_t pio,
            bool  defaultValue)
 {
@@ -149,3 +150,4 @@ bool DS2413::sense(pio_t pio,
         return defaultValue;
     }
 }
+

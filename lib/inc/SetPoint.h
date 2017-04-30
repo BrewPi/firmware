@@ -21,13 +21,16 @@
 
 #include "temperatureFormats.h"
 #include "ControllerMixins.h"
+#include "Interface.h"
 
-class SetPoint : public SetPointMixin{
+class SetPoint : public virtual Interface, public SetPointMixin{
 public:
     SetPoint() = default;
     virtual ~SetPoint() = default;
     virtual temp_t read() const = 0;
     virtual void write(temp_t val) = 0;
+    void update() final {}; // periodic update not needed for setpoints
+    void fastUpdate() final {}; // fast update not needed for setpoints
 friend class SetPointMixin;
 };
 
@@ -36,6 +39,15 @@ class SetPointSimple final : public SetPoint, public SetPointSimpleMixin {
 public:
     SetPointSimple(temp_t val = temp_t::disabled()) : value(val){}
     ~SetPointSimple() = default;
+
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    void accept(VisitorBase & v) final {
+    	v.visit(*this);
+    }
+
     temp_t read() const override final {
         return value;
     }
@@ -54,6 +66,15 @@ public:
                                                       min(temp_t::min()),
                                                       max(temp_t::max()){}
     ~SetPointMinMax() = default;
+
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    void accept(VisitorBase & v) final {
+    	v.visit(*this);
+    }
+
     temp_t read() const override final {
         return value;
     }
@@ -95,6 +116,15 @@ class SetPointConstant final : public SetPoint, public SetPointConstantMixin {
 public:
     SetPointConstant(const temp_t val): value(val){}
     ~SetPointConstant() = default;
+
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    void accept(VisitorBase & v) final {
+    	v.visit(*this);
+    }
+
     temp_t read() const override final{
         return value;
     }

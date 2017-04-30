@@ -83,7 +83,7 @@ int StdIO::available() {
 #endif
 
 int StdIO::available() {
-    return in.available();
+    return int(in.available());
 }
 
 void StdIO::begin(unsigned long)

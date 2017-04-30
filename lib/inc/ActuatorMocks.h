@@ -28,53 +28,57 @@
 /*
  * A range actuator that simply remembers the set value. This is primary used for testing.
  */
-class ActuatorValue final : public ActuatorRange, public ActuatorValueMixin
+class ActuatorValue final : public ActuatorAnalog, public ActuatorValueMixin
 {
 public:
     // construct without arguments, val = invalid, min and max are defaults
-    ActuatorValue() : value(temp_t::invalid()), minimum(temp_t::min()), maximum(temp_t::max()){}
+    ActuatorValue() : currentValue(temp_t::invalid()), minimum(temp_t::min()), maximum(temp_t::max()){}
 
     // construct with just val, min and max are defaults
-    ActuatorValue(temp_t initial) : value(initial), minimum(temp_t::min()), maximum(temp_t::max()){}
+    ActuatorValue(temp_t initial) : currentValue(initial), minimum(temp_t::min()), maximum(temp_t::max()){}
 
     // construct with val, min, max
-    ActuatorValue(temp_t initial, temp_t minVal, temp_t maxVal) : value(initial), minimum(minVal), maximum(maxVal) {}
+    ActuatorValue(temp_t initial, temp_t minVal, temp_t maxVal) : currentValue(initial), minimum(minVal), maximum(maxVal) {}
 
     ~ActuatorValue() = default;
 
-    void setValue(temp_t const& val) override final {
-        if(val < minimum){
-            value = minimum;
-        }
-        else if(val > maximum){
-            value = maximum;
-        }
-        else{
-            value = val;
-        }
-    }
-    temp_t getValue() const override final {
-        return value;
+    void accept(VisitorBase & v) override final{
+    	v.visit(*this);
     }
 
-    virtual temp_t readValue() const override final {
-    		return getValue();
+    void set(temp_t const& val) override final {
+        if(val < minimum){
+            currentValue = minimum;
+        }
+        else if(val > maximum){
+            currentValue = maximum;
+        }
+        else{
+            currentValue = val;
+        }
+    }
+    temp_t setting() const override final {
+        return currentValue;
+    }
+
+    virtual temp_t value() const override final {
+    	return currentValue;
     }
 
 
     void update() override final {}
     void fastUpdate() override final {}
 
-    temp_t min() const override final {
+    temp_t min() const {
         return minimum;
     }
 
-    temp_t max() const override final {
+    temp_t max() const {
         return maximum;
     }
 
 private:
-    temp_t value;
+    temp_t currentValue;
     temp_t minimum;
     temp_t maximum;
 
@@ -91,7 +95,11 @@ public:
     ActuatorBool(bool initial) : state(initial) {}
     ~ActuatorBool() = default;
 
-    void setActive(bool active) override final { state = active; }
+    void accept(VisitorBase & v) override final{
+    	v.visit(*this);
+    }
+
+    void setActive(bool active, int8_t priority = 127) override final { state = active; }
     bool isActive() const override final { return state; }
 
     void update() override final {}
@@ -113,7 +121,11 @@ public:
     ActuatorNop(){}
     ~ActuatorNop() = default;
 
-    void setActive(bool active) override final {}
+    void accept(VisitorBase & v) override final{
+    	v.visit(*this);
+    }
+
+    void setActive(bool active, int8_t priority = 127) override final {}
     bool isActive() const override final { return false;}
     void update() override final {}
     void fastUpdate() override final {}
@@ -124,25 +136,24 @@ friend class ActuatorNopMixin;
 /*
  * An linear actuator that does nothing and always returns invalid(). Linear equivalent of ActuatorNop
  */
-class ActuatorInvalid final : public ActuatorRange, public ActuatorInvalidMixin
+class ActuatorInvalid final : public ActuatorAnalog, public ActuatorInvalidMixin
 {
 public:
     ActuatorInvalid() {}
     ~ActuatorInvalid() = default;
 
-    void setValue(temp_t const& val) override final {}
-    temp_t getValue() const override final {
+    void accept(VisitorBase & v) override final{
+    	v.visit(*this);
+    }
+
+    void set(temp_t const& val) override final {}
+    temp_t setting() const override final {
         return temp_t::invalid();
     }
-    temp_t readValue() const override final {
+    temp_t value() const override final {
         return temp_t::invalid();
     }
-    temp_t min() const override final {
-        return temp_t::invalid();
-    }
-    temp_t max() const override final {
-        return temp_t::invalid();
-    }
+
     void update() override final {}
     void fastUpdate() override final {}
 

@@ -24,29 +24,38 @@
 
 #include <stdint.h>
 
-#include "ActuatorForwarder.h"
 #include "ActuatorInterfaces.h"
 #include "Ticks.h"
 #include "ControllerMixins.h"
+#include "RefTo.h"
 
-class ActuatorTimeLimited final : public ActuatorForwarder, public ActuatorDigital, public ActuatorTimeLimitedMixin
+class ActuatorTimeLimited final : public ActuatorDigital, public ActuatorTimeLimitedMixin
 {
 public:
-    ActuatorTimeLimited(ActuatorDigital * _target,
+    ActuatorTimeLimited(ActuatorDigital & _target,
             ticks_seconds_t   _minOnTime = 120,
             ticks_seconds_t   _minOffTime = 180,
-            ticks_seconds_t   _maxOnTime = UINT16_MAX) : ActuatorForwarder(_target)
+            ticks_seconds_t   _maxOnTime = UINT16_MAX) :
+        target(_target),
+        minOnTime(_minOnTime),
+        maxOnTime(_maxOnTime),
+        minOffTime(_minOffTime),
+        toggleTime(0)
     {
-        minOnTime  = _minOnTime;
-        minOffTime = _minOffTime;
-        maxOnTime  = _maxOnTime;
-        toggleTime = 0;
-        state      = _target -> isActive();
+        state = target.isActive();
     }
 
     ~ActuatorTimeLimited() = default;
 
-    void setActive(bool active) override final;    // returns new actuator state
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    void accept(VisitorBase & v) final {
+    	v.visit(*this);
+    }
+
+    void setActive(bool active, int8_t priority = 127) override final;
 
     bool isActive() const override final
     {
@@ -68,6 +77,7 @@ public:
     ticks_seconds_t timeSinceToggle(void) const;
 
 private:
+    ActuatorDigital & target;
     ticks_seconds_t        minOnTime;
     ticks_seconds_t        maxOnTime;
     ticks_seconds_t        minOffTime;

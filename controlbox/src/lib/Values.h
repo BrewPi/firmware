@@ -47,7 +47,17 @@ enum Enum {
 };
 }
 
+/**
+ * System flags for an object type. Objects are classified as
+ * containers, open containers, readable, writable.
+ */
 typedef uint8_t object_t;
+
+/**
+ * Application defined type id. The maximum value is 127.
+ */
+typedef uint8_t obj_type_t;
+
 
 // if no objects require cleanup, then we can do away with the virtual destructor, saving quite a bit of space (several hundred bytes.)
 #ifndef OBJECT_VIRTUAL_DESTRUCTOR
@@ -68,12 +78,26 @@ typedef uint8_t object_t;
 
 struct Object
 {
+	obj_type_t _typeID;
+public:
+	Object(obj_type_t typeID=0) : _typeID(typeID) {}
+
+
+	virtual ~Object() = default;
+
 	/**
-	 * Determines the type of object this is.
+	 * Determines the system type of object this is.
 	 * @return A value of the object_t enumeration indicating the type of object
 	 * this is.
 	 */
 	virtual object_t objectType() { return ObjectFlags::Object; }
+
+	/**
+	 * The application defined typeID for this object instance.
+	 */
+	virtual obj_type_t typeID() { return _typeID; }
+
+	void setTypeID(obj_type_t type) { _typeID = type; }
 
 	/**
 	 * Notifies this object that it has been created and is operational in the system.
@@ -82,7 +106,7 @@ struct Object
 	 * @param eeprom_address offset in eeprom that defines the data for this object. the length
 	 * Preceeding this address is the length, then id_chain, and before that, the creation command. (0x03)
 	 */
-	virtual void rehydrated(eptr_t eeprom_address) {}
+	virtual void rehydrated(eptr_t /*eeprom_address*/) {}
 
 	/**
 	 * Prepare this object for subsequent updates.
@@ -117,7 +141,7 @@ struct Container : public Object
 	 *
 	 * After retrieving the item, callers must call returnItem()
 	 */
-	virtual Object* item(container_id id) { return NULL; }
+	virtual Object* item(container_id /*id*/) { return NULL; }
 
 	/**
 	 * Returns a previously fetched item back the container.
@@ -127,7 +151,7 @@ struct Container : public Object
 	 * This method should be called after each successful call to
 	 * {@link #item}
 	 */
-	virtual void returnItem(container_id id, Object* item) { }
+	virtual void returnItem(container_id /*id*/, Object* /*item*/) { }
 
 	/*
 	 * The maximum number of items in this container. Calling {@link #item()} at an index less than this value
@@ -148,7 +172,7 @@ public:
 	/**
 	 * Deletes the item. This assumes item was created on-demand by the item() method.
 	 */
-	virtual void returnItem(container_id id, Object* item) override {
+	virtual void returnItem(container_id /*id*/, Object* item) override {
 		delete_object(item);
 	}
 };
@@ -172,7 +196,7 @@ public:
 	 * to make additional slots available, it should do so, but this is an optional operation for
 	 * fixed size containers.
 	 */
-	virtual bool add(container_id index, Object* item) { return false; }
+	virtual bool add(container_id /*index*/, Object* /*item*/) { return false; }
 
 	/**
 	 * Determines the next available free slot in this container.
@@ -186,43 +210,33 @@ public:
 	 * @param id	The id of the item to remove.
 	 * If there is no item at the given index, or the item has already been removed the method does nothing.
 	 */
-	virtual void remove(container_id id) { }
+	virtual void remove(container_id /*id*/) { }
 
 };
-
-typedef uint8_t obj_type_t;
 
 /**
  * A basic value type. All values are as a minimum stream readable, meaning they can push their value to a stream
  * (a streamed read operation.)
  */
 class Value : public Object {
-	obj_type_t _typeID;
+
 public:
-	Value(obj_type_t typeID=0) : _typeID(typeID) {}
 
 	virtual object_t objectType() { return ObjectFlags::Value; }	// basic value type - read only stream
 	virtual void readTo(DataOut& out)=0;
-	virtual uint8_t streamSize()=0;			// the size this value occupies in the stream.
-
-	/**
-	 * The application-defined type for this object.
-	 * The value is 0 for system objects.
-	 */
-	virtual obj_type_t typeID() { return _typeID; }
+	virtual uint8_t readStreamSize()=0;			// the size this value occupies in the stream.
 
 	void setTypeID(obj_type_t typeID) {
 		_typeID = typeID;
 	}
 
-	virtual void writeMaskedFrom(DataIn& in, DataIn& mask){};	// default is a no-op. Caller always checks if item is writable first.
 };
 
 class WritableValue : public Value {
 public:
 	virtual object_t objectType() { return ObjectFlags::ValueWrite; }
 	virtual void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn)=0;
-
+	virtual uint8_t writeStreamSize() { return readStreamSize(); }
 	static uint8_t nextMaskedByte(uint8_t current, DataIn& dataIn, DataIn& maskIn) {
 			uint8_t next = dataIn.next();
 			uint8_t mask = maskIn.next();
@@ -243,7 +257,7 @@ public:
 	}
 
 	eptr_t eeprom_offset() { return address; }
-	uint8_t streamSize(cb_nonstatic_decl(EepromAccess& eepromAccess)) { return eepromAccess.readByte(address-1); }
+	uint8_t readStreamSize(cb_nonstatic_decl(EepromAccess& eepromAccess)) { return eepromAccess.readByte(address-1); }
 
 };
 
@@ -313,7 +327,7 @@ class MixinReadValue
 			out.writeBuffer(&value, sizeof(value));
 		}
 
-		uint8_t streamSize() { return sizeof(this->value); }
+		uint8_t readStreamSize() { return sizeof(this->value); }
 };
 
 /**
@@ -353,8 +367,8 @@ public:
 		inherited::readTo(out);
 	}
 
-	uint8_t streamSize() {
-		return inherited::streamSize();
+	uint8_t readStreamSize() {
+		return inherited::readStreamSize();
 	}
 
 };
@@ -386,8 +400,8 @@ public:
 		inherited::readTo(out);
 	}
 
-	uint8_t streamSize() {
-		return inherited::streamSize();
+	uint8_t readStreamSize() {
+		return inherited::readStreamSize();
 	}
 };
 
@@ -514,5 +528,11 @@ Object* lookupUserObject(Container* root, DataIn& data);
  * Read the id chain from the stream and resolve the container and the final index.
  */
 OpenContainer* lookupUserOpenContainer(Container* root, DataIn& data, int8_t& lastID);
+
+/**
+ * Fetches the object at the given id, and retrieves the last ID.
+ */
+Object* lookupObject(Object* current, DataIn& data, int8_t& lastID);
+
 
 int16_t read2BytesFrom(Value* value);
