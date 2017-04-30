@@ -61,17 +61,20 @@ extern "C" {
 
 // A7 is the leftmost pin. V1 does not have A7 on the green connector
 #define PIN_ACTUATOR0 P1S0
-#define PIN_ACTUATOR_BOTTOM1 P1S0
 #define PIN_ACTUATOR1 P1S1
-#define PIN_ACTUATOR_BOTTOM2 P1S1
 #define PIN_ACTUATOR3 P1S5
+#define PIN_ACTUATOR4 P1S4
+
+#define PIN_ACTUATOR_BOTTOM1 P1S0
+#define PIN_ACTUATOR_BOTTOM2 P1S1
 #define PIN_ACTUATOR_TOP2 P1S5
 #define PIN_ACTUATOR_TOP3 P1S4
 
 #if !defined(SWD_JTAG_ENABLE)
-#define PIN_ACTUATOR_TOP2_DIR D3
-#define PIN_ACTUATOR_TOP1 D4
 #define PIN_ACTUATOR2 D4
+#define PIN_ACTUATOR_TOP1 D4
+
+#define PIN_ACTUATOR_TOP2_DIR D3
 #define PIN_ACTUATOR_TOP1_DIR D5
 #else
 #define PIN_ACTUATOR_TOP2_DIR (-1)
