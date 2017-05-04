@@ -53,8 +53,16 @@ void boardInit(){
     pinMode(PIN_ACTUATOR_TOP2, OUTPUT);
     pinMode(PIN_ACTUATOR_TOP3, OUTPUT);
 
+    digitalWrite(PIN_ACTUATOR_BOTTOM1, LOW);
+    digitalWrite(PIN_ACTUATOR_BOTTOM2, LOW);
+    digitalWrite(PIN_ACTUATOR_TOP1, LOW);
+    digitalWrite(PIN_ACTUATOR_TOP2, LOW);
+    digitalWrite(PIN_ACTUATOR_TOP3, LOW);
+
     pinMode(PIN_ACTUATOR_TOP1_DIR, OUTPUT);
     pinMode(PIN_ACTUATOR_TOP2_DIR, OUTPUT);
+    digitalWrite(PIN_ACTUATOR_TOP1_DIR, HIGH); // set as output
+    digitalWrite(PIN_ACTUATOR_TOP2_DIR, HIGH); // set as output
 
     pinMode(PIN_12V_ENABLE, OUTPUT);
     pinMode(PIN_5V_ENABLE, OUTPUT);
@@ -68,11 +76,16 @@ void boardInit(){
     pinMode(PIN_ACTUATOR1, OUTPUT);
     pinMode(PIN_ACTUATOR2, OUTPUT);
     pinMode(PIN_ACTUATOR3, OUTPUT);
+    digitalWrite(PIN_ACTUATOR1, LOW);
+    digitalWrite(PIN_ACTUATOR2, LOW);
+    digitalWrite(PIN_ACTUATOR3, LOW);
+
     if (shieldIsV1()){
         digitalWrite(PIN_ALARM, HIGH); // alarm is inverted on V1
     }
     else{
         pinMode(PIN_ACTUATOR0, OUTPUT); // actuator 0 is not available on V1, but is on V2
+        digitalWrite(PIN_ACTUATOR0, LOW);
     }
 #endif
     pinMode(PIN_ALARM, OUTPUT);
@@ -89,5 +102,4 @@ void boardInit(){
     pinMode(PIN_SD_CS, OUTPUT);
     pinMode(PIN_LCD_DC, OUTPUT);
     pinMode(PIN_TOUCH_IRQ, INPUT);
-
 }

@@ -122,6 +122,9 @@ D4D_DECLARE_ACTUATOR(0);
 D4D_DECLARE_ACTUATOR(1);
 D4D_DECLARE_ACTUATOR(2);
 D4D_DECLARE_ACTUATOR(3);
+#if MAX_ACTUATOR_COUNT > 4
+D4D_DECLARE_ACTUATOR(4);
+#endif
 
 #define SCRBOOT_DEVICES_Y 65
 #define SCRBOOT_DEVICES_CX 104
@@ -146,6 +149,9 @@ D4D_DECLARE_STD_SCREEN_BEGIN(screen_devicetest, ScreenDeviceTest_)
 	D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator1)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator2)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator3)
+#if MAX_ACTUATOR_COUNT > 4
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator4)
+#endif
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices00)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices01)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices10)
@@ -161,7 +167,11 @@ D4D_DECLARE_SCREEN_END()
 
 uint8_t ActuatorCount()
 {
+#if MAX_ACTUATOR_COUNT <= 4
     return shieldIsV1() ? 3 : 4;
+#else
+    return 5;
+#endif
 }
 
 void ScreenDeviceTest_OnInit()
@@ -176,6 +186,8 @@ void ScreenDeviceTest_OnInit()
     SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator1, D4D_FALSE, 1);
     SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator2, D4D_FALSE, 2);
     SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator3, D4D_FALSE, 3);
-
-
+#if MAX_ACTUATOR_COUNT > 4
+    actuator_views_state[4] = D4D_TRUE;
+    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator4, D4D_FALSE, 4);
+#endif
 }

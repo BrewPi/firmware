@@ -57,23 +57,30 @@ extern "C" {
 
 #define oneWirePin 0x0 // actually the i2c address
 
-#if PLATFORM_ID == 8
+#if PLATFORM_ID == 8 // P1
+#define MAX_ACTUATOR_COUNT (5)
+
+#define PIN_ACTUATOR0_NAME "bottom 1"
+#define PIN_ACTUATOR1_NAME "bottom 2"
+#define PIN_ACTUATOR2_NAME "top 1"
+#define PIN_ACTUATOR3_NAME "top 2"
+#define PIN_ACTUATOR4_NAME "top 3"
 
 // A7 is the leftmost pin. V1 does not have A7 on the green connector
-#define PIN_ACTUATOR0 P1S0
-#define PIN_ACTUATOR1 P1S1
+#define PIN_ACTUATOR0 P1S1
+#define PIN_ACTUATOR1 P1S0
 #define PIN_ACTUATOR3 P1S5
 #define PIN_ACTUATOR4 P1S4
 
-#define PIN_ACTUATOR_BOTTOM1 P1S0
-#define PIN_ACTUATOR_BOTTOM2 P1S1
+#define PIN_ACTUATOR_BOTTOM1 P1S1
+#define PIN_ACTUATOR_BOTTOM2 P1S0
 #define PIN_ACTUATOR_TOP2 P1S5
 #define PIN_ACTUATOR_TOP3 P1S4
+
 
 #if !defined(SWD_JTAG_ENABLE)
 #define PIN_ACTUATOR2 D4
 #define PIN_ACTUATOR_TOP1 D4
-
 #define PIN_ACTUATOR_TOP2_DIR D3
 #define PIN_ACTUATOR_TOP1_DIR D5
 #else
@@ -102,11 +109,17 @@ extern "C" {
 #define PIN_TOUCH_IRQ A1
 #define PIN_LCD_CS A2
 #define PIN_LCD_DC A0
-#define PIN_SD_CS P1S4
+#define PIN_SD_CS P1S3
 #define PIN_LCD_BACKLIGHT D2
 
 
 #else
+#define MAX_ACTUATOR_COUNT (4)
+
+#define PIN_ACTUATOR0_NAME "act 0"
+#define PIN_ACTUATOR1_NAME "act 1"
+#define PIN_ACTUATOR2_NAME "act 2"
+#define PIN_ACTUATOR3_NAME "act 3"
 
 // A7 is the leftmost pin. V1 does not have A7 on the green connector
 #define PIN_ACTUATOR0 A7
@@ -127,7 +140,6 @@ extern "C" {
 
 #endif
 
-#define MAX_ACTUATOR_COUNT (4)
 
 #define BREWPI_INVERT_ACTUATORS 0
 // Spark Core shield has no digital input pins

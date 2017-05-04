@@ -26,7 +26,7 @@ int8_t  DeviceManager::enumerateActuatorPins(uint8_t offset)
         case 1: return PIN_ACTUATOR1;
         case 2: return PIN_ACTUATOR2;
         case 3: return PIN_ACTUATOR3;
-#ifdef PIN_ACTUATOR4
+#if defined(PIN_ACTUATOR4)
         case 4: return PIN_ACTUATOR4;
 #endif
         default: return -1;

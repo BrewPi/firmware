@@ -166,6 +166,9 @@ public:
         actuators[1] = new ActuatorPin(PIN_ACTUATOR1, BREWPI_INVERT_ACTUATORS);
         actuators[2] = new ActuatorPin(PIN_ACTUATOR2, BREWPI_INVERT_ACTUATORS);
         actuators[3] = new ActuatorPin(PIN_ACTUATOR3, BREWPI_INVERT_ACTUATORS);
+#if(MAX_ACTUATOR_COUNT > 4)
+        actuators[4] = new ActuatorPin(PIN_ACTUATOR4, BREWPI_INVERT_ACTUATORS);
+#endif
     }
 
     ~ConnectedDevicesManager() {
