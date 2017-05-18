@@ -78,20 +78,25 @@ public:
   }
 
   int read() {
-    return Serial.read();
+    if (Serial.isConnected())
+      return Serial.read();
+
+    else if (tcpClient.connected()) {
+      return tcpClient.read();
+    }
   }
 
   int available() {
-    this->serialAvailable = Serial.available();
+    if (Serial.isConnected())
+      return Serial.available();
 
     // connect if there's a client waiting
-    if (! tcpClient.connected()) {
+    else if (! tcpClient.connected()) {
       tcpClient = tcpServer.available();
     }
 
-    this->networkAvailable = tcpClient.available();
-
-    return (serialAvailable | networkAvailable);
+    if (tcpClient.connected())
+      return tcpClient.available();
   }
 
   void begin(unsigned long rate) {
@@ -125,7 +130,10 @@ public:
   }
 
   int peek() {
-    return Serial.peek();
+    if (Serial.isConnected())
+      return Serial.peek();
+    else if (tcpClient.connected())
+      return tcpClient.peek();
   }
 
   void flush() {
