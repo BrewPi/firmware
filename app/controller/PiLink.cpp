@@ -47,6 +47,97 @@
 
 // Rename Serial to piStream, to abstract it for later platform independence
 
+#ifdef SPARK
+class NetworkSerialMuxer : public Stream
+{
+private:
+  TCPServer tcpServer = TCPServer(6666);
+  TCPClient tcpClient;
+
+  bool serialAvailable = false;
+  bool networkAvailable = false;
+
+public:
+  void print(char c) {
+    Serial.print(c);
+    tcpClient.print(c);
+  }
+
+  void print(const char* c) {
+    Serial.print(c);
+    tcpClient.print(c);
+  }
+
+  void printNewLine() {
+    this->println();
+  }
+
+  void println() {
+    Serial.println();
+    tcpClient.println();
+  }
+
+  int read() {
+    return Serial.read();
+  }
+
+  int available() {
+    this->serialAvailable = Serial.available();
+
+    // connect if there's a client waiting
+    if (! tcpClient.connected()) {
+      tcpClient = tcpServer.available();
+    }
+
+    this->networkAvailable = tcpClient.available();
+
+    return (serialAvailable | networkAvailable);
+  }
+
+  void begin(unsigned long rate) {
+    Serial.begin(rate);
+
+    WiFi.on();
+    WiFi.connect();
+
+    tcpServer.begin();
+  }
+
+  size_t write(uint8_t buf) {
+    size_t bytes_written = Serial.write(buf);
+
+    if (this->tcpClient.connected()) {
+      tcpClient.write(buf);
+    }
+
+    return bytes_written;
+
+  }
+
+  size_t write(const uint8_t *buf, size_t s) {
+    size_t bytes_written = Serial.write(buf, s);
+
+    if (this->tcpClient.connected()) {
+      tcpClient.write(buf, s);
+    }
+
+    return bytes_written;
+  }
+
+  int peek() {
+    return Serial.peek();
+  }
+
+  void flush() {
+    Serial.flush();
+    tcpClient.flush();
+  }
+
+};
+
+static NetworkSerialMuxer networkSerialMuxer;
+#endif
+
 #if BREWPI_EMULATE
 class MockSerial : public Stream
 {
@@ -64,16 +155,23 @@ public:
     operator bool() { return true; }
 };
 
+
 static MockSerial mockSerial;
+
+
+
 #define piStream mockSerial
 #elif !defined(WIRING)
 StdIO stdIO;
 #define piStream stdIO
 #else
-#define piStream Serial
+
+
 #ifdef SPARK
+#define piStream networkSerialMuxer
 #define SERIAL_READY(x) 1
 #else
+#define piStream Serial
 #define SERIAL_READY(x) x
 #endif        
 #endif
@@ -154,6 +252,7 @@ bool readCrLf(){
 }
 
 void PiLink::receive(void){
+
     while (piStream.available() > 0) {
         char inByte = piStream.read();
         switch(inByte){
@@ -212,20 +311,31 @@ void PiLink::receive(void){
             // s shield type
             // y: simulator
             // b: board
+            // i: IP Address
+            // w: WiFi SSID
             print_P(PSTR(   "N:{"
                     "\"v\":\"" PRINTF_PROGMEM "\","
                     "\"n\":\"" PRINTF_PROGMEM "\","
                     "\"s\":%d,"
                     "\"y\":%d,"
                     "\"b\":\"%c\","
-                    "\"l\":\"%d\""
+                    "\"l\":\"%d\","
+#ifdef SPARK
+                    "\"i\":\"%d.%d.%d.%d\","
+                    "\"w\":\"" PRINTF_PROGMEM "\""
+#endif
                     "}"),
                     PSTR(VERSION_STRING),               // v:
                     PSTR(stringify(BUILD_NAME)),      // n:
                     getShieldVersion(),               // s:
                     BREWPI_SIMULATE,                    // y:
                     BREWPI_BOARD,      // b:
-                    BREWPI_LOG_MESSAGES_VERSION);       // l:
+                    BREWPI_LOG_MESSAGES_VERSION, // l:
+#ifdef SPARK
+                    WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3], // i:
+                    WiFi.SSID() // w:
+#endif
+                    );
             printNewLine();
             break;
         case 'l': // Display content requested
