@@ -47,7 +47,7 @@
 
 // Rename Serial to piStream, to abstract it for later platform independence
 
-#ifdef SPARK
+#if PLATFORM_ID == 0
 class NetworkSerialMuxer : public Stream
 {
 private:
@@ -181,7 +181,7 @@ StdIO stdIO;
 #else
 
 
-#ifdef SPARK
+#if PLATFORM_ID == 0
 #define piStream networkSerialMuxer
 #define SERIAL_READY(x) 1
 #else
@@ -334,7 +334,7 @@ void PiLink::receive(void){
                     "\"y\":%d,"
                     "\"b\":\"%c\","
                     "\"l\":\"%d\","
-#ifdef SPARK
+#if PLATFORM_ID == 0
                     "\"i\":\"%d.%d.%d.%d\","
                     "\"w\":\"" PRINTF_PROGMEM "\""
 #endif
@@ -344,8 +344,9 @@ void PiLink::receive(void){
                     getShieldVersion(),               // s:
                     BREWPI_SIMULATE,                    // y:
                     BREWPI_BOARD,      // b:
-                    BREWPI_LOG_MESSAGES_VERSION, // l:
-#ifdef SPARK
+                    BREWPI_LOG_MESSAGES_VERSION // l:
+#if PLATFORM_ID == 0
+                    ,
                     WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3], // i:
                     WiFi.SSID() // w:
 #endif
