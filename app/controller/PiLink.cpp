@@ -84,6 +84,8 @@ public:
     else if (tcpClient.connected()) {
       return tcpClient.read();
     }
+
+    return -1;
   }
 
   int available() {
@@ -97,6 +99,8 @@ public:
 
     if (tcpClient.connected())
       return tcpClient.available();
+
+    return 0;
   }
 
   void begin(unsigned long rate) {
@@ -134,6 +138,8 @@ public:
       return Serial.peek();
     else if (tcpClient.connected())
       return tcpClient.peek();
+
+    return -1;
   }
 
   void flush() {
