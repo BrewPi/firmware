@@ -15,7 +15,7 @@ cycles over the lifetime of the device.
 
 Key features:
 
-- Provides persistent storage using the external 1.5MB user flash on the spark
+- Provides persistent storage using the external flash on the Soark Core, and Particle P1, and emulated EEPROM on the Photon.
 - EEPROM-like access - (byte erasable) no need to worry about erasing pages to ensure data integrity.
 - 3 different types of eeprom emulations providing speed/erase cycle tradeoff.
 - Wear leveling and page allocation on demand for increased endurance
@@ -61,26 +61,58 @@ Local build:
 
 To gain access to the services of `flashee`, you use the `Devices` class, which provides methods for creating the
 various flash devices available.  You typically call a `Devices` method in `setup()` and store the result in a
-global pointer. Like this:
+global pointer. The method `createDefaultStore()` provides EEPROM-like access to
+the persistent storage on the device.
 
 ```c++
     FlashDevice* flash;
 
     void setup() {
-        flash = Devices::createMeSomethingFlashy();
+        flash = Devices::createDefaultStore();
     }
 ```
 
-For general access to flash as eeprom, use this call:
+Data is read and written like this:
 
-```c++
+```
+    int value;
+    flash->read(value, 10); // read value from address 10
+    value += 20;
+    flash->write(value, 10);    // increment and write back
+```
+
+Any kind of data can be written. For writing strings, use `writeString`
+
+```
+    flash->writeString("I am Spartacus", 10);
+```
+
+Particle Photon
+---------------
+
+The persistent storage provided by flashee uses the 2Kbytes of emulated EEPROM already
+present in the Particle firmware. The main purpose of this is to make it easy to
+port code between platofrms, in cases where code needs to be proted to the Photon,
+and the small size of the persistent memory isn't an issue for the target application.
+
+
+Spark Core / Particle P1
+------------------------
+
+The Spark Core has 1.5MByte of usable external flash memory. The Particle P1 has 1MByte.
+
+On these systems, the library offers more control over the type of EEPROM-emulation
+used. On these devices.  The memory created by calling `createDefaultStore()` is the same
+as
+
+```
     FlashDevice* flash = Devices::createAddressErase();
 ```
 
-This reserves all pages in the external flash for a flash device that provides byte-level erases. This offers
-the best erase cycle count at the cost of an 8x overhead. This scheme gives a maximum of 128Kb of storage.
+This reserves the first 1MByte in the external flash for a memory device that provides byte-level erases. This offers
+the best erase cycle count at the cost of an 8x overhead in storage. This scheme gives a maximum of 128Kb of storage.
 
-If you need more than 128Kb of rewritable storage, the next step down the endurance ladder is the wear leveling scheme:
+If you need more than 128Kb of rewritable storage (available on the Spark Core), the next step down the endurance ladder is the wear leveling scheme:
 
 ```c++
     FlashDevice* flash = Devices::createWearLevelErase();
@@ -88,35 +120,8 @@ If you need more than 128Kb of rewritable storage, the next step down the endura
 
 This uses wear leveling to spread the erases out over the flash region. Endurance an order of magnitude less than the address erase scheme
 above, but is potentially 1-2 orders of magnitude better than manually erasing and writing directly to flash.
-This scheme has much less overhead, and can offer up to 1MB of flash.
+This scheme has much less overhead, and can offer up to 1MB of storage.
 
-To store data:
-
-```c++
-    flash->writeString("Hello World!", 0);
-```
-
-This writes the string to the flash memory starting at address 0.
-
-To retrieve data:
-
-```c++
-    char buf[13];
-    flash->read(buf, 0, 13);
-```
-
-So far, this is just like the regular sFLASH access functions that are available in the spark core API.
-Where this library is different is that you can freely overwrite the data, just by issuing another write command:
-
-```c++
-    flash->writeString("I think I changed my mind!", 0);
-```
-
-If you're not storing strings but simply data buffers, binary writes are supported:
-
-```c++
-    flash->write(&my_struct, 123, sizeof(my_struct));
-```
 
 The key difference between flash and eeprom is that with flash memory you cannot normally erase a single byte, but have to
 erase a whole page. This library takes care of that, and presents an interface to the flash device that makes it
@@ -181,7 +186,7 @@ The streaming classes provide a higher-level access to the storage. For example:
     FlashDevice* device = Devices::createWearLevelErase();
     FlashWriter writer(device);
     writer.writeString("Hello World");
-    writer.writeInt(42);
+    writer.write(42);
 ```
 
 And this data can then be read back later:
@@ -190,7 +195,7 @@ And this data can then be read back later:
     FlashDevice* device = Devices::createWearLevelErase();
     FlashReader reader(device);
     char buf[50];
-    reader.readeString(buf);
+    reader.readString(buf);
     int answer = reader.readInt();
 ```
 

@@ -105,21 +105,27 @@ temp_t OneWireTempSensor::read() const {
 
 void OneWireTempSensor::update(){
     cachedValue = readAndConstrainTemp();
-
-    if(cachedValue.isDisabledOrInvalid()){
-        // Try to reconnect once
-        if (init()){
-            // successfully re-initialized
-            cachedValue = readAndConstrainTemp();
-        }
-    }
     requestConversion();
 }
 
 temp_t OneWireTempSensor::readAndConstrainTemp() {
-    int16_t tempRaw = sensor->getTempRaw(sensorAddress);
-    if (tempRaw == DEVICE_DISCONNECTED_RAW) {
-        setConnected(false);
+    int16_t tempRaw;
+    bool success;
+
+    tempRaw = sensor->getTempRaw(sensorAddress);
+    success = tempRaw != DEVICE_DISCONNECTED_RAW;
+
+    if (!success){
+        // retry re-init once
+        if(init()){
+            tempRaw = sensor->getTempRaw(sensorAddress);
+            success = tempRaw != DEVICE_DISCONNECTED_RAW;
+        }
+    }
+
+    setConnected(success);
+
+    if(!success){
         return temp_t::invalid();
     }
 

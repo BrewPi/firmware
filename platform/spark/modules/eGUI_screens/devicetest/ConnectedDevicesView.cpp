@@ -23,6 +23,7 @@
 #include "ConnectedDevicesView.h"
 #include "ConnectedDevicesManager.h"
 #include "device_test_screen.h"
+#include "Board.h"
 
 using namespace std::placeholders;
 
@@ -62,7 +63,15 @@ ConnectedDevicesPresenter* connectedDevicesPresenter()
 }
 
 
-const D4D_OBJECT* actuator_views[] = { &scrDeviceTest_actuator0, &scrDeviceTest_actuator1, &scrDeviceTest_actuator2, &scrDeviceTest_actuator3 };
+const D4D_OBJECT* actuator_views[] = {
+        &scrDeviceTest_actuator0,
+        &scrDeviceTest_actuator1,
+        &scrDeviceTest_actuator2,
+        &scrDeviceTest_actuator3
+#if MAX_ACTUATOR_COUNT > 4
+        , &scrDeviceTest_actuator4
+#endif
+};
 
 ActuatorDigital* actuatorForView(const D4D_OBJECT* pThis)
 {
@@ -82,11 +91,14 @@ extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
         idx = 0;
     else if (pThis==&scrDeviceTest_actuator1)
         idx = 1;
-    if (pThis==&scrDeviceTest_actuator2)
+    else if (pThis==&scrDeviceTest_actuator2)
         idx = 2;
-    if (pThis==&scrDeviceTest_actuator3)
+    else if (pThis==&scrDeviceTest_actuator3)
         idx = 3;
-
+#if MAX_ACTUATOR_COUNT > 4
+    else if (pThis==&scrDeviceTest_actuator4)
+        idx = 4;
+#endif
     if (idx>=0) {
         ActuatorDigital* actuator = connectedDevicesManager()->actuator(idx);
         bool active = !actuator->isActive();

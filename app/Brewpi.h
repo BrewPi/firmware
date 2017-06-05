@@ -26,24 +26,6 @@
 #define stringify(s) _stringifyDo(s)
 #define _stringifyDo(s) #s
 #endif
-// Most pins are only conditionally defined here, allowing definitions to be provided in Config.h for
-// local overrides
-enum {
-	BREWPI_SHIELD_DIY,
-	BREWPI_SHIELD_REV_A,
-	BREWPI_SHIELD_REV_C,
-	BREWPI_SHIELD_SPARK_V1,
-	BREWPI_SHIELD_SPARK_V2
-};
-
-#define BREWPI_BOARD_LEONARDO 'l'
-#define BREWPI_BOARD_STANDARD 's'
-#define BREWPI_BOARD_MEGA 'm'
-#define BREWPI_BOARD_SPARKCORE 'x'
-#define BREWPI_BOARD_PHOTON 'y'
-#define BREWPI_BOARD_GCC 'z'
-#define BREWPI_BOARD_UNKNOWN '?'
-
 
 /*
  * Defines global config for the brewpi project. This file is included in every file in the project to ensure conditional
@@ -67,4 +49,4 @@ enum {
 #endif
 #include "AppConfigDefault.h"
 
-#define VERSION_STRING "0.4.4"
+#define VERSION_STRING "0.5.0"

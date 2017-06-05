@@ -66,8 +66,8 @@ bool DallasTemperature::initConnection(const uint8_t* deviceAddress) {
         writeScratchPad(deviceAddress, scratchPad, true); // save settings to eeprom
     }
     // Write HIGH_ALARM_TEMP again, but don't save to EEPROM, so that it reverts to 0 on reset
-    // from this point on, if we read a scratchpad with a 0 value in HIGH_ALARM (detectedReset() returns true)
-    // it means the device has reset or the previous write of the scratchpad above was unsuccessful.
+    // from this point on, if we read a scratchpad with a  different value than 1 HIGH_ALARM (detectedReset() returns true)
+    // it means the device has reset and reloaed the 0 value from EEPROM or the previous write of the scratchpad above was unsuccessful.
     // Either way, initConnection() should be called again
     scratchPad[HIGH_ALARM_TEMP] = 1;
     writeScratchPad(deviceAddress, scratchPad, false); 
@@ -78,7 +78,7 @@ bool DallasTemperature::initConnection(const uint8_t* deviceAddress) {
 
 bool DallasTemperature::detectedReset(const uint8_t* scratchPad) {
 #if REQUIRESRESETDETECTION
-    bool reset = (scratchPad[HIGH_ALARM_TEMP] == 0);
+    bool reset = (scratchPad[HIGH_ALARM_TEMP] != 1);
     return reset;
 #else
     return false;

@@ -25,7 +25,7 @@
 
 class BrewPiTouch final {
 public:
-    BrewPiTouch(SPIArbiter & spia, uint8_t cs, uint8_t irq);
+    BrewPiTouch(SPIArbiter & spia, const uint8_t cs, const uint8_t irq);
     ~BrewPiTouch();
     void init(uint8_t configuration = BrewPiTouch::START);
     bool update(uint16_t numSamples = 8);
@@ -66,8 +66,8 @@ private:
     int16_t tftHeight;    
     int16_t xOffset;
     int16_t yOffset;
-    uint8_t pinCS;
-    uint8_t pinIRQ;
+    const uint8_t pinCS;
+    const uint8_t pinIRQ;
     uint8_t config;
     int16_t stabilityThreshold;
     LowPassFilter filterX;

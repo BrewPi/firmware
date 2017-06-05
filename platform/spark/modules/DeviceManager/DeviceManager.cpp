@@ -18,14 +18,17 @@ OneWire* DeviceManager::oneWireBus(uint8_t pin) {
 
 int8_t  DeviceManager::enumerateActuatorPins(uint8_t offset)
 {
-	if(!shieldIsV2()){
+	if(shieldIsV1()){
 		offset += 1; // V1 does not have actuatorPin0 (A7), skip it
 	}
     switch (offset) {
-        case 0: return actuatorPin0;
-        case 1: return actuatorPin1;
-        case 2: return actuatorPin2;
-        case 3: return actuatorPin3;
+        case 0: return PIN_ACTUATOR0;
+        case 1: return PIN_ACTUATOR1;
+        case 2: return PIN_ACTUATOR2;
+        case 3: return PIN_ACTUATOR3;
+#if defined(PIN_ACTUATOR4)
+        case 4: return PIN_ACTUATOR4;
+#endif
         default: return -1;
     }
 }

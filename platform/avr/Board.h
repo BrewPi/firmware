@@ -47,7 +47,7 @@
 #endif
 
 #ifndef actuatorPin1
-#define actuatorPin1 2
+#define PIN_ACTUATOR1 2
 #endif
 
 #ifndef actuatorPin2
@@ -55,7 +55,7 @@
 #endif
 
 #ifndef actuatorPin3
-#define actuatorPin3 6
+#define PIN_ACTUATOR3 6
 #endif
 
 #ifndef actuatorPin4
@@ -67,7 +67,7 @@
 #if BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_A || BREWPI_STATIC_CONFIG==BREWPI_SHIELD_REV_C
 
 #define doorPin		4
-#define alarmPin	3
+#define PIN_ALARM	3
 #define lcdLatchPin 10
 
 // If you change the interrupt pins, you will also have to review the interrupt vectors of the rotary encoder

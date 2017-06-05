@@ -87,7 +87,7 @@ void PiLink::init(void){
 
 void PiLink::flushInput(void){
     while (piStream.available() > 0) {
-        char inByte = piStream.read();
+        piStream.read();
     }
 }
 

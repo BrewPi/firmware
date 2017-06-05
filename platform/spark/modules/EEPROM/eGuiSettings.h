@@ -69,7 +69,7 @@ class eGuiSettingsClass {
 public:
 
     void init() {
-#if PLATFORM_ID==0        
+#if PLATFORM_ID==0 || PLATFORM_ID==8 
         flash = Flashee::Devices::createAddressErase(4096 * EEPROM_EGUI_SETTINGS_START_BLOCK, 4096 * EEPROM_EGUI_SETTINGS_END_BLOCK);
 #elif PLATFORM_ID==6
         flash = Flashee::Devices::createEepromDevice(EEPROM_EGUI_SETTINGS_START_BLOCK, EEPROM_EGUI_SETTINGS_END_BLOCK);
