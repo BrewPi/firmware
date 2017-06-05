@@ -32,7 +32,7 @@
 #include "TempSensorFallback.h"
 #include "TempSensorMock.h"
 #include "Pid.h"
-#include "OneWireSwitch.h"
+#include "ActuatorOneWire.h"
 #include "ActuatorTimeLimited.h"
 #include "ActuatorOffset.h"
 #include "OneWireTempSensor.h"

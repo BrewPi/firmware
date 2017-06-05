@@ -31,7 +31,7 @@ bool DS2413::cacheIsValid() const
     return upperInverted == lower;
 }
 
-bool DS2413::latchWrite(pio_t pio,
+bool DS2413::writeLatchBit(uint8_t pos,
                 bool  set,
                 bool  useCached)
 {
@@ -53,7 +53,7 @@ bool DS2413::latchWrite(pio_t pio,
         }
     }
 
-    uint8_t mask   = latchWriteMask(pio);
+    uint8_t mask   = latchWriteMask(pos);
     uint8_t oldVal = writeByteFromCache();
     uint8_t newVal = oldVal;
 
@@ -79,7 +79,7 @@ bool DS2413::latchWrite(pio_t pio,
     return ok;
 }
 
-bool DS2413::latchRead(pio_t pio,
+bool DS2413::readLatchBit(pio_t pio,
                bool defaultValue,
                bool useCached)
 {
@@ -151,3 +151,52 @@ bool DS2413::sense(pio_t pio,
     }
 }
 
+/**
+ *
+ * @return
+ */
+uint8_t DS2413::accessRead()    /* const */
+{
+    oneWire -> reset();
+    oneWire -> select(address);
+    oneWire -> write(ACCESS_READ);
+
+    uint8_t data;
+    data = oneWire -> read();
+
+    return data;
+}
+
+/**
+ *    Writes the state of all PIOs in one operation.
+ *    /param b pio data - PIOA is bit 0 (lsb), PIOB is bit 1
+ *    /param maxTries the maximum number of attempts before giving up.
+ *    /return true on success
+ */
+bool DS2413::accessWrite(uint8_t b,
+                         uint8_t maxTries)
+{
+    // b |= 0xFC;        /* Upper 6 bits should be set to 1's */
+    uint8_t ack = 0;
+
+    do{
+        oneWire -> reset();
+        oneWire -> select(address);
+        oneWire -> write(ACCESS_WRITE);
+        oneWire -> write(b);
+
+        /* data is sent again, inverted to guard against transmission errors */
+        oneWire -> write(~b);
+
+        /* Acknowledgement byte, 0xAA for success, 0xFF for failure. */
+        ack = oneWire -> read();
+
+        if (ack == ACK_SUCCESS){
+            oneWire -> read();    // status byte sent after ack
+        }
+    } while ((ack != ACK_SUCCESS) && (maxTries-- > 0));
+
+    oneWire -> reset();
+
+    return ack == ACK_SUCCESS;
+}

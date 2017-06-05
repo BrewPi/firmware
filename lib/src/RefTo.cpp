@@ -68,4 +68,8 @@ template SetPoint* asInterface<SetPoint>(Interface*);
 template ActuatorMutexGroup* asInterface<ActuatorMutexGroup>(Interface*);
 template ProcessValue* asInterface<ProcessValue>(Interface*);
 
+// these are needed to search for shared OneWire switch ICs
+template ValveController* asInterface<ValveController>(Interface*);
+template ActuatorOneWire* asInterface<ActuatorOneWire>(Interface*);
+
 

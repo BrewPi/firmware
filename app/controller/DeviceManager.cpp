@@ -18,8 +18,6 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include "Brewpi.h"
 #include "Board.h"
 #include "BrewpiStrings.h"
@@ -42,6 +40,7 @@
 
 #include "OneWireTempSensor.h"
 #include "ActuatorOneWire.h"
+#include "DS2408.h"
 #include "DS2413.h"
 #include "OneWire.h"
 #include "DallasTemperature.h"
@@ -74,7 +73,7 @@ bool isAssignable(DeviceFunction function,
 
 #if BREWPI_DS2408
             || ((hardware == DEVICE_HARDWARE_ONEWIRE_2408)
-                && (type == DEVICETYPE_SWITCH_ACTUATOR || type == DEVICETYPE_VALVE))
+                && (type == DEVICETYPE_SWITCH_ACTUATOR ))
 #endif
 
             || ((hardware == DEVICE_HARDWARE_ONEWIRE_TEMP)
@@ -137,19 +136,49 @@ Interface * DeviceManager::createDevice(DeviceConfig & config,
             return new ActuatorPin(config.hw.pinNr, config.hw.invert);
         case DEVICE_HARDWARE_ONEWIRE_TEMP :
         {
-            auto sensor = new OneWireTempSensor(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.offset.calibration);
+            auto sensor = new OneWireTempSensor(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.settings.sensor.calibration);
             sensor->init();
             return sensor;
         }
         break;
 #if BREWPI_DS2413
         case DEVICE_HARDWARE_ONEWIRE_2413 :
-            return new ActuatorOneWire(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.offset.pio, config.hw.invert);
+        {
+            std::shared_ptr<DS2413> hwDevice(nullptr);
+            Interface * sharedHardware = findSharedHardware(config);
+
+            if(sharedHardware){
+                auto otherActuator = asInterface<ActuatorOneWire>(sharedHardware);
+                if(otherActuator != nullptr){
+                    hwDevice = otherActuator->getHardwareDevice();
+                }
+            }
+            if(hwDevice == nullptr){
+                hwDevice = std::make_shared<DS2413>(oneWireBus(config.hw.pinNr), config.hw.address);
+            }
+
+            return new ActuatorOneWire(hwDevice, config.hw.settings.actuator.pio, config.hw.invert);
+        }
 #endif
 
 #if BREWPI_DS2408
         case DEVICE_HARDWARE_ONEWIRE_2408 :
-            return new ValveController(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.offset.pio);
+        {
+            std::shared_ptr<DS2408> hwDevice(nullptr);
+            Interface * sharedHardware = findSharedHardware(config);
+
+            if(sharedHardware){
+                auto otherValve = asInterface<ValveController>(sharedHardware);
+                if(otherValve != nullptr){
+                    hwDevice = otherValve->getHardwareDevice();
+                }
+            }
+            if(hwDevice == nullptr){
+                hwDevice = std::make_shared<DS2408>(oneWireBus(config.hw.pinNr), config.hw.address);
+            }
+
+            return new ValveController(hwDevice, config.hw.settings.actuator.pio);
+        }
 #endif
     }
     return nullptr;
@@ -266,73 +295,61 @@ struct DeviceDefinition
     static const char ORDER[12];
 };
 
-
 // the special cases are placed at the end. All others should map directly to an int8_t via atoi().
-const char DeviceDefinition::ORDER[12]   = "icbfhpxndja";
-const char DEVICE_ATTRIB_INDEX           = 'i';
-const char DEVICE_ATTRIB_CHAMBER         = 'c';
-const char DEVICE_ATTRIB_BEER            = 'b';
-const char DEVICE_ATTRIB_FUNCTION        = 'f';
-const char DEVICE_ATTRIB_HARDWARE        = 'h';
-const char DEVICE_ATTRIB_PIN             = 'p';
-const char DEVICE_ATTRIB_INVERT          = 'x';
-const char DEVICE_ATTRIB_DEACTIVATED     = 'd';
-const char DEVICE_ATTRIB_ADDRESS         = 'a';
+const char DeviceDefinition::ORDER[12] = "icbfhpxndja";
+const char DEVICE_ATTRIB_INDEX = 'i';
+const char DEVICE_ATTRIB_CHAMBER = 'c';
+const char DEVICE_ATTRIB_BEER = 'b';
+const char DEVICE_ATTRIB_FUNCTION = 'f';
+const char DEVICE_ATTRIB_HARDWARE = 'h';
+const char DEVICE_ATTRIB_PIN = 'p';
+const char DEVICE_ATTRIB_INVERT = 'x';
+const char DEVICE_ATTRIB_DEACTIVATED = 'd';
+const char DEVICE_ATTRIB_ADDRESS = 'a';
 
 #if BREWPI_DS2413 || BREWPI_DS2408
-const char DEVICE_ATTRIB_PIO             = 'n';
+const char DEVICE_ATTRIB_PIO = 'n';
 #endif
 
-const char DEVICE_ATTRIB_CALIBRATEADJUST = 'j';    // value to add to temp sensors to bring to correct temperature
+const char DEVICE_ATTRIB_CALIBRATEADJUST = 'j'; // value to add to temp sensors to bring to correct temperature
 //const char DEVICE_ATTRIB_VALUE           = 'v';    // print current values
 //const char DEVICE_ATTRIB_WRITE           = 'w';    // write value to device
-const char DEVICE_ATTRIB_TYPE            = 't';
+const char DEVICE_ATTRIB_TYPE = 't';
 
-void handleDeviceDefinition(const char * key,
-                            const char * val,
-                            void *       pv)
-{
+void handleDeviceDefinition(const char * key, const char * val, void * pv) {
     DeviceDefinition * def = (DeviceDefinition *) pv;
 
     // logDebug("deviceDef %s:%s", key, val);
     // the characters are listed in the same order as the DeviceDefinition struct.
     int8_t idx = indexOf(DeviceDefinition::ORDER, key[0]);
 
-    if (key[0] == DEVICE_ATTRIB_ADDRESS){
-        parseBytes(def -> address, val, 8);
-    } else if (key[0] == DEVICE_ATTRIB_CALIBRATEADJUST){
+    if (key[0] == DEVICE_ATTRIB_ADDRESS) {
+        parseBytes(def->address, val, 8);
+    } else if (key[0] == DEVICE_ATTRIB_CALIBRATEADJUST) {
         temp_t parsedVal;
-        if(parsedVal.fromTempString(val, tempControl.cc.tempFormat, false)){
-            def -> calibrationAdjust = parsedVal;
+        if (parsedVal.fromTempString(val, tempControl.cc.tempFormat, false)) {
+            def->calibrationAdjust = parsedVal;
         }
-    } else if (idx >= 0){
+    } else if (idx >= 0) {
         ((uint8_t *) def)[idx] = (uint8_t) atol(val);
     }
 }
 
-bool inRangeUInt8(uint8_t val,
-                  uint8_t min,
-                  int8_t  max)
-{
+bool inRangeUInt8(uint8_t val, uint8_t min, int8_t max) {
     return (min <= val) && (val <= max);
 }
 
-bool inRangeInt8(int8_t val,
-                 int8_t min,
-                 int8_t max)
-{
+bool inRangeInt8(int8_t val, int8_t min, int8_t max) {
     return (min <= val) && (val <= max);
 }
 
-void assignIfSet(int8_t    value,
-                 uint8_t * target)
-{
-    if (value >= 0){
+void assignIfSet(int8_t value, uint8_t * target) {
+    if (value >= 0) {
         *target = (uint8_t) value;
     }
 }
 
-bool isUniqueFunction(int8_t f){
+bool isUniqueFunction(int8_t f) {
     return (f != DEVICE_CHAMBER_MANUAL_ACTUATOR && f != DEVICE_NONE);
 }
 
@@ -340,8 +357,7 @@ bool isUniqueFunction(int8_t f){
  * Updates the device definition. Only changes that result in a valid device, with no conflicts with other devices
  * are allowed.
  */
-void DeviceManager::parseDeviceDefinition(Stream & p)
-{
+void DeviceManager::parseDeviceDefinition(Stream & p) {
     static DeviceDefinition dev;
 
     fill((int8_t *) &dev, sizeof(dev));
@@ -366,28 +382,27 @@ void DeviceManager::parseDeviceDefinition(Stream & p)
     assignIfSet(dev.pinNr, &target.hw.pinNr);
 
 #if BREWPI_DS2413
-    assignIfSet(dev.pio, &target.hw.offset.pio);
+    assignIfSet(dev.pio, &target.hw.settings.actuator.pio);
 #endif
 
     assignIfSet(dev.invert, (uint8_t *) &target.hw.invert);
 
-    if (dev.address[0]
-            != 0xFF)    // first byte is family identifier. I don't have a complete list, but so far 0xFF is not used.
-    {
+    if (dev.address[0] != 0xFF) // first byte is family identifier. I don't have a complete list, but so far 0xFF is not used.
+            {
         memcpy(target.hw.address, dev.address, 8);
     }
 
     assignIfSet(dev.deactivate, (uint8_t *) &target.hw.deactivate);
 
     // setting function to none clears all other fields.
-    if (target.deviceFunction == DEVICE_NONE){
+    if (target.deviceFunction == DEVICE_NONE) {
         clear((uint8_t *) &target, sizeof(target));
     }
 
     bool valid = isDeviceValid(target, original, dev.id);
     DeviceConfig * print = &original;
 
-    if (valid){
+    if (valid) {
         print = &target;
 
         // remove the device from another slot if that slot has the same hardware
@@ -426,9 +441,7 @@ void DeviceManager::parseDeviceDefinition(Stream & p)
  * for onewire ds2413 devices, address+pio must be unique.
  */
 bool DeviceManager::isDeviceValid(DeviceConfig & config,
-                                  DeviceConfig & original,
-                                  uint8_t        deviceIndex)
-{
+        DeviceConfig & original, uint8_t deviceIndex) {
 #if 1
 
     /*
@@ -460,13 +473,13 @@ bool DeviceManager::isDeviceValid(DeviceConfig & config,
     // todo - check pinNr uniqueness for direct digital I/O devices?
 
     /* pinNr for a onewire device must be a valid bus. While this won't cause a crash, it's a good idea to validate this. */
-    if (isOneWire(config.deviceHardware)){
-        if (!oneWireBus(config.hw.pinNr)){
+    if (isOneWire(config.deviceHardware)) {
+        if (!oneWireBus(config.hw.pinNr)) {
             logErrorInt(ERROR_NOT_ONEWIRE_BUS, config.hw.pinNr);
 
             return false;
         }
-    } else{    // regular pin device
+    } else {    // regular pin device
         // todo - could verify that the pin nr corresponds to enumActuatorPins/enumSensorPins
     }
 #endif
@@ -476,12 +489,9 @@ bool DeviceManager::isDeviceValid(DeviceConfig & config,
     return true;
 }
 
-void printAttrib(Print & p,
-                 char    c,
-                 int8_t  val,
-                 bool    first = false)
-{
-    if (!first){
+void printAttrib(Print & p, char c, int8_t val,
+bool first = false) {
+    if (!first) {
         p.print(',');
     }
 
@@ -508,7 +518,7 @@ bool hasOnewire(DeviceHardware hw)
             || (hw == DEVICE_HARDWARE_ONEWIRE_2413)
 #endif
 #if BREWPI_DS2408
-            || (hw == DEVICE_HARDWARE_ONEWIRE_2408)
+    || (hw == DEVICE_HARDWARE_ONEWIRE_2408)
 #endif
     ;
 }
@@ -521,7 +531,7 @@ void DeviceManager::printDevice(device_slot_t  slot,
     char       buf[17];
     DeviceType dt = deviceType(config.deviceFunction, config.deviceHardware);
 
-    if (!firstDeviceOutput){
+    if (!firstDeviceOutput) {
         // p.print('\n');
         p.print(',');
     }
@@ -538,16 +548,16 @@ void DeviceManager::printDevice(device_slot_t  slot,
     printAttrib(p, DEVICE_ATTRIB_DEACTIVATED, config.hw.deactivate);
     printAttrib(p, DEVICE_ATTRIB_PIN, config.hw.pinNr);
 
-    if (value && *value){
+    if (value && *value) {
         p.print(",\"v\":");
         p.print(value);
     }
 
-    if (hasInvert(config.deviceHardware)){
+    if (hasInvert(config.deviceHardware)) {
         printAttrib(p, DEVICE_ATTRIB_INVERT, config.hw.invert);
     }
 
-    if (hasOnewire(config.deviceHardware)){
+    if (hasOnewire(config.deviceHardware)) {
         p.print(",\"a\":\"");
         printBytes(config.hw.address, 8, buf);
         p.print(buf);
@@ -560,15 +570,16 @@ void DeviceManager::printDevice(device_slot_t  slot,
             || config.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2413
 #endif
 #if BREWPI_DS2408
-            || config.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2408
+                    || config.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2408
 #endif
-            ){
-        printAttrib(p, DEVICE_ATTRIB_PIO, config.hw.offset.pio);
+                    ) {
+        printAttrib(p, DEVICE_ATTRIB_PIO, config.hw.settings.actuator.pio);
     }
 #endif
 
-    if (config.deviceHardware == DEVICE_HARDWARE_ONEWIRE_TEMP){
-        config.hw.offset.calibration.toTempString(buf, 3, 8, tempControl.cc.tempFormat, false);
+    if (config.deviceHardware == DEVICE_HARDWARE_ONEWIRE_TEMP) {
+        config.hw.settings.sensor.calibration.toTempString(buf, 3, 8,
+                tempControl.cc.tempFormat, false);
         p.print(",\"j\":");
         p.print(buf);
     }
@@ -576,39 +587,31 @@ void DeviceManager::printDevice(device_slot_t  slot,
     p.print('}');
 }
 
-bool DeviceManager::allDevices(DeviceConfig & config,
-                               uint8_t        deviceIndex)
-{
+bool DeviceManager::allDevices(DeviceConfig & config, uint8_t deviceIndex) {
     return eepromManager.fetchDevice(config, deviceIndex);
 }
 
 void DeviceManager::OutputEnumeratedDevices(DeviceConfig * config,
-        DeviceCallbackInfo *                               info)
-{
-    printDevice(info -> slot, *config, info -> value, *(Print *) info -> data);
+        DeviceCallbackInfo * info) {
+    printDevice(info->slot, *config, info->value, *(Print *) info->data);
 }
 
-bool DeviceManager::enumDevice(DeviceDisplay & dd,
-                               DeviceConfig &  dc,
-                               uint8_t         idx)
-{
-    if (dd.id == -1){
-        return (dd.empty || dc.deviceFunction);    // if enumerating all devices, honor the unused request param
-    } else{
-        return (dd.id == idx);                     // enumerate only the specific device requested
+bool DeviceManager::enumDevice(DeviceDisplay & dd, DeviceConfig & dc,
+        uint8_t idx) {
+    if (dd.id == -1) {
+        return (dd.empty || dc.deviceFunction); // if enumerating all devices, honor the unused request param
+    } else {
+        return (dd.id == idx);   // enumerate only the specific device requested
     }
 }
 
-void handleHardwareSpec(const char * key,
-                        const char * val,
-                        void *       pv)
-{
+void handleHardwareSpec(const char * key, const char * val, void * pv) {
     EnumerateHardware * h = (EnumerateHardware *) pv;
 
     // logDebug("hardwareSpec %s:%s", key, val);
     int8_t idx = indexOf("hpvuf", key[0]);
 
-    if (idx >= 0){
+    if (idx >= 0) {
         *((int8_t *) h + idx) = atol(val);
     }
 }
@@ -621,8 +624,8 @@ bool matchAddress(uint8_t * detected,
         return true;
     }
 
-    while (count-- > 0){
-        if (detected[count] != configured[count]){
+    while (count-- > 0) {
+        if (detected[count] != configured[count]) {
             return false;
         }
     }
@@ -637,38 +640,40 @@ bool matchAddress(uint8_t * detected,
  *   pinNr+address for one-wire devices
  *   pinNr+address+pio for 2413 and 2408
  */
-device_slot_t findHardwareDevice(DeviceConfig & find)
-{
+device_slot_t findHardwareDevice(DeviceConfig & find) {
     DeviceConfig config;
 
-    for (device_slot_t slot = 0; deviceManager.allDevices(config, slot); slot++){
-        if (find.deviceHardware == config.deviceHardware){
+    for (device_slot_t slot = 0; deviceManager.allDevices(config, slot);
+            slot++) {
+        if (find.deviceHardware == config.deviceHardware) {
             bool match = true;
 
-            switch (find.deviceHardware){
+            switch (find.deviceHardware) {
 #if BREWPI_DS2413
-                case DEVICE_HARDWARE_ONEWIRE_2413 :
-                case DEVICE_HARDWARE_ONEWIRE_2408 :
-                    match &= find.hw.offset.pio == config.hw.offset.pio;
+                case DEVICE_HARDWARE_ONEWIRE_2413:
+                case DEVICE_HARDWARE_ONEWIRE_2408:
+                    match &= find.hw.settings.actuator.pio
+                            == config.hw.settings.actuator.pio;
 
                     // fall through
 #endif
 
-                case DEVICE_HARDWARE_ONEWIRE_TEMP :
-                    match &= matchAddress(find.hw.address, config.hw.address, 8);
+                case DEVICE_HARDWARE_ONEWIRE_TEMP:
+                    match &= matchAddress(find.hw.address, config.hw.address,
+                            8);
 
-                // fall through
-                case DEVICE_HARDWARE_PIN :
+                    // fall through
+                case DEVICE_HARDWARE_PIN:
                     match &= find.hw.pinNr == config.hw.pinNr;
                     break;
                 case DEVICE_HARDWARE_NONE:
                     match = false; // don't return a match for no type
                     break;
-                default :    // this should not happen - if it does the device will be returned as matching.
+                default: // this should not happen - if it does the device will be returned as matching.
                     break;
             }
 
-            if (match){
+            if (match) {
                 return slot;
             }
         }
@@ -680,14 +685,14 @@ device_slot_t findHardwareDevice(DeviceConfig & find)
 /*
  * Find a device based on the function.
  */
-device_slot_t findDeviceFunction(DeviceConfig & find)
-{
+device_slot_t findDeviceFunction(DeviceConfig & find) {
     DeviceConfig config;
 
-    for (device_slot_t slot = 0; deviceManager.allDevices(config, slot); slot++){
-        if (find.deviceFunction == config.deviceFunction){
+    for (device_slot_t slot = 0; deviceManager.allDevices(config, slot);
+            slot++) {
+        if (find.deviceFunction == config.deviceFunction) {
             bool match = true;
-            if (match){
+            if (match) {
                 return slot;
             }
         }
@@ -699,13 +704,11 @@ void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw,
                                                char * out)
 {
 #if !BREWPI_SIMULATE
-    OneWire *         bus = oneWireBus(hw.pinNr);
-    OneWireTempSensor sensor(
-        bus, hw.address,
-        short(0));    // NB: this value is uncalibrated, since we don't have the calibration offset until the device is configured
+    OneWire * bus = oneWireBus(hw.pinNr);
+    OneWireTempSensor sensor(bus, hw.address, short(0)); // NB: this value is uncalibrated, since we don't have the calibration offset until the device is configured
     temp_t temp = temp_t::invalid();
 
-    if (sensor.init()){
+    if (sensor.init()) {
         sensor.update();
         temp = sensor.read();
     }
@@ -715,52 +718,47 @@ void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw,
 #endif
 }
 
-void DeviceManager::readValve(DeviceConfig::Hardware hw,
+void DeviceManager::readNotInstalledValve(DeviceConfig::Hardware hw,
                                      char * out)
 {
-    OneWire * bus = oneWireBus(hw.pinNr);
-    ValveController valve(
-        bus, hw.address,
-        hw.offset.pio);
+    auto hwDevice = std::make_shared<DS2408>(oneWireBus(hw.pinNr), hw.address);
+    ValveController valve(hwDevice, hw.settings.actuator.pio);
     uint8_t valveState = valve.read(true);
     sprintf_P(out, STR_FMT_U, (unsigned int) valveState);
 }
 
-void DeviceManager::writeValve(DeviceConfig::Hardware hw, uint8_t value)
+void DeviceManager::writeNotInstalledValve(DeviceConfig::Hardware hw, uint8_t value)
 {
-    OneWire * bus = oneWireBus(hw.pinNr);
-    ValveController valve(
-        bus, hw.address,
-        hw.offset.pio);
-    valve.write(ValveController::ValveActions(value));
+    auto hwDevice = std::make_shared<DS2408>(oneWireBus(hw.pinNr), hw.address);
+    ValveController valve(hwDevice, hw.settings.actuator.pio);
+    valve.write(value);
 }
 
-void DeviceManager::writePin(DeviceConfig::Hardware hw, uint8_t value)
+void DeviceManager::writeNotInstalledPin(DeviceConfig::Hardware hw, uint8_t value)
 {
     bool active = value != 0;
     pinMode(hw.pinNr, OUTPUT);
     digitalWrite(hw.pinNr, (active ^ hw.invert) ? HIGH : LOW);
 }
 
-void DeviceManager::readPin(DeviceConfig::Hardware hw, char * out){
+void DeviceManager::readNotInstalledPin(DeviceConfig::Hardware hw, char * out){
     unsigned int state = digitalRead(hw.pinNr) ^ hw.invert;
     sprintf_P(out, STR_FMT_U, state);
 }
 
-void DeviceManager::writeOneWirePin(DeviceConfig::Hardware hw, uint8_t value)
+void DeviceManager::writeNotInstalledOneWirePin(DeviceConfig::Hardware hw, uint8_t value)
 {
-    OneWire * bus = oneWireBus(hw.pinNr);
-    ActuatorOneWire pin(bus, hw.address, hw.offset.pio, hw.invert);
+    auto hwDevice = std::make_shared<DS2413>(oneWireBus(hw.pinNr), hw.address);
+    ActuatorOneWire pin(hwDevice, hw.settings.actuator.pio, hw.invert);
     pin.write(value);
 }
 
-void DeviceManager::readOneWirePin(DeviceConfig::Hardware hw, char * out){
-    OneWire * bus = oneWireBus(hw.pinNr);
-    ActuatorOneWire pin(bus, hw.address, hw.offset.pio, hw.invert);
+void DeviceManager::readNotInstalledOneWirePin(DeviceConfig::Hardware hw, char * out){
+    auto hwDevice = std::make_shared<DS2413>(oneWireBus(hw.pinNr), hw.address);
+    ActuatorOneWire pin(hwDevice, hw.settings.actuator.pio, hw.invert);
     unsigned int state = pin.isActive();
     sprintf_P(out, STR_FMT_U, state);
 }
-
 
 void DeviceManager::handleEnumeratedDevice(DeviceConfig & config,
         EnumerateHardware &                               h,
@@ -774,13 +772,13 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig & config,
     // logDebug("Handling device");
     device_slot_t slot = findHardwareDevice(config);
 
-    info -> slot     = slot;
-    info -> value[0] = 0;
+    info->slot = slot;
+    info->value[0] = 0;
 
     DEBUG_ONLY(logInfoInt(INFO_MATCHING_DEVICE, slot));
 
-    if (isDefinedSlot(slot)){
-        if (h.unused)    // only list unused devices, and this one is already used
+    if (isDefinedSlot(slot)) {
+        if (h.unused)  // only list unused devices, and this one is already used
         {
             return;
         }
@@ -789,18 +787,18 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig & config,
         deviceManager.allDevices(config, slot);
     }
 
-    if (h.values){
+    if (h.values) {
         // logDebug("Fetching device value");
-        switch (config.deviceHardware){
-            case DEVICE_HARDWARE_ONEWIRE_TEMP :
-                readTempSensorValue(config.hw, info -> value);
+        switch (config.deviceHardware) {
+            case DEVICE_HARDWARE_ONEWIRE_TEMP:
+                readTempSensorValue(config.hw, info->value);
                 break;
             case DEVICE_HARDWARE_ONEWIRE_2408:
-                readValve(config.hw, info -> value);
+                readNotInstalledValve(config.hw, info->value);
                 break;
-            // unassigned pins could be input or output so we can't determine any other details from here.
-            // values can be read once the pin has been assigned a function
-            default :
+                // unassigned pins could be input or output so we can't determine any other details from here.
+                // values can be read once the pin has been assigned a function
+            default:
                 break;
         }
     }
@@ -822,25 +820,24 @@ bool isDefinedSlot(device_slot_t s)
  * @param output
  */
 void DeviceManager::enumeratePinDevices(EnumerateHardware & h,
-        EnumDevicesCallback                                 callback,
-        DeviceCallbackInfo *                                info)
-{
+        EnumDevicesCallback callback, DeviceCallbackInfo * info) {
     DeviceConfig config;
 
     clear((uint8_t *) &config, sizeof(config));
 
     config.deviceHardware = DEVICE_HARDWARE_PIN;
-    config.chamber        = 1;    // chamber 1 is default
+    config.chamber = 1;    // chamber 1 is default
 
     int8_t pin;
 
 #if BREWPI_ACTUATOR_PINS
-    for (uint8_t count = 0; (pin = deviceManager.enumerateActuatorPins(count)) >= 0; count++){
-        if ((h.pin != -1) && (h.pin != pin)){
+    for (uint8_t count = 0;
+            (pin = deviceManager.enumerateActuatorPins(count)) >= 0; count++) {
+        if ((h.pin != -1) && (h.pin != pin)) {
             continue;
         }
 
-        config.hw.pinNr  = pin;
+        config.hw.pinNr = pin;
 
         config.hw.invert = false;
 
@@ -849,8 +846,9 @@ void DeviceManager::enumeratePinDevices(EnumerateHardware & h,
 #endif
 
 #if BREWPI_SENSOR_PINS
-    for (uint8_t count = 0; (pin = deviceManager.enumerateSensorPins(count)) >= 0; count++){
-        if ((h.pin != -1) && (h.pin != pin)){
+    for (uint8_t count = 0;
+            (pin = deviceManager.enumerateSensorPins(count)) >= 0; count++) {
+        if ((h.pin != -1) && (h.pin != pin)) {
             continue;
         }
 
@@ -863,13 +861,12 @@ void DeviceManager::enumeratePinDevices(EnumerateHardware & h,
 }
 
 void DeviceManager::enumerateOneWireDevices(EnumerateHardware & h,
-        EnumDevicesCallback                                     callback,
-        DeviceCallbackInfo *                                    info)
-{
+        EnumDevicesCallback callback, DeviceCallbackInfo * info) {
 #if !BREWPI_SIMULATE
     int8_t pin;
 
-    for (uint8_t count = 0; (pin = deviceManager.enumOneWirePins(count)) >= 0; count++){
+    for (uint8_t count = 0; (pin = deviceManager.enumOneWirePins(count)) >= 0;
+            count++) {
         DeviceConfig config;
 
         clear((uint8_t *) &config, sizeof(config));
@@ -878,7 +875,7 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware & h,
             continue;
 
         config.hw.pinNr = pin;
-        config.chamber  = 1;    // chamber 1 is default
+        config.chamber = 1;    // chamber 1 is default
 
         // logDebug("Enumerating one-wire devices on pin %d", pin);
         OneWire * wire = oneWireBus(pin);
@@ -886,53 +883,53 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware & h,
         if (wire != nullptr){
             wire -> reset_search();
 
-            while (wire -> search(config.hw.address)){
+            while (wire->search(config.hw.address)) {
                 // hardware device type from OneWire family ID
-                switch (config.hw.address[0]){
+                switch (config.hw.address[0]) {
 #if BREWPI_DS2413
-                    case DS2413_FAMILY_ID :
+                    case DS2413_FAMILY_ID:
                         config.deviceHardware = DEVICE_HARDWARE_ONEWIRE_2413;
                         break;
 #endif
 #if BREWPI_DS2408
-                    case DS2408_FAMILY_ID :
+                        case DS2408_FAMILY_ID :
                         config.deviceHardware = DEVICE_HARDWARE_ONEWIRE_2408;
                         break;
 #endif
 
-                    case DS18B20MODEL :
+                    case DS18B20MODEL:
                         config.deviceHardware = DEVICE_HARDWARE_ONEWIRE_TEMP;
                         break;
 
-                    default :
+                    default:
                         config.deviceHardware = DEVICE_HARDWARE_NONE;
                 }
 
-                switch (config.deviceHardware){
+                switch (config.deviceHardware) {
 #if BREWPI_DS2413 || BREWPI_DS2408
 #if BREWPI_DS2413
-                    case DEVICE_HARDWARE_ONEWIRE_2413 :
+                    case DEVICE_HARDWARE_ONEWIRE_2413:
 #endif
 #if BREWPI_DS2408
-                    case DEVICE_HARDWARE_ONEWIRE_2408 : // 2408 will show as 2 valves
+                        case DEVICE_HARDWARE_ONEWIRE_2408 : // 2408 will show as 2 valves
 #endif
                         // enumerate each pin separately
-                        for (uint8_t i = 0; i < 2; i++){
-                            config.hw.offset.pio = i;
+                        for (uint8_t i = 0; i < 2; i++) {
+                            config.hw.settings.actuator.pio = i;
 
                             handleEnumeratedDevice(config, h, callback, info);
                         }
                         break;
 #endif
 
-                    case DEVICE_HARDWARE_ONEWIRE_TEMP :
+                    case DEVICE_HARDWARE_ONEWIRE_TEMP:
 
 #if !ONEWIRE_PARASITE_SUPPORT
                     {    // check that device is not parasite powered
                         DallasTemperature sensor(wire);
 
                         // initialize sensor without reset detection (faster)
-                        if (!sensor.isParasitePowered(config.hw.address)){
+                        if (!sensor.isParasitePowered(config.hw.address)) {
                             handleEnumeratedDevice(config, h, callback, info);
                         }
                     }
@@ -941,9 +938,9 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware & h,
                         handleEnumeratedDevice(config, h, callback, info);
 #endif
 
-                    break;
+                        break;
 
-                    default :
+                    default:
                         handleEnumeratedDevice(config, h, callback, info);
                 }
             }
@@ -953,14 +950,13 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware & h,
 
 }
 
-void DeviceManager::enumerateHardwareToStream(Stream & p)
-{
+void DeviceManager::enumerateHardwareToStream(Stream & p) {
     EnumerateHardware spec;
 
     // set up defaults
-    spec.unused   = 0;     // list all devices
-    spec.values   = 0;     // don't list values
-    spec.pin      = -1;    // any pin
+    spec.unused = 0;     // list all devices
+    spec.values = 0;     // don't list values
+    spec.pin = -1;    // any pin
     spec.hardware = -1;    // any hardware
     spec.function = 0;     // no function restriction
 
@@ -979,28 +975,23 @@ void DeviceManager::enumerateHardwareToStream(Stream & p)
 }
 
 void DeviceManager::enumerateHardware(EnumerateHardware & spec,
-        EnumDevicesCallback                               callback,
-        DeviceCallbackInfo *                              info)
-{
-    if ((spec.hardware == -1) || isOneWire(DeviceHardware(spec.hardware))){
+        EnumDevicesCallback callback, DeviceCallbackInfo * info) {
+    if ((spec.hardware == -1) || isOneWire(DeviceHardware(spec.hardware))) {
         enumerateOneWireDevices(spec, callback, info);
     }
 
-    if ((spec.hardware == -1) || isDigitalPin(DeviceHardware(spec.hardware))){
+    if ((spec.hardware == -1) || isDigitalPin(DeviceHardware(spec.hardware))) {
         enumeratePinDevices(spec, callback, info);
     }
 }
 
-void HandleDeviceDisplay(const char * key,
-                         const char * val,
-                         void *       pv)
-{
+void HandleDeviceDisplay(const char * key, const char * val, void * pv) {
     DeviceDisplay & dd = *(DeviceDisplay *) pv;
 
     // logDeveloper("DeviceDisplay %s:%s"), key, val);
     int8_t idx = indexOf("irwe", key[0]);
 
-    if (idx >= 0){
+    if (idx >= 0) {
         *((int8_t *) &dd + idx) = atol(val);
     }
 }
@@ -1009,26 +1000,14 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd, DeviceConfig &  dc, ch
 {
     DeviceType dt = deviceType(dc.deviceFunction, dc. deviceHardware);
 
-    if (dt == DEVICETYPE_NONE){
+    if (dt == DEVICETYPE_NONE) {
         return;
     }
     if(!isDefinedSlot(idx)){
         return;
     }
-    if (dd.write >= 0){
-        // write value to a specific device. For now, only actuators are relevant targets
+    if (dd.write >= 0) {
         if (dc.deviceFunction == DEVICE_CHAMBER_MANUAL_ACTUATOR){
-            if(dc.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2408){
-                writeValve(dc.hw, dd.write);
-            }
-            if(dc.deviceHardware == DEVICE_HARDWARE_PIN){
-                writePin(dc.hw, dd.write);
-            }
-            if(dc.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2413){
-                writeOneWirePin(dc.hw, dd.write);
-            }
-        }
-        else if (dt == DEVICETYPE_SWITCH_ACTUATOR){
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write != 0));
             auto act = asInterface<ActuatorDigital>(devices[idx]);
             if(act != nullptr){
@@ -1051,21 +1030,20 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd, DeviceConfig &  dc, ch
             }
         } else if (dc.deviceFunction == DEVICE_CHAMBER_MANUAL_ACTUATOR){
             if(dc.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2408){
-                readValve(dc.hw, val);
+                readNotInstalledValve(dc.hw, val);
             }
-            if(dc.deviceHardware == DEVICE_HARDWARE_PIN){
-                readPin(dc.hw, val);
+            if (dc.deviceHardware == DEVICE_HARDWARE_PIN) {
+                readNotInstalledPin(dc.hw, val);
             }
-            if(dc.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2413){
-                readOneWirePin(dc.hw, val);
+            if (dc.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2413) {
+                readNotInstalledOneWirePin(dc.hw, val);
             }
         }
     }
 }
 
-void DeviceManager::listDevices(Stream & p)
-{
-    DeviceConfig  dc;
+void DeviceManager::listDevices(Stream & p) {
+    DeviceConfig dc;
     DeviceDisplay dd;
 
     fill((int8_t *) &dd, sizeof(dd));
@@ -1076,8 +1054,8 @@ void DeviceManager::listDevices(Stream & p)
 
     deviceManager.beginDeviceOutput();
 
-    for (device_slot_t idx = 0; deviceManager.allDevices(dc, idx); idx++){
-        if (deviceManager.enumDevice(dd, dc, idx)){
+    for (device_slot_t idx = 0; deviceManager.allDevices(dc, idx); idx++) {
+        if (deviceManager.enumDevice(dd, dc, idx)) {
             char val[10];
 
             val[0] = 0;
@@ -1110,19 +1088,50 @@ DeviceType deviceType(DeviceFunction func, DeviceHardware hw)
         case DEVICE_BEER_TEMP2 :
             return DEVICETYPE_TEMP_SENSOR;
         case DEVICE_CHAMBER_MANUAL_ACTUATOR:
-#if BREWPI_DS2408
-            if(hw == DEVICE_HARDWARE_ONEWIRE_2408){
-                return DEVICETYPE_VALVE;
-            }
-            else{
-                return DEVICETYPE_SWITCH_ACTUATOR;
-            }
-#else
             return DEVICETYPE_SWITCH_ACTUATOR;
-#endif
         default :
             return DEVICETYPE_NONE;
     }
 }
 
+
+/**
+ * Find if a OneWire hardware chip is already used in another actuator, but with a different channel
+ * @param find Device configuration for the newly installed hardware
+ * @return pointer to low level hardware. nullptr if not found
+ */
+Interface * DeviceManager::findSharedHardware(DeviceConfig & find) {
+    DeviceConfig config;
+    Interface * hw = nullptr;
+
+    for (device_slot_t slot = 0; deviceManager.allDevices(config, slot);
+            slot++) {
+        if (find.deviceHardware == config.deviceHardware) {
+            bool match = true;
+            switch (find.deviceHardware) {
+                case DEVICE_HARDWARE_ONEWIRE_2413:
+                case DEVICE_HARDWARE_ONEWIRE_2408:
+                    // Same address
+                    match &= matchAddress(find.hw.address, config.hw.address,
+                            8);
+
+                    // Different pio
+                    match &= find.hw.settings.actuator.pio
+                            != config.hw.settings.actuator.pio;
+
+                    if (match){
+                        // device in slot has same hardware
+                        hw = devices[slot];
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    return hw;
+}
+
 DeviceManager deviceManager;
+

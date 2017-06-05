@@ -265,8 +265,9 @@ void ValveControllerMixin::serializeImpl(JSON::Adapter & adapter)
     ValveController * obj = static_cast<ValveController *>(this);
 
     JSON::Class root(adapter, "ValveController");
-    JSON_OE(adapter, pio);
-    JSON_OT(adapter, sense);
+    JSON_OE(adapter, output);
+    uint8_t state = obj->read(false);
+    JSON_T(adapter, state);
 #endif
 }
 
