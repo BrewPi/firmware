@@ -1,5 +1,5 @@
 /* 
- * File:   SensorArduinoPin.h
+ * File:   SensorPin.h
  * Author: mat
  *
  * Created on 22 August 2013, 19:36

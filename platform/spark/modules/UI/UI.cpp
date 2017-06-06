@@ -18,7 +18,6 @@
  */
 
 #include "Brewpi.h"
-#include "fixstl.h"
 #include "UI.h"
 #include "Buzzer.h"
 #include "eGuiSettings.h"

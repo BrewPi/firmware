@@ -842,12 +842,7 @@ void DeviceManager::enumeratePinDevices(EnumerateHardware & h,
 
         config.hw.pinNr  = pin;
 
-        if(getShieldVersion() < BREWPI_SHIELD_SPARK_V1){
-            config.hw.invert = true;    // make inverted default, because Arduino shields have transistor on them
-        }
-        else{
-            config.hw.invert = false;    // spark shield has buffer instead of transistor, does not invert
-        }
+        config.hw.invert = false;
 
         handleEnumeratedDevice(config, h, callback, info);
     }

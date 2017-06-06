@@ -21,7 +21,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "fixstl.h" // removes min/max macros defined in Arduino.h
 #include "Interface.h"
 
 class ControllerInterface: public virtual Interface

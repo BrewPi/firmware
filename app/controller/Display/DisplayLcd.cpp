@@ -24,7 +24,6 @@
 #include "DisplayLcd.h"
 #include "TempControl.h"
 #include "Board.h"
-#include "fixstl.h"
 #include <algorithm>
 
 using std::min;

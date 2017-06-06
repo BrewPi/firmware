@@ -30,7 +30,6 @@
 #include "TempSensorDisconnected.h"
 #include "ModeControl.h"
 #include "EepromManager.h"
-#include "fixstl.h"
 #include "defaultDevices.h"
 
 #define DISABLED_TEMP temp_t::disabled()

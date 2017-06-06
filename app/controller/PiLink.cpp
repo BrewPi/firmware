@@ -91,18 +91,18 @@ void PiLink::flushInput(void){
     }
 }
 
-// create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
+// create a printf like interface to the Serial function. Format string stored in PROGMEM
 void PiLink::print_P(const char *fmt, ... ){
     va_list args;
     va_start (args, fmt );
     vsnprintf_P(printfBuff, PRINTF_BUFFER_SIZE, fmt, args);
     va_end (args);
-    if(SERIAL_READY(piStream)){ // if Serial connected (on Leonardo)
+    if(SERIAL_READY(piStream)){ // if Serial connected
         piStream.print(printfBuff);
     }
 }
 
-// create a printf like interface to the Arduino Serial function. Format string stored in RAM
+// create a printf like interface to the Serial function. Format string stored in RAM
 void PiLink::print(char *fmt, ... ){
     va_list args;
     va_start (args, fmt );
@@ -867,7 +867,5 @@ void PiLink::soundAlarm(bool active)
     buzzer.setActive(active);
 }
 
-
-#ifndef ARDUINO
 void PiLink::print(char c) { piStream.print(c); }
-#endif
+

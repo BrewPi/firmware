@@ -120,7 +120,7 @@ namespace JSON
 		virtual ISink& operator<<(const temp_long_t& arg) override final   { (*_sink) << arg.toCstring(); return (*this); }
 	};
 
-#if defined(ARDUINO) || defined(SPARK) // todo -  need a WIRING define
+#if defined(SPARK)
 
 	//-----------------------------------------------------------------------------
 	// An alternative to stringsink which writes prints directly to a stream (serial)
@@ -413,7 +413,7 @@ namespace JSON
 		}
 	};
 
-#if defined(SPARK) || defined(ARDUINO)
+#if defined(SPARK)
 	//-----------------------------------------------------------------------------
     // template the writer. usage is:
     // JSON::producer<JSONExample>::convert(source, stream);

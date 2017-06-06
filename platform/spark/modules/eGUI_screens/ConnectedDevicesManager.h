@@ -26,7 +26,6 @@
 #include "Sensor.h"
 #include "PiLink.h"
 #include "Board.h"
-#include "fixstl.h"
 #include "ActuatorPin.h"
 #include "temperatureFormats.h"
 #include <functional>

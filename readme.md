@@ -49,14 +49,8 @@ If uploading firmware via the web interface fails, you can flash new firmware to
 You can also build the firmware and flash directly by running `make program-dfu` from `platform/spark`.
 
 
-## Building the firmware for Arduino
-We do not recommend the Arduino to new users. The Spark platform is much more powerful and future proof. We will try to make new features available where possible for our existing Arduino users, but we are running into the limits of the platform.
-
-To build our firmware for Arduino, you will have to use [Atmel Studio](http://www.atmel.com/microsite/atmel_studio6/). The repo includes an Atmel studio project. Select the right processor (Atmega328P for the Arduino Uno, Atmega32U4 for the Leonardo) and set up the right shield in Config.h.
-
-
 ## Changelog
-A list of the changes per release can be found in the CHANGELOG file.
+Please see our GitHub release for the change log
 
 
 ## License

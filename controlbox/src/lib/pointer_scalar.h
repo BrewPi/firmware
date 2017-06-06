@@ -29,9 +29,7 @@ extern "C" {
 /**
  * The scalar type that is the same size as a pointer.
  */
-#ifdef ARDUINO
-typedef uint16_t pointer_scalar;
-#elif __x86_64__ || __ppc64__
+#if __x86_64__ || __ppc64__
 typedef uint64_t pointer_scalar;
 #else
 typedef uint32_t pointer_scalar;

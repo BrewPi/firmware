@@ -130,9 +130,9 @@ struct DeviceConfig
 
     struct Hardware
     {
-		uint8_t pinNr;							// the arduino pin nr this device is connected to
+		uint8_t pinNr;							// the pin nr this device is connected to
 		bool invert;							// for actuators/sensors, controls if the signal value is inverted.
-		bool deactivate;							// disable this device - the device will not be installed.
+		bool deactivate;						// disable this device - the device will not be installed.
 		DeviceAddress address;					// for onewire devices, if address[0]==0 then use the first matching device type, otherwise use the device with the specific address
 
         /*

@@ -35,18 +35,11 @@
  * To customize the build, users may add settings to Config.h, or define symbols in the project.
  */
 
-#ifdef ARDUINO
-#include "Config.h"
-#else
-#include <Config.h>                     // use search path rather than current directory, so that config.h is found elsewhere
-#endif
+
+#include <Config.h>
 #include "ConfigDefault.h"
 
-#ifdef ARDUINO
-#include "AppConfig.h"
-#else
 #include <AppConfig.h>
-#endif
 #include "AppConfigDefault.h"
 
 #define VERSION_STRING "0.5.0"

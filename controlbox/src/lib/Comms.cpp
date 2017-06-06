@@ -56,7 +56,7 @@ class MockSerial : public Stream
 
 cb_static_decl(static MockSerial commsDevice;)
 
-#elif !defined(ARDUINO) && !defined(SPARK)
+#elif !defined(SPARK)
 
 #include <CommsStdIO.h>
 
@@ -397,7 +397,7 @@ namespace boost
 
 
 
-#if !defined(ARDUINO) || !defined(SPARK)
+#if !defined(SPARK)
 bool isHexadecimalDigit(char c)
 {
 	return isdigit(c) || (c>='A' && c<='F') || (c>='a' && c<='f');
