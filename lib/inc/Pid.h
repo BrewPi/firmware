@@ -23,23 +23,29 @@
 
 #include "temperatureFormats.h"
 #include "FilterCascaded.h"
-#include "TempSensorBasic.h"
+#include "TempSensor.h"
 #include "ActuatorInterfaces.h"
 #include "SetPoint.h"
 #include "defaultDevices.h"
 #include "ControllerMixins.h"
+#include "ControllerInterface.h"
+#include "ProcessValue.h"
 
-class Pid final : public PidMixin
+class Pid final : public ControllerInterface, public PidMixin
 {
 
     public:
-        Pid(TempSensorBasic * input, ActuatorRange * output, SetPoint * setPoint);
-
-        Pid() : Pid(defaultTempSensorBasic(), defaultLinearActuator(), defaultSetPoint()){}
-
-        Pid(const Pid & orig);
-
+        Pid(ProcessValue & _input,
+            ProcessValue & _output);
         ~Pid() = default;
+
+        /**
+         * Accept function for visitor pattern
+         * @param dispatcher Visitor to process this class
+         */
+        void accept(VisitorBase & v) final {
+        	v.visit(*this);
+        }
 
         void init();
 
@@ -57,26 +63,6 @@ class Pid final : public PidMixin
 
         void setDerivativeFilter(uint8_t b);
 
-        bool setInputSensor(TempSensorBasic * s);
-
-        TempSensorBasic * getInputSensor(){
-            return inputSensor;
-        }
-
-        bool setOutputActuator(ActuatorRange * a);
-
-        ActuatorRange * getOutputActuator(){
-            return outputActuator;
-        }
-
-        void setSetPoint(SetPoint * s){
-            setPoint = s;
-        }
-
-        SetPoint * getSetPoint(){
-            return setPoint;
-        }
-
         void setActuatorIsNegative(bool setting){
             actuatorIsNegative = setting;
         }
@@ -85,40 +71,27 @@ class Pid final : public PidMixin
             enabled = true;
         }
 
-        void disable(bool turnOffOutputActuator){
+        void disable(bool turnOffOutput){
             enabled = false;
             inputError = decltype(inputError)::base_type(0);
             p = decltype(p)::base_type(0);
             i = decltype(i)::base_type(0);
             d = decltype(d)::base_type(0);
-            if(turnOffOutputActuator){
-                outputActuator -> setValue(0.0);
+            if(turnOffOutput){
+                output.set(0.0);
             }
         }
 
-        /*
-        uint16_t getOutputLag(){ return outputLag; };
-
-        temp_precise getMaxDerivative(){ return maxDerivative; };
-
-        bool isTuning(){ return tuning; };
-
-        void tune(temp output, temp previousOutput);
-
-        void setAutoTune(bool doTune) { autotune = doTune; };
-        */
-
     protected:
-        ActuatorRange *   outputActuator;
-        TempSensorBasic * inputSensor;
-        SetPoint *        setPoint;
+        ProcessValue & input;
+        ProcessValue & output;
         temp_long_t       Kp;    // proportional gain
         uint16_t          Ti;    // integral time constant
         uint16_t          Td;    // derivative time constant
-        temp_t            inputError;
         temp_long_t       p;
         temp_long_t       i;
         temp_long_t       d;
+        temp_t            inputError;
         temp_precise_t    derivative;
         temp_long_t       integral;
         FilterCascaded    inputFilter;
@@ -126,12 +99,7 @@ class Pid final : public PidMixin
         uint8_t           failedReadCount;
         bool              actuatorIsNegative; // if true, the actuator lowers the input, e.g. a cooler
         bool              enabled;
-        /*
-        bool              autotune; // auto tuning enabled
-        bool              tuning; // tuning in this step response
-        uint16_t          outputLag;
-        temp_precise      maxDerivative;
-        */
+
     private:
         // remember previous setpoint, to be able to take the derivative of the error, instead of the input
         temp_t            previousSetPoint;

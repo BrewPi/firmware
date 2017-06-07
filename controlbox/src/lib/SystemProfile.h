@@ -64,7 +64,7 @@ extern Container* createRootContainer();
  *  uint8_t[len]	data
  * </pre>
  */
-extern Object* createObject(DataIn& in, bool dryRun=false);
+extern uint8_t createObject(Object*& result, DataIn& in, bool dryRun=false);
 
 
 #endif

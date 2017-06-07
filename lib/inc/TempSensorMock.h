@@ -20,14 +20,22 @@
 
 #pragma once
 
-#include "TempSensorBasic.h"
+#include "TempSensor.h"
 #include "ControllerMixins.h"
 
-class TempSensorMock final : public TempSensorBasic, public TempSensorMockMixin
+class TempSensorMock final : public TempSensor, public TempSensorMockMixin
 {
 public:	
-	TempSensorMock(temp_t initial) : value(initial), connected(true) { }
+	TempSensorMock(temp_t initial) : value(initial), connected(true) {}
 	
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    void accept(VisitorBase & v) final {
+    	v.visit(*this);
+    }
+
 	void setConnected(bool _connected)
 	{
 		connected = _connected;

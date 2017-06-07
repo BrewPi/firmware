@@ -74,7 +74,7 @@ for file in glob.glob("*.csv"):
 
     mng = plt.get_current_fig_manager()
     if plt.get_backend() == 'TkAgg':
-        mng.window.state('zoomed')
+        mng.resize(*mng.window.maxsize())
     elif plt.get_backend() == 'wxAgg':
         mng.frame.Maximize(True)
     elif plt.get_backend() == 'QT4Agg':

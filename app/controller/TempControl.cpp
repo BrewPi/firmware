@@ -25,12 +25,11 @@
 #include "TempControl.h"
 #include "PiLink.h"
 #include "Ticks.h"
-#include "TempSensorBasic.h"
+#include "TempSensor.h"
 #include "TempSensorMock.h"
 #include "TempSensorDisconnected.h"
 #include "ModeControl.h"
 #include "EepromManager.h"
-#include "fixstl.h"
 #include "defaultDevices.h"
 
 #define DISABLED_TEMP temp_t::disabled()
@@ -79,17 +78,17 @@ TempControl::TempControl()
 
 tcduration_t TempControl::timeSinceCooling(void)
 {
-    return ticks.timeSinceSeconds(lastCoolTime);
+    return timeSinceSeconds(ticks.seconds(), lastCoolTime);
 }
 
 tcduration_t TempControl::timeSinceHeating(void)
 {
-    return ticks.timeSinceSeconds(lastHeatTime);
+    return timeSinceSeconds(ticks.seconds(), lastHeatTime);
 }
 
 tcduration_t TempControl::timeSinceIdle(void)
 {
-    return ticks.timeSinceSeconds(lastIdleTime);
+    return timeSinceSeconds(ticks.seconds(), lastIdleTime);
 }
 
 void TempControl::loadDefaultSettings()
@@ -154,20 +153,20 @@ void TempControl::setMode(char newMode,
     {
         setBeerTemp(DISABLED_TEMP, true);
         setFridgeTemp(DISABLED_TEMP, true);
-        control.heater1Pid->disable(true);
-        control.coolerPid->disable(true);
-        control.beerToFridgePid->disable(false);
+        control.heater1Pid.disable(true);
+        control.coolerPid.disable(true);
+        control.beerToFridgePid.disable(false);
     }
     else if (newMode == MODE_BEER_CONSTANT || newMode == MODE_BEER_PROFILE){
-        control.heater1Pid->enable();
-        control.coolerPid->enable();
-        control.beerToFridgePid->enable();
+        control.heater1Pid.enable();
+        control.coolerPid.enable();
+        control.beerToFridgePid.enable();
     }
     else if (newMode == MODE_FRIDGE_CONSTANT){
         setBeerTemp(DISABLED_TEMP, true);
-        control.heater1Pid->enable();
-        control.coolerPid->enable();
-        control.beerToFridgePid->disable(false);
+        control.heater1Pid.enable();
+        control.coolerPid.enable();
+        control.beerToFridgePid.disable(false);
     }
     cs.mode = newMode;
     if(store){
@@ -176,7 +175,7 @@ void TempControl::setMode(char newMode,
 }
 
 void TempControl::setBeerTemp(temp_t newTemp, bool store) {
-    control.beer1Set->write(newTemp);
+    control.beer1Set.write(newTemp);
     cs.beerSetting = newTemp;
 
     if (store && ((cs.mode != MODE_BEER_PROFILE) ||
@@ -192,7 +191,7 @@ void TempControl::setBeerTemp(temp_t newTemp, bool store) {
 }
 
 void TempControl::setFridgeTemp(temp_t newTemp, bool store) {
-    control.fridgeSet->write(newTemp);
+    control.fridgeSet.write(newTemp);
     cs.fridgeSetting = newTemp;
     if(store){
         eepromManager.storeTempSettings();
@@ -220,40 +219,40 @@ control_mode_t ModeControl_SetMode(control_mode_t mode)
 void TempControl::updateConstants()
 {
     //settings for heater 1
-    control.heater1Pid->Kp = cc.heater1_kp;
-    control.heater1Pid->Ti = cc.heater1_ti;
-    control.heater1Pid->Td = cc.heater1_td;
+    control.heater1Pid.Kp = cc.heater1_kp;
+    control.heater1Pid.Ti = cc.heater1_ti;
+    control.heater1Pid.Td = cc.heater1_td;
 
     //settings for heater 2
-    control.heater2Pid->Kp = cc.heater2_kp;
-    control.heater2Pid->Ti = cc.heater2_ti;
-    control.heater2Pid->Td = cc.heater2_td;
+    control.heater2Pid.Kp = cc.heater2_kp;
+    control.heater2Pid.Ti = cc.heater2_ti;
+    control.heater2Pid.Td = cc.heater2_td;
 
     //settings for cooler
-    control.coolerPid->Kp = cc.cooler_kp;
-    control.coolerPid->Ti = cc.cooler_ti;
-    control.coolerPid->Td = cc.cooler_td;
+    control.coolerPid.Kp = cc.cooler_kp;
+    control.coolerPid.Ti = cc.cooler_ti;
+    control.coolerPid.Td = cc.cooler_td;
 
     //settings for beer2fridge PID
-    control.beerToFridgePid->Kp = cc.beer2fridge_kp;
-    control.beerToFridgePid->Ti = cc.beer2fridge_ti;
-    control.beerToFridgePid->Td = cc.beer2fridge_td;
+    control.beerToFridgePid.Kp = cc.beer2fridge_kp;
+    control.beerToFridgePid.Ti = cc.beer2fridge_ti;
+    control.beerToFridgePid.Td = cc.beer2fridge_td;
 
-    control.cooler->setPeriod(cc.coolerPwmPeriod);
-    control.heater1->setPeriod(cc.heater1PwmPeriod);
-    control.heater2->setPeriod(cc.heater2PwmPeriod);
+    control.coolerPwm.setPeriod(cc.coolerPwmPeriod);
+    control.heater1Pwm.setPeriod(cc.heater1PwmPeriod);
+    control.heater2Pwm.setPeriod(cc.heater2PwmPeriod);
 
-    control.coolerTimeLimited->setTimes(cc.minCoolTime, cc.minCoolIdleTime);
+    control.coolerTimeLimited.setTimes(cc.minCoolTime, cc.minCoolIdleTime);
 
-    control.heater1Pid->setInputFilter(cc.heater1_infilt);
-    control.heater1Pid->setDerivativeFilter(cc.heater1_dfilt);
-    control.heater2Pid->setInputFilter(cc.heater2_infilt);
-    control.heater2Pid->setDerivativeFilter(cc.heater2_dfilt);
-    control.coolerPid->setInputFilter(cc.cooler_infilt);
-    control.coolerPid->setDerivativeFilter(cc.cooler_dfilt);
-    control.beerToFridgePid->setInputFilter(cc.beer2fridge_infilt);
-    control.beerToFridgePid->setDerivativeFilter(cc.beer2fridge_dfilt);
-    control.fridgeSetPointActuator->setMin(-cc.beer2fridge_pidMax);
-    control.fridgeSetPointActuator->setMax(cc.beer2fridge_pidMax);
-    control.mutex->setDeadTime(cc.mutexDeadTime * 1000);
+    control.heater1Pid.setInputFilter(cc.heater1_infilt);
+    control.heater1Pid.setDerivativeFilter(cc.heater1_dfilt);
+    control.heater2Pid.setInputFilter(cc.heater2_infilt);
+    control.heater2Pid.setDerivativeFilter(cc.heater2_dfilt);
+    control.coolerPid.setInputFilter(cc.cooler_infilt);
+    control.coolerPid.setDerivativeFilter(cc.cooler_dfilt);
+    control.beerToFridgePid.setInputFilter(cc.beer2fridge_infilt);
+    control.beerToFridgePid.setDerivativeFilter(cc.beer2fridge_dfilt);
+    control.fridgeSetPointActuator.setMin(-cc.beer2fridge_pidMax);
+    control.fridgeSetPointActuator.setMax(cc.beer2fridge_pidMax);
+    control.mutex.setDeadTime(cc.mutexDeadTime * 1000);
 }

@@ -59,7 +59,7 @@ void EepromManager::initializeEeprom()
     // clear all eeprom
     zapEeprom();
 
-    deviceManager.setupUnconfiguredDevices();
+    deviceManager.setupUnconfiguredDevices(true); // remove devices and erase eeprom
 
     // fetch the default values
     tempControl.loadDefaultConstants();
@@ -93,8 +93,8 @@ bool EepromManager::applySettings()
 	if (!hasSettings())
 		return false;
 
-	// start from a clean state		
-	deviceManager.setupUnconfiguredDevices();
+	// start from a clean state
+	deviceManager.setupUnconfiguredDevices(false);
 		
 	logDebug("Applying settings");
 
@@ -110,7 +110,7 @@ bool EepromManager::applySettings()
 	for (uint8_t index = 0; fetchDevice(deviceConfig, index); index++)
 	{	
 		if (deviceManager.isDeviceValid(deviceConfig, deviceConfig, index))
-			deviceManager.installDevice(deviceConfig);
+			deviceManager.createAndInstallDevice(deviceConfig, index);
 		else {
 			clear((uint8_t*)&deviceConfig, sizeof(deviceConfig));
 			eepromManager.storeDevice(deviceConfig, index);

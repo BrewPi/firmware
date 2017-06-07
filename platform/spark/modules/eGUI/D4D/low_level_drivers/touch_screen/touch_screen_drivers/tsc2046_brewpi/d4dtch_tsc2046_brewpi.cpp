@@ -183,7 +183,11 @@ static D4D_TOUCHSCREEN_LIMITS* D4DTCH_GetRawLimits_Tsc2046_brewpi(void) {
 static unsigned char D4DTCH_GetPositionRaw_Tsc2046_brewpi(unsigned short *TouchPositionX,
     unsigned short *TouchPositionY) {
     if(touch.update()){
+#if PLATFORM_ID == 8 // y coordinate is flipped on V3
+        *TouchPositionX = D4DTCH_FULL_SCALE - touch.getXRaw();
+#else
         *TouchPositionX = touch.getXRaw();
+#endif
         *TouchPositionY = touch.getYRaw();
         return 1;
     }   

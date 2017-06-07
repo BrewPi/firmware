@@ -94,8 +94,8 @@ void SetActuatorButtonState(D4D_OBJECT* pThis, D4D_BOOL state, uint8_t idx)
 }
 
 #define SCRBOOT_ACTUATOR_COUNT MAX_ACTUATOR_COUNT
-#define SCRBOOT_ACTUATOR_CX_GAP 4
-#define SCRBOOT_ACTUATOR_CX ((320-(SCRBOOT_ACTUATOR_COUNT*SCRBOOT_ACTUATOR_CX_GAP))/SCRBOOT_ACTUATOR_COUNT)
+#define SCRBOOT_ACTUATOR_CX_GAP 5
+#define SCRBOOT_ACTUATOR_CX ((320-((SCRBOOT_ACTUATOR_COUNT-1)*SCRBOOT_ACTUATOR_CX_GAP))/SCRBOOT_ACTUATOR_COUNT)
 
 #define D4D_DECLARE_ACTUATOR(idx)\
      _D4D_DECLARE_ACTUATOR(scrDeviceTest_actuator##idx, idx, (idx*(SCRBOOT_ACTUATOR_CX+SCRBOOT_ACTUATOR_CX_GAP)), 190, SCRBOOT_ACTUATOR_CX, 50, FONT_ARIAL7, FONT_ARIAL7_BIG)
@@ -122,6 +122,9 @@ D4D_DECLARE_ACTUATOR(0);
 D4D_DECLARE_ACTUATOR(1);
 D4D_DECLARE_ACTUATOR(2);
 D4D_DECLARE_ACTUATOR(3);
+#if MAX_ACTUATOR_COUNT > 4
+D4D_DECLARE_ACTUATOR(4);
+#endif
 
 #define SCRBOOT_DEVICES_Y 65
 #define SCRBOOT_DEVICES_CX 104
@@ -146,6 +149,9 @@ D4D_DECLARE_STD_SCREEN_BEGIN(screen_devicetest, ScreenDeviceTest_)
 	D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator1)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator2)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator3)
+#if MAX_ACTUATOR_COUNT > 4
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator4)
+#endif
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices00)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices01)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices10)
@@ -161,7 +167,11 @@ D4D_DECLARE_SCREEN_END()
 
 uint8_t ActuatorCount()
 {
-    return shieldIsV2() ? 4 : 3;
+#if MAX_ACTUATOR_COUNT <= 4
+    return shieldIsV1() ? 3 : 4;
+#else
+    return 5;
+#endif
 }
 
 void ScreenDeviceTest_OnInit()
@@ -176,6 +186,8 @@ void ScreenDeviceTest_OnInit()
     SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator1, D4D_FALSE, 1);
     SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator2, D4D_FALSE, 2);
     SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator3, D4D_FALSE, 3);
-
-
+#if MAX_ACTUATOR_COUNT > 4
+    actuator_views_state[4] = D4D_TRUE;
+    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator4, D4D_FALSE, 4);
+#endif
 }

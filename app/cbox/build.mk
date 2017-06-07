@@ -2,14 +2,12 @@ here_files = $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/$1/$2))
 
 
 INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox
-INCLUDE_DIRS += $(SOURCE_PATH)/lib/inc
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/wiring
-#INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Adafruit_ILI9341
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Adafruit_mfGFX
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/BrewPiTouch
-#INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/DS2408
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/DS2413
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Display
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/EEPROM
@@ -22,6 +20,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Ticks
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/ValvesController
 
 INCLUDE_DIRS += $(SOURCE_PATH)/controlbox/src/lib
+INCLUDE_DIRS += $(SOURCE_PATH)/lib/inc
 INCLUDE_DIRS += $(SOURCE_PATH)/app/fallback
 INCLUDE_DIRS += $(SOURCE_PATH)/app
 
@@ -33,7 +32,8 @@ CPPSRC += $(call target_files,app/cbox,*.cpp)
 
 CPPSRC += $(call target_files,controlbox/src/lib,*.cpp)
 
-
+CSRC += $(call target_files,lib/src,*.c)
+CPPSRC += $(call target_files,lib/src,*.cpp)
 
 #CSRC += $(call target_files,app/devices,*.c)
 #CPPSRC += $(call target_files,app/devices,*.cpp)
@@ -43,6 +43,9 @@ CPPSRC += $(call target_files,platform/wiring/,*.cpp)
 
 CSRC += $(call here_files,platform/spark/modules,*.c)
 CPPSRC += $(call here_files,platform/spark/modules,*.cpp)
+
+CPPSRC += $(call here_files,platform/spark/modules/OneWire,*.cpp)
+
 
 CPPSRC += $(call here_files,platform/spark/modules/EEPROM,*.cpp)
 

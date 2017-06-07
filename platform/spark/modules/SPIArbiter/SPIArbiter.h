@@ -30,9 +30,11 @@ template <class T>
 class GuardedResource {
 public:
 
+#if PLATFORM_THREADING
     inline os_mutex_recursive_t _get_mutex() {
         return (static_cast<T*>(this))->get_mutex();
     }
+#endif
 
     inline bool try_lock()
     {
@@ -83,17 +85,24 @@ class SPIArbiter : private SPIConfiguration, public GuardedResource<SPIArbiter>
 {
     SPIConfiguration* current_;
     SPIClass& spi_;
+#if PLATFORM_THREADING
     os_mutex_recursive_t mutex_;
-
+#endif
     void unapply();
     void apply(SPIConfiguration& client);
-    os_mutex_recursive_t get_mutex() { return mutex_; }
 
+#if PLATFORM_THREADING
+    os_mutex_recursive_t get_mutex() { return mutex_; }
+#endif
     friend class GuardedResource<SPIArbiter>;
 
 public:
 
-    SPIArbiter(SPIClass& spi) : current_(nullptr), spi_(spi), mutex_(nullptr) {
+    SPIArbiter(SPIClass& spi) : current_(nullptr), spi_(spi)
+#if PLATFORM_THREADING
+, mutex_(nullptr)
+#endif
+	{
 #if PLATFORM_THREADING
         os_mutex_recursive_create(&mutex_);
 #endif

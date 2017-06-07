@@ -33,11 +33,15 @@ class ActuatorPin final: public ActuatorDigital, public ActuatorPinMixin
 
     public:
         ActuatorPin(uint8_t pin,
-                           bool    invert);
+                    bool    invert);
 
         ~ActuatorPin() = default;
 
-        void setActive(bool active) override final
+        void accept(VisitorBase & v) final {
+        	v.visit(*this);
+        }
+
+        void setActive(bool active, int8_t priority = 127) override final
         {
             digitalWrite(pin, (active ^ invert) ? HIGH : LOW);
         }

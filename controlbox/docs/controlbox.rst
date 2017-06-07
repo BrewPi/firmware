@@ -6,7 +6,7 @@ Some key goals of the controller:
 * flexible configuration of various types of controller entities - sensors, actuators, controllers, etc..
 * flexible configuration of non-controller elements - input/output devices such as encoders, displays etc.
 * dynamic discovery of connected devices (I2C/Onewire)
-* small footprint
+* small program size and runtime memory use
 
 
 High-Level View
@@ -37,6 +37,9 @@ In practice, the comms interface will take these forms:
 * spark core (wired): virtual Serial data at 57600 baud over the USB port
 * spark core (wireless): TCP server running on the spark core
 * desktop simulator: stdin/stdout to process
+
+The comms interface may optionally use chunking of message (e.g. a newline after each message), although
+this isn't stricly necessary as each message has a predictable length.
 
 
 Objects
@@ -248,7 +251,6 @@ the end.
 Both of these take more space when the length of the ID chain is less than 8.
 
 
-
 Read Value Command
 ^^^^^^^^^^^^^^^^^^
 A read command can request multiple values at once. The last id is followed by newline, like in all other commands.
@@ -266,12 +268,13 @@ Command response::
     id          variable length ID
     type-id		the type-id of the object being read. 0 if not known.
     expectedsize        the size of the data block expected
+    real-type-id        the actual type of the object, or <0 if the type doesn't exist, or the object doesn't exist
     actualsize          length of the next data block. Will be 0 for if id does not identify a valid readable value, or
         the expected size was non-zero and not equal to the actual data block size.
     data[size]  the value
 
 If the type-id doesn't match the actual object type-id, or no object exists at the
-given id location, a reponse length of 0 is given. 
+given id location, actualsize 0 is given.
 
 
 Write Value Command
@@ -290,10 +293,10 @@ Command response::
 
     02          write value command id
     id          object requested to write to
-    type			the type of the object being written to. Can be 0 if unknown
-    size        requested size of data to write
+    type		the type of the object being written to. Can be 0 if unknown
+    size        requested size of data to write, 0 if unknown
     data[size]  requested data to write
-    type			the actual type of the object. Will be 0 if the object doesn't exist. 
+    type		the actual type of the object. Will be 0 if the object doesn't exist.
     size        actual data size
     data[size]  actual data
 
@@ -361,7 +364,7 @@ Command response::
 
     0x04    delete object command id
     id+     variable length id chain that specifies the id of the object to delete
-    status  zero or greater on success indicating the object was successfully deleted.
+    status  the type id of the object (0 or greater) on success indicating the object was successfully deleted.
             A negative value on error. (These values may later be defined error codes.)
 
 
@@ -378,12 +381,15 @@ Command request::
 Command response::
 
     0x05    list profile command id
+    profile_id	the profile requested
+    status		status code
     repeat
         0x03    create object command id
         id+     variable length id chain
-        type		the object type
+        type	the object type
         len     length of object params
         [len]   object params
+    0x00			list terminator
 
 (Note that the repeated part of the response is the same data passed to the Create Object command.)
 
@@ -466,7 +472,7 @@ Command Request::
     0x0A    log values command id
     flags   0x01 - when set, restrict values to the following id, otherwise log all values in the specified root
             0x02 - when set, use the system root container, otherwise use the current profile root. 
-    [id*]   optional id chain to restrict
+    [id*]   optional id chain to restrict when bit 0 set in flags
 
 Command Response::
 
@@ -474,12 +480,13 @@ Command Response::
     flags   from request
     [id*]   optional id from request
     status	0 on success, <0 on error. 
-    repeat
+    repeat		(only if status is success)
     	    0x01		indicates a new object value
         id      variable length ID chain
         type-id	the type of the object
         size    length of the next datablock. Will be 0 for if id does not identify a valid readable value.
         data[size]  the value
+    0x00	 	end of list
 
 The response data is the same as the read values command.
 
@@ -497,7 +504,7 @@ Command request::
 Response::
     0x0B    reset command
     flags
-    0x00    confirmation of command execution.
+    0x00    confirmation of command execution, or <0 if the device cannot reset now.
 
 The eeprom is erased and the response returned before the device is reset.
 
@@ -552,7 +559,7 @@ Command response::
 
     0x0F        read system value command
     id          variable length ID
-	type			expected type
+    type			expected type
     expectedsize        the size of the data block expected
 	type			actual type
     actualsize          length of the next data block. Will be 0 for if id does not identify a valid readable value, or
@@ -570,8 +577,8 @@ Command request::
 
     0x10        write system value command id
     id          object to write to
-    type			the type of the object being written to
-    size        the size of the data to follow
+    type			the type of the object being written to. Can be 00 if not known.
+    size        the size of the data to follow. Can be 00 if not known
     data[size]  the value to write
 
 Command response::
@@ -614,10 +621,9 @@ Command response::
     type			the object type, can be 0 if not known
     size        the number of data and mask byte pairs
     data[size*2]  the value and mask to write. the byte at 2N is applied with mask 2N+1 and then written to the object's
-	type			the actual object type
+	type			the actual object type or <0 on error
     size        actual data size. Will be 0 if the id does not reference a writable value object.
     data[size]  current value of the data written
-
 
 
 Persistence

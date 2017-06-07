@@ -18,7 +18,6 @@
  */
 
 #include "Brewpi.h"
-#include "fixstl.h"
 #include "UI.h"
 #include "Buzzer.h"
 #include "eGuiSettings.h"
@@ -49,12 +48,10 @@ uint8_t UI::init() {
     eGuiSettings.init();
     display.init();
 
-    if (!D4D_Init(NULL))
+    if (!D4D_Init(NULL)){
         return 1;
-
-    D4D_SetOrientation(D4D_ORIENT_LANDSCAPE);
+    }
     #if BREWPI_BUZZER
-	buzzer.init(!shieldIsV2());
 	buzzer.beep(2, 100);
     #endif
 

@@ -199,22 +199,22 @@ void PiLink::init(void){
 
 void PiLink::flushInput(void){
     while (piStream.available() > 0) {
-        char inByte = piStream.read();
+        piStream.read();
     }
 }
 
-// create a printf like interface to the Arduino Serial function. Format string stored in PROGMEM
+// create a printf like interface to the Serial function. Format string stored in PROGMEM
 void PiLink::print_P(const char *fmt, ... ){
     va_list args;
     va_start (args, fmt );
     vsnprintf_P(printfBuff, PRINTF_BUFFER_SIZE, fmt, args);
     va_end (args);
-    if(SERIAL_READY(piStream)){ // if Serial connected (on Leonardo)
+    if(SERIAL_READY(piStream)){ // if Serial connected
         piStream.print(printfBuff);
     }
 }
 
-// create a printf like interface to the Arduino Serial function. Format string stored in RAM
+// create a printf like interface to the Serial function. Format string stored in RAM
 void PiLink::print(char *fmt, ... ){
     va_list args;
     va_start (args, fmt );
@@ -456,10 +456,10 @@ uint8_t state = 0xFF;
 char* beerAnn; char* fridgeAnn;
 
 typedef char* PChar;
-inline bool changed(uint8_t &a, uint8_t b) { uint8_t c = a; a=b; return b!=c; }
-inline bool changed(temp_t &a, temp_t b) { temp_t c = a; a=b; return b!=c; }
-inline bool changed(double &a, double b) { double c = a; a=b; return b!=c; }
-inline bool changed(PChar &a, PChar b) { PChar c = a; a=b; return b!=c; }
+bool changed(uint8_t &a, uint8_t b) { uint8_t c = a; a=b; return b!=c; }
+bool changed(temp_t &a, temp_t b) { temp_t c = a; a=b; return b!=c; }
+bool changed(double &a, double b) { double c = a; a=b; return b!=c; }
+bool changed(PChar &a, PChar b) { PChar c = a; a=b; return b!=c; }
 #else
 #define JSON_BEER_TEMP  "BeerTemp"
 #define JSON_BEER_SET	"BeerSet"
@@ -731,7 +731,7 @@ void PiLink::printJsonName(const char * name)
     piStream.print(':');
 }
 
-inline void PiLink::printJsonSeparator() {
+void PiLink::printJsonSeparator() {
     piStream.print(firstPair ? '{' : ',');
     firstPair = false;
 }
@@ -992,7 +992,5 @@ void PiLink::soundAlarm(bool active)
     buzzer.setActive(active);
 }
 
-
-#ifndef ARDUINO
 void PiLink::print(char c) { piStream.print(c); }
-#endif
+

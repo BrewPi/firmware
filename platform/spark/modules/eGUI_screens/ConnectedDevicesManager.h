@@ -21,16 +21,16 @@
 
 #include "EepromManager.h"		// for clear()
 #include "DeviceManager.h"
-#include "TempSensorBasic.h"
+#include "TempSensor.h"
 #include "ActuatorInterfaces.h"
 #include "Sensor.h"
 #include "PiLink.h"
 #include "Board.h"
-#include "fixstl.h"
 #include "ActuatorPin.h"
 #include "temperatureFormats.h"
 #include <functional>
 #include "OneWireAddress.h"
+#include "RefTo.h"
 
 #define MAX_TEMP_SENSORS
 
@@ -66,12 +66,7 @@ struct ConnectedDevice
         }
     } value;
 
-    union Device {
-        void* any;
-        TempSensorBasic* tempSensor;    // dt==DEVICETYPE_TEMP_SENSOR
-        Actuator* actuator;             // dt==DEVICETYPE_ACTUATOR
-        SwitchSensor* sensor;           // dt==DEVICETYPE_SWITCH_SENSOR
-    } pointer;
+    Interface * pointer;
 };
 
 char * valueAsText(const ConnectedDevice* device, char* buf, size_t len);
@@ -110,7 +105,7 @@ class ConnectedDevicesManager
             if (config->deviceHardware==device.dh) {        // same hardware type
                 if (device.connection.type==DEVICE_CONNECTION_ONEWIRE &&
                     !memcmp(device.connection.address, config->hw.address, 8) &&
-                    (!active || (device.pointer.any && device.lastSeen >= 0 && device.lastSeen <= 2)))
+                    (!active || (device.pointer && device.lastSeen >= 0 && device.lastSeen <= 2)))
                 {
                 slot = i;
                 break;
@@ -127,7 +122,7 @@ class ConnectedDevicesManager
         int slot = -1;
         for (int i = 0; i < MAX_CONNECTED_DEVICES; i++) {
             ConnectedDevice& device = devices[i];
-            if (!device.pointer.any || device.lastSeen > 2) {
+            if (!device.pointer || device.lastSeen > 2) {
                 slot = i;
                 break;
             }
@@ -137,10 +132,10 @@ class ConnectedDevicesManager
 
     void clearSlot(int slot) {
         ConnectedDevice& connectedDevice = devices[slot];
-        DeviceManager::disposeDevice(connectedDevice.dt, connectedDevice.pointer.any);
-        if (connectedDevice.pointer.any)
+        delete connectedDevice.pointer;
+        if (connectedDevice.pointer)
             connectedDevice.lastSeen = 0; // flag to send the REMOVED event
-        connectedDevice.pointer.any = NULL;
+        connectedDevice.pointer = nullptr;
     }
 
     static void deviceCallback(DeviceConfig* config, DeviceCallbackInfo* info) {
@@ -151,7 +146,7 @@ class ConnectedDevicesManager
     void handleDevice(DeviceConfig* config, DeviceCallbackInfo* info);
 
     void sendRemoveEvent(int i) {
-        if (!devices[i].pointer.any && devices[i].lastSeen != -1) {
+        if (!devices[i].pointer && devices[i].lastSeen != -1) {
             devices[i].lastSeen = -1;
             changed(this, i, devices + i, REMOVED);
         }
@@ -166,10 +161,13 @@ public:
         }
 
         // todo - pull the definitions of the static devices from the device manager.
-        actuators[0] = new ActuatorPin(actuatorPin0, BREWPI_INVERT_ACTUATORS);
-        actuators[1] = new ActuatorPin(actuatorPin1, BREWPI_INVERT_ACTUATORS);
-        actuators[2] = new ActuatorPin(actuatorPin2, BREWPI_INVERT_ACTUATORS);
-        actuators[3] = new ActuatorPin(actuatorPin3, BREWPI_INVERT_ACTUATORS);
+        actuators[0] = new ActuatorPin(PIN_ACTUATOR0, BREWPI_INVERT_ACTUATORS);
+        actuators[1] = new ActuatorPin(PIN_ACTUATOR1, BREWPI_INVERT_ACTUATORS);
+        actuators[2] = new ActuatorPin(PIN_ACTUATOR2, BREWPI_INVERT_ACTUATORS);
+        actuators[3] = new ActuatorPin(PIN_ACTUATOR3, BREWPI_INVERT_ACTUATORS);
+#if(MAX_ACTUATOR_COUNT > 4)
+        actuators[4] = new ActuatorPin(PIN_ACTUATOR4, BREWPI_INVERT_ACTUATORS);
+#endif
     }
 
     ~ConnectedDevicesManager() {

@@ -120,7 +120,7 @@ public:
 
     void assertWrite(page_size_t offset, page_size_t count, const uint8_t* write, const uint8_t* read) {
         assertTrue(this->flash->writePage(write, offset, count));
-        std::auto_ptr<uint8_t> _buf(new uint8_t[count]);
+        std::unique_ptr<uint8_t> _buf(new uint8_t[count]);
         uint8_t* buf = _buf.get();
         assertTrue(this->flash->readPage(buf, offset, count));
         for (page_size_t i=0; i<count;i++) {
@@ -130,7 +130,7 @@ public:
 
     void assertEraseWrite(page_size_t offset, page_size_t count, const uint8_t* write) {
         assertTrue(this->flash->writeErasePage(write, offset, count));
-        std::auto_ptr<uint8_t> _buf(new uint8_t[count]);
+        std::unique_ptr<uint8_t> _buf(new uint8_t[count]);
         uint8_t* buf = _buf.get();
         assertTrue(this->flash->readPage(buf, offset, count));
         for (page_size_t i=0; i<count;i++) {

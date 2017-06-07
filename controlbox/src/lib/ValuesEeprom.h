@@ -30,7 +30,7 @@
  * Base class for a read-write value in eeprom. This class is responsible for moving the data
  * between eeprom and the stream.
  */
-class EepromBaseValue : public Value  {
+class EepromBaseValue : public WritableValue  {
 
 protected:
 #if !CONTROLBOX_STATIC
@@ -57,7 +57,7 @@ protected:
 	/**
 	 * Writes masked data to eeprom starting at the given address.
 	 */
-	void _writeMaskedFrom(DataIn& dataIn, DataIn& maskIn, int8_t length,
+	void _writeMaskedFrom(DataIn& dataIn, DataIn& maskIn, uint8_t length,
                                                         eptr_t address) {
 		while (--length>=0) {
 			uint8_t current = eepromAccess.readByte(address);
@@ -97,15 +97,15 @@ public:
 	}
 
 	void readTo(DataOut& out) {
-		_readTo(out, eeprom_offset(), EepromValue::streamSize());
+		_readTo(out, eeprom_offset(), EepromValue::readStreamSize());
 	}
 
 	void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn) {
-		_writeMaskedFrom(dataIn, maskIn, EepromValue::streamSize(), address);
+		_writeMaskedFrom(dataIn, maskIn, EepromValue::writeStreamSize(), address);
 	}
 
 	eptr_t eeprom_offset() { return address; }
-	uint8_t streamSize() { return eepromAccess.readByte(address-1); }
+	uint8_t readStreamSize() { return eepromAccess.readByte(address-1); }
 
 	static Object* create(ObjectDefinition& defn)
 	{

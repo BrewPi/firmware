@@ -48,7 +48,7 @@ struct EepromFormat
 {
 	static const uint16_t MAX_EEPROM_SIZE = 1024;
 	static const uint8_t MAX_CHAMBERS = 1;
-	static const uint8_t MAX_DEVICES = MAX_DEVICE_SLOT;
+	static const uint8_t MAX_DEVICES = NUM_DEVICE_SLOTS;
 
 	uint8_t version;
 	uint8_t numChambers;		// todo - remove this - and increase reserved space.
@@ -57,30 +57,16 @@ struct EepromFormat
 	DeviceConfig devices[MAX_DEVICES];
 };
 
-#ifdef ARDUINO
-// __attribute
-// check at compile time that the structure will fit into eeprom
-void eepromSizeTooLarge()
-__attribute__((error("EEPROM data is > 1024 bytes")));
-
-static inline __attribute__((always_inline))
-void eepromSizeCheck() {
-	if (sizeof(EepromFormat) > EepromFormat::MAX_EEPROM_SIZE) {
-		eepromSizeTooLarge();
-	}
-}
-#else
 static inline __attribute__((always_inline)) void eepromSizeCheck() {
 	static_assert((sizeof(EepromFormat) <= EepromFormat::MAX_EEPROM_SIZE), "EEPROM data is too large.");
 }
-#endif
 
 
 /**  
  * If the eeprom data is not initialized or is not the same version as expected, all chambers go until the valid data is provided. This is done by making the default mode offline. 
  * The external script will either reset the eeprom settings or manage the upgrade between versions. 
  * Note that this is typically only necessary after flashing new firmware, which is usually watched by an operator.
- * If the arduino restarts after a power failure, the settings will have been upgraded
+ * If the controller restarts after a power failure, the settings will have been upgraded
  * and operation can continue from the saved settings.
  */
 

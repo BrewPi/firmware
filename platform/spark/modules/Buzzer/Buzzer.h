@@ -19,25 +19,14 @@
 
 #pragma once
 
-#include "Brewpi.h"
-#include "ActuatorPin.h"
+#include "Board.h"
 
 #if BREWPI_BUZZER
 
 class Buzzer{
 public:
-    Buzzer() {
-        pin = nullptr;
-    }
-
-    ~Buzzer() {
-        if(pin != nullptr){
-            delete pin;
-        }
-    }
-
-    void init(bool invert);
-
+    Buzzer() = default;
+    ~Buzzer() = default;
 
     /**
      * Performs a number of beeps synchronously.
@@ -47,9 +36,6 @@ public:
     void beep(uint8_t numBeeps, uint16_t duration);
 
     void setActive(bool active);
-
-private:
-    ActuatorPin * pin;
 };
 
 extern Buzzer buzzer;

@@ -20,7 +20,6 @@
 #include "ControllerScreenViews.h"
 #include "TempControl.h"
 #include "controller_screen.h"
-#include "fixstl.h"
 #include <algorithm>
 
 bool set_background_color(const D4D_OBJECT* pThis, D4D_COLOR bg)

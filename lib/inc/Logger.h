@@ -20,6 +20,7 @@
 #pragma once
 
 #include <stdarg.h>
+#include <stdint.h>
 #include "temperatureFormats.h"
 #include "LogMessages.h"
 
@@ -55,7 +56,7 @@
 
 
 // define error id variable type to make it easy to bump to uint16 when needed
-#define LOG_ID_TYPE uint8_t
+typedef uint8_t LOG_ID_TYPE;
 
 class Logger{
 	public:
@@ -120,30 +121,30 @@ extern Logger logger;
 #endif
 
 #if BREWPI_LOG_INFO
-		inline void logInfo(uint8_t debugId){
-			logger.logMessageVaArg('I', debugId, "");
-		}
-		inline void logInfoInt(uint8_t debugId, int val){
-			logger.logMessageVaArg('I', debugId, "d", val);
-		}
-		inline void logInfoString(uint8_t debugId, const char * val){
-			logger.logMessageVaArg('I', debugId, "s", val);
-		}
-		inline void logInfoTemp(uint8_t debugId, temp_t * temp){
-			logger.logMessageVaArg('I', debugId, "t", temp);
-		}
-		inline void logInfoIntString(uint8_t debugId, int val1, const char * val2){
-			logger.logMessageVaArg('I', debugId, "ds", val1, val2);
-		}
-		inline void logInfoStringString(uint8_t debugId, const char * val1, const char * val2){
-			logger.logMessageVaArg('I', debugId, "ss", val1, val2);
-		}
-		inline void logInfoIntStringTemp(uint8_t debugId, int val1, const char * val2, temp_t * val3){
-			logger.logMessageVaArg('I', debugId, "dst", val1, val2, val3);
-		}
-		inline void logInfoTempTempFixedFixed(uint8_t debugId, temp_t * t1, temp_t * t2, temp_t * f1, temp_t * f2){
-			logger.logMessageVaArg('I', debugId, "ttff", t1, t2, f1, f2);
-		}
+    inline void logInfo(uint8_t debugId){
+        logger.logMessageVaArg('I', debugId, "");
+    }
+    inline void logInfoInt(uint8_t debugId, int val){
+        logger.logMessageVaArg('I', debugId, "d", val);
+    }
+    inline void logInfoString(uint8_t debugId, const char * val){
+        logger.logMessageVaArg('I', debugId, "s", val);
+    }
+    inline void logInfoTemp(uint8_t debugId, temp_t * temp){
+        logger.logMessageVaArg('I', debugId, "t", temp);
+    }
+    inline void logInfoIntString(uint8_t debugId, int val1, const char * val2){
+        logger.logMessageVaArg('I', debugId, "ds", val1, val2);
+    }
+    inline void logInfoStringString(uint8_t debugId, const char * val1, const char * val2){
+        logger.logMessageVaArg('I', debugId, "ss", val1, val2);
+    }
+    inline void logInfoIntStringTemp(uint8_t debugId, int val1, const char * val2, temp_t * val3){
+        logger.logMessageVaArg('I', debugId, "dst", val1, val2, val3);
+    }
+    inline void logInfoTempTempFixedFixed(uint8_t debugId, temp_t * t1, temp_t * t2, temp_t * f1, temp_t * f2){
+        logger.logMessageVaArg('I', debugId, "ttff", t1, t2, f1, f2);
+    }
 #else
 	#define logInfo(debugId) {}
 	#define logInfoInt(debugId, val) {}

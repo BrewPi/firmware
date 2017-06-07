@@ -14,7 +14,7 @@ A digital actuator is simply ON or OFF. ActuatorDigital adds the these two funct
     virtual void setActive(bool active) = 0;
     virtual bool isActive() const = 0;
 
-### ActuatorRange
+### ActuatorAnalog
 A range actuator accepts a ranged value. Examples are PWM actuators that can be partially ON (0-100%), or SetPoint actuators that manipulate a temperature set point. The value of the actuator is a fixed point temp_t value.
 Next to the set/get value, the interface also has a readValue() function. This function reads the actually achieved value, instead of the set value. This could be the average PWM duty cycle or a measured temperature difference (instead of a setpoint difference).
 

@@ -16,6 +16,7 @@ function makeapp()
 {
 	makeit PLATFORM=core $*
 	makeit PLATFORM=photon $*
+	makeit PLATFORM=P1 $*
 }
 
 pwd

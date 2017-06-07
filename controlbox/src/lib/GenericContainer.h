@@ -26,7 +26,7 @@
 
 typedef void (*ObjectHandler)(Object*, void* data);
 
-inline void do_update(Object* o, void* data) {
+inline void do_update(Object* o, void* /*data*/) {
 	o->update();
 }
 
@@ -53,12 +53,12 @@ class DynamicContainer: public OpenContainer
 			_items[id] = item;
 		}
 
-		bool expand(uint8_t sz);
+		bool expand(unsigned sz);
 
 	public:
-            static Object* create(ObjectDefinition& def) { return new DynamicContainer(); }
+		static Object* create(ObjectDefinition& /*def*/) { return new DynamicContainer(); }
 
-                void iterate_objects(void* data, ObjectHandler handler) {
+		void iterate_objects(void* data, ObjectHandler handler) {
 			for (container_id i=0; i<_size(); i++) {
 				// using the function to access the item is requires 10 bytes less space than
 				// directly using _items[i]
@@ -133,7 +133,7 @@ template<int SIZE> class StaticTemplateContainer : public OpenContainer
 		Object* _items[SIZE];	// the items in this container.
 
 		container_id freeSlot() {
-			for (int i=0; i<SIZE;i++)
+			for (container_id i=0; i<SIZE;i++)
 				if (!_items[i])
 					return i;
 			return -1;
@@ -147,14 +147,14 @@ template<int SIZE> class StaticTemplateContainer : public OpenContainer
 	public:
 		prepare_t prepare() {
 			prepare_t time = 0;
-			for (int i=0; i<size(); i++ ) {
+			for (container_id i=0; i<size(); i++ ) {
 				prepare(item(i), time);
 			}
 			return time;
 		}
 
 		virtual void update() {
-			for (int i=0; i<size(); i++ ) {
+			for (container_id i=0; i<size(); i++ ) {
 				Object* o = item(i);
 				if (o)
 				o->update();
@@ -212,7 +212,7 @@ class FixedContainer : public OpenContainer
 		Object** _items;
 
 		container_id freeSlot() {
-			for (int i=0; i<size();i++)
+			for (container_id i=0; i<size();i++)
 				if (!_items[i])
 					return i;
 			return -1;
@@ -242,14 +242,14 @@ class FixedContainer : public OpenContainer
 
 		prepare_t prepare() {
 			prepare_t time = 0;
-			for (int i=0; i<size(); i++ ) {
+			for (container_id i=0; i<size(); i++ ) {
 				prepare(item(i), time);
 			}
 			return time;
 		}
 
 		virtual void update() {
-			for (int i=0; i<size(); i++ ) {
+			for (container_id i=0; i<size(); i++ ) {
 				Object* o = item(i);
 				if (o)
 				o->update();

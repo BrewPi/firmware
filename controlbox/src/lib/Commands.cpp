@@ -33,21 +33,37 @@ void Commands::noopCommandHandler(DataIn& _in, DataOut& out)
 	while (_in.hasNext()) { _in.next(); }
 }
 
-bool checkType(uint8_t typeID, Value* value) {
+bool checkType(uint8_t& typeID, Value* value) {
 	return !typeID || value->typeID()==typeID;
 }
 
 void readValue(Object* root, DataIn& in, DataOut& out) {
 	Object* o = lookupObject(root, in);		// read the object and pipe read data to output
 	uint8_t typeID = in.next();
-	uint8_t available = in.next();		// number of bytes expected
+	uint8_t available = in.next();			// number of bytes expected
+	int8_t code = 0;
+	uint8_t expectedSize;
 	Value* v = (Value*)o;
-	if (isValue(o) && (available==v->streamSize() || available==0) && checkType(typeID, v)) {
-		out.write(v->streamSize());
-		v->readTo(out);
+
+	if (!o) {
+		code = errorCode(invalid_id);
 	}
-	else {								// not a readable object, flag as 0 length
-		out.write(0);
+	else if (!isValue(o)) {
+		code = errorCode(object_not_readable);
+	}
+	else if (!((expectedSize=v->readStreamSize())==available || available==0)) {
+		code = errorCode(invalid_size);
+	}
+	else if (!checkType(typeID, v)) {
+		code = errorCode(invalid_type);
+	}
+
+	if (code) {
+		out.write(uint8_t(code));
+	} else {
+		out.write(v->typeID());
+		out.write(expectedSize);
+		v->readTo(out);
 	}
 }
 
@@ -68,19 +84,32 @@ void Commands::readSystemValueCommandHandler(DataIn& in, DataOut& out) {
  */
 void setValue(Object* root, DataIn& in, DataIn& mask, DataOut& out) {
 	Object* o = lookupObject(root, in);		// fetch the id and the object
-	Value* v = (Value*)o;
+	WritableValue* v = (WritableValue*)o;
 	uint8_t typeID = in.next();
 	uint8_t available = in.next();
-	if (isWritable(o) && (v->streamSize()==available) && checkType(typeID, v)) {		// if it's writable and the correct number of bytes were parsed.
-		v->writeMaskedFrom(in, mask);									// assign from stream
-		out.write(v->streamSize());							// now write out actual value
-		v->readTo(out);
+	uint8_t expected;
+	int8_t code = 0;
+	if (!o) {
+		code = errorCode(invalid_id);
 	}
-	else {													// either not writable or invalid size
-		while (available-->0) {								// consume rest of stream for this command
-			in.next();
-		}
-		out.write(0);										// write 0 bytes (indicates failure)
+	else if (!isWritable(o)) {
+		code = errorCode(object_not_writable);
+	}
+	else if (!((expected=v->writeStreamSize())==available || expected==0)) {
+		code = errorCode(invalid_size);
+	}
+	else if (!checkType(typeID, v)) {
+		code = errorCode(invalid_type);
+	}
+
+	if (code) {
+		out.write(uint8_t(code));										// write 0 bytes (indicates failure)
+	}
+	else {
+		v->writeMaskedFrom(in, mask);									// assign from stream
+		out.write(v->typeID());
+		out.write(v->readStreamSize());							// now write out actual value
+		v->readTo(out);
 	}
 }
 
@@ -112,10 +141,33 @@ Object* nullFactory(ObjectDefinition& def) {
     return NULL;
 }
 
-enum RehydrateErrors {
-	rehydrateNoError = 0,
-	rehydrateFail = -1			// descriptive :)
-};
+int8_t checkOpenContainer(Object* obj, OpenContainer*& container, int8_t lastID=0) {
+	int8_t error = no_error;
+	if (!obj || lastID<0) {
+		error = errorCode(invalid_id);
+	}
+	else if (!isContainer(obj)) {
+		error = errorCode(object_not_container);
+	}
+	else if (!isOpenContainer(obj)) {
+		error = errorCode(object_not_open_container);
+	}
+	else {
+		container = reinterpret_cast<OpenContainer*>(obj);
+	}
+	return error;
+}
+
+int8_t lookupUserOpenContainer(Container* root, DataIn& in, OpenContainer*& container) {
+	Object* obj = lookupObject(root, in);			// find the container where the object will be added
+	return checkOpenContainer(obj, container);
+}
+
+int8_t lookupUserOpenContainer(Container* root, DataIn& in, int8_t& lastID, OpenContainer*& container) {
+	Object* obj = lookupObject(root, in, lastID);			// find the container where the object will be added
+	return checkOpenContainer(obj, container, lastID);
+}
+
 
 /**
  * Rehydrate an object from a definition.
@@ -125,30 +177,39 @@ enum RehydrateErrors {
  * the definition block.
  * @return 0 on success, an error code on failure.
  */
-uint8_t Commands::rehydrateObject(eptr_t offset, PipeDataIn& in, bool dryRun)
+int8_t Commands::rehydrateObject(eptr_t offset, PipeDataIn& in, bool dryRun)
 {
 	container_id lastID;
-	OpenContainer* target = lookupUserOpenContainer(systemProfile.rootContainer(), in, lastID);			// find the container where the object will be added
+	OpenContainer* container;
+	int8_t error = lookupUserOpenContainer(systemProfile.rootContainer(), in, lastID, container);			// find the container where the object will be added
+	if (!in.pipeOk()) {
+		error = errorCode(stream_error);
+	}
 
-	Object* newObject = createObject(in, dryRun);			// read the type and create args
+	Object* newObject = nullptr;
+	if (!error) {
+		OpenContainer* target = (OpenContainer*)container;
+		error = createObject(newObject, in, dryRun);			// read the type and create args
 
-	uint8_t error = rehydrateFail;
-	if (in.pipeOk() && lastID>=0 && newObject && target && target->add(lastID,newObject)) {		// if the lastID >=0 then it was fetched from a container
+		if (!error && !target->add(lastID,newObject)) {
+			error = errorCode(insufficient_heap);
+		}
+	}
+
+	if (!error) {
         // skip object create command, type and id.
         offset++; // skip creation id
         while (int8_t(eepromAccess.readByte(offset++))<0) {}	// skip contianer
 		offset+=2;												// skip object type and length
         newObject->rehydrated(offset);
-        error = rehydrateNoError;
     }
-
-	if (error) {
+	else {
 		delete_object(newObject);
 	}
 	return error;
 }
 
-Object* Commands::createObject(DataIn& in, bool dryRun)
+int8_t Commands::createObject(Object*& newObject, DataIn& in, bool dryRun)
 {
 	uint8_t type = in.next();
 	uint8_t len = in.next();
@@ -159,13 +220,18 @@ Object* Commands::createObject(DataIn& in, bool dryRun)
 #endif
 			&region, len, type
 	};
-	Object* newObject = createApplicationObject(def, dryRun);			// read the type and create args
-	if (isValue(newObject)) {
-		Value* value = reinterpret_cast<Value*>(newObject);
-		value->setTypeID(type);
+	newObject = nullptr;
+	int8_t error = createApplicationObject(newObject, def, dryRun);			// read the type and create args
+	if (!error) {
+		if (newObject) {
+			newObject->setTypeID(type);
+		}
+		else {
+			error = errorCode(insufficient_heap);
+		}
 	}
 	def.spool();			// ensure stream is read fully
-	return newObject;
+	return error;
 }
 
 /**
@@ -186,12 +252,12 @@ void Commands::createObjectCommandHandler(DataIn& _in, DataOut& out)
 	eptr_t offset = writer.offset();          // save current eeprom pointer - this is where the object definition is written.
 	// write the command id placeholder to eeprom (since that's already been consumed)
 	writer.write(CMD_INVALID);			// value for partial write, will go a back when successfully completed and write this again
-	uint8_t error_code = rehydrateObject(offset, in, false);
+	int8_t error_code = rehydrateObject(offset, in, false);
 	if (!error_code) {
 		eepromAccess.writeByte(offset, CMD_CREATE_OBJECT);	// finalize creation in eeprom
 	}
 	systemProfile.setOpenProfileEnd(writer.offset());	// save end of open profile
-	out.write(error_code);						// status is index it was created at
+	out.write(uint8_t(error_code));						// status is index it was created at
 }
 
 /**
@@ -225,13 +291,18 @@ void Commands::removeEepromCreateCommand(BufferDataOut& id) {
 	}
 }
 
-uint8_t Commands::deleteObject(DataIn& id) {
-	int8_t lastID;
-	uint8_t error = -1;
-	OpenContainer* obj = lookupUserOpenContainer(systemProfile.rootContainer(), id, lastID);	// find the container and the ID in the chain to remove
-	if (obj && lastID>=0 && lastID<obj->size()) {
-		obj->remove(lastID);
-		error = 0;
+int8_t Commands::deleteObject(DataIn& id) {
+	int8_t lastID = 0;
+	OpenContainer* container = nullptr;
+	int8_t error = lookupUserOpenContainer(systemProfile.rootContainer(), id, lastID, container);	// find the container and the ID in the chain to remove
+	if (!error && lastID>=container->size()) {
+		error = errorCode(invalid_id);
+	}
+
+	if (!error) {
+		Object* target = container->item(lastID);
+		error = target ? int8_t(target->typeID()) : 0;
+		container->remove(lastID);
 	}
 	return error;
 }
@@ -245,10 +316,10 @@ void Commands::deleteObjectCommandHandler(DataIn& in, DataOut& out)
 	uint8_t buf[MAX_CONTAINER_DEPTH+1];
 	BufferDataOut idCapture(buf, MAX_CONTAINER_DEPTH+1);	// buffer to capture id
 	PipeDataIn idPipe(in, idCapture);						// capture read id
-	uint8_t error = deleteObject(idPipe);
-	if (!error)
+	int8_t error = deleteObject(idPipe);
+	if (error>=0)
 		removeEepromCreateCommand(idCapture);
-	out.write(error);
+	out.write(uint8_t(error));
 }
 
 /**
@@ -256,41 +327,59 @@ void Commands::deleteObjectCommandHandler(DataIn& in, DataOut& out)
  */
 void Commands::listObjectsCommandHandler(DataIn& _in, DataOut& out)
 {
-	profile_id_t profile = _in.next();
+	// todo - perhaps profile ID -1 could mean list the system container
+    // todo - how to flag an invalid profile (currently no results)
+	profile_id_t profile = profile_id_t(_in.next());
+	out.write(0)	;	// status. TODO: check that the profile ID is valid
 	systemProfile.listEepromInstructionsTo(profile, out);
+	out.write(0);	// list terminator
 }
 
-void fetchNextSlot(Object* obj, DataIn& in, DataOut& out)
+
+container_id fetchNextSlot(OpenContainer* container)
 {
-	container_id slot = -1;
-	if (isOpenContainer(obj)) {
-		OpenContainer* container = (OpenContainer*)obj;
-		slot = container->next();
+	container_id slot = container->next();
+	if (slot==-1) {  // generic error
+		slot = errorCode(container_full);
 	}
-	out.write(slot);
+	return slot;
+}
+
+
+void freeSlot(Container* root, DataIn& in, DataOut& out) {
+	int8_t status;
+	if (!root) {
+		status = errorCode(profile_not_active);
+	}
+	else {
+		OpenContainer* container = nullptr;
+		status = lookupUserOpenContainer(root, in, container);
+		if (!status) {
+			status = fetchNextSlot(container);
+		}
+	}
+	out.write(uint8_t(status));
 }
 
 void Commands::freeSlotCommandHandler(DataIn& in, DataOut& out)
 {
-	Object* obj = lookupUserObject(systemProfile.rootContainer(), in);
-	fetchNextSlot(obj, in, out);
+	freeSlot(systemProfile.rootContainer(), in, out);
 }
 
 void Commands::freeSlotRootCommandHandler(DataIn& in, DataOut& out)
 {
-	Object* obj = systemProfile.rootContainer();
-	fetchNextSlot(obj, in, out);
+	freeSlot(systemProfile.rootContainer(), in, out);
 }
 
 void Commands::deleteProfileCommandHandler(DataIn& in, DataOut& out) {
-	uint8_t profile_id = in.next();
-	uint8_t result = systemProfile.deleteProfile(profile_id);
-	out.write(result);
+	profile_id_t profile_id = profile_id_t(in.next());
+	int8_t result = systemProfile.deleteProfile(profile_id);
+	out.write(uint8_t(result));
 }
 
 void Commands::createProfileCommandHandler(DataIn& in, DataOut& out) {
-	uint8_t result = systemProfile.createProfile();
-	out.write(result);
+	int8_t result = systemProfile.createProfile();
+	out.write(uint8_t(result));
 }
 
 /**
@@ -298,7 +387,7 @@ void Commands::createProfileCommandHandler(DataIn& in, DataOut& out) {
  */
 void writeID(const container_id* id, DataOut& out) {
 	do {
-		out.write(*id);
+		out.write(uint8_t(*id));
 	} while (*id++<0);
 }
 
@@ -309,10 +398,10 @@ bool logValuesCallback(Object* o, void* data, const container_id* id, const cont
 	DataOut& out = *(DataOut*)data;
 	if (enter && isLoggedValue(o)) {
 		Value* r = (Value*)o;
-		out.write(1);					// ID of "read command"
+		out.write(uint8_t(1));					// ID of "read command"
 		writeID(id, out);
 		out.write(r->typeID());
-		out.write(r->streamSize());
+		out.write(r->readStreamSize());
 		r->readTo(out);
 	}
 	return false;
@@ -334,37 +423,39 @@ void Commands::logValuesCommandHandler(DataIn& in, DataOut& out) {
 
     Container* root = (flags & LOG_FLAGS_SYSTEM_CONTAINER) ? systemProfile.systemContainer() : systemProfile.rootContainer();
 
-    bool success = false;
+    int8_t error = errorCode(profile_not_active);
     if (root) {
 	    // read the ID into a buffer (also used for iterating the container hierarchy.)
-    container_id ids[MAX_CONTAINER_DEPTH];
+	    container_id ids[MAX_CONTAINER_DEPTH];
 		if (flags & LOG_FLAGS_IDCHAIN)  {
-        uint8_t idx = 0;
-        uint8_t id;
-        do
-        {
-            id = in.next();
-            ids[idx++] = id;
-        }
-        while (id & 0x80);
-        BufferDataIn buffer(ids);
+			uint8_t idx = 0;
+			container_id id;
+			do
+			{
+				id = container_id(in.next());
+				ids[idx++] = id;
+			}
+			while (id & 0x80);
+			BufferDataIn buffer(ids);
 
-		Object* source = lookupUserObject(systemProfile.rootContainer(), buffer);
+			Object* source = lookupUserObject(root, buffer);
 			if (source) {
-				success = true;
+				error = errorCode(no_error);
 				out.write(0);		// success
-        walkObject(source, logValuesCallback, &out, ids, ids+idx);
-	}
+				walkObject(source, logValuesCallback, &out, ids, ids+idx);
+				out.write(0);		// list terminator
+			}
 		}
-    else {
-			success = true;
+		else {
+			error = errorCode(no_error);
 			out.write(0);
-        walkContainer(systemProfile.rootContainer(), logValuesCallback, &out, ids, ids);
+			walkContainer(root, logValuesCallback, &out, ids, ids);
+			out.write(0);		// list terminator
+		}
+	}
+    if (error<0) {
+    		out.write(uint8_t(error));
     }
-}
-
-    if (!success)
-    		out.write(uint8_t(-1));
 }
 
 void Commands::resetCommandHandler(DataIn& in, DataOut& out) {
@@ -378,9 +469,9 @@ void Commands::resetCommandHandler(DataIn& in, DataOut& out) {
 }
 
 void Commands::activateProfileCommandHandler(DataIn& in, DataOut& out) {
-	profile_id_t id = in.next();
-	bool result = systemProfile.activateProfile(id);
-	out.write(result ? 0 : 0xFF);
+	profile_id_t id = profile_id_t(in.next());
+	bool activated = systemProfile.activateProfile(id);
+	out.write(activated ? 0 : errorCode(invalid_profile));
 }
 
 void Commands::listDefinedProfilesCommandHandler(DataIn& in, DataOut& out)
@@ -409,6 +500,11 @@ CommandHandler Commands::handlers[] = {
 	&Commands::setMaskValueCommandHandler,		// 0x11
 	&Commands::setSystemMaskValueCommandHandler // 0x12
 };
+
+// todo - there are pairs of commands that affect system or user objects
+// would be good if these differed only by 1-bit.
+// todo - a way to list the objects in the system profile
+
 
 /*
  * Processes the command request from a data stream.
