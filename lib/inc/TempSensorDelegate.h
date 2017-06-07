@@ -22,53 +22,40 @@
 #include "temperatureFormats.h"
 #include "TempSensor.h"
 #include "defaultDevices.h"
+#include "Delegate.h"
 #include "ControllerMixins.h"
 #include "RefTo.h"
 
-class TempSensorDelegate final : public TempSensor, public TempSensorDelegateMixin {
+class TempSensorDelegate final :
+    public TempSensor,
+    public Delegate<TempSensor>,
+    public TempSensorDelegateMixin {
 public:
     TempSensorDelegate(){}
-    TempSensorDelegate(std::function<Interface * ()> lookup) {
-        sensor.setLookup(lookup);
-    }
+    TempSensorDelegate(std::function<Interface * ()> lookup) : Delegate<TempSensor>(lookup){}
 
-    ~TempSensorDelegate() {
-    }
-
-    void setLookup(std::function<Interface* ()> lookup) {
-        sensor.setLookup(lookup);
-    }
-
-    void unsetLookup(){
-        setLookup(nullptr);
-    }
-
-    std::function<Interface * ()> getLookup() {
-        return sensor.getLookup();
-    }
+    ~TempSensorDelegate() = default;
 
     void accept(VisitorBase & v) final {
     	v.visit(*this);
     }
 
     void update() final {
-        sensor().update();
+        delegate().update();
     }
 
     bool isConnected(void) const final {
-        return sensor().isConnected();
+        return delegate().isConnected();
     }
 
     bool init() final {
-        return sensor().init();
+        return delegate().init();
     }
 
     temp_t read() const final {
-        return sensor().read();
+        return delegate().read();
     }
 
-private:
-    RefTo<TempSensor> sensor;
     friend class TempSensorDelegateMixin;
 };
 

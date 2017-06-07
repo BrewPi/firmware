@@ -21,21 +21,19 @@
 
 #include <stdint.h>
 #include "ControllerMixins.h"
-#include "Interface.h"
-#include "RefTo.h"
+#include "Delegate.h"
+#include "ProcessValue.h"
+#include "VisitorBase.h"
 
-
-class ActuatorDigitalDelegate :
-    public ActuatorDigital,
-    public Delegate<ActuatorDigital>,
-    public ActuatorDigitalDelegateMixin
+class ProcessValueDelegate :
+    public ProcessValue,
+    public Delegate<ProcessValue>,
+    public ProcessValueDelegateMixin
 {
 public:
-    ActuatorDigitalDelegate() = default;
-    ActuatorDigitalDelegate(std::function<Interface * ()> lookup) {
-        delegate.setLookup(lookup);
-    }
-    virtual ~ActuatorDigitalDelegate() = default;
+    ProcessValueDelegate() = default;
+    ProcessValueDelegate(std::function<Interface * ()> lookup) : Delegate<ProcessValue>(lookup){}
+    ~ProcessValueDelegate() = default;
 
     void accept(VisitorBase & v) final {
         v.visit(*this);
@@ -49,14 +47,19 @@ public:
         delegate().fastUpdate();
     }
 
-    void setActive(bool active, int8_t priority = 127) final {
-        delegate().setActive(active, priority);
+    // set the setting for the process value
+    void set(temp_t const& setting) override final {
+        delegate().set(setting);
     }
-
-    bool isActive() const final {
-        return delegate().isActive();
+    // get the setting for the process value
+    temp_t setting() const override final {
+        return delegate().setting();
     }
-
-
-friend class ActuatorDigitalDelegateMixin;
+    // read the actual value of the process value
+    temp_t value() const override final {
+        return delegate().value();
+    }
+    
+private:
+    friend class ProcessValueDelegateMixin;
 };

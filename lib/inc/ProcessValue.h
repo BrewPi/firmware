@@ -20,31 +20,28 @@
 #pragma once
 
 #include <stdint.h>
-#include "ControllerMixins.h"
 #include "Interface.h"
-#include "Delegate.h"
+#include "ControllerMixins.h"
 
-class SetPointDelegate :
-    public SetPoint,
-    public Delegate<SetPoint>,
-    public SetPointDelegateMixin
+/*
+ * A process value has a setting and an current value
+ */
+class ProcessValue :
+    public virtual Interface,
+    public virtual ProcessValueMixin
 {
 public:
-    SetPointDelegate() = default;
-    SetPointDelegate(std::function<Interface * ()> lookup) : Delegate<SetPoint>(lookup){}
-    ~SetPointDelegate() = default;
+    ProcessValue() = default;
+    virtual ~ProcessValue() = default;
 
-    void accept(VisitorBase & v) final {
-        v.visit(*this);
-    }
+    // set the setting for the process value
+    virtual void set(temp_t const& setting) = 0;
+    // get the setting for the process value
+    virtual temp_t setting() const = 0;
+    // read the actual value of the process value
+    virtual temp_t value() const = 0;
+    
 
-    temp_t read() const final {
-        return delegate().read();
-    }
-
-    void write(temp_t val) final {
-        delegate().write(val);
-    }
-
-friend class SetPointDelegateMixin;
+private:
+    friend class ProcessValueMixin;
 };

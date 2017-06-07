@@ -34,13 +34,14 @@
 #include "Pid.h"
 #include "OneWireSwitch.h"
 #include "ActuatorTimeLimited.h"
-#include "ActuatorSetPoint.h"
+#include "ActuatorOffset.h"
 #include "OneWireTempSensor.h"
 #include "ValveController.h"
 #include "TempSensorDelegate.h"
 #include "ActuatorDigitalDelegate.h"
-#include "ActuatorAnalogDelegate.h"
 #include "SetPointDelegate.h"
+#include "SensorSetPointPair.h"
+#include "ProcessValueDelegate.h"
 
 #if WIRING
 #include "ActuatorPin.h"
@@ -67,7 +68,7 @@ void VisitorSerialize::visit(ActuatorOneWire& thisRef) {
 void VisitorSerialize::visit(ActuatorPwm& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void VisitorSerialize::visit(ActuatorSetPoint& thisRef) {
+void VisitorSerialize::visit(ActuatorOffset& thisRef) {
     thisRef.serializeImpl(adapter);
 }
 void VisitorSerialize::visit(ActuatorTimeLimited& thisRef) {
@@ -112,10 +113,13 @@ void VisitorSerialize::visit(TempSensorDelegate& thisRef) {
 void VisitorSerialize::visit(ActuatorDigitalDelegate& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void VisitorSerialize::visit(ActuatorAnalogDelegate& thisRef) {
+void VisitorSerialize::visit(ProcessValueDelegate& thisRef) {
     thisRef.serializeImpl(adapter);
 }
 void VisitorSerialize::visit(SetPointDelegate& thisRef) {
+    thisRef.serializeImpl(adapter);
+}
+void VisitorSerialize::visit(SensorSetPointPair& thisRef) {
     thisRef.serializeImpl(adapter);
 }
 

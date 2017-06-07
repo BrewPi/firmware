@@ -30,6 +30,11 @@ protected:
     ~ActuatorThresholdMixin() = default;
 };
 
+class ProcessValueMixin {
+protected:
+    ~ProcessValueMixin() = default;
+};
+
 class TempSensorMixin {
 protected:
     ~TempSensorMixin() = default;
@@ -84,11 +89,11 @@ protected:
     ~ActuatorTimeLimitedMixin() = default;
 };
 
-class ActuatorSetPointMixin {
+class ActuatorOffsetMixin {
 public:
     void serializeImpl(JSON::Adapter& adapter);
 protected:
-    ~ActuatorSetPointMixin() = default;
+    ~ActuatorOffsetMixin() = default;
 };
 
 class ActuatorPwmMixin {
@@ -201,16 +206,24 @@ protected:
     ~ActuatorDigitalDelegateMixin() = default;
 };
 
-class ActuatorAnalogDelegateMixin: public Nameable {
-public:
-    void serializeImpl(JSON::Adapter& adapter);
-protected:
-    ~ActuatorAnalogDelegateMixin() = default;
-};
-
 class SetPointDelegateMixin: public Nameable {
 public:
     void serializeImpl(JSON::Adapter& adapter);
 protected:
     ~SetPointDelegateMixin() = default;
 };
+
+class ProcessValueDelegateMixin: public Nameable {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~ProcessValueDelegateMixin() = default;
+};
+
+class SensorSetPointPairMixin: public Nameable {
+public:
+    void serializeImpl(JSON::Adapter& adapter);
+protected:
+    ~SensorSetPointPairMixin() = default;
+};
+

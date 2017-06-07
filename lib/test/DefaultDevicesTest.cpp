@@ -46,12 +46,11 @@ BOOST_AUTO_TEST_CASE(defaultSetPoint_works_for_all_SetPoint_functions){
 BOOST_AUTO_TEST_CASE(defaultLinearActuator_works_for_all_ActuatorAnalog_functions){
     ActuatorAnalog * act = defaultLinearActuator();
 
-    BOOST_CHECK_EQUAL(act->getValue(), temp_t::invalid());
-    act->setValue(50.0); // should do nothing
-    BOOST_CHECK_EQUAL(act->getValue(), temp_t::invalid());
+    BOOST_CHECK_EQUAL(act->setting(), temp_t::invalid());
+    act->set(50.0); // should do nothing
+    BOOST_CHECK_EQUAL(act->setting(), temp_t::invalid());
 
-    BOOST_CHECK_EQUAL(act->min(), temp_t::invalid());
-    BOOST_CHECK_EQUAL(act->max(), temp_t::invalid());
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

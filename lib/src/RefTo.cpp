@@ -18,9 +18,12 @@
  */
 
 #include "RefTo.h"
+
+#include "../inc/ProcessValue.h"
 #include "ActuatorMocks.h"
 #include "TempSensorDisconnected.h"
 #include "SetPoint.h"
+#include "SensorSetPointPair.h"
 #include "VisitorCast.h"
 
 template<>
@@ -47,6 +50,12 @@ SetPoint * defaultTarget<SetPoint>(){
 }
 
 template<>
+ProcessValue * defaultTarget<ProcessValue>(){
+    static SensorSetPointPair pv(*defaultTarget<TempSensor>(), *defaultTarget<SetPoint>());
+    return &pv;
+}
+
+template<>
 ActuatorMutexGroup * defaultTarget<ActuatorMutexGroup>(){
     return nullptr; // ActuatorMutexDriver checks for nullptr, so this should be safe
 }
@@ -57,5 +66,6 @@ template ActuatorAnalog* asInterface<ActuatorAnalog>(Interface*);
 template TempSensor* asInterface<TempSensor>(Interface*);
 template SetPoint* asInterface<SetPoint>(Interface*);
 template ActuatorMutexGroup* asInterface<ActuatorMutexGroup>(Interface*);
+template ProcessValue* asInterface<ProcessValue>(Interface*);
 
 

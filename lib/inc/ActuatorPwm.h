@@ -37,7 +37,7 @@ class ActuatorPwm final : public ActuatorAnalog, public ActuatorPwmMixin
 {
 private:
     ActuatorDigital & target;
-    temp_t         value;
+    temp_t         dutySetting;
     int32_t        dutyLate;
     int32_t        periodLate;
     int32_t        dutyTime;
@@ -70,13 +70,13 @@ public:
 
     /** Returns minimum value
      */
-    temp_t min() const override final {
+    temp_t min() const {
         return minVal;
     }
 
     /** Returns maximum value
      */
-    temp_t max() const override final {
+    temp_t max() const {
         return maxVal;
     }
 
@@ -86,19 +86,19 @@ public:
      *
      * @return achieved duty cycle in fixed point.
      */
-    temp_t readValue() const override final;
+    temp_t value() const override final;
 
     /** Returns the set duty cycle
      * @return duty cycle setting in fixed point
      */
-    temp_t getValue() const override final {
-        return value;
+    temp_t setting() const override final {
+        return dutySetting;
     }
 
     /** Sets a new duty cycle
      * @param val new duty cycle in fixed point
      */
-    void setValue(temp_t const& val) override final;
+    void set(temp_t const& val) override final;
 
     //** Calculates whether the target should toggle and tries to toggle it if necessary
     /** Each update, the PWM actuator checks whether it should toggle to achieve the set duty cycle.

@@ -31,9 +31,10 @@
 #include "ActuatorTimeLimited.h"
 #include "ActuatorMutexGroup.h"
 #include "json_writer.h"
-#include "ActuatorSetPoint.h"
+#include "ActuatorOffset.h"
 #include "TempSensorDelegate.h"
 #include "ActuatorDigitalDelegate.h"
+#include "SensorSetPointPair.h"
 
 
 
@@ -63,6 +64,9 @@ protected:
     SetPointSimple fridgeSet;
     ActuatorMutexGroup mutex;
 
+    SensorSetPointPair fridge;
+    SensorSetPointPair beer1;
+    SensorSetPointPair beer2;
 
     ActuatorDigitalDelegate coolerToggle;
     ActuatorTimeLimited coolerTimeLimited;
@@ -80,7 +84,7 @@ protected:
     ActuatorPwm heater2Pwm;
     Pid heater2Pid;
 
-    ActuatorSetPoint fridgeSetPointActuator;
+    ActuatorOffset fridgeSetPointActuator;
     Pid beerToFridgePid;
 
 

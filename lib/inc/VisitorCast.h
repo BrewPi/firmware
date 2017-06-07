@@ -31,15 +31,16 @@
 #include "Pid.h"
 #include "OneWireSwitch.h"
 #include "ActuatorTimeLimited.h"
-#include "ActuatorSetPoint.h"
+#include "ActuatorOffset.h"
 #include "OneWireTempSensor.h"
 #include "TempSensorDelegate.h"
 #include "ValveController.h"
 #include "VisitorBase.h"
 #include "TempSensorDelegate.h"
-#include "ActuatorAnalogDelegate.h"
 #include "ActuatorDigitalDelegate.h"
+#include "ProcessValueDelegate.h"
 #include "SetPointDelegate.h"
+#include "SensorSetPointPair.h"
 
 #if WIRING
 #include "ActuatorPin.h"
@@ -58,7 +59,7 @@ public:
     void visit(ActuatorNop& thisRef) final { this->process(thisRef); };
     void visit(ActuatorOneWire& thisRef) final { this->process(thisRef); };
     void visit(ActuatorPwm& thisRef) final { this->process(thisRef); };
-    void visit(ActuatorSetPoint& thisRef) final { this->process(thisRef); };
+    void visit(ActuatorOffset& thisRef) final { this->process(thisRef); };
     void visit(ActuatorTimeLimited& thisRef) final { this->process(thisRef); };
     void visit(ActuatorValue& thisRef) final { this->process(thisRef); };
     void visit(Pid& thisRef) final { this->process(thisRef); };
@@ -73,8 +74,9 @@ public:
     void visit(ValveController& thisRef) final { this->process(thisRef); };
     void visit(TempSensorDelegate& thisRef) final { this->process(thisRef); };
     void visit(ActuatorDigitalDelegate& thisRef) final { this->process(thisRef); };
-    void visit(ActuatorAnalogDelegate& thisRef) final { this->process(thisRef); };
     void visit(SetPointDelegate& thisRef) final { this->process(thisRef); };
+    void visit(ProcessValueDelegate& thisRef) final { this->process(thisRef); };
+    void visit(SensorSetPointPair& thisRef) final { this->process(thisRef); };
 #if WIRING
     void visit(ActuatorPin& thisRef) final { this->process(thisRef); };
 #endif

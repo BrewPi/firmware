@@ -31,7 +31,7 @@ class ActuatorNop;
 class ActuatorOneWire;
 class ActuatorPin;
 class ActuatorPwm;
-class ActuatorSetPoint;
+class ActuatorOffset;
 class ActuatorTimeLimited;
 class ActuatorValue;
 class OneWireTempSensor;
@@ -48,6 +48,8 @@ class TempSensorDelegate;
 class ActuatorDigitalDelegate;
 class ActuatorAnalogDelegate;
 class SetPointDelegate;
+class SensorSetPointPair;
+class ProcessValueDelegate;
 
 class VisitorBase {
 protected:
@@ -61,7 +63,7 @@ public:
 	virtual void visit(ActuatorNop& thisRef) = 0;
 	virtual void visit(ActuatorOneWire& thisRef) = 0;
 	virtual void visit(ActuatorPwm& thisRef) = 0;
-	virtual void visit(ActuatorSetPoint& thisRef) = 0;
+	virtual void visit(ActuatorOffset& thisRef) = 0;
 	virtual void visit(ActuatorTimeLimited& thisRef) = 0;
 	virtual void visit(ActuatorValue& thisRef) = 0;
 	virtual void visit(Pid& thisRef) = 0;
@@ -76,8 +78,9 @@ public:
 	virtual void visit(ValveController& thisRef) = 0;
 	virtual void visit(TempSensorDelegate& thisRef) = 0;
 	virtual void visit(ActuatorDigitalDelegate& thisRef) = 0;
-	virtual void visit(ActuatorAnalogDelegate& thisRef) = 0;
 	virtual void visit(SetPointDelegate& thisRef) = 0;
+	virtual void visit(ProcessValueDelegate& thisRef) = 0;
+	virtual void visit(SensorSetPointPair& thisRef) = 0;
 #if WIRING
 	virtual void visit(ActuatorPin& thisRef) = 0;
 #endif

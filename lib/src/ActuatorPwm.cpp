@@ -6,7 +6,7 @@
 
 ActuatorPwm::ActuatorPwm(ActuatorDigital & _target, uint16_t _period) :
     target(_target),
-    value(0.0),
+    dutySetting(0.0),
     dutyLate(0),
     periodLate(0),
     minVal(0.0),
@@ -24,11 +24,11 @@ ActuatorPwm::ActuatorPwm(ActuatorDigital & _target, uint16_t _period) :
 
 int32_t ActuatorPwm::calculateDutyTime(int32_t expectedPeriod) {
     // shift by 6 makes calculation work for period up to 11 hours
-    int32_t duty = int32_t(temp_long_t(value) << uint8_t(6)) * ((expectedPeriod + 50) / 100) >> 6;
+    int32_t duty = int32_t(temp_long_t(dutySetting) << uint8_t(6)) * ((expectedPeriod + 50) / 100) >> 6;
     return duty;
 }
 
-void ActuatorPwm::setValue(temp_t const& val) {
+void ActuatorPwm::set(temp_t const& val) {
     temp_t val_(val);
     if (val_ <= minVal) {
         val_ = minVal;
@@ -37,14 +37,14 @@ void ActuatorPwm::setValue(temp_t const& val) {
         val_ = maxVal;
     }
 
-    if (value != val_) {
-        value = val_;
+    if (dutySetting != val_) {
+        dutySetting = val_;
         dutyTime = calculateDutyTime(period_ms + periodLate);
     }
 }
 
 // returns the actual achieved PWM value, not the set value
-temp_t ActuatorPwm::readValue() const {
+temp_t ActuatorPwm::value() const {
     ticks_millis_t windowDuration = cycleTime; // previous time between two pulses
     ticks_millis_t totalHigh = 0;
     ticks_millis_t sinceLowToHigh = timeSinceMillis(ticks.millis(), lowToHighTime);
@@ -165,7 +165,7 @@ void ActuatorPwm::fastUpdate() {
             }
         }
         if(newPeriod){
-            if(readValue() < maxVal * temp_t(0.2)){
+            if(value() < maxVal * temp_t(0.2)){
                 // If target actuator was kept low externally, periodLate should not be used.
                 // This could be due to the mutex group blocking going active, for example.
                 // If the read value is under 20% of maximum, this is not likely to be normal behavior
