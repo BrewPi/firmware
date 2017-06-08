@@ -54,67 +54,56 @@ private:
     TCPServer tcpServer = TCPServer(6666);
     TCPClient tcpClient;
 
-    bool serialAvailable = false;
-    bool networkAvailable = false;
+    Stream * currentStream = &tcpClient;
 
 public:
     void print(char c) {
-        if (Serial.isConnected()) {
-            Serial.print(c);
-        }
-        else if (tcpClient.connected()) {
-            tcpClient.print(c);
-        }
+        currentStream->print(c);
     }
 
     void print(const char* c) {
-        if (Serial.isConnected()) {
-            Serial.print(c);
-        }
-        else if (tcpClient.connected()) {
-            tcpClient.print(c);
-        }
+        currentStream->print(c);
     }
 
     void printNewLine() {
-        this->println();
+        currentStream->println();
     }
 
     void println() {
-        if (Serial.isConnected()) {
-            Serial.println();
-        }
-        else if (tcpClient.connected()) {
-            tcpClient.println();
-        }
+        currentStream->println();
     }
 
     int read() {
-        if (Serial.isConnected())
-        return Serial.read();
-
-        else if (tcpClient.connected()) {
-            return tcpClient.read();
-        }
-
-        return -1;
+        currentStream->read();
     }
 
+    /**
+     * Check both Serial and WiFi to see if they are connected.
+     * When Serial is connected it has preference over WiFi.
+     * Set the current stream to where the data is available and return the number of bytes available
+     */
     int available() {
+        int available = 0;
         if (Serial.isConnected()) {
-            return Serial.available();
+            available = Serial.available();
+        }
+        if(available > 0){
+            currentStream = &Serial;
+        }
+        // connect if there's a client waiting on WiFi and no data on Serial
+        else {
+            if(! tcpClient.connected()) {
+                tcpClient = tcpServer.available();
+            }
+            if (tcpClient.connected()) {
+                available = tcpClient.available();
+                if(available > 0){
+                    currentStream = &tcpClient;
+                }
+            }
         }
 
-        // connect if there's a client waiting
-        else if (! tcpClient.connected()) {
-            tcpClient = tcpServer.available();
-        }
-
-        if (tcpClient.connected()) {
-            return tcpClient.available();
-        }
-
-        return 0;
+        return available;
     }
 
     void begin(unsigned long rate) {
@@ -127,47 +116,24 @@ public:
     }
 
     size_t write(uint8_t buf) {
-        size_t bytes_written = 0;
-        if (Serial.isConnected()) {
-            bytes_written = Serial.write(buf);
-        }
-        else if (tcpClient.connected()) {
-            bytes_written = tcpClient.write(buf);
-        }
-        return bytes_written;
+        size_t bytes_written = currentStream->write(buf);
 
+        return bytes_written;
     }
 
     size_t write(const uint8_t *buf, size_t s) {
         size_t bytes_written = 0;
-        if (Serial.isConnected()) {
-            bytes_written = Serial.write(buf, s);
-        }
-        else if(tcpClient.connected()) {
-            bytes_written = tcpClient.write(buf, s);
-        }
+        bytes_written = currentStream->write(buf, s);
 
         return bytes_written;
     }
 
     int peek() {
-        if (Serial.isConnected()) {
-            return Serial.peek();
-        }
-        else if (tcpClient.connected()) {
-            return tcpClient.peek();
-        }
-
-        return -1;
+        return currentStream->peek();
     }
 
     void flush() {
-        if (Serial.isConnected()) {
-            Serial.flush();
-        }
-        if(tcpClient.connected()) {
-            tcpClient.flush();
-        }
+        currentStream->flush();
     }
 };
 
