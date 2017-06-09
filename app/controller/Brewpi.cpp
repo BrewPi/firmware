@@ -59,15 +59,17 @@ void setup()
         eepromManager.initializeEeprom();
     }
 	ui.init();
-	piLink.init();
-	// flush any waiting input.
+
+    uint32_t start = ticks.millis();
+    uint32_t delay = ui.showStartupPage();
+
+    piLink.init();
+    // flush any waiting input.
     // Linux can put garbage in the serial input buffer during connect
     piLink.flushInput();
 
     logDebug("started");
 
-    uint32_t start = ticks.millis();
-    uint32_t delay = ui.showStartupPage();
     while (ticks.millis()-start <= delay) {
         ui.ticks();
     }
