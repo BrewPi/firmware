@@ -39,7 +39,7 @@ void ValveController::write(uint8_t action) {
     uint8_t latch = device->getLatchCache();
     action = action & 0b11; // make sure action only has lower 2 bits non-zero
 
-    if(output == 1){
+    if(output == 0){ // A is on upper bits
         latch = latch & 0b00111111;
         latch = latch | action << 6;
     }

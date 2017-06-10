@@ -84,7 +84,7 @@ public:
      */
     uint8_t getState() const {
         uint8_t states = device->readPios(true);
-        if(output == 1){
+        if(output == 0){
             states = states >> 4;
         }
         return states & 0b11;
@@ -96,7 +96,7 @@ public:
      */
     uint8_t getAction() const {
         uint8_t latches = device->readLatches(true);
-        if(output == 1){
+        if(output == 0){ // A is on upper bits
             latches = latches >> 4;
         }
         return (latches >> 2) & 0b11;
