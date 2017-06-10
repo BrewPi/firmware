@@ -74,7 +74,7 @@ public:
     }
 
     int read() {
-        currentStream->read();
+        return currentStream->read();
     }
 
     /**
