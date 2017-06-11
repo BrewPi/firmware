@@ -443,7 +443,9 @@ bool changed(PChar &a, PChar b) { PChar c = a; a=b; return b!=c; }
 #define JSON_FRIDGE_ANN  "FridgeAnn"
 #define JSON_STATE		"State"
 #define JSON_TIME		"Time"
-#define JSON_ROOM_TEMP  "RoomTemp"
+#define JSON_LOG1_TEMP  "Log1Temp"
+#define JSON_LOG2_TEMP  "Log2Temp"
+#define JSON_LOG3_TEMP  "Log3Temp"
 
 #define changed(a,b)  1
 #endif
@@ -474,9 +476,17 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
     if (changed(fridgeAnn, fridgeAnnotation))
         sendJsonAnnotation(PSTR(JSON_FRIDGE_ANN), fridgeAnnotation);
 
-    t = tempControl.getRoomTemp();
-    if (changed(roomTemp, t))
-        sendJsonTemp(PSTR(JSON_ROOM_TEMP), tempControl.getRoomTemp());
+    t = tempControl.getLog1Temp();
+    if (changed(log1, t))
+        sendJsonTemp(PSTR(JSON_LOG1_TEMP), tempControl.getLog1Temp());
+
+    t = tempControl.getLog2Temp();
+    if (changed(log2, t))
+        sendJsonTemp(PSTR(JSON_LOG2_TEMP), tempControl.getLog2Temp());
+
+    t = tempControl.getLog3Temp();
+    if (changed(log3, t))
+        sendJsonTemp(PSTR(JSON_LOG3_TEMP), tempControl.getLog3Temp());
 
     if (changed(state, tempControl.getState()))
         sendJsonPair(PSTR(JSON_STATE), (uint8_t)tempControl.getState());

@@ -58,7 +58,7 @@ void LcdDisplay::init(void){
 void LcdDisplay::printAllTemperatures(void){
 	// alternate between beer and room temp
 	if (flags & LCD_FLAG_ALTERNATE_ROOM) {
-		bool displayRoom = ((ticks.seconds()&0x08)==0) && !tempControl.getRoomTemp().isDisabledOrInvalid();
+		bool displayRoom = ((ticks.seconds()&0x08)==0) && !tempControl.getLog1Temp().isDisabledOrInvalid();
 		if (displayRoom ^ ((flags & LCD_FLAG_DISPLAY_ROOM)!=0)) {	// transition
 			flags = displayRoom ? flags | LCD_FLAG_DISPLAY_ROOM : flags & ~LCD_FLAG_DISPLAY_ROOM;
 			printStationaryText();
@@ -90,7 +90,7 @@ void LcdDisplay::printBeerSet(void){
 
 void LcdDisplay::printFridgeTemp(void){	
 	printTemperatureAt(6,2, flags & LCD_FLAG_DISPLAY_ROOM ?
-		tempControl.getRoomTemp() :
+		tempControl.getLog1Temp() :
 		tempControl.getFridgeTemp());
 }
 

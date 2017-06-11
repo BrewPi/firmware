@@ -54,23 +54,24 @@ bool isDefinedSlot(device_slot_t s);
 enum DeviceFunction {
     DEVICE_NONE = 0,					// used as a sentry to mark end of list
 
-    // chamber devices
-    DEVICE_CHAMBER_DOOR = 1,                                    // switch sensor
-    DEVICE_CHAMBER_HEAT = 2,
-    DEVICE_CHAMBER_COOL = 3,
-    DEVICE_CHAMBER_LIGHT = 4,    // actuator
-    DEVICE_CHAMBER_TEMP = 5,
-    DEVICE_CHAMBER_ROOM_TEMP = 6,                         // temp sensors
-    DEVICE_CHAMBER_FAN = 7,                              // a fan in the chamber
-    DEVICE_CHAMBER_MANUAL_ACTUATOR = 8, // no function, but installed for manual action
+	// chamber devices
+    DEVICE_CHAMBER_DOOR = 1,                                                       // switch sensor
+    DEVICE_CHAMBER_HEAT = 2, DEVICE_CHAMBER_COOL = 3, DEVICE_CHAMBER_LIGHT = 4,    // actuator
+    DEVICE_CHAMBER_TEMP = 5, DEVICE_LOG1_TEMP = 6,                                 // temp sensors
+    DEVICE_CHAMBER_FAN = 7,                                                        // a fan in the chamber
+    DEVICE_CHAMBER_MANUAL_ACTUATOR = 8,                                            // no function, but installed for manual action
 
 	// carboy devices
     DEVICE_BEER_FIRST = 9, DEVICE_BEER_TEMP = DEVICE_BEER_FIRST,                   // primary beer temp sensor
     DEVICE_BEER_TEMP2 = 10,                                                        // secondary beer temp sensor
     DEVICE_BEER_HEAT = 11, DEVICE_BEER_COOL = 12,                                  // individual actuators
     DEVICE_BEER_SG = 13,                                                           // SG sensor
-    DEVICE_BEER_RESERVED1 = 14, DEVICE_BEER_RESERVED2 = 15,                        // reserved
-    DEVICE_FUNCTION_MAX = 16
+    DEVICE_BEER_RESERVED1 = 14,
+    DEVICE_BEER_RESERVED2 = 15,
+    DEVICE_BEER_RESERVED3 = 16,
+    DEVICE_LOG2_TEMP = 17,
+    DEVICE_LOG3_TEMP = 18,
+    DEVICE_FUNCTION_MAX = 19,
 };
 
 enum DeviceType

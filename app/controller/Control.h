@@ -57,7 +57,9 @@ protected:
     TempSensorDelegate fridgeSensor;
     TempSensorDelegate beer1Sensor;
     TempSensorDelegate beer2Sensor;
-    TempSensorDelegate roomSensor;
+    TempSensorDelegate log1Sensor;
+    TempSensorDelegate log2Sensor;
+    TempSensorDelegate log3Sensor;
     TempSensorFallback fridgeSensorWithFallback;
     SetPointSimple beer1Set;
     SetPointSimple beer2Set;

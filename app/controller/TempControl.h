@@ -149,8 +149,16 @@ public:
     }
     void setFridgeTemp(temp_t newTemp, bool store);
 
-    temp_t getRoomTemp(void) {
-        return control.roomSensor.read();
+    temp_t getLog1Temp(void) {
+        return control.log1Sensor.read();
+    }
+
+    temp_t getLog2Temp(void) {
+        return control.log2Sensor.read();
+    }
+
+    temp_t getLog3Temp(void) {
+        return control.log3Sensor.read();
     }
 
 

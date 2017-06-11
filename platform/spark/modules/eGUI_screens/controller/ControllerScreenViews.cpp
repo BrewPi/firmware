@@ -95,7 +95,7 @@ void ControllerScreen_Update()
     
     beerTempPresenter.update(tempControl.getBeerTemp(), tempControl.getBeerSetting());
     fridgeTempPresenter.update(tempControl.getFridgeTemp(), tempControl.getFridgeSetting());
-    roomTempPresenter.update(tempControl.getRoomTemp(), temp_t::invalid(), false);
+    roomTempPresenter.update(tempControl.getLog1Temp(), temp_t::invalid(), false);
     
 }
 

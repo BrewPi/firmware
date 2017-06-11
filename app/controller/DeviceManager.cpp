@@ -241,8 +241,14 @@ bool DeviceManager::installDevice(Interface * device, DeviceConfig config, devic
         case DEVICE_CHAMBER_TEMP :
             control.fridgeSensor.setLookup(lookup);
             break;
-        case DEVICE_CHAMBER_ROOM_TEMP :
-            control.roomSensor.setLookup(lookup);
+        case DEVICE_LOG1_TEMP :
+            control.log1Sensor.setLookup(lookup);
+            break;
+        case DEVICE_LOG2_TEMP :
+            control.log2Sensor.setLookup(lookup);
+            break;
+        case DEVICE_LOG3_TEMP :
+            control.log3Sensor.setLookup(lookup);
             break;
 
         case DEVICE_BEER_FIRST:
@@ -1101,7 +1107,9 @@ DeviceType deviceType(DeviceFunction func, DeviceHardware hw)
         case DEVICE_BEER_COOL :
             return DEVICETYPE_SWITCH_ACTUATOR;
         case DEVICE_CHAMBER_TEMP :
-        case DEVICE_CHAMBER_ROOM_TEMP :
+        case DEVICE_LOG1_TEMP :
+        case DEVICE_LOG2_TEMP :
+        case DEVICE_LOG3_TEMP :
         case DEVICE_BEER_TEMP :
         case DEVICE_BEER_TEMP2 :
             return DEVICETYPE_TEMP_SENSOR;

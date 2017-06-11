@@ -39,7 +39,9 @@ Control::Control() :
     fridgeSensor(),
     beer1Sensor(),
     beer2Sensor(),
-    roomSensor(),
+    log1Sensor(),
+    log2Sensor(),
+    log3Sensor(),
     fridgeSensorWithFallback(fridgeSensor, beer1Sensor), // fall back to beer sensor if fridge sensor is unavailable
     beer1Set(),
     beer2Set(),
@@ -73,7 +75,9 @@ Control::Control() :
     fridgeSensor.setName("fridge");
     beer1Sensor.setName("beer1");
     beer2Sensor.setName("beer2");
-    roomSensor.setName("room");
+    log1Sensor.setName("log1");
+    log2Sensor.setName("log2");
+    log3Sensor.setName("log3");
     coolerToggle.setName("cooler");
     heater1Toggle.setName("heater1");
     heater2Toggle.setName("heater2");
@@ -89,7 +93,9 @@ Control::Control() :
     objects.push_back(&beer1Sensor);
     objects.push_back(&beer2Sensor);
     objects.push_back(&fridgeSensorWithFallback);
-    objects.push_back(&roomSensor);
+    objects.push_back(&log1Sensor);
+    objects.push_back(&log2Sensor);
+    objects.push_back(&log3Sensor);
 
     objects.push_back(&beer1Set);
     objects.push_back(&beer2Set);
