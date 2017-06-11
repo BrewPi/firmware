@@ -19,8 +19,11 @@
  */
 
 
-#include "OneWire.h"
 
+
+#include "Brewpi.h"
+#if BREWPI_DS2413
+#include "OneWire.h"
 #include "DS2413.h"
 
 bool DS2413::cacheIsValid() const
@@ -200,3 +203,4 @@ bool DS2413::accessWrite(uint8_t b,
 
     return ack == ACK_SUCCESS;
 }
+#endif

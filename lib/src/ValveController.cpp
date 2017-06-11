@@ -17,6 +17,9 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Brewpi.h"
+
+#if BREWPI_DS2408
 #include "ValveController.h"
 
 
@@ -51,3 +54,4 @@ void ValveController::write(uint8_t action) {
     device->writeLatches(latch);
 }
 
+#endif

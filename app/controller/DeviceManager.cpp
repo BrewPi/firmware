@@ -39,14 +39,18 @@
 #ifdef WIRING
 
 #include "OneWireTempSensor.h"
-#include "ActuatorOneWire.h"
+#if BREWPI_DS2408
 #include "DS2408.h"
+#include "ValveController.h"
+#endif
+#if BREWPI_DS2413
 #include "DS2413.h"
+#include "ActuatorOneWire.h"
+#endif
 #include "OneWire.h"
 #include "DallasTemperature.h"
 #include "ActuatorPin.h"
 #include "SensorPin.h"
-#include "ValveController.h"
 
 #endif
 
@@ -651,7 +655,11 @@ device_slot_t findHardwareDevice(DeviceConfig & find) {
             switch (find.deviceHardware) {
 #if BREWPI_DS2413
                 case DEVICE_HARDWARE_ONEWIRE_2413:
+#endif
+#if BREWPI_DS2408
                 case DEVICE_HARDWARE_ONEWIRE_2408:
+#endif
+#if BREWPI_DS2413 || BREWPI_DS2408
                     match &= find.hw.settings.actuator.pio
                             == config.hw.settings.actuator.pio;
 
@@ -718,6 +726,7 @@ void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw,
 #endif
 }
 
+#if BREWPI_DS2408
 void DeviceManager::readNotInstalledValve(DeviceConfig::Hardware hw,
                                      char * out)
 {
@@ -733,6 +742,7 @@ void DeviceManager::writeNotInstalledValve(DeviceConfig::Hardware hw, uint8_t va
     ValveController valve(hwDevice, hw.settings.actuator.pio);
     valve.write(value);
 }
+#endif
 
 void DeviceManager::writeNotInstalledPin(DeviceConfig::Hardware hw, uint8_t value)
 {
@@ -746,6 +756,7 @@ void DeviceManager::readNotInstalledPin(DeviceConfig::Hardware hw, char * out){
     sprintf_P(out, STR_FMT_U, state);
 }
 
+#if BREWPI_DS2413
 void DeviceManager::writeNotInstalledOneWirePin(DeviceConfig::Hardware hw, uint8_t value)
 {
     auto hwDevice = std::make_shared<DS2413>(oneWireBus(hw.pinNr), hw.address);
@@ -759,6 +770,7 @@ void DeviceManager::readNotInstalledOneWirePin(DeviceConfig::Hardware hw, char *
     unsigned int state = pin.isActive();
     sprintf_P(out, STR_FMT_U, state);
 }
+#endif
 
 void DeviceManager::handleEnumeratedDevice(DeviceConfig & config,
         EnumerateHardware &                               h,
@@ -793,9 +805,11 @@ void DeviceManager::handleEnumeratedDevice(DeviceConfig & config,
             case DEVICE_HARDWARE_ONEWIRE_TEMP:
                 readTempSensorValue(config.hw, info->value);
                 break;
+#if BREWPI_DS2408
             case DEVICE_HARDWARE_ONEWIRE_2408:
                 readNotInstalledValve(config.hw, info->value);
                 break;
+#endif
                 // unassigned pins could be input or output so we can't determine any other details from here.
                 // values can be read once the pin has been assigned a function
             default:
@@ -1029,15 +1043,19 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd, DeviceConfig &  dc, ch
                 sprintf_P(val, STR_FMT_U, (unsigned int) act->isActive() != 0);
             }
         } else if (dc.deviceFunction == DEVICE_CHAMBER_MANUAL_ACTUATOR){
+#if BREWPI_DS2408
             if(dc.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2408){
                 readNotInstalledValve(dc.hw, val);
             }
+#endif
             if (dc.deviceHardware == DEVICE_HARDWARE_PIN) {
                 readNotInstalledPin(dc.hw, val);
             }
+#if BREWPI_DS2413
             if (dc.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2413) {
                 readNotInstalledOneWirePin(dc.hw, val);
             }
+#endif
         }
     }
 }
@@ -1109,8 +1127,13 @@ Interface * DeviceManager::findSharedHardware(DeviceConfig & find) {
         if (find.deviceHardware == config.deviceHardware) {
             bool match = true;
             switch (find.deviceHardware) {
+#if BREWPI_DS2413
                 case DEVICE_HARDWARE_ONEWIRE_2413:
+#endif
+#if BREWPI_DS2408
                 case DEVICE_HARDWARE_ONEWIRE_2408:
+#endif
+#if BREWPI_DS2413 || BREWPI_DS2408
                     // Same address
                     match &= matchAddress(find.hw.address, config.hw.address,
                             8);
@@ -1124,6 +1147,7 @@ Interface * DeviceManager::findSharedHardware(DeviceConfig & find) {
                         hw = devices[slot];
                     }
                     break;
+#endif
                 default:
                     break;
             }

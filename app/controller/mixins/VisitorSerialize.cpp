@@ -20,23 +20,21 @@
 #include "VisitorSerialize.h"
 
 #include "Platform.h"
+#include "Brewpi.h"
 
 #include "ActuatorMocks.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorPwm.h"
-#include "ActuatorOneWire.h"
 #include "SetPoint.h"
 #include "TempSensorDisconnected.h"
 #include "TempSensorExternal.h"
 #include "TempSensorFallback.h"
 #include "TempSensorMock.h"
 #include "Pid.h"
-#include "ActuatorOneWire.h"
 #include "ActuatorTimeLimited.h"
 #include "ActuatorOffset.h"
 #include "OneWireTempSensor.h"
-#include "ValveController.h"
 #include "TempSensorDelegate.h"
 #include "ActuatorDigitalDelegate.h"
 #include "SetPointDelegate.h"
@@ -45,6 +43,14 @@
 
 #if WIRING
 #include "ActuatorPin.h"
+#endif
+
+#if BREWPI_DS2408
+#include "ValveController.h"
+#endif
+
+#if BREWPI_DS2413
+#include "ActuatorOneWire.h"
 #endif
 
 void VisitorSerialize::visit(ActuatorBool& thisRef) {
@@ -62,9 +68,11 @@ void VisitorSerialize::visit(ActuatorMutexGroup& thisRef) {
 void VisitorSerialize::visit(ActuatorNop& thisRef) {
     thisRef.serializeImpl(adapter);
 }
+#if BREWPI_DS2413
 void VisitorSerialize::visit(ActuatorOneWire& thisRef) {
     thisRef.serializeImpl(adapter);
 }
+#endif
 void VisitorSerialize::visit(ActuatorPwm& thisRef) {
     thisRef.serializeImpl(adapter);
 }
@@ -104,9 +112,11 @@ void VisitorSerialize::visit(TempSensorMock& thisRef) {
 void VisitorSerialize::visit(OneWireTempSensor& thisRef) {
     thisRef.serializeImpl(adapter);
 }
+#if BREWPI_DS2408
 void VisitorSerialize::visit(ValveController& thisRef) {
     thisRef.serializeImpl(adapter);
 }
+#endif
 void VisitorSerialize::visit(TempSensorDelegate& thisRef) {
     thisRef.serializeImpl(adapter);
 }

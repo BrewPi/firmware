@@ -18,11 +18,11 @@
  */
 
 #pragma once
+#include "Brewpi.h"
 #include "ActuatorMocks.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorPwm.h"
-#include "ActuatorOneWire.h"
 #include "SetPoint.h"
 #include "TempSensorDisconnected.h"
 #include "TempSensorExternal.h"
@@ -30,11 +30,9 @@
 #include "TempSensorMock.h"
 #include "Pid.h"
 #include "ActuatorTimeLimited.h"
-#include "ActuatorOneWire.h"
 #include "ActuatorOffset.h"
 #include "OneWireTempSensor.h"
 #include "TempSensorDelegate.h"
-#include "ValveController.h"
 #include "VisitorBase.h"
 #include "TempSensorDelegate.h"
 #include "ActuatorDigitalDelegate.h"
@@ -44,6 +42,14 @@
 
 #if WIRING
 #include "ActuatorPin.h"
+#endif
+
+#if BREWPI_DS2413
+#include "ActuatorOneWire.h"
+#endif
+
+#if BREWPI_DS2408
+#include "ValveController.h"
 #endif
 
 template< class T >
@@ -57,7 +63,9 @@ public:
     void visit(ActuatorMutexDriver& thisRef) final { this->process(thisRef); };
     void visit(ActuatorMutexGroup& thisRef) final { this->process(thisRef); };
     void visit(ActuatorNop& thisRef) final { this->process(thisRef); };
+#if BREWPI_DS2413
     void visit(ActuatorOneWire& thisRef) final { this->process(thisRef); };
+#endif
     void visit(ActuatorPwm& thisRef) final { this->process(thisRef); };
     void visit(ActuatorOffset& thisRef) final { this->process(thisRef); };
     void visit(ActuatorTimeLimited& thisRef) final { this->process(thisRef); };
@@ -71,7 +79,9 @@ public:
     void visit(TempSensorFallback& thisRef) final { this->process(thisRef); };
     void visit(TempSensorMock& thisRef) final { this->process(thisRef); };
     void visit(OneWireTempSensor& thisRef) final { this->process(thisRef); };
+#if BREWPI_DS2408
     void visit(ValveController& thisRef) final { this->process(thisRef); };
+#endif
     void visit(TempSensorDelegate& thisRef) final { this->process(thisRef); };
     void visit(ActuatorDigitalDelegate& thisRef) final { this->process(thisRef); };
     void visit(SetPointDelegate& thisRef) final { this->process(thisRef); };

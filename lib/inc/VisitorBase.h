@@ -20,6 +20,7 @@
 #pragma once
 #include <stdint.h>
 #include "Platform.h"
+#include "Brewpi.h"
 
 // Visitor should be implemented for all classes that can be accessed through an interface,
 // but not for the interfaces themselves.
@@ -61,7 +62,9 @@ public:
 	virtual void visit(ActuatorMutexDriver& thisRef) = 0;
 	virtual void visit(ActuatorMutexGroup& thisRef) = 0;
 	virtual void visit(ActuatorNop& thisRef) = 0;
+#if BREWPI_DS2413
 	virtual void visit(ActuatorOneWire& thisRef) = 0;
+#endif
 	virtual void visit(ActuatorPwm& thisRef) = 0;
 	virtual void visit(ActuatorOffset& thisRef) = 0;
 	virtual void visit(ActuatorTimeLimited& thisRef) = 0;
@@ -75,7 +78,9 @@ public:
 	virtual void visit(TempSensorFallback& thisRef) = 0;
 	virtual void visit(TempSensorMock& thisRef) = 0;
 	virtual void visit(OneWireTempSensor& thisRef) = 0;
+#if BREWPI_DS2408
 	virtual void visit(ValveController& thisRef) = 0;
+#endif
 	virtual void visit(TempSensorDelegate& thisRef) = 0;
 	virtual void visit(ActuatorDigitalDelegate& thisRef) = 0;
 	virtual void visit(SetPointDelegate& thisRef) = 0;

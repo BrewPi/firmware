@@ -21,7 +21,6 @@
 
 
 #include "ControllerMixins.h"
-
 #include "Pid.h"
 #include "TempSensor.h"
 #include "TempSensorMock.h"
@@ -37,8 +36,12 @@
 #include "ActuatorMocks.h"
 #include "SetPoint.h"
 #include "VisitorSerialize.h"
+#if BREWPI_DS2413
 #include "ActuatorOneWire.h"
+#endif
+#if BREWPI_DS2408
 #include "ValveController.h"
+#endif
 #include "TempSensorDelegate.h"
 #include "ActuatorDigitalDelegate.h"
 #include "ProcessValueDelegate.h"
@@ -259,6 +262,7 @@ void ActuatorPinMixin::serializeImpl(JSON::Adapter & adapter)
 #endif
 }
 
+#if BREWPI_DS2408
 void ValveControllerMixin::serializeImpl(JSON::Adapter & adapter)
 {
 #if WIRING
@@ -270,7 +274,9 @@ void ValveControllerMixin::serializeImpl(JSON::Adapter & adapter)
     JSON_T(adapter, state);
 #endif
 }
+#endif
 
+#if BREWPI_DS2413
 void ActuatorOneWireMixin::serializeImpl(JSON::Adapter & adapter)
 {
 #if WIRING
@@ -285,7 +291,7 @@ void ActuatorOneWireMixin::serializeImpl(JSON::Adapter & adapter)
     JSON_OT(adapter, invert);
 #endif
 }
-
+#endif
 
 void SetPointSimpleMixin::serializeImpl(JSON::Adapter & adapter)
 {

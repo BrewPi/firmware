@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Brewpi.h"
 #include "VisitorBase.h"
 #include "json_adapter.h"
 #include "Nameable.h"
@@ -178,19 +179,23 @@ protected:
     ~ActuatorPinMixin() = default;
 };
 
+#if BREWPI_DS2408
 class ValveControllerMixin {
 public:
     void serializeImpl(JSON::Adapter& adapter);
 protected:
     ~ValveControllerMixin() = default;
 };
+#endif
 
+#if BREWPI_DS2413
 class ActuatorOneWireMixin {
 public:
     void serializeImpl(JSON::Adapter& adapter);
 protected:
     ~ActuatorOneWireMixin() = default;
 };
+#endif
 
 class TempSensorDelegateMixin: public Nameable {
 public:

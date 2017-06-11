@@ -20,6 +20,7 @@
 #pragma once
 #include "VisitorBase.h"
 #include "json_adapter.h"
+#include "Brewpi.h"
 #include "Platform.h"
 
 
@@ -35,7 +36,9 @@ public:
     void visit(ActuatorMutexDriver& thisRef) final;
     void visit(ActuatorMutexGroup& thisRef) final;
     void visit(ActuatorNop& thisRef) final;
+#if BREWPI_DS2413
     void visit(ActuatorOneWire& thisRef) final;
+#endif
     void visit(ActuatorPwm& thisRef) final;
     void visit(ActuatorOffset& thisRef) final;
     void visit(ActuatorTimeLimited& thisRef) final;
@@ -49,7 +52,9 @@ public:
     void visit(TempSensorFallback& thisRef) final;
     void visit(TempSensorMock& thisRef) final;
     void visit(OneWireTempSensor& thisRef) final;
+#if BREWPI_DS2408
     void visit(ValveController& thisRef) final;
+#endif
     void visit(TempSensorDelegate& thisRef) final;
     void visit(ActuatorDigitalDelegate& thisRef) final;
     void visit(ProcessValueDelegate& thisRef) final;

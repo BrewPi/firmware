@@ -5,9 +5,11 @@
  * Created on 3 december 2014, 22:29
  */
 
+#include "Brewpi.h"
 #include "DS2408.h"
 #include "Logger.h"
 
+#ifdef BREWPI_DS2408
 uint8_t DS2408::accessRead()    /* const */
 {
     oneWire -> reset();
@@ -80,3 +82,4 @@ void DS2408::update(){
     }
     oneWire -> reset();
 }
+#endif
