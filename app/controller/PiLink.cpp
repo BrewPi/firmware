@@ -45,9 +45,7 @@
 #include "Simulator.h"
 #endif
 
-// Rename Serial to piStream, to abstract it for later platform independence
-
-#if defined(SPARK) && PLATFORM_ID != 0
+#if BREWPI_USE_WIFI
 class NetworkSerialMuxer : public Stream
 {
 private:
@@ -168,13 +166,11 @@ StdIO stdIO;
 #define piStream stdIO
 
 #else
-#if defined(SPARK) && PLATFORM_ID != 0
+#if BREWPI_USE_WIFI
 #define piStream networkSerialMuxer
-#define SERIAL_READY(x) 1
 #else
 #define piStream Serial
-#define SERIAL_READY(x) x
-#endif        
+#endif
 #endif
 
 bool PiLink::firstPair;
@@ -196,9 +192,7 @@ void PiLink::print_P(const char *fmt, ... ){
     va_start (args, fmt );
     vsnprintf_P(printfBuff, PRINTF_BUFFER_SIZE, fmt, args);
     va_end (args);
-    if(SERIAL_READY(piStream)){ // if Serial connected
-        piStream.print(printfBuff);
-    }
+    piStream.print(printfBuff);
 }
 
 // create a printf like interface to the Serial function. Format string stored in RAM
@@ -207,9 +201,7 @@ void PiLink::print(char *fmt, ... ){
     va_start (args, fmt );
     vsnprintf(printfBuff, PRINTF_BUFFER_SIZE, fmt, args);
     va_end (args);
-    if(SERIAL_READY(piStream)){
-        piStream.print(printfBuff);
-    }
+    piStream.print(printfBuff);
 }
 
 void PiLink::printNewLine(){
@@ -318,7 +310,7 @@ void PiLink::receive(void){
                 "\"y\":%d,"
                 "\"b\":\"%c\","
                 "\"l\":\"%d\","
-#if defined(SPARK) && PLATFORM_ID != 0
+#if BREWPI_USE_WIFI
                 "\"i\":\"%d.%d.%d.%d\","
                 "\"w\":\"" PRINTF_PROGMEM "\""
 #endif
@@ -329,7 +321,7 @@ void PiLink::receive(void){
                 BREWPI_SIMULATE,                    // y:
                 BREWPI_BOARD,      // b:
                 BREWPI_LOG_MESSAGES_VERSION // l:
-#if defined(SPARK) && PLATFORM_ID != 0
+#if BREWPI_USE_WIFI
                 ,
                 WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3], // i:
                 WiFi.SSID() // w:

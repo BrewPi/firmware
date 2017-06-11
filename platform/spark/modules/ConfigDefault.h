@@ -46,6 +46,14 @@
 #define BREWPI_DS2408 1
 #endif
 
+/**
+ * Enable WiFi support, if not defined, disable for core
+ */
+#ifndef BREWPI_USE_WIFI
+#define BREWPI_USE_WIFI (PLATFORM_ID != 0)
+#endif
+
+
 #ifndef BREWPI_BUZZER
     #define BREWPI_BUZZER 1
 #endif
