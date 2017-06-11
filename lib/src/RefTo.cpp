@@ -19,7 +19,7 @@
 
 #include "RefTo.h"
 
-#include "../inc/ProcessValue.h"
+#include "ProcessValue.h"
 #include "ActuatorMocks.h"
 #include "TempSensorDisconnected.h"
 #include "SetPoint.h"
@@ -67,5 +67,13 @@ template TempSensor* asInterface<TempSensor>(Interface*);
 template SetPoint* asInterface<SetPoint>(Interface*);
 template ActuatorMutexGroup* asInterface<ActuatorMutexGroup>(Interface*);
 template ProcessValue* asInterface<ProcessValue>(Interface*);
+
+// these are needed to search for shared OneWire switch ICs
+#if BREWPI_DS2408
+template ValveController* asInterface<ValveController>(Interface*);
+#endif
+#if BREWPI_DS2413
+template ActuatorOneWire* asInterface<ActuatorOneWire>(Interface*);
+#endif
 
 

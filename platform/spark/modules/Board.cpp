@@ -68,6 +68,8 @@ void boardInit(){
     pinMode(PIN_5V_ENABLE, OUTPUT);
     // 5V on RJ12 enabled by default, 12V disabled to prevent damaging wrongly connected peripherals
     digitalWrite(PIN_5V_ENABLE, HIGH);
+    // TODO: temporary until 12V can be toggled by software
+    digitalWrite(PIN_12V_ENABLE, HIGH);
 
     digitalWrite(PIN_ALARM, LOW);
     pinMode(PIN_LCD_BACKLIGHT, OUTPUT);

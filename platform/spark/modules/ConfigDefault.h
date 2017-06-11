@@ -40,10 +40,10 @@
 #endif
 
 /**
- * Enable DS2408 Actuators.
+ * Enable DS2408 Actuators, if not defined, disable for core
  */
 #ifndef BREWPI_DS2408
-#define BREWPI_DS2408 1
+#define BREWPI_DS2408 (PLATFORM_ID != 0)
 #endif
 
 #ifndef BREWPI_BUZZER
