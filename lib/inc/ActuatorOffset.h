@@ -65,7 +65,7 @@ public:
         else{
             offset = val;
         }
-        update();
+        apply();
     }
 
     temp_t setting() const override final {
@@ -105,7 +105,7 @@ public:
         useReferenceValue = useSetting;
     }
 
-    void update() override final {
+    void apply() {
         temp_t referenceValue = readReference();
         if(referenceValue.isDisabledOrInvalid()){
             target.set(temp_t::invalid());
@@ -114,6 +114,8 @@ public:
         temp_t targetValue = referenceValue + offset;
         target.set(targetValue);
     };
+
+    void update() override final {}; // no action. SetPoint actuator only applies it's value when written by a PID
     void fastUpdate() override final {}; //no actions required
 
 private:

@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(set_value){
     BOOST_CHECK_EQUAL(targetSetPoint.read(), temp_t(22.0));
 
     act.setReferenceSettingOrValue(true); // use reference sensor as baseline instead of setpoint
-    act.update();
+    act.set(12.0); // set() applies the value
 
     // when using the reference temperature as baseline:
     BOOST_CHECK_EQUAL(act.value(), temp_t(5.0)); // value() returns target sensor - ref sensor
@@ -78,7 +78,8 @@ BOOST_AUTO_TEST_CASE(set_value){
 
     // when reference sensor is invalid, target setpoint will be set to invalid.
     referenceSensor.setConnected(false);
-    act.update();
+    act.set(12.0); // set() applies the value
+
     BOOST_CHECK_EQUAL(act.value(), temp_t::invalid()); // value() returns target sensor - ref sensor
     BOOST_CHECK_EQUAL(act.setting(), temp_t(12.0)); // setting() still returns requested offset
     BOOST_CHECK_EQUAL(targetSetPoint.read(), temp_t::invalid());
@@ -87,7 +88,8 @@ BOOST_AUTO_TEST_CASE(set_value){
     act.setReferenceSettingOrValue(false); // use reference setpoint again
     referenceSensor.setConnected(true);
     referenceSetPoint.write(temp_t::invalid());
-    act.update();
+    act.set(12.0); // set() applies the value
+
     BOOST_CHECK_EQUAL(act.value(), temp_t::invalid()); // value() returns target sensor - ref sensor
     BOOST_CHECK_EQUAL(act.setting(), temp_t(12.0)); // setting() still returns requested offset
     BOOST_CHECK_EQUAL(targetSetPoint.read(), temp_t::invalid());
