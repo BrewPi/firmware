@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Brewpi.h"
+#include "Platform.h"
 #include "VisitorBase.h"
 #include "json_adapter.h"
 #include "Nameable.h"

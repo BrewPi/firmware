@@ -17,7 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Brewpi.h"
+#include "Platform.h"
 
 #if BREWPI_DS2408
 #include "ValveController.h"

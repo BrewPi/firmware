@@ -20,8 +20,6 @@
 #include "VisitorSerialize.h"
 
 #include "Platform.h"
-#include "Brewpi.h"
-
 #include "ActuatorMocks.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorMutexDriver.h"

@@ -20,7 +20,6 @@
 #pragma once
 #include <stdint.h>
 #include "Platform.h"
-#include "Brewpi.h"
 
 // Visitor should be implemented for all classes that can be accessed through an interface,
 // but not for the interfaces themselves.

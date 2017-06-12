@@ -32,28 +32,6 @@
 #define FAST_DIGITAL_PIN 0
 #endif
 
-/**
- * Enable DS2413 Actuators. 
- */
-#ifndef BREWPI_DS2413
-#define BREWPI_DS2413 1
-#endif
-
-/**
- * Enable DS2408 Actuators, if not defined, disable for core
- */
-#ifndef BREWPI_DS2408
-#define BREWPI_DS2408 (PLATFORM_ID != 0)
-#endif
-
-/**
- * Enable WiFi support, if not defined, disable for core
- */
-#ifndef BREWPI_USE_WIFI
-#define BREWPI_USE_WIFI (PLATFORM_ID != 0)
-#endif
-
-
 #ifndef BREWPI_BUZZER
     #define BREWPI_BUZZER 1
 #endif

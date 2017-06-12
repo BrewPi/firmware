@@ -20,7 +20,6 @@
 #pragma once
 #include "VisitorBase.h"
 #include "json_adapter.h"
-#include "Brewpi.h"
 #include "Platform.h"
 
 

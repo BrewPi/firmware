@@ -47,6 +47,9 @@ inline void watchdogCheckin(){
 inline void watchdogCheckin(){}
 #endif
 
+#define BREWPI_DS2413 1
+#define BREWPI_DS2408 (PLATFORM_ID != 0)
+#define BREWPI_USE_WIFI (PLATFORM_ID != 0)
 
 /**
  * Retrieves a pointer to the device id.

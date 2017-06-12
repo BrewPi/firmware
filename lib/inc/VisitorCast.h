@@ -18,7 +18,7 @@
  */
 
 #pragma once
-#include "Brewpi.h"
+#include "Platform.h"
 #include "ActuatorMocks.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorMutexDriver.h"
