@@ -279,8 +279,8 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Mash_Cascaded_Control, SimMashCascaded)
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "1#mash setpoint, 1#mash out sensor, 2#mash error, "
             "1#hlt setpoint, 1#hlt temp, 2#hlt error,"
-            "3#mash2hlt P, 3#mash2hlt I, 3#mash2hlt D, 3#mash2hlt PID, 3#mash2hlt realized output,"
-            "5#heater pwm, 5# header realized pwm, 4#heater P, 4#heater I, 4#heater D"
+            "3#mash2hlt P, 3#mash2hlt I, 3#mash2hlt D, 3#mash2hlt PID, 3#mash2hlt desired output, 3#mash2hlt realized output,"
+            "5#heater pwm, 5# heater realized pwm, 4#heater P, 4#heater I, 4#heater D"
             << endl;
     double SetPointDouble = 68;
     for(int t = 0; t < 10800; t++){
@@ -303,7 +303,8 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Mash_Cascaded_Control, SimMashCascaded)
                 << mashToHltPid.i << "," // integral action
                 << mashToHltPid.d << "," // derivative action
                 << mashToHltPid.p + mashToHltPid.i + mashToHltPid.d << "," // PID output
-                << hltOffsetActuator.setting() << "," // Actually realized output
+                << hltOffsetActuator.setting() << "," // Desired output
+                << hltOffsetActuator.value() << "," // Actually realized output
 
                 << hltHeater.setting() << "," // actuator set output heater
                 << hltHeater.value() << "," // actuator actual output heater
@@ -321,7 +322,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Switch_from_HTL_to_Cascaded_Control, SimMashCas
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "1#mash setpoint, 1#mash out sensor, 2#mash error, "
                 "1#hlt setpoint, 1#hlt temp, 2#hlt error,"
-                "3#mash2hlt P, 3#mash2hlt I, 3#mash2hlt D, 3#mash2hlt PID, 3#mash2hlt realized output,"
+                "3#mash2hlt P, 3#mash2hlt I, 3#mash2hlt D, 3#mash2hlt PID, 3#mash2hlt desired output, 3#mash2hlt realized output,"
                 "5#heater pwm, 5#heater achieved pwm, 4#heater P, 4#heater I, 4#heater D"
             << endl;
 
@@ -350,7 +351,8 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Switch_from_HTL_to_Cascaded_Control, SimMashCas
                 << mashToHltPid.i << "," // integral action
                 << mashToHltPid.d << "," // derivative action
                 << mashToHltPid.p + mashToHltPid.i + mashToHltPid.d << "," // PID output
-                << hltOffsetActuator.setting() << "," // Actually realized output
+                << hltOffsetActuator.setting() << "," // Desired output
+                << hltOffsetActuator.value() << "," // Actually realized output
 
                 << hltHeater.setting() << "," // actuator output heater
                 << hltHeater.value() << "," // actuator achieved output heater

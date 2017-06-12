@@ -99,10 +99,13 @@ BOOST_FIXTURE_TEST_CASE(proportional_plus_integral, PidTest)
     sensor.setTemp(20.0);
 
     // update for 10 minutes
-    for(int i = 0; i < 600; i++){
-        pid.update();
-        act.update();
-        delay(1000);
+    for(long int i = 0; i < 60000; i++){
+        if(i%100 == 0){
+            pid.update();
+            act.update();
+        }
+        act.fastUpdate();
+        delay(10);
     }
 
     // integrator result is Kp * error * 1 / Ti, So 10* 600 * 1 degree error / 600 = 10.0
@@ -118,12 +121,16 @@ BOOST_FIXTURE_TEST_CASE(proportional_plus_derivative, PidTest)
     pid.setDerivativeFilter(4);
 
     // update for 10 minutes
-    for(int i = 0; i <= 600; i++){
-        sensor.setTemp(temp_t(20.0) + temp_t(i*0.015625));
-        pid.update();
-        act.update();
-        delay(1000);
+    for(long int i = 0; i <= 60000; i++){
+        if(i%100 == 0){
+            sensor.setTemp(temp_t(20.0) + temp_t(i/100*0.015625));
+            pid.update();
+            act.update();
+        }
+        act.fastUpdate();
+        delay(10);
     }
+
 
     BOOST_CHECK_EQUAL(sensor.read(), temp_t(29.375)); // sensor value should have gone up 9.375 degrees
 
@@ -153,11 +160,16 @@ BOOST_FIXTURE_TEST_CASE(just_proportional_cooling, PidTest)
     // inputs are filtered, so output should still be close to the old value
     BOOST_CHECK_CLOSE(double(act.setting()), 10.0, 1);
 
-    for(int i = 0; i<100; i++){
-        pid.update();
-        act.update();
-        delay(1000);
+    // update for 100 seconds
+    for(long int i = 0; i < 10000; i++){
+        if(i%100 == 0){
+            pid.update();
+            act.update();
+        }
+        act.fastUpdate();
+        delay(10);
     }
+
     // after a enough updates, filters have settled and new PID value is Kp*error
     BOOST_CHECK_CLOSE(double(act.setting()), 30.0, 1);
 }
@@ -171,10 +183,13 @@ BOOST_FIXTURE_TEST_CASE(proportional_plus_integral_cooling, PidTest)
     sensor.setTemp(20.0);
 
     // update for 10 minutes
-    for(int i = 0; i < 600; i++){
-        pid.update();
-        act.update();
-        delay(1000);
+    for(long int i = 0; i < 60000; i++){
+        if(i%100 == 0){
+            pid.update();
+            act.update();
+        }
+        act.fastUpdate();
+        delay(10);
     }
 
     // integrator result is error / Ti * time, So 600 * 1 degree error / 60 = 10.0
@@ -188,11 +203,14 @@ BOOST_FIXTURE_TEST_CASE(proportional_plus_derivative_cooling, PidTest)
     sp.write(5.0);
 
     // update for 10 minutes
-    for(int i = 0; i <= 600; i++){
-        sensor.setTemp(temp_t(20.0) - temp_t(i*0.015625));
-        pid.update();
-        act.update();
-        delay(1000);
+    for(long int i = 0; i <= 60000; i++){
+        if(i%100 == 0){
+            sensor.setTemp(temp_t(20.0) - temp_t(i/100*0.015625));
+            pid.update();
+            act.update();
+        }
+        act.fastUpdate();
+        delay(10);
     }
 
     BOOST_CHECK_EQUAL(sensor.read(), temp_t(10.625)); // sensor value should have gone up 9.375 degrees
@@ -207,10 +225,13 @@ BOOST_FIXTURE_TEST_CASE(integrator_windup_heating_PI, PidTest)
     sensor.setTemp(20.0);
 
     // update for 20 minutes, integrator will grow by 20 (kp*error) per minute
-    for(int i = 0; i < 1200; i++){
-        pid.update();
-        act.update();
-        delay(1000);
+    for(long int i = 0; i < 120000; i++){
+        if(i%100 == 0){
+            pid.update();
+            act.update();
+        }
+        act.fastUpdate();
+        delay(10);
     }
 
     BOOST_CHECK_CLOSE(double(act.setting()), 100.0, 5); // actuator should be at maximum
@@ -224,11 +245,14 @@ BOOST_FIXTURE_TEST_CASE(integrator_windup_cooling_PI, PidTest)
     sp.write(20.0);
     sensor.setTemp(22.0);
 
-    // update for 20 minutes, integrator will grow by -20 (kp*error) per minute
-    for(int i = 0; i < 1200; i++){
-        pid.update();
-        act.update();
-        delay(1000);
+    // update for 20 minutes, integrator will grow by 20 (kp*error) per minute
+    for(long int i = 0; i < 120000; i++){
+        if(i%100 == 0){
+            pid.update();
+            act.update();
+        }
+        act.fastUpdate();
+        delay(10);
     }
 
     BOOST_CHECK_CLOSE(double(act.setting()), 100.0, 5); // actuator should be at maximum
@@ -318,10 +342,10 @@ BOOST_AUTO_TEST_CASE(pid_driving_setpoint_actuator){
     // beer temp -> fridge temp setting -> actuators
     // the feedback of the actual fridge temp is lost, but the setpoint should still be set
 
-    BOOST_CHECK_EQUAL(act.setting(), temp_t(10.5)); // +0.25 because of another actuator increase
+    BOOST_CHECK_CLOSE(double(act.setting()), 10.5, 1); // +0.25 because of another actuator increase
 
     // setpoint will be reference sp + actuator value = 35.5
-    BOOST_CHECK_EQUAL(targetSetpoint.read(), temp_t(35.5));
+    BOOST_CHECK_CLOSE(double(targetSetpoint.read()), 35.5, 1);
 
     // achieved actuator value will be invalid
     BOOST_CHECK_EQUAL(act.value(), temp_t::invalid());

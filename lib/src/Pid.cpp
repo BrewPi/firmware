@@ -135,14 +135,14 @@ void Pid::update()
     temp_long_t pidResult = temp_long_t(p) + temp_long_t(i) + temp_long_t(d);
 
     // Get output to send to actuator. When actuator is a 'cooler', invert the result
-    temp_t      outputSetting    = (actuatorIsNegative) ? -pidResult : pidResult;
+    temp_t desiredSetting = (actuatorIsNegative) ? -pidResult : pidResult;
 
-    output.set(outputSetting);
+    output.set(desiredSetting);
 
     // get the value that is clipped to the actuator's range
-    outputSetting = output.setting();
+    temp_long_t achievedSetting = output.setting();
     // When actuator is a 'cooler', invert the output again
-    outputSetting = (actuatorIsNegative) ? -outputSetting : outputSetting;
+    achievedSetting = (actuatorIsNegative) ? -achievedSetting : achievedSetting;
 
     if(Ti == 0){ // 0 has been chosen to indicate that the integrator is disabled. This also prevents divide by zero.
         integral = decltype(integral)::base_type(0);
@@ -150,46 +150,46 @@ void Pid::update()
     else{
         // update integral with anti-windup back calculation
         // pidResult - output is zero when actuator is not saturated
-        // when the actuator is close the to pidResult (setpoint), disable anti-windup
-        // this prevens small fluctuations from keeping the integrator at zero
+
+        temp_long_t antiWindup(temp_long_t::base_type(0));
 
         integral = integral + p;
 
-        temp_long_t antiWindup(temp_long_t::base_type(0));
-        if(pidResult != temp_long_t(outputSetting)){ // clipped to actuator min or max set in target actuator
-            antiWindup = pidResult - outputSetting;
+        if(pidResult != temp_long_t(achievedSetting)){
+            // clipped to actuator min or max set in target actuator
+            // calculate anti-windup from setting instead of actual value, so it doesn't dip under the maximum
+            antiWindup = pidResult - achievedSetting;
             antiWindup *= 5; // Anti windup gain is 5 when clipping to min/max
         }
-        else{ // Actuator could be not reaching set value due to physics or limits in its target actuator
-              // Get the actual achieved value in actuator. This could differ due to slowness time/mutex limits
+        else {
             temp_t achievedOutput = output.value();
             if(!achievedOutput.isDisabledOrInvalid()){ // only apply anti-windup when it is possible to read back the actual value
+                // Actuator could be not reaching set value due to physics or limits in its target actuator
+                // Get the actual achieved value in actuator. This could differ due to slowness time/mutex limits
                 // When actuator is a 'cooler', invert the output again
                 temp_long_t achievedOutputWithCorrectSign = (actuatorIsNegative) ? -achievedOutput : achievedOutput;
-
-                // if the proportional part is bigger than what has been achieved by the actuator, apply anti-windup
                 if(actuatorIsNegative){
-                    if(p < achievedOutputWithCorrectSign){
-                        antiWindup = (p - achievedOutputWithCorrectSign);
+                    if(pidResult < achievedOutputWithCorrectSign){
+                        antiWindup = (pidResult - achievedOutputWithCorrectSign);
                     }
                 }
                 else{
-                    if(p > achievedOutputWithCorrectSign){
-                        antiWindup = (p - achievedOutputWithCorrectSign);
+                    if(pidResult > achievedOutputWithCorrectSign){
+                        antiWindup = (pidResult - achievedOutputWithCorrectSign);
                     }
                 }
                 antiWindup *= 3; // Anti windup gain is 3 for this kind of windup
             }
         }
-
-        // only apply anti-windup if it will decrease the integral and prevent crossing through zero
-        if(integral.sign() * antiWindup.sign() == 1){
-            if((integral - antiWindup).sign() != integral.sign()){
-                integral = decltype(integral)::base_type(0);
+        temp_long_t reducedIntegral = integral - antiWindup;
+        if(integral.sign() * reducedIntegral.sign() == 1){
+            if(integral.sign() * antiWindup.sign() == 1){
+                // only apply anti-windup if it will bring the PID result closer to zero
+                integral = reducedIntegral;
             }
-            else{
-                integral -= antiWindup;
-            }
+        }
+        else{
+            integral = decltype(integral)::base_type(0); // set to zero if crossing zero due to anti-windup
         }
     }
 }
