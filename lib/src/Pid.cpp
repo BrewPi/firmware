@@ -163,22 +163,23 @@ void Pid::update()
         }
         else {
             temp_t achievedOutput = output.value();
-            if(!achievedOutput.isDisabledOrInvalid()){ // only apply anti-windup when it is possible to read back the actual value
+            if(!achievedOutput.isDisabledOrInvalid()){
+                // only apply anti-windup when it is possible to read back the actual value
                 // Actuator could be not reaching set value due to physics or limits in its target actuator
                 // Get the actual achieved value in actuator. This could differ due to slowness time/mutex limits
-                // When actuator is a 'cooler', invert the output again
+                // When actuator is a 'cooler', take the sign reversal into account
+
                 temp_long_t achievedOutputWithCorrectSign = (actuatorIsNegative) ? -achievedOutput : achievedOutput;
-                if(actuatorIsNegative){
-                    if(pidResult < achievedOutputWithCorrectSign){
-                        antiWindup = (pidResult - achievedOutputWithCorrectSign);
-                    }
+
+                // Anti windup gain is 3 for this kind of windup
+                antiWindup = (pidResult - achievedOutputWithCorrectSign);
+                antiWindup *= 3.0;
+                if(actuatorIsNegative && i < p){
+                    antiWindup = temp_long_t::base_type(0);
                 }
-                else{
-                    if(pidResult > achievedOutputWithCorrectSign){
-                        antiWindup = (pidResult - achievedOutputWithCorrectSign);
-                    }
+                else if( i > p ){
+                    antiWindup = temp_long_t::base_type(0);
                 }
-                antiWindup *= 3; // Anti windup gain is 3 for this kind of windup
             }
         }
         temp_long_t reducedIntegral = integral - antiWindup;
