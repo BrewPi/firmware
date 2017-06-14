@@ -117,19 +117,21 @@ struct MashSimulation{
         coilOutTemp = 20;
         mashInTemp = 20;
 
-        mashVolume = 20;
-        hltVolume = 20;
+        // typical for a 40 liter batch and a 45cm kettle
+        mashVolume = 28;
+        hltVolume = 28;
 
-        hltCapacity = 4.2 * 1.0 * hltVolume; // heat capacity water * density of water * 20L volume (in kJ per degree C).
-        mashCapacity = 4.2 * 1.0 * mashVolume;
+        specificHeat = 4.2;
+        hltCapacity = specificHeat * 1.0 * hltVolume; // heat capacity water * density of water * 20L volume (in kJ per degree C).
+        mashCapacity = specificHeat * 1.0 * mashVolume;
 
-        hltHeaterPower = 3.5; // 3500W, in kW.
+        hltHeaterPower = 3.2; // 3200W, in kW.
 
-        coilTransfer = 0.8; // percentage of temperature difference picked up in HLT coil
-        flowRate = 10.0/60; // 5 liter per minute, in L/s.
-        kettleEnvTransfer = 0.01; // losses to environment
-        mashToCoilLoss = 0.05; // losses between mash tun and coil
-        coilToMashLoss = 0.03; // losses between mash tun and coil
+        coilTransfer = 0.6; // ratio of temperature difference picked up in HLT coil
+        flowRate = 8.0/60; // 8 liter per minute, in L/s.
+        kettleEnvTransfer = 0.01; // 10W per degree
+        mashToCoilLoss = 0.01; // losses between mash tun and coil
+        coilToMashLoss = 0.01; // losses between mash tun and coil
 
         mashPumping = true;
     }
@@ -147,7 +149,7 @@ struct MashSimulation{
 
             // coil transfer
             mashTempNew = (mashTemp * (mashVolume - flowRate) + mashInTemp*flowRate) / mashVolume;
-            hltTempNew -= (coilOutTemp - coilInTemp) * flowRate / hltCapacity;
+            hltTempNew -= (coilOutTemp - coilInTemp) * flowRate / hltVolume;
         }
 
         // heater
@@ -173,6 +175,7 @@ struct MashSimulation{
 
     double hltCapacity;
     double mashCapacity;
+    double specificHeat;
 
     double hltHeaterPower;
 
@@ -194,8 +197,8 @@ struct SimMashDirect : public MashStaticSetup {
     SimMashDirect(){
         hltHeaterPidInput.setLookup(PtrLookup(&mash));
         hltHeaterPid.setInputFilter(1);
-        hltHeaterPid.setDerivativeFilter(1);
-        hltHeaterPid.setConstants(50.0, 300, 120);
+        hltHeaterPid.setDerivativeFilter(3);
+        hltHeaterPid.setConstants(50.0, 300, 60);
     }
 
     void update(){
@@ -214,14 +217,14 @@ struct SimMashCascaded : public MashStaticSetup {
     SimMashCascaded(){
         hltHeaterPidInput.setLookup(PtrLookup(&hlt));
         hltHeaterPid.setInputFilter(1);
-        hltHeaterPid.setDerivativeFilter(1);
+        hltHeaterPid.setDerivativeFilter(2);
         hltHeaterPid.setConstants(50.0, 300, 30);
 
 
         mashToHltPidInput.setLookup(PtrLookup(&mash));
         mashToHltPid.setInputFilter(2);
-        mashToHltPid.setDerivativeFilter(2);
-        mashToHltPid.setConstants(1, 300, 120);
+        mashToHltPid.setDerivativeFilter(3);
+        mashToHltPid.setConstants(1, 300, 0);
         hltOffsetActuator.setMin(-5.0);
         hltOffsetActuator.setMax(5.0);
     }
@@ -345,7 +348,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Switch_from_HTL_to_Cascaded_Control_And_Step, S
         }
         if(t == 1800){
             // sensor value is at setpoint after 10 minutes
-            BOOST_CHECK_CLOSE(double(mashSet.read()), double(mashSensor.read()),0.1);
+            BOOST_CHECK_CLOSE(double(mashSet.read()), double(mashSensor.read()),0.2);
         }
         if(t == 7000){
             // sensor kept exactly at setpoint after second step
@@ -388,7 +391,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_very_small_proportonial_gain, SimMashCascaded)
             << endl;
 
     mashSet.write(66.0);
-    mashToHltPid.setConstants(0.2, 60, 30);
+    mashToHltPid.setConstants(0.2, 120, 0);
 
 
     for(int t = 0; t < 3600; t++){
