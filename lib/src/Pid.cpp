@@ -159,7 +159,10 @@ void Pid::update()
             // clipped to actuator min or max set in target actuator
             // calculate anti-windup from setting instead of actual value, so it doesn't dip under the maximum
             antiWindup = pidResult - achievedSetting;
-            antiWindup *= 5; // Anti windup gain is 5 when clipping to min/max
+            antiWindup *= 3; // Anti windup gain is 3
+            // make sure anti-windup is at least p when clipping to prevent further windup
+            antiWindup = (p > temp_long_t(0.0) && antiWindup < p) ? p : antiWindup;
+            antiWindup = (p < temp_long_t(0.0) && antiWindup > p) ? p : antiWindup;
         }
         else {
             temp_t achievedOutput = output.value();
@@ -171,13 +174,15 @@ void Pid::update()
 
                 temp_long_t achievedOutputWithCorrectSign = (actuatorIsNegative) ? -achievedOutput : achievedOutput;
 
-                // Anti windup gain is 3 for this kind of windup
+                // Anti windup gain is 3
                 antiWindup = (pidResult - achievedOutputWithCorrectSign);
                 antiWindup *= 3.0;
-                if(actuatorIsNegative && i < p){
+
+                // Disable anti-windup if integral part dominates
+                if(actuatorIsNegative && i < p+p+p){
                     antiWindup = temp_long_t::base_type(0);
                 }
-                else if( i > p ){
+                else if( i > p+p+p ){
                     antiWindup = temp_long_t::base_type(0);
                 }
             }
