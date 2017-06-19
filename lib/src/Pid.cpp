@@ -178,12 +178,14 @@ void Pid::update()
                 antiWindup = (pidResult - achievedOutputWithCorrectSign);
                 antiWindup *= 3.0;
 
-                // Disable anti-windup if integral part dominates
-                if(actuatorIsNegative && i < p+p+p){
-                    antiWindup = temp_long_t::base_type(0);
-                }
-                else if( i > p+p+p ){
-                    antiWindup = temp_long_t::base_type(0);
+                // Disable anti-windup if integral part dominates. But only if it counteracts p.
+                if(antiWindup.sign() == p.sign()){
+                    if(actuatorIsNegative && i < p+p+p){
+                        antiWindup = temp_long_t::base_type(0);
+                    }
+                    else if( i > p+p+p ){
+                        antiWindup = temp_long_t::base_type(0);
+                    }
                 }
             }
         }
