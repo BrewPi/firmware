@@ -50,6 +50,8 @@ DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 
 UI ui;
 
+SYSTEM_MODE(MANUAL);
+
 void setup()
 {
     boardInit();

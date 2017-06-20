@@ -88,8 +88,8 @@ public:
         if(available > 0){
             currentStream = &Serial;
         }
-        // connect if there's a client waiting on WiFi and no data on Serial
         else if (WiFi.ready()) {
+            // connect if there's a client waiting on WiFi and no data on Serial
             if(! tcpClient.connected()) {
                 tcpClient = tcpServer.available();
             }
@@ -100,21 +100,24 @@ public:
                 }
             }
         }
+        else {
+            tcpServer.stop();
+            tcpClient.stop();
+            if (WiFi.hasCredentials()) {
+                WiFi.connect();
+                waitFor(WiFi.ready, 10000);
+                if(WiFi.ready()){
+                    tcpServer.begin();
+                }
+            }
+        }
 
         return available;
     }
 
     void begin(unsigned long rate) {
         Serial.begin(rate);
-        WiFi.on();
-
-        if (WiFi.hasCredentials()) {
-            WiFi.connect();
-            waitFor(WiFi.ready, 30*1000);
-            if (WiFi.ready()) {
-                tcpServer.begin();
-            }
-        }
+        // WiFi is handled in available()
     }
 
     size_t write(uint8_t buf) {

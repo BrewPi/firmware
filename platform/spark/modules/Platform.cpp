@@ -7,8 +7,6 @@
 #endif
 #include "EepromAccess.h"
 
-SYSTEM_MODE(SEMI_AUTOMATIC);
-
 void handleReset(bool exit)
 { 
 	if(exit)
