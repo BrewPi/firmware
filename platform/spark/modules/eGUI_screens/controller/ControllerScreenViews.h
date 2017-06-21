@@ -30,6 +30,8 @@ extern "C" {
 
 bool set_background_color(const D4D_OBJECT* pThis, D4D_COLOR bg);
 
+void asString(char* buf, temp_t t, unsigned num_decimals, unsigned max_len);
+const char* ltrim(const char* s);
 
 
 class ControllerStateView
@@ -130,13 +132,58 @@ public:
     TemperatureProcessPresenter(TemperatureProcessView& view, D4D_COLOR col) :
         view_(view), bg_col(col)
     {}
-    
-    static void asString(char* buf, temp_t t, unsigned num_decimals, unsigned max_len);
-    
-    static const char* ltrim(const char* s);
-        
+
     void update(temp_t current, temp_t setpoint, bool has_setpoint=true);
 };
+
+
+class TemperatureLoggingView
+{
+    const D4D_OBJECT**    objects;
+
+public:
+
+    /**
+     * Object shows 3 temperatures, the first 3 objects and a label, the 4th.
+     * @param objects
+     */
+    TemperatureLoggingView(const D4D_OBJECT* objects[]) {
+        this->objects = objects;
+    }
+
+    void setBgColor(D4D_COLOR col)
+    {
+        set_background_color(objects[0], col);
+        set_background_color(objects[1], col);
+        set_background_color(objects[2], col);
+        set_background_color(objects[3], col);
+    }
+
+    void update(const char* log1, const char* log2, const char* log3)
+    {
+        D4D_SetText(objects[0], log1);
+        D4D_SetText(objects[1], log2);
+        D4D_SetText(objects[2], log3);
+    }
+};
+
+
+/**
+ * Presents both a set point and the current temperature.
+ */
+class TemperatureLoggingPresenter
+{
+    TemperatureLoggingView& view_;
+    D4D_COLOR bg_col;
+public:
+
+    TemperatureLoggingPresenter(TemperatureLoggingView& view, D4D_COLOR col) :
+        view_(view), bg_col(col)
+    {}
+
+    void update(temp_t log1, temp_t log2, temp_t log3);
+};
+
 
 class ControllerModeView
 {

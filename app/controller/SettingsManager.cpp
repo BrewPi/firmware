@@ -49,7 +49,7 @@ void SettingsManager::loadSettings()
 		clear((uint8_t*)&cfg, sizeof(cfg));
 		cfg.deviceHardware = DEVICE_HARDWARE_ONEWIRE_TEMP;	
 		cfg.chamber = 1;
-		cfg.deviceFunction = DEVICE_CHAMBER_ROOM_TEMP;	
+		cfg.deviceFunction = DEVICE_CHAMBER_LOG1_TEMP;
 		deviceManager.uninstallDevice(cfg);
 		deviceManager.installDevice(cfg);
 
@@ -61,10 +61,8 @@ void SettingsManager::loadSettings()
 		cfg.deviceFunction = DEVICE_BEER_TEMP;
 		deviceManager.uninstallDevice(cfg);
 		deviceManager.installDevice(cfg);
-		
 	}
-	#endif		
-	
+	#endif
 }
 
 SettingsManager settingsManager;

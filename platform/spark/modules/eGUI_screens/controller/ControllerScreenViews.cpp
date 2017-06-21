@@ -62,7 +62,7 @@ D4D_COLOR ControllerStatePresenter::state_color[] = {
 const D4D_OBJECT* stateDisplay[] = { &scrController_state, &scrController_time };
 const D4D_OBJECT* beerTempDisplay[] = { &scrController_beertemp, &scrController_beersv, &scrController_beer };
 const D4D_OBJECT* fridgeTempDisplay[] = { &scrController_fridgetemp, &scrController_fridgesv, &scrController_fridge};
-const D4D_OBJECT* roomTempDisplay[] = { &scrController_roomtemp, &scrController_roomsv, &scrController_room};
+const D4D_OBJECT* loggingDisplay[] = { &scrController_log1temp, &scrController_log2temp, &scrController_log3temp, &scrController_logging};
 
 ControllerStateView stateView(stateDisplay);
 ControllerStatePresenter statePresenter(stateView);
@@ -73,8 +73,8 @@ TemperatureProcessPresenter beerTempPresenter(beerTempView, BEER_BG_COLOR);
 TemperatureProcessView fridgeTempView(fridgeTempDisplay);
 TemperatureProcessPresenter fridgeTempPresenter(fridgeTempView, FRIDGE_BG_COLOR);
 
-TemperatureProcessView roomTempView(roomTempDisplay);
-TemperatureProcessPresenter roomTempPresenter(roomTempView, ROOM_BG_COLOR);
+TemperatureLoggingView loggingTempView(loggingDisplay);
+TemperatureLoggingPresenter loggingTempPresenter(loggingTempView, LOG_BG_COLOR);
 
 ControllerModeView modeView(&scrController_mode);
 ControllerModePresenter modePresenter(modeView);
@@ -84,6 +84,34 @@ ControllerTimePresenter timePresenter(timeView);
 
 TextView tempFormatView(&scrController_lbl_tempunit);
 ControllerTemperatureFormatPresenter tempFormatPresenter(tempFormatView);
+
+
+void asString(char* buf, temp_t t, unsigned num_decimals, unsigned max_len)
+{
+    if (t.isDisabledOrInvalid()) {
+        strcpy(buf, "--.-");
+    }
+    else
+        t.toTempString(buf, num_decimals, max_len, tempControl.cc.tempFormat, true);
+}
+
+const char* ltrim(const char* s) {
+    for (;*s==' ';s++);
+    return s;
+}
+
+uint16_t fetch_time(states state)
+{
+    tcduration_t time = 0;
+    tcduration_t sinceIdleTime = tempControl.timeSinceIdle();
+    if(state==IDLE){
+        time = min(tempControl.timeSinceCooling(), tempControl.timeSinceHeating());
+    }
+    else if(state==COOLING || state==HEATING){
+        time = sinceIdleTime;
+    }
+    return time;
+}
 
 void ControllerScreen_Update()
 {
@@ -95,23 +123,7 @@ void ControllerScreen_Update()
     
     beerTempPresenter.update(tempControl.getBeerTemp(), tempControl.getBeerSetting());
     fridgeTempPresenter.update(tempControl.getFridgeTemp(), tempControl.getFridgeSetting());
-    roomTempPresenter.update(tempControl.getLog1Temp(), temp_t::invalid(), false);
-    
-}
-
-
-void TemperatureProcessPresenter::asString(char* buf, temp_t t, unsigned num_decimals, unsigned max_len)
-{
-    if (t.isDisabledOrInvalid()) {
-        strcpy(buf, "--.-");
-    }
-    else
-        t.toTempString(buf, num_decimals, max_len, tempControl.cc.tempFormat, true);
-}
-
-const char* TemperatureProcessPresenter::ltrim(const char* s) {
-    for (;*s==' ';s++);
-    return s;
+    loggingTempPresenter.update(tempControl.getLog1Temp(), tempControl.getLog2Temp(), tempControl.getLog3Temp());
 }
 
 void TemperatureProcessPresenter::update(temp_t current, temp_t setpoint, bool has_setpoint)
@@ -125,17 +137,18 @@ void TemperatureProcessPresenter::update(temp_t current, temp_t setpoint, bool h
     view_.update(ltrim(current_str), has_setpoint ? ltrim(setpoint_str) : NULL);
 }          
 
-uint16_t fetch_time(states state)
+void TemperatureLoggingPresenter::update(temp_t log1, temp_t log2, temp_t log3)
 {
-    tcduration_t time = 0;
-    tcduration_t sinceIdleTime = tempControl.timeSinceIdle();
-    if(state==IDLE){
-        time = min(tempControl.timeSinceCooling(), tempControl.timeSinceHeating());
-    }
-    else if(state==COOLING || state==HEATING){
-        time = sinceIdleTime;
-    }
-    return time;
+    char log1_str[MAX_TEMP_LEN];
+    char log2_str[MAX_TEMP_LEN];
+    char log3_str[MAX_TEMP_LEN];
+
+
+    asString(log1_str, log1, 1, MAX_TEMP_LEN);
+    asString(log2_str, log2, 1, MAX_TEMP_LEN);
+    asString(log3_str, log3, 1, MAX_TEMP_LEN);
+    view_.setBgColor(bg_col);
+    view_.update(ltrim(log1_str), ltrim(log2_str), ltrim(log3_str));
 }
 
 const char* ControllerTemperatureFormatPresenter::formatText()

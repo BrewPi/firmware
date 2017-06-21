@@ -51,9 +51,10 @@ D4D_EXTERN_OBJECT(scrController_fridgetemp);
 D4D_EXTERN_OBJECT(scrController_fridgesv);
 D4D_EXTERN_OBJECT(scrController_fridge);
 
-D4D_EXTERN_OBJECT(scrController_roomtemp);
-D4D_EXTERN_OBJECT(scrController_roomsv);
-D4D_EXTERN_OBJECT(scrController_room);
+D4D_EXTERN_OBJECT(scrController_logging);
+D4D_EXTERN_OBJECT(scrController_log1temp);
+D4D_EXTERN_OBJECT(scrController_log2temp);
+D4D_EXTERN_OBJECT(scrController_log3temp);
 
 D4D_EXTERN_OBJECT(scrController_mode);
 D4D_EXTERN_OBJECT(scrController_state);
