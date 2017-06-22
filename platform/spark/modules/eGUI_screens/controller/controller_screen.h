@@ -60,6 +60,9 @@ D4D_EXTERN_OBJECT(scrController_mode);
 D4D_EXTERN_OBJECT(scrController_state);
 D4D_EXTERN_OBJECT(scrController_time);
 
+D4D_EXTERN_OBJECT(scrController_usb_state);
+D4D_EXTERN_OBJECT(scrController_wifi_state);
+
 #define MAX_TEMP_LEN (7)
 #define MAX_NAME_LEN (20)
 #define MAX_MODE_LEN (10)

@@ -67,6 +67,8 @@
 #define ROW5_GAP ROW_GAP
 
 #define ROW6_Y (ROW5_Y+ROW5_CY+ROW5_GAP)
+#define ROW6_CY (20)
+#define ROW6_GAP ROW_GAP
 
 #define LABEL_COLOR SECONDARY_TEXT_COLOR
 
@@ -90,6 +92,13 @@
 #define ROWL2_CY ROWLOG_CY
 #define ROWL3_CY (ROWLOG_CY+2)
 
+#define CONNECTIVITY_USB_CX 40
+#define CONNECTIVITY_WIFI_CX 80
+#define CONNECTIVITY_CY 20
+
+#define CONNECTIVITY_Y (240 - CONNECTIVITY_CY)
+#define CONNECTIVITY_STATE_WIFIX (CONNECTIVITY_USB_CX + COL_GAP)
+#define CONNECTIVITY_STATE_USBX 0
 
 char tempFormat[3];
 
@@ -111,6 +120,7 @@ char controller_log3temp[MAX_TEMP_LEN]="";
 char controller_mode[MAX_MODE_LEN]="";
 char controller_state[MAX_STATE_LEN]="";
 char controller_time[MAX_TIME_LEN]="";
+char controller_wifi_ip[16]= "";
 
 //D4D_DECLARE_COLOR_LABEL(scrController_name, controller_name, COL2_X, ROW1_Y, COL5_X-COL4_GAP-COL2_X, ROW1_CY, FONT_REGULAR, D4D_CONST, NAME_BG_COLOR, REGULAR_TEXT_COLOR);
 D4D_DECLARE_STD_PICTURE(scrController_logo, 138, 5, 45, 30, &bmp_brewpi_logo_black_45_30);
@@ -135,6 +145,8 @@ D4D_DECLARE_COLOR_LABEL(scrController_mode, controller_mode, COL2_X, ROWMODE_Y, 
 D4D_DECLARE_COLOR_LABEL(scrController_state, controller_state, COL3_X, ROWMODE_Y, COL3_CX+(COL3_GAP>>1), ROWMODE_CY, FONT_REGULAR, D4D_NO_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
 D4D_DECLARE_COLOR_LABEL(scrController_time, controller_time, COL4_X-(COL3_GAP>>1), ROWMODE_Y, COL4_CX+(COL3_GAP>>1), ROWMODE_CY, FONT_REGULAR, D4D_NO_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
 
+D4D_DECLARE_COLOR_LABEL(scrController_usb_state, "USB", CONNECTIVITY_STATE_USBX, CONNECTIVITY_Y, CONNECTIVITY_USB_CX, CONNECTIVITY_CY, FONT_SMALL, D4D_CONST, D4D_COLOR_BLACK, D4D_COLOR_GREY);
+D4D_DECLARE_COLOR_LABEL(scrController_wifi_state, controller_wifi_ip, CONNECTIVITY_STATE_WIFIX, CONNECTIVITY_Y, CONNECTIVITY_WIFI_CX, CONNECTIVITY_CY, FONT_SMALL, D4D_CONST, D4D_COLOR_BLACK, D4D_COLOR_GREY);
 
 D4D_DECLARE_STD_SCREEN_BEGIN(screen_controller, ScrController_)
     //D4D_DECLARE_SCREEN_OBJECT(scrController_lbl_name)    
@@ -162,6 +174,9 @@ D4D_DECLARE_STD_SCREEN_BEGIN(screen_controller, ScrController_)
     D4D_DECLARE_SCREEN_OBJECT(scrController_mode)
     D4D_DECLARE_SCREEN_OBJECT(scrController_state)
     D4D_DECLARE_SCREEN_OBJECT(scrController_time)
+
+    D4D_DECLARE_SCREEN_OBJECT(scrController_usb_state)
+    D4D_DECLARE_SCREEN_OBJECT(scrController_wifi_state)
 
 D4D_DECLARE_SCREEN_END()        
                 

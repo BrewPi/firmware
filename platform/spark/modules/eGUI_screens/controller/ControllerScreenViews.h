@@ -315,6 +315,56 @@ public:
     }
 };
 
+class ControllerWiFiView
+{
+    const D4D_OBJECT* obj;
+
+public:
+    ControllerWiFiView(const D4D_OBJECT* wifiObj){
+        this->obj = wifiObj;
+    }
+
+    void update(bool wifiConnected, char * const ipAddress);
+};
+
+class ControllerWiFiPresenter
+{
+public:
+    ControllerWiFiView& view_;
+
+public:
+
+    ControllerWiFiPresenter(ControllerWiFiView& view)
+        : view_(view) {}
+
+    void update();
+};
+
+class ControllerUSBView
+{
+    const D4D_OBJECT* obj;
+
+public:
+    ControllerUSBView(const D4D_OBJECT* usbObj){
+        this->obj = usbObj;
+    }
+
+    void update(bool serialConnected);
+};
+
+
+class ControllerUSBPresenter
+{
+public:
+    ControllerUSBView& view_;
+
+public:
+
+    ControllerUSBPresenter(ControllerUSBView& view)
+        : view_(view) {}
+
+    void update();
+};
 
 const char ControllerModePresenter::modes[5] = {
     MODE_FRIDGE_CONSTANT,

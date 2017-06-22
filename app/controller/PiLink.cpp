@@ -306,6 +306,10 @@ void PiLink::receive(void){
             // b: board
             // i: IP Address
             // w: WiFi SSID
+#if BREWPI_USE_WIFI
+            char ipAddressString[16];
+            ipAddressAsString(ipAddressString);
+#endif
             print_P(PSTR("N:{"
                 "\"v\":\"" PRINTF_PROGMEM "\","
                 "\"n\":\"" PRINTF_PROGMEM "\","
@@ -314,7 +318,7 @@ void PiLink::receive(void){
                 "\"b\":\"%c\","
                 "\"l\":\"%d\","
 #if BREWPI_USE_WIFI
-                "\"i\":\"%d.%d.%d.%d\","
+                "\"i\":\"%s\","
                 "\"w\":\"" PRINTF_PROGMEM "\""
 #endif
                 "}"),
@@ -326,7 +330,7 @@ void PiLink::receive(void){
                 BREWPI_LOG_MESSAGES_VERSION // l:
 #if BREWPI_USE_WIFI
                 ,
-                WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3], // i:
+                ipAddressString,
                 WiFi.SSID() // w:
 #endif
                 );
@@ -499,6 +503,11 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
     print_P(PSTR("%lu"), ticks.millis()/1000);
 #endif		
     sendJsonClose();
+}
+
+void PiLink::ipAddressAsString(char * target){
+    IPAddress ip = WiFi.localIP();
+    snprintf(target, 16, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
 }
 
 void PiLink::sendJsonAnnotation(const char* name, const char* annotation)
