@@ -9,7 +9,6 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Adafruit_mfGFX
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/BrewPiTouch
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/DS2413
-#INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Display
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/EEPROM
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/LowPassFilter
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/OneWire

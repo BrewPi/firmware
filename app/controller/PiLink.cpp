@@ -25,14 +25,12 @@
 #include "PiLink.h"
 
 #include "TempControl.h"
-#include "Display.h"
 #include "JsonKeys.h"
 #include "Ticks.h"
 #include "Brewpi.h"
 #include "EepromManager.h"
 #include "EepromFormat.h"
 #include "SettingsManager.h"
-#include "Display.h"
 #include "PiLinkHandlers.h"
 #include "UI.h"
 #include "Buzzer.h"
@@ -278,7 +276,6 @@ void PiLink::receive(void){
         case 'C': // Set default constants
             if(readCrLf()){
                 tempControl.loadDefaultConstants();
-                display.printStationaryText(); // reprint stationary text to update to right degree unit
                 sendControlConstants(); // update script with new settings
                 logInfo(INFO_DEFAULT_CONSTANTS_LOADED);
             }
@@ -334,18 +331,6 @@ void PiLink::receive(void){
                 WiFi.SSID() // w:
 #endif
                 );
-            printNewLine();
-            break;
-        case 'l': // Display content requested
-            printResponse('L');
-            piStream.print('[');
-            char stringBuffer[21];
-            for(uint8_t i=0;i<4;i++){
-                display.getLine(i, stringBuffer);
-                print_P(PSTR("\"%s\""), stringBuffer);
-                char close = (i<3) ? ',':']';
-                piStream.print(close);
-            }
             printNewLine();
             break;
         case 'j': // Receive settings as json
@@ -869,7 +854,6 @@ void PiLink::setFridgeSetting(const char* val) {
 
 void PiLink::setTempFormat(const char* val) {
     tempControl.cc.tempFormat = val[0];
-    display.printStationaryText(); // reprint stationary text to update to right degree unit
     eepromManager.storeTempConstantsAndSettings();
 }
 

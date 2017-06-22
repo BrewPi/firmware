@@ -20,7 +20,6 @@
 #include "Platform.h"
 #include "Brewpi.h"
 #include "Ticks.h"
-#include "Display.h"
 #include "TempControl.h"
 #include "PiLink.h"
 #include "TempSensor.h"
@@ -90,8 +89,6 @@ void setup()
     settingsManager.loadSettings();
 
     control.update();
-
-    ui.showControllerPage();
     			
 	logDebug("init complete");
 }
