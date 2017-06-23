@@ -313,9 +313,9 @@ void PiLink::receive(void){
                 "\"s\":%d,"
                 "\"y\":%d,"
                 "\"b\":\"%c\","
-                "\"l\":\"%d\","
+                "\"l\":\"%d\""
 #if BREWPI_USE_WIFI
-                "\"i\":\"%s\","
+                ",\"i\":\"%s\","
                 "\"w\":\"" PRINTF_PROGMEM "\""
 #endif
                 "}"),
