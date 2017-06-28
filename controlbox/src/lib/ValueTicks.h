@@ -92,7 +92,7 @@ public:
 	uint8_t readStreamSize() { return 6; }
 
 	// return time that has passed since timeStamp, take overflow into account
-	ticks_seconds_t timeSince(ticks_seconds_t previousTime) {
+	ticks_seconds_t timeSinceSeconds(ticks_seconds_t previousTime) {
 		ticks_seconds_t currentTime = seconds();
 		return ::timeSince(currentTime, previousTime);
 	}
