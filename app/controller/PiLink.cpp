@@ -79,7 +79,12 @@ public:
      * Set the current stream to where the data is available and return the number of bytes available
      */
     int available() {
+        const ticks_millis_t wifiAttemptInterval = 60000;
+        static ticks_millis_t lastWifiAttempt = -wifiAttemptInterval + 5000; // first attempt 5 seconds after boot
+        static bool connected = false;
+
         int available = 0;
+
         if (Serial.isConnected()) {
             available = Serial.available();
         }
@@ -87,6 +92,11 @@ public:
             currentStream = &Serial;
         }
         else if (WiFi.ready()) {
+            if(!connected){
+                tcpServer.begin();
+                connected = true;
+            }
+
             // connect if there's a client waiting on WiFi and no data on Serial
             if(! tcpClient.connected()) {
                 tcpClient = tcpServer.available();
@@ -101,11 +111,11 @@ public:
         else {
             tcpServer.stop();
             tcpClient.stop();
-            if (WiFi.hasCredentials()) {
-                WiFi.connect();
-                waitFor(WiFi.ready, 10000);
-                if(WiFi.ready()){
-                    tcpServer.begin();
+            connected = false;
+            if(ticks.timeSinceMillis(lastWifiAttempt) > wifiAttemptInterval){
+                lastWifiAttempt = ticks.millis();
+                if (WiFi.hasCredentials() && !WiFi.connecting()) {
+                    WiFi.connect();
                 }
             }
         }

@@ -91,8 +91,8 @@ void ActuatorPwm::fastUpdate() {
     int32_t currentTime = ticks.millis();
     int32_t elapsedTime = currentTime - periodStartTime;
 
-    int32_t sinceLowToHigh = timeSinceMillis(ticks.millis(), lowToHighTime);
-    int32_t sinceHighToLow = timeSinceMillis(ticks.millis(), highToLowTime);
+    int32_t sinceLowToHigh = timeSinceMillis(currentTime, lowToHighTime);
+    int32_t sinceHighToLow = timeSinceMillis(currentTime, highToLowTime);
     int32_t lastHighDuration = sinceLowToHigh - sinceHighToLow;
 
     if (target.isActive()) {
@@ -117,7 +117,7 @@ void ActuatorPwm::fastUpdate() {
                 int32_t thisDutyLate = elapsedTime - dutyTime;
                 dutyLate += thisDutyLate;
                 if(highToLowTime != 0){
-                    cycleTime = timeSinceMillis(ticks.millis(), highToLowTime);
+                    cycleTime = timeSinceMillis(currentTime, highToLowTime);
                 }
                 highToLowTime =currentTime;
             }
@@ -159,7 +159,7 @@ void ActuatorPwm::fastUpdate() {
                     cycleTime = estimatedCycleTime; // already had an estimate from ending cycle early
                 }
                 else{
-                    cycleTime = timeSinceMillis(ticks.millis(), lowToHighTime);
+                    cycleTime = timeSinceMillis(currentTime, lowToHighTime);
                 }
                 lowToHighTime = currentTime;
             }
