@@ -3,17 +3,17 @@
  * Copyright 2013 Matthew McGowan.
  *
  * This file is part of BrewPi.
- * 
+ *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * BrewPi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -81,29 +81,31 @@ public:
     int available() {
         const ticks_millis_t wifiAttemptInterval = 60000;
         static ticks_millis_t lastWifiAttempt = -wifiAttemptInterval + 5000; // first attempt 5 seconds after boot
-        static bool connected = false;
+        static bool tcpServerRunning = false;
 
         int available = 0;
 
         if (Serial.isConnected()) {
             available = Serial.available();
         }
-        if(available > 0){
+        if(available > 0) {
             currentStream = &Serial;
         }
         else if (WiFi.ready()) {
-            if(!connected){
+            if(!tcpServerRunning) {
                 tcpServer.begin();
-                connected = true;
+                tcpServerRunning = true;
             }
 
-            // connect if there's a client waiting on WiFi and no data on Serial
-            if(! tcpClient.connected()) {
-                tcpClient = tcpServer.available();
+            // if a new client appears, drop the old one
+            TCPClient newClient = tcpServer.available();
+            if(newClient) {
+                tcpClient.stop();
+                tcpClient = newClient;
             }
             if (tcpClient.connected()) {
                 available = tcpClient.available();
-                if(available > 0){
+                if(available > 0) {
                     currentStream = &tcpClient;
                 }
             }
@@ -111,10 +113,11 @@ public:
         else {
             tcpServer.stop();
             tcpClient.stop();
-            connected = false;
-            if(ticks.timeSinceMillis(lastWifiAttempt) > wifiAttemptInterval){
-                lastWifiAttempt = ticks.millis();
-                if (WiFi.hasCredentials() && !WiFi.connecting()) {
+            tcpServerRunning = false;
+
+            if (WiFi.hasCredentials() && !WiFi.connecting()) {
+                if(ticks.timeSinceMillis(lastWifiAttempt) > wifiAttemptInterval) {
+                    lastWifiAttempt = ticks.millis();
                     WiFi.connect();
                 }
             }
@@ -269,7 +272,7 @@ void PiLink::receive(void){
         case 'Y':
             printSimulatorSettings();
             break;
-#endif						
+#endif
         case 'A': // alarm on
             if(readCrLf()){
                 soundAlarm(true);
@@ -387,7 +390,7 @@ void PiLink::receive(void){
             closeListResponse();
             break;
 
-#if (BREWPI_DEBUG > 0)			
+#if (BREWPI_DEBUG > 0)
         case 'Z': // zap eeprom
             if(readCrLf()){
                 eepromManager.zapEeprom();
@@ -493,10 +496,10 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
     if (changed(state, tempControl.getState()))
         sendJsonPair(PSTR(JSON_STATE), (uint8_t)tempControl.getState());
 
-#if BREWPI_SIMULATE	
+#if BREWPI_SIMULATE
     printJsonName(PSTR(JSON_TIME));
     print_P(PSTR("%lu"), ticks.millis()/1000);
-#endif		
+#endif
     sendJsonClose();
 }
 
@@ -543,7 +546,7 @@ void PiLink::printFridgeAnnotation(const char * annotation, ...){
     vsnprintf_P(tempString, 128, annotation, args);
     va_end (args);
     printTemperaturesJSON(0, tempString);
-}	 
+}
 
 void PiLink::printResponse(char type) {
     piStream.print(type);
@@ -593,7 +596,7 @@ void PiLink::sendControlSettings(void){
 
 // where the offset is relative to. This saves having to store a full 16-bit pointer.
 // becasue the structs are static, we can only compute an offset relative to the struct (cc,cs,cv etc..)
-// rather than offset from tempControl. 
+// rather than offset from tempControl.
 uint8_t* jsonOutputBase;
 
 void PiLink::jsonOutputUint8(const char* key, uint8_t offset) {
@@ -623,7 +626,7 @@ void PiLink::jsonOutputTempDiffToString(const char* key, uint8_t offset) {
     piLink.sendJsonPair(key, ((temp_t*)(jsonOutputBase+offset))->toTempString(buf, 2, 12, tempControl.cc.tempFormat, false));
 }
 
-void PiLink::jsonOutputChar(const char* key, uint8_t offset) {	
+void PiLink::jsonOutputChar(const char* key, uint8_t offset) {
     piLink.sendJsonPair(key, *((char*)(jsonOutputBase+offset)));
 }
 
@@ -786,7 +789,7 @@ bool parseJsonToken(char* val) {
     return result;
 }
 
-void PiLink::parseJson(ParseJsonCallback fn, void* data) 
+void PiLink::parseJson(ParseJsonCallback fn, void* data)
 {
     char key[30];
     char val[30];
