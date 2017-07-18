@@ -23,7 +23,10 @@
 #include "ConnectedDevicesView.h"
 #include "ConnectedDevicesManager.h"
 #include "device_test_screen.h"
+#include "ConnectivityDisplay.h"
 #include "Board.h"
+
+#include "device_test_screen.h"
 
 using namespace std::placeholders;
 
@@ -105,6 +108,12 @@ extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
         actuator->setActive(active);
         SetActuatorButtonState(pThis, active, idx);
     }
+}
+
+void ScreenDeviceTest_OnInit(){
+    ScreenDeviceTest_OnInit_c();
+    wifiView.setTarget(&scrDeviceTest_wifi_state);
+    usbView.setTarget(&scrDeviceTest_usb_state);
 }
 
 void ScreenDeviceTest_OnMain()
