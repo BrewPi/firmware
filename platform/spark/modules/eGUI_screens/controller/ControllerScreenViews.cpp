@@ -18,10 +18,9 @@
  */ 
 
 #include "ControllerScreenViews.h"
+#include "ConnectivityDisplay.h"
 #include "TempControl.h"
 #include "controller_screen.h"
-#include <algorithm>
-#include "PiLink.h"
 
 bool set_background_color(const D4D_OBJECT* pThis, D4D_COLOR bg)
 {
@@ -85,12 +84,6 @@ ControllerTimePresenter timePresenter(timeView);
 
 TextView tempFormatView(&scrController_lbl_tempunit);
 ControllerTemperatureFormatPresenter tempFormatPresenter(tempFormatView);
-
-ControllerWiFiView wifiView(&scrController_wifi_state);
-ControllerWiFiPresenter wifiPresenter(wifiView);
-
-ControllerUSBView usbView(&scrController_usb_state);
-ControllerUSBPresenter usbPresenter(usbView);
 
 
 void asString(char* buf, temp_t t, unsigned num_decimals, unsigned max_len)
@@ -170,31 +163,10 @@ const char* ControllerTemperatureFormatPresenter::formatText()
     }
 }
 
-void ControllerUSBView::update(bool serialConnected)
-{
-    obj->clrScheme->fore = serialConnected ? D4D_COLOR_LIGHT_GREY : D4D_COLOR_GREY;
-}
-
-void ControllerUSBPresenter::update(){
-    bool serialConnected = Serial.isConnected();
-    view_.update(serialConnected);
-}
-
-void ControllerWiFiView::update(bool wifiConnected, char * const ipAddress)
-{
-    obj->clrScheme->fore = wifiConnected ? D4D_COLOR_LIGHT_GREY : D4D_COLOR_GREY;
-    D4D_SetText(obj, ipAddress);
-}
-
-void ControllerWiFiPresenter::update(){
-    char ipAddressString[16];
-    bool wifiConnected = WiFi.ready();
-    piLink.ipAddressAsString(ipAddressString);
-    view_.update(wifiConnected, ipAddressString);
-}
-
 void ScrController_OnInit()
 {
+    wifiView.setTarget(&scrController_wifi_state);
+    usbView.setTarget(&scrController_usb_state);
 }
 
 void ScrController_OnMain()

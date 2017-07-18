@@ -1,4 +1,5 @@
 #include "ConnectedDevicesManager.h"
+#include "ConnectivityDisplay.h"
 #include "TempControl.h"
 #include "UI.h"
 
@@ -126,4 +127,6 @@ void ConnectedDevicesManager::update()
         }
         sendRemoveEvent(i);
     }
+    usbPresenter.update();
+    wifiPresenter.update();
 }

@@ -44,6 +44,11 @@ D4D_EXTERN_OBJECT(scrDeviceTest_actuator3);
 D4D_EXTERN_OBJECT(scrDeviceTest_actuator4);
 #endif
 
+D4D_EXTERN_OBJECT(scrDeviceTest_wifi_state);
+D4D_EXTERN_OBJECT(scrDeviceTest_usb_state);
+
+void ScreenDeviceTest_OnInit_c();
+void ScreenDeviceTest_OnInit();
 void ScreenDeviceTest_OnMain();
 void ScreenDeviceTest_OnActivate();
 void ScreenDeviceTest_OnDeactivate();
