@@ -22,7 +22,7 @@
 #include "ActuatorTimeLimited.h"
 #include "Ticks.h"
 
-void ActuatorTimeLimited::setActive(bool newState)
+void ActuatorTimeLimited::setActive(bool newState, int8_t priority)
 {
     bool oldState = state;
 
@@ -40,8 +40,8 @@ void ActuatorTimeLimited::setActive(bool newState)
     }
 
     if (oldState != newState){
-        target -> setActive(newState);
-        state = target -> isActive();
+        target.setActive(newState, priority);
+        state = target.isActive();
 
         if(oldState != state){
             toggleTime = ticks.seconds();
@@ -51,8 +51,8 @@ void ActuatorTimeLimited::setActive(bool newState)
 
 void ActuatorTimeLimited::update()
 {
-    target->update();
-    state = target->isActive(); // make sure state is always up to date with target
+    target.update();
+    state = target.isActive(); // make sure state is always up to date with target
     if (state && (timeSinceToggle() >= maxOnTime)){
         setActive(false);
     }

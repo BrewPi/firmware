@@ -27,6 +27,6 @@ class EepromBlock : public EepromBaseValue
 	}
 
 	eptr_t eeprom_offset() { return _offset; }
-	uint8_t streamSize() { return _size; }
+	uint8_t readStreamSize() { return _size; }
 };
 

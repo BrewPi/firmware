@@ -21,6 +21,9 @@
 Updates:
         dec 5th, 2009: included a search function fix by Don T
         see http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1242137666
+
+        2015: BrewPi: minor changes to field names to indicate DS2484 support.
+              Dont call init() in ctor.
  */
 
 #include "DS248x.h"

@@ -2,12 +2,6 @@
 
 #include "Platform.h"
 
-#ifdef ARDUINO
-#include "OneWirePin.h"
-typedef OneWirePin OneWireDriver;
-
-#else
-
 #if defined(ONEWIRE_DS248X)
 
 #include "DS248x.h"
@@ -29,7 +23,5 @@ typedef OneWireNull OneWireDriver;
 #else
 
 #error No OneWire implementation defined
-
-#endif
 
 #endif

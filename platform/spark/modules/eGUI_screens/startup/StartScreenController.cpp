@@ -19,7 +19,6 @@
 
 #include "Brewpi.h"
 #include "Platform.h"
-#include "fixstl.h"
 #include <algorithm>
 #include "startup_screen.h"
 #include "../BrewPiTouch/BrewPiTouch.h"

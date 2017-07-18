@@ -17,25 +17,15 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * This Atmel Studio 6 project automatically includes all needed Arduino source files, you just have to point it to the right directories.
- * To compile this project on your computer, you will have to set an environment variable to find your local Arduino installation.
- * Set the variable ARDUINO_HOME to point to your local Arduino path, without trailing slash, e.g. 'D:\arduino-1.01'. Instructions on the wiki here:
- * http://wiki.brewpi.com/index.php/Setting_up_the_brewpi-avr_Project
- * 'ArduinoFunctions.cpp' includes all the source files from Arduino that are used. You might have to edit it if you are not using a Leonardo.
- * That is all that is needed! No hassle with makefiles and compiling libraries.
- */
 #include "Platform.h"
 #include "Brewpi.h"
 #include "Ticks.h"
-#include "Display.h"
 #include "TempControl.h"
 #include "PiLink.h"
-#include "TempSensorBasic.h"
+#include "TempSensor.h"
 #include "TempSensorMock.h"
 #include "TempSensorExternal.h"
 #include "ActuatorMocks.h"
-#include "Ticks.h"
 #include "Sensor.h"
 #include "SettingsManager.h"
 #include "UI.h"
@@ -59,19 +49,29 @@ DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 
 UI ui;
 
+SYSTEM_MODE(MANUAL);
+SYSTEM_THREAD(ENABLED);
+
 void setup()
 {
+    boardInit();
     bool resetEeprom = platform_init();
     eepromManager.init();
-    if (resetEeprom)
+    if (resetEeprom) {
         eepromManager.initializeEeprom();
+    }
 	ui.init();
-	piLink.init();
-
-    logDebug("started");
 
     uint32_t start = ticks.millis();
     uint32_t delay = ui.showStartupPage();
+
+    piLink.init();
+    // flush any waiting input.
+    // Linux can put garbage in the serial input buffer during connect
+    piLink.flushInput();
+
+    logDebug("started");
+
     while (ticks.millis()-start <= delay) {
         ui.ticks();
     }
@@ -90,12 +90,7 @@ void setup()
     settingsManager.loadSettings();
 
     control.update();
-
-    ui.showControllerPage();
     			
-    // flush any waiting input.
-    // Linux can put garbage in the serial input buffer during connect
-    piLink.flushInput();
 	logDebug("init complete");
 }
 

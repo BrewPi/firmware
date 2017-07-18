@@ -21,95 +21,191 @@
 #pragma once
 
 #include <inttypes.h>
-#include "OneWireSwitch.h"
 
-typedef uint8_t pio_t;
+#include "OneWireDevice.h"
 
 #define  DS2408_FAMILY_ID 0x29
 
-/*
- * Provides access to a OneWire-addressable dual-channel I/O device. 
- * The channel latch can be set to on (false) or off (true).
- * When a channel is off (PIOx=1), the channel state can be sensed. This is the power on-default. 
+/**
+ * Provides access to a OneWire-addressable 8-channel I/O device.
+ * Each output has a pull-down transistor, which can be enabled by writing 0 to the pio output latch.
+ * This pulls the output pin to GND.
  *
- * channelRead/channelWrite reads and writes the channel latch state to turn the output transistor on or off
- * channelSense senses if the channel is pulled high.
+ * When the output latch is disabled, the pio can be read as digital input (sense).
+ * This is the power on-default if a reset signal is pulled low. Without reset, the state is random.
  */
-class DS2408 : public OneWireSwitch {
+class DS2408 : public OneWireDevice {
 public:
 
-    DS2408() {
-    }
-
-    ~DS2408() {
-    }
-
-    // assumes pio is either 0 or 1, which translates to masks 0x1 and 0x2
-
-    uint8_t pioMask(pio_t pio) {
-        return pio++;
-    }
-
-    /*
-     * Reads the output state of a given channel, defaulting to a given value on error.
-     * Note that for a read to make sense the channel must be off (value written is 1).
+    /**
+     * Constructor initializes both caches to 0xFF.
+     * This means the output latches are disabled and all pins are sensed high
      */
-    bool channelRead(pio_t pio, bool defaultValue) {
-        uint8_t result = channelReadAll();
-        if (result < 0)
-            return defaultValue;
-        return (result & pioMask(pio));
+    DS2408(OneWire * oneWire, DeviceAddress address) : OneWireDevice(oneWire, address), connected(false)
+    {
+        regCache.pio = 0xFF;
+        regCache.latch = 0xFF;
     }
 
-    /*
-     * Reads the output state of a given channel, defaulting to a given value on error.
-     * Note that for a read to make sense the channel must be off (value written is 1).
+    /**
+     * Destructor is default.
      */
-    bool channelSense(pio_t pio, bool defaultValue) {
-        uint8_t result = channelSenseAll();
-        if (result < 0)
-            return defaultValue;
-        return (result & pioMask(pio));
-    }
+    ~DS2408() = default;
 
-    uint8_t channelSenseAll() {
-        uint8_t result = accessRead();
-        // save bit3 and bit1 (PIO
-        return result < 0 ? result : ((result & 0x4) >> 1 | (result & 1));
-    }
-
-    /*
-     * Performs a simultaneous read of both channels.
-     * /return <0 if there was an error otherwise bit 1 is channel A state, bit 2 is channel B state.
+    /**
+     * extracts a single bit from a byte
+     *
+     * @param byte input byte to extract a bit from
+     * @param pos position of the byte with the rightmost bit being 0.
+     * @returns extracted bit as bool
      */
-    uint8_t channelReadAll() {
-        uint8_t result = accessRead();
-        // save bit3 and bit1 (PIO
-        return result < 0 ? result : ((result & 0x8) >> 2 | (result & 2) >> 1);
+    inline bool getBit(uint8_t byte, uint8_t pos){
+        return ((0b1 << pos) & byte) != 0x0;
     }
 
-    /*
-     * Writes to the latch for a given PIO.
-     * /param set	1 to switch the pin off, 0 to switch on. 
+    /**
+     * sets a single bit in a byte
+     * @param byte byte to change a bit in
+     * @param pos position of bit in the byte
+     * @param state new state for the bit, 1 or 0
+     * @returns new byte with the bit at position pos changed to state
      */
-    bool channelWrite(pio_t pio, bool set) {
-        bool ok = false;
-        uint8_t result = channelReadAll();
-        if (result >= 0) {
-            uint8_t mask = pioMask(pio);
-            if (set)
-                result |= mask;
-            else
-                result &= ~mask;
-            ok = channelWriteAll((uint8_t) result);
+    inline uint8_t setBit(uint8_t byte, uint8_t pos, bool state){
+        uint8_t mask = (0b1 << pos);
+        if(state){
+            return byte | mask;
         }
-        return ok;
+        else{
+            return byte & ~mask;
+        }
     }
 
-    bool channelWriteAll(uint8_t values) {
-        return accessWrite(values);
+    /**
+     * Reads the pin state of a given channel.
+     * Note that for a read to make sense the latch must be off (value written is 1).
+     * @param pio channel number 0-7
+     * @param fromCache when true, the bit is returned from cache, without communicating with the device
+     * @returns state of the output pin for the given channel
+     */
+    bool readPioBit(uint8_t pos, bool fromCache = false) {
+		return getBit(readPios(fromCache) , pos);
+    }
+
+    /**
+     * Performs a simultaneous read of all I/O pins.
+     * @param fromCache when true, the bit is returned from cache, without communicating with the device
+     * @returns bit field with all pio states
+     */
+    uint8_t readPios(bool fromCache = false) {
+    	if(!fromCache){
+			update(); // use update instead of accessRead(), because it has error checking
+		}
+        return regCache.pio;
+    }
+
+    /**
+     * Reads the latch state of a given channel.
+     * @param channel number 0-7
+     * @param fromCache when true, the bit is returned from cache, without communicating with the device
+     * @returns state of the latch for the given channel
+     */
+    bool readLatchBit(uint8_t pos, bool fromCache = false) {
+        return getBit(readLatches(fromCache) , pos);
+    }
+
+    /**
+     * Performs a simultaneous read of all latches.
+     * @param fromCache when true, the bit is returned from cache, without communicating with the device
+     * @returns bit field with all pio states
+     */
+    uint8_t readLatches(bool fromCache = false) {
+        if(!fromCache){
+            update(); // use update instead of accessRead(), because it has error checking
+        }
+        return regCache.latch;
+    }
+
+    /**
+     * Change a single bit in the output latch register. Uses the cached value for the other bits
+     * @param pio The bit position to write
+     * @param set The value of the bit (1 or 0)
+     * @returns true on success
+     */
+    bool writeLatchBit(uint8_t pos, bool set) {
+        uint8_t newValues = setBit(regCache.latch, pos, set);
+        bool success = writeLatches(newValues);
+        return success;
+    }
+
+    /**
+     * Write a new state to all output latches.
+     * @param values new state for all latches as a bitfield. 0 = pull down latch enabled.
+     * @return true on success
+     */
+    bool writeLatches(uint8_t values) {
+        bool success = accessWrite(values);
+        if(success){
+            regCache.latch = values;
+        }
+        return success;
+    }
+
+    /**
+     * Reads the pio state of all pins and returns them as a single byte.
+     * Note that the state that is returned is the actual pin state, not the state of the latch register.
+     * If the pull down latch is disabled (written as 1), this can be used to read an input switch
+     * @return bit field with all 8 pio pin states
+     */
+    uint8_t accessRead();
+
+    /**
+     * Writes the state of all PIOs in one operation.
+     * @param latches pio data - a bit field with new values for the output latch
+     * @param maxTries the maximum number of attempts before giving up.
+     * @return true on success
+     */
+    bool accessWrite(uint8_t latches, uint8_t maxTries = 3);
+
+    /**
+     * Updates all cache registers by reading them from the device.
+     * Performs CRC checking on communication and sets the connect state to false on CRC error or to true on success.
+     */
+    void update();
+
+    /**
+     * @return cached state of all I/O pins
+     */
+    uint8_t getPioCache(){
+    	return regCache.pio;
+    }
+
+    /**
+     * @return cached state of all latches
+     */
+    uint8_t getLatchCache(){
+    	return regCache.latch;
     }
 
 private:
+    // cache of all of the DS2408 status registers
+    struct { // bass address 0x0088 on chip
+        uint8_t pio; // 0 = pio logic state
+        uint8_t latch; // 1 = output latch state
+        uint8_t activity; // 2 = activity latch state
+        uint8_t cond_search_mask; // 3 = conditional search channel selection mask
+        uint8_t cond_search_pol; // 4 = conditional search channel polarity selection
+        uint8_t status; // 5 = control/status register
+    } regCache;
+    bool connected;
 
+    static const uint8_t READ_PIO_REG= 0xF0;
+    static const uint8_t ACCESS_READ = 0xF5;
+    static const uint8_t ACCESS_WRITE = 0x5A;
+    static const uint8_t ACK_SUCCESS = 0xAA;
+    static const uint8_t ACK_ERROR = 0xFF;
+
+    // all addresses have upper bits 0x00
+    static const uint8_t ADDRESS_UPPER = 0x00;
+    static const uint8_t ADDRESS_PIO_STATE_LOWER = 0x88;
+    static const uint8_t ADDRESS_LATCH_STATE_LOWER = 0x89;
 };

@@ -7,8 +7,6 @@
 #endif
 #include "EepromAccess.h"
 
-SYSTEM_MODE(SEMI_AUTOMATIC);
-
 void handleReset(bool exit)
 { 
 	if(exit)
@@ -51,10 +49,16 @@ bool platform_init()
         EEPROM.write(1, EEPROM_MAGIC2);
     }
     eepromAccess.init();
+
 #if PLATFORM_ID==3
     WiFi.connect();
     waitUntil(WiFi.ready);
 #endif
+
+#if PLATFORM_THREADING
+    System.on(setup_update, watchdogCheckin);
+#endif
+
     return initialize;
 }
 

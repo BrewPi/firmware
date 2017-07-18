@@ -36,6 +36,9 @@ typedef uint32_t ticks_seconds_t;
 typedef uint8_t ticks_seconds_tiny_t;
 
 #define BREWPI_EMULATE 1
+#define BREWPI_DS2413 0
+#define BREWPI_DS2408 0
+#define BREWPI_USE_WIFI 0
 
 #endif	/* PLATFORM_H */
 

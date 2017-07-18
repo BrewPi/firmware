@@ -27,8 +27,8 @@
  */
 bool walkContainer(Container* c, EnumObjectsFn callback, void* data, container_id* id, container_id* end)
 {
-	uint8_t count = c->size();
-	for (int8_t i=0; i<count; i++) {
+	container_id count = c->size();
+	for (container_id i=0; i<count; i++) {
 		Object* o = c->item(i);
 		*end = i;
 		if (walkObject(o, callback, data, id, end+1))
@@ -64,7 +64,7 @@ bool walkObject(Object* obj, EnumObjectsFn callback, void* data, container_id* i
  *   id in the chain.
  * @return The fetched object, or {@code NULL} if the object could not be fetched.
  */
-Object* fetchContainedObject(Object* o, uint8_t id)
+Object* fetchContainedObject(Object* o, container_id id)
 {
 	Object* result = NULL;
 	id &= 0x7F;
@@ -89,11 +89,11 @@ Object* fetchContainedObject(Object* o, uint8_t id)
  * @return The fetched object, or {@code NULL} if the id in the stream doesn't correspond to
  */
 Object* lookupObject(Object* current, DataIn& data) {
-	int8_t id = -1;
+	container_id id = -1;
 	while (data.hasNext() && id<0)
 	{
-		id = int8_t(data.next());							// msb set if there is more bytes in the id.
-		current = fetchContainedObject(current, uint8_t(id));
+		id = container_id(data.next());							// msb set if there is more bytes in the id.
+		current = fetchContainedObject(current, id);
 	}
 	return current;
 }
@@ -108,16 +108,20 @@ Object* lookupObject(Object* current, DataIn& data) {
  * For example, given a stream encoding the id chain "2.3.5", the container returned would correspond with
  * object "2.3" and lastID would be set to 5.
  */
-OpenContainer* lookupOpenContainer(Object* current, DataIn& data, int8_t& lastID)
+Object* lookupObject(Object* current, DataIn& data, int8_t& lastID)
 {
-	int8_t id = int8_t(data.next());
+	container_id id = int8_t(data.next());
 	while (id<0 && data.hasNext())
 	{
-		current = fetchContainedObject(current, uint8_t(id));
-		id = int8_t(data.next());
+		current = fetchContainedObject(current, id);
+		id = container_id(data.next());
 	}
 	lastID = id;
+	return current;
+}
 
+OpenContainer* lookupOpenContainer(Object* current, DataIn& data, int8_t& lastID) {
+	current = lookupObject(current, data, lastID);
 	return isOpenContainer(current) ? (OpenContainer*)current : NULL;
 }
 
@@ -140,6 +144,6 @@ int16_t read2BytesFrom(Value* value) {
 	uint8_t result[2];
 	BufferDataOut out(result, 2);
 	value->readTo(out);
-	return int16_t(result[0])<<8 | result[1];
+	return int16_t(int(result[0])<<8 | result[1]);
 }
 

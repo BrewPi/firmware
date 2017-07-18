@@ -39,13 +39,17 @@ typedef uint8_t stream_size_t;
  */
 struct DataOut
 {
-	virtual void writeAnnotation(const char* data) {}
+	virtual void writeAnnotation(const char* /*data*/) {}
 
 	/**
 	 * Writes a byte to the stream.
 	 * @return {@code true} if the byte was successfully written, false otherwise.
 	 */
 	virtual bool write(uint8_t data)=0;
+
+	bool write(int8_t data) { return write(uint8_t(data)); }
+	bool write(char data) { return write(uint8_t(data)); }
+	bool write(int data) { return write(uint8_t(data)); }
 
 	/**
 	 * Writes a number of bytes to the stream.
@@ -98,7 +102,7 @@ public:
  * A DataOut implementation that discards all data.
  */
 struct BlackholeDataOut : public DataOut {
-	virtual bool write(uint8_t data) { return true; }
+	virtual bool write(uint8_t /*data*/) { return true; }
 };
 
 /**

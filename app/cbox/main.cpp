@@ -1,4 +1,6 @@
 
+#include "OneWireBusCBox.h"
+#include "OneWireTempSensorCBox.h"
 #include "EepromTypes.h"
 #include "EepromAccessImpl.h"
 
@@ -8,11 +10,14 @@
 #include "ValueModels.h"
 #include "PersistChangeValue.h"
 #include "Commands.h"
-
 #include "Platform.h"
 #include "MDNS.h"
 
 DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
+ScaledTicksValue ticks;
+
+// todo - add a system object that describes the application version
+// from this, the protocol of all objects can be determined by the client.
 
 
 SYSTEM_THREAD(ENABLED);
@@ -30,6 +35,7 @@ void connectionStarted(StandardConnection& connection, DataOut& out)
 #endif
 }
 
+OneWireBusCBox oneWireBus;
 
 Container& systemRootContainer()
 {
@@ -42,8 +48,8 @@ Container& systemRootContainer()
 	// todo - lookup the type ID from the xxx::create function. This can
 	// be resolved at compile-time.
 
-	static Object* values[] = { &idValue, &ticks };
-	static FixedContainer root(2, values);
+	static Object* values[] = { &idValue, &ticks, &oneWireBus };
+	static FixedContainer root(arraySize(values), values);
 	return root;
 }
 
@@ -66,6 +72,7 @@ Commands::ObjectFactory createObjectHandlers[] = {
 	EepromValue::create,									// type 3
 	PersistChangeValue::create,								// type 4
 	IndirectValue::create,									// type 5
+	OneWireTempSensorCBox::create,					// type 6
 	NULL
 
 	// When defining a new object type, add the handler above the last NULL value (it's just there to make
@@ -79,21 +86,33 @@ Commands::ObjectFactory createObjectHandlers[] = {
  * It's critical that the create code reads len bytes from the stream so that the data is
  * Spooled to eeprom to the persisted object definition.
  */
-Object* createApplicationObject(ObjectDefinition& def, bool dryRun)
+int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun)
 {
-	uint8_t type = def.type;
-	if (dryRun || type>=sizeof(createObjectHandlers)/sizeof(createObjectHandlers[0]))
-		type = 0;		// null object creator. Ensures stream is properly consumed even for invalid type values.
-
-	Object* result = createObjectHandlers[type](def);
-	return result;
+    uint8_t type = def.type;
+    int8_t error = errorCode(no_error);
+    if (type>=sizeof(createObjectHandlers)/sizeof(createObjectHandlers[0])) {
+        error = errorCode(invalid_type);
+    }
+    else {
+        if (dryRun){
+            type = 0; // null object creator. Ensures stream is properly consumed even for invalid type values.
+        }
+        result = createObjectHandlers[type](def);
+        if (!result) {
+            error = errorCode(insufficient_heap);
+        }
+    }
+    return error;
 }
+
 
 MDNS mdns;
 
 void setup()
 {
 	Serial.begin(9600);
+	eepromAccess.init();
+	controlbox_setup(0);
 	platform_init();
 
 	WiFi.on();
@@ -123,4 +142,6 @@ void loop()
 
 
 TicksImpl baseticks;
+
+
 EepromAccess eepromAccess;

@@ -21,11 +21,6 @@ struct UI {
     static uint32_t showStartupPage();
 
     /**
-     * Show the main controller page. 
-     */
-    static void showControllerPage();
-
-    /**
      * Called as often as possible by the application. Allows the UI to peform
      * quick background tasks, such as reading the touch screen.
      */    

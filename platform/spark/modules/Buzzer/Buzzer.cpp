@@ -27,17 +27,12 @@
 
 #if BREWPI_BUZZER
 
-void Buzzer::init(bool invert){
-    if(pin != nullptr){
-        delete pin;
-    }
-    pin = new ActuatorPin(alarmPin, invert);
-}
-
 void Buzzer::setActive(bool active){
-    if(pin != nullptr){
-        pin->setActive(active);
-    }
+#if(PLATFORM_ID == 8)
+    analogWrite(PIN_ALARM, active ? 128 : 0, 3000);
+#else
+    digitalWrite(PIN_ALARM, active ^ shieldIsV1());
+#endif    
 }
 
 

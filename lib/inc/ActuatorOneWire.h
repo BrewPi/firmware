@@ -22,78 +22,80 @@
 
 #pragma once
 
-#include "Brewpi.h"
-#include "ActuatorInterfaces.h"
-#include "DS2413.h"
+#include <memory>
 #include "ControllerMixins.h"
+#include "ActuatorInterfaces.h"
+#include "Sensor.h"
+#include "DS2413.h"
+
 
 /*
  * An actuator or sensor that operates by communicating with a DS2413 device.
  *
  */
 class ActuatorOneWire final:
-    public ActuatorDigital, public ActuatorOneWireMixin
-
-#if DS2413_SUPPORT_SENSE
-            ,
-    SwitchSensor
-#endif
+    public ActuatorDigital,
+    public ActuatorOneWireMixin,
+    public SwitchSensor
 
 {
     public:
-        ActuatorOneWire(OneWire *     bus,
-                        DeviceAddress address,
-                        pio_t         pio,
-                        bool          invert = true)
-        {
-            init(bus, address, pio, invert);
-        }
+        ActuatorOneWire(std::shared_ptr<DS2413> _device,
+                        pio_t _pio,
+                        bool _invert = true) :
+                        device(_device),
+                        pio(_pio),
+                        invert(_invert){}
         ~ActuatorOneWire() = default;
 
-        void init(OneWire *     bus,
-                  DeviceAddress address,
-                  pio_t         pio,
-                  bool          invert = true)
-        {
-            this -> invert = invert;
-            this -> pio    = pio;
-
-            device.init(bus, address);
-            device.update();
+        void accept(VisitorBase & v) final {
+        	v.visit(*this);
         }
 
-        void setActive(bool active) override final
+        void init(){
+            device->update();
+        }
+
+        void setActive(bool active, int8_t priority = 127) override final
         {
             // todo: alarm when write fails
-            device.latchWrite(pio, active ^ invert, true);
+            device->writeLatchBit(pio, active ^ invert, true);
         }
 
         bool isActive() const override final
         {
-            return device.latchReadCached(pio, false) ^ invert;
+            return device->latchReadCached(pio, false) ^ invert;
         }
 
-#if DS2413_SUPPORT_SENSE
         bool sense()
         {
-            device.latchWrite(pio, 0, false);
+            device->writeLatchBit(pio, 0, false);
 
-            return device.sense(pio, invert);    // on device failure, default is high for invert, low for regular.
+            // on device failure, default is high for invert, low for regular.
+            return device->readLatchBit(pio, invert, false);
         }
-#endif
+
         void write(uint8_t val) {
             setActive(val != 0);
         };
 
         void update() override final{
-            device.update();
+            device->update();
         }
 
         void fastUpdate() override final {} // no actions needed
 
+        /**
+         * This function can be used to get a reference to the DS2413, so it can be shared with another actuator.
+         * @return shared_ptr<DS2413> to the DS2413 driver class.
+         */
+        std::shared_ptr<DS2413> getHardwareDevice(){
+            return device;
+        }
+
 
     private:
-        DS2413 device;
+        std::shared_ptr<DS2413> device;
         pio_t  pio;
         bool   invert;
 

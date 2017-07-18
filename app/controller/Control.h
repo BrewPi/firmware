@@ -22,16 +22,21 @@
 #pragma once
 
 #include <vector>
+
 #include "Pid.h"
 #include "ActuatorInterfaces.h"
-#include "TempSensor.h"
 #include "TempSensorFallback.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorPwm.h"
 #include "ActuatorTimeLimited.h"
 #include "ActuatorMutexGroup.h"
 #include "json_writer.h"
-#include "ActuatorSetPoint.h"
+#include "ActuatorOffset.h"
+#include "TempSensorDelegate.h"
+#include "ActuatorDigitalDelegate.h"
+#include "SensorSetPointPair.h"
+
+
 
 class Control
 {
@@ -43,49 +48,47 @@ public:
     void update(); // update everything
     void fastUpdate(); // update things that need fast updating (like PWM)
 
-    void updateSensors();
-    void updatePids();
-    void updateActuators();
-    void fastUpdateActuators();
-
     void serialize(JSON::Adapter& adapter);
 
-    std::vector<SetPoint*> setpoints;
-    std::vector<TempSensorBasic*> sensors;
-    std::vector<Pid*>        pids;
-    std::vector<Actuator*>   actuators;
+    std::vector<Interface*> objects;
 
     // static setup below, we should support generating this dynamically later
 protected:
-    TempSensor * fridgeSensor;
-    TempSensor * beer1Sensor;
-    TempSensor * beer2Sensor;
+    TempSensorDelegate fridgeSensor;
+    TempSensorDelegate beer1Sensor;
+    TempSensorDelegate beer2Sensor;
+    TempSensorDelegate log1Sensor;
+    TempSensorDelegate log2Sensor;
+    TempSensorDelegate log3Sensor;
+    TempSensorFallback fridgeSensorWithFallback;
+    SetPointSimple beer1Set;
+    SetPointSimple beer2Set;
+    SetPointSimple fridgeSet;
+    ActuatorMutexGroup mutex;
 
-    TempSensorFallback * heaterInputSensor;
-    TempSensorFallback * coolerInputSensor;
+    SensorSetPointPair fridge;
+    SensorSetPointPair beer1;
+    SensorSetPointPair beer2;
 
-    ActuatorTimeLimited * coolerTimeLimited;
-    ActuatorMutexDriver * coolerMutex;
-    ActuatorPwm * cooler;
+    ActuatorDigitalDelegate coolerToggle;
+    ActuatorTimeLimited coolerTimeLimited;
+    ActuatorMutexDriver coolerMutex;
+    ActuatorPwm coolerPwm;
+    Pid coolerPid;
 
-    ActuatorMutexDriver * heater1Mutex;
-    ActuatorPwm * heater1;
+    ActuatorDigitalDelegate heater1Toggle;
+    ActuatorMutexDriver heater1Mutex;
+    ActuatorPwm heater1Pwm;
+    Pid heater1Pid;
 
-    ActuatorMutexDriver * heater2Mutex;
-    ActuatorPwm * heater2;
+    ActuatorDigitalDelegate heater2Toggle;
+    ActuatorMutexDriver heater2Mutex;
+    ActuatorPwm heater2Pwm;
+    Pid heater2Pid;
 
-    ActuatorSetPoint * fridgeSetPointActuator;
+    ActuatorOffset fridgeSetPointActuator;
+    Pid beerToFridgePid;
 
-    ActuatorMutexGroup * mutex;
-
-    Pid * heater1Pid;
-    Pid * heater2Pid;
-    Pid * coolerPid;
-    Pid * beerToFridgePid;
-
-    SetPointSimple * beer1Set;
-    SetPointSimple * beer2Set;
-    SetPointSimple * fridgeSet;
 
     friend class TempControl;
     friend class DeviceManager;

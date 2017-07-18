@@ -18,13 +18,11 @@
  */
 
 #include "Brewpi.h"
-#include "fixstl.h"
 #include "UI.h"
 #include "Buzzer.h"
 #include "eGuiSettings.h"
 #include "ConnectedDevicesManager.h"
 #include "PiLink.h"
-#include "Display.h"
 #include "UIController.h"
 #include "ActuatorInterfaces.h"
 #include "Board.h"
@@ -39,22 +37,14 @@ extern "C" {
 #include "d4d.h"
 }
 
-DisplayType realDisplay;
-DisplayType DISPLAY_REF display = realDisplay;
-
-
 eGuiSettingsClass eGuiSettings;
 
 uint8_t UI::init() {
     eGuiSettings.init();
-    display.init();
-
-    if (!D4D_Init(NULL))
+    if (!D4D_Init(NULL)){
         return 1;
-
-    D4D_SetOrientation(D4D_ORIENT_LANDSCAPE);
+    }
     #if BREWPI_BUZZER
-	buzzer.init(!shieldIsV2());
 	buzzer.beep(2, 100);
     #endif
 
@@ -74,15 +64,6 @@ uint32_t UI::showStartupPage()
     return 0;
 }
 
-/**
- * Since the startup page waits for the user, it has variable duration. This allows
- * the main loop to continue running while the startup screen is displayed.
- */
-void UI::showControllerPage() {
-    display.printStationaryText();
-    display.printState();
-}
-
 void UI::ticks()
 {
     D4D_TimeTickPut();
@@ -96,11 +77,6 @@ UIController uiController;
 void UI::update()
 {
     uiController.updateScreen();
-
-    display.printState();
-    display.printAllTemperatures();
-    display.printMode();
-    display.updateBacklight();
 }
 
 #if PLATFORM_ID==3

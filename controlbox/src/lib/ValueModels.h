@@ -38,7 +38,7 @@ public:
 		out.writeBuffer(_pValue, _size);
 	}
 
-	uint8_t streamSize() {
+	uint8_t readStreamSize() {
 		return _size;
 	}
 
@@ -76,7 +76,7 @@ public:
 		readPlatformEndianMaskedBytes(&value, sizeof(value), in, maskIn);
 	}
 
-	uint8_t streamSize() { return sizeof(T); }
+	uint8_t readStreamSize() { return sizeof(T); }
 
 	void setValue(const T& value) {
 		this->value = value;
@@ -116,7 +116,7 @@ public:
 		return externalValue(id);
 	}
 
-	void returnItem(container_id id, Object* item) override {
+	void returnItem(container_id /*id*/, Object* item) override {
 #if OBJECT_VIRTUAL_DESTRUCTOR
 		delete item;
 #else
@@ -173,9 +173,10 @@ public:
 		return previous==NULL ? 0 : previous->prepare();
 	}
 
-	uint8_t streamSize() { return previous->streamSize(); }
+	uint8_t readStreamSize() { return previous->readStreamSize(); }
 	void readTo(DataOut& out) { if (previous) previous->readTo(out); }
-	void writeMaskedFrom(DataIn& dataIn, DataIn& maskedIn) { if (previous) previous->writeMaskedFrom(dataIn, maskedIn); }
+	uint8_t writeStreamSize() { return ((WritableValue*)previous)->writeStreamSize(); }
+	void writeMaskedFrom(DataIn& dataIn, DataIn& maskedIn) { if (previous) ((WritableValue*)previous)->writeMaskedFrom(dataIn, maskedIn); }
 
 	static Object* create(ObjectDefinition& def)
 	{

@@ -67,6 +67,8 @@
 #define ROW5_GAP ROW_GAP
 
 #define ROW6_Y (ROW5_Y+ROW5_CY+ROW5_GAP)
+#define ROW6_CY (20)
+#define ROW6_GAP ROW_GAP
 
 #define LABEL_COLOR SECONDARY_TEXT_COLOR
 
@@ -80,7 +82,23 @@
 #define ROWMODE_CY ROW5_CY
 
 
+#define ROWLOG_LAB_Y ROWLAB_Y
+#define ROWLOG_LAB_CY (ROWLAB_CY)
+#define ROWLOG_CY 26
+#define ROWL1_Y (ROWLOG_LAB_Y + ROWLOG_LAB_CY)
+#define ROWL2_Y (ROWL1_Y + ROWLOG_CY)
+#define ROWL3_Y (ROWL1_Y + 2*ROWLOG_CY)
+#define ROWL1_CY ROWLOG_CY
+#define ROWL2_CY ROWLOG_CY
+#define ROWL3_CY (ROWLOG_CY+2)
 
+#define CONNECTIVITY_USB_CX 40
+#define CONNECTIVITY_WIFI_CX 80
+#define CONNECTIVITY_CY 20
+
+#define CONNECTIVITY_Y (240 - CONNECTIVITY_CY)
+#define CONNECTIVITY_STATE_WIFIX (CONNECTIVITY_USB_CX + COL_GAP)
+#define CONNECTIVITY_STATE_USBX 0
 
 char tempFormat[3];
 
@@ -96,8 +114,9 @@ char controller_beertemp[MAX_TEMP_LEN]="";
 char controller_beerset[MAX_TEMP_LEN]="";
 char controller_fridgetemp[MAX_TEMP_LEN]="";
 char controller_fridgeset[MAX_TEMP_LEN]="";
-char controller_roomtemp[MAX_TEMP_LEN]="";
-char controller_roomset[MAX_TEMP_LEN]="";
+char controller_log1temp[MAX_TEMP_LEN]="";
+char controller_log2temp[MAX_TEMP_LEN]="";
+char controller_log3temp[MAX_TEMP_LEN]="";
 char controller_mode[MAX_MODE_LEN]="";
 char controller_state[MAX_STATE_LEN]="";
 char controller_time[MAX_TIME_LEN]="";
@@ -107,7 +126,7 @@ D4D_DECLARE_STD_PICTURE(scrController_logo, 138, 5, 45, 30, &bmp_brewpi_logo_bla
 
 char beer_text[] = "Beer";
 char fridge_text[] = "Fridge";
-char room_text[] = "Room";
+char logging_text[] = "Logging";
 D4D_DECLARE_COLOR_LABEL(scrController_beertemp, controller_beertemp, COL2_X, ROWPV_Y, COL2_CX, ROWPV_CY, FONT_NUMBER_LARGE, D4D_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
 D4D_DECLARE_COLOR_LABEL(scrController_beersv, controller_beerset, COL2_X, ROWSV_Y, COL2_CX, ROWSV_CY, FONT_NUMBER_MEDIUM, D4D_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
 D4D_DECLARE_COLOR_LABEL(scrController_beer, beer_text, COL2_X, ROWLAB_Y, COL2_CX, ROWLAB_CY, FONT_SMALL, D4D_CONST, INITIAL_BLOCK_COLOR, BEER_FG_COLOR);
@@ -116,14 +135,18 @@ D4D_DECLARE_COLOR_LABEL(scrController_fridgetemp, controller_fridgetemp, COL3_X,
 D4D_DECLARE_COLOR_LABEL(scrController_fridgesv, controller_fridgeset, COL3_X, ROWSV_Y, COL3_CX, ROWSV_CY, FONT_NUMBER_MEDIUM, D4D_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
 D4D_DECLARE_COLOR_LABEL(scrController_fridge, fridge_text, COL3_X, ROWLAB_Y, COL3_CX, ROWLAB_CY, FONT_SMALL, D4D_CONST, INITIAL_BLOCK_COLOR, FRIDGE_FG_COLOR);
 
-D4D_DECLARE_COLOR_LABEL(scrController_roomtemp, controller_roomtemp, COL4_X, ROWPV_Y, COL4_CX, ROWPV_CY, FONT_NUMBER_LARGE, D4D_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
-D4D_DECLARE_COLOR_LABEL(scrController_roomsv, controller_roomset, COL4_X, ROWSV_Y, COL4_CX, ROWSV_CY, FONT_NUMBER_MEDIUM, D4D_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
-D4D_DECLARE_COLOR_LABEL(scrController_room, room_text, COL4_X, ROWLAB_Y, COL4_CX, ROWLAB_CY, FONT_SMALL, D4D_CONST, INITIAL_BLOCK_COLOR, ROOM_FG_COLOR);
+D4D_DECLARE_COLOR_LABEL(scrController_logging, logging_text, COL4_X, ROWLOG_LAB_Y, COL4_CX, ROWLOG_LAB_CY, FONT_SMALL, D4D_CONST, INITIAL_BLOCK_COLOR, LOG_FG_COLOR);
+D4D_DECLARE_COLOR_LABEL(scrController_log1temp, controller_log1temp, COL4_X, ROWL1_Y, COL4_CX, ROWL1_CY, FONT_NUMBER_MEDIUM, D4D_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
+D4D_DECLARE_COLOR_LABEL(scrController_log2temp, controller_log2temp, COL4_X, ROWL2_Y, COL4_CX, ROWL2_CY, FONT_NUMBER_MEDIUM, D4D_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
+D4D_DECLARE_COLOR_LABEL(scrController_log3temp, controller_log3temp, COL4_X, ROWL3_Y, COL4_CX, ROWL3_CY, FONT_NUMBER_MEDIUM, D4D_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
 
 D4D_DECLARE_COLOR_LABEL(scrController_mode, controller_mode, COL2_X, ROWMODE_Y, COL2_CX, ROWMODE_CY, FONT_REGULAR, D4D_NO_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
 D4D_DECLARE_COLOR_LABEL(scrController_state, controller_state, COL3_X, ROWMODE_Y, COL3_CX+(COL3_GAP>>1), ROWMODE_CY, FONT_REGULAR, D4D_NO_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
 D4D_DECLARE_COLOR_LABEL(scrController_time, controller_time, COL4_X-(COL3_GAP>>1), ROWMODE_Y, COL4_CX+(COL3_GAP>>1), ROWMODE_CY, FONT_REGULAR, D4D_NO_CONST, INITIAL_BLOCK_COLOR, REGULAR_TEXT_COLOR);
 
+D4D_DECLARE_COLOR_LABEL(scrController_usb_state, "USB", CONNECTIVITY_STATE_USBX, CONNECTIVITY_Y, CONNECTIVITY_USB_CX, CONNECTIVITY_CY, FONT_SMALL, D4D_CONST, D4D_COLOR_BLACK, D4D_COLOR_GREY);
+extern char controller_wifi_ip[16];
+D4D_DECLARE_COLOR_LABEL(scrController_wifi_state, controller_wifi_ip, CONNECTIVITY_STATE_WIFIX, CONNECTIVITY_Y, CONNECTIVITY_WIFI_CX, CONNECTIVITY_CY, FONT_SMALL, D4D_CONST, D4D_COLOR_BLACK, D4D_COLOR_GREY);
 
 D4D_DECLARE_STD_SCREEN_BEGIN(screen_controller, ScrController_)
     //D4D_DECLARE_SCREEN_OBJECT(scrController_lbl_name)    
@@ -143,13 +166,17 @@ D4D_DECLARE_STD_SCREEN_BEGIN(screen_controller, ScrController_)
     D4D_DECLARE_SCREEN_OBJECT(scrController_fridgesv)
     D4D_DECLARE_SCREEN_OBJECT(scrController_fridge)
 
-    D4D_DECLARE_SCREEN_OBJECT(scrController_roomtemp)
-    D4D_DECLARE_SCREEN_OBJECT(scrController_roomsv)
-    D4D_DECLARE_SCREEN_OBJECT(scrController_room)
+    D4D_DECLARE_SCREEN_OBJECT(scrController_logging)
+    D4D_DECLARE_SCREEN_OBJECT(scrController_log1temp)
+    D4D_DECLARE_SCREEN_OBJECT(scrController_log2temp)
+    D4D_DECLARE_SCREEN_OBJECT(scrController_log3temp)
     
     D4D_DECLARE_SCREEN_OBJECT(scrController_mode)
     D4D_DECLARE_SCREEN_OBJECT(scrController_state)
     D4D_DECLARE_SCREEN_OBJECT(scrController_time)
+
+    D4D_DECLARE_SCREEN_OBJECT(scrController_usb_state)
+    D4D_DECLARE_SCREEN_OBJECT(scrController_wifi_state)
 
 D4D_DECLARE_SCREEN_END()        
                 

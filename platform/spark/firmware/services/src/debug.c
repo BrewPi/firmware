@@ -79,9 +79,9 @@ void log_print_direct_(int level, void* reserved, const char *msg, ...)
 
 void log_direct_(const char* s) {
 
-    if (LOG_LEVEL<log_level_at_run_time || !debug_output_)
+    if (LOG_LEVEL<log_level_at_run_time || !debug_output_) {
         return;
-
+    }
 	debug_output_(s);
 }
 

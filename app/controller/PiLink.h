@@ -49,6 +49,8 @@ class PiLink{
 
 	static void parseJson(ParseJsonCallback fn, void* data=NULL);
 	
+	static void ipAddressAsString(char * target);
+
 	private:
 	
 	static void sendControlSettings(void);
@@ -59,22 +61,14 @@ class PiLink{
 	static void receiveJson(void); // receive settings as JSON key:value pairs
 	
 	static void print(char *fmt, ...); // use when format string is stored in RAM
-	static void print(char c)       // inline for arduino
-#ifdef ARDUINO        
-         { Serial.print(c); } 
-#else
-        ;
-#endif
-        
 	static void print_P(const char *fmt, ...); // use when format string is stored in PROGMEM with PSTR("string")
+	static void print(char c);
 	static void printNewLine(void);
-	static void printChamberCount();
-	
+
 	private:
 	static void soundAlarm(bool enabled);
 	static void printResponse(char responseChar);
-	static void printChamberInfo();
-	
+
 	static void printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotation);
 	static void sendJsonPair(const char * name, const char * val); // send one JSON pair with a string value as name:val,
 	static void sendJsonPair(const char * name, char val); // send one JSON pair with a char value as name:val,

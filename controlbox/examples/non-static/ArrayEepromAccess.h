@@ -37,13 +37,12 @@ public:
 
 	void load(std::istream& in)
 	{
-        unsigned offset = 0;
-        in.read((char*)data, length());
+        in.read((char*)data, std::streamsize(length()));
 	}
 
 	void save(std::ostream& out)
 	{
-		out.write((const char*)eepromData(), length());
+		out.write((const char*)eepromData(), std::streamsize(length()));
         clearChanged();
 	}
 
@@ -84,12 +83,12 @@ public:
 		return &data[0];
 	}
 	
-	uint16_t eepromLength() const
+	eptr_t eepromLength() const
 	{
 		return eeprom_size;
 	}
 
-	size_t length() const override
+	eptr_t length() const override
 	{
 		return eepromLength();
 	}

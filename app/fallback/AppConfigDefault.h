@@ -56,13 +56,6 @@
 #define BUILD_NAME unknown
 #endif
 
-/**
- * Enable the LCD menu.
- */
-#ifndef BREWPI_MENU
-#define BREWPI_MENU 1
-#endif
-
 #ifndef DISPLAY_TIME_HMS
 #define DISPLAY_TIME_HMS 1
 #endif

@@ -2,7 +2,6 @@
 here_files = $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/$1/$2))
 
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller
-INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/Display
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/Filter
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/esj
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/mixins
@@ -11,9 +10,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)/app/fallback
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/wiring
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules
-INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Adafruit_ILI9341
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/BrewPiTouch
-INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Display
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/EEPROM
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/eGUI_screens
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/OneWire

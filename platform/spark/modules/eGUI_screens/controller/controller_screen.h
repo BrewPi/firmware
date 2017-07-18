@@ -51,13 +51,17 @@ D4D_EXTERN_OBJECT(scrController_fridgetemp);
 D4D_EXTERN_OBJECT(scrController_fridgesv);
 D4D_EXTERN_OBJECT(scrController_fridge);
 
-D4D_EXTERN_OBJECT(scrController_roomtemp);
-D4D_EXTERN_OBJECT(scrController_roomsv);
-D4D_EXTERN_OBJECT(scrController_room);
+D4D_EXTERN_OBJECT(scrController_logging);
+D4D_EXTERN_OBJECT(scrController_log1temp);
+D4D_EXTERN_OBJECT(scrController_log2temp);
+D4D_EXTERN_OBJECT(scrController_log3temp);
 
 D4D_EXTERN_OBJECT(scrController_mode);
 D4D_EXTERN_OBJECT(scrController_state);
 D4D_EXTERN_OBJECT(scrController_time);
+
+D4D_EXTERN_OBJECT(scrController_usb_state);
+D4D_EXTERN_OBJECT(scrController_wifi_state);
 
 #define MAX_TEMP_LEN (7)
 #define MAX_NAME_LEN (20)

@@ -22,25 +22,22 @@
 
 #pragma once
 
+#include <stdint.h>
 #include "ActuatorInterfaces.h"
 #include "Ticks.h"
 #include <stdint.h>
-
-#include "ActuatorForwarder.h"
 #include "ControllerMixins.h"
-
-#undef min
-#undef max
 
 /**
 	ActuatorPWM drives a digital actuator and makes it available as range actuator, by quickly turning it on and off repeatedly.
 
 
  */
-class ActuatorPwm final : public ActuatorForwarder, public ActuatorRange, public ActuatorPwmMixin
+class ActuatorPwm final : public ActuatorAnalog, public ActuatorPwmMixin
 {
 private:
-    temp_t         value;
+    ActuatorDigital & target;
+    temp_t         dutySetting;
     int32_t        dutyLate;
     int32_t        periodLate;
     int32_t        dutyTime;
@@ -59,19 +56,27 @@ public:
      *  @param _period PWM period in seconds
      *  @sa getPeriod(), setPeriod(), getTarget(), setTarget()
      */
-    ActuatorPwm(ActuatorDigital * _target, uint16_t _period);
+    ActuatorPwm(ActuatorDigital & _target, uint16_t _period);
 
     ~ActuatorPwm() = default;
 
+    /**
+     * Accept function for visitor pattern
+     * @param dispatcher Visitor to process this class
+     */
+    void accept(VisitorBase & v) final {
+    	v.visit(*this);
+    }
+
     /** Returns minimum value
      */
-    temp_t min() const override final {
+    temp_t min() const {
         return minVal;
     }
 
     /** Returns maximum value
      */
-    temp_t max() const override final {
+    temp_t max() const {
         return maxVal;
     }
 
@@ -81,19 +86,19 @@ public:
      *
      * @return achieved duty cycle in fixed point.
      */
-    temp_t readValue() const override final;
+    temp_t value() const override final;
 
     /** Returns the set duty cycle
      * @return duty cycle setting in fixed point
      */
-    temp_t getValue() const override final {
-        return value;
+    temp_t setting() const override final {
+        return dutySetting;
     }
 
     /** Sets a new duty cycle
      * @param val new duty cycle in fixed point
      */
-    void setValue(temp_t const& val) override final;
+    void set(temp_t const& val) override final;
 
     //** Calculates whether the target should toggle and tries to toggle it if necessary
     /** Each update, the PWM actuator checks whether it should toggle to achieve the set duty cycle.
@@ -109,7 +114,7 @@ public:
      * Periodic update (every second). Same as fast update, but calls periodic update on target too.
      */
     void update() override final {
-        target->update();
+        target.update();
         fastUpdate();
     };
 

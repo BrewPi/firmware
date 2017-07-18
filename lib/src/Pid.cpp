@@ -21,34 +21,26 @@
 
 #include "Pid.h"
 
-Pid::Pid(TempSensorBasic * input,
-         ActuatorRange * output,
-         SetPoint * setPoint)
+Pid::Pid(ProcessValue& _input, ProcessValue& _output) :
+         input(_input),
+         output(_output),
+         Kp(0.0),
+         Ti(0),
+         Td(0),
+         p(decltype(p)::base_type(0)),
+         i(decltype(i)::base_type(0)),
+         d(decltype(p)::base_type(0)),
+         inputError(decltype(inputError)::base_type(0)),
+         derivative(decltype(derivative)::base_type(0)),
+         integral(decltype(integral)::base_type(0)),
+         failedReadCount(255), // start at 255, so inputFilter is refreshed at first valid read
+         actuatorIsNegative(false),
+         enabled(true),
+         previousSetPoint(temp_t::invalid())
 {
-    setConstants(temp_t(0.0), 0, 0);
-    p = decltype(p)::base_type(0);
-    i = decltype(i)::base_type(0);
-    d = decltype(p)::base_type(0);
-    inputError           = decltype(inputError)::base_type(0);
-    derivative      = decltype(derivative)::base_type(0);
-    integral        = decltype(integral)::base_type(0);
-    failedReadCount = 255; // start at 255, so inputFilter is refreshed at first valid read
-
-    setInputSensor(input);
-    setOutputActuator(output);
-    setSetPoint(setPoint);
-
     setInputFilter(0);
     // some filtering necessary due to quantization causing steps in the temperature
     setDerivativeFilter(2);
-    actuatorIsNegative = false;
-    enabled = true;
-    previousSetPoint = temp_t::invalid();
-
-//    autotune = false;
-//    tuning = false;
-//    outputLag = 0;
-//    maxDerivative = 0.0;
 }
 
 void Pid::setConstants(temp_long_t kp,
@@ -62,16 +54,10 @@ void Pid::setConstants(temp_long_t kp,
 
 void Pid::update()
 {
-    temp_t inputVal;
-    bool validSetPoint = true;
-    bool validSensor = true;
-
-    if( setPoint->read().isDisabledOrInvalid()){
-        validSetPoint = false;
-    }
-
-    inputVal = inputSensor -> read();
-    validSensor = !inputVal.isDisabledOrInvalid();
+    temp_t currentSetPoint = input.setting();
+    temp_t inputVal = input.value();
+    bool validSensor = !inputVal.isDisabledOrInvalid();
+    bool validSetPoint = !currentSetPoint.isDisabledOrInvalid();
 
     if (!validSensor){
         // Could not read from input sensor
@@ -93,7 +79,6 @@ void Pid::update()
         inputFilter.add(inputVal);
 
         if(validSetPoint){
-            temp_t currentSetPoint = setPoint->read();
             if(previousSetPoint.isDisabledOrInvalid()){
                 previousSetPoint = currentSetPoint;
             }
@@ -150,14 +135,14 @@ void Pid::update()
     temp_long_t pidResult = temp_long_t(p) + temp_long_t(i) + temp_long_t(d);
 
     // Get output to send to actuator. When actuator is a 'cooler', invert the result
-    temp_t      output    = (actuatorIsNegative) ? -pidResult : pidResult;
+    temp_t desiredSetting = (actuatorIsNegative) ? -pidResult : pidResult;
 
-    outputActuator -> setValue(output);
+    output.set(desiredSetting);
 
     // get the value that is clipped to the actuator's range
-    output = outputActuator->getValue();
+    temp_long_t achievedSetting = output.setting();
     // When actuator is a 'cooler', invert the output again
-    output = (actuatorIsNegative) ? -output : output;
+    achievedSetting = (actuatorIsNegative) ? -achievedSetting : achievedSetting;
 
     if(Ti == 0){ // 0 has been chosen to indicate that the integrator is disabled. This also prevents divide by zero.
         integral = decltype(integral)::base_type(0);
@@ -165,46 +150,54 @@ void Pid::update()
     else{
         // update integral with anti-windup back calculation
         // pidResult - output is zero when actuator is not saturated
-        // when the actuator is close the to pidResult (setpoint), disable anti-windup
-        // this prevens small fluctuations from keeping the integrator at zero
+
+        temp_long_t antiWindup(temp_long_t::base_type(0));
 
         integral = integral + p;
 
-        temp_long_t antiWindup(temp_long_t::base_type(0));
-        if(pidResult != temp_long_t(output)){ // clipped to actuator min or max set in target actuator
-            antiWindup = pidResult - output;
-            antiWindup *= 5; // Anti windup gain is 5 when clipping to min/max
+        if(pidResult != temp_long_t(achievedSetting)){
+            // clipped to actuator min or max set in target actuator
+            // calculate anti-windup from setting instead of actual value, so it doesn't dip under the maximum
+            antiWindup = pidResult - achievedSetting;
+            antiWindup *= 3; // Anti windup gain is 3
+            // make sure anti-windup is at least p when clipping to prevent further windup
+            antiWindup = (p > temp_long_t(0.0) && antiWindup < p) ? p : antiWindup;
+            antiWindup = (p < temp_long_t(0.0) && antiWindup > p) ? p : antiWindup;
         }
-        else{ // Actuator could be not reaching set value due to physics or limits in its target actuator
-              // Get the actual achieved value in actuator. This could differ due to slowness time/mutex limits
-            temp_t achievedOutput = outputActuator->readValue();
-            if(!achievedOutput.isDisabledOrInvalid()){ // only apply anti-windup when it is possible to read back the actual value
-                // When actuator is a 'cooler', invert the output again
+        else {
+            temp_t achievedOutput = output.value();
+            if(!achievedOutput.isDisabledOrInvalid()){
+                // only apply anti-windup when it is possible to read back the actual value
+                // Actuator could be not reaching set value due to physics or limits in its target actuator
+                // Get the actual achieved value in actuator. This could differ due to slowness time/mutex limits
+                // When actuator is a 'cooler', take the sign reversal into account
+
                 temp_long_t achievedOutputWithCorrectSign = (actuatorIsNegative) ? -achievedOutput : achievedOutput;
 
-                // if the proportional part is bigger than what has been achieved by the actuator, apply anti-windup
-                if(actuatorIsNegative){
-                    if(p < achievedOutputWithCorrectSign){
-                        antiWindup = (p - achievedOutputWithCorrectSign);
+                // Anti windup gain is 3
+                antiWindup = (pidResult - achievedOutputWithCorrectSign);
+                antiWindup *= 3.0;
+
+                // Disable anti-windup if integral part dominates. But only if it counteracts p.
+                if(antiWindup.sign() == p.sign()){
+                    if(actuatorIsNegative && i < p+p+p){
+                        antiWindup = temp_long_t::base_type(0);
+                    }
+                    else if( i > p+p+p ){
+                        antiWindup = temp_long_t::base_type(0);
                     }
                 }
-                else{
-                    if(p > achievedOutputWithCorrectSign){
-                        antiWindup = (p - achievedOutputWithCorrectSign);
-                    }
-                }
-                antiWindup *= 3; // Anti windup gain is 3 for this kind of windup
             }
         }
-
-        // only apply anti-windup if it will decrease the integral and prevent crossing through zero
-        if(integral.sign() * antiWindup.sign() == 1){
-            if((integral - antiWindup).sign() != integral.sign()){
-                integral = decltype(integral)::base_type(0);
+        temp_long_t reducedIntegral = integral - antiWindup;
+        if(integral.sign() * reducedIntegral.sign() == 1){
+            if(integral.sign() * antiWindup.sign() == 1){
+                // only apply anti-windup if it will bring the PID result closer to zero
+                integral = reducedIntegral;
             }
-            else{
-                integral -= antiWindup;
-            }
+        }
+        else{
+            integral = decltype(integral)::base_type(0); // set to zero if crossing zero due to anti-windup
         }
     }
 }
@@ -228,104 +221,3 @@ void Pid::setDerivativeFilter(uint8_t b)
     derivativeFilter.setFiltering(b);
 }
 
-bool Pid::setInputSensor(TempSensorBasic * s)
-{
-    inputSensor = s;
-    temp_t t = s -> read();
-
-    if (t.isDisabledOrInvalid()){
-        return false;    // could not read from sensor
-    }
-
-    inputFilter.init(t);
-    derivativeFilter.init(0.0);
-
-    return true;
-}
-
-bool Pid::setOutputActuator(ActuatorRange * a)
-{
-    outputActuator = a;
-
-    return true;
-}
-
-/*
-
-// Tune the PID with the Ziegler-Nichols Open-Loop Tuning Method or Process Reaction Method
-// This determines the dead time and the reaction rate (max derivative) and calculates the PID parameters from that.
-void Pid::tune(temp output, temp previousOutput){
-    static uint16_t lagTimer = 0;
-    static temp tuningStartTemp = inputFilter.readOutput();
-
-    temp min = outputActuator->min();
-    temp max = outputActuator->max();
-    temp tuningThreshold = (max >> uint8_t(1)) + (min >> uint8_t(1)); // (min + max) / 2
-
-    if(output == outputActuator->max() && previousOutput < tuningThreshold){
-        tuning = true; // only start tuning at a big step to the maximum output
-    }
-    // cancel tuning when the output is under the tuning threshold before maximum derivative is detected
-    if(output < tuningThreshold){
-        if(lagTimer > 2*(derivativeFilter.getDelay() + inputFilter.getDelay())){
-            tuning = false; // only stop tuning if filters have had time to settle
-        }
-    }
-
-    // TODO: when this happens, check the filter delay and see if the maximum still has to come
-
-    // Detect when at max derivative, the time until this happens is the lag time
-    // Together with the maximum derivative, this is used to determine the PID parameters
-
-    if(tuning){ // only for heating now
-        // if the derivative of the input starts falling, we have hit an inflection point
-        // Also check that the derivative is positive
-        if(derivativeFilter.isFalling() && (derivativeFilter.readOutput() > temp_precise(0))){
-            maxDerivative = derivativeFilter.readOutput(); // we're at the peak or past it
-            uint16_t filterDelay = derivativeFilter.getDelay();
-            uint16_t timeToMaxDerivative = (lagTimer <filterDelay) ? 0  : lagTimer - filterDelay;
-
-            // set PID constants to have no overshoot
-
-            temp_long deadTime = temp_long(timeToMaxDerivative) / temp_long(60.0); // derivative and integral are per minute, scale back here
-            temp_long riseTime = (inputFilter.readOutput() - tuningStartTemp)  / derivative;
-            if(riseTime < temp_long(0)){
-                riseTime = 0.0;
-            }
-            deadTime = (deadTime > riseTime) ? deadTime - riseTime : temp_long(0); // rise time is not part of the dead time, eliminate it
-
-            outputLag =  uint16_t(deadTime * temp_long(60)); // store outputlag in seconds
-
-            temp_long RL = derivative * deadTime;
-
-            if (RL < temp_long(0.25)){ // prevent divide by zero
-                Kp = 160.0;
-            }
-            else{
-                Kp = temp_long(100.0*0.4) / RL; // not aggressive. Quarter decay is 1.2 instead of 0.4. We don't want overshoot
-            }
-
-            if(deadTime > temp_long(1)){
-                Ki = Kp/(deadTime+deadTime);
-            }
-            else{
-                Ki = Kp*temp_long(0.5);
-            }
-            Kd = Kp*deadTime*temp_long(0.33);
-
-
-            tuning = false; // tuning ready
-        }
-        else{
-            if(lagTimer < UINT16_MAX){
-                lagTimer++;
-            }
-        }
-    }
-    else{
-        lagTimer= 0;
-        tuningStartTemp = inputFilter.readOutput();
-    }
-}
-
-*/

@@ -33,84 +33,71 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorPwm.h"
 #include "ActuatorTimeLimited.h"
-#include "ActuatorSetPoint.h"
+#include "ActuatorOffset.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMutexGroup.h"
+#include "ProcessValueDelegate.h"
+#include "SensorSetPointPair.h"
 #include "runner.h"
 #include <iostream>
 #include <fstream>
 
 struct MashStaticSetup{
 public:
-    MashStaticSetup(){
+    MashStaticSetup() :
+        mashSensor(20.0),
+        hltSensor(20.0),
+        hltHeaterPin(),
+        mutex(),
+        hltHeaterMutex(hltHeaterPin),
+        hltHeater(hltHeaterMutex, 10), // period 10s, because we're skipping fastUpdate() here
+        hltSet(20.0),
+        mashSet(20.0),
+        hlt(hltSensor, hltSet),
+        mash(mashSensor, mashSet),
+        hltOffsetActuator(hlt, mash),
+        hltHeaterPid(hltHeaterPidInput, hltHeaterPidOutput),
+        mashToHltPid(mashToHltPidInput, mashToHltPidOutput)
+
+    {
         BOOST_TEST_MESSAGE( "setup mash test fixture" );
-
-        mashSensor = new TempSensorMock(20.0);
-        hltSensor = new TempSensorMock(20.0);
-
-        mutex = new ActuatorMutexGroup();
-
-        hltHeaterPin = new ActuatorBool();
-        hltHeaterMutex = new ActuatorMutexDriver(hltHeaterPin);
-        hltHeater = new ActuatorPwm(hltHeaterMutex, 4); // period 4s
-
-        mashSet = new SetPointSimple(20.0);
-        hltSet = new SetPointSimple(20.0);
-
-        hltHeaterPid = new Pid();
-        mashToHltPid = new Pid();
-
-        hltSetPointActuator = new ActuatorSetPoint(hltSet, hltSensor, mashSet);
-
-        hltHeaterPid->setOutputActuator(hltHeater);
-        mashToHltPid->setOutputActuator(hltSetPointActuator);
+        hltHeaterPidInput.setLookup(PtrLookup(&hlt));
+        mashToHltPidInput.setLookup(PtrLookup(&mash));
+        hltHeaterPidOutput.setLookup(PtrLookup(&hltHeater));
+        mashToHltPidOutput.setLookup(PtrLookup(&hltOffsetActuator));
     }
     ~MashStaticSetup(){
         BOOST_TEST_MESSAGE( "tear down mash test fixture" );
-        delete mashSensor;
-        delete hltSensor;
-
-        delete hltHeaterPin;
-        delete hltHeaterMutex;
-        delete hltHeater;
-
-        delete hltSetPointActuator;
-
-        delete mutex;
-
-        delete hltHeaterPid;
-        delete mashToHltPid;
-
-        delete mashSet;
-        delete hltSet;
-
     }
 
     void update(){
-        hltHeaterPid->update();
-        mashToHltPid->update();
+        hltHeaterPid.update();
+        mashToHltPid.update();
 
-        hltSetPointActuator->update();
-        hltHeater->update();
-        mutex->update();
+        hltOffsetActuator.update();
+        hltHeater.update();
+        mutex.update();
     }
 
-    TempSensorMock * mashSensor;
-    TempSensorMock * hltSensor;
+    TempSensorMock mashSensor;
+    TempSensorMock hltSensor;
+    ActuatorBool hltHeaterPin;
+    ActuatorMutexGroup mutex;
+    ActuatorMutexDriver hltHeaterMutex;
+    ActuatorPwm hltHeater;
+    SetPointSimple hltSet;
+    SetPointSimple mashSet;
+    SensorSetPointPair hlt;
+    SensorSetPointPair mash;
+    ActuatorOffset hltOffsetActuator;
 
-    ActuatorDigital * hltHeaterPin;
-    ActuatorMutexDriver * hltHeaterMutex;
-    ActuatorRange * hltHeater;
+    ProcessValueDelegate hltHeaterPidInput;
+    ProcessValueDelegate hltHeaterPidOutput;
+    Pid hltHeaterPid;
 
-    ActuatorSetPoint * hltSetPointActuator;
-
-    ActuatorMutexGroup * mutex;
-
-    Pid * hltHeaterPid;
-    Pid * mashToHltPid;
-
-    SetPoint * mashSet;
-    SetPoint * hltSet;
+    ProcessValueDelegate mashToHltPidInput;
+    ProcessValueDelegate mashToHltPidOutput;
+    Pid mashToHltPid;
 };
 
 /* This class simulates a mashing process.
@@ -130,19 +117,21 @@ struct MashSimulation{
         coilOutTemp = 20;
         mashInTemp = 20;
 
-        mashVolume = 18;
-        hltVolume = 36;
+        // typical for a 40 liter batch and a 45cm kettle
+        mashVolume = 28;
+        hltVolume = 28;
 
-        hltCapacity = 4.2 * 1.0 * hltVolume; // heat capacity water * density of water * 20L volume (in kJ per degree C).
-        mashCapacity = 4.2 * 1.0 * mashVolume;
+        specificHeat = 4.2;
+        hltCapacity = specificHeat * 1.0 * hltVolume; // heat capacity water * density of water * 20L volume (in kJ per degree C).
+        mashCapacity = specificHeat * 1.0 * mashVolume;
 
-        hltHeaterPower = 3.5; // 3500W, in kW.
+        hltHeaterPower = 3.2; // 3200W, in kW.
 
-        coilTransfer = 0.8; // percentage of temperature difference picked up in HLT coil
-        flowRate = 10.0/60; // 5 liter per minute, in L/s.
-        kettleEnvTransfer = 0.01; // losses to environment
-        mashToCoilLoss = 0.05; // losses between mash tun and coil
-        coilToMashLoss = 0.03; // losses between mash tun and coil
+        coilTransfer = 0.6; // ratio of temperature difference picked up in HLT coil
+        flowRate = 8.0/60; // 8 liter per minute, in L/s.
+        kettleEnvTransfer = 0.01; // 10W per degree
+        mashToCoilLoss = 0.01; // losses between mash tun and coil
+        coilToMashLoss = 0.01; // losses between mash tun and coil
 
         mashPumping = true;
     }
@@ -160,7 +149,7 @@ struct MashSimulation{
 
             // coil transfer
             mashTempNew = (mashTemp * (mashVolume - flowRate) + mashInTemp*flowRate) / mashVolume;
-            hltTempNew -= (coilOutTemp - coilInTemp) * flowRate / hltCapacity;
+            hltTempNew -= (coilOutTemp - coilInTemp) * flowRate / hltVolume;
         }
 
         // heater
@@ -186,6 +175,7 @@ struct MashSimulation{
 
     double hltCapacity;
     double mashCapacity;
+    double specificHeat;
 
     double hltHeaterPower;
 
@@ -205,18 +195,17 @@ struct MashSimulation{
 struct SimMashDirect : public MashStaticSetup {
     MashSimulation sim;
     SimMashDirect(){
-        hltHeaterPid->setInputSensor(mashSensor);
-        hltHeaterPid->setSetPoint(mashSet);
-        hltHeaterPid->setInputFilter(1);
-        hltHeaterPid->setDerivativeFilter(1);
-        hltHeaterPid->setConstants(50.0, 300, 120);
+        hltHeaterPidInput.setLookup(PtrLookup(&mash));
+        hltHeaterPid.setInputFilter(1);
+        hltHeaterPid.setDerivativeFilter(3);
+        hltHeaterPid.setConstants(50.0, 300, 60);
     }
 
     void update(){
         MashStaticSetup::update();
-        mashSensor->setTemp(sim.mashTemp);
-        hltSensor->setTemp(sim.hltTemp);
-        sim.update(hltHeater->getValue());
+        mashSensor.setTemp(sim.mashTemp);
+        hltSensor.setTemp(sim.hltTemp);
+        sim.update(hltHeater.setting());
         delay(1000);
     }
 };
@@ -226,27 +215,25 @@ struct SimMashDirect : public MashStaticSetup {
 struct SimMashCascaded : public MashStaticSetup {
     MashSimulation sim;
     SimMashCascaded(){
-        hltHeaterPid->setInputSensor(hltSensor);
-        hltHeaterPid->setSetPoint(hltSet);
-        hltHeaterPid->setInputFilter(1);
-        hltHeaterPid->setDerivativeFilter(1);
-        hltHeaterPid->setConstants(50.0, 300, 30);
+        hltHeaterPidInput.setLookup(PtrLookup(&hlt));
+        hltHeaterPid.setInputFilter(1);
+        hltHeaterPid.setDerivativeFilter(2);
+        hltHeaterPid.setConstants(50.0, 300, 30);
 
 
-        mashToHltPid->setInputSensor(mashSensor);
-        mashToHltPid->setSetPoint(mashSet);
-        mashToHltPid->setInputFilter(2);
-        mashToHltPid->setDerivativeFilter(2);
-        mashToHltPid->setConstants(0.5, 300, 120);
-        hltSetPointActuator->setMin(-5.0);
-        hltSetPointActuator->setMax(5.0);
+        mashToHltPidInput.setLookup(PtrLookup(&mash));
+        mashToHltPid.setInputFilter(2);
+        mashToHltPid.setDerivativeFilter(2);
+        mashToHltPid.setConstants(1, 180, 0);
+        hltOffsetActuator.setMin(-5.0);
+        hltOffsetActuator.setMax(5.0);
     }
 
     void update(){
         MashStaticSetup::update();
-        mashSensor->setTemp(sim.mashTemp);
-        hltSensor->setTemp(sim.hltTemp);
-        sim.update(hltHeater->getValue());
+        mashSensor.setTemp(sim.mashTemp);
+        hltSensor.setTemp(sim.hltTemp);
+        sim.update(hltHeater.setting());
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
@@ -270,19 +257,19 @@ BOOST_FIXTURE_TEST_CASE(Simulate_HLT_Heater_Acts_On_MashTemp, SimMashDirect)
             SetPointDouble += (5.0/1200); // ramp up slowly, 5 degrees in 20 minutes
         }
 
-        mashSet->write(SetPointDouble);
+        mashSet.write(SetPointDouble);
         update();
 
-        csv     << mashSet->read() << "," // setpoint
-                << hltHeaterPid->inputError << "," //error
-                << mashSensor->read() << "," // mash  temp
-                << hltSensor->read() << "," // hlt temp
+        csv     << mashSet.read() << "," // setpoint
+                << hltHeaterPid.inputError << "," //error
+                << mashSensor.read() << "," // mash  temp
+                << hltSensor.read() << "," // hlt temp
                 << sim.mashInTemp << "," // mash inflow temp
-                << hltHeater->getValue() << "," // heater output
-                << hltHeater->readValue() << "," // actual heater output
-                << hltHeaterPid->p << "," // proportional action
-                << hltHeaterPid->i << "," // integral action
-                << hltHeaterPid->d // derivative action
+                << hltHeater.setting() << "," // heater output
+                << hltHeater.value() << "," // actual heater output
+                << hltHeaterPid.p << "," // proportional action
+                << hltHeaterPid.i << "," // integral action
+                << hltHeaterPid.d // derivative action
                 << endl;
     }
     csv.close();
@@ -295,8 +282,8 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Mash_Cascaded_Control, SimMashCascaded)
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "1#mash setpoint, 1#mash out sensor, 2#mash error, "
             "1#hlt setpoint, 1#hlt temp, 2#hlt error,"
-            "3#mash2hlt P, 3#mash2hlt I, 3#mash2hlt D, 3#mash2hlt PID, 3#mash2hlt realized output,"
-            "5#heater pwm, 5# header realized pwm, 4#heater P, 4#heater I, 4#heater D"
+            "3#mash2hlt P, 3#mash2hlt I, 3#mash2hlt D, 3#mash2hlt PID, 3#mash2hlt desired output, 3#mash2hlt realized output,"
+            "5#heater pwm, 5# heater realized pwm, 4#heater P, 4#heater I, 4#heater D"
             << endl;
     double SetPointDouble = 68;
     for(int t = 0; t < 10800; t++){
@@ -305,77 +292,193 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Mash_Cascaded_Control, SimMashCascaded)
             SetPointDouble += (5.0/600); // ramp up slowly, 5 degrees in 10 minutes
         }
 
-        mashSet->write(SetPointDouble);
+        mashSet.write(SetPointDouble);
         update();
 
-        csv     << mashSet->read() << "," // setpoint
-                << mashSensor->read() << "," // mash temp
-                << mashToHltPid->inputError << "," // mash error
-                << hltSet->read() << "," // hlt setpoint
-                << hltSensor->read() << "," // hlt temp
-                << hltHeaterPid->inputError << "," // hlt error
+        csv     << mashSet.read() << "," // setpoint
+                << mashSensor.read() << "," // mash temp
+                << mashToHltPid.inputError << "," // mash error
+                << hltSet.read() << "," // hlt setpoint
+                << hltSensor.read() << "," // hlt temp
+                << hltHeaterPid.inputError << "," // hlt error
 
-                << mashToHltPid->p << "," // proportional action
-                << mashToHltPid->i << "," // integral action
-                << mashToHltPid->d << "," // derivative action
-                << mashToHltPid->p + mashToHltPid->i + mashToHltPid->d << "," // PID output
-                << hltSetPointActuator->getValue() << "," // Actually realized output
+                << mashToHltPid.p << "," // proportional action
+                << mashToHltPid.i << "," // integral action
+                << mashToHltPid.d << "," // derivative action
+                << mashToHltPid.p + mashToHltPid.i + mashToHltPid.d << "," // PID output
+                << hltOffsetActuator.setting() << "," // Desired output
+                << hltOffsetActuator.value() << "," // Actually realized output
 
-                << hltHeater->getValue() << "," // actuator set output heater
-                << hltHeater->readValue() << "," // actuator actual output heater
-                << hltHeaterPid->p << "," // proportional action
-                << hltHeaterPid->i << "," // integral action
-                << hltHeaterPid->d  // derivative action
+                << hltHeater.setting() << "," // actuator set output heater
+                << hltHeater.value() << "," // actuator actual output heater
+                << hltHeaterPid.p << "," // proportional action
+                << hltHeaterPid.i << "," // integral action
+                << hltHeaterPid.d  // derivative action
                 << endl;
     }
     csv.close();
 }
 
 // Test HLT constant first, then switch to mash constant
-BOOST_FIXTURE_TEST_CASE(Simulate_Switch_from_HTL_to_Cascaded_Control, SimMashCascaded)
+BOOST_FIXTURE_TEST_CASE(Simulate_Switch_from_HTL_to_Cascaded_Control_And_Step, SimMashCascaded)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "1#mash setpoint, 1#mash out sensor, 2#mash error, "
                 "1#hlt setpoint, 1#hlt temp, 2#hlt error,"
-                "3#mash2hlt P, 3#mash2hlt I, 3#mash2hlt D, 3#mash2hlt PID, 3#mash2hlt realized output,"
+                "3#mash2hlt P, 3#mash2hlt I, 3#mash2hlt D, 3#mash2hlt PID, 3#mash2hlt desired output, 3#mash2hlt realized output,"
                 "5#heater pwm, 5#heater achieved pwm, 4#heater P, 4#heater I, 4#heater D"
             << endl;
 
     // set PIDs for HLT constant mode (disable automatic HLT set point)
-    mashToHltPid->disable(false);
-    hltSet->write(70.0);
+    mashToHltPid.disable(false);
+    hltSet.write(70.0);
+    mashSet.write(60.0); // not used, but by having a value close to the other values, it won't mess up the plot scaling
     sim.mashPumping = false;
 
-    for(int t = 0; t < 10800; t++){
+    for(int t = 0; t < 7200; t++){
+        if(t == 600){
+            // change to cascaded control (enable automatic HLT set point)
+            mashSet.write(65.0);
+            mashToHltPid.enable();
+            sim.mashPumping = true;
+        }
         if(t == 3600){
             // change to cascaded control (enable automatic HLT set point)
-            mashSet->write(65.0);
-            mashToHltPid->enable();
-            sim.mashPumping = true;
+            mashSet.write(75.0);
+        }
+        if(t == 1800){
+            // sensor value is at setpoint after 10 minutes
+            BOOST_CHECK_CLOSE(double(mashSet.read()), double(mashSensor.read()),0.3);
+        }
+        if(t == 7000){
+            // sensor kept exactly at setpoint after second step
+            BOOST_CHECK_CLOSE(double(mashSet.read()), double(mashSensor.read()),0.1);
         }
         update();
 
-        csv     << mashSet->read() << "," // setpoint
-                << mashSensor->read() << "," // mash temp
-                << mashToHltPid->inputError << "," // mash error
-                << hltSet->read() << "," // hlt setpoint
-                << hltSensor->read() << "," // hlt temp
-                << hltHeaterPid->inputError << "," // hlt error
+        csv     << mashSet.read() << "," // setpoint
+                << mashSensor.read() << "," // mash temp
+                << mashToHltPid.inputError << "," // mash error
+                << hltSet.read() << "," // hlt setpoint
+                << hltSensor.read() << "," // hlt temp
+                << hltHeaterPid.inputError << "," // hlt error
 
-                << mashToHltPid->p << "," // proportional action
-                << mashToHltPid->i << "," // integral action
-                << mashToHltPid->d << "," // derivative action
-                << mashToHltPid->p + mashToHltPid->i + mashToHltPid->d << "," // PID output
-                << hltSetPointActuator->getValue() << "," // Actually realized output
+                << mashToHltPid.p << "," // proportional action
+                << mashToHltPid.i << "," // integral action
+                << mashToHltPid.d << "," // derivative action
+                << mashToHltPid.p + mashToHltPid.i + mashToHltPid.d << "," // PID output
+                << hltOffsetActuator.setting() << "," // Desired output
+                << hltOffsetActuator.value() << "," // Actually realized output
 
-                << hltHeater->getValue() << "," // actuator output heater
-                << hltHeater->readValue() << "," // actuator achieved output heater
-                << hltHeaterPid->p << "," // proportional action
-                << hltHeaterPid->i << "," // integral action
-                << hltHeaterPid->d  // derivative action
+                << hltHeater.setting() << "," // actuator output heater
+                << hltHeater.value() << "," // actuator achieved output heater
+                << hltHeaterPid.p << "," // proportional action
+                << hltHeaterPid.i << "," // integral action
+                << hltHeaterPid.d  // derivative action
                 << endl;
     }
     csv.close();
 }
+
+
+// Test HLT constant first, then switch to mash constant
+BOOST_FIXTURE_TEST_CASE(Simulate_Switch_from_HTL_to_Cascaded_Control_When_Already_Too_High, SimMashCascaded)
+{
+    ofstream csv("./test_results/" + boost_test_name() + ".csv");
+    csv << "1#mash setpoint, 1#mash out sensor, 2#mash error, "
+                "1#hlt setpoint, 1#hlt temp, 2#hlt error,"
+                "3#mash2hlt P, 3#mash2hlt I, 3#mash2hlt D, 3#mash2hlt PID, 3#mash2hlt desired output, 3#mash2hlt realized output,"
+                "5#heater pwm, 5#heater achieved pwm, 4#heater P, 4#heater I, 4#heater D"
+            << endl;
+
+    // set PIDs for HLT constant mode (disable automatic HLT set point)
+    mashToHltPid.disable(false);
+    hltSet.write(70.0);
+    mashSet.write(68.0); // not used, but by having a value close to the other values, it won't mess up the plot scaling
+    sim.hltTemp = 70.5;
+    sim.mashTemp = 68.2;
+
+    sim.mashPumping = true;
+
+    for(int t = 0; t < 7200; t++){
+        if(t == 100){
+            // change to cascaded control (enable automatic HLT set point)
+            mashSet.write(68.0);
+            mashToHltPid.enable();
+            sim.mashPumping = true;
+        }
+        if(t == 3600){
+            mashSet.write(78.0);
+        }
+
+        update();
+
+        csv     << mashSet.read() << "," // setpoint
+                << mashSensor.read() << "," // mash temp
+                << mashToHltPid.inputError << "," // mash error
+                << hltSet.read() << "," // hlt setpoint
+                << hltSensor.read() << "," // hlt temp
+                << hltHeaterPid.inputError << "," // hlt error
+
+                << mashToHltPid.p << "," // proportional action
+                << mashToHltPid.i << "," // integral action
+                << mashToHltPid.d << "," // derivative action
+                << mashToHltPid.p + mashToHltPid.i + mashToHltPid.d << "," // PID output
+                << hltOffsetActuator.setting() << "," // Desired output
+                << hltOffsetActuator.value() << "," // Actually realized output
+
+                << hltHeater.setting() << "," // actuator output heater
+                << hltHeater.value() << "," // actuator achieved output heater
+                << hltHeaterPid.p << "," // proportional action
+                << hltHeaterPid.i << "," // integral action
+                << hltHeaterPid.d  // derivative action
+                << endl;
+    }
+    csv.close();
+}
+
+BOOST_FIXTURE_TEST_CASE(Simulate_very_small_proportonial_gain, SimMashCascaded)
+{
+    // this test is to guard that even with a too small Kp, the integrator will still eventually make the PID reach the setpoint
+    ofstream csv("./test_results/" + boost_test_name() + ".csv");
+    csv << "1#mash setpoint, 1#mash out sensor, 2#mash error, "
+                "1#hlt setpoint, 1#hlt temp, 2#hlt error,"
+                "3#mash2hlt P, 3#mash2hlt I, 3#mash2hlt D, 3#mash2hlt PID, 3#mash2hlt desired output, 3#mash2hlt realized output,"
+                "5#heater pwm, 5#heater achieved pwm, 4#heater P, 4#heater I, 4#heater D"
+            << endl;
+
+    mashSet.write(66.0);
+    mashToHltPid.setConstants(0.2, 120, 0);
+
+
+    for(int t = 0; t < 3600; t++){
+        update();
+        csv     << mashSet.read() << "," // setpoint
+                << mashSensor.read() << "," // mash temp
+                << mashToHltPid.inputError << "," // mash error
+                << hltSet.read() << "," // hlt setpoint
+                << hltSensor.read() << "," // hlt temp
+                << hltHeaterPid.inputError << "," // hlt error
+
+                << mashToHltPid.p << "," // proportional action
+                << mashToHltPid.i << "," // integral action
+                << mashToHltPid.d << "," // derivative action
+                << mashToHltPid.p + mashToHltPid.i + mashToHltPid.d << "," // PID output
+                << hltOffsetActuator.setting() << "," // Desired output
+                << hltOffsetActuator.value() << "," // Actually realized output
+
+                << hltHeater.setting() << "," // actuator output heater
+                << hltHeater.value() << "," // actuator achieved output heater
+                << hltHeaterPid.p << "," // proportional action
+                << hltHeaterPid.i << "," // integral action
+                << hltHeaterPid.d  // derivative action
+                << endl;
+    }
+    update();
+    BOOST_CHECK_CLOSE(double(mashSet.read()), double(mashSensor.read()),0.1);
+    csv.close();
+}
+
+
 
 BOOST_AUTO_TEST_SUITE_END()

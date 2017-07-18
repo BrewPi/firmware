@@ -17,14 +17,16 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEVICE_TEST_SCREEN_H
-#define	DEVICE_TEST_SCREEN_H
+#pragma once
+
+#include "Board.h"
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
 void SetActuatorButtonState(const D4D_OBJECT* pThis, D4D_BOOL state, uint8_t idx);
+
 
 D4D_EXTERN_SCREEN(screen_devicetest);
 D4D_EXTERN_OBJECT(scrDeviceTest_devices00);
@@ -34,11 +36,19 @@ D4D_EXTERN_OBJECT(scrDeviceTest_devices11);
 D4D_EXTERN_OBJECT(scrDeviceTest_devices20);
 D4D_EXTERN_OBJECT(scrDeviceTest_devices21);
 
-D4D_EXTERN_OBJECT(scrDeviceTest_actuator0)
-D4D_EXTERN_OBJECT(scrDeviceTest_actuator1)
-D4D_EXTERN_OBJECT(scrDeviceTest_actuator2)
-D4D_EXTERN_OBJECT(scrDeviceTest_actuator3)
+D4D_EXTERN_OBJECT(scrDeviceTest_actuator0);
+D4D_EXTERN_OBJECT(scrDeviceTest_actuator1);
+D4D_EXTERN_OBJECT(scrDeviceTest_actuator2);
+D4D_EXTERN_OBJECT(scrDeviceTest_actuator3);
+#if MAX_ACTUATOR_COUNT > 4
+D4D_EXTERN_OBJECT(scrDeviceTest_actuator4);
+#endif
 
+D4D_EXTERN_OBJECT(scrDeviceTest_wifi_state);
+D4D_EXTERN_OBJECT(scrDeviceTest_usb_state);
+
+void ScreenDeviceTest_OnInit_c();
+void ScreenDeviceTest_OnInit();
 void ScreenDeviceTest_OnMain();
 void ScreenDeviceTest_OnActivate();
 void ScreenDeviceTest_OnDeactivate();
@@ -49,4 +59,3 @@ Byte ScreenDeviceTest_OnObjectMsg(D4D_MESSAGE* pMsg);
 }
 #endif
 
-#endif	/* DEVICE_TEST_SCREEN_H */

@@ -32,20 +32,6 @@
 #define FAST_DIGITAL_PIN 0
 #endif
 
-/**
- * Enable DS2413 Actuators. 
- */
-#ifndef BREWPI_DS2413
-#define BREWPI_DS2413 1
-#endif
-
-/**
- * Enable DS2408 Actuators.
- */
-#ifndef BREWPI_DS2408
-#define BREWPI_DS2408 1
-#endif
-
 #ifndef BREWPI_BUZZER
     #define BREWPI_BUZZER 1
 #endif
@@ -66,6 +52,8 @@
     #define BREWPI_BOARD BREWPI_BOARD_SPARKCORE
 #elif PLATFORM_ID==6
     #define BREWPI_BOARD BREWPI_BOARD_PHOTON
+#elif PLATFORM_ID==8
+    #define BREWPI_BOARD BREWPI_BOARD_P1
 #elif PLATFORM_ID==3
 	#define BREWPI_BOARD BREWPI_BOARD_GCC
 #else

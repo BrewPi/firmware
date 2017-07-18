@@ -29,7 +29,9 @@ struct ActuatorPriority{
     int8_t priority; // valid priorities are 0-127, at -128 the actuator is removed from the group
 };
 
-class ActuatorMutexGroup final : public ActuatorMutexGroupMixin
+class ActuatorMutexGroup final :
+    public Interface,
+    public ActuatorMutexGroupMixin
 {
 public:
     ActuatorMutexGroup(){
@@ -40,11 +42,13 @@ public:
 
     ~ActuatorMutexGroup() = default;
 
+    void accept(VisitorBase & v) {
+    	v.visit(*this);
+    }
+
     ActuatorPriority * registerActuator(ActuatorDigital * act, int8_t prio);
-    void unRegisterActuator(size_t index); // remove by index
     void unRegisterActuator(ActuatorDigital * act); // remove by pointer
 
-    size_t find(ActuatorDigital * act);
 
     bool request(ActuatorDigital * requester, bool active, int8_t newPriority);
 
@@ -63,9 +67,14 @@ public:
 
     ticks_millis_t getWaitTime();
 
-    void update();
+    void update() final;
+
+    void fastUpdate() final {} // not needed
 
 private:
+    void unRegisterActuator(size_t index); // remove by index
+    size_t find(ActuatorDigital * act);
+
     ticks_millis_t deadTime; // minimum time between switching from one actuator to the other
     ticks_millis_t lastActiveTime;
     ActuatorDigital * lastActiveActuator;

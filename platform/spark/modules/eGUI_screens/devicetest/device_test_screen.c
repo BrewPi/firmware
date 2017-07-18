@@ -94,8 +94,8 @@ void SetActuatorButtonState(D4D_OBJECT* pThis, D4D_BOOL state, uint8_t idx)
 }
 
 #define SCRBOOT_ACTUATOR_COUNT MAX_ACTUATOR_COUNT
-#define SCRBOOT_ACTUATOR_CX_GAP 4
-#define SCRBOOT_ACTUATOR_CX ((320-(SCRBOOT_ACTUATOR_COUNT*SCRBOOT_ACTUATOR_CX_GAP))/SCRBOOT_ACTUATOR_COUNT)
+#define SCRBOOT_ACTUATOR_CX_GAP 5
+#define SCRBOOT_ACTUATOR_CX ((320-((SCRBOOT_ACTUATOR_COUNT-1)*SCRBOOT_ACTUATOR_CX_GAP))/SCRBOOT_ACTUATOR_COUNT)
 
 #define D4D_DECLARE_ACTUATOR(idx)\
      _D4D_DECLARE_ACTUATOR(scrDeviceTest_actuator##idx, idx, (idx*(SCRBOOT_ACTUATOR_CX+SCRBOOT_ACTUATOR_CX_GAP)), 190, SCRBOOT_ACTUATOR_CX, 50, FONT_ARIAL7, FONT_ARIAL7_BIG)
@@ -122,30 +122,40 @@ D4D_DECLARE_ACTUATOR(0);
 D4D_DECLARE_ACTUATOR(1);
 D4D_DECLARE_ACTUATOR(2);
 D4D_DECLARE_ACTUATOR(3);
+#if MAX_ACTUATOR_COUNT > 4
+D4D_DECLARE_ACTUATOR(4);
+#endif
 
 #define SCRBOOT_DEVICES_Y 65
 #define SCRBOOT_DEVICES_CX 104
 #define SCRBOOT_DEVICES_CX_GAP 4
 #define SCRBOOT_DEVICES_CY 120
+#define TEST_TEXT_X  108
+#define TEST_TEXT_CY  12
+
 D4D_DECLARE_CDV_LIST(D4D_CONST, scrDeviceTest_devices0, 0, SCRBOOT_DEVICES_Y, SCRBOOT_DEVICES_CX, SCRBOOT_DEVICES_CY, FONT_ARIAL7_BIG, FONT_ARIAL7, &color_scheme_device, &color_scheme_connection);
 D4D_DECLARE_CDV_LIST(D4D_CONST, scrDeviceTest_devices1, SCRBOOT_DEVICES_CX+SCRBOOT_DEVICES_CX_GAP, SCRBOOT_DEVICES_Y, SCRBOOT_DEVICES_CX, SCRBOOT_DEVICES_CY, FONT_ARIAL7_BIG, FONT_ARIAL7, &color_scheme_device, &color_scheme_connection);
 D4D_DECLARE_CDV_LIST(D4D_CONST, scrDeviceTest_devices2, 2*(SCRBOOT_DEVICES_CX+SCRBOOT_DEVICES_CX_GAP), SCRBOOT_DEVICES_Y, SCRBOOT_DEVICES_CX, SCRBOOT_DEVICES_CY, FONT_ARIAL7_BIG, FONT_ARIAL7, &color_scheme_device, &color_scheme_connection);
 
 // D4D_DECLARE_PICTURE(scrDeviceTest_bmpLogo, 0, 0, 68, 4, &bmp_brewpi_logo_black_68_48, D4D_OBJECT_F_ENABLED|D4D_OBJECT_F_VISIBLE, NULL, NULL);
 D4D_DECLARE_STD_PICTURE(scrDeviceTest_bmpLogo, 16, 4, 72, 48, &bmp_brewpi_logo_black_72_48);
+extern char controller_wifi_ip[16];
+D4D_DECLARE_COLOR_LABEL(scrDeviceTest_wifi_state, controller_wifi_ip, 30, 53, 80, TEST_TEXT_CY, FONT_SMALL, D4D_CONST, D4D_COLOR_BLACK, D4D_COLOR_GREY);
+D4D_DECLARE_COLOR_LABEL(scrDeviceTest_usb_state, "USB", 0, 53, 30, TEST_TEXT_CY, FONT_SMALL, D4D_CONST, D4D_COLOR_BLACK, D4D_COLOR_GREY);
 
-#define TEST_TEXT_X  108
-#define TEST_TEXT_CY  12
 D4D_DECLARE_STD_LABEL(scrDeviceTest_title, "BrewPi Hardware Test", TEST_TEXT_X, 0, 320-TEST_TEXT_X, 2*TEST_TEXT_CY, FONT_ARIAL7_BIG);
 D4D_DECLARE_STD_LABEL(scrDeviceTest_text0, "Shows connected sensors and toggles outputs.", TEST_TEXT_X, TEST_TEXT_CY*2, 320-TEST_TEXT_X, TEST_TEXT_CY, FONT_ARIAL7);
-D4D_DECLARE_STD_LABEL(scrDeviceTest_text1, "For instructions go to", TEST_TEXT_X, TEST_TEXT_CY*3, 320-TEST_TEXT_X, TEST_TEXT_CY, FONT_ARIAL7);
-D4D_DECLARE_STD_LABEL(scrDeviceTest_text2, "http://brewpi.com/spark-getting-started", TEST_TEXT_X, TEST_TEXT_CY*4, 320-TEST_TEXT_X, TEST_TEXT_CY, FONT_ARIAL7);
+D4D_DECLARE_STD_LABEL(scrDeviceTest_text1, "More info at:", TEST_TEXT_X, TEST_TEXT_CY*3, 320-TEST_TEXT_X, TEST_TEXT_CY, FONT_ARIAL7);
+D4D_DECLARE_STD_LABEL(scrDeviceTest_text2, "www.brewpi.com/spark-getting-started", TEST_TEXT_X, TEST_TEXT_CY*4, 320-TEST_TEXT_X, TEST_TEXT_CY, FONT_ARIAL7);
 
 D4D_DECLARE_STD_SCREEN_BEGIN(screen_devicetest, ScreenDeviceTest_)
 	D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator0)
 	D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator1)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator2)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator3)
+#if MAX_ACTUATOR_COUNT > 4
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_actuator4)
+#endif
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices00)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices01)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices10)
@@ -153,6 +163,8 @@ D4D_DECLARE_STD_SCREEN_BEGIN(screen_devicetest, ScreenDeviceTest_)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices20)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_devices21)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_bmpLogo)
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_wifi_state)
+    D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_usb_state)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_title)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_text0)
     D4D_DECLARE_SCREEN_OBJECT(scrDeviceTest_text1)
@@ -161,10 +173,14 @@ D4D_DECLARE_SCREEN_END()
 
 uint8_t ActuatorCount()
 {
-    return shieldIsV2() ? 4 : 3;
+#if MAX_ACTUATOR_COUNT <= 4
+    return shieldIsV1() ? 3 : 4;
+#else
+    return 5;
+#endif
 }
 
-void ScreenDeviceTest_OnInit()
+void ScreenDeviceTest_OnInit_c()
 {
     D4D_EnableObject((D4D_OBJECT*)&scrDeviceTest_actuator0, ActuatorCount()>3);
 
@@ -176,6 +192,8 @@ void ScreenDeviceTest_OnInit()
     SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator1, D4D_FALSE, 1);
     SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator2, D4D_FALSE, 2);
     SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator3, D4D_FALSE, 3);
-
-
+#if MAX_ACTUATOR_COUNT > 4
+    actuator_views_state[4] = D4D_TRUE;
+    SetActuatorButtonState((D4D_OBJECT*)&scrDeviceTest_actuator4, D4D_FALSE, 4);
+#endif
 }

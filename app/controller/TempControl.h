@@ -110,25 +110,25 @@ public:
     tcduration_t timeSinceIdle(void);
 
     temp_t getBeerTemp(void) {
-        return control.beer1Sensor->read();
+        return control.beer1Sensor.read();
     }
 	void setMode(control_mode_t newMode, bool store);
 	control_mode_t getMode(void) {
 		return cs.mode;
 	}
     temp_t getBeerSetting(void) {
-        return control.beer1Set->read();
+        return control.beer1Set.read();
     }
     states getState(void) {
         // For cooling, show actual compressor pin ON state
         // For heating, show heating when PWM is active
-        if (control.coolerMutex->isActive()) {
+        if (control.coolerToggle.isActive()) {
             lastCoolTime = ticks.seconds();
             return COOLING;
-        } else if (control.heater1Mutex->isActive()) {
+        } else if (control.heater1Toggle.isActive()) {
             lastHeatTime = ticks.seconds();
             return HEATING;
-        } else if (control.heater1->getPeriod() < 10 && timeSinceHeating() <= 2*control.heater1->getPeriod()){
+        } else if (control.heater1Pwm.getPeriod() < 10 && timeSinceHeating() <= 2*control.heater1Pwm.getPeriod()){
             return HEATING; // in low period of PWM
         }
         else{
@@ -142,15 +142,23 @@ public:
     void setBeerTemp(temp_t newTemp, bool store);
 
     temp_t getFridgeTemp(void) {
-        return control.fridgeSensor->read();
+        return control.fridgeSensor.read();
     }
     temp_t getFridgeSetting(void) {
-        return control.fridgeSet->read();
+        return control.fridgeSet.read();
     }
     void setFridgeTemp(temp_t newTemp, bool store);
 
-    temp_t getRoomTemp(void) {
-        return control.beer2Sensor->read();
+    temp_t getLog1Temp(void) {
+        return control.log1Sensor.read();
+    }
+
+    temp_t getLog2Temp(void) {
+        return control.log2Sensor.read();
+    }
+
+    temp_t getLog3Temp(void) {
+        return control.log3Sensor.read();
     }
 
 

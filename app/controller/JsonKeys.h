@@ -21,10 +21,6 @@
 
 #include "Brewpi.h"
 
-#ifdef ARDUINO
-#include <avr/pgmspace.h>
-#endif
-
 // settings
 static const char JSONKEY_mode[] PROGMEM = "mode";
 static const char JSONKEY_beerSetting[] PROGMEM = "beerSet";

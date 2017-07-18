@@ -41,9 +41,6 @@ bool OneWireTempSensor::init() {
     // save address and pinNr for log messages
     char addressString[17];
     printBytes(sensorAddress, 8, addressString);
-#if BREWPI_DEBUG
-    uint8_t pinNr = oneWire->pinNr();
-#endif
 
     bool success = false;
 
@@ -68,9 +65,10 @@ bool OneWireTempSensor::init() {
                 temp = sensor->getTempRaw(sensorAddress);            
             }
         }        
-        DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, pinNr, addressString, temp));
+        DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, oneWire->pinNr(), addressString, temp));
         success = temp != DEVICE_DISCONNECTED_RAW;
         if(success){
+        		cachedValue = temp;
             requestConversion(); // piggyback request for a new conversion
         }
     }
@@ -107,21 +105,27 @@ temp_t OneWireTempSensor::read() const {
 
 void OneWireTempSensor::update(){
     cachedValue = readAndConstrainTemp();
-
-    if(cachedValue.isDisabledOrInvalid()){
-        // Try to reconnect once
-        if (init()){
-            // successfully re-initialized
-            cachedValue = readAndConstrainTemp();
-        }
-    }
     requestConversion();
 }
 
 temp_t OneWireTempSensor::readAndConstrainTemp() {
-    int16_t tempRaw = sensor->getTempRaw(sensorAddress);
-    if (tempRaw == DEVICE_DISCONNECTED_RAW) {
-        setConnected(false);
+    int16_t tempRaw;
+    bool success;
+
+    tempRaw = sensor->getTempRaw(sensorAddress);
+    success = tempRaw != DEVICE_DISCONNECTED_RAW;
+
+    if (!success){
+        // retry re-init once
+        if(init()){
+            tempRaw = sensor->getTempRaw(sensorAddress);
+            success = tempRaw != DEVICE_DISCONNECTED_RAW;
+        }
+    }
+
+    setConnected(success);
+
+    if(!success){
         return temp_t::invalid();
     }
 

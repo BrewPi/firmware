@@ -23,7 +23,6 @@
 #include <cstdlib>
 #include <string>
 #include "str_functions.h"
-#include "fixstl.h"
 
 #undef constrain
 

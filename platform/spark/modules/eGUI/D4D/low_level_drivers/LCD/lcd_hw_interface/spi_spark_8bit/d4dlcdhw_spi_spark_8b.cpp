@@ -238,7 +238,7 @@ static unsigned char D4DLCDHW_Init_Spi_Spark_8b(void) {
     SpiLCD.setClockDivider(
 #if PLATFORM_ID==0
     SPI_CLOCK_DIV8
-#elif PLATFORM_ID==6
+#elif PLATFORM_ID==6 || PLATFORM_ID==8
     SPI_CLOCK_DIV8
 #else
 #error Unknown platform
