@@ -13,12 +13,6 @@ void handleReset(bool exit)
 		System.reset();
 }
 
-void flashFirmware()
-{
-    System.firmwareUpdate(&Serial);
-}
-
-
 #define EEPROM_MAGIC1 (0xD0)
 #define EEPROM_MAGIC2 (0x9E)
 
