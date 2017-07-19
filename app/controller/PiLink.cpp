@@ -49,8 +49,7 @@ class NetworkSerialMuxer : public Stream
 private:
     TCPServer tcpServer = TCPServer(6666);
     TCPClient tcpClient;
-
-    Stream * currentStream = &tcpClient;
+    Stream * currentStream = &Serial;
 
 public:
     void print(char c) {
@@ -398,7 +397,6 @@ void PiLink::receive(void){
             }
             break;
 #endif
-
         case 'R': // reset
             if(readCrLf()){
                 handleReset();
@@ -407,7 +405,7 @@ void PiLink::receive(void){
 
         case 'F': // flash firmware
             if(readCrLf()){
-                flashFirmware();
+                System.firmwareUpdate(&piStream);
             }
             break;
 
