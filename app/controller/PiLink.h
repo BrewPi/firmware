@@ -100,6 +100,7 @@ class PiLink{
 	static void jsonOutputUint8(const char* key, uint8_t offset);
 	static void jsonOutputTempToString(const char* key, uint8_t offset);
 	static void jsonOutputFixedPointToString(const char* key, uint8_t offset);
+	static void jsonOutputFixedPointLongToString(const char* key, uint8_t offset);
 	static void jsonOutputTempDiffToString(const char* key, uint8_t offset);
 	static void jsonOutputChar(const char* key, uint8_t offset);
 	static void jsonOutputUint16(const char* key, uint8_t offset);
