@@ -619,6 +619,11 @@ void PiLink::jsonOutputFixedPointToString(const char* key, uint8_t offset) {
     piLink.sendJsonPair(key, ((temp_t*)(jsonOutputBase+offset))->toString(buf, 2, 12));
 }
 
+void PiLink::jsonOutputFixedPointLongToString(const char* key, uint8_t offset) {
+    char buf[12];
+    piLink.sendJsonPair(key, ((temp_long_t*)(jsonOutputBase+offset))->toString(buf, 2, 12));
+}
+
 void PiLink::jsonOutputTempDiffToString(const char* key, uint8_t offset) {
     char buf[12];
     piLink.sendJsonPair(key, ((temp_t*)(jsonOutputBase+offset))->toTempString(buf, 2, 12, tempControl.cc.tempFormat, false));
@@ -637,6 +642,7 @@ enum JsonOutputIndex {
     JOCC_TEMP_DIFF=3,
     JOCC_CHAR=4,
     JOCC_UINT16=5,
+    JOCC_FIXED_POINT_LONG=6,
 };
 
 const PiLink::JsonOutputHandler PiLink::JsonOutputHandlers[] = {
@@ -646,6 +652,7 @@ const PiLink::JsonOutputHandler PiLink::JsonOutputHandlers[] = {
     PiLink::jsonOutputTempDiffToString,
     PiLink::jsonOutputChar,
     PiLink::jsonOutputUint16,
+    PiLink::jsonOutputFixedPointLongToString,
 };
 
 #define JSON_OUTPUT_CC_MAP(name, fn) { JSONKEY_ ## name,  offsetof(ControlConstants, name), fn }
@@ -655,25 +662,25 @@ const PiLink::JsonOutputHandler PiLink::JsonOutputHandlers[] = {
 const PiLink::JsonOutput PiLink::jsonOutputCCMap[] PROGMEM = {
     JSON_OUTPUT_CC_MAP(tempFormat, JOCC_CHAR),
 
-    JSON_OUTPUT_CC_MAP(heater1_kp, JOCC_FIXED_POINT),
+    JSON_OUTPUT_CC_MAP(heater1_kp, JOCC_FIXED_POINT_LONG),
     JSON_OUTPUT_CC_MAP(heater1_ti, JOCC_UINT16),
     JSON_OUTPUT_CC_MAP(heater1_td, JOCC_UINT16),
     JSON_OUTPUT_CC_MAP(heater1_infilt, JOCC_UINT8),
     JSON_OUTPUT_CC_MAP(heater1_dfilt, JOCC_UINT8),
 
-    JSON_OUTPUT_CC_MAP(heater2_kp, JOCC_FIXED_POINT),
+    JSON_OUTPUT_CC_MAP(heater2_kp, JOCC_FIXED_POINT_LONG),
     JSON_OUTPUT_CC_MAP(heater2_ti, JOCC_UINT16),
     JSON_OUTPUT_CC_MAP(heater2_td, JOCC_UINT16),
     JSON_OUTPUT_CC_MAP(heater2_infilt, JOCC_UINT8),
     JSON_OUTPUT_CC_MAP(heater2_dfilt, JOCC_UINT8),
 
-    JSON_OUTPUT_CC_MAP(cooler_kp, JOCC_FIXED_POINT),
+    JSON_OUTPUT_CC_MAP(cooler_kp, JOCC_FIXED_POINT_LONG),
     JSON_OUTPUT_CC_MAP(cooler_ti, JOCC_UINT16),
     JSON_OUTPUT_CC_MAP(cooler_td, JOCC_UINT16),
     JSON_OUTPUT_CC_MAP(cooler_infilt, JOCC_UINT8),
     JSON_OUTPUT_CC_MAP(cooler_dfilt, JOCC_UINT8),
 
-    JSON_OUTPUT_CC_MAP(beer2fridge_kp, JOCC_FIXED_POINT),
+    JSON_OUTPUT_CC_MAP(beer2fridge_kp, JOCC_FIXED_POINT_LONG),
     JSON_OUTPUT_CC_MAP(beer2fridge_ti, JOCC_UINT16),
     JSON_OUTPUT_CC_MAP(beer2fridge_td, JOCC_UINT16),
     JSON_OUTPUT_CC_MAP(beer2fridge_infilt, JOCC_UINT8),
