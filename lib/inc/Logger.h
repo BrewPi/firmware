@@ -58,14 +58,14 @@
 // define error id variable type to make it easy to bump to uint16 when needed
 typedef uint8_t LOG_ID_TYPE;
 
-class Logger{
+class BrewPiLogger{
 	public:
-	Logger() = default;
-	~Logger() = default;
+    BrewPiLogger() = default;
+	~BrewPiLogger() = default;
 	
 	static void logMessageVaArg(const char type, LOG_ID_TYPE errorID, const char * varTypes, ...);
 };
-extern Logger logger;
+extern BrewPiLogger logger;
 
 
 #if BREWPI_LOG_ERRORS

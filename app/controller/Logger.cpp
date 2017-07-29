@@ -27,7 +27,7 @@
 
 static const char PROGMEM LOG_STRING_FORMAT[] = "\"%s\"";
 
-void Logger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * varTypes, ...){
+void BrewPiLogger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * varTypes, ...){
 	va_list args;
 	piLink.printResponse('D');
 	piLink.sendJsonPair(JSONKEY_logType, type);
@@ -57,4 +57,4 @@ void Logger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * varTyp
 	piLink.sendJsonClose();
 }
 
-Logger logger;
+BrewPiLogger logger;

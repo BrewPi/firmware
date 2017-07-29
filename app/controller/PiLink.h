@@ -138,7 +138,7 @@ class PiLink{
 	static bool firstPair;
 	friend class DeviceManager;
 	friend class PiLinkTest;
-	friend class Logger;
+	friend class BrewPiLogger;
 	static char printfBuff[PRINTF_BUFFER_SIZE];
 };
 

@@ -23,7 +23,7 @@
 #include "Logger.h"
 #include "runner.h"
 
-void Logger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * varTypes, ...){
+void BrewPiLogger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * varTypes, ...){
 	va_list args;
 	*output << "LOG MESSAGE: {";
 	*output << type << ": ";
@@ -52,4 +52,4 @@ void Logger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * varTyp
 	*output << "}\n";
 }
 
-Logger logger;
+BrewPiLogger logger;
