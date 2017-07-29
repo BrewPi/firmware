@@ -28,6 +28,7 @@
 #include "gpio_hal.h"
 #include "pinmap_impl.h"
 #include "stm32f2xx.h"
+#include "service_debug.h"
 #include <stddef.h>
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,7 +65,7 @@ typedef struct exti_channel {
 } exti_channel;
 
 //Array to hold user ISR function pointers
-static exti_channel exti_channels[16];
+static exti_channel exti_channels[16] = {{0}};
 
 typedef struct exti_state {
     uint32_t imr;
@@ -73,7 +74,7 @@ typedef struct exti_state {
     uint32_t ftsr;
 } exti_state;
 
-static exti_state exti_saved_state;
+static exti_state exti_saved_state = {0};
 
 /* Extern variables ----------------------------------------------------------*/
 
@@ -262,6 +263,11 @@ void HAL_Interrupts_Restore(void) {
   EXTI->FTSR = exti_saved_state.ftsr;
 }
 
+uint32_t HAL_Interrupts_Pin_IRQn(pin_t pin) {
+  STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+  return GPIO_IRQn[PIN_MAP[pin].gpio_pin];
+}
+
 /*******************************************************************************
  * Function Name  : HAL_EXTI_Handler (Declared as weak in WICED - platform_gpio.c)
  * Description    : This function is called by any of the interrupt handlers. It
@@ -287,18 +293,3 @@ void HAL_Interrupts_Trigger(uint16_t EXTI_Line, void* reserved)
     userISR_Handle(data);
   }
 }
-
-
-int HAL_disable_irq()
-{
-  int is = __get_PRIMASK();
-  __disable_irq();
-  return is;
-}
-
-void HAL_enable_irq(int is) {
-    if ((is & 1) == 0) {
-        __enable_irq();
-    }
-}
-

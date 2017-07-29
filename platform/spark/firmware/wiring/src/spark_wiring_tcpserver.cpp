@@ -26,8 +26,11 @@
 #include "spark_wiring_tcpclient.h"
 #include "spark_wiring_tcpserver.h"
 #include "spark_wiring_network.h"
+#include "spark_wiring_thread.h"
 
 using namespace spark;
+
+static TCPClient* s_invalid_client = NULL;
 
 class TCPServerClient : public TCPClient
 {
@@ -48,7 +51,11 @@ public:
 
 TCPServer::TCPServer(uint16_t port, network_interface_t nif) : _port(port), _nif(nif), _sock(socket_handle_invalid()), _client(socket_handle_invalid())
 {
-
+    SINGLE_THREADED_BLOCK() {
+        if (!s_invalid_client) {
+            s_invalid_client = new TCPClient(socket_handle_invalid());
+        }
+    }
 }
 
 bool TCPServer::begin()
@@ -73,6 +80,7 @@ bool TCPServer::begin()
 
 void TCPServer::stop()
 {
+    _client.stop();
     socket_close(_sock);
     _sock = socket_handle_invalid();
 }
@@ -89,7 +97,7 @@ TCPClient TCPServer::available()
     if((!Network.from(_nif).ready()) || (_sock == SOCKET_INVALID))
     {
         _sock = SOCKET_INVALID;
-        _client = TCPClient(SOCKET_INVALID);
+        _client = *s_invalid_client;
         return _client;
     }
 
@@ -97,12 +105,12 @@ TCPClient TCPServer::available()
 
     if (!socket_handle_valid(sock))
     {
-        _client = TCPClient(SOCKET_INVALID);
+        _client = *s_invalid_client;
     }
     else
     {
         TCPServerClient client = TCPServerClient(sock);
-        client._remoteIP = client.remoteIP();      // fetch the peer IP ready for the copy operator
+        client.d_->remoteIP = client.remoteIP();      // fetch the peer IP ready for the copy operator
         _client = client;
 
     }

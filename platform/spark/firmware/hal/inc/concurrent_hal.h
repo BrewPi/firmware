@@ -108,6 +108,13 @@ bool os_thread_is_current_within_stack();
 os_result_t os_thread_join(os_thread_t thread);
 
 /**
+ * Terminate thread.
+ * @param thread    The thread to terminate, or NULL to terminate current thread.
+ * @return 0 if the thread has successfully terminated. non-zero in case of an error.
+ */
+os_result_t os_thread_exit(os_thread_t thread);
+
+/**
  * Cleans up resources used by a terminated thread.
  * @param thread    The thread to clean up.
  * @return 0 on success.
@@ -145,7 +152,7 @@ void os_condition_variable_notify_all(condition_variable_t var);
 
 const system_tick_t CONCURRENT_WAIT_FOREVER = (system_tick_t)-1;
 
-int os_queue_create(os_queue_t* queue, size_t item_size, size_t item_count);
+int os_queue_create(os_queue_t* queue, size_t item_size, size_t item_count, void* reserved);
 /**
  * Return 0 on success.
  * @param queue
@@ -153,7 +160,7 @@ int os_queue_create(os_queue_t* queue, size_t item_size, size_t item_count);
  * @param delay
  * @return
  */
-int os_queue_put(os_queue_t queue, const void* item, system_tick_t delay);
+int os_queue_put(os_queue_t queue, const void* item, system_tick_t delay, void* reserved);
 
 /**
  * Return 0 on success.
@@ -162,8 +169,8 @@ int os_queue_put(os_queue_t queue, const void* item, system_tick_t delay);
  * @param delay
  * @return
  */
-int os_queue_take(os_queue_t queue, void* item, system_tick_t delay);
-void os_queue_destroy(os_queue_t queue);
+int os_queue_take(os_queue_t queue, void* item, system_tick_t delay, void* reserved);
+int os_queue_destroy(os_queue_t queue, void* reserved);
 
 int os_mutex_create(os_mutex_t* mutex);
 int os_mutex_destroy(os_mutex_t mutex);

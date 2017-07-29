@@ -31,6 +31,9 @@
 #include "usb_dcd.h"
 #include "flash_mal.h"
 #include "rgbled_hal.h"
+#include "rgbled.h"
+#include "hal_irq_flag.h"
+#include "system_flags_impl.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -44,25 +47,86 @@
 uint8_t USE_SYSTEM_FLAGS = 0;	//0, 1
 uint16_t sys_health_cache = 0; // Used by the SYS_HEALTH macros store new heath if higher
 
-GPIO_TypeDef* LED_GPIO_PORT[] = {LED1_GPIO_PORT, LED2_GPIO_PORT, LED3_GPIO_PORT, LED4_GPIO_PORT};
-const uint16_t LED_GPIO_PIN[] = {LED1_GPIO_PIN, LED2_GPIO_PIN, LED3_GPIO_PIN, LED4_GPIO_PIN};
-const uint32_t LED_GPIO_CLK[] = {LED1_GPIO_CLK, LED2_GPIO_CLK, LED3_GPIO_CLK, LED4_GPIO_CLK};
-const uint8_t LED_GPIO_PIN_SOURCE[] = {LED1_GPIO_PIN_SOURCE, LED2_GPIO_PIN_SOURCE, LED3_GPIO_PIN_SOURCE, LED4_GPIO_PIN_SOURCE};
-const uint8_t LED_GPIO_AF_TIM[] = {LED1_GPIO_AF_TIM, LED2_GPIO_AF_TIM, LED3_GPIO_AF_TIM, LED4_GPIO_AF_TIM};
+button_config_t HAL_Buttons[] = {
+    {
+        .active = 0,
+        .port = BUTTON1_GPIO_PORT,
+        .pin = BUTTON1_GPIO_PIN,
+        .clk = BUTTON1_GPIO_CLK,
+        .mode = BUTTON1_GPIO_MODE,
+        .pupd = BUTTON1_GPIO_PUPD,
+        .debounce_time = 0,
 
-GPIO_TypeDef* BUTTON_GPIO_PORT[] = {BUTTON1_GPIO_PORT};
-const uint16_t BUTTON_GPIO_PIN[] = {BUTTON1_GPIO_PIN};
-const uint32_t BUTTON_GPIO_CLK[] = {BUTTON1_GPIO_CLK};
-GPIOMode_TypeDef BUTTON_GPIO_MODE[] = {BUTTON1_GPIO_MODE};
-GPIOPuPd_TypeDef BUTTON_GPIO_PUPD[] = {BUTTON1_GPIO_PUPD};
-__IO uint16_t BUTTON_DEBOUNCED_TIME[] = {0};
+        .exti_line = BUTTON1_EXTI_LINE,
+        .exti_port_source = BUTTON1_EXTI_PORT_SOURCE,
+        .exti_pin_source = BUTTON1_EXTI_PIN_SOURCE,
+        .exti_irqn = BUTTON1_EXTI_IRQn,
+        .exti_irq_prio = BUTTON1_EXTI_IRQ_PRIORITY,
+        .exti_trigger = BUTTON1_EXTI_TRIGGER
+    },
+    {
+        .active = 0,
+        .port = NULL,
+        .debounce_time = 0,
+        .exti_line = 0
+    }
+};
 
-const uint16_t BUTTON_EXTI_LINE[] = {BUTTON1_EXTI_LINE};
-const uint16_t BUTTON_EXTI_PORT_SOURCE[] = {BUTTON1_EXTI_PORT_SOURCE};
-const uint16_t BUTTON_EXTI_PIN_SOURCE[] = {BUTTON1_EXTI_PIN_SOURCE};
-const uint16_t BUTTON_EXTI_IRQn[] = {BUTTON1_EXTI_IRQn};
-const uint8_t BUTTON_EXTI_IRQ_PRIORITY[] = {BUTTON1_EXTI_IRQ_PRIORITY};
-EXTITrigger_TypeDef BUTTON_EXTI_TRIGGER[] = {BUTTON1_EXTI_TRIGGER};
+#if MODULE_FUNCTION != MOD_FUNC_BOOTLOADER
+const led_config_t HAL_Leds_Default[] = {
+#else
+led_config_t HAL_Leds_Default[LEDn * 2] = {{0}};
+const led_config_t HAL_Leds_Default_Data[] = {
+#endif // MODULE_FUNCTION != MOD_FUNC_BOOTLOADER
+    {
+        .version = 0x01,
+        .port = LED1_GPIO_PORT,
+        .pin = LED1_GPIO_PIN,
+        .clk = LED1_GPIO_CLK,
+        .mode = LED1_GPIO_MODE,
+        .pin_source = LED1_GPIO_PIN_SOURCE,
+        .af = LED1_GPIO_AF_TIM,
+        .tim_peripheral = NULL,
+        .tim_channel = 0,
+        .flags = 0
+    },
+    {
+        .version = 0x01,
+        .port = LED2_GPIO_PORT,
+        .pin = LED2_GPIO_PIN,
+        .clk = LED2_GPIO_CLK,
+        .mode = LED2_GPIO_MODE,
+        .pin_source = LED2_GPIO_PIN_SOURCE,
+        .af = LED2_GPIO_AF_TIM,
+        .tim_peripheral = NULL,
+        .tim_channel = 0,
+        .flags = 0
+    },
+    {
+        .version = 0x01,
+        .port = LED3_GPIO_PORT,
+        .pin = LED3_GPIO_PIN,
+        .clk = LED3_GPIO_CLK,
+        .mode = LED3_GPIO_MODE,
+        .pin_source = LED3_GPIO_PIN_SOURCE,
+        .af = LED3_GPIO_AF_TIM,
+        .tim_peripheral = NULL,
+        .tim_channel = 0,
+        .flags = 0
+    },
+    {
+        .version = 0x01,
+        .port = LED4_GPIO_PORT,
+        .pin = LED4_GPIO_PIN,
+        .clk = LED4_GPIO_CLK,
+        .mode = LED4_GPIO_MODE,
+        .pin_source = LED4_GPIO_PIN_SOURCE,
+        .af = LED4_GPIO_AF_TIM,
+        .tim_peripheral = NULL,
+        .tim_channel = 0,
+        .flags = 0
+    },
+};
 
 /* Extern variables ----------------------------------------------------------*/
 extern USB_OTG_CORE_HANDLE USB_OTG_dev;
@@ -124,7 +188,12 @@ void Set_System(void)
 
     /* Configure the LEDs and set the default states */
     int LEDx;
+#if MODULE_FUNCTION != MOD_FUNC_BOOTLOADER
     for(LEDx = 1; LEDx < LEDn; ++LEDx)
+#else
+    memcpy(HAL_Leds_Default, HAL_Leds_Default_Data, sizeof(HAL_Leds_Default_Data));
+    for(LEDx = 1; LEDx < LEDn * 2; ++LEDx)
+#endif // MODULE_FUNCTION != MOD_FUNC_BOOTLOADER
     {
         //LED_USER initialization is skipped during system setup
         //since PA13 pin is also JTMS-SWDIO. Initializing LED_USER
@@ -181,6 +250,16 @@ void SysTick_Configuration(void)
 
 void IWDG_Reset_Enable(uint32_t msTimeout)
 {
+    Load_SystemFlags();
+    // Old versions of the bootloader were storing system flags in DCT
+    const size_t dctFlagOffs = DCT_SYSTEM_FLAGS_OFFSET + offsetof(platform_system_flags_t, IWDG_Enable_SysFlag);
+    uint16_t dctFlag = 0;
+    if (dct_read_app_data_copy(dctFlagOffs, &dctFlag, sizeof(dctFlag)) == 0 && dctFlag == 0xD001)
+    {
+        dctFlag = 0xFFFF;
+        dct_write_app_data(&dctFlag, dctFlagOffs, sizeof(dctFlag));
+        SYSTEM_FLAG(IWDG_Enable_SysFlag) = 0xD001;
+    }
     if(SYSTEM_FLAG(IWDG_Enable_SysFlag) == 0xD001)
     {
         if (msTimeout == 0)
@@ -216,33 +295,150 @@ void IWDG_Force_Enable(uint32_t msTimeout)
     IWDG_Enable();
 }
 
+static uint32_t Timer_Enable(TIM_TypeDef* TIMx)
+{
+  uint32_t clk = SystemCoreClock / 2;
+
+  if (TIMx == TIM1)
+  {
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+    clk = SystemCoreClock;
+  }
+  else if (TIMx == TIM2)
+  {
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+  }
+  else if (TIMx == TIM3)
+  {
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+  }
+  else if (TIMx == TIM4)
+  {
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+  }
+  else if (TIMx == TIM5)
+  {
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
+  }
+#if PLATFORM_ID == 10
+  else if (TIMx == TIM8)
+  {
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE);
+    clk = SystemCoreClock;
+  }
+#endif // PLATFORM_ID == 10
+
+  return clk;
+}
+
+static void Timer_Configure(TIM_TypeDef* TIMx, bool enable)
+{
+    if (!(TIMx->CR1 & TIM_CR1_CEN))
+    {
+        uint32_t clk = Timer_Enable(TIMx);
+
+        TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure = {0};
+
+        /* TIM2 Update Frequency = 120000000/2/60/10000 = 100Hz = 10ms */
+        /* TIM2_Prescaler: 59 */
+        /* TIM2_Autoreload: 9999 -> 100Hz = 10ms */
+        uint16_t TIM_Prescaler = (uint16_t)((clk) / 1000000) - 1;
+        uint16_t TIM_Autoreload = (uint16_t)(1000000 / UI_TIMER_FREQUENCY) - 1;
+
+        /* Time Base Configuration */
+        TIM_TimeBaseStructure.TIM_Period = TIM_Autoreload;
+        TIM_TimeBaseStructure.TIM_Prescaler = TIM_Prescaler;
+        TIM_TimeBaseStructure.TIM_ClockDivision = 0x0000;
+        TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+
+        TIM_TimeBaseInit(TIMx, &TIM_TimeBaseStructure);
+
+        TIM_ARRPreloadConfig(TIMx, ENABLE);
+    }
+
+    if (enable)
+    {
+        /* TIMx enable counter */
+        TIM_Cmd(TIMx, ENABLE);
+#if PLATFORM_ID == 10
+        if (TIMx == TIM1 || TIMx == TIM8) {
+#else
+        if (TIMx == TIM1) {
+#endif // PLATFORM_ID == 10
+            TIM_CtrlPWMOutputs(TIMx, ENABLE);
+        }
+    }
+}
+
+static void Timer_Configure_Pwm(TIM_TypeDef* TIMx, uint16_t channel)
+{
+    TIM_OCInitTypeDef TIM_OCInitStructure = {0};
+
+    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+    TIM_OCInitStructure.TIM_Pulse = 0x0000;
+    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
+    TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Reset;
+
+    // Enable output-compare preload function.  Duty cycle will be updated
+    // at end of each counter cycle to prevent glitches.
+    if (channel == TIM_Channel_1)
+    {
+        // PWM1 Mode configuration: Channel1
+        TIM_OC1Init(TIMx, &TIM_OCInitStructure);
+        TIM_OC1PreloadConfig(TIMx, TIM_OCPreload_Disable);
+    }
+    else if (channel == TIM_Channel_2)
+    {
+        // PWM1 Mode configuration: Channel2
+        TIM_OC2Init(TIMx, &TIM_OCInitStructure);
+        TIM_OC2PreloadConfig(TIMx,TIM_OCPreload_Disable);
+    }
+    else if (channel == TIM_Channel_3)
+    {
+        // PWM1 Mode configuration: Channel3
+        TIM_OC3Init(TIMx, &TIM_OCInitStructure);
+        TIM_OC3PreloadConfig(TIMx, TIM_OCPreload_Disable);
+    }
+    else if (channel == TIM_Channel_4)
+    {
+        // PWM1 Mode configuration: Channel4
+        TIM_OC4Init(TIMx, &TIM_OCInitStructure);
+        TIM_OC4PreloadConfig(TIMx, TIM_OCPreload_Disable);
+    }
+
+    // Enable Auto-load register preload function.  ARR register or PWM period
+    // will be update at end of each counter cycle to prevent glitches.
+    TIM_ARRPreloadConfig(TIMx, ENABLE);
+}
+
+#if MODULE_FUNCTION == MOD_FUNC_BOOTLOADER
+static void Timer_Channel_Set(TIM_TypeDef* TIMx, uint16_t channel, uint16_t val)
+{
+    if (channel == TIM_Channel_1)
+    {
+        TIMx->CCR1 = val;
+    }
+    else if (channel == TIM_Channel_2)
+    {
+        TIMx->CCR2 = val;
+    }
+    else if (channel == TIM_Channel_3)
+    {
+        TIMx->CCR3 = val;
+    }
+    else if (channel == TIM_Channel_4)
+    {
+        TIMx->CCR4 = val;
+    }
+}
+#endif // MODULE_FUNCTION == MOD_FUNC_BOOTLOADER
+
 void UI_Timer_Configure(void)
 {
-    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-    TIM_OCInitTypeDef TIM_OCInitStructure;
+    TIM_OCInitTypeDef TIM_OCInitStructure = {0};
 
-    /* Enable TIM2 clock */
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-
-    /*
-    Since APB1 prescaler is different from 1.
-    TIM2CLK = 2 * PCLK1
-    PCLK1 = HCLK / 4
-    TIM2CLK = HCLK / 2 = SystemCoreClock / 2
-    */
-    /* TIM2 Update Frequency = 120000000/2/60/10000 = 100Hz = 10ms */
-    /* TIM2_Prescaler: 59 */
-    /* TIM2_Autoreload: 9999 -> 100Hz = 10ms */
-    uint16_t TIM2_Prescaler = (uint16_t)((SystemCoreClock / 2) / 1000000) - 1;
-    uint16_t TIM2_Autoreload = (uint16_t)(1000000 / UI_TIMER_FREQUENCY) - 1;
-
-    /* Time Base Configuration */
-    TIM_TimeBaseStructure.TIM_Period = TIM2_Autoreload;
-    TIM_TimeBaseStructure.TIM_Prescaler = TIM2_Prescaler;
-    TIM_TimeBaseStructure.TIM_ClockDivision = 0x0000;
-    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-
-    TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+    Timer_Configure(TIM2, false);
 
     /* Output Compare Timing Mode configuration: Channel 1 */
     TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
@@ -253,27 +449,23 @@ void UI_Timer_Configure(void)
     TIM_OC1Init(TIM2, &TIM_OCInitStructure);
     TIM_OC1PreloadConfig(TIM2, TIM_OCPreload_Disable);
 
-    /* PWM1 Mode configuration: Channel 2, 3 and 4 */
-    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-    TIM_OCInitStructure.TIM_Pulse = 0x0000;
-    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
-    TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Reset;
+    Timer_Configure_Pwm(TIM2, TIM_Channel_2);
+    Timer_Configure_Pwm(TIM2, TIM_Channel_3);
+    Timer_Configure_Pwm(TIM2, TIM_Channel_4);
 
-    TIM_OC2Init(TIM2, &TIM_OCInitStructure);
-    TIM_OC2PreloadConfig(TIM2, TIM_OCPreload_Disable);
-
-    TIM_OC3Init(TIM2, &TIM_OCInitStructure);
-    TIM_OC3PreloadConfig(TIM2, TIM_OCPreload_Disable);
-
-    TIM_OC4Init(TIM2, &TIM_OCInitStructure);
-    TIM_OC4PreloadConfig(TIM2, TIM_OCPreload_Disable);
-
-    TIM_ARRPreloadConfig(TIM2, ENABLE);
-
-    /* TIM2 enable counter */
-    TIM_Cmd(TIM2, ENABLE);
+    Timer_Configure(TIM2, true);
 }
+
+#if MODULE_FUNCTION == MOD_FUNC_BOOTLOADER
+static void Led_Set_Value(Led_TypeDef led, uint16_t val)
+{
+    if (HAL_Leds_Default[led].is_active) {
+        Timer_Channel_Set(HAL_Leds_Default[led].tim_peripheral,
+                          HAL_Leds_Default[led].tim_channel,
+                          !HAL_Leds_Default[led].is_inverted ? Get_RGB_LED_Max_Value() - val : val);
+    }
+}
+#endif // MODULE_FUNCTION == MOD_FUNC_BOOTLOADER
 
 /**
  * @brief  Configures LED GPIO.
@@ -284,35 +476,53 @@ void UI_Timer_Configure(void)
  */
 void LED_Init(Led_TypeDef Led)
 {
+#if MODULE_FUNCTION == MOD_FUNC_BOOTLOADER
+    if (Led >= LED_MIRROR_OFFSET)
+    {
+        // Load configuration from DCT
+        led_config_t conf;
+        const size_t offset = DCT_LED_MIRROR_OFFSET + ((Led - LED_MIRROR_OFFSET) * sizeof(led_config_t));
+        if (dct_read_app_data_copy(offset, &conf, sizeof(conf)) == 0 && conf.version != 0xff &&
+                conf.is_active && conf.is_pwm) {
+            //int32_t state = HAL_disable_irq();
+            memcpy((void*)&HAL_Leds_Default[Led], (void*)&conf, sizeof(led_config_t));
+            //HAL_enable_irq(state);
+        }
+        else
+        {
+            return;
+        }
+
+        Timer_Configure(HAL_Leds_Default[Led].tim_peripheral, true);
+        Timer_Configure_Pwm(HAL_Leds_Default[Led].tim_peripheral, HAL_Leds_Default[Led].tim_channel);
+    }
+#endif // MODULE_FUNCTION == MOD_FUNC_BOOTLOADER
+
     GPIO_InitTypeDef  GPIO_InitStructure;
 
     /* Enable the GPIO_LED Clock */
-    RCC_AHB1PeriphClockCmd(LED_GPIO_CLK[Led], ENABLE);
+    RCC_AHB1PeriphClockCmd(HAL_Leds_Default[Led].clk, ENABLE);
 
     /* Configure the GPIO_LED pins, mode, speed etc. */
-    GPIO_InitStructure.GPIO_Pin = LED_GPIO_PIN[Led];
-    if(Led == LED_USER)
-    {
-        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    }
-    else
-    {
-        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-    }
+    GPIO_InitStructure.GPIO_Pin = HAL_Leds_Default[Led].pin;
+    GPIO_InitStructure.GPIO_Mode = HAL_Leds_Default[Led].mode;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 
-    GPIO_Init(LED_GPIO_PORT[Led], &GPIO_InitStructure);
+    GPIO_Init(HAL_Leds_Default[Led].port, &GPIO_InitStructure);
 
-    if(Led == LED_USER)
+#if MODULE_FUNCTION != MOD_FUNC_BOOTLOADER
+    if(HAL_Leds_Default[Led].mode == GPIO_Mode_OUT)
     {
         Set_User_LED(DISABLE);
     }
     else
+#endif // MODULE_FUNCTION != MOD_FUNC_BOOTLOADER
+    if (HAL_Leds_Default[Led].mode == GPIO_Mode_AF)
     {
         /* Connect TIM pins to respective AF */
-        GPIO_PinAFConfig(LED_GPIO_PORT[Led], LED_GPIO_PIN_SOURCE[Led], LED_GPIO_AF_TIM[Led]);
+        GPIO_PinAFConfig(HAL_Leds_Default[Led].port, HAL_Leds_Default[Led].pin_source, HAL_Leds_Default[Led].af);
     }
 }
 
@@ -327,6 +537,12 @@ void Set_RGB_LED_Values(uint16_t r, uint16_t g, uint16_t b)
     TIM2->CCR3 = g;
     TIM2->CCR4 = b;
 #endif
+
+#if MODULE_FUNCTION == MOD_FUNC_BOOTLOADER
+    Led_Set_Value(LED_RED + LED_MIRROR_OFFSET, r);
+    Led_Set_Value(LED_GREEN + LED_MIRROR_OFFSET, g);
+    Led_Set_Value(LED_BLUE + LED_MIRROR_OFFSET, b);
+#endif // MODULE_FUNCTION == MOD_FUNC_BOOTLOADER
 }
 
 void Get_RGB_LED_Values(uint16_t* values)
@@ -342,18 +558,20 @@ void Get_RGB_LED_Values(uint16_t* values)
 #endif
 }
 
+#if MODULE_FUNCTION != MOD_FUNC_BOOTLOADER
 void Set_User_LED(uint8_t state)
 {
     if (state)
-        LED_GPIO_PORT[LED_USER]->BSRRL = LED_GPIO_PIN[LED_USER];
+        HAL_Leds_Default[LED_USER].port->BSRRL = HAL_Leds_Default[LED_USER].pin;
     else
-        LED_GPIO_PORT[LED_USER]->BSRRH = LED_GPIO_PIN[LED_USER];
+        HAL_Leds_Default[LED_USER].port->BSRRH = HAL_Leds_Default[LED_USER].pin;
 }
 
 void Toggle_User_LED()
 {
-    LED_GPIO_PORT[LED_USER]->ODR ^= LED_GPIO_PIN[LED_USER];
+    HAL_Leds_Default[LED_USER].port->ODR ^= HAL_Leds_Default[LED_USER].pin;
 }
+#endif // MODULE_FUNCTION != MOD_FUNC_BOOTLOADER
 
 uint16_t Get_RGB_LED_Max_Value()
 {
@@ -378,18 +596,28 @@ void BUTTON_Init(Button_TypeDef Button, ButtonMode_TypeDef Button_Mode)
     NVIC_InitTypeDef NVIC_InitStructure;
 
     /* Enable the BUTTON Clock */
-    RCC_AHB1PeriphClockCmd(BUTTON_GPIO_CLK[Button], ENABLE);
+    RCC_AHB1PeriphClockCmd(HAL_Buttons[Button].clk, ENABLE);
 
     /* Configure Button pin */
-    GPIO_InitStructure.GPIO_Pin = BUTTON_GPIO_PIN[Button];
-    GPIO_InitStructure.GPIO_Mode = BUTTON_GPIO_MODE[Button];
-    GPIO_InitStructure.GPIO_PuPd = BUTTON_GPIO_PUPD[Button];
-    GPIO_Init(BUTTON_GPIO_PORT[Button], &GPIO_InitStructure);
+    GPIO_InitStructure.GPIO_Pin = HAL_Buttons[Button].pin;
+    GPIO_InitStructure.GPIO_Mode = HAL_Buttons[Button].mode;
+    GPIO_InitStructure.GPIO_PuPd = HAL_Buttons[Button].pupd;
+    GPIO_Init(HAL_Buttons[Button].port, &GPIO_InitStructure);
 
     if (Button_Mode == BUTTON_MODE_EXTI)
     {
         /* Disable TIM2 CC1 Interrupt */
         TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
+
+        /* Enable the Button EXTI Interrupt */
+        NVIC_InitStructure.NVIC_IRQChannel = HAL_Buttons[Button].exti_irqn;
+        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = HAL_Buttons[Button].exti_irq_prio;
+        NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
+        NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+
+        BUTTON_EXTI_Config(Button, ENABLE);
+
+        NVIC_Init(&NVIC_InitStructure);
 
         /* Enable the TIM2 Interrupt */
         NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
@@ -398,16 +626,6 @@ void BUTTON_Init(Button_TypeDef Button, ButtonMode_TypeDef Button_Mode)
         NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
         NVIC_Init(&NVIC_InitStructure);
-
-        /* Enable the Button EXTI Interrupt */
-        NVIC_InitStructure.NVIC_IRQChannel = BUTTON_EXTI_IRQn[Button];
-        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = BUTTON_EXTI_IRQ_PRIORITY[Button];
-        NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
-        NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-
-        NVIC_Init(&NVIC_InitStructure);
-
-        BUTTON_EXTI_Config(Button, ENABLE);
     }
 }
 
@@ -416,17 +634,20 @@ void BUTTON_EXTI_Config(Button_TypeDef Button, FunctionalState NewState)
     EXTI_InitTypeDef EXTI_InitStructure;
 
     /* Connect Button EXTI Line to Button GPIO Pin */
-    SYSCFG_EXTILineConfig(BUTTON_EXTI_PORT_SOURCE[Button], BUTTON_EXTI_PIN_SOURCE[Button]);
+    SYSCFG_EXTILineConfig(HAL_Buttons[Button].exti_port_source, HAL_Buttons[Button].exti_pin_source);
 
     /* Clear the EXTI line pending flag */
-    EXTI_ClearFlag(BUTTON_EXTI_LINE[Button]);
+    EXTI_ClearITPendingBit(HAL_Buttons[Button].exti_line);
 
     /* Configure Button EXTI line */
-    EXTI_InitStructure.EXTI_Line = BUTTON_EXTI_LINE[Button];
+    EXTI_InitStructure.EXTI_Line = HAL_Buttons[Button].exti_line;
     EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_Trigger = BUTTON_EXTI_TRIGGER[Button];
+    EXTI_InitStructure.EXTI_Trigger = HAL_Buttons[Button].exti_trigger;
     EXTI_InitStructure.EXTI_LineCmd = NewState;
     EXTI_Init(&EXTI_InitStructure);
+
+    /* Clear the EXTI line pending flag */
+    EXTI_ClearITPendingBit(HAL_Buttons[Button].exti_line);
 }
 
 /**
@@ -438,7 +659,7 @@ void BUTTON_EXTI_Config(Button_TypeDef Button, FunctionalState NewState)
  */
 uint8_t BUTTON_GetState(Button_TypeDef Button)
 {
-    return GPIO_ReadInputDataBit(BUTTON_GPIO_PORT[Button], BUTTON_GPIO_PIN[Button]);
+    return GPIO_ReadInputDataBit(HAL_Buttons[Button].port, HAL_Buttons[Button].pin);
 }
 
 /**
@@ -450,12 +671,12 @@ uint8_t BUTTON_GetState(Button_TypeDef Button)
  */
 uint16_t BUTTON_GetDebouncedTime(Button_TypeDef Button)
 {
-    return BUTTON_DEBOUNCED_TIME[Button];
+    return HAL_Buttons[Button].debounce_time;
 }
 
 void BUTTON_ResetDebouncedState(Button_TypeDef Button)
 {
-    BUTTON_DEBOUNCED_TIME[Button] = 0;
+    HAL_Buttons[Button].debounce_time = 0;
 }
 
 #ifdef HAS_SERIAL_FLASH
@@ -569,6 +790,7 @@ void sFLASH_SPI_Init(void)
 void sFLASH_CS_LOW(void)
 {
     GPIO_ResetBits(sFLASH_SPI_CS_GPIO_PORT, sFLASH_SPI_CS_GPIO_PIN);
+    asm("mov r2, r2");
 }
 
 /* Deselect sFLASH: Chip Select pin high */
@@ -598,31 +820,20 @@ void USB_Cable_Config (FunctionalState NewState)
     }
 }
 
-inline void Load_SystemFlags_Impl(platform_system_flags_t* flags) __attribute__((always_inline));
-inline void Load_SystemFlags_Impl(platform_system_flags_t* flags)
-{
-    const void* flags_store = dct_read_app_data(0);
-    memcpy(flags, flags_store, sizeof(platform_system_flags_t));
-    flags->header[0] = 0xACC0;
-    flags->header[1] = 0x1ADE;
-}
-
-inline void Save_SystemFlags_Impl(const platform_system_flags_t* flags)  __attribute__((always_inline));
-inline void Save_SystemFlags_Impl(const platform_system_flags_t* flags)
-{
-    dct_write_app_data(flags, 0, sizeof(*flags));
-}
-
 platform_system_flags_t system_flags;
 
 void Load_SystemFlags()
 {
+    const int state = HAL_disable_irq();
     Load_SystemFlags_Impl(&system_flags);
+    HAL_enable_irq(state);
 }
 
 void Save_SystemFlags()
 {
+    const int state = HAL_disable_irq();
     Save_SystemFlags_Impl(&system_flags);
+    HAL_enable_irq(state);
 }
 
 bool FACTORY_Flash_Reset(void)

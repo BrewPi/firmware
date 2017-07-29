@@ -17,6 +17,8 @@
  ******************************************************************************
  */
 
+#ifndef HAL_CELLULAR_EXCLUDE
+
 /* Includes -----------------------------------------------------------------*/
 #include <stdio.h>
 #include <stdint.h>
@@ -518,6 +520,9 @@ bool MDMParser::_powerOn(void)
         goto failure;
     }
 
+    // Flush any on-boot URCs that can cause syncing issues later
+    waitFinalResp(NULL,NULL,200);
+
     // echo off
     sendFormated("AT E0\r\n");
     if(RESP_OK != waitFinalResp())
@@ -548,6 +553,7 @@ bool MDMParser::powerOn(const char* simpin)
 {
     LOCK();
     memset(&_dev, 0, sizeof(_dev));
+    bool retried_after_reset = false;
 
     /* Power on the modem and perform basic initialization */
     if (!_powerOn())
@@ -569,7 +575,6 @@ bool MDMParser::powerOn(const char* simpin)
 
     // check the sim card
     for (int i = 0; (i < 5) && (_dev.sim != SIM_READY) && !_cancel_all_operations; i++) {
-        static bool retried_after_reset = false;
         sendFormated("AT+CPIN?\r\n");
         int ret = waitFinalResp(_cbCPIN, &_dev.sim);
         // having an error here is ok (sim may still be initializing)
@@ -595,8 +600,8 @@ bool MDMParser::powerOn(const char* simpin)
             if (RESP_OK != waitFinalResp(_cbCPIN, &_dev.sim))
                 goto failure;
         } else if (_dev.sim != SIM_READY) {
-            system_tick_t start = HAL_Timer_Get_Milli_Seconds();
-            while ((HAL_Timer_Get_Milli_Seconds() - start < 1000UL) && !_cancel_all_operations); // just wait
+            // wait for up to one second while looking for slow "+CPIN: READY" URCs
+            waitFinalResp(_cbCPIN, &_dev.sim, 1000);
         }
     }
     if (_dev.sim != SIM_READY) {
@@ -2251,26 +2256,40 @@ int MDMParser::_getLine(Pipe<char>* pipe, char* buf, int len)
             { "\r\n>",                  NULL,               TYPE_PROMPT     }, // SMS
             { "\n>",                    NULL,               TYPE_PROMPT     }, // File
             { "\r\nABORTED\r\n",        NULL,               TYPE_ABORTED    }, // Current command aborted
+            { "\r\n\r\n",               "\r\n",             TYPE_DBLNEWLINE }, // Double CRLF detected
+            { "\r\n",                   "\r\n",             TYPE_UNKNOWN    }, // If all else fails, break up generic strings
         };
         for (int i = 0; i < (int)(sizeof(lutF)/sizeof(*lutF)); i ++) {
             pipe->set(unkn);
             int ln = _parseFormated(pipe, len, lutF[i].fmt);
-            if (ln == WAIT && fr)
+            if (ln == WAIT && fr) {
                 return WAIT;
-            if ((ln != NOT_FOUND) && (unkn > 0))
+            }
+            if ((ln != NOT_FOUND) && (unkn > 0)) {
                 return TYPE_UNKNOWN | pipe->get(buf, unkn);
-            if (ln > 0)
+            }
+            if (ln > 0) {
                 return lutF[i].type  | pipe->get(buf, ln);
+            }
         }
         for (int i = 0; i < (int)(sizeof(lut)/sizeof(*lut)); i ++) {
             pipe->set(unkn);
             int ln = _parseMatch(pipe, len, lut[i].sta, lut[i].end);
-            if (ln == WAIT && fr)
+            if (ln == WAIT && fr) {
                 return WAIT;
-            if ((ln != NOT_FOUND) && (unkn > 0))
+            }
+            // Double CRLF detected, discard it.
+            // This resolves a case on G350 where "\r\n" is generated after +USORF response, but missing
+            // on U260/U270, which would otherwise generate "\r\n\r\nOK\r\n" which is not parseable.
+            if ((ln > 0) && (lut[i].type == TYPE_DBLNEWLINE) && (unkn == 0)) {
+                return TYPE_UNKNOWN | pipe->get(buf, 2);
+            }
+            if ((ln != NOT_FOUND) && (unkn > 0)) {
                 return TYPE_UNKNOWN | pipe->get(buf, unkn);
-            if (ln > 0)
+            }
+            if (ln > 0) {
                 return lut[i].type | pipe->get(buf, ln);
+            }
         }
         // UNKNOWN
         unkn ++;
@@ -2305,5 +2324,22 @@ int MDMElectronSerial::_send(const void* buf, int len)
 
 int MDMElectronSerial::getLine(char* buffer, int length)
 {
-    return _getLine(&_pipeRx, buffer, length);
+    int ret = _getLine(&_pipeRx, buffer, length);
+    rxResume();
+    return ret;
 }
+
+void MDMElectronSerial::pause()
+{
+    LOCK();
+    rxPause();
+}
+
+void MDMElectronSerial::resume()
+{
+    LOCK();
+    rxResume();
+}
+
+#endif // !defined(HAL_CELLULAR_EXCLUDE)
+

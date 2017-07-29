@@ -25,6 +25,7 @@
 
 #include "system_setup.h"
 #include "delay_hal.h"
+#include "ota_flash_hal.h"
 #include "wlan_hal.h"
 #include "cellular_hal.h"
 #include "system_cloud_internal.h"
@@ -34,7 +35,9 @@
 #include "system_network.h"
 #include "system_task.h"
 #include "spark_wiring_thread.h"
+#include "spark_wiring_wifi_credentials.h"
 #include "system_ymodem.h"
+#include "mbedtls_util.h"
 
 #if SETUP_OVER_SERIAL1
 #define SETUP_LISTEN_MAGIC 1
@@ -47,7 +50,25 @@ void loop_wifitester(int c);
 #define SETUP_LISTEN_MAGIC 0
 #endif
 
+#ifndef PRIVATE_KEY_SIZE
+#define PRIVATE_KEY_SIZE        (2*1024)
+#endif
+
+#ifndef CERTIFICATE_SIZE
+#define CERTIFICATE_SIZE        (4*1024)
+#endif
+
+// This can be changed to Serial for testing purposes
 #define SETUP_SERIAL Serial1
+
+int is_empty(const char *s) {
+  while (*s != '\0') {
+    if (!isspace(*s))
+      return 0;
+    s++;
+  }
+  return 1;
+}
 
 class StreamAppender : public Appender
 {
@@ -61,6 +82,14 @@ public:
     }
 };
 
+#if SETUP_OVER_SERIAL1
+inline bool setup_serial1() {
+	uint8_t value = 0;
+	system_get_flag(SYSTEM_FLAG_WIFITESTER_OVER_SERIAL1, &value, nullptr);
+	return value;
+}
+#endif
+
 template <typename Config> SystemSetupConsole<Config>::SystemSetupConsole(Config& config_)
     : config(config_)
 {
@@ -69,10 +98,61 @@ template <typename Config> SystemSetupConsole<Config>::SystemSetupConsole(Config
     {
         serial.begin(9600);
     }
+#if SETUP_OVER_SERIAL1
+    serial1Enabled = false;
+    magicPos = 0;
+    if (setup_serial1()) {
+    		//WITH_LOCK(SETUP_SERIAL);
+    		SETUP_SERIAL.begin(9600);
+    }
+    this->tester = NULL;
+#endif
+}
+
+template <typename Config> SystemSetupConsole<Config>::~SystemSetupConsole()
+{
+#if SETUP_OVER_SERIAL1
+    delete this->tester;
+#endif
 }
 
 template<typename Config> void SystemSetupConsole<Config>::loop(void)
 {
+#if SETUP_OVER_SERIAL1
+    //TRY_LOCK(SETUP_SERIAL)
+    {
+    		if (setup_serial1()) {
+    			int c = -1;
+    			if (SETUP_SERIAL.available()) {
+    				c = SETUP_SERIAL.read();
+    			}
+    			if (SETUP_LISTEN_MAGIC) {
+    				static uint8_t magic_code[] = { 0xe1, 0x63, 0x57, 0x3f, 0xe7, 0x87, 0xc2, 0xa6, 0x85, 0x20, 0xa5, 0x6c, 0xe3, 0x04, 0x9e, 0xa0 };
+    				if (!serial1Enabled) {
+    					if (c>=0) {
+    						if (c==magic_code[magicPos++]) {
+    							serial1Enabled = magicPos==sizeof(magic_code);
+    							if (serial1Enabled) {
+    								if (tester==NULL)
+    									tester = new WiFiTester();
+    								tester->setup(SETUP_OVER_SERIAL1);
+    							}
+    						}
+    						else {
+    							magicPos = 0;
+    						}
+    						c = -1;
+    					}
+    				}
+    				else {
+    					if (tester)
+    						tester->loop(c);
+    				}
+    			}
+    		}
+    	}
+#endif
+
     TRY_LOCK(serial)
     {
         if (serial.available())
@@ -91,6 +171,11 @@ template<typename Config> void SystemSetupConsole<Config>::loop(void)
             }
         }
     }
+}
+
+template <typename Config>
+void SystemSetupConsole<Config>::cleanup()
+{
 }
 
 template <typename Config>
@@ -159,6 +244,28 @@ template<typename Config> void SystemSetupConsole<Config>::handle(char c)
         system_set_flag(SYSTEM_FLAG_STARTUP_SAFE_LISTEN_MODE, 1, nullptr);
         System.enterSafeMode();
     }
+    else if ('c' == c)
+    {
+    		bool claimed = HAL_IsDeviceClaimed(nullptr);
+    		print("Device claimed: ");
+    		print(claimed ? "yes" : "no");
+    		print("\r\n");
+    }
+    else if ('C' == c)
+    {
+    		char code[64];
+    		print("Enter 63-digit claim code: ");
+    		read_line(code, 63);
+    		if (strlen(code)==63) {
+    			HAL_Set_Claim_Code(code);
+    			print("Claim code set to: ");
+    			print(code);
+    		}
+    		else {
+    			print("Sorry, claim code is not 63 characters long. Claim code unchanged.");
+}
+		print("\r\n");
+    }
 }
 
 /* private methods */
@@ -168,7 +275,6 @@ template<typename Config> void SystemSetupConsole<Config>::print(const char *s)
     for (size_t i = 0; i < strlen(s); ++i)
     {
         serial.write(s[i]);
-        HAL_Delay_Milliseconds(1); // ridonkulous, but required
     }
 }
 
@@ -180,92 +286,96 @@ template<typename Config> void SystemSetupConsole<Config>::read_line(char *dst, 
         serial.read();
 }
 
-#if Wiring_WiFi
-
-inline bool setup_serial1() {
-	uint8_t value = 0;
-	system_get_flag(SYSTEM_FLAG_WIFITESTER_OVER_SERIAL1, &value, nullptr);
-	return value;
+template<typename Config> void SystemSetupConsole<Config>::read_multiline(char *dst, int max_len)
+{
+    char *ptr = dst;
+    int len = max_len;
+    while(len > 3) {
+        serialReadLine(&serial, ptr, len, 0); //no timeout
+        print("\r\n");
+        int l = strlen(ptr);
+        len -= l;
+        ptr += l;
+        if (len > 3) {
+            if (l != 0) {
+                *ptr++ = '\r';
+                *ptr++ = '\n';
+            }
+            *ptr = '\0';
+        }
+        if (l == 0)
+            return;
+    }
+    while (0 < serial.available())
+        serial.read();
 }
+
+#if Wiring_WiFi
 
 WiFiSetupConsole::WiFiSetupConsole(WiFiSetupConsoleConfig& config)
  : SystemSetupConsole(config)
 {
-#if SETUP_OVER_SERIAL1
-    serial1Enabled = false;
-    magicPos = 0;
-    if (setup_serial1()) {
-    		SETUP_SERIAL.begin(9600);
-    }
-    this->tester = NULL;
-#endif
 }
 
 WiFiSetupConsole::~WiFiSetupConsole()
 {
-#if SETUP_OVER_SERIAL1
-    delete this->tester;
-#endif
-}
-
-void WiFiSetupConsole::loop()
-{
-#if SETUP_OVER_SERIAL1
-	if (setup_serial1()) {
-		int c = -1;
-		if (SETUP_SERIAL.available()) {
-			c = SETUP_SERIAL.read();
-		}
-		if (SETUP_LISTEN_MAGIC) {
-			static uint8_t magic_code[] = { 0xe1, 0x63, 0x57, 0x3f, 0xe7, 0x87, 0xc2, 0xa6, 0x85, 0x20, 0xa5, 0x6c, 0xe3, 0x04, 0x9e, 0xa0 };
-			if (!serial1Enabled) {
-				if (c>=0) {
-					if (c==magic_code[magicPos++]) {
-						serial1Enabled = magicPos==sizeof(magic_code);
-						if (serial1Enabled) {
-							if (tester==NULL)
-								tester = new WiFiTester();
-							tester->setup(SETUP_OVER_SERIAL1);
-						}
-					}
-					else {
-						magicPos = 0;
-					}
-					c = -1;
-				}
-			}
-			else {
-				if (tester)
-					tester->loop(c);
-			}
-		}
-	}
-#endif
-    super::loop();
 }
 
 void WiFiSetupConsole::handle(char c)
 {
     if ('w' == c)
     {
-        memset(ssid, 0, 33);
-        memset(password, 0, 65);
-        memset(security_type_string, 0, 2);
+        memset(ssid, 0, sizeof(ssid));
+        memset(password, 0, sizeof(password));
+        memset(security_type_string, 0, sizeof(security_type_string));
+        security_ = WLAN_SEC_NOT_SET;
+        cipher_ = WLAN_CIPHER_NOT_SET;
 
+#if Wiring_WpaEnterprise == 1
+        spark::WiFiAllocatedCredentials credentials;
+        memset(eap_type_string, 0, sizeof(eap_type_string));
+#else
+        spark::WiFiCredentials credentials;
+#endif
+        WLanCredentials creds;
+
+        do {
         print("SSID: ");
         read_line(ssid, 32);
+        } while (strlen(ssid) == 0);
 
-        // TODO: would be great if the network auto-detected the Security type
-        // The photon is scanning the network so could determine this.
+        wlan_scan([](WiFiAccessPoint* ap, void* ptr) {
+            if (ptr) {
+                WiFiSetupConsole* self = reinterpret_cast<WiFiSetupConsole*>(ptr);
+                if (ap) {
+                    if (ap->ssidLength && !strncmp(self->ssid, ap->ssid, std::max((size_t)ap->ssidLength, (size_t)strlen(self->ssid)))) {
+                        self->security_ = ap->security;
+                        self->cipher_ = ap->cipher;
+                    }
+                }
+            }
+        }, this);
+
+        if (security_ == WLAN_SEC_NOT_SET)
+        {
         do
         {
+#if Wiring_WpaEnterprise == 0
             print("Security 0=unsecured, 1=WEP, 2=WPA, 3=WPA2: ");
             read_line(security_type_string, 1);
         }
         while ('0' > security_type_string[0] || '3' < security_type_string[0]);
+#else
+                print("Security 0=unsecured, 1=WEP, 2=WPA, 3=WPA2, 4=WPA Enterprise, 5=WPA2 Enterprise: ");
+                read_line(security_type_string, 1);
+            }
+            while ('0' > security_type_string[0] || '5' < security_type_string[0]);
+#endif
+            security_ = (WLanSecurityType)(security_type_string[0] - '0');
+        }
 
 #if PLATFORM_ID<3
-        if ('1' == security_type_string[0])
+        if (security_ == WLAN_SEC_WEP)
         {
             print("\r\n ** Even though the CC3000 supposedly supports WEP,");
             print("\r\n ** we at Spark have never seen it work.");
@@ -273,15 +383,18 @@ void WiFiSetupConsole::handle(char c)
         }
 #endif
 
-        unsigned long security_type = security_type_string[0] - '0';
-
-        WLanSecurityCipher cipher = WLAN_CIPHER_NOT_SET;
-
-        if (security_type)
+        if (security_ != WLAN_SEC_UNSEC)
             password[0] = '1'; // non-empty password so security isn't set to None
 
+        credentials.setSsid(ssid);
+        credentials.setPassword(password);
+        credentials.setSecurity(security_);
+        credentials.setCipher(cipher_);
+
         // dry run
-        if (this->config.connect_callback(this->config.connect_callback_data, ssid, password, security_type, cipher, true)==WLAN_SET_CREDENTIALS_CIPHER_REQUIRED)
+        creds = credentials.getHalCredentials();
+        if (this->config.connect_callback2(this->config.connect_callback_data, &creds, true)==WLAN_SET_CREDENTIALS_CIPHER_REQUIRED ||
+            (cipher_ == WLAN_CIPHER_NOT_SET))
         {
             do
             {
@@ -290,25 +403,120 @@ void WiFiSetupConsole::handle(char c)
             }
             while ('1' > security_type_string[0] || '3' < security_type_string[0]);
             switch (security_type_string[0]-'0') {
-                case 1: cipher = WLAN_CIPHER_AES; break;
-                case 2: cipher = WLAN_CIPHER_TKIP; break;
-                case 3: cipher = WLAN_CIPHER_AES_TKIP; break;
+                case 1: cipher_ = WLAN_CIPHER_AES; break;
+                case 2: cipher_ = WLAN_CIPHER_TKIP; break;
+                case 3: cipher_ = WLAN_CIPHER_AES_TKIP; break;
             }
+            credentials.setCipher(cipher_);
         }
 
-        if (0 < security_type)
+        if (0 < security_ && security_ <= 3)
         {
             print("Password: ");
-            read_line(password, 64);
+            read_line(password, sizeof(password) - 1);
+            credentials.setPassword(password);
         }
+#if Wiring_WpaEnterprise == 1
+        else if (security_ >= 4)
+        {
+            do
+            {
+                print("EAP Type 0=PEAP/MSCHAPv2, 1=EAP-TLS: ");
+                read_line(eap_type_string, 1);
+            }
+            while ('0' > eap_type_string[0] || '1' < eap_type_string[0]);
+            int eap_type = eap_type_string[0] - '0';
+
+            if (!tmp_) {
+                tmp_.reset(new (std::nothrow) char[CERTIFICATE_SIZE]);
+            }
+            if (!tmp_) {
+                print("Error while preparing to store enterprise credentials.\r\n\r\n");
+                return;
+            }
+
+            if (eap_type == 1) {
+                // EAP-TLS
+                // Required:
+                // - client certificate
+                // - private key
+                // Optional:
+                // - root CA
+                // - outer identity
+                credentials.setEapType(WLAN_EAP_TYPE_TLS);
+
+                memset(tmp_.get(), 0, CERTIFICATE_SIZE);
+                print("Client certificate in PEM format:\r\n");
+                read_multiline((char*)tmp_.get(), CERTIFICATE_SIZE - 1);
+                {
+                    uint8_t* der = NULL;
+                    size_t der_len = 0;
+                    if (!mbedtls_x509_crt_pem_to_der((const char*)tmp_.get(), strnlen(tmp_.get(), CERTIFICATE_SIZE - 1) + 1, &der, &der_len)) {
+                        credentials.setClientCertificate(der, der_len);
+                        free(der);
+                    }
+                }
+
+                memset(tmp_.get(), 0, CERTIFICATE_SIZE);
+                print("Private key in PEM format:\r\n");
+                read_multiline((char*)tmp_.get(), PRIVATE_KEY_SIZE - 1);
+                {
+                    uint8_t* der = NULL;
+                    size_t der_len = 0;
+                    if (!mbedtls_pk_pem_to_der((const char*)tmp_.get(), strnlen(tmp_.get(), PRIVATE_KEY_SIZE - 1) + 1, &der, &der_len)) {
+                        credentials.setPrivateKey(der, der_len);
+                        free(der);
+                    }
+                }
+            } else {
+                // PEAP/MSCHAPv2
+                // Required:
+                // - inner identity
+                // - password
+                // Optional:
+                // - root CA
+                // - outer identity
+                credentials.setEapType(WLAN_EAP_TYPE_PEAP);
+
+                memset(tmp_.get(), 0, CERTIFICATE_SIZE);
+                print("Username: ");
+                read_line((char*)tmp_.get(), 64);
+                credentials.setIdentity((const char*)tmp_.get());
+
+                print("Password: ");
+                read_line(password, sizeof(password) - 1);
+                credentials.setPassword(password);
+        }
+
+            memset(tmp_.get(), 0, CERTIFICATE_SIZE);
+            print("Outer identity (optional): ");
+            read_line((char*)tmp_.get(), 64);
+            if (strlen(tmp_.get())) {
+                credentials.setOuterIdentity((const char*)tmp_.get());
+            }
+
+            memset(tmp_.get(), 0, CERTIFICATE_SIZE);
+            print("Root CA in PEM format (optional):\r\n");
+            read_multiline((char*)tmp_.get(), CERTIFICATE_SIZE - 1);
+            if (strlen(tmp_.get()) && !is_empty(tmp_.get())) {
+                uint8_t* der = NULL;
+                size_t der_len = 0;
+                if (!mbedtls_x509_crt_pem_to_der((const char*)tmp_.get(), strnlen(tmp_.get(), CERTIFICATE_SIZE - 1) + 1, &der, &der_len)) {
+                    credentials.setRootCertificate(der, der_len);
+                    free(der);
+                }
+            }
+            tmp_.reset();
+        }
+#endif
 
         print("Thanks! Wait "
 #if PLATFORM_ID<3
     "about 7 seconds "
 #endif
             "while I save those credentials...\r\n\r\n");
-
-        if (this->config.connect_callback(this->config.connect_callback_data, ssid, password, security_type, cipher, false)==0)
+        creds = credentials.getHalCredentials();
+        if (this->config.connect_callback2(this->config.connect_callback_data, &creds, false)==0)
         {
             print("Awesome. Now we'll connect!\r\n\r\n");
             print("If you see a pulsing cyan light, your "
@@ -327,12 +535,19 @@ void WiFiSetupConsole::handle(char c)
         {
             print("Derp. Sorry, we couldn't save the credentials.\r\n\r\n");
         }
+        cleanup();
     }
     else {
         super::handle(c);
     }
 }
 
+#if Wiring_WpaEnterprise == 1
+void WiFiSetupConsole::cleanup()
+{
+    tmp_.reset();
+}
+#endif
 
 void WiFiSetupConsole::exit()
 {
@@ -346,6 +561,10 @@ void WiFiSetupConsole::exit()
 
 CellularSetupConsole::CellularSetupConsole(CellularSetupConsoleConfig& config)
  : SystemSetupConsole(config)
+{
+}
+
+CellularSetupConsole::~CellularSetupConsole()
 {
 }
 

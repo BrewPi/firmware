@@ -20,21 +20,56 @@
 #ifndef SPARK_WIRING_ARDUINO_H
 #define	SPARK_WIRING_ARDUINO_H
 
+#ifndef strcpy_P
 #define strcpy_P strcpy
+#endif
+
+#ifndef strlcpy_P
 #define strlcpy_P strncpy
+#endif
+
+#ifndef sprintf_P
 #define sprintf_P sprintf
+#endif
+
+#ifndef strlen_P
 #define strlen_P strlen
+#endif
+
+#ifndef strcmp_P
 #define strcmp_P strcmp
+#endif
+
+#ifndef memcpy_P
 #define memcpy_P memcpy
+#endif
+
+#ifndef vsnprintf_P
 #define vsnprintf_P vsnprintf
+#endif
+
+#ifndef PROGMEM
 #define PROGMEM
+#endif
+
+#ifndef PSTR
 #define PSTR(x) (x)
+#endif
+
+#ifndef pgm_read_byte
 #define pgm_read_byte(x)      (*(x))
+#endif
+
+#ifndef pgm_read_word
 #define pgm_read_word(x)      ((uint16_t)(*(x)))
+#endif
+
+#ifndef pgm_read_byte_near
 #define pgm_read_byte_near(x) (*(x))
+#endif
+
+#ifndef pgm_read_word_near
 #define pgm_read_word_near(x) ((uint16_t)(*(x)))
-
-
+#endif
 
 #endif	/* SPARK_WIRING_ARDUINO_H */
-

@@ -7,6 +7,10 @@
 #include "rgbled.h"
 #include <stdio.h>
 
+#ifdef abs
+#undef abs
+#endif
+
 /**
  * Handles the notification of LED change
  */
@@ -65,6 +69,10 @@ uint8_t ledAdjust(uint8_t value, uint8_t brightness=255) {
 }
 
 test(LED_01_Updated) {
+    // Force the LED to show a breathing pattern for this test
+    LEDStatus status(LED_PATTERN_FADE, LED_PRIORITY_IMPORTANT);
+    status.setActive();
+
     RGB.control(false);
     RGB.onChange(onChangeRGBLED);
     uint32_t start = rgbNotifyCount;
@@ -72,7 +80,8 @@ test(LED_01_Updated) {
     uint32_t end = rgbNotifyCount;
     RGB.onChange(NULL);
 
-    assertMore((end-start), uint32_t(20)); // I think it's meant to be 100Hz, but this is fine as a smoke test
+    // onChange callback is called every 25ms, so 500ms / 25ms = 20
+    assertMoreOrEqual((end-start), uint32_t(20));
 }
 
 
@@ -126,6 +135,8 @@ test(LED_05_StaticWhenControlled) {
 
     for (int i=0; i<3; i++)
         assertEqual(rgbInitial[i], rgbNotify[i]);
+
+    RGB.onChange(NULL);
 }
 
 test(LED_06_SettingRGBAfterOverrideShouldChangeLED) {
@@ -202,6 +213,83 @@ test(LED_10_ChangeHandlerCalled) {
 
     // then
     assertChangeHandlerCalledWith(ledAdjust(10),ledAdjust(20),ledAdjust(30));
+
+    RGB.onChange(NULL);
 }
 
-#endif
+static void assertRgbLedMirrorPinsColor(const pin_t pins[3], uint16_t r, uint16_t g, uint16_t b)
+{
+    // Convert to CCR
+    r = (uint16_t)((((uint32_t)(r)) * 255 * HAL_Led_Rgb_Get_Max_Value(nullptr)) >> 16);
+    g = (uint16_t)((((uint32_t)(g)) * 255 * HAL_Led_Rgb_Get_Max_Value(nullptr)) >> 16);
+    b = (uint16_t)((((uint32_t)(b)) * 255 * HAL_Led_Rgb_Get_Max_Value(nullptr)) >> 16);
+    assertLessOrEqual(std::abs((int32_t)(HAL_PWM_Get_AnalogValue_Ext(pins[0])) - (int32_t)(r * ((1UL << HAL_PWM_Get_Resolution(pins[0])) - 1) / HAL_Led_Rgb_Get_Max_Value(nullptr))), 1);
+    assertLessOrEqual(std::abs((int32_t)(HAL_PWM_Get_AnalogValue_Ext(pins[1])) - (int32_t)(g * ((1UL << HAL_PWM_Get_Resolution(pins[1])) - 1) / HAL_Led_Rgb_Get_Max_Value(nullptr))), 1);
+    assertLessOrEqual(std::abs((int32_t)(HAL_PWM_Get_AnalogValue_Ext(pins[2])) - (int32_t)(b * ((1UL << HAL_PWM_Get_Resolution(pins[2])) - 1) / HAL_Led_Rgb_Get_Max_Value(nullptr))), 1);
+}
+
+test(LED_11_MirroringWorks) {
+    RGB.control(true);
+    RGB.brightness(255);
+
+    const pin_t pins[3] = {A4, A5, A7};
+
+    // Mirror to r=A4, g=A5, b=A7. Non-inverted (common cathode).
+    // RGB led mirroring in bootloader is not enabled
+    RGB.mirrorTo(A4, A5, A7, false, false);
+
+    RGB.color(0, 0, 0);
+    assertRgbLedMirrorPinsColor(pins, 0, 0, 0);
+
+    RGB.color(127, 255, 127);
+    assertRgbLedMirrorPinsColor(pins, 127, 255, 127);
+
+    RGB.color(255, 0, 127);
+    assertRgbLedMirrorPinsColor(pins, 255, 0, 127);
+
+    RGB.mirrorDisable();
+    RGB.control(false);
+}
+
+namespace {
+
+// Handler class for RGB.onChange() that counts number of its instances
+class OnChangeHandler {
+public:
+    OnChangeHandler() {
+        ++s_count;
+    }
+
+    OnChangeHandler(const OnChangeHandler&) {
+        ++s_count;
+    }
+
+    ~OnChangeHandler() {
+        --s_count;
+    }
+
+    static unsigned instanceCount() {
+        return s_count;
+    }
+
+    void operator()(uint8_t r, uint8_t g, uint8_t b) {
+    }
+
+private:
+    static unsigned s_count;
+};
+
+unsigned OnChangeHandler::s_count = 0;
+
+} // namespace
+
+test(LED_12_NoLeakWhenOnChangeHandlerIsOverridden) {
+    RGB.onChange(OnChangeHandler());
+    assertEqual(OnChangeHandler::instanceCount(), 1);
+    RGB.onChange(OnChangeHandler());
+    assertEqual(OnChangeHandler::instanceCount(), 1); // Previous handler has been destroyed
+    RGB.onChange(nullptr);
+    assertEqual(OnChangeHandler::instanceCount(), 0); // Current handler has been destroyed
+}
+
+#endif // PLATFORM_ID >= 3

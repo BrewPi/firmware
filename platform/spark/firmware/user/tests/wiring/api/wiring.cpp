@@ -88,13 +88,47 @@ test(api_wiring_usartserial) {
     API_COMPILE(Serial1.end());
     API_COMPILE(Serial1.begin(9600, SERIAL_9N2));
     API_COMPILE(Serial1.end());
+
+    // LIN mode
+    API_COMPILE(Serial1.begin(9600, LIN_MASTER_13B));
+    API_COMPILE(Serial1.breakTx());
+    API_COMPILE(Serial1.end());
+    API_COMPILE(Serial1.begin(9600, LIN_SLAVE_10B));
+    API_COMPILE(Serial1.breakRx());
+    API_COMPILE(Serial1.end());
+    API_COMPILE(Serial1.begin(9600, LIN_SLAVE_11B));
+    API_COMPILE(Serial1.breakRx());
+    API_COMPILE(Serial1.end());
 }
 
 test(api_wiring_usbserial) {
     API_COMPILE(Serial.blockOnOverrun(false));
     API_COMPILE(Serial.blockOnOverrun(true));
     API_COMPILE(Serial.availableForWrite());
+    API_COMPILE(Serial.isConnected());
+
+#if Wiring_USBSerial1
+    API_COMPILE(USBSerial1.blockOnOverrun(false));
+    API_COMPILE(USBSerial1.blockOnOverrun(true));
+    API_COMPILE(USBSerial1.availableForWrite());
+    API_COMPILE(USBSerial1.isConnected());
+#endif
 }
+
+test(api_wiring_keyboard) {
+#if Wiring_Keyboard
+    API_COMPILE(Keyboard.begin());
+    API_COMPILE(Keyboard.end());
+#endif
+}
+
+test(api_wiring_mouse) {
+#if Wiring_Mouse
+    API_COMPILE(Mouse.begin());
+    API_COMPILE(Mouse.end());
+#endif
+}
+
 
 void TIM3_callback()
 {
@@ -129,6 +163,10 @@ test(api_rgb) {
     API_COMPILE(flag=RGB.brightness());
     API_COMPILE(RGB.onChange(externalLEDHandler));
     API_COMPILE(RGB.onChange(&ExternalLed::handler, &externalLed));
+    API_COMPILE(RGB.mirrorTo(A4, A5, A7));
+    API_COMPILE(RGB.mirrorTo(A4, A5, A7, false));
+    API_COMPILE(RGB.mirrorTo(A4, A5, A7, true, true));
+    API_COMPILE(RGB.mirrorDisable());
     (void)flag; (void)value; // unused
 }
 
@@ -148,7 +186,12 @@ test(api_wire)
 
 test(api_map)
 {
-    map(0x01,0x00,0xFF,0,255);
+    int i = 0;
+    API_COMPILE(i = map(0x01, 0x00, 0xFF, 0, 255));
+    double d = 0;
+    API_COMPILE(d = map(5.0, 0.0, 10.0, 0.0, 20.0));
+    (void)i; // avoid unused variable warning
+    (void)d;
 }
 
 /**
@@ -166,6 +209,9 @@ test(api_wiring_globals)
 			&SPI2,
 #endif
 			&Serial,
+#if Wiring_USBSerial1
+            &USBSerial1,
+#endif
 			&Wire,
 #if Wiring_Wire1
 			&Wire1,

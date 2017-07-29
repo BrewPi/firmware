@@ -20,6 +20,7 @@
 #pragma once
 
 #include <string.h>
+#include <stdint.h>
 
 // ----------------------------------------------------------------
 // Types
@@ -167,6 +168,7 @@ enum {
     TYPE_PLUS       = 0x400000,
     TYPE_TEXT       = 0x500000,
     TYPE_ABORTED    = 0x600000,
+    TYPE_DBLNEWLINE = 0x700000,
 
     // special timout constant
     TIMEOUT_BLOCKING = 0xffffffff

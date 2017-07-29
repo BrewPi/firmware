@@ -13,6 +13,7 @@
 #include "subscriptions.h"
 #include "variables.h"
 #include "hal_platform.h"
+#include "timesyncmanager.h"
 
 namespace particle
 {
@@ -109,6 +110,16 @@ class Protocol
 	Publisher publisher;
 
 	/**
+	 * Manages time sync requests
+	 */
+	TimeSyncManager timesync_;
+
+	/**
+	 * Completion handlers for messages with confirmable delivery.
+	 */
+	system_tick_t last_ack_handlers_update;
+
+	/**
 	 * The token ID for the next request made.
 	 * If we have a bone-fide CoAP layer this will eventually disappear into that layer, just like message-id has.
 	 */
@@ -118,9 +129,7 @@ class Protocol
 
 	uint8_t flags;
 
-
-protected:
-
+public:
 	enum Flags
 	{
 		/**
@@ -140,6 +149,14 @@ protected:
 		 */
 		PING_AS_EMPTY_MESSAGE = 1<<2,
 	};
+
+
+protected:
+	/**
+	 * Completion handlers for messages with confirmable delivery.
+	 */
+	CompletionHandlerMap<message_id_t> ack_handlers;
+
 
 	void set_protocol_flags(int flags)
 	{
@@ -247,10 +264,21 @@ protected:
 
 	void init(const SparkCallbacks &callbacks, const SparkDescriptor &descriptor);
 
+	/**
+	 * Updates the cached crc of subscriptions registered with the cloud.
+	 */
+	void update_subscription_crc();
+
+	uint32_t application_state_checksum();
+
 public:
 	Protocol(MessageChannel& channel) :
 			channel(channel),
-			product_id(PRODUCT_ID), product_firmware_version(PRODUCT_FIRMWARE_VERSION), initialized(false)
+			product_id(PRODUCT_ID),
+			product_firmware_version(PRODUCT_FIRMWARE_VERSION),
+			publisher(this),
+			last_ack_handlers_update(0),
+			initialized(false)
 	{
 	}
 
@@ -273,6 +301,20 @@ public:
 	{
 		copy_and_init(&this->handlers, sizeof(this->handlers), &handlers, handlers.size);
 	}
+
+	void add_ack_handler(message_id_t msg_id, CompletionHandler handler, unsigned timeout)
+	{
+		ack_handlers.addHandler(msg_id, std::move(handler), timeout);
+	}
+
+	/**
+	 * Determines the checksum of the application state.
+	 * Application state comprises cloud functinos, variables and subscriptions.
+	 */
+	static uint32_t application_state_checksum(uint32_t (*calc_crc)(const uint8_t* data, uint32_t len), uint32_t subscriptions_crc,
+			uint32_t describe_app_crc, uint32_t describe_system_crc);
+
+
 
 	/**
 	 * Establish a secure connection and send and process the hello message.
@@ -307,25 +349,38 @@ public:
 
 	// Returns true on success, false on sending timeout or rate-limiting failure
 	bool send_event(const char *event_name, const char *data, int ttl,
-			EventType::Enum event_type, int flags)
+			EventType::Enum event_type, int flags, CompletionHandler handler)
 	{
 		if (chunkedTransfer.is_updating())
 		{
+			handler.setError(SYSTEM_ERROR_BUSY);
 			return false;
 		}
-		return !publisher.send_event(channel, event_name, data, ttl, event_type, flags,
-				callbacks.millis());
+		const ProtocolError error = publisher.send_event(channel, event_name, data, ttl, event_type, flags,
+				callbacks.millis(), std::move(handler));
+		if (error != NO_ERROR)
+		{
+			handler.setError(toSystemError(error));
+			return false;
+		}
+		return true;
 	}
 
 	inline bool send_subscription(const char *event_name, const char *device_id)
 	{
-		return !subscriptions.send_subscription(channel, event_name, device_id);
+		bool success = !subscriptions.send_subscription(channel, event_name, device_id);
+		if (success)
+			update_subscription_crc();
+		return success;
 	}
 
 	inline bool send_subscription(const char *event_name,
 			SubscriptionScope::Enum scope)
 	{
-		return !subscriptions.send_subscription(channel, event_name, scope);
+		bool success = !subscriptions.send_subscription(channel, event_name, scope);
+		if (success)
+			update_subscription_crc();
+		return success;
 	}
 
 	inline bool add_event_handler(const char *event_name, EventHandler handler)
@@ -344,7 +399,10 @@ public:
 
 	inline bool send_subscriptions()
 	{
-		return !subscriptions.send_subscriptions(channel);
+		bool success = !subscriptions.send_subscriptions(channel);
+		if (success)
+			update_subscription_crc();
+		return success;
 	}
 
 	inline bool remove_event_handlers(const char* name)
@@ -380,13 +438,18 @@ public:
 			return false;
 		}
 
-		uint8_t token = next_token();
-		Message message;
-		channel.create(message);
-		size_t len = Messages::time_request(message.buf(), 0, token);
-		message.set_length(len);
-		return !channel.send(message);
+		return timesync_.send_request(callbacks.millis(), [&]() {
+			uint8_t token = next_token();
+			Message message;
+			channel.create(message);
+			size_t len = Messages::time_request(message.buf(), 0, token);
+			message.set_length(len);
+			return !channel.send(message);
+		});
 	}
+
+	bool time_request_pending() const { return timesync_.is_request_pending(); }
+	system_tick_t time_last_synced(time_t* tm) const { return timesync_.last_sync(*tm); }
 
 	bool is_initialized() { return initialized; }
 
@@ -397,7 +460,7 @@ public:
 
 	system_tick_t millis() { return callbacks.millis(); }
 
-	virtual void command(ProtocolCommands::Enum command, uint32_t data)=0;
+	virtual int command(ProtocolCommands::Enum command, uint32_t data)=0;
 
 };
 

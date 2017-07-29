@@ -245,7 +245,7 @@ public:
 	ProtocolError set_data(const uint8_t* data, size_t data_len)
 	{
 		if (data_len>1500)
-			return IO_ERROR;
+			return IO_ERROR_SET_DATA_MAX_EXCEEDED;
 		memcpy(this->data, data, data_len);
 		this->data_len = data_len;
 		return NO_ERROR;
@@ -296,6 +296,8 @@ inline bool time_has_passed(system_tick_t now, system_tick_t tick)
  */
 class CoAPMessageStore
 {
+	LOG_CATEGORY("comm.coap");
+
 	/**
 	 * The head of the list of messages.
 	 */
@@ -341,10 +343,12 @@ public:
 		clear();
 	}
 
-	bool has_messages()
+	bool has_messages() const
 	{
 		return head!=nullptr;
 	}
+
+	bool has_unacknowledged_requests() const;
 
 	/**
 	 * Retrieves the current confirmable message that is still
@@ -395,7 +399,7 @@ public:
 		return msg;
 	}
 
-	bool is_confirmable(const uint8_t* buf)
+	bool is_confirmable(const uint8_t* buf) const
 	{
 		return CoAP::type(buf)==CoAPType::CON;
 	}
@@ -427,7 +431,7 @@ public:
 	ProtocolError send_synchronous(Message& msg, Channel& channel, Time& time)
 	{
 		message_id_t id = msg.get_id();
-		DEBUG("sending message id %s synchronously", id);
+		DEBUG("sending message id=%x synchronously", id);
 		CoAPType::Enum coapType = CoAP::type(msg.buf());
 		ProtocolError error = send(msg, time());
 		if (!error)
@@ -444,7 +448,7 @@ public:
 			if (coapmsg)
 				coapmsg->set_delivered_handler(&flag_delivered);
 			else
-				ERROR("no coapmessage for msg %x", id);
+				ERROR("no coapmessage for msg id=%x", id);
 			while (from_id(id)!=nullptr && !error)
 			{
 				msg.clear();
@@ -578,11 +582,11 @@ public:
 		return server;
 	}
 
-	ProtocolError establish() override
+	ProtocolError establish(uint32_t& flags, uint32_t app_crc) override
 	{
 		server.clear();
 		client.clear();
-		return channel::establish();
+		return channel::establish(flags, app_crc);
 	}
 
 	/**
@@ -627,9 +631,9 @@ public:
 		return receive(msg, false);
 	}
 
-	bool has_unacknowledged_requests()
+	bool has_unacknowledged_requests() const
 	{
-		return client.has_messages();
+		return client.has_messages() || server.has_unacknowledged_requests();
 	}
 
 	/**

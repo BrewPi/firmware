@@ -1,5 +1,17 @@
 #pragma once
 
+#include "core_hal.h"
+#include "hw_config.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * Set to non-zero value after RTOS initialization.
+ */
+extern volatile uint8_t rtos_started;
+
 /**
  * Called by HAL_Core_Config() to setup SysTick_Configuration() if necessary.
  */
@@ -16,6 +28,12 @@ void HAL_Core_Setup_override_interrupts(void);
  * watchdog has been disabled.
  */
 void HAL_Core_Setup_finalize(void);
+
+/**
+ * Called by HAL_Core_Init() to perform platform-specific HAL initialization before
+ * entering the main loop and after user constructors have been called
+ */
+void HAL_Core_Init_finalize(void);
 
 /**
  * The entrypoint to start system firmware and the application.
@@ -97,7 +115,7 @@ void RTC_Alarm_irq(void);
 /**
  * A shared handler for the EXTI interrupt to process presses of the mode button.
  */
-void Handle_Mode_Button_EXTI_irq(void);
+void Handle_Mode_Button_EXTI_irq(Button_TypeDef button);
 
 /**
  * Handle short and generic tasks for the device HAL on 1ms ticks
@@ -105,3 +123,7 @@ void Handle_Mode_Button_EXTI_irq(void);
 void HAL_1Ms_Tick(void);
 
 void HAL_EXTI_Handler(uint8_t EXTI_Line);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif

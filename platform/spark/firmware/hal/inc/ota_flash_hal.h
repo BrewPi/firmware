@@ -49,6 +49,7 @@ typedef struct {
 } module_bounds_t;
 
 typedef enum {
+    MODULE_VALIDATION_PASSED           = 0,
     MODULE_VALIDATION_INTEGRITY        = 1<<1,
     MODULE_VALIDATION_DEPENDENCIES     = 1<<2,
     MODULE_VALIDATION_RANGE            = 1<<3,
@@ -112,6 +113,8 @@ uint16_t HAL_OTA_ChunkSize();
 
 flash_device_t HAL_OTA_FlashDevice();
 
+int HAL_FLASH_OTA_Validate(hal_module_t* mod, bool userDepsOptional, module_validation_flags_t flags, void* reserved);
+
 /**
  * Erase a region of flash in preparation for flashing content.
  * @param address   The start address to erase. Must be on a flash boundary.
@@ -131,7 +134,7 @@ typedef enum {
     HAL_UPDATE_APPLIED
 } hal_update_complete_t;
 
-hal_update_complete_t HAL_FLASH_End(void* reserved);
+hal_update_complete_t HAL_FLASH_End(hal_module_t* module);
 
 uint32_t HAL_FLASH_ModuleAddress(uint32_t address);
 uint32_t HAL_FLASH_ModuleLength(uint32_t address);
@@ -144,7 +147,7 @@ void HAL_OTA_Flashed_ResetStatus(void);
 
 /**
  * Set the claim code for this device.
- * @param code  The claim code to set. If null, clears the claim code.
+ * @param code  The claim code to set. If null, clears the claim code and registers the device as claimed.
  * @return 0 on success.
  */
 uint16_t HAL_Set_Claim_Code(const char* code);
@@ -156,6 +159,11 @@ uint16_t HAL_Set_Claim_Code(const char* code);
  * @return          0 on success.
  */
 uint16_t HAL_Get_Claim_Code(char* buffer, unsigned len);
+
+/**
+ * Determines if this device has been claimed.
+ */
+bool HAL_IsDeviceClaimed(void* reserved);
 
 typedef enum
 {
@@ -184,11 +192,15 @@ STATIC_ASSERT(ServerAddress_size, sizeof(ServerAddress)==128);
 
 /* Length in bytes of DER-encoded 2048-bit RSA public key */
 #define EXTERNAL_FLASH_SERVER_PUBLIC_KEY_LENGTH		(294)
+/* Length in bytes of server address */
+#define EXTERNAL_FLASH_SERVER_ADDRESS_LENGTH      (128)
 /* Length in bytes of DER-encoded 1024-bit RSA private key */
 #define EXTERNAL_FLASH_CORE_PRIVATE_KEY_LENGTH		(612)
 
 void HAL_FLASH_Read_ServerAddress(ServerAddress *server_addr);
+void HAL_FLASH_Write_ServerAddress(const uint8_t *buf, bool udp);
 void HAL_FLASH_Read_ServerPublicKey(uint8_t *keyBuffer);
+void HAL_FLASH_Write_ServerPublicKey(const uint8_t *keyBuffer, bool udp);
 
 typedef enum {
     /**

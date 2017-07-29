@@ -1,9 +1,4 @@
-# if [ $1 -eq 6 ] || [ $1 -eq 8 ]; then
-	VERSION="0.5.3"
-# else if [ $1 -eq 10 ]; then
-# 	VERSION="0.5.3"
-# 	fi
-# fi
+VERSION="0.7.0-rc.2"
 
 function release_file()
 {
@@ -59,6 +54,7 @@ else if [ $1 -eq 10 ]; then
 	make -s PLATFORM_ID=$PLATFORM_ID clean all COMPILE_LTO=n DEBUG_BUILD=y # APP=tinker_electron
 	release_binary system-part1
 	release_binary system-part2
+	release_binary system-part3
 else if [ $1 -eq 0 ]; then
 	cd ../main
 	make -s PLATFORM_ID=$PLATFORM_ID clean all COMPILE_LTO=y APP=tinker

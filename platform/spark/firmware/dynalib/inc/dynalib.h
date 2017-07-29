@@ -39,6 +39,13 @@
 #define EXTERN_C extern
 #endif
 
+
+/*
+ * Create an export table that delegates to the export table in another module.
+ */
+
+
+
 #define DYNALIB_TABLE_EXTERN(tablename) \
     EXTERN_C const void* const dynalib_##tablename[];
 
@@ -46,7 +53,7 @@
     dynalib_##tablename
 
 
-#if __cplusplus >= 201103 // C++11
+#if defined(__cplusplus) && __cplusplus >= 201103 // C++11
 
 #include <type_traits>
 
@@ -62,7 +69,7 @@ constexpr const void* dynalib_checked_cast(T2 *p) {
 #define DYNALIB_STATIC_ASSERT(cond, msg) \
     static_assert(cond, msg)
 
-#elif __STDC_VERSION__ >= 199901 && !__STRICT_ANSI__ // C99 with GNU extensions
+#elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901) && !(defined(__STRICT_ANSI__) && __STRICT_ANSI__) // C99 with GNU extensions
 
 #define DYNALIB_FN_EXPORT(index, tablename, name, type) \
     __builtin_choose_expr(__builtin_types_compatible_p(type, __typeof__(name)), (const void*)&name, sizeof(struct { \

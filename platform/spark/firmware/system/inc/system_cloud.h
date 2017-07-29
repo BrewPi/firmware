@@ -21,10 +21,23 @@
 #include "static_assert.h"
 #include "spark_wiring_string.h"
 #include "spark_protocol_functions.h"
+#include "completion_handler.h"
 #include <string.h>
 #include <time.h>
 #include <stdint.h>
 
+enum ParticleKeyErrorFlag: uint32_t
+{
+  NO_ERROR                      = 0,
+  PUBLIC_SERVER_KEY_BLANK       = 1,
+  PUBLIC_SERVER_KEY_CORRUPTED   = 2,
+  SERVER_ADDRESS_BLANK          = 4,
+  SERVER_ADDRESS_CORRUPTED      = 8,
+  PUBLIC_DEVICE_KEY_BLANK       = 16,
+  PUBLIC_DEVICE_KEY_CORRUPTED   = 32,
+  PRIVATE_DEVICE_KEY_BLANK      = 64,
+  PRIVATE_DEVICE_KEY_CORRUPTED  = 128
+};
 
 typedef enum
 {
@@ -75,8 +88,8 @@ extern "C" {
 String spark_deviceID(void);
 #endif
 
-void cloud_disconnect(bool closeSocket=true);
-
+void cloud_disconnect(bool closeSocket=true, bool graceful=false);
+void cloud_disconnect_graceful(bool closeSocket=true);
 
 class String;
 
@@ -89,9 +102,10 @@ STATIC_ASSERT(spark_data_typedef_is_1_byte, sizeof(Spark_Data_TypeDef)==1);
 
 #endif
 
-const uint32_t PUBLISH_EVENT_FLAG_PUBLIC = 0;
-const uint32_t PUBLISH_EVENT_FLAG_PRIVATE = 1;
-const uint32_t PUBLISH_EVENT_FLAG_NO_ACK = 2;
+const uint32_t PUBLISH_EVENT_FLAG_PUBLIC = 0x0;
+const uint32_t PUBLISH_EVENT_FLAG_PRIVATE = 0x1;
+const uint32_t PUBLISH_EVENT_FLAG_NO_ACK = 0x2;
+const uint32_t PUBLISH_EVENT_FLAG_WITH_ACK = 0x8;
 
 STATIC_ASSERT(publish_no_ack_flag_matches, PUBLISH_EVENT_FLAG_NO_ACK==EventType::NO_ACK);
 
@@ -138,11 +152,21 @@ bool spark_variable(const char *varKey, const void *userVar, Spark_Data_TypeDef 
  * @param reserved  For future expansion, set to NULL.
  */
 bool spark_function(const char *funcKey, p_user_function_int_str_t pFunc, void* reserved);
+
+// Additional parameters for spark_send_event()
+typedef struct {
+    size_t size;
+    completion_callback handler_callback;
+    void* handler_data;
+} spark_send_event_data;
+
 bool spark_send_event(const char* name, const char* data, int ttl, uint32_t flags, void* reserved);
 bool spark_subscribe(const char *eventName, EventHandler handler, void* handler_data,
         Spark_Subscription_Scope_TypeDef scope, const char* deviceID, void* reserved);
 void spark_unsubscribe(void *reserved);
 bool spark_sync_time(void *reserved);
+bool spark_sync_time_pending(void* reserved);
+system_tick_t spark_sync_time_last(time_t* tm, void* reserved);
 
 
 void spark_process(void);
@@ -165,30 +189,36 @@ bool spark_cloud_flag_auto_connect(void);
 
 ProtocolFacade* system_cloud_protocol_instance(void);
 
+int spark_set_connection_property(unsigned property_id, unsigned data, void* datap, void* reserved);
 
-#define SPARK_BUF_LEN			        600
+extern const unsigned char backup_udp_public_server_key[91];
+extern const unsigned char backup_udp_public_server_address[22];
+extern const unsigned char backup_tcp_public_server_key[294];
+extern const unsigned char backup_tcp_public_server_address[18];
 
-//#define SPARK_SERVER_IP			        "54.235.79.249"
-#define SPARK_SERVER_PORT		        5683
-#define PORT_COAPS						(5684)
-#define SPARK_LOOP_DELAY_MILLIS		        1000    //1sec
-#define SPARK_RECEIVE_DELAY_MILLIS              10      //10ms
+#define SPARK_BUF_LEN                 600
+
+//#define SPARK_SERVER_IP             "54.235.79.249"
+#define SPARK_SERVER_PORT             5683
+#define PORT_COAPS                    (5684)
+#define SPARK_LOOP_DELAY_MILLIS       1000    //1sec
+#define SPARK_RECEIVE_DELAY_MILLIS    10      //10ms
 
 #if PLATFORM_ID==10
-#define TIMING_FLASH_UPDATE_TIMEOUT             90000   //90sec
+#define TIMING_FLASH_UPDATE_TIMEOUT   90000   //90sec
 #else
-#define TIMING_FLASH_UPDATE_TIMEOUT             30000   //30sec
+#define TIMING_FLASH_UPDATE_TIMEOUT   30000   //30sec
 #endif
 
-#define USER_VAR_MAX_COUNT		        10
-#define USER_VAR_KEY_LENGTH		        12
+#define USER_VAR_MAX_COUNT            10
+#define USER_VAR_KEY_LENGTH           12
 
-#define USER_FUNC_MAX_COUNT		        4
-#define USER_FUNC_KEY_LENGTH		        12
-#define USER_FUNC_ARG_LENGTH		        64
+#define USER_FUNC_MAX_COUNT           4
+#define USER_FUNC_KEY_LENGTH          12
+#define USER_FUNC_ARG_LENGTH          64
 
-#define USER_EVENT_NAME_LENGTH		        64
-#define USER_EVENT_DATA_LENGTH		        64
+#define USER_EVENT_NAME_LENGTH        64
+#define USER_EVENT_DATA_LENGTH        64
 
 #ifdef __cplusplus
 }

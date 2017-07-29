@@ -22,6 +22,8 @@ NO_COLOR="\033[0m"
 # "" means execute execute the $MAKE command without that var specified
 DEBUG_BUILD=( y n )
 PLATFORM=( core photon P1 electron )
+# P1 bootloader built with gcc 4.8.4 doesn't fit flash, disabling for now
+PLATFORM_BOOTLOADER=( core photon electron )
 SPARK_CLOUD=( y n )
 # TODO: Once FIRM-161 is fixed, change APP to this: APP=( "" tinker product_id_and_version )
 APP=( "" tinker )
@@ -36,10 +38,11 @@ cd main
 echo
 echo '-----------------------------------------------------------------------'
 $MAKE  PLATFORM="newhal" COMPILE_LTO="n"
-if [[ "$?" -eq 0 ]]; then
-  echo "✓ SUCCESS"
+HAS_NO_SECTIONS=`echo $? | grep 'has no sections'`;
+if [[ ! -z HAS_NO_SECTIONS || "$?" -eq 0 ]]; then
+  echo -e "$GREEN ✓ SUCCESS $NO_COLOR"
 else
-  echo "✗ FAILED"
+  echo -e "$RED ✗ FAILED $NO_COLOR"
   exit 1
 fi
 
@@ -48,9 +51,9 @@ echo
 echo '-----------------------------------------------------------------------'
 $MAKE  PLATFORM=gcc
 if [[ "$?" -eq 0 ]]; then
-  echo "✓ SUCCESS"
+  echo -e "$GREEN ✓ SUCCESS $NO_COLOR"
 else
-  echo "✗ FAILED"
+  echo -e "$RED ✗ FAILED $NO_COLOR"
   exit 1
 fi
 
@@ -113,6 +116,20 @@ do
       done
     done
   done
+done
+
+cd ../bootloader
+for p in "${PLATFORM_BOOTLOADER[@]}"
+do
+  echo
+  echo '-----------------------------------------------------------------------'
+  $MAKE PLATFORM="$p"
+  if [[ "$?" -eq 0 ]]; then
+      echo -e "$GREEN ✓ SUCCESS $NO_COLOR"
+    else
+      echo -e "$RED ✗ FAILED $NO_COLOR"
+      exit 1
+  fi
 done
 
 cd ../modules

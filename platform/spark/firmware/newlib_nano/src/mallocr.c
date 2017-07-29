@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <stdint.h>
 
 #define INTERNAL_NEWLIB
 #define DEFINE_MALLOC
@@ -43,7 +44,8 @@
 #define DEFINE_FREE
 #define DEFINE_REALLOC
 #define DEFINE_CALLOC
-#define DEFINE_MALLOC_STATS
+// Do not compile malloc_stats() function (dumps memory usage stats to console)
+// #define DEFINE_MALLOC_STATS
 #define DEFINE_MALLOC_USABLE_SIZE
 #define DEFINE_MALLOPT
 #define DEFINE_PALLOC
@@ -51,7 +53,7 @@
 #define DEFINE_MEMALIGN
 #define DEFINE_CFREE
 
-#if DEBUG
+#if defined(DEBUG) && DEBUG
 #include <assert.h>
 #else
 #define assert(x) ((void)0)
@@ -68,6 +70,7 @@
 
 extern void __malloc_lock(void* p);
 extern void __malloc_unlock(void* p);
+extern void* sbrk_heap_top;
 
 #define RARG struct _reent *reent_ptr,
 #define RONEARG struct _reent *reent_ptr
@@ -217,6 +220,27 @@ chunk * free_list = NULL;
 /* Starting point of memory allocated from system */
 char * sbrk_start = NULL;
 
+#ifdef MODULAR_FIRMWARE
+static uint8_t malloc_enabled = 0;
+#else
+static uint8_t malloc_enabled = 1;
+#endif
+
+void malloc_set_heap_start(void* addr)
+{
+    sbrk_heap_top = addr;
+}
+
+void* malloc_heap_start()
+{
+    return sbrk_heap_top;
+}
+
+void malloc_enable(uint8_t val)
+{
+    malloc_enabled = val;
+}
+
 /** Function sbrk_aligned
   * Algorithm:
   *   Use sbrk() to obtain more memory and ensure it is CHUNK_ALIGN aligned
@@ -265,7 +289,7 @@ void * nano_malloc(RARG malloc_size_t s)
     alloc_size += CHUNK_OFFSET; /* size of chunk head */
     alloc_size = MAX(alloc_size, MALLOC_MINCHUNK);
 
-    if (alloc_size >= MAX_ALLOC_SIZE || alloc_size < s)
+    if (alloc_size >= MAX_ALLOC_SIZE || alloc_size < s || !malloc_enabled)
     {
         RERRNO = ENOMEM;
         return NULL;
@@ -650,5 +674,3 @@ void empty_function_so_lib_isnt_empty_under_gcc_build()
 {
 }
 #endif
-
-

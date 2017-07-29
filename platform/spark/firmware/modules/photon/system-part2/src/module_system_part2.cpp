@@ -24,6 +24,11 @@ DYNALIB_TABLE_EXTERN(hal_wlan);
 DYNALIB_TABLE_EXTERN(hal_usart);
 DYNALIB_TABLE_EXTERN(hal_concurrent);
 DYNALIB_TABLE_EXTERN(hal_can);
+DYNALIB_TABLE_EXTERN(hal_usb);
+DYNALIB_TABLE_EXTERN(hal_rgbled);
+DYNALIB_TABLE_EXTERN(hal_bootloader);
+DYNALIB_TABLE_EXTERN(hal_dct);
+DYNALIB_TABLE_EXTERN(system_module_part2);
 
 
 // strange that this is needed given that the entire block is scoped extern "C"
@@ -50,8 +55,13 @@ extern "C" __attribute__((externally_visible)) const void* const system_part2_mo
     DYNALIB_TABLE_NAME(system_cloud),
     DYNALIB_TABLE_NAME(hal_concurrent),
     DYNALIB_TABLE_NAME(hal_can),
+    DYNALIB_TABLE_NAME(hal_usb),
+    DYNALIB_TABLE_NAME(hal_rgbled),
+    DYNALIB_TABLE_NAME(hal_bootloader),
+    DYNALIB_TABLE_NAME(hal_dct),
+    DYNALIB_TABLE_NAME(system_module_part2)
 };
 
 #include "system_part2_loader.c"
 
-}
+} // extern "C"

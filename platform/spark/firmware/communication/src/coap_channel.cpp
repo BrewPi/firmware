@@ -19,6 +19,7 @@
 
 #include "coap_channel.h"
 #include "service_debug.h"
+#include "messages.h"
 
 namespace particle { namespace protocol {
 
@@ -85,6 +86,7 @@ ProtocolError CoAPMessageStore::send(Message& msg, system_tick_t time)
 	if (!msg.has_id())
 		return MISSING_MESSAGE_ID;
 
+	DEBUG("sending message id=%x", msg.get_id());
 	CoAPType::Enum coapType = CoAP::type(msg.buf());
 	if (coapType==CoAPType::CON || coapType==CoAPType::ACK || coapType==CoAPType::RESET)
 	{
@@ -118,7 +120,7 @@ ProtocolError CoAPMessageStore::receive(Message& msg, Channel& channel, system_t
 			}
 			channel.command(Channel::DISCARD_SESSION, nullptr);
 		}
-		DEBUG("recieved ACK for message %x", id);
+		DEBUG("recieved ACK for message id=%x", id);
 		if (!clear_message(id)) {		// message didn't exist, means it's already been acknoweldged or is unknown.
 			msg.set_length(0);
 		}
@@ -151,6 +153,14 @@ ProtocolError CoAPMessageStore::receive(Message& msg, Channel& channel, system_t
 	return NO_ERROR;
 }
 
+bool CoAPMessageStore::has_unacknowledged_requests() const
+{
+	for (const CoAPMessage* msg = head; msg != nullptr; msg = msg->get_next()) {
+		if (is_confirmable((uint8_t*)msg->get_data()))
+			return true;
+	}
 
+	return false;
+}
 
 }}

@@ -53,11 +53,11 @@ void dtoa (double val, unsigned char prec, char *sout) {
     unsigned long first = (unsigned long)(fixed / scale);
     unsigned long second = (unsigned long)(fixed % scale);
 
-    ultoa_pad(first, sout, 10, 1);
+    ultoa(first, sout, 10, 1);
     if (prec) {
         sout += strlen(sout);
         *sout++ = '.';
-        ultoa_pad(second, sout, 10, prec);
+        ultoa(second, sout, 10, prec);
     }
 }
 
@@ -72,10 +72,23 @@ String::String(const char *cstr)
 	if (cstr) copy(cstr, strlen(cstr));
 }
 
+String::String(const char *cstr, unsigned int length)
+{
+	init();
+	if (cstr) copy(cstr, length);
+}
+
 String::String(const String &value)
 {
 	init();
 	*this = value;
+}
+
+String::String(const __FlashStringHelper *pstr)
+{
+	init();
+	const char* cstr = reinterpret_cast<const char*>(pstr);
+	if (cstr) copy(cstr, strlen(cstr));
 }
 
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
@@ -211,8 +224,13 @@ String & String::copy(const char *cstr, unsigned int length)
 		return *this;
 	}
 	len = length;
-	strcpy(buffer, cstr);
+	memcpy(buffer, cstr, length);
+	buffer[len] = 0;
 	return *this;
+}
+
+String & String::copy(const __FlashStringHelper *pstr, unsigned int length) {
+    return copy(reinterpret_cast<const char*>(pstr), length);
 }
 
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
@@ -245,6 +263,14 @@ String & String::operator = (const String &rhs)
 	else invalidate();
 
 	return *this;
+}
+
+String & String::operator = (const __FlashStringHelper *pstr)
+{
+	const char* cstr = reinterpret_cast<const char*>(pstr);
+    if (cstr) copy(cstr, strlen(cstr));
+    else invalidate();
+    return *this;
 }
 
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
@@ -293,6 +319,10 @@ unsigned char String::concat(const char *cstr)
 {
 	if (!cstr) return 0;
 	return concat(cstr, strlen(cstr));
+}
+
+unsigned char String::concat(const __FlashStringHelper * str) {
+	return concat(reinterpret_cast<const char*>(str));
 }
 
 unsigned char String::concat(char c)

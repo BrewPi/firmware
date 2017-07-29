@@ -29,3 +29,21 @@ test(time_zone)
     (void)time++; // avoid unused warning
 }
 
+test(time_dst)
+{
+    float dst;
+    time_t time;
+    API_COMPILE(Time.setDSTOffset(1.0f));
+    API_COMPILE(Time.setDSTOffset(-0.5));
+    API_COMPILE(dst=Time.getDSTOffset());
+    API_COMPILE(time=Time.now());
+    API_COMPILE(time=Time.local());
+    API_COMPILE(Time.isDST());
+    (void)dst;
+    (void)time;
+}
+
+test(time_valid)
+{
+    API_COMPILE(Time.isValid());
+}

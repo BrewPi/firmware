@@ -26,6 +26,7 @@
 
 #include "spark_wiring_usartserial.h"
 #include "spark_wiring_constants.h"
+#include "module_info.h"
 
 // Constructors ////////////////////////////////////////////////////////////////
 
@@ -112,14 +113,37 @@ bool USARTSerial::isEnabled() {
   return HAL_USART_Is_Enabled(_serial);
 }
 
+void USARTSerial::breakTx() {
+  HAL_USART_Send_Break(_serial, NULL);
+}
+
+bool USARTSerial::breakRx() {
+  return (bool)HAL_USART_Break_Detected(_serial);
+}
+
 #ifndef SPARK_WIRING_NO_USART_SERIAL
 // Preinstantiate Objects //////////////////////////////////////////////////////
+#if ((MODULE_FUNCTION == MOD_FUNC_USER_PART) || (MODULE_FUNCTION == MOD_FUNC_MONO_FIRMWARE))
 static Ring_Buffer serial1_rx_buffer;
 static Ring_Buffer serial1_tx_buffer;
+#else
+static Ring_Buffer* serial1_rx_buffer = NULL;
+static Ring_Buffer* serial1_tx_buffer = NULL;
+#endif
 
 USARTSerial& __fetch_global_Serial1()
 {
+#if ((MODULE_FUNCTION == MOD_FUNC_USER_PART) || (MODULE_FUNCTION == MOD_FUNC_MONO_FIRMWARE))
 	static USARTSerial serial1(HAL_USART_SERIAL1, &serial1_rx_buffer, &serial1_tx_buffer);
+#else
+  if (!serial1_rx_buffer) {
+    serial1_rx_buffer = new Ring_Buffer();
+  }
+  if (!serial1_tx_buffer) {
+    serial1_tx_buffer = new Ring_Buffer();
+  }
+  static USARTSerial serial1(HAL_USART_SERIAL1, serial1_rx_buffer, serial1_tx_buffer);
+#endif
 	return serial1;
 }
 

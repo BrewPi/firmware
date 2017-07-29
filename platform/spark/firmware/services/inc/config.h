@@ -28,18 +28,24 @@
 #undef  DEBUG_BUILD
 #endif
 
-#if !defined(DEBUG_BUILD)
-#define USE_ONLY_PANIC // Define to remove all Logging and only have Panic
+#ifndef LOG_INCLUDE_SOURCE_INFO
+// Do not enable source info in debug build for Electron
+#if defined(DEBUG_BUILD) && PLATFORM_ID != 10
+#define LOG_INCLUDE_SOURCE_INFO 1
+#else
+#define LOG_INCLUDE_SOURCE_INFO 0
 #endif
+#endif // !defined(LOG_INCLUDE_SOURCE_INFO)
 
-// define to include __FILE__ information within the debug output
-#define INCLUDE_FILE_INFO_IN_DEBUG
-#define MAX_DEBUG_MESSAGE_LENGTH 120
-
-#define RESET_ON_CFOD                   1       // 1 Will do reset 0 will not
 #define MAX_SEC_WAIT_CONNECT            8       // Number of second a TCP, spark will wait
 #define MAX_FAILED_CONNECTS             2       // Number of time a connect can fail
 #define DEFAULT_SEC_INACTIVITY          0
 #define DEFAULT_SEC_NETOPS              20
+
+// Number of application loop iterations after which the main thread is suspended for some short time.
+// This is primarily used to workaround 100% CPU usage on the virtual device platform
+#ifndef SUSPEND_APPLICATION_THREAD_LOOP_COUNT
+#define SUSPEND_APPLICATION_THREAD_LOOP_COUNT 25
+#endif
 
 #endif /* CONFIG_H_ */

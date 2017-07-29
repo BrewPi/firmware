@@ -37,41 +37,84 @@
 #include "hal_platform.h"
 #include "interrupts_hal.h"
 #include <boost/crc.hpp>  // for boost::crc_32_type
+#include <sstream>
+#include <iomanip>
+
 #include "eeprom_file.h"
 #include "eeprom_hal.h"
 
 using std::cout;
 
-void debug_output_(const char* msg);
+static LoggerOutputLevel log_level = NO_LOG_LEVEL;
 
 void setLoggerLevel(LoggerOutputLevel level)
 {
-    set_logger_output(debug_output_, level);
+    log_level = level;
 }
 
-const char* eeprom_bin = "eeprom.bin";
-
-extern "C" int main(int argc, char* argv[])
+void log_message_callback(const char *msg, int level, const char *category, const LogAttributes *attr, void *reserved)
 {
-    setLoggerLevel(NO_LOG_LEVEL);
-    if (read_device_config(argc, argv)) {
-    		// init the eeprom so that a file of size 0 can be used to trigger the save.
-    		HAL_EEPROM_Init();
-    		if (exists_file(eeprom_bin)) {
-    			GCC_EEPROM_Load(eeprom_bin);
-    		}
-        app_setup_and_loop();
+    if (level < log_level) {
+        return;
     }
-    return 0;
+    std::ostringstream strm;
+    // Timestamp
+    if (attr->has_time) {
+        strm << std::setw(10) << std::setfill('0') << attr->time << ' ';
+    }
+    // Category
+    if (category) {
+        strm << '[' << category << "] ";
+    }
+    // Source info
+    if (attr->has_file && attr->has_line && attr->has_function) {
+        // Strip directory path
+        std::string fileName(attr->file);
+        size_t pos = fileName.rfind('/');
+        if (pos != std::string::npos) {
+            fileName = fileName.substr(pos + 1);
+        }
+        strm << fileName << ':' << attr->line << ", ";
+        // Strip argument and return types
+        std::string funcName(attr->function);
+        pos = funcName.find(' ');
+        if (pos != std::string::npos) {
+            funcName = funcName.substr(pos + 1, funcName.find('(') - pos - 1);
+        }
+        strm << funcName << "(): ";
+    }
+    // Level
+    strm << log_level_name(level, nullptr) << ": ";
+    // Message
+    if (msg) {
+        strm << msg;
+    }
+    // Additional attributes
+    if (attr->has_code || attr->has_details) {
+        strm << " [";
+        if (attr->has_code) {
+            strm << "code = " << attr->code << ", ";
+        }
+        if (attr->has_details) {
+            strm << "details = " << attr->details << ", ";
+        }
+        strm.seekp(-2, std::ios_base::end); // Overwrite trailing comma
+        strm << "] ";
+    }
+    std::cout << strm.str() << std::endl;
 }
 
-/**
- * Output debug info to standard output.
- * @param msg
- */
-void debug_output_(const char* msg)
+void log_write_callback(const char *data, size_t size, int level, const char *category, void *reserved)
 {
-    cout << msg << std::endl;
+    if (level < log_level) {
+        return;
+    }
+    std::cout.write(data, size);
+}
+
+int log_enabled_callback(int level, const char *category, void *reserved)
+{
+    return (level >= log_level);
 }
 
 void core_log(const char* msg, ...)
@@ -82,6 +125,22 @@ void core_log(const char* msg, ...)
     vsnprintf(buf, 2048, msg, args);
     cout << buf << std::endl;
     va_end(args);
+}
+
+const char* eeprom_bin = "eeprom.bin";
+
+extern "C" int main(int argc, char* argv[])
+{
+    log_set_callbacks(log_message_callback, log_write_callback, log_enabled_callback, nullptr);
+    if (read_device_config(argc, argv)) {
+    		// init the eeprom so that a file of size 0 can be used to trigger the save.
+    		HAL_EEPROM_Init();
+    		if (exists_file(eeprom_bin)) {
+    			GCC_EEPROM_Load(eeprom_bin);
+    		}
+			app_setup_and_loop();
+	}
+    return 0;
 }
 
 class GCCStartup {
@@ -137,6 +196,16 @@ void HAL_Core_Mode_Button_Reset(void)
 void HAL_Core_System_Reset(void)
 {
     exit(0);
+}
+
+void HAL_Core_System_Reset_Ex(int reason, uint32_t data, void *reserved)
+{
+    HAL_Core_System_Reset();
+}
+
+int HAL_Core_Get_Last_Reset_Info(int *reason, uint32_t *data, void *reserved)
+{
+    return -1;
 }
 
 void HAL_Core_Factory_Reset(void)
@@ -367,4 +436,32 @@ void HAL_Core_Write_Backup_Register(uint32_t BKP_DR, uint32_t Data)
 uint32_t HAL_Core_Read_Backup_Register(uint32_t BKP_DR)
 {
     return 0xFFFFFFFF;
+}
+
+void HAL_Core_Button_Mirror_Pin_Disable(uint8_t bootloader, uint8_t button, void* reserved)
+{
+}
+
+void HAL_Core_Button_Mirror_Pin(uint16_t pin, InterruptMode mode, uint8_t bootloader, uint8_t button, void *reserved)
+{
+}
+
+void HAL_Core_Led_Mirror_Pin(uint8_t led, pin_t pin, uint32_t flags, uint8_t bootloader, void* reserved)
+{
+}
+
+void HAL_Core_Led_Mirror_Pin_Disable(uint8_t led, uint8_t bootloader, void* reserved)
+{
+}
+
+static HAL_Event_Callback eventCallback = nullptr;
+
+void HAL_Set_Event_Callback(HAL_Event_Callback callback, void* reserved) {
+    eventCallback = callback;
+}
+
+void hal_notify_event(int event, int flags, void* data) {
+    if (eventCallback) {
+        eventCallback(event, flags, data);
+    }
 }

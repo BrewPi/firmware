@@ -114,5 +114,4 @@ inline int toUpperCase(int c)
     return toupper(c);
 }
 
-#endif	/* SPARK_WIRING_CHARACTER_H */
-
+#endif /* SPARK_WIRING_CHARACTER_H */

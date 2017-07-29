@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/spark/firmware.svg?branch=develop)](https://travis-ci.org/spark/firmware)
 
-# Particle Firmware for the Core and Photon
+# Particle Firmware for the Electron, P1, Photon and Core.
 
 This is the main source code repository of the Particle firmware libraries.
 
@@ -64,6 +64,12 @@ On the photon: Broadcom's WICED WiFi SDK.
 ### LICENSE
 
 Unless stated elsewhere, file headers or otherwise, all files herein are licensed under an LGPLv3 license. For more information, please read the LICENSE file.
+
+Additionally, for Photon and P1 firmware (>= v0.7.0-rc.1) which use the Cypress WICED SDK, you agree to the terms of the [Cypress IoT Community License Agreement](https://community.cypress.com/terms-and-conditions!input.jspa?displayOnly=true).
+
+The guidelines of the Cypress Community License agreement allow individuals to sell and redistribute _compiled binaries_, referred to as `Software in object code format`, built with WICED as a part of their own developer applications, but _does not_ give any individuals permission to sell, redistribute, or share WICED source code without separate, explicit written permission from Cypress (which Particle has obtained).
+
+If you have questions about software licensing, please contact Particle [support](https://support.particle.io/).
 
 ### CONTRIBUTE
 

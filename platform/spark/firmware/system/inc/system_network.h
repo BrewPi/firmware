@@ -70,6 +70,8 @@ void network_off(network_handle_t network, uint32_t flags, uint32_t param1, void
  * @param reserved
  */
 void network_listen(network_handle_t network, uint32_t flags, void* reserved);
+void network_set_listen_timeout(network_handle_t network, uint16_t timeout, void* reserved);
+uint16_t network_get_listen_timeout(network_handle_t network, uint32_t flags, void* reserved);
 bool network_listening(network_handle_t network, uint32_t param1, void* reserved);
 
 
@@ -91,6 +93,8 @@ bool network_clear_credentials(network_handle_t network, uint32_t flags, Network
 
 void network_setup(network_handle_t network, uint32_t flags, void* reserved);
 
+int network_set_hostname(network_handle_t network, uint32_t flags, const char* hostname, void* reserved);
+int network_get_hostname(network_handle_t network, uint32_t flags, char* buffer, size_t buffer_len, void* reserved);
 /**
  * Disable automatic listening mode when no credentials are configured.
  */

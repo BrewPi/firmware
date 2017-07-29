@@ -36,13 +36,17 @@
 #include "timer_hal.h"
 #include "rgbled.h"
 #include "service_debug.h"
+#include "cellular_hal.h"
 
 #include "spark_wiring_network.h"
 #include "spark_wiring_constants.h"
 #include "spark_wiring_cloud.h"
 #include "system_threading.h"
+#include "spark_wiring_interrupts.h"
+#include "spark_wiring_led.h"
 
 using spark::Network;
+using particle::LEDStatus;
 
 volatile system_tick_t spark_loop_total_millis = 0;
 
@@ -51,11 +55,19 @@ unsigned char _auth = WLAN_SEC_WPA2;
 
 unsigned char wlan_profile_index;
 
-volatile uint8_t SPARK_LED_FADE = 1;
-
 volatile uint8_t Spark_Error_Count;
 volatile uint8_t SYSTEM_POWEROFF;
+uint8_t feature_cloud_udp = 0;
 
+static struct SetThreadCurrentFunctionPointers {
+    SetThreadCurrentFunctionPointers() {
+        set_thread_current_function_pointers((void*)&main_thread_current,
+                                             (void*)&system_thread_current,
+                                             (void*)&application_thread_current,
+                                             nullptr, nullptr);
+    }
+} s_SetThreadCurrentFunctionPointersInitializer;
+ISRTaskQueue SystemISRTaskQueue(4);
 
 void Network_Setup(bool threaded)
 {
@@ -97,7 +109,7 @@ void manage_network_connection()
     {
         if (SPARK_WLAN_STARTED)
         {
-            WARN("!! Resetting WLAN due to %s", (WLAN_WD_TO()) ? "WLAN_WD_TO()":((SPARK_WLAN_RESET) ? "SPARK_WLAN_RESET" : "SPARK_WLAN_SLEEP"));
+            WARN("Resetting WLAN due to %s", (WLAN_WD_TO()) ? "WLAN_WD_TO()":((SPARK_WLAN_RESET) ? "SPARK_WLAN_RESET" : "SPARK_WLAN_SLEEP"));
             auto was_sleeping = SPARK_WLAN_SLEEP;
             auto was_disconnected = network.manual_disconnect();
             cloud_disconnect();
@@ -111,15 +123,80 @@ void manage_network_connection()
     }
     else
     {
-        if (!SPARK_WLAN_STARTED || (spark_cloud_flag_auto_connect() && !network.connected()))
+        if (!SPARK_WLAN_STARTED || (spark_cloud_flag_auto_connect() && !network.ready()))
         {
-            INFO("Network Connect: %s", (!SPARK_WLAN_STARTED) ? "!SPARK_WLAN_STARTED" : "SPARK_CLOUD_CONNECT && !network.connected()");
+            // INFO("Network Connect: %s", (!SPARK_WLAN_STARTED) ? "!SPARK_WLAN_STARTED" : "SPARK_CLOUD_CONNECT && !network.ready()");
             network.connect();
         }
     }
 }
 
 #ifndef SPARK_NO_CLOUD
+
+namespace {
+
+// LED status for cloud errors indication
+class LEDCloudErrorStatus: public LEDStatus {
+public:
+    explicit LEDCloudErrorStatus(LEDPriority priority) :
+            LEDStatus(LED_PATTERN_CUSTOM, priority) {
+    }
+
+    void start(uint32_t color, uint8_t count) {
+        if (count > 0) {
+            setActive(false);
+            count_ = count;
+            setColor(color);
+            on(); // LED is turned on initially
+            setActive(true);
+        }
+    }
+
+protected:
+    virtual void update(system_tick_t t) override {
+        if (t >= ticks_) {
+            // Change state
+            switch (state_) {
+            case ON:
+                off(); // Turn LED off
+                break;
+            case OFF:
+                if (--count_ > 0) {
+                    on(); // Turn LED on
+                } else {
+                    setActive(false); // Stop indication
+                }
+                break;
+            }
+        } else {
+            ticks_ -= t; // Update timing
+        }
+    }
+
+private:
+    enum State {
+        ON,
+        OFF,
+    };
+
+    State state_;
+    uint16_t ticks_;
+    uint8_t count_;
+
+    void on() {
+        state_ = ON;
+        ticks_ = 250;
+        LEDStatus::on();
+    }
+
+    void off() {
+        state_ = OFF;
+        ticks_ = 250;
+        LEDStatus::off();
+    }
+};
+
+} // namespace
 
 /**
  * Time in millis of the last cloud connection attempt.
@@ -146,53 +223,54 @@ inline uint8_t in_cloud_backoff_period()
 
 void handle_cloud_errors()
 {
-    // cfod resets in orange since they are soft errors
-    LED_SetRGBColor(Spark_Error_Count > 1 ? RGB_COLOR_ORANGE : RGB_COLOR_RED);
+    const uint8_t blinks = Spark_Error_Count;
+    Spark_Error_Count = 0;
+    network.set_error_count(0); // Reset Error Count
 
-    while (Spark_Error_Count != 0)
-    {
-        LED_On(LED_RGB);
-        HAL_Delay_Milliseconds(500);
-        LED_Off(LED_RGB);
-        HAL_Delay_Milliseconds(500);
-        Spark_Error_Count--;
-    }
+    LOG(WARN, "Handling cloud error: %d", (int)blinks);
+
+    // cfod resets in orange since they are soft errors
+    // TODO: Spark_Error_Count is never equal to 1
+    static LEDCloudErrorStatus ledCloudError(LED_PRIORITY_IMPORTANT);
+    ledCloudError.start(blinks > 1 ? RGB_COLOR_ORANGE : RGB_COLOR_RED, blinks);
 
     // TODO Send the Error Count to Cloud: NVMEM_Spark_File_Data[ERROR_COUNT_FILE_OFFSET]
-
-    // Reset Error Count
-    network.set_error_count(0);
 }
 
 void handle_cfod()
 {
-    if ((cfod_count += RESET_ON_CFOD) == MAX_FAILED_CONNECTS)
+    uint8_t reset = 0;
+    system_get_flag(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS, &reset, nullptr);
+    if (reset && ++cfod_count >= MAX_FAILED_CONNECTS)
     {
-        SPARK_WLAN_RESET = RESET_ON_CFOD;
-        ERROR("Resetting CC3000 due to %d failed connect attempts", MAX_FAILED_CONNECTS);
+        SPARK_WLAN_RESET = 1;
+        WARN("Resetting WLAN due to %d failed connect attempts", MAX_FAILED_CONNECTS);
     }
 
     if (Internet_Test() < 0)
     {
-        // No Internet Connection
-        if ((cfod_count += RESET_ON_CFOD) == MAX_FAILED_CONNECTS)
+        WARN("Internet Test Failed!");
+        if (reset && ++cfod_count >= MAX_FAILED_CONNECTS)
         {
-            SPARK_WLAN_RESET = RESET_ON_CFOD;
-            ERROR("Resetting CC3000 due to %d failed connect attempts", MAX_FAILED_CONNECTS);
+            SPARK_WLAN_RESET = 1;
+            WARN("Resetting WLAN due to %d failed connect attempts", MAX_FAILED_CONNECTS);
         }
-
         Spark_Error_Count = 2;
     }
     else
     {
-        // Cloud not Reachable
+        WARN("Internet available, Cloud not reachable!");
         Spark_Error_Count = 3;
+    }
+
+    if (reset == 0) {
+        CLR_WLAN_WD();
     }
 }
 
 /**
  * Establishes a socket connection to the cloud if not already present.
- * - handles previous connection errors by flashing the LED
+ * - handles connection errors by flashing the LED
  * - attempts to open a socket to the cloud
  * - handles the CFOD
  *
@@ -203,35 +281,51 @@ void establish_cloud_connection()
 {
     if (network.ready() && !SPARK_WLAN_SLEEP && !SPARK_CLOUD_SOCKETED)
     {
-        if (Spark_Error_Count)
-            handle_cloud_errors();
-
-        SPARK_LED_FADE = 0;
-        LED_SetRGBColor(RGB_COLOR_CYAN);
+        LED_SIGNAL_START(CLOUD_CONNECTING, NORMAL);
         if (in_cloud_backoff_period())
+        {
             return;
+        }
 
+#if PLATFORM_ID==PLATFORM_ELECTRON_PRODUCTION
+        const CellularNetProvData provider_data = cellular_network_provider_data_get(NULL);
+        CLOUD_FN(spark_set_connection_property(particle::protocol::Connection::PING, (provider_data.keepalive * 1000), nullptr, nullptr), (void)0);
+        spark_cloud_udp_port_set(provider_data.port);
+#endif
         INFO("Cloud: connecting");
-        LED_On(LED_RGB);
+        system_notify_event(cloud_status, cloud_status_connecting);
         int connect_result = spark_cloud_socket_connect();
         if (connect_result >= 0)
         {
             cfod_count = 0;
             SPARK_CLOUD_SOCKETED = 1;
             INFO("Cloud socket connected");
+            // "Connected" event is generated only after a successful handshake
         }
         else
         {
             WARN("Cloud socket connection failed: %d", connect_result);
             SPARK_CLOUD_SOCKETED = 0;
+
+            // "Connecting" event should be followed by either "connected" or "disconnected" event
+            system_notify_event(cloud_status, cloud_status_disconnected);
+
             // if the user put the networkin listening mode via the button,
             // the cloud connect may have been cancelled.
             if (SPARK_WLAN_RESET || network.listening())
+            {
                 return;
+            }
 
             cloud_connection_failed();
             handle_cfod();
             network.set_error_count(Spark_Error_Count);
+        }
+
+        // Handle errors last to ensure they are shown
+        if (Spark_Error_Count > 0)
+        {
+            handle_cloud_errors();
         }
     }
 }
@@ -239,6 +333,7 @@ void establish_cloud_connection()
 int cloud_handshake()
 {
 	bool udp = HAL_Feature_Get(FEATURE_CLOUD_UDP);
+    feature_cloud_udp = (uint8_t)udp;
 	bool presence_announce = !udp;
 	int err = Spark_Handshake(presence_announce);
 	return err;
@@ -254,37 +349,45 @@ void handle_cloud_connection(bool force_events)
     {
         if (!SPARK_CLOUD_CONNECTED)
         {
-        		int err = cloud_handshake();
+            LED_SIGNAL_START(CLOUD_HANDSHAKE, NORMAL);
+            int err = cloud_handshake();
             if (err)
             {
-            		if (!SPARK_WLAN_RESET && !network.listening())
-            		{
-					cloud_connection_failed();
-					uint32_t color = RGB_COLOR_RED;
-					if (particle::protocol::DECRYPTION_ERROR==err)
-							color = RGB_COLOR_ORANGE;
-					else if (particle::protocol::AUTHENTICATION_ERROR==err)
-							color = RGB_COLOR_MAGENTA;
-					WARN("Cloud handshake failed, code=%d", err);
-					LED_SetRGBColor(color);
-					LED_On(LED_RGB);
-					// delay a little to be sure the user sees the LED color, since
-					// the socket may quickly disconnect and the connection retried, turning
-					// the LED back to cyan
-					system_tick_t start = HAL_Timer_Get_Milli_Seconds();
-					// allow time for the LED to be flashed
-					while ((HAL_Timer_Get_Milli_Seconds()-start)<250);
-            		}
-				cloud_disconnect();
+                if (!SPARK_WLAN_RESET && !network.listening())
+                {
+                    cloud_connection_failed();
+                    uint32_t color = RGB_COLOR_RED;
+                    if (particle::protocol::DECRYPTION_ERROR==err)
+                        color = RGB_COLOR_ORANGE;
+                    else if (particle::protocol::AUTHENTICATION_ERROR==err)
+                        color = RGB_COLOR_MAGENTA;
+                    WARN("Cloud handshake failed, code=%d", err);
+                    LEDStatus led(color, LED_PRIORITY_IMPORTANT);
+                    led.setActive();
+                    // delay a little to be sure the user sees the LED color, since
+                    // the socket may quickly disconnect and the connection retried, turning
+                    // the LED back to cyan
+                    system_tick_t start = HAL_Timer_Get_Milli_Seconds();
+                    // allow time for the LED to be flashed
+                    while ((HAL_Timer_Get_Milli_Seconds()-start)<250);
+                }
+                cloud_disconnect();
             }
             else
             {
                 INFO("Cloud connected");
                 SPARK_CLOUD_CONNECTED = 1;
                 cloud_failed_connection_attempts = 0;
+                system_notify_event(cloud_status, cloud_status_connected);
+                if (system_mode() == SAFE_MODE) {
+                    LED_SIGNAL_START(SAFE_MODE, BACKGROUND); // Connected to the cloud while in safe mode
+                } else {
+                    LED_SIGNAL_START(CLOUD_CONNECTED, BACKGROUND);
+                }
+                LED_SIGNAL_STOP(CLOUD_CONNECTING);
             }
+            LED_SIGNAL_STOP(CLOUD_HANDSHAKE);
         }
-
         if (SPARK_FLASH_UPDATE || force_events || System.mode() != MANUAL || system_thread_get_state(NULL)==spark::feature::ENABLED)
         {
             Spark_Process_Events();
@@ -296,7 +399,7 @@ void manage_cloud_connection(bool force_events)
 {
     if (spark_cloud_flag_auto_connect() == 0)
     {
-        cloud_disconnect();
+        cloud_disconnect_graceful();
     }
     else // cloud connection is wanted
     {
@@ -305,10 +408,15 @@ void manage_cloud_connection(bool force_events)
         handle_cloud_connection(force_events);
     }
 }
-#endif
+#endif // !SPARK_NO_CLOUD
+
+static void process_isr_task_queue()
+{
+    SystemISRTaskQueue.process();
+}
 
 #if Wiring_SetupButtonUX
-extern void system_handle_button_click();
+extern void system_handle_button_clicks(bool isIsr);
 #endif
 
 void Spark_Idle_Events(bool force_events/*=false*/)
@@ -318,10 +426,12 @@ void Spark_Idle_Events(bool force_events/*=false*/)
     ON_EVENT_DELTA();
     spark_loop_total_millis = 0;
 
+    process_isr_task_queue();
+
     if (!SYSTEM_POWEROFF) {
 
 #if Wiring_SetupButtonUX
-        system_handle_button_click();
+        system_handle_button_clicks(false /* isIsr */);
 #endif
         manage_serial_flasher();
 
@@ -407,7 +517,8 @@ void system_delay_ms(unsigned long ms, bool force_no_background_loop=false)
 {
 	// if not threading, or we are the application thread, then implement delay
 	// as a background message pump
-    if ((!system_thread_get_state(NULL) || APPLICATION_THREAD_CURRENT()) && !HAL_IsISR())
+
+    if ((!PLATFORM_THREADING || APPLICATION_THREAD_CURRENT()) && !HAL_IsISR())
     {
     		system_delay_pump(ms, force_no_background_loop);
     }
@@ -417,29 +528,76 @@ void system_delay_ms(unsigned long ms, bool force_no_background_loop=false)
     }
 }
 
+void cloud_disconnect_graceful(bool closeSocket)
+{
+    cloud_disconnect(closeSocket, true);
+}
 
-void cloud_disconnect(bool closeSocket)
+void cloud_disconnect(bool closeSocket, bool graceful)
 {
 #ifndef SPARK_NO_CLOUD
 
     if (SPARK_CLOUD_SOCKETED || SPARK_CLOUD_CONNECTED)
     {
         INFO("Cloud: disconnecting");
+        if (SPARK_CLOUD_CONNECTED)
+        {
+            // "Disconnecting" event is generated only for a successfully established connection (including handshake)
+            system_notify_event(cloud_status, cloud_status_disconnecting);
+        }
+
         if (closeSocket)
-        spark_cloud_socket_disconnect();
+            spark_cloud_socket_disconnect(graceful);
 
         SPARK_FLASH_UPDATE = 0;
         SPARK_CLOUD_CONNECTED = 0;
         SPARK_CLOUD_SOCKETED = 0;
 
-        if (!network.manual_disconnect() && !network.listening())
-        {
-            LED_SetRGBColor(RGB_COLOR_GREEN);
-            LED_On(LED_RGB);
-        }
+        LED_SIGNAL_STOP(CLOUD_CONNECTED);
+        LED_SIGNAL_STOP(CLOUD_HANDSHAKE);
+        LED_SIGNAL_STOP(CLOUD_CONNECTING);
+
         INFO("Cloud: disconnected");
+        system_notify_event(cloud_status, cloud_status_disconnected);
     }
     Spark_Error_Count = 0;  // this is also used for CFOD/WiFi reset, and blocks the LED when set.
 
 #endif
+}
+
+uint8_t application_thread_current(void* reserved)
+{
+    return APPLICATION_THREAD_CURRENT();
+}
+
+uint8_t system_thread_current(void* reserved)
+{
+    return SYSTEM_THREAD_CURRENT();
+}
+
+uint8_t main_thread_current(void* reserved)
+{
+#if PLATFORM_THREADING == 1
+    static std::thread::id _thread_id = std::this_thread::get_id();
+    return _thread_id == std::this_thread::get_id();
+#else
+    return true;
+#endif
+}
+
+uint8_t application_thread_invoke(void (*callback)(void* data), void* data, void* reserved)
+{
+    // FIXME: We need a way to report an error back to caller, if asynchronous function call can't
+    // be scheduled for some reason
+    APPLICATION_THREAD_CONTEXT_ASYNC_RESULT(application_thread_invoke(callback, data, reserved), 0);
+    callback(data);
+    return 0;
+}
+
+void cancel_connection()
+{
+    // Cancel current network connection attempt
+    network.connect_cancel(true);
+    // Abort cloud connection
+    Spark_Abort();
 }

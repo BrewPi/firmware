@@ -21,7 +21,6 @@ ifeq ("$(USE_SWD)","y")
 CFLAGS += -DUSE_SWD
 endif
 
-
 # pull in the includes/sources corresponding to the target platform
 
 INCLUDE_DIRS += $(PLATFORM_MODULE_PATH)/shared/inc
