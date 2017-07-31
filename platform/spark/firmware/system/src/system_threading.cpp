@@ -65,13 +65,42 @@ namespace std {
     __future_base::_Result_base::_Result_base() = default;
     __future_base::_Result_base::~_Result_base() = default;
 
-     #if __GNUC__ == 4 && __GNUC_MINOR__ == 8
+#if __GNUC__ == 4 && __GNUC_MINOR__ == 8
     __future_base::_State_base::~_State_base() = default;
-    #endif
+#endif
 
+#if __GNUC__ * 10000 + __GNUC_MINOR__ * 100 >= 60200
+    thread::_State::~_State() = default;
+
+    struct thread_startup {
+        std::shared_ptr<thread::_State> state;
+        volatile bool started;
+    };
+
+    void invoke_thread(void* ptr) {
+        thread_startup* const startup = (thread_startup*)ptr;
+        const auto state = startup->state;
+        startup->started = true;
+        state->_M_run();
+    }
+
+    void thread::_M_start_thread(thread::_State_ptr state, void (*)()) {
+        thread_startup startup;
+        startup.state.reset(state.release());
+        startup.started = false;
+        if (os_thread_create(&_M_id._M_thread, "std::thread", OS_THREAD_PRIORITY_DEFAULT, invoke_thread, &startup, THREAD_STACK_SIZE)) {
+            PANIC(AssertionFailure, "%s %d", __FILE__, __LINE__);
+        } else {  // C++ ensure the thread has started execution, as required by the standard
+            while (!startup.started) {
+                os_thread_yield();
+            }
+        }
+    }
+
+#else // GCC < 6.2.x
     struct thread_startup
     {
-    	thread::_Impl_base* call;
+    	thread::__shared_base_type base;
     	volatile bool started;
     };
 
@@ -83,24 +112,24 @@ namespace std {
     void invoke_thread(void* ptr)
     {
         thread_startup* startup = (thread_startup*)ptr;
-        thread::__shared_base_type local(startup->call);
-        thread::_Impl_base* call = (thread::_Impl_base*)local.get();
+        const auto base = startup->base;
         startup->started = true;
-        call->_M_run();
+        base->_M_run();
     }
 
     void thread::_M_start_thread(thread::__shared_base_type base)
     {
         thread_startup startup;
-        startup.call = base.get();
+        startup.base = base;
         startup.started = false;
         if (os_thread_create(&_M_id._M_thread, "std::thread", OS_THREAD_PRIORITY_DEFAULT, invoke_thread, &startup, THREAD_STACK_SIZE)) {
-            PANIC(AssertionFailure, "%s %s", __FILE__, __LINE__);
+            PANIC(AssertionFailure, "%s %d", __FILE__, __LINE__);
         }
         else {  // C++ ensure the thread has started execution, as required by the standard
             while (!startup.started) os_thread_yield();
         }
     }
+#endif
 
     inline std::unique_lock<std::mutex>*& __get_once_functor_lock_ptr()
     {
@@ -124,7 +153,7 @@ os_mutex_recursive_t mutex_usb_serial()
 	return usb_serial_mutex;
 }
 
-#endif
+#endif // PLATFORM_THREADING != 0
 
 
 
