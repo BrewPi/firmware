@@ -48,8 +48,10 @@ void ControllerWiFiView::update(bool wifiConnected, char * const ipAddress)
 }
 
 void ControllerWiFiPresenter::update(){
+#if BREWPI_USE_WIFI
     char ipAddressString[16];
     bool wifiConnected = WiFi.ready();
     piLink.ipAddressAsString(ipAddressString);
     view_.update(wifiConnected, ipAddressString);
+#endif
 }

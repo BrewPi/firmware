@@ -502,8 +502,12 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
 }
 
 void PiLink::ipAddressAsString(char * target){
+#if BREWPI_USE_WIFI
     IPAddress ip = WiFi.localIP();
     snprintf(target, 16, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+#else
+    snprintf(target, 16, "no wifi");
+#endif
 }
 
 void PiLink::sendJsonAnnotation(const char* name, const char* annotation)

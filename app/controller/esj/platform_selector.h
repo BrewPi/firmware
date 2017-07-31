@@ -45,7 +45,10 @@
 
 #define ESJ_DISABLE_DOUBLE
 
-#if PLATFORM_ID == 0 || PLATFORM_ID == 6
+#if PLATFORM_ID == PLATFORM_SPARK_CORE || \
+    PLATFORM_ID == PLATFORM_PHOTON_PRODUCTION || \
+    PLATFORM_ID == PLATFORM_P1
+
 // embedded build for spark core or photon
 #include "arm/json_ex.h"
 #include "arm/convert.h"
