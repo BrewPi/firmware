@@ -23,11 +23,10 @@
 #include "BrewpiStrings.h"
 
 // some useful strings
-const char STR_FMT_S_RAM[] PROGMEM = "%s"; // RAM string
-const char STR_FMT_S_PROGMEM[] PROGMEM = "%S"; // PROGMEM string
-const char STR_FMT_D[] PROGMEM = "%d";
-const char STR_FMT_U[] PROGMEM = "%u";
-const char STR_6SPACES[] PROGMEM = "      ";
+const char STR_FMT_S_RAM[] = "%s"; // RAM string
+const char STR_FMT_D[] = "%d";
+const char STR_FMT_U[] = "%u";
+const char STR_6SPACES[] = "      ";
 
 
 

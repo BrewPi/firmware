@@ -141,7 +141,7 @@ public:
 
     char * toString(char buf[], uint8_t numDecimals, uint8_t len) const {
         if (isDisabledOrInvalid()) {
-            strcpy_P(buf, PSTR("null"));
+            strcpy(buf, "null");
             return buf;
         }
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, 'C', false);
@@ -178,7 +178,7 @@ public:
     // for temperatures in F, it converts to the internal format in C
     char * toTempString(char buf[], uint8_t numDecimals, uint8_t len, char format, bool absolute) const {
         if (isDisabledOrInvalid()) {
-            strcpy_P(buf, PSTR("null"));
+            strcpy(buf, "null");
             return buf;
         }
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, format, absolute);

@@ -25,27 +25,27 @@
 #include "PiLink.h"
 #include "JsonKeys.h"
 
-static const char PROGMEM LOG_STRING_FORMAT[] = "\"%s\"";
+static const char LOG_STRING_FORMAT[] = "\"%s\"";
 
 void BrewPiLogger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * varTypes, ...){
 	va_list args;
 	piLink.printResponse('D');
 	piLink.sendJsonPair(JSONKEY_logType, type);
 	piLink.sendJsonPair(JSONKEY_logID, errorID);
-	piLink.print_P(PSTR(",\"V\":["));
+	piLink.print(",\"V\":[");
 	va_start (args, varTypes);
 	uint8_t index = 0;
 	char buf[9];
 	while(varTypes[index]){
 		switch(varTypes[index]){	
 			case 'd': // integer, signed or unsigned
-				piLink.print_P(STR_FMT_D, va_arg(args, int));
+				piLink.print(STR_FMT_D, va_arg(args, int));
 				break;
 			case 's': // string
-				piLink.print_P(LOG_STRING_FORMAT, va_arg(args, char*));
+				piLink.print(LOG_STRING_FORMAT, va_arg(args, char*));
 				break;
 			case 't': // temperature in fixed point format
-				piLink.print_P(LOG_STRING_FORMAT, (*(temp_t *) va_arg(args,void*)).toString(buf, 3, 12));
+				piLink.print(LOG_STRING_FORMAT, (*(temp_t *) va_arg(args,void*)).toString(buf, 3, 12));
 			break;			
 		}
 		if(varTypes[++index]){

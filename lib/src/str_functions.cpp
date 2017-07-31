@@ -61,11 +61,11 @@ bool invalidStrtolResult(const char * start, const char * end){
 
 bool stringToBool(bool * result, const char * numberString) {
     char* end;
-    if (0 == strcmp(PSTR("true"), numberString)) {
+    if (0 == strcmp("true", numberString)) {
         *result = true;
         return true;
     }
-    if (0 == strcmp(PSTR("false"), numberString)) {
+    if (0 == strcmp("false", numberString)) {
         *result = false;
         return true;
     }

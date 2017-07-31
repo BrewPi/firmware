@@ -36,7 +36,7 @@
 
 TempControl tempControl;
 
-ControlConstants const ccDefaults PROGMEM =
+ControlConstants const ccDefaults =
 {
     // Do Not change the order of these initializations!
     'C', // tempFormat
@@ -139,7 +139,7 @@ void TempControl::loadSettings(eptr_t offset)
 
 void TempControl::loadDefaultConstants(void)
 {
-    memcpy_P((void *) &tempControl.cc, (void *) &ccDefaults, sizeof(ControlConstants));
+    memcpy((void *) &tempControl.cc, (void *) &ccDefaults, sizeof(ControlConstants));
     updateConstants();
 }
 

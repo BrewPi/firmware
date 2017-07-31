@@ -60,8 +60,7 @@ class PiLink{
 	
 	static void receiveJson(void); // receive settings as JSON key:value pairs
 	
-	static void print(char *fmt, ...); // use when format string is stored in RAM
-	static void print_P(const char *fmt, ...); // use when format string is stored in PROGMEM with PSTR("string")
+	static void print(const char *fmt, ...);
 	static void print(char c);
 	static void printNewLine(void);
 
@@ -79,7 +78,7 @@ class PiLink{
 	
 	static void processJsonPair(const char * key, const char * val, void* pv); // process one pair
 	
-	/* Prints the name part of a json name/value pair. The name must exist in PROGMEM */
+	/* Prints the name part of a json name/value pair. */
 	static void printJsonName(const char * name);
 	static void printJsonSeparator();
 	static void sendJsonClose();

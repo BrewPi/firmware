@@ -507,7 +507,7 @@ bool first = false) {
 
     char tempString[32];    // resulting string limited to 128 chars
 
-    sprintf_P(tempString, PSTR("\"%c\":%d"), c, val);
+    sprintf(tempString, "\"%c\":%d", c, val);
     p.print(tempString);
 }
 
@@ -728,7 +728,7 @@ void DeviceManager::readTempSensorValue(DeviceConfig::Hardware hw,
     }
     temp.toTempString(out, 3, 9, tempControl.cc.tempFormat, true);
 #else
-    strcpy_P(out, PSTR("0.00"));
+    strcpy(out, "0.00");
 #endif
 }
 
@@ -739,7 +739,7 @@ void DeviceManager::readNotInstalledValve(DeviceConfig::Hardware hw,
     auto hwDevice = std::make_shared<DS2408>(oneWireBus(hw.pinNr), hw.address);
     ValveController valve(hwDevice, hw.settings.actuator.pio);
     uint8_t valveState = valve.read(true);
-    sprintf_P(out, STR_FMT_U, (unsigned int) valveState);
+    sprintf(out, STR_FMT_U, (unsigned int) valveState);
 }
 
 void DeviceManager::writeNotInstalledValve(DeviceConfig::Hardware hw, uint8_t value)
@@ -759,7 +759,7 @@ void DeviceManager::writeNotInstalledPin(DeviceConfig::Hardware hw, uint8_t valu
 
 void DeviceManager::readNotInstalledPin(DeviceConfig::Hardware hw, char * out){
     unsigned int state = digitalRead(hw.pinNr) ^ hw.invert;
-    sprintf_P(out, STR_FMT_U, state);
+    sprintf(out, STR_FMT_U, state);
 }
 
 #if BREWPI_DS2413
@@ -774,7 +774,7 @@ void DeviceManager::readNotInstalledOneWirePin(DeviceConfig::Hardware hw, char *
     auto hwDevice = std::make_shared<DS2413>(oneWireBus(hw.pinNr), hw.address);
     ActuatorOneWire pin(hwDevice, hw.settings.actuator.pio, hw.invert);
     unsigned int state = pin.isActive();
-    sprintf_P(out, STR_FMT_U, state);
+    sprintf(out, STR_FMT_U, state);
 }
 #endif
 
@@ -1046,7 +1046,7 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd, DeviceConfig &  dc, ch
         } else if (dt == DEVICETYPE_SWITCH_ACTUATOR){
             auto act = asInterface<ActuatorDigital>(devices[idx]);
             if(act != nullptr){
-                sprintf_P(val, STR_FMT_U, (unsigned int) act->isActive() != 0);
+                sprintf(val, STR_FMT_U, (unsigned int) act->isActive() != 0);
             }
         } else if (dc.deviceFunction == DEVICE_CHAMBER_MANUAL_ACTUATOR){
 #if BREWPI_DS2408

@@ -22,7 +22,6 @@
 #include <stdint.h>
 
 extern const char STR_FMT_S_RAM[];
-extern const char STR_FMT_S_PROGMEM[];
 extern const char STR_FMT_U[];
 extern const char STR_FMT_D[];
 extern const char STR_6SPACES[];
