@@ -34,6 +34,7 @@ class ArrayEepromAccess
 public:
 	ArrayEepromAccess()
 	{
+	    changed = false;
 	}
 
 	void init()

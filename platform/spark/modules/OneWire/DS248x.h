@@ -55,6 +55,7 @@ public:
 
     DS248x(uint8_t address) : mAddress(address) {
         mAddress = 0x18 | mAddress;
+        mTimeout = 0;
     }
 
     virtual ~DS248x(){};

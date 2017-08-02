@@ -29,6 +29,13 @@
 
 
 BrewPiTouch::BrewPiTouch(SPIArbiter & spia, const uint8_t cs, const uint8_t irq) : _spi(spia),  pinCS(cs), pinIRQ(irq) {
+    config = BrewPiTouch::START;
+    width = 1600;
+    height = 1600;
+    tftWidth = 320;
+    tftHeight = 240;
+    xOffset = 0;
+    yOffset = 0;
 }
 
 BrewPiTouch::~BrewPiTouch() {
@@ -39,13 +46,6 @@ void BrewPiTouch::init(uint8_t configuration) {
     // 12bit (mode=0)
     // power down between conversions, penIRQ enabled (PD1,PD0 = 00)
     // Differential reference (SER/DFR = 0)    
-    config = configuration;
-    width = 1600;
-    height = 1600;
-    tftWidth = 320;
-    tftHeight = 240;
-    xOffset = 0;
-    yOffset = 0;
     setStabilityThreshold(); // default threshold
     pinMode(pinCS, OUTPUT);
     pinMode(pinIRQ, INPUT_PULLUP);
