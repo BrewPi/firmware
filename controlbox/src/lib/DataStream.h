@@ -254,7 +254,7 @@ class DefaultMask : public DataIn
 
 
 #define WRITE_ANNOTATION_STR(out, value) \
-	WRITE_ANNOTATION(out, PSTR(value))
+	WRITE_ANNOTATION(out, value)
 
 #if DATASTREAM_ANNOTATIONS
 	#define WRITE_ANNOTATION(out, value) \

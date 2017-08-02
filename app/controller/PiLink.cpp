@@ -322,8 +322,8 @@ void PiLink::receive(void){
                 "\"w\":\"%s\""
 #endif
                 "}",
-                PSTR(VERSION_STRING),               // v:
-                PSTR(stringify(BUILD_NAME)),      // n:
+                VERSION_STRING,               // v:
+                stringify(BUILD_NAME),      // n:
                 getShieldVersion(),               // s:
                 BREWPI_SIMULATE,                    // y:
                 BREWPI_BOARD,      // b:
@@ -450,43 +450,43 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
     temp_t t;
     t = tempControl.getBeerTemp();
     if (changed(beerTemp, t))
-        sendJsonTemp(PSTR(JSON_BEER_TEMP), t);
+        sendJsonTemp(JSON_BEER_TEMP, t);
 
     t = tempControl.getBeerSetting();
     if (changed(beerSet,t))
-        sendJsonTemp(PSTR(JSON_BEER_SET), t);
+        sendJsonTemp(JSON_BEER_SET, t);
 
     if (changed(beerAnn, beerAnnotation))
-        sendJsonAnnotation(PSTR(JSON_BEER_ANN), beerAnnotation);
+        sendJsonAnnotation(JSON_BEER_ANN, beerAnnotation);
 
     t = tempControl.getFridgeTemp();
     if (changed(fridgeTemp, t))
-        sendJsonTemp(PSTR(JSON_FRIDGE_TEMP), t);
+        sendJsonTemp(JSON_FRIDGE_TEMP, t);
 
     t = tempControl.getFridgeSetting();
     if (changed(fridgeSet, t))
-        sendJsonTemp(PSTR(JSON_FRIDGE_SET), t);
+        sendJsonTemp(JSON_FRIDGE_SET, t);
 
     if (changed(fridgeAnn, fridgeAnnotation))
-        sendJsonAnnotation(PSTR(JSON_FRIDGE_ANN), fridgeAnnotation);
+        sendJsonAnnotation(JSON_FRIDGE_ANN, fridgeAnnotation);
 
     t = tempControl.getLog1Temp();
     if (changed(log1, t))
-        sendJsonTemp(PSTR(JSON_LOG1_TEMP), tempControl.getLog1Temp());
+        sendJsonTemp(JSON_LOG1_TEMP, tempControl.getLog1Temp());
 
     t = tempControl.getLog2Temp();
     if (changed(log2, t))
-        sendJsonTemp(PSTR(JSON_LOG2_TEMP), tempControl.getLog2Temp());
+        sendJsonTemp(JSON_LOG2_TEMP, tempControl.getLog2Temp());
 
     t = tempControl.getLog3Temp();
     if (changed(log3, t))
-        sendJsonTemp(PSTR(JSON_LOG3_TEMP), tempControl.getLog3Temp());
+        sendJsonTemp(JSON_LOG3_TEMP, tempControl.getLog3Temp());
 
     if (changed(state, tempControl.getState()))
-        sendJsonPair(PSTR(JSON_STATE), (uint8_t)tempControl.getState());
+        sendJsonPair(JSON_STATE, (uint8_t)tempControl.getState());
 
 #if BREWPI_SIMULATE
-    printJsonName(PSTR(JSON_TIME));
+    printJsonName(JSON_TIME);
     print("%lu", ticks.millis()/1000);
 #endif
     sendJsonClose();

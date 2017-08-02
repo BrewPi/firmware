@@ -159,7 +159,7 @@ extern BrewPiLogger logger;
 
 #if BREWPI_LOG_DEBUG
 	#include "PiLink.h"
-	#define logDebug(string, ...) piLink.debugMessage(PSTR(string), ##__VA_ARGS__)
+	#define logDebug(string, ...) piLink.debugMessage(string, ##__VA_ARGS__)
 #else
 	#define logDebug(string, ...) {}
 #endif
