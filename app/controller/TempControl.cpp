@@ -71,7 +71,9 @@ ControlConstants const ccDefaults =
 
 TempControl::TempControl()
 {
-    lastHeatTime = 0;
+    // set to -1800 so that at boot, the controller does not think it is in PWM idle period
+    lastHeatTime = -1800;
+
     lastCoolTime = 0;
     lastIdleTime = 0;
 };
