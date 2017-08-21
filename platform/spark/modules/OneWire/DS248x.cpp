@@ -27,7 +27,8 @@ Updates:
  */
 
 #include "DS248x.h"
-#include "application.h"
+#include "spark_wiring.h"
+#include "spark_wiring_i2c.h"
 
 
 #define PTR_STATUS 0xf0

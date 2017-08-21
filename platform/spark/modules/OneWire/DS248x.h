@@ -19,7 +19,6 @@
 #pragma once
 
 #include <inttypes.h>
-#include "application.h"
 #include "OneWireLowLevelInterface.h"
 
 #define DS248X_CONFIG_APU (0x1<<0)

@@ -48,7 +48,6 @@ extern "C" {
 #include "common_files/d4d_lldapi.h"     // include non public low level driver interface header file (types, function prototypes, enums etc. )
 #include "common_files/d4d_private.h"    // include the private header file that contains perprocessor macros as D4D_MK_STR
 }
-#include "application.h"
 #include "SPIArbiter.h"
 
 // identification string of driver - must be same as name D4DTCH_FUNCTIONS structure + "_ID"
