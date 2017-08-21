@@ -56,11 +56,10 @@
 
 /*! @brief  Identification string of driver - must be same as name D4DLCDHW_FUNCTIONS structure + "_ID"
  it is used for enable the code for compilation   */
-#define d4dlcdhw_template_ID 1
 
 /*! @} End of doxd4d_lcdhw_const                                             */
 
-// copilation enable preprocessor condition
+// compilation enable preprocessor condition
 // the string d4dtch_template_ID must be replaced by define created one line up
 #if (D4D_MK_STR(D4D_LLD_LCD_HW) == d4dlcdhw_template_ID)
 

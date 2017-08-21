@@ -49,7 +49,6 @@ extern "C" {
 
 /*! @brief  Identification string of driver - must be same as name D4DLCDHWFB_FUNCTIONS structure + "_ID"
  it is used for enable the code for compilation   */
-#define d4dlcdhw_websocket_server_fb_ID 1
 
  /*! @} End of doxd4d_lcdhwfb_const                                           */
 

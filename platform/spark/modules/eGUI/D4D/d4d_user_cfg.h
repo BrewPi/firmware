@@ -46,6 +46,7 @@
 #ifndef __D4D_USER_CFG_H
 #define __D4D_USER_CFG_H
 
+
 /******************************************************************************
 * Desciption : This file allows user depends modification of D4D Freescale 
 *   graphical driver. 
@@ -60,6 +61,7 @@
 ******************************************************************/
 // #include <mqx.h>
 // #include <bsp.h>
+#include "d4d_id.h"
 
 /**************************************************************//*!
 *
@@ -144,7 +146,8 @@
 // d4dtchhw_px_adc_10b - low level hw interface driver for PX series ADC
 
 // Please (if it's needed) define a used touch screen hw interface driver
-//#define D4D_LLD_TCH_HW d4dtchhw_kinetis_adc
+
+#define D4D_LLD_TCH_HW d4dtchhw_unused
 
 /******************************************************************************
 *
@@ -226,6 +229,8 @@
 ******************************************************************************/
 
 #define D4D_ORIENT_START D4D_ORIENT_LANDSCAPE
+#define D4D_I2C_DISABLE_COMPILATION 0 // do not include d4d i2c code
+#define D4D_STRINGTABLE_PREFIX 0
 
 #include "d4d_user_cfg_app.h"
 

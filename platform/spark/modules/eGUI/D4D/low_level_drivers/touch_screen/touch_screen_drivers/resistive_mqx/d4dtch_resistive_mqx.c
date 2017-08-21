@@ -46,8 +46,6 @@
 #include "common_files/d4d_lldapi.h"
 #include "common_files/d4d_private.h"
 
-#define d4dtch_resistive_mqx_ID 1
-
 #if (D4D_MK_STR(D4D_LLD_TCH) == d4dtch_resistive_mqx_ID)
 
 #include <mqx.h>

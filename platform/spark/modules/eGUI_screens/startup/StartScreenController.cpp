@@ -24,7 +24,6 @@
 #include "../BrewPiTouch/BrewPiTouch.h"
 #include "UI.h"
 #include "UIController.h"
-#include "d4dtch_tsc2046_brewpi_cfg.h"
 
 
 class StartupScreenModel {

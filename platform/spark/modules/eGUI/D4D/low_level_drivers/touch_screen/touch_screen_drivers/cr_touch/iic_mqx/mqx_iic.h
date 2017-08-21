@@ -42,7 +42,7 @@
 #ifndef _MQX_I2C_H
 #define _MQX_I2C_H
 
-// copilation enable preprocessor condition
+// compilation enable preprocessor condition
 // the string d4dtch_k70_lcdc_ID must be replaced by define created one line up
 #if (D4D_MK_STR(D4D_LLD_TCH_HW_CRTOUCH) == d4dtchhw_crtouch_iicMqx_ID)
 
