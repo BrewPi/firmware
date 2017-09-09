@@ -140,7 +140,7 @@ public:
 
   virtual void writeSpecific(Buffer * buffer);
 
-  void addEntry(String key, String value = NULL);
+  void addEntry(String key, String value);
 
 private:
 

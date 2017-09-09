@@ -547,7 +547,7 @@ public:
     static FlashDevice* createDefaultStore()
     {
 #if defined(SPARK)
-    #if PLATFORM_ID<3
+    #if PLATFORM_ID<=3
             return createAddressErase();
     #elif PLATFORM_ID==4 || PLATFORM_ID==6 || PLATFORM_ID==10
             return new EepromFlashDevice();
