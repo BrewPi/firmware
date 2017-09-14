@@ -37,7 +37,7 @@ friend class SetPointMixin;
 
 class SetPointSimple final : public SetPoint, public SetPointSimpleMixin {
 public:
-    SetPointSimple(temp_t val = temp_t::disabled()) : value(val){}
+    SetPointSimple(temp_t val = temp_t::disabled()) : settings({val}){}
     ~SetPointSimple() = default;
 
     /**
@@ -49,14 +49,16 @@ public:
     }
 
     temp_t read() const override final {
-        return value;
+        return settings.value;
     }
     void write (temp_t val) override final {
-        value = val;
+        settings.value = val;
     }
 
-private:
-    temp_t value;
+public: // TODO: temporary public for tests
+    struct {
+        temp_t value;
+    } settings;
 friend class SetPointSimpleMixin;
 };
 
