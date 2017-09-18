@@ -24,15 +24,15 @@ SCENARIO("Encoding a message and encoding a SetPointSimple settings struct direc
         WHEN("they are encoded."){
 
             bool status;
-            uint8_t buffer1[10];
+            uint8_t buffer1[100];
             pb_ostream_t stream1 = pb_ostream_from_buffer(buffer1, sizeof(buffer1));
-            status = pb_encode(&stream1, blox_SetPointSimple_fields, &setpoint.settings);
+            status = pb_encode_delimited(&stream1, blox_SetPointSimple_fields, &setpoint.settings);
             size_t message_length1 = stream1.bytes_written;
             CHECK(status);
 
-            uint8_t buffer2[10];
+            uint8_t buffer2[100];
             pb_ostream_t stream2 = pb_ostream_from_buffer(buffer2, sizeof(buffer2));
-            status = pb_encode(&stream2, blox_SetPointSimple_fields, &message);
+            status = pb_encode_delimited(&stream2, blox_SetPointSimple_fields, &message);
             size_t message_length2 = stream2.bytes_written;
             CHECK(status);
 
@@ -62,19 +62,20 @@ SCENARIO("Encode and decode SetPointSimple settings to protobuf")
         REQUIRE(original.read() == temp_t(20.0));
 
         /* This is the buffer where we will store our message. */
-        uint8_t buffer[128];
+        uint8_t buffer[100];
         size_t message_length;
         bool status;
 
         WHEN("SetPointSimple settings are encoded"){
-            /* Create a stream that will write to our buffer. */
-            pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+            /* Create a stream that will write to our buffer. Reserve buffer[0] for length*/
+            pb_ostream_t stream = pb_ostream_from_buffer(&buffer[1], sizeof(buffer)-1);
 
-            /* The SetPointSimple seetings can be directly encoded to the stream.
+            /* The SetPointSimple settings can be directly encoded to the stream.
              * This is because the message definition struct matches the SetPointSimple settings struct 1:1.
              */
-            status = pb_encode(&stream, blox_SetPointSimple_fields, &original.settings);
+            status = pb_encode_delimited(&stream, blox_SetPointSimple_fields, &original.settings);
             message_length = stream.bytes_written;
+            buffer[0] = message_length;
 
             THEN("size is smaller than or equal to maximum size"){
                 CHECK(message_length <= blox_SetPointSimple_size);
@@ -99,16 +100,20 @@ SCENARIO("Encode and decode SetPointSimple settings to protobuf")
 
                 REQUIRE(round_trip.read() == temp_t::disabled());
 
+                /* Get message length from first byte in the buffer */
+                size_t receive_length = buffer[0];
+
                 /* Create a stream that reads from the buffer. */
-                pb_istream_t stream = pb_istream_from_buffer(buffer, blox_SetPointSimple_size);
+                pb_istream_t stream = pb_istream_from_buffer(&buffer[1], receive_length);
 
                 /* Now we are ready to decode the message. */
-                status = pb_decode(&stream, blox_SetPointSimple_fields, &round_trip.settings);
+                status = pb_decode_delimited(&stream, blox_SetPointSimple_fields, &round_trip.settings);
 
                 THEN("no errors occur"){
                     if (!status)
                     {
                         WARN("Decoding failed: " << PB_GET_ERROR(&stream));
+                        CAPTURE(stream);
                     }
                     CHECK(status);
                 }
