@@ -2,8 +2,8 @@
 
 #include "catch.hpp"
 
-#include "runner.h"
 #include "Platform.h"
+#include "runner.h"
 #include "Ticks.h"
 
 ExternalTicks ticks;
@@ -23,3 +23,4 @@ ticks_millis_t random_delay(int max) {
 }
 
 std::ostream * output = &std::cout;
+Ticks baseticks;

@@ -20,14 +20,14 @@ INCLUDE_DIRS += $(SOURCE_PATH)/controlbox/src/lib
 INCLUDE_DIRS += $(SOURCE_PATH)/lib/inc
 INCLUDE_DIRS += $(SOURCE_PATH)/app/fallback
 INCLUDE_DIRS += $(SOURCE_PATH)/app
-
+INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox/proto/cpp
 
 INCLUDE_DIRS += $(BOOST_ROOT)
 
 CSRC += $(call target_files,app/cbox,*.c)
 CPPSRC += $(call target_files,app/cbox,*.cpp)
 
-CPPSRC += $(call target_files,controlbox/src/lib,*.cpp)
+CPPSRC += $(call here_files,controlbox/src/lib,*.cpp)
 
 CSRC += $(call target_files,lib/src,*.c)
 CPPSRC += $(call target_files,lib/src,*.cpp)
@@ -45,6 +45,8 @@ CPPSRC += $(call here_files,platform/spark/modules/OneWire,*.cpp)
 
 
 CPPSRC += $(call here_files,platform/spark/modules/EEPROM,*.cpp)
+
+CSRC += $(call here_files,app/cbox/proto/cpp,*.c)
 
 
 SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI

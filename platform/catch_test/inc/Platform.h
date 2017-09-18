@@ -28,5 +28,7 @@ typedef uint8_t ticks_seconds_tiny_t;
 #define BREWPI_DS2408 0
 #define BREWPI_USE_WIFI 0
 
+#define CONTROLBOX_WIRING 0
+
 #endif	/* PLATFORM_H */
 
