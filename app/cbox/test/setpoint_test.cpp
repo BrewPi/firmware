@@ -75,7 +75,6 @@ SCENARIO("Encode and decode SetPointSimple settings to protobuf")
              */
             status = pb_encode_delimited(&stream, blox_SetPointSimple_fields, &original.settings);
             message_length = stream.bytes_written;
-            buffer[0] = message_length;
 
             THEN("size is smaller than or equal to maximum size"){
                 CHECK(message_length <= blox_SetPointSimple_size);
