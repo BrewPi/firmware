@@ -19,7 +19,10 @@ public:
 	}
 };
 
+#define DELAY_IMPL_CONFIG // empty define, no argument needed
+
 typedef Ticks TicksImpl;
+typedef Delay DelayImpl;
 
 extern Ticks baseticks;
 

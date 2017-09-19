@@ -42,6 +42,8 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/catch_test/inc
 CSRC += $(call here_files,platform/catch_test/src,*.c)
 CPPSRC += $(call here_files,platform/catch_test/src,*.cpp)
 
+# add all objects the user can create
+INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox/blox
 
 # add all lib source files
 INCLUDE_DIRS += $(SOURCE_PATH)/lib/inc
@@ -49,9 +51,9 @@ CSRC += $(call target_files,lib/src,*.c)
 CPPSRC += $(call target_files,lib/src,*.cpp)
 
 # add all cbox lib source files
-# INCLUDE_DIRS += $(SOURCE_PATH)/controlbox/src/lib
-# CSRC += $(call target_files,/controlbox/src/lib/,*.c)
-# CPPSRC += $(call target_files,/controlbox/src/lib/,*.cpp)
+INCLUDE_DIRS += $(SOURCE_PATH)/controlbox/src/lib
+CSRC += $(call target_files,/controlbox/src/lib/,*.c)
+CPPSRC += $(call target_files,/controlbox/src/lib/,*.cpp)
 
 # add auto-generated protobuf includes
 INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox/proto/cpp
@@ -62,8 +64,8 @@ INCLUDE_DIRS += $(SOURCE_PATH)/nanopb
 CSRC += $(call here_files,nanopb,*.c)
 
 # eeprom implementations from Spark/Particle
-# INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/EEPROM
-# INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/libs/flashee/firmware/
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/EEPROM
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/libs/flashee/firmware/
 
 # include boost
 ifeq ($(BOOST_ROOT),)
@@ -88,6 +90,8 @@ CFLAGS += -DDEBUG_BUILD
 CFLAGS += -D_SYS_WAIT_H_ -D_SYS_WAIT_H
 
 CPPFLAGS += -std=gnu++11
+CFLAGS += -pthread
+
 # doesn't work on osx
 #LDFLAGS +=  -Wl,--gc-sections 
 

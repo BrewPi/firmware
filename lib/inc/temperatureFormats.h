@@ -135,6 +135,10 @@ public:
         value_= val;
     }
 
+    TEMP_TYPE getRaw(){
+        return value_;
+    }
+
     bool isDisabledOrInvalid() const {
         return (value_ < min_val);
     }
