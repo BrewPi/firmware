@@ -1,5 +1,3 @@
-
-
 #include "timems.h"
 
 class Ticks
@@ -14,7 +12,7 @@ public:
 class Delay
 {
 public:
-	void wait(ticks_millis_t delay)
+	void millis(ticks_millis_t delay)
 	{
 	}
 };
@@ -25,5 +23,6 @@ typedef Ticks TicksImpl;
 typedef Delay DelayImpl;
 
 extern Ticks baseticks;
+extern Delay wait;
 
 

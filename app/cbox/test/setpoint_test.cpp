@@ -1,6 +1,11 @@
 #include "catch.hpp"
 #include <cstdio>
 
+// hack to access private members for testing
+// normally this is done in the SetPointSimpleCbox class, which is a friend of SetPointSimple
+#define private public
+#define protected public
+
 #include <pb_decode.h>
 #include <pb_encode.h>
 #include "SetPoint.h"
@@ -26,7 +31,7 @@ SCENARIO("Encoding a message and encoding a SetPointSimple settings struct direc
             bool status;
             uint8_t buffer1[100];
             pb_ostream_t stream1 = pb_ostream_from_buffer(buffer1, sizeof(buffer1));
-            status = pb_encode_delimited(&stream1, blox_SetPointSimple_fields, &setpoint.settings);
+            status = pb_encode_delimited(&stream1, blox_SetPointSimple_fields, setpoint.settingsPtr());
             size_t message_length1 = stream1.bytes_written;
             CHECK(status);
 
@@ -73,7 +78,7 @@ SCENARIO("Encode and decode SetPointSimple settings to protobuf")
             /* The SetPointSimple settings can be directly encoded to the stream.
              * This is because the message definition struct matches the SetPointSimple settings struct 1:1.
              */
-            status = pb_encode_delimited(&stream, blox_SetPointSimple_fields, &original.settings);
+            status = pb_encode_delimited(&stream, blox_SetPointSimple_fields, original.settingsPtr());
             message_length = stream.bytes_written;
 
             THEN("size is smaller than or equal to maximum size"){
@@ -106,7 +111,7 @@ SCENARIO("Encode and decode SetPointSimple settings to protobuf")
                 pb_istream_t stream = pb_istream_from_buffer(&buffer[1], receive_length);
 
                 /* Now we are ready to decode the message. */
-                status = pb_decode_delimited(&stream, blox_SetPointSimple_fields, &round_trip.settings);
+                status = pb_decode_delimited(&stream, blox_SetPointSimple_fields, round_trip.settingsPtr());
 
                 THEN("no errors occur"){
                     if (!status)

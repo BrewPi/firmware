@@ -63,6 +63,9 @@ CSRC += $(call here_files,app/cbox/proto/cpp,*.c)
 INCLUDE_DIRS += $(SOURCE_PATH)/nanopb
 CSRC += $(call here_files,nanopb,*.c)
 
+# Mixins
+CPPSRC += app/cbox/ControllerMixins.cpp
+
 # eeprom implementations from Spark/Particle
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/EEPROM
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/libs/flashee/firmware/

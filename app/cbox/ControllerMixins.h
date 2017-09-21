@@ -24,7 +24,12 @@ class ActuatorBoolMixin {};
 class ActuatorNopMixin {};
 class ActuatorInvalidMixin {};
 class SetPointMixin {};
-class SetPointSimpleMixin {};
+class SetPointSimpleMixin {
+protected:
+    ~SetPointSimpleMixin() = default;
+    void* settingsPtr();
+friend class SetPointSimpleCBox;
+};
 class SetPointConstantMixin {};
 class SetPointMinMaxMixin {};
 class ActuatorPinMixin {};

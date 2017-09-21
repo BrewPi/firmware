@@ -36,13 +36,12 @@ friend class SetPointMixin;
 
 
 class SetPointSimple final : public SetPoint, public SetPointSimpleMixin {
-public:
-    // TODO: temporary public for tests
+protected:
     struct Settings {
         temp_t value;
     } settings;
 
-
+public:
     SetPointSimple() : settings({temp_t::disabled()}){}
     SetPointSimple(temp_t _value) : settings({_value}){}
     ~SetPointSimple() = default;
