@@ -5,12 +5,12 @@
 #include "../nanopb_callbacks.h"
 #include "SetPoint.h"
 
-class SetPointSimpleCBox: public EepromAwareWritableValue {
+class SetPointSimpleCbox: public EepromAwareWritableValue {
 private:
     SetPointSimple setpoint;
 
 public:
-    SetPointSimpleCBox() {
+    SetPointSimpleCbox() {
     }
 
     virtual void readTo(DataOut& out) override {
@@ -18,8 +18,12 @@ public:
         bool status = pb_encode_delimited(&stream, blox_SetPointSimple_fields, setpoint.settingsPtr());
     }
 
-    virtual uint8_t readStreamSize() override {
+    static const uint8_t maxSize(){
         return blox_SetPointSimple_size + 1; // +1 for varint for length in delimited message
+    }
+
+    virtual uint8_t readStreamSize() override {
+        return maxSize();
     }
 
     virtual void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn) override {
@@ -31,7 +35,7 @@ public:
     }
 
     static Object* create(ObjectDefinition& defn) {
-        auto obj = new_object(SetPointSimpleCBox);
+        auto obj = new_object(SetPointSimpleCbox);
         pb_istream_t stream = { &dataInStreamCallback, defn.in, defn.len, 0 };
         bool status = pb_decode_delimited_noinit(&stream, blox_SetPointSimple_fields, obj->setpoint.settingsPtr());
         return obj;

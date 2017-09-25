@@ -20,7 +20,10 @@
 #include "catch.hpp"
 #include <cstdio>
 
+#include "Values.h"
 #include "SetPointSimpleCbox.h"
+#include "Commands.h"
+
 
 SCENARIO("A Cbox SetPointSimple object can be created from streamed protobuf data"){
     GIVEN("a protobuf message defining a SetPointSimple object"){
@@ -38,7 +41,7 @@ SCENARIO("A Cbox SetPointSimple object can be created from streamed protobuf dat
 
                 THEN("a newly created cbox SetPointSimple object can receive settings from the DataIn stream")
                 {
-                    SetPointSimpleCBox sp;
+                    SetPointSimpleCbox sp;
                     sp.writeMaskedFrom(in, in); // use in as mask too, it is not used.
                     temp_t setting = sp.get().read();
                     temp_t valid;
@@ -67,24 +70,32 @@ SCENARIO("A Cbox SetPointSimple object can be created from streamed protobuf dat
     }
 }
 
+SCENARIO("Create cbox SetPointSimple application object from definition"){
+    GIVEN("A BrewBlox SetPointSimple definition")
+    {
+        bool status;
+        blox_SetPointSimple settings = {123};
 
-SCENARIO("Create SetPointSimple through cbox api")
-{
-    GIVEN("a static cbox app"){
-        eepromAccess.init();
-        controlbox_setup(0);
-        platform_init();
+        uint8_t buffer1[100];
+        pb_ostream_t stream1 = pb_ostream_from_buffer(buffer1, sizeof(buffer1));
+        status = pb_encode_delimited(&stream1, blox_SetPointSimple_fields, &settings);
+        CHECK(status);
 
-        GIVEN("A BrewBlox SetPointSimple definition")
-        {
-            bool status;
-            blox_SetPointSimple settings = {123};
+        BufferDataIn in(buffer1);
+        uint8_t len = SetPointSimpleCbox::maxSize();
+        uint8_t typeId = 7;
 
-            uint8_t buffer1[100];
-            pb_ostream_t stream1 = pb_ostream_from_buffer(buffer1, sizeof(buffer1));
-            status = pb_encode_delimited(&stream1, blox_SetPointSimple_fields, &settings);
-            CHECK(status);
+        ObjectDefinition dfn = {&in, len, typeId};
+
+        WHEN("an application object is created form the definition"){
+            Object* obj;
+            uint8_t error = createApplicationObject(obj, dfn, false);
+
+            THEN("No errors occur"){
+                CHECK(error == errorCode(no_error));
+            }
         }
     }
 }
+
 

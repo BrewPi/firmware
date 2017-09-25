@@ -17,18 +17,21 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Platform.h"
 #include "EepromTypes.h"
-#include "OneWireBusCBox.h"
-#include "OneWireTempSensorCbox.h"
 #include "EepromAccessImpl.h"
 
 #include "Values.h"
 #include "Ticks.h"
 #include "ValueTicks.h"
 #include "ValueModels.h"
-#include "PersistChangeValue.h"
 #include "Commands.h"
-#include "Platform.h"
+
+#include "PersistChangeValue.h"
+#include "OneWireBusCBox.h"
+#include "OneWireTempSensorCbox.h"
+#include "SetPointSimpleCbox.h"
+
 
 OneWireBusCBox oneWireBus;
 DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
@@ -45,6 +48,7 @@ Commands::ObjectFactory createObjectHandlers[] = {
     PersistChangeValue::create,                             // type 4
     IndirectValue::create,                                  // type 5
     OneWireTempSensorCBox::create,                          // type 6
+    SetPointSimpleCbox::create,                             // type 7
     NULL
 
     // When defining a new object type, add the handler above the last NULL value (it's just there to make

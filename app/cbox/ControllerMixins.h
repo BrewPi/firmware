@@ -45,7 +45,7 @@ class SetPointSimpleMixin {
 protected:
     ~SetPointSimpleMixin() = default;
     void* settingsPtr();
-friend class SetPointSimpleCBox;
+friend class SetPointSimpleCbox;
 };
 class SetPointConstantMixin {};
 class SetPointMinMaxMixin {};
