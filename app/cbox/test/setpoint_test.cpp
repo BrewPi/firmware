@@ -1,3 +1,22 @@
+/*
+ * Copyright 2017 BrewPi
+ *
+ * This file is part of BrewPi.
+ *
+ * BrewPi is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BrewPi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "catch.hpp"
 #include <cstdio>
 
@@ -8,10 +27,13 @@
 
 #include <pb_decode.h>
 #include <pb_encode.h>
+
+#include "Platform.h"
 #include "SetPoint.h"
 
 #include "SetPoint.h"
 #include "SetPointSimple.pb.h"
+#include "Integration.h"
 
 SCENARIO("Encoding a message and encoding a SetPointSimple settings struct directly gives the same result"){
     GIVEN("a SetPointSimple settings struct and a SetPointSimple settings message with the same value"){
@@ -131,4 +153,5 @@ SCENARIO("Encode and decode SetPointSimple settings to protobuf")
         }
     }
 }
+
 

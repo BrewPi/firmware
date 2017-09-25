@@ -39,7 +39,6 @@ CPPSRC += $(call here_files,app/cbox/test,*.cpp)
 
 # add catch test runner and dependencies
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/catch_test/inc
-CSRC += $(call here_files,platform/catch_test/src,*.c)
 CPPSRC += $(call here_files,platform/catch_test/src,*.cpp)
 
 # add all objects the user can create
@@ -47,13 +46,13 @@ INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox/blox
 
 # add all lib source files
 INCLUDE_DIRS += $(SOURCE_PATH)/lib/inc
-CSRC += $(call target_files,lib/src,*.c)
-CPPSRC += $(call target_files,lib/src,*.cpp)
+CPPSRC += $(call here_files,lib/src,*.cpp)
 
 # add all cbox lib source files
 INCLUDE_DIRS += $(SOURCE_PATH)/controlbox/src/lib
-CSRC += $(call target_files,/controlbox/src/lib/,*.c)
-CPPSRC += $(call target_files,/controlbox/src/lib/,*.cpp)
+CPPSRC += $(call here_files,controlbox/src/lib/,*.cpp)
+CFLAGS += -DCONTROLBOX_STATIC=1 # use static controlbox implementation
+CFLAGS += -DCONTROLBOX_WIRING=0
 
 # add auto-generated protobuf includes
 INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox/proto/cpp
@@ -68,7 +67,13 @@ CPPSRC += app/cbox/ControllerMixins.cpp
 
 # eeprom implementations from Spark/Particle
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/EEPROM
+CPPSRC += $(call here_files,/platform/spark/modules/EEPROM,*.cpp)
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/libs/flashee/firmware/
+CPPSRC += $(call here_files,/platform/spark/libs/flashee/firmware/,*.cpp)
+
+# cbox app specific implementations
+CPPSRC += /app/cbox/CboxApp.cpp
+CPPSRC += /app/cbox/Logger.cpp
 
 # include boost
 ifeq ($(BOOST_ROOT),)

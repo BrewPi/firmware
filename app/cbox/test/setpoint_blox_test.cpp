@@ -1,3 +1,22 @@
+/*
+ * Copyright 2017 BrewPi
+ *
+ * This file is part of BrewPi.
+ *
+ * BrewPi is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BrewPi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "catch.hpp"
 #include <cstdio>
 
@@ -48,4 +67,24 @@ SCENARIO("A Cbox SetPointSimple object can be created from streamed protobuf dat
     }
 }
 
+
+SCENARIO("Create SetPointSimple through cbox api")
+{
+    GIVEN("a static cbox app"){
+        eepromAccess.init();
+        controlbox_setup(0);
+        platform_init();
+
+        GIVEN("A BrewBlox SetPointSimple definition")
+        {
+            bool status;
+            blox_SetPointSimple settings = {123};
+
+            uint8_t buffer1[100];
+            pb_ostream_t stream1 = pb_ostream_from_buffer(buffer1, sizeof(buffer1));
+            status = pb_encode_delimited(&stream1, blox_SetPointSimple_fields, &settings);
+            CHECK(status);
+        }
+    }
+}
 

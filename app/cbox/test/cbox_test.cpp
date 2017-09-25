@@ -17,26 +17,17 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-extern MockTicks baseticks;
+#include "catch.hpp"
+#include <cstdio>
+#include "Integration.h"
 
-#include "ValueTicks.h"
+SCENARIO("creating a profile is persisted"){
+    GIVEN("clean app")
+    {
+        eepromAccess.init();
+        controlbox_setup(0);
+        platform_init();
 
-extern ScaledTicksValue ticks;
-
-class MockDelay {
-public:
-    MockDelay() {}
-    void seconds(uint16_t seconds){
-        baseticks.advance(ticks_millis_t(1000) * ticks_millis_t(seconds));
+        REQUIRE(active_profile().is_valid()==false);
     }
-    void millis(uint16_t millis){
-        baseticks.advance(millis);
-    }
-    void microseconds(uint32_t micros) {}
-};
-
-typedef MockDelay DelayImpl;
-typedef MockTicks TicksImpl;
-#define DELAY_IMPL_CONFIG // empty define
-
-extern DelayImpl wait;
+}

@@ -3,6 +3,7 @@
 #include "OneWire.h"
 #include "OneWireBusCBox.h"
 #include "OneWireTempSensor.h"
+#include "StreamUtil.h"
 #include <assert.h>
 
 // since we only have one then might as well reference it directly

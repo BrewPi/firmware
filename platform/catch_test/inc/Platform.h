@@ -1,12 +1,4 @@
-/* 
- * File:   Platform.h
- * Author: Elco
- *
- * Created on 17 april 2015, 0:30
- */
-
-#ifndef PLATFORM_H
-#define	PLATFORM_H
+#pragma once
 
 #define WIRING 0
 
@@ -17,18 +9,16 @@
 #include <stdio.h> // for vsnprintf
 #include <stdint.h>
 
-typedef uint32_t tcduration_t;
-typedef uint32_t ticks_millis_t;
-typedef uint32_t ticks_micros_t;
-typedef uint32_t ticks_seconds_t;
-typedef uint8_t ticks_seconds_tiny_t;
-
 #define BREWPI_EMULATE 1
 #define BREWPI_DS2413 0
 #define BREWPI_DS2408 0
 #define BREWPI_USE_WIFI 0
 
-#define CONTROLBOX_WIRING 0
+bool platform_init();
 
-#endif	/* PLATFORM_H */
+struct data_block_ref {
+    void* data;
+    size_t size;
+};
 
+void platform_device_id(data_block_ref& id);

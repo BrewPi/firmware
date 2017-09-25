@@ -17,26 +17,21 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-extern MockTicks baseticks;
+#include "Values.h"
 
-#include "ValueTicks.h"
+/**
+ * A base class for objects that want to know where in the persisted data their definition is stored.
+ */
+class EepromAwareWritableValue : public WritableValue
+{
+    eptr_t address = -1;
 
-extern ScaledTicksValue ticks;
-
-class MockDelay {
 public:
-    MockDelay() {}
-    void seconds(uint16_t seconds){
-        baseticks.advance(ticks_millis_t(1000) * ticks_millis_t(seconds));
+
+    void rehydrated(eptr_t _address) {
+        address = _address;
     }
-    void millis(uint16_t millis){
-        baseticks.advance(millis);
-    }
-    void microseconds(uint32_t micros) {}
+
+    eptr_t eeprom_offset() { return address; }
+    uint8_t eepromSize(cb_nonstatic_decl(EepromAccess& eepromAccess)) { return eepromAccess.readByte(address-1); }
 };
-
-typedef MockDelay DelayImpl;
-typedef MockTicks TicksImpl;
-#define DELAY_IMPL_CONFIG // empty define
-
-extern DelayImpl wait;
