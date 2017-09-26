@@ -22,12 +22,32 @@
 #include "Integration.h"
 
 SCENARIO("creating a profile is persisted"){
-    GIVEN("clean app")
+    GIVEN("clean static cbox app")
     {
-        eepromAccess.init();
-        controlbox_setup(0);
         platform_init();
+        eepromAccess.init();
+        systemProfile.initializeEeprom();
 
-        REQUIRE(active_profile().is_valid()==false);
+        controlbox_setup(0);
+        systemProfile.initialize();
+
+        REQUIRE(systemProfile.currentProfile() == SYSTEM_PROFILE_DEFAULT);
+
+        WHEN("a profile is created and activated")
+        {
+            profile_id_t p = systemProfile.createProfile();
+            systemProfile.activateProfile(p);
+            THEN("It gets ID 0")
+            {
+                REQUIRE(systemProfile.currentProfile() == 0);
+            }
+            AND_WHEN("The app is re-initialized"){
+                controlbox_setup(false);
+                THEN("the profile is selected by default")
+                {
+                    REQUIRE(systemProfile.currentProfile() == 0);
+                }
+            }
+        }
     }
 }
