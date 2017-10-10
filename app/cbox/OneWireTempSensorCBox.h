@@ -29,8 +29,12 @@ public:
 	}
 
 	 /**
-	  * first 4 bytes is the temperature, 32-bit fixed point.
-	  * todo - output connected flag?
+	  * First byte is connected status,
+	  * then 4 bytes is the temperature, 32-bit fixed point
+	  * then optionally
+	  * 2 bytes for the calibration offset
+	  * and 8 bytes for the sensor address
+	  * (and later) 1 byte for the USB bus id
 	  */
 	virtual void readTo(DataOut& out) override {
 		bool connected = sensor.isConnected();
@@ -51,6 +55,10 @@ public:
 		// currently a no-op - will later allow the calibration and the address to be updated (and persisted)
 	}
 
+	/**
+	 * 8 bytes for the device address
+	 * 2 bytes for the temperature offset that is added to readings
+	 */
 	static Object* create(ObjectDefinition& defn) {
 		DeviceAddress address;
 		temp_t offset;

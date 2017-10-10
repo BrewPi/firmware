@@ -73,6 +73,7 @@ Commands::ObjectFactory createObjectHandlers[] = {
 	PersistChangeValue::create,								// type 4
 	IndirectValue::create,									// type 5
 	OneWireTempSensorCBox::create,					// type 6
+	OneWireBusCBox::create,							// type 7
 	NULL
 
 	// When defining a new object type, add the handler above the last NULL value (it's just there to make

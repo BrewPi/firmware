@@ -42,10 +42,7 @@ public:
 
     /**
      * Read value
-     * - an ID encoded as a variable length ID chain (values > 0x80 mean there is more data)
-     * - previous command data count - N
-     * - previous command data - N bytes
-     * - command rsult (variable length)
+     * - command result (variable length)
      * - cmd 00: no-op always 00 (success)
      * - cmd 01: reset bus (00 on success, FF on failure)
      * - cmd 02: search bus: a sequence of 0 or more 8-byte addresses, MSB first that were found on the bus
@@ -60,10 +57,12 @@ public:
                 out.write(0);
                 break;
             case SEARCH:
+                out.write(0);
                 bus.reset_search();
                 outputSearch(out);
                 break;
             case SEARCH_FAMILY:
+                out.write(0);
                 bus.target_search(command_data);
                 outputSearch(out);
         }

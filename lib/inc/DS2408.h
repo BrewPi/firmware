@@ -55,6 +55,8 @@ public:
      * Note that for a read to make sense the channel must be off (value written is 1).
      */
     bool channelRead(pio_t pio, bool defaultValue) {
+    	// TODO: to avoid multiple successive reads when reading single channels, consider
+    	// adding caching so that successive reads within a given timeout are served from cache.
         uint8_t result = channelReadAll();
         if (result < 0)
             return defaultValue;
