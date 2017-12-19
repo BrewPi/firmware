@@ -42,7 +42,6 @@ void ValveController::update() {
 
 
 void ValveController::write(uint8_t action) {
-    update();
     uint8_t latch = device->getLatchCache();
     action = action & 0b11; // make sure action only has lower 2 bits non-zero
 
@@ -56,6 +55,46 @@ void ValveController::write(uint8_t action) {
     }
     latch |= 0b00110011; // make sure latch of input stays off at all times
     device->writeLatches(latch);
+}
+
+uint8_t ValveController::getState() const {
+    uint8_t states = device->readPios(true);
+    if(output == 0){
+        states = states >> 4;
+    }
+    return states & 0b11;
+}
+
+uint8_t ValveController::getAction() const {
+    uint8_t latches = device->readLatches(true);
+    if(output == 0){ // A is on upper bits
+        latches = latches >> 4;
+    }
+    return (latches >> 2) & 0b11;
+}
+
+void ValveController::setActive(bool active, int8_t priority){
+    if(active && getState() != VALVE_OPENED ){
+        open();
+    }
+    else if (!active && getState() != VALVE_CLOSED){
+        close();
+    }
+}
+
+bool ValveController::isActive() const {
+  // return active when not closed, so a half open valve also returns active
+  if(getState() != VALVE_CLOSED || getAction() == VALVE_CLOSING){
+      return false;
+  }
+  return true;
+}
+
+uint8_t ValveController::read(bool doUpdate){
+    if(doUpdate){
+        update();
+    }
+    return (getAction() << 2 | getState() );
 }
 
 #endif

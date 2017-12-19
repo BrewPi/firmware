@@ -82,25 +82,13 @@ public:
      * State is based on reading the I/O pins connected to the feedback switches. \n
      * @returns state of valve (0b01 = opened, 0b10 = closed, 0b11 = in between \n
      */
-    uint8_t getState() const {
-        uint8_t states = device->readPios(true);
-        if(output == 0){
-            states = states >> 4;
-        }
-        return states & 0b11;
-    }
+    uint8_t getState() const;
 
     /**
      * Gets the action currently performed by the motor of the valve, read from the latches. \n
      * @returns action performed by valve (0b01 = opening, 0b10 = closing, 0b11 = idle, 0b00= idle \n
      */
-    uint8_t getAction() const {
-        uint8_t latches = device->readLatches(true);
-        if(output == 0){ // A is on upper bits
-            latches = latches >> 4;
-        }
-        return (latches >> 2) & 0b11;
-    }
+    uint8_t getAction() const;
 
     /**
      * update reads the status from the valve. It does not start opening or closing.
@@ -118,38 +106,20 @@ public:
      * setActive will open or close the valve, for compatibility with the actuator interface.
      * @param active true opens the valve, false closes it.
      */
-    void setActive(bool active, int8_t priority) override final {
-        if(active){
-            open();
-        }
-        else{
-            close();
-        }
-    }
+    void setActive(bool active, int8_t priority) override final;
 
     /**
      * Check if valve is open.
      * @return true if valve is open or halfway or opening, false if closed or closing
      */
-    bool isActive() const override final {
-        // return active when not closed, so a half open valve also returns active
-      if(getState() != VALVE_CLOSED || getAction() == VALVE_CLOSING){
-        return false;
-      }
-      return true;
-    }
+    bool isActive() const override final;
 
     /**
      * Returns the state of the valve (action and current state) as a single 4 bit value
      * @param doUpdate when true, read new values from the hardware device
      * @return 4-bit value, with upper 2 bits motor state and lower bits the valve state.
      */
-    uint8_t read(bool doUpdate = true){
-        if(doUpdate){
-            update();
-        }
-        return (getAction() << 2 | getState() );
-    }
+    uint8_t read(bool doUpdate = true);
 
     /**
      * Apply a new motor state to the valve.

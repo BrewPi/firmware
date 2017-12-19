@@ -55,28 +55,28 @@ public:
     /**
      * extracts a single bit from a byte
      *
-     * @param byte input byte to extract a bit from
+     * @param target input byte to extract a bit from
      * @param pos position of the byte with the rightmost bit being 0.
      * @returns extracted bit as bool
      */
-    inline bool getBit(uint8_t byte, uint8_t pos){
-        return ((0b1 << pos) & byte) != 0x0;
+    inline bool getBit(uint8_t target, uint8_t pos){
+        return ((0b1 << pos) & target) != 0x0;
     }
 
     /**
      * sets a single bit in a byte
-     * @param byte byte to change a bit in
+     * @param target byte to change a bit in
      * @param pos position of bit in the byte
      * @param state new state for the bit, 1 or 0
      * @returns new byte with the bit at position pos changed to state
      */
-    inline uint8_t setBit(uint8_t byte, uint8_t pos, bool state){
+    inline uint8_t setBit(uint8_t target, uint8_t pos, bool state){
         uint8_t mask = (0b1 << pos);
         if(state){
-            return byte | mask;
+            return target | mask;
         }
         else{
-            return byte & ~mask;
+            return target & ~mask;
         }
     }
 
@@ -88,7 +88,7 @@ public:
      * @returns state of the output pin for the given channel
      */
     bool readPioBit(uint8_t pos, bool fromCache = false) {
-		return getBit(readPios(fromCache) , pos);
+        return getBit(readPios(fromCache) , pos);
     }
 
     /**
