@@ -129,11 +129,14 @@ public:
 
     /**
      * Check if valve is open.
-     * @return true if open, false if closed.or halfway
+     * @return true if valve is open or halfway or opening, false if closed or closing
      */
     bool isActive() const override final {
         // return active when not closed, so a half open valve also returns active
-        return getAction() != VALVE_CLOSING;
+      if(getState() != VALVE_CLOSED || getAction() == VALVE_CLOSING){
+        return false;
+      }
+      return true;
     }
 
     /**

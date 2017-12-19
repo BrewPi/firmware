@@ -34,6 +34,10 @@ void ValveController::update() {
         // fully opened/closed. Stop driving the valve
         idle();
     }
+    if((action == VALVE_IDLE && !(state == VALVE_OPEN || state == VALVE_CLOSED))
+        // if idle and no action, close to prevent staying in this in between state
+        close();
+    }
 }
 
 
