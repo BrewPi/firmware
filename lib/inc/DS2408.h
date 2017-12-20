@@ -45,6 +45,7 @@ public:
     {
         regCache.pio = 0xFF;
         regCache.latch = 0xFF;
+        update();
     }
 
     /**
@@ -184,6 +185,13 @@ public:
      */
     uint8_t getLatchCache(){
     	return regCache.latch;
+    }
+
+    /**
+     * @return true if connected (hardware DS2408 is found)
+     */
+    bool isConnected(){
+        return connected;
     }
 
 private:

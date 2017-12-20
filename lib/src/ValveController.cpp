@@ -35,11 +35,10 @@ void ValveController::update() {
         idle();
     }
     if(action == VALVE_IDLE && !(state == VALVE_OPENED || state == VALVE_CLOSED)){
-        // if idle and no action, close to prevent staying in this in between state
+        // if there is no action and the valve is in between, close to prevent staying in this in between state
         close();
     }
 }
-
 
 void ValveController::write(uint8_t action) {
     uint8_t latch = device->getLatchCache();
@@ -83,18 +82,31 @@ void ValveController::setActive(bool active, int8_t priority){
 }
 
 bool ValveController::isActive() const {
-  // return active when not closed, so a half open valve also returns active
-  if(getState() != VALVE_CLOSED || getAction() == VALVE_CLOSING){
-      return false;
-  }
-  return true;
+    if(!device->isConnected()){
+        return false;
+    }
+    if(getAction() == VALVE_OPENING){
+        return true;
+    }
+    if(getAction() == VALVE_CLOSING){
+        return false;
+    }
+    if(getState() == VALVE_OPENED){
+        return true;
+    }
+    if(getState() == VALVE_CLOSED){
+        return false;
+    }
+    // If we end up here, the valve is halfway or disconnected form the board (the feedback switches have a pullup).
+    // We're going to return false because it is most likely that the valve is not doing anything (but it might be open and not giving feedback).
+    return false;
 }
 
 uint8_t ValveController::read(bool doUpdate){
     if(doUpdate){
-        update();
+        device->update();
     }
-    return (getAction() << 2 | getState() );
+    return (getAction() << 2 | getState());
 }
 
 #endif

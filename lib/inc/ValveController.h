@@ -47,6 +47,7 @@ public:
                     device(device_),
                     output(output_)
 					{
+        device->update();
     }
 
     /**
@@ -59,7 +60,7 @@ public:
      */
     static const uint8_t VALVE_OPENED = 0b01; //  Feedback switch for fully open is connected to GND.
     static const uint8_t VALVE_CLOSED = 0b10; // = 0b10  Feedback switch for fully closed is connected to GND
-    static const uint8_t VALVE_HALFWAY= 0b11; // = 0b11  Neither switches are closed, so valve is neither open or closed
+    static const uint8_t VALVE_HALFWAY= 0b11; // = 0b11  Neither switches are closed, so valve is neither open nor closed
 
     /**
      * The motor can be driven in clockwise, anti-clockwise or idle
@@ -91,7 +92,7 @@ public:
     uint8_t getAction() const;
 
     /**
-     * update reads the status from the valve. It does not start opening or closing.
+     * update reads the status from the valve.
      * When the valve is opening or closing, it reverts back to idle when it detects that the action is completed.
      */
     void update() override final;
