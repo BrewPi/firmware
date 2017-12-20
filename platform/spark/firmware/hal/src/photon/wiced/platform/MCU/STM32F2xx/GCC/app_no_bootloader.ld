@@ -169,7 +169,7 @@ SECTIONS
 
     link_heap_location = _heap;
     link_heap_location_end = _eheap;
- 
+
     /DISCARD/ :
     {
         *(.ARM.attributes*)
