@@ -78,8 +78,6 @@ public:
      * Set the current stream to where the data is available and return the number of bytes available
      */
     int available() {
-        const ticks_millis_t wifiAttemptInterval = 60000;
-        static ticks_millis_t lastWifiAttempt = -wifiAttemptInterval + 5000; // first attempt 5 seconds after boot
         static bool tcpServerRunning = false;
 
         int available = 0;
@@ -90,41 +88,31 @@ public:
         if(available > 0) {
             currentStream = &Serial;
         }
-        else if (WiFi.ready()) {
-            if(WiFi.localIP()[0]==0){
-                // workaround for bug where WiFi.ready() returns true with IP 0.0.0.0
-                WiFi.disconnect();
-                return 0;
-            }
-            if(!tcpServerRunning) {
-                tcpServer.begin();
-                tcpServerRunning = true;
-            }
+        else{
+        	if (WiFi.ready() &&  WiFi.localIP()[0] != 0){    // workaround for bug where WiFi.ready() returns true with IP 0.0.0.0
+				if(!tcpServerRunning) {
+					tcpServer.begin();
+					tcpServerRunning = true;
+				}
 
-            // if a new client appears, drop the old one
-            TCPClient newClient = tcpServer.available();
-            if(newClient) {
-                tcpClient.stop();
-                tcpClient = newClient;
-            }
-            if (tcpClient.connected()) {
-                available = tcpClient.available();
-                if(available > 0) {
-                    currentStream = &tcpClient;
-                }
-            }
-        }
-        else {
-            tcpServer.stop();
-            tcpClient.stop();
-            tcpServerRunning = false;
-
-            if (WiFi.hasCredentials() && !WiFi.connecting()) {
-                if(ticks.timeSinceMillis(lastWifiAttempt) > wifiAttemptInterval) {
-                    lastWifiAttempt = ticks.millis();
-                    WiFi.connect();
-                }
-            }
+				// if a new client appears, drop the old one
+				TCPClient newClient = tcpServer.available();
+				if(newClient) {
+					tcpClient.stop();
+					tcpClient = newClient;
+				}
+				if (tcpClient.connected()) {
+					available = tcpClient.available();
+					if(available > 0) {
+						currentStream = &tcpClient;
+					}
+				}
+			}
+			else {
+				tcpServer.stop();
+				tcpClient.stop();
+				tcpServerRunning = false;
+			}
         }
 
         return available;

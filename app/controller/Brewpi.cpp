@@ -90,6 +90,8 @@ void setup()
     settingsManager.loadSettings();
 
     control.update();
+
+    WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
     			
 	logDebug("init complete");
 }
