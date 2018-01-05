@@ -25,22 +25,22 @@
 
 void ValveController::update() {
     device->update();
-
     uint8_t action = getAction();
     uint8_t state = getState();
 
-    if((action == VALVE_OPENING && state == VALVE_OPENED) ||
-            (action == VALVE_CLOSING && state == VALVE_CLOSED)){
+    if(desiredAction != action){
+        write(desiredAction);
+    }
+
+    if((desiredAction == VALVE_OPENING && state == VALVE_OPENED) ||
+            (desiredAction == VALVE_CLOSING && state == VALVE_CLOSED)){
         // fully opened/closed. Stop driving the valve
         idle();
-    }
-    if(action == VALVE_IDLE && !(state == VALVE_OPENED || state == VALVE_CLOSED)){
-        // if there is no action and the valve is in between, close to prevent staying in this in between state
-        close();
     }
 }
 
 void ValveController::write(uint8_t action) {
+    desiredAction = action;
     uint8_t latch = device->getLatchCache();
     action = action & 0b11; // make sure action only has lower 2 bits non-zero
 
@@ -57,6 +57,9 @@ void ValveController::write(uint8_t action) {
 }
 
 uint8_t ValveController::getState() const {
+    if(!device->isConnected()){
+        return VALVE_ERROR;
+    }
     uint8_t states = device->readPios(true);
     if(output == 0){
         states = states >> 4;

@@ -61,6 +61,7 @@ public:
     static const uint8_t VALVE_OPENED = 0b01; //  Feedback switch for fully open is connected to GND.
     static const uint8_t VALVE_CLOSED = 0b10; // = 0b10  Feedback switch for fully closed is connected to GND
     static const uint8_t VALVE_HALFWAY= 0b11; // = 0b11  Neither switches are closed, so valve is neither open nor closed
+    static const uint8_t VALVE_ERROR = 0b00; // = 0b00  Both switches are closed. This is an error state. Is also used to indicate communication error
 
     /**
      * The motor can be driven in clockwise, anti-clockwise or idle
@@ -160,6 +161,7 @@ public:
 
 protected:
     std::shared_ptr<DS2408> device;
+    uint8_t desiredAction;
     uint8_t output; // 0=A or 1=B
 
 
