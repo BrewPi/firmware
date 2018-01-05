@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 
 project(nanopb C)
 
-set(nanopb_VERSION_STRING nanopb-0.3.9-dev)
+set(nanopb_VERSION_STRING nanopb-0.4.0-dev)
 
 string(REPLACE "nanopb-" "" nanopb_VERSION ${nanopb_VERSION_STRING})
 
@@ -36,7 +36,7 @@ if(nanopb_BUILD_GENERATOR)
     find_package(PythonInterp 2.7 REQUIRED)
     execute_process(
         COMMAND ${PYTHON_EXECUTABLE} -c
-            "from distutils import sysconfig; print(sysconfig.get_python_lib(prefix='${CMAKE_INSTALL_PREFIX}'))"
+            "from distutils import sysconfig; print(sysconfig.get_python_lib(prefix=''))"
         OUTPUT_VARIABLE PYTHON_INSTDIR
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )

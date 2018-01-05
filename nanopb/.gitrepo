@@ -6,6 +6,6 @@
 [subrepo]
 	remote = https://github.com/nanopb/nanopb
 	branch = master
-	commit = d0e9e643f7e8ca159dcbbf9c9ef23ac87e4c4f93
-	parent = d33e80c5c6127e3928799465609d23531285b3cd
+	commit = a2618e523b4e035dd1d1e3b9d94cfbbf7e1545bc
+	parent = 32af4bddd3eb409635dd749544d87d1b70ddd80d
 	cmdver = 0.3.1

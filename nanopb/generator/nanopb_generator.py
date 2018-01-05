@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 '''Generate header file for nanopb from a ProtoBuf FileDescriptorSet.'''
-nanopb_version = "nanopb-0.3.9-dev"
+nanopb_version = "nanopb-0.4.0-dev"
 
 import sys
 import re
@@ -453,7 +453,7 @@ class Field:
             elif self.pbtype == 'FIXED_LENGTH_BYTES':
                 inner_init = '{0}'
             elif self.pbtype in ('ENUM', 'UENUM'):
-                inner_init = '(%s)0' % self.ctype
+                inner_init = '_%s_MIN' % self.ctype
             else:
                 inner_init = '0'
         else:
