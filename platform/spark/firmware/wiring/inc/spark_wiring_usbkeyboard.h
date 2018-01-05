@@ -50,9 +50,10 @@ public:
 
 	void begin(void);
 	void end(void);
-  virtual size_t write(uint8_t ch);
+	using Print::write;
+	virtual size_t write(uint8_t ch);
 	virtual size_t writeKey(uint16_t k, uint16_t modifiers = 0);
-  virtual size_t click(uint16_t k, uint16_t modifiers = 0);
+	virtual size_t click(uint16_t k, uint16_t modifiers = 0);
 	virtual size_t press(uint16_t k, uint16_t modifiers = 0);
 	virtual size_t release(uint16_t k, uint16_t modifiers = 0);
 	virtual void releaseAll(void);
