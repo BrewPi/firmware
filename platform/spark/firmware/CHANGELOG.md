@@ -1,3 +1,31 @@
+## 0.7.0-rc.6
+
+### BUGFIX
+
+- [Electron] Add dependency in system-part-1 on 0.6.4 system-part-3 to prevent upgrades from 0.6.3 or earlier to avoid incompatibilties
+with these releases.
+
+## 0.7.0-rc.5
+
+### BUGFIX
+
+ - The device ID is output in lowercase in DFU mode. [#1432](https://github.com/spark/firmware/issues/1432)
+ - increase the DTLS buffer from 768 to 800 bytes, so that the system describe message is sent.
+ - remove rigid dependency check in bootloader that was causing DCT functions to not load in 0.8.0-rc.1 [#1436](https://github.com/spark/firmware/pull/1436)
+
+## 0.7.0-rc.4
+
+### ENHANCEMENTS
+
+ - USART Half-duplex enhancements [#1308](https://github.com/spark/firmware/pull/1380)
+
+### BUGFIX
+
+ - KRACK WPA2 security bugfix [#1420](https://github.com/spark/firmware/pull/1420)
+ - Monolithic build linker error [#1370](https://github.com/spark/firmware/pull/1370)
+ - 4-digit serial numbers had additional characters [#1380](https://github.com/spark/firmware/pull/1380)
+ 
+
 ## 0.7.0-rc.3
 
 ### DEPRECATED API

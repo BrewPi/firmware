@@ -55,31 +55,33 @@ void DS2408::update(){
     oneWire -> select(address);
 
     // Compute the 1-Wire CRC16 and compare it against the received CRC.
-    // Put everything in a buffer so we can compute the CRC easily.
+    // Put everything in one buffer so we can compute the CRC easily.
     uint8_t buf[13];
+
     buf[0] = READ_PIO_REG;    // Read PIO Registers
     buf[1] = ADDRESS_PIO_STATE_LOWER;    // LSB address
     buf[2] = ADDRESS_UPPER;    // MSB address
     oneWire -> write_bytes(buf, 3);    // Write 3 cmd bytes
-    oneWire -> read_bytes(buf+3, 10);  // Read 6 data bytes, 2 0xFF, 2 CRC16
-    // last 2 bytes of buffer contain CRC
-    uint16_t crc = *( (uint16_t*) &buf[11]);
-    bool success = (oneWire -> crc16(buf, 11, crc) == 0);
+    oneWire -> read_bytes(&buf[3], 10);  // Read 6 data bytes, 2 0xFF, CRC16
+
+    bool success = oneWire -> check_crc16(buf, 11, &buf[11]);
+
     if(success){
         memcpy(&regCache, &buf[3], sizeof(regCache));
     }
-    if(connected && !success){
-        connected = false;
+
+    if(success != connected){
         char addressString[17];
         printBytes(address, 8, addressString);
-        logWarningString(DS2408_DISCONNECTED, addressString);
+        if(success){
+            logInfoString(DS2408_CONNECTED, addressString);
+        }
+        else {
+            logWarningString(DS2408_DISCONNECTED, addressString);
+        }
+        connected = success;
     }
-    else if (!connected && success){
-        connected = true;
-        char addressString[17];
-        printBytes(address, 8, addressString);
-        logInfoString(DS2408_CONNECTED, addressString);
-    }
+
     oneWire -> reset();
 }
 #endif

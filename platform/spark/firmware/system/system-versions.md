@@ -13,7 +13,7 @@
 |     |   8 | 0.4.7 | |
 |     |   9 | 0.4.8-rc.1 |         (2nd release to MFG for Photon) |
 |     |  10 | 0.4.8-rc.6 |         (Electron MFG Release) |
-|     |  11 | 0.4.9 | |
+|   7 |  11 | 0.4.9 | |
 |     |  12 | 0.5.0-rc.1 |         (Core, Photon, P1, Electron) |
 |     |  13 | 0.5.0-rc.2 / 0.5.0 | (Core, Photon, P1, Electron) |
 |     |  14 | 0.5.1-rc.1 |         (Core, Photon, P1, Electron) |
@@ -27,7 +27,7 @@
 |     | 100 | 0.6.0-rc.1 |         (Core, Photon, P1, Electron) |
 |     | 101 | 0.6.0-rc.2 |         (Core, Photon, P1, Electron) |
 |     | 102 | 0.6.0 |              (Core, Photon, P1, Electron) |
-|     | 103 | 0.6.1-rc.1 |         (Core, Photon, P1, Electron) |
+|   9 | 103 | 0.6.1-rc.1 |         (Core, Photon, P1, Electron) |
 |     | 104 | 0.6.1-rc.2 |         (Core, Photon, P1, Electron) |
 |     | 105 | 0.6.1 |              (Core, Photon, P1, Electron) |
 |     | 106 | 0.6.2-rc.1 |         (Core, Photon, P1, Electron) |
@@ -36,6 +36,9 @@
 | 100 | 200 | 0.7.0-rc.1 |         (Core, Photon, P1, Electron) |
 | 100 | 201 | 0.7.0-rc.2 |         (Core, Photon, P1, Electron) |
 | 100 | 202 | 0.7.0-rc.3 |         (Core, Photon, P1, Electron) |
+| 100 | 203 | 0.7.0-rc.4 |         (Core, Photon, P1, Electron) |
+| 101 | 204 | 0.7.0-rc.5 |         (Core, Photon, P1, Electron) |
+| 101 | 205 | 0.7.0-rc.6 |         (Core, Photon, P1, Electron) |
 
 To find out the release version of system firmware currently installed, in listening mode,
 connect to serial and send `v` to print the release version string.
