@@ -76,10 +76,10 @@ uint8_t ValveController::getAction() const {
 }
 
 void ValveController::setActive(bool active, int8_t priority){
-    if(active && getState() != VALVE_OPENED ){
+    if(active){
         open();
     }
-    else if (!active && getState() != VALVE_CLOSED){
+    else {
         close();
     }
 }
