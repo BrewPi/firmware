@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import 'nanopb.proto';
+
+package blox;
+
+message OneWireTempSensor{
+  message Settings {
+    fixed64 address = 1;
+    sint32 offset = 2 [(nanopb).int_size = IS_16];
+  }
+  message State {
+    sint32 value = 1  [(nanopb).int_size = IS_16];
+    bool connected = 2;
+  }
+}

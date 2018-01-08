@@ -42,7 +42,7 @@ SCENARIO("Encoding a message and encoding a SetPointSimple settings struct direc
         setting.setRaw(123);
         setpoint.write(setting);
 
-        blox_SetPointSimple message;
+        blox_SetPointSimple_Settings message;
         message.value = 123;
 
         CHECK(sizeof(setpoint.settings) == sizeof(message));
@@ -53,13 +53,13 @@ SCENARIO("Encoding a message and encoding a SetPointSimple settings struct direc
             bool status;
             uint8_t buffer1[100];
             pb_ostream_t stream1 = pb_ostream_from_buffer(buffer1, sizeof(buffer1));
-            status = pb_encode_delimited(&stream1, blox_SetPointSimple_fields, setpoint.settingsPtr());
+            status = pb_encode_delimited(&stream1, blox_SetPointSimple_Settings_fields, setpoint.settingsPtr());
             size_t message_length1 = stream1.bytes_written;
             CHECK(status);
 
             uint8_t buffer2[100];
             pb_ostream_t stream2 = pb_ostream_from_buffer(buffer2, sizeof(buffer2));
-            status = pb_encode_delimited(&stream2, blox_SetPointSimple_fields, &message);
+            status = pb_encode_delimited(&stream2, blox_SetPointSimple_Settings_fields, &message);
             size_t message_length2 = stream2.bytes_written;
             CHECK(status);
 
@@ -100,11 +100,11 @@ SCENARIO("Encode and decode SetPointSimple settings to protobuf")
             /* The SetPointSimple settings can be directly encoded to the stream.
              * This is because the message definition struct matches the SetPointSimple settings struct 1:1.
              */
-            status = pb_encode_delimited(&stream, blox_SetPointSimple_fields, original.settingsPtr());
+            status = pb_encode_delimited(&stream, blox_SetPointSimple_Settings_fields, original.settingsPtr());
             message_length = stream.bytes_written;
 
             THEN("size is smaller than or equal to maximum size"){
-                CHECK(message_length <= blox_SetPointSimple_size);
+                CHECK(message_length <= blox_SetPointSimple_Settings_size);
             }
 
             THEN("no errors occur"){
@@ -133,7 +133,7 @@ SCENARIO("Encode and decode SetPointSimple settings to protobuf")
                 pb_istream_t stream = pb_istream_from_buffer(&buffer[1], receive_length);
 
                 /* Now we are ready to decode the message. */
-                status = pb_decode_delimited(&stream, blox_SetPointSimple_fields, round_trip.settingsPtr());
+                status = pb_decode_delimited(&stream, blox_SetPointSimple_Settings_fields, round_trip.settingsPtr());
 
                 THEN("no errors occur"){
                     if (!status)

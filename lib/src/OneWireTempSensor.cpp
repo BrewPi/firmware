@@ -32,7 +32,7 @@ OneWireTempSensor::~OneWireTempSensor() {
 
 /**
  * Initializes the temperature sensor.
- * This method is called when the sensor is first created and also any time the sensor reports it's disconnected.
+ * This method is called when the sensor is first created and also any time the sensor reports it's disstate.connected.
  * If the result is TEMP_SENSOR_DISCONNECTED then subsequent calls to read() will also return TEMP_SENSOR_DISCONNECTED.
  * Clients should attempt to re-initialize the sensor by calling init() again. 
  */
@@ -40,7 +40,7 @@ bool OneWireTempSensor::init() {
 
     // save address and pinNr for log messages
     char addressString[17];
-    printBytes(sensorAddress, 8, addressString);
+    printBytes(settings.sensorAddress, 8, addressString);
 
     bool success = false;
 
@@ -52,23 +52,23 @@ bool OneWireTempSensor::init() {
     }
 
     logDebug("init onewire sensor");
-    // This quickly tests if the sensor is connected and initializes the reset detection if necessary.
+    // This quickly tests if the sensor is state.connected and initializes the reset detection if necessary.
     if (sensor){
         // If this is the first conversion after power on, the device will return DEVICE_DISCONNECTED_RAW
         // Because HIGH_ALARM_TEMP will be copied from EEPROM
-        int16_t temp = sensor->getTempRaw(sensorAddress);
+        int16_t temp = sensor->getTempRaw(settings.sensorAddress);
         if(temp == DEVICE_DISCONNECTED_RAW){
             // Device was just powered on and should be initialized
-            if(sensor->initConnection(sensorAddress)){
+            if(sensor->initConnection(settings.sensorAddress)){
                 requestConversion();
                 waitForConversion();
-                temp = sensor->getTempRaw(sensorAddress);            
+                temp = sensor->getTempRaw(settings.sensorAddress);
             }
         }        
         DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, oneWire->pinNr(), addressString, temp));
         success = temp != DEVICE_DISCONNECTED_RAW;
         if(success){
-        		cachedValue = temp;
+        		state.cachedValue = temp;
             requestConversion(); // piggyback request for a new conversion
         }
     }
@@ -78,16 +78,16 @@ bool OneWireTempSensor::init() {
 }
 
 void OneWireTempSensor::requestConversion() {
-    sensor->requestTemperaturesByAddress(sensorAddress);
+    sensor->requestTemperaturesByAddress(settings.sensorAddress);
 }
 
 void OneWireTempSensor::setConnected(bool connected) {
-    if (this->connected == connected)
+    if (state.connected == connected)
         return; // state is stays the same
 
     char addressString[17];
-    printBytes(sensorAddress, 8, addressString);
-    this->connected = connected;
+    printBytes(settings.sensorAddress, 8, addressString);
+    state.connected = connected;
     if (connected) {
         logInfoIntString(INFO_TEMP_SENSOR_CONNECTED, this->oneWire->pinNr(), addressString);
     } else {
@@ -97,14 +97,14 @@ void OneWireTempSensor::setConnected(bool connected) {
 
 temp_t OneWireTempSensor::read() const {
 
-    if (!connected)
+    if (!state.connected)
         return TEMP_SENSOR_DISCONNECTED;
 
-    return cachedValue;
+    return state.cachedValue;
 }
 
 void OneWireTempSensor::update(){
-    cachedValue = readAndConstrainTemp();
+    state.cachedValue = readAndConstrainTemp();
     requestConversion();
 }
 
@@ -112,13 +112,13 @@ temp_t OneWireTempSensor::readAndConstrainTemp() {
     int16_t tempRaw;
     bool success;
 
-    tempRaw = sensor->getTempRaw(sensorAddress);
+    tempRaw = sensor->getTempRaw(settings.sensorAddress);
     success = tempRaw != DEVICE_DISCONNECTED_RAW;
 
     if (!success){
         // retry re-init once
         if(init()){
-            tempRaw = sensor->getTempRaw(sensorAddress);
+            tempRaw = sensor->getTempRaw(settings.sensorAddress);
             success = tempRaw != DEVICE_DISCONNECTED_RAW;
         }
     }
@@ -132,5 +132,5 @@ temp_t OneWireTempSensor::readAndConstrainTemp() {
     const uint8_t shift = temp_t::fractional_bit_count - ONEWIRE_TEMP_SENSOR_PRECISION; // difference in precision between DS18B20 format and temperature adt
     temp_t temp;
     temp.setRaw(tempRaw << shift);
-    return temp + calibrationOffset;
+    return temp + settings.calibrationOffset;
 }

@@ -21,34 +21,34 @@
 #include <cstdio>
 
 #include "Values.h"
-#include "SetPointSimpleCbox.h"
+#include "SetPointSimpleBloc.h"
 #include "Commands.h"
 
 
-SCENARIO("A Cbox SetPointSimple object can be created from streamed protobuf data"){
+SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf data"){
     GIVEN("a protobuf message defining a SetPointSimple object"){
-        blox_SetPointSimple message;
+        blox_SetPointSimple_Settings message;
         message.value = 123;
 
         WHEN("it is encoded to a buffer"){
             uint8_t buf[100];
             pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
-            bool status = pb_encode_delimited(&stream, blox_SetPointSimple_fields, &message);
+            bool status = pb_encode_delimited(&stream, blox_SetPointSimple_Settings_fields, &message);
             CHECK(status);
 
             AND_WHEN("we create a DataIn object form that buffer"){
                 BufferDataIn in(buf);
 
-                THEN("a newly created cbox SetPointSimple object can receive settings from the DataIn stream")
+                THEN("a newly created SetPointSimpleBloc object can receive settings from the DataIn stream")
                 {
-                    SetPointSimpleCbox sp;
+                    SetPointSimpleBloc sp;
                     sp.writeMaskedFrom(in, in); // use in as mask too, it is not used.
                     temp_t setting = sp.get().read();
                     temp_t valid;
                     valid.setRaw(123);
                     CHECK(setting == valid);
 
-                    AND_THEN("we can stream that cbox object to a DataOut stream")
+                    AND_THEN("we can stream that bloc object to a DataOut stream")
                     {
                         // change the value for a round trip test
                         sp.get().write(21.0);
@@ -70,19 +70,19 @@ SCENARIO("A Cbox SetPointSimple object can be created from streamed protobuf dat
     }
 }
 
-SCENARIO("Create cbox SetPointSimple application object from definition"){
+SCENARIO("Create blox SetPointSimple application object from definition"){
     GIVEN("A BrewBlox SetPointSimple definition")
     {
         bool status;
-        blox_SetPointSimple settings = {123};
+        blox_SetPointSimple_Settings settings = {123};
 
         uint8_t buffer1[100];
         pb_ostream_t stream1 = pb_ostream_from_buffer(buffer1, sizeof(buffer1));
-        status = pb_encode_delimited(&stream1, blox_SetPointSimple_fields, &settings);
+        status = pb_encode_delimited(&stream1, blox_SetPointSimple_Settings_fields, &settings);
         CHECK(status);
 
         BufferDataIn in(buffer1);
-        uint8_t len = SetPointSimpleCbox::maxSize();
+        uint8_t len = SetPointSimpleBloc::settingsMaxSize();
         uint8_t typeId = 7;
 
         ObjectDefinition dfn = {&in, len, typeId};

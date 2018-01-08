@@ -1,4 +1,6 @@
 #pragma once
+
+
 #include "Values.h"
 #include "OneWire.h"
 #include "OneWireBusCBox.h"
@@ -62,3 +64,4 @@ public:
 		return new_object(OneWireTempSensorCBox(oneWireBus.oneWire(), address, offset));
 	}
 };
+

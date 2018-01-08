@@ -29,8 +29,8 @@
 
 #include "PersistChangeValue.h"
 #include "OneWireBusCBox.h"
-#include "OneWireTempSensorCbox.h"
-#include "SetPointSimpleCbox.h"
+#include "OneWireTempSensorBloc.h"
+#include "SetPointSimpleBloc.h"
 
 
 OneWireBusCBox oneWireBus;
@@ -47,8 +47,8 @@ Commands::ObjectFactory createObjectHandlers[] = {
     EepromValue::create,                                    // type 3
     PersistChangeValue::create,                             // type 4
     IndirectValue::create,                                  // type 5
-    OneWireTempSensorCBox::create,                          // type 6
-    SetPointSimpleCbox::create,                             // type 7
+    OneWireTempSensorBloc::create,                          // type 6
+    SetPointSimpleBloc::create,                             // type 7
     NULL
 
     // When defining a new object type, add the handler above the last NULL value (it's just there to make
