@@ -40,6 +40,7 @@
 #define READTO_IMPL_SETTINGS_AND_STATE(T) \
     do { \
         const size_t maxSize = settingsMaxSize() + blox_ ## T ## _State_size + 1; \
+        static_assert(blox_ ## T ## _State_size < 128, "varint for state size will be larger than 1 byte"); \
         pb_ostream_t stream = { &dataOutStreamCallback, &out, maxSize, 0 };\
         pb_encode_delimited(&stream, blox_ ## T ## _Settings_fields, wrapped.settingsPtr());\
         pb_encode_delimited(&stream, blox_ ## T ## _State_fields, wrapped.statePtr());\
@@ -56,6 +57,7 @@ public:\
     {} \
  \
     static const size_t settingsMaxSize(){ \
+        static_assert(blox_ ## T ## _Settings_size < 128, "varint for settings size will be larger than 1 byte"); \
         return blox_ ## T ## _Settings_size + 1; \
     } \
     virtual uint8_t readStreamSize() override final {\
