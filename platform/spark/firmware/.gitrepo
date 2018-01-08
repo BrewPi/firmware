@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/spark/firmware.git
+	branch = release/v0.7.0-rc.6
+	commit = 988279be981de213f1b802198ebff439c42c46fa
+	parent = 9de32b5a42914c31052307b084a1929eaa408372
+	cmdver = 0.3.1

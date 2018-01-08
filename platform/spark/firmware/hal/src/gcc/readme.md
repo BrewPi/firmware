@@ -27,7 +27,7 @@ Then build the boost libraries
 ```
 cd %BOOST_ROOT%
 bootstrap.bat gcc
-bjam -n -a --install --layout=tagged --with-system --with-program_options --with-random --with-thread toolset=gcc
+bjam --install --layout=tagged --with-system --with-program_options --with-random --with-thread toolset=gcc
 ```
 
 ## Building the Virtual Device

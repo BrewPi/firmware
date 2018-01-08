@@ -271,6 +271,8 @@ void ValveControllerMixin::serializeImpl(JSON::Adapter & adapter)
     JSON::Class root(adapter, "ValveController");
     JSON_OE(adapter, output);
     uint8_t state = obj->read(false);
+    bool connected = obj->device->isConnected();
+    JSON_E(adapter, connected);
     JSON_T(adapter, state);
 #endif
 }

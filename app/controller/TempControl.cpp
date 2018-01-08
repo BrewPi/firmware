@@ -36,31 +36,31 @@
 
 TempControl tempControl;
 
-ControlConstants const ccDefaults PROGMEM =
+ControlConstants const ccDefaults =
 {
     // Do Not change the order of these initializations!
     'C', // tempFormat
-    10.0, // heater1_kp
-    600, // heater1_ti
+    30.0, // heater1_kp
+    1800, // heater1_ti
     60, // heater1_td
     1, // heater1_infilt
     4, // heater1_dfilt
-    10.0, // heater2_kp
-    600, // heater2_ti
+    30.0, // heater2_kp
+    1800, // heater2_ti
     60, // heater2_td
     1, // heater2_infilt
     4, // heater2_dfilt
-    10.0, // cooler_kp
-    1800, // cooler_ti
-    200, // cooler_td
+    20.0, // cooler_kp
+    3600, // cooler_ti
+    300, // cooler_td
     1, // cooler_infilt
     4, // cooler_dfilt
-    2.0, // beer2fridge_kp
-    7200, // beer2fridge_ti
-    1200, // beer2fridge_td
+    5.0, // beer2fridge_kp
+    10800, // beer2fridge_ti
+    600, // beer2fridge_td
     1, // beer2fridge_infilt
     4, // beer2fridge_dfilt
-    10.0, // beer2fridge_pidMax
+    6.0, // beer2fridge_pidMax
     120, // minCoolTime
     180, // minCoolIdleTime
     4, // heater1PwmPeriod
@@ -71,7 +71,9 @@ ControlConstants const ccDefaults PROGMEM =
 
 TempControl::TempControl()
 {
-    lastHeatTime = 0;
+    // set to -1800 so that at boot, the controller does not think it is in PWM idle period
+    lastHeatTime = -1800;
+
     lastCoolTime = 0;
     lastIdleTime = 0;
 };
@@ -139,7 +141,7 @@ void TempControl::loadSettings(eptr_t offset)
 
 void TempControl::loadDefaultConstants(void)
 {
-    memcpy_P((void *) &tempControl.cc, (void *) &ccDefaults, sizeof(ControlConstants));
+    memcpy((void *) &tempControl.cc, (void *) &ccDefaults, sizeof(ControlConstants));
     updateConstants();
 }
 

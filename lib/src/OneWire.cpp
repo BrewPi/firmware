@@ -320,7 +320,7 @@ uint8_t OneWire::search(uint8_t *newAddr) {
 #if ONEWIRE_CRC8_TABLE
 // This table comes from Dallas sample code where it is freely reusable,
 // though Copyright (C) 2000 Dallas Semiconductor Corporation
-static const uint8_t PROGMEM dscrc_table[] = {
+static const uint8_t dscrc_table[] = {
     0, 94, 188, 226, 97, 63, 221, 131, 194, 156, 126, 32, 163, 253, 31, 65,
     157, 195, 33, 127, 252, 162, 64, 30, 95, 1, 227, 189, 62, 96, 130, 220,
     35, 125, 159, 193, 66, 28, 254, 160, 225, 191, 93, 3, 128, 222, 60, 98,
@@ -351,7 +351,7 @@ uint8_t OneWire::crc8(const uint8_t *addr, uint8_t len) {
     uint8_t crc = 0;
 
     while (len--) {
-        crc = pgm_read_byte(dscrc_table + (crc ^ *addr++));
+        crc = *(dscrc_table + (crc ^ *addr++));
     }
     return crc;
 }

@@ -45,15 +45,21 @@
 #include "usb_hal.h"
 #include "system_mode.h"
 #include "rgbled.h"
-#include "ledcontrol.h"
+#include "led_service.h"
 #include "spark_wiring_power.h"
 #include "spark_wiring_fuel.h"
 #include "spark_wiring_interrupts.h"
 #include "spark_wiring_cellular.h"
 #include "spark_wiring_cellular_printable.h"
-#include "system_rgbled.h"
+#include "spark_wiring_led.h"
+
+#if PLATFORM_ID == 3
+// Application loop uses std::this_thread::sleep_for() to workaround 100% CPU usage on the GCC platform
+#include <thread>
+#endif
 
 using namespace spark;
+using namespace particle;
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -84,18 +90,7 @@ inline void CLR_BUTTON_TIMEOUT() {
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
-static volatile uint32_t TimingLED;
 static volatile uint32_t TimingIWDGReload;
-
-/**
- * When non-zero, causes the system to play out a count on the LED.
- * For even values, the system displays a bright color for a short period,
- * while for odd values the system displays a dim color for a longer period.
- * The value is then decremented and the process repeated until 0.
- */
-static volatile uint8_t SYSTEM_LED_COUNT;
-
-RGBLEDState led_state;
 
 /**
  * KNowing the current listen mode isn't sufficient to determine the correct action (since that may or may not have changed)
@@ -105,7 +100,7 @@ static volatile bool wasListeningOnButtonPress;
 /**
  * The lower 16-bits of the time when the button was first pressed.
  */
-static volatile uint16_t pressed_time;
+static volatile uint16_t pressed_time = 0;
 
 uint16_t system_button_pushed_duration(uint8_t button, void*)
 {
@@ -115,28 +110,85 @@ uint16_t system_button_pushed_duration(uint8_t button, void*)
 }
 
 static volatile uint8_t button_final_clicks = 0;
-static uint8_t button_current_clicks = 0;
+static volatile uint8_t button_current_clicks = 0;
 
 #if Wiring_SetupButtonUX
-void system_prepare_display_bars()
-{
-	led_state.save();
-	LED_Signaling_Stop();
-	SYSTEM_LED_COUNT = 255;
-	TimingLED = 0;	// todo - should use a mutex around these shared vars
-}
 
-void system_display_bars(int bars)
-{
-    if (bars>=0)
-    {
-		SYSTEM_LED_COUNT = ((bars<<1)+2) | 128;
+namespace {
+
+// LED status blinking specified number of times
+class LEDCounterStatus: public LEDStatus {
+public:
+    explicit LEDCounterStatus(LEDPriority priority) :
+            LEDStatus(LED_PATTERN_CUSTOM, priority) {
     }
-    else
-    {
-    		SYSTEM_LED_COUNT = 1;
+
+    void start(uint8_t count) {
+        setActive(false);
+        count_ = count;
+        delay(); // Delay before blinking
+        setActive(true);
     }
-}
+
+protected:
+    virtual void update(system_tick_t t) override {
+        if (t >= ticks_) {
+            // Change state
+            switch (state_) {
+            case DELAY:
+                if (count_ > 0) {
+                    on(); // Turn LED on
+                } else {
+                    setActive(false); // Stop indication
+                }
+                break;
+            case ON:
+                if (--count_ > 0) {
+                    off(); // Turn LED off
+                } else {
+                    delay(); // Delay after blinking
+                }
+                break;
+            case OFF:
+                on();
+                break;
+            }
+        } else {
+            ticks_ -= t; // Update timing
+        }
+    }
+
+private:
+    enum State {
+        ON,
+        OFF,
+        DELAY
+    };
+
+    State state_;
+    uint16_t ticks_;
+    uint8_t count_;
+
+    void on() {
+        state_ = ON;
+        ticks_ = 50;
+        setColor(0x0000ff00); // Light green
+    }
+
+    void off() {
+        state_ = OFF;
+        ticks_ = 350;
+        setColor(0x00000a00); // Dark green
+    }
+
+    void delay() {
+        state_ = DELAY;
+        ticks_ = 750;
+        setColor(0x00000a00); // Dark green
+    }
+};
+
+} // namespace
 
 /* displays RSSI value on system LED */
 void system_display_rssi() {
@@ -148,7 +200,6 @@ void system_display_rssi() {
      *   4: < - 57 dBm
      *   5: >= -57 dBm
      */
-    system_prepare_display_bars();
     int rssi = 0;
     int bars = 0;
 #if Wiring_WiFi == 1
@@ -166,25 +217,36 @@ void system_display_rssi() {
     }
     DEBUG("RSSI: %ddB BARS: %d\r\n", rssi, bars);
 
-    system_display_bars(bars);
+    static LEDCounterStatus ledCounter(LED_PRIORITY_IMPORTANT);
+    ledCounter.start(bars);
 }
 
-void system_handle_button_click()
+void system_power_off() {
+    LED_SIGNAL_START(POWER_OFF, CRITICAL);
+    SYSTEM_POWEROFF = 1;
+    cancel_connection(); // Unblock the system thread
+}
+
+void system_handle_button_clicks(bool isIsr)
 {
-    const uint8_t clicks = button_final_clicks;
-    button_final_clicks = 0;
-    switch (clicks) {
-    case 1: // Single click
+    switch (button_final_clicks) {
+    case 1: { // Single click
+        if (isIsr) {
+            return; // The event will be processed in the system loop
+        }
         system_display_rssi();
         break;
-    case 2: // Double click
-        SYSTEM_POWEROFF = 1;
-        network.connect_cancel(true);
+    }
+    case 2: { // Double click
+        system_power_off();
         break;
+    }
     default:
         break;
     }
+    button_final_clicks = 0;
 }
+
 #endif // #if Wiring_SetupButtonUX
 
 void reset_button_click()
@@ -195,6 +257,10 @@ void reset_button_click()
     if (clicks > 0) {
         system_notify_event(button_final_click, clicks);
         button_final_clicks = clicks;
+#if Wiring_SetupButtonUX
+        // Certain numbers of clicks can be processed directly in ISR
+        system_handle_button_clicks(HAL_IsISR());
+#endif
     }
 }
 
@@ -221,7 +287,11 @@ void handle_button_click(uint16_t depressed_duration)
 // this is called on multiple threads - ideally need a mutex
 void HAL_Notify_Button_State(uint8_t button, uint8_t pressed)
 {
+#ifdef BUTTON1_MIRROR_SUPPORTED
+    if (button==0 || button == BUTTON1_MIRROR)
+#else
     if (button==0)
+#endif
     {
         if (pressed)
         {
@@ -232,7 +302,7 @@ void HAL_Notify_Button_State(uint8_t button, uint8_t pressed)
                 system_notify_event(button_status, 0);
             }
         }
-        else
+        else if (pressed_time > 0)
         {
             int release_time = HAL_Timer_Get_Milli_Seconds();
             uint16_t depressed_duration = release_time - pressed_time;
@@ -242,8 +312,9 @@ void HAL_Notify_Button_State(uint8_t button, uint8_t pressed)
                 handle_button_click(depressed_duration);
             }
             pressed_time = 0;
-            if (depressed_duration>3000 && depressed_duration<8000 && wasListeningOnButtonPress && network.listening())
+            if (depressed_duration>3000 && depressed_duration<8000 && wasListeningOnButtonPress && network.listening()) {
                 network.listen(true);
+            }
         }
     }
 }
@@ -292,16 +363,28 @@ void system_power_management_update()
         power.begin();
         power.setInputCurrentLimit(900);     // 900mA
         power.setChargeCurrent(0,0,0,0,0,0); // 512mA
+        static bool lowBattEventNotified = false; // Whether 'low_battery' event was generated already
+        static bool wasCharging = false; // Whether the battery was charging last time when this function was called
+        const uint8_t status = power.getSystemStatus();
+        const bool charging = (status >> 4) & 0x03;
+        if (charging && !wasCharging) { // Check if the battery has started to charge
+            lowBattEventNotified = false; // Allow 'low_battery' event to be generated again
+        }
+        wasCharging = charging;
         FuelGauge fuel;
         bool LOWBATT = fuel.getAlert();
         if (LOWBATT) {
             fuel.clearAlert(); // Clear the Low Battery Alert flag if set
+            if (!lowBattEventNotified) {
+                lowBattEventNotified = true;
+                system_notify_event(low_battery);
+            }
         }
-//        if (LOG_LEVEL_ACTIVE(INFO_LEVEL)) {
+//        if (LOG_ENABLED(INFO)) {
 //        		INFO(" %s", (LOWBATT)?"Low Battery Alert":"PMIC Interrupt");
 //        }
 #if defined(DEBUG_BUILD) && 0
-        if (LOG_LEVEL_ACTIVE(DEBUG_LEVEL)) {
+        if (LOG_ENABLED(TRACE)) {
 			uint8_t stat = power.getSystemStatus();
 			uint8_t fault = power.getFault();
 			uint8_t vbus_stat = stat >> 6; // 0 – Unknown (no input, or DPDM detection incomplete), 1 – USB host, 2 – Adapter port, 3 – OTG
@@ -324,11 +407,6 @@ void system_power_management_update()
 }
 #endif
 
-inline bool system_led_override()
-{
-	return SYSTEM_LED_COUNT;
-}
-
 /*******************************************************************************
  * Function Name  : HAL_SysTick_Handler
  * Description    : Decrements the various Timing variables related to SysTick.
@@ -339,84 +417,22 @@ inline bool system_led_override()
  *******************************/
 extern "C" void HAL_SysTick_Handler(void)
 {
-    if (LED_RGB_IsOverRidden() && !system_led_override())
-    {
-#ifndef SPARK_NO_CLOUD
-        if (LED_Spark_Signal != 0)
-        {
-            LED_Signaling_Override();
-        }
-#endif
+    // Update LED color
+    static const uint16_t LED_UPDATE_INTERVAL = 25; // Milliseconds
+    static uint16_t ledUpdateTicks = LED_UPDATE_INTERVAL;
+
+    if (--ledUpdateTicks == 0) {
+        led_update(LED_UPDATE_INTERVAL, nullptr, nullptr);
+        ledUpdateTicks = LED_UPDATE_INTERVAL;
     }
-    else if (TimingLED != 0x00)
-    {
-        TimingLED--;
-    }
-    else if(SPARK_FLASH_UPDATE || Spark_Error_Count || network.listening())
-    {
-        //Do nothing
-    }
-    else if (SYSTEM_POWEROFF)
-    {
-        LED_SetRGBColor(RGB_COLOR_GREY);
-        LED_On(LED_RGB);
-    }
-    else if (SYSTEM_LED_COUNT)
-    {
-		SPARK_LED_FADE = 0;
-		if (SYSTEM_LED_COUNT==255)
-		{
-			// hold the LED on this color until the actual number of bars is set
-  			LED_SetRGBColor(0<<16 | 10<<8 | 0);
-    	        LED_On(LED_RGB);
-    			TimingLED = 100;
-		}
-		else if (SYSTEM_LED_COUNT & 128)
-		{
-			LED_SetRGBColor(0<<16 | 10<<8 | 0);
-			LED_On(LED_RGB);
-			TimingLED = 1000;
-			SYSTEM_LED_COUNT &= ~128;
-		}
-		else
-		{
-			--SYSTEM_LED_COUNT;
-			if (SYSTEM_LED_COUNT==0)
-			{
-				led_state.restore();
-			}
-			else if (!(SYSTEM_LED_COUNT&1))
-			{
-				LED_SetRGBColor(0<<16 | 255<<8 | 0);
-				LED_On(LED_RGB);
-				TimingLED = 40;
-			}
-			else
-			{
-				LED_SetRGBColor(0<<16 | 10<<8 | 0);
-				LED_On(LED_RGB);
-				TimingLED = SYSTEM_LED_COUNT==1 ? 750 : 350;
-			}
-		}
-    }
-    else if(SPARK_LED_FADE && (!SPARK_CLOUD_CONNECTED || system_cloud_active()))
-    {
-        LED_Fade(LED_RGB);
-        TimingLED = 20;//Breathing frequency kept constant
-    }
-    else if(SPARK_CLOUD_CONNECTED)
-    {
-        LED_SetRGBColor(system_mode()==SAFE_MODE ? RGB_COLOR_MAGENTA : RGB_COLOR_CYAN);
-        LED_On(LED_RGB);
-        SPARK_LED_FADE = 1;
-    }
-    else
-    {
-        LED_Toggle(LED_RGB);
-        if(SPARK_CLOUD_SOCKETED || ( network.connected() && !network.ready()))
-            TimingLED = 50;         //50ms
-        else
-            TimingLED = 100;        //100ms
+
+    // Check cloud inactivity timeout
+    static const uint16_t CLOUD_CHECK_INTERVAL = 1000; // Milliseconds
+    static uint16_t cloudCheckTicks = CLOUD_CHECK_INTERVAL;
+
+    if (--cloudCheckTicks == 0) {
+        system_cloud_active();
+        cloudCheckTicks = CLOUD_CHECK_INTERVAL;
     }
 
     if(SPARK_FLASH_UPDATE)
@@ -425,7 +441,7 @@ extern "C" void HAL_SysTick_Handler(void)
         if (TimingFlashUpdateTimeout >= TIMING_FLASH_UPDATE_TIMEOUT)
         {
             //Reset is the only way now to recover from stuck OTA update
-            HAL_Core_System_Reset();
+            HAL_Core_System_Reset_Ex(RESET_REASON_UPDATE_TIMEOUT, 0, nullptr);
         }
         else
         {
@@ -440,7 +456,7 @@ extern "C" void HAL_SysTick_Handler(void)
     // determine if the button press needs to change the state (and hasn't done so already))
     else if(!network.listening() && HAL_Core_Mode_Button_Pressed(3000) && !wasListeningOnButtonPress)
     {
-        network.connect_cancel(true);
+        cancel_connection(); // Unblock the system thread
         // fire the button event to the user, then enter listening mode (so no more button notifications are sent)
         // there's a race condition here - the HAL_notify_button_state function should
         // be thread safe, but currently isn't.
@@ -482,8 +498,6 @@ void manage_safe_mode()
             system_get_flag(SYSTEM_FLAG_STARTUP_SAFE_LISTEN_MODE, &value, nullptr);
             if (value)
             {
-                // disable logging so that it doesn't interfere with serial output
-                set_logger_output(nullptr, NO_LOG_LEVEL);
                 system_set_flag(SYSTEM_FLAG_STARTUP_SAFE_LISTEN_MODE, 0, 0);
                 // flag listening mode
                 network_listen(0, 0, 0);
@@ -510,7 +524,7 @@ void app_loop(bool threaded)
                 if (system_mode()!=SAFE_MODE)
                  setup();
                 SPARK_WIRING_APPLICATION = 1;
-#if !MODULAR_FIRMWARE
+#if !(defined(MODULAR_FIRMWARE) && MODULAR_FIRMWARE)
                 _post_loop();
 #endif
             }
@@ -520,7 +534,7 @@ void app_loop(bool threaded)
             if (system_mode()!=SAFE_MODE) {
                 loop();
                 DECLARE_SYS_HEALTH(RAN_Loop);
-#if !MODULAR_FIRMWARE
+#if !(defined(MODULAR_FIRMWARE) && MODULAR_FIRMWARE)
                 _post_loop();
 #endif
 #if Wiring_Cellular == 1
@@ -529,6 +543,15 @@ void app_loop(bool threaded)
             }
         }
     }
+#if PLATFORM_ID == 3 && SUSPEND_APPLICATION_THREAD_LOOP_COUNT
+    // Suspend thread execution for some minimum time on every Nth loop iteration in order to workaround
+    // 100% CPU usage on the virtual device platform
+    static uint32_t loops = 0;
+    if (++loops >= SUSPEND_APPLICATION_THREAD_LOOP_COUNT) {
+        loops = 0;
+        std::this_thread::sleep_for(std::chrono::nanoseconds(1));
+    }
+#endif // PLATFORM_ID == 3
 }
 
 
@@ -558,6 +581,56 @@ void system_part2_post_init()
 {
 }
 
+namespace {
+
+// LED status shown during device key generation
+class LEDDeviceKeyStatus: public LEDStatus {
+public:
+    explicit LEDDeviceKeyStatus(LEDPriority priority) :
+            LEDStatus(LED_PATTERN_BLINK, priority) {
+    }
+
+    void setActive(bool active) {
+        if (active) {
+            // Get base color used for the "network off" indication
+            const LEDStatusData* s = led_signal_status(LED_SIGNAL_NETWORK_OFF, nullptr);
+            setColor(s ? s->color : RGB_COLOR_WHITE);
+        }
+        LEDStatus::setActive(active);
+    }
+};
+
+// Handler for HAL events
+class HALEventHandler {
+public:
+    HALEventHandler() {
+        HAL_Set_Event_Callback(handleEvent, nullptr); // Register callback
+    }
+
+private:
+    static void handleEvent(int event, int flags, void* data) {
+        switch (event) {
+        case HAL_EVENT_GENERATE_DEVICE_KEY: {
+            static LEDDeviceKeyStatus status(LED_PRIORITY_IMPORTANT);
+            if (flags & HAL_EVENT_FLAG_START) {
+                status.setActive(true);
+            } else if (flags & HAL_EVENT_FLAG_STOP) {
+                status.setActive(false);
+            }
+            break;
+        }
+        default:
+            break;
+        }
+    }
+};
+
+// Certain HAL events can be generated before app_setup_and_loop() is called. Using constructor of a
+// global variable allows to register a handler for HAL events early
+HALEventHandler halEventHandler;
+
+} // namespace
+
 /*******************************************************************************
  * Function Name  : main.
  * Description    : main routine.
@@ -569,8 +642,11 @@ void app_setup_and_loop(void)
 {
     system_part2_post_init();
     HAL_Core_Init();
+    main_thread_current(NULL);
     // We have running firmware, otherwise we wouldn't have gotten here
     DECLARE_SYS_HEALTH(ENTERED_Main);
+
+    LED_SIGNAL_START(NETWORK_OFF, BACKGROUND);
 
 #if Wiring_Cellular == 1
     system_power_management_init();
@@ -580,7 +656,19 @@ void app_setup_and_loop(void)
     String s = spark_deviceID();
     INFO("Device %s started", s.c_str());
 
+    if (LOG_ENABLED(TRACE)) {
+        int reason = RESET_REASON_NONE;
+        uint32_t data = 0;
+        if (HAL_Core_Get_Last_Reset_Info(&reason, &data, nullptr) == 0 && reason != RESET_REASON_NONE) {
+            LOG(TRACE, "Last reset reason: %d (data: 0x%02x)", reason, (unsigned)data); // TODO: Use LOG_ATTR()
+        }
+    }
+
     manage_safe_mode();
+
+#if defined(USB_CDC_ENABLE) || defined(USB_HID_ENABLE)
+    HAL_USB_Init();
+#endif
 
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
     USB_USART_LineCoding_BitRate_Handler(system_lineCodingBitRateHandler);

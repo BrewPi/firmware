@@ -25,20 +25,22 @@
 
 void ValveController::update() {
     device->update();
-
     uint8_t action = getAction();
     uint8_t state = getState();
 
-    if((action == VALVE_OPENING && state == VALVE_OPENED) ||
-            (action == VALVE_CLOSING && state == VALVE_CLOSED)){
+    if(desiredAction != action){
+        write(desiredAction);
+    }
+
+    if((desiredAction == VALVE_OPENING && state == VALVE_OPENED) ||
+            (desiredAction == VALVE_CLOSING && state == VALVE_CLOSED)){
         // fully opened/closed. Stop driving the valve
         idle();
     }
 }
 
-
 void ValveController::write(uint8_t action) {
-    update();
+    desiredAction = action;
     uint8_t latch = device->getLatchCache();
     action = action & 0b11; // make sure action only has lower 2 bits non-zero
 
@@ -52,6 +54,62 @@ void ValveController::write(uint8_t action) {
     }
     latch |= 0b00110011; // make sure latch of input stays off at all times
     device->writeLatches(latch);
+}
+
+uint8_t ValveController::getState() const {
+    if(!device->isConnected()){
+        return VALVE_ERROR;
+    }
+    uint8_t states = device->readPios(true);
+    if(output == 0){
+        states = states >> 4;
+    }
+    return states & 0b11;
+}
+
+uint8_t ValveController::getAction() const {
+    uint8_t latches = device->readLatches(true);
+    if(output == 0){ // A is on upper bits
+        latches = latches >> 4;
+    }
+    return (latches >> 2) & 0b11;
+}
+
+void ValveController::setActive(bool active, int8_t priority){
+    if(active){
+        open();
+    }
+    else {
+        close();
+    }
+}
+
+bool ValveController::isActive() const {
+    if(!device->isConnected()){
+        return false;
+    }
+    if(getAction() == VALVE_OPENING){
+        return true;
+    }
+    if(getAction() == VALVE_CLOSING){
+        return false;
+    }
+    if(getState() == VALVE_OPENED){
+        return true;
+    }
+    if(getState() == VALVE_CLOSED){
+        return false;
+    }
+    // If we end up here, the valve is halfway or disconnected form the board (the feedback switches have a pullup).
+    // We're going to return false because it is most likely that the valve is not doing anything (but it might be open and not giving feedback).
+    return false;
+}
+
+uint8_t ValveController::read(bool doUpdate){
+    if(doUpdate){
+        device->update();
+    }
+    return (getAction() << 2 | getState());
 }
 
 #endif

@@ -1,2 +1,3 @@
 export USE_PRINTF_FLOAT=n
-export SPARK_CLOUD=n
+export SPARK_CLOUD=y
+export WARNINGS_AS_ERRORS=n

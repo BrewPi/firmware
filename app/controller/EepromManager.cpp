@@ -71,7 +71,7 @@ void EepromManager::initializeEeprom()
         tempControl.storeConstants(pv+offsetof(ChamberBlock, chamberSettings.cc));
         pv += offsetof(ChamberBlock, beer)+offsetof(BeerBlock, cs);
         for (uint8_t b=0; b<ChamberBlock::MAX_BEERS; b++) {
-//          logDeveloper(PSTR("EepromManager - saving settings for beer %d at %d"), b, (uint16_t)pv);
+//          logDeveloper("EepromManager - saving settings for beer %d at %d", b, (uint16_t)pv);
             tempControl.storeSettings(pv);	
             pv += sizeof(BeerBlock);		// advance to next beer
         }

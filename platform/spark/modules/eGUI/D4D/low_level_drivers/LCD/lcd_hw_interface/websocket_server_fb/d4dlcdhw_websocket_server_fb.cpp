@@ -37,7 +37,6 @@ extern "C" {
 #include "common_files/d4d_lldapi.h"     // include non public low level driver interface header file (types, function prototypes, enums etc. )
 #include "common_files/d4d_private.h"    // include the private header file that contains perprocessor macros as D4D_MK_STR
 }
-#include "application.h"
 #include "WebSocketsServer.h"
 #include <vector>
 
@@ -50,7 +49,6 @@ extern "C" {
 
 /*! @brief  Identification string of driver - must be same as name D4DLCDHWFB_FUNCTIONS structure + "_ID"
  it is used for enable the code for compilation   */
-#define d4dlcdhw_websocket_server_fb_ID 1
 
  /*! @} End of doxd4d_lcdhwfb_const                                           */
 

@@ -18,6 +18,10 @@
  */
 #pragma once
 
+#include "protocol_selector.h"
+
+#if HAL_PLATFORM_CLOUD_UDP && PARTICLE_PROTOCOL
+
 #include "service_debug.h"
 #include "device_keys.h"
 #include "message_channel.h"
@@ -73,6 +77,8 @@ public:
 		 * Restore to the given buffer. Returns the number of bytes restored.
 		 */
 		int (*restore)(void* data, size_t max_length, uint8_t type, void* reserved);
+
+		uint32_t (*calculate_crc)(const uint8_t* data, uint32_t length);
 	};
 
 private:
@@ -125,7 +131,7 @@ private:
 
 	virtual bool is_unreliable() override;
 
-	virtual ProtocolError establish() override;
+	virtual ProtocolError establish(uint32_t& flags, uint32_t app_crc) override;
 
 	/**
 	 * Retrieve first the 2 byte length from the stream, which determines
@@ -149,3 +155,5 @@ private:
 
 
 }}
+
+#endif // HAL_PLATFORM_CLOUD_UDP && PARTICLE_PROTOCOL

@@ -30,6 +30,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "pinmap_hal.h"
 #include "interrupts_irq.h"
+#include "hal_irq_flag.h"
 
 /* Exported types ------------------------------------------------------------*/
 typedef enum InterruptMode {
@@ -88,9 +89,6 @@ uint8_t HAL_Set_System_Interrupt_Handler(hal_irq_t irq, const HAL_InterruptCallb
 uint8_t HAL_Get_System_Interrupt_Handler(hal_irq_t irq, HAL_InterruptCallback* callback, void* reserved);
 void HAL_System_Interrupt_Trigger(hal_irq_t irq, void* reserved);
 
-int HAL_disable_irq();
-void HAL_enable_irq(int mask);
-
 #ifdef USE_STDPERIPH_DRIVER
 #if defined(STM32F10X_MD) || defined(STM32F10X_HD)
 #include "stm32f10x.h"
@@ -136,7 +134,7 @@ inline bool HAL_WillPreempt(int32_t irqn1, int32_t irqn2) { return false; }
 #else
 #error "*** MCU architecture not supported by HAL_IsISR(). ***"
 #endif
-#endif
+#endif // defined(USE_STDPERIPH_DRIVER)
 
 
 #ifdef __cplusplus

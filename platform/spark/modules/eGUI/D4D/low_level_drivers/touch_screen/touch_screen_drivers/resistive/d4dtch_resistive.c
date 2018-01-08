@@ -47,13 +47,7 @@
 #include "common_files/d4d_lldapi.h"     // include non public low level driver interface header file (types, function prototypes, enums etc. )
 #include "common_files/d4d_private.h"    // include the private header file that contains perprocessor macros as D4D_MK_STR
 
-
-// identification string of driver - must be same as name D4DTCH_FUNCTIONS structure + "_ID"
-// it is used for enable the code for compilation
-#define d4dtch_resistive_ID 1
-
-
-// copilation enable preprocessor condition
+// compilation enable preprocessor condition
 // the string d4dtch_resistive_ID must be replaced by define created one line up
 #if (D4D_MK_STR(D4D_LLD_TCH) == d4dtch_resistive_ID)
 

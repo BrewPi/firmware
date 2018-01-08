@@ -69,7 +69,7 @@ class ActuatorOneWire final:
 
         bool sense()
         {
-            device->writeLatchBit(pio, 0, false);
+            device->writeLatchBit(pio, false, false);
 
             // on device failure, default is high for invert, low for regular.
             return device->readLatchBit(pio, invert, false);

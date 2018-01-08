@@ -87,8 +87,6 @@
   #undef D4D_STRINGTABLE_PREFIX
   #define D4D_STRINGTABLE_PREFIX '@'
 
-  #
-
 #endif
 
 

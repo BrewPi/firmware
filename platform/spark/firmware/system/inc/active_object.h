@@ -19,12 +19,15 @@
 
 #pragma once
 
+#include <cstddef>
+
 #if PLATFORM_THREADING
 
 #include <functional>
 #include <mutex>
 #include <thread>
 #include <future>
+
 #include "channel.h"
 #include "concurrent_hal.h"
 
@@ -174,7 +177,7 @@ public:
  * A promise that executes a function and returns the function result as the future
  * value.
  */
-template<typename T> class Promise : public AbstractPromise<T, Promise<T>>
+template<typename T> class SystemPromise : public AbstractPromise<T, SystemPromise<T>>
 {
     /**
      * The result retrieved from the function.
@@ -182,7 +185,7 @@ template<typename T> class Promise : public AbstractPromise<T, Promise<T>>
      */
     T result;
 
-    using super = AbstractPromise<T, Promise<T>>;
+    using super = AbstractPromise<T, SystemPromise<T>>;
     friend typename super::task;
 
     void invoke()
@@ -192,8 +195,8 @@ template<typename T> class Promise : public AbstractPromise<T, Promise<T>>
 
 public:
 
-    Promise(const std::function<T()>& fn_) : super(fn_) {}
-    virtual ~Promise() = default;
+    SystemPromise(const std::function<T()>& fn_) : super(fn_) {}
+    virtual ~SystemPromise() = default;
 
     /**
      * wait for the result
@@ -206,11 +209,11 @@ public:
 };
 
 /**
- * Specialization of Promise that waits for execution of a function returning void.
+ * Specialization of SystemPromise that waits for execution of a function returning void.
  */
-template<> class Promise<void> : public AbstractPromise<void, Promise<void>>
+template<> class SystemPromise<void> : public AbstractPromise<void, SystemPromise<void>>
 {
-    using super = AbstractPromise<void, Promise<void>>;
+    using super = AbstractPromise<void, SystemPromise<void>>;
     friend typename super::task;
 
     inline void invoke()
@@ -220,8 +223,8 @@ template<> class Promise<void> : public AbstractPromise<void, Promise<void>>
 
 public:
 
-    Promise(const std::function<void()>& fn_) : super(fn_) {}
-    virtual ~Promise() = default;
+    SystemPromise(const std::function<void()>& fn_) : super(fn_) {}
+    virtual ~SystemPromise() = default;
 
     void get()
     {
@@ -305,9 +308,9 @@ public:
         }
 	}
 
-    template<typename R> Promise<R>* invoke_future(const std::function<R(void)>& work)
+    template<typename R> SystemPromise<R>* invoke_future(const std::function<R(void)>& work)
     {
-        auto promise = new Promise<R>(work);
+        auto promise = new SystemPromise<R>(work);
         if (promise)
         {
 			Item message = promise;
@@ -365,17 +368,17 @@ protected:
 
     virtual bool take(Item& result)
     {
-        return !os_queue_take(queue, &result, configuration.take_wait);
+        return !os_queue_take(queue, &result, configuration.take_wait, nullptr);
     }
 
     virtual bool put(Item& item)
     {
-    		return !os_queue_put(queue, &item, configuration.put_wait);
+    		return !os_queue_put(queue, &item, configuration.put_wait, nullptr);
     }
 
     void createQueue()
     {
-        os_queue_create(&queue, sizeof(Item), configuration.queue_size);
+        os_queue_create(&queue, sizeof(Item), configuration.queue_size, nullptr);
     }
 
 public:
@@ -435,4 +438,31 @@ public:
 
 
 
-#endif
+#endif // PLATFORM_THREADING
+
+/**
+ * This class implements a queue of asynchronous calls that can be scheduled from an ISR and then
+ * invoked from an event loop running in a regular thread.
+ */
+class ISRTaskQueue {
+public:
+    typedef void(*TaskFunc)(void*);
+
+    explicit ISRTaskQueue(size_t size);
+    ~ISRTaskQueue();
+
+    bool enqueue(TaskFunc func, void* data = nullptr); // Called from an ISR
+    bool process(); // Called from the primary thread
+
+private:
+    struct Task {
+        TaskFunc func;
+        void* data;
+        Task* next;
+    };
+
+    Task* tasks_;
+    Task* availTask_; // Task pool
+    Task* firstTask_; // Task queue
+    Task* lastTask_;
+};

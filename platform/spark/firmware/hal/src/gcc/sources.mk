@@ -38,13 +38,6 @@ CPPSRC += $(call target_files,$(overridedir)/,*.cpp)
 # ASM source files included in this build.
 ASRC +=
 
-
-ifeq ("$(MAKE_OS)","WINDOWS")
-# define the windows target symbol for boost asio
-CFLAGS += -D_WIN32_WINNT=0x0501
-endif
-
 CPPFLAGS += -DBOOST_ASIO_SEPARATE_COMPILATION
 CFLAGS += -DBOOST_NO_AUTO_PTR
-CFLAGS += -DBOOST_SYSTEM_STATIC_LINK
 CPPFLAGS += -std=gnu++11

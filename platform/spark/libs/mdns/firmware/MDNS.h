@@ -21,7 +21,7 @@ public:
 
   bool addService(String protocol, String service, uint16_t port, String instance, std::vector<String> subServices = std::vector<String>());
 
-  void addTXTEntry(String key, String value = NULL);
+  void addTXTEntry(String key, String value);
 
   bool begin();
 

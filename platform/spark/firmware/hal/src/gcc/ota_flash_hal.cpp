@@ -5,6 +5,7 @@
 #include "service_debug.h"
 #include "core_hal.h"
 #include "filesystem.h"
+#include "bytes2hexbuf.h"
 
 void HAL_System_Info(hal_system_info_t* info, bool create, void* reserved)
 {
@@ -45,7 +46,12 @@ int HAL_FLASH_Update(const uint8_t *pBuffer, uint32_t address, uint32_t length, 
     return 0;
 }
 
- hal_update_complete_t HAL_FLASH_End(void* reserved)
+int HAL_FLASH_OTA_Validate(hal_module_t* mod, bool userDepsOptional, module_validation_flags_t flags, void* reserved)
+{
+  return 0;
+}
+
+ hal_update_complete_t HAL_FLASH_End(hal_module_t* mod)
 {
 	 fclose(output_file);
 	 output_file = NULL;
@@ -75,6 +81,12 @@ uint16_t HAL_Get_Claim_Code(char* buffer, unsigned len)
     *buffer = 0;
     return 0;
 }
+
+bool HAL_IsDeviceClaimed(void* reserved)
+{
+	return false;
+}
+
 
 #define EXTERNAL_FLASH_SERVER_DOMAIN_LENGTH 128
 
@@ -117,6 +129,9 @@ void parseServerAddressData(ServerAddress* server_addr, uint8_t* buf)
 #define MAXIMUM_CLOUD_KEY_LEN (512)
 #define SERVER_ADDRESS_OFFSET (384)
 #define SERVER_ADDRESS_OFFSET_EC (192)
+#define SERVER_ADDRESS_SIZE (128)
+#define SERVER_PUBLIC_KEY_SIZE (294)
+#define SERVER_PUBLIC_KEY_EC_SIZE (320)
 
 
 void HAL_FLASH_Read_ServerAddress(ServerAddress* server_addr)
@@ -124,6 +139,12 @@ void HAL_FLASH_Read_ServerAddress(ServerAddress* server_addr)
 	memset(server_addr, 0, sizeof(ServerAddress));
 	int offset = HAL_Feature_Get(FEATURE_CLOUD_UDP) ? SERVER_ADDRESS_OFFSET_EC : SERVER_ADDRESS_OFFSET;
     parseServerAddressData(server_addr, deviceConfig.server_key+offset);
+}
+
+void HAL_FLASH_Write_ServerAddress(const uint8_t *buf, bool udp)
+{
+    int offset = (udp) ? SERVER_ADDRESS_OFFSET_EC : SERVER_ADDRESS_OFFSET;
+    memcpy(&deviceConfig.server_key+offset, buf, SERVER_ADDRESS_SIZE);
 }
 
 bool HAL_OTA_Flashed_GetStatus(void)
@@ -138,14 +159,21 @@ void HAL_OTA_Flashed_ResetStatus(void)
 #define PUBLIC_KEY_LEN 294
 #define PRIVATE_KEY_LEN 612
 
-char* bytes2hexbuf(const uint8_t* buf, unsigned len, char* out);
-
 void HAL_FLASH_Read_ServerPublicKey(uint8_t *keyBuffer)
 {
     memcpy(keyBuffer, deviceConfig.server_key, PUBLIC_KEY_LEN);
     char buf[PUBLIC_KEY_LEN*2];
     bytes2hexbuf(keyBuffer, PUBLIC_KEY_LEN, buf);
     INFO("server key: %s", buf);
+}
+
+void HAL_FLASH_Write_ServerPublicKey(const uint8_t *keyBuffer, bool udp)
+{
+    if (udp) {
+        memcpy(&deviceConfig.server_key, keyBuffer, SERVER_PUBLIC_KEY_EC_SIZE);
+    } else {
+        memcpy(&deviceConfig.server_key, keyBuffer, SERVER_PUBLIC_KEY_SIZE);
+    }
 }
 
 int HAL_FLASH_Read_CorePrivateKey(uint8_t *keyBuffer, private_key_generation_t* generation)

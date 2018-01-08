@@ -24,6 +24,7 @@
 #define SPARK_WIRING_SYSTEM_H
 #include "spark_wiring_ticks.h"
 #include "spark_wiring_string.h"
+#include "spark_wiring_platform.h"
 #include "spark_wiring_version.h"
 #include "system_mode.h"
 #include "system_update.h"
@@ -68,6 +69,11 @@ private:
 const SleepNetworkFlag SLEEP_NETWORK_OFF(SystemSleepNetwork::Off);
 const SleepNetworkFlag SLEEP_NETWORK_STANDBY(SystemSleepNetwork::Standby);
 
+#if Wiring_LogConfig
+enum LoggingFeature {
+    FEATURE_CONFIGURABLE_LOGGING = 1
+};
+#endif
 
 class SystemClass {
 public:
@@ -87,6 +93,7 @@ public:
     static void factoryReset(void);
     static void dfu(bool persist=false);
     static void reset(void);
+    static void reset(uint32_t data);
 
     static void enterSafeMode(void) {
         HAL_Core_Enter_Safe_Mode(NULL);
@@ -198,6 +205,10 @@ public:
         return HAL_Feature_Set(feature, false);
     }
 
+#if Wiring_LogConfig
+    bool enableFeature(LoggingFeature feature);
+#endif
+
     String version()
     {
         SystemVersionInfo info;
@@ -261,17 +272,45 @@ public:
 		set_flag(flag, false);
     }
 
+    inline bool enabled(system_flag_t flag) const {
+        return get_flag(flag) != 0;
+    }
+
+
+    inline int resetReason() const
+    {
+        int reason = RESET_REASON_NONE;
+        HAL_Core_Get_Last_Reset_Info(&reason, nullptr, nullptr);
+        return reason;
+    }
+
+    inline uint32_t resetReasonData() const
+    {
+        uint32_t data = 0;
+        HAL_Core_Get_Last_Reset_Info(nullptr, &data, nullptr);
+        return data;
+    }
+
+    void buttonMirror(pin_t pin, InterruptMode mode, bool bootloader=false) const
+    {
+        HAL_Core_Button_Mirror_Pin(pin, mode, (uint8_t)bootloader, 0, NULL);
+    }
+
+    void disableButtonMirror(bool bootloader=true) const
+    {
+        HAL_Core_Button_Mirror_Pin_Disable((uint8_t)bootloader, 0, NULL);
+    }
 
 private:
 
-    inline uint8_t get_flag(system_flag_t flag)
+    static inline uint8_t get_flag(system_flag_t flag)
     {
         uint8_t value = 0;
         system_get_flag(flag, &value, nullptr);
         return value;
     }
 
-    inline void set_flag(system_flag_t flag, uint8_t value)
+    static inline void set_flag(system_flag_t flag, uint8_t value)
     {
         system_set_flag(flag, value, nullptr);
     }

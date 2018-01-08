@@ -1,11 +1,30 @@
 
 #include <stdint.h>
+#include <stddef.h>
+
 #include "rgbled.h"
 #include "rgbled_hal.h"
 
+#include "led_service.h"
+
+#include "rgbled.h"
+#include "rgbled_hal.h"
+#include "module_info.h"
+
+LedCallbacks LED_Callbacks = {
+    .version = 0x0000,
+    .Led_Rgb_Set_Values = (void(*)(uint16_t r, uint16_t g, uint16_t b, void*))Set_RGB_LED_Values,
+    .Led_Rgb_Get_Values = (void(*)(uint16_t* rgb, void*))Get_RGB_LED_Values,
+    .Led_Rgb_Get_Max_Value = (uint32_t(*)(void*))Get_RGB_LED_Max_Value,
+#if MODULE_FUNCTION != MOD_FUNC_BOOTLOADER
+    .Led_User_Set = (void(*)(uint8_t, void*))Set_User_LED,
+    .Led_User_Toggle = (void(*)(void*))Toggle_User_LED
+#endif // MODULE_FUNCTION != MOD_FUNC_BOOTLOADER
+};
+
+volatile uint8_t led_rgb_brightness = DEFAULT_LED_RGB_BRIGHTNESS;
 
 volatile uint8_t LED_RGB_OVERRIDE = 0;
-volatile uint8_t LED_RGB_BRIGHTNESS = DEFAULT_LED_RGB_BRIGHTNESS;
 volatile uint32_t lastSignalColor = 0;
 volatile uint32_t lastRGBColor = 0;
 
@@ -15,7 +34,7 @@ static uint8_t led_fade_step = NUM_LED_FADE_STEPS - 1;
 static uint8_t led_fade_direction = -1; /* 1 = rising, -1 = falling. */
 
 uint16_t ccr_scale(uint8_t color) {
-    return (uint16_t)((((uint32_t)(color)) * LED_RGB_BRIGHTNESS * Get_RGB_LED_Max_Value()) >> 16);
+    return (uint16_t)((((uint32_t)(color)) * led_rgb_brightness * LED_Callbacks.Led_Rgb_Get_Max_Value(NULL)) >> 16);
 }
 
 void Set_CCR_Color(uint32_t RGB_Color, uint16_t* ccr) {
@@ -43,48 +62,53 @@ uint32_t LED_GetColor(uint32_t index, void* reserved)
 
 void LED_Signaling_Start(void)
 {
-    LED_RGB_OVERRIDE = 1;
-
-    LED_Off(LED_RGB);
+    // Check whether control over the LED is overridden already, since, internally, led_set_update_enabled()
+    // counts a number of its invocations rather than simply sets a flag
+    if (LED_RGB_OVERRIDE == 0) {
+        LED_RGB_OVERRIDE = 1;
+        led_set_update_enabled(0, NULL); // Disable background LED updates
+        LED_Off(LED_RGB);
+    }
 }
 
 void LED_Signaling_Stop(void)
 {
-    LED_RGB_OVERRIDE = 0;
-
-    LED_On(LED_RGB);
+    if (LED_RGB_OVERRIDE != 0) {
+        LED_RGB_OVERRIDE = 0;
+        led_set_update_enabled(1, NULL); // Enable background LED updates
+    }
 }
 
 void LED_SetBrightness(uint8_t brightness)
 {
-    LED_RGB_BRIGHTNESS = brightness;
+    led_rgb_brightness = brightness;
 }
 
 uint8_t Get_LED_Brightness()
 {
-    return LED_RGB_BRIGHTNESS;
+    return led_rgb_brightness;
 }
 
-static void* data;
-static led_update_handler_fn handler;
+led_update_handler_fn led_update_handler = NULL;
+void* led_update_handler_data = NULL;
 
 void LED_RGB_SetChangeHandler(led_update_handler_fn fn, void* fn_data) {
-  handler = fn;
-  data = fn_data;
+  led_update_handler = fn;
+  led_update_handler_data = fn_data;
 }
 
 uint8_t asRGBComponent(uint16_t ccr) {
-    return (uint8_t)((ccr<<8)/Get_RGB_LED_Max_Value());
+    return (uint8_t)((ccr<<8)/LED_Callbacks.Led_Rgb_Get_Max_Value(NULL));
 }
 
 
 void Change_RGB_LED(uint16_t* ccr) {
     Set_RGB_LED(ccr);
-    if (handler) {
+    if (led_update_handler) {
         uint8_t red = asRGBComponent(ccr[0]);
         uint8_t green = asRGBComponent(ccr[1]);
         uint8_t blue = asRGBComponent(ccr[2]);
-        handler(data, red, green, blue, 0);
+        led_update_handler(led_update_handler_data, red, green, blue, 0);
     }
 }
 
@@ -177,7 +201,7 @@ void LED_Toggle(Led_TypeDef Led)
     switch(Led)
     {
     case LED_USER:
-        Toggle_User_LED();
+        LED_Callbacks.Led_User_Toggle(NULL);
         break;
     default:
         break;
@@ -185,7 +209,7 @@ void LED_Toggle(Led_TypeDef Led)
     case LED_RGB://LED_SetRGBColor() and LED_On() should be called first for this Case
 
         color = LED_RGB_OVERRIDE ? lastSignalColor : lastRGBColor;
-        Get_RGB_LED_Values(rgb);
+        LED_Callbacks.Led_Rgb_Get_Values(rgb, NULL);
         if (rgb[0] | rgb[1] | rgb[2])
             Set_RGB_LED_Color(0);
         else
@@ -222,17 +246,22 @@ void LED_Fade(Led_TypeDef Led)
 void LED_RGB_Get(uint8_t* rgb) {
     int i=0;
     uint16_t values[3];
-    Get_RGB_LED_Values(values);
+    LED_Callbacks.Led_Rgb_Get_Values(values, NULL);
     for (i=0; i<3; i++) {
-        rgb[i] = (uint8_t)(((uint32_t)(values[i])<<8)/(Get_RGB_LED_Max_Value()));
+        rgb[i] = (uint8_t)(((uint32_t)(values[i])<<8)/(LED_Callbacks.Led_Rgb_Get_Max_Value(NULL)));
     }
 }
 
 void Set_RGB_LED(uint16_t* data) {
-    Set_RGB_LED_Values(data[0], data[1], data[2]);
+    LED_Callbacks.Led_Rgb_Set_Values(data[0], data[1], data[2], NULL);
 }
 
 bool LED_RGB_IsOverRidden(void)
 {
     return (LED_RGB_OVERRIDE!=0)?true:false;
+}
+
+void LED_SetCallbacks(LedCallbacks cb, void* reserved)
+{
+    LED_Callbacks = cb;
 }

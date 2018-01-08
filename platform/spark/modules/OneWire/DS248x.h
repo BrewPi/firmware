@@ -19,7 +19,6 @@
 #pragma once
 
 #include <inttypes.h>
-#include "application.h"
 #include "OneWireLowLevelInterface.h"
 
 #define DS248X_CONFIG_APU (0x1<<0)
@@ -55,6 +54,7 @@ public:
 
     DS248x(uint8_t address) : mAddress(address) {
         mAddress = 0x18 | mAddress;
+        mTimeout = 0;
     }
 
     virtual ~DS248x(){};

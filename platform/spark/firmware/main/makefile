@@ -53,10 +53,8 @@ include $(COMMON_BUILD)/common-tools.mk
 include $(COMMON_BUILD)/recurse.mk
 include $(COMMON_BUILD)/verbose.mk
 
-clean: clean_deps
-	$(VERBOSE)$(RMDIR) $(BUILD_PATH_BASE)
 
-.PNONY: st-flash program-dfu clean
+.PNONY: st-flash program-dfu clean all
 
 else
 
@@ -67,11 +65,11 @@ USE_PRINTF_FLOAT ?= y
 
 # It's critical that user comes before wiring so that the setup()/loop() functions are linked in preference
 # to the weak functions from wiring
-MAKE_DEPENDENCIES = newlib_nano user wiring hal system services communication platform wiring_globals
+MAKE_DEPENDENCIES = newlib_nano user wiring hal system services communication platform wiring_globals crypto
 DEPENDENCIES = $(MAKE_DEPENDENCIES) dynalib
 
 LIBS += $(MAKE_DEPENDENCIES)
-LIB_DEPS += $(USER_LIB_DEP) $(WIRING_LIB_DEP) $(SYSTEM_LIB_DEP) $(SERVICES_LIB_DEP) $(COMMUNICATION_LIB_DEP) $(HAL_LIB_DEP) $(PLATFORM_LIB_DEP) $(WIRING_GLOBALS_LIB_DEP)
+LIB_DEPS += $(USER_LIB_DEP) $(WIRING_LIB_DEP) $(SYSTEM_LIB_DEP) $(SERVICES_LIB_DEP) $(COMMUNICATION_LIB_DEP) $(HAL_LIB_DEP) $(PLATFORM_LIB_DEP) $(WIRING_GLOBALS_LIB_DEP) $(CRYPTO_LIB_DEP)
 LIB_DIRS += $(dir $(LIB_DEPS))
 
 # Target this makefile is building.

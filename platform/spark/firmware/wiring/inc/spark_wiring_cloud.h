@@ -29,8 +29,18 @@
 #include "spark_protocol_functions.h"
 #include "spark_wiring_system.h"
 #include "spark_wiring_watchdog.h"
+#include "spark_wiring_async.h"
+#include "spark_wiring_flags.h"
+#include "spark_wiring_global.h"
 #include "interrupts_hal.h"
+#include "system_mode.h"
 #include <functional>
+
+#define PARTICLE_DEPRECATED_API_DEFAULT_PUBLISH_SCOPE \
+        PARTICLE_DEPRECATED_API("Beginning with 0.8.0 release, Particle.publish() will require event scope to be specified explicitly.");
+
+#define PARTICLE_DEPRECATED_API_DEFAULT_SUBSCRIBE_SCOPE \
+        PARTICLE_DEPRECATED_API("Beginning with 0.8.0 release, Particle.subscribe() will require event scope to be specified explicitly.");
 
 typedef std::function<user_function_int_str_t> user_std_function_int_str_t;
 typedef std::function<void (const char*, const char*)> wiring_event_handler_t;
@@ -46,26 +56,20 @@ typedef std::function<void (const char*, const char*)> wiring_event_handler_t;
 #define	__XSTRING(x)	__STRING(x)	/* expand x, then stringify */
 #endif
 
-class PublishFlag
-{
-public:
-	typedef uint8_t flag_t;
-	PublishFlag(flag_t flag) : flag_(flag) {}
-
-	explicit operator flag_t() const { return flag_; }
-
-	flag_t flag() const { return flag_; }
-
-private:
-	flag_t flag_;
-
-
-};
+struct PublishFlagType; // Tag type for Particle.publish() flags
+typedef particle::Flags<PublishFlagType, uint8_t> PublishFlags;
+typedef PublishFlags::FlagType PublishFlag;
 
 const PublishFlag PUBLIC(PUBLISH_EVENT_FLAG_PUBLIC);
 const PublishFlag PRIVATE(PUBLISH_EVENT_FLAG_PRIVATE);
 const PublishFlag NO_ACK(PUBLISH_EVENT_FLAG_NO_ACK);
+const PublishFlag WITH_ACK(PUBLISH_EVENT_FLAG_WITH_ACK);
 
+// Test if the paramater a regular C "string" literal
+template <typename T>
+struct is_string_literal {
+    static constexpr bool value = std::is_array<T>::value && std::is_same<typename std::remove_extent<T>::type, char>::value;
+};
 
 class CloudClass {
 
@@ -75,8 +79,8 @@ public:
     template <typename T, class ... Types>
     static inline bool variable(const T &name, const Types& ... args)
     {
-        static_assert(!IsStringLiteral(name) || sizeof(name) <= USER_VAR_KEY_LENGTH + 1,
-            "\n\nIn Particle.variable, name must be less than " __XSTRING(USER_VAR_KEY_LENGTH) " characters\n\n");
+        static_assert(!is_string_literal<T>::value || sizeof(name) <= USER_VAR_KEY_LENGTH + 1,
+            "\n\nIn Particle.variable, name must be " __XSTRING(USER_VAR_KEY_LENGTH) " characters or less\n\n");
 
         return _variable(name, args...);
     }
@@ -184,10 +188,9 @@ public:
     template <typename T, class ... Types>
     static inline bool function(const T &name, Types ... args)
     {
-#if PLATFORM_ID!=3
-        static_assert(!IsStringLiteral(name) || sizeof(name) <= USER_FUNC_KEY_LENGTH + 1,
-            "\n\nIn Particle.function, name must be less than " __XSTRING(USER_FUNC_KEY_LENGTH) " characters\n\n");
-#endif
+        static_assert(!is_string_literal<T>::value || sizeof(name) <= USER_FUNC_KEY_LENGTH + 1,
+            "\n\nIn Particle.function, name must be " __XSTRING(USER_FUNC_KEY_LENGTH) " characters or less\n\n");
+
         return _function(name, args...);
     }
 
@@ -219,28 +222,27 @@ public:
       return _function(funcKey, std::bind(func, instance, _1));
     }
 
-    inline bool publish(const char *eventName, PublishFlag eventType=PUBLIC)
+    inline particle::Future<bool> publish(const char *eventName, PublishFlags flags1, PublishFlags flags2 = PublishFlags())
     {
-        return CLOUD_FN(spark_send_event(eventName, NULL, 60, PublishFlag::flag_t(eventType), NULL), false);
+        return publish(eventName, NULL, flags1, flags2);
     }
 
-    inline bool publish(const char *eventName, const char *eventData, PublishFlag eventType=PUBLIC)
+    inline particle::Future<bool> publish(const char *eventName, const char *eventData, PublishFlags flags1, PublishFlags flags2 = PublishFlags())
     {
-        return CLOUD_FN(spark_send_event(eventName, eventData, 60, PublishFlag::flag_t(eventType), NULL), false);
+        return publish(eventName, eventData, 60, flags1, flags2);
     }
 
-    inline bool publish(const char *eventName, const char *eventData, PublishFlag f1, PublishFlag f2)
+    inline particle::Future<bool> publish(const char *eventName, const char *eventData, int ttl, PublishFlags flags1, PublishFlags flags2 = PublishFlags())
     {
-        return CLOUD_FN(spark_send_event(eventName, eventData, 60, f1.flag()+f2.flag(), NULL), false);
+        return publish_event(eventName, eventData, ttl, flags1 | flags2);
     }
 
+    // Deprecated methods
+    particle::Future<bool> publish(const char* name) PARTICLE_DEPRECATED_API_DEFAULT_PUBLISH_SCOPE;
+    particle::Future<bool> publish(const char* name, const char* data) PARTICLE_DEPRECATED_API_DEFAULT_PUBLISH_SCOPE;
+    particle::Future<bool> publish(const char* name, const char* data, int ttl) PARTICLE_DEPRECATED_API_DEFAULT_PUBLISH_SCOPE;
 
-    inline bool publish(const char *eventName, const char *eventData, int ttl, PublishFlag eventType=PUBLIC)
-    {
-        return CLOUD_FN(spark_send_event(eventName, eventData, ttl, PublishFlag::flag_t(eventType), NULL), false);
-    }
-
-    inline bool subscribe(const char *eventName, EventHandler handler, Spark_Subscription_Scope_TypeDef scope=ALL_DEVICES)
+    inline bool subscribe(const char *eventName, EventHandler handler, Spark_Subscription_Scope_TypeDef scope)
     {
         return CLOUD_FN(spark_subscribe(eventName, handler, NULL, scope, NULL, NULL), false);
     }
@@ -250,18 +252,18 @@ public:
         return CLOUD_FN(spark_subscribe(eventName, handler, NULL, MY_DEVICES, deviceID, NULL), false);
     }
 
-    bool subscribe(const char *eventName, wiring_event_handler_t handler, Spark_Subscription_Scope_TypeDef scope=ALL_DEVICES)
+    bool subscribe(const char *eventName, wiring_event_handler_t handler, Spark_Subscription_Scope_TypeDef scope)
     {
-        return CLOUD_FN(subscribe_wiring(eventName, handler, scope), false);
+        return subscribe_wiring(eventName, handler, scope);
     }
 
     bool subscribe(const char *eventName, wiring_event_handler_t handler, const char *deviceID)
     {
-        return CLOUD_FN(subscribe_wiring(eventName, handler, MY_DEVICES, deviceID), false);
+        return subscribe_wiring(eventName, handler, MY_DEVICES, deviceID);
     }
 
     template <typename T>
-    bool subscribe(const char *eventName, void (T::*handler)(const char *, const char *), T *instance, Spark_Subscription_Scope_TypeDef scope=ALL_DEVICES)
+    bool subscribe(const char *eventName, void (T::*handler)(const char *, const char *), T *instance, Spark_Subscription_Scope_TypeDef scope)
     {
         using namespace std::placeholders;
         return subscribe(eventName, std::bind(handler, instance, _1, _2), scope);
@@ -274,6 +276,12 @@ public:
         return subscribe(eventName, std::bind(handler, instance, _1, _2), deviceID);
     }
 
+    // Deprecated methods
+    bool subscribe(const char* name, EventHandler handler) PARTICLE_DEPRECATED_API_DEFAULT_SUBSCRIBE_SCOPE;
+    bool subscribe(const char* name, wiring_event_handler_t handler) PARTICLE_DEPRECATED_API_DEFAULT_SUBSCRIBE_SCOPE;
+    template<typename T>
+    bool subscribe(const char* name, void (T::*handler)(const char*, const char*), T* instance) PARTICLE_DEPRECATED_API_DEFAULT_SUBSCRIBE_SCOPE;
+
     void unsubscribe()
     {
         CLOUD_FN(spark_unsubscribe(NULL), (void)0);
@@ -282,6 +290,28 @@ public:
     bool syncTime(void)
     {
         return CLOUD_FN(spark_sync_time(NULL), false);
+    }
+
+    bool syncTimePending(void)
+    {
+        return connected() && CLOUD_FN(spark_sync_time_pending(nullptr), false);
+    }
+
+    bool syncTimeDone(void)
+    {
+        return !CLOUD_FN(spark_sync_time_pending(nullptr), false) || disconnected();
+    }
+
+    system_tick_t timeSyncedLast(void)
+    {
+        time_t dummy;
+        return timeSyncedLast(dummy);
+    }
+
+    system_tick_t timeSyncedLast(time_t& tm)
+    {
+        tm = 0;
+        return CLOUD_FN(spark_sync_time_last(&tm, nullptr), 0);
     }
 
     static void sleep(long seconds) __attribute__ ((deprecated("Please use System.sleep() instead.")))
@@ -293,7 +323,15 @@ public:
 
     static bool connected(void) { return spark_cloud_flag_connected(); }
     static bool disconnected(void) { return !connected(); }
-    static void connect(void) { spark_cloud_flag_connect(); }
+    static void connect(void) {
+        spark_cloud_flag_connect();
+        if (system_thread_get_state(nullptr)==spark::feature::DISABLED &&
+            SystemClass::mode() == SEMI_AUTOMATIC)
+        {
+            // Particle.connect() should be blocking in SEMI_AUTOMATIC mode when threading is disabled
+            waitUntil(connected);
+        }
+    }
     static void disconnect(void) { spark_cloud_flag_disconnect(); }
     static void process(void) {
     		application_checkin();
@@ -304,20 +342,21 @@ public:
 #if HAL_PLATFORM_CLOUD_UDP
     static void keepAlive(unsigned sec)
     {
-        CLOUD_FN(spark_protocol_set_connection_property(sp(), particle::protocol::Connection::PING,
-                                                        sec * 1000, nullptr, nullptr),
+        CLOUD_FN(spark_set_connection_property(particle::protocol::Connection::PING,
+                                               sec * 1000, nullptr, nullptr),
                  (void)0);
     }
 #endif
 
 private:
 
-#ifndef SPARK_NO_CLOUD
     static bool register_function(cloud_function_t fn, void* data, const char* funcKey);
     static int call_raw_user_function(void* data, const char* param, void* reserved);
     static int call_std_user_function(void* data, const char* param, void* reserved);
 
     static void call_wiring_event_handler(const void* param, const char *event_name, const char *data);
+
+    static particle::Future<bool> publish_event(const char *eventName, const char *eventData, int ttl, PublishFlags flags);
 
     static ProtocolFacade* sp()
     {
@@ -326,6 +365,9 @@ private:
 
     bool subscribe_wiring(const char *eventName, wiring_event_handler_t handler, Spark_Subscription_Scope_TypeDef scope, const char *deviceID = NULL)
     {
+#ifdef SPARK_NO_CLOUD
+        return false;
+#else
         bool success = false;
         if (handler) // if the call-wrapper has wrapped a callable object
         {
@@ -335,23 +377,42 @@ private:
             }
         }
         return success;
-    }
 #endif
+    }
 
     static const void* update_string_variable(const char* name, Spark_Data_TypeDef type, const void* var, void* reserved)
     {
         const String* s = (const String*)var;
         return s->c_str();
     }
-
-    // Test if the paramater a regular C "string" literal
-    template <typename T>
-    constexpr static bool IsStringLiteral(const T& param) {
-      return std::is_array<T>::value && std::is_same<typename std::remove_extent<T>::type, char>::value;
-    }
-
 };
 
 
 extern CloudClass Spark __attribute__((deprecated("Spark is now Particle.")));
 extern CloudClass Particle;
+
+// Deprecated methods
+inline particle::Future<bool> CloudClass::publish(const char* name) {
+    return publish(name, PUBLIC);
+}
+
+inline particle::Future<bool> CloudClass::publish(const char* name, const char* data) {
+    return publish(name, data, PUBLIC);
+}
+
+inline particle::Future<bool> CloudClass::publish(const char* name, const char* data, int ttl) {
+    return publish(name, data, ttl, PUBLIC);
+}
+
+inline bool CloudClass::subscribe(const char* name, EventHandler handler) {
+    return subscribe(name, handler, ALL_DEVICES);
+}
+
+inline bool CloudClass::subscribe(const char* name, wiring_event_handler_t handler) {
+    return subscribe(name, handler, ALL_DEVICES);
+}
+
+template<typename T>
+inline bool CloudClass::subscribe(const char* name, void (T::*handler)(const char*, const char*), T* instance) {
+    return subscribe(name, handler, instance, ALL_DEVICES);
+}

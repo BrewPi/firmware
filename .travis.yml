@@ -12,6 +12,7 @@ install:
 - ./ci/install_arm_gcc.sh
 - ./platform/spark/firmware/ci/install_gcc.sh
 - source ./ci/install_boost.sh
+- sudo apt-get install libarchive-zip-perl # for crc32
 
 script:
 - ./ci/build.sh

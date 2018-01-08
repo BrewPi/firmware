@@ -27,11 +27,11 @@ HAL_WICED_INCLUDE_DIRS +=   wiced/RTOS/$(HAL_WICED_RTOS) \
 			    wiced/RTOS/$(HAL_WICED_RTOS)/WWD \
 			    wiced/RTOS/$(HAL_WICED_RTOS)/WICED
 HAL_WICED_INCLUDE_DIRS +=   wiced/WWD
-
+HAL_WICED_INCLUDE_DIRS +=   libraries/utilities/linked_list
 
 ifeq "$(HAL_WICED_NETWORK)" "LwIP"
-HAL_WICED_INCLUDE_DIRS +=   wiced/network/LwIP/ver1.4.0.rc1/src/include \
-			    wiced/network/LwIP/ver1.4.0.rc1/src/include/ipv4 \
+HAL_WICED_INCLUDE_DIRS +=   wiced/network/LwIP/ver1.4.1/src/include \
+			    wiced/network/LwIP/ver1.4.1/src/include/ipv4 \
 			    wiced/network/LwIP/WWD/FreeRTOS
 endif
 ifeq "$(HAL_WICED_NETWORK)" "NetX"
@@ -43,8 +43,9 @@ HAL_WICED_INCLUDE_DIRS +=   wiced/RTOS/ThreadX/ver5.6 \
 endif
 ifeq "$(HAL_WICED_RTOS)" "FreeRTOS"
 HAL_WICED_INCLUDE_DIRS +=   wiced/RTOS/FreeRTOS/WWD/ARM_CM3 \
-			    wiced/RTOS/FreeRTOS/ver7.5.2/Source/include \
-			    wiced/RTOS/FreeRTOS/ver7.5.2/Source/portable/GCC/ARM_CM3
+			    wiced/RTOS/FreeRTOS/ver8.2.1/Source/include \
+			    wiced/RTOS/FreeRTOS/ver8.2.1/Source/portable/GCC/ARM_CM3
+CSRC += $(HAL_SRC_PHOTON_PATH)/wiced/RTOS/FreeRTOS/ver8.2.1/Source/portable/MemMang/heap_4_lock.c
 
 endif
 
@@ -67,6 +68,9 @@ CPPSRC += $(call target_files,$(HAL_SRC_STM32_PATH)/,*.cpp)
 
 
 CFLAGS += -DSFLASH_APPS_HEADER_LOC=0x0000 -DUSE_STDPERIPH_DRIVER -D_STM32F215RGT6_ -D_STM3x_ -D_STM32x_ -DMAX_WATCHDOG_TIMEOUT_SECONDS=22 -DFIRMWARE_WITH_PMK_CALC_SUPPORT -DADD_LWIP_EAPOL_SUPPORT -DNXD_EXTENDED_BSD_SOCKET_SUPPORT -DOPENSSL -DSTDC_HEADERS -DUSE_SRP_SHA_512 -DADD_NETX_EAPOL_SUPPORT -DUSE_MICRORNG -DWWD_STARTUP_DELAY=10 -DBOOTLOADER_MAGIC_NUMBER=0x4d435242 -DNETWORK_NetX=1 -DNetX_VERSION=\"v5.5_sp1\" -DNX_INCLUDE_USER_DEFINE_FILE -D__fd_set_defined -DSYS_TIME_H_AVAILABLE -DRTOS_ThreadX=1 -DThreadX_VERSION=\"v5.6\" -DTX_INCLUDE_USER_DEFINE_FILE -DWWD_DIRECT_RESOURCES
+
+# Disable GNU extensions for libc to avoid conflicts with WICED
+NO_GNU_EXTENSIONS=1
 
 # ASM source files included in this build.
 ASRC +=

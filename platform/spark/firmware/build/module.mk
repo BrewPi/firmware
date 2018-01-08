@@ -29,10 +29,16 @@ CFLAGS += $(addprefix -D,$(GLOBAL_DEFINES))
 export GLOBAL_DEFINES
 endif
 
-# fixes build errors on ubuntu with arm gcc 5.3.1
-# GNU_SOURCE is needed for isascii/toascii
-# WINSOCK_H stops select.h from being used which conflicts with CC3000 headers
-CFLAGS += -D_GNU_SOURCE -D_WINSOCK_H
+# _WINSOCK_H prevents select.h from being used which conflicts with CC3000 headers
+CFLAGS += -D_WINSOCK_H
+
+ifneq (,$(NO_GNU_EXTENSIONS))
+# Stick to POSIX-conforming API
+CFLAGS += -D_POSIX_C_SOURCE=200809
+else
+# Enable GNU extensions
+CFLAGS += -D_GNU_SOURCE
+endif
 
 # Global category name for logging
 ifneq (,$(LOG_MODULE_CATEGORY))
@@ -280,7 +286,7 @@ $(BUILD_PATH)/%.o : $(COMMON_BUILD)/arm/%.S
 	$(VERBOSE)$(CC) $(ASFLAGS) -c -o $@ $<
 	$(call echo,)
 
-	
+
 # Other Targets
 clean: clean_deps
 	$(VERBOSE)$(RM) $(ALLOBJ) $(ALLDEPS) $(TARGET)

@@ -56,9 +56,6 @@ extern "C" {
 * @{
 *******************************************************************************/
 
-/*! @brief  Identification string of driver - must be same as name D4DLCD_FUNCTIONS structure + "_ID"
- it is used for enable the code for compilation   */
-#define d4dlcd_ili9341_ID 1
 
 /*! @} End of doxd4d_lcd_const                                             */
 

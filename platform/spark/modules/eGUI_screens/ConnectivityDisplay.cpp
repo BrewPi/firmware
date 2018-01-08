@@ -31,6 +31,7 @@ void ControllerUSBView::update(bool serialConnected)
 {
     if(obj != nullptr){
         obj->clrScheme->fore = serialConnected ? D4D_COLOR_LIGHT_GREY : D4D_COLOR_GREY;
+        D4D_InvalidateObject(obj, D4D_FALSE); // force redraw, because color scheme change doesn't trigger it
     }
 }
 
@@ -44,12 +45,15 @@ void ControllerWiFiView::update(bool wifiConnected, char * const ipAddress)
     if(obj != nullptr){
         obj->clrScheme->fore = wifiConnected ? D4D_COLOR_LIGHT_GREY : D4D_COLOR_GREY;
         D4D_SetText(obj, ipAddress);
+        D4D_InvalidateObject(obj, D4D_FALSE); // force redraw, because color scheme change doesn't trigger it
     }
 }
 
 void ControllerWiFiPresenter::update(){
+#if BREWPI_USE_WIFI
     char ipAddressString[16];
     bool wifiConnected = WiFi.ready();
     piLink.ipAddressAsString(ipAddressString);
     view_.update(wifiConnected, ipAddressString);
+#endif
 }

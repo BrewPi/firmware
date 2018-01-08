@@ -11,6 +11,7 @@ CSRC += $(TARGET_USB_FS_SRC_PATH)/usbd_core.c
 CSRC += $(TARGET_USB_FS_SRC_PATH)/usbd_req.c
 CSRC += $(TARGET_USB_FS_SRC_PATH)/usbd_ioreq.c
 # dfu/bootloader specific files
+ifeq ("$(BOOTLOADER_MODULE)", "1")
 CSRC += $(TARGET_USB_FS_SRC_PATH)/usbd_dfu_core.c
 CSRC += $(TARGET_USB_FS_SRC_PATH)/usbd_dfu_mal.c
 CSRC += $(TARGET_USB_FS_SRC_PATH)/usbd_flash_if.c
@@ -28,9 +29,7 @@ endif
 ifeq ("$(HAL_SERIAL_FLASH)","1")
 CSRC += $(TARGET_USB_FS_SRC_PATH)/usbd_sflash_if.c
 endif
-
-# cdc/usbserial specific files
-CSRC += $(TARGET_USB_FS_SRC_PATH)/usbd_mcdc.c
+endif
 
 # C++ source files included in this build.
 CPPSRC +=

@@ -169,7 +169,7 @@ typedef int (*D4DLOCALE_TRANSLATE_STR)(const D4D_TCHAR* originTxt, D4D_TCHAR* ne
 * @return  length of the translated string
 * @note    This is way how to print in eGUI any string customized. Is called if the D4D_EXTSRC_TEXT_ENABLE
 *          is enabled, and the string first character is D4D_STRINGTABLE_PREFIX and the string doesn't
-*          content of string tables. This function should return length of traslated string to eGUI.
+*          content of string tables. This function should return length of translated string to eGUI.
 *******************************************************************************/
 typedef int (*D4DLOCALE_GET_TRANSLATE_STR_LEN)(const D4D_TCHAR* originTxt);
 

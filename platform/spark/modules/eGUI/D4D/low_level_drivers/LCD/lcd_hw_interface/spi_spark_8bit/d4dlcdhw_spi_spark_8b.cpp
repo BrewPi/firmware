@@ -48,13 +48,7 @@ extern "C" {
 #include "common_files/d4d_lldapi.h"     // include non public low level driver interface header file (types, function prototypes, enums etc. )
 #include "common_files/d4d_private.h"    // include the private header file that contains perprocessor macros as D4D_MK_STR
 }
-#include "application.h"
 #include "SPIArbiter.h"
-
-// identification string of driver - must be same as name D4DTCH_FUNCTIONS structure + "_ID"
-// it is used for enable the code for compilation
-#define d4dlcdhw_spi_spark_8b_ID 1
-
 
 // compilation enable preprocessor condition
 // the string d4dtch_spi_spark_8b_ID must be replaced by define created one line up
@@ -82,7 +76,6 @@ static unsigned short D4DLCDHW_ReadDataWord_Spi_Spark_8b(void);
 static unsigned short D4DLCDHW_ReadCmdWord_Spi_Spark_8b(void);
 static unsigned char D4DLCDHW_PinCtl_Spi_Spark_8b(D4DLCDHW_PINS pinId, D4DHW_PIN_STATE setState);
 static void D4DLCD_FlushBuffer_Spi_Spark_8b(D4DLCD_FLUSH_MODE mode);
-static void D4DLCDHW_Delay_Spi_Spark_8b(unsigned short period);
 
 #define LCD_USE_DMA 1
 
@@ -436,29 +429,6 @@ static void D4DLCD_FlushBuffer_Spi_Spark_8b(D4DLCD_FLUSH_MODE mode) {
     		waitForTransferToComplete(); // wait for last DMA transfer to complete
     }
 }
-
-
-//-----------------------------------------------------------------------------
-// FUNCTION:    D4DLCDHW_Delay_Spi_Spark_8b
-// SCOPE:       Low Level Driver API function
-// DESCRIPTION: For do some small delays in ms
-//
-// PARAMETERS:  period - count of ms
-//
-// RETURNS:     none
-//-----------------------------------------------------------------------------
-/**************************************************************************/ /*!
-  * @brief   For do some small delays in ms
-  * @param   period - 1ms periods time
-  * @return  none
-  * @note    This function is just used to do some delays of eGUI (just for initialization purposes, not for run)
-  *******************************************************************************/
-
-
-static void D4DLCDHW_Delay_Spi_Spark_8b(unsigned short period){
-    delay(period);
-}
-
 
 
 #endif //(D4D_MK_STR(D4D_LLD_LCD_HW) == d4dlcdhw_spi_8b_ID)

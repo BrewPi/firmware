@@ -549,7 +549,7 @@ public:
 #if defined(SPARK)
     #if PLATFORM_ID<3
             return createAddressErase();
-    #elif PLATFORM_ID==4 || PLATFORM_ID==6 || PLATFORM_ID==10
+    #elif PLATFORM_ID==3 || PLATFORM_ID==4 || PLATFORM_ID==6 || PLATFORM_ID==10
             return new EepromFlashDevice();
     #elif PLATFORM_ID==5 || PLATFORM_ID==7 || PLATFORM_ID==8
            // P1

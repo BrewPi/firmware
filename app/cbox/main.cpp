@@ -19,7 +19,7 @@ ScaledTicksValue ticks;
 // todo - add a system object that describes the application version
 // from this, the protocol of all objects can be determined by the client.
 
-
+SYSTEM_MODE(MANUAL);
 SYSTEM_THREAD(ENABLED);
 
 void connectionStarted(StandardConnection& connection, DataOut& out)

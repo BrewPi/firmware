@@ -26,18 +26,37 @@
 #ifndef __SPARK_PROTOCOL_H
 #define __SPARK_PROTOCOL_H
 
+#include "protocol_selector.h"
+
+#if !PARTICLE_PROTOCOL
+
 #include "protocol_defs.h"
 #include "spark_descriptor.h"
 #include "coap.h"
 #include "events.h"
-#include "tropicssl/rsa.h"
-#include "tropicssl/aes.h"
+#ifdef USE_MBEDTLS
+#include "mbedtls/rsa.h"
+#include "mbedtls/aes.h"
+#define aes_context mbedtls_aes_context
+#else
+# if PLATFORM_ID == 6 || PLATFORM_ID == 8
+#  include "wiced_security.h"
+#  include "crypto_open/bignum.h"
+#  define aes_context aes_context_t
+# else
+#  include "tropicssl/rsa.h"
+#  include "tropicssl/aes.h"
+# endif
+#endif
 #include "device_keys.h"
 #include "file_transfer.h"
 #include "spark_protocol_functions.h"
+#include "timesyncmanager.h"
 #include <stdint.h>
 
 using namespace particle::protocol;
+using particle::CompletionHandler;
+using particle::CompletionHandlerMap;
 
 #if !defined(arraySize)
 #   define arraySize(a)            (sizeof((a))/sizeof((a[0])))
@@ -103,7 +122,7 @@ class SparkProtocol
                        unsigned char message_id_msb, unsigned char message_id_lsb,
                        const void *return_value, int length);
     bool send_event(const char *event_name, const char *data,
-                    int ttl, EventType::Enum event_type);
+                    int ttl, EventType::Enum event_type, int flags, CompletionHandler handler);
 
     bool add_event_handler(const char *event_name, EventHandler handler) {
         return add_event_handler(event_name, handler, NULL, SubscriptionScope::FIREHOSE, NULL);
@@ -119,6 +138,8 @@ class SparkProtocol
     bool send_subscription(const char *event_name, SubscriptionScope::Enum scope);
     size_t time_request(unsigned char *buf);
     bool send_time_request(void);
+    bool time_request_pending() const { return timesync_.is_request_pending(); }
+    system_tick_t time_last_synced(time_t* tm) const { return timesync_.last_sync(*tm); }
     void chunk_received(unsigned char *buf, unsigned char token,
                         ChunkReceivedCode::Enum code);
     void chunk_missed(unsigned char *buf, unsigned short chunk_index);
@@ -133,13 +154,17 @@ class SparkProtocol
 
     /********** Queue **********/
     const size_t QUEUE_SIZE;
+#if 0
     int queue_bytes_available();
     int queue_push(const char *src, int length);
     int queue_pop(char *dst, int length);
-
+#endif
     void set_handlers(CommunicationsHandlers& handlers) {
         this->handlers = handlers;
     }
+
+    int command(ProtocolCommands::Enum command, uint32_t data);
+    int wait_confirmable(uint32_t timeout=5000);
 
     /********** State Machine **********/
     ProtocolState::Enum state();
@@ -150,6 +175,7 @@ class SparkProtocol
         size_t len;
         uint8_t* response;
         size_t response_len;
+        uint16_t id;
     };
 
     CommunicationsHandlers handlers;   // application callbacks
@@ -161,6 +187,11 @@ class SparkProtocol
     FilteringEventHandler event_handlers[5];    // 1 system event listener + 4 application event listeners
     SparkCallbacks callbacks;
     SparkDescriptor descriptor;
+
+    CompletionHandlerMap<uint16_t> ack_handlers;
+    system_tick_t last_ack_handlers_update;
+
+    static const unsigned SEND_EVENT_ACK_TIMEOUT = 20000;
 
     unsigned char key[16];
     unsigned char iv_send[16];
@@ -237,7 +268,7 @@ class SparkProtocol
     void flag_chunk_received(chunk_index_t index);
     chunk_index_t next_chunk_missing(chunk_index_t index);
     int send_missing_chunks(int count);
-    void notify_update_done(uint8_t* buf);
+    size_t notify_update_done(uint8_t* msg, token_t token, uint8_t code);
 
     /**
      * Send a particular type of describe message.
@@ -251,6 +282,14 @@ class SparkProtocol
      * Marks the indices of missed chunks not yet requested.
      */
     chunk_index_t missed_chunk_index;
+
+    TimeSyncManager timesync_;
 };
+
+#ifdef USE_MBEDTLS
+#undef aes_context
+#endif
+
+#endif // !PARTICLE_PROTOCOL
 
 #endif // __SPARK_PROTOCOL_H

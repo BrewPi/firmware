@@ -27,6 +27,7 @@
 #if Wiring_Cellular
 
 #include "cellular_hal.h"
+#include "inet_hal.h"
 #include "spark_wiring_cellular_printable.h"
 
 namespace spark {
@@ -69,6 +70,14 @@ public:
 
     void listen(bool begin=true) {
         network_listen(*this, begin ? 0 : 1, NULL);
+    }
+
+    void setListenTimeout(uint16_t timeout) {
+        network_set_listen_timeout(*this, timeout, NULL);
+    }
+
+    uint16_t getListenTimeout(void) {
+        return network_get_listen_timeout(*this, 0, NULL);
     }
 
     bool listening(void) {
@@ -115,6 +124,13 @@ public:
             T* param, system_tick_t timeout_ms, const char* format, Targs... Fargs)
     {
         return cellular_command((_CALLBACKPTR_MDM)cb, (void*)param, timeout_ms, format, Fargs...);
+    }
+
+    IPAddress resolve(const char* name)
+    {
+        HAL_IPAddress ip;
+        return (inet_gethostbyname(name, strlen(name), &ip, *this, NULL)<0) ?
+                IPAddress(uint32_t(0)) : IPAddress(ip);
     }
 };
 

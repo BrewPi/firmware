@@ -40,39 +40,87 @@ test(TIME_01_NowReturnsCorrectUnixTime) {
 test(TIME_02_LocalReturnsUnixTimePlusTimezone) {
     // when
 	Time.zone(-5);
-	// todo - ideally need to disable interrupts or we may get the 1 second switch between invoking
+    Time.endDST();
 	// Time.now() and Time.local();
-    time_t last_time = Time.now();
+    time_t last_time;
+    time_t local_time;
+    ATOMIC_BLOCK() {
+        last_time = Time.now();
+        local_time = Time.local();
+    }
     // then
-    time_t local_time = Time.local();
     assertEqual(local_time, last_time - (5*3600));
 }
 
+test(TIME_03_LocalReturnsUnixTimePlusTimezoneAndDST) {
+    // when
+    Time.zone(-5);
+    Time.setDSTOffset(1.0);
+    Time.beginDST();
+    assertTrue(Time.isDST());
+    // Time.now() and Time.local();
+    time_t last_time;
+    time_t local_time;
+    ATOMIC_BLOCK() {
+        last_time = Time.now();
+        local_time = Time.local();
+    }
+    // then
+    assertEqual(local_time, last_time - (4*3600));
 
-test(TIME_03_zoneIsReturned) {
+    Time.endDST();
+    assertFalse(Time.isDST());
+}
+
+test(TIME_04_LocalReturnsUnixTimePlusDST) {
+    // when
+    Time.zone(0);
+    Time.setDSTOffset(1.25);
+    Time.beginDST();
+    assertTrue(Time.isDST());
+    // Time.now() and Time.local();
+    time_t last_time;
+    time_t local_time;
+    ATOMIC_BLOCK() {
+        last_time = Time.now();
+        local_time = Time.local();
+    }
+    // then
+    assertEqual(local_time, last_time + (4500));
+
+    Time.endDST();
+    assertFalse(Time.isDST());
+}
+
+test(TIME_05_zoneIsReturned) {
 	Time.zone(-10);
 	assertEqual(Time.zone(), -10);
 }
 
-test(TIME_04_SetTimeResultsInCorrectUnixTimeUpdate) {
+test(TIME_06_DSTOffsetIsReturned) {
+    Time.setDSTOffset(1.5);
+    assertEqual(Time.getDSTOffset(), 1.5);
+}
+
+test(TIME_07_SetTimeResultsInCorrectUnixTimeUpdate) {
     // when
     time_t current_time = Time.now();
-    Time.setTime(86400);//set to epoch time + 1 day
+    Time.setTime(978307200);//set to 2001/01/01 00:00:00
     // then
     time_t temp_time = Time.now();
-    assertEqual(temp_time, 86400);
+    assertEqual(temp_time, 978307200);
     // restore original time
     Time.setTime(current_time);
 }
 
-test(TIME_05_TimeStrDoesNotEndWithNewline) {
+test(TIME_08_TimeStrDoesNotEndWithNewline) {
     String t = Time.timeStr();
     assertMore(t.length(), 0);
     char c = t[t.length()-1];
     assertNotEqual('\n', c);
 }
 
-test(TIME_06_ChangingTimeZoneWorksImmediately) {
+test(TIME_09_ChangingTimeZoneWorksImmediately) {
     for (int x=-12; x<=13; x++)
     {
         Time.zone(x);
@@ -95,8 +143,30 @@ test(TIME_06_ChangingTimeZoneWorksImmediately) {
     }
 }
 
-test(TIME_07_Format) {
+test(TIME_10_ChangingDSTWorksImmediately) {
+    for (float x=-12; x<=13; x+=0.5)
+    {
+        Time.zone(x);
+        int currentHour = Time.hour();
+        Time.setDSTOffset(1.0);
+        Time.beginDST();
+        assertTrue(Time.isDST());
+        int newHour = Time.hour();
+        // check 24 hour wrapping case
+        int diff = newHour - currentHour;
+        if (diff < 0) {
+            diff += 24;
+        }
+        assertEqual(diff, 1);
+        Time.endDST();
+        newHour = Time.hour();
+        assertEqual((newHour-currentHour), 0);
+        assertFalse(Time.isDST());
+    }
+}
 
+test(TIME_11_Format) {
+    Time.endDST();
     Time.zone(-5.25);
     time_t t = 1024*1024*1024;
     assertEqual(Time.timeStr(t).c_str(),(const char*)"Sat Jan 10 08:22:04 2004");
@@ -107,16 +177,96 @@ test(TIME_07_Format) {
     Time.zone(0);
     assertEqual(Time.format(t).c_str(), (const char*)("2004-01-10T13:37:04Z"));
     Time.setFormat(TIME_FORMAT_DEFAULT);
+
+    Time.setDSTOffset(1.5);
+    Time.zone(-5.25);
+    Time.beginDST();
+    assertTrue(Time.isDST());
+    t = 1024*1024*1024;
+    assertEqual(Time.timeStr(t).c_str(),(const char*)"Sat Jan 10 09:52:04 2004");
+    assertEqual(Time.format(t, TIME_FORMAT_DEFAULT).c_str(), (const char*)("Sat Jan 10 09:52:04 2004"));
+    assertEqual(Time.format(t, TIME_FORMAT_ISO8601_FULL).c_str(), (const char*)"2004-01-10T09:52:04-03:45");
+    Time.setFormat(TIME_FORMAT_ISO8601_FULL);
+    assertEqual(Time.format(t).c_str(), (const char*)("2004-01-10T09:52:04-03:45"));
+    Time.zone(0);
+    assertEqual(Time.format(t).c_str(), (const char*)("2004-01-10T15:07:04+01:30"));
+    Time.setFormat(TIME_FORMAT_DEFAULT);
+    Time.endDST();
+    assertFalse(Time.isDST());
 }
 
-test(TIME_08_concatenate) {
+test(TIME_12_concatenate) {
     // addresses reports of timeStr() not being concatenatable
     time_t t = 1024*1024*1024;
+    Time.endDST();
     Time.zone(0);
     assertEqual(Time.timeStr(t).c_str(),(const char*)"Sat Jan 10 13:37:04 2004");
     String s = Time.timeStr(t);
     s += "abcd";
     assertEqual(s.c_str(), (const char*)"Sat Jan 10 13:37:04 2004abcd");
+}
+
+test(TIME_13_syncTimePending_syncTimeDone_when_disconnected)
+{
+    if (!Particle.connected())
+    {
+        Particle.connect();
+        waitFor(Particle.connected, 120000);
+    }
+    assertTrue(Particle.connected());
+    Particle.syncTime();
+    Particle.disconnect();
+    waitFor(Particle.disconnected, 10000);
+    assertTrue(Particle.disconnected());
+
+    assertTrue(Particle.syncTimeDone());
+    assertFalse(Particle.syncTimePending());
+}
+
+test(TIME_14_timeSyncedLast_works_correctly)
+{
+    if (!Particle.connected())
+    {
+        Particle.connect();
+        waitFor(Particle.connected, 120000);
+    }
+    uint32_t mil = millis();
+    Particle.syncTime();
+    waitFor(Particle.syncTimeDone, 120000);
+    assertMore(Particle.timeSyncedLast(), mil);
+}
+
+test(TIME_15_RestoreSystemMode) {
+    set_system_mode(AUTOMATIC);
+    if (!Particle.connected()) {
+        Particle.connect();
+        waitFor(Particle.connected, 120000);
+    }
+}
+
+static int s_time_changed_reason = -1;
+static void time_changed_handler(system_event_t event, int param)
+{
+    s_time_changed_reason = param;
+}
+
+test(TIME_16_TimeChangedEvent) {
+    assertTrue(Particle.connected());
+
+    system_tick_t syncedLastMillis = Particle.timeSyncedLast();
+
+    System.on(time_changed, time_changed_handler);
+    Time.setTime(946684800);
+    assertEqual(s_time_changed_reason, (int)time_changed_manually);
+    s_time_changed_reason = -1;
+
+    Particle.syncTime();
+    waitFor(Particle.syncTimeDone, 120000);
+    // If wiring/no_fixture was built with USE_THREADING=y, we need to process application queue here
+    // in order to ensure that event handler has been called by the time we check s_time_changed_reason
+    Particle.process();
+    assertMore(Particle.timeSyncedLast(), syncedLastMillis);
+    assertEqual(s_time_changed_reason, (int)time_changed_sync);
 }
 
 #endif

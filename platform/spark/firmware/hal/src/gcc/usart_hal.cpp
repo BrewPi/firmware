@@ -162,7 +162,7 @@ class SocketUsartServer : public SocketUsartBase {
 
 
 Usart& usartMap(unsigned index) {
-#if SPARK_TEST_DRIVER==1
+#if defined(SPARK_TEST_DRIVER) && SPARK_TEST_DRIVER==1
 static SocketUsartServer usart1 = SocketUsartServer();
 static SocketUsartServer usart2 = SocketUsartServer();
 #else
@@ -239,4 +239,13 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
 uint32_t HAL_USART_Write_NineBitData(HAL_USART_Serial serial, uint16_t data)
 {
     return usartMap(serial).write((uint8_t) data);
+}
+
+void HAL_USART_Send_Break(HAL_USART_Serial serial, void* reserved)
+{
+}
+
+uint8_t HAL_USART_Break_Detected(HAL_USART_Serial serial)
+{
+  return 0;
 }

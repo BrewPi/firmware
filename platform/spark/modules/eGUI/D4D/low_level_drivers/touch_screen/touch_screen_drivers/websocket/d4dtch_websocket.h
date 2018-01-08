@@ -31,27 +31,27 @@
 *
 ***************************************************************************//*!
 *
-* @file      d4dtch_template.h
+* @file      d4dtch_websocket.h
 *
-* @author     Petr Gargulak
+* @author     Elco Jacobs
 *
-* @version   0.0.2.0
+* @version   0.0.1.0
 *
 * @date      Apr-30-2010
 *
-* @brief     D4D driver - template touch screen driver function header file
+* @brief     D4D driver - websocket touch screen driver function header file
 *
 *******************************************************************************/
 
-#ifndef __D4DTCH_TEMPLATE_H
-#define __D4DTCH_TEMPLATE_H
+#ifndef __D4DTCH_WEBSOCKET_H
+#define __D4DTCH_WEBSOCKET_H
 
-  #if (D4D_MK_STR(D4D_LLD_TCH) == d4dtch_template_ID)
+  #if (D4D_MK_STR(D4D_LLD_TCH) == d4dtch_websocket_ID)
 
     /******************************************************************************
     * Includes
     ******************************************************************************/
-    #include "d4dtch_template_cfg.h"
+    #include "d4dtch_websocket_cfg.h"
 
     /******************************************************************************
     * Constants
@@ -74,7 +74,7 @@
     ******************************************************************************/
 
   #endif
-#endif /* __D4DTCH_TEMPLATE_H */
+#endif /* __D4DTCH_WEBSOCKET_H */
 
 
 

@@ -37,8 +37,8 @@
 /* This perhaps should be moved in a different place. */
 typedef enum
 {
-  PWM_INIT = 1,
-  /* add other flags here*/
+	PWM_INIT = 1,
+	/* add other flags here*/
 
 }user_property_t;
 

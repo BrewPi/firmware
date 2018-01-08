@@ -214,7 +214,7 @@ class ControllerModePresenter
     
     unsigned modeToIndex(control_mode_t mode) 
     {
-        for (unsigned int i=0; i<arraySize(modes); i++) 
+        for (unsigned int i=0; i < (sizeof(modes) / sizeof(modes[0])); i++)
         {
             if (modes[i]==mode)
                 return i;

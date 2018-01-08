@@ -51,8 +51,33 @@ typedef enum
     PIN_RESET = 0x01,
     SOFTWARE_RESET = 0x02,
     WATCHDOG_RESET = 0x03,
-    LOW_POWER_RESET = 0x04
+    POWER_MANAGEMENT_RESET = 0x04,
+    POWER_DOWN_RESET = 0x05,
+    POWER_BROWNOUT_RESET = 0x06
 } RESET_TypeDef;
+
+// Reason codes are exposed under identifier names via the cloud - ensure the mapping is
+// updated for newly added reason codes
+typedef enum System_Reset_Reason
+{
+    RESET_REASON_NONE = 0,
+    RESET_REASON_UNKNOWN = 10, // Unspecified reason
+    // Hardware
+    RESET_REASON_PIN_RESET = 20, // Reset from the NRST pin
+    RESET_REASON_POWER_MANAGEMENT = 30, // Low-power management reset
+    RESET_REASON_POWER_DOWN = 40, // Power-down reset
+    RESET_REASON_POWER_BROWNOUT = 50, // Brownout reset
+    RESET_REASON_WATCHDOG = 60, // Watchdog reset
+    // Software
+    RESET_REASON_UPDATE = 70, // Successful firmware update
+    RESET_REASON_UPDATE_ERROR = 80, // Generic update error
+    RESET_REASON_UPDATE_TIMEOUT = 90, // Update timeout
+    RESET_REASON_FACTORY_RESET = 100, // Factory reset requested
+    RESET_REASON_SAFE_MODE = 110, // Safe mode requested
+    RESET_REASON_DFU_MODE = 120, // DFU mode requested
+    RESET_REASON_PANIC = 130, // System panic (additional data may contain panic code)
+    RESET_REASON_USER = 140 // User-requested reset
+} System_Reset_Reason;
 
 /* Exported constants --------------------------------------------------------*/
 
@@ -86,6 +111,7 @@ typedef enum
 /* Exported functions --------------------------------------------------------*/
 #include "watchdog_hal.h"
 #include "core_subsys_hal.h"
+#include "interrupts_hal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -94,10 +120,14 @@ extern "C" {
 void HAL_Core_Init(void);
 void HAL_Core_Config(void);
 bool HAL_Core_Validate_User_Module(void);
+bool HAL_Core_Validate_Modules(uint32_t flags, void* reserved);
 bool HAL_Core_Mode_Button_Pressed(uint16_t pressedMillisDuration);
-void HAL_Core_Mode_Button_Reset(void);
+void HAL_Core_Mode_Button_Reset(uint16_t button);
 void HAL_Core_System_Reset(void);
 void HAL_Core_Factory_Reset(void);
+
+void HAL_Core_System_Reset_Ex(int reason, uint32_t data, void *reserved);
+int HAL_Core_Get_Last_Reset_Info(int *reason, uint32_t *data, void *reserved);
 
 /**
  * Notification from hal to the external system.
@@ -195,6 +225,8 @@ typedef enum HAL_Feature {
     FEATURE_RETAINED_MEMORY=1,       // [write only] retained memory on backup power
     FEATURE_WARM_START,              // [read only] set to true if previous retained memory contents are available]
 	FEATURE_CLOUD_UDP,				// [read only] true if the UDP implementation should be used.
+    FEATURE_RESET_INFO,              // [read/write] enables handling of last reset info (may affect backup registers)
+	FEATURE_WIFI_POWERSAVE_CLOCK,	// [write only] enables/disables the WiFi powersave clock on the TESTMODE pin. This setting is persisted to the DCT.
 } HAL_Feature;
 
 int HAL_Feature_Set(HAL_Feature feature, bool enabled);
@@ -207,6 +239,31 @@ extern void module_user_init_hook(void);
 
 int HAL_System_Backup_Save(size_t offset, const void* buffer, size_t length, void* reserved);
 int HAL_System_Backup_Restore(size_t offset, void* buffer, size_t max_length, size_t* length, void* reserved);
+
+void HAL_Core_Button_Mirror_Pin(uint16_t pin, InterruptMode mode, uint8_t bootloader, uint8_t button, void* reserved);
+void HAL_Core_Button_Mirror_Pin_Disable(uint8_t bootloader, uint8_t button, void* reserved);
+
+void HAL_Core_Led_Mirror_Pin(uint8_t led, pin_t pin, uint32_t flags, uint8_t bootloader, void* reserved);
+void HAL_Core_Led_Mirror_Pin_Disable(uint8_t led, uint8_t bootloader, void* reserved);
+
+/**
+ * HAL event type.
+ */
+typedef enum {
+    HAL_EVENT_GENERATE_DEVICE_KEY = 10 // Fired when HAL attempts to generate device keys
+} HAL_Event;
+
+/**
+ * HAL event flags.
+ */
+typedef enum {
+    HAL_EVENT_FLAG_START = 0x01, // Event started
+    HAL_EVENT_FLAG_STOP = 0x02 // Event stopped
+} HAL_Event_Flag;
+
+typedef void(*HAL_Event_Callback)(int event, int flags, void* data);
+
+void HAL_Set_Event_Callback(HAL_Event_Callback callback, void* reserved);
 
 #ifdef __cplusplus
 }

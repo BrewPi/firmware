@@ -17,29 +17,33 @@
  ******************************************************************************
  */
 
+#include "logging.h"
+LOG_SOURCE_CATEGORY("comm.dtls")
+
 #include "dtls_message_channel.h"
-#include "service_debug.h"
+
+#if HAL_PLATFORM_CLOUD_UDP && PARTICLE_PROTOCOL
+
+#include "protocol.h"
 #include "rng_hal.h"
 #include "mbedtls/error.h"
 #include "mbedtls/ssl_internal.h"
+#include "mbedtls_util.h"
+#include "mbedtls/version.h"
 #include "timer_hal.h"
 #include <stdio.h>
 #include <string.h>
 #include "dtls_session_persist.h"
-#include "core_hal.h"
-#include "service_debug.h"
-
-#if HAL_PLATFORM_CLOUD_UDP
 
 namespace particle { namespace protocol {
 
 
-uint32_t compute_checksum(const uint8_t* server, size_t server_len, const uint8_t* device, size_t device_len)
+uint32_t compute_checksum(uint32_t(*calculate_crc)(const uint8_t* data, uint32_t len), const uint8_t* server, size_t server_len, const uint8_t* device, size_t device_len)
 {
 	uint32_t sum[2];
-	sum[0] = HAL_Core_Compute_CRC32(server, server_len);
-	sum[1] = HAL_Core_Compute_CRC32(device, device_len);
-	uint32_t result = HAL_Core_Compute_CRC32((uint8_t*)&sum, sizeof(sum));
+	sum[0] = calculate_crc(server, server_len);
+	sum[1] = calculate_crc(device, device_len);
+	uint32_t result = calculate_crc((uint8_t*)&sum, sizeof(sum));
 	return result;
 }
 
@@ -78,13 +82,17 @@ void SessionPersist::update(mbedtls_ssl_context* context, save_fn_t saver, messa
 	}
 }
 
-auto SessionPersist::restore(mbedtls_ssl_context* context, bool renegotiate, uint32_t keys_checksum, message_id_t* next_id,  restore_fn_t restorer) -> RestoreStatus
+auto SessionPersist::restore(mbedtls_ssl_context* context, bool renegotiate, uint32_t keys_checksum, message_id_t* next_id, restore_fn_t restorer) -> RestoreStatus
 {
-	if (!restore_this_from(restorer))
-		return NO_SESSION;
+	if (!restore_this_from(restorer)) {
 
-	if (!is_valid() || keys_checksum!=this->keys_checksum)
 		return NO_SESSION;
+	}
+
+	if (!is_valid() || keys_checksum!=this->keys_checksum) {
+		LOG(WARN,"discarding session: valid %d, keys_sum: %d/%d", is_valid(), keys_checksum, this->keys_checksum);
+		return NO_SESSION;
+	}
 
 	// assume invalid initially. With the ssl context being reset,
 	// we cannot return NO_SESSION from this point onwards.
@@ -109,16 +117,16 @@ auto SessionPersist::restore(mbedtls_ssl_context* context, bool renegotiate, uin
 		context->transform_negotiate->ciphersuite_info = mbedtls_ssl_ciphersuite_from_id(ciphersuite);
 		if (!context->transform_negotiate->ciphersuite_info)
 		{
-			DEBUG("unknown ciphersuite with id %d", ciphersuite);
+			LOG(ERROR,"unknown ciphersuite with id %d", ciphersuite);
 			return ERROR;
 		}
-	
+
 		int err = mbedtls_ssl_derive_keys(context);
 		if (err)
 		{
-			DEBUG("derive keys failed with %d", err);
+			LOG(ERROR,"derive keys failed with %d", err);
 			return ERROR;
-		}	
+		}
 
 		context->in_msg = context->in_iv + context->transform_negotiate->ivlen -
 											context->transform_negotiate->fixed_ivlen;
@@ -127,10 +135,10 @@ auto SessionPersist::restore(mbedtls_ssl_context* context, bool renegotiate, uin
 
 		context->session_in = context->session_negotiate;
 		context->session_out = context->session_negotiate;
-		
+
 		context->transform_in = context->transform_negotiate;
 		context->transform_out = context->transform_negotiate;
-		
+
 		mbedtls_ssl_handshake_wrapup(context);
 		size = sizeof(*this);
 		return COMPLETE;
@@ -142,6 +150,11 @@ auto SessionPersist::restore(mbedtls_ssl_context* context, bool renegotiate, uin
 	}
 }
 
+uint32_t SessionPersist::application_state_checksum(uint32_t (*calc_crc)(const uint8_t* data, uint32_t len))
+{
+	return Protocol::application_state_checksum(calc_crc, subscriptions_crc, describe_app_crc, describe_system_crc);
+}
+
 
 SessionPersist sessionPersist;
 
@@ -150,11 +163,11 @@ SessionPersist sessionPersist;
 
 #define EXIT_ERROR(x, msg) \
 	if (x) { \
-		WARN("DTLS initialization failure: " #msg ": %c%04X",(x<0)?'-':' ',(x<0)?-x:x);\
+		LOG(WARN,"DTLS init failure: " #msg ": %c%04X",(x<0)?'-':' ',(x<0)?-x:x);\
 		return UNKNOWN; \
 	}
 
-static void my_debug( void *ctx, int level,
+static void my_debug(void *ctx, int level,
 		const char *file, int line,
 		const char *str )
 {
@@ -164,24 +177,6 @@ static void my_debug( void *ctx, int level,
 	fprintf(stdout, "%s:%04d: %s", file, line, str);
 	fflush(stdout);
 #endif
-}
-
-// todo - would like to make this a callback
-int dtls_rng(void* handle, uint8_t* data, const size_t len_)
-{
-	size_t len = len_;
-	while (len>=4)
-	{
-		*((uint32_t*)data) = HAL_RNG_GetRandomNumber();
-		data += 4;
-		len -= 4;
-	}
-	while (len-->0)
-	{
-		*data++ = HAL_RNG_GetRandomNumber();
-	}
-
-	return 0;
 }
 
 ProtocolError DTLSMessageChannel::init(
@@ -196,7 +191,7 @@ ProtocolError DTLSMessageChannel::init(
 	int ret;
 	this->callbacks = callbacks;
 	this->device_id = device_id;
-	keys_checksum = compute_checksum(server_public, server_public_len, core_private, core_private_len);
+	keys_checksum = compute_checksum(callbacks.calculate_crc, server_public, server_public_len, core_private, core_private_len);
 
 	ret = mbedtls_ssl_config_defaults(&conf, MBEDTLS_SSL_IS_CLIENT,
 			MBEDTLS_SSL_TRANSPORT_DATAGRAM, MBEDTLS_SSL_PRESET_DEFAULT);
@@ -204,20 +199,21 @@ ProtocolError DTLSMessageChannel::init(
 
 	mbedtls_ssl_conf_handshake_timeout(&conf, 3000, 6000);
 
-	mbedtls_ssl_conf_rng(&conf, dtls_rng, this);
+	mbedtls_ssl_conf_rng(&conf, mbedtls_default_rng, nullptr); // todo - would like to make this a callback
 	mbedtls_ssl_conf_dbg(&conf, my_debug, nullptr);
 	mbedtls_ssl_conf_min_version(&conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_3);
 
 	ret = mbedtls_pk_parse_public_key(&pkey, core_public, core_public_len);
-	EXIT_ERROR(ret, "unable to parse device public key");
+	EXIT_ERROR(ret, "unable to parse device pub key");
 
 	ret = mbedtls_pk_parse_key(&pkey, core_private, core_private_len, NULL, 0);
 	EXIT_ERROR(ret, "unable to parse device private key");
 
 	ret = mbedtls_ssl_conf_own_cert(&conf, &clicert, &pkey);
-	EXIT_ERROR(ret, "unable to configure own certificate");
+	EXIT_ERROR(ret, "unable to config own cert");
 
 	mbedtls_ssl_conf_authmode(&conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
+
 	static int ssl_cert_types[] = { MBEDTLS_TLS_CERT_TYPE_RAW_PUBLIC_KEY, MBEDTLS_TLS_CERT_TYPE_NONE };
 	mbedtls_ssl_conf_client_certificate_types(&conf, ssl_cert_types);
 	mbedtls_ssl_conf_server_certificate_types(&conf, ssl_cert_types);
@@ -318,34 +314,47 @@ ProtocolError DTLSMessageChannel::setup_context()
 
 	if ((ssl_context.session_negotiate->peer_cert = (mbedtls_x509_crt*)calloc(1, sizeof(mbedtls_x509_crt))) == NULL)
 	{
-		ERROR("unable to allocate certificate storage");
+		LOG(ERROR,"unable to allocate cert storage");
 		return INSUFFICIENT_STORAGE;
 	}
 
 	mbedtls_x509_crt_init(ssl_context.session_negotiate->peer_cert);
 	ret = mbedtls_pk_parse_public_key(&ssl_context.session_negotiate->peer_cert->pk, server_public, server_public_len);
 	if (ret) {
-		WARN("unable to parse negotiated public key: -%x", -ret);
-		return IO_ERROR;
+		LOG(WARN,"unable to parse negotiated pub key: -%x", -ret);
+		return IO_ERROR_PARSING_SERVER_PUBLIC_KEY;
 	}
 
 	return NO_ERROR;
 }
 
-ProtocolError DTLSMessageChannel::establish()
+ProtocolError DTLSMessageChannel::establish(uint32_t& flags, uint32_t app_state_crc)
 {
 	int ret = 0;
-
+	// LOG(INFO,"setup context");
 	ProtocolError error = setup_context();
-	if (error)
+	if (error) {
+		LOG(ERROR,"setup_contex error %x", error);
 		return error;
-
+	}
 	bool renegotiate = false;
+
 	SessionPersist::RestoreStatus restoreStatus = sessionPersist.restore(&ssl_context, renegotiate, keys_checksum, coap_state, callbacks.restore);
+	LOG(INFO,"(CMPL,RENEG,NO_SESS,ERR) restoreStatus=%d", restoreStatus);
 	if (restoreStatus==SessionPersist::COMPLETE)
 	{
+		LOG(INFO,"out_ctr %d,%d,%d,%d,%d,%d,%d,%d, next_coap_id=%x", sessionPersist.out_ctr[0],
+				sessionPersist.out_ctr[1],sessionPersist.out_ctr[2],sessionPersist.out_ctr[3],
+				sessionPersist.out_ctr[4],sessionPersist.out_ctr[5],sessionPersist.out_ctr[6],
+				sessionPersist.out_ctr[7], sessionPersist.next_coap_id);
 		sessionPersist.make_persistent();
-		DEBUG("restored session from persisted session data. next_msg_id=%d", *coap_state);
+		uint32_t actual = sessionPersist.application_state_checksum(this->callbacks.calculate_crc);
+		LOG(INFO,"app state crc: %x, expected: %x", actual, app_state_crc);
+		if (actual==app_state_crc) {
+			LOG(WARN,"skipping hello message");
+			flags |= Protocol::SKIP_SESSION_RESUME_HELLO;
+		}
+		LOG(INFO,"restored session from persisted session data. next_msg_id=%d", *coap_state);
 		return SESSION_RESUMED;
 	}
 	else if (restoreStatus==SessionPersist::RENEGOTIATE)
@@ -383,14 +392,14 @@ ProtocolError DTLSMessageChannel::establish()
 
 	if (ret)
 	{
-		DEBUG("handshake failed -%x", -ret);
+		LOG(ERROR,"handshake failed -%x", -ret);
 		reset_session();
 	}
 	else
 	{
 		sessionPersist.prepare_save(random, keys_checksum, &ssl_context, 0);
 	}
-	return ret==0 ? NO_ERROR : IO_ERROR;
+	return ret==0 ? NO_ERROR : IO_ERROR_GENERIC_ESTABLISH;
 }
 
 ProtocolError DTLSMessageChannel::notify_established()
@@ -423,23 +432,23 @@ ProtocolError DTLSMessageChannel::receive(Message& message)
 			break;
 		default:
 			reset_session();
-			return IO_ERROR;
+			return IO_ERROR_GENERIC_RECEIVE;
 		}
 	}
 	message.set_length(ret);
 	if (ret>0) {
 		cancel_move_session();
 #if defined(DEBUG_BUILD) && 0
-		if (LOG_LEVEL_ACTIVE(DEBUG_LEVEL)) {
-		  DEBUG("message length %d", message.length());
+		if (LOG_ENABLED(TRACE)) {
+		  LOG(TRACE, "msg len %d", message.length());
 		  for (size_t i=0; i<message.length(); i++)
 		  {
 				  char buf[3];
 				  char c = message.buf()[i];
 				  sprintf(buf, "%02x", c);
-				  log_direct_(buf);
+				  LOG_PRINT(TRACE, buf);
 		  }
-		  log_direct_("\n");
+		  LOG_PRINT(TRACE, "\r\n");
 		}
 #endif
 	}
@@ -455,26 +464,26 @@ ProtocolError DTLSMessageChannel::send(Message& message)
   {
 	  // send unencrypted
 	  int bytes = this->send(message.buf(), message.length());
-	  return bytes < 0 ? IO_ERROR : NO_ERROR;
+	  return bytes < 0 ? IO_ERROR_GENERIC_SEND : NO_ERROR;
   }
 
-#ifdef DEBUG_BUILD
-      DEBUG("message length %d", message.length());
+#if defined(DEBUG_BUILD) && 0
+      LOG(TRACE, "msg len %d", message.length());
       for (size_t i=0; i<message.length(); i++)
       {
 	  	  char buf[3];
 	  	  char c = message.buf()[i];
 	  	  sprintf(buf, "%02x", c);
-	  	  log_direct_(buf);
+	  	  LOG_PRINT(TRACE, buf);
       }
-      log_direct_("\n");
+      LOG_PRINT(TRACE, "\r\n");
 #endif
 
   int ret = mbedtls_ssl_write(&ssl_context, message.buf(), message.length());
   if (ret < 0 && ret != MBEDTLS_ERR_SSL_WANT_WRITE)
   {
 	  reset_session();
-	  return IO_ERROR;
+	  return IO_ERROR_GENERIC_MBEDTLS_SSL_WRITE;
   }
   sessionPersist.update(&ssl_context, callbacks.save, coap_state ? *coap_state : 0);
   return NO_ERROR;
@@ -487,7 +496,7 @@ bool DTLSMessageChannel::is_unreliable()
 
 ProtocolError DTLSMessageChannel::command(Command command, void* arg)
 {
-	DEBUG("session command: %d", command);
+	LOG(INFO,"session cmd (CLS,DIS,MOV,LOD,SAV): %d", command);
 	switch (command)
 	{
 	case CLOSE:
@@ -496,10 +505,18 @@ ProtocolError DTLSMessageChannel::command(Command command, void* arg)
 
 	case DISCARD_SESSION:
 		reset_session();
-		return IO_ERROR; //force re-establish
+		return IO_ERROR_DISCARD_SESSION; //force re-establish
 
 	case MOVE_SESSION:
 		move_session = true;
+		break;
+
+	case LOAD_SESSION:
+		sessionPersist.restore(callbacks.restore);
+		break;
+
+	case SAVE_SESSION:
+		sessionPersist.save(callbacks.save);
 		break;
 	}
 	return NO_ERROR;
@@ -510,18 +527,18 @@ ProtocolError DTLSMessageChannel::command(Command command, void* arg)
 
 #include "sys/time.h"
 
-extern "C" unsigned long mbedtls_timing_hardclock()
-{
-	return HAL_Timer_Microseconds();
-}
-
-// todo - would prefer this was provided as a callback.
 extern "C" int _gettimeofday( struct timeval *tv, void *tzvp )
 {
-    uint32_t t = HAL_Timer_Milliseconds();  // get uptime in nanoseconds
+    mbedtls_callbacks_t* cb = mbedtls_get_callbacks(NULL);
+    uint32_t t = 0;
+    if (cb && cb->millis) {
+        t = cb->millis();
+    } else {
+        return -1;
+    }
     tv->tv_sec = t / 1000;  // convert to seconds
     tv->tv_usec = ( t % 1000 )*1000;  // get remaining microseconds
     return 0;  // return non-zero for error
 } // end _gettimeofday()
 
-#endif
+#endif // HAL_PLATFORM_CLOUD_UDP && PARTICLE_PROTOCOL

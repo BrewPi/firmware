@@ -78,8 +78,6 @@ public:
      * Set the current stream to where the data is available and return the number of bytes available
      */
     int available() {
-        const ticks_millis_t wifiAttemptInterval = 60000;
-        static ticks_millis_t lastWifiAttempt = -wifiAttemptInterval + 5000; // first attempt 5 seconds after boot
         static bool tcpServerRunning = false;
 
         int available = 0;
@@ -90,36 +88,31 @@ public:
         if(available > 0) {
             currentStream = &Serial;
         }
-        else if (WiFi.ready()) {
-            if(!tcpServerRunning) {
-                tcpServer.begin();
-                tcpServerRunning = true;
-            }
+        else{
+        	if (WiFi.ready() &&  WiFi.localIP()[0] != 0){    // workaround for bug where WiFi.ready() returns true with IP 0.0.0.0
+				if(!tcpServerRunning) {
+					tcpServer.begin();
+					tcpServerRunning = true;
+				}
 
-            // if a new client appears, drop the old one
-            TCPClient newClient = tcpServer.available();
-            if(newClient) {
-                tcpClient.stop();
-                tcpClient = newClient;
-            }
-            if (tcpClient.connected()) {
-                available = tcpClient.available();
-                if(available > 0) {
-                    currentStream = &tcpClient;
-                }
-            }
-        }
-        else {
-            tcpServer.stop();
-            tcpClient.stop();
-            tcpServerRunning = false;
-
-            if (WiFi.hasCredentials() && !WiFi.connecting()) {
-                if(ticks.timeSinceMillis(lastWifiAttempt) > wifiAttemptInterval) {
-                    lastWifiAttempt = ticks.millis();
-                    WiFi.connect();
-                }
-            }
+				// if a new client appears, drop the old one
+				TCPClient newClient = tcpServer.available();
+				if(newClient) {
+					tcpClient.stop();
+					tcpClient = newClient;
+				}
+				if (tcpClient.connected()) {
+					available = tcpClient.available();
+					if(available > 0) {
+						currentStream = &tcpClient;
+					}
+				}
+			}
+			else {
+				tcpServer.stop();
+				tcpClient.stop();
+				tcpServerRunning = false;
+			}
         }
 
         return available;
@@ -199,17 +192,8 @@ void PiLink::flushInput(void){
     }
 }
 
-// create a printf like interface to the Serial function. Format string stored in PROGMEM
-void PiLink::print_P(const char *fmt, ... ){
-    va_list args;
-    va_start (args, fmt );
-    vsnprintf_P(printfBuff, PRINTF_BUFFER_SIZE, fmt, args);
-    va_end (args);
-    piStream.print(printfBuff);
-}
-
 // create a printf like interface to the Serial function. Format string stored in RAM
-void PiLink::print(char *fmt, ... ){
+void PiLink::print(const char *fmt, ... ){
     va_list args;
     va_start (args, fmt );
     vsnprintf(printfBuff, PRINTF_BUFFER_SIZE, fmt, args);
@@ -319,20 +303,20 @@ void PiLink::receive(void){
             char ipAddressString[16];
             ipAddressAsString(ipAddressString);
 #endif
-            print_P(PSTR("N:{"
-                "\"v\":\"" PRINTF_PROGMEM "\","
-                "\"n\":\"" PRINTF_PROGMEM "\","
+            print("N:{"
+                "\"v\":\"%s\","
+                "\"n\":\"%s\","
                 "\"s\":%d,"
                 "\"y\":%d,"
                 "\"b\":\"%c\","
                 "\"l\":\"%d\""
 #if BREWPI_USE_WIFI
                 ",\"i\":\"%s\","
-                "\"w\":\"" PRINTF_PROGMEM "\""
+                "\"w\":\"%s\""
 #endif
-                "}"),
-                PSTR(VERSION_STRING),               // v:
-                PSTR(stringify(BUILD_NAME)),      // n:
+                "}",
+                VERSION_STRING,               // v:
+                stringify(BUILD_NAME),      // n:
                 getShieldVersion(),               // s:
                 BREWPI_SIMULATE,                    // y:
                 BREWPI_BOARD,      // b:
@@ -459,58 +443,62 @@ void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotatio
     temp_t t;
     t = tempControl.getBeerTemp();
     if (changed(beerTemp, t))
-        sendJsonTemp(PSTR(JSON_BEER_TEMP), t);
+        sendJsonTemp(JSON_BEER_TEMP, t);
 
     t = tempControl.getBeerSetting();
     if (changed(beerSet,t))
-        sendJsonTemp(PSTR(JSON_BEER_SET), t);
+        sendJsonTemp(JSON_BEER_SET, t);
 
     if (changed(beerAnn, beerAnnotation))
-        sendJsonAnnotation(PSTR(JSON_BEER_ANN), beerAnnotation);
+        sendJsonAnnotation(JSON_BEER_ANN, beerAnnotation);
 
     t = tempControl.getFridgeTemp();
     if (changed(fridgeTemp, t))
-        sendJsonTemp(PSTR(JSON_FRIDGE_TEMP), t);
+        sendJsonTemp(JSON_FRIDGE_TEMP, t);
 
     t = tempControl.getFridgeSetting();
     if (changed(fridgeSet, t))
-        sendJsonTemp(PSTR(JSON_FRIDGE_SET), t);
+        sendJsonTemp(JSON_FRIDGE_SET, t);
 
     if (changed(fridgeAnn, fridgeAnnotation))
-        sendJsonAnnotation(PSTR(JSON_FRIDGE_ANN), fridgeAnnotation);
+        sendJsonAnnotation(JSON_FRIDGE_ANN, fridgeAnnotation);
 
     t = tempControl.getLog1Temp();
     if (changed(log1, t))
-        sendJsonTemp(PSTR(JSON_LOG1_TEMP), tempControl.getLog1Temp());
+        sendJsonTemp(JSON_LOG1_TEMP, tempControl.getLog1Temp());
 
     t = tempControl.getLog2Temp();
     if (changed(log2, t))
-        sendJsonTemp(PSTR(JSON_LOG2_TEMP), tempControl.getLog2Temp());
+        sendJsonTemp(JSON_LOG2_TEMP, tempControl.getLog2Temp());
 
     t = tempControl.getLog3Temp();
     if (changed(log3, t))
-        sendJsonTemp(PSTR(JSON_LOG3_TEMP), tempControl.getLog3Temp());
+        sendJsonTemp(JSON_LOG3_TEMP, tempControl.getLog3Temp());
 
     if (changed(state, tempControl.getState()))
-        sendJsonPair(PSTR(JSON_STATE), (uint8_t)tempControl.getState());
+        sendJsonPair(JSON_STATE, (uint8_t)tempControl.getState());
 
 #if BREWPI_SIMULATE
-    printJsonName(PSTR(JSON_TIME));
-    print_P(PSTR("%lu"), ticks.millis()/1000);
+    printJsonName(JSON_TIME);
+    print("%lu", ticks.millis()/1000);
 #endif
     sendJsonClose();
 }
 
 void PiLink::ipAddressAsString(char * target){
+#if BREWPI_USE_WIFI
     IPAddress ip = WiFi.localIP();
     snprintf(target, 16, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+#else
+    snprintf(target, 16, "no wifi");
+#endif
 }
 
 void PiLink::sendJsonAnnotation(const char* name, const char* annotation)
 {
     printJsonName(name);
-    const char* fmtAnn = annotation ? PSTR("\"%s\"") : PSTR("null");
-    print_P(fmtAnn, annotation);
+    const char* fmtAnn = annotation ? "\"%s\"" : "null";
+    print(fmtAnn, annotation);
 }
 
 void PiLink::sendJsonTemp(const char* name, const temp_t & temp)
@@ -529,9 +517,8 @@ void PiLink::printTemperatures(void){
 void PiLink::printBeerAnnotation(const char * annotation, ...){
     char tempString[128]; // resulting string limited to 128 chars
     va_list args;
-    // Using print_P for the Annotation fails. Arguments are not passed correctly. Use Serial directly as a work around.
     va_start (args, annotation );
-    vsnprintf_P(tempString, 128, annotation, args);
+    vsnprintf(tempString, 128, annotation, args);
     va_end (args);
     printTemperaturesJSON(tempString, 0);
 }
@@ -539,9 +526,8 @@ void PiLink::printBeerAnnotation(const char * annotation, ...){
 void PiLink::printFridgeAnnotation(const char * annotation, ...){
     char tempString[128]; // resulting string limited to 128 chars
     va_list args;
-    // Using print_P for the Annotation fails. Arguments are not passed correctly. Use Serial directly as a work around.
     va_start (args, annotation );
-    vsnprintf_P(tempString, 128, annotation, args);
+    vsnprintf(tempString, 128, annotation, args);
     va_end (args);
     printTemperaturesJSON(0, tempString);
 }
@@ -568,9 +554,8 @@ void PiLink::debugMessage(const char * message, ...){
     //print 'D:' as prefix
     printResponse('D');
 
-    // Using print_P for the Annotation fails. Arguments are not passed correctly. Use Serial directly as a work around.
     va_start (args, message );
-    vsnprintf_P(printfBuff, PRINTF_BUFFER_SIZE, message, args);
+    vsnprintf(printfBuff, PRINTF_BUFFER_SIZE, message, args);
     va_end (args);
     piStream.print(printfBuff);
     printNewLine();
@@ -659,7 +644,7 @@ const PiLink::JsonOutputHandler PiLink::JsonOutputHandlers[] = {
 #define JSON_OUTPUT_CV_MAP(name, fn) { JSONKEY_ ## name,  offsetof(ControlVariables, name), fn }
 #define JSON_OUTPUT_CS_MAP(name, fn) { JSONKEY_ ## name,  offsetof(ControlSettings, name), fn }
 
-const PiLink::JsonOutput PiLink::jsonOutputCCMap[] PROGMEM = {
+const PiLink::JsonOutput PiLink::jsonOutputCCMap[] = {
     JSON_OUTPUT_CC_MAP(tempFormat, JOCC_CHAR),
 
     JSON_OUTPUT_CC_MAP(heater1_kp, JOCC_FIXED_POINT_LONG),
@@ -695,11 +680,11 @@ const PiLink::JsonOutput PiLink::jsonOutputCCMap[] PROGMEM = {
     JSON_OUTPUT_CC_MAP(mutexDeadTime, JOCC_UINT16)
 };
 
-void PiLink::sendJsonValues(char responseType, const JsonOutput* /*PROGMEM*/ jsonOutputMap, uint8_t mapCount) {
+void PiLink::sendJsonValues(char responseType, const JsonOutput* jsonOutputMap, uint8_t mapCount) {
     printResponse(responseType);
     while (mapCount-->0) {
         JsonOutput output;
-        memcpy_P(&output, jsonOutputMap++, sizeof(output));
+        memcpy(&output, jsonOutputMap++, sizeof(output));
         JsonOutputHandlers[output.handlerOffset](output.key,output.offset);
     }
     sendJsonClose();
@@ -723,7 +708,7 @@ void PiLink::printJsonName(const char * name)
 {
     printJsonSeparator();
     piStream.print('"');
-    print_P(name);
+    print(name);
     piStream.print('"');
     piStream.print(':');
 }
@@ -747,7 +732,7 @@ void PiLink::sendJsonPair(const char * name, char val){
 
 void PiLink::sendJsonPair(const char * name, uint16_t val){
     printJsonName(name);
-    print_P(PSTR("%u"), val);
+    print("%u", val);
 }
 
 void PiLink::sendJsonPair(const char * name, uint8_t val) {
@@ -826,12 +811,12 @@ void PiLink::receiveJson(void){
     return;
 }
 
-static const char STR_WEB_INTERFACE[] PROGMEM = "in web interface";
-static const char STR_TEMPERATURE_PROFILE[] PROGMEM = "by temp_t profile";
-static const char STR_MODE[] PROGMEM = "Mode";
-static const char STR_BEER_TEMP[] PROGMEM = "Beer temp";
-static const char STR_FRIDGE_TEMP[] PROGMEM = "Fridge temp";
-static const char STR_FMT_SET_TO[] PROGMEM = PRINTF_PROGMEM " set to %s " PRINTF_PROGMEM;
+static const char STR_WEB_INTERFACE[] = "in web interface";
+static const char STR_TEMPERATURE_PROFILE[] = "by temp_t profile";
+static const char STR_MODE[] = "Mode";
+static const char STR_BEER_TEMP[] = "Beer temp";
+static const char STR_FRIDGE_TEMP[] = "Fridge temp";
+static const char STR_FMT_SET_TO[] = "%s set to %s %s";
 
 void PiLink::setMode(const char* val) {
     char mode = val[0];
@@ -930,7 +915,7 @@ void setBool(const char* value, uint8_t* target) {
 
 #define JSON_CONVERT(jsonKey, target, fn) { jsonKey, target, (JsonParserHandlerFn)&fn }
 
-const PiLink::JsonParserConvert PiLink::jsonParserConverters[] PROGMEM = {
+const PiLink::JsonParserConvert PiLink::jsonParserConverters[] = {
     JSON_CONVERT(JSONKEY_mode, NULL, setMode),
     JSON_CONVERT(JSONKEY_beerSetting, NULL, setBeerSetting),
     JSON_CONVERT(JSONKEY_fridgeSetting, NULL, setFridgeSetting),
@@ -972,9 +957,9 @@ void PiLink::processJsonPair(const char * key, const char * val, void* pv){
 
     for (uint8_t i=0; i<sizeof(jsonParserConverters)/sizeof(jsonParserConverters[0]); i++) {
         JsonParserConvert converter;
-        memcpy_P(&converter, &jsonParserConverters[i], sizeof(converter));
+        memcpy(&converter, &jsonParserConverters[i], sizeof(converter));
         //logDeveloper("Handling converter %d %s "PRINTF_PROGMEM" %d %d"), i, key, converter.key, converter.fn, converter.target);
-        if (strcmp_P(key,converter.key) == 0) {
+        if (strcmp(key,converter.key) == 0) {
             //logDeveloper("Handling json key %s"), key);
             converter.fn(val, converter.target);
             return;
