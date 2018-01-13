@@ -66,10 +66,17 @@ public:\
     }\
  \
     virtual void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn) override final {\
+        /* copy old settings, because the update can be sparse and can only overwrite some of the values */\
+        void * settingsPtr = wrapped.settingsPtr();\
+        blox_ ## T ## _Settings newSettings;\
+        memcpy(&newSettings, settingsPtr, sizeof(newSettings));\
+        /* stream in new settings */\
         size_t maxSize = settingsMaxSize();\
         pb_istream_t stream = { &dataInStreamCallback, &dataIn, maxSize, 0 };\
-        bool status = pb_decode_delimited_noinit(&stream, blox_ ## T ## _Settings_fields, wrapped.settingsPtr());\
-        if(status){\
+        bool success = pb_decode_delimited_noinit(&stream, blox_ ## T ## _Settings_fields, &newSettings);\
+        /* if no errors occur, write new settings to wrapped object */\
+        if(success){\
+            memcpy(settingsPtr, &newSettings, sizeof(newSettings));\
             storeSettings();\
         }\
     }\
@@ -78,8 +85,8 @@ public:\
         auto obj = new_object(T ## Bloc);\
         pb_istream_t stream = { &dataInStreamCallback, defn.in, defn.len, 0 };\
         /* note: should we use returned value of pb_decode_delimited_noinit? */\
-        pb_decode_delimited_noinit(&stream, blox_ ## T ## _Settings_fields, obj->wrapped.settingsPtr());\
-        return obj;\
+        bool success = pb_decode_delimited_noinit(&stream, blox_ ## T ## _Settings_fields, obj->wrapped.settingsPtr());\
+        return success ? obj : nullptr;\
     }\
  \
     bool storeSettings(){\
