@@ -1,6 +1,33 @@
 here_files = $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/$1/$2))
 
 
+# add all objects the user can create
+INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox/blox
+
+# add all lib source files
+INCLUDE_DIRS += $(SOURCE_PATH)/lib/inc
+CSRC += $(call target_files,lib/src,*.c)
+CPPSRC += $(call target_files,lib/src,*.cpp)
+
+# add all cbox lib source files
+INCLUDE_DIRS += $(SOURCE_PATH)/controlbox/src/lib
+CPPSRC += $(call here_files,controlbox/src/lib/,*.cpp)
+CFLAGS += -DCONTROLBOX_STATIC=1 # use static controlbox implementation
+
+# add auto-generated protobuf includes
+INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox/proto/cpp
+CSRC += $(call here_files,app/cbox/proto/cpp,*.c)
+
+# add nanopb dependencies
+INCLUDE_DIRS += $(SOURCE_PATH)/nanopb
+CSRC += $(call here_files,nanopb,*.c)
+
+# Mixins
+CPPSRC += app/cbox/ControllerMixins.cpp
+
+# App
+INCLUDE_DIRS += $(SOURCE_PATH)/app
+INCLUDE_DIRS += $(SOURCE_PATH)/app/fallback
 INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/wiring
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark
@@ -17,20 +44,11 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Ticks
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/ValvesController
 
 INCLUDE_DIRS += $(SOURCE_PATH)/controlbox/src/lib
-INCLUDE_DIRS += $(SOURCE_PATH)/lib/inc
-INCLUDE_DIRS += $(SOURCE_PATH)/app/fallback
-INCLUDE_DIRS += $(SOURCE_PATH)/app
-INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox/proto/cpp
 
 INCLUDE_DIRS += $(BOOST_ROOT)
 
-CSRC += $(call target_files,app/cbox,*.c)
-CPPSRC += $(call target_files,app/cbox,*.cpp)
-
-CPPSRC += $(call here_files,controlbox/src/lib,*.cpp)
-
-CSRC += $(call target_files,lib/src,*.c)
-CPPSRC += $(call target_files,lib/src,*.cpp)
+CSRC += $(call here_files,app/cbox,*.c)
+CPPSRC += $(call here_files,app/cbox,*.cpp)
 
 #CSRC += $(call target_files,app/devices,*.c)
 #CPPSRC += $(call target_files,app/devices,*.cpp)
@@ -43,10 +61,7 @@ CPPSRC += $(call here_files,platform/spark/modules,*.cpp)
 
 CPPSRC += $(call here_files,platform/spark/modules/OneWire,*.cpp)
 
-
 CPPSRC += $(call here_files,platform/spark/modules/EEPROM,*.cpp)
-
-CSRC += $(call here_files,app/cbox/proto/cpp,*.c)
 
 
 SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI

@@ -19,7 +19,6 @@
 
 
 #include "OneWireBusCBox.h"
-#include "OneWireTempSensorCBox.h"
 #include "EepromTypes.h"
 #include "EepromAccessImpl.h"
 
