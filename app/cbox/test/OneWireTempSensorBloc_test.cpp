@@ -19,6 +19,8 @@
 
 #include "catch.hpp"
 #include <cstdio>
+#include <iostream>
+#include <iomanip>
 
 #include "Values.h"
 #include "Commands.h"
@@ -36,6 +38,14 @@ SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf 
             pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
             bool status = pb_encode_delimited(&stream, blox_OneWireTempSensor_Settings_fields, &message);
             CHECK(status);
+
+            std::stringstream ss;
+            ss << "0x" << std::setfill('0') << std::hex;
+            for(int i =0 ; i <= blox_OneWireTempSensor_Settings_size; i ++){
+                 ss << std::setw(2) << static_cast<unsigned>(buf[i]);
+            }
+            WARN("Encoding of sensor with address 0x0011223344556677 and offset 123 is " << ss.str());
+            WARN("Length of encoding is " << blox_OneWireTempSensor_Settings_size);
 
             AND_WHEN("we create a DataIn object form that buffer"){
                 BufferDataIn in(buf);
