@@ -13,4 +13,7 @@ message OneWireTempSensor{
     sint32 value = 1  [(nanopb).int_size = IS_16];
     bool connected = 2;
   }
+  
+  Settings settings = 1;
+  State state = 2;
 }

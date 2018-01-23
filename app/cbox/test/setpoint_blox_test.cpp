@@ -34,7 +34,14 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
             uint8_t buf[100];
             pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
             bool status = pb_encode_delimited(&stream, blox_SetPointSimple_Settings_fields, &message);
-            CHECK(status);
+            THEN("no errors occur"){
+                if (!status)
+                {
+                    WARN("Decoding failed: " << PB_GET_ERROR(&stream));
+                    CAPTURE(stream);
+                }
+                CHECK(status);
+            }
 
             AND_WHEN("we create a DataIn object form that buffer"){
                 BufferDataIn in(buf);

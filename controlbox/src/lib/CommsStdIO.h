@@ -7,6 +7,7 @@
 #include <string>
 #include <thread>
 #include <queue>
+#include <functional>
 
 class Stream {};
 

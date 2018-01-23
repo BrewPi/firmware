@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+import 'nanopb.proto';
+
+package blox;
+
+message Example {
+	message Settings {
+	  sint32 setting1 = 1 [(nanopb).int_size = IS_16];
+	  sint32 setting2 = 2 [(nanopb).int_size = IS_16];
+	}
+
+	message Links {
+	  fixed32 link1 = 1;
+	  fixed32 link2 = 2;
+	}
+	
+	message State {
+	  sint32 state1 = 1 [(nanopb).int_size = IS_16];
+	  sint32 state2 = 2 [(nanopb).int_size = IS_16];
+	}
+
+    Settings settings = 1;
+    Links links = 2;
+    State state = 3;
+}
+
+message Example_Settings_Only {
+	message Settings {
+	  sint32 setting1 = 1 [(nanopb).int_size = IS_16];
+	  sint32 setting2 = 2 [(nanopb).int_size = IS_16];
+    }
+    Settings settings = 1;
+}
