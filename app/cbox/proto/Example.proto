@@ -26,9 +26,14 @@ message Example {
 }
 
 message Example_Settings_Only {
-	message Settings {
-	  sint32 setting1 = 1 [(nanopb).int_size = IS_16];
-	  sint32 setting2 = 2 [(nanopb).int_size = IS_16];
-    }
-    Settings settings = 1;
+    Example.Settings settings = 1;
+}
+
+message Example_Links_Only {
+    Example.Links links = 1;
+}
+
+message Example_Persisted {
+    Example.Settings settings = 1;
+    Example.Links links = 2;
 }

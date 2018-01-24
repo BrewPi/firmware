@@ -29,23 +29,23 @@
 
 SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf data"){
     GIVEN("a protobuf message defining a OneWireTempSensor object"){
-        blox_OneWireTempSensor_Settings message;
-        message.address = 0x0011223344556677;
-        message.offset = 123;
+        blox_OneWireTempSensor_Persisted message;
+        message.settings.address = 0x0011223344556677;
+        message.settings.offset = 123;
 
         WHEN("it is encoded to a buffer"){
             uint8_t buf[100] = {0};
             pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
-            bool status = pb_encode_delimited(&stream, blox_OneWireTempSensor_Settings_fields, &message);
+            bool status = pb_encode_delimited(&stream, blox_OneWireTempSensor_Persisted_fields, &message);
             CHECK(status);
 
             std::stringstream ss;
             ss << "0x" << std::setfill('0') << std::hex;
-            for(int i =0 ; i <= blox_OneWireTempSensor_Settings_size; i ++){
+            for(int i =0 ; i <= blox_OneWireTempSensor_Persisted_size; i ++){
                  ss << std::setw(2) << static_cast<unsigned>(buf[i]);
             }
             WARN("Encoding of sensor with address 0x0011223344556677 and offset 123 is " << ss.str());
-            WARN("Length of encoding is " << blox_OneWireTempSensor_Settings_size);
+            WARN("Length of encoding is " << blox_OneWireTempSensor_Persisted_size);
 
             AND_WHEN("we create a DataIn object form that buffer"){
                 BufferDataIn in(buf);
@@ -64,18 +64,12 @@ SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf 
                         // verify data that is streamed out by streaming it back in
                         pb_istream_t stream_in = pb_istream_from_buffer(buf2, sizeof(buf2));
 
-                        // settings are streamed first
-                        blox_OneWireTempSensor_Settings settings;
-                        pb_decode_delimited(&stream_in, blox_OneWireTempSensor_Settings_fields, &settings);
-                        CHECK(settings.address == message.address);
-                        CHECK(settings.offset == message.offset);
-
-                        // followed by state
-                        blox_OneWireTempSensor_State state;
-                        pb_decode_delimited(&stream_in, blox_OneWireTempSensor_State_fields, &state);
-                        // state should be at init default (connected and value invalid temp
-                        CHECK(state.value == temp_t::invalid().getRaw());
-                        CHECK(state.connected == true);
+                        blox_OneWireTempSensor received;
+                        pb_decode_delimited(&stream_in, blox_OneWireTempSensor_fields, &received);
+                        CHECK(received.settings.address == message.settings.address);
+                        CHECK(received.settings.offset == message.settings.offset);
+                        CHECK(received.state.value == temp_t::invalid().getRaw());
+                        CHECK(received.state.connected == true);
                     }
                 }
             }
@@ -88,15 +82,16 @@ SCENARIO("Create blox OneWireTempSensor application object from definition"){
     GIVEN("A BrewBlox OneWireTempSensor definition")
     {
         bool status;
-        blox_OneWireTempSensor_Settings settings = {0x1122334455667788, 456};
+        blox_OneWireTempSensor_Persisted definition;
+        definition.settings = {0x1122334455667788, 456};
 
         uint8_t buffer1[100] = {0};
         pb_ostream_t stream1 = pb_ostream_from_buffer(buffer1, sizeof(buffer1));
-        status = pb_encode_delimited(&stream1, blox_OneWireTempSensor_Settings_fields, &settings);
+        status = pb_encode_delimited(&stream1, blox_OneWireTempSensor_Persisted_fields, &definition);
         CHECK(status);
 
         BufferDataIn in(buffer1);
-        uint8_t len = OneWireTempSensorBloc::settingsMaxSize();
+        uint8_t len = OneWireTempSensorBloc::persistedMaxSize();
         uint8_t typeId = 6; //OneWireTempSensorBloc
 
         ObjectDefinition dfn = {&in, len, typeId};
@@ -119,10 +114,10 @@ SCENARIO("Create blox OneWireTempSensor application object from definition"){
                 pb_istream_t stream_in = pb_istream_from_buffer(buf2, sizeof(buf2));
 
                 // settings are streamed first
-                blox_OneWireTempSensor_Settings settings;
-                pb_decode_delimited(&stream_in, blox_OneWireTempSensor_Settings_fields, &settings);
-                CHECK(settings.address == 0x1122334455667788);
-                CHECK(settings.offset == 456);
+                blox_OneWireTempSensor received;
+                pb_decode_delimited(&stream_in, blox_OneWireTempSensor_fields, &received);
+                CHECK(received.settings.address == 0x1122334455667788);
+                CHECK(received.settings.offset == 456);
             }
         }
     }

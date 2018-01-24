@@ -27,13 +27,13 @@
 
 SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf data"){
     GIVEN("a protobuf message defining a SetPointSimple object"){
-        blox_SetPointSimple_Settings message;
-        message.value = 123;
+        blox_SetPointSimple_Persisted message;
+        message.settings.value = 123;
 
         WHEN("it is encoded to a buffer"){
             uint8_t buf[100];
             pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
-            bool status = pb_encode_delimited(&stream, blox_SetPointSimple_Settings_fields, &message);
+            bool status = pb_encode_delimited(&stream, blox_SetPointSimple_Persisted_fields, &message);
             THEN("no errors occur"){
                 if (!status)
                 {
@@ -69,6 +69,7 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
 
                         BufferDataIn in_roundtrip(buf2);
                         sp.writeMaskedFrom(in_roundtrip, in_roundtrip);
+
                         CHECK(sp.get().read() == temp_t(21.0));
                     }
                 }
@@ -81,15 +82,24 @@ SCENARIO("Create blox SetPointSimple application object from definition"){
     GIVEN("A BrewBlox SetPointSimple definition")
     {
         bool status;
-        blox_SetPointSimple_Settings settings = {123};
+        blox_SetPointSimple_Persisted persistedData;
+        persistedData.settings.value = 123;
 
         uint8_t buffer1[100];
         pb_ostream_t stream1 = pb_ostream_from_buffer(buffer1, sizeof(buffer1));
-        status = pb_encode_delimited(&stream1, blox_SetPointSimple_Settings_fields, &settings);
-        CHECK(status);
+        status = pb_encode_delimited(&stream1, blox_SetPointSimple_Persisted_fields, &persistedData);
+
+        THEN("no errors occur"){
+            if (!status)
+            {
+                WARN("Encoding failed: " << PB_GET_ERROR(&stream1));
+                CAPTURE(stream1);
+            }
+            CHECK(status);
+        }
 
         BufferDataIn in(buffer1);
-        uint8_t len = SetPointSimpleBloc::settingsMaxSize();
+        uint8_t len = SetPointSimpleBloc::persistedMaxSize();
         uint8_t typeId = 7;
 
         ObjectDefinition dfn = {&in, len, typeId};
