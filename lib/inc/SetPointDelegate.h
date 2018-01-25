@@ -30,8 +30,7 @@ class SetPointDelegate :
     public SetPointDelegateMixin
 {
 public:
-    SetPointDelegate() = default;
-    SetPointDelegate(std::function<Interface * ()> lookup) : Delegate<SetPoint>(lookup){}
+    SetPointDelegate(BaseLookup const& lookup) : Delegate<SetPoint>(lookup){}
     ~SetPointDelegate() = default;
 
     void accept(VisitorBase & v) final {

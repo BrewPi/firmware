@@ -64,13 +64,21 @@ public:
 
         fridgeOffsetActuator(fridge, beer),
 
+        heaterPidInputLookup(&fridgeSensor),
+        heaterPidOutputLookup(&heater),
+        coolerPidInputLookup(&fridgeSensor),
+        coolerPidOutputLookup(&cooler),
+
+        heaterPidInput(heaterPidInputLookup),
+        heaterPidOutput(heaterPidOutputLookup),
+        coolerPidInput(coolerPidInputLookup),
+        coolerPidOutput(coolerPidOutputLookup),
+
         heaterPid(heaterPidInput, heaterPidOutput),
         coolerPid(coolerPidInput, coolerPidOutput),
         beerToFridgePid(beer, fridgeOffsetActuator)
     {
         BOOST_TEST_MESSAGE( "setup PID test fixture" );
-        heaterPidOutput.setLookup(PtrLookup(&heater));
-        coolerPidOutput.setLookup(PtrLookup(&cooler));
         coolerPid.setActuatorIsNegative(true);
     }
     ~StaticSetup(){
@@ -93,12 +101,17 @@ public:
     ActuatorPwm cooler;
     ActuatorOffset fridgeOffsetActuator;
 
+    PtrLookup heaterPidInputLookup;
+    PtrLookup heaterPidOutputLookup;
+    PtrLookup coolerPidInputLookup;
+    PtrLookup coolerPidOutputLookup;
+
     ProcessValueDelegate heaterPidInput;
     ProcessValueDelegate heaterPidOutput;
-    Pid heaterPid;
-
     ProcessValueDelegate coolerPidInput;
     ProcessValueDelegate coolerPidOutput;
+
+    Pid heaterPid;
     Pid coolerPid;
 
     Pid beerToFridgePid;
@@ -206,7 +219,7 @@ struct Simulation{
 struct SimBeerHeater : public StaticSetup {
     Simulation sim;
     SimBeerHeater(){
-        heaterPidInput.setLookup(PtrLookup(&beer));
+        heaterPidInputLookup.setPtr(&beer);
         heaterPid.setInputFilter(1);
         heaterPid.setDerivativeFilter(4);
         heaterPid.setConstants(60.0, 7200, 500);
@@ -228,7 +241,7 @@ struct SimBeerHeater : public StaticSetup {
 struct SimFridgeHeater : public StaticSetup {
     Simulation sim;
     SimFridgeHeater(){
-        heaterPidInput.setLookup(PtrLookup(&fridge));
+        heaterPidInputLookup.setPtr(&fridge);
         heaterPid.setInputFilter(1);
         heaterPid.setDerivativeFilter(4);
         heaterPid.setConstants(10.0, 600, 60);
@@ -252,7 +265,7 @@ struct SimFridgeHeater : public StaticSetup {
 struct SimBeerCooler : public StaticSetup {
     Simulation sim;
     SimBeerCooler(){
-        coolerPidInput.setLookup(PtrLookup(&beer));
+        coolerPidInputLookup.setPtr(&beer);
         coolerPid.setInputFilter(2);
         coolerPid.setDerivativeFilter(5);
         coolerPid.setConstants(40.0, 7200, 1200);
@@ -275,7 +288,7 @@ struct SimBeerCooler : public StaticSetup {
 struct SimFridgeCooler : public StaticSetup {
     Simulation sim;
     SimFridgeCooler(){
-        coolerPidInput.setLookup(PtrLookup(&fridge));
+        coolerPidInputLookup.setPtr(&fridge);
         coolerPid.setInputFilter(1);
         coolerPid.setDerivativeFilter(5);
         coolerPid.setConstants(10.0, 1800, 200);
@@ -298,12 +311,12 @@ struct SimFridgeCooler : public StaticSetup {
 struct SimFridgeHeaterCooler : public StaticSetup {
     Simulation sim;
     SimFridgeHeaterCooler(){
-        coolerPidInput.setLookup(PtrLookup(&fridge));
+        coolerPidInputLookup.setPtr(&fridge);
         coolerPid.setInputFilter(1);
         coolerPid.setDerivativeFilter(4);
         coolerPid.setConstants(10.0, 1800, 200);
 
-        heaterPidInput.setLookup(PtrLookup(&fridge));
+        heaterPidInputLookup.setPtr(&fridge);
         heaterPid.setInputFilter(1);
         heaterPid.setDerivativeFilter(4);
         heaterPid.setConstants(10.0, 1800, 60);
@@ -331,12 +344,12 @@ struct SimFridgeHeaterCooler : public StaticSetup {
 struct SimBeerHeaterCooler : public StaticSetup {
     Simulation sim;
     SimBeerHeaterCooler(){
-        coolerPidInput.setLookup(PtrLookup(&beer));
+        coolerPidInputLookup.setPtr(&beer);
         coolerPid.setInputFilter(1);
         coolerPid.setDerivativeFilter(4);
         coolerPid.setConstants(40.0, 7200, 1200);
 
-        heaterPidInput.setLookup(PtrLookup(&beer));
+        heaterPidInputLookup.setPtr(&beer);
         heaterPid.setInputFilter(1);
         heaterPid.setDerivativeFilter(4);
         heaterPid.setConstants(60.0, 7200, 500);
@@ -364,12 +377,12 @@ struct SimBeerHeaterCooler : public StaticSetup {
 struct SimCascadedHeaterCooler : public StaticSetup {
     Simulation sim;
     SimCascadedHeaterCooler(){
-        coolerPidInput.setLookup(PtrLookup(&fridge));
+        coolerPidInputLookup.setPtr(&fridge);
         coolerPid.setInputFilter(1);
         coolerPid.setDerivativeFilter(4);
         coolerPid.setConstants(10.0, 1800, 200);
 
-        heaterPidInput.setLookup(PtrLookup(&fridge));
+        heaterPidInputLookup.setPtr(&fridge);
         heaterPid.setInputFilter(1);
         heaterPid.setDerivativeFilter(4);
         heaterPid.setConstants(10.0, 600, 60);

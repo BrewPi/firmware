@@ -56,15 +56,21 @@ public:
         hlt(hltSensor, hltSet),
         mash(mashSensor, mashSet),
         hltOffsetActuator(hlt, mash),
+
+        hltHeaterInputLookup(&hlt),
+        hltHeaterOutLookup(&hltHeater),
+        mashToHltInputLookup(&mash),
+        mashToHltOutputLookup(&hltOffsetActuator),
+
+        hltHeaterPidInput(hltHeaterInputLookup),
+        hltHeaterPidOutput(hltHeaterOutLookup),
+        mashToHltPidInput(mashToHltInputLookup),
+        mashToHltPidOutput(mashToHltOutputLookup),
+
         hltHeaterPid(hltHeaterPidInput, hltHeaterPidOutput),
         mashToHltPid(mashToHltPidInput, mashToHltPidOutput)
-
     {
         BOOST_TEST_MESSAGE( "setup mash test fixture" );
-        hltHeaterPidInput.setLookup(PtrLookup(&hlt));
-        mashToHltPidInput.setLookup(PtrLookup(&mash));
-        hltHeaterPidOutput.setLookup(PtrLookup(&hltHeater));
-        mashToHltPidOutput.setLookup(PtrLookup(&hltOffsetActuator));
     }
     ~MashStaticSetup(){
         BOOST_TEST_MESSAGE( "tear down mash test fixture" );
@@ -91,12 +97,17 @@ public:
     SensorSetPointPair mash;
     ActuatorOffset hltOffsetActuator;
 
+    PtrLookup hltHeaterInputLookup;
+    PtrLookup hltHeaterOutLookup;
+    PtrLookup mashToHltInputLookup;
+    PtrLookup mashToHltOutputLookup;
+
     ProcessValueDelegate hltHeaterPidInput;
     ProcessValueDelegate hltHeaterPidOutput;
-    Pid hltHeaterPid;
-
     ProcessValueDelegate mashToHltPidInput;
     ProcessValueDelegate mashToHltPidOutput;
+
+    Pid hltHeaterPid;
     Pid mashToHltPid;
 };
 
@@ -195,7 +206,7 @@ struct MashSimulation{
 struct SimMashDirect : public MashStaticSetup {
     MashSimulation sim;
     SimMashDirect(){
-        hltHeaterPidInput.setLookup(PtrLookup(&mash));
+        hltHeaterInputLookup.setPtr(&mash);
         hltHeaterPid.setInputFilter(1);
         hltHeaterPid.setDerivativeFilter(3);
         hltHeaterPid.setConstants(50.0, 300, 60);
@@ -215,13 +226,13 @@ struct SimMashDirect : public MashStaticSetup {
 struct SimMashCascaded : public MashStaticSetup {
     MashSimulation sim;
     SimMashCascaded(){
-        hltHeaterPidInput.setLookup(PtrLookup(&hlt));
+        hltHeaterInputLookup.setPtr(&hlt);
         hltHeaterPid.setInputFilter(1);
         hltHeaterPid.setDerivativeFilter(2);
         hltHeaterPid.setConstants(50.0, 300, 30);
 
 
-        mashToHltPidInput.setLookup(PtrLookup(&mash));
+        mashToHltInputLookup.setPtr(&mash);
         mashToHltPid.setInputFilter(2);
         mashToHltPid.setDerivativeFilter(2);
         mashToHltPid.setConstants(1, 180, 0);

@@ -24,6 +24,7 @@
 #include "Interface.h"
 #include "TempSensor.h"
 #include "SetPoint.h"
+#include "ProcessValue.h"
 #include "VisitorBase.h"
 
 /*

@@ -31,8 +31,7 @@ class TempSensorDelegate final :
     public Delegate<TempSensor>,
     public TempSensorDelegateMixin {
 public:
-    TempSensorDelegate(){}
-    TempSensorDelegate(std::function<Interface * ()> lookup) : Delegate<TempSensor>(lookup){}
+    TempSensorDelegate(BaseLookup const& lookup) : Delegate<TempSensor>(lookup){}
 
     ~TempSensorDelegate() = default;
 

@@ -32,7 +32,7 @@ class ProcessValueDelegate :
 {
 public:
     ProcessValueDelegate() = default;
-    ProcessValueDelegate(std::function<Interface * ()> lookup) : Delegate<ProcessValue>(lookup){}
+    ProcessValueDelegate(BaseLookup const& lookup) : Delegate<ProcessValue>(lookup){}
     ~ProcessValueDelegate() = default;
 
     void accept(VisitorBase & v) final {

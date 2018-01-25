@@ -32,9 +32,7 @@ class ActuatorDigitalDelegate :
 {
 public:
     ActuatorDigitalDelegate() = default;
-    ActuatorDigitalDelegate(std::function<Interface * ()> lookup) {
-        delegate.setLookup(lookup);
-    }
+    ActuatorDigitalDelegate(BaseLookup const& lookup) : Delegate<ActuatorDigital>(lookup){}
     virtual ~ActuatorDigitalDelegate() = default;
 
     void accept(VisitorBase & v) final {

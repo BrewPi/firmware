@@ -26,24 +26,8 @@ template<typename T>
 class Delegate
 {
 public:
-    Delegate() = default;
-    Delegate(std::function<Interface * ()> lookup) {
-        delegate.setLookup(lookup);
-    }
+    Delegate(BaseLookup const& lookup) : delegate(lookup){}
     virtual ~Delegate() = default;
-
-
-    void setLookup(std::function<Interface* ()> lookup) {
-        delegate.setLookup(lookup);
-    }
-
-    void unsetLookup() {
-        delegate.setLookup(nullptr);
-    }
-
-    std::function<Interface * ()> getLookup() {
-        return delegate.getLookup();
-    }
 
 protected:
     RefTo<T> delegate;
