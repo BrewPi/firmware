@@ -232,11 +232,9 @@ class FixedContainer : public OpenContainer
 
 
 		#if OBJECT_VIRTUAL_DESTRUCTOR
-		// the contract says that before a container is deleted, the caller should ensure all contained objects
-		// are also deleted. (if they were added.)
 		~FixedContainer() {
-			for (int i=0; i<SIZE;i++)
-			delete_object(_items[i]);
+		    // We assume that a fixed container does not contain dynamically created objects, so they do not need to be deleted
+		    // Trying to do so will result in segfault
 		}
 		#endif
 
