@@ -57,8 +57,17 @@ public:
     temp_t read() const override final {
         return settings.value;
     }
+
     void write (temp_t val) override final {
         settings.value = val;
+    }
+
+    void copySettingsFrom(void * from){
+		memcpy(&settings, from, sizeof(settings));
+	}
+
+    void copySettingsTo(void * to){
+    	memcpy(to, &settings, sizeof(settings));
     }
 
 friend class SetPointSimpleMixin;

@@ -73,6 +73,19 @@ public:
 	temp_t read() const override final ; // return cached value
 	void update() override final ; // read from hardware sensor
 	
+
+    void copySettingsFrom(void * from){
+		memcpy(&settings, from, sizeof(settings));
+	}
+
+    void copySettingsTo(void * to){
+    	memcpy(to, &settings, sizeof(settings));
+    }
+
+    void copyStateTo(void * to){
+    	memcpy(to, &state, sizeof(state));
+    }
+
 	private:
 
 	void setConnected(bool connected);
@@ -100,6 +113,6 @@ public:
         temp_t cachedValue;
         bool connected;
 	} state;
-	
+
 	friend class OneWireTempSensorMixin;
 };

@@ -19,29 +19,6 @@
 
 #pragma once
 
-// Macro to define a mixin for a class to make it blox compatible
-// - Defines a protected destructor to prevent destruction from mixin class
-// - Exposes pointer to settings struct
-// - Exposes pointer to state struct
-// - friendship with bloc class that will wrap this class
-#define BLOX_MIXIN_SETTINGS_ONLY(T) \
-class T ## Mixin { \
-protected: \
-    void* settingsPtr(); \
-    void* statePtr(){ return nullptr; }; \
-    ~T ## Mixin() = default; \
-friend class T ## Bloc; \
-}
-#define BLOX_MIXIN_SETTINGS_AND_STATE(T) \
-class T ## Mixin { \
-protected: \
-    void* settingsPtr(); \
-    void* statePtr(); \
-    ~T ## Mixin() = default; \
-friend class T ## Bloc; \
-}
-
-
 class InterfaceMixin {};
 class ActuatorDigitalMixin {};
 class ActuatorAnalogMixin {};
@@ -50,9 +27,7 @@ class TempSensorMixin {};
 class TempSensorMockMixin {};
 class TempSensorFallbackMixin {};
 class PidMixin {};
-
-BLOX_MIXIN_SETTINGS_AND_STATE(OneWireTempSensor);
-
+class OneWireTempSensorMixin{};
 class TempSensorDisconnectedMixin {};
 class TempSensorExternalMixin {};
 class ActuatorTimeLimitedMixin {};
@@ -65,9 +40,7 @@ class ActuatorBoolMixin {};
 class ActuatorNopMixin {};
 class ActuatorInvalidMixin {};
 class SetPointMixin {};
-
-BLOX_MIXIN_SETTINGS_ONLY(SetPointSimple);
-
+class SetPointSimpleMixin{};
 class SetPointConstantMixin {};
 class SetPointMinMaxMixin {};
 class ActuatorPinMixin {};

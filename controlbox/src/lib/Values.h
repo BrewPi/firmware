@@ -24,6 +24,7 @@
 #include "stdint.h"
 #include "DataStream.h"
 #include "EepromAccess.h"
+#include "CboxMixins.h"
 
 typedef int8_t container_id;
 
@@ -76,7 +77,7 @@ typedef uint8_t obj_type_t;
 
 #define cast_object_ptr(t, x) ((t*)x)
 
-struct Object
+struct Object : virtual public ObjectMixin
 {
 	obj_type_t _typeID;
 public:
@@ -518,6 +519,10 @@ Object* lookupObject(Object* current, DataIn& data);
  */
 Container* lookupContainer(Object* current, DataIn& data, int8_t& lastID);
 
+/**
+ * Fetches the object at a given index in a container.
+ */
+Object* fetchContainedObject(Object* o, container_id id);
 
 /**
  * Read the id chain from the stream and resolve the corresponding object.

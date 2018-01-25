@@ -51,18 +51,3 @@
 #include "ActuatorPin.h"
 #endif
 
-void * SetPointSimpleMixin::settingsPtr(){
-    SetPointSimple * obj = static_cast<SetPointSimple *>(this);
-    return &obj->settings;
-}
-
-void * OneWireTempSensorMixin::settingsPtr(){
-    OneWireTempSensor * obj = static_cast<OneWireTempSensor *>(this);
-    return &obj->settings;
-}
-
-void * OneWireTempSensorMixin::statePtr(){
-    OneWireTempSensor * obj = static_cast<OneWireTempSensor *>(this);
-    return &obj->state;
-}
-
