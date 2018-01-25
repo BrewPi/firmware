@@ -188,7 +188,7 @@ int8_t Commands::rehydrateObject(eptr_t offset, PipeDataIn& in, bool dryRun)
 
 	Object* newObject = nullptr;
 	if (!error) {
-		OpenContainer* target = (OpenContainer*)container;
+		OpenContainer* target = container;
 		error = createObject(newObject, in, dryRun);			// read the type and create args
 
 		if (!error && !target->add(lastID,newObject)) {
@@ -204,7 +204,7 @@ int8_t Commands::rehydrateObject(eptr_t offset, PipeDataIn& in, bool dryRun)
         newObject->rehydrated(offset);
     }
 	else {
-		delete_object(newObject);
+	    delete_object(newObject);
 	}
 	return error;
 }

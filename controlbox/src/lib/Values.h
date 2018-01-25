@@ -62,7 +62,7 @@ typedef uint8_t obj_type_t;
 
 // if no objects require cleanup, then we can do away with the virtual destructor, saving quite a bit of space (several hundred bytes.)
 #ifndef OBJECT_VIRTUAL_DESTRUCTOR
-#define OBJECT_VIRTUAL_DESTRUCTOR 0
+#define OBJECT_VIRTUAL_DESTRUCTOR 1
 #endif
 
 #if OBJECT_VIRTUAL_DESTRUCTOR
@@ -83,8 +83,12 @@ struct Object : virtual public ObjectMixin
 public:
 	Object(obj_type_t typeID=0) : _typeID(typeID) {}
 
-
+#if OBJECT_VIRTUAL_DESTRUCTOR
 	virtual ~Object() = default;
+#else
+	~Object() = default;
+#endif
+
 
 	/**
 	 * Determines the system type of object this is.
@@ -120,10 +124,6 @@ public:
 	 */
 	virtual void update() { }
 
-
-#if OBJECT_VIRTUAL_DESTRUCTOR
-	virtual ~Object() {}
-#endif
 };
 
 const uint8_t MAX_CONTAINER_DEPTH = 8;

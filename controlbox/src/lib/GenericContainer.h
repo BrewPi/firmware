@@ -92,11 +92,11 @@ class DynamicContainer: public OpenContainer
 
 		Object* item(container_id id);
 
-		container_id next();
+		virtual container_id next() override final;
 
-		bool add(container_id slot, Object* item);
+		virtual bool add(container_id slot, Object* item) override final;
 
-		void remove(container_id id);
+		virtual void remove(container_id id) override final;
 
 		/*
 		 * The number of items in this container.
@@ -169,11 +169,11 @@ template<int SIZE> class StaticTemplateContainer : public OpenContainer
 			return _items[id];
 		}
 
-		container_id next() {
+		virtual container_id next() override final {
 			return freeSlot();
 		}
 
-		bool add(container_id slot, Object* item) {
+		virtual bool add(container_id slot, Object* item) override final {
 			if (slot>=SIZE)
 				return false;
 			remove(slot);
@@ -181,7 +181,7 @@ template<int SIZE> class StaticTemplateContainer : public OpenContainer
 			return true;
 		}
 
-		void remove(container_id id) {
+		virtual void remove(container_id id) override final {
 			delete_object(_items[id]);
 			_items[id] = NULL;
 		}
@@ -194,7 +194,7 @@ template<int SIZE> class StaticTemplateContainer : public OpenContainer
 #if OBJECT_VIRTUAL_DESTRUCTOR
 		// the contract says that before a container is deleted, the caller should ensure all contained objects
 		// are also deleted. (if they were added.)
-		~StaticContainer() {
+		~StaticTemplateContainer() {
 			for (int i=0; i<SIZE;i++)
 				delete_object(_items[i]);
 		}
@@ -234,7 +234,7 @@ class FixedContainer : public OpenContainer
 		#if OBJECT_VIRTUAL_DESTRUCTOR
 		// the contract says that before a container is deleted, the caller should ensure all contained objects
 		// are also deleted. (if they were added.)
-		~StaticContainer() {
+		~FixedContainer() {
 			for (int i=0; i<SIZE;i++)
 			delete_object(_items[i]);
 		}
@@ -261,11 +261,11 @@ class FixedContainer : public OpenContainer
 			return _items[id];
 		}
 
-		container_id next() {
+		virtual container_id next() override final {
 			return freeSlot();
 		}
 
-		bool add(container_id slot, Object* item) {
+		virtual bool add(container_id slot, Object* item) override final {
 			if (slot>=SIZE)
 				return false;
 			remove(slot);
@@ -273,7 +273,7 @@ class FixedContainer : public OpenContainer
 			return true;
 		}
 
-		void remove(container_id id) {
+		virtual void remove(container_id id) override final{
 			delete_object(_items[id]);
 			_items[id] = NULL;
 		}
