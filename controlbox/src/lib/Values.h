@@ -145,7 +145,7 @@ struct Container : public Object
 
 	/**
 	 * Returns a previously fetched item back the container.
-	 * @param id		The id the idem had in this container.
+	 * @param id		The id the item had in this container.
 	 * @param item	The object to return to the container.
 	 *
 	 * This method should be called after each successful call to

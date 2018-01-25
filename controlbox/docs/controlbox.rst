@@ -333,7 +333,7 @@ Command Response::
     type        the type of the object
     size        size of construction parameters of the object
     data[size]  construction data
-    status      zero or positive on success indicating the object was successfully deleted.
+    status      zero or positive on success indicating the object was successfully created.
                 A negative value on error. (These values may later be defined error codes.)
 
 The types of objects that can be created and the format of their definition blocks is defined by the application.
