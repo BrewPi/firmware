@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+import 'nanopb.proto';
+
+package blox;
+
+message SensorSetPointPair {
+  message Links {
+    bytes sensor = 1 [(nanopb).max_size = 4, (nanopb).fixed_length = true];
+    bytes setpoint = 2 [(nanopb).max_size = 4, (nanopb).fixed_length = true];
+  }
+  
+  Links links = 1;
+}
+
+message SensorSetPointPair_Persisted {
+  SensorSetPointPair.Links links = 1;
+}

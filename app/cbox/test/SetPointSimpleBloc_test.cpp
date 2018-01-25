@@ -79,8 +79,7 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
 }
 
 SCENARIO("Create blox SetPointSimple application object from definition"){
-    GIVEN("A BrewBlox SetPointSimple definition")
-    {
+    GIVEN("A BrewBlox SetPointSimple definition"){
         bool status;
         blox_SetPointSimple_Persisted persistedData;
         persistedData.settings.value = 123;

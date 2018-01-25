@@ -10,8 +10,8 @@ private:
 
 public:
     SetPointSimpleBloc() :
-    setpoint()
-    {}
+        setpoint()
+{}
 
     static const size_t persistedMaxSize(){
         static_assert(blox_SetPointSimple_Persisted_size < 128, "varint for settings size will be larger than 1 byte");
@@ -64,15 +64,15 @@ public:
     }
 
     Interface * getApplicationInterfaceImpl() override final{
-    	return &setpoint;
+        return &setpoint;
     }
 
     virtual void readTo(DataOut& out) override final {
-    	blox_SetPointSimple message; \
-    	setpoint.copySettingsTo(&message.settings);
-    	static_assert(blox_SetPointSimple_size < 128, "varint for settings size will be larger than 1 byte");
-    	pb_ostream_t stream = { &dataOutStreamCallback, &out, blox_SetPointSimple_size + 1, 0 };
-    	pb_encode_delimited(&stream, blox_SetPointSimple_fields, &message);
+        blox_SetPointSimple message; \
+        setpoint.copySettingsTo(&message.settings);
+        static_assert(blox_SetPointSimple_size < 128, "varint for settings size will be larger than 1 byte");
+        pb_ostream_t stream = { &dataOutStreamCallback, &out, blox_SetPointSimple_size + 1, 0 };
+        pb_encode_delimited(&stream, blox_SetPointSimple_fields, &message);
     }
 
 };

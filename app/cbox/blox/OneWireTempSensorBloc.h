@@ -15,8 +15,8 @@ private:
 
 public:
     OneWireTempSensorBloc() :
-    sensor(&oneWireBus.oneWire())
-    {}
+        sensor(&oneWireBus.oneWire())
+{}
 
     static const size_t persistedMaxSize(){
         static_assert(blox_OneWireTempSensor_Persisted_size < 128, "varint for settings size will be larger than 1 byte");
@@ -38,7 +38,7 @@ public:
         bool success = pb_decode_delimited_noinit(&stream, blox_OneWireTempSensor_Persisted_fields, &newData);
         /* if no errors occur, write new settings to wrapped object */
         if(success){
-        	sensor.copySettingsFrom(&newData.settings);
+            sensor.copySettingsFrom(&newData.settings);
             storeSettings();
         }
     }
@@ -69,7 +69,7 @@ public:
     }
 
     Interface * getApplicationInterfaceImpl() override final{
-    	return &sensor;
+        return &sensor;
     }
 
     virtual void readTo(DataOut& out) override final {

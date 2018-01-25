@@ -24,35 +24,34 @@
 
 #include "Values.h"
 #include "Commands.h"
-#include "OneWireTempSensorBloc.h"
+#include "SensorSetPointPairBloc.h"
 
 
-SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf data"){
-    GIVEN("a protobuf message defining a OneWireTempSensor object"){
-        blox_OneWireTempSensor_Persisted message;
-        message.settings.address = 0x0011223344556677;
-        message.settings.offset = 123;
+SCENARIO("A Blox SensorSetPointPair object can be created from streamed protobuf data"){
+    GIVEN("a protobuf message defining a SensorSetPointPair object"){
+        blox_SensorSetPointPair_Persisted message;
+        message.links = {{0x01, 0x00, 0x00, 0x00}, {0x02, 0x00, 0x00, 0x00}};
 
         WHEN("it is encoded to a buffer"){
             uint8_t buf[100] = {0};
             pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
-            bool status = pb_encode_delimited(&stream, blox_OneWireTempSensor_Persisted_fields, &message);
+            bool status = pb_encode_delimited(&stream, blox_SensorSetPointPair_Persisted_fields, &message);
             CHECK(status);
 
             std::stringstream ss;
             ss << "0x" << std::setfill('0') << std::hex;
-            for(int i =0 ; i <= blox_OneWireTempSensor_Persisted_size; i ++){
+            for(int i =0 ; i <= blox_SensorSetPointPair_Persisted_size; i ++){
                 ss << std::setw(2) << static_cast<unsigned>(buf[i]);
             }
-            WARN("Encoding of sensor with address 0x0011223344556677 and offset 123 is " << ss.str());
-            WARN("Length of encoding is " << blox_OneWireTempSensor_Persisted_size);
+            WARN("Encoding of SensorSetPointPair with sensor lookup 0x01000000 and setpoint lookup 0x02000000 is " << ss.str());
+            WARN("Length of encoding is " << blox_SensorSetPointPair_Persisted_size);
 
             AND_WHEN("we create a DataIn object form that buffer"){
                 BufferDataIn in(buf);
 
-                THEN("a newly created OneWireTempSensorBloc object can receive settings from the DataIn stream")
+                THEN("a newly created SensorSetPointPairBloc object can receive settings from the DataIn stream")
                 {
-                    OneWireTempSensorBloc sensor;
+                    SensorSetPointPairBloc sensor;
                     sensor.writeMaskedFrom(in, in); // use in as mask too, it is not used.
 
                     AND_THEN("we can stream that bloc object to a DataOut stream")
@@ -64,12 +63,12 @@ SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf 
                         // verify data that is streamed out by streaming it back in
                         pb_istream_t stream_in = pb_istream_from_buffer(buf2, sizeof(buf2));
 
-                        blox_OneWireTempSensor received;
-                        pb_decode_delimited(&stream_in, blox_OneWireTempSensor_fields, &received);
-                        CHECK(received.settings.address == message.settings.address);
-                        CHECK(received.settings.offset == message.settings.offset);
-                        CHECK(received.state.value == temp_t::invalid().getRaw());
-                        CHECK(received.state.connected == true);
+                        blox_SensorSetPointPair received;
+                        pb_decode_delimited(&stream_in, blox_SensorSetPointPair_fields, &received);
+                        for(int i = 0; i < 4; i++){
+                            CHECK(received.links.sensor[i] == message.links.sensor[i]);
+                            CHECK(received.links.setpoint[i] == message.links.setpoint[i]);
+                        }
                     }
                 }
             }
@@ -78,21 +77,20 @@ SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf 
 }
 
 
-SCENARIO("Create blox OneWireTempSensor application object from definition"){
-    GIVEN("A BrewBlox OneWireTempSensor definition")
-            {
+SCENARIO("Create blox SensorSetPointPair application object from definition"){
+    GIVEN("A BrewBlox SensorSetPointPair definition"){
         bool status;
-        blox_OneWireTempSensor_Persisted definition;
-        definition.settings = {0x1122334455667788, 456};
+        blox_SensorSetPointPair_Persisted definition;
+        definition.links = {{0x01, 0x00, 0x00, 0x00}, {0x02, 0x00, 0x00, 0x00}};
 
         uint8_t buffer1[100] = {0};
         pb_ostream_t stream1 = pb_ostream_from_buffer(buffer1, sizeof(buffer1));
-        status = pb_encode_delimited(&stream1, blox_OneWireTempSensor_Persisted_fields, &definition);
+        status = pb_encode_delimited(&stream1, blox_SensorSetPointPair_Persisted_fields, &definition);
         CHECK(status);
 
         BufferDataIn in(buffer1);
-        uint8_t len = OneWireTempSensorBloc::persistedMaxSize();
-        uint8_t typeId = 6; //OneWireTempSensorBloc
+        uint8_t len = SensorSetPointPairBloc::persistedMaxSize();
+        uint8_t typeId = 8; //SensorSetPointPairBloc
 
         ObjectDefinition dfn = {&in, len, typeId};
 
@@ -114,12 +112,25 @@ SCENARIO("Create blox OneWireTempSensor application object from definition"){
                 pb_istream_t stream_in = pb_istream_from_buffer(buf2, sizeof(buf2));
 
                 // settings are streamed first
-                blox_OneWireTempSensor received;
-                pb_decode_delimited(&stream_in, blox_OneWireTempSensor_fields, &received);
-                CHECK(received.settings.address == 0x1122334455667788);
-                CHECK(received.settings.offset == 456);
+                blox_SensorSetPointPair received;
+                pb_decode_delimited(&stream_in, blox_SensorSetPointPair_fields, &received);
+
+                for(int i = 0; i < 4; i++){
+                    CHECK(received.links.sensor[i] == definition.links.sensor[i]);
+                    CHECK(received.links.setpoint[i] == definition.links.setpoint[i]);
+                }
+            }
+            AND_WHEN("The SensorSetPointPair contained in the bloc is used as application object"){
+                ProcessValue * pv = asInterface<ProcessValue>(obj->getApplicationInterface());
+                pv->set(temp_t(10.0));
+                temp_t setting = pv->setting();
+                temp_t value = pv->value();
+
+                // both values will return invalid, because lookups point to default objects
+                CHECK(setting == temp_t::invalid());
+                CHECK(value == temp_t::invalid());
             }
         }
-            }
+    }
 }
 

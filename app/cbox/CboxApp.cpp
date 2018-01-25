@@ -31,6 +31,7 @@
 #include "OneWireBusCBox.h"
 #include "OneWireTempSensorBloc.h"
 #include "SetPointSimpleBloc.h"
+#include "SensorSetPointPairBloc.h"
 
 
 OneWireBusCBox oneWireBus;
@@ -41,19 +42,20 @@ EepromAccess eepromAccess;
 
 
 Commands::ObjectFactory createObjectHandlers[] = {
-    nullFactory,                                            // type 0
-    ScaledTicksValue::create,                               // type 1
-    DynamicContainer::create,                               // type 2
-    EepromValue::create,                                    // type 3
-    PersistChangeValue::create,                             // type 4
-    IndirectValue::create,                                  // type 5
-    OneWireTempSensorBloc::create,                          // type 6
-    SetPointSimpleBloc::create,                             // type 7
-    NULL
+        nullFactory,                                            // type 0
+        ScaledTicksValue::create,                               // type 1
+        DynamicContainer::create,                               // type 2
+        EepromValue::create,                                    // type 3
+        PersistChangeValue::create,                             // type 4
+        IndirectValue::create,                                  // type 5
+        OneWireTempSensorBloc::create,                          // type 6
+        SetPointSimpleBloc::create,                             // type 7
+        SensorSetPointPairBloc::create,                             // type 8
+        NULL
 
-    // When defining a new object type, add the handler above the last NULL value (it's just there to make
-    // editing the code easier).
-    // The Object definition passed to the create handler contains the stream and the block length.
+        // When defining a new object type, add the handler above the last NULL value (it's just there to make
+        // editing the code easier).
+        // The Object definition passed to the create handler contains the stream and the block length.
 };
 
 
