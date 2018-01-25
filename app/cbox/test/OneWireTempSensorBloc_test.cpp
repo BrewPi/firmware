@@ -30,7 +30,8 @@
 SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf data"){
     GIVEN("a protobuf message defining a OneWireTempSensor object"){
         blox_OneWireTempSensor_Persisted message;
-        message.settings.address = 0x0011223344556677;
+        uint8_t address[8] = {8, 7, 6, 5, 4, 3, 2, 1};
+        memcpy(&message.settings.address, &address, 8);
         message.settings.offset = 123;
 
         WHEN("it is encoded to a buffer"){
@@ -44,7 +45,7 @@ SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf 
             for(int i =0 ; i <= blox_OneWireTempSensor_Persisted_size; i ++){
                 ss << std::setw(2) << static_cast<unsigned>(buf[i]);
             }
-            WARN("Encoding of sensor with address 0x0011223344556677 and offset 123 is " << ss.str());
+            WARN("Encoding of sensor with address 0x0807060504030201 and offset 123 is " << ss.str());
             WARN("Length of encoding is " << blox_OneWireTempSensor_Persisted_size);
 
             AND_WHEN("we create a DataIn object form that buffer"){
@@ -66,7 +67,9 @@ SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf 
 
                         blox_OneWireTempSensor received;
                         pb_decode_delimited(&stream_in, blox_OneWireTempSensor_fields, &received);
-                        CHECK(received.settings.address == message.settings.address);
+                        for(uint8_t i = 0; i < 8; i++){
+                            CHECK(received.settings.address[i] == message.settings.address[i]);
+                        }
                         CHECK(received.settings.offset == message.settings.offset);
                         CHECK(received.state.value == temp_t::invalid().getRaw());
                         CHECK(received.state.connected == true);
@@ -83,7 +86,9 @@ SCENARIO("Create blox OneWireTempSensor application object from definition"){
             {
         bool status;
         blox_OneWireTempSensor_Persisted definition;
-        definition.settings = {0x1122334455667788, 456};
+        uint8_t address[8] = {8, 7, 6, 5, 4, 3, 2, 1};
+        memcpy(&definition.settings.address, &address, 8);
+        definition.settings.offset = 456;
 
         uint8_t buffer1[100] = {0};
         pb_ostream_t stream1 = pb_ostream_from_buffer(buffer1, sizeof(buffer1));
@@ -116,7 +121,9 @@ SCENARIO("Create blox OneWireTempSensor application object from definition"){
                 // settings are streamed first
                 blox_OneWireTempSensor received;
                 pb_decode_delimited(&stream_in, blox_OneWireTempSensor_fields, &received);
-                CHECK(received.settings.address == 0x1122334455667788);
+                for(uint8_t i = 0; i < 8; i++){
+                    CHECK(received.settings.address[i] == definition.settings.address[i]);
+                }
                 CHECK(received.settings.offset == 456);
             }
         }

@@ -6,7 +6,7 @@ package blox;
 
 message OneWireTempSensor {
   message Settings {
-    fixed64 address = 1;
+    bytes address = 1 [(nanopb).max_size = 8, (nanopb).fixed_length = true];
     sint32 offset = 2 [(nanopb).int_size = IS_16];
   }
   message State {
