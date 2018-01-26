@@ -40,22 +40,25 @@ public:
 	 * /param calibration	A temperature value that is added to all readings. This can be used to calibrate the sensor.	 
 	 */
 	OneWireTempSensor(OneWire* bus, DeviceAddress address, temp_t calibrationOffset)
-	: oneWire(bus), sensor(NULL) {		
-		memcpy(settings.sensorAddress, address, sizeof(DeviceAddress));
-		settings.calibrationOffset = calibrationOffset;
-		state.connected = true;  // assume connected. Transition from connected to disconnected prints a message.
-		state.cachedValue = TEMP_SENSOR_DISCONNECTED;
-	};
+	: sensor(bus)
+    {
+        memcpy(settings.sensorAddress, address, sizeof(DeviceAddress));
+        settings.calibrationOffset = calibrationOffset;
+        state.connected = true; // assume connected upon creation, because address will be set just after this construction
+        state.cachedValue = TEMP_SENSOR_DISCONNECTED;
+        init();
+    };
 	
 	OneWireTempSensor(OneWire* bus)
-    : oneWire(bus), sensor(NULL) {
+    : sensor(bus) {
         memset(settings.sensorAddress, 0, sizeof(DeviceAddress));
         settings.calibrationOffset = temp_t(0.0);
         state.connected = true; // assume connected upon creation, because address will be set just after this construction
         state.cachedValue = TEMP_SENSOR_DISCONNECTED;
+        init();
     };
 
-	~OneWireTempSensor();
+	~OneWireTempSensor() = default;
 
     /**
      * Accept function for visitor pattern
@@ -100,9 +103,8 @@ public:
 	 * updates lastRequestTime. On successful, leaves lastRequestTime alone and returns DEVICE_DISCONNECTED.
 	 */
 	temp_t readAndConstrainTemp();
-	
-	OneWire * oneWire;
-	DallasTemperature * sensor;
+
+	DallasTemperature sensor;
 
 	struct Settings {
         DeviceAddress sensorAddress;

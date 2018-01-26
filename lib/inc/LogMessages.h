@@ -29,7 +29,7 @@
 */
 
 /* bump this version number when changing this file and copy the new version to the brewpi-script repository. */
-#define BREWPI_LOG_MESSAGES_VERSION 3
+#define BREWPI_LOG_MESSAGES_VERSION 4
 
 #define MSG(errorID, errorString, ...) errorID
 
@@ -64,7 +64,7 @@ enum warningMessages{
 	MSG(WARNING_INVALID_COMMAND, "Invalid command received by controller: %c", character),
 
 // OneWireTempSensor.cpp	
-	MSG(WARNING_TEMP_SENSOR_DISCONNECTED, "Temperature sensor disconnected pin %d, address %s", pinNr, addressString),
+	MSG(WARNING_TEMP_SENSOR_DISCONNECTED, "Temperature sensor disconnected, address %s", addressString),
 
 // SettingsManager.cpp	
 	MSG(WARNING_START_IN_SAFE_MODE, "EEPROM Settings not available. Starting in safe mode."),
@@ -83,9 +83,9 @@ enum warningMessages{
 // Info messages
 enum infoMessages{
 // OneWireTempSensor.cpp
-	MSG(INFO_TEMP_SENSOR_CONNECTED, "Temp sensor connected on pin %d, address %s", pinNr, addressString),
-	MSG(INFO_TEMP_SENSOR_DISCONNECTED, "Temp sensor disconnected on pin %d, address %s", pinNr, addressString),
-	MSG(INFO_TEMP_SENSOR_INITIALIZED, "Sensor initialized: pin %d %s %s", pinNr, addressString, temperature),
+	MSG(INFO_TEMP_SENSOR_CONNECTED, "Temp sensor connected on pin %d, address %s", addressString),
+	MSG(INFO_TEMP_SENSOR_DISCONNECTED, "Temp sensor disconnected on pin %d, address %s", addressString),
+	MSG(INFO_TEMP_SENSOR_INITIALIZED, "Sensor initialized: %s %s", addressString, temperature),
 
 // DeviceManager.cpp
 	MSG(INFO_UNINSTALL_TEMP_SENSOR, "uninstalling temperature sensor with function %d", config.deviceFunction),

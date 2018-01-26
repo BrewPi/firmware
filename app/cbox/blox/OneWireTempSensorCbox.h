@@ -18,7 +18,6 @@ class OneWireTempSensorCBox : public WritableValue {
 
     OneWireTempSensorCBox(OneWire& bus, DeviceAddress& address, temp_t offset)
     : sensor(&bus, address, offset){
-        sensor.init();
     }
 
 public:

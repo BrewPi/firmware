@@ -26,13 +26,9 @@
 #include "Ticks.h"
 #include "Logger.h"
 
-OneWireTempSensor::~OneWireTempSensor() {
-    delete sensor;
-};
-
 /**
  * Initializes the temperature sensor.
- * This method is called when the sensor is first created and also any time the sensor reports it's disstate.connected.
+ * This method is called when the sensor is first created and also any time the sensor reports it's disconnected.
  * If the result is TEMP_SENSOR_DISCONNECTED then subsequent calls to read() will also return TEMP_SENSOR_DISCONNECTED.
  * Clients should attempt to re-initialize the sensor by calling init() again. 
  */
@@ -44,41 +40,34 @@ bool OneWireTempSensor::init() {
 
     bool success = false;
 
-    if (sensor == NULL) {
-        sensor = new DallasTemperature(oneWire);
-        if (sensor == NULL) {
-            logErrorString(ERROR_SRAM_SENSOR, addressString);
-        }
-    }
-
     logDebug("init onewire sensor");
     // This quickly tests if the sensor is state.connected and initializes the reset detection if necessary.
-    if (sensor){
-        // If this is the first conversion after power on, the device will return DEVICE_DISCONNECTED_RAW
-        // Because HIGH_ALARM_TEMP will be copied from EEPROM
-        int16_t temp = sensor->getTempRaw(settings.sensorAddress);
-        if(temp == DEVICE_DISCONNECTED_RAW){
-            // Device was just powered on and should be initialized
-            if(sensor->initConnection(settings.sensorAddress)){
-                requestConversion();
-                waitForConversion();
-                temp = sensor->getTempRaw(settings.sensorAddress);
-            }
-        }        
-        DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, oneWire->pinNr(), addressString, temp));
-        success = temp != DEVICE_DISCONNECTED_RAW;
-        if(success){
-        		state.cachedValue = temp;
-            requestConversion(); // piggyback request for a new conversion
+
+    // If this is the first conversion after power on, the device will return DEVICE_DISCONNECTED_RAW
+    // Because HIGH_ALARM_TEMP will be copied from EEPROM
+    int16_t temp = sensor.getTempRaw(settings.sensorAddress);
+    if(temp == DEVICE_DISCONNECTED_RAW){
+        // Device was just powered on and should be initialized
+        if(sensor.initConnection(settings.sensorAddress)){
+            requestConversion();
+            waitForConversion();
+            temp = sensor.getTempRaw(settings.sensorAddress);
         }
     }
+    DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, addressString, temp));
+    success = temp != DEVICE_DISCONNECTED_RAW;
+    if(success){
+            state.cachedValue = temp;
+        requestConversion(); // piggyback request for a new conversion
+    }
+
     setConnected(success);
     logDebug("init onewire sensor complete %d", success);
     return success;
 }
 
 void OneWireTempSensor::requestConversion() {
-    sensor->requestTemperaturesByAddress(settings.sensorAddress);
+    sensor.requestTemperaturesByAddress(settings.sensorAddress);
 }
 
 void OneWireTempSensor::setConnected(bool connected) {
@@ -89,9 +78,9 @@ void OneWireTempSensor::setConnected(bool connected) {
     printBytes(settings.sensorAddress, 8, addressString);
     state.connected = connected;
     if (connected) {
-        logInfoIntString(INFO_TEMP_SENSOR_CONNECTED, this->oneWire->pinNr(), addressString);
+        logInfoString(INFO_TEMP_SENSOR_CONNECTED, addressString);
     } else {
-        logWarningIntString(WARNING_TEMP_SENSOR_DISCONNECTED, this->oneWire->pinNr(), addressString);
+        logWarningString(WARNING_TEMP_SENSOR_DISCONNECTED, addressString);
     }
 }
 
@@ -112,13 +101,13 @@ temp_t OneWireTempSensor::readAndConstrainTemp() {
     int16_t tempRaw;
     bool success;
 
-    tempRaw = sensor->getTempRaw(settings.sensorAddress);
+    tempRaw = sensor.getTempRaw(settings.sensorAddress);
     success = tempRaw != DEVICE_DISCONNECTED_RAW;
 
     if (!success){
         // retry re-init once
         if(init()){
-            tempRaw = sensor->getTempRaw(settings.sensorAddress);
+            tempRaw = sensor.getTempRaw(settings.sensorAddress);
             success = tempRaw != DEVICE_DISCONNECTED_RAW;
         }
     }

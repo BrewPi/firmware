@@ -83,9 +83,6 @@ void setup()
 
 #if BREWPI_SIMULATE
 	simulator.step();
-	// initialize the filters with the assigned initial temp value
-	//tempControl.beerSensor->init();
-	//tempControl.fridgeSensor->init();
 #endif	
     settingsManager.loadSettings();
 
