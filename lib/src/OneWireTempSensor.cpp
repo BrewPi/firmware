@@ -26,10 +26,6 @@
 #include "Ticks.h"
 #include "Logger.h"
 
-OneWireTempSensor::~OneWireTempSensor() {
-    delete sensor;
-};
-
 /**
  * Initializes the temperature sensor.
  * This method is called when the sensor is first created and also any time the sensor reports it's disconnected.
@@ -40,71 +36,64 @@ bool OneWireTempSensor::init() {
 
     // save address and pinNr for log messages
     char addressString[17];
-    printBytes(sensorAddress, 8, addressString);
+    printBytes(settings.sensorAddress, 8, addressString);
 
     bool success = false;
 
-    if (sensor == NULL) {
-        sensor = new DallasTemperature(oneWire);
-        if (sensor == NULL) {
-            logErrorString(ERROR_SRAM_SENSOR, addressString);
+    logDebug("init onewire sensor");
+    // This quickly tests if the sensor is state.connected and initializes the reset detection if necessary.
+
+    // If this is the first conversion after power on, the device will return DEVICE_DISCONNECTED_RAW
+    // Because HIGH_ALARM_TEMP will be copied from EEPROM
+    int16_t temp = sensor.getTempRaw(settings.sensorAddress);
+    if(temp == DEVICE_DISCONNECTED_RAW){
+        // Device was just powered on and should be initialized
+        if(sensor.initConnection(settings.sensorAddress)){
+            requestConversion();
+            waitForConversion();
+            temp = sensor.getTempRaw(settings.sensorAddress);
         }
+    }
+    DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, addressString, temp));
+    success = temp != DEVICE_DISCONNECTED_RAW;
+    if(success){
+            state.cachedValue = temp;
+        requestConversion(); // piggyback request for a new conversion
     }
 
-    logDebug("init onewire sensor");
-    // This quickly tests if the sensor is connected and initializes the reset detection if necessary.
-    if (sensor){
-        // If this is the first conversion after power on, the device will return DEVICE_DISCONNECTED_RAW
-        // Because HIGH_ALARM_TEMP will be copied from EEPROM
-        int16_t temp = sensor->getTempRaw(sensorAddress);
-        if(temp == DEVICE_DISCONNECTED_RAW){
-            // Device was just powered on and should be initialized
-            if(sensor->initConnection(sensorAddress)){
-                requestConversion();
-                waitForConversion();
-                temp = sensor->getTempRaw(sensorAddress);            
-            }
-        }        
-        DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, oneWire->pinNr(), addressString, temp));
-        success = temp != DEVICE_DISCONNECTED_RAW;
-        if(success){
-        		cachedValue = temp;
-            requestConversion(); // piggyback request for a new conversion
-        }
-    }
     setConnected(success);
     logDebug("init onewire sensor complete %d", success);
     return success;
 }
 
 void OneWireTempSensor::requestConversion() {
-    sensor->requestTemperaturesByAddress(sensorAddress);
+    sensor.requestTemperaturesByAddress(settings.sensorAddress);
 }
 
 void OneWireTempSensor::setConnected(bool connected) {
-    if (this->connected == connected)
+    if (state.connected == connected)
         return; // state is stays the same
 
     char addressString[17];
-    printBytes(sensorAddress, 8, addressString);
-    this->connected = connected;
+    printBytes(settings.sensorAddress, 8, addressString);
+    state.connected = connected;
     if (connected) {
-        logInfoIntString(INFO_TEMP_SENSOR_CONNECTED, this->oneWire->pinNr(), addressString);
+        logInfoString(INFO_TEMP_SENSOR_CONNECTED, addressString);
     } else {
-        logWarningIntString(WARNING_TEMP_SENSOR_DISCONNECTED, this->oneWire->pinNr(), addressString);
+        logWarningString(WARNING_TEMP_SENSOR_DISCONNECTED, addressString);
     }
 }
 
 temp_t OneWireTempSensor::read() const {
 
-    if (!connected)
+    if (!state.connected)
         return TEMP_SENSOR_DISCONNECTED;
 
-    return cachedValue;
+    return state.cachedValue;
 }
 
 void OneWireTempSensor::update(){
-    cachedValue = readAndConstrainTemp();
+    state.cachedValue = readAndConstrainTemp();
     requestConversion();
 }
 
@@ -112,13 +101,13 @@ temp_t OneWireTempSensor::readAndConstrainTemp() {
     int16_t tempRaw;
     bool success;
 
-    tempRaw = sensor->getTempRaw(sensorAddress);
+    tempRaw = sensor.getTempRaw(settings.sensorAddress);
     success = tempRaw != DEVICE_DISCONNECTED_RAW;
 
     if (!success){
         // retry re-init once
         if(init()){
-            tempRaw = sensor->getTempRaw(sensorAddress);
+            tempRaw = sensor.getTempRaw(settings.sensorAddress);
             success = tempRaw != DEVICE_DISCONNECTED_RAW;
         }
     }
@@ -132,5 +121,5 @@ temp_t OneWireTempSensor::readAndConstrainTemp() {
     const uint8_t shift = temp_t::fractional_bit_count - ONEWIRE_TEMP_SENSOR_PRECISION; // difference in precision between DS18B20 format and temperature adt
     temp_t temp;
     temp.setRaw(tempRaw << shift);
-    return temp + calibrationOffset;
+    return temp + settings.calibrationOffset;
 }
