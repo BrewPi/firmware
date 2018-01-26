@@ -130,6 +130,9 @@ SCENARIO("Create blox SensorSetPointPair application object from definition"){
                 CHECK(setting == temp_t::invalid());
                 CHECK(value == temp_t::invalid());
             }
+            AND_WHEN("Cbox Object::update() invokes update on contained application object"){
+                obj->update();
+            }
         }
     }
 }

@@ -82,8 +82,7 @@ SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf 
 
 
 SCENARIO("Create blox OneWireTempSensor application object from definition"){
-    GIVEN("A BrewBlox OneWireTempSensor definition")
-            {
+    GIVEN("A BrewBlox OneWireTempSensor definition"){
         bool status;
         blox_OneWireTempSensor_Persisted definition;
         uint8_t address[8] = {8, 7, 6, 5, 4, 3, 2, 1};
@@ -126,7 +125,27 @@ SCENARIO("Create blox OneWireTempSensor application object from definition"){
                 }
                 CHECK(received.settings.offset == 456);
             }
-        }
+
+            AND_THEN("Cbox Object::update() invokes update on contained application object"){
+                obj->update();
             }
+        }
+    }
+}
+
+SCENARIO("Send an invalid protobuf creation command"){
+    GIVEN("A payload with a protobuf definition that doesn't match the expected format"){
+        uint8_t wrong_defition[] = "\x0c\n\n\n\x08(\x9el\xff\x08\x00\x00B";
+
+        BufferDataIn in(wrong_defition);
+        uint8_t len = OneWireTempSensorBloc::persistedMaxSize();
+        uint8_t typeId = 6; //OneWireTempSensorBloc
+
+        ObjectDefinition dfn = {&in, len, typeId};
+
+        Object * obj = nullptr;
+        uint8_t error = createApplicationObject(obj, dfn, false);
+
+    }
 }
 
