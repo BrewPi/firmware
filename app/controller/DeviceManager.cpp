@@ -141,7 +141,6 @@ Interface * DeviceManager::createDevice(DeviceConfig & config,
         case DEVICE_HARDWARE_ONEWIRE_TEMP :
         {
             auto sensor = new OneWireTempSensor(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.settings.sensor.calibration);
-            sensor->init();
             return sensor;
         }
         break;

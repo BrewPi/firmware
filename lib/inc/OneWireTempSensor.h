@@ -46,6 +46,7 @@ public:
         settings.calibrationOffset = calibrationOffset;
         state.connected = true; // assume connected upon creation, because address will be set just after this construction
         state.cachedValue = TEMP_SENSOR_DISCONNECTED;
+        init();
     };
 	
 	OneWireTempSensor(OneWire* bus)
@@ -54,6 +55,7 @@ public:
         settings.calibrationOffset = temp_t(0.0);
         state.connected = true; // assume connected upon creation, because address will be set just after this construction
         state.cachedValue = TEMP_SENSOR_DISCONNECTED;
+        init();
     };
 
 	~OneWireTempSensor() = default;
