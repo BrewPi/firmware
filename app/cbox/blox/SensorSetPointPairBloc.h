@@ -33,6 +33,10 @@ public:
     }
 
     virtual void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn) override final {
+        writeFromImpl(dataIn, true);
+    }
+
+    void writeFromImpl(DataIn& dataIn, bool storeToEeprom){
         /* copy old settings, because the update can be sparse and can only overwrite some of the values */
         blox_SensorSetPointPair_Persisted newData;
         /* copy old settings in case of a sparse update */
@@ -46,14 +50,16 @@ public:
         if(success){
             sensorLookup.copyFrom(&newData.links.sensor);
             setpointLookup.copyFrom(&newData.links.setpoint);
-            storeSettings();
+            if(storeToEeprom){
+                storeSettings();
+            }
         }
     }
 
     static Object* create(ObjectDefinition& defn) {
         auto obj = new SensorSetPointPairBloc;
         if(obj != nullptr){
-            obj->writeMaskedFrom(*defn.in, *defn.in);
+            obj->writeFromImpl(*defn.in, false);
         }
         return obj;
     }
@@ -63,7 +69,7 @@ public:
             return false; /* EEPROM location is not set */
         }
         eptr_t offset = eeprom_offset();
-        pb_ostream_t stream = { &eepromOutStreamCallback, &offset, readStreamSize(), 0 };
+        pb_ostream_t stream = { &eepromOutStreamCallback, &offset, eepromSize(), 0 };
         blox_SensorSetPointPair_Persisted definition;
         sensorLookup.copyTo(&definition.links.sensor);
         setpointLookup.copyTo(&definition.links.setpoint);

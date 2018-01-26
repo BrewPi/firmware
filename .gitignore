@@ -53,3 +53,5 @@ controlbox/build
 
 
 app/cbox/proto/cpp/
+
+*.swp

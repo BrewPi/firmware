@@ -23,6 +23,7 @@
 #include <pb_encode.h>
 #include "DataStream.h"
 
+/* This binds the pb_ostream_t into the DataOut stream, which is passed as state in pb_ostream */
 static bool dataOutStreamCallback(pb_ostream_t *stream, const uint8_t *buf, size_t count)
 {
     DataOut * out = (DataOut *) stream->state;
@@ -44,13 +45,10 @@ static bool dataInStreamCallback(pb_istream_t *stream, uint8_t *buf, size_t coun
     return true;
 }
 
-/* This binds the pb_ostream_t into the DataOut stream, which is passed as state in pb_istream */
+/* This write a block of data to eeprom. The address is passed as stream state */
 static bool eepromOutStreamCallback(pb_ostream_t *stream, const uint8_t *buf, size_t count)
 {
     eptr_t dest = * (eptr_t* ) stream->state;
-
-    for(size_t i = 0; i < count; i++){
-        eepromAccess.writeByte(dest+i, buf[i]);
-    }
+    eepromAccess.writeBlock(dest, buf, count);
     return true;
 }

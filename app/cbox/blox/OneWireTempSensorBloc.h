@@ -28,6 +28,10 @@ public:
     }
 
     virtual void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn) override final {
+        writeFromImpl(dataIn, true);
+    }
+
+    void writeFromImpl(DataIn& dataIn, bool storeToEeprom){
         /* copy old settings, because the update can be sparse and can only overwrite some of the values */
         blox_OneWireTempSensor_Persisted newData;
         /* copy old settings in case of a sparse update */
@@ -39,14 +43,16 @@ public:
         /* if no errors occur, write new settings to wrapped object */
         if(success){
             sensor.copySettingsFrom(&newData.settings);
-            storeSettings();
+            if(storeToEeprom){
+                storeSettings();
+            }
         }
     }
 
     static Object* create(ObjectDefinition& defn) {
         auto obj = new OneWireTempSensorBloc;
         if(obj != nullptr){
-            obj->writeMaskedFrom(*defn.in, *defn.in);
+            obj->writeFromImpl(*defn.in, false);
         }
         return obj;
     }
@@ -56,7 +62,7 @@ public:
             return false; /* EEPROM location is not set */
         }
         eptr_t offset = eeprom_offset();
-        pb_ostream_t stream = { &eepromOutStreamCallback, &offset, readStreamSize(), 0 };
+        pb_ostream_t stream = { &eepromOutStreamCallback, &offset, eepromSize(), 0 };
         blox_OneWireTempSensor_Persisted definition;
         sensor.copySettingsTo(&definition.settings);
         bool status = pb_encode_delimited(&stream, blox_OneWireTempSensor_Persisted_fields, &definition);
