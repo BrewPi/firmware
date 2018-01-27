@@ -54,25 +54,6 @@ protected:
 		in.push(out, size);
 	}
 
-	/**
-	 * Writes masked data to eeprom starting at the given address.
-	 */
-	void _writeMaskedFrom(DataIn& dataIn, DataIn& maskIn, uint8_t length,
-                                                        eptr_t address) {
-		while (--length>=0) {
-			uint8_t current = eepromAccess.readByte(address);
-			uint8_t update = WritableValue::nextMaskedByte(current, dataIn, maskIn);
-			eepromAccess.writeByte(address++, update);
-		}
-	}
-
-	void _writeMaskedOut(DataIn& dataIn, DataIn& maskIn, DataIn& in, DataOut& out, int8_t length) {
-		while (--length>=0) {
-			out.write(WritableValue::nextMaskedByte(in.next(), dataIn, maskIn));
-		}
-	}
-
-
 	object_t objectType() { return ObjectFlags::Value | ObjectFlags::WritableFlag; }
 
 };
@@ -100,8 +81,8 @@ public:
 		_readTo(out, eeprom_offset(), EepromValue::readStreamSize());
 	}
 
-	void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn) {
-		_writeMaskedFrom(dataIn, maskIn, EepromValue::writeStreamSize(), address);
+	void writeFrom(DataIn& dataIn) {
+		_writeFrom(dataIn, EepromValue::writeStreamSize(), address);
 	}
 
 	eptr_t eeprom_offset() { return address; }

@@ -54,7 +54,7 @@ SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf 
                 THEN("a newly created OneWireTempSensorBloc object can receive settings from the DataIn stream")
                 {
                     OneWireTempSensorBloc sensor;
-                    sensor.writeMaskedFrom(in, in); // use in as mask too, it is not used.
+                    sensor.writeFrom(in);
 
                     AND_THEN("we can stream that bloc object to a DataOut stream")
                     {

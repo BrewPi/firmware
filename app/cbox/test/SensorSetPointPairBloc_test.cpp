@@ -52,7 +52,7 @@ SCENARIO("A Blox SensorSetPointPair object can be created from streamed protobuf
                 THEN("a newly created SensorSetPointPairBloc object can receive settings from the DataIn stream")
                 {
                     SensorSetPointPairBloc sensor;
-                    sensor.writeMaskedFrom(in, in); // use in as mask too, it is not used.
+                    sensor.writeFrom(in); // use in as mask too, it is not used.
 
                     AND_THEN("we can stream that bloc object to a DataOut stream")
                     {

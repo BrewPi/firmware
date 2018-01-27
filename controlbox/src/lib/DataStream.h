@@ -240,19 +240,6 @@ public:
 
 };
 
-/**
- * A stream that provides the default mask. All values returned are 0xFF. The stream
- * is infinitely long.
- */
-class DefaultMask : public DataIn
-{
-	uint8_t next() { return 0xFF; }
-	uint8_t peek() { return 0xFF; }
-	bool hasNext() { return true; }
-	unsigned available() { return 1; }
-};
-
-
 #define WRITE_ANNOTATION_STR(out, value) \
 	WRITE_ANNOTATION(out, value)
 

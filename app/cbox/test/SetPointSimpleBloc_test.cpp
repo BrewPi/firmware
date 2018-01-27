@@ -49,7 +49,7 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
                 THEN("a newly created SetPointSimpleBloc object can receive settings from the DataIn stream")
                 {
                     SetPointSimpleBloc sp;
-                    sp.writeMaskedFrom(in, in); // use in as mask too, it is not used.
+                    sp.writeFrom(in); // use in as mask too, it is not used.
                     temp_t setting = sp.get().read();
                     temp_t valid;
                     valid.setRaw(123);
@@ -68,7 +68,7 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
                         CHECK(sp.get().read() == temp_t(25.0));
 
                         BufferDataIn in_roundtrip(buf2);
-                        sp.writeMaskedFrom(in_roundtrip, in_roundtrip);
+                        sp.writeFrom(in_roundtrip);
 
                         CHECK(sp.get().read() == temp_t(21.0));
                     }

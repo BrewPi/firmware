@@ -51,9 +51,8 @@ public:
 		out.write(uint8_t(currentValue&0xFF));
 	}
 
-	void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn) {
-		// to save space, we don't bother allowing masking against the source
-		currentValue = int16_t((readMaskedByte(dataIn, maskIn))<<8 | readMaskedByte(dataIn, maskIn));
+	void writeFrom(DataIn& dataIn) {
+		currentValue = int16_t(dataIn.next()<<8 | dataIn.next());
 		if (abs(currentValue-savedValue())>difference())
 			writePointer(eepromAccess, eeprom_offset(), eptr_t(currentValue));
 	}

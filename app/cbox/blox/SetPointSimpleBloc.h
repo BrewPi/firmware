@@ -22,7 +22,7 @@ public:
         return persistedMaxSize();
     }
 
-    virtual void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn) override final {
+    virtual void writeFrom(DataIn& dataIn) override final {
         writeFromImpl(dataIn, true);
     }
 
@@ -47,7 +47,7 @@ public:
     static Object* create(ObjectDefinition& defn) {
         auto obj = new_object(SetPointSimpleBloc);
         if(obj != nullptr){
-            obj->writeFromImpl(*defn.in);
+            obj->writeFromImpl(*defn.in, false);
         }
         return obj;
     }

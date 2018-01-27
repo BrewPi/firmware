@@ -82,7 +82,7 @@ void Commands::readSystemValueCommandHandler(DataIn& in, DataOut& out) {
 /**
  * Implements the set value command.
  */
-void setValue(Object* root, DataIn& in, DataIn& mask, DataOut& out) {
+void setValue(Object* root, DataIn& in, DataOut& out) {
 	Object* o = lookupObject(root, in);		// fetch the id and the object
 	WritableValue* v = (WritableValue*)o;
 	uint8_t typeID = in.next();
@@ -106,7 +106,7 @@ void setValue(Object* root, DataIn& in, DataIn& mask, DataOut& out) {
 		out.write(uint8_t(code));										// write 0 bytes (indicates failure)
 	}
 	else {
-		v->writeMaskedFrom(in, mask);									// assign from stream
+		v->writeFrom(in);									// assign from stream
 		out.write(v->typeID());
 		out.write(v->readStreamSize());							// now write out actual value
 		v->readTo(out);
@@ -115,22 +115,10 @@ void setValue(Object* root, DataIn& in, DataIn& mask, DataOut& out) {
 
 
 void Commands::setValueCommandHandler(DataIn& in, DataOut& out) {
-	DefaultMask defaultMask;
-	setValue(systemProfile.rootContainer(), in, defaultMask, out);
+	setValue(systemProfile.rootContainer(), in, out);
 }
-
-void Commands::setMaskValueCommandHandler(DataIn& in, DataOut& out) {
-	// the mask is given as the input stream - the data are interleaved.
-	setValue(systemProfile.rootContainer(), in, in, out);
-}
-
 void Commands::setSystemValueCommandHandler(DataIn& in, DataOut& out) {
-	DefaultMask defaultMask;
-	setValue(systemProfile.systemContainer(), in, defaultMask, out);
-}
-
-void Commands::setSystemMaskValueCommandHandler(DataIn& in, DataOut& out) {
-	setValue(systemProfile.systemContainer(), in, in, out);
+	setValue(systemProfile.systemContainer(), in, out);
 }
 
 /**
@@ -497,8 +485,6 @@ CommandHandler Commands::handlers[] = {
 	&Commands::listDefinedProfilesCommandHandler,	// 0x0E
 	&Commands::readSystemValueCommandHandler,	// 0x0F
 	&Commands::setSystemValueCommandHandler,	// 0x10
-	&Commands::setMaskValueCommandHandler,		// 0x11
-	&Commands::setSystemMaskValueCommandHandler // 0x12
 };
 
 // todo - there are pairs of commands that affect system or user objects

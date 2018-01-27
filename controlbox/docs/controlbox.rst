@@ -227,7 +227,6 @@ These commands are supported::
     CMD_LIST_PROFILES = 14,     // list the define profile IDs and the active profile
     CMD_READ_SYSTEM_VALUE = 15, // read the value of a system object
     CMD_SET_SYSTEM_VALUE = 16,  // write the value of a system object
-    CMD_SET_MASK_VALUE = 17,    // write the value of a user object with a mask to preserve some of the original data
 
 Each command is described in more detail below.
 
@@ -594,37 +593,6 @@ Command response::
 
 The write fails if type is non-zero and doesn't match the actual system
 object type. 
-
-
-Write Masked Value
-------------------
-This command allows a partial update of an object's value by interleaving a mask along with the data bytes.
-When a bit is set in the max, then the corresponding bit in the data is also written to the object. When the mask
-has a 0 bit, then that bit is left alone (retains it's existing value, regardless of the value of the datastream.)
-
-The format is similar to the write command, but the data block is interpreted as an interleaving of data byts and
-mask bytes.
-
-Command request::
-
-    0x11        write masked value command id
-    id          object to write to
-    type			the object type
-    size        the number of data and mask byte pairs
-    data[size*2]  the value and mask to write. the byte at 2N is applied with mask 2N+1 and then written to the object's
-                byte at N, preserving existing data where the mask has a 0 bit.
-
-Command response::
-
-    0x11        write masked value command id
-    id          object to write to
-    type			the object type, can be 0 if not known
-    size        the number of data and mask byte pairs
-    data[size*2]  the value and mask to write. the byte at 2N is applied with mask 2N+1 and then written to the object's
-	type			the actual object type or <0 on error
-    size        actual data size. Will be 0 if the id does not reference a writable value object.
-    data[size]  current value of the data written
-
 
 Persistence
 -----------

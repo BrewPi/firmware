@@ -104,10 +104,7 @@ public:
      *   (later: search bus alarm state)
      *   (later: set bus power (off if next byte is 00, on if it's 01) )
      */
-    virtual void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn) {
-        // this doesn't support masking since incremental updates make no sense
-        // todo - need a way to indicate that masking isn't supported
-        // (or it's simply documented int he object description)
+    virtual void writeFrom(DataIn& dataIn) {
         uint8_t command_id = dataIn.next();
         uint8_t command_data = 0;
         switch (command_id) {

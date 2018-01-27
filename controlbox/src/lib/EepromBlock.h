@@ -22,8 +22,8 @@ class EepromBlock : public EepromBaseValue
 		_readTo(out, _offset, _size);
 	}
 
-	void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn) {
-		_writeMaskedFrom(dataIn, maskIn, _size, _offset);
+	void writeFrom(DataIn& dataIn) {
+		_writeFrom(dataIn, _size, _offset);
 	}
 
 	eptr_t eeprom_offset() { return _offset; }

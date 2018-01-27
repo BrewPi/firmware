@@ -54,10 +54,10 @@ public:
 
 	ExternalValue(void* pValue, uint8_t size) : ExternalReadOnlyValue(pValue, size) {}
 
-	void writeMaskedFrom(DataIn& in, DataIn& mask) {
+	void writeFrom(DataIn& in) {
 		uint8_t* p = (uint8_t*)_pValue;
 		for (uint8_t i=0; i<_size; i++) {
-			*p = nextMaskedByte(*p, in, mask);
+			*p = in.next();
 			p++;
 		}
 	}
@@ -72,8 +72,8 @@ public:
 		writePlatformEndianBytes(&value, sizeof(value), out);
 	}
 
-	void writeMaskedFrom(DataIn& in, DataIn& maskIn) {
-		readPlatformEndianMaskedBytes(&value, sizeof(value), in, maskIn);
+	void writeFrom(DataIn& in) {
+		readPlatformEndianBytes(&value, sizeof(value), in);
 	}
 
 	uint8_t readStreamSize() { return sizeof(T); }
@@ -176,7 +176,7 @@ public:
 	uint8_t readStreamSize() { return previous->readStreamSize(); }
 	void readTo(DataOut& out) { if (previous) previous->readTo(out); }
 	uint8_t writeStreamSize() { return ((WritableValue*)previous)->writeStreamSize(); }
-	void writeMaskedFrom(DataIn& dataIn, DataIn& maskedIn) { if (previous) ((WritableValue*)previous)->writeMaskedFrom(dataIn, maskedIn); }
+	void writeFrom(DataIn& dataIn) { if (previous) ((WritableValue*)previous)->writeFrom(dataIn); }
 
 	static Object* create(ObjectDefinition& def)
 	{

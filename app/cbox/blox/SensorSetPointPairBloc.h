@@ -32,7 +32,7 @@ public:
         return persistedMaxSize();
     }
 
-    virtual void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn) override final {
+    virtual void writeFrom(DataIn& dataIn) override final {
         writeFromImpl(dataIn, true);
     }
 

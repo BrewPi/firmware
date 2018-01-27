@@ -49,7 +49,7 @@ public:
         return 0;
     }
 
-    virtual void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn) override {
+    virtual void writeFrom(DataIn& dataIn) override {
         // currently a no-op - will later allow the calibration and the address to be updated (and persisted)
     }
 
@@ -58,8 +58,7 @@ public:
         temp_t offset;
         static_assert(sizeof(offset)==2, "expected temp_t to be 2 bytes");
         defn.in->read(address, sizeof(address));
-        DefaultMask mask;	// todo - make a utility function that reads without a mask
-        readPlatformEndianMaskedBytes(&offset, sizeof(offset), *defn.in, mask);
+        readPlatformEndianBytes(&offset, sizeof(offset), *defn.in);
         return new_object(OneWireTempSensorCBox(oneWireBus.oneWire(), address, offset));
     }
 };

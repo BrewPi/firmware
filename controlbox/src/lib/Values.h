@@ -236,13 +236,8 @@ public:
 class WritableValue : public Value {
 public:
 	virtual object_t objectType() { return ObjectFlags::ValueWrite; }
-	virtual void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn)=0;
+	virtual void writeFrom(DataIn& dataIn)=0;
 	virtual uint8_t writeStreamSize() { return readStreamSize(); }
-	static uint8_t nextMaskedByte(uint8_t current, DataIn& dataIn, DataIn& maskIn) {
-			uint8_t next = dataIn.next();
-			uint8_t mask = maskIn.next();
-			return (next & mask) | (current & ~mask);
-	}
 };
 
 /**
