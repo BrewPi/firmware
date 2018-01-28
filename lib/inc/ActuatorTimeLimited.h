@@ -51,20 +51,20 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
-    void setActive(bool active, int8_t priority = 127) override final;
+    virtual void setActive(bool active, int8_t priority = 127) override final;
 
-    bool isActive() const override final
+    virtual bool isActive() const override final
     {
         return state;    // target->isActive(); - this takes 20 bytes more
     }
 
-    void update() override final;
+    virtual void update() override final;
 
-    void fastUpdate() override final {} // time limit is in seconds, no fast update needed
+    virtual void fastUpdate() override final {} // time limit is in seconds, no fast update needed
 
 
     void setTimes(ticks_seconds_t   _minOnTime,

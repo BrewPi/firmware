@@ -43,7 +43,7 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
@@ -59,7 +59,7 @@ public:
      * Check if sensor is connected
      * @return bool: true if active sensor is connected
      */
-    bool isConnected(void) const override final {
+    virtual bool isConnected(void) const override final {
         return activeSensor().isConnected();
     }
 
@@ -68,7 +68,7 @@ public:
      *
      * @return bool: true if active sensor was initialized correctly
      */
-    bool init() override final {
+    virtual bool init() override final {
         return activeSensor().init();
     }
 
@@ -76,12 +76,12 @@ public:
      * Read the currently used sensor (main or backup)
      * @return temp_t: temperature of sensor
      */
-    temp_t read() const override final;
+    virtual temp_t read() const override final;
 
     /**
      * update() checks if the main sensor is connected and switches between the main and backup sensor
      */
-    void update() override final;
+    virtual void update() override final;
 
 private:
     TempSensor& main;

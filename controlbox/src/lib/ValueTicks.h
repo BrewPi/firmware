@@ -118,13 +118,13 @@ class CurrentTicksValue : public Value
 {
 
 public:
-	void readTo(DataOut& out)
+	virtual void readTo(DataOut& out) override
 	{
 		ticks_millis_t millis = ticks.millis();
 		writePlatformEndianBytes(&millis, 4, out);
 	}
 
-	uint8_t readStreamSize()
+	virtual uint8_t readStreamSize() override
 	{
 		return sizeof(ticks_millis_t);
 	}
@@ -145,11 +145,11 @@ class CurrentCycleTicksValue : public CurrentTicksValue
 	ticks_millis_t cycle_ticks;
 public:
 
-	void update() {
+	virtual void update() override final {
 		cycle_ticks = ticks.millis();
 	}
 
-	void readTo(DataOut& out) {
+	virtual void readTo(DataOut& out) override final {
 		out.writeBuffer(&cycle_ticks, sizeof(cycle_ticks));
 	}
 };

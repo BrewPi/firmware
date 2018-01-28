@@ -43,13 +43,13 @@ class Pid final : public ControllerInterface, public PidMixin
          * Accept function for visitor pattern
          * @param dispatcher Visitor to process this class
          */
-        void accept(VisitorBase & v) final {
+        virtual void accept(VisitorBase & v) override final {
         	v.visit(*this);
         }
 
         void init();
 
-        void update();
+        virtual void update() override final;
 
         void setConstants(temp_long_t kp,
                           uint16_t ti,

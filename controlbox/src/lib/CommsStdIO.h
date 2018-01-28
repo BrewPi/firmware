@@ -37,24 +37,24 @@ public:
 		}
 	}
 
-	unsigned available()
+	virtual unsigned available() override final
 	{
 		return queue.size()>0;
 	}
 
-	bool hasNext()
+	virtual bool hasNext() override final
 	{
 		return !in.eof();
 	}
 
-	uint8_t next()
+	virtual uint8_t next() override final
 	{
 		uint8_t front = peek();
 		queue.pop();
 		return front;
 	}
 
-	uint8_t peek()
+	virtual uint8_t peek() override final
 	{
 		return queue.front();
 	}

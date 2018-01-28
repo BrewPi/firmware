@@ -64,17 +64,17 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
-	bool isConnected(void) const override final {
+	virtual bool isConnected(void) const override final {
 		return state.connected;
 	}		
 	
-	bool init() override final ;
-	temp_t read() const override final ; // return cached value
-	void update() override final ; // read from hardware sensor
+	virtual bool init() override final ;
+	virtual temp_t read() const override final ; // return cached value
+	virtual void update() override final ; // read from hardware sensor
 	
 
     void copySettingsFrom(void * from){

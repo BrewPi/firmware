@@ -74,7 +74,7 @@ public:
         return sensor;
     }
 
-    Interface * getApplicationInterfaceImpl() override final{
+    virtual Interface * getApplicationInterfaceImpl() override final{
         return &sensor;
     }
 

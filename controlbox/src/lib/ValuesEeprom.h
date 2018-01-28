@@ -54,7 +54,7 @@ protected:
 		in.push(out, size);
 	}
 
-	object_t objectType() { return ObjectFlags::Value | ObjectFlags::WritableFlag; }
+	virtual object_t objectType() override { return ObjectFlags::Value | ObjectFlags::WritableFlag; }
 
 };
 
@@ -72,21 +72,30 @@ public:
 
     cb_nonstatic_decl(EepromValue(EepromAccess& ea):EepromBaseValue(ea){})
 
-	void rehydrated(eptr_t address)
+	virtual void rehydrated(eptr_t address) override
 	{
 		this->address = address;
 	}
 
-	void readTo(DataOut& out) {
+	virtual void readTo(DataOut& out) override
+	{
 		_readTo(out, eeprom_offset(), EepromValue::readStreamSize());
 	}
 
-	void writeFrom(DataIn& dataIn) {
+	void writeFrom(DataIn& dataIn) override
+	{
 		_writeFrom(dataIn, EepromValue::writeStreamSize(), address);
 	}
 
-	eptr_t eeprom_offset() { return address; }
-	uint8_t readStreamSize() { return eepromAccess.readByte(address-1); }
+	eptr_t eeprom_offset()
+	{
+	    return address;
+	}
+
+	uint8_t readStreamSize() override
+    {
+	    return eepromAccess.readByte(address-1);
+    }
 
 	static Object* create(ObjectDefinition& defn)
 	{

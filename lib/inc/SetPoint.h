@@ -29,8 +29,8 @@ public:
     virtual ~SetPoint() = default;
     virtual temp_t read() const = 0;
     virtual void write(temp_t val) = 0;
-    void update() final {}; // periodic update not needed for setpoints
-    void fastUpdate() final {}; // fast update not needed for setpoints
+    virtual void update() override final {}; // periodic update not needed for setpoints
+    virtual void fastUpdate() override final {}; // fast update not needed for setpoints
 friend class SetPointMixin;
 };
 
@@ -50,15 +50,15 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
-    temp_t read() const override final {
+    virtual temp_t read() const override final {
         return settings.value;
     }
 
-    void write (temp_t val) override final {
+    virtual void write (temp_t val) override final {
         settings.value = val;
     }
 
@@ -84,14 +84,14 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
-    temp_t read() const override final {
+    virtual temp_t read() const override final {
         return value;
     }
-    void write (temp_t val) override final {
+    virtual void write (temp_t val) override final {
         if(val < min){
             value = min;
         }
@@ -134,14 +134,14 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
-    temp_t read() const override final{
+    virtual temp_t read() const override final{
         return value;
     }
-    void write(temp_t val) override final { // does nothing
+    virtual void write(temp_t val) override final { // does nothing
     }
 
 private:

@@ -28,7 +28,7 @@
 
 void streamHex(std::stringstream & ss, uint8_t * buf, size_t len){
     ss << "0x" << std::setfill('0') << std::hex;
-    for(int i =0 ; i < len; i ++){
+    for(size_t i = 0 ; i < len; i ++){
         ss << std::setw(2) << static_cast<unsigned>(buf[i]);
     }
 }

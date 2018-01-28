@@ -169,7 +169,7 @@ public:
 class OpenContainer : public Container
 {
 public:
-	object_t objectType() { return ObjectFlags::Container | ObjectFlags::OpenContainerFlag; }
+	virtual object_t objectType() override { return ObjectFlags::Container | ObjectFlags::OpenContainerFlag; }
 
 	/*
 	 * Add the given object to the container at the given slot.
@@ -207,7 +207,7 @@ class Value : public Object {
 
 public:
 
-	virtual object_t objectType() { return ObjectFlags::Value; }	// basic value type - read only stream
+	virtual object_t objectType() override { return ObjectFlags::Value; }	// basic value type - read only stream
 	virtual void readTo(DataOut& out)=0;
 	virtual uint8_t readStreamSize()=0;			// the size this value occupies in the stream.
 
@@ -219,7 +219,7 @@ public:
 
 class WritableValue : public Value {
 public:
-	virtual object_t objectType() { return ObjectFlags::ValueWrite; }
+	virtual object_t objectType() override { return ObjectFlags::ValueWrite; }
 	virtual void writeFrom(DataIn& dataIn)=0;
 	virtual uint8_t writeStreamSize() { return readStreamSize(); }
 };
@@ -232,7 +232,7 @@ class RehydratedAwareObject : public Object
 	eptr_t address;
 public:
 
-	void rehydrated(eptr_t _address) {
+	virtual void rehydrated(eptr_t _address) override final {
 		address = _address;
 	}
 

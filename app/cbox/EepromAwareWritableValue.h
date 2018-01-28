@@ -28,7 +28,7 @@ class EepromAwareWritableValue : public WritableValue
 
 public:
 
-    void rehydrated(eptr_t _address) {
+    virtual void rehydrated(eptr_t _address) override final {
         address = _address;
     }
 

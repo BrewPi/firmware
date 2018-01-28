@@ -102,7 +102,7 @@ public:
  * A DataOut implementation that discards all data.
  */
 struct BlackholeDataOut : public DataOut {
-	virtual bool write(uint8_t /*data*/) { return true; }
+	virtual bool write(uint8_t /*data*/) override final { return true; }
 };
 
 /**

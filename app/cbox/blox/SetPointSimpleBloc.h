@@ -69,7 +69,7 @@ public:
         return setpoint;
     }
 
-    Interface * getApplicationInterfaceImpl() override final{
+    virtual Interface * getApplicationInterfaceImpl() override final{
         return &setpoint;
     }
 

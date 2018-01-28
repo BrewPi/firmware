@@ -16,17 +16,27 @@ class EepromBlock : public EepromBaseValue
 			EepromAccess& ea,
 #endif
 			eptr_t offset, uint8_t size)
-		: EepromBaseValue(cb_nonstatic_decl(ea)), _offset(offset), _size(size) {}
+		: EepromBaseValue(cb_nonstatic_decl(ea)), _offset(offset), _size(size)
+	{}
 
-	void readTo(DataOut& out) {
+	virtual void readTo(DataOut& out) override final
+    {
 		_readTo(out, _offset, _size);
 	}
 
-	void writeFrom(DataIn& dataIn) {
+	virtual void writeFrom(DataIn& dataIn) override final
+    {
 		_writeFrom(dataIn, _size, _offset);
 	}
 
-	eptr_t eeprom_offset() { return _offset; }
-	uint8_t readStreamSize() { return _size; }
+	virtual uint8_t readStreamSize() override final
+    {
+	    return _size;
+    }
+
+	eptr_t eeprom_offset()
+    {
+	    return _offset;
+    }
 };
 

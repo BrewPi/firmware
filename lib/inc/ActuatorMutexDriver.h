@@ -38,15 +38,15 @@ public:
         setMutex(nullptr);
     }
 
-    void accept(VisitorBase & v) override final{
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
-    void update() override final {
+    virtual void update() override final {
         target.update();
     }
 
-    void fastUpdate() override final {
+    virtual void fastUpdate() override final {
         target.fastUpdate();
     }
 
@@ -62,7 +62,7 @@ public:
 
     // To activate actuator, permission is asked from mutexGroup, false is always allowed
     // when priority not specified, default to highest priority
-    void setActive(bool active, int8_t priority = 127) override final{
+    virtual void setActive(bool active, int8_t priority = 127) override final{
         if(mutexGroup){
             if(mutexGroup->request(this, active, priority)){
                 target.setActive(active);
@@ -77,7 +77,7 @@ public:
         }
     }
 
-    bool isActive() const override final {
+    virtual bool isActive() const override final {
         return target.isActive();
     }
 

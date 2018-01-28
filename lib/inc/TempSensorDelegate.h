@@ -35,23 +35,23 @@ public:
 
     ~TempSensorDelegate() = default;
 
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
-    void update() final {
+    virtual void update() override final {
         delegate().update();
     }
 
-    bool isConnected(void) const final {
+    virtual bool isConnected(void) const override final {
         return delegate().isConnected();
     }
 
-    bool init() final {
+    virtual bool init() override final {
         return delegate().init();
     }
 
-    temp_t read() const final {
+    virtual temp_t read() const override final {
         return delegate().read();
     }
 

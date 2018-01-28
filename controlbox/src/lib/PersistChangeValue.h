@@ -41,23 +41,23 @@ public:
 		return int16_t(readPointer(eepromAccess, eeprom_offset()));
 	}
 
-	void rehydrated(eptr_t address) {
+	virtual void rehydrated(eptr_t address) override final {
 		EepromValue::rehydrated(address);
 		currentValue = savedValue();
 	}
 
-	void readTo(DataOut& out) {
+	virtual void readTo(DataOut& out) override final {
 		out.write(uint8_t(currentValue>>8));
 		out.write(uint8_t(currentValue&0xFF));
 	}
 
-	void writeFrom(DataIn& dataIn) {
+	virtual void writeFrom(DataIn& dataIn) override final {
 		currentValue = int16_t(dataIn.next()<<8 | dataIn.next());
 		if (abs(currentValue-savedValue())>difference())
 			writePointer(eepromAccess, eeprom_offset(), eptr_t(currentValue));
 	}
 
-	uint8_t readStreamSize() {
+	virtual uint8_t readStreamSize() override final {
 		// todo - why is it hard-coded to 2 bytes?
 		return 2;
 	}

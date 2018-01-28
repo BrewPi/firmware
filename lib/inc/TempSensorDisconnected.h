@@ -26,21 +26,21 @@
 class TempSensorDisconnected final : public TempSensor, public TempSensorDisconnectedMixin {
 	
 public:
-    void accept(VisitorBase & v) final{
+    virtual void accept(VisitorBase & v) override final{
     	v.visit(*this);
     }
 
-	bool isConnected() const final { return false; }
+	virtual bool isConnected() const override final { return false; }
 
-	bool init() final {
+	virtual bool init() override final {
 		return read()!=TEMP_SENSOR_DISCONNECTED;
 	}
 	
-	temp_t read() const final {
+	virtual temp_t read() const override final {
 		return TEMP_SENSOR_DISCONNECTED;
 	}
 
-    void update() final {
+    virtual void update() override final {
         // nop for this mock sensor
     }
 	

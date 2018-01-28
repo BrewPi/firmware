@@ -68,13 +68,13 @@ class DynamicContainer: public OpenContainer
 			}
 		}
 
-		prepare_t prepare() {
+		virtual prepare_t prepare() override final {
 			prepare_t time = 0;
 			iterate_objects(&time, do_prepare);
 			return time;
 		}
 
-		virtual void update() {
+		virtual void update() override final {
 			iterate_objects(NULL, do_update);
 		}
 
@@ -84,13 +84,13 @@ class DynamicContainer: public OpenContainer
                         setSize(0);
 		}
 
-                inline void setSize(container_id size) {
+        inline void setSize(container_id size) {
 #if DYNAMIC_CONTAINER_MAINTAIN_SIZE
-                    sz = size;
+            sz = size;
 #endif
-                }
+        }
 
-		Object* item(container_id id);
+		virtual Object*  item(container_id id) override final;
 
 		virtual container_id next() override final;
 
@@ -101,7 +101,7 @@ class DynamicContainer: public OpenContainer
 		/*
 		 * The number of items in this container.
 		 */
-		container_id size() { return _size(); }
+		virtual container_id size() override final { return _size(); }
 
 		inline container_id _size() {
 #if DYNAMIC_CONTAINER_MAINTAIN_SIZE			// fetch the block size that preceeds the malloc'ed pointer
@@ -227,7 +227,7 @@ class FixedContainer : public OpenContainer
 		    // Trying to do so will result in segfault
 		}
 
-		prepare_t prepare() {
+		virtual prepare_t prepare() override final {
 			prepare_t time = 0;
 			for (container_id i=0; i<size(); i++ ) {
 				prepare(item(i), time);
@@ -235,7 +235,7 @@ class FixedContainer : public OpenContainer
 			return time;
 		}
 
-		virtual void update() {
+		virtual void update() override final {
 			for (container_id i=0; i<size(); i++ ) {
 				Object* o = item(i);
 				if (o)
@@ -244,7 +244,7 @@ class FixedContainer : public OpenContainer
 		}
 
 
-		Object* item(container_id id) {
+		virtual Object* item(container_id id) override final {
 			return _items[id];
 		}
 
@@ -268,7 +268,9 @@ class FixedContainer : public OpenContainer
 		/*
 		 * The number of items in this container.
 		 */
-		container_id size() { return SIZE; }
+		virtual container_id size() override final {
+		    return SIZE;
+        }
 
 
 };

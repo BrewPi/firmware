@@ -42,7 +42,7 @@ public:
 
     ~ActuatorMutexGroup() = default;
 
-    void accept(VisitorBase & v) {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
@@ -67,9 +67,9 @@ public:
 
     ticks_millis_t getWaitTime();
 
-    void update() final;
+    virtual void update() override final;
 
-    void fastUpdate() final {} // not needed
+    virtual void fastUpdate() override final {} // not needed
 
 private:
     void unRegisterActuator(size_t index); // remove by index

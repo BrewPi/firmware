@@ -4,7 +4,7 @@
 #include "../nanopb_callbacks.h"
 
 class Bloc : virtual public EepromAwareWritableValue {
-	Interface * getApplicationInterface() override final{
+	virtual Interface * getApplicationInterface() override final{
 		return getApplicationInterfaceImpl();
 	}
 

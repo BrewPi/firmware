@@ -40,7 +40,7 @@ public:
 	 */
 	virtual bool init() =0;
 
-    void fastUpdate() final {}; // fast update not needed for temp sensors
+    virtual void fastUpdate() override final {}; // fast update not needed for temp sensors
 
 	/*
 	 * Read the sensor, returns cached value set in update()

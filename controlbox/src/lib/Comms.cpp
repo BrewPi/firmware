@@ -104,7 +104,7 @@ public:
 #endif
 
 public:
-	void writeAnnotation(const char* s) {
+	virtual void writeAnnotation(const char* s) override final {
 		if (s && *s) {
 			write('[');
 			writeBuffer(s, uint8_t(strlen(s)));
@@ -114,11 +114,11 @@ public:
 		flush();
 	}
 
-	bool write(uint8_t data) {
+	virtual bool write(uint8_t data) override final {
 		commsDevice.write(data);
 		return true;
 	}
-	void flush() {
+	virtual void flush() override final {
 	#if CONTROLBOX_STATIC && CONTROLBOX_COMMS_USE_FLUSH		// only flush for those stream types that require it
 		commsDevice.flush();
 	#endif

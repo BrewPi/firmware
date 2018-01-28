@@ -39,7 +39,7 @@ class TempSensorExternal final : public TempSensor, public TempSensorExternalMix
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
@@ -48,17 +48,17 @@ class TempSensorExternal final : public TempSensor, public TempSensorExternalMix
 		this->connected = _connected;
 	}
 
-	bool isConnected() const override final { return connected; }
+	virtual bool isConnected() const override final { return connected; }
 
-	bool init() override final {
+	virtual bool init() override final {
 		return read()!=TEMP_SENSOR_DISCONNECTED;
 	}
 	
-    void update() override final {
+    virtual void update() override final {
         // nop for this mock sensor
     }
 
-	temp_t read() const override final {
+	virtual temp_t read() const override final {
 		if (!isConnected())
 			return TEMP_SENSOR_DISCONNECTED;
 		return value;

@@ -33,15 +33,15 @@ public:
     SetPointDelegate(BaseLookup const& lookup) : Delegate<SetPoint>(lookup){}
     ~SetPointDelegate() = default;
 
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
         v.visit(*this);
     }
 
-    temp_t read() const final {
+    virtual temp_t read() const override final {
         return delegate().read();
     }
 
-    void write(temp_t val) final {
+    virtual void write(temp_t val) override final {
         delegate().write(val);
     }
 

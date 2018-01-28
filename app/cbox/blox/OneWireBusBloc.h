@@ -54,7 +54,7 @@ public:
      * - cmd 01: reset bus (00 on success, FF on failure)
      * - cmd 02: search bus: a sequence of 0 or more 8-byte addresses, MSB first that were found on the bus
      */
-    virtual void readTo(DataOut& out) {
+    virtual void readTo(DataOut& out) override final{
         blox_OneWireRead message = {0};
         message.lastCommand = command;
         message.address.funcs.encode = nullptr;
@@ -81,7 +81,7 @@ public:
         command.data = 0;
     }
 
-    virtual uint8_t readStreamSize() {
+    virtual uint8_t readStreamSize() override final {
         return 0;   // we don't know the size - it's variable
     }
 
@@ -95,7 +95,7 @@ public:
      *   (later: search bus alarm state?)
      *   (later: set bus power? (off if next byte is 00, on if it's 01) )
      */
-    virtual void writeFrom(DataIn& dataIn) {
+    virtual void writeFrom(DataIn& dataIn) override final{
         blox_OneWireCommand message = command;
 
         pb_istream_t stream = { &dataInStreamCallback, &dataIn, blox_OneWireCommand_size + 1, 0 };
