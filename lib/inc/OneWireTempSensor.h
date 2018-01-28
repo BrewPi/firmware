@@ -44,7 +44,7 @@ public:
     {
         memcpy(settings.sensorAddress, address, sizeof(DeviceAddress));
         settings.calibrationOffset = calibrationOffset;
-        state.connected = true; // assume connected upon creation, because address will be set just after this construction
+        state.connected = false;
         state.cachedValue = TEMP_SENSOR_DISCONNECTED;
         init();
     };
@@ -53,7 +53,7 @@ public:
     : sensor(bus) {
         memset(settings.sensorAddress, 0, sizeof(DeviceAddress));
         settings.calibrationOffset = temp_t(0.0);
-        state.connected = true; // assume connected upon creation, because address will be set just after this construction
+        state.connected = false;
         state.cachedValue = TEMP_SENSOR_DISCONNECTED;
         init();
     };

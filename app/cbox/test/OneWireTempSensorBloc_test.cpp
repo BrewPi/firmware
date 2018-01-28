@@ -72,7 +72,7 @@ SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf 
                         }
                         CHECK(received.settings.offset == message.settings.offset);
                         CHECK(received.state.value == temp_t::invalid().getRaw());
-                        CHECK(received.state.connected == true);
+                        CHECK(received.state.connected == false);
                     }
                 }
             }
