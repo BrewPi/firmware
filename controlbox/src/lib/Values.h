@@ -59,18 +59,7 @@ typedef uint8_t object_t;
  */
 typedef uint8_t obj_type_t;
 
-
-// if no objects require cleanup, then we can do away with the virtual destructor, saving quite a bit of space (several hundred bytes.)
-#ifndef OBJECT_VIRTUAL_DESTRUCTOR
-#define OBJECT_VIRTUAL_DESTRUCTOR 1
-#endif
-
-#if OBJECT_VIRTUAL_DESTRUCTOR
 #define delete_object(x) delete (x)
-#else
-// cast to a byte array and delete that. Net effect is that just the memory is freed without running any destructors.
-#define delete_object(x) delete ((uint8_t*)x)
-#endif
 
 // have a hook for all object creations.
 #define new_object(x) new x
@@ -83,12 +72,7 @@ struct Object : virtual public ObjectMixin
 public:
 	Object(obj_type_t typeID=0) : _typeID(typeID) {}
 
-#if OBJECT_VIRTUAL_DESTRUCTOR
 	virtual ~Object() = default;
-#else
-	~Object() = default;
-#endif
-
 
 	/**
 	 * Determines the system type of object this is.

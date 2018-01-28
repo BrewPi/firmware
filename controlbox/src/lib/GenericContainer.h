@@ -112,16 +112,11 @@ class DynamicContainer: public OpenContainer
 		}
 
 
-#if OBJECT_VIRTUAL_DESTRUCTOR
-		// the contract says that before a container is deleted, the caller should ensure all contained objects
-		// are also deleted. (if they were added.)
-		~DynamicContainer() {
+		virtual ~DynamicContainer() {
 			for (int i=0; i<size();i++)
 				delete_object(item(i));
 			free(_items);
 		}
-#endif
-
 };
 
 /**
@@ -191,14 +186,10 @@ template<int SIZE> class StaticTemplateContainer : public OpenContainer
 		 */
 		container_id size() { return SIZE; }
 
-#if OBJECT_VIRTUAL_DESTRUCTOR
-		// the contract says that before a container is deleted, the caller should ensure all contained objects
-		// are also deleted. (if they were added.)
-		~StaticTemplateContainer() {
+		virtual ~StaticTemplateContainer() {
 			for (int i=0; i<SIZE;i++)
 				delete_object(_items[i]);
 		}
-#endif
 };
 
 
@@ -231,12 +222,10 @@ class FixedContainer : public OpenContainer
 		}
 
 
-		#if OBJECT_VIRTUAL_DESTRUCTOR
 		~FixedContainer() {
 		    // We assume that a fixed container does not contain dynamically created objects, so they do not need to be deleted
 		    // Trying to do so will result in segfault
 		}
-		#endif
 
 		prepare_t prepare() {
 			prepare_t time = 0;
