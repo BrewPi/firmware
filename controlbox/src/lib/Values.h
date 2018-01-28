@@ -110,7 +110,7 @@ public:
 
 };
 
-const uint8_t MAX_CONTAINER_DEPTH = 8;
+const uint8_t MAX_CONTAINER_DEPTH = 4;
 const container_id MAX_CONTAINER_ID = 127;
 
 /**
