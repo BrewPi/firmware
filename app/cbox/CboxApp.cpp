@@ -28,13 +28,13 @@
 #include "Commands.h"
 
 #include "PersistChangeValue.h"
-#include "OneWireBusCBox.h"
+#include "OneWireBusBloc.h"
 #include "OneWireTempSensorBloc.h"
 #include "SetPointSimpleBloc.h"
 #include "SensorSetPointPairBloc.h"
 
 
-OneWireBusCBox oneWireBus;
+OneWireBusBloc oneWireBus;
 DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 TicksImpl baseticks;
 ScaledTicksValue ticks;
@@ -50,7 +50,7 @@ Commands::ObjectFactory createObjectHandlers[] = {
         IndirectValue::create,                                  // type 5
         OneWireTempSensorBloc::create,                          // type 6
         SetPointSimpleBloc::create,                             // type 7
-        SensorSetPointPairBloc::create,                             // type 8
+        SensorSetPointPairBloc::create,                         // type 8
         NULL
 
         // When defining a new object type, add the handler above the last NULL value (it's just there to make
