@@ -10,9 +10,9 @@ message SensorSetPointPair {
     bytes setpoint = 2 [(nanopb).max_size = 4, (nanopb).fixed_length = true];
   }
   
-  Links links = 1;
+  Links links = 3;
 }
 
 message SensorSetPointPair_Persisted {
-  SensorSetPointPair.Links links = 1;
+  SensorSetPointPair.Links links = 3;
 }
