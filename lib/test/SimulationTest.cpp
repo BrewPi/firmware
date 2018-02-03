@@ -79,7 +79,6 @@ public:
         beerToFridgePid(beer, fridgeOffsetActuator)
     {
         BOOST_TEST_MESSAGE( "setup PID test fixture" );
-        coolerPid.setActuatorIsNegative(true);
     }
     ~StaticSetup(){
         BOOST_TEST_MESSAGE( "tear down PID test fixture" );
@@ -220,8 +219,8 @@ struct SimBeerHeater : public StaticSetup {
     Simulation sim;
     SimBeerHeater(){
         heaterPidInputLookup.setPtr(&beer);
-        heaterPid.setInputFilter(1);
-        heaterPid.setDerivativeFilter(4);
+        heaterPid.setInputFiltering(1);
+        heaterPid.setDerivativeFiltering(4);
         heaterPid.setConstants(60.0, 7200, 500);
 
         sim.envTemp = 16.0;
@@ -242,8 +241,8 @@ struct SimFridgeHeater : public StaticSetup {
     Simulation sim;
     SimFridgeHeater(){
         heaterPidInputLookup.setPtr(&fridge);
-        heaterPid.setInputFilter(1);
-        heaterPid.setDerivativeFilter(4);
+        heaterPid.setInputFiltering(1);
+        heaterPid.setDerivativeFiltering(4);
         heaterPid.setConstants(10.0, 600, 60);
 
         sim.envTemp = 16.0;
@@ -266,9 +265,9 @@ struct SimBeerCooler : public StaticSetup {
     Simulation sim;
     SimBeerCooler(){
         coolerPidInputLookup.setPtr(&beer);
-        coolerPid.setInputFilter(2);
-        coolerPid.setDerivativeFilter(5);
-        coolerPid.setConstants(40.0, 7200, 1200);
+        coolerPid.setInputFiltering(2);
+        coolerPid.setDerivativeFiltering(5);
+        coolerPid.setConstants(-40.0, 7200, 1200);
 
         sim.envTemp = 24.0;
     }
@@ -289,9 +288,9 @@ struct SimFridgeCooler : public StaticSetup {
     Simulation sim;
     SimFridgeCooler(){
         coolerPidInputLookup.setPtr(&fridge);
-        coolerPid.setInputFilter(1);
-        coolerPid.setDerivativeFilter(5);
-        coolerPid.setConstants(10.0, 1800, 200);
+        coolerPid.setInputFiltering(1);
+        coolerPid.setDerivativeFiltering(5);
+        coolerPid.setConstants(-10.0, 1800, 200);
 
         sim.envTemp = 24.0;
     }
@@ -312,13 +311,13 @@ struct SimFridgeHeaterCooler : public StaticSetup {
     Simulation sim;
     SimFridgeHeaterCooler(){
         coolerPidInputLookup.setPtr(&fridge);
-        coolerPid.setInputFilter(1);
-        coolerPid.setDerivativeFilter(4);
-        coolerPid.setConstants(10.0, 1800, 200);
+        coolerPid.setInputFiltering(1);
+        coolerPid.setDerivativeFiltering(4);
+        coolerPid.setConstants(-10.0, 1800, 200);
 
         heaterPidInputLookup.setPtr(&fridge);
-        heaterPid.setInputFilter(1);
-        heaterPid.setDerivativeFilter(4);
+        heaterPid.setInputFiltering(1);
+        heaterPid.setDerivativeFiltering(4);
         heaterPid.setConstants(10.0, 1800, 60);
 
         coolerMutex.setMutex(&mutex);
@@ -345,13 +344,13 @@ struct SimBeerHeaterCooler : public StaticSetup {
     Simulation sim;
     SimBeerHeaterCooler(){
         coolerPidInputLookup.setPtr(&beer);
-        coolerPid.setInputFilter(1);
-        coolerPid.setDerivativeFilter(4);
-        coolerPid.setConstants(40.0, 7200, 1200);
+        coolerPid.setInputFiltering(1);
+        coolerPid.setDerivativeFiltering(4);
+        coolerPid.setConstants(-40.0, 7200, 1200);
 
         heaterPidInputLookup.setPtr(&beer);
-        heaterPid.setInputFilter(1);
-        heaterPid.setDerivativeFilter(4);
+        heaterPid.setInputFiltering(1);
+        heaterPid.setDerivativeFiltering(4);
         heaterPid.setConstants(60.0, 7200, 500);
 
         coolerMutex.setMutex(&mutex);
@@ -378,17 +377,17 @@ struct SimCascadedHeaterCooler : public StaticSetup {
     Simulation sim;
     SimCascadedHeaterCooler(){
         coolerPidInputLookup.setPtr(&fridge);
-        coolerPid.setInputFilter(1);
-        coolerPid.setDerivativeFilter(4);
-        coolerPid.setConstants(10.0, 1800, 200);
+        coolerPid.setInputFiltering(1);
+        coolerPid.setDerivativeFiltering(4);
+        coolerPid.setConstants(-10.0, 1800, 200);
 
         heaterPidInputLookup.setPtr(&fridge);
-        heaterPid.setInputFilter(1);
-        heaterPid.setDerivativeFilter(4);
+        heaterPid.setInputFiltering(1);
+        heaterPid.setDerivativeFiltering(4);
         heaterPid.setConstants(10.0, 600, 60);
 
-        beerToFridgePid.setInputFilter(1);
-        beerToFridgePid.setDerivativeFilter(4);
+        beerToFridgePid.setInputFiltering(1);
+        beerToFridgePid.setDerivativeFiltering(4);
         beerToFridgePid.setConstants(2.0, 7200, 1200);
         fridgeOffsetActuator.setMin(-10.0);
         fridgeOffsetActuator.setMax(10.0);
@@ -437,15 +436,15 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Beer, SimBeerHeater)
         update();
 
         csv     << beerSet.read() << "," // setpoint
-                << heaterPid.inputError << "," //error
+                << heaterPid.state.error << "," //error
                 << beerSensor.read() << "," // beer temp
                 << fridgeSensor.read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
                 << heater.setting() << "," // actuator output
                 << heater.value() << "," // achieved  output
-                << heaterPid.p << "," // proportional action
-                << heaterPid.i << "," // integral action
-                << heaterPid.d // derivative action
+                << heaterPid.state.p << "," // proportional action
+                << heaterPid.state.i << "," // integral action
+                << heaterPid.state.d // derivative action
                 << endl;
     }
     csv.close();
@@ -469,15 +468,15 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Fridge_Air, SimFridgeHeater)
         update();
 
         csv     << fridgeSet.read() << "," // setpoint
-                << heaterPid.inputError << "," //error
+                << heaterPid.state.error << "," //error
                 << beerSensor.read() << "," // beer temp
                 << fridgeSensor.read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
                 << heater.setting() << "," // actuator output
                 << heater.value() << "," // achieved output
-                << heaterPid.p << "," // proportional action
-                << heaterPid.i << "," // integral action
-                << heaterPid.d // derivative action
+                << heaterPid.state.p << "," // proportional action
+                << heaterPid.state.i << "," // integral action
+                << heaterPid.state.d // derivative action
                 << endl;
     }
     csv.close();
@@ -501,15 +500,15 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Beer, SimBeerCooler)
         update();
 
         csv     << beerSet.read() << "," // setpoint
-                << coolerPid.inputError << "," //error
+                << coolerPid.state.error << "," //error
                 << beerSensor.read() << "," // beer temp
                 << fridgeSensor.read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
                 << cooler.setting() << "," // actuator output
                 << cooler.value() << "," // achieved output
-                << coolerPid.p << "," // proportional action
-                << coolerPid.i << "," // integral action
-                << coolerPid.d << "," // derivative action
+                << coolerPid.state.p << "," // proportional action
+                << coolerPid.state.i << "," // integral action
+                << coolerPid.state.d << "," // derivative action
                 << coolerPin.isActive() // actual cooler pin state
                 << endl;
     }
@@ -534,15 +533,15 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air, SimFridgeCooler)
         update();
 
         csv     << fridgeSet.read() << "," // setpoint
-                << coolerPid.inputError << "," //error
+                << coolerPid.state.error << "," //error
                 << beerSensor.read() << "," // beer temp
                 << fridgeSensor.read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
                 << cooler.setting() << "," // actuator output
                 << cooler.value() << "," // achieved output
-                << coolerPid.p << "," // proportional action
-                << coolerPid.i << "," // integral action
-                << coolerPid.d << "," // derivative action
+                << coolerPid.state.p << "," // proportional action
+                << coolerPid.state.i << "," // integral action
+                << coolerPid.state.d << "," // derivative action
                 << coolerPin.isActive() // actual cooler pin state
                 << endl;
     }
@@ -574,15 +573,15 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air_With_Long_Period_
         update();
 
         csv     << fridgeSet.read() << "," // setpoint
-                << coolerPid.inputError << "," //error
+                << coolerPid.state.error << "," //error
                 << beerSensor.read() << "," // beer temp
                 << fridgeSensor.read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
                 << cooler.setting() << "," // actuator output
                 << cooler.value() << "," // achieved output
-                << coolerPid.p << "," // proportional action
-                << coolerPid.i << "," // integral action
-                << coolerPid.d << "," // derivative action
+                << coolerPid.state.p << "," // proportional action
+                << coolerPid.state.i << "," // integral action
+                << coolerPid.state.d << "," // derivative action
                 << coolerPin.isActive() // actual cooler pin state
                 << endl;
     }
@@ -618,20 +617,20 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Fridge_Air, Sim
         BOOST_CHECK_MESSAGE(! (heaterPin.isActive() && coolerPin.isActive()), "at " << t); // pins are not active at the same time
 
         csv     << fridgeSet.read() << "," // setpoint
-                << coolerPid.inputError << "," //error
+                << coolerPid.state.error << "," //error
                 << beerSensor.read() << "," // beer temp
                 << fridgeSensor.read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
                 << cooler.setting() << "," // actuator output
                 << cooler.value() << "," // achieved output
-                << coolerPid.p << "," // proportional action
-                << coolerPid.i << "," // integral action
-                << coolerPid.d << "," // derivative action
+                << coolerPid.state.p << "," // proportional action
+                << coolerPid.state.i << "," // integral action
+                << coolerPid.state.d << "," // derivative action
                 << heater.setting() << "," // actuator output
                 << heater.value() << "," // achieved output
-                << heaterPid.p << "," // proportional action
-                << heaterPid.i << "," // integral action
-                << heaterPid.d << "," // derivative action
+                << heaterPid.state.p << "," // proportional action
+                << heaterPid.state.i << "," // integral action
+                << heaterPid.state.d << "," // derivative action
                 << coolerPin.isActive() << "," // actual cooler pin state
                 << heaterPin.isActive() // actual cooler pin state
                 << endl;
@@ -666,20 +665,20 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Beer, SimBeerHe
         BOOST_CHECK( !(heaterPin.isActive() && coolerPin.isActive()) ); // pins are not active at the same time
 
         csv     << beerSet.read() << "," // setpoint
-                << coolerPid.inputError << "," //error
+                << coolerPid.state.error << "," //error
                 << beerSensor.read() << "," // beer temp
                 << fridgeSensor.read() << "," // air temp
                 << sim.wallTemp << "," // fridge wall temperature
                 << cooler.setting() << "," // actuator output
                 << cooler.value() << "," // achieved output
-                << coolerPid.p << "," // proportional action
-                << coolerPid.i << "," // integral action
-                << coolerPid.d << "," // derivative action
+                << coolerPid.state.p << "," // proportional action
+                << coolerPid.state.i << "," // integral action
+                << coolerPid.state.d << "," // derivative action
                 << heater.setting() << "," // actuator output
                 << heater.value() << "," // achieved output
-                << heaterPid.p << "," // proportional action
-                << heaterPid.i << "," // integral action
-                << heaterPid.d << "," // derivative action
+                << heaterPid.state.p << "," // proportional action
+                << heaterPid.state.i << "," // integral action
+                << heaterPid.state.d << "," // derivative action
                 << coolerPin.isActive() << "," // actual cooler pin state
                 << heaterPin.isActive() // actual cooler pin state
                 << endl;
@@ -718,12 +717,12 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Control, SimCascadedHeaterCooler)
 
         csv     << beerSet.read() << "," // setpoint
                 << beerSensor.read() << "," // beer temp
-                << beerToFridgePid.inputError << "," // beer error
+                << beerToFridgePid.state.error << "," // beer error
 
-                << beerToFridgePid.p << "," // proportional action
-                << beerToFridgePid.i << "," // integral action
-                << beerToFridgePid.d << "," // derivative action
-                << beerToFridgePid.p + beerToFridgePid.i + beerToFridgePid.d << "," // PID output
+                << beerToFridgePid.state.p << "," // proportional action
+                << beerToFridgePid.state.i << "," // integral action
+                << beerToFridgePid.state.d << "," // derivative action
+                << beerToFridgePid.state.p + beerToFridgePid.state.i + beerToFridgePid.state.d << "," // PID output
                 << fridgeOffsetActuator.setting() << "," // beer-fridge actual difference
 
                 << fridgeSet.read() << "," // fridge setpoint
@@ -732,15 +731,15 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Control, SimCascadedHeaterCooler)
 
                 << cooler.setting() << "," // actuator output
                 << cooler.value() << "," // achieved output
-                << coolerPid.p << "," // proportional action
-                << coolerPid.i << "," // integral action
-                << coolerPid.d << "," // derivative action
+                << coolerPid.state.p << "," // proportional action
+                << coolerPid.state.i << "," // integral action
+                << coolerPid.state.d << "," // derivative action
 
                 << heater.setting() << "," // actuator output
                 << heater.value() << "," // achieved output
-                << heaterPid.p << "," // proportional action
-                << heaterPid.i << "," // integral action
-                << heaterPid.d << "," // derivative action
+                << heaterPid.state.p << "," // proportional action
+                << heaterPid.state.i << "," // integral action
+                << heaterPid.state.d << "," // derivative action
 
                 << coolerPin.isActive() << "," // actual cooler pin state
                 << heaterPin.isActive() // actual cooler pin state
@@ -781,12 +780,12 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Cool_Small_Volume, SimCascadedHeaterCo
 
         csv     << beerSet.read() << "," // setpoint
                 << beerSensor.read() << "," // beer temp
-                << beerToFridgePid.inputError << "," // beer error
+                << beerToFridgePid.state.error << "," // beer error
 
-                << beerToFridgePid.p << "," // proportional action
-                << beerToFridgePid.i << "," // integral action
-                << beerToFridgePid.d << "," // derivative action
-                << beerToFridgePid.p + beerToFridgePid.i + beerToFridgePid.d << "," // PID output
+                << beerToFridgePid.state.p << "," // proportional action
+                << beerToFridgePid.state.i << "," // integral action
+                << beerToFridgePid.state.d << "," // derivative action
+                << beerToFridgePid.state.p + beerToFridgePid.state.i + beerToFridgePid.state.d << "," // PID output
                 << fridgeOffsetActuator.setting() << "," // beer-fridge actual difference
 
                 << fridgeSet.read() << "," // fridge setpoint
@@ -795,15 +794,15 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Cool_Small_Volume, SimCascadedHeaterCo
 
                 << cooler.setting() << "," // actuator output
                 << cooler.value() << "," // achieved output
-                << coolerPid.p << "," // proportional action
-                << coolerPid.i << "," // integral action
-                << coolerPid.d << "," // derivative action
+                << coolerPid.state.p << "," // proportional action
+                << coolerPid.state.i << "," // integral action
+                << coolerPid.state.d << "," // derivative action
 
                 << heater.setting() << "," // actuator output
                 << heater.value() << "," // achieved output
-                << heaterPid.p << "," // proportional action
-                << heaterPid.i << "," // integral action
-                << heaterPid.d << "," // derivative action
+                << heaterPid.state.p << "," // proportional action
+                << heaterPid.state.i << "," // integral action
+                << heaterPid.state.d << "," // derivative action
 
                 << coolerPin.isActive() << "," // actual cooler pin state
                 << heaterPin.isActive() // actual cooler pin state

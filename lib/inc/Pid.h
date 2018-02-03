@@ -30,6 +30,7 @@
 #include "ControllerMixins.h"
 #include "ControllerInterface.h"
 #include "ProcessValue.h"
+#include <cstring>
 
 class Pid final : public ControllerInterface, public PidMixin
 {
@@ -55,54 +56,83 @@ class Pid final : public ControllerInterface, public PidMixin
                           uint16_t ti,
                           uint16_t td);
 
-        void setFiltering(uint8_t b);
 
-        uint8_t getFiltering();
+        uint8_t getInputFiltering()
+        {
+            return inputFilter.getFiltering();
+        }
 
-        void setInputFilter(uint8_t b);
+        uint8_t getDerivativeFiltering()
+        {
+            return derivativeFilter.getFiltering();
+        }
 
-        void setDerivativeFilter(uint8_t b);
+        void setInputFiltering(uint8_t b)
+        {
+            inputFilter.setFiltering(b);
+        }
 
-        void setActuatorIsNegative(bool setting){
-            actuatorIsNegative = setting;
+        void setDerivativeFiltering(uint8_t b)
+        {
+            derivativeFilter.setFiltering(b);
         }
 
         void enable(){
-            enabled = true;
+            settings.enabled = true;
         }
 
         void disable(bool turnOffOutput){
-            enabled = false;
-            inputError = decltype(inputError)::base_type(0);
-            p = decltype(p)::base_type(0);
-            i = decltype(i)::base_type(0);
-            d = decltype(d)::base_type(0);
+            settings.enabled = false;
+            state.error = 0.0;
+            state.p = 0.0;
+            state.i = 0.0;
+            state.d = 0.0;
             if(turnOffOutput){
                 output.set(0.0);
             }
         }
 
+        void copySettingsFrom(void * from){
+            memcpy(&settings, from, sizeof(settings));
+        }
+
+        void copySettingsTo(void * to){
+            memcpy(to, &settings, sizeof(settings));
+        }
+
+        void copyStateTo(void * to){
+            memcpy(to, &state, sizeof(state));
+        }
+
     protected:
         ProcessValue & input;
         ProcessValue & output;
-        temp_long_t       Kp;    // proportional gain
-        uint16_t          Ti;    // integral time constant
-        uint16_t          Td;    // derivative time constant
-        temp_long_t       p;
-        temp_long_t       i;
-        temp_long_t       d;
-        temp_t            inputError;
-        temp_precise_t    derivative;
-        temp_long_t       integral;
+        struct Settings {
+            temp_long_t       kp;    // proportional gain
+            uint16_t          ti;    // integral time constant
+            uint16_t          td;    // derivative time constant
+            bool              enabled;
+        } settings;
+        struct State {
+            temp_t            inputValue;
+            temp_t            inputSetting;
+            temp_t            outputValue;
+            temp_t            outputSetting;
+            temp_long_t       p;
+            temp_long_t       i;
+            temp_long_t       d;
+            temp_long_t       integral;
+            temp_precise_t    derivative;
+            temp_t            error; // last element for 32-bit alignment
+        } state;
+
         FilterCascaded    inputFilter;
         FilterCascaded    derivativeFilter;
-        uint8_t           failedReadCount;
-        bool              actuatorIsNegative; // if true, the actuator lowers the input, e.g. a cooler
-        bool              enabled;
 
     private:
         // remember previous setpoint, to be able to take the derivative of the error, instead of the input
-        temp_t            previousSetPoint;
+        uint8_t           failedReadCount;
+        temp_t            previousInputSetting;
 
     friend class TempControl;
     friend class PidMixin;
