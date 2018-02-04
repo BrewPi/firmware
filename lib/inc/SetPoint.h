@@ -46,6 +46,8 @@ public:
     SetPointSimple(temp_t _value) : settings({_value}){}
     ~SetPointSimple() = default;
 
+    static const size_t sizeof_Settings = sizeof(Settings);
+
     /**
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class

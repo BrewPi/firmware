@@ -88,6 +88,8 @@ public:
 
     virtual void readTo(DataOut& out) override final {
         blox_SensorSetPointPair message;
+        assert_size<sizeof(message.links.sensor), MAX_ID_CHAIN_LENGHT>();
+        assert_size<sizeof(message.links.setpoint), MAX_ID_CHAIN_LENGHT>();
         sensorLookup.copyTo(&message.links.sensor);
         setpointLookup.copyTo(&message.links.setpoint);
         static_assert(blox_SensorSetPointPair_size < 128, "varint for size will be larger than 1 byte");

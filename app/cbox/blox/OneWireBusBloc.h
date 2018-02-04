@@ -5,6 +5,7 @@
 #include "Board.h"
 #include "OneWireBus.pb.h"
 #include "nanopb_callbacks.h"
+#include "assert_size_helper.h"
 
 class OneWireBusBloc: public WritableValue {
 private:
@@ -97,6 +98,8 @@ public:
      */
     virtual void writeFrom(DataIn& dataIn) override final{
         blox_OneWireCommand message = command;
+
+        assert_size<sizeof(message), 2>(); // one byte for command, one for data
 
         pb_istream_t stream = { &dataInStreamCallback, &dataIn, blox_OneWireCommand_size + 1, 0 };
         bool success = pb_decode_delimited_noinit(&stream, blox_OneWireCommand_fields, &message);

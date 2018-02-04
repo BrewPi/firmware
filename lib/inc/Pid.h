@@ -134,6 +134,10 @@ class Pid final : public ControllerInterface, public PidMixin
         uint8_t           failedReadCount;
         temp_t            previousInputSetting;
 
+    public:
+        static const size_t sizeof_Settings = sizeof(Settings);
+        static const size_t sizeof_State = sizeof(State);
+
     friend class TempControl;
     friend class PidMixin;
 };

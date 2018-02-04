@@ -101,12 +101,19 @@ public:
 
     virtual void readTo(DataOut& out) override final {
         blox_Pid message;
+
+        assert_size<sizeof(message.settings), OneWireTempSensor::sizeof_Settings>();
+        assert_size<sizeof(message.state), OneWireTempSensor::sizeof_State>();
+        assert_size<sizeof(message.links.input), MAX_ID_CHAIN_LENGHT>();
+        assert_size<sizeof(message.links.output), MAX_ID_CHAIN_LENGHT>();
+
         pid.copySettingsTo(&message.settings);
+        pid.copyStateTo(&message.state);
         inputLookup.copyTo(&message.links.input);
         outputLookup.copyTo(&message.links.output);
         message.filtering.input = pid.getInputFiltering();
         message.filtering.derivative = pid.getDerivativeFiltering();
-        pid.copyStateTo(&message.state);
+
         static_assert(blox_Pid_size < 128, "varint for size will be larger than 1 byte");
         pb_ostream_t stream = { &dataOutStreamCallback, &out, blox_Pid_size + 1, 0 };
         pb_encode_delimited(&stream, blox_Pid_fields, &message);

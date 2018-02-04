@@ -159,6 +159,7 @@ $(BUILD_PATH)%.o : $(SOURCE_PATH)/%.cpp
 clean:	
 	$(RM) $(ALLOBJ) $(ALLDEPS) $(TARGETDIR)$(TARGET)
 	$(RMDIR) $(TARGETDIR)
+	$(RMDIR) $(SOURCE_PATH)/app/cbox/proto/cpp
 	@echo
 
 # print variable by invoking make print-VARIABLE as VARIABLE = the_value_of_the_variable

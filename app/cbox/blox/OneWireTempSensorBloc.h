@@ -80,6 +80,8 @@ public:
 
     virtual void readTo(DataOut& out) override final {
         blox_OneWireTempSensor message;
+        assert_size<sizeof(message.settings), OneWireTempSensor::sizeof_Settings>();
+        assert_size<sizeof(message.state), OneWireTempSensor::sizeof_State>();
         sensor.copySettingsTo(&message.settings);
         sensor.copyStateTo(&message.state);
         static_assert(blox_OneWireTempSensor_size < 128, "varint for size will be larger than 1 byte");

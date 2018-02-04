@@ -6,8 +6,8 @@ package blox;
 
 message SensorSetPointPair {
   message Links {
-    bytes sensor = 1 [(nanopb).max_size = 4, (nanopb).fixed_length = true];
-    bytes setpoint = 2 [(nanopb).max_size = 4, (nanopb).fixed_length = true];
+    bytes sensor = 1;
+    bytes setpoint = 2;
   }
   
   Links links = 3;

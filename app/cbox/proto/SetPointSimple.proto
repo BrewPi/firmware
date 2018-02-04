@@ -6,7 +6,7 @@ package blox;
 
 message SetPointSimple {
     message Settings {
-        sint32 value = 1 [(nanopb).int_size = IS_16];
+        sint32 value = 1;
     }
   
     Settings settings = 1;

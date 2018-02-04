@@ -8,35 +8,35 @@ package blox;
 // data is optional and only used in some commands. For example when doing a family search, data contains the family ID 
 message Pid {
 	message Settings {
-		sint32 kp = 1  [(nanopb).int_size = IS_32];
-		uint32 ti = 2  [(nanopb).int_size = IS_16];
-		uint32 td = 3  [(nanopb).int_size = IS_16];
+		sint32 kp = 1;
+		uint32 ti = 2;
+		uint32 td = 3;
 		bool enabled = 4;
 	}
 	
 	message State {
-		sint32 inputValue = 1  [(nanopb).int_size = IS_16];
-		sint32 inputSetting = 2  [(nanopb).int_size = IS_16];
-		sint32 outputValue = 3  [(nanopb).int_size = IS_16];
-		sint32 outputSetting = 4  [(nanopb).int_size = IS_16];
+		sint32 inputValue = 1;
+		sint32 inputSetting = 2;
+		sint32 outputValue = 3;
+		sint32 outputSetting = 4;
 				
-		sint32 p = 5  [(nanopb).int_size = IS_32];
-		sint32 i = 6  [(nanopb).int_size = IS_32];
-		sint32 d = 7  [(nanopb).int_size = IS_32];
+		sint32 p = 5;
+		sint32 i = 6;
+		sint32 d = 7;
 		
-		sint32 derivative = 8  [(nanopb).int_size = IS_32];
-		sint32 integral = 9 [(nanopb).int_size = IS_32];
-		sint32 error = 10  [(nanopb).int_size = IS_16];
+		sint32 derivative = 8;
+		sint32 integral = 9;
+		sint32 error = 10;
 	}
 	
 	message Links {
-    	bytes input = 1 [(nanopb).max_size = 4, (nanopb).fixed_length = true];
-    	bytes output = 2 [(nanopb).max_size = 4, (nanopb).fixed_length = true];
+    	bytes input = 1;
+    	bytes output = 2;
   	}
   	
   	message Filtering {
-  		uint32 input = 1 [(nanopb).int_size = IS_8];
-  		uint32 derivative = 2 [(nanopb).int_size = IS_8];
+  		uint32 input = 1;
+  		uint32 derivative = 2;
   	}
   	
   	Settings settings = 1;

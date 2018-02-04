@@ -75,6 +75,7 @@ public:
 
     virtual void readTo(DataOut& out) override final {
         blox_SetPointSimple message; \
+        assert_size<sizeof(message.settings), SetPointSimple::sizeof_Settings>();
         setpoint.copySettingsTo(&message.settings);
         static_assert(blox_SetPointSimple_size < 128, "varint for settings size will be larger than 1 byte");
         pb_ostream_t stream = { &dataOutStreamCallback, &out, blox_SetPointSimple_size + 1, 0 };

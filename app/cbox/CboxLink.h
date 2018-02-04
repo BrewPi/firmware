@@ -1,6 +1,8 @@
 #include "RefTo.h"
 #include "Values.h"
 
+#define MAX_ID_CHAIN_LENGHT (MAX_CONTAINER_DEPTH+1)
+
 class CboxLookup : public BaseLookup {
 public:
     CboxLookup(){
@@ -14,7 +16,7 @@ public:
         Object * current = root;
         container_id id = -1;
         uint8_t i = 0;
-        while(i < 4 && id < 0){
+        while(i < MAX_ID_CHAIN_LENGHT && id < 0){
             id = id_chain[i++];
             current = fetchContainedObject(current, id);
         }
@@ -22,13 +24,13 @@ public:
     }
 
     void copyFrom(void * from){
-        memcpy(id_chain, from, 4);
+        memcpy(id_chain, from, MAX_ID_CHAIN_LENGHT);
     }
 
     void copyTo(void * to){
-        memcpy(to, id_chain, 4);
+        memcpy(to, id_chain, MAX_ID_CHAIN_LENGHT);
     }
 
 private:
-    container_id id_chain[4];
+    container_id id_chain[MAX_ID_CHAIN_LENGHT];
 };

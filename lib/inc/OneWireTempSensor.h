@@ -89,7 +89,7 @@ public:
     	memcpy(to, &state, sizeof(state));
     }
 
-	private:
+private:
 
 	void setConnected(bool connected);
 	void requestConversion();
@@ -115,6 +115,10 @@ public:
         temp_t cachedValue;
         bool connected;
 	} state;
+
+public:
+	static const size_t sizeof_Settings = sizeof(Settings);
+	static const size_t sizeof_State = sizeof(State);
 
 	friend class OneWireTempSensorMixin;
 };
