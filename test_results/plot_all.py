@@ -35,7 +35,7 @@ class header_decoder:
                 self.types.append(match.group(2))
                 self.names.append(match.group(3))
             else:
-                print "Cannot decode name '{0}' CSV header of {1}".format(name, file_name)
+                print("Cannot decode name '{0}' CSV header of {1}".format(name, file_name))
                 exit(1)
 
 hd = header_decoder()
@@ -81,7 +81,8 @@ for file in glob.glob("*.csv"):
 
     for i, val in enumerate(subplot_ymin):
         plt.subplot(num_subplots, 1, i+1)
-        plt.ylim(subplot_ymin[i], subplot_ymax[i])
+        if not np.isinf(subplot_ymin[i]) and not np.isinf(subplot_ymax[i]):
+            plt.ylim(subplot_ymin[i], subplot_ymax[i])
         if subplot_ymin[i] < 0 < subplot_ymax[i]:
             plt.axhline(0, hold=True, color='grey') # plot line through zero
 
@@ -89,7 +90,10 @@ for file in glob.glob("*.csv"):
 
     mng = plt.get_current_fig_manager()
     if plt.get_backend() == 'TkAgg':
-        mng.resize(*mng.window.maxsize())
+        (width, height) = mng.window.maxsize()
+        if width > 2 * height:
+            width = width / 2
+        mng.resize(width, height)
     elif plt.get_backend() == 'wxAgg':
         mng.frame.Maximize(True)
     elif plt.get_backend() == 'QT4Agg':
