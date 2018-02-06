@@ -2,14 +2,16 @@
 
 #include "RefTo.h"
 #include "Values.h"
+#include <cstring>
 
 #define MAX_ID_CHAIN_LENGHT (MAX_CONTAINER_DEPTH+1)
+
 
 class CboxLookup : public BaseLookup {
 public:
     CboxLookup(){
     }
-    ~CboxLookup() = default;
+    virtual ~CboxLookup() = default;
 
     virtual Interface * operator()() const override final {
         // id_chain.reset();
@@ -25,11 +27,12 @@ public:
         return (current && current != root) ? current->getApplicationInterface() : nullptr;
     }
 
-    void copyFrom(void * from){
+    // wire type is unsigned bytes
+    void copyFrom(uint8_t const (&from)[MAX_ID_CHAIN_LENGHT]){
         memcpy(id_chain, from, MAX_ID_CHAIN_LENGHT);
     }
 
-    void copyTo(void * to){
+    void copyTo(uint8_t (&to)[MAX_ID_CHAIN_LENGHT]){
         memcpy(to, id_chain, MAX_ID_CHAIN_LENGHT);
     }
 

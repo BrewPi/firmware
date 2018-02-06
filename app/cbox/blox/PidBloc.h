@@ -58,8 +58,8 @@ public:
         pid.copySettingsTo(settings_union.app);
         to.settings = settings_union.blox;
 
-        inputLookup.copyTo(&to.links.input);
-        outputLookup.copyTo(&to.links.output);
+        inputLookup.copyTo(to.links.input);
+        outputLookup.copyTo(to.links.output);
         to.filtering.input = pid.getInputFiltering();
         to.filtering.derivative = pid.getDerivativeFiltering();
     }
@@ -68,8 +68,8 @@ public:
         PidSettings_union settings_union;
         settings_union.blox = from.settings;
         pid.copySettingsFrom(settings_union.app);
-        inputLookup.copyFrom(&from.links.input);
-        outputLookup.copyFrom(&from.links.output);
+        inputLookup.copyFrom(from.links.input);
+        outputLookup.copyFrom(from.links.output);
         pid.setInputFiltering(from.filtering.input);
         pid.setDerivativeFiltering(from.filtering.derivative);
     }
@@ -136,8 +136,8 @@ public:
         PidState_union state_union;
         pid.copyStateTo(state_union.app);
         message.state = state_union.blox;
-        inputLookup.copyTo(&message.links.input);
-        outputLookup.copyTo(&message.links.output);
+        inputLookup.copyTo(message.links.input);
+        outputLookup.copyTo(message.links.output);
         message.filtering.input = pid.getInputFiltering();
         message.filtering.derivative = pid.getDerivativeFiltering();
 
