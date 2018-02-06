@@ -15,9 +15,9 @@ blox.Pid.State.derivative int_size:IS_32
 blox.Pid.State.integral int_size:IS_32
 blox.Pid.State.error int_size:IS_16
 
-blox.Pid.State.Links.input max_size:4 fixed_length:true
-blox.Pid.State.Links.output max_size:4 fixed_length:true
+blox.Pid.Links.input max_size:4 fixed_length:true
+blox.Pid.Links.output max_size:4 fixed_length:true
   	
-blox.Pid.State.Filtering.input int_size:IS_8
-blox.Pid.State.Filtering.derivative int_size:IS_8
+blox.Pid.Filtering.input int_size:IS_8
+blox.Pid.Filtering.derivative int_size:IS_8
   	

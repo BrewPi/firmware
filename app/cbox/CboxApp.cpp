@@ -32,6 +32,7 @@
 #include "OneWireTempSensorBloc.h"
 #include "SetPointSimpleBloc.h"
 #include "SensorSetPointPairBloc.h"
+#include "PidBloc.h"
 
 
 OneWireBusBloc oneWireBus;
@@ -51,6 +52,7 @@ Commands::ObjectFactory createObjectHandlers[] = {
         OneWireTempSensorBloc::create,                          // type 6
         SetPointSimpleBloc::create,                             // type 7
         SensorSetPointPairBloc::create,                         // type 8
+        PidBloc::create,                                        // type 9
         NULL
 
         // When defining a new object type, add the handler above the last NULL value (it's just there to make

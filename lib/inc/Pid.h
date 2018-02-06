@@ -40,6 +40,31 @@ class Pid final : public ControllerInterface, public PidMixin
             ProcessValue & _output);
         ~Pid() = default;
 
+        struct Settings {
+            Settings() : kp(0.0), ti(0), td(0), enabled(false) {}
+            ~Settings() = default;
+            temp_long_t       kp;    // proportional gain
+            uint16_t          ti;    // integral time constant
+            uint16_t          td;    // derivative time constant
+            bool              enabled;
+        };
+        struct State {
+            State() : inputValue(0.0), inputSetting(0.0), outputValue(0.0), outputSetting(0.0),
+                    p(0.0), i(0.0), d(0.0), integral(0.0), derivative(0.0), error(0.0){}
+            ~State() = default;
+            temp_t            inputValue;
+            temp_t            inputSetting;
+            temp_t            outputValue;
+            temp_t            outputSetting;
+            temp_long_t       p;
+            temp_long_t       i;
+            temp_long_t       d;
+            temp_long_t       integral;
+            temp_precise_t    derivative;
+            temp_t            error; // last element for 32-bit alignment
+        };
+
+
         /**
          * Accept function for visitor pattern
          * @param dispatcher Visitor to process this class
@@ -92,39 +117,23 @@ class Pid final : public ControllerInterface, public PidMixin
             }
         }
 
-        void copySettingsFrom(void * from){
-            memcpy(&settings, from, sizeof(settings));
+        void copySettingsFrom(Settings const & from){
+            settings = from;
         }
 
-        void copySettingsTo(void * to){
-            memcpy(to, &settings, sizeof(settings));
+        void copySettingsTo(Settings & to){
+            to = settings;
         }
 
-        void copyStateTo(void * to){
-            memcpy(to, &state, sizeof(state));
+        void copyStateTo(State & to){
+            to = state;
         }
 
     protected:
         ProcessValue & input;
         ProcessValue & output;
-        struct Settings {
-            temp_long_t       kp;    // proportional gain
-            uint16_t          ti;    // integral time constant
-            uint16_t          td;    // derivative time constant
-            bool              enabled;
-        } settings;
-        struct State {
-            temp_t            inputValue;
-            temp_t            inputSetting;
-            temp_t            outputValue;
-            temp_t            outputSetting;
-            temp_long_t       p;
-            temp_long_t       i;
-            temp_long_t       d;
-            temp_long_t       integral;
-            temp_precise_t    derivative;
-            temp_t            error; // last element for 32-bit alignment
-        } state;
+        Settings settings;
+        State state;
 
         FilterCascaded    inputFilter;
         FilterCascaded    derivativeFilter;
@@ -133,10 +142,6 @@ class Pid final : public ControllerInterface, public PidMixin
         // remember previous setpoint, to be able to take the derivative of the error, instead of the input
         uint8_t           failedReadCount;
         temp_t            previousInputSetting;
-
-    public:
-        static const size_t sizeof_Settings = sizeof(Settings);
-        static const size_t sizeof_State = sizeof(State);
 
     friend class TempControl;
     friend class PidMixin;

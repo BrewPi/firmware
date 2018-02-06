@@ -24,24 +24,8 @@
 Pid::Pid(ProcessValue& _input, ProcessValue& _output) :
          input(_input),
          output(_output),
-         settings({
-             0.0,
-             0,
-             0,
-             true
-         }),
-         state({
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0
-         }),
+         settings(),
+         state(),
          failedReadCount(255), // start at 255, so inputFilter is refreshed at first valid read
          previousInputSetting(temp_t::invalid())
 {

@@ -7,6 +7,22 @@
 #include "ProcessValueDelegate.h"
 #include "CboxLink.h"
 
+// use union to copy between blox struct and app struct.
+// a memcpy is not guaranteed to do a valid deep copy
+union PidSettings_union {
+    PidSettings_union() : app(){}
+    ~PidSettings_union() = default;
+    Pid::Settings app;
+    blox_Pid_Settings blox;
+};
+union PidState_union {
+    PidState_union() : app(){}
+    ~PidState_union() = default;
+    Pid::State app;
+    blox_Pid_State blox;
+};
+
+
 class PidBloc: public Bloc {
 private:
     CboxLookup inputLookup;
@@ -19,6 +35,8 @@ private:
 
 public:
     PidBloc() :
+        input(inputLookup),
+        output(outputLookup),
         pid(input, output)
     {}
 
@@ -36,7 +54,10 @@ public:
     }
 
     void copyPersistedTo(blox_Pid_Persisted & to){
-        pid.copySettingsTo(&to.settings);
+        PidSettings_union settings_union;
+        pid.copySettingsTo(settings_union.app);
+        to.settings = settings_union.blox;
+
         inputLookup.copyTo(&to.links.input);
         outputLookup.copyTo(&to.links.output);
         to.filtering.input = pid.getInputFiltering();
@@ -44,7 +65,9 @@ public:
     }
 
     void copyPersistedFrom(blox_Pid_Persisted & from){
-        pid.copySettingsFrom(&from.settings);
+        PidSettings_union settings_union;
+        settings_union.blox = from.settings;
+        pid.copySettingsFrom(settings_union.app);
         inputLookup.copyFrom(&from.links.input);
         outputLookup.copyFrom(&from.links.output);
         pid.setInputFiltering(from.filtering.input);
@@ -102,13 +125,17 @@ public:
     virtual void readTo(DataOut& out) override final {
         blox_Pid message;
 
-        assert_size<sizeof(message.settings), OneWireTempSensor::sizeof_Settings>();
-        assert_size<sizeof(message.state), OneWireTempSensor::sizeof_State>();
+        assert_size<sizeof(message.settings), sizeof(Pid::Settings)>();
+        assert_size<sizeof(message.state), sizeof(Pid::State)>();
         assert_size<sizeof(message.links.input), MAX_ID_CHAIN_LENGHT>();
         assert_size<sizeof(message.links.output), MAX_ID_CHAIN_LENGHT>();
+        PidSettings_union settings_union;
+        pid.copySettingsTo(settings_union.app);
+        message.settings = settings_union.blox;
 
-        pid.copySettingsTo(&message.settings);
-        pid.copyStateTo(&message.state);
+        PidState_union state_union;
+        pid.copyStateTo(state_union.app);
+        message.state = state_union.blox;
         inputLookup.copyTo(&message.links.input);
         outputLookup.copyTo(&message.links.output);
         message.filtering.input = pid.getInputFiltering();

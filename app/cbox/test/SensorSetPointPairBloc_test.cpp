@@ -46,7 +46,7 @@ SCENARIO("A Blox SensorSetPointPair object can be created from streamed protobuf
             WARN("Encoding of SensorSetPointPair with sensor lookup 0x01000000 and setpoint lookup 0x02000000 is " << ss.str());
             WARN("Length of encoding is " << blox_SensorSetPointPair_Persisted_size);
 
-            AND_WHEN("we create a DataIn object form that buffer"){
+            AND_WHEN("we create a DataIn object from that buffer"){
                 BufferDataIn in(buf);
 
                 THEN("a newly created SensorSetPointPairBloc object can receive settings from the DataIn stream")
