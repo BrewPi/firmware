@@ -117,16 +117,17 @@ class Pid final : public ControllerInterface, public PidMixin
             }
         }
 
-        void copySettingsFrom(Settings const & from){
+        void setSettings(Settings const & from){
             settings = from;
         }
 
-        void copySettingsTo(Settings & to){
-            to = settings;
+
+        Settings const& getSettings(){
+            return settings;
         }
 
-        void copyStateTo(State & to){
-            to = state;
+        State const& getState(){
+            return state;
         }
 
     protected:
