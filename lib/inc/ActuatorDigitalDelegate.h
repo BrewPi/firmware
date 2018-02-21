@@ -27,12 +27,11 @@
 
 class ActuatorDigitalDelegate :
     public ActuatorDigital,
-    public Delegate<ActuatorDigital>,
     public ActuatorDigitalDelegateMixin
 {
 public:
     ActuatorDigitalDelegate() = default;
-    ActuatorDigitalDelegate(BaseLookup const& lookup) : Delegate<ActuatorDigital>(lookup){}
+    ActuatorDigitalDelegate(BaseLookup const& lookup) : delegate(lookup){}
     virtual ~ActuatorDigitalDelegate() = default;
 
     virtual void accept(VisitorBase & v) override final {
@@ -55,6 +54,8 @@ public:
         return delegate().isActive();
     }
 
+private:
+    RefTo<ActuatorDigital> delegate;
 
 friend class ActuatorDigitalDelegateMixin;
 };

@@ -21,18 +21,16 @@
 
 #include <stdint.h>
 #include "ControllerMixins.h"
-#include "Delegate.h"
 #include "ProcessValue.h"
 #include "VisitorBase.h"
 
 class ProcessValueDelegate :
     public ProcessValue,
-    public Delegate<ProcessValue>,
     public ProcessValueDelegateMixin
 {
 public:
     ProcessValueDelegate() = default;
-    ProcessValueDelegate(BaseLookup const& lookup) : Delegate<ProcessValue>(lookup){}
+    ProcessValueDelegate(BaseLookup const& lookup) : delegate(lookup){}
     ~ProcessValueDelegate() = default;
 
     virtual void accept(VisitorBase & v) override final {
@@ -61,5 +59,6 @@ public:
     }
     
 private:
+    RefTo<ProcessValue> delegate;
     friend class ProcessValueDelegateMixin;
 };

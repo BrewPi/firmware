@@ -22,15 +22,13 @@
 #include <stdint.h>
 #include "ControllerMixins.h"
 #include "Interface.h"
-#include "Delegate.h"
 
 class SetPointDelegate :
     public SetPoint,
-    public Delegate<SetPoint>,
     public SetPointDelegateMixin
 {
 public:
-    SetPointDelegate(BaseLookup const& lookup) : Delegate<SetPoint>(lookup){}
+    SetPointDelegate(BaseLookup const& lookup) : delegate(lookup){}
     ~SetPointDelegate() = default;
 
     virtual void accept(VisitorBase & v) override final {
@@ -44,6 +42,9 @@ public:
     virtual void write(temp_t val) override final {
         delegate().write(val);
     }
+
+private:
+    RefTo<SetPoint> delegate;
 
 friend class SetPointDelegateMixin;
 };

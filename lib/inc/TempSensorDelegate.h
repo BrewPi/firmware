@@ -22,16 +22,14 @@
 #include "temperatureFormats.h"
 #include "TempSensor.h"
 #include "defaultDevices.h"
-#include "Delegate.h"
 #include "ControllerMixins.h"
 #include "RefTo.h"
 
 class TempSensorDelegate final :
     public TempSensor,
-    public Delegate<TempSensor>,
     public TempSensorDelegateMixin {
 public:
-    TempSensorDelegate(BaseLookup const& lookup) : Delegate<TempSensor>(lookup){}
+    TempSensorDelegate(BaseLookup const& lookup) : delegate(lookup){}
 
     ~TempSensorDelegate() = default;
 
@@ -54,6 +52,8 @@ public:
     virtual temp_t read() const override final {
         return delegate().read();
     }
+private:
+    RefTo<TempSensor> delegate;
 
     friend class TempSensorDelegateMixin;
 };
