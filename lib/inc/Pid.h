@@ -41,7 +41,7 @@ class Pid final : public ControllerInterface, public PidMixin
         ~Pid() = default;
 
         struct Settings {
-            Settings() : kp(0.0), ti(0), td(0), enabled(false) {}
+            Settings() : kp(0.0), ti(0), td(0), enabled(true) {}
             ~Settings() = default;
             temp_long_t       kp;    // proportional gain
             uint16_t          ti;    // integral time constant
