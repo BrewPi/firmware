@@ -400,18 +400,16 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_down_faster_than_period_gives_correct_average){
 }
 
 BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap_with_equal_duty){
+    auto mutex = ActuatorMutexGroup();
     auto boolAct1 = ActuatorBool();
-    auto mutexAct1 = ActuatorMutexDriver(boolAct1);
+    auto mutexAct1 = ActuatorMutexDriver(boolAct1, mutex);
     auto act1 = ActuatorPwm(mutexAct1, 10);
 
     auto boolAct2 = ActuatorBool();
-    auto mutexAct2 = ActuatorMutexDriver(boolAct2);
+    auto mutexAct2 = ActuatorMutexDriver(boolAct2, mutex);
     auto act2 = ActuatorPwm(mutexAct2, 10);
 
-    auto mutex = ActuatorMutexGroup();
     mutex.setDeadTime(0);
-    mutexAct1.setMutex(&mutex);
-    mutexAct2.setMutex(&mutex);
 
     ticks_seconds_t timeHigh1 = 0;
     ticks_seconds_t timeLow1 = 0;
@@ -459,18 +457,16 @@ BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap_with_equal_duty){
 }
 
 BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap_with_different_duty){
+    auto mutex = ActuatorMutexGroup();
     auto boolAct1 = ActuatorBool();
-    auto mutexAct1 = ActuatorMutexDriver(boolAct1);
+    auto mutexAct1 = ActuatorMutexDriver(boolAct1, mutex);
     auto act1 = ActuatorPwm(mutexAct1, 10);
 
     auto boolAct2 = ActuatorBool();
-    auto mutexAct2 = ActuatorMutexDriver(boolAct2);
+    auto mutexAct2 = ActuatorMutexDriver(boolAct2, mutex);
     auto act2 = ActuatorPwm(mutexAct2, 10);
 
-    auto mutex = ActuatorMutexGroup();
     mutex.setDeadTime(0);
-    mutexAct1.setMutex(&mutex);
-    mutexAct2.setMutex(&mutex);
 
     ticks_seconds_t timeHigh1 = 0;
     ticks_seconds_t timeLow1 = 0;
@@ -518,18 +514,16 @@ BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap_with_different_duty){
 }
 
 BOOST_AUTO_TEST_CASE(mutex_actuator_which_cannot_go_active_cannot_block_other_actuator){
+    auto mutex = ActuatorMutexGroup();
     auto boolAct1 = ActuatorBool();
-    auto mutexAct1 = ActuatorMutexDriver(boolAct1);
+    auto mutexAct1 = ActuatorMutexDriver(boolAct1, mutex);
     auto act1 = ActuatorPwm(mutexAct1, 10);
 
     auto boolAct2 = ActuatorNop(); // actuator which can never go active
-    auto mutexAct2 = ActuatorMutexDriver(boolAct2);
+    auto mutexAct2 = ActuatorMutexDriver(boolAct2, mutex);
     auto act2 = ActuatorPwm(mutexAct2, 10);
 
-    auto mutex = ActuatorMutexGroup();
     mutex.setDeadTime(0);
-    mutexAct1.setMutex(&mutex);
-    mutexAct2.setMutex(&mutex);
 
     ticks_seconds_t timeHigh1 = 0;
     ticks_seconds_t timeLow1 = 0;
@@ -731,11 +725,11 @@ BOOST_AUTO_TEST_CASE(decreasing_pwm_value_after_long_high_time_and_mutex_wait){
 
     // actuator that prevents other actuator from going high
     auto blocker = ActuatorBool();
-    auto blockerMutex = ActuatorMutexDriver(blocker, &mutex);
+    auto blockerMutex = ActuatorMutexDriver(blocker, mutex);
 
 
     auto boolAct = ActuatorBool();
-    auto mutexAct = ActuatorMutexDriver(boolAct, &mutex);
+    auto mutexAct = ActuatorMutexDriver(boolAct, mutex);
     auto pwmAct = ActuatorPwm(mutexAct, 20);
 
     ticks_millis_t start = ticks.millis();

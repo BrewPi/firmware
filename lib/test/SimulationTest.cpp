@@ -56,8 +56,8 @@ public:
         heaterPin(),
         coolerPin(),
         mutex(),
-        heaterMutex(heaterPin),
-        coolerMutex(coolerPin),
+        heaterMutex(heaterPin, mutex),
+        coolerMutex(coolerPin, mutex),
         heater(heaterMutex, 20), // period 20s, because update steps are 1 second
         coolerTimeLimited(coolerMutex, 120, 180), // 2 min minOn time, 3 min minOff
         cooler(coolerMutex, 1200), // period 20 min
@@ -320,8 +320,6 @@ struct SimFridgeHeaterCooler : public StaticSetup {
         heaterPid.setDerivativeFiltering(4);
         heaterPid.setConstants(10.0, 1800, 60);
 
-        coolerMutex.setMutex(&mutex);
-        heaterMutex.setMutex(&mutex);
         mutex.setDeadTime(3600000); // 60 minutes
     }
 
@@ -353,8 +351,6 @@ struct SimBeerHeaterCooler : public StaticSetup {
         heaterPid.setDerivativeFiltering(4);
         heaterPid.setConstants(60.0, 7200, 500);
 
-        coolerMutex.setMutex(&mutex);
-        heaterMutex.setMutex(&mutex);
         mutex.setDeadTime(3600000); // 60 minutes
     }
 
@@ -392,8 +388,6 @@ struct SimCascadedHeaterCooler : public StaticSetup {
         fridgeOffsetActuator.setMin(-10.0);
         fridgeOffsetActuator.setMax(10.0);
 
-        coolerMutex.setMutex(&mutex);
-        heaterMutex.setMutex(&mutex);
         mutex.setDeadTime(3600000); // 60 minutes
     }
 

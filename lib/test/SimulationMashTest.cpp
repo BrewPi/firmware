@@ -49,7 +49,7 @@ public:
         hltSensor(20.0),
         hltHeaterPin(),
         mutex(),
-        hltHeaterMutex(hltHeaterPin),
+        hltHeaterMutex(hltHeaterPin, mutex),
         hltHeater(hltHeaterMutex, 10), // period 10s, because we're skipping fastUpdate() here
         hltSet(20.0),
         mashSet(20.0),

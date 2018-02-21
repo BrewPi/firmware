@@ -22,6 +22,9 @@
 #include "ActuatorMocks.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorMutexDriver.h"
+#include "ActuatorMutexGroup.h"
+#include "ActuatorMutexGroupDelegate.h"
+#include "ActuatorMutexGroupDisabled.h"
 #include "ActuatorPwm.h"
 #include "SetPoint.h"
 #include "TempSensorDisconnected.h"
@@ -62,6 +65,8 @@ public:
     virtual void visit(ActuatorInvalid& thisRef) override final { this->process(thisRef); };
     virtual void visit(ActuatorMutexDriver& thisRef) override final { this->process(thisRef); };
     virtual void visit(ActuatorMutexGroup& thisRef) override final { this->process(thisRef); };
+    virtual void visit(ActuatorMutexGroupDelegate& thisRef) override final { this->process(thisRef); };
+    virtual void visit(ActuatorMutexGroupDisabled& thisRef) override final { this->process(thisRef); };
     virtual void visit(ActuatorNop& thisRef) override final { this->process(thisRef); };
 #if BREWPI_DS2413
     virtual void visit(ActuatorOneWire& thisRef) override final { this->process(thisRef); };

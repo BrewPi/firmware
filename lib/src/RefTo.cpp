@@ -24,6 +24,7 @@
 #include "TempSensorDisconnected.h"
 #include "SetPoint.h"
 #include "SensorSetPointPair.h"
+#include "ActuatorMutexGroupDisabled.h"
 #include "VisitorCast.h"
 
 template<>
@@ -56,8 +57,9 @@ ProcessValue * defaultTarget<ProcessValue>(){
 }
 
 template<>
-ActuatorMutexGroup * defaultTarget<ActuatorMutexGroup>(){
-    return nullptr; // ActuatorMutexDriver checks for nullptr, so this should be safe
+ActuatorMutexGroupInterface * defaultTarget<ActuatorMutexGroupInterface>(){
+    static ActuatorMutexGroupDisabled mg;
+    return &mg;
 }
 
 // explicit instantiation of template functions
@@ -65,7 +67,7 @@ template ActuatorDigital* asInterface<ActuatorDigital>(Interface*);
 template ActuatorAnalog* asInterface<ActuatorAnalog>(Interface*);
 template TempSensor* asInterface<TempSensor>(Interface*);
 template SetPoint* asInterface<SetPoint>(Interface*);
-template ActuatorMutexGroup* asInterface<ActuatorMutexGroup>(Interface*);
+template ActuatorMutexGroupInterface* asInterface<ActuatorMutexGroupInterface>(Interface*);
 template ProcessValue* asInterface<ProcessValue>(Interface*);
 
 // these are needed to search for shared OneWire switch ICs
