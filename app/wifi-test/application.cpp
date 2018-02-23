@@ -5,6 +5,9 @@ SYSTEM_THREAD(ENABLED);
 
 void setup() {
     Serial.begin(115200);
+    pinMode(D7, OUTPUT);
+
+    WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
 }
 
 void loop() {
@@ -15,7 +18,7 @@ void loop() {
 
     // Tic/toc on WiFi over TCP
     // reply to 't' with 'toc' over TCP, print other characters to serial
-    if (WiFi.ready()) {
+    if (WiFi.ready() && WiFi.localIP()[0] != 0) {
        if(!tcpServerRunning) {
            tcpServer.begin();
            tcpServerRunning = true;
@@ -33,23 +36,26 @@ void loop() {
        tcpClient.stop();
        tcpServerRunning = false;
 
-       if (WiFi.hasCredentials() && !WiFi.connecting()) {
-           WiFi.connect();
-       }
     }
-    while (tcpClient.available() > 0) {
-        char inByte = tcpClient.read();
-        switch(inByte){
-        case ' ':
-        case '\n':
-        case '\r':
-            break;
-        case 't':
-            tcpClient.write("toc");
-            break;
-        default:
-            Serial.printf("<-%c", inByte);
+
+    if(tcpClient.connected()){
+        while (tcpClient.available() > 0) {
+            char inByte = tcpClient.read();
+            switch(inByte){
+            case ' ':
+            case '\n':
+            case '\r':
+                break;
+            case 't':
+                tcpClient.write("toc");
+                break;
+            default:
+                Serial.printf("<-%c", inByte);
+            }
         }
+    }
+    else{
+        tcpClient.stop();
     }
 
     // print status on serial every second
@@ -59,4 +65,7 @@ void loop() {
         IPAddress ip = WiFi.localIP();
         Serial.printf("WiFi.ready(): %d - IP: %d.%d.%d.%d\n", wifiReady, ip[0],ip[1],ip[2],ip[3]);
     }
+
+    uint8_t ledOn = millis() / 300 % 2;
+    digitalWrite(D7, ledOn);
 }
