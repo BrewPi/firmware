@@ -9,7 +9,7 @@ colorama.init()
 # prints directly relaying stuff received over serial are green
 
 tcp = None
-ser = serial.serial_for_url('COM229',baudrate=256000, timeout=0.1, write_timeout=0)
+ser = serial.serial_for_url('/dev/ttyACM0',baudrate=256000, timeout=0.1, write_timeout=1)
 timer = time.time()
 
 serial_buffer = ""
@@ -19,9 +19,9 @@ while True:
     try:
         if tcp is None:
             time.sleep(1)
-            tcp = serial.serial_for_url("socket://192.168.2.149:6666", baudrate=57600, timeout=0.1, write_timeout=2)
+            tcp = serial.serial_for_url("socket://192.168.1.61:6666", baudrate=57600, timeout=0.1, write_timeout=1)
         
-        if time.time() - timer > 0.5:
+        if time.time() - timer > 1.0:
             tcp.write('t'.encode('utf-8'))
             print(colorama.Fore.RED + "py->hw: tic" + colorama.Style.RESET_ALL)
             timer = time.time()
@@ -48,8 +48,8 @@ while True:
     while ser.in_waiting > 0:
         serial_buffer = serial_buffer + ser.read(ser.in_waiting).decode('utf-8')
 
-    lines = serial_buffer.partition('\n') # returns 3-tuple with line, separator, rest
-    if lines[1]:
-        # complete line received, [0] is complete line [1] is separator [2] is the rest
-        serial_buffer = lines[2]
-        print(colorama.Fore.GREEN + lines[0] + colorama.Style.RESET_ALL)
+        lines = serial_buffer.partition('\n') # returns 3-tuple with line, separator, rest
+        if lines[1]:
+            # complete line received, [0] is complete line [1] is separator [2] is the rest
+            serial_buffer = lines[2]
+            print(colorama.Fore.GREEN + lines[0] + colorama.Style.RESET_ALL)

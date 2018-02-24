@@ -1,4 +1,5 @@
 #include "application.h"
+#include <inttypes.h>
 
 SYSTEM_MODE(MANUAL);
 SYSTEM_THREAD(ENABLED);
@@ -6,6 +7,12 @@ SerialLogHandler traceLog(LOG_LEVEL_TRACE);
 
 static TCPServer tcpServer = TCPServer(6666);
 static TCPClient tcpClient;
+
+
+// Toggle LED pin to see that application loop is not blocked.
+// You could use D7 when testing with a Photon.
+// I'm using another pin here, because D7 is one of the SWD pins used by the debugger
+const int LED_PIN = P1S0;
 
 enum tcp_state_enum {
     RUNNING_FINE,
@@ -75,7 +82,7 @@ void handle_cloud_events(system_event_t event, int param){
 
 void setup() {
     Serial.begin(115200);
-    pinMode(D7, OUTPUT);
+    pinMode(LED_PIN, OUTPUT);
 
     WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
 
@@ -86,6 +93,7 @@ void setup() {
 
 void loop() {
     static uint32_t last_update = millis();
+    static uint32_t lastLedToggle = millis();
 
     switch(tcp_state){
         case tcp_state_enum::RUNNING_FINE:
@@ -140,9 +148,62 @@ void loop() {
         last_update = millis();
         bool wifiReady = WiFi.ready();
         IPAddress ip = WiFi.localIP();
-        Serial.printf("WiFi.ready(): %d\t\tIP: %d.%d.%d.%d\t\tTCP client connected: %d\n", wifiReady, ip[0],ip[1],ip[2],ip[3], tcpClient.connected());
+        int signal = WiFi.RSSI();
+        int clientConnected = tcpClient.connected();
+        Serial.printf(
+                "WiFi.ready(): %d\t\t"
+                "IP: %d.%d.%d.%d\t\t"
+                "RSSI: %d\t\t"
+                "TCP client connected: %d\t\t"
+                "millis(): %" PRIu32 "\n",
+                wifiReady,
+                ip[0],ip[1],ip[2],ip[3],
+                signal,
+                clientConnected,
+                last_update);
+
+
+        /* When the signal gets below -80, the P1 will stop responding to TCP.
+         * - It still has an IP
+         * - It still has WiFi.ready() returning 1.
+         * - The LED is still breathing green.
+         *
+         * There is one symptom that something is wrong though:
+         * When TCP stopped working, the P1 would return RSSI 2.
+         *
+         * This seems to be a failed to get RSSI timeout:
+         *
+            int8_t WiFiClass::RSSI() {
+                if (!network_ready(*this, 0, NULL))
+                    return 0;
+
+                system_tick_t _functionStart = millis();
+                while ((millis() - _functionStart) < 1000) {
+                    int rv = wlan_connected_rssi();
+                    if (rv != 0)
+                        return (rv);
+                }
+                return (2);
+            }
+         *
+         * In an attempt to fix this, I tried disconnecting and reconnecting WiFi.
+         * But WiFi.disconnect() gives a stack overflow SOS (13 blinks).
+         */
+
+
+        if(signal == 2){
+            Serial.print("WiFi is in ERROR state. Resetting WiFi");
+            WiFi.disconnect();
+            WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
+        }
     }
 
-    uint8_t ledOn = millis() / 300 % 2;
-    digitalWrite(D7, ledOn);
+
+
+    if ( millis() - lastLedToggle > 200UL ) {
+        static bool ledOn = true;
+        ledOn = !ledOn;
+        digitalWrite(LED_PIN, ledOn);
+        lastLedToggle = millis();
+    }
 }
