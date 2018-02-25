@@ -147,6 +147,7 @@ void loop() {
         TCPClient newClient = tcpServer.available();
         if(newClient) {
            Serial.print("New TCP client\n");
+           tcpClient.write("New TCP client arrived, dropping you."); // stop old client
            tcpClient.stop(); // stop old client
            tcpClient = newClient;
         }
@@ -201,7 +202,7 @@ void loop() {
 
 
         if(signal == 2){
-            Serial.print("\n\n\nWiFi is in ERROR state.");
+            Serial.print("\n\n\nWiFi is in ERROR state (RSSI ==2)\n\n\n");
 
             /* This code causes a buffer overflow and the system does not recover from the resulting SOS. Don't use.
              * Leaving it here for particle to investigate.
