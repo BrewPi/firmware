@@ -127,15 +127,12 @@ void loop() {
                 Serial.printf("py->hw: %c\n", inByte); // confirm character received from tcp
             }
         }
-        else{
-            tcpClient.stop();
-            // listen for a new client
-            TCPClient newClient = tcpServer.available();
-            if(newClient) {
-               Serial.print("New TCP client\n");
-               tcpClient.stop();
-               tcpClient = newClient;
-            }
+        // listen for a new client, drop the old one if a new client arrives
+        TCPClient newClient = tcpServer.available();
+        if(newClient) {
+           Serial.print("New TCP client\n");
+           tcpClient.stop(); // stop old client
+           tcpClient = newClient;
         }
     }
 
