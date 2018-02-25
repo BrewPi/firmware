@@ -201,9 +201,14 @@ void loop() {
 
 
         if(signal == 2){
-            Serial.print("\n\n\nWiFi is in ERROR state. Resetting WiFi\n\n\n");
-            WiFi.disconnect();
-            WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
+            Serial.print("\n\n\nWiFi is in ERROR state.");
+
+            /* This code causes a buffer overflow and the system does not recover from the resulting SOS. Don't use.
+             * Leaving it here for particle to investigate.
+              WiFi.disconnect();
+              WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
+            */
+            tcp_state = tcp_state_enum::NEEDS_TO_STOP;
         }
     }
 
