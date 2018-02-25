@@ -9,12 +9,25 @@ colorama.init()
 # prints directly relaying stuff received over serial are green
 
 tcp = None
-ser = serial.serial_for_url('/dev/ttyACM0',baudrate=256000, timeout=0.1, write_timeout=1)
+ser = None
 timer = time.time()
 
 serial_buffer = ""
 
 while True:
+
+    if ser is None:
+        try:
+            ser = serial.serial_for_url('/dev/ttyACM0',baudrate=115200, timeout=0.1, write_timeout=1)
+            print("Serial connected\n")
+        except (IOError, OSError, serial.SerialException) as e:
+            print('Serial Error: {0})'.format(str(e)))
+            if ser:
+                ser = None
+                ser.close()
+            time.sleep(1)
+        
+
     # send something to the photon via TCP every 0.2 sec
     try:
         if tcp is None:
@@ -45,7 +58,7 @@ while True:
 
 
     # read serial and print complete lines (ending in \n)
-    while ser.in_waiting > 0:
+    while ser and ser.in_waiting > 0:
         serial_buffer = serial_buffer + ser.read(ser.in_waiting).decode('utf-8')
 
         lines = serial_buffer.partition('\n') # returns 3-tuple with line, separator, rest
