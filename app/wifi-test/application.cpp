@@ -37,6 +37,7 @@ void startTcp(){
 
 
 void handle_network_events(system_event_t event, int param){
+    static int cloud_connection_tries = 0;
     switch(param){
     case network_status_powering_on:
         break;
@@ -60,6 +61,7 @@ void handle_network_events(system_event_t event, int param){
     default:
         break;
     }
+    Serial.printf("network event %d\n", param);
 }
 
 void handle_cloud_events(system_event_t event, int param){
