@@ -50,14 +50,12 @@ void handle_network_events(system_event_t event, int param){
         // set a flag to restart the TCP server, outside of the system thread
         // restarting it here doesn't work
         // leaving it running doesn't work
-        SINGLE_THREADED_BLOCK(){
+        if(tcp_state != tcp_state_enum::STOPPED){
             tcp_state = tcp_state_enum::OH_NO_ITS_BORKED_PARTICLE;
         }
         break;
     case network_status_connected:
-        SINGLE_THREADED_BLOCK(){
-            tcp_state = tcp_state_enum::ALLOWED_TO_RESTART;
-        }
+        tcp_state = tcp_state_enum::ALLOWED_TO_RESTART;
         break;
     default:
         break;
@@ -100,17 +98,15 @@ void loop() {
             break;
         case tcp_state_enum::OH_NO_ITS_BORKED_PARTICLE:
             Serial.print("Stopping TCP\n");
-            SINGLE_THREADED_BLOCK(){
-                tcp_state = tcp_state_enum::STOPPED;
-            }
             stopTcp();
+            tcp_state = tcp_state_enum::STOPPED;
+            break;
+        case tcp_state_enum::STOPPED:
             break;
         case tcp_state_enum::ALLOWED_TO_RESTART:
             Serial.print("Restarting TCP\n");
             startTcp();
-            SINGLE_THREADED_BLOCK(){
-                tcp_state = tcp_state_enum::RUNNING_FINE; // assume it is running fine afterwards
-            }
+            tcp_state = tcp_state_enum::RUNNING_FINE; // assume it is running fine afterwards
             break;
 
     }
@@ -192,7 +188,7 @@ void loop() {
 
 
         if(signal == 2){
-            Serial.print("WiFi is in ERROR state. Resetting WiFi");
+            Serial.print("\n\n\nWiFi is in ERROR state. Resetting WiFi\n\n\n");
             WiFi.disconnect();
             WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
         }
