@@ -16,7 +16,7 @@ const int LED_PIN = P1S0;
 
 enum tcp_state_enum {
     RUNNING_FINE,
-    OH_NO_ITS_BORKED_PARTICLE,
+    NEEDS_TO_STOP,
     STOPPED,
     ALLOWED_TO_RESTART,
 };
@@ -51,7 +51,7 @@ void handle_network_events(system_event_t event, int param){
         // restarting it here doesn't work
         // leaving it running doesn't work
         if(tcp_state != tcp_state_enum::STOPPED){
-            tcp_state = tcp_state_enum::OH_NO_ITS_BORKED_PARTICLE;
+            tcp_state = tcp_state_enum::NEEDS_TO_STOP;
         }
         break;
     case network_status_connected:
@@ -95,8 +95,12 @@ void loop() {
 
     switch(tcp_state){
         case tcp_state_enum::RUNNING_FINE:
+            if(!WiFi.ready()){
+                // check in case WiFi is not ready but the system events didn't trigger the correct state
+                tcp_state = tcp_state_enum::NEEDS_TO_STOP;
+            }
             break;
-        case tcp_state_enum::OH_NO_ITS_BORKED_PARTICLE:
+        case tcp_state_enum::NEEDS_TO_STOP:
             Serial.print("Stopping TCP\n");
             stopTcp();
             tcp_state = tcp_state_enum::STOPPED;
@@ -113,18 +117,30 @@ void loop() {
 
     if(tcp_state == tcp_state_enum::RUNNING_FINE){
         if(tcpClient.status()){
-            while (tcpClient.available() > 0) {
-                char inByte = tcpClient.read();
-                switch(inByte){
+            bool noErrors = true;
+            while (noErrors && tcpClient.available() > 0) {
+                int received = tcpClient.read();
+                switch(received){
                 case ' ':
                 case '\n':
                 case '\r':
                     break;
                 case 't':
+                {
                     size_t result = tcpClient.write("toc"); // send toc back over tcp
                     Serial.printf("hw->py: toc (%d bytes sent) \n", result); // confirm toc sent over tcp
                 }
-                Serial.printf("py->hw: %c\n", inByte); // confirm character received from tcp
+                    break;
+                default:
+                    if(received < 0){
+                        Serial.printf("Receive error: %d\n", received); // confirm toc sent over tcp
+                        noErrors = false;
+                    }
+                    else{
+                        Serial.printf("py->hw: %c\n", received); // confirm character received from tcp
+                    }
+                    break;
+                }
             }
         }
         // listen for a new client, drop the old one if a new client arrives
