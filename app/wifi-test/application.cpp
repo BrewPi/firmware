@@ -211,7 +211,9 @@ void loop() {
               WiFi.disconnect();
               WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
             */
-            tcp_state = tcp_state_enum::NEEDS_TO_STOP;
+            if(tcp_state != tcp_state_enum::STOPPED){
+                tcp_state = tcp_state_enum::NEEDS_TO_STOP;
+            }
         }
     }
 
