@@ -175,42 +175,8 @@ void loop() {
                 last_update);
 
 
-        /* When the signal gets below -80, the P1 will stop responding to TCP.
-         * - It still has an IP
-         * - It still has WiFi.ready() returning 1.
-         * - The LED is still breathing green.
-         *
-         * There is one symptom that something is wrong though:
-         * When TCP stopped working, the P1 would return RSSI 2.
-         *
-         * This seems to be a failed to get RSSI timeout:
-         *
-            int8_t WiFiClass::RSSI() {
-                if (!network_ready(*this, 0, NULL))
-                    return 0;
-
-                system_tick_t _functionStart = millis();
-                while ((millis() - _functionStart) < 1000) {
-                    int rv = wlan_connected_rssi();
-                    if (rv != 0)
-                        return (rv);
-                }
-                return (2);
-            }
-         *
-         * In an attempt to fix this, I tried disconnecting and reconnecting WiFi.
-         * But WiFi.disconnect() gives a stack overflow SOS (13 blinks).
-         */
-
-
-        if(signal == 2){
-            Serial.print("\n\n\nWiFi is in ERROR state (RSSI ==2)\n\n\n");
-
-            /* This code causes a buffer overflow and the system does not recover from the resulting SOS. Don't use.
-             * Leaving it here for particle to investigate.
-              WiFi.disconnect();
-              WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
-            */
+        if(signal >= 0){
+            // WiFi is in error state, stop TCP server
             if(tcp_state != tcp_state_enum::STOPPED){
                 tcp_state = tcp_state_enum::NEEDS_TO_STOP;
             }
