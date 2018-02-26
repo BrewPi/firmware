@@ -5,7 +5,7 @@
 ;
 [subrepo]
 	remote = https://github.com/spark/firmware.git
-	branch = release/v0.7.0-rc.6
-	commit = 988279be981de213f1b802198ebff439c42c46fa
-	parent = 9de32b5a42914c31052307b084a1929eaa408372
+	branch = fix/photon-tcp
+	commit = d8f6a1acd268130273647a5e9d11df0aebcdc12f
+	parent = 52302c566845936b3f2a962060e5e3aed90dfbc7
 	cmdver = 0.3.1
