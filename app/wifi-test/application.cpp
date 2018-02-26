@@ -8,7 +8,6 @@ SerialLogHandler traceLog(LOG_LEVEL_TRACE);
 static TCPServer tcpServer = TCPServer(6666);
 static TCPClient tcpClient;
 
-
 // Toggle LED pin to see that application loop is not blocked.
 // You could use D7 when testing with a Photon.
 // I'm using another pin here, because D7 is one of the SWD pins used by the debugger
@@ -33,7 +32,6 @@ void startTcp(){
     tcpServer.begin();
     Serial.print("TCP server started\n");
 }
-
 
 
 void handle_network_events(system_event_t event, int param){
@@ -79,6 +77,18 @@ void handle_cloud_events(system_event_t event, int param){
     }
 }
 
+// return time that has passed since timeStamp, take overflow into account
+system_tick_t timeSince(system_tick_t previousTime) {
+    system_tick_t currentTime = millis();
+    if(currentTime>=previousTime){
+        return currentTime - previousTime;
+    }
+    else{
+        // overflow has occurred
+        return (currentTime + 1440000) - (previousTime +1440000); // add a day to both for calculation
+    }
+}
+
 
 void setup() {
     Serial.begin(115200);
@@ -92,8 +102,8 @@ void setup() {
 }
 
 void loop() {
-    static uint32_t last_update = millis();
-    static uint32_t lastLedToggle = millis();
+    static system_tick_t last_update = millis();
+    static system_tick_t lastLedToggle = millis();
 
     switch(tcp_state){
         case tcp_state_enum::RUNNING_FINE:
@@ -156,7 +166,7 @@ void loop() {
     }
 
     // print status on serial every second
-    if ( millis() - last_update > 1000UL ) {
+    if(timeSince(last_update) >= 1000UL ) {
         last_update = millis();
         bool wifiReady = WiFi.ready();
         IPAddress ip = WiFi.localIP();
@@ -184,11 +194,10 @@ void loop() {
     }
 
 
-
-    if ( millis() - lastLedToggle > 200UL ) {
+    if(timeSince(lastLedToggle) >= 200UL ) {
+        lastLedToggle = millis();
         static bool ledOn = true;
         ledOn = !ledOn;
         digitalWrite(LED_PIN, ledOn);
-        lastLedToggle = millis();
     }
 }
