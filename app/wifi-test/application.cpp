@@ -105,6 +105,13 @@ void loop() {
     static system_tick_t last_update = millis();
     static system_tick_t lastLedToggle = millis();
 
+    if(WiFi.RSSI() >= 0){
+        // WiFi is in error state, stop TCP server
+        if(tcp_state != tcp_state_enum::STOPPED){
+            tcp_state = tcp_state_enum::NEEDS_TO_STOP;
+        }
+    }
+
     switch(tcp_state){
         case tcp_state_enum::RUNNING_FINE:
             if(!WiFi.ready()){
@@ -183,16 +190,7 @@ void loop() {
                 signal,
                 clientConnected,
                 last_update);
-
-
-        if(signal >= 0){
-            // WiFi is in error state, stop TCP server
-            if(tcp_state != tcp_state_enum::STOPPED){
-                tcp_state = tcp_state_enum::NEEDS_TO_STOP;
-            }
-        }
     }
-
 
     if(timeSince(lastLedToggle) >= 200UL ) {
         lastLedToggle = millis();
