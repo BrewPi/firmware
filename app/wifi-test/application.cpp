@@ -91,10 +91,14 @@ system_tick_t timeSince(system_tick_t previousTime) {
 
 
 void setup() {
+    System.set(SYSTEM_CONFIG_SOFTAP_PREFIX, "BREWPI");
+    System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
     Serial.begin(115200);
     pinMode(LED_PIN, OUTPUT);
 
+
     WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
+    Particle.connect();
 
     System.on(network_status, handle_network_events);
     System.on(cloud_status, handle_cloud_events);
@@ -198,4 +202,5 @@ void loop() {
         ledOn = !ledOn;
         digitalWrite(LED_PIN, ledOn);
     }
+    Particle.process();
 }
