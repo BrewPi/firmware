@@ -88,9 +88,10 @@ void setup()
 
     control.update();
 
-    if(WiFi.hasCredentials()){
-        Particle.connect();
-    }
+    System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
+    WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
+    Particle.connect();
+
     			
 	logDebug("init complete");
 }
