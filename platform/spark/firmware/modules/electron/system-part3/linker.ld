@@ -13,7 +13,7 @@ MEMORY
 
        The value given here is the sum of system_static_ram_size and stack_size
     */
-    SRAM      (rwx) : ORIGIN = 0x20020000 - 10K, LENGTH = 10K
+    SRAM      (rwx) : ORIGIN = 0x20020000 - 12K, LENGTH = 12K
     
     INCLUDE backup_ram_memory.ld    
 }
@@ -30,3 +30,5 @@ INCLUDE module_system_part2_export.ld
 INCLUDE module_user_export.ld
 
 INCLUDE ../../shared/stm32f2xx/part2.ld
+
+ASSERT ( (link_heap_location_end <= system_part3_ram_start), "the heap should come immediately before part3 static ram") ;

@@ -23,9 +23,10 @@
 #include "spark_wiring_platform.h"
 #include "spark_wiring_printable.h"
 #include "spark_wiring_string.h"
+#include "spark_wiring_signal.h"
 #include <string.h>
 
-#if Wiring_Cellular
+#if Wiring_Cellular || defined(UNIT_TEST)
 
 #include "cellular_hal.h"
 #include "modem/enums_hal.h"
@@ -33,14 +34,27 @@
 /*
  * CellularSignal
  */
-class CellularSignal : public Printable {
+class CellularSignal : public particle::Signal, public Printable {
 public:
     int rssi = 0;
     int qual = 0;
 
-    CellularSignal() { /* n/a */ }
+    CellularSignal() {}
+    CellularSignal(const cellular_signal_t& sig);
+    virtual ~CellularSignal() {};
+
+    bool fromHalCellularSignal(const cellular_signal_t& sig);
+
+    virtual hal_net_access_tech_t getAccessTechnology() const;
+    virtual float getStrength() const;
+    virtual float getStrengthValue() const;
+    virtual float getQuality() const;
+    virtual float getQualityValue() const;
 
     virtual size_t printTo(Print& p) const;
+
+private:
+    cellular_signal_t sig_ = {0};
 };
 
 /*
@@ -69,7 +83,11 @@ public:
         return ok==true ? &CellularData::this_type_does_not_support_comparisons : 0;
     }
 };
+
+#ifndef UNIT_TEST
+
 // Bjorn Karlsson's Safe Bool Idiom - http://www.artima.com/cppsource/safebool.html
+// Note: clang, which we use for unit tests on Mac, doesn't consider this idiom a valid C++ code
 template <typename T>
 bool operator!=(const CellularData& lhs,const T& rhs) {
     lhs.this_type_does_not_support_comparisons();
@@ -80,6 +98,8 @@ bool operator==(const CellularData& lhs,const T& rhs) {
     lhs.this_type_does_not_support_comparisons();
     return false;
 }
+
+#endif // defined(UNIT_TEST)
 
 /*
  * CellularBand
@@ -117,6 +137,9 @@ public:
         return false;
     }
 };
+
+#ifndef UNIT_TEST
+
 template <typename T>
 bool operator!=(const CellularBand& lhs,const T& rhs) {
     lhs.this_type_does_not_support_comparisons();
@@ -128,6 +151,8 @@ bool operator==(const CellularBand& lhs,const T& rhs) {
     return false;
 }
 
-#endif // Wiring_Cellular
+#endif // defined(UNIT_TEST)
+
+#endif // Wiring_Cellular || defined(UNIT_TEST)
 
 #endif // __SPARK_WIRING_CELLULAR_PRINTABLE_H

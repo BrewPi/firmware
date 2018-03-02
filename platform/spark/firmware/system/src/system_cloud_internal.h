@@ -22,6 +22,8 @@
 
 #include "system_cloud.h"
 
+#include "spark_wiring_diagnostics.h"
+
 /**
  * Functions for managing the cloud connection, performing cloud operations
  * and system upgrades.
@@ -85,6 +87,70 @@ extern ProtocolFacade* sp;
  * @return
  */
 bool system_cloud_active();
+
+namespace particle {
+
+class CloudDiagnostics {
+public:
+    // Note: Use odd numbers to encode transitional states
+    enum Status {
+        DISCONNECTED = 0,
+        CONNECTING = 1,
+        CONNECTED = 2,
+        DISCONNECTING = 3
+    };
+
+    CloudDiagnostics() :
+            status_(DIAG_ID_CLOUD_CONNECTION_STATUS, DIAG_NAME_CLOUD_CONNECTION_STATUS, DISCONNECTED),
+            disconnReason_(DIAG_ID_CLOUD_DISCONNECTION_REASON, DIAG_NAME_CLOUD_DISCONNECTION_REASON, CLOUD_DISCONNECT_REASON_NONE),
+            disconnCount_(DIAG_ID_CLOUD_DISCONNECTS, DIAG_NAME_CLOUD_DISCONNECTS),
+            connCount_(DIAG_ID_CLOUD_CONNECTION_ATTEMPTS, DIAG_NAME_CLOUD_CONNECTION_ATTEMPTS),
+            lastError_(DIAG_ID_CLOUD_CONNECTION_ERROR_CODE, DIAG_NAME_CLOUD_CONNECTION_ERROR_CODE) {
+    }
+
+    CloudDiagnostics& status(Status status) {
+        status_ = status;
+        return *this;
+    }
+
+    CloudDiagnostics& connectionAttempt() {
+        ++connCount_;
+        return *this;
+    }
+
+    CloudDiagnostics& resetConnectionAttempts() {
+        connCount_ = 0;
+        return *this;
+    }
+
+    CloudDiagnostics& disconnectionReason(cloud_disconnect_reason reason) {
+        disconnReason_ = reason;
+        return *this;
+    }
+
+    CloudDiagnostics& disconnectedUnexpectedly() {
+        ++disconnCount_;
+        return *this;
+    }
+
+    CloudDiagnostics& lastError(int error) {
+        lastError_ = error;
+        return *this;
+    }
+
+    static CloudDiagnostics* instance();
+
+private:
+    // Some of the diagnostic data sources use the synchronization since they can be updated from
+    // the networking service thread
+    AtomicEnumDiagnosticData<Status> status_;
+    AtomicEnumDiagnosticData<cloud_disconnect_reason> disconnReason_;
+    SimpleIntegerDiagnosticData disconnCount_;
+    SimpleIntegerDiagnosticData connCount_;
+    SimpleIntegerDiagnosticData lastError_;
+};
+
+} // namespace particle
 
 
 #endif	/* SYSTEM_CLOUD_INTERNAL_H */

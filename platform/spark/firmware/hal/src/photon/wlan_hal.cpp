@@ -51,6 +51,10 @@
 #include "core_hal.h"
 #include "wiced_security.h"
 #include "mbedtls_util.h"
+#include "system_error.h"
+#ifdef LWIP_DHCP
+#include "lwip/dhcp.h"
+#endif // LWIP_DHCP
 
 uint64_t tls_host_get_time_ms_local() {
     uint64_t time_ms;
@@ -703,6 +707,8 @@ wlan_result_t wlan_connect_finalize()
     os_timer_create(&cancel_timer, 60000, &wlan_connect_timeout, nullptr, false /* oneshot */,
                     nullptr);
 
+    /* Prevents DHCP from being started asynchronously in WICED link_up callback */
+    wiced_network_down(WICED_STA_INTERFACE);
     // enable connection from stored profiles
     wlan_result_t result = (wlan_result_t)wlan_join();
     if (!result)
@@ -782,6 +788,11 @@ int wlan_select_antenna(WLanSelectAntenna_TypeDef antenna)
     return wiced_wlan_connectivity_initialized() ? wlan_refresh_antenna() : 0;
 }
 
+WLanSelectAntenna_TypeDef wlan_get_antenna(void* reserved)
+{
+    return fetch_antenna_selection();
+}
+
 wlan_result_t wlan_activate()
 {
 #if PLATFORM_ID==PLATFORM_P1
@@ -843,6 +854,32 @@ int wlan_connected_rssi()
         rssi = -1;
     }
     return rssi;
+}
+
+int wlan_connected_info(void* reserved, wlan_connected_info_t* inf, void* reserved1)
+{
+    system_error_t ret = SYSTEM_ERROR_NONE;
+    int32_t rssi = 0;
+    int32_t noise = 0;
+
+    if (inf == nullptr) {
+        return SYSTEM_ERROR_INVALID_ARGUMENT;
+    }
+
+    if (wwd_wifi_get_rssi(&rssi) != WWD_SUCCESS) {
+        return SYSTEM_ERROR_UNKNOWN;
+    }
+    if (wwd_wifi_get_noise(&noise) != WWD_SUCCESS) {
+        return SYSTEM_ERROR_UNKNOWN;
+    }
+
+    inf->rssi = rssi * 100;
+    inf->snr = (rssi - noise) * 100;
+    inf->noise = noise * 100;
+
+    inf->strength = std::min(std::max(2 * (rssi + 100), 0L), 100L) * 65535 / 100;
+    inf->quality = std::min(std::max(inf->snr / 100 - 9, 0L), 31L) * 65535 / 31;
+    return ret;
 }
 
 struct SnifferInfo
@@ -1287,6 +1324,19 @@ void wlan_fetch_ipconfig(WLanConfig* config)
 
         if (wiced_ip_get_gateway_address(ifup, &addr)==WICED_SUCCESS)
             setAddress(&addr, config->nw.aucDefaultGateway);
+
+        if (dns_client_get_server_address(0, &addr)==WICED_SUCCESS) {
+            setAddress(&addr, config->nw.aucDNSServer);
+        }
+
+        // LwIP-specific
+#ifdef LWIP_DHCP
+        auto netif = IP_HANDLE(ifup);
+        auto dhcp = netif.dhcp;
+        if (dhcp && dhcp->server_ip_addr.addr != IP_ADDR_ANY->addr) {
+            HAL_IPV4_SET(&config->nw.aucDHCPServer, ntohl(dhcp->server_ip_addr.addr));
+        }
+#endif // LWIP_DHCP
     }
 
     wiced_mac_t my_mac_address;
@@ -1378,12 +1428,30 @@ void wlan_set_ipaddress_source(IPAddressSource source, bool persist, void* reser
     dct_write_app_data(&c, DCT_IP_CONFIG_OFFSET+offsetof(static_ip_config_t, config_mode), 1);
 }
 
+IPAddressSource wlan_get_ipaddress_source(void* reserved)
+{
+    static_ip_config_t config = {};
+    wlan_fetch_saved_ip_config(&config);
+    switch(static_cast<IPAddressSource>(config.config_mode)) {
+        case STATIC_IP:
+            return STATIC_IP;
+        default:
+            return DYNAMIC_IP;
+    }
+}
+
 void assign_if_set(dct_ip_address_v4_t& dct_address, const HAL_IPAddress* address)
 {
     if (address && is_ipv4(address))
     {
             dct_address = address->ipv4;
     }
+}
+
+void dct_ip_to_hal_ip(const dct_ip_address_v4_t& dct_ip, HAL_IPAddress& hal_ip)
+{
+    hal_ip.v = 4;
+    hal_ip.ipv4 = static_cast<decltype(hal_ip.ipv4)>(dct_ip);
 }
 
 /**
@@ -1399,7 +1467,7 @@ void wlan_set_ipaddress(const HAL_IPAddress* host, const HAL_IPAddress* netmask,
                         const HAL_IPAddress* gateway, const HAL_IPAddress* dns1,
                         const HAL_IPAddress* dns2, void* reserved)
 {
-    static_ip_config_t config;
+    static_ip_config_t config = {};
     wlan_fetch_saved_ip_config(&config);
     assign_if_set(config.host, host);
     assign_if_set(config.netmask, netmask);
@@ -1407,6 +1475,26 @@ void wlan_set_ipaddress(const HAL_IPAddress* host, const HAL_IPAddress* netmask,
     assign_if_set(config.dns1, dns1);
     assign_if_set(config.dns2, dns2);
     dct_write_app_data(&config, DCT_IP_CONFIG_OFFSET, sizeof(config));
+}
+
+int wlan_get_ipaddress(IPConfig* conf, void* reserved)
+{
+    if (conf == nullptr) {
+        return 1;
+    }
+
+    static_ip_config_t config = {};
+    wlan_fetch_saved_ip_config(&config);
+    if (config.config_mode != STATIC_IP) {
+        return 1;
+    }
+
+    dct_ip_to_hal_ip(config.host, conf->nw.aucIP);
+    dct_ip_to_hal_ip(config.netmask, conf->nw.aucSubnetMask);
+    dct_ip_to_hal_ip(config.gateway, conf->nw.aucDefaultGateway);
+    dct_ip_to_hal_ip(config.dns1, conf->nw.aucDNSServer);
+
+    return 0;
 }
 
 int wlan_scan(wlan_scan_result_t callback, void* cookie)

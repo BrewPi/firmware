@@ -1,3 +1,41 @@
+## 0.7.0-rc.7
+
+### BUGFIX
+
+- [Photon] Regression with SoftAP and URL-encoded form query [#1432](https://github.com/spark/firmware/issues/1432)
+- Particle.connect() hard blocking since 0.6.1-rc.1 [#1399](https://github.com/spark/firmware/issues/1399)
+- [Electron] Cellular resolve does not return 0 / false when it receives bad DNS resolution related to bad cell service [#1304](https://github.com/spark/firmware/issues/1304) 
+- [Core] Use the device ID as the USB serial number [#1367](https://github.com/spark/firmware/issues/1367) 
+- [Electron] Fix heap bounds for system part 1 [#1478](https://github.com/particle-iot/firmware/pull/1478)
+- Fixed shadowing of `write(const unint_8_t*, sizte_t)` in USBKeyboard [#1372](https://github.com/particle-iot/firmware/pull/1372)
+
+
+## 0.8.0-rc.1
+
+## FEATURES
+
+- Low-latency interrupt handlers [#1394] (https://github.com/spark/firmware/pull/1394)
+- [Electron] Reworked power management [#1412](https://github.com/spark/firmware/pull/1412)
+- Battery State diagnostics [#1398](https://github.com/spark/firmware/pull/1398)
+- Battery charge diagnostics [#1395](https://github.com/spark/firmware/pull/1395)
+- RAM usage diagnostic sources data [#1411](https://github.com/spark/firmware/pull/1411)
+- Network Signal Quality/Strength rework and diagnostics [#1423](https://github.com/spark/firmware/pull/1423)
+- System uptime diagnoatics [#1393](https://github.com/spark/firmware/pull/1393)
+- Diagnostics for unacked messages and rate limited events [#1391](https://github.com/spark/firmware/pull/1391)
+- Network and Cloud diagnostics [#1424](https://github.com/spark/firmware/pull/1424)
+- Diagnostics service [#1390](https://github.com/spark/firmware/pull/1390)
+
+## ENHANCEMENTS
+
+- [Photon/P1] Wi-FI firmware compression [#1421](https://github.com/spark/firmware/pull/1421)
+- [Photon/P1] Moves Wi-Fi tester into application module [#1378](https://github.com/spark/firmware/pull/1378)
+
+## BUGFIXES
+
+- Cloud random seed not working [#1312](https://github.com/spark/firmware/issues/1312)
+- [Electron] Error handling in the data usage API [#1435](https://github.com/spark/firmware/pull/1435)
+
+
 ## 0.7.0-rc.6
 
 ### BUGFIX
@@ -115,6 +153,39 @@ with these releases.
 - [`[PR #1323]`](https://github.com/spark/firmware/pull/1323) USB vendor requests should be executed on system thread instead of being processed in ISR.
 - [`[PR #1338]`](https://github.com/spark/firmware/pull/1338) Do not read or write feature flags from an ISR
 
+
+## 0.6.4
+
+### BUGFIXES
+
+- Downgrade bootloader functionality in 0.6.3 would enter an infinite loop after flashing system part 1 0.7.0-rc.X using OTA/serial. `particle flash --usb`/DFU was not affected.
+
+## 0.6.3
+
+### ENHANCEMENTS
+
+- Downgrade bootloader when downgrading from 0.7.0 or newer. [#1416](https://github.com/spark/firmware/pull/1416)
+
+### BUGFIXES
+
+- [KRACK WPA2 security fix](https://github.com/spark/firmware/pull/1419)
+
+
+## 0.6.4
+
+### BUGFIXES
+
+- Downgrade bootloader functionality in 0.6.3 would enter an infinite loop after flashing system part 1 0.7.0-rc.X using OTA/serial. `particle flash --usb`/DFU was not affected.
+
+## 0.6.3
+
+### ENHANCEMENTS
+
+- Downgrade bootloader when downgrading from 0.7.0 or newer. [#1416](https://github.com/spark/firmware/pull/1416)
+
+### BUGFIXES
+
+- [KRACK WPA2 security fix](https://github.com/spark/firmware/pull/1419)
 
 ## 0.6.2 (same as 0.6.2-rc.2)
 

@@ -1,0 +1,1414 @@
+Serial connected
+
+py->hw: tic
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -72		TCP client connected: 0		millis(): 55208
+New TCP client
+0000056124 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000056125 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000056125 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+py->hw: tic
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 56209
+0000057123 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000057124 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000057124 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 57210
+py->hw: tic
+0000058125 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+py<-hw: toc
+0000058125 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000058125 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 58211
+py->hw: tic
+0000059124 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000059124 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000059125 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 59212
+py->hw: tic
+0000060125 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000060126 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000060127 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+hw->py: toc (3 bytes sent) 
+py->hw: tic
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -72		TCP client connected: 1		millis(): 60213
+0000061124 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000061125 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000061126 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -72		TCP client connected: 1		millis(): 61214
+py->hw: tic
+0000062124 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000062125 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000062126 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 62215
+py->hw: tic
+0000063124 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000063125 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000063126 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -72		TCP client connected: 1		millis(): 63216
+py->hw: tic
+0000064125 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+py<-hw: toc
+0000064126 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000064126 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -72		TCP client connected: 1		millis(): 64217
+py->hw: tic
+0000065125 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+py<-hw: toc
+0000065125 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000065126 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -72		TCP client connected: 1		millis(): 65218
+py->hw: tic
+0000066126 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000066126 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000066127 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+hw->py: toc (3 bytes sent) 
+py->hw: tic
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 66219
+0000067125 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000067126 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000067127 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 1		millis(): 67220
+py->hw: tic
+0000068126 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000068126 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000068127 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 68221
+py->hw: tic
+0000069126 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000069126 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000069127 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 69222
+py->hw: tic
+0000070127 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000070127 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000070128 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 70223
+py->hw: tic
+0000071127 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000071127 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000071128 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 1		millis(): 71224
+py->hw: tic
+0000072128 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000072129 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000072129 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+py<-hw: toc
+hw->py: toc (3 bytes sent) 
+py->hw: tic
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 1		millis(): 72225
+0000073127 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+py<-hw: toc
+0000073127 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000073127 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536909816 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 73226
+0000074088 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074088 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074088 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074089 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074090 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074090 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074090 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074091 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074092 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074092 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074093 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074093 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074094 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074094 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074095 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074095 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074096 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074096 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074097 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074097 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074098 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074098 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074099 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074099 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074100 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074100 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074101 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074101 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074102 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074102 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074103 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074103 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074104 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074104 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074105 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074105 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074106 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074106 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074107 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074107 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074108 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074108 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074109 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074109 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074110 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074110 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074111 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074111 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074112 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074112 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074113 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074113 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074114 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074114 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074115 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074115 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074116 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074116 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074117 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074117 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074118 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074118 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074119 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074119 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074120 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074120 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074121 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074121 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074122 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074122 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074123 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074123 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074124 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074124 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074125 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+py->hw: tic
+0000074125 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074126 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074126 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074127 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074127 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074128 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074128 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074129 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074129 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074130 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074130 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074131 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074131 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074132 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074132 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074133 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074133 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074134 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074134 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074135 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074135 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074136 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074136 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074137 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074137 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074138 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074138 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074139 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074139 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074140 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074140 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074141 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074142 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074142 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074143 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074143 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074144 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074144 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074145 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074145 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074146 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074146 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074147 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074147 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074148 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074148 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074149 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074149 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074150 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074150 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074151 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074151 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074152 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074152 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074153 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074153 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074154 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074154 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074155 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074155 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074156 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074156 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074157 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074157 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074158 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074158 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074159 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074159 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074160 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074160 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074161 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074161 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074162 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074162 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074163 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074163 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074164 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074164 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074165 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074165 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074166 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074166 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074167 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074167 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074168 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074168 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074169 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074169 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074170 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074170 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074171 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074171 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074172 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074172 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074173 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074173 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074174 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074174 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074175 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074175 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074176 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074176 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074177 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074177 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074178 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074178 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074179 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074179 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074180 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074180 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074181 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074181 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074182 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074182 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074183 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074183 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074184 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074184 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074185 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074185 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074186 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074186 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074187 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074187 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074188 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074188 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074189 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074189 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074190 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074190 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074191 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074191 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074192 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074192 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074193 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074193 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074194 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074194 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074195 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074195 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074196 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074196 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074197 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074197 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074198 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074198 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074199 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074199 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074200 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074200 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074201 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074201 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074202 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074202 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074203 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074203 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074204 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074204 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074205 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074205 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074206 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074206 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074207 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074207 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074208 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074208 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074209 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074209 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074210 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074210 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074211 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074211 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074212 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074212 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074213 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074213 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074214 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074214 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074215 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074215 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074216 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074216 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074217 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074217 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074218 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074218 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074219 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074219 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074220 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074220 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074221 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074221 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074222 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074222 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074223 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074223 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074224 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074224 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074225 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074225 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074226 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074226 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074227 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 1		millis(): 74227
+0000074228 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074229 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074230 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074230 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074231 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074231 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074232 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074232 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074233 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074233 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074234 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074235 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074235 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074236 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074236 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074237 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074237 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074238 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074238 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074239 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074239 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074240 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074240 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074241 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074241 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074242 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074242 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074243 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074243 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074244 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074244 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074245 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074245 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074246 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074246 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074247 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074247 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074248 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074248 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074249 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074249 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074250 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074250 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074251 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074251 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074252 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074252 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074253 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074253 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074254 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074254 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074255 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074255 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074256 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074256 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074257 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074257 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074258 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074258 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074259 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074259 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074260 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074260 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074261 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074261 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074262 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074262 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074263 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074263 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074264 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074264 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074265 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074265 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074266 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074266 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074267 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074267 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074268 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074268 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074269 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074269 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074270 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074270 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074271 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074271 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074272 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074272 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074273 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074273 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074274 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074274 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074275 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074275 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074276 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074276 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074277 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074277 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074278 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074278 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074279 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074279 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074280 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074280 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074281 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074281 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074282 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074282 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074283 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074283 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074284 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074284 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074285 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074285 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074286 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074286 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074287 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074287 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074288 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074288 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074289 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074289 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074290 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074290 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074291 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074291 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074292 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074292 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074293 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074293 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074294 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074294 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074295 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074295 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074296 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074296 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074297 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074297 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074298 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074298 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074299 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074299 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074300 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074300 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074301 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074301 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074302 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074302 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074303 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074303 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074304 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074304 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074305 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074305 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074306 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074306 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074307 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074307 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074308 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074308 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074309 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074309 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074310 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074310 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074311 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074311 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074312 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074312 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074313 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074313 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074314 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074314 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074315 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074315 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074316 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074316 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074317 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074317 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074318 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074318 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074319 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074319 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074320 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074320 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074321 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074321 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074322 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074322 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074323 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074323 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074324 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074324 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074325 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074325 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074326 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074326 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074327 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074327 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074328 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074328 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074329 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074329 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074330 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074330 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074331 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074331 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074332 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074332 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074333 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074333 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074334 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074334 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074335 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074335 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074336 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074336 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074337 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074337 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074338 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074338 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074339 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074339 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074340 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074340 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074341 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074341 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074342 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074342 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074343 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074343 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074344 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074344 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074345 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074345 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074346 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074346 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074347 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074347 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074348 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074348 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074349 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074349 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074350 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074350 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074351 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074351 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074352 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074352 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074353 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074353 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074354 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074354 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074355 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074355 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074356 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074356 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074357 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074357 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074358 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074358 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074359 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074359 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074360 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074360 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074361 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074361 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074362 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074362 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074363 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074363 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074364 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074364 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074365 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074365 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074366 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074366 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074367 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074367 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074368 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074368 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074369 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074369 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074370 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074370 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074371 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074371 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074372 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074372 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074373 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074373 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074374 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074374 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074375 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074375 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074376 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074376 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074377 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074377 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074378 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074378 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074379 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074379 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074380 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074380 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074381 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074381 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074382 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074382 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074383 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074383 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074384 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074384 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074385 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074385 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074386 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074386 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074387 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074387 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074388 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074388 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074389 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074389 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074390 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074390 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074391 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074391 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074392 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074392 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074393 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074393 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074394 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074394 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074395 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074395 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074396 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074396 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074397 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074397 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074398 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074398 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074399 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074399 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074400 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074400 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074401 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074401 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074402 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074402 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074403 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074403 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074404 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074404 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074405 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074405 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074406 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074406 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074407 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074407 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074408 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074408 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074409 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074409 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074410 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074410 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074411 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074411 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074412 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074412 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074413 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074413 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074414 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074414 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074415 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074415 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074416 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074416 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074417 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074417 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074418 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074418 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074419 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074419 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074420 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074420 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074421 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074421 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074422 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074422 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074423 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074423 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074424 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074424 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074425 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074425 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074426 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074426 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074427 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074427 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074428 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074428 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074429 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074429 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074430 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074430 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074431 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074431 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074432 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074432 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074433 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074433 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074434 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074434 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074435 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074435 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074436 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074436 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074437 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074437 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074438 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074438 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074439 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074439 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074440 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074440 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074441 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074441 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074442 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074442 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074443 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074443 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074444 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074444 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074445 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074445 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074446 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074446 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074447 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074447 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074448 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074448 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074449 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074449 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074450 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074450 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074451 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074451 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074452 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074452 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074453 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074453 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074454 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074454 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074455 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074455 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074456 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074456 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074457 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074457 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074458 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074458 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074459 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074459 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074460 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074460 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074461 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074461 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074462 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074462 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074463 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074463 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074464 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074464 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074465 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074465 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074466 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074466 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074467 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074467 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074468 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074468 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074469 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074469 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074470 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074470 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074471 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074471 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074472 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074472 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074473 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074473 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074474 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074474 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074475 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074475 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074476 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074476 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074477 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074477 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074478 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074478 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074479 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074479 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074480 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074480 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074481 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074481 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074482 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074482 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074483 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074483 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074484 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074484 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074485 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074485 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074486 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+0000074486 [hal] socket_hal.cpp:767, read_packet_and_dispose(): TRACE: Socket 0 receive fail 9
+0000074487 [hal] socket_hal.cpp:813, socket_receive(): TRACE: socket_receive on 536909816 returned -9
+network event 10
+network event 11
+Stopping TCP
+py->hw: tic
+0000074488 [hal] socket_hal.cpp:929, socket_close(): TRACE: socket closed 200097f8
+TCP server stopped
+py->hw: tic
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 75228
+
+
+
+WiFi is in ERROR state (RSSI ==2)
+py->hw: tic
+
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 76229
+
+
+
+WiFi is in ERROR state (RSSI ==2)
+
+
+0000076540 [hal.wlan] wlan_hal.cpp:1415, wlan_connect_cancel(): TRACE: connect cancel
+py->hw: tic
+network event 2
+network event 3
+py->hw: tic
+network event 4
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 77230
+py->hw: tic
+
+py->hw: tic
+
+
+py->hw: tic
+WiFi is in ERROR state (RSSI ==2)
+py->hw: tic
+
+
+py->hw: tic
+0000077263 [hal.wlan] wlan_hal.cpp:769, fetch_antenna_selection(): INFO: Using internal antenna
+network event 5
+network event 6
+0000077311 [hal.wlan] wlan_hal.cpp:618, wlan_join(): INFO: Joining brewpi-subnet
+0000077311 [hal.wlan] wlan_hal.cpp:620, wlan_join(): TRACE: Free RAM connect: 46648
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 78231
+
+py->hw: tic
+
+
+py->hw: tic
+WiFi is in ERROR state (RSSI ==2)
+
+py->hw: tic
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 79232
+py->hw: tic
+
+
+py->hw: tic
+
+WiFi is in ERROR state (RSSI ==2)
+py->hw: tic
+
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 80233
+
+
+
+WiFi is in ERROR state (RSSI ==2)
+
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 81234
+
+py->hw: tic
+
+
+WiFi is in ERROR state (RSSI ==2)
+
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 82235
+
+
+
+WiFi is in ERROR state (RSSI ==2)
+
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 83236
+
+
+
+WiFi is in ERROR state (RSSI ==2)
+py->hw: tic
+
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 84237
+
+
+
+WiFi is in ERROR state (RSSI ==2)
+py->hw: tic
+
+
+0000084319 [hal.wlan] wlan_hal.cpp:623, wlan_join(): ERROR: wiced_join_ap_specific(), result: 1024
+py->hw: tic
+0000084319 [hal.wlan] wlan_hal.cpp:618, wlan_join(): INFO: Joining brewpi-subnet
+0000084321 [hal.wlan] wlan_hal.cpp:620, wlan_join(): TRACE: Free RAM connect: 46648
+py->hw: tic
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 85238
+
+py->hw: tic
+
+
+py->hw: tic
+WiFi is in ERROR state (RSSI ==2)
+py->hw: tic
+
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 86239
+
+py->hw: tic
+
+
+py->hw: tic
+WiFi is in ERROR state (RSSI ==2)
+
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 87240
+
+
+py->hw: tic
+
+WiFi is in ERROR state (RSSI ==2)
+
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 88241
+
+
+
+WiFi is in ERROR state (RSSI ==2)
+
+py->hw: tic
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 89242
+py->hw: tic
+
+
+py->hw: tic
+
+WiFi is in ERROR state (RSSI ==2)
+
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 90243
+py->hw: tic
+
+
+py->hw: tic
+
+WiFi is in ERROR state (RSSI ==2)
+py->hw: tic
+
+py->hw: tic
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 91244
+py->hw: tic
+
+
+py->hw: tic
+
+WiFi is in ERROR state (RSSI ==2)
+py->hw: tic
+
+py->hw: tic
+
+0000091409 [hal.wlan] wlan_hal.cpp:623, wlan_join(): ERROR: wiced_join_ap_specific(), result: 1024
+py->hw: tic
+0000091409 [hal.wlan] wlan_hal.cpp:618, wlan_join(): INFO: Joining brewpi-subnet
+0000091409 [hal.wlan] wlan_hal.cpp:620, wlan_join(): TRACE: Free RAM connect: 46648
+py->hw: tic
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 92245
+py->hw: tic
+
+
+py->hw: tic
+
+WiFi is in ERROR state (RSSI ==2)
+py->hw: tic
+
+py->hw: tic
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 93246
+py->hw: tic
+
+
+py->hw: tic
+
+WiFi is in ERROR state (RSSI ==2)
+
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 94247
+
+py->hw: tic
+
+
+WiFi is in ERROR state (RSSI ==2)
+
+py->hw: tic
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 95248
+
+py->hw: tic
+
+py->hw: tic
+
+WiFi is in ERROR state (RSSI ==2)
+py->hw: tic
+
+
+py->hw: tic
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 96249
+py->hw: tic
+
+
+py->hw: tic
+
+WiFi is in ERROR state (RSSI ==2)
+TCP Error: read failed: [Errno 104] Connection reset by peer)
+
+py->hw: tic
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 97250
+
+
+py<-hw: toc
+
+WiFi is in ERROR state (RSSI ==2)
+py->hw: tic
+
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 98251
+
+
+
+py<-hw: toc
+WiFi is in ERROR state (RSSI ==2)
+
+
+py->hw: tic
+0000098500 [hal.wlan] wlan_hal.cpp:623, wlan_join(): ERROR: wiced_join_ap_specific(), result: 1024
+network event 11
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 99252
+
+
+
+WiFi is in ERROR state (RSSI ==2)
+
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 100253
+
+
+
+WiFi is in ERROR state (RSSI ==2)
+
+
+0000100600 [hal.wlan] wlan_hal.cpp:1415, wlan_connect_cancel(): TRACE: connect cancel
+network event 2
+network event 3
+network event 4
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 101254
+py<-hw: toc
+
+
+
+WiFi is in ERROR state (RSSI ==2)
+py->hw: tic
+
+
+0000101327 [hal.wlan] wlan_hal.cpp:769, fetch_antenna_selection(): INFO: Using internal antenna
+network event 5
+network event 6
+py<-hw: toc
+0000101375 [hal.wlan] wlan_hal.cpp:618, wlan_join(): INFO: Joining brewpi-subnet
+0000101375 [hal.wlan] wlan_hal.cpp:620, wlan_join(): TRACE: Free RAM connect: 46648
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 102255
+py->hw: tic
+
+
+
+WiFi is in ERROR state (RSSI ==2)
+
+py<-hw: toc
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 103256
+
+
+py->hw: tic
+
+WiFi is in ERROR state (RSSI ==2)
+
+
+WiFi.ready(): 0		IP: 0.0.0.0		RSSI: 2		TCP client connected: 0		millis(): 104257
+
+
+
+WiFi is in ERROR state (RSSI ==2)
+
+py<-hw: toc
+
+0000104522 [hal.wlan] wlan_hal.cpp:739, wlan_connect_finalize(): INFO: Bringing WiFi interface up with DHCP
+network event 7
+Restarting TCP
+py->hw: tic
+TCP server started
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 0		millis(): 105258
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 0		millis(): 106259
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 0		millis(): 107260
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 0		millis(): 108261
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 0		millis(): 109262
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 0		millis(): 110263
+py<-hw: toc
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -75		TCP client connected: 0		millis(): 111264
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -75		TCP client connected: 0		millis(): 112265
+py->hw: tic
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 0		millis(): 113266
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 0		millis(): 114267
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -75		TCP client connected: 0		millis(): 115268
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -75		TCP client connected: 0		millis(): 116269
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 0		millis(): 117270
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 0		millis(): 118271
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -75		TCP client connected: 0		millis(): 119272
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 0		millis(): 120273
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 0		millis(): 121274
+py<-hw: toc
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 0		millis(): 122275
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 0		millis(): 123276
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 0		millis(): 124277
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 0		millis(): 125278
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -75		TCP client connected: 0		millis(): 126279
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -75		TCP client connected: 0		millis(): 127280
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 0		millis(): 128281
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 0		millis(): 129282
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 0		millis(): 130283
+py->hw: tic
+New TCP client
+0000130951 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000130952 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000130953 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 1		millis(): 131284
+0000131953 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000131953 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000131954 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 132285
+0000132953 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000132953 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000132954 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -74		TCP client connected: 1		millis(): 133286
+py->hw: tic
+0000133952 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000133952 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000133953 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 134287
+0000134953 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000134953 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000134954 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -72		TCP client connected: 1		millis(): 135288
+py<-hw: toc
+0000135953 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000135953 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000135954 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -72		TCP client connected: 1		millis(): 136289
+0000136953 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+py->hw: tic
+0000136953 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000136954 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 137290
+py<-hw: toc
+0000137953 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000137953 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000137954 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -72		TCP client connected: 1		millis(): 138291
+0000138953 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000138953 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000138954 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 139292
+0000139954 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000139954 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py->hw: tic
+0000139955 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 140293
+0000140954 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000140955 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000140955 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 141294
+py<-hw: toc
+0000141954 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000141954 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000141955 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+py->hw: tic
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 142295
+0000142953 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+py<-hw: toc
+0000142954 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000142954 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 143296
+py->hw: tic
+0000143954 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000143955 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000143955 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 144297
+py->hw: tic
+0000144954 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000144954 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000144955 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 145298
+py->hw: tic
+0000145955 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000145955 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000145955 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+py<-hw: toc
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 146299
+py->hw: tic
+0000146954 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000146954 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000146955 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 147300
+py->hw: tic
+0000147955 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000147956 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000147956 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+py->hw: tic
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 148301
+0000148955 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000148955 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000148957 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 149302
+py->hw: tic
+0000149955 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000149955 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+0000149956 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+py<-hw: toc
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 150303
+py->hw: tic
+0000150955 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000150956 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000150957 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -72		TCP client connected: 1		millis(): 151304
+py->hw: tic
+0000151956 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000151956 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000151957 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+py->hw: tic
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 152305
+0000152957 [hal] socket_hal.cpp:781, read_packet_and_dispose(): TRACE: Socket 0 receive bytes 1 of 1
+0000152957 [wiring] spark_wiring_tcpclient.cpp:163, TCPClient::available(): TRACE: recv(=1)
+py<-hw: toc
+0000152958 [hal] socket_hal.cpp:1015, socket_send_ex(): TRACE: Write 3 bytes to socket 536908064 result=0
+hw->py: toc (3 bytes sent) 
+WiFi.ready(): 1		IP: 192.168.1.61		RSSI: -73		TCP client connected: 1		millis(): 153306
