@@ -101,8 +101,10 @@ bool ValveController::isActive() const {
         return false;
     }
     // If we end up here, the valve is halfway or disconnected form the board (the feedback switches have a pullup).
-    // We're going to return false because it is most likely that the valve is not doing anything (but it might be open and not giving feedback).
-    return false;
+    // If the valve is half open, this is an active state.
+    // Returning true here is safer, because the caller will call setActive(false) to recover from this.
+    // If the default would be false, the valve could be half open or unknown, but it will not get a close signal.
+    return true;
 }
 
 uint8_t ValveController::read(bool doUpdate){
