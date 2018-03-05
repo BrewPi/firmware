@@ -102,7 +102,7 @@ public:
             currentStream = &Serial;
         }
         else{
-            if(!WiFi.ready()){
+            if(!WiFi.ready() || WiFi.RSSI() >= 0){
                 // WiFi is in error state, stop TCP server
                 if(tcpServerRunning){
                     stopTcp();
