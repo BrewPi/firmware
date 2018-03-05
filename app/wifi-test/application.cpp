@@ -79,7 +79,6 @@ system_tick_t timeSince(system_tick_t previousTime) {
 
 
 void setup() {
-    System.set(SYSTEM_CONFIG_SOFTAP_PREFIX, "BREWPI");
     System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
     Serial.begin(115200);
     pinMode(LED_PIN, OUTPUT);
