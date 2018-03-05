@@ -45,8 +45,8 @@ public:
     ValveController(std::shared_ptr<DS2408> device_,
                     uint8_t  output_) :
                     device(device_),
-                    output(output_),
-                    desiredAction(VALVE_IDLE_INIT)
+                    desiredAction(VALVE_IDLE_INIT),
+                    output(output_)
 					{
         device->update();
     }
