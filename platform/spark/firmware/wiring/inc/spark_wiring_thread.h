@@ -231,5 +231,23 @@ public:
 
 #endif // PLATFORM_THREADING
 
+namespace particle {
+
+// Class implementing a dummy concurrency policy
+class NoConcurrency {
+public:
+    struct Lock {
+    };
+
+    Lock lock() const {
+        return Lock();
+    }
+
+    void unlock(Lock) const {
+    }
+};
+
+} // namespace particle
+
 #endif  /* SPARK_WIRING_THREAD_H */
 

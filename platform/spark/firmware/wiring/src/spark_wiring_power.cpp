@@ -48,10 +48,21 @@ The I2C address of BQ24195 is 0x6B
 
 
 #include "spark_wiring_power.h"
+#include <mutex>
 
-PMIC::PMIC()
+PMIC::PMIC(bool _lock) :
+    lock_(_lock)
 {
+    if (lock_) {
+        lock();
+    }
+}
 
+PMIC::~PMIC()
+{
+    if (lock_) {
+        unlock();
+    }
 }
 
 /*******************************************************************************
@@ -113,7 +124,7 @@ BIT
  *******************************************************************************/
 // There is prolly a better way to do this. TODO: Optimize
 bool PMIC::setInputVoltageLimit(uint16_t voltage) {
-
+    std::lock_guard<PMIC> l(*this);
     byte DATA = readRegister(INPUT_SOURCE_REGISTER);
     byte mask = DATA & 0b10000111;
 
@@ -210,7 +221,7 @@ byte PMIC::getInputVoltageLimit(void) {
  * Return         : 0 Error, 1 Success
  *******************************************************************************/
 bool PMIC::setInputCurrentLimit(uint16_t current) {
-
+    std::lock_guard<PMIC> l(*this);
 
     byte DATA = readRegister(INPUT_SOURCE_REGISTER);
     byte mask = DATA & 0b11111000;
@@ -262,11 +273,20 @@ bool PMIC::setInputCurrentLimit(uint16_t current) {
  * Input          :
  * Return         :
  *******************************************************************************/
-byte PMIC::getInputCurrentLimit(void) {
-
-    //TODO
-    return 1;
-
+uint16_t PMIC::getInputCurrentLimit(void) {
+    static const uint16_t mapping[] = {
+        100,
+        150,
+        500,
+        900,
+        1200,
+        1500,
+        2000,
+        3000
+    };
+    byte raw = readInputSourceRegister();
+    raw &= 0x03;
+    return mapping[raw];
 }
 
 /*******************************************************************************
@@ -287,7 +307,7 @@ byte PMIC::readInputSourceRegister(void) {
  * Return         :
  *******************************************************************************/
 bool PMIC::enableBuck(void) {
-
+    std::lock_guard<PMIC> l(*this);
     byte DATA = readRegister(INPUT_SOURCE_REGISTER);
     writeRegister(INPUT_SOURCE_REGISTER, (DATA & 0b01111111));
     return 1;
@@ -300,7 +320,7 @@ bool PMIC::enableBuck(void) {
  * Return         :
  *******************************************************************************/
 bool PMIC::disableBuck(void) {
-
+    std::lock_guard<PMIC> l(*this);
     byte DATA = readRegister(INPUT_SOURCE_REGISTER);
     writeRegister(INPUT_SOURCE_REGISTER, (DATA | 0b10000000));
     return 1;
@@ -348,7 +368,7 @@ byte PMIC::readPowerONRegister(void) {
  * Return         :
  *******************************************************************************/
 bool PMIC::enableCharging() {
-
+    std::lock_guard<PMIC> l(*this);
     byte DATA = readRegister(POWERON_CONFIG_REGISTER);
     DATA = DATA & 0b11001111;
     DATA = DATA | 0b00010000;
@@ -363,7 +383,7 @@ bool PMIC::enableCharging() {
  * Return         :
 *******************************************************************************/
 bool PMIC::disableCharging() {
-
+    std::lock_guard<PMIC> l(*this);
     byte DATA = readRegister(POWERON_CONFIG_REGISTER);
     writeRegister(POWERON_CONFIG_REGISTER, (DATA & 0b11001111));
     return 1;
@@ -376,7 +396,7 @@ bool PMIC::disableCharging() {
  * Return         :
 *******************************************************************************/
 bool PMIC::disableOTG(void) {
-
+    std::lock_guard<PMIC> l(*this);
     byte DATA = readRegister(POWERON_CONFIG_REGISTER);
     DATA = DATA & 0b11001111;
     DATA = DATA | 0b00010000;
@@ -391,7 +411,7 @@ bool PMIC::disableOTG(void) {
  * Return         :
 *******************************************************************************/
 bool PMIC::enableOTG(void) {
-
+    std::lock_guard<PMIC> l(*this);
     byte DATA = readRegister(POWERON_CONFIG_REGISTER);
     DATA = DATA & 0b11001111;
     DATA = DATA | 0b00100000;
@@ -406,7 +426,7 @@ bool PMIC::enableOTG(void) {
  * Return         :
 *******************************************************************************/
 bool PMIC::resetWatchdog() {
-
+    std::lock_guard<PMIC> l(*this);
     byte DATA = readRegister(POWERON_CONFIG_REGISTER);
     writeRegister(POWERON_CONFIG_REGISTER, (DATA | 0b01000000));
     return 1;
@@ -419,7 +439,7 @@ bool PMIC::resetWatchdog() {
  * Return         : 0 Error, 1 Success
 *******************************************************************************/
 bool PMIC::setMinimumSystemVoltage(uint16_t voltage) {
-
+    std::lock_guard<PMIC> l(*this);
     byte DATA = readRegister(POWERON_CONFIG_REGISTER);
     byte mask = DATA & 0b11110000;
 
@@ -555,7 +575,7 @@ byte PMIC::getChargeCurrent(void) {
  * Return         : 0 Error, 1 Success
  *******************************************************************************/
 bool PMIC::setChargeCurrent(bool bit7, bool bit6, bool bit5, bool bit4, bool bit3, bool bit2) {
-
+    std::lock_guard<PMIC> l(*this);
     byte current = 0;
     if (bit7) current = current | 0b10000000;
     if (bit6) current = current | 0b01000000;
@@ -595,10 +615,22 @@ BIT
  * Input          :
  * Return         :
  *******************************************************************************/
-//TO DO: Return more meaningful value
+
 byte PMIC::getChargeVoltage(void) {
 
     return readRegister(CHARGE_VOLTAGE_CONTROL_REGISTER);
+}
+
+uint16_t PMIC::getChargeVoltageValue() {
+    byte raw = getChargeVoltage();
+    unsigned baseVoltage = 16;
+    unsigned v = 3504;
+    for (unsigned i = 0; i < 6; i++) {
+        byte b = (raw >> (i + 2)) & 0x01;
+        v += ((unsigned)b) * baseVoltage;
+        baseVoltage *= 2;
+    }
+    return v;
 }
 
 /*******************************************************************************
@@ -618,7 +650,7 @@ byte PMIC::getChargeVoltage(void) {
  * Return         : 0 Error, 1 Success
  *******************************************************************************/
 bool PMIC::setChargeVoltage(uint16_t voltage) {
-
+    std::lock_guard<PMIC> l(*this);
     byte DATA = readRegister(CHARGE_VOLTAGE_CONTROL_REGISTER);
     byte mask = DATA & 0b000000011;
 
@@ -688,12 +720,19 @@ byte PMIC::readChargeTermRegister(void) {
  * Return         :
  *******************************************************************************/
 bool PMIC::disableWatchdog(void) {
-
+    std::lock_guard<PMIC> l(*this);
     byte DATA = readRegister(CHARGE_TIMER_CONTROL_REGISTER);
     writeRegister(CHARGE_TIMER_CONTROL_REGISTER, (DATA & 0b11001110));
     return 1;
 }
 
+bool PMIC::setWatchdog(byte time) {
+    std::lock_guard<PMIC> l(*this);
+    byte DATA = readRegister(CHARGE_TIMER_CONTROL_REGISTER);
+    time &= 0b11;
+    writeRegister(CHARGE_TIMER_CONTROL_REGISTER, (DATA & 0b11001110) | (time << 4));
+    return 1;
+}
 
 /*
 //-----------------------------------------------------------------------------
@@ -733,7 +772,7 @@ BIT
  * Return         :
  *******************************************************************************/
 bool PMIC::disableDPDM() {
-
+    std::lock_guard<PMIC> l(*this);
     byte DATA = readRegister(MISC_CONTROL_REGISTER);
     writeRegister(MISC_CONTROL_REGISTER, (DATA & 0b01111111));
     return 1;
@@ -746,7 +785,7 @@ bool PMIC::disableDPDM() {
  * Return         :
 *******************************************************************************/
 bool PMIC::enableDPDM() {
-
+    std::lock_guard<PMIC> l(*this);
     byte DATA = readRegister(MISC_CONTROL_REGISTER);
     writeRegister(MISC_CONTROL_REGISTER, (DATA | 0b10000000));
     return 1;
@@ -759,7 +798,7 @@ bool PMIC::enableDPDM() {
  * Return         :
 *******************************************************************************/
 bool PMIC::enableBATFET(void) {
-
+    std::lock_guard<PMIC> l(*this);
     byte DATA = readRegister(MISC_CONTROL_REGISTER);
     writeRegister(MISC_CONTROL_REGISTER, (DATA & 0b11011111));
     return 1;
@@ -774,7 +813,7 @@ bool PMIC::enableBATFET(void) {
  * Return         :
 *******************************************************************************/
 bool PMIC::disableBATFET(void) {
-
+    std::lock_guard<PMIC> l(*this);
     byte DATA = readRegister(MISC_CONTROL_REGISTER);
     writeRegister(MISC_CONTROL_REGISTER, (DATA | 0b00100000));
     return 1;
@@ -790,6 +829,24 @@ byte PMIC::readOpControlRegister(void) {
 
     return readRegister(MISC_CONTROL_REGISTER);
 
+}
+
+uint16_t PMIC::getRechargeThreshold() {
+    return ((readRegister(CHARGE_VOLTAGE_CONTROL_REGISTER) & 0x01) == 0 ? 100 : 300);
+}
+
+bool PMIC::setRechargeThreshold(uint16_t voltage) {
+    switch (voltage) {
+        case 300:
+            writeRegister(CHARGE_VOLTAGE_CONTROL_REGISTER, readRegister(CHARGE_VOLTAGE_CONTROL_REGISTER) | 0x01);
+            break;
+        case 100:
+        default:
+            writeRegister(CHARGE_VOLTAGE_CONTROL_REGISTER, readRegister(CHARGE_VOLTAGE_CONTROL_REGISTER) & 0xfe);
+            break;
+    }
+
+    return true;
 }
 
 /*
@@ -942,7 +999,7 @@ byte PMIC::getVersion() {
  * Return         :
  *******************************************************************************/
 byte PMIC::readRegister(byte startAddress) {
-
+    std::lock_guard<PMIC> l(*this);
     byte DATA = 0;
 #if Wiring_Wire3
     Wire3.beginTransmission(PMIC_ADDRESS);
@@ -963,7 +1020,7 @@ byte PMIC::readRegister(byte startAddress) {
  * Return         :
  *******************************************************************************/
 void PMIC::writeRegister(byte address, byte DATA) {
-
+    std::lock_guard<PMIC> l(*this);
 #if Wiring_Wire3
     Wire3.beginTransmission(PMIC_ADDRESS);
     Wire3.write(address);
@@ -972,3 +1029,16 @@ void PMIC::writeRegister(byte address, byte DATA) {
 #endif
 }
 
+bool PMIC::lock() {
+#if Wiring_Wire3
+    return Wire3.lock();
+#endif
+    return false;
+}
+
+bool PMIC::unlock() {
+#if Wiring_Wire3
+    return Wire3.unlock();
+#endif
+    return false;
+}

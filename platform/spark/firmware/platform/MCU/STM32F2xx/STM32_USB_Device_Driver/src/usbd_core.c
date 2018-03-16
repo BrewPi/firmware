@@ -241,7 +241,8 @@ static uint8_t USBD_DataOutStage(USB_OTG_CORE_HANDLE *pdev , uint8_t epnum)
         if (pdev->dev.usr_cb && pdev->dev.usr_cb->ControlRequest &&
             (pdev->dev.device_status == USB_OTG_CONFIGURED))
         {
-          ret = pdev->dev.usr_cb->ControlRequest(NULL, 1);
+          // Notify that a Host->Device request with data stage has completed
+          ret = pdev->dev.usr_cb->ControlRequest(NULL, USB_REQ_DATA_STAGE_COMPLETED);
         }
 
         if(ret != USBD_OK && (pdev->dev.class_cb->EP0_RxReady != NULL)&&
@@ -301,7 +302,15 @@ static uint8_t USBD_DataInStage(USB_OTG_CORE_HANDLE *pdev , uint8_t epnum)
         }
         else
         {
-          if((pdev->dev.class_cb->EP0_TxSent != NULL)&&
+          uint8_t ret = USBD_OK;
+          if (pdev->dev.usr_cb && pdev->dev.usr_cb->ControlRequest &&
+              (pdev->dev.device_status == USB_OTG_CONFIGURED))
+          {
+            // Notify that a Device->Host request with data stage has completed
+            ret = pdev->dev.usr_cb->ControlRequest(NULL, USB_REQ_DATA_STAGE_COMPLETED);
+          }
+
+          if(ret != USBD_OK && (pdev->dev.class_cb->EP0_TxSent != NULL)&&
              (pdev->dev.device_status == USB_OTG_CONFIGURED))
           {
             pdev->dev.class_cb->EP0_TxSent(pdev);

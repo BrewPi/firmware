@@ -36,9 +36,11 @@
 #include <mutex>
 #include <atomic>
 #include "flash_acquire.h"
+#include "periph_lock.h"
 #include "core_hal.h"
 #include "logging.h"
 #include "atomic_flag_mutex.h"
+#include "static_recursive_mutex.h"
 #include "service_debug.h"
 
 #if PLATFORM_ID == 6 || PLATFORM_ID == 8
@@ -66,6 +68,11 @@ static_assert(sizeof(uint32_t)==sizeof(void*), "Requires uint32_t to be same siz
 #define _CREATE_NAME_TYPE const signed char
 #endif
 
+namespace {
+
+StaticRecursiveMutex g_periphMutex;
+
+} // namespace
 
 /**
  * Creates a new thread.
@@ -132,7 +139,11 @@ os_result_t os_thread_join(os_thread_t thread)
     }
     return 0;
 #else
-    return -1;
+    while (eTaskGetState(thread) != eDeleted)
+    {
+        HAL_Delay_Milliseconds(10);
+    }
+    return 0;
 #endif
 }
 
@@ -337,10 +348,14 @@ static_assert(portMAX_DELAY==CONCURRENT_WAIT_FOREVER, "expected portMAX_DELAY==C
 
 int os_queue_put(os_queue_t queue, const void* item, system_tick_t delay, void*)
 {
-    if (HAL_IsISR())
-        return xQueueSendFromISR(queue, item, nullptr)!=pdTRUE;
-    else
+    if (HAL_IsISR()) {
+        BaseType_t woken = pdFALSE;
+        int res = xQueueSendFromISR(queue, item, &woken) != pdTRUE;
+        portYIELD_FROM_ISR(woken);
+        return res;
+    } else {
         return xQueueSend(queue, item, delay)!=pdTRUE;
+    }
 }
 
 int os_queue_take(os_queue_t queue, void* item, system_tick_t delay, void*)
@@ -514,4 +529,18 @@ void __flash_release() {
         return;
     }
     flash_lock.unlock();
+}
+
+void periph_lock() {
+    if (!rtos_started) {
+        return;
+    }
+    g_periphMutex.lock();
+}
+
+void periph_unlock() {
+    if (!rtos_started) {
+        return;
+    }
+    g_periphMutex.unlock();
 }

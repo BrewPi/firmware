@@ -45,6 +45,7 @@ public:
     ValveController(std::shared_ptr<DS2408> device_,
                     uint8_t  output_) :
                     device(device_),
+                    desiredAction(VALVE_IDLE_INIT),
                     output(output_)
 					{
         device->update();
@@ -69,6 +70,8 @@ public:
     static const uint8_t VALVE_OPENING = 0b01; // H-bridge is driven in direction to open the valve
     static const uint8_t VALVE_CLOSING = 0b10; // H-bridge is driven in direction to close the valve
     static const uint8_t VALVE_IDLE = 0b11;    // H-bridge has both legs at same level, so motor is idle
+    // VALVE_IDLE_INIT is set in constructor as output state. This is to be able to distinguish between a desired idle state and uninitialized.
+    static const uint8_t VALVE_IDLE_INIT = 0b00;    // H-bridge has both legs at same level, so motor is idle.
 
     /**
      * Visitor pattern hook

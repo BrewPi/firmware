@@ -309,6 +309,11 @@ sock_result_t socket_send(sock_handle_t sd, const void* buffer, socklen_t len)
     }
 }
 
+sock_result_t socket_send_ex(sock_handle_t sd, const void* buffer, socklen_t len, uint32_t flags, system_tick_t timeout, void* reserved)
+{
+    /* NOTE: non-blocking mode and timeouts are not supported */
+    return socket_send(sd, buffer, len);
+}
 
 sock_result_t socket_create_nonblocking_server(sock_handle_t sock, uint16_t port)
 {
@@ -441,9 +446,7 @@ sock_handle_t socket_create(uint8_t family, uint8_t type, uint8_t protocol, uint
         if (result)				// error
             return result;
 
-        std::string address_mcast = "224.0.0.251";
-        boost::asio::ip::address mcast_addr = boost::asio::ip::address::from_string(address_mcast, ec);
-        boost::asio::ip::udp::endpoint listen_endpoint(mcast_addr, port);
+        boost::asio::ip::udp::endpoint listen_endpoint(ip::udp::v4(), port);
         socket.open(listen_endpoint.protocol(), ec);
 
         socket.set_option(boost::asio::ip::udp::socket::reuse_address(true));
