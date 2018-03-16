@@ -135,6 +135,7 @@ public:
 
     void begin(unsigned long rate) {
         Serial.begin(rate);
+        Serial.blockOnOverrun(false);
         // WiFi is handled in available()
     }
 
