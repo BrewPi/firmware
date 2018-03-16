@@ -21,6 +21,8 @@
 #define SYSTEM_SLEEP_H
 
 #include <stdint.h>
+#include <stddef.h>
+#include "interrupts_hal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,10 +33,11 @@ typedef enum
     SLEEP_MODE_WLAN = 0, SLEEP_MODE_DEEP = 1, SLEEP_MODE_SOFTPOWEROFF = 2
 } Spark_Sleep_TypeDef;
 
-enum class SystemSleepNetwork
+enum class SystemSleepOption
 {
-    Off,
-    Standby,
+    NetworkOff = 0x00,
+    NetworkStandby = 0x01,
+    DisableWkpPin = 0x02
 };
 
 /**
@@ -42,6 +45,7 @@ enum class SystemSleepNetwork
  */
 void system_sleep(Spark_Sleep_TypeDef mode, long seconds, uint32_t param, void* reserved);
 void system_sleep_pin(uint16_t pin, uint16_t mode, long seconds, uint32_t param, void* reserved);
+int32_t system_sleep_pins(const uint16_t* pins, size_t pins_count, const InterruptMode* modes, size_t modes_count, long seconds, uint32_t param, void* reserved);
 
 #ifdef __cplusplus
 }

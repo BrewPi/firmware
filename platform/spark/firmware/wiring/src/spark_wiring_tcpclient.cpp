@@ -32,7 +32,6 @@
 #include "inet_hal.h"
 #include "spark_macros.h"
 
-
 using namespace spark;
 
 static bool inline isOpen(sock_handle_t sd)
@@ -76,7 +75,7 @@ int TCPClient::connect(IPAddress ip, uint16_t port, network_interface_t nif)
         {
           sockaddr_t tSocketAddr;
           d_->sock = socket_create(AF_INET, SOCK_STREAM, IPPROTO_TCP, port, nif);
-          DEBUG("socket=%d",d_->sock);
+          LOG(TRACE, "TCPClient socket=%x", d_->sock);
 
           if (socket_handle_valid(d_->sock))
           {
@@ -110,12 +109,31 @@ int TCPClient::connect(IPAddress ip, uint16_t port, network_interface_t nif)
 
 size_t TCPClient::write(uint8_t b)
 {
-        return write(&b, 1);
+    return write(&b, 1, SPARK_WIRING_TCPCLIENT_DEFAULT_SEND_TIMEOUT);
 }
 
 size_t TCPClient::write(const uint8_t *buffer, size_t size)
 {
-        return status() ? socket_send(d_->sock, buffer, size) : -1;
+    return write(buffer, size, SPARK_WIRING_TCPCLIENT_DEFAULT_SEND_TIMEOUT);
+}
+
+size_t TCPClient::write(uint8_t b, system_tick_t timeout)
+{
+    return write(&b, 1, timeout);
+}
+
+size_t TCPClient::write(const uint8_t *buffer, size_t size, system_tick_t timeout)
+{
+    clearWriteError();
+    int ret = status() ? socket_send_ex(d_->sock, buffer, size, 0, timeout, nullptr) : -1;
+    if (ret < 0) {
+        setWriteError(ret);
+    }
+
+    /*
+     * FIXME: We should not be returning negative numbers here
+     */
+    return ret;
 }
 
 int TCPClient::bufferCount()
@@ -186,7 +204,8 @@ void TCPClient::flush()
 
 void TCPClient::stop()
 {
-  DEBUG("sock %d closesocket", d_->sock);
+  // This log line pollutes the log too much
+  // DEBUG("sock %d closesocket", d_->sock);
 
   if (isOpen(d_->sock))
       socket_close(d_->sock);

@@ -32,8 +32,10 @@ namespace spark {
             return sig;
         }
 
-        CellularSignalHal sig_hal;
-        if (cellular_signal(sig_hal, NULL) != 0) {
+        CellularSignalHal sig_hal = {0};
+        cellular_signal_t sigext = {0};
+        sigext.size = sizeof(sigext);
+        if (cellular_signal(&sig_hal, &sigext) != 0) {
             sig.rssi = 1;
             return sig;
         }
@@ -42,6 +44,7 @@ namespace spark {
         if (sig.rssi == 0) {
             sig.rssi = 2;
         }
+        sig.fromHalCellularSignal(sigext);
         return sig;
     }
 
@@ -49,15 +52,15 @@ namespace spark {
 
     bool CellularClass::getDataUsage(CellularData &data_get) {
         if (cellular_data_usage_get(&data_hal, NULL) != 0) {
-            data_get.cid = data_hal.cid; // data_hal.cid will indicate -1
             data_get.ok = false; // dataUsage object was not updated
+        } else {
+            data_get.tx_session = data_hal.tx_session;
+            data_get.rx_session = data_hal.rx_session;
+            data_get.tx_total = data_hal.tx_total;
+            data_get.rx_total = data_hal.rx_total;
+            data_get.ok = true;
         }
-        data_get.cid = data_hal.cid;
-        data_get.tx_session = data_hal.tx_session;
-        data_get.rx_session = data_hal.rx_session;
-        data_get.tx_total = data_hal.tx_total;
-        data_get.rx_total = data_hal.rx_total;
-        data_get.ok = true;
+        data_get.cid = data_hal.cid; // data_hal.cid will indicate -1 in case of an error
         return data_get.ok;
     }
 
@@ -67,11 +70,11 @@ namespace spark {
         data_hal.tx_total = data_set.tx_total;
         data_hal.rx_total = data_set.rx_total;
         if (cellular_data_usage_set(&data_hal, NULL) != 0) {
-            data_set.cid = data_hal.cid; // data_hal.cid will indicate -1
             data_set.ok = false; // dataUsage object was not updated
+        } else {
+            data_set.ok = true;
         }
         data_set.cid = data_hal.cid; // update, in case CID changed
-        data_set.ok = true;
         return data_set.ok;
     }
 

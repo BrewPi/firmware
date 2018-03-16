@@ -24,7 +24,7 @@ void eraseExternalFlash()
 }
 
 
-#if PLATFORM_ID==3
+#if PLATFORM_ID==PLATFORM_GCC
 static uint8_t device_id[12];
 #endif
 
@@ -44,7 +44,7 @@ bool platform_init()
     }
     eepromAccess.init();
 
-#if PLATFORM_ID==3
+#if PLATFORM_ID==PLATFORM_GCC
     WiFi.connect();
     waitUntil(WiFi.ready);
 #endif

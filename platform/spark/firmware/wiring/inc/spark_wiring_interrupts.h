@@ -60,6 +60,9 @@ bool attachSystemInterrupt(hal_irq_t irq, wiring_interrupt_handler_t handler);
  */
 bool detachSystemInterrupt(hal_irq_t irq);
 
+bool attachInterruptDirect(IRQn_Type irq, HAL_Direct_Interrupt_Handler handler, bool enable = true);
+bool detachInterruptDirect(IRQn_Type irq, bool disable = true);
+
 
 class AtomicSection {
 	int prev;
@@ -75,6 +78,20 @@ public:
 
 #define ATOMIC_BLOCK() 	for (bool __todo=true; __todo;) for (AtomicSection __as; __todo; __todo=false)
 
+namespace particle {
 
+// Class implementing a concurrency policy based on critical sections
+class AtomicConcurrency {
+public:
+    int lock() const {
+        return HAL_disable_irq();
+    }
+
+    void unlock(int state) const {
+        HAL_enable_irq(state);
+    }
+};
+
+} // namespace particle
 
 #endif /* SPARK_WIRING_INTERRUPTS_H_ */
