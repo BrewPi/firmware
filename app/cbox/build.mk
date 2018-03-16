@@ -19,8 +19,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox/proto/cpp
 CSRC += $(call here_files,app/cbox/proto/cpp,*.c)
 
 # add nanopb dependencies
-INCLUDE_DIRS += $(SOURCE_PATH)/nanopb
-CSRC += $(call here_files,nanopb,*.c)
+include $(SOURCE_PATH)/platform/spark/firmware/nanopb/import.mk
 
 # Mixins
 CPPSRC += app/cbox/ControllerMixins.cpp

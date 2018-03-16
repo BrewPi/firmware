@@ -33,7 +33,7 @@ public:
         setpoint.copySettingsTo(&newData.settings);
         /* stream in new settings, overwriting copy of old settings */
         size_t maxSize = persistedMaxSize();
-        pb_istream_t stream = { &dataInStreamCallback, &dataIn, maxSize, 0 };
+        pb_istream_t stream = { &dataInStreamCallback, &dataIn, maxSize};
         bool success = pb_decode_delimited_noinit(&stream, blox_SetPointSimple_Persisted_fields, &newData);
         /* if no errors occur, write new settings to wrapped object */
         if(success){

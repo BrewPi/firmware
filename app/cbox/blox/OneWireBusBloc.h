@@ -101,7 +101,7 @@ public:
 
         assert_size<sizeof(message), 2>(); // one byte for command, one for data
 
-        pb_istream_t stream = { &dataInStreamCallback, &dataIn, blox_OneWireCommand_size + 1, 0 };
+        pb_istream_t stream = { &dataInStreamCallback, &dataIn, blox_OneWireCommand_size + 1};
         bool success = pb_decode_delimited_noinit(&stream, blox_OneWireCommand_fields, &message);
         /* if no errors occur, write new settings to wrapped object */
         if(success){
