@@ -41,33 +41,35 @@ MDNS mdns;
 
 void setup()
 {
-    Serial.begin(9600);
+    Serial.begin(57600);
     eepromAccess.init();
     controlbox_setup(0);
     platform_init();
 
-    WiFi.on();
-    if (WiFi.hasCredentials()) {
-        WiFi.connect();
-        waitFor(WiFi.ready, 30*1000);
-
-        if (WiFi.ready()) {
-            String id = System.deviceID();
-            bool success = mdns.setHostname(id)
-              && mdns.addService("tcp", "brewpi", 8332, id)
-              && mdns.begin();
-            if (!success) {
-                Comms::dataOut().writeAnnotation(mdns.getStatus().c_str());
-            }
-        }
-    }
+    System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
+    WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
+    Particle.connect();
 }
 
 
 
 void loop()
 {
-    controlbox_loop();
-    mdns.processQueries();
+    static bool mdns_started = false;
+	controlbox_loop();
+
+	if(!mdns_started && WiFi.ready() && WiFi.RSSI() < 0){
+
+		String id = System.deviceID();
+		bool success = mdns.setHostname(id)
+		  && mdns.addService("tcp", "brewpi", 8332, id)
+		  && mdns.begin();
+		if (!success) {
+			Comms::dataOut().writeAnnotation(mdns.getStatus().c_str());
+		}
+	}
+	if(mdns_started){
+		mdns.processQueries();
+	}
 }
 
