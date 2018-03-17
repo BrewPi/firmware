@@ -1,9 +1,18 @@
 #!/bin/bash
-PROTODIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-NANOPB_ROOT="C:/repos/nanopb-0.3.9-windows-x86/"
+PROTO_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+NANOPB_PATH="${PROTO_DIR}/../../../platform/spark/firmware/nanopb/nanopb"
+PROTOC_NANOPB_PLUGIN="${NANOPB_PATH}/generator/protoc-gen-nanopb"
+PROTOC_INCLUDE_PATH="-I${PROTO_DIR} -I${NANOPB_PATH}/generator -I${NANOPB_PATH}/generator/proto"
 
-pushd "$PROTODIR" # .option files are read from execution directory, so have to cd into this dir 
+ls ${PROTOC_NANOPB_PLUGIN}
+
+pushd "$PROTO_DIR" # .option files are read from execution directory, so have to cd into this dir 
 mkdir -p "cpp"
 
-"$NANOPB_ROOT"/generator-bin/protoc "--nanopb_out=-v:cpp" "$PROTODIR"/*.proto --proto_path="$PROTODIR" -I"$NANOPB_ROOT"/generator/proto
+PROTOC_INCLUDE_PATH="-I${PROTO_DIR} -I${NANOPB_PATH}/generator -I${NANOPB_PATH}/generator/proto"
+protoc ${PROTOC_INCLUDE_PATH} \
+--nanopb_out=-v:cpp \
+${PROTO_DIR}/*.proto \
+--proto_path=${PROTO_DIR} \
+--plugin=protoc-gen-nanopb=${PROTOC_NANOPB_PLUGIN}
 popd
