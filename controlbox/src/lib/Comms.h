@@ -367,10 +367,10 @@ public:
 	 * Annotations are written as is to the stream, surrounded by annotation marks.
 	 */
 	virtual void writeAnnotation(const char* data) override final {
-		_out->write('[');
+		_out->write('<');
+		_out->write('!');
 		_out->writeBuffer(data, stream_size_t(strlen(data)));
-		_out->write(']');
-        _out->write('\n');
+		_out->write('>');
 	}
 
 	/**

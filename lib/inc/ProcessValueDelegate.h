@@ -23,6 +23,7 @@
 #include "ControllerMixins.h"
 #include "ProcessValue.h"
 #include "VisitorBase.h"
+#include "RefTo.h"
 
 class ProcessValueDelegate :
     public ProcessValue,

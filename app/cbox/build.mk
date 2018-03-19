@@ -72,6 +72,10 @@ include $(LIBS_DIR)/libs.mk
 INCLUDE_DIRS += $(LIBS_DIR)/mdns/firmware
 CPPSRC += $(call here_files,platform/spark/libs/mdns/firmware,*.cpp)
 
+ifeq ("$(CBOX_DEBUG)","y")
+CFLAGS += -DCBOX_DEBUG=1
+endif
+
 GIT_VERSION = $(shell cd $(SOURCE_PATH); git describe --long)
 $(info using $(GIT_VERSION) as build name)
 CFLAGS += -DBUILD_NAME="$(GIT_VERSION)"

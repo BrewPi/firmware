@@ -25,7 +25,7 @@
 #include <algorithm>
 
 #ifndef DATASTREAM_ANNOTATIONS
-#define DATASTREAM_ANNOTATIONS DEBUG
+#define DATASTREAM_ANNOTATIONS CBOX_DEBUG
 #endif
 
 typedef uint8_t stream_size_t;

@@ -106,10 +106,10 @@ public:
 public:
 	virtual void writeAnnotation(const char* s) override final {
 		if (s && *s) {
-			write('[');
+			write('<');
+			write('!');
 			writeBuffer(s, uint8_t(strlen(s)));
-			write(']');
-			write('\n');
+			write('>');
 		}
 		flush();
 	}
