@@ -29,7 +29,7 @@
 #include "PersistChangeValue.h"
 #include "Commands.h"
 #include "Platform.h"
-#include "MDNS.h"
+//#include "MDNS.h"
 
 // todo - add a system object that describes the application version
 // from this, the protocol of all objects can be determined by the client.
@@ -37,7 +37,7 @@
 SYSTEM_MODE(MANUAL);
 SYSTEM_THREAD(ENABLED);
 
-MDNS mdns;
+//MDNS mdns;
 
 void setup()
 {
@@ -55,9 +55,9 @@ void setup()
 
 void loop()
 {
-    static bool mdns_started = false;
+//
 	controlbox_loop();
-
+/*
 	if(!mdns_started && WiFi.ready() && WiFi.RSSI() < 0){
 
 		String id = System.deviceID();
@@ -71,5 +71,6 @@ void loop()
 	if(mdns_started){
 		mdns.processQueries();
 	}
+*/
 }
 
