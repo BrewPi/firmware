@@ -1,5 +1,6 @@
-here_files = $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/$1/$2))
+include ../build/platform-id.mk
 
+here_files = $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/$1/$2))
 
 # add all objects the user can create
 INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox/blox
@@ -20,6 +21,22 @@ CSRC += $(call here_files,app/cbox/proto/cpp,*.c)
 
 # add nanopb dependencies
 include $(SOURCE_PATH)/platform/spark/firmware/nanopb/import.mk
+
+ifeq ($(PLATFORM_ID),6)
+MODULAR?=y
+endif
+ifeq ($(PLATFORM_ID),8)
+MODULAR?=y
+endif
+ifeq ($(PLATFORM_ID),10)
+MODULAR?=y
+endif
+
+ifneq ($(MODULAR),y)
+# for a non-modular build, exclude the duplicate nanopb functions, because they will be available from Particle's library
+# for a modular build, the file below has copies of the functions that particle discards
+CEXCLUDES += app/cbox/nanopb_not_in_particle.c
+endif
 
 # Mixins
 CPPSRC += app/cbox/ControllerMixins.cpp
@@ -74,7 +91,21 @@ CPPSRC += $(call here_files,platform/spark/libs/mdns/firmware,*.cpp)
 
 ifeq ("$(CBOX_DEBUG)","y")
 CFLAGS += -DCBOX_DEBUG=1
+else
+CFLAGS += -DCBOX_DEBUG=0
 endif
+
+# the following warnings can help find opportunities for impromevent in virtual functions
+# they are disabled in the default build, because the dependencies (particle firmware, flashee) have many violations 
+
+# Warn when virtual functions are overriden without override/override final specifier (requires gcc 5.1)
+# CPPFLAGS += -Wsuggest-override
+# Warn when functions and classes can be marked final
+# CPPFLAGS += -Wsuggest-final-types
+# CPPFLAGS += -Wsuggest-final-methods
+
+CSRC := $(filter-out $(CEXCLUDES),$(CSRC))
+CPPSRC := $(filter-out $(CPPEXCLUDES),$(CPPSRC)) 
 
 GIT_VERSION = $(shell cd $(SOURCE_PATH); git describe --long)
 $(info using $(GIT_VERSION) as build name)

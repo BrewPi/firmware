@@ -1,3 +1,14 @@
+
+/*
+ * These functions are copied directly from nanopb pb_encode.c and pb_decode.c
+ * Particle includes some functions in their dynamically linked library, but not all.
+ * The functions not made available by Particle, but used by our code, are copied here.
+ * Omitting this file would result in undefined references for the functions in this file.
+ * Including the original pb_encode.c and pb_decode.c would result in duplicate references for
+ * the functions in the Particle dynamically linked library.
+ */
+
+
 #include <pb.h>
 #include <pb_decode.h>
 #include <pb_encode.h>
