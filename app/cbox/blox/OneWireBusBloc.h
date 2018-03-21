@@ -23,7 +23,7 @@ protected:
     // stream result of a bus search, with arg pointing to the onewire bus
     static bool streamAdresses(pb_ostream_t *stream, const pb_field_t *field, void * const *arg){
         uint8_t address[8] = {0};
-        OneWire * busPtr = (OneWire *) arg;
+        OneWire * busPtr = (OneWire *) *arg;
         if(busPtr == nullptr){
             return false;
         }
