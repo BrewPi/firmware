@@ -33,13 +33,14 @@ typedef uint8_t stream_size_t;
 /**
  * An output stream that supports writing data. Optionally. annotations may also be written
  * to the stream, although these are entirely optional and should provide only
- * supplimental information.
+ * supplemental information.
  * @param data
  * @return
  */
 struct DataOut
 {
 	virtual void writeAnnotation(const char* /*data*/) {}
+	virtual void writeSeparator() {}
 
 	/**
 	 * Writes a byte to the stream.

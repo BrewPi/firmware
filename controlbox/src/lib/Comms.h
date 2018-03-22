@@ -373,6 +373,10 @@ public:
 		_out->write('>');
 	}
 
+	virtual void writeSeparator() override final{
+	    _out->write('|');
+	}
+
 	/**
 	 * Data is written as hex-encoded
 	 */

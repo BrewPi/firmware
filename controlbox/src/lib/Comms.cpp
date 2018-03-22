@@ -114,6 +114,10 @@ public:
 		flush();
 	}
 
+    virtual void writeSeparator() override final{
+        write('|');
+    }
+
 	virtual bool write(uint8_t data) override final {
 		commsDevice.write(data);
 		return true;
