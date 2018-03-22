@@ -42,22 +42,25 @@ void readValue(Object* root, DataIn& in, DataOut& out) {
 	uint8_t typeID = in.next();
 	uint8_t available = in.next();			// number of bytes expected
 	int8_t code = 0;
-	uint8_t expectedSize;
 	Value* v = (Value*)o;
-
+	uint8_t expectedSize = 0;
 	if (!o) {
 		code = errorCode(invalid_id);
 	}
-	else if (!isValue(o)) {
-		code = errorCode(object_not_readable);
+	else{
+	    if (!isValue(o)) {
+	        code = errorCode(object_not_readable);
+	    }
+		else{
+		    expectedSize = v->readStreamSize();
+		    if (!(available==0 || (expectedSize==available))) {
+		        code = errorCode(invalid_size);
+		    }
+            else if (!checkType(typeID, v)) {
+                code = errorCode(invalid_type);
+            }
+        }
 	}
-	else if (!((expectedSize=v->readStreamSize())==available || available==0)) {
-		code = errorCode(invalid_size);
-	}
-	else if (!checkType(typeID, v)) {
-		code = errorCode(invalid_type);
-	}
-
 	if (code) {
 		out.write(uint8_t(code));
 	} else {
@@ -103,10 +106,16 @@ void setValue(Object* root, DataIn& in, DataOut& out) {
 	}
 
 	if (code) {
+	    while(in.hasNext()){
+	        in.next(); // consume rest of the command, so it is echoed correctly before the data is sent
+	    }
 		out.write(uint8_t(code));										// write 0 bytes (indicates failure)
 	}
 	else {
 		v->writeFrom(in);									// assign from stream
+        while(in.hasNext()){
+            in.next(); // consume rest of the command if not consumed, so it echoes before the data output
+        }
 		out.write(v->typeID());
 		out.write(v->readStreamSize());							// now write out actual value
 		v->readTo(out);
