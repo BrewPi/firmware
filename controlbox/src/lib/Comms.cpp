@@ -554,8 +554,9 @@ void processCommand(
 
 void Comms::receive()
 {
-	if (reset)
-		return;
+	if (reset) {
+		cmd_callback(handleReset(true));					// do the hard reset
+	}
 
 	manageConnection();
 
@@ -573,8 +574,5 @@ void Comms::receive()
 #endif
 					c);
 		}
-	}
-	if (reset) {
-		cmd_callback(handleReset(true));					// do the hard reset
 	}
 }
