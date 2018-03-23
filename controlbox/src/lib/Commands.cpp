@@ -351,7 +351,7 @@ container_id fetchNextSlot(OpenContainer* container)
 }
 
 
-void freeSlot(Container* root, DataIn& in, DataOut& out) {
+int8_t freeSlot(Container* root, DataIn& in, DataOut& out) {
 	int8_t status;
 	if (!root) {
 		status = errorCode(profile_not_active);
@@ -363,22 +363,21 @@ void freeSlot(Container* root, DataIn& in, DataOut& out) {
 			status = fetchNextSlot(container);
 		}
 	}
-	out.writeSeparator();
-	out.write(uint8_t(status));
+	return status;
 }
 
 void Commands::freeSlotCommandHandler(DataIn& in, DataOut& out)
 {
-    out.writeSeparator();
-    out.write(errorCode(no_error));
-    freeSlot(systemProfile.rootContainer(), in, out);
+	int8_t status = freeSlot(systemProfile.rootContainer(), in, out);
+	out.writeSeparator();
+	out.write(status);
 }
 
 void Commands::freeSlotRootCommandHandler(DataIn& in, DataOut& out)
 {
+	int8_t status freeSlot(systemProfile.rootContainer(), in, out);
     out.writeSeparator();
-    out.write(errorCode(no_error));
-    freeSlot(systemProfile.rootContainer(), in, out);
+	out.write(status);
 }
 
 void Commands::deleteProfileCommandHandler(DataIn& in, DataOut& out) {
@@ -391,7 +390,13 @@ void Commands::deleteProfileCommandHandler(DataIn& in, DataOut& out) {
 void Commands::createProfileCommandHandler(DataIn& in, DataOut& out) {
 	int8_t result = systemProfile.createProfile();
 	out.writeSeparator();
-	out.write(uint8_t(result));
+	if(result > 0){
+		out.write(0); // error code
+	    out.write(uint8_t(result)); // profile id
+	}
+	else {
+		out.write(result); // error code
+	}
 }
 
 /**

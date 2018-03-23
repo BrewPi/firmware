@@ -216,7 +216,7 @@ void SystemProfile::streamObjectDefinitions(EepromDataIn& eepromReader)
  * All profiles above this one in eeprom are shuffled down by the size of the
  * profile.
  */
-profile_id_t SystemProfile::deleteProfile(profile_id_t profile) {
+int8_t SystemProfile::deleteProfile(profile_id_t profile) {
 #if SYSTEM_PROFILE_ENABLE
 	if (profile==current) {		// persistently unload profile if it's the one to be deleted
 		activateProfile(-1);
@@ -247,7 +247,7 @@ profile_id_t SystemProfile::deleteProfile(profile_id_t profile) {
 
 	// update the start/end of the writable region
 	profileWriteRegion(writer, true);
-	return profile;
+	return 0;
 #else
 	return invalid_profile;	// not supported
 #endif
