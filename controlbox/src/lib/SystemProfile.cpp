@@ -440,8 +440,6 @@ eptr_t SystemProfile::compactObjectDefinitions() {
  */
 void SystemProfile::listEepromInstructionsTo(profile_id_t profile, DataOut& out) {
 	EepromDataIn eepromData cb_nonstatic_decl((eepromAccess));
-	int8_t error = no_error;
-	out.write(uint8_t(error));	// todo - determine if profile is valid
 	profileReadRegion(profile, eepromData);
 	Commands& cmds =
 #if CONTROLBOX_STATIC
