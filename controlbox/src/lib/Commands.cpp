@@ -375,7 +375,7 @@ void Commands::freeSlotCommandHandler(DataIn& in, DataOut& out)
 
 void Commands::freeSlotRootCommandHandler(DataIn& in, DataOut& out)
 {
-	int8_t status freeSlot(systemProfile.rootContainer(), in, out);
+	int8_t status = freeSlot(systemProfile.rootContainer(), in, out);
     out.writeSeparator();
 	out.write(status);
 }
