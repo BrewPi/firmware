@@ -95,6 +95,7 @@ void boardInit(){
     pinMode(PIN_RS485_TX, OUTPUT);
     pinMode(PIN_RS485_RX, INPUT);
     pinMode(PIN_RS485_TX_EN, OUTPUT);
+    digitalWrite(PIN_RS485_TX_EN, LOW); // default to receive
 
     digitalWrite(PIN_TOUCH_CS, HIGH);
     pinMode(PIN_TOUCH_CS, OUTPUT);
