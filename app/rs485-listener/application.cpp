@@ -11,46 +11,14 @@ SerialLogHandler traceLog(LOG_LEVEL_TRACE);
 
 EepromAccess eepromAccess;
 
-HAL_USB_USART_Config acquireSerialBuffer()
-{
-  HAL_USB_USART_Config conf = {0};
-
-  // The usable buffer size will be 128
-  static uint8_t serial_rx_buffer[257];
-  static uint8_t serial_tx_buffer[257];
-
-  conf.rx_buffer = serial_rx_buffer;
-  conf.tx_buffer = serial_tx_buffer;
-  conf.rx_buffer_size = 257;
-  conf.tx_buffer_size = 257;
-
-  return conf;
-}
-
-HAL_USB_USART_Config acquireUSBSerial1Buffer()
-{
-  HAL_USB_USART_Config conf = {0};
-
-  // The usable buffer size will be 128
-  static uint8_t serial_rx_buffer[257];
-  static uint8_t serial_tx_buffer[257];
-
-  conf.rx_buffer = serial_rx_buffer;
-  conf.tx_buffer = serial_tx_buffer;
-  conf.rx_buffer_size = 257;
-  conf.tx_buffer_size = 257;
-
-  return conf;
-}
-
 void setup() {
 	boardInit();
 	platform_init();
     System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
 
     acquireSerialBuffer();
-    Serial.begin(230400);
-    Serial1.begin(230400, SERIAL_8N1);
+    Serial.begin(256000);
+    Serial1.begin(256000, SERIAL_8N1);
 
     // take control of the LED
 	RGB.control(true);
@@ -72,18 +40,38 @@ system_tick_t timeSince(system_tick_t previousTime) {
 
 void loop() {
 	static system_tick_t lastReceive = millis();
+	static uint8_t buffer[512];
+	static int buffer_write_idx = 0;
+	static int buffer_read_idx = 0;
 
-	if(Serial.available()){
-		Serial.read(); // discard
-	}
-
-    if(Serial1.available() > 0) {
-    	uint8_t b = Serial1.read();
-    	if(Serial.isConnected()){
-    		Serial.write(b);
+	int available = Serial1.available();
+    if(available > 0){
+    	if(buffer_write_idx + available < 511){
+    		char * write_loc = (char*) &buffer[buffer_write_idx];
+    		buffer_write_idx += Serial1.readBytes(write_loc, available);
     	}
     	lastReceive = millis();
     }
+
+    if(Serial.isConnected()){
+		while(Serial.available()){
+			Serial.read(); // discard
+		}
+		while(true){
+			int writeAvailable = Serial.availableForWrite();
+			int bufferAvailable = buffer_write_idx - buffer_read_idx;
+			int writeBytes = writeAvailable < bufferAvailable ? writeAvailable : bufferAvailable;
+			if(writeBytes <=0){
+				break;
+			}
+			buffer_read_idx += Serial.write(&buffer[buffer_read_idx], writeBytes);
+		}
+    }
+    if(buffer_read_idx == buffer_write_idx){
+    	buffer_read_idx = 0;
+    	buffer_write_idx = 0;
+    }
+
     // red, green, blue, 0-255.
     // the following sets the RGB LED to white:
 
