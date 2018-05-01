@@ -34,11 +34,11 @@ public:
 	ExternalReadOnlyValue(void* pValue, uint8_t size) :
 		_pValue(pValue), _size(size) {}
 
-	void readTo(DataOut& out) {
+	virtual void readTo(DataOut& out) override final {
 		out.writeBuffer(_pValue, _size);
 	}
 
-	uint8_t readStreamSize() {
+	virtual uint8_t readStreamSize() override final {
 		return _size;
 	}
 
@@ -54,10 +54,10 @@ public:
 
 	ExternalValue(void* pValue, uint8_t size) : ExternalReadOnlyValue(pValue, size) {}
 
-	void writeMaskedFrom(DataIn& in, DataIn& mask) {
+	virtual void writeFrom(DataIn& in) override final {
 		uint8_t* p = (uint8_t*)_pValue;
 		for (uint8_t i=0; i<_size; i++) {
-			*p = nextMaskedByte(*p, in, mask);
+			*p = in.next();
 			p++;
 		}
 	}
@@ -68,15 +68,15 @@ template <class T> class TransientValue : public WritableValue
 	T value;
 public:
 
-	void readTo(DataOut& out) {
+	virtual void readTo(DataOut& out) override final {
 		writePlatformEndianBytes(&value, sizeof(value), out);
 	}
 
-	void writeMaskedFrom(DataIn& in, DataIn& maskIn) {
-		readPlatformEndianMaskedBytes(&value, sizeof(value), in, maskIn);
+	virtual void writeFrom(DataIn& in) override final {
+		readPlatformEndianBytes(&value, sizeof(value), in);
 	}
 
-	uint8_t readStreamSize() { return sizeof(T); }
+	virtual uint8_t readStreamSize() override final { return sizeof(T); }
 
 	void setValue(const T& value) {
 		this->value = value;
@@ -117,11 +117,7 @@ public:
 	}
 
 	void returnItem(container_id /*id*/, Object* item) override {
-#if OBJECT_VIRTUAL_DESTRUCTOR
 		delete item;
-#else
-		delete (uint8_t*)item;	// just clear the memory
-#endif
 	}
 
 	container_id size() override {
@@ -163,20 +159,20 @@ public:
 #endif
 	}
 
-	object_t objectType() {
+	virtual object_t objectType() override {
 		fetchTarget();
 		return previous==NULL ? ObjectFlags::Object : previous->objectType();
 	}
 
-	prepare_t prepare() {
+	virtual prepare_t prepare() override {
 		fetchTarget();
 		return previous==NULL ? 0 : previous->prepare();
 	}
 
-	uint8_t readStreamSize() { return previous->readStreamSize(); }
-	void readTo(DataOut& out) { if (previous) previous->readTo(out); }
-	uint8_t writeStreamSize() { return ((WritableValue*)previous)->writeStreamSize(); }
-	void writeMaskedFrom(DataIn& dataIn, DataIn& maskedIn) { if (previous) ((WritableValue*)previous)->writeMaskedFrom(dataIn, maskedIn); }
+	virtual uint8_t readStreamSize() override { return previous->readStreamSize(); }
+	virtual void readTo(DataOut& out) override { if (previous) previous->readTo(out); }
+	virtual uint8_t writeStreamSize() override { return ((WritableValue*)previous)->writeStreamSize(); }
+	virtual void writeFrom(DataIn& dataIn) override { if (previous) ((WritableValue*)previous)->writeFrom(dataIn); }
 
 	static Object* create(ObjectDefinition& def)
 	{

@@ -23,6 +23,11 @@
 #include "Platform.h"
 #include <stdint.h>
 
+typedef uint32_t tcduration_t;
+typedef uint32_t ticks_millis_t;
+typedef uint32_t ticks_micros_t;
+typedef uint32_t ticks_seconds_t;
+typedef uint8_t ticks_seconds_tiny_t;
 
 /**
  * Ticks - interface to a millisecond timer
@@ -48,13 +53,17 @@ ticks_millis_t timeSinceMillis(ticks_millis_t currentTime, ticks_millis_t previo
 class MockTicks {
 public:
 	MockTicks(uint8_t increment) : _increment(increment), _ticks(0) { }
+	MockTicks() : _increment(1), _ticks(0) { }
 
 	ticks_millis_t millis() { return _ticks+=_increment; }
-	ticks_micros_t micros() { return _ticks+=_increment; }	
+	ticks_micros_t micros() { return 1000*_ticks++; }
 	ticks_seconds_t seconds() { return millis()/1000; }
 	ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) { return ::timeSinceSeconds(seconds(), timeStamp); }
 	ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) {  return ::timeSinceMillis(millis(), timeStamp); }
 	void reset(void){ _ticks = 0; };
+	void advance(ticks_millis_t adv){
+	    _ticks += adv;
+	}
 private:
 
 	uint32_t _increment;

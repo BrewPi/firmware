@@ -24,6 +24,7 @@
 #include "stdint.h"
 #include "DataStream.h"
 #include "EepromAccess.h"
+#include "CboxMixins.h"
 
 typedef int8_t container_id;
 
@@ -58,30 +59,18 @@ typedef uint8_t object_t;
  */
 typedef uint8_t obj_type_t;
 
-
-// if no objects require cleanup, then we can do away with the virtual destructor, saving quite a bit of space (several hundred bytes.)
-#ifndef OBJECT_VIRTUAL_DESTRUCTOR
-#define OBJECT_VIRTUAL_DESTRUCTOR 0
-#endif
-
-#if OBJECT_VIRTUAL_DESTRUCTOR
 #define delete_object(x) delete (x)
-#else
-// cast to a byte array and delete that. Net effect is that just the memory is freed without running any destructors.
-#define delete_object(x) delete ((uint8_t*)x)
-#endif
 
 // have a hook for all object creations.
 #define new_object(x) new x
 
 #define cast_object_ptr(t, x) ((t*)x)
 
-struct Object
+struct Object : virtual public ObjectMixin
 {
 	obj_type_t _typeID;
 public:
 	Object(obj_type_t typeID=0) : _typeID(typeID) {}
-
 
 	virtual ~Object() = default;
 
@@ -119,13 +108,9 @@ public:
 	 */
 	virtual void update() { }
 
-
-#if OBJECT_VIRTUAL_DESTRUCTOR
-	virtual ~Object() {}
-#endif
 };
 
-const uint8_t MAX_CONTAINER_DEPTH = 8;
+const uint8_t MAX_CONTAINER_DEPTH = 3;
 const container_id MAX_CONTAINER_ID = 127;
 
 /**
@@ -145,7 +130,7 @@ struct Container : public Object
 
 	/**
 	 * Returns a previously fetched item back the container.
-	 * @param id		The id the idem had in this container.
+	 * @param id		The id the item had in this container.
 	 * @param item	The object to return to the container.
 	 *
 	 * This method should be called after each successful call to
@@ -184,7 +169,7 @@ public:
 class OpenContainer : public Container
 {
 public:
-	object_t objectType() { return ObjectFlags::Container | ObjectFlags::OpenContainerFlag; }
+	virtual object_t objectType() override { return ObjectFlags::Container | ObjectFlags::OpenContainerFlag; }
 
 	/*
 	 * Add the given object to the container at the given slot.
@@ -222,7 +207,7 @@ class Value : public Object {
 
 public:
 
-	virtual object_t objectType() { return ObjectFlags::Value; }	// basic value type - read only stream
+	virtual object_t objectType() override { return ObjectFlags::Value; }	// basic value type - read only stream
 	virtual void readTo(DataOut& out)=0;
 	virtual uint8_t readStreamSize()=0;			// the size this value occupies in the stream.
 
@@ -234,14 +219,9 @@ public:
 
 class WritableValue : public Value {
 public:
-	virtual object_t objectType() { return ObjectFlags::ValueWrite; }
-	virtual void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn)=0;
+	virtual object_t objectType() override { return ObjectFlags::ValueWrite; }
+	virtual void writeFrom(DataIn& dataIn)=0;
 	virtual uint8_t writeStreamSize() { return readStreamSize(); }
-	static uint8_t nextMaskedByte(uint8_t current, DataIn& dataIn, DataIn& maskIn) {
-			uint8_t next = dataIn.next();
-			uint8_t mask = maskIn.next();
-			return (next & mask) | (current & ~mask);
-	}
 };
 
 /**
@@ -252,7 +232,7 @@ class RehydratedAwareObject : public Object
 	eptr_t address;
 public:
 
-	void rehydrated(eptr_t _address) {
+	virtual void rehydrated(eptr_t _address) override final {
 		address = _address;
 	}
 
@@ -518,6 +498,10 @@ Object* lookupObject(Object* current, DataIn& data);
  */
 Container* lookupContainer(Object* current, DataIn& data, int8_t& lastID);
 
+/**
+ * Fetches the object at a given index in a container.
+ */
+Object* fetchContainedObject(Object* o, container_id id);
 
 /**
  * Read the id chain from the stream and resolve the corresponding object.

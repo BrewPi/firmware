@@ -37,22 +37,22 @@ class ActuatorPin final: public ActuatorDigital, public ActuatorPinMixin
 
         ~ActuatorPin() = default;
 
-        void accept(VisitorBase & v) final {
+        virtual void accept(VisitorBase & v) override final {
         	v.visit(*this);
         }
 
-        void setActive(bool active, int8_t priority = 127) override final
+        virtual void setActive(bool active, int8_t priority = 127) override final
         {
             digitalWrite(pin, (active ^ invert) ? HIGH : LOW);
         }
 
-        bool isActive() const override final
+        virtual bool isActive() const override final
         {
             return ((digitalRead(pin) != LOW) ^ invert);
         }
 
-        void update() override final {} // do nothing on periodic update
-        void fastUpdate() override final {} // do nothing on fast update
+        virtual void update() override final {} // do nothing on periodic update
+        virtual void fastUpdate() override final {} // do nothing on fast update
 
     friend class ActuatorPinMixin;
 };

@@ -50,8 +50,15 @@ bool DynamicContainer::expand(unsigned sz_)
 }
 
 bool DynamicContainer::add(container_id slot, Object* item) {
-	if (slot<0 || (slot>=size() && !expand(unsigned(slot)+1)))
-		return false;
+    if (slot<0){
+        return false;
+    }
+
+    if (slot>=size()){
+        if ( !expand(unsigned(slot)+1)){
+            return false;
+        }
+    }
 	remove(slot);
 	assign(slot, item);
 	return true;

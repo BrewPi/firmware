@@ -24,6 +24,7 @@
 #include "Interface.h"
 #include "TempSensor.h"
 #include "SetPoint.h"
+#include "ProcessValue.h"
 #include "VisitorBase.h"
 
 /*
@@ -45,22 +46,22 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
         v.visit(*this);
     }
 
-    void update() final {};
-    void fastUpdate() final {};
+    virtual void update() override final {};
+    virtual void fastUpdate() override final {};
 
-    void set(temp_t const& setting) override final {
+    virtual void set(temp_t const& setting) override final {
         setPoint.write(setting);
     }
 
-    temp_t setting() const override final {
+    virtual temp_t setting() const override final {
         return setPoint.read();
     }
 
-    temp_t value() const override final {
+    virtual temp_t value() const override final {
         return sensor.read();
     }
     

@@ -59,7 +59,7 @@ public:
 
 	cb_nonstatic_decl(EepromDataOut(EepromAccess& ea) :eepromAccess(ea) {})
 
-	bool write(uint8_t value) {
+	virtual bool write(uint8_t value) override final {
 		if (_length) {
 			eepromAccess.writeByte(_offset++, value);
 			_length--;
@@ -68,7 +68,7 @@ public:
 		return false;
 	}
 
-	void close() {
+	virtual void close() override final {
 		_length = 0;
 	}
 
@@ -86,10 +86,10 @@ public:
 
 	cb_nonstatic_decl(EepromDataIn(EepromAccess& ea):eepromAccess(ea) {})
 
-	bool hasNext() { return _length; }
-	uint8_t peek() { return eepromAccess.readByte(_offset); }
+	virtual bool hasNext() override final { return _length; }
+	virtual uint8_t peek() override final { return eepromAccess.readByte(_offset); }
 
-	uint8_t next() {
+	virtual uint8_t next() override final {
 		uint8_t result = 0;
 		if (_length) {
 			_length--;
@@ -97,6 +97,6 @@ public:
 		}
 		return result;
 	}
-        unsigned available() { return _length; }
+	virtual unsigned available() override final { return _length; }
 };
 

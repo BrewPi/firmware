@@ -30,37 +30,37 @@ public:
     VisitorSerialize(JSON::Adapter& a) : adapter(a){}
     ~VisitorSerialize() = default;
 
-    void visit(ActuatorBool& thisRef) final;
-    void visit(ActuatorInvalid& thisRef) final;
-    void visit(ActuatorMutexDriver& thisRef) final;
-    void visit(ActuatorMutexGroup& thisRef) final;
-    void visit(ActuatorNop& thisRef) final;
+    virtual void visit(ActuatorBool& thisRef) override final;
+    virtual void visit(ActuatorInvalid& thisRef) override final;
+    virtual void visit(ActuatorMutexDriver& thisRef) override final;
+    virtual void visit(ActuatorMutexGroup& thisRef) override final;
+    virtual void visit(ActuatorNop& thisRef) override final;
 #if BREWPI_DS2413
-    void visit(ActuatorOneWire& thisRef) final;
+    virtual void visit(ActuatorOneWire& thisRef) override final;
 #endif
-    void visit(ActuatorPwm& thisRef) final;
-    void visit(ActuatorOffset& thisRef) final;
-    void visit(ActuatorTimeLimited& thisRef) final;
-    void visit(ActuatorValue& thisRef) final;
-    void visit(Pid& thisRef) final;
-    void visit(SetPointConstant& thisRef) final;
-    void visit(SetPointMinMax& thisRef) final;
-    void visit(SetPointSimple& thisRef) final;
-    void visit(TempSensorDisconnected& thisRef) final;
-    void visit(TempSensorExternal& thisRef) final;
-    void visit(TempSensorFallback& thisRef) final;
-    void visit(TempSensorMock& thisRef) final;
-    void visit(OneWireTempSensor& thisRef) final;
+    virtual void visit(ActuatorPwm& thisRef) override final;
+    virtual void visit(ActuatorOffset& thisRef) override final;
+    virtual void visit(ActuatorTimeLimited& thisRef) override final;
+    virtual void visit(ActuatorValue& thisRef) override final;
+    virtual void visit(Pid& thisRef) override final;
+    virtual void visit(SetPointConstant& thisRef) override final;
+    virtual void visit(SetPointMinMax& thisRef) override final;
+    virtual void visit(SetPointSimple& thisRef) override final;
+    virtual void visit(TempSensorDisconnected& thisRef) override final;
+    virtual void visit(TempSensorExternal& thisRef) override final;
+    virtual void visit(TempSensorFallback& thisRef) override final;
+    virtual void visit(TempSensorMock& thisRef) override final;
+    virtual void visit(OneWireTempSensor& thisRef) override final;
 #if BREWPI_DS2408
-    void visit(ValveController& thisRef) final;
+    virtual void visit(ValveController& thisRef) override final;
 #endif
-    void visit(TempSensorDelegate& thisRef) final;
-    void visit(ActuatorDigitalDelegate& thisRef) final;
-    void visit(ProcessValueDelegate& thisRef) final;
-    void visit(SetPointDelegate& thisRef) final;
-    void visit(SensorSetPointPair& thisRef) final;
+    virtual void visit(TempSensorDelegate& thisRef) override final;
+    virtual void visit(ActuatorDigitalDelegate& thisRef) override final;
+    virtual void visit(ProcessValueDelegate& thisRef) override final;
+    virtual void visit(SetPointDelegate& thisRef) override final;
+    virtual void visit(SensorSetPointPair& thisRef) override final;
 #if WIRING
-    void visit(ActuatorPin& thisRef) final;
+    virtual void visit(ActuatorPin& thisRef) override final;
 #endif
 
 private:

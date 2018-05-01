@@ -29,5 +29,5 @@ public:
 	ControllerInterface() = default;
     virtual ~ControllerInterface() = default;
 
-    void fastUpdate() final {}; // fast update not needed for controllers
+    virtual void fastUpdate() override final {}; // fast update not needed for controllers
 };

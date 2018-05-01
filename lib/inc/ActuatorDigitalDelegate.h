@@ -27,36 +27,35 @@
 
 class ActuatorDigitalDelegate :
     public ActuatorDigital,
-    public Delegate<ActuatorDigital>,
     public ActuatorDigitalDelegateMixin
 {
 public:
     ActuatorDigitalDelegate() = default;
-    ActuatorDigitalDelegate(std::function<Interface * ()> lookup) {
-        delegate.setLookup(lookup);
-    }
+    ActuatorDigitalDelegate(BaseLookup const& lookup) : delegate(lookup){}
     virtual ~ActuatorDigitalDelegate() = default;
 
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
         v.visit(*this);
     }
 
-    void update() final {
+    virtual void update() override final {
         delegate().update();
     }
 
-    void fastUpdate() final {
+    virtual void fastUpdate() override final {
         delegate().fastUpdate();
     }
 
-    void setActive(bool active, int8_t priority = 127) final {
+    virtual void setActive(bool active, int8_t priority = 127) override final {
         delegate().setActive(active, priority);
     }
 
-    bool isActive() const final {
+    virtual bool isActive() const override final {
         return delegate().isActive();
     }
 
+private:
+    RefTo<ActuatorDigital> delegate;
 
 friend class ActuatorDigitalDelegateMixin;
 };

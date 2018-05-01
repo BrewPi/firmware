@@ -48,7 +48,7 @@ class ActuatorOneWire final:
                         invert(_invert){}
         ~ActuatorOneWire() = default;
 
-        void accept(VisitorBase & v) final {
+        virtual void accept(VisitorBase & v) override final {
         	v.visit(*this);
         }
 
@@ -56,13 +56,13 @@ class ActuatorOneWire final:
             device->update();
         }
 
-        void setActive(bool active, int8_t priority = 127) override final
+        virtual void setActive(bool active, int8_t priority = 127) override final
         {
             // todo: alarm when write fails
             device->writeLatchBit(pio, active ^ invert, true);
         }
 
-        bool isActive() const override final
+        virtual bool isActive() const override final
         {
             return device->latchReadCached(pio, false) ^ invert;
         }
@@ -79,11 +79,11 @@ class ActuatorOneWire final:
             setActive(val != 0);
         };
 
-        void update() override final{
+        virtual void update() override final{
             device->update();
         }
 
-        void fastUpdate() override final {} // no actions needed
+        virtual void fastUpdate() override final {} // no actions needed
 
         /**
          * This function can be used to get a reference to the DS2413, so it can be shared with another actuator.

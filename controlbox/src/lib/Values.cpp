@@ -27,14 +27,14 @@
  */
 bool walkContainer(Container* c, EnumObjectsFn callback, void* data, container_id* id, container_id* end)
 {
-	container_id count = c->size();
-	for (container_id i=0; i<count; i++) {
-		Object* o = c->item(i);
-		*end = i;
-		if (walkObject(o, callback, data, id, end+1))
-			return true;
-	}
-	return false;
+    container_id count = c->size();
+    for (container_id i=0; i<count; i++) {
+        Object* o = c->item(i);
+        *end = i;
+        if (walkObject(o, callback, data, id, end+1))
+            return true;
+    }
+    return false;
 }
 
 /**
@@ -42,19 +42,19 @@ bool walkContainer(Container* c, EnumObjectsFn callback, void* data, container_i
  * Assumes that the id chain has already been populated with the id of the object.
  */
 bool walkObject(Object* obj, EnumObjectsFn callback, void* data, container_id* id, container_id* end) {
-	if (callback(obj, data, id, end, true))
-		return true;
+    if (callback(obj, data, id, end, true))
+        return true;
 
-	if (isContainer(obj)) {
-		*end++ |= 0x80;		// flag as not last element in id chain
-		walkContainer((Container*)obj, callback, data, id, end);
-		*--end &= 0x7F;		// remove last bit
-	}
+    if (isContainer(obj)) {
+        *end++ |= 0x80;		// flag as not last element in id chain
+        walkContainer((Container*)obj, callback, data, id, end);
+        *--end &= 0x7F;		// remove last bit
+    }
 
-	if (callback(obj, data, id, end, false))
-		return true;
+    if (callback(obj, data, id, end, false))
+        return true;
 
-	return false;
+    return false;
 }
 
 /**
@@ -66,21 +66,21 @@ bool walkObject(Object* obj, EnumObjectsFn callback, void* data, container_id* i
  */
 Object* fetchContainedObject(Object* o, container_id id)
 {
-	Object* result = NULL;
-	id &= 0x7F;
-	if (isContainer(o))
-	{
-		Container* c = (Container*)o;
-		if (id<c->size())
-			result = c->item(id);
-	}
-	else {
-		// special case of 0 is also allowed as a self reference for non-container objects
-		// this allows ids to be padded with 0 bytes without affecting the lookup
-		if (!id)
-			result = o;
-	}
-	return result;
+    Object* result = NULL;
+    id &= 0x7F;
+    if (isContainer(o))
+    {
+        Container* c = (Container*)o;
+        if (id<c->size())
+            result = c->item(id);
+    }
+    else {
+        // special case of 0 is also allowed as a self reference for non-container objects
+        // this allows ids to be padded with 0 bytes without affecting the lookup
+        if (!id)
+            result = o;
+    }
+    return result;
 }
 
 /**
@@ -89,13 +89,13 @@ Object* fetchContainedObject(Object* o, container_id id)
  * @return The fetched object, or {@code NULL} if the id in the stream doesn't correspond to
  */
 Object* lookupObject(Object* current, DataIn& data) {
-	container_id id = -1;
-	while (data.hasNext() && id<0)
-	{
-		id = container_id(data.next());							// msb set if there is more bytes in the id.
-		current = fetchContainedObject(current, id);
-	}
-	return current;
+    container_id id = -1;
+    while (data.hasNext() && id<0)
+    {
+        id = container_id(data.next());							// msb set if there is more bytes in the id.
+        current = fetchContainedObject(current, id);
+    }
+    return current;
 }
 
 // todo - factor lookupObject/lookupContainer
@@ -110,40 +110,40 @@ Object* lookupObject(Object* current, DataIn& data) {
  */
 Object* lookupObject(Object* current, DataIn& data, int8_t& lastID)
 {
-	container_id id = int8_t(data.next());
-	while (id<0 && data.hasNext())
-	{
-		current = fetchContainedObject(current, id);
-		id = container_id(data.next());
-	}
-	lastID = id;
-	return current;
+    container_id id = int8_t(data.next());
+    while (id<0 && data.hasNext())
+    {
+        current = fetchContainedObject(current, id);
+        id = container_id(data.next());
+    }
+    lastID = id;
+    return current;
 }
 
 OpenContainer* lookupOpenContainer(Object* current, DataIn& data, int8_t& lastID) {
-	current = lookupObject(current, data, lastID);
-	return isOpenContainer(current) ? (OpenContainer*)current : NULL;
+    current = lookupObject(current, data, lastID);
+    return isOpenContainer(current) ? (OpenContainer*)current : NULL;
 }
 
 Object* lookupUserObject(Container* root, DataIn& data) {
-	return lookupObject(root, data);
+    return lookupObject(root, data);
 }
 
 OpenContainer* lookupUserOpenContainer(Container* root, DataIn& data, int8_t& lastID) {
-	return lookupOpenContainer(root, data, lastID);
+    return lookupOpenContainer(root, data, lastID);
 }
 
 
 void ObjectDefinition::spool() {
-	while (in->hasNext())
-		in->next();
+    while (in->hasNext())
+        in->next();
 }
 
 
 int16_t read2BytesFrom(Value* value) {
-	uint8_t result[2];
-	BufferDataOut out(result, 2);
-	value->readTo(out);
-	return int16_t(int(result[0])<<8 | result[1]);
+    uint8_t result[2];
+    BufferDataOut out(result, 2);
+    value->readTo(out);
+    return int16_t(int(result[0])<<8 | result[1]);
 }
 

@@ -25,7 +25,7 @@
 #include <algorithm>
 
 #ifndef DATASTREAM_ANNOTATIONS
-#define DATASTREAM_ANNOTATIONS DEBUG
+#define DATASTREAM_ANNOTATIONS CBOX_DEBUG
 #endif
 
 typedef uint8_t stream_size_t;
@@ -33,13 +33,14 @@ typedef uint8_t stream_size_t;
 /**
  * An output stream that supports writing data. Optionally. annotations may also be written
  * to the stream, although these are entirely optional and should provide only
- * supplimental information.
+ * supplemental information.
  * @param data
  * @return
  */
 struct DataOut
 {
 	virtual void writeAnnotation(const char* /*data*/) {}
+	virtual void writeSeparator() {}
 
 	/**
 	 * Writes a byte to the stream.
@@ -102,7 +103,7 @@ public:
  * A DataOut implementation that discards all data.
  */
 struct BlackholeDataOut : public DataOut {
-	virtual bool write(uint8_t /*data*/) { return true; }
+	virtual bool write(uint8_t /*data*/) override final { return true; }
 };
 
 /**
@@ -137,9 +138,7 @@ struct DataIn
 	 */
 	virtual unsigned available() =0;
 
-	#if OBJECT_VIRTUAL_DESTRUCTOR
 	virtual ~DataIn() {}
-	#endif
 
 	/*
 	 * Unconditional read of {@code length} bytes.
@@ -239,19 +238,6 @@ public:
 	unsigned available() override { return std::min(unsigned(len), in->available()); }
 
 };
-
-/**
- * A stream that provides the default mask. All values returned are 0xFF. The stream
- * is infinitely long.
- */
-class DefaultMask : public DataIn
-{
-	uint8_t next() { return 0xFF; }
-	uint8_t peek() { return 0xFF; }
-	bool hasNext() { return true; }
-	unsigned available() { return 1; }
-};
-
 
 #define WRITE_ANNOTATION_STR(out, value) \
 	WRITE_ANNOTATION(out, value)

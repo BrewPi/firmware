@@ -1,0 +1,4 @@
+blox.OneWireCommand.command int_size:IS_8
+blox.OneWireCommand.data  int_size:IS_8
+
+blox.OneWireRead.address max_size:8 fixed_length:true   

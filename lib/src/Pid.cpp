@@ -24,40 +24,31 @@
 Pid::Pid(ProcessValue& _input, ProcessValue& _output) :
          input(_input),
          output(_output),
-         Kp(0.0),
-         Ti(0),
-         Td(0),
-         p(decltype(p)::base_type(0)),
-         i(decltype(i)::base_type(0)),
-         d(decltype(p)::base_type(0)),
-         inputError(decltype(inputError)::base_type(0)),
-         derivative(decltype(derivative)::base_type(0)),
-         integral(decltype(integral)::base_type(0)),
+         settings(),
+         state(),
          failedReadCount(255), // start at 255, so inputFilter is refreshed at first valid read
-         actuatorIsNegative(false),
-         enabled(true),
-         previousSetPoint(temp_t::invalid())
+         previousInputSetting(temp_t::invalid())
 {
-    setInputFilter(0);
+    setInputFiltering(0);
     // some filtering necessary due to quantization causing steps in the temperature
-    setDerivativeFilter(2);
+    setDerivativeFiltering(2);
 }
 
 void Pid::setConstants(temp_long_t kp,
                        uint16_t ti,
                        uint16_t td)
 {
-    Kp = kp;
-    Ti = ti;
-    Td = td;
+    settings.kp = kp;
+    settings.ti = ti;
+    settings.td = td;
 }
 
 void Pid::update()
 {
-    temp_t currentSetPoint = input.setting();
-    temp_t inputVal = input.value();
-    bool validSensor = !inputVal.isDisabledOrInvalid();
-    bool validSetPoint = !currentSetPoint.isDisabledOrInvalid();
+    state.inputValue = input.value();
+    state.inputSetting = input.setting();
+    bool validSensor = !state.inputValue.isDisabledOrInvalid();
+    bool validInputSetting = !state.inputSetting.isDisabledOrInvalid();
 
     if (!validSensor){
         // Could not read from input sensor
@@ -67,7 +58,7 @@ void Pid::update()
     }
     else{
         if (failedReadCount > 60){ // filters are stale, re-initialize them
-            inputFilter.init(inputVal);
+            inputFilter.init(state.inputValue);
             derivativeFilter.init(temp_precise_t(0.0));
         }
         failedReadCount = 0;
@@ -76,18 +67,18 @@ void Pid::update()
     bool tooManyFailedReads = false;
 
     if(validSensor){ // only update internal filters and inputError if input sensor is valid
-        inputFilter.add(inputVal);
+        inputFilter.add(state.inputValue);
 
-        if(validSetPoint){
-            if(previousSetPoint.isDisabledOrInvalid()){
-                previousSetPoint = currentSetPoint;
+        if(validInputSetting){
+            if(previousInputSetting.isDisabledOrInvalid()){
+                previousInputSetting = state.inputSetting;
             }
-            temp_precise_t previousError = inputFilter.readPrevOutput() - previousSetPoint;
-            temp_precise_t currentError = inputFilter.readOutput() - currentSetPoint;
+            temp_precise_t previousError = inputFilter.readPrevOutput() - previousInputSetting;
+            temp_precise_t currentError = inputFilter.readOutput() - state.inputSetting;
             temp_precise_t delta = currentError - previousError;
-            previousSetPoint = currentSetPoint;
+            previousInputSetting = state.inputSetting;
 
-            inputError = currentError; // store input error, as temp_t, instead of temp_precise_t
+            state.error = currentError; // store input error, as temp_t, instead of temp_precise_t
 
             // Add to derivative filter shifted, because of limited precision for such low values
             // Limit to 0.125 degree per second, to prevent overflow in shift and to eliminate setpoint changes
@@ -102,7 +93,7 @@ void Pid::update()
                 deltaClipped = min;
             }
             derivativeFilter.add(deltaClipped << uint8_t(10));
-            derivative = derivativeFilter.readOutput() >> uint8_t(10);
+            state.derivative = derivativeFilter.readOutput() >> uint8_t(10);
         }
         else{
             derivativeFilter.add(temp_precise_t(0.0));
@@ -115,37 +106,38 @@ void Pid::update()
 
     }
 
-    if(!enabled || tooManyFailedReads || !validSetPoint){
-        inputError = temp_t::invalid();
-        p = decltype(p)(0.0);
-        i = decltype(i)(0.0);
-        d = decltype(p)(0.0);
+    if(!settings.enabled || tooManyFailedReads || !validInputSetting){
+        state.error = temp_t::invalid();
+        state.p = 0.0;
+        state.i = 0.0;
+        state.d = 0.0;
     }
     else{
         // calculate PID parts.
-        p = Kp * -inputError;
-        i = (Ti != 0) ? (integral/Ti) : temp_long_t(0.0);
-        d = -Kp * (derivative * Td);
+        state.p = settings.kp * -state.error;
+        state.i = (settings.ti != 0) ? (state.integral/settings.ti) : temp_long_t(0.0);
+        state.d = -settings.kp * (state.derivative * settings.td);
     }
 
-    if(!enabled){
+    if(!settings.enabled){
         return;
     }
 
-    temp_long_t pidResult = temp_long_t(p) + temp_long_t(i) + temp_long_t(d);
+    temp_long_t pidResult = temp_long_t(state.p) + temp_long_t(state.i) + temp_long_t(state.d);
 
-    // Get output to send to actuator. When actuator is a 'cooler', invert the result
-    temp_t desiredSetting = (actuatorIsNegative) ? -pidResult : pidResult;
+    state.outputSetting = pidResult;
 
-    output.set(desiredSetting);
+    // try to set the output to the desired setting
+    output.set(state.outputSetting);
 
-    // get the value that is clipped to the actuator's range
+    // get the clipped setting from the actuator
     temp_long_t achievedSetting = output.setting();
-    // When actuator is a 'cooler', invert the output again
-    achievedSetting = (actuatorIsNegative) ? -achievedSetting : achievedSetting;
 
-    if(Ti == 0){ // 0 has been chosen to indicate that the integrator is disabled. This also prevents divide by zero.
-        integral = decltype(integral)::base_type(0);
+    // get the actually achieved value from the actuator (actuator may not reach setting)
+    state.outputValue = output.value();
+
+    if(settings.ti == 0){ // 0 has been chosen to indicate that the integrator is disabled. This also prevents divide by zero.
+        state.integral = 0.0;
     }
     else{
         // update integral with anti-windup back calculation
@@ -153,7 +145,7 @@ void Pid::update()
 
         temp_long_t antiWindup(temp_long_t::base_type(0));
 
-        integral = integral + p;
+        state.integral = state.integral + state.p;
 
         if(pidResult != temp_long_t(achievedSetting)){
             // clipped to actuator min or max set in target actuator
@@ -161,8 +153,8 @@ void Pid::update()
             antiWindup = pidResult - achievedSetting;
             antiWindup *= 3; // Anti windup gain is 3
             // make sure anti-windup is at least p when clipping to prevent further windup
-            antiWindup = (p > temp_long_t(0.0) && antiWindup < p) ? p : antiWindup;
-            antiWindup = (p < temp_long_t(0.0) && antiWindup > p) ? p : antiWindup;
+            antiWindup = (state.p > temp_long_t(0.0) && antiWindup < state.p) ? state.p : antiWindup;
+            antiWindup = (state.p < temp_long_t(0.0) && antiWindup > state.p) ? state.p : antiWindup;
         }
         else {
             temp_t achievedOutput = output.value();
@@ -170,54 +162,31 @@ void Pid::update()
                 // only apply anti-windup when it is possible to read back the actual value
                 // Actuator could be not reaching set value due to physics or limits in its target actuator
                 // Get the actual achieved value in actuator. This could differ due to slowness time/mutex limits
-                // When actuator is a 'cooler', take the sign reversal into account
-
-                temp_long_t achievedOutputWithCorrectSign = (actuatorIsNegative) ? -achievedOutput : achievedOutput;
 
                 // Anti windup gain is 3
-                antiWindup = (pidResult - achievedOutputWithCorrectSign);
+                antiWindup = (pidResult - temp_long_t(state.outputValue));
                 antiWindup *= 3.0;
 
                 // Disable anti-windup if integral part dominates. But only if it counteracts p.
-                if(antiWindup.sign() == p.sign()){
-                    if(actuatorIsNegative && i < p+p+p){
-                        antiWindup = temp_long_t::base_type(0);
+                if(antiWindup.sign() == state.p.sign()){
+                    if(settings.kp.sign() == -1 && state.i < state.p+state.p+state.p){
+                        antiWindup = 0.0;
                     }
-                    else if( i > p+p+p ){
-                        antiWindup = temp_long_t::base_type(0);
+                    else if( state.i > state.p+state.p+state.p ){
+                        antiWindup = 0.0;
                     }
                 }
             }
         }
-        temp_long_t reducedIntegral = integral - antiWindup;
-        if(integral.sign() * reducedIntegral.sign() == 1){
-            if(integral.sign() * antiWindup.sign() == 1){
+        temp_long_t reducedIntegral = state.integral - antiWindup;
+        if(state.integral.sign() * reducedIntegral.sign() == 1){
+            if(state.integral.sign() * antiWindup.sign() == 1){
                 // only apply anti-windup if it will bring the PID result closer to zero
-                integral = reducedIntegral;
+                state.integral = reducedIntegral;
             }
         }
         else{
-            integral = decltype(integral)::base_type(0); // set to zero if crossing zero due to anti-windup
+            state.integral = 0.0; // set to zero if crossing zero due to anti-windup
         }
     }
 }
-
-void Pid::setFiltering(uint8_t b){
-    inputFilter.setFiltering(b);
-    derivativeFilter.setFiltering(b);
-}
-
-uint8_t Pid::getFiltering(){
-    return inputFilter.getFiltering();
-}
-
-void Pid::setInputFilter(uint8_t b)
-{
-    inputFilter.setFiltering(b);
-}
-
-void Pid::setDerivativeFilter(uint8_t b)
-{
-    derivativeFilter.setFiltering(b);
-}
-

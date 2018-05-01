@@ -50,6 +50,8 @@ class ActuatorAnalogDelegate;
 class SetPointDelegate;
 class SensorSetPointPair;
 class ProcessValueDelegate;
+class ActuatorMutexGroupDelegate;
+class ActuatorMutexGroupDisabled;
 
 class VisitorBase {
 protected:
@@ -60,6 +62,8 @@ public:
 	virtual void visit(ActuatorInvalid& thisRef) = 0;
 	virtual void visit(ActuatorMutexDriver& thisRef) = 0;
 	virtual void visit(ActuatorMutexGroup& thisRef) = 0;
+	virtual void visit(ActuatorMutexGroupDelegate& thisRef) = 0;
+	virtual void visit(ActuatorMutexGroupDisabled& thisRef) = 0;
 	virtual void visit(ActuatorNop& thisRef) = 0;
 #if BREWPI_DS2413
 	virtual void visit(ActuatorOneWire& thisRef) = 0;

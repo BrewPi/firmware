@@ -47,7 +47,7 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
@@ -55,7 +55,7 @@ public:
         return (useReferenceValue) ? reference.value() : reference.setting();
     }
 
-    void set(temp_t const& val) override final {
+    virtual void set(temp_t const& val) override final {
         if(val < minimum){
             offset = minimum;
         }
@@ -68,14 +68,14 @@ public:
         apply();
     }
 
-    temp_t setting() const override final {
+    virtual temp_t setting() const override final {
         return offset;
     }
 
     // value() returns the actually achieved offset
     // By returning the actually achieved value, instead of the difference between the setpoints,
     // a PID can read back the actual actuator value and perform integrator anti-windup
-    temp_t value() const override final{
+    virtual temp_t value() const override final{
         temp_t targetValue = target.value();
         temp_t referenceValue = readReference();
 
@@ -115,8 +115,8 @@ public:
         target.set(targetValue);
     };
 
-    void update() override final {}; // no action. SetPoint actuator only applies it's value when written by a PID
-    void fastUpdate() override final {}; //no actions required
+    virtual void update() override final {}; // no action. SetPoint actuator only applies it's value when written by a PID
+    virtual void fastUpdate() override final {}; //no actions required
 
 private:
     ProcessValue & target; // process value to manipulate

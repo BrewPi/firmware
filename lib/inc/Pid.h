@@ -30,6 +30,7 @@
 #include "ControllerMixins.h"
 #include "ControllerInterface.h"
 #include "ProcessValue.h"
+#include <cstring>
 
 class Pid final : public ControllerInterface, public PidMixin
 {
@@ -39,70 +40,109 @@ class Pid final : public ControllerInterface, public PidMixin
             ProcessValue & _output);
         ~Pid() = default;
 
+        struct Settings {
+            Settings() : kp(0.0), ti(0), td(0), enabled(true) {}
+            ~Settings() = default;
+            temp_long_t       kp;    // proportional gain
+            uint16_t          ti;    // integral time constant
+            uint16_t          td;    // derivative time constant
+            bool              enabled;
+        };
+        struct State {
+            State() : inputValue(0.0), inputSetting(0.0), outputValue(0.0), outputSetting(0.0),
+                    p(0.0), i(0.0), d(0.0), integral(0.0), derivative(0.0), error(0.0){}
+            ~State() = default;
+            temp_t            inputValue;
+            temp_t            inputSetting;
+            temp_t            outputValue;
+            temp_t            outputSetting;
+            temp_long_t       p;
+            temp_long_t       i;
+            temp_long_t       d;
+            temp_long_t       integral;
+            temp_precise_t    derivative;
+            temp_t            error; // last element for 32-bit alignment
+        };
+
+
         /**
          * Accept function for visitor pattern
          * @param dispatcher Visitor to process this class
          */
-        void accept(VisitorBase & v) final {
+        virtual void accept(VisitorBase & v) override final {
         	v.visit(*this);
         }
 
         void init();
 
-        void update();
+        virtual void update() override final;
 
         void setConstants(temp_long_t kp,
                           uint16_t ti,
                           uint16_t td);
 
-        void setFiltering(uint8_t b);
 
-        uint8_t getFiltering();
+        uint8_t getInputFiltering()
+        {
+            return inputFilter.getFiltering();
+        }
 
-        void setInputFilter(uint8_t b);
+        uint8_t getDerivativeFiltering()
+        {
+            return derivativeFilter.getFiltering();
+        }
 
-        void setDerivativeFilter(uint8_t b);
+        void setInputFiltering(uint8_t b)
+        {
+            inputFilter.setFiltering(b);
+        }
 
-        void setActuatorIsNegative(bool setting){
-            actuatorIsNegative = setting;
+        void setDerivativeFiltering(uint8_t b)
+        {
+            derivativeFilter.setFiltering(b);
         }
 
         void enable(){
-            enabled = true;
+            settings.enabled = true;
         }
 
         void disable(bool turnOffOutput){
-            enabled = false;
-            inputError = decltype(inputError)::base_type(0);
-            p = decltype(p)::base_type(0);
-            i = decltype(i)::base_type(0);
-            d = decltype(d)::base_type(0);
+            settings.enabled = false;
+            state.error = 0.0;
+            state.p = 0.0;
+            state.i = 0.0;
+            state.d = 0.0;
             if(turnOffOutput){
                 output.set(0.0);
             }
         }
 
+        void setSettings(Settings const & from){
+            settings = from;
+        }
+
+
+        Settings const& getSettings(){
+            return settings;
+        }
+
+        State const& getState(){
+            return state;
+        }
+
     protected:
         ProcessValue & input;
         ProcessValue & output;
-        temp_long_t       Kp;    // proportional gain
-        uint16_t          Ti;    // integral time constant
-        uint16_t          Td;    // derivative time constant
-        temp_long_t       p;
-        temp_long_t       i;
-        temp_long_t       d;
-        temp_t            inputError;
-        temp_precise_t    derivative;
-        temp_long_t       integral;
+        Settings settings;
+        State state;
+
         FilterCascaded    inputFilter;
         FilterCascaded    derivativeFilter;
-        uint8_t           failedReadCount;
-        bool              actuatorIsNegative; // if true, the actuator lowers the input, e.g. a cooler
-        bool              enabled;
 
     private:
         // remember previous setpoint, to be able to take the derivative of the error, instead of the input
-        temp_t            previousSetPoint;
+        uint8_t           failedReadCount;
+        temp_t            previousInputSetting;
 
     friend class TempControl;
     friend class PidMixin;

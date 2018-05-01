@@ -46,7 +46,7 @@ void writePlatformEndianBytes(void* data, uint8_t size, DataOut& out)
 }
 
 
-void readPlatformEndianMaskedBytes(void* _data, uint8_t size, DataIn& in, DataIn& mask)
+void readPlatformEndianBytes(void* _data, uint8_t size, DataIn& in)
 {
 	uint8_t* data = (uint8_t*)_data;
 	#if PLATFORM_BIG_ENDIAN
@@ -56,7 +56,6 @@ void readPlatformEndianMaskedBytes(void* _data, uint8_t size, DataIn& in, DataIn
 	#endif
 	{
 		uint8_t d = in.next();
-		uint8_t m = mask.next();
-		data[i] = (d&m) | (data[i] & ~m);
+		data[i] = d;
 	}
 }

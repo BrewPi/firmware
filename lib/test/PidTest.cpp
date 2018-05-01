@@ -117,8 +117,8 @@ BOOST_FIXTURE_TEST_CASE(proportional_plus_derivative, PidTest)
 {
     pid.setConstants(10.0, 0, 60);
     sp.write(35.0);
-    pid.setInputFilter(0);
-    pid.setDerivativeFilter(4);
+    pid.setInputFiltering(0);
+    pid.setDerivativeFiltering(4);
 
     // update for 10 minutes
     for(long int i = 0; i <= 60000; i++){
@@ -137,15 +137,15 @@ BOOST_FIXTURE_TEST_CASE(proportional_plus_derivative, PidTest)
     // derivative part is -9.375 (-10*60*0.015625)
     // proportional part is 10.0*(35 - 29.375) = 56.25
 
-    BOOST_CHECK_CLOSE(double(act.setting()), 10.0*(35 - 29.375) - 10*60*0.015625, 5);
+    double expected_actuator_setting = 10.0*(35 - 29.375) - 10*60*0.015625;
+    BOOST_CHECK_CLOSE(double(act.setting()), expected_actuator_setting, 5);
 }
 
 
 // using this fixture test case macro resets the fixture
 BOOST_FIXTURE_TEST_CASE(just_proportional_cooling, PidTest)
 {
-    pid.setConstants(10.0, 0, 0);
-    pid.setActuatorIsNegative(true);
+    pid.setConstants(-10.0, 0, 0);
     sp.write(19.0);
 
     sensor.setTemp(20.0);
@@ -176,8 +176,7 @@ BOOST_FIXTURE_TEST_CASE(just_proportional_cooling, PidTest)
 
 BOOST_FIXTURE_TEST_CASE(proportional_plus_integral_cooling, PidTest)
 {
-    pid.setConstants(10.0, 600, 0);
-    pid.setActuatorIsNegative(true);
+    pid.setConstants(-10.0, 600, 0);
     sp.write(19.0);
 
     sensor.setTemp(20.0);
@@ -198,8 +197,7 @@ BOOST_FIXTURE_TEST_CASE(proportional_plus_integral_cooling, PidTest)
 
 BOOST_FIXTURE_TEST_CASE(proportional_plus_derivative_cooling, PidTest)
 {
-    pid.setConstants(10.0, 0, 60);
-    pid.setActuatorIsNegative(true);
+    pid.setConstants(-10.0, 0, 60);
     sp.write(5.0);
 
     // update for 10 minutes
@@ -235,13 +233,12 @@ BOOST_FIXTURE_TEST_CASE(integrator_windup_heating_PI, PidTest)
     }
 
     BOOST_CHECK_CLOSE(double(act.setting()), 100.0, 5); // actuator should be at maximum
-    BOOST_CHECK_CLOSE(double(pid.i), 80.0, 5); // integral part should be limited to 80 (100 - proportional part)
+    BOOST_CHECK_CLOSE(double(pid.state.i), 80.0, 5); // integral part should be limited to 80 (100 - proportional part)
 }
 
 BOOST_FIXTURE_TEST_CASE(integrator_windup_cooling_PI, PidTest)
 {
-    pid.setConstants(10.0, 60, 0.0);
-    pid.setActuatorIsNegative(true);
+    pid.setConstants(-10.0, 60, 0.0);
     sp.write(20.0);
     sensor.setTemp(22.0);
 
@@ -256,10 +253,10 @@ BOOST_FIXTURE_TEST_CASE(integrator_windup_cooling_PI, PidTest)
     }
 
     BOOST_CHECK_CLOSE(double(act.setting()), 100.0, 5); // actuator should be at maximum
-    BOOST_CHECK_CLOSE(double(pid.i), -80.0, 5); // integral part should be limited to 40 (-100 - proportional part)
+    BOOST_CHECK_CLOSE(double(pid.state.i), 80.0, 5); // integral part should be limited to 80 (100 - proportional part)
 }
 
-BOOST_AUTO_TEST_CASE(inputError_is_invalid_and_actuator_zero_when_input_is_invalid_longer_than_10_s){
+BOOST_AUTO_TEST_CASE(error_is_invalid_and_actuator_zero_when_input_is_invalid_longer_than_10_s){
     auto sp = SetPointSimple(25.0); // setpoint is higher than temperature, actuator will heat
     auto sensor = TempSensorMock(20.0);
     auto pin = ActuatorBool();
@@ -279,17 +276,17 @@ BOOST_AUTO_TEST_CASE(inputError_is_invalid_and_actuator_zero_when_input_is_inval
         p.update(); // is normally called every second
         if(i < 9){
             // before being unavailable for 10 seconds
-            BOOST_CHECK_EQUAL(p.inputError, temp_t(-5.0));
+            BOOST_CHECK_EQUAL(p.state.error, temp_t(-5.0));
             BOOST_CHECK_EQUAL(act.setting(), temp_t(50.0)); // 10.0*(25.0-20.0)
         }
         else{
             // after being unavailable for 10 seconds
-            BOOST_CHECK_EQUAL(p.inputError, temp_t::invalid()); // input error is marked as invalid
+            BOOST_CHECK_EQUAL(p.state.error, temp_t::invalid()); // input error is marked as invalid
             BOOST_CHECK_EQUAL(act.setting(), temp_t(0.0)); // actuator is zero
         }
     }
 
-    BOOST_CHECK_EQUAL(p.inputError, temp_t::invalid());
+    BOOST_CHECK_EQUAL(p.state.error, temp_t::invalid());
     BOOST_CHECK_EQUAL(act.setting(), temp_t(0.0));
 }
 

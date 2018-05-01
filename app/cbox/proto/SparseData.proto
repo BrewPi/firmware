@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+import 'nanopb.proto';
+
+package blox;
+
+message SparseDataComplete {
+  sint32 value1 = 1 [(nanopb).int_size = IS_16];
+  sint32 value2 = 2 [(nanopb).int_size = IS_16];
+}
+
+message SparseDataPartial {
+  sint32 value2 = 2 [(nanopb).int_size = IS_16];
+}

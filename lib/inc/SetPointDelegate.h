@@ -22,29 +22,29 @@
 #include <stdint.h>
 #include "ControllerMixins.h"
 #include "Interface.h"
-#include "Delegate.h"
 
 class SetPointDelegate :
     public SetPoint,
-    public Delegate<SetPoint>,
     public SetPointDelegateMixin
 {
 public:
-    SetPointDelegate() = default;
-    SetPointDelegate(std::function<Interface * ()> lookup) : Delegate<SetPoint>(lookup){}
+    SetPointDelegate(BaseLookup const& lookup) : delegate(lookup){}
     ~SetPointDelegate() = default;
 
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
         v.visit(*this);
     }
 
-    temp_t read() const final {
+    virtual temp_t read() const override final {
         return delegate().read();
     }
 
-    void write(temp_t val) final {
+    virtual void write(temp_t val) override final {
         delegate().write(val);
     }
+
+private:
+    RefTo<SetPoint> delegate;
 
 friend class SetPointDelegateMixin;
 };

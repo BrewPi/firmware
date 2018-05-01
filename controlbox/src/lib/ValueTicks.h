@@ -68,20 +68,20 @@ public:
 
 	ticks_seconds_t seconds() { return millis()/1000; }
 
-	void readTo(DataOut& out) {
+	virtual void readTo(DataOut& out) override {
 		ticks_millis_t time = baseticks.millis();
 		time = millis(time);
 		writePlatformEndianBytes(&time, sizeof(time), out);
 		writePlatformEndianBytes(&scale, sizeof(scale), out);
 	}
 
-	void writeMaskedFrom(DataIn& in, DataIn& mask) {
+	virtual void writeFrom(DataIn& in) override {
 		// write the start and scale
 		ticks_millis_t time = baseticks.millis();
 		logicalStart = millis(time);
 		timerStart = time;
-		readPlatformEndianMaskedBytes(&logicalStart, sizeof(logicalStart), in, mask);
-		readPlatformEndianMaskedBytes(&scale, sizeof(scale), in, mask);
+		readPlatformEndianBytes(&logicalStart, sizeof(logicalStart), in);
+		readPlatformEndianBytes(&scale, sizeof(scale), in);
 	}
 
 	/**
@@ -89,7 +89,7 @@ public:
 	 *   4-bytes	uint32	The number of milliseconds passed since poweron.
 	 *   2-bytes	uint16	The time scaling. a 16-bit integer.
 	 */
-	uint8_t readStreamSize() { return 6; }
+	virtual uint8_t readStreamSize() override { return 6; }
 
 	// return time that has passed since timeStamp, take overflow into account
 	ticks_seconds_t timeSinceSeconds(ticks_seconds_t previousTime) {
@@ -118,13 +118,13 @@ class CurrentTicksValue : public Value
 {
 
 public:
-	void readTo(DataOut& out)
+	virtual void readTo(DataOut& out) override
 	{
 		ticks_millis_t millis = ticks.millis();
 		writePlatformEndianBytes(&millis, 4, out);
 	}
 
-	uint8_t readStreamSize()
+	virtual uint8_t readStreamSize() override
 	{
 		return sizeof(ticks_millis_t);
 	}
@@ -145,11 +145,11 @@ class CurrentCycleTicksValue : public CurrentTicksValue
 	ticks_millis_t cycle_ticks;
 public:
 
-	void update() {
+	virtual void update() override final {
 		cycle_ticks = ticks.millis();
 	}
 
-	void readTo(DataOut& out) {
+	virtual void readTo(DataOut& out) override final {
 		out.writeBuffer(&cycle_ticks, sizeof(cycle_ticks));
 	}
 };

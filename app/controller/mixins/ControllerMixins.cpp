@@ -74,17 +74,16 @@ void PidMixin::serializeImpl(JSON::Adapter & adapter)
     JSON::Class root(adapter, "Pid");
     std::string name(getName());    // get name as std string for json_writer
     JSON_E(adapter, name);
-    JSON_OE(adapter, enabled);
-    JSON_OE(adapter, input);
+    JSON::stream(adapter, "enabled", obj->settings.enabled, true);
+    JSON::stream(adapter, "input", obj->input, true);
     JSON_OE(adapter, output);
-    JSON_OE(adapter, inputError);
-    JSON_OE(adapter, Kp);
-    JSON_OE(adapter, Ti);
-    JSON_OE(adapter, Td);
-    JSON_OE(adapter, p);
-    JSON_OE(adapter, i);
-    JSON_OE(adapter, d);
-    JSON_OT(adapter, actuatorIsNegative);
+    JSON::stream(adapter, "inputError", obj->state.error, true);
+    JSON::stream(adapter, "Kp", obj->settings.kp, true);
+    JSON::stream(adapter, "Ti", obj->settings.ti, true);
+    JSON::stream(adapter, "Td", obj->settings.td, true);
+    JSON::stream(adapter, "p", obj->state.p, true);
+    JSON::stream(adapter, "i", obj->state.i, true);
+    JSON::stream(adapter, "d", obj->state.d, false);
 }
 
 void TempSensorMockMixin::serializeImpl(JSON::Adapter & adapter)
@@ -302,7 +301,7 @@ void SetPointSimpleMixin::serializeImpl(JSON::Adapter & adapter)
     JSON::Class root(adapter, "SetPointSimple");
     std::string name(getName());    // get name as std string for json_writer
     JSON_E(adapter, name);
-    JSON_OT(adapter, value);
+    JSON::stream(adapter, "value", obj->settings.value, false);
 }
 
 void SetPointConstantMixin::serializeImpl(JSON::Adapter & adapter)

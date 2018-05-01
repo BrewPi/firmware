@@ -66,10 +66,10 @@ class ConnectionData : public Connection<D>
     D data;
 public:
     ConnectionData() {
-    		memset(&data, 0, sizeof(data)); // todo - must be a better way than this, e.g. templated initialization function?
+        memset(&data, 0, sizeof(data)); // todo - must be a better way than this, e.g. templated initialization function?
     }
-    virtual D& getData() { return data; }
-    virtual const D& getData() const { return data; }
+    virtual D& getData() override { return data; }
+    virtual const D& getData() const override { return data; }
 };
 
 
@@ -366,17 +366,21 @@ public:
 	/**
 	 * Annotations are written as is to the stream, surrounded by annotation marks.
 	 */
-	void writeAnnotation(const char* data) {
-		_out->write('[');
+	virtual void writeAnnotation(const char* data) override final {
+		_out->write('<');
+		_out->write('!');
 		_out->writeBuffer(data, stream_size_t(strlen(data)));
-		_out->write(']');
-        _out->write('\n');
+		_out->write('>');
+	}
+
+	virtual void writeSeparator() override final{
+	    _out->write('|');
 	}
 
 	/**
 	 * Data is written as hex-encoded
 	 */
-	bool write(uint8_t data) {
+	virtual bool write(uint8_t data) override final {
 		_out->write(d2h(uint8_t(data&0xF0)>>4));
 		_out->write(d2h(uint8_t(data&0xF)));
 		_out->write(' ');
@@ -386,7 +390,7 @@ public:
 	/**
 	 * Rather than closing the global stream, write a newline to signify the end of this command.
 	 */
-	void close() {
+	virtual void close() override final {
 		_out->write('\r');
 		_out->write('\n');
 	}

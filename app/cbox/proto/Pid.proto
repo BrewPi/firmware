@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+import 'nanopb.proto';
+
+package blox;
+
+// Command encodes the next command to perform when the object is read
+// data is optional and only used in some commands. For example when doing a family search, data contains the family ID 
+message Pid {
+	message Settings {
+		sint32 kp = 1;
+		uint32 ti = 2;
+		uint32 td = 3;
+		bool enabled = 4;
+	}
+	
+	message State {
+		sint32 inputValue = 1;
+		sint32 inputSetting = 2;
+		sint32 outputValue = 3;
+		sint32 outputSetting = 4;
+				
+		sint32 p = 5;
+		sint32 i = 6;
+		sint32 d = 7;
+		
+		sint32 derivative = 8;
+		sint32 integral = 9;
+		sint32 error = 10;
+	}
+	
+	message Links {
+    	bytes input = 1;
+    	bytes output = 2;
+  	}
+  	
+  	message Filtering {
+  		uint32 input = 1;
+  		uint32 derivative = 2;
+  	}
+  	
+  	Settings settings = 1;
+  	State state = 2;
+  	Links links = 3;
+  	Filtering filtering = 4;
+}
+
+message Pid_Persisted {
+  Pid.Settings settings = 1;
+  Pid.Links links = 3;
+  Pid.Filtering filtering = 4;
+}

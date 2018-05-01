@@ -21,45 +21,45 @@
 
 #include <stdint.h>
 #include "ControllerMixins.h"
-#include "Delegate.h"
 #include "ProcessValue.h"
 #include "VisitorBase.h"
+#include "RefTo.h"
 
 class ProcessValueDelegate :
     public ProcessValue,
-    public Delegate<ProcessValue>,
     public ProcessValueDelegateMixin
 {
 public:
     ProcessValueDelegate() = default;
-    ProcessValueDelegate(std::function<Interface * ()> lookup) : Delegate<ProcessValue>(lookup){}
+    ProcessValueDelegate(BaseLookup const& lookup) : delegate(lookup){}
     ~ProcessValueDelegate() = default;
 
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
         v.visit(*this);
     }
 
-    void update() final {
+    virtual void update() override final {
         delegate().update();
     }
 
-    void fastUpdate() final {
+    virtual void fastUpdate() override final {
         delegate().fastUpdate();
     }
 
     // set the setting for the process value
-    void set(temp_t const& setting) override final {
+    virtual void set(temp_t const& setting) override final {
         delegate().set(setting);
     }
     // get the setting for the process value
-    temp_t setting() const override final {
+    virtual temp_t setting() const override final {
         return delegate().setting();
     }
     // read the actual value of the process value
-    temp_t value() const override final {
+    virtual temp_t value() const override final {
         return delegate().value();
     }
     
 private:
+    RefTo<ProcessValue> delegate;
     friend class ProcessValueDelegateMixin;
 };

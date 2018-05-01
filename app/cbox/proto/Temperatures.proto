@@ -1,0 +1,27 @@
+/* Test the integer size overriding in nanopb options.
+ * This allows to use 8- and 16-bit integer variables, which are not supported
+ * directly by Google Protobuf.
+ *
+ * The int_size setting will override the number of bits, but keep the type
+ * otherwise. E.g. uint32 + IS_8 => uint8_t
+ */
+
+syntax = "proto3";
+
+import 'nanopb.proto';
+
+package blox;
+
+message temperature {
+	sint32  temp_t =  1  [(nanopb).int_size = IS_16];
+}
+
+message temperature_long {
+	sint32  temp_long_t =  1  [(nanopb).int_size = IS_32];
+}
+
+message temperature_precise {
+	sint32  temp_precise_t =  1  [(nanopb).int_size = IS_32];
+}
+
+

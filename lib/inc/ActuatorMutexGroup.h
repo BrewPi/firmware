@@ -21,36 +21,34 @@
 
 #include "Ticks.h"
 #include "ActuatorInterfaces.h"
+#include "ActuatorMutexGroupInterface.h"
 #include <vector>
 #include "ControllerMixins.h"
 
-struct ActuatorPriority{
-    ActuatorDigital * actuator;
-    int8_t priority; // valid priorities are 0-127, at -128 the actuator is removed from the group
-};
 
 class ActuatorMutexGroup final :
-    public Interface,
+    public virtual ActuatorMutexGroupInterface,
     public ActuatorMutexGroupMixin
 {
 public:
-    ActuatorMutexGroup(){
-        deadTime = 0;
-        lastActiveTime = 0;
-        lastActiveActuator = nullptr;
+    ActuatorMutexGroup() :
+        deadTime(0),
+        lastActiveTime(0),
+        lastActiveActuator(nullptr)
+    {
     }
 
-    ~ActuatorMutexGroup() = default;
+    virtual ~ActuatorMutexGroup() = default;
 
-    void accept(VisitorBase & v) {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
-    ActuatorPriority * registerActuator(ActuatorDigital * act, int8_t prio);
-    void unRegisterActuator(ActuatorDigital * act); // remove by pointer
+    virtual void update() override final;
 
+    virtual void fastUpdate() override final {} // not needed
 
-    bool request(ActuatorDigital * requester, bool active, int8_t newPriority);
+    virtual bool request(ActuatorDigital * requester, bool active, int8_t newPriority) override final;
 
     /**
      * Cancels an open request, by setting the priority to -1.
@@ -58,7 +56,7 @@ public:
      * The request should then be canceled to prevent holding back other actuators
      * @param requester: pointer to actuator previously requested to go active
      */
-    void cancelRequest(ActuatorDigital * requester);
+    virtual void cancelRequest(ActuatorDigital * requester) override final;
 
     ticks_millis_t getDeadTime(){
         return deadTime;
@@ -67,11 +65,10 @@ public:
 
     ticks_millis_t getWaitTime();
 
-    void update() final;
-
-    void fastUpdate() final {} // not needed
 
 private:
+    ActuatorPriority * registerActuator(ActuatorDigital * act, int8_t prio);
+    void unRegisterActuator(ActuatorDigital * act); // remove by pointer
     void unRegisterActuator(size_t index); // remove by index
     size_t find(ActuatorDigital * act);
 
@@ -82,3 +79,5 @@ private:
 
 friend class ActuatorMutexGroupMixin;
 };
+
+

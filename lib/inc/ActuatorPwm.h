@@ -64,7 +64,7 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
@@ -86,19 +86,19 @@ public:
      *
      * @return achieved duty cycle in fixed point.
      */
-    temp_t value() const override final;
+    virtual temp_t value() const override final;
 
     /** Returns the set duty cycle
      * @return duty cycle setting in fixed point
      */
-    temp_t setting() const override final {
+    virtual temp_t setting() const override final {
         return dutySetting;
     }
 
     /** Sets a new duty cycle
      * @param val new duty cycle in fixed point
      */
-    void set(temp_t const& val) override final;
+    virtual void set(temp_t const& val) override final;
 
     //** Calculates whether the target should toggle and tries to toggle it if necessary
     /** Each update, the PWM actuator checks whether it should toggle to achieve the set duty cycle.
@@ -108,12 +108,12 @@ public:
      * If needed, it can even skip going high or low. This will happen, for example, when the target is
      * a time limited actuator with a minimum on and/or off time.
      */
-    void fastUpdate() override final;
+    virtual void fastUpdate() override final;
 
     /**
      * Periodic update (every second). Same as fast update, but calls periodic update on target too.
      */
-    void update() override final {
+    virtual void update() override final {
         target.update();
         fastUpdate();
     };

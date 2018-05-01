@@ -39,10 +39,8 @@ BOOST_AUTO_TEST_CASE(two_actuators_belonging_to_the_same_group_cannot_be_active_
     auto act2 = ActuatorBool();
     auto mutex = ActuatorMutexGroup();
 
-    auto actm1 = ActuatorMutexDriver(act1);
-    auto actm2 = ActuatorMutexDriver(act2);
-    actm1.setMutex(&mutex);
-    actm2.setMutex(&mutex);
+    auto actm1 = ActuatorMutexDriver(act1, mutex);
+    auto actm2 = ActuatorMutexDriver(act2, mutex);
 
     actm1.setActive(true, 5);
     BOOST_CHECK(actm1.isActive()); // actuator is first, so is allowed to go active
@@ -66,10 +64,8 @@ BOOST_AUTO_TEST_CASE(dead_time_between_actuators_is_honored) {
     auto act2 = ActuatorBool();
     auto mutex = ActuatorMutexGroup();
 
-    auto actm1 = ActuatorMutexDriver(act1);
-    auto actm2 = ActuatorMutexDriver(act2);
-    actm1.setMutex(&mutex);
-    actm2.setMutex(&mutex);
+    auto actm1 = ActuatorMutexDriver(act1, mutex);
+    auto actm2 = ActuatorMutexDriver(act2, mutex);
 
     mutex.setDeadTime(10000); // 10 seconds dead time
 
@@ -109,10 +105,8 @@ BOOST_AUTO_TEST_CASE(dead_time_does_not_block_same_actuator_from_going_active_ag
     auto act2 = ActuatorBool();
     auto mutex = ActuatorMutexGroup();
 
-    auto actm1 = ActuatorMutexDriver(act1);
-    auto actm2 = ActuatorMutexDriver(act2);
-    actm1.setMutex(&mutex);
-    actm2.setMutex(&mutex);
+    auto actm1 = ActuatorMutexDriver(act1, mutex);
+    auto actm2 = ActuatorMutexDriver(act2, mutex);
 
     mutex.setDeadTime(10000); // 10 seconds dead time
 
@@ -139,11 +133,8 @@ BOOST_AUTO_TEST_CASE(mutex_works_with_time_limited_actuator) {
 
     auto mutex = ActuatorMutexGroup();
 
-    auto actm1 = ActuatorMutexDriver(act1tl);
-    auto actm2 = ActuatorMutexDriver(act2);
-    actm1.setMutex(&mutex);
-    actm2.setMutex(&mutex);
-
+    auto actm1 = ActuatorMutexDriver(act1tl, mutex);
+    auto actm2 = ActuatorMutexDriver(act2, mutex);
 
     actm1.setActive(true, 5);
     BOOST_CHECK(act1.isActive()); // target actuator is active
@@ -174,10 +165,8 @@ BOOST_AUTO_TEST_CASE(when_there_have_been_no_requests_for_a_while_dead_time_is_s
 
     auto mutex = ActuatorMutexGroup();
 
-    auto actm1 = ActuatorMutexDriver(act1tl);
-    auto actm2 = ActuatorMutexDriver(act2);
-    actm1.setMutex(&mutex);
-    actm2.setMutex(&mutex);
+    auto actm1 = ActuatorMutexDriver(act1tl, mutex);
+    auto actm2 = ActuatorMutexDriver(act2, mutex);
     mutex.setDeadTime(10000); // 10 seconds dead time
 
     actm1.setActive(true, 5);

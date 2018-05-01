@@ -32,7 +32,7 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
@@ -41,9 +41,9 @@ public:
 		connected = _connected;
 	}
 	
-	bool isConnected() const override final { return connected; }
+	virtual bool isConnected() const override final { return connected; }
 
-	bool init() override final {
+	virtual bool init() override final {
 		return !read().isDisabledOrInvalid();
 	}
 	
@@ -51,11 +51,11 @@ public:
 	    value += delta;
 	}
 
-	void update() override final {
+	virtual void update() override final {
 	    // nop for this mock sensor
 	}
 
-	temp_t read() const override final
+	virtual temp_t read() const override final
 	{
 		if (!isConnected())
 			return temp_t::invalid();

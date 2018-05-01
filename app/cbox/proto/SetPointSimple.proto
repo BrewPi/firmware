@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+import 'nanopb.proto';
+
+package blox;
+
+message SetPointSimple {
+    message Settings {
+        sint32 value = 1;
+    }
+  
+    Settings settings = 1;
+}
+
+message SetPointSimple_Persisted {
+    SetPointSimple.Settings settings = 1;
+}

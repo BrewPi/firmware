@@ -87,8 +87,7 @@ class FixedFilter
     public:
         FixedFilter()
         {
-            setFiltering(20);
-
+            setFiltering(2);
             /* default to a b value of 2 */
         }
 

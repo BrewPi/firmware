@@ -44,7 +44,7 @@ public:
     {
         memcpy(settings.sensorAddress, address, sizeof(DeviceAddress));
         settings.calibrationOffset = calibrationOffset;
-        state.connected = true; // assume connected upon creation, because address will be set just after this construction
+        state.connected = false;
         state.cachedValue = TEMP_SENSOR_DISCONNECTED;
         init();
     };
@@ -53,7 +53,7 @@ public:
     : sensor(bus) {
         memset(settings.sensorAddress, 0, sizeof(DeviceAddress));
         settings.calibrationOffset = temp_t(0.0);
-        state.connected = true; // assume connected upon creation, because address will be set just after this construction
+        state.connected = false;
         state.cachedValue = TEMP_SENSOR_DISCONNECTED;
         init();
     };
@@ -64,19 +64,32 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
-	bool isConnected(void) const override final {
+	virtual bool isConnected(void) const override final {
 		return state.connected;
 	}		
 	
-	bool init() override final ;
-	temp_t read() const override final ; // return cached value
-	void update() override final ; // read from hardware sensor
+	virtual bool init() override final ;
+	virtual temp_t read() const override final ; // return cached value
+	virtual void update() override final ; // read from hardware sensor
 	
-	private:
+
+    void copySettingsFrom(void * from){
+		memcpy(&settings, from, sizeof(settings));
+	}
+
+    void copySettingsTo(void * to){
+    	memcpy(to, &settings, sizeof(settings));
+    }
+
+    void copyStateTo(void * to){
+    	memcpy(to, &state, sizeof(state));
+    }
+
+private:
 
 	void setConnected(bool connected);
 	void requestConversion();
@@ -102,6 +115,10 @@ public:
         temp_t cachedValue;
         bool connected;
 	} state;
+
+public:
+	static const size_t sizeof_Settings = sizeof(Settings);
+	static const size_t sizeof_State = sizeof(State);
 
 	friend class OneWireTempSensorMixin;
 };

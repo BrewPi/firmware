@@ -41,46 +41,46 @@ extern template ActuatorAnalog* asInterface<ActuatorAnalog>(Interface*);
 extern template TempSensor* asInterface<TempSensor>(Interface*);
 extern template SetPoint* asInterface<SetPoint>(Interface*);
 
+// simple lookup class that just keeps a pointer to its target
+class BaseLookup {
+public:
+    BaseLookup(){}
+    ~BaseLookup() = default;
+
+    virtual Interface * operator()() const = 0;
+};
+
 
 class RefToGeneric {
 public:
-    RefToGeneric(){};
-    RefToGeneric(std::function<Interface* ()> lookup) : lookup(std::move(lookup)){};
+    RefToGeneric(BaseLookup const& lookup) : lookup(lookup){};
     ~RefToGeneric() = default;
-    void setLookup(std::function<Interface* ()> newLookup){
-        lookup = newLookup;
-    }
-    std::function<Interface* ()>  getLookup(){
-        return lookup;
-    }
+
     Interface* get() const {
-        return lookup();
+    	return lookup();
     }
     Interface& operator()() const {
         return *get();
     }
 
-protected:
-    // callable loopup object, must implement () operator
+private:
+    // callable loopup object reference, must implement () operator
     // and hold information required for lookup
-    std::function<Interface* ()> lookup;
+    BaseLookup const& lookup;
 };
 
 template<class T>
 class RefTo : public RefToGeneric {
 public:
-    RefTo(){};
-    RefTo(std::function<Interface* ()> lookup) : RefToGeneric(lookup){};
+    RefTo(BaseLookup const& lookup) : RefToGeneric(lookup){};
     ~RefTo() = default;
 
 
     T* get() const {
         T* specializedTarget = nullptr;
-        if(lookup){
-            Interface* target = lookup();
-            if(target){
-                specializedTarget = asInterface<T>(target);
-            }
+        Interface * target = RefToGeneric::get();
+        if(target != nullptr){
+            specializedTarget = asInterface<T>(target);
         }
         return (specializedTarget) ? specializedTarget : defaultTarget<T>();
     }
@@ -91,13 +91,17 @@ public:
 };
 
 // simple lookup class that just keeps a pointer to its target
-class PtrLookup {
+class PtrLookup : public BaseLookup {
 public:
     PtrLookup(Interface * target) : target(target) {}
     ~PtrLookup() = default;
 
-    Interface * operator()(){
+    virtual Interface * operator()() const override final {
         return target;
+    }
+
+    void setPtr(Interface * target_){
+        target = target_;
     }
 private:
     Interface* target;

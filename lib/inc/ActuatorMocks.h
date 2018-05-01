@@ -42,11 +42,11 @@ public:
 
     ~ActuatorValue() = default;
 
-    void accept(VisitorBase & v) override final{
+    virtual void accept(VisitorBase & v) override final{
     	v.visit(*this);
     }
 
-    void set(temp_t const& val) override final {
+    virtual void set(temp_t const& val) override final {
         if(val < minimum){
             currentValue = minimum;
         }
@@ -57,7 +57,7 @@ public:
             currentValue = val;
         }
     }
-    temp_t setting() const override final {
+    virtual temp_t setting() const override final {
         return currentValue;
     }
 
@@ -66,8 +66,8 @@ public:
     }
 
 
-    void update() override final {}
-    void fastUpdate() override final {}
+    virtual void update() override final {}
+    virtual void fastUpdate() override final {}
 
     temp_t min() const {
         return minimum;
@@ -95,15 +95,15 @@ public:
     ActuatorBool(bool initial) : state(initial) {}
     ~ActuatorBool() = default;
 
-    void accept(VisitorBase & v) override final{
+    virtual void accept(VisitorBase & v) override final{
     	v.visit(*this);
     }
 
-    void setActive(bool active, int8_t priority = 127) override final { state = active; }
-    bool isActive() const override final { return state; }
+    virtual void setActive(bool active, int8_t priority = 127) override final { state = active; }
+    virtual bool isActive() const override final { return state; }
 
-    void update() override final {}
-    void fastUpdate() override final {}
+    virtual void update() override final {}
+    virtual void fastUpdate() override final {}
 
 private:
     bool state;
@@ -121,14 +121,14 @@ public:
     ActuatorNop(){}
     ~ActuatorNop() = default;
 
-    void accept(VisitorBase & v) override final{
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
-    void setActive(bool active, int8_t priority = 127) override final {}
-    bool isActive() const override final { return false;}
-    void update() override final {}
-    void fastUpdate() override final {}
+    virtual void setActive(bool active, int8_t priority = 127) override final {}
+    virtual bool isActive() const override final { return false;}
+    virtual void update() override final {}
+    virtual void fastUpdate() override final {}
 
 friend class ActuatorNopMixin;
 };
@@ -142,20 +142,20 @@ public:
     ActuatorInvalid() {}
     ~ActuatorInvalid() = default;
 
-    void accept(VisitorBase & v) override final{
+    virtual void accept(VisitorBase & v) override final{
     	v.visit(*this);
     }
 
-    void set(temp_t const& val) override final {}
-    temp_t setting() const override final {
+    virtual void set(temp_t const& val) override final {}
+    virtual temp_t setting() const override final {
         return temp_t::invalid();
     }
-    temp_t value() const override final {
+    virtual temp_t value() const override final {
         return temp_t::invalid();
     }
 
-    void update() override final {}
-    void fastUpdate() override final {}
+    virtual void update() override final {}
+    virtual void fastUpdate() override final {}
 
 friend class ActuatorInvalidMixin;
 };

@@ -1,3 +1,22 @@
+/*
+ * Copyright 2017 BrewPi
+ *
+ * This file is part of BrewPi.
+ *
+ * BrewPi is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BrewPi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #pragma once
 #include "Values.h"
 #include "OneWire.h"
@@ -85,10 +104,7 @@ public:
      *   (later: search bus alarm state)
      *   (later: set bus power (off if next byte is 00, on if it's 01) )
      */
-    virtual void writeMaskedFrom(DataIn& dataIn, DataIn& maskIn) {
-        // this doesn't support masking since incremental updates make no sense
-        // todo - need a way to indicate that masking isn't supported
-        // (or it's simply documented int he object description)
+    virtual void writeFrom(DataIn& dataIn) {
         uint8_t command_id = dataIn.next();
         uint8_t command_data = 0;
         switch (command_id) {

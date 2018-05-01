@@ -22,6 +22,9 @@
 #include "ActuatorMocks.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorMutexDriver.h"
+#include "ActuatorMutexGroup.h"
+#include "ActuatorMutexGroupDelegate.h"
+#include "ActuatorMutexGroupDisabled.h"
 #include "ActuatorPwm.h"
 #include "SetPoint.h"
 #include "TempSensorDisconnected.h"
@@ -58,37 +61,39 @@ public:
     VisitorCast() : lastProcessed(nullptr) {};
     ~VisitorCast() = default;
 public:
-    void visit(ActuatorBool& thisRef) final { this->process(thisRef); };
-    void visit(ActuatorInvalid& thisRef) final { this->process(thisRef); };
-    void visit(ActuatorMutexDriver& thisRef) final { this->process(thisRef); };
-    void visit(ActuatorMutexGroup& thisRef) final { this->process(thisRef); };
-    void visit(ActuatorNop& thisRef) final { this->process(thisRef); };
+    virtual void visit(ActuatorBool& thisRef) override final { this->process(thisRef); };
+    virtual void visit(ActuatorInvalid& thisRef) override final { this->process(thisRef); };
+    virtual void visit(ActuatorMutexDriver& thisRef) override final { this->process(thisRef); };
+    virtual void visit(ActuatorMutexGroup& thisRef) override final { this->process(thisRef); };
+    virtual void visit(ActuatorMutexGroupDelegate& thisRef) override final { this->process(thisRef); };
+    virtual void visit(ActuatorMutexGroupDisabled& thisRef) override final { this->process(thisRef); };
+    virtual void visit(ActuatorNop& thisRef) override final { this->process(thisRef); };
 #if BREWPI_DS2413
-    void visit(ActuatorOneWire& thisRef) final { this->process(thisRef); };
+    virtual void visit(ActuatorOneWire& thisRef) override final { this->process(thisRef); };
 #endif
-    void visit(ActuatorPwm& thisRef) final { this->process(thisRef); };
-    void visit(ActuatorOffset& thisRef) final { this->process(thisRef); };
-    void visit(ActuatorTimeLimited& thisRef) final { this->process(thisRef); };
-    void visit(ActuatorValue& thisRef) final { this->process(thisRef); };
-    void visit(Pid& thisRef) final { this->process(thisRef); };
-    void visit(SetPointConstant& thisRef) final { this->process(thisRef); };
-    void visit(SetPointMinMax& thisRef) final { this->process(thisRef); };
-    void visit(SetPointSimple& thisRef) final { this->process(thisRef); };
-    void visit(TempSensorDisconnected& thisRef) final { this->process(thisRef); };
-    void visit(TempSensorExternal& thisRef) final { this->process(thisRef); };
-    void visit(TempSensorFallback& thisRef) final { this->process(thisRef); };
-    void visit(TempSensorMock& thisRef) final { this->process(thisRef); };
-    void visit(OneWireTempSensor& thisRef) final { this->process(thisRef); };
+    virtual void visit(ActuatorPwm& thisRef) override final { this->process(thisRef); };
+    virtual void visit(ActuatorOffset& thisRef) override final { this->process(thisRef); };
+    virtual void visit(ActuatorTimeLimited& thisRef) override final { this->process(thisRef); };
+    virtual void visit(ActuatorValue& thisRef) override final { this->process(thisRef); };
+    virtual void visit(Pid& thisRef) override final { this->process(thisRef); };
+    virtual void visit(SetPointConstant& thisRef) override final { this->process(thisRef); };
+    virtual void visit(SetPointMinMax& thisRef) override final { this->process(thisRef); };
+    virtual void visit(SetPointSimple& thisRef) override final { this->process(thisRef); };
+    virtual void visit(TempSensorDisconnected& thisRef) override final { this->process(thisRef); };
+    virtual void visit(TempSensorExternal& thisRef) override final { this->process(thisRef); };
+    virtual void visit(TempSensorFallback& thisRef) override final { this->process(thisRef); };
+    virtual void visit(TempSensorMock& thisRef) override final { this->process(thisRef); };
+    virtual void visit(OneWireTempSensor& thisRef) override final { this->process(thisRef); };
 #if BREWPI_DS2408
-    void visit(ValveController& thisRef) final { this->process(thisRef); };
+    virtual void visit(ValveController& thisRef) override final { this->process(thisRef); };
 #endif
-    void visit(TempSensorDelegate& thisRef) final { this->process(thisRef); };
-    void visit(ActuatorDigitalDelegate& thisRef) final { this->process(thisRef); };
-    void visit(SetPointDelegate& thisRef) final { this->process(thisRef); };
-    void visit(ProcessValueDelegate& thisRef) final { this->process(thisRef); };
-    void visit(SensorSetPointPair& thisRef) final { this->process(thisRef); };
+    virtual void visit(TempSensorDelegate& thisRef) override final { this->process(thisRef); };
+    virtual void visit(ActuatorDigitalDelegate& thisRef) override final { this->process(thisRef); };
+    virtual void visit(SetPointDelegate& thisRef) override final { this->process(thisRef); };
+    virtual void visit(ProcessValueDelegate& thisRef) override final { this->process(thisRef); };
+    virtual void visit(SensorSetPointPair& thisRef) override final { this->process(thisRef); };
 #if WIRING
-    void visit(ActuatorPin& thisRef) final { this->process(thisRef); };
+    virtual void visit(ActuatorPin& thisRef) override final { this->process(thisRef); };
 #endif
 
 public:

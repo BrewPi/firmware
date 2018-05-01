@@ -29,34 +29,49 @@ public:
     virtual ~SetPoint() = default;
     virtual temp_t read() const = 0;
     virtual void write(temp_t val) = 0;
-    void update() final {}; // periodic update not needed for setpoints
-    void fastUpdate() final {}; // fast update not needed for setpoints
+    virtual void update() override final {}; // periodic update not needed for setpoints
+    virtual void fastUpdate() override final {}; // fast update not needed for setpoints
 friend class SetPointMixin;
 };
 
 
 class SetPointSimple final : public SetPoint, public SetPointSimpleMixin {
+protected:
+    struct Settings {
+        temp_t value;
+    } settings;
+
 public:
-    SetPointSimple(temp_t val = temp_t::disabled()) : value(val){}
+    SetPointSimple() : settings({temp_t::disabled()}){}
+    SetPointSimple(temp_t _value) : settings({_value}){}
     ~SetPointSimple() = default;
+
+    static const size_t sizeof_Settings = sizeof(Settings);
 
     /**
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
-    temp_t read() const override final {
-        return value;
-    }
-    void write (temp_t val) override final {
-        value = val;
+    virtual temp_t read() const override final {
+        return settings.value;
     }
 
-private:
-    temp_t value;
+    virtual void write (temp_t val) override final {
+        settings.value = val;
+    }
+
+    void copySettingsFrom(void * from){
+		memcpy(&settings, from, sizeof(settings));
+	}
+
+    void copySettingsTo(void * to){
+    	memcpy(to, &settings, sizeof(settings));
+    }
+
 friend class SetPointSimpleMixin;
 };
 
@@ -71,14 +86,14 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
-    temp_t read() const override final {
+    virtual temp_t read() const override final {
         return value;
     }
-    void write (temp_t val) override final {
+    virtual void write (temp_t val) override final {
         if(val < min){
             value = min;
         }
@@ -121,14 +136,14 @@ public:
      * Accept function for visitor pattern
      * @param dispatcher Visitor to process this class
      */
-    void accept(VisitorBase & v) final {
+    virtual void accept(VisitorBase & v) override final {
     	v.visit(*this);
     }
 
-    temp_t read() const override final{
+    virtual temp_t read() const override final{
         return value;
     }
-    void write(temp_t val) override final { // does nothing
+    virtual void write(temp_t val) override final { // does nothing
     }
 
 private:
