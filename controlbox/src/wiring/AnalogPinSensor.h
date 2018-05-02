@@ -22,6 +22,9 @@
 #include "StreamUtil.h"
 #include "Values.h"
 
+namespace cbox {
+
+}
 /**
  *
  */
@@ -57,3 +60,4 @@ public:
 
 };
 
+}

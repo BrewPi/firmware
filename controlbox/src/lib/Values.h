@@ -26,6 +26,8 @@
 #include "EepromAccess.h"
 #include "CboxMixins.h"
 
+namespace cbox {
+
 typedef int8_t container_id;
 
 const container_id INVALID_ID = (container_id)(-1);
@@ -520,3 +522,5 @@ Object* lookupObject(Object* current, DataIn& data, int8_t& lastID);
 
 
 int16_t read2BytesFrom(Value* value);
+
+}

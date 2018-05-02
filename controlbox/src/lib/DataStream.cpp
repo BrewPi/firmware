@@ -20,6 +20,7 @@
 
 #include "DataStream.h"
 
+namespace cbox {
 
 bool BufferDataOut::write(uint8_t data) {
 	if (pos<size) {
@@ -59,3 +60,5 @@ void readPlatformEndianBytes(void* _data, uint8_t size, DataIn& in)
 		data[i] = d;
 	}
 }
+
+} // end namespace cbox

@@ -18,8 +18,9 @@
  */
 
 
-#ifndef POINTER_SCALAR_H
-#define	POINTER_SCALAR_H
+#pragma once
+
+namespace cbox {
 
 #ifdef	__cplusplus
 extern "C" {
@@ -43,5 +44,4 @@ typedef uint32_t pointer_scalar;
 }
 #endif
 
-#endif	/* POINTER_SCALAR_H */
-
+}

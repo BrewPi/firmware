@@ -20,6 +20,8 @@
 
 #include "Values.h"
 
+namespace cbox {
+
 /**
  * @param obj - Assumed to be a container.
  * @param id
@@ -147,3 +149,4 @@ int16_t read2BytesFrom(Value* value) {
     return int16_t(int(result[0])<<8 | result[1]);
 }
 
+} // end namespace cbox

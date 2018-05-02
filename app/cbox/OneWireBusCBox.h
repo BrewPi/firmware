@@ -27,7 +27,7 @@
  *
  *  Some design choices: since scanning the bus for addresses 
  */
-class OneWireBusCBox: public WritableValue {
+class OneWireBusCBox: public cbox::WritableValue {
 
     OneWire bus;
     uint8_t command_id, command_data;
@@ -42,7 +42,7 @@ protected:
     /**
      * Scans the onewire bus and writes the found addresses to the output stream.
      */
-    void outputSearch(DataOut& out) {
+    void outputSearch(cbox::DataOut& out) {
         uint8_t address[8];
         memset(address, 0, 8);
         while (bus.search(address)) {
@@ -69,7 +69,7 @@ public:
      * - cmd 01: reset bus (00 on success, FF on failure)
      * - cmd 02: search bus: a sequence of 0 or more 8-byte addresses, MSB first that were found on the bus
      */
-    virtual void readTo(DataOut& out) {
+    virtual void readTo(cbox::DataOut& out) {
         switch (command_id) {
             case NO_OP:
                 out.write(0);
@@ -104,7 +104,7 @@ public:
      *   (later: search bus alarm state)
      *   (later: set bus power (off if next byte is 00, on if it's 01) )
      */
-    virtual void writeFrom(DataIn& dataIn) {
+    virtual void writeFrom(cbox::DataIn& dataIn) {
         uint8_t command_id = dataIn.next();
         uint8_t command_data = 0;
         switch (command_id) {
@@ -116,7 +116,7 @@ public:
         this->command_data = command_data;
     }
 
-	static Object* create(ObjectDefinition& defn) {
+	static cbox::Object* create(cbox::ObjectDefinition& defn) {
         return new_object(OneWireBusCBox(oneWirePin));
 	}
 

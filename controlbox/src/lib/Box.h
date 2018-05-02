@@ -25,6 +25,7 @@
 #include "Commands.h"
 #include "SystemProfile.h"
 
+namespace cbox {
 
 /**
  * Top-level object for running a controlbox
@@ -320,3 +321,5 @@ public:
 
 };
 
+
+} // end namespace cbox

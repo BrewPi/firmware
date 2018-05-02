@@ -22,11 +22,11 @@ public:
         return persistedMaxSize();
     }
 
-    virtual void writeFrom(DataIn& dataIn) override final {
+    virtual void writeFrom(cbox::DataIn& dataIn) override final {
         writeFromImpl(dataIn, true);
     }
 
-    void writeFromImpl(DataIn& dataIn, bool storeToEeprom){
+    void writeFromImpl(cbox::DataIn& dataIn, bool storeToEeprom){
         /* copy old settings, because the update can be sparse and can only overwrite some of the values */
         blox_SetPointSimple_Persisted newData;
         /* copy old settings in case of a sparse update */
@@ -44,7 +44,7 @@ public:
         }
     }
 
-    static Object* create(ObjectDefinition& defn) {
+    static cbox::Object* create(cbox::ObjectDefinition& defn) {
         auto obj = new_object(SetPointSimpleBloc);
         if(obj != nullptr){
             obj->writeFromImpl(*defn.in, false);
@@ -73,7 +73,7 @@ public:
         return &setpoint;
     }
 
-    virtual void readTo(DataOut& out) override final {
+    virtual void readTo(cbox::DataOut& out) override final {
         blox_SetPointSimple message; \
         assert_size<sizeof(message.settings), SetPointSimple::sizeof_Settings>();
         setpoint.copySettingsTo(&message.settings);

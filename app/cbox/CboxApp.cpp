@@ -38,9 +38,11 @@
 OneWireBusBloc oneWireBus;
 DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 TicksImpl baseticks;
-ScaledTicksValue ticks;
 EepromAccess eepromAccess;
 
+namespace cbox {
+
+ScaledTicksValue ticks;
 
 Commands::ObjectFactory createObjectHandlers[] = {
         nullFactory,                                            // type 0
@@ -126,3 +128,4 @@ int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryR
     return error;
 }
 
+} // end namespace cbox

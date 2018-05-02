@@ -26,6 +26,8 @@
 #include "StreamUtil.h"
 #include "Static.h"
 
+namespace cbox {
+
 /**
  * Base class for a read-write value in eeprom. This class is responsible for moving the data
  * between eeprom and the stream.
@@ -155,3 +157,5 @@ class EepromDynamicStreamValue : public EepromBaseValue
 		uint8_t streamSize() { return _size; }
 };
 #endif
+
+} // end namespace cbox

@@ -22,6 +22,8 @@
 
 #include "DataStream.h"
 
+namespace cbox {
+
 /**
  * Provides storage for a stream offset and length.
  */
@@ -100,3 +102,4 @@ public:
 	virtual unsigned available() override final { return _length; }
 };
 
+}

@@ -7,7 +7,7 @@
 #include "nanopb_callbacks.h"
 #include "assert_size_helper.h"
 
-class OneWireBusBloc: public WritableValue {
+class OneWireBusBloc: public cbox::WritableValue {
 private:
 
     OneWire bus;
@@ -55,7 +55,7 @@ public:
      * - cmd 01: reset bus (00 on success, FF on failure)
      * - cmd 02: search bus: a sequence of 0 or more 8-byte addresses, MSB first that were found on the bus
      */
-    virtual void readTo(DataOut& out) override final{
+    virtual void readTo(cbox::DataOut& out) override final{
         blox_OneWireRead message = {0};
         message.lastCommand = command;
         message.address.funcs.encode = nullptr;
@@ -96,7 +96,7 @@ public:
      *   (later: search bus alarm state?)
      *   (later: set bus power? (off if next byte is 00, on if it's 01) )
      */
-    virtual void writeFrom(DataIn& dataIn) override final{
+    virtual void writeFrom(cbox::DataIn& dataIn) override final{
         blox_OneWireCommand message = command;
 
         assert_size<sizeof(message), 2>(); // one byte for command, one for data
@@ -109,7 +109,7 @@ public:
         }
     }
 
-    static Object* create(ObjectDefinition& defn) {
+    static cbox::Object* create(cbox::ObjectDefinition& defn) {
         return new_object(OneWireBusBloc(oneWirePin));
     }
 };

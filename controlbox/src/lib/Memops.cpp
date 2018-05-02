@@ -20,6 +20,8 @@
 
 #include "Memops.h"
 
+using namespace cbox;
+
 void fill(int8_t* p, uint8_t size) {
 	while (size-->0) *p++ = -1;
 }

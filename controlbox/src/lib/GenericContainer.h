@@ -24,6 +24,8 @@
 #include "Values.h"
 #include "Memops.h"
 
+namespace cbox {
+
 typedef void (*ObjectHandler)(Object*, void* data);
 
 inline void do_update(Object* o, void* /*data*/) {
@@ -274,3 +276,5 @@ class FixedContainer : public OpenContainer
 
 
 };
+
+}

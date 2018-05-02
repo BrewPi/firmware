@@ -4,6 +4,8 @@
 #include "Ticks.h"
 #include "ValueTicks.h"
 
+namespace cbox {
+
 #if CONTROLBOX_STATIC
 
 /**
@@ -102,3 +104,5 @@ void controlbox_loop(void)
 }
 
 #endif
+
+} // end namespace cbox

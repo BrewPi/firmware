@@ -20,9 +20,11 @@
 #define BOOST_NO_EXCEPTIONS
 #define BOOST_DISABLE_ASSERTS
 
+
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/range/join.hpp>
 #include <boost/range/adaptor/transformed.hpp>
+
 
 #include "Ticks.h"
 #include "Comms.h"
@@ -37,7 +39,11 @@
 #include <type_traits>
 #include <array>
 
-#if CONTROLBOX_EMULATE
+
+
+#if defined(CONTROLBOX_EMULATE) && CONTROLBOX_EMULATE
+namespace cbox {
+
 class MockSerial : public Stream
 {
 	public:
@@ -54,14 +60,20 @@ class MockSerial : public Stream
 	operator bool() { return true; }
 };
 
-cb_static_decl(static MockSerial commsDevice;)
+cb_static_decl(static cbox::MockSerial commsDevice;)
+
+}
 
 #elif !defined(SPARK)
 
-#include <CommsStdIO.h>
+#include "CommsStdIO.h"
 
+namespace cbox {
 cb_static_decl(StdIO commsDevice;)
+}
 #else
+using namespace cbox;
+
 #define commsDevice Serial
 	#define CONTROLBOX_COMMS_USE_FLUSH 0
 // for serial, flush waits until the output has been flushed. The flush is there just to ensure the output is not
@@ -72,7 +84,10 @@ cb_static_decl(StdIO commsDevice;)
 #define CONTROLBOX_COMMS_USE_FLUSH 1
 #endif
 
+namespace cbox {
+
 #if CONTROLBOX_STATIC
+
 /**
  * Implements a DataIn interface on top of the static Comms stream.
  * @return
@@ -194,6 +209,7 @@ template<> bool AbstractStreamConnectionType<TCPClient, StandardConnectionDataTy
 {
     return connection->connected();
 }
+
 
 /**
  * A vector of TCPConnection instances for connected clients.
@@ -478,7 +494,7 @@ void HexTextToBinaryIn::fetchNextByte()
 
 
 cb_static_decl(BinaryToHexTextOut hexOut(compositeOut);)
-cb_static_decl(DataOut& Comms::hexOut = ::hexOut;)
+cb_static_decl(DataOut& Comms::hexOut = hexOut;)
 cb_static_decl(bool Comms::prevConnected;)
 cb_static_decl(bool Comms::reset;)
 cb_static_decl(Comms comms;)
@@ -576,3 +592,5 @@ void Comms::receive()
 		}
 	}
 }
+
+} // end namespace cbox

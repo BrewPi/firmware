@@ -9,14 +9,14 @@ void printFormatted(const char *fmt, ... ){
     va_start (args, fmt );
     int written = vsnprintf(buf, 127, fmt, args);
     va_end (args);
-    comms.dataOut().writeBuffer(buf, written);
+    cbox::comms.dataOut().writeBuffer(buf, written);
 }
 
 
 void BrewPiLogger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * varTypes, ...){
     va_list args;
-    comms.dataOut().write('<');
-    comms.dataOut().write('!');
+    cbox::comms.dataOut().write('<');
+    cbox::comms.dataOut().write('!');
     printFormatted("%c,", type);
     printFormatted("%d,", errorID);
 
@@ -37,10 +37,10 @@ void BrewPiLogger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * 
             break;
         }
         if(varTypes[++index]){
-            comms.dataOut().write(',');
+        	cbox::comms.dataOut().write(',');
         }
     }
     va_end (args);
-    comms.dataOut().write('>');
+    cbox::comms.dataOut().write('>');
 }
 

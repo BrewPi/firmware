@@ -5,7 +5,8 @@
 #include "assert_size_helper.h"
 #include "struct_copy_helper.h"
 
-class Bloc : virtual public EepromAwareWritableValue {
+class Bloc : virtual public cbox::EepromAwareWritableValue {
+public:
 	virtual Interface * getApplicationInterface() override final{
 		return getApplicationInterfaceImpl();
 	}

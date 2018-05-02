@@ -28,6 +28,8 @@
 #include "ValuesEeprom.h"
 #include "EepromBlock.h"
 
+namespace cbox {
+
 #ifndef SYSTEM_PROFILE_ENABLE
 #define SYSTEM_PROFILE_ENABLE 1
 #endif
@@ -255,3 +257,6 @@ void writePointer(EepromAccess& eeprom, eptr_t address, eptr_t v);
 #if CONTROLBOX_STATIC
 extern SystemProfile systemProfile;
 #endif
+
+} // end namespace cbox
+

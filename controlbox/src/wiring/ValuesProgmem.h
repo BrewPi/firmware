@@ -20,6 +20,8 @@
 
 #pragma once
 
+namespace cbox {
+
 #include "Values.h"
 
 
@@ -36,4 +38,4 @@ class ProgmemStringValue : public Value
 
 };
 
-
+}

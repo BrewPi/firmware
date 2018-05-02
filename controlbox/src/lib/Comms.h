@@ -29,6 +29,10 @@
 #include <functional>
 #endif
 
+#include "ControlboxWiring.h"
+
+namespace cbox {
+
 class Commands;
 
 
@@ -167,7 +171,6 @@ public:
 
 };
 
-#include "ControlboxWiring.h"
 #if CONTROLBOX_WIRING
 template <typename S, typename D>
 using AbstractStreamConnectionType = AbstractConnection<
@@ -460,3 +463,5 @@ public:
 	 */
 	extern Comms comms;
 #endif
+
+} // end namespace cbox

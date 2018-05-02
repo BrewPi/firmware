@@ -17,6 +17,7 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "Values.h"
 #include "Commands.h"
 #include "DataStream.h"
@@ -24,6 +25,8 @@
 #include "SystemProfile.h"
 #include "Comms.h"
 #include <string.h>
+
+namespace cbox {
 
 /**
  * The no-op command simply echoes the response until the end of stream.
@@ -553,5 +556,4 @@ void Commands::handleCommand(DataIn& dataIn, DataOut& dataOut)
 Commands commands;
 #endif
 
-
-
+} // end namespace cbox

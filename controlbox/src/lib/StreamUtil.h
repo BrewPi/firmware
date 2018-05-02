@@ -22,6 +22,9 @@
 
 #include "DataStream.h"
 
-void readPlatformEndianBytes(void* data, uint8_t size, DataIn& in);
+namespace cbox {
 
+void readPlatformEndianBytes(void* data, uint8_t size, DataIn& in);
 void writePlatformEndianBytes(void* data, uint8_t size, DataOut& out);
+
+}

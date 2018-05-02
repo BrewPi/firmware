@@ -17,8 +17,12 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 #include "SystemProfile.h"
 #include "ValuesEeprom.h"
+
+namespace cbox {
 
 /**
  * A value that saves the state to eeprom when the difference between the persisted value and the current
@@ -70,3 +74,5 @@ public:
 		return new_object(PersistChangeValue(cb_nonstatic_decl(def.eepromAccess())));
 	}
 };
+
+} // end namespace cbox

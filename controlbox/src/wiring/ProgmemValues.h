@@ -20,12 +20,7 @@
 
 #pragma once
 
-/*
- * ValuesProgmem.h
- *
- * Created: 06/02/2014 10:35:19
- *  Author: mat
- */
+namespace cbox {
 
 #include "pgmspace.h"
 #include "Values.h"
@@ -53,4 +48,4 @@ class ProgmemStringValue : public Readable<PCSTR>, public AbstractValue
 
 };
 
-
+}

@@ -22,6 +22,9 @@
 /**
  * A base class for objects that want to know where in the persisted data their definition is stored.
  */
+
+namespace cbox {
+
 class EepromAwareWritableValue : public WritableValue
 {
     eptr_t address = -1;
@@ -35,3 +38,5 @@ public:
     eptr_t eeprom_offset() { return address; }
     uint8_t eepromSize(cb_nonstatic_decl(EepromAccess& eepromAccess)) { return eepromAccess.readByte(address-1); }
 };
+
+}

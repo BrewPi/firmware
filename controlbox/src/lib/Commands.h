@@ -27,6 +27,8 @@
 #include "SystemProfile.h"
 #include "Integration.h"
 
+namespace cbox {
+
 typedef char* pchar;
 typedef const char* cpchar;
 
@@ -168,7 +170,7 @@ public:
 
 #define command_callback_fn(x) callbacks. x
 #else
-#define command_callback_fn(x) ::x
+#define command_callback_fn(x) x
 #endif
 
 	inline cb_static Container* rootContainer() {
@@ -256,3 +258,5 @@ Object* nullFactory(ObjectDefinition& def);
 #if CONTROLBOX_STATIC
 extern Commands commands;
 #endif
+
+} // end namespace cbox

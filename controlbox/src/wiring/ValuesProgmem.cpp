@@ -17,6 +17,7 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using namespace cbox;
 
 #include "ValuesProgmem.h"
 #include "Platform.h"

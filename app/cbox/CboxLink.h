@@ -4,7 +4,8 @@
 #include "Values.h"
 #include <cstring>
 
-#define MAX_ID_CHAIN_LENGHT (MAX_CONTAINER_DEPTH+1)
+
+const size_t MAX_ID_CHAIN_LENGHT = cbox::MAX_CONTAINER_DEPTH+1;
 
 
 class CboxLookup : public BaseLookup {
@@ -16,13 +17,13 @@ public:
     virtual Interface * operator()() const override final {
         // id_chain.reset();
 
-        Object * root = &systemRootContainer();
-        Object * current = root;
-        container_id id = -1;
+        cbox::Object * root = &cbox::systemRootContainer();
+        cbox::Object * current = root;
+        cbox::container_id id = -1;
         uint8_t i = 0;
         while(i < MAX_ID_CHAIN_LENGHT && id < 0){
             id = id_chain[i++];
-            current = fetchContainedObject(current, id);
+            current = cbox::fetchContainedObject(current, id);
         }
         return (current && current != root) ? current->getApplicationInterface() : nullptr;
     }
@@ -37,5 +38,5 @@ public:
     }
 
 private:
-    container_id id_chain[MAX_ID_CHAIN_LENGHT];
+    cbox::container_id id_chain[MAX_ID_CHAIN_LENGHT];
 };

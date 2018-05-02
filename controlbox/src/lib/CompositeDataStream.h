@@ -26,6 +26,8 @@
 #include <boost/range/iterator.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 
+namespace cbox {
+
 template <typename Iterator> using DataInRange = boost::iterator_range<Iterator>;
 template <typename Iterator> using DataOutRange = boost::iterator_range<Iterator>;
 
@@ -148,3 +150,5 @@ public:
     }
 
 };
+
+} // end namespace cbox

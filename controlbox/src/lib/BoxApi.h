@@ -10,6 +10,8 @@
 #include <string>
 #include "stdarg.h"
 
+namespace cbox {
+
 class Profile
 {
     int8_t id;
@@ -216,3 +218,5 @@ protected:
     }
 
 };
+
+} // end namespace cbox

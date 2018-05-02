@@ -17,6 +17,8 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 #ifndef CONTROLBOX_STATIC
 #define CONTROLBOX_STATIC 1
 #endif

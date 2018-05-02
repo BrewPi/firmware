@@ -43,7 +43,7 @@ void setup()
 {
     Serial.begin(57600);
     eepromAccess.init();
-    controlbox_setup(0);
+    cbox::controlbox_setup(0);
     platform_init();
 
     System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
@@ -56,7 +56,7 @@ void setup()
 void loop()
 {
 //
-	controlbox_loop();
+	cbox::controlbox_loop();
 /*
 	if(!mdns_started && WiFi.ready() && WiFi.RSSI() < 0){
 

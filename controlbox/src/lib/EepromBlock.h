@@ -1,6 +1,8 @@
 #pragma once
 #include "ValuesEeprom.h"
 
+namespace cbox {
+
 /**
  * Streams an eeprom value of a given fixed size.
  */
@@ -40,3 +42,4 @@ class EepromBlock : public EepromBaseValue
     }
 };
 
+}

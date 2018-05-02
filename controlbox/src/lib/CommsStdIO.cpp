@@ -1,5 +1,7 @@
 #include "CommsStdIO.h"
 
+namespace cbox {
+
 #if !CONTROLBOX_WIRING
 
 #if defined(WIN32)
@@ -118,3 +120,5 @@ template<> void StreamDataOut<StdIO>::flush() {
 }
 
 #endif
+
+} // end namespace cbox

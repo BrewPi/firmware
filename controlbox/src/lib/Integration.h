@@ -17,13 +17,14 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INTEGRATION_H
-#define	INTEGRATION_H
+#pragma once
 
 #include "Comms.h"
 #include "SystemProfile.h"
 #include "Commands.h"
 #include "Static.h"
+
+namespace cbox {
 
 
 #if CONTROLBOX_STATIC
@@ -76,5 +77,4 @@ void controlbox_loop();
 
 #endif
 
-#endif	/* INTEGRATION_H */
-
+}

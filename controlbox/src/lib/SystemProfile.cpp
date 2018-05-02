@@ -17,11 +17,13 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "Static.h"
 #include "SystemProfile.h"
 #include "Commands.h"
 #include "ValuesEeprom.h"
 
+namespace cbox {
 
 const uint8_t EEPROM_HEADER_SIZE = 2;
 const uint8_t MAX_SYSTEM_PROFILES = 4;
@@ -452,4 +454,4 @@ void SystemProfile::listEepromInstructionsTo(profile_id_t profile, DataOut& out)
 	while (walker.writeNext(out)) {}
 }
 
-
+} // end namespace cbox

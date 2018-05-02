@@ -9,6 +9,8 @@
 #include <queue>
 #include <functional>
 
+namespace cbox {
+
 class Stream {};
 
 
@@ -113,4 +115,10 @@ public:
 	}
 };
 
+} // end namespace cbox
+
+#else
+namespace cbox {} // ensure namespace is declared in this situation too
+
 #endif
+

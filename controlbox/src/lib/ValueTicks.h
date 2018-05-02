@@ -25,6 +25,8 @@
 #include "StreamUtil.h"
 #include "Static.h"
 
+namespace cbox {
+
 // return time that has passed since timeStamp, take overflow into account
 inline ticks_seconds_t timeSince(ticks_seconds_t currentTime, ticks_seconds_t previousTime){
 	if(currentTime>=previousTime) {
@@ -94,7 +96,7 @@ public:
 	// return time that has passed since timeStamp, take overflow into account
 	ticks_seconds_t timeSinceSeconds(ticks_seconds_t previousTime) {
 		ticks_seconds_t currentTime = seconds();
-		return ::timeSince(currentTime, previousTime);
+		return timeSince(currentTime, previousTime);
 	}
 
 	static Object* create(ObjectDefinition& /*defn*/) {
@@ -153,3 +155,5 @@ public:
 		out.writeBuffer(&cycle_ticks, sizeof(cycle_ticks));
 	}
 };
+
+} // end namespace cbox

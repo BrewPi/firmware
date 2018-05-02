@@ -20,6 +20,8 @@
 
 #include "GenericContainer.h"
 
+namespace cbox {
+
 #define DYNAMIC_CONTAINER_BOUNDS_CHECKS 0
 
 container_id DynamicContainer::next() {
@@ -78,3 +80,6 @@ void DynamicContainer::remove(container_id id) {
 Object* DynamicContainer::item(container_id id) {
 	return (id<_size()) || !DYNAMIC_CONTAINER_BOUNDS_CHECKS ? _items[id] : NULL;
 }
+
+} // end namespace cbox
+

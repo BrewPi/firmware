@@ -24,6 +24,8 @@
 #include <stdint.h>
 #include <algorithm>
 
+namespace cbox {
+
 #ifndef DATASTREAM_ANNOTATIONS
 #define DATASTREAM_ANNOTATIONS CBOX_DEBUG
 #endif
@@ -248,3 +250,5 @@ public:
 #else
 	#define WRITE_ANNOTATION(out, value)
 #endif
+
+}

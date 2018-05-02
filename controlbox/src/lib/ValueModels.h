@@ -25,6 +25,8 @@
 #include "ValuesEeprom.h"
 #include "SystemProfile.h"
 
+namespace cbox {
+
 class ExternalReadOnlyValue : public Value
 {
 protected:
@@ -179,3 +181,5 @@ public:
 		return new_object(IndirectValue(cb_nonstatic_decl(def.eepromAccess(), def.root)));
 	}
 };
+
+} // end namespace cbox
