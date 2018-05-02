@@ -44,12 +44,14 @@
 #endif
 
 #if BREWPI_USE_WIFI
+
 class NetworkSerialMuxer : public Stream
 {
 private:
     TCPServer tcpServer = TCPServer(6666);
     TCPClient tcpClient;
     Stream * currentStream = &Serial;
+    bool tcpServerRunning = false;
 
 public:
     void print(char c) {
@@ -72,14 +74,23 @@ public:
         return currentStream->read();
     }
 
+    void stopTcp(){
+        tcpServer.stop();
+        tcpClient.stop();
+        tcpServerRunning = false;
+    }
+
+    void startTcp(){
+        tcpServer.begin();
+        tcpServerRunning = true;
+    }
+
     /**
      * Check both Serial and WiFi to see if they are connected.
      * When Serial is connected it has preference over WiFi.
      * Set the current stream to where the data is available and return the number of bytes available
      */
     int available() {
-        static bool tcpServerRunning = false;
-
         int available = 0;
 
         if (Serial.isConnected()) {
@@ -89,29 +100,31 @@ public:
             currentStream = &Serial;
         }
         else{
-        	if (WiFi.ready() &&  WiFi.localIP()[0] != 0){    // workaround for bug where WiFi.ready() returns true with IP 0.0.0.0
-				if(!tcpServerRunning) {
-					tcpServer.begin();
-					tcpServerRunning = true;
-				}
+            if(!WiFi.ready() || WiFi.RSSI() >= 0){
+                // WiFi is in error state, stop TCP server
+                if(tcpServerRunning){
+                    stopTcp();
+                }
+            }
+            else{
+                if(!tcpServerRunning){
+                    startTcp();
+                }
+            }
 
+            if(tcpServerRunning){
 				// if a new client appears, drop the old one
 				TCPClient newClient = tcpServer.available();
 				if(newClient) {
 					tcpClient.stop();
 					tcpClient = newClient;
 				}
-				if (tcpClient.connected()) {
+				if(tcpClient.status()){
 					available = tcpClient.available();
 					if(available > 0) {
 						currentStream = &tcpClient;
 					}
 				}
-			}
-			else {
-				tcpServer.stop();
-				tcpClient.stop();
-				tcpServerRunning = false;
 			}
         }
 
@@ -120,6 +133,7 @@ public:
 
     void begin(unsigned long rate) {
         Serial.begin(rate);
+        Serial.blockOnOverrun(false);
         // WiFi is handled in available()
     }
 

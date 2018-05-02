@@ -30,6 +30,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdint.h> // for uint8_t
+#include "system_tick_hal.h"
 
 #include "spark_wiring_string.h"
 #include "spark_wiring_printable.h"

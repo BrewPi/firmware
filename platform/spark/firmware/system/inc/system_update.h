@@ -46,6 +46,7 @@ bool system_fileTransfer(system_file_transfer_t* transfer, void* reserved=NULL);
 void system_lineCodingBitRateHandler(uint32_t bitrate);
 
 bool system_module_info(appender_fn appender, void* append_data, void* reserved=NULL);
+bool system_metrics(appender_fn appender, void* append_data, uint32_t flags, uint32_t page, void* reserved=NULL);
 bool append_system_version_info(Appender* appender);
 
 bool ota_update_info(appender_fn append, void* append_data, void* mod, bool full, void* reserved);
@@ -143,6 +144,19 @@ void system_pending_shutdown();
 
 int system_set_flag(system_flag_t flag, uint8_t value, void* reserved);
 int system_get_flag(system_flag_t flag, uint8_t* value,void* reserved);
+
+/**
+ * Formats the diagnostic data using an appender function.
+ *
+ * @param id Array of data source IDs. This argument can be set to NULL to format all registered data sources.
+ * @param count Number of data source IDs in the array.
+ * @param flags Formatting flags.
+ * @param append Appender function.
+ * @param append_data Opaque data passed to the appender function.
+ * @param reserved Reserved argument (should be set to NULL).
+ */
+int system_format_diag_data(const uint16_t* id, size_t count, unsigned flags, appender_fn append, void* append_data,
+        void* reserved);
 
 #ifdef __cplusplus
 }

@@ -40,14 +40,25 @@ public:
 	 * /param calibration	A temperature value that is added to all readings. This can be used to calibrate the sensor.	 
 	 */
 	OneWireTempSensor(OneWire* bus, DeviceAddress address, temp_t calibrationOffset)
-	: oneWire(bus), sensor(NULL) {		
-		connected = true;  // assume connected. Transition from connected to disconnected prints a message.
-		memcpy(sensorAddress, address, sizeof(DeviceAddress));
-		this->calibrationOffset = calibrationOffset;
-		cachedValue = TEMP_SENSOR_DISCONNECTED;
-	};
+	: sensor(bus)
+    {
+        memcpy(settings.sensorAddress, address, sizeof(DeviceAddress));
+        settings.calibrationOffset = calibrationOffset;
+        state.connected = true; // assume connected upon creation, because address will be set just after this construction
+        state.cachedValue = TEMP_SENSOR_DISCONNECTED;
+        init();
+    };
 	
-	~OneWireTempSensor();
+	OneWireTempSensor(OneWire* bus)
+    : sensor(bus) {
+        memset(settings.sensorAddress, 0, sizeof(DeviceAddress));
+        settings.calibrationOffset = temp_t(0.0);
+        state.connected = true; // assume connected upon creation, because address will be set just after this construction
+        state.cachedValue = TEMP_SENSOR_DISCONNECTED;
+        init();
+    };
+
+	~OneWireTempSensor() = default;
 
     /**
      * Accept function for visitor pattern
@@ -58,7 +69,7 @@ public:
     }
 
 	bool isConnected(void) const override final {
-		return connected;
+		return state.connected;
 	}		
 	
 	bool init() override final ;
@@ -79,14 +90,18 @@ public:
 	 * updates lastRequestTime. On successful, leaves lastRequestTime alone and returns DEVICE_DISCONNECTED.
 	 */
 	temp_t readAndConstrainTemp();
-	
-	OneWire * oneWire;
-	DallasTemperature * sensor;
-	DeviceAddress sensorAddress;
 
-	temp_t calibrationOffset;
-	temp_t cachedValue;
-	bool connected;
-	
+	DallasTemperature sensor;
+
+	struct Settings {
+        DeviceAddress sensorAddress;
+        temp_t calibrationOffset;
+	} settings;
+
+	struct State {
+        temp_t cachedValue;
+        bool connected;
+	} state;
+
 	friend class OneWireTempSensorMixin;
 };

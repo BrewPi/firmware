@@ -112,10 +112,10 @@ void OneWireTempSensorMixin::serializeImpl(JSON::Adapter & adapter)
 
     char addressBuf[17];
 
-    printBytes(obj -> sensorAddress, 8, addressBuf);    // print to hex string
+    printBytes(obj -> settings.sensorAddress, 8, addressBuf);    // print to hex string
     std::string address(addressBuf);    // convert to std string
     JSON_E(adapter, address);
-    JSON_OT(adapter, calibrationOffset);
+    JSON_OT(adapter, settings.calibrationOffset);
 }
 
 void TempSensorDisconnectedMixin::serializeImpl(JSON::Adapter & adapter)

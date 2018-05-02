@@ -105,7 +105,7 @@ void cellular_cancel(bool cancel, bool calledFromISR, void* reserved);
 /**
  * Retrieve cellular signal strength info
  */
-cellular_result_t cellular_signal(CellularSignalHal &signal, void* reserved);
+cellular_result_t cellular_signal(CellularSignalHal* signal, cellular_signal_t* reserved);
 
 /**
  * Send an AT command and wait for response, optionally specify a callback function to parse the results
@@ -152,6 +152,23 @@ cellular_result_t cellular_imsi_to_network_provider(void* reserved);
  * Function for getting the cellular network provider data currently set
  */
 const CellularNetProvData cellular_network_provider_data_get(void* reserved);
+
+/**
+ * Acquires the modem lock.
+ */
+int cellular_lock(void* reserved);
+
+/**
+ * Releases the modem lock.
+ */
+void cellular_unlock(void* reserved);
+
+/**
+ * Sets the power mode used, bound to 0-3.
+ *
+ * mode is volatile and will default to 1 on system reset/boot.
+ */
+void cellular_set_power_mode(int mode, void* reserved);
 
 #ifdef __cplusplus
 }

@@ -577,6 +577,8 @@ private:
 
     Vector<LogHandler*> activeHandlers_;
 
+    bool outputActive_;
+
 #if Wiring_LogConfig
     Vector<FactoryHandler> factoryHandlers_;
     LogHandlerFactory *handlerFactory_;
@@ -584,7 +586,7 @@ private:
 #endif
 
 #if PLATFORM_THREADING
-    Mutex mutex_; // TODO: Use read-write lock?
+    RecursiveMutex mutex_; // TODO: Use read-write lock?
 #endif
 
     // This class can be instantiated only via instance() method
@@ -602,22 +604,19 @@ private:
     static void logMessage(const char *msg, int level, const char *category, const LogAttributes *attr, void *reserved);
     static void logWrite(const char *data, size_t size, int level, const char *category, void *reserved);
     static int logEnabled(int level, const char *category, void *reserved);
+
+    bool isActive() const;
+    void setActive(bool output_active);
 };
 
 #if Wiring_LogConfig
 
 /*!
-    \brief Performs processing of a configuration request.
+    \brief Performs processing of a control request.
 
-    \param buf Buffer.
-    \param reqData Buffer size.
-    \param reqSize Request data size.
-    \param repSize Reply data size.
-    \param fmt Data format.
-
-    \return `false` in case of error.
+    \param req Request handle.
 */
-bool logProcessConfigRequest(char *buf, size_t bufSize, size_t reqSize, size_t *repSize, DataFormat fmt);
+void logProcessControlRequest(ctrl_request* req);
 
 #endif // Wiring_LogConfig
 

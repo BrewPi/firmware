@@ -24,6 +24,8 @@
 |     |  19 | 0.5.3-rc.2 |         (Core, Photon, P1, Electron) |
 |     |  20 | 0.5.3-rc.3 |         (Core, Photon, P1, Electron) |
 |     |  21 | 0.5.3 |              (Core, Photon, P1, Electron) |
+|     |  22 | 0.5.4 |              (Core, Photon, P1, Electron) |
+|     |  23 | 0.5.5 |                    (Photon, P1, Electron) |
 |     | 100 | 0.6.0-rc.1 |         (Core, Photon, P1, Electron) |
 |     | 101 | 0.6.0-rc.2 |         (Core, Photon, P1, Electron) |
 |     | 102 | 0.6.0 |              (Core, Photon, P1, Electron) |
@@ -33,12 +35,22 @@
 |     | 106 | 0.6.2-rc.1 |         (Core, Photon, P1, Electron) |
 |     | 107 | 0.6.2-rc.2 |         (Core, Photon, P1, Electron) |
 |  11 | 108 | 0.6.2 |              (Core, Photon, P1, Electron) |
+|  11 | 109 | 0.6.3 |                    (Photon, P1, Electron) |
+|  11 | 110 | 0.6.4 |                                (Electron) |
 | 100 | 200 | 0.7.0-rc.1 |         (Core, Photon, P1, Electron) |
 | 100 | 201 | 0.7.0-rc.2 |         (Core, Photon, P1, Electron) |
 | 100 | 202 | 0.7.0-rc.3 |         (Core, Photon, P1, Electron) |
 | 100 | 203 | 0.7.0-rc.4 |         (Core, Photon, P1, Electron) |
 | 101 | 204 | 0.7.0-rc.5 |         (Core, Photon, P1, Electron) |
 | 101 | 205 | 0.7.0-rc.6 |         (Core, Photon, P1, Electron) |
+| 101 | 206 | 0.7.0-rc.7 |         (Core, Photon, P1, Electron) |
+| 101 | 207 | 0.7.0 |              (Core, Photon, P1, Electron) |
+| 101 (200)[1] | 300 | 0.8.0-rc.1 |      (Photon, P1, Electron) |
+| 101 | 301 | 0.8.0-rc.2 |               (Photon, P1, Electron) |
+| 201 | 302 | 0.8.0-rc.3 |         (Core, Photon, P1, Electron) |
+
+[1] For 0.8.0-rc.1, The v101 bootloader was also released in the Github releases as v200. Thus the next released bootloader in the 0.8.x line should be v201. As of 4/5/2018: 22 device had v200 bootloaders.
+
 
 To find out the release version of system firmware currently installed, in listening mode,
 connect to serial and send `v` to print the release version string.

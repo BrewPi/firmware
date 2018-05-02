@@ -57,8 +57,8 @@ ProtocolError Protocol::handle_received_message(Message& message,
 	{
 		// 4 bytes header, 1 byte token, 2 bytes location path
 		// 2 bytes optional single character location path for describe flags
-		int descriptor_type = DESCRIBE_ALL;
-		if (message.length()>8 && queue[8] <= DESCRIBE_ALL) {
+		int descriptor_type = DESCRIBE_DEFAULT;
+		if (message.length()>8 && queue[8] <= DESCRIBE_MAX) {
 			descriptor_type = queue[8];
 		} else if (message.length() > 8) {
 			LOG(WARN, "Invalid DESCRIBE flags %02x", queue[8]);
@@ -317,7 +317,9 @@ ProtocolError Protocol::hello(bool was_ota_upgrade_successful)
 	Message message;
 	channel.create(message);
 
-	size_t len = build_hello(message, was_ota_upgrade_successful);
+	uint8_t flags = was_ota_upgrade_successful ? 1 : 0;
+	flags |= 2;		// diagnostics support
+	size_t len = build_hello(message, flags);
 	message.set_length(len);
 	message.set_confirm_received(true);
 	last_message_millis = callbacks.millis();
@@ -415,72 +417,89 @@ ProtocolError Protocol::send_description(token_t token, message_id_t msg_id, int
 	size_t desc = Messages::description(buf, msg_id, token);
 
 	BufferAppender appender(buf + desc, message.capacity());
-	appender.append("{");
-	bool has_content = false;
 
-	if (desc_flags & DESCRIBE_APPLICATION)
+	// diagnostics must be requested in isolation to be a binary packet
+	if (descriptor.append_metrics && (desc_flags == DESCRIBE_METRICS))
 	{
-		has_content = true;
-		appender.append("\"f\":[");
+		appender.append(char(0));	// null byte means binary data
+		appender.append(char(DESCRIBE_METRICS)); 									// uint16 describes the type of binary packet
+		appender.append(char(0));	//
+		const int flags = 1;		// binary
+		const int page = 0;
+		descriptor.append_metrics(append_instance, &appender, flags, page, nullptr);
+	}
+	else {
+		appender.append("{");
+		bool has_content = false;
 
-		int num_keys = descriptor.num_functions();
-		int i;
-		for (i = 0; i < num_keys; ++i)
+		if (desc_flags & DESCRIBE_APPLICATION)
 		{
-			if (i)
-			{
-				appender.append(',');
-			}
-			appender.append('"');
+			has_content = true;
+			appender.append("\"f\":[");
 
-			const char* key = descriptor.get_function_key(i);
-			size_t function_name_length = strlen(key);
-			if (MAX_FUNCTION_KEY_LENGTH < function_name_length)
+			int num_keys = descriptor.num_functions();
+			int i;
+			for (i = 0; i < num_keys; ++i)
 			{
-				function_name_length = MAX_FUNCTION_KEY_LENGTH;
+				if (i)
+				{
+					appender.append(',');
+				}
+				appender.append('"');
+
+				const char* key = descriptor.get_function_key(i);
+				size_t function_name_length = strlen(key);
+				if (MAX_FUNCTION_KEY_LENGTH < function_name_length)
+				{
+					function_name_length = MAX_FUNCTION_KEY_LENGTH;
+				}
+				appender.append((const uint8_t*) key, function_name_length);
+				appender.append('"');
 			}
-			appender.append((const uint8_t*) key, function_name_length);
-			appender.append('"');
+
+			appender.append("],\"v\":{");
+
+			num_keys = descriptor.num_variables();
+			for (i = 0; i < num_keys; ++i)
+			{
+				if (i)
+				{
+					appender.append(',');
+				}
+				appender.append('"');
+				const char* key = descriptor.get_variable_key(i);
+				size_t variable_name_length = strlen(key);
+				SparkReturnType::Enum t = descriptor.variable_type(key);
+				if (MAX_VARIABLE_KEY_LENGTH < variable_name_length)
+				{
+					variable_name_length = MAX_VARIABLE_KEY_LENGTH;
+				}
+				appender.append((const uint8_t*) key, variable_name_length);
+				appender.append("\":");
+				appender.append('0' + (char) t);
+			}
+			appender.append('}');
 		}
 
-		appender.append("],\"v\":{");
-
-		num_keys = descriptor.num_variables();
-		for (i = 0; i < num_keys; ++i)
+		if (descriptor.append_system_info && (desc_flags & DESCRIBE_SYSTEM))
 		{
-			if (i)
-			{
+			if (has_content)
 				appender.append(',');
-			}
-			appender.append('"');
-			const char* key = descriptor.get_variable_key(i);
-			size_t variable_name_length = strlen(key);
-			SparkReturnType::Enum t = descriptor.variable_type(key);
-			if (MAX_VARIABLE_KEY_LENGTH < variable_name_length)
-			{
-				variable_name_length = MAX_VARIABLE_KEY_LENGTH;
-			}
-			appender.append((const uint8_t*) key, variable_name_length);
-			appender.append("\":");
-			appender.append('0' + (char) t);
+			has_content = true;
+			descriptor.append_system_info(append_instance, &appender, nullptr);
 		}
 		appender.append('}');
 	}
-
-	if (descriptor.append_system_info && (desc_flags & DESCRIBE_SYSTEM))
-	{
-		if (has_content)
-			appender.append(',');
-		descriptor.append_system_info(append_instance, &appender, nullptr);
-	}
-	appender.append('}');
 	int msglen = appender.next() - (uint8_t*) buf;
 	message.set_length(msglen);
-	LOG(INFO,"Sending %s%s describe message", desc_flags & DESCRIBE_SYSTEM ? "S" : "",
-											  desc_flags & DESCRIBE_APPLICATION ? "A" : "");
+	LOG(INFO,"Sending '%s%s%s' describe message", desc_flags & DESCRIBE_SYSTEM ? "S" : "",
+											  desc_flags & DESCRIBE_APPLICATION ? "A" : "",
+											  desc_flags & DESCRIBE_METRICS ? "M" : "");
 	ProtocolError error = channel.send(message);
-	if (error==NO_ERROR && descriptor.app_state_selector_info)
+	if (error==NO_ERROR && descriptor.app_state_selector_info &&
+            (desc_flags & DESCRIBE_APPLICATION || desc_flags & DESCRIBE_SYSTEM))
 	{
+        this->channel.command(Channel::SAVE_SESSION);
 		if (desc_flags & DESCRIBE_APPLICATION)
 		{
 			// have sent the describe message to the cloud so update the crc
@@ -491,6 +510,7 @@ ProtocolError Protocol::send_description(token_t token, message_id_t msg_id, int
 			// have sent the describe message to the cloud so update the crc
 			descriptor.app_state_selector_info(SparkAppStateSelector::DESCRIBE_SYSTEM, SparkAppStateUpdate::COMPUTE_AND_PERSIST, 0, nullptr);
 		}
+        this->channel.command(Channel::LOAD_SESSION);
 	}
 	return error;
 }

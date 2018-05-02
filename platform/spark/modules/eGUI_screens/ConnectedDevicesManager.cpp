@@ -92,7 +92,7 @@ void ConnectedDevicesManager::handleDevice(DeviceConfig* config, DeviceCallbackI
                 device.value.temp = temp_t::invalid(); // flag invalid
                 device.pointer = DeviceManager::createDevice(*config, device.dt);
                 auto sensor = asInterface<TempSensor>(device.pointer);
-                if (!sensor || !sensor->init()) {
+                if (!sensor || !sensor->isConnected()) {
                     clearSlot(slot);
                     device.lastSeen = -1; // don't send REMOVED event since no added event has been sent
                 } else

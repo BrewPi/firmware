@@ -8,9 +8,10 @@
 #include "system_task.h"
 #include "system_control.h"
 #include "system_network.h"
+#include "spark_wiring_wifitester.h"
 
 #if Wiring_LogConfig
-extern bool(*log_process_config_request_callback)(char*, size_t, size_t, size_t*, DataFormat);
+extern void(*log_process_ctrl_request_callback)(ctrl_request* req);
 #endif
 
 SystemClass System;
@@ -40,14 +41,17 @@ void SystemClass::reset(uint32_t data)
     HAL_Core_System_Reset_Ex(RESET_REASON_USER, data, nullptr);
 }
 
-void SystemClass::sleep(Spark_Sleep_TypeDef sleepMode, long seconds, SleepNetworkFlag network)
+SleepResult SystemClass::sleep(Spark_Sleep_TypeDef sleepMode, long seconds, SleepOptionFlags flags)
 {
-    system_sleep(sleepMode, seconds, network.flag(), NULL);
+    system_sleep(sleepMode, seconds, flags.value(), NULL);
+    System.sleepResult_ = SleepResult();
+    return System.sleepResult_;
 }
 
-void SystemClass::sleep(uint16_t wakeUpPin, InterruptMode edgeTriggerMode, long seconds, SleepNetworkFlag network)
-{
-    system_sleep_pin(wakeUpPin, edgeTriggerMode, seconds, network.flag(), NULL);
+SleepResult SystemClass::sleepPinImpl(const uint16_t* pins, size_t pins_count, const InterruptMode* modes, size_t modes_count, long seconds, SleepOptionFlags flags) {
+    int ret = system_sleep_pins(pins, pins_count, modes, modes_count, seconds, flags.value(), nullptr);
+    System.sleepResult_ = SleepResult(ret, pins, pins_count);
+    return System.sleepResult_;
 }
 
 uint32_t SystemClass::freeMemory()
@@ -61,7 +65,53 @@ uint32_t SystemClass::freeMemory()
 
 #if Wiring_LogConfig
 bool SystemClass::enableFeature(LoggingFeature) {
-    log_process_config_request_callback = spark::logProcessConfigRequest;
+    log_process_ctrl_request_callback = spark::logProcessControlRequest;
     return true;
 }
 #endif
+
+bool SystemClass::enableFeature(const WiFiTesterFeature feature) {
+    WiFiTester::init();
+    return true;
+}
+
+SleepResult::SleepResult(int ret, const pin_t* pins, size_t pinsSize) {
+    if (ret > 0) {
+        // pin
+        --ret;
+        if ((size_t)ret < pinsSize) {
+            pin_ = pins[ret];
+            reason_ = WAKEUP_REASON_PIN;
+            err_ = SYSTEM_ERROR_NONE;
+        }
+    } else if (ret == 0) {
+        reason_ = WAKEUP_REASON_RTC;
+        err_ = SYSTEM_ERROR_NONE;
+    } else {
+        err_ = static_cast<system_error_t>(ret);
+    }
+}
+
+WakeupReason SleepResult::reason() const {
+    return reason_;
+}
+
+bool SleepResult::wokenUpByRtc() const {
+    return reason_ == WAKEUP_REASON_RTC || reason_ == WAKEUP_REASON_PIN_OR_RTC;
+}
+
+bool SleepResult::wokenUpByPin() const {
+    return reason_ == WAKEUP_REASON_PIN || reason_ == WAKEUP_REASON_PIN_OR_RTC;
+}
+
+pin_t SleepResult::pin() const {
+    return pin_;
+}
+
+bool SleepResult::rtc() const {
+    return wokenUpByRtc();
+}
+
+system_error_t SleepResult::error() const {
+    return err_;
+}

@@ -129,6 +129,8 @@ void core_log(const char* msg, ...)
 
 const char* eeprom_bin = "eeprom.bin";
 
+#ifndef UNIT_TEST
+
 extern "C" int main(int argc, char* argv[])
 {
     log_set_callbacks(log_message_callback, log_write_callback, log_enabled_callback, nullptr);
@@ -151,6 +153,8 @@ class GCCStartup {
 };
 
 static GCCStartup startup;
+
+#endif // !defined(UNIT_TEST)
 
 inline char* concat_nibble(char* result, uint8_t nibble)
 {
@@ -234,7 +238,13 @@ void HAL_Core_Execute_Stop_Mode(void)
     MSG("Stop mode not implemented.");
 }
 
-void HAL_Core_Enter_Standby_Mode(uint32_t seconds, void* reserved)
+int32_t HAL_Core_Enter_Stop_Mode_Ext(const uint16_t* pins, size_t pins_count, const InterruptMode* mode, size_t mode_count, long seconds, void* reserved)
+{
+    MSG("Stop mode not implemented.");
+    return -1;
+}
+
+void HAL_Core_Enter_Standby_Mode(uint32_t seconds, uint32_t flags)
 {
     MSG("Standby mode not implemented.");
 }
@@ -379,6 +389,8 @@ bool HAL_Feature_Get(HAL_Feature feature)
 #endif
         		return value;
         }
+        default:
+            break;
     }
     return false;
 }
