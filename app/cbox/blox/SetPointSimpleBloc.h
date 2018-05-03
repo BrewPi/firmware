@@ -82,4 +82,9 @@ public:
         pb_encode_delimited(&stream, blox_SetPointSimple_fields, &message);
     }
 
+    virtual cbox::obj_type_t typeID() override {
+    	// use function overloading and templates to manage type IDs in a central place (AppTypeRegistry)
+    	return resolveTypeID(this);
+    }
+
 };

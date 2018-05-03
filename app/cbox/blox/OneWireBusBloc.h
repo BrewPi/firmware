@@ -112,4 +112,9 @@ public:
     static cbox::Object* create(cbox::ObjectDefinition& defn) {
         return new_object(OneWireBusBloc(oneWirePin));
     }
+
+    virtual cbox::obj_type_t typeID() override {
+    	// use function overloading and templates to manage type IDs in a central place (AppTypeRegistry)
+    	return resolveTypeID(this);
+    }
 };

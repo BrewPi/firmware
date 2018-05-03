@@ -41,6 +41,21 @@ TicksImpl baseticks;
 EepromAccess eepromAccess;
 cbox::ScaledTicksValue ticks;
 
+
+class DeviceIdValue : public cbox::ExternalReadOnlyValue {
+public:
+	DeviceIdValue() : cbox::ExternalReadOnlyValue(id.data, id.size){
+		platform_device_id(id);
+	}
+
+	virtual cbox::obj_type_t typeID() override {
+		// use function overloading and templates to manage type IDs in a central place (TypeRegistry)
+		return cbox::resolveTypeID(this);
+	}
+private:
+	data_block_ref id;
+};
+
 namespace cbox {
 
 Commands::ObjectFactory createObjectHandlers[] = {
@@ -77,16 +92,8 @@ void connectionStarted(StandardConnection& connection, DataOut& out)
 
 Container& systemRootContainer()
 {
-    static data_block_ref id;
-    platform_device_id(id);
-
-    static ExternalReadOnlyValue idValue(id.data, id.size);
-    idValue.setTypeID(0);       // this is just a buffer  for the ID
-    ticks.setTypeID(1);
-    // todo - lookup the type ID from the xxx::create function. This can
-    // be resolved at compile-time.
-
-    static Object* values[] = { &idValue, &ticks, &oneWireBus };
+    static DeviceIdValue idValue;
+	static Object* values[] = { &idValue, &ticks, &oneWireBus };
     static FixedContainer root(sizeof(values)/sizeof(values[0]), values);
     return root;
 }

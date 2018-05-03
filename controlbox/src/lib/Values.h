@@ -22,9 +22,12 @@
 
 #include "stddef.h"
 #include "stdint.h"
+
 #include "DataStream.h"
 #include "EepromAccess.h"
 #include "CboxMixins.h"
+#include "ResolveType.h"
+
 
 namespace cbox {
 
@@ -53,11 +56,6 @@ enum Enum {
  */
 typedef uint8_t object_flags_t;
 
-/**
- * Application defined type id. The maximum value is 127.
- */
-typedef uint8_t obj_type_t;
-
 #define delete_object(x) delete (x)
 
 // have a hook for all object creations.
@@ -67,9 +65,8 @@ typedef uint8_t obj_type_t;
 
 struct Object : virtual public ObjectMixin
 {
-	obj_type_t _typeID;
 public:
-	Object(obj_type_t typeID=0) : _typeID(typeID) {}
+	Object() {}
 
 	virtual ~Object() = default;
 
@@ -81,11 +78,10 @@ public:
 	virtual object_flags_t objectFlags() { return ObjectFlags::Object; }
 
 	/**
-	 * The application defined typeID for this object instance.
+	 * The application defined typeID for this object instance. Defined by derived class
 	 */
-	virtual obj_type_t typeID() { return _typeID; }
+	virtual obj_type_t typeID() = 0;
 
-	void setTypeID(obj_type_t type) { _typeID = type; }
 
 	/**
 	 * Notifies this object that it has been created and is operational in the system.
@@ -210,10 +206,6 @@ public:
 	virtual void readTo(DataOut& out)=0;
 	virtual uint8_t readStreamSize()=0;			// the size this value occupies in the stream.
 
-	void setTypeID(obj_type_t typeID) {
-		_typeID = typeID;
-	}
-
 };
 
 class WritableValue : public Value {
@@ -332,7 +324,7 @@ bool walkObject(Object* obj, EnumObjectsFn callback, void* data, container_id* i
 
 
 /**
- * Enumerate all objects the root container and child containers.
+ * Enumerate all objects the of root container and child containers.
  */
 inline bool walkRoot(Container* root, EnumObjectsFn callback, void* data, container_id* id) {
 	return walkContainer(root, callback, data, id, id);

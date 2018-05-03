@@ -119,6 +119,11 @@ class DynamicContainer: public OpenContainer
 				delete_object(item(i));
 			free(_items);
 		}
+
+		virtual obj_type_t typeID() override {
+			// use function overloading and templates to manage type IDs in a central place (TypeRegistry)
+			return resolveTypeID(this);
+		}
 };
 
 /**
@@ -191,6 +196,11 @@ template<int SIZE> class StaticTemplateContainer : public OpenContainer
 		virtual ~StaticTemplateContainer() {
 			for (int i=0; i<SIZE;i++)
 				delete_object(_items[i]);
+		}
+
+		virtual obj_type_t typeID() override {
+			// use function overloading and templates to manage type IDs in a central place (TypeRegistry)
+			return resolveTypeID(this);
 		}
 };
 
@@ -274,7 +284,10 @@ class FixedContainer : public OpenContainer
 		    return SIZE;
         }
 
-
+		virtual obj_type_t typeID() override {
+			// use function overloading and templates to manage type IDs in a central place (TypeRegistry)
+			return resolveTypeID(this);
+		}
 };
 
 }

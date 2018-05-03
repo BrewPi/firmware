@@ -228,10 +228,7 @@ int8_t Commands::createObject(Object*& newObject, DataIn& in, bool dryRun)
 	newObject = nullptr;
 	int8_t error = createApplicationObject(newObject, def, dryRun);			// read the type and create args
 	if (!error) {
-		if (newObject) {
-			newObject->setTypeID(type);
-		}
-		else {
+		if (!newObject) {
 			error = errorCode(insufficient_heap);
 		}
 	}

@@ -1,7 +1,7 @@
 /*
- * Copyright 2018 Elco Jacobs
+ * Copyright 2018 Elco Jacobs / BrewPi B.V.
  *
- * This file is part of controlbox.
+ * This file is part of BrewBlox.
  *
  * Controlbox is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
+ * along with BrewBlox. If not, see <http://www.gnu.org/licenses/>.
  */
 
 // This file contains empty mixins, which can be overridden by the application

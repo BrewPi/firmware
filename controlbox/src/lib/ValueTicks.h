@@ -103,6 +103,11 @@ public:
 		return nullptr;
 	}
 
+	virtual obj_type_t typeID() override {
+		// use function overloading and templates to manage type IDs in a central place (TypeRegistry)
+		return resolveTypeID(this);
+	}
+
 };
 
 } // end namespace cbox
@@ -139,6 +144,11 @@ public:
 	static Object* create(ObjectDefinition& /*def*/) {
 		// no parameters required
 		return new_object(CurrentTicksValue());
+	}
+
+	virtual obj_type_t typeID() override {
+		// use function overloading and templates to manage type IDs in a central place (TypeRegistry)
+		return resolveTypeID(this);
 	}
 };
 

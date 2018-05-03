@@ -88,4 +88,9 @@ public:
         pb_ostream_t stream = { &dataOutStreamCallback, &out, blox_OneWireTempSensor_size + 1, 0 };
         pb_encode_delimited(&stream, blox_OneWireTempSensor_fields, &message);
     }
+
+    virtual cbox::obj_type_t typeID() override {
+    	// use function overloading and templates to manage type IDs in a central place (AppTypeRegistry)
+    	return resolveTypeID(this);
+    }
 };
