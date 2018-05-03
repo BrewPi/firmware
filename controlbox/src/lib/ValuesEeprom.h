@@ -56,7 +56,7 @@ protected:
 		in.push(out, size);
 	}
 
-	virtual object_t objectType() override { return ObjectFlags::Value | ObjectFlags::WritableFlag; }
+	virtual object_flags_t objectFlags() override { return ObjectFlags::Value | ObjectFlags::WritableFlag; }
 
 };
 

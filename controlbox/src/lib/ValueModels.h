@@ -161,9 +161,9 @@ public:
 #endif
 	}
 
-	virtual object_t objectType() override {
+	virtual object_flags_t objectFlags() override {
 		fetchTarget();
-		return previous==NULL ? ObjectFlags::Object : previous->objectType();
+		return previous==NULL ? ObjectFlags::Object : previous->objectFlags();
 	}
 
 	virtual prepare_t prepare() override {

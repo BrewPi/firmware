@@ -54,7 +54,7 @@ enum Enum {
  * System flags for an object type. Objects are classified as
  * containers, open containers, readable, writable.
  */
-typedef uint8_t object_t;
+typedef uint8_t object_flags_t;
 
 /**
  * Application defined type id. The maximum value is 127.
@@ -81,7 +81,7 @@ public:
 	 * @return A value of the object_t enumeration indicating the type of object
 	 * this is.
 	 */
-	virtual object_t objectType() { return ObjectFlags::Object; }
+	virtual object_flags_t objectFlags() { return ObjectFlags::Object; }
 
 	/**
 	 * The application defined typeID for this object instance.
@@ -120,7 +120,7 @@ const container_id MAX_CONTAINER_ID = 127;
  */
 struct Container : public Object
 {
-	virtual object_t objectType() override { return ObjectFlags::Container; }
+	virtual object_flags_t objectFlags() override { return ObjectFlags::Container; }
 
 	/**
 	 * Fetches the object with the given id.
@@ -171,7 +171,7 @@ public:
 class OpenContainer : public Container
 {
 public:
-	virtual object_t objectType() override { return ObjectFlags::Container | ObjectFlags::OpenContainerFlag; }
+	virtual object_flags_t objectFlags() override { return ObjectFlags::Container | ObjectFlags::OpenContainerFlag; }
 
 	/*
 	 * Add the given object to the container at the given slot.
@@ -209,7 +209,7 @@ class Value : public Object {
 
 public:
 
-	virtual object_t objectType() override { return ObjectFlags::Value; }	// basic value type - read only stream
+	virtual object_flags_t objectFlags() override { return ObjectFlags::Value; }	// basic value type - read only stream
 	virtual void readTo(DataOut& out)=0;
 	virtual uint8_t readStreamSize()=0;			// the size this value occupies in the stream.
 
@@ -221,7 +221,7 @@ public:
 
 class WritableValue : public Value {
 public:
-	virtual object_t objectType() override { return ObjectFlags::ValueWrite; }
+	virtual object_flags_t objectFlags() override { return ObjectFlags::ValueWrite; }
 	virtual void writeFrom(DataIn& dataIn)=0;
 	virtual uint8_t writeStreamSize() { return readStreamSize(); }
 };
@@ -289,7 +289,7 @@ class MixinReadValue
         : value(t)
         {}
 
-		object_t objectType() {
+		object_flags_t objectType() {
 			return ObjectFlags::Value | ObjectFlags::ValueStateFlag;
 		}
 
@@ -323,7 +323,7 @@ public:
 	: MixinReadValue<T>(initial)
 	{}
 
-	object_t objectType() {
+	object_flags_t objectType() {
 		return ObjectFlags::Value | ObjectFlags::ValueStateFlag | ObjectFlags::WritableFlag;
 	}
 
@@ -436,32 +436,32 @@ inline bool hasFlags(uint8_t value, uint8_t flags) {
 
 inline bool isContainer(Object* o)
 {
-	return o!=NULL && (hasFlags(o->objectType(), ObjectFlags::Container));
+	return o!=NULL && (hasFlags(o->objectFlags(), ObjectFlags::Container));
 }
 
 inline bool isOpenContainer(Object* o)
 {
-	return o!=NULL && (hasFlags(o->objectType(), (ObjectFlags::Container|ObjectFlags::OpenContainerFlag)));
+	return o!=NULL && (hasFlags(o->objectFlags(), (ObjectFlags::Container|ObjectFlags::OpenContainerFlag)));
 }
 
 inline bool isValue(Object* o)
 {
-	return o!=NULL && (hasFlags(o->objectType(), ObjectFlags::Value));
+	return o!=NULL && (hasFlags(o->objectFlags(), ObjectFlags::Value));
 }
 
 inline bool isLoggedValue(Object* o)
 {
-	return o!=NULL && (o->objectType() & (ObjectFlags::Value|ObjectFlags::NotLogged))==ObjectFlags::Value;
+	return o!=NULL && (o->objectFlags() & (ObjectFlags::Value|ObjectFlags::NotLogged))==ObjectFlags::Value;
 }
 
 inline bool isDynamicallyAllocated(Object* o)
 {
-	return o!=NULL && (o->objectType() & ObjectFlags::StaticlyAllocated)==0;
+	return o!=NULL && (o->objectFlags() & ObjectFlags::StaticlyAllocated)==0;
 }
 
 inline bool isWritable(Object* o)
 {
-	return o!=NULL && (hasFlags(o->objectType(), ObjectFlags::WritableFlag));
+	return o!=NULL && (hasFlags(o->objectFlags(), ObjectFlags::WritableFlag));
 }
 
 /*
