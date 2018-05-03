@@ -21,7 +21,7 @@ extern MockTicks baseticks;
 
 #include "ValueTicks.h"
 
-extern ScaledTicksValue ticks;
+extern cbox::ScaledTicksValue ticks;
 
 class MockDelay {
 public:

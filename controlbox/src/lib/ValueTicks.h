@@ -105,11 +105,16 @@ public:
 
 };
 
+} // end namespace cbox
+
 /**
- * Time is critical to so many components that this is provided as a system-level service.
+ * Time is critical to so many components that this is provided as a system-level service outside of the cbox namespace
  * The SystemProfile maintains this instance and persists changes to eeprom.
  */
-extern ScaledTicksValue ticks;
+extern cbox::ScaledTicksValue ticks;
+
+
+namespace cbox {
 
 /**
  * Fetches the current millisecond count from the {@code Ticks} static instance.
