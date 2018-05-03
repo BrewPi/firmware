@@ -37,15 +37,12 @@ typedef uint16_t prepare_t;
 namespace ObjectFlags {
 enum Enum {
 	Object = 0,
-	Value = 4,			// 0x000001xx are for value types. Base value type is stream only readable.
-	ValueWrite = 5,		// value is writable (either state and/or stream as indicated.)
-	ValueState = 6,		// value state is readable
-	ValueWriteState = 7,	// value state is writable (and readable) and streamable
-	WritableFlag = 1,		// flag for writable values
-	ValueStateFlag = 2,	// flag for values that can get set state
+	Value = 4,			    // 0x000001xx are for value types. Base value type is stream only readable.
 	Container = 8,
-	OpenContainerFlag = 1,// value to flag that a container supports the OpenContainer interface (that the container is writable.)
-	NotLogged = 16,		// flag to indicate that a value is n logged normally
+	WritableFlag = 1,		// flag for stream writable values
+	hasStateFlag = 2,		// value (also) has state that can change when not written from stream
+	OpenContainerFlag = 1,  // value to flag that a container supports the OpenContainer interface (that the container is writable.)
+	NotLogged = 16,		    // flag to indicate that a value is not logged normally
 	StaticlyAllocated = 32
 };
 }
@@ -120,7 +117,7 @@ const container_id MAX_CONTAINER_ID = 127;
  */
 struct Container : public Object
 {
-	virtual object_flags_t objectFlags() override { return ObjectFlags::Container; }
+	virtual object_flags_t objectFlags() override { return Object::objectFlags() | ObjectFlags::Container; }
 
 	/**
 	 * Fetches the object with the given id.
@@ -171,7 +168,7 @@ public:
 class OpenContainer : public Container
 {
 public:
-	virtual object_flags_t objectFlags() override { return ObjectFlags::Container | ObjectFlags::OpenContainerFlag; }
+	virtual object_flags_t objectFlags() override { return Container::objectFlags() | ObjectFlags::OpenContainerFlag; }
 
 	/*
 	 * Add the given object to the container at the given slot.
@@ -209,7 +206,7 @@ class Value : public Object {
 
 public:
 
-	virtual object_flags_t objectFlags() override { return ObjectFlags::Value; }	// basic value type - read only stream
+	virtual object_flags_t objectFlags() override { return Object::objectFlags() | ObjectFlags::Value; }	// basic value type - read only stream
 	virtual void readTo(DataOut& out)=0;
 	virtual uint8_t readStreamSize()=0;			// the size this value occupies in the stream.
 
@@ -221,7 +218,7 @@ public:
 
 class WritableValue : public Value {
 public:
-	virtual object_flags_t objectFlags() override { return ObjectFlags::ValueWrite; }
+	virtual object_flags_t objectFlags() override { return Value::objectFlags() | ObjectFlags::WritableFlag; }
 	virtual void writeFrom(DataIn& dataIn)=0;
 	virtual uint8_t writeStreamSize() { return readStreamSize(); }
 };
@@ -243,155 +240,6 @@ public:
 
 };
 
-/**
- * Classes that can provide a representation of their state implement this interface.
- */
-template<typename T>
-class Readable
-{
-public:
-	/**
-	 * Retrieve the state representing the value of this instance.
-	 * @return The value.
-	 */
-	virtual T read()=0;
-};
-
-/**
- * Classes that can update their internal state from a given value implement this interface.
- */
-template<class T> class Writable
-{
-public:
-	/**
-	 * Writes to this value.
-     * @param t	The new value this Value should have.
-	 */
-    virtual void write(T t)=0;
-};
-
-/**
- * A basic state- and stream- readable value.
- * This class is intended as a base class for Value implementations.
- */
-template<typename T>
-class MixinReadValue
-{
-    protected:
-        T value;
-
-		void writeFrom(DataIn& in) {
-			in.read((uint8_t*)&this->value, sizeof(this->value));
-		}
-
-    public:
-        MixinReadValue(T t)
-        : value(t)
-        {}
-
-		object_flags_t objectType() {
-			return ObjectFlags::Value | ObjectFlags::ValueStateFlag;
-		}
-
-        T read() {
-            return value;
-        }
-
-		/**
-		 * This is not part of the writable interface, but provided for classes that are using this as a cache
-		 * for some other value. Externally, this value is not writable, but the immediate client needs to be able to set the value.
-		 */
-		void assign(T t) {
-			value = t;
-		}
-
-		void readTo(DataOut& out) {
-			out.writeBuffer(&value, sizeof(value));
-		}
-
-		uint8_t readStreamSize() { return sizeof(this->value); }
-};
-
-/**
- * A state and stream writable value.
- */
-template<typename T>
-class MixinReadWriteValue : public MixinReadValue<T>
-{
-public:
-	MixinReadWriteValue(T initial=0)
-	: MixinReadValue<T>(initial)
-	{}
-
-	object_flags_t objectType() {
-		return ObjectFlags::Value | ObjectFlags::ValueStateFlag | ObjectFlags::WritableFlag;
-	}
-
-};
-
-
-/**
- * A Readable value.
- */
-template<typename T> class BasicReadValue : public MixinReadValue<T>, public Value, public Readable<T>
-{
-public:
-	BasicReadValue(T t=T()) : MixinReadValue<T>(t) {}
-
-	typedef MixinReadValue<T> inherited;
-
-
-	T read() {
-		return inherited::read();
-	}
-
-	void readTo(DataOut& out) {
-		inherited::readTo(out);
-	}
-
-	uint8_t readStreamSize() {
-		return inherited::readStreamSize();
-	}
-
-};
-
-/**
- * A readable and writable value.
- */
-template <typename T>
-class BasicReadWriteValue : public MixinReadWriteValue<T>, public Value, public Readable<T>, public Writable<T>
-{
-public:
-	BasicReadWriteValue(T t=T()) : MixinReadWriteValue<T>(t) {}
-
-	typedef MixinReadWriteValue<T> inherited;
-
-	virtual void write(T t) {
-		inherited::assign(t);
-	}
-
-	virtual void writeFrom(DataIn& in) {
-		inherited::writeFrom(in);
-	}
-
-	T read() {
-		return inherited::read();
-	}
-
-	void readTo(DataOut& out) {
-		inherited::readTo(out);
-	}
-
-	uint8_t readStreamSize() {
-		return inherited::readStreamSize();
-	}
-};
-
-
-class ValueSource
-{
-	bool getValue(void* value, uint8_t id=0);
-};
 
 /**
  * Definition parameters for creating a new object.
@@ -524,3 +372,4 @@ Object* lookupObject(Object* current, DataIn& data, int8_t& lastID);
 int16_t read2BytesFrom(Value* value);
 
 }
+
