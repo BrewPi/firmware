@@ -58,22 +58,14 @@ private:
 
 namespace cbox {
 
-Commands::ObjectFactory createObjectHandlers[] = {
-        nullFactory,                                            // type 0
-        ScaledTicksValue::create,                               // type 1
-        DynamicContainer::create,                               // type 2
-        EepromValue::create,                                    // type 3
-        PersistChangeValue::create,                             // type 4
-        IndirectValue::create,                                  // type 5
-        OneWireTempSensorBlock::create,                          // type 6
-        SetPointSimpleBlock::create,                             // type 7
-        SensorSetPointPairBlock::create,                         // type 8
-        PidBlock::create,                                        // type 9
-        NULL
+#define OBJECT_FACTORY_ENTRY(className) {resolveTypeID<className>(), className::persistedMaxSize(), className::create}
 
-        // When defining a new object type, add the handler above the last NULL value (it's just there to make
-        // editing the code easier).
-        // The Object definition passed to the create handler contains the stream and the block length.
+Commands::ObjectFactory objectFactories[] = {
+        0, 0, nullFactory,
+		OBJECT_FACTORY_ENTRY(OneWireTempSensorBlock),
+		OBJECT_FACTORY_ENTRY(SetPointSimpleBlock),
+		OBJECT_FACTORY_ENTRY(SensorSetPointPairBlock),
+		OBJECT_FACTORY_ENTRY(PidBlock)
 };
 
 
@@ -119,14 +111,20 @@ int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryR
 {
     uint8_t type = def.type;
     int8_t error = errorCode(no_error);
-    if (type>=sizeof(createObjectHandlers)/sizeof(createObjectHandlers[0])) {
-        error = errorCode(invalid_type);
+    Object* (*createFn)(ObjectDefinition& def) = nullptr;
+    for(uint8_t i =0; i<sizeof(objectFactories)/sizeof(objectFactories[0]); i++) {
+    	if(type == objectFactories[i].typeId){
+    		createFn = objectFactories[i].createFn;
+    	}
+    }
+    if(createFn == nullptr){
+    	error = errorCode(invalid_type);
+    }
+    else if (dryRun){
+    	createFn = nullFactory; // Ensures stream is properly consumed even for invalid type values.
     }
     else {
-        if (dryRun){
-            type = 0; // null object creator. Ensures stream is properly consumed even for invalid type values.
-        }
-        result = createObjectHandlers[type](def);
+        result = createFn(def);
         if (!result) {
             error = errorCode(insufficient_heap);
         }

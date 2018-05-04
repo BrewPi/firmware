@@ -13,7 +13,7 @@ public:
         setpoint()
 {}
 
-    static const size_t persistedMaxSize(){
+    static const uint8_t persistedMaxSize(){
         static_assert(blox_SetPointSimple_Persisted_size < 128, "varint for settings size will be larger than 1 byte");
         return blox_SetPointSimple_Persisted_size + 1;
     }

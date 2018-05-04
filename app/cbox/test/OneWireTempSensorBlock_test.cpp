@@ -97,7 +97,7 @@ SCENARIO("Create blox OneWireTempSensor application object from definition"){
 
         cbox::BufferDataIn in(buffer1);
         uint8_t len = OneWireTempSensorBlock::persistedMaxSize();
-        uint8_t typeId = 6; //OneWireTempSensorBloc
+        cbox::obj_type_t typeId = cbox::resolveTypeID<OneWireTempSensorBlock>();
 
         cbox::ObjectDefinition dfn = {&in, len, typeId};
 
@@ -140,7 +140,7 @@ SCENARIO("Send an invalid protobuf creation command"){
 
         cbox::BufferDataIn in(wrong_defition);
         uint8_t len = OneWireTempSensorBlock::persistedMaxSize();
-        uint8_t typeId = 6; //OneWireTempSensorBloc
+        cbox::obj_type_t typeId = cbox::resolveTypeID<OneWireTempSensorBlock>();
 
         cbox::ObjectDefinition dfn = {&in, len, typeId};
 

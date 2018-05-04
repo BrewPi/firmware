@@ -56,7 +56,7 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data"){
             	cbox::BufferDataIn in(buf);
 
                 uint8_t len = PidBlock::persistedMaxSize();
-                uint8_t typeId = 9; //PidBloc
+                cbox::obj_type_t typeId = cbox::resolveTypeID<PidBlock>();
 
                 cbox::ObjectDefinition dfn = {&in, len, typeId};
 

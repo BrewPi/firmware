@@ -33,12 +33,12 @@ public:
     virtual void accept(VisitorBase & v) override final {
         v.visit(*this);
     }
-    virtual void update(){};
-    virtual void fastUpdate(){};
-    virtual bool request(ActuatorDigital * requester, bool active, int8_t newPriority){
+    virtual void update() override final {};
+    virtual void fastUpdate() override final {};
+    virtual bool request(ActuatorDigital * requester, bool active, int8_t newPriority) override final {
         return true;
     };
-    virtual void cancelRequest(ActuatorDigital * requester){};
+    virtual void cancelRequest(ActuatorDigital * requester) override final{};
 friend class ActuatorMutexGroupMixin;
 };
 

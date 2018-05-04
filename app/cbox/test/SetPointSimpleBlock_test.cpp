@@ -100,7 +100,8 @@ SCENARIO("Create blox SetPointSimple application object from definition"){
 
         cbox::BufferDataIn in(buffer1);
         uint8_t len = SetPointSimpleBlock::persistedMaxSize();
-        uint8_t typeId = 7;
+        cbox::obj_type_t typeId = cbox::resolveTypeID<SetPointSimpleBlock>();
+
 
         cbox::ObjectDefinition dfn = {&in, len, typeId};
 

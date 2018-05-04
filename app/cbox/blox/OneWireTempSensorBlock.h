@@ -18,7 +18,7 @@ public:
         sensor(&oneWireBus.oneWire())
 {}
 
-    static const size_t persistedMaxSize(){
+    static const uint8_t persistedMaxSize(){
         static_assert(blox_OneWireTempSensor_Persisted_size < 128, "varint for settings size will be larger than 1 byte");
         return blox_OneWireTempSensor_Persisted_size + 1;
     }

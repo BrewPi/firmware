@@ -14,7 +14,7 @@ template<class T>
 obj_type_t resolveTypeID();
 
 template<class T>
-obj_type_t resolveTypeID(T*){
+inline obj_type_t resolveTypeID(T*){
 	return resolveTypeID<T>();
 }
 

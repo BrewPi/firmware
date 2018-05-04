@@ -217,7 +217,12 @@ public:
 	/**
 	 * Prototype for object factories.
 	 */
-	typedef Object* (*ObjectFactory)(ObjectDefinition& def);
+
+	struct ObjectFactory {
+		obj_type_t typeId;
+		uint8_t reservedSize;
+		Object* (*createFn)(ObjectDefinition& def);
+	};
 
 
 	enum CommandID : uint8_t {
