@@ -20,9 +20,10 @@
 #include "catch.hpp"
 #include <cstdio>
 
+#include "../blox/SetPointSimpleBlock.h"
 #include "Values.h"
-#include "SetPointSimpleBloc.h"
 #include "Commands.h"
+#include "temperatureFormats.h"
 
 
 SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf data"){
@@ -44,11 +45,11 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
             }
 
             AND_WHEN("we create a DataIn object form that buffer"){
-                BufferDataIn in(buf);
+            	cbox::BufferDataIn in(buf);
 
                 THEN("a newly created SetPointSimpleBloc object can receive settings from the DataIn stream")
                 {
-                    SetPointSimpleBloc sp;
+                    SetPointSimpleBlock sp;
                     sp.writeFrom(in); // use in as mask too, it is not used.
                     temp_t setting = sp.get().read();
                     temp_t valid;
@@ -61,13 +62,13 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
                         sp.get().write(21.0);
 
                         uint8_t buf2[100];
-                        BufferDataOut out(buf2, sizeof(buf2));
+                        cbox::BufferDataOut out(buf2, sizeof(buf2));
                         sp.readTo(out);
 
                         sp.get().write(25.0); // change again, so we can verify the receive
                         CHECK(sp.get().read() == temp_t(25.0));
 
-                        BufferDataIn in_roundtrip(buf2);
+                        cbox::BufferDataIn in_roundtrip(buf2);
                         sp.writeFrom(in_roundtrip);
 
                         CHECK(sp.get().read() == temp_t(21.0));
@@ -97,18 +98,18 @@ SCENARIO("Create blox SetPointSimple application object from definition"){
             CHECK(status);
         }
 
-        BufferDataIn in(buffer1);
-        uint8_t len = SetPointSimpleBloc::persistedMaxSize();
+        cbox::BufferDataIn in(buffer1);
+        uint8_t len = SetPointSimpleBlock::persistedMaxSize();
         uint8_t typeId = 7;
 
-        ObjectDefinition dfn = {&in, len, typeId};
+        cbox::ObjectDefinition dfn = {&in, len, typeId};
 
         WHEN("an application object is created form the definition"){
-            Object* obj;
+        	cbox::Object* obj;
             uint8_t error = createApplicationObject(obj, dfn, false);
 
             THEN("No errors occur"){
-                CHECK(error == errorCode(no_error));
+                CHECK(error == cbox::errorCode(cbox::no_error));
             }
         }
     }

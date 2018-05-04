@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include "Interface.h"
 #include "ControllerMixins.h"
-
+#include "temperatureFormats.h"
 /*
  * A process value has a setting and an current value
  */

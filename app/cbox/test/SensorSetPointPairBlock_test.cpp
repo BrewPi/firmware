@@ -22,10 +22,10 @@
 #include <iostream>
 #include <iomanip>
 
+#include "../blox/SensorSetPointPairBlock.h"
 #include "Values.h"
 #include "Commands.h"
-#include "SensorSetPointPairBloc.h"
-
+#include "VisitorCast.h"
 
 SCENARIO("A Blox SensorSetPointPair object can be created from streamed protobuf data"){
     GIVEN("a protobuf message defining a SensorSetPointPair object"){
@@ -47,17 +47,17 @@ SCENARIO("A Blox SensorSetPointPair object can be created from streamed protobuf
             WARN("Length of encoding is " << blox_SensorSetPointPair_Persisted_size);
 
             AND_WHEN("we create a DataIn object from that buffer"){
-                BufferDataIn in(buf);
+            	cbox::BufferDataIn in(buf);
 
                 THEN("a newly created SensorSetPointPairBloc object can receive settings from the DataIn stream")
                 {
-                    SensorSetPointPairBloc sensor;
+                    SensorSetPointPairBlock sensor;
                     sensor.writeFrom(in); // use in as mask too, it is not used.
 
                     AND_THEN("we can stream that bloc object to a DataOut stream")
                     {
                         uint8_t buf2[100] = {0};
-                        BufferDataOut out(buf2, sizeof(buf2));
+                        cbox::BufferDataOut out(buf2, sizeof(buf2));
                         sensor.readTo(out);
 
                         // verify data that is streamed out by streaming it back in
@@ -88,25 +88,25 @@ SCENARIO("Create blox SensorSetPointPair application object from definition"){
         status = pb_encode_delimited(&stream1, blox_SensorSetPointPair_Persisted_fields, &definition);
         CHECK(status);
 
-        BufferDataIn in(buffer1);
-        uint8_t len = SensorSetPointPairBloc::persistedMaxSize();
+        cbox::BufferDataIn in(buffer1);
+        uint8_t len = SensorSetPointPairBlock::persistedMaxSize();
         uint8_t typeId = 8; //SensorSetPointPairBloc
 
-        ObjectDefinition dfn = {&in, len, typeId};
+        cbox::ObjectDefinition dfn = {&in, len, typeId};
 
         WHEN("an application object is created form the definition"){
-            Object * obj = nullptr;
+        	cbox::Object * obj = nullptr;
             uint8_t error = createApplicationObject(obj, dfn, false);
 
             THEN("No errors occur"){
-                CHECK(error == errorCode(no_error));
+                CHECK(error == cbox::errorCode(cbox::no_error));
             }
 
             AND_THEN("we can stream that bloc object to a DataOut stream and it matches the definition")
             {
                 uint8_t buf2[100] = {0};
-                BufferDataOut out(buf2, sizeof(buf2));
-                ((Value*)obj)->readTo(out); // TODO: this typecast shouldn't be necessary? What's the base class to stream objects?
+                cbox::BufferDataOut out(buf2, sizeof(buf2));
+                ((cbox::Value*)obj)->readTo(out); // TODO: this typecast shouldn't be necessary? What's the base class to stream objects?
 
                 // verify data that is streamed out by streaming it back in
                 pb_istream_t stream_in = pb_istream_from_buffer(buf2, sizeof(buf2));

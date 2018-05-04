@@ -2,6 +2,7 @@
 
 #include "RefTo.h"
 #include "Values.h"
+#include "Integration.h"
 #include <cstring>
 
 
@@ -17,7 +18,7 @@ public:
     virtual Interface * operator()() const override final {
         // id_chain.reset();
 
-        cbox::Object * root = &cbox::systemRootContainer();
+        cbox::Container * root = &cbox::systemRootContainer();
         cbox::Object * current = root;
         cbox::container_id id = -1;
         uint8_t i = 0;

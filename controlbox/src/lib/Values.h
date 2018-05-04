@@ -216,11 +216,11 @@ public:
 };
 
 /**
- * An mixin for objects that want to know where in the persisted data their definition is stored.
+ * A base class for objects that want to know where in the persisted data their definition is stored.
  */
-class RehydratedAwareObject : public Object
+class EepromAwareValue: public Value
 {
-	eptr_t address;
+	eptr_t address = -1;
 public:
 
 	virtual void rehydrated(eptr_t _address) override final {
@@ -228,7 +228,25 @@ public:
 	}
 
 	eptr_t eeprom_offset() { return address; }
-	uint8_t readStreamSize(cb_nonstatic_decl(EepromAccess& eepromAccess)) { return eepromAccess.readByte(address-1); }
+	uint8_t eepromSize(cb_nonstatic_decl(EepromAccess& eepromAccess)) { return eepromAccess.readByte(address-1); }
+
+};
+
+/**
+ * A base class for writable objects that want to know where in the persisted data their definition is stored.
+ * This code repetition is to avoid multiple inheritance
+ */
+class EepromAwareWritableValue : public WritableValue
+{
+	eptr_t address = -1;
+public:
+
+	virtual void rehydrated(eptr_t _address) override final {
+		address = _address;
+	}
+
+	eptr_t eeprom_offset() { return address; }
+	uint8_t eepromSize(cb_nonstatic_decl(EepromAccess& eepromAccess)) { return eepromAccess.readByte(address-1); }
 
 };
 

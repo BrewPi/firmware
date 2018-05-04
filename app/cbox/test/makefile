@@ -75,6 +75,7 @@ CPPSRC += $(call here_files,/platform/spark/libs/flashee/firmware/,*.cpp)
 # cbox app specific implementations
 CPPSRC += /app/cbox/CboxApp.cpp
 CPPSRC += /app/cbox/Logger.cpp
+CPPSRC += /app/cbox/AppResolveType.cpp
 
 # include boost
 ifeq ($(BOOST_ROOT),)

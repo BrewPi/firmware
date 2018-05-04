@@ -1,26 +1,21 @@
 #pragma once
 
-#include "bloc.h"
-#include "OneWireBusBloc.h"
-#include "OneWireTempSensor.pb.h"
-#include "OneWireTempSensor.h"
+#include "Block.h"
+#include "SetPointSimple.pb.h"
+#include "SetPoint.h"
 
-// since we only have one then might as well reference it directly
-// this will change when support for multiple busses is added.
-extern OneWireBusBloc oneWireBus;
-
-class OneWireTempSensorBloc: public Bloc {
+class SetPointSimpleBlock: public Block {
 private:
-    OneWireTempSensor sensor;
+    SetPointSimple setpoint;
 
 public:
-    OneWireTempSensorBloc() :
-        sensor(&oneWireBus.oneWire())
+    SetPointSimpleBlock() :
+        setpoint()
 {}
 
     static const size_t persistedMaxSize(){
-        static_assert(blox_OneWireTempSensor_Persisted_size < 128, "varint for settings size will be larger than 1 byte");
-        return blox_OneWireTempSensor_Persisted_size + 1;
+        static_assert(blox_SetPointSimple_Persisted_size < 128, "varint for settings size will be larger than 1 byte");
+        return blox_SetPointSimple_Persisted_size + 1;
     }
     virtual uint8_t readStreamSize() override final {
         /* maximum size of settings  +1 for varint for length in delimited message */
@@ -33,16 +28,16 @@ public:
 
     void writeFromImpl(cbox::DataIn& dataIn, bool storeToEeprom){
         /* copy old settings, because the update can be sparse and can only overwrite some of the values */
-        blox_OneWireTempSensor_Persisted newData;
+        blox_SetPointSimple_Persisted newData;
         /* copy old settings in case of a sparse update */
-        sensor.copySettingsTo(&newData.settings);
+        setpoint.copySettingsTo(&newData.settings);
         /* stream in new settings, overwriting copy of old settings */
         size_t maxSize = persistedMaxSize();
         pb_istream_t stream = { &dataInStreamCallback, &dataIn, maxSize};
-        bool success = pb_decode_delimited_noinit(&stream, blox_OneWireTempSensor_Persisted_fields, &newData);
+        bool success = pb_decode_delimited_noinit(&stream, blox_SetPointSimple_Persisted_fields, &newData);
         /* if no errors occur, write new settings to wrapped object */
         if(success){
-            sensor.copySettingsFrom(&newData.settings);
+            setpoint.copySettingsFrom(&newData.settings);
             if(storeToEeprom){
                 storeSettings();
             }
@@ -50,7 +45,7 @@ public:
     }
 
     static cbox::Object* create(cbox::ObjectDefinition& defn) {
-        auto obj = new OneWireTempSensorBloc;
+        auto obj = new_object(SetPointSimpleBlock);
         if(obj != nullptr){
             obj->writeFromImpl(*defn.in, false);
         }
@@ -63,34 +58,33 @@ public:
         }
         eptr_t offset = eeprom_offset();
         pb_ostream_t stream = { &eepromOutStreamCallback, &offset, eepromSize(), 0 };
-        blox_OneWireTempSensor_Persisted definition;
-        sensor.copySettingsTo(&definition.settings);
-        bool status = pb_encode_delimited(&stream, blox_OneWireTempSensor_Persisted_fields, &definition);
+        blox_SetPointSimple_Persisted definition;
+        setpoint.copySettingsTo(&definition.settings);
+        bool status = pb_encode_delimited(&stream, blox_SetPointSimple_Persisted_fields, &definition);
 
         return status;
     }
 
-    OneWireTempSensor & get() {
-        return sensor;
+    SetPointSimple & get() {
+        return setpoint;
     }
 
     virtual Interface * getApplicationInterfaceImpl() override final{
-        return &sensor;
+        return &setpoint;
     }
 
     virtual void readTo(cbox::DataOut& out) override final {
-        blox_OneWireTempSensor message;
-        assert_size<sizeof(message.settings), OneWireTempSensor::sizeof_Settings>();
-        assert_size<sizeof(message.state), OneWireTempSensor::sizeof_State>();
-        sensor.copySettingsTo(&message.settings);
-        sensor.copyStateTo(&message.state);
-        static_assert(blox_OneWireTempSensor_size < 128, "varint for size will be larger than 1 byte");
-        pb_ostream_t stream = { &dataOutStreamCallback, &out, blox_OneWireTempSensor_size + 1, 0 };
-        pb_encode_delimited(&stream, blox_OneWireTempSensor_fields, &message);
+        blox_SetPointSimple message; \
+        assert_size<sizeof(message.settings), SetPointSimple::sizeof_Settings>();
+        setpoint.copySettingsTo(&message.settings);
+        static_assert(blox_SetPointSimple_size < 128, "varint for settings size will be larger than 1 byte");
+        pb_ostream_t stream = { &dataOutStreamCallback, &out, blox_SetPointSimple_size + 1, 0 };
+        pb_encode_delimited(&stream, blox_SetPointSimple_fields, &message);
     }
 
     virtual cbox::obj_type_t typeID() override {
     	// use function overloading and templates to manage type IDs in a central place (AppTypeRegistry)
     	return resolveTypeID(this);
     }
+
 };

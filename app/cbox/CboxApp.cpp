@@ -17,6 +17,10 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "blox/OneWireTempSensorBlock.h"
+#include "blox/PidBlock.h"
+#include "blox/SensorSetPointPairBlock.h"
+#include "blox/SetPointSimpleBlock.h"
 #include "Platform.h"
 #include "EepromTypes.h"
 #include "EepromAccessImpl.h"
@@ -28,14 +32,10 @@
 #include "Commands.h"
 
 #include "PersistChangeValue.h"
-#include "OneWireBusBloc.h"
-#include "OneWireTempSensorBloc.h"
-#include "SetPointSimpleBloc.h"
-#include "SensorSetPointPairBloc.h"
-#include "PidBloc.h"
+#include "OneWireBusBlock.h"
 
 
-OneWireBusBloc oneWireBus;
+OneWireBusBlock oneWireBus;
 DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 TicksImpl baseticks;
 EepromAccess eepromAccess;
@@ -65,10 +65,10 @@ Commands::ObjectFactory createObjectHandlers[] = {
         EepromValue::create,                                    // type 3
         PersistChangeValue::create,                             // type 4
         IndirectValue::create,                                  // type 5
-        OneWireTempSensorBloc::create,                          // type 6
-        SetPointSimpleBloc::create,                             // type 7
-        SensorSetPointPairBloc::create,                         // type 8
-        PidBloc::create,                                        // type 9
+        OneWireTempSensorBlock::create,                          // type 6
+        SetPointSimpleBlock::create,                             // type 7
+        SensorSetPointPairBlock::create,                         // type 8
+        PidBlock::create,                                        // type 9
         NULL
 
         // When defining a new object type, add the handler above the last NULL value (it's just there to make

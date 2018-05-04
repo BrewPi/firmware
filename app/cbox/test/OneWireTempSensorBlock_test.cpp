@@ -22,9 +22,10 @@
 #include <iostream>
 #include <iomanip>
 
+#include "../blox/OneWireTempSensorBlock.h"
 #include "Values.h"
 #include "Commands.h"
-#include "OneWireTempSensorBloc.h"
+#include "VisitorCast.h"
 
 
 SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf data"){
@@ -49,17 +50,17 @@ SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf 
             WARN("Length of encoding is " << blox_OneWireTempSensor_Persisted_size);
 
             AND_WHEN("we create a DataIn object form that buffer"){
-                BufferDataIn in(buf);
+                cbox::BufferDataIn in(buf);
 
                 THEN("a newly created OneWireTempSensorBloc object can receive settings from the DataIn stream")
                 {
-                    OneWireTempSensorBloc sensor;
+                    OneWireTempSensorBlock sensor;
                     sensor.writeFrom(in);
 
                     AND_THEN("we can stream that bloc object to a DataOut stream")
                     {
                         uint8_t buf2[100] = {0};
-                        BufferDataOut out(buf2, sizeof(buf2));
+                        cbox::BufferDataOut out(buf2, sizeof(buf2));
                         sensor.readTo(out);
 
                         // verify data that is streamed out by streaming it back in
@@ -94,25 +95,25 @@ SCENARIO("Create blox OneWireTempSensor application object from definition"){
         status = pb_encode_delimited(&stream1, blox_OneWireTempSensor_Persisted_fields, &definition);
         CHECK(status);
 
-        BufferDataIn in(buffer1);
-        uint8_t len = OneWireTempSensorBloc::persistedMaxSize();
+        cbox::BufferDataIn in(buffer1);
+        uint8_t len = OneWireTempSensorBlock::persistedMaxSize();
         uint8_t typeId = 6; //OneWireTempSensorBloc
 
-        ObjectDefinition dfn = {&in, len, typeId};
+        cbox::ObjectDefinition dfn = {&in, len, typeId};
 
         WHEN("an application object is created form the definition"){
-            Object * obj = nullptr;
+            cbox::Object * obj = nullptr;
             uint8_t error = createApplicationObject(obj, dfn, false);
 
             THEN("No errors occur"){
-                CHECK(error == errorCode(no_error));
+                CHECK(error == cbox::errorCode(cbox::no_error));
             }
 
             AND_THEN("we can stream that bloc object to a DataOut stream and it matches the definition")
             {
                 uint8_t buf2[100] = {0};
-                BufferDataOut out(buf2, sizeof(buf2));
-                ((Value*)obj)->readTo(out); // TODO: this typecast shouldn't be necessary? What's the base class to stream objects?
+                cbox::BufferDataOut out(buf2, sizeof(buf2));
+                ((cbox::Value*)obj)->readTo(out); // TODO: this typecast shouldn't be necessary? What's the base class to stream objects?
 
                 // verify data that is streamed out by streaming it back in
                 pb_istream_t stream_in = pb_istream_from_buffer(buf2, sizeof(buf2));
@@ -137,13 +138,13 @@ SCENARIO("Send an invalid protobuf creation command"){
     GIVEN("A payload with a protobuf definition that doesn't match the expected format"){
         uint8_t wrong_defition[] = "\x0c\n\n\n\x08(\x9el\xff\x08\x00\x00B";
 
-        BufferDataIn in(wrong_defition);
-        uint8_t len = OneWireTempSensorBloc::persistedMaxSize();
+        cbox::BufferDataIn in(wrong_defition);
+        uint8_t len = OneWireTempSensorBlock::persistedMaxSize();
         uint8_t typeId = 6; //OneWireTempSensorBloc
 
-        ObjectDefinition dfn = {&in, len, typeId};
+        cbox::ObjectDefinition dfn = {&in, len, typeId};
 
-        Object * obj = nullptr;
+        cbox::Object * obj = nullptr;
         uint8_t error = createApplicationObject(obj, dfn, false);
 
     }

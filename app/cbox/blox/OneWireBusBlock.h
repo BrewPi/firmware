@@ -7,7 +7,7 @@
 #include "nanopb_callbacks.h"
 #include "assert_size_helper.h"
 
-class OneWireBusBloc: public cbox::WritableValue {
+class OneWireBusBlock: public cbox::WritableValue {
 private:
 
     OneWire bus;
@@ -39,7 +39,7 @@ protected:
     }
 
 public:
-    OneWireBusBloc(int pin=oneWirePin) : bus(pin), command({NO_OP, 0}) {
+    OneWireBusBlock(int pin=oneWirePin) : bus(pin), command({NO_OP, 0}) {
         bus.init();
     }
 
@@ -110,7 +110,7 @@ public:
     }
 
     static cbox::Object* create(cbox::ObjectDefinition& defn) {
-        return new_object(OneWireBusBloc(oneWirePin));
+        return new_object(OneWireBusBlock(oneWirePin));
     }
 
     virtual cbox::obj_type_t typeID() override {

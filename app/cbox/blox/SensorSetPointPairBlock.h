@@ -1,13 +1,13 @@
 #pragma once
 
-#include "bloc.h"
+#include "Block.h"
 #include "SensorSetPointPair.pb.h"
 #include "SensorSetPointPair.h"
 #include "TempSensorDelegate.h"
 #include "SetPointDelegate.h"
 #include "CboxLink.h"
 
-class SensorSetPointPairBloc: public Bloc {
+class SensorSetPointPairBlock: public Block {
 private:
     CboxLookup sensorLookup;
     CboxLookup setpointLookup;
@@ -17,7 +17,7 @@ private:
     SensorSetPointPair pair;
 
 public:
-    SensorSetPointPairBloc() :
+    SensorSetPointPairBlock() :
         sensor(sensorLookup),
         setpoint(setpointLookup),
         pair(sensor, setpoint)
@@ -57,7 +57,7 @@ public:
     }
 
     static cbox::Object* create(cbox::ObjectDefinition& defn) {
-        auto obj = new SensorSetPointPairBloc;
+        auto obj = new SensorSetPointPairBlock;
         if(obj != nullptr){
             obj->writeFromImpl(*defn.in, false);
         }

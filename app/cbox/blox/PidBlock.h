@@ -1,13 +1,13 @@
 #pragma once
 
-#include "bloc.h"
+#include "Block.h"
 #include "Pid.pb.h"
 #include "Pid.h"
 
 #include "ProcessValueDelegate.h"
 #include "CboxLink.h"
 
-class PidBloc: public Bloc {
+class PidBlock: public Block {
 private:
     CboxLookup inputLookup;
     CboxLookup outputLookup;
@@ -18,7 +18,7 @@ private:
     Pid pid;
 
 public:
-    PidBloc() :
+    PidBlock() :
         input(inputLookup),
         output(outputLookup),
         pid(input, output)
@@ -74,7 +74,7 @@ public:
     }
 
     static cbox::Object* create(cbox::ObjectDefinition& defn) {
-        auto obj = new PidBloc;
+        auto obj = new PidBlock;
         if(obj != nullptr){
             obj->writeFromImpl(*defn.in, false);
         }

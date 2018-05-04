@@ -23,29 +23,29 @@
 
 #include "ResolveType.h"
 
-class OneWireBusBloc;
+class OneWireBusBlock;
 namespace cbox {
-	template<> obj_type_t resolveTypeID<OneWireBusBloc>(){ return  256; }
+	template<> obj_type_t resolveTypeID<OneWireBusBlock>(){ return  256; }
 }
 
-class OneWireTempSensorBloc;
+class OneWireTempSensorBlock;
 namespace cbox {
-	template<> obj_type_t resolveTypeID<OneWireTempSensorBloc>(){ return  257; }
+	template<> obj_type_t resolveTypeID<OneWireTempSensorBlock>(){ return  257; }
 }
 
-class PidBloc;
+class PidBlock;
 namespace cbox {
-	template<> obj_type_t resolveTypeID<PidBloc>(){ return  258; }
+	template<> obj_type_t resolveTypeID<PidBlock>(){ return  258; }
 }
 
-class SensorSetPointPairBloc;
+class SensorSetPointPairBlock;
 namespace cbox {
-	template<> obj_type_t resolveTypeID<SensorSetPointPairBloc>(){ return  259; }
+	template<> obj_type_t resolveTypeID<SensorSetPointPairBlock>(){ return  259; }
 }
 
-class SetPointSimple;
+class SetPointSimpleBlock;
 namespace cbox {
-	template<> obj_type_t resolveTypeID<SetPointSimple>(){ return  260; }
+	template<> obj_type_t resolveTypeID<SetPointSimpleBlock>(){ return  260; }
 }
 
 class DeviceIdValue;

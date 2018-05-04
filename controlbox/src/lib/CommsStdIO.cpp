@@ -4,7 +4,10 @@ namespace cbox {
 
 #if !CONTROLBOX_WIRING
 
-#if defined(WIN32)
+#if defined(WIN32) || defined(__WIN32__) || defined(_WIN32)
+#include <windows.h>
+#include <conio.h>
+//#include <wincon.h>
 static int is_pipe = 0;
 static HANDLE input_handle = 0;
 #endif
@@ -12,7 +15,7 @@ static HANDLE input_handle = 0;
 StdIO::StdIO()
 : in(std::cin), out(stdout)
 {
-#if defined(WIN32)
+#if	defined(WIN32) || defined(__WIN32__) || defined(_WIN32)
     DWORD dw;
   input_handle = GetStdHandle(STD_INPUT_HANDLE);
   is_pipe = !GetConsoleMode(input_handle, &dw);
@@ -33,8 +36,7 @@ void StdIO::println() {
     printNewLine();
 }
 
-#if 0
-#if defined(WIN32)
+#if defined(WIN32) || defined(__WIN32__) || defined(_WIN32)
 int input_available()
 {
   DWORD nchars;
@@ -82,11 +84,11 @@ int StdIO::available() {
 }
 #endif
 
-#endif
-
+/*
 int StdIO::available() {
     return int(in.available());
 }
+*/
 
 void StdIO::begin(unsigned long)
 {
