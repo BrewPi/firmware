@@ -8,6 +8,7 @@
 
 bool quit = false;
 
+namespace cbox {
 ScaledTicksValue ticks;
 
 /**
@@ -19,7 +20,7 @@ ScaledTicksValue ticks;
  */
 void handleReset(bool reset)
 {
-	quit = true;
+	::quit = true;
 }
 
 Container& systemRootContainer()
@@ -69,16 +70,16 @@ Commands::ObjectFactory createObjectHandlers[] = {
  */
 int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun)
 {
-	uint8_t type = def.type;
+	obj_type_t typeId = def.type;
 	int8_t error = errorCode(no_error);
-	if (type>=sizeof(createObjectHandlers)/sizeof(createObjectHandlers[0])) {
+	if (typeId>=sizeof(createObjectHandlers)/sizeof(createObjectHandlers[0])) {
 		error = errorCode(invalid_type);
 	}
 	else {
 		if (dryRun)
-			type = 0;		// null object creator. Ensures stream is properly consumed even for invalid type values.
+			typeId = 0;		// null object creator. Ensures stream is properly consumed even for invalid type values.
 
-		result = createObjectHandlers[type](def);
+		result = createObjectHandlers[typeId](def);
 		if (!result) {
 			error = errorCode(insufficient_heap);
 		}
@@ -86,14 +87,15 @@ int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryR
 	return error;
 }
 
+}
 
 int main()
 {
-	controlbox_setup(0);
+	cbox::controlbox_setup(0);
 
 	while (!quit)
 	{
-		controlbox_loop();
+		cbox::controlbox_loop();
 	}
 
 	return 0;

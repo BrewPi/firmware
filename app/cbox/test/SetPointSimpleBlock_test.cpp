@@ -112,6 +112,7 @@ SCENARIO("Create blox SetPointSimple application object from definition"){
             THEN("No errors occur"){
                 CHECK(error == cbox::errorCode(cbox::no_error));
             }
+            REQUIRE(obj != nullptr);
         }
     }
 }

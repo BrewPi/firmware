@@ -99,6 +99,8 @@ SCENARIO("Create blox OneWireTempSensor application object from definition"){
         uint8_t len = OneWireTempSensorBlock::persistedMaxSize();
         cbox::obj_type_t typeId = cbox::resolveTypeID<OneWireTempSensorBlock>();
 
+        CHECK(typeId);
+
         cbox::ObjectDefinition dfn = {&in, len, typeId};
 
         WHEN("an application object is created form the definition"){
@@ -108,6 +110,8 @@ SCENARIO("Create blox OneWireTempSensor application object from definition"){
             THEN("No errors occur"){
                 CHECK(error == cbox::errorCode(cbox::no_error));
             }
+
+            REQUIRE(obj != nullptr);
 
             AND_THEN("we can stream that bloc object to a DataOut stream and it matches the definition")
             {
@@ -147,6 +151,7 @@ SCENARIO("Send an invalid protobuf creation command"){
         cbox::Object * obj = nullptr;
         uint8_t error = createApplicationObject(obj, dfn, false);
 
+        REQUIRE(obj != nullptr);
     }
 }
 

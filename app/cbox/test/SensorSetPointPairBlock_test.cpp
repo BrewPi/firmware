@@ -101,6 +101,7 @@ SCENARIO("Create blox SensorSetPointPair application object from definition"){
             THEN("No errors occur"){
                 CHECK(error == cbox::errorCode(cbox::no_error));
             }
+            REQUIRE(obj != nullptr);
 
             AND_THEN("we can stream that bloc object to a DataOut stream and it matches the definition")
             {

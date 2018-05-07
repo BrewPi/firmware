@@ -68,10 +68,9 @@ Commands::ObjectFactory objectFactories[] = {
 		OBJECT_FACTORY_ENTRY(PidBlock)
 };
 
-
 void connectionStarted(StandardConnection& connection, DataOut& out)
 {
-    out.writeAnnotation("\"a\":\"brewpi\",\"v\":\"0.3.0\"");
+    out.writeAnnotation("\"a\":\"brewblox\",\"v\":\"0.1.0\"");
     out.flush();
 #if PLATFORM_ID!=3
     StandardConnectionDataType& data = connection.getData();
@@ -109,11 +108,11 @@ Container* createRootContainer()
  */
 int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun)
 {
-    uint8_t type = def.type;
+    obj_type_t typeId = def.type;
     int8_t error = errorCode(no_error);
     Object* (*createFn)(ObjectDefinition& def) = nullptr;
     for(uint8_t i =0; i<sizeof(objectFactories)/sizeof(objectFactories[0]); i++) {
-    	if(type == objectFactories[i].typeId){
+    	if(typeId == objectFactories[i].typeId){
     		createFn = objectFactories[i].createFn;
     	}
     }
@@ -130,6 +129,10 @@ int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryR
         }
     }
     return error;
+}
+
+void handleReset(bool exit){
+	::handleReset(exit); // call outside of cbox scope
 }
 
 } // end namespace cbox

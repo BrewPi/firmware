@@ -378,8 +378,9 @@ OpenContainer* lookupUserOpenContainer(Container* root, DataIn& data, int8_t& la
  */
 Object* lookupObject(Object* current, DataIn& data, int8_t& lastID);
 
-
 int16_t read2BytesFrom(Value* value);
+
+obj_type_t readObjTypeFrom(DataIn & in);
 
 }
 

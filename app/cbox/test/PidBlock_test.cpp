@@ -67,6 +67,8 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data"){
                     THEN("No errors occur"){
                         CHECK(error == cbox::errorCode(cbox::no_error));
                     }
+                    REQUIRE(obj != nullptr);
+
                     cbox::WritableValue * pidObj = (cbox::WritableValue*) obj;
 
                     AND_WHEN("we stream that bloc object to a DataOut stream")

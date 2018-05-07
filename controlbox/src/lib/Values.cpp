@@ -149,4 +149,11 @@ int16_t read2BytesFrom(Value* value) {
     return int16_t(int(result[0])<<8 | result[1]);
 }
 
+obj_type_t readObjTypeFrom(DataIn & in) {
+	obj_type_t result;
+    result = in.next() << 8;
+    result |= in.next();
+    return result;
+}
+
 } // end namespace cbox

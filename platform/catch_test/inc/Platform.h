@@ -22,3 +22,5 @@ struct data_block_ref {
 };
 
 void platform_device_id(data_block_ref& id);
+
+inline void handleReset(bool){};

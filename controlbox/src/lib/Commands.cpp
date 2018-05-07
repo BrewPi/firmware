@@ -38,13 +38,13 @@ void Commands::noopCommandHandler(DataIn& _in, DataOut& out)
     out.write(errorCode(no_error));       // success
 }
 
-bool checkType(uint8_t& typeID, Value* value) {
+bool checkType(obj_type_t& typeID, Value* value) {
 	return !typeID || value->typeID()==typeID;
 }
 
 void readValue(Object* root, DataIn& in, DataOut& out) {
 	Object* o = lookupObject(root, in);		// read the object and pipe read data to output
-	uint8_t typeID = in.next();
+	obj_type_t typeID = readObjTypeFrom(in);
 	uint8_t available = in.next();			// number of bytes expected
 	int8_t status = 0;
 	Value* v = (Value*)o;
@@ -93,7 +93,7 @@ void Commands::readSystemValueCommandHandler(DataIn& in, DataOut& out) {
 void setValue(Object* root, DataIn& in, DataOut& out) {
 	Object* o = lookupObject(root, in);		// fetch the id and the object
 	WritableValue* v = (WritableValue*)o;
-	uint8_t typeID = in.next();
+	obj_type_t typeID = readObjTypeFrom(in);
 	uint8_t available = in.next();
 	uint8_t expected;
 	int8_t status = 0;
@@ -216,14 +216,14 @@ int8_t Commands::rehydrateObject(eptr_t offset, PipeDataIn& in, bool dryRun)
 
 int8_t Commands::createObject(Object*& newObject, DataIn& in, bool dryRun)
 {
-	uint8_t type = in.next();
+	obj_type_t typeId = readObjTypeFrom(in);
 	uint8_t len = in.next();
 	RegionDataIn region(in, len);							// limit stream to actual data block
 	ObjectDefinition def = {
 #if !CONTROLBOX_STATIC
 			eepromAccess, systemProfile.rootContainer(),
 #endif
-			&region, len, type
+			&region, len, typeId
 	};
 	newObject = nullptr;
 	int8_t error = createApplicationObject(newObject, def, dryRun);			// read the type and create args

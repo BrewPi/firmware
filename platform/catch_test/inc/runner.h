@@ -8,5 +8,3 @@
 #pragma once
 
 #include "Ticks.h"
-
-void handleReset(bool){};

@@ -32,6 +32,8 @@
 #include <fstream>
 #include "stdarg.h"
 
+namespace cbox {
+
 class SystemTicks : public Ticks
 {
 public:
@@ -131,7 +133,7 @@ public:
     virtual int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun=false)
     {
     		// todo - validate the type and that the type is creatable
-        uint8_t type = def.type;
+    	object_type_t type = def.type;
         if (dryRun)		// consume the stream without creating an object
             type = 0;
 
@@ -185,3 +187,4 @@ public:
 
 };
 
+} // end namespace cbox

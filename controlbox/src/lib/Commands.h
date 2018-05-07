@@ -170,7 +170,7 @@ public:
 
 #define command_callback_fn(x) callbacks. x
 #else
-#define command_callback_fn(x) x
+#define command_callback_fn(x) cbox::x
 #endif
 
 	inline cb_static Container* rootContainer() {
