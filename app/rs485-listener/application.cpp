@@ -16,9 +16,9 @@ void setup() {
 	platform_init();
     System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
 
-    acquireSerialBuffer();
     Serial.begin(256000);
     Serial1.begin(256000, SERIAL_8N1);
+    Serial.setTimeout(2);
 
     // take control of the LED
 	RGB.control(true);
@@ -40,36 +40,48 @@ system_tick_t timeSince(system_tick_t previousTime) {
 
 void loop() {
 	static system_tick_t lastReceive = millis();
-	static uint8_t buffer[512];
-	static int buffer_write_idx = 0;
-	static int buffer_read_idx = 0;
+	static uint8_t receiveBuffer[512];
+	static int rec_buf_write_idx = 0;
+	static int rec_buf_read_idx = 0;
 
 	int available = Serial1.available();
     if(available > 0){
-    	if(buffer_write_idx + available < 511){
-    		char * write_loc = (char*) &buffer[buffer_write_idx];
-    		buffer_write_idx += Serial1.readBytes(write_loc, available);
+    	if(rec_buf_write_idx + available < 511){
+    		char * write_loc = (char*) &receiveBuffer[rec_buf_write_idx];
+    		rec_buf_write_idx += Serial1.readBytes(write_loc, available);
     	}
     	lastReceive = millis();
     }
 
     if(Serial.isConnected()){
-		while(Serial.available()){
-			Serial.read(); // discard
-		}
 		while(true){
 			int writeAvailable = Serial.availableForWrite();
-			int bufferAvailable = buffer_write_idx - buffer_read_idx;
+			int bufferAvailable = rec_buf_write_idx - rec_buf_read_idx;
 			int writeBytes = writeAvailable < bufferAvailable ? writeAvailable : bufferAvailable;
 			if(writeBytes <=0){
 				break;
 			}
-			buffer_read_idx += Serial.write(&buffer[buffer_read_idx], writeBytes);
+			int written = Serial.write(&receiveBuffer[rec_buf_read_idx], writeBytes);
+			rec_buf_read_idx += written;
+		}
+		if(Serial.available() && timeSince(lastReceive) >= 1){
+			digitalWrite(PIN_RS485_TX_EN, HIGH); // transmit
+			delay(1);
+			while(true){
+				int received = Serial.read();
+				if(received < 0 || received > 255){
+					break;
+				}
+				char asChar = received;
+				Serial1.print(asChar);
+			}
+			delay(1);
+			digitalWrite(PIN_RS485_TX_EN, LOW); // receive
 		}
     }
-    if(buffer_read_idx == buffer_write_idx){
-    	buffer_read_idx = 0;
-    	buffer_write_idx = 0;
+    if(rec_buf_read_idx == rec_buf_write_idx){
+    	rec_buf_read_idx = 0;
+    	rec_buf_write_idx = 0;
     }
 
     // red, green, blue, 0-255.
