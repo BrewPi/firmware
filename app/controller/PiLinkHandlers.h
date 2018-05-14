@@ -21,11 +21,6 @@
 #define	PILINKHANDLERS_H
 
 /**
- * Called to invoke a system reset.
- */
-void handleReset(bool exit=true);
-
-/**
  * Called to start the platform firmware update process.
  */
 void flashFirmware();

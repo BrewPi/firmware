@@ -44,3 +44,8 @@ inline void watchdogCheckin(){}
  * Retrieves a pointer to the device id.
  */
 void platform_device_id(data_block_ref& id);
+
+/**
+ * Called to invoke a system reset.
+ */
+void handleReset(bool exit=true);
