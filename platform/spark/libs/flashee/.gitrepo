@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:elcojacobs/spark-flashee-eeprom.git
+	branch = develop
+	commit = f9583eb9d6e83c0b2908cd30f827ac6d8dd8fc46
+	parent = 8f53ef988570fb0d70da2b511fc58647826d46c8
+	cmdver = 0.3.1
