@@ -51,3 +51,4 @@ docs/_static/doxygen/
 deploy/
 controlbox/build
 
+app/cbox/proto/cpp/
