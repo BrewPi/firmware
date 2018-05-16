@@ -4,8 +4,8 @@
 ; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
 ;
 [subrepo]
-	remote = https://github.com/spark/firmware.git
-	branch = release/v0.8.0-rc.3
-	commit = e1e856465217923b734e8c40a6f8fde55fd60e6b
-	parent = 4f56b82c9cedf9517d6d7211d94f2a903db433bc
+	remote = git@github.com:elcojacobs/spark-flashee-eeprom.git
+	branch = develop
+	commit = f9583eb9d6e83c0b2908cd30f827ac6d8dd8fc46
+	parent = 8f53ef988570fb0d70da2b511fc58647826d46c8
 	cmdver = 0.3.1

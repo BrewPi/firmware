@@ -5,7 +5,7 @@
 #ifndef _FF_INTEGER
 #define _FF_INTEGER
 
-#if defined( _WIN32) && 0	/* FatFs development platform */
+#if defined(WIN32) || defined(__WIN32__) || defined(_WIN32)	/* FatFs development platform */
 
 #include <windows.h>
 #include <tchar.h>
