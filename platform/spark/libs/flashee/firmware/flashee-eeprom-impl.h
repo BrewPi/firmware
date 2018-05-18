@@ -83,18 +83,18 @@ public:
     /**
      * @return The size of each page in this flash device.
      */
-    virtual page_size_t pageSize() const {
+    virtual page_size_t pageSize() const override {
         return pageSize_;
     }
 
     /**
      * @return The number of pages in this flash device.
      */
-    virtual page_count_t pageCount() const {
+    virtual page_count_t pageCount() const override {
         return pageCount_;
     }
 
-    virtual bool erasePage(flash_addr_t address) {
+    virtual bool erasePage(flash_addr_t address) override {
         bool success = false;
         if (isPageAddress(address)) {
             memset(data_ + address, 0xFF, pageSize());
@@ -110,7 +110,7 @@ public:
      * @param length
      * @return
      */
-    virtual bool writePage(const void* _data, flash_addr_t address, page_size_t length) {
+    virtual bool writePage(const void* _data, flash_addr_t address, page_size_t length) override {
         bool success = false;
         const uint8_t* data = as_bytes(_data);
         if (isValidRegion(address, length)) {
@@ -122,7 +122,7 @@ public:
         return success;
     }
 
-    virtual bool readPage(void* data, flash_addr_t address, page_size_t length) const {
+    virtual bool readPage(void* data, flash_addr_t address, page_size_t length) const override {
         bool success = false;
         if (isValidRegion(address, length)) {
             memcpy(data, this->data_ + address, length);
@@ -131,7 +131,7 @@ public:
         return success;
     }
 
-    virtual bool writeErasePage(const void* _data, flash_addr_t address, page_size_t length) {
+    virtual bool writeErasePage(const void* _data, flash_addr_t address, page_size_t length) override {
         bool success = false;
         const uint8_t* data = as_bytes(_data);
         if (isValidRegion(address, length)) {
@@ -143,7 +143,7 @@ public:
         return success;
     }
 
-    virtual bool copyPage(flash_addr_t address, TransferHandler handler, void* data, uint8_t* buf, page_size_t bufSize) {
+    virtual bool copyPage(flash_addr_t address, TransferHandler handler, void* data, uint8_t* buf, page_size_t bufSize) override {
         return false;
     }
 };
@@ -289,14 +289,14 @@ public:
     /**
      * @return The size of each page in this flash device.
      */
-    virtual page_size_t pageSize() const {
+    virtual page_size_t pageSize() const override {
         return flash.pageSize();
     }
 
     /**
      * @return The number of pages in this flash device.
      */
-    virtual page_count_t pageCount() const {
+    virtual page_count_t pageCount() const override {
         return flash.pageCount();
     }
 
@@ -304,7 +304,7 @@ public:
         return address + length <= flash.pageSize() * flash.pageCount();
     }
 
-    virtual bool erasePage(flash_addr_t address) {
+    virtual bool erasePage(flash_addr_t address) override {
         return isValidRange(address, pageSize()) ? flash.erasePage(address) : false;
     }
 
@@ -316,11 +316,11 @@ public:
      * @param length
      * @return
      */
-    virtual bool writePage(const void* data, flash_addr_t address, page_size_t length) {
+    virtual bool writePage(const void* data, flash_addr_t address, page_size_t length) override {
         return isValidRange(address, length) ? flash.writePage(data, address, length) : false;
     }
 
-    virtual bool readPage(void* data, flash_addr_t address, page_size_t length) const {
+    virtual bool readPage(void* data, flash_addr_t address, page_size_t length) const override {
         return isValidRange(address, length) ? flash.readPage(data, address, length) : false;
     }
 
@@ -332,11 +332,11 @@ public:
      * @param length
      * @return
      */
-    virtual bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) {
+    virtual bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) override {
         return isValidRange(address, length) ? flash.writeErasePage(data, address, length) : false;
     }
 
-    virtual bool copyPage(flash_addr_t address, TransferHandler handler, void* data, uint8_t* buf, page_size_t bufSize) {
+    virtual bool copyPage(flash_addr_t address, TransferHandler handler, void* data, uint8_t* buf, page_size_t bufSize) override {
         return flash.copyPage(address, handler, data, buf, bufSize);
     }
 
@@ -400,13 +400,13 @@ public:
      * @param length
      * @return
      */
-    virtual bool writePage(const void* data, flash_addr_t address, page_size_t length) {
+    virtual bool writePage(const void* data, flash_addr_t address, page_size_t length) override {
         // rather than repeating the chunking logic for each method that needs it, it is
         // separated out and the chunked offsets and lengths passed back to the callback.
         return chunk(this, as_bytes(data), address, length, writeChunkHandler);
     }
 
-    virtual bool readPage(void* data, flash_addr_t address, page_size_t length) const {
+    virtual bool readPage(void* data, flash_addr_t address, page_size_t length) const override {
         return chunk(this, as_bytes(data), address, length, readChunkHandler);
     }
 
@@ -418,7 +418,7 @@ public:
      * @param length
      * @return
      */
-    virtual bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) {
+    virtual bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) override {
         return chunk(this, as_bytes(data), address, length, writeEraseChunkHandler);
     }
 };
@@ -435,7 +435,7 @@ private:
 
     typedef ForwardingFlashDevice super;
 
-    flash_addr_t translateAddress(flash_addr_t address) const {
+    virtual flash_addr_t translateAddress(flash_addr_t address) const override final {
         return base_ + address;
     }
 
@@ -459,11 +459,11 @@ public:
     /**
      * @return The number of pages in this flash device.
      */
-    virtual page_count_t pageCount() const {
+    virtual page_count_t pageCount() const override {
         return (end_ - base_) / super::pageSize();
     }
 
-    virtual bool erasePage(flash_addr_t address) {
+    virtual bool erasePage(flash_addr_t address) override {
         flash_addr_t dest = translateAddress(address);
         return super::erasePage(dest);
     }
@@ -476,12 +476,12 @@ public:
      * @param length
      * @return
      */
-    virtual bool writePage(const void* data, flash_addr_t address, page_size_t length) {
+    virtual bool writePage(const void* data, flash_addr_t address, page_size_t length) override {
         flash_addr_t dest = translateAddress(address);
         return super::writePage(data, dest, length);
     }
 
-    virtual bool readPage(void* data, flash_addr_t address, page_size_t length) const {
+    virtual bool readPage(void* data, flash_addr_t address, page_size_t length) const override {
         flash_addr_t dest = translateAddress(address);
         return super::readPage(data, dest, length);
     }
@@ -494,12 +494,12 @@ public:
      * @param length
      * @return
      */
-    virtual bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) {
+    virtual bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) override {
         flash_addr_t dest = translateAddress(address);
         return super::writeErasePage(data, dest, length);
     }
 
-    virtual bool copyPage(flash_addr_t address, TransferHandler handler, void* data, uint8_t* buf, page_size_t bufSize) {
+    virtual bool copyPage(flash_addr_t address, TransferHandler handler, void* data, uint8_t* buf, page_size_t bufSize) override {
         flash_addr_t dest = translateAddress(address);
         return super::copyPage(dest, handler, data, buf, bufSize);
     }
@@ -872,7 +872,7 @@ class LogicalPageMapper : public TranslatingFlashDevice {
 
 protected:
 
-    flash_addr_t translateAddress(flash_addr_t address) const {
+    virtual flash_addr_t translateAddress(flash_addr_t address) const override final {
         return impl.physicalAddress(address, pageSize());
     }
 
@@ -888,11 +888,11 @@ public:
         impl.buildInUseMap();
     }
 
-    virtual page_size_t pageSize() const {
+    virtual page_size_t pageSize() const override {
         return impl.pageSize();
     }
 
-    virtual page_count_t pageCount() const {
+    virtual page_count_t pageCount() const override {
         return impl.pageCount();
     }
 
@@ -902,15 +902,15 @@ public:
      * @param address
      * @return
      */
-    virtual bool erasePage(flash_addr_t address) {
+    virtual bool erasePage(flash_addr_t address) override {
         return isValidAddress(address, 0) ? impl.erasePage(address) : false;
     }
 
-    virtual bool writePage(const void* data, flash_addr_t address, page_size_t length) {
+    virtual bool writePage(const void* data, flash_addr_t address, page_size_t length) override {
         return isValidAddress(address, length) ? impl.writePage(data, address, length) : false;
     }
 
-    virtual bool readPage(void* data, flash_addr_t address, page_size_t length) const {
+    virtual bool readPage(void* data, flash_addr_t address, page_size_t length) const override {
         return isValidAddress(address, length) ? impl.readPage(data, address, length) : false;
     }
 
@@ -925,7 +925,7 @@ public:
      * @param bufSize
      * @return
      */
-    virtual bool copyPage(flash_addr_t address, TransferHandler handler, void* data, uint8_t* buf, page_size_t bufSize) {
+    virtual bool copyPage(flash_addr_t address, TransferHandler handler, void* data, uint8_t* buf, page_size_t bufSize) override {
         return isValidAddress(address, 0) ? impl.copyPage(address, handler, data, buf, bufSize) : false;
     }
 
@@ -939,7 +939,7 @@ public:
      * @param length
      * @return
      */
-    bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) {
+    bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) override {
         uint8_t buf[STACK_BUFFER_SIZE];
         return isValidAddress(address, length) ? TranslatingFlashDevice::writeErasePageBuf(data, address, length, buf, sizeof(buf)) : false;
     }
@@ -1112,7 +1112,7 @@ public:
      * The size of each page is reduced by a factor of 8 since each byte
      * is stored in a slot of size 8.
      */
-    virtual page_size_t pageSize() const {
+    virtual page_size_t pageSize() const override {
         return flash.pageSize() >> SLOT_SIZE_SHIFT;
     }
 
@@ -1121,11 +1121,11 @@ public:
      * flash layer, so the number of pages is identical.
      */
 
-    virtual page_count_t pageCount() const {
+    virtual page_count_t pageCount() const override {
         return flash.pageCount();
     }
 
-    virtual bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) {
+    virtual bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) override {
         uint8_t buf[STACK_BUFFER_SIZE];
         return writeErasePageBuf(data, address, length, buf, STACK_BUFFER_SIZE);
     }
@@ -1173,11 +1173,11 @@ public:
      * @param address
      * @return
      */
-    bool erasePage(flash_addr_t address) {
+    virtual bool erasePage(flash_addr_t address) override final {
         return flash.erasePage(toPhysicalAddress(address));
     }
 
-    bool writePage(const void* _data, flash_addr_t address, page_size_t length) {
+    virtual bool writePage(const void* _data, flash_addr_t address, page_size_t length) override final {
         // todo factor out common code in writePage/writeErasePage.
         page_size_t offset = 0;
         const uint8_t* data = as_bytes(_data);
@@ -1200,7 +1200,7 @@ public:
         return offset == length;
     }
 
-    virtual bool readPage(void* _data, flash_addr_t address, page_size_t length) const {
+    virtual bool readPage(void* _data, flash_addr_t address, page_size_t length) const override {
         page_size_t offset = 0;
         uint8_t* data = as_bytes(_data);
         uint8_t buf[STACK_BUFFER_SIZE];
@@ -1219,7 +1219,7 @@ public:
         return offset == length;
     }
 
-    bool copyPage(flash_addr_t address, TransferHandler handler, void* data, uint8_t* buf, page_size_t bufSize) {
+    virtual bool copyPage(flash_addr_t address, TransferHandler handler, void* data, uint8_t* buf, page_size_t bufSize) override final {
         return false;
     }
 };
@@ -1243,7 +1243,7 @@ public:
     /**
      * @return The number of pages in this flash device.
      */
-    virtual page_count_t pageCount() const {
+    virtual page_count_t pageCount() const override {
         return super::pageCount() - 1;
     }
 
@@ -1255,7 +1255,7 @@ public:
      * @param length
      * @return
      */
-    virtual bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) {
+    virtual bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) override {
         uint8_t buf[STACK_BUFFER_SIZE];
         return writeErasePageBuf(data, address, length, buf, STACK_BUFFER_SIZE);
     }
@@ -1276,7 +1276,7 @@ public:
      * @return
      */
     virtual bool copyPage(flash_addr_t address, TransferHandler handler,
-            void* data, uint8_t* buf, page_size_t bufSize) {
+            void* data, uint8_t* buf, page_size_t bufSize) override {
         page_count_t oldPage = address / pageSize();
         page_count_t newPage = this->pageCount();
         page_size_t size = pageSize();
@@ -1308,18 +1308,18 @@ class SparkExternalFlashDevice : public FlashDevice {
     /**
      * @return The size of each page in this flash device.
      */
-    virtual page_size_t pageSize() const {
+    virtual page_size_t pageSize() const override {
         return sFLASH_PAGESIZE;
     }
 
     /**
      * @return The number of pages in this flash device.
      */
-    virtual page_count_t pageCount() const {
+    virtual page_count_t pageCount() const override {
         return sFLASH_PAGECOUNT;
     }
 
-    virtual bool erasePage(flash_addr_t address) {
+    virtual bool erasePage(flash_addr_t address) override {
         bool success = false;
         if (address < pageAddress(pageCount()) && (address % pageSize()) == 0) {
             sFLASH_EraseSector(address);
@@ -1336,13 +1336,13 @@ class SparkExternalFlashDevice : public FlashDevice {
      * @param length
      * @return
      */
-    virtual bool writePage(const void* data, flash_addr_t address, page_size_t length) {
+    virtual bool writePage(const void* data, flash_addr_t address, page_size_t length) override {
         // TODO: SPI interface shouldn't need mutable data buffer to write?
         sFLASH_WriteBuffer(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(data)), address, length);
         return true;
     }
 
-    virtual bool readPage(void* data, flash_addr_t address, page_size_t length) const {
+    virtual bool readPage(void* data, flash_addr_t address, page_size_t length) const override {
         sFLASH_ReadBuffer((uint8_t*) data, address, length);
         return true;
     }
@@ -1355,7 +1355,7 @@ class SparkExternalFlashDevice : public FlashDevice {
      * @param length
      * @return
      */
-    virtual bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) {
+    virtual bool writeErasePage(const void* data, flash_addr_t address, page_size_t length) override {
         return false;
     }
 
@@ -1371,7 +1371,7 @@ class SparkExternalFlashDevice : public FlashDevice {
      * @param bufSize
      * @return
      */
-    virtual bool copyPage(flash_addr_t address, TransferHandler handler, void* data, uint8_t* buf, page_size_t bufSize) {
+    virtual bool copyPage(flash_addr_t address, TransferHandler handler, void* data, uint8_t* buf, page_size_t bufSize) override {
         return false;
     }
 
