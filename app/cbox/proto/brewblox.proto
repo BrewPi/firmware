@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "google/protobuf/descriptor.proto";
+
+message BrewbloxFieldOptions {
+    string unit = 1;
+    uint32 fraction_bits = 2;
+}
+
+extend google.protobuf.FieldOptions {
+    BrewbloxFieldOptions brewblox = 1011;
+}

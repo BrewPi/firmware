@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import 'nanopb.proto';
+import 'brewblox.proto';
 
 package blox;
 
@@ -8,25 +8,25 @@ package blox;
 // data is optional and only used in some commands. For example when doing a family search, data contains the family ID 
 message Pid {
 	message Settings {
-		sint32 kp = 1;
-		uint32 ti = 2;
-		uint32 td = 3;
+		sint32 kp = 1 [(brewblox).unit = "degC", (brewblox).fraction_bits = 8];
+		uint32 ti = 2 [(brewblox).unit = "second"];
+		uint32 td = 3 [(brewblox).unit = "second"];
 		bool enabled = 4;
 	}
 	
 	message State {
-		sint32 inputValue = 1;
-		sint32 inputSetting = 2;
-		sint32 outputValue = 3;
-		sint32 outputSetting = 4;
+		sint32 inputValue = 1 [(brewblox).unit = "degC", (brewblox).fraction_bits = 8];
+		sint32 inputSetting = 2 [(brewblox).unit = "degC", (brewblox).fraction_bits = 8];
+		sint32 outputValue = 3 [(brewblox).unit = "degC", (brewblox).fraction_bits = 8];
+		sint32 outputSetting = 4 [(brewblox).unit = "degC", (brewblox).fraction_bits = 8];
 				
-		sint32 p = 5;
-		sint32 i = 6;
-		sint32 d = 7;
+		sint32 p = 5 [(brewblox).unit = "delta_degC", (brewblox).fraction_bits = 8];
+		sint32 i = 6 [(brewblox).unit = "delta_degC", (brewblox).fraction_bits = 8];
+		sint32 d = 7 [(brewblox).unit = "delta_degC / second", (brewblox).fraction_bits = 8];
 		
-		sint32 derivative = 8;
-		sint32 integral = 9;
-		sint32 error = 10;
+		sint32 derivative = 8 [(brewblox).unit = "degC", (brewblox).fraction_bits = 24];
+		sint32 integral = 9 [(brewblox).unit = "degC", (brewblox).fraction_bits = 8];
+		sint32 error = 10 [(brewblox).unit = "degC", (brewblox).fraction_bits = 8];
 	}
 	
 	message Links {
