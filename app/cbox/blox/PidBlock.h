@@ -54,19 +54,13 @@ public:
     }
 
     void writeFromImpl(cbox::DataIn& dataIn, bool storeToEeprom){
-        /* copy old settings, because the update can be sparse and can only overwrite some of the values */
         blox_Pid_Persisted newData;
-        /* copy old settings in case of a sparse update */
-        copyPersistedTo(newData);
-
-        /* stream in new settings, overwriting copy of old settings */
         size_t maxSize = persistedMaxSize();
         pb_istream_t stream = { &dataInStreamCallback, &dataIn, maxSize};
         bool success = pb_decode_delimited_noinit(&stream, blox_Pid_Persisted_fields, &newData);
         /* if no errors occur, write new settings to wrapped object */
         if(success){
             copyPersistedFrom(newData);
-
             if(storeToEeprom){
                 storeSettings(newData);
             }
