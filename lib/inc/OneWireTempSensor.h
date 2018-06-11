@@ -31,6 +31,22 @@ class OneWire;
 #define ONEWIRE_TEMP_SENSOR_PRECISION (4)
 
 class OneWireTempSensor final : public TempSensor, public OneWireTempSensorMixin {
+public:
+	struct Settings {
+		DeviceAddress sensorAddress;
+		temp_t calibrationOffset;
+	};
+
+	struct State {
+		temp_t cachedValue;
+		bool connected;
+	};
+
+private:
+	DallasTemperature sensor;
+	Settings settings;
+	State state;
+
 public:	
 	/**
 	 * Constructs a new onewire temp sensor.
@@ -77,17 +93,18 @@ public:
 	virtual void update() override final ; // read from hardware sensor
 	
 
-    void copySettingsFrom(void * from){
-		memcpy(&settings, from, sizeof(settings));
-	}
-
-    void copySettingsTo(void * to){
-    	memcpy(to, &settings, sizeof(settings));
+    void setSettings(Settings const & from){
+        settings = from;
     }
 
-    void copyStateTo(void * to){
-    	memcpy(to, &state, sizeof(state));
+    Settings const& getSettings(){
+        return settings;
     }
+
+    State const& getState(){
+        return state;
+    }
+
 
 private:
 
@@ -104,21 +121,6 @@ private:
 	 */
 	temp_t readAndConstrainTemp();
 
-	DallasTemperature sensor;
-
-	struct Settings {
-        DeviceAddress sensorAddress;
-        temp_t calibrationOffset;
-	} settings;
-
-	struct State {
-        temp_t cachedValue;
-        bool connected;
-	} state;
-
 public:
-	static const size_t sizeof_Settings = sizeof(Settings);
-	static const size_t sizeof_State = sizeof(State);
-
 	friend class OneWireTempSensorMixin;
 };

@@ -36,12 +36,11 @@ friend class SetPointMixin;
 
 
 class SetPointSimple final : public SetPoint, public SetPointSimpleMixin {
-protected:
+public:
     struct Settings {
         temp_t value;
-    } settings;
+    };
 
-public:
     SetPointSimple() : settings({temp_t::disabled()}){}
     SetPointSimple(temp_t _value) : settings({_value}){}
     ~SetPointSimple() = default;
@@ -64,13 +63,15 @@ public:
         settings.value = val;
     }
 
-    void copySettingsFrom(void * from){
-		memcpy(&settings, from, sizeof(settings));
-	}
-
-    void copySettingsTo(void * to){
-    	memcpy(to, &settings, sizeof(settings));
+    void setSettings(Settings const & from){
+        settings = from;
     }
+
+    Settings const& getSettings(){
+        return settings;
+    }
+private:
+    Settings settings;
 
 friend class SetPointSimpleMixin;
 };

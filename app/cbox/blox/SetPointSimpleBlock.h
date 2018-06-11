@@ -33,7 +33,7 @@ public:
         bool success = pb_decode_delimited_noinit(&stream, blox_SetPointSimple_Persisted_fields, &newData);
         /* if no errors occur, write new settings to wrapped object */
         if(success){
-            setpoint.copySettingsFrom(&newData.settings);
+            setpoint.setSettings(copy_struct_as<SetPointSimple::Settings>(newData.settings));
             if(storeToEeprom){
                 storeSettings();
             }
@@ -55,7 +55,7 @@ public:
         eptr_t offset = eeprom_offset();
         pb_ostream_t stream = { &eepromOutStreamCallback, &offset, eepromSize(), 0 };
         blox_SetPointSimple_Persisted definition;
-        setpoint.copySettingsTo(&definition.settings);
+        setpoint.setSettings(copy_struct_as<SetPointSimple::Settings>(definition.settings));
         bool status = pb_encode_delimited(&stream, blox_SetPointSimple_Persisted_fields, &definition);
 
         return status;
@@ -71,8 +71,7 @@ public:
 
     virtual void readTo(cbox::DataOut& out) override final {
         blox_SetPointSimple message; \
-        assert_size<sizeof(message.settings), SetPointSimple::sizeof_Settings>();
-        setpoint.copySettingsTo(&message.settings);
+        message.settings = copy_struct_as<blox_SetPointSimple_Settings>(setpoint.getSettings());
         static_assert(blox_SetPointSimple_size < 128, "varint for settings size will be larger than 1 byte");
         pb_ostream_t stream = { &dataOutStreamCallback, &out, blox_SetPointSimple_size + 1, 0 };
         pb_encode_delimited(&stream, blox_SetPointSimple_fields, &message);

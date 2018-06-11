@@ -38,7 +38,7 @@ public:
         bool success = pb_decode_delimited_noinit(&stream, blox_OneWireTempSensor_Persisted_fields, &newData);
         /* if no errors occur, write new settings to wrapped object */
         if(success){
-            sensor.copySettingsFrom(&newData.settings);
+        	sensor.setSettings(copy_struct_as<OneWireTempSensor::Settings>(newData.settings));
             if(storeToEeprom){
                 storeSettings();
             }
@@ -60,7 +60,7 @@ public:
         eptr_t offset = eeprom_offset();
         pb_ostream_t stream = { &eepromOutStreamCallback, &offset, eepromSize(), 0 };
         blox_OneWireTempSensor_Persisted definition;
-        sensor.copySettingsTo(&definition.settings);
+        sensor.setSettings(copy_struct_as<OneWireTempSensor::Settings>(definition.settings));
         bool status = pb_encode_delimited(&stream, blox_OneWireTempSensor_Persisted_fields, &definition);
 
         return status;
@@ -76,10 +76,8 @@ public:
 
     virtual void readTo(cbox::DataOut& out) override final {
         blox_OneWireTempSensor message;
-        assert_size<sizeof(message.settings), OneWireTempSensor::sizeof_Settings>();
-        assert_size<sizeof(message.state), OneWireTempSensor::sizeof_State>();
-        sensor.copySettingsTo(&message.settings);
-        sensor.copyStateTo(&message.state);
+        message.settings = copy_struct_as<blox_OneWireTempSensor_Settings>(sensor.getSettings());
+        message.state = copy_struct_as<blox_OneWireTempSensor_State>(sensor.getState());
         static_assert(blox_OneWireTempSensor_size < 128, "varint for size will be larger than 1 byte");
         pb_ostream_t stream = { &dataOutStreamCallback, &out, blox_OneWireTempSensor_size + 1, 0 };
         pb_encode_delimited(&stream, blox_OneWireTempSensor_fields, &message);
