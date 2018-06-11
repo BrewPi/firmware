@@ -43,8 +43,8 @@ SCENARIO("A Blox SensorSetPointPair object can be created from streamed protobuf
             for(int i =0 ; i <= blox_SensorSetPointPair_Persisted_size; i ++){
                 ss << std::setw(2) << static_cast<unsigned>(buf[i]);
             }
-            WARN("Encoding of SensorSetPointPair with sensor lookup 0x01000000 and setpoint lookup 0x02000000 is " << ss.str());
-            WARN("Length of encoding is " << blox_SensorSetPointPair_Persisted_size);
+            INFO("Encoding of SensorSetPointPair with sensor lookup 0x01000000 and setpoint lookup 0x02000000 is " << ss.str());
+            INFO("Length of encoding is " << blox_SensorSetPointPair_Persisted_size);
 
             AND_WHEN("we create a DataIn object from that buffer"){
             	cbox::BufferDataIn in(buf);

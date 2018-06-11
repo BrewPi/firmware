@@ -49,8 +49,8 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data"){
             for(int i =0 ; i <= blox_Pid_Persisted_size; i ++){
                 ss << std::setw(2) << static_cast<unsigned>(buf[i]);
             }
-            WARN("Encoding of Pid Object is " << ss.str());
-            WARN("Length of encoding is " << blox_Pid_Persisted_size);
+            INFO("Encoding of Pid Object is " << ss.str());
+            INFO("Length of encoding is " << blox_Pid_Persisted_size);
 
             AND_WHEN("we create a DataIn object from that buffer and create an object definition from it"){
             	cbox::BufferDataIn in(buf);

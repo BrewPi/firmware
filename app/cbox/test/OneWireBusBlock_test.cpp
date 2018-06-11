@@ -43,7 +43,7 @@ SCENARIO("A Blox OneWireBus can stream a variable number of found addresses"){
             ow.readTo(out);
             std::stringstream ss;
             streamHex(ss, outbuf, out.bytesWritten());
-            WARN("OneWireBus result is " << ss.str());
+            INFO("OneWireBus result is " << ss.str());
         }
 
         WHEN("a family search command is streamed in"){
@@ -65,13 +65,13 @@ SCENARIO("A Blox OneWireBus can stream a variable number of found addresses"){
             ow.readTo(out);
             std::stringstream ss;
             streamHex(ss, outbuf, out.bytesWritten());
-            WARN("OneWireBus result 2 is " << ss.str());
+            INFO("OneWireBus result 2 is " << ss.str());
 
             out.reset();
             ow.readTo(out);
             std::stringstream ss2;
             streamHex(ss2, outbuf, out.bytesWritten());
-            WARN("OneWireBus result 3 is " << ss2.str());
+            INFO("OneWireBus result 3 is " << ss2.str());
         }
     }
 }

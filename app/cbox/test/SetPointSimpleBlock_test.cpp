@@ -38,7 +38,7 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
             THEN("no errors occur"){
                 if (!status)
                 {
-                    WARN("Decoding failed: " << PB_GET_ERROR(&stream));
+                    INFO("Decoding failed: " << PB_GET_ERROR(&stream));
                     CAPTURE(stream);
                 }
                 CHECK(status);
@@ -92,7 +92,7 @@ SCENARIO("Create blox SetPointSimple application object from definition"){
         THEN("no errors occur"){
             if (!status)
             {
-                WARN("Encoding failed: " << PB_GET_ERROR(&stream1));
+                INFO("Encoding failed: " << PB_GET_ERROR(&stream1));
                 CAPTURE(stream1);
             }
             CHECK(status);

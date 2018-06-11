@@ -46,8 +46,8 @@ SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf 
             for(int i =0 ; i <= blox_OneWireTempSensor_Persisted_size; i ++){
                 ss << std::setw(2) << static_cast<unsigned>(buf[i]);
             }
-            WARN("Encoding of sensor with address 0x0807060504030201 and offset 123 is " << ss.str());
-            WARN("Length of encoding is " << blox_OneWireTempSensor_Persisted_size);
+            INFO("Encoding of sensor with address 0x0807060504030201 and offset 123 is " << ss.str());
+            INFO("Length of encoding is " << blox_OneWireTempSensor_Persisted_size);
 
             AND_WHEN("we create a DataIn object form that buffer"){
                 cbox::BufferDataIn in(buf);
