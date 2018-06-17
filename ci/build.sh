@@ -20,7 +20,7 @@ result=$?
 popd
 status $result
 
-pushd platform/spark 
+pushd build 
 ./build-all.sh
 result=$?
 popd

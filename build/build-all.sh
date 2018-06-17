@@ -1,5 +1,3 @@
-
-
 function makeit()
 {
 	echo "building $*"
@@ -14,11 +12,10 @@ fi
 
 function makeapp()
 {
-	makeit PLATFORM=core $*
 	makeit PLATFORM=photon $*
 	makeit PLATFORM=P1 $*
 }
 
 pwd
-makeapp APP=controller
+# makeapp APP=controller
 makeapp APP=cbox

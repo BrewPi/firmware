@@ -1,5 +1,5 @@
-BOOST_VERSION=1_63_0
-url=http://downloads.sourceforge.net/project/boost/boost/1.63.0/boost_$BOOST_VERSION.tar.gz
+BOOST_VERSION=1_67_0
+url=http://downloads.sourceforge.net/project/boost/boost/1.67.0/boost_$BOOST_VERSION.tar.gz
 mkdir -p .cache/boost
 dl=.cache/boost/boost_$BOOST_VERSION.tar.gz
 test -f $dl || (

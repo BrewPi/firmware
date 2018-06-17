@@ -79,12 +79,9 @@ CFLAGS += -Werror=deprecated-declarations
 # Generate dependency files automatically.
 CFLAGS += -MD -MP -MF $@.d
 CFLAGS += -DDEBUG_BUILD
-# OSX includes sys/wait.h which defines "wait"
-CFLAGS += -D_SYS_WAIT_H_ -D_SYS_WAIT_H
 
 CPPFLAGS += -std=gnu++11
-# doesn't work on osx
-#LDFLAGS +=  -Wl,--gc-sections 
+LDFLAGS +=  -Wl,--gc-sections 
 
 # Collect all object and dep files
 ALLOBJ += $(addprefix $(BUILD_PATH), $(CSRC:.c=.o))
