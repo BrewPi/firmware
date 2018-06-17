@@ -7,9 +7,7 @@ services:
 
 before_install:
   - docker pull brewpi/firmware-compiler
-  - cd ./docker
-  - docker-compose build 
-
+  
 script:
   - docker-compose run compiler bash build-firmware.sh
   - docker-compose run compiler bash build-tests.sh
