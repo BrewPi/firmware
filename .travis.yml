@@ -9,6 +9,7 @@ before_install:
   - docker pull brewpi/firmware-compiler
   
 script:
+  - cd ./docker
   - docker-compose run compiler bash build-firmware.sh
   - docker-compose run compiler bash build-tests.sh
   - docker-compose run compiler bash run-tests.sh
