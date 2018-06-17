@@ -1,21 +1,18 @@
 language: cpp
 
-cache:
-  directories:
-  - ".cache"
+sudo: required
+
+services:
+  - docker
 
 before_install:
-- mkdir -p .cache
-- sudo apt-get update
-
-install:
-- ./ci/install_arm_gcc.sh
-- ./platform/spark/firmware/ci/install_gcc.sh
-- source ./ci/install_boost.sh
-- sudo apt-get install libarchive-zip-perl # for crc32
+- cd ./docker
+- docker-compose build 
 
 script:
-- ./ci/build.sh
+- docker-compose run compiler bash build-firmware.sh
+- docker-compose run compiler bash build-tests.sh
+- docker-compose run compiler bash run-tests.sh
 
 notifications:
   slack:

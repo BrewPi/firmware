@@ -80,8 +80,12 @@ CFLAGS += -Werror=deprecated-declarations
 CFLAGS += -MD -MP -MF $@.d
 CFLAGS += -DDEBUG_BUILD
 
+# OSX includes sys/wait.h which defines "wait"
+CFLAGS += -D_SYS_WAIT_H_ -D_SYS_WAIT_H
+
 CPPFLAGS += -std=gnu++11
-LDFLAGS +=  -Wl,--gc-sections 
+# doesn't work on osx
+#LDFLAGS +=  -Wl,--gc-sections 
 
 # Collect all object and dep files
 ALLOBJ += $(addprefix $(BUILD_PATH), $(CSRC:.c=.o))
