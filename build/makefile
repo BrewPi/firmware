@@ -13,7 +13,7 @@ USE_PRINTF_FLOAT ?=n
 
 run_make:
 	echo "Building app $(APP) from $(APP_MAKEFILE)" 
-	@$(MAKE) -C $(SPARKDIR)/main \
+	@$(MAKE) -s -C $(SPARKDIR)/main \
 	APPDIR=$(APPDIR) \
 	USER_MAKEFILE=$(APP_MAKEFILE) \
 	USE_PRINTF_FLOAT=$(USE_PRINTF_FLOAT) \

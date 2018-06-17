@@ -6,13 +6,14 @@ services:
   - docker
 
 before_install:
-- cd ./docker
-- docker-compose build 
+  - docker pull brewpi/firmware-compiler
+  - cd ./docker
+  - docker-compose build 
 
 script:
-- docker-compose run compiler bash build-firmware.sh
-- docker-compose run compiler bash build-tests.sh
-- docker-compose run compiler bash run-tests.sh
+  - docker-compose run compiler bash build-firmware.sh
+  - docker-compose run compiler bash build-tests.sh
+  - docker-compose run compiler bash run-tests.sh
 
 notifications:
   slack:

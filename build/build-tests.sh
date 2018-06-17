@@ -12,11 +12,11 @@ fi
 }
 
 cd $MY_DIR/../lib/test
-make
+make -s
 result=$?
 status $result
 
 cd $MY_DIR/../app/controller/test
-make
+make -s
 result=$?
 status $result
