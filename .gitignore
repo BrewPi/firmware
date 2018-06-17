@@ -52,3 +52,5 @@ deploy/
 controlbox/build
 
 app/cbox/proto/cpp/
+
+build/target/

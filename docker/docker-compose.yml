@@ -1,0 +1,16 @@
+version: '2'
+services:
+  compiler:
+    build: .
+    image: brewpi/firmware-compiler
+    container_name: firmware-compiler
+    hostname: firmware-compiler.local
+    volumes:
+        - ../:/firmware
+        - "/etc/timezone:/etc/timezone:ro"
+        - "/etc/localtime:/etc/localtime:ro"
+
+networks:
+    default:
+      driver: bridge
+
