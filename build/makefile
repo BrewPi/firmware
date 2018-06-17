@@ -20,4 +20,5 @@ run_make:
 	WARNINGS_AS_ERRORS=$(WARNINGS_AS_ERRORS) \
 	TARGET_DIR=$(current_dir)/target/$(APP)-$(PLATFORM) \
 	BUILD_PATH_BASE=$(current_dir)/target \
+	PARTICLE_DEVELOP=y \
 	$(MAKEOVERRIDES) $(MAKECMDGOALS)

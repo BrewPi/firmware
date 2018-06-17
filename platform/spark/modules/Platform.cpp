@@ -18,9 +18,7 @@ void handleReset(bool exit)
 
 void eraseExternalFlash()
 {
-#if PLATFORM_ID==PLATFORM_SPARK_CORE
-    Flashee::Devices::userFlash().eraseAll();    
-#endif    
+	EEPROM.clear();
 }
 
 
@@ -42,7 +40,6 @@ bool platform_init()
         EEPROM.write(0, EEPROM_MAGIC1);
         EEPROM.write(1, EEPROM_MAGIC2);
     }
-    eepromAccess.init();
 
 #if PLATFORM_ID==PLATFORM_GCC
     WiFi.connect();
