@@ -2,6 +2,7 @@ version: '2'
 services:
   compiler:
     build: .
+    privileged: true
     image: brewpi/firmware-compiler
     container_name: firmware-compiler
     hostname: firmware-compiler.local

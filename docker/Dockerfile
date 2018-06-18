@@ -24,5 +24,7 @@ ENV BOOST_ROOT=$BOOST_HOME/boost_$BOOST_VERSION
 RUN bash /scripts/download_boost.sh 
 RUN bash /scripts/build_boost.sh
 
+RUN apt-get update -q && apt-get install -qy dfu-util
+
 WORKDIR /firmware/build
 CMD bash
