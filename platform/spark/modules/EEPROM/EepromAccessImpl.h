@@ -1,49 +1,54 @@
 #pragma once
 
-#include "eeprom_hal.h"
-
+#include "application.h"
 #include "EepromTypes.h"
-#include <algorithm>
 
 class SparkEepromAccess
 {
+private:
+static const uint16_t MAGIC_BYTES;
+
 public:
     SparkEepromAccess() = default;
     ~SparkEepromAccess() = default;
     
-    uint8_t readByte(eptr_t offset) {
-    	return HAL_EEPROM_Read(offset);
-    }
-    void writeByte(eptr_t offset, uint8_t value) {
-        HAL_EEPROM_Write(offset, value);
-    }
-
-    void readBlock(void* target, eptr_t offset, uint16_t size) {
-    	uint16_t end = std::min(uint16_t(offset) + size, uint16_t(0) + length());
-    	unsigned char * readTo = reinterpret_cast<unsigned char *>(target);
-        for(eptr_t idx = offset; idx < end; idx++){
-        	*readTo++ = HAL_EEPROM_Read(idx);
-
-        }
-    }
-    void writeBlock(eptr_t target, const void* source, uint16_t size) {
-    	eptr_t end = std::min(target + size, eptr_t(0) + length());
-    	const unsigned char * readFrom = reinterpret_cast<const unsigned char *>(source);
-		for(eptr_t idx = target; idx < end; idx++){
-			unsigned char value = *readFrom++;
-			HAL_EEPROM_Write(idx, value);
-		}
+    static bool init(){
+    	uint16_t magic = 0;
+    	EEPROM.get(0, magic);
+    	if(magic != MAGIC_BYTES){
+    		clear();
+    		return true;
+    	}
+    	return false;
     }
 
-    uint16_t length() {
-        return HAL_EEPROM_Length();
+    static uint8_t readByte(eptr_t offset) {
+    	return EEPROM.read(offset);
+    }
+    static void writeByte(eptr_t offset, uint8_t value) {
+        EEPROM.write(offset, value);
     }
 
-    void clear() {
-        HAL_EEPROM_Clear();
+    template <typename T>
+    static T &get(eptr_t offset, T &t )
+    {
+    	return EEPROM.get<T>(offset, t);
+    }
+
+    template <typename T>
+    static const T &put(eptr_t offset, T &t ){
+    	return EEPROM.put<T>(offset, t);
+    }
+
+    static uint16_t length() {
+        return EEPROM.length();
+    }
+
+    static void clear() {
+    	EEPROM.clear();
+    	EEPROM.put(0, MAGIC_BYTES);
     }
 };
 
-typedef SparkEepromAccess EepromAccess;
-
+extern SparkEepromAccess eepromAccess;
 

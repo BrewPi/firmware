@@ -25,7 +25,6 @@
 #include "TempControl.h"
 
 
-
 struct ChamberSettings
 {
 	ControlConstants cc;
@@ -39,7 +38,7 @@ struct BeerBlock {
 
 struct ChamberBlock
 {
-	static const uint8_t MAX_BEERS = 6;	
+	static const uint8_t MAX_BEERS = 6;
 	ChamberSettings chamberSettings;	
 	BeerBlock   beer[MAX_BEERS];	
 };
@@ -50,11 +49,13 @@ struct EepromFormat
 	static const uint8_t MAX_CHAMBERS = 1;
 	static const uint8_t MAX_DEVICES = NUM_DEVICE_SLOTS;
 
+	uint8_t magic_bytes[2];
 	uint8_t version;
 	uint8_t numChambers;		// todo - remove this - and increase reserved space.
-	uint8_t reserved[4];	
+	uint8_t reserved[4];
 	ChamberBlock chambers[MAX_CHAMBERS];
 	DeviceConfig devices[MAX_DEVICES];
+	uint8_t eGuiSettings[32];
 };
 
 static inline __attribute__((always_inline)) void eepromSizeCheck() {
@@ -74,7 +75,7 @@ static inline __attribute__((always_inline)) void eepromSizeCheck() {
  * Increment this value each time a change is made that is not backwardly-compatible.
  * Either the eeprom will be reset to defaults, or external code will re-establish the values via the piLink interface. 
  */
-#define EEPROM_FORMAT_VERSION 8
+#define EEPROM_FORMAT_VERSION 9
 
 /*
  * Version history:
