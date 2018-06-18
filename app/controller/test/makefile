@@ -79,6 +79,7 @@ CFLAGS += -Werror=deprecated-declarations
 # Generate dependency files automatically.
 CFLAGS += -MD -MP -MF $@.d
 CFLAGS += -DDEBUG_BUILD
+
 # OSX includes sys/wait.h which defines "wait"
 CFLAGS += -D_SYS_WAIT_H_ -D_SYS_WAIT_H
 

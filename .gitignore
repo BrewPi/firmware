@@ -54,6 +54,8 @@ controlbox/build
 
 app/cbox/proto/cpp/
 
+build/target/
+
 *.swp
 
 test_results/\.vscode/
