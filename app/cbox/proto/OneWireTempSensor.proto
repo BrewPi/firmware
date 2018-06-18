@@ -1,16 +1,16 @@
 syntax = "proto3";
 
-import 'nanopb.proto';
+import 'brewblox.proto';
 
 package blox;
 
 message OneWireTempSensor {
   message Settings {
     bytes address = 1;
-    sint32 offset = 2;
+    sint32 offset = 2 [(brewblox).unit = "degC", (brewblox).fraction_bits = 8];
   }
   message State {
-    sint32 value = 1;
+    sint32 value = 1 [(brewblox).unit = "degC", (brewblox).fraction_bits = 8];;
     bool connected = 2;
   }
   

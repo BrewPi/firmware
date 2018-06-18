@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import 'nanopb.proto';
+import 'brewblox.proto';
 
 package blox;
 
