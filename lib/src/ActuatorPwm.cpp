@@ -1,5 +1,7 @@
 #include <stdint.h>
+#include "Ticks.h"
 #include "ActuatorInterfaces.h"
+#include "temperatureFormats.h"
 #include "ActuatorPwm.h"
 #include "Ticks.h"
 #include "ActuatorMutexDriver.h"
@@ -12,7 +14,7 @@ ActuatorPwm::ActuatorPwm(ActuatorDigital & _target, uint16_t _period) :
     minVal(0.0),
     maxVal(100.0)
 {
-    target.setActive(false);
+    target.setState(ActuatorDigital::State::Inactive);
     setPeriod(_period); // sets period_ms
     periodStartTime = ticks.millis();
     // at init, pretend last high period was tiny spike in the past
@@ -95,7 +97,7 @@ void ActuatorPwm::fastUpdate() {
     int32_t sinceHighToLow = timeSinceMillis(currentTime, highToLowTime);
     int32_t lastHighDuration = sinceLowToHigh - sinceHighToLow;
 
-    if (target.isActive()) {
+    if (target.getState() == ActuatorDigital::State::Active) {
         if (elapsedTime >= adjDutyTime) {
             // end of duty cycle
             int32_t lowDuration = (period_ms > dutyTime) ? period_ms - dutyTime : 0;
@@ -109,9 +111,9 @@ void ActuatorPwm::fastUpdate() {
                 highToLowTime = 0; // set to zero to indicate we are stringing high periods together
             }
             else{
-                target.setActive(false);
+                target.setState(ActuatorDigital::State::Inactive);
                 // check if turning the output off has succeeded (OnOff actuator could stay active due to time limit)
-                if (target.isActive()) {
+                if (target.getState() == ActuatorDigital::State::Inactive) {
                     return; // try next time
                 }
                 int32_t thisDutyLate = elapsedTime - dutyTime;
@@ -123,7 +125,7 @@ void ActuatorPwm::fastUpdate() {
             }
         }
     }
-    else if (!target.isActive()) {
+    else if (target.getState() == ActuatorDigital::State::Inactive) {
         bool goHigh = false;
         bool newPeriod = false;
         int32_t estimatedCycleTime = 0;
@@ -152,8 +154,8 @@ void ActuatorPwm::fastUpdate() {
             }
         }
         if(goHigh){
-            target.setActive(true, priority());
-            if(target.isActive()){
+            target.setState(ActuatorDigital::State::Active, priority());
+            if(target.getState() == ActuatorDigital::State::Active){
                 newPeriod = true;
                 if(estimatedCycleTime){
                     cycleTime = estimatedCycleTime; // already had an estimate from ending cycle early
@@ -185,6 +187,9 @@ void ActuatorPwm::fastUpdate() {
             dutyTime = calculateDutyTime(period_ms + periodLate);
             periodStartTime = currentTime;
         }
+    }
+    else {
+    	target.setState(ActuatorDigital::State::Inactive, priority()); // force back into known state
     }
 }
 

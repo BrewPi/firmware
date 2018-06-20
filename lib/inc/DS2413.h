@@ -66,7 +66,7 @@ public:
      * @param pio           channel/pin to write
      * @param set           1 to switch the open drain ON (pin low), 0 to switch it off.
      * @param useCached     do not read the pin states from the device
-     * @return              true on success, false on failure
+     * @return              true on success
      */
     bool writeLatchBit(pio_t pio,
                     bool  set,
@@ -77,27 +77,26 @@ public:
      * @param pio               pin number to read
      * @param defaultValue      value to return when the read fails
      * @param useCached         do not read current pin state from device, but use cached state
+     * @return					true on success
      */
-    bool readLatchBit(pio_t pio,
-                   bool defaultValue,
-                   bool useCached);
+    bool readLatchBit(pio_t pio, bool & result, bool useCached);
 
-    bool latchReadCached(pio_t pio,
-                   bool defaultValue) const;
+    bool latchReadCached(pio_t pio, bool & result) const;
     /**
      * Periodic update to make sure the cache is valid.
      * Performs a simultaneous read of both channels and saves value to the cache.
-     * When read fails, prints a warning that the DS2413 is disconnected/
+     * When read fails, prints a warning that the DS2413 is disconnected
+     *
+     * @return					true on successful communication
      */
-    void update();
+    bool update();
 
     /**
      * Reads the output state of a given channel, defaulting to a given value on error.
      * Note that for a read to make sense the channel must be off (value written is 1).
-     * @return value of channel when cache is valid, defautl value if cache is not valid
+     * @return true on success
      */
-    bool sense(pio_t pio,
-               bool  defaultValue);
+    bool sense(pio_t pio, bool & result);
 
 private:
     uint8_t cachedState; /** last value of read */

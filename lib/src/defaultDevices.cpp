@@ -20,11 +20,6 @@
 
 #include "defaultDevices.h"
 
-ValueSensor<bool> * defaultSensor(){
-    static ValueSensor<bool> * s = new ValueSensor<bool>(false);
-    return s;
-}
-
 ActuatorNop * defaultActuator(){
     static ActuatorNop * a = new ActuatorNop;
     return a;

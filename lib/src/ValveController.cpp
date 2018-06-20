@@ -23,17 +23,18 @@
 #include "ValveController.h"
 
 
+
 void ValveController::update() {
     device->update();
     uint8_t action = getAction();
-    uint8_t state = getState();
+    uint8_t position = getPosition();
 
     if(desiredAction != action){
         write(desiredAction);
     }
 
-    if((desiredAction == VALVE_OPENING && state == VALVE_OPENED) ||
-            (desiredAction == VALVE_CLOSING && state == VALVE_CLOSED)){
+    if((desiredAction == VALVE_OPENING && position == VALVE_OPENED) ||
+            (desiredAction == VALVE_CLOSING && position == VALVE_CLOSED)){
         // fully opened/closed. Stop driving the valve
         idle();
     }
@@ -56,7 +57,7 @@ void ValveController::write(uint8_t action) {
     device->writeLatches(latch);
 }
 
-uint8_t ValveController::getState() const {
+uint8_t ValveController::getPosition() const {
     if(!device->isConnected()){
         return VALVE_ERROR;
     }
@@ -75,8 +76,8 @@ uint8_t ValveController::getAction() const {
     return (latches >> 2) & 0b11;
 }
 
-void ValveController::setActive(bool active, int8_t priority){
-    if(active){
+void ValveController::setState(State state, int8_t priority){
+    if(state == State::Active){
         open();
     }
     else {
@@ -84,34 +85,34 @@ void ValveController::setActive(bool active, int8_t priority){
     }
 }
 
-bool ValveController::isActive() const {
+ActuatorDigital::State ValveController::getState() const {
     if(!device->isConnected()){
-        return false;
+        return State::Unknown;
     }
     if(getAction() == VALVE_OPENING){
-        return true;
+        return State::Active;
     }
     if(getAction() == VALVE_CLOSING){
-        return false;
+    	return State::Inactive;
     }
-    if(getState() == VALVE_OPENED){
-        return true;
+    if(getPosition() == VALVE_OPENED){
+    	return State::Active;
     }
-    if(getState() == VALVE_CLOSED){
-        return false;
+    if(getPosition() == VALVE_CLOSED){
+    	return State::Inactive;
     }
     // If we end up here, the valve is halfway or disconnected form the board (the feedback switches have a pullup).
     // If the valve is half open, this is an active state.
     // Returning true here is safer, because the caller will call setActive(false) to recover from this.
     // If the default would be false, the valve could be half open or unknown, but it will not get a close signal.
-    return true;
+    return State::Unknown;
 }
 
 uint8_t ValveController::read(bool doUpdate){
     if(doUpdate){
         device->update();
     }
-    return (getAction() << 2 | getState());
+    return (getAction() << 2 | getPosition());
 }
 
 #endif
