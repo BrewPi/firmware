@@ -26,16 +26,16 @@ void ActuatorTimeLimited::setState(State newState, int8_t priority)
 {
     State oldState = state;
 
-    if (oldState == State::Inactive && newState == State::Active){
+    if (oldState == State::Active && newState == State::Inactive){
         if (timeSinceToggle() <= minOnTime){
-            newState = State::Inactive;    // do not turn off before minOnTime has passed
+            newState = State::Active;    // do not turn off before minOnTime has passed
             // use <= because stored value is truncated in divide from milliseconds to seconds
         }
     }
 
-    if (oldState == State::Active && newState == State::Inactive){
+    if (oldState == State::Inactive && newState == State::Active){
         if (timeSinceToggle() <= minOffTime){
-            newState = State::Active;    // do not turn on before minOffTime has passed
+            newState = State::Inactive;    // do not turn on before minOffTime has passed
         }
     }
 

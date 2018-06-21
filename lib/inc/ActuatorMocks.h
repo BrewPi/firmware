@@ -126,7 +126,7 @@ public:
     }
 
     void setState(State state, int8_t priority = 127) override final {}
-    State getState() const override final { return State::Unknown;}
+    State getState() const override final { return State::Inactive;}
     void update() override final {}
     void fastUpdate() override final {}
 

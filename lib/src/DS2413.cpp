@@ -22,6 +22,7 @@
 
 
 #include "Platform.h"
+#if BREWPI_DS2413
 #include "OneWire.h"
 #include "DS2413.h"
 #include "ActuatorInterfaces.h"
@@ -200,3 +201,4 @@ bool DS2413::accessWrite(uint8_t b,
 
     return ack == ACK_SUCCESS;
 }
+#endif

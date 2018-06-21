@@ -42,7 +42,7 @@ public:
         minOffTime(_minOffTime),
         toggleTime(0)
     {
-        state = State::Unknown;
+        state = State::Inactive;
     }
 
     ~ActuatorTimeLimited() = default;

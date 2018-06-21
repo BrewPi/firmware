@@ -113,7 +113,7 @@ void ActuatorPwm::fastUpdate() {
             else{
                 target.setState(ActuatorDigital::State::Inactive);
                 // check if turning the output off has succeeded (OnOff actuator could stay active due to time limit)
-                if (target.getState() == ActuatorDigital::State::Inactive) {
+                if (target.getState() == ActuatorDigital::State::Active) {
                     return; // try next time
                 }
                 int32_t thisDutyLate = elapsedTime - dutyTime;
