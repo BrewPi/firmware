@@ -25,7 +25,6 @@
 #if BREWPI_DS2413
 #include "OneWire.h"
 #include "DS2413.h"
-#include "ActuatorInterfaces.h"
 
 bool DS2413::cacheIsValid() const
 {
@@ -95,11 +94,13 @@ bool DS2413::readLatchBit(pio_t pio, bool & result, bool useCached)
 bool DS2413::latchReadCached(pio_t pio, bool & result) const
 {
     if(cacheIsValid()){
-        return ((cachedState & latchReadMask(pio)) == 0);
+        result = ((cachedState & latchReadMask(pio)) == 0);
+        return true;
     }
     else
     {
-        return ActuatorDigital::State::Unknown;
+        result = false;
+        return false;
     }
 }
 
