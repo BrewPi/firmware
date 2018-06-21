@@ -109,6 +109,9 @@ struct EEPtr{
     EEPtr operator++ (int)              { return index++; }
     EEPtr operator-- (int)              { return index--; }
 
+    EEPtr operator+= (int arg)          { return index += arg, *this; }
+    EEPtr operator-= (int arg)          { return index -= arg, *this; }
+
     int index; //Index of current EEPROM cell.
 };
 

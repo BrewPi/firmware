@@ -31,8 +31,6 @@ void clear(uint8_t* p, uint8_t size);
 
 struct DeviceConfig;
 
-
-// todo - the Eeprom manager should avoid too frequent saves to the eeprom since it supports 100,000 writes. 
 class EepromManager {
 public:		
 		
@@ -41,7 +39,7 @@ public:
         /**
          * Initialize the eeprom manager.
          */
-        static void init();
+    static void init();
 	
 	/**
 	 * Write -1 to the entire eeprom, emulating the reset performed by avrdude.
@@ -80,21 +78,6 @@ public:
 	static bool storeDevice(const DeviceConfig& config, uint8_t deviceIndex);
 	
 	static uint8_t saveDefaultDevices();
-};
-
-class EepromStream 
-{
-	eptr_t pv;
-	
-	void writeByte(uint8_t value) {
-		eepromAccess.writeByte(pv++, value);				
-	}
-	void writeBlock(void* source, uint16_t size)
-	{
-		eepromAccess.writeBlock(pv, source, size);
-		pv += size;
-	}		
-			
 };
 
 extern EepromManager eepromManager;

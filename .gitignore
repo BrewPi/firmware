@@ -57,3 +57,4 @@ app/cbox/proto/cpp/
 *.swp
 
 test_results/\.vscode/
+build/target/
