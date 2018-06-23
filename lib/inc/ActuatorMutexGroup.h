@@ -31,7 +31,7 @@ public:
 	ActuatorPriority(ActuatorMutexDriver * act, int8_t p) : actuator(act), priority(p){};
 	~ActuatorPriority() = default;
     ActuatorMutexDriver * actuator;
-    int8_t priority; // valid priorities are 0-127, at -128 the actuator is removed from the group
+    int8_t priority; // valid priorities are 0-127. -1 is used for actuators that are not trying to get the mutex
 };
 
 class ActuatorMutexGroup final :

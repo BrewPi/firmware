@@ -37,11 +37,9 @@ void ActuatorMutexGroup::unRegisterActuator(ActuatorMutexDriver * act){
 	auto end = actuatorPriorities.end();
 	for(;it < end; it++){
 		if(it->actuator == act){
-			break;
+			actuatorPriorities.erase(it);
+			return;
 		}
-	}
-	if(it != end){
-		actuatorPriorities.erase(it);
 	}
 }
 
@@ -49,9 +47,9 @@ bool ActuatorMutexGroup::request(ActuatorMutexDriver * requester, ActuatorDigita
     // loop over all actuators to see if my request has highest priority
     // and if no other actuators are active
 
-    bool otherActuatorActive = false;
-    int8_t highestPriority = -1; // highest priority in the list (excluding requester)
     bool requestHonored = true;
+    bool otherActuatorActive = false;
+    int8_t highestPriority = -1;
 
     if(newState != ActuatorDigital::State::Active){
         newPriority = -1; // set requester priority to -1, because its not waiting to go active anymore
@@ -60,7 +58,7 @@ bool ActuatorMutexGroup::request(ActuatorMutexDriver * requester, ActuatorDigita
     for(auto & ap : actuatorPriorities ){
     	ActuatorDigital::State actuatorState = ap.actuator->getState();
         if(ap.actuator == requester){
-        	ap.priority = newPriority; // update my own priority
+        	ap.priority = newPriority; // update requester's priority
         }
         if(ap.priority > highestPriority){
         	highestPriority = ap.priority;
@@ -73,11 +71,17 @@ bool ActuatorMutexGroup::request(ActuatorMutexDriver * requester, ActuatorDigita
             }
         }
     }
+
+    // Check that no other actuator in the group is active
 	requestHonored &= !otherActuatorActive;
+
+	// Check that no other waiting actuator has higher priority
 	requestHonored &= newPriority >= highestPriority;
+
+	// Guard the minimum dead time for switching between actuators
 	requestHonored &= !(getWaitTime() > 0) || lastActiveActuator == requester;
 
-	// always allow false, otherwise allow when no one else is active and me has highest priority
+	// always allow setting to Inactive
     requestHonored = requestHonored || newState == ActuatorDigital::State::Inactive;
 
     return requestHonored;
