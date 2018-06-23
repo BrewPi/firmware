@@ -18,83 +18,72 @@
  */
 
 #include "ActuatorMutexGroup.h"
-#include "Ticks.h"
+#include "ActuatorMutexDriver.h"
 #include "ActuatorInterfaces.h"
-#include <vector>
+#include "Ticks.h"
 
-ActuatorPriority * ActuatorMutexGroup::registerActuator(ActuatorDigital * act, int8_t prio){
-    ActuatorPriority ap = {act, prio};
-    actuatorPriorities.push_back(ap);
-    return &actuatorPriorities.back();
+ActuatorMutexGroup::~ActuatorMutexGroup(){
+	for(auto & ap : actuatorPriorities ){
+		ap.actuator->signalDeletedMutexGroup(this);
+	}
 }
 
-size_t ActuatorMutexGroup::find(ActuatorDigital * act){
-    for (unsigned i=0; i<actuatorPriorities.size(); ++i){
-        if(actuatorPriorities[i].actuator == act){
-            return i;
-        }
-    }
-    return -1; // wraps around for size_t
+void ActuatorMutexGroup::registerActuator(ActuatorMutexDriver * act){
+    actuatorPriorities.push_back(ActuatorPriority(act, -1));
 }
 
-void ActuatorMutexGroup::unRegisterActuator(size_t index){
-    actuatorPriorities.erase(actuatorPriorities.begin() + index);
+void ActuatorMutexGroup::unRegisterActuator(ActuatorMutexDriver * act){
+	auto it = actuatorPriorities.begin();
+	auto end = actuatorPriorities.end();
+	for(;it < end; it++){
+		if(it->actuator == act){
+			break;
+		}
+	}
+	if(it != end){
+		actuatorPriorities.erase(it);
+	}
 }
 
-void ActuatorMutexGroup::unRegisterActuator(ActuatorDigital * act){
-    size_t index = find(act);
-    if(index != size_t(-1)){
-        unRegisterActuator(index);
-    }
-}
-
-bool ActuatorMutexGroup::request(ActuatorDigital * requester, ActuatorDigital::State newState, int8_t newPriority){
+bool ActuatorMutexGroup::request(ActuatorMutexDriver * requester, ActuatorDigital::State newState, int8_t newPriority){
     // loop over all actuators to see if my request has highest priority
     // and if no other actuators are active
 
     bool otherActuatorActive = false;
-    bool highestPriority = true;
+    int8_t highestPriority = -1; // highest priority in the list (excluding requester)
     bool requestHonored = true;
-    ActuatorPriority * me = nullptr;
 
-    if(newState == ActuatorDigital::Inactive){
+    if(newState != ActuatorDigital::State::Active){
         newPriority = -1; // set requester priority to -1, because its not waiting to go active anymore
     }
 
-    for (size_t i=0; i<actuatorPriorities.size(); ++i){
-        ActuatorPriority * other = &actuatorPriorities[i];
-
-        if(other->actuator == requester){
-            other->priority = newPriority; // update my own priority
-            me = &actuatorPriorities[i];
+    for(auto & ap : actuatorPriorities ){
+    	ActuatorDigital::State actuatorState = ap.actuator->getState();
+        if(ap.actuator == requester){
+        	ap.priority = newPriority; // update my own priority
         }
-        else{
-            if(other->priority > newPriority){
-                highestPriority = false;
+        if(ap.priority > highestPriority){
+        	highestPriority = ap.priority;
+        }
+        if(actuatorState == ActuatorDigital::State::Active){
+            lastActiveTime = ticks.millis();
+            lastActiveActuator = ap.actuator;
+            if(ap.actuator != requester){
+            	otherActuatorActive = true;
             }
         }
-        if(other->actuator->getState() == ActuatorDigital::State::Active){
-            otherActuatorActive = true;
-            lastActiveTime = ticks.millis();
-            lastActiveActuator = other->actuator;
-        }
-        // always allow false, otherwise allow when no one else is active and me has highest priority
-        requestHonored = newState == ActuatorDigital::State::Inactive || (!otherActuatorActive && highestPriority);
-        if(me && !requestHonored){
-            break;
-        }
     }
-    if(!me){ // I was not in the list
-        me = registerActuator(requester, newPriority);
-    }
-    if(newState == ActuatorDigital::State::Active && getWaitTime() > 0 && lastActiveActuator != requester){
-        requestHonored = false; // dead time has not passed
-    }
+	requestHonored &= !otherActuatorActive;
+	requestHonored &= newPriority >= highestPriority;
+	requestHonored &= !(getWaitTime() > 0) || lastActiveActuator == requester;
+
+	// always allow false, otherwise allow when no one else is active and me has highest priority
+    requestHonored = requestHonored || newState == ActuatorDigital::State::Inactive;
 
     return requestHonored;
 }
 
-void ActuatorMutexGroup::cancelRequest(ActuatorDigital * requester){
+void ActuatorMutexGroup::cancelRequest(ActuatorMutexDriver * requester){
     request(requester, ActuatorDigital::State::Inactive, -1);
 }
 
@@ -118,13 +107,13 @@ ticks_millis_t ActuatorMutexGroup::getWaitTime(){
 
 // update decreases all priorities by 1, so that old requests lose their priority automatically
 void ActuatorMutexGroup::update(){
-    for (size_t i=0; i<actuatorPriorities.size(); ++i){
-        if(actuatorPriorities[i].priority > -1){
-            actuatorPriorities[i].priority--;
+	for(auto & ap : actuatorPriorities ){
+        if(ap.priority > -1){
+            ap.priority--;
         }
-        if(actuatorPriorities[i].actuator->getState() == ActuatorDigital::State::Active){
+        if(ap.actuator->getState() == ActuatorDigital::State::Active){
             lastActiveTime = ticks.millis();
-            lastActiveActuator = actuatorPriorities[i].actuator;
+            lastActiveActuator = ap.actuator;
         }
     }
 }

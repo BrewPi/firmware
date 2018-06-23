@@ -37,6 +37,7 @@ BOOST_AUTO_TEST_CASE(ActuatorBoolTest) {
 
     act->setState(ActuatorDigital::State::Inactive);
     BOOST_CHECK(act->getState() == ActuatorDigital::State::Inactive); // can be set to inactive
+    delete act;
 }
 
 

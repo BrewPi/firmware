@@ -24,6 +24,7 @@
 #include "temperatureFormats.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorMutexGroup.h"
+#include "ActuatorMutexDriver.h"
 #include "ControllerMixins.h"
 
 /* A driver actuator to wrap a digital Actuator and block SetActive calls if the mutex group does does not honor the request
@@ -32,52 +33,41 @@
 class ActuatorMutexDriver final : public ActuatorDigital, public ActuatorMutexDriverMixin{
 public:
     ActuatorMutexDriver(ActuatorDigital & target) : target(target), mutexGroup(nullptr){}
-    ActuatorMutexDriver(ActuatorDigital & target, ActuatorMutexGroup * m) : target(target), mutexGroup(m){}
+    ActuatorMutexDriver(ActuatorDigital & target, ActuatorMutexGroup * m);
 
     ~ActuatorMutexDriver(){
         setMutex(nullptr);
     }
 
-    void accept(VisitorBase & v) override final{
+    virtual void accept(VisitorBase & v) override final{
     	v.visit(*this);
     }
 
-    void update() override final {
+    virtual void update() override final {
         target.update();
     }
 
-    void fastUpdate() override final {
+    virtual void fastUpdate() override final {
         target.fastUpdate();
     }
 
-    void setMutex(ActuatorMutexGroup * mutex){
-        if(mutexGroup != nullptr){
-            mutexGroup->unRegisterActuator(this);
-        }
-        mutexGroup = mutex;
-    }
+    void setMutex(ActuatorMutexGroup * mutex);
+
+    void signalDeletedMutexGroup(ActuatorMutexGroup * mutex){
+		if(mutexGroup == mutex){
+			mutexGroup = nullptr;
+		}
+	}
+
     ActuatorMutexGroup * getMutex(){
         return mutexGroup;
     }
 
     // To activate actuator, permission is asked from mutexGroup, false is always allowed
     // when priority not specified, default to highest priority
-    void setState(State state, int8_t priority = 127) override final{
-        if(mutexGroup){
-            if(mutexGroup->request(this, state, priority)){
-                target.setState(state);
-                if(target.getState() != state){
-                    // if setting the target failed, cancel the request to prevent blocking other actuators
-                     mutexGroup->cancelRequest(this);
-                }
-            }
-        }
-        else{
-            target.setState(state); // if mutex group is not set, just pass on the call
-        }
-    }
+    virtual void setState(State state, int8_t priority = 127) override final;
 
-    State getState() const override final {
+    virtual State getState() const override final {
         return target.getState();
     }
 
