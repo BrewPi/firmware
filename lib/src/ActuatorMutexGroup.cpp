@@ -48,7 +48,7 @@ void ActuatorMutexGroup::unRegisterActuator(ActuatorDigital * act){
     }
 }
 
-bool ActuatorMutexGroup::request(ActuatorDigital * requester, bool active, int8_t newPriority){
+bool ActuatorMutexGroup::request(ActuatorDigital * requester, ActuatorDigital::State newState, int8_t newPriority){
     // loop over all actuators to see if my request has highest priority
     // and if no other actuators are active
 
@@ -57,7 +57,7 @@ bool ActuatorMutexGroup::request(ActuatorDigital * requester, bool active, int8_
     bool requestHonored = true;
     ActuatorPriority * me = nullptr;
 
-    if(!active){
+    if(newState == ActuatorDigital::Inactive){
         newPriority = -1; // set requester priority to -1, because its not waiting to go active anymore
     }
 
@@ -73,13 +73,13 @@ bool ActuatorMutexGroup::request(ActuatorDigital * requester, bool active, int8_
                 highestPriority = false;
             }
         }
-        if(other->actuator->isActive()){
+        if(other->actuator->getState() == ActuatorDigital::State::Active){
             otherActuatorActive = true;
             lastActiveTime = ticks.millis();
             lastActiveActuator = other->actuator;
         }
         // always allow false, otherwise allow when no one else is active and me has highest priority
-        requestHonored = active ? !otherActuatorActive && highestPriority : true;
+        requestHonored = newState == ActuatorDigital::State::Inactive || (!otherActuatorActive && highestPriority);
         if(me && !requestHonored){
             break;
         }
@@ -87,7 +87,7 @@ bool ActuatorMutexGroup::request(ActuatorDigital * requester, bool active, int8_
     if(!me){ // I was not in the list
         me = registerActuator(requester, newPriority);
     }
-    if(active && getWaitTime() > 0 && lastActiveActuator != requester){
+    if(newState == ActuatorDigital::State::Active && getWaitTime() > 0 && lastActiveActuator != requester){
         requestHonored = false; // dead time has not passed
     }
 
@@ -95,7 +95,7 @@ bool ActuatorMutexGroup::request(ActuatorDigital * requester, bool active, int8_
 }
 
 void ActuatorMutexGroup::cancelRequest(ActuatorDigital * requester){
-    request(requester, false, -1);
+    request(requester, ActuatorDigital::State::Inactive, -1);
 }
 
 void ActuatorMutexGroup::setDeadTime(ticks_millis_t time){
@@ -122,7 +122,7 @@ void ActuatorMutexGroup::update(){
         if(actuatorPriorities[i].priority > -1){
             actuatorPriorities[i].priority--;
         }
-        if(actuatorPriorities[i].actuator->isActive()){
+        if(actuatorPriorities[i].actuator->getState() == ActuatorDigital::State::Active){
             lastActiveTime = ticks.millis();
             lastActiveActuator = actuatorPriorities[i].actuator;
         }

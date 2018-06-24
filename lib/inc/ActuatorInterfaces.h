@@ -32,10 +32,22 @@
 class ActuatorDigital : public virtual Interface, public virtual ActuatorDigitalMixin
 {
 public:
+	enum State : uint8_t {
+		Inactive,
+		Active,
+		Unknown
+	};
+
     ActuatorDigital() = default;
     virtual ~ActuatorDigital() = default;
-    virtual void setActive(bool active, int8_t priority = 127) = 0;
-    virtual bool isActive() const = 0;
+    virtual void setState(State state, int8_t priority) = 0;
+
+    inline void setState(State state){
+    	setState(state, 127);
+    }
+
+    // no bool return type offered, because this forces classes to implement handling the Unknown state
+    virtual State getState() const = 0;
 
     friend class ActuatorDigitalMixin;
 };

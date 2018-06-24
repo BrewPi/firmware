@@ -22,28 +22,28 @@
 #include "ActuatorTimeLimited.h"
 #include "Ticks.h"
 
-void ActuatorTimeLimited::setActive(bool newState, int8_t priority)
+void ActuatorTimeLimited::setState(State newState, int8_t priority)
 {
-    bool oldState = state;
+    State oldState = state;
 
-    if (oldState && !newState){
+    if (oldState == State::Active && newState == State::Inactive){
         if (timeSinceToggle() <= minOnTime){
-            newState = true;    // do not turn off before minOnTime has passed
+            newState = State::Active;    // do not turn off before minOnTime has passed
             // use <= because stored value is truncated in divide from milliseconds to seconds
         }
     }
 
-    if (!oldState && newState){
+    if (oldState == State::Inactive && newState == State::Active){
         if (timeSinceToggle() <= minOffTime){
-            newState = false;    // do not turn on before minOffTime has passed
+            newState = State::Inactive;    // do not turn on before minOffTime has passed
         }
     }
 
     if (oldState != newState){
-        target.setActive(newState, priority);
-        state = target.isActive();
+        target.setState(newState, priority);
+        state = target.getState();
 
-        if(oldState != state){
+        if(oldState != state && state != State::Unknown){
             toggleTime = ticks.seconds();
         }
     }
@@ -52,9 +52,9 @@ void ActuatorTimeLimited::setActive(bool newState, int8_t priority)
 void ActuatorTimeLimited::update()
 {
     target.update();
-    state = target.isActive(); // make sure state is always up to date with target
-    if (state && (timeSinceToggle() >= maxOnTime)){
-        setActive(false);
+    state = target.getState(); // make sure state is always up to date with target
+    if (state == State::Active && (timeSinceToggle() >= maxOnTime)){
+        setState(State::Inactive);
     }
 }
 

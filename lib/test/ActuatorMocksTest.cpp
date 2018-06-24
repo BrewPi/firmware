@@ -30,13 +30,13 @@ BOOST_AUTO_TEST_SUITE(ActuatorMocksTest)
 BOOST_AUTO_TEST_CASE(ActuatorBoolTest) {
     ActuatorBool * act = new ActuatorBool();
 
-    BOOST_CHECK(!act->isActive()); // defaults to false
+    BOOST_CHECK(act->getState() == ActuatorDigital::State::Inactive); // defaults to inactive
 
-    act->setActive(true);
-    BOOST_CHECK(act->isActive()); // can be set to true
+    act->setState(ActuatorDigital::State::Active);
+    BOOST_CHECK(act->getState() == ActuatorDigital::State::Active); // can be set to active
 
-    act->setActive(false);
-    BOOST_CHECK(!act->isActive()); // can be set to true
+    act->setState(ActuatorDigital::State::Inactive);
+    BOOST_CHECK(act->getState() == ActuatorDigital::State::Inactive); // can be set to inactive
 }
 
 

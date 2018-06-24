@@ -50,7 +50,7 @@ public:
     void unRegisterActuator(ActuatorDigital * act); // remove by pointer
 
 
-    bool request(ActuatorDigital * requester, bool active, int8_t newPriority);
+    bool request(ActuatorDigital * requester, ActuatorDigital::State newState, int8_t newPriority);
 
     /**
      * Cancels an open request, by setting the priority to -1.

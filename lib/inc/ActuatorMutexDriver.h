@@ -62,23 +62,23 @@ public:
 
     // To activate actuator, permission is asked from mutexGroup, false is always allowed
     // when priority not specified, default to highest priority
-    void setActive(bool active, int8_t priority = 127) override final{
+    void setState(State state, int8_t priority = 127) override final{
         if(mutexGroup){
-            if(mutexGroup->request(this, active, priority)){
-                target.setActive(active);
-                if(target.isActive() != active){
+            if(mutexGroup->request(this, state, priority)){
+                target.setState(state);
+                if(target.getState() != state){
                     // if setting the target failed, cancel the request to prevent blocking other actuators
                      mutexGroup->cancelRequest(this);
                 }
             }
         }
         else{
-            target.setActive(active); // if mutex group is not set, just pass on the call
+            target.setState(state); // if mutex group is not set, just pass on the call
         }
     }
 
-    bool isActive() const override final {
-        return target.isActive();
+    State getState() const override final {
+        return target.getState();
     }
 
 private:
