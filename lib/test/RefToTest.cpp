@@ -135,6 +135,7 @@ BOOST_AUTO_TEST_CASE(RefTo_SetPointActuator) {
     RefTo<ActuatorAnalog> ref(lookup);
 
     BOOST_CHECK_EQUAL(ref.get(), spa);
+    delete spa;
 }
 
 

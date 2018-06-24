@@ -192,6 +192,21 @@ BOOST_AUTO_TEST_CASE(when_there_have_been_no_requests_for_a_while_dead_time_is_s
     BOOST_CHECK(act2.getState() == ActuatorDigital::State::Inactive); // not allowed, because of dead time
 }
 
+BOOST_AUTO_TEST_CASE(test_destructors1) {
+    auto act1 = new ActuatorBool();
+    auto act2 = new ActuatorBool();
+    auto mutex = new ActuatorMutexGroup();
+
+    auto actm1 = new ActuatorMutexDriver(*act1);
+    auto actm2 = new ActuatorMutexDriver(*act2);
+
+    delete mutex;
+    delete actm1;
+    delete actm2;
+    delete act1;
+    delete act2;
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 

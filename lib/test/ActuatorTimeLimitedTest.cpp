@@ -43,7 +43,6 @@ BOOST_AUTO_TEST_CASE(minimum_off_time_and_maximum_on_time_are_honored) {
 
     ActuatorTimeLimited * act = new ActuatorTimeLimited(*v, minOn, minOff, maxOn);
 
-
     *output << "\n\n**** Testing min OFF and max ON time for ActuatorTimeLimited ****\n\n";
 
     while(ticks.seconds() < 10000) {
@@ -79,6 +78,9 @@ BOOST_AUTO_TEST_CASE(minimum_off_time_and_maximum_on_time_are_honored) {
             break;
         }
     }
+
+    delete v;
+    delete act;
 }
 
 BOOST_AUTO_TEST_CASE(minimum_on_time_is_honored) {
@@ -107,6 +109,9 @@ BOOST_AUTO_TEST_CASE(minimum_on_time_is_honored) {
         BOOST_REQUIRE(act->getState() == ActuatorDigital::State::Active);
     }
     *output << "Was ON for " << time - onMoment << "seconds\n";
+
+    delete v;
+	delete act;
 }
 
 BOOST_AUTO_TEST_CASE(correct_state_is_returned_with_actuatorNop) {
@@ -125,6 +130,9 @@ BOOST_AUTO_TEST_CASE(correct_state_is_returned_with_actuatorNop) {
     act->setState(ActuatorDigital::State::Active);
     // ActuatorNop cannot go active, so cached state state should stay inactive too.
     BOOST_CHECK(act->getState() == ActuatorDigital::State::Inactive);
+
+    delete v;
+	delete act;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

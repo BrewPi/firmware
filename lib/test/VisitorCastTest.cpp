@@ -73,5 +73,9 @@ BOOST_AUTO_TEST_CASE(casting_interfaces_to_specialized_interfaces){
 
     act = asInterface<ActuatorAnalog>(_pwmAct);
     BOOST_REQUIRE_EQUAL(act, pwmAct);
+
+    delete _sensor;
+    delete _boolAct;
+    delete _pwmAct;
 }
 BOOST_AUTO_TEST_SUITE_END()
