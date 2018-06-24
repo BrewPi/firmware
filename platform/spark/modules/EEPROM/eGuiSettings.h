@@ -24,62 +24,12 @@ extern "C" {
 #include "d4d.h"
 }
 
-#include "SparkEepromRegions.h"
+#include "EepromFormat.h"
 
-#if PLATFORM_ID!=3
-#include "flashee-eeprom.h"
-#else
 #include "EepromAccessImpl.h"
-// HACK!
-extern EepromAccess eepromAccess;
-
-
-#endif
-
-// Reserve 32 bytes for touch calibration settings to have room for growth
-union calibrationSettingsArea {
-    D4D_TOUCHSCREEN_CALIB touchCalib;
-    unsigned char reserved[32];
-};
-
-// relative addresses in flashee block
-#define TOUCH_CALIB_ADDRESS 0
-#define NEXT_ADDRESS (TOUCH_CALIB_ADDRESS + sizeof(calibrationSettingsArea)
 
 class eGuiSettingsClass {
-#if PLATFORM_ID!=3		// todo - this should be implemented in the GCC HAL, mapping eeprom to a file/memory array
-	Flashee::FlashDevice* flash;
-#else
-	struct FlashDevice
-	{
-		static void read(void* target, size_t offset, size_t len)
-		{
-			eepromAccess.readBlock(target, offset, len);
-		}
-
-		static void write(const void* source, size_t offset, size_t len)
-		{
-			eepromAccess.writeBlock(offset, source, len);
-		}
-	};
-
-	FlashDevice* flash;
-#endif
-
 public:
-
-    void init() {
-#if PLATFORM_ID==0 || PLATFORM_ID==8 
-        flash = Flashee::Devices::createAddressErase(4096 * EEPROM_EGUI_SETTINGS_START_BLOCK, 4096 * EEPROM_EGUI_SETTINGS_END_BLOCK);
-#elif PLATFORM_ID==6
-        flash = Flashee::Devices::createEepromDevice(EEPROM_EGUI_SETTINGS_START_BLOCK, EEPROM_EGUI_SETTINGS_END_BLOCK);
-#elif PLATFORM_ID==3
-        // no-op
-#else
-#error Unknown Product ID
-#endif
-    };
-
     /**
      * Checks whether valid touch screen calibration data is stored in flash memory
      * and loads it in eGUI
@@ -87,7 +37,7 @@ public:
      */
     bool loadTouchCalib() {
         D4D_TOUCHSCREEN_CALIB calib;
-        flash->read(&calib, TOUCH_CALIB_ADDRESS, sizeof (D4D_TOUCHSCREEN_CALIB));
+        eepromAccess.get(offsetof(EepromFormat, eGuiSettings), calib);
         if (calib.ScreenCalibrated != 1) {
             return false;
         }
@@ -100,7 +50,7 @@ public:
      */
     void storeTouchCalib() {
         D4D_TOUCHSCREEN_CALIB calib = D4D_TCH_GetCalibration();
-        flash->write(&calib, TOUCH_CALIB_ADDRESS, sizeof (D4D_TOUCHSCREEN_CALIB));
+        eepromAccess.put(offsetof(EepromFormat, eGuiSettings), calib);
     };
 };
 

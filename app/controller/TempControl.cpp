@@ -107,13 +107,13 @@ void TempControl::loadDefaultSettings()
 
 void TempControl::storeConstants(eptr_t offset)
 {
-    eepromAccess.writeBlock(offset, (void *) &cc, sizeof(ControlConstants));
+	eepromAccess.put(offset, cc);
     updateConstants();
 }
 
 void TempControl::loadConstants(eptr_t offset)
 {
-    eepromAccess.readBlock((void *) &cc, offset, sizeof(ControlConstants));
+    eepromAccess.get(offset, cc);
     updateConstants();
 }
 
@@ -121,14 +121,14 @@ void TempControl::loadConstants(eptr_t offset)
 // The update functions only write to EEPROM if the value has changed
 void TempControl::storeSettings(eptr_t offset)
 {
-    eepromAccess.writeBlock(offset, (void *) &cs, sizeof(ControlSettings));
+    eepromAccess.put(offset, cs);
 
     storedBeerSetting = cs.beerSetting;
 }
 
 void TempControl::loadSettings(eptr_t offset)
 {
-    eepromAccess.readBlock((void *) &cs, offset, sizeof(ControlSettings));
+    eepromAccess.get(offset, cs);
     logDebug("loaded settings");
 
     storedBeerSetting = cs.beerSetting;

@@ -122,10 +122,10 @@ public:
     states getState(void) {
         // For cooling, show actual compressor pin ON state
         // For heating, show heating when PWM is active
-        if (control.coolerToggle.isActive()) {
+        if (control.coolerToggle.getState() == ActuatorDigital::State::Active) {
             lastCoolTime = ticks.seconds();
             return COOLING;
-        } else if (control.heater1Toggle.isActive()) {
+        } else if (control.heater1Toggle.getState() == ActuatorDigital::State::Active) {
             lastHeatTime = ticks.seconds();
             return HEATING;
         } else if (control.heater1Pwm.getPeriod() < 10 && timeSinceHeating() <= 2*control.heater1Pwm.getPeriod()){

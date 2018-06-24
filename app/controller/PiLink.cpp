@@ -78,13 +78,11 @@ public:
         tcpServer.stop();
         tcpClient.stop();
         tcpServerRunning = false;
-        Serial.print("TCP server stopped\n");
     }
 
     void startTcp(){
         tcpServer.begin();
         tcpServerRunning = true;
-        Serial.print("TCP server started\n");
     }
 
     /**

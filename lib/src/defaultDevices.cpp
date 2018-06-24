@@ -20,28 +20,23 @@
 
 #include "defaultDevices.h"
 
-ValueSensor<bool> * defaultSensor(){
-    static ValueSensor<bool> * s = new ValueSensor<bool>(false);
-    return s;
-}
-
 ActuatorNop * defaultActuator(){
-    static ActuatorNop * a = new ActuatorNop;
-    return a;
+    static ActuatorNop a;
+    return &a;
 }
 
 ActuatorInvalid * defaultLinearActuator(){ // always returns invalid and does nothing
-    static ActuatorInvalid * a = new ActuatorInvalid;
-    return a;
+    static ActuatorInvalid a;
+    return &a;
 }
 
 
 TempSensorDisconnected * defaultTempSensor(){
-    static TempSensorDisconnected * t = new TempSensorDisconnected;
-    return t;
+    static TempSensorDisconnected t;
+    return &t;
 }
 
 SetPointConstant * defaultSetPoint(){
-    static SetPointConstant * sp = new SetPointConstant(temp_t::invalid());
-    return sp;
+    static SetPointConstant sp(temp_t::invalid());
+    return &sp;
 }

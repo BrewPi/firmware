@@ -49,12 +49,12 @@ public:
         delegate().fastUpdate();
     }
 
-    void setActive(bool active, int8_t priority = 127) final {
-        delegate().setActive(active, priority);
+    void setState(State state, int8_t priority = 127) final {
+        delegate().setState(state, priority);
     }
 
-    bool isActive() const final {
-        return delegate().isActive();
+    State getState() const final {
+        return delegate().getState();
     }
 
 

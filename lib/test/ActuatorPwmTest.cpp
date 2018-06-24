@@ -23,6 +23,7 @@
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time, to seed rand */
 
+#include "ActuatorInterfaces.h"
 #include "ActuatorMocks.h"
 #include "ActuatorPwm.h"
 #include "ActuatorTimeLimited.h"
@@ -53,7 +54,7 @@ double randomIntervalTest(ActuatorPwm & act, ActuatorDigital & target, temp_t du
         do {
             highToLowTime = random_delay(delayMax);
             act.update();
-        } while (target.isActive());
+        } while (target.getState() == ActuatorDigital::State::Active);
         ticks_millis_t highTime = highToLowTime - lowToHighTime;
         if (i > 0) { // skip first cycle in totals, it can be incomplete
             totalHighTime += highTime;
@@ -65,7 +66,7 @@ double randomIntervalTest(ActuatorPwm & act, ActuatorDigital & target, temp_t du
         do {
             lowToHighTime = random_delay(delayMax);
             act.update();
-        } while (!target.isActive());
+        } while (target.getState() == ActuatorDigital::State::Inactive);
         ticks_millis_t lowTime = lowToHighTime - highToLowTime;
         if (i > 0) { // skip first cycle in totals, it can have old duty cycle
             totalLowTime += lowTime;
@@ -123,15 +124,15 @@ BOOST_AUTO_TEST_CASE(on_off_time_matches_duty_cycle_when_updating_every_ms) {
     do {
         lowToHighTime1 = delay(1);
         act.update();
-    } while (!target.isActive());
+    } while (target.getState() == ActuatorDigital::State::Inactive);
     do {
         highToLowTime1 = delay(1);
         act.update();
-    } while (target.isActive());
+    } while (target.getState() == ActuatorDigital::State::Active);
     do {
         lowToHighTime2 = delay(1);
         act.update();
-    } while (!target.isActive());
+    } while (target.getState() == ActuatorDigital::State::Inactive);
 
     ticks_millis_t timeHigh = highToLowTime1 - lowToHighTime1;
     ticks_millis_t timeLow = lowToHighTime2 - highToLowTime1;
@@ -173,7 +174,7 @@ BOOST_AUTO_TEST_CASE(output_stays_low_with_value_0) {
 
     act.set(0.0);
     // wait target to go low
-    while (target.isActive()) {
+	while (target.getState() == ActuatorDigital::State::Active) {
         delay(1);
         act.update();
     }
@@ -181,7 +182,7 @@ BOOST_AUTO_TEST_CASE(output_stays_low_with_value_0) {
         delay(1);
         act.update();
 
-        BOOST_REQUIRE_MESSAGE(!target.isActive(), "Actuator was high at i=" << i);
+        BOOST_REQUIRE_MESSAGE(target.getState() == ActuatorDigital::State::Inactive, "Actuator was high at i=" << i);
     }
 }
 
@@ -194,17 +195,19 @@ BOOST_AUTO_TEST_CASE(on_big_positive_changes_shortened_cycle_has_correct_value) 
     ticks_millis_t start = ticks.millis();
     ticks_millis_t periodStart;
     while(ticks.millis() - start < 250000) { // 250 seconds
-        bool oldState = vAct.isActive();
+    	ActuatorDigital::State oldState = vAct.getState();
         act.update();
-        if(!oldState && vAct.isActive()){ // low to high transition
+        ActuatorDigital::State newState = vAct.getState();
+        if(oldState == ActuatorDigital::State::Inactive &&
+        		newState == ActuatorDigital::State::Active){ // low to high transition
             periodStart = ticks.millis();
         }
         delay(1000);
     }
 
-    BOOST_CHECK(!vAct.isActive()); // actuator is inactive, ~50 seconds into 3rd cycle
+    BOOST_CHECK(vAct.getState() == ActuatorDigital::State::Inactive); // actuator is inactive, ~50 seconds into 3rd cycle
     act.set(50.0);
-    while (!vAct.isActive()) {
+    while (vAct.getState()  == ActuatorDigital::State::Inactive) {
         delay(1000);
         act.update();
     }
@@ -212,14 +215,14 @@ BOOST_AUTO_TEST_CASE(on_big_positive_changes_shortened_cycle_has_correct_value) 
     BOOST_CHECK_CLOSE(double(ticks.millis() - periodStart), 60000, 3);
     periodStart = ticks.millis();
 
-    while(vAct.isActive()){
+    while(vAct.getState() == ActuatorDigital::State::Active){
         delay(1000);
         act.update();
     }
     // next high time should be normal
     BOOST_CHECK_CLOSE(double(ticks.millis() - periodStart), 50000, 1); // actuator turned on for 50 seconds
 
-    while(!vAct.isActive()){
+    while(vAct.getState() == ActuatorDigital::State::Inactive){
         delay(1000);
         act.update();
     }
@@ -238,20 +241,20 @@ BOOST_AUTO_TEST_CASE(on_big_negative_changes_go_low_immediately) {
     for (uint32_t i = 0; i < 250 ; i++) { // 250 seconds
         delay(1000);
         act.update();
-        if(!vAct.isActive()){
+        if(vAct.getState() == ActuatorDigital::State::Inactive){
             lastLowTimeBeforeChange = ticks.millis();
         }
     }
 
-    BOOST_CHECK(vAct.isActive()); // actuator is active
+    BOOST_CHECK(vAct.getState() == ActuatorDigital::State::Active); // actuator is active
     act.set(30.0);
     act.update();
-    BOOST_CHECK(!vAct.isActive()); // actuator turns off immediately
+    BOOST_CHECK(vAct.getState() == ActuatorDigital::State::Inactive); // actuator turns off immediately
 
     ticks_millis_t highTolowTime = ticks.millis();
     ticks_millis_t highPeriod = highTolowTime - lastLowTimeBeforeChange;
 
-    while(!vAct.isActive()){
+    while(vAct.getState() == ActuatorDigital::State::Inactive){
         delay(100);
         act.update();
     }
@@ -261,7 +264,7 @@ BOOST_AUTO_TEST_CASE(on_big_negative_changes_go_low_immediately) {
     BOOST_CHECK_CLOSE(double(highPeriod + lowPeriod), 100000, 2);
 
     // but overshooting the high value is compensated in high period of next cycle
-    while(vAct.isActive()){
+    while(vAct.getState() == ActuatorDigital::State::Active){
         delay(100);
         act.update();
     }
@@ -277,14 +280,14 @@ BOOST_AUTO_TEST_CASE(output_stays_high_with_value_100) {
 
     act.set(100.0);
     // wait for target to go high
-    while (!target.isActive()) {
+    while (target.getState() == ActuatorDigital::State::Inactive) {
         delay(1);
         act.update();
     }
     for (uint32_t i = 0; i < 10 * act.getPeriod() * 1000; i++) {
         delay(1);
         act.update();
-        BOOST_REQUIRE_MESSAGE(target.isActive(), "Actuator was low at i=" << i);
+        BOOST_REQUIRE_MESSAGE(target.getState() == ActuatorDigital::State::Active, "Actuator was low at i=" << i);
     }
 }
 
@@ -327,14 +330,14 @@ BOOST_AUTO_TEST_CASE(when_switching_between_zero_and_low_value_average_is_correc
         for(int i = 0; i < 180; i++){ // 180 seconds, not full periods on purpose
             delay(1000);
             act.update();
-            if(vAct.isActive()){
+            if(vAct.getState() == ActuatorDigital::State::Active){
                 timeHigh++;
             }
             else{
                 timeLow++;
             }
             csv     << act.setting() << "," // setpoint
-                    << vAct.isActive() // actual cooler pin state
+                    << vAct.getState() // actual cooler pin state
                     << endl;
         }
     }
@@ -358,7 +361,7 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_up_faster_than_period_gives_correct_average){
             for(int j = 0; j < 100; j++){ // 10 seconds total
                 delay(100);
                 act.update();
-                if(vAct.isActive()){
+                if(vAct.getState() == ActuatorDigital::State::Active){
                     timeHigh++;
                 }
                 else{
@@ -385,7 +388,7 @@ BOOST_AUTO_TEST_CASE(ramping_PWM_down_faster_than_period_gives_correct_average){
           for(int j = 0; j < 100; j++){ // 10 seconds total
               delay(100);
               act.update();
-              if(vAct.isActive()){
+              if(vAct.getState() == ActuatorDigital::State::Active){
                   timeHigh++;
               }
               else{
@@ -432,21 +435,22 @@ BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap_with_equal_duty){
         act1.update();
         act2.update();
         mutex.update();
-        if(boolAct1.isActive()){
+        if(boolAct1.getState() == ActuatorDigital::State::Active){
             timeHigh1++;
         }
         else{
             timeLow1++;
         }
-        if(boolAct2.isActive()){
+        if(boolAct2.getState() == ActuatorDigital::State::Active){
             timeHigh2++;
         }
         else{
             timeLow2++;
         }
-        BOOST_REQUIRE(!(boolAct1.isActive() && boolAct2.isActive())); // actuators cannot be active at the same time
-        csv     << boolAct1.isActive() << ","
-                << boolAct2.isActive()
+        BOOST_REQUIRE(!(boolAct1.getState() == ActuatorDigital::State::Active &&
+        		boolAct2.getState() == ActuatorDigital::State::Active)); // not active at the same time
+        csv     << boolAct1.getState() << ","
+                << boolAct2.getState()
                 << endl;
         delay(100);
     }
@@ -491,21 +495,22 @@ BOOST_AUTO_TEST_CASE(two_mutex_PWM_actuators_can_overlap_with_different_duty){
         act1.update();
         act2.update();
         mutex.update();
-        if(boolAct1.isActive()){
+        if(boolAct1.getState() == ActuatorDigital::State::Active){
             timeHigh1++;
         }
         else{
             timeLow1++;
         }
-        if(boolAct2.isActive()){
+        if(boolAct2.getState() == ActuatorDigital::State::Active){
             timeHigh2++;
         }
         else{
             timeLow2++;
         }
-        BOOST_REQUIRE(!(boolAct1.isActive() && boolAct2.isActive())); // actuators cannot be active at the same time
-        csv     << boolAct1.isActive() << ","
-                << boolAct2.isActive()
+        BOOST_REQUIRE(!(boolAct1.getState() == ActuatorDigital::State::Active &&
+                		boolAct2.getState() == ActuatorDigital::State::Active)); // not active at the same time
+        csv     << boolAct1.getState() << ","
+                << boolAct2.getState()
                 << endl;
         delay(100);
     }
@@ -550,21 +555,22 @@ BOOST_AUTO_TEST_CASE(mutex_actuator_which_cannot_go_active_cannot_block_other_ac
         act1.update();
         act2.update();
         mutex.update();
-        if(boolAct1.isActive()){
+        if(boolAct1.getState() == ActuatorDigital::State::Active){
             timeHigh1++;
         }
         else{
             timeLow1++;
         }
-        if(boolAct2.isActive()){
+        if(boolAct2.getState() == ActuatorDigital::State::Active){
             timeHigh2++;
         }
         else{
             timeLow2++;
         }
-        BOOST_REQUIRE(!(boolAct1.isActive() && boolAct2.isActive())); // actuators cannot be active at the same time
-        csv     << boolAct1.isActive() << ","
-                << boolAct2.isActive()
+        BOOST_REQUIRE(!(boolAct1.getState() == ActuatorDigital::State::Active &&
+			boolAct2.getState() == ActuatorDigital::State::Active)); // not active at the same time
+        csv     << boolAct1.getState() << ","
+                << boolAct2.getState()
                 << endl;
         delay(100);
     }
@@ -598,7 +604,7 @@ BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct){
         pwmAct.update();
         csv     << pwmAct.setting() << ","
                 << pwmAct.value() << ","
-                << boolAct.isActive()
+                << boolAct.getState()
                 << endl;
         count++;
         sum += double(pwmAct.value());
@@ -633,7 +639,7 @@ BOOST_AUTO_TEST_CASE(actual_value_returned_by_ActuatorPwm_readValue_is_correct_w
         pwmAct.update();
         csv     << pwmAct.setting() << ","
                 << pwmAct.value() << ","
-                << boolAct.isActive()
+                << boolAct.getState()
                 << endl;
         count++;
         sum += double(pwmAct.value());
@@ -669,10 +675,10 @@ BOOST_AUTO_TEST_CASE(slowly_changing_pwm_value_reads_back_as_correct_value){
         delay(100);
         csv     << pwmAct.setting() << ","
                 << pwmAct.value() << ","
-                << boolAct.isActive()
+                << boolAct.getState()
                 << endl;
         // maximum from one cylce to the next is maximum derivative * pwm period = 60*2*pi/1000 * 20 = 7.5398
-        BOOST_CHECK_LE(abs(double(pwmAct.setting() - pwmAct.value())), 7.5398); // read back value stays within 5% of set value
+        BOOST_REQUIRE_LE(abs(double(pwmAct.setting() - pwmAct.value())), 7.5398); // read back value stays within 5% of set value
     }
 }
 
@@ -704,13 +710,13 @@ BOOST_AUTO_TEST_CASE(fluctuating_pwm_value_gives_correct_average_with_time_limit
         delay(100);
         csv     << pwmAct.setting() << ","
                 << pwmAct.value() << ","
-                << boolAct.isActive()
+                << boolAct.getState()
                 << endl;
         count++;
         sum += double(pwmAct.value());
         ticks_millis_t prevLoopTime = loopTime;
         loopTime = delay(200);
-        if(boolAct.isActive()){
+        if(boolAct.getState() == ActuatorDigital::State::Active){
             timeHigh += loopTime - prevLoopTime;
         }
         else{
@@ -744,10 +750,10 @@ BOOST_AUTO_TEST_CASE(decreasing_pwm_value_after_long_high_time_and_mutex_wait){
     csv << "1#set value, 1#read value, 2a#pin" << endl;
 
     // trigger dead time of mutex
-    blockerMutex.setActive(true);
+    blockerMutex.setState(ActuatorDigital::State::Active);
     mutex.update();
-    BOOST_CHECK(blocker.isActive());
-    blockerMutex.setActive(false);
+    BOOST_CHECK(blocker.getState() == ActuatorDigital::State::Active);
+    blockerMutex.setState(ActuatorDigital::State::Inactive);
     BOOST_CHECK_EQUAL(mutex.getWaitTime(), 100000u);
 
 
@@ -755,7 +761,7 @@ BOOST_AUTO_TEST_CASE(decreasing_pwm_value_after_long_high_time_and_mutex_wait){
 
     while(ticks.millis() - start < 1500000){ // run for 1500 seconds
         if(ticks.millis() - start < 100000){
-            BOOST_REQUIRE(!boolAct.isActive()); // mutex group dead time keeps actuator low
+            BOOST_REQUIRE(boolAct.getState() == ActuatorDigital::State::Inactive); // mutex group dead time keeps actuator low
         }
 
         pwmAct.set(pwmValue);
@@ -765,13 +771,13 @@ BOOST_AUTO_TEST_CASE(decreasing_pwm_value_after_long_high_time_and_mutex_wait){
         if(ticks.millis() - start > 200000){ // start decreasing after 200 s
             pwmValue -= 0.01; // decrease slowly, with 0.1 degree per second
             // maximum difference between history based value and setpoint is 4
-            BOOST_CHECK_LE(abs(double(pwmAct.setting() - pwmAct.value())), 4);
+            BOOST_REQUIRE_LE(abs(double(pwmAct.setting() - pwmAct.value())), 4);
         }
 
         delay(100);
         csv     << pwmAct.setting() << ","
                 << pwmAct.value() << ","
-                << boolAct.isActive()
+                << boolAct.getState()
                 << endl;
     }
 }

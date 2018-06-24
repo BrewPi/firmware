@@ -87,7 +87,7 @@ public:
      * State is based on reading the I/O pins connected to the feedback switches. \n
      * @returns state of valve (0b01 = opened, 0b10 = closed, 0b11 = in between \n
      */
-    uint8_t getState() const;
+    uint8_t getPosition() const;
 
     /**
      * Gets the action currently performed by the motor of the valve, read from the latches. \n
@@ -111,13 +111,13 @@ public:
      * setActive will open or close the valve, for compatibility with the actuator interface.
      * @param active true opens the valve, false closes it.
      */
-    void setActive(bool active, int8_t priority) override final;
+    void setState(State state, int8_t priority) override final;
 
     /**
      * Check if valve is open.
      * @return true if valve is open or halfway or opening, false if closed or closing
      */
-    bool isActive() const override final;
+    State getState() const override final;
 
     /**
      * Returns the state of the valve (action and current state) as a single 4 bit value

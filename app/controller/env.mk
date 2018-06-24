@@ -1,2 +1,0 @@
-export USE_PRINTF_FLOAT=n
-export WARNINGS_AS_ERRORS=n

@@ -11,8 +11,8 @@ Interface for all actuators, only supports 2 interface functions:
 ### ActuatorDigital
 A digital actuator is simply ON or OFF. ActuatorDigital adds the these two functions:
 
-    virtual void setActive(bool active) = 0;
-    virtual bool isActive() const = 0;
+    virtual void setState(State state) = 0;
+    virtual State getState() const = 0;
 
 ### ActuatorAnalog
 A range actuator accepts a ranged value. Examples are PWM actuators that can be partially ON (0-100%), or SetPoint actuators that manipulate a temperature set point. The value of the actuator is a fixed point temp_t value.
