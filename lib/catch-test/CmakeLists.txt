@@ -12,7 +12,6 @@ file(GLOB TEST_APP_SRC
     "*.cpp"
     "../inc/*.h"
     "../mixins/*.h"
-    #"../src/*.cpp"
 )
 
 add_executable(${TEST_APP} ${TEST_APP_SRC} ../../platform/test/inc/Platform.h)
