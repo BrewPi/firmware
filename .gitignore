@@ -54,3 +54,6 @@ controlbox/build
 app/cbox/proto/cpp/
 
 build/target/
+
+# MacOs files
+.DS_Store
