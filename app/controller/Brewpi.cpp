@@ -44,7 +44,7 @@ DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 
 UI ui;
 
-SYSTEM_MODE(MANUAL);
+SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
 
 void setup()
@@ -106,11 +106,6 @@ void brewpiLoop(void)
 
     //listen for incoming serial connections while waiting to update
     piLink.receive();
-
-    // System thread enable mode is used so this is not necessary to keep the cloud
-    // connection is alive, but it is necessary to handle the system events, including
-    // the button, so it's here, regardless of the connection state.
-    Particle.process();
 }
 
 void loop() {
