@@ -74,17 +74,6 @@ public:
         return currentStream->read();
     }
 
-    void stopTcp(){
-        tcpServer.stop();
-        tcpClient.stop();
-        tcpServerRunning = false;
-    }
-
-    void startTcp(){
-        tcpServer.begin();
-        tcpServerRunning = true;
-    }
-
     /**
      * Check both Serial and WiFi to see if they are connected.
      * When Serial is connected it has preference over WiFi.
@@ -100,34 +89,16 @@ public:
             currentStream = &Serial;
         }
         else{
-            if(!WiFi.ready() || WiFi.RSSI() >= 0){
-                // WiFi is in error state, stop TCP server
-                if(tcpServerRunning){
-                    stopTcp();
-                }
-            }
-            else{
-                if(!tcpServerRunning){
-                    startTcp();
-                }
-            }
-
-            if(tcpServerRunning){
-				// if a new client appears, drop the old one
-				TCPClient newClient = tcpServer.available();
-				if(newClient) {
-					tcpClient.stop();
-					tcpClient = newClient;
+        	if(tcpClient.connected()){
+				available = tcpClient.available();
+				if(available > 0) {
+					currentStream = &tcpClient;
 				}
-				if(tcpClient.status()){
-					available = tcpClient.available();
-					if(available > 0) {
-						currentStream = &tcpClient;
-					}
-				}
-			}
+        	}
+        	else {
+        		tcpClient = tcpServer.available();
+        	}
         }
-
         return available;
     }
 
