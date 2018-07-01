@@ -5,7 +5,20 @@
             "includePath": [
                 "/Users/oyvindh/vcpkg/installed/x64-osx/include",
                 "${workspaceFolder}/lib/inc",
-                "${workspaceFolder}/controlbox/test"
+                "${workspaceFolder}/lib/mixins",
+                "${workspaceFolder}/controlbox/test",
+                "${workspaceFolder}/platform/spark/modules",
+                "${workspaceFolder}/platform/spark/firmware/user/inc",
+                "${workspaceFolder}/platform/spark/firmware/system/inc",
+                "${workspaceFolder}/platform/spark/firmware/wiring/inc",
+                "${workspaceFolder}/platform/spark/firmware/hal/inc",
+                "${workspaceFolder}/platform/spark/firmware/hal/shared",
+                "${workspaceFolder}/platform/spark/firmware/hal/src/gcc",
+                "${workspaceFolder}/build/gcc-arm-none-eabi-5_3-2016q1/arm-none-eabi/include/c++/5.3.1/arm-none-eabi",
+                "${workspaceFolder}/platform/spark/firmware/services/inc",
+                "${workspaceFolder}/platform/spark/firmware/platform/shared/inc",
+                "${workspaceFolder}/platform/spark/firmware/hal/src/newhal",
+                "${workspaceFolder}/platform/spark/firmware/communication/src"
             ],
             "defines": [],
             "macFrameworkPath": [
