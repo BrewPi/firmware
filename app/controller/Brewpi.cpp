@@ -46,6 +46,7 @@ UI ui;
 
 SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
+STARTUP(System.enableFeature(FEATURE_RESET_INFO));
 
 void setup()
 {

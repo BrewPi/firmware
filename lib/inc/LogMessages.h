@@ -76,7 +76,9 @@ enum warningMessages{
 	MSG(DS2413_DISCONNECTED, "OneWire device (DS2413) disconnected, address %s", addressString),
 
 // DS2408.cpp
-	MSG(DS2408_DISCONNECTED, "OneWire device (DS2408) disconnected, address %s", addressString)
+	MSG(DS2408_DISCONNECTED, "OneWire device (DS2408) disconnected, address %s", addressString),
+// BrewPi.cpp
+	MSG(SYSTEM_RESET, "System was reset, reason: %d, data: %d", resetReason, resetReasonData),
 
 }; // END enum warningMessages
 
@@ -117,5 +119,5 @@ enum infoMessages{
 // DS2413.cpp
 	MSG(DS2413_CONNECTED, "OneWire device (DS2413) connected, address %s", addressString),
 // DS2408.cpp
-	MSG(DS2408_CONNECTED, "OneWire device (DS2408) connected, address %s", addressString)
+	MSG(DS2408_CONNECTED, "OneWire device (DS2408) connected, address %s", addressString),
 }; // END enum infoMessages

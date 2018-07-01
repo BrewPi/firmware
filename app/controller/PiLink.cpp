@@ -386,7 +386,15 @@ void PiLink::receive(void){
                 handleReset();
             }
             break;
-
+        case 'r': // print last reset reason if the device was reset
+        {
+            static bool notYetPrinted = true;
+            if(notYetPrinted){
+                logWarningIntUint(warningMessages::SYSTEM_RESET, System.resetReason(), System.resetReasonData());
+                notYetPrinted = false;
+            }
+        }
+        break;
         case 'F': // flash firmware
             if(readCrLf()){
                 System.firmwareUpdate(&piStream);
