@@ -2,7 +2,6 @@
 #include <sstream>
 
 #include "Catch.hpp"
-#include "TestMatchers.hpp"
 
 #include "ActuatorInterfaces.h"
 #include "ActuatorMocks.h"

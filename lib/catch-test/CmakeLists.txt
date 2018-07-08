@@ -13,6 +13,8 @@ file(GLOB TEST_APP_SRC
     "../inc/*.h"
     "../mixins/*.h"
     "../src/defaultDevices.cpp"
+    "../src/temperatureFormats.cpp"
+    "../src/str_functions.cpp"
 )
 
 add_executable(${TEST_APP} ${TEST_APP_SRC} ../../platform/test/inc/Platform.h)

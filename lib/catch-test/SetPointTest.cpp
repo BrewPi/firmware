@@ -20,7 +20,7 @@ SCENARIO("Basic test of a set point", "[setpoint]") {
     }
 }
 
-SCENARIO("foo", "[setpoint]") {
+SCENARIO("Value outside range is min or max", "[setpoint]") {
     SetPointMinMax sp;
 
     sp.setMin(10.0);
@@ -63,6 +63,4 @@ SCENARIO("Default set point is immutable", "[setpoint]") {
             REQUIRE(sp->read() == temp_t::invalid());
         }
     }
-
-    delete sp;
 }
