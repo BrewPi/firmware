@@ -93,6 +93,7 @@ struct EERef{
 
 struct EEPtr{
 
+    EEPtr() : index(0){}
     EEPtr( const int index )
         : index( index )                {}
 

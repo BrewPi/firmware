@@ -38,7 +38,6 @@
 OneWireBusBlock oneWireBus;
 DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 TicksImpl baseticks;
-EepromAccess eepromAccess;
 cbox::ScaledTicksValue ticks;
 
 

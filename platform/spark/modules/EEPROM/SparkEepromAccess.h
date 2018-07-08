@@ -48,7 +48,24 @@ public:
     	EEPROM.clear();
     	EEPROM.put(0, MAGIC_BYTES);
     }
-};
 
-extern SparkEepromAccess eepromAccess;
+    static void readBlock(void* target, eptr_t offset, uint16_t size){
+        eptr_t idx = offset;
+        eptr_t end = offset + size;
+        unsigned char * t = reinterpret_cast<unsigned char *>(target);
+        while(idx < end){
+            *(t++) = *(idx++);
+        }
+    }
+
+    static void writeBlock(eptr_t target, const void* source, uint16_t size){
+        eptr_t idx = target;
+        eptr_t end = target + size;
+        unsigned char const * s = reinterpret_cast<unsigned char const *>(source);
+        while(idx < end){
+            *(idx++) = *(s++);
+        }
+
+    }
+};
 

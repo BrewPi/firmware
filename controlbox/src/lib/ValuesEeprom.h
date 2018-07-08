@@ -68,11 +68,12 @@ protected:
 class EepromValue : public EepromBaseValue
 {
 protected:
-        eptr_t address;
+    eptr_t address;
 
 public:
 
-    cb_nonstatic_decl(EepromValue(EepromAccess& ea):EepromBaseValue(ea){})
+    cb_nonstatic_decl(EepromValue(EepromAccess& ea) : EepromBaseValue(ea), address(0) {})
+    cb_static_decl(EepromValue() : address(0) {})
 
 	virtual void rehydrated(eptr_t address) override
 	{
