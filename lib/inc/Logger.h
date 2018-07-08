@@ -103,6 +103,9 @@ extern BrewPiLogger logger;
 	inline void logWarningInt(uint8_t debugId, int val){
 		logger.logMessageVaArg('W', debugId, "d", val);
 	}
+	inline void logWarningIntUint(uint8_t debugId, int val1, unsigned int val2){
+		logger.logMessageVaArg('W', debugId, "du", val1, val2);
+	}
 	inline void logWarningString(uint8_t debugId, const char * val){
 		logger.logMessageVaArg('W', debugId, "s", val);
 	}

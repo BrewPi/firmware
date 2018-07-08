@@ -20,8 +20,10 @@
 #pragma once
 
 #include "Ticks.h"
+#include "Interface.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorMutexGroupInterface.h"
+#include "ActuatorMutexDriver.h"
 #include <vector>
 #include "ControllerMixins.h"
 
@@ -30,12 +32,21 @@ class ActuatorMutexGroup final :
     public virtual ActuatorMutexGroupInterface,
     public ActuatorMutexGroupMixin
 {
+private:
+    class ActuatorPriority {
+    public:
+        ActuatorPriority(ActuatorMutexDriver * act, int8_t p) : actuator(act), priority(p){};
+        ~ActuatorPriority() = default;
+        ActuatorMutexDriver * actuator;
+        int8_t priority; // valid priorities are 0-127. -1 is used for actuators that are not trying to get the mutex
+    };
+
 public:
     ActuatorMutexGroup() :
         deadTime(0),
         lastActiveTime(0),
         lastActiveActuator(nullptr)
-    {
+	{
     }
 
     virtual ~ActuatorMutexGroup() = default;
@@ -45,10 +56,12 @@ public:
     }
 
     virtual void update() override final;
-
     virtual void fastUpdate() override final {} // not needed
 
-    virtual bool request(ActuatorDigital * requester, bool active, int8_t newPriority) override final;
+    virtual void registerActuator(ActuatorMutexDriver * act) override final;
+    virtual void unRegisterActuator(ActuatorMutexDriver * act) override final;
+
+    virtual bool request(ActuatorMutexDriver * requester, ActuatorDigital::State newState, int8_t newPriority) override final;
 
     /**
      * Cancels an open request, by setting the priority to -1.
@@ -56,7 +69,7 @@ public:
      * The request should then be canceled to prevent holding back other actuators
      * @param requester: pointer to actuator previously requested to go active
      */
-    virtual void cancelRequest(ActuatorDigital * requester) override final;
+    virtual void cancelRequest(ActuatorMutexDriver * requester) override final;
 
     ticks_millis_t getDeadTime(){
         return deadTime;
@@ -67,14 +80,9 @@ public:
 
 
 private:
-    ActuatorPriority * registerActuator(ActuatorDigital * act, int8_t prio);
-    void unRegisterActuator(ActuatorDigital * act); // remove by pointer
-    void unRegisterActuator(size_t index); // remove by index
-    size_t find(ActuatorDigital * act);
-
     ticks_millis_t deadTime; // minimum time between switching from one actuator to the other
     ticks_millis_t lastActiveTime;
-    ActuatorDigital * lastActiveActuator;
+    ActuatorMutexDriver * lastActiveActuator;
     std::vector<ActuatorPriority> actuatorPriorities;
 
 friend class ActuatorMutexGroupMixin;

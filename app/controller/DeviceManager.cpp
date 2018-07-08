@@ -25,7 +25,6 @@
 #include "TempControl.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorPwm.h"
-#include "Sensor.h"
 #include "TempSensorDisconnected.h"
 #include "TempSensorExternal.h"
 #include "PiLink.h"
@@ -50,7 +49,6 @@
 #include "OneWire.h"
 #include "DallasTemperature.h"
 #include "ActuatorPin.h"
-#include "SensorPin.h"
 
 #endif
 
@@ -757,7 +755,7 @@ void DeviceManager::writeNotInstalledPin(DeviceConfig::Hardware hw, uint8_t valu
 }
 
 void DeviceManager::readNotInstalledPin(DeviceConfig::Hardware hw, char * out){
-    unsigned int state = digitalRead(hw.pinNr) ^ hw.invert;
+    ActuatorDigital::State state = digitalRead(hw.pinNr) ^ hw.invert ? ActuatorDigital::State::Active : ActuatorDigital::State::Inactive;
     sprintf(out, STR_FMT_U, state);
 }
 
@@ -766,13 +764,13 @@ void DeviceManager::writeNotInstalledOneWirePin(DeviceConfig::Hardware hw, uint8
 {
     auto hwDevice = std::make_shared<DS2413>(oneWireBus(hw.pinNr), hw.address);
     ActuatorOneWire pin(hwDevice, hw.settings.actuator.pio, hw.invert);
-    pin.write(value);
+    pin.setState(value != 0 ? ActuatorDigital::State::Active : ActuatorDigital::State::Inactive);
 }
 
 void DeviceManager::readNotInstalledOneWirePin(DeviceConfig::Hardware hw, char * out){
     auto hwDevice = std::make_shared<DS2413>(oneWireBus(hw.pinNr), hw.address);
     ActuatorOneWire pin(hwDevice, hw.settings.actuator.pio, hw.invert);
-    unsigned int state = pin.isActive();
+    ActuatorDigital::State state = pin.getState();
     sprintf(out, STR_FMT_U, state);
 }
 #endif
@@ -1030,7 +1028,7 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd, DeviceConfig &  dc, ch
             DEBUG_ONLY(logInfoInt(INFO_SETTING_ACTIVATOR_STATE, dd.write != 0));
             auto act = asInterface<ActuatorDigital>(devices[idx]);
             if(act != nullptr){
-                act->setActive(dd.write != 0);
+                act->setState(dd.write != 0 ? ActuatorDigital::State::Active : ActuatorDigital::State::Inactive);
             }
         }
     } else if (dd.value == 1){    // read values
@@ -1045,7 +1043,7 @@ void DeviceManager::UpdateDeviceState(DeviceDisplay & dd, DeviceConfig &  dc, ch
         } else if (dt == DEVICETYPE_SWITCH_ACTUATOR){
             auto act = asInterface<ActuatorDigital>(devices[idx]);
             if(act != nullptr){
-                sprintf(val, STR_FMT_U, (unsigned int) act->isActive() != 0);
+                sprintf(val, STR_FMT_U, act->getState());
             }
         } else if (dc.deviceFunction == DEVICE_CHAMBER_MANUAL_ACTUATOR){
 #if BREWPI_DS2408

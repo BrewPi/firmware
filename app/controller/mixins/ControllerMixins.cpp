@@ -60,6 +60,13 @@
 // Serializable terminator, keep things simple for the JSON writer. No stream manipulations required (alternative to JSON_T)
 #define JSON_OT(json_adapter,class_member)  JSON::stream(json_adapter,_ASTRING(#class_member),obj->class_member,false)
 
+template<typename E>
+constexpr auto enum_to_int(E e) -> typename std::underlying_type<E>::type
+{
+   return static_cast<typename std::underlying_type<E>::type>(e);
+}
+
+
 void InterfaceMixin::serialize(JSON::Adapter & adapter){
     Interface * obj = static_cast<Interface *>(this);
     VisitorSerialize v(adapter);
@@ -155,7 +162,8 @@ void ActuatorTimeLimitedMixin::serializeImpl(JSON::Adapter & adapter)
     JSON_OE(adapter, minOnTime);
     JSON_OE(adapter, minOffTime);
     JSON_OE(adapter, maxOnTime);
-    JSON_OE(adapter, state);
+    auto state = enum_to_int(obj->state);
+    JSON_E(adapter, state);
     JSON_OT(adapter, target);
 }
 
@@ -225,7 +233,8 @@ void ActuatorBoolMixin::serializeImpl(JSON::Adapter & adapter)
     ActuatorBool * obj = static_cast<ActuatorBool *>(this);
 
     JSON::Class root(adapter, "ActuatorBool");
-    JSON_OT(adapter, state);
+    auto state = enum_to_int(obj->state);
+	JSON_T(adapter, state);
 }
 
 void ActuatorNopMixin::serializeImpl(JSON::Adapter & adapter)
@@ -234,8 +243,7 @@ void ActuatorNopMixin::serializeImpl(JSON::Adapter & adapter)
 
     JSON::Class root(adapter, "ActuatorNop");
 
-    bool state = obj -> isActive();
-
+    auto state = enum_to_int(obj->getState());
     JSON_T(adapter, state);
 }
 
@@ -252,7 +260,8 @@ void ActuatorPinMixin::serializeImpl(JSON::Adapter & adapter)
 {
 #if WIRING
     ActuatorPin * obj   = static_cast<ActuatorPin *>(this);
-    bool          state = obj -> isActive();
+    auto state = enum_to_int(obj->getState());
+	JSON_E(adapter, state);
 
     JSON::Class root(adapter, "ActuatorPin");
     JSON_E(adapter, state);
@@ -269,7 +278,8 @@ void ValveControllerMixin::serializeImpl(JSON::Adapter & adapter)
 
     JSON::Class root(adapter, "ValveController");
     JSON_OE(adapter, output);
-    uint8_t state = obj->read(false);
+    auto state = enum_to_int(obj->getState());
+	JSON_E(adapter, state);
     bool connected = obj->device->isConnected();
     JSON_E(adapter, connected);
     JSON_T(adapter, state);
@@ -285,9 +295,8 @@ void ActuatorOneWireMixin::serializeImpl(JSON::Adapter & adapter)
 
     JSON::Class root(adapter, "ActuatorOneWire");
 
-    bool state = obj -> isActive();
-
-    JSON_E(adapter, state);
+    auto state = enum_to_int(obj->getState());
+	JSON_E(adapter, state);
     JSON_OE(adapter, pio);
     JSON_OT(adapter, invert);
 #endif

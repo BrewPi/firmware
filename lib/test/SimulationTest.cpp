@@ -231,7 +231,7 @@ struct SimBeerHeater : public StaticSetup {
         fridgeSensor.setTemp(sim.airTemp);
         heaterPid.update();
         heater.update();
-        sim.update(heaterPin.isActive(), coolerPin.isActive());
+        sim.update(heaterPin.getState(), coolerPin.getState());
         delay(1000); // simulate actual time passing for pin state and mutex group
     }
 };
@@ -254,7 +254,7 @@ struct SimFridgeHeater : public StaticSetup {
         heaterPid.update();
         heater.update();
 
-        sim.update(heaterPin.isActive(), coolerPin.isActive());
+        sim.update(heaterPin.getState(), coolerPin.getState());
         delay(1000); // simulate actual time passing for pin state and mutex group
     }
 };
@@ -278,7 +278,7 @@ struct SimBeerCooler : public StaticSetup {
         coolerPid.update();
         cooler.update();
 
-        sim.update(heaterPin.isActive(), coolerPin.isActive());
+        sim.update(heaterPin.getState(), coolerPin.getState());
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
@@ -301,7 +301,7 @@ struct SimFridgeCooler : public StaticSetup {
         coolerPid.update();
         cooler.update();
 
-        sim.update(heaterPin.isActive(), coolerPin.isActive());
+        sim.update(heaterPin.getState(), coolerPin.getState());
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
@@ -332,7 +332,7 @@ struct SimFridgeHeaterCooler : public StaticSetup {
         heater.update();
         mutex.update();
 
-        sim.update(heaterPin.isActive(), coolerPin.isActive());
+        sim.update(heaterPin.getState(), coolerPin.getState());
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
@@ -363,7 +363,7 @@ struct SimBeerHeaterCooler : public StaticSetup {
         heater.update();
         mutex.update();
 
-        sim.update(heaterPin.isActive(), coolerPin.isActive());
+        sim.update(heaterPin.getState(), coolerPin.getState());
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
@@ -402,7 +402,7 @@ struct SimCascadedHeaterCooler : public StaticSetup {
         fridgeOffsetActuator.update();
         mutex.update();
 
-        sim.update(heaterPin.isActive(), coolerPin.isActive());
+        sim.update(heaterPin.getState(), coolerPin.getState());
         delay(1000); // simulate actual time passing for pin state of cooler, which is time limited
     }
 };
@@ -503,7 +503,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Beer, SimBeerCooler)
                 << coolerPid.state.p << "," // proportional action
                 << coolerPid.state.i << "," // integral action
                 << coolerPid.state.d << "," // derivative action
-                << coolerPin.isActive() // actual cooler pin state
+                << coolerPin.getState() // actual cooler pin state
                 << endl;
     }
     csv.close();
@@ -536,7 +536,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air, SimFridgeCooler)
                 << coolerPid.state.p << "," // proportional action
                 << coolerPid.state.i << "," // integral action
                 << coolerPid.state.d << "," // derivative action
-                << coolerPin.isActive() // actual cooler pin state
+                << coolerPin.getState() // actual cooler pin state
                 << endl;
     }
     csv.close();
@@ -576,7 +576,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air_With_Long_Period_
                 << coolerPid.state.p << "," // proportional action
                 << coolerPid.state.i << "," // integral action
                 << coolerPid.state.d << "," // derivative action
-                << coolerPin.isActive() // actual cooler pin state
+                << coolerPin.getState() // actual cooler pin state
                 << endl;
     }
     csv.close();
@@ -608,7 +608,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Fridge_Air, Sim
 
         update();
 
-        BOOST_CHECK_MESSAGE(! (heaterPin.isActive() && coolerPin.isActive()), "at " << t); // pins are not active at the same time
+        BOOST_CHECK_MESSAGE(! (heaterPin.getState() && coolerPin.getState()), "at " << t); // pins are not active at the same time
 
         csv     << fridgeSet.read() << "," // setpoint
                 << coolerPid.state.error << "," //error
@@ -625,8 +625,8 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Fridge_Air, Sim
                 << heaterPid.state.p << "," // proportional action
                 << heaterPid.state.i << "," // integral action
                 << heaterPid.state.d << "," // derivative action
-                << coolerPin.isActive() << "," // actual cooler pin state
-                << heaterPin.isActive() // actual cooler pin state
+                << heaterPin.getState() // actual cooler pin state
+                << coolerPin.getState() << "," // actual cooler pin state
                 << endl;
     }
     csv.close();
@@ -656,7 +656,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Beer, SimBeerHe
         beerSet.write(SetPointDouble);
         update();
 
-        BOOST_CHECK( !(heaterPin.isActive() && coolerPin.isActive()) ); // pins are not active at the same time
+        BOOST_CHECK( !(heaterPin.getState() && coolerPin.getState()) ); // pins are not active at the same time
 
         csv     << beerSet.read() << "," // setpoint
                 << coolerPid.state.error << "," //error
@@ -673,8 +673,8 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Beer, SimBeerHe
                 << heaterPid.state.p << "," // proportional action
                 << heaterPid.state.i << "," // integral action
                 << heaterPid.state.d << "," // derivative action
-                << coolerPin.isActive() << "," // actual cooler pin state
-                << heaterPin.isActive() // actual cooler pin state
+                << coolerPin.getState() << "," // actual cooler pin state
+                << heaterPin.getState() // actual cooler pin state
                 << endl;
     }
     csv.close();
@@ -707,7 +707,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Control, SimCascadedHeaterCooler)
         beerSet.write(SetPointDouble);
         update();
 
-        BOOST_CHECK( !(heaterPin.isActive() && coolerPin.isActive()) ); // pins are not active at the same time
+        BOOST_CHECK( !(heaterPin.getState() && coolerPin.getState()) ); // pins are not active at the same time
 
         csv     << beerSet.read() << "," // setpoint
                 << beerSensor.read() << "," // beer temp
@@ -735,8 +735,8 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Control, SimCascadedHeaterCooler)
                 << heaterPid.state.i << "," // integral action
                 << heaterPid.state.d << "," // derivative action
 
-                << coolerPin.isActive() << "," // actual cooler pin state
-                << heaterPin.isActive() // actual cooler pin state
+                << coolerPin.getState() << "," // actual cooler pin state
+                << heaterPin.getState() // actual cooler pin state
                 << endl;
     }
     csv.close();
@@ -770,7 +770,7 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Cool_Small_Volume, SimCascadedHeaterCo
 
         update();
 
-        BOOST_CHECK( !(heaterPin.isActive() && coolerPin.isActive()) ); // pins are not active at the same time
+        BOOST_CHECK( !(heaterPin.getState() && coolerPin.getState()) ); // pins are not active at the same time
 
         csv     << beerSet.read() << "," // setpoint
                 << beerSensor.read() << "," // beer temp
@@ -798,8 +798,8 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Cool_Small_Volume, SimCascadedHeaterCo
                 << heaterPid.state.i << "," // integral action
                 << heaterPid.state.d << "," // derivative action
 
-                << coolerPin.isActive() << "," // actual cooler pin state
-                << heaterPin.isActive() // actual cooler pin state
+                << coolerPin.getState() << "," // actual cooler pin state
+                << heaterPin.getState() // actual cooler pin state
                 << endl;
     }
     csv.close();

@@ -42,7 +42,7 @@ public:
         minOffTime(_minOffTime),
         toggleTime(0)
     {
-        state = target.isActive();
+        state = State::Inactive;
     }
 
     ~ActuatorTimeLimited() = default;
@@ -55,11 +55,11 @@ public:
     	v.visit(*this);
     }
 
-    virtual void setActive(bool active, int8_t priority = 127) override final;
+    void setState(State state, int8_t priority = 127) override final;
 
-    virtual bool isActive() const override final
+    State getState() const override final
     {
-        return state;    // target->isActive(); - this takes 20 bytes more
+        return state;
     }
 
     virtual void update() override final;
@@ -83,7 +83,7 @@ private:
     ticks_seconds_t        minOffTime;
     ticks_seconds_t        toggleTime;
     // shadow copy to prevent sending unnecessary updates to target
-    bool                   state;
+    State                  state;
 
     friend class ActuatorTimeLimitedMixin;
 };

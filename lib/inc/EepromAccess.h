@@ -24,4 +24,3 @@
 
 #include "EepromAccessImpl.h"
 
-extern EepromAccess eepromAccess;

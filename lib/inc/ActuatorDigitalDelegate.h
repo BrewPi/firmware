@@ -46,12 +46,12 @@ public:
         delegate().fastUpdate();
     }
 
-    virtual void setActive(bool active, int8_t priority = 127) override final {
-        delegate().setActive(active, priority);
+    void setState(State state, int8_t priority = 127) final {
+        delegate().setState(state, priority);
     }
 
-    virtual bool isActive() const override final {
-        return delegate().isActive();
+    State getState() const final {
+        return delegate().getState();
     }
 
 private:

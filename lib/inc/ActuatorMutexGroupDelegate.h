@@ -43,6 +43,20 @@ public:
         delegate().fastUpdate();
     }
 
+    virtual void registerActuator(ActuatorMutexDriver * act) override final {
+        delegate().registerActuator(act);
+    };
+    virtual void unRegisterActuator(ActuatorMutexDriver * act) override final {
+        delegate().unRegisterActuator(act);
+    };
+
+    virtual bool request(ActuatorMutexDriver * requester, ActuatorDigital::State newState, int8_t newPriority) override final {
+        return delegate().request(requester, newState, newPriority);
+    };
+    virtual void cancelRequest(ActuatorMutexDriver * requester) override final {
+        return delegate().cancelRequest(requester);
+    };
+
 private:
     RefTo<ActuatorMutexGroupInterface> delegate;
 };

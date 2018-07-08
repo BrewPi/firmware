@@ -30,6 +30,7 @@ BOOST_AUTO_TEST_CASE (mock_sensor_init){
     temp_t t = s->read();
 
     BOOST_CHECK_EQUAL(t, temp_t(20.0));
+    delete s;
 }
 
 BOOST_AUTO_TEST_CASE (unconnected_mock_sensor_will_return_invalid){
@@ -38,6 +39,7 @@ BOOST_AUTO_TEST_CASE (unconnected_mock_sensor_will_return_invalid){
     temp_t t = s->read();
 
     BOOST_CHECK_EQUAL(t, temp_t::invalid());
+    delete s;
 }
 
 BOOST_AUTO_TEST_CASE (unconnected_mock_sensor_will_false_on_init){
@@ -46,6 +48,7 @@ BOOST_AUTO_TEST_CASE (unconnected_mock_sensor_will_false_on_init){
 
     s->setConnected(false);
     BOOST_CHECK(!s->init());
+    delete s;
 }
 
 BOOST_AUTO_TEST_CASE(test_limited_precision){

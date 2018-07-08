@@ -26,9 +26,6 @@
 #include "EepromFormat.h"
 #include "PiLink.h"
 
-EepromManager eepromManager;
-EepromAccess eepromAccess;
-
 #define pointerOffset(x) offsetof(EepromFormat, x)
 
 EepromManager::EepromManager()
@@ -43,14 +40,13 @@ void EepromManager::init()
 
 bool EepromManager::hasSettings()
 {
-    uint8_t version = eepromAccess.readByte(pointerOffset(version));	
+    uint8_t version = eepromAccess.readByte(pointerOffset(version));
     return (version==EEPROM_FORMAT_VERSION);
 }
 
 void EepromManager::zapEeprom()
 {
-	for (uint16_t offset=0; offset<EepromFormat::MAX_EEPROM_SIZE; offset++)
-		eepromAccess.writeByte(offset, 0);
+	eepromAccess.clear();
 }
 
 
@@ -78,7 +74,7 @@ void EepromManager::initializeEeprom()
     }
 
     // set the version flag - so that storeDevice will work
-    eepromAccess.writeByte(0, EEPROM_FORMAT_VERSION);
+    eepromAccess.writeByte(pointerOffset(version), EEPROM_FORMAT_VERSION);
 
     saveDefaultDevices();
 }
@@ -141,16 +137,18 @@ void EepromManager::storeTempSettings()
 bool EepromManager::fetchDevice(DeviceConfig& config, uint8_t deviceIndex)
 {
 	bool ok = (hasSettings() && deviceIndex<EepromFormat::MAX_DEVICES);
-	if (ok)
-		eepromAccess.readBlock(&config, pointerOffset(devices)+sizeof(DeviceConfig)*deviceIndex, sizeof(DeviceConfig));
+	if (ok){
+		eepromAccess.get(pointerOffset(devices)+sizeof(DeviceConfig)*deviceIndex, config);
+	}
 	return ok;
 }	
 
 bool EepromManager::storeDevice(const DeviceConfig& config, uint8_t deviceIndex)
 {
 	bool ok = (hasSettings() && deviceIndex<EepromFormat::MAX_DEVICES);
-	if (ok)
-		eepromAccess.writeBlock(pointerOffset(devices)+sizeof(DeviceConfig)*deviceIndex, &config, sizeof(DeviceConfig));	
+	if (ok){
+		eepromAccess.put(pointerOffset(devices)+sizeof(DeviceConfig)*deviceIndex, config);
+	}
 	return ok;
 }
 
@@ -161,3 +159,4 @@ void clear(uint8_t* p, uint8_t size) {
 	while (size-->0) *p++ = 0;
 }
 
+EepromManager eepromManager;

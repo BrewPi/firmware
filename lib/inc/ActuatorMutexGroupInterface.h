@@ -23,21 +23,24 @@
 #include "Interface.h"
 #include "ActuatorInterfaces.h"
 
-
-struct ActuatorPriority{
-    ActuatorDigital * actuator;
-    int8_t priority; // valid priorities are 0-127, at -128 the actuator is removed from the group
-};
-
-
 class ActuatorMutexGroupInterface : public virtual Interface
 {
 public:
     ActuatorMutexGroupInterface() = default;
     virtual ~ActuatorMutexGroupInterface() = default;
 
-    virtual bool request(ActuatorDigital * requester, bool active, int8_t newPriority) = 0;
-    virtual void cancelRequest(ActuatorDigital * requester) = 0;
+    virtual void registerActuator(ActuatorMutexDriver * act) = 0;
+    virtual void unRegisterActuator(ActuatorMutexDriver * act) = 0;
+
+    virtual bool request(ActuatorMutexDriver * requester, ActuatorDigital::State newState, int8_t newPriority) = 0;
+
+    /**
+     * Cancels an open request, by setting the priority to -1.
+     * This can be used when a request is honored, but the actuator could not go active for other reasons.
+     * The request should then be canceled to prevent holding back other actuators
+     * @param requester: pointer to actuator previously requested to go active
+     */
+    virtual void cancelRequest(ActuatorMutexDriver * requester) = 0;
 };
 
 

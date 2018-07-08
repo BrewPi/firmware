@@ -100,9 +100,9 @@ BOOST_AUTO_TEST_CASE(RefTo_can_be_used_as_a_ActuatorDigital) {
     auto lookup = VectorIndexLookup(1, devices);
     RefTo<ActuatorDigital> ref(lookup);
 
-    BOOST_CHECK(!act2->isActive()); // default value is false
-    ref().setActive(true);
-    BOOST_CHECK(act2->isActive()); // value has been set to true via reference
+    BOOST_CHECK(act2->getState() == ActuatorDigital::State::Inactive); // default value is false
+    ref().setState(ActuatorDigital::State::Active);
+    BOOST_CHECK(act2->getState() == ActuatorDigital::State::Active); // value has been set to true via reference
 }
 
 BOOST_AUTO_TEST_CASE(RefTo_gets_different_target_when_lookup_is_changed) {
@@ -129,6 +129,7 @@ BOOST_AUTO_TEST_CASE(RefTo_SetPointActuator) {
     RefTo<ActuatorAnalog> ref(lookup);
 
     BOOST_CHECK_EQUAL(ref.get(), spa);
+    delete spa;
 }
 
 

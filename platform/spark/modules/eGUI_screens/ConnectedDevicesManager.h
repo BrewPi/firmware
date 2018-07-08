@@ -23,7 +23,6 @@
 #include "DeviceManager.h"
 #include "TempSensor.h"
 #include "ActuatorInterfaces.h"
-#include "Sensor.h"
 #include "PiLink.h"
 #include "Board.h"
 #include "ActuatorPin.h"

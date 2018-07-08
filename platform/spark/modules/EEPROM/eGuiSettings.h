@@ -24,20 +24,9 @@ extern "C" {
 #include "d4d.h"
 }
 
-#include "SparkEepromRegions.h"
+#include "EepromFormat.h"
 
 #include "EepromAccessImpl.h"
-extern EepromAccess eepromAccess;
-
-// Reserve 32 bytes for touch calibration settings to have room for growth
-union calibrationSettingsArea {
-    D4D_TOUCHSCREEN_CALIB touchCalib;
-    unsigned char reserved[32];
-};
-
-// relative addresses in flashee block
-#define TOUCH_CALIB_ADDRESS 0
-#define NEXT_ADDRESS (TOUCH_CALIB_ADDRESS + sizeof(calibrationSettingsArea)
 
 class eGuiSettingsClass {
 public:
@@ -48,7 +37,7 @@ public:
      */
     bool loadTouchCalib() {
         D4D_TOUCHSCREEN_CALIB calib;
-        eepromAccess.readBlock(&calib, TOUCH_CALIB_ADDRESS, sizeof (D4D_TOUCHSCREEN_CALIB));
+        eepromAccess.get(offsetof(EepromFormat, eGuiSettings), calib);
         if (calib.ScreenCalibrated != 1) {
             return false;
         }
@@ -61,7 +50,7 @@ public:
      */
     void storeTouchCalib() {
         D4D_TOUCHSCREEN_CALIB calib = D4D_TCH_GetCalibration();
-        eepromAccess.writeBlock(TOUCH_CALIB_ADDRESS, &calib, sizeof (D4D_TOUCHSCREEN_CALIB));
+        eepromAccess.put(offsetof(EepromFormat, eGuiSettings), calib);
     };
 };
 

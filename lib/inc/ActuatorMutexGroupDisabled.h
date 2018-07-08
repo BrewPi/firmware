@@ -35,10 +35,14 @@ public:
     }
     virtual void update() override final {};
     virtual void fastUpdate() override final {};
-    virtual bool request(ActuatorDigital * requester, bool active, int8_t newPriority) override final {
+
+    virtual void registerActuator(ActuatorMutexDriver * act) override final {};
+    virtual void unRegisterActuator(ActuatorMutexDriver * act) override final {};
+
+    virtual bool request(ActuatorMutexDriver * requester, ActuatorDigital::State newState, int8_t newPriority) override final {
         return true;
     };
-    virtual void cancelRequest(ActuatorDigital * requester) override final{};
+    virtual void cancelRequest(ActuatorMutexDriver * requester) override final {};
 friend class ActuatorMutexGroupMixin;
 };
 
