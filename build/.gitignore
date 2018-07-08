@@ -1,0 +1,10 @@
+boost_1_63_0*
+gcc-arm-none-*
+
+CMakeCache.txt
+CMakeFiles/
+*.cmake
+Makefile
+
+Testing/
+catch-test/

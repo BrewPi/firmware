@@ -1,0 +1,28 @@
+#find_package(Catch REQUIRED)
+# Catch v2.2.3 is in this folder as a header file
+add_library(Catch INTERFACE)
+
+# Add BOOST_ROOT to the cmake command: 
+find_package(Boost 1.63.0 EXACT REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+
+set (TEST_APP "lib_tests")
+file(GLOB TEST_APP_SRC    
+    "*.hpp"
+    "*.cpp"
+    "../inc/*.h"
+    "../mixins/*.h"
+    "../src/defaultDevices.cpp"
+    "../src/temperatureFormats.cpp"
+    "../src/str_functions.cpp"
+)
+
+add_executable(${TEST_APP} ${TEST_APP_SRC} ../../platform/test/inc/Platform.h)
+
+target_include_directories(${TEST_APP} PRIVATE ../inc)
+target_include_directories(${TEST_APP} PRIVATE ../mixins)
+target_include_directories(${TEST_APP} PRIVATE ../../platform/test/inc)
+
+target_link_libraries(${TEST_APP} Catch)
+
+add_test(NAME ${TEST_APP} COMMAND ${TEST_APP})
