@@ -64,13 +64,10 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/firmware/nanopb/nanopb
 CSRC += $(call here_files,platform/spark/firmware/nanopb/nanopb,*.c)
 
 # Mixins
-CPPSRC += app/cbox/ControllerMixins.cpp
+CPPSRC += /app/cbox/ControllerMixins.cpp
 
-# eeprom implementations from Spark/Particle
+# eeprom implementations
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/EEPROM
-CPPSRC += $(call here_files,/platform/spark/modules/EEPROM,*.cpp)
-INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/libs/flashee/firmware/
-CPPSRC += $(call here_files,/platform/spark/libs/flashee/firmware/,*.cpp)
 
 # cbox app specific implementations
 CPPSRC += /app/cbox/CboxApp.cpp

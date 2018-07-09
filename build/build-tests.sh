@@ -16,7 +16,7 @@ make -s
 result=$?
 status $result
 
-cd $MY_DIR/../app/controller/test
+cd $MY_DIR/../app/cbox/test
 make -s
 result=$?
 status $result

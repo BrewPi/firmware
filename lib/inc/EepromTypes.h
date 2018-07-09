@@ -21,7 +21,13 @@
 
 #pragma once
 #include <stdint.h>
+
+#ifdef PLATFORM_ID
 #include "application.h"
 
 typedef EEPtr eptr_t;
+#else
+typedef int16_t eptr_t;
+#endif
+
 #define INVALID_EPTR EEPtr(0) // points to magic byte at start

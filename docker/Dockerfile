@@ -1,7 +1,7 @@
 FROM ubuntu:16.04
 
-RUN apt-get update -q && apt-get install -qy git bash curl
-RUN apt-get update -q && apt-get install -qy build-essential
+RUN apt-get update -q && apt-get install -qy git bash curl unzip
+RUN apt-get update -q && apt-get install -qy build-essential dfu-util
 
 ENV GCC_ARM_URL="https://launchpad.net/gcc-arm-embedded/5.0/5-2016-q1-update/+download/gcc-arm-none-eabi-5_3-2016q1-20160330-linux.tar.bz2"
 ENV GCC_ARM_VERSION="5_3-2016q1"
@@ -20,11 +20,17 @@ COPY scripts /scripts
 ENV BOOST_VERSION=1_65_0
 ENV BOOST_HOME=/boost
 ENV BOOST_ROOT=$BOOST_HOME/boost_$BOOST_VERSION
- 
-RUN bash /scripts/download_boost.sh 
+RUN mkdir -p $BOOST_HOME && curl -sSL http://downloads.sourceforge.net/project/boost/boost/1.65.0/boost_1_65_0.tar.gz | tar -xz -C $BOOST_HOME 
 RUN bash /scripts/build_boost.sh
 
-RUN apt-get update -q && apt-get install -qy dfu-util
+ENV PROTOC_HOME=/protoc
+RUN curl -sSL https://github.com/google/protobuf/releases/download/v3.6.0/protoc-3.6.0-linux-x86_64.zip -o /tmp/protoc.zip \
+  && unzip /tmp/protoc.zip -d $PROTOC_HOME
+RUN mv $PROTOC_HOME/bin/* /usr/local/bin/
+RUN mv $PROTOC_HOME/include/* /usr/local/include/
+
+RUN apt-get update -q && apt-get install -qy python python-pip
+RUN pip install protobuf
 
 WORKDIR /firmware/build
 CMD bash

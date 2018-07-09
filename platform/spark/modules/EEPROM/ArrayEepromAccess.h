@@ -37,6 +37,8 @@ public:
 		memset(data, -1, eepromLength());
 	}
 
+	void init(){};
+
 	uint8_t readByte(eptr_t offset) const
 	{
 		if (isValidRange(offset, 1))

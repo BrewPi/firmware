@@ -79,6 +79,10 @@ CPPSRC += $(call here_files,platform/spark/modules/OneWire,*.cpp)
 
 CPPSRC += $(call here_files,platform/spark/modules/EEPROM,*.cpp)
 
+# hardware specific includes
+INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox/spark
+CPPSRC += $(call here_files,app/cbox/spark,*.cpp)
+
 
 SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
 #include $(SRC_EGUI)/egui.mk

@@ -46,11 +46,11 @@ public:
         delegate().fastUpdate();
     }
 
-    void setState(State state, int8_t priority = 127) final {
+    void setState(State state, int8_t priority = 127) override final {
         delegate().setState(state, priority);
     }
 
-    State getState() const final {
+    State getState() const override final {
         return delegate().getState();
     }
 
