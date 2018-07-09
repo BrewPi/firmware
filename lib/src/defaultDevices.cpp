@@ -40,3 +40,8 @@ SetPointConstant * defaultSetPoint(){
     static SetPointConstant sp(temp_t::invalid());
     return &sp;
 }
+
+ActuatorMutexGroupDisabled * defaultMutexGroup(){
+    static ActuatorMutexGroupDisabled m;
+    return &m;
+}

@@ -24,8 +24,10 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorMocks.h"
 #include "SetPoint.h"
+#include "ActuatorMutexGroupDisabled.h"
 
 ActuatorNop * defaultActuator();
 ActuatorInvalid * defaultLinearActuator(); // always returns invalid and does nothing
 TempSensorDisconnected * defaultTempSensor();
 SetPointConstant * defaultSetPoint();
+ActuatorMutexGroupDisabled * defaultMutexGroup();
