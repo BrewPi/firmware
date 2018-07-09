@@ -17,7 +17,7 @@ ENV PATH /usr/local/gcc-arm-embedded/bin:$PATH
 
 COPY scripts /scripts
 
-ENV BOOST_VERSION=1_67_0
+ENV BOOST_VERSION=1_65_0
 ENV BOOST_HOME=/boost
 ENV BOOST_ROOT=$BOOST_HOME/boost_$BOOST_VERSION
  
