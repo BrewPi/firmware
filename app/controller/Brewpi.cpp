@@ -26,7 +26,7 @@
 #include "UI.h"
 
 #if BREWPI_SIMULATE
-	#include "Simulator.h"
+#include "Simulator.h"
 #endif
 
 // global class objects static and defined in class cpp and h files
@@ -44,76 +44,62 @@ DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 
 UI ui;
 
-SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
+SYSTEM_MODE(SEMI_AUTOMATIC);
 STARTUP(System.enableFeature(FEATURE_RESET_INFO));
 
 void setup()
 {
     boardInit();
+    System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
+
     bool resetEeprom = platform_init();
+
+    piLink.init(); // enables Serial, WiFi is enabled later
+
     eepromManager.init();
     if (resetEeprom) {
         eepromManager.initializeEeprom();
     }
-	ui.init();
-
-    uint32_t start = ticks.millis();
-    uint32_t delay = ui.showStartupPage();
-
-    piLink.init();
-    // flush any waiting input.
-    // Linux can put garbage in the serial input buffer during connect
-    piLink.flushInput();
+    ui.init();
 
     logDebug("started");
 
-    while (ticks.millis()-start <= delay) {
+    ui.showStartupPage();
+
+    while (ui.inStartup()) {
         ui.ticks();
     }
-    
+
     // initialize OneWire
     if (!primaryOneWireBus.init()) {
         logError(ERROR_ONEWIRE_INIT_FAILED);
     }
 
-#if BREWPI_SIMULATE
-	simulator.step();
-#endif	
     settingsManager.loadSettings();
 
-    control.update();
-
-    System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
-    WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
-    Particle.connect();
-
-    			
-	logDebug("init complete");
+    logDebug("init complete");
 }
 
 void brewpiLoop(void)
 {
-	static unsigned long lastUpdate = -1000; // init at -1000 to update immediately
-    ui.ticks();
-        
-    if(!ui.inStartup() && (ticks.millis() - lastUpdate >= (1000))) { //update settings every second
-		lastUpdate = ticks.millis();
-		control.update();
+    static unsigned long lastUpdate = -1000; // init at -1000 to update immediately
+
+    if(ticks.millis() > lastUpdate + 1000) { //update settings every second
+        lastUpdate = ticks.millis();
+        control.update();
         ui.update();
     }
 
     control.fastUpdate(); // update actuators as often as possible for PWM
 
-    //listen for incoming serial connections while waiting to update
+    ui.ticks();
+
+    //listen for incoming serial and wifi connections while waiting to update
     piLink.receive();
 }
 
 void loop() {
-	#if BREWPI_SIMULATE
-	simulateLoop();
-	#else
-	brewpiLoop();
-	#endif
+    brewpiLoop();
 }
 

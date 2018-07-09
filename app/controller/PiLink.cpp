@@ -38,12 +38,6 @@
 #include "Control.h"
 #include "json_writer.h"
 
-#if BREWPI_SIMULATE
-#include "Simulator.h"
-#endif
-
-#if BREWPI_USE_WIFI
-
 class NetworkSerialMuxer : public Stream
 {
 private:
@@ -52,7 +46,7 @@ private:
     Stream * currentStream = &Serial;
     bool tcpServerRunning = false;
     ticks_seconds_t lastReceive = 0;
-    const ticks_seconds_t wifiRestartTimeout = 300; // power cycle WiFi if idle for 5 minutes
+    const ticks_seconds_t wifiRestartTimeout = 300; // reconnect WiFi if idle for 5 minutes
 
 public:
     void print(char c) {
@@ -103,24 +97,20 @@ public:
         if(available > 0){
             lastReceive = ticks.seconds();
         }
-        else if(WiFi.hasCredentials() && !WiFi.ready()){
-            WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
-            Particle.connect();
-            Particle.process();
-        }
-        else if(WiFi.hasCredentials() && ticks.timeSinceSeconds(lastReceive) > wifiRestartTimeout){
-            lastReceive = ticks.seconds();
-            Particle.disconnect();
-            WiFi.disconnect();
-            Particle.process();
+        else{
+            if(!WiFi.ready()){
+                if(!WiFi.connecting()){
+                    WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
+                    Particle.connect();
+                }
+            }
+            if(ticks.timeSinceSeconds(lastReceive) > wifiRestartTimeout){
+                lastReceive = ticks.seconds();
+                Particle.disconnect();
+                WiFi.disconnect();
+            }
         }
         return available;
-    }
-
-    void begin(unsigned long rate) {
-        Serial.begin(rate);
-        Serial.blockOnOverrun(false);
-        // WiFi is handled in available()
     }
 
     size_t write(uint8_t buf) {
@@ -144,52 +134,14 @@ public:
     }
 };
 
-static NetworkSerialMuxer networkSerialMuxer;
-#endif
-
-#if BREWPI_EMULATE
-class MockSerial : public Stream
-{
-public:
-    void print(char c) {}
-    void print(const char* c) {}
-    void printNewLine() {}
-    void println() {}
-    int read() { return -1; }
-    int available() { return -1; }
-    void begin(unsigned long) {}
-    size_t write(uint8_t w) { return 1; }
-    int peek() { return -1; }
-    void flush() { };
-    operator bool() { return true; }
-};
-
-static MockSerial mockSerial;
-#define piStream mockSerial
-
-#elif !defined(WIRING)
-StdIO stdIO;
-#define piStream stdIO
-
-#else
-#if BREWPI_USE_WIFI
-#define piStream networkSerialMuxer
-#else
-#define piStream Serial
-#endif
-#endif
+static NetworkSerialMuxer piStream;
 
 bool PiLink::firstPair;
 char PiLink::printfBuff[PRINTF_BUFFER_SIZE];
 
 void PiLink::init(void){
-    piStream.begin(57600);
-}
-
-void PiLink::flushInput(void){
-    while (piStream.available() > 0) {
-        piStream.read();
-    }
+    Serial.blockOnOverrun(false);
+    Serial.begin(57600);
 }
 
 // create a printf like interface to the Serial function. Format string stored in RAM
@@ -299,10 +251,8 @@ void PiLink::receive(void){
             // b: board
             // i: IP Address
             // w: WiFi SSID
-#if BREWPI_USE_WIFI
             char ipAddressString[16];
             ipAddressAsString(ipAddressString);
-#endif
             print("N:{"
                     "\"v\":\"%s\","
                     "\"n\":\"%s\","
@@ -310,22 +260,17 @@ void PiLink::receive(void){
                     "\"y\":%d,"
                     "\"b\":\"%c\","
                     "\"l\":\"%d\""
-#if BREWPI_USE_WIFI
                     ",\"i\":\"%s\","
                     "\"w\":\"%s\""
-#endif
                     "}",
                     VERSION_STRING,               // v:
                     stringify(BUILD_NAME),      // n:
                     getShieldVersion(),               // s:
                     BREWPI_SIMULATE,                    // y:
                     BREWPI_BOARD,      // b:
-                    BREWPI_LOG_MESSAGES_VERSION // l:
-#if BREWPI_USE_WIFI
-                    ,
+                    BREWPI_LOG_MESSAGES_VERSION, // l:
                     ipAddressString,
                     WiFi.SSID() // w:
-#endif
             );
             printNewLine();
             break;
@@ -407,29 +352,6 @@ void PiLink::receive(void){
     }
 }
 
-#define COMPACT_SERIAL BREWPI_SIMULATE
-#if COMPACT_SERIAL
-#define JSON_BEER_TEMP  "bt"
-#define JSON_BEER_SET	"bs"
-#define JSON_BEER_ANN	"ba"
-#define JSON_FRIDGE_TEMP "ft"
-#define JSON_FRIDGE_SET  "fs"
-#define JSON_FRIDGE_ANN  "fa"
-#define JSON_STATE		"s"
-#define JSON_TIME		"t"
-#define JSON_ROOM_TEMP  "rt"
-
-temp_t beerTemp = -1, beerSet = -1, fridgeTemp = -1, fridgeSet = -1;
-double roomTemp = -1;
-uint8_t state = 0xFF;
-char* beerAnn; char* fridgeAnn;
-
-typedef char* PChar;
-bool changed(uint8_t &a, uint8_t b) { uint8_t c = a; a=b; return b!=c; }
-bool changed(temp_t &a, temp_t b) { temp_t c = a; a=b; return b!=c; }
-bool changed(double &a, double b) { double c = a; a=b; return b!=c; }
-bool changed(PChar &a, PChar b) { PChar c = a; a=b; return b!=c; }
-#else
 #define JSON_BEER_TEMP  "BeerTemp"
 #define JSON_BEER_SET	"BeerSet"
 #define JSON_BEER_ANN	"BeerAnn"
@@ -442,64 +364,43 @@ bool changed(PChar &a, PChar b) { PChar c = a; a=b; return b!=c; }
 #define JSON_LOG2_TEMP  "Log2Temp"
 #define JSON_LOG3_TEMP  "Log3Temp"
 
-#define changed(a,b)  1
-#endif
-
 void PiLink::printTemperaturesJSON(char * beerAnnotation, char * fridgeAnnotation){
     printResponse('T');
 
     temp_t t;
     t = tempControl.getBeerTemp();
-    if (changed(beerTemp, t))
-        sendJsonTemp(JSON_BEER_TEMP, t);
+    sendJsonTemp(JSON_BEER_TEMP, t);
 
     t = tempControl.getBeerSetting();
-    if (changed(beerSet,t))
-        sendJsonTemp(JSON_BEER_SET, t);
+    sendJsonTemp(JSON_BEER_SET, t);
 
-    if (changed(beerAnn, beerAnnotation))
-        sendJsonAnnotation(JSON_BEER_ANN, beerAnnotation);
+    sendJsonAnnotation(JSON_BEER_ANN, beerAnnotation);
 
     t = tempControl.getFridgeTemp();
-    if (changed(fridgeTemp, t))
-        sendJsonTemp(JSON_FRIDGE_TEMP, t);
+    sendJsonTemp(JSON_FRIDGE_TEMP, t);
 
     t = tempControl.getFridgeSetting();
-    if (changed(fridgeSet, t))
-        sendJsonTemp(JSON_FRIDGE_SET, t);
+    sendJsonTemp(JSON_FRIDGE_SET, t);
 
-    if (changed(fridgeAnn, fridgeAnnotation))
-        sendJsonAnnotation(JSON_FRIDGE_ANN, fridgeAnnotation);
+    sendJsonAnnotation(JSON_FRIDGE_ANN, fridgeAnnotation);
 
     t = tempControl.getLog1Temp();
-    if (changed(log1, t))
-        sendJsonTemp(JSON_LOG1_TEMP, tempControl.getLog1Temp());
+    sendJsonTemp(JSON_LOG1_TEMP, tempControl.getLog1Temp());
 
     t = tempControl.getLog2Temp();
-    if (changed(log2, t))
-        sendJsonTemp(JSON_LOG2_TEMP, tempControl.getLog2Temp());
+    sendJsonTemp(JSON_LOG2_TEMP, tempControl.getLog2Temp());
 
     t = tempControl.getLog3Temp();
-    if (changed(log3, t))
-        sendJsonTemp(JSON_LOG3_TEMP, tempControl.getLog3Temp());
+    sendJsonTemp(JSON_LOG3_TEMP, tempControl.getLog3Temp());
 
-    if (changed(state, tempControl.getState()))
-        sendJsonPair(JSON_STATE, (uint8_t)tempControl.getState());
+    sendJsonPair(JSON_STATE, (uint8_t)tempControl.getState());
 
-#if BREWPI_SIMULATE
-    printJsonName(JSON_TIME);
-    print("%lu", ticks.millis()/1000);
-#endif
     sendJsonClose();
 }
 
 void PiLink::ipAddressAsString(char * target){
-#if BREWPI_USE_WIFI
     IPAddress ip = WiFi.localIP();
     snprintf(target, 16, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-#else
-    snprintf(target, 16, "no wifi");
-#endif
 }
 
 void PiLink::sendJsonAnnotation(const char* name, const char* annotation)

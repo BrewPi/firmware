@@ -2,9 +2,6 @@
 #include "Platform.h"
 #include "application.h"
 #include "deviceid_hal.h"
-#if PLATFORM_ID==0
-#include "Ymodem/Ymodem.h"
-#endif
 #include "EepromAccess.h"
 
 void handleReset(bool exit)
@@ -13,22 +10,16 @@ void handleReset(bool exit)
 		System.reset();
 }
 
-
 #if PLATFORM_ID==PLATFORM_GCC
 static uint8_t device_id[12];
 #endif
 
 bool platform_init()
 {            
-#if PLATFORM_ID==3
+#if PLATFORM_ID==PLATFORM_GCC
 	HAL_device_ID(device_id, 12);
 #endif
 	bool wasInitialized = eepromAccess.init();
-
-#if PLATFORM_ID==PLATFORM_GCC
-    WiFi.connect();
-    waitUntil(WiFi.ready);
-#endif
 
 #if PLATFORM_THREADING
     System.on(setup_update, watchdogCheckin);
