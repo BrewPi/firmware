@@ -22,12 +22,11 @@
 
 #include "ActuatorPin.h"
 
-ActuatorPin::ActuatorPin(uint8_t pin,
-        bool                                   invert)
+ActuatorPin::ActuatorPin(uint8_t pin, bool invert)
 {
     this -> invert = invert;
     this -> pin    = pin;
 
-    setActive(false);
+    setState(State::Inactive);
     pinMode(pin, OUTPUT);
 }

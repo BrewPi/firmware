@@ -76,36 +76,35 @@ bool DS2413::writeLatchBit(uint8_t pos,
     else
     {
         ok = channelWriteAll(newVal);
-        update();
+        ok = update();
     }
 
     return ok;
 }
 
-bool DS2413::readLatchBit(pio_t pio,
-               bool defaultValue,
-               bool useCached)
+bool DS2413::readLatchBit(pio_t pio, bool & result, bool useCached)
 {
     if(!useCached || !cacheIsValid()){
         update();
     }
 
-    return latchReadCached(pio, defaultValue);
+    return latchReadCached(pio, result);
 }
 
-bool DS2413::latchReadCached(pio_t pio,
-               bool defaultValue) const
+bool DS2413::latchReadCached(pio_t pio, bool & result) const
 {
     if(cacheIsValid()){
-        return ((cachedState & latchReadMask(pio)) == 0);
+        result = ((cachedState & latchReadMask(pio)) == 0);
+        return true;
     }
     else
     {
-        return defaultValue;
+        result = false;
+        return false;
     }
 }
 
-void DS2413::update()
+bool DS2413::update()
 {
     cachedState = accessRead();
     bool success = cacheIsValid();
@@ -121,6 +120,7 @@ void DS2413::update()
         printBytes(address, 8, addressString);
         logInfoString(DS2413_CONNECTED, addressString);
     }
+    return success;
 }
 
 uint8_t DS2413::writeByteFromCache()
@@ -139,18 +139,17 @@ uint8_t DS2413::writeByteFromCache()
 }
 
 
-bool DS2413::sense(pio_t pio,
-           bool  defaultValue)
+bool DS2413::sense(pio_t pio, bool & result)
 {
     update();
-
     if (cacheIsValid())
     {
-        return ((cachedState & senseMask(pio)) != 0);
+        return false;
     }
     else
     {
-        return defaultValue;
+        result = ((cachedState & senseMask(pio)) != 0);
+    	return true;
     }
 }
 

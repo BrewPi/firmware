@@ -38,8 +38,11 @@ void BrewPiLogger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * 
 	char buf[9];
 	while(varTypes[index]){
 		switch(varTypes[index]){	
-			case 'd': // integer, signed or unsigned
+			case 'd': // integer, signed
 				piLink.print(STR_FMT_D, va_arg(args, int));
+				break;
+			case 'u': // integer, unsigned
+				piLink.print(STR_FMT_U, va_arg(args, unsigned int));
 				break;
 			case 's': // string
 				piLink.print(LOG_STRING_FORMAT, va_arg(args, char*));

@@ -20,10 +20,9 @@
 
 #include "Brewpi.h"
 #include <stdarg.h>
-
 #include "stddef.h"
 #include "PiLink.h"
-
+#include "application.h"
 #include "TempControl.h"
 #include "JsonKeys.h"
 #include "Ticks.h"
@@ -52,6 +51,8 @@ private:
     TCPClient tcpClient;
     Stream * currentStream = &Serial;
     bool tcpServerRunning = false;
+    ticks_seconds_t lastReceive = 0;
+    const ticks_seconds_t wifiRestartTimeout = 300; // power cycle WiFi if idle for 5 minutes
 
 public:
     void print(char c) {
@@ -74,17 +75,6 @@ public:
         return currentStream->read();
     }
 
-    void stopTcp(){
-        tcpServer.stop();
-        tcpClient.stop();
-        tcpServerRunning = false;
-    }
-
-    void startTcp(){
-        tcpServer.begin();
-        tcpServerRunning = true;
-    }
-
     /**
      * Check both Serial and WiFi to see if they are connected.
      * When Serial is connected it has preference over WiFi.
@@ -100,34 +90,30 @@ public:
             currentStream = &Serial;
         }
         else{
-            if(!WiFi.ready() || WiFi.RSSI() >= 0){
-                // WiFi is in error state, stop TCP server
-                if(tcpServerRunning){
-                    stopTcp();
+            if(tcpClient.connected()){
+                available = tcpClient.available();
+                if(available > 0) {
+                    currentStream = &tcpClient;
                 }
             }
-            else{
-                if(!tcpServerRunning){
-                    startTcp();
-                }
+            else {
+                tcpClient = tcpServer.available();
             }
-
-            if(tcpServerRunning){
-				// if a new client appears, drop the old one
-				TCPClient newClient = tcpServer.available();
-				if(newClient) {
-					tcpClient.stop();
-					tcpClient = newClient;
-				}
-				if(tcpClient.status()){
-					available = tcpClient.available();
-					if(available > 0) {
-						currentStream = &tcpClient;
-					}
-				}
-			}
         }
-
+        if(available > 0){
+            lastReceive = ticks.seconds();
+        }
+        else if(WiFi.hasCredentials() && !WiFi.ready()){
+            WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
+            Particle.connect();
+            Particle.process();
+        }
+        else if(WiFi.hasCredentials() && ticks.timeSinceSeconds(lastReceive) > wifiRestartTimeout){
+            lastReceive = ticks.seconds();
+            Particle.disconnect();
+            WiFi.disconnect();
+            Particle.process();
+        }
         return available;
     }
 
@@ -318,29 +304,29 @@ void PiLink::receive(void){
             ipAddressAsString(ipAddressString);
 #endif
             print("N:{"
-                "\"v\":\"%s\","
-                "\"n\":\"%s\","
-                "\"s\":%d,"
-                "\"y\":%d,"
-                "\"b\":\"%c\","
-                "\"l\":\"%d\""
+                    "\"v\":\"%s\","
+                    "\"n\":\"%s\","
+                    "\"s\":%d,"
+                    "\"y\":%d,"
+                    "\"b\":\"%c\","
+                    "\"l\":\"%d\""
 #if BREWPI_USE_WIFI
-                ",\"i\":\"%s\","
-                "\"w\":\"%s\""
+                    ",\"i\":\"%s\","
+                    "\"w\":\"%s\""
 #endif
-                "}",
-                VERSION_STRING,               // v:
-                stringify(BUILD_NAME),      // n:
-                getShieldVersion(),               // s:
-                BREWPI_SIMULATE,                    // y:
-                BREWPI_BOARD,      // b:
-                BREWPI_LOG_MESSAGES_VERSION // l:
+                    "}",
+                    VERSION_STRING,               // v:
+                    stringify(BUILD_NAME),      // n:
+                    getShieldVersion(),               // s:
+                    BREWPI_SIMULATE,                    // y:
+                    BREWPI_BOARD,      // b:
+                    BREWPI_LOG_MESSAGES_VERSION // l:
 #if BREWPI_USE_WIFI
-                ,
-                ipAddressString,
-                WiFi.SSID() // w:
+                    ,
+                    ipAddressString,
+                    WiFi.SSID() // w:
 #endif
-                );
+            );
             printNewLine();
             break;
         case 'j': // Receive settings as json
@@ -400,7 +386,15 @@ void PiLink::receive(void){
                 handleReset();
             }
             break;
-
+        case 'r': // print last reset reason if the device was reset
+        {
+            static bool notYetPrinted = true;
+            if(notYetPrinted){
+                logWarningIntUint(warningMessages::SYSTEM_RESET, System.resetReason(), System.resetReasonData());
+                notYetPrinted = false;
+            }
+        }
+        break;
         case 'F': // flash firmware
             if(readCrLf()){
                 System.firmwareUpdate(&piStream);
@@ -645,13 +639,13 @@ enum JsonOutputIndex {
 };
 
 const PiLink::JsonOutputHandler PiLink::JsonOutputHandlers[] = {
-    PiLink::jsonOutputUint8,
-    PiLink::jsonOutputTempToString,
-    PiLink::jsonOutputFixedPointToString,
-    PiLink::jsonOutputTempDiffToString,
-    PiLink::jsonOutputChar,
-    PiLink::jsonOutputUint16,
-    PiLink::jsonOutputFixedPointLongToString,
+        PiLink::jsonOutputUint8,
+        PiLink::jsonOutputTempToString,
+        PiLink::jsonOutputFixedPointToString,
+        PiLink::jsonOutputTempDiffToString,
+        PiLink::jsonOutputChar,
+        PiLink::jsonOutputUint16,
+        PiLink::jsonOutputFixedPointLongToString,
 };
 
 #define JSON_OUTPUT_CC_MAP(name, fn) { JSONKEY_ ## name,  offsetof(ControlConstants, name), fn }
@@ -659,39 +653,39 @@ const PiLink::JsonOutputHandler PiLink::JsonOutputHandlers[] = {
 #define JSON_OUTPUT_CS_MAP(name, fn) { JSONKEY_ ## name,  offsetof(ControlSettings, name), fn }
 
 const PiLink::JsonOutput PiLink::jsonOutputCCMap[] = {
-    JSON_OUTPUT_CC_MAP(tempFormat, JOCC_CHAR),
+        JSON_OUTPUT_CC_MAP(tempFormat, JOCC_CHAR),
 
-    JSON_OUTPUT_CC_MAP(heater1_kp, JOCC_FIXED_POINT_LONG),
-    JSON_OUTPUT_CC_MAP(heater1_ti, JOCC_UINT16),
-    JSON_OUTPUT_CC_MAP(heater1_td, JOCC_UINT16),
-    JSON_OUTPUT_CC_MAP(heater1_infilt, JOCC_UINT8),
-    JSON_OUTPUT_CC_MAP(heater1_dfilt, JOCC_UINT8),
+        JSON_OUTPUT_CC_MAP(heater1_kp, JOCC_FIXED_POINT_LONG),
+        JSON_OUTPUT_CC_MAP(heater1_ti, JOCC_UINT16),
+        JSON_OUTPUT_CC_MAP(heater1_td, JOCC_UINT16),
+        JSON_OUTPUT_CC_MAP(heater1_infilt, JOCC_UINT8),
+        JSON_OUTPUT_CC_MAP(heater1_dfilt, JOCC_UINT8),
 
-    JSON_OUTPUT_CC_MAP(heater2_kp, JOCC_FIXED_POINT_LONG),
-    JSON_OUTPUT_CC_MAP(heater2_ti, JOCC_UINT16),
-    JSON_OUTPUT_CC_MAP(heater2_td, JOCC_UINT16),
-    JSON_OUTPUT_CC_MAP(heater2_infilt, JOCC_UINT8),
-    JSON_OUTPUT_CC_MAP(heater2_dfilt, JOCC_UINT8),
+        JSON_OUTPUT_CC_MAP(heater2_kp, JOCC_FIXED_POINT_LONG),
+        JSON_OUTPUT_CC_MAP(heater2_ti, JOCC_UINT16),
+        JSON_OUTPUT_CC_MAP(heater2_td, JOCC_UINT16),
+        JSON_OUTPUT_CC_MAP(heater2_infilt, JOCC_UINT8),
+        JSON_OUTPUT_CC_MAP(heater2_dfilt, JOCC_UINT8),
 
-    JSON_OUTPUT_CC_MAP(cooler_kp, JOCC_FIXED_POINT_LONG),
-    JSON_OUTPUT_CC_MAP(cooler_ti, JOCC_UINT16),
-    JSON_OUTPUT_CC_MAP(cooler_td, JOCC_UINT16),
-    JSON_OUTPUT_CC_MAP(cooler_infilt, JOCC_UINT8),
-    JSON_OUTPUT_CC_MAP(cooler_dfilt, JOCC_UINT8),
+        JSON_OUTPUT_CC_MAP(cooler_kp, JOCC_FIXED_POINT_LONG),
+        JSON_OUTPUT_CC_MAP(cooler_ti, JOCC_UINT16),
+        JSON_OUTPUT_CC_MAP(cooler_td, JOCC_UINT16),
+        JSON_OUTPUT_CC_MAP(cooler_infilt, JOCC_UINT8),
+        JSON_OUTPUT_CC_MAP(cooler_dfilt, JOCC_UINT8),
 
-    JSON_OUTPUT_CC_MAP(beer2fridge_kp, JOCC_FIXED_POINT_LONG),
-    JSON_OUTPUT_CC_MAP(beer2fridge_ti, JOCC_UINT16),
-    JSON_OUTPUT_CC_MAP(beer2fridge_td, JOCC_UINT16),
-    JSON_OUTPUT_CC_MAP(beer2fridge_infilt, JOCC_UINT8),
-    JSON_OUTPUT_CC_MAP(beer2fridge_dfilt, JOCC_UINT8),
-    JSON_OUTPUT_CC_MAP(beer2fridge_pidMax, JOCC_TEMP_DIFF),
+        JSON_OUTPUT_CC_MAP(beer2fridge_kp, JOCC_FIXED_POINT_LONG),
+        JSON_OUTPUT_CC_MAP(beer2fridge_ti, JOCC_UINT16),
+        JSON_OUTPUT_CC_MAP(beer2fridge_td, JOCC_UINT16),
+        JSON_OUTPUT_CC_MAP(beer2fridge_infilt, JOCC_UINT8),
+        JSON_OUTPUT_CC_MAP(beer2fridge_dfilt, JOCC_UINT8),
+        JSON_OUTPUT_CC_MAP(beer2fridge_pidMax, JOCC_TEMP_DIFF),
 
-    JSON_OUTPUT_CC_MAP(minCoolTime, JOCC_UINT16),
-    JSON_OUTPUT_CC_MAP(minCoolIdleTime, JOCC_UINT16),
-    JSON_OUTPUT_CC_MAP(heater1PwmPeriod, JOCC_UINT16),
-    JSON_OUTPUT_CC_MAP(heater2PwmPeriod, JOCC_UINT16),
-    JSON_OUTPUT_CC_MAP(coolerPwmPeriod, JOCC_UINT16),
-    JSON_OUTPUT_CC_MAP(mutexDeadTime, JOCC_UINT16)
+        JSON_OUTPUT_CC_MAP(minCoolTime, JOCC_UINT16),
+        JSON_OUTPUT_CC_MAP(minCoolIdleTime, JOCC_UINT16),
+        JSON_OUTPUT_CC_MAP(heater1PwmPeriod, JOCC_UINT16),
+        JSON_OUTPUT_CC_MAP(heater2PwmPeriod, JOCC_UINT16),
+        JSON_OUTPUT_CC_MAP(coolerPwmPeriod, JOCC_UINT16),
+        JSON_OUTPUT_CC_MAP(mutexDeadTime, JOCC_UINT16)
 };
 
 void PiLink::sendJsonValues(char responseType, const JsonOutput* jsonOutputMap, uint8_t mapCount) {
@@ -930,40 +924,40 @@ void setBool(const char* value, uint8_t* target) {
 #define JSON_CONVERT(jsonKey, target, fn) { jsonKey, target, (JsonParserHandlerFn)&fn }
 
 const PiLink::JsonParserConvert PiLink::jsonParserConverters[] = {
-    JSON_CONVERT(JSONKEY_mode, NULL, setMode),
-    JSON_CONVERT(JSONKEY_beerSetting, NULL, setBeerSetting),
-    JSON_CONVERT(JSONKEY_fridgeSetting, NULL, setFridgeSetting),
+        JSON_CONVERT(JSONKEY_mode, NULL, setMode),
+        JSON_CONVERT(JSONKEY_beerSetting, NULL, setBeerSetting),
+        JSON_CONVERT(JSONKEY_fridgeSetting, NULL, setFridgeSetting),
 
-    JSON_CONVERT(JSONKEY_tempFormat, NULL, setTempFormat),
+        JSON_CONVERT(JSONKEY_tempFormat, NULL, setTempFormat),
 
-    JSON_CONVERT(JSONKEY_heater1_kp, &tempControl.cc.heater1_kp, setStringToFixedLong),
-    JSON_CONVERT(JSONKEY_heater1_ti, &tempControl.cc.heater1_ti, setUint16),
-    JSON_CONVERT(JSONKEY_heater1_td, &tempControl.cc.heater1_td,setUint16),
-    JSON_CONVERT(JSONKEY_heater1_infilt, &tempControl.cc.heater1_infilt, setFilter),
-    JSON_CONVERT(JSONKEY_heater1_dfilt, &tempControl.cc.heater1_dfilt, setFilter),
-    JSON_CONVERT(JSONKEY_heater2_kp, &tempControl.cc.heater2_kp, setStringToFixedLong),
-    JSON_CONVERT(JSONKEY_heater2_ti, &tempControl.cc.heater2_ti, setUint16),
-    JSON_CONVERT(JSONKEY_heater2_td, &tempControl.cc.heater2_td, setUint16),
-    JSON_CONVERT(JSONKEY_heater2_infilt, &tempControl.cc.heater2_infilt, setFilter),
-    JSON_CONVERT(JSONKEY_heater2_dfilt, &tempControl.cc.heater2_dfilt, setFilter),
-    JSON_CONVERT(JSONKEY_cooler_kp, &tempControl.cc.cooler_kp, setStringToFixedLong),
-    JSON_CONVERT(JSONKEY_cooler_ti, &tempControl.cc.cooler_ti, setUint16),
-    JSON_CONVERT(JSONKEY_cooler_td, &tempControl.cc.cooler_td, setUint16),
-    JSON_CONVERT(JSONKEY_cooler_infilt, &tempControl.cc.cooler_infilt, setFilter),
-    JSON_CONVERT(JSONKEY_cooler_dfilt, &tempControl.cc.cooler_dfilt, setFilter),
-    JSON_CONVERT(JSONKEY_beer2fridge_kp, &tempControl.cc.beer2fridge_kp, setStringToFixedLong),
-    JSON_CONVERT(JSONKEY_beer2fridge_ti, &tempControl.cc.beer2fridge_ti, setUint16),
-    JSON_CONVERT(JSONKEY_beer2fridge_td, &tempControl.cc.beer2fridge_td, setUint16),
-    JSON_CONVERT(JSONKEY_beer2fridge_infilt, &tempControl.cc.beer2fridge_infilt, setFilter),
-    JSON_CONVERT(JSONKEY_beer2fridge_dfilt, &tempControl.cc.beer2fridge_dfilt, setFilter),
-    JSON_CONVERT(JSONKEY_beer2fridge_pidMax, &tempControl.cc.beer2fridge_pidMax, setStringToTempDiff),
+        JSON_CONVERT(JSONKEY_heater1_kp, &tempControl.cc.heater1_kp, setStringToFixedLong),
+        JSON_CONVERT(JSONKEY_heater1_ti, &tempControl.cc.heater1_ti, setUint16),
+        JSON_CONVERT(JSONKEY_heater1_td, &tempControl.cc.heater1_td,setUint16),
+        JSON_CONVERT(JSONKEY_heater1_infilt, &tempControl.cc.heater1_infilt, setFilter),
+        JSON_CONVERT(JSONKEY_heater1_dfilt, &tempControl.cc.heater1_dfilt, setFilter),
+        JSON_CONVERT(JSONKEY_heater2_kp, &tempControl.cc.heater2_kp, setStringToFixedLong),
+        JSON_CONVERT(JSONKEY_heater2_ti, &tempControl.cc.heater2_ti, setUint16),
+        JSON_CONVERT(JSONKEY_heater2_td, &tempControl.cc.heater2_td, setUint16),
+        JSON_CONVERT(JSONKEY_heater2_infilt, &tempControl.cc.heater2_infilt, setFilter),
+        JSON_CONVERT(JSONKEY_heater2_dfilt, &tempControl.cc.heater2_dfilt, setFilter),
+        JSON_CONVERT(JSONKEY_cooler_kp, &tempControl.cc.cooler_kp, setStringToFixedLong),
+        JSON_CONVERT(JSONKEY_cooler_ti, &tempControl.cc.cooler_ti, setUint16),
+        JSON_CONVERT(JSONKEY_cooler_td, &tempControl.cc.cooler_td, setUint16),
+        JSON_CONVERT(JSONKEY_cooler_infilt, &tempControl.cc.cooler_infilt, setFilter),
+        JSON_CONVERT(JSONKEY_cooler_dfilt, &tempControl.cc.cooler_dfilt, setFilter),
+        JSON_CONVERT(JSONKEY_beer2fridge_kp, &tempControl.cc.beer2fridge_kp, setStringToFixedLong),
+        JSON_CONVERT(JSONKEY_beer2fridge_ti, &tempControl.cc.beer2fridge_ti, setUint16),
+        JSON_CONVERT(JSONKEY_beer2fridge_td, &tempControl.cc.beer2fridge_td, setUint16),
+        JSON_CONVERT(JSONKEY_beer2fridge_infilt, &tempControl.cc.beer2fridge_infilt, setFilter),
+        JSON_CONVERT(JSONKEY_beer2fridge_dfilt, &tempControl.cc.beer2fridge_dfilt, setFilter),
+        JSON_CONVERT(JSONKEY_beer2fridge_pidMax, &tempControl.cc.beer2fridge_pidMax, setStringToTempDiff),
 
-    JSON_CONVERT(JSONKEY_minCoolTime, &tempControl.cc.minCoolTime, setUint16),
-    JSON_CONVERT(JSONKEY_minCoolIdleTime, &tempControl.cc.minCoolIdleTime, setUint16),
-    JSON_CONVERT(JSONKEY_heater1PwmPeriod, &tempControl.cc.heater1PwmPeriod, setUint16),
-    JSON_CONVERT(JSONKEY_heater2PwmPeriod, &tempControl.cc.heater2PwmPeriod, setUint16),
-    JSON_CONVERT(JSONKEY_coolerPwmPeriod, &tempControl.cc.coolerPwmPeriod, setUint16),
-    JSON_CONVERT(JSONKEY_mutexDeadTime, &tempControl.cc.mutexDeadTime, setUint16)
+        JSON_CONVERT(JSONKEY_minCoolTime, &tempControl.cc.minCoolTime, setUint16),
+        JSON_CONVERT(JSONKEY_minCoolIdleTime, &tempControl.cc.minCoolIdleTime, setUint16),
+        JSON_CONVERT(JSONKEY_heater1PwmPeriod, &tempControl.cc.heater1PwmPeriod, setUint16),
+        JSON_CONVERT(JSONKEY_heater2PwmPeriod, &tempControl.cc.heater2PwmPeriod, setUint16),
+        JSON_CONVERT(JSONKEY_coolerPwmPeriod, &tempControl.cc.coolerPwmPeriod, setUint16),
+        JSON_CONVERT(JSONKEY_mutexDeadTime, &tempControl.cc.mutexDeadTime, setUint16)
 };
 
 void PiLink::processJsonPair(const char * key, const char * val, void* pv){

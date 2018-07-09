@@ -22,5 +22,5 @@
 #pragma once
 #include <stdint.h>
 
-typedef uint16_t eptr_t;
-#define INVALID_EPTR (0)
+typedef EEPtr eptr_t;
+#define INVALID_EPTR EEPtr(0) // points to magic byte at start

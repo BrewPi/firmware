@@ -25,7 +25,6 @@
 #include <memory>
 #include "ControllerMixins.h"
 #include "ActuatorInterfaces.h"
-#include "Sensor.h"
 #include "DS2413.h"
 
 
@@ -35,9 +34,7 @@
  */
 class ActuatorOneWire final:
     public ActuatorDigital,
-    public ActuatorOneWireMixin,
-    public SwitchSensor
-
+	public ActuatorOneWireMixin
 {
     public:
         ActuatorOneWire(std::shared_ptr<DS2413> _device,
@@ -56,28 +53,32 @@ class ActuatorOneWire final:
             device->update();
         }
 
-        void setActive(bool active, int8_t priority = 127) override final
+        void setState(State state, int8_t priority = 127) override final
         {
-            // todo: alarm when write fails
-            device->writeLatchBit(pio, active ^ invert, true);
+            bool bitVal = (state == State::Active) ^ invert;
+        	device->writeLatchBit(pio, bitVal, true);
         }
 
-        bool isActive() const override final
+        State getState() const override final
         {
-            return device->latchReadCached(pio, false) ^ invert;
+            bool result;
+        	if(device->latchReadCached(pio, result)){
+        		return (result ^ invert) ? State::Active : State::Inactive;
+        	}
+        	return State::Unknown;
         }
 
-        bool sense()
+        State sense()
         {
-            device->writeLatchBit(pio, false, false);
+            if(device->writeLatchBit(pio, false, false)){
+            	bool result;
+            	if(device->readLatchBit(pio, result, false)){
+            		return (result ^ invert) ? State::Active : State::Inactive;
+            	}
+            }
+            return State::Unknown;
 
-            // on device failure, default is high for invert, low for regular.
-            return device->readLatchBit(pio, invert, false);
         }
-
-        void write(uint8_t val) {
-            setActive(val != 0);
-        };
 
         void update() override final{
             device->update();

@@ -24,9 +24,7 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorMocks.h"
 #include "SetPoint.h"
-#include "Sensor.h"
 
-ValueSensor<bool> * defaultSensor();
 ActuatorNop * defaultActuator();
 ActuatorInvalid * defaultLinearActuator(); // always returns invalid and does nothing
 TempSensorDisconnected * defaultTempSensor();

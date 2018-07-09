@@ -32,12 +32,7 @@ template <size_t eeprom_size>
 class ArrayEepromAccess
 {
 public:
-	ArrayEepromAccess()
-	{
-	    changed = false;
-	}
-
-	void init()
+	ArrayEepromAccess() : changed(false)
 	{
 		memset(data, -1, eepromLength());
 	}

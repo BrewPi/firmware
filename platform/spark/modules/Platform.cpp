@@ -13,16 +13,6 @@ void handleReset(bool exit)
 		System.reset();
 }
 
-#define EEPROM_MAGIC1 (0xD0)
-#define EEPROM_MAGIC2 (0x9E)
-
-void eraseExternalFlash()
-{
-#if PLATFORM_ID==PLATFORM_SPARK_CORE
-    Flashee::Devices::userFlash().eraseAll();    
-#endif    
-}
-
 
 #if PLATFORM_ID==PLATFORM_GCC
 static uint8_t device_id[12];
@@ -33,16 +23,7 @@ bool platform_init()
 #if PLATFORM_ID==3
 	HAL_device_ID(device_id, 12);
 #endif
-
-	bool initialize = (EEPROM.read(0)!=EEPROM_MAGIC1 || EEPROM.read(1)!=EEPROM_MAGIC2);
-    if (initialize) {
-        
-        eraseExternalFlash();
-        
-        EEPROM.write(0, EEPROM_MAGIC1);
-        EEPROM.write(1, EEPROM_MAGIC2);
-    }
-    eepromAccess.init();
+	bool wasInitialized = eepromAccess.init();
 
 #if PLATFORM_ID==PLATFORM_GCC
     WiFi.connect();
@@ -53,7 +34,7 @@ bool platform_init()
     System.on(setup_update, watchdogCheckin);
 #endif
 
-    return initialize;
+    return wasInitialized;
 }
 
 #if PLATFORM_THREADING

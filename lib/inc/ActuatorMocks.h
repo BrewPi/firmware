@@ -91,22 +91,22 @@ friend class ActuatorValueMixin;
 class ActuatorBool final : public ActuatorDigital, public ActuatorBoolMixin
 {
 public:
-    ActuatorBool() : state(false) {}
-    ActuatorBool(bool initial) : state(initial) {}
+    ActuatorBool() : state(State::Inactive) {}
+    ActuatorBool(State initial) : state(initial) {}
     ~ActuatorBool() = default;
 
     void accept(VisitorBase & v) override final{
     	v.visit(*this);
     }
 
-    void setActive(bool active, int8_t priority = 127) override final { state = active; }
-    bool isActive() const override final { return state; }
+    void setState(State s, int8_t priority = 127) override final { state = s; }
+    State getState() const override final { return state; }
 
     void update() override final {}
     void fastUpdate() override final {}
 
 private:
-    bool state;
+    State state;
 
 friend class ActuatorBoolMixin;
 };
@@ -125,8 +125,8 @@ public:
     	v.visit(*this);
     }
 
-    void setActive(bool active, int8_t priority = 127) override final {}
-    bool isActive() const override final { return false;}
+    void setState(State state, int8_t priority = 127) override final {}
+    State getState() const override final { return State::Inactive;}
     void update() override final {}
     void fastUpdate() override final {}
 

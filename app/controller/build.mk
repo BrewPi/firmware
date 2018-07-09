@@ -55,6 +55,7 @@ LIBS_DIR = $(SOURCE_PATH)/platform/spark/libs
 include $(LIBS_DIR)/libs.mk
 
 CFLAGS += -fdata-sections
+CFLAGS += -D__cpp_noexcept_function_type=0 # prevent a lot of warnings of this being undefined at #if statements in boost
 
 GIT_VERSION = $(shell cd $(SOURCE_PATH); git describe --long)
 $(info using $(GIT_VERSION) as build name)

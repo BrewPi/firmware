@@ -104,9 +104,10 @@ extern "C" void ActuatorClicked(D4D_OBJECT* pThis)
 #endif
     if (idx>=0) {
         ActuatorDigital* actuator = connectedDevicesManager()->actuator(idx);
-        bool active = !actuator->isActive();
-        actuator->setActive(active);
-        SetActuatorButtonState(pThis, active, idx);
+        ActuatorDigital::State newState = actuator->getState() != ActuatorDigital::State::Active ?
+        		ActuatorDigital::State::Active : ActuatorDigital::State::Inactive;
+        actuator->setState(newState);
+        SetActuatorButtonState(pThis, newState == ActuatorDigital::State::Active, idx);
     }
 }
 
@@ -123,7 +124,7 @@ void ScreenDeviceTest_OnMain()
     for (unsigned i=0; i<arraySize(actuator_views); i++) {
         const D4D_OBJECT* obj = actuator_views[i];
         ActuatorDigital* actuator = actuatorForView(obj);
-        SetActuatorButtonState(obj, actuator->isActive(), i);
+        SetActuatorButtonState(obj, actuator->getState() == ActuatorDigital::State::Active, i);
     }
 
     static uint32_t last = 0;

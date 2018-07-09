@@ -20,13 +20,8 @@
 #include "Platform.h"
 #include "Brewpi.h"
 #include "Ticks.h"
-#include "TempControl.h"
+#include "Control.h"
 #include "PiLink.h"
-#include "TempSensor.h"
-#include "TempSensorMock.h"
-#include "TempSensorExternal.h"
-#include "ActuatorMocks.h"
-#include "Sensor.h"
 #include "SettingsManager.h"
 #include "UI.h"
 
@@ -49,8 +44,9 @@ DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 
 UI ui;
 
-SYSTEM_MODE(MANUAL);
+SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
+STARTUP(System.enableFeature(FEATURE_RESET_INFO));
 
 void setup()
 {
@@ -111,11 +107,6 @@ void brewpiLoop(void)
 
     //listen for incoming serial connections while waiting to update
     piLink.receive();
-
-    // System thread enable mode is used so this is not necessary to keep the cloud
-    // connection is alive, but it is necessary to handle the system events, including
-    // the button, so it's here, regardless of the connection state.
-    Particle.process();
 }
 
 void loop() {

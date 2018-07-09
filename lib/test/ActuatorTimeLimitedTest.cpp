@@ -25,6 +25,7 @@
 #include <time.h>       /* time, to seed rand */
 #include <cstring>
 
+#include "ActuatorInterfaces.h"
 #include "ActuatorTimeLimited.h"
 #include "ActuatorMocks.h"
 #include "Ticks.h"
@@ -42,38 +43,44 @@ BOOST_AUTO_TEST_CASE(minimum_off_time_and_maximum_on_time_are_honored) {
 
     ActuatorTimeLimited * act = new ActuatorTimeLimited(*v, minOn, minOff, maxOn);
 
-
     *output << "\n\n**** Testing min OFF and max ON time for ActuatorTimeLimited ****\n\n";
 
     while(ticks.seconds() < 10000) {
-        bool stateBeforeUpdate = act->isActive();
+        ActuatorDigital::State stateBeforeUpdate = act->getState();
         ticks_millis_t time = delay(100);
 
-        act->setActive(true);
+        act->setState(ActuatorDigital::State::Active);
         act->update(); // turns off the actuator when max on time has passed
 
-        if(stateBeforeUpdate != act->isActive()){
+        ActuatorDigital::State stateAfterUpdate = act->getState();
+        if(stateBeforeUpdate != stateAfterUpdate){
             *output << "Turned ";
-            if(stateBeforeUpdate){
+            if(stateAfterUpdate == ActuatorDigital::State::Active){
                 *output << "ON";
             }
-            else{
+            else if(stateAfterUpdate == ActuatorDigital::State::Inactive){
                 *output << "OFF";
+            }
+            else {
+            	BOOST_FAIL("Actuator is in unknown state");
             }
             *output << " at time " << time << "ms\n";
         }
 
         if(time < minOff*1000) {
-            BOOST_REQUIRE_MESSAGE(act->isActive() == false, "actuator should still be off");
+            BOOST_REQUIRE_MESSAGE(act->getState() == ActuatorDigital::State::Inactive, "actuator should still be off");
         }
         if(time > (minOff+1)*1000 && time < (minOff + maxOn)*1000) {
-            BOOST_REQUIRE_MESSAGE(act->isActive() == true, "actuator should be on now");
+            BOOST_REQUIRE_MESSAGE(act->getState() == ActuatorDigital::State::Active, "actuator should be on now");
         }
         if(time > (minOff + maxOn + 2)*1000){
-            BOOST_REQUIRE_MESSAGE(act->isActive() == false, "actuator should be off again");
+            BOOST_REQUIRE_MESSAGE(act->getState() == ActuatorDigital::State::Inactive, "actuator should be off again");
             break;
         }
     }
+
+    delete v;
+    delete act;
 }
 
 BOOST_AUTO_TEST_CASE(minimum_on_time_is_honored) {
@@ -90,18 +97,21 @@ BOOST_AUTO_TEST_CASE(minimum_on_time_is_honored) {
     ticks_seconds_t time;
     do {
         delay(100);
-        act->setActive(true);
+        act->setState(ActuatorDigital::State::Active);
         time = ticks.seconds();
-    }while(!act->isActive()); // wait for actuator to go active
+    } while (act->getState() == ActuatorDigital::State::Inactive); // wait for actuator to go active
 
     ticks_seconds_t onMoment = time;
     while (act->timeSinceToggle() < minOn) {
-        act->setActive(false);
+        act->setState(ActuatorDigital::State::Inactive);
         delay(1000);
         time = ticks.seconds();
-        BOOST_REQUIRE(act->isActive());
+        BOOST_REQUIRE(act->getState() == ActuatorDigital::State::Active);
     }
     *output << "Was ON for " << time - onMoment << "seconds\n";
+
+    delete v;
+	delete act;
 }
 
 BOOST_AUTO_TEST_CASE(correct_state_is_returned_with_actuatorNop) {
@@ -112,14 +122,17 @@ BOOST_AUTO_TEST_CASE(correct_state_is_returned_with_actuatorNop) {
 
     ActuatorTimeLimited * act = new ActuatorTimeLimited(*v, minOn, minOff, maxOn);
 
-    act->setActive(false); // make sure cached state is correct
-    BOOST_CHECK(!act->isActive());
+    act->setState(ActuatorDigital::State::Inactive); // make sure cached state is correct
+    BOOST_CHECK(act->getState() == ActuatorDigital::State::Inactive);
 
     delay(minOff*2000); // ensure minOffTime is not blocking the change
 
-    act->setActive(true);
+    act->setState(ActuatorDigital::State::Active);
     // ActuatorNop cannot go active, so cached state state should stay inactive too.
-    BOOST_CHECK(!act->isActive());
+    BOOST_CHECK(act->getState() == ActuatorDigital::State::Inactive);
+
+    delete v;
+	delete act;
 }
 
 BOOST_AUTO_TEST_SUITE_END()
