@@ -267,7 +267,7 @@ public:
 
     static bool installDevice(Interface * device, DeviceConfig config, device_slot_t slot, bool storeEeprom);
 
-    static void uninstallDevice(DeviceConfig & config, device_slot_t slot, bool eraseEeprom);
+    static void uninstallDevice(device_slot_t slot, bool eraseEeprom);
 
     static void parseDeviceDefinition(Stream & p);
 

@@ -114,12 +114,9 @@ void DeviceManager::setupUnconfiguredDevices(bool eraseEeprom)
 {
     // right now, uninstall doesn't care about chamber/beer distinction.
     // but this will need to match beer/function when multiferment is available
-    DeviceConfig cfg;
 
     for (device_slot_t i = 0; i < NUM_DEVICE_SLOTS; i++){
-        cfg.deviceFunction = DeviceFunction(i);
-
-        uninstallDevice(cfg, i, eraseEeprom);
+        uninstallDevice(i, eraseEeprom);
     }
 }
 
@@ -272,10 +269,12 @@ bool DeviceManager::installDevice(Interface * device, DeviceConfig config, devic
  * /param config The device to remove. The fields that are used are
  *              chamber, beer, hardware and function.
  */
-void DeviceManager::uninstallDevice(DeviceConfig & config, device_slot_t slot, bool eraseEeprom)
+void DeviceManager::uninstallDevice(device_slot_t slot, bool eraseEeprom)
 {
     if(isDefinedSlot(slot)){
         Interface * device = devices[slot];
+        DeviceConfig config;
+        config.deviceFunction = DeviceFunction::DEVICE_NONE;
         installDevice(nullptr, config, slot, eraseEeprom);
         delete device;
         devices[slot] = nullptr;
@@ -342,7 +341,7 @@ void handleDeviceDefinition(const char * key, const char * val, void * pv) {
     }
 }
 
-bool inRangeUInt8(uint8_t val, uint8_t min, int8_t max) {
+bool inRangeUInt8(uint8_t val, uint8_t min, uint8_t max) {
     return (min <= val) && (val <= max);
 }
 
@@ -414,17 +413,17 @@ void DeviceManager::parseDeviceDefinition(Stream & p) {
 
         // remove the device from another slot if that slot has the same hardware
         device_slot_t oldHardwareSlot = findHardwareDevice(target);
-        uninstallDevice(target, oldHardwareSlot, true);
+        uninstallDevice(oldHardwareSlot, true);
 
 
         if(isUniqueFunction(target.deviceFunction)){ // check if function can only be installed once
             // remove the device from another slot if that slot has the same function
             device_slot_t oldFunctionSlot = findDeviceFunction(target);
-            uninstallDevice(target, oldFunctionSlot, true);
+            uninstallDevice(oldFunctionSlot, true);
         }
 
         // remove the existing device from the target slot, no need to erase EEPROM because we'll overwrite it
-        uninstallDevice(original, dev.id, false);
+        uninstallDevice(dev.id, false);
 
         createAndInstallDevice(target, dev.id);
     } else{
