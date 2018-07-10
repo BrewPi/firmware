@@ -275,6 +275,7 @@ void DeviceManager::uninstallDevice(device_slot_t slot, bool eraseEeprom)
         Interface * device = devices[slot];
         DeviceConfig config;
         config.deviceFunction = DeviceFunction::DEVICE_NONE;
+        config.deviceHardware = DeviceHardware::DEVICE_HARDWARE_NONE;
         installDevice(nullptr, config, slot, eraseEeprom);
         delete device;
         devices[slot] = nullptr;
@@ -367,6 +368,7 @@ void DeviceManager::parseDeviceDefinition(Stream & p) {
     static DeviceDefinition dev;
 
     fill((int8_t *) &dev, sizeof(dev));
+    dev.calibrationAdjust = temp_t::invalid();
     piLink.parseJson(&handleDeviceDefinition, &dev);
 
     if (!inRangeInt8(dev.id, 0, NUM_DEVICE_SLOTS))    // no device id given, or it's out of range, can't do anything else.
@@ -385,13 +387,15 @@ void DeviceManager::parseDeviceDefinition(Stream & p) {
     assignIfSet(dev.beer, &target.beer);
     assignIfSet(dev.deviceFunction, (uint8_t *) &target.deviceFunction);
     assignIfSet(dev.deviceHardware, (uint8_t *) &target.deviceHardware);
+
     assignIfSet(dev.pinNr, &target.hw.pinNr);
-
-#if BREWPI_DS2413
-    assignIfSet(dev.pio, &target.hw.settings.actuator.pio);
-#endif
-
     assignIfSet(dev.invert, (uint8_t *) &target.hw.invert);
+
+    assignIfSet(dev.pio, &target.hw.settings.actuator.pio);
+
+    if(!dev.calibrationAdjust.isDisabledOrInvalid()){
+        target.hw.settings.sensor.calibration = dev.calibrationAdjust;
+    }
 
     if (dev.address[0] != 0xFF) // first byte is family identifier. I don't have a complete list, but so far 0xFF is not used.
             {
