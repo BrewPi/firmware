@@ -52,9 +52,6 @@ void EepromManager::zapEeprom()
 
 void EepromManager::initializeEeprom()
 {
-    // clear all eeprom
-    zapEeprom();
-
     deviceManager.setupUnconfiguredDevices(true); // remove devices and erase eeprom
 
     // fetch the default values
