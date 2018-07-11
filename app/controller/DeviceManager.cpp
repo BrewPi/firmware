@@ -114,12 +114,9 @@ void DeviceManager::setupUnconfiguredDevices(bool eraseEeprom)
 {
     // right now, uninstall doesn't care about chamber/beer distinction.
     // but this will need to match beer/function when multiferment is available
-    DeviceConfig cfg;
 
     for (device_slot_t i = 0; i < NUM_DEVICE_SLOTS; i++){
-        cfg.deviceFunction = DeviceFunction(i);
-
-        uninstallDevice(cfg, i, eraseEeprom);
+        uninstallDevice(i, eraseEeprom);
     }
 }
 
@@ -272,10 +269,13 @@ bool DeviceManager::installDevice(Interface * device, DeviceConfig config, devic
  * /param config The device to remove. The fields that are used are
  *              chamber, beer, hardware and function.
  */
-void DeviceManager::uninstallDevice(DeviceConfig & config, device_slot_t slot, bool eraseEeprom)
+void DeviceManager::uninstallDevice(device_slot_t slot, bool eraseEeprom)
 {
     if(isDefinedSlot(slot)){
         Interface * device = devices[slot];
+        DeviceConfig config;
+        config.deviceFunction = DeviceFunction::DEVICE_NONE;
+        config.deviceHardware = DeviceHardware::DEVICE_HARDWARE_NONE;
         installDevice(nullptr, config, slot, eraseEeprom);
         delete device;
         devices[slot] = nullptr;
@@ -342,7 +342,7 @@ void handleDeviceDefinition(const char * key, const char * val, void * pv) {
     }
 }
 
-bool inRangeUInt8(uint8_t val, uint8_t min, int8_t max) {
+bool inRangeUInt8(uint8_t val, uint8_t min, uint8_t max) {
     return (min <= val) && (val <= max);
 }
 
@@ -368,6 +368,7 @@ void DeviceManager::parseDeviceDefinition(Stream & p) {
     static DeviceDefinition dev;
 
     fill((int8_t *) &dev, sizeof(dev));
+    dev.calibrationAdjust = temp_t::invalid();
     piLink.parseJson(&handleDeviceDefinition, &dev);
 
     if (!inRangeInt8(dev.id, 0, NUM_DEVICE_SLOTS))    // no device id given, or it's out of range, can't do anything else.
@@ -386,13 +387,15 @@ void DeviceManager::parseDeviceDefinition(Stream & p) {
     assignIfSet(dev.beer, &target.beer);
     assignIfSet(dev.deviceFunction, (uint8_t *) &target.deviceFunction);
     assignIfSet(dev.deviceHardware, (uint8_t *) &target.deviceHardware);
+
     assignIfSet(dev.pinNr, &target.hw.pinNr);
-
-#if BREWPI_DS2413
-    assignIfSet(dev.pio, &target.hw.settings.actuator.pio);
-#endif
-
     assignIfSet(dev.invert, (uint8_t *) &target.hw.invert);
+
+    assignIfSet(dev.pio, &target.hw.settings.actuator.pio);
+
+    if(!dev.calibrationAdjust.isDisabledOrInvalid()){
+        target.hw.settings.sensor.calibration = dev.calibrationAdjust;
+    }
 
     if (dev.address[0] != 0xFF) // first byte is family identifier. I don't have a complete list, but so far 0xFF is not used.
             {
@@ -414,17 +417,17 @@ void DeviceManager::parseDeviceDefinition(Stream & p) {
 
         // remove the device from another slot if that slot has the same hardware
         device_slot_t oldHardwareSlot = findHardwareDevice(target);
-        uninstallDevice(target, oldHardwareSlot, true);
+        uninstallDevice(oldHardwareSlot, true);
 
 
         if(isUniqueFunction(target.deviceFunction)){ // check if function can only be installed once
             // remove the device from another slot if that slot has the same function
             device_slot_t oldFunctionSlot = findDeviceFunction(target);
-            uninstallDevice(target, oldFunctionSlot, true);
+            uninstallDevice(oldFunctionSlot, true);
         }
 
         // remove the existing device from the target slot, no need to erase EEPROM because we'll overwrite it
-        uninstallDevice(original, dev.id, false);
+        uninstallDevice(dev.id, false);
 
         createAndInstallDevice(target, dev.id);
     } else{
