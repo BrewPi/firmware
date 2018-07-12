@@ -10,6 +10,7 @@ before_install:
   
 script:
   - cd ./docker
+  - docker-compose run compiler bash /firmware/app/cbox/proto/generate_proto_cpp.sh
   - docker-compose run compiler bash build-tests.sh
   - docker-compose run compiler bash run-tests.sh
   - docker-compose run compiler bash build-firmware.sh
