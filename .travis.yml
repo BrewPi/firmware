@@ -10,9 +10,9 @@ before_install:
   
 script:
   - cd ./docker
-  - docker-compose run compiler bash build-firmware.sh
   - docker-compose run compiler bash build-tests.sh
   - docker-compose run compiler bash run-tests.sh
+  - docker-compose run compiler bash build-firmware.sh
 
 notifications:
   slack:
