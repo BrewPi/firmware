@@ -15,7 +15,7 @@ RUN dpkg --add-architecture i386 && apt-get update -q && apt-get install -qy mak
 
 ENV PATH /usr/local/gcc-arm-embedded/bin:$PATH
 
-COPY scripts /scripts
+COPY scripts scripts
 
 ENV BOOST_VERSION=1_65_0
 ENV BOOST_HOME=/boost
