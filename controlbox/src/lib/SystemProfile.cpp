@@ -152,7 +152,7 @@ profile_id_t SystemProfile::createProfile() {
 		}
 	}
 
-	if (idx!=-1) {
+	if (idx > -1) {
 		setProfileOffset(idx, end);
 	}
 #endif
