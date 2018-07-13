@@ -1,0 +1,27 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+pytest-sugar = "*"
+"pytest-flake8" = "*"
+pytest-mock = "*"
+aiohttp = "*"
+asynctest = "*"
+pytest-asyncio = "*"
+dpath = "*"
+nesdict = "*"
+pprint = "*"
+
+
+[dev-packages]
+
+
+
+[requires]
+
+python_version = "3.6"

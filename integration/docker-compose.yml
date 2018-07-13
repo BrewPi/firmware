@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  sparksimulator:
+    image: brewblox/firmware-simulator
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    ports:
+      - "8332"
+
+  spark:
+    image: brewblox/brewblox-devcon-spark:feature-obj-type-string
+    depends_on:
+      - sparksimulator
+    ports:
+      - "5000"
+    command:
+      # - "--simulation"
+      - "--unit-system-file=config/celsius_system.txt"
+      - "--device-url=sparksimulator"
+      - "--device-url-port=8332"
+
+  sparktest:
+    image: brewblox/firmware-integration
+    depends_on:
+      - spark
+    environment:
+      - "SPARK_ADDRESS=spark"
+      - "SPARK_PORT=5000"
