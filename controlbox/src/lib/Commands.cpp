@@ -331,8 +331,7 @@ void Commands::deleteObjectCommandHandler(DataIn& in, DataOut& out)
  */
 void Commands::listObjectsCommandHandler(DataIn& _in, DataOut& out)
 {
-	// todo - perhaps profile ID -1 could mean list the system container
-    // todo - how to flag an invalid profile (currently no results)
+	// todo - how to flag an invalid profile (currently no results)
 	profile_id_t profile = profile_id_t(_in.next());
 	out.writeSeparator();
 	out.write(0)	;	// status. TODO: check that the profile ID is valid
@@ -390,7 +389,7 @@ void Commands::deleteProfileCommandHandler(DataIn& in, DataOut& out) {
 void Commands::createProfileCommandHandler(DataIn& in, DataOut& out) {
 	int8_t result = systemProfile.createProfile();
 	out.writeSeparator();
-	if(result > 0){
+	if(result >= 0){
 		out.write(0); // error code
 	    out.write(uint8_t(result)); // profile id
 	}

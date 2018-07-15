@@ -139,15 +139,14 @@ profile_id_t SystemProfile::createProfile() {
 	for (profile_id_t i=0; i<MAX_SYSTEM_PROFILES; i++) {
 		if (!getProfileStart(i) && idx < 0) {
 			idx = i;
+			break;
 		}
-		eptr_t end = getProfileEnd(i);
-		if (start <= end){
-		    start = end;
-		}
+		start = getProfileEnd(i);
 	}
 
 	if (idx > -1) {
 		setProfileStart(idx, start);
+		setProfileEnd(idx, start+1); // profile is still empty
 	}
 #endif
 	return idx;
@@ -251,12 +250,12 @@ int8_t SystemProfile::deleteProfile(profile_id_t profile) {
 
 #if SYSTEM_PROFILE_ENABLE
 eptr_t SystemProfile::getProfileStart(profile_id_t id) {
-    if(id < 0 || id >= MAX_SYSTEM_PROFILES){
-        return 0;
+    if(id >= 0 && id < MAX_SYSTEM_PROFILES){
+        eptr_t start;
+        eepromAccess.get(EepromLocation(profiles[id].start), start);
+        return start;
     }
-    eptr_t start;
-    eepromAccess.get(EepromLocation(profiles[id].start), start);
-    return start;
+    return 0;
 }
 
 /**
@@ -268,18 +267,20 @@ eptr_t SystemProfile::getProfileEnd(profile_id_t id, bool includeOpen) {
     if(includeOpen && current == id){
         return end;
     }
-    eepromAccess.get(EepromLocation(profiles[id].end), end);
+    if(id >= 0 && id < MAX_SYSTEM_PROFILES){
+        eepromAccess.get(EepromLocation(profiles[id].end), end);
+    }
     return end;
 }
 
 void SystemProfile::setProfileStart(profile_id_t id, eptr_t offset) {
-    if(id > 0 && id < MAX_SYSTEM_PROFILES){
+    if(id >= 0 && id < MAX_SYSTEM_PROFILES){
         eepromAccess.put(EepromLocation(profiles[id].start), offset);
     }
 }
 
 void SystemProfile::setProfileEnd(profile_id_t id, eptr_t offset) {
-    if(id > 0 && id < MAX_SYSTEM_PROFILES){
+    if(id >= 0 && id < MAX_SYSTEM_PROFILES){
         eepromAccess.put(EepromLocation(profiles[id].end), offset);
     }
 }
@@ -299,7 +300,7 @@ bool deleteDynamicallyAllocatedObject(Object* obj, void* data, const container_i
 void SystemProfile::closeOpenProfile()
 {
 	// if this profile is open, be sure to compact eeprom
-	if (current >= 0 && getProfileEnd(current) == EepromLocationEnd(data)) {
+	if (current >= 0 && getProfileEnd(current, true) == EepromLocationEnd(data)) {
 		eptr_t end = compactObjectDefinitions();
 		setProfileEnd(current, end);
 	}
