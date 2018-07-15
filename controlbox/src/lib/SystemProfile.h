@@ -34,7 +34,7 @@ namespace cbox {
 #define SYSTEM_PROFILE_ENABLE 1
 #endif
 
-typedef container_id profile_id_t;
+typedef int8_t profile_id_t;
 
 /**
  * Internal value used to select the default profile. The default profile is the one that was most recently used.
@@ -94,9 +94,10 @@ class SystemProfile {
 	 */
 	cb_static Container& systemRoot;
 
-	cb_static void setProfileOffset(profile_id_t id, eptr_t offset);
-	cb_static eptr_t getProfileOffset(profile_id_t id);
-	cb_static eptr_t getProfileEnd(profile_id_t id, bool includeOpen=false);
+	cb_static void setProfileStart(profile_id_t id, eptr_t offset);
+	cb_static eptr_t getProfileStart(profile_id_t id);
+	cb_static void setProfileEnd(profile_id_t id, eptr_t offset);
+	cb_static eptr_t getProfileEnd(profile_id_t id, bool includeOpen = false);
 	cb_static void setCurrentProfile(profile_id_t id);
 
 	cb_static void closeOpenProfile();
@@ -215,8 +216,8 @@ public:
 
 
 	cb_static void setOpenProfileEnd(eptr_t end) {
-		if (end>getProfileOffset(-1))
-			setProfileOffset(-1, end);
+		if (end>getProfileStart(-1))
+			setProfileStart(current, end);
 	}
 
 	cb_static void listDefinedProfiles(DataIn& in, DataOut& out);

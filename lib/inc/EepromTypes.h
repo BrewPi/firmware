@@ -22,12 +22,6 @@
 #pragma once
 #include <stdint.h>
 
-#ifdef PLATFORM_ID
-#include "application.h"
+typedef uint16_t eptr_t;
 
-typedef EEPtr eptr_t;
-#else
-typedef int16_t eptr_t;
-#endif
-
-#define INVALID_EPTR EEPtr(0) // points to magic byte at start
+#define INVALID_EPTR eptr_t(0) // points to magic byte at start

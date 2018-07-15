@@ -12,6 +12,9 @@ public:
     SparkEepromAccess() = default;
     ~SparkEepromAccess() = default;
     
+    // Initialize first 2 bytes of EEPROM with specific value that can be checked to see if EEPROM is initialized
+    // Clear EEPROM if not present
+    // return true if cleared
     static bool init(){
     	uint16_t magic = 0;
     	EEPROM.get(0, magic);
@@ -50,8 +53,8 @@ public:
     }
 
     static void readBlock(void* target, eptr_t offset, uint16_t size){
-        eptr_t idx = offset;
-        eptr_t end = offset + size;
+        EEPtr idx = offset;
+        EEPtr end = offset + size;
         unsigned char * t = reinterpret_cast<unsigned char *>(target);
         while(idx < end){
             *(t++) = *(idx++);
@@ -59,13 +62,12 @@ public:
     }
 
     static void writeBlock(eptr_t target, const void* source, uint16_t size){
-        eptr_t idx = target;
-        eptr_t end = target + size;
+        EEPtr idx = target;
+        EEPtr end = target + size;
         unsigned char const * s = reinterpret_cast<unsigned char const *>(source);
         while(idx < end){
             *(idx++) = *(s++);
         }
-
     }
 };
 
