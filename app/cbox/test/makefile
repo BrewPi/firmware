@@ -99,6 +99,10 @@ CFLAGS += -D_SYS_WAIT_H_ -D_SYS_WAIT_H
 CPPFLAGS += -std=gnu++14
 CFLAGS += -pthread
 
+# compile with coverage
+CFLAGS += -g -fprofile-arcs -ftest-coverage
+LDFLAGS += -lgcov
+
 # the following warnings can help find opportunities for impromevent in virtual functions
 # Warn when virtual functions are overriden without override/override final specifier (requires gcc 5.1)
 CPPFLAGS += -Wsuggest-override

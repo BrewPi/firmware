@@ -70,6 +70,19 @@ public:
 		}
 	}
 
+    template <typename T> T &get( int idx, T &t )
+    {
+        memcpy(&t, &data[idx], sizeof(T));
+        return t;
+    }
+
+    template <typename T> const T &put( int idx, const T &t )
+    {
+        memcpy(&data[idx], &t, sizeof(T));
+        return t;
+    }
+
+
 	const uint8_t* eepromData() const
 	{
 		return &data[0];
