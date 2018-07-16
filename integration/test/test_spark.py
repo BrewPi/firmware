@@ -21,6 +21,31 @@ def sensey():
 
 
 @pytest.mark.asyncio
+async def test_profiles(session, host):
+    # create
+    url = host + '/spark/profiles'
+    retv = session.post(url)
+    retd = await retv.json()
+    assert 'profile_id' in retd
+
+    # activate
+    id = retd['profile_id']
+    await session.post(f'{url}/{id}')
+
+    # list
+    retv = session.get(url)
+    retd = await retv.json()
+    assert 'profiles' in retd
+    assert retd['profile_id'] == id
+
+    # create + delete
+    retv = session.post(url)
+    retd = await retv.json()
+    delid = retd['profile_id']
+    await session.delete(f'{url}/{delid}')
+
+
+@pytest.mark.asyncio
 async def test_create_objects(session, host, sensey):
     create_url = host + '/spark/objects'
     retv = await session.post(create_url, json=sensey)

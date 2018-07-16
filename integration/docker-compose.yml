@@ -7,19 +7,21 @@ services:
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
     ports:
-      - "8332"
+      - "8332:8332"
 
   spark:
     image: brewblox/brewblox-devcon-spark:feature-obj-type-string
     depends_on:
       - sparksimulator
     ports:
-      - "5000"
+      - "5000:5000"
     command:
       # - "--simulation"
       - "--unit-system-file=config/celsius_system.txt"
       - "--device-url=sparksimulator"
       - "--device-url-port=8332"
+      - "--debug"
+      - "--broadcast-interval=99999999"
 
   sparktest:
     image: brewblox/firmware-integration
