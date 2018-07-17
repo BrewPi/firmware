@@ -42,7 +42,7 @@ typedef uint8_t stream_size_t;
 struct DataOut
 {
 	virtual void writeAnnotation(const char* /*data*/) {}
-	virtual void writeSeparator() {}
+	virtual void writeResponseSeparator() {}
 
 	/**
 	 * Writes a byte to the stream.

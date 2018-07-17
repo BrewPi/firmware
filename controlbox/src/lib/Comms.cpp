@@ -129,7 +129,7 @@ public:
 		flush();
 	}
 
-    virtual void writeSeparator() override final{
+    virtual void writeResponseSeparator() override final{
         write('|');
     }
 

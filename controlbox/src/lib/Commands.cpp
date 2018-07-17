@@ -34,7 +34,7 @@ namespace cbox {
 void Commands::noopCommandHandler(DataIn& _in, DataOut& out)
 {
 	while (_in.hasNext()) { _in.next(); }
-	out.writeSeparator();
+	out.writeResponseSeparator();
     out.write(errorCode(no_error));       // success
 }
 
@@ -66,7 +66,7 @@ void readValue(Object* root, DataIn& in, DataOut& out) {
             }
         }
 	}
-	out.writeSeparator();
+	out.writeResponseSeparator();
 	out.write(uint8_t(status));
 	if (!status) {
 		out.write(v->typeID());
@@ -114,7 +114,7 @@ void setValue(Object* root, DataIn& in, DataOut& out) {
 	    while(in.hasNext()){
 	        in.next(); // consume rest of the command, so it is echoed correctly before the data is sent
 	    }
-	    out.writeSeparator();
+	    out.writeResponseSeparator();
         out.write(uint8_t(status));
 	}
 	else {
@@ -122,7 +122,7 @@ void setValue(Object* root, DataIn& in, DataOut& out) {
         while(in.hasNext()){
             in.next(); // consume rest of the command if not consumed, so it echoes before the data output
         }
-        out.writeSeparator();
+        out.writeResponseSeparator();
         out.write(uint8_t(status));
 		out.write(v->typeID());
 		out.write(v->readStreamSize());							// now write out actual value
@@ -259,7 +259,7 @@ void Commands::createObjectCommandHandler(DataIn& _in, DataOut& out)
 		eepromAccess.writeByte(offset, CMD_CREATE_OBJECT);	// finalize creation in eeprom
 	}
 	systemProfile.setOpenProfileEnd(writer.offset());	// save end of open profile
-	out.writeSeparator();
+	out.writeResponseSeparator();
 	out.write(uint8_t(error_code));						// status is index it was created at
 }
 
@@ -322,7 +322,7 @@ void Commands::deleteObjectCommandHandler(DataIn& in, DataOut& out)
 	int8_t error = deleteObject(idPipe);
 	if (error>=0)
 		removeEepromCreateCommand(idCapture);
-	out.writeSeparator();
+	out.writeResponseSeparator();
 	out.write(uint8_t(error));
 }
 
@@ -333,7 +333,7 @@ void Commands::listObjectsCommandHandler(DataIn& _in, DataOut& out)
 {
 	// todo - how to flag an invalid profile (currently no results)
 	profile_id_t profile = profile_id_t(_in.next());
-	out.writeSeparator();
+	out.writeResponseSeparator();
 	out.write(0)	;	// status. TODO: check that the profile ID is valid
 	systemProfile.listEepromInstructionsTo(profile, out);
 	out.write(0);	// list terminator
@@ -368,27 +368,27 @@ int8_t freeSlot(Container* root, DataIn& in, DataOut& out) {
 void Commands::freeSlotCommandHandler(DataIn& in, DataOut& out)
 {
 	int8_t status = freeSlot(systemProfile.rootContainer(), in, out);
-	out.writeSeparator();
+	out.writeResponseSeparator();
 	out.write(status);
 }
 
 void Commands::freeSlotRootCommandHandler(DataIn& in, DataOut& out)
 {
 	int8_t status = freeSlot(systemProfile.rootContainer(), in, out);
-    out.writeSeparator();
+    out.writeResponseSeparator();
 	out.write(status);
 }
 
 void Commands::deleteProfileCommandHandler(DataIn& in, DataOut& out) {
 	profile_id_t profile_id = profile_id_t(in.next());
 	int8_t result = systemProfile.deleteProfile(profile_id);
-	out.writeSeparator();
+	out.writeResponseSeparator();
 	out.write(uint8_t(result));
 }
 
 void Commands::createProfileCommandHandler(DataIn& in, DataOut& out) {
 	int8_t result = systemProfile.createProfile();
-	out.writeSeparator();
+	out.writeResponseSeparator();
 	if(result >= 0){
 		out.write(0); // error code
 	    out.write(uint8_t(result)); // profile id
@@ -456,7 +456,7 @@ void Commands::logValuesCommandHandler(DataIn& in, DataOut& out) {
 
 			Object* source = lookupUserObject(root, buffer);
 			if (source) {
-				out.writeSeparator();
+				out.writeResponseSeparator();
 				out.write(errorCode(no_error));
 				walkObject(source, logValuesCallback, &out, ids, ids+idx);
 				out.write(0);		// list terminator
@@ -465,7 +465,7 @@ void Commands::logValuesCommandHandler(DataIn& in, DataOut& out) {
 		}
 		else {
 			error = errorCode(no_error);
-            out.writeSeparator();
+            out.writeResponseSeparator();
 			out.write(error);
 			walkContainer(root, logValuesCallback, &out, ids, ids);
 			out.write(0);		// list terminator
@@ -473,7 +473,7 @@ void Commands::logValuesCommandHandler(DataIn& in, DataOut& out) {
 		}
 	}
     if (error<0) {
-        out.writeSeparator();
+        out.writeResponseSeparator();
         out.write(uint8_t(error));
     }
 }
@@ -483,7 +483,7 @@ void Commands::resetCommandHandler(DataIn& in, DataOut& out) {
 	if (flags&1)
 		systemProfile.initializeEeprom();
 	handleReset(false);
-	out.writeSeparator();
+	out.writeResponseSeparator();
     out.write(errorCode(no_error));       // success
 	if (flags&2)
 		comms.resetOnCommandComplete();
@@ -492,13 +492,13 @@ void Commands::resetCommandHandler(DataIn& in, DataOut& out) {
 void Commands::activateProfileCommandHandler(DataIn& in, DataOut& out) {
 	profile_id_t id = profile_id_t(in.next());
 	bool activated = systemProfile.activateProfile(id);
-	out.writeSeparator();
+	out.writeResponseSeparator();
 	out.write(activated ? errorCode(no_error) : errorCode(invalid_profile));
 }
 
 void Commands::listDefinedProfilesCommandHandler(DataIn& in, DataOut& out)
 {
-    out.writeSeparator();
+    out.writeResponseSeparator();
     out.write(errorCode(no_error));       // success
     systemProfile.listDefinedProfiles(in, out);
 }

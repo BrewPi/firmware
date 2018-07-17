@@ -376,7 +376,7 @@ public:
 		_out->write('>');
 	}
 
-	virtual void writeSeparator() override final{
+	virtual void writeResponseSeparator() override final{
 	    _out->write('|');
 	}
 
