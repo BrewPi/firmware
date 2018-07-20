@@ -1,0 +1,1 @@
+docker run brewblox/firmware-simulator gdb "$@"

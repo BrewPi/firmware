@@ -1,0 +1,1 @@
+docker-compose run --rm --service-ports simulator gdbserver host:2345 cbox -i 123456789012345678901234

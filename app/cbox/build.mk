@@ -38,6 +38,15 @@ ifneq ($(MODULAR),y)
 CEXCLUDES += app/cbox/nanopb_not_in_particle.c
 endif
 
+
+# enable coverage for gcc builds
+ifeq ($(PLATFORM_ID),3)
+CFLAGS += -g
+CFLAGS += --coverage
+LDFLAGS += -Wl,--verbose --coverage
+endif
+
+
 # Mixins
 CPPSRC += app/cbox/ControllerMixins.cpp
 

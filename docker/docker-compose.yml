@@ -21,12 +21,17 @@ services:
   simulator:
     build: ./simulator/
     image: brewblox/firmware-simulator
+    privileged: true
     container_name: firmware-simulator
     volumes:
         - "/etc/timezone:/etc/timezone:ro"
         - "/etc/localtime:/etc/localtime:ro"
     ports:
+        # simulator
         - "8332:8332"
+        # gdbserver 
+        - "2345:2345"
+        
 
 networks:
     default:

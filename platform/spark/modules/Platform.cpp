@@ -4,10 +4,15 @@
 #include "deviceid_hal.h"
 #include "EepromAccess.h"
 
-void handleReset(bool exit)
+void handleReset(bool exitFlag)
 { 
-	if(exit)
+	if(exitFlag){
+#if PLATFORM_ID==PLATFORM_GCC
+		exit(0);
+#else
 		System.reset();
+#endif
+	}
 }
 
 #if PLATFORM_ID==PLATFORM_GCC
