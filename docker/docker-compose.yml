@@ -32,6 +32,18 @@ services:
         # gdbserver 
         - "2345:2345"
         
+  coverage-simulator:
+    build: ./compiler/
+    image: brewblox/firmware-compiler
+    container_name: firmware-coverage-simulator
+    volumes:
+        - ../:/firmware
+        - "/etc/timezone:/etc/timezone:ro"
+        - "/etc/localtime:/etc/localtime:ro"
+    ports:
+        # simulator
+        - "8332:8332"
+    command: bash /scripts/run-simulator.sh        
 
 networks:
     default:
