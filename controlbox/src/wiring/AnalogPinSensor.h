@@ -19,8 +19,8 @@
 
 #pragma once
 
+#include "../lib/Object.h"
 #include "StreamUtil.h"
-#include "Values.h"
 
 namespace cbox {
 

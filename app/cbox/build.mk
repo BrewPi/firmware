@@ -41,7 +41,7 @@ endif
 
 # enable coverage for gcc builds
 ifeq ($(PLATFORM_ID),3)
-CFLAGS += -g
+CFLAGS += -g -O0 -fno-inline
 CFLAGS += --coverage
 LDFLAGS += -Wl,--verbose --coverage
 endif

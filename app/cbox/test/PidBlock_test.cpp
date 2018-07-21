@@ -23,7 +23,8 @@
 #include <iomanip>
 
 #include "../blox/PidBlock.h"
-#include "Values.h"
+
+#include "../../../controlbox/src/lib/Objects.h"
 #include "Commands.h"
 #include "VisitorCast.h"
 
@@ -69,7 +70,7 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data"){
                     }
                     REQUIRE(obj != nullptr);
 
-                    cbox::WritableValue * pidObj = (cbox::WritableValue*) obj;
+                    cbox::WritableObject * pidObj = (cbox::WritableObject*) obj;
 
                     AND_WHEN("we stream that bloc object to a DataOut stream")
                     {

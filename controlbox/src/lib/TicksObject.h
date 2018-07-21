@@ -20,9 +20,8 @@
 
 #pragma once
 
-#include "Values.h"
+#include "Object.h"
 #include "Ticks.h"
-#include "StreamUtil.h"
 #include "Static.h"
 
 namespace cbox {
@@ -45,21 +44,19 @@ inline ticks_seconds_t timeSince(ticks_seconds_t currentTime, ticks_seconds_t pr
  *
  * The current time and scale are not persisted to eeprom.
  */
-class ScaledTicksValue : public WritableValue
+template<class T>
+class ScaledTicksValue<T> : public WritableObject
 {
 	ticks_millis_t logicalStart;
 	ticks_millis_t timerStart;
 	uint16_t scale;
-
-#if !CONTROLBOX_STATIC
-	Ticks& baseticks;
-#endif
+	T base;
 
 public:
-	ScaledTicksValue(cb_nonstatic_decl(Ticks& base)) : logicalStart(0), timerStart(0), scale(1) cb_nonstatic_decl(,baseticks(base)) {}
+	ScaledTicksValue(T& _base) : logicalStart(0), timerStart(0), scale(1), base(base){}
 
 	ticks_millis_t millis() {
-		uint32_t now_offset = baseticks.millis()-timerStart;
+		uint32_t now_offset = base.millis()-timerStart;
 		return logicalStart + (now_offset*scale);
 	}
 
@@ -70,28 +67,30 @@ public:
 
 	ticks_seconds_t seconds() { return millis()/1000; }
 
-	virtual void readTo(DataOut& out) override {
-		ticks_millis_t time = baseticks.millis();
-		time = millis(time);
-		writePlatformEndianBytes(&time, sizeof(time), out);
-		writePlatformEndianBytes(&scale, sizeof(scale), out);
+	virtual Object::StreamToResult readTo(DataOut& out) override {
+		ticks_millis_t timeVal = millis(base.millis());
+		out.put(timeVal);
+		out.put(scale);
+		return Object::StreamToResult::success;
 	}
 
 	virtual void writeFrom(DataIn& in) override {
-		// write the start and scale
-		ticks_millis_t time = baseticks.millis();
-		logicalStart = millis(time);
-		timerStart = time;
-		readPlatformEndianBytes(&logicalStart, sizeof(logicalStart), in);
-		readPlatformEndianBytes(&scale, sizeof(scale), in);
+		ticks_millis_t timeVal = base.millis();
+		ticks_millis_t newLogicalStart;
+		uint16_t newScale;
+		bool success = in.get(newLogicalStart);
+		success &= in.get(newScale);
+
+		if(!success){
+		    return Object::StreamFromResult::stream_error;
+		}
+
+		logicalStart = newLogicalStart; // store what the scaled time was at the time of write
+		timerStart = base.millis(); // store the base time at the time of write
+		scale = newScale;
 	}
 
-	/**
-	 * Stream written/read is
-	 *   4-bytes	uint32	The number of milliseconds passed since poweron.
-	 *   2-bytes	uint16	The time scaling. a 16-bit integer.
-	 */
-	virtual uint8_t readStreamSize() override { return 6; }
+	virtual uint8_t readStreamSize() override { return sizeof(logicalStart) + sizeof(scale); }
 
 	// return time that has passed since timeStamp, take overflow into account
 	ticks_seconds_t timeSinceSeconds(ticks_seconds_t previousTime) {
@@ -99,15 +98,14 @@ public:
 		return timeSince(currentTime, previousTime);
 	}
 
-	static Object* create(ObjectDefinition& /*defn*/) {
-		return nullptr;
+	static std::shared_ptr<Object> create(DataIn & defn){
+		return nullptr; // not creatable
 	}
 
 	virtual obj_type_t typeID() override {
 		// use function overloading and templates to manage type IDs in a central place (TypeRegistry)
 		return resolveTypeID(this);
 	}
-
 };
 
 } // end namespace cbox
@@ -116,43 +114,10 @@ public:
  * Time is critical to so many components that this is provided as a system-level service outside of the cbox namespace
  * The SystemProfile maintains this instance and persists changes to eeprom.
  */
-extern cbox::ScaledTicksValue ticks;
+extern cbox::ScaledTicksValue<TICKS> ticks(baseticks);
 
 
 namespace cbox {
-
-/**
- * Fetches the current millisecond count from the {@code Ticks} static instance.
- * TODO: now that ScaledTicksValue is part of the system container, we don't really need this?
- * It was mainly for testing, so can be replaced.
- */
-class CurrentTicksValue : public Value
-{
-
-public:
-	virtual void readTo(DataOut& out) override
-	{
-		ticks_millis_t millis = ticks.millis();
-		writePlatformEndianBytes(&millis, 4, out);
-	}
-
-	virtual uint8_t readStreamSize() override
-	{
-		return sizeof(ticks_millis_t);
-	}
-
-	static Object* create(ObjectDefinition& /*def*/) {
-		// no parameters required
-		return new_object(CurrentTicksValue());
-	}
-
-	virtual obj_type_t typeID() override {
-		// use function overloading and templates to manage type IDs in a central place (TypeRegistry)
-		return resolveTypeID(this);
-	}
-};
-
-
 
 /**
  * Remembers the time at the start of the current cycle.

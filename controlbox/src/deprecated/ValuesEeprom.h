@@ -20,9 +20,9 @@
 #pragma once
 
 #include "DataStream.h"
-#include "Values.h"
 #include "EepromAccess.h"
 #include "DataStreamEeprom.h"
+#include "Object.h"
 #include "StreamUtil.h"
 #include "Static.h"
 
@@ -32,7 +32,7 @@ namespace cbox {
  * Base class for a read-write value in eeprom. This class is responsible for moving the data
  * between eeprom and the stream.
  */
-class EepromBaseValue : public WritableValue  {
+class EepromBaseValue : public WritableObject  {
 
 protected:
 #if !CONTROLBOX_STATIC
@@ -75,7 +75,7 @@ public:
     cb_nonstatic_decl(EepromValue(EepromAccess& ea) : EepromBaseValue(ea), address(0) {})
     cb_static_decl(EepromValue() : address(0) {})
 
-	virtual void rehydrated(eptr_t address) override
+	virtual void persist(eptr_t address) override
 	{
 		this->address = address;
 	}

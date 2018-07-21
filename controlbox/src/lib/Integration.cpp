@@ -8,12 +8,14 @@ namespace cbox {
 
 #if CONTROLBOX_STATIC
 
+static SystemProfile systemProfile;
+
 /**
  * Initialize the controlbox.
  */
 void controlbox_setup(size_t loadProfileDelay)
 {
-	SystemProfile::initialize();
+    systemProfile.initialize();
 	Comms::init();
 
 	if (loadProfileDelay)
@@ -23,7 +25,7 @@ void controlbox_setup(size_t loadProfileDelay)
 			Comms::receive();
 		}
 	}
-	SystemProfile::activateDefaultProfile();
+	systemProfile.applyActiveProfilesFromEeprom();
 }
 
 

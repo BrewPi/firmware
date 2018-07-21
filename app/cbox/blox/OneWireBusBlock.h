@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Values.h"
+#include "../../../controlbox/src/lib/Objects.h"
 #include "OneWire.h"
 #include "Board.h"
 #include "OneWireBus.pb.h"
 #include "nanopb_callbacks.h"
 #include "assert_size_helper.h"
 
-class OneWireBusBlock: public cbox::WritableValue {
+class OneWireBusBlock: public cbox::WritableObject {
 private:
 
     OneWire bus;

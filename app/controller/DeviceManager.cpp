@@ -33,8 +33,6 @@
 #include "defaultDevices.h"
 #include "OneWireAddress.h"
 
-#define CALIBRATION_OFFSET_PRECISION (4)
-
 #ifdef WIRING
 
 #include "OneWireTempSensor.h"

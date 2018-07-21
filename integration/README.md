@@ -29,6 +29,7 @@ docker run --rm -t --network host brewblox/firmware-integration
 ```
 
 This will run the tests as they were when the image was built, and tries to find the Spark service at `http://localhost:5000`.
+`--rm` will remove the container after it stops and `-t` gives pretty colors in your terminal.
 
 ## Special commands
 
@@ -36,7 +37,7 @@ This will run the tests as they were when the image was built, and tries to find
 
 It is strongly recommended to use the `--rm` switch during development. This avoids hundreds of single-use containers remaining on disk.
 ```
-docker run --rm brewblox/firmware-integration
+docker run --rm -t brewblox/firmware-integration
 ```
 
 **Spark service address**
@@ -57,7 +58,7 @@ docker run -e SPARK_ADDRESS=spark brewblox/firmware-integration
 
 To run newly changed tests without rebuilding the image, you can mount the tests as volume:
 ```
-docker run -v $(pwd)/test:/app/test brewblox/firmware-integration
+docker run --rm -t --network host -v $(pwd)/test:/app/test brewblox/firmware-integration
 ```
 
 **Pytest arguments**

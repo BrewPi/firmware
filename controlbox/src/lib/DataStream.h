@@ -30,7 +30,7 @@ namespace cbox {
 #define DATASTREAM_ANNOTATIONS CBOX_DEBUG
 #endif
 
-typedef uint8_t stream_size_t;
+typedef uint16_t stream_size_t;
 
 /**
  * An output stream that supports writing data. Optionally. annotations may also be written
@@ -53,6 +53,11 @@ struct DataOut
 	bool write(int8_t data) { return write(uint8_t(data)); }
 	bool write(char data) { return write(uint8_t(data)); }
 	bool write(int data) { return write(uint8_t(data)); }
+
+	template<typename T>
+	bool put(T t){
+	    return writeBuffer(&t, sizeof(T));
+	}
 
 	/**
 	 * Writes a number of bytes to the stream.
@@ -79,11 +84,11 @@ struct DataOut
  */
 class BufferDataOut : public DataOut {
 	uint8_t* buffer;
-	uint8_t size;
-	uint8_t pos;
+	stream_size_t size;
+	stream_size_t pos;
 public:
 
-	BufferDataOut(uint8_t* _buffer, uint8_t _size)
+	BufferDataOut(uint8_t* _buffer, stream_size_t _size)
 		: buffer(_buffer), size(_size), pos(0)
 	{
 	}
@@ -94,7 +99,7 @@ public:
 
 	virtual bool write(uint8_t data) override;
 
-	uint8_t bytesWritten() { return pos; }
+	stream_size_t bytesWritten() { return pos; }
 
 	const uint8_t* data() {
 		return buffer;
@@ -105,6 +110,8 @@ public:
  * A DataOut implementation that discards all data.
  */
 struct BlackholeDataOut : public DataOut {
+    BlackholeDataOut() = default;
+    virtual ~BlackholeDataOut() = default;
 	virtual bool write(uint8_t /*data*/) override final { return true; }
 };
 
@@ -145,19 +152,24 @@ struct DataIn
 	/*
 	 * Unconditional read of {@code length} bytes.
 	 */
-	void read(void* t, uint8_t length) {
+	void read(void* t, stream_size_t length) {
 		uint8_t* target = (uint8_t*)t;
 		while (length-->0 && hasNext()) {
 			*target++ = next();
 		}
 	}
 
-        /**
-         * Writes the contents of this stream to an output stream.
-         * @param out
-         * @param length
-         */
-	void push(DataOut& out, uint8_t length) {
+    template<typename T>
+    bool get(T& t){
+        read(&t, sizeof(T));
+    }
+
+    /**
+     * Writes the contents of this stream to an output stream.
+     * @param out
+     * @param length
+     */
+	void push(DataOut& out, stream_size_t length) {
 		while (length-->0 && hasNext()) {
 			out.write(next());
 		}
@@ -229,7 +241,7 @@ public:
  */
 class RegionDataIn : public DataIn {
 	DataIn* in;
-	uint8_t len;
+	stream_size_t len;
 public:
 	RegionDataIn(DataIn& _in, uint8_t _len)
 	: in(&_in), len(_len) {}

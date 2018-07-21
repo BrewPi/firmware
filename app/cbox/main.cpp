@@ -18,10 +18,10 @@
  */
 
 
+#include "../../controlbox/src/lib/Object.h"
 #include "EepromTypes.h"
 #include "EepromAccessImpl.h"
 
-#include "Values.h"
 #include "Ticks.h"
 #include "ValueTicks.h"
 #include "ValueModels.h"

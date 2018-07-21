@@ -23,7 +23,7 @@
 namespace cbox {
 
 #include "pgmspace.h"
-#include "Values.h"
+#include "../lib/Object.h"
 
 typedef PCSTR const char*;
 

@@ -18,13 +18,14 @@
  */
 
 
-#include "Values.h"
 #include "Commands.h"
 #include "DataStream.h"
 #include "GenericContainer.h"
 #include "SystemProfile.h"
 #include "Comms.h"
 #include <string.h>
+
+#include "Object.h"
 
 namespace cbox {
 
@@ -38,7 +39,7 @@ void Commands::noopCommandHandler(DataIn& _in, DataOut& out)
     out.write(errorCode(no_error));       // success
 }
 
-bool checkType(obj_type_t& typeID, Value* value) {
+bool checkType(obj_type_t& typeID, ReadableObject* value) {
 	return !typeID || value->typeID()==typeID;
 }
 
@@ -47,7 +48,7 @@ void readValue(Object* root, DataIn& in, DataOut& out) {
 	obj_type_t typeID = readObjTypeFrom(in);
 	uint8_t available = in.next();			// number of bytes expected
 	int8_t status = 0;
-	Value* v = (Value*)o;
+	ReadableObject* v = (ReadableObject*)o;
 	uint8_t expectedSize = 0;
 	if (!o) {
 		status = errorCode(invalid_id);
@@ -92,7 +93,7 @@ void Commands::readSystemValueCommandHandler(DataIn& in, DataOut& out) {
  */
 void setValue(Object* root, DataIn& in, DataOut& out) {
 	Object* o = lookupObject(root, in);		// fetch the id and the object
-	WritableValue* v = (WritableValue*)o;
+	WritableObject* v = (WritableObject*)o;
 	obj_type_t typeID = readObjTypeFrom(in);
 	uint8_t available = in.next();
 	uint8_t expected;
@@ -206,7 +207,7 @@ int8_t Commands::rehydrateObject(eptr_t offset, PipeDataIn& in, bool dryRun)
         offset++; // skip creation id
         while (int8_t(eepromAccess.readByte(offset++))<0) {}	// skip contianer
 		offset+=2;												// skip object type and length
-        newObject->rehydrated(offset);
+        newObject->persist(offset);
     }
 	else {
 	    delete_object(newObject);
@@ -413,7 +414,7 @@ void writeID(const container_id* id, DataOut& out) {
 bool logValuesCallback(Object* o, void* data, const container_id* id, const container_id* end, bool enter) {
 	DataOut& out = *(DataOut*)data;
 	if (enter && isLoggedValue(o)) {
-		Value* r = (Value*)o;
+		ReadableObject* r = (ReadableObject*)o;
 		out.write(uint8_t(1));					// ID of "read command"
 		writeID(id, out);
 		out.write(r->typeID());

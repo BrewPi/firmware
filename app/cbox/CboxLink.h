@@ -1,9 +1,9 @@
 #pragma once
 
 #include "RefTo.h"
-#include "Values.h"
 #include "Integration.h"
 #include <cstring>
+#include "../../controlbox/src/lib/Objects.h"
 
 
 const size_t MAX_ID_CHAIN_LENGHT = cbox::MAX_CONTAINER_DEPTH+1;

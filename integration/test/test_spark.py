@@ -47,9 +47,12 @@ async def test_profiles(session, host):
     retd = await retv.json()
     assert retd['id'] == id
     
-"""
+
 @pytest.mark.asyncio
 async def test_create_objects(session, host, sensey):
+    session.post('/spark/profiles')
+    session.post('/spark/profiles/0')    
+    
     create_url = host + '/spark/objects'
     retv = await session.post(create_url, json=sensey)
     retd = await retv.json()
@@ -138,4 +141,3 @@ async def test_write_system(session, host):
     print(retd)
 
     assert 'cc' in retd['data']['address']
-"""

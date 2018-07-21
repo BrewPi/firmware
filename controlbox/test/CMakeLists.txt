@@ -3,8 +3,7 @@ set (CMAKE_CXX_STANDARD 11)
 
 set(test_SRC
 main.cpp 
-events.cpp
-examplebox_tests.cpp
+container_tests.cpp
 ${cbox_examples}/shared/timems.cpp ../src/lib/BoxApi.h catch_output.h)
 
 

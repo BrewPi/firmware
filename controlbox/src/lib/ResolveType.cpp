@@ -4,10 +4,8 @@
 
 namespace cbox {
 
-class DynamicContainer;
-template<> obj_type_t resolveTypeID<DynamicContainer>(){ return  1; }
-class FixedContainer;
-template<> obj_type_t resolveTypeID<FixedContainer>(){ return  2; }
+class InactiveObject;
+template<> obj_type_t resolveTypeID<InactiveObject>(){ return  1; }
 
 class CurrentTicksValue;
 template<> obj_type_t resolveTypeID<CurrentTicksValue>(){ return  10; }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Values.h"
+#include "../../../controlbox/src/lib/Object.h"
 #include "Interface.h"
 #include "../nanopb_callbacks.h"
 #include "assert_size_helper.h"

@@ -43,7 +43,7 @@ template <class Offset, class Length> class StreamRegion
 		}
 };
 
-struct EepromStreamRegion : public StreamRegion<eptr_t, uint16_t>
+struct EepromStreamRegion : public StreamRegion<eptr_t, stream_size_t>
 {
 };
 

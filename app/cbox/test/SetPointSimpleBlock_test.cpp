@@ -21,7 +21,8 @@
 #include <cstdio>
 
 #include "../blox/SetPointSimpleBlock.h"
-#include "Values.h"
+
+#include "../../../controlbox/src/lib/Objects.h"
 #include "Commands.h"
 #include "temperatureFormats.h"
 

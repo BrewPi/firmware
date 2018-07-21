@@ -22,9 +22,9 @@
 #include <iostream>
 #include <iomanip>
 
-#include "Values.h"
 #include "Commands.h"
 #include "OneWireBusBlock.h"
+#include "../../../controlbox/src/lib/Objects.h"
 
 void streamHex(std::stringstream & ss, uint8_t * buf, size_t len){
     ss << "0x" << std::setfill('0') << std::hex;

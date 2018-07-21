@@ -21,8 +21,8 @@
 #pragma once
 
 #include <stdlib.h>
-#include "Values.h"
 #include "Memops.h"
+#include "Object.h"
 
 namespace cbox {
 

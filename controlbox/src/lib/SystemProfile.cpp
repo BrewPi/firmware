@@ -27,7 +27,6 @@
 namespace cbox {
 
 const uint16_t SYSTEM_PROFILE_EEPROM_HEADER = uint16_t(SYSTEM_PROFILE_MAGIC)<<8 | SYSTEM_PROFILE_VERSION;
-const uint8_t MAX_SYSTEM_PROFILES = 4;
 const uint16_t profilesEepromStart = 2;
 
 struct __attribute__ ((packed)) ProfileEntry {
@@ -45,10 +44,9 @@ struct __attribute__ ((packed)) ProfilesEepromLayout {
         };
     };
 
-    profile_id_t active_profile_id;
+    uint8_t active_profiles;
     uint8_t reserved[5];
-    ProfileEntry profiles[MAX_SYSTEM_PROFILES];
-    uint8_t data[2048-(profilesEepromStart + 2 + 1 + 5 + MAX_SYSTEM_PROFILES*4)];
+    uint8_t data[2048-(profilesEepromStart + 2 + 1 + 5 + 2)];
 };
 
 const uint16_t profilesEepromEnd = profilesEepromStart + sizeof(ProfilesEepromLayout);
@@ -57,26 +55,6 @@ const uint16_t profilesEepromEnd = profilesEepromStart + sizeof(ProfilesEepromLa
 #define EepromLocationEnd(x) (profilesEepromStart + offsetof(struct ProfilesEepromLayout, x) + sizeof(ProfilesEepromLayout::x))
 
 static_assert(EepromLocationEnd(data) == 2048, "end of data area is end of 2kb EEPROM");
-
-
-cb_static_decl(EepromDataOut SystemProfile::writer;)
-cb_static_decl(profile_id_t SystemProfile::current;)
-cb_static_decl(Container* SystemProfile::root = nullptr;)
-cb_static_decl(Container& SystemProfile::systemRoot = systemRootContainer();)
-
-
-#if !CONTROLBOX_STATIC
-SystemProfile::SystemProfile(EepromAccess& access, Container& systemRootContainer)
-: root(nullptr), systemRoot(systemRootContainer), writer(access), system_id(access,SYSTEM_PROFILE_ID_OFFSET,1), eepromAccess(access) {}
-
-#endif
-
-
-#if CONTROLBOX_STATIC
-#define invoke_cmd_method(x) commands.x
-#else
-#define invoke_cmd_method(x) commands_ptr->x
-#endif
 
 /**
  * equivalent to /dev/null. Used for discarding output.
@@ -94,195 +72,74 @@ void SystemProfile::initializeEeprom() {
 }
 
 void SystemProfile::initialize() {
-
-	current = SYSTEM_PROFILE_DEFAULT;
 	uint16_t storedHeader;
 	eepromAccess.get(EepromLocation(header), storedHeader);
 	if (storedHeader == SYSTEM_PROFILE_EEPROM_HEADER) {
 		// no initialization required
 	}
 	else {
-	    eepromAccess.put(EepromLocation(active_profile_id), SYSTEM_PROFILE_NONE);
-
-		// clear the start and end addresses
-        writeEepromRange(eepromAccess, EepromLocation(profiles), EepromLocationEnd(profiles), 0);
+	    eepromAccess.put(EepromLocation(active_profiles), SYSTEM_PROFILE_NONE);
 
 		// reset profile data store
 		writeEepromRange(eepromAccess, EepromLocation(data), EepromLocationEnd(data), 0xFF);
 
 		// now write the version string once the eeprom is stable and initialized.
 		eepromAccess.put(EepromLocation(header), SYSTEM_PROFILE_EEPROM_HEADER);
-
-#if !SYSTEM_PROFILE_ENABLE
-		activateProfile(0);
-#endif
 	}
 }
 
 /**
- * Creates a new profile.
- * This enumerates the profile slots, looking for one that has the value 0, meaning unused, and then initializes
- * the slot to the location of the end of the last used profile.
- * The current profile is not changed, although if the current profile was previously open, it will be closed so that
- * no new data can be created.
+ * Change which profiles are active. This will create objects for previously unactive profiles and delete objects for previously active
+ * profiles that change value
+ * @param profiles	The new bit field for which profiles are active
  */
-profile_id_t SystemProfile::createProfile() {
-
-	profile_id_t idx = errorCode(insufficient_persistent_storage);
-
-	closeOpenProfile();
-
-#if SYSTEM_PROFILE_ENABLE
-	eptr_t start = EepromLocation(data);
-
-	// look for a free slot
-	for (profile_id_t i=0; i<MAX_SYSTEM_PROFILES; i++) {
-		if (!getProfileStart(i) && idx < 0) {
-			idx = i;
-			break;
-		}
-		start = getProfileEnd(i);
-	}
-
-	if (idx > -1) {
-		setProfileStart(idx, start);
-		setProfileEnd(idx, start+1); // profile is still empty
-	}
-#endif
-	return idx;
+void SystemProfile::setActiveProfiles(uint8_t profiles) {
+    active_profiles = profiles;
+    EepromDataIn eepromReader(eepromAccess);
+    streamObjectDefinitions(eepromReader);
+    eepromAccess.put(EepromLocation(active_profiles),active_profiles);
 }
 
 /**
- * Activates the named profile. If the current profile is the same as the requested active profile, the method silently
- * returns. The new active profile ID is persisted to eeprom before successful activation so that any errors that cause a reset will
- * ensure the system comes back up with the correct profile.
- * @param profile	The profile id to activate. If this is -1, the current profile is deactivated and no profile is activated.
+ * Change which profiles are active. This will create objects for previously unactive profiles and delete objects for previously active
+ * profiles that change value
+ * @param profiles  The new bit field for which profiles are active
  */
-bool SystemProfile::activateProfile(profile_id_t profile) {
-
-	if (profile>=MAX_SYSTEM_PROFILES || !SYSTEM_PROFILE_ENABLE)
-		return false;
-
-	// todo - maybe simpler to write new profile to eeprom then reboot.
-	// this will avoid fragmentation of the heap.
-	if (current!=profile) {
-#if SYSTEM_PROFILE_ENABLE
-		deactivateCurrentProfile();
-#endif
-		bool activated = true;
-
-		if (profile>=0 && !getProfileStart(profile)) {
-			activated = false;
-			profile = -1;
-		}
-		setCurrentProfile(profile);								// persist the change
-		if (profile>=0) {
-			root = invoke_cmd_method(createRootContainer());
-			EepromDataIn eepromReader cb_nonstatic_decl((eepromAccess));
-			profileReadRegion(profile, eepromReader);			// get region in eeprom for the profile
-			streamObjectDefinitions(eepromReader);
-			profileWriteRegion(writer, true);		// reset to available region (allow open profile)
-		}
-		return activated;
-	}
-	return true;
+uint8_t SystemProfile::getActiveProfiles() {
+    return active_profiles;
 }
 
+void SystemProfile::applyActiveProfilesFromEeprom() {
+    uint8_t profiles = eepromAccess.get(EepromLocation(active_profiles),active_profiles);
+    setActiveProfiles(profiles);
+}
+
+
+/*
+ * Read EEPROM block by block. For each create command that is found, create the block if the block is active in a currently active profile
+ */
 
 void SystemProfile::streamObjectDefinitions(EepromDataIn& eepromReader)
 {
-	BlackholeDataOut nullOut;
-	PipeDataIn reader(eepromReader, nullOut);	// rehydrateObject expects a pipe stream to save the object definition. we just throw it away.
-	while (reader.hasNext()) {
-
+	while (eepromReader.hasNext()) {
 		// if cmd is not create object then just parse the contents but don't instantiate.
 		eptr_t offset = eepromReader.offset();
-		uint8_t cmd = reader.next();
-		if (invoke_cmd_method(rehydrateObject(offset, reader, cmd!=Commands::CMD_CREATE_OBJECT)) && cmd==Commands::CMD_CREATE_OBJECT) {
-			// todo - what to do with errors? at least log errors.
-			// if error creating object, attempt a reset. Write a reset count to eeprom to avoid endless resets.
+		uint8_t cmd = eepromReader.next();
+		uint16_t blockSize = uint16_t((eepromReader.next())) << 8 | eepromReader.next();
+		RegionDataIn blockLimitedReader(eepromReader, blockSize);
+
+		if(cmd==Commands::CMD_CREATE_OBJECT){
+		    processPersistedObject(blockLimitedReader);
+		}
+		while(blockLimitedReader.next()){
+		    // consume remainder of block
 		}
 	}
 }
 
-/**
- * Deletes a profile. If the profile being deleted is the active profile,
- * the current profile is deactivated.
- * All profiles above this one in eeprom are shuffled down by the size of the
- * profile.
- */
-int8_t SystemProfile::deleteProfile(profile_id_t profile) {
-#if SYSTEM_PROFILE_ENABLE
-	if (profile==current) {		// persistently unload profile if it's the one to be deleted
-		activateProfile(-1);
-	}
-
-	eptr_t start = getProfileStart(profile);
-	if (!start)             // profile not defined
-		return errorCode(invalid_profile);
-
-	eptr_t end = getProfileEnd(profile);
-
-	setProfileStart(profile, 0);  // mark the slot as available
-
-    // adjust all profile end points, including the end point for the open profile
-	for (profile_id_t i=-1; i<MAX_SYSTEM_PROFILES; i++) {
-		eptr_t e = getProfileStart(i);
-		if (e>=end) {    // profile is above the one just deleted
-			setProfileStart(i, e-(end-start));
-		}
-	}
-
-	// block copy eeprom
-	while (end<EepromLocationEnd(data)) {
-		uint8_t b = eepromAccess.readByte(end++);
-		eepromAccess.writeByte(start++, b);
-	}
-	writeEepromRange(eepromAccess, start, EepromLocationEnd(data), 0xFF);
-
-	// update the start/end of the writable region
-	profileWriteRegion(writer, true);
-	return 0;
-#else
-	return invalid_profile;	// not supported
-#endif
-}
-
-#if SYSTEM_PROFILE_ENABLE
-eptr_t SystemProfile::getProfileStart(profile_id_t id) {
-    if(id >= 0 && id < MAX_SYSTEM_PROFILES){
-        eptr_t start;
-        eepromAccess.get(EepromLocation(profiles[id].start), start);
-        return start;
-    }
-    return 0;
-}
-
-/**
- * Locates the end (exclusive) of the current profile.
- * If the profile is open, it will point to the end of the data area
- */
-eptr_t SystemProfile::getProfileEnd(profile_id_t id, bool includeOpen) {
-    eptr_t end = EepromLocationEnd(data);
-    if(includeOpen && current == id){
-        return end;
-    }
-    if(id >= 0 && id < MAX_SYSTEM_PROFILES){
-        eepromAccess.get(EepromLocation(profiles[id].end), end);
-    }
-    return end;
-}
-
-void SystemProfile::setProfileStart(profile_id_t id, eptr_t offset) {
-    if(id >= 0 && id < MAX_SYSTEM_PROFILES){
-        eepromAccess.put(EepromLocation(profiles[id].start), offset);
-    }
-}
-
-void SystemProfile::setProfileEnd(profile_id_t id, eptr_t offset) {
-    if(id >= 0 && id < MAX_SYSTEM_PROFILES){
-        eepromAccess.put(EepromLocation(profiles[id].end), offset);
-    }
+void SystemProfile::processPersistedObject(DataIn& reader)
+{
+    uint8_t blockProfiles = reader.next(); // ?? do in commands?
 }
 
 /**
@@ -295,51 +152,6 @@ bool deleteDynamicallyAllocatedObject(Object* obj, void* data, const container_i
 		cmds->deleteObject(idStream);							// delete the object
 	}
 	return false;										// continue traversal
-}
-
-void SystemProfile::closeOpenProfile()
-{
-	// if this profile is open, be sure to compact eeprom
-	if (current >= 0 && getProfileEnd(current, true) == EepromLocationEnd(data)) {
-		eptr_t end = compactObjectDefinitions();
-		setProfileEnd(current, end);
-	}
-	// close the writer region
-	profileWriteRegion(writer, false);
-}
-
-/**
- * Deactivates the current profile. If there is no profile currently active this is a no-op.
- * Deactivation is transient - the eeprom still contains the previously active profile.
- */
-void SystemProfile::deactivateCurrentProfile() {
-	if (current<0)
-		return;
-
-	closeOpenProfile();
-
-	// delete all the objects that were dynamically allocated.
-	container_id id[MAX_CONTAINER_DEPTH];				// buffer for id during traversal
-	walkRoot(rootContainer(), deleteDynamicallyAllocatedObject, NULL, id);
-	current = -1;
-
-	if (isDynamicallyAllocated(root))
-		delete_object(root);
-	root = NULL;
-}
-#endif
-
-void SystemProfile::setCurrentProfile(profile_id_t id) {
-	current = id;
-	eepromAccess.put(EepromLocation(active_profile_id),id);
-}
-
-/**
- * Retrieves the current profile.
- * @return the id of the current profile loaded. Negative if no profile loaded.
- */
-profile_id_t SystemProfile::currentProfile() {
-	return current;
 }
 
 /**

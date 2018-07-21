@@ -17,6 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "../../controlbox/src/lib/Object.h"
 #include "blox/OneWireTempSensorBlock.h"
 #include "blox/PidBlock.h"
 #include "blox/SensorSetPointPairBlock.h"
@@ -25,7 +26,6 @@
 #include "EepromTypes.h"
 #include "EepromAccessImpl.h"
 
-#include "Values.h"
 #include "Ticks.h"
 #include "ValueTicks.h"
 #include "ValueModels.h"

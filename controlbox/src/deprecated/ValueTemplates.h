@@ -1,4 +1,4 @@
-#include "Values.h"
+#include "Object.h"
 
 namespace cbox {
 
@@ -92,7 +92,7 @@ public:
 /**
  * A Readable value.
  */
-template<typename T> class BasicReadValue : public MixinReadValue<T>, public Value, public Readable<T>
+template<typename T> class BasicReadValue : public MixinReadValue<T>, public ReadableObject, public Readable<T>
 {
 public:
 	BasicReadValue(T t=T()) : MixinReadValue<T>(t) {}
@@ -118,7 +118,7 @@ public:
  * A readable and writable value.
  */
 template <typename T>
-class BasicReadWriteValue : public MixinReadWriteValue<T>, public Value, public Readable<T>, public Writable<T>
+class BasicReadWriteValue : public MixinReadWriteValue<T>, public ReadableObject, public Readable<T>, public Writable<T>
 {
 public:
 	BasicReadWriteValue(T t=T()) : MixinReadWriteValue<T>(t) {}

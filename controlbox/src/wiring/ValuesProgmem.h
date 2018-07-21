@@ -22,10 +22,10 @@
 
 namespace cbox {
 
-#include "Values.h"
+#include "../lib/Object.h"
 
 
-class ProgmemStringValue : public Value
+class ProgmemStringValue : public ReadableObject
 {
 	private:
 		const char* value;

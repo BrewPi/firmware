@@ -23,7 +23,8 @@
 #include <iomanip>
 
 #include "../blox/SensorSetPointPairBlock.h"
-#include "Values.h"
+
+#include "../../../controlbox/src/lib/Objects.h"
 #include "Commands.h"
 #include "VisitorCast.h"
 
@@ -107,7 +108,7 @@ SCENARIO("Create blox SensorSetPointPair application object from definition"){
             {
                 uint8_t buf2[100] = {0};
                 cbox::BufferDataOut out(buf2, sizeof(buf2));
-                ((cbox::Value*)obj)->readTo(out); // TODO: this typecast shouldn't be necessary? What's the base class to stream objects?
+                ((cbox::ReadableObject*)obj)->readTo(out); // TODO: this typecast shouldn't be necessary? What's the base class to stream objects?
 
                 // verify data that is streamed out by streaming it back in
                 pb_istream_t stream_in = pb_istream_from_buffer(buf2, sizeof(buf2));

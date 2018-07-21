@@ -45,8 +45,8 @@ public:
 		return int16_t(readPointer(eepromAccess, eeprom_offset()));
 	}
 
-	virtual void rehydrated(eptr_t address) override final {
-		EepromValue::rehydrated(address);
+	virtual void persist(eptr_t address) override final {
+		EepromValue::persist(address);
 		currentValue = savedValue();
 	}
 
