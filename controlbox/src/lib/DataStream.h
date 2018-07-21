@@ -152,16 +152,20 @@ struct DataIn
 	/*
 	 * Unconditional read of {@code length} bytes.
 	 */
-	void read(void* t, stream_size_t length) {
+	bool read(void* t, stream_size_t length) {
 		uint8_t* target = (uint8_t*)t;
-		while (length-->0 && hasNext()) {
+		while (length-->0) {
+            if(!hasNext()){
+                return false;
+            }
 			*target++ = next();
 		}
+		return true;
 	}
 
     template<typename T>
     bool get(T& t){
-        read(&t, sizeof(T));
+        return read(&t, sizeof(T));
     }
 
     /**

@@ -45,7 +45,7 @@ inline ticks_seconds_t timeSince(ticks_seconds_t currentTime, ticks_seconds_t pr
  * The current time and scale are not persisted to eeprom.
  */
 template<class T>
-class ScaledTicksValue<T> : public WritableObject
+class ScaledTicksValue : public WritableObject
 {
 	ticks_millis_t logicalStart;
 	ticks_millis_t timerStart;
@@ -110,6 +110,8 @@ public:
 
 } // end namespace cbox
 
+#if 0
+
 /**
  * Time is critical to so many components that this is provided as a system-level service outside of the cbox namespace
  * The SystemProfile maintains this instance and persists changes to eeprom.
@@ -137,3 +139,5 @@ public:
 };
 
 } // end namespace cbox
+
+#endif

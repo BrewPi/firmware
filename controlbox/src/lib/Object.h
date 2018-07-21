@@ -60,7 +60,7 @@ public:
 	/**
 	 * Each object is at least stream readable
 	 */
-    enum StreamToResult {
+    enum class StreamToResult {
         generic_error,
         stream_error,
         success,
@@ -72,12 +72,12 @@ public:
     /**
      * Some objects can be writable from the stream, they override the functions below
      */
-    enum StreamFromResult {
-        not_writable,
+    enum class StreamFromResult {
+        generic_error,
         stream_error,
-        unchanged,
-        changed_dont_persist,
-        changed_persist,
+        not_writable,
+        success_dont_persist,
+        success_persist,
     };
     virtual StreamFromResult streamFrom(DataIn& dataIn){ return StreamFromResult::not_writable; };
     virtual uint8_t streamFromSizeMax(){ return 0; }; // the max size this object expects from the stream.
@@ -91,7 +91,6 @@ class WritableObject : public Object {
 public:
 	virtual StreamFromResult writeFrom(DataIn& dataIn) = 0;
 	virtual uint8_t writeStreamSize() = 0;
-	static std::shared_ptr<Object> create(DataIn & defn) = 0; // only writable objects are creatable from a stream
 };
 
 /**
@@ -107,9 +106,9 @@ public:
         return resolveTypeID<InactiveObject>();
     }
 
-
-    virtual void streamTo(DataOut& out) {
+    virtual Object::StreamToResult streamTo(DataOut& out) {
         out.write(actualType);
+        return Object::StreamToResult::success;
     }
     virtual uint8_t streamToSizeMax() override final { return 0; };
 
@@ -161,9 +160,9 @@ public:
         T newValue;
         if(in.get(t)){
             t = newValue;
-            return StreamFromResult::changed_persist;
+            return StreamFromResult::success_persist;
         }
-        return StreamFromResult::error;
+        return StreamFromResult::stream_error;
     }
 
     virtual uint8_t streamToSizeMax() override final {
@@ -181,3 +180,4 @@ public:
     T t;
 };
 
+} // end namespace cbox

@@ -9,8 +9,9 @@ template<> obj_type_t resolveTypeID<InactiveObject>(){ return  1; }
 
 class CurrentTicksValue;
 template<> obj_type_t resolveTypeID<CurrentTicksValue>(){ return  10; }
-class ScaledTicksValue;
-template<> obj_type_t resolveTypeID<ScaledTicksValue>(){ return  11; }
+
+template<template <typename> class ticksBase>
+obj_type_t resolveTypeID(ScaledTicksValue<ticksBase> *){ return  11; }
 
 class EepromValue;
 template<> obj_type_t resolveTypeID<EepromValue>(){ return  21; }
