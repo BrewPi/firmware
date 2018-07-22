@@ -8,7 +8,7 @@
 
 // Base BrewBlox block implementation
 // An object that can be read to the stream, but not written
-class Block : public cbox::EepromAwareWritableValue {
+class Block : public cbox::WritableObject {
 public:
 	virtual Interface * getApplicationInterface() override final {
 		return getApplicationInterfaceImpl();
@@ -16,10 +16,11 @@ public:
 
 	virtual Interface * getApplicationInterfaceImpl() = 0;
 
-	virtual void update() override final {
+	virtual uint32_t update() override final {
 	    Interface * appInterface = getApplicationInterface();
 	    if(appInterface != nullptr){
 	        appInterface->update();
 	    }
+	    return 0; // TODO have application classes return the time until next update
 	}
 };

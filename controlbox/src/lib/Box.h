@@ -37,7 +37,6 @@ class Box
 	Comms comms_;
 	SystemProfile systemProfile_;
 	Commands commands_;
-	bool logValuesFlag;
 
 public:
 	Box(StandardConnection& connection, EepromAccess& eepromAccess, Ticks& ticks, CommandCallbacks& callbacks, Container& systemRoot)

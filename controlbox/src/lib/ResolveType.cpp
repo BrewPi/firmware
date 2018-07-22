@@ -10,13 +10,7 @@ template<> obj_type_t resolveTypeID<InactiveObject>(){ return  1; }
 class CurrentTicksValue;
 template<> obj_type_t resolveTypeID<CurrentTicksValue>(){ return  10; }
 
-template<template <typename> class ticksBase>
-obj_type_t resolveTypeID(ScaledTicksValue<ticksBase> *){ return  11; }
-
-class EepromValue;
-template<> obj_type_t resolveTypeID<EepromValue>(){ return  21; }
-class EepromBlock;
-template<> obj_type_t resolveTypeID<EepromBlock>(){ return  22; }
+// type 11 reserved for ScaledTicksValue. Not done with templating due to nested template making this hard.
 
 
 } // end namespace cbox

@@ -1,10 +1,12 @@
 #include <functional>
 #include <stdint.h>
+#include <vector>
 #include "Object.h"
 #include "ResolveType.h"
 
 namespace cbox {
 
+#if 0
 /**
  * A container that holds items.
  */
@@ -20,22 +22,22 @@ public:
      *
      * After retrieving the item, callers must call returnItem()
      */
-    virtual std::shared_ptr<Object> fetch(object_id_t id) = 0;
+    virtual std::shared_ptr<Object> fetch(const object_id_t id) = 0;
     virtual object_id_t add (std::unique_ptr<Object> obj, uint8_t active_in_profiles) = 0;
     virtual bool replace (object_id_t id, std::unique_ptr<Object> obj, uint8_t active_in_profiles) = 0;
     virtual void remove(object_id_t id) = 0;
-    virtual void map(std::function<void(Object * obj)>) = 0; // call a function on all objects in the container
 };
+#endif
 
-
-class ProfileAwareContainer
+class Container
 {
 public:
-    ProfileAwareContainer() : activeProfiles(0), lastCreatedId(object_id_t::startId()){};
-    virtual ~ProfileAwareContainer() = default;
+    Container() : activeProfiles(0), lastCreatedId(object_id_t::startId()){};
+    virtual ~Container() = default;
 
     class ObjectEntry {
-        ObjectEntry(object_id_t _id, uint8_t _profiles, Object * _obj) :
+    public:
+        ObjectEntry(object_id_t _id, uint8_t _profiles, std::shared_ptr<Object> _obj) :
             id(_id),
             profiles(_profiles),
             obj(_obj){};
@@ -47,8 +49,8 @@ public:
 
 private:
     std::vector<ObjectEntry> objects;
-    object_id_t lastCreatedId;
     uint8_t activeProfiles;
+    object_id_t lastCreatedId;
 
 public:
 
@@ -57,15 +59,18 @@ public:
      * @return pointer to the entry.
      *
      */
-    ObjectEntry * find(object_id_t id) override final {
-        auto found = std::find_if(objects.begin(), objects.end(), [&id](ObjectEntry const& item){ return item.id == id;} );
-        if(found == objects.end()){
-            found = nullptr;
+
+    ObjectEntry * find(const object_id_t id) {
+        decltype(objects)::iterator begin = objects.begin();
+        decltype(objects)::iterator end = objects.end();
+        decltype(objects)::iterator found = std::find_if(begin, end, [&id](const ObjectEntry& item){ return item.id == id;} );
+        if(found == end){
+            return nullptr;
         }
-        return found;
+        return &(*found);
     }
 
-    virtual std::shared_ptr<Object> fetch(object_id_t id){
+    std::shared_ptr<Object> fetch(const object_id_t id) {
         auto entry = find(id);
         std::shared_ptr<Object> ptr;
         if(entry != nullptr){
@@ -74,29 +79,29 @@ public:
         return ptr;
     }
 
-    virtual object_id_t add (std::unique_ptr<Object> obj, uint8_t active_in_profiles) override final {
+    object_id_t add (std::unique_ptr<Object> obj, uint8_t active_in_profiles) {
         object_id_t newId = lastCreatedId++;
         std::shared_ptr<Object> ptr = std::move(obj);
         ObjectEntry entry(newId, active_in_profiles, ptr);
         return newId;
     }
 
-    virtual bool replace (object_id_t id, std::unique_ptr<Object> obj, uint8_t active_in_profiles) override final {
+    bool replace (object_id_t id, std::unique_ptr<Object> obj, uint8_t active_in_profiles) {
         ObjectEntry * entry = find(id);
         if(entry != nullptr){
             entry->profiles = active_in_profiles;
-            entry->obj = obj;
+            entry->obj = std::move(obj);
             return true;
         }
         return false;
     }
 
-    virtual void remove(object_id_t id) override final{
+    void remove(object_id_t id) {
         std::remove_if(objects.begin(), objects.end(), [&id](ObjectEntry const& item){ return item.id == id;} );
     }
 
-    virtual void map(std::function<void(Object * obj)> func) override final {
-        for(auto it = objects.begin(); it < objects.end(); objects++){
+    void map(std::function<void(ObjectEntry & entry)> func) {
+        for(auto it : objects){
             func(it);
         }
     }

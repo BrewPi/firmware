@@ -22,12 +22,12 @@
 #include <iostream>
 #include <iomanip>
 
-#include "../blox/OneWireTempSensorBlock.h"
-
-#include "../../../controlbox/src/lib/Objects.h"
+#include "OneWireTempSensorBlock.h"
+#include "Object.h"
 #include "Commands.h"
 #include "VisitorCast.h"
 
+#if 0
 
 SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf data"){
     GIVEN("a protobuf message defining a OneWireTempSensor object"){
@@ -156,3 +156,4 @@ SCENARIO("Send an invalid protobuf creation command"){
     }
 }
 
+#endif

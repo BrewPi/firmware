@@ -1,10 +1,12 @@
 #pragma once
 
 #include "Block.h"
+#include "Interface.h"
 #include "OneWireBusBlock.h"
 #include "OneWireTempSensor.pb.h"
 #include "OneWireTempSensor.h"
 
+#if 0
 // since we only have one then might as well reference it directly
 // this will change when support for multiple busses is added.
 extern OneWireBusBlock oneWireBus;
@@ -74,7 +76,7 @@ public:
         return &sensor;
     }
 
-    virtual void readTo(cbox::DataOut& out) override final {
+    virtual cbox::Object::StreamToResult streamTo(cbox::DataOut& out) override final {
         blox_OneWireTempSensor message;
         message.settings = copy_struct_as<blox_OneWireTempSensor_Settings>(sensor.getSettings());
         message.state = copy_struct_as<blox_OneWireTempSensor_State>(sensor.getState());
@@ -88,3 +90,5 @@ public:
     	return resolveTypeID(this);
     }
 };
+
+#endif

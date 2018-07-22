@@ -50,32 +50,31 @@ class ScaledTicksValue : public WritableObject
 	ticks_millis_t logicalStart;
 	ticks_millis_t timerStart;
 	uint16_t scale;
-	T base;
+	T & base;
 
 public:
-	ScaledTicksValue(T& _base) : logicalStart(0), timerStart(0), scale(1), base(base){}
+	ScaledTicksValue(T& _base) : logicalStart(0), timerStart(0), scale(1), base(_base){}
 
 	ticks_millis_t millis() {
 		uint32_t now_offset = base.millis()-timerStart;
 		return logicalStart + (now_offset*scale);
 	}
 
-	ticks_millis_t millis(ticks_millis_t& currentTime) {
+	ticks_millis_t millis(ticks_millis_t currentTime) {
 		uint32_t now_offset = currentTime-timerStart;
 		return logicalStart + (now_offset*scale);
 	}
 
 	ticks_seconds_t seconds() { return millis()/1000; }
 
-	virtual Object::StreamToResult readTo(DataOut& out) override {
+	virtual Object::StreamToResult streamTo(DataOut& out) override {
 		ticks_millis_t timeVal = millis(base.millis());
 		out.put(timeVal);
 		out.put(scale);
 		return Object::StreamToResult::success;
 	}
 
-	virtual void writeFrom(DataIn& in) override {
-		ticks_millis_t timeVal = base.millis();
+	virtual Object::StreamFromResult streamFrom(DataIn& in) override {
 		ticks_millis_t newLogicalStart;
 		uint16_t newScale;
 		bool success = in.get(newLogicalStart);
@@ -88,18 +87,15 @@ public:
 		logicalStart = newLogicalStart; // store what the scaled time was at the time of write
 		timerStart = base.millis(); // store the base time at the time of write
 		scale = newScale;
+		return Object::StreamFromResult::success_persist;
 	}
 
-	virtual uint8_t readStreamSize() override { return sizeof(logicalStart) + sizeof(scale); }
+	virtual stream_size_t streamToMaxSize() override { return sizeof(logicalStart) + sizeof(scale); }
 
 	// return time that has passed since timeStamp, take overflow into account
 	ticks_seconds_t timeSinceSeconds(ticks_seconds_t previousTime) {
 		ticks_seconds_t currentTime = seconds();
 		return timeSince(currentTime, previousTime);
-	}
-
-	static std::shared_ptr<Object> create(DataIn & defn){
-		return nullptr; // not creatable
 	}
 
 	virtual obj_type_t typeID() override {

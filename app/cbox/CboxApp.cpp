@@ -57,7 +57,7 @@ private:
 
 namespace cbox {
 
-#define OBJECT_FACTORY_ENTRY(className) {resolveTypeID<className>(), className::persistedMaxSize(), className::create}
+#define OBJECT_FACTORY_ENTRY(className) {resolveTypeID<className>(), createObject<className>}
 
 Commands::ObjectFactory objectFactories[] = {
         0, 0, nullFactory,
@@ -95,7 +95,7 @@ Container& systemRootContainer()
  */
 Container* createRootContainer()
 {
-    DynamicContainer* d = new DynamicContainer();
+    ProfileAwareContainer * d = new ProfileAwareContainer();
     return d;
 }
 
@@ -105,11 +105,10 @@ Container* createRootContainer()
  * It's critical that the create code reads len bytes from the stream so that the data is
  * Spooled to eeprom to the persisted object definition.
  */
-int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun)
+std::shared_ptr<Object> createApplicationObject(obj_type_t typeId, Object::StreamFromResult streamResult, DataIn& in, bool dryRun)
 {
-    obj_type_t typeId = def.type;
     int8_t error = errorCode(no_error);
-    Object* (*createFn)(ObjectDefinition& def) = nullptr;
+    std::shared_ptr<Object> (*createFn)(DataIn& def) = nullptr;
     for(uint8_t i =0; i<sizeof(objectFactories)/sizeof(objectFactories[0]); i++) {
     	if(typeId == objectFactories[i].typeId){
     		createFn = objectFactories[i].createFn;
@@ -122,7 +121,7 @@ int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryR
     	createFn = nullFactory; // Ensures stream is properly consumed even for invalid type values.
     }
     else {
-        result = createFn(def);
+        result = createFn(in);
         if (!result) {
             error = errorCode(insufficient_heap);
         }

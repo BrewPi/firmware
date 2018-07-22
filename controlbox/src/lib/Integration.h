@@ -21,8 +21,8 @@
 
 #include "Comms.h"
 #include "SystemProfile.h"
-#include "Commands.h"
 #include "Static.h"
+#include <memory>
 
 namespace cbox {
 
@@ -55,7 +55,8 @@ extern Container* createRootContainer();
  * type of object to create and the initialization data.
  *
  */
-extern Object* createApplicationObject(ObjectDefinition& def, bool dryRun);
+enum class CommandError : uint16_t;
+extern std::shared_ptr<Object> createApplicationObject(DataIn& def, CommandError & err, bool dryRun);
 
 /**
  * This function is called when a connection has been established.

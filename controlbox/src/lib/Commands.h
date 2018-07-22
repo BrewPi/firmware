@@ -25,7 +25,7 @@
 #include "DataStream.h"
 #include "SystemProfile.h"
 #include "Integration.h"
-#include "Objects.h"
+#include "Object.h"
 
 namespace cbox {
 
@@ -34,7 +34,7 @@ typedef const char* cpchar;
 
 class Commands;
 
-enum CommandError : uint16_t {
+enum class CommandError : uint16_t {
 	// the <<8 is there to force the values into 16-bit space
 	// this ensures the compiler generates an error when attempting to
 	// assign to a 8-bit result without using the errorCode() conversion.
@@ -64,7 +64,8 @@ enum CommandError : uint16_t {
 };
 
 inline constexpr int8_t errorCode(CommandError error) {
-	return (int8_t)(-(error>>8));
+    std::underlying_type<CommandError>::type converted = static_cast<std::underlying_type<CommandError>::type>(error);
+	return (int8_t) (-(converted>>8));
 }
 
 
@@ -84,7 +85,7 @@ typedef void (Commands::*CommandHandler)(DataIn& in, DataOut& out);
 /**
  * Application-provided function that creates an object from the object definition.
  */
-extern int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun=false);
+extern std::shared_ptr<Object> createApplicationObject(obj_type_t typeId, DataIn& in, Object::StreamFromResult streamResult, bool dryRun=false);
 
 /**
  * Function prototype expected by the commands implementation to perform
@@ -106,7 +107,7 @@ struct CommandCallbacks
 	/**
 	 * Application-provided function that creates an object from the object definition.
 	 */
-	virtual int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun=false)=0;
+    std::shared_ptr<Object> createApplicationObject(obj_type_t typeId, RegionDataIn& in, Object::StreamFromResult streamResult, bool dryRun=false) = 0;
 
 	/**
 	 * Function prototype expected by the commands implementation to perform
@@ -149,11 +150,11 @@ class Commands
 	cb_static void readSystemValueCommandHandler(DataIn& in, DataOut& out);
 	cb_static void setSystemValueCommandHandler(DataIn& in, DataOut& out);
 
-	cb_static int8_t createObject(Object*& result, DataIn& in, bool dryRun);
+	cb_static std::shared_ptr<Object> createObject(CommandError & err, DataIn& in, bool dryRun);
 	cb_static void removeEepromCreateCommand(BufferDataOut& id);
 
 public:
-	cb_static void logValuesImpl(container_id* ids, DataOut& out);
+	cb_static void logValuesImpl(object_id_t * ids, DataOut& out);
 
 #if !CONTROLBOX_STATIC
 private:
@@ -170,7 +171,7 @@ public:
 
 #define command_callback_fn(x) callbacks. x
 #else
-#define command_callback_fn(x) cbox::x
+#define command_callback_fn(x) x
 #endif
 
 	inline cb_static Container* rootContainer() {
@@ -185,8 +186,12 @@ public:
 		command_callback_fn(connectionStarted(connection, out));
 	}
 
-	inline cb_static int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun=false) {
-		return (command_callback_fn(createApplicationObject(result, def, dryRun)));
+	inline cb_static std::shared_ptr<Object> createApplicationObject(
+	        obj_type_t type,
+	        RegionDataIn& in,
+	        Object::StreamFromResult & streamResult,
+	        bool dryRun=false) {
+		return (command_callback_fn(createApplicationObject(type, in, streamResult, dryRun)));
 	}
 
 	inline cb_static void handleReset(bool exit=true) {
@@ -201,29 +206,11 @@ public:
 	 */
 	cb_static eptr_t compactObjectDefinitions();
 
-	/**
-	 * @param	offset	The location in eeprom of this object
-	 * @param	in		Commands for the object, starting after the command id.
-	 * @return	>=0 on success, <0 on error.
-	 */
-	cb_static int8_t rehydrateObject(eptr_t offset, PipeDataIn& in, bool dryRun=false);
-
 
 	/**
 	 * Delete an object (but not the definition in eeprom.)
 	 */
 	cb_static int8_t deleteObject(DataIn& id);
-
-	/**
-	 * Prototype for object factories.
-	 */
-
-	struct ObjectFactory {
-		obj_type_t typeId;
-		uint8_t reservedSize;
-		Object* (*createFn)(ObjectDefinition& def);
-	};
-
 
 	enum CommandID : uint8_t {
 		CMD_NONE = 0,				// no-op
@@ -257,7 +244,7 @@ public:
 /**
  * Factory that consumes the object definition stream and returns {@code NULL}.
  */
-Object* nullFactory(ObjectDefinition& def);
+Object* nullFactory(DataIn& def);
 
 
 #if CONTROLBOX_STATIC

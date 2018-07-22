@@ -1,43 +1,26 @@
 #pragma once
 
 #include "RefTo.h"
+#include "Interface.h"
 #include "Integration.h"
 #include <cstring>
-#include "../../controlbox/src/lib/Objects.h"
-
-
-const size_t MAX_ID_CHAIN_LENGHT = cbox::MAX_CONTAINER_DEPTH+1;
+#include "Object.h"
 
 
 class CboxLookup : public BaseLookup {
 public:
-    CboxLookup(){
-    }
+    CboxLookup(){}
+    CboxLookup(uint16_t _id) : id(_id) {}
     virtual ~CboxLookup() = default;
 
+    operator uint16_t(){ return id; }
+
     virtual Interface * operator()() const override final {
-        // id_chain.reset();
+        auto obj = cbox::systemRootContainer().fetch(id);
 
-        cbox::Container * root = &cbox::systemRootContainer();
-        cbox::Object * current = root;
-        cbox::container_id id = -1;
-        uint8_t i = 0;
-        while(i < MAX_ID_CHAIN_LENGHT && id < 0){
-            id = id_chain[i++];
-            current = cbox::fetchContainedObject(current, id);
-        }
-        return (current && current != root) ? current->getApplicationInterface() : nullptr;
-    }
-
-    // wire type is unsigned bytes
-    void copyFrom(uint8_t const (&from)[MAX_ID_CHAIN_LENGHT]){
-        memcpy(id_chain, from, MAX_ID_CHAIN_LENGHT);
-    }
-
-    void copyTo(uint8_t (&to)[MAX_ID_CHAIN_LENGHT]){
-        memcpy(to, id_chain, MAX_ID_CHAIN_LENGHT);
+        return (obj) ? obj->getApplicationInterface() : nullptr;
     }
 
 private:
-    cbox::container_id id_chain[MAX_ID_CHAIN_LENGHT];
+    cbox::object_id_t id;
 };

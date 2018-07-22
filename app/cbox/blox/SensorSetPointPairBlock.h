@@ -7,6 +7,7 @@
 #include "SetPointDelegate.h"
 #include "CboxLink.h"
 
+#if 0
 class SensorSetPointPairBlock: public Block {
 private:
     CboxLookup sensorLookup;
@@ -82,15 +83,14 @@ public:
         return &pair;
     }
 
-    virtual void readTo(cbox::DataOut& out) override final {
+    virtual cbox::Object::StreamToResult streamTo(cbox::DataOut& out) override final {
         blox_SensorSetPointPair message;
-        assert_size<sizeof(message.links.sensor), MAX_ID_CHAIN_LENGHT>();
-        assert_size<sizeof(message.links.setpoint), MAX_ID_CHAIN_LENGHT>();
-        sensorLookup.copyTo(message.links.sensor);
-        setpointLookup.copyTo(message.links.setpoint);
-        static_assert(blox_SensorSetPointPair_size < 128, "varint for size will be larger than 1 byte");
-        pb_ostream_t stream = { &dataOutStreamCallback, &out, blox_SensorSetPointPair_size + 1, 0 };
-        pb_encode_delimited(&stream, blox_SensorSetPointPair_fields, &message);
+        message.links.sensor = sensorLookup;
+        message.links.setpoint = setpointLookup;
+
+        pb_ostream_t stream = { &dataOutStreamCallback, &out, streamToMaxSize(), 0 };
+        bool success = pb_encode(&stream, blox_SensorSetPointPair_fields, &message);
+        return (success) ? cbox::Object::StreamToResult::success : cbox::Object::StreamToResult::stream_error;
     }
 
     virtual cbox::obj_type_t typeID() override {
@@ -98,3 +98,5 @@ public:
     	return resolveTypeID(this);
     }
 };
+
+#endif

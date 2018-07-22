@@ -17,11 +17,10 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TicksObject.h"
+
 extern MockTicks baseticks;
-
-#include "ObjectTicks.h"
-
-extern cbox::ScaledTicksValue<MockTicks> ticks(baseticks);
+static cbox::ScaledTicksValue<MockTicks> ticks(baseticks);
 
 class MockDelay {
 public:

@@ -20,9 +20,9 @@
 #include "catch.hpp"
 #include <cstdio>
 
-#include "../blox/SetPointSimpleBlock.h"
+#include "SetPointSimpleBlock.h"
 
-#include "../../../controlbox/src/lib/Objects.h"
+#include "Object.h"
 #include "Commands.h"
 #include "temperatureFormats.h"
 
@@ -51,7 +51,7 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
                 THEN("a newly created SetPointSimpleBloc object can receive settings from the DataIn stream")
                 {
                     SetPointSimpleBlock sp;
-                    sp.writeFrom(in); // use in as mask too, it is not used.
+                    sp.streamFrom(in); // use in as mask too, it is not used.
                     temp_t setting = sp.get().read();
                     temp_t valid;
                     valid.setRaw(123);
@@ -64,13 +64,13 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
 
                         uint8_t buf2[100];
                         cbox::BufferDataOut out(buf2, sizeof(buf2));
-                        sp.readTo(out);
+                        sp.streamTo(out);
 
                         sp.get().write(25.0); // change again, so we can verify the receive
                         CHECK(sp.get().read() == temp_t(25.0));
 
                         cbox::BufferDataIn in_roundtrip(buf2);
-                        sp.writeFrom(in_roundtrip);
+                        sp.streamFrom(in_roundtrip);
 
                         CHECK(sp.get().read() == temp_t(21.0));
                     }
@@ -100,20 +100,16 @@ SCENARIO("Create blox SetPointSimple application object from definition"){
         }
 
         cbox::BufferDataIn in(buffer1);
-        uint8_t len = SetPointSimpleBlock::persistedMaxSize();
         cbox::obj_type_t typeId = cbox::resolveTypeID<SetPointSimpleBlock>();
-
-
-        cbox::ObjectDefinition dfn = {&in, len, typeId};
+        cbox::Object::StreamFromResult error;
 
         WHEN("an application object is created form the definition"){
-        	cbox::Object* obj;
-            uint8_t error = createApplicationObject(obj, dfn, false);
+        	std::shared_ptr<cbox::Object> obj = cbox::createApplicationObject(typeId, in, error);
 
             THEN("No errors occur"){
-                CHECK(error == cbox::errorCode(cbox::no_error));
+                CHECK(obj != nullptr);
+                CHECK(error == cbox::Object::StreamFromResult::success_persist);
             }
-            REQUIRE(obj != nullptr);
         }
     }
 }

@@ -1,7 +1,7 @@
 /*
- * Copyright 2014-2015 Matthew McGowan.
+ * Copyright 2018 Elco Jacobs / BrewBlox, based on earlier work of Matthew McGowan
  *
- * This file is part of Nice Firmware.
+ * This file is part of ControlBox.
  *
  * Controlbox is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,12 +32,33 @@
 namespace cbox {
 
 class object_id_t {
+public:
     object_id_t() : id(0){};
     object_id_t(uint16_t v) : id(v){};
-    bool isValid(){
+
+    operator uint16_t() const {
+        return id;
+    }
+
+    bool isValid() const{
         return id > 0;
     }
-    static object_id_t startId(){ return 1; };
+
+    object_id_t & operator++() // ++A
+    {
+        ++id;
+        return *this ;
+    }
+
+    object_id_t operator++(int) // A++
+    {
+       object_id_t temp = *this ;
+       ++id;
+       return temp ;
+    }
+
+    static object_id_t startId() { return 1; };
+
     uint16_t id;
 };
 
@@ -67,7 +88,8 @@ public:
     };
 
 	virtual StreamToResult streamTo(DataOut& out)=0;
-    virtual uint8_t streamToSizeMax()=0; // the max size this value will output to the stream.
+    virtual stream_size_t streamToMaxSize()=0; // the max size this value will output to the stream.
+
 
     /**
      * Some objects can be writable from the stream, they override the functions below
@@ -80,7 +102,15 @@ public:
         success_persist,
     };
     virtual StreamFromResult streamFrom(DataIn& dataIn){ return StreamFromResult::not_writable; };
-    virtual uint8_t streamFromSizeMax(){ return 0; }; // the max size this object expects from the stream.
+    virtual stream_size_t streamFromMaxSize(){ return 0; }; // the max size this object expects from the stream.
+
+    // default streaming persisted data to streamTo. Can be overridden by objects that do not persist all of their data
+    virtual StreamToResult streamPersistedTo(DataOut& out){
+        return streamTo(out);
+    }
+    virtual stream_size_t persistedMaxSize(){
+        return streamToMaxSize();
+    }
 };
 
 
@@ -89,8 +119,8 @@ public:
  */
 class WritableObject : public Object {
 public:
-	virtual StreamFromResult writeFrom(DataIn& dataIn) = 0;
-	virtual uint8_t writeStreamSize() = 0;
+	virtual StreamFromResult streamFrom(DataIn& dataIn) override = 0;
+	virtual stream_size_t streamFromMaxSize() override { return streamToMaxSize(); };
 };
 
 /**
@@ -106,11 +136,11 @@ public:
         return resolveTypeID<InactiveObject>();
     }
 
-    virtual Object::StreamToResult streamTo(DataOut& out) {
+    virtual Object::StreamToResult streamTo(DataOut& out) override final {
         out.write(actualType);
         return Object::StreamToResult::success;
     }
-    virtual uint8_t streamToSizeMax() override final { return 0; };
+    virtual stream_size_t streamToMaxSize() override final { return sizeof(object_id_t); };
 
     obj_type_t actualType;
 };
@@ -134,7 +164,7 @@ public:
         out.put(t);
     }
 
-    virtual uint8_t streamToSizeMax() override final {
+    virtual stream_size_t streamToMaxSize() override final {
         return sizeof(T);
     }
 
@@ -165,19 +195,19 @@ public:
         return StreamFromResult::stream_error;
     }
 
-    virtual uint8_t streamToSizeMax() override final {
+    virtual stream_size_t streamToMaxSize() override final {
         return sizeof(T);
-    }
-
-    static std::shared_ptr<Object> create(DataIn & defn){
-        auto obj = std::make_shared<T>();
-        if(obj->streamFrom(defn)){
-            return obj;
-        }
-        return nullptr;
     }
 
     T t;
 };
+
+
+template<class T>
+std::shared_ptr<Object> createObject(DataIn & defn, Object::StreamFromResult &streamResult){
+    auto obj = std::make_shared<T>();
+    streamResult = obj->streamFrom(defn);
+    return obj;
+}
 
 } // end namespace cbox

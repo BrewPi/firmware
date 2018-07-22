@@ -23,9 +23,6 @@
 #include <stdint.h>
 #include "Static.h"
 #include "DataStreamEeprom.h"
-#include "GenericContainer.h"
-#include "ValuesEeprom.h"
-#include "EepromBlock.h"
 #include "Object.h"
 #include "Container.h"
 
@@ -33,21 +30,6 @@ namespace cbox {
 
 const uint8_t SYSTEM_PROFILE_MAGIC = 0x69;
 const uint8_t SYSTEM_PROFILE_VERSION = 0x01;
-
-#if CONTROLBOX_STATIC
-/**
- * Application-provided function to create the object of the given type.
- * @param in	The data input stream that provides the object details. The format is:
- * <pre>
- *  uint8_t             profiles (bit field)
- *	uint16_t		    object type
- *  uint8_t[repeated]   data
-  * </pre>
- */
-extern uint8_t createObject(Object*& result, DataIn& in, bool dryRun=false);
-
-
-#endif
 
 /**
  * SystemProfile - a special container used to provide access to system profiles.
@@ -57,10 +39,10 @@ class SystemProfile {
     SystemProfile(EepromAccess& eeprom,
                 Container & rootContainer,
                 Container & systemRootContainer):
-        eepromAccess(eeprom),
+        active_profiles(0),
         root(rootContainer),
         systemRoot(systemRootContainer),
-        active_profiles(0)
+        eepromAccess(eeprom)
         {};
 
     ~SystemProfile() = default;
@@ -85,8 +67,6 @@ class SystemProfile {
      */
 	EepromAccess& eepromAccess;
 
-	void setActiveProfiles(uint8_t profiles);
-
 	void applyActiveProfilesFromEeprom();
 
 	eptr_t compactObjectDefinitions();
@@ -105,12 +85,6 @@ class SystemProfile {
 	 * For open profiles, this keeps a pointer to the end of the profile.
 	 */
 	EepromDataOut writer;
-
-	/**
-	 * TODO - should we include these default objects in the system container? I feel they should be left to the application.
-	 */
-	EepromBlock system_id;
-
 
 public:
 	/**

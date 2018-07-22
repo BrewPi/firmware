@@ -30,8 +30,8 @@ message Pid {
 	}
 	
 	message Links {
-    	bytes input = 1;
-    	bytes output = 2;
+    	uint32 input = 1;
+    	uint32 output = 2;
   	}
   	
   	message Filtering {

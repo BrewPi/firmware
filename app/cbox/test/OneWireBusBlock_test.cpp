@@ -24,7 +24,9 @@
 
 #include "Commands.h"
 #include "OneWireBusBlock.h"
-#include "../../../controlbox/src/lib/Objects.h"
+#include "Object.h"
+
+#if 0
 
 void streamHex(std::stringstream & ss, uint8_t * buf, size_t len){
     ss << "0x" << std::setfill('0') << std::hex;
@@ -75,3 +77,4 @@ SCENARIO("A Blox OneWireBus can stream a variable number of found addresses"){
         }
     }
 }
+#endif

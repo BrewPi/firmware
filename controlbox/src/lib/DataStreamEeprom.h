@@ -21,6 +21,8 @@
 #pragma once
 
 #include "DataStream.h"
+#include "EepromTypes.h"
+#include "EepromAccess.h"
 
 namespace cbox {
 

@@ -1,12 +1,13 @@
 #pragma once
 
-#include "../../../controlbox/src/lib/Objects.h"
+#include "Object.h"
 #include "OneWire.h"
 #include "Board.h"
 #include "OneWireBus.pb.h"
 #include "nanopb_callbacks.h"
 #include "assert_size_helper.h"
 
+#if 0
 class OneWireBusBlock: public cbox::WritableObject {
 private:
 
@@ -55,7 +56,7 @@ public:
      * - cmd 01: reset bus (00 on success, FF on failure)
      * - cmd 02: search bus: a sequence of 0 or more 8-byte addresses, MSB first that were found on the bus
      */
-    virtual void readTo(cbox::DataOut& out) override final{
+    virtual cbox::Object::StreamToResult streamTo(cbox::DataOut& out) override final{
         blox_OneWireRead message = {0};
         message.lastCommand = command;
         message.address.funcs.encode = nullptr;
@@ -118,3 +119,5 @@ public:
     	return resolveTypeID(this);
     }
 };
+
+#endif

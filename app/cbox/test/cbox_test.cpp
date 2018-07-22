@@ -22,6 +22,7 @@
 #include "Integration.h"
 #include "Platform.h"
 
+#if 0
 SCENARIO("creating a profile is persisted"){
     GIVEN("clean static cbox app")
     {
@@ -52,3 +53,4 @@ SCENARIO("creating a profile is persisted"){
         }
     }
 }
+#endif

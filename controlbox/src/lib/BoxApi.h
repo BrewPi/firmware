@@ -12,31 +12,6 @@
 
 namespace cbox {
 
-class Profile
-{
-    int8_t id;
-
-public:
-
-    Profile(int8_t id_) : id(id_) {}
-
-    bool is_valid() const
-    {
-        return id>=0;
-    }
-
-    int8_t get_id() const
-    {
-        return id;
-    }
-
-    bool operator==(const Profile& rhs) const
-    {
-        return rhs.id == id;
-    }
-};
-
-
 class IStreamDataIn : public DataIn
 {
     std::istream& in;

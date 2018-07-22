@@ -142,7 +142,7 @@ void Commands::setSystemValueCommandHandler(DataIn& in, DataOut& out) {
 /**
  * Consumes the definition data from the stream and returns a {@code NULL} pointer.
  */
-Object* nullFactory(ObjectDefinition& def) {
+std::shared_ptr<Object> nullFactory(RegionDataIn& def) {
     def.spool();
     return NULL;
 }
@@ -215,19 +215,9 @@ int8_t Commands::rehydrateObject(eptr_t offset, PipeDataIn& in, bool dryRun)
 	return error;
 }
 
-int8_t Commands::createObject(Object*& newObject, DataIn& in, bool dryRun)
+std::shared_ptr<Object> Commands::createObject(CommandError & err, obj_type_t type, RegionDataIn& in, bool dryRun)
 {
-	obj_type_t typeId = readObjTypeFrom(in);
-	uint8_t len = in.next();
-	RegionDataIn region(in, len);							// limit stream to actual data block
-	ObjectDefinition def = {
-#if !CONTROLBOX_STATIC
-			eepromAccess, systemProfile.rootContainer(),
-#endif
-			&region, len, typeId
-	};
-	newObject = nullptr;
-	int8_t error = createApplicationObject(newObject, def, dryRun);			// read the type and create args
+	auto obj = createApplicationObject(err, in, dryRun);			// read the type and create args
 	if (!error) {
 		if (!newObject) {
 			error = errorCode(insufficient_heap);

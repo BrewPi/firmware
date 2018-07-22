@@ -2,13 +2,14 @@
 #include "SystemProfile.h"
 #include "Comms.h"
 #include "Ticks.h"
-#include "ValueTicks.h"
+#include "TicksObject.h"
 
 namespace cbox {
 
 #if CONTROLBOX_STATIC
 
-static SystemProfile systemProfile;
+#if 0
+static SystemProfile SystemProfile;
 
 /**
  * Initialize the controlbox.
@@ -27,41 +28,6 @@ void controlbox_setup(size_t loadProfileDelay)
 	}
 	systemProfile.applyActiveProfilesFromEeprom();
 }
-
-
-
-bool prepareCallback(Object* o, void* data, container_id* id, bool enter) {
-	if (enter) {
-		uint32_t& waitUntil = *(uint32_t*)data;
-		prepare_t millisToWait = o->prepare();
-		if (millisToWait)
-			waitUntil = ticks.millis()+millisToWait;
-	}
-	return false;	// continue enumerating
-}
-
-/**
- * Updates each object in the container hierarchy.
- */
-bool updateCallback(Object* o, void* data, container_id* id, bool enter) {
-	if (enter)
-		o->update();
-	return false;
-}
-
-/**
- * Logs all values in the system.
- */
-void logValues(container_id* ids)
-{
-	DataOut& out = comms.dataOut();
-	out.write(int(Commands::CMD_LOG_VALUES_AUTO));
-	commands.logValuesImpl(ids, out);
-	out.close();
-}
-
-
-bool logValuesFlag = false;
 
 /**
  * prepare: start of a new control loop and determine how long any asynchronous operations will take.
@@ -106,5 +72,5 @@ void controlbox_loop(void)
 }
 
 #endif
-
+#endif
 } // end namespace cbox

@@ -21,7 +21,6 @@
 #include "Static.h"
 #include "SystemProfile.h"
 #include "Commands.h"
-#include "ValuesEeprom.h"
 #include "EepromAccess.h"
 
 namespace cbox {
@@ -46,7 +45,7 @@ struct __attribute__ ((packed)) ProfilesEepromLayout {
 
     uint8_t active_profiles;
     uint8_t reserved[5];
-    uint8_t data[2048-(profilesEepromStart + 2 + 1 + 5 + 2)];
+    uint8_t data[2048-(profilesEepromStart + 2 + 1 + 5)];
 };
 
 const uint16_t profilesEepromEnd = profilesEepromStart + sizeof(ProfilesEepromLayout);
