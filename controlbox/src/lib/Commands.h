@@ -24,7 +24,6 @@
 #include "Comms.h"
 #include "DataStream.h"
 #include "SystemProfile.h"
-#include "Integration.h"
 #include "Object.h"
 
 namespace cbox {
@@ -34,40 +33,34 @@ typedef const char* cpchar;
 
 class Commands;
 
-enum class CommandError : uint16_t {
-	// the <<8 is there to force the values into 16-bit space
-	// this ensures the compiler generates an error when attempting to
-	// assign to a 8-bit result without using the errorCode() conversion.
-	no_error = 0<<8,
-	unknown_error = 1<<8,
-	stream_error = 2<<8,
-	profile_not_active = 3<<8,
+enum class CommandError : uint8_t {
+    no_error = 0,
+    unknown_error = 1,
+    stream_error = 2,
+    profile_not_active = 3,
 
-	insufficient_persistent_storage = 16<<8,
-	insufficient_heap = 17<<8,
+    insufficient_persistent_storage = 16,
+    insufficient_heap = 17,
 
-	object_not_writable = 32<<8,
-	object_not_readable = 33<<8,
-	object_not_creatable = 34<<8,
-	object_not_deletable = 35<<8,
-	object_not_container = 36<<8,
-	object_not_open_container = 37<<8,
-	container_full = 38<<8,
+    object_not_writable = 32,
+    object_not_readable = 33,
+    object_not_creatable = 34,
+    object_not_deletable = 35,
+    object_not_container = 36,
+    object_not_open_container = 37,
+    container_full = 38,
 
-	invalid_parameter = 64<<8,
-	invalid_object_id = 65<<8,
-	invalid_type = 66<<8,
-	invalid_size = 67<<8,
-	invalid_profile = 68<<8,
-	invalid_id = 69<<8
-
+    invalid_parameter = 64,
+    invalid_object_id = 65,
+    invalid_type = 66,
+    invalid_size = 67,
+    invalid_profile = 68,
+    invalid_id = 69
 };
 
-inline constexpr int8_t errorCode(CommandError error) {
-    std::underlying_type<CommandError>::type converted = static_cast<std::underlying_type<CommandError>::type>(error);
-	return (int8_t) (-(converted>>8));
+inline uint8_t errorCode(CommandError e){
+    return static_cast<uint8_t>(e);
 }
-
 
 /**
  * A command handler function. This is the signature of commands.
@@ -82,10 +75,6 @@ typedef void (Commands::*CommandHandler)(DataIn& in, DataOut& out);
 
 
 #if CONTROLBOX_STATIC
-/**
- * Application-provided function that creates an object from the object definition.
- */
-extern std::shared_ptr<Object> createApplicationObject(obj_type_t typeId, DataIn& in, Object::StreamFromResult streamResult, bool dryRun=false);
 
 /**
  * Function prototype expected by the commands implementation to perform
@@ -149,8 +138,6 @@ class Commands
 	cb_static void listDefinedProfilesCommandHandler(DataIn& in, DataOut& out);
 	cb_static void readSystemValueCommandHandler(DataIn& in, DataOut& out);
 	cb_static void setSystemValueCommandHandler(DataIn& in, DataOut& out);
-
-	cb_static std::shared_ptr<Object> createObject(CommandError & err, DataIn& in, bool dryRun);
 	cb_static void removeEepromCreateCommand(BufferDataOut& id);
 
 public:
@@ -174,24 +161,8 @@ public:
 #define command_callback_fn(x) x
 #endif
 
-	inline cb_static Container* rootContainer() {
-		return systemProfile.rootContainer();
-	}
-
-	inline cb_static Container* createRootContainer() {
-		return command_callback_fn(createRootContainer());
-	}
-
 	inline cb_static void connectionStarted(StandardConnection& connection, DataOut& out) {
 		command_callback_fn(connectionStarted(connection, out));
-	}
-
-	inline cb_static std::shared_ptr<Object> createApplicationObject(
-	        obj_type_t type,
-	        RegionDataIn& in,
-	        Object::StreamFromResult & streamResult,
-	        bool dryRun=false) {
-		return (command_callback_fn(createApplicationObject(type, in, streamResult, dryRun)));
 	}
 
 	inline cb_static void handleReset(bool exit=true) {
@@ -239,12 +210,6 @@ public:
 	};
 
 };
-
-
-/**
- * Factory that consumes the object definition stream and returns {@code NULL}.
- */
-Object* nullFactory(DataIn& def);
 
 
 #if CONTROLBOX_STATIC

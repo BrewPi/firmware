@@ -77,7 +77,7 @@ void SystemProfile::initialize() {
 		// no initialization required
 	}
 	else {
-	    eepromAccess.put(EepromLocation(active_profiles), SYSTEM_PROFILE_NONE);
+	    eepromAccess.put(EepromLocation(active_profiles), 0x00);
 
 		// reset profile data store
 		writeEepromRange(eepromAccess, EepromLocation(data), EepromLocationEnd(data), 0xFF);
@@ -136,131 +136,9 @@ void SystemProfile::streamObjectDefinitions(EepromDataIn& eepromReader)
 	}
 }
 
-void SystemProfile::processPersistedObject(DataIn& reader)
+void SystemProfile::processPersistedObject(RegionDataIn& reader)
 {
-    uint8_t blockProfiles = reader.next(); // ?? do in commands?
-}
-
-/**
- * Deletes objects after any child objects have been deleted. Callback from container traversal.
- */
-bool deleteDynamicallyAllocatedObject(Object* obj, void* data, const container_id* id, const container_id* end, bool enter) {
-	if (!enter && isDynamicallyAllocated(obj)) {		// delete on exit, so that all children are processed first
-		BufferDataIn idStream(id);						// stream the id
-		Commands* cmds = (Commands*)(data);
-		cmds->deleteObject(idStream);							// delete the object
-	}
-	return false;										// continue traversal
-}
-
-/**
- * Sets the stream region to be the writable portion of a profile storage.
- * @param region		The region to set
- * @param includeOpen	If the current profile is the open one. The end is then set to the end of eeprom.
- */
-void SystemProfile::profileWriteRegion(EepromStreamRegion& region, bool includeOpen) {
-	if (current>=0) {
-		eptr_t offset = getProfileEnd(current);
-		eptr_t end = getProfileEnd(current, includeOpen);
-		region.reset(offset, end-offset);
-	}
-	else {
-		region.reset(0,0);
-	}
-}
-
-/**
- * Sets the stream to correspond with the start and end locations for the current profile.
- *
- */
-void SystemProfile::profileReadRegion(profile_id_t profile, EepromStreamRegion& region) {
-	if (profile>=0 && profile<MAX_SYSTEM_PROFILES) {
-		eptr_t offset = getProfileStart(profile);
-		eptr_t end = getProfileEnd(profile, false);
-		region.reset(offset, end-offset);
-	}
-	else {
-		region.reset(0,0);
-	}
-}
-
-void SystemProfile::activateDefaultProfile()
-{
-	profile_id_t id = -1;
-	eepromAccess.get(EepromLocation(active_profile_id), id);
-	activateProfile(id);
-}
-
-void SystemProfile::listDefinedProfiles(DataIn& in, DataOut& out) {
-	out.write(currentProfile());
-#if SYSTEM_PROFILE_ENABLE
-	// todo - this command format is not self-describing regaring length. The caller will have to consume bytes until the end to determine which profiles are active.
-	for (profile_id_t i=0; i<MAX_SYSTEM_PROFILES; i++) {
-		if (getProfileStart(i))
-			out.write(i);
-	}
-#else
-	out.write(0);
-#endif
-}
-
-#if CONTROLBOX_STATIC
-Container* rootContainer() {
-	return systemProfile.rootContainer();
-}
-#endif
-
-/**
- * Writes the next object definition from the data input to the given output.
- * When the input stream is exhausted or the current position is not an object creation command,
- * the method returns false and the stream location is unchanged.
- */
-bool ObjectDefinitionWalker::writeNext(DataOut& out) {
-	if (!_in->hasNext())
-		return false;
-
-	uint8_t next = _in->peek();
-	bool valid =  ((next&0x7F)==Commands::CMD_CREATE_OBJECT);
-	if (valid) {
-		PipeDataIn pipe(*_in, next<0 ? blackhole : out);	// next<0 if command not fully completed, so output is discarded
-		pipe.next();										// fetch the next value already peek'ed at so this is written to the output stream
-		/*Object* target = */lookupUserObject(_commands.rootContainer(), pipe);			// find the container where the object will be added
-		// todo - could flag warning if target is NULL
-		Object* obj;
-		_commands.createObject(obj, pipe, true);							// dry run for create object, just want data to be output
-	}
-	return valid;
-}
-
-/**
- * Compacts the eeprom instruction store by removing deleted object definitions.
- *
- * @return The offset where the next eeprom instruction will be stored.
- * This method assumes SystemProfile::writer points to the last written location at the end of the profile.
- */
-eptr_t SystemProfile::compactObjectDefinitions() {
-	EepromDataOut eepromData cb_nonstatic_decl((eepromAccess));
-	profile_id_t current = SystemProfile::currentProfile();
-	profileReadRegion(current, eepromData);
-	listEepromInstructionsTo(current, eepromData);
-	return eepromData.offset();
-}
-
-/**
- * Enumerates all the create object instructions in eeprom to an output stream.
- */
-void SystemProfile::listEepromInstructionsTo(profile_id_t profile, DataOut& out) {
-	EepromDataIn eepromData cb_nonstatic_decl((eepromAccess));
-	profileReadRegion(profile, eepromData);
-	Commands& cmds =
-#if CONTROLBOX_STATIC
-			commands
-#else
-			*commands_ptr
-#endif
-				;
-	ObjectDefinitionWalker walker(cmds, eepromData);
-	while (walker.writeNext(out)) {}
+    // todo
 }
 
 } // end namespace cbox

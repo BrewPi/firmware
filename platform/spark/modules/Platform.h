@@ -20,12 +20,6 @@ typedef uint8_t ticks_seconds_tiny_t;
 
 bool platform_init();
 
-struct data_block_ref {
-	void* data;
-	size_t size;
-};
-
-
 #if PLATFORM_THREADING
 extern ApplicationWatchdog appWatchdog;
 inline void watchdogCheckin(){
@@ -39,11 +33,6 @@ inline void watchdogCheckin(){}
 #define BREWPI_DS2413 1
 #define BREWPI_DS2408 (PLATFORM_ID != 0)
 #define BREWPI_USE_WIFI (PLATFORM_ID != 0)
-
-/**
- * Retrieves a pointer to the device id.
- */
-void platform_device_id(data_block_ref& id);
 
 /**
  * Called to invoke a system reset.

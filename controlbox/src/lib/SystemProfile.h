@@ -37,8 +37,8 @@ const uint8_t SYSTEM_PROFILE_VERSION = 0x01;
  */
 class SystemProfile {
     SystemProfile(EepromAccess& eeprom,
-                Container & rootContainer,
-                Container & systemRootContainer):
+                ObjectContainer & rootContainer,
+                ObjectContainer & systemRootContainer):
         active_profiles(0),
         root(rootContainer),
         systemRoot(systemRootContainer),
@@ -55,12 +55,12 @@ class SystemProfile {
 	/**
 	 * The application root container for the selected profile.
 	 */
-	Container & root;
+	ObjectContainer & root;
 
 	/**
 	 * The system container. This provides fixed services independently from the selected profile.
 	 */
-	Container& systemRoot;
+	ObjectContainer& systemRoot;
 
     /**
      * The EEPROM object, used to persist objects
@@ -73,7 +73,7 @@ class SystemProfile {
 
 	void streamObjectDefinitions(EepromDataIn& eepromReader);
 
-	void processPersistedObject(DataIn& reader);
+	void processPersistedObject(RegionDataIn& reader);
 
 	/**
 	 * Resets the stream to the region in eeprom for to write new objects
@@ -97,14 +97,14 @@ public:
 	 * Even if no profile is active, still returns a valid root container with just the current profile
 	 * value.
 	 */
-	Container* rootContainer() {
+	ObjectContainer* rootContainer() {
 		return &root;
 	}
 
 	/**
 	 * Retrieves the system container. The system container exists independently from any profile.
 	 */
-	Container* systemContainer() {
+	ObjectContainer* systemContainer() {
 		return &systemRoot;
 	}
 
@@ -113,7 +113,7 @@ public:
 	 * @param profiles  A bit mask with a 1 for each profile that should be active. LSB is profile 0.
 	 * This is persisted to EEPROM.
 	 */
-	bool setActiveProfiles(uint8_t profiles);
+	void setActiveProfiles(uint8_t profiles);
 
 
 	/**
@@ -129,25 +129,6 @@ public:
 	EepromDataOut& persistence() {
 		return writer;
 	}
-};
-
-/**
- * Parses a stream of object definitions, piping the valid definitions to an output stream.
- * Stops when the input stream doesn't contain a recognized object definition.
- */
-class ObjectDefinitionWalker {
-
-	DataIn* _in;		// using pointer to avoid non-POD warnings
-
-public:
-	ObjectDefinitionWalker(DataIn& in): _in(&in){}
-
-	/**
-	 * Writes the next object definition from the data input to the given output.
-	 * When the input stream is exhausted or the current position is not an object creation command,
-	 * the method returns false and the stream location is unchanged.
-	 */
-	bool writeNext(DataOut& out);
 };
 
 #if CONTROLBOX_STATIC

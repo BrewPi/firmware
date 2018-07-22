@@ -20,7 +20,7 @@
 #include "TicksObject.h"
 
 extern MockTicks baseticks;
-static cbox::ScaledTicksValue<MockTicks> ticks(baseticks);
+extern cbox::ScaledTicksValue<MockTicks> ticks;
 
 class MockDelay {
 public:

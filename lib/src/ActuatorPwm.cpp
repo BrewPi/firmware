@@ -3,7 +3,6 @@
 #include "ActuatorInterfaces.h"
 #include "temperatureFormats.h"
 #include "ActuatorPwm.h"
-#include "Ticks.h"
 #include "ActuatorMutexDriver.h"
 
 ActuatorPwm::ActuatorPwm(ActuatorDigital & _target, uint16_t _period) :

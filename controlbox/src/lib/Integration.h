@@ -22,6 +22,7 @@
 #include "Comms.h"
 #include "SystemProfile.h"
 #include "Static.h"
+#include "Commands.h"
 #include <memory>
 
 namespace cbox {
@@ -42,21 +43,18 @@ void handleReset(bool exit);
  * Retrieves a reference to the systemRootContainer that hosts objects
  * independently from a system profile.
  */
-extern Container& systemRootContainer();
+ObjectContainer& systemRootContainer();
 
 /**
  * Application-provided method to create a new root container for the currently active profile.
  * The application can create default objects in the root container.
  */
-extern Container* createRootContainer();
+ObjectContainer* createRootContainer();
 
 /**
- * Create an application supplied object. The object definition describes the
- * type of object to create and the initialization data.
- *
+ * Create an application supplied object.
  */
-enum class CommandError : uint16_t;
-extern std::shared_ptr<Object> createApplicationObject(DataIn& def, CommandError & err, bool dryRun);
+// std::shared_ptr<Object> createApplicationObject2(obj_type_t typeId, DataIn& in, CommandResult& errorCode);
 
 /**
  * This function is called when a connection has been established.
@@ -64,7 +62,7 @@ extern std::shared_ptr<Object> createApplicationObject(DataIn& def, CommandError
  * the application version or other data needed to establish the
  * protocol between this device and the
  */
-extern void connectionStarted(DataOut& out);
+void connectionStarted(DataOut& out);
 
 /**
  * Initialize the controlbox.
@@ -78,4 +76,4 @@ void controlbox_loop();
 
 #endif
 
-}
+} // end namespace cbox

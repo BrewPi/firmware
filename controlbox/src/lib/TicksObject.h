@@ -100,7 +100,7 @@ public:
 
 	virtual obj_type_t typeID() override {
 		// use function overloading and templates to manage type IDs in a central place (TypeRegistry)
-		return resolveTypeID(this);
+		return 11;
 	}
 };
 
@@ -135,5 +135,5 @@ public:
 };
 
 } // end namespace cbox
-
 #endif
+

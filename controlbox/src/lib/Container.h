@@ -1,3 +1,24 @@
+/*
+ * Copyright 2018 Elco Jacobs / BrewBlox
+ *
+ * This file is part of ControlBox
+ *
+ * Controlbox is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#pragma once
+
 #include <functional>
 #include <stdint.h>
 #include <vector>
@@ -29,26 +50,31 @@ public:
 };
 #endif
 
-class Container
+
+class ContainedObject{
+public:
+    ContainedObject(object_id_t _id, uint8_t _profiles, std::shared_ptr<Object> _obj) :
+        id(_id),
+        profiles(_profiles),
+        obj(_obj){};
+
+    object_id_t id;
+    uint8_t profiles; // active in these profiles
+    std::shared_ptr<Object> obj; // ptr to runtime object
+};
+
+
+class ObjectContainer
 {
 public:
-    Container() : activeProfiles(0), lastCreatedId(object_id_t::startId()){};
-    virtual ~Container() = default;
+    ObjectContainer() : activeProfiles(0), lastCreatedId(object_id_t::startId()){};
+    ObjectContainer(std::initializer_list<ContainedObject> l) : activeProfiles(0), lastCreatedId(object_id_t::startId()){
 
-    class ObjectEntry {
-    public:
-        ObjectEntry(object_id_t _id, uint8_t _profiles, std::shared_ptr<Object> _obj) :
-            id(_id),
-            profiles(_profiles),
-            obj(_obj){};
-
-        object_id_t id;
-        uint8_t profiles; // active in these profiles
-        std::shared_ptr<Object> obj; // ptr to runtime object
     };
+    virtual ~ObjectContainer() = default;
 
 private:
-    std::vector<ObjectEntry> objects;
+    std::vector<ContainedObject> objects;
     uint8_t activeProfiles;
     object_id_t lastCreatedId;
 
@@ -60,10 +86,10 @@ public:
      *
      */
 
-    ObjectEntry * find(const object_id_t id) {
+    ContainedObject * find(const object_id_t id) {
         decltype(objects)::iterator begin = objects.begin();
         decltype(objects)::iterator end = objects.end();
-        decltype(objects)::iterator found = std::find_if(begin, end, [&id](const ObjectEntry& item){ return item.id == id;} );
+        decltype(objects)::iterator found = std::find_if(begin, end, [&id](const ContainedObject& item){ return item.id == id;} );
         if(found == end){
             return nullptr;
         }
@@ -82,12 +108,12 @@ public:
     object_id_t add (std::unique_ptr<Object> obj, uint8_t active_in_profiles) {
         object_id_t newId = lastCreatedId++;
         std::shared_ptr<Object> ptr = std::move(obj);
-        ObjectEntry entry(newId, active_in_profiles, ptr);
+        ContainedObject entry(newId, active_in_profiles, ptr);
         return newId;
     }
 
     bool replace (object_id_t id, std::unique_ptr<Object> obj, uint8_t active_in_profiles) {
-        ObjectEntry * entry = find(id);
+        ContainedObject * entry = find(id);
         if(entry != nullptr){
             entry->profiles = active_in_profiles;
             entry->obj = std::move(obj);
@@ -97,10 +123,10 @@ public:
     }
 
     void remove(object_id_t id) {
-        std::remove_if(objects.begin(), objects.end(), [&id](ObjectEntry const& item){ return item.id == id;} );
+        std::remove_if(objects.begin(), objects.end(), [&id](ContainedObject const& item){ return item.id == id;} );
     }
 
-    void map(std::function<void(ObjectEntry & entry)> func) {
+    void map(std::function<void(ContainedObject & obj)> func) {
         for(auto it : objects){
             func(it);
         }

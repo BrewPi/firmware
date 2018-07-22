@@ -48,7 +48,7 @@ namespace cbox {
 	template<> obj_type_t resolveTypeID<SetPointSimpleBlock>(){ return  260; }
 }
 
-class DeviceIdValue;
+class DeviceIdObject;
 namespace cbox {
-	template<> obj_type_t resolveTypeID<DeviceIdValue>(){ return  261; }
+	template<> obj_type_t resolveTypeID<DeviceIdObject>(){ return  261; }
 }

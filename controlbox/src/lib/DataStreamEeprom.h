@@ -85,10 +85,11 @@ public:
  */
 class EepromDataIn : public DataIn, public EepromStreamRegion
 {
-	cb_nonstatic_decl(EepromAccess& eepromAccess;)
+private:
+    EepromAccess& eepromAccess;
 public:
 
-	cb_nonstatic_decl(EepromDataIn(EepromAccess& ea):eepromAccess(ea) {})
+	EepromDataIn(EepromAccess& ea):eepromAccess(ea) {}
 
 	virtual bool hasNext() override final { return _length; }
 	virtual uint8_t peek() override final { return eepromAccess.readByte(_offset); }

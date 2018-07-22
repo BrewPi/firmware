@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 RUN apt-get update -q && apt-get install -qy git bash curl unzip
 RUN apt-get update -q && apt-get install -qy build-essential dfu-util python python-pip gdb lcov

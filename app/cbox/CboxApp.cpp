@@ -17,54 +17,55 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../../controlbox/src/lib/Object.h"
-#include "blox/OneWireTempSensorBlock.h"
-#include "blox/PidBlock.h"
-#include "blox/SensorSetPointPairBlock.h"
-#include "blox/SetPointSimpleBlock.h"
 #include "Platform.h"
+
+#include "Ticks.h"
+#include "TicksObject.h"
+#include "Object.h"
+#include "Commands.h"
+#include "Integration.h"
+
+//#include "blox/OneWireTempSensorBlock.h"
+//#include "blox/PidBlock.h"
+//#include "blox/SensorSetPointPairBlock.h"
+#include "blox/SetPointSimpleBlock.h"
+//#include "OneWireBusBlock.h"
 #include "EepromTypes.h"
 #include "EepromAccessImpl.h"
 
-#include "Ticks.h"
-#include "ValueTicks.h"
-#include "ValueModels.h"
-#include "Commands.h"
-
-#include "PersistChangeValue.h"
-#include "OneWireBusBlock.h"
 
 
-OneWireBusBlock oneWireBus;
+
+//OneWireBusBlock oneWireBus;
 DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 TicksImpl baseticks;
-cbox::ScaledTicksValue ticks;
+cbox::ScaledTicksValue<TicksImpl> ticks(baseticks);
 
-
-class DeviceIdValue : public cbox::ExternalReadOnlyValue {
+class DeviceIdObject : public cbox::RawStreamObject<std::array<uint8_t,12>> {
 public:
-	DeviceIdValue() : cbox::ExternalReadOnlyValue(id.data, id.size){
-		platform_device_id(id);
+    DeviceIdObject(){
+#if PLATFORM_ID != PLATFORM_GCC
+        obj = ID1;
+#else
+        obj = {0};
+#endif
 	}
 
-	virtual cbox::obj_type_t typeID() override {
+	virtual cbox::obj_type_t typeID() override final{
 		// use function overloading and templates to manage type IDs in a central place (TypeRegistry)
 		return cbox::resolveTypeID(this);
 	}
-private:
-	data_block_ref id;
 };
 
 namespace cbox {
 
 #define OBJECT_FACTORY_ENTRY(className) {resolveTypeID<className>(), createObject<className>}
 
-Commands::ObjectFactory objectFactories[] = {
-        0, 0, nullFactory,
-		OBJECT_FACTORY_ENTRY(OneWireTempSensorBlock),
-		OBJECT_FACTORY_ENTRY(SetPointSimpleBlock),
-		OBJECT_FACTORY_ENTRY(SensorSetPointPairBlock),
-		OBJECT_FACTORY_ENTRY(PidBlock)
+ObjectFactory objectFactories[] = {
+        //OBJECT_FACTORY_ENTRY(OneWireTempSensorBlock),
+		OBJECT_FACTORY_ENTRY(SetPointSimpleBlock)
+		//OBJECT_FACTORY_ENTRY(SensorSetPointPairBlock),
+		//OBJECT_FACTORY_ENTRY(PidBlock)
 };
 
 void connectionStarted(StandardConnection& connection, DataOut& out)
@@ -80,53 +81,53 @@ void connectionStarted(StandardConnection& connection, DataOut& out)
 #endif
 }
 
-Container& systemRootContainer()
+ObjectContainer& systemRootContainer()
 {
-    static DeviceIdValue idValue;
-	static Object* values[] = { &idValue, &ticks, &oneWireBus };
-    static FixedContainer root(sizeof(values)/sizeof(values[0]), values);
-    return root;
+    static std::shared_ptr<Object> deviceId = std::make_shared<DeviceIdObject>();
+    static ObjectContainer systemContainer({
+            ContainedObject(1, 0xFF, deviceId)
+    });
+    return systemContainer;
 }
 
 /**
- * Provide the root container for the current profile. This should be dynamically allocated
- * (since it will be disposed by calling delete.)
+ * Provide the root container in which all user created objects are stored
  *
  */
-Container* createRootContainer()
+ObjectContainer& rootContainer()
 {
-    ProfileAwareContainer * d = new ProfileAwareContainer();
-    return d;
+    static ObjectContainer rootContainer;
+    return rootContainer;
 }
 
 /**
  * The application supplied object factory.
- * Fetches the object type from the stream and looks this up against an array of object factories.
- * It's critical that the create code reads len bytes from the stream so that the data is
- * Spooled to eeprom to the persisted object definition.
  */
-std::shared_ptr<Object> createApplicationObject(obj_type_t typeId, Object::StreamFromResult streamResult, DataIn& in, bool dryRun)
+std::shared_ptr<Object> createApplicationObject(obj_type_t typeId, DataIn& in, CommandError& errorCode)
 {
-    int8_t error = errorCode(no_error);
-    std::shared_ptr<Object> (*createFn)(DataIn& def) = nullptr;
+    errorCode = CommandError::no_error;
+    std::shared_ptr<Object> obj;
+    std::shared_ptr<Object> (*createFn)(DataIn& def, Object::StreamFromResult &streamResult) = nullptr;
     for(uint8_t i =0; i<sizeof(objectFactories)/sizeof(objectFactories[0]); i++) {
-    	if(typeId == objectFactories[i].typeId){
+    	if(typeId == objectFactories[i].typeId) {
     		createFn = objectFactories[i].createFn;
     	}
     }
     if(createFn == nullptr){
-    	error = errorCode(invalid_type);
-    }
-    else if (dryRun){
-    	createFn = nullFactory; // Ensures stream is properly consumed even for invalid type values.
+        errorCode = CommandError::invalid_type;
     }
     else {
-        result = createFn(in);
-        if (!result) {
-            error = errorCode(insufficient_heap);
+        Object::StreamFromResult streamResult;
+        obj = createFn(in, streamResult);
+        if (obj == nullptr) {
+            errorCode = CommandError::insufficient_heap;
         }
+        else if ( streamResult <= Object::StreamFromResult::success_dont_persist){
+            errorCode = CommandError::stream_error;
+        }
+
     }
-    return error;
+    return obj;
 }
 
 void handleReset(bool exit){

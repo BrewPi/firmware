@@ -27,6 +27,8 @@
 
 namespace cbox {
 
+#if 0
+
 /**
  * Top-level object for running a controlbox
  */
@@ -320,5 +322,5 @@ public:
 
 };
 
-
+#endif
 } // end namespace cbox

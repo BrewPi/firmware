@@ -146,60 +146,50 @@ public:
 };
 
 /**
- * An object that streams as its memory as raw bytes
+ * An object that streams as its memory as raw bytes, can be used as base class for simple object wrapping
  */
 template<typename T>
 class RawStreamObject : public Object
 {
 public:
-    RawStreamObject(T data) : t(data){};
+    RawStreamObject() : obj({0}){};
+    RawStreamObject(T data) : obj(data){};
     virtual ~RawStreamObject() = default;
 
-    virtual obj_type_t typeID() override final {
-        return resolveTypeID<RawStreamObject<T>>();
-    }
-
-
-    virtual void streamTo(DataOut& out) override final {
-        out.put(t);
+    virtual Object::StreamToResult streamTo(DataOut& out) override final {
+        out.put(obj);
+        return Object::StreamToResult::success;
     }
 
     virtual stream_size_t streamToMaxSize() override final {
         return sizeof(T);
     }
 
-    T t;
+protected:
+    T obj;
 };
 
 /**
  * A writable object that streams as its memory as raw bytes
  */
 template<typename T>
-class RawStreamWritableObject : public WritableObject
+class RawStreamWritableObject : public RawStreamObject<T>
 {
 public:
-    RawStreamWritableObject(T data) : t(data){};
     virtual ~RawStreamWritableObject() = default;
 
-    virtual obj_type_t typeID() override final {
-        return resolveTypeID<RawStreamWritableObject<T>>();
-    }
-
-
-    virtual StreamFromResult streamFrom(DataIn& in) override final {
+    virtual Object::StreamFromResult streamFrom(DataIn& in) override final {
         T newValue;
-        if(in.get(t)){
-            t = newValue;
-            return StreamFromResult::success_persist;
+        if(in.get(newValue)){
+            this->obj = newValue;
+            return Object::StreamFromResult::success_persist;
         }
-        return StreamFromResult::stream_error;
+        return Object::StreamFromResult::stream_error;
     }
 
     virtual stream_size_t streamToMaxSize() override final {
         return sizeof(T);
     }
-
-    T t;
 };
 
 
@@ -209,5 +199,12 @@ std::shared_ptr<Object> createObject(DataIn & defn, Object::StreamFromResult &st
     streamResult = obj->streamFrom(defn);
     return obj;
 }
+
+// An object factory combines the create function with a type ID.
+// They can be put in a container that can be walked to find the matching typeId
+struct ObjectFactory {
+    obj_type_t typeId;
+    std::shared_ptr<Object> (*createFn)(DataIn & defn, Object::StreamFromResult &streamResult);
+};
 
 } // end namespace cbox

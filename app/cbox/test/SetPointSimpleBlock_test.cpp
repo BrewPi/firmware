@@ -25,7 +25,11 @@
 #include "Object.h"
 #include "Commands.h"
 #include "temperatureFormats.h"
+#include <memory>
 
+namespace cbox {
+std::shared_ptr<Object> createApplicationObject(obj_type_t typeId, DataIn& in, CommandError& errorCode);
+}
 
 SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf data"){
     GIVEN("a protobuf message defining a SetPointSimple object"){
@@ -101,14 +105,15 @@ SCENARIO("Create blox SetPointSimple application object from definition"){
 
         cbox::BufferDataIn in(buffer1);
         cbox::obj_type_t typeId = cbox::resolveTypeID<SetPointSimpleBlock>();
-        cbox::Object::StreamFromResult error;
+        cbox::CommandError er;
 
         WHEN("an application object is created form the definition"){
-        	std::shared_ptr<cbox::Object> obj = cbox::createApplicationObject(typeId, in, error);
+        	std::shared_ptr<cbox::Object> obj;
+        	obj = createApplicationObject(typeId, in, er);
 
             THEN("No errors occur"){
                 CHECK(obj != nullptr);
-                CHECK(error == cbox::Object::StreamFromResult::success_persist);
+                CHECK(errorCode(er) == errorCode(cbox::CommandError::no_error));
             }
         }
     }

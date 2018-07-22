@@ -10,8 +10,7 @@ template<> obj_type_t resolveTypeID<InactiveObject>(){ return  1; }
 class CurrentTicksValue;
 template<> obj_type_t resolveTypeID<CurrentTicksValue>(){ return  10; }
 
-// type 11 reserved for ScaledTicksValue. Not done with templating due to nested template making this hard.
-
+// Templated scaled ticks value: 11
 
 } // end namespace cbox
 
