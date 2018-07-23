@@ -34,13 +34,10 @@ static bool dataOutStreamCallback(pb_ostream_t *stream, const uint8_t *buf, size
 static bool dataInStreamCallback(pb_istream_t *stream, uint8_t *buf, size_t count)
 {
 	cbox::DataIn * in = (cbox::DataIn *) stream->state;
-    while(count--){
-        if(in->hasNext()){
-            *buf++ = in->next();
-        }
-        else{
-            return false;
-        }
+	while(count--){
+	    // in->next() will return 0 if hasNext() is false.
+	    // zero termination between fields is supported by pb_decode, because field tags are non-zero
+        *buf++ = in->next();
     }
     return true;
 }

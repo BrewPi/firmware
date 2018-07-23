@@ -14,11 +14,11 @@ public:
 {}
 
     virtual cbox::stream_size_t streamFromMaxSize() override final {
-        return blox_SetPointSimple_Persisted_size;
+        return blox_SetPointSimple_Persisted_size + 1; // zero terminated
     }
 
     virtual cbox::stream_size_t streamToMaxSize() override final {
-        return blox_SetPointSimple_size;
+        return blox_SetPointSimple_size + 1; // zero terminated
     }
 
     virtual cbox::Object::StreamFromResult streamFrom(cbox::DataIn& dataIn) override final {
@@ -40,6 +40,7 @@ public:
 
         pb_ostream_t stream = { &dataOutStreamCallback, &out, streamToMaxSize(), 0 };
         bool success = pb_encode(&stream, blox_SetPointSimple_fields, &message);
+        out.write(0); // zero terminate
         return (success) ? cbox::Object::StreamToResult::success : cbox::Object::StreamToResult::stream_error;
     }
 

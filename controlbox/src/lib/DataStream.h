@@ -250,7 +250,7 @@ class RegionDataIn : public DataIn {
 	DataIn* in;
 	stream_size_t len;
 public:
-	RegionDataIn(DataIn& _in, uint8_t _len)
+	RegionDataIn(DataIn& _in, stream_size_t _len)
 	: in(&_in), len(_len) {}
 
 	bool hasNext() override { return len && in->hasNext(); }
@@ -262,6 +262,24 @@ public:
         while (in->hasNext()){
             in->next();
         }
+    }
+};
+
+/**
+ * Limits writing to the stream to the given number of bytes.
+ */
+class RegionDataOut : public DataOut {
+    DataOut* out;
+    stream_size_t len;
+public:
+    RegionDataOut(DataOut& _out, stream_size_t _len)
+    : out(&_out), len(_len) {}
+
+    virtual bool write(uint8_t data) override {
+        if(len-- > 0){
+            return DataOut::write(data);
+        }
+        return false;
     }
 };
 

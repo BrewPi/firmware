@@ -26,6 +26,9 @@
 #include "Commands.h"
 #include "temperatureFormats.h"
 #include <memory>
+#include <cstdio>
+#include <iostream>
+#include <iomanip>
 
 namespace cbox {
 std::shared_ptr<Object> createApplicationObject(obj_type_t typeId, DataIn& in, CommandError& errorCode);
@@ -56,7 +59,7 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
             THEN("no errors occur"){
                 if (!status)
                 {
-                    INFO("Decoding failed: " << PB_GET_ERROR(&stream));
+                    INFO("encoding failed: " << PB_GET_ERROR(&stream));
                     CAPTURE(stream);
                 }
                 CHECK(status);
@@ -64,12 +67,20 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
 
             AND_WHEN("we create a DataIn object form that buffer"){
             	cbox::BufferDataIn in(buf);
-            	cbox::RegionDataIn regionIn(in, stream.bytes_written); // limit stream to valid data for this object
 
                 THEN("a newly created SetPointSimpleBloc object can receive settings from the DataIn stream")
                 {
                     SetPointSimpleBlock sp;
-                    cbox::Object::StreamFromResult res = sp.streamFrom(regionIn); // use in as mask too, it is not used.
+                    INFO(stream.bytes_written);
+                    INFO(buf);
+                    std::stringstream ss;
+                     ss << "0x" << std::setfill('0') << std::hex;
+                     for(int i =0 ; i <= blox_SetPointSimple_Persisted_size; i ++){
+                         ss << std::setw(2) << static_cast<unsigned>(buf[i]);
+                     }
+                     INFO("Encoding of Object is " << ss.str());
+
+                    cbox::Object::StreamFromResult res = sp.streamFrom(in); // use in as mask too, it is not used.
                     CHECK(res == cbox::Object::StreamFromResult::success_persist);
                     temp_t setting = sp.get().read();
                     temp_t valid;
@@ -110,6 +121,7 @@ SCENARIO("Create blox SetPointSimple application object from definition"){
         uint8_t buffer1[100];
         pb_ostream_t stream1 = pb_ostream_from_buffer(buffer1, sizeof(buffer1));
         status = pb_encode(&stream1, blox_SetPointSimple_Persisted_fields, &persistedData);
+        buffer1[stream1.bytes_written] = 0; // zero terminate
 
         THEN("no errors occur"){
             if (!status)
