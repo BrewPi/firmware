@@ -99,8 +99,7 @@ public:
         generic_error,
         stream_error,
         not_writable,
-        success_dont_persist,
-        success_persist,
+        success,
     };
     virtual StreamFromResult streamFrom(DataIn& dataIn){ return StreamFromResult::not_writable; };
     virtual stream_size_t streamFromMaxSize(){ return 0; }; // the max size this object expects from the stream.
@@ -183,7 +182,7 @@ public:
         T newValue;
         if(in.get(newValue)){
             this->obj = newValue;
-            return Object::StreamFromResult::success_persist;
+            return Object::StreamFromResult::success;
         }
         return Object::StreamFromResult::stream_error;
     }

@@ -87,7 +87,7 @@ public:
 		logicalStart = newLogicalStart; // store what the scaled time was at the time of write
 		timerStart = base.millis(); // store the base time at the time of write
 		scale = newScale;
-		return Object::StreamFromResult::success_persist;
+		return Object::StreamFromResult::success;
 	}
 
 	virtual stream_size_t streamToMaxSize() override { return sizeof(logicalStart) + sizeof(scale); }

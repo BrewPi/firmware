@@ -237,12 +237,12 @@ class BufferDataIn : public DataIn {
     stream_size_t pos;
 
 public:
-	BufferDataIn(const void* data, stream_size_t len) : _data((const uint8_t*)data), size(len), pos(0) {}
+	BufferDataIn(const uint8_t *data, stream_size_t len) : _data(data), size(len), pos(0) {}
 
 	virtual uint8_t next() override { return _data[pos++]; }
 	virtual bool hasNext() override { return pos < size; }
 	virtual uint8_t peek() override { return _data[pos]; }
-	virtual stream_size_t available() override { return size-pos; }
+	virtual stream_size_t available() override { return size - pos; }
 	void reset() { pos = 0; };
 	stream_size_t bytes_read() { return pos; };
 };

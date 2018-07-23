@@ -24,3 +24,8 @@ public:
 	    return 0; // TODO have application classes return the time until next update
 	}
 };
+
+// helpers functions to stream protobuf fields
+
+cbox::Object::StreamToResult streamProtoTo(cbox::DataOut& out, const void* srcStruct, const pb_field_t fields[], size_t maxSize);
+cbox::Object::StreamFromResult streamProtoFrom(cbox::DataIn& in, void* destStruct, const pb_field_t fields[], size_t maxSize);

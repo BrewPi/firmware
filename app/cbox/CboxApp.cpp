@@ -122,7 +122,7 @@ std::shared_ptr<Object> createApplicationObject(obj_type_t typeId, DataIn& in, C
         if (obj == nullptr) {
             errorCode = CommandError::insufficient_heap;
         }
-        else if ( streamResult <= Object::StreamFromResult::success_dont_persist){
+        else if ( streamResult != Object::StreamFromResult::success){
             errorCode = CommandError::stream_error;
         }
 

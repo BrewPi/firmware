@@ -22,91 +22,58 @@
 
 #include "SetPointSimpleBlock.h"
 
+#include "Block.h"
 #include "Object.h"
 #include "Commands.h"
 #include "temperatureFormats.h"
 #include <memory>
-#include <cstdio>
-#include <iostream>
-#include <iomanip>
 
 namespace cbox {
 std::shared_ptr<Object> createApplicationObject(obj_type_t typeId, DataIn& in, CommandError& errorCode);
 }
 
-
-std::ostream& operator<<( std::ostream& os, const cbox::Object::StreamFromResult& item )
-{
-  os << static_cast<std::underlying_type<cbox::Object::StreamFromResult>::type>(item);
-  return os;
-}
-
-std::ostream& operator<<( std::ostream& os, const cbox::Object::StreamToResult& item )
-{
-  os << static_cast<std::underlying_type<cbox::Object::StreamToResult>::type>(item);
-  return os;
-}
-
 SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf data"){
-    GIVEN("a protobuf message defining a SetPointSimple object"){
-        blox_SetPointSimple_Persisted message;
-        message.settings.value = 123;
+    WHEN("a protobuf message defining a SetPointSimple object is encoded to a buffer"){
+        blox_SetPointSimple message;
+        message.setting = 123;
 
-        WHEN("it is encoded to a buffer"){
-            uint8_t buf[100];
-            pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
-            bool status = pb_encode(&stream, blox_SetPointSimple_Persisted_fields, &message);
-            THEN("no errors occur"){
-                if (!status)
-                {
-                    INFO("encoding failed: " << PB_GET_ERROR(&stream));
-                    CAPTURE(stream);
-                }
-                CHECK(status);
-            }
+        uint8_t buf[100];
+        cbox::BufferDataOut out(buf, sizeof(buf));
+        auto result = streamProtoTo(out, &message, blox_SetPointSimple_fields, blox_SetPointSimple_size);
+        THEN("no errors occur")
+        {
+            CHECK(result == cbox::Object::StreamToResult::success);
+        }
 
-            AND_WHEN("we create a DataIn object form that buffer"){
-            	cbox::BufferDataIn in(buf, sizeof(buf));
+        AND_WHEN("we stream that same buffer back into an existing SetPoint object, the setting matches the message")
+        {
+            cbox::BufferDataIn in(buf, sizeof(buf));
+            SetPointSimpleBlock sp;
+            auto res = sp.streamFrom(in);
+            CHECK(res == cbox::Object::StreamFromResult::success);
 
-                THEN("a newly created SetPointSimpleBloc object can receive settings from the DataIn stream")
-                {
-                    SetPointSimpleBlock sp;
-                    INFO(stream.bytes_written);
-                    INFO(buf);
-                    std::stringstream ss;
-                     ss << "0x" << std::setfill('0') << std::hex;
-                     for(int i =0 ; i <= blox_SetPointSimple_Persisted_size; i ++){
-                         ss << std::setw(2) << static_cast<unsigned>(buf[i]);
-                     }
-                     INFO("Encoding of Object is " << ss.str());
+            temp_t setting = sp.get().read();
+            temp_t valid; valid.setRaw(123);
+            CHECK(setting == valid);
 
-                    cbox::Object::StreamFromResult res = sp.streamFrom(in); // use in as mask too, it is not used.
-                    CHECK(res == cbox::Object::StreamFromResult::success_persist);
-                    temp_t setting = sp.get().read();
-                    temp_t valid;
-                    valid.setRaw(123);
-                    CHECK(setting == valid);
+            AND_THEN("we can stream that same SetPoint to a DataOut stream")
+            {
+                // change the value for a round trip test
+                sp.get().write(21.0);
 
-                    AND_THEN("we can stream that bloc object to a DataOut stream")
-                    {
-                        // change the value for a round trip test
-                        sp.get().write(21.0);
+                uint8_t buf2[100];
+                cbox::BufferDataOut out2(buf2, sizeof(buf2));
+                cbox::Object::StreamToResult res2 = sp.streamTo(out2);
+                CHECK(res2 == cbox::Object::StreamToResult::success);
 
-                        uint8_t buf2[100];
-                        cbox::BufferDataOut out(buf2, sizeof(buf2));
-                        cbox::Object::StreamToResult res2 = sp.streamTo(out);
-                        CHECK(res2 == cbox::Object::StreamToResult::success);
+                sp.get().write(25.0); // change again, so we can verify the receive
+                CHECK(sp.get().read() == temp_t(25.0));
 
-                        sp.get().write(25.0); // change again, so we can verify the receive
-                        CHECK(sp.get().read() == temp_t(25.0));
+                cbox::BufferDataIn in_roundtrip(buf2, sizeof(buf2));
+                cbox::Object::StreamFromResult res3 = sp.streamFrom(in_roundtrip);
+                CHECK(res3 == cbox::Object::StreamFromResult::success);
 
-                        cbox::BufferDataIn in_roundtrip(buf2, sizeof(buf2));
-                        cbox::Object::StreamFromResult res3 = sp.streamFrom(in_roundtrip);
-                        CHECK((uint8_t) res3 == (uint8_t) cbox::Object::StreamFromResult::success_persist);
-
-                        CHECK(sp.get().read() == temp_t(21.0));
-                    }
-                }
+                CHECK(sp.get().read() == temp_t(21.0));
             }
         }
     }
@@ -115,12 +82,12 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
 SCENARIO("Create blox SetPointSimple application object from definition"){
     GIVEN("A BrewBlox SetPointSimple definition"){
         bool status;
-        blox_SetPointSimple_Persisted persistedData;
-        persistedData.settings.value = 123;
+        blox_SetPointSimple persistedData;
+        persistedData.setting = 123;
 
         uint8_t buffer1[100];
         pb_ostream_t stream1 = pb_ostream_from_buffer(buffer1, sizeof(buffer1));
-        status = pb_encode(&stream1, blox_SetPointSimple_Persisted_fields, &persistedData);
+        status = pb_encode(&stream1, blox_SetPointSimple_fields, &persistedData);
         buffer1[stream1.bytes_written] = 0; // zero terminate
 
         THEN("no errors occur"){

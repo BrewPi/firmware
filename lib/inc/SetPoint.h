@@ -34,18 +34,13 @@ public:
 friend class SetPointMixin;
 };
 
-
 class SetPointSimple final : public SetPoint, public SetPointSimpleMixin {
 public:
-    struct Settings {
-        temp_t value;
-    };
+    temp_t setting;
 
-    SetPointSimple() : settings({temp_t::disabled()}){}
-    SetPointSimple(temp_t _value) : settings({_value}){}
+    SetPointSimple() : setting(temp_t::disabled()){}
+    SetPointSimple(temp_t _value) : setting(_value){}
     ~SetPointSimple() = default;
-
-    static const size_t sizeof_Settings = sizeof(Settings);
 
     /**
      * Accept function for visitor pattern
@@ -56,22 +51,12 @@ public:
     }
 
     virtual temp_t read() const override final {
-        return settings.value;
+        return setting;
     }
 
     virtual void write (temp_t val) override final {
-        settings.value = val;
+        setting = val;
     }
-
-    void setSettings(Settings const & from){
-        settings = from;
-    }
-
-    Settings const& getSettings(){
-        return settings;
-    }
-private:
-    Settings settings;
 
 friend class SetPointSimpleMixin;
 };

@@ -21,31 +21,10 @@
 
 #include <pb_decode.h>
 #include <pb_encode.h>
-#include "DataStream.h"
 
 /* This binds the pb_ostream_t into the DataOut stream, which is passed as state in pb_ostream */
-static bool dataOutStreamCallback(pb_ostream_t *stream, const uint8_t *buf, size_t count)
-{
-	cbox::DataOut * out = (cbox::DataOut *) stream->state;
-    return out->writeBuffer(buf, count);
-}
+bool dataOutStreamCallback(pb_ostream_t *stream, const pb_byte_t *buf, size_t count);
 
 /* This binds the pb_istream_t into the DataIn stream, which is passed as state in pb_istream */
-static bool dataInStreamCallback(pb_istream_t *stream, uint8_t *buf, size_t count)
-{
-	cbox::DataIn * in = (cbox::DataIn *) stream->state;
-	while(count--){
-	    // in->next() will return 0 if hasNext() is false.
-	    // zero termination between fields is supported by pb_decode, because field tags are non-zero
-        *buf++ = in->next();
-    }
-    return true;
-}
+bool dataInStreamCallback(pb_istream_t *stream, pb_byte_t *buf, size_t count);
 
-/* This write a block of data to eeprom. The address is passed as stream state */
-static bool eepromOutStreamCallback(pb_ostream_t *stream, const uint8_t *buf, size_t count)
-{
-    eptr_t dest = * (eptr_t* ) stream->state;
-    eepromAccess.writeBlock(dest, buf, count);
-    return true;
-}

@@ -43,6 +43,7 @@ CPPSRC += $(call here_files,platform/catch_test/src,*.cpp)
 
 # add all objects the user can create
 INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox/blox
+CPPSRC += $(call here_files,app/cbox/blox,*.cpp)
 
 # add all lib source files
 INCLUDE_DIRS += $(SOURCE_PATH)/lib/inc
@@ -73,6 +74,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/EEPROM
 CPPSRC += /app/cbox/CboxApp.cpp
 CPPSRC += /app/cbox/Logger.cpp
 CPPSRC += /app/cbox/AppResolveType.cpp
+CPPSRC += /app/cbox/nanopb_callbacks.cpp
 
 # include boost
 ifeq ($(BOOST_ROOT),)

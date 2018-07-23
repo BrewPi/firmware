@@ -139,6 +139,12 @@ public:
         return value_;
     }
 
+    static temp_t raw(TEMP_TYPE val){
+        temp_t t;
+        t.setRaw(val);
+        return t;
+    }
+
     bool isDisabledOrInvalid() const {
         return (value_ < min_val);
     }
@@ -256,6 +262,17 @@ public:
         value_= val;
     }
 
+    TEMP_PRECISE_TYPE getRaw(){
+        return value_;
+    }
+
+    static temp_precise_t raw(TEMP_PRECISE_TYPE val){
+        temp_precise_t t;
+        t.setRaw(val);
+        return t;
+    }
+
+
     char * toString(char buf[], uint8_t numDecimals, uint8_t len) const {
         return toStringImpl(value_, fractional_bit_count, buf, numDecimals, len, 'C', false);
     }
@@ -353,6 +370,16 @@ public:
 
     void setRaw(TEMP_LONG_TYPE val){
         value_= val;
+    }
+
+    TEMP_LONG_TYPE getRaw(){
+        return value_;
+    }
+
+    static temp_long_t raw(TEMP_LONG_TYPE val){
+        temp_long_t t;
+        t.setRaw(val);
+        return t;
     }
 
     char * toString(char buf[], uint8_t numDecimals, uint8_t len) const {
