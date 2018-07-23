@@ -23,6 +23,7 @@
 #include "stddef.h"
 #include "stdint.h"
 #include <memory>
+#include <type_traits>
 
 #include "DataStream.h"
 #include "EepromAccess.h"
@@ -207,4 +208,6 @@ struct ObjectFactory {
     std::shared_ptr<Object> (*createFn)(DataIn & defn, Object::StreamFromResult &streamResult);
 };
 
+
 } // end namespace cbox
+
