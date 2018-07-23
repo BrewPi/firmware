@@ -98,7 +98,7 @@ public:
 	bool hasNext() override { return commsDevice; }			// hasNext true if stream is still open.
 	uint8_t next() override { return uint8_t(commsDevice.read()); }
 	uint8_t peek() override { return uint8_t(commsDevice.peek()); }
-	unsigned available() override { return uint8_t(commsDevice.available()); }
+	stream_size_t available() override { return stream_size_t(commsDevice.available()); }
 };
 #endif
 

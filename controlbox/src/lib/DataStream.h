@@ -148,7 +148,7 @@ struct DataIn
 	/**
 	 * Determines how many bytes are available for reading from the stream without blocking.
 	 */
-	virtual unsigned available() =0;
+	virtual stream_size_t available() =0;
 
 	virtual ~DataIn() {}
 
@@ -192,7 +192,7 @@ class EmptyDataIn : public DataIn
 	virtual bool hasNext() override { return false; }
 	virtual uint8_t next() override { return 0; }
 	virtual uint8_t peek() override { return 0; }
-	virtual unsigned available() override { return 0; }
+	virtual stream_size_t available() override { return 0; }
 };
 
 /*
@@ -223,25 +223,31 @@ public:
 
 	virtual bool hasNext() override { return _in->hasNext(); }
 	virtual uint8_t peek() override { return _in->peek(); }
-	virtual unsigned available() override { return _in->available(); }
+	virtual stream_size_t available() override { return _in->available(); }
 
 };
 
 
 /**
- * Provides a DataIn stream from a static buffer of data. The caller is assumed to know how long the buffer is..??!!?
+ * Provides a DataIn stream from a static buffer of data.
  */
 class BufferDataIn : public DataIn {
 	const uint8_t* _data;
-// todo - pass the size of the data array?
-public:
-	BufferDataIn(const void* data) : _data((const uint8_t*)data) {}
+	stream_size_t size;
+    stream_size_t pos;
 
-	uint8_t next() override { return *_data++; }
-	bool hasNext() override { return true; }
-	uint8_t peek() override { return *_data; }
-	unsigned available() override { return 1; }
+public:
+	BufferDataIn(const void* data, stream_size_t len) : _data((const uint8_t*)data), size(len), pos(0) {}
+
+	virtual uint8_t next() override { return _data[pos++]; }
+	virtual bool hasNext() override { return pos < size; }
+	virtual uint8_t peek() override { return _data[pos]; }
+	virtual stream_size_t available() override { return size-pos; }
+	void reset() { pos = 0; };
+	stream_size_t bytes_read() { return pos; };
 };
+
+
 
 /**
  * Limits reading from the stream to the given number of bytes.
@@ -256,7 +262,7 @@ public:
 	bool hasNext() override { return len && in->hasNext(); }
 	uint8_t next() override { return hasNext() ? len--, in->next() : 0; }
 	uint8_t peek() override { return in->peek(); }
-	unsigned available() override { return std::min(unsigned(len), in->available()); }
+	stream_size_t available() override { return std::min(len, in->available()); }
 
     void spool() {
         while (in->hasNext()){

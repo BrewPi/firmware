@@ -39,7 +39,7 @@ public:
 		}
 	}
 
-	virtual unsigned available() override final
+	virtual stream_size_t available() override final
 	{
 		return queue.size()>0;
 	}

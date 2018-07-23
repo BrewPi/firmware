@@ -102,7 +102,7 @@ public:
 		}
 		return result;
 	}
-	virtual unsigned available() override final { return _length; }
+	virtual stream_size_t available() override final { return _length; }
 };
 
 }

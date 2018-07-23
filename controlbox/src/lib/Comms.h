@@ -101,8 +101,8 @@ public:
         return uint8_t(stream->peek());
     }
 
-    virtual unsigned available() override {
-        return unsigned(stream->available());
+    virtual stream_size_t available() override {
+        return stream_size_t(stream->available());
     }
 
 };
@@ -287,7 +287,7 @@ public:
         return data;
     }
 
-    unsigned available() override
+    stream_size_t available() override
     {
         return hasNext();
     }
@@ -348,7 +348,7 @@ public:
 		return r;
 	}
 
-    unsigned available() override {
+	stream_size_t available() override {
         fetchNextByte();
         return hasData() ? 1 : 0;
     }

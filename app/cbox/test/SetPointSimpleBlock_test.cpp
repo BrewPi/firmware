@@ -66,7 +66,7 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
             }
 
             AND_WHEN("we create a DataIn object form that buffer"){
-            	cbox::BufferDataIn in(buf);
+            	cbox::BufferDataIn in(buf, sizeof(buf));
 
                 THEN("a newly created SetPointSimpleBloc object can receive settings from the DataIn stream")
                 {
@@ -100,7 +100,7 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
                         sp.get().write(25.0); // change again, so we can verify the receive
                         CHECK(sp.get().read() == temp_t(25.0));
 
-                        cbox::BufferDataIn in_roundtrip(buf2);
+                        cbox::BufferDataIn in_roundtrip(buf2, sizeof(buf2));
                         cbox::Object::StreamFromResult res3 = sp.streamFrom(in_roundtrip);
                         CHECK((uint8_t) res3 == (uint8_t) cbox::Object::StreamFromResult::success_persist);
 
@@ -132,7 +132,7 @@ SCENARIO("Create blox SetPointSimple application object from definition"){
             CHECK(status);
         }
 
-        cbox::BufferDataIn in(buffer1);
+        cbox::BufferDataIn in(buffer1, sizeof(buffer1));
         cbox::obj_type_t typeId = cbox::resolveTypeID<SetPointSimpleBlock>();
         cbox::CommandError er;
 
