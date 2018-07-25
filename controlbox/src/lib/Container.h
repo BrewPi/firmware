@@ -35,23 +35,18 @@ public:
 
     obj_id_t id;
     uint8_t profiles; // active in these profiles
-    std::shared_ptr<Object> obj; // ptr to runtime object
+    std::shared_ptr<Object> obj; // pointer to runtime object
 };
-
 
 class ObjectContainer
 {
 public:
-    ObjectContainer() : activeProfiles(0), lastAssignedId(obj_id_t::start()){};
-    ObjectContainer(std::initializer_list<ContainedObject> l) : activeProfiles(0), lastAssignedId(obj_id_t::start()){
-
-    };
+    ObjectContainer(){};
+    ObjectContainer(std::initializer_list<ContainedObject> l) : objects(l){};
     virtual ~ObjectContainer() = default;
 
 private:
     std::vector<ContainedObject> objects;
-    uint8_t activeProfiles;
-    obj_id_t lastAssignedId;
 
 public:
 
@@ -80,23 +75,31 @@ public:
         return ptr;
     }
 
-    obj_id_t add (std::unique_ptr<Object> obj, uint8_t active_in_profiles) {
-        obj_id_t newId = lastAssignedId++;
-        std::shared_ptr<Object> ptr = std::move(obj);
-        ContainedObject entry(newId, active_in_profiles, ptr);
-        objects.push_back(entry);
-        return newId;
+    obj_id_t freeId(){
+        static obj_id_t id = obj_id_t::start();
+        while(!id.isValid() || find(id)){
+            id++;
+        }
+        return id;
     }
 
-    obj_id_t add (std::unique_ptr<Object> obj, uint8_t active_in_profiles, obj_id_t id) {
-        auto existing = find(id);
-        if(existing == nullptr){
-            return obj_id_t::invalid();
+    obj_id_t add (std::unique_ptr<Object> obj, const uint8_t active_in_profiles) {
+        return add(std::move(obj), active_in_profiles, obj_id_t::invalid());
+    }
+
+    obj_id_t add (std::unique_ptr<Object> obj, const uint8_t active_in_profiles, const obj_id_t id) {
+        obj_id_t newId = id;
+        if(newId == obj_id_t::invalid()){ // use 0 to let the container assign a free slot
+            newId = freeId();
         }
-        std::shared_ptr<Object> ptr = std::move(obj);
-        ContainedObject entry(id, active_in_profiles, std::move(obj));
-        objects.push_back(entry);
-        return id;
+        else { // check if the id already exists
+            if(find(newId) != nullptr){
+                return obj_id_t::invalid(); // refuse to overwrite existing objects
+            }
+        }
+        ContainedObject entry(newId, active_in_profiles, std::move(obj)); // move object entry
+        objects.push_back(entry); // add entry to container
+        return newId;
     }
 
     bool replace (obj_id_t id, std::unique_ptr<Object> obj, uint8_t active_in_profiles) {
