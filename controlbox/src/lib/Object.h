@@ -23,45 +23,79 @@
 #include "stddef.h"
 #include "stdint.h"
 #include <memory>
-#include <type_traits>
-
 #include "DataStream.h"
-#include "EepromAccess.h"
 #include "CboxMixins.h"
-#include "ResolveType.h"
 
 namespace cbox {
 
-class object_id_t {
+enum class StreamResult {
+    success,
+    not_persisted,
+    generic_error,
+    stream_error,
+    not_writable,
+};
+
+
+class id_type_base {
 public:
-    object_id_t() : id(0){};
-    object_id_t(uint16_t v) : id(v){};
+    id_type_base() : id(invalid()){};
+    id_type_base(uint16_t v) : id(v){};
 
     operator uint16_t() const {
         return id;
     }
 
     bool isValid() const{
-        return id > 0;
+        return id > invalid();
     }
 
-    object_id_t & operator++() // ++A
+    StreamResult streamTo(DataOut & out){
+        return out.put(id) ? StreamResult::success : StreamResult::stream_error;
+    }
+
+    StreamResult streamFrom(DataIn & in){
+        return in.get(id) ? StreamResult::success : StreamResult::stream_error;
+    }
+
+    static const id_type_base start() { return 1; };
+    static const id_type_base invalid() { return 0; };
+
+protected:
+    uint16_t id;
+};
+
+class obj_type_t : public id_type_base {
+public:
+    using id_type_base::id_type_base;
+
+    obj_type_t(id_type_base & id){
+        *this = id;
+    }
+};
+
+class obj_id_t : public id_type_base {
+public:
+    using id_type_base::id_type_base;
+
+    obj_id_t(const id_type_base id){
+        *this = id;
+    }
+
+    obj_id_t & operator++() // ++A
     {
         ++id;
         return *this ;
     }
 
-    object_id_t operator++(int) // A++
+    obj_id_t operator++(int) // A++
     {
-       object_id_t temp = *this ;
+       obj_id_t temp = *this ;
        ++id;
        return temp ;
     }
-
-    static object_id_t startId() { return 1; };
-
-    uint16_t id;
 };
+
 
 class Object : virtual public ObjectMixin
 {
@@ -75,53 +109,30 @@ public:
 	virtual obj_type_t typeID() = 0;
 
 	/**
-	 * update the object, returns time until it wants to be updated again (in ms).
+	 * update the object, returns timestamp at which it wants to be updated again (in ms since boot).
 	 */
-	virtual uint32_t update() { return UINT32_MAX; };
+	virtual uint32_t update(uint32_t currentTime) { return 0; };
 
 	/**
 	 * Each object is at least stream readable
 	 */
-    enum class StreamToResult {
-        generic_error,
-        stream_error,
-        success,
-    };
-
-	virtual StreamToResult streamTo(DataOut& out)=0;
-    virtual stream_size_t streamToMaxSize()=0; // the max size this value will output to the stream.
-
+	virtual StreamResult streamTo(DataOut& out)=0;
 
     /**
-     * Some objects can be writable from the stream, they override the functions below
+     * Some objects can be writable from the stream, they override the streamFrom function
      */
-    enum class StreamFromResult {
-        generic_error,
-        stream_error,
-        not_writable,
-        success,
+    virtual StreamResult streamFrom(DataIn& dataIn){
+        return StreamResult::not_writable;
     };
-    virtual StreamFromResult streamFrom(DataIn& dataIn){ return StreamFromResult::not_writable; };
-    virtual stream_size_t streamFromMaxSize(){ return 0; }; // the max size this object expects from the stream.
 
-    // default streaming persisted data to streamTo. Can be overridden by objects that do not persist all of their data
-    virtual StreamToResult streamPersistedTo(DataOut& out){
-        return streamTo(out);
-    }
-    virtual stream_size_t persistedMaxSize(){
-        return streamToMaxSize();
+    /**
+     * Objects that want to store persisted data override the streamPersistedTo function
+     */
+    virtual StreamResult streamPersistedTo(DataOut& out){
+        return StreamResult::not_persisted;
     }
 };
 
-
-/**
- * A base writable object type, which use the input stream to change its value
- */
-class WritableObject : public Object {
-public:
-	virtual StreamFromResult streamFrom(DataIn& dataIn) override = 0;
-	virtual stream_size_t streamFromMaxSize() override { return streamToMaxSize(); };
-};
 
 /**
  * An object that does nothing. When read, it returns the type it becomes when it is activated.
@@ -132,15 +143,12 @@ public:
     InactiveObject(obj_type_t type) : actualType(type){};
     virtual ~InactiveObject() = default;
 
-    virtual obj_type_t typeID() override final {
-        return resolveTypeID<InactiveObject>();
-    }
+    virtual obj_type_t typeID() override final;
 
-    virtual Object::StreamToResult streamTo(DataOut& out) override final {
+    virtual StreamResult streamTo(DataOut& out) override final {
         out.write(actualType);
-        return Object::StreamToResult::success;
+        return StreamResult::success;
     }
-    virtual stream_size_t streamToMaxSize() override final { return sizeof(object_id_t); };
 
     obj_type_t actualType;
 };
@@ -156,13 +164,9 @@ public:
     RawStreamObject(T data) : obj(data){};
     virtual ~RawStreamObject() = default;
 
-    virtual Object::StreamToResult streamTo(DataOut& out) override final {
+    virtual StreamResult streamTo(DataOut& out) override final {
         out.put(obj);
-        return Object::StreamToResult::success;
-    }
-
-    virtual stream_size_t streamToMaxSize() override final {
-        return sizeof(T);
+        return StreamResult::success;
     }
 
 protected:
@@ -178,23 +182,22 @@ class RawStreamWritableObject : public RawStreamObject<T>
 public:
     virtual ~RawStreamWritableObject() = default;
 
-    virtual Object::StreamFromResult streamFrom(DataIn& in) override final {
+    virtual StreamResult streamFrom(DataIn& in) override final {
         T newValue;
         if(in.get(newValue)){
             this->obj = newValue;
-            return Object::StreamFromResult::success;
+            return StreamResult::success;
         }
-        return Object::StreamFromResult::stream_error;
+        return StreamResult::stream_error;
     }
-
-    virtual stream_size_t streamToMaxSize() override final {
-        return sizeof(T);
+    virtual StreamResult streamPersistedTo(DataOut& out) override final {
+        return RawStreamObject<T>::streamTo(out);
     }
 };
 
 
 template<class T>
-std::shared_ptr<Object> createObject(DataIn & defn, Object::StreamFromResult &streamResult){
+std::shared_ptr<Object> createObject(DataIn & defn, StreamResult &streamResult){
     auto obj = std::make_shared<T>();
     streamResult = obj->streamFrom(defn);
     return obj;
@@ -204,7 +207,7 @@ std::shared_ptr<Object> createObject(DataIn & defn, Object::StreamFromResult &st
 // They can be put in a container that can be walked to find the matching typeId
 struct ObjectFactory {
     obj_type_t typeId;
-    std::shared_ptr<Object> (*createFn)(DataIn & defn, Object::StreamFromResult &streamResult);
+    std::shared_ptr<Object> (*createFn)(DataIn & defn, StreamResult &streamResult);
 };
 
 

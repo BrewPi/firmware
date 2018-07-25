@@ -42,7 +42,7 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
         auto result = streamProtoTo(out, &message, blox_SetPointSimple_fields, blox_SetPointSimple_size);
         THEN("no errors occur")
         {
-            CHECK(result == cbox::Object::StreamToResult::success);
+            CHECK(result == cbox::StreamResult::success);
         }
 
         AND_WHEN("we stream that same buffer back into an existing SetPoint object, the setting matches the message")
@@ -50,7 +50,7 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
             cbox::BufferDataIn in(buf, sizeof(buf));
             SetPointSimpleBlock sp;
             auto res = sp.streamFrom(in);
-            CHECK(res == cbox::Object::StreamFromResult::success);
+            CHECK(res == cbox::StreamResult::success);
 
             temp_t setting = sp.get().read();
             temp_t valid; valid.setRaw(123);
@@ -63,15 +63,15 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
 
                 uint8_t buf2[100];
                 cbox::BufferDataOut out2(buf2, sizeof(buf2));
-                cbox::Object::StreamToResult res2 = sp.streamTo(out2);
-                CHECK(res2 == cbox::Object::StreamToResult::success);
+                cbox::StreamResult res2 = sp.streamTo(out2);
+                CHECK(res2 == cbox::StreamResult::success);
 
                 sp.get().write(25.0); // change again, so we can verify the receive
                 CHECK(sp.get().read() == temp_t(25.0));
 
                 cbox::BufferDataIn in_roundtrip(buf2, sizeof(buf2));
-                cbox::Object::StreamFromResult res3 = sp.streamFrom(in_roundtrip);
-                CHECK(res3 == cbox::Object::StreamFromResult::success);
+                cbox::StreamResult res3 = sp.streamFrom(in_roundtrip);
+                CHECK(res3 == cbox::StreamResult::success);
 
                 CHECK(sp.get().read() == temp_t(21.0));
             }

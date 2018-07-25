@@ -81,7 +81,7 @@ void connectionStarted(StandardConnection& connection, DataOut& out)
 #endif
 }
 
-ObjectContainer& systemRootContainer()
+ObjectContainer& systemContainer()
 {
     static std::shared_ptr<Object> deviceId = std::make_shared<DeviceIdObject>();
     static ObjectContainer systemContainer({
@@ -94,7 +94,7 @@ ObjectContainer& systemRootContainer()
  * Provide the root container in which all user created objects are stored
  *
  */
-ObjectContainer& rootContainer()
+ObjectContainer& userContainer()
 {
     static ObjectContainer rootContainer;
     return rootContainer;
@@ -107,7 +107,7 @@ std::shared_ptr<Object> createApplicationObject(obj_type_t typeId, DataIn& in, C
 {
     errorCode = CommandError::no_error;
     std::shared_ptr<Object> obj;
-    std::shared_ptr<Object> (*createFn)(DataIn& def, Object::StreamFromResult &streamResult) = nullptr;
+    std::shared_ptr<Object> (*createFn)(DataIn& def, StreamResult &streamResult) = nullptr;
     for(uint8_t i =0; i<sizeof(objectFactories)/sizeof(objectFactories[0]); i++) {
     	if(typeId == objectFactories[i].typeId) {
     		createFn = objectFactories[i].createFn;
@@ -117,12 +117,12 @@ std::shared_ptr<Object> createApplicationObject(obj_type_t typeId, DataIn& in, C
         errorCode = CommandError::invalid_type;
     }
     else {
-        Object::StreamFromResult streamResult;
+        StreamResult streamResult;
         obj = createFn(in, streamResult);
         if (obj == nullptr) {
             errorCode = CommandError::insufficient_heap;
         }
-        else if ( streamResult != Object::StreamFromResult::success){
+        else if ( streamResult != StreamResult::success){
             errorCode = CommandError::stream_error;
         }
 

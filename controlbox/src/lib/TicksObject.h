@@ -23,6 +23,7 @@
 #include "Object.h"
 #include "Ticks.h"
 #include "Static.h"
+#include "DataStream.h"
 
 namespace cbox {
 
@@ -45,7 +46,7 @@ inline ticks_seconds_t timeSince(ticks_seconds_t currentTime, ticks_seconds_t pr
  * The current time and scale are not persisted to eeprom.
  */
 template<class T>
-class ScaledTicksValue : public WritableObject
+class ScaledTicksValue : public Object
 {
 	ticks_millis_t logicalStart;
 	ticks_millis_t timerStart;
@@ -67,30 +68,28 @@ public:
 
 	ticks_seconds_t seconds() { return millis()/1000; }
 
-	virtual Object::StreamToResult streamTo(DataOut& out) override {
+	virtual StreamResult streamTo(DataOut& out) override {
 		ticks_millis_t timeVal = millis(base.millis());
 		out.put(timeVal);
 		out.put(scale);
-		return Object::StreamToResult::success;
+		return StreamResult::success;
 	}
 
-	virtual Object::StreamFromResult streamFrom(DataIn& in) override {
+	virtual StreamResult streamFrom(DataIn& in) override {
 		ticks_millis_t newLogicalStart;
 		uint16_t newScale;
 		bool success = in.get(newLogicalStart);
 		success &= in.get(newScale);
 
 		if(!success){
-		    return Object::StreamFromResult::stream_error;
+		    return StreamResult::stream_error;
 		}
 
 		logicalStart = newLogicalStart; // store what the scaled time was at the time of write
 		timerStart = base.millis(); // store the base time at the time of write
 		scale = newScale;
-		return Object::StreamFromResult::success;
+		return StreamResult::success;
 	}
-
-	virtual stream_size_t streamToMaxSize() override { return sizeof(logicalStart) + sizeof(scale); }
 
 	// return time that has passed since timeStamp, take overflow into account
 	ticks_seconds_t timeSinceSeconds(ticks_seconds_t previousTime) {

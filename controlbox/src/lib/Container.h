@@ -23,42 +23,17 @@
 #include <stdint.h>
 #include <vector>
 #include "Object.h"
-#include "ResolveType.h"
 
 namespace cbox {
 
-#if 0
-/**
- * A container that holds items.
- */
-class Container
-{
-public:
-    Container() = default;
-    virtual ~Container() = default;
-
-    /**
-     * Fetches the object with the given id.
-     * /return the object with that id, which may be null.
-     *
-     * After retrieving the item, callers must call returnItem()
-     */
-    virtual std::shared_ptr<Object> fetch(const object_id_t id) = 0;
-    virtual object_id_t add (std::unique_ptr<Object> obj, uint8_t active_in_profiles) = 0;
-    virtual bool replace (object_id_t id, std::unique_ptr<Object> obj, uint8_t active_in_profiles) = 0;
-    virtual void remove(object_id_t id) = 0;
-};
-#endif
-
-
 class ContainedObject{
 public:
-    ContainedObject(object_id_t _id, uint8_t _profiles, std::shared_ptr<Object> _obj) :
+    ContainedObject(obj_id_t _id, uint8_t _profiles, std::shared_ptr<Object> _obj) :
         id(_id),
         profiles(_profiles),
         obj(_obj){};
 
-    object_id_t id;
+    obj_id_t id;
     uint8_t profiles; // active in these profiles
     std::shared_ptr<Object> obj; // ptr to runtime object
 };
@@ -67,8 +42,8 @@ public:
 class ObjectContainer
 {
 public:
-    ObjectContainer() : activeProfiles(0), lastCreatedId(object_id_t::startId()){};
-    ObjectContainer(std::initializer_list<ContainedObject> l) : activeProfiles(0), lastCreatedId(object_id_t::startId()){
+    ObjectContainer() : activeProfiles(0), lastAssignedId(obj_id_t::start()){};
+    ObjectContainer(std::initializer_list<ContainedObject> l) : activeProfiles(0), lastAssignedId(obj_id_t::start()){
 
     };
     virtual ~ObjectContainer() = default;
@@ -76,7 +51,7 @@ public:
 private:
     std::vector<ContainedObject> objects;
     uint8_t activeProfiles;
-    object_id_t lastCreatedId;
+    obj_id_t lastAssignedId;
 
 public:
 
@@ -86,7 +61,7 @@ public:
      *
      */
 
-    ContainedObject * find(const object_id_t id) {
+    ContainedObject * find(const obj_id_t id) {
         decltype(objects)::iterator begin = objects.begin();
         decltype(objects)::iterator end = objects.end();
         decltype(objects)::iterator found = std::find_if(begin, end, [&id](const ContainedObject& item){ return item.id == id;} );
@@ -96,7 +71,7 @@ public:
         return &(*found);
     }
 
-    std::shared_ptr<Object> fetch(const object_id_t id) {
+    std::shared_ptr<Object> fetch(const obj_id_t id) {
         auto entry = find(id);
         std::shared_ptr<Object> ptr;
         if(entry != nullptr){
@@ -105,14 +80,26 @@ public:
         return ptr;
     }
 
-    object_id_t add (std::unique_ptr<Object> obj, uint8_t active_in_profiles) {
-        object_id_t newId = lastCreatedId++;
+    obj_id_t add (std::unique_ptr<Object> obj, uint8_t active_in_profiles) {
+        obj_id_t newId = lastAssignedId++;
         std::shared_ptr<Object> ptr = std::move(obj);
         ContainedObject entry(newId, active_in_profiles, ptr);
+        objects.push_back(entry);
         return newId;
     }
 
-    bool replace (object_id_t id, std::unique_ptr<Object> obj, uint8_t active_in_profiles) {
+    obj_id_t add (std::unique_ptr<Object> obj, uint8_t active_in_profiles, obj_id_t id) {
+        auto existing = find(id);
+        if(existing == nullptr){
+            return obj_id_t::invalid();
+        }
+        std::shared_ptr<Object> ptr = std::move(obj);
+        ContainedObject entry(id, active_in_profiles, std::move(obj));
+        objects.push_back(entry);
+        return id;
+    }
+
+    bool replace (obj_id_t id, std::unique_ptr<Object> obj, uint8_t active_in_profiles) {
         ContainedObject * entry = find(id);
         if(entry != nullptr){
             entry->profiles = active_in_profiles;
@@ -122,7 +109,7 @@ public:
         return false;
     }
 
-    void remove(object_id_t id) {
+    void remove(obj_id_t id) {
         std::remove_if(objects.begin(), objects.end(), [&id](ContainedObject const& item){ return item.id == id;} );
     }
 

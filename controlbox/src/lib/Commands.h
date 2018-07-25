@@ -141,7 +141,7 @@ class Commands
 	cb_static void removeEepromCreateCommand(BufferDataOut& id);
 
 public:
-	cb_static void logValuesImpl(object_id_t * ids, DataOut& out);
+	cb_static void logValuesImpl(obj_id_t * ids, DataOut& out);
 
 #if !CONTROLBOX_STATIC
 private:

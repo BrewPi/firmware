@@ -13,24 +13,16 @@ public:
         setpoint()
 {}
 
-    virtual cbox::stream_size_t streamFromMaxSize() override final {
-        return blox_SetPointSimple_size + 1; // zero terminated
-    }
-
-    virtual cbox::stream_size_t streamToMaxSize() override final {
-        return blox_SetPointSimple_size + 1; // zero terminated
-    }
-
-    virtual cbox::Object::StreamFromResult streamFrom(cbox::DataIn& dataIn) override final {
+    virtual cbox::StreamResult streamFrom(cbox::DataIn& dataIn) override final {
         blox_SetPointSimple newData;
-        cbox::Object::StreamFromResult result = streamProtoFrom(dataIn, &newData, blox_SetPointSimple_fields, blox_SetPointSimple_size);
-        if(result == cbox::Object::StreamFromResult::success){
+        cbox::StreamResult result = streamProtoFrom(dataIn, &newData, blox_SetPointSimple_fields, blox_SetPointSimple_size);
+        if(result == cbox::StreamResult::success){
             setpoint.write(temp_t::raw(newData.setting));
         }
         return result;
     }
 
-    virtual cbox::Object::StreamToResult streamTo(cbox::DataOut& out) override final {
+    virtual cbox::StreamResult streamTo(cbox::DataOut& out) override final {
         blox_SetPointSimple message;
         message.setting = setpoint.read().getRaw();
 

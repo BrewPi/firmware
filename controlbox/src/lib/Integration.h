@@ -43,7 +43,7 @@ void handleReset(bool exit);
  * Retrieves a reference to the systemRootContainer that hosts objects
  * independently from a system profile.
  */
-ObjectContainer& systemRootContainer();
+ObjectContainer& systemContainer();
 
 /**
  * Application-provided method to create a new root container for the currently active profile.

@@ -10,17 +10,17 @@
 class CboxLookup : public BaseLookup {
 public:
     CboxLookup(){}
-    CboxLookup(uint16_t _id) : id(_id) {}
+    CboxLookup(cbox::obj_id_t _id) : id(_id) {}
     virtual ~CboxLookup() = default;
 
     operator uint16_t(){ return id; }
 
     virtual Interface * operator()() const override final {
-        auto obj = cbox::systemRootContainer().fetch(id);
+        auto obj = cbox::systemContainer().fetch(id);
 
         return (obj) ? obj->getApplicationInterface() : nullptr;
     }
 
 private:
-    cbox::object_id_t id;
+    cbox::obj_id_t id;
 };

@@ -5,10 +5,9 @@
 #pragma once
 
 #include <stdint.h>
+#include "Object.h"
 
 namespace cbox {
-
-typedef uint16_t obj_type_t;
 
 template<class T>
 obj_type_t resolveTypeID();
