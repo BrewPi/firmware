@@ -150,10 +150,9 @@ struct DeviceConfig {
 
             Settings() {
             } // constructor needed because temp_t constructor is non-trivial
-            Settings(const Settings& c) {  // copy bigger type
-                actuator.pio = c.actuator.pio;
-                actuator.val = c.actuator.val;
-                actuator.period = c.actuator.period;
+            Settings(const Settings& c) {  // copy both to ensure entire structure is copied, regardless of layout
+                actuator = c.actuator;
+                sensor = c.sensor;
             }
         } settings;
 

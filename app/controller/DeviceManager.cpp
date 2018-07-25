@@ -331,8 +331,10 @@ void handleDeviceDefinition(const char * key, const char * val, void * pv) {
     if (key[0] == DEVICE_ATTRIB_ADDRESS) {
         parseBytes(def->address, val, 8);
     } else if (key[0] == DEVICE_ATTRIB_CALIBRATEADJUST) {
-        temp_t parsedVal;
-        if (parsedVal.fromTempString(val, tempControl.cc.tempFormat, false)) {
+        temp_t parsedVal = temp_t::raw(0);
+        const int32_t minval = temp_t(-5.0).getRaw();
+        const int32_t maxval = temp_t(5.0).getRaw();
+        if (parsedVal.fromTempString(val, tempControl.cc.tempFormat, false, minval, maxval)) {
             def->calibrationAdjust = parsedVal;
         }
     } else if (idx >= 0) {
@@ -365,8 +367,8 @@ bool isUniqueFunction(int8_t f) {
 void DeviceManager::parseDeviceDefinition(Stream & p) {
     static DeviceDefinition dev;
 
-    fill((int8_t *) &dev, sizeof(dev));
-    dev.calibrationAdjust = temp_t::invalid();
+    fill((int8_t *) &dev, sizeof(dev)); // fills with all -1
+    dev.calibrationAdjust == temp_t::invalid();
     piLink.parseJson(&handleDeviceDefinition, &dev);
 
     if (!inRangeInt8(dev.id, 0, NUM_DEVICE_SLOTS))    // no device id given, or it's out of range, can't do anything else.
@@ -391,8 +393,11 @@ void DeviceManager::parseDeviceDefinition(Stream & p) {
 
     assignIfSet(dev.pio, &target.hw.settings.actuator.pio);
 
-    if(!dev.calibrationAdjust.isDisabledOrInvalid()){
+    if(temp_t::invalid() != dev.calibrationAdjust){
         target.hw.settings.sensor.calibration = dev.calibrationAdjust;
+    }
+    else{
+        target.hw.settings.sensor.calibration = temp_t::raw(0);
     }
 
     if (dev.address[0] != 0xFF) // first byte is family identifier. I don't have a complete list, but so far 0xFF is not used.

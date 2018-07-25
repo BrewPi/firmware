@@ -42,4 +42,4 @@
 #include <AppConfig.h>
 #include "AppConfigDefault.h"
 
-#define VERSION_STRING "0.5.6"
+#define VERSION_STRING "0.5.7"
