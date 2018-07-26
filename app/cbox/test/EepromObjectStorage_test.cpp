@@ -21,20 +21,38 @@
 #include <cstdio>
 
 #include "EepromObjectStorage.h"
+#include "ResolveType.h"
 #include "Object.h"
+#include "ArrayEepromAccess.h"
 
 class LongIntObject : public cbox::RawStreamWritableObject<uint32_t> {
 public:
-    LongIntObject(uint32_t v) : cbox::RawStreamWritableObject<uint32_t>(v){
+    using cbox::RawStreamWritableObject<uint32_t>::RawStreamWritableObject;
+
+    virtual cbox::obj_type_t typeID() override final {
+        // use function overloading and templates to manage type IDs in a central place (ResolveType.cpp)
+        return cbox::resolveTypeID(this);
     }
-
-
 
 };
 
 SCENARIO("Storing and retreiving blocks with EEPROM storage"){
-    WHEN("An object is created"){
+    EepromAccess eeprom;
+    cbox::EepromObjectStorage storage(eeprom);
 
+    WHEN("An object is created"){
+        LongIntObject obj(0x12345678);
+
+        THEN("It can be saved to EEPROM"){
+            storage.storeObject(1, obj);
+
+            THEN("The data can be streamed back into another object from EEPROM"){
+                LongIntObject target(0xFFFFFFFFF);
+                auto res = storage.retreiveObject(1, target);
+                CHECK(uint8_t(res) == uint8_t(cbox::StreamResult::success));
+                CHECK(uint32_t(obj) == uint32_t(target));
+            }
+        }
     }
 }
 

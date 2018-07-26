@@ -100,13 +100,20 @@ public:
 		pos = 0;
 	}
 
-	virtual bool write(uint8_t data) override;
+	virtual bool write(uint8_t data) override {
+	    if (pos<size) {
+	        buffer[pos++] = data;
+	        return true;
+	    }
+	    return false;
+	}
 
 	stream_size_t bytesWritten() { return pos; }
 
 	const uint8_t* data() {
 		return buffer;
 	}
+
 };
 
 /**
@@ -311,7 +318,7 @@ public:
 
     virtual bool write(uint8_t data) override {
         if(len-- > 0){
-            return DataOut::write(data);
+            return out.write(data);
         }
         return false;
     }

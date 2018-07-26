@@ -40,17 +40,26 @@ class EepromObjectStorage : public ObjectStorage {
 public:
     EepromObjectStorage(EepromAccess & _eeprom) :
         eeprom(_eeprom),
-        reader(eeprom),
-        writer(eeprom)
+        reader(_eeprom),
+        writer(_eeprom)
     {
 
     }
     virtual ~EepromObjectStorage() = default;
 
-    virtual StreamResult streamObjectTo(DataOut& out) override final;
+    virtual StreamResult streamObjectTo(DataOut& out, obj_id_t id) override final {
+        RegionDataIn objectData = getObjectReader(id);
+        stream_size_t size = objectData.available();
+        if(size > 0){
+            if(reader.push(out, size)){
+                return StreamResult::success;
+            }
+            return StreamResult::stream_error;
+        }
+        return StreamResult::end_of_input;
+    }
 
     virtual StreamResult streamAllObjectsTo(DataOut& out) override final {
-        EepromDataIn reader(eeprom);
         reader.reset(EepromLocation(objects), EepromLocationEnd(objects)-EepromLocation(objects));
 
         while(reader.hasNext()){
@@ -84,8 +93,15 @@ public:
         return StreamResult::success;
     }
 
-    virtual StreamResult retreiveObject(obj_id_t id, Object & target) override final;
-    virtual StreamResult storeBlock(obj_id_t id, const Object & source) override final;
+    virtual StreamResult retreiveObject(obj_id_t id, Object & target) override final {
+        RegionDataIn objectEepromData = getObjectReader(id);
+        return target.streamFrom(objectEepromData);
+    }
+
+    virtual StreamResult storeObject(obj_id_t id, Object & source) override final {
+        RegionDataOut objectEepromData = getObjectWriter(id);
+        return source.streamTo(objectEepromData);
+    }
 
 private:
     /**
@@ -157,13 +173,26 @@ private:
         return RegionDataOut(writer, 0); // length 0 writer
     }
 
+    virtual bool disposeObject(obj_id_t id) override final{
+        RegionDataIn block = getObjectReader(id); // sets reader to data start of block
+        if(block.available() > 0){
+            eptr_t dataStart = reader.offset();
+            uint16_t headerLength = sizeof(BlockType) + sizeof(uint16_t);
+            eptr_t blockTypeOffset = dataStart - headerLength;
+            eeprom.writeByte(blockTypeOffset, static_cast<uint8_t>(BlockType::disposed_block));
+            return true;
+        }
+        return false;
+    }
+
     constexpr uint16_t referenceHeader(){
         return magicByte << 8 | storageVersion;
     }
 
     void init(){
         uint16_t header;
-        eeprom.get(EepromLocation(header), header);
+        resetReader();
+        reader.get(header);
         if(header != referenceHeader()){
             eeprom.clear(); // writes zeros
             eeprom.put(EepromLocation(header), header);

@@ -33,11 +33,11 @@ public:
     ObjectStorage() = default;
     virtual ~ObjectStorage() = default;
 
-    virtual StreamResult streamObjectTo(DataOut& out) = 0;
+    virtual StreamResult streamObjectTo(DataOut& out, obj_id_t id) = 0;
     virtual StreamResult streamAllObjectsTo(DataOut& out) = 0;
     virtual StreamResult retreiveObject(obj_id_t id, Object & target) = 0;
-    virtual StreamResult storeBlock(obj_id_t id, const Object & source) = 0;
-    virtual void deleteBlock(obj_id_t id) = 0;
+    virtual StreamResult storeObject(obj_id_t id, Object & source) = 0;
+    virtual bool disposeObject(obj_id_t id) = 0;
 };
 
 } // end namespace cbox

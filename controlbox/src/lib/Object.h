@@ -119,7 +119,7 @@ public:
 	/**
 	 * Each object is at least stream readable
 	 */
-	virtual StreamResult streamTo(DataOut& out)=0;
+	virtual StreamResult streamTo(DataOut& out) = 0;
 
     /**
      * Some objects can be writable from the stream, they override the streamFrom function
@@ -129,10 +129,10 @@ public:
     };
 
     /**
-     * Objects that want to store persisted data override the streamPersistedTo function
+     * Default to persisting the same data as streamTo. Objects that only want to persist some data can override this
      */
-    virtual StreamResult streamPersistedTo(DataOut& out){
-        return StreamResult::not_persisted;
+    virtual StreamResult streamPersistedTo(DataOut& out) {
+        return streamTo(out);
     }
 };
 
@@ -170,6 +170,11 @@ public:
     virtual StreamResult streamTo(DataOut& out) override final {
         out.put(obj);
         return StreamResult::success;
+    }
+
+    operator T(){
+        T copy = obj;
+        return obj;
     }
 
 protected:

@@ -22,14 +22,6 @@
 
 namespace cbox {
 
-bool BufferDataOut::write(uint8_t data) {
-	if (pos<size) {
-		buffer[pos++] = data;
-		return true;
-	}
-	return false;
-}
-
 /**
  * Writes bytes in little endian order.
  * @param data	Pointer to the buffer, stored in the endian-ness for the platform.
