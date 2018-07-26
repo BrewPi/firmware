@@ -32,8 +32,11 @@ enum class StreamResult {
     success,
     not_persisted,
     generic_error,
-    stream_error,
     not_writable,
+    stream_error,
+    unexpected_end_of_input,
+    unexpected_end_of_output,
+    end_of_input
 };
 
 

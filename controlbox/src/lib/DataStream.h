@@ -175,12 +175,25 @@ struct DataIn
      * Writes the contents of this stream to an output stream.
      * @param out
      * @param length
+     * @return length was written
      */
-	void push(DataOut& out, stream_size_t length) {
+	bool push(DataOut& out, stream_size_t length) {
 		while (length-->0 && hasNext()) {
 			out.write(next());
 		}
+		return length == 0;
 	}
+
+    /**
+     * Skips ahead a number of bytes
+     * @param length
+     * @return length was skipped (didn't encounter end of stream)
+     */
+	bool skip(stream_size_t length) {
+        while (length-->0 && hasNext()) {
+        }
+        return length == 0;
+    }
 };
 
 
@@ -253,20 +266,23 @@ public:
  * Limits reading from the stream to the given number of bytes.
  */
 class RegionDataIn : public DataIn {
-	DataIn* in;
+	DataIn& in;
 	stream_size_t len;
 public:
-	RegionDataIn(DataIn& _in, stream_size_t _len)
-	: in(&_in), len(_len) {}
+	RegionDataIn(DataIn &_in, stream_size_t _len)
+	: in(_in), len(_len) {}
 
-	bool hasNext() override { return len && in->hasNext(); }
-	uint8_t next() override { return hasNext() ? len--, in->next() : 0; }
-	uint8_t peek() override { return in->peek(); }
-	stream_size_t available() override { return std::min(len, in->available()); }
+	bool hasNext() override { return len && in.hasNext(); }
+	uint8_t next() override { return hasNext() ? len--, in.next() : 0; }
+	uint8_t peek() override { return in.peek(); }
+	stream_size_t available() override { return std::min(len, in.available()); }
+	void setLength(stream_size_t len_){
+	    len = len_;
+	}
 
     void spool() {
-        while (in->hasNext()){
-            in->next();
+        while (in.hasNext()){
+            in.next();
         }
     }
 };
@@ -275,17 +291,20 @@ public:
  * Limits writing to the stream to the given number of bytes.
  */
 class RegionDataOut : public DataOut {
-    DataOut* out;
+    DataOut& out;
     stream_size_t len;
 public:
     RegionDataOut(DataOut& _out, stream_size_t _len)
-    : out(&_out), len(_len) {}
+    : out(_out), len(_len) {}
 
     virtual bool write(uint8_t data) override {
         if(len-- > 0){
             return DataOut::write(data);
         }
         return false;
+    }
+    void setLength(stream_size_t len_){
+        len = len_;
     }
 };
 

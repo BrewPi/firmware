@@ -22,9 +22,9 @@
 #include "DataStream.h"
 #include "Object.h"
 #include "Container.h"
-#include "SystemProfile.h"
 #include "Comms.h"
 #include <string.h>
+#include <System.h>
 
 
 namespace cbox {

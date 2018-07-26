@@ -20,10 +20,10 @@
 #pragma once
 
 #include "Comms.h"
-#include "SystemProfile.h"
 #include "Static.h"
 #include "Commands.h"
 #include <memory>
+#include "System.h"
 
 namespace cbox {
 

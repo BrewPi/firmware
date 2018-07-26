@@ -23,8 +23,9 @@
 #include "Static.h"
 #include "Comms.h"
 #include "DataStream.h"
-#include "SystemProfile.h"
 #include "Object.h"
+#include "System.h"
+#include "EepromTypes.h"
 
 namespace cbox {
 

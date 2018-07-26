@@ -58,10 +58,11 @@ struct EepromStreamRegion : public StreamRegion<eptr_t, stream_size_t>
  */
 class EepromDataOut : public DataOut, public EepromStreamRegion
 {
-	cb_nonstatic_decl(EepromAccess& eepromAccess;)
+private:
+	EepromAccess& eepromAccess;
 public:
 
-	cb_nonstatic_decl(EepromDataOut(EepromAccess& ea) :eepromAccess(ea) {})
+	EepromDataOut(EepromAccess& ea) :eepromAccess(ea) {}
 
 	virtual bool write(uint8_t value) override final {
 		if (_length) {

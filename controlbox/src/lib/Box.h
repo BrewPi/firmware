@@ -23,7 +23,7 @@
 #include "EepromAccess.h"
 #include "Comms.h"
 #include "Commands.h"
-#include "SystemProfile.h"
+#include "System.h"
 
 namespace cbox {
 

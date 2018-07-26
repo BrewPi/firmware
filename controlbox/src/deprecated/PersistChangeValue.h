@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "SystemProfile.h"
+#include "../lib/System.h"
 #include "ValuesEeprom.h"
 
 namespace cbox {

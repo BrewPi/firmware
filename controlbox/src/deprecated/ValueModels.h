@@ -20,10 +20,10 @@
 
 #pragma once
 
+#include "../lib/System.h"
 #include "Object.h"
 #include "pointer_scalar.h"
 #include "ValuesEeprom.h"
-#include "SystemProfile.h"
 
 namespace cbox {
 
