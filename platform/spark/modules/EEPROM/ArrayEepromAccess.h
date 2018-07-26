@@ -109,6 +109,10 @@ public:
 		return result;
 	}
 
+    void clear() {
+        memset(&data, 0, sizeof(data));
+    }
+
 protected:
 	void flagChanged()
 	{

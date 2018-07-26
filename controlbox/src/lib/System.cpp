@@ -25,6 +25,7 @@
 
 namespace cbox {
 
+#if 0
 
 /**
  * Change which profiles are active. This will create objects for previously unactive profiles and delete objects for previously active
@@ -79,5 +80,5 @@ void SystemProfile::processPersistedObject(RegionDataIn& reader)
 {
     // todo
 }
-
+#endif
 } // end namespace cbox

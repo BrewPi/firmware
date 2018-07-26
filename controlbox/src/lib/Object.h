@@ -163,7 +163,7 @@ template<typename T>
 class RawStreamObject : public Object
 {
 public:
-    RawStreamObject() : obj({0}){};
+    RawStreamObject() : obj(T()){};
     RawStreamObject(T data) : obj(data){};
     virtual ~RawStreamObject() = default;
 
@@ -183,6 +183,8 @@ template<typename T>
 class RawStreamWritableObject : public RawStreamObject<T>
 {
 public:
+    using RawStreamObject<T>::RawStreamObject;
+
     virtual ~RawStreamWritableObject() = default;
 
     virtual StreamResult streamFrom(DataIn& in) override final {

@@ -272,10 +272,22 @@ public:
 	RegionDataIn(DataIn &_in, stream_size_t _len)
 	: in(_in), len(_len) {}
 
-	bool hasNext() override { return len && in.hasNext(); }
-	uint8_t next() override { return hasNext() ? len--, in.next() : 0; }
-	uint8_t peek() override { return in.peek(); }
-	stream_size_t available() override { return std::min(len, in.available()); }
+	bool hasNext() override {
+	    return len && in.hasNext();
+	}
+
+	uint8_t next() override {
+	    return hasNext() ? len--, in.next() : 0;
+	}
+
+	uint8_t peek() override {
+	    return in.peek();
+	}
+
+	stream_size_t available() override {
+	    return std::min(len, in.available());
+	}
+
 	void setLength(stream_size_t len_){
 	    len = len_;
 	}

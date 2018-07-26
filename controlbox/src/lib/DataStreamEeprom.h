@@ -76,7 +76,6 @@ public:
 	virtual void close() override final {
 		_length = 0;
 	}
-
 };
 
 
