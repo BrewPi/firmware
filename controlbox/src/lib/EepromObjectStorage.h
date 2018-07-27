@@ -106,9 +106,12 @@ public:
 
         TeeDataOut tee(objectEepromData, counter);
         StreamResult res = source.streamTo(tee);
-
         if(counter.count() > blockSize){
             // block didn't fit or not found, should allocate a new block
+            if(counter.count() > 0){
+                // object did exist but didn't fit in old region, remove old region
+                disposeObject(id);
+            }
 
             uint16_t dataSize = counter.count();
             // overprovision at least 4 bytes or 12.5% to prevent having to relocate the block if it grows
