@@ -393,13 +393,14 @@ void DeviceManager::parseDeviceDefinition(Stream & p) {
 
     assignIfSet(dev.pio, &target.hw.settings.actuator.pio);
 
-    if(temp_t::invalid() != dev.calibrationAdjust){
-        target.hw.settings.sensor.calibration = dev.calibrationAdjust;
+    if(dev.deviceHardware == DEVICE_HARDWARE_ONEWIRE_TEMP){
+		if(temp_t::invalid() != dev.calibrationAdjust){
+			target.hw.settings.sensor.calibration = dev.calibrationAdjust;
+		}
+		else{
+			target.hw.settings.sensor.calibration = temp_t::raw(0);
+		}
     }
-    else{
-        target.hw.settings.sensor.calibration = temp_t::raw(0);
-    }
-
     if (dev.address[0] != 0xFF) // first byte is family identifier. I don't have a complete list, but so far 0xFF is not used.
             {
         memcpy(target.hw.address, dev.address, 8);
