@@ -21,6 +21,7 @@ const uint16_t EepromEnd = eepromStart + sizeof(EepromLayout);
 
 #define EepromLocation(x) (eepromStart + offsetof(struct EepromLayout, x))
 #define EepromLocationEnd(x) (EepromLocation(x) + sizeof(EepromLayout::x))
+#define EepromLocationSize(x) (sizeof(EepromLayout::x))
 
 static_assert(EepromLocationEnd(objects) == 2048, "end of data area is end of 2kb EEPROM");
 

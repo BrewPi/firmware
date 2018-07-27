@@ -47,7 +47,7 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage"){
             storage.storeObject(1, obj);
 
             THEN("The data can be streamed back into another object from EEPROM"){
-                LongIntObject target(0xFFFFFFFFF);
+                LongIntObject target(0xFFFFFFFF);
                 auto res = storage.retreiveObject(1, target);
                 CHECK(uint8_t(res) == uint8_t(cbox::StreamResult::success));
                 CHECK(uint32_t(obj) == uint32_t(target));

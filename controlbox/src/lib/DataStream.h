@@ -126,6 +126,24 @@ struct BlackholeDataOut : public DataOut {
 };
 
 /**
+ * A DataOut implementation that discards all data, but counts each byte;
+ */
+struct CountingBlackholeDataOut : public DataOut {
+    CountingBlackholeDataOut() : counted(0) {};
+    virtual ~CountingBlackholeDataOut() = default;
+    virtual bool write(uint8_t /*data*/) override final {
+        ++counted;
+        return true;
+    }
+
+    stream_size_t count(){
+        return counted;
+    }
+
+    stream_size_t counted;
+};
+
+/**
  * A data input stream. The stream contents may be determined asynchronously.
  * hasNext() returns true if the stream may eventually produce a new item, false if the stream is closed.
  * next() fetches the next item from the stream. return value is undefined if available()==0.
@@ -247,6 +265,23 @@ public:
 
 };
 
+class TeeDataOut : public DataOut
+{
+public:
+    TeeDataOut(DataOut& out1, DataOut& out2) : _out1(out1), _out2(out2){};
+    virtual ~TeeDataOut() = default;
+
+
+    virtual bool write(uint8_t data) override {
+        bool res1 = _out1.write(data);
+        bool res2 = _out2.write(data);
+        return res1 || res2;
+    }
+private:
+    DataOut & _out1;
+    DataOut & _out2;
+};
+
 
 /**
  * Provides a DataIn stream from a static buffer of data.
@@ -324,6 +359,9 @@ public:
     }
     void setLength(stream_size_t len_){
         len = len_;
+    }
+    stream_size_t availableForWrite(){
+        return len;
     }
 };
 
