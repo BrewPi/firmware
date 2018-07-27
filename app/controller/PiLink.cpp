@@ -77,8 +77,8 @@ public:
     int available() {
         int available = 0;
 
-        if (Serial.isConnected()) {
-            available = Serial.available();
+        if (Serial.isConnected() && !WiFi.listening()) {
+            available = Serial.available(); // skip serial commands in listening mode, because it also uses serial and will interfere
         }
         if(available > 0) {
             currentStream = &Serial;
@@ -98,12 +98,15 @@ public:
             lastReceive = ticks.seconds();
         }
         else{
-            if(!WiFi.ready()){
+            if(!WiFi.ready() && WiFi.hasCredentials()){
                 if(!WiFi.connecting()){
                     WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
-                    Particle.connect();
                 }
             }
+            if(WiFi.ready() && !Particle.connected()){
+            	Particle.connect();
+            }
+
             if(ticks.timeSinceSeconds(lastReceive) > wifiRestartTimeout){
                 lastReceive = ticks.seconds();
                 Particle.disconnect();
@@ -140,8 +143,8 @@ bool PiLink::firstPair;
 char PiLink::printfBuff[PRINTF_BUFFER_SIZE];
 
 void PiLink::init(void){
-    Serial.blockOnOverrun(false);
     Serial.begin(57600);
+    WiFi.setListenTimeout(60);
 }
 
 // create a printf like interface to the Serial function. Format string stored in RAM
