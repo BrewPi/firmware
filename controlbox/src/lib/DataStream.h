@@ -335,8 +335,8 @@ public:
 	}
 
     void spool() {
-        while (in.hasNext()){
-            in.next();
+        while (hasNext()){
+            next();
         }
     }
 };

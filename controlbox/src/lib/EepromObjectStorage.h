@@ -128,6 +128,7 @@ public:
             eptr_t dataStart = reader.offset();
             eptr_t blockTypeOffset = dataStart - blockHeaderLength() - sizeof(obj_id_t);
             eeprom.writeByte(blockTypeOffset, static_cast<uint8_t>(BlockType::disposed_block));
+            mergeDisposedBlocks();
             return true;
         }
         return false;
@@ -173,13 +174,11 @@ private:
             uint16_t blockSize = 0;
             reader.get(blockSize);
 
-            uint16_t blockDataLeft = blockSize - sizeof(uint16_t);
-
             if(!(type == requestedType)) {
-                reader.skip(blockDataLeft);
+                reader.skip(blockSize);
                 continue;
             }
-            return RegionDataIn(reader, blockDataLeft);
+            return RegionDataIn(reader, blockSize);
         }
         return RegionDataIn(reader, 0);
     }
@@ -322,8 +321,8 @@ private:
         while(reader.hasNext()){
             RegionDataIn disposedBlock1 = getBlockReader(BlockType::disposed_block);
 
-            eptr_t disposedStart1 = reader.offset();
-            uint16_t disposedLength1 = disposedBlock1.available();
+            eptr_t disposedDataStart1 = reader.offset();
+            uint16_t disposedDataLength1 = disposedBlock1.available();
 
             disposedBlock1.spool();
 
@@ -334,10 +333,11 @@ private:
                 eptr_t disposedStart2 = reader.offset();
                 uint16_t disposedLength2 = disposedBlock2.available();
                 // now merge the blocks
-                uint16_t combinedLength = disposedLength1 + disposedLength2 + sizeof(BlockType) + sizeof(uint16_t);
-                writer.reset(disposedStart1 - sizeof(uint16_t), sizeof(uint16_t));
+                uint16_t combinedLength = disposedDataLength1 + disposedLength2 + blockHeaderLength();
+                writer.reset(disposedDataStart1 - blockHeaderLength() + sizeof(BlockType), sizeof(uint16_t));
                 writer.put(combinedLength);
                 didMerge = true;
+                disposedBlock2.spool();
             }
         }
         return didMerge;
