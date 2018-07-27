@@ -41,16 +41,52 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage"){
     cbox::EepromObjectStorage storage(eeprom);
 
     WHEN("An object is created"){
-        LongIntObject obj(0x12345678);
+        LongIntObject obj(0x33333333);
 
         THEN("It can be saved to EEPROM"){
-            storage.storeObject(1, obj);
+            auto res = storage.storeObject(cbox::obj_id_t(1), obj);
+            CHECK(res == cbox::StreamResult::success);
 
-            THEN("The data can be streamed back into another object from EEPROM"){
+            THEN("The data can be streamed back from EEPROM"){
                 LongIntObject target(0xFFFFFFFF);
-                auto res = storage.retreiveObject(1, target);
+                auto res = storage.retreiveObject(cbox::obj_id_t(1), target);
                 CHECK(uint8_t(res) == uint8_t(cbox::StreamResult::success));
                 CHECK(uint32_t(obj) == uint32_t(target));
+            }
+
+            THEN("It can be changed and rewritten to EEPROM"){
+                obj = 0xAAAAAAAA;
+                auto res = storage.storeObject(cbox::obj_id_t(1), obj);
+                CHECK(uint8_t(res) == uint8_t(cbox::StreamResult::success));
+
+                LongIntObject received(0xFFFFFFFF);
+                res = storage.retreiveObject(cbox::obj_id_t(1), received);
+                CHECK(uint8_t(res) == uint8_t(cbox::StreamResult::success));
+                CHECK(uint32_t(obj) == uint32_t(received));
+            }
+
+            THEN("It can be disposed"){
+                bool res = storage.disposeObject(cbox::obj_id_t(1));
+                CHECK(res);
+
+                THEN("It cannot be retrieved anymore"){
+                    LongIntObject received(0xFFFFFFFF);
+                    auto res = storage.retreiveObject(cbox::obj_id_t(1), received);
+                    CHECK(uint8_t(res) == uint8_t(cbox::StreamResult::end_of_input));
+                    CHECK(0xFFFFFFFF == uint32_t(received)); // received is unchanged
+                }
+                THEN("The id can be re-used"){
+                    LongIntObject otherObject(0xAAAAAAAA);
+                    auto res = storage.storeObject(cbox::obj_id_t(1), otherObject);
+                    CHECK(res == cbox::StreamResult::success);
+
+                    AND_THEN("The id returns the new object's data"){
+                        LongIntObject received(0xFFFFFFFF);
+                        auto res = storage.retreiveObject(cbox::obj_id_t(1), received);
+                        CHECK(uint8_t(res) == uint8_t(cbox::StreamResult::success));
+                        CHECK(uint32_t(0xAAAAAAAA) == uint32_t(received));
+                    }
+                }
             }
         }
     }
