@@ -300,8 +300,12 @@ private:
         resetReader();
         RegionDataIn disposedBlock = getBlockReader(BlockType::disposed_block);
 
+
         eptr_t disposedStart = reader.offset();
         uint16_t disposedLength = disposedBlock.available();
+        if(disposedLength == 0){
+            return false;
+        }
         disposedBlock.spool();
 
         RegionDataIn objectBlock = getBlockReader(BlockType::object);
@@ -309,21 +313,31 @@ private:
         eptr_t objectStart = reader.offset();
         uint16_t objectLength = objectBlock.available();
 
+        if(objectLength == 0){
+            return false;
+        }
+
         // write object at location of disposed block and mark the remainder as disposed.
         // essentially, they swap places
-        writer.reset(disposedStart, objectLength);
-        reader.reset(objectStart, objectLength);
 
-        if(objectLength > 0 && reader.push(writer, objectLength)){ // true on success
-            writer.reset(disposedStart - blockHeaderLength() , blockHeaderLength());
-            writer.put(BlockType::object); // write header for new block location
-            writer.put(objectLength);
-            writer.reset(disposedStart + objectLength, blockHeaderLength());
-            writer.put(BlockType::disposed_block); // write header of the now discarded block data
-            writer.put(disposedLength);
-            return true;
-        }
-        return false;
+        // The order of operations here is to prevent losing EEPROM block offsets/alignment when power is lost during the swap.
+        // We first write the disposed length of the combined block, so that if power is lost, the entire block is treated as disposed and only 1 object is lost.
+        writer.reset(disposedStart - sizeof(uint16_t), sizeof(uint16_t) + objectLength + blockHeaderLength());
+        writer.put(uint16_t(disposedLength + objectLength + blockHeaderLength()));
+
+        // Then we copy the data to the front of the block
+        reader.push(writer, objectLength);
+
+        // Then we mark the remainder as disposed
+        writer.put(BlockType::disposed_block); // write header of the now discarded block data
+        writer.put(disposedLength);
+
+        // And finally we write the new header for the object that has moved forward
+        writer.reset(disposedStart - blockHeaderLength() , blockHeaderLength());
+        writer.put(BlockType::object);
+        writer.put(objectLength);
+
+        return true;
     }
 
     bool mergeDisposedBlocks(){
