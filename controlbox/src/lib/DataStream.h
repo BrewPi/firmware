@@ -352,7 +352,8 @@ public:
     : out(_out), len(_len) {}
 
     virtual bool write(uint8_t data) override {
-        if(len-- > 0){
+        if(len > 0){
+            --len;
             return out.write(data);
         }
         return false;

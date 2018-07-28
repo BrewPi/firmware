@@ -124,7 +124,7 @@ public:
     /**
      * Some objects can be writable from the stream, they override the streamFrom function
      */
-    virtual StreamResult streamFrom(DataIn& dataIn){
+    virtual StreamResult streamFrom(DataIn& in){
         return StreamResult::not_writable;
     };
 

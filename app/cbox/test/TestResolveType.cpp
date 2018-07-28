@@ -28,3 +28,7 @@ namespace cbox{
     template<> obj_type_t resolveTypeID<LongIntObject>(){ return  1000; }
 }
 
+class LongIntVectorObject;
+namespace cbox{
+    template<> obj_type_t resolveTypeID<LongIntVectorObject>(){ return  1001; }
+}

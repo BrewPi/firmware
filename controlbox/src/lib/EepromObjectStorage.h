@@ -105,7 +105,7 @@ public:
         uint16_t blockSize = objectEepromData.availableForWrite();
 
         TeeDataOut tee(objectEepromData, counter);
-        StreamResult res = source.streamTo(tee);
+        StreamResult res = source.streamPersistedTo(tee);
         if(counter.count() > blockSize){
             // block didn't fit or not found, should allocate a new block
             if(counter.count() > 0){
@@ -119,7 +119,7 @@ public:
             RegionDataOut newObjectEepromData = newObjectWriter(id, dataSize + overProvision);
 
             // write to new Block
-            res = source.streamTo(newObjectEepromData);
+            res = source.streamPersistedTo(newObjectEepromData);
         }
         return res;
     }
@@ -346,7 +346,7 @@ private:
         return didMerge;
     }
 
-    void degrag(){
+    void defrag(){
         do {
             mergeDisposedBlocks();
 
