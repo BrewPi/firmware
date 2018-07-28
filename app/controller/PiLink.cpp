@@ -98,7 +98,7 @@ public:
             lastReceive = ticks.seconds();
         }
         else{
-            if(!WiFi.ready() && WiFi.hasCredentials()){
+            if(!WiFi.ready()){
                 if(!WiFi.connecting()){
                     WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
                 }
