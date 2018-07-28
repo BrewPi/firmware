@@ -78,7 +78,7 @@ public:
                 gotEntireBlock = reader.push(out, blockSize);
                 break;
             case static_cast<uint8_t>(BlockType::disposed_block):
-                gotEntireBlock = reader.skip(blockSize);
+                gotEntireBlock = reader.spool(blockSize);
                 break;
             default:
                 return StreamResult::unexpected_end_of_input; // unknown block type encountered!
@@ -108,7 +108,7 @@ public:
         StreamResult res = source.streamPersistedTo(tee);
         if(counter.count() > blockSize){
             // block didn't fit or not found, should allocate a new block
-            if(counter.count() > 0){
+            if(blockSize > 0){
                 // object did exist but didn't fit in old region, remove old region
                 disposeObject(id);
             }
@@ -135,6 +135,12 @@ public:
             return true;
         }
         return false;
+    }
+
+    void defrag(){
+        do {
+            mergeDisposedBlocks();
+        } while(moveDisposedBackwards());
     }
 
 private:
@@ -178,7 +184,7 @@ private:
             reader.get(blockSize);
 
             if(!(type == requestedType)) {
-                reader.skip(blockSize);
+                reader.spool(blockSize);
                 continue;
             }
             return RegionDataIn(reader, blockSize);
@@ -296,21 +302,23 @@ private:
 
         eptr_t disposedStart = reader.offset();
         uint16_t disposedLength = disposedBlock.available();
+        disposedBlock.spool();
 
         RegionDataIn objectBlock = getBlockReader(BlockType::object);
 
         eptr_t objectStart = reader.offset();
-        uint16_t objectLength = disposedBlock.available();
+        uint16_t objectLength = objectBlock.available();
 
         // write object at location of disposed block and mark the remainder as disposed.
         // essentially, they swap places
         writer.reset(disposedStart, objectLength);
+        reader.reset(objectStart, objectLength);
 
-        if(reader.push(writer, objectLength)){ // true on success
+        if(objectLength > 0 && reader.push(writer, objectLength)){ // true on success
             writer.reset(disposedStart - blockHeaderLength() , blockHeaderLength());
             writer.put(BlockType::object); // write header for new block location
             writer.put(objectLength);
-            writer.reset(objectStart - blockHeaderLength(), blockHeaderLength());
+            writer.reset(disposedStart + objectLength, blockHeaderLength());
             writer.put(BlockType::disposed_block); // write header of the now discarded block data
             writer.put(disposedLength);
             return true;
@@ -344,13 +352,6 @@ private:
             }
         }
         return didMerge;
-    }
-
-    void defrag(){
-        do {
-            mergeDisposedBlocks();
-
-        } while(moveDisposedBackwards());
     }
 };
 

@@ -203,21 +203,27 @@ struct DataIn
      * @return length was written
      */
 	bool push(DataOut& out, stream_size_t length) {
-		while (length-->0 && hasNext()) {
+		while (length > 0 && hasNext()) {
 			out.write(next());
+			--length;
 		}
 		return length == 0;
 	}
 
     /**
-     * Skips ahead a number of bytes
+     * Discards a number of bytes.
+     * Can be overridden by child classes to skip actual reads for performance if the underlying structure can be accessed by index
+     *
      * @param length
      * @return length was skipped (didn't encounter end of stream)
      */
-	bool skip(stream_size_t length) {
-        while (length-->0 && hasNext()) {
-        }
-        return length == 0;
+	virtual bool spool(stream_size_t skip_length){
+	    stream_size_t to_skip = skip_length;
+	    while (to_skip > 0 && hasNext()){
+	        next();
+	        --to_skip;
+	    }
+        return to_skip == skip_length;
     }
 };
 

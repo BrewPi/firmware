@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 BrewPi
+ * Copyright 2018 BrewPi
  *
  * This file is part of BrewPi.
  *
@@ -234,6 +234,51 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage"){
                         CHECK(uint32_t(0xAAAAAAAA) == uint32_t(received));
                     }
                 }
+            }
+        }
+    }
+
+    WHEN("A lot of big and small objects are created until EEPROM is full, alternating big and small"){
+        LongIntVectorObject big = {
+                0x22222222, 0x33333333, 0x44444444, 0x55555555, 0x66666666, 0x77777777,
+                0x22222222, 0x33333333, 0x44444444, 0x55555555, 0x66666666, 0x77777777,
+                0x22222222, 0x33333333, 0x44444444, 0x55555555, 0x66666666, 0x77777777
+        };
+
+        LongIntVectorObject small = {0x11111111, 0x22222222};
+
+
+        cbox::StreamResult res = cbox::StreamResult::success;
+        cbox::obj_id_t id;
+        for(id = 1; res == cbox::StreamResult::success; id++){
+            if(id % 2 == 0){
+                res = storage.storeObject(id, big);
+            }
+            else{
+                res = storage.storeObject(id, small);
+            }
+        }
+
+        INFO("created " << id << " objects");
+        CHECK(id == 20);
+
+        AND_WHEN("Only the small objects are deleted, there is no space for a new big object due to fragmentation"){
+            cbox::obj_id_t id;
+            for(id = 1; ; id++){
+                if(id % 2 == 1){
+                    if(!storage.disposeObject(id)){
+                        break;// break when object cannot be deleted (id doesn't exist)
+                    }
+                }
+            }
+
+            res = storage.storeObject(id, big);
+            CHECK(res == cbox::StreamResult::stream_error);
+
+            AND_WHEN("EEPROM is defragmented, there is space for a big object again"){
+                storage.defrag();
+                res = storage.storeObject(id, big);
+                CHECK(res == cbox::StreamResult::success);
             }
         }
     }
