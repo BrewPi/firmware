@@ -25,8 +25,7 @@
 #include "Commands.h"
 #include "OneWireBusBlock.h"
 #include "Object.h"
-
-#if 0
+#include "DataStream.h"
 
 void streamHex(std::stringstream & ss, uint8_t * buf, size_t len){
     ss << "0x" << std::setfill('0') << std::hex;
@@ -42,7 +41,7 @@ SCENARIO("A Blox OneWireBus can stream a variable number of found addresses"){
         WHEN("it is encoded to a buffer"){
             uint8_t outbuf[100] = {0};
             cbox::BufferDataOut out(outbuf, sizeof(outbuf));
-            ow.readTo(out);
+            ow.streamTo(out);
             std::stringstream ss;
             streamHex(ss, outbuf, out.bytesWritten());
             INFO("OneWireBus result is " << ss.str());
@@ -56,25 +55,25 @@ SCENARIO("A Blox OneWireBus can stream a variable number of found addresses"){
 
             uint8_t inbuf[100] = {0};
             pb_ostream_t stream = pb_ostream_from_buffer(inbuf, sizeof(inbuf));
-            bool status = pb_encode_delimited(&stream, blox_OneWireCommand_fields, &message);
+            bool status = pb_encode(&stream, blox_OneWireCommand_fields, &message);
+            CHECK(status == true);
 
-            cbox::BufferDataIn in(inbuf);
+            cbox::BufferDataIn in(inbuf, sizeof(inbuf));
 
-            ow.writeFrom(in);
+            ow.streamFrom(in);
 
             uint8_t outbuf[100] = {0};
             cbox::BufferDataOut out(outbuf, sizeof(outbuf));
-            ow.readTo(out);
+            ow.streamTo(out);
             std::stringstream ss;
             streamHex(ss, outbuf, out.bytesWritten());
             INFO("OneWireBus result 2 is " << ss.str());
 
             out.reset();
-            ow.readTo(out);
+            ow.streamTo(out);
             std::stringstream ss2;
             streamHex(ss2, outbuf, out.bytesWritten());
             INFO("OneWireBus result 3 is " << ss2.str());
         }
     }
 }
-#endif

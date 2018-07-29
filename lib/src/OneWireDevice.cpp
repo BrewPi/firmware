@@ -6,6 +6,8 @@
  */
 
 #include "../inc/OneWireDevice.h"
+#include "OneWire.h"
+#include "OneWireAddress.h"
 #include "string.h" // for memcpy
 
 /**
@@ -13,17 +15,17 @@
  * /param oneWire_ The oneWire bus the device is connected to
  * /param address_ The oneWire address of the device to use.
  */
-OneWireDevice::OneWireDevice(OneWire * oneWire_, DeviceAddress address_)
+OneWireDevice::OneWireDevice(OneWire * oneWire_, OneWireAddress address_)
 {
     this -> oneWire = oneWire_;
-    memcpy(this -> address, address_, sizeof(DeviceAddress));
+    this -> address = address_;
 }
 
 /**
  * Get the device address
  * @return device address
  */
-DeviceAddress & OneWireDevice::getDeviceAddress()
+OneWireAddress OneWireDevice::getDeviceAddress()
 {
     return address;
 }
@@ -33,7 +35,7 @@ DeviceAddress & OneWireDevice::getDeviceAddress()
  * @return bool, true if valid
  */
 bool OneWireDevice::validAddress(OneWire *     oneWire_,
-                                 DeviceAddress address_)
+                                 OneWireAddress address_)
 {
     return address_[0] && (oneWire -> crc8(address_, 7) == address_[7]);
 }

@@ -3,8 +3,6 @@
 #include "Object.h"
 #include "Interface.h"
 #include "../nanopb_callbacks.h"
-#include "assert_size_helper.h"
-#include "struct_copy_helper.h"
 #include "ResolveType.h"
 
 // Base BrewBlox block implementation

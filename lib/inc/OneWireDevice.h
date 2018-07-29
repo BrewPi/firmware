@@ -24,16 +24,16 @@
 
 class OneWireDevice {
 public:
-    OneWireDevice(OneWire* oneWire_, DeviceAddress address_);
+    OneWireDevice(OneWire* oneWire_, OneWireAddress address_);
 protected:
     ~OneWireDevice() = default;
 public:
-    DeviceAddress& getDeviceAddress();
-    bool validAddress(OneWire* oneWire_, DeviceAddress address_);
+    OneWireAddress getDeviceAddress();
+    bool validAddress(OneWire* oneWire_, OneWireAddress address_);
 
 protected:
     OneWire* oneWire;
-    DeviceAddress address;
+    OneWireAddress address;
 };
 
 

@@ -71,13 +71,11 @@ void DS2408::update(){
     }
 
     if(success != connected){
-        char addressString[17];
-        printBytes(address, 8, addressString);
         if(success){
-            logInfoString(DS2408_CONNECTED, addressString);
+            logInfoAddress(DS2408_CONNECTED, address);
         }
         else {
-            logWarningString(DS2408_DISCONNECTED, addressString);
+            logWarningAddress(DS2408_DISCONNECTED, address);
         }
         connected = success;
     }

@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "temperatureFormats.h"
 #include "TempSensor.h"
 #include "OneWireAddress.h"
 #include "DallasTemperature.h"
@@ -28,24 +29,21 @@
 class DallasTemperature;
 class OneWire;
 
+#undef OneWireAddress
+
 #define ONEWIRE_TEMP_SENSOR_PRECISION (4)
 
 class OneWireTempSensor final : public TempSensor, public OneWireTempSensorMixin {
 public:
-	struct Settings {
-		DeviceAddress sensorAddress;
-		temp_t calibrationOffset;
-	};
 
-	struct State {
-		temp_t cachedValue;
-		bool connected;
-	};
 
 private:
 	DallasTemperature sensor;
-	Settings settings;
-	State state;
+	OneWireAddress sensorAddress;
+	temp_t calibrationOffset;
+	temp_t cachedValue;
+	bool connected;
+
 
 public:	
 	/**
@@ -55,24 +53,19 @@ public:
 	 *    on the bus is used.
 	 * /param calibration	A temperature value that is added to all readings. This can be used to calibrate the sensor.	 
 	 */
-	OneWireTempSensor(OneWire* bus, DeviceAddress address, temp_t calibrationOffset)
-	: sensor(bus)
+	OneWireTempSensor(OneWire* bus, OneWireAddress _address, const temp_t & _calibrationOffset) :
+	    sensor(bus),
+	    sensorAddress(_address),
+	    calibrationOffset(_calibrationOffset),
+	    cachedValue(TEMP_SENSOR_DISCONNECTED),
+	    connected(false)
+
     {
-        memcpy(settings.sensorAddress, address, sizeof(DeviceAddress));
-        settings.calibrationOffset = calibrationOffset;
-        state.connected = false;
-        state.cachedValue = TEMP_SENSOR_DISCONNECTED;
         init();
-    };
+    }
 	
-	OneWireTempSensor(OneWire* bus)
-    : sensor(bus) {
-        memset(settings.sensorAddress, 0, sizeof(DeviceAddress));
-        settings.calibrationOffset = temp_t(0.0);
-        state.connected = false;
-        state.cachedValue = TEMP_SENSOR_DISCONNECTED;
-        init();
-    };
+	OneWireTempSensor(OneWire* bus) : OneWireTempSensor(bus, 0, temp_t(0.0)){}
+
 
 	~OneWireTempSensor() = default;
 
@@ -85,30 +78,31 @@ public:
     }
 
 	virtual bool isConnected(void) const override final {
-		return state.connected;
+		return connected;
 	}		
 	
 	virtual bool init() override final ;
 	virtual temp_t read() const override final ; // return cached value
 	virtual void update() override final ; // read from hardware sensor
-	
 
-    void setSettings(Settings const & from){
-        settings = from;
+	void setAddress(OneWireAddress const& addr){
+	    sensorAddress = addr;
+	}
+	void setCalibration(temp_t const& calib){
+        calibrationOffset = calib;
     }
-
-    Settings const& getSettings(){
-        return settings;
+    OneWireAddress getAddress(){
+        return sensorAddress;
     }
-
-    State const& getState(){
-        return state;
+    temp_t getCalibration(){
+        return calibrationOffset;
     }
-
 
 private:
 
 	void setConnected(bool connected);
+
+
 	void requestConversion();
 	void waitForConversion()
 	{

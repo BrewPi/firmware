@@ -1,16 +1,14 @@
 #pragma once
 
-#include "Object.h"
+#include "Block.h"
 #include "OneWire.h"
 #include "Board.h"
 #include "OneWireBus.pb.h"
 #include "nanopb_callbacks.h"
-#include "assert_size_helper.h"
+#include "Object.h"
 
-#if 0
-class OneWireBusBlock: public cbox::WritableObject {
+class OneWireBusBlock: public cbox::Object { // not a block type, because it doesn't need to implement Interface*
 private:
-
     OneWire bus;
 
     _blox_OneWireCommand command;
@@ -32,7 +30,7 @@ protected:
             if(!pb_encode_tag_for_field(stream, field)){
                 return false;
             }
-            if(!pb_encode_string(stream, address, 8)){
+            if(!pb_encode_fixed64(stream, address)){
                 return false;
             }
         }
@@ -56,7 +54,7 @@ public:
      * - cmd 01: reset bus (00 on success, FF on failure)
      * - cmd 02: search bus: a sequence of 0 or more 8-byte addresses, MSB first that were found on the bus
      */
-    virtual cbox::Object::StreamToResult streamTo(cbox::DataOut& out) override final{
+    virtual cbox::StreamResult streamTo(cbox::DataOut& out) override final{
         blox_OneWireRead message = {0};
         message.lastCommand = command;
         message.address.funcs.encode = nullptr;
@@ -75,16 +73,10 @@ public:
                 message.address.funcs.encode = &streamAdresses;
                 break;
         }
-        pb_ostream_t stream = { &dataOutStreamCallback, &out, SIZE_MAX, 0 };
-        pb_encode_delimited(&stream, blox_OneWireRead_fields, &message);
-
         // commands are one-shot - once the command is done clear it.
         command.command = NO_OP;
         command.data = 0;
-    }
-
-    virtual uint8_t readStreamSize() override final {
-        return 0;   // we don't know the size - it's variable
+        return streamProtoTo(out, &message, blox_OneWireRead_fields, SIZE_MAX);
     }
 
     /**
@@ -97,27 +89,18 @@ public:
      *   (later: search bus alarm state?)
      *   (later: set bus power? (off if next byte is 00, on if it's 01) )
      */
-    virtual void writeFrom(cbox::DataIn& dataIn) override final{
-        blox_OneWireCommand message = command;
+    virtual cbox::StreamResult streamFrom(cbox::DataIn& dataIn) override final{
+        blox_OneWireCommand message;
 
-        assert_size<sizeof(message), 2>(); // one byte for command, one for data
-
-        pb_istream_t stream = { &dataInStreamCallback, &dataIn, blox_OneWireCommand_size + 1};
-        bool success = pb_decode_delimited_noinit(&stream, blox_OneWireCommand_fields, &message);
+        cbox::StreamResult res = streamProtoFrom(dataIn, &message, blox_OneWireCommand_fields, blox_OneWireCommand_size);
         /* if no errors occur, write new settings to wrapped object */
-        if(success){
+        if(res == cbox::StreamResult::success){
             command = message;
         }
-    }
-
-    static cbox::Object* create(cbox::ObjectDefinition& defn) {
-        return new_object(OneWireBusBlock(oneWirePin));
+        return res;
     }
 
     virtual cbox::obj_type_t typeID() override {
-    	// use function overloading and templates to manage type IDs in a central place (AppTypeRegistry)
-    	return resolveTypeID(this);
+        return resolveTypeID(this);
     }
 };
-
-#endif

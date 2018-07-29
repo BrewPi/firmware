@@ -33,31 +33,25 @@
  * Clients should attempt to re-initialize the sensor by calling init() again. 
  */
 bool OneWireTempSensor::init() {
-
-    // save address and pinNr for log messages
-    char addressString[17];
-    printBytes(settings.sensorAddress, 8, addressString);
-
     bool success = false;
 
     logDebug("init onewire sensor");
-    // This quickly tests if the sensor is state.connected and initializes the reset detection if necessary.
+    // This quickly tests if the sensor is connected and initializes the reset detection if necessary.
 
     // If this is the first conversion after power on, the device will return DEVICE_DISCONNECTED_RAW
     // Because HIGH_ALARM_TEMP will be copied from EEPROM
-    int16_t temp = sensor.getTempRaw(settings.sensorAddress);
-    if(temp == DEVICE_DISCONNECTED_RAW){
+    int16_t temp = sensor.getTempRaw(sensorAddress);
+    if (temp == DEVICE_DISCONNECTED_RAW) {
         // Device was just powered on and should be initialized
-        if(sensor.initConnection(settings.sensorAddress)){
+        if (sensor.initConnection(sensorAddress)) {
             requestConversion();
             waitForConversion();
-            temp = sensor.getTempRaw(settings.sensorAddress);
+            temp = sensor.getTempRaw(sensorAddress);
         }
     }
-    DEBUG_ONLY(logInfoIntStringTemp(INFO_TEMP_SENSOR_INITIALIZED, addressString, temp));
     success = temp != DEVICE_DISCONNECTED_RAW;
-    if(success){
-            state.cachedValue = temp;
+    if (success) {
+        cachedValue = temp;
         requestConversion(); // piggyback request for a new conversion
     }
 
@@ -67,33 +61,30 @@ bool OneWireTempSensor::init() {
 }
 
 void OneWireTempSensor::requestConversion() {
-    sensor.requestTemperaturesByAddress(settings.sensorAddress);
+    sensor.requestTemperaturesByAddress(sensorAddress);
 }
 
-void OneWireTempSensor::setConnected(bool connected) {
-    if (state.connected == connected)
-        return; // state is stays the same
-
-    char addressString[17];
-    printBytes(settings.sensorAddress, 8, addressString);
-    state.connected = connected;
+void OneWireTempSensor::setConnected(bool _connected) {
+    if (connected == _connected){
+        return; // state stays the same
+    }
     if (connected) {
-        logInfoString(INFO_TEMP_SENSOR_CONNECTED, addressString);
+        logInfoAddress(INFO_TEMP_SENSOR_CONNECTED, sensorAddress);
     } else {
-        logWarningString(WARNING_TEMP_SENSOR_DISCONNECTED, addressString);
+        logWarningAddress(WARNING_TEMP_SENSOR_DISCONNECTED, sensorAddress);
     }
 }
 
 temp_t OneWireTempSensor::read() const {
-
-    if (!state.connected)
+    if (!connected){
         return TEMP_SENSOR_DISCONNECTED;
+    }
 
-    return state.cachedValue;
+    return cachedValue;
 }
 
-void OneWireTempSensor::update(){
-    state.cachedValue = readAndConstrainTemp();
+void OneWireTempSensor::update() {
+    cachedValue = readAndConstrainTemp();
     requestConversion();
 }
 
@@ -101,25 +92,26 @@ temp_t OneWireTempSensor::readAndConstrainTemp() {
     int16_t tempRaw;
     bool success;
 
-    tempRaw = sensor.getTempRaw(settings.sensorAddress);
+    tempRaw = sensor.getTempRaw(sensorAddress);
     success = tempRaw != DEVICE_DISCONNECTED_RAW;
 
-    if (!success){
+    if (!success) {
         // retry re-init once
-        if(init()){
-            tempRaw = sensor.getTempRaw(settings.sensorAddress);
+        if (init()) {
+            tempRaw = sensor.getTempRaw(sensorAddress);
             success = tempRaw != DEVICE_DISCONNECTED_RAW;
         }
     }
 
     setConnected(success);
 
-    if(!success){
+    if (!success) {
         return temp_t::invalid();
     }
 
-    const uint8_t shift = temp_t::fractional_bit_count - ONEWIRE_TEMP_SENSOR_PRECISION; // difference in precision between DS18B20 format and temperature adt
+    // difference in precision between DS18B20 format and temperature format
+    const uint8_t shift = temp_t::fractional_bit_count - ONEWIRE_TEMP_SENSOR_PRECISION;
     temp_t temp;
     temp.setRaw(tempRaw << shift);
-    return temp + settings.calibrationOffset;
+    return temp + calibrationOffset;
 }

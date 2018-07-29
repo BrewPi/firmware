@@ -22,18 +22,17 @@
 #include "Ticks.h"
 #include "TicksObject.h"
 #include "Object.h"
+#include "Container.h"
 #include "Commands.h"
 #include "Integration.h"
 
-//#include "blox/OneWireTempSensorBlock.h"
+#include "blox/OneWireTempSensorBlock.h"
 //#include "blox/PidBlock.h"
 //#include "blox/SensorSetPointPairBlock.h"
 #include "blox/SetPointSimpleBlock.h"
-//#include "OneWireBusBlock.h"
+#include "OneWireBusBlock.h"
 #include "EepromTypes.h"
 #include "EepromAccessImpl.h"
-
-
 
 
 //OneWireBusBlock oneWireBus;
@@ -57,18 +56,17 @@ public:
 	}
 };
 
-namespace cbox {
 
-#define OBJECT_FACTORY_ENTRY(className) {resolveTypeID<className>(), createObject<className>}
+#define OBJECT_FACTORY_ENTRY(className) {cbox::resolveTypeID<className>(), cbox::createObject<className>}
 
-ObjectFactory objectFactories[] = {
-        //OBJECT_FACTORY_ENTRY(OneWireTempSensorBlock),
+cbox::ObjectFactory objectFactories[] = {
+        OBJECT_FACTORY_ENTRY(OneWireTempSensorBlock),
 		OBJECT_FACTORY_ENTRY(SetPointSimpleBlock)
 		//OBJECT_FACTORY_ENTRY(SensorSetPointPairBlock),
 		//OBJECT_FACTORY_ENTRY(PidBlock)
 };
 
-void connectionStarted(StandardConnection& connection, DataOut& out)
+void cbox::connectionStarted(StandardConnection& connection, DataOut& out)
 {
     out.writeAnnotation("\"a\":\"brewblox\",\"v\":\"0.1.0\"");
     out.flush();
@@ -81,11 +79,15 @@ void connectionStarted(StandardConnection& connection, DataOut& out)
 #endif
 }
 
-ObjectContainer& systemContainer()
+OneWireBusBlock oneWireBus(0);
+
+cbox::ObjectContainer& systemContainer()
 {
-    static std::shared_ptr<Object> deviceId = std::make_shared<DeviceIdObject>();
-    static ObjectContainer systemContainer({
-            ContainedObject(1, 0xFF, deviceId)
+    static std::shared_ptr<cbox::Object> deviceId = std::make_shared<DeviceIdObject>();
+
+    static cbox::ObjectContainer systemContainer({
+            cbox::ContainedObject(1, 0xFF, deviceId),
+            cbox::ContainedObject(2, 0xFF, std::shared_ptr<cbox::Object>(&oneWireBus)),
     });
     return systemContainer;
 }
@@ -94,44 +96,42 @@ ObjectContainer& systemContainer()
  * Provide the root container in which all user created objects are stored
  *
  */
-ObjectContainer& userContainer()
+cbox::ObjectContainer& userContainer()
 {
-    static ObjectContainer rootContainer;
+    static cbox::ObjectContainer rootContainer;
     return rootContainer;
 }
 
 /**
  * The application supplied object factory.
  */
-std::shared_ptr<Object> createApplicationObject(obj_type_t typeId, DataIn& in, CommandError& errorCode)
+std::shared_ptr<cbox::Object> createApplicationObject(cbox::obj_type_t typeId, cbox::DataIn& in, cbox::CommandError& errorCode)
 {
-    errorCode = CommandError::no_error;
-    std::shared_ptr<Object> obj;
-    std::shared_ptr<Object> (*createFn)(DataIn& def, StreamResult &streamResult) = nullptr;
+    errorCode = cbox::CommandError::no_error;
+    std::shared_ptr<cbox::Object> obj;
+    std::shared_ptr<cbox::Object> (*createFn)(cbox::DataIn& def, cbox::StreamResult &streamResult) = nullptr;
     for(uint8_t i =0; i<sizeof(objectFactories)/sizeof(objectFactories[0]); i++) {
     	if(typeId == objectFactories[i].typeId) {
     		createFn = objectFactories[i].createFn;
     	}
     }
     if(createFn == nullptr){
-        errorCode = CommandError::invalid_type;
+        errorCode = cbox::CommandError::invalid_type;
     }
     else {
-        StreamResult streamResult;
+        cbox::StreamResult streamResult;
         obj = createFn(in, streamResult);
         if (obj == nullptr) {
-            errorCode = CommandError::insufficient_heap;
+            errorCode = cbox::CommandError::insufficient_heap;
         }
-        else if ( streamResult != StreamResult::success){
-            errorCode = CommandError::stream_error;
+        else if ( streamResult != cbox::StreamResult::success){
+            errorCode = cbox::CommandError::stream_error;
         }
 
     }
     return obj;
 }
 
-void handleReset(bool exit){
-	::handleReset(exit); // call outside of cbox scope
+void cbox::handleReset(bool exit){
+	handleReset(exit); // call outside of cbox scope
 }
-
-} // end namespace cbox

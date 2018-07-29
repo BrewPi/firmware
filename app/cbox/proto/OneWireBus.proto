@@ -14,5 +14,5 @@ message OneWireCommand {
 // OneWire read executes the last command that was written and returns the result.
 message OneWireRead {
     OneWireCommand lastCommand = 1;
-    repeated bytes address = 2;   
+    repeated fixed64 address = 2;   
 }

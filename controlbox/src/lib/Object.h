@@ -236,9 +236,9 @@ public:
 
 
 template<class T>
-std::shared_ptr<Object> createObject(DataIn & defn, StreamResult &streamResult){
+std::shared_ptr<Object> createObject(DataIn & in, StreamResult &streamResult){
     auto obj = std::make_shared<T>();
-    streamResult = obj->streamFrom(defn);
+    streamResult = obj->streamFrom(in);
     return obj;
 }
 

@@ -111,8 +111,6 @@
 #endif
 #define DEVICE_DISCONNECTED_RAW -2032
 
-typedef uint8_t DeviceAddress[8];
-
 class DallasTemperature
 {
   public:

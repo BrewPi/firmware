@@ -39,8 +39,6 @@ public:
 
 
     virtual cbox::obj_type_t typeID() override {
-    	// use function overloading and templates to manage type IDs in a central place (ResolveType.cpp)
     	return resolveTypeID(this);
     }
-
 };

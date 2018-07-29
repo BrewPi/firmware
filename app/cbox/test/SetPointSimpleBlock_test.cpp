@@ -26,11 +26,9 @@
 #include "Object.h"
 #include "Commands.h"
 #include "temperatureFormats.h"
+#include "DataStream.h"
+#include "CboxApp.h"
 #include <memory>
-
-namespace cbox {
-std::shared_ptr<Object> createApplicationObject(obj_type_t typeId, DataIn& in, CommandError& errorCode);
-}
 
 SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf data"){
     WHEN("a protobuf message defining a SetPointSimple object is encoded to a buffer"){

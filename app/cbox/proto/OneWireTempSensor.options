@@ -1,4 +1,2 @@
-blox.OneWireTempSensor.Settings.address max_size:8 fixed_length:true
-blox.OneWireTempSensor.Settings.offset int_size:IS_16
-  
-blox.OneWireTempSensor.State.value int_size:IS_16
+blox.OneWireTempSensor.offset int_size:IS_16
+blox.OneWireTempSensor.value int_size:IS_16

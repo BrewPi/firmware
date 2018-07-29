@@ -80,17 +80,17 @@ void OneWireAddress::parse(const char * s)
             break; // encountered \0
         }
         d       |= fromHex(c);
-        address[i] = d;
+        this[i] = d;
     }
 }
 
 void OneWireAddress::print(char * buf, uint8_t len)    // prints 8-bit data in hex
 {
     for (int i = 0; i < 8 && i*2 < len; i++){
-        uint8_t b = (address[i] >> 4) & 0x0f;
+        uint8_t b = (this[i] >> 4) & 0x0f;
 
         *buf++ = toHex(b);
-        b      = address[i] & 0x0f;
+        b      = this[i] & 0x0f;
         *buf++ = toHex(b);
     }
 

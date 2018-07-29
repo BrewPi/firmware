@@ -87,6 +87,9 @@ extern BrewPiLogger logger;
 	inline void logErrorIntIntInt(uint8_t debugId, int val1, int val2, int val3){
 		logger.logMessageVaArg('E', debugId, "ddd", val1, val2, val3);
 	}
+    inline void logErrorAddress(uint8_t debugId, uint64_t val){
+        logger.logMessageVaArg('I', debugId, "a", val);
+    }
 #else
 	#define logError(debugId) {}
 	#define logErrorInt(debugId, val) {}
@@ -115,6 +118,9 @@ extern BrewPiLogger logger;
 	inline void logWarningIntString(uint8_t debugId, int val1, const char *val2){
 		logger.logMessageVaArg('W', debugId, "ds", val1, val2);
 	}
+    inline void logWarningAddress(uint8_t debugId, uint64_t val){
+        logger.logMessageVaArg('I', debugId, "a", val);
+    }
 #else
 	#define logWarning(debugId) {}
 	#define logWarningInt(debugId, val) {}
@@ -147,6 +153,9 @@ extern BrewPiLogger logger;
     }
     inline void logInfoTempTempFixedFixed(uint8_t debugId, temp_t * t1, temp_t * t2, temp_t * f1, temp_t * f2){
         logger.logMessageVaArg('I', debugId, "ttff", t1, t2, f1, f2);
+    }
+    inline void logInfoAddress(uint8_t debugId, uint64_t val){
+        logger.logMessageVaArg('I', debugId, "a", val);
     }
 #else
 	#define logInfo(debugId) {}

@@ -34,7 +34,10 @@ void BrewPiLogger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * 
             case 't': // temperature in fixed point format
                 char buf[12];
                 printFormatted("%s", (*(temp_t *) va_arg(args,void*)).toString(buf, 3, 12));
-            break;
+                break;
+            case 'a': // onewire address, print as hex
+                printFormatted("%08x", va_arg(args, uint64_t));
+                break;
         }
         if(varTypes[++index]){
         	cbox::comms.dataOut().write(',');
