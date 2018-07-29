@@ -46,6 +46,7 @@ struct DataOut
 
     virtual void writeAnnotation(const char* /*data*/) {}
 	virtual void writeResponseSeparator() {}
+	virtual void writeListSeparator() {}
 
 	/**
 	 * Writes a byte to the stream.

@@ -26,7 +26,7 @@
 
 namespace cbox {
 
-class ContainedObject{
+class ContainedObject {
 public:
     ContainedObject(obj_id_t _id, uint8_t _profiles, std::shared_ptr<Object> _obj) :
         id(_id),
@@ -36,6 +36,19 @@ public:
     obj_id_t id;
     uint8_t profiles; // active in these profiles
     std::shared_ptr<Object> obj; // pointer to runtime object
+
+    StreamResult streamTo(DataOut & out){
+        bool success = true;
+        success &= out.put(obj->typeID());
+        success &= out.put(id);
+        success &= out.put(profiles);
+        if(success){
+            return obj->streamTo(out);
+        }
+        else{
+            return StreamResult::stream_error;
+        }
+    }
 };
 
 class ObjectContainer
@@ -49,23 +62,6 @@ private:
     std::vector<ContainedObject> objects;
 
 public:
-
-    /**
-     * finds the object entry with the given id.
-     * @return pointer to the entry.
-     *
-     */
-
-    ContainedObject * find(const obj_id_t id) {
-        decltype(objects)::iterator begin = objects.begin();
-        decltype(objects)::iterator end = objects.end();
-        decltype(objects)::iterator found = std::find_if(begin, end, [&id](const ContainedObject& item){ return item.id == id;} );
-        if(found == end){
-            return nullptr;
-        }
-        return &(*found);
-    }
-
     std::shared_ptr<Object> fetch(const obj_id_t id) {
         auto entry = find(id);
         std::shared_ptr<Object> ptr;
@@ -102,14 +98,14 @@ public:
         return newId;
     }
 
-    bool replace (obj_id_t id, std::unique_ptr<Object> obj, uint8_t active_in_profiles) {
+    obj_id_t replace (std::unique_ptr<Object> obj, const uint8_t active_in_profiles, const obj_id_t id) {
         ContainedObject * entry = find(id);
         if(entry != nullptr){
             entry->profiles = active_in_profiles;
             entry->obj = std::move(obj);
-            return true;
+            return id;
         }
-        return false;
+        return obj_id_t::invalid();
     }
 
     void remove(obj_id_t id) {
@@ -120,6 +116,31 @@ public:
         for(auto it : objects){
             func(it);
         }
+    }
+
+    void mapWhileTrue(std::function<bool(ContainedObject & obj)> func) {
+        for(auto it : objects){
+            if(!func(it)){
+                break;
+            }
+        }
+    }
+
+private:
+    /**
+     * finds the object entry with the given id.
+     * @return pointer to the entry.
+     *
+     */
+
+    ContainedObject * find(const obj_id_t id) {
+        decltype(objects)::iterator begin = objects.begin();
+        decltype(objects)::iterator end = objects.end();
+        decltype(objects)::iterator found = std::find_if(begin, end, [&id](const ContainedObject& item){ return item.id == id;} );
+        if(found == end){
+            return nullptr;
+        }
+        return &(*found);
     }
 };
 

@@ -380,6 +380,10 @@ public:
 	    _out->write('|');
 	}
 
+	virtual void writeListSeparator() override final{
+        _out->write(',');
+    }
+
 	/**
 	 * Data is written as hex-encoded
 	 */
