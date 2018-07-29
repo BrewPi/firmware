@@ -269,6 +269,60 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage"){
         }
     }
 
+    WHEN("Multiple objects are created and saved to eeprom"){
+        LongIntVectorObject obj1 = {0x11111111, 0x22222222};
+        LongIntVectorObject obj2 = {0x11111111, 0x22222222, 0x33333333};
+        LongIntVectorObject obj3 = {0x11111111, 0x22222222, 0x33333333, 0x44444444};
+        LongIntObject obj4 = 0x11111111;
+
+        auto res1 = storage.storeObject(cbox::obj_id_t(1), obj1);
+        auto res2 = storage.storeObject(cbox::obj_id_t(2), obj2);
+        auto res3 = storage.storeObject(cbox::obj_id_t(3), obj3);
+        auto res4 = storage.storeObject(cbox::obj_id_t(4), obj4);
+
+        THEN("They are stored successfully"){
+            CHECK(res1 == cbox::StreamResult::success);
+            CHECK(res2 == cbox::StreamResult::success);
+            CHECK(res3 == cbox::StreamResult::success);
+            CHECK(res4 == cbox::StreamResult::success);
+
+
+            AND_THEN("They can be retrieved successfully"){
+                LongIntVectorObject received;
+                CHECK(cbox::StreamResult::success == storage.retreiveObject(cbox::obj_id_t(1), received));
+                CHECK(obj1 == received);
+                CHECK(cbox::StreamResult::success == storage.retreiveObject(cbox::obj_id_t(2), received));
+                CHECK(obj2 == received);
+                CHECK(cbox::StreamResult::success == storage.retreiveObject(cbox::obj_id_t(3), received));
+                CHECK(obj3 == received);
+                LongIntObject received2;
+                CHECK(cbox::StreamResult::success == storage.retreiveObject(cbox::obj_id_t(4), received2));
+                CHECK(obj4 == received2);
+            }
+
+            AND_THEN("They can be updated in EEPROM"){
+                obj2 = {0x33333333,0x33333333};
+                CHECK(cbox::StreamResult::success == storage.storeObject(cbox::obj_id_t(2), obj2));
+                LongIntVectorObject received;
+                CHECK(cbox::StreamResult::success == storage.retreiveObject(cbox::obj_id_t(2), received));
+                CHECK(obj2 == received);
+            }
+
+            AND_THEN("If one is deleted, it doesn't affect the others"){
+                storage.disposeObject(cbox::obj_id_t(2));
+                LongIntVectorObject received;
+                CHECK(cbox::StreamResult::success == storage.retreiveObject(cbox::obj_id_t(1), received));
+                CHECK(obj1 == received);
+                CHECK(cbox::StreamResult::end_of_input == storage.retreiveObject(cbox::obj_id_t(2), received));
+                CHECK(cbox::StreamResult::success == storage.retreiveObject(cbox::obj_id_t(3), received));
+                CHECK(obj3 == received);
+                LongIntObject received2;
+                CHECK(cbox::StreamResult::success == storage.retreiveObject(cbox::obj_id_t(4), received2));
+                CHECK(obj4 == received2);
+            }
+        }
+    }
+
     WHEN("A lot of big and small objects are created until EEPROM is full, alternating big and small"){
         LongIntVectorObject big = {
                 0x22222222, 0x33333333, 0x44444444, 0x55555555, 0x66666666, 0x77777777,
@@ -350,6 +404,14 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage"){
                 THEN("Eeprom was defragmented and continuous free space equals free space"){
                     INFO("Continuous free space after defrag: " << storage.continuousFreeSpace());
                     CHECK(storage.freeSpace() == storage.continuousFreeSpace());
+                }
+
+                THEN("All objects still have the right value"){
+                    for(id = 2; id < 10; id = id + 2){
+                        LongIntVectorObject received;
+                        CHECK(cbox::StreamResult::success == storage.retreiveObject(id, received));
+                        CHECK(received == big);
+                    }
                 }
             }
         }
