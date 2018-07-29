@@ -19,8 +19,10 @@
 
 #pragma once
 
+#include "Object.h"
 #include "ObjectStorage.h"
 #include "DataStreamEeprom.h"
+#include "EepromAccessImpl.h"
 #include "EepromAccess.h"
 #include "EepromLayout.h"
 
@@ -116,10 +118,27 @@ public:
             uint16_t dataSize = counter.count();
             // overprovision at least 4 bytes or 12.5% to prevent having to relocate the block if it grows
             uint16_t overProvision = std::max(dataSize >> 3, 4);
-            RegionDataOut newObjectEepromData = newObjectWriter(id, dataSize + overProvision);
+            uint16_t requestedSize = dataSize + overProvision;
+            RegionDataOut newObjectEepromData = newObjectWriter(id, requestedSize);
+            if(newObjectEepromData.availableForWrite() < requestedSize){
+                // not enough continuous free space
+                if(freeSpace() < requestedSize){
+                    return StreamResult::end_of_output; // not even enough total free space
+                }
 
-            // write to new Block
-            res = source.streamPersistedTo(newObjectEepromData);
+                // if there is enough free space, but it is not continuous, do a defrag to and try again
+                defrag();
+                RegionDataOut newObjectEepromData2 = newObjectWriter(id, requestedSize);
+                if(newObjectEepromData2.availableForWrite() < requestedSize){
+                    return StreamResult::end_of_output; // still not enough free space
+                }
+                res = source.streamPersistedTo(newObjectEepromData2);
+
+            }
+            else {
+                // write to new Block
+                res = source.streamPersistedTo(newObjectEepromData);
+            }
         }
         return res;
     }
@@ -135,6 +154,30 @@ public:
             return true;
         }
         return false;
+    }
+
+    stream_size_t freeSpace(){
+        stream_size_t total = 0;
+        resetReader();
+        while(reader.available()){
+           RegionDataIn blockData = getBlockReader(BlockType::disposed_block);
+           total += blockData.available() + blockHeaderLength();
+           blockData.spool();
+        }
+        // subtract one header length, because that will not be available for the object
+        return total - blockHeaderLength();
+    }
+
+    stream_size_t continuousFreeSpace(){
+        stream_size_t space = 0;
+        resetReader();
+        while(reader.available()){
+           RegionDataIn blockData = getBlockReader(BlockType::disposed_block);
+           space = std::max(space, blockData.available());
+           blockData.spool();
+        }
+        // subtract one header length, because that will not be available for the object
+        return space;
     }
 
     void defrag(){
@@ -181,7 +224,9 @@ private:
         while(reader.hasNext()){
             uint8_t type = reader.next();
             uint16_t blockSize = 0;
-            reader.get(blockSize);
+            if(!reader.get(blockSize)){
+                break; // couldn't read blocksize, due to reaching end of reader
+            }
 
             if(!(type == requestedType)) {
                 reader.spool(blockSize);
@@ -249,13 +294,12 @@ private:
                 writer.reset(reader.offset() - blockHeaderLength(), blockSize + blockHeaderLength());
                 writer.put(BlockType::object);
                 writer.put(blockSize);
-                writer.put(id);
+                writer.put(uint16_t(id));
                 return RegionDataOut(writer, blockSize);
             }
             else{
                 // split into object block and new disposed block
                 eptr_t blockToSplitHeaderStart = reader.offset() - blockHeaderLength();
-                uint16_t blockToSplitSizeIncludingHeader = blockSize + blockHeaderLength();
                 uint16_t newObjectBlockSizeIncludingHeader = size + sizeof(obj_id_t) + blockHeaderLength();
                 uint16_t newDisposedBlockSize = blockSize - newObjectBlockSizeIncludingHeader;
                 uint16_t newDisposedBlockStart = blockToSplitHeaderStart + newObjectBlockSizeIncludingHeader;
@@ -268,7 +312,7 @@ private:
                 writer.reset(blockToSplitHeaderStart, newObjectBlockSizeIncludingHeader);
                 writer.put(BlockType::object);
                 writer.put(uint16_t(newObjectBlockSizeIncludingHeader - blockHeaderLength()));
-                writer.put(id);
+                writer.put(uint16_t(id));
                 return RegionDataOut(writer, size);
             }
         }
@@ -289,10 +333,9 @@ private:
             resetWriter();
             // make eeprom one big disposed block
             writer.put(BlockType::disposed_block);
-            writer.put(uint16_t(EepromLocationSize(objects)));
+            writer.put(uint16_t(EepromLocationSize(objects) - blockHeaderLength()));
         }
-
-
+        static_assert(EepromLocationEnd(objects) == EepromAccess::length());
     }
 
     // move a single disposed block backwards by swapping it with an object
@@ -309,8 +352,6 @@ private:
         disposedBlock.spool();
 
         RegionDataIn objectBlock = getBlockReader(BlockType::object);
-
-        eptr_t objectStart = reader.offset();
         uint16_t objectLength = objectBlock.available();
 
         if(objectLength == 0){
@@ -351,11 +392,9 @@ private:
 
             disposedBlock1.spool();
 
-            eptr_t nextBlockStart = reader.offset();
             uint8_t nextBlockType = reader.peek();
             if(nextBlockType == BlockType::disposed_block){
                 RegionDataIn disposedBlock2 = getBlockReader(BlockType::disposed_block);
-                eptr_t disposedStart2 = reader.offset();
                 uint16_t disposedLength2 = disposedBlock2.available();
                 // now merge the blocks
                 uint16_t combinedLength = disposedDataLength1 + disposedLength2 + blockHeaderLength();

@@ -4,6 +4,6 @@
 
 #include "ArrayEepromAccess.h"
 
-typedef ArrayEepromAccess<1024> EepromAccess;
+typedef ArrayEepromAccess<2048> EepromAccess;
 
 extern EepromAccess eepromAccess;

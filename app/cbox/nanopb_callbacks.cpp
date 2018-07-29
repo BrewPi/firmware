@@ -1,6 +1,5 @@
 #include "nanopb_callbacks.h"
 #include "DataStream.h"
-#include "EepromFormat.h"
 
 
 /* This binds the pb_ostream_t into the DataOut stream, which is passed as state in pb_ostream */

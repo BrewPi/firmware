@@ -34,7 +34,7 @@ class ArrayEepromAccess
 public:
 	ArrayEepromAccess() : changed(false)
 	{
-		memset(data, -1, eepromLength());
+		memset(data, -1, length());
 	}
 
 	void init(){};
@@ -88,14 +88,9 @@ public:
 		return &data[0];
 	}
 	
-	uint16_t eepromLength() const
+	static constexpr uint16_t length()
 	{
-		return eeprom_size;
-	}
-
-	uint16_t length()
-	{
-		return eepromLength();
+	    return eeprom_size;
 	}
 
 	/**
@@ -121,9 +116,8 @@ protected:
 
 	bool isValidRange(uint16_t offset, uint16_t size) const
 	{
-		assert(sizeof(ArrayEepromAccess) > eeprom_size);
-		bool valid = offset >= 0 && offset < eepromLength()
-				&& size <= eepromLength() && offset + size <= eepromLength();
+		bool valid = offset >= 0 && offset < length()
+				&& size <= length() && offset + size <= length();
 		return valid;
 	}
 private:

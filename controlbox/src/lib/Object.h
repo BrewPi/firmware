@@ -36,7 +36,8 @@ enum class StreamResult {
     stream_error,
     unexpected_end_of_input,
     unexpected_end_of_output,
-    end_of_input
+    end_of_input,
+    end_of_output,
 };
 
 
@@ -174,7 +175,7 @@ public:
 
     operator T(){
         T copy = obj;
-        return obj;
+        return copy;
     }
 
 protected:
