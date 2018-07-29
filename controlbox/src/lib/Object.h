@@ -43,15 +43,14 @@ enum class StreamResult {
 
 class id_type_base {
 public:
-    id_type_base() : id(invalid()){};
+    id_type_base() : id(0){};
     id_type_base(uint16_t v) : id(v){};
+    id_type_base(const id_type_base & v){
+        id = v.id;
+    }
 
     operator uint16_t() const {
         return id;
-    }
-
-    bool isValid() const{
-        return id > invalid();
     }
 
     StreamResult streamTo(DataOut & out){
@@ -62,9 +61,6 @@ public:
         return in.get(id) ? StreamResult::success : StreamResult::stream_error;
     }
 
-    static const id_type_base start() { return 1; };
-    static const id_type_base invalid() { return 0; };
-
 protected:
     uint16_t id;
 };
@@ -72,19 +68,47 @@ protected:
 class obj_type_t : public id_type_base {
 public:
     using id_type_base::id_type_base;
-
-    obj_type_t(id_type_base & id){
-        *this = id;
+    obj_type_t(){
+        id = invalid_id;
     }
+
+    bool isValid() const{
+        return id > invalid_id;
+    }
+
+    static const obj_type_t start() {
+        obj_type_t retv(start_id);
+        return retv;
+    };
+    static const obj_type_t invalid() {
+        obj_type_t retv(invalid_id);
+        return retv;
+    };
+
+private:
+    static const uint16_t start_id = 1;
+    static const uint16_t invalid_id = 0;
 };
 
 class obj_id_t : public id_type_base {
 public:
     using id_type_base::id_type_base;
-
-    obj_id_t(const id_type_base id){
-        *this = id;
+    obj_id_t(){
+        id = invalid_id;
     }
+
+    bool isValid() const{
+        return id > invalid_id;
+    }
+
+    static const obj_id_t start() {
+        obj_id_t retv(start_id);
+        return retv;
+    };
+    static const obj_id_t invalid() {
+        obj_id_t retv(invalid_id);
+        return retv;
+    };
 
     obj_id_t & operator++() // ++A
     {
@@ -98,6 +122,10 @@ public:
        ++id;
        return temp ;
     }
+
+private:
+    static const uint16_t start_id = 1;
+    static const uint16_t invalid_id = 0;
 };
 
 
