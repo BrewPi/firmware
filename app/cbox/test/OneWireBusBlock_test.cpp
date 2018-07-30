@@ -26,6 +26,7 @@
 #include "OneWireBusBlock.h"
 #include "Object.h"
 #include "DataStream.h"
+#include "Block.h"
 
 void streamHex(std::stringstream & ss, uint8_t * buf, size_t len){
     ss << "0x" << std::setfill('0') << std::hex;
@@ -54,9 +55,10 @@ SCENARIO("A Blox OneWireBus can stream a variable number of found addresses"){
             message.data = 0x28; // family code for onewire temp sensor
 
             uint8_t inbuf[100] = {0};
-            pb_ostream_t stream = pb_ostream_from_buffer(inbuf, sizeof(inbuf));
-            bool status = pb_encode(&stream, blox_OneWireCommand_fields, &message);
-            CHECK(status == true);
+
+            cbox::BufferDataOut tempOut(inbuf, sizeof(inbuf));
+            cbox::StreamResult res = streamProtoTo(tempOut, &message, blox_OneWireCommand_fields, sizeof(inbuf));
+            CHECK(res == cbox::StreamResult::success);
 
             cbox::BufferDataIn in(inbuf, sizeof(inbuf));
 

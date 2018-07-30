@@ -31,17 +31,16 @@
 
 SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf data"){
     GIVEN("a protobuf message defining a OneWireTempSensor object"){
-        blox_OneWireTempSensor message;
-        uint8_t address[8] = {8, 7, 6, 5, 4, 3, 2, 1};
-        memcpy(&message.address, &address, 8);
+        blox_OneWireTempSensor message = {0}; // initialize to zero necessary if not all fields are set
+        message.address = 0x0102030405060708;
         message.offset = 123;
 
         WHEN("it is encoded to a buffer"){
             uint8_t buf[100] = {0};
-            pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
 
-            bool status = pb_encode(&stream, blox_OneWireTempSensor_fields, &message);
-            CHECK(status);
+            cbox::BufferDataOut tempOut(buf, sizeof(buf));
+            cbox::StreamResult res = streamProtoTo(tempOut, &message, blox_OneWireTempSensor_fields, sizeof(buf));
+            CHECK(res == cbox::StreamResult::success);
 
             AND_WHEN("we create a DataIn object form that buffer"){
                 cbox::BufferDataIn in(buf, sizeof(buf));
@@ -58,13 +57,12 @@ SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf 
                         uint8_t buf2[100] = {0};
                         cbox::BufferDataOut out(buf2, sizeof(buf2));
                         sensor.streamTo(out);
-
                         // verify data that is streamed out by streaming it back in
-                        pb_istream_t stream_in = pb_istream_from_buffer(buf2, sizeof(buf2));
-
+                        cbox::BufferDataIn in(buf2, sizeof(buf2));
                         blox_OneWireTempSensor received;
-                        bool success = pb_decode(&stream_in, blox_OneWireTempSensor_fields, &received);
-                        CHECK(success);
+                        auto res = streamProtoFrom(in, &received, blox_OneWireTempSensor_fields, sizeof(buf2));
+
+                        CHECK(res == cbox::StreamResult::success);
                         CHECK(received.address == message.address);
                         CHECK(received.offset == message.offset);
                         CHECK(received.value == temp_t::invalid().getRaw());
@@ -79,16 +77,14 @@ SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf 
 
 SCENARIO("Create blox OneWireTempSensor application object from definition"){
     GIVEN("A BrewBlox OneWireTempSensor definition"){
-        bool status;
-        blox_OneWireTempSensor definition;
-        uint8_t address[8] = {8, 7, 6, 5, 4, 3, 2, 1};
-        memcpy(&definition.address, &address, 8);
+        blox_OneWireTempSensor definition = {0}; // initialize to zero necessary if not all fields are set
+        definition.address = 0x0102030405060708;
         definition.offset = 456;
 
         uint8_t buffer1[100] = {0};
-        pb_ostream_t stream1 = pb_ostream_from_buffer(buffer1, sizeof(buffer1));
-        status = pb_encode(&stream1, blox_OneWireTempSensor_fields, &definition);
-        CHECK(status);
+        cbox::BufferDataOut tempOut(buffer1, sizeof(buffer1));
+        cbox::StreamResult res = streamProtoTo(tempOut, &definition, blox_OneWireTempSensor_fields, sizeof(buffer1));
+        CHECK(res == cbox::StreamResult::success);
 
         cbox::BufferDataIn in(buffer1, sizeof(buffer1));
         cbox::obj_type_t typeId = cbox::resolveTypeID<OneWireTempSensorBlock>();
@@ -110,13 +106,13 @@ SCENARIO("Create blox OneWireTempSensor application object from definition"){
                 cbox::BufferDataOut out(buf2, sizeof(buf2));
                 obj->streamTo(out);
 
+
                 // verify data that is streamed out by streaming it back in
-                pb_istream_t stream_in = pb_istream_from_buffer(buf2, sizeof(buf2));
-
-                // settings are streamed first
+                cbox::BufferDataIn in(buf2, sizeof(buf2));
                 blox_OneWireTempSensor received;
-                pb_decode(&stream_in, blox_OneWireTempSensor_fields, &received);
+                auto res = streamProtoFrom(in, &received, blox_OneWireTempSensor_fields, sizeof(buf2));
 
+                CHECK(res == cbox::StreamResult::success);
                 CHECK(received.address == definition.address);
                 CHECK(received.offset == 456);
             }

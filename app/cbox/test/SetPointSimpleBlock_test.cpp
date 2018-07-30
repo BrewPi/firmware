@@ -47,7 +47,7 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
         {
             cbox::BufferDataIn in(buf, sizeof(buf));
             SetPointSimpleBlock sp;
-            auto res = sp.streamFrom(in);
+            cbox::StreamResult res = sp.streamFrom(in);
             CHECK(res == cbox::StreamResult::success);
 
             temp_t setting = sp.get().read();
@@ -79,23 +79,13 @@ SCENARIO("A Bloc SetPointSimple object can be created from streamed protobuf dat
 
 SCENARIO("Create blox SetPointSimple application object from definition"){
     GIVEN("A BrewBlox SetPointSimple definition"){
-        bool status;
-        blox_SetPointSimple persistedData;
-        persistedData.setting = 123;
+        blox_SetPointSimple definition;
+        definition.setting = 123;
 
         uint8_t buffer1[100];
-        pb_ostream_t stream1 = pb_ostream_from_buffer(buffer1, sizeof(buffer1));
-        status = pb_encode(&stream1, blox_SetPointSimple_fields, &persistedData);
-        buffer1[stream1.bytes_written] = 0; // zero terminate
-
-        THEN("no errors occur"){
-            if (!status)
-            {
-                INFO("Encoding failed: " << PB_GET_ERROR(&stream1));
-                CAPTURE(stream1);
-            }
-            CHECK(status);
-        }
+        cbox::BufferDataOut tempOut(buffer1, sizeof(buffer1));
+        cbox::StreamResult res = streamProtoTo(tempOut, &definition, blox_SetPointSimple_fields, sizeof(buffer1));
+        CHECK(res == cbox::StreamResult::success);
 
         cbox::BufferDataIn in(buffer1, sizeof(buffer1));
         cbox::obj_type_t typeId = cbox::resolveTypeID<SetPointSimpleBlock>();
