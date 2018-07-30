@@ -59,7 +59,7 @@ public:
 // The only requirement is that operator () returns an Interface pointer
 struct VectorIndexLookup : BaseLookup {
     VectorIndexLookup(unsigned int i, std::vector<Interface*> const& vect) : i(i), vect(vect){};
-    ~VectorIndexLookup()= default;
+    virtual ~VectorIndexLookup()= default;
 
     virtual Interface * operator()() const override final{
         if(i < vect.size()){

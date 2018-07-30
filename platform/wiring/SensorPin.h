@@ -24,6 +24,7 @@ public:
 		this->invert = invert;
 		this->pin = pin;		
 	}
+	virtual ~DigitalPinSensor() = default;
 	
 	virtual bool sense() override final{
 		return digitalRead(pin) ^ invert;

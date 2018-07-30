@@ -45,7 +45,7 @@ extern template SetPoint* asInterface<SetPoint>(Interface*);
 class BaseLookup {
 public:
     BaseLookup(){}
-    ~BaseLookup() = default;
+    virtual ~BaseLookup() = default;
 
     virtual Interface * operator()() const = 0;
 };

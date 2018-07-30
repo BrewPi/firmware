@@ -98,6 +98,7 @@ private:
 class StdIOConnection : public AbstractConnection<StdIO, StreamDataIn<StdIO>, StreamDataOut<StdIO>, StandardConnectionDataType>
 {
 	using base = AbstractConnection<StdIO, StreamDataIn<StdIO>, StreamDataOut<StdIO>, StandardConnectionDataType>;
+	virtual ~StdIOConnection() = default;
 
 	StdIO stdio;
 	base::in_type in;

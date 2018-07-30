@@ -49,6 +49,9 @@ class Commands;
 template <typename D>
 struct Connection
 {
+    Connection() = default;
+    virtual ~Connection() = default;
+
     virtual DataOut& getDataOut()=0;
     virtual DataIn& getDataIn()=0;
     virtual bool connected()=0;
@@ -72,6 +75,8 @@ public:
     ConnectionData() {
         memset(&data, 0, sizeof(data)); // todo - must be a better way than this, e.g. templated initialization function?
     }
+    virtual ~ConnectionData() = default;
+
     virtual D& getData() override { return data; }
     virtual const D& getData() const override { return data; }
 };
@@ -160,10 +165,10 @@ protected:
 
 
 public:
-    AbstractConnection()=default;
-    ~AbstractConnection()=default;
+
     AbstractConnection(connection_type& _connection, in_type& _in, out_type& _out) :
 	    connection(&_connection), in(&_in), out(&_out) {}
+    virtual ~AbstractConnection()=default;
 
     virtual DataIn& getDataIn() override { return *in; }
     virtual DataOut& getDataOut() override { return *out; }

@@ -24,6 +24,7 @@
 #include "Commands.h"
 #include <memory>
 #include "System.h"
+#include "DataStream.h"
 
 namespace cbox {
 

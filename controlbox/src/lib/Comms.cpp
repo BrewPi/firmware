@@ -102,9 +102,12 @@ public:
 };
 #endif
 
-struct CommsWriter
+class CommsWriter
 {
-	virtual void write(uint8_t data)=0;
+    CommsWriter() = default;
+    virtual ~CommsWriter() = default;
+
+    virtual void write(uint8_t data)=0;
 };
 
 /**
@@ -156,6 +159,8 @@ cb_static_decl(CommsOut commsOut;)
 template<typename D>
 struct CommsConnection : public ConnectionData<D>
 {
+    CommsConnection() = default;
+    virtual ~CommsConnection() = default;
 
     virtual DataOut& getDataOut() override {
         return commsOut;

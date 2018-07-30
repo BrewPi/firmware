@@ -21,6 +21,9 @@
 #include <stdint.h>
 
 class OneWireLowLevelInterface {
+    OneWireLowLevelInterface() = default;
+    virtual ~OneWireLowLevelInterface() = default;
+
 public:
     // Configure the pin or chip
     virtual bool init() = 0;
