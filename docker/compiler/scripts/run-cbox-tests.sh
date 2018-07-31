@@ -1,6 +1,8 @@
 cd /firmware/app/cbox/test/obj
-rm -rf coverage
-mkdir -p coverage
+mkdir -p test
+
+echo "resetting lcov counters"
+lcov --zerocounters --directory test
 
 echo "running lcov initial"
 lcov -q --capture --initial --directory test --output-file coverage/base.info

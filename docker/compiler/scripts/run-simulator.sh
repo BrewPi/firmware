@@ -1,7 +1,9 @@
 cd /firmware/build/target/cbox-gcc
 touch device_key.der server_key.der
-rm -rf coverage
 mkdir -p coverage
+
+echo "resetting lcov counters"
+lcov --zerocounters --directory ../user
 
 echo "running lcov initial"
 lcov -q --capture --initial --directory ../user --output-file coverage/base.info
