@@ -126,6 +126,7 @@ std::shared_ptr<cbox::Object> createApplicationObject(cbox::obj_type_t typeId, c
         }
         else if ( streamResult != cbox::StreamResult::success){
             errorCode = cbox::CommandError::stream_error;
+            return nullptr;
         }
 
     }

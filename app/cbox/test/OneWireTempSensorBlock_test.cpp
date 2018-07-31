@@ -136,6 +136,6 @@ SCENARIO("Send an invalid protobuf creation command"){
 
         CHECK(err == cbox::CommandError::stream_error);
 
-        REQUIRE(obj != nullptr);
+        REQUIRE(obj == nullptr);
     }
 }
