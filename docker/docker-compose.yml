@@ -6,9 +6,11 @@ services:
     container_name: firmware-compiler
     volumes:
         - ../:/firmware
-        - "/etc/timezone:/etc/timezone:ro"
-        - "/etc/localtime:/etc/localtime:ro"
-        
+        # - "/etc/timezone:/etc/timezone:ro"
+        # - "/etc/localtime:/etc/localtime:ro"
+    # environment:
+    #    - COMPOSE_CONVERT_WINDOWS_PATHS=1
+
   simulator-compiler:
     build: ./simulator-compiler/
     image: brewblox/firmware-simulator-compiler

@@ -1,5 +1,18 @@
 FROM ubuntu:18.04
 
+
+ENV TZ=Europe/Amsterdam
+
+## for apt to be noninteractive
+ENV DEBIAN_FRONTEND noninteractive
+ENV DEBCONF_NONINTERACTIVE_SEEN true
+
+## preesed tzdata, update package index, upgrade packages and install needed software
+RUN echo "tzdata tzdata/Areas select Europe" > /tmp/preseed.txt; \
+    echo "tzdata tzdata/Zones/Europe select Amsterdam" >> /tmp/preseed.txt;
+RUN debconf-set-selections /tmp/preseed.txt
+RUN apt-get update -q && apt-get install -qy tzdata
+
 RUN apt-get update -q && apt-get install -qy git bash curl unzip
 RUN apt-get update -q && apt-get install -qy build-essential dfu-util python python-pip gdb lcov
 
@@ -33,6 +46,18 @@ RUN mv $PROTOC_HOME/bin/* /usr/local/bin/
 RUN mv $PROTOC_HOME/include/* /usr/local/include/
 
 RUN pip install protobuf
+
+# set timezone
+RUN rm -rf /etc/timezone
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN dpkg-reconfigure --frontend noninteractive tzdata
+
+# cleanup
+RUN apt-get clean && \
+  rm -rf \
+	/tmp/* \
+	/var/lib/apt/lists/* \
+	/var/tmp/*
 
 COPY scripts /scripts
 WORKDIR /firmware/build
