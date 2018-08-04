@@ -54,12 +54,14 @@ public:
 class ObjectContainer
 {
 public:
-    ObjectContainer(){};
-    ObjectContainer(std::initializer_list<ContainedObject> l) : objects(l){};
+    ObjectContainer() : startId(obj_id_t::start()), nextId(obj_id_t::start()) {};
+    ObjectContainer(std::initializer_list<ContainedObject> l) : startId(obj_id_t::start()), objects(l){};
     virtual ~ObjectContainer() = default;
 
 private:
     std::vector<ContainedObject> objects;
+    obj_id_t startId;
+    ojb_id_t nextId;
 
 public:
     std::shared_ptr<Object> fetch(const obj_id_t id) {
@@ -72,14 +74,21 @@ public:
     }
 
     obj_id_t freeId(){
-        static obj_id_t id = obj_id_t::start();
-        while(!id.isValid() || find(id)){
-            id++;
+        while(nextId < startId || find(nextId)){
+            nextId++;
         }
-        return id;
+        return nextId++;
     }
 
-    obj_id_t add (std::unique_ptr<Object> obj, const uint8_t active_in_profiles) {
+    /**
+     * set start ID for user objects.
+     * ID's smaller than the start ID are  assumed to be system objects and considered undeletable.
+     **/
+    void setObjectsStartId(obj_id_t id){
+        startId = id;
+    }
+
+    obj_id_t add (std::unique_ptr<Object> obj, const uint8_t active_in_profiles) {        
         return add(std::move(obj), active_in_profiles, obj_id_t::invalid());
     }
 
@@ -89,8 +98,8 @@ public:
             newId = freeId();
         }
         else { // check if the id already exists
-            if(find(newId) != nullptr){
-                return obj_id_t::invalid(); // refuse to overwrite existing objects
+            if(find(newId) != nullptr || newId < startId){
+                return obj_id_t::invalid(); // refuse to overwrite existing objects or in ID range for system
             }
         }
         ContainedObject entry(newId, active_in_profiles, std::move(obj)); // move object entry
@@ -99,6 +108,9 @@ public:
     }
 
     obj_id_t replace (std::unique_ptr<Object> obj, const uint8_t active_in_profiles, const obj_id_t id) {
+        if(id < startId){
+            return obj_id_t::invalid(); // refuse to replace system objects
+        }
         ContainedObject * entry = find(id);
         if(entry != nullptr){
             entry->profiles = active_in_profiles;
@@ -108,8 +120,16 @@ public:
         return obj_id_t::invalid();
     }
 
-    void remove(obj_id_t id) {
-        std::remove_if(objects.begin(), objects.end(), [&id](ContainedObject const& item){ return item.id == id;} );
+    bool remove(obj_id_t id) {
+        if(id < startId){
+            return false;
+        }
+        bool removed = false;
+        std::remove_if(objects.begin(), objects.end(), [&id, &removed](ContainedObject const& item){ 
+            removed |= item.id == id;
+            return item.id == id;
+        });
+        return removed;
     }
 
     void map(std::function<void(ContainedObject & obj)> func) {
