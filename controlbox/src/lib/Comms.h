@@ -1,7 +1,8 @@
 /*
  * Copyright 2014-2015 Matthew McGowan.
+ * Copyright 2018 BrewBlox / Elco Jacobs
  *
- * This file is part of Nice Firmware.
+ * This file is part of Controlbox.
  *
  * Controlbox is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,62 +25,8 @@
 #include "DataStream.h"
 #include <string.h>
 
-#if !CONTROLBOX_STATIC
 #include <array>
 #include <functional>
-#endif
-
-#include "ControlboxWiring.h"
-
-namespace cbox {
-
-class Commands;
-
-
-/**
- * Represents a connection to an endpoint. The details of the endpoint are not provided here.
- * A connection has these components:
- *
- * - a stream for input data (DataIn)
- * - a stream for output data (DatOut)
- * - a connected flag: indicates if this connection can read/write data to the resource
- * - associated user data
- *
- */
-template <typename D>
-struct Connection
-{
-    Connection() = default;
-    virtual ~Connection() = default;
-
-    virtual DataOut& getDataOut()=0;
-    virtual DataIn& getDataIn()=0;
-    virtual bool connected()=0;
-
-    /**
-     * Retrieve the most-recently assigned value to the user data item.
-     */
-    virtual D& getData()=0;
-    virtual const D& getData() const=0;
-
-};
-
-/**
- * Connection implementation helper that adds storage for the user data and trivial accessor/mutator methods.
- */
-template <typename D>
-class ConnectionData : public Connection<D>
-{
-    D data;
-public:
-    ConnectionData() {
-        memset(&data, 0, sizeof(data)); // todo - must be a better way than this, e.g. templated initialization function?
-    }
-    virtual ~ConnectionData() = default;
-
-    virtual D& getData() override { return data; }
-    virtual const D& getData() const override { return data; }
-};
 
 
 /**
@@ -176,7 +123,6 @@ public:
 
 };
 
-#if CONTROLBOX_WIRING
 template <typename S, typename D>
 using AbstractStreamConnectionType = AbstractConnection<
     typename std::enable_if<std::is_base_of<Stream, S>::value, S>::type,
@@ -221,12 +167,7 @@ public:
     {
     		this->getData() = other.getData();
     }
-
 };
-
-
-#endif
-
 
 struct StandardConnectionDataType
 {
@@ -413,64 +354,47 @@ public:
  * The primary communications interface.
  */
 class Comms {
-
-	cb_static bool prevConnected;
-	cb_static bool reset;
-
-public:
-
-#if !CONTROLBOX_STATIC
 private:
-	Commands* commands_ptr;
 	StandardConnection& connection_;
 	BinaryToHexTextOut hexOut;
+	bool prevConnected;
+	bool reset;
 
 public:
-	Comms(StandardConnection& connection) : prevConnected(false), reset(false), connection_(connection), hexOut(connection.getDataOut()) {}
-
-	void setCommands(Commands& commands)
-	{
-		commands_ptr = &commands;
-	}
+	Comms(StandardConnection& connection) : 
+        prevConnected(false),
+        reset(false),
+        connection_(connection),
+        hexOut(connection.getDataOut()) {}
 
 	inline std::array<std::reference_wrapper<StandardConnection>,1> all_connections()
 	{
 		std::array<std::reference_wrapper<StandardConnection>,1> result = { { std::ref(connection_) } };
 		return result;
 	}
-#else
 
 	/**
 	 * The composite output used for unsolicited responses.
 	 */
 	static DataOut& hexOut;
 
-#endif
-
 	void connectionStarted(StandardConnection& connection, DataOut& out);
 
 	void handleCommand(DataIn& in, DataOut& out);
 
-	cb_static void init();
+	void init();
 
 	/*
 	 * Read and process from the commms link.
 	 */
-	cb_static void receive();
+	void receive();
 
-	cb_static void resetOnCommandComplete();
+	void resetOnCommandComplete();
 
 	/**
 	 * Output stream. Used to write data after command processing.
 	 */
-	inline cb_static DataOut& dataOut() { return hexOut; }
+	DataOut& dataOut() { return hexOut; }
 };
-
-#if CONTROLBOX_STATIC
-	/**
-	 * The global instance. Allows the same calling code to be used for static and non-static methods.
-	 */
-	extern Comms comms;
-#endif
 
 } // end namespace cbox

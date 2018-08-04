@@ -2,8 +2,6 @@
 
 namespace cbox {
 
-#if !CONTROLBOX_WIRING
-
 #if defined(WIN32) || defined(__WIN32__) || defined(_WIN32)
 #include <windows.h>
 #include <conio.h>
@@ -120,7 +118,5 @@ template<> bool StreamDataIn<StdIO>::hasNext() {
 template<> void StreamDataOut<StdIO>::flush() {
 	stream->flush();
 }
-
-#endif
 
 } // end namespace cbox

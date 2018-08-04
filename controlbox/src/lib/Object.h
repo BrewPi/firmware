@@ -105,6 +105,7 @@ public:
         obj_id_t retv(start_id);
         return retv;
     };
+    
     static const obj_id_t invalid() {
         obj_id_t retv(invalid_id);
         return retv;

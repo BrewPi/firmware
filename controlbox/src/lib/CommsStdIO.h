@@ -1,7 +1,3 @@
-
-#include "ControlboxWiring.h"
-
-#if !CONTROLBOX_WIRING
 #include "Comms.h"
 #include <iostream>
 #include <string>
@@ -117,9 +113,3 @@ public:
 };
 
 } // end namespace cbox
-
-#else
-namespace cbox {} // ensure namespace is declared in this situation too
-
-#endif
-

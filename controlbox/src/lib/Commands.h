@@ -1,6 +1,6 @@
 /*
  * Copyright 2014-2015 Matthew McGowan.
- *
+ * Copyright 2018 BrewBlox / Elco Jacobs
  * This file is part of Controlbox.
  *
  * Controlbox is free software: you can redistribute it and/or modify
@@ -20,19 +20,13 @@
 
 #pragma once
 
-#include "Static.h"
 #include "Comms.h"
 #include "DataStream.h"
 #include "Object.h"
-#include "System.h"
-#include "EepromTypes.h"
+#include "Container.h"
+#include "EepromObjectStorage.h"
 
 namespace cbox {
-
-typedef char* pchar;
-typedef const char* cpchar;
-
-class Commands;
 
 enum class CommandError : uint8_t {
     no_error = 0,
@@ -63,158 +57,56 @@ inline uint8_t errorCode(CommandError e){
     return static_cast<uint8_t>(e);
 }
 
-/**
- * A command handler function. This is the signature of commands.
- * @param in	The data stream providing input to the command.
- * @param out	The data stream that accepts output from the command.
- */
-#if CONTROLBOX_STATIC
-typedef void (*CommandHandler)(DataIn& in, DataOut& out);
-#else
-typedef void (Commands::*CommandHandler)(DataIn& in, DataOut& out);
-#endif
-
-
-#if CONTROLBOX_STATIC
-
-/**
- * Function prototype expected by the commands implementation to perform
- * a reset.
- * @param exit false on first call, true on second call. The first call (exit==false) is
- * during command processing, so that actions can be taken before the command response is sent.
- * The second call (exit==true) is called to perform the actual reset.
- */
-extern void handleReset(bool exit=true);
-
-
-extern void connectionStarted(StandardConnection& connection, DataOut& out);
-
-
-#else
-
-struct CommandCallbacks
+class Commander
 {
-	/**
-	 * Application-provided function that creates an object from the object definition.
-	 */
-    std::shared_ptr<Object> createApplicationObject(obj_type_t typeId, RegionDataIn& in, Object::StreamFromResult streamResult, bool dryRun=false) = 0;
+	CommandHandler handlers[];
 
-	/**
-	 * Function prototype expected by the commands implementation to perform
-	 * a reset.
-	 * @param exit false on first call, true on second call. The first call (exit==false) is
-	 * during command processing, so that actions can be taken before the command response is sent.
-	 * The second call (exit==true) is called to perform the actual reset.
-	 */
-	virtual void handleReset(bool exit=true)=0;
-
-	virtual void connectionStarted(StandardConnection& connection, DataOut& out)=0;
-
-	virtual Container* createRootContainer()=0;
-};
-
-#endif // CONTROLBOX_STATIC
-
-
-
-class Commands
-{
-	friend class ObjectDefinitionWalker;
-	static CommandHandler handlers[];
-
-
-	cb_static void noopCommandHandler(DataIn& _in, DataOut& out);
-	cb_static void readValueCommandHandler(DataIn& in, DataOut& out);
-	cb_static void setValueCommandHandler(DataIn& in, DataOut& out);
-	cb_static void createObjectCommandHandler(DataIn& in, DataOut& out);
-	cb_static void deleteObjectCommandHandler(DataIn& in, DataOut& out);
-	cb_static void listObjectsCommandHandler(DataIn& in, DataOut& out);
-	cb_static void freeSlotCommandHandler(DataIn& in, DataOut& out);
-	cb_static void createProfileCommandHandler(DataIn& in, DataOut& out);
-	cb_static void deleteProfileCommandHandler(DataIn& in, DataOut& out);
-	cb_static void activateProfileCommandHandler(DataIn& in, DataOut& out);
-	cb_static void logValuesCommandHandler(DataIn& in, DataOut& out);
-	cb_static void resetCommandHandler(DataIn& in, DataOut& out);
-	cb_static void freeSlotRootCommandHandler(DataIn& in, DataOut& out);
-	cb_static void listDefinedProfilesCommandHandler(DataIn& in, DataOut& out);
-	cb_static void readSystemValueCommandHandler(DataIn& in, DataOut& out);
-	cb_static void setSystemValueCommandHandler(DataIn& in, DataOut& out);
-	cb_static void removeEepromCreateCommand(BufferDataOut& id);
+	void noopCommandHandler(DataIn& _in, DataOut& out);
+	void readObjectCommandHandler(DataIn& in, DataOut& out);
+	void setObjectCommandHandler(DataIn& in, DataOut& out);
+	void createObjectCommandHandler(DataIn& in, DataOut& out);
+	void deleteObjectCommandHandler(DataIn& in, DataOut& out);
+	void listObjectsCommandHandler(DataIn& in, DataOut& out);
+	void freeSlotCommandHandler(DataIn& in, DataOut& out);
+	void createProfileCommandHandler(DataIn& in, DataOut& out);
+	void deleteProfileCommandHandler(DataIn& in, DataOut& out);
+	void activateProfileCommandHandler(DataIn& in, DataOut& out);
+	void logValuesCommandHandler(DataIn& in, DataOut& out);
+	void resetCommandHandler(DataIn& in, DataOut& out);
+	void freeSlotRootCommandHandler(DataIn& in, DataOut& out);
+	void listDefinedProfilesCommandHandler(DataIn& in, DataOut& out);
+	void readSystemValueCommandHandler(DataIn& in, DataOut& out);
+	void setSystemValueCommandHandler(DataIn& in, DataOut& out);
+	void removeEepromCreateCommand(BufferDataOut& id);
 
 public:
-	cb_static void logValuesImpl(obj_id_t * ids, DataOut& out);
+	void logValuesImpl(obj_id_t * ids, DataOut& out);
 
-#if !CONTROLBOX_STATIC
 private:
 	Comms& comms;
-	SystemProfile& systemProfile;
-	CommandCallbacks& callbacks;
-	EepromAccess& eepromAccess;
+	ObjectStorage& storage;
+	// A single container is used for both system and user objects.
+	// The application can add the system objects first, then set the start ID to a higher value.
+	// The system objects with an ID lower than the start ID cannot be deleted.
+	ObjectContainer & objects; 
+
 public:
-	Commands(Comms& comms_, SystemProfile& systemProfile_, CommandCallbacks& callbacks_, EepromAccess& ea)
-		: comms(comms_), systemProfile(systemProfile_), callbacks(callbacks_), eepromAccess(ea) {
-		comms.setCommands(*this);
-		systemProfile_.setCommands(*this);
+	Commands(Comms& comms_, ObjectStorage& storage_, Container& objects_)
+		: comms(comms_), storage(storage_), objects(objects_)) {
 	}
 
-#define command_callback_fn(x) callbacks. x
-#else
-#define command_callback_fn(x) x
-#endif
-
-	inline cb_static void connectionStarted(StandardConnection& connection, DataOut& out) {
-		command_callback_fn(connectionStarted(connection, out));
-	}
-
-	inline cb_static void handleReset(bool exit=true) {
-		command_callback_fn(handleReset(exit));
-	}
-
-	cb_static void handleCommand(DataIn& data, DataOut& out);
-
-	/**
-	 * Removes deleted object definitions from the current profile eeprom block.
-	 * @return The end address of the object block in the current profile.
-	 */
-	cb_static eptr_t compactObjectDefinitions();
-
-
-	/**
-	 * Delete an object (but not the definition in eeprom.)
-	 */
-	cb_static int8_t deleteObject(DataIn& id);
+	void handleCommand(DataIn& data, DataOut& out);
 
 	enum CommandID : uint8_t {
-		CMD_NONE = 0,				// no-op
-
-	   	CMD_READ_VALUE = 1,			// read a value
-	   	CMD_WRITE_VALUE = 2,		// write a value
-	   	CMD_CREATE_OBJECT = 3,		// add object in a container
-	   	CMD_DELETE_OBJECT = 4,		// delete the object at the specified location
-	   	CMD_LIST_PROFILE = 5,		// list objects in a profile
-		CMD_FREE_SLOT = 6,          // retrieves the next free slot in a container
-		CMD_CREATE_PROFILE = 7,     // create a new profile
-		CMD_DELETE_PROFILE = 8,     // delete a profile
-		CMD_ACTIVATE_PROFILE = 9,	// activate a profile
-		CMD_LOG_VALUES = 10,		// request to log all values
-		CMD_RESET = 11,				// perform a reset so that values are read in again from persistent storage.
-		CMD_FREE_SLOT_ROOT = 12,	// retrieves the next free slot in the root container
-		CMD_NOT_USED = 13,			// by chance this happened to be unused - this might appeal to superstitious minds
-		CMD_LIST_PROFILES = 14,		// list the active profile and the available profiles
-		CMD_READ_SYSTEM_VALUE = 15,	// read the value from a system object
-		CMD_WRITE_SYSTEM_VALUE = 16,// write the value to a system object
-		CMD_MAX = 127,				// max command value for user-visible commands
-		CMD_SPECIAL_FLAG = 128,
-		CMD_INVALID = CMD_SPECIAL_FLAG | CMD_NONE,						// special value for invalid command in eeprom. Used as a placeholder for incomplete data
-		CMD_DISPOSED_OBJECT = CMD_CREATE_OBJECT | CMD_SPECIAL_FLAG,	// flag in eeprom for object that is now deleted. Allows space to be reclaimed later.
-		CMD_LOG_VALUES_AUTO = CMD_LOG_VALUES | CMD_SPECIAL_FLAG,
+		NONE = 0,				// no-op
+	   	READ_OBJECT = 1,		// stream an object to the data out
+	   	WRITE_OBJECT = 2,		// stream new data into an object from the data in
+	   	CREATE_OBJECT = 3,		// add a new object
+		DELETE_OBJECT = 4,		// delete an object by id
+		LIST_STORED_OBJECTS = 6,// list objects saved to persistent storage
+		REBOOT = 7,				// reboot the system
+		FACTORY_RESET = 8,		// erase all settings and reboot
 	};
-
 };
-
-
-#if CONTROLBOX_STATIC
-extern Commands commands;
-#endif
 
 } // end namespace cbox

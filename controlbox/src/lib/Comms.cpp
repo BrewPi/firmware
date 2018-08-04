@@ -40,31 +40,7 @@
 #include <array>
 
 
-
-#if defined(CONTROLBOX_EMULATE) && CONTROLBOX_EMULATE
-namespace cbox {
-
-class MockSerial : public Stream
-{
-	public:
-	void print(char c) {}
-	void print(const char* c) {}
-	void printNewLine() {}
-	void println() {}
-	int read() { return -1; }
-	int available() { return -1; }
-	void begin(unsigned long) {}
-	size_t write(uint8_t w) { return 1; }
-	int peek() { return -1; }
-	void flush() { };
-	operator bool() { return true; }
-};
-
-cb_static_decl(static cbox::MockSerial commsDevice;)
-
-}
-
-#elif !defined(SPARK)
+#if !defined(SPARK)
 
 #include "CommsStdIO.h"
 
@@ -86,22 +62,6 @@ using namespace cbox;
 
 namespace cbox {
 
-#if CONTROLBOX_STATIC
-
-/**
- * Implements a DataIn interface on top of the static Comms stream.
- * @return
- */
-class CommsIn : public DataIn
-{
-public:
-	bool hasNext() override { return commsDevice; }			// hasNext true if stream is still open.
-	uint8_t next() override { return uint8_t(commsDevice.read()); }
-	uint8_t peek() override { return uint8_t(commsDevice.peek()); }
-	stream_size_t available() override { return stream_size_t(commsDevice.available()); }
-};
-#endif
-
 class CommsWriter
 {
     CommsWriter() = default;
@@ -115,11 +75,9 @@ class CommsWriter
  */
 class CommsOut : public DataOut
 {
-#if !CONTROLBOX_STATIC
 	CommsWriter& commsDevice;
 public:
 	CommsOut(CommsWriter& s) : commsDevice(s) {}
-#endif
 
 public:
 	virtual void writeAnnotation(const char* s) override final {
@@ -141,42 +99,13 @@ public:
 		return true;
 	}
 	virtual void flush() override final {
-	#if CONTROLBOX_STATIC && CONTROLBOX_COMMS_USE_FLUSH		// only flush for those stream types that require it
 		commsDevice.flush();
-	#endif
 	}
 };
 
 // low-level binary in/out streams
-cb_static_decl(CommsIn commsIn;)
-cb_static_decl(CommsOut commsOut;)
-
-#if CONTROLBOX_STATIC
-
-/**
- * A connection that delegates to the global commsOut and commsIn instances.
- */
-template<typename D>
-struct CommsConnection : public ConnectionData<D>
-{
-    CommsConnection() = default;
-    virtual ~CommsConnection() = default;
-
-    virtual DataOut& getDataOut() override {
-        return commsOut;
-    }
-
-    virtual DataIn& getDataIn() override {
-        return commsIn;
-    }
-
-    virtual bool connected() override {
-        return commsDevice;
-    }
-};
-
-#endif
-
+CommsIn commsIn;
+CommsOut commsOut;
 #ifdef SPARK
 
 /**
@@ -224,7 +153,7 @@ using NetworkConnections = std::vector<TCPConnection>;
  * The static list of connections.
  */
 cb_static_decl(NetworkConnections connections;)
-#endif
+
 
 /**
  * A std::function that fetches the corresponding DataOut interface from a connection.
@@ -256,12 +185,12 @@ struct ConnectionToDataIn : public std::function<DataIn&(Connection<D>&)>
     }
 };
 
-cb_static_decl(typedef std::array<CommsConnection<StandardConnectionDataType>,1> CommsConnections;)
+typedef std::array<CommsConnection<StandardConnectionDataType>,1> CommsConnections;
 
 /**
  * The comms connection.
  */
-cb_static_decl(CommsConnections commsConnections;)
+CommsConnections commsConnections;
 
 template<typename C>
 bool isDisconnected(C& connection)
@@ -269,8 +198,7 @@ bool isDisconnected(C& connection)
     return !connection.connected();
 }
 
-#if defined(SPARK) && CONTROLBOX_STATIC
-
+#if defined(SPARK)
 /**
  * Fetch a connection from the TCP server.
  */
