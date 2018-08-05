@@ -173,7 +173,8 @@ class ConnectionPool
             }
         }
     }
-
+    
+public:
     void map(std::function<void(DataIn& in, DataOut& out)> func){
         updateConnections();
         for(auto& conn : connections){

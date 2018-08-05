@@ -12,49 +12,6 @@
 
 namespace cbox {
 
-class IStreamDataIn : public DataIn
-{
-    std::istream& in;
-//    uint8_t prev;
-public:
-
-    IStreamDataIn(std::istream& in_) : in(in_) {}
-
-    virtual bool hasNext() override {
-        return in.peek()!=EOF;
-    }
-
-    virtual uint8_t next() override {
-        char val;
-        in.get(val);
-        return uint8_t(val);
-    }
-
-    virtual uint8_t peek() override {
-        return uint8_t(in.peek());
-    }
-
-    virtual unsigned available() override {
-        return in.eof() ? 0 : 1;
-    }
-};
-
-
-/**
- * Provides a DataOut stream by wrapping a std::ostream.
- */
-class OStreamDataOut : public DataOut
-{
-    std::ostream& out;
-public:
-
-    OStreamDataOut(std::ostream& out_) : out(out_) {}
-
-    virtual bool write(uint8_t data) override {
-        out.put(char(data));
-        return true;
-    }
-};
 
 
 

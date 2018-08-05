@@ -212,6 +212,18 @@ public:
 		return length == 0;
 	}
 
+	/**
+     * Writes the contents of this stream to an output stream, until input stream is empty
+     * @param out
+     */
+	bool push(DataOut& out) {
+		bool success = true;
+		while (hasNext()) {
+			success &= out.write(next());
+		}
+		return success;
+	}
+
     /**
      * Discards a number of bytes.
      * Can be overridden by child classes to skip actual reads for performance if the underlying structure can be accessed by index
