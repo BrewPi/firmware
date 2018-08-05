@@ -98,6 +98,10 @@ SCENARIO("Create blox OneWireTempSensor application object from definition"){
                 CHECK(err == cbox::CommandError::no_error);
             }
 
+            THEN("The object type is correct"){
+                CHECK(typeId == obj->typeID());
+            }
+
             REQUIRE(obj != nullptr);
 
             AND_THEN("we can stream that bloc object to a DataOut stream and it matches the definition")
