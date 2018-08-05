@@ -34,7 +34,7 @@ enum class BlockType : uint8_t {
     disposed_block,
 };
 
-bool operator==(const uint8_t & a, const BlockType & b){
+inline bool operator==(const uint8_t & a, const BlockType & b){
     return a == static_cast<uint8_t>(b);
 }
 

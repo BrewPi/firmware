@@ -25,7 +25,7 @@
 #include "../blox/PidBlock.h"
 
 #include "Object.h"
-#include "Commands.h"
+#include "Box.h"
 #include "VisitorCast.h"
 
 #if 0

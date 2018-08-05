@@ -1,7 +1,7 @@
 /*
  * Copyright 2014-2015 Matthew McGowan.
- *
- * This file is part of Nice Firmware.
+ * Copyright 2018 BrewBlox / Elco Jacobs
+ * This file is part of Controlbox.
  *
  * Controlbox is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,310 +17,91 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #pragma once
 
-#include "Ticks.h"
-#include "EepromAccess.h"
-#include "Comms.h"
-#include "Commands.h"
-#include "System.h"
+#include "Object.h"
+#include "Container.h"
+#include "Connections.h"
+#include "DataStream.h"
+#include "DataStreamConverters.h"
+#include "EepromObjectStorage.h"
 
 namespace cbox {
 
-#if 0
+enum class CommandError : uint8_t {
+    no_error = 0,
+    unknown_error = 1,
+    command_parse_error = 2,
+	stream_error = 3,
+    
+    insufficient_persistent_storage = 16,
+    insufficient_heap = 17,
 
-/**
- * Top-level object for running a controlbox
- */
+    object_not_writable = 32,
+    object_not_readable = 33,
+    object_not_creatable = 34,
+    object_not_deletable = 35,
+    
+    invalid_command = 63,
+    invalid_parameter = 64,
+    invalid_object_id = 65,
+    invalid_type = 66,
+    invalid_size = 67,
+    invalid_profile = 68,
+};
+
+inline uint8_t errorCode(CommandError e){
+    return static_cast<uint8_t>(e);
+}
+
 class Box
 {
-	//EepromAccess& eepromAccess_;
-	Ticks& ticks_;
-	Comms comms_;
-	SystemProfile systemProfile_;
-	Commands commands_;
-
-public:
-	Box(StandardConnection& connection, EepromAccess& eepromAccess, Ticks& ticks, CommandCallbacks& callbacks, Container& systemRoot)
-	: /*eepromAccess_(eepromAccess),*/ ticks_(ticks), comms_(connection),
-	  systemProfile_(eepromAccess, systemRoot), commands_(comms_, systemProfile_, callbacks, eepromAccess), logValuesFlag(false)
-	{
-	}
-
-	void setup()
-	{
-		systemProfile_.initialize();
-		systemProfile_.activateDefaultProfile();
-		comms_.init();
-	}
-
-	void loop()
-	{
-		process();
-		comms_.receive();
-	}
-
-	/**
-	 * Runs a command directly using the given input and output.
-	 */
-	void runCommand(DataIn& in, DataOut& out)
-	{
-		comms_.handleCommand(in, out);
-	}
-
 private:
+	// A single container is used for both system and user objects.
+	// The application can add the system objects first, then set the start ID to a higher value.
+	// The system objects with an ID lower than the start ID cannot be deleted.
+	ObjectContainer& objects;
+	ObjectStorage& storage;
+	// Commander receives commands from connections in the connection pool and streams back the answer to the same connection
+	ConnectionPool& connections;
 
-	/**
-	 * prepare: start of a new control loop and determine how long any asynchronous operations will take.
-	 * update: fetch data from the environment, read sensor values, compute settings etc..
-	 */
-	void process()
-	{
-		container_id ids[MAX_CONTAINER_DEPTH];
-
-	    prepare_t d = 0;
-	    Container* root = systemProfile_.rootContainer();
-	    if (root)
-	        d = root->prepare();
-
-	    uint32_t end = ticks_.millis()+d;
-	    while (ticks_.millis()<end) {
-	        comms_.receive();
-	    }
-
-	    Container* root2 = systemProfile_.rootContainer();
-	        // root may have been changed by commands, so original prepare may not be valid
-	        // should watch out for newly created objects, since these will then also need preparing
-		if (root==root2 && root) {
-	        root->update();
-
-	        if (logValuesFlag) {
-	            logValuesFlag = false;
-	            logValues(ids);
-	        }
-	    }
-	}
-
-	void logValues(container_id* ids)
-	{
-		DataOut& out = comms_.dataOut();
-		out.write(int(Commands::CMD_LOG_VALUES_AUTO));
-		commands_.logValuesImpl(ids, out);
-		out.close();
-	}
-
-
-};
-
-
-/**
- * Factor the callbacks into a separate class to avoid multiple inheritance.
- */
-struct AllCallbacks
-{
-	/* Connection */
-    virtual DataOut& getDataOut()=0;
-    virtual DataIn& getDataIn()=0;
-    virtual bool connected()=0;
-
-    /**
-     * Retrieve the most-recently assigned value to the user data item.
-     */
-    virtual StandardConnectionDataType& getData()=0;
-
-    /**
-     * Assign a value to the user data item.
-     */
-    virtual void setData(StandardConnectionDataType&& d)=0;
-
-
-
-	/* Ticks */
-	virtual ticks_millis_t millis()=0;
-
-	/* Eeprom */
-
-	virtual uint8_t readByte(eptr_t offset) const=0;
-	virtual void writeByte(eptr_t offset, uint8_t value)=0;
-	virtual void readBlock(void* target, eptr_t offset, uint16_t size) const=0;
-	virtual void writeBlock(eptr_t target, const void* source, uint16_t size)=0;
-
-	virtual eptr_t length() const=0;
-
-	/* Callbacks */
-
-	/**
-	 * Application-provided function that creates an object from the object definition.
-	 */
-	virtual int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun=false)=0;
-
-	/**
-	 * Function prototype expected by the commands implementation to perform
-	 * a reset.
-	 * @param exit false on first call, true on second call. The first call (exit==false) is
-	 * during command processing, so that actions can be taken before the command response is sent.
-	 * The second call (exit==true) is called to perform the actual reset.
-	 */
-	virtual void handleReset(bool exit=true)=0;
-
-	virtual void connectionStarted(StandardConnection& connection, DataOut& out)=0;
-
-	virtual Container* createRootContainer()=0;
-
-	/* DataOut */
-
-	virtual void writeAnnotation(const char* data)=0;
-
-	/**
-	 * Writes a byte to the stream.
-	 * @return {@code true} if the byte was successfully written, false otherwise.
-	 */
-	virtual bool write(uint8_t data)=0;
-
-	/**
-	 * Writes a number of bytes to the stream.
-	 * @param data	The address of the data to write.
-	 * @param len	The number of bytes to write.
-	 * @return {@code true} if the byte was successfully written, false otherwise.
-	 */
-	virtual bool writeBuffer(const void* data, stream_size_t len)=0;
-
-	virtual void close()=0;
-};
-
-
-class AllCallbacksDelegate : public StandardConnection, public CommandCallbacks, public Ticks, public EepromAccess, public DataOut
-{
-	AllCallbacks& cb;
+	// command handlers
+	void noop(DataIn& _in, DataOut& out);
+	void invalidCommand(DataIn& _in, DataOut& out);
+	void readObject(DataIn& in, DataOut& out);
+	void writeObject(DataIn& in, DataOut& out);
+	void createObject(DataIn& in, DataOut& out);
+	void deleteObject(DataIn& in, DataOut& out);
+	void listActiveObjects(DataIn& in, DataOut& out);
+	void listStoredObjects(DataIn& in, DataOut& out);
+	void reboot(DataIn& in, DataOut& out);
+	void factoryReset(DataIn& in, DataOut& out);
+	
+	// helper functions
+	void createObjectFromStorage(obj_id_t id);
 
 public:
-	AllCallbacksDelegate(AllCallbacks& cb_) : cb(cb_) {}
-
-
-	/* Connection */
-    virtual DataOut& getDataOut() {
-    		return cb.getDataOut();
-    }
-    virtual DataIn& getDataIn() {
-    		return cb.getDataIn();
-    }
-    virtual bool connected() {
-    		return cb.connected();
-    }
-
-    /**
-     * Retrieve the most-recently assigned value to the user data item.
-     */
-    virtual StandardConnectionDataType& getData() {
-    		return cb.getData();
-    }
-
-    virtual const StandardConnectionDataType& getData() const {
-    		return cb.getData();
-    }
-
-    /**
-     * Assign a value to the user data item.
-     */
-    virtual void setData(StandardConnectionDataType&& d) {
-    		cb.setData(std::move(d));
-    }
-
-
-	/* Ticks */
-	virtual ticks_millis_t millis() {
-		return cb.millis();
-	}
-
-	/* Eeprom */
-
-	virtual uint8_t readByte(eptr_t offset) const {
-		return cb.readByte(offset);
-	}
-	virtual void writeByte(eptr_t offset, uint8_t value) {
-		return cb.writeByte(offset, value);
-	}
-	virtual void readBlock(void* target, eptr_t offset, uint16_t size) const {
-		return cb.readBlock(target, offset, size);
-	}
-	virtual void writeBlock(eptr_t target, const void* source, uint16_t size) {
-		return cb.writeBlock(target, source, size);
-	}
-
-	virtual eptr_t length() const {
-		return cb.length();
-	}
-
-	/* Callbacks */
-
-	/**
-	 * Application-provided function that creates an object from the object definition.
-	 */
-	virtual int8_t createApplicationObject(Object*& result, ObjectDefinition& def, bool dryRun=false) {
-		return cb.createApplicationObject(result, def, dryRun);
-	}
-
-	/**
-	 * Function prototype expected by the commands implementation to perform
-	 * a reset.
-	 * @param exit false on first call, true on second call. The first call (exit==false) is
-	 * during command processing, so that actions can be taken before the command response is sent.
-	 * The second call (exit==true) is called to perform the actual reset.
-	 */
-	virtual void handleReset(bool exit=true) {
-		return cb.handleReset(exit);
-	}
-
-	virtual void connectionStarted(StandardConnection& connection, DataOut& out) {
-		return cb.connectionStarted(connection, out);
-	}
-
-	virtual Container* createRootContainer() {
-		return cb.createRootContainer();
-	}
-
-	/* DataOut */
-
-	virtual void writeAnnotation(const char* data) {
-		cb.writeAnnotation(data);
-	}
-
-	/**
-	 * Writes a byte to the stream.
-	 * @return {@code true} if the byte was successfully written, false otherwise.
-	 */
-	virtual bool write(uint8_t data) {
-		return cb.write(data);
-	}
-
-	/**
-	 * Writes a number of bytes to the stream.
-	 * @param data	The address of the data to write.
-	 * @param len	The number of bytes to write.
-	 * @return {@code true} if the byte was successfully written, false otherwise.
-	 */
-	virtual bool writeBuffer(const void* data, stream_size_t len) {
-		return cb.writeBuffer(data, len);
-	}
-
-	virtual void close() {
-		cb.close();
-	}
-
-};
-
-/**
- * Convenience class that provides virtual methods for all pluggable functions.
- */
-class AllInOneBox : public Box
-{
-public:
-	AllInOneBox(Container& container, AllCallbacksDelegate& cb)
-		: Box(cb, cb, cb, cb, container)
+	Box(ObjectContainer& _objects, ObjectStorage& _storage, ConnectionPool & _connections) :
+		objects(_objects),
+		storage(_storage),
+		connections(_connections)
 	{}
+	~Box() = default;
 
+	void handleCommand(DataIn& data, DataOut& out);
 
+	enum CommandID : uint8_t {
+		NONE = 0,				// no-op
+	   	READ_OBJECT = 1,		// stream an object to the data out
+	   	WRITE_OBJECT = 2,		// stream new data into an object from the data in
+	   	CREATE_OBJECT = 3,		// add a new object
+		DELETE_OBJECT = 4,		// delete an object by id
+		LIST_ACTIVE_OBJECTS = 5,// list objects saved to persistent storage
+		LIST_STORED_OBJECTS = 6,// list objects saved to persistent storage
+		REBOOT = 7,				// reboot the system
+		FACTORY_RESET = 8,		// erase all settings and reboot
+	};
 };
 
-#endif
 } // end namespace cbox

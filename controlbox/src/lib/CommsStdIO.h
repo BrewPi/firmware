@@ -1,9 +1,10 @@
-#include "Comms.h"
 #include <iostream>
 #include <string>
 #include <thread>
 #include <queue>
 #include <functional>
+#include "DataStream.h"
+#include "Connections.h"
 
 namespace cbox {
 
@@ -91,24 +92,14 @@ private:
 };
 
 
-class StdIOConnection : public AbstractConnection<StdIO, StreamDataIn<StdIO>, StreamDataOut<StdIO>, StandardConnectionDataType>
+class StdIOConnection : public StreamConnection<StdIO>
 {
-	using base = AbstractConnection<StdIO, StreamDataIn<StdIO>, StreamDataOut<StdIO>, StandardConnectionDataType>;
+	using StreamConnection<StdIO>::StreamConnection;
 	virtual ~StdIOConnection() = default;
 
-	StdIO stdio;
-	base::in_type in;
-	base::out_type out;
-
-public:
-	StdIOConnection()
-		: base(stdio, in, out), in(stdio), out(stdio)
+	bool isConnected() override
 	{
-	}
-
-	bool connected() override
-	{
-		return stdio;
+		return true;
 	}
 };
 

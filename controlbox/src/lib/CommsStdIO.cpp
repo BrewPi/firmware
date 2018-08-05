@@ -108,15 +108,4 @@ int StdIO::peek() {
 	return in.peek();
 }
 
-template<> void StreamDataOut<StdIO>::close() {
-}
-
-template<> bool StreamDataIn<StdIO>::hasNext() {
-    return stream;
-}
-
-template<> void StreamDataOut<StdIO>::flush() {
-	stream->flush();
-}
-
 } // end namespace cbox

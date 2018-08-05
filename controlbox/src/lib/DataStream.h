@@ -26,10 +26,6 @@
 
 namespace cbox {
 
-#ifndef DATASTREAM_ANNOTATIONS
-#define DATASTREAM_ANNOTATIONS CBOX_DEBUG
-#endif
-
 typedef uint16_t stream_size_t;
 
 /**
@@ -39,8 +35,9 @@ typedef uint16_t stream_size_t;
  * @param data
  * @return
  */
-struct DataOut
+class DataOut
 {
+public:
 	DataOut() = default;
 	virtual ~DataOut() = default;
 
@@ -87,6 +84,7 @@ struct DataOut
  * An output stream that buffers data before writing.
  */
 class BufferDataOut : public DataOut {
+private:
 	uint8_t* buffer;
 	stream_size_t size;
 	stream_size_t pos;
@@ -120,7 +118,8 @@ public:
 /**
  * A DataOut implementation that discards all data.
  */
-struct BlackholeDataOut : public DataOut {
+class BlackholeDataOut : public DataOut {
+public:
     BlackholeDataOut() = default;
     virtual ~BlackholeDataOut() = default;
 	virtual bool write(uint8_t /*data*/) override final { return true; }
@@ -129,8 +128,11 @@ struct BlackholeDataOut : public DataOut {
 /**
  * A DataOut implementation that discards all data, but counts each byte;
  */
-struct CountingBlackholeDataOut : public DataOut {
-    CountingBlackholeDataOut() : counted(0) {};
+class CountingBlackholeDataOut : public DataOut {
+private:
+	stream_size_t counted;
+public:    
+	CountingBlackholeDataOut() : counted(0) {};
     virtual ~CountingBlackholeDataOut() = default;
     virtual bool write(uint8_t /*data*/) override final {
         ++counted;
@@ -140,8 +142,6 @@ struct CountingBlackholeDataOut : public DataOut {
     stream_size_t count(){
         return counted;
     }
-
-    stream_size_t counted;
 };
 
 /**
@@ -152,8 +152,9 @@ struct CountingBlackholeDataOut : public DataOut {
  * available() returns 0.
  * available() the number of times read can be called to retrieve valid data.
  */
-struct DataIn
+class DataIn
 {
+public:
 	/*
 	 * Determines if there is potentially more data in this stream.
 	 * Note that this is not dependent upon time and asynchronous delivery of data, but if the stream is still open.
@@ -226,6 +227,12 @@ struct DataIn
 	    }
         return to_skip == skip_length;
     }
+
+	virtual void spool(){
+	    while (hasNext()){
+	        next();
+		}
+    }
 };
 
 
@@ -234,6 +241,7 @@ struct DataIn
  */
 class EmptyDataIn : public DataIn
 {
+public:
 	virtual bool hasNext() override { return false; }
 	virtual uint8_t next() override { return 0; }
 	virtual uint8_t peek() override { return 0; }
@@ -241,52 +249,52 @@ class EmptyDataIn : public DataIn
 };
 
 /*
- * Reads data from a DataIn, and writes the fetched bytes (if any) to DataOut.
+ * Reads data from a DataIn, and also writes the fetched bytes (if any) to a DataOut.
  */
-class PipeDataIn : public DataIn
+class TeeDataIn : public DataIn
 {
-	DataIn* _in;
-	DataOut* _out;
+	DataIn& in;
+	DataOut& out;
 	bool success;
 
 public:
-	PipeDataIn(DataIn& in, DataOut& out)
-		: _in(&in), _out(&out), success(true)
+	TeeDataIn(DataIn& _in, DataOut& _out)
+		: in(_in), out(_out), success(true)
 	{
 	}
 
-	bool pipeOk() { return success; }
-
-	DataOut& pipeOut() { return *_out; }
+	bool teeOk() { return success; }
 
 	virtual uint8_t next() override {
-		uint8_t val = _in->next();
-		bool result = _out->write(val);
+		uint8_t val = in.next();
+		bool result = out.write(val);
 		success = success && result;
 		return val;
 	}
 
-	virtual bool hasNext() override { return _in->hasNext(); }
-	virtual uint8_t peek() override { return _in->peek(); }
-	virtual stream_size_t available() override { return _in->available(); }
+	virtual bool hasNext() override { return in.hasNext(); }
+	virtual uint8_t peek() override { return in.peek(); }
+	virtual stream_size_t available() override { return in.available(); }
 
 };
 
+/*
+ * A DataOut that writes to two other DataOut streams.
+ */
 class TeeDataOut : public DataOut
 {
 public:
-    TeeDataOut(DataOut& out1, DataOut& out2) : _out1(out1), _out2(out2){};
+    TeeDataOut(DataOut& _out1, DataOut& _out2) : out1(_out1), out2(_out2){};
     virtual ~TeeDataOut() = default;
 
-
     virtual bool write(uint8_t data) override {
-        bool res1 = _out1.write(data);
-        bool res2 = _out2.write(data);
+        bool res1 = out1.write(data);
+        bool res2 = out2.write(data);
         return res1 || res2;
     }
 private:
-    DataOut & _out1;
-    DataOut & _out2;
+    DataOut & out1;
+    DataOut & out2;
 };
 
 
@@ -294,21 +302,20 @@ private:
  * Provides a DataIn stream from a static buffer of data.
  */
 class BufferDataIn : public DataIn {
-	const uint8_t* _data;
+	const uint8_t* data;
 	stream_size_t size;
     stream_size_t pos;
 
 public:
-	BufferDataIn(const uint8_t *data, stream_size_t len) : _data(data), size(len), pos(0) {}
+	BufferDataIn(const uint8_t * buf, stream_size_t len) : data(buf), size(len), pos(0) {}
 
-	virtual uint8_t next() override { return _data[pos++]; }
+	virtual uint8_t next() override { return data[pos++]; }
 	virtual bool hasNext() override { return pos < size; }
-	virtual uint8_t peek() override { return _data[pos]; }
+	virtual uint8_t peek() override { return data[pos]; }
 	virtual stream_size_t available() override { return size - pos; }
 	void reset() { pos = 0; };
 	stream_size_t bytes_read() { return pos; };
 };
-
 
 
 /**
@@ -340,12 +347,6 @@ public:
 	void setLength(stream_size_t len_){
 	    len = len_;
 	}
-
-    void spool() {
-        while (hasNext()){
-            next();
-        }
-    }
 };
 
 /**
@@ -372,15 +373,5 @@ public:
         return len;
     }
 };
-
-#define WRITE_ANNOTATION_STR(out, value) \
-	WRITE_ANNOTATION(out, value)
-
-#if DATASTREAM_ANNOTATIONS
-	#define WRITE_ANNOTATION(out, value) \
-		out->writeAnnotation(value);
-#else
-	#define WRITE_ANNOTATION(out, value)
-#endif
 
 }

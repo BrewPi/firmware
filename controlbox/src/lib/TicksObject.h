@@ -22,7 +22,6 @@
 
 #include "Object.h"
 #include "Ticks.h"
-#include "Static.h"
 #include "DataStream.h"
 
 namespace cbox {

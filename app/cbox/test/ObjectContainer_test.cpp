@@ -22,7 +22,7 @@
 #include "ResolveType.h"
 #include "Object.h"
 #include "Container.h"
-#include "Comms.h"
+#include "DataStreamConverters.h"
 #include "TestObjects.h"
 
 SCENARIO("A container to hold objects"){

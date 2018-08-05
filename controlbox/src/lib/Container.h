@@ -23,9 +23,12 @@
 #include <stdint.h>
 #include <vector>
 #include "Object.h"
+#include "ResolveType.h"
 
 namespace cbox {
-
+/**
+ * A wrapper around an object that stores which type it is and in which profiles it is active
+ */
 class ContainedObject {
 public:
     ContainedObject(obj_id_t _id, uint8_t _profiles, std::shared_ptr<Object> _obj) :
@@ -36,14 +39,51 @@ public:
     obj_id_t id;
     uint8_t profiles; // active in these profiles
     std::shared_ptr<Object> obj; // pointer to runtime object
+    
 
     StreamResult streamTo(DataOut & out){
         bool success = true;
-        success &= out.put(obj->typeID());
         success &= out.put(id);
         success &= out.put(profiles);
+        success &= out.put(obj->typeID());
         if(success){
             return obj->streamTo(out);
+        }
+        else{
+            return StreamResult::stream_error;
+        }
+    }
+
+    StreamResult streamFrom(DataIn & in){
+        bool success = true;
+        // id is not streamed in. It is immutable and assumed to be already read to find this entry
+
+        uint8_t newProfiles = profiles;
+        obj_type_t expectedType = 0;
+        success &= in.get(newProfiles);
+        success &= in.get(expectedType);
+
+        if(success){
+            if(expectedType == obj->typeID()){
+                profiles = newProfiles;
+                return obj->streamFrom(in);
+            }
+            return StreamResult::type_mismatch;
+        }
+        else{
+            return StreamResult::stream_error;
+        }
+    }
+
+    StreamResult streamPersistedTo(DataOut& out){
+        if(obj->typeID() == resolveTypeID<InactiveObject>()){
+            return StreamResult::not_persisted; // don't persist inactive objects
+        }
+        bool success = true;
+        success &= out.put(profiles);
+        success &= out.put(obj->typeID());
+        if(success){
+            return obj->streamPersistedTo(out);
         }
         else{
             return StreamResult::stream_error;
@@ -54,18 +94,45 @@ public:
 class ObjectContainer
 {
 public:
-    ObjectContainer() : startId(obj_id_t::start()), nextId(obj_id_t::start()) {};
-    ObjectContainer(std::initializer_list<ContainedObject> l) : startId(obj_id_t::start()), objects(l){};
+    ObjectContainer() :
+        objects(), 
+        startId(obj_id_t::start()), 
+        nextId(obj_id_t::start()) 
+    {}
+
+    ObjectContainer(std::initializer_list<ContainedObject> systemObjects) : 
+        objects(systemObjects),
+        startId(obj_id_t::start()),
+        nextId(obj_id_t::start())
+    {
+        setObjectsStartId(freeId()); // set startId to next free ID to lock system objects 
+    }
     virtual ~ObjectContainer() = default;
 
 private:
     std::vector<ContainedObject> objects;
     obj_id_t startId;
-    ojb_id_t nextId;
+    obj_id_t nextId;
 
 public:
+    /**
+     * finds the object entry with the given id.
+     * @return pointer to the entry.
+     *
+     */
+
+    ContainedObject * fetchContainedObject(const obj_id_t id) {
+        decltype(objects)::iterator begin = objects.begin();
+        decltype(objects)::iterator end = objects.end();
+        decltype(objects)::iterator found = std::find_if(begin, end, [&id](const ContainedObject& item){ return item.id == id;} );
+        if(found == end){
+            return nullptr;
+        }
+        return &(*found);
+    }
+    
     std::shared_ptr<Object> fetch(const obj_id_t id) {
-        auto entry = find(id);
+        auto entry = fetchContainedObject(id);
         std::shared_ptr<Object> ptr;
         if(entry != nullptr){
             ptr = entry->obj;
@@ -74,7 +141,7 @@ public:
     }
 
     obj_id_t freeId(){
-        while(nextId < startId || find(nextId)){
+        while(nextId < startId || fetchContainedObject(nextId)){
             nextId++;
         }
         return nextId++;
@@ -98,7 +165,7 @@ public:
             newId = freeId();
         }
         else { // check if the id already exists
-            if(find(newId) != nullptr || newId < startId){
+            if(fetchContainedObject(newId) != nullptr || newId < startId){
                 return obj_id_t::invalid(); // refuse to overwrite existing objects or in ID range for system
             }
         }
@@ -111,7 +178,7 @@ public:
         if(id < startId){
             return obj_id_t::invalid(); // refuse to replace system objects
         }
-        ContainedObject * entry = find(id);
+        ContainedObject * entry = fetchContainedObject(id);
         if(entry != nullptr){
             entry->profiles = active_in_profiles;
             entry->obj = std::move(obj);
@@ -146,22 +213,6 @@ public:
         }
     }
 
-private:
-    /**
-     * finds the object entry with the given id.
-     * @return pointer to the entry.
-     *
-     */
-
-    ContainedObject * find(const obj_id_t id) {
-        decltype(objects)::iterator begin = objects.begin();
-        decltype(objects)::iterator end = objects.end();
-        decltype(objects)::iterator found = std::find_if(begin, end, [&id](const ContainedObject& item){ return item.id == id;} );
-        if(found == end){
-            return nullptr;
-        }
-        return &(*found);
-    }
 };
 
 } // end namespace cbox

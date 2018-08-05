@@ -24,7 +24,7 @@
 
 #include "Block.h"
 #include "Object.h"
-#include "Commands.h"
+#include "Box.h"
 #include "temperatureFormats.h"
 #include "DataStream.h"
 #include "CboxApp.h"

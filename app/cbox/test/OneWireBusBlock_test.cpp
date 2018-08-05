@@ -22,7 +22,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "Commands.h"
+#include "Box.h"
 #include "OneWireBusBlock.h"
 #include "Object.h"
 #include "DataStream.h"

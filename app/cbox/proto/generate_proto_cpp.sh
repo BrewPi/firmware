@@ -15,7 +15,7 @@ mkdir -p "cpp"
 
 PROTOC_INCLUDE_PATH="-I${PROTO_DIR} -I${NANOPB_PATH}/generator -I${NANOPB_PATH}/generator/proto"
 protoc ${PROTOC_INCLUDE_PATH} \
---nanopb_out=-v:cpp \
+--nanopb_out=cpp \
 ${PROTO_DIR}/*.proto \
 --proto_path=${PROTO_DIR} \
 --plugin=protoc-gen-nanopb=${PROTOC_NANOPB_PLUGIN}

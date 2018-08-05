@@ -1,7 +1,7 @@
 /*
  * Copyright 2015 Matthew McGowan.
- *
- * This file is part of Nice Firmware.
+ * Copyright 2018 Elco Jacobs.
+ * This file is part of Controlbox.
  *
  * Controlbox is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,7 @@
 
 #pragma once
 
-#include "Comms.h"
-#include "Static.h"
-#include "Commands.h"
+#include "Box.h"
 #include <memory>
 #include "System.h"
 #include "DataStream.h"
@@ -29,7 +27,7 @@
 namespace cbox {
 
 
-#if CONTROLBOX_STATIC
+#if 0
 
 /**
  * Function prototype expected by the commands implementation to perform
@@ -39,23 +37,6 @@ namespace cbox {
  * The second call (exit==true) is called to perform the actual reset.
  */
 void handleReset(bool exit);
-
-/**
- * Retrieves a reference to the systemRootContainer that hosts objects
- * independently from a system profile.
- */
-ObjectContainer& systemContainer();
-
-/**
- * Application-provided method to create a new root container for the currently active profile.
- * The application can create default objects in the root container.
- */
-ObjectContainer* createRootContainer();
-
-/**
- * Create an application supplied object.
- */
-// std::shared_ptr<Object> createApplicationObject2(obj_type_t typeId, DataIn& in, CommandResult& errorCode);
 
 /**
  * This function is called when a connection has been established.

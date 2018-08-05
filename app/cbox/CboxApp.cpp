@@ -23,8 +23,7 @@
 #include "TicksObject.h"
 #include "Object.h"
 #include "Container.h"
-#include "Commands.h"
-#include "Integration.h"
+#include "Box.h"
 
 #include "blox/OneWireTempSensorBlock.h"
 //#include "blox/PidBlock.h"
@@ -33,6 +32,7 @@
 #include "OneWireBusBlock.h"
 #include "EepromTypes.h"
 #include "EepromAccessImpl.h"
+#include <memory>
 
 
 //OneWireBusBlock oneWireBus;
@@ -66,41 +66,27 @@ cbox::ObjectFactory objectFactories[] = {
 		//OBJECT_FACTORY_ENTRY(PidBlock)
 };
 
-void cbox::connectionStarted(StandardConnection& connection, DataOut& out)
+namespace cbox {
+void connectionStarted(DataOut& out)
 {
-    out.writeAnnotation("\"a\":\"brewblox\",\"v\":\"0.1.0\"");
+    out.writeAnnotation("Connected to BrewBlox v0.1.0");
     out.flush();
-#if PLATFORM_ID!=3
-    StandardConnectionDataType& data = connection.getData();
-    // this is needed since the Photon writes data to serial before it's
-    // connected and the data may be discarded on some platforms.
-    data.callback_until_first_request = true;
-    wait.millis(100);
-#endif
+}
 }
 
 OneWireBusBlock oneWireBus(0);
 
-cbox::ObjectContainer& systemContainer()
-{
-    static std::shared_ptr<cbox::Object> deviceId = std::make_shared<DeviceIdObject>();
+cbox::ObjectContainer objects = {
+        cbox::ContainedObject(1, 0xFF, std::make_shared<DeviceIdObject>()),
+        cbox::ContainedObject(2, 0xFF, std::shared_ptr<cbox::Object>(&oneWireBus)),
+};
 
-    static cbox::ObjectContainer systemContainer({
-            cbox::ContainedObject(1, 0xFF, deviceId),
-            cbox::ContainedObject(2, 0xFF, std::shared_ptr<cbox::Object>(&oneWireBus)),
-    });
-    return systemContainer;
-}
+EepromAccess eeprom;
+cbox::EepromObjectStorage objectStore(eeprom);
 
-/**
- * Provide the root container in which all user created objects are stored
- *
- */
-cbox::ObjectContainer& userContainer()
-{
-    static cbox::ObjectContainer rootContainer;
-    return rootContainer;
-}
+cbox::ConnectionPool connections = {};
+
+cbox::Box appBox(objects, objectStore, connections);
 
 /**
  * The application supplied object factory.
@@ -131,8 +117,4 @@ std::shared_ptr<cbox::Object> createApplicationObject(cbox::obj_type_t typeId, c
 
     }
     return obj;
-}
-
-void cbox::handleReset(bool exit){
-	handleReset(exit); // call outside of cbox scope
 }

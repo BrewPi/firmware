@@ -38,6 +38,7 @@ enum class StreamResult {
     unexpected_end_of_output,
     end_of_input,
     end_of_output,
+    type_mismatch
 };
 
 

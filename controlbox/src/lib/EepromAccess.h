@@ -19,32 +19,15 @@
 
 #pragma once
 
-#include "Static.h"
 #include <cstdint>
 #include <cstddef>
 
-#if !CONTROLBOX_STATIC
-
-typedef uint16_t eptr_t;
-#define INVALID_EPTR (0)
-
-struct EepromAccess
-{
-	virtual uint8_t readByte(eptr_t offset) const=0;
-	virtual void writeByte(eptr_t offset, uint8_t value)=0;
-	virtual void readBlock(void* target, eptr_t offset, uint16_t size) const=0;
-	virtual void writeBlock(eptr_t target, const void* source, uint16_t size)=0;
-
-	virtual eptr_t length() const=0;
-};
-
-#else
+//typedef uint16_t eptr_t;
+//#define INVALID_EPTR (0)
 
 #include "EepromAccessImpl.h"
 
 extern EepromAccess eepromAccess;
 
-
-#endif
 
 
