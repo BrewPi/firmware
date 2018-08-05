@@ -86,7 +86,7 @@ SCENARIO("A container to hold objects"){
 
 
         THEN("An action can be applied on all contained objects, using map, like streaming out all objects"){
-            char buf[1000];
+            char buf[1000] = {0};
             cbox::BufferDataOut outBuffer(reinterpret_cast<uint8_t*>(buf), sizeof(buf));
             cbox::BinaryToHexTextOut out(outBuffer);
             cbox::StreamResult res;

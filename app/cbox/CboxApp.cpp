@@ -29,6 +29,7 @@
 //#include "blox/PidBlock.h"
 //#include "blox/SensorSetPointPairBlock.h"
 #include "blox/SetPointSimpleBlock.h"
+#include "OneWire.h"
 #include "OneWireBusBlock.h"
 #include "EepromTypes.h"
 #include "EepromAccessImpl.h"
@@ -39,6 +40,7 @@
 DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
 TicksImpl baseticks;
 cbox::ScaledTicksValue<TicksImpl> ticks(baseticks);
+OneWire oneWireBus(0);
 
 class DeviceIdObject : public cbox::RawStreamObject<std::array<uint8_t,12>> {
 public:
@@ -74,12 +76,11 @@ void connectionStarted(DataOut& out)
 }
 }
 
-OneWireBusBlock oneWireBus(0);
-
 cbox::ObjectContainer objects = {
         cbox::ContainedObject(1, 0xFF, std::make_shared<DeviceIdObject>()),
-        cbox::ContainedObject(2, 0xFF, std::shared_ptr<cbox::Object>(&oneWireBus)),
+        cbox::ContainedObject(2, 0xFF, std::make_shared<OneWireBusBlock>(oneWireBus)),
 };
+
 
 EepromAccess eeprom;
 cbox::EepromObjectStorage objectStore(eeprom);

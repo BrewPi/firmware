@@ -2,20 +2,20 @@
 
 #include "Block.h"
 #include "Interface.h"
-#include "OneWireBusBlock.h"
+#include "OneWire.h"
 #include "OneWireTempSensor.pb.h"
 #include "OneWireTempSensor.h"
 
 // since we only have one then might as well reference it directly
 // this will change when support for multiple busses is added.
-extern OneWireBusBlock oneWireBus;
+extern OneWire oneWireBus;
 
 class OneWireTempSensorBlock: public Block {
 private:
     OneWireTempSensor sensor;
 
 public:
-    OneWireTempSensorBlock() : sensor(&oneWireBus.oneWire()){}
+    OneWireTempSensorBlock() : sensor(&oneWireBus){}
 
     virtual cbox::StreamResult streamFrom(cbox::DataIn& in) override final{
         blox_OneWireTempSensor newData;

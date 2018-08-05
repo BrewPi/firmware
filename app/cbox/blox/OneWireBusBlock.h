@@ -9,7 +9,7 @@
 
 class OneWireBusBlock: public cbox::Object { // not a block type, because it doesn't need to implement Interface*
 private:
-    OneWire bus;
+    OneWire& bus;
 
     _blox_OneWireCommand command;
 
@@ -38,7 +38,7 @@ protected:
     }
 
 public:
-    OneWireBusBlock(int pin=oneWirePin) : bus(pin), command({NO_OP, 0}) {
+    OneWireBusBlock(OneWire & ow) : bus(ow), command({NO_OP, 0}) {
         bus.init();
     }
 

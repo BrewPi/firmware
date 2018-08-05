@@ -52,6 +52,8 @@ RUN rm -rf /etc/timezone
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN dpkg-reconfigure --frontend noninteractive tzdata
 
+RUN apt-get update -q && apt-get install -qy valgrind
+
 # cleanup
 RUN apt-get clean && \
   rm -rf \

@@ -37,7 +37,8 @@ void streamHex(std::stringstream & ss, uint8_t * buf, size_t len){
 
 SCENARIO("A Blox OneWireBus can stream a variable number of found addresses"){
     GIVEN("A Blox OneWireBus"){
-        OneWireBusBlock ow;
+        OneWire owbus(0);
+        OneWireBusBlock ow(owbus);
 
         WHEN("it is encoded to a buffer"){
             uint8_t outbuf[100] = {0};

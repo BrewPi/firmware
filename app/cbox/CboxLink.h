@@ -2,8 +2,9 @@
 
 #include "RefTo.h"
 #include "Interface.h"
-#include <cstring>
-#include "CboxApp.h"
+#include "Container.h"
+
+extern cbox::ObjectContainer objects;
 
 class CboxLookup : public BaseLookup {
 public:
