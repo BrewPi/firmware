@@ -192,10 +192,13 @@ public:
             return false;
         }
         bool removed = false;
-        std::remove_if(objects.begin(), objects.end(), [&id, &removed](ContainedObject const& item){ 
-            removed |= item.id == id;
-            return item.id == id;
-        });
+        objects.erase(
+            std::remove_if(objects.begin(), objects.end(), [&id, &removed](ContainedObject const& item){ 
+                removed |= item.id == id;
+                return item.id == id;
+            }),
+            objects.end()
+        );
         return removed;
     }
 

@@ -161,10 +161,15 @@ class ConnectionPool
     std::vector<std::reference_wrapper<ConnectionSource>> connectionSources;
     std::vector<std::unique_ptr<Connection>> connections;
 
+
+public:
     void updateConnections(){
-        std::remove_if(connections.begin(), connections.end(), [](std::unique_ptr<Connection>& conn){ 
-            return ! conn->isConnected(); // remove disconnected connections from pool
-        });
+        connections.erase(
+            std::remove_if(connections.begin(), connections.end(), [](std::unique_ptr<Connection>& conn){ 
+                    return ! conn->isConnected(); // remove disconnected connections from pool
+                }),
+            connections.end()
+        );
 
         for(auto& source : connectionSources){
             std::unique_ptr<Connection> newConnection = source.get().newConnection();
@@ -174,7 +179,10 @@ class ConnectionPool
         }
     }
     
-public:
+    size_t size(){
+        return connections.size();
+    }
+
     void map(std::function<void(DataIn& in, DataOut& out)> func){
         updateConnections();
         for(auto& conn : connections){

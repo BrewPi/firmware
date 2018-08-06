@@ -29,18 +29,24 @@ namespace cbox {
 class IStreamDataIn : public DataIn
 {
     std::istream& in;
-//    uint8_t prev;
+
 public:
 
     IStreamDataIn(std::istream& in_) : in(in_) {}
 
     virtual bool hasNext() override {
-        return in.peek()!=EOF;
+        int next = in.peek();
+        // we don't want the peek to set the eof or fail flag because no input is available
+        // this prevents streaming in new data for testing
+        in.clear(in.rdstate() & std::istream::badbit); // only keep badbit
+        return next !=EOF;
     }
 
     virtual uint8_t next() override {
-        char val;
-        in.get(val);
+        char val = 0;
+        if(hasNext()){
+            in.get(val);
+        }
         return uint8_t(val);
     }
 
@@ -49,7 +55,7 @@ public:
     }
 
     virtual stream_size_t available() override {
-        return in.eof() ? 0 : 1;
+        return hasNext() ? 1 : 0; // don't use in.eof() as the stream is already in error state then
     }
 };
 
@@ -76,22 +82,21 @@ public:
  * 
  **/
 
-class StringPairConnection : public Connection {
+class StringStreamConnection : public Connection {
 private:
-    std::stringstream in;
-    std::stringstream out;
+    std::stringstream& in;
+    std::stringstream& out;
     IStreamDataIn dataIn;
     OStreamDataOut dataOut;
-    bool connected;
-
+    
 public:
-    StringPairConnection(std::string& _in, std::string& _out) :
+ StringStreamConnection(std::stringstream& _in, std::stringstream& _out) :
         in(_in),
         out(_out),
-        dataIn(in),
-        dataOut(out),
-        connected(true)
-    {}
+        dataIn(_in),
+        dataOut(_out)
+    {
+    }
 
     virtual DataOut& getDataOut() override final {
         return dataOut;
@@ -101,27 +106,27 @@ public:
     }
 
     virtual bool isConnected() override final {
-        return connected;
-    }
-
-    void disconnect(){
-        connected = false;
+        return !(in.bad() || out.bad()); // use badbit of either stream to simulate disconnect
     }
 };
 
-class StringPairConnectionSource : public ConnectionSource {
+class StringStreamConnectionSource : public ConnectionSource {
 private:
-    std::queue<std::unique_ptr<StringPairConnection>> connectionQueue;
+    std::queue<std::unique_ptr<StringStreamConnection>> connectionQueue;
 
 public:
-    void add(std::string& in, std::string& out){
-        connectionQueue.emplace(new StringPairConnection(in, out));
+    void add(std::stringstream& in, std::stringstream& out){
+        auto newConnection = std::make_unique<StringStreamConnection>(in, out);
+        connectionQueue.push(std::move(newConnection));
     }
 
     virtual std::unique_ptr<Connection> newConnection() override final {
+        if(connectionQueue.empty()){
+            return nullptr;
+        }
         std::unique_ptr<Connection> retval = std::move(connectionQueue.front());
         connectionQueue.pop();
-        return retval;
+        return std::move(retval);
     }
 };
 } // end namespace cbox
