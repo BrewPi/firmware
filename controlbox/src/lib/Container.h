@@ -114,34 +114,41 @@ private:
     obj_id_t startId;
     obj_id_t nextId;
 
+    decltype(objects)::iterator findContainedObject(const obj_id_t id) {
+        return std::find_if(
+            objects.begin(),
+            objects.end(),
+            [&id](const ContainedObject& item){ return item.id == id;} 
+        );
+    }
+
 public:
     /**
      * finds the object entry with the given id.
      * @return pointer to the entry.
      *
      */
-
-    ContainedObject * fetchContainedObject(const obj_id_t id) {
-        decltype(objects)::iterator begin = objects.begin();
-        decltype(objects)::iterator end = objects.end();
-        decltype(objects)::iterator found = std::find_if(begin, end, [&id](const ContainedObject& item){ return item.id == id;} );
-        if(found == end){
+    ContainedObject * fetchContainedObject(const obj_id_t id){
+        decltype(objects)::iterator found = findContainedObject(id);
+        if(found == objects.end()){
             return nullptr;
         }
-        return &(*found);
+        else{
+            return &(*found);
+        }
     }
     
     std::shared_ptr<Object> fetch(const obj_id_t id) {
-        auto entry = fetchContainedObject(id);
         std::shared_ptr<Object> ptr;
-        if(entry != nullptr){
+        decltype(objects)::iterator entry = findContainedObject(id);
+        if(entry != objects.end()){
             ptr = entry->obj;
         }
         return ptr;
     }
 
     obj_id_t freeId(){
-        while(nextId < startId || fetchContainedObject(nextId)){
+        while(nextId < startId || findContainedObject(nextId) != objects.end()){
             nextId++;
         }
         return nextId++;
@@ -165,7 +172,7 @@ public:
             newId = freeId();
         }
         else { // check if the id already exists
-            if(fetchContainedObject(newId) != nullptr || newId < startId){
+            if(findContainedObject(newId) != objects.end() || newId < startId){
                 return obj_id_t::invalid(); // refuse to overwrite existing objects or in ID range for system
             }
         }
@@ -178,10 +185,10 @@ public:
         if(id < startId){
             return obj_id_t::invalid(); // refuse to replace system objects
         }
-        ContainedObject * entry = fetchContainedObject(id);
-        if(entry != nullptr){
-            entry->profiles = active_in_profiles;
-            entry->obj = std::move(obj);
+        decltype(objects)::iterator it = findContainedObject(id);
+        if(it != objects.end()){
+            it->profiles = active_in_profiles;
+            it->obj = std::move(obj);
             return id;
         }
         return obj_id_t::invalid();
@@ -191,15 +198,12 @@ public:
         if(id < startId){
             return false;
         }
-        bool removed = false;
-        objects.erase(
-            std::remove_if(objects.begin(), objects.end(), [&id, &removed](ContainedObject const& item){ 
-                removed |= item.id == id;
-                return item.id == id;
-            }),
-            objects.end()
-        );
-        return removed;
+        decltype(objects)::iterator it = findContainedObject(id);
+        if(it != objects.end()){
+            objects.erase(it);
+            return true;
+        }
+        return false;
     }
 
     void map(std::function<void(ContainedObject & obj)> func) {
