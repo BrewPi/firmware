@@ -56,9 +56,9 @@ public:
 	bool write(int data) { return write(uint8_t(data)); }
 
 	template<typename T>
-	bool put(T t){
-	    return writeBuffer(&t, sizeof(T));
-	}
+    bool put(const T & t){
+        return writeBuffer(std::addressof(t), sizeof(T));
+    }
 
 	/**
 	 * Writes a number of bytes to the stream.

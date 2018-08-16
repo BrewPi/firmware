@@ -31,42 +31,35 @@ namespace cbox {
  */
 class ContainedObject {
 public:
-    explicit ContainedObject(obj_id_t _id, uint8_t _profiles, std::shared_ptr<Object> _obj) :
-        id(_id),
-        profiles(_profiles),
-        obj(_obj){};
-
-    ContainedObject(const ContainedObject&) = delete; // not copyable
-    ContainedObject& operator=(const ContainedObject&) = delete;
-
-    ContainedObject(const ContainedObject&&) = default; // but movable
-    ContainedObject& operator=(const ContainedObject&&) = default;
+    explicit ContainedObject(obj_id_t id, uint8_t profiles, std::shared_ptr<Object> obj) :
+        _id(id),
+        _profiles(profiles),
+        _obj(obj){};
 
 private:
-    obj_id_t id;
-    uint8_t profiles; // active in these profiles
-    std::shared_ptr<Object> obj; // pointer to runtime object
+    obj_id_t _id;
+    uint8_t _profiles; // active in these profiles
+    std::shared_ptr<Object> _obj; // pointer to runtime object
 
 public:    
-    const obj_id_t& id(){
-        return id;
+    const obj_id_t & id() const {
+        return _id;
     }
 
-    const uint8_t& profiles(){
-        return profiles;
+    const uint8_t & profiles() const {
+        return _profiles;
     }
 
-    std::shared_ptr<Object> obj & object(){
-        return obj;
+    const std::shared_ptr<Object>& object() const {
+        return _obj;
     }
 
-    StreamResult streamTo(DataOut & out){
-        bool success = true;
-        success &= out.put(id);
-        success &= out.put(profiles);
-        success &= out.put(obj->typeID());
+    StreamResult streamTo(DataOut & out) const {
+        bool success = out.put(_id);
+        success &= out.put(_profiles);
+        success &= out.put(_obj->typeID());
         if(success){
-            return obj->streamTo(out);
+            return _obj->streamTo(out);
         }
         else{
             return StreamResult::stream_error;
@@ -77,15 +70,15 @@ public:
         bool success = true;
         // id is not streamed in. It is immutable and assumed to be already read to find this entry
 
-        uint8_t newProfiles = profiles;
-        obj_type_t expectedType = 0;
+        uint8_t newProfiles = _profiles;
+        obj_type_t expectedType{0};
         success &= in.get(newProfiles);
         success &= in.get(expectedType);
 
         if(success){
-            if(expectedType == obj->typeID()){
-                profiles = newProfiles;
-                return obj->streamFrom(in);
+            if(expectedType == _obj->typeID()){
+                _profiles = newProfiles;
+                return _obj->streamFrom(in);
             }
             return StreamResult::type_mismatch;
         }
@@ -94,25 +87,40 @@ public:
         }
     }
 
-    StreamResult streamPersistedTo(DataOut& out){
-        if(obj->typeID() == resolveTypeID<InactiveObject>()){
+    StreamResult streamPersistedTo(DataOut& out) const {
+        if(_obj->typeID() == resolveTypeID<InactiveObject>()){
             return StreamResult::not_persisted; // don't persist inactive objects
         }
         bool success = true;
-        success &= out.put(profiles);
-        success &= out.put(obj->typeID());
+        success &= out.put(_profiles);
+        success &= out.put(_obj->typeID());
         if(success){
-            return obj->streamPersistedTo(out);
+            return _obj->streamPersistedTo(out);
         }
         else{
             return StreamResult::stream_error;
         }
     }
 };
+/*
+ * Implemented as sorted vector for fast retrieval
+ * Inserts are uncommon and the number of elements is small, which is why vector is preferred
+ * over a sorted standard container that does not have random access iterators (map, set).
+ */
+
 
 class ObjectContainer
 {
+private:
+    std::vector<ContainedObject> objects;
+    obj_id_t startId;
+    obj_id_t nextId;
+
 public:
+
+    using Iterator = decltype(objects)::iterator;
+    using CIterator = decltype(objects)::const_iterator;
+
     ObjectContainer() :
         objects(), 
         startId(obj_id_t::start()), 
@@ -129,17 +137,27 @@ public:
     }
     virtual ~ObjectContainer() = default;
 
-private:
-    std::vector<ContainedObject> objects;
-    obj_id_t startId;
-    obj_id_t nextId;
 
-    decltype(objects)::iterator findContainedObject(const obj_id_t & id) {
-        return std::find_if(
+private:
+    auto findContainedObject(const obj_id_t & id) {
+        // equal_range is used instead of find, because it is faster for a sorted container
+        // the returned pair can be used as follows:
+        // first == second means not found, first points to the insert position for the new object id
+        // first != second means the object is found and first points to it
+
+        struct IdLess
+        {
+            bool operator() ( const ContainedObject& c, const obj_id_t & i) const { return c.id() < i; }
+            bool operator() ( const obj_id_t & i, const ContainedObject& c) const { return i < c.id(); }
+        };
+
+        auto pair = std::equal_range(
             objects.begin(),
             objects.end(),
-            [&id](const ContainedObject& item){ return item.id == id;} 
+            id,
+            IdLess{}
         );
+        return pair;
     }
 
 public:
@@ -149,29 +167,34 @@ public:
      *
      */
     ContainedObject * fetchContainedObject(const obj_id_t id){
-        decltype(objects)::iterator found = findContainedObject(id);
-        if(found == objects.end()){
+        auto pair = findContainedObject(id);
+        if(pair.first == pair.second){
             return nullptr;
         }
         else{
-            return &(*found);
+            return &(*pair.first);
         }
     }
     
-    std::shared_ptr<Object> fetch(const obj_id_t id) {
-        std::shared_ptr<Object> ptr;
-        decltype(objects)::iterator entry = findContainedObject(id);
-        if(entry != objects.end()){
-            ptr = entry->obj;
+    const std::weak_ptr<Object> fetch(const obj_id_t id) {
+        auto pair = findContainedObject(id);
+        if(pair.first != pair.second){
+            return pair.first->object(); // weak_ptr to found object
         }
-        return ptr;
+        return std::weak_ptr<Object>(); // empty weak ptr if not found
     }
 
     obj_id_t freeId(){
-        while(nextId < startId || findContainedObject(nextId) != objects.end()){
-            nextId++;
+        if(nextId < startId){
+            nextId = startId;
         }
-        return nextId++;
+        while(true){
+            auto p = findContainedObject(nextId);
+            if(p.first == p.second){
+                return nextId++; // found free id
+            }
+            ++nextId; // object already exists
+        }
     }
 
     /**
@@ -191,12 +214,15 @@ public:
         if(newId == obj_id_t::invalid()){ // use 0 to let the container assign a free slot
             newId = freeId();
         }
-        else { // check if the id already exists
-            if(findContainedObject(newId) != objects.end() || newId < startId){
-                return obj_id_t::invalid(); // refuse to overwrite existing objects or in ID range for system
-            }
+
+        // find insert position
+        auto p = findContainedObject(newId);
+
+        if(p.first != p.second){
+            return obj_id_t::invalid(); // refuse to overwrite existing objects or in ID range for system
         }
-        objects.emplace_back(newId, active_in_profiles, std::move(obj)); // add entry to container
+        // insert new entry in container in sorted position
+        objects.insert(p.first, decltype(objects)::value_type(newId, active_in_profiles, std::move(obj)));
         return newId;
     }
 
@@ -204,10 +230,12 @@ public:
         if(id < startId){
             return obj_id_t::invalid(); // refuse to replace system objects
         }
-        decltype(objects)::iterator it = findContainedObject(id);
-        if(it != objects.end()){
-            it->profiles = active_in_profiles;
-            it->obj = std::move(obj);
+        // find existing object
+        auto p = findContainedObject(id);
+
+        if(p.first != p.second){
+            // replace object with newly constructed object
+            *p.first = decltype(objects)::value_type(id, active_in_profiles, std::move(obj));
             return id;
         }
         return obj_id_t::invalid();
@@ -215,30 +243,23 @@ public:
 
     bool remove(obj_id_t id) {
         if(id < startId){
-            return false;
+            return false; // refuse to remove system objects
         }
-        decltype(objects)::iterator it = findContainedObject(id);
-        if(it != objects.end()){
-            objects.erase(it);
-            return true;
-        }
-        return false;
+        // find existing object
+        auto p = findContainedObject(id);
+
+        objects.erase(p.first, p.second); // doesn't remove anything if no objects found (first == second)
+        return (p.first != p.second);
     }
 
-    void map(std::function<void(ContainedObject & obj)> func) {
-        for(auto it : objects){
-            func(it);
-        }
+    // only const iterators are exposed. We don't want the caller to be able to modify the container
+    CIterator cbegin(){
+        return objects.cbegin();
     }
 
-    void mapWhileTrue(std::function<bool(ContainedObject & obj)> func) {
-        for(auto it : objects){
-            if(!func(it)){
-                break;
-            }
-        }
+    CIterator cend(){
+        return objects.cend();
     }
-
 };
 
 } // end namespace cbox

@@ -15,9 +15,11 @@ public:
     operator uint16_t(){ return id; }
 
     virtual Interface * operator()() const override final {
-        auto obj = objects.fetch(id);
+        if(auto obj = objects.fetch(id).lock()){
+            return obj->getApplicationInterface();
+        }
 
-        return (obj) ? obj->getApplicationInterface() : nullptr;
+        return nullptr; // TODO return weak_ptr in all cases
     }
 
 private:

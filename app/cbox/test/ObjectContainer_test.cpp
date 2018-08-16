@@ -47,7 +47,8 @@ SCENARIO("A container to hold objects"){
         }
 
         THEN("The objects can be fetched from the container"){
-            auto obj2 = container.fetch(id2);
+            auto obj2 = container.fetch(id2).lock();
+            REQUIRE(obj2);
             CHECK(obj2->typeID() == resolveTypeID<LongIntObject>());
             // to be able to compare the value, we first dereference the smart pointer before typecasting
             CHECK(*static_cast<LongIntObject*>(&(*obj2)) == LongIntObject(0x22222222));
@@ -55,14 +56,14 @@ SCENARIO("A container to hold objects"){
 
         THEN("The objects can be removed from the container"){
             container.remove(id2);
-            CHECK(container.fetch(id2) == nullptr);
-            CHECK(container.fetch(id3) != nullptr);
+            CHECK(!container.fetch(id2).lock()); // id2 now removed
+            CHECK(container.fetch(id3).lock()); // id3 still exists
         }
 
         THEN("An object can be added with a specific id"){
             obj_id_t id4 = container.add(std::make_unique<LongIntObject>(0x33333333), 0xFF, obj_id_t(123));
             CHECK(id4 == 123);
-            CHECK(container.fetch(id4) != nullptr);
+            CHECK(container.fetch(id4).lock());
 
             AND_WHEN("the id already exist, adding fails"){
                 obj_id_t id5 = container.add(std::make_unique<LongIntObject>(0x33333333), 0xFF, obj_id_t(123));
@@ -72,8 +73,8 @@ SCENARIO("A container to hold objects"){
             AND_WHEN("replace is used instead of add, it succeeds"){
                 obj_id_t id6 = container.replace(std::make_unique<LongIntObject>(0x44444444), 0xFF, obj_id_t(123));
                 CHECK(id6 == obj_id_t(123));
-                auto obj6 = container.fetch(id6);
-                REQUIRE(obj6 != nullptr);
+                auto obj6 = container.fetch(id6).lock();
+                REQUIRE(obj6);
                 CHECK(*static_cast<LongIntObject*>(&(*obj6)) == LongIntObject(0x44444444));
             }
         }
@@ -84,47 +85,33 @@ SCENARIO("A container to hold objects"){
 
         THEN("Replacing an object that doesn't exist has no effect and returns invalid id"){
             CHECK(obj_id_t::invalid() == container.replace(std::make_unique<LongIntObject>(0x33333333), 0xFF, 10));
-            CHECK(container.fetch(obj_id_t(10)) == nullptr);
+            CHECK(!container.fetch(obj_id_t(10)).lock()); // object still exists
         }
 
-        THEN("An action can be applied on all contained objects, using map, like printing listing all object ids"){
+        THEN("A list of all object IDs can be created using the container's const iterators"){
             std::vector<obj_id_t> ids;
-            container.map([&ids] (ContainedObject & entry){
-                ids.emplace_back(entry.id);
-            });
+            for(auto it = container.cbegin(); it != container.cend(); it++){
+                ids.emplace_back(it->id());
+            };
             std::vector<obj_id_t> correct_list = {id1, id2, id3};
             CHECK(ids == correct_list);
         }
 
-        THEN("An action can be applied on all contained objects, using map, like streaming out all objects"){
+        THEN("All contained objects can be streamed out using the container's const_iterators"){
             char buf[1000] = {0};
             BufferDataOut outBuffer(reinterpret_cast<uint8_t*>(buf), sizeof(buf));
             BinaryToHexTextOut out(outBuffer);
-            StreamResult res;
-            container.mapWhileTrue([&out, &res] (ContainedObject & entry) -> bool {
+            StreamResult res = StreamResult::success;
+
+            for(auto it = container.cbegin(); it != container.cend() && res == StreamResult::success; it++){
                 out.writeListSeparator();
-                res = entry.streamTo(out);
-                return res == StreamResult::success;
-            });
+                res = it->streamTo(out);
+            }
+
+            CHECK(res == StreamResult::success);
 
             INFO(std::string(buf));
         }
-
-        THEN("An map function that returns a boolean value can break when the result is false"){
-            std::vector<obj_id_t> ids;
-            container.map([&ids, &id2] (ContainedObject & entry) -> bool {
-                if(entry.id == id2){
-                    return false;
-                }
-                ids.emplace_back(entry.id);
-                return true;     
-            });
-            std::vector<obj_id_t> correct_list = {id1};
-            CHECK(ids == correct_list);
-        }
-    }
-
-    THEN("Contained objects can be streamed including their ID, profiles and type"){   
     }
 }
 
@@ -142,8 +129,9 @@ SCENARIO("A container with system objects passed in the initializer list"){
         uint8_t buf[100] = {0};
         BufferDataOut out(buf, sizeof(buf));
         BinaryToHexTextOut hexOut(out);
-
-        objects.fetch(1)->streamTo(hexOut);
+        auto spobj = objects.fetch(1).lock();
+        REQUIRE(spobj);
+        spobj->streamTo(hexOut);
         uint8_t hexRepresentation[] = "11111111";
         CHECK_THAT(buf, (equalsArray<uint8_t, sizeof(hexRepresentation)>(hexRepresentation)));
     }
@@ -153,21 +141,22 @@ SCENARIO("A container with system objects passed in the initializer list"){
         BufferDataIn in(buf, sizeof(buf));
         HexTextToBinaryIn hexIn(in);
 
-        auto obj = objects.fetch(1);
-        obj->streamFrom(hexIn);
-        CHECK(*static_cast<LongIntObject*>(&(*obj)) == LongIntObject(0x11223344));
+        auto spobj = objects.fetch(1).lock();
+        REQUIRE(spobj);
+        spobj->streamFrom(hexIn);
+        CHECK(*static_cast<LongIntObject*>(&(*spobj)) == LongIntObject(0x11223344));
     }
 
     THEN("The system objects cannot be deleted, but user objects can be deleted"){
         CHECK(!objects.remove(1));
-        CHECK(objects.fetch(1) != nullptr);
+        CHECK(objects.fetch(1).lock());
 
         CHECK(!objects.remove(2));
-        CHECK(objects.fetch(2) != nullptr);
+        CHECK(objects.fetch(2).lock());
 
-        CHECK(objects.fetch(3) != nullptr);
+        CHECK(objects.fetch(3).lock());
         CHECK(objects.remove(3));
-        CHECK(objects.fetch(3) == nullptr);
+        CHECK(!objects.fetch(3).lock());
     }
 
     THEN("The system objects cannot be replaced"){

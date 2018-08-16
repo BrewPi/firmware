@@ -93,7 +93,7 @@ void Box::writeObject(DataIn& in, DataOut& out) {
             status = CommandError::invalid_object_id;
         }
         else{          
-            if(cobj->obj->typeID() != typeId){
+            if(cobj->object()->typeID() != typeId){
                 status = CommandError::invalid_type;
             }
         }
