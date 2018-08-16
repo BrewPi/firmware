@@ -41,75 +41,57 @@ enum class StreamResult {
     type_mismatch
 };
 
-
-class id_type_base {
+class obj_type_t {
 public:
-    id_type_base() : id(0){};
-    id_type_base(uint16_t v) : id(v){};
-    id_type_base(const id_type_base & v){
-        id = v.id;
+    obj_type_t() : id(0) {};
+    obj_type_t(const uint16_t & rhs) : id(rhs) {};
+    obj_type_t& operator=(const uint16_t & rhs){
+        id = rhs;
+        return *this;
     }
 
     operator uint16_t() const {
         return id;
     }
 
-    StreamResult streamTo(DataOut & out){
-        return out.put(id) ? StreamResult::success : StreamResult::stream_error;
-    }
-
-    StreamResult streamFrom(DataIn & in){
-        return in.get(id) ? StreamResult::success : StreamResult::stream_error;
-    }
-
-protected:
-    uint16_t id;
-};
-
-class obj_type_t : public id_type_base {
-public:
-    using id_type_base::id_type_base;
-    obj_type_t(){
-        id = invalid_id;
-    }
-
-    bool isValid() const{
-        return id > invalid_id;
+    bool isValid() const {
+        return id > invalid().id;
     }
 
     static const obj_type_t start() {
-        obj_type_t retv(start_id);
-        return retv;
+        return obj_type_t(1);
     };
     static const obj_type_t invalid() {
-        obj_type_t retv(invalid_id);
-        return retv;
+        return obj_type_t(0);
     };
 
 private:
-    static const uint16_t start_id = 1;
-    static const uint16_t invalid_id = 0;
+    uint16_t id;
 };
 
-class obj_id_t : public id_type_base {
+
+class obj_id_t {
 public:
-    using id_type_base::id_type_base;
-    obj_id_t(){
-        id = invalid_id;
+    obj_id_t() : id(0) {};
+    obj_id_t(const uint16_t & rhs) : id(rhs) {};
+    obj_id_t& operator=(const uint16_t & rhs){
+        id = rhs;
+        return *this;
+    }
+    
+    operator uint16_t() const {
+        return id;
     }
 
-    bool isValid() const{
-        return id > invalid_id;
+    bool isValid() const {
+        return id > invalid().id;
     }
 
     static const obj_id_t start() {
-        obj_id_t retv(start_id);
-        return retv;
+        return obj_id_t(1);
     };
-    
     static const obj_id_t invalid() {
-        obj_id_t retv(invalid_id);
-        return retv;
+        return obj_id_t(0);
     };
 
     obj_id_t & operator++() // ++A
@@ -126,10 +108,8 @@ public:
     }
 
 private:
-    static const uint16_t start_id = 1;
-    static const uint16_t invalid_id = 0;
+    uint16_t id;
 };
-
 
 class Object : virtual public ObjectMixin
 {
@@ -145,7 +125,7 @@ public:
 	/**
 	 * update the object, returns timestamp at which it wants to be updated again (in ms since boot).
 	 */
-	virtual uint32_t update(uint32_t currentTime) { return 0; };
+	virtual uint32_t update(const uint32_t & currentTime) { return 0; };
 
 	/**
 	 * Each object is at least stream readable

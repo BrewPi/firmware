@@ -31,15 +31,34 @@ namespace cbox {
  */
 class ContainedObject {
 public:
-    ContainedObject(obj_id_t _id, uint8_t _profiles, std::shared_ptr<Object> _obj) :
+    explicit ContainedObject(obj_id_t _id, uint8_t _profiles, std::shared_ptr<Object> _obj) :
         id(_id),
         profiles(_profiles),
         obj(_obj){};
 
+    ContainedObject(const ContainedObject&) = delete; // not copyable
+    ContainedObject& operator=(const ContainedObject&) = delete;
+
+    ContainedObject(const ContainedObject&&) = default; // but movable
+    ContainedObject& operator=(const ContainedObject&&) = default;
+
+private:
     obj_id_t id;
     uint8_t profiles; // active in these profiles
     std::shared_ptr<Object> obj; // pointer to runtime object
-    
+
+public:    
+    const obj_id_t& id(){
+        return id;
+    }
+
+    const uint8_t& profiles(){
+        return profiles;
+    }
+
+    std::shared_ptr<Object> obj & object(){
+        return obj;
+    }
 
     StreamResult streamTo(DataOut & out){
         bool success = true;
@@ -105,7 +124,8 @@ public:
         startId(obj_id_t::start()),
         nextId(obj_id_t::start())
     {
-        setObjectsStartId(freeId()); // set startId to next free ID to lock system objects 
+        setObjectsStartId(freeId()); // set startId to next free ID to lock system objects
+        nextId = startId; // Reset because we're not using the free ID we just got.
     }
     virtual ~ObjectContainer() = default;
 
@@ -114,7 +134,7 @@ private:
     obj_id_t startId;
     obj_id_t nextId;
 
-    decltype(objects)::iterator findContainedObject(const obj_id_t id) {
+    decltype(objects)::iterator findContainedObject(const obj_id_t & id) {
         return std::find_if(
             objects.begin(),
             objects.end(),
@@ -176,8 +196,7 @@ public:
                 return obj_id_t::invalid(); // refuse to overwrite existing objects or in ID range for system
             }
         }
-        ContainedObject entry(newId, active_in_profiles, std::move(obj)); // move object entry
-        objects.push_back(entry); // add entry to container
+        objects.emplace_back(newId, active_in_profiles, std::move(obj)); // add entry to container
         return newId;
     }
 

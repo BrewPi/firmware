@@ -15,7 +15,7 @@ public:
 
 	virtual Interface * getApplicationInterfaceImpl() = 0;
 
-	virtual uint32_t update(uint32_t currentTime) override final {
+	virtual uint32_t update(const uint32_t & currentTime) override final {
 	    Interface * appInterface = getApplicationInterface();
 	    if(appInterface != nullptr){
 	        appInterface->update();

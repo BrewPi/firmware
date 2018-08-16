@@ -24,19 +24,22 @@
 #include "Container.h"
 #include "DataStreamConverters.h"
 #include "TestObjects.h"
+#include "TestMatchers.hpp"
 
 SCENARIO("A container to hold objects"){
-    cbox::ObjectContainer container;
+    using namespace cbox; 
+
+    ObjectContainer container;
 
     WHEN("Some objects are added to the container"){
-        cbox::obj_id_t id1 = container.add(std::make_unique<LongIntObject>(0x11111111), 0xFF);
-        cbox::obj_id_t id2 = container.add(std::make_unique<LongIntObject>(0x22222222), 0xFF);
-        cbox::obj_id_t id3 = container.add(std::make_unique<LongIntObject>(0x33333333), 0xFF);
+        obj_id_t id1 = container.add(std::make_unique<LongIntObject>(0x11111111), 0xFF);
+        obj_id_t id2 = container.add(std::make_unique<LongIntObject>(0x22222222), 0xFF);
+        obj_id_t id3 = container.add(std::make_unique<LongIntObject>(0x33333333), 0xFF);
 
         THEN("They are assigned a valid unique ID"){
-            CHECK(id1 != cbox::obj_id_t::invalid());
-            CHECK(id2 != cbox::obj_id_t::invalid());
-            CHECK(id3 != cbox::obj_id_t::invalid());
+            CHECK(id1 != obj_id_t::invalid());
+            CHECK(id2 != obj_id_t::invalid());
+            CHECK(id3 != obj_id_t::invalid());
 
             CHECK(id1 != id2);
             CHECK(id1 != id3);
@@ -45,7 +48,7 @@ SCENARIO("A container to hold objects"){
 
         THEN("The objects can be fetched from the container"){
             auto obj2 = container.fetch(id2);
-            CHECK(obj2->typeID() == cbox::resolveTypeID<LongIntObject>());
+            CHECK(obj2->typeID() == resolveTypeID<LongIntObject>());
             // to be able to compare the value, we first dereference the smart pointer before typecasting
             CHECK(*static_cast<LongIntObject*>(&(*obj2)) == LongIntObject(0x22222222));
         }
@@ -57,47 +60,131 @@ SCENARIO("A container to hold objects"){
         }
 
         THEN("An object can be added with a specific id"){
-            cbox::obj_id_t id4 = container.add(std::make_unique<LongIntObject>(0x33333333), 0xFF, cbox::obj_id_t(123));
+            obj_id_t id4 = container.add(std::make_unique<LongIntObject>(0x33333333), 0xFF, obj_id_t(123));
             CHECK(id4 == 123);
             CHECK(container.fetch(id4) != nullptr);
 
             AND_WHEN("the id already exist, adding fails"){
-                cbox::obj_id_t id5 = container.add(std::make_unique<LongIntObject>(0x33333333), 0xFF, cbox::obj_id_t(123));
-                CHECK(id5 == cbox::obj_id_t::invalid());
+                obj_id_t id5 = container.add(std::make_unique<LongIntObject>(0x33333333), 0xFF, obj_id_t(123));
+                CHECK(id5 == obj_id_t::invalid());
             }
 
             AND_WHEN("replace is used instead of add, it succeeds"){
-                cbox::obj_id_t id6 = container.replace(std::make_unique<LongIntObject>(0x44444444), 0xFF, cbox::obj_id_t(123));
-                CHECK(id6 == cbox::obj_id_t(123));
+                obj_id_t id6 = container.replace(std::make_unique<LongIntObject>(0x44444444), 0xFF, obj_id_t(123));
+                CHECK(id6 == obj_id_t(123));
                 auto obj6 = container.fetch(id6);
                 REQUIRE(obj6 != nullptr);
                 CHECK(*static_cast<LongIntObject*>(&(*obj6)) == LongIntObject(0x44444444));
             }
         }
 
+        THEN("Removing an object that doesn't exist returns false"){
+            CHECK(! container.remove(obj_id_t(10)));
+        }
+
+        THEN("Replacing an object that doesn't exist has no effect and returns invalid id"){
+            CHECK(obj_id_t::invalid() == container.replace(std::make_unique<LongIntObject>(0x33333333), 0xFF, 10));
+            CHECK(container.fetch(obj_id_t(10)) == nullptr);
+        }
+
         THEN("An action can be applied on all contained objects, using map, like printing listing all object ids"){
-            std::vector<cbox::obj_id_t> ids;
-            container.map([&ids] (cbox::ContainedObject & entry){
+            std::vector<obj_id_t> ids;
+            container.map([&ids] (ContainedObject & entry){
                 ids.emplace_back(entry.id);
             });
-            std::vector<cbox::obj_id_t> correct_list = {id1, id2, id3};
+            std::vector<obj_id_t> correct_list = {id1, id2, id3};
             CHECK(ids == correct_list);
         }
 
-
         THEN("An action can be applied on all contained objects, using map, like streaming out all objects"){
             char buf[1000] = {0};
-            cbox::BufferDataOut outBuffer(reinterpret_cast<uint8_t*>(buf), sizeof(buf));
-            cbox::BinaryToHexTextOut out(outBuffer);
-            cbox::StreamResult res;
-            container.mapWhileTrue([&out, &res] (cbox::ContainedObject & entry) -> bool {
+            BufferDataOut outBuffer(reinterpret_cast<uint8_t*>(buf), sizeof(buf));
+            BinaryToHexTextOut out(outBuffer);
+            StreamResult res;
+            container.mapWhileTrue([&out, &res] (ContainedObject & entry) -> bool {
                 out.writeListSeparator();
                 res = entry.streamTo(out);
-                return res == cbox::StreamResult::success;
+                return res == StreamResult::success;
             });
 
             INFO(std::string(buf));
         }
+
+        THEN("An map function that returns a boolean value can break when the result is false"){
+            std::vector<obj_id_t> ids;
+            container.map([&ids, &id2] (ContainedObject & entry) -> bool {
+                if(entry.id == id2){
+                    return false;
+                }
+                ids.emplace_back(entry.id);
+                return true;     
+            });
+            std::vector<obj_id_t> correct_list = {id1};
+            CHECK(ids == correct_list);
+        }
     }
+
+    THEN("Contained objects can be streamed including their ID, profiles and type"){   
+    }
+}
+
+SCENARIO("A container with system objects passed in the initializer list"){
+    using namespace cbox;
+    ObjectContainer objects = {
+        ContainedObject(1, 0xFF, std::make_shared<LongIntObject>(0x11111111)),
+        ContainedObject(2, 0xFF, std::make_shared<LongIntObject>(0x22222222))
+    };
+
+    CHECK(obj_id_t(3) == objects.add(std::make_unique<LongIntObject>(0x33333333), 0xFF)); // will get next free ID (3)
+    CHECK(obj_id_t(4) == objects.add(std::make_unique<LongIntObject>(0x33333333), 0xFF)); // will get next free ID (4)
+
+    THEN("The system objects can be read like normal objects"){
+        uint8_t buf[100] = {0};
+        BufferDataOut out(buf, sizeof(buf));
+        BinaryToHexTextOut hexOut(out);
+
+        objects.fetch(1)->streamTo(hexOut);
+        uint8_t hexRepresentation[] = "11111111";
+        CHECK_THAT(buf, (equalsArray<uint8_t, sizeof(hexRepresentation)>(hexRepresentation)));
+    }
+
+    THEN("The system objects can be read written"){
+        uint8_t buf[] = "44332211"; // LSB first
+        BufferDataIn in(buf, sizeof(buf));
+        HexTextToBinaryIn hexIn(in);
+
+        auto obj = objects.fetch(1);
+        obj->streamFrom(hexIn);
+        CHECK(*static_cast<LongIntObject*>(&(*obj)) == LongIntObject(0x11223344));
+    }
+
+    THEN("The system objects cannot be deleted, but user objects can be deleted"){
+        CHECK(!objects.remove(1));
+        CHECK(objects.fetch(1) != nullptr);
+
+        CHECK(!objects.remove(2));
+        CHECK(objects.fetch(2) != nullptr);
+
+        CHECK(objects.fetch(3) != nullptr);
+        CHECK(objects.remove(3));
+        CHECK(objects.fetch(3) == nullptr);
+    }
+
+    THEN("The system objects cannot be replaced"){
+        CHECK(obj_id_t::invalid() == objects.replace(std::make_unique<LongIntObject>(0x33333333), 0xFF, 1));
+    }
+
+    THEN("Objects added after construction can also be marked system by moving the start ID"){
+        objects.setObjectsStartId(100); // all objects with id  < 100 will now be system objects
+
+        CHECK(!objects.remove(1));
+        CHECK(!objects.remove(2));
+        CHECK(!objects.remove(3));
+        CHECK(!objects.remove(4));
+
+        CHECK(obj_id_t(100) == objects.add(std::make_unique<LongIntObject>(0x33333333), 0xFF)); // will get start ID (100)
+    }
+
+
 }
 

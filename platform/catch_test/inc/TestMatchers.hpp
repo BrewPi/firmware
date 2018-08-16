@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <catch.hpp>
+#include <sstream>
 
 template<typename T, int n>
 class ArrayMatcher : public Catch::MatcherBase<T const*> {
@@ -39,7 +40,7 @@ public:
 // The builder function
 template<typename T, int n>
 inline ArrayMatcher<T, n> equalsArray(const T * target) {
-    return ArrayMatcher<T, n>(*&target);
+    return ArrayMatcher<T, n>(target);
 }
 
 
