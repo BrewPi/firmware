@@ -114,7 +114,6 @@ class ObjectContainer
 private:
     std::vector<ContainedObject> objects;
     obj_id_t startId;
-    obj_id_t nextId;
 
 public:
 
@@ -123,23 +122,20 @@ public:
 
     ObjectContainer() :
         objects(), 
-        startId(obj_id_t::start()), 
-        nextId(obj_id_t::start()) 
+        startId(obj_id_t::start())
     {}
 
     ObjectContainer(std::initializer_list<ContainedObject> systemObjects) : 
         objects(systemObjects),
-        startId(obj_id_t::start()),
-        nextId(obj_id_t::start())
+        startId(obj_id_t::start())
     {
-        setObjectsStartId(freeId()); // set startId to next free ID to lock system objects
-        nextId = startId; // Reset because we're not using the free ID we just got.
+        setObjectsStartId(nextId()); // set startId to next free ID to lock system objects
     }
     virtual ~ObjectContainer() = default;
 
 
 private:
-    auto findContainedObject(const obj_id_t & id) {
+    auto findPosition(const obj_id_t & id) {
         // equal_range is used instead of find, because it is faster for a sorted container
         // the returned pair can be used as follows:
         // first == second means not found, first points to the insert position for the new object id
@@ -167,41 +163,32 @@ public:
      *
      */
     ContainedObject * fetchContainedObject(const obj_id_t id){
-        auto pair = findContainedObject(id);
-        if(pair.first == pair.second){
+        auto p = findPosition(id);
+        if(p.first == p.second){
             return nullptr;
         }
         else{
-            return &(*pair.first);
+            return &(*p.first);
         }
     }
     
     const std::weak_ptr<Object> fetch(const obj_id_t id) {
-        auto pair = findContainedObject(id);
-        if(pair.first != pair.second){
-            return pair.first->object(); // weak_ptr to found object
+        auto p = findPosition(id);
+        if(p.first != p.second){
+            return p.first->object(); // weak_ptr to found object
         }
         return std::weak_ptr<Object>(); // empty weak ptr if not found
     }
 
-    obj_id_t freeId(){
-        if(nextId < startId){
-            nextId = startId;
-        }
-        while(true){
-            auto p = findContainedObject(nextId);
-            if(p.first == p.second){
-                return nextId++; // found free id
-            }
-            ++nextId; // object already exists
-        }
+    obj_id_t nextId() const{
+        return std::max(startId, objects.empty() ? startId : ++obj_id_t(objects.back().id()));
     }
 
     /**
      * set start ID for user objects.
      * ID's smaller than the start ID are  assumed to be system objects and considered undeletable.
      **/
-    void setObjectsStartId(obj_id_t id){
+    void setObjectsStartId(const obj_id_t & id){
         startId = id;
     }
 
@@ -209,20 +196,29 @@ public:
         return add(std::move(obj), active_in_profiles, obj_id_t::invalid());
     }
 
-    obj_id_t add (std::unique_ptr<Object> obj, const uint8_t active_in_profiles, const obj_id_t id) {
-        obj_id_t newId = id;
-        if(newId == obj_id_t::invalid()){ // use 0 to let the container assign a free slot
-            newId = freeId();
+    obj_id_t add (std::unique_ptr<Object> obj, const uint8_t active_in_profiles, const obj_id_t & id) {
+        obj_id_t newId;
+        Iterator insertPosition;
+
+        if(id == obj_id_t::invalid()){ // use 0 to let the container assign a free slot
+            newId = nextId();
+            insertPosition = objects.end();
+        }
+        else {
+			if(id < startId){
+				return obj_id_t::invalid(); // refuse to overwrite system objects
+			}
+        	// find insert position
+			auto p = findPosition(id);
+			if(p.first != p.second){
+				return obj_id_t::invalid(); // refuse to overwrite existing objects
+			}
+        	newId = id;
+        	insertPosition = p.first;
         }
 
-        // find insert position
-        auto p = findContainedObject(newId);
-
-        if(p.first != p.second){
-            return obj_id_t::invalid(); // refuse to overwrite existing objects or in ID range for system
-        }
         // insert new entry in container in sorted position
-        objects.insert(p.first, decltype(objects)::value_type(newId, active_in_profiles, std::move(obj)));
+        objects.emplace(insertPosition, newId, active_in_profiles, std::move(obj));
         return newId;
     }
 
@@ -231,7 +227,7 @@ public:
             return obj_id_t::invalid(); // refuse to replace system objects
         }
         // find existing object
-        auto p = findContainedObject(id);
+        auto p = findPosition(id);
 
         if(p.first != p.second){
             // replace object with newly constructed object
@@ -246,10 +242,9 @@ public:
             return false; // refuse to remove system objects
         }
         // find existing object
-        auto p = findContainedObject(id);
-
+        auto p = findPosition(id);
         objects.erase(p.first, p.second); // doesn't remove anything if no objects found (first == second)
-        return (p.first != p.second);
+        return p.first != p.second;
     }
 
     // only const iterators are exposed. We don't want the caller to be able to modify the container

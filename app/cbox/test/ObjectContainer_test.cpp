@@ -113,6 +113,25 @@ SCENARIO("A container to hold objects"){
             INFO(std::string(buf));
         }
     }
+
+    WHEN("Objects with out of order IDs are added to the container, the container stays sorted by id"){
+    	container.add(std::make_unique<LongIntObject>(0x11111111), 0xFF, 20);
+		container.add(std::make_unique<LongIntObject>(0x22222222), 0xFF, 18);
+		container.add(std::make_unique<LongIntObject>(0x33333333), 0xFF, 23);
+		container.add(std::make_unique<LongIntObject>(0x33333333), 0xFF, 2);
+		container.add(std::make_unique<LongIntObject>(0x33333333), 0xFF, 19);
+		container.add(std::make_unique<LongIntObject>(0x33333333), 0xFF);
+		uint16_t lastId = 0;
+		uint16_t count = 0;
+		for(auto it = container.cbegin(); it != container.cend(); it++){
+			CHECK(it->id() > lastId);
+			INFO(it->id());
+			lastId = it->id();
+			++count;
+		};
+		CHECK(count == 6);
+		CHECK(lastId == 24); // new randomly assigned ID is always highest ID in the system
+    }
 }
 
 SCENARIO("A container with system objects passed in the initializer list"){
@@ -173,7 +192,5 @@ SCENARIO("A container with system objects passed in the initializer list"){
 
         CHECK(obj_id_t(100) == objects.add(std::make_unique<LongIntObject>(0x33333333), 0xFF)); // will get start ID (100)
     }
-
-
 }
 
