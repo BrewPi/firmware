@@ -61,7 +61,7 @@ public:
 
 #define OBJECT_FACTORY_ENTRY(className) {cbox::resolveTypeID<className>(), cbox::createObject<className>}
 
-cbox::ObjectFactory objectFactories[] = {
+cbox::ObjectFactoryEntry objectFactories[] = {
         OBJECT_FACTORY_ENTRY(OneWireTempSensorBlock),
 		OBJECT_FACTORY_ENTRY(SetPointSimpleBlock)
 		//OBJECT_FACTORY_ENTRY(SensorSetPointPairBlock),

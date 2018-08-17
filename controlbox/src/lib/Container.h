@@ -162,7 +162,7 @@ public:
      * @return pointer to the entry.
      *
      */
-    ContainedObject * fetchContainedObject(const obj_id_t id){
+    ContainedObject * fetchContained(const obj_id_t id){
         auto p = findPosition(id);
         if(p.first == p.second){
             return nullptr;
@@ -174,10 +174,10 @@ public:
     
     const std::weak_ptr<Object> fetch(const obj_id_t id) {
         auto p = findPosition(id);
-        if(p.first != p.second){
-            return p.first->object(); // weak_ptr to found object
+        if(p.first == p.second){
+			return std::weak_ptr<Object>(); // empty weak ptr if not found
         }
-        return std::weak_ptr<Object>(); // empty weak ptr if not found
+		return p.first->object(); // weak_ptr to found object
     }
 
     obj_id_t nextId() const{

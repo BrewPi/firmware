@@ -217,20 +217,5 @@ public:
 };
 
 
-template<class T>
-std::shared_ptr<Object> createObject(DataIn & in, StreamResult &streamResult){
-    auto obj = std::make_shared<T>();
-    streamResult = obj->streamFrom(in);
-    return obj;
-}
-
-// An object factory combines the create function with a type ID.
-// They can be put in a container that can be walked to find the matching typeId
-struct ObjectFactory {
-    obj_type_t typeId;
-    std::shared_ptr<Object> (*createFn)(DataIn & defn, StreamResult &streamResult);
-};
-
-
 } // end namespace cbox
 

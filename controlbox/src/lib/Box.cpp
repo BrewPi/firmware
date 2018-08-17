@@ -54,7 +54,7 @@ void Box::readObject(DataIn& in, DataOut& out) {
         status = CommandError::command_parse_error;
     }
     else{
-        cobj = objects.fetchContainedObject(id);
+        cobj = objects.fetchContained(id);
         if(cobj == nullptr){
             status = CommandError::invalid_object_id;
         }
@@ -75,32 +75,34 @@ void Box::createObjectFromStorage(obj_id_t id){
 void Box::writeObject(DataIn& in, DataOut& out) {
     CommandError status = CommandError::no_error;
     obj_id_t id = 0;
-    uint8_t profiles = 0;
-    obj_type_t typeId = 0;
+    ContainedObject * cobj = nullptr;
     if(!in.get(id)){
         status = CommandError::command_parse_error;
     }
-    if(!in.get(profiles)){
-        status = CommandError::command_parse_error;
-    }
-    if(!in.get(typeId)){
-        status = CommandError::command_parse_error;
-    }
-    ContainedObject * cobj = nullptr;
-    if (status == CommandError::no_error) {
-        cobj = objects.fetchContainedObject(id);
+    else {
+    	cobj = objects.fetchContained(id);
         if(cobj == nullptr){
             status = CommandError::invalid_object_id;
         }
         else{          
-            if(cobj->object()->typeID() != typeId){
-                status = CommandError::invalid_type;
+            StreamResult sRes = cobj->streamFrom(in);
+            switch(sRes){
+            case StreamResult::type_mismatch:
+            	status = CommandError::invalid_type;
+            	break;
+            case StreamResult::stream_error:
+            	status = CommandError::stream_error;
+            	break;
+            case StreamResult::success:
+            	status = CommandError::no_error;
+				break;
+            default:
+            	status = CommandError::unknown_error;
             }
         }
     }
     
     in.spool();
-    
     out.writeResponseSeparator();
     out.write(errorCode(status));
     if(cobj != nullptr){
@@ -126,30 +128,22 @@ std::shared_ptr<Object> Commands::createObject(CommandError & err, obj_type_t ty
 /**
  * Creates a new object at a specific location.
  */
-void Box::createObject(DataIn& _in, DataOut& out)
+void Box::createObject(DataIn& in, DataOut& out)
 {
-    /*
-    EepromDataOut& writer = systemProfile.persistence();
-    PipeDataIn in(_in, writer);		// pipe object creation command to eeprom
+	CommandError status = CommandError::no_error;
+	obj_id_t id = 0;
+	uint8_t profiles = 0;
+	obj_type_t objType;
 
-    // todo - streaming the object creation command to eeprom is elegant and simple (little code)
-    // but wasteful of space. Each object definition requires a minimum of 4 bytes overhead:
-    // 0x03 - object creation command
-    // 0xXX+ - container id
-    // 0xTT - object type id - will not need 256 of these, so this is a candidate for combining with the command id
-    // 0xLL - number of data blocks - this could be implicit?
-
-    eptr_t offset = writer.offset();          // save current eeprom pointer - this is where the object definition is written.
-    // write the command id placeholder to eeprom (since that's already been consumed)
-    writer.write(CMD_INVALID);			// value for partial write, will go a back when successfully completed and write this again
-    int8_t error_code = rehydrateObject(offset, in, false);
-    if (!error_code) {
-        eepromAccess.writeByte(offset, CMD_CREATE_OBJECT);	// finalize creation in eeprom
-    }
-    systemProfile.setOpenProfileEnd(writer.offset());	// save end of open profile
-    out.writeResponseSeparator();
-    out.write(uint8_t(error_code));						// status is index it was created at
-    */
+	if(!in.get(id)){
+		status = CommandError::command_parse_error;
+	}
+	if(!in.get(profiles)){
+		status = CommandError::command_parse_error;
+	}
+	if(!in.get(objType)){
+		status = CommandError::command_parse_error;
+	}
 }
 
 /**
