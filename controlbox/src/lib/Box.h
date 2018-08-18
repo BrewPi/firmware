@@ -26,34 +26,10 @@
 #include "DataStream.h"
 #include "DataStreamConverters.h"
 #include "EepromObjectStorage.h"
+#include "CboxError.h"
+#include "ObjectFactory.h"
 
 namespace cbox {
-
-enum class CommandError : uint8_t {
-    no_error = 0,
-    unknown_error = 1,
-    command_parse_error = 2,
-	stream_error = 3,
-    
-    insufficient_persistent_storage = 16,
-    insufficient_heap = 17,
-
-    object_not_writable = 32,
-    object_not_readable = 33,
-    object_not_creatable = 34,
-    object_not_deletable = 35,
-    
-    invalid_command = 63,
-    invalid_parameter = 64,
-    invalid_object_id = 65,
-    invalid_type = 66,
-    invalid_size = 67,
-    invalid_profile = 68,
-};
-
-inline uint8_t errorCode(CommandError e){
-    return static_cast<uint8_t>(e);
-}
 
 class Box
 {
@@ -61,7 +37,8 @@ private:
 	// A single container is used for both system and user objects.
 	// The application can add the system objects first, then set the start ID to a higher value.
 	// The system objects with an ID lower than the start ID cannot be deleted.
-	ObjectContainer& objects;
+    ObjectFactory& factory;
+    ObjectContainer& objects;
 	ObjectStorage& storage;
 	// Commander receives commands from connections in the connection pool and streams back the answer to the same connection
 	ConnectionPool& connections;
@@ -82,8 +59,9 @@ private:
 	void createObjectFromStorage(obj_id_t id);
 
 public:
-	Box(ObjectContainer& _objects, ObjectStorage& _storage, ConnectionPool & _connections) :
-		objects(_objects),
+	Box(ObjectFactory& _factory, ObjectContainer& _objects, ObjectStorage& _storage, ConnectionPool & _connections) :
+	    factory(_factory),
+	    objects(_objects),
 		storage(_storage),
 		connections(_connections)
 	{}

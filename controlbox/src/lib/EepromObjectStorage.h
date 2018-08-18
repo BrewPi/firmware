@@ -49,19 +49,19 @@ public:
     }
     virtual ~EepromObjectStorage() = default;
 
-    virtual StreamResult streamObjectTo(DataOut& out, obj_id_t id) override final {
+    virtual CboxError streamObjectTo(DataOut& out, obj_id_t id) override final {
         RegionDataIn objectData = getObjectReader(id);
         stream_size_t size = objectData.available();
         if(size > 0){
             if(reader.push(out, size)){
-                return StreamResult::success;
+                return CboxError::no_error;
             }
-            return StreamResult::stream_error;
+            return CboxError::output_stream_write_error;
         }
-        return StreamResult::end_of_input;
+        return CboxError::persisted_object_not_found;
     }
 
-    virtual StreamResult streamAllObjectsTo(DataOut& out) override final {
+    virtual CboxError streamAllObjectsTo(DataOut& out) override final {
         reader.reset(EepromLocation(objects), EepromLocationEnd(objects)-EepromLocation(objects));
 
         while(reader.hasNext()){
@@ -69,7 +69,7 @@ public:
             // loop over all blocks and write objects to output stream
             uint16_t blockSize = 0;
             if (!reader.get(blockSize)){
-                return StreamResult::unexpected_end_of_input;
+                return CboxError::could_not_read_persisted_block_size;
             }
 
             bool gotEntireBlock;
@@ -83,31 +83,31 @@ public:
                 gotEntireBlock = reader.spool(blockSize);
                 break;
             default:
-                return StreamResult::unexpected_end_of_input; // unknown block type encountered!
+                return CboxError::invalid_persisted_block_type; // unknown block type encountered!
                 break;
             }
             if(!gotEntireBlock){
-                return StreamResult::unexpected_end_of_input;
+                return CboxError::persisted_block_stream_error;
             }
         }
-        return StreamResult::success;
+        return CboxError::no_error;
     }
 
-    virtual StreamResult retreiveObject(obj_id_t id, Object & target) override final {
+    virtual CboxError retreiveObject(obj_id_t id, Object & target) override final {
         RegionDataIn objectEepromData = getObjectReader(id);
         if(objectEepromData.available() == 0){
-            return cbox::StreamResult::end_of_input;
+            return cbox::CboxError::persisted_object_not_found;
         }
         return target.streamFrom(objectEepromData);
     }
 
-    virtual StreamResult storeObject(obj_id_t id, Object & source) override final {
+    virtual CboxError storeObject(obj_id_t id, Object & source) override final {
         CountingBlackholeDataOut counter;
         RegionDataOut objectEepromData = getObjectWriter(id);
         uint16_t blockSize = objectEepromData.availableForWrite();
 
         TeeDataOut tee(objectEepromData, counter);
-        StreamResult res = source.streamPersistedTo(tee);
+        CboxError res = source.streamPersistedTo(tee);
         if(counter.count() > blockSize){
             // block didn't fit or not found, should allocate a new block
             if(blockSize > 0){
@@ -123,14 +123,14 @@ public:
             if(newObjectEepromData.availableForWrite() < requestedSize){
                 // not enough continuous free space
                 if(freeSpace() < requestedSize){
-                    return StreamResult::end_of_output; // not even enough total free space
+                    return CboxError::insufficient_persistent_storage; // not even enough total free space
                 }
 
                 // if there is enough free space, but it is not continuous, do a defrag to and try again
                 defrag();
                 RegionDataOut newObjectEepromData2 = newObjectWriter(id, requestedSize);
                 if(newObjectEepromData2.availableForWrite() < requestedSize){
-                    return StreamResult::end_of_output; // still not enough free space
+                    return CboxError::insufficient_persistent_storage; // still not enough free space
                 }
                 res = source.streamPersistedTo(newObjectEepromData2);
 

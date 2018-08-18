@@ -54,7 +54,7 @@ public:
      * - cmd 01: reset bus (00 on success, FF on failure)
      * - cmd 02: search bus: a sequence of 0 or more 8-byte addresses, MSB first that were found on the bus
      */
-    virtual cbox::StreamResult streamTo(cbox::DataOut& out) override final{
+    virtual cbox::CboxError streamTo(cbox::DataOut& out) override final{
         blox_OneWireRead message = {0};
         message.lastCommand = command;
         message.address.funcs.encode = nullptr;
@@ -89,12 +89,12 @@ public:
      *   (later: search bus alarm state?)
      *   (later: set bus power? (off if next byte is 00, on if it's 01) )
      */
-    virtual cbox::StreamResult streamFrom(cbox::DataIn& dataIn) override final{
+    virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final{
         blox_OneWireCommand message;
 
-        cbox::StreamResult res = streamProtoFrom(dataIn, &message, blox_OneWireCommand_fields, blox_OneWireCommand_size);
+        cbox::CboxError res = streamProtoFrom(dataIn, &message, blox_OneWireCommand_fields, blox_OneWireCommand_size);
         /* if no errors occur, write new settings to wrapped object */
-        if(res == cbox::StreamResult::success){
+        if(res == cbox::CboxError::no_error){
             command = message;
         }
         return res;

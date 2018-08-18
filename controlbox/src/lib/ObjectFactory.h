@@ -18,6 +18,8 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 #include "Object.h"
 #include <memory>
 #include <array>
@@ -25,7 +27,7 @@
 
 namespace cbox {
 
-std::unique_ptr<cbox::Object> createApplicationObject(cbox::obj_type_t typeId, cbox::DataIn& in, cbox::CommandError& errorCode);
+std::unique_ptr<Object> createApplicationObject(obj_type_t typeId, DataIn& in, CboxError& errorCode);
 
 template<class T>
 std::unique_ptr<Object> createObject(){
@@ -39,25 +41,43 @@ struct ObjectFactoryEntry {
     std::unique_ptr<Object> (*createFn)();
 };
 
-template<int n>
 class ObjectFactory {
 private:
-	const std::array<ObjectFactoryEntry, n> objTypes;
+	const std::vector<ObjectFactoryEntry> objTypes;
 
 public:
-
-	constexpr ObjectFactory(ObjectFactoryEntry (&userObjectFactoryEntries)[n]) :
-		objTypes(userObjectFactoryEntries)
+	ObjectFactory(std::initializer_list<ObjectFactoryEntry> _objTypes) :
+		objTypes(_objTypes)
 	{
 	}
 
-	std::unique_ptr<Object> create(obj_type_t t){
-		auto factoryEntry = std::find_if(objTypes.begin(), objTypes.end(), [&t](ObjectFactoryEntry & entry){ return entry.typeId == t;});
+	std::unique_ptr<Object> create(const obj_type_t & t, CboxError& errorCode){
+	    std::unique_ptr<Object> obj;
+	    errorCode = CboxError::no_error;
+
+	    auto factoryEntry = std::find_if(objTypes.begin(), objTypes.end(), [&t](const ObjectFactoryEntry & entry){ return entry.typeId == t;});
 		if(factoryEntry == objTypes.end()){
-			return nullptr;
+		    errorCode = CboxError::invalid_object_type;
 		}
-		return (*factoryEntry).createFn();
+		else {
+		    obj = (*factoryEntry).createFn();
+            if(!obj){
+                errorCode = CboxError::insufficient_heap;
+            }
+		}
+		return obj;
 	}
 };
+
+
+/* macro to help define the object factory, use like this:
+
+ObjectFactory objectFactory = {
+        OBJECT_FACTORY_ENTRY(Class1),
+        OBJECT_FACTORY_ENTRY(Class2)
+};
+
+*/
+#define OBJECT_FACTORY_ENTRY(className) {cbox::resolveTypeID<className>(), cbox::createObject<className>}
 
 } // end namespace cbox

@@ -25,21 +25,9 @@
 #include <memory>
 #include "DataStream.h"
 #include "CboxMixins.h"
+#include "CboxError.h"
 
 namespace cbox {
-
-enum class StreamResult {
-    success,
-    not_persisted,
-    generic_error,
-    not_writable,
-    stream_error,
-    unexpected_end_of_input,
-    unexpected_end_of_output,
-    end_of_input,
-    end_of_output,
-    type_mismatch
-};
 
 class obj_type_t {
 public:
@@ -130,19 +118,19 @@ public:
 	/**
 	 * Each object is at least stream readable
 	 */
-	virtual StreamResult streamTo(DataOut& out) = 0;
+	virtual CboxError streamTo(DataOut& out) = 0;
 
     /**
      * Some objects can be writable from the stream, they override the streamFrom function
      */
-    virtual StreamResult streamFrom(DataIn& in){
-        return StreamResult::not_writable;
+    virtual CboxError streamFrom(DataIn& in){
+        return CboxError::object_not_writable;
     };
 
     /**
      * Default to persisting the same data as streamTo. Objects that only want to persist some data can override this
      */
-    virtual StreamResult streamPersistedTo(DataOut& out) {
+    virtual CboxError streamPersistedTo(DataOut& out) {
         return streamTo(out);
     }
 };
@@ -159,9 +147,13 @@ public:
 
     virtual obj_type_t typeID() override final;
 
-    virtual StreamResult streamTo(DataOut& out) override final {
+    virtual CboxError streamTo(DataOut& out) override final {
         out.write(actualType);
-        return StreamResult::success;
+        return CboxError::no_error;
+    }
+
+    virtual CboxError streamPersistedTo(DataOut& out) override final {
+        return CboxError::no_error; // inactive objects are never persisted
     }
 
     obj_type_t actualType;
@@ -178,9 +170,11 @@ public:
     RawStreamObject(T data) : obj(data){};
     virtual ~RawStreamObject() = default;
 
-    virtual StreamResult streamTo(DataOut& out) override final {
-        out.put(obj);
-        return StreamResult::success;
+    virtual CboxError streamTo(DataOut& out) override final {
+        if(out.put(obj)){
+            return CboxError::no_error;
+        }
+        return CboxError::output_stream_write_error;
     }
 
     operator T(){
@@ -203,15 +197,15 @@ public:
 
     virtual ~RawStreamWritableObject() = default;
 
-    virtual StreamResult streamFrom(DataIn& in) override final {
+    virtual CboxError streamFrom(DataIn& in) override final {
         T newValue;
         if(in.get(newValue)){
             this->obj = newValue;
-            return StreamResult::success;
+            return CboxError::no_error;
         }
-        return StreamResult::stream_error;
+        return CboxError::input_stream_read_error;
     }
-    virtual StreamResult streamPersistedTo(DataOut& out) override final {
+    virtual CboxError streamPersistedTo(DataOut& out) override final {
         return RawStreamObject<T>::streamTo(out);
     }
 };

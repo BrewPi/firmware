@@ -23,6 +23,7 @@
 #include "Container.h"
 #include "DataStream.h"
 #include "DataStreamConverters.h"
+#include "CboxError.h"
 
 namespace cbox {
 
@@ -33,7 +34,7 @@ void Box::noop(DataIn& in, DataOut& out)
 {
     in.spool();
     out.writeResponseSeparator();
-    out.write(errorCode(CommandError::no_error));       // success
+    out.write(asUint8(CboxError::no_error));
 }
 
 /**
@@ -43,27 +44,27 @@ void Box::invalidCommand(DataIn& in, DataOut& out)
 {
     in.spool();
     out.writeResponseSeparator();
-    out.write(errorCode(CommandError::invalid_command));
+    out.write(asUint8(CboxError::invalid_command));
 }
 
 void Box::readObject(DataIn& in, DataOut& out) {
-    CommandError status = CommandError::no_error;
+    CboxError status = CboxError::no_error;
     obj_id_t id = 0;
     ContainedObject * cobj = nullptr;
     if(!in.get(id)){
-        status = CommandError::command_parse_error;
+        status = CboxError::input_stream_read_error;
     }
     else{
         cobj = objects.fetchContained(id);
         if(cobj == nullptr){
-            status = CommandError::invalid_object_id;
+            status = CboxError::invalid_object_id;
         }
     }
     out.writeResponseSeparator();
-    out.write(errorCode(status));
-    if (status == CommandError::no_error) {
+    out.write(asUint8(status));
+    if (status == CboxError::no_error) {
         // stream object as id, profiles, typeId, data
-        StreamResult result = cobj->streamTo(out);
+        CboxError result = cobj->streamTo(out);
         // todo handle result
     }
 }
@@ -73,38 +74,25 @@ void Box::createObjectFromStorage(obj_id_t id){
 }
 
 void Box::writeObject(DataIn& in, DataOut& out) {
-    CommandError status = CommandError::no_error;
+    CboxError status = CboxError::no_error;
     obj_id_t id = 0;
     ContainedObject * cobj = nullptr;
     if(!in.get(id)){
-        status = CommandError::command_parse_error;
+        status = CboxError::input_stream_read_error;
     }
     else {
     	cobj = objects.fetchContained(id);
         if(cobj == nullptr){
-            status = CommandError::invalid_object_id;
+            status = CboxError::invalid_object_id;
         }
         else{          
-            StreamResult sRes = cobj->streamFrom(in);
-            switch(sRes){
-            case StreamResult::type_mismatch:
-            	status = CommandError::invalid_type;
-            	break;
-            case StreamResult::stream_error:
-            	status = CommandError::stream_error;
-            	break;
-            case StreamResult::success:
-            	status = CommandError::no_error;
-				break;
-            default:
-            	status = CommandError::unknown_error;
-            }
+            status = cobj->streamFrom(in);
         }
     }
     
     in.spool();
     out.writeResponseSeparator();
-    out.write(errorCode(status));
+    out.write(asUint8(status));
     if(cobj != nullptr){
         cobj->streamTo(out);
     }
@@ -112,7 +100,7 @@ void Box::writeObject(DataIn& in, DataOut& out) {
 
 
 /*
-std::shared_ptr<Object> Commands::createObject(CommandError & err, obj_type_t type, RegionDataIn& in, bool dryRun)
+std::shared_ptr<Object> Commands::createObject(CboxError & err, obj_type_t type, RegionDataIn& in, bool dryRun)
 {
     auto obj = createApplicationObject(err, in, dryRun);			// read the type and create args
     if (!error) {
@@ -130,20 +118,22 @@ std::shared_ptr<Object> Commands::createObject(CommandError & err, obj_type_t ty
  */
 void Box::createObject(DataIn& in, DataOut& out)
 {
-	CommandError status = CommandError::no_error;
-	obj_id_t id = 0;
+	CboxError status = CboxError::no_error;
+    obj_id_t id = 0;
 	uint8_t profiles = 0;
 	obj_type_t objType;
 
 	if(!in.get(id)){
-		status = CommandError::command_parse_error;
+	    status = CboxError::input_stream_read_error;
 	}
 	if(!in.get(profiles)){
-		status = CommandError::command_parse_error;
+	    status = CboxError::input_stream_read_error;
 	}
 	if(!in.get(objType)){
-		status = CommandError::command_parse_error;
+	    status = CboxError::input_stream_read_error;
 	}
+
+	// TODO actually create object!
 }
 
 /**

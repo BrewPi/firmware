@@ -17,18 +17,18 @@ private:
 public:
     OneWireTempSensorBlock() : sensor(&oneWireBus){}
 
-    virtual cbox::StreamResult streamFrom(cbox::DataIn& in) override final{
+    virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final{
         blox_OneWireTempSensor newData;
-        cbox::StreamResult res = streamProtoFrom(in, &newData, blox_OneWireTempSensor_fields, blox_OneWireTempSensor_size);
+        cbox::CboxError res = streamProtoFrom(in, &newData, blox_OneWireTempSensor_fields, blox_OneWireTempSensor_size);
         /* if no errors occur, write new settings to wrapped object */
-        if(res == cbox::StreamResult::success){
+        if(res == cbox::CboxError::no_error){
         	sensor.setAddress(newData.address);
         	sensor.setCalibration(temp_t::raw(newData.offset));
         }
         return res;
     }
 
-    virtual cbox::StreamResult streamTo(cbox::DataOut& out) override final {
+    virtual cbox::CboxError streamTo(cbox::DataOut& out) override final {
         blox_OneWireTempSensor message;
         message.address = sensor.getAddress();
         message.offset = sensor.getCalibration().getRaw();

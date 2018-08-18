@@ -30,30 +30,30 @@ public:
         return cbox::resolveTypeID(this);
     }
 
-    virtual cbox::StreamResult streamTo(cbox::DataOut& out) override final {
-        cbox::StreamResult res = cbox::StreamResult::success;
+    virtual cbox::CboxError streamTo(cbox::DataOut& out) override final {
+        cbox::CboxError res = cbox::CboxError::no_error;
         if(!out.put(values.size())){ // first write number of elements
-            return cbox::StreamResult::stream_error;
+            return cbox::CboxError::output_stream_write_error;
         }
         for(auto & value : values){
             res = value.streamTo(out);
-            if(res != cbox::StreamResult::success){
+            if(res != cbox::CboxError::no_error){
                 break;
             }
         }
         return res;
     }
 
-    virtual cbox::StreamResult streamFrom(cbox::DataIn& in) override final {
-        cbox::StreamResult res = cbox::StreamResult::success;
+    virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final {
+        cbox::CboxError res = cbox::CboxError::no_error;
         decltype(values)::size_type newSize = 0;
         if(!in.get(newSize)){
-            return cbox::StreamResult::stream_error;
+            return cbox::CboxError::input_stream_read_error;
         }
         values.resize(newSize);
         for(auto & value : values){
             res = value.streamFrom(in);
-            if(res != cbox::StreamResult::success){
+            if(res != cbox::CboxError::no_error){
                 break;
             }
         }

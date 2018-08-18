@@ -67,27 +67,28 @@ public:
 
 	ticks_seconds_t seconds() { return millis()/1000; }
 
-	virtual StreamResult streamTo(DataOut& out) override {
+	virtual CboxError streamTo(DataOut& out) override {
 		ticks_millis_t timeVal = millis(base.millis());
 		out.put(timeVal);
 		out.put(scale);
-		return StreamResult::success;
+		return CboxError::no_error;
 	}
 
-	virtual StreamResult streamFrom(DataIn& in) override {
+	virtual CboxError streamFrom(DataIn& in) override {
 		ticks_millis_t newLogicalStart;
 		uint16_t newScale;
-		bool success = in.get(newLogicalStart);
-		success &= in.get(newScale);
 
-		if(!success){
-		    return StreamResult::stream_error;
+		if(!in.get(newLogicalStart)){
+		    return CboxError::input_stream_read_error;
 		}
+        if(!in.get(newScale)){
+            return CboxError::input_stream_read_error;
+        }
 
 		logicalStart = newLogicalStart; // store what the scaled time was at the time of write
 		timerStart = base.millis(); // store the base time at the time of write
 		scale = newScale;
-		return StreamResult::success;
+		return CboxError::no_error;
 	}
 
 	// return time that has passed since timeStamp, take overflow into account

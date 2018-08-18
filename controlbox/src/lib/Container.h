@@ -54,52 +54,49 @@ public:
         return _obj;
     }
 
-    StreamResult streamTo(DataOut & out) const {
-        bool success = out.put(_id);
-        success &= out.put(_profiles);
-        success &= out.put(_obj->typeID());
-        if(success){
-            return _obj->streamTo(out);
+    CboxError streamTo(DataOut & out) const {
+        if(!out.put(_id)){
+            return CboxError::output_stream_write_error;
         }
-        else{
-            return StreamResult::stream_error;
+        if(!out.put(_profiles)){
+            return CboxError::output_stream_write_error;
         }
+        if(!out.put(_obj->typeID())){
+            return CboxError::output_stream_write_error;
+        }
+        return _obj->streamTo(out);
     }
 
-    StreamResult streamFrom(DataIn & in){
-        bool success = true;
+    CboxError streamFrom(DataIn & in){
         // id is not streamed in. It is immutable and assumed to be already read to find this entry
 
-        uint8_t newProfiles = _profiles;
-        obj_type_t expectedType{0};
-        success &= in.get(newProfiles);
-        success &= in.get(expectedType);
+        uint8_t newProfiles;
+        obj_type_t expectedType;
+        if(!in.get(newProfiles)){
+            return CboxError::input_stream_read_error;
+        }
+        if(!in.get(expectedType)){
+            return CboxError::input_stream_read_error;
+        }
 
-        if(success){
-            if(expectedType == _obj->typeID()){
-                _profiles = newProfiles;
-                return _obj->streamFrom(in);
-            }
-            return StreamResult::type_mismatch;
+        if(expectedType == _obj->typeID()){
+            _profiles = newProfiles;
+            return _obj->streamFrom(in);
         }
-        else{
-            return StreamResult::stream_error;
-        }
+        return CboxError::invalid_object_type;
     }
 
-    StreamResult streamPersistedTo(DataOut& out) const {
+    CboxError streamPersistedTo(DataOut& out) const {
         if(_obj->typeID() == resolveTypeID<InactiveObject>()){
-            return StreamResult::not_persisted; // don't persist inactive objects
+            return CboxError::no_error; // don't persist inactive objects
         }
-        bool success = true;
-        success &= out.put(_profiles);
-        success &= out.put(_obj->typeID());
-        if(success){
-            return _obj->streamPersistedTo(out);
+        if(!out.put(_profiles)){
+            return CboxError::persisted_storage_write_error;
         }
-        else{
-            return StreamResult::stream_error;
+        if(!out.put(_obj->typeID())){
+            return CboxError::persisted_storage_write_error;
         }
+        return _obj->streamPersistedTo(out);
     }
 };
 /*

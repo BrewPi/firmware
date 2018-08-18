@@ -24,6 +24,8 @@
 #include "Object.h"
 #include "Container.h"
 #include "Box.h"
+#include "ObjectFactory.h"
+#include "Connections.h"
 
 #include "blox/OneWireTempSensorBlock.h"
 //#include "blox/PidBlock.h"
@@ -59,9 +61,7 @@ public:
 };
 
 
-#define OBJECT_FACTORY_ENTRY(className) {cbox::resolveTypeID<className>(), cbox::createObject<className>}
-
-cbox::ObjectFactoryEntry objectFactories[] = {
+cbox::ObjectFactory objectFactory = {
         OBJECT_FACTORY_ENTRY(OneWireTempSensorBlock),
 		OBJECT_FACTORY_ENTRY(SetPointSimpleBlock)
 		//OBJECT_FACTORY_ENTRY(SensorSetPointPairBlock),
@@ -87,35 +87,5 @@ cbox::EepromObjectStorage objectStore(eeprom);
 
 cbox::ConnectionPool connections = {};
 
-cbox::Box appBox(objects, objectStore, connections);
+cbox::Box appBox(objectFactory, objects, objectStore, connections);
 
-/**
- * The application supplied object factory.
- */
-std::shared_ptr<cbox::Object> createApplicationObject(cbox::obj_type_t typeId, cbox::DataIn& in, cbox::CommandError& errorCode)
-{
-    errorCode = cbox::CommandError::no_error;
-    std::shared_ptr<cbox::Object> obj;
-    std::shared_ptr<cbox::Object> (*createFn)(cbox::DataIn& def, cbox::StreamResult &streamResult) = nullptr;
-    for(uint8_t i =0; i<sizeof(objectFactories)/sizeof(objectFactories[0]); i++) {
-    	if(typeId == objectFactories[i].typeId) {
-    		createFn = objectFactories[i].createFn;
-    	}
-    }
-    if(createFn == nullptr){
-        errorCode = cbox::CommandError::invalid_type;
-    }
-    else {
-        cbox::StreamResult streamResult;
-        obj = createFn(in, streamResult);
-        if (obj == nullptr) {
-            errorCode = cbox::CommandError::insufficient_heap;
-        }
-        else if ( streamResult != cbox::StreamResult::success){
-            errorCode = cbox::CommandError::stream_error;
-            return nullptr;
-        }
-
-    }
-    return obj;
-}

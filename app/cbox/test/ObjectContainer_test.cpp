@@ -101,14 +101,14 @@ SCENARIO("A container to hold objects"){
             char buf[1000] = {0};
             BufferDataOut outBuffer(reinterpret_cast<uint8_t*>(buf), sizeof(buf));
             BinaryToHexTextOut out(outBuffer);
-            StreamResult res = StreamResult::success;
+            CboxError res = CboxError::no_error;
 
-            for(auto it = container.cbegin(); it != container.cend() && res == StreamResult::success; it++){
+            for(auto it = container.cbegin(); it != container.cend() && res == CboxError::no_error; it++){
                 out.writeListSeparator();
                 res = it->streamTo(out);
             }
 
-            CHECK(res == StreamResult::success);
+            CHECK(res == CboxError::no_error);
 
             INFO(std::string(buf));
         }
