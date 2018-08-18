@@ -32,19 +32,19 @@ SCENARIO("An object can be created by an ObjectFactory by resolving the type id"
         OBJECT_FACTORY_ENTRY(LongIntVectorObject)
     };
 
-    const obj_type_t longIntType = resolveTypeID<LongIntObject>();
-    const obj_type_t longIntVectorType = resolveTypeID<LongIntVectorObject>();
+    const obj_type_t longIntType = resolveTypeId<LongIntObject>();
+    const obj_type_t longIntVectorType = resolveTypeId<LongIntVectorObject>();
 
     WHEN("The factory is given a valid type ID, the object with type ID is created"){
         CboxError status1 = CboxError::unknown_error;
         auto obj1 = factory.create(longIntType, status1);
         CHECK(status1 == CboxError::no_error);
-        CHECK(obj1->typeID() == longIntType);
+        CHECK(obj1->typeId() == longIntType);
 
         CboxError status2 = CboxError::unknown_error;
         auto obj2 = factory.create(longIntVectorType, status2);
         CHECK(status2 == CboxError::no_error);
-        CHECK(obj2->typeID() == longIntVectorType);
+        CHECK(obj2->typeId() == longIntVectorType);
     }
 
     WHEN("The factory is given an invalid type ID, nullptr is returned with status invalid_object_type"){

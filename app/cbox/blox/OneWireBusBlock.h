@@ -11,7 +11,7 @@ class OneWireBusBlock: public cbox::Object { // not a block type, because it doe
 private:
     OneWire& bus;
 
-    _blox_OneWireCommand command;
+    mutable _blox_OneWireCommand command; // declared mutable so const streamTo functions can reset it
 
     static const uint8_t NO_OP = 0;
     static const uint8_t RESET = 1;
@@ -54,7 +54,7 @@ public:
      * - cmd 01: reset bus (00 on success, FF on failure)
      * - cmd 02: search bus: a sequence of 0 or more 8-byte addresses, MSB first that were found on the bus
      */
-    virtual cbox::CboxError streamTo(cbox::DataOut& out) override final{
+    virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final{
         blox_OneWireRead message = {0};
         message.lastCommand = command;
         message.address.funcs.encode = nullptr;
@@ -100,7 +100,7 @@ public:
         return res;
     }
 
-    virtual cbox::obj_type_t typeID() override {
-        return resolveTypeID(this);
+    virtual cbox::obj_type_t typeId() const override final {
+        return resolveTypeId(this);
     }
 };

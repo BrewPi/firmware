@@ -91,10 +91,10 @@ public:
 	void setCalibration(temp_t const& calib){
         calibrationOffset = calib;
     }
-    OneWireAddress getAddress(){
+    OneWireAddress getAddress() const {
         return sensorAddress;
     }
-    temp_t getCalibration(){
+    temp_t getCalibration() const {
         return calibrationOffset;
     }
 

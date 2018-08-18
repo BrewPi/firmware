@@ -23,8 +23,8 @@
 
 namespace cbox {
 
-obj_type_t InactiveObject::typeID(){
-    return resolveTypeID<InactiveObject>();
+obj_type_t InactiveObject::typeId() const {
+    return resolveTypeId<InactiveObject>();
 }
 
 }

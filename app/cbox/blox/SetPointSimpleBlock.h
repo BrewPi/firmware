@@ -22,7 +22,7 @@ public:
         return result;
     }
 
-    virtual cbox::CboxError streamTo(cbox::DataOut& out) override final {
+    virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final {
         blox_SetPointSimple message;
         message.setting = setpoint.read().getRaw();
 
@@ -38,7 +38,7 @@ public:
     }
 
 
-    virtual cbox::obj_type_t typeID() override {
-    	return resolveTypeID(this);
+    virtual cbox::obj_type_t typeId() const override final {
+    	return resolveTypeId(this);
     }
 };

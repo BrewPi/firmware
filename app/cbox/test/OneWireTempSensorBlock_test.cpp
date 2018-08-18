@@ -89,7 +89,7 @@ SCENARIO("Create blox OneWireTempSensor application object from definition"){
         CHECK(res == CboxError::no_error);
 
         BufferDataIn in(buffer1, sizeof(buffer1));
-        obj_type_t typeId = resolveTypeID<OneWireTempSensorBlock>();
+        obj_type_t typeId = resolveTypeId<OneWireTempSensorBlock>();
 
         WHEN("an application object is created form the definition"){
 
@@ -135,7 +135,7 @@ SCENARIO("Send an invalid protobuf creation command"){
         uint8_t wrong_defition[] = "\x0c\n\n\n\x08(\x9el\xff\x08\x00\x00B";
 
         BufferDataIn in(wrong_defition, sizeof(wrong_defition));
-        obj_type_t typeId = resolveTypeID<OneWireTempSensorBlock>();
+        obj_type_t typeId = resolveTypeId<OneWireTempSensorBlock>();
 
         CboxError err;
         std::shared_ptr<Object> obj = createApplicationObject(typeId, in, err);

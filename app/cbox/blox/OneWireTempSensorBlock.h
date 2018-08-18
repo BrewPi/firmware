@@ -28,7 +28,7 @@ public:
         return res;
     }
 
-    virtual cbox::CboxError streamTo(cbox::DataOut& out) override final {
+    virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final {
         blox_OneWireTempSensor message;
         message.address = sensor.getAddress();
         message.offset = sensor.getCalibration().getRaw();
@@ -45,9 +45,9 @@ public:
         return &sensor;
     }
 
-    virtual cbox::obj_type_t typeID() override {
+    virtual cbox::obj_type_t typeId() const override final {
     	// use function overloading and templates to manage type IDs in a central place (AppTypeRegistry)
-    	return resolveTypeID(this);
+    	return resolveTypeId(this);
     }
 };
 

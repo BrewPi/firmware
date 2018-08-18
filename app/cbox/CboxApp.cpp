@@ -54,9 +54,9 @@ public:
 #endif
 	}
 
-	virtual cbox::obj_type_t typeID() override final{
+	virtual cbox::obj_type_t typeId() const override final{
 		// use function overloading and templates to manage type IDs in a central place (TypeRegistry)
-		return cbox::resolveTypeID(this);
+		return cbox::resolveTypeId(this);
 	}
 };
 

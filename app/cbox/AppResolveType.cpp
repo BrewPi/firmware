@@ -23,32 +23,9 @@
 
 #include "ResolveType.h"
 
-class OneWireBusBlock;
-namespace cbox {
-	template<> obj_type_t resolveTypeID<OneWireBusBlock>(){ return  256; }
-}
-
-class OneWireTempSensorBlock;
-namespace cbox {
-	template<> obj_type_t resolveTypeID<OneWireTempSensorBlock>(){ return  257; }
-}
-
-class PidBlock;
-namespace cbox {
-	template<> obj_type_t resolveTypeID<PidBlock>(){ return  258; }
-}
-
-class SensorSetPointPairBlock;
-namespace cbox {
-	template<> obj_type_t resolveTypeID<SensorSetPointPairBlock>(){ return  259; }
-}
-
-class SetPointSimpleBlock;
-namespace cbox {
-	template<> obj_type_t resolveTypeID<SetPointSimpleBlock>(){ return  260; }
-}
-
-class DeviceIdObject;
-namespace cbox {
-	template<> obj_type_t resolveTypeID<DeviceIdObject>(){ return  261; }
-}
+SET_TYPE_ID(OneWireBusBlock, 256);
+SET_TYPE_ID(OneWireTempSensorBlock, 257);
+SET_TYPE_ID(PidBlock, 258);
+SET_TYPE_ID(SensorSetPointPairBlock, 259);
+SET_TYPE_ID(SetPointSimpleBlock, 260);
+SET_TYPE_ID(DeviceIdObject,261);

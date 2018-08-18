@@ -102,7 +102,7 @@ public:
 
     virtual cbox::obj_type_t typeID() override {
     	// use function overloading and templates to manage type IDs in a central place (AppTypeRegistry)
-    	return resolveTypeID(this);
+    	return resolveTypeId(this);
     }
 };
 

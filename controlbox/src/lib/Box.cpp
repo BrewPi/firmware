@@ -68,10 +68,12 @@ void Box::readObject(DataIn& in, DataOut& out) {
         // todo handle result
     }
 }
-
-void Box::createObjectFromStorage(obj_id_t id){
+/*
+ContainedObject Box::createObjectFromStorage(const obj_id_t & id){
+    ContainedObject obj(id, 0x00, nullptr);
+    storage.retreiveObject()
     
-}
+}*/
 
 void Box::writeObject(DataIn& in, DataOut& out) {
     CboxError status = CboxError::no_error;

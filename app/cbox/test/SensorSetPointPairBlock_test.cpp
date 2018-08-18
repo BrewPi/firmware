@@ -92,7 +92,7 @@ SCENARIO("Create blox SensorSetPointPair application object from definition"){
 
         cbox::BufferDataIn in(buffer1);
         uint8_t len = SensorSetPointPairBlock::persistedMaxSize();
-        cbox::obj_type_t typeId = cbox::resolveTypeID<SensorSetPointPairBlock>();
+        cbox::obj_type_t typeId = cbox::resolveTypeId<SensorSetPointPairBlock>();
 
         cbox::ObjectDefinition dfn = {&in, len, typeId};
 

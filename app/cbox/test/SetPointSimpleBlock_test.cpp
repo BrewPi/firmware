@@ -91,7 +91,7 @@ SCENARIO("Create blox SetPointSimple application object from definition"){
         CHECK(res == CboxError::no_error);
 
         BufferDataIn in(buffer1, sizeof(buffer1));
-        obj_type_t typeId = resolveTypeID<SetPointSimpleBlock>();
+        obj_type_t typeId = resolveTypeId<SetPointSimpleBlock>();
         CboxError er;
 
         WHEN("an application object is created form the definition"){

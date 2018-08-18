@@ -4,12 +4,9 @@
 
 namespace cbox {
 
-class InactiveObject;
-template<> obj_type_t resolveTypeID<InactiveObject>(){ return  1; }
-
-class CurrentTicksValue;
-template<> obj_type_t resolveTypeID<CurrentTicksValue>(){ return  10; }
-
+SET_SYSTEM_TYPE_ID(InactiveObject, 1);
+SET_SYSTEM_TYPE_ID(ContainedObject, 2);
+SET_SYSTEM_TYPE_ID(CurrentTicksValue, 10);
 // Templated scaled ticks value: 11
 
 } // end namespace cbox

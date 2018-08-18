@@ -8,9 +8,9 @@ class LongIntObject : public cbox::RawStreamWritableObject<uint32_t> {
 public:
     using cbox::RawStreamWritableObject<uint32_t>::RawStreamWritableObject;
 
-    virtual cbox::obj_type_t typeID() override final {
+    virtual cbox::obj_type_t typeId() const override final {
         // use function overloading and templates to manage type IDs in a central place (ResolveType.cpp)
-        return cbox::resolveTypeID(this);
+        return cbox::resolveTypeId(this);
     }
 
     bool operator==(const LongIntObject & rhs) const {
@@ -25,12 +25,12 @@ public:
     LongIntVectorObject() : values(){}
     LongIntVectorObject(std::initializer_list<LongIntObject> l) : values(l){}
 
-    virtual cbox::obj_type_t typeID() override final {
+    virtual cbox::obj_type_t typeId() const override final {
         // use function overloading and templates to manage type IDs in a central place (ResolveType.cpp)
-        return cbox::resolveTypeID(this);
+        return cbox::resolveTypeId(this);
     }
 
-    virtual cbox::CboxError streamTo(cbox::DataOut& out) override final {
+    virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final {
         cbox::CboxError res = cbox::CboxError::no_error;
         if(!out.put(values.size())){ // first write number of elements
             return cbox::CboxError::output_stream_write_error;

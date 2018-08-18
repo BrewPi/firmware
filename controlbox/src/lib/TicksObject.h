@@ -55,26 +55,26 @@ class ScaledTicksValue : public Object
 public:
 	ScaledTicksValue(T& _base) : logicalStart(0), timerStart(0), scale(1), base(_base){}
 
-	ticks_millis_t millis() {
+	ticks_millis_t millis() const {
 		uint32_t now_offset = base.millis()-timerStart;
 		return logicalStart + (now_offset*scale);
 	}
 
-	ticks_millis_t millis(ticks_millis_t currentTime) {
+	ticks_millis_t millis(ticks_millis_t currentTime) const {
 		uint32_t now_offset = currentTime-timerStart;
 		return logicalStart + (now_offset*scale);
 	}
 
-	ticks_seconds_t seconds() { return millis()/1000; }
+	ticks_seconds_t seconds() const { return millis()/1000; }
 
-	virtual CboxError streamTo(DataOut& out) override {
+	virtual CboxError streamTo(DataOut& out) const override final {
 		ticks_millis_t timeVal = millis(base.millis());
 		out.put(timeVal);
 		out.put(scale);
 		return CboxError::no_error;
 	}
 
-	virtual CboxError streamFrom(DataIn& in) override {
+	virtual CboxError streamFrom(DataIn& in) override final {
 		ticks_millis_t newLogicalStart;
 		uint16_t newScale;
 
@@ -92,12 +92,12 @@ public:
 	}
 
 	// return time that has passed since timeStamp, take overflow into account
-	ticks_seconds_t timeSinceSeconds(ticks_seconds_t previousTime) {
+	ticks_seconds_t timeSinceSeconds(ticks_seconds_t previousTime) const {
 		ticks_seconds_t currentTime = seconds();
 		return timeSince(currentTime, previousTime);
 	}
 
-	virtual obj_type_t typeID() override {
+	virtual obj_type_t typeId() const override final {
 		// use function overloading and templates to manage type IDs in a central place (TypeRegistry)
 		return 11;
 	}

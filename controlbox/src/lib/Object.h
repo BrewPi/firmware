@@ -108,7 +108,7 @@ public:
 	/**
 	 * The application defined typeID for this object instance. Defined by derived class
 	 */
-	virtual obj_type_t typeID() = 0;
+	virtual obj_type_t typeId() const = 0;
 
 	/**
 	 * update the object, returns timestamp at which it wants to be updated again (in ms since boot).
@@ -118,7 +118,7 @@ public:
 	/**
 	 * Each object is at least stream readable
 	 */
-	virtual CboxError streamTo(DataOut& out) = 0;
+	virtual CboxError streamTo(DataOut& out) const = 0;
 
     /**
      * Some objects can be writable from the stream, they override the streamFrom function
@@ -130,7 +130,7 @@ public:
     /**
      * Default to persisting the same data as streamTo. Objects that only want to persist some data can override this
      */
-    virtual CboxError streamPersistedTo(DataOut& out) {
+    virtual CboxError streamPersistedTo(DataOut& out) const {
         return streamTo(out);
     }
 };
@@ -145,14 +145,14 @@ public:
     InactiveObject(obj_type_t type) : actualType(type){};
     virtual ~InactiveObject() = default;
 
-    virtual obj_type_t typeID() override final;
+    virtual obj_type_t typeId() const override final;
 
-    virtual CboxError streamTo(DataOut& out) override final {
+    virtual CboxError streamTo(DataOut& out) const override final {
         out.write(actualType);
         return CboxError::no_error;
     }
 
-    virtual CboxError streamPersistedTo(DataOut& out) override final {
+    virtual CboxError streamPersistedTo(DataOut& out) const override final {
         return CboxError::no_error; // inactive objects are never persisted
     }
 
@@ -170,7 +170,7 @@ public:
     RawStreamObject(T data) : obj(data){};
     virtual ~RawStreamObject() = default;
 
-    virtual CboxError streamTo(DataOut& out) override final {
+    virtual CboxError streamTo(DataOut& out) const override final {
         if(out.put(obj)){
             return CboxError::no_error;
         }
@@ -205,7 +205,7 @@ public:
         }
         return CboxError::input_stream_read_error;
     }
-    virtual CboxError streamPersistedTo(DataOut& out) override final {
+    virtual CboxError streamPersistedTo(DataOut& out) const override final {
         return RawStreamObject<T>::streamTo(out);
     }
 };

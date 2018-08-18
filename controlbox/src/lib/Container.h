@@ -29,7 +29,7 @@ namespace cbox {
 /**
  * A wrapper around an object that stores which type it is and in which profiles it is active
  */
-class ContainedObject {
+class ContainedObject : public Object {
 public:
     explicit ContainedObject(obj_id_t id, uint8_t profiles, std::shared_ptr<Object> obj) :
         _id(id),
@@ -54,20 +54,24 @@ public:
         return _obj;
     }
 
-    CboxError streamTo(DataOut & out) const {
+    virtual obj_type_t typeId() const override final {
+        return resolveTypeId<ContainedObject>();
+    }
+
+    virtual CboxError streamTo(DataOut & out) const override final {
         if(!out.put(_id)){
             return CboxError::output_stream_write_error;
         }
         if(!out.put(_profiles)){
             return CboxError::output_stream_write_error;
         }
-        if(!out.put(_obj->typeID())){
+        if(!out.put(_obj->typeId())){
             return CboxError::output_stream_write_error;
         }
         return _obj->streamTo(out);
     }
 
-    CboxError streamFrom(DataIn & in){
+    virtual CboxError streamFrom(DataIn & in) override final {
         // id is not streamed in. It is immutable and assumed to be already read to find this entry
 
         uint8_t newProfiles;
@@ -79,21 +83,22 @@ public:
             return CboxError::input_stream_read_error;
         }
 
-        if(expectedType == _obj->typeID()){
+        if(expectedType == _obj->typeId()){
             _profiles = newProfiles;
             return _obj->streamFrom(in);
         }
         return CboxError::invalid_object_type;
     }
 
-    CboxError streamPersistedTo(DataOut& out) const {
-        if(_obj->typeID() == resolveTypeID<InactiveObject>()){
+    virtual CboxError streamPersistedTo(DataOut& out) const override final{
+        // id is not streamed out. It is passed to storage separately
+        if(_obj->typeId() == resolveTypeId<InactiveObject>()){
             return CboxError::no_error; // don't persist inactive objects
         }
         if(!out.put(_profiles)){
             return CboxError::persisted_storage_write_error;
         }
-        if(!out.put(_obj->typeID())){
+        if(!out.put(_obj->typeId())){
             return CboxError::persisted_storage_write_error;
         }
         return _obj->streamPersistedTo(out);

@@ -23,12 +23,5 @@
 
 #include "ResolveType.h"
 
-class LongIntObject;
-namespace cbox{
-    template<> obj_type_t resolveTypeID<LongIntObject>(){ return  1000; }
-}
-
-class LongIntVectorObject;
-namespace cbox{
-    template<> obj_type_t resolveTypeID<LongIntVectorObject>(){ return  1001; }
-}
+SET_TYPE_ID(LongIntObject, 1000);
+SET_TYPE_ID(LongIntVectorObject, 1001);

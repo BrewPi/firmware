@@ -49,7 +49,7 @@ SCENARIO("A container to hold objects"){
         THEN("The objects can be fetched from the container"){
             auto obj2 = container.fetch(id2).lock();
             REQUIRE(obj2);
-            CHECK(obj2->typeID() == resolveTypeID<LongIntObject>());
+            CHECK(obj2->typeId() == resolveTypeId<LongIntObject>());
             // to be able to compare the value, we first dereference the smart pointer before typecasting
             CHECK(*static_cast<LongIntObject*>(&(*obj2)) == LongIntObject(0x22222222));
         }
