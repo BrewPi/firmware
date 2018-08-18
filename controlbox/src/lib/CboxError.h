@@ -30,11 +30,13 @@ enum class CboxError : uint8_t {
     persisted_object_not_found = 17,
     invalid_persisted_block_type = 18,
     could_not_read_persisted_block_size = 19,
-    persisted_block_stream_error,
-    persisted_storage_write_error,
+    could_not_read_persisted_block_id = 20,
+    could_not_read_persisted_block_type = 21,
+    persisted_block_stream_error = 22,
+    persisted_storage_write_error = 23,
 
     // object creation
-    insufficient_heap = 17,
+    insufficient_heap = 25,
 
     object_not_writable = 32,
     object_not_readable = 33,

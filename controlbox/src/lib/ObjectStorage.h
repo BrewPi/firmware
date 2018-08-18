@@ -26,18 +26,20 @@
 
 namespace cbox {
 
-// used to see if EEPROM needs to be initialized
-
 class ObjectStorage {
 public:
     ObjectStorage() = default;
     virtual ~ObjectStorage() = default;
 
-    virtual CboxError streamObjectTo(DataOut& out, obj_id_t id) = 0;
+    virtual CboxError streamObjectTo(DataOut& out, const obj_id_t & id) = 0;
     virtual CboxError streamAllObjectsTo(DataOut& out) = 0;
-    virtual CboxError retreiveObject(obj_id_t id, Object & target) = 0;
-    virtual CboxError storeObject(obj_id_t id, Object & source) = 0;
-    virtual bool disposeObject(obj_id_t id) = 0;
+    virtual CboxError retreiveObject(const obj_id_t & id, Object & target) = 0;
+    virtual CboxError storeObject(const obj_id_t & id, const Object & source) = 0;
+    virtual bool disposeObject(const obj_id_t & id) = 0;
+
+    using StreamedObjectHandler = std::function<CboxError (DataIn &)>;
+
+    virtual CboxError retrieveObjects(const StreamedObjectHandler & handler) = 0;
 };
 
 } // end namespace cbox

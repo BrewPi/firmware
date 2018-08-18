@@ -49,7 +49,7 @@ public:
     }
     virtual ~EepromObjectStorage() = default;
 
-    virtual CboxError streamObjectTo(DataOut& out, obj_id_t id) override final {
+    virtual CboxError streamObjectTo(DataOut& out, const obj_id_t & id) override final {
         RegionDataIn objectData = getObjectReader(id);
         stream_size_t size = objectData.available();
         if(size > 0){
@@ -93,7 +93,7 @@ public:
         return CboxError::no_error;
     }
 
-    virtual CboxError retreiveObject(obj_id_t id, Object & target) override final {
+    virtual CboxError retreiveObject(const obj_id_t & id, Object & target) override final {
         RegionDataIn objectEepromData = getObjectReader(id);
         if(objectEepromData.available() == 0){
             return cbox::CboxError::persisted_object_not_found;
@@ -101,7 +101,7 @@ public:
         return target.streamFrom(objectEepromData);
     }
 
-    virtual CboxError storeObject(obj_id_t id, Object & source) override final {
+    virtual CboxError storeObject(const obj_id_t & id, const Object & source) override final {
         CountingBlackholeDataOut counter;
         RegionDataOut objectEepromData = getObjectWriter(id);
         uint16_t blockSize = objectEepromData.availableForWrite();
@@ -143,7 +143,7 @@ public:
         return res;
     }
 
-    virtual bool disposeObject(obj_id_t id) override final{
+    virtual bool disposeObject(const obj_id_t & id) override final{
         RegionDataIn block = getObjectReader(id); // sets reader to data start of block data
         if(block.available() > 0){
             // overwrite block type with disposed block
@@ -154,6 +154,42 @@ public:
             return true;
         }
         return false;
+    }
+
+    virtual CboxError retrieveObjects(const StreamedObjectHandler & handler) override final {
+        reader.reset(EepromLocation(objects), EepromLocationEnd(objects)-EepromLocation(objects));
+
+        while(reader.hasNext()){
+            uint8_t type = reader.next();
+            // loop over all blocks and write objects to output stream
+            uint16_t blockSize = 0;
+            if (!reader.get(blockSize)){
+                return CboxError::could_not_read_persisted_block_size;
+            }
+
+            switch(type){
+            case static_cast<uint8_t>(BlockType::object):
+                {
+                    auto regionIn = RegionDataIn(reader, blockSize);
+                    CboxError res = handler(regionIn);
+                    regionIn.spool();
+                    if(res != CboxError::no_error){
+                        return res;
+                    }
+                }
+                break;
+            case static_cast<uint8_t>(BlockType::disposed_block):
+                if(!reader.spool(blockSize)){
+                    return CboxError::persisted_block_stream_error;
+                }
+                break;
+            default:
+                return CboxError::invalid_persisted_block_type; // unknown block type encountered!
+                break;
+            }
+        }
+        return CboxError::no_error;
+
     }
 
     stream_size_t freeSpace(){

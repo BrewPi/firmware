@@ -51,21 +51,18 @@ public:
 	{
 	}
 
-	std::unique_ptr<Object> create(const obj_type_t & t, CboxError& errorCode){
-	    std::unique_ptr<Object> obj;
-	    errorCode = CboxError::no_error;
-
+	CboxError make(const obj_type_t & t, std::unique_ptr<Object>& objTarget) const {
 	    auto factoryEntry = std::find_if(objTypes.begin(), objTypes.end(), [&t](const ObjectFactoryEntry & entry){ return entry.typeId == t;});
 		if(factoryEntry == objTypes.end()){
-		    errorCode = CboxError::invalid_object_type;
+		    return CboxError::invalid_object_type;
 		}
 		else {
-		    obj = (*factoryEntry).createFn();
-            if(!obj){
-                errorCode = CboxError::insufficient_heap;
+		    objTarget = (*factoryEntry).createFn();
+            if(!objTarget){
+                return CboxError::insufficient_heap;
             }
 		}
-		return obj;
+		return CboxError::no_error;
 	}
 };
 

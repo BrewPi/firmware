@@ -24,6 +24,7 @@
 #include <vector>
 #include "Object.h"
 #include "ResolveType.h"
+#include "ObjectFactory.h"
 
 namespace cbox {
 /**
@@ -32,9 +33,9 @@ namespace cbox {
 class ContainedObject : public Object {
 public:
     explicit ContainedObject(obj_id_t id, uint8_t profiles, std::shared_ptr<Object> obj) :
-        _id(id),
-        _profiles(profiles),
-        _obj(obj){};
+        _id(std::move(id)),
+        _profiles(std::move(profiles)),
+        _obj(std::move(obj)){};
 
 private:
     obj_id_t _id;
@@ -104,12 +105,6 @@ public:
         return _obj->streamPersistedTo(out);
     }
 };
-/*
- * Implemented as sorted vector for fast retrieval
- * Inserts are uncommon and the number of elements is small, which is why vector is preferred
- * over a sorted standard container that does not have random access iterators (map, set).
- */
-
 
 class ObjectContainer
 {
@@ -222,6 +217,33 @@ public:
         // insert new entry in container in sorted position
         objects.emplace(insertPosition, newId, active_in_profiles, std::move(obj));
         return newId;
+    }
+
+
+    // create contained object directly from DataIn stream defining it
+    CboxError addFromStream(DataIn & in, const ObjectFactory & factory){
+        auto id = obj_id_t::invalid();
+        auto typeId = obj_type_t::invalid();
+        uint8_t profiles = 0x00;
+
+        if(!in.get(id)){
+            return CboxError::input_stream_read_error;
+        }
+        if(!in.get(profiles)){
+            return CboxError::input_stream_read_error;
+        }
+        if(!in.get(typeId)){
+            return CboxError::input_stream_read_error;
+        }
+
+        std::unique_ptr<Object> obj;
+        auto status = factory.make(typeId, obj);
+        if(!obj){
+            return status;
+        }
+
+        add(std::move(obj), profiles, id);
+        return CboxError::no_error;
     }
 
     obj_id_t replace (std::unique_ptr<Object> obj, const uint8_t active_in_profiles, const obj_id_t id) {
