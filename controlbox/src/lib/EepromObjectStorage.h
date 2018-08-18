@@ -189,7 +189,11 @@ public:
             }
         }
         return CboxError::no_error;
+    }
 
+    virtual void clear() override final {
+        eeprom.clear();
+        init();
     }
 
     stream_size_t freeSpace(){

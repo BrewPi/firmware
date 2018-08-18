@@ -40,6 +40,7 @@ public:
     using StreamedObjectHandler = std::function<CboxError (DataIn &)>;
 
     virtual CboxError retrieveObjects(const StreamedObjectHandler & handler) = 0;
+    virtual void clear() = 0;
 };
 
 } // end namespace cbox

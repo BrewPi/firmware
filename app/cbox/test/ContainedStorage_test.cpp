@@ -35,8 +35,10 @@ SCENARIO("When objects are stored as contained objects, they can be loaded from 
             ObjectContainer container2;
 
             auto objectInserter = [&container2, &factory](cbox::DataIn & in) -> CboxError {
-                auto status = container2.addFromStream(in, factory);
+                obj_id_t newId;
+                auto status = container2.addFromStream(in, factory, newId);
                 CHECK(status == CboxError::no_error);
+                CHECK(newId.isValid());
                 return status;
             };
 

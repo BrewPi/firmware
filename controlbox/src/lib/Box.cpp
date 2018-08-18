@@ -65,15 +65,9 @@ void Box::readObject(DataIn& in, DataOut& out) {
     if (status == CboxError::no_error) {
         // stream object as id, profiles, typeId, data
         CboxError result = cobj->streamTo(out);
-        // todo handle result
+        // todo handle result?
     }
 }
-/*
-ContainedObject Box::createObjectFromStorage(const obj_id_t & id){
-    ContainedObject obj(id, 0x00, nullptr);
-    storage.retreiveObject()
-    
-}*/
 
 void Box::writeObject(DataIn& in, DataOut& out) {
     CboxError status = CboxError::no_error;
@@ -100,21 +94,6 @@ void Box::writeObject(DataIn& in, DataOut& out) {
     }
 }
 
-
-/*
-std::shared_ptr<Object> Commands::createObject(CboxError & err, obj_type_t type, RegionDataIn& in, bool dryRun)
-{
-    auto obj = createApplicationObject(err, in, dryRun);			// read the type and create args
-    if (!error) {
-        if (!newObject) {
-            error = errorCode(insufficient_heap);
-        }
-    }
-    def.spool();			// ensure stream is read fully
-    return error;
-}
-*/
-
 /**
  * Creates a new object at a specific location.
  */
@@ -135,7 +114,18 @@ void Box::createObject(DataIn& in, DataOut& out)
 	    status = CboxError::input_stream_read_error;
 	}
 
-	// TODO actually create object!
+	obj_id_t newId;
+	ContainedObject * newObj = nullptr;
+	if(status == CboxError::no_error){
+	    status = objects.addFromStream(in, factory, newId);
+	    newObj = objects.fetchContained(newId);
+	}
+	in.spool();
+    out.writeResponseSeparator();
+    out.write(asUint8(status));
+    if(newObj){
+        newObj->streamTo(out);
+    }
 }
 
 /**
@@ -144,51 +134,47 @@ void Box::createObject(DataIn& in, DataOut& out)
  */
 void Box::deleteObject(DataIn& in, DataOut& out)
 {
-    /*
-    uint8_t buf[MAX_CONTAINER_DEPTH+1];
-    BufferDataOut idCapture(buf, MAX_CONTAINER_DEPTH+1);	// buffer to capture id
-    PipeDataIn idPipe(in, idCapture);						// capture read id
-    int8_t error = deleteObject(idPipe);
-    if (error>=0)
-        removeEepromCreateCommand(idCapture);
+    CboxError status = CboxError::no_error;
+    obj_id_t id = 0;
+    if(!in.get(id)){
+        status = CboxError::input_stream_read_error;
+    }
+    else if(objects.remove(id)){
+        status = CboxError::object_not_deletable;
+    }
+    in.spool();
     out.writeResponseSeparator();
-    out.write(uint8_t(error));
-    */
+    out.write(asUint8(status));
 }
 
 /**
  * Walks the eeprom and writes out the construction definitions.
  */
-void Box::listActiveObjects(DataIn& _in, DataOut& out)
+void Box::listActiveObjects(DataIn& in, DataOut& out)
 {
-    /*
-    // todo - how to flag an invalid profile (currently no results)
-    profile_id_t profile = profile_id_t(_in.next());
+    in.spool();
     out.writeResponseSeparator();
-    out.write(0)	;	// status. TODO: check that the profile ID is valid
-    systemProfile.listEepromInstructionsTo(profile, out);
-    out.write(0);	// list terminator
-    */
+    out.write(asUint8(CboxError::no_error));
+    for(auto it = objects.cbegin(); it < objects.cend(); it++){
+        out.writeListSeparator();
+        it->streamTo(out);
+    }
 }
 
-void Box::listStoredObjects(DataIn& _in, DataOut& out){
-
+void Box::listSavedObjects(DataIn& in, DataOut& out){
+    in.spool();
+    out.writeResponseSeparator();
+    out.write(asUint8(CboxError::no_error));
+    storage.streamAllObjectsTo(out);
 }
 
 void Box::reboot(DataIn& _in, DataOut& out){
-
+    ::handleReset(true);
 }
 
 void Box::factoryReset(DataIn& in, DataOut& out) {
-    /*uint8_t flags = in.next();
-    if (flags&1)
-        systemProfile.initializeEeprom();
-    handleReset(false);
-    out.writeResponseSeparator();
-    out.write(errorCode(no_error));       // success
-    if (flags&2)
-        comms.resetOnCommandComplete();
-        */
+    storage.clear();
+    ::handleReset(true);
 }
 
 /*
@@ -199,7 +185,7 @@ void Box::factoryReset(DataIn& in, DataOut& out) {
 void Box::handleCommand(DataIn& dataIn, DataOut& dataOut)
 {
     TeeDataIn teeIn(dataIn, dataOut);	// ensure command input is also echoed to output
-    uint8_t cmd_id = teeIn.next();				// command type code
+    uint8_t cmd_id = teeIn.next();		// command type code
     DataIn& in = teeIn;
     DataOut& out = dataOut;
     switch(cmd_id){
@@ -222,7 +208,7 @@ void Box::handleCommand(DataIn& dataIn, DataOut& dataOut)
             listActiveObjects(in, out);
             break;
         case LIST_STORED_OBJECTS:
-            listStoredObjects(in, out);
+            listSavedObjects(in, out);
             break;
         case REBOOT:
             reboot(in, out);

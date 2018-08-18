@@ -221,7 +221,7 @@ public:
 
 
     // create contained object directly from DataIn stream defining it
-    CboxError addFromStream(DataIn & in, const ObjectFactory & factory){
+    CboxError addFromStream(DataIn & in, const ObjectFactory & factory, obj_id_t & newId){
         auto id = obj_id_t::invalid();
         auto typeId = obj_type_t::invalid();
         uint8_t profiles = 0x00;
@@ -242,7 +242,7 @@ public:
             return status;
         }
 
-        add(std::move(obj), profiles, id);
+        newId = add(std::move(obj), profiles, id);
         return CboxError::no_error;
     }
 

@@ -51,7 +51,7 @@ private:
 	void createObject(DataIn& in, DataOut& out);
 	void deleteObject(DataIn& in, DataOut& out);
 	void listActiveObjects(DataIn& in, DataOut& out);
-	void listStoredObjects(DataIn& in, DataOut& out);
+	void listSavedObjects(DataIn& in, DataOut& out);
 	void reboot(DataIn& in, DataOut& out);
 	void factoryReset(DataIn& in, DataOut& out);
 	
