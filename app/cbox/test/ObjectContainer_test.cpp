@@ -26,9 +26,9 @@
 #include "TestObjects.h"
 #include "TestMatchers.hpp"
 
-SCENARIO("A container to hold objects"){
-    using namespace cbox; 
+using namespace cbox;
 
+SCENARIO("A container to hold objects"){
     ObjectContainer container;
 
     WHEN("Some objects are added to the container"){
@@ -135,7 +135,6 @@ SCENARIO("A container to hold objects"){
 }
 
 SCENARIO("A container with system objects passed in the initializer list"){
-    using namespace cbox;
     ObjectContainer objects = {
         ContainedObject(1, 0xFF, std::make_shared<LongIntObject>(0x11111111)),
         ContainedObject(2, 0xFF, std::make_shared<LongIntObject>(0x22222222))

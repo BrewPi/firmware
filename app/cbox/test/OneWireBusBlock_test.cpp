@@ -28,6 +28,8 @@
 #include "DataStream.h"
 #include "Block.h"
 
+using namespace cbox;
+
 void streamHex(std::stringstream & ss, uint8_t * buf, size_t len){
     ss << "0x" << std::setfill('0') << std::hex;
     for(size_t i = 0 ; i < len; i ++){
@@ -42,7 +44,7 @@ SCENARIO("A Blox OneWireBus can stream a variable number of found addresses"){
 
         WHEN("it is encoded to a buffer"){
             uint8_t outbuf[100] = {0};
-            cbox::BufferDataOut out(outbuf, sizeof(outbuf));
+            BufferDataOut out(outbuf, sizeof(outbuf));
             ow.streamTo(out);
             std::stringstream ss;
             streamHex(ss, outbuf, out.bytesWritten());
@@ -57,16 +59,16 @@ SCENARIO("A Blox OneWireBus can stream a variable number of found addresses"){
 
             uint8_t inbuf[100] = {0};
 
-            cbox::BufferDataOut tempOut(inbuf, sizeof(inbuf));
-            cbox::CboxError res = streamProtoTo(tempOut, &message, blox_OneWireCommand_fields, sizeof(inbuf));
-            CHECK(res == cbox::CboxError::no_error);
+            BufferDataOut tempOut(inbuf, sizeof(inbuf));
+            CboxError res = streamProtoTo(tempOut, &message, blox_OneWireCommand_fields, sizeof(inbuf));
+            CHECK(res == CboxError::no_error);
 
-            cbox::BufferDataIn in(inbuf, sizeof(inbuf));
+            BufferDataIn in(inbuf, sizeof(inbuf));
 
             ow.streamFrom(in);
 
             uint8_t outbuf[100] = {0};
-            cbox::BufferDataOut out(outbuf, sizeof(outbuf));
+            BufferDataOut out(outbuf, sizeof(outbuf));
             ow.streamTo(out);
             std::stringstream ss;
             streamHex(ss, outbuf, out.bytesWritten());

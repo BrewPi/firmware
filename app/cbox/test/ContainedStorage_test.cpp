@@ -8,11 +8,9 @@
 #include "TestObjects.h"
 #include "ObjectFactory.h"
 
+using namespace cbox;
 
 SCENARIO("When objects are stored as contained objects, they can be loaded from storage with the correct type and profiles"){
-    
-    using namespace cbox; 
-
     ObjectContainer container;
     EepromAccess eeprom;
     EepromObjectStorage storage(eeprom);

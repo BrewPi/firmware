@@ -10,10 +10,9 @@
 #include "Connections.h"
 #include "ConnectionsStringStream.h"
 
+using namespace cbox;
 
 SCENARIO("A controlbox Box"){
-    using namespace cbox; 
-
     ObjectContainer container = {
             ContainedObject(1, 0xFF, std::make_shared<LongIntObject>(0x11111111)),
             ContainedObject(2, 0xFF, std::make_shared<LongIntObject>(0x22222222))

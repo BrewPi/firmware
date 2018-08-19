@@ -24,9 +24,9 @@
 #include "ObjectFactory.h"
 #include "TestObjects.h"
 
-SCENARIO("An object can be created by an ObjectFactory by resolving the type id"){
-    using namespace cbox; 
+using namespace cbox;
 
+SCENARIO("An object can be created by an ObjectFactory by resolving the type id"){
     ObjectFactory factory = {
         OBJECT_FACTORY_ENTRY(LongIntObject),
         OBJECT_FACTORY_ENTRY(LongIntVectorObject)
