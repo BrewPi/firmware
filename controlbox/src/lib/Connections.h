@@ -183,19 +183,19 @@ public:
         return connections.size();
     }
 
-    void map(std::function<void(DataIn& in, DataOut& out)> func){
+    void process(std::function<void(DataIn& in, DataOut& out)> handler){
         updateConnections();
         for(auto& conn : connections){
-            func(conn->getDataIn(), conn->getDataOut());
+            handler(conn->getDataIn(), conn->getDataOut());
         }
     }
 
-    void mapBinaryToHexText(std::function<void(DataIn& in, DataOut& out)> func){
+    void processAsHex(std::function<void(DataIn& in, DataOut& out)> handler){
         updateConnections();
         for(auto& conn : connections){
             HexTextToBinaryIn hexIn(conn->getDataIn());
             BinaryToHexTextOut hexOut(conn->getDataOut());
-            func(hexIn, hexOut);
+            handler(hexIn, hexOut);
         }
     }
 };

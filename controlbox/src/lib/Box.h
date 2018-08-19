@@ -69,6 +69,12 @@ public:
 
 	void handleCommand(DataIn& data, DataOut& out);
 
+	// process all incoming messages
+    void communicate();
+
+    // process all incoming messages assuming they are hex encoded
+    void hexCommunicate();
+
 	enum CommandID : uint8_t {
 		NONE = 0,				// no-op
 	   	READ_OBJECT = 1,		// stream an object to the data out

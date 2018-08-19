@@ -47,10 +47,10 @@ SCENARIO("An object can be created by an ObjectFactory by resolving the type id"
         CHECK(obj2->typeId() == longIntVectorType);
     }
 
-    WHEN("The factory is given an invalid type ID, nullptr is returned with status invalid_object_type"){
+    WHEN("The factory is given an invalid type ID, nullptr is returned with status object_not_creatable"){
         std::unique_ptr<Object> obj;
         auto status = factory.make(9999, obj);
-        CHECK(status == CboxError::invalid_object_type);
+        CHECK(status == CboxError::object_not_creatable);
         CHECK(obj == nullptr);
     }
 }

@@ -241,9 +241,11 @@ public:
         if(!obj){
             return status;
         }
-
-        newId = add(std::move(obj), profiles, id);
-        return CboxError::no_error;
+        status = obj->streamFrom(in);
+        if(status == CboxError::no_error){
+            newId = add(std::move(obj), profiles, id);
+        }
+        return status;
     }
 
     obj_id_t replace (std::unique_ptr<Object> obj, const uint8_t active_in_profiles, const obj_id_t id) {
@@ -261,14 +263,14 @@ public:
         return obj_id_t::invalid();
     }
 
-    bool remove(obj_id_t id) {
+    CboxError remove(obj_id_t id) {
         if(id < startId){
-            return false; // refuse to remove system objects
+            return CboxError::object_not_deletable; // refuse to remove system objects
         }
         // find existing object
         auto p = findPosition(id);
         objects.erase(p.first, p.second); // doesn't remove anything if no objects found (first == second)
-        return p.first != p.second;
+        return p.first == p.second ? CboxError::invalid_object_id : CboxError::no_error;
     }
 
     // only const iterators are exposed. We don't want the caller to be able to modify the container

@@ -61,6 +61,10 @@ SCENARIO("When objects are stored as contained objects, they can be loaded from 
             CHECK(cobj1->profiles() == 0x01);
             CHECK(cobj2->profiles() == 0x03);
             CHECK(cobj3->profiles() == 0x05);
+
+            CHECK(*static_cast<LongIntObject*>(&(*cobj1->object())) == LongIntObject(0x11111111));
+            CHECK(*static_cast<LongIntObject*>(&(*cobj2->object())) == LongIntObject(0x22222222));
+            CHECK(*static_cast<LongIntVectorObject*>(&(*cobj3->object())) == LongIntVectorObject{0x22222222, 0x44444444});
         }    
     }
 }

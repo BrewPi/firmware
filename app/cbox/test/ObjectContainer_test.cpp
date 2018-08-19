@@ -79,8 +79,8 @@ SCENARIO("A container to hold objects"){
             }
         }
 
-        THEN("Removing an object that doesn't exist returns false"){
-            CHECK(! container.remove(obj_id_t(10)));
+        THEN("Removing an object that doesn't exist returns invalid_object_id"){
+            CHECK(container.remove(obj_id_t(10)) == CboxError::invalid_object_id);
         }
 
         THEN("Replacing an object that doesn't exist has no effect and returns invalid id"){
@@ -167,14 +167,14 @@ SCENARIO("A container with system objects passed in the initializer list"){
     }
 
     THEN("The system objects cannot be deleted, but user objects can be deleted"){
-        CHECK(!objects.remove(1));
+        CHECK(objects.remove(1) == CboxError::object_not_deletable);
         CHECK(objects.fetch(1).lock());
 
-        CHECK(!objects.remove(2));
+        CHECK(objects.remove(2) == CboxError::object_not_deletable);
         CHECK(objects.fetch(2).lock());
 
         CHECK(objects.fetch(3).lock());
-        CHECK(objects.remove(3));
+        CHECK(objects.remove(3) == CboxError::no_error);
         CHECK(!objects.fetch(3).lock());
     }
 
@@ -185,10 +185,10 @@ SCENARIO("A container with system objects passed in the initializer list"){
     THEN("Objects added after construction can also be marked system by moving the start ID"){
         objects.setObjectsStartId(100); // all objects with id  < 100 will now be system objects
 
-        CHECK(!objects.remove(1));
-        CHECK(!objects.remove(2));
-        CHECK(!objects.remove(3));
-        CHECK(!objects.remove(4));
+        CHECK(objects.remove(1) == CboxError::object_not_deletable);
+        CHECK(objects.remove(2) == CboxError::object_not_deletable);
+        CHECK(objects.remove(3) == CboxError::object_not_deletable);
+        CHECK(objects.remove(4) == CboxError::object_not_deletable);
 
         CHECK(obj_id_t(100) == objects.add(std::make_unique<LongIntObject>(0x33333333), 0xFF)); // will get start ID (100)
     }

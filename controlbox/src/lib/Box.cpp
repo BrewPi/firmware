@@ -99,27 +99,11 @@ void Box::writeObject(DataIn& in, DataOut& out) {
  */
 void Box::createObject(DataIn& in, DataOut& out)
 {
-	CboxError status = CboxError::no_error;
-    obj_id_t id = 0;
-	uint8_t profiles = 0;
-	obj_type_t objType;
-
-	if(!in.get(id)){
-	    status = CboxError::input_stream_read_error;
-	}
-	if(!in.get(profiles)){
-	    status = CboxError::input_stream_read_error;
-	}
-	if(!in.get(objType)){
-	    status = CboxError::input_stream_read_error;
-	}
-
 	obj_id_t newId;
-	ContainedObject * newObj = nullptr;
-	if(status == CboxError::no_error){
-	    status = objects.addFromStream(in, factory, newId);
-	    newObj = objects.fetchContained(newId);
-	}
+
+	auto status = objects.addFromStream(in, factory, newId);
+	auto newObj = objects.fetchContained(newId);
+
 	in.spool();
     out.writeResponseSeparator();
     out.write(asUint8(status));
@@ -135,13 +119,11 @@ void Box::createObject(DataIn& in, DataOut& out)
 void Box::deleteObject(DataIn& in, DataOut& out)
 {
     CboxError status = CboxError::no_error;
-    obj_id_t id = 0;
+    obj_id_t id;
     if(!in.get(id)){
         status = CboxError::input_stream_read_error;
     }
-    else if(objects.remove(id)){
-        status = CboxError::object_not_deletable;
-    }
+    status = objects.remove(id);
     in.spool();
     out.writeResponseSeparator();
     out.write(asUint8(status));
@@ -220,6 +202,14 @@ void Box::handleCommand(DataIn& dataIn, DataOut& dataOut)
             invalidCommand(in, out);
             break;
     }
+}
+
+void Box::communicate() {
+    connections.process([this](DataIn & in, DataOut & out){ this->handleCommand(in,out);});
+}
+
+void Box::hexCommunicate() {
+    connections.processAsHex([this](DataIn & in, DataOut & out){ this->handleCommand(in,out);});
 }
 
 } // end namespace cbox

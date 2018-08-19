@@ -25,30 +25,31 @@ enum class CboxError : uint8_t {
     no_error = 0,
     unknown_error = 1,
 
+    // object creation
+    insufficient_heap = 4,
+
+    // generic stream errors
+    stream_error_unspecified = 8,
+    output_stream_write_error= 9,
+    input_stream_read_error = 10,
+    input_stream_decoding_error = 11,
+    output_stream_encoding_error = 12,
+
     // storage errors
     insufficient_persistent_storage = 16,
     persisted_object_not_found = 17,
     invalid_persisted_block_type = 18,
     could_not_read_persisted_block_size = 19,
-    could_not_read_persisted_block_id = 20,
-    could_not_read_persisted_block_type = 21,
-    persisted_block_stream_error = 22,
-    persisted_storage_write_error = 23,
+    persisted_block_stream_error = 20,
+    persisted_storage_write_error = 21,
 
-    // object creation
-    insufficient_heap = 25,
-
+    // invalid actions
     object_not_writable = 32,
     object_not_readable = 33,
     object_not_creatable = 34,
     object_not_deletable = 35,
 
-    stream_error_unspecified = 3,
-    output_stream_write_error= 5,
-    input_stream_read_error = 6,
-    input_stream_decoding_error = 7,
-    output_stream_encoding_error = 8,
-
+    // invalid parameters
     invalid_command = 63,
     invalid_object_id = 65,
     invalid_object_type = 66,

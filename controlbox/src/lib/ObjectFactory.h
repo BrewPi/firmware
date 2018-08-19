@@ -54,7 +54,7 @@ public:
 	CboxError make(const obj_type_t & t, std::unique_ptr<Object>& objTarget) const {
 	    auto factoryEntry = std::find_if(objTypes.begin(), objTypes.end(), [&t](const ObjectFactoryEntry & entry){ return entry.typeId == t;});
 		if(factoryEntry == objTypes.end()){
-		    return CboxError::invalid_object_type;
+		    return CboxError::object_not_creatable;
 		}
 		else {
 		    objTarget = (*factoryEntry).createFn();
