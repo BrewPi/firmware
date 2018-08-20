@@ -98,4 +98,15 @@ SCENARIO("A controlbox Box"){
         // command repetition | 41 invalid_object_id
         CHECK(out.str() == "040001|41");
     }
+
+    WHEN("A connection sends a list objects command, all objects are sent out"){
+        std::stringstream in, out;
+        connSource.add(in, out);
+        in << "05"; // list all objects
+        box.hexCommunicate();
+
+        // commands are sent out LSB first
+        // command repetition | status, obj1, obj2
+        CHECK(out.str() == "05|00,0100FFE80311111111,0200FFE80322222222");
+    }
 }
