@@ -100,7 +100,7 @@ void cancelCalibration()
 void createTimer()
 {
 #if FREERTOS
-    timer = new Timer(60*1000, cancelCalibration);
+    timer = new Timer(10*1000, cancelCalibration);
     if (timer)
         timer->start();
 #endif
