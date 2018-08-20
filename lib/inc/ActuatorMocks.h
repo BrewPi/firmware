@@ -99,10 +99,10 @@ public:
     	v.visit(*this);
     }
 
-    void setState(State s, int8_t priority = 127) override final { state = s; }
+    void setState(const State & s, const update_t & now) override final { state = s; }
     State getState() const override final { return state; }
 
-    virtual update_t update(const update_t & t) override final {
+    virtual update_t update(const update_t & now) override final {
         return update_t_max(); // no updates needed
     }
 
@@ -126,7 +126,7 @@ public:
     	v.visit(*this);
     }
 
-    void setState(State state, int8_t priority = 127) override final {}
+    void setState(const State & state, const update_t & now) override final {}
     State getState() const override final { return State::Inactive;}
     virtual update_t update(const update_t & t) override final {
         return update_t_max(); // no updates needed

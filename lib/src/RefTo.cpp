@@ -20,13 +20,14 @@
 #include "RefTo.h"
 
 #include "ProcessValue.h"
-#include "ActuatorMocks.h"
+//#include "ActuatorMocks.h"
 #include "TempSensorDisconnected.h"
 #include "SetPoint.h"
 #include "SensorSetPointPair.h"
-#include "ActuatorMutexGroupDisabled.h"
+//#include "ActuatorMutexGroupDisabled.h"
 #include "VisitorCast.h"
 
+/*
 template<>
 ActuatorDigital * defaultTarget<ActuatorDigital>(){
     static ActuatorNop s;
@@ -37,7 +38,7 @@ ActuatorAnalog * defaultTarget<ActuatorAnalog>(){
     static ActuatorInvalid a;
     return &a;
 }
-
+*/
 template<>
 TempSensor * defaultTarget<TempSensor>(){
     static TempSensorDisconnected t;
@@ -55,19 +56,19 @@ ProcessValue * defaultTarget<ProcessValue>(){
     static SensorSetPointPair pv(*defaultTarget<TempSensor>(), *defaultTarget<SetPoint>());
     return &pv;
 }
-
+/*
 template<>
 ActuatorMutexGroupInterface * defaultTarget<ActuatorMutexGroupInterface>(){
     static ActuatorMutexGroupDisabled mg;
     return &mg;
-}
+}*/
 
 // explicit instantiation of template functions
-template ActuatorDigital* asInterface<ActuatorDigital>(Interface*);
-template ActuatorAnalog* asInterface<ActuatorAnalog>(Interface*);
+//template ActuatorDigital* asInterface<ActuatorDigital>(Interface*);
+//template ActuatorAnalog* asInterface<ActuatorAnalog>(Interface*);
 template TempSensor* asInterface<TempSensor>(Interface*);
 template SetPoint* asInterface<SetPoint>(Interface*);
-template ActuatorMutexGroupInterface* asInterface<ActuatorMutexGroupInterface>(Interface*);
+//template ActuatorMutexGroupInterface* asInterface<ActuatorMutexGroupInterface>(Interface*);
 template ProcessValue* asInterface<ProcessValue>(Interface*);
 
 // these are needed to search for shared OneWire switch ICs

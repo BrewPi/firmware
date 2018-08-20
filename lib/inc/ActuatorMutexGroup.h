@@ -25,8 +25,6 @@
 #include "ActuatorMutexDriver.h"
 #include <vector>
 #include "ControllerMixins.h"
-#include "MockTicks.h"
-
 
 class ActuatorMutexGroup final :
     public virtual ActuatorMutexGroupInterface,

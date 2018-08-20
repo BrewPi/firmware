@@ -42,8 +42,8 @@ public:
         return delegate().update(t);
     }
 
-    void setState(State state, int8_t priority = 127) override final {
-        delegate().setState(state, priority);
+    void setState(const State & state, const update_t & now) override final {
+        delegate().setState(state, now);
     }
 
     State getState() const override final {

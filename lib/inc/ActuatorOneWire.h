@@ -53,13 +53,13 @@ class ActuatorOneWire final:
             device->update();
         }
 
-        void setState(State state, int8_t priority = 127) override final
+        virtual void setState(const State & state, const update_t & now) override final
         {
             bool bitVal = (state == State::Active) ^ invert;
         	device->writeLatchBit(pio, bitVal, true);
         }
 
-        State getState() const override final
+        virtual State getState() const override final
         {
             bool result;
         	if(device->latchReadCached(pio, result)){

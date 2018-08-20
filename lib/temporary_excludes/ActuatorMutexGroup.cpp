@@ -19,7 +19,6 @@
 
 #include "ActuatorMutexGroup.h"
 
-#include "../inc/MockTicks.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorInterfaces.h"
 

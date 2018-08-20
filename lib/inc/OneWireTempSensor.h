@@ -81,7 +81,7 @@ public:
 	}		
 	
 	virtual temp_t read() const override final ; // return cached value
-	virtual update_t update(const update_t & t) override final ; // read from hardware sensor
+	virtual update_t update(const update_t & t) override final; // read from hardware sensor
 
 	void setAddress(OneWireAddress const& addr){
 	    sensorAddress = addr;

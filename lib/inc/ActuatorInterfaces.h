@@ -40,11 +40,8 @@ public:
 
     ActuatorDigital() = default;
     virtual ~ActuatorDigital() = default;
-    virtual void setState(const State & state, const int8_t & priority, const ticks_millis_t & now) = 0;
 
-    inline void setState(State state, const ticks_millis_t & now){
-    	setState(state, 127, now);
-    }
+    virtual void setState(const State & state, const ticks_millis_t & now) = 0;
 
     // no bool return type offered, because this forces classes to implement handling the Unknown state
     virtual State getState() const = 0;

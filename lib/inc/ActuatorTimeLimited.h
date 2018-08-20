@@ -26,7 +26,6 @@
 
 #include "ActuatorInterfaces.h"
 #include "ControllerMixins.h"
-#include "MockTicks.h"
 #include "RefTo.h"
 
 class ActuatorTimeLimited final : public ActuatorDigital, public ActuatorTimeLimitedMixin
@@ -55,7 +54,7 @@ public:
     	v.visit(*this);
     }
 
-    void setState(const State & state, const int8_t & priority = 127, const ticks_seconds_t & now) override final;
+    void setState(const State & state, const update_t & now) override final;
 
     State getState() const override final
     {

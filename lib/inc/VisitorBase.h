@@ -25,8 +25,8 @@
 // but not for the interfaces themselves.
 class ActuatorBool;
 class ActuatorInvalid;
-class ActuatorMutexDriver;
-class ActuatorMutexGroup;
+//class ActuatorMutexDriver;
+//class ActuatorMutexGroup;
 class ActuatorNop;
 class ActuatorOneWire;
 class ActuatorPin;
@@ -50,29 +50,29 @@ class ActuatorAnalogDelegate;
 class SetPointDelegate;
 class SensorSetPointPair;
 class ProcessValueDelegate;
-class ActuatorMutexGroupDelegate;
-class ActuatorMutexGroupDisabled;
+//class ActuatorMutexGroupDelegate;
+//class ActuatorMutexGroupDisabled;
 
 class VisitorBase {
 protected:
     virtual ~VisitorBase() = default;
 
 public:
-	virtual void visit(ActuatorBool& thisRef) = 0;
-	virtual void visit(ActuatorInvalid& thisRef) = 0;
-	virtual void visit(ActuatorMutexDriver& thisRef) = 0;
-	virtual void visit(ActuatorMutexGroup& thisRef) = 0;
-	virtual void visit(ActuatorMutexGroupDelegate& thisRef) = 0;
-	virtual void visit(ActuatorMutexGroupDisabled& thisRef) = 0;
-	virtual void visit(ActuatorNop& thisRef) = 0;
+	//virtual void visit(ActuatorBool& thisRef) = 0;
+	//virtual void visit(ActuatorInvalid& thisRef) = 0;
+	// virtual void visit(ActuatorMutexDriver& thisRef) = 0;
+	// virtual void visit(ActuatorMutexGroup& thisRef) = 0;
+	// virtual void visit(ActuatorMutexGroupDelegate& thisRef) = 0;
+	// virtual void visit(ActuatorMutexGroupDisabled& thisRef) = 0;
+	//virtual void visit(ActuatorNop& thisRef) = 0;
 #if BREWPI_DS2413
-	virtual void visit(ActuatorOneWire& thisRef) = 0;
+	//virtual void visit(ActuatorOneWire& thisRef) = 0;
 #endif
-	virtual void visit(ActuatorPwm& thisRef) = 0;
-	virtual void visit(ActuatorOffset& thisRef) = 0;
-	virtual void visit(ActuatorTimeLimited& thisRef) = 0;
-	virtual void visit(ActuatorValue& thisRef) = 0;
-	virtual void visit(Pid& thisRef) = 0;
+	//virtual void visit(ActuatorPwm& thisRef) = 0;
+	//virtual void visit(ActuatorOffset& thisRef) = 0;
+	//virtual void visit(ActuatorTimeLimited& thisRef) = 0;
+	//virtual void visit(ActuatorValue& thisRef) = 0;
+	//virtual void visit(Pid& thisRef) = 0;
 	virtual void visit(SetPointConstant& thisRef) = 0;
 	virtual void visit(SetPointMinMax& thisRef) = 0;
 	virtual void visit(SetPointSimple& thisRef) = 0;
@@ -82,14 +82,14 @@ public:
 	virtual void visit(TempSensorMock& thisRef) = 0;
 	virtual void visit(OneWireTempSensor& thisRef) = 0;
 #if BREWPI_DS2408
-	virtual void visit(ValveController& thisRef) = 0;
+	// virtual void visit(ValveController& thisRef) = 0;
 #endif
 	virtual void visit(TempSensorDelegate& thisRef) = 0;
-	virtual void visit(ActuatorDigitalDelegate& thisRef) = 0;
+	//virtual void visit(ActuatorDigitalDelegate& thisRef) = 0;
 	virtual void visit(SetPointDelegate& thisRef) = 0;
 	virtual void visit(ProcessValueDelegate& thisRef) = 0;
 	virtual void visit(SensorSetPointPair& thisRef) = 0;
 #if WIRING
-	virtual void visit(ActuatorPin& thisRef) = 0;
+	//virtual void visit(ActuatorPin& thisRef) = 0;
 #endif
 };

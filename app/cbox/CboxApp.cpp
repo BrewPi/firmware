@@ -35,8 +35,7 @@
 #include "OneWireBusBlock.h"
 #include "EepromObjectStorage.h"
 #include <memory>
-#include "../../lib/inc/MockTicks.h"
-
+// #include "../../lib/inc/MockTicks.h"
 
 //OneWireBusBlock oneWireBus;
 //DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
@@ -77,7 +76,7 @@ cbox::Box & brewbloxBox(){
             cbox::ContainedObject(2, 0xFF, std::make_shared<OneWireBusBlock>(oneWireBus)),
     };
 
-    cbox::ObjectFactory objectFactory = {
+    static cbox::ObjectFactory objectFactory = {
             OBJECT_FACTORY_ENTRY(OneWireTempSensorBlock),
             OBJECT_FACTORY_ENTRY(SetPointSimpleBlock)
             //OBJECT_FACTORY_ENTRY(SensorSetPointPairBlock),

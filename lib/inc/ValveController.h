@@ -105,7 +105,8 @@ public:
      * setActive will open or close the valve, for compatibility with the actuator interface.
      * @param active true opens the valve, false closes it.
      */
-    void setState(State state, int8_t priority) override final;
+
+    virtual void setState(const State & state, const update_t & now) override final;
 
     /**
      * Check if valve is open.

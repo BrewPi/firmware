@@ -112,12 +112,16 @@ public:
     		return stream.write((const uint8_t*)data, length)==length;
     }
 
-    void flush() override;
+    void flush() override {
+    	stream.flush();
+    }
 
     /**
      * The close method is defined by the specific template instantiation.
      */
-    void close() override;
+    /*void close() override {
+    	stream.close();
+    }*/
 
 	//StreamDataOut& operator=(const StreamDataOut& rhs)=delete;
 };

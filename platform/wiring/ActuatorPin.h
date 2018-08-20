@@ -41,12 +41,12 @@ class ActuatorPin final: public ActuatorDigital, public ActuatorPinMixin
         	v.visit(*this);
         }
 
-        void setState(State state, int8_t priority = 127) override final
+        virtual void setState(const State & state, const update_t & now) override final
         {
             digitalWrite(pin, ((state == State::Active) ^ invert) ? HIGH : LOW);
         }
 
-        State getState() const override final
+        virtual State getState() const override final
         {
             return ((digitalRead(pin) != LOW) ^ invert) ? State::Active : State::Inactive;
         }

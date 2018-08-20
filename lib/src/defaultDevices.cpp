@@ -20,6 +20,7 @@
 
 #include "defaultDevices.h"
 
+/*
 ActuatorNop * defaultActuator(){
     static ActuatorNop a;
     return &a;
@@ -30,6 +31,11 @@ ActuatorInvalid * defaultLinearActuator(){ // always returns invalid and does no
     return &a;
 }
 
+ActuatorMutexGroupDisabled * defaultMutexGroup(){
+    static ActuatorMutexGroupDisabled m;
+    return &m;
+}
+*/
 
 TempSensorDisconnected * defaultTempSensor(){
     static TempSensorDisconnected t;
@@ -41,7 +47,3 @@ SetPointConstant * defaultSetPoint(){
     return &sp;
 }
 
-ActuatorMutexGroupDisabled * defaultMutexGroup(){
-    static ActuatorMutexGroupDisabled m;
-    return &m;
-}

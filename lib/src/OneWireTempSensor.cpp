@@ -20,8 +20,6 @@
 
 #include "temperatureFormats.h"
 #include "OneWireTempSensor.h"
-
-#include "../inc/MockTicks.h"
 #include "OneWireAddress.h"
 #include "DallasTemperature.h"
 #include "OneWire.h"
@@ -72,10 +70,10 @@ temp_t OneWireTempSensor::read() const {
     return cachedValue;
 }
 
-uint32_t OneWireTempSensor::update(uint32_t currentTime) {
+update_t OneWireTempSensor::update(const update_t & now){
     cachedValue = readAndConstrainTemp();
     requestConversion();
-    return currentTime + 1000;
+    return now + 1000;
 }
 
 temp_t OneWireTempSensor::readAndConstrainTemp() {

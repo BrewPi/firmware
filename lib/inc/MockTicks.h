@@ -22,6 +22,7 @@
 
 #include "Platform.h"
 #include <stdint.h>
+#include "Ticks.h"
 
 #error // Do not include this file during refactor
 

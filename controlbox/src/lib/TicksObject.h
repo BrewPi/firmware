@@ -20,22 +20,11 @@
 
 #pragma once
 
-#include "../../../lib/inc/MockTicks.h"
+#include "Ticks.h"
 #include "Object.h"
 #include "DataStream.h"
 
 namespace cbox {
-
-// return time that has passed since timeStamp, take overflow into account
-inline ticks_seconds_t timeSince(ticks_seconds_t currentTime, ticks_seconds_t previousTime){
-	if(currentTime>=previousTime) {
-		return currentTime - previousTime;
-	}
-	else{
-		// overflow has occurred
-		return (currentTime + 1440) - (previousTime +1440); // add a day to both for calculation
-	}
-}
 
 /*
  * Allows time to run normally, or allows external code to manipulate time for testing and simulation.
@@ -94,7 +83,7 @@ public:
 	// return time that has passed since timeStamp, take overflow into account
 	ticks_seconds_t timeSinceSeconds(ticks_seconds_t previousTime) const {
 		ticks_seconds_t currentTime = seconds();
-		return timeSince(currentTime, previousTime);
+		return ::timeSinceSeconds(currentTime, previousTime);
 	}
 
 	virtual obj_type_t typeId() const override final {

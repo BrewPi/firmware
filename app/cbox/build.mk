@@ -14,9 +14,6 @@ CPPSRC += $(call target_files,lib/src,*.cpp)
 INCLUDE_DIRS += $(SOURCE_PATH)/controlbox/src/lib
 CPPSRC += $(call here_files,controlbox/src/lib/,*.cpp)
 
-# enable C++14
-CPPFLAGS += -std=gnu++14
-
 # add auto-generated protobuf includes
 INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox/proto/cpp
 CSRC += $(call here_files,app/cbox/proto/cpp,*.c)
@@ -48,10 +45,6 @@ CFLAGS += --coverage
 LDFLAGS += -Wl,--verbose --coverage
 endif
 
-
-# Mixins
-CPPSRC += app/cbox/ControllerMixins.cpp
-
 # App
 INCLUDE_DIRS += $(SOURCE_PATH)/app
 INCLUDE_DIRS += $(SOURCE_PATH)/app/fallback
@@ -77,11 +70,13 @@ INCLUDE_DIRS += $(BOOST_ROOT)
 CSRC += $(call here_files,app/cbox,*.c)
 CPPSRC += $(call here_files,app/cbox,*.cpp)
 
+CPPSRC += $(call here_files,app/cbox/blox,*.cpp)
+
 #CSRC += $(call target_files,app/devices,*.c)
 #CPPSRC += $(call target_files,app/devices,*.cpp)
 
-CSRC += $(call target_files,platform/wiring/,*.c)
-CPPSRC += $(call target_files,platform/wiring/,*.cpp)
+#CSRC += $(call target_files,platform/wiring/,*.c)
+#CPPSRC += $(call target_files,platform/wiring/,*.cpp)
 
 CSRC += $(call here_files,platform/spark/modules,*.c)
 CPPSRC += $(call here_files,platform/spark/modules,*.cpp)
