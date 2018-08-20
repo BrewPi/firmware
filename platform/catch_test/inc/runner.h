@@ -7,4 +7,4 @@
 
 #pragma once
 
-#include "Ticks.h"
+#include "../../../lib/inc/MockTicks.h"

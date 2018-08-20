@@ -36,13 +36,6 @@ public:
 	virtual bool isConnected(void) const = 0;
 	
 	/*
-	 * Attempt to (re-)initialize the sensor. 	 
-	 */
-	virtual bool init() =0;
-
-    virtual void fastUpdate() override final {}; // fast update not needed for temp sensors
-
-	/*
 	 * Read the sensor, returns cached value set in update()
 	 */
 	virtual temp_t read() const = 0;

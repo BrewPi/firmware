@@ -20,12 +20,12 @@
 #include "DataStreamConverters.h"
 
 namespace cbox {
-
 /**
  * Fetches the next significant data byte from the stream.
  * Sets hasData and data.
  * @param set to true if more data is optional, true if data is expected and should be waited for.
  */
+/*
 void TextIn::fetchNextData(bool optional) {
     optional = !inLine;
 	while (commentLevel>=0 && !hasData && (_in->hasNext())) {
@@ -43,13 +43,13 @@ void TextIn::fetchNextData(bool optional) {
 				commentLevel = -1; data = 0;    // exit the loop on end of line
 	            inLine = false;
             }
-			else if (!commentLevel && isHexadecimalDigit(char(d))) {
+			else if (!commentLevel && isxdigit(char(d))) {
 				hasData = true;
 				data = d;
 			}
 		}
 	}
-}
+}*/
 
 uint8_t blockingRead(DataIn& in, uint8_t closed)
 {

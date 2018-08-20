@@ -38,12 +38,8 @@ public:
         v.visit(*this);
     }
 
-    virtual void update() override final {
-        delegate().update();
-    }
-
-    virtual void fastUpdate() override final {
-        delegate().fastUpdate();
+    virtual update_t update(const update_t & t) override final {
+        return delegate().update(t);
     }
 
     void setState(State state, int8_t priority = 127) override final {

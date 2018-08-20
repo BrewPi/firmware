@@ -21,7 +21,7 @@
 #pragma once
 
 
-#include "Ticks.h"
+#include "../../lib/inc/MockTicks.h"
 
 /*
  * The Ticks class provides the time period since the device was powered up.

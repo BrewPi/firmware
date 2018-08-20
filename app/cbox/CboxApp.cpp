@@ -19,13 +19,13 @@
 
 #include "Platform.h"
 
-#include "Ticks.h"
 #include "TicksObject.h"
 #include "Object.h"
 #include "Container.h"
 #include "Box.h"
 #include "ObjectFactory.h"
 #include "Connections.h"
+#include "ConnectionsTcp.h"
 
 #include "blox/OneWireTempSensorBlock.h"
 //#include "blox/PidBlock.h"
@@ -33,15 +33,15 @@
 #include "blox/SetPointSimpleBlock.h"
 #include "OneWire.h"
 #include "OneWireBusBlock.h"
-#include "EepromTypes.h"
-#include "EepromAccessImpl.h"
+#include "EepromObjectStorage.h"
 #include <memory>
+#include "../../lib/inc/MockTicks.h"
 
 
 //OneWireBusBlock oneWireBus;
-DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
-TicksImpl baseticks;
-cbox::ScaledTicksValue<TicksImpl> ticks(baseticks);
+//DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
+//TicksImpl baseticks;
+//cbox::ScaledTicksValue<TicksImpl> ticks(baseticks);
 OneWire oneWireBus(0);
 
 class DeviceIdObject : public cbox::RawStreamObject<std::array<uint8_t,12>> {
@@ -61,13 +61,6 @@ public:
 };
 
 
-cbox::ObjectFactory objectFactory = {
-        OBJECT_FACTORY_ENTRY(OneWireTempSensorBlock),
-		OBJECT_FACTORY_ENTRY(SetPointSimpleBlock)
-		//OBJECT_FACTORY_ENTRY(SensorSetPointPairBlock),
-		//OBJECT_FACTORY_ENTRY(PidBlock)
-};
-
 namespace cbox {
 void connectionStarted(DataOut& out)
 {
@@ -76,16 +69,31 @@ void connectionStarted(DataOut& out)
 }
 }
 
-cbox::ObjectContainer objects = {
-        cbox::ContainedObject(1, 0xFF, std::make_shared<DeviceIdObject>()),
-        cbox::ContainedObject(2, 0xFF, std::make_shared<OneWireBusBlock>(oneWireBus)),
-};
 
 
-EepromAccess eeprom;
-cbox::EepromObjectStorage objectStore(eeprom);
+cbox::Box & brewbloxBox(){
+    static cbox::ObjectContainer objects = {
+            cbox::ContainedObject(1, 0xFF, std::make_shared<DeviceIdObject>()),
+            cbox::ContainedObject(2, 0xFF, std::make_shared<OneWireBusBlock>(oneWireBus)),
+    };
 
-cbox::ConnectionPool connections = {};
+    cbox::ObjectFactory objectFactory = {
+            OBJECT_FACTORY_ENTRY(OneWireTempSensorBlock),
+            OBJECT_FACTORY_ENTRY(SetPointSimpleBlock)
+            //OBJECT_FACTORY_ENTRY(SensorSetPointPairBlock),
+            //OBJECT_FACTORY_ENTRY(PidBlock)
+    };
 
-cbox::Box appBox(objectFactory, objects, objectStore, connections);
+    static EepromAccess eeprom;
+    static cbox::EepromObjectStorage objectStore(eeprom);
+
+    static cbox::TcpConnectionSource tcpSource(8332);
+    static cbox::ConnectionPool connections = {};
+
+    static cbox::Box appBox(objectFactory, objects, objectStore, connections);
+
+    return appBox;
+}
+
+
 

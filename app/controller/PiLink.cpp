@@ -22,10 +22,11 @@
 #include <stdarg.h>
 #include "stddef.h"
 #include "PiLink.h"
+
+#include "../../lib/inc/MockTicks.h"
 #include "application.h"
 #include "TempControl.h"
 #include "JsonKeys.h"
-#include "Ticks.h"
 #include "Brewpi.h"
 #include "EepromManager.h"
 #include "EepromFormat.h"

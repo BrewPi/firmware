@@ -99,13 +99,7 @@ public:
      * update reads the status from the valve.
      * When the valve is opening or closing, it reverts back to idle when it detects that the action is completed.
      */
-    virtual void update() override final;
-
-    /**
-     * fastUpdate is not needed for valves, because they are very slow. This function is a nop placeholder for compatibility
-     * with the actuator interface.
-     */
-    virtual void fastUpdate() override final {} // valves are slow. Fast update is nop to limit OneWire traffic
+    virtual update_t update(const update_t & t) override final;
 
     /**
      * setActive will open or close the valve, for compatibility with the actuator interface.

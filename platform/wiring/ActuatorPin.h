@@ -51,8 +51,7 @@ class ActuatorPin final: public ActuatorDigital, public ActuatorPinMixin
             return ((digitalRead(pin) != LOW) ^ invert) ? State::Active : State::Inactive;
         }
 
-        virtual void update() override final {} // do nothing on periodic update
-        virtual void fastUpdate() override final {} // do nothing on fast update
+        virtual update_t update(const update_t & t) override final {return update_t_max();}; // do nothing on periodic update
 
     friend class ActuatorPinMixin;
 };

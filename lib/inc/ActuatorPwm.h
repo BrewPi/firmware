@@ -24,7 +24,6 @@
 
 #include <stdint.h>
 #include "ActuatorInterfaces.h"
-#include "Ticks.h"
 #include <stdint.h>
 #include "ControllerMixins.h"
 
@@ -108,14 +107,19 @@ public:
      * If needed, it can even skip going high or low. This will happen, for example, when the target is
      * a time limited actuator with a minimum on and/or off time.
      */
-    virtual void fastUpdate() override final;
+    void fastUpdate();
 
     /**
      * Periodic update (every second). Same as fast update, but calls periodic update on target too.
      */
-    virtual void update() override final {
-        target.update();
+    virtual update_t update(const update_t & t) override final {
+        static update_t lastTargetUpdate;
+        if(t >= lastTargetUpdate + 1000){
+            target.update(t);
+            lastTargetUpdate = t;
+        }
         fastUpdate();
+        return t; // update as often as possible
     };
 
     /** returns the PWM period

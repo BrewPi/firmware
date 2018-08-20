@@ -64,15 +64,6 @@ public:
     }
 
     /**
-     * Attempt to (re-)initialize the active sensor.
-     *
-     * @return bool: true if active sensor was initialized correctly
-     */
-    virtual bool init() override final {
-        return activeSensor().init();
-    }
-
-    /**
      * Read the currently used sensor (main or backup)
      * @return temp_t: temperature of sensor
      */
@@ -81,7 +72,7 @@ public:
     /**
      * update() checks if the main sensor is connected and switches between the main and backup sensor
      */
-    virtual void update() override final;
+    virtual update_t update(const update_t & t) override final;
 
 private:
     TempSensor& main;

@@ -37,16 +37,12 @@ public:
     	v.visit(*this);
     }
 
-    virtual void update() override final {
-        delegate().update();
+    virtual update_t update(const update_t & t) override final {
+        return delegate().update(t);
     }
 
     virtual bool isConnected(void) const override final {
         return delegate().isConnected();
-    }
-
-    virtual bool init() override final {
-        return delegate().init();
     }
 
     virtual temp_t read() const override final {

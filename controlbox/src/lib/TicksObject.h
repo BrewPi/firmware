@@ -20,8 +20,8 @@
 
 #pragma once
 
+#include "../../../lib/inc/MockTicks.h"
 #include "Object.h"
-#include "Ticks.h"
 #include "DataStream.h"
 
 namespace cbox {

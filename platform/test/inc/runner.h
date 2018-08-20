@@ -12,7 +12,8 @@
 #include <iostream>
 #include <sstream>
 #include <boost/format.hpp>
-#include "Ticks.h"
+
+#include "../../../lib/inc/MockTicks.h"
 
 // delay ms milliseconds and return current time afterwards
 ticks_millis_t delay(int ms);

@@ -29,8 +29,7 @@ public:
     virtual ~SetPoint() = default;
     virtual temp_t read() const = 0;
     virtual void write(temp_t val) = 0;
-    virtual void update() override final {}; // periodic update not needed for setpoints
-    virtual void fastUpdate() override final {}; // fast update not needed for setpoints
+    virtual update_t update(const update_t & t) = 0;
 friend class SetPointMixin;
 };
 
@@ -56,6 +55,10 @@ public:
 
     virtual void write (temp_t val) override final {
         setting = val;
+    }
+
+    virtual update_t update(const update_t & t) override final {
+        return update_t_max(); // no updates needed
     }
 
 friend class SetPointSimpleMixin;
@@ -103,6 +106,10 @@ public:
         return max;
     }
 
+    virtual update_t update(const update_t & t) {
+        return update_t_max(); // no updates needed
+    }
+
 private:
     temp_t value;
     temp_t min;
@@ -130,6 +137,10 @@ public:
         return value;
     }
     virtual void write(temp_t val) override final { // does nothing
+    }
+
+    virtual update_t update(const update_t & t) override final {
+        return update_t_max(); // no updates needed
     }
 
 private:

@@ -24,7 +24,6 @@
 #include "TempSensor.h"
 #include "OneWireAddress.h"
 #include "DallasTemperature.h"
-#include "Ticks.h"
 
 class DallasTemperature;
 class OneWire;
@@ -81,9 +80,8 @@ public:
 		return connected;
 	}		
 	
-	virtual bool init() override final ;
 	virtual temp_t read() const override final ; // return cached value
-	virtual void update() override final ; // read from hardware sensor
+	virtual update_t update(const update_t & t) override final ; // read from hardware sensor
 
 	void setAddress(OneWireAddress const& addr){
 	    sensorAddress = addr;
@@ -99,15 +97,12 @@ public:
     }
 
 private:
+    void init();
 
 	void setConnected(bool connected);
 
 
 	void requestConversion();
-	void waitForConversion()
-	{
-		wait.millis(750);
-	}
 	
 	/**
 	 * Reads the temperature. If successful, constrains the temp to the range of the temperature type and

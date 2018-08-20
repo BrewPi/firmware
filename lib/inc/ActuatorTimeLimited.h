@@ -25,8 +25,8 @@
 #include <stdint.h>
 
 #include "ActuatorInterfaces.h"
-#include "Ticks.h"
 #include "ControllerMixins.h"
+#include "MockTicks.h"
 #include "RefTo.h"
 
 class ActuatorTimeLimited final : public ActuatorDigital, public ActuatorTimeLimitedMixin
@@ -55,17 +55,14 @@ public:
     	v.visit(*this);
     }
 
-    void setState(State state, int8_t priority = 127) override final;
+    void setState(const State & state, const int8_t & priority = 127, const ticks_seconds_t & now) override final;
 
     State getState() const override final
     {
         return state;
     }
 
-    virtual void update() override final;
-
-    virtual void fastUpdate() override final {} // time limit is in seconds, no fast update needed
-
+    virtual update_t update(const update_t & t) override final;
 
     void setTimes(ticks_seconds_t   _minOnTime,
                   ticks_seconds_t   _minOffTime,
@@ -74,7 +71,7 @@ public:
         minOffTime = _minOffTime;
         maxOnTime = _maxOnTime;
     }
-    ticks_seconds_t timeSinceToggle(void) const;
+    ticks_seconds_t timeSinceToggle(const ticks_seconds_t & now) const;
 
 private:
     ActuatorDigital & target;

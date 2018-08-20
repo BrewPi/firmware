@@ -11,7 +11,6 @@
 // MDMA: added reset detection support so calling code knows to re-initialize the sensor
 
 #include "DallasTemperature.h"
-#include "Ticks.h"
 
 DallasTemperature::DallasTemperature(OneWire* _oneWire)
 #if REQUIRESALARMS

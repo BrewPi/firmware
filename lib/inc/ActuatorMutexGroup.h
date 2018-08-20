@@ -19,13 +19,13 @@
 
 #pragma once
 
-#include "Ticks.h"
 #include "Interface.h"
 #include "ActuatorInterfaces.h"
 #include "ActuatorMutexGroupInterface.h"
 #include "ActuatorMutexDriver.h"
 #include <vector>
 #include "ControllerMixins.h"
+#include "MockTicks.h"
 
 
 class ActuatorMutexGroup final :
@@ -55,8 +55,7 @@ public:
     	v.visit(*this);
     }
 
-    virtual void update() override final;
-    virtual void fastUpdate() override final {} // not needed
+    virtual update_t update(const update_t & t) override final;
 
     virtual void registerActuator(ActuatorMutexDriver * act) override final;
     virtual void unRegisterActuator(ActuatorMutexDriver * act) override final;

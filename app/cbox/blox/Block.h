@@ -15,12 +15,12 @@ public:
 
 	virtual Interface * getApplicationInterfaceImpl() = 0;
 
-	virtual uint32_t update(const uint32_t & currentTime) override final {
+	virtual update_t update(const update_t & t) override final {
 	    Interface * appInterface = getApplicationInterface();
 	    if(appInterface != nullptr){
-	        appInterface->update();
+	        return appInterface->update(t);
 	    }
-	    return 0; // TODO have application classes return the time until next update
+	    return t + 1000; // retry objects that cannot be updated every second
 	}
 };
 

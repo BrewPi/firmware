@@ -18,9 +18,10 @@
  */
 
 #include "ActuatorMutexGroup.h"
+
+#include "../inc/MockTicks.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorInterfaces.h"
-#include "Ticks.h"
 
 void ActuatorMutexGroup::registerActuator(ActuatorMutexDriver * act){
     actuatorPriorities.push_back(ActuatorPriority(act, -1));

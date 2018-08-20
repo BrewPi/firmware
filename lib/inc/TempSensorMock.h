@@ -42,18 +42,14 @@ public:
 	}
 	
 	virtual bool isConnected() const override final { return connected; }
-
-	virtual bool init() override final {
-		return !read().isDisabledOrInvalid();
-	}
 	
 	void add(temp_t delta){
 	    value += delta;
 	}
 
-	virtual void update() override final {
-	    // nop for this mock sensor
-	}
+	virtual update_t update(const update_t & t) override final {
+        return update_t_max(); // no updates needed
+    }
 
 	virtual temp_t read() const override final
 	{

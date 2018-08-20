@@ -33,8 +33,9 @@ public:
     virtual void accept(VisitorBase & v) override final {
         v.visit(*this);
     }
-    virtual void update() override final {};
-    virtual void fastUpdate() override final {};
+    virtual update_t update(const update_t & t) override final {
+        return update_t_max(); // no updates needed
+    }
 
     virtual void registerActuator(ActuatorMutexDriver * act) override final {};
     virtual void unRegisterActuator(ActuatorMutexDriver * act) override final {};

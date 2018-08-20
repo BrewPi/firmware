@@ -375,7 +375,6 @@ private:
             writer.put(BlockType::disposed_block);
             writer.put(uint16_t(EepromLocationSize(objects) - blockHeaderLength()));
         }
-        static_assert(EepromLocationEnd(objects) == EepromAccess::length());
     }
 
     // move a single disposed block backwards by swapping it with an object

@@ -92,7 +92,7 @@ public:
 /**
  * Wraps a stream to provide the DataOut interface.
  */
-template <class S>
+template <typename T>
 class StreamDataOut : public DataOut
 {
 protected:
@@ -100,9 +100,9 @@ protected:
      * The stream type that is adapted to a DataOut instance.
      * non-NULL.
      */
-	S& stream;
+	T& stream;
 public:
-    StreamDataOut(S& _stream) : stream(_stream) {}
+    StreamDataOut(T& _stream) : stream(_stream) {}
 
     bool write(uint8_t data) override {
         return stream.write(data)!=0;
@@ -122,17 +122,17 @@ public:
 	//StreamDataOut& operator=(const StreamDataOut& rhs)=delete;
 };
 
-template <class S>
+template <typename T>
 class StreamConnection : public Connection {
 private:
-    S& stream;
-    StreamDataIn<S> in;
-    StreamDataOut<S> out;
+    T stream;
+    StreamDataIn<T> in;
+    StreamDataOut<T> out;
 public:    
-    StreamConnection(S& _stream) :
-        stream(_stream),
-        in(_stream),
-        out(_stream)
+    StreamConnection(T _stream) :
+        stream(std::move(_stream)),
+        in(stream),
+        out(stream)
     {
     }
     
@@ -145,7 +145,11 @@ public:
     }
     
     virtual bool isConnected() override {
-        return stream.isConnected();
+        return stream.connected();
+    }
+
+    T & get(){
+        return stream;
     }
 
     StreamConnection(const StreamConnection& other) = delete; // not copyable

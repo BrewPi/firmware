@@ -20,10 +20,11 @@
 
 #include "temperatureFormats.h"
 #include "OneWireTempSensor.h"
+
+#include "../inc/MockTicks.h"
 #include "OneWireAddress.h"
 #include "DallasTemperature.h"
 #include "OneWire.h"
-#include "Ticks.h"
 #include "Logger.h"
 
 /**
@@ -32,10 +33,9 @@
  * If the result is TEMP_SENSOR_DISCONNECTED then subsequent calls to read() will also return TEMP_SENSOR_DISCONNECTED.
  * Clients should attempt to re-initialize the sensor by calling init() again. 
  */
-bool OneWireTempSensor::init() {
+void OneWireTempSensor::init() {
     bool success = false;
 
-    logDebug("init onewire sensor");
     // This quickly tests if the sensor is connected and initializes the reset detection if necessary.
 
     // If this is the first conversion after power on, the device will return DEVICE_DISCONNECTED_RAW
@@ -45,19 +45,8 @@ bool OneWireTempSensor::init() {
         // Device was just powered on and should be initialized
         if (sensor.initConnection(sensorAddress)) {
             requestConversion();
-            waitForConversion();
-            temp = sensor.getTempRaw(sensorAddress);
         }
     }
-    success = temp != DEVICE_DISCONNECTED_RAW;
-    if (success) {
-        cachedValue = temp;
-        requestConversion(); // piggyback request for a new conversion
-    }
-
-    setConnected(success);
-    logDebug("init onewire sensor complete %d", success);
-    return success;
 }
 
 void OneWireTempSensor::requestConversion() {
@@ -83,9 +72,10 @@ temp_t OneWireTempSensor::read() const {
     return cachedValue;
 }
 
-void OneWireTempSensor::update() {
+uint32_t OneWireTempSensor::update(uint32_t currentTime) {
     cachedValue = readAndConstrainTemp();
     requestConversion();
+    return currentTime + 1000;
 }
 
 temp_t OneWireTempSensor::readAndConstrainTemp() {
@@ -96,11 +86,8 @@ temp_t OneWireTempSensor::readAndConstrainTemp() {
     success = tempRaw != DEVICE_DISCONNECTED_RAW;
 
     if (!success) {
-        // retry re-init once
-        if (init()) {
-            tempRaw = sensor.getTempRaw(sensorAddress);
-            success = tempRaw != DEVICE_DISCONNECTED_RAW;
-        }
+        // retry re-init
+        init();
     }
 
     setConnected(success);

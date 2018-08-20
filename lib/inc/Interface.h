@@ -21,6 +21,12 @@
 #include <stdint.h>
 #include "ControllerMixins.h"
 #include "VisitorBase.h"
+#include <limits>
+
+using update_t = uint32_t;
+inline update_t update_t_max(){
+    return std::numeric_limits<update_t>::max();
+}
 
 class Interface :
     public InterfaceMixin
@@ -29,7 +35,6 @@ public:
 	Interface() = default;
     virtual ~Interface() = default;
 public:
-    virtual void update() = 0;
-    virtual void fastUpdate() = 0;
+    virtual update_t update(const update_t & t) = 0;
 	virtual void accept(VisitorBase & v) = 0;
 };

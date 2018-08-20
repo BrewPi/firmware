@@ -50,8 +50,7 @@ public:
         v.visit(*this);
     }
 
-    virtual void update() override final {};
-    virtual void fastUpdate() override final {};
+    virtual update_t update(const update_t & currentTime) override final { return update_t_max(); };
 
     virtual void set(temp_t const& setting) override final {
         setPoint.write(setting);

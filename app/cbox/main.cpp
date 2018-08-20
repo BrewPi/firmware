@@ -19,15 +19,12 @@
 
 
 #include "../../controlbox/src/lib/Object.h"
+//#include "../../lib/inc/MockTicks.h"
 #include "EepromTypes.h"
 #include "EepromAccessImpl.h"
 
-#include "Ticks.h"
-#include "ValueTicks.h"
-#include "ValueModels.h"
-#include "PersistChangeValue.h"
-#include "Commands.h"
 #include "Platform.h"
+#include "CboxApp.h"
 //#include "MDNS.h"
 
 // todo - add a system object that describes the application version
@@ -40,22 +37,23 @@ SYSTEM_THREAD(ENABLED);
 
 void setup()
 {
-    Serial.begin(57600);
-    eepromAccess.init();
-    cbox::controlbox_setup(0);
-    platform_init();
+    //Serial.begin(57600);
+    //eepromAccess.init();
+    //cbox::controlbox_setup(0);
+    //platform_init();
 
     System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
     WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
     Particle.connect();
+    cbox::Box & box = brewbloxBox();
 }
 
 
 
 void loop()
 {
-//
-	cbox::controlbox_loop();
+
+	brewbloxBox().hexCommunicate();
 /*
 	if(!mdns_started && WiFi.ready() && WiFi.RSSI() < 0){
 

@@ -5,9 +5,8 @@
  *  Author: mat
  */ 
 
-#include "Ticks.h"
-
 #include "TicksWiring.h"
+#include "../../lib/inc/MockTicks.h"
 
 
 ticks_seconds_t HardwareTicks::seconds() { return ::millis()/1000; }

@@ -19,18 +19,15 @@ void handleReset(bool exitFlag)
 static uint8_t device_id[12];
 #endif
 
-bool platform_init()
+void platform_init()
 {            
 #if PLATFORM_ID==PLATFORM_GCC
 	HAL_device_ID(device_id, 12);
 #endif
-	bool wasInitialized = eepromAccess.init();
 
 #if PLATFORM_THREADING
     System.on(setup_update, watchdogCheckin);
 #endif
-
-    return wasInitialized;
 }
 
 #if PLATFORM_THREADING
@@ -39,19 +36,4 @@ bool platform_init()
 ApplicationWatchdog appWatchdog(60000, System.reset);
 #endif
 
-/**
- * In the cbox app, this is called as part of global construction, which is
- * too early for the gcc device to have feched the device id, so it's initialized
- * properly in platform_init() after the gcc command args have been parsed.
- */
-void platform_device_id(data_block_ref& id)
-{
-#if PLATFORM_ID!=3
-	id.data = (void*)ID1;
-	id.size = 12;
-#else
-	id.data = device_id;
-	id.size = 12;
-#endif
-}
 

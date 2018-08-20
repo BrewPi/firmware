@@ -115,8 +115,10 @@ public:
         target.set(targetValue);
     };
 
-    virtual void update() override final {}; // no action. SetPoint actuator only applies it's value when written by a PID
-    virtual void fastUpdate() override final {}; //no actions required
+    // no action. SetPoint actuator only applies it's value when written by a PID
+    virtual update_t update(const update_t & t) override final {
+        return update_t_max(); // no updates needed
+    }
 
 private:
     ProcessValue & target; // process value to manipulate

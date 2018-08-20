@@ -19,12 +19,12 @@
 
 #pragma once
 
+#include "../../lib/inc/MockTicks.h"
 #include "Brewpi.h"
 #include "temperatureFormats.h"
 #include "Platform.h"
 #include "EepromTypes.h"
 #include "ModeControl.h"
-#include "Ticks.h"
 #include "Control.h"
 
 // These two structs are stored in and loaded from EEPROM

@@ -80,11 +80,10 @@ class ActuatorOneWire final:
 
         }
 
-        void update() override final{
+        virtual update_t update(const update_t & t) override final {
             device->update();
+            return t + 1000; // update every second
         }
-
-        virtual void fastUpdate() override final {} // no actions needed
 
         /**
          * This function can be used to get a reference to the DS2413, so it can be shared with another actuator.

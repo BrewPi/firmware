@@ -20,20 +20,20 @@
 #pragma once
 
 #include "Connections.h"
+#include "spark_wiring_tcpclient.h"
 #include "spark_wiring_tcpserver.h"
 
-class TcpConnnection : public StreamConnection {
-private:
-    TcpClient client;
+namespace cbox {
+
+class TcpConnection : public StreamConnection<TCPClient> {
 public:
-    TcpConnection(TcpClient _client) :
-        client(_client),
-        StreamConnection(client)
+    TcpConnection(TCPClient _client) :
+        StreamConnection<TCPClient>(std::move(_client))
     {}
     ~TcpConnection(){
-        client->stop();    
+        get().stop();
     }
-}
+};
 
 class TcpConnectionSource : public ConnectionSource
 {
@@ -41,13 +41,15 @@ private:
     TCPServer server;
 public:
 
-    TcpConnectionSource() : server(8332){}
+    TcpConnectionSource(uint16_t port) : server(port){}
     
     std::unique_ptr<Connection> newConnection(){
         TCPClient newClient = server.available();
-        if(newClient.isConnected()){
+        if(newClient.connected()){
             return std::make_unique<TcpConnection>(newClient);
         }
         return nullptr;
     }
-}
+};
+
+} // end namespace cbox

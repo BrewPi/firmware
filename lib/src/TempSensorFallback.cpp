@@ -25,7 +25,7 @@ temp_t TempSensorFallback::read() const {
     return activeSensor().read();
 }
 
-void TempSensorFallback::update() {
+update_t TempSensorFallback::update(const update_t & t) {
     if(main.isConnected()){
         if(onBackupSensor){
             // return to main sensor and log message
@@ -42,4 +42,5 @@ void TempSensorFallback::update() {
             onBackupSensor = true;
         }
     }
+    return t + 1000;
 }

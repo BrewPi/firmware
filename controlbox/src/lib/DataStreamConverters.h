@@ -36,6 +36,8 @@ namespace cbox {
  * The result of this is that lines are polled non-blocking while no data is available, and when data is available
  * the stream blocks for each character until the entire line is read.
  */
+
+/*
 class TextIn : public DataIn {
     DataIn*	_in;
     uint8_t data;
@@ -79,13 +81,14 @@ public:
         return commentLevel<0;
     }
 };
+*/
 
 #if !defined(SPARK)
 inline bool isdigit(char c){ 
 	return  c >= '0' && c <= '9';
 }
 
-inline bool isHexadecimalDigit(char c)
+inline bool isxdigit(char c)
 {
 	return isdigit(c) || (c>='A' && c<='F') || (c>='a' && c<='f');
 }

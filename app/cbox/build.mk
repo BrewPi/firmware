@@ -13,7 +13,9 @@ CPPSRC += $(call target_files,lib/src,*.cpp)
 # add all cbox lib source files
 INCLUDE_DIRS += $(SOURCE_PATH)/controlbox/src/lib
 CPPSRC += $(call here_files,controlbox/src/lib/,*.cpp)
-CFLAGS += -DCONTROLBOX_STATIC=1 # use static controlbox implementation
+
+# enable C++14
+CPPFLAGS += -std=gnu++14
 
 # add auto-generated protobuf includes
 INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox/proto/cpp

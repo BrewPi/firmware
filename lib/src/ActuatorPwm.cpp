@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include "Ticks.h"
 #include "ActuatorInterfaces.h"
 #include "temperatureFormats.h"
 #include "ActuatorPwm.h"
@@ -10,12 +9,12 @@ ActuatorPwm::ActuatorPwm(ActuatorDigital & _target, uint16_t _period) :
     dutySetting(0.0),
     dutyLate(0),
     periodLate(0),
+    periodStartTime(0),
     minVal(0.0),
     maxVal(100.0)
 {
     target.setState(ActuatorDigital::State::Inactive);
     setPeriod(_period); // sets period_ms
-    periodStartTime = ticks.millis();
     // at init, pretend last high period was tiny spike in the past
     lowToHighTime = periodStartTime - period_ms;
     highToLowTime = lowToHighTime + 2;

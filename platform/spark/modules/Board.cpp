@@ -19,11 +19,10 @@
 
 #include "Platform.h"
 #include "Board.h"
-#include "Ticks.h"
 
 bool readAlarmPin(){
     pinMode(PIN_ALARM, INPUT);
-    wait.millis(1); // give time to change
+    HAL_Delay_Milliseconds(1); // give time to change
     bool result = digitalRead(PIN_ALARM);
     pinMode(PIN_ALARM, OUTPUT);
     return result;

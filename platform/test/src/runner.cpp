@@ -44,7 +44,7 @@
 
 #include "runner.h"
 #include "Platform.h"
-#include "Ticks.h"
+#include "../../../lib/inc/MockTicks.h"
 
 ExternalTicks ticks;
 NoOpDelay wait;

@@ -21,9 +21,9 @@
 
 
 #include "Brewpi.h"
-#include "Ticks.h"
 #include "Board.h"
 #include "Buzzer.h"
+#include "../../../../lib/inc/MockTicks.h"
 
 #if BREWPI_BUZZER
 

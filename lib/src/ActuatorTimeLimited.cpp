@@ -20,9 +20,10 @@
 
 
 #include "ActuatorTimeLimited.h"
+
 #include "Ticks.h"
 
-void ActuatorTimeLimited::setState(State newState, int8_t priority)
+void ActuatorTimeLimited::setState(const State & newState, const int8_t &priority, const ticks_seconds_t & now)
 {
     State oldState = state;
 
@@ -44,21 +45,22 @@ void ActuatorTimeLimited::setState(State newState, int8_t priority)
         state = target.getState();
 
         if(oldState != state && state != State::Unknown){
-            toggleTime = ticks.seconds();
+            toggleTime = now();
         }
     }
 }
 
-void ActuatorTimeLimited::update()
+update_t ActuatorTimeLimited::update(const update_t & t)
 {
-    target.update();
+    target.update(t);
     state = target.getState(); // make sure state is always up to date with target
     if (state == State::Active && (timeSinceToggle() >= maxOnTime)){
         setState(State::Inactive);
     }
+    return t + 1000;
 }
 
-ticks_seconds_t ActuatorTimeLimited::timeSinceToggle() const
+ticks_seconds_t ActuatorTimeLimited::timeSinceToggle(const ticks_seconds_t & now) const
 {
-    return ticks.timeSinceSeconds(toggleTime);
+    return timeSinceSeconds(now, toggleTime);
 }

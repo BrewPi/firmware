@@ -18,7 +18,7 @@ typedef uint32_t ticks_micros_t;
 typedef uint32_t ticks_seconds_t;
 typedef uint8_t ticks_seconds_tiny_t;
 
-bool platform_init();
+void platform_init();
 
 #if PLATFORM_THREADING
 extern ApplicationWatchdog appWatchdog;
