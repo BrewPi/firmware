@@ -44,6 +44,7 @@ public:
     virtual void writeAnnotation(const char* /*data*/) {}
 	virtual void writeResponseSeparator() {}
 	virtual void writeListSeparator() {}
+	virtual void endMessage() {}
 
 	/**
 	 * Writes a byte to the stream.
@@ -76,8 +77,6 @@ public:
 	}
 
 	virtual void flush() {}
-
-	virtual void close() {}
 };
 
 /**

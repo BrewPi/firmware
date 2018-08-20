@@ -69,11 +69,12 @@ public:
 
 	void handleCommand(DataIn& data, DataOut& out);
 
-	// process all incoming messages
-    void communicate();
-
-    // process all incoming messages assuming they are hex encoded
+	// process all incoming messages assuming they are hex encoded
     void hexCommunicate();
+
+    auto getObject(const obj_id_t& id){
+        return objects.fetch(id);
+    }
 
 	enum CommandID : uint8_t {
 		NONE = 0,				// no-op

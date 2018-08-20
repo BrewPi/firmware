@@ -170,6 +170,7 @@ void Box::handleCommand(DataIn& dataIn, DataOut& dataOut)
     uint8_t cmd_id = teeIn.next();		// command type code
     DataIn& in = teeIn;
     DataOut& out = dataOut;
+
     switch(cmd_id){
         case NONE:
             noop(in, out);
@@ -202,14 +203,16 @@ void Box::handleCommand(DataIn& dataIn, DataOut& dataOut)
             invalidCommand(in, out);
             break;
     }
-}
 
-void Box::communicate() {
-    connections.process([this](DataIn & in, DataOut & out){ this->handleCommand(in,out);});
+    out.endMessage();
 }
 
 void Box::hexCommunicate() {
-    connections.processAsHex([this](DataIn & in, DataOut & out){ this->handleCommand(in,out);});
+    connections.processAsHex([this](DataIn & in, DataOut & out){
+        if(in.hasNext()){
+            this->handleCommand(in,out);
+        }
+    });
 }
 
 } // end namespace cbox

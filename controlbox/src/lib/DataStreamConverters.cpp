@@ -17,7 +17,9 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "DataStream.h"
 #include "DataStreamConverters.h"
+#include <stdint.h>
 
 namespace cbox {
 /**
@@ -25,7 +27,7 @@ namespace cbox {
  * Sets hasData and data.
  * @param set to true if more data is optional, true if data is expected and should be waited for.
  */
-/*
+
 void TextIn::fetchNextData(bool optional) {
     optional = !inLine;
 	while (commentLevel>=0 && !hasData && (_in->hasNext())) {
@@ -33,10 +35,10 @@ void TextIn::fetchNextData(bool optional) {
 			data = 0xFF;
 			uint8_t d = _in->next();
             inLine = true;
-			if (d=='[') {
+			if (d=='<') {
 				commentLevel++;
 			}
-			else if (d==']') {
+			else if (d=='>') {
 				commentLevel--;
 			}
 			else if (d=='\n' || d=='\r') {
@@ -49,7 +51,7 @@ void TextIn::fetchNextData(bool optional) {
 			}
 		}
 	}
-}*/
+}
 
 uint8_t blockingRead(DataIn& in, uint8_t closed)
 {

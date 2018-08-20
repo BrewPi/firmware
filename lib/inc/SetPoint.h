@@ -29,7 +29,6 @@ public:
     virtual ~SetPoint() = default;
     virtual temp_t read() const = 0;
     virtual void write(temp_t val) = 0;
-    virtual update_t update(const update_t & t) = 0;
 friend class SetPointMixin;
 };
 

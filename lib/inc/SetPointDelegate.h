@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include "ControllerMixins.h"
 #include "Interface.h"
+#include "RefTo.h"
 
 class SetPointDelegate :
     public SetPoint,
@@ -41,6 +42,10 @@ public:
 
     virtual void write(temp_t val) override final {
         delegate().write(val);
+    }
+
+    virtual update_t update(const update_t& now) override final {
+        return update_t_max(); // no updates needed
     }
 
 private:

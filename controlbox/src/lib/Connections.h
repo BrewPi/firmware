@@ -201,7 +201,8 @@ public:
     void processAsHex(std::function<void(DataIn& in, DataOut& out)> handler){
         updateConnections();
         for(auto& conn : connections){
-            HexTextToBinaryIn hexIn(conn->getDataIn());
+            TextIn textIn(conn->getDataIn());
+            HexTextToBinaryIn hexIn(textIn);
             BinaryToHexTextOut hexOut(conn->getDataOut());
             handler(hexIn, hexOut);
         }

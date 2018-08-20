@@ -29,7 +29,7 @@
 
 #include "blox/OneWireTempSensorBlock.h"
 //#include "blox/PidBlock.h"
-//#include "blox/SensorSetPointPairBlock.h"
+#include "blox/SensorSetPointPairBlock.h"
 #include "blox/SetPointSimpleBlock.h"
 #include "OneWire.h"
 #include "OneWireBusBlock.h"
@@ -68,7 +68,7 @@ void connectionStarted(DataOut& out)
 }
 }
 
-
+class SensorSetPointPairBlock;
 
 cbox::Box & brewbloxBox(){
     static cbox::ObjectContainer objects = {
@@ -78,8 +78,8 @@ cbox::Box & brewbloxBox(){
 
     static cbox::ObjectFactory objectFactory = {
             OBJECT_FACTORY_ENTRY(OneWireTempSensorBlock),
-            OBJECT_FACTORY_ENTRY(SetPointSimpleBlock)
-            //OBJECT_FACTORY_ENTRY(SensorSetPointPairBlock),
+            OBJECT_FACTORY_ENTRY(SetPointSimpleBlock),
+            OBJECT_FACTORY_ENTRY(SensorSetPointPairBlock)
             //OBJECT_FACTORY_ENTRY(PidBlock)
     };
 
@@ -87,7 +87,7 @@ cbox::Box & brewbloxBox(){
     static cbox::EepromObjectStorage objectStore(eeprom);
 
     static cbox::TcpConnectionSource tcpSource(8332);
-    static cbox::ConnectionPool connections = {};
+    static cbox::ConnectionPool connections = {tcpSource};
 
     static cbox::Box appBox(objectFactory, objects, objectStore, connections);
 

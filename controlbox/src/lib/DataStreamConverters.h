@@ -37,7 +37,7 @@ namespace cbox {
  * the stream blocks for each character until the entire line is read.
  */
 
-/*
+
 class TextIn : public DataIn {
     DataIn*	_in;
     uint8_t data;
@@ -81,9 +81,8 @@ public:
         return commentLevel<0;
     }
 };
-*/
 
-#if !defined(SPARK)
+
 inline bool isdigit(char c){ 
 	return  c >= '0' && c <= '9';
 }
@@ -92,7 +91,6 @@ inline bool isxdigit(char c)
 {
 	return isdigit(c) || (c>='A' && c<='F') || (c>='a' && c<='f');
 }
-#endif
 
 /**
  * Converts a hex digit to the corresponding binary value.
@@ -191,7 +189,7 @@ public:
 	/**
 	 * Rather than closing the global stream, write a newline to signify the end of this command.
 	 */
-	virtual void close() override final {
+	virtual void endMessage() override final {
 		out.write('\r');
 		out.write('\n');
 	}
