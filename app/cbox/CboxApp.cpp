@@ -35,12 +35,8 @@
 #include "OneWireBusBlock.h"
 #include "EepromObjectStorage.h"
 #include <memory>
-// #include "../../lib/inc/MockTicks.h"
+#include "TicksWiring.h"
 
-//OneWireBusBlock oneWireBus;
-//DelayImpl wait = DelayImpl(DELAY_IMPL_CONFIG);
-//TicksImpl baseticks;
-//cbox::ScaledTicksValue<TicksImpl> ticks(baseticks);
 OneWire oneWireBus(0);
 
 class DeviceIdObject : public cbox::RawStreamObject<std::array<uint8_t,12>> {
@@ -70,10 +66,14 @@ void connectionStarted(DataOut& out)
 
 class SensorSetPointPairBlock;
 
+using TicksClass = Ticks<TicksWiring>;
+TicksClass ticks;
+
 cbox::Box & brewbloxBox(){
     static cbox::ObjectContainer objects = {
             cbox::ContainedObject(1, 0xFF, std::make_shared<DeviceIdObject>()),
-            cbox::ContainedObject(2, 0xFF, std::make_shared<OneWireBusBlock>(oneWireBus)),
+            cbox::ContainedObject(2, 0xFF, std::make_shared<cbox::TicksObject<TicksClass>>(ticks)),
+            cbox::ContainedObject(3, 0xFF, std::make_shared<OneWireBusBlock>(oneWireBus))
     };
 
     static cbox::ObjectFactory objectFactory = {

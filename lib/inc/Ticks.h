@@ -20,26 +20,63 @@
 
 #pragma once
 
-#include "Platform.h"
 #include <stdint.h>
+#include <ctime>
 
 using tcduration_t = uint32_t;
 using ticks_millis_t = uint32_t;
 using ticks_micros_t = uint32_t;
 using ticks_seconds_t = uint32_t;
 
-/**
- * Ticks - interface to a millisecond timer
- *
- * With more code space, Ticks would have been a virtual base class, so all implementations can easily provide the same interface.
- * Here, the different implementations have no common (virtual) base class to save code space.
- * Instead, a typedef is used to compile-time select the implementation to use.
- * If that implementation doesn't implement the Ticks interface as expected, it will fail to compile.
- */
-
-
 // return time that has passed since timeStamp, take overflow into account
 ticks_seconds_t timeSinceSeconds(ticks_seconds_t currentTime, ticks_seconds_t previousTime);
 
 // return time that has passed since timeStamp, take overflow into account
 ticks_millis_t timeSinceMillis(ticks_millis_t currentTime, ticks_millis_t previousTime);
+
+
+template <typename Impl>
+class Ticks {
+    Impl impl;
+    ticks_seconds_t utcStart;
+
+public:
+    Ticks() : impl(), utcStart(0){
+    }
+
+    inline ticks_millis_t millis() {
+        return impl.millis();
+    }
+    inline ticks_micros_t micros() {
+        return impl.micros();
+    }
+    inline ticks_seconds_t seconds() {
+        return impl.seconds();
+    }
+    inline ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) {
+        return ::timeSinceSeconds(seconds(), timeStamp);
+    }
+    inline ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) {
+        return ::timeSinceMillis(millis(), timeStamp);
+    }
+
+    void setNow(const ticks_seconds_t & utcNow){
+        utcStart = utcNow - seconds();
+    }
+
+    ticks_seconds_t getNow(){
+        return utcStart + seconds();
+    }
+
+    struct tm calendarTime()
+    {
+        struct tm *calendar_time;
+        calendar_time = getNow();
+        calendar_time->tm_year += 1900;
+        return *calendar_time;
+    }
+};
+
+
+
+

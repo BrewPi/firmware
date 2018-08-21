@@ -1,7 +1,7 @@
 /*
- * Copyright 2014-2015 Matthew McGowan.
+ * Copyright 2018 BrewPi B.V.
  *
- * This file is part of Nice Firmware.
+ * This file is part of Controlbox
  *
  * Controlbox is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,64 +26,28 @@
 
 namespace cbox {
 
-/*
- * Allows time to run normally, or allows external code to manipulate time for testing and simulation.
- * The original ticks instance has been renamed baseticks, and this provides the current (real) time
- * for the platform, which is used by this class to compute the scaled time.
- *
- * The current time and scale are not persisted to eeprom.
- */
 template<class T>
-class ScaledTicksValue : public Object
+class TicksObject : public Object
 {
-	ticks_millis_t logicalStart;
-	ticks_millis_t timerStart;
-	uint16_t scale;
-	T & base;
+	T & ticks;
 
 public:
-	ScaledTicksValue(T& _base) : logicalStart(0), timerStart(0), scale(1), base(_base){}
-
-	ticks_millis_t millis() const {
-		uint32_t now_offset = base.millis()-timerStart;
-		return logicalStart + (now_offset*scale);
-	}
-
-	ticks_millis_t millis(ticks_millis_t currentTime) const {
-		uint32_t now_offset = currentTime-timerStart;
-		return logicalStart + (now_offset*scale);
-	}
-
-	ticks_seconds_t seconds() const { return millis()/1000; }
+	TicksObject(T & _ticks) : ticks(_ticks){}
 
 	virtual CboxError streamTo(DataOut& out) const override final {
-		ticks_millis_t timeVal = millis(base.millis());
-		out.put(timeVal);
-		out.put(scale);
+		ticks_seconds_t secondsSinceUtc = ticks.getNow();
+		out.put(secondsSinceUtc);
 		return CboxError::no_error;
 	}
 
 	virtual CboxError streamFrom(DataIn& in) override final {
-		ticks_millis_t newLogicalStart;
-		uint16_t newScale;
+	    ticks_seconds_t secondsSinceUtc;
 
-		if(!in.get(newLogicalStart)){
+		if(!in.get(secondsSinceUtc)){
 		    return CboxError::input_stream_read_error;
 		}
-        if(!in.get(newScale)){
-            return CboxError::input_stream_read_error;
-        }
-
-		logicalStart = newLogicalStart; // store what the scaled time was at the time of write
-		timerStart = base.millis(); // store the base time at the time of write
-		scale = newScale;
+        ticks.setNow(secondsSinceUtc);
 		return CboxError::no_error;
-	}
-
-	// return time that has passed since timeStamp, take overflow into account
-	ticks_seconds_t timeSinceSeconds(ticks_seconds_t previousTime) const {
-		ticks_seconds_t currentTime = seconds();
-		return ::timeSinceSeconds(currentTime, previousTime);
 	}
 
 	virtual obj_type_t typeId() const override final {
@@ -94,34 +58,4 @@ public:
 
 } // end namespace cbox
 
-#if 0
-
-/**
- * Time is critical to so many components that this is provided as a system-level service outside of the cbox namespace
- * The SystemProfile maintains this instance and persists changes to eeprom.
- */
-extern cbox::ScaledTicksValue<TICKS> ticks(baseticks);
-
-
-namespace cbox {
-
-/**
- * Remembers the time at the start of the current cycle.
- */
-class CurrentCycleTicksValue : public CurrentTicksValue
-{
-	ticks_millis_t cycle_ticks;
-public:
-
-	virtual void update() override final {
-		cycle_ticks = ticks.millis();
-	}
-
-	virtual void readTo(DataOut& out) override final {
-		out.writeBuffer(&cycle_ticks, sizeof(cycle_ticks));
-	}
-};
-
-} // end namespace cbox
-#endif
 

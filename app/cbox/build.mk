@@ -75,8 +75,8 @@ CPPSRC += $(call here_files,app/cbox/blox,*.cpp)
 #CSRC += $(call target_files,app/devices,*.c)
 #CPPSRC += $(call target_files,app/devices,*.cpp)
 
-#CSRC += $(call target_files,platform/wiring/,*.c)
-#CPPSRC += $(call target_files,platform/wiring/,*.cpp)
+CSRC += $(call here_files,platform/wiring/,*.c)
+CPPSRC += $(call here_files,platform/wiring/,*.cpp)
 
 CSRC += $(call here_files,platform/spark/modules,*.c)
 CPPSRC += $(call here_files,platform/spark/modules,*.cpp)

@@ -26,19 +26,18 @@
 /*
  * The Ticks class provides the time period since the device was powered up.
  */
-class HardwareTicks {
+class TicksWiring {
 public:
+    TicksWiring(){}
 	ticks_millis_t millis();
 	ticks_micros_t micros();
 	ticks_seconds_t seconds();
-	ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) { return ::timeSinceSeconds(seconds(), timeStamp); }
-    ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) {  return ::timeSinceMillis(millis(), timeStamp); }
 };
 
 
-class HardwareDelay {
+class DelayWiring {
 public:
-	HardwareDelay() {}
+	DelayWiring(){}
 	void seconds(uint16_t seconds);
 	void millis(uint16_t millis);
 	void microseconds(uint32_t micros);

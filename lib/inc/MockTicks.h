@@ -24,8 +24,6 @@
 #include <stdint.h>
 #include "Ticks.h"
 
-#error // Do not include this file during refactor
-
 /**
  * A Ticks implementation that increments the millis count each time it is called.
  * This is used for testing.
@@ -83,4 +81,18 @@ public:
     void microseconds(uint32_t micros) { }
 };
 
+/*
+class MockDelay {
+public:
+    MockDelay() {}
+    void seconds(uint16_t seconds){
+        baseticks.advance(ticks_millis_t(1000) * ticks_millis_t(seconds));
+    }
+    void millis(uint16_t millis){
+        baseticks.advance(millis);
+    }
+    void microseconds(uint32_t micros) {}
+};
+
+*/
 
