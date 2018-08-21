@@ -1,18 +1,18 @@
 syntax = "proto3";
 
-import 'nanopb.proto';
+import 'brewblox.proto';
 
 package blox;
 
 // Command encodes the next command to perform when the object is read
 // data is optional and only used in some commands. For example when doing a family search, data contains the family ID 
-message OneWireCommand {
-	uint32 command = 1;
-	uint32 data = 2;
-}
 
-// OneWire read executes the last command that was written and returns the result.
-message OneWireRead {
-    OneWireCommand lastCommand = 1;
-    repeated fixed64 address = 2;   
+message OneWireBus {
+    message Command {
+        uint32 opcode = 1;
+        uint32 data = 2;
+    }
+
+    Command command = 1;
+    repeated bytes address = 2 [(brewblox).hexed = true, (brewblox).readonly = true];
 }

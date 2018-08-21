@@ -5,8 +5,8 @@ import 'brewblox.proto';
 package blox;
 
 message OneWireTempSensor {
-  sint32 value = 1 [(brewblox).unit = "degC", (brewblox).fraction_bits = 8];;
+  sint32 value = 1 [(brewblox).unit = "degC", (brewblox).scale = 256];
   bool connected = 2;
-  sint32 offset = 3 [(brewblox).unit = "degC", (brewblox).fraction_bits = 8];
-  fixed64 address = 4;
+  sint32 offset = 3 [(brewblox).unit = "delta_degC", (brewblox).scale = 256];
+  fixed64 address = 4 [(brewblox).hexed = true];;
 }

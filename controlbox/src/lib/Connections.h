@@ -120,7 +120,7 @@ public:
      * The close method is defined by the specific template instantiation.
      */
     /*void close() override {
-    	stream.close();
+    	stream.close(); TODO?
     }*/
 
 	//StreamDataOut& operator=(const StreamDataOut& rhs)=delete;
@@ -201,8 +201,7 @@ public:
     void processAsHex(std::function<void(DataIn& in, DataOut& out)> handler){
         updateConnections();
         for(auto& conn : connections){
-            TextIn textIn(conn->getDataIn());
-            HexTextToBinaryIn hexIn(textIn);
+            HexTextToBinaryIn hexIn(conn->getDataIn());
             BinaryToHexTextOut hexOut(conn->getDataOut());
             handler(hexIn, hexOut);
         }

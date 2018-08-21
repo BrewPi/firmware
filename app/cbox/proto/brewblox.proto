@@ -4,7 +4,10 @@ import "google/protobuf/descriptor.proto";
 
 message BrewbloxFieldOptions {
     string unit = 1;
-    uint32 fraction_bits = 2;
+    uint32 scale = 2;
+    string link = 3;
+    bool hexed = 4;
+    bool readonly = 5;
 }
 
 extend google.protobuf.FieldOptions {

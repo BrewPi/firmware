@@ -5,5 +5,5 @@ import 'brewblox.proto';
 package blox;
 
 message SetPointSimple {
-    sint32 setting = 1 [(brewblox).unit = "degC", (brewblox).fraction_bits = 8];
+    sint32 setting = 1 [(brewblox).unit = "degC", (brewblox).scale = 256];
 }
