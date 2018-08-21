@@ -37,6 +37,8 @@ OneWireAddress OneWireDevice::getDeviceAddress()
 bool OneWireDevice::validAddress(OneWire *     oneWire_,
                                  OneWireAddress address_)
 {
-    return address_[0] && (oneWire -> crc8(address_, 7) == address_[7]);
+    uint8_t * addr = address.asUint8ptr();
+
+    return addr[0] && (oneWire -> crc8(addr, 7) == addr[7]);
 }
 

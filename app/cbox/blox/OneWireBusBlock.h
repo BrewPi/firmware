@@ -6,6 +6,7 @@
 #include "OneWireBus.pb.h"
 #include "nanopb_callbacks.h"
 #include "Object.h"
+#include "OneWireAddress.h"
 
 class OneWireBusBlock: public cbox::Object { // not a block type, because it doesn't need to implement Interface*
 private:
@@ -21,16 +22,17 @@ protected:
 
     // stream result of a bus search, with arg pointing to the onewire bus
     static bool streamAdresses(pb_ostream_t *stream, const pb_field_t *field, void * const *arg){
-        uint8_t address[8] = {0};
+        OneWireAddress address;
         OneWire * busPtr = (OneWire *) *arg;
         if(busPtr == nullptr){
             return false;
         }
-        while (busPtr->search(address)) {
+        while (busPtr->search(address.asUint8ptr())) {
             if(!pb_encode_tag_for_field(stream, field)){
                 return false;
             }
-            if(!pb_encode_fixed64(stream, address)){
+            uint64_t addr = uint64_t(address);
+            if(!pb_encode_fixed64(stream, &addr)){
                 return false;
             }
         }

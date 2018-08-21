@@ -17,6 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#if 0
 #include "catch.hpp"
 #include <cstdio>
 #include <iostream>
@@ -28,7 +29,6 @@
 #include "Box.h"
 #include "VisitorCast.h"
 
-#if 0
 SCENARIO("A Blox Pid object can be created from streamed protobuf data"){
     GIVEN("a protobuf message struct defining a Pid object"){
         blox_Pid_Persisted message;

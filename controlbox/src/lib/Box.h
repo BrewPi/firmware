@@ -28,6 +28,7 @@
 #include "EepromObjectStorage.h"
 #include "CboxError.h"
 #include "ObjectFactory.h"
+#include <memory>
 
 namespace cbox {
 
@@ -42,6 +43,7 @@ private:
 	ObjectStorage& storage;
 	// Commander receives commands from connections in the connection pool and streams back the answer to the same connection
 	ConnectionPool& connections;
+	uint8_t activeProfiles;
 
 	// command handlers
 	void noop(DataIn& _in, DataOut& out);
@@ -54,16 +56,36 @@ private:
 	void listSavedObjects(DataIn& in, DataOut& out);
 	void reboot(DataIn& in, DataOut& out);
 	void factoryReset(DataIn& in, DataOut& out);
-	
-	// helper functions
-	void createObjectFromStorage(obj_id_t id);
+
+	void setActiveProfilesAndUpdateObjects(uint8_t newProfiles){
+	    for(auto cit = objects.cbegin(); cit != objects.cend(); cit++) {
+            obj_id_t objId = cit->id();
+            uint8_t objProfiles = cit->profiles();
+            obj_type_t objType = cit->object()->typeId();
+
+            bool shouldBeActive = newProfiles & objProfiles;
+
+            // replace entire 'contained object', not just the object inside.
+            // this ensures that any smart pointers to the contained object are also invalidated
+
+            if(shouldBeActive && objType == resolveTypeId<InactiveObject>()){
+                // look for object in storage
+            }
+
+            if(!shouldBeActive && objType != resolveTypeId<InactiveObject>()){
+                // replace object with inactive object
+                objects.replace(std::make_unique<ContainedObject>(objId, objProfiles, std::make_shared<InactiveObject>(objType)), cit);
+            }
+        }
+	}
 
 public:
 	Box(ObjectFactory& _factory, ObjectContainer& _objects, ObjectStorage& _storage, ConnectionPool & _connections) :
 	    factory(_factory),
 	    objects(_objects),
 		storage(_storage),
-		connections(_connections)
+		connections(_connections),
+		activeProfiles(0x01)
 	{}
 	~Box() = default;
 

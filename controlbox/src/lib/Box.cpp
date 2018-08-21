@@ -99,16 +99,39 @@ void Box::writeObject(DataIn& in, DataOut& out) {
  */
 void Box::createObject(DataIn& in, DataOut& out)
 {
-	obj_id_t newId;
+    obj_id_t requestedId;
+    obj_id_t newId;
+    obj_type_t typeId;
+    uint8_t profiles;
 
-	auto status = objects.addFromStream(in, factory, newId);
-	auto newObj = objects.fetchContained(newId);
+    CboxError status = CboxError::no_error;
+
+    if(!in.get(requestedId)){
+        status = CboxError::input_stream_read_error;
+    }
+    if(!in.get(profiles)){
+        status = CboxError::input_stream_read_error;
+    }
+    if(!in.get(typeId)){
+        status = CboxError::input_stream_read_error;
+    }
+
+    std::unique_ptr<Object> newObj;
+    if(status == CboxError::no_error){
+        status = factory.make(typeId, newObj);
+        if(newObj){
+           status = newObj->streamFrom(in);
+           if(status == CboxError::no_error){
+               newId = objects.add(std::move(newObj), profiles, requestedId);
+           }
+        }
+    }
 
 	in.spool();
     out.writeResponseSeparator();
     out.write(asUint8(status));
-    if(newObj){
-        newObj->streamTo(out);
+    if(auto ptrObj = objects.fetchContained(newId)){
+        ptrObj->streamTo(out);
     }
 }
 
@@ -147,7 +170,14 @@ void Box::listSavedObjects(DataIn& in, DataOut& out){
     in.spool();
     out.writeResponseSeparator();
     out.write(asUint8(CboxError::no_error));
-    storage.streamAllObjectsTo(out);
+    auto listStreamer = [&out](DataIn & objInStorage) -> CboxError {
+        out.writeListSeparator();
+        if(objInStorage.push(out)){
+            return CboxError::no_error;
+        }
+        return CboxError::output_stream_write_error;
+    };
+    storage.retrieveObjects(listStreamer);
 }
 
 void Box::reboot(DataIn& _in, DataOut& out){

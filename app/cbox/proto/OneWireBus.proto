@@ -14,5 +14,5 @@ message OneWireBus {
     }
 
     Command command = 1;
-    repeated bytes address = 2 [(brewblox).hexed = true, (brewblox).readonly = true];
+    repeated fixed64 address = 2 [(brewblox).hexed = true, (brewblox).readonly = true];
 }

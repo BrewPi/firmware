@@ -32,11 +32,11 @@ public:
     void parse(const char* s);
     void print(char* buf, uint8_t len);
 
-    operator uint8_t *() { // for compatibility with OneWire classes that take a uint8_t *
+    uint8_t * asUint8ptr() { // for compatibility with OneWire classes that take a uint8_t *
         return reinterpret_cast<uint8_t *>(&address);
     }
 
-    operator uint64_t() const { // for compatibility with OneWire classes that take a uint8_t *
+    operator uint64_t() const {
         return address;
     }
 

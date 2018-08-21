@@ -64,14 +64,11 @@ CSRC += $(call here_files,app/cbox/proto/cpp,*.c)
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/firmware/nanopb/nanopb
 CSRC += $(call here_files,platform/spark/firmware/nanopb/nanopb,*.c)
 
-# Mixins
-CPPSRC += /app/cbox/ControllerMixins.cpp
-
 # eeprom implementations
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/EEPROM
 
 # cbox app specific implementations
-CPPSRC += /app/cbox/CboxApp.cpp
+# CPPSRC += /app/cbox/CboxApp.cpp
 CPPSRC += /app/cbox/Logger.cpp
 CPPSRC += /app/cbox/AppResolveType.cpp
 CPPSRC += /app/cbox/nanopb_callbacks.cpp

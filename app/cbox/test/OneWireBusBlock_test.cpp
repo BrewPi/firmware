@@ -23,6 +23,7 @@
 #include <iomanip>
 
 #include "Box.h"
+#include "OneWire.h"
 #include "OneWireBusBlock.h"
 #include "Object.h"
 #include "DataStream.h"
@@ -53,14 +54,17 @@ SCENARIO("A Blox OneWireBus can stream a variable number of found addresses"){
 
         WHEN("a family search command is streamed in"){
 
-            blox_OneWireCommand message;
-            message.command = 2; // OneWire search
-            message.data = 0x28; // family code for onewire temp sensor
+            blox_OneWireBus message;
+            message.command.opcode = 2; // OneWire search
+            message.command.data = 0x28; // family code for onewire temp sensor
+            message.address.funcs.encode = nullptr;
+            message.address.arg = &owbus;
 
             uint8_t inbuf[100] = {0};
 
             BufferDataOut tempOut(inbuf, sizeof(inbuf));
-            CboxError res = streamProtoTo(tempOut, &message, blox_OneWireCommand_fields, sizeof(inbuf));
+
+            CboxError res = streamProtoTo(tempOut, &message, blox_OneWireBus_fields, sizeof(inbuf));
             CHECK(res == CboxError::no_error);
 
             BufferDataIn in(inbuf, sizeof(inbuf));

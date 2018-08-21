@@ -38,17 +38,17 @@ void OneWireTempSensor::init() {
 
     // If this is the first conversion after power on, the device will return DEVICE_DISCONNECTED_RAW
     // Because HIGH_ALARM_TEMP will be copied from EEPROM
-    int16_t temp = sensor.getTempRaw(sensorAddress);
+    int16_t temp = sensor.getTempRaw(sensorAddress.asUint8ptr());
     if (temp == DEVICE_DISCONNECTED_RAW) {
         // Device was just powered on and should be initialized
-        if (sensor.initConnection(sensorAddress)) {
+        if (sensor.initConnection(sensorAddress.asUint8ptr())) {
             requestConversion();
         }
     }
 }
 
 void OneWireTempSensor::requestConversion() {
-    sensor.requestTemperaturesByAddress(sensorAddress);
+    sensor.requestTemperaturesByAddress(sensorAddress.asUint8ptr());
 }
 
 void OneWireTempSensor::setConnected(bool _connected) {
@@ -80,7 +80,7 @@ temp_t OneWireTempSensor::readAndConstrainTemp() {
     int16_t tempRaw;
     bool success;
 
-    tempRaw = sensor.getTempRaw(sensorAddress);
+    tempRaw = sensor.getTempRaw(sensorAddress.asUint8ptr());
     success = tempRaw != DEVICE_DISCONNECTED_RAW;
 
     if (!success) {

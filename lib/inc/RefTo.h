@@ -25,7 +25,7 @@
 #include "Interface.h"
 #include "SetPoint.h"
 #include "TempSensor.h"
-#include "ActuatorInterfaces.h"
+//#include "ActuatorInterfaces.h"
 
 template<class T>
 T* defaultTarget();
@@ -36,8 +36,8 @@ T* asInterface(Interface* i);
 
 // explicit instantiation of template functions is done in cpp file.
 // declare extern here to prevent circular include errors
-extern template ActuatorDigital* asInterface<ActuatorDigital>(Interface*);
-extern template ActuatorAnalog* asInterface<ActuatorAnalog>(Interface*);
+// extern template ActuatorDigital* asInterface<ActuatorDigital>(Interface*);
+// extern template ActuatorAnalog* asInterface<ActuatorAnalog>(Interface*);
 extern template TempSensor* asInterface<TempSensor>(Interface*);
 extern template SetPoint* asInterface<SetPoint>(Interface*);
 

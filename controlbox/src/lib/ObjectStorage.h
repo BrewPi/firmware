@@ -26,20 +26,21 @@
 
 namespace cbox {
 
+using storage_id_t = uint16_t;
+
 class ObjectStorage {
 public:
     ObjectStorage() = default;
     virtual ~ObjectStorage() = default;
 
-    virtual CboxError streamObjectTo(DataOut& out, const obj_id_t & id) = 0;
-    virtual CboxError streamAllObjectsTo(DataOut& out) = 0;
-    virtual CboxError retreiveObject(const obj_id_t & id, Object & target) = 0;
-    virtual CboxError storeObject(const obj_id_t & id, const Object & source) = 0;
-    virtual bool disposeObject(const obj_id_t & id) = 0;
+    using fromStorageHandler = std::function<CboxError (DataIn &)>;
+    using toStorageHandler = std::function<CboxError (DataOut &)>;
 
-    using StreamedObjectHandler = std::function<CboxError (DataIn &)>;
+    virtual CboxError retreiveObject(const storage_id_t & id, const fromStorageHandler & handler) = 0;
+    virtual CboxError retrieveObjects(const fromStorageHandler & handler) = 0;
+    virtual CboxError storeObject(const storage_id_t & id, const toStorageHandler & handler) = 0;
+    virtual bool disposeObject(const storage_id_t & id) = 0;
 
-    virtual CboxError retrieveObjects(const StreamedObjectHandler & handler) = 0;
     virtual void clear() = 0;
 };
 

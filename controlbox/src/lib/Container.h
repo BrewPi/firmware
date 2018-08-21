@@ -23,88 +23,9 @@
 #include <stdint.h>
 #include <vector>
 #include "Object.h"
-#include "ResolveType.h"
-#include "ObjectFactory.h"
+#include "ContainedObject.h"
 
 namespace cbox {
-/**
- * A wrapper around an object that stores which type it is and in which profiles it is active
- */
-class ContainedObject : public Object {
-public:
-    explicit ContainedObject(obj_id_t id, uint8_t profiles, std::shared_ptr<Object> obj) :
-        _id(std::move(id)),
-        _profiles(std::move(profiles)),
-        _obj(std::move(obj)){};
-
-private:
-    obj_id_t _id;
-    uint8_t _profiles; // active in these profiles
-    std::shared_ptr<Object> _obj; // pointer to runtime object
-
-public:    
-    const obj_id_t & id() const {
-        return _id;
-    }
-
-    const uint8_t & profiles() const {
-        return _profiles;
-    }
-
-    const std::shared_ptr<Object>& object() const {
-        return _obj;
-    }
-
-    virtual obj_type_t typeId() const override final {
-        return resolveTypeId<ContainedObject>();
-    }
-
-    virtual CboxError streamTo(DataOut & out) const override final {
-        if(!out.put(_id)){
-            return CboxError::output_stream_write_error;
-        }
-        if(!out.put(_profiles)){
-            return CboxError::output_stream_write_error;
-        }
-        if(!out.put(_obj->typeId())){
-            return CboxError::output_stream_write_error;
-        }
-        return _obj->streamTo(out);
-    }
-
-    virtual CboxError streamFrom(DataIn & in) override final {
-        // id is not streamed in. It is immutable and assumed to be already read to find this entry
-
-        uint8_t newProfiles;
-        obj_type_t expectedType;
-        if(!in.get(newProfiles)){
-            return CboxError::input_stream_read_error;
-        }
-        if(!in.get(expectedType)){
-            return CboxError::input_stream_read_error;
-        }
-
-        if(expectedType == _obj->typeId()){
-            _profiles = newProfiles;
-            return _obj->streamFrom(in);
-        }
-        return CboxError::invalid_object_type;
-    }
-
-    virtual CboxError streamPersistedTo(DataOut& out) const override final{
-        // id is not streamed out. It is passed to storage separately
-        if(_obj->typeId() == resolveTypeId<InactiveObject>()){
-            return CboxError::no_error; // don't persist inactive objects
-        }
-        if(!out.put(_profiles)){
-            return CboxError::persisted_storage_write_error;
-        }
-        if(!out.put(_obj->typeId())){
-            return CboxError::persisted_storage_write_error;
-        }
-        return _obj->streamPersistedTo(out);
-    }
-};
 
 class ObjectContainer
 {
@@ -221,35 +142,6 @@ public:
         return newId;
     }
 
-
-    // create contained object directly from DataIn stream defining it
-    CboxError addFromStream(DataIn & in, const ObjectFactory & factory, obj_id_t & newId){
-        auto id = obj_id_t::invalid();
-        auto typeId = obj_type_t::invalid();
-        uint8_t profiles = 0x00;
-
-        if(!in.get(id)){
-            return CboxError::input_stream_read_error;
-        }
-        if(!in.get(profiles)){
-            return CboxError::input_stream_read_error;
-        }
-        if(!in.get(typeId)){
-            return CboxError::input_stream_read_error;
-        }
-
-        std::unique_ptr<Object> obj;
-        auto status = factory.make(typeId, obj);
-        if(!obj){
-            return status;
-        }
-        status = obj->streamFrom(in);
-        if(status == CboxError::no_error){
-            newId = add(std::move(obj), profiles, id);
-        }
-        return status;
-    }
-
     obj_id_t replace (std::unique_ptr<Object> obj, const uint8_t active_in_profiles, const obj_id_t id) {
         if(id < startId){
             return obj_id_t::invalid(); // refuse to replace system objects
@@ -259,10 +151,15 @@ public:
 
         if(p.first != p.second){
             // replace object with newly constructed object
-            *p.first = decltype(objects)::value_type(id, active_in_profiles, std::move(obj));
+            *p.first = ContainedObject(id, active_in_profiles, std::move(obj));
             return id;
         }
         return obj_id_t::invalid();
+    }
+
+    void replace (std::unique_ptr<Object> obj, const CIterator & cit) {
+        Iterator it = objects.erase(it, it); // trick to convert non-const iterator to non-const iterator
+        *it = ContainedObject(it->id(), it->profiles(), std::move(obj));
     }
 
     CboxError remove(obj_id_t id) {

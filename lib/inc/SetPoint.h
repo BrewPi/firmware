@@ -105,7 +105,7 @@ public:
         return max;
     }
 
-    virtual update_t update(const update_t & t) {
+    virtual update_t update(const update_t & t) override final{
         return update_t_max(); // no updates needed
     }
 

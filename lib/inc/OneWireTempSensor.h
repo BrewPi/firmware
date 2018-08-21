@@ -52,8 +52,8 @@ public:
 	 *    on the bus is used.
 	 * /param calibration	A temperature value that is added to all readings. This can be used to calibrate the sensor.	 
 	 */
-	OneWireTempSensor(OneWire* bus, OneWireAddress _address, const temp_t & _calibrationOffset) :
-	    sensor(bus),
+	OneWireTempSensor(OneWire& bus, OneWireAddress _address, const temp_t & _calibrationOffset) :
+	    sensor(&bus),
 	    sensorAddress(_address),
 	    calibrationOffset(_calibrationOffset),
 	    cachedValue(TEMP_SENSOR_DISCONNECTED),
@@ -63,7 +63,7 @@ public:
         init();
     }
 	
-	OneWireTempSensor(OneWire* bus) : OneWireTempSensor(bus, 0, temp_t(0.0)){}
+	OneWireTempSensor(OneWire& bus) : OneWireTempSensor(bus, 0, temp_t(0.0)){}
 
 
 	~OneWireTempSensor() = default;
