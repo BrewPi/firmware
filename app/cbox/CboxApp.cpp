@@ -19,6 +19,7 @@
 
 #include "Platform.h"
 
+
 #include "TicksObject.h"
 #include "Object.h"
 #include "Container.h"
@@ -37,13 +38,17 @@
 #include <memory>
 #include "TicksWiring.h"
 
+#if PLATFORM_ID != PLATFORM_GCC
+#include "deviceid_hal.h"
+#endif
+
 OneWire oneWireBus(0);
 
 class DeviceIdObject : public cbox::RawStreamObject<std::array<uint8_t,12>> {
 public:
     DeviceIdObject(){
 #if PLATFORM_ID != PLATFORM_GCC
-        obj = ID1;
+    	HAL_device_ID(reinterpret_cast<uint8_t *>(&(obj[0])), 12);
 #else
         obj = {0};
 #endif

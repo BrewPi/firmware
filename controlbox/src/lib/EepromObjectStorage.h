@@ -240,8 +240,15 @@ private:
     EepromDataOut writer;
 
 
-    const uint8_t magicByte = 0x69;
-    const uint8_t storageVersion = 0x01;
+    inline uint8_t magicByte() const {
+    	return 0x69;
+    }
+    inline uint8_t storageVersion() const {
+    	return 0x01;
+    }
+    inline uint16_t referenceHeader() const {
+		return magicByte() << 8 | storageVersion();
+	}
 
     void resetReader(){
         reader.reset(EepromLocation(objects), EepromLocationSize(objects));
@@ -357,10 +364,6 @@ private:
             }
         }
         return RegionDataOut(writer, 0); // length 0 writer
-    }
-
-    constexpr uint16_t referenceHeader(){
-        return magicByte << 8 | storageVersion;
     }
 
     void init(){

@@ -64,6 +64,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/OneWire
 #INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/ValvesController
 
 INCLUDE_DIRS += $(SOURCE_PATH)/controlbox/src/lib
+INCLUDE_DIRS += $(SOURCE_PATH)/controlbox/src/lib/stdio
 
 INCLUDE_DIRS += $(BOOST_ROOT)
 

@@ -24,11 +24,11 @@ namespace cbox { \
 }
 
 #define SET_TYPE_ID(classname, id) \
-static_assert(id >= 256); \
+static_assert(id >= 256, "User IDs need to be >= 256"); \
 SET_TYPE_ID_IMPL(classname, id)
 
 #define SET_SYSTEM_TYPE_ID(classname, id) \
-static_assert(id < 256); \
+static_assert(id < 256, "System IDs need to be <= 256"); \
 class classname; \
 template<> obj_type_t resolveTypeId<classname>() { return  id; }
 
