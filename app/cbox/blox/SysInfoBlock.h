@@ -20,42 +20,28 @@
 
 #pragma once
 
-#include "Ticks.h"
 #include "Object.h"
 #include "DataStream.h"
+#include "SysInfo.pb.h"
+#include "Block.h"
+#if PLATFORM_ID != PLATFORM_GCC
+#include "deviceid_hal.h"
+#endif
 
-namespace cbox {
-
-template<class T>
-class TicksObject : public Object
+// provides a protobuf interface to the read only system info
+class SysInfoBlock : public cbox::Object
 {
-	T & ticks;
+	virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final {
+		blox_SysInfo message;
 
-public:
-	TicksObject(T & _ticks) : ticks(_ticks){}
+		#if PLATFORM_ID != PLATFORM_GCC
+			HAL_device_ID(static_cast<uint8_t *>(&message.deviceId[0]), 12);
+		#endif
 
-	virtual CboxError streamTo(DataOut& out) const override final {
-		ticks_seconds_t secondsSinceUtc = ticks.getNow();
-		out.put(secondsSinceUtc);
-		return CboxError::no_error;
+		return streamProtoTo(out, &message, blox_SysInfo_fields, blox_SysInfo_size);
 	}
 
-	virtual CboxError streamFrom(DataIn& in) override final {
-	    ticks_seconds_t secondsSinceUtc;
-
-		if(!in.get(secondsSinceUtc)){
-		    return CboxError::input_stream_read_error;
-		}
-        ticks.setNow(secondsSinceUtc);
-		return CboxError::no_error;
-	}
-
-	virtual obj_type_t typeId() const override final {
-		// use function overloading and templates to manage type IDs in a central place (TypeRegistry)
-		return 11;
+	virtual cbox::obj_type_t typeId() const override final {
+		return resolveTypeId(this);
 	}
 };
-
-} // end namespace cbox
-
-

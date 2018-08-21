@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+import 'brewblox.proto';
+
+package blox;
+
+message Profiles {
+    uint32 active = 1;
+}

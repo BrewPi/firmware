@@ -20,7 +20,7 @@
 #include "Platform.h"
 
 
-#include "TicksObject.h"
+#include "ProfilesBlock.h"
 #include "Object.h"
 #include "Container.h"
 #include "Box.h"
@@ -36,30 +36,12 @@
 #include "OneWireBusBlock.h"
 #include "EepromObjectStorage.h"
 #include <memory>
-#include "TicksWiring.h"
 
-#if PLATFORM_ID != PLATFORM_GCC
-#include "deviceid_hal.h"
-#endif
+#include "blox/TicksBlock.h"
+#include "TicksWiring.h"
+#include "SysInfoBlock.h"
 
 OneWire oneWireBus(0);
-
-class DeviceIdObject : public cbox::RawStreamObject<std::array<uint8_t,12>> {
-public:
-    DeviceIdObject(){
-#if PLATFORM_ID != PLATFORM_GCC
-    	HAL_device_ID(reinterpret_cast<uint8_t *>(&(obj[0])), 12);
-#else
-        obj = {0};
-#endif
-	}
-
-	virtual cbox::obj_type_t typeId() const override final{
-		// use function overloading and templates to manage type IDs in a central place (TypeRegistry)
-		return cbox::resolveTypeId(this);
-	}
-};
-
 
 namespace cbox {
 void connectionStarted(DataOut& out)
@@ -76,9 +58,10 @@ TicksClass ticks;
 
 cbox::Box & brewbloxBox(){
     static cbox::ObjectContainer objects = {
-            cbox::ContainedObject(1, 0xFF, std::make_shared<DeviceIdObject>()),
-            cbox::ContainedObject(2, 0xFF, std::make_shared<cbox::TicksObject<TicksClass>>(ticks)),
-            cbox::ContainedObject(3, 0xFF, std::make_shared<OneWireBusBlock>(oneWireBus))
+            cbox::ContainedObject(1, 0xFF, std::make_shared<SysInfoBlock>()),
+            cbox::ContainedObject(2, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
+            cbox::ContainedObject(3, 0xFF, std::make_shared<OneWireBusBlock>(oneWireBus)),
+            cbox::ContainedObject(4, 0xFF, std::make_shared<ProfilesBlock>(objects))
     };
 
     static cbox::ObjectFactory objectFactory = {

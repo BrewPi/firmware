@@ -111,6 +111,7 @@ class ObjectContainer
 private:
     std::vector<ContainedObject> objects;
     obj_id_t startId;
+    uint8_t activeProfiles;
 
 public:
 
@@ -119,7 +120,8 @@ public:
 
     ObjectContainer() :
         objects(), 
-        startId(obj_id_t::start())
+        startId(obj_id_t::start()),
+		activeProfiles(0x1)
     {}
 
     ObjectContainer(std::initializer_list<ContainedObject> systemObjects) : 
@@ -280,6 +282,14 @@ public:
 
     CIterator cend(){
         return objects.cend();
+    }
+
+    const uint8_t getActiveProfiles() const {
+    	return activeProfiles;
+    }
+
+    void setActiveProfiles(const uint8_t p){
+    	activeProfiles = p;
     }
 };
 

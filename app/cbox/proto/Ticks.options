@@ -1,0 +1,2 @@
+blox.Ticks.millisSinceBoot int_size:IS_32
+blox.Ticks.secondsSinceEpoch int_size:IS_32

@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import 'brewblox.proto';
+
+package blox;
+
+// Command encodes the next command to perform when the object is read
+// data is optional and only used in some commands. For example when doing a family search, data contains the family ID 
+
+message SysInfo {
+    bytes deviceId = 1 [(brewblox).readonly = true];
+}

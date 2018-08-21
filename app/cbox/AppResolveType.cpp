@@ -29,3 +29,6 @@ SET_TYPE_ID(PidBlock, 258);
 SET_TYPE_ID(SensorSetPointPairBlock, 259);
 SET_TYPE_ID(SetPointSimpleBlock, 260);
 SET_TYPE_ID(DeviceIdObject,261);
+// TicksBlock: hardcoded at 262 <- TODO: make resolveTypeId work for template class
+SET_TYPE_ID(ProfilesBlock,263);
+SET_TYPE_ID(SysInfoBlock, 264);
