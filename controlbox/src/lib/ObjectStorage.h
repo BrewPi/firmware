@@ -36,7 +36,7 @@ public:
     using fromStorageHandler = std::function<CboxError (DataIn &)>;
     using toStorageHandler = std::function<CboxError (DataOut &)>;
 
-    virtual CboxError retreiveObject(const storage_id_t & id, const fromStorageHandler & handler) = 0;
+    virtual CboxError retrieveObject(const storage_id_t & id, const fromStorageHandler & handler) = 0;
     virtual CboxError retrieveObjects(const fromStorageHandler & handler) = 0;
     virtual CboxError storeObject(const storage_id_t & id, const toStorageHandler & handler) = 0;
     virtual bool disposeObject(const storage_id_t & id) = 0;

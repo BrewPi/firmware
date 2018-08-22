@@ -94,7 +94,7 @@ public:
         return res;
     }
 
-    virtual CboxError retreiveObject(const storage_id_t & id, const fromStorageHandler & handler) override final {
+    virtual CboxError retrieveObject(const storage_id_t & id, const fromStorageHandler & handler) override final {
         RegionDataIn objectEepromData = getObjectReader(id);
         if(objectEepromData.available() == 0){
             return cbox::CboxError::persisted_object_not_found;
@@ -327,11 +327,10 @@ private:
 
     void init(){
         uint16_t header;
-        resetReader();
-        reader.get(header);
+        eeprom.get(EepromLocation(header), header);
         if(header != referenceHeader()){
             eeprom.clear(); // writes zeros, active profiles is now also 0x00
-            eeprom.put(EepromLocation(header), header);
+            eeprom.put(EepromLocation(header), referenceHeader());
             resetWriter();
             // make eeprom one big disposed block
             writer.put(BlockType::disposed_block);

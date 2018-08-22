@@ -32,7 +32,6 @@ class ObjectContainer
 private:
     std::vector<ContainedObject> objects;
     obj_id_t startId;
-    uint8_t activeProfiles;
 
 public:
 
@@ -41,16 +40,14 @@ public:
 
     ObjectContainer() :
         objects(), 
-        startId(obj_id_t::start()),
-		activeProfiles(0x1)
+        startId(obj_id_t::start())
     {}
 
     ObjectContainer(std::initializer_list<ContainedObject> systemObjects) : 
         objects(systemObjects),
         startId(obj_id_t::start())
-    {
-        setObjectsStartId(nextId()); // set startId to next free ID to lock system objects
-    }
+    {}
+
     virtual ~ObjectContainer() = default;
 
 
@@ -74,6 +71,10 @@ private:
             IdLess{}
         );
         return pair;
+    }
+
+    obj_id_t nextId() const{
+        return std::max(startId, objects.empty() ? startId : ++obj_id_t(objects.back().id()));
     }
 
 public:
@@ -100,10 +101,6 @@ public:
 		return p.first->object(); // weak_ptr to found object
     }
 
-    obj_id_t nextId() const{
-        return std::max(startId, objects.empty() ? startId : ++obj_id_t(objects.back().id()));
-    }
-
     /**
      * set start ID for user objects.
      * ID's smaller than the start ID are  assumed to be system objects and considered undeletable.
@@ -116,50 +113,38 @@ public:
         return add(std::move(obj), active_in_profiles, obj_id_t::invalid());
     }
 
-    obj_id_t add (std::unique_ptr<Object> obj, const uint8_t active_in_profiles, const obj_id_t & id) {
+    obj_id_t add (std::unique_ptr<Object> obj, const uint8_t active_in_profiles, const obj_id_t & id, bool replace = false) {
         obj_id_t newId;
-        Iterator insertPosition;
+        Iterator position;
 
         if(id == obj_id_t::invalid()){ // use 0 to let the container assign a free slot
             newId = nextId();
-            insertPosition = objects.end();
+            position = objects.end();
         }
         else {
 			if(id < startId){
-				return obj_id_t::invalid(); // refuse to overwrite system objects
+				return obj_id_t::invalid(); // refuse to add system objects
 			}
         	// find insert position
 			auto p = findPosition(id);
 			if(p.first != p.second){
-				return obj_id_t::invalid(); // refuse to overwrite existing objects
+			    // existing object found
+			    if(!replace){
+			        return obj_id_t::invalid(); // refuse to overwrite existing objects
+			    }
 			}
         	newId = id;
-        	insertPosition = p.first;
+        	position = p.first;
         }
 
-        // insert new entry in container in sorted position
-        objects.emplace(insertPosition, newId, active_in_profiles, std::move(obj));
+        if(replace) {
+            *position = ContainedObject(newId, active_in_profiles, std::move(obj));
+        }
+        else {
+            // insert new entry in container in sorted position
+            objects.emplace(position, newId, active_in_profiles, std::move(obj));
+        }
         return newId;
-    }
-
-    obj_id_t replace (std::unique_ptr<Object> obj, const uint8_t active_in_profiles, const obj_id_t id) {
-        if(id < startId){
-            return obj_id_t::invalid(); // refuse to replace system objects
-        }
-        // find existing object
-        auto p = findPosition(id);
-
-        if(p.first != p.second){
-            // replace object with newly constructed object
-            *p.first = ContainedObject(id, active_in_profiles, std::move(obj));
-            return id;
-        }
-        return obj_id_t::invalid();
-    }
-
-    void replace (std::unique_ptr<Object> obj, const CIterator & cit) {
-        Iterator it = objects.erase(it, it); // trick to convert non-const iterator to non-const iterator
-        *it = ContainedObject(it->id(), it->profiles(), std::move(obj));
     }
 
     CboxError remove(obj_id_t id) {
@@ -181,12 +166,19 @@ public:
         return objects.cend();
     }
 
-    const uint8_t getActiveProfiles() const {
-    	return activeProfiles;
+    CIterator userbegin(){
+        return findPosition(startId).first;
     }
 
-    void setActiveProfiles(const uint8_t p){
-    	activeProfiles = p;
+    // replace an object with an inactive object
+    void deactivate(const CIterator & cit){
+        auto it = objects.erase(cit, cit); // convert to non-const iterator
+        it->deactivate();
+    }
+
+    // remove all non-system objects from the container
+    void clear(){
+        objects.erase(userbegin(), cend());
     }
 };
 

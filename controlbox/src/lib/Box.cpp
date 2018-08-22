@@ -22,10 +22,25 @@
 #include "Object.h"
 #include "Container.h"
 #include "DataStream.h"
+#include "ObjectStorage.h"
 #include "DataStreamConverters.h"
 #include "CboxError.h"
+#include "ResolveType.h"
 
 namespace cbox {
+
+Box::Box(ObjectFactory& _factory, ObjectContainer& _objects, ObjectStorage& _storage, ConnectionPool & _connections) :
+    factory(_factory),
+    objects(_objects),
+    storage(_storage),
+    connections(_connections),
+    activeProfiles(0x01)
+{
+    objects.add(std::make_unique<ProfilesObject>(this), 0xFF); // add profiles object to give access to the active profiles setting
+    objects.setObjectsStartId(userStartId()); // set startId for user objects to 100
+    loadObjectsFromStorage();
+}
+
 
 /**
  * The no-op command simply echoes the response until the end of stream.
@@ -64,8 +79,18 @@ void Box::readObject(DataIn& in, DataOut& out) {
     out.write(asUint8(status));
     if (status == CboxError::no_error) {
         // stream object as id, profiles, typeId, data
-        CboxError result = cobj->streamTo(out);
-        // todo handle result?
+        status = cobj->streamTo(out);
+        // todo handle status?
+        if(cobj->object()->typeId() == resolveTypeId<InactiveObject>()){
+            out.writeListSeparator();
+            auto objectStreamer = [&out](DataIn & objInStorage) -> CboxError {
+                if(objInStorage.push(out)){
+                    return CboxError::no_error;
+                }
+                return CboxError::output_stream_write_error;
+            };
+            storage.retrieveObject(storage_id_t(id), objectStreamer);
+        }
     }
 }
 
@@ -81,8 +106,16 @@ void Box::writeObject(DataIn& in, DataOut& out) {
         if(cobj == nullptr){
             status = CboxError::invalid_object_id;
         }
-        else{          
-            status = cobj->streamFrom(in);
+        else{
+            if(cobj->object()->typeId() == resolveTypeId<InactiveObject>()){
+                // create object (at least temporarily to write it) and replace inactive object
+                addContainedObjectFromStream(in, id, true);
+                cobj = objects.fetchContained(id);
+            }
+            else {
+                // update existing object
+                status = cobj->streamFrom(in);
+            }
         }
     }
     
@@ -90,25 +123,31 @@ void Box::writeObject(DataIn& in, DataOut& out) {
     out.writeResponseSeparator();
     out.write(asUint8(status));
     if(cobj != nullptr){
-        cobj->streamTo(out);
+        status = cobj->streamTo(out);
+        if(status == CboxError::no_error){
+            auto storeContained = [&cobj](DataOut & out) -> CboxError {
+                return cobj->streamPersistedTo(out);
+            };
+            status = storage.storeObject(id, storeContained);
+            // TODO: handle status
+            if(id >= userStartId() && !(cobj->profiles() & activeProfiles)){
+                cobj->deactivate();
+            }
+        }
     }
 }
 
 /**
- * Creates a new object at a specific location.
+ * Creates a new object by streaming in everything except the object id
  */
-void Box::createObject(DataIn& in, DataOut& out)
-{
-    obj_id_t requestedId;
+CboxError Box::addContainedObjectFromStream(DataIn& in, obj_id_t & id, bool replace){
+    obj_id_t requestedId = id;
     obj_id_t newId;
     obj_type_t typeId;
     uint8_t profiles;
 
     CboxError status = CboxError::no_error;
 
-    if(!in.get(requestedId)){
-        status = CboxError::input_stream_read_error;
-    }
     if(!in.get(profiles)){
         status = CboxError::input_stream_read_error;
     }
@@ -122,16 +161,44 @@ void Box::createObject(DataIn& in, DataOut& out)
         if(newObj){
            status = newObj->streamFrom(in);
            if(status == CboxError::no_error){
-               newId = objects.add(std::move(newObj), profiles, requestedId);
+               id = objects.add(std::move(newObj), profiles, requestedId, replace);
            }
         }
+    }
+    return status;
+}
+
+/**
+ * Creates a new object at a specific location.
+ */
+void Box::createObject(DataIn& in, DataOut& out)
+{
+    obj_id_t id;
+    obj_type_t typeId;
+
+    CboxError status = CboxError::no_error;
+
+    if(!in.get(id)){
+        status = CboxError::input_stream_read_error;
+    }
+
+    if(status == CboxError::no_error){
+        status = addContainedObjectFromStream(in, id, false);
     }
 
 	in.spool();
     out.writeResponseSeparator();
     out.write(asUint8(status));
-    if(auto ptrObj = objects.fetchContained(newId)){
-        ptrObj->streamTo(out);
+    if(auto ptrCobj = objects.fetchContained(id)){
+        ptrCobj->streamTo(out);
+        auto storeContained = [&ptrCobj](DataOut & out) -> CboxError {
+           return ptrCobj->streamPersistedTo(out);
+        };
+        status = storage.storeObject(id, storeContained);
+        if(id >= userStartId() && !(ptrCobj->profiles() & activeProfiles) ){
+            // object should not be active, replace object with inactive object
+            ptrCobj->deactivate();
+        }
     }
 }
 
@@ -147,6 +214,7 @@ void Box::deleteObject(DataIn& in, DataOut& out)
         status = CboxError::input_stream_read_error;
     }
     status = objects.remove(id);
+    storage.disposeObject(id); // todo: event if error?
     in.spool();
     out.writeResponseSeparator();
     out.write(asUint8(status));
@@ -170,14 +238,35 @@ void Box::listSavedObjects(DataIn& in, DataOut& out){
     in.spool();
     out.writeResponseSeparator();
     out.write(asUint8(CboxError::no_error));
-    auto listStreamer = [&out](DataIn & objInStorage) -> CboxError {
+    auto listObjectStreamer = [&out](DataIn & objInStorageInclId) -> CboxError {
         out.writeListSeparator();
-        if(objInStorage.push(out)){
+        if(objInStorageInclId.push(out)){
             return CboxError::no_error;
         }
         return CboxError::output_stream_write_error;
     };
-    storage.retrieveObjects(listStreamer);
+    storage.retrieveObjects(listObjectStreamer);
+}
+
+// load all objects from storage
+void Box::loadObjectsFromStorage(){
+    auto objectLoader = [this](DataIn & objInStorageInclId) -> CboxError {
+        obj_id_t id;
+        objInStorageInclId.get(id);
+        auto ptrCobj = objects.fetchContained(id);
+        if(ptrCobj == nullptr){
+            // new object
+            return this->addContainedObjectFromStream(objInStorageInclId, id, false);
+        }
+        else{
+            // existing object
+            return ptrCobj->streamFrom(objInStorageInclId);
+        }
+    };
+    storage.retrieveObjects(objectLoader);
+    // this deactives objects loaded from eeprom that should not be active
+    // if activeProfiles is modified by one of the loaded objects, this call applies it again so also the objects loaded after it are correct
+    setActiveProfilesAndUpdateObjects(activeProfiles);
 }
 
 void Box::reboot(DataIn& _in, DataOut& out){
@@ -187,6 +276,26 @@ void Box::reboot(DataIn& _in, DataOut& out){
 void Box::factoryReset(DataIn& in, DataOut& out) {
     storage.clear();
     ::handleReset(true);
+}
+
+
+/**
+ * Handles the delete all objects command.
+ *
+ */
+
+void Box::clearObjects(DataIn& in, DataOut& out)
+{
+    // remove user objects from storage
+    for(auto cit = objects.cbegin(); cit != objects.cend(); cit++){
+        storage.disposeObject(cit->id());
+    }
+    // remove all user objects from vector
+    objects.clear();
+
+    in.spool();
+    out.writeResponseSeparator();
+    out.write(asUint8(CboxError::no_error));
 }
 
 /*
@@ -223,6 +332,9 @@ void Box::handleCommand(DataIn& dataIn, DataOut& dataOut)
         case LIST_STORED_OBJECTS:
             listSavedObjects(in, out);
             break;
+        case CLEAR_OBJECTS:
+            clearObjects(in, out);
+            break;
         case REBOOT:
             reboot(in, out);
             break;
@@ -239,10 +351,40 @@ void Box::handleCommand(DataIn& dataIn, DataOut& dataOut)
 
 void Box::hexCommunicate() {
     connections.processAsHex([this](DataIn & in, DataOut & out){
-        if(in.hasNext()){
+        while(in.hasNext()){
             this->handleCommand(in,out);
         }
     });
 }
 
+void Box::setActiveProfilesAndUpdateObjects(const uint8_t newProfiles){
+    activeProfiles = newProfiles;
+    for(auto cit = objects.userbegin(); cit != objects.cend(); cit++) {
+        obj_id_t objId = cit->id();
+        uint8_t objProfiles = cit->profiles();
+        obj_type_t objType = cit->object()->typeId();
+
+        bool shouldBeActive = activeProfiles & objProfiles;
+
+        // replace entire 'contained object', not just the object inside.
+        // this ensures that any smart pointers to the contained object are also invalidated
+
+        if(shouldBeActive && objType == resolveTypeId<InactiveObject>()){
+            // look for object in storage and replace existing object with it
+            auto retrieveContained = [this, &objId](DataIn & in) -> CboxError {
+                return this->addContainedObjectFromStream(in, objId, true);
+            };
+
+            CboxError status = storage.retrieveObject(storage_id_t(objId), retrieveContained);
+            if(status != CboxError::no_error){
+                // TODO emit log event about reloading object from storage failing;
+            }
+        }
+
+        if(!shouldBeActive && objType != resolveTypeId<InactiveObject>()){
+            // replace object with inactive object
+            objects.deactivate(cit);
+        }
+    }
+}
 } // end namespace cbox

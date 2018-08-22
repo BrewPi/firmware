@@ -284,6 +284,7 @@ public:
 	}
 
 	virtual bool hasNext() override { return in.hasNext(); }
+	virtual void spool() override { return in.spool(); }
 	virtual uint8_t peek() override { return in.peek(); }
 	virtual stream_size_t available() override { return in.available(); }
 

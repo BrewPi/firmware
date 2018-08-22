@@ -5,6 +5,7 @@
 namespace cbox {
 
 SET_SYSTEM_TYPE_ID(InactiveObject, 1);
+SET_SYSTEM_TYPE_ID(ProfilesObject, 2);
 
 } // end namespace cbox
 

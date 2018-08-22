@@ -38,7 +38,7 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage"){
         auto dataHandler = [&target](DataIn & in) -> CboxError {
             return target.streamFrom(in);
         };
-        return storage.retreiveObject(id, dataHandler);
+        return storage.retrieveObject(id, dataHandler);
     };
 
     auto saveObjectToStorage = [&storage](const obj_id_t& id, const Object & source) -> CboxError {

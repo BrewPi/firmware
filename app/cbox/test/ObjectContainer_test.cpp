@@ -71,7 +71,7 @@ SCENARIO("A container to hold objects"){
             }
 
             AND_WHEN("replace is used instead of add, it succeeds"){
-                obj_id_t id6 = container.replace(std::make_unique<LongIntObject>(0x44444444), 0xFF, obj_id_t(123));
+                obj_id_t id6 = container.add(std::make_unique<LongIntObject>(0x44444444), 0xFF, obj_id_t(123), true);
                 CHECK(id6 == obj_id_t(123));
                 auto obj6 = container.fetch(id6).lock();
                 REQUIRE(obj6);
@@ -81,11 +81,6 @@ SCENARIO("A container to hold objects"){
 
         THEN("Removing an object that doesn't exist returns invalid_object_id"){
             CHECK(container.remove(obj_id_t(10)) == CboxError::invalid_object_id);
-        }
-
-        THEN("Replacing an object that doesn't exist has no effect and returns invalid id"){
-            CHECK(obj_id_t::invalid() == container.replace(std::make_unique<LongIntObject>(0x33333333), 0xFF, 10));
-            CHECK(!container.fetch(obj_id_t(10)).lock()); // object still exists
         }
 
         THEN("A list of all object IDs can be created using the container's const iterators"){
@@ -140,6 +135,8 @@ SCENARIO("A container with system objects passed in the initializer list"){
         ContainedObject(2, 0xFF, std::make_shared<LongIntObject>(0x22222222))
     };
 
+    objects.setObjectsStartId(3); // this locks the system objects
+
     CHECK(obj_id_t(3) == objects.add(std::make_unique<LongIntObject>(0x33333333), 0xFF)); // will get next free ID (3)
     CHECK(obj_id_t(4) == objects.add(std::make_unique<LongIntObject>(0x33333333), 0xFF)); // will get next free ID (4)
 
@@ -177,8 +174,9 @@ SCENARIO("A container with system objects passed in the initializer list"){
         CHECK(!objects.fetch(3).lock());
     }
 
-    THEN("The system objects cannot be replaced"){
-        CHECK(obj_id_t::invalid() == objects.replace(std::make_unique<LongIntObject>(0x33333333), 0xFF, 1));
+    THEN("No objects can be added in the system ID range"){
+        objects.setObjectsStartId(100);
+        CHECK(obj_id_t::invalid() == objects.add(std::make_unique<LongIntObject>(0x33333333), 0xFF, 99));
     }
 
     THEN("Objects added after construction can also be marked system by moving the start ID"){

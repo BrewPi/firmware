@@ -52,6 +52,11 @@ public:
         return _obj;
     }
 
+    void deactivate(){
+        obj_type_t oldType = _obj->typeId();
+        _obj = std::make_shared<InactiveObject>(oldType);
+    }
+
     CboxError streamTo(DataOut & out) const {
         if(!out.put(_id)){
             return CboxError::output_stream_write_error;

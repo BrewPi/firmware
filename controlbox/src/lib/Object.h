@@ -148,12 +148,16 @@ public:
     virtual obj_type_t typeId() const override final;
 
     virtual CboxError streamTo(DataOut& out) const override final {
-        out.write(actualType);
+        out.put(actualType);
         return CboxError::no_error;
     }
 
     virtual CboxError streamPersistedTo(DataOut& out) const override final {
         return CboxError::no_error; // inactive objects are never persisted
+    }
+
+    obj_type_t actualTypeId(){
+        return actualType;
     }
 
     obj_type_t actualType;

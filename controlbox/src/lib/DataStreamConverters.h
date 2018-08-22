@@ -121,11 +121,16 @@ class HexTextToBinaryIn : public DataIn
 
     bool hasData() { return char2; }
 
+    bool peekEndline() {
+        auto inByte = textIn.peek();
+        return (inByte == '\r' || inByte == '\n');
+    }
+
 public:
 	HexTextToBinaryIn(DataIn& _textIn) : textIn(_textIn), char1(0), char2(0) {}
 
 	bool hasNext() override {
-		return hasData() || textIn.hasNext();
+		return hasData() || (textIn.hasNext() && !peekEndline());
 	}
 
 	uint8_t peek() override {
@@ -145,6 +150,19 @@ public:
         fetchNextByte();
         return hasData() ? 1 : 0;
     }
+
+	// consume stream until \r\n and spool those too
+	virtual void spool() override final {
+	    while(hasNext()){
+	        textIn.next();
+	    }
+	    while(textIn.hasNext()){
+	        if(!peekEndline()){
+	            break;
+	        }
+	        textIn.next();
+	    }
+	}
 };
 
 
@@ -190,7 +208,6 @@ public:
 	 * Rather than closing the global stream, write a newline to signify the end of this command.
 	 */
 	virtual void endMessage() override final {
-		out.write('\r');
 		out.write('\n');
 	}
 };
