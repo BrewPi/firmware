@@ -5,7 +5,6 @@
 namespace cbox {
 
 SET_SYSTEM_TYPE_ID(InactiveObject, 1);
-SET_SYSTEM_TYPE_ID(ContainedObject, 2);
 
 } // end namespace cbox
 

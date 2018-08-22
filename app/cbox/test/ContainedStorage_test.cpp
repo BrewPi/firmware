@@ -25,7 +25,7 @@ SCENARIO("When objects are stored as contained objects, they can be loaded from 
     INFO("IDs: " << id1 << ", " << id2 << ", " << id3);
 
     WHEN("Objects are stored to Eeprom"){
-        auto saveObjectToStorage = [&storage](const obj_id_t& id, const Object & source) -> CboxError {
+        auto saveObjectToStorage = [&storage](const obj_id_t& id, const ContainedObject & source) -> CboxError {
             auto dataHandler = [&source](DataOut & out) -> CboxError {
                 return source.streamPersistedTo(out);
             };

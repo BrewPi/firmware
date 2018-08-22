@@ -17,6 +17,7 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
 
 #include "Object.h"
 #include "ResolveType.h"
@@ -26,7 +27,7 @@ namespace cbox {
 /**
  * A wrapper around an object that stores which type it is and in which profiles it is active
  */
-class ContainedObject : public Object {
+class ContainedObject {
 public:
     explicit ContainedObject(obj_id_t id, uint8_t profiles, std::shared_ptr<Object> obj) :
         _id(std::move(id)),
@@ -51,11 +52,7 @@ public:
         return _obj;
     }
 
-    virtual obj_type_t typeId() const override final {
-        return resolveTypeId<ContainedObject>();
-    }
-
-    virtual CboxError streamTo(DataOut & out) const override final {
+    CboxError streamTo(DataOut & out) const {
         if(!out.put(_id)){
             return CboxError::output_stream_write_error;
         }
@@ -68,7 +65,7 @@ public:
         return _obj->streamTo(out);
     }
 
-    virtual CboxError streamFrom(DataIn & in) override final {
+    CboxError streamFrom(DataIn & in) {
         // id is not streamed in. It is immutable and assumed to be already read to find this entry
 
         uint8_t newProfiles;
@@ -87,7 +84,7 @@ public:
         return CboxError::invalid_object_type;
     }
 
-    virtual CboxError streamPersistedTo(DataOut& out) const override final{
+    CboxError streamPersistedTo(DataOut& out) const {
         // id is not streamed out. It is passed to storage separately
         if(_obj->typeId() == resolveTypeId<InactiveObject>()){
             return CboxError::no_error; // don't persist inactive objects

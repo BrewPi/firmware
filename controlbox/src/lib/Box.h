@@ -57,27 +57,7 @@ private:
 	void reboot(DataIn& in, DataOut& out);
 	void factoryReset(DataIn& in, DataOut& out);
 
-	void setActiveProfilesAndUpdateObjects(uint8_t newProfiles){
-	    for(auto cit = objects.cbegin(); cit != objects.cend(); cit++) {
-            obj_id_t objId = cit->id();
-            uint8_t objProfiles = cit->profiles();
-            obj_type_t objType = cit->object()->typeId();
-
-            bool shouldBeActive = newProfiles & objProfiles;
-
-            // replace entire 'contained object', not just the object inside.
-            // this ensures that any smart pointers to the contained object are also invalidated
-
-            if(shouldBeActive && objType == resolveTypeId<InactiveObject>()){
-                // look for object in storage
-            }
-
-            if(!shouldBeActive && objType != resolveTypeId<InactiveObject>()){
-                // replace object with inactive object
-                objects.replace(std::make_unique<ContainedObject>(objId, objProfiles, std::make_shared<InactiveObject>(objType)), cit);
-            }
-        }
-	}
+	void setActiveProfilesAndUpdateObjects(uint8_t newProfiles);
 
 public:
 	Box(ObjectFactory& _factory, ObjectContainer& _objects, ObjectStorage& _storage, ConnectionPool & _connections) :
