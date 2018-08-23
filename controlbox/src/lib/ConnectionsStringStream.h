@@ -51,7 +51,10 @@ public:
     }
 
     virtual uint8_t peek() override {
-        return uint8_t(in.peek());
+        if(hasNext()){
+            return uint8_t(in.peek());
+        }
+        return 0;
     }
 
     virtual stream_size_t available() override {

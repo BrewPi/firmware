@@ -46,18 +46,19 @@ private:
 	uint8_t activeProfiles;
 
 	// command handlers
-	void noop(DataIn& _in, DataOut& out);
-	void invalidCommand(DataIn& _in, DataOut& out);
-	void readObject(DataIn& in, DataOut& out);
-	void writeObject(DataIn& in, DataOut& out);
-	void createObject(DataIn& in, DataOut& out);
-	void deleteObject(DataIn& in, DataOut& out);
-	void listActiveObjects(DataIn& in, DataOut& out);
-	void listSavedObjects(DataIn& in, DataOut& out);
-	void clearObjects(DataIn& in, DataOut& out);
-	void reboot(DataIn& in, DataOut& out);
-	void factoryReset(DataIn& in, DataOut& out);
+	void noop(CrcDataIn& in, DataOut& out);
+	void invalidCommand(CrcDataIn& in, DataOut& out);
+	void readObject(CrcDataIn& in, DataOut& out);
+	void writeObject(CrcDataIn& in, DataOut& out);
+	void createObject(CrcDataIn& in, DataOut& out);
+	void deleteObject(CrcDataIn& in, DataOut& out);
+	void listActiveObjects(CrcDataIn& in, DataOut& out);
+	void listSavedObjects(CrcDataIn& in, DataOut& out);
+	void clearObjects(CrcDataIn& in, DataOut& out);
+	void reboot(CrcDataIn& in, DataOut& out);
+	void factoryReset(CrcDataIn& in, DataOut& out);
 
+	CboxError addContainedObjectFromStream(CrcDataIn& in, obj_id_t & id, bool replace);
 	CboxError addContainedObjectFromStream(DataIn& in, obj_id_t & id, bool replace);
 	void loadObjectsFromStorage();
 

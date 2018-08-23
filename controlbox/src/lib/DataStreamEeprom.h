@@ -105,6 +105,13 @@ public:
 		return result;
 	}
 	virtual stream_size_t available() override final { return _length; }
+
+    bool skip(stream_size_t skip_length){
+        auto skip = std::min(skip_length, _length);
+        _offset += skip;
+        _length -= skip;
+        return skip == skip_length;
+    }
 };
 
 }

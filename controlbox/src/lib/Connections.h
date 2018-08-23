@@ -197,15 +197,6 @@ public:
             handler(conn->getDataIn(), conn->getDataOut());
         }
     }
-
-    void processAsHex(std::function<void(DataIn& in, DataOut& out)> handler){
-        updateConnections();
-        for(auto& conn : connections){
-            HexTextToBinaryIn hexIn(conn->getDataIn());
-            BinaryToHexTextOut hexOut(conn->getDataOut());
-            handler(hexIn, hexOut);
-        }
-    }
 };
 
 } // end namespace cbox

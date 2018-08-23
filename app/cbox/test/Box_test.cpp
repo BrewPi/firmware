@@ -67,6 +67,7 @@ SCENARIO("A controlbox Box"){
         AND_WHEN("A connection sends a delete object command for a user object, it is processed by the Box"){
             out.str("");
             expected.str("");
+
             in << "04" << "6400\n"; // delete object, ID 100
             box.hexCommunicate();
 

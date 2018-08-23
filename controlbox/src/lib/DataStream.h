@@ -172,25 +172,34 @@ public:
 	 * Determines if there is potentially more data in this stream.
 	 * Note that this is not dependent upon time and asynchronous delivery of data, but if the stream is still open.
 	 */
-	virtual bool hasNext() =0;
+	virtual bool hasNext() = 0;
 
 	/**
 	 * Retrieves the next byte of data. The return value is only valid when `hasNext()` returns true.
 	 */
-	virtual uint8_t next() =0;
+	virtual uint8_t next() = 0;
 
 	/**
 	 * Retrieves the next byte of data without removing it from the stream. The result is only valid if `available`
 	 * previously returned a non-zero value.
 	 */
-	virtual uint8_t peek() =0;
+	virtual uint8_t peek() = 0;
 
 	/**
 	 * Determines how many bytes are available for reading from the stream without blocking.
 	 */
-	virtual stream_size_t available() =0;
+	virtual stream_size_t available() = 0;
 
-	/*
+	/**
+	 * Discards all data until no new data is available
+	 */
+    void spool() {
+        while(hasNext()){
+            next();
+        }
+    }
+
+	/**
 	 * Unconditional read of {@code length} bytes.
 	 */
 	bool read(void* t, stream_size_t length) {
@@ -234,28 +243,6 @@ public:
 		}
 		return success;
 	}
-
-    /**
-     * Discards a number of bytes.
-     * Can be overridden by child classes to skip actual reads for performance if the underlying structure can be accessed by index
-     *
-     * @param length
-     * @return length was skipped (didn't encounter end of stream)
-     */
-	virtual bool spool(stream_size_t skip_length){
-	    stream_size_t to_skip = skip_length;
-	    while (to_skip > 0 && hasNext()){
-	        next();
-	        --to_skip;
-	    }
-        return to_skip == skip_length;
-    }
-
-	virtual void spool(){
-	    while (hasNext()){
-	        next();
-		}
-    }
 };
 
 
@@ -299,7 +286,6 @@ public:
 	}
 
 	virtual bool hasNext() override { return in.hasNext(); }
-	virtual void spool() override { return in.spool(); }
 	virtual uint8_t peek() override { return in.peek(); }
 	virtual stream_size_t available() override { return in.available(); }
 
@@ -370,7 +356,7 @@ public:
 /**
  * Limits reading from the stream to the given number of bytes.
  */
-class RegionDataIn : public DataIn {
+class RegionDataIn final : public DataIn {
 	DataIn& in;
 	stream_size_t len;
 public:
@@ -378,19 +364,19 @@ public:
 	: in(_in), len(_len) {}
 	virtual ~RegionDataIn() = default;
 
-	bool hasNext() override {
+	bool hasNext() override final {
 	    return len && in.hasNext();
 	}
 
-	uint8_t next() override {
+	uint8_t next() override final {
 	    return hasNext() ? --len, in.next() : 0;
 	}
 
-	uint8_t peek() override {
+	uint8_t peek() override final {
 	    return in.peek();
 	}
 
-	stream_size_t available() override {
+	stream_size_t available() override final  {
 	    return std::min(len, in.available());
 	}
 
@@ -492,6 +478,44 @@ public:
         out.writeListSeparator();
     };
     virtual void flush() override final { out.flush(); };
+};
+
+
+/**
+ * CRC data input. Can be queried for the running CRC at any time, otherwise the same as argument.
+ */
+class CrcDataIn final : public DataIn {
+    DataIn & in; // use pointer to have assignment operator
+    uint8_t crcVal;
+
+public:
+    CrcDataIn(DataIn& _in, uint8_t startCrc = 0) :
+        in(_in),
+        crcVal(startCrc)
+    {}
+    virtual ~CrcDataIn() = default;
+
+    bool hasNext() override final{
+        return in.hasNext();
+    }
+
+    uint8_t next() override final{
+        uint8_t data = in.next();
+        crcVal = *(dscrc_table + (crcVal ^ data));
+        return data;
+    }
+
+    uint8_t peek() override final{
+        return in.peek();
+    }
+
+    stream_size_t available() override final {
+        return in.available();
+    }
+
+    uint8_t crc() const {
+        return crcVal;
+    }
 };
 
 }

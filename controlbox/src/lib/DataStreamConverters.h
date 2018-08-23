@@ -152,15 +152,8 @@ public:
         return hasData() ? 1 : 0;
     }
 
-	// consume stream until \r\n and spool those too
-	virtual void spool() override final {
-	    while(hasNext()){
-	        textIn.next();
-	    }
-	    while(textIn.hasNext()){
-	        if(!peekEndline()){
-	            break;
-	        }
+	void unBlock(){
+	    while(peekEndline()){
 	        textIn.next();
 	    }
 	}

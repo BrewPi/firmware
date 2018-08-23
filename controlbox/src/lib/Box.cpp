@@ -45,7 +45,7 @@ Box::Box(ObjectFactory& _factory, ObjectContainer& _objects, ObjectStorage& _sto
 /**
  * The no-op command simply echoes the response until the end of stream.
  */
-void Box::noop(DataIn& in, DataOut& out)
+void Box::noop(CrcDataIn& in, DataOut& out)
 {
     in.spool();
     out.writeResponseSeparator();
@@ -55,14 +55,14 @@ void Box::noop(DataIn& in, DataOut& out)
 /**
  * The no-op command simply echoes the response until the end of stream.
  */
-void Box::invalidCommand(DataIn& in, DataOut& out)
+void Box::invalidCommand(CrcDataIn& in, DataOut& out)
 {
     in.spool();
     out.writeResponseSeparator();
     out.write(asUint8(CboxError::invalid_command));
 }
 
-void Box::readObject(DataIn& in, DataOut& out) {
+void Box::readObject(CrcDataIn& in, DataOut& out) {
     CboxError status = CboxError::no_error;
     obj_id_t id = 0;
     ContainedObject * cobj = nullptr;
@@ -94,7 +94,7 @@ void Box::readObject(DataIn& in, DataOut& out) {
     }
 }
 
-void Box::writeObject(DataIn& in, DataOut& out) {
+void Box::writeObject(CrcDataIn& in, DataOut& out) {
     CboxError status = CboxError::no_error;
     obj_id_t id = 0;
     ContainedObject * cobj = nullptr;
@@ -140,6 +140,37 @@ void Box::writeObject(DataIn& in, DataOut& out) {
 /**
  * Creates a new object by streaming in everything except the object id
  */
+CboxError Box::addContainedObjectFromStream(CrcDataIn& in, obj_id_t & id, bool replace){
+    obj_id_t requestedId = id;
+    obj_id_t newId;
+    obj_type_t typeId;
+    uint8_t profiles;
+
+    CboxError status = CboxError::no_error;
+
+    if(!in.get(profiles)){
+        status = CboxError::input_stream_read_error;
+    }
+    if(!in.get(typeId)){
+        status = CboxError::input_stream_read_error;
+    }
+
+    std::unique_ptr<Object> newObj;
+    if(status == CboxError::no_error){
+        status = factory.make(typeId, newObj);
+        if(newObj){
+           status = newObj->streamFrom(in);
+           if(status == CboxError::no_error){
+               id = objects.add(std::move(newObj), profiles, requestedId, replace);
+           }
+        }
+    }
+    return status;
+}
+
+/**
+ * Creates a new object by streaming in everything except the object id
+ */
 CboxError Box::addContainedObjectFromStream(DataIn& in, obj_id_t & id, bool replace){
     obj_id_t requestedId = id;
     obj_id_t newId;
@@ -171,7 +202,7 @@ CboxError Box::addContainedObjectFromStream(DataIn& in, obj_id_t & id, bool repl
 /**
  * Creates a new object at a specific location.
  */
-void Box::createObject(DataIn& in, DataOut& out)
+void Box::createObject(CrcDataIn& in, DataOut& out)
 {
     obj_id_t id;
     obj_type_t typeId;
@@ -206,7 +237,7 @@ void Box::createObject(DataIn& in, DataOut& out)
  * Handles the delete object command.
  *
  */
-void Box::deleteObject(DataIn& in, DataOut& out)
+void Box::deleteObject(CrcDataIn& in, DataOut& out)
 {
     CboxError status = CboxError::no_error;
     obj_id_t id;
@@ -223,7 +254,7 @@ void Box::deleteObject(DataIn& in, DataOut& out)
 /**
  * Walks the eeprom and writes out the construction definitions.
  */
-void Box::listActiveObjects(DataIn& in, DataOut& out)
+void Box::listActiveObjects(CrcDataIn& in, DataOut& out)
 {
     in.spool();
     out.writeResponseSeparator();
@@ -234,7 +265,7 @@ void Box::listActiveObjects(DataIn& in, DataOut& out)
     }
 }
 
-void Box::listSavedObjects(DataIn& in, DataOut& out){
+void Box::listSavedObjects(CrcDataIn& in, DataOut& out){
     in.spool();
     out.writeResponseSeparator();
     out.write(asUint8(CboxError::no_error));
@@ -269,11 +300,11 @@ void Box::loadObjectsFromStorage(){
     setActiveProfilesAndUpdateObjects(activeProfiles);
 }
 
-void Box::reboot(DataIn& _in, DataOut& out){
+void Box::reboot(CrcDataIn& _in, DataOut& out){
     ::handleReset(true);
 }
 
-void Box::factoryReset(DataIn& in, DataOut& out) {
+void Box::factoryReset(CrcDataIn& in, DataOut& out) {
     storage.clear();
     ::handleReset(true);
 }
@@ -284,7 +315,7 @@ void Box::factoryReset(DataIn& in, DataOut& out) {
  *
  */
 
-void Box::clearObjects(DataIn& in, DataOut& out)
+void Box::clearObjects(CrcDataIn& in, DataOut& out)
 {
     // remove user objects from storage
     for(auto cit = objects.cbegin(); cit != objects.cend(); cit++){
@@ -305,9 +336,15 @@ void Box::clearObjects(DataIn& in, DataOut& out)
  */
 void Box::handleCommand(DataIn& dataIn, DataOut& dataOut)
 {
-    CrcDataOut out(dataOut);    // write CRC after response
-    TeeDataIn in(dataIn, out);	// ensure command input is also echoed to output
+    HexTextToBinaryIn hexIn(dataIn);
+    BinaryToHexTextOut hexOut(dataOut);
+
+
+    CrcDataOut out(hexOut);    // write CRC after response
+    TeeDataIn teeIn(hexIn, out);	// ensure command input is also echoed to output
+    CrcDataIn in(teeIn);
     uint8_t cmd_id = in.next();	// command type code
+
 
     switch(cmd_id){
         case NONE:
@@ -345,11 +382,13 @@ void Box::handleCommand(DataIn& dataIn, DataOut& dataOut)
             break;
     }
 
+    hexIn.unBlock(); // consumes any leftover \r or \n
+
     out.endMessage();
 }
 
 void Box::hexCommunicate() {
-    connections.processAsHex([this](DataIn & in, DataOut & out){
+    connections.process([this](DataIn & in, DataOut & out){
         while(in.hasNext()){
             this->handleCommand(in,out);
         }

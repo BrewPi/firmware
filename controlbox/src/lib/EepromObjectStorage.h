@@ -141,7 +141,7 @@ public:
                 }
                 break;
             case static_cast<uint8_t>(BlockType::disposed_block):
-                if(!reader.spool(blockSize)){
+                if(!reader.skip(blockSize)){
                     return CboxError::persisted_block_stream_error;
                 }
                 break;
@@ -251,7 +251,7 @@ private:
                 break; // couldn't read blocksize, due to reaching end of reader
             }
             if(!(type == requestedType)) {
-                reader.spool(blockSize);
+                reader.skip(blockSize);
                 continue;
             }
             return RegionDataIn(reader, blockSize);
