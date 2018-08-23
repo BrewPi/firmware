@@ -181,7 +181,7 @@ SCENARIO("A controlbox Box"){
                 std::string expected = "05|00,0100FFE80311111111,020000E80312341234,0300FF020002,6400010100E803,650002E80344444444,660003E80344444444\n";
                 CHECK(out2.str() == expected);
 
-                AND_WHEN("A new box is created from existing storage (for example with a reboot), all objects are restored"){
+                AND_WHEN("A new box is created from existing storage (for example after a reboot), all objects are restored"){
                     // note that only eeprom is not newly created here
                     ObjectContainer container2 = {
                             ContainedObject(1, 0xFF, std::make_shared<LongIntObject>(0x11111111)),

@@ -32,7 +32,9 @@ public:
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final {
         cbox::CboxError res = cbox::CboxError::no_error;
-        if(!out.put(values.size())){ // first write number of elements
+        // first write number of elements as uint16_t
+        uint16_t size = values.size();
+        if(!out.put(size)){
             return cbox::CboxError::output_stream_write_error;
         }
         for(auto & value : values){
@@ -46,7 +48,7 @@ public:
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final {
         cbox::CboxError res = cbox::CboxError::no_error;
-        decltype(values)::size_type newSize = 0;
+        uint16_t newSize = 0;
         if(!in.get(newSize)){
             return cbox::CboxError::input_stream_read_error;
         }

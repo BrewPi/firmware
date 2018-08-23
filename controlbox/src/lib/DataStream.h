@@ -345,7 +345,7 @@ public:
 	}
 
 	uint8_t next() override {
-	    return hasNext() ? len--, in.next() : 0;
+	    return hasNext() ? --len, in.next() : 0;
 	}
 
 	uint8_t peek() override {
@@ -365,16 +365,17 @@ public:
  * Limits writing to the stream to the given number of bytes.
  */
 class RegionDataOut : public DataOut {
-    DataOut& out;
+    DataOut* out; // use pointer to have assignment operator
     stream_size_t len;
 public:
     RegionDataOut(DataOut& _out, stream_size_t _len)
-    : out(_out), len(_len) {}
+    : out(&_out), len(_len) {}
+    virtual ~RegionDataOut() = default;
 
     virtual bool write(uint8_t data) override {
         if(len > 0){
             --len;
-            return out.write(data);
+            return out->write(data);
         }
         return false;
     }

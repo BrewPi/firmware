@@ -238,9 +238,10 @@ void Box::listSavedObjects(DataIn& in, DataOut& out){
     in.spool();
     out.writeResponseSeparator();
     out.write(asUint8(CboxError::no_error));
-    auto listObjectStreamer = [&out](DataIn & objInStorageInclId) -> CboxError {
+    auto listObjectStreamer = [&out](const storage_id_t & id, DataIn & objInStorage) -> CboxError {
         out.writeListSeparator();
-        if(objInStorageInclId.push(out)){
+        obj_id_t objId(id);
+        if(out.put(id) && objInStorage.push(out)){
             return CboxError::no_error;
         }
         return CboxError::output_stream_write_error;
@@ -250,17 +251,16 @@ void Box::listSavedObjects(DataIn& in, DataOut& out){
 
 // load all objects from storage
 void Box::loadObjectsFromStorage(){
-    auto objectLoader = [this](DataIn & objInStorageInclId) -> CboxError {
-        obj_id_t id;
-        objInStorageInclId.get(id);
-        auto ptrCobj = objects.fetchContained(id);
+    auto objectLoader = [this](const storage_id_t & id, DataIn & objInStorage) -> CboxError {
+        obj_id_t objId = obj_id_t(id);
+        auto ptrCobj = objects.fetchContained(objId);
         if(ptrCobj == nullptr){
             // new object
-            return this->addContainedObjectFromStream(objInStorageInclId, id, false);
+            return this->addContainedObjectFromStream(objInStorage, objId, false);
         }
         else{
             // existing object
-            return ptrCobj->streamFrom(objInStorageInclId);
+            return ptrCobj->streamFrom(objInStorage);
         }
     };
     storage.retrieveObjects(objectLoader);

@@ -62,9 +62,9 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage"){
                 CHECK(res == CboxError::no_error);
             }
 
-            THEN("Free space has decreased by 13 bytes "
-                    "(4 bytes object data + 2 bytes object id + 4 bytes overprovision + 3 bytes block header"){
-                CHECK(storage.freeSpace() == totalSpace - 13);
+            THEN("Free space has decreased by 15 bytes "
+                    "(4 bytes object data + 2 bytes object id + 4 bytes overprovision + 5 bytes object header"){
+                CHECK(storage.freeSpace() == totalSpace - 15);
             }
 
             THEN("The data can be streamed back from EEPROM"){
@@ -158,7 +158,7 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage"){
                 CHECK(obj == received);
             }
 
-            THEN("It can be changed and rewritten to EEPROM, 12 bytes bigger size"){
+            THEN("It can be changed and rewritten to EEPROM, 16 bytes bigger size"){
                 obj = {0x22222222, 0x33333333, 0x44444444, 0x55555555, 0x66666666, 0x77777777};
                 auto res = saveObjectToStorage(obj_id_t(1), obj);
                 CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
@@ -276,23 +276,31 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage"){
     }
 
     WHEN("A lot of big and small objects are created until EEPROM is full, alternating big and small"){
+        // 18*4 = 72 bytes
         LongIntVectorObject big = {
                 0x22222222, 0x33333333, 0x44444444, 0x55555555, 0x66666666, 0x77777777,
                 0x22222222, 0x33333333, 0x44444444, 0x55555555, 0x66666666, 0x77777777,
-                0x22222222, 0x33333333, 0x44444444, 0x55555555, 0x66666666, 0x77777777
+                0x22222222, 0x33333333, 0x44444444, 0x55555555, 0x66666666, 0x77777777,
+                0x22222222, 0x33333333, 0x44444444, 0x55555555, 0x66666666, 0x77777777,
         };
 
+        // 2*4 = 8 bytes
         LongIntVectorObject small = {0x11111111, 0x22222222};
 
+        uint16_t originalSpace = storage.freeSpace();
+
+        THEN("The free space is as expected before adding any objects"){
+            CHECK(originalSpace == 2048-32-3); // 32 bytes reserved for non-object data. 3 bytes for the block header of a new block
+        }
 
         CboxError res = CboxError::no_error;
         obj_id_t id = 1; // first id will be 1, because 0 is an invalid id
         while(true){
             if(id % 2 == 0){
-                res = saveObjectToStorage(id, big);
+                res = saveObjectToStorage(id, small);
             }
             else{
-                res = saveObjectToStorage(id, small);
+                res = saveObjectToStorage(id, big);
             }
             if(res != CboxError::no_error){
                 break;
@@ -300,18 +308,42 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage"){
             ++id;
         }
 
+        uint16_t bigSize = 2 + 24*sizeof(uint32_t);// 2 bytes (number of elements) + vector
+        uint16_t smallSize = 2 + 2*sizeof(uint32_t);// 2 bytes (number of elements) + vector
+
+        uint16_t bigSizeReserved = bigSize + (bigSize >> 3);
+        uint16_t smallSizeReserved = smallSize + 4;
+
+        uint16_t headerSize = 7; // blocktype(1) + blocksize(2) + obj_id(2) + obj_actual_size(2)
+
+        THEN("Retreiving objects gives a reader of the actually written size"){
+            uint16_t readSize;
+            auto readSizeFetcher = [&readSize](DataIn & in) -> CboxError {
+                readSize = in.available();
+                return CboxError::no_error;
+            };
+            storage.retrieveObject(1, readSizeFetcher);
+            CHECK(readSize == bigSize);
+            storage.retrieveObject(2, readSizeFetcher);
+            CHECK(readSize == smallSize);
+        }
+
+        // checking the write size is more difficult, because there is no limit. If it doesn't fit, the object will be reallocated.
+
         // last id was not successfully created
-
-        THEN("33 objects have been created"){
-            CHECK(id -1 == 33);
+        THEN("28 objects have been created"){
+            CHECK(id -1 == 28);
         }
 
-        THEN("Free space left is 68 bytes"){
-            CHECK(storage.freeSpace() == 68);
+        uint16_t expectedFreeSpace = originalSpace - (14 * bigSizeReserved + 14 * smallSizeReserved + 28 * headerSize); // header is 5 bytes
+
+        THEN("Free space left is as expected"){
+            CHECK(storage.freeSpace() == expectedFreeSpace);
         }
 
-        THEN("Continuous free space left is also 68 bytes, which is too small for another big object"){
-            CHECK(storage.continuousFreeSpace() == 68);
+        THEN("Continuous free space left is the same, which is too small for another big object"){
+            CHECK(storage.continuousFreeSpace() == expectedFreeSpace);
+            CHECK(expectedFreeSpace < bigSizeReserved);
         }
 
         THEN("Last object has not been stored"){
@@ -327,17 +359,17 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage"){
         AND_WHEN("Only the small objects are deleted"){
             obj_id_t id;
             for(id = 1; ; id++){
-                if(id % 2 == 1){
+                if(id % 2 == 0){
                     if(!storage.disposeObject(id)){
                         break;// break when object cannot be deleted (id doesn't exist)
                     }
                 }
             }
-            THEN("Continuous free space is still only 93 bytes"){
-                CHECK(storage.continuousFreeSpace() == 93);
+            THEN("Continuous free space has increased by size of 1 small object + header"){
+                CHECK(storage.continuousFreeSpace() == expectedFreeSpace + smallSizeReserved + 7);
             }
-            THEN("But free space has increased to 493 bytes"){
-                CHECK(storage.freeSpace() == 493);
+            THEN("But free space has increased to by all small object's size combined"){
+                CHECK(storage.freeSpace() == expectedFreeSpace + 14 * (smallSizeReserved + 7));
             }
 
             AND_WHEN("We create 2 big objects again"){
@@ -353,8 +385,8 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage"){
                     CHECK(storage.freeSpace() == storage.continuousFreeSpace());
                 }
 
-                THEN("All objects still have the right value"){
-                    for(id = 2; id < 10; id = id + 2){
+                THEN("All big objects still have the right value"){
+                    for(id = 1; id < 10; id = id + 2){
                         LongIntVectorObject received;
                         CHECK(CboxError::no_error == retreiveObjectFromStorage(id, received));
                         CHECK(received == big);

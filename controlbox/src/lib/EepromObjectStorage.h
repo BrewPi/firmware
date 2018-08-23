@@ -21,6 +21,7 @@
 
 #include "CboxError.h"
 #include "ObjectStorage.h"
+#include "DataStream.h"
 #include "DataStreamEeprom.h"
 #include "EepromAccessImpl.h"
 #include "EepromAccess.h"
@@ -52,6 +53,7 @@ public:
     virtual CboxError storeObject(const storage_id_t & id, const toStorageHandler & handler) override final {
         CountingBlackholeDataOut counter;
         RegionDataOut objectEepromData = getObjectWriter(id);
+        uint16_t dataLocation = writer.offset();
         uint16_t blockSize = objectEepromData.availableForWrite();
 
         TeeDataOut tee(objectEepromData, counter);
@@ -67,42 +69,45 @@ public:
             }
 
             uint16_t dataSize = counter.count();
-            // overprovision at least 4 bytes or 12.5% to prevent having to relocate the block if it grows
+            // over-provision at least 4 bytes or 12.5% to prevent having to relocate the block if it grows
             uint16_t overProvision = std::max(dataSize >> 3, 4);
             uint16_t requestedSize = dataSize + overProvision;
-            RegionDataOut newObjectEepromData = newObjectWriter(id, requestedSize);
-            if(newObjectEepromData.availableForWrite() < requestedSize){
+            objectEepromData = newObjectWriter(id, requestedSize); // get new writer
+            dataLocation = writer.offset();
+            if(objectEepromData.availableForWrite() < requestedSize){
                 // not enough continuous free space
-                if(freeSpace() < requestedSize){
+                if(freeSpace() < requestedSize + (objectHeaderLength() - blockHeaderLength())){
                     return CboxError::insufficient_persistent_storage; // not even enough total free space
                 }
 
                 // if there is enough free space, but it is not continuous, do a defrag to and try again
                 defrag();
-                RegionDataOut newObjectEepromData2 = newObjectWriter(id, requestedSize);
-                if(newObjectEepromData2.availableForWrite() < requestedSize){
+                objectEepromData = newObjectWriter(id, requestedSize);
+                dataLocation = writer.offset();
+                if(objectEepromData.availableForWrite() < requestedSize){
                     return CboxError::insufficient_persistent_storage; // still not enough free space
                 }
-                res = handler(newObjectEepromData2);
-
             }
-            else {
-                // write to new Block
-                res = handler(newObjectEepromData);
-            }
+            // write data
+            res = handler(objectEepromData);
         }
+        // check how many bytes were written
+        uint16_t actualSize = writer.offset() - dataLocation;
+        // write the actual object size as first 2 bytes in the block
+        writer.reset(dataLocation - (objectHeaderLength() - blockHeaderLength()), sizeof(uint16_t));
+        writer.put(actualSize);
         return res;
     }
 
     virtual CboxError retrieveObject(const storage_id_t & id, const fromStorageHandler & handler) override final {
-        RegionDataIn objectEepromData = getObjectReader(id);
+        RegionDataIn objectEepromData = getObjectReader(id, true);
         if(objectEepromData.available() == 0){
             return cbox::CboxError::persisted_object_not_found;
         }
         return handler(objectEepromData);
     }
 
-    virtual CboxError retrieveObjects(const fromStorageHandler & handler) override final {
+    virtual CboxError retrieveObjects(const fromStorageWithIdHandler & handler) override final {
         reader.reset(EepromLocation(objects), EepromLocationEnd(objects)-EepromLocation(objects));
 
         while(reader.hasNext()){
@@ -116,12 +121,23 @@ public:
             switch(type){
             case static_cast<uint8_t>(BlockType::object):
                 {
-                    auto regionIn = RegionDataIn(reader, blockSize);
-                    CboxError res = handler(regionIn);
+                    auto blockData = RegionDataIn(reader, blockSize);
+                    // first 2 bytes of block are actual data size. Limit reading to this region
+                    uint16_t actualSize;
+                    if(!blockData.get(actualSize)){
+                        return CboxError::persisted_block_stream_error;
+                    }
+                    storage_id_t id;
+                    if(!blockData.get(id)){
+                        return CboxError::persisted_block_stream_error;
+                    }
+                    auto objectData = RegionDataIn(blockData, actualSize);
+
+                    CboxError res = handler(id, objectData);
                     if(res != CboxError::no_error){
                         return res;
                     }
-                    regionIn.spool();
+                    blockData.spool();
                 }
                 break;
             case static_cast<uint8_t>(BlockType::disposed_block):
@@ -138,11 +154,11 @@ public:
     }
 
     virtual bool disposeObject(const storage_id_t & id) override final{
-        RegionDataIn block = getObjectReader(id); // sets reader to data start of block data
+        RegionDataIn block = getObjectReader(id, true); // sets reader to data start of block data
         if(block.available() > 0){
             // overwrite block type with disposed block
             eptr_t dataStart = reader.offset();
-            eptr_t blockTypeOffset = dataStart - blockHeaderLength() - sizeof(storage_id_t);
+            eptr_t blockTypeOffset = dataStart - objectHeaderLength();
             eeprom.writeByte(blockTypeOffset, static_cast<uint8_t>(BlockType::disposed_block));
             mergeDisposedBlocks();
             return true;
@@ -160,7 +176,8 @@ public:
         resetReader();
         while(reader.available()){
            RegionDataIn blockData = getBlockReader(BlockType::disposed_block);
-           total += blockData.available() + blockHeaderLength();
+           total += blockData.available();
+           total += blockHeaderLength();
            blockData.spool();
         }
         // subtract one header length, because that will not be available for the object
@@ -175,7 +192,6 @@ public:
            space = std::max(space, blockData.available());
            blockData.spool();
         }
-        // subtract one header length, because that will not be available for the object
         return space;
     }
 
@@ -221,7 +237,8 @@ private:
     }
 
     static const uint16_t objectHeaderLength(){
-        return blockHeaderLength() + sizeof(storage_id_t);
+        // actual size + id
+        return blockHeaderLength() + sizeof(uint16_t) + sizeof(storage_id_t);
     }
 
     // This function assumes that the reader is at the start of a block.
@@ -233,7 +250,6 @@ private:
             if(!reader.get(blockSize)){
                 break; // couldn't read blocksize, due to reaching end of reader
             }
-
             if(!(type == requestedType)) {
                 reader.spool(blockSize);
                 continue;
@@ -245,7 +261,8 @@ private:
 
     // This function assumes that the reader is at the start of a block.
     RegionDataOut getBlockWriter(const BlockType requestedType, uint16_t minSize){
-        RegionDataIn objectData = getBlockReader(requestedType); // this sets the eeprom to the object location
+        // this sets the eeprom to the object location, with the full block size available
+        RegionDataIn objectData = getBlockReader(requestedType);
         if(objectData.available() >= minSize){
             // block found. now wrap the eeprom location with a writer instead of a reader
             writer.reset(reader.offset(), reader.available());
@@ -255,27 +272,34 @@ private:
     }
 
     // Search for the block matching the requested id
-    // If found, return an EEPROM data stream limited to the block
+    // If found, return an EEPROM data stream limited to the block.
+    // If usedSize is true, only the length that was written previously is made available, not the reserved size
     // This function assumes that the reader is at the start of a block.
     // To ensure this, after using the RegionDataIn object, call spool() on it.
-    RegionDataIn getObjectReader(const storage_id_t id) {
+    RegionDataIn getObjectReader(const storage_id_t id, bool usedSize){
         resetReader();
         while(reader.hasNext()){
             RegionDataIn block = getBlockReader(BlockType::object);
+            uint16_t objectSize = 0;
             storage_id_t blockId = 0;
+            block.get(objectSize);
             block.get(blockId);
-
             if(blockId != id) {
                 block.spool();
                 continue;
             }
+            if(usedSize){
+                block.setLength(objectSize);
+            }
+
             return block;
         }
         return RegionDataIn(reader, 0);
     }
 
     RegionDataOut getObjectWriter(const storage_id_t id){
-        RegionDataIn objectData = getObjectReader(id); // this sets the eeprom to the object location
+        // this sets the eeprom to the object location and requestes the full available object size for writing
+        RegionDataIn objectData = getObjectReader(id, false);
         if(objectData.available() > 0){
             // block found. now wrap the eeprom location with a writer instead of a reader
             writer.reset(reader.offset(), reader.available());
@@ -284,42 +308,51 @@ private:
         return RegionDataOut(writer, 0); // length 0 writer
     }
 
-    RegionDataOut newObjectWriter(const storage_id_t id, uint16_t size){
+    // gets a block large enough to write storage id, actual size and data. objectSize is length of data
+    RegionDataOut newObjectWriter(const storage_id_t id, uint16_t objectSize){
         // find a disposed block with enough size available
         resetReader();
-        while(reader.available() >= size + sizeof(storage_id_t)){
+        uint16_t neededSizeInclBlockHeader = objectSize + objectHeaderLength();
+        uint16_t neededSizeExclBlockHeader = neededSizeInclBlockHeader- blockHeaderLength();
+        while(reader.available() >= neededSizeInclBlockHeader){
             RegionDataIn blockData = getBlockReader(BlockType::disposed_block);
-            uint16_t blockSize = uint16_t(blockData.available());
-            if(blockSize < size){
+            uint16_t blockSize = uint16_t(blockData.available()); // this excludes the block header
+            if(blockSize < neededSizeExclBlockHeader ){
                 blockData.spool();
                 continue;
             }
             // Large enough block found. now wrap the eeprom location with a writer instead of a reader
-            if(blockSize < size + 8){
+            if(blockSize < neededSizeExclBlockHeader + 8){
                 // don't create new disposed blocks smaller than 8 bytes, add space to this object instead
                 writer.reset(reader.offset() - blockHeaderLength(), blockSize + blockHeaderLength());
                 writer.put(BlockType::object);
                 writer.put(blockSize);
+                uint16_t availableObjectSize = blockSize - (objectHeaderLength() - blockHeaderLength());
+                writer.put(availableObjectSize);
                 writer.put(uint16_t(id));
-                return RegionDataOut(writer, blockSize);
+                return RegionDataOut(writer, availableObjectSize);
             }
             else{
                 // split into object block and new disposed block
                 eptr_t blockToSplitHeaderStart = reader.offset() - blockHeaderLength();
-                uint16_t newObjectBlockSizeIncludingHeader = size + sizeof(storage_id_t) + blockHeaderLength();
-                uint16_t newDisposedBlockSize = blockSize - newObjectBlockSizeIncludingHeader;
-                uint16_t newDisposedBlockStart = blockToSplitHeaderStart + newObjectBlockSizeIncludingHeader;
+                uint16_t newDisposedBlockSize = blockSize - neededSizeInclBlockHeader;
+                uint16_t newDisposedBlockStart = blockToSplitHeaderStart + neededSizeInclBlockHeader;
 
-                // first disposed block
+                // first disposed block (at the end)
                 writer.reset(newDisposedBlockStart, blockHeaderLength());
                 writer.put(BlockType::disposed_block);
                 writer.put(newDisposedBlockSize);
                 // then object block
-                writer.reset(blockToSplitHeaderStart, newObjectBlockSizeIncludingHeader);
+                writer.reset(blockToSplitHeaderStart, neededSizeInclBlockHeader);
                 writer.put(BlockType::object);
-                writer.put(uint16_t(newObjectBlockSizeIncludingHeader - blockHeaderLength()));
+                uint16_t newBlockSize = neededSizeExclBlockHeader;
+                uint16_t availableObjectSize = newBlockSize - (objectHeaderLength() - blockHeaderLength());
+                writer.put(newBlockSize);
+                // write actualSize to the full block length
+                // storeObject can adjust rewrite this if it doesn't use the full block
+                writer.put(availableObjectSize);
                 writer.put(uint16_t(id));
-                return RegionDataOut(writer, size);
+                return RegionDataOut(writer, availableObjectSize);
             }
         }
         return RegionDataOut(writer, 0); // length 0 writer

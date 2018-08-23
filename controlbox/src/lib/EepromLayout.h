@@ -11,10 +11,8 @@ struct __attribute__ ((packed)) EepromLayout {
             uint8_t version;
         };
     };
-
-    uint8_t active_profiles;
-    uint8_t reserved[29];
-    uint8_t objects[2048-(eepromStart + 2 + 1 + 29)];
+    uint8_t reserved[30];
+    uint8_t objects[2048-(eepromStart + 2 + 30)];
 };
 
 const uint16_t EepromEnd = eepromStart + sizeof(EepromLayout);
