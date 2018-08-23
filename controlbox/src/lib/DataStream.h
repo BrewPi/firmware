@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 #include <algorithm>
+#include <string>
 
 namespace cbox {
 
@@ -41,7 +42,7 @@ public:
 	DataOut() = default;
 	virtual ~DataOut() = default;
 
-    virtual void writeAnnotation(const char* /*data*/) = 0;
+	virtual void writeAnnotation(std::string && ann) = 0;
 	virtual void writeResponseSeparator() = 0;
 	virtual void writeListSeparator() = 0;
 	virtual void endMessage() = 0;
@@ -113,7 +114,7 @@ public:
 		return buffer;
 	}
 
-    virtual void writeAnnotation(const char* data) override final {};
+	virtual void writeAnnotation(std::string && ann) override final {};
     virtual void writeResponseSeparator() override final {};
     virtual void writeListSeparator() override final {};
     virtual void endMessage() override final {};
@@ -149,7 +150,7 @@ public:
         return counted;
     }
 
-    virtual void writeAnnotation(const char* data) override final {};
+    virtual void writeAnnotation(std::string && ann) override final {};
     virtual void writeResponseSeparator() override final {};
     virtual void writeListSeparator() override final {};
     virtual void endMessage() override final {};
@@ -306,9 +307,10 @@ public:
         return res1 || res2;
     }
 
-    virtual void writeAnnotation(const char* data) override final {
-        out1.writeAnnotation(data);
-        out2.writeAnnotation(data);
+    virtual void writeAnnotation(std::string && ann) override final {
+        std::string copy = ann;
+        out1.writeAnnotation(std::move(copy));
+        out2.writeAnnotation(std::move(ann));
     };
     virtual void writeResponseSeparator() override final {
         out1.writeResponseSeparator();
@@ -411,7 +413,7 @@ public:
         return len;
     }
 
-    virtual void writeAnnotation(const char* data) override final { out->writeAnnotation(data); };
+    virtual void writeAnnotation(std::string && ann) override final { out->writeAnnotation(std::move(ann)); };
     virtual void writeResponseSeparator() override final { out->writeResponseSeparator(); };
     virtual void writeListSeparator() override final { out->writeListSeparator(); };
     virtual void endMessage() override final { out->endMessage(); };
@@ -448,9 +450,9 @@ class CrcDataOut final : public DataOut {
     uint8_t crc;
 
 public:
-    CrcDataOut(DataOut& _out, uint8_t startCrc = 0) :
+    CrcDataOut(DataOut& _out) :
         out(_out),
-        crc(startCrc)
+        crc(0)
     {}
     virtual ~CrcDataOut() = default;
 
@@ -464,10 +466,11 @@ public:
         out.endMessage();
     }
 
-    virtual void writeAnnotation(const char* data) override final {
-        out.writeAnnotation(data);
+    virtual void writeAnnotation(std::string && ann) override final {
+        out.writeAnnotation(std::move(ann));
     };
     virtual void writeResponseSeparator() override final {
+        // don't add CRC for the input, because it is already sent with the input command
         out.write(crc);
         crc = 0;
         out.writeResponseSeparator();
@@ -489,9 +492,9 @@ class CrcDataIn final : public DataIn {
     uint8_t crcVal;
 
 public:
-    CrcDataIn(DataIn& _in, uint8_t startCrc = 0) :
+    CrcDataIn(DataIn& _in) :
         in(_in),
-        crcVal(startCrc)
+        crcVal(0)
     {}
     virtual ~CrcDataIn() = default;
 
@@ -513,8 +516,9 @@ public:
         return in.available();
     }
 
-    uint8_t crc() const {
-        return crcVal;
+    uint8_t crc() {
+        // next(); // consume CRC
+        return crcVal; // CRC should be zero now
     }
 };
 

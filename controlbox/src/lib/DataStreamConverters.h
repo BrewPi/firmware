@@ -22,7 +22,6 @@
 #pragma once
 
 #include "DataStream.h"
-#include <cstring>
 #include <string>
 
 namespace cbox {
@@ -173,10 +172,12 @@ public:
 	/**
 	 * Annotations are written as is to the stream, surrounded by annotation marks.
 	 */
-	virtual void writeAnnotation(const char* data) override final {
+	virtual void writeAnnotation(std::string && ann) override final {
 		out.write('<');
 		out.write('!');
-		out.writeBuffer(data, stream_size_t(strlen(data)));
+		for(auto c : ann){
+		    out.write(c);
+		}
 		out.write('>');
 	}
 
@@ -210,5 +211,6 @@ public:
 
 // helper function for testing. Appends the CRC to a hex string, the same way CrcDataOut would do
 std::string addCrc(const std::string & in);
+std::string crc(const std::string & in);
 
 } // end namespace cbox

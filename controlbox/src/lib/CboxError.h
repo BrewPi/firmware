@@ -54,6 +54,7 @@ enum class CboxError : uint8_t {
     invalid_object_id = 65,
     invalid_object_type = 66,
     invalid_object_profiles = 68,
+    crc_error_in_command = 69,
 };
 
 inline uint8_t asUint8(CboxError e){

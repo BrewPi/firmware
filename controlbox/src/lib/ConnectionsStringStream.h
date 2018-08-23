@@ -73,7 +73,7 @@ public:
 
     OStreamDataOut(std::ostream& out_) : out(out_) {}
 
-    virtual void writeAnnotation(const char* /*data*/) override final {};
+    virtual void writeAnnotation(std::string && ann) override final {};
     virtual void writeResponseSeparator() override final {};
     virtual void writeListSeparator() override final {};
     virtual void endMessage() override final {};
