@@ -330,7 +330,8 @@ private:
         eeprom.get(EepromLocation(header), header);
         if(header != referenceHeader()){
             eeprom.clear(); // writes zeros, active profiles is now also 0x00
-            eeprom.put(EepromLocation(header), referenceHeader());
+            auto referenceHeaderValue = referenceHeader();
+            eeprom.put(EepromLocation(header), referenceHeaderValue);
             resetWriter();
             // make eeprom one big disposed block
             writer.put(BlockType::disposed_block);

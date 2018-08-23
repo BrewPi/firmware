@@ -19,8 +19,6 @@
 
 #include "Platform.h"
 
-
-#include "ProfilesBlock.h"
 #include "Object.h"
 #include "Container.h"
 #include "Box.h"
@@ -32,16 +30,15 @@
 //#include "blox/PidBlock.h"
 #include "blox/SensorSetPointPairBlock.h"
 #include "blox/SetPointSimpleBlock.h"
-#include "OneWire.h"
-#include "OneWireBusBlock.h"
+#include "blox/OneWireBusBlock.h"
+#include "theOneWire.h"
 #include "EepromObjectStorage.h"
 #include <memory>
 
 #include "blox/TicksBlock.h"
 #include "TicksWiring.h"
 #include "SysInfoBlock.h"
-
-OneWire oneWireBus(0);
+#include "theOneWire.h"
 
 namespace cbox {
 void connectionStarted(DataOut& out)
@@ -56,12 +53,11 @@ class SensorSetPointPairBlock;
 using TicksClass = Ticks<TicksWiring>;
 TicksClass ticks;
 
-cbox::Box & brewbloxBox(){
+cbox::Box & makeTheBox(){
     static cbox::ObjectContainer objects = {
             cbox::ContainedObject(1, 0xFF, std::make_shared<SysInfoBlock>()),
             cbox::ContainedObject(2, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
-            cbox::ContainedObject(3, 0xFF, std::make_shared<OneWireBusBlock>(oneWireBus)),
-            cbox::ContainedObject(4, 0xFF, std::make_shared<ProfilesBlock>(objects))
+            cbox::ContainedObject(3, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire()))
     };
 
     static cbox::ObjectFactory objectFactory = {
@@ -77,10 +73,18 @@ cbox::Box & brewbloxBox(){
     static cbox::TcpConnectionSource tcpSource(8332);
     static cbox::ConnectionPool connections = {tcpSource};
 
-    static cbox::Box appBox(objectFactory, objects, objectStore, connections);
+    static cbox::Box box(objectFactory, objects, objectStore, connections);
 
-    return appBox;
+    return box;
+}
+
+cbox::Box & brewbloxBox(){
+    static cbox::Box & box = makeTheBox();
+    return box;
 }
 
 
-
+OneWire& theOneWire(){
+    static OneWire ow(0);
+    return ow;
+}
