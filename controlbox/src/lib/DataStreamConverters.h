@@ -22,7 +22,8 @@
 #pragma once
 
 #include "DataStream.h"
-#include <string.h>
+#include <cstring>
+#include <string>
 
 namespace cbox {
 
@@ -213,5 +214,8 @@ public:
 
 	virtual void flush() override final { out.flush(); };
 };
+
+// helper function for testing. Appends the CRC to a hex string, the same way CrcDataOut would do
+std::string addCrc(const std::string & in);
 
 } // end namespace cbox
