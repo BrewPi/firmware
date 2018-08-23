@@ -33,7 +33,7 @@ SCENARIO("A controlbox Box"){
     WHEN("A connection sends a read object command, it is processed by the Box"){
         std::stringstream in, out;
         connSource.add(in, out);
-        in << "010100"; // read object 1
+        in << "010100\n"; // read object 1
         box.hexCommunicate();
 
         // commands are sent out LSB first
@@ -44,7 +44,7 @@ SCENARIO("A controlbox Box"){
     WHEN("A connection sends a write object command, it is processed by the Box"){
         std::stringstream in, out;
         connSource.add(in, out);
-        in << "02010001E80333333333"; // write object 1, set profiles to 01 and value to 33333333
+        in << "02010001E80333333333\n"; // write object 1, set profiles to 01 and value to 33333333
         box.hexCommunicate();
 
         // commands are sent out LSB first
@@ -55,7 +55,7 @@ SCENARIO("A controlbox Box"){
     WHEN("A connection sends a create object command, it is processed by the Box"){
         std::stringstream in, out;
         connSource.add(in, out);
-        in << "03" << "0000" << "FF" << "E803" << "44444444"; // create object, ID assigned by box, profiles FF, type 1000, value 44444444
+        in << "03" << "0000" << "FF" << "E803" << "44444444\n"; // create object, ID assigned by box, profiles FF, type 1000, value 44444444
         box.hexCommunicate();
 
         // commands are sent out LSB first
@@ -66,7 +66,7 @@ SCENARIO("A controlbox Box"){
         AND_WHEN("A connection sends a delete object command for a user object, it is processed by the Box"){
             std::stringstream in, out;
             connSource.add(in, out);
-            in << "04" << "6400"; // delete object, ID 100
+            in << "04" << "6400\n"; // delete object, ID 100
             box.hexCommunicate();
 
             // commands are sent out LSB first
@@ -79,7 +79,7 @@ SCENARIO("A controlbox Box"){
     WHEN("A connection sends a delete object command for system object, it is refused with status object_not_deletable (35)"){
         std::stringstream in, out;
         connSource.add(in, out);
-        in << "04" << "0100"; // delete object, ID 1
+        in << "04" << "0100\n"; // delete object, ID 1
         box.hexCommunicate();
 
         // commands are sent out LSB first
@@ -90,7 +90,7 @@ SCENARIO("A controlbox Box"){
     WHEN("A connection sends a delete object command for a non-existing object, it is refused with status invalid_object_id (65)"){
         std::stringstream in, out;
         connSource.add(in, out);
-        in << "04" << "0001"; // delete object, ID 256
+        in << "04" << "0001\n"; // delete object, ID 256
         box.hexCommunicate();
 
         // commands are sent out LSB first
@@ -101,7 +101,7 @@ SCENARIO("A controlbox Box"){
     WHEN("A connection sends a list objects command, all objects are sent out"){
         std::stringstream in, out;
         connSource.add(in, out);
-        in << "05"; // list all objects
+        in << "05\n"; // list all objects
         box.hexCommunicate();
 
         // commands are sent out LSB first
@@ -233,7 +233,7 @@ SCENARIO("A controlbox Box"){
 
             std::stringstream in3, out3;
             connSource.add(in3, out3);
-            in3 << "05"; // list all objects
+            in3 << "05\n"; // list all objects
             box.hexCommunicate();
 
             // only the system objects remain
