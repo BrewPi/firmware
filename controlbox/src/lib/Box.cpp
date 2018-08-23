@@ -139,13 +139,11 @@ void Box::writeObject(CrcDataIn& in, DataOut& out) {
 
 /**
  * Creates a new object by streaming in everything except the object id
+ * separate body so we can have a version with and without CRC checking
  */
-CboxError Box::addContainedObjectFromStream(CrcDataIn& in, obj_id_t & id, bool replace){
-    obj_id_t requestedId = id;
-    obj_id_t newId;
+CboxError Box::addContainedObjectFromStreamImpl(DataIn& in, obj_id_t & id, uint8_t & profiles, std::unique_ptr<Object> &newObj)
+{
     obj_type_t typeId;
-    uint8_t profiles;
-
     CboxError status = CboxError::no_error;
 
     if(!in.get(profiles)){
@@ -155,15 +153,24 @@ CboxError Box::addContainedObjectFromStream(CrcDataIn& in, obj_id_t & id, bool r
         status = CboxError::input_stream_read_error;
     }
 
-    std::unique_ptr<Object> newObj;
     if(status == CboxError::no_error){
         status = factory.make(typeId, newObj);
         if(newObj){
            status = newObj->streamFrom(in);
-           if(status == CboxError::no_error){
-               id = objects.add(std::move(newObj), profiles, requestedId, replace);
-           }
         }
+    }
+    return status;
+}
+/**
+ * Creates a new object by streaming in everything except the object id
+ */
+CboxError Box::addContainedObjectFromStream(CrcDataIn& in, obj_id_t & id, bool replace){
+    uint8_t profiles;
+    std::unique_ptr<Object> newObj;
+    CboxError status = addContainedObjectFromStreamImpl(in, id, profiles, newObj);
+    // add CRC check here
+    if(status == CboxError::no_error){
+        id = objects.add(std::move(newObj), profiles, id, replace);
     }
     return status;
 }
@@ -172,35 +179,18 @@ CboxError Box::addContainedObjectFromStream(CrcDataIn& in, obj_id_t & id, bool r
  * Creates a new object by streaming in everything except the object id
  */
 CboxError Box::addContainedObjectFromStream(DataIn& in, obj_id_t & id, bool replace){
-    obj_id_t requestedId = id;
-    obj_id_t newId;
-    obj_type_t typeId;
     uint8_t profiles;
-
-    CboxError status = CboxError::no_error;
-
-    if(!in.get(profiles)){
-        status = CboxError::input_stream_read_error;
-    }
-    if(!in.get(typeId)){
-        status = CboxError::input_stream_read_error;
-    }
-
     std::unique_ptr<Object> newObj;
+    CboxError status = addContainedObjectFromStreamImpl(in, id, profiles, newObj);
+
     if(status == CboxError::no_error){
-        status = factory.make(typeId, newObj);
-        if(newObj){
-           status = newObj->streamFrom(in);
-           if(status == CboxError::no_error){
-               id = objects.add(std::move(newObj), profiles, requestedId, replace);
-           }
-        }
+        id = objects.add(std::move(newObj), profiles, id, replace);
     }
     return status;
 }
 
 /**
- * Creates a new object at a specific location.
+ * Creates a new object and adds it to the container
  */
 void Box::createObject(CrcDataIn& in, DataOut& out)
 {

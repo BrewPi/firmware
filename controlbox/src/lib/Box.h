@@ -58,8 +58,12 @@ private:
 	void reboot(CrcDataIn& in, DataOut& out);
 	void factoryReset(CrcDataIn& in, DataOut& out);
 
+	// addContainedObjectFromStream is available with 2 prototypes. With and without CRC checked input
+	// this is because EEPROM data does not have a CRC
 	CboxError addContainedObjectFromStream(CrcDataIn& in, obj_id_t & id, bool replace);
 	CboxError addContainedObjectFromStream(DataIn& in, obj_id_t & id, bool replace);
+	CboxError addContainedObjectFromStreamImpl(DataIn& in, obj_id_t & id, uint8_t & profiles, std::unique_ptr<Object> &newObj);
+
 	void loadObjectsFromStorage();
 
 public:
