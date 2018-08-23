@@ -63,14 +63,20 @@ public:
 /**
  * Provides a DataOut stream by wrapping a std::ostream.
  */
-class OStreamDataOut : public DataOut
+class OStreamDataOut final : public DataOut
 {
     std::ostream& out;
 public:
 
     OStreamDataOut(std::ostream& out_) : out(out_) {}
 
-    virtual bool write(uint8_t data) override {
+    virtual void writeAnnotation(const char* /*data*/) override final {};
+    virtual void writeResponseSeparator() override final {};
+    virtual void writeListSeparator() override final {};
+    virtual void endMessage() override final {};
+    virtual void flush() override final {};
+
+    virtual bool write(uint8_t data) override final {
         out.put(char(data));
         return true;
     }

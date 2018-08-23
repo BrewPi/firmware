@@ -41,16 +41,16 @@ public:
 	DataOut() = default;
 	virtual ~DataOut() = default;
 
-    virtual void writeAnnotation(const char* /*data*/) {}
-	virtual void writeResponseSeparator() {}
-	virtual void writeListSeparator() {}
-	virtual void endMessage() {}
+    virtual void writeAnnotation(const char* /*data*/) = 0;
+	virtual void writeResponseSeparator() = 0;
+	virtual void writeListSeparator() = 0;
+	virtual void endMessage() = 0;
 
 	/**
 	 * Writes a byte to the stream.
 	 * @return {@code true} if the byte was successfully written, false otherwise.
 	 */
-	virtual bool write(uint8_t data)=0;
+	virtual bool write(uint8_t data) = 0;
 
 	bool write(int8_t data) { return write(uint8_t(data)); }
 	bool write(char data) { return write(uint8_t(data)); }
@@ -76,7 +76,7 @@ public:
 		return true;
 	}
 
-	virtual void flush() {}
+	virtual void flush() = 0;
 };
 
 /**
@@ -93,6 +93,7 @@ public:
 		: buffer(_buffer), size(_size), pos(0)
 	{
 	}
+	virtual ~BufferDataOut() = default;
 
 	void reset() {
 		pos = 0;
@@ -112,6 +113,12 @@ public:
 		return buffer;
 	}
 
+    virtual void writeAnnotation(const char* data) override final {};
+    virtual void writeResponseSeparator() override final {};
+    virtual void writeListSeparator() override final {};
+    virtual void endMessage() override final {};
+    virtual void flush() override final {};
+
 };
 
 /**
@@ -127,7 +134,7 @@ public:
 /**
  * A DataOut implementation that discards all data, but counts each byte;
  */
-class CountingBlackholeDataOut : public DataOut {
+class CountingBlackholeDataOut final : public DataOut {
 private:
 	stream_size_t counted;
 public:    
@@ -141,6 +148,12 @@ public:
     stream_size_t count(){
         return counted;
     }
+
+    virtual void writeAnnotation(const char* data) override final {};
+    virtual void writeResponseSeparator() override final {};
+    virtual void writeListSeparator() override final {};
+    virtual void endMessage() override final {};
+    virtual void flush() override final {};
 };
 
 /**
@@ -154,6 +167,7 @@ public:
 class DataIn
 {
 public:
+    virtual ~DataIn() = default;
 	/*
 	 * Determines if there is potentially more data in this stream.
 	 * Note that this is not dependent upon time and asynchronous delivery of data, but if the stream is still open.
@@ -175,8 +189,6 @@ public:
 	 * Determines how many bytes are available for reading from the stream without blocking.
 	 */
 	virtual stream_size_t available() =0;
-
-	virtual ~DataIn() {}
 
 	/*
 	 * Unconditional read of {@code length} bytes.
@@ -252,6 +264,8 @@ public:
  */
 class EmptyDataIn : public DataIn
 {
+    EmptyDataIn() = default;
+    virtual ~EmptyDataIn() = default;
 public:
 	virtual bool hasNext() override { return false; }
 	virtual uint8_t next() override { return 0; }
@@ -273,6 +287,7 @@ public:
 		: in(_in), out(_out), success(true)
 	{
 	}
+	virtual ~TeeDataIn() = default;
 
 	bool teeOk() { return success; }
 
@@ -293,7 +308,7 @@ public:
 /*
  * A DataOut that writes to two other DataOut streams.
  */
-class TeeDataOut : public DataOut
+class TeeDataOut final : public DataOut
 {
 public:
     TeeDataOut(DataOut& _out1, DataOut& _out2) : out1(_out1), out2(_out2){};
@@ -304,6 +319,28 @@ public:
         bool res2 = out2.write(data);
         return res1 || res2;
     }
+
+    virtual void writeAnnotation(const char* data) override final {
+        out1.writeAnnotation(data);
+        out2.writeAnnotation(data);
+    };
+    virtual void writeResponseSeparator() override final {
+        out1.writeResponseSeparator();
+        out2.writeResponseSeparator();
+    };
+    virtual void writeListSeparator() override final {
+        out1.writeListSeparator();
+        out2.writeListSeparator();
+    };
+    virtual void endMessage() override final {
+        out1.endMessage();
+        out2.endMessage();
+    };
+    virtual void flush() override final {
+        out1.flush();
+        out2.flush();
+    };
+
 private:
     DataOut & out1;
     DataOut & out2;
@@ -339,6 +376,7 @@ class RegionDataIn : public DataIn {
 public:
 	RegionDataIn(DataIn &_in, stream_size_t _len)
 	: in(_in), len(_len) {}
+	virtual ~RegionDataIn() = default;
 
 	bool hasNext() override {
 	    return len && in.hasNext();
@@ -364,7 +402,7 @@ public:
 /**
  * Limits writing to the stream to the given number of bytes.
  */
-class RegionDataOut : public DataOut {
+class RegionDataOut final : public DataOut {
     DataOut* out; // use pointer to have assignment operator
     stream_size_t len;
 public:
@@ -379,12 +417,81 @@ public:
         }
         return false;
     }
+
     void setLength(stream_size_t len_){
         len = len_;
     }
     stream_size_t availableForWrite(){
         return len;
     }
+
+    virtual void writeAnnotation(const char* data) override final { out->writeAnnotation(data); };
+    virtual void writeResponseSeparator() override final { out->writeResponseSeparator(); };
+    virtual void writeListSeparator() override final { out->writeListSeparator(); };
+    virtual void endMessage() override final { out->endMessage(); };
+    virtual void flush() override final { out->flush(); };
+};
+
+// copied from OneWire class. Should be refactored to only define this one
+
+static const uint8_t dscrc_table[] = {
+    0, 94, 188, 226, 97, 63, 221, 131, 194, 156, 126, 32, 163, 253, 31, 65,
+    157, 195, 33, 127, 252, 162, 64, 30, 95, 1, 227, 189, 62, 96, 130, 220,
+    35, 125, 159, 193, 66, 28, 254, 160, 225, 191, 93, 3, 128, 222, 60, 98,
+    190, 224, 2, 92, 223, 129, 99, 61, 124, 34, 192, 158, 29, 67, 161, 255,
+    70, 24, 250, 164, 39, 121, 155, 197, 132, 218, 56, 102, 229, 187, 89, 7,
+    219, 133, 103, 57, 186, 228, 6, 88, 25, 71, 165, 251, 120, 38, 196, 154,
+    101, 59, 217, 135, 4, 90, 184, 230, 167, 249, 27, 69, 198, 152, 122, 36,
+    248, 166, 68, 26, 153, 199, 37, 123, 58, 100, 134, 216, 91, 5, 231, 185,
+    140, 210, 48, 110, 237, 179, 81, 15, 78, 16, 242, 172, 47, 113, 147, 205,
+    17, 79, 173, 243, 112, 46, 204, 146, 211, 141, 111, 49, 178, 236, 14, 80,
+    175, 241, 19, 77, 206, 144, 114, 44, 109, 51, 209, 143, 12, 82, 176, 238,
+    50, 108, 142, 208, 83, 13, 239, 177, 240, 174, 76, 18, 145, 207, 45, 115,
+    202, 148, 118, 40, 171, 245, 23, 73, 8, 86, 180, 234, 105, 55, 213, 139,
+    87, 9, 235, 181, 54, 104, 138, 212, 149, 203, 41, 119, 244, 170, 72, 22,
+    233, 183, 85, 11, 136, 214, 52, 106, 43, 117, 151, 201, 74, 20, 246, 168,
+    116, 42, 200, 150, 21, 75, 169, 247, 182, 232, 10, 84, 215, 137, 107, 53
+};
+
+
+/**
+ * CRC data out. Sends running CRC of data that was sent on endMessage()
+ */
+class CrcDataOut final : public DataOut {
+    DataOut& out; // use pointer to have assignment operator
+    uint8_t crc;
+
+public:
+    CrcDataOut(DataOut& _out, uint8_t startCrc = 0) :
+        out(_out),
+        crc(startCrc)
+    {}
+    virtual ~CrcDataOut() = default;
+
+    virtual bool write(uint8_t data) override final {
+        crc = *(dscrc_table + (crc ^ data));
+        return out.write(data);
+    }
+
+    virtual void endMessage() override final {
+        out.write(crc);
+        out.endMessage();
+    }
+
+    virtual void writeAnnotation(const char* data) override final {
+        out.writeAnnotation(data);
+    };
+    virtual void writeResponseSeparator() override final {
+        out.write(crc);
+        crc = 0;
+        out.writeResponseSeparator();
+    };
+    virtual void writeListSeparator() override final {
+        out.write(crc);
+        crc = 0;
+        out.writeListSeparator();
+    };
+    virtual void flush() override final { out.flush(); };
 };
 
 }

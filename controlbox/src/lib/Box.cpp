@@ -305,10 +305,9 @@ void Box::clearObjects(DataIn& in, DataOut& out)
  */
 void Box::handleCommand(DataIn& dataIn, DataOut& dataOut)
 {
-    TeeDataIn teeIn(dataIn, dataOut);	// ensure command input is also echoed to output
-    uint8_t cmd_id = teeIn.next();		// command type code
-    DataIn& in = teeIn;
-    DataOut& out = dataOut;
+    CrcDataOut out(dataOut);    // write CRC after response
+    TeeDataIn in(dataIn, out);	// ensure command input is also echoed to output
+    uint8_t cmd_id = in.next();	// command type code
 
     switch(cmd_id){
         case NONE:

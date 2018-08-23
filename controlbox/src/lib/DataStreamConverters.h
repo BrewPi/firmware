@@ -169,7 +169,7 @@ public:
 /**
  * A DataOut decorator that converts from the 8-bit data bytes to ASCII Hex.
  */
-class BinaryToHexTextOut : public DataOut {
+class BinaryToHexTextOut final : public DataOut {
 private:
 	DataOut& out;
 
@@ -210,6 +210,8 @@ public:
 	virtual void endMessage() override final {
 		out.write('\n');
 	}
+
+	virtual void flush() override final { out.flush(); };
 };
 
 } // end namespace cbox

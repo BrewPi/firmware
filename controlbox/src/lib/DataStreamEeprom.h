@@ -56,7 +56,7 @@ struct EepromStreamRegion : public StreamRegion<eptr_t, stream_size_t>
  * writes are silently failed.
  * @see EepromAccess
  */
-class EepromDataOut : public DataOut, public EepromStreamRegion
+class EepromDataOut final : public DataOut, public EepromStreamRegion
 {
 private:
 	EepromAccess& eepromAccess;
@@ -72,6 +72,12 @@ public:
 		}
 		return false;
 	}
+
+	virtual void writeAnnotation(const char* data) override final {};
+    virtual void writeResponseSeparator() override final {};
+    virtual void writeListSeparator() override final {};
+    virtual void endMessage() override final {};
+    virtual void flush() override final {};
 };
 
 
