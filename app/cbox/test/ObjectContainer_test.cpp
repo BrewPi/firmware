@@ -176,7 +176,7 @@ SCENARIO("A container with system objects passed in the initializer list"){
 
     THEN("No objects can be added in the system ID range"){
         objects.setObjectsStartId(100);
-        CHECK(obj_id_t::invalid() == objects.add(std::make_unique<LongIntObject>(0x33333333), 0xFF, 99));
+        CHECK(obj_id_t::invalid() == objects.add(std::make_unique<LongIntObject>(0x33333333), 0xFF, 99, true));
     }
 
     THEN("Objects added after construction can also be marked system by moving the start ID"){

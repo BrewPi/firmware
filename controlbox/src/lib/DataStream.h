@@ -447,22 +447,22 @@ static const uint8_t dscrc_table[] = {
  */
 class CrcDataOut final : public DataOut {
     DataOut& out; // use pointer to have assignment operator
-    uint8_t crc;
+    uint8_t crcValue;
 
 public:
     CrcDataOut(DataOut& _out) :
         out(_out),
-        crc(0)
+        crcValue(0)
     {}
     virtual ~CrcDataOut() = default;
 
     virtual bool write(uint8_t data) override final {
-        crc = *(dscrc_table + (crc ^ data));
+        crcValue = *(dscrc_table + (crcValue ^ data));
         return out.write(data);
     }
 
     virtual void endMessage() override final {
-        out.write(crc);
+        out.write(crcValue);
         out.endMessage();
     }
 
@@ -471,54 +471,18 @@ public:
     };
     virtual void writeResponseSeparator() override final {
         // don't add CRC for the input, because it is already sent with the input command
-        out.write(crc);
-        crc = 0;
+        crcValue = 0;
         out.writeResponseSeparator();
     };
     virtual void writeListSeparator() override final {
-        out.write(crc);
-        crc = 0;
+        out.write(crcValue);
+        crcValue = 0;
         out.writeListSeparator();
     };
     virtual void flush() override final { out.flush(); };
-};
 
-
-/**
- * CRC data input. Can be queried for the running CRC at any time, otherwise the same as argument.
- */
-class CrcDataIn final : public DataIn {
-    DataIn & in; // use pointer to have assignment operator
-    uint8_t crcVal;
-
-public:
-    CrcDataIn(DataIn& _in) :
-        in(_in),
-        crcVal(0)
-    {}
-    virtual ~CrcDataIn() = default;
-
-    bool hasNext() override final{
-        return in.hasNext();
-    }
-
-    uint8_t next() override final{
-        uint8_t data = in.next();
-        crcVal = *(dscrc_table + (crcVal ^ data));
-        return data;
-    }
-
-    uint8_t peek() override final{
-        return in.peek();
-    }
-
-    stream_size_t available() override final {
-        return in.available();
-    }
-
-    uint8_t crc() {
-        // next(); // consume CRC
-        return crcVal; // CRC should be zero now
+    uint8_t crc(){
+        return crcValue;
     }
 };
 

@@ -46,23 +46,19 @@ private:
 	uint8_t activeProfiles;
 
 	// command handlers
-	void noop(CrcDataIn& in, DataOut& out);
-	void invalidCommand(CrcDataIn& in, DataOut& out);
-	void readObject(CrcDataIn& in, DataOut& out);
-	void writeObject(CrcDataIn& in, DataOut& out);
-	void createObject(CrcDataIn& in, DataOut& out);
-	void deleteObject(CrcDataIn& in, DataOut& out);
-	void listActiveObjects(CrcDataIn& in, DataOut& out);
-	void listSavedObjects(CrcDataIn& in, DataOut& out);
-	void clearObjects(CrcDataIn& in, DataOut& out);
-	void reboot(CrcDataIn& in, DataOut& out);
-	void factoryReset(CrcDataIn& in, DataOut& out);
+	void noop(DataIn& in, CrcDataOut& out);
+	void invalidCommand(DataIn& in, CrcDataOut& out);
+	void readObject(DataIn& in, CrcDataOut& out);
+	void writeObject(DataIn& in, CrcDataOut& out);
+	void createObject(DataIn& in, CrcDataOut& out);
+	void deleteObject(DataIn& in, CrcDataOut& out);
+	void listActiveObjects(DataIn& in, CrcDataOut& out);
+	void listSavedObjects(DataIn& in, CrcDataOut& out);
+	void clearObjects(DataIn& in, CrcDataOut& out);
+	void reboot(DataIn& in, CrcDataOut& out);
+	void factoryReset(DataIn& in, CrcDataOut& out);
 
-	// addContainedObjectFromStream is available with 2 prototypes. With and without CRC checked input
-	// this is because EEPROM data does not have a CRC
-	CboxError addContainedObjectFromStream(CrcDataIn& in, obj_id_t & id, bool replace);
-	CboxError addContainedObjectFromStream(DataIn& in, obj_id_t & id, bool replace);
-	CboxError addContainedObjectFromStreamImpl(DataIn& in, obj_id_t & id, uint8_t & profiles, std::unique_ptr<Object> &newObj);
+	CboxError createObjectFromStream(DataIn& in, uint8_t& profiles, std::unique_ptr<Object>& newObj);
 
 	void loadObjectsFromStorage();
 

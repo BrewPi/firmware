@@ -20,12 +20,14 @@
 
 #include "Box.h"
 #include "Object.h"
+#include "ContainedObject.h"
 #include "Container.h"
 #include "DataStream.h"
 #include "ObjectStorage.h"
 #include "DataStreamConverters.h"
 #include "CboxError.h"
 #include "ResolveType.h"
+#include <memory>
 
 namespace cbox {
 
@@ -45,7 +47,7 @@ Box::Box(ObjectFactory& _factory, ObjectContainer& _objects, ObjectStorage& _sto
 /**
  * The no-op command simply echoes the response until the end of stream.
  */
-void Box::noop(CrcDataIn& in, DataOut& out)
+void Box::noop(DataIn& in, CrcDataOut& out)
 {
     in.spool();
     out.writeResponseSeparator();
@@ -55,14 +57,14 @@ void Box::noop(CrcDataIn& in, DataOut& out)
 /**
  * The no-op command simply echoes the response until the end of stream.
  */
-void Box::invalidCommand(CrcDataIn& in, DataOut& out)
+void Box::invalidCommand(DataIn& in, CrcDataOut& out)
 {
     in.spool();
     out.writeResponseSeparator();
     out.write(asUint8(CboxError::invalid_command));
 }
 
-void Box::readObject(CrcDataIn& in, DataOut& out) {
+void Box::readObject(DataIn& in, CrcDataOut& out) {
     CboxError status = CboxError::no_error;
     obj_id_t id = 0;
     ContainedObject * cobj = nullptr;
@@ -74,6 +76,11 @@ void Box::readObject(CrcDataIn& in, DataOut& out) {
         if(cobj == nullptr){
             status = CboxError::invalid_object_id;
         }
+    }
+
+    in.spool();
+    if(out.crc()){
+        status = CboxError::crc_error_in_command;
     }
     out.writeResponseSeparator();
     out.write(asUint8(status));
@@ -94,7 +101,7 @@ void Box::readObject(CrcDataIn& in, DataOut& out) {
     }
 }
 
-void Box::writeObject(CrcDataIn& in, DataOut& out) {
+void Box::writeObject(DataIn& in, CrcDataOut& out) {
     CboxError status = CboxError::no_error;
     obj_id_t id = 0;
     ContainedObject * cobj = nullptr;
@@ -103,14 +110,24 @@ void Box::writeObject(CrcDataIn& in, DataOut& out) {
     }
     else {
     	cobj = objects.fetchContained(id);
-        if(cobj == nullptr){
+        if(cobj == nullptr) {
             status = CboxError::invalid_object_id;
         }
-        else{
-            if(cobj->object()->typeId() == resolveTypeId<InactiveObject>()){
+        else {
+            if(cobj->object()->typeId() == resolveTypeId<InactiveObject>()) {
                 // create object (at least temporarily to write it) and replace inactive object
-                addContainedObjectFromStream(in, id, true);
-                cobj = objects.fetchContained(id);
+                uint8_t profiles = 0;
+
+                CboxError status = CboxError::no_error;
+                std::unique_ptr<Object> newObj;
+                if(status == CboxError::no_error){
+                    status = createObjectFromStream(in, profiles, newObj);
+
+                    if(newObj){
+                        objects.add(std::move(newObj), profiles, id);
+                    }
+                    cobj = objects.fetchContained(id);
+                }
             }
             else {
                 // update existing object
@@ -120,9 +137,12 @@ void Box::writeObject(CrcDataIn& in, DataOut& out) {
     }
     
     in.spool();
+    if(out.crc()){
+        status = CboxError::crc_error_in_command;
+    }
     out.writeResponseSeparator();
     out.write(asUint8(status));
-    if(cobj != nullptr){
+    if(cobj != nullptr && status == CboxError::no_error){
         status = cobj->streamTo(out);
         if(status == CboxError::no_error){
             auto storeContained = [&cobj](DataOut & out) -> CboxError {
@@ -139,10 +159,8 @@ void Box::writeObject(CrcDataIn& in, DataOut& out) {
 
 /**
  * Creates a new object by streaming in everything except the object id
- * separate body so we can have a version with and without CRC checking
  */
-CboxError Box::addContainedObjectFromStreamImpl(DataIn& in, obj_id_t & id, uint8_t & profiles, std::unique_ptr<Object> &newObj)
-{
+CboxError Box::createObjectFromStream(DataIn& in, uint8_t& profiles, std::unique_ptr<Object>& newObj){
     obj_type_t typeId;
     CboxError status = CboxError::no_error;
 
@@ -161,41 +179,15 @@ CboxError Box::addContainedObjectFromStreamImpl(DataIn& in, obj_id_t & id, uint8
     }
     return status;
 }
-/**
- * Creates a new object by streaming in everything except the object id
- */
-CboxError Box::addContainedObjectFromStream(CrcDataIn& in, obj_id_t & id, bool replace){
-    uint8_t profiles;
-    std::unique_ptr<Object> newObj;
-    CboxError status = addContainedObjectFromStreamImpl(in, id, profiles, newObj);
-    // add CRC check here
-    if(status == CboxError::no_error){
-        id = objects.add(std::move(newObj), profiles, id, replace);
-    }
-    return status;
-}
-
-/**
- * Creates a new object by streaming in everything except the object id
- */
-CboxError Box::addContainedObjectFromStream(DataIn& in, obj_id_t & id, bool replace){
-    uint8_t profiles;
-    std::unique_ptr<Object> newObj;
-    CboxError status = addContainedObjectFromStreamImpl(in, id, profiles, newObj);
-
-    if(status == CboxError::no_error){
-        id = objects.add(std::move(newObj), profiles, id, replace);
-    }
-    return status;
-}
 
 /**
  * Creates a new object and adds it to the container
  */
-void Box::createObject(CrcDataIn& in, DataOut& out)
+void Box::createObject(DataIn& in, CrcDataOut& out)
 {
     obj_id_t id;
     obj_type_t typeId;
+    uint8_t profiles = 0;
 
     CboxError status = CboxError::no_error;
 
@@ -203,22 +195,29 @@ void Box::createObject(CrcDataIn& in, DataOut& out)
         status = CboxError::input_stream_read_error;
     }
 
+    std::unique_ptr<Object> newObj;
     if(status == CboxError::no_error){
-        status = addContainedObjectFromStream(in, id, false);
+        status = createObjectFromStream(in, profiles, newObj);
     }
 
-	in.spool();
+    in.spool();
+    if(out.crc()){
+        status = CboxError::crc_error_in_command;
+    }
     out.writeResponseSeparator();
     out.write(asUint8(status));
-    if(auto ptrCobj = objects.fetchContained(id)){
-        ptrCobj->streamTo(out);
-        auto storeContained = [&ptrCobj](DataOut & out) -> CboxError {
-           return ptrCobj->streamPersistedTo(out);
-        };
-        status = storage.storeObject(id, storeContained);
-        if(id >= userStartId() && !(ptrCobj->profiles() & activeProfiles) ){
-            // object should not be active, replace object with inactive object
-            ptrCobj->deactivate();
+    if(status == CboxError::no_error){
+        id = objects.add(std::move(newObj), profiles, id, false);
+        if(auto ptrCobj = objects.fetchContained(id)){ // needed because id can be 0 to indicate any free id
+            ptrCobj->streamTo(out);
+            auto storeContained = [&ptrCobj](DataOut & out) -> CboxError {
+               return ptrCobj->streamPersistedTo(out);
+            };
+            status = storage.storeObject(id, storeContained);
+            if(id >= userStartId() && !(ptrCobj->profiles() & activeProfiles) ){
+                // object should not be active, replace object with inactive object
+                ptrCobj->deactivate();
+            }
         }
     }
 }
@@ -227,16 +226,25 @@ void Box::createObject(CrcDataIn& in, DataOut& out)
  * Handles the delete object command.
  *
  */
-void Box::deleteObject(CrcDataIn& in, DataOut& out)
+void Box::deleteObject(DataIn& in, CrcDataOut& out)
 {
     CboxError status = CboxError::no_error;
     obj_id_t id;
+
     if(!in.get(id)){
         status = CboxError::input_stream_read_error;
     }
-    status = objects.remove(id);
-    storage.disposeObject(id); // todo: event if error?
+
     in.spool();
+    if(out.crc()){
+        status = CboxError::crc_error_in_command;
+    }
+
+    if(status == CboxError::no_error){
+        status = objects.remove(id);
+        storage.disposeObject(id); // todo: event if error?
+    }
+
     out.writeResponseSeparator();
     out.write(asUint8(status));
 }
@@ -244,10 +252,18 @@ void Box::deleteObject(CrcDataIn& in, DataOut& out)
 /**
  * Walks the eeprom and writes out the construction definitions.
  */
-void Box::listActiveObjects(CrcDataIn& in, DataOut& out)
+void Box::listActiveObjects(DataIn& in, CrcDataOut& out)
 {
     in.spool();
+    auto crc = out.crc();
+
     out.writeResponseSeparator();
+
+    if(crc){
+        out.write(asUint8(CboxError::crc_error_in_command));
+        return;
+    }
+
     out.write(asUint8(CboxError::no_error));
     for(auto it = objects.cbegin(); it < objects.cend(); it++){
         out.writeListSeparator();
@@ -255,9 +271,17 @@ void Box::listActiveObjects(CrcDataIn& in, DataOut& out)
     }
 }
 
-void Box::listSavedObjects(CrcDataIn& in, DataOut& out){
+void Box::listSavedObjects(DataIn& in, CrcDataOut& out){
     in.spool();
+    auto crc = out.crc();
+
     out.writeResponseSeparator();
+
+    if(crc){
+        out.write(asUint8(CboxError::crc_error_in_command));
+        return;
+    }
+
     out.write(asUint8(CboxError::no_error));
     auto listObjectStreamer = [&out](const storage_id_t & id, DataIn & objInStorage) -> CboxError {
         out.writeListSeparator();
@@ -277,7 +301,15 @@ void Box::loadObjectsFromStorage(){
         auto ptrCobj = objects.fetchContained(objId);
         if(ptrCobj == nullptr){
             // new object
-            return this->addContainedObjectFromStream(objInStorage, objId, false);
+            uint8_t profiles = 0;
+            std::unique_ptr<Object> newObj;
+            CboxError status = createObjectFromStream(objInStorage, profiles, newObj);
+
+            if(newObj){
+                objects.add(std::move(newObj), profiles, id);
+            }
+
+            return status;
         }
         else{
             // existing object
@@ -290,12 +322,39 @@ void Box::loadObjectsFromStorage(){
     setActiveProfilesAndUpdateObjects(activeProfiles);
 }
 
-void Box::reboot(CrcDataIn& _in, DataOut& out){
+void Box::reboot(DataIn& in, CrcDataOut& out){
+    in.spool();
+    auto crc = out.crc();
+
+    out.writeResponseSeparator();
+
+    if(crc){
+        out.write(asUint8(CboxError::crc_error_in_command));
+        return;
+    }
+
+    out.write(asUint8(CboxError::no_error));
+    out.flush();
+
     ::handleReset(true);
 }
 
-void Box::factoryReset(CrcDataIn& in, DataOut& out) {
+void Box::factoryReset(DataIn& in, CrcDataOut& out) {
+    in.spool();
+    auto crc = out.crc();
+
+    out.writeResponseSeparator();
+
+    if(crc){
+        out.write(asUint8(CboxError::crc_error_in_command));
+        return;
+    }
+
     storage.clear();
+
+    out.write(asUint8(CboxError::no_error));
+    out.flush();
+
     ::handleReset(true);
 }
 
@@ -305,8 +364,18 @@ void Box::factoryReset(CrcDataIn& in, DataOut& out) {
  *
  */
 
-void Box::clearObjects(CrcDataIn& in, DataOut& out)
+void Box::clearObjects(DataIn& in, CrcDataOut& out)
 {
+    in.spool();
+    auto crc = out.crc();
+
+    out.writeResponseSeparator();
+
+    if(crc){
+        out.write(asUint8(CboxError::crc_error_in_command));
+        return;
+    }
+
     // remove user objects from storage
     for(auto cit = objects.cbegin(); cit != objects.cend(); cit++){
         storage.disposeObject(cit->id());
@@ -314,8 +383,6 @@ void Box::clearObjects(CrcDataIn& in, DataOut& out)
     // remove all user objects from vector
     objects.clear();
 
-    in.spool();
-    out.writeResponseSeparator();
     out.write(asUint8(CboxError::no_error));
 }
 
@@ -331,8 +398,7 @@ void Box::handleCommand(DataIn& dataIn, DataOut& dataOut)
 
 
     CrcDataOut out(hexOut);    // write CRC after response
-    TeeDataIn teeIn(hexIn, out);	// ensure command input is also echoed to output
-    CrcDataIn in(teeIn);
+    TeeDataIn in(hexIn, out);	// ensure command input is also echoed to output
     uint8_t cmd_id = in.next();	// command type code
 
 
@@ -399,8 +465,16 @@ void Box::setActiveProfilesAndUpdateObjects(const uint8_t newProfiles){
 
         if(shouldBeActive && objType == resolveTypeId<InactiveObject>()){
             // look for object in storage and replace existing object with it
-            auto retrieveContained = [this, &objId](DataIn & in) -> CboxError {
-                return this->addContainedObjectFromStream(in, objId, true);
+            auto retrieveContained = [this, &objId](DataIn & objInStorage) -> CboxError {
+                uint8_t profiles = 0;
+                std::unique_ptr<Object> newObj;
+                CboxError status = createObjectFromStream(objInStorage, profiles, newObj);
+
+                if(newObj){
+                 objects.add(std::move(newObj), profiles, objId, true);
+                }
+
+                return status;
             };
 
             CboxError status = storage.retrieveObject(storage_id_t(objId), retrieveContained);
