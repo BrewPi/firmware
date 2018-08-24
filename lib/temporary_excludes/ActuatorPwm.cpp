@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include <cstdint>
 #include "ActuatorInterfaces.h"
 #include "temperatureFormats.h"
 #include "ActuatorPwm.h"

@@ -19,7 +19,7 @@
 
 #include "DataStreamConverters.h"
 #include "DataStream.h"
-#include <stdint.h>
+#include <cstdint>
 
 namespace cbox {
 /**

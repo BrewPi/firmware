@@ -22,8 +22,7 @@
 #include "CboxError.h"
 #include "CboxMixins.h"
 #include "DataStream.h"
-#include "stddef.h"
-#include "stdint.h"
+#include <cstdint>
 #include <memory>
 
 namespace cbox {

@@ -22,7 +22,7 @@
 /* Old implementation, for backwards compatibility */
 
 #include "OneWireAddress.h"
-#include <stdint.h>
+#include <cstdint>
 
 void parseBytes(uint8_t *    data,
                 const char * s,

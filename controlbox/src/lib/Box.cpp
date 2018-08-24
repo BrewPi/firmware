@@ -19,6 +19,7 @@
 
 #include "Box.h"
 #include "CboxError.h"
+#include "Connections.h"
 #include "ContainedObject.h"
 #include "Container.h"
 #include "DataStream.h"
