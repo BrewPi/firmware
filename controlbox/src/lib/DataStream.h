@@ -28,27 +28,20 @@ namespace cbox {
 typedef uint16_t stream_size_t;
 
 /**
- * An output stream that supports writing data. Optionally. annotations may also be written
- * to the stream, although these are entirely optional and should provide only
- * supplemental information.
- * @param data
- * @return
+ * An output stream that supports writing data.
+ * This is the base class for raw streams that do not encode their bytes as 2 hex characters
  */
 class DataOut {
 public:
     DataOut() = default;
     virtual ~DataOut() = default;
 
-    virtual void writeAnnotation(std::string&& ann) = 0;
-    virtual void writeResponseSeparator() = 0;
-    virtual void writeListSeparator() = 0;
-    virtual void endMessage() = 0;
-
     /**
 	 * Writes a byte to the stream.
 	 * @return {@code true} if the byte was successfully written, false otherwise.
 	 */
     virtual bool write(uint8_t data) = 0;
+    virtual void flush() = 0;
 
     bool write(int8_t data) { return write(uint8_t(data)); }
     bool write(char data) { return write(uint8_t(data)); }
@@ -75,8 +68,47 @@ public:
         }
         return true;
     }
+};
 
-    virtual void flush() = 0;
+/**
+ * An output stream that supports encoded data. Each byte is encoded as hex.
+ * Special characters are used for stream handling and injecting meta data:
+ * input|output
+ * <comment>
+ * <!event>
+ * , list separator
+ * \n end of message
+ */
+class DataOutEncoded : public DataOut {
+public:
+    DataOutEncoded() = default;
+    virtual ~DataOutEncoded() = default;
+
+    virtual void writeResponseSeparator() = 0;
+    virtual void writeListSeparator() = 0;
+    virtual void endMessage() = 0;
+
+    /**
+	 * Annotations are written as is to the stream, surrounded by annotation marks.
+	 */
+    void writeAnnotation(std::string&& ann)
+    {
+        write('<');
+        for (auto c : ann) {
+            write(c);
+        }
+        write('>');
+    }
+
+    void writeEvent(std::string&& ann)
+    {
+        write('<');
+        write('!');
+        for (auto c : ann) {
+            write(c);
+        }
+        write('>');
+    }
 };
 
 /**
@@ -118,10 +150,6 @@ public:
         return buffer;
     }
 
-    virtual void writeAnnotation(std::string&& ann) override final{};
-    virtual void writeResponseSeparator() override final{};
-    virtual void writeListSeparator() override final{};
-    virtual void endMessage() override final{};
     virtual void flush() override final{};
 };
 
@@ -146,7 +174,7 @@ public:
     CountingBlackholeDataOut()
         : counted(0){};
     virtual ~CountingBlackholeDataOut() = default;
-    virtual bool write(uint8_t /*data*/) override final
+    virtual bool write(uint8_t data) override final
     {
         ++counted;
         return true;
@@ -157,10 +185,6 @@ public:
         return counted;
     }
 
-    virtual void writeAnnotation(std::string&& ann) override final{};
-    virtual void writeResponseSeparator() override final{};
-    virtual void writeListSeparator() override final{};
-    virtual void endMessage() override final{};
     virtual void flush() override final{};
 };
 
@@ -320,27 +344,6 @@ public:
         return res1 || res2;
     }
 
-    virtual void writeAnnotation(std::string&& ann) override final
-    {
-        std::string copy = ann;
-        out1.writeAnnotation(std::move(copy));
-        out2.writeAnnotation(std::move(ann));
-    };
-    virtual void writeResponseSeparator() override final
-    {
-        out1.writeResponseSeparator();
-        out2.writeResponseSeparator();
-    };
-    virtual void writeListSeparator() override final
-    {
-        out1.writeListSeparator();
-        out2.writeListSeparator();
-    };
-    virtual void endMessage() override final
-    {
-        out1.endMessage();
-        out2.endMessage();
-    };
     virtual void flush() override final
     {
         out1.flush();
@@ -449,12 +452,10 @@ public:
     {
         return len;
     }
-
-    virtual void writeAnnotation(std::string&& ann) override final { out->writeAnnotation(std::move(ann)); };
-    virtual void writeResponseSeparator() override final { out->writeResponseSeparator(); };
-    virtual void writeListSeparator() override final { out->writeListSeparator(); };
-    virtual void endMessage() override final { out->endMessage(); };
-    virtual void flush() override final { out->flush(); };
+    virtual void flush() override final
+    {
+        out->flush();
+    }
 };
 
 // copied from OneWire class. Should be refactored to only define this one
@@ -481,12 +482,12 @@ static const uint8_t dscrc_table[] = {
 /**
  * CRC data out. Sends running CRC of data that was sent on endMessage()
  */
-class CrcDataOut final : public DataOut {
-    DataOut& out; // use pointer to have assignment operator
+class CrcDataOut final : public DataOutEncoded {
+    DataOutEncoded& out;
     uint8_t crcValue;
 
 public:
-    CrcDataOut(DataOut& _out)
+    CrcDataOut(DataOutEncoded& _out)
         : out(_out)
         , crcValue(0)
     {
@@ -505,10 +506,6 @@ public:
         out.endMessage();
     }
 
-    virtual void writeAnnotation(std::string&& ann) override final
-    {
-        out.writeAnnotation(std::move(ann));
-    };
     virtual void writeResponseSeparator() override final
     {
         // don't add CRC for the input, because it is already sent with the input command

@@ -75,10 +75,6 @@ public:
         return false;
     }
 
-    virtual void writeAnnotation(std::string&& ann) override final{};
-    virtual void writeResponseSeparator() override final{};
-    virtual void writeListSeparator() override final{};
-    virtual void endMessage() override final{};
     virtual void flush() override final{};
 };
 

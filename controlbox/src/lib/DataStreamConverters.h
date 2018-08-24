@@ -179,7 +179,7 @@ public:
 /**
  * A DataOut decorator that converts from the 8-bit data bytes to ASCII Hex.
  */
-class BinaryToHexTextOut final : public DataOut {
+class BinaryToHexTextOut final : public DataOutEncoded {
 private:
     DataOut& out;
 
@@ -187,19 +187,6 @@ public:
     BinaryToHexTextOut(DataOut& _out)
         : out(_out)
     {
-    }
-
-    /**
-	 * Annotations are written as is to the stream, surrounded by annotation marks.
-	 */
-    virtual void writeAnnotation(std::string&& ann) override final
-    {
-        out.write('<');
-        out.write('!');
-        for (auto c : ann) {
-            out.write(c);
-        }
-        out.write('>');
     }
 
     virtual void writeResponseSeparator() override final

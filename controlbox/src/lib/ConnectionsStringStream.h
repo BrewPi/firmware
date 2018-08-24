@@ -19,7 +19,11 @@
 
 #pragma once
 #include "Connections.h"
+#include "DataStream.h"
+#include <iostream>
+#include <memory>
 #include <queue>
+
 #include <sstream>
 
 namespace cbox {
@@ -77,10 +81,6 @@ public:
     {
     }
 
-    virtual void writeAnnotation(std::string&& ann) override final{};
-    virtual void writeResponseSeparator() override final{};
-    virtual void writeListSeparator() override final{};
-    virtual void endMessage() override final{};
     virtual void flush() override final{};
 
     virtual bool write(uint8_t data) override final
@@ -114,7 +114,8 @@ public:
     virtual DataOut& getDataOut() override final
     {
         return dataOut;
-    };
+    }
+
     virtual DataIn& getDataIn() override final
     {
         return dataIn;
