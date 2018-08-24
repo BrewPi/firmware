@@ -19,9 +19,9 @@
  */
 
 #pragma once
-#include <vector>
-#include <functional>
 #include "DataStreamConverters.h"
+#include <functional>
+#include <vector>
 
 namespace cbox {
 
@@ -38,88 +38,96 @@ class DataIn;
  *
  */
 
-class Connection
-{
+class Connection {
 public:
     Connection() = default;
     virtual ~Connection() = default;
 
-    virtual DataOut& getDataOut()=0;
-    virtual DataIn& getDataIn()=0;
-    virtual bool isConnected()=0;
+    virtual DataOut& getDataOut() = 0;
+    virtual DataIn& getDataIn() = 0;
+    virtual bool isConnected() = 0;
 };
 
-class ConnectionSource
-{
+class ConnectionSource {
 public:
     ConnectionSource() = default;
     virtual ~ConnectionSource() = default;
 
-    virtual std::unique_ptr<Connection> newConnection() = 0; 
+    virtual std::unique_ptr<Connection> newConnection() = 0;
 };
 
 /**
  * Adapts a Stream instance to DataIn.
  */
 template <class S>
-class StreamDataIn : public DataIn
-{
+class StreamDataIn : public DataIn {
 protected:
     S& stream;
+
 public:
-
-    StreamDataIn(S& _stream) : stream(_stream) {}
-
-    virtual bool hasNext() override {
-        return stream.available()>0;
+    StreamDataIn(S& _stream)
+        : stream(_stream)
+    {
     }
 
-    virtual uint8_t next() override {
+    virtual bool hasNext() override
+    {
+        return stream.available() > 0;
+    }
+
+    virtual uint8_t next() override
+    {
         return uint8_t(stream.read());
     };
 
-    virtual uint8_t peek() override {
+    virtual uint8_t peek() override
+    {
         return uint8_t(stream.peek());
     }
 
-    virtual stream_size_t available() override {
+    virtual stream_size_t available() override
+    {
         return stream_size_t(stream.available());
     }
-
 };
-
 
 /**
  * Wraps a stream to provide the DataOut interface.
  */
 template <typename T>
-class StreamDataOut final : public DataOut
-{
+class StreamDataOut final : public DataOut {
 protected:
     /**
      * The stream type that is adapted to a DataOut instance.
      * non-NULL.
      */
-	T& stream;
+    T& stream;
+
 public:
-    StreamDataOut(T& _stream) : stream(_stream) {}
-
-    bool write(uint8_t data) override {
-        return stream.write(data)!=0;
+    StreamDataOut(T& _stream)
+        : stream(_stream)
+    {
     }
 
-    virtual bool writeBuffer(const void* data, stream_size_t length) override final {
-    		return stream.write((const uint8_t*)data, length)==length;
+    bool write(uint8_t data) override
+    {
+        return stream.write(data) != 0;
     }
 
-    void flush() override final {
-    	stream.flush();
+    virtual bool writeBuffer(const void* data, stream_size_t length) override final
+    {
+        return stream.write((const uint8_t*)data, length) == length;
     }
 
-    virtual void writeAnnotation(std::string && ann) override final {};
-    virtual void writeResponseSeparator() override final {};
-    virtual void writeListSeparator() override final {};
-    virtual void endMessage() override final {};
+    void flush() override final
+    {
+        stream.flush();
+    }
+
+    virtual void writeAnnotation(std::string&& ann) override final{};
+    virtual void writeResponseSeparator() override final{};
+    virtual void writeListSeparator() override final{};
+    virtual void endMessage() override final{};
 };
 
 template <typename T>
@@ -128,68 +136,75 @@ private:
     T stream;
     StreamDataIn<T> in;
     StreamDataOut<T> out;
-public:    
-    StreamConnection(T _stream) :
-        stream(std::move(_stream)),
-        in(stream),
-        out(stream)
+
+public:
+    StreamConnection(T _stream)
+        : stream(std::move(_stream))
+        , in(stream)
+        , out(stream)
     {
     }
-    
-    virtual DataOut& getDataOut() override {
+
+    virtual DataOut& getDataOut() override
+    {
         return out;
     }
-    
-    virtual DataIn& getDataIn() override {
+
+    virtual DataIn& getDataIn() override
+    {
         return in;
     }
-    
-    virtual bool isConnected() override {
+
+    virtual bool isConnected() override
+    {
         return stream.connected();
     }
 
-    T & get(){
+    T& get()
+    {
         return stream;
     }
 
     StreamConnection(const StreamConnection& other) = delete; // not copyable
 };
 
-class ConnectionPool 
-{
-    public:
-    ConnectionPool(std::initializer_list<std::reference_wrapper<ConnectionSource>> list) : connectionSources(list)
-    {}
+class ConnectionPool {
+public:
+    ConnectionPool(std::initializer_list<std::reference_wrapper<ConnectionSource>> list)
+        : connectionSources(list)
+    {
+    }
 
-    private:
+private:
     std::vector<std::reference_wrapper<ConnectionSource>> connectionSources;
     std::vector<std::unique_ptr<Connection>> connections;
 
-
 public:
-    void updateConnections(){
+    void updateConnections()
+    {
         connections.erase(
-            std::remove_if(connections.begin(), connections.end(), [](std::unique_ptr<Connection>& conn){ 
-                    return ! conn->isConnected(); // remove disconnected connections from pool
-                }),
-            connections.end()
-        );
+            std::remove_if(connections.begin(), connections.end(), [](std::unique_ptr<Connection>& conn) {
+                return !conn->isConnected(); // remove disconnected connections from pool
+            }),
+            connections.end());
 
-        for(auto& source : connectionSources){
+        for (auto& source : connectionSources) {
             std::unique_ptr<Connection> newConnection = source.get().newConnection();
-            if(newConnection != nullptr){
+            if (newConnection != nullptr) {
                 connections.push_back(std::move(newConnection));
             }
         }
     }
-    
-    size_t size(){
+
+    size_t size()
+    {
         return connections.size();
     }
 
-    void process(std::function<void(DataIn& in, DataOut& out)> handler){
+    void process(std::function<void(DataIn& in, DataOut& out)> handler)
+    {
         updateConnections();
-        for(auto& conn : connections){
+        for (auto& conn : connections) {
             handler(conn->getDataIn(), conn->getDataOut());
         }
     }

@@ -20,17 +20,20 @@
 
 #pragma once
 
-#include "Object.h"
-#include <memory>
-#include <array>
 #include "DataStream.h"
+#include "Object.h"
+#include <array>
+#include <memory>
 
 namespace cbox {
 
-std::unique_ptr<Object> createApplicationObject(obj_type_t typeId, DataIn& in, CboxError& errorCode);
+std::unique_ptr<Object>
+createApplicationObject(obj_type_t typeId, DataIn& in, CboxError& errorCode);
 
-template<class T>
-std::unique_ptr<Object> createObject(){
+template <class T>
+std::unique_ptr<Object>
+createObject()
+{
     return std::make_unique<T>();
 }
 
@@ -43,29 +46,28 @@ struct ObjectFactoryEntry {
 
 class ObjectFactory {
 private:
-	const std::vector<ObjectFactoryEntry> objTypes;
+    const std::vector<ObjectFactoryEntry> objTypes;
 
 public:
-	ObjectFactory(std::initializer_list<ObjectFactoryEntry> _objTypes) :
-		objTypes(_objTypes)
-	{
-	}
+    ObjectFactory(std::initializer_list<ObjectFactoryEntry> _objTypes)
+        : objTypes(_objTypes)
+    {
+    }
 
-	CboxError make(const obj_type_t & t, std::unique_ptr<Object>& objTarget) const {
-	    auto factoryEntry = std::find_if(objTypes.begin(), objTypes.end(), [&t](const ObjectFactoryEntry & entry){ return entry.typeId == t;});
-		if(factoryEntry == objTypes.end()){
-		    return CboxError::object_not_creatable;
-		}
-		else {
-		    objTarget = (*factoryEntry).createFn();
-            if(!objTarget){
+    CboxError make(const obj_type_t& t, std::unique_ptr<Object>& objTarget) const
+    {
+        auto factoryEntry = std::find_if(objTypes.begin(), objTypes.end(), [&t](const ObjectFactoryEntry& entry) { return entry.typeId == t; });
+        if (factoryEntry == objTypes.end()) {
+            return CboxError::object_not_creatable;
+        } else {
+            objTarget = (*factoryEntry).createFn();
+            if (!objTarget) {
                 return CboxError::insufficient_heap;
             }
-		}
-		return CboxError::no_error;
-	}
+        }
+        return CboxError::no_error;
+    }
 };
-
 
 /* macro to help define the object factory, use like this:
 
@@ -75,6 +77,9 @@ ObjectFactory objectFactory = {
 };
 
 */
-#define OBJECT_FACTORY_ENTRY(classname) {cbox::resolveTypeId<classname>(), cbox::createObject<classname>}
+#define OBJECT_FACTORY_ENTRY(classname)                                 \
+    {                                                                   \
+        cbox::resolveTypeId<classname>(), cbox::createObject<classname> \
+    }
 
 } // end namespace cbox

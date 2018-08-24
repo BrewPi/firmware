@@ -30,7 +30,7 @@ enum class CboxError : uint8_t {
 
     // generic stream errors
     stream_error_unspecified = 8,
-    output_stream_write_error= 9,
+    output_stream_write_error = 9,
     input_stream_read_error = 10,
     input_stream_decoding_error = 11,
     output_stream_encoding_error = 12,
@@ -57,9 +57,10 @@ enum class CboxError : uint8_t {
     crc_error_in_command = 69,
 };
 
-inline uint8_t asUint8(CboxError e){
+inline uint8_t
+asUint8(CboxError e)
+{
     return static_cast<uint8_t>(e);
 }
-
 
 } // end namespace cbox

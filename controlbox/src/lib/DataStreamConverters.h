@@ -18,7 +18,6 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #pragma once
 
 #include "DataStream.h"
@@ -37,19 +36,24 @@ namespace cbox {
  * the stream blocks for each character until the entire line is read.
  */
 
-
 class TextIn : public DataIn {
-    DataIn*	_in;
+    DataIn* _in;
     uint8_t data;
     bool hasData;
     bool inLine;
-    int8_t commentLevel;	// -1 indicates end of stream
+    int8_t commentLevel; // -1 indicates end of stream
 
     void fetchNextData(bool optional);
 
 public:
     TextIn(DataIn& in)
-            : _in(&in), data(0), hasData(0), inLine(false), commentLevel(0) {}
+        : _in(&in)
+        , data(0)
+        , hasData(0)
+        , inLine(false)
+        , commentLevel(0)
+    {
+    }
 
     bool hasNext() override
     {
@@ -75,142 +79,165 @@ public:
         return hasNext();
     }
 
-
     bool isClosed()
     {
-        return commentLevel<0;
+        return commentLevel < 0;
     }
 };
 
-
-inline bool isdigit(char c){ 
-	return  c >= '0' && c <= '9';
+inline bool
+isdigit(char c)
+{
+    return c >= '0' && c <= '9';
 }
 
-inline bool isxdigit(char c)
+inline bool
+isxdigit(char c)
 {
-	return isdigit(c) || (c>='A' && c<='F') || (c>='a' && c<='f');
+    return isdigit(c) || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
 }
 
 /**
  * Converts a hex digit to the corresponding binary value.
  */
-inline uint8_t h2d(unsigned char hex)
+inline uint8_t
+h2d(unsigned char hex)
 {
-	if (hex > '9'){
-		hex -= 7; // 'A' is 0x41, 'a' is 0x61. -7 =  0x3A, 0x5A
-	}
-	return uint8_t(hex & 0xf);
+    if (hex > '9') {
+        hex -= 7; // 'A' is 0x41, 'a' is 0x61. -7 =  0x3A, 0x5A
+    }
+    return uint8_t(hex & 0xf);
 }
 
-inline uint8_t d2h(uint8_t bin)
+inline uint8_t
+d2h(uint8_t bin)
 {
-	return uint8_t(bin+(bin>9 ? 'A'-10 : '0'));
+    return uint8_t(bin + (bin > 9 ? 'A' - 10 : '0'));
 }
 
 /*
  * Converts pairs of hex digit characters into the corresponding binary value.
  */
-class HexTextToBinaryIn : public DataIn
-{
-	DataIn& textIn;
-	uint8_t char1;	// Text character for upper nibble
-	uint8_t char2;	// Text character for lower nibble
+class HexTextToBinaryIn : public DataIn {
+    DataIn& textIn;
+    uint8_t char1; // Text character for upper nibble
+    uint8_t char2; // Text character for lower nibble
 
-	void fetchNextByte();
+    void fetchNextByte();
 
     bool hasData() { return char2; }
 
-    bool peekEndline() {
+    bool peekEndline()
+    {
         auto inByte = textIn.peek();
         return (inByte == '\r' || inByte == '\n');
     }
 
 public:
-	HexTextToBinaryIn(DataIn& _textIn) : textIn(_textIn), char1(0), char2(0) {}
+    HexTextToBinaryIn(DataIn& _textIn)
+        : textIn(_textIn)
+        , char1(0)
+        , char2(0)
+    {
+    }
 
-	bool hasNext() override {
-		return hasData() || (textIn.hasNext() && !peekEndline());
-	}
+    bool hasNext() override
+    {
+        return hasData() || (textIn.hasNext() && !peekEndline());
+    }
 
-	uint8_t peek() override {
-		while (!hasData() && textIn.hasNext()) {
+    uint8_t peek() override
+    {
+        while (!hasData() && textIn.hasNext()) {
             fetchNextByte();
         }
-		return uint8_t((h2d(char1)<<4) | h2d(char2));
-	}
+        return uint8_t((h2d(char1) << 4) | h2d(char2));
+    }
 
-	uint8_t next() override  {
-		uint8_t r = peek();
-		char1 = 0; char2 = 0;
-		return r;
-	}
+    uint8_t next() override
+    {
+        uint8_t r = peek();
+        char1 = 0;
+        char2 = 0;
+        return r;
+    }
 
-	stream_size_t available() override {
+    stream_size_t available() override
+    {
         fetchNextByte();
         return hasData() ? 1 : 0;
     }
 
-	void unBlock(){
-	    while(peekEndline()){
-	        textIn.next();
-	    }
-	}
+    void unBlock()
+    {
+        while (peekEndline()) {
+            textIn.next();
+        }
+    }
 };
-
 
 /**
  * A DataOut decorator that converts from the 8-bit data bytes to ASCII Hex.
  */
 class BinaryToHexTextOut final : public DataOut {
 private:
-	DataOut& out;
+    DataOut& out;
 
 public:
-	BinaryToHexTextOut(DataOut& _out) : out(_out) {}
+    BinaryToHexTextOut(DataOut& _out)
+        : out(_out)
+    {
+    }
 
-	/**
+    /**
 	 * Annotations are written as is to the stream, surrounded by annotation marks.
 	 */
-	virtual void writeAnnotation(std::string && ann) override final {
-		out.write('<');
-		out.write('!');
-		for(auto c : ann){
-		    out.write(c);
-		}
-		out.write('>');
-	}
+    virtual void writeAnnotation(std::string&& ann) override final
+    {
+        out.write('<');
+        out.write('!');
+        for (auto c : ann) {
+            out.write(c);
+        }
+        out.write('>');
+    }
 
-	virtual void writeResponseSeparator() override final{
-	    out.write('|');
-	}
+    virtual void writeResponseSeparator() override final
+    {
+        out.write('|');
+    }
 
-	virtual void writeListSeparator() override final{
+    virtual void writeListSeparator() override final
+    {
         out.write(',');
     }
 
-	/**
+    /**
 	 * Data is written as hex-encoded
 	 */
-	virtual bool write(uint8_t data) override final {
-		out.write(d2h(uint8_t(data&0xF0)>>4));
-		out.write(d2h(uint8_t(data&0xF)));
-	//	out.write(' ');
-		return true;
-	}
+    virtual bool write(uint8_t data) override final
+    {
+        out.write(d2h(uint8_t(data & 0xF0) >> 4));
+        out.write(d2h(uint8_t(data & 0xF)));
+        //	out.write(' ');
+        return true;
+    }
 
-	/**
+    /**
 	 * Rather than closing the global stream, write a newline to signify the end of this command.
 	 */
-	virtual void endMessage() override final {
-		out.write('\n');
-	}
+    virtual void endMessage() override final
+    {
+        out.write('\n');
+    }
 
-	virtual void flush() override final { out.flush(); };
+    virtual void flush() override final { out.flush(); };
 };
 
 // helper function for testing. Appends the CRC to a hex string, the same way CrcDataOut would do
-std::string addCrc(const std::string & in);
-std::string crc(const std::string & in);
+std::string
+addCrc(const std::string& in);
+std::string
+crc(const std::string& in);
 
 } // end namespace cbox

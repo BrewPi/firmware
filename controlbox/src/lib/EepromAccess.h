@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 //typedef uint16_t eptr_t;
 //#define INVALID_EPTR (0)
@@ -28,6 +28,3 @@
 #include "EepromAccessImpl.h"
 
 extern EepromAccess eepromAccess;
-
-
-

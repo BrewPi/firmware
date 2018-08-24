@@ -17,14 +17,14 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "Object.h"
 #include "ResolveType.h"
 
 namespace cbox {
 
-obj_type_t InactiveObject::typeId() const {
+obj_type_t
+InactiveObject::typeId() const
+{
     return resolveTypeId<InactiveObject>();
 }
-
 }

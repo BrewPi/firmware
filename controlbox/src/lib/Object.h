@@ -17,39 +17,45 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #pragma once
 
+#include "CboxError.h"
+#include "CboxMixins.h"
+#include "DataStream.h"
 #include "stddef.h"
 #include "stdint.h"
 #include <memory>
-#include "DataStream.h"
-#include "CboxMixins.h"
-#include "CboxError.h"
 
 namespace cbox {
 
 class obj_type_t {
 public:
-    obj_type_t() : id(0) {};
-    obj_type_t(const uint16_t & rhs) : id(rhs) {};
-    obj_type_t& operator=(const uint16_t & rhs){
+    obj_type_t()
+        : id(0){};
+    obj_type_t(const uint16_t& rhs)
+        : id(rhs){};
+    obj_type_t& operator=(const uint16_t& rhs)
+    {
         id = rhs;
         return *this;
     }
 
-    operator uint16_t() const {
+    operator uint16_t() const
+    {
         return id;
     }
 
-    bool isValid() const {
+    bool isValid() const
+    {
         return id > invalid().id;
     }
 
-    static const obj_type_t start() {
+    static const obj_type_t start()
+    {
         return obj_type_t(1);
     };
-    static const obj_type_t invalid() {
+    static const obj_type_t invalid()
+    {
         return obj_type_t(0);
     };
 
@@ -57,106 +63,115 @@ private:
     uint16_t id;
 };
 
-
 class obj_id_t {
 public:
-    obj_id_t() : id(0) {};
-    obj_id_t(const uint16_t & rhs) : id(rhs) {};
-    obj_id_t& operator=(const uint16_t & rhs){
+    obj_id_t()
+        : id(0){};
+    obj_id_t(const uint16_t& rhs)
+        : id(rhs){};
+    obj_id_t& operator=(const uint16_t& rhs)
+    {
         id = rhs;
         return *this;
     }
-    
-    operator uint16_t() const {
+
+    operator uint16_t() const
+    {
         return id;
     }
 
-    bool isValid() const {
+    bool isValid() const
+    {
         return id > invalid().id;
     }
 
-    static const obj_id_t start() {
+    static const obj_id_t start()
+    {
         return obj_id_t(1);
     };
-    static const obj_id_t invalid() {
+    static const obj_id_t invalid()
+    {
         return obj_id_t(0);
     };
 
-    obj_id_t & operator++() // ++A
+    obj_id_t& operator++() // ++A
     {
         ++id;
-        return *this ;
+        return *this;
     }
 
     obj_id_t operator++(int) // A++
     {
-       obj_id_t temp = *this ;
-       ++id;
-       return temp ;
+        obj_id_t temp = *this;
+        ++id;
+        return temp;
     }
 
 private:
     uint16_t id;
 };
 
-class Object : virtual public ObjectMixin
-{
+class Object : virtual public ObjectMixin {
 public:
-	Object() = default;
-	virtual ~Object() = default;
+    Object() = default;
+    virtual ~Object() = default;
 
-	/**
+    /**
 	 * The application defined typeID for this object instance. Defined by derived class
 	 */
-	virtual obj_type_t typeId() const = 0;
+    virtual obj_type_t typeId() const = 0;
 
-	/**
+    /**
 	 * update the object, returns timestamp at which it wants to be updated again (in ms since boot).
 	 */
-	virtual uint32_t update(const uint32_t & currentTime) { return 0; };
+    virtual uint32_t update(const uint32_t& currentTime) { return 0; };
 
-	/**
+    /**
 	 * Each object is at least stream readable
 	 */
-	virtual CboxError streamTo(DataOut& out) const = 0;
+    virtual CboxError streamTo(DataOut& out) const = 0;
 
     /**
      * Some objects can be writable from the stream, they override the streamFrom function
      */
-    virtual CboxError streamFrom(DataIn& in){
+    virtual CboxError streamFrom(DataIn& in)
+    {
         return CboxError::object_not_writable;
     };
 
     /**
      * Default to persisting the same data as streamTo. Objects that only want to persist some data can override this
      */
-    virtual CboxError streamPersistedTo(DataOut& out) const {
+    virtual CboxError streamPersistedTo(DataOut& out) const
+    {
         return streamTo(out);
     }
 };
 
-
 /**
  * An object that does nothing. When read, it returns the type it becomes when it is activated.
  */
-class InactiveObject : public Object
-{
+class InactiveObject : public Object {
 public:
-    InactiveObject(obj_type_t type) : actualType(type){};
+    InactiveObject(obj_type_t type)
+        : actualType(type){};
     virtual ~InactiveObject() = default;
 
     virtual obj_type_t typeId() const override final;
 
-    virtual CboxError streamTo(DataOut& out) const override final {
+    virtual CboxError streamTo(DataOut& out) const override final
+    {
         out.put(actualType);
         return CboxError::no_error;
     }
 
-    virtual CboxError streamPersistedTo(DataOut& out) const override final {
+    virtual CboxError streamPersistedTo(DataOut& out) const override final
+    {
         return CboxError::no_error; // inactive objects are never persisted
     }
 
-    obj_type_t actualTypeId(){
+    obj_type_t actualTypeId()
+    {
         return actualType;
     }
 
@@ -166,22 +181,25 @@ public:
 /**
  * An object that streams as its memory as raw bytes, can be used as base class for simple object wrapping
  */
-template<typename T>
-class RawStreamObject : public Object
-{
+template <typename T>
+class RawStreamObject : public Object {
 public:
-    RawStreamObject() : obj(T()){};
-    RawStreamObject(T data) : obj(data){};
+    RawStreamObject()
+        : obj(T()){};
+    RawStreamObject(T data)
+        : obj(data){};
     virtual ~RawStreamObject() = default;
 
-    virtual CboxError streamTo(DataOut& out) const override final {
-        if(out.put(obj)){
+    virtual CboxError streamTo(DataOut& out) const override final
+    {
+        if (out.put(obj)) {
             return CboxError::no_error;
         }
         return CboxError::output_stream_write_error;
     }
 
-    operator T(){
+    operator T()
+    {
         T copy = obj;
         return copy;
     }
@@ -193,27 +211,26 @@ protected:
 /**
  * A writable object that streams as its memory as raw bytes
  */
-template<typename T>
-class RawStreamWritableObject : public RawStreamObject<T>
-{
+template <typename T>
+class RawStreamWritableObject : public RawStreamObject<T> {
 public:
     using RawStreamObject<T>::RawStreamObject;
 
     virtual ~RawStreamWritableObject() = default;
 
-    virtual CboxError streamFrom(DataIn& in) override final {
+    virtual CboxError streamFrom(DataIn& in) override final
+    {
         T newValue;
-        if(in.get(newValue)){
+        if (in.get(newValue)) {
             this->obj = newValue;
             return CboxError::no_error;
         }
         return CboxError::input_stream_read_error;
     }
-    virtual CboxError streamPersistedTo(DataOut& out) const override final {
+    virtual CboxError streamPersistedTo(DataOut& out) const override final
+    {
         return RawStreamObject<T>::streamTo(out);
     }
 };
 
-
 } // end namespace cbox
-

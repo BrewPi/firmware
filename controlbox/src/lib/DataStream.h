@@ -17,12 +17,10 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #pragma once
 
-#include <stdint.h>
 #include <algorithm>
+#include <stdint.h>
 #include <string>
 
 namespace cbox {
@@ -36,48 +34,49 @@ typedef uint16_t stream_size_t;
  * @param data
  * @return
  */
-class DataOut
-{
+class DataOut {
 public:
-	DataOut() = default;
-	virtual ~DataOut() = default;
+    DataOut() = default;
+    virtual ~DataOut() = default;
 
-	virtual void writeAnnotation(std::string && ann) = 0;
-	virtual void writeResponseSeparator() = 0;
-	virtual void writeListSeparator() = 0;
-	virtual void endMessage() = 0;
+    virtual void writeAnnotation(std::string&& ann) = 0;
+    virtual void writeResponseSeparator() = 0;
+    virtual void writeListSeparator() = 0;
+    virtual void endMessage() = 0;
 
-	/**
+    /**
 	 * Writes a byte to the stream.
 	 * @return {@code true} if the byte was successfully written, false otherwise.
 	 */
-	virtual bool write(uint8_t data) = 0;
+    virtual bool write(uint8_t data) = 0;
 
-	bool write(int8_t data) { return write(uint8_t(data)); }
-	bool write(char data) { return write(uint8_t(data)); }
-	bool write(int data) { return write(uint8_t(data)); }
+    bool write(int8_t data) { return write(uint8_t(data)); }
+    bool write(char data) { return write(uint8_t(data)); }
+    bool write(int data) { return write(uint8_t(data)); }
 
-	template<typename T>
-    bool put(const T & t){
+    template <typename T>
+    bool put(const T& t)
+    {
         return writeBuffer(std::addressof(t), sizeof(T));
     }
 
-	/**
+    /**
 	 * Writes a number of bytes to the stream.
 	 * @param data	The address of the data to write.
 	 * @param len	The number of bytes to write.
 	 * @return {@code true} if the byte was successfully written, false otherwise.
 	 */
-	virtual bool writeBuffer(const void* data, stream_size_t len) {
-		const uint8_t* d = (const uint8_t*)data;
-		while (len-->0) {
-			if (!write(*d++))
-				return false;
-		}
-		return true;
-	}
+    virtual bool writeBuffer(const void* data, stream_size_t len)
+    {
+        const uint8_t* d = (const uint8_t*)data;
+        while (len-- > 0) {
+            if (!write(*d++))
+                return false;
+        }
+        return true;
+    }
 
-	virtual void flush() = 0;
+    virtual void flush() = 0;
 };
 
 /**
@@ -85,41 +84,45 @@ public:
  */
 class BufferDataOut : public DataOut {
 private:
-	uint8_t* buffer;
-	stream_size_t size;
-	stream_size_t pos;
+    uint8_t* buffer;
+    stream_size_t size;
+    stream_size_t pos;
+
 public:
+    BufferDataOut(uint8_t* _buffer, stream_size_t _size)
+        : buffer(_buffer)
+        , size(_size)
+        , pos(0)
+    {
+    }
+    virtual ~BufferDataOut() = default;
 
-	BufferDataOut(uint8_t* _buffer, stream_size_t _size)
-		: buffer(_buffer), size(_size), pos(0)
-	{
-	}
-	virtual ~BufferDataOut() = default;
+    void reset()
+    {
+        pos = 0;
+    }
 
-	void reset() {
-		pos = 0;
-	}
+    virtual bool write(uint8_t data) override
+    {
+        if (pos < size) {
+            buffer[pos++] = data;
+            return true;
+        }
+        return false;
+    }
 
-	virtual bool write(uint8_t data) override {
-	    if (pos<size) {
-	        buffer[pos++] = data;
-	        return true;
-	    }
-	    return false;
-	}
+    stream_size_t bytesWritten() { return pos; }
 
-	stream_size_t bytesWritten() { return pos; }
+    const uint8_t* data()
+    {
+        return buffer;
+    }
 
-	const uint8_t* data() {
-		return buffer;
-	}
-
-	virtual void writeAnnotation(std::string && ann) override final {};
-    virtual void writeResponseSeparator() override final {};
-    virtual void writeListSeparator() override final {};
-    virtual void endMessage() override final {};
-    virtual void flush() override final {};
-
+    virtual void writeAnnotation(std::string&& ann) override final{};
+    virtual void writeResponseSeparator() override final{};
+    virtual void writeListSeparator() override final{};
+    virtual void endMessage() override final{};
+    virtual void flush() override final{};
 };
 
 /**
@@ -129,7 +132,7 @@ class BlackholeDataOut : public DataOut {
 public:
     BlackholeDataOut() = default;
     virtual ~BlackholeDataOut() = default;
-	virtual bool write(uint8_t /*data*/) override final { return true; }
+    virtual bool write(uint8_t /*data*/) override final { return true; }
 };
 
 /**
@@ -137,24 +140,28 @@ public:
  */
 class CountingBlackholeDataOut final : public DataOut {
 private:
-	stream_size_t counted;
-public:    
-	CountingBlackholeDataOut() : counted(0) {};
+    stream_size_t counted;
+
+public:
+    CountingBlackholeDataOut()
+        : counted(0){};
     virtual ~CountingBlackholeDataOut() = default;
-    virtual bool write(uint8_t /*data*/) override final {
+    virtual bool write(uint8_t /*data*/) override final
+    {
         ++counted;
         return true;
     }
 
-    stream_size_t count(){
+    stream_size_t count()
+    {
         return counted;
     }
 
-    virtual void writeAnnotation(std::string && ann) override final {};
-    virtual void writeResponseSeparator() override final {};
-    virtual void writeListSeparator() override final {};
-    virtual void endMessage() override final {};
-    virtual void flush() override final {};
+    virtual void writeAnnotation(std::string&& ann) override final{};
+    virtual void writeResponseSeparator() override final{};
+    virtual void writeListSeparator() override final{};
+    virtual void endMessage() override final{};
+    virtual void flush() override final{};
 };
 
 /**
@@ -165,57 +172,59 @@ public:
  * available() returns 0.
  * available() the number of times read can be called to retrieve valid data.
  */
-class DataIn
-{
+class DataIn {
 public:
     virtual ~DataIn() = default;
-	/*
+    /*
 	 * Determines if there is potentially more data in this stream.
 	 * Note that this is not dependent upon time and asynchronous delivery of data, but if the stream is still open.
 	 */
-	virtual bool hasNext() = 0;
+    virtual bool hasNext() = 0;
 
-	/**
+    /**
 	 * Retrieves the next byte of data. The return value is only valid when `hasNext()` returns true.
 	 */
-	virtual uint8_t next() = 0;
+    virtual uint8_t next() = 0;
 
-	/**
+    /**
 	 * Retrieves the next byte of data without removing it from the stream. The result is only valid if `available`
 	 * previously returned a non-zero value.
 	 */
-	virtual uint8_t peek() = 0;
+    virtual uint8_t peek() = 0;
 
-	/**
+    /**
 	 * Determines how many bytes are available for reading from the stream without blocking.
 	 */
-	virtual stream_size_t available() = 0;
+    virtual stream_size_t available() = 0;
 
-	/**
+    /**
 	 * Discards all data until no new data is available
 	 */
-    void spool() {
-        while(hasNext()){
+    void spool()
+    {
+        while (hasNext()) {
             next();
         }
     }
 
-	/**
+    /**
 	 * Unconditional read of {@code length} bytes.
 	 */
-	bool read(void* t, stream_size_t length) {
-		uint8_t* target = (uint8_t*)t;
-		while (length-->0) {
-            if(!hasNext()){
+    bool read(void* t, stream_size_t length)
+    {
+        uint8_t* target = (uint8_t*)t;
+        while (length-- > 0) {
+            if (!hasNext()) {
                 return false;
             }
-			*target++ = next();
-		}
-		return true;
-	}
+            *target++ = next();
+        }
+        return true;
+    }
 
-    template<typename T>
-    bool get(T& t){
+    template <typename T>
+    bool get(T& t)
+    {
         return read(&t, sizeof(T));
     }
 
@@ -225,166 +234,187 @@ public:
      * @param length
      * @return length was written
      */
-	bool push(DataOut& out, stream_size_t length) {
-		while (length > 0 && hasNext()) {
-			out.write(next());
-			--length;
-		}
-		return length == 0;
-	}
+    bool push(DataOut& out, stream_size_t length)
+    {
+        while (length > 0 && hasNext()) {
+            out.write(next());
+            --length;
+        }
+        return length == 0;
+    }
 
-	/**
+    /**
      * Writes the contents of this stream to an output stream, until input stream is empty
      * @param out
      */
-	bool push(DataOut& out) {
-		bool success = true;
-		while (hasNext()) {
-			success &= out.write(next());
-		}
-		return success;
-	}
+    bool push(DataOut& out)
+    {
+        bool success = true;
+        while (hasNext()) {
+            success &= out.write(next());
+        }
+        return success;
+    }
 };
-
 
 /**
  * A DataIn that provides no data.
  */
-class EmptyDataIn : public DataIn
-{
+class EmptyDataIn : public DataIn {
     EmptyDataIn() = default;
     virtual ~EmptyDataIn() = default;
+
 public:
-	virtual bool hasNext() override { return false; }
-	virtual uint8_t next() override { return 0; }
-	virtual uint8_t peek() override { return 0; }
-	virtual stream_size_t available() override { return 0; }
+    virtual bool hasNext() override { return false; }
+    virtual uint8_t next() override { return 0; }
+    virtual uint8_t peek() override { return 0; }
+    virtual stream_size_t available() override { return 0; }
 };
 
 /*
  * Reads data from a DataIn, and also writes the fetched bytes (if any) to a DataOut.
  */
-class TeeDataIn : public DataIn
-{
-	DataIn& in;
-	DataOut& out;
-	bool success;
+class TeeDataIn : public DataIn {
+    DataIn& in;
+    DataOut& out;
+    bool success;
 
 public:
-	TeeDataIn(DataIn& _in, DataOut& _out)
-		: in(_in), out(_out), success(true)
-	{
-	}
-	virtual ~TeeDataIn() = default;
+    TeeDataIn(DataIn& _in, DataOut& _out)
+        : in(_in)
+        , out(_out)
+        , success(true)
+    {
+    }
+    virtual ~TeeDataIn() = default;
 
-	bool teeOk() { return success; }
+    bool teeOk() { return success; }
 
-	virtual uint8_t next() override {
-		uint8_t val = in.next();
-		bool result = out.write(val);
-		success = success && result;
-		return val;
-	}
+    virtual uint8_t next() override
+    {
+        uint8_t val = in.next();
+        bool result = out.write(val);
+        success = success && result;
+        return val;
+    }
 
-	virtual bool hasNext() override { return in.hasNext(); }
-	virtual uint8_t peek() override { return in.peek(); }
-	virtual stream_size_t available() override { return in.available(); }
-
+    virtual bool hasNext() override { return in.hasNext(); }
+    virtual uint8_t peek() override { return in.peek(); }
+    virtual stream_size_t available() override { return in.available(); }
 };
 
 /*
  * A DataOut that writes to two other DataOut streams.
  */
-class TeeDataOut final : public DataOut
-{
+class TeeDataOut final : public DataOut {
 public:
-    TeeDataOut(DataOut& _out1, DataOut& _out2) : out1(_out1), out2(_out2){};
+    TeeDataOut(DataOut& _out1, DataOut& _out2)
+        : out1(_out1)
+        , out2(_out2){};
     virtual ~TeeDataOut() = default;
 
-    virtual bool write(uint8_t data) override {
+    virtual bool write(uint8_t data) override
+    {
         bool res1 = out1.write(data);
         bool res2 = out2.write(data);
         return res1 || res2;
     }
 
-    virtual void writeAnnotation(std::string && ann) override final {
+    virtual void writeAnnotation(std::string&& ann) override final
+    {
         std::string copy = ann;
         out1.writeAnnotation(std::move(copy));
         out2.writeAnnotation(std::move(ann));
     };
-    virtual void writeResponseSeparator() override final {
+    virtual void writeResponseSeparator() override final
+    {
         out1.writeResponseSeparator();
         out2.writeResponseSeparator();
     };
-    virtual void writeListSeparator() override final {
+    virtual void writeListSeparator() override final
+    {
         out1.writeListSeparator();
         out2.writeListSeparator();
     };
-    virtual void endMessage() override final {
+    virtual void endMessage() override final
+    {
         out1.endMessage();
         out2.endMessage();
     };
-    virtual void flush() override final {
+    virtual void flush() override final
+    {
         out1.flush();
         out2.flush();
     };
 
 private:
-    DataOut & out1;
-    DataOut & out2;
+    DataOut& out1;
+    DataOut& out2;
 };
-
 
 /**
  * Provides a DataIn stream from a static buffer of data.
  */
 class BufferDataIn : public DataIn {
-	const uint8_t* data;
-	stream_size_t size;
+    const uint8_t* data;
+    stream_size_t size;
     stream_size_t pos;
 
 public:
-	BufferDataIn(const uint8_t * buf, stream_size_t len) : data(buf), size(len), pos(0) {}
+    BufferDataIn(const uint8_t* buf, stream_size_t len)
+        : data(buf)
+        , size(len)
+        , pos(0)
+    {
+    }
 
-	virtual uint8_t next() override { return data[pos++]; }
-	virtual bool hasNext() override { return pos < size; }
-	virtual uint8_t peek() override { return data[pos]; }
-	virtual stream_size_t available() override { return size - pos; }
-	void reset() { pos = 0; };
-	stream_size_t bytes_read() { return pos; };
+    virtual uint8_t next() override { return data[pos++]; }
+    virtual bool hasNext() override { return pos < size; }
+    virtual uint8_t peek() override { return data[pos]; }
+    virtual stream_size_t available() override { return size - pos; }
+    void reset() { pos = 0; };
+    stream_size_t bytes_read() { return pos; };
 };
-
 
 /**
  * Limits reading from the stream to the given number of bytes.
  */
 class RegionDataIn final : public DataIn {
-	DataIn& in;
-	stream_size_t len;
+    DataIn& in;
+    stream_size_t len;
+
 public:
-	RegionDataIn(DataIn &_in, stream_size_t _len)
-	: in(_in), len(_len) {}
-	virtual ~RegionDataIn() = default;
+    RegionDataIn(DataIn& _in, stream_size_t _len)
+        : in(_in)
+        , len(_len)
+    {
+    }
+    virtual ~RegionDataIn() = default;
 
-	bool hasNext() override final {
-	    return len && in.hasNext();
-	}
+    bool hasNext() override final
+    {
+        return len && in.hasNext();
+    }
 
-	uint8_t next() override final {
-	    return hasNext() ? --len, in.next() : 0;
-	}
+    uint8_t next() override final
+    {
+        return hasNext() ? --len, in.next() : 0;
+    }
 
-	uint8_t peek() override final {
-	    return in.peek();
-	}
+    uint8_t peek() override final
+    {
+        return in.peek();
+    }
 
-	stream_size_t available() override final  {
-	    return std::min(len, in.available());
-	}
+    stream_size_t available() override final
+    {
+        return std::min(len, in.available());
+    }
 
-	void setLength(stream_size_t len_){
-	    len = len_;
-	}
+    void setLength(stream_size_t len_)
+    {
+        len = len_;
+    }
 };
 
 /**
@@ -393,27 +423,34 @@ public:
 class RegionDataOut final : public DataOut {
     DataOut* out; // use pointer to have assignment operator
     stream_size_t len;
+
 public:
     RegionDataOut(DataOut& _out, stream_size_t _len)
-    : out(&_out), len(_len) {}
+        : out(&_out)
+        , len(_len)
+    {
+    }
     virtual ~RegionDataOut() = default;
 
-    virtual bool write(uint8_t data) override {
-        if(len > 0){
+    virtual bool write(uint8_t data) override
+    {
+        if (len > 0) {
             --len;
             return out->write(data);
         }
         return false;
     }
 
-    void setLength(stream_size_t len_){
+    void setLength(stream_size_t len_)
+    {
         len = len_;
     }
-    stream_size_t availableForWrite(){
+    stream_size_t availableForWrite()
+    {
         return len;
     }
 
-    virtual void writeAnnotation(std::string && ann) override final { out->writeAnnotation(std::move(ann)); };
+    virtual void writeAnnotation(std::string&& ann) override final { out->writeAnnotation(std::move(ann)); };
     virtual void writeResponseSeparator() override final { out->writeResponseSeparator(); };
     virtual void writeListSeparator() override final { out->writeListSeparator(); };
     virtual void endMessage() override final { out->endMessage(); };
@@ -441,7 +478,6 @@ static const uint8_t dscrc_table[] = {
     116, 42, 200, 150, 21, 75, 169, 247, 182, 232, 10, 84, 215, 137, 107, 53
 };
 
-
 /**
  * CRC data out. Sends running CRC of data that was sent on endMessage()
  */
@@ -450,40 +486,46 @@ class CrcDataOut final : public DataOut {
     uint8_t crcValue;
 
 public:
-    CrcDataOut(DataOut& _out) :
-        out(_out),
-        crcValue(0)
-    {}
+    CrcDataOut(DataOut& _out)
+        : out(_out)
+        , crcValue(0)
+    {
+    }
     virtual ~CrcDataOut() = default;
 
-    virtual bool write(uint8_t data) override final {
+    virtual bool write(uint8_t data) override final
+    {
         crcValue = *(dscrc_table + (crcValue ^ data));
         return out.write(data);
     }
 
-    virtual void endMessage() override final {
+    virtual void endMessage() override final
+    {
         out.write(crcValue);
         out.endMessage();
     }
 
-    virtual void writeAnnotation(std::string && ann) override final {
+    virtual void writeAnnotation(std::string&& ann) override final
+    {
         out.writeAnnotation(std::move(ann));
     };
-    virtual void writeResponseSeparator() override final {
+    virtual void writeResponseSeparator() override final
+    {
         // don't add CRC for the input, because it is already sent with the input command
         crcValue = 0;
         out.writeResponseSeparator();
     };
-    virtual void writeListSeparator() override final {
+    virtual void writeListSeparator() override final
+    {
         out.write(crcValue);
         crcValue = 0;
         out.writeListSeparator();
     };
     virtual void flush() override final { out.flush(); };
 
-    uint8_t crc(){
+    uint8_t crc()
+    {
         return crcValue;
     }
 };
-
 }

@@ -17,8 +17,8 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DataStream.h"
 #include "DataStreamConverters.h"
+#include "DataStream.h"
 #include <stdint.h>
 
 namespace cbox {
@@ -28,32 +28,33 @@ namespace cbox {
  * @param set to true if more data is optional, true if data is expected and should be waited for.
  */
 
-void TextIn::fetchNextData(bool optional) {
+void
+TextIn::fetchNextData(bool optional)
+{
     optional = !inLine;
-	while (commentLevel>=0 && !hasData && (_in->hasNext())) {
-		if (_in->available()) {
-			data = 0xFF;
-			uint8_t d = _in->next();
+    while (commentLevel >= 0 && !hasData && (_in->hasNext())) {
+        if (_in->available()) {
+            data = 0xFF;
+            uint8_t d = _in->next();
             inLine = true;
-			if (d=='<') {
-				commentLevel++;
-			}
-			else if (d=='>') {
-				commentLevel--;
-			}
-			else if (d=='\n' || d=='\r') {
-				commentLevel = -1; data = 0;    // exit the loop on end of line
-	            inLine = false;
+            if (d == '<') {
+                commentLevel++;
+            } else if (d == '>') {
+                commentLevel--;
+            } else if (d == '\n' || d == '\r') {
+                commentLevel = -1;
+                data = 0; // exit the loop on end of line
+                inLine = false;
+            } else if (!commentLevel && isxdigit(char(d))) {
+                hasData = true;
+                data = d;
             }
-			else if (!commentLevel && isxdigit(char(d))) {
-				hasData = true;
-				data = d;
-			}
-		}
-	}
+        }
+    }
 }
 
-uint8_t blockingRead(DataIn& in, uint8_t closed)
+uint8_t
+blockingRead(DataIn& in, uint8_t closed)
 {
     uint8_t result = closed;
     while (in.hasNext()) {
@@ -68,41 +69,44 @@ uint8_t blockingRead(DataIn& in, uint8_t closed)
 /**
  * Fetches the next byte from the stream.
  */
-void HexTextToBinaryIn::fetchNextByte()
+void
+HexTextToBinaryIn::fetchNextByte()
 {
-	if (char2){		// already have data
-		return;
-	}
-	if (!textIn.hasNext()){
-		return;
-	}
+    if (char2) { // already have data
+        return;
+    }
+    if (!textIn.hasNext()) {
+        return;
+    }
 
-	if (!char1) {
-		char1 = blockingRead(textIn, 0xFF);
-	}
+    if (!char1) {
+        char1 = blockingRead(textIn, 0xFF);
+    }
 
-	if (!textIn.hasNext())
-		return;
+    if (!textIn.hasNext())
+        return;
 
-	if (!char2) {
-		char2 = blockingRead(textIn, 0xFF);
-	}
+    if (!char2) {
+        char2 = blockingRead(textIn, 0xFF);
+    }
 }
 
 /*
  * calculates 2 CRC characters to a hex string, used for testing
  */
-std::string crc(const std::string & in){
+std::string
+crc(const std::string& in)
+{
     std::string result;
     uint8_t crc = 0;
-    for(auto it = in.begin(); it != in.end() && it+1 != in.end();){
+    for (auto it = in.begin(); it != in.end() && it + 1 != in.end();) {
         char char1 = *(it++);
         char char2 = *(it++);
-        uint8_t data = (h2d(char1)<<4) | h2d(char2);
+        uint8_t data = (h2d(char1) << 4) | h2d(char2);
         crc = *(dscrc_table + (crc ^ data));
     }
-    result.push_back(d2h(uint8_t(crc&0xF0)>>4));
-    result.push_back(d2h(uint8_t(crc&0xF)));
+    result.push_back(d2h(uint8_t(crc & 0xF0) >> 4));
+    result.push_back(d2h(uint8_t(crc & 0xF)));
 
     return result;
 }
@@ -110,7 +114,9 @@ std::string crc(const std::string & in){
 /*
  * Appends 2 CRC characters to a hex string, used for testing
  */
-std::string addCrc(const std::string & in){
+std::string
+addCrc(const std::string& in)
+{
     return in + crc(in);
 }
 

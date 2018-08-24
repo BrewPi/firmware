@@ -17,36 +17,35 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #pragma once
 
 #include "DataStream.h"
-#include "EepromTypes.h"
 #include "EepromAccess.h"
+#include "EepromTypes.h"
 
 namespace cbox {
 
 /**
  * Provides storage for a stream offset and length.
  */
-template <class Offset, class Length> class StreamRegion
-{
-	protected:
-		Offset _offset;
-		Length _length;
+template <class Offset, class Length>
+class StreamRegion {
+protected:
+    Offset _offset;
+    Length _length;
 
-	public:
-		Offset offset() { return _offset; }
-		Length length() { return _length; }
+public:
+    Offset offset() { return _offset; }
+    Length length() { return _length; }
 
-		void reset(Offset o, Length l) {
-			_offset = o;
-			_length = l;
-		}
+    void reset(Offset o, Length l)
+    {
+        _offset = o;
+        _length = l;
+    }
 };
 
-struct EepromStreamRegion : public StreamRegion<eptr_t, stream_size_t>
-{
+struct EepromStreamRegion : public StreamRegion<eptr_t, stream_size_t> {
 };
 
 /**
@@ -56,62 +55,67 @@ struct EepromStreamRegion : public StreamRegion<eptr_t, stream_size_t>
  * writes are silently failed.
  * @see EepromAccess
  */
-class EepromDataOut final : public DataOut, public EepromStreamRegion
-{
+class EepromDataOut final : public DataOut, public EepromStreamRegion {
 private:
-	EepromAccess& eepromAccess;
+    EepromAccess& eepromAccess;
+
 public:
+    EepromDataOut(EepromAccess& ea)
+        : eepromAccess(ea)
+    {
+    }
 
-	EepromDataOut(EepromAccess& ea) :eepromAccess(ea) {}
+    virtual bool write(uint8_t value) override final
+    {
+        if (_length) {
+            eepromAccess.writeByte(_offset++, value);
+            _length--;
+            return true;
+        }
+        return false;
+    }
 
-	virtual bool write(uint8_t value) override final {
-		if (_length) {
-			eepromAccess.writeByte(_offset++, value);
-			_length--;
-			return true;
-		}
-		return false;
-	}
-
-	virtual void writeAnnotation(std::string && ann) override final {};
-    virtual void writeResponseSeparator() override final {};
-    virtual void writeListSeparator() override final {};
-    virtual void endMessage() override final {};
-    virtual void flush() override final {};
+    virtual void writeAnnotation(std::string&& ann) override final{};
+    virtual void writeResponseSeparator() override final{};
+    virtual void writeListSeparator() override final{};
+    virtual void endMessage() override final{};
+    virtual void flush() override final{};
 };
-
 
 /**
  * A data input stream that reads from a region of eeprom.
  * @see EepromAccess
  */
-class EepromDataIn : public DataIn, public EepromStreamRegion
-{
+class EepromDataIn : public DataIn, public EepromStreamRegion {
 private:
     EepromAccess& eepromAccess;
+
 public:
+    EepromDataIn(EepromAccess& ea)
+        : eepromAccess(ea)
+    {
+    }
 
-	EepromDataIn(EepromAccess& ea):eepromAccess(ea) {}
+    virtual bool hasNext() override final { return _length; }
+    virtual uint8_t peek() override final { return eepromAccess.readByte(_offset); }
 
-	virtual bool hasNext() override final { return _length; }
-	virtual uint8_t peek() override final { return eepromAccess.readByte(_offset); }
+    virtual uint8_t next() override final
+    {
+        uint8_t result = 0;
+        if (_length) {
+            _length--;
+            result = eepromAccess.readByte(_offset++);
+        }
+        return result;
+    }
+    virtual stream_size_t available() override final { return _length; }
 
-	virtual uint8_t next() override final {
-		uint8_t result = 0;
-		if (_length) {
-			_length--;
-			result = eepromAccess.readByte(_offset++);
-		}
-		return result;
-	}
-	virtual stream_size_t available() override final { return _length; }
-
-    bool skip(stream_size_t skip_length){
+    bool skip(stream_size_t skip_length)
+    {
         auto skip = std::min(skip_length, _length);
         _offset += skip;
         _length -= skip;
         return skip == skip_length;
     }
 };
-
 }

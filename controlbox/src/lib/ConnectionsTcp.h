@@ -27,25 +27,30 @@ namespace cbox {
 
 class TcpConnection : public StreamConnection<TCPClient> {
 public:
-    TcpConnection(TCPClient _client) :
-        StreamConnection<TCPClient>(std::move(_client))
-    {}
-    ~TcpConnection(){
+    TcpConnection(TCPClient _client)
+        : StreamConnection<TCPClient>(std::move(_client))
+    {
+    }
+    ~TcpConnection()
+    {
         get().stop();
     }
 };
 
-class TcpConnectionSource : public ConnectionSource
-{
+class TcpConnectionSource : public ConnectionSource {
 private:
     TCPServer server;
-public:
 
-    TcpConnectionSource(uint16_t port) : server(port){}
-    
-    std::unique_ptr<Connection> newConnection(){
+public:
+    TcpConnectionSource(uint16_t port)
+        : server(port)
+    {
+    }
+
+    std::unique_ptr<Connection> newConnection()
+    {
         TCPClient newClient = server.available();
-        if(newClient.connected()){
+        if (newClient.connected()) {
             return std::make_unique<TcpConnection>(newClient);
         }
         return nullptr;

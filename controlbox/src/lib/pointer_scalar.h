@@ -17,15 +17,13 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #pragma once
 
 namespace cbox {
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
-
 
 /**
  * The scalar type that is the same size as a pointer.
@@ -40,8 +38,7 @@ typedef uint32_t pointer_scalar;
 
 // todo - move to platform?
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
-
 }

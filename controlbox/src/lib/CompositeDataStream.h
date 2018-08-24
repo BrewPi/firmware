@@ -23,21 +23,24 @@
 #include <functional>
 #include <iterator>
 
-#include <boost/range/iterator.hpp>
 #include <boost/iterator/transform_iterator.hpp>
+#include <boost/range/iterator.hpp>
 
 namespace cbox {
 
-template <typename Iterator> using DataInRange = boost::iterator_range<Iterator>;
-template <typename Iterator> using DataOutRange = boost::iterator_range<Iterator>;
+template <typename Iterator>
+using DataInRange = boost::iterator_range<Iterator>;
+template <typename Iterator>
+using DataOutRange = boost::iterator_range<Iterator>;
 
-template <typename Iterator> using DataInRangeProvider = std::function<DataInRange<Iterator>(void)>;
+template <typename Iterator>
+using DataInRangeProvider = std::function<DataInRange<Iterator>(void)>;
 
 /**
  * A function that provides an iterator range, over the given type of iterator.
  */
-template <typename Iterator> using DataOutRangeProvider = std::function<DataOutRange<Iterator>(void)>;
-
+template <typename Iterator>
+using DataOutRangeProvider = std::function<DataOutRange<Iterator>(void)>;
 
 /**
  * A composite output stream - as data is streamed it is written to all streams in a given iterator range.
@@ -45,18 +48,21 @@ template <typename Iterator> using DataOutRangeProvider = std::function<DataOutR
  * @param Iterator The iterator type that enumerates the streams.
  */
 template <typename Iterator>
-class CompositeDataOut : public DataOut
-{
+class CompositeDataOut : public DataOut {
 public:
-	using Streams = DataOutRangeProvider<Iterator>;
+    using Streams = DataOutRangeProvider<Iterator>;
+
 private:
-	Streams streams;
+    Streams streams;
 
 public:
-    CompositeDataOut(const Streams& _streams) : streams(_streams) {}
+    CompositeDataOut(const Streams& _streams)
+        : streams(_streams)
+    {
+    }
 
     CompositeDataOut(const CompositeDataOut&) = delete;
-    CompositeDataOut()=delete;
+    CompositeDataOut() = delete;
 
     virtual bool write(uint8_t data) override
     {
@@ -77,15 +83,13 @@ public:
         }
         return result;
     }
-
 };
 
 /**
  * A composite data input stream. Each stream is checked for valid input, and the contents read until the stream reports it has no more data.
  */
 template <typename Iterator>
-class CompositeDataIn : public DataIn
-{
+class CompositeDataIn : public DataIn {
     using Streams = DataInRangeProvider<Iterator>;
     Streams streams;
 
@@ -93,8 +97,8 @@ class CompositeDataIn : public DataIn
      */
     DataIn* nextStream;
 
-
-    void findNext() {
+    void findNext()
+    {
         if (!nextStream) {
             nextStream = findNextStream();
         }
@@ -105,12 +109,13 @@ class CompositeDataIn : public DataIn
      * @return The stream that has a data byte ready. If there are still streams open
      * but none a ready, NULL is returned. If all streams are closed, this is returned.
      */
-    DataIn* findNextStream() {
+    DataIn* findNextStream()
+    {
         bool open = false;
         for (auto& stream : streams()) {
             if (stream.hasNext()) {
                 open = true;
-                if (stream.peek()>=0) {
+                if (stream.peek() >= 0) {
                     return &stream;
                 }
             }
@@ -119,36 +124,43 @@ class CompositeDataIn : public DataIn
     }
 
 public:
-    CompositeDataIn(Streams _streams) : streams(_streams), nextStream(nullptr) {}
+    CompositeDataIn(Streams _streams)
+        : streams(_streams)
+        , nextStream(nullptr)
+    {
+    }
     CompositeDataIn() = delete;
     CompositeDataIn(const CompositeDataIn&) = delete;
 
-    virtual bool hasNext() override {
+    virtual bool hasNext() override
+    {
         findNext();
-        return this!=nextStream;
+        return this != nextStream;
     }
 
-    virtual uint8_t next() override {
+    virtual uint8_t next() override
+    {
         findNext();
-        if (nextStream==nullptr || nextStream==this)
+        if (nextStream == nullptr || nextStream == this)
             return uint8_t(-1);
         return nextStream->next();
     }
 
-    virtual uint8_t peek() override {
+    virtual uint8_t peek() override
+    {
         findNext();
-        if (nextStream==nullptr || nextStream==this)
-        		return uint8_t(-1);
+        if (nextStream == nullptr || nextStream == this)
+            return uint8_t(-1);
         return nextStream->peek();
     }
 
     /**
      * Resets the state to look for another stream with data.
      */
-    void reset() {
+    void reset()
+    {
         nextStream = nullptr;
     }
-
 };
 
 } // end namespace cbox

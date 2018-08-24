@@ -19,61 +19,60 @@
 
 #pragma once
 
+#include "ContainedObject.h"
+#include "Object.h"
 #include <functional>
 #include <stdint.h>
 #include <vector>
-#include "Object.h"
-#include "ContainedObject.h"
 
 namespace cbox {
 
-class ObjectContainer
-{
+class ObjectContainer {
 private:
     std::vector<ContainedObject> objects;
     obj_id_t startId;
 
 public:
-
     using Iterator = decltype(objects)::iterator;
     using CIterator = decltype(objects)::const_iterator;
 
-    ObjectContainer() :
-        objects(), 
-        startId(obj_id_t::start())
-    {}
+    ObjectContainer()
+        : objects()
+        , startId(obj_id_t::start())
+    {
+    }
 
-    ObjectContainer(std::initializer_list<ContainedObject> systemObjects) : 
-        objects(systemObjects),
-        startId(obj_id_t::start())
-    {}
+    ObjectContainer(std::initializer_list<ContainedObject> systemObjects)
+        : objects(systemObjects)
+        , startId(obj_id_t::start())
+    {
+    }
 
     virtual ~ObjectContainer() = default;
 
-
 private:
-    auto findPosition(const obj_id_t & id) {
+    auto findPosition(const obj_id_t& id)
+    {
         // equal_range is used instead of find, because it is faster for a sorted container
         // the returned pair can be used as follows:
         // first == second means not found, first points to the insert position for the new object id
         // first != second means the object is found and first points to it
 
-        struct IdLess
-        {
-            bool operator() ( const ContainedObject& c, const obj_id_t & i) const { return c.id() < i; }
-            bool operator() ( const obj_id_t & i, const ContainedObject& c) const { return i < c.id(); }
+        struct IdLess {
+            bool operator()(const ContainedObject& c, const obj_id_t& i) const { return c.id() < i; }
+            bool operator()(const obj_id_t& i, const ContainedObject& c) const { return i < c.id(); }
         };
 
         auto pair = std::equal_range(
             objects.begin(),
             objects.end(),
             id,
-            IdLess{}
-        );
+            IdLess{});
         return pair;
     }
 
-    obj_id_t nextId() const{
+    obj_id_t nextId() const
+    {
         return std::max(startId, objects.empty() ? startId : ++obj_id_t(objects.back().id()));
     }
 
@@ -83,74 +82,77 @@ public:
      * @return pointer to the entry.
      *
      */
-    ContainedObject * fetchContained(const obj_id_t id){
+    ContainedObject* fetchContained(const obj_id_t id)
+    {
         auto p = findPosition(id);
-        if(p.first == p.second){
+        if (p.first == p.second) {
             return nullptr;
-        }
-        else{
+        } else {
             return &(*p.first);
         }
     }
-    
-    const std::weak_ptr<Object> fetch(const obj_id_t id) {
+
+    const std::weak_ptr<Object> fetch(const obj_id_t id)
+    {
         auto p = findPosition(id);
-        if(p.first == p.second){
-			return std::weak_ptr<Object>(); // empty weak ptr if not found
+        if (p.first == p.second) {
+            return std::weak_ptr<Object>(); // empty weak ptr if not found
         }
-		return p.first->object(); // weak_ptr to found object
+        return p.first->object(); // weak_ptr to found object
     }
 
     /**
      * set start ID for user objects.
      * ID's smaller than the start ID are  assumed to be system objects and considered undeletable.
      **/
-    void setObjectsStartId(const obj_id_t & id){
+    void setObjectsStartId(const obj_id_t& id)
+    {
         startId = id;
     }
 
     // create a new object and let box assign id
-    obj_id_t add (std::unique_ptr<Object> obj, const uint8_t active_in_profiles) {
+    obj_id_t add(std::unique_ptr<Object> obj, const uint8_t active_in_profiles)
+    {
         return add(std::move(obj), active_in_profiles, obj_id_t::invalid());
     }
 
     // create a new object with specific id, optionally replacing an existing object
-    obj_id_t add (std::unique_ptr<Object> obj, const uint8_t active_in_profiles, const obj_id_t & id, bool replace = false) {
+    obj_id_t add(std::unique_ptr<Object> obj, const uint8_t active_in_profiles, const obj_id_t& id, bool replace = false)
+    {
         obj_id_t newId;
         Iterator position;
 
-        if(id == obj_id_t::invalid()){ // use 0 to let the container assign a free slot
+        if (id == obj_id_t::invalid()) { // use 0 to let the container assign a free slot
             newId = nextId();
             position = objects.end();
-        }
-        else {
-			if(id < startId){
-				return obj_id_t::invalid(); // refuse to add system objects
-			}
-        	// find insert position
-			auto p = findPosition(id);
-			if(p.first != p.second){
-			    // existing object found
-			    if(!replace){
-			        return obj_id_t::invalid(); // refuse to overwrite existing objects
-			    }
-			}
-        	newId = id;
-        	position = p.first;
+        } else {
+            if (id < startId) {
+                return obj_id_t::invalid(); // refuse to add system objects
+            }
+            // find insert position
+            auto p = findPosition(id);
+            if (p.first != p.second) {
+                // existing object found
+                if (!replace) {
+                    return obj_id_t::invalid(); // refuse to overwrite existing objects
+                }
+            }
+            newId = id;
+            position = p.first;
         }
 
-        if(replace) {
+        if (replace) {
             *position = ContainedObject(newId, active_in_profiles, std::move(obj));
-        }
-        else {
+        } else {
             // insert new entry in container in sorted position
             objects.emplace(position, newId, active_in_profiles, std::move(obj));
         }
         return newId;
     }
 
-    CboxError remove(obj_id_t id) {
-        if(id < startId){
+    CboxError remove(obj_id_t id)
+    {
+        if (id < startId) {
             return CboxError::object_not_deletable; // refuse to remove system objects
         }
         // find existing object
@@ -160,26 +162,31 @@ public:
     }
 
     // only const iterators are exposed. We don't want the caller to be able to modify the container
-    CIterator cbegin(){
+    CIterator cbegin()
+    {
         return objects.cbegin();
     }
 
-    CIterator cend(){
+    CIterator cend()
+    {
         return objects.cend();
     }
 
-    CIterator userbegin(){
+    CIterator userbegin()
+    {
         return findPosition(startId).first;
     }
 
     // replace an object with an inactive object
-    void deactivate(const CIterator & cit){
+    void deactivate(const CIterator& cit)
+    {
         auto it = objects.erase(cit, cit); // convert to non-const iterator
         it->deactivate();
     }
 
     // remove all non-system objects from the container
-    void clear(){
+    void clear()
+    {
         objects.erase(userbegin(), cend());
     }
 };
