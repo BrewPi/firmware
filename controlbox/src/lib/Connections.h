@@ -125,11 +125,6 @@ public:
     {
         stream.flush();
     }
-
-    virtual void writeAnnotation(std::string&& ann) override final{};
-    virtual void writeResponseSeparator() override final{};
-    virtual void writeListSeparator() override final{};
-    virtual void endMessage() override final{};
 };
 
 template <typename T>

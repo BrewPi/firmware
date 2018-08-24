@@ -156,11 +156,12 @@ public:
 /**
  * A DataOut implementation that discards all data.
  */
-class BlackholeDataOut : public DataOut {
+class BlackholeDataOut final : public DataOut {
 public:
     BlackholeDataOut() = default;
     virtual ~BlackholeDataOut() = default;
-    virtual bool write(uint8_t /*data*/) override final { return true; }
+    virtual bool write(uint8_t data) override final { return true; }
+    virtual void flush() override final {}
 };
 
 /**
@@ -533,9 +534,9 @@ class CrcDataOut final : public DataOut {
     uint8_t crcValue;
 
 public:
-    CrcDataOut(DataOut& _out)
+    CrcDataOut(DataOut& _out, uint8_t initial = 0)
         : out(_out)
-        , crcValue(0)
+        , crcValue(initial)
     {
     }
     virtual ~CrcDataOut() = default;
@@ -546,14 +547,14 @@ public:
         return out.write(data);
     }
 
-    void writeCrc()
+    bool writeCrc()
     {
-        out.write(crcValue);
+        return out.write(crcValue);
     }
 
-    void writeInvalidCrc()
+    bool writeInvalidCrc()
     {
-        out.write(crcValue + 1);
+        return out.write(crcValue + 1);
     }
 
     virtual void flush() override final { out.flush(); };

@@ -164,7 +164,7 @@ SCENARIO("A controlbox Box")
         CHECK(out.str() == expected.str());
         CHECK(box.getObject(100).lock());
 
-        THEN("The saved settings can still be read with the READ_STORED_OBJECT command")
+        THEN("The stored settings can still be read with the READ_STORED_OBJECT command")
         {
             in.str("");
             in.clear();
@@ -177,10 +177,17 @@ SCENARIO("A controlbox Box")
             in << crc(in.str()) << "\n";
             box.hexCommunicate();
 
-            expected << addCrc("066400") << "|" // command repetition
-                     << addCrc("006500020100E803")
-                     << "," << addCrc("02E80344444444") // response with inactive object
-                     << "\n";                           // eeprom data
+            // Objects are stored with a CRC in EEPROM.
+            // The message will have 2 CRCs appended.
+            // This allows to distinguish between an error in EEPROM or a communication error.
+
+            expected << addCrc("066400") << "|"
+                     << addCrc("00"                  // status
+                               + addCrc("6400"       // id
+                                        "00"         // stored profiles
+                                        "E803"       // stored type
+                                        "44444444")) // stored settings
+                     << "\n";
             CHECK(out.str() == expected.str());
         }
     }
@@ -351,19 +358,20 @@ SCENARIO("A controlbox Box")
             }
         }
 
-        THEN("When list saved objects command is received, eeprom data for all objects is streamed")
+        THEN("When list stored objects command is received, eeprom data for all objects is streamed")
         {
             in.str("");
             in.clear();
-            in << "07"; // list saved objects
+            in << "07"; // list stored objects
             in << crc(in.str()) << "\n";
             box.hexCommunicate();
 
+            // each object has 2 CRCs: one from EEPROM and from the message part
             expected << addCrc("07") << "|" << addCrc("00")
-                     << "," << addCrc("640001E8034444444428")
-                     << "," << addCrc("650002E80344444444CB")
-                     << "," << addCrc("660003E8034444444403")
-                     << "," << addCrc("020000E803123412344") // modified system object is also persisted
+                     << "," << addCrc(addCrc("640001E80344444444"))
+                     << "," << addCrc(addCrc("650002E80344444444"))
+                     << "," << addCrc(addCrc("660003E80344444444"))
+                     << "," << addCrc(addCrc("020000E80312341234")) // modified system object is also persisted
                      << "\n";
 
             CHECK(out.str() == expected.str());

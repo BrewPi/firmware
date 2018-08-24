@@ -43,7 +43,7 @@
 namespace cbox {
 void connectionStarted(DataOut& out)
 {
-    out.writeAnnotation("Connected to BrewBlox v0.1.0");
+//    out.writeAnnotation("Connected to BrewBlox v0.1.0");
     out.flush();
 }
 }

@@ -58,8 +58,6 @@ private:
     void factoryReset(DataIn& in, HexCrcDataOut& out);
 
     CboxError createObjectFromStream(DataIn& in, uint8_t& profiles, std::unique_ptr<Object>& newObj);
-    static CboxError storeContainedObjectHandler(ContainedObject* const ptrCobj, DataOut& out);
-
     void loadObjectsFromStorage();
 
 public:

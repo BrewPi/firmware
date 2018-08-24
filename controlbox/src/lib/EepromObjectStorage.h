@@ -52,7 +52,17 @@ public:
     }
     virtual ~EepromObjectStorage() = default;
 
-    virtual CboxError storeObject(const storage_id_t& id, const toStorageHandler& handler) override final
+    /**
+     * storeObject saves the data streamed by the handler under the given id.
+     * it allocates a large enough block in EEPROM automatically and re-allocates if needed.
+     * the handler should therefore stream the same data if it is called twice.
+     * @param id: id to store the object with
+     * @param handler: a callable that is provided with a DataOut to stream the new data to
+     * @return CboxError
+     */
+    virtual CboxError storeObject(
+        const storage_id_t& id,
+        const std::function<CboxError(DataOut&)>& handler) override final
     {
         CountingBlackholeDataOut counter;
         RegionDataOut objectEepromData = getObjectWriter(id);
@@ -60,10 +70,31 @@ public:
         uint16_t blockSize = objectEepromData.availableForWrite();
 
         TeeDataOut tee(objectEepromData, counter);
-        CboxError res = handler(tee);
-        if (res != CboxError::no_error) {
-            return res;
-        }
+
+        auto writeWithCrc = [&id, &tee, &handler]() -> CboxError {
+            // we want the ID to be part of the CRC
+            // we stream it again to a discarded stream and start the actual stream with the resulting CRC
+            BlackholeDataOut hole;
+            CrcDataOut idCrc(hole);
+            idCrc.put(id);
+
+            CrcDataOut crcOut(tee, idCrc.crc());
+            CboxError res = handler(crcOut);
+
+            bool crcWritten;
+            if (res == CboxError::no_error) {
+                crcWritten = crcOut.writeCrc(); // write CRC after object data so we can check integrity
+            } else {
+                crcWritten = crcOut.writeInvalidCrc(); // write invalid CRC so object data will not be used on next read
+            }
+            if (!crcWritten) {
+                return CboxError::persisted_storage_write_error;
+            }
+            return CboxError::no_error;
+        };
+
+        CboxError res = writeWithCrc();
+
         if (counter.count() > blockSize) {
             // block didn't fit or not found, should allocate a new block
             if (blockSize > 0) {
@@ -91,8 +122,8 @@ public:
                     return CboxError::insufficient_persistent_storage; // still not enough free space
                 }
             }
-            // write data
-            res = handler(objectEepromData);
+
+            res = writeWithCrc(); // try again
         }
         // check how many bytes were written
         uint16_t actualSize = writer.offset() - dataLocation;
@@ -102,7 +133,16 @@ public:
         return res;
     }
 
-    virtual CboxError retrieveObject(const storage_id_t& id, const fromStorageHandler& handler) override final
+    /**
+     * Retrieve a single object from storage
+     * @param id: id of object to retrieve
+     * @param handler: a callable with the following prototype: (DataIn &) -> CboxError.
+     * DataIn will contain the object's data followed by a CRC.
+     * @return CboxError
+     */
+    virtual CboxError retrieveObject(
+        const storage_id_t& id,
+        const std::function<CboxError(RegionDataIn&)>& handler) override final
     {
         RegionDataIn objectEepromData = getObjectReader(id, true);
         if (objectEepromData.available() == 0) {
@@ -110,8 +150,14 @@ public:
         }
         return handler(objectEepromData);
     }
-
-    virtual CboxError retrieveObjects(const fromStorageWithIdHandler& handler) override final
+    /**
+     * Retreive all objects from storage
+     * @param handler: a callable with the following prototype: (const storage_id_t&, DataOut &) -> CboxError.
+     * The handler will be called for each object and the object, with the DataIn stream containing the object's data.
+     * @return
+     */
+    virtual CboxError retrieveObjects(
+        const std::function<CboxError(const storage_id_t& id, RegionDataIn&)>& handler) override final
     {
         reader.reset(EepromLocation(objects), EepromLocationEnd(objects) - EepromLocation(objects));
 

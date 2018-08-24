@@ -133,7 +133,7 @@ Box::writeObject(DataIn& in, HexCrcDataOut& out)
     if (cobj != nullptr && status == CboxError::no_error) {
         // save new settings to storage
         auto storeContained = [&cobj](DataOut& out) -> CboxError {
-            return storeContainedObjectHandler(cobj, out);
+            return cobj->streamPersistedTo(out);
         };
         status = storage.storeObject(id, storeContained);
 
@@ -175,19 +175,6 @@ Box::createObjectFromStream(DataIn& in, uint8_t& profiles, std::unique_ptr<Objec
     return status;
 }
 
-CboxError
-Box::storeContainedObjectHandler(ContainedObject* const ptrCobj, DataOut& out)
-{
-    CrcDataOut crcOut(out);
-    auto status = ptrCobj->streamPersistedTo(crcOut);
-    if (status == CboxError::no_error) {
-        crcOut.writeCrc();
-    } else {
-        crcOut.writeInvalidCrc(); // write invalid CRC on purpose so the object is not loaded later with invalid settings
-    }
-    return status;
-};
-
 /**
  * Creates a new object and adds it to the container
  */
@@ -216,17 +203,18 @@ Box::createObject(DataIn& in, HexCrcDataOut& out)
     out.writeResponseSeparator();
     out.write(asUint8(status));
     if (status == CboxError::no_error) {
+        // add object to container. Id is returned because id from stream can be 0 to let the box assign it
         id = objects.add(std::move(newObj), profiles, id, false);
-        if (auto ptrCobj = objects.fetchContained(id)) { // needed because id can be 0 to indicate any free id
-            ptrCobj->streamTo(out);
+        if (auto ptrCobj = objects.fetchContained(id)) {
             auto storeContained = [&ptrCobj](DataOut& out) -> CboxError {
-                return storeContainedObjectHandler(ptrCobj, out);
+                return ptrCobj->streamPersistedTo(out);
             };
             status = storage.storeObject(id, storeContained);
             if (id >= userStartId() && !(ptrCobj->profiles() & activeProfiles)) {
                 // object should not be active, replace object with inactive object
                 ptrCobj->deactivate();
             }
+            status = ptrCobj->streamTo(out); // TODO: handle status ?
         }
     }
 }
@@ -306,8 +294,9 @@ Box::readStoredObject(DataIn& in, HexCrcDataOut& out)
     }
 
     bool handlerCalled = false;
-    auto objectStreamer = [&out, &handlerCalled](DataIn& objInStorage) -> CboxError {
+    auto objectStreamer = [&out, &id, &handlerCalled](DataIn& objInStorage) -> CboxError {
         out.write(asUint8(CboxError::no_error));
+        out.put(id);
         handlerCalled = true;
         if (!objInStorage.push(out)) {
             return CboxError::output_stream_write_error;
