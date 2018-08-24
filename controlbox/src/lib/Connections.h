@@ -93,7 +93,7 @@ public:
  * Wraps a stream to provide the DataOut interface.
  */
 template <typename T>
-class StreamDataOut : public DataOut
+class StreamDataOut final : public DataOut
 {
 protected:
     /**
@@ -108,22 +108,18 @@ public:
         return stream.write(data)!=0;
     }
 
-    virtual bool writeBuffer(const void* data, stream_size_t length) override {
+    virtual bool writeBuffer(const void* data, stream_size_t length) override final {
     		return stream.write((const uint8_t*)data, length)==length;
     }
 
-    void flush() override {
+    void flush() override final {
     	stream.flush();
     }
 
-    /**
-     * The close method is defined by the specific template instantiation.
-     */
-    /*void close() override {
-    	stream.close(); TODO?
-    }*/
-
-	//StreamDataOut& operator=(const StreamDataOut& rhs)=delete;
+    virtual void writeAnnotation(std::string && ann) override final {};
+    virtual void writeResponseSeparator() override final {};
+    virtual void writeListSeparator() override final {};
+    virtual void endMessage() override final {};
 };
 
 template <typename T>
