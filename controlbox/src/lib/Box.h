@@ -44,19 +44,21 @@ private:
     uint8_t activeProfiles;
 
     // command handlers
-    void noop(DataIn& in, CrcDataOut& out);
-    void invalidCommand(DataIn& in, CrcDataOut& out);
-    void readObject(DataIn& in, CrcDataOut& out);
-    void writeObject(DataIn& in, CrcDataOut& out);
-    void createObject(DataIn& in, CrcDataOut& out);
-    void deleteObject(DataIn& in, CrcDataOut& out);
-    void listActiveObjects(DataIn& in, CrcDataOut& out);
-    void listSavedObjects(DataIn& in, CrcDataOut& out);
-    void clearObjects(DataIn& in, CrcDataOut& out);
-    void reboot(DataIn& in, CrcDataOut& out);
-    void factoryReset(DataIn& in, CrcDataOut& out);
+    void noop(DataIn& in, HexCrcDataOut& out);
+    void invalidCommand(DataIn& in, HexCrcDataOut& out);
+    void readObject(DataIn& in, HexCrcDataOut& out);
+    void writeObject(DataIn& in, HexCrcDataOut& out);
+    void createObject(DataIn& in, HexCrcDataOut& out);
+    void deleteObject(DataIn& in, HexCrcDataOut& out);
+    void listActiveObjects(DataIn& in, HexCrcDataOut& out);
+    void readStoredObject(DataIn& in, HexCrcDataOut& out);
+    void listStoredObjects(DataIn& in, HexCrcDataOut& out);
+    void clearObjects(DataIn& in, HexCrcDataOut& out);
+    void reboot(DataIn& in, HexCrcDataOut& out);
+    void factoryReset(DataIn& in, HexCrcDataOut& out);
 
     CboxError createObjectFromStream(DataIn& in, uint8_t& profiles, std::unique_ptr<Object>& newObj);
+    static CboxError storeContainedObjectHandler(ContainedObject* const ptrCobj, DataOut& out);
 
     void loadObjectsFromStorage();
 
@@ -93,10 +95,11 @@ public:
         CREATE_OBJECT = 3,       // add a new object
         DELETE_OBJECT = 4,       // delete an object by id
         LIST_ACTIVE_OBJECTS = 5, // list objects saved to persistent storage
-        LIST_STORED_OBJECTS = 6, // list objects saved to persistent storage
-        CLEAR_OBJECTS = 7,       // remove all user objects
-        REBOOT = 8,              // reboot the system
-        FACTORY_RESET = 9,       // erase all settings and reboot
+        READ_STORED_OBJECT = 6,  // list objects saved to persistent storage
+        LIST_STORED_OBJECTS = 7, // list objects saved to persistent storage
+        CLEAR_OBJECTS = 8,       // remove all user objects
+        REBOOT = 9,              // reboot the system
+        FACTORY_RESET = 10,      // erase all settings and reboot
     };
 };
 

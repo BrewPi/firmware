@@ -47,7 +47,7 @@ Box::Box(ObjectFactory& _factory, ObjectContainer& _objects, ObjectStorage& _sto
  * The no-op command simply echoes the response until the end of stream.
  */
 void
-Box::noop(DataIn& in, CrcDataOut& out)
+Box::noop(DataIn& in, HexCrcDataOut& out)
 {
     in.spool();
     out.writeResponseSeparator();
@@ -58,7 +58,7 @@ Box::noop(DataIn& in, CrcDataOut& out)
  * The no-op command simply echoes the response until the end of stream.
  */
 void
-Box::invalidCommand(DataIn& in, CrcDataOut& out)
+Box::invalidCommand(DataIn& in, HexCrcDataOut& out)
 {
     in.spool();
     out.writeResponseSeparator();
@@ -66,7 +66,7 @@ Box::invalidCommand(DataIn& in, CrcDataOut& out)
 }
 
 void
-Box::readObject(DataIn& in, CrcDataOut& out)
+Box::readObject(DataIn& in, HexCrcDataOut& out)
 {
     CboxError status = CboxError::no_error;
     obj_id_t id = 0;
@@ -90,21 +90,11 @@ Box::readObject(DataIn& in, CrcDataOut& out)
         // stream object as id, profiles, typeId, data
         status = cobj->streamTo(out);
         // todo handle status?
-        if (cobj->object()->typeId() == resolveTypeId<InactiveObject>()) {
-            out.writeListSeparator();
-            auto objectStreamer = [&out](DataIn& objInStorage) -> CboxError {
-                if (objInStorage.push(out)) {
-                    return CboxError::no_error;
-                }
-                return CboxError::output_stream_write_error;
-            };
-            storage.retrieveObject(storage_id_t(id), objectStreamer);
-        }
     }
 }
 
 void
-Box::writeObject(DataIn& in, CrcDataOut& out)
+Box::writeObject(DataIn& in, HexCrcDataOut& out)
 {
     CboxError status = CboxError::no_error;
     obj_id_t id = 0;
@@ -119,42 +109,44 @@ Box::writeObject(DataIn& in, CrcDataOut& out)
             if (cobj->object()->typeId() == resolveTypeId<InactiveObject>()) {
                 // create object (at least temporarily to write it) and replace inactive object
                 uint8_t profiles = 0;
-
-                CboxError status = CboxError::no_error;
                 std::unique_ptr<Object> newObj;
-                if (status == CboxError::no_error) {
-                    status = createObjectFromStream(in, profiles, newObj);
 
-                    if (newObj) {
-                        objects.add(std::move(newObj), profiles, id);
-                    }
-                    cobj = objects.fetchContained(id);
+                status = createObjectFromStream(in, profiles, newObj);
+
+                if (newObj && status != CboxError::no_error) {
+                    // replace inactive object with active object to be able to stream to it
+                    objects.add(std::move(newObj), profiles, id, true);
                 }
-            } else {
-                // update existing object
-                status = cobj->streamFrom(in);
+                cobj = objects.fetchContained(id);
             }
         }
     }
+
+    // stream new settings to object
+    status = cobj->streamFrom(in);
 
     in.spool();
     if (out.crc()) {
         status = CboxError::crc_error_in_command;
     }
+
+    if (cobj != nullptr && status == CboxError::no_error) {
+        // save new settings to storage
+        auto storeContained = [&cobj](DataOut& out) -> CboxError {
+            return storeContainedObjectHandler(cobj, out);
+        };
+        status = storage.storeObject(id, storeContained);
+
+        // deactive object if it is not a system objects and is not in an active profile
+        if (id >= userStartId() && (cobj->profiles() & activeProfiles) == 0) {
+            cobj->deactivate();
+        }
+    }
+
     out.writeResponseSeparator();
     out.write(asUint8(status));
-    if (cobj != nullptr && status == CboxError::no_error) {
-        status = cobj->streamTo(out);
-        if (status == CboxError::no_error) {
-            auto storeContained = [&cobj](DataOut& out) -> CboxError {
-                return cobj->streamPersistedTo(out);
-            };
-            status = storage.storeObject(id, storeContained);
-            // TODO: handle status
-            if (id >= userStartId() && !(cobj->profiles() & activeProfiles)) {
-                cobj->deactivate();
-            }
-        }
+    if (cobj != nullptr) {
+        status = cobj->streamTo(out); // TODO: handle status ?
     }
 }
 
@@ -183,11 +175,24 @@ Box::createObjectFromStream(DataIn& in, uint8_t& profiles, std::unique_ptr<Objec
     return status;
 }
 
+CboxError
+Box::storeContainedObjectHandler(ContainedObject* const ptrCobj, DataOut& out)
+{
+    CrcDataOut crcOut(out);
+    auto status = ptrCobj->streamPersistedTo(crcOut);
+    if (status == CboxError::no_error) {
+        crcOut.writeCrc();
+    } else {
+        crcOut.writeInvalidCrc(); // write invalid CRC on purpose so the object is not loaded later with invalid settings
+    }
+    return status;
+};
+
 /**
  * Creates a new object and adds it to the container
  */
 void
-Box::createObject(DataIn& in, CrcDataOut& out)
+Box::createObject(DataIn& in, HexCrcDataOut& out)
 {
     obj_id_t id;
     obj_type_t typeId;
@@ -215,7 +220,7 @@ Box::createObject(DataIn& in, CrcDataOut& out)
         if (auto ptrCobj = objects.fetchContained(id)) { // needed because id can be 0 to indicate any free id
             ptrCobj->streamTo(out);
             auto storeContained = [&ptrCobj](DataOut& out) -> CboxError {
-                return ptrCobj->streamPersistedTo(out);
+                return storeContainedObjectHandler(ptrCobj, out);
             };
             status = storage.storeObject(id, storeContained);
             if (id >= userStartId() && !(ptrCobj->profiles() & activeProfiles)) {
@@ -231,7 +236,7 @@ Box::createObject(DataIn& in, CrcDataOut& out)
  *
  */
 void
-Box::deleteObject(DataIn& in, CrcDataOut& out)
+Box::deleteObject(DataIn& in, HexCrcDataOut& out)
 {
     CboxError status = CboxError::no_error;
     obj_id_t id;
@@ -258,7 +263,7 @@ Box::deleteObject(DataIn& in, CrcDataOut& out)
  * Walks the eeprom and writes out the construction definitions.
  */
 void
-Box::listActiveObjects(DataIn& in, CrcDataOut& out)
+Box::listActiveObjects(DataIn& in, HexCrcDataOut& out)
 {
     in.spool();
     auto crc = out.crc();
@@ -278,7 +283,45 @@ Box::listActiveObjects(DataIn& in, CrcDataOut& out)
 }
 
 void
-Box::listSavedObjects(DataIn& in, CrcDataOut& out)
+Box::readStoredObject(DataIn& in, HexCrcDataOut& out)
+{
+    CboxError status = CboxError::no_error;
+    obj_id_t id = 0;
+
+    if (!in.get(id)) {
+        status = CboxError::input_stream_read_error;
+    }
+
+    in.spool();
+    auto crc = out.crc();
+
+    if (crc) {
+        status = CboxError::no_error;
+    }
+    out.writeResponseSeparator();
+
+    if (status != CboxError::no_error) {
+        out.write(asUint8(CboxError::crc_error_in_command));
+        return;
+    }
+
+    bool handlerCalled = false;
+    auto objectStreamer = [&out, &handlerCalled](DataIn& objInStorage) -> CboxError {
+        out.write(asUint8(CboxError::no_error));
+        handlerCalled = true;
+        if (!objInStorage.push(out)) {
+            return CboxError::output_stream_write_error;
+        }
+        return CboxError::no_error;
+    };
+    status = storage.retrieveObject(storage_id_t(id), objectStreamer);
+    if (!handlerCalled) {
+        out.write(asUint8(CboxError::no_error)); // write status if handler has not written it
+    }
+}
+
+void
+Box::listStoredObjects(DataIn& in, HexCrcDataOut& out)
 {
     in.spool();
     auto crc = out.crc();
@@ -332,7 +375,7 @@ Box::loadObjectsFromStorage()
 }
 
 void
-Box::reboot(DataIn& in, CrcDataOut& out)
+Box::reboot(DataIn& in, HexCrcDataOut& out)
 {
     in.spool();
     auto crc = out.crc();
@@ -351,7 +394,7 @@ Box::reboot(DataIn& in, CrcDataOut& out)
 }
 
 void
-Box::factoryReset(DataIn& in, CrcDataOut& out)
+Box::factoryReset(DataIn& in, HexCrcDataOut& out)
 {
     in.spool();
     auto crc = out.crc();
@@ -377,7 +420,7 @@ Box::factoryReset(DataIn& in, CrcDataOut& out)
  */
 
 void
-Box::clearObjects(DataIn& in, CrcDataOut& out)
+Box::clearObjects(DataIn& in, HexCrcDataOut& out)
 {
     in.spool();
     auto crc = out.crc();
@@ -410,7 +453,7 @@ Box::handleCommand(DataIn& dataIn, DataOut& dataOut)
     HexTextToBinaryIn hexIn(dataIn);
     BinaryToHexTextOut hexOut(dataOut);
 
-    CrcDataOut out(hexOut);     // write CRC after response
+    HexCrcDataOut out(hexOut);  // write CRC after response
     TeeDataIn in(hexIn, out);   // ensure command input is also echoed to output
     uint8_t cmd_id = in.next(); // command type code
 
@@ -433,8 +476,11 @@ Box::handleCommand(DataIn& dataIn, DataOut& dataOut)
     case LIST_ACTIVE_OBJECTS:
         listActiveObjects(in, out);
         break;
+    case READ_STORED_OBJECT:
+        readStoredObject(in, out);
+        break;
     case LIST_STORED_OBJECTS:
-        listSavedObjects(in, out);
+        listStoredObjects(in, out);
         break;
     case CLEAR_OBJECTS:
         clearObjects(in, out);

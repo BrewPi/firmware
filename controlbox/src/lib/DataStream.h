@@ -476,23 +476,22 @@ static const uint8_t dscrc_table[] = {
     202, 148, 118, 40, 171, 245, 23, 73, 8, 86, 180, 234, 105, 55, 213, 139,
     87, 9, 235, 181, 54, 104, 138, 212, 149, 203, 41, 119, 244, 170, 72, 22,
     233, 183, 85, 11, 136, 214, 52, 106, 43, 117, 151, 201, 74, 20, 246, 168,
-    116, 42, 200, 150, 21, 75, 169, 247, 182, 232, 10, 84, 215, 137, 107, 53
-};
+    116, 42, 200, 150, 21, 75, 169, 247, 182, 232, 10, 84, 215, 137, 107, 53};
 
 /**
  * CRC data out. Sends running CRC of data that was sent on endMessage()
  */
-class CrcDataOut final : public DataOutEncoded {
+class HexCrcDataOut final : public DataOutEncoded {
     DataOutEncoded& out;
     uint8_t crcValue;
 
 public:
-    CrcDataOut(DataOutEncoded& _out)
+    HexCrcDataOut(DataOutEncoded& _out)
         : out(_out)
         , crcValue(0)
     {
     }
-    virtual ~CrcDataOut() = default;
+    virtual ~HexCrcDataOut() = default;
 
     virtual bool write(uint8_t data) override final
     {
@@ -525,4 +524,44 @@ public:
         return crcValue;
     }
 };
-}
+
+/**
+ * CRC data out. Sends running CRC of data on request
+ */
+class CrcDataOut final : public DataOut {
+    DataOut& out;
+    uint8_t crcValue;
+
+public:
+    CrcDataOut(DataOut& _out)
+        : out(_out)
+        , crcValue(0)
+    {
+    }
+    virtual ~CrcDataOut() = default;
+
+    virtual bool write(uint8_t data) override final
+    {
+        crcValue = *(dscrc_table + (crcValue ^ data));
+        return out.write(data);
+    }
+
+    void writeCrc()
+    {
+        out.write(crcValue);
+    }
+
+    void writeInvalidCrc()
+    {
+        out.write(crcValue + 1);
+    }
+
+    virtual void flush() override final { out.flush(); };
+
+    uint8_t crc()
+    {
+        return crcValue;
+    }
+};
+
+} // end namespace cbox
