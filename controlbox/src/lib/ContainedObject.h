@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "DataStream.h"
 #include "Object.h"
 #include "ResolveType.h"
 

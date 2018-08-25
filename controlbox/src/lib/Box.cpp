@@ -107,23 +107,28 @@ Box::writeObject(DataIn& in, HexCrcDataOut& out)
             status = CboxError::INVALID_OBJECT_ID;
         } else {
             if (cobj->object()->typeId() == resolveTypeId<InactiveObject>()) {
-                // create object (at least temporarily to write it) and replace inactive object
-                uint8_t profiles = 0;
+                // replace contained object with actual object to be able to write to it
+                InactiveObject* inactiveObj = static_cast<InactiveObject*>(cobj->object().get());
+
+                obj_type_t actualType = inactiveObj->actualTypeId();
+                uint8_t oldProfiles = cobj->profiles();
+                obj_id_t id = cobj->id();
+
                 std::unique_ptr<Object> newObj;
+                status = factory.make(actualType, newObj);
 
-                status = createObjectFromStream(in, profiles, newObj);
-
-                if (newObj && status != CboxError::OK) {
+                if (newObj && status == CboxError::OK) {
                     // replace inactive object with active object to be able to stream to it
-                    objects.add(std::move(newObj), profiles, id, true);
+                    *cobj = ContainedObject(id, oldProfiles, std::move(newObj));
                 }
-                cobj = objects.fetchContained(id);
             }
         }
     }
 
     // stream new settings to object
-    status = cobj->streamFrom(in);
+    if (cobj) {
+        status = cobj->streamFrom(in);
+    }
 
     in.spool();
     if (out.crc()) {

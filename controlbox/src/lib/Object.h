@@ -33,6 +33,10 @@ public:
         : id(0){};
     obj_type_t(const uint16_t& rhs)
         : id(rhs){};
+    obj_type_t(const obj_type_t& rhs) = default;
+    obj_type_t(obj_type_t& rhs) = default;
+    obj_type_t(obj_type_t&& rhs) = default;
+
     obj_type_t& operator=(const uint16_t& rhs)
     {
         id = rhs;

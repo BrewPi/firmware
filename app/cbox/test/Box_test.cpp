@@ -47,9 +47,13 @@ SCENARIO("A controlbox Box")
         in << crc(in.str()) << "\n";
         box.hexCommunicate();
 
-        // commands are sent out LSB first
-        // command repetition | 00 no_error - 0100 obj_id 0001 - FF profile - E803 obj type 1000 (0x03e8) - 11111111 obj data
-        expected << addCrc("010100") << "|" << addCrc("000100FFE80311111111") << "\n";
+        expected << addCrc("010100")
+                 << "|" << addCrc("00"        // no error
+                                  "0100"      // object id 1
+                                  "FF"        // profiles 0xFF
+                                  "E803"      // object type 1000
+                                  "11111111") // object data
+                 << "\n";
         CHECK(out.str() == expected.str());
     }
 
@@ -59,19 +63,23 @@ SCENARIO("A controlbox Box")
         in << crc(in.str()) << "\n";
         box.hexCommunicate();
 
-        // commands are sent out LSB first
-        // command repetition | 00 no_error - 0100 obj_id 0001 - 01 profile - E803 obj type 1000 (0x03e8) - 33333333 obj data
-        expected << addCrc("02010001E80333333333") << "|" << addCrc("00010001E80333333333") << "\n";
+        expected << addCrc("02010001E80333333333")
+                 << "|" << addCrc("00"        // no error
+                                  "0100"      // object id 1
+                                  "01"        // profiles 0x01
+                                  "E803"      // object type 1000
+                                  "33333333") // object data
+                 << "\n";
         CHECK(out.str() == expected.str());
     }
 
     WHEN("A connection sends a create object command, it is processed by the Box")
     {
-        in << "03"
-           << "0000"
-           << "FF"
-           << "E803"
-           << "44444444"; // create object, ID assigned by box, profiles FF, type 1000, value 44444444
+        in << "03"        // create object
+           << "0000"      // ID assigned by box
+           << "FF"        // profiles FF
+           << "E803"      // type 1000
+           << "44444444"; // value 44444444
         in << crc(in.str()) << "\n";
         box.hexCommunicate();
 
@@ -91,13 +99,13 @@ SCENARIO("A controlbox Box")
             expected.clear();
 
             in << "04"
-               << "6400"; // delete object, ID 100
+               << "6400"; // ID 100
             in << crc(in.str()) << "\n";
             box.hexCommunicate();
 
-            // commands are sent out LSB first
-            // command repetition | 00 no_error
-            expected << addCrc("046400") << "|" << addCrc("00") << "\n";
+            expected << addCrc("046400")
+                     << "|" << addCrc("00")
+                     << "\n";
             CHECK(out.str() == expected.str());
             CHECK(!box.getObject(100).lock());
         }
@@ -110,9 +118,9 @@ SCENARIO("A controlbox Box")
         in << crc(in.str()) << "\n";
         box.hexCommunicate();
 
-        // commands are sent out LSB first
-        // command repetition | 23 object_not_deletable
-        expected << addCrc("040100") << "|" << addCrc("23") << "\n";
+        expected << addCrc("040100")
+                 << "|" << addCrc("23") // error code for object_not_deletable
+                 << "\n";
         CHECK(out.str() == expected.str());
     }
 
@@ -123,9 +131,8 @@ SCENARIO("A controlbox Box")
         in << crc(in.str()) << "\n";
         box.hexCommunicate();
 
-        // commands are sent out LSB first
-        // command repetition | 41 invalid_object_id
-        expected << addCrc("040001") << "|" << addCrc("40") << "\n";
+        expected << addCrc("040001")
+                 << "|" << addCrc("40") << "\n"; // error code for invalid object id
         CHECK(out.str() == expected.str());
     }
 
@@ -135,9 +142,36 @@ SCENARIO("A controlbox Box")
         in << crc(in.str()) << "\n";
         box.hexCommunicate();
 
-        // commands are sent out LSB first
-        // command repetition | status, obj1, obj2, profiles
-        expected << addCrc("05") << "|" << addCrc("00") << "," << addCrc("0100FFE80311111111") << "," << addCrc("0200FFE80322222222") << "," << addCrc("0300FF020001") << "\n";
+        expected << addCrc("05")
+                 << "|" << addCrc("00")
+                 << "," << addCrc("0100FFE80311111111")
+                 << "," << addCrc("0200FFE80322222222")
+                 << "," << addCrc("0300FF020001")
+                 << "\n";
+        CHECK(out.str() == expected.str());
+    }
+
+    WHEN("A connection sends a noop command, it receives a reply.")
+    {
+        in << "00"; // list all objects
+        in << crc(in.str()) << "\n";
+        box.hexCommunicate();
+
+        expected << addCrc("00")
+                 << "|" << addCrc("00")
+                 << "\n";
+        CHECK(out.str() == expected.str());
+    }
+
+    WHEN("A connection sends an invalid command, it receives a reply with error code invalid command.")
+    {
+        in << "99";
+        in << crc(in.str()) << "\n";
+        box.hexCommunicate();
+
+        expected << addCrc("99")
+                 << "|" << addCrc("3F")
+                 << "\n";
         CHECK(out.str() == expected.str());
     }
 
@@ -160,7 +194,11 @@ SCENARIO("A controlbox Box")
 
         // commands are sent out LSB first
         expected << addCrc("03000000E80344444444") << "|" // command repetition
-                 << addCrc("006400000100E803")            // result is inactive object of type 1000 (E803)
+                 << addCrc("00"                           // status OK
+                           "6400"                         // id 100
+                           "0001"                         // type InactiveObject
+                           "00"                           // profiles 0x00
+                           "E803")                        // actual type 1000
                  << "\n";
 
         CHECK(out.str() == expected.str());
@@ -188,9 +226,61 @@ SCENARIO("A controlbox Box")
                                + addCrc("6400"       // id
                                         "00"         // stored profiles
                                         "E803"       // stored type
-                                        "44444444")) // stored settings
+                                        "44444444")) // stored data
                      << "\n";
             CHECK(out.str() == expected.str());
+        }
+
+        THEN("The object can still be written as the original object type, but the reply still contains an inactive object")
+        {
+            in.str("");
+            in.clear();
+            out.str("");
+            out.clear();
+            expected.str("");
+            expected.clear();
+
+            in << "02"        // write object
+               << "6400"      // id 100
+               << "00"        // active in no profiles
+               << "E803"      // typeid 1000
+               << "14141414"; // value
+            in << crc(in.str()) << "\n";
+            box.hexCommunicate();
+
+            // commands are sent out LSB first
+            expected << addCrc("02640000E80314141414") << "|" // command repetition
+                     << addCrc("00"                           // status OK
+                               "6400"                         // id 100
+                               "0001"                         // type InactiveObject
+                               "00"                           // profiles 0x00
+                               "E803")                        // actual type 1000
+                     << "\n";
+
+            CHECK(out.str() == expected.str());
+
+            AND_THEN("But the stored data will be updated")
+            {
+                in.str("");
+                in.clear();
+                out.str("");
+                out.clear();
+                expected.str("");
+                expected.clear();
+
+                in << "066400"; // read stored object 100
+                in << crc(in.str()) << "\n";
+                box.hexCommunicate();
+
+                expected << addCrc("066400") << "|"
+                         << addCrc("00"                  // status
+                                   + addCrc("6400"       // id
+                                            "00"         // stored profiles
+                                            "E803"       // stored type
+                                            "14141414")) // stored data
+                         << "\n";
+                CHECK(out.str() == expected.str());
+            }
         }
     }
 
