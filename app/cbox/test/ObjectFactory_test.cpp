@@ -17,25 +17,27 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "catch.hpp"
-#include "ResolveType.h"
 #include "Object.h"
-#include "Container.h"
 #include "ObjectFactory.h"
+#include "ResolveType.h"
+#include "catch.hpp"
+
+#include "ObjectContainer.h"
 #include "TestObjects.h"
 
 using namespace cbox;
 
-SCENARIO("An object can be created by an ObjectFactory by resolving the type id"){
+SCENARIO("An object can be created by an ObjectFactory by resolving the type id")
+{
     ObjectFactory factory = {
         OBJECT_FACTORY_ENTRY(LongIntObject),
-        OBJECT_FACTORY_ENTRY(LongIntVectorObject)
-    };
+        OBJECT_FACTORY_ENTRY(LongIntVectorObject)};
 
     const obj_type_t longIntType = resolveTypeId<LongIntObject>();
     const obj_type_t longIntVectorType = resolveTypeId<LongIntVectorObject>();
 
-    WHEN("The factory is given a valid type ID, the object with type ID is created"){
+    WHEN("The factory is given a valid type ID, the object with type ID is created")
+    {
         std::unique_ptr<Object> obj1;
         auto status1 = factory.make(longIntType, obj1);
         CHECK(status1 == CboxError::OK);
@@ -47,7 +49,8 @@ SCENARIO("An object can be created by an ObjectFactory by resolving the type id"
         CHECK(obj2->typeId() == longIntVectorType);
     }
 
-    WHEN("The factory is given an invalid type ID, nullptr is returned with status object_not_creatable"){
+    WHEN("The factory is given an invalid type ID, nullptr is returned with status object_not_creatable")
+    {
         std::unique_ptr<Object> obj;
         auto status = factory.make(9999, obj);
         CHECK(status == CboxError::OBJECT_NOT_CREATABLE);

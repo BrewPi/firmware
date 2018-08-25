@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Container.h"
 #include "Object.h"
+#include "ObjectContainer.h"
 #include <stdint.h>
 
 namespace cbox {

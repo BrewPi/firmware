@@ -17,9 +17,9 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Container.h"
 #include "DataStreamConverters.h"
 #include "Object.h"
+#include "ObjectContainer.h"
 #include "ResolveType.h"
 #include "TestMatchers.hpp"
 #include "TestObjects.h"

@@ -21,10 +21,10 @@
 #include "CboxError.h"
 #include "Connections.h"
 #include "ContainedObject.h"
-#include "Container.h"
 #include "DataStream.h"
 #include "DataStreamConverters.h"
 #include "Object.h"
+#include "ObjectContainer.h"
 #include "ObjectStorage.h"
 #include "ResolveType.h"
 #include <memory>
