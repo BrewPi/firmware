@@ -189,6 +189,13 @@ public:
     {
         objects.erase(userbegin(), cend());
     }
+
+    void update(uint32_t now)
+    {
+        for (auto& cobj : objects) {
+            cobj.update(now);
+        }
+    }
 };
 
 } // end namespace cbox

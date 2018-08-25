@@ -33,12 +33,14 @@ public:
     explicit ContainedObject(obj_id_t id, uint8_t profiles, std::shared_ptr<Object> obj)
         : _id(std::move(id))
         , _profiles(std::move(profiles))
-        , _obj(std::move(obj)){};
+        , _obj(std::move(obj))
+        , _nextUpdateTime(0){};
 
 private:
-    obj_id_t _id;
+    obj_id_t _id;                 // unique id of object
     uint8_t _profiles;            // active in these profiles
     std::shared_ptr<Object> _obj; // pointer to runtime object
+    uint32_t _nextUpdateTime;     // next time update should be called on _obj
 
 public:
     const obj_id_t& id() const
@@ -60,6 +62,13 @@ public:
     {
         obj_type_t oldType = _obj->typeId();
         _obj = std::make_shared<InactiveObject>(oldType);
+    }
+
+    void update(uint32_t now)
+    {
+        if (now >= _nextUpdateTime) {
+            _nextUpdateTime = _obj->update(now);
+        }
     }
 
     CboxError streamTo(DataOut& out) const
