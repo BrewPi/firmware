@@ -24,6 +24,7 @@
 #include "Object.h"
 #include <array>
 #include <memory>
+#include <vector>
 
 namespace cbox {
 
