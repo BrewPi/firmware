@@ -405,7 +405,6 @@ Box::reboot(DataIn& in, HexCrcDataOut& out)
     }
 
     out.write(asUint8(CboxError::OK));
-    out.flush();
 
     ::handleReset(true);
 }
@@ -426,7 +425,6 @@ Box::factoryReset(DataIn& in, HexCrcDataOut& out)
     storage.clear();
 
     out.write(asUint8(CboxError::OK));
-    out.flush();
 
     ::handleReset(true);
 }

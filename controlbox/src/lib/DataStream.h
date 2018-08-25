@@ -41,7 +41,6 @@ public:
 	 * @return {@code true} if the byte was successfully written, false otherwise.
 	 */
     virtual bool write(uint8_t data) = 0;
-    virtual void flush() = 0;
 
     bool write(int8_t data) { return write(uint8_t(data)); }
     bool write(char data) { return write(uint8_t(data)); }
@@ -149,8 +148,6 @@ public:
     {
         return buffer;
     }
-
-    virtual void flush() override final{};
 };
 
 /**
@@ -161,7 +158,6 @@ public:
     BlackholeDataOut() = default;
     virtual ~BlackholeDataOut() = default;
     virtual bool write(uint8_t data) override final { return true; }
-    virtual void flush() override final {}
 };
 
 /**
@@ -185,8 +181,6 @@ public:
     {
         return counted;
     }
-
-    virtual void flush() override final{};
 };
 
 /**
@@ -345,12 +339,6 @@ public:
         return res1 || res2;
     }
 
-    virtual void flush() override final
-    {
-        out1.flush();
-        out2.flush();
-    };
-
 private:
     DataOut& out1;
     DataOut& out2;
@@ -453,10 +441,6 @@ public:
     {
         return len;
     }
-    virtual void flush() override final
-    {
-        out->flush();
-    }
 };
 
 // copied from OneWire class. Should be refactored to only define this one
@@ -518,7 +502,6 @@ public:
         crcValue = 0;
         out.writeListSeparator();
     };
-    virtual void flush() override final { out.flush(); };
 
     uint8_t crc()
     {
@@ -556,8 +539,6 @@ public:
     {
         return out.write(crcValue + 1);
     }
-
-    virtual void flush() override final { out.flush(); };
 
     uint8_t crc()
     {

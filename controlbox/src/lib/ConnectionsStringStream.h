@@ -81,8 +81,6 @@ public:
     {
     }
 
-    virtual void flush() override final{};
-
     virtual bool write(uint8_t data) override final
     {
         out.put(char(data));

@@ -19,32 +19,32 @@
 
 #include "Platform.h"
 
-#include "Object.h"
-#include "Container.h"
 #include "Box.h"
-#include "ObjectFactory.h"
 #include "Connections.h"
 #include "ConnectionsTcp.h"
+#include "Container.h"
+#include "Object.h"
+#include "ObjectFactory.h"
 
 #include "blox/OneWireTempSensorBlock.h"
 //#include "blox/PidBlock.h"
+#include "EepromObjectStorage.h"
+#include "blox/OneWireBusBlock.h"
 #include "blox/SensorSetPointPairBlock.h"
 #include "blox/SetPointSimpleBlock.h"
-#include "blox/OneWireBusBlock.h"
 #include "theOneWire.h"
-#include "EepromObjectStorage.h"
 #include <memory>
 
-#include "blox/TicksBlock.h"
-#include "TicksWiring.h"
 #include "SysInfoBlock.h"
+#include "TicksWiring.h"
+#include "blox/TicksBlock.h"
 #include "theOneWire.h"
 
 namespace cbox {
-void connectionStarted(DataOut& out)
+void
+connectionStarted(DataOut& out)
 {
-//    out.writeAnnotation("Connected to BrewBlox v0.1.0");
-    out.flush();
+    //    out.writeAnnotation("Connected to BrewBlox v0.1.0");
 }
 }
 
@@ -53,18 +53,19 @@ class SensorSetPointPairBlock;
 using TicksClass = Ticks<TicksWiring>;
 TicksClass ticks;
 
-cbox::Box & makeTheBox(){
+cbox::Box&
+makeTheBox()
+{
     static cbox::ObjectContainer objects = {
-            cbox::ContainedObject(1, 0xFF, std::make_shared<SysInfoBlock>()),
-            cbox::ContainedObject(2, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
-            cbox::ContainedObject(3, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire()))
-    };
+        cbox::ContainedObject(1, 0xFF, std::make_shared<SysInfoBlock>()),
+        cbox::ContainedObject(2, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
+        cbox::ContainedObject(3, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire()))};
 
     static cbox::ObjectFactory objectFactory = {
-            OBJECT_FACTORY_ENTRY(OneWireTempSensorBlock),
-            OBJECT_FACTORY_ENTRY(SetPointSimpleBlock),
-            OBJECT_FACTORY_ENTRY(SensorSetPointPairBlock)
-            //OBJECT_FACTORY_ENTRY(PidBlock)
+        OBJECT_FACTORY_ENTRY(OneWireTempSensorBlock),
+        OBJECT_FACTORY_ENTRY(SetPointSimpleBlock),
+        OBJECT_FACTORY_ENTRY(SensorSetPointPairBlock)
+        //OBJECT_FACTORY_ENTRY(PidBlock)
     };
 
     static EepromAccess eeprom;
@@ -78,13 +79,16 @@ cbox::Box & makeTheBox(){
     return box;
 }
 
-cbox::Box & brewbloxBox(){
-    static cbox::Box & box = makeTheBox();
+cbox::Box&
+brewbloxBox()
+{
+    static cbox::Box& box = makeTheBox();
     return box;
 }
 
-
-OneWire& theOneWire(){
+OneWire&
+theOneWire()
+{
     static OneWire ow(0);
     return ow;
 }

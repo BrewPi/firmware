@@ -120,11 +120,6 @@ public:
     {
         return stream.write((const uint8_t*)data, length) == length;
     }
-
-    void flush() override final
-    {
-        stream.flush();
-    }
 };
 
 template <typename T>

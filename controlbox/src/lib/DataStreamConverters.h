@@ -219,8 +219,6 @@ public:
     {
         out.write('\n');
     }
-
-    virtual void flush() override final { out.flush(); };
 };
 
 // helper function for testing. Appends the CRC to a hex string, the same way CrcDataOut would do

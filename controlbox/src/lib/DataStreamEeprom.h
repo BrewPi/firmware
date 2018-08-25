@@ -74,8 +74,6 @@ public:
         }
         return false;
     }
-
-    virtual void flush() override final{};
 };
 
 /**
