@@ -153,12 +153,12 @@ public:
     CboxError remove(obj_id_t id)
     {
         if (id < startId) {
-            return CboxError::object_not_deletable; // refuse to remove system objects
+            return CboxError::OBJECT_NOT_DELETABLE; // refuse to remove system objects
         }
         // find existing object
         auto p = findPosition(id);
         objects.erase(p.first, p.second); // doesn't remove anything if no objects found (first == second)
-        return p.first == p.second ? CboxError::invalid_object_id : CboxError::no_error;
+        return p.first == p.second ? CboxError::INVALID_OBJECT_ID : CboxError::OK;
     }
 
     // only const iterators are exposed. We don't want the caller to be able to modify the container

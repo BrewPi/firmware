@@ -115,19 +115,19 @@ public:
     {
         uint8_t newProfiles;
         if (!dataIn.get(newProfiles)) {
-            return CboxError::input_stream_read_error;
+            return CboxError::INPUT_STREAM_READ_ERROR;
         }
         myBox->setActiveProfilesAndUpdateObjects(newProfiles);
-        return CboxError::no_error;
+        return CboxError::OK;
     }
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
         uint8_t profiles = myBox->getActiveProfiles();
         if (!out.put(profiles)) {
-            return CboxError::output_stream_write_error;
+            return CboxError::OUTPUT_STREAM_WRITE_ERROR;
         }
-        return CboxError::no_error;
+        return CboxError::OK;
     }
 
     virtual cbox::obj_type_t typeId() const override final

@@ -64,7 +64,7 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
 
             THEN("Return value is success")
             {
-                CHECK(res == CboxError::no_error);
+                CHECK(res == CboxError::OK);
             }
 
             THEN("Free space has decreased by 16 bytes "
@@ -77,7 +77,7 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
             {
                 LongIntObject target(0xFFFFFFFF);
                 auto res = retreiveObjectFromStorage(obj_id_t(1), target);
-                CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
+                CHECK(uint8_t(res) == uint8_t(CboxError::OK));
                 CHECK(uint32_t(obj) == uint32_t(target));
             }
 
@@ -85,11 +85,11 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
             {
                 obj = 0xAAAAAAAA;
                 auto res = saveObjectToStorage(obj_id_t(1), obj);
-                CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
+                CHECK(uint8_t(res) == uint8_t(CboxError::OK));
 
                 LongIntObject received(0xFFFFFFFF);
                 res = retreiveObjectFromStorage(obj_id_t(1), received);
-                CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
+                CHECK(uint8_t(res) == uint8_t(CboxError::OK));
                 CHECK(uint32_t(obj) == uint32_t(received));
             }
 
@@ -110,7 +110,7 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
                 {
                     LongIntObject received(0xFFFFFFFF);
                     auto res = retreiveObjectFromStorage(obj_id_t(1), received);
-                    CHECK(uint8_t(res) == uint8_t(CboxError::persisted_object_not_found));
+                    CHECK(uint8_t(res) == uint8_t(CboxError::PERSISTED_OBJECT_NOT_FOUND));
                     CHECK(0xFFFFFFFF == uint32_t(received)); // received is unchanged
                 }
                 THEN("The id can be re-used to store another object")
@@ -120,14 +120,14 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
 
                     THEN("Return value is success")
                     {
-                        CHECK(res == CboxError::no_error);
+                        CHECK(res == CboxError::OK);
                     }
 
                     AND_THEN("The id returns the new object's data")
                     {
                         LongIntObject received(0xFFFFFFFF);
                         auto res = retreiveObjectFromStorage(obj_id_t(1), received);
-                        CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
+                        CHECK(uint8_t(res) == uint8_t(CboxError::OK));
                         CHECK(uint32_t(0xAAAAAAAA) == uint32_t(received));
                     }
                 }
@@ -144,14 +144,14 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
             auto res = saveObjectToStorage(obj_id_t(1), obj);
             THEN("Return value is success")
             {
-                CHECK(res == CboxError::no_error);
+                CHECK(res == CboxError::OK);
             }
 
             THEN("The data can be streamed back from EEPROM")
             {
                 LongIntVectorObject target;
                 auto res = retreiveObjectFromStorage(obj_id_t(1), target);
-                CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
+                CHECK(uint8_t(res) == uint8_t(CboxError::OK));
                 CHECK(obj == target);
             }
 
@@ -159,11 +159,11 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
             {
                 obj = {0x22222222, 0x33333333};
                 auto res = saveObjectToStorage(obj_id_t(1), obj);
-                CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
+                CHECK(uint8_t(res) == uint8_t(CboxError::OK));
 
                 LongIntVectorObject received;
                 res = retreiveObjectFromStorage(obj_id_t(1), received);
-                CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
+                CHECK(uint8_t(res) == uint8_t(CboxError::OK));
                 CHECK(obj == received);
             }
 
@@ -171,11 +171,11 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
             {
                 obj = {0x22222222, 0x33333333, 0x44444444};
                 auto res = saveObjectToStorage(obj_id_t(1), obj);
-                CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
+                CHECK(uint8_t(res) == uint8_t(CboxError::OK));
 
                 LongIntVectorObject received;
                 res = retreiveObjectFromStorage(obj_id_t(1), received);
-                CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
+                CHECK(uint8_t(res) == uint8_t(CboxError::OK));
                 CHECK(obj == received);
             }
 
@@ -183,11 +183,11 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
             {
                 obj = {0x22222222, 0x33333333, 0x44444444, 0x55555555, 0x66666666, 0x77777777};
                 auto res = saveObjectToStorage(obj_id_t(1), obj);
-                CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
+                CHECK(uint8_t(res) == uint8_t(CboxError::OK));
 
                 LongIntVectorObject received;
                 res = retreiveObjectFromStorage(obj_id_t(1), received);
-                CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
+                CHECK(uint8_t(res) == uint8_t(CboxError::OK));
                 CHECK(obj == received);
             }
 
@@ -195,11 +195,11 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
             {
                 obj = {0x22222222};
                 auto res = saveObjectToStorage(obj_id_t(1), obj);
-                CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
+                CHECK(uint8_t(res) == uint8_t(CboxError::OK));
 
                 LongIntVectorObject received;
                 res = retreiveObjectFromStorage(obj_id_t(1), received);
-                CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
+                CHECK(uint8_t(res) == uint8_t(CboxError::OK));
                 CHECK(obj == received);
             }
 
@@ -207,11 +207,11 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
             {
                 obj = {};
                 auto res = saveObjectToStorage(obj_id_t(1), obj);
-                CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
+                CHECK(uint8_t(res) == uint8_t(CboxError::OK));
 
                 LongIntVectorObject received;
                 res = retreiveObjectFromStorage(obj_id_t(1), received);
-                CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
+                CHECK(uint8_t(res) == uint8_t(CboxError::OK));
                 CHECK(obj == received);
             }
 
@@ -227,7 +227,7 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
                 {
                     LongIntVectorObject received;
                     auto res = retreiveObjectFromStorage(obj_id_t(1), received);
-                    CHECK(uint8_t(res) == uint8_t(CboxError::persisted_object_not_found));
+                    CHECK(uint8_t(res) == uint8_t(CboxError::PERSISTED_OBJECT_NOT_FOUND));
                 }
                 THEN("The id can be re-used, for a different object type")
                 {
@@ -236,14 +236,14 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
 
                     THEN("Return value is success")
                     {
-                        CHECK(res == CboxError::no_error);
+                        CHECK(res == CboxError::OK);
                     }
 
                     AND_THEN("The id returns the new object's data")
                     {
                         LongIntObject received(0xFFFFFFFF);
                         auto res = retreiveObjectFromStorage(obj_id_t(1), received);
-                        CHECK(uint8_t(res) == uint8_t(CboxError::no_error));
+                        CHECK(uint8_t(res) == uint8_t(CboxError::OK));
                         CHECK(uint32_t(0xAAAAAAAA) == uint32_t(received));
                     }
                 }
@@ -265,31 +265,31 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
 
         THEN("They are stored successfully")
         {
-            CHECK(res1 == CboxError::no_error);
-            CHECK(res2 == CboxError::no_error);
-            CHECK(res3 == CboxError::no_error);
-            CHECK(res4 == CboxError::no_error);
+            CHECK(res1 == CboxError::OK);
+            CHECK(res2 == CboxError::OK);
+            CHECK(res3 == CboxError::OK);
+            CHECK(res4 == CboxError::OK);
 
             AND_THEN("They can be retrieved successfully")
             {
                 LongIntVectorObject received;
-                CHECK(CboxError::no_error == retreiveObjectFromStorage(obj_id_t(1), received));
+                CHECK(CboxError::OK == retreiveObjectFromStorage(obj_id_t(1), received));
                 CHECK(obj1 == received);
-                CHECK(CboxError::no_error == retreiveObjectFromStorage(obj_id_t(2), received));
+                CHECK(CboxError::OK == retreiveObjectFromStorage(obj_id_t(2), received));
                 CHECK(obj2 == received);
-                CHECK(CboxError::no_error == retreiveObjectFromStorage(obj_id_t(3), received));
+                CHECK(CboxError::OK == retreiveObjectFromStorage(obj_id_t(3), received));
                 CHECK(obj3 == received);
                 LongIntObject received2;
-                CHECK(CboxError::no_error == retreiveObjectFromStorage(obj_id_t(4), received2));
+                CHECK(CboxError::OK == retreiveObjectFromStorage(obj_id_t(4), received2));
                 CHECK(obj4 == received2);
             }
 
             AND_THEN("They can be updated in EEPROM")
             {
                 obj2 = {0x33333333, 0x33333333};
-                CHECK(CboxError::no_error == saveObjectToStorage(obj_id_t(2), obj2));
+                CHECK(CboxError::OK == saveObjectToStorage(obj_id_t(2), obj2));
                 LongIntVectorObject received;
-                CHECK(CboxError::no_error == retreiveObjectFromStorage(obj_id_t(2), received));
+                CHECK(CboxError::OK == retreiveObjectFromStorage(obj_id_t(2), received));
                 CHECK(obj2 == received);
             }
 
@@ -297,13 +297,13 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
             {
                 storage.disposeObject(obj_id_t(2));
                 LongIntVectorObject received;
-                CHECK(CboxError::no_error == retreiveObjectFromStorage(obj_id_t(1), received));
+                CHECK(CboxError::OK == retreiveObjectFromStorage(obj_id_t(1), received));
                 CHECK(obj1 == received);
-                CHECK(CboxError::persisted_object_not_found == retreiveObjectFromStorage(obj_id_t(2), received));
-                CHECK(CboxError::no_error == retreiveObjectFromStorage(obj_id_t(3), received));
+                CHECK(CboxError::PERSISTED_OBJECT_NOT_FOUND == retreiveObjectFromStorage(obj_id_t(2), received));
+                CHECK(CboxError::OK == retreiveObjectFromStorage(obj_id_t(3), received));
                 CHECK(obj3 == received);
                 LongIntObject received2;
-                CHECK(CboxError::no_error == retreiveObjectFromStorage(obj_id_t(4), received2));
+                CHECK(CboxError::OK == retreiveObjectFromStorage(obj_id_t(4), received2));
                 CHECK(obj4 == received2);
             }
         }
@@ -349,7 +349,7 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
             CHECK(originalSpace == 2048 - 32 - 3); // 32 bytes reserved for non-object data. 3 bytes for the block header of a new block
         }
 
-        CboxError res = CboxError::no_error;
+        CboxError res = CboxError::OK;
         obj_id_t id = 1; // first id will be 1, because 0 is an invalid id
         while (true) {
             if (id % 2 == 0) {
@@ -357,7 +357,7 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
             } else {
                 res = saveObjectToStorage(id, big);
             }
-            if (res != CboxError::no_error) {
+            if (res != CboxError::OK) {
                 break;
             }
             ++id;
@@ -376,7 +376,7 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
             uint16_t readSize;
             auto readSizeFetcher = [&readSize](DataIn& in) -> CboxError {
                 readSize = in.available();
-                return CboxError::no_error;
+                return CboxError::OK;
             };
             storage.retrieveObject(1, readSizeFetcher);
             CHECK(readSize == bigSize);
@@ -409,12 +409,12 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
         {
             CboxError res;
             res = retreiveObjectFromStorage(id, big);
-            CHECK(res == CboxError::persisted_object_not_found);
+            CHECK(res == CboxError::PERSISTED_OBJECT_NOT_FOUND);
         }
 
         THEN("But we can still create a small object")
         {
-            CHECK(CboxError::no_error == saveObjectToStorage(id, small));
+            CHECK(CboxError::OK == saveObjectToStorage(id, small));
         }
 
         AND_WHEN("Only the small objects are deleted")
@@ -442,8 +442,8 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
                 auto res2 = saveObjectToStorage(obj_id_t(1001), big);
                 THEN("It succeeds")
                 {
-                    CHECK(res1 == CboxError::no_error);
-                    CHECK(res2 == CboxError::no_error);
+                    CHECK(res1 == CboxError::OK);
+                    CHECK(res2 == CboxError::OK);
                 }
 
                 THEN("Eeprom was defragmented and continuous free space equals free space")
@@ -456,7 +456,7 @@ SCENARIO("Storing and retreiving blocks with EEPROM storage")
                 {
                     for (id = 1; id < 10; id = id + 2) {
                         LongIntVectorObject received;
-                        CHECK(CboxError::no_error == retreiveObjectFromStorage(id, received));
+                        CHECK(CboxError::OK == retreiveObjectFromStorage(id, received));
                         CHECK(received == big);
                     }
                 }

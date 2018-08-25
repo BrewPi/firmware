@@ -31,15 +31,15 @@ public:
     }
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final {
-        cbox::CboxError res = cbox::CboxError::no_error;
+        cbox::CboxError res = cbox::CboxError::OK;
         // first write number of elements as uint16_t
         uint16_t size = values.size();
         if(!out.put(size)){
-            return cbox::CboxError::output_stream_write_error;
+            return cbox::CboxError::OUTPUT_STREAM_WRITE_ERROR;
         }
         for(auto & value : values){
             res = value.streamTo(out);
-            if(res != cbox::CboxError::no_error){
+            if(res != cbox::CboxError::OK){
                 break;
             }
         }
@@ -47,15 +47,15 @@ public:
     }
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final {
-        cbox::CboxError res = cbox::CboxError::no_error;
+        cbox::CboxError res = cbox::CboxError::OK;
         uint16_t newSize = 0;
         if(!in.get(newSize)){
-            return cbox::CboxError::input_stream_read_error;
+            return cbox::CboxError::INPUT_STREAM_READ_ERROR;
         }
         values.resize(newSize);
         for(auto & value : values){
             res = value.streamFrom(in);
-            if(res != cbox::CboxError::no_error){
+            if(res != cbox::CboxError::OK){
                 break;
             }
         }

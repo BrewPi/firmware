@@ -64,13 +64,13 @@ public:
     CboxError streamTo(DataOut& out) const
     {
         if (!out.put(_id)) {
-            return CboxError::output_stream_write_error;
+            return CboxError::OUTPUT_STREAM_WRITE_ERROR;
         }
         if (!out.put(_profiles)) {
-            return CboxError::output_stream_write_error;
+            return CboxError::OUTPUT_STREAM_WRITE_ERROR;
         }
         if (!out.put(_obj->typeId())) {
-            return CboxError::output_stream_write_error;
+            return CboxError::OUTPUT_STREAM_WRITE_ERROR;
         }
         return _obj->streamTo(out);
     }
@@ -82,30 +82,30 @@ public:
         uint8_t newProfiles;
         obj_type_t expectedType;
         if (!in.get(newProfiles)) {
-            return CboxError::input_stream_read_error;
+            return CboxError::INPUT_STREAM_READ_ERROR;
         }
         if (!in.get(expectedType)) {
-            return CboxError::input_stream_read_error;
+            return CboxError::INPUT_STREAM_READ_ERROR;
         }
 
         if (expectedType == _obj->typeId()) {
             _profiles = newProfiles;
             return _obj->streamFrom(in);
         }
-        return CboxError::invalid_object_type;
+        return CboxError::INVALID_OBJECT_TYPE;
     }
 
     CboxError streamPersistedTo(DataOut& out) const
     {
         // id is not streamed out. It is passed to storage separately
         if (_obj->typeId() == resolveTypeId<InactiveObject>()) {
-            return CboxError::no_error; // don't persist inactive objects
+            return CboxError::OK; // don't persist inactive objects
         }
         if (!out.put(_profiles)) {
-            return CboxError::persisted_storage_write_error;
+            return CboxError::PERSISTED_STORAGE_WRITE_ERROR;
         }
         if (!out.put(_obj->typeId())) {
-            return CboxError::persisted_storage_write_error;
+            return CboxError::PERSISTED_STORAGE_WRITE_ERROR;
         }
         return _obj->streamPersistedTo(out);
     }

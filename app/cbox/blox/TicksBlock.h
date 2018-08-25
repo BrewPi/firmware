@@ -40,7 +40,7 @@ public:
 	virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final {
 		blox_Ticks newData;
 		cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_Ticks_fields, blox_Ticks_size);
-		if(result == cbox::CboxError::no_error){
+		if(result == cbox::CboxError::OK){
 			ticks.setNow(newData.secondsSinceEpoch);
 		}
 		return result;

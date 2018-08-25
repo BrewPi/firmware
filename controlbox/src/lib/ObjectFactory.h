@@ -58,14 +58,14 @@ public:
     {
         auto factoryEntry = std::find_if(objTypes.begin(), objTypes.end(), [&t](const ObjectFactoryEntry& entry) { return entry.typeId == t; });
         if (factoryEntry == objTypes.end()) {
-            return CboxError::object_not_creatable;
+            return CboxError::OBJECT_NOT_CREATABLE;
         } else {
             objTarget = (*factoryEntry).createFn();
             if (!objTarget) {
-                return CboxError::insufficient_heap;
+                return CboxError::INSUFFICIENT_HEAP;
             }
         }
-        return CboxError::no_error;
+        return CboxError::OK;
     }
 };
 

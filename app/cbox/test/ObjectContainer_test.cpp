@@ -89,7 +89,7 @@ SCENARIO("A container to hold objects")
 
         THEN("Removing an object that doesn't exist returns invalid_object_id")
         {
-            CHECK(container.remove(obj_id_t(10)) == CboxError::invalid_object_id);
+            CHECK(container.remove(obj_id_t(10)) == CboxError::INVALID_OBJECT_ID);
         }
 
         THEN("A list of all object IDs can be created using the container's const iterators")
@@ -107,14 +107,14 @@ SCENARIO("A container to hold objects")
             char buf[1000] = {0};
             BufferDataOut outBuffer(reinterpret_cast<uint8_t*>(buf), sizeof(buf));
             BinaryToHexTextOut out(outBuffer);
-            CboxError res = CboxError::no_error;
+            CboxError res = CboxError::OK;
 
-            for (auto it = container.cbegin(); it != container.cend() && res == CboxError::no_error; it++) {
+            for (auto it = container.cbegin(); it != container.cend() && res == CboxError::OK; it++) {
                 out.writeListSeparator();
                 res = it->streamTo(out);
             }
 
-            CHECK(res == CboxError::no_error);
+            CHECK(res == CboxError::OK);
 
             INFO(std::string(buf));
         }
@@ -178,14 +178,14 @@ SCENARIO("A container with system objects passed in the initializer list")
 
     THEN("The system objects cannot be deleted, but user objects can be deleted")
     {
-        CHECK(objects.remove(1) == CboxError::object_not_deletable);
+        CHECK(objects.remove(1) == CboxError::OBJECT_NOT_DELETABLE);
         CHECK(objects.fetch(1).lock());
 
-        CHECK(objects.remove(2) == CboxError::object_not_deletable);
+        CHECK(objects.remove(2) == CboxError::OBJECT_NOT_DELETABLE);
         CHECK(objects.fetch(2).lock());
 
         CHECK(objects.fetch(3).lock());
-        CHECK(objects.remove(3) == CboxError::no_error);
+        CHECK(objects.remove(3) == CboxError::OK);
         CHECK(!objects.fetch(3).lock());
     }
 
@@ -199,10 +199,10 @@ SCENARIO("A container with system objects passed in the initializer list")
     {
         objects.setObjectsStartId(100); // all objects with id  < 100 will now be system objects
 
-        CHECK(objects.remove(1) == CboxError::object_not_deletable);
-        CHECK(objects.remove(2) == CboxError::object_not_deletable);
-        CHECK(objects.remove(3) == CboxError::object_not_deletable);
-        CHECK(objects.remove(4) == CboxError::object_not_deletable);
+        CHECK(objects.remove(1) == CboxError::OBJECT_NOT_DELETABLE);
+        CHECK(objects.remove(2) == CboxError::OBJECT_NOT_DELETABLE);
+        CHECK(objects.remove(3) == CboxError::OBJECT_NOT_DELETABLE);
+        CHECK(objects.remove(4) == CboxError::OBJECT_NOT_DELETABLE);
 
         CHECK(obj_id_t(100) == objects.add(std::make_unique<LongIntObject>(0x33333333), 0xFF)); // will get start ID (100)
     }

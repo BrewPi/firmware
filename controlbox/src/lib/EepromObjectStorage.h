@@ -82,15 +82,15 @@ public:
             CboxError res = handler(crcOut);
 
             bool crcWritten;
-            if (res == CboxError::no_error) {
+            if (res == CboxError::OK) {
                 crcWritten = crcOut.writeCrc(); // write CRC after object data so we can check integrity
             } else {
                 crcWritten = crcOut.writeInvalidCrc(); // write invalid CRC so object data will not be used on next read
             }
             if (!crcWritten) {
-                return CboxError::persisted_storage_write_error;
+                return CboxError::PERSISTED_STORAGE_WRITE_ERROR;
             }
-            return CboxError::no_error;
+            return CboxError::OK;
         };
 
         CboxError res = writeWithCrc();
@@ -111,7 +111,7 @@ public:
             if (objectEepromData.availableForWrite() < requestedSize) {
                 // not enough continuous free space
                 if (freeSpace() < requestedSize + (objectHeaderLength() - blockHeaderLength())) {
-                    return CboxError::insufficient_persistent_storage; // not even enough total free space
+                    return CboxError::INSUFFICIENT_PERSISTENT_STORAGE; // not even enough total free space
                 }
 
                 // if there is enough free space, but it is not continuous, do a defrag to and try again
@@ -119,7 +119,7 @@ public:
                 objectEepromData = newObjectWriter(id, requestedSize);
                 dataLocation = writer.offset();
                 if (objectEepromData.availableForWrite() < requestedSize) {
-                    return CboxError::insufficient_persistent_storage; // still not enough free space
+                    return CboxError::INSUFFICIENT_PERSISTENT_STORAGE; // still not enough free space
                 }
             }
 
@@ -146,7 +146,7 @@ public:
     {
         RegionDataIn objectEepromData = getObjectReader(id, true);
         if (objectEepromData.available() == 0) {
-            return cbox::CboxError::persisted_object_not_found;
+            return cbox::CboxError::PERSISTED_OBJECT_NOT_FOUND;
         }
         return handler(objectEepromData);
     }
@@ -166,7 +166,7 @@ public:
             // loop over all blocks and write objects to output stream
             uint16_t blockSize = 0;
             if (!reader.get(blockSize)) {
-                return CboxError::could_not_read_persisted_block_size;
+                return CboxError::COULD_NOT_READ_PERSISTED_BLOCK_SIZE;
             }
 
             switch (type) {
@@ -177,11 +177,11 @@ public:
                     // first 2 bytes of block are actual data size. Limit reading to this region
                     uint16_t actualSize;
                     if (!blockData.get(actualSize)) {
-                        return CboxError::persisted_block_stream_error;
+                        return CboxError::PERSISTED_BLOCK_STREAM_ERROR;
                     }
                     storage_id_t id;
                     if (!blockData.get(id)) {
-                        return CboxError::persisted_block_stream_error;
+                        return CboxError::PERSISTED_BLOCK_STREAM_ERROR;
                     }
 
                     auto objectData = RegionDataIn(blockData, actualSize);
@@ -189,22 +189,22 @@ public:
                 };
 
                 auto result = handleBlock();
-                if (result != CboxError::no_error) {
+                if (result != CboxError::OK) {
                     // log event. Do not return, because we do want to handle the next block
                 }
                 blockData.spool();
             } break;
             case static_cast<uint8_t>(BlockType::disposed_block):
                 if (!reader.skip(blockSize)) {
-                    return CboxError::persisted_block_stream_error;
+                    return CboxError::PERSISTED_BLOCK_STREAM_ERROR;
                 }
                 break;
             default:
-                return CboxError::invalid_persisted_block_type; // unknown block type encountered!
+                return CboxError::INVALID_PERSISTED_BLOCK_TYPE; // unknown block type encountered!
                 break;
             }
         }
-        return CboxError::no_error;
+        return CboxError::OK;
     }
 
     virtual bool disposeObject(const storage_id_t& id) override final

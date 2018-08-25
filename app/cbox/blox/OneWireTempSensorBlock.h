@@ -18,7 +18,7 @@ public:
         blox_OneWireTempSensor newData;
         cbox::CboxError res = streamProtoFrom(in, &newData, blox_OneWireTempSensor_fields, blox_OneWireTempSensor_size);
         /* if no errors occur, write new settings to wrapped object */
-        if(res == cbox::CboxError::no_error){
+        if(res == cbox::CboxError::OK){
         	sensor.setAddress(newData.address);
         	sensor.setCalibration(temp_t::raw(newData.offset));
         }

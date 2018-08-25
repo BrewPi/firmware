@@ -42,7 +42,7 @@ SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf 
 
             BufferDataOut tempOut(buf, sizeof(buf));
             CboxError res = streamProtoTo(tempOut, &message, blox_OneWireTempSensor_fields, sizeof(buf));
-            CHECK(res == CboxError::no_error);
+            CHECK(res == CboxError::OK);
 
             AND_WHEN("we create a DataIn object form that buffer"){
                 BufferDataIn in(buf, sizeof(buf));
@@ -64,7 +64,7 @@ SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf 
                         blox_OneWireTempSensor received;
                         auto res = streamProtoFrom(in, &received, blox_OneWireTempSensor_fields, sizeof(buf2));
 
-                        CHECK(res == CboxError::no_error);
+                        CHECK(res == CboxError::OK);
                         CHECK(received.address == message.address);
                         CHECK(received.offset == message.offset);
                         CHECK(received.value == temp_t::invalid().getRaw());

@@ -96,7 +96,7 @@ public:
 
         cbox::CboxError res = streamProtoFrom(dataIn, &message, blox_OneWireBus_fields, SIZE_MAX);
         /* if no errors occur, write new settings to wrapped object */
-        if(res == cbox::CboxError::no_error){
+        if(res == cbox::CboxError::OK){
             command = message.command;
         }
         return res;

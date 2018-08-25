@@ -16,7 +16,7 @@ public:
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final {
         blox_SetPointSimple newData;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_SetPointSimple_fields, blox_SetPointSimple_size);
-        if(result == cbox::CboxError::no_error){
+        if(result == cbox::CboxError::OK){
             setpoint.write(temp_t::raw(newData.setting));
         }
         return result;

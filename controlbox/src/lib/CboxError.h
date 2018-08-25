@@ -23,40 +23,40 @@
 namespace cbox {
 
 enum class CboxError : uint8_t {
-    no_error = 0,
-    unknown_error = 1,
+    OK = 0,
+    UNKNOWN_ERROR = 1,
 
     // object creation
-    insufficient_heap = 4,
+    INSUFFICIENT_HEAP = 4,
 
     // generic stream errors
-    stream_error_unspecified = 8,
-    output_stream_write_error = 9,
-    input_stream_read_error = 10,
-    input_stream_decoding_error = 11,
-    output_stream_encoding_error = 12,
+    STREAM_ERROR_UNSPECIFIED = 8,
+    OUTPUT_STREAM_WRITE_ERROR = 9,
+    INPUT_STREAM_READ_ERROR = 10,
+    INPUT_STREAM_DECODING_ERROR = 11,
+    OUTPUT_STREAM_ENCODING_ERROR = 12,
 
     // storage errors
-    insufficient_persistent_storage = 16,
-    persisted_object_not_found = 17,
-    invalid_persisted_block_type = 18,
-    could_not_read_persisted_block_size = 19,
-    persisted_block_stream_error = 20,
-    persisted_storage_write_error = 21,
-    crc_error_in_stored_object = 22,
+    INSUFFICIENT_PERSISTENT_STORAGE = 16,
+    PERSISTED_OBJECT_NOT_FOUND = 17,
+    INVALID_PERSISTED_BLOCK_TYPE = 18,
+    COULD_NOT_READ_PERSISTED_BLOCK_SIZE = 19,
+    PERSISTED_BLOCK_STREAM_ERROR = 20,
+    PERSISTED_STORAGE_WRITE_ERROR = 21,
+    CRC_ERROR_IN_STORED_OBJECT = 22,
 
     // invalid actions
-    object_not_writable = 32,
-    object_not_readable = 33,
-    object_not_creatable = 34,
-    object_not_deletable = 35,
+    OBJECT_NOT_WRITABLE = 32,
+    OBJECT_NOT_READABLE = 33,
+    OBJECT_NOT_CREATABLE = 34,
+    OBJECT_NOT_DELETABLE = 35,
 
     // invalid parameters
-    invalid_command = 63,
-    invalid_object_id = 65,
-    invalid_object_type = 66,
-    invalid_object_profiles = 68,
-    crc_error_in_command = 69,
+    INVALID_COMMAND = 63,
+    INVALID_OBJECT_ID = 64,
+    INVALID_OBJECT_TYPE = 65,
+    INVALID_OBJECT_PROFILES = 66,
+    CRC_ERROR_IN_COMMAND = 67,
 };
 
 inline uint8_t

@@ -65,7 +65,7 @@ SCENARIO("A Blox OneWireBus can stream a variable number of found addresses"){
             BufferDataOut tempOut(inbuf, sizeof(inbuf));
 
             CboxError res = streamProtoTo(tempOut, &message, blox_OneWireBus_fields, sizeof(inbuf));
-            CHECK(res == CboxError::no_error);
+            CHECK(res == CboxError::OK);
 
             BufferDataIn in(inbuf, sizeof(inbuf));
 

@@ -135,7 +135,7 @@ public:
      */
     virtual CboxError streamFrom(DataIn& in)
     {
-        return CboxError::object_not_writable;
+        return CboxError::OBJECT_NOT_WRITABLE;
     };
 
     /**
@@ -161,12 +161,12 @@ public:
     virtual CboxError streamTo(DataOut& out) const override final
     {
         out.put(actualType);
-        return CboxError::no_error;
+        return CboxError::OK;
     }
 
     virtual CboxError streamPersistedTo(DataOut& out) const override final
     {
-        return CboxError::no_error; // inactive objects are never persisted
+        return CboxError::OK; // inactive objects are never persisted
     }
 
     obj_type_t actualTypeId()
@@ -192,9 +192,9 @@ public:
     virtual CboxError streamTo(DataOut& out) const override final
     {
         if (out.put(obj)) {
-            return CboxError::no_error;
+            return CboxError::OK;
         }
-        return CboxError::output_stream_write_error;
+        return CboxError::OUTPUT_STREAM_WRITE_ERROR;
     }
 
     operator T()
@@ -222,9 +222,9 @@ public:
         T newValue;
         if (in.get(newValue)) {
             this->obj = newValue;
-            return CboxError::no_error;
+            return CboxError::OK;
         }
-        return CboxError::input_stream_read_error;
+        return CboxError::INPUT_STREAM_READ_ERROR;
     }
     virtual CboxError streamPersistedTo(DataOut& out) const override final
     {

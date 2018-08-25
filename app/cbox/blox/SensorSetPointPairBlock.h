@@ -27,7 +27,7 @@ public:
         blox_SensorSetPointPair newData;
         cbox::CboxError res = streamProtoFrom(in, &newData, blox_SensorSetPointPair_fields, blox_SensorSetPointPair_size);
         /* if no errors occur, write new settings to wrapped object */
-        if(res == cbox::CboxError::no_error){
+        if(res == cbox::CboxError::OK){
             sensorLookup.set(newData.sensor);
             setpointLookup.set(newData.setpoint);
         }
