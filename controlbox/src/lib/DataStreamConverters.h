@@ -36,6 +36,7 @@ namespace cbox {
  * the stream blocks for each character until the entire line is read.
  */
 
+#if 0 // unused currently. Comments in input not supported.
 class TextIn : public DataIn {
     DataIn* _in;
     uint8_t data;
@@ -84,6 +85,7 @@ public:
         return commentLevel < 0;
     }
 };
+#endif
 
 inline bool
 isdigit(char c)

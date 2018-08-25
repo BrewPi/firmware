@@ -28,6 +28,7 @@ namespace cbox {
  * @param set to true if more data is optional, true if data is expected and should be waited for.
  */
 
+#if 0 // currently not used
 void
 TextIn::fetchNextData(bool optional)
 {
@@ -52,6 +53,7 @@ TextIn::fetchNextData(bool optional)
         }
     }
 }
+#endif
 
 uint8_t
 blockingRead(DataIn& in, uint8_t closed)
