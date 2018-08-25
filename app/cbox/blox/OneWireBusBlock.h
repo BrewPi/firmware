@@ -1,14 +1,15 @@
 #pragma once
 
 #include "Block.h"
-#include "OneWire.h"
 #include "Board.h"
+#include "Object.h"
+#include "OneWire.h"
+#include "OneWireAddress.h"
 #include "OneWireBus.pb.h"
 #include "nanopb_callbacks.h"
-#include "Object.h"
-#include "OneWireAddress.h"
+#include <limits.h>
 
-class OneWireBusBlock: public cbox::Object { // not a block type, because it doesn't need to implement Interface*
+class OneWireBusBlock : public cbox::Object { // not a block type, because it doesn't need to implement Interface*
 private:
     OneWire& bus;
 
@@ -19,20 +20,20 @@ private:
     static const uint8_t SEARCH = 2; // pass family as data, 00 for all
 
 protected:
-
     // stream result of a bus search, with arg pointing to the onewire bus
-    static bool streamAdresses(pb_ostream_t *stream, const pb_field_t *field, void * const *arg){
+    static bool streamAdresses(pb_ostream_t* stream, const pb_field_t* field, void* const* arg)
+    {
         OneWireAddress address;
-        OneWire * busPtr = (OneWire *) *arg;
-        if(busPtr == nullptr){
+        OneWire* busPtr = (OneWire*)*arg;
+        if (busPtr == nullptr) {
             return false;
         }
         while (busPtr->search(address.asUint8ptr())) {
-            if(!pb_encode_tag_for_field(stream, field)){
+            if (!pb_encode_tag_for_field(stream, field)) {
                 return false;
             }
             uint64_t addr = uint64_t(address);
-            if(!pb_encode_fixed64(stream, &addr)){
+            if (!pb_encode_fixed64(stream, &addr)) {
                 return false;
             }
         }
@@ -40,7 +41,10 @@ protected:
     }
 
 public:
-    OneWireBusBlock(OneWire & ow) : bus(ow), command({NO_OP, 0}) {
+    OneWireBusBlock(OneWire& ow)
+        : bus(ow)
+        , command({NO_OP, 0})
+    {
         bus.init();
     }
 
@@ -56,29 +60,30 @@ public:
      * - cmd 01: reset bus (00 on success, FF on failure)
      * - cmd 02: search bus: a sequence of 0 or more 8-byte addresses, MSB first that were found on the bus
      */
-    virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final{
+    virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
+    {
         blox_OneWireBus message = {0};
         message.command = command;
         message.address.funcs.encode = nullptr;
         message.address.arg = &bus;
         switch (command.opcode) {
-            case NO_OP:
-                break;
-            case RESET:
-                bus.reset();
-                break;
-            case SEARCH:
-                bus.reset_search();
-                if(command.data){
-                    bus.target_search(command.data);
-                }
-                message.address.funcs.encode = &streamAdresses;
-                break;
+        case NO_OP:
+            break;
+        case RESET:
+            bus.reset();
+            break;
+        case SEARCH:
+            bus.reset_search();
+            if (command.data) {
+                bus.target_search(command.data);
+            }
+            message.address.funcs.encode = &streamAdresses;
+            break;
         }
         // commands are one-shot - once the command is done clear it.
         command.opcode = NO_OP;
         command.data = 0;
-        return streamProtoTo(out, &message, blox_OneWireBus_fields, SIZE_MAX);
+        return streamProtoTo(out, &message, blox_OneWireBus_fields, std::numeric_limits<size_t>::max());
     }
 
     /**
@@ -91,18 +96,31 @@ public:
      *   (later: search bus alarm state?)
      *   (later: set bus power? (off if next byte is 00, on if it's 01) )
      */
-    virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final{
+    virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
+    {
         blox_OneWireBus message;
 
-        cbox::CboxError res = streamProtoFrom(dataIn, &message, blox_OneWireBus_fields, SIZE_MAX);
+        cbox::CboxError res = streamProtoFrom(dataIn, &message, blox_OneWireBus_fields, std::numeric_limits<size_t>::max());
         /* if no errors occur, write new settings to wrapped object */
-        if(res == cbox::CboxError::OK){
+        if (res == cbox::CboxError::OK) {
             command = message.command;
         }
         return res;
     }
 
-    virtual cbox::obj_type_t typeId() const override final {
+    virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
+    {
+        return cbox::CboxError::OK;
+    }
+
+    virtual cbox::update_t update(const cbox::update_t& now) override final
+    {
+        // No updates for now. Alternatively, a periodic bus scan for new devices?
+        return cbox::update_t_max();
+    }
+
+    virtual cbox::obj_type_t typeId() const override final
+    {
         return resolveTypeId(this);
     }
 };

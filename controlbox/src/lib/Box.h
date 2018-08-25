@@ -130,9 +130,19 @@ public:
         return CboxError::OK;
     }
 
+    virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
+    {
+        return streamTo(out);
+    }
+
     virtual cbox::obj_type_t typeId() const override final
     {
         return resolveTypeId(this);
+    }
+
+    virtual update_t update(const update_t& now) override final
+    {
+        return update_t_max();
     }
 };
 

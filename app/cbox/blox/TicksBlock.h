@@ -17,44 +17,56 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #pragma once
 
-#include "Ticks.h"
-#include "Object.h"
-#include "DataStream.h"
-#include "Ticks.pb.h"
 #include "Block.h"
-
+#include "DataStream.h"
+#include "Object.h"
+#include "Ticks.h"
+#include "Ticks.pb.h"
 
 // provides a protobuf interface to the ticks object
-template<typename T>
-class TicksBlock : public cbox::Object
-{
-	T & ticks;
+template <typename T>
+class TicksBlock : public cbox::Object {
+    T& ticks;
 
 public:
-	TicksBlock(T & _ticks) : ticks(_ticks){}
+    TicksBlock(T& _ticks)
+        : ticks(_ticks)
+    {
+    }
 
+    virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
+    {
+        blox_Ticks newData;
+        cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_Ticks_fields, blox_Ticks_size);
+        if (result == cbox::CboxError::OK) {
+            ticks.setNow(newData.secondsSinceEpoch);
+        }
+        return result;
+    }
 
-	virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final {
-		blox_Ticks newData;
-		cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_Ticks_fields, blox_Ticks_size);
-		if(result == cbox::CboxError::OK){
-			ticks.setNow(newData.secondsSinceEpoch);
-		}
-		return result;
-	}
+    virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
+    {
+        blox_Ticks message;
+        message.secondsSinceEpoch = ticks.getNow();
+        message.millisSinceBoot = ticks.millis();
 
-	virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final {
-		blox_Ticks message;
-		message.secondsSinceEpoch = ticks.getNow();
-		message.millisSinceBoot = ticks.millis();
+        return streamProtoTo(out, &message, blox_Ticks_fields, blox_Ticks_size);
+    }
 
-		return streamProtoTo(out, &message, blox_Ticks_fields, blox_Ticks_size);
-	}
+    virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
+    {
+        return cbox::CboxError::OK;
+    }
 
-	virtual cbox::obj_type_t typeId() const override final {
-		return 262;
-	}
+    virtual cbox::update_t update(const cbox::update_t& now) override final
+    {
+        return cbox::update_t_max();
+    }
+
+    virtual cbox::obj_type_t typeId() const override final
+    {
+        return 262;
+    }
 };

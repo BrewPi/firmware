@@ -23,9 +23,18 @@
 #include "CboxMixins.h"
 #include "DataStream.h"
 #include <cstdint>
+#include <limits>
 #include <memory>
 
 namespace cbox {
+
+using update_t = uint32_t;
+
+inline update_t
+update_t_max()
+{
+    return std::numeric_limits<update_t>::max();
+}
 
 class obj_type_t {
 public:
@@ -125,30 +134,25 @@ public:
     virtual obj_type_t typeId() const = 0;
 
     /**
-	 * update the object, returns timestamp at which it wants to be updated again (in ms since boot).
+	 * update the object, returns timestamp at which the object wants to be updated again (in ms).
 	 */
-    virtual uint32_t update(const uint32_t& currentTime) { return 0; };
+    virtual update_t update(const update_t& now) = 0;
 
     /**
-	 * Each object is at least stream readable
+	 * Each object is at least stream readable. StreamTo streams to the given output
 	 */
     virtual CboxError streamTo(DataOut& out) const = 0;
 
     /**
-     * Some objects can be writable from the stream, they override the streamFrom function
+     * An object can (optionally) receive new data from a DataIn stream.
      */
-    virtual CboxError streamFrom(DataIn& in)
-    {
-        return CboxError::OBJECT_NOT_WRITABLE;
-    };
+    virtual CboxError streamFrom(DataIn& in) = 0;
 
     /**
-     * Default to persisting the same data as streamTo. Objects that only want to persist some data can override this
+     * Objects can stream data they want persisted.
+     * The persisted data should be compatible with streamFrom, which is used to re-instantiate the object from the persisted data.
      */
-    virtual CboxError streamPersistedTo(DataOut& out) const
-    {
-        return streamTo(out);
-    }
+    virtual CboxError streamPersistedTo(DataOut& out) const = 0;
 };
 
 /**
@@ -168,9 +172,19 @@ public:
         return CboxError::OK;
     }
 
+    virtual CboxError streamFrom(DataIn& out) override final
+    {
+        return CboxError::WRITE_TO_INACTIVE_OBJECT; // should never occur
+    }
+
     virtual CboxError streamPersistedTo(DataOut& out) const override final
     {
         return CboxError::OK; // inactive objects are never persisted
+    }
+
+    virtual update_t update(const update_t& now) override final
+    {
+        return update_t_max();
     }
 
     obj_type_t actualTypeId()
@@ -201,6 +215,21 @@ public:
         return CboxError::OUTPUT_STREAM_WRITE_ERROR;
     }
 
+    virtual CboxError streamFrom(DataIn& in) override
+    {
+        return CboxError::OBJECT_NOT_WRITABLE;
+    }
+
+    virtual CboxError streamPersistedTo(DataOut& out) const override final
+    {
+        return streamTo(out);
+    }
+
+    virtual update_t update(const update_t& now) override
+    {
+        return update_t_max();
+    }
+
     operator T()
     {
         T copy = obj;
@@ -229,10 +258,6 @@ public:
             return CboxError::OK;
         }
         return CboxError::INPUT_STREAM_READ_ERROR;
-    }
-    virtual CboxError streamPersistedTo(DataOut& out) const override final
-    {
-        return RawStreamObject<T>::streamTo(out);
     }
 };
 
