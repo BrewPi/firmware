@@ -125,7 +125,7 @@ SCENARIO("A controlbox Box")
 
         // commands are sent out LSB first
         // command repetition | 41 invalid_object_id
-        expected << addCrc("040001") << "|" << addCrc("41") << "\n";
+        expected << addCrc("040001") << "|" << addCrc("40") << "\n";
         CHECK(out.str() == expected.str());
     }
 
