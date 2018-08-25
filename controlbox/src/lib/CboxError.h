@@ -43,6 +43,7 @@ enum class CboxError : uint8_t {
     could_not_read_persisted_block_size = 19,
     persisted_block_stream_error = 20,
     persisted_storage_write_error = 21,
+    crc_error_in_stored_object = 22,
 
     // invalid actions
     object_not_writable = 32,

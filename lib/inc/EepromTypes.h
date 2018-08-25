@@ -18,10 +18,9 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #pragma once
 #include <stdint.h>
 
-typedef uint16_t eptr_t;
+using eptr_t = uint16_t;
 
 #define INVALID_EPTR eptr_t(0) // points to magic byte at start

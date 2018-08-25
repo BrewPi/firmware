@@ -294,7 +294,7 @@ Box::readStoredObject(DataIn& in, HexCrcDataOut& out)
     }
 
     bool handlerCalled = false;
-    auto objectStreamer = [&out, &id, &handlerCalled](DataIn& objInStorage) -> CboxError {
+    auto objectStreamer = [&out, &id, &handlerCalled](RegionDataIn& objInStorage) -> CboxError {
         out.write(asUint8(CboxError::no_error));
         out.put(id);
         handlerCalled = true;
@@ -338,28 +338,47 @@ Box::listStoredObjects(DataIn& in, HexCrcDataOut& out)
 void
 Box::loadObjectsFromStorage()
 {
-    auto objectLoader = [this](const storage_id_t& id, DataIn& objInStorage) -> CboxError {
+    auto objectLoader = [this](const storage_id_t& id, RegionDataIn& objInStorage) -> CboxError {
         obj_id_t objId = obj_id_t(id);
-        auto ptrCobj = objects.fetchContained(objId);
-        if (ptrCobj == nullptr) {
+        CboxError status = CboxError::no_error;
+
+        // use a CrcDataOut to a black hole to check the CRC
+        BlackholeDataOut hole;
+        CrcDataOut crcCalculator(hole);
+        TeeDataIn tee(objInStorage, crcCalculator);
+        crcCalculator.put(id); // id is part of CRC, but not part of the stream we get from storage
+
+        if (auto ptrCobj = objects.fetchContained(objId)) {
+            // existing object
+            status = ptrCobj->streamFrom(tee);
+
+            tee.spool();
+            if (crcCalculator.crc() != 0) {
+                return CboxError::crc_error_in_stored_object;
+            }
+
+        } else {
             // new object
             uint8_t profiles = 0;
             std::unique_ptr<Object> newObj;
-            CboxError status = createObjectFromStream(objInStorage, profiles, newObj);
+
+            status = createObjectFromStream(tee, profiles, newObj);
+
+            tee.spool();
+            if (crcCalculator.crc() != 0) {
+                return CboxError::crc_error_in_stored_object;
+            }
 
             if (newObj) {
                 objects.add(std::move(newObj), profiles, id);
             }
-
-            return status;
-        } else {
-            // existing object
-            return ptrCobj->streamFrom(objInStorage);
         }
+        return status;
     };
+    // now apply the loader above to all objects in storage
     storage.retrieveObjects(objectLoader);
-    // this deactives objects loaded from eeprom that should not be active
-    // if activeProfiles is modified by one of the loaded objects, this call applies it again so also the objects loaded after it are correct
+
+    // finally, deactivate objects that should not be active based on the (possibly just loaded) active profiles setting
     setActiveProfilesAndUpdateObjects(activeProfiles);
 }
 
@@ -516,10 +535,22 @@ Box::setActiveProfilesAndUpdateObjects(const uint8_t newProfiles)
 
         if (shouldBeActive && objType == resolveTypeId<InactiveObject>()) {
             // look for object in storage and replace existing object with it
-            auto retrieveContained = [this, &objId](DataIn& objInStorage) -> CboxError {
+            auto retrieveContained = [this, &objId](RegionDataIn& objInStorage) -> CboxError {
                 uint8_t profiles = 0;
                 std::unique_ptr<Object> newObj;
-                CboxError status = createObjectFromStream(objInStorage, profiles, newObj);
+
+                // use a CrcDataOut to a black hole to check the CRC
+                BlackholeDataOut hole;
+                CrcDataOut crcCalculator(hole);
+                TeeDataIn tee(objInStorage, crcCalculator);
+
+                crcCalculator.put(objId); // id is part of CRC, but not part of the stream we get from storage
+                CboxError status = createObjectFromStream(tee, profiles, newObj);
+
+                tee.spool();
+                if (crcCalculator.crc() != 0) {
+                    return CboxError::crc_error_in_stored_object;
+                }
 
                 if (newObj) {
                     objects.add(std::move(newObj), profiles, objId, true);

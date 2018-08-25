@@ -10,6 +10,8 @@
 #include "ResolveType.h"
 #include "TestObjects.h"
 #include "catch.hpp"
+#include <iomanip>
+#include <iostream>
 
 using namespace cbox;
 
@@ -329,7 +331,9 @@ SCENARIO("A controlbox Box")
                          << "\n";
                 CHECK(out.str() == expected.str());
 
-                AND_WHEN("A new box is created from existing storage (for example after a reboot), all objects are restored")
+                auto listObjectsOriginal = expected.str();
+
+                AND_WHEN("A new box is created from existing storage (for example after a reboot)")
                 {
                     // note that only eeprom is not newly created here
                     ObjectContainer container2 = {
@@ -344,16 +348,113 @@ SCENARIO("A controlbox Box")
                     StringStreamConnectionSource connSource2;
                     ConnectionPool connPool2 = {connSource2};
 
-                    Box box2(factory2, container2, storage2, connPool2);
+                    THEN("All objects are restored from storage")
+                    {
+                        Box box2(factory2, container2, storage2, connPool2);
 
-                    std::stringstream in2, out2;
-                    connSource2.add(in2, out2);
+                        std::stringstream in2, out2;
+                        connSource2.add(in2, out2);
 
-                    in2 << "05"; // list all objects
-                    in2 << crc(in2.str()) << "\n";
-                    box2.hexCommunicate();
+                        in2 << "05"; // list all objects
+                        in2 << crc(in2.str()) << "\n";
+                        box2.hexCommunicate();
 
-                    CHECK(out2.str() == expected.str());
+                        CHECK(out2.str() == expected.str());
+                    }
+
+                    THEN("Invalid EEPROM data is handled correctly due to CRC checking")
+                    {
+                        // Lambda that finds replaces something in EEPROM, given as hex string
+                        auto eepromReplace = [&eeprom](std::string from, std::string to) -> bool {
+                            // copy the eeprom
+                            const uint16_t start = 32;
+                            const uint16_t length = 200;
+                            uint8_t eepromCopy[length];
+                            eeprom.readBlock(eepromCopy, start, length);
+
+                            // convert to a hex string
+                            std::stringstream ssEepromAsHex;
+
+                            for (uint8_t* b = eepromCopy; b < &eepromCopy[length]; ++b) {
+                                ssEepromAsHex << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << +*b;
+                            }
+
+                            std::string eepromAsHex = ssEepromAsHex.str();
+                            REQUIRE(eepromAsHex.size() == 2 * length);
+
+                            // Replace the substring
+                            size_t pos = eepromAsHex.find(from);
+                            if (pos == std::string::npos) {
+                                return false;
+                            }
+
+                            eepromAsHex.replace(pos, from.length(), to);
+                            REQUIRE(eepromAsHex.size() == 2 * length); // replacement should not alter EEPROM length
+
+                            // Put the data back
+                            uint16_t idx = start;
+                            for (auto it = eepromAsHex.begin(); it < eepromAsHex.end() - 1; ++it, ++it) {
+                                eeprom.writeByte(idx++, (h2d(*it) << 4) + h2d(*(it + 1)));
+                            }
+
+                            return true;
+                        };
+
+                        THEN("Check that the lambda works")
+                        {
+                            CHECK(eepromReplace("650002E80344444444", "650002E80344444444"));  // old string is found, not replaced
+                            CHECK(eepromReplace("650002E80344444444", "650002E80344554444"));  // old string is found, and replaced
+                            CHECK(eepromReplace("650002E80344554444", "650002E80344554444"));  // new string is found, not replaced
+                            CHECK(!eepromReplace("650002E80344444444", "650002E80344444444")); // original is not found
+                        }
+
+                        WHEN("Object data has changed, it results in a CRC error and only the damaged object is not loaded")
+                        {
+                            std::string originalObject = "650002E80344444444";
+                            std::string damagedObject = "650002E80344554444";
+
+                            CHECK(eepromReplace(originalObject, damagedObject) == true);
+
+                            Box box2(factory2, container2, storage2, connPool2);
+
+                            std::stringstream in2, out2;
+                            connSource2.add(in2, out2);
+
+                            in2 << "05"; // list all objects
+                            in2 << crc(in2.str()) << "\n";
+                            box2.hexCommunicate();
+
+                            // remove object with CRC error from expected string
+                            std::string toRemove = "," + addCrc("650002E80344444444");
+                            size_t pos = listObjectsOriginal.find(toRemove);
+                            auto listObjectsWithObjectMissing = listObjectsOriginal.replace(pos, toRemove.length(), ""); // remove single element
+
+                            CHECK(out2.str() == listObjectsWithObjectMissing);
+
+                            AND_THEN("The EEPROM data can still be retreived with READ_STORED_VALUE")
+                            {
+                                in2.str("");
+                                in2.clear();
+                                out2.str("");
+                                out2.clear();
+                                expected.str("");
+                                expected.clear();
+
+                                in2 << "066500"; // read stored object 101
+                                in2 << crc(in2.str()) << "\n";
+                                box2.hexCommunicate();
+
+                                // Object with bad crc
+                                std::string originalWithCrc = addCrc(std::string(originalObject));
+                                std::string damagedWithOriginalCrc = originalWithCrc.replace(0, damagedObject.length(), damagedObject);
+                                expected << addCrc("066500") << "|"
+                                         << addCrc("00"                      // status
+                                                   + damagedWithOriginalCrc) // obj data
+                                         << "\n";
+                                CHECK(out2.str() == expected.str());
+                            }
+                        }
+                    }
                 }
             }
         }

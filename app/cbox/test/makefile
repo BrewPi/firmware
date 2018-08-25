@@ -124,7 +124,7 @@ all: proto runner
 
 proto:
 	@echo Generating nanobp protobuf c files
-	$(SOURCE_PATH)/app/cbox/proto/generate_proto_cpp.sh
+	bash $(SOURCE_PATH)/app/cbox/proto/generate_proto_cpp.sh
 
 runner: $(TARGETDIR)$(TARGET)
 

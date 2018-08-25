@@ -159,7 +159,7 @@ public:
     virtual CboxError retrieveObjects(
         const std::function<CboxError(const storage_id_t& id, RegionDataIn&)>& handler) override final
     {
-        reader.reset(EepromLocation(objects), EepromLocationEnd(objects) - EepromLocation(objects));
+        reader.reset(EepromLocation(objects), EepromLocationSize(objects));
 
         while (reader.hasNext()) {
             uint8_t type = reader.next();
@@ -172,20 +172,25 @@ public:
             switch (type) {
             case static_cast<uint8_t>(BlockType::object): {
                 auto blockData = RegionDataIn(reader, blockSize);
-                // first 2 bytes of block are actual data size. Limit reading to this region
-                uint16_t actualSize;
-                if (!blockData.get(actualSize)) {
-                    return CboxError::persisted_block_stream_error;
-                }
-                storage_id_t id;
-                if (!blockData.get(id)) {
-                    return CboxError::persisted_block_stream_error;
-                }
-                auto objectData = RegionDataIn(blockData, actualSize);
 
-                CboxError res = handler(id, objectData);
-                if (res != CboxError::no_error) {
-                    return res;
+                auto handleBlock = [&blockData, &handler]() -> CboxError {
+                    // first 2 bytes of block are actual data size. Limit reading to this region
+                    uint16_t actualSize;
+                    if (!blockData.get(actualSize)) {
+                        return CboxError::persisted_block_stream_error;
+                    }
+                    storage_id_t id;
+                    if (!blockData.get(id)) {
+                        return CboxError::persisted_block_stream_error;
+                    }
+
+                    auto objectData = RegionDataIn(blockData, actualSize);
+                    return handler(id, objectData);
+                };
+
+                auto result = handleBlock();
+                if (result != CboxError::no_error) {
+                    // log event. Do not return, because we do want to handle the next block
                 }
                 blockData.spool();
             } break;
