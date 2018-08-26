@@ -57,6 +57,7 @@ enum class CboxError : uint8_t {
     INVALID_OBJECT_TYPE = 65,
     INVALID_OBJECT_PROFILES = 66,
     CRC_ERROR_IN_COMMAND = 67,
+    OBJECT_DATA_NOT_ACCEPTED = 68,
 
     // freak events that should not be possible
     WRITE_TO_INACTIVE_OBJECT = 200,

@@ -116,7 +116,7 @@ public:
     virtual cbox::update_t update(const cbox::update_t& now) override final
     {
         // No updates for now. Alternatively, a periodic bus scan for new devices?
-        return cbox::update_t_max();
+        return update_never(now);
     }
 
     virtual cbox::obj_type_t typeId() const override final

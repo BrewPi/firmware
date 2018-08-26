@@ -79,7 +79,7 @@ public:
 
     virtual cbox::update_t update(const cbox::update_t& now) override final
     {
-        return cbox::update_t_max();
+        return update_never(now);
     }
 
     bool operator==(const LongIntVectorObject& rhs) const
@@ -95,27 +95,27 @@ public:
  * - updating objects at the interval they request
  * - different output, input and persisted streams
  */
-class Counter : public cbox::Object {
+class UpdateCounter : public cbox::Object {
 private:
-    uint32_t _interval;
-    uint16_t _count1;  // not writable
-    uint16_t _count10; // writable and persisted
+    uint16_t _interval; // writable and persisted
+    uint16_t _count;    // not writable
 
 public:
-    Counter()
-        : _interval(0)
-        , _count1(0)
-        , _count10(0)
+    UpdateCounter()
+        : _interval(1000)
+        , _count(0)
     {
+    }
+    virtual ~UpdateCounter() = default;
+
+    uint16_t count()
+    {
+        return _count;
     }
 
-    uint16_t count1()
+    uint16_t interval()
     {
-        return _count1;
-    }
-    uint16_t count10()
-    {
-        return _count1;
+        return _interval;
     }
 
     virtual cbox::obj_type_t typeId() const override final
@@ -130,29 +130,25 @@ public:
         if (!out.put(_interval)) {
             return cbox::CboxError::OUTPUT_STREAM_WRITE_ERROR;
         }
-        if (!out.put(_count1)) {
+        if (!out.put(_count)) {
             return cbox::CboxError::OUTPUT_STREAM_WRITE_ERROR;
         }
-        if (!out.put(_count10)) {
-            return cbox::CboxError::OUTPUT_STREAM_WRITE_ERROR;
-        }
+
         return cbox::CboxError::OK;
     }
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final
     {
-        uint32_t newInterval;
-        uint16_t newCount10;
+        uint16_t newInterval;
 
         if (!in.get(newInterval)) {
             return cbox::CboxError::INPUT_STREAM_READ_ERROR;
         }
-        if (!in.get(newCount10)) {
-            return cbox::CboxError::INPUT_STREAM_READ_ERROR;
+        if (newInterval < 10) {
+            return cbox::CboxError::OBJECT_DATA_NOT_ACCEPTED;
         }
 
         _interval = newInterval;
-        _count10 = newCount10;
 
         return cbox::CboxError::OK;
     };
@@ -162,9 +158,13 @@ public:
         if (!out.put(_interval)) {
             return cbox::CboxError::PERSISTED_STORAGE_WRITE_ERROR;
         }
-        if (!out.put(_count10)) {
-            return cbox::CboxError::PERSISTED_STORAGE_WRITE_ERROR;
-        }
+
         return cbox::CboxError::OK;
+    }
+
+    virtual cbox::update_t update(const cbox::update_t& now) override final
+    {
+        ++_count;
+        return now + _interval;
     }
 };

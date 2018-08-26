@@ -42,6 +42,7 @@ private:
     // Box receives commands from connections in the connection pool and streams back the answer to the same connection
     ConnectionPool& connections;
     uint8_t activeProfiles;
+    update_t lastUpdateTime;
 
     // command handlers
     void noop(DataIn& in, HexCrcDataOut& out);
@@ -79,6 +80,18 @@ public:
     uint8_t getActiveProfiles() const
     {
         return activeProfiles;
+    }
+
+    void update(const update_t& now)
+    {
+        lastUpdateTime = now;
+        objects.update(now);
+    }
+
+    void forcedUpdate(const update_t& now)
+    {
+        lastUpdateTime = now;
+        objects.forcedUpdate(now);
     }
 
     inline const obj_id_t userStartId() const
@@ -142,7 +155,7 @@ public:
 
     virtual update_t update(const update_t& now) override final
     {
-        return update_t_max();
+        return update_never(now);
     }
 };
 

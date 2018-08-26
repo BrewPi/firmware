@@ -31,7 +31,8 @@ SCENARIO("A controlbox Box")
     EepromObjectStorage storage(eeprom);
     ObjectFactory factory = {
         OBJECT_FACTORY_ENTRY(LongIntObject),
-        OBJECT_FACTORY_ENTRY(LongIntVectorObject)};
+        OBJECT_FACTORY_ENTRY(LongIntVectorObject),
+        OBJECT_FACTORY_ENTRY(UpdateCounter)};
 
     StringStreamConnectionSource connSource;
     ConnectionPool connPool = {connSource};
@@ -40,6 +41,15 @@ SCENARIO("A controlbox Box")
 
     std::stringstream in, out, expected;
     connSource.add(in, out);
+
+    auto clearStreams = [&in, &out, &expected]() {
+        in.str("");
+        in.clear();
+        out.str("");
+        out.clear();
+        expected.str("");
+        expected.clear();
+    };
 
     WHEN("A connection sends a read object command, it is processed by the Box")
     {
@@ -91,12 +101,7 @@ SCENARIO("A controlbox Box")
 
         AND_WHEN("A connection sends a delete object command for a user object, it is processed by the Box")
         {
-            in.str("");
-            in.clear();
-            out.str("");
-            out.clear();
-            expected.str("");
-            expected.clear();
+            clearStreams();
 
             in << "04"
                << "6400"; // ID 100
@@ -177,12 +182,7 @@ SCENARIO("A controlbox Box")
 
     WHEN("An object is created with a profile that is not active, it's value is written to storage, but the runtime object is still inactive")
     {
-        in.str("");
-        in.clear();
-        out.str("");
-        out.clear();
-        expected.str("");
-        expected.clear();
+        clearStreams();
 
         in << "03"        // create object
            << "0000"      // id assigned by box
@@ -206,12 +206,7 @@ SCENARIO("A controlbox Box")
 
         THEN("The stored settings can still be read with the READ_STORED_OBJECT command")
         {
-            in.str("");
-            in.clear();
-            out.str("");
-            out.clear();
-            expected.str("");
-            expected.clear();
+            clearStreams();
 
             in << "066400"; // read stored object 100
             in << crc(in.str()) << "\n";
@@ -233,12 +228,7 @@ SCENARIO("A controlbox Box")
 
         THEN("The object can still be written as the original object type, but the reply still contains an inactive object")
         {
-            in.str("");
-            in.clear();
-            out.str("");
-            out.clear();
-            expected.str("");
-            expected.clear();
+            clearStreams();
 
             in << "02"        // write object
                << "6400"      // id 100
@@ -248,7 +238,6 @@ SCENARIO("A controlbox Box")
             in << crc(in.str()) << "\n";
             box.hexCommunicate();
 
-            // commands are sent out LSB first
             expected << addCrc("02640000E80314141414") << "|" // command repetition
                      << addCrc("00"                           // status OK
                                "6400"                         // id 100
@@ -261,12 +250,7 @@ SCENARIO("A controlbox Box")
 
             AND_THEN("But the stored data will be updated")
             {
-                in.str("");
-                in.clear();
-                out.str("");
-                out.clear();
-                expected.str("");
-                expected.clear();
+                clearStreams();
 
                 in << "066400"; // read stored object 100
                 in << crc(in.str()) << "\n";
@@ -294,11 +278,9 @@ SCENARIO("A controlbox Box")
            << "E803"
            << "44444444"; // create object, ID 100, profiles 01, type 1000, value 44444444
         in << crc(in.str()) << "\n";
+
         box.hexCommunicate();
-        in.str("");
-        in.clear();
-        out.str("");
-        out.clear();
+        clearStreams();
 
         in << "03"
            << "6500"
@@ -306,11 +288,9 @@ SCENARIO("A controlbox Box")
            << "E803"
            << "44444444"; // create object, ID 101, profiles 02, type 1000, value 55555555
         in << crc(in.str()) << "\n";
+
         box.hexCommunicate();
-        in.str("");
-        in.clear();
-        out.str("");
-        out.clear();
+        clearStreams();
 
         in << "03"
            << "6600"
@@ -320,10 +300,7 @@ SCENARIO("A controlbox Box")
         in << crc(in.str()) << "\n";
 
         box.hexCommunicate();
-        in.str("");
-        in.clear();
-        out.str("");
-        out.clear();
+        clearStreams();
 
         in << "02"
            << "0200"
@@ -333,10 +310,7 @@ SCENARIO("A controlbox Box")
         in << crc(in.str()) << "\n";
 
         box.hexCommunicate();
-        in.str("");
-        in.clear();
-        out.str("");
-        out.clear();
+        clearStreams();
 
         REQUIRE(box.getObject(100).lock());
         REQUIRE(box.getObject(101).lock());
@@ -399,12 +373,7 @@ SCENARIO("A controlbox Box")
             }
             THEN("The objects are listed correctly")
             {
-                in.str("");
-                in.clear();
-                out.str("");
-                out.clear();
-                expected.str("");
-                expected.clear();
+                clearStreams();
 
                 in << "05"; // list all objects
                 in << crc(in.str()) << "\n";
@@ -551,8 +520,7 @@ SCENARIO("A controlbox Box")
 
         THEN("When list stored objects command is received, eeprom data for all objects is streamed")
         {
-            in.str("");
-            in.clear();
+            clearStreams();
             in << "07"; // list stored objects
             in << crc(in.str()) << "\n";
             box.hexCommunicate();
@@ -570,8 +538,7 @@ SCENARIO("A controlbox Box")
 
         THEN("When the clear objects command is received, all user objects are removed, system objects remain")
         {
-            in.str("");
-            in.clear();
+            clearStreams();
             in << "08"; // clear all objects
             in << crc(in.str()) << "\n";
             box.hexCommunicate();
@@ -580,14 +547,141 @@ SCENARIO("A controlbox Box")
                      << addCrc("00") << "\n";
             CHECK(out.str() == expected.str());
 
-            in.str("");
-            in.clear();
+            clearStreams();
             in << "05"; // list all objects
             in << crc(in.str()) << "\n";
             box.hexCommunicate();
 
             expected << addCrc("05") << "|" << addCrc("00") << "," << addCrc("0100FFE80311111111") << "," << addCrc("020000E80312341234") << "," << addCrc("0300FF020001") << "\n";
             CHECK(out.str() == expected.str());
+        }
+    }
+
+    THEN("Objects update at their requested interval")
+    {
+        box.update(0);
+        // create 2 counter objects with different update intervals
+        // object creation and write also triggers an object update
+
+        clearStreams();
+        in << "03"    // create counter object
+           << "6400"  // ID 100
+           << "FF"    // profiles FF
+           << "EA03"  // type 1002
+           << "E803"; // interval 1000
+        in << crc(in.str()) << "\n";
+        box.hexCommunicate();
+
+        expected << addCrc("036400FFEA03E803") << "|" // command repetition
+                 << addCrc("00"                       // status OK
+                           "6400"                     // id 100
+                           "FF"                       // profiles 0xFF
+                           "EA03"                     // type 1002
+                           "E803"                     // interval 1000
+                           "0100")                    // count 1
+                 << "\n";
+
+        CHECK(out.str() == expected.str());
+
+        clearStreams();
+        in << "03"    // create counter object
+           << "6500"  // ID 101
+           << "FF"    // profiles FF
+           << "EA03"  // type 1002
+           << "D007"; // interval 2000
+        in << crc(in.str()) << "\n";
+        box.hexCommunicate();
+
+        expected << addCrc("036400FFEA03D007") << "|" // command repetition
+                 << addCrc("00"                       // status OK
+                           "6500"                     // id 101
+                           "FF"                       // profiles 0xFF
+                           "EA03"                     // type 1002
+                           "D007"                     // interval 2000
+                           "0100")                    // count 1
+                 << "\n";
+
+        auto counterObjPtr1 = box.getObject(100).lock();
+        auto counterObjPtr2 = box.getObject(101).lock();
+
+        REQUIRE(counterObjPtr1);
+        REQUIRE(counterObjPtr2);
+
+        // cast the Object pointers to the actual type for easier testing
+        auto counter1 = static_cast<UpdateCounter*>(counterObjPtr1.get());
+        auto counter2 = static_cast<UpdateCounter*>(counterObjPtr2.get());
+
+        THEN("Update was called once on each object when they were created")
+        {
+            CHECK(counter1->count() == 1);
+            CHECK(counter2->count() == 1);
+            CHECK(counter1->interval() == 1000);
+            CHECK(counter2->interval() == 2000);
+        }
+
+        for (uint32_t now = 1; now <= 10001; now += 1) {
+            box.update(now);
+        }
+
+        THEN("After simulating 10 seconds, counter1 was updated 10 more times and counter2 was updated 5 more times")
+        {
+            CHECK(counter1->count() == 1 + 10);
+            CHECK(counter2->count() == 1 + 5);
+        }
+
+        box.update(10500); // update just before write
+        clearStreams();
+        in << "02"    // write counter object
+           << "6400"  // ID 100
+           << "FF"    // profiles FF
+           << "EA03"  // type 1002
+           << "A00F"; // interval 4000
+        in << crc(in.str()) << "\n";
+        box.hexCommunicate();
+
+        CHECK(counter1->interval() == 4000);
+
+        THEN("Writing a new interval (4000) to counter 1 has triggered an update of the object")
+        {
+            CHECK(counter1->count() == 10 + 1 + 1);
+            CHECK(counter2->count() == 5 + 1);
+        }
+
+        THEN("It is updated 4000 ms after the write and 4000 ms after that")
+        {
+            uint32_t now;
+
+            for (now = 10500; now <= 20000; now += 1) {
+                box.update(now);
+                if (counter1->count() > 12) {
+                    break;
+                }
+            }
+            CHECK(now == 14500);
+
+            for (now = 14500; now <= 20000; now += 1) {
+                box.update(now);
+                if (counter1->count() > 13) {
+                    break;
+                }
+            }
+            CHECK(now == 18500);
+        }
+
+        THEN("An overflowing time is handled correctly")
+        {
+            update_t tenSecondsBeforeOverflow = std::numeric_limits<update_t>::max() - 10000;
+            update_t now = tenSecondsBeforeOverflow;
+
+            box.forcedUpdate(now);
+            auto count = counter1->count();
+
+            // run for 20 seconds
+            for (; now != 10000; ++now) {
+                box.update(now);
+            }
+
+            CHECK(counter1->count() == count + 20000 / counter1->interval());
         }
     }
 }

@@ -30,12 +30,6 @@ namespace cbox {
 
 using update_t = uint32_t;
 
-inline update_t
-update_t_max()
-{
-    return std::numeric_limits<update_t>::max();
-}
-
 class obj_type_t {
 public:
     obj_type_t()
@@ -138,6 +132,11 @@ public:
 	 */
     virtual update_t update(const update_t& now) = 0;
 
+    update_t update_never(const update_t& now)
+    {
+        return now + std::numeric_limits<update_t>::max() / 2;
+    }
+
     /**
 	 * Each object is at least stream readable. StreamTo streams to the given output
 	 */
@@ -184,7 +183,7 @@ public:
 
     virtual update_t update(const update_t& now) override final
     {
-        return update_t_max();
+        return update_never(now);
     }
 
     obj_type_t actualTypeId()
@@ -227,7 +226,7 @@ public:
 
     virtual update_t update(const update_t& now) override
     {
-        return update_t_max();
+        return update_never(now);
     }
 
     operator T()

@@ -22,6 +22,7 @@
 #include "DataStream.h"
 #include "Object.h"
 #include "ResolveType.h"
+#include <limits>
 
 namespace cbox {
 
@@ -40,7 +41,7 @@ private:
     obj_id_t _id;                 // unique id of object
     uint8_t _profiles;            // active in these profiles
     std::shared_ptr<Object> _obj; // pointer to runtime object
-    uint32_t _nextUpdateTime;     // next time update should be called on _obj
+    update_t _nextUpdateTime;     // next time update should be called on _obj
 
 public:
     const obj_id_t& id() const
@@ -64,11 +65,17 @@ public:
         _obj = std::make_shared<InactiveObject>(oldType);
     }
 
-    void update(uint32_t now)
+    void update(const update_t& now)
     {
-        if (now >= _nextUpdateTime) {
+        const update_t overflowGuard = std::numeric_limits<update_t>::max() / 2;
+        if (overflowGuard - now + _nextUpdateTime <= overflowGuard) {
             _nextUpdateTime = _obj->update(now);
         }
+    }
+
+    void forcedUpdate(const uint32_t& now)
+    {
+        _nextUpdateTime = _obj->update(now);
     }
 
     CboxError streamTo(DataOut& out) const

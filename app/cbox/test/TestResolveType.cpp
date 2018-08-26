@@ -17,7 +17,6 @@
  * along with BrewBlox. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 // Values 0-255 are reserved for internal controlbox classes.
 // The user application should can use values above 255
 
@@ -25,3 +24,4 @@
 
 SET_TYPE_ID(LongIntObject, 1000);
 SET_TYPE_ID(LongIntVectorObject, 1001);
+SET_TYPE_ID(UpdateCounter, 1002);

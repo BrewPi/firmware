@@ -37,6 +37,7 @@ Box::Box(ObjectFactory& _factory, ObjectContainer& _objects, ObjectStorage& _sto
     , storage(_storage)
     , connections(_connections)
     , activeProfiles(0x01)
+    , lastUpdateTime(0)
 {
     objects.add(std::make_unique<ProfilesObject>(this), 0xFF); // add profiles object to give access to the active profiles setting
     objects.setObjectsStartId(userStartId());                  // set startId for user objects to 100
@@ -151,7 +152,8 @@ Box::writeObject(DataIn& in, HexCrcDataOut& out)
     out.writeResponseSeparator();
     out.write(asUint8(status));
     if (cobj != nullptr) {
-        status = cobj->streamTo(out); // TODO: handle status ?
+        cobj->forcedUpdate(lastUpdateTime); // force an update of the object
+        status = cobj->streamTo(out);       // TODO: handle status ?
     }
 }
 
@@ -223,7 +225,8 @@ Box::createObject(DataIn& in, HexCrcDataOut& out)
                 // object should not be active, replace object with inactive object
                 ptrCobj->deactivate();
             }
-            status = ptrCobj->streamTo(out); // TODO: handle status ?
+            ptrCobj->forcedUpdate(lastUpdateTime); // force an update of the object
+            status = ptrCobj->streamTo(out);       // TODO: handle status ?
         }
     }
 }

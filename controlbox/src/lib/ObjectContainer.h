@@ -190,10 +190,17 @@ public:
         objects.erase(userbegin(), cend());
     }
 
-    void update(uint32_t now)
+    void update(const update_t& now)
     {
         for (auto& cobj : objects) {
             cobj.update(now);
+        }
+    }
+
+    void forcedUpdate(const update_t& now)
+    {
+        for (auto& cobj : objects) {
+            cobj.forcedUpdate(now);
         }
     }
 };

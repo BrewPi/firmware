@@ -53,7 +53,7 @@ class SysInfoBlock : public cbox::Object {
 
     virtual cbox::update_t update(const cbox::update_t& now)
     {
-        return cbox::update_t_max();
+        return update_never(now);
     }
 
     virtual cbox::obj_type_t typeId() const override final
