@@ -217,11 +217,11 @@ SCENARIO("A controlbox Box")
             // This allows to distinguish between an error in EEPROM or a communication error.
 
             expected << addCrc("066400") << "|"
-                     << addCrc("00"                  // status
-                               + addCrc("6400"       // id
-                                        "00"         // stored profiles
-                                        "E803"       // stored type
-                                        "44444444")) // stored data
+                     << addCrc("00"        // status
+                               "6400"      // id
+                               "00"        // stored profiles
+                               "E803"      // stored type
+                               "44444444") // stored data
                      << "\n";
             CHECK(out.str() == expected.str());
         }
@@ -257,11 +257,11 @@ SCENARIO("A controlbox Box")
                 box.hexCommunicate();
 
                 expected << addCrc("066400") << "|"
-                         << addCrc("00"                  // status
-                                   + addCrc("6400"       // id
-                                            "00"         // stored profiles
-                                            "E803"       // stored type
-                                            "14141414")) // stored data
+                         << addCrc("00"        // status
+                                   "6400"      // id
+                                   "00"        // stored profiles
+                                   "E803"      // stored type
+                                   "14141414") // stored data
                          << "\n";
                 CHECK(out.str() == expected.str());
             }
@@ -503,12 +503,9 @@ SCENARIO("A controlbox Box")
                                 in2 << crc(in2.str()) << "\n";
                                 box2.hexCommunicate();
 
-                                // Object with bad crc
-                                std::string originalWithCrc = addCrc(std::string(originalObject));
-                                std::string damagedWithOriginalCrc = originalWithCrc.replace(0, damagedObject.length(), damagedObject);
                                 expected << addCrc("066500") << "|"
-                                         << addCrc("00"                      // status
-                                                   + damagedWithOriginalCrc) // obj data
+                                         << addCrc("00"             // status
+                                                   + damagedObject) // obj data
                                          << "\n";
                                 CHECK(out2.str() == expected.str());
                             }
@@ -527,10 +524,10 @@ SCENARIO("A controlbox Box")
 
             // each object has 2 CRCs: one from EEPROM and from the message part
             expected << addCrc("07") << "|" << addCrc("00")
-                     << "," << addCrc(addCrc("640001E80344444444"))
-                     << "," << addCrc(addCrc("650002E80344444444"))
-                     << "," << addCrc(addCrc("660003E80344444444"))
-                     << "," << addCrc(addCrc("020000E80312341234")) // modified system object is also persisted
+                     << "," << addCrc("640001E80344444444")
+                     << "," << addCrc("650002E80344444444")
+                     << "," << addCrc("660003E80344444444")
+                     << "," << addCrc("020000E80312341234") // modified system object is also persisted
                      << "\n";
 
             CHECK(out.str() == expected.str());

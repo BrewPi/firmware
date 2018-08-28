@@ -310,14 +310,15 @@ Box::readStoredObject(DataIn& in, HexCrcDataOut& out)
         out.write(asUint8(CboxError::OK));
         out.put(id);
         handlerCalled = true;
-        if (!objInStorage.push(out)) {
+        RegionDataIn objWithoutCrc(objInStorage, objInStorage.available() - 1);
+        if (!objWithoutCrc.push(out)) {
             return CboxError::OUTPUT_STREAM_WRITE_ERROR;
         }
         return CboxError::OK;
     };
     status = storage.retrieveObject(storage_id_t(id), objectStreamer);
     if (!handlerCalled) {
-        out.write(asUint8(CboxError::OK)); // write status if handler has not written it
+        out.write(asUint8(CboxError::INVALID_OBJECT_ID)); // write status if handler has not written it
     }
 }
 
@@ -338,7 +339,8 @@ Box::listStoredObjects(DataIn& in, HexCrcDataOut& out)
     auto listObjectStreamer = [&out](const storage_id_t& id, DataIn& objInStorage) -> CboxError {
         out.writeListSeparator();
         obj_id_t objId(id);
-        if (out.put(id) && objInStorage.push(out)) {
+        RegionDataIn objWithoutCrc(objInStorage, objInStorage.available() - 1);
+        if (out.put(id) && objWithoutCrc.push(out)) {
             return CboxError::OK;
         }
         return CboxError::OUTPUT_STREAM_WRITE_ERROR;
