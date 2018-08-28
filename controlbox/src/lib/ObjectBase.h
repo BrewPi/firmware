@@ -42,14 +42,14 @@ public:
     /**
 	 * The application defined typeID for this object instance. Defined by derived class
 	 */
-    virtual obj_type_t typeId() const override final
+    virtual obj_type_t typeId() const override
     {
         return typeIdImpl<T>();
     }
 
-    virtual bool implements(const obj_type_t& iface) const override
+    virtual void* implements(const obj_type_t& iface) override
     {
-        return iface == typeId();
+        return nullptr;
     }
 };
 

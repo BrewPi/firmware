@@ -25,3 +25,5 @@
 SET_TYPE_ID(LongIntObject, 1000);
 SET_TYPE_ID(LongIntVectorObject, 1001);
 SET_TYPE_ID(UpdateCounter, 1002);
+SET_TYPE_ID(NameableLongIntObject, 1003);
+SET_TYPE_ID(Nameable, 1004);

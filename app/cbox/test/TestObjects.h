@@ -3,6 +3,40 @@
 #include "ObjectBase.h"
 #include <vector>
 
+/**
+ * A mixin class to make objects nameable. To test detecting supported interfaces of objects
+ */
+class Nameable {
+private:
+    std::string name;
+
+public:
+    void setName(std::string rhs)
+    {
+        name = std::move(rhs);
+    }
+
+    std::string getName()
+    {
+        return name;
+    }
+
+    void* implements(const cbox::obj_type_t& iface)
+    {
+        if (iface == cbox::resolveTypeId<Nameable>()) {
+            return this;
+        }
+        return nullptr;
+    }
+
+protected:
+    Nameable()
+        : name("name-not-set")
+    {
+    }
+    ~Nameable() = default;
+};
+
 class LongIntObject : public cbox::ObjectBase<LongIntObject> {
 private:
     uint32_t obj;
@@ -51,6 +85,14 @@ public:
     {
         uint32_t copy = obj;
         return copy;
+    }
+
+    virtual void* implements(const cbox::obj_type_t& iface) override
+    {
+        if (iface == cbox::resolveTypeId<LongIntObject>()) {
+            return this; // me!
+        }
+        return nullptr;
     }
 };
 
@@ -113,6 +155,14 @@ public:
     bool operator==(const LongIntVectorObject& rhs) const
     {
         return values == rhs.values;
+    }
+
+    virtual void* implements(const cbox::obj_type_t& iface) override
+    {
+        if (iface == cbox::resolveTypeId<LongIntVectorObject>()) {
+            return this; // me!
+        }
+        return nullptr;
     }
 
     std::vector<LongIntObject> values;
@@ -188,5 +238,42 @@ public:
     {
         ++_count;
         return now + _interval;
+    }
+
+    virtual void* implements(const cbox::obj_type_t& iface) override
+    {
+        if (iface == cbox::resolveTypeId<UpdateCounter>()) {
+            return this; // me!
+        }
+        return nullptr;
+    }
+};
+
+class NameableLongIntObject : public LongIntObject, public Nameable {
+public:
+    NameableLongIntObject(uint32_t rhs)
+        : LongIntObject(rhs)
+    {
+    }
+    virtual ~NameableLongIntObject() = default;
+
+    virtual cbox::obj_type_t typeId() const override
+    {
+        // need to override typeId, otherwise it would also be LongIntObject
+        return cbox::resolveTypeId<NameableLongIntObject>();
+    }
+
+    virtual void* implements(const cbox::obj_type_t& iface) override final
+    {
+        if (iface == typeId()) {
+            return this; // me!
+        }
+        if (auto ptr = LongIntObject::implements(iface)) {
+            return ptr; // this pointer with LongIntOjbect offset
+        }
+        if (auto ptr = Nameable::implements(iface)) {
+            return ptr; // this pointer with nameable offset
+        }
+        return nullptr;
     }
 };

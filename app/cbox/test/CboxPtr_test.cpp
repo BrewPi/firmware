@@ -37,18 +37,39 @@ SCENARIO("A CboxPtr is a dynamic lookup that checks type compatibility and works
     CboxPtr<LongIntObject> liPtr(objects);
     CboxPtr<LongIntVectorObject> livPtr(objects);
 
-    WHEN("Calling lock() on a CboxPtr that does not have a valid ID return an empty shared pointer")
+    WHEN("lock() is called on a CboxPtr that does not have a valid ID, it returns an empty shared pointer")
     {
         CHECK(!liPtr.lock());
         CHECK(!livPtr.lock());
     }
 
-    WHEN("Calling lock() on a CboxPtr that does not implement the requested type returns an empty shared pointer")
+    WHEN("lock() is called on a CboxPtr that does not implement the requested type, it returns an empty shared pointer")
     {
         liPtr.setId(1);
         livPtr.setId(1);
 
         CHECK(liPtr.lock());
         CHECK(!livPtr.lock());
+    }
+
+    WHEN("a CboxPtr of certain type is created, it can point to objects implementing that interface")
+    {
+        objects.add(std::make_unique<NameableLongIntObject>(0x22222222), 0xFF, 100);
+        CboxPtr<NameableLongIntObject> nameableLiPtr(objects);
+        CboxPtr<LongIntObject> liPtr(objects);
+        CboxPtr<Nameable> nameablePtr(objects);
+
+        nameableLiPtr.setId(100);
+        liPtr.setId(100);
+        nameablePtr.setId(100);
+
+        CHECK(nameableLiPtr.lock());
+        CHECK(liPtr.lock());
+        CHECK(nameablePtr.lock());
+
+        if (auto ptr = nameablePtr.lock()) {
+            ptr->setName("Test!");
+            CHECK(ptr->getName() == "Test!");
+        }
     }
 }

@@ -32,7 +32,6 @@ private:
     obj_id_t id;
     ObjectContainer& objects;
     std::weak_ptr<Object> ptr;
-    bool castible = false;
 
 public:
     CboxPtr(ObjectContainer& _objects)
@@ -52,26 +51,39 @@ public:
         return id;
     }
 
-    std::shared_ptr<T> lock()
+    auto convert_ptr(std::shared_ptr<Object>&& ptr, void* thisPtr)
     {
-        // if the weak pointer was already set, the cast succeeded earlier, we can just return it
-        if (auto sptr = ptr.lock()) {
-            return std::move(std::static_pointer_cast<T>(sptr));
-        }
+        // When multiple inheritance is involved, the requested interface can have
+        // a different this pointer than the Object interface
+        // To work around this issue, implements() returns the this pointer of the requested interface
+        // We need to return a shared pointer with the same ref count block, but a different offset
 
-        // otherwise we try to lookup the object and try if it it can be cast to the desired type
-        ptr = objects.fetch(id);
-        if (auto sptr = ptr.lock()) {
+        auto p = reinterpret_cast<typename std::shared_ptr<T>::element_type*>(thisPtr);
+        return std::shared_ptr<T>(ptr, p);
+    }
+
+    std::shared_ptr<T>
+    lock()
+    {
+        // try to lock the weak pointer we already had. If it cannot be locked, we need to do a lookup again
+        std::shared_ptr<Object> sptr;
+        sptr = ptr.lock();
+        if (!sptr) {
+            // Try to lookup the object in the container
+            ptr = objects.fetch(id);
+            sptr = ptr.lock();
+        }
+        if (sptr) {
             auto requestedType = resolveTypeId<T>();
-            if (sptr->implements(requestedType)) {
-                ptr = sptr;
-                return std::move(std::static_pointer_cast<T>(sptr));
+            void* thisPtr = sptr->implements(requestedType);
+            if (thisPtr != nullptr) {
+                return convert_ptr(std::move(sptr), thisPtr);
             }
         }
-        // the cast was not valid, reset weak ptr
+        // the cast was not allowed, reset weak ptr
         ptr.reset();
-
-        return std::shared_ptr<T>(); // return empty share pointer
+        // return empty share pointer
+        return std::shared_ptr<T>();
     }
 };
 

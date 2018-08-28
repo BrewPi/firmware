@@ -82,7 +82,11 @@ public:
 	 */
     virtual CboxError streamPersistedTo(DataOut& out) const = 0;
 
-    virtual bool implements(const obj_type_t& iface) const = 0;
+    /**
+     * checks whether the class implements a certain interface. If it does, it returns the this pointer implementing it
+     * @param iface
+     */
+    virtual void* implements(const obj_type_t& iface) = 0;
 };
 
 } // end namespace cbox
