@@ -51,13 +51,13 @@ public:
         return id;
     }
 
+    /**
+     * @param a shared pointer to an Object class
+     * @param a raw pointer to the same object, but for the interface implemented by T
+     * @return a new shared pointer with the same ref counting block, but a different type and offset pointer
+     */
     auto convert_ptr(std::shared_ptr<Object>&& ptr, void* thisPtr)
     {
-        // When multiple inheritance is involved, the requested interface can have
-        // a different this pointer than the Object interface
-        // To work around this issue, implements() returns the this pointer of the requested interface
-        // We need to return a shared pointer with the same ref count block, but a different offset
-
         auto p = reinterpret_cast<typename std::shared_ptr<T>::element_type*>(thisPtr);
         return std::shared_ptr<T>(ptr, p);
     }
@@ -74,9 +74,14 @@ public:
             sptr = ptr.lock();
         }
         if (sptr) {
+            // if the lookup succeeded, check if the Object implements the requested interface using the object types
             auto requestedType = resolveTypeId<T>();
             void* thisPtr = sptr->implements(requestedType);
             if (thisPtr != nullptr) {
+                // If the object returned a non-zero pointer, it supports the interface
+                // If multiple-inheritance is involved, it is possible that the shared pointer and interface pointer
+                // do not point to the same address. That is why the this pointer is returned by the base that implements
+                // the interface. convert_ptr ensures the block managing the lifetime of the object is still used.
                 return convert_ptr(std::move(sptr), thisPtr);
             }
         }
