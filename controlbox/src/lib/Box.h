@@ -115,7 +115,7 @@ public:
 };
 
 // the ProfilesObject can added to a box, so the active profile can be written as a system object and is also persisted
-class ProfilesObject : public Object {
+class ProfilesObject : public ObjectBase<ProfilesObject> {
     Box* myBox;
 
 public:
@@ -148,14 +148,9 @@ public:
         return streamTo(out);
     }
 
-    virtual cbox::obj_type_t typeId() const override final
-    {
-        return resolveTypeId(this);
-    }
-
     virtual update_t update(const update_t& now) override final
     {
-        return update_never(now);
+        return cbox::Object::update_never(now);
     }
 };
 

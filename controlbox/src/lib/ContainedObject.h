@@ -20,9 +20,11 @@
 #pragma once
 
 #include "DataStream.h"
+#include "InactiveObject.h"
 #include "Object.h"
 #include "ResolveType.h"
 #include <limits>
+#include <memory>
 
 namespace cbox {
 

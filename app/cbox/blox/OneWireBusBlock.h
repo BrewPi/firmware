@@ -2,14 +2,14 @@
 
 #include "Block.h"
 #include "Board.h"
-#include "Object.h"
+#include "ObjectBase.h"
 #include "OneWire.h"
 #include "OneWireAddress.h"
 #include "OneWireBus.pb.h"
 #include "nanopb_callbacks.h"
 #include <limits.h>
 
-class OneWireBusBlock : public cbox::Object { // not a block type, because it doesn't need to implement Interface*
+class OneWireBusBlock : public cbox::ObjectBase<OneWireBusBlock> { // not a block type, because it doesn't need to implement Interface*
 private:
     OneWire& bus;
 
@@ -117,10 +117,5 @@ public:
     {
         // No updates for now. Alternatively, a periodic bus scan for new devices?
         return update_never(now);
-    }
-
-    virtual cbox::obj_type_t typeId() const override final
-    {
-        return resolveTypeId(this);
     }
 };

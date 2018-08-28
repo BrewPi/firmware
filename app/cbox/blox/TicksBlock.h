@@ -21,13 +21,13 @@
 
 #include "Block.h"
 #include "DataStream.h"
-#include "Object.h"
+#include "ObjectBase.h"
 #include "Ticks.h"
 #include "Ticks.pb.h"
 
 // provides a protobuf interface to the ticks object
 template <typename T>
-class TicksBlock : public cbox::Object {
+class TicksBlock : public cbox::ObjectBase<TicksBlock<T>> {
     T& ticks;
 
 public:
@@ -35,6 +35,7 @@ public:
         : ticks(_ticks)
     {
     }
+    virtual ~TicksBlock() = default;
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {

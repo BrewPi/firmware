@@ -21,14 +21,13 @@
 
 #include "Block.h"
 #include "DataStream.h"
-#include "Object.h"
 #include "SysInfo.pb.h"
 #if PLATFORM_ID != PLATFORM_GCC
 #include "deviceid_hal.h"
 #endif
 
 // provides a protobuf interface to the read only system info
-class SysInfoBlock : public cbox::Object {
+class SysInfoBlock : public cbox::ObjectBase<SysInfoBlock> {
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
         blox_SysInfo message;
@@ -54,10 +53,5 @@ class SysInfoBlock : public cbox::Object {
     virtual cbox::update_t update(const cbox::update_t& now)
     {
         return update_never(now);
-    }
-
-    virtual cbox::obj_type_t typeId() const override final
-    {
-        return resolveTypeId(this);
     }
 };

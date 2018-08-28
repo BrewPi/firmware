@@ -17,14 +17,40 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 #include "Object.h"
+#include "ObjectIds.h"
 #include "ResolveType.h"
+#include <type_traits>
 
 namespace cbox {
 
-obj_type_t
-InactiveObject::typeId() const
-{
-    return resolveTypeId<InactiveObject>();
-}
-}
+template <typename T>
+class ObjectBase : public Object {
+public:
+    ObjectBase() = default;
+    virtual ~ObjectBase() = default;
+
+    template <typename U,
+              typename = std::enable_if_t<std::is_same<T, U>::value>>
+    obj_type_t typeIdImpl(void) const
+    {
+        return resolveTypeId<U>();
+    }
+
+    /**
+	 * The application defined typeID for this object instance. Defined by derived class
+	 */
+    virtual obj_type_t typeId() const override final
+    {
+        return typeIdImpl<T>();
+    }
+
+    virtual bool implements(const obj_type_t& iface) const override
+    {
+        return iface == typeId();
+    }
+};
+
+} // end namespace cbox

@@ -22,100 +22,12 @@
 #include "CboxError.h"
 #include "CboxMixins.h"
 #include "DataStream.h"
-#include <cstdint>
+#include "ObjectIds.h"
 #include <limits>
-#include <memory>
 
 namespace cbox {
 
 using update_t = uint32_t;
-
-class obj_type_t {
-public:
-    obj_type_t()
-        : id(0){};
-    obj_type_t(const uint16_t& rhs)
-        : id(rhs){};
-    obj_type_t(const obj_type_t& rhs) = default;
-    obj_type_t(obj_type_t& rhs) = default;
-    obj_type_t(obj_type_t&& rhs) = default;
-
-    obj_type_t& operator=(const uint16_t& rhs)
-    {
-        id = rhs;
-        return *this;
-    }
-
-    operator uint16_t() const
-    {
-        return id;
-    }
-
-    bool isValid() const
-    {
-        return id > invalid().id;
-    }
-
-    static const obj_type_t start()
-    {
-        return obj_type_t(1);
-    };
-    static const obj_type_t invalid()
-    {
-        return obj_type_t(0);
-    };
-
-private:
-    uint16_t id;
-};
-
-class obj_id_t {
-public:
-    obj_id_t()
-        : id(0){};
-    obj_id_t(const uint16_t& rhs)
-        : id(rhs){};
-    obj_id_t& operator=(const uint16_t& rhs)
-    {
-        id = rhs;
-        return *this;
-    }
-
-    operator uint16_t() const
-    {
-        return id;
-    }
-
-    bool isValid() const
-    {
-        return id > invalid().id;
-    }
-
-    static const obj_id_t start()
-    {
-        return obj_id_t(1);
-    };
-    static const obj_id_t invalid()
-    {
-        return obj_id_t(0);
-    };
-
-    obj_id_t& operator++() // ++A
-    {
-        ++id;
-        return *this;
-    }
-
-    obj_id_t operator++(int) // A++
-    {
-        obj_id_t temp = *this;
-        ++id;
-        return temp;
-    }
-
-private:
-    uint16_t id;
-};
 
 class Object : virtual public ObjectMixin {
 public:
@@ -123,8 +35,10 @@ public:
     virtual ~Object() = default;
 
     /**
-	 * The application defined typeID for this object instance. Defined by derived class
-	 */
+     * get the unique typeID of the Object
+     * @return object type
+     *
+     */
     virtual obj_type_t typeId() const = 0;
 
     /**
@@ -132,9 +46,24 @@ public:
 	 */
     virtual update_t update(const update_t& now) = 0;
 
-    update_t update_never(const update_t& now)
+    /**
+	 * Call this function in the body of the update function for Objects that don't need updating
+	 * @param now: current time in milliseconds
+	 * @return next update time, 24.8 days in the future
+	 */
+    static inline update_t update_never(const update_t& now)
     {
         return now + std::numeric_limits<update_t>::max() / 2;
+    }
+
+    /**
+	 * Call this function in the body of the update function for Objects that don't need updating
+	 * @param now: current time in milliseconds
+	 * @return next update time, 24.8 days in the future
+	 */
+    inline update_t update_1s(const update_t& now)
+    {
+        return now + 1000;
     }
 
     /**
@@ -143,121 +72,17 @@ public:
     virtual CboxError streamTo(DataOut& out) const = 0;
 
     /**
-     * An object can (optionally) receive new data from a DataIn stream.
-     */
+	 * An object can (optionally) receive new data from a DataIn stream.
+	 */
     virtual CboxError streamFrom(DataIn& in) = 0;
 
     /**
-     * Objects can stream data they want persisted.
-     * The persisted data should be compatible with streamFrom, which is used to re-instantiate the object from the persisted data.
-     */
+	 * Objects can stream data they want persisted.
+	 * The persisted data should be compatible with streamFrom, which is used to re-instantiate the object from the persisted data.
+	 */
     virtual CboxError streamPersistedTo(DataOut& out) const = 0;
-};
 
-/**
- * An object that does nothing. When read, it returns the type it becomes when it is activated.
- */
-class InactiveObject : public Object {
-public:
-    InactiveObject(obj_type_t type)
-        : actualType(type){};
-    virtual ~InactiveObject() = default;
-
-    virtual obj_type_t typeId() const override final;
-
-    virtual CboxError streamTo(DataOut& out) const override final
-    {
-        out.put(actualType);
-        return CboxError::OK;
-    }
-
-    virtual CboxError streamFrom(DataIn& out) override final
-    {
-        return CboxError::WRITE_TO_INACTIVE_OBJECT; // should never occur
-    }
-
-    virtual CboxError streamPersistedTo(DataOut& out) const override final
-    {
-        return CboxError::OK; // inactive objects are never persisted
-    }
-
-    virtual update_t update(const update_t& now) override final
-    {
-        return update_never(now);
-    }
-
-    obj_type_t actualTypeId()
-    {
-        return actualType;
-    }
-
-    obj_type_t actualType;
-};
-
-/**
- * An object that streams as its memory as raw bytes, can be used as base class for simple object wrapping
- */
-template <typename T>
-class RawStreamObject : public Object {
-public:
-    RawStreamObject()
-        : obj(T()){};
-    RawStreamObject(T data)
-        : obj(data){};
-    virtual ~RawStreamObject() = default;
-
-    virtual CboxError streamTo(DataOut& out) const override final
-    {
-        if (out.put(obj)) {
-            return CboxError::OK;
-        }
-        return CboxError::OUTPUT_STREAM_WRITE_ERROR;
-    }
-
-    virtual CboxError streamFrom(DataIn& in) override
-    {
-        return CboxError::OBJECT_NOT_WRITABLE;
-    }
-
-    virtual CboxError streamPersistedTo(DataOut& out) const override final
-    {
-        return streamTo(out);
-    }
-
-    virtual update_t update(const update_t& now) override
-    {
-        return update_never(now);
-    }
-
-    operator T()
-    {
-        T copy = obj;
-        return copy;
-    }
-
-protected:
-    T obj;
-};
-
-/**
- * A writable object that streams as its memory as raw bytes
- */
-template <typename T>
-class RawStreamWritableObject : public RawStreamObject<T> {
-public:
-    using RawStreamObject<T>::RawStreamObject;
-
-    virtual ~RawStreamWritableObject() = default;
-
-    virtual CboxError streamFrom(DataIn& in) override final
-    {
-        T newValue;
-        if (in.get(newValue)) {
-            this->obj = newValue;
-            return CboxError::OK;
-        }
-        return CboxError::INPUT_STREAM_READ_ERROR;
-    }
+    virtual bool implements(const obj_type_t& iface) const = 0;
 };
 
 } // end namespace cbox

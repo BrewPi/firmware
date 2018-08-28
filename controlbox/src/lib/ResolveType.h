@@ -4,21 +4,13 @@
 
 #pragma once
 
-#include "Object.h"
-#include <stdint.h>
+#include "ObjectIds.h"
 
 namespace cbox {
 
 template <class T>
 obj_type_t
 resolveTypeId();
-
-template <class T>
-inline obj_type_t
-resolveTypeId(const T*)
-{
-    return resolveTypeId<T>();
-}
 
 #define SET_TYPE_ID_IMPL(classname, id)                      \
     class classname;                                         \

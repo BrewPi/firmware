@@ -1,27 +1,61 @@
 #pragma once
 
-#include "Object.h"
-#include "ResolveType.h"
+#include "ObjectBase.h"
 #include <vector>
 
-class LongIntObject : public cbox::RawStreamWritableObject<uint32_t> {
-public:
-    using cbox::RawStreamWritableObject<uint32_t>::RawStreamWritableObject;
+class LongIntObject : public cbox::ObjectBase<LongIntObject> {
+private:
+    uint32_t obj;
 
-    virtual cbox::obj_type_t typeId() const override final
-    {
-        // use function overloading and templates to manage type IDs in a central place (ResolveType.cpp)
-        return cbox::resolveTypeId(this);
-    }
+public:
+    LongIntObject()
+        : obj(0){};
+    LongIntObject(uint32_t rhs)
+        : obj(std::move(rhs)){};
+    virtual ~LongIntObject() = default;
 
     bool operator==(const LongIntObject& rhs) const
     {
         return obj == rhs.obj;
     }
+
+    virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
+    {
+        if (out.put(obj)) {
+            return cbox::CboxError::OK;
+        }
+        return cbox::CboxError::OUTPUT_STREAM_WRITE_ERROR;
+    }
+
+    virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final
+    {
+        uint32_t newValue;
+        if (in.get(newValue)) {
+            obj = newValue;
+            return cbox::CboxError::OK;
+        }
+        return cbox::CboxError::INPUT_STREAM_READ_ERROR;
+    }
+
+    virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
+    {
+        return streamTo(out);
+    }
+
+    virtual cbox::update_t update(const cbox::update_t& now) override
+    {
+        return cbox::Object::update_never(now);
+    }
+
+    operator uint32_t()
+    {
+        uint32_t copy = obj;
+        return copy;
+    }
 };
 
 // variable size object of multiple long ints
-class LongIntVectorObject : public cbox::Object {
+class LongIntVectorObject : public cbox::ObjectBase<LongIntVectorObject> {
 public:
     LongIntVectorObject()
         : values()
@@ -30,12 +64,6 @@ public:
     LongIntVectorObject(std::initializer_list<LongIntObject> l)
         : values(l)
     {
-    }
-
-    virtual cbox::obj_type_t typeId() const override final
-    {
-        // use function overloading and templates to manage type IDs in a central place (ResolveType.cpp)
-        return cbox::resolveTypeId(this);
     }
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
@@ -79,7 +107,7 @@ public:
 
     virtual cbox::update_t update(const cbox::update_t& now) override final
     {
-        return update_never(now);
+        return cbox::Object::update_never(now);
     }
 
     bool operator==(const LongIntVectorObject& rhs) const
@@ -95,7 +123,7 @@ public:
  * - updating objects at the interval they request
  * - different output, input and persisted streams
  */
-class UpdateCounter : public cbox::Object {
+class UpdateCounter : public cbox::ObjectBase<UpdateCounter> {
 private:
     uint16_t _interval; // writable and persisted
     uint16_t _count;    // not writable
@@ -116,12 +144,6 @@ public:
     uint16_t interval()
     {
         return _interval;
-    }
-
-    virtual cbox::obj_type_t typeId() const override final
-    {
-        // use function overloading and templates to manage type IDs in a central place (ResolveType.cpp)
-        return cbox::resolveTypeId(this);
     }
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final

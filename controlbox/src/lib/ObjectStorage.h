@@ -19,8 +19,7 @@
 
 #pragma once
 
-#include "Object.h"
-#include "ObjectContainer.h"
+#include <functional>
 #include <stdint.h>
 
 namespace cbox {

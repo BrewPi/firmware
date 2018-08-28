@@ -4,7 +4,7 @@
 #include "SetPoint.h"
 #include "SetPointSimple.pb.h"
 
-class SetPointSimpleBlock : public Block {
+class SetPointSimpleBlock : public Block<SetPointSimpleBlock> {
 private:
     SetPointSimple setpoint;
 
@@ -45,10 +45,5 @@ public:
     virtual Interface* getApplicationInterfaceImpl() override final
     {
         return &setpoint;
-    }
-
-    virtual cbox::obj_type_t typeId() const override final
-    {
-        return resolveTypeId(this);
     }
 };

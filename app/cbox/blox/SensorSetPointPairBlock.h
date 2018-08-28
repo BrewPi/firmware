@@ -7,7 +7,7 @@
 #include "SetPointDelegate.h"
 #include "TempSensorDelegate.h"
 
-class SensorSetPointPairBlock : public Block {
+class SensorSetPointPairBlock : public Block<SensorSetPointPairBlock> {
 private:
     CboxLookup sensorLookup;
     CboxLookup setpointLookup;
@@ -57,11 +57,5 @@ public:
     virtual Interface* getApplicationInterfaceImpl() override final
     {
         return &pair;
-    }
-
-    virtual cbox::obj_type_t typeId() const override final
-    {
-        // use function overloading and templates to manage type IDs in a central place (AppTypeRegistry)
-        return resolveTypeId(this);
     }
 };

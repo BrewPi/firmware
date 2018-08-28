@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Object.h"
-#include "ResolveType.h"
+#include "ObjectBase.h"
 #include "pb.h"
 
 // forward declarations
@@ -14,8 +13,12 @@ class Interface;
 
 // Base BrewBlox block implementation
 // This links the controlbox Object to the application object
-class Block : public cbox::Object {
+template <typename T>
+class Block : public cbox::ObjectBase<T> {
 public:
+    Block() = default;
+    virtual ~Block() = default;
+
     virtual Interface* getApplicationInterface() override final
     {
         return getApplicationInterfaceImpl();

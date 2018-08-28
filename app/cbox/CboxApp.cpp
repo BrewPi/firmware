@@ -22,7 +22,6 @@
 #include "Box.h"
 #include "Connections.h"
 #include "ConnectionsTcp.h"
-#include "Object.h"
 #include "ObjectFactory.h"
 
 #include "blox/OneWireTempSensorBlock.h"

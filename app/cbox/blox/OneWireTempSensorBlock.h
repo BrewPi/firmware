@@ -7,7 +7,7 @@
 #include "OneWireTempSensor.pb.h"
 #include "theOneWire.h"
 
-class OneWireTempSensorBlock : public Block {
+class OneWireTempSensorBlock : public Block<OneWireTempSensorBlock> {
 private:
     OneWireTempSensor sensor;
 
@@ -52,11 +52,5 @@ public:
     virtual Interface* getApplicationInterfaceImpl() override final
     {
         return &sensor;
-    }
-
-    virtual cbox::obj_type_t typeId() const override final
-    {
-        // use function overloading and templates to manage type IDs in a central place (AppTypeRegistry)
-        return resolveTypeId(this);
     }
 };

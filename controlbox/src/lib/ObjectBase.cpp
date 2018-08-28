@@ -1,7 +1,7 @@
 /*
- * Copyright 2018 Elco Jacobs / BrewPi B.V.
+ * Copyright 2018 Elco Jacobs / BrewBlox
  *
- * This file is part of BrewBlox.
+ * This file is part of ControlBox.
  *
  * Controlbox is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,25 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with BrewBlox. If not, see <http://www.gnu.org/licenses/>.
+ * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This file contains empty mixins, which can be overridden by the application
-
-#pragma once
-
-#include "Interface.h"
-
-class ObjectMixin {
-public:
-    ObjectMixin() = default;
-
-protected:
-    ~ObjectMixin() = default;
-
-public:
-    virtual Interface* getApplicationInterface()
-    {
-        return nullptr;
-    }
-};
+#include "ObjectBase.h"
+#include "CboxPtr.h"
