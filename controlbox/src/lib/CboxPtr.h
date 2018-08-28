@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Elco Jacobs / BrewBlox, based on earlier work of Matthew McGowan
+ * Copyright 2018 Elco Jacobs / BrewBlox
  *
  * This file is part of ControlBox.
  *
@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Object.h"
-#include "ObjectBase.h"
 #include "ObjectContainer.h"
 #include "ResolveType.h"
 #include <memory>
@@ -47,22 +46,20 @@ public:
     {
         id = std::move(newId);
     }
-    bool isCastable(Object* obj)
+
+    obj_id_t getId()
     {
-        return obj->implements(resolveTypeId<T>());
+        return id;
     }
 
     std::shared_ptr<T> lock()
     {
-
         // if the weak pointer was already set, the cast succeeded earlier, we can just return it
         if (auto sptr = ptr.lock()) {
             return std::move(std::static_pointer_cast<T>(sptr));
         }
-        // otherwise we try to lookup the object and try if it it can be cast to the desired type using double dispatch
 
-        // look up the object again
-
+        // otherwise we try to lookup the object and try if it it can be cast to the desired type
         ptr = objects.fetch(id);
         if (auto sptr = ptr.lock()) {
             auto requestedType = resolveTypeId<T>();
