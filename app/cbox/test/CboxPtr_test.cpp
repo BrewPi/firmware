@@ -63,13 +63,34 @@ SCENARIO("A CboxPtr is a dynamic lookup that checks type compatibility and works
         liPtr.setId(100);
         nameablePtr.setId(100);
 
-        CHECK(nameableLiPtr.lock());
-        CHECK(liPtr.lock());
-        CHECK(nameablePtr.lock());
+        REQUIRE(nameableLiPtr.lock());
+        REQUIRE(liPtr.lock());
+        REQUIRE(nameablePtr.lock());
 
         if (auto ptr = nameablePtr.lock()) {
             ptr->setName("Test!");
             CHECK(ptr->getName() == "Test!");
+        }
+
+        THEN("The use count is correct on all shared pointers")
+        {
+            auto ptr1 = nameableLiPtr.lock();
+            auto ptr2 = liPtr.lock();
+            auto ptr3 = nameablePtr.lock();
+
+            CHECK(ptr1.use_count() == 4); // 4 pointers in use(1 in the container)
+
+            AND_THEN("The addresses match what static cast from most derived class would generate")
+            {
+                // pointer 1 and 2 point to the same memory location, because they share a base
+                CHECK(ptr1.get() == ptr2.get());
+
+                // pointer 3 points to a different location in the same object, that implements the Nameable interface
+                CHECK(reinterpret_cast<void*>(ptr2.get()) != reinterpret_cast<void*>(ptr3.get()));
+
+                // The offset it got matches static cast
+                CHECK(static_cast<Nameable*>(ptr1.get()) == ptr3.get());
+            }
         }
     }
 }
