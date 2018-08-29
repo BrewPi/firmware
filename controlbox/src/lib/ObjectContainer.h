@@ -177,11 +177,20 @@ public:
         return findPosition(startId).first;
     }
 
-    // replace an object with an inactive object
+    // replace an object with an inactive object by const iterator
     void deactivate(const CIterator& cit)
     {
         auto it = objects.erase(cit, cit); // convert to non-const iterator
         it->deactivate();
+    }
+
+    // replace an object with an inactive object by id
+    void deactivate(const obj_id_t& id)
+    {
+        auto p = findPosition(id);
+        if (p.first != p.second) {
+            p.first->deactivate();
+        }
     }
 
     // remove all non-system objects from the container
