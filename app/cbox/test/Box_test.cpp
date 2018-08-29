@@ -32,7 +32,10 @@ SCENARIO("A controlbox Box")
     ObjectFactory factory = {
         OBJECT_FACTORY_ENTRY(LongIntObject),
         OBJECT_FACTORY_ENTRY(LongIntVectorObject),
-        OBJECT_FACTORY_ENTRY(UpdateCounter)};
+        OBJECT_FACTORY_ENTRY(UpdateCounter),
+        {cbox::resolveTypeId<PtrLongIntObject>(), [&container]() {
+             return std::make_unique<PtrLongIntObject>(container);
+         }}};
 
     StringStreamConnectionSource connSource;
     ConnectionPool connPool = {connSource};
@@ -679,6 +682,72 @@ SCENARIO("A controlbox Box")
             }
 
             CHECK(counter1->count() == count + 20000 / counter1->interval());
+        }
+    }
+
+    WHEN("An object with links to other objects is created, it can use data from those other objects")
+    {
+        in << "03"    // create object
+           << "6400"  // ID 100
+           << "FF"    // profiles FF
+           << "ED03"  // type 1005
+           << "0100"  // ptr 1 points to object 1
+           << "0200"; // ptr 2 points to object 2
+
+        std::string command = in.str();
+
+        in << crc(in.str()) << "\n";
+        box.hexCommunicate();
+
+        expected
+            << addCrc(command) << "|" // command repetition
+            << addCrc("00"            // status OK
+                      "6400"          // id 100
+                      "FF"            // profiles 0xFF
+                      "ED03"          // type 1002
+                      "0100"          // ptr 1 points to ID 1
+                      "0200"          // ptr 2 points to ID 2
+                      "01"            // ptr1 OK
+                      "01"            // ptr2 OK
+                      "11111111"      // value 1
+                      "22222222"      // value 2
+                      )
+            << "\n";
+
+        CHECK(out.str() == expected.str());
+
+        AND_THEN("If the links change and point to an invalid object, the output is correct")
+        {
+            clearStreams();
+
+            in << "02"    // write object
+               << "6400"  // ID 100
+               << "FF"    // profiles FF
+               << "ED03"  // type 1005
+               << "0200"  // ptr 1 points to object 2
+               << "0300"; // ptr 2 points to object 3
+
+            std::string command = in.str();
+
+            in << crc(in.str()) << "\n";
+            box.hexCommunicate();
+
+            expected
+                << addCrc(command) << "|" // command repetition
+                << addCrc("00"            // status OK
+                          "6400"          // id 100
+                          "FF"            // profiles 0xFF
+                          "ED03"          // type 1002
+                          "0200"          // ptr 1 points to ID 1
+                          "0300"          // ptr 2 points to ID 2
+                          "01"            // ptr1 OK
+                          "00"            // ptr2 not OK
+                          "22222222"      // value 1
+                          "00000000"      // value 2 is default value 0
+                          )
+                << "\n";
+
+            CHECK(out.str() == expected.str());
         }
     }
 }

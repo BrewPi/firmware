@@ -44,6 +44,7 @@ public:
     void setId(obj_id_t newId)
     {
         id = std::move(newId);
+        ptr.reset();
     }
 
     obj_id_t getId()

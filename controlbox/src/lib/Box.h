@@ -20,6 +20,7 @@
 #pragma once
 
 #include "CboxError.h"
+#include "CboxPtr.h"
 #include "Connections.h"
 #include "DataStream.h"
 #include "DataStreamConverters.h"
@@ -97,6 +98,12 @@ public:
     inline const obj_id_t userStartId() const
     {
         return obj_id_t(100);
+    }
+
+    template <typename T>
+    CboxPtr<T> makeCboxPtr()
+    {
+        return CboxPtr<T>(objects);
     }
 
     enum CommandID : uint8_t {

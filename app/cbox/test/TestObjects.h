@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CboxPtr.h"
 #include "ObjectBase.h"
 #include <vector>
 
@@ -252,5 +253,76 @@ public:
             return ptr; // this pointer with nameable offset
         }
         return nullptr;
+    }
+};
+
+class PtrLongIntObject : public cbox::ObjectBase<PtrLongIntObject> {
+private:
+    mutable cbox::CboxPtr<LongIntObject> ptr1;
+    mutable cbox::CboxPtr<LongIntObject> ptr2;
+
+public:
+    PtrLongIntObject(cbox::ObjectContainer& objects)
+        : ptr1(objects)
+        , ptr2(objects)
+    {
+    }
+    virtual ~PtrLongIntObject() = default;
+
+    virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
+    {
+        auto status = streamPersistedTo(out);
+        if (status != cbox::CboxError::OK) {
+            return status;
+        }
+        auto sptr1 = ptr1.lock();
+        auto sptr2 = ptr2.lock();
+        bool valid1 = bool(sptr1);
+        bool valid2 = bool(sptr2);
+        uint32_t value1 = 0;
+        uint32_t value2 = 0;
+        if (valid1) {
+            value1 = uint32_t(*sptr1);
+        }
+        if (valid2) {
+            value2 = uint32_t(*sptr2);
+        }
+        bool success = out.put(valid1);
+        success &= out.put(valid2);
+        success &= out.put(value1);
+        success &= out.put(value2);
+
+        return success ? cbox::CboxError::OK : cbox::CboxError::OUTPUT_STREAM_WRITE_ERROR;
+    }
+
+    virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final
+    {
+        cbox::obj_id_t newId1, newId2;
+        if (!in.get(newId1)) {
+            return cbox::CboxError::INPUT_STREAM_READ_ERROR;
+        }
+        if (!in.get(newId2)) {
+            return cbox::CboxError::INPUT_STREAM_READ_ERROR;
+        }
+
+        ptr1.setId(newId1);
+        ptr2.setId(newId2);
+        return cbox::CboxError::OK;
+    }
+
+    virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
+    {
+        if (!out.put(ptr1.getId())) {
+            return cbox::CboxError::OUTPUT_STREAM_WRITE_ERROR;
+        }
+        if (!out.put(ptr2.getId())) {
+            return cbox::CboxError::OUTPUT_STREAM_WRITE_ERROR;
+        }
+        return cbox::CboxError::OK;
+    }
+
+    virtual cbox::update_t update(const cbox::update_t& now) override
+    {
+        return cbox::Object::update_never(now);
     }
 };

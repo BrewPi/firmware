@@ -23,6 +23,7 @@
 #include "DataStream.h"
 #include "Object.h"
 #include <array>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -42,7 +43,7 @@ createObject()
 // They can be put in a container that can be walked to find the matching typeId
 struct ObjectFactoryEntry {
     obj_type_t typeId;
-    std::unique_ptr<Object> (*createFn)();
+    std::function<std::unique_ptr<Object>()> createFn;
 };
 
 class ObjectFactory {
