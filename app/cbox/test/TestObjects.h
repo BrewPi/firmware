@@ -86,14 +86,6 @@ public:
         uint32_t copy = obj;
         return copy;
     }
-
-    virtual void* implements(const cbox::obj_type_t& iface) override
-    {
-        if (iface == cbox::resolveTypeId<LongIntObject>()) {
-            return this; // me!
-        }
-        return nullptr;
-    }
 };
 
 // variable size object of multiple long ints
@@ -155,14 +147,6 @@ public:
     bool operator==(const LongIntVectorObject& rhs) const
     {
         return values == rhs.values;
-    }
-
-    virtual void* implements(const cbox::obj_type_t& iface) override
-    {
-        if (iface == cbox::resolveTypeId<LongIntVectorObject>()) {
-            return this; // me!
-        }
-        return nullptr;
     }
 
     std::vector<LongIntObject> values;
@@ -239,14 +223,6 @@ public:
         ++_count;
         return now + _interval;
     }
-
-    virtual void* implements(const cbox::obj_type_t& iface) override
-    {
-        if (iface == cbox::resolveTypeId<UpdateCounter>()) {
-            return this; // me!
-        }
-        return nullptr;
-    }
 };
 
 class NameableLongIntObject : public LongIntObject, public Nameable {
@@ -257,15 +233,16 @@ public:
     }
     virtual ~NameableLongIntObject() = default;
 
+    // need to override typeId, otherwise it would inherit from LongIntObject
     virtual cbox::obj_type_t typeId() const override
     {
-        // need to override typeId, otherwise it would also be LongIntObject
         return cbox::resolveTypeId<NameableLongIntObject>();
     }
 
+    // needs special handling due to multiple inheritance
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == typeId()) {
+        if (iface == NameableLongIntObject::typeId()) {
             return this; // me!
         }
         if (auto ptr = LongIntObject::implements(iface)) {

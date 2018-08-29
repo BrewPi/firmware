@@ -84,7 +84,7 @@ public:
 
     /**
      * checks whether the class implements a certain interface. If it does, it returns the this pointer implementing it
-     * @param iface
+     * @param iface: typeId of the interface requested
      */
     virtual void* implements(const obj_type_t& iface) = 0;
 };

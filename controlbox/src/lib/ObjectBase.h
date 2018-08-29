@@ -49,6 +49,9 @@ public:
 
     virtual void* implements(const obj_type_t& iface) override
     {
+        if (ObjectBase::typeId() == iface) {
+            return this;
+        }
         return nullptr;
     }
 };
