@@ -17,7 +17,6 @@
  * along with BrewBlox. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 // Values 0-255 are reserved for internal controlbox classes.
 // The user application should can use values above 255
 
@@ -28,7 +27,21 @@ SET_TYPE_ID(OneWireTempSensorBlock, 257);
 SET_TYPE_ID(PidBlock, 258);
 SET_TYPE_ID(SensorSetPointPairBlock, 259);
 SET_TYPE_ID(SetPointSimpleBlock, 260);
-SET_TYPE_ID(DeviceIdObject,261);
-// TicksBlock: hardcoded at 262 <- TODO: make resolveTypeId work for template class
-SET_TYPE_ID(ProfilesBlock,263);
+SET_TYPE_ID(DeviceIdObject, 261);
+SET_TYPE_ID(ProfilesBlock, 263);
 SET_TYPE_ID(SysInfoBlock, 264);
+
+// need to figure out how to make a macro for this:
+class TicksWiring;
+template <typename T>
+class Ticks;
+template <typename T>
+class TicksBlock;
+namespace cbox {
+template <>
+obj_type_t
+resolveTypeId<TicksBlock<Ticks<TicksWiring>>>()
+{
+    return 262;
+}
+} // end namespace cbox

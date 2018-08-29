@@ -11,6 +11,7 @@ namespace cbox {
 template <class T>
 obj_type_t
 resolveTypeId();
+} // end namespace cbox
 
 #define SET_TYPE_ID_IMPL(classname, id)                      \
     class classname;                                         \
@@ -28,5 +29,3 @@ resolveTypeId();
     class classname;                                         \
     template <>                                              \
     obj_type_t resolveTypeId<classname>() { return id; }
-
-} // end namespace cbox

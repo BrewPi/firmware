@@ -63,7 +63,7 @@ public:
 
     virtual cbox::update_t update(const cbox::update_t& now) override final
     {
-        return update_never(now);
+        return cbox::Object::update_never(now);
     }
 
     virtual cbox::obj_type_t typeId() const override final
