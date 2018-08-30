@@ -83,13 +83,13 @@ public:
     CboxError streamTo(DataOut& out) const
     {
         if (!out.put(_id)) {
-            return CboxError::OUTPUT_STREAM_WRITE_ERROR;
+            return CboxError::OUTPUT_STREAM_WRITE_ERROR; // LCOV_EXCL_LINE
         }
         if (!out.put(_profiles)) {
-            return CboxError::OUTPUT_STREAM_WRITE_ERROR;
+            return CboxError::OUTPUT_STREAM_WRITE_ERROR; // LCOV_EXCL_LINE
         }
         if (!out.put(_obj->typeId())) {
-            return CboxError::OUTPUT_STREAM_WRITE_ERROR;
+            return CboxError::OUTPUT_STREAM_WRITE_ERROR; // LCOV_EXCL_LINE
         }
         return _obj->streamTo(out);
     }
@@ -101,10 +101,10 @@ public:
         uint8_t newProfiles;
         obj_type_t expectedType;
         if (!in.get(newProfiles)) {
-            return CboxError::INPUT_STREAM_READ_ERROR;
+            return CboxError::INPUT_STREAM_READ_ERROR; // LCOV_EXCL_LINE
         }
         if (!in.get(expectedType)) {
-            return CboxError::INPUT_STREAM_READ_ERROR;
+            return CboxError::INPUT_STREAM_READ_ERROR; // LCOV_EXCL_LINE
         }
 
         if (expectedType == _obj->typeId()) {
@@ -118,13 +118,15 @@ public:
     {
         // id is not streamed out. It is passed to storage separately
         if (_obj->typeId() == resolveTypeId<InactiveObject>()) {
-            return CboxError::OK; // don't persist inactive objects
+            // inactive objects are not persisted, but no error is returned
+            // never happens, because for a write an inactive object is temporarily replaced with an active object to process the write
+            return CboxError::OK; // LCOV_EXCL_LINE
         }
         if (!out.put(_profiles)) {
-            return CboxError::PERSISTED_STORAGE_WRITE_ERROR;
+            return CboxError::PERSISTED_STORAGE_WRITE_ERROR; // LCOV_EXCL_LINE
         }
         if (!out.put(_obj->typeId())) {
-            return CboxError::PERSISTED_STORAGE_WRITE_ERROR;
+            return CboxError::PERSISTED_STORAGE_WRITE_ERROR; // LCOV_EXCL_LINE
         }
         return _obj->streamPersistedTo(out);
     }

@@ -3,6 +3,7 @@
 #include "Connections.h"
 #include "ConnectionsStringStream.h"
 #include "DataStreamConverters.h"
+#include "EepromAccess.h"
 #include "EepromObjectStorage.h"
 #include "Object.h"
 #include "ObjectContainer.h"
@@ -10,16 +11,11 @@
 #include "ResolveType.h"
 #include "TestObjects.h"
 #include "catch.hpp"
+#include "testinfo.h"
 #include <iomanip>
 #include <iostream>
 
 using namespace cbox;
-
-void
-addCrcEndl(std::stringstream& ss)
-{
-    ss << crc(ss.str()) << "\n";
-}
 
 SCENARIO("A controlbox Box")
 {
@@ -70,6 +66,30 @@ SCENARIO("A controlbox Box")
         CHECK(out.str() == expected.str());
     }
 
+    WHEN("A connection sends a read object command for a non-existing object, INVALID_OBJECT_ID is returned")
+    {
+        in << "010800"; // read object 8
+        in << crc(in.str()) << "\n";
+        box.hexCommunicate();
+
+        expected << addCrc("010800")
+                 << "|" << addCrc("40")
+                 << "\n";
+        CHECK(out.str() == expected.str());
+    }
+
+    WHEN("A connection sends a read stored object command for a non-existing object, INVALID_OBJECT_ID is returned")
+    {
+        in << "060800"; // read stored object 8
+        in << crc(in.str()) << "\n";
+        box.hexCommunicate();
+
+        expected << addCrc("060800")
+                 << "|" << addCrc("40")
+                 << "\n";
+        CHECK(out.str() == expected.str());
+    }
+
     WHEN("A connection sends a write object command, it is processed by the Box")
     {
         in << "02010001E80333333333"; // write object 1, set profiles to 01 and value to 33333333
@@ -84,6 +104,23 @@ SCENARIO("A controlbox Box")
                                   "33333333") // object data
                  << "\n";
         CHECK(out.str() == expected.str());
+
+        AND_WHEN("A connection sends a write object command with a wrong object type, INVALID_OBJECT_TYPE is returned and the object unchanged")
+        {
+            clearStreams();
+            in << "02010001E90333333333"; // E903 instead of E803 is used
+            in << crc(in.str()) << "\n";
+            box.hexCommunicate();
+
+            expected << addCrc("02010001E90333333333")
+                     << "|" << addCrc("41"        // INVALID_OBJECT_TYPE
+                                      "0100"      // object id 1
+                                      "01"        // profiles 0x01
+                                      "E803"      // object type 1000
+                                      "33333333") // object data
+                     << "\n";
+            CHECK(out.str() == expected.str());
+        }
     }
 
     WHEN("A connection sends a create object command, it is processed by the Box")
@@ -96,9 +133,13 @@ SCENARIO("A controlbox Box")
         in << crc(in.str()) << "\n";
         box.hexCommunicate();
 
-        // commands are sent out LSB first
-        // command repetition | 00 no_error - 6400 obj_id 100 - FF profile - E803 obj type 1000 (0x03e8) - 44444444 obj data
-        expected << addCrc("030000FFE80344444444") << "|" << addCrc("006400FFE80344444444") << "\n";
+        expected << addCrc("030000FFE80344444444") << "|"
+                 << addCrc("00"        // status
+                           "6400"      // id
+                           "FF"        // profiles
+                           "E803"      // type
+                           "44444444") // data
+                 << "\n";
         CHECK(out.str() == expected.str());
         CHECK(box.getObject(100).lock());
 
@@ -117,6 +158,20 @@ SCENARIO("A controlbox Box")
             CHECK(out.str() == expected.str());
             CHECK(!box.getObject(100).lock());
         }
+    }
+
+    WHEN("A connection sends a create object command with an ID in the system range, it is refused with INVALID_OBJECT_ID")
+    {
+        in << "03"        // create object
+           << "0500"      // ID 5
+           << "FF"        // profiles FF
+           << "E803"      // type 1000
+           << "44444444"; // value 44444444
+        in << crc(in.str()) << "\n";
+        box.hexCommunicate();
+
+        expected << addCrc("030500FFE80344444444") << "|" << addCrc("40") << "\n";
+        CHECK(out.str() == expected.str());
     }
 
     WHEN("A connection sends a delete object command for system object, it is refused with status object_not_deletable (35)")
@@ -195,7 +250,6 @@ SCENARIO("A controlbox Box")
         in << crc(in.str()) << "\n";
         box.hexCommunicate();
 
-        // commands are sent out LSB first
         expected << addCrc("03000000E80344444444") << "|" // command repetition
                  << addCrc("00"                           // status OK
                            "6400"                         // id 100
@@ -749,5 +803,98 @@ SCENARIO("A controlbox Box")
 
             CHECK(out.str() == expected.str());
         }
+    }
+
+    WHEN("A connection sends only a partial message, a CRC error is returned")
+    {
+        in << "03"   // create object
+           << "0000" // ID assigned by box
+           << "FF";  // profiles FF
+                     //<< "E803"      // type 1000
+                     //<< "44444444"; // value 44444444
+                     // in << crc(in.str()) << "\n";
+        box.hexCommunicate();
+
+        expected << "030000FF"
+                 << "|"
+                 << addCrc("43") << "\n";
+        CHECK(out.str() == expected.str());
+    }
+
+    WHEN("A connection sends only a partial message with half a hex encoded byte (1 nibble), a CRC error is returned")
+    {
+        in << "03" // create object
+           << "0"; // ID assigned by box
+
+        box.hexCommunicate();
+
+        expected << "0300"
+                 << "|"
+                 << addCrc("43") << "\n";
+        CHECK(out.str() == expected.str());
+    }
+
+    WHEN("All commands are sent commands with invalid CRC, CRC errors are returned")
+    {
+        for (uint8_t c = 1; c <= 10; ++c) {
+            clearStreams();
+            in << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << +c;
+            in << "0000000000";
+            in << crc(in.str() + "10");
+
+            box.hexCommunicate();
+            INFO(out.str());
+            CHECK(out.str().find("|43") != std::string::npos);
+        }
+    }
+
+    WHEN("A reboot command is sent, the reset handler is called")
+    {
+        CHECK(testInfo.rebootCount == 0);
+
+        in << "09" // reboot
+           << crc(in.str()) << "\n";
+
+        box.hexCommunicate();
+
+        CHECK(testInfo.rebootCount == 1);
+    }
+
+    WHEN("a factory reset command is sent, EEPROM is reinitialized, followed by a system reboot")
+    {
+        auto rebootCountBeforeCommand = testInfo.rebootCount;
+
+        in << "03"        // create object
+           << "0000"      // ID assigned by box
+           << "FF"        // profiles FF
+           << "E803"      // type 1000
+           << "44444444"; // value 44444444
+        in << crc(in.str()) << "\n";
+        box.hexCommunicate();
+
+        clearStreams();
+
+        auto countNonZeroBytes = [&eeprom]() {
+            uint16_t nonZeroBytesInEeprom = 0;
+            for (uint16_t i = 32; i < eeprom.length(); ++i) {
+                if (eeprom.readByte(i) != 0) {
+                    ++nonZeroBytesInEeprom;
+                }
+            }
+            return nonZeroBytesInEeprom;
+        };
+
+        CHECK(storage.freeSpace() < 2000);
+        CHECK(countNonZeroBytes() > 10);
+
+        in << "0A" // factory reset
+           << crc(in.str()) << "\n";
+
+        box.hexCommunicate();
+
+        CHECK(countNonZeroBytes() == 3); // just the disposed block header
+        CHECK(storage.freeSpace() == 2013);
+
+        CHECK(testInfo.rebootCount == rebootCountBeforeCommand + 1);
     }
 }

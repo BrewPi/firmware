@@ -135,7 +135,7 @@ public:
     {
         uint8_t newProfiles;
         if (!dataIn.get(newProfiles)) {
-            return CboxError::INPUT_STREAM_READ_ERROR;
+            return CboxError::INPUT_STREAM_READ_ERROR; // LCOV_EXCL_LINE
         }
         myBox->setActiveProfilesAndUpdateObjects(newProfiles);
         return CboxError::OK;
@@ -145,7 +145,7 @@ public:
     {
         uint8_t profiles = myBox->getActiveProfiles();
         if (!out.put(profiles)) {
-            return CboxError::OUTPUT_STREAM_WRITE_ERROR;
+            return CboxError::OUTPUT_STREAM_WRITE_ERROR; // LCOV_EXCL_LINE
         }
         return CboxError::OK;
     }

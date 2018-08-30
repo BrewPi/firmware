@@ -1,5 +1,6 @@
 cd /firmware/app/cbox/test/obj
 mkdir -p test
+mkdir -p coverage
 
 echo "resetting lcov counters"
 lcov --zerocounters --directory test

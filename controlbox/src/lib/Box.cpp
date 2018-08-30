@@ -73,7 +73,7 @@ Box::readObject(DataIn& in, HexCrcDataOut& out)
     obj_id_t id = 0;
     ContainedObject* cobj = nullptr;
     if (!in.get(id)) {
-        status = CboxError::INPUT_STREAM_READ_ERROR;
+        status = CboxError::INPUT_STREAM_READ_ERROR; // LCOV_EXCL_LINE
     } else {
         cobj = objects.fetchContained(id);
         if (cobj == nullptr) {
@@ -101,7 +101,7 @@ Box::writeObject(DataIn& in, HexCrcDataOut& out)
     obj_id_t id = 0;
     ContainedObject* cobj = nullptr;
     if (!in.get(id)) {
-        status = CboxError::INPUT_STREAM_READ_ERROR;
+        status = CboxError::INPUT_STREAM_READ_ERROR; // LCOV_EXCL_LINE
     } else {
         cobj = objects.fetchContained(id);
         if (cobj == nullptr) {
@@ -167,10 +167,10 @@ Box::createObjectFromStream(DataIn& in, uint8_t& profiles, std::unique_ptr<Objec
     CboxError status = CboxError::OK;
 
     if (!in.get(profiles)) {
-        status = CboxError::INPUT_STREAM_READ_ERROR;
+        status = CboxError::INPUT_STREAM_READ_ERROR; // LCOV_EXCL_LINE
     }
     if (!in.get(typeId)) {
-        status = CboxError::INPUT_STREAM_READ_ERROR;
+        status = CboxError::INPUT_STREAM_READ_ERROR; // LCOV_EXCL_LINE
     }
 
     if (status == CboxError::OK) {
@@ -195,7 +195,7 @@ Box::createObject(DataIn& in, HexCrcDataOut& out)
     CboxError status = CboxError::OK;
 
     if (!in.get(id)) {
-        status = CboxError::INPUT_STREAM_READ_ERROR;
+        status = CboxError::INPUT_STREAM_READ_ERROR; // LCOV_EXCL_LINE
     }
 
     if (id > 0 && id < userStartId()) {
@@ -242,7 +242,7 @@ Box::deleteObject(DataIn& in, HexCrcDataOut& out)
     obj_id_t id;
 
     if (!in.get(id)) {
-        status = CboxError::INPUT_STREAM_READ_ERROR;
+        status = CboxError::INPUT_STREAM_READ_ERROR; // LCOV_EXCL_LINE
     }
 
     in.spool();
@@ -289,18 +289,15 @@ Box::readStoredObject(DataIn& in, HexCrcDataOut& out)
     obj_id_t id = 0;
 
     if (!in.get(id)) {
-        status = CboxError::INPUT_STREAM_READ_ERROR;
+        status = CboxError::INPUT_STREAM_READ_ERROR; // LCOV_EXCL_LINE
     }
 
     in.spool();
     auto crc = out.crc();
 
-    if (crc) {
-        status = CboxError::OK;
-    }
     out.writeResponseSeparator();
 
-    if (status != CboxError::OK) {
+    if (crc) {
         out.write(asUint8(CboxError::CRC_ERROR_IN_COMMAND));
         return;
     }
@@ -312,7 +309,7 @@ Box::readStoredObject(DataIn& in, HexCrcDataOut& out)
         handlerCalled = true;
         RegionDataIn objWithoutCrc(objInStorage, objInStorage.available() - 1);
         if (!objWithoutCrc.push(out)) {
-            return CboxError::OUTPUT_STREAM_WRITE_ERROR;
+            return CboxError::OUTPUT_STREAM_WRITE_ERROR; // LCOV_EXCL_LINE;
         }
         return CboxError::OK;
     };
@@ -343,7 +340,7 @@ Box::listStoredObjects(DataIn& in, HexCrcDataOut& out)
         if (out.put(id) && objWithoutCrc.push(out)) {
             return CboxError::OK;
         }
-        return CboxError::OUTPUT_STREAM_WRITE_ERROR;
+        return CboxError::OUTPUT_STREAM_WRITE_ERROR; // LCOV_EXCL_LINE
     };
     storage.retrieveObjects(listObjectStreamer);
 }

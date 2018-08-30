@@ -64,7 +64,7 @@ public:
         } else {
             objTarget = (*factoryEntry).createFn();
             if (!objTarget) {
-                return CboxError::INSUFFICIENT_HEAP;
+                return CboxError::INSUFFICIENT_HEAP; // LCOV_EXCL_LINE
             }
         }
         return CboxError::OK;

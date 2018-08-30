@@ -72,7 +72,7 @@ public:
             _length--;
             return true;
         }
-        return false;
+        return false; // LCOV_EXCL_LINE: doesn't happen if length is managed properly
     }
 };
 
