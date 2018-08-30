@@ -37,13 +37,26 @@ public:
         return streamTo(out);
     }
 
+    virtual cbox::update_t update(const cbox::update_t& now) override final
+    {
+        return update_never(now);
+    }
+
+    virtual void* implements(const cbox::obj_type_t& iface) override final
+    {
+        if (iface == cbox::resolveTypeId(this)) {
+            return this; // me!
+        }
+        if (iface == cbox::resolveTypeId<SetPoint>()) {
+            // return the member that implements the interface in this case
+            SetPoint* ptr = &setpoint;
+            return ptr;
+        }
+        return nullptr;
+    }
+
     SetPointSimple& get()
     {
         return setpoint;
-    }
-
-    virtual Interface* getApplicationInterfaceImpl() override final
-    {
-        return &setpoint;
     }
 };

@@ -58,7 +58,7 @@ public:
     virtual void visit(ActuatorDigitalDelegate& thisRef) override final;
     virtual void visit(ProcessValueDelegate& thisRef) override final;
     virtual void visit(SetPointDelegate& thisRef) override final;
-    virtual void visit(SensorSetPointPair& thisRef) override final;
+    virtual void visit(SetpointSensorPair& thisRef) override final;
 #if WIRING
     virtual void visit(ActuatorPin& thisRef) override final;
 #endif

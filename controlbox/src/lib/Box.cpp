@@ -26,6 +26,7 @@
 #include "Object.h"
 #include "ObjectContainer.h"
 #include "ObjectStorage.h"
+#include "Platform.h"
 #include "ResolveType.h"
 #include <memory>
 
@@ -298,7 +299,11 @@ Box::readStoredObject(DataIn& in, HexCrcDataOut& out)
     out.writeResponseSeparator();
 
     if (crc) {
-        out.write(asUint8(CboxError::CRC_ERROR_IN_COMMAND));
+        status = CboxError::CRC_ERROR_IN_COMMAND;
+    }
+
+    if (status != CboxError::OK) {
+        out.write(asUint8(status));
         return;
     }
 

@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Block.h"
-#include "Interface.h"
-#include "OneWire.h"
 #include "OneWireTempSensor.h"
 #include "OneWireTempSensor.pb.h"
 #include "theOneWire.h"
@@ -44,13 +42,27 @@ public:
         return streamTo(out);
     }
 
+    virtual cbox::update_t update(const cbox::update_t& now) override final
+    {
+        // No updates for now. Alternatively, a periodic bus scan for new devices?
+        return update_never(now);
+    }
+
+    virtual void* implements(const cbox::obj_type_t& iface) override final
+    {
+        if (iface == cbox::resolveTypeId(this)) {
+            return this; // me!
+        }
+        if (iface == cbox::resolveTypeId<TempSensor>()) {
+            // return the member that implements the interface in this case
+            TempSensor* ptr = &sensor;
+            return ptr;
+        }
+        return nullptr;
+    }
+
     OneWireTempSensor& get()
     {
         return sensor;
-    }
-
-    virtual Interface* getApplicationInterfaceImpl() override final
-    {
-        return &sensor;
     }
 };

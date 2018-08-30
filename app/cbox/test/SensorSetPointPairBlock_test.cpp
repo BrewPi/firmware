@@ -19,41 +19,40 @@
 
 #include "catch.hpp"
 #include <cstdio>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
-#include "SensorSetPointPairBlock.h"
-#include "Object.h"
+#include "../blox/SetpointSensorPairBlock.h"
 #include "Box.h"
-#include "VisitorCast.h"
+#include "Object.h"
 
 #if 0
 
-SCENARIO("A Blox SensorSetPointPair object can be created from streamed protobuf data"){
-    GIVEN("a protobuf message defining a SensorSetPointPair object"){
-        blox_SensorSetPointPair_Persisted message;
+SCENARIO("A Blox SetpointSensorPair object can be created from streamed protobuf data"){
+    GIVEN("a protobuf message defining a SetpointSensorPair object"){
+        blox_SetpointSensorPair_Persisted message;
         message.links = {{0x01, 0x00, 0x00, 0x00}, {0x02, 0x00, 0x00, 0x00}};
 
         WHEN("it is encoded to a buffer"){
             uint8_t buf[100] = {0};
             pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
-            bool status = pb_encode_delimited(&stream, blox_SensorSetPointPair_Persisted_fields, &message);
+            bool status = pb_encode_delimited(&stream, blox_SetpointSensorPair_Persisted_fields, &message);
             CHECK(status);
 
             std::stringstream ss;
             ss << "0x" << std::setfill('0') << std::hex;
-            for(int i =0 ; i <= blox_SensorSetPointPair_Persisted_size; i ++){
+            for(int i =0 ; i <= blox_SetpointSensorPair_Persisted_size; i ++){
                 ss << std::setw(2) << static_cast<unsigned>(buf[i]);
             }
-            INFO("Encoding of SensorSetPointPair with sensor lookup 0x01000000 and setpoint lookup 0x02000000 is " << ss.str());
-            INFO("Length of encoding is " << blox_SensorSetPointPair_Persisted_size);
+            INFO("Encoding of SetpointSensorPair with sensor lookup 0x01000000 and setpoint lookup 0x02000000 is " << ss.str());
+            INFO("Length of encoding is " << blox_SetpointSensorPair_Persisted_size);
 
             AND_WHEN("we create a DataIn object from that buffer"){
             	cbox::BufferDataIn in(buf);
 
-                THEN("a newly created SensorSetPointPairBloc object can receive settings from the DataIn stream")
+                THEN("a newly created SetpointSensorPairBloc object can receive settings from the DataIn stream")
                 {
-                    SensorSetPointPairBlock sensor;
+                    SetpointSensorPairBlock sensor;
                     sensor.writeFrom(in); // use in as mask too, it is not used.
 
                     AND_THEN("we can stream that bloc object to a DataOut stream")
@@ -65,8 +64,8 @@ SCENARIO("A Blox SensorSetPointPair object can be created from streamed protobuf
                         // verify data that is streamed out by streaming it back in
                         pb_istream_t stream_in = pb_istream_from_buffer(buf2, sizeof(buf2));
 
-                        blox_SensorSetPointPair received;
-                        pb_decode_delimited(&stream_in, blox_SensorSetPointPair_fields, &received);
+                        blox_SetpointSensorPair received;
+                        pb_decode_delimited(&stream_in, blox_SetpointSensorPair_fields, &received);
                         for(int i = 0; i < 4; i++){
                             CHECK(received.links.sensor[i] == message.links.sensor[i]);
                             CHECK(received.links.setpoint[i] == message.links.setpoint[i]);
@@ -79,20 +78,20 @@ SCENARIO("A Blox SensorSetPointPair object can be created from streamed protobuf
 }
 
 
-SCENARIO("Create blox SensorSetPointPair application object from definition"){
-    GIVEN("A BrewBlox SensorSetPointPair definition"){
+SCENARIO("Create blox SetpointSensorPair application object from definition"){
+    GIVEN("A BrewBlox SetpointSensorPair definition"){
         bool status;
-        blox_SensorSetPointPair_Persisted definition;
+        blox_SetpointSensorPair_Persisted definition;
         definition.links = {{0x01, 0x00, 0x00, 0x00}, {0x02, 0x00, 0x00, 0x00}};
 
         uint8_t buffer1[100] = {0};
         pb_ostream_t stream1 = pb_ostream_from_buffer(buffer1, sizeof(buffer1));
-        status = pb_encode_delimited(&stream1, blox_SensorSetPointPair_Persisted_fields, &definition);
+        status = pb_encode_delimited(&stream1, blox_SetpointSensorPair_Persisted_fields, &definition);
         CHECK(status);
 
         cbox::BufferDataIn in(buffer1);
-        uint8_t len = SensorSetPointPairBlock::persistedMaxSize();
-        cbox::obj_type_t typeId = cbox::resolveTypeId<SensorSetPointPairBlock>();
+        uint8_t len = SetpointSensorPairBlock::persistedMaxSize();
+        cbox::obj_type_t typeId = cbox::resolveTypeId<SetpointSensorPairBlock>();
 
         cbox::ObjectDefinition dfn = {&in, len, typeId};
 
@@ -115,15 +114,15 @@ SCENARIO("Create blox SensorSetPointPair application object from definition"){
                 pb_istream_t stream_in = pb_istream_from_buffer(buf2, sizeof(buf2));
 
                 // settings are streamed first
-                blox_SensorSetPointPair received;
-                pb_decode_delimited(&stream_in, blox_SensorSetPointPair_fields, &received);
+                blox_SetpointSensorPair received;
+                pb_decode_delimited(&stream_in, blox_SetpointSensorPair_fields, &received);
 
                 for(int i = 0; i < 4; i++){
                     CHECK(received.links.sensor[i] == definition.links.sensor[i]);
                     CHECK(received.links.setpoint[i] == definition.links.setpoint[i]);
                 }
             }
-            AND_WHEN("The SensorSetPointPair contained in the bloc is used as application object"){
+            AND_WHEN("The SetpointSensorPair contained in the bloc is used as application object"){
                 ProcessValue * pv = asInterface<ProcessValue>(obj->getApplicationInterface());
                 pv->set(temp_t(10.0));
                 temp_t setting = pv->setting();

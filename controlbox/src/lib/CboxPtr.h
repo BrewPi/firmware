@@ -47,7 +47,7 @@ public:
         ptr.reset();
     }
 
-    obj_id_t getId()
+    obj_id_t getId() const
     {
         return id;
     }
@@ -90,6 +90,28 @@ public:
         ptr.reset();
         // return empty share pointer
         return std::shared_ptr<T>();
+    }
+
+    std::shared_ptr<const T>
+    const_lock() const
+    {
+        return std::const_pointer_cast<const T>(
+            std::move(const_cast<CboxPtr<T>*>(this)->lock()));
+    }
+
+    std::shared_ptr<T> operator()()
+    {
+        return lock();
+    }
+
+    /*
+     * Returns whether the weak pointer is still valid. This does not do a new object fetch.
+     * Don't query this before trying to use the pointer, just try to lock it.
+     * Use this function after using the sensor with lock() to print the status.
+     */
+    bool valid() const
+    {
+        return !ptr.expired();
     }
 };
 

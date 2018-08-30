@@ -25,11 +25,14 @@
 SET_TYPE_ID(OneWireBusBlock, 256);
 SET_TYPE_ID(OneWireTempSensorBlock, 257);
 SET_TYPE_ID(PidBlock, 258);
-SET_TYPE_ID(SensorSetPointPairBlock, 259);
+SET_TYPE_ID(SetpointSensorPairBlock, 259);
 SET_TYPE_ID(SetPointSimpleBlock, 260);
 SET_TYPE_ID(DeviceIdObject, 261);
 SET_TYPE_ID(ProfilesBlock, 263);
 SET_TYPE_ID(SysInfoBlock, 264);
+SET_TYPE_ID(TempSensor, 265);   // interface
+SET_TYPE_ID(SetPoint, 266);     // interface
+SET_TYPE_ID(ProcessValue, 267); // interface
 
 // need to figure out how to make a macro for this:
 class TicksWiring;

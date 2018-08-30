@@ -21,18 +21,10 @@
 
 #pragma once
 
-#include "Interface.h"
-
 class ObjectMixin {
 public:
     ObjectMixin() = default;
 
 protected:
     ~ObjectMixin() = default;
-
-public:
-    virtual Interface* getApplicationInterface()
-    {
-        return nullptr;
-    }
 };

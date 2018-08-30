@@ -20,96 +20,90 @@
 
 #pragma once
 
-#include "temperatureFormats.h"
-#include "TempSensor.h"
-#include "OneWireAddress.h"
 #include "DallasTemperature.h"
+#include "OneWireAddress.h"
+#include "TempSensor.h"
+#include "temperatureFormats.h"
 
-class DallasTemperature;
 class OneWire;
 
 #undef OneWireAddress
 
 #define ONEWIRE_TEMP_SENSOR_PRECISION (4)
 
-class OneWireTempSensor final : public TempSensor, public OneWireTempSensorMixin {
+class OneWireTempSensor final : public TempSensor {
 public:
-
-
 private:
-	DallasTemperature sensor;
-	OneWireAddress sensorAddress;
-	temp_t calibrationOffset;
-	temp_t cachedValue;
-	bool connected;
+    DallasTemperature sensor;
+    OneWireAddress sensorAddress;
+    temp_t calibrationOffset;
+    temp_t cachedValue;
+    bool connected;
 
-
-public:	
-	/**
+public:
+    /**
 	 * Constructs a new onewire temp sensor.
 	 * /param bus	The onewire bus this sensor is on.
 	 * /param address	The onewire address for this sensor. If all bytes are 0 in the address, the first temp sensor
 	 *    on the bus is used.
 	 * /param calibration	A temperature value that is added to all readings. This can be used to calibrate the sensor.	 
 	 */
-	OneWireTempSensor(OneWire& bus, OneWireAddress _address, const temp_t & _calibrationOffset) :
-	    sensor(&bus),
-	    sensorAddress(_address),
-	    calibrationOffset(_calibrationOffset),
-	    cachedValue(TEMP_SENSOR_DISCONNECTED),
-	    connected(false)
+    OneWireTempSensor(OneWire& bus, OneWireAddress _address, const temp_t& _calibrationOffset)
+        : sensor(&bus)
+        , sensorAddress(_address)
+        , calibrationOffset(_calibrationOffset)
+        , cachedValue(TEMP_SENSOR_DISCONNECTED)
+        , connected(false)
 
     {
         init();
     }
-	
-	OneWireTempSensor(OneWire& bus) : OneWireTempSensor(bus, 0, temp_t(0.0)){}
 
-
-	~OneWireTempSensor() = default;
-
-    /**
-     * Accept function for visitor pattern
-     * @param dispatcher Visitor to process this class
-     */
-    virtual void accept(VisitorBase & v) override final {
-    	v.visit(*this);
+    OneWireTempSensor(OneWire& bus)
+        : OneWireTempSensor(bus, 0, temp_t(0.0))
+    {
     }
 
-	virtual bool isConnected(void) const override final {
-		return connected;
-	}		
-	
-	virtual temp_t read() const override final ; // return cached value
-	virtual update_t update(const update_t & t) override final; // read from hardware sensor
+    ~OneWireTempSensor() = default;
 
-	void setAddress(OneWireAddress const& addr){
-	    sensorAddress = addr;
-	}
-	void setCalibration(temp_t const& calib){
+    virtual bool isConnected(void) const override final
+    {
+        return connected;
+    }
+
+    virtual temp_t read() const override final; // return cached value
+    void update();                              // read from hardware sensor
+
+    void setAddress(OneWireAddress const& addr)
+    {
+        sensorAddress = addr;
+    }
+    void setCalibration(temp_t const& calib)
+    {
         calibrationOffset = calib;
     }
-    OneWireAddress getAddress() const {
+    OneWireAddress getAddress() const
+    {
         return sensorAddress;
     }
-    temp_t getCalibration() const {
+    temp_t getCalibration() const
+    {
         return calibrationOffset;
     }
 
 private:
     void init();
 
-	void setConnected(bool connected);
+    void setConnected(bool connected);
 
+    void requestConversion();
 
-	void requestConversion();
-	
-	/**
+    /**
 	 * Reads the temperature. If successful, constrains the temp to the range of the temperature type and
 	 * updates lastRequestTime. On successful, leaves lastRequestTime alone and returns DEVICE_DISCONNECTED.
 	 */
-	temp_t readAndConstrainTemp();
+    temp_t readAndConstrainTemp();
 
 public:
-	friend class OneWireTempSensorMixin;
+    friend class OneWireTempSensorMixin;
 };

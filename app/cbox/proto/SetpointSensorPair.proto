@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import 'brewblox.proto';
+
+package blox;
+
+message SetpointSensorPair {
+  uint32 setpointId = 1 [(brewblox).link = "SetPoint"];
+  uint32 sensorId = 2 [(brewblox).link = "TempSensor"];
+  
+  bool setpointValid = 4;
+  bool sensorValid = 3;
+  
+  sint32 setpoint = 5 [(brewblox).unit = "degC", (brewblox).scale = 256];
+  sint32 sensor = 6 [(brewblox).unit = "degC", (brewblox).scale = 256];
+}

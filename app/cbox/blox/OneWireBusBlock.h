@@ -9,7 +9,7 @@
 #include "nanopb_callbacks.h"
 #include <limits.h>
 
-class OneWireBusBlock : public cbox::ObjectBase<OneWireBusBlock> { // not a block type, because it doesn't need to implement Interface*
+class OneWireBusBlock : public Block<OneWireBusBlock> {
 private:
     OneWire& bus;
 

@@ -82,10 +82,15 @@ public:
         return cbox::Object::update_never(now);
     }
 
-    operator uint32_t()
+    operator uint32_t() const
     {
         uint32_t copy = obj;
         return copy;
+    }
+
+    uint32_t value() const
+    {
+        return obj;
     }
 };
 
@@ -258,8 +263,8 @@ public:
 
 class PtrLongIntObject : public cbox::ObjectBase<PtrLongIntObject> {
 private:
-    mutable cbox::CboxPtr<LongIntObject> ptr1;
-    mutable cbox::CboxPtr<LongIntObject> ptr2;
+    cbox::CboxPtr<LongIntObject> ptr1;
+    cbox::CboxPtr<LongIntObject> ptr2;
 
 public:
     PtrLongIntObject(cbox::ObjectContainer& objects)
@@ -275,17 +280,17 @@ public:
         if (status != cbox::CboxError::OK) {
             return status;
         }
-        auto sptr1 = ptr1.lock();
-        auto sptr2 = ptr2.lock();
+        auto sptr1 = ptr1.const_lock();
+        auto sptr2 = ptr2.const_lock();
         bool valid1 = bool(sptr1);
         bool valid2 = bool(sptr2);
         uint32_t value1 = 0;
         uint32_t value2 = 0;
-        if (valid1) {
-            value1 = uint32_t(*sptr1);
+        if (sptr1) {
+            value1 = sptr1->value();
         }
-        if (valid2) {
-            value2 = uint32_t(*sptr2);
+        if (sptr2) {
+            value2 = sptr2->value();
         }
         bool success = out.put(valid1);
         success &= out.put(valid2);

@@ -23,7 +23,7 @@
 //#include "ActuatorMocks.h"
 #include "TempSensorDisconnected.h"
 #include "SetPoint.h"
-#include "SensorSetPointPair.h"
+#include "SetpointSensorPair.h"
 //#include "ActuatorMutexGroupDisabled.h"
 #include "VisitorCast.h"
 
@@ -53,7 +53,7 @@ SetPoint * defaultTarget<SetPoint>(){
 
 template<>
 ProcessValue * defaultTarget<ProcessValue>(){
-    static SensorSetPointPair pv(*defaultTarget<TempSensor>(), *defaultTarget<SetPoint>());
+    static SetpointSensorPair pv(*defaultTarget<TempSensor>(), *defaultTarget<SetPoint>());
     return &pv;
 }
 /*

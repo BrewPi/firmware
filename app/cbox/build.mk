@@ -125,3 +125,6 @@ CFLAGS += -DBUILD_NAME="$(GIT_VERSION)"
 COMPILER_VERSION = $(shell $(CC) --version) 
 $(info using compiler: $(COMPILER_VERSION)) 
  
+# recompile proto files
+PROTO_OUTPUT = $(shell bash $(SOURCE_PATH)/app/cbox/proto/generate_proto_cpp.sh)
+$(info compiling proto files: $(PROTO_OUTPUT)) 

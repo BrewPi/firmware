@@ -18,12 +18,12 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "temperatureFormats.h"
 #include "OneWireTempSensor.h"
-#include "OneWireAddress.h"
 #include "DallasTemperature.h"
-#include "OneWire.h"
 #include "Logger.h"
+#include "OneWire.h"
+#include "OneWireAddress.h"
+#include "temperatureFormats.h"
 
 /**
  * Initializes the temperature sensor.
@@ -31,9 +31,9 @@
  * If the result is TEMP_SENSOR_DISCONNECTED then subsequent calls to read() will also return TEMP_SENSOR_DISCONNECTED.
  * Clients should attempt to re-initialize the sensor by calling init() again. 
  */
-void OneWireTempSensor::init() {
-    bool success = false;
-
+void
+OneWireTempSensor::init()
+{
     // This quickly tests if the sensor is connected and initializes the reset detection if necessary.
 
     // If this is the first conversion after power on, the device will return DEVICE_DISCONNECTED_RAW
@@ -47,12 +47,16 @@ void OneWireTempSensor::init() {
     }
 }
 
-void OneWireTempSensor::requestConversion() {
+void
+OneWireTempSensor::requestConversion()
+{
     sensor.requestTemperaturesByAddress(sensorAddress.asUint8ptr());
 }
 
-void OneWireTempSensor::setConnected(bool _connected) {
-    if (connected == _connected){
+void
+OneWireTempSensor::setConnected(bool _connected)
+{
+    if (connected == _connected) {
         return; // state stays the same
     }
     if (connected) {
@@ -62,21 +66,26 @@ void OneWireTempSensor::setConnected(bool _connected) {
     }
 }
 
-temp_t OneWireTempSensor::read() const {
-    if (!connected){
+temp_t
+OneWireTempSensor::read() const
+{
+    if (!connected) {
         return TEMP_SENSOR_DISCONNECTED;
     }
 
     return cachedValue;
 }
 
-update_t OneWireTempSensor::update(const update_t & now){
+void
+OneWireTempSensor::update()
+{
     cachedValue = readAndConstrainTemp();
     requestConversion();
-    return now + 1000;
 }
 
-temp_t OneWireTempSensor::readAndConstrainTemp() {
+temp_t
+OneWireTempSensor::readAndConstrainTemp()
+{
     int16_t tempRaw;
     bool success;
 

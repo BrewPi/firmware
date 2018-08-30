@@ -25,7 +25,6 @@
 #include "OneWireTempSensorBlock.h"
 #include "Object.h"
 #include "Box.h"
-#include "VisitorCast.h"
 #include "CboxApp.h"
 #include "TestMatchers.hpp"
 

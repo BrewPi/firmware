@@ -20,130 +20,110 @@
 #pragma once
 
 #include "temperatureFormats.h"
-#include "ControllerMixins.h"
-#include "Interface.h"
 
-class SetPoint : public virtual Interface, public SetPointMixin{
+class SetPoint {
 public:
     SetPoint() = default;
     virtual ~SetPoint() = default;
     virtual temp_t read() const = 0;
     virtual void write(temp_t val) = 0;
-friend class SetPointMixin;
+    friend class SetPointMixin;
 };
 
-class SetPointSimple final : public SetPoint, public SetPointSimpleMixin {
+class SetPointSimple final : public SetPoint {
 public:
     temp_t setting;
 
-    SetPointSimple() : setting(temp_t::disabled()){}
-    SetPointSimple(temp_t _value) : setting(_value){}
+    SetPointSimple()
+        : setting(temp_t::disabled())
+    {
+    }
+    SetPointSimple(temp_t _value)
+        : setting(_value)
+    {
+    }
     ~SetPointSimple() = default;
 
-    /**
-     * Accept function for visitor pattern
-     * @param dispatcher Visitor to process this class
-     */
-    virtual void accept(VisitorBase & v) override final {
-    	v.visit(*this);
-    }
-
-    virtual temp_t read() const override final {
+    virtual temp_t read() const override final
+    {
         return setting;
     }
 
-    virtual void write (temp_t val) override final {
+    virtual void write(temp_t val) override final
+    {
         setting = val;
     }
 
-    virtual update_t update(const update_t & t) override final {
-        return update_t_max(); // no updates needed
-    }
-
-friend class SetPointSimpleMixin;
+    friend class SetPointSimpleMixin;
 };
 
-class SetPointMinMax final : public SetPoint, public SetPointMinMaxMixin {
+class SetPointMinMax final : public SetPoint {
 public:
-    SetPointMinMax(temp_t val = temp_t::disabled()) : value(val),
-                                                      min(temp_t::min()),
-                                                      max(temp_t::max()){}
+    SetPointMinMax(temp_t val = temp_t::disabled())
+        : value(val)
+        , min(temp_t::min())
+        , max(temp_t::max())
+    {
+    }
     ~SetPointMinMax() = default;
 
-    /**
-     * Accept function for visitor pattern
-     * @param dispatcher Visitor to process this class
-     */
-    virtual void accept(VisitorBase & v) override final {
-    	v.visit(*this);
-    }
-
-    virtual temp_t read() const override final {
+    virtual temp_t read() const override final
+    {
         return value;
     }
-    virtual void write (temp_t val) override final {
-        if(val < min){
+    virtual void write(temp_t val) override final
+    {
+        if (val < min) {
             value = min;
-        }
-        else if(val > max){
+        } else if (val > max) {
             value = max;
-        }
-        else{
+        } else {
             value = val;
         }
     }
-    void setMin(temp_t t){
+    void setMin(temp_t t)
+    {
         min = t;
     }
-    void setMax(temp_t t){
+    void setMax(temp_t t)
+    {
         max = t;
     }
-    temp_t getMin(){
+    temp_t getMin()
+    {
         return min;
     }
-    temp_t getMax(){
+    temp_t getMax()
+    {
         return max;
-    }
-
-    virtual update_t update(const update_t & t) override final{
-        return update_t_max(); // no updates needed
     }
 
 private:
     temp_t value;
     temp_t min;
     temp_t max;
-friend class SetPointMinMaxMixin;
+    friend class SetPointMinMaxMixin;
 };
 
-
-
 // immutable SetPoint, always reading for example 'invalid' to indicate that the setpoint has not been configured
-class SetPointConstant final : public SetPoint, public SetPointConstantMixin {
+class SetPointConstant final : public SetPoint {
 public:
-    SetPointConstant(const temp_t val): value(val){}
+    SetPointConstant(const temp_t val)
+        : value(val)
+    {
+    }
     ~SetPointConstant() = default;
 
-    /**
-     * Accept function for visitor pattern
-     * @param dispatcher Visitor to process this class
-     */
-    virtual void accept(VisitorBase & v) override final {
-    	v.visit(*this);
-    }
-
-    virtual temp_t read() const override final{
+    virtual temp_t read() const override final
+    {
         return value;
     }
-    virtual void write(temp_t val) override final { // does nothing
-    }
-
-    virtual update_t update(const update_t & t) override final {
-        return update_t_max(); // no updates needed
+    virtual void write(temp_t val) override final
+    { // does nothing
     }
 
 private:
     const temp_t value;
 
-friend class SetPointConstantMixin;
+    friend class SetPointConstantMixin;
 };

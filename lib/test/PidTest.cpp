@@ -35,7 +35,7 @@
 #include <iostream>
 #include <fstream>
 #include "ActuatorOffset.h"
-#include "SensorSetPointPair.h"
+#include "SetpointSensorPair.h"
 
 struct PidTest {
 public:
@@ -58,7 +58,7 @@ public:
     ActuatorBool vAct;
     ActuatorPwm act;
     SetPointSimple sp;
-    SensorSetPointPair input;
+    SetpointSensorPair input;
     Pid pid;
 };
 
@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE(error_is_invalid_and_actuator_zero_when_input_is_invalid_lo
     auto sensor = TempSensorMock(20.0);
     auto pin = ActuatorBool();
     auto act = ActuatorPwm(pin,4);
-    auto input = SensorSetPointPair(sensor, sp);
+    auto input = SetpointSensorPair(sensor, sp);
     auto p = Pid(input, act);
 
     p.setConstants(10.0, 0.0, 0.0);
@@ -297,8 +297,8 @@ BOOST_AUTO_TEST_CASE(pid_driving_setpoint_actuator){
     auto targetSensor = TempSensorMock(20.0);
     auto targetSetpoint = SetPointSimple(20.0);
 
-    auto input = SensorSetPointPair(sensor, sp);
-    auto target = SensorSetPointPair(targetSensor, targetSetpoint);
+    auto input = SetpointSensorPair(sensor, sp);
+    auto target = SetpointSensorPair(targetSensor, targetSetpoint);
 
     auto act = ActuatorOffset(target, input);
 

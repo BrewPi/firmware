@@ -21,61 +21,50 @@
 #pragma once
 
 #include "TempSensor.h"
-#include "ControllerMixins.h"
+#include "temperatureFormats.h"
 
-class TempSensorMock final : public TempSensor, public TempSensorMockMixin
-{
-public:	
-	TempSensorMock(temp_t initial) : value(initial), connected(true) {}
-	
-    /**
-     * Accept function for visitor pattern
-     * @param dispatcher Visitor to process this class
-     */
-    virtual void accept(VisitorBase & v) override final {
-    	v.visit(*this);
+class TempSensorMock final : public TempSensor {
+public:
+    TempSensorMock(temp_t initial)
+        : value(initial)
+        , connected(true)
+    {
     }
 
-	void setConnected(bool _connected)
-	{
-		connected = _connected;
-	}
-	
-	virtual bool isConnected() const override final { return connected; }
-	
-	void add(temp_t delta){
-	    value += delta;
-	}
-
-	virtual update_t update(const update_t & t) override final {
-        return update_t_max(); // no updates needed
+    void setConnected(bool _connected)
+    {
+        connected = _connected;
     }
 
-	virtual temp_t read() const override final
-	{
-		if (!isConnected())
-			return temp_t::invalid();
+    void setTemp(temp_t val)
+    {
+        value = val;
+    }
 
-		// limit precision to mimic DS18B20 sensor
-		const uint8_t shift = temp_t::fractional_bit_count - 4; // DS18B20 has 0.0625 (1/16) degree C steps
-		temp_t rounder;
-		rounder.setRaw(1 << (shift-1));
-		temp_t noise;
-		noise.setRaw(rand() % (1 << (shift-1))); // noise max 1/2 bit
-		rounder += noise;
-		temp_t quantified = ((value + rounder) >> shift) << shift;
-		return quantified;
-	}
-	
-	void setTemp(temp_t val){
-	    value = val;
-	}
+    virtual bool isConnected() const override final { return connected; }
 
-	private:
-	temp_t value;
-	bool connected;
-	//bool noise;
+    void add(temp_t delta)
+    {
+        value += delta;
+    }
 
-	friend class TempSensorMockMixin;
+    virtual temp_t read() const override final
+    {
+        if (!isConnected())
+            return temp_t::invalid();
+
+        // limit precision to mimic DS18B20 sensor
+        const uint8_t shift = temp_t::fractional_bit_count - 4; // DS18B20 has 0.0625 (1/16) degree C steps
+        temp_t rounder;
+        rounder.setRaw(1 << (shift - 1));
+        temp_t noise;
+        noise.setRaw(rand() % (1 << (shift - 1))); // noise max 1/2 bit
+        rounder += noise;
+        temp_t quantified = ((value + rounder) >> shift) << shift;
+        return quantified;
+    }
+
+private:
+    temp_t value;
+    bool connected;
 };
-

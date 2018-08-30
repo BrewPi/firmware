@@ -17,13 +17,12 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "../../controlbox/src/lib/Object.h"
-#include "EepromTypes.h"
 #include "EepromAccessImpl.h"
+#include "EepromTypes.h"
 
-#include "Platform.h"
 #include "CboxApp.h"
+#include "Platform.h"
 //#include "MDNS.h"
 
 // todo - add a system object that describes the application version
@@ -34,7 +33,8 @@ SYSTEM_THREAD(ENABLED);
 
 //MDNS mdns;
 
-void setup()
+void
+setup()
 {
     //Serial.begin(57600);
     //eepromAccess.init();
@@ -44,16 +44,15 @@ void setup()
     System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
     WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
     Particle.connect();
-    cbox::Box & box = brewbloxBox();
+    brewbloxBox(); // init box
 }
 
-
-
-void loop()
+void
+loop()
 {
 
-	brewbloxBox().hexCommunicate();
-/*
+    brewbloxBox().hexCommunicate();
+    /*
 	if(!mdns_started && WiFi.ready() && WiFi.RSSI() < 0){
 
 		String id = System.deviceID();
@@ -69,4 +68,3 @@ void loop()
 	}
 */
 }
-

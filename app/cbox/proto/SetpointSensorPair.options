@@ -1,0 +1,5 @@
+blox.SetpointSensorPair.setpointId int_size:16
+blox.SetpointSensorPair.sensorId int_size:16
+blox.SetpointSensorPair.setpoint int_size:16
+blox.SetpointSensorPair.sensor int_size:16
+   

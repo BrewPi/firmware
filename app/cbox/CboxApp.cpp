@@ -28,11 +28,11 @@
 //#include "blox/PidBlock.h"
 #include "EepromObjectStorage.h"
 #include "blox/OneWireBusBlock.h"
-#include "blox/SensorSetPointPairBlock.h"
 #include "blox/SetPointSimpleBlock.h"
 #include "theOneWire.h"
 #include <memory>
 
+#include "blox/SetpointSensorPairBlock.h"
 #include "ObjectContainer.h"
 #include "SysInfoBlock.h"
 #include "TicksWiring.h"
@@ -47,7 +47,7 @@ connectionStarted(DataOut& out)
 }
 }
 
-class SensorSetPointPairBlock;
+class SetpointSensorPairBlock;
 
 using TicksClass = Ticks<TicksWiring>;
 TicksClass ticks;
@@ -60,12 +60,14 @@ makeTheBox()
         cbox::ContainedObject(2, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
         cbox::ContainedObject(3, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire()))};
 
+    auto makeSetpointSensorPair = []() {
+        return std::make_unique<SetpointSensorPairBlock>(objects);
+    };
+
     static cbox::ObjectFactory objectFactory = {
         OBJECT_FACTORY_ENTRY(OneWireTempSensorBlock),
         OBJECT_FACTORY_ENTRY(SetPointSimpleBlock),
-        OBJECT_FACTORY_ENTRY(SensorSetPointPairBlock)
-        //OBJECT_FACTORY_ENTRY(PidBlock)
-    };
+        {cbox::resolveTypeId<SetpointSensorPairBlock>(), makeSetpointSensorPair}};
 
     static EepromAccess eeprom;
     static cbox::EepromObjectStorage objectStore(eeprom);
