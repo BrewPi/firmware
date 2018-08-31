@@ -109,6 +109,9 @@ CPPFLAGS += -Wsuggest-override
 CPPFLAGS += -Wsuggest-final-types
 CPPFLAGS += -Wsuggest-final-methods
 
+# include google protobuf dependencies
+CFLAGS += `pkg-config --cflags --libs protobuf` 
+
 
 # doesn't work on osx
 #LDFLAGS +=  -Wl,--gc-sections 
