@@ -114,16 +114,18 @@ sample code bearing this copyright.
 //--------------------------------------------------------------------------
  */
 
-#include "OneWire.h"
-#include "Platform.h"
-// #include "Ticks.h"
+#include "../inc/OneWire.h"
 
-void OneWire::write_bytes(const uint8_t *buf, uint16_t count) {
+void
+OneWire::write_bytes(const uint8_t* buf, uint16_t count)
+{
     for (uint16_t i = 0; i < count; i++)
         driver.write(buf[i]);
 }
 
-void OneWire::read_bytes(uint8_t *buf, uint16_t count) {
+void
+OneWire::read_bytes(uint8_t* buf, uint16_t count)
+{
     for (uint16_t i = 0; i < count; i++)
         buf[i] = driver.read();
 }
@@ -132,19 +134,24 @@ void OneWire::read_bytes(uint8_t *buf, uint16_t count) {
 // Do a ROM select
 //
 
-void OneWire::select(const uint8_t rom[8]) {
+void
+OneWire::select(const uint8_t rom[8])
+{
     uint8_t i;
 
     driver.write(0x55); // Choose ROM
 
-    for (i = 0; i < 8; i++) driver.write(rom[i]);
+    for (i = 0; i < 8; i++)
+        driver.write(rom[i]);
 }
 
 //
 // Do a ROM skip
 //
 
-void OneWire::skip() {
+void
+OneWire::skip()
+{
     driver.write(0xCC); // Skip ROM
 }
 
@@ -155,14 +162,17 @@ void OneWire::skip() {
 // You do not need to do it for the first search, though you could.
 //
 
-void OneWire::reset_search() {
+void
+OneWire::reset_search()
+{
     // reset the search state
     LastDiscrepancy = 0;
     LastDeviceFlag = FALSE;
     LastFamilyDiscrepancy = 0;
     for (int i = 7;; i--) {
         ROM_NO[i] = 0;
-        if (i == 0) break;
+        if (i == 0)
+            break;
     }
 }
 
@@ -170,7 +180,9 @@ void OneWire::reset_search() {
 // to search(*newAddr) if it is present.
 //
 
-void OneWire::target_search(uint8_t family_code) {
+void
+OneWire::target_search(uint8_t family_code)
+{
     // set the search state to find SearchFamily type devices
     ROM_NO[0] = family_code;
     for (uint8_t i = 1; i < 8; i++)
@@ -197,7 +209,9 @@ void OneWire::target_search(uint8_t family_code) {
 //        FALSE : device not found, end of search
 //
 
-uint8_t OneWire::search(uint8_t *newAddr) {
+uint8_t
+OneWire::search(uint8_t* newAddr)
+{
     uint8_t id_bit_number;
     uint8_t last_zero, rom_byte_number, search_result;
     uint8_t id_bit, cmp_id_bit;
@@ -263,7 +277,7 @@ uint8_t OneWire::search(uint8_t *newAddr) {
                 if (search_direction == 1)
                     ROM_NO[rom_byte_number] |= rom_byte_mask;
                 else
-                    ROM_NO[rom_byte_number] &= (uint8_t) ~rom_byte_mask;
+                    ROM_NO[rom_byte_number] &= (uint8_t)~rom_byte_mask;
 
                 // increment the byte counter id_bit_number
                 // and shift the mask rom_byte_mask
@@ -288,10 +302,9 @@ uint8_t OneWire::search(uint8_t *newAddr) {
 
             // check for last device
             if (LastDiscrepancy == 0)
-                    LastDeviceFlag = TRUE;
+                LastDeviceFlag = TRUE;
 
             search_result = TRUE;
-
         }
     }
 
@@ -336,8 +349,7 @@ static const uint8_t dscrc_table[] = {
     202, 148, 118, 40, 171, 245, 23, 73, 8, 86, 180, 234, 105, 55, 213, 139,
     87, 9, 235, 181, 54, 104, 138, 212, 149, 203, 41, 119, 244, 170, 72, 22,
     233, 183, 85, 11, 136, 214, 52, 106, 43, 117, 151, 201, 74, 20, 246, 168,
-    116, 42, 200, 150, 21, 75, 169, 247, 182, 232, 10, 84, 215, 137, 107, 53
-};
+    116, 42, 200, 150, 21, 75, 169, 247, 182, 232, 10, 84, 215, 137, 107, 53};
 
 //
 // Compute a Dallas Semiconductor 8 bit CRC. These show up in the ROM
@@ -347,7 +359,9 @@ static const uint8_t dscrc_table[] = {
 // confused, so I use this table from the examples.)
 //
 
-uint8_t OneWire::crc8(const uint8_t *addr, uint8_t len) {
+uint8_t
+OneWire::crc8(const uint8_t* addr, uint8_t len)
+{
     uint8_t crc = 0;
 
     while (len--) {
@@ -361,18 +375,21 @@ uint8_t OneWire::crc8(const uint8_t *addr, uint8_t len) {
 // this is much slower, but much smaller, than the lookup table.
 //
 
-uint8_t OneWire::crc8(const uint8_t *addr, uint8_t len) {
+uint8_t
+OneWire::crc8(const uint8_t* addr, uint8_t len)
+{
     uint8_t crc = 0;
 
     while (len--) {
         uint8_t inbyte = *addr++;
         for (uint8_t i = 8; i; i--) {
             uint8_t mix = (crc ^ inbyte) & 0x01;
-                    crc >>= 1;
+            crc >>= 1;
 
-            if (mix) crc ^= 0x8C;
-                    inbyte >>= 1;
-            }
+            if (mix)
+                crc ^= 0x8C;
+            inbyte >>= 1;
+        }
     }
     return crc;
 }
@@ -380,24 +397,28 @@ uint8_t OneWire::crc8(const uint8_t *addr, uint8_t len) {
 
 #if ONEWIRE_CRC16
 
-bool OneWire::check_crc16(const uint8_t* input, uint16_t len, const uint8_t* inverted_crc, uint16_t crc) {
+bool
+OneWire::check_crc16(const uint8_t* input, uint16_t len, const uint8_t* inverted_crc, uint16_t crc)
+{
     crc = ~crc16(input, len, crc);
 
     return (crc & 0xFF) == inverted_crc[0] && (crc >> 8) == inverted_crc[1];
 }
 
-uint16_t OneWire::crc16(const uint8_t* input, uint16_t len, uint16_t crc) {
+uint16_t
+OneWire::crc16(const uint8_t* input, uint16_t len, uint16_t crc)
+{
     static const uint8_t oddparity[16] = {0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0};
 
     for (uint16_t i = 0; i < len; i++) {
         // Even though we're just copying a byte from the input,
         // we'll be doing 16-bit computation with it.
         uint16_t cdata = input[i];
-                cdata = (cdata ^ crc) & 0xff;
-                crc >>= 8;
+        cdata = (cdata ^ crc) & 0xff;
+        crc >>= 8;
 
-        if (oddparity[cdata & 0x0F] ^ oddparity[cdata >> 4]){
-                crc ^= 0xC001;
+        if (oddparity[cdata & 0x0F] ^ oddparity[cdata >> 4]) {
+            crc ^= 0xC001;
         }
         cdata <<= 6;
         crc ^= cdata;

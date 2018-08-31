@@ -31,30 +31,27 @@
 /*                                                                             */
 /*******************************************************************************/
 
-
 /// \file
 /// This file implements a fixed point class, which is hoped to be faster than
 /// floating point on some architectures.
 //!
 //! Paul Dixon helped in making the class compatible with gcc.
 
-#ifndef __fixed_point_h__
-#define __fixed_point_h__
+#pragma once
 
 #include <boost/assert.hpp>
-#include <boost/static_assert.hpp>
-#include <boost/operators.hpp>
 #include <boost/concept_check.hpp>
+#include <boost/operators.hpp>
+#include <boost/static_assert.hpp>
 #include <limits>
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #define __FPML_DEFINED_USE_MATH_DEFINES__
 #endif
-#include <math.h>
 #include <errno.h>
+#include <math.h>
 
 namespace fpml {
-
 
 /******************************************************************************/
 /*                                                                            */
@@ -62,19 +59,19 @@ namespace fpml {
 /*                                                                            */
 /******************************************************************************/
 
-template<
-/// Derived class for CRTP
-        class Derived,
-        /// The base type. Must be an integer type.
-        //!
-        //! If this is a signed type, the fixed_point number will behave signed too,
-        //! if this is an unsigned type, the fixed_point number will behave
-        //! unsigned.
-        typename B,
-        /// The integer part bit count.
-        unsigned char I,
-        /// The fractional part bit count.
-        unsigned char F = std::numeric_limits<B>::digits - I>
+template <
+    /// Derived class for CRTP
+    class Derived,
+    /// The base type. Must be an integer type.
+    //!
+    //! If this is a signed type, the fixed_point number will behave signed too,
+    //! if this is an unsigned type, the fixed_point number will behave
+    //! unsigned.
+    typename B,
+    /// The integer part bit count.
+    unsigned char I,
+    /// The fractional part bit count.
+    unsigned char F = std::numeric_limits<B>::digits - I>
 /// A fixed point type.
 //!
 //! This type is designed to be a plug-in type to replace the floating point
@@ -86,7 +83,7 @@ template<
 //! The value uses 0/1 bits for the sign, I bits for the integer part and F bits
 //! for the fractional part.
 //!
-//! Here is an example: a signed 8 bit 5:2 fixed_point type would have the 
+//! Here is an example: a signed 8 bit 5:2 fixed_point type would have the
 //! following layout:
 //!
 //! fixed_point<signed char, 5, 2>
@@ -98,13 +95,13 @@ template<
 //! +----+----+----+----+----+----+----+----+
 //!
 //! where S is the sign-bit, I0 to I4 is the integer part, and F0 to F1 is
-//! the fractional part. The range of this type is from -32 to +31.75, the 
+//! the fractional part. The range of this type is from -32 to +31.75, the
 //! fractional part can encode multiples of 0.25.
 //!
 //! The class only implements a few operators directly, the others are generated
 //! via the ordered_field_operators, unit_steppable and shiftable templates.
 //!
-//! The ordered_field_operators template takes and generates (==>) the 
+//! The ordered_field_operators template takes and generates (==>) the
 //! following operators:
 //! +=   ==>  + (addable),
 //! -=   ==>  - (subtractable),
@@ -113,7 +110,7 @@ template<
 //! <    ==>  > , >=, <= (less_than_comparable),
 //! ==   ==>  != (equality_comparable).
 //!
-//! The unit_steppable template takes and generates (==>) the following 
+//! The unit_steppable template takes and generates (==>) the following
 //! operators:
 //! ++   ==>  ++(int), preincrement versus postincrement, (incrementable),
 //! --   ==>  --(int), predecrement versus postdecrement, (decrementable).
@@ -121,16 +118,16 @@ template<
 //! The shiftable template takes and generates the following operators:
 //! >>=  ==>  >> (right_shiftable),
 //! <<=  ==>  << (left_shiftable).
-class fixed_point_base: boost::ordered_field_operators<
-        fpml::fixed_point_base<Derived, B, I, F>,
-        boost::unit_steppable<fpml::fixed_point_base<Derived, B, I, F>,
-                boost::shiftable<fpml::fixed_point_base<Derived, B, I, F>,
-                        unsigned char> > > {
+class fixed_point_base : boost::ordered_field_operators<
+                             fpml::fixed_point_base<Derived, B, I, F>,
+                             boost::unit_steppable<fpml::fixed_point_base<Derived, B, I, F>,
+                                                   boost::shiftable<fpml::fixed_point_base<Derived, B, I, F>,
+                                                                    unsigned char>>> {
     // Only integer types qualify for base type. If this line triggers an error,
     // the base type is not an integer type. Note: char does not qualify as an
     // integer because of its uncertainty in definition. Use signed char or
     // unsigned char to be explicit.
-    BOOST_CONCEPT_ASSERT ((boost::Integer<B>));
+    BOOST_CONCEPT_ASSERT((boost::Integer<B>));
 
     // Make sure that the bit counts are ok. If this line triggers an error, the
     // sum of the bit counts for the fractional and integer parts do not match
@@ -140,18 +137,18 @@ class fixed_point_base: boost::ordered_field_operators<
     /// Grant the fixed_point template access to private members. Types with
     /// different template parameters are different types and without this
     /// declaration they do not have access to private members.
-    template<class Derived2, typename B2, unsigned char I2, unsigned char F2>
+    template <class Derived2, typename B2, unsigned char I2, unsigned char F2>
     friend class fpml::fixed_point_base;
 
     /// Grant the numeric_limits specialization for this fixed_point class
     /// access to private members.
-    friend class std::numeric_limits<fpml::fixed_point_base<Derived, B, I, F> >;
+    friend class std::numeric_limits<fpml::fixed_point_base<Derived, B, I, F>>;
 
-    template<
-    /// The power.
-            int P,
-            /// Make gcc happy.
-            typename T = void>
+    template <
+        /// The power.
+        int P,
+        /// Make gcc happy.
+        typename T = void>
     /// Calculate 2 to the power of F at compile time.
     //!
     //! The fixed_point class needs 2 to the power of P in several locations in
@@ -167,9 +164,9 @@ class fixed_point_base: boost::ordered_field_operators<
         static const long long value = 2 * power2<P - 1, T>::value;
     };
 
-    template<
-    /// Make gcc happy.
-            typename P>
+    template <
+        /// Make gcc happy.
+        typename P>
     /// Calculate 2 to the power of 0 at compile time.
     //!
     //! The fixed_point class needs 2 to the power of P in several locations in
@@ -190,12 +187,13 @@ class fixed_point_base: boost::ordered_field_operators<
     //! This constructor takes a value of type B and initializes the internal
     //! representation of fixed_point<B, I, F> with it.
     fixed_point_base(
-    /// The internal representation to use for initialization.
-            B value,
-            /// This value is not important, it's just here to differentiate from
-            /// the other constructors that convert its values.
-            bool) :
-            value_(value) {
+        /// The internal representation to use for initialization.
+        B value,
+        /// This value is not important, it's just here to differentiate from
+        /// the other constructors that convert its values.
+        bool)
+        : value_(value)
+    {
     }
 
 public:
@@ -218,20 +216,22 @@ public:
     //!
     //! Just as with built-in types no initialization is done. The value is
     //! undetermined after executing this constructor.
-    fixed_point_base() {
+    fixed_point_base()
+    {
     }
 
-    template<
-    /// The numeric type. Must be integer.
-            typename T>
+    template <
+        /// The numeric type. Must be integer.
+        typename T>
     /// Converting constructor.
     //!
     //! This constructor takes a numeric value of type T and converts it to
     //! this fixed_point type.
     fixed_point_base(
-    /// The value to convert.
-            T value) :
-            value_((B) value << F) {
+        /// The value to convert.
+        T value)
+        : value_((B)value << F)
+    {
         BOOST_CONCEPT_ASSERT((boost::Integer<T>));
     }
 
@@ -240,9 +240,10 @@ public:
     //! This constructor takes a numeric value of type bool and converts it to
     //! this fixed_point type.
     fixed_point_base(
-    /// The value to convert.
-            bool value) :
-            value_((B) (value * power2<F>::value)) {
+        /// The value to convert.
+        bool value)
+        : value_((B)(value * power2<F>::value))
+    {
     }
 
     /// Converting constructor.
@@ -253,9 +254,10 @@ public:
     //! The conversion is done by multiplication with 2^F and rounding to the
     //! next integer.
     fixed_point_base(
-    /// The value to convert.
-            float value) :
-            value_((B) (value * power2<F>::value + (value >= 0 ? .5 : -.5))) {
+        /// The value to convert.
+        float value)
+        : value_((B)(value * power2<F>::value + (value >= 0 ? .5 : -.5)))
+    {
     }
 
     /// Converting constructor.
@@ -263,9 +265,10 @@ public:
     //! This constructor takes a numeric value of type double and converts it to
     //! this fixed_point type.
     fixed_point_base(
-    /// The value to convert.
-            double value) :
-            value_((B) (value * power2<F>::value + (value >= 0 ? .5 : -.5))) {
+        /// The value to convert.
+        double value)
+        : value_((B)(value * power2<F>::value + (value >= 0 ? .5 : -.5)))
+    {
     }
 
     /// Converting constructor.
@@ -273,36 +276,41 @@ public:
     //! This constructor takes a numeric value of type long double and converts
     //! it to this fixed_point type.
     fixed_point_base(
-    /// The value to convert.
-            long double value) :
-            value_((B) (value * power2<F>::value + (value >= 0 ? .5 : -.5))) {
+        /// The value to convert.
+        long double value)
+        : value_((B)(value * power2<F>::value + (value >= 0 ? .5 : -.5)))
+    {
     }
 
     /// Copy constructor.
     fixed_point_base(
-    /// The right hand side.
-            fixed_point_base<Derived, B, I, F> const& rhs) :
-            value_(rhs.value_) {
+        /// The right hand side.
+        fixed_point_base<Derived, B, I, F> const& rhs)
+        : value_(rhs.value_)
+    {
     }
 
     /// Copy assignment operator.
-    fpml::fixed_point_base<Derived, B, I, F> & operator =(
-    /// The right hand side.
-            fpml::fixed_point_base<Derived, B, I, F> const& rhs) {
+    fpml::fixed_point_base<Derived, B, I, F>& operator=(
+        /// The right hand side.
+        fpml::fixed_point_base<Derived, B, I, F> const& rhs)
+    {
         fpml::fixed_point_base<Derived, B, I, F> temp(rhs);
         swap(temp);
         return *this;
     }
 
     /// Returns fixed_point_base object with value min_val
-    static const fpml::fixed_point_base<Derived, B, I, F> min(){
+    static const fpml::fixed_point_base<Derived, B, I, F> min()
+    {
         fpml::fixed_point_base<Derived, B, I, F> f;
         f.value_ = min_val;
         return f;
     }
 
     /// Returns fixed_point_base object with value max_val
-    static const fpml::fixed_point_base<Derived, B, I, F> max(){
+    static const fpml::fixed_point_base<Derived, B, I, F> max()
+    {
         fpml::fixed_point_base<Derived, B, I, F> f;
         f.value_ = max_val;
         return f;
@@ -310,8 +318,9 @@ public:
 
     /// Exchanges the elements of two fixed_point objects.
     void swap(
-    /// The right hand side.
-            fpml::fixed_point_base<Derived, B, I, F> & rhs) {
+        /// The right hand side.
+        fpml::fixed_point_base<Derived, B, I, F>& rhs)
+    {
         std::swap(value_, rhs.value_);
     }
 
@@ -322,9 +331,10 @@ public:
     //! operator.
     //!
     //! /return true if less than, false otherwise.
-    bool operator <(
-    /// Right hand side.
-            fpml::fixed_point_base<Derived, B, I, F> const& rhs) const {
+    bool operator<(
+        /// Right hand side.
+        fpml::fixed_point_base<Derived, B, I, F> const& rhs) const
+    {
         return value_ < rhs.value_;
     }
 
@@ -334,16 +344,18 @@ public:
     //! defined and implemented by calling this operator.
     //!
     //! /return true if equal, false otherwise.
-    bool operator ==(
-    /// Right hand side.
-            fpml::fixed_point_base<Derived, B, I, F> const& rhs) const {
+    bool operator==(
+        /// Right hand side.
+        fpml::fixed_point_base<Derived, B, I, F> const& rhs) const
+    {
         return value_ == rhs.value_;
     }
 
     /// Negation operator.
     //!
     //! /return true if equal to zero, false otherwise.
-    bool operator !() const {
+    bool operator!() const
+    {
         return value_ == 0;
     }
 
@@ -356,7 +368,8 @@ public:
     //! a positive value that is out of range and cannot be represented.
     //!
     //! /return The negative value.
-    fpml::fixed_point_base<Derived, B, I, F> operator -() const {
+    fpml::fixed_point_base<Derived, B, I, F> operator-() const
+    {
         fpml::fixed_point_base<Derived, B, I, F> result;
         result.value_ = -value_;
         return result;
@@ -369,7 +382,8 @@ public:
     //! operator.
     //!
     //! /return A reference to this object.
-    fpml::fixed_point_base<Derived, B, I, F> & operator ++() {
+    fpml::fixed_point_base<Derived, B, I, F>& operator++()
+    {
         value_ += power2<F>::value;
         return *this;
     }
@@ -381,7 +395,8 @@ public:
     //! operator.
     //!
     //! /return A reference to this object.
-    fpml::fixed_point_base<Derived, B, I, F> & operator --() {
+    fpml::fixed_point_base<Derived, B, I, F>& operator--()
+    {
         value_ -= power2<F>::value;
         return *this;
     }
@@ -392,19 +407,16 @@ public:
     //! implemented by calling this operator.
     //!
     //! /return A reference to this object.
-    fpml::fixed_point_base<Derived, B, I, F> & operator +=(
-    /// Summand for addition.
-            fpml::fixed_point_base<Derived, B, I, F> const& summand) {
+    fpml::fixed_point_base<Derived, B, I, F>& operator+=(
+        /// Summand for addition.
+        fpml::fixed_point_base<Derived, B, I, F> const& summand)
+    {
 
-        if ((summand.value_ > 0) &&
-                (value_ > Derived::max_val - summand.value_)){ // would overflow
-            value_ = Derived::max_val; // constrain instead of overflow
-        }
-        else if ((summand.value_ < 0) &&
-                (value_ < Derived::min_val - summand.value_)){ // would underflow
-            value_ = Derived::min_val; // constrain instead of underflow
-        }
-        else{
+        if ((summand.value_ > 0) && (value_ > Derived::max_val - summand.value_)) {        // would overflow
+            value_ = Derived::max_val;                                                     // constrain instead of overflow
+        } else if ((summand.value_ < 0) && (value_ < Derived::min_val - summand.value_)) { // would underflow
+            value_ = Derived::min_val;                                                     // constrain instead of underflow
+        } else {
             value_ += summand.value_;
         }
         return *this;
@@ -416,19 +428,16 @@ public:
     //! implemented by calling this operator.
     //!
     //! /return A reference to this object.
-    fpml::fixed_point_base<Derived, B, I, F> & operator -=(
-    /// Diminuend for subtraction.
-            fpml::fixed_point_base<Derived, B, I, F> const& diminuend) {
+    fpml::fixed_point_base<Derived, B, I, F>& operator-=(
+        /// Diminuend for subtraction.
+        fpml::fixed_point_base<Derived, B, I, F> const& diminuend)
+    {
 
-        if ((diminuend.value_ < 0) &&
-                (value_ > Derived::max_val + diminuend.value_)){ // would overflow
-            value_ = Derived::max_val; // constrain instead of overflow
-        }
-        else if ((diminuend.value_ > 0) &&
-                (value_ < Derived::min_val + diminuend.value_)){ // would underflow
-            value_ = Derived::min_val; // constrain instead of underflow
-        }
-        else{
+        if ((diminuend.value_ < 0) && (value_ > Derived::max_val + diminuend.value_)) {        // would overflow
+            value_ = Derived::max_val;                                                         // constrain instead of overflow
+        } else if ((diminuend.value_ > 0) && (value_ < Derived::min_val + diminuend.value_)) { // would underflow
+            value_ = Derived::min_val;                                                         // constrain instead of underflow
+        } else {
             value_ -= diminuend.value_;
         }
         return *this;
@@ -438,11 +447,11 @@ protected:
     struct Error_promote_type_not_specialized_for_this_type {
     };
 
-    template<
-    /// Pick up unspecialized types.
-            typename T,
-            /// Make gcc happy.
-            typename U = void>
+    template <
+        /// Pick up unspecialized types.
+        typename T,
+        /// Make gcc happy.
+        typename U = void>
     /// Multiplication and division of fixed_point numbers need type
     /// promotion.
     //!
@@ -473,67 +482,66 @@ protected:
 #endif // #ifdef _MSC_VER
     };
 
-    template<
-    /// Make gcc happy.
-            typename U>
+    template <
+        /// Make gcc happy.
+        typename U>
     /// Promote signed char to signed short.
     struct promote_type<int8_t, U> {
         typedef int16_t type;
     };
 
-    template<
-    /// Make gcc happy.
-            typename U>
+    template <
+        /// Make gcc happy.
+        typename U>
     /// Promote unsigned char to unsigned short.
     struct promote_type<uint8_t, U> {
         typedef uint16_t type;
     };
 
-    template<
-    /// Make gcc happy.
-            typename U>
+    template <
+        /// Make gcc happy.
+        typename U>
     /// Promote signed short to signed int.
     struct promote_type<int16_t, U> {
         typedef int32_t type;
     };
 
-    template<
-    /// Make gcc happy.
-            typename U>
+    template <
+        /// Make gcc happy.
+        typename U>
     /// Promote unsigned short to unsigned int.
     struct promote_type<uint16_t, U> {
         typedef uint32_t type;
     };
 
-    template<
-    /// Make gcc happy.
-            typename U>
+    template <
+        /// Make gcc happy.
+        typename U>
     /// Promote signed int to signed long int.
     struct promote_type<int32_t, U> {
         typedef int64_t type;
     };
 
-    template<
-    /// Make gcc happy.
-            typename U>
+    template <
+        /// Make gcc happy.
+        typename U>
     /// Promote unsigned int to unsigned long long.
     struct promote_type<uint32_t, U> {
         typedef uint64_t type;
     };
 
 public:
-
     /// Multiplication.
     //!
     //! Through the use of boost::multiplicative operator* is also defined and
     //! implemented by calling this operator.
     //!
     //! /return A reference to this object.
-    fpml::fixed_point_base<Derived, B, I, F> & operator *=(
-    /// Factor for multiplication.
-            fpml::fixed_point_base<Derived, B, I, F> const& factor) {
-        typename fpml::fixed_point_base<Derived, B, I, F>::template
-        promote_type<B>::type result = value_;
+    fpml::fixed_point_base<Derived, B, I, F>& operator*=(
+        /// Factor for multiplication.
+        fpml::fixed_point_base<Derived, B, I, F> const& factor)
+    {
+        typename fpml::fixed_point_base<Derived, B, I, F>::template promote_type<B>::type result = value_;
         result *= factor.value_;
         result = result >> F;
         if (result < Derived::min_val) {
@@ -552,12 +560,11 @@ public:
     //! implemented by calling this operator.
     //!
     //! /return A reference to this object.
-    fpml::fixed_point_base<Derived, B, I, F> & operator /=(
-    /// Divisor for division.
-            fpml::fixed_point_base<Derived, B, I, F> const& divisor) {
-        value_ =
-                (static_cast<typename fpml::fixed_point_base<Derived, B, I, F>::template
-                promote_type<B>::type>(value_) << F) / divisor.value_;
+    fpml::fixed_point_base<Derived, B, I, F>& operator/=(
+        /// Divisor for division.
+        fpml::fixed_point_base<Derived, B, I, F> const& divisor)
+    {
+        value_ = (static_cast<typename fpml::fixed_point_base<Derived, B, I, F>::template promote_type<B>::type>(value_) << F) / divisor.value_;
         return *this;
     }
 
@@ -567,9 +574,10 @@ public:
     //! implemented by calling this operator.
     //!
     //! /return A reference to this object.
-    fpml::fixed_point_base<Derived, B, I, F> & operator >>=(
-    /// Count of positions to shift.
-            unsigned char shift) {
+    fpml::fixed_point_base<Derived, B, I, F>& operator>>=(
+        /// Count of positions to shift.
+        unsigned char shift)
+    {
         value_ >>= shift;
         return *this;
     }
@@ -580,9 +588,10 @@ public:
     //! implemented by calling this operator.
     //!
     //! /return A reference to this object.
-    fpml::fixed_point_base<Derived, B, I, F> & operator <<=(
-    /// Count of positions to shift.
-            unsigned char shift) {
+    fpml::fixed_point_base<Derived, B, I, F>& operator<<=(
+        /// Count of positions to shift.
+        unsigned char shift)
+    {
         value_ <<= shift;
         return *this;
     }
@@ -590,106 +599,121 @@ public:
     /// Convert to char.
     //!
     //! /return The value converted to char.
-    explicit operator char() const {
-        return (char) (value_ >> F);
+    explicit operator char() const
+    {
+        return (char)(value_ >> F);
     }
 
     /// Convert to signed char.
     //!
     //! /return The value converted to signed char.
-    explicit operator signed char() const {
-        return (signed char) (value_ >> F);
+    explicit operator signed char() const
+    {
+        return (signed char)(value_ >> F);
     }
 
     /// Convert to unsigned char.
     //!
     //! /return The value converted to unsigned char.
-    explicit operator unsigned char() const {
-        return (unsigned char) (value_ >> F);
+    explicit operator unsigned char() const
+    {
+        return (unsigned char)(value_ >> F);
     }
 
     /// Convert to short.
     //!
     //! /return The value converted to short.
-    explicit operator short() const {
-        return (short) (value_ >> F);
+    explicit operator short() const
+    {
+        return (short)(value_ >> F);
     }
 
     /// Convert to unsigned short.
     //!
     //! /return The value converted to unsigned short.
-    explicit operator unsigned short() const {
-        return (unsigned short) (value_ >> F);
+    explicit operator unsigned short() const
+    {
+        return (unsigned short)(value_ >> F);
     }
 
     /// Convert to int.
     //!
     //! /return The value converted to int.
-    explicit operator int() const {
-        return (int) (value_ >> F);
+    explicit operator int() const
+    {
+        return (int)(value_ >> F);
     }
 
     /// Convert to unsigned int.
     //!
     //! /return The value converted to unsigned int.
-    explicit operator unsigned int() const {
-        return (unsigned int) (value_ >> F);
+    explicit operator unsigned int() const
+    {
+        return (unsigned int)(value_ >> F);
     }
 
     /// Convert to long.
     //!
     //! /return The value converted to long.
-    explicit operator long() const {
-        return (long) (value_ >> F);
+    explicit operator long() const
+    {
+        return (long)(value_ >> F);
     }
 
     /// Convert to unsigned long.
     //!
     //! /return The value converted to unsigned long.
-    explicit operator unsigned long() const {
-        return (unsigned long) (value_ >> F);
+    explicit operator unsigned long() const
+    {
+        return (unsigned long)(value_ >> F);
     }
 
     /// Convert to long long.
     //!
     //! /return The value converted to long long.
-    explicit operator long long() const {
-        return (long long) (value_ >> F);
+    explicit operator long long() const
+    {
+        return (long long)(value_ >> F);
     }
 
     /// Convert to unsigned long long.
     //!
     //! /return The value converted to unsigned long long.
-    explicit operator unsigned long long() const {
-        return (unsigned long long) (value_ >> F);
+    explicit operator unsigned long long() const
+    {
+        return (unsigned long long)(value_ >> F);
     }
 
     /// Convert to a bool.
     //!
     //! /return The value converted to a bool.
-    explicit operator bool() const {
-        return (bool) value_;
+    explicit operator bool() const
+    {
+        return (bool)value_;
     }
 
     /// Convert to a float.
     //!
     //! /return The value converted to a float.
-    operator float() const {
-        return (float) value_ / power2<F>::value;
+    operator float() const
+    {
+        return (float)value_ / power2<F>::value;
     }
 
     /// Convert to a double.
     //!
     //! /return The value converted to a double.
-    operator double() const {
-        return (double) value_ / power2<F>::value;
+    operator double() const
+    {
+        return (double)value_ / power2<F>::value;
     }
 
     /// Convert to a long double.
     //!
     //! /return The value converted to a long double.
-    operator long double() const {
-        return (long double) value_ / power2<F>::value;
+    operator long double() const
+    {
+        return (long double)value_ / power2<F>::value;
     }
 
     /**************************************************************************/
@@ -704,8 +728,9 @@ public:
     //!
     //! /return The absolute value of the argument.
     friend fpml::fixed_point_base<Derived, B, I, F> fabs(
-    /// The argument to the function.
-            fpml::fixed_point_base<Derived, B, I, F> x) {
+        /// The argument to the function.
+        fpml::fixed_point_base<Derived, B, I, F> x)
+    {
         return x < fpml::fixed_point_base<Derived, B, I, F>(0) ? -x : x;
     }
 
@@ -722,13 +747,14 @@ public:
     //!
     //! /return The smallest integral value not less than the argument.
     friend fpml::fixed_point_base<Derived, B, I, F> ceil(
-    /// The argument to the function.
-            fpml::fixed_point_base<Derived, B, I, F> x) {
+        /// The argument to the function.
+        fpml::fixed_point_base<Derived, B, I, F> x)
+    {
         fpml::fixed_point_base<Derived, B, I, F> result;
         result.value_ = x.value_ & ~(power2<F>::value - 1);
         return result
-                + fpml::fixed_point_base<Derived, B, I, F>(
-                        x.value_ & (power2<F>::value - 1) ? 1 : 0);
+               + fpml::fixed_point_base<Derived, B, I, F>(
+                     x.value_ & (power2<F>::value - 1) ? 1 : 0);
     }
 
     /**************************************************************************/
@@ -744,8 +770,9 @@ public:
     //!
     //! /return The largest integral value not greater than the argument.
     friend fpml::fixed_point_base<Derived, B, I, F> floor(
-    /// The argument to the function.
-            fpml::fixed_point_base<Derived, B, I, F> x) {
+        /// The argument to the function.
+        fpml::fixed_point_base<Derived, B, I, F> x)
+    {
         fpml::fixed_point_base<Derived, B, I, F> result;
         result.value_ = x.value_ & ~(power2<F>::value - 1);
         return result;
@@ -763,10 +790,11 @@ public:
     //!
     //! /return The fixed point remainder of x/y.
     friend fpml::fixed_point_base<Derived, B, I, F> fmod(
-    /// The argument to the function.
-            fpml::fixed_point_base<Derived, B, I, F> x,
-            /// The argument to the function.
-            fpml::fixed_point_base<Derived, B, I, F> y) {
+        /// The argument to the function.
+        fpml::fixed_point_base<Derived, B, I, F> x,
+        /// The argument to the function.
+        fpml::fixed_point_base<Derived, B, I, F> y)
+    {
         fpml::fixed_point_base<Derived, B, I, F> result;
         result.value_ = x.value_ % y.value_;
         return result;
@@ -786,20 +814,19 @@ public:
     //!
     //! /return The signed fractional part of x/y.
     friend fpml::fixed_point_base<Derived, B, I, F> modf(
-    /// The argument to the function.
-            fpml::fixed_point_base<Derived, B, I, F> x,
-            /// The pointer to the integer part.
-            fpml::fixed_point_base<Derived, B, I, F> * ptr) {
+        /// The argument to the function.
+        fpml::fixed_point_base<Derived, B, I, F> x,
+        /// The pointer to the integer part.
+        fpml::fixed_point_base<Derived, B, I, F>* ptr)
+    {
         fpml::fixed_point_base<Derived, B, I, F> integer;
         integer.value_ = x.value_ & ~(power2<F>::value - 1);
-        *ptr = x < fpml::fixed_point_base<Derived, B, I, F>(0) ?
-                integer + fpml::fixed_point_base<Derived, B, I, F>(1) : integer;
+        *ptr = x < fpml::fixed_point_base<Derived, B, I, F>(0) ? integer + fpml::fixed_point_base<Derived, B, I, F>(1) : integer;
 
         fpml::fixed_point_base<Derived, B, I, F> fraction;
         fraction.value_ = x.value_ & (power2<F>::value - 1);
 
-        return x < fpml::fixed_point_base<Derived, B, I, F>(0) ?
-                -fraction : fraction;
+        return x < fpml::fixed_point_base<Derived, B, I, F>(0) ? -fraction : fraction;
     }
 
     /**************************************************************************/
@@ -815,41 +842,41 @@ public:
     //!
     //! /return The exponential of the argument.
     friend fpml::fixed_point_base<Derived, B, I, F> exp(
-    /// The argument to the exp function.
-            fpml::fixed_point_base<Derived, B, I, F> x) {
+        /// The argument to the exp function.
+        fpml::fixed_point_base<Derived, B, I, F> x)
+    {
         // a[x] = exp( (1/2) ^ x ), x: [0 ... 31]
-        fpml::fixed_point_base<Derived, B, I, F> a[] =
-                { 1.64872127070012814684865078781,
-                        1.28402541668774148407342056806,
-                        1.13314845306682631682900722781,
-                        1.06449445891785942956339059464,
-                        1.03174340749910267093874781528,
-                        1.01574770858668574745853507208,
-                        1.00784309720644797769345355976,
-                        1.00391388933834757344360960390,
-                        1.00195503359100281204651889805,
-                        1.00097703949241653524284529261,
-                        1.00048840047869447312617362381,
-                        1.00024417042974785493700523392,
-                        1.00012207776338377107650351967,
-                        1.00006103701893304542177912060,
-                        1.00003051804379102429545128481,
-                        1.00001525890547841394814004262,
-                        1.00000762942363515447174318433,
-                        1.00000381470454159186605078771,
-                        1.00000190735045180306002872525,
-                        1.00000095367477115374544678825,
-                        1.00000047683727188998079165439,
-                        1.00000023841860752327418915867,
-                        1.00000011920929665620888994533,
-                        1.00000005960464655174749969329,
-                        1.00000002980232283178452676169,
-                        1.00000001490116130486995926397,
-                        1.00000000745058062467940380956,
-                        1.00000000372529030540080797502,
-                        1.00000000186264515096568050830,
-                        1.00000000093132257504915938475,
-                        1.00000000046566128741615947508 };
+        fpml::fixed_point_base<Derived, B, I, F> a[] = {1.64872127070012814684865078781,
+                                                        1.28402541668774148407342056806,
+                                                        1.13314845306682631682900722781,
+                                                        1.06449445891785942956339059464,
+                                                        1.03174340749910267093874781528,
+                                                        1.01574770858668574745853507208,
+                                                        1.00784309720644797769345355976,
+                                                        1.00391388933834757344360960390,
+                                                        1.00195503359100281204651889805,
+                                                        1.00097703949241653524284529261,
+                                                        1.00048840047869447312617362381,
+                                                        1.00024417042974785493700523392,
+                                                        1.00012207776338377107650351967,
+                                                        1.00006103701893304542177912060,
+                                                        1.00003051804379102429545128481,
+                                                        1.00001525890547841394814004262,
+                                                        1.00000762942363515447174318433,
+                                                        1.00000381470454159186605078771,
+                                                        1.00000190735045180306002872525,
+                                                        1.00000095367477115374544678825,
+                                                        1.00000047683727188998079165439,
+                                                        1.00000023841860752327418915867,
+                                                        1.00000011920929665620888994533,
+                                                        1.00000005960464655174749969329,
+                                                        1.00000002980232283178452676169,
+                                                        1.00000001490116130486995926397,
+                                                        1.00000000745058062467940380956,
+                                                        1.00000000372529030540080797502,
+                                                        1.00000000186264515096568050830,
+                                                        1.00000000093132257504915938475,
+                                                        1.00000000046566128741615947508};
 
         fpml::fixed_point_base<Derived, B, I, F> e(2.718281828459045);
 
@@ -859,7 +886,7 @@ public:
                 y *= a[F - i - 1];
         }
 
-        int x_int = (int) (floor(x));
+        int x_int = (int)(floor(x));
         if (x_int < 0) {
             for (int i = 1; i <= -x_int; ++i)
                 y /= e;
@@ -893,18 +920,19 @@ public:
     //!
     //! /return The cosine of the argument.
     friend fpml::fixed_point_base<Derived, B, I, F> cos(
-    /// The argument to the cos function.
-            fpml::fixed_point_base<Derived, B, I, F> x) {
+        /// The argument to the cos function.
+        fpml::fixed_point_base<Derived, B, I, F> x)
+    {
         fpml::fixed_point_base<Derived, B, I, F> x_ = fmod(x,
-                fpml::fixed_point_base<Derived, B, I, F>(M_PI * 2));
+                                                           fpml::fixed_point_base<Derived, B, I, F>(M_PI * 2));
         if (x_ > fpml::fixed_point_base<Derived, B, I, F>(M_PI))
             x_ -= fpml::fixed_point_base<Derived, B, I, F>(M_PI * 2);
 
         fpml::fixed_point_base<Derived, B, I, F> xx = x_ * x_;
 
         fpml::fixed_point_base<Derived, B, I, F> y = -xx
-                * fpml::fixed_point_base<Derived, B, I, F>(
-                        1. / (2 * 3 * 4 * 5 * 6));
+                                                     * fpml::fixed_point_base<Derived, B, I, F>(
+                                                           1. / (2 * 3 * 4 * 5 * 6));
         y += fpml::fixed_point_base<Derived, B, I, F>(1. / (2 * 3 * 4));
         y *= xx;
         y -= fpml::fixed_point_base<Derived, B, I, F>(1. / (2));
@@ -936,18 +964,19 @@ public:
     //!
     //! /return The sine of the argument.
     friend fpml::fixed_point_base<Derived, B, I, F> sin(
-    /// The argument to the sin function.
-            fpml::fixed_point_base<Derived, B, I, F> x) {
+        /// The argument to the sin function.
+        fpml::fixed_point_base<Derived, B, I, F> x)
+    {
         fpml::fixed_point_base<Derived, B, I, F> x_ = fmod(x,
-                fpml::fixed_point_base<Derived, B, I, F>(M_PI * 2));
+                                                           fpml::fixed_point_base<Derived, B, I, F>(M_PI * 2));
         if (x_ > fpml::fixed_point_base<Derived, B, I, F>(M_PI))
             x_ -= fpml::fixed_point_base<Derived, B, I, F>(M_PI * 2);
 
         fpml::fixed_point_base<Derived, B, I, F> xx = x_ * x_;
 
         fpml::fixed_point_base<Derived, B, I, F> y = -xx
-                * fpml::fixed_point_base<Derived, B, I, F>(
-                        1. / (2 * 3 * 4 * 5 * 6 * 7));
+                                                     * fpml::fixed_point_base<Derived, B, I, F>(
+                                                           1. / (2 * 3 * 4 * 5 * 6 * 7));
         y += fpml::fixed_point_base<Derived, B, I, F>(1. / (2 * 3 * 4 * 5));
         y *= xx;
         y -= fpml::fixed_point_base<Derived, B, I, F>(1. / (2 * 3));
@@ -979,27 +1008,31 @@ public:
     //! /return The square root of the argument. If the argument is negative,
     //! the function returns 0.
     friend fpml::fixed_point_base<Derived, B, I, F> sqrt(
-    /// The argument to the square root function, a nonnegative fixed-point
-    /// value.
-            fpml::fixed_point_base<Derived, B, I, F> x) {
+        /// The argument to the square root function, a nonnegative fixed-point
+        /// value.
+        fpml::fixed_point_base<Derived, B, I, F> x)
+    {
         if (x < fpml::fixed_point_base<Derived, B, I, F>(0)) {
             errno = EDOM;
             return 0;
         }
 
         typename fpml::fixed_point_base<Derived, B, I, F>::template promote_type<
-                B>::type op = static_cast<typename fpml::fixed_point_base<
-                Derived, B, I, F>::template promote_type<B>::type>(x.value_)
-                << (I - 1);
+            B>::type op
+            = static_cast<typename fpml::fixed_point_base<
+                  Derived, B, I, F>::template promote_type<B>::type>(x.value_)
+              << (I - 1);
         typename fpml::fixed_point_base<Derived, B, I, F>::template promote_type<
-                B>::type res = 0;
+            B>::type res
+            = 0;
         typename fpml::fixed_point_base<Derived, B, I, F>::template promote_type<
-                B>::type one =
-                (typename fpml::fixed_point_base<Derived, B, I, F>::template promote_type<
-                        B>::type) 1
-                        << (std::numeric_limits<
-                                typename fpml::fixed_point_base<Derived, B, I, F>::template promote_type<
-                                        B>::type>::digits - 1);
+            B>::type one
+            = (typename fpml::fixed_point_base<Derived, B, I, F>::template promote_type<
+                  B>::type)1
+              << (std::numeric_limits<
+                      typename fpml::fixed_point_base<Derived, B, I, F>::template promote_type<
+                          B>::type>::digits
+                  - 1);
 
         while (one > op)
             one >>= 2;
@@ -1023,28 +1056,30 @@ protected:
     B value_;
 };
 
-template<
-/// The input stream type.
-        typename S,
-        // Derived class for CRTP
-        class Derived,
-        /// The base type of the fixed_point type.
-        typename B,
-        /// The integer part bit count of the fixed_point type.
-        unsigned char I,
-        /// The fractional part bit count of the fixed_point type.
-        unsigned char F>
+template <
+    /// The input stream type.
+    typename S,
+    // Derived class for CRTP
+    class Derived,
+    /// The base type of the fixed_point type.
+    typename B,
+    /// The integer part bit count of the fixed_point type.
+    unsigned char I,
+    /// The fractional part bit count of the fixed_point type.
+    unsigned char F>
 /// Stream input operator.
 //!
 //! A value is first input to type double and then the read value is converted
 //! to type fixed_point before it is returned.
 //!
 //! /return A reference to this input stream.
-S & operator>>(
-/// The input stream.
-        S & s,
-        /// A reference to the value to be read.
-        fpml::fixed_point_base<Derived, B, I, F> & v) {
+S&
+operator>>(
+    /// The input stream.
+    S& s,
+    /// A reference to the value to be read.
+    fpml::fixed_point_base<Derived, B, I, F>& v)
+{
     double value = 0.;
     s >> value;
     if (s)
@@ -1052,46 +1087,48 @@ S & operator>>(
     return s;
 }
 
-template<
-/// The output stream type.
-        typename S,
-        // Derived class for CRTP
-        class Derived,
-        /// The base type of the fixed_point type.
-        typename B,
-        /// The integer part bit count of the fixed_point type.
-        unsigned char I,
-        /// The fractional part bit count of the fixed_point type.
-        unsigned char F>
+template <
+    /// The output stream type.
+    typename S,
+    // Derived class for CRTP
+    class Derived,
+    /// The base type of the fixed_point type.
+    typename B,
+    /// The integer part bit count of the fixed_point type.
+    unsigned char I,
+    /// The fractional part bit count of the fixed_point type.
+    unsigned char F>
 /// Stream output operator.
 //!
 //! The fixed_point value is first converted to type double and then the output
 //! operator for type double is called.
 //!
 //! /return A reference to this output stream.
-S & operator<<(
-/// The output stream.
-        S & s,
-        /// A const reference to the value to be written.
-        fpml::fixed_point_base<Derived, B, I, F> const& v) {
+S&
+operator<<(
+    /// The output stream.
+    S& s,
+    /// A const reference to the value to be written.
+    fpml::fixed_point_base<Derived, B, I, F> const& v)
+{
     double value = v;
     s << value;
     return s;
 }
 
 // The actual fixed point class without CRTP
-template<
-/// The base type. Must be an integer type.
-//!
-//! If this is a signed type, the fixed_point number will behave signed too,
-//! if this is an unsigned type, the fixed_point number will behave
-//! unsigned.
-        typename B,
-        /// The integer part bit count.
-        unsigned char I,
-        /// The fractional part bit count.
-        unsigned char F = std::numeric_limits<B>::digits - I>
-class fixed_point: public fixed_point_base<fixed_point<B, I, F>, B, I, F> {
+template <
+    /// The base type. Must be an integer type.
+    //!
+    //! If this is a signed type, the fixed_point number will behave signed too,
+    //! if this is an unsigned type, the fixed_point number will behave
+    //! unsigned.
+    typename B,
+    /// The integer part bit count.
+    unsigned char I,
+    /// The fractional part bit count.
+    unsigned char F = std::numeric_limits<B>::digits - I>
+class fixed_point : public fixed_point_base<fixed_point<B, I, F>, B, I, F> {
     using fixed_point_base<fixed_point, B, I, F>::fixed_point_base;
     // inherit constructors from base class
 };
@@ -1106,16 +1143,16 @@ namespace std {
 /*                                                                            */
 /******************************************************************************/
 
-template<
-// Derived class for CRTP
-        class Derived,
-        /// The base type of the fixed_point type.
-        typename B,
-        /// The integer part bit count of the fixed_point type.
-        unsigned char I,
-        /// The fractional part bit count of the fixed_point type.
-        unsigned char F>
-class numeric_limits<fpml::fixed_point_base<Derived, B, I, F> > {
+template <
+    // Derived class for CRTP
+    class Derived,
+    /// The base type of the fixed_point type.
+    typename B,
+    /// The integer part bit count of the fixed_point type.
+    unsigned char I,
+    /// The fractional part bit count of the fixed_point type.
+    unsigned char F>
+class numeric_limits<fpml::fixed_point_base<Derived, B, I, F>> {
 public:
     /// The fixed_point type. This numeric_limits specialization is specialized
     /// for this type.
@@ -1206,7 +1243,7 @@ public:
     //! which is the case for all fixed_point types with a signed base type.
     //! Otherwise it stores false.
     static const bool is_signed = std::numeric_limits<
-            typename fp_type::base_type>::is_signed;
+        typename fp_type::base_type>::is_signed;
 
     /// Tests if a type has an explicit specialization defined in the template
     /// class numeric_limits.
@@ -1253,7 +1290,7 @@ public:
     //!
     //! The member is set to the number of decimal digits that the type can
     //! represent.
-    static const int digits10 = (int) (digits * 301. / 1000. + .5);
+    static const int digits10 = (int)(digits * 301. / 1000. + .5);
 
     static const int max_exponent = 0;
     static const int max_exponent10 = 0;
@@ -1264,20 +1301,20 @@ public:
     /// The minimum value of this type.
     //!
     //! /return The minimum value representable with this type.
-    static fp_type (min)() {
+    static fp_type(min)()
+    {
         fp_type minimum;
-        minimum.value_ =
-                (std::numeric_limits<typename fp_type::base_type>::min)();
+        minimum.value_ = (std::numeric_limits<typename fp_type::base_type>::min)();
         return minimum;
     }
 
     /// The maximum value of this type.
     //!
     //! /return The maximum value representable with this type.
-    static fp_type (max)() {
+    static fp_type(max)()
+    {
         fp_type maximum;
-        maximum.value_ =
-                (std::numeric_limits<typename fp_type::base_type>::max)();
+        maximum.value_ = (std::numeric_limits<typename fp_type::base_type>::max)();
         return maximum;
     }
 
@@ -1285,7 +1322,8 @@ public:
     /// greater than 1 that is representable for the data type.
     //!
     //! /return The smallest effective increment from 1.0.
-    static fp_type epsilon() {
+    static fp_type epsilon()
+    {
         fp_type epsilon;
         epsilon.value_ = 1;
         return epsilon;
@@ -1296,24 +1334,29 @@ public:
     //! The maximum rounding error for the fixed_point type is 0.5.
     //!
     //! /return Always returns 0.5.
-    static fp_type round_error() {
-        return (fp_type) (0.5);
+    static fp_type round_error()
+    {
+        return (fp_type)(0.5);
     }
 
-    static fp_type denorm_min() {
-        return (fp_type) (0);
+    static fp_type denorm_min()
+    {
+        return (fp_type)(0);
     }
 
-    static fp_type infinity() {
-        return (fp_type) (0);
+    static fp_type infinity()
+    {
+        return (fp_type)(0);
     }
 
-    static fp_type quiet_NaN() {
-        return (fp_type) (0);
+    static fp_type quiet_NaN()
+    {
+        return (fp_type)(0);
     }
 
-    static fp_type signaling_NaN() {
-        return (fp_type) (0);
+    static fp_type signaling_NaN()
+    {
+        return (fp_type)(0);
     }
 };
 
@@ -1323,5 +1366,3 @@ public:
 #undef _USE_MATH_DEFINES
 #undef __FPML_DEFINED_USE_MATH_DEFINES__
 #endif
-
-#endif // __fixed_point_h__

@@ -18,12 +18,12 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "OneWireTempSensor.h"
-#include "DallasTemperature.h"
-#include "Logger.h"
-#include "OneWire.h"
-#include "OneWireAddress.h"
-#include "temperatureFormats.h"
+#include "../inc/OneWireTempSensor.h"
+#include "../inc/DallasTemperature.h"
+#include "../inc/Logger.h"
+#include "../inc/OneWire.h"
+#include "../inc/OneWireAddress.h"
+#include "../inc/temperatureFormats.h"
 
 /**
  * Initializes the temperature sensor.

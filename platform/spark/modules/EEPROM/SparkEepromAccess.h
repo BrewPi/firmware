@@ -1,9 +1,9 @@
 #pragma once
+#include "EepromAccess.h"
+#include "eeprom_hal.h"
+#include <cstdint>
 
-#include "EepromTypes.h"
-#include "application.h"
-
-class SparkEepromAccess {
+class SparkEepromAccess : public EepromAccess {
 private:
     static const uint16_t MAGIC_BYTES;
 
@@ -11,54 +11,30 @@ public:
     SparkEepromAccess() = default;
     ~SparkEepromAccess() = default;
 
-    static uint8_t readByte(eptr_t offset)
+    virtual uint8_t readByte(uint16_t offset) const override final
     {
-        return EEPROM.read(offset);
+        return HAL_EEPROM_Read(offset);
     }
-    static void writeByte(eptr_t offset, uint8_t value)
+    virtual void writeByte(uint16_t offset, uint8_t value) override final
     {
-        EEPROM.write(offset, value);
-    }
-
-    template <typename T>
-    static T& get(eptr_t offset, T& t)
-    {
-        return EEPROM.get<T>(offset, t);
+        HAL_EEPROM_Write(offset, value);
     }
 
-    template <typename T>
-    static const T& put(eptr_t offset, T& t)
+    virtual void readBlock(void* target, uint16_t offset, uint16_t size) const override final
     {
-        return EEPROM.put<T>(offset, t);
+        HAL_EEPROM_Get(offset, target, size);
+    }
+    virtual void writeBlock(uint16_t target, const void* source, uint16_t size) override final
+    {
+        HAL_EEPROM_Put(target, source, size);
+    }
+    virtual uint16_t length() override final
+    {
+        return HAL_EEPROM_Length();
     }
 
-    static uint16_t length()
+    virtual void clear() override final
     {
-        return EEPROM.length();
-    }
-
-    static void clear()
-    {
-        EEPROM.clear();
-    }
-
-    static void readBlock(void* target, const eptr_t offset, const uint16_t size)
-    {
-        EEPtr idx = offset;
-        EEPtr end = offset + size;
-        unsigned char* t = reinterpret_cast<unsigned char*>(target);
-        while (idx < end) {
-            *(t++) = *(idx++);
-        }
-    }
-
-    static void writeBlock(eptr_t target, const void* source, uint16_t size)
-    {
-        EEPtr idx = target;
-        EEPtr end = target + size;
-        unsigned char const* s = reinterpret_cast<unsigned char const*>(source);
-        while (idx < end) {
-            *(idx++) = *(s++);
-        }
+        HAL_EEPROM_Clear();
     }
 };

@@ -1,64 +1,64 @@
 #ifndef OneWire_h
 #define OneWire_h
 
-#include <inttypes.h>
 #include "spark_wiring.h"
+#include <inttypes.h>
 
 // Platform specific I/O definitions
 
 #if defined(__AVR__)
-#define PIN_TO_BASEREG(pin)             (portInputRegister(digitalPinToPort(pin)))
-#define PIN_TO_BITMASK(pin)             (digitalPinToBitMask(pin))
+#define PIN_TO_BASEREG(pin) (portInputRegister(digitalPinToPort(pin)))
+#define PIN_TO_BITMASK(pin) (digitalPinToBitMask(pin))
 #define IO_REG_TYPE uint8_t
 #define IO_REG_ASM asm("r30")
-#define DIRECT_READ(base, mask)         (((*(base)) & (mask)) ? 1 : 0)
-#define DIRECT_MODE_INPUT(base, mask)   ((*((base)+1)) &= ~(mask))
-#define DIRECT_MODE_OUTPUT(base, mask)  ((*((base)+1)) |= (mask))
-#define DIRECT_WRITE_LOW(base, mask)    ((*((base)+2)) &= ~(mask))
-#define DIRECT_WRITE_HIGH(base, mask)   ((*((base)+2)) |= (mask))
+#define DIRECT_READ(base, mask) (((*(base)) & (mask)) ? 1 : 0)
+#define DIRECT_MODE_INPUT(base, mask) ((*((base) + 1)) &= ~(mask))
+#define DIRECT_MODE_OUTPUT(base, mask) ((*((base) + 1)) |= (mask))
+#define DIRECT_WRITE_LOW(base, mask) ((*((base) + 2)) &= ~(mask))
+#define DIRECT_WRITE_HIGH(base, mask) ((*((base) + 2)) |= (mask))
 
 #elif defined(__MK20DX128__)
-#define PIN_TO_BASEREG(pin)             (portOutputRegister(pin))
-#define PIN_TO_BITMASK(pin)             (1)
+#define PIN_TO_BASEREG(pin) (portOutputRegister(pin))
+#define PIN_TO_BITMASK(pin) (1)
 #define IO_REG_TYPE uint8_t
 #define IO_REG_ASM
-#define DIRECT_READ(base, mask)         (*((base)+512))
-#define DIRECT_MODE_INPUT(base, mask)   (*((base)+640) = 0)
-#define DIRECT_MODE_OUTPUT(base, mask)  (*((base)+640) = 1)
-#define DIRECT_WRITE_LOW(base, mask)    (*((base)+256) = 1)
-#define DIRECT_WRITE_HIGH(base, mask)   (*((base)+128) = 1)
+#define DIRECT_READ(base, mask) (*((base) + 512))
+#define DIRECT_MODE_INPUT(base, mask) (*((base) + 640) = 0)
+#define DIRECT_MODE_OUTPUT(base, mask) (*((base) + 640) = 1)
+#define DIRECT_WRITE_LOW(base, mask) (*((base) + 256) = 1)
+#define DIRECT_WRITE_HIGH(base, mask) (*((base) + 128) = 1)
 
 #elif defined(__SAM3X8E__)
 // Arduino 1.5.1 may have a bug in delayMicroseconds() on Arduino Due.
 // http://arduino.cc/forum/index.php/topic,141030.msg1076268.html#msg1076268
 // If you have trouble with OneWire on Arduino Due, please check the
 // status of delayMicroseconds() before reporting a bug in OneWire!
-#define PIN_TO_BASEREG(pin)             (&(digitalPinToPort(pin)->PIO_PER))
-#define PIN_TO_BITMASK(pin)             (digitalPinToBitMask(pin))
+#define PIN_TO_BASEREG(pin) (&(digitalPinToPort(pin)->PIO_PER))
+#define PIN_TO_BITMASK(pin) (digitalPinToBitMask(pin))
 #define IO_REG_TYPE uint32_t
 #define IO_REG_ASM
-#define DIRECT_READ(base, mask)         (((*((base)+15)) & (mask)) ? 1 : 0)
-#define DIRECT_MODE_INPUT(base, mask)   ((*((base)+5)) = (mask))
-#define DIRECT_MODE_OUTPUT(base, mask)  ((*((base)+4)) = (mask))
-#define DIRECT_WRITE_LOW(base, mask)    ((*((base)+13)) = (mask))
-#define DIRECT_WRITE_HIGH(base, mask)   ((*((base)+12)) = (mask))
+#define DIRECT_READ(base, mask) (((*((base) + 15)) & (mask)) ? 1 : 0)
+#define DIRECT_MODE_INPUT(base, mask) ((*((base) + 5)) = (mask))
+#define DIRECT_MODE_OUTPUT(base, mask) ((*((base) + 4)) = (mask))
+#define DIRECT_WRITE_LOW(base, mask) ((*((base) + 13)) = (mask))
+#define DIRECT_WRITE_HIGH(base, mask) ((*((base) + 12)) = (mask))
 #ifndef PROGMEM
 #define PROGMEM
 #endif
 #ifndef pgm_read_byte
-#define pgm_read_byte(addr) (*(const uint8_t *)(addr))
+#define pgm_read_byte(addr) (*(const uint8_t*)(addr))
 #endif
 
 #elif defined(__PIC32MX__)
-#define PIN_TO_BASEREG(pin)             (portModeRegister(digitalPinToPort(pin)))
-#define PIN_TO_BITMASK(pin)             (digitalPinToBitMask(pin))
+#define PIN_TO_BASEREG(pin) (portModeRegister(digitalPinToPort(pin)))
+#define PIN_TO_BITMASK(pin) (digitalPinToBitMask(pin))
 #define IO_REG_TYPE uint32_t
 #define IO_REG_ASM
-#define DIRECT_READ(base, mask)         (((*(base+4)) & (mask)) ? 1 : 0)  //PORTX + 0x10
-#define DIRECT_MODE_INPUT(base, mask)   ((*(base+2)) = (mask))            //TRISXSET + 0x08
-#define DIRECT_MODE_OUTPUT(base, mask)  ((*(base+1)) = (mask))            //TRISXCLR + 0x04
-#define DIRECT_WRITE_LOW(base, mask)    ((*(base+8+1)) = (mask))          //LATXCLR  + 0x24
-#define DIRECT_WRITE_HIGH(base, mask)   ((*(base+8+2)) = (mask))          //LATXSET + 0x28
+#define DIRECT_READ(base, mask) (((*(base + 4)) & (mask)) ? 1 : 0) //PORTX + 0x10
+#define DIRECT_MODE_INPUT(base, mask) ((*(base + 2)) = (mask))     //TRISXSET + 0x08
+#define DIRECT_MODE_OUTPUT(base, mask) ((*(base + 1)) = (mask))    //TRISXCLR + 0x04
+#define DIRECT_WRITE_LOW(base, mask) ((*(base + 8 + 1)) = (mask))  //LATXCLR  + 0x24
+#define DIRECT_WRITE_HIGH(base, mask) ((*(base + 8 + 2)) = (mask)) //LATXSET + 0x28
 
 #else
 #error "Please define I/O register types here"
@@ -68,10 +68,20 @@
 #define ONEWIRE_PARASITE_SUPPORT 1
 #endif
 
-class OneWirePin {
+#ifndef ONEWIRE_SEARCH
+#define ONEWIRE_SEARCH 1
+#endif
+
+#ifndef ONEWIRE_CRC
+#define ONEWIRE_CRC 1
+#endif
+
+#include "OneWireLowLevelInterface.h"
+
+class OneWirePin : public OneWireLowLevelInterface {
 private:
     IO_REG_TYPE bitmask;
-    volatile IO_REG_TYPE *baseReg;
+    volatile IO_REG_TYPE* baseReg;
     uint8_t pin;
 #if ONEWIRE_SEARCH
     // global search state
@@ -86,7 +96,8 @@ private:
 public:
     OneWirePin(uint8_t pin);
 
-    uint8_t pinNr() const {
+    uint8_t pinNr() const
+    {
         return pin;
     }
 
@@ -107,12 +118,12 @@ public:
     // another read or write.
     void write(uint8_t v, uint8_t power = 0);
 
-    void write_bytes(const uint8_t *buf, uint16_t count, bool power = 0);
+    void write_bytes(const uint8_t* buf, uint16_t count, bool power = 0);
 
     // Read a byte.
     uint8_t read(void);
 
-    void read_bytes(uint8_t *buf, uint16_t count);
+    void read_bytes(uint8_t* buf, uint16_t count);
 
     // Write a bit. The bus is always left powered at the end, see
     // note in write() about that.
@@ -142,13 +153,13 @@ public:
     // might be a good idea to check the CRC to make sure you didn't
     // get garbage.  The order is deterministic. You will always get
     // the same devices in the same order.
-    uint8_t search(uint8_t *newAddr);
+    uint8_t search(uint8_t* newAddr);
 #endif
 
 #if ONEWIRE_CRC
     // Compute a Dallas Semiconductor 8 bit CRC, these are used in the
     // ROM and scratchpad registers.
-    static uint8_t crc8(const uint8_t *addr, uint8_t len);
+    static uint8_t crc8(const uint8_t* addr, uint8_t len);
 
 #if ONEWIRE_CRC16
     // Compute the 1-Wire CRC16 and compare it against the received CRC.
@@ -162,8 +173,8 @@ public:
     //    ReadBytes(net, buf+3, 10);  // Read 6 data bytes, 2 0xFF, 2 CRC16
     //    if (!CheckCRC16(buf, 11, &buf[11])) {
     //        // Handle error.
-    //    }     
-    //          
+    //    }
+    //
     // @param input - Array of bytes to checksum.
     // @param len - How many bytes to use.
     // @param inverted_crc - The two CRC16 bytes in the received data.

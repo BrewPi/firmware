@@ -39,21 +39,24 @@
 #define FALSE 0
 #endif
 #ifndef TRUE
-#define TRUE  1
+#define TRUE 1
 #endif
 
 #ifndef ONEWIRE_PARASITE_SUPPORT
 #define ONEWIRE_PARASITE_SUPPORT 1
 #endif
 
-#include <inttypes.h>
-#include "OneWireImpl.h"
+#include "OneWireLowLevelInterface.h"
+#include <cinttypes>
 
+// pass low level driver as template
 class OneWire {
 public:
     // Argument is PinNr for OneWirePin device, address for bus master IC
 
-    OneWire(uint8_t pa) : driver(pa){
+    OneWire(OneWireLowLevelInterface& driverImpl)
+        : driver(driverImpl)
+    {
         // base class OneWireLowLevelInterface configures pin or bus master IC
 #if ONEWIRE_SEARCH
         reset_search();
@@ -67,47 +70,55 @@ private:
     uint8_t LastDiscrepancy;
     uint8_t LastFamilyDiscrepancy;
     uint8_t LastDeviceFlag;
-    OneWireDriver driver;
+    OneWireLowLevelInterface& driver;
 #endif
 
 public:
     // wrappers for low level functions
-    bool init(){
+    bool init()
+    {
         return driver.init();
-    }    
-    uint8_t read(){
+    }
+    uint8_t read()
+    {
         return driver.read();
     }
-    void write(uint8_t b){
+    void write(uint8_t b)
+    {
         driver.write(b, 0);
     }
-    void write(uint8_t b, uint8_t power){
+    void write(uint8_t b, uint8_t power)
+    {
         driver.write(b, power);
     }
-    void write_bit(uint8_t bit){
+    void write_bit(uint8_t bit)
+    {
         driver.write_bit(bit);
     }
-    uint8_t read_bit(){
+    uint8_t read_bit()
+    {
         return driver.read_bit();
-    }    
-    uint8_t pinNr(){
+    }
+    uint8_t pinNr()
+    {
         return driver.pinNr(); // return pin number or lower bits of I2C address
     }
-    bool reset(){
+    bool reset()
+    {
         return driver.reset();
-    }  
-    
+    }
+
     // high level functions
-    
+
     // Issue a 1-Wire rom select command, you do the reset first.
     void select(const uint8_t rom[8]);
 
     // Issue a 1-Wire rom skip command, to address all on bus.
     void skip(void);
 
-    void write_bytes(const uint8_t *buf, uint16_t count);
+    void write_bytes(const uint8_t* buf, uint16_t count);
 
-    void read_bytes(uint8_t *buf, uint16_t count);
+    void read_bytes(uint8_t* buf, uint16_t count);
 
 #if ONEWIRE_SEARCH
     // Clear the search state so that if will start from the beginning again.
@@ -123,13 +134,13 @@ public:
     // might be a good idea to check the CRC to make sure you didn't
     // get garbage.  The order is deterministic. You will always get
     // the same devices in the same order.
-    uint8_t search(uint8_t *newAddr);
+    uint8_t search(uint8_t* newAddr);
 #endif
 
 #if ONEWIRE_CRC
     // Compute a Dallas Semiconductor 8 bit CRC, these are used in the
     // ROM and scratchpad registers.
-    static uint8_t crc8(const uint8_t *addr, uint8_t len);
+    static uint8_t crc8(const uint8_t* addr, uint8_t len);
 
 #if ONEWIRE_CRC16
     // Compute the 1-Wire CRC16 and compare it against the received CRC.
@@ -143,8 +154,8 @@ public:
     //    ReadBytes(net, buf+3, 10);  // Read 6 data bytes, 2 0xFF, 2 CRC16
     //    if (!CheckCRC16(buf, 11, &buf[11])) {
     //        // Handle error.
-    //    }     
-    //          
+    //    }
+    //
     // @param input - Array of bytes to checksum.
     // @param len - How many bytes to use.
     // @param inverted_crc - The two CRC16 bytes in the received data.

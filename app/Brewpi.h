@@ -20,7 +20,6 @@
 
 #pragma once
 
-
 // have to use two levels of macro expansion to convert a symbol to a string. see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
 #ifndef stringify
 #define stringify(s) _stringifyDo(s)
@@ -35,11 +34,9 @@
  * To customize the build, users may add settings to Config.h, or define symbols in the project.
  */
 
-
 #include <Config.h>
-#include "ConfigDefault.h"
 
-#include <AppConfig.h>
 #include "AppConfigDefault.h"
+#include <AppConfig.h>
 
 #define VERSION_STRING "0.5.7"

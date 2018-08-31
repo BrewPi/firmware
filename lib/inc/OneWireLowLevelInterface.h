@@ -21,8 +21,8 @@
 #include <stdint.h>
 
 class OneWireLowLevelInterface {
-    OneWireLowLevelInterface() = default;
-    virtual ~OneWireLowLevelInterface() = default;
+protected:
+    ~OneWireLowLevelInterface() = default;
 
 public:
     // Configure the pin or chip
@@ -59,5 +59,7 @@ public:
 
     // Read a bit.
     virtual uint8_t read_bit(void) = 0;
-};
 
+    // Perform a triple operation which will perform 2 read bits and 1 write bit
+    virtual uint8_t search_triplet(uint8_t*, uint8_t*, uint8_t*) = 0;
+};

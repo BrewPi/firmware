@@ -17,20 +17,23 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "temperatureFormats.h"
+#include "../inc/temperatureFormats.h"
+#include <cstdlib>
 
 // Converting constructors, which shift and constrain the value.
 
-temp_t::temp_t(temp_precise_t const & rhs) {
+temp_t::temp_t(temp_precise_t const& rhs)
+{
     unsigned char const shift = temp_precise_t::fractional_bit_count
-            - temp_t::fractional_bit_count;
+                                - temp_t::fractional_bit_count;
     this->value_ = rhs.value_ >> shift; // could result in a 1 bit error due to rounding
 }
 
-temp_t::temp_t(temp_long_t const & rhs) {
+temp_t::temp_t(temp_long_t const& rhs)
+{
     // temp and temp_long have same number of fraction bits, no shifting needed
     static_assert(temp_t::fractional_bit_count == temp_long_t::fractional_bit_count,
-            "temp and temp_long should have same number of fraction bits");
+                  "temp and temp_long should have same number of fraction bits");
 
     if (rhs.value_ < min_val) {
         this->value_ = min_val;
@@ -41,32 +44,36 @@ temp_t::temp_t(temp_long_t const & rhs) {
     }
 }
 
-temp_precise_t::temp_precise_t(temp_t const & rhs) {
+temp_precise_t::temp_precise_t(temp_t const& rhs)
+{
     // temp and temp_precise have same number of integer bits, so this will not overflow
     static_assert(temp_t::integer_bit_count == temp_precise_t::integer_bit_count,
-            "temp and temp_long should have same number of integer bits");
+                  "temp and temp_long should have same number of integer bits");
 
     unsigned char shift = temp_precise_t::fractional_bit_count
-            - temp_t::fractional_bit_count;
+                          - temp_t::fractional_bit_count;
     this->value_ = temp_precise_t::base_type(rhs.value_) << shift;
 }
 
-temp_precise_t::temp_precise_t(temp_long_t const & rhs) {
+temp_precise_t::temp_precise_t(temp_long_t const& rhs)
+{
     unsigned char const shift = temp_precise_t::fractional_bit_count
-            - temp_long_t::fractional_bit_count;
+                                - temp_long_t::fractional_bit_count;
 
     // convert to temp first to make sure it fits
     temp_t t = rhs;
     this->value_ = temp_precise_t::base_type(t.value_) << shift;
 }
 
-temp_long_t::temp_long_t(temp_t const & rhs) {
+temp_long_t::temp_long_t(temp_t const& rhs)
+{
     this->value_ = rhs.value_;
 }
 
-temp_long_t::temp_long_t(temp_precise_t const & rhs) {
+temp_long_t::temp_long_t(temp_precise_t const& rhs)
+{
     unsigned char const shift = temp_precise_t::fractional_bit_count
-            - temp_long_t::fractional_bit_count;
+                                - temp_long_t::fractional_bit_count;
     this->value_ = rhs.value_ >> shift; //// could result in a 1 bit error due to rounding
 }
 
@@ -76,132 +83,173 @@ temp_long_t::temp_long_t(temp_precise_t const & rhs) {
 // Addition
 
 // this looks recursive, but it prevents ambiguity
-temp_t temp_t::operator+(temp_t const & rhs) {
+temp_t
+temp_t::operator+(temp_t const& rhs)
+{
     temp_t result(*this);
     result += rhs;
     return result;
 }
 
-temp_precise_t temp_t::operator+(temp_precise_t const & rhs) {
+temp_precise_t
+temp_t::operator+(temp_precise_t const& rhs)
+{
     temp_precise_t result(*this);
     result += rhs;
     return result;
 }
 
-temp_long_t temp_t::operator+(temp_long_t const & rhs) {
+temp_long_t
+temp_t::operator+(temp_long_t const& rhs)
+{
     temp_long_t result(*this);
     result += rhs;
     return result;
 }
 
-temp_long_t temp_long_t::operator+(temp_long_t const & rhs) {
+temp_long_t
+temp_long_t::operator+(temp_long_t const& rhs)
+{
     temp_long_t result(*this);
     result += rhs;
     return result;
 }
 
-temp_long_t temp_long_t::operator+(temp_precise_t const & rhs) {
+temp_long_t
+temp_long_t::operator+(temp_precise_t const& rhs)
+{
     temp_long_t result(*this);
     result += temp_long_t(rhs);
     return result;
 }
 
-temp_long_t temp_long_t::operator+(temp_t const & rhs) {
+temp_long_t
+temp_long_t::operator+(temp_t const& rhs)
+{
     temp_long_t result(*this);
     result += temp_long_t(rhs);
     return result;
 }
 
-temp_precise_t temp_precise_t::operator+(temp_precise_t const & rhs) {
+temp_precise_t
+temp_precise_t::operator+(temp_precise_t const& rhs)
+{
     temp_precise_t result(*this);
     result += rhs;
     return result;
 }
 
-temp_precise_t temp_precise_t::operator+(temp_t const & rhs) {
+temp_precise_t
+temp_precise_t::operator+(temp_t const& rhs)
+{
     temp_precise_t result(*this);
     result += temp_precise_t(rhs);
     return result;
 }
 
-temp_long_t temp_precise_t::operator+(temp_long_t const & rhs) {
+temp_long_t
+temp_precise_t::operator+(temp_long_t const& rhs)
+{
     temp_long_t result(*this);
     result += temp_long_t(rhs);
     return result;
 }
 
 // Unary Minus (change sign)
-temp_t temp_t::operator-() const{
+temp_t
+temp_t::operator-() const
+{
     temp_t result(*this);
     result.value_ = -result.value_;
     return result;
 }
 
-temp_long_t temp_long_t ::operator-() const{
+temp_long_t
+temp_long_t ::operator-() const
+{
     temp_long_t result(*this);
     result.value_ = -result.value_;
     return result;
 }
 
-temp_precise_t temp_precise_t::operator-() const{
+temp_precise_t
+temp_precise_t::operator-() const
+{
     temp_precise_t result(*this);
     result.value_ = -result.value_;
     return result;
 }
-
 
 // Subtraction
 
 // this looks recursive, but it prevents ambiguity
-temp_t temp_t::operator-(temp_t const & rhs) {
+temp_t
+temp_t::operator-(temp_t const& rhs)
+{
     temp_t result(*this);
     result -= rhs;
     return result;
 }
 
-temp_precise_t temp_t::operator-(temp_precise_t const & rhs) {
+temp_precise_t
+temp_t::operator-(temp_precise_t const& rhs)
+{
     temp_precise_t result(*this);
     result -= rhs;
     return result;
 }
 
-temp_long_t temp_t::operator-(temp_long_t const & rhs) {
+temp_long_t
+temp_t::operator-(temp_long_t const& rhs)
+{
     temp_long_t result(*this);
     result -= rhs;
     return result;
 }
 
-temp_long_t temp_long_t::operator-(temp_long_t const & rhs) {
+temp_long_t
+temp_long_t::operator-(temp_long_t const& rhs)
+{
     temp_long_t result(*this);
     result -= rhs;
     return result;
 }
 
-temp_long_t temp_long_t::operator-(temp_precise_t const & rhs) {
+temp_long_t
+temp_long_t::operator-(temp_precise_t const& rhs)
+{
     temp_long_t result(*this);
     result -= temp_long_t(rhs);
     return result;
 }
 
-temp_long_t temp_long_t::operator-(temp_t const & rhs) {
+temp_long_t
+temp_long_t::operator-(temp_t const& rhs)
+{
     temp_long_t result(*this);
     result -= temp_long_t(rhs);
     return result;
 }
 
-temp_precise_t temp_precise_t::operator-(temp_precise_t const & rhs) {
+temp_precise_t
+temp_precise_t::operator-(temp_precise_t const& rhs)
+{
     temp_precise_t result(*this);
     result -= rhs;
     return result;
 }
 
-temp_precise_t temp_precise_t::operator-(temp_t const & rhs) {
+temp_precise_t
+temp_precise_t::operator-(temp_t const& rhs)
+{
     temp_precise_t result(*this);
     result -= temp_precise_t(rhs);
     return result;
 }
 
-temp_long_t temp_precise_t::operator-(temp_long_t const & rhs) {
+temp_long_t
+temp_precise_t::operator-(temp_long_t const& rhs)
+{
     temp_long_t result(*this);
     result -= temp_long_t(rhs);
     return result;
@@ -209,68 +257,79 @@ temp_long_t temp_precise_t::operator-(temp_long_t const & rhs) {
 
 // Multiplication
 
-temp_t temp_t::operator*(temp_t const & rhs) {
+temp_t temp_t::operator*(temp_t const& rhs)
+{
     temp_t result(*this);
     result *= rhs;
     return result;
 }
 
-temp_precise_t temp_t::operator*(temp_precise_t const & rhs) {
+temp_precise_t temp_t::operator*(temp_precise_t const& rhs)
+{
     temp_precise_t result(*this);
     result *= rhs;
     return result;
 }
 
-temp_long_t temp_t::operator*(temp_long_t const & rhs) {
+temp_long_t temp_t::operator*(temp_long_t const& rhs)
+{
     temp_long_t result(*this);
     result *= rhs;
     return result;
 }
 
-temp_long_t temp_long_t::operator*(temp_long_t const & rhs) {
+temp_long_t temp_long_t::operator*(temp_long_t const& rhs)
+{
     temp_long_t result(*this);
     result *= rhs;
     return result;
 }
 
-temp_long_t temp_long_t::operator*(temp_precise_t const & rhs) {
+temp_long_t temp_long_t::operator*(temp_precise_t const& rhs)
+{
     temp_long_t result(*this);
     result *= temp_long_t(rhs);
     return result;
 }
 
-temp_long_t temp_long_t::operator*(temp_t const & rhs) {
+temp_long_t temp_long_t::operator*(temp_t const& rhs)
+{
     temp_long_t result(*this);
     result *= temp_long_t(rhs);
     return result;
 }
 
-temp_precise_t temp_precise_t::operator*(temp_precise_t const & rhs) {
+temp_precise_t temp_precise_t::operator*(temp_precise_t const& rhs)
+{
     temp_precise_t result(*this);
     result *= rhs;
     return result;
 }
 
-temp_precise_t temp_precise_t::operator*(temp_t const & rhs) {
+temp_precise_t temp_precise_t::operator*(temp_t const& rhs)
+{
     temp_precise_t result(*this);
     result *= temp_precise_t(rhs);
     return result;
 }
 
-temp_long_t temp_precise_t::operator*(temp_long_t const & rhs) {
+temp_long_t temp_precise_t::operator*(temp_long_t const& rhs)
+{
     temp_long_t result(*this);
     result *= temp_long_t(rhs);
     return result;
 }
 
 // multiplication with uint16_t returns long temperature. Will be constrained later if assigned to temp_t
-temp_long_t temp_t::operator*(uint16_t const rhs) {
+temp_long_t temp_t::operator*(uint16_t const rhs)
+{
     temp_long_t result(*this);
     result.value_ *= rhs;
     return result;
 }
 
-temp_long_t temp_precise_t::operator*(uint16_t const rhs) {
+temp_long_t temp_precise_t::operator*(uint16_t const rhs)
+{
     temp_long_t resultUpper(*this); // lower precision bits will be discarded
     temp_precise_t resultLower(*this);
     uint8_t const duplicatedBits = temp_precise_t::fractional_bit_count - temp_long_t::fractional_bit_count;
@@ -284,88 +343,113 @@ temp_long_t temp_precise_t::operator*(uint16_t const rhs) {
 
 // Division
 
-temp_t temp_t::operator/(temp_t const & rhs) {
+temp_t
+temp_t::operator/(temp_t const& rhs)
+{
     temp_t result(*this);
     result /= rhs;
     return result;
 }
 
-temp_precise_t temp_t::operator/(temp_precise_t const & rhs) {
+temp_precise_t
+temp_t::operator/(temp_precise_t const& rhs)
+{
     temp_precise_t result(*this);
     result /= rhs;
     return result;
 }
 
-temp_long_t temp_t::operator/(temp_long_t const & rhs) {
+temp_long_t
+temp_t::operator/(temp_long_t const& rhs)
+{
     temp_long_t result(*this);
     result /= rhs;
     return result;
 }
 
-temp_long_t temp_long_t::operator/(temp_long_t const & rhs) {
+temp_long_t
+temp_long_t::operator/(temp_long_t const& rhs)
+{
     temp_long_t result(*this);
     result /= rhs;
     return result;
 }
 
-temp_long_t temp_long_t::operator/(temp_precise_t const & rhs) {
+temp_long_t
+temp_long_t::operator/(temp_precise_t const& rhs)
+{
     temp_long_t result(*this);
     result /= temp_long_t(rhs);
     return result;
 }
 
-temp_long_t temp_long_t::operator/(temp_t const & rhs) {
+temp_long_t
+temp_long_t::operator/(temp_t const& rhs)
+{
     temp_long_t result(*this);
     result /= temp_long_t(rhs);
     return result;
 }
 
-temp_precise_t temp_precise_t::operator/(temp_precise_t const & rhs) {
+temp_precise_t
+temp_precise_t::operator/(temp_precise_t const& rhs)
+{
     temp_precise_t result(*this);
     result /= rhs;
     return result;
 }
 
-temp_precise_t temp_precise_t::operator/(temp_t const & rhs) {
+temp_precise_t
+temp_precise_t::operator/(temp_t const& rhs)
+{
     temp_precise_t result(*this);
     result /= temp_precise_t(rhs);
     return result;
 }
 
-temp_long_t temp_precise_t::operator/(temp_long_t const & rhs) {
+temp_long_t
+temp_precise_t::operator/(temp_long_t const& rhs)
+{
     temp_long_t result(*this);
     result /= temp_long_t(rhs);
     return result;
 }
 
-temp_t temp_t::operator/(uint16_t const rhs) {
+temp_t
+temp_t::operator/(uint16_t const rhs)
+{
     temp_t result(*this);
-    result.value_ = (result.value_ + (rhs >> 1) ) / rhs; // rounded divide
+    result.value_ = (result.value_ + (rhs >> 1)) / rhs; // rounded divide
     return result;
 }
 
-temp_precise_t temp_precise_t::operator/(uint16_t const rhs) {
+temp_precise_t
+temp_precise_t::operator/(uint16_t const rhs)
+{
     temp_precise_t result(*this);
-    result.value_ = (result.value_ + (rhs >> 1) ) / rhs; // rounded divide
+    result.value_ = (result.value_ + (rhs >> 1)) / rhs; // rounded divide
     return result;
 }
 
-temp_long_t temp_long_t::operator/(uint16_t const rhs) {
+temp_long_t
+temp_long_t::operator/(uint16_t const rhs)
+{
     temp_long_t result(*this);
-    result.value_ = (result.value_ + (rhs >> 1) ) / rhs; // rounded divide
+    result.value_ = (result.value_ + (rhs >> 1)) / rhs; // rounded divide
     return result;
 }
 
 // converts fixed point value to string, without using double/float
 // resulting string is always length len (including \0). Spaces are prepended to achieve that
-char * toStringImpl(const int32_t raw, // raw value of fixed point
-        unsigned char const F, // number of fraction bits
-        char buf[], // target buffer
-        uint8_t const numDecimals, // number of decimals to print
-        uint8_t const len, // maximum number of characters to print
-        char format, // C or F
-        bool absolute) // is this an absolute temperature? need to subtract 32 for F
-        {
+char*
+toStringImpl(const int32_t raw,         // raw value of fixed point
+             unsigned char const F,     // number of fraction bits
+             char buf[],                // target buffer
+             uint8_t const numDecimals, // number of decimals to print
+             uint8_t const len,         // maximum number of characters to print
+             char format,               // C or F
+             bool absolute)             // is this an absolute temperature? need to subtract 32 for F
+{
 
     char const digit[] = "0123456789";
     char* p;
@@ -374,10 +458,10 @@ char * toStringImpl(const int32_t raw, // raw value of fixed point
     // Use larger type to prevent overflow.
     int64_t shifter = raw;
 
-    if(format =='F'){
+    if (format == 'F') {
         int8_t rounder = (shifter < 0) ? -25 : 25;
         shifter = (shifter * 90 + rounder) / 50;
-        if(absolute){
+        if (absolute) {
             shifter += 32 << F;
         }
     }
@@ -394,7 +478,7 @@ char * toStringImpl(const int32_t raw, // raw value of fixed point
 
     p = &buf[len - 1]; // start at the end of buffer
     *p = '\0';
-    lldiv_t dv { };
+    lldiv_t dv{};
     dv.quot = shifter;
     do { //Move back, inserting digits as u go
         if (p == &buf[len - 1 - numDecimals]) {
@@ -414,7 +498,7 @@ char * toStringImpl(const int32_t raw, // raw value of fixed point
             }
         }
     } while (p > buf);
-    char * pWithoutSpaces = p;
+    char* pWithoutSpaces = p;
     while (p > buf) {
         *(--p) = ' '; // prepend digits with spaces
     }
@@ -424,21 +508,22 @@ char * toStringImpl(const int32_t raw, // raw value of fixed point
 }
 
 // Converts string into fixed point and returns bool on success.
-bool fromStringImpl(int32_t * raw, // result is put in this variable upon success
-        unsigned char F, // number of fraction bits
-        char const * const s, // the string to convert
-        char format,
-        bool absolute,
-        int32_t minimum, // minimum value for result
-        int32_t maximum) // maximum value for result
-        {
+bool
+fromStringImpl(int32_t* raw,        // result is put in this variable upon success
+               unsigned char F,     // number of fraction bits
+               char const* const s, // the string to convert
+               char format,
+               bool absolute,
+               int32_t minimum, // minimum value for result
+               int32_t maximum) // maximum value for result
+{
     // receive new value as null terminated string: "19.20"
     int64_t newValue;
 
     // larger type to prevent overflow
     int64_t decimalValue = 0;
 
-    char const * decimalPtr;
+    char const* decimalPtr;
     char* end;
     // Check if - is in the string
     bool positive = (0 == strchr(s, '-'));
@@ -466,8 +551,8 @@ bool fromStringImpl(int32_t * raw, // result is put in this variable upon succes
         }
     }
     newValue = positive ? newValue + decimalValue : newValue - decimalValue;
-    if(format == 'F'){
-        if(absolute){
+    if (format == 'F') {
+        if (absolute) {
             newValue -= 32 << F;
         }
         int8_t rounder = (newValue < 0) ? -45 : 45;

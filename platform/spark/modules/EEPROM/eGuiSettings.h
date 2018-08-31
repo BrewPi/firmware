@@ -18,15 +18,14 @@
  */
 
 #ifndef EGUISETTINGS_H
-#define	EGUISETTINGS_H
+#define EGUISETTINGS_H
 
 extern "C" {
 #include "d4d.h"
 }
 
-#include "EepromFormat.h"
-
 #include "EepromAccessImpl.h"
+#include "EepromFormat.h"
 
 class eGuiSettingsClass {
 public:
@@ -35,7 +34,8 @@ public:
      * and loads it in eGUI
      * @return true if valid data was found, false if not and calibration is needed
      */
-    bool loadTouchCalib() {
+    bool loadTouchCalib()
+    {
         D4D_TOUCHSCREEN_CALIB calib;
         eepromAccess.get(offsetof(EepromFormat, eGuiSettings), calib);
         if (calib.ScreenCalibrated != 1) {
@@ -48,7 +48,8 @@ public:
     /**
      * Stores current touch screen calibration data from eGUI to flash memory
      */
-    void storeTouchCalib() {
+    void storeTouchCalib()
+    {
         D4D_TOUCHSCREEN_CALIB calib = D4D_TCH_GetCalibration();
         eepromAccess.put(offsetof(EepromFormat, eGuiSettings), calib);
     };
@@ -56,5 +57,4 @@ public:
 
 extern eGuiSettingsClass eGuiSettings;
 
-#endif	/* EGUISETTINGS_H */
-
+#endif /* EGUISETTINGS_H */

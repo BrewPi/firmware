@@ -18,79 +18,85 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 /* Old implementation, for backwards compatibility */
 
-#include "OneWireAddress.h"
+#include "../inc/OneWireAddress.h"
 #include <cstdint>
 
-void parseBytes(uint8_t *    data,
-                const char * s,
-                uint8_t      len)
+void
+parseBytes(uint8_t* data,
+           const char* s,
+           uint8_t len)
 {
     char c;
 
-    while ((c = *s++)){
+    while ((c = *s++)) {
         uint8_t d = ((c >= 'A') ? c - 'A' + 10 : c - '0') << 4;
 
-        c       = *s++;
-        d       |= ((c >= 'A') ? c - 'A' + 10 : c - '0');
+        c = *s++;
+        d |= ((c >= 'A') ? c - 'A' + 10 : c - '0');
         *data++ = d;
     }
 }
 
-void printBytes(const uint8_t * data,
-                uint8_t         len,
-                char *          buf)    // prints 8-bit data in hex
+void
+printBytes(const uint8_t* data,
+           uint8_t len,
+           char* buf) // prints 8-bit data in hex
 {
-    for (int i = 0; i < len; i++){
+    for (int i = 0; i < len; i++) {
         uint8_t b = (data[i] >> 4) & 0x0f;
 
         *buf++ = ((b > 9) ? b - 10 + 'A' : b + '0');
-        b      = data[i] & 0x0f;
+        b = data[i] & 0x0f;
         *buf++ = ((b > 9) ? b - 10 + 'A' : b + '0');
     }
 
     *buf = 0;
 }
 
-
 /* New implementation */
 
-uint8_t fromHex(char c){
+uint8_t
+fromHex(char c)
+{
     return (c >= 'A') ? c - 'A' + 10 : c - '0';
 }
 
-char toHex(uint8_t b){
+char
+toHex(uint8_t b)
+{
     return ((b > 9) ? b - 10 + 'A' : b + '0');
 }
 
-void OneWireAddress::parse(const char * s)
+void
+OneWireAddress::parse(const char* s)
 {
     char c;
 
-    for(int8_t i = 0; i<8; i++){
+    for (int8_t i = 0; i < 8; i++) {
         c = *s++;
-        if(!c){
+        if (!c) {
             break; // encountered \0
         }
         uint8_t d = fromHex(c) << 4;
-        c       = *s++;
-        if(!c){
+        c = *s++;
+        if (!c) {
             break; // encountered \0
         }
-        d       |= fromHex(c);
+        d |= fromHex(c);
         this[i] = d;
     }
 }
 
-void OneWireAddress::print(char * buf, uint8_t len)    // prints 8-bit data in hex
+void
+OneWireAddress::print(char* buf, uint8_t len) // prints 8-bit data in hex
 {
-    for (int i = 0; i < 8 && i*2 < len; i++){
+    for (int i = 0; i < 8 && i * 2 < len; i++) {
         uint8_t b = (this[i] >> 4) & 0x0f;
 
         *buf++ = toHex(b);
-        b      = this[i] & 0x0f;
+        b = this[i] & 0x0f;
         *buf++ = toHex(b);
     }
 

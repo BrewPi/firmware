@@ -6,26 +6,26 @@
  */
 
 #include "../inc/OneWireDevice.h"
-#include "OneWire.h"
-#include "OneWireAddress.h"
-#include "string.h" // for memcpy
+#include "../inc/OneWire.h"
+#include "../inc/OneWireAddress.h"
 
 /**
  * Constructor
  * /param oneWire_ The oneWire bus the device is connected to
  * /param address_ The oneWire address of the device to use.
  */
-OneWireDevice::OneWireDevice(OneWire * oneWire_, OneWireAddress address_)
+OneWireDevice::OneWireDevice(OneWire* oneWire_, OneWireAddress address_)
 {
-    this -> oneWire = oneWire_;
-    this -> address = address_;
+    this->oneWire = oneWire_;
+    this->address = address_;
 }
 
 /**
  * Get the device address
  * @return device address
  */
-OneWireAddress OneWireDevice::getDeviceAddress()
+OneWireAddress
+OneWireDevice::getDeviceAddress()
 {
     return address;
 }
@@ -34,11 +34,11 @@ OneWireAddress OneWireDevice::getDeviceAddress()
  * Checks if the address is valid by performing a crc8 check on it
  * @return bool, true if valid
  */
-bool OneWireDevice::validAddress(OneWire *     oneWire_,
-                                 OneWireAddress address_)
+bool
+OneWireDevice::validAddress(OneWire* oneWire_,
+                            OneWireAddress address_)
 {
-    uint8_t * addr = address.asUint8ptr();
+    uint8_t* addr = address.asUint8ptr();
 
-    return addr[0] && (oneWire -> crc8(addr, 7) == addr[7]);
+    return addr[0] && (oneWire->crc8(addr, 7) == addr[7]);
 }
-

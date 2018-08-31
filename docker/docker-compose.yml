@@ -8,6 +8,7 @@ services:
         - ../:/firmware
         # - "/etc/timezone:/etc/timezone:ro"
         # - "/etc/localtime:/etc/localtime:ro"
+    command: tail -f /dev/null
     # environment:
     #    - COMPOSE_CONVERT_WINDOWS_PATHS=1
 
