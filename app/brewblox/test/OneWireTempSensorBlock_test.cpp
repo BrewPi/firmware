@@ -1,7 +1,7 @@
 /*
- * Copyright 2017 BrewPi
+ * Copyright 2018 BrewPi B.V.
  *
- * This file is part of BrewPi.
+ * This file is part of BrewBlox.
  *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,136 +17,61 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "blox/OneWireTempSensorBlock.h"
-
-#include "catch.hpp"
-#include <cstdio>
-#include <iomanip>
-#include <iostream>
-
 #include "../BrewBlox.h"
-#include "TestMatchers.hpp"
-#include "cbox/Box.h"
-#include "cbox/Object.h"
+#include "OneWireTempSensor.test.pb.h"
+#include "blox/OneWireTempSensorBlock.h"
+#include "catch.hpp"
+#include "cbox/DataStreamIo.h"
+#include <sstream>
 
 using namespace cbox;
 
-SCENARIO("A Blox OneWireTempSensor object can be created from streamed protobuf data")
+SCENARIO("A OneWireTempSensorBlock")
 {
-    GIVEN("a protobuf message defining a OneWireTempSensor object")
+    WHEN("a OneWireTempSensorBlock receives protobuf settings")
     {
-        blox_OneWireTempSensor message = {0}; // initialize to zero necessary if not all fields are set
-        message.address = 0x0102030405060708;
-        message.offset = 123;
+        blox::OneWireTempSensor message;
+        message.set_address(0x12345678);
+        message.set_offset(100);
+        message.set_connected(true);
+        message.set_value(123);
+        std::stringstream ssIn;
 
-        WHEN("it is encoded to a buffer")
+        message.SerializeToOstream(&ssIn);
+        ssIn << '\0'; // zero terminate
+        cbox::IStreamDataIn in(ssIn);
+
+        OneWireTempSensorBlock sensor;
+        CboxError res = sensor.streamFrom(in);
+        CHECK(res == CboxError::OK);
+
+        THEN("The new setting match what was sent")
         {
-            uint8_t buf[100] = {0};
+            CHECK(sensor.get().getAddress() == 0x12345678);
+            CHECK(sensor.get().getCalibration() == temp_t::raw(100));
+        }
+        THEN("The values that are not writable are ignored")
+        {
+            CHECK(sensor.get().read() == TEMP_SENSOR_DISCONNECTED);
+            CHECK(sensor.get().isConnected() == false);
+        }
 
-            BufferDataOut tempOut(buf, sizeof(buf));
-            CboxError res = streamProtoTo(tempOut, &message, blox_OneWireTempSensor_fields, sizeof(buf));
+        AND_WHEN("a SetPointSimpleBlock streams out protobuf, the settings match what was sent before and the read only values are correct")
+        {
+            std::stringstream ssOut;
+            cbox::OStreamDataOut out(ssOut);
+
+            CboxError res = sensor.streamTo(out);
             CHECK(res == CboxError::OK);
 
-            AND_WHEN("we create a DataIn object form that buffer")
-            {
-                BufferDataIn in(buf, sizeof(buf));
+            blox::OneWireTempSensor round_trip;
+            round_trip.ParseFromIstream(&ssOut);
 
-                THEN("a newly created OneWireTempSensorBloc object can receive settings from the DataIn stream")
-                {
-                    OneWireTempSensorBlock sensor;
-                    sensor.streamFrom(in);
-                    CHECK(sensor.get().getAddress() == message.address);
-                    CHECK(sensor.get().getCalibration().getRaw() == message.offset);
+            auto correct = message;
+            correct.set_value(temp_t::invalid().getRaw());
+            correct.set_connected(false);
 
-                    AND_THEN("we can stream that bloc object to a DataOut stream")
-                    {
-                        uint8_t buf2[100] = {0};
-                        BufferDataOut out(buf2, sizeof(buf2));
-                        sensor.streamTo(out);
-                        // verify data that is streamed out by streaming it back in
-                        BufferDataIn in(buf2, sizeof(buf2));
-                        blox_OneWireTempSensor received;
-                        auto res = streamProtoFrom(in, &received, blox_OneWireTempSensor_fields, sizeof(buf2));
-
-                        CHECK(res == CboxError::OK);
-                        CHECK(received.address == message.address);
-                        CHECK(received.offset == message.offset);
-                        CHECK(received.value == temp_t::invalid().getRaw());
-                        CHECK(received.connected == false);
-                    }
-                }
-            }
+            CHECK(correct.DebugString() == round_trip.DebugString());
         }
     }
 }
-
-/*
-SCENARIO("Create blox OneWireTempSensor application object from definition"){
-    GIVEN("A BrewBlox OneWireTempSensor definition"){
-        blox_OneWireTempSensor definition = {0}; // initialize to zero necessary if not all fields are set
-        definition.address = 0x0102030405060708;
-        definition.offset = 456;
-
-        uint8_t buffer1[100] = {0};
-        BufferDataOut tempOut(buffer1, sizeof(buffer1));
-        CboxError res = streamProtoTo(tempOut, &definition, blox_OneWireTempSensor_fields, sizeof(buffer1));
-        CHECK(res == CboxError::no_error);
-
-        BufferDataIn in(buffer1, sizeof(buffer1));
-        obj_type_t typeId = resolveTypeId<OneWireTempSensorBlock>();
-
-        WHEN("an application object is created form the definition"){
-
-            CboxError err;
-            std::shared_ptr<Object> obj = createApplicationObject(typeId, in, err);
-
-            THEN("No errors occur"){
-                CHECK(err == CboxError::no_error);
-            }
-
-            THEN("The object type is correct"){
-                CHECK(typeId == obj->typeID());
-            }
-
-            REQUIRE(obj != nullptr);
-
-            AND_THEN("we can stream that bloc object to a DataOut stream and it matches the definition")
-            {
-                uint8_t buf2[100] = {0};
-                BufferDataOut out(buf2, sizeof(buf2));
-                obj->streamTo(out);
-
-
-                // verify data that is streamed out by streaming it back in
-                BufferDataIn in(buf2, sizeof(buf2));
-                blox_OneWireTempSensor received;
-                auto res = streamProtoFrom(in, &received, blox_OneWireTempSensor_fields, sizeof(buf2));
-
-                CHECK(res == CboxError::no_error);
-                CHECK(received.address == definition.address);
-                CHECK(received.offset == 456);
-            }
-
-            AND_THEN("Cbox Object::update() invokes update on contained application object"){
-                obj->update(0);
-            }
-        }
-    }
-}
-
-SCENARIO("Send an invalid protobuf creation command"){
-    GIVEN("A payload with a protobuf definition that doesn't match the expected format"){
-        uint8_t wrong_defition[] = "\x0c\n\n\n\x08(\x9el\xff\x08\x00\x00B";
-
-        BufferDataIn in(wrong_defition, sizeof(wrong_defition));
-        obj_type_t typeId = resolveTypeId<OneWireTempSensorBlock>();
-
-        CboxError err;
-        std::shared_ptr<Object> obj = createApplicationObject(typeId, in, err);
-
-        CHECK(err == CboxError::input_stream_decoding_error);
-
-        REQUIRE(obj == nullptr);
-    }
-}
-*/
