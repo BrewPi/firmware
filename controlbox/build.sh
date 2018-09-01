@@ -1,3 +1,0 @@
-pushd build
-./build
-popd

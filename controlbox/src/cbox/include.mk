@@ -1,1 +1,0 @@
-INCLUDE_DIRS += $(PROJECT_ROOT)/src/lib

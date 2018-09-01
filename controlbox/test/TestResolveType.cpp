@@ -1,7 +1,7 @@
 /*
- * Copyright 2014-2015 Matthew McGowan.
+ * Copyright 2018 Elco Jacobs / BrewPi B.V.
  *
- * This file is part of Nice Firmware.
+ * This file is part of BrewBlox.
  *
  * Controlbox is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,13 +14,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
+ * along with BrewBlox. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+// Values 0-255 are reserved for internal controlbox classes.
+// The user application should can use values above 255
 
-// Projects can declare ControlboxWiring.h in their own include path (ahead of this one) to
-// define wiring.
+#include "ResolveType.h"
 
-#define CONTROLBOX_WIRING 0
-
+SET_TYPE_ID(LongIntObject, 1000);
+SET_TYPE_ID(LongIntVectorObject, 1001);
+SET_TYPE_ID(UpdateCounter, 1002);
+SET_TYPE_ID(NameableLongIntObject, 1003);
+SET_TYPE_ID(Nameable, 1004);
+SET_TYPE_ID(PtrLongIntObject, 1005);

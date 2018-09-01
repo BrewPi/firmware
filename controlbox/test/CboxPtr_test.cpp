@@ -19,11 +19,11 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "cbox/CboxPtr.h"
+#include "CboxPtr.h"
 
+#include "ObjectContainer.h"
+#include "TestObjects.h"
 #include "catch.hpp"
-#include "cbox/ObjectContainer.h"
-#include "test/TestObjects.h"
 
 using namespace cbox;
 

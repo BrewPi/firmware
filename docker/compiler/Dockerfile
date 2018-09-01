@@ -63,6 +63,9 @@ RUN ./configure \
 # and install protobuf python package (used by nanopb)
 RUN pip install protobuf
 
+# add catch test to system includes
+RUN curl -sSL https://github.com/catchorg/Catch2/releases/download/v2.3.0/catch.hpp -o /usr/include/catch.hpp
+
 COPY scripts /scripts
 WORKDIR /firmware/build
 CMD bash

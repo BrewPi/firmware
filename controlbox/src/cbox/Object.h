@@ -20,7 +20,6 @@
 #pragma once
 
 #include "CboxError.h"
-#include "CboxMixins.h"
 #include "DataStream.h"
 #include "ObjectIds.h"
 #include <limits>
@@ -29,7 +28,7 @@ namespace cbox {
 
 using update_t = uint32_t;
 
-class Object : virtual public ObjectMixin {
+class Object {
 public:
     Object() = default;
     virtual ~Object() = default;

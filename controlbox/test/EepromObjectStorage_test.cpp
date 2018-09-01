@@ -18,11 +18,11 @@
  */
 
 #include "ArrayEepromAccess.h"
+#include "EepromObjectStorage.h"
+#include "Object.h"
+#include "ResolveType.h"
+#include "TestObjects.h"
 #include "catch.hpp"
-#include "cbox/EepromObjectStorage.h"
-#include "cbox/Object.h"
-#include "cbox/ResolveType.h"
-#include "test/TestObjects.h"
 #include <cstdio>
 
 using namespace cbox;

@@ -17,13 +17,12 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "cbox/ObjectFactory.h"
-
+#include "Object.h"
+#include "ObjectContainer.h"
+#include "ObjectFactory.h"
+#include "ResolveType.h"
+#include "TestObjects.h"
 #include "catch.hpp"
-#include "cbox/Object.h"
-#include "cbox/ObjectContainer.h"
-#include "cbox/ResolveType.h"
-#include "test/TestObjects.h"
 
 using namespace cbox;
 
