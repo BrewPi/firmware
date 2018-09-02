@@ -19,7 +19,13 @@
 
 #pragma once
 
+#include "OneWire.h"
 #include "cbox/Box.h"
 
+// create a static Box object on first use and return a reference to it
 cbox::Box&
 brewbloxBox();
+
+// create a static OneWire object on first use and return a reference to it
+OneWire&
+theOneWire();

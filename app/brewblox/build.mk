@@ -31,13 +31,6 @@ ifeq ($(PLATFORM_ID),10)
 MODULAR?=y
 endif
 
-ifneq ($(MODULAR),y)
-# for a non-modular build, exclude the duplicate nanopb functions, because they will be available from Particle's library
-# for a modular build, the file below has copies of the functions that particle discards
-CEXCLUDES += app/cbox/nanopb_not_in_particle.c
-endif
-
-
 # enable coverage for gcc builds
 ifeq ($(PLATFORM_ID),3)
 EXTRA_CFLAGS += -g -O0 -fno-inline
@@ -88,6 +81,12 @@ EXTRA_CFLAGS += -DCBOX_DEBUG=1
 else
 EXTRA_CFLAGS += -DCBOX_DEBUG=0
 endif
+
+# include boost
+ifeq ($(BOOST_ROOT),)
+$(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)
+endif
+CFLAGS += -isystem $(BOOST_ROOT)
 
 # the following warnings can help find opportunities for impromevent in virtual functions
 # they are disabled in the default build, because the dependencies (particle firmware, flashee) have many violations 

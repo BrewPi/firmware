@@ -17,8 +17,6 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../../controlbox/src/cbox/spark/SparkEepromAccess.h"
-#include "../../lib/inc/DS248x.h"
 #include "blox/OneWireBusBlock.h"
 #include "blox/OneWireTempSensorBlock.h"
 #include "blox/SetPointSimpleBlock.h"
@@ -30,12 +28,30 @@
 #include "cbox/EepromObjectStorage.h"
 #include "cbox/ObjectContainer.h"
 #include "cbox/ObjectFactory.h"
+#include "spark/modules/Platform/Platform.h"
+#include <memory>
+
+#if defined(SPARK)
 #include "cbox/spark/ConnectionsTcp.h"
 #include "cbox/spark/SparkEepromAccess.h"
-#include "spark/modules/Platform/Platform.h"
-#include "theOneWire.h"
 #include "wiring/TicksWiring.h"
-#include <memory>
+using EepromAccessImpl = cbox::SparkEepromAccess;
+using TicksClass = Ticks<TicksWiring>;
+#else
+#include "MockTicks.h"
+#include "cbox/ArrayEepromAccess.h"
+#include "cbox/ConnectionsStringStream.h"
+using EepromAccessImpl = cbox::ArrayEepromAccess<2048>;
+using TicksClass = Ticks<MockTicks>;
+#endif
+
+#if !defined(PLATFORM_ID) || PLATFORM_ID == 3
+#include "OneWireNull.h"
+using OneWireDriver = OneWireNull;
+#else
+#include "DS248x.h"
+using OneWireDriver = DS248x;
+#endif
 
 namespace cbox {
 void
@@ -47,7 +63,6 @@ connectionStarted(DataOut& out)
 
 class SetpointSensorPairBlock;
 
-using TicksClass = Ticks<TicksWiring>;
 TicksClass ticks;
 
 cbox::Box&
@@ -67,10 +82,15 @@ makeBrewBloxBox()
         OBJECT_FACTORY_ENTRY(SetPointSimpleBlock),
         {cbox::resolveTypeId<SetpointSensorPairBlock>(), makeSetpointSensorPair}};
 
-    static cbox::SparkEepromAccess eeprom;
+    static EepromAccessImpl eeprom;
     static cbox::EepromObjectStorage objectStore(eeprom);
+#if defined(SPARK)
     static cbox::TcpConnectionSource tcpSource(8332);
     static cbox::ConnectionPool connections = {tcpSource};
+#else
+    static cbox::StringStreamConnectionSource connSource;
+    static cbox::ConnectionPool connections = {connSource};
+#endif
 
     static cbox::Box box(objectFactory, objects, objectStore, connections);
 
@@ -87,7 +107,7 @@ brewbloxBox()
 OneWire&
 theOneWire()
 {
-    static DS248x owDriver(0);
+    static OneWireDriver owDriver(0);
     static OneWire ow(owDriver);
     return ow;
 }

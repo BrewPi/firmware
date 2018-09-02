@@ -1,4 +1,0 @@
-class OneWire;
-
-OneWire&
-theOneWire();

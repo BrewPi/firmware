@@ -22,7 +22,7 @@
 #include "blox/Block.h"
 #include "cbox/DataStream.h"
 #include "proto/cpp/SysInfo.pb.h"
-#if PLATFORM_ID != PLATFORM_GCC
+#if defined(PLATFORM_ID) && PLATFORM_ID != 3
 #include "deviceid_hal.h"
 #endif
 
@@ -32,7 +32,7 @@ class SysInfoBlock : public cbox::ObjectBase<SysInfoBlock> {
     {
         blox_SysInfo message;
 
-#if PLATFORM_ID != PLATFORM_GCC
+#if defined(PLATFORM_ID) && PLATFORM_ID != 3
         HAL_device_ID(static_cast<uint8_t*>(&message.deviceId[0]), 12);
 #endif
 
@@ -50,7 +50,7 @@ class SysInfoBlock : public cbox::ObjectBase<SysInfoBlock> {
         return cbox::CboxError::OK;
     }
 
-    virtual cbox::update_t update(const cbox::update_t& now)
+    virtual cbox::update_t update(const cbox::update_t& now) override final
     {
         return update_never(now);
     }

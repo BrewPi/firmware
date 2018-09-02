@@ -24,7 +24,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "GlobalObjects.h"
+#include "BrewBlox.h"
 #include "blox/Block.h"
 #include "cbox/Box.h"
 #include "cbox/DataStream.h"

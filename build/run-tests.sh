@@ -14,5 +14,5 @@ fi
 $MY_DIR/../lib/test/obj/runner
 status $?
 
-$MY_DIR/../app/cbox/test/obj/runner
+$MY_DIR/../app/cbox/test/build/runner
 status $?

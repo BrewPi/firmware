@@ -20,9 +20,8 @@
 
 #pragma once
 
-#include "Platform.h"
-#include <stdint.h>
 #include "Ticks.h"
+#include <stdint.h>
 
 /**
  * A Ticks implementation that increments the millis count each time it is called.
@@ -30,20 +29,29 @@
  */
 class MockTicks {
 public:
-    MockTicks(uint8_t increment) : _increment(increment), _ticks(0) { }
-    MockTicks() : _increment(1), _ticks(0) { }
+    MockTicks(uint8_t increment)
+        : _increment(increment)
+        , _ticks(0)
+    {
+    }
+    MockTicks()
+        : _increment(1)
+        , _ticks(0)
+    {
+    }
 
-    ticks_millis_t millis() { return _ticks+=_increment; }
-    ticks_micros_t micros() { return 1000*_ticks++; }
-    ticks_seconds_t seconds() { return millis()/1000; }
+    ticks_millis_t millis() { return _ticks += _increment; }
+    ticks_micros_t micros() { return 1000 * _ticks++; }
+    ticks_seconds_t seconds() { return millis() / 1000; }
     ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) { return ::timeSinceSeconds(seconds(), timeStamp); }
-    ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) {  return ::timeSinceMillis(millis(), timeStamp); }
-    void reset(void){ _ticks = 0; };
-    void advance(ticks_millis_t adv){
+    ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) { return ::timeSinceMillis(millis(), timeStamp); }
+    void reset(void) { _ticks = 0; };
+    void advance(ticks_millis_t adv)
+    {
         _ticks += adv;
     }
-private:
 
+private:
     uint32_t _increment;
     uint32_t _ticks;
 };
@@ -53,22 +61,25 @@ private:
  * This is used for testing and also by the simulator to provide simulated time.
  */
 class ExternalTicks {
-    public:
-    ExternalTicks() : _ticks(0) { }
+public:
+    ExternalTicks()
+        : _ticks(0)
+    {
+    }
 
     ticks_millis_t millis() { return _ticks; }
-    ticks_micros_t micros() { return _ticks*1000; }
-    ticks_seconds_t seconds() { return millis()/1000; }
+    ticks_micros_t micros() { return _ticks * 1000; }
+    ticks_seconds_t seconds() { return millis() / 1000; }
     ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) { return ::timeSinceSeconds(seconds(), timeStamp); }
-    ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) {  return ::timeSinceMillis(millis(), timeStamp); }
-    void reset(void){ _ticks = 0; };
+    ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) { return ::timeSinceMillis(millis(), timeStamp); }
+    void reset(void) { _ticks = 0; };
 
-    void setMillis(ticks_millis_t now)  { _ticks = now; }
-    void incMillis(ticks_millis_t advance)  { _ticks += advance; }
+    void setMillis(ticks_millis_t now) { _ticks = now; }
+    void incMillis(ticks_millis_t advance) { _ticks += advance; }
+
 private:
     ticks_millis_t _ticks;
 };
-
 
 /**
  * A delay class that does nothing.
@@ -76,9 +87,9 @@ private:
  */
 class NoOpDelay {
 public:
-    void seconds(uint16_t seconds)  { millis(seconds<<10); }
-    void millis(uint32_t millis)    { }
-    void microseconds(uint32_t micros) { }
+    void seconds(uint16_t seconds) { millis(seconds << 10); }
+    void millis(uint32_t millis) {}
+    void microseconds(uint32_t micros) {}
 };
 
 /*
@@ -95,4 +106,3 @@ public:
 };
 
 */
-

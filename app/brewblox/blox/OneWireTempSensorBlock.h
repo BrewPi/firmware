@@ -3,7 +3,9 @@
 #include "OneWireTempSensor.h"
 #include "blox/Block.h"
 #include "proto/cpp/OneWireTempSensor.pb.h"
-#include "theOneWire.h"
+
+OneWire&
+theOneWire();
 
 class OneWireTempSensorBlock : public Block<OneWireTempSensorBlock> {
 private:

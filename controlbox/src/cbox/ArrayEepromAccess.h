@@ -23,10 +23,10 @@
 #include <cstdint>
 #include <cstring>
 
+namespace cbox {
+
 /**
- * This is here in case we want to not persist eeprom.
- * It was used as a placeholder until the virtual device HAL
- * supported eeprom persistence.
+ * Emulate eeprom in memory. Used for testing.
  */
 template <size_t eeprom_size>
 class ArrayEepromAccess : public EepromAccess {
@@ -110,3 +110,5 @@ private:
     uint8_t data[eeprom_size];
     bool changed;
 };
+
+} // end namespace cbox

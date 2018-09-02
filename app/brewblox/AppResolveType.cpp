@@ -48,3 +48,18 @@ resolveTypeId<TicksBlock<Ticks<TicksWiring>>>()
     return 262;
 }
 } // end namespace cbox
+
+// need to figure out how to make a macro for this:
+class MockTicks;
+template <typename T>
+class Ticks;
+template <typename T>
+class TicksBlock;
+namespace cbox {
+template <>
+obj_type_t
+resolveTypeId<TicksBlock<Ticks<MockTicks>>>()
+{
+    return 262;
+}
+} // end namespace cbox
