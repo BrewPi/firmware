@@ -20,7 +20,7 @@
 #include "../BrewBlox.h"
 #include "OneWireTempSensor.test.pb.h"
 #include "blox/OneWireTempSensorBlock.h"
-#include "catch.hpp"
+#include <catch.hpp>
 #include "cbox/DataStreamIo.h"
 #include <sstream>
 

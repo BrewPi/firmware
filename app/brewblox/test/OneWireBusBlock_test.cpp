@@ -19,7 +19,7 @@
 
 #include "blox/OneWireBusBlock.h"
 
-#include "catch.hpp"
+#include <catch.hpp>
 #include <cstdio>
 #include <iomanip>
 #include <iostream>

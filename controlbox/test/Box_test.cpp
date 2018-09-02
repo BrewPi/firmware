@@ -1,6 +1,6 @@
 #include "Box.h"
 
-#include "catch.hpp"
+#include <catch.hpp>
 #include "testinfo.h"
 #include <iomanip>
 #include <iostream>

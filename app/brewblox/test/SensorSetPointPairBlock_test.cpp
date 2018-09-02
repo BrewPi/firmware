@@ -17,7 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "catch.hpp"
+#include <catch.hpp>
 #include <cstdio>
 #include <iomanip>
 #include <iostream>

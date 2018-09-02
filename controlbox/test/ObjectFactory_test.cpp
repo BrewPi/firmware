@@ -22,7 +22,7 @@
 #include "ObjectFactory.h"
 #include "ResolveType.h"
 #include "TestObjects.h"
-#include "catch.hpp"
+#include <catch.hpp>
 
 using namespace cbox;
 

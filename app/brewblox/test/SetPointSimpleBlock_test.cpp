@@ -21,7 +21,7 @@
 #include "SetPointSimple.test.pb.h"
 //#include "blox/Block.h"
 #include "blox/SetPointSimpleBlock.h"
-#include "catch.hpp"
+#include <catch.hpp>
 //#include "cbox/Box.h"
 #include "cbox/DataStreamIo.h"
 #include <sstream>

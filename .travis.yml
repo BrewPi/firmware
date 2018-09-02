@@ -8,8 +8,8 @@ services:
 script:
   - cd ./docker
   - docker-compose pull compiler
-  - docker-compose run --rm compiler bash /firmware/app/brewbox/proto/generate_proto_cpp.sh
-  - docker-compose run --rm compiler bash /firmware/app/brewblox/proto/generate_test_proto_cpp.sh
+  - docker-compose run --rm compiler bash /firmware/app/brewblox/proto/generate_proto_cpp.sh
+  - docker-compose run --rm compiler bash /firmware/app/brewblox/proto/generate_proto_test_cpp.sh
   - docker-compose run --rm compiler bash build-tests.sh
   - docker-compose run --rm compiler bash run-tests.sh
   - docker-compose run --rm compiler bash build-firmware.sh

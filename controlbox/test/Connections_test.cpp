@@ -19,7 +19,7 @@
 
 #include "Connections.h"
 
-#include "catch.hpp"
+#include <catch.hpp>
 #include "ConnectionsStringStream.h"
 #include "DataStream.h"
 #include <cstdio>
