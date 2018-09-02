@@ -8,12 +8,12 @@
  * the functions in the Particle dynamically linked library.
  */
 
+#if 0
 #include <pb.h>
 #include <pb_common.h>
 #include <pb_decode.h>
 #include <pb_encode.h>
 
-#if 0
 bool
 pb_decode_fixed64(pb_istream_t* stream, void* dest);
 bool

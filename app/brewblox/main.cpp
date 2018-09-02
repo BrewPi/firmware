@@ -18,6 +18,7 @@
  */
 
 #include "BrewBlox.h"
+#include "application.h" // particle stuff
 #include "cbox/Object.h"
 #include "spark/modules/Platform/Platform.h"
 //#include "MDNS.h"

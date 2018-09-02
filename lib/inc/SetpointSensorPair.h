@@ -23,6 +23,7 @@
 #include "SetPoint.h"
 #include "TempSensor.h"
 #include <functional>
+#include <memory>
 
 /*
  * A process value has a setting and an current value

@@ -2,7 +2,6 @@
 
 #include "OneWire.h"
 #include "OneWireAddress.h"
-#include "spark/modules/Board/Board.h"
 #include <limits.h>
 
 #include "blox/Block.h"

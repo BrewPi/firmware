@@ -52,12 +52,6 @@ INCLUDE_DIRS += $(SOURCE_PATH)/app/brewblox
 INCLUDE_DIRS += $(SOURCE_PATH)/controlbox/src
 INCLUDE_DIRS += $(SOURCE_PATH)/controlbox/src
 
-# include boost
-ifeq ($(BOOST_ROOT),)
-$(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)
-endif
-EXTRA_CFLAGS += -isystem $(BOOST_ROOT)
-
 CSRC += $(call here_files,app/brewblox,*.c)
 CPPSRC += $(call here_files,app/brewblox,*.cpp)
 CPPSRC += $(call here_files,app/brewblox/blox,*.cpp)
@@ -99,10 +93,10 @@ endif
 # they are disabled in the default build, because the dependencies (particle firmware, flashee) have many violations 
 
 # Warn when virtual functions are overriden without override/override final specifier (requires gcc 5.1)
-CPPFLAGS += -Wsuggest-override
+# CPPFLAGS += -Wsuggest-override
 # Warn when functions and classes can be marked final
-CPPFLAGS += -Wsuggest-final-types
-CPPFLAGS += -Wsuggest-final-methods
+# CPPFLAGS += -Wsuggest-final-types
+# CPPFLAGS += -Wsuggest-final-methods
 
 CSRC := $(filter-out $(CEXCLUDES),$(CSRC))
 CPPSRC := $(filter-out $(CPPEXCLUDES),$(CPPSRC)) 

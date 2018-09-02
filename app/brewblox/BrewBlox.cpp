@@ -1,7 +1,7 @@
 /*
- * Copyright 2017 BrewPi
+ * Copyright 2018 BrewPi B.V.
  *
- * This file is part of BrewPi.
+ * This file is part of BrewBlox.
  *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "../../controlbox/src/cbox/spark/SparkEepromAccess.h"
+#include "../../lib/inc/DS248x.h"
 #include "blox/OneWireBusBlock.h"
 #include "blox/OneWireTempSensorBlock.h"
 #include "blox/SetPointSimpleBlock.h"
@@ -25,12 +27,11 @@
 #include "blox/TicksBlock.h"
 #include "cbox/Box.h"
 #include "cbox/Connections.h"
-#include "cbox/ConnectionsTcp.h"
 #include "cbox/EepromObjectStorage.h"
 #include "cbox/ObjectContainer.h"
 #include "cbox/ObjectFactory.h"
-#include "spark/modules/EEPROM/SparkEepromAccess.h"
-#include "spark/modules/OneWire/DS248x.h"
+#include "cbox/spark/ConnectionsTcp.h"
+#include "cbox/spark/SparkEepromAccess.h"
 #include "spark/modules/Platform/Platform.h"
 #include "theOneWire.h"
 #include "wiring/TicksWiring.h"
@@ -50,7 +51,7 @@ using TicksClass = Ticks<TicksWiring>;
 TicksClass ticks;
 
 cbox::Box&
-makeTheBox()
+makeBrewBloxBox()
 {
     static cbox::ObjectContainer objects = {
         cbox::ContainedObject(1, 0xFF, std::make_shared<SysInfoBlock>()),
@@ -66,9 +67,8 @@ makeTheBox()
         OBJECT_FACTORY_ENTRY(SetPointSimpleBlock),
         {cbox::resolveTypeId<SetpointSensorPairBlock>(), makeSetpointSensorPair}};
 
-    static SparkEepromAccess eeprom;
+    static cbox::SparkEepromAccess eeprom;
     static cbox::EepromObjectStorage objectStore(eeprom);
-
     static cbox::TcpConnectionSource tcpSource(8332);
     static cbox::ConnectionPool connections = {tcpSource};
 
@@ -80,7 +80,7 @@ makeTheBox()
 cbox::Box&
 brewbloxBox()
 {
-    static cbox::Box& box = makeTheBox();
+    static cbox::Box& box = makeBrewBloxBox();
     return box;
 }
 

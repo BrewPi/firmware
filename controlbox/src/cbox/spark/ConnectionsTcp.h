@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Connections.h"
+#include "../Connections.h"
 #include "spark_wiring_tcpclient.h"
 #include "spark_wiring_tcpserver.h"
 
@@ -47,7 +47,7 @@ public:
     {
     }
 
-    std::unique_ptr<Connection> newConnection()
+    std::unique_ptr<Connection> newConnection() override final
     {
         TCPClient newClient = server.available();
         if (newClient.connected()) {

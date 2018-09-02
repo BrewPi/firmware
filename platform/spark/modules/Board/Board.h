@@ -18,6 +18,7 @@
  */
 
 #pragma once
+#include "application.h"
 // Most pins are only conditionally defined here, allowing definitions to be provided in Config.h for
 // local overrides
 enum {
@@ -38,21 +39,12 @@ enum {
 #define BREWPI_BOARD_GCC 'z'
 #define BREWPI_BOARD_UNKNOWN '?'
 
-#ifdef __cplusplus
-#include "OneWire.h"
-#if !BREWPI_SIMULATE
-extern OneWire primaryOneWireBus; // OneWire is only used in CPP files, causes build error in C files
-#endif
-#endif
-
 #include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #else
 #include <stdbool.h>
 #endif
-
-#define oneWirePin 0x0 // actually the i2c address
 
 #if PLATFORM_ID == 8 // P1
 #define MAX_ACTUATOR_COUNT (5)

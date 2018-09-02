@@ -1,7 +1,9 @@
 #pragma once
-#include "EepromAccess.h"
+#include "../EepromAccess.h"
 #include "eeprom_hal.h"
 #include <cstdint>
+
+namespace cbox {
 
 class SparkEepromAccess : public EepromAccess {
 private:
@@ -28,7 +30,7 @@ public:
     {
         HAL_EEPROM_Put(target, source, size);
     }
-    virtual uint16_t length() override final
+    virtual uint16_t length() const override final
     {
         return HAL_EEPROM_Length();
     }
@@ -38,3 +40,5 @@ public:
         HAL_EEPROM_Clear();
     }
 };
+
+} // end namespace cbox

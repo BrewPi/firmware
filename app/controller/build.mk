@@ -35,11 +35,6 @@ CPPSRC += $(call target_files,platform/wiring/,*.cpp)
 CSRC += $(call target_files,platform/spark/modules,*.c)
 CPPSRC += $(call target_files,platform/spark/modules,*.cpp)
 
-ifeq ($(BOOST_ROOT),)
-$(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)
-endif
-CFLAGS += -I$(BOOST_ROOT)
-
 ifeq ("$(PLATFORM_ID)","0")
 # disable freertos for the core, until we have more free space.
 FREERTOS=0

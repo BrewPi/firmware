@@ -19,7 +19,6 @@
 
 #pragma once
 #include "../inc/fixed_point.h"
-#include "spark/modules/Platform/Platform.h"
 #include "str_functions.h"
 #include <cstdlib>
 #include <cstring>
