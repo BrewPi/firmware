@@ -94,7 +94,7 @@ CPPFLAGS += -I $(BOOST_ROOT)
 CSRC := $(filter-out $(CEXCLUDES),$(CSRC))
 CPPSRC := $(filter-out $(CPPEXCLUDES),$(CPPSRC)) 
 
-GIT_VERSION = $(shell cd $(SOURCE_PATH); git describe --long)
+GIT_VERSION = $(shell cd $(SOURCE_PATH); git rev-parse --short HEAD)
 $(info using $(GIT_VERSION) as build name)
 EXTRA_CFLAGS += -DBUILD_NAME="$(GIT_VERSION)"
 
