@@ -48,8 +48,8 @@
 #define _USE_MATH_DEFINES
 #define __FPML_DEFINED_USE_MATH_DEFINES__
 #endif
-#include <errno.h>
-#include <math.h>
+#include <cerrno>
+#include <cmath>
 
 namespace fpml {
 

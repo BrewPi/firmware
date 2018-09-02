@@ -62,4 +62,5 @@ resolveTypeId<TicksBlock<Ticks<MockTicks>>>()
 {
     return 262;
 }
+
 } // end namespace cbox

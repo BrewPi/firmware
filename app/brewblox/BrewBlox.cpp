@@ -18,17 +18,16 @@
  */
 
 #include "blox/OneWireBusBlock.h"
-#include "blox/TempSensorOneWireBlock.h"
 #include "blox/SetPointSimpleBlock.h"
 #include "blox/SetpointSensorPairBlock.h"
 #include "blox/SysInfoBlock.h"
+#include "blox/TempSensorOneWireBlock.h"
 #include "blox/TicksBlock.h"
 #include "cbox/Box.h"
 #include "cbox/Connections.h"
 #include "cbox/EepromObjectStorage.h"
 #include "cbox/ObjectContainer.h"
 #include "cbox/ObjectFactory.h"
-#include "spark/modules/Platform/Platform.h"
 #include <memory>
 
 #if defined(SPARK)

@@ -18,25 +18,28 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
-class OneWireAddress{
+class OneWireAddress {
 public:
-    OneWireAddress() : address(0){};
-    OneWireAddress(uint64_t addr) : address(addr){};
+    OneWireAddress()
+        : address(0){};
+    OneWireAddress(uint64_t addr)
+        : address(addr){};
     ~OneWireAddress() = default;
 
     void parse(const char* s);
     void print(char* buf, uint8_t len);
 
-    uint8_t * asUint8ptr() { // for compatibility with OneWire classes that take a uint8_t *
-        return reinterpret_cast<uint8_t *>(&address);
+    uint8_t* asUint8ptr()
+    { // for compatibility with OneWire classes that take a uint8_t *
+        return reinterpret_cast<uint8_t*>(&address);
     }
 
-    operator uint64_t() const {
+    operator uint64_t() const
+    {
         return address;
     }
 

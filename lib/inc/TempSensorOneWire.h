@@ -27,8 +27,6 @@
 
 class OneWire;
 
-#undef OneWireAddress
-
 #define ONEWIRE_TEMP_SENSOR_PRECISION (4)
 
 class TempSensorOneWire final : public TempSensor {
@@ -103,7 +101,4 @@ private:
 	 * updates lastRequestTime. On successful, leaves lastRequestTime alone and returns DEVICE_DISCONNECTED.
 	 */
     temp_t readAndConstrainTemp();
-
-public:
-    friend class TempSensorOneWireMixin;
 };

@@ -57,13 +57,12 @@ RUN rm -rf /etc/timezone \
 RUN pip install protobuf
 
 # download and compile boost and install as system includes (/usr/local)
-RUN mkdir -p /tmp/boost && curl -sSL http://downloads.sourceforge.net/project/boost/boost/1.65.0/boost_1_65_0.tar.gz | tar -xz -C /tmp/boost \
- && cd /tmp/boost/boost_1_65_0 \
+RUN mkdir -p /boost && curl -sSL http://downloads.sourceforge.net/project/boost/boost/1.65.0/boost_1_65_0.tar.gz | tar -xz -C /boost \
+ && cd /boost/boost_1_65_0 \
  && ./bootstrap.sh \
- && ./b2 install --prefix=/usr/local --with-thread --with-system --with-program_options --with-random --with-regex --threading=single link=static \
- && rm -rf /tmp/boost
+ && ./b2 --with-thread --with-system --with-program_options --with-random --with-regex --threading=single link=static
 
-ENV BOOST_ROOT=/usr/local/include/boost
+ENV BOOST_ROOT=/boost/boost_1_65_0
 
 # add catch test to system includes
 RUN curl -sSL https://github.com/catchorg/Catch2/releases/download/v2.3.0/catch.hpp -o /usr/local/include/catch.hpp

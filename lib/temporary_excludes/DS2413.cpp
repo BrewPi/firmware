@@ -18,15 +18,11 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-
-#include "Platform.h"
-#if BREWPI_DS2413
-#include "OneWire.h"
 #include "DS2413.h"
+#include "OneWire.h"
 
-bool DS2413::cacheIsValid() const
+bool
+DS2413::cacheIsValid() const
 {
     uint8_t upperInverted = (~cachedState & 0xf0) >> 4;
     uint8_t lower = cachedState & 0x0f;
@@ -34,47 +30,38 @@ bool DS2413::cacheIsValid() const
     return upperInverted == lower;
 }
 
-bool DS2413::writeLatchBit(uint8_t pos,
-                bool  set,
-                bool  useCached)
+bool
+DS2413::writeLatchBit(uint8_t pos,
+                      bool set,
+                      bool useCached)
 {
-    bool    ok      = false;
+    bool ok = false;
     uint8_t retries = 5;
 
-    if (!useCached || !cacheIsValid())
-    {
+    if (!useCached || !cacheIsValid()) {
         // read a fresh value form the device
-        do
-        {
+        do {
             update();
-        }
-        while (!cacheIsValid() && (retries-- > 0));
+        } while (!cacheIsValid() && (retries-- > 0));
 
-        if (!cacheIsValid())
-        {
-            return false;    // cannot read from device successfully
+        if (!cacheIsValid()) {
+            return false; // cannot read from device successfully
         }
     }
 
-    uint8_t mask   = latchWriteMask(pos);
+    uint8_t mask = latchWriteMask(pos);
     uint8_t oldVal = writeByteFromCache();
     uint8_t newVal = oldVal;
 
-    if (set)
-    {
+    if (set) {
         newVal &= ~mask; // 0 means latch transistor is active
-    }
-    else
-    {
+    } else {
         newVal |= mask; // 1 means latch transistor is inactive
     }
 
-    if (oldVal == newVal)
-    {
-        ok = true;    // skip write if already correct value to reduce OneWire communication
-    }
-    else
-    {
+    if (oldVal == newVal) {
+        ok = true; // skip write if already correct value to reduce OneWire communication
+    } else {
         ok = channelWriteAll(newVal);
         ok = update();
     }
@@ -82,39 +69,39 @@ bool DS2413::writeLatchBit(uint8_t pos,
     return ok;
 }
 
-bool DS2413::readLatchBit(pio_t pio, bool & result, bool useCached)
+bool
+DS2413::readLatchBit(pio_t pio, bool& result, bool useCached)
 {
-    if(!useCached || !cacheIsValid()){
+    if (!useCached || !cacheIsValid()) {
         update();
     }
 
     return latchReadCached(pio, result);
 }
 
-bool DS2413::latchReadCached(pio_t pio, bool & result) const
+bool
+DS2413::latchReadCached(pio_t pio, bool& result) const
 {
-    if(cacheIsValid()){
+    if (cacheIsValid()) {
         result = ((cachedState & latchReadMask(pio)) == 0);
         return true;
-    }
-    else
-    {
+    } else {
         result = false;
         return false;
     }
 }
 
-bool DS2413::update()
+bool
+DS2413::update()
 {
     cachedState = accessRead();
     bool success = cacheIsValid();
-    if(connected && !success){
+    if (connected && !success) {
         connected = false;
         char addressString[17];
         printBytes(address, 8, addressString);
         logWarningString(DS2413_DISCONNECTED, addressString);
-    }
-    else if (!connected && success){
+    } else if (!connected && success) {
         connected = true;
         char addressString[17];
         printBytes(address, 8, addressString);
@@ -123,14 +110,13 @@ bool DS2413::update()
     return success;
 }
 
-uint8_t DS2413::writeByteFromCache()
+uint8_t
+DS2413::writeByteFromCache()
 {
     uint8_t returnval = 0;
 
-    for (uint8_t i = 0; i < 2; i++)
-    {
-        if (cachedState & latchReadMask(i))
-        {
+    for (uint8_t i = 0; i < 2; i++) {
+        if (cachedState & latchReadMask(i)) {
             returnval |= latchWriteMask(i);
         }
     }
@@ -138,18 +124,15 @@ uint8_t DS2413::writeByteFromCache()
     return returnval;
 }
 
-
-bool DS2413::sense(pio_t pio, bool & result)
+bool
+DS2413::sense(pio_t pio, bool& result)
 {
     update();
-    if (cacheIsValid())
-    {
+    if (cacheIsValid()) {
         return false;
-    }
-    else
-    {
+    } else {
         result = ((cachedState & senseMask(pio)) != 0);
-    	return true;
+        return true;
     }
 }
 
@@ -157,14 +140,15 @@ bool DS2413::sense(pio_t pio, bool & result)
  *
  * @return
  */
-uint8_t DS2413::accessRead()    /* const */
+uint8_t
+DS2413::accessRead() /* const */
 {
-    oneWire -> reset();
-    oneWire -> select(address);
-    oneWire -> write(ACCESS_READ);
+    oneWire->reset();
+    oneWire->select(address);
+    oneWire->write(ACCESS_READ);
 
     uint8_t data;
-    data = oneWire -> read();
+    data = oneWire->read();
 
     return data;
 }
@@ -175,31 +159,31 @@ uint8_t DS2413::accessRead()    /* const */
  *    /param maxTries the maximum number of attempts before giving up.
  *    /return true on success
  */
-bool DS2413::accessWrite(uint8_t b,
-                         uint8_t maxTries)
+bool
+DS2413::accessWrite(uint8_t b,
+                    uint8_t maxTries)
 {
     // b |= 0xFC;        /* Upper 6 bits should be set to 1's */
     uint8_t ack = 0;
 
-    do{
-        oneWire -> reset();
-        oneWire -> select(address);
-        oneWire -> write(ACCESS_WRITE);
-        oneWire -> write(b);
+    do {
+        oneWire->reset();
+        oneWire->select(address);
+        oneWire->write(ACCESS_WRITE);
+        oneWire->write(b);
 
         /* data is sent again, inverted to guard against transmission errors */
-        oneWire -> write(~b);
+        oneWire->write(~b);
 
         /* Acknowledgement byte, 0xAA for success, 0xFF for failure. */
-        ack = oneWire -> read();
+        ack = oneWire->read();
 
-        if (ack == ACK_SUCCESS){
-            oneWire -> read();    // status byte sent after ack
+        if (ack == ACK_SUCCESS) {
+            oneWire->read(); // status byte sent after ack
         }
     } while ((ack != ACK_SUCCESS) && (maxTries-- > 0));
 
-    oneWire -> reset();
+    oneWire->reset();
 
     return ack == ACK_SUCCESS;
 }
-#endif

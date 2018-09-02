@@ -20,7 +20,6 @@
 #include "BrewBlox.h"
 #include "application.h" // particle stuff
 #include "cbox/Object.h"
-#include "spark/modules/Platform/Platform.h"
 //#include "MDNS.h"
 
 // todo - add a system object that describes the application version
@@ -30,6 +29,21 @@ SYSTEM_MODE(MANUAL);
 SYSTEM_THREAD(ENABLED);
 
 //MDNS mdns;
+
+#if PLATFORM_THREADING
+ApplicationWatchdog appWatchdog(60000, System.reset);
+inline void
+watchdogCheckin()
+{
+    appWatchdog.checkin();
+}
+#else
+// define dummy watchdog checkin for when the watchdog is not available
+inline void
+watchdogCheckin()
+{
+}
+#endif
 
 void
 setup()
@@ -43,6 +57,7 @@ setup()
     WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
     Particle.connect();
     brewbloxBox(); // init box
+    System.on(setup_update, watchdogCheckin);
 }
 
 void
@@ -65,4 +80,17 @@ loop()
 		mdns.processQueries();
 	}
 */
+    watchdogCheckin();
+}
+
+void
+handleReset(bool exitFlag)
+{
+    if (exitFlag) {
+#if PLATFORM_ID == PLATFORM_GCC
+        exit(0);
+#else
+        System.reset();
+#endif
+    }
 }

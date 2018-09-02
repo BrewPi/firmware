@@ -17,39 +17,36 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Platform.h"
-
-#if BREWPI_DS2408
 #include "ValveController.h"
 
-
-
-void ValveController::update() {
+void
+ValveController::update()
+{
     device->update();
     uint8_t action = getAction();
     uint8_t position = getPosition();
 
-    if(desiredAction != action){
+    if (desiredAction != action) {
         write(desiredAction);
     }
 
-    if((desiredAction == VALVE_OPENING && position == VALVE_OPENED) ||
-            (desiredAction == VALVE_CLOSING && position == VALVE_CLOSED)){
+    if ((desiredAction == VALVE_OPENING && position == VALVE_OPENED) || (desiredAction == VALVE_CLOSING && position == VALVE_CLOSED)) {
         // fully opened/closed. Stop driving the valve
         idle();
     }
 }
 
-void ValveController::write(uint8_t action) {
+void
+ValveController::write(uint8_t action)
+{
     desiredAction = action;
     uint8_t latch = device->getLatchCache();
     action = action & 0b11; // make sure action only has lower 2 bits non-zero
 
-    if(output == 0){ // A is on upper bits
+    if (output == 0) { // A is on upper bits
         latch = latch & 0b00111111;
         latch = latch | action << 6;
-    }
-    else{
+    } else {
         latch = latch & 0b11110011;
         latch = latch | action << 2;
     }
@@ -57,49 +54,56 @@ void ValveController::write(uint8_t action) {
     device->writeLatches(latch);
 }
 
-uint8_t ValveController::getPosition() const {
-    if(!device->isConnected()){
+uint8_t
+ValveController::getPosition() const
+{
+    if (!device->isConnected()) {
         return VALVE_ERROR;
     }
     uint8_t states = device->readPios(true);
-    if(output == 0){
+    if (output == 0) {
         states = states >> 4;
     }
     return states & 0b11;
 }
 
-uint8_t ValveController::getAction() const {
+uint8_t
+ValveController::getAction() const
+{
     uint8_t latches = device->readLatches(true);
-    if(output == 0){ // A is on upper bits
+    if (output == 0) { // A is on upper bits
         latches = latches >> 4;
     }
     return (latches >> 2) & 0b11;
 }
 
-void ValveController::setState(State state, int8_t priority){
-    if(state == State::Active){
+void
+ValveController::setState(State state, int8_t priority)
+{
+    if (state == State::Active) {
         open();
-    }
-    else {
+    } else {
         close();
     }
 }
 
-ActuatorDigital::State ValveController::getState() const {
-    if(!device->isConnected()){
+ActuatorDigital::State
+ValveController::getState() const
+{
+    if (!device->isConnected()) {
         return State::Unknown;
     }
-    if(getAction() == VALVE_OPENING){
+    if (getAction() == VALVE_OPENING) {
         return State::Active;
     }
-    if(getAction() == VALVE_CLOSING){
-    	return State::Inactive;
+    if (getAction() == VALVE_CLOSING) {
+        return State::Inactive;
     }
-    if(getPosition() == VALVE_OPENED){
-    	return State::Active;
+    if (getPosition() == VALVE_OPENED) {
+        return State::Active;
     }
-    if(getPosition() == VALVE_CLOSED){
-    	return State::Inactive;
+    if (getPosition() == VALVE_CLOSED) {
+        return State::Inactive;
     }
     // If we end up here, the valve is halfway or disconnected form the board (the feedback switches have a pullup).
     // If the valve is half open, this is an active state.
@@ -108,11 +112,11 @@ ActuatorDigital::State ValveController::getState() const {
     return State::Unknown;
 }
 
-uint8_t ValveController::read(bool doUpdate){
-    if(doUpdate){
+uint8_t
+ValveController::read(bool doUpdate)
+{
+    if (doUpdate) {
         device->update();
     }
     return (getAction() << 2 | getPosition());
 }
-
-#endif

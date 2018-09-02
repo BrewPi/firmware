@@ -18,7 +18,7 @@
  */
 
 #include "Board.h"
-#include "../Platform/Platform.h"
+#include "application.h"
 
 bool
 readAlarmPin()

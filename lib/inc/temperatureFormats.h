@@ -26,16 +26,16 @@
 #undef constrain
 
 // used for temp and temp, 16 bits
-#define TEMP_TYPE int16_t
-#define TEMP_INTBITS 7 // 7 integer bits (-128/128), 8 fraction bits, 1 sign bit
+using TEMP_TYPE = int16_t;
+const uint8_t TEMP_INTBITS = 7; // 7 integer bits (-128/128), 8 fraction bits, 1 sign bit
 
 // used when higher integer part is needed
-#define TEMP_LONG_TYPE int32_t
-#define TEMP_LONG_INTBITS 23 // 23 integer bits (-4194304/4194304), 8 fraction bits, 1 sign bit
+using TEMP_LONG_TYPE = int32_t;
+const uint8_t TEMP_LONG_INTBITS = 23; // 23 integer bits (-4194304/4194304), 8 fraction bits, 1 sign bit
 
 // used when more precision is needed, 1 bit more for integer part than temp diff, so it is large enough to hold temp as well
-#define TEMP_PRECISE_TYPE int32_t
-#define TEMP_PRECISE_INTBITS 7 // 7 integer bits (-128/128), 23 fraction bits, 1 sign bit)
+using TEMP_PRECISE_TYPE = int32_t;
+const uint8_t TEMP_PRECISE_INTBITS = 7; // 7 integer bits (-128/128), 23 fraction bits, 1 sign bit)
 
 class temp_t;
 class temp_precise_t;

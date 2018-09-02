@@ -18,7 +18,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <TempSensorOneWire.h>
+#include "../inc/TempSensorOneWire.h"
 #include "../inc/DallasTemperature.h"
 #include "../inc/Logger.h"
 #include "../inc/OneWire.h"

@@ -1,3 +1,5 @@
+MY_DIR=$(dirname $(readlink -f $0))
+
 function makeit()
 {
 	echo "building $*"
@@ -12,10 +14,12 @@ fi
 
 function makeapp()
 {
-	makeit PLATFORM=photon $*
+	makeit PLATFORM=gcc $*
 	makeit PLATFORM=P1 $*
+	makeit PLATFORM=photon $*
 }
 
-pwd
+pushd "$MYDIR" > /dev/null
 # makeapp APP=controller
 makeapp APP=brewblox
+popd > /dev/null

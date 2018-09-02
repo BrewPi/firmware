@@ -2,15 +2,12 @@ include ../build/platform-id.mk
 
 here_files = $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/$1/$2))
 
-# add all objects the user can create
-INCLUDE_DIRS += $(SOURCE_PATH)/app/cbox/blox
-
 # add all lib source files
 INCLUDE_DIRS += $(SOURCE_PATH)/lib/inc
 CSRC += $(call target_files,lib/src,*.c)
 CPPSRC += $(call target_files,lib/src,*.cpp)
 
-# add all cbox lib source files
+# add all controlbox source files
 INCLUDE_DIRS += $(SOURCE_PATH)/controlbox/src/
 CPPSRC += $(call here_files,controlbox/src/cbox/,*.cpp)
 
@@ -18,8 +15,6 @@ CPPSRC += $(call here_files,controlbox/src/cbox/,*.cpp)
 INCLUDE_DIRS += $(SOURCE_PATH)/app/brewblox/proto/cpp
 CSRC += $(call here_files,app/brewblox/proto/cpp,*.c)
 
-# add nanopb dependencies
-include $(SOURCE_PATH)/platform/spark/firmware/nanopb/import.mk
 
 ifeq ($(PLATFORM_ID),6)
 MODULAR?=y
@@ -31,6 +26,13 @@ ifeq ($(PLATFORM_ID),10)
 MODULAR?=y
 endif
 
+# add nanopb dependencies
+include $(SOURCE_PATH)/platform/spark/firmware/nanopb/import.mk
+ifeq ($(MODULAR),y)
+# include sources that are part of nanopb, but not included in shared libraries of particle
+CSRC += app/brewblox/nanopb_not_in_particle_dynalib.c
+endif
+
 # enable coverage for gcc builds
 ifeq ($(PLATFORM_ID),3)
 EXTRA_CFLAGS += -g -O0 -fno-inline
@@ -39,35 +41,26 @@ LDFLAGS += -Wl,--verbose --coverage
 endif
 
 # App
-INCLUDE_DIRS += $(SOURCE_PATH)/app
-INCLUDE_DIRS += $(SOURCE_PATH)/app/fallback
 INCLUDE_DIRS += $(SOURCE_PATH)/app/brewblox
-INCLUDE_DIRS += $(SOURCE_PATH)/controlbox/src
-INCLUDE_DIRS += $(SOURCE_PATH)/controlbox/src
 
-CSRC += $(call here_files,app/brewblox,*.c)
 CPPSRC += $(call here_files,app/brewblox,*.cpp)
 CPPSRC += $(call here_files,app/brewblox/blox,*.cpp)
 
+#wiring
 CSRC += $(call here_files,platform/wiring/,*.c)
 CPPSRC += $(call here_files,platform/wiring/,*.cpp)
 
 INCLUDE_DIRS += $(SOURCE_PATH)/platform
-CSRC += $(call here_files,platform/spark/modules/Platform,*.c)
-CPPSRC += $(call here_files,platform/spark/modules/Platform,*.cpp)
 
 CSRC += $(call here_files,platform/spark/modules/Board,*.c)
 CPPSRC += $(call here_files,platform/spark/modules/Board,*.cpp)
-
-CPPSRC += $(call here_files,platform/spark/modules/OneWire,*.cpp)
-CPPSRC += $(call here_files,platform/spark/modules/EEPROM,*.cpp)
 
 # hardware specific includes
 INCLUDE_DIRS += $(SOURCE_PATH)/app/brewblox/spark
 CPPSRC += $(call here_files,app/brewblox/spark,*.cpp)
 
 
-SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
+#SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
 #include $(SRC_EGUI)/egui.mk
 
 LIBS_DIR = $(SOURCE_PATH)/platform/spark/libs
@@ -86,7 +79,8 @@ endif
 ifeq ($(BOOST_ROOT),)
 $(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)
 endif
-CFLAGS += -isystem $(BOOST_ROOT)
+# cannot use -isystem. The arm compiler doesn't like it
+CPPFLAGS += -I $(BOOST_ROOT)
 
 # the following warnings can help find opportunities for impromevent in virtual functions
 # they are disabled in the default build, because the dependencies (particle firmware, flashee) have many violations 

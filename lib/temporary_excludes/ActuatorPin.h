@@ -18,40 +18,37 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #pragma once
 
-#include "Platform.h"
 #include "ActuatorInterfaces.h"
 
-class ActuatorPin final: public ActuatorDigital, public ActuatorPinMixin
-{
-    private:
-        bool    invert;
-        uint8_t pin;
+class ActuatorPin final : public ActuatorDigital, public ActuatorPinMixin {
+private:
+    bool invert;
+    uint8_t pin;
 
-    public:
-        ActuatorPin(uint8_t pin,
-                    bool    invert);
+public:
+    ActuatorPin(uint8_t pin,
+                bool invert);
 
-        ~ActuatorPin() = default;
+    ~ActuatorPin() = default;
 
-        virtual void accept(VisitorBase & v) override final {
-        	v.visit(*this);
-        }
+    virtual void accept(VisitorBase& v) override final
+    {
+        v.visit(*this);
+    }
 
-        virtual void setState(const State & state, const update_t & now) override final
-        {
-            digitalWrite(pin, ((state == State::Active) ^ invert) ? HIGH : LOW);
-        }
+    virtual void setState(const State& state, const update_t& now) override final
+    {
+        digitalWrite(pin, ((state == State::Active) ^ invert) ? HIGH : LOW);
+    }
 
-        virtual State getState() const override final
-        {
-            return ((digitalRead(pin) != LOW) ^ invert) ? State::Active : State::Inactive;
-        }
+    virtual State getState() const override final
+    {
+        return ((digitalRead(pin) != LOW) ^ invert) ? State::Active : State::Inactive;
+    }
 
-        virtual update_t update(const update_t & t) override final {return update_t_max();}; // do nothing on periodic update
+    virtual update_t update(const update_t& t) override final { return update_t_max(); }; // do nothing on periodic update
 
     friend class ActuatorPinMixin;
 };

@@ -16,12 +16,15 @@ fi
 # result=$?
 # status $result
 
-cd $MY_DIR/../app/brewblox/test
+pushd $MY_DIR/../app/brewblox/test > /dev/null
 make -s
 result=$?
 status $result
+popd > /dev/null
 
+pushd > /dev/null
 cd $MY_DIR/../controlbox
 make -s
 result=$?
 status $result
+popd > /dev/null

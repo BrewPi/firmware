@@ -73,7 +73,7 @@ CPPSRC += /app/brewblox/BrewBlox.cpp
 ifeq ($(BOOST_ROOT),)
 $(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)
 endif
-CFLAGS += -isystem $(BOOST_ROOT)
+CPPFLAGS += -isystem $(BOOST_ROOT)
 
 CFLAGS += $(patsubst %,-I%,$(INCLUDE_DIRS)) -I.
 CFLAGS += -ffunction-sections -Wall

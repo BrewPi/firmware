@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+import 'brewblox.proto';
+
+package blox;
+
+message TempSensorMock {
+  sint32 value = 1 [(brewblox).unit = "degC", (brewblox).scale = 256];
+  bool connected = 2;
+}

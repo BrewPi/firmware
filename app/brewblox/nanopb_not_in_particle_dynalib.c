@@ -8,7 +8,6 @@
  * the functions in the Particle dynamically linked library.
  */
 
-#if 0
 #include <pb.h>
 #include <pb_common.h>
 #include <pb_decode.h>
@@ -242,5 +241,3 @@ iter_from_extension(pb_field_iter_t* iter, pb_extension_t* extension)
         iter->pData = &extension->dest;
     }
 }
-
-#endif
