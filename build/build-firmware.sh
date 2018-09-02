@@ -18,4 +18,4 @@ function makeapp()
 
 pwd
 # makeapp APP=controller
-makeapp APP=cbox
+makeapp APP=brewblox
