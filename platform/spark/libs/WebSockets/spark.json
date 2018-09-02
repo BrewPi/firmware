@@ -1,7 +1,0 @@
-{
-    "name": "WebSockets",
-    "version": "0.1.0",
-    "author": "mdma <mat dot mcgowan+particle at gmail dot com>",
-    "license": "LGPLv2.1",
-    "description": "Websocket client and server."
-}
