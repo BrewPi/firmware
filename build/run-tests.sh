@@ -11,8 +11,11 @@ else
 fi
 }
 
-$MY_DIR/../lib/test/obj/runner
+# $MY_DIR/../lib/test/obj/runner
+# status $?
+
+$MY_DIR/../controlbox/build/runner
 status $?
 
-$MY_DIR/../app/cbox/test/build/runner
+$MY_DIR/../app/brewblox/test/build/runner
 status $?
