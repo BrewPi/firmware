@@ -23,7 +23,7 @@
 #include "cbox/ResolveType.h"
 
 SET_TYPE_ID(OneWireBusBlock, 256);
-SET_TYPE_ID(OneWireTempSensorBlock, 257);
+SET_TYPE_ID(TempSensorOneWireBlock, 257);
 SET_TYPE_ID(PidBlock, 258);
 SET_TYPE_ID(SetpointSensorPairBlock, 259);
 SET_TYPE_ID(SetPointSimpleBlock, 260);

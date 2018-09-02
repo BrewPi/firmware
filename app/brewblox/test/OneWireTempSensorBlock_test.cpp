@@ -18,19 +18,19 @@
  */
 
 #include "../BrewBlox.h"
-#include "OneWireTempSensor.test.pb.h"
-#include "blox/OneWireTempSensorBlock.h"
+#include "TempSensorOneWire.test.pb.h"
+#include "blox/TempSensorOneWireBlock.h"
 #include <catch.hpp>
 #include "cbox/DataStreamIo.h"
 #include <sstream>
 
 using namespace cbox;
 
-SCENARIO("A OneWireTempSensorBlock")
+SCENARIO("A TempSensorOneWireBlock")
 {
-    WHEN("a OneWireTempSensorBlock receives protobuf settings")
+    WHEN("a TempSensorOneWireBlock receives protobuf settings")
     {
-        blox::OneWireTempSensor message;
+        blox::TempSensorOneWire message;
         message.set_address(0x12345678);
         message.set_offset(100);
         message.set_connected(true);
@@ -41,7 +41,7 @@ SCENARIO("A OneWireTempSensorBlock")
         ssIn << '\0'; // zero terminate
         cbox::IStreamDataIn in(ssIn);
 
-        OneWireTempSensorBlock sensor;
+        TempSensorOneWireBlock sensor;
         CboxError res = sensor.streamFrom(in);
         CHECK(res == CboxError::OK);
 
@@ -64,7 +64,7 @@ SCENARIO("A OneWireTempSensorBlock")
             CboxError res = sensor.streamTo(out);
             CHECK(res == CboxError::OK);
 
-            blox::OneWireTempSensor round_trip;
+            blox::TempSensorOneWire round_trip;
             round_trip.ParseFromIstream(&ssOut);
 
             auto correct = message;

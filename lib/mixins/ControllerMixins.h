@@ -11,7 +11,7 @@ class TempSensorMixin {};
 class TempSensorMockMixin {};
 class TempSensorFallbackMixin {};
 class PidMixin {};
-class OneWireTempSensorMixin {};
+class TempSensorOneWireMixin {};
 class TempSensorDisconnectedMixin {};
 class TempSensorExternalMixin {};
 class ActuatorTimeLimitedMixin {};

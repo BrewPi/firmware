@@ -1,26 +1,26 @@
 #pragma once
 
-#include "OneWireTempSensor.h"
+#include "TempSensorOneWire.h"
 #include "blox/Block.h"
-#include "proto/cpp/OneWireTempSensor.pb.h"
+#include "proto/cpp/TempSensorOneWire.pb.h"
 
 OneWire&
 theOneWire();
 
-class OneWireTempSensorBlock : public Block<OneWireTempSensorBlock> {
+class TempSensorOneWireBlock : public Block<TempSensorOneWireBlock> {
 private:
-    OneWireTempSensor sensor;
+    TempSensorOneWire sensor;
 
 public:
-    OneWireTempSensorBlock()
+    TempSensorOneWireBlock()
         : sensor(theOneWire())
     {
     }
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final
     {
-        blox_OneWireTempSensor newData;
-        cbox::CboxError res = streamProtoFrom(in, &newData, blox_OneWireTempSensor_fields, blox_OneWireTempSensor_size);
+        blox_TempSensorOneWire newData;
+        cbox::CboxError res = streamProtoFrom(in, &newData, blox_TempSensorOneWire_fields, blox_TempSensorOneWire_size);
         /* if no errors occur, write new settings to wrapped object */
         if (res == cbox::CboxError::OK) {
             sensor.setAddress(newData.address);
@@ -31,12 +31,12 @@ public:
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_OneWireTempSensor message;
+        blox_TempSensorOneWire message;
         message.address = sensor.getAddress();
         message.offset = sensor.getCalibration().getRaw();
         message.connected = sensor.isConnected();
         message.value = sensor.read().getRaw();
-        return streamProtoTo(out, &message, blox_OneWireTempSensor_fields, blox_OneWireTempSensor_size);
+        return streamProtoTo(out, &message, blox_TempSensorOneWire_fields, blox_TempSensorOneWire_size);
     }
 
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
@@ -63,7 +63,7 @@ public:
         return nullptr;
     }
 
-    OneWireTempSensor& get()
+    TempSensorOneWire& get()
     {
         return sensor;
     }

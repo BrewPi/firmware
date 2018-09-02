@@ -1,2 +1,0 @@
-blox.OneWireTempSensor.offset int_size:IS_16
-blox.OneWireTempSensor.value int_size:IS_16

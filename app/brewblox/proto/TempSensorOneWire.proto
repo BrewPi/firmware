@@ -4,7 +4,7 @@ import 'brewblox.proto';
 
 package blox;
 
-message OneWireTempSensor {
+message TempSensorOneWire {
   sint32 value = 1 [(brewblox).unit = "degC", (brewblox).scale = 256];
   bool connected = 2;
   sint32 offset = 3 [(brewblox).unit = "delta_degC", (brewblox).scale = 256];

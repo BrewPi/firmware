@@ -18,7 +18,7 @@
  */
 
 #include "blox/OneWireBusBlock.h"
-#include "blox/OneWireTempSensorBlock.h"
+#include "blox/TempSensorOneWireBlock.h"
 #include "blox/SetPointSimpleBlock.h"
 #include "blox/SetpointSensorPairBlock.h"
 #include "blox/SysInfoBlock.h"
@@ -78,7 +78,7 @@ makeBrewBloxBox()
     };
 
     static cbox::ObjectFactory objectFactory = {
-        OBJECT_FACTORY_ENTRY(OneWireTempSensorBlock),
+        OBJECT_FACTORY_ENTRY(TempSensorOneWireBlock),
         OBJECT_FACTORY_ENTRY(SetPointSimpleBlock),
         {cbox::resolveTypeId<SetpointSensorPairBlock>(), makeSetpointSensorPair}};
 

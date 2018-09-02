@@ -31,7 +31,7 @@ class OneWire;
 
 #define ONEWIRE_TEMP_SENSOR_PRECISION (4)
 
-class OneWireTempSensor final : public TempSensor {
+class TempSensorOneWire final : public TempSensor {
 public:
 private:
     DallasTemperature sensor;
@@ -48,7 +48,7 @@ public:
 	 *    on the bus is used.
 	 * /param calibration	A temperature value that is added to all readings. This can be used to calibrate the sensor.	 
 	 */
-    OneWireTempSensor(OneWire& bus, OneWireAddress _address, const temp_t& _calibrationOffset)
+    TempSensorOneWire(OneWire& bus, OneWireAddress _address, const temp_t& _calibrationOffset)
         : sensor(&bus)
         , sensorAddress(_address)
         , calibrationOffset(_calibrationOffset)
@@ -59,12 +59,12 @@ public:
         init();
     }
 
-    OneWireTempSensor(OneWire& bus)
-        : OneWireTempSensor(bus, 0, temp_t(0.0))
+    TempSensorOneWire(OneWire& bus)
+        : TempSensorOneWire(bus, 0, temp_t(0.0))
     {
     }
 
-    ~OneWireTempSensor() = default;
+    ~TempSensorOneWire() = default;
 
     virtual bool isConnected(void) const override final
     {
@@ -105,5 +105,5 @@ private:
     temp_t readAndConstrainTemp();
 
 public:
-    friend class OneWireTempSensorMixin;
+    friend class TempSensorOneWireMixin;
 };

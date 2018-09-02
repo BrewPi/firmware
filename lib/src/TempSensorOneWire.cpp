@@ -18,7 +18,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../inc/OneWireTempSensor.h"
+#include <TempSensorOneWire.h>
 #include "../inc/DallasTemperature.h"
 #include "../inc/Logger.h"
 #include "../inc/OneWire.h"
@@ -32,7 +32,7 @@
  * Clients should attempt to re-initialize the sensor by calling init() again. 
  */
 void
-OneWireTempSensor::init()
+TempSensorOneWire::init()
 {
     // This quickly tests if the sensor is connected and initializes the reset detection if necessary.
 
@@ -48,13 +48,13 @@ OneWireTempSensor::init()
 }
 
 void
-OneWireTempSensor::requestConversion()
+TempSensorOneWire::requestConversion()
 {
     sensor.requestTemperaturesByAddress(sensorAddress.asUint8ptr());
 }
 
 void
-OneWireTempSensor::setConnected(bool _connected)
+TempSensorOneWire::setConnected(bool _connected)
 {
     if (connected == _connected) {
         return; // state stays the same
@@ -67,7 +67,7 @@ OneWireTempSensor::setConnected(bool _connected)
 }
 
 temp_t
-OneWireTempSensor::read() const
+TempSensorOneWire::read() const
 {
     if (!connected) {
         return TEMP_SENSOR_DISCONNECTED;
@@ -77,14 +77,14 @@ OneWireTempSensor::read() const
 }
 
 void
-OneWireTempSensor::update()
+TempSensorOneWire::update()
 {
     cachedValue = readAndConstrainTemp();
     requestConversion();
 }
 
 temp_t
-OneWireTempSensor::readAndConstrainTemp()
+TempSensorOneWire::readAndConstrainTemp()
 {
     int16_t tempRaw;
     bool success;
