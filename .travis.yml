@@ -8,7 +8,7 @@ services:
 script:
   - cd ./docker
   - docker-compose pull compiler
-  - docker-compose run --rm bash build-ci.sh
+  - docker-compose run compiler --rm bash build-ci.sh
 
 notifications:
   slack:
