@@ -36,8 +36,8 @@ private:
 
 public:
     explicit SetpointSensorPair(
-        const std::function<std::shared_ptr<TempSensor>()> _sensor,
-        const std::function<std::shared_ptr<SetPoint>()> _setpoint)
+        std::function<std::shared_ptr<TempSensor>()>&& _sensor,
+        std::function<std::shared_ptr<SetPoint>()>&& _setpoint)
         : sensor(_sensor)
         , setpoint(_setpoint)
     {
