@@ -46,7 +46,7 @@ services:
     ports:
         # simulator
         - "8332:8332"
-    command: bash /scripts/run-simulator.sh        
+    command: bash run-simulator.sh        
 
 networks:
     default:

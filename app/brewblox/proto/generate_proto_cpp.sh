@@ -8,9 +8,7 @@ if [[ "${OSTYPE}" == "msys" ]]; then
 fi
 PROTOC_INCLUDE_PATH="-I${PROTO_DIR} -I${NANOPB_PATH}/generator -I${NANOPB_PATH}/generator/proto"
 
-ls ${PROTOC_NANOPB_PLUGIN}
-
-pushd "$PROTO_DIR" # .option files are read from execution directory, so have to cd into this dir 
+pushd "$PROTO_DIR" > /dev/null # .option files are read from execution directory, so have to cd into this dir 
 mkdir -p "cpp"
 
 PROTOC_INCLUDE_PATH="-I${PROTO_DIR} -I${NANOPB_PATH}/generator -I${NANOPB_PATH}/generator/proto"
@@ -19,4 +17,4 @@ protoc ${PROTOC_INCLUDE_PATH} \
 ${PROTO_DIR}/*.proto \
 --proto_path=${PROTO_DIR} \
 --plugin=protoc-gen-nanopb=${PROTOC_NANOPB_PLUGIN}
-popd
+popd > /dev/null

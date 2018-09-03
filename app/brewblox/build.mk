@@ -99,8 +99,4 @@ $(info using $(GIT_VERSION) as build name)
 EXTRA_CFLAGS += -DBUILD_NAME="$(GIT_VERSION)"
 
 COMPILER_VERSION = $(shell $(CC) --version) 
-$(info using compiler: $(COMPILER_VERSION)) 
- 
-# recompile proto files
-$(info compiling proto files) 
-PROTO_OUTPUT = $(shell bash $(SOURCE_PATH)/app/brewblox/proto/generate_proto_cpp.sh)
+$(info using compiler: $(COMPILER_VERSION))

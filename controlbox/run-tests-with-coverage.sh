@@ -20,5 +20,5 @@ lcov -q --remove coverage/total.info '/usr/*' -o coverage/filtered.info
 
 echo "generating html"
 mkdir -p coverage/html
-genhtml -q --prefix /firmware/ coverage/filtered.info --ignore-errors source --output-directory=coverage/html
+genhtml -q --prefix /firmware/controlbox coverage/filtered.info --ignore-errors source --output-directory=coverage/html
 popd
