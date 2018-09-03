@@ -99,9 +99,9 @@ public:
             std::move(const_cast<CboxPtr<T>*>(this)->lock()));
     }
 
-    std::shared_ptr<T> operator()()
+    operator std::function<std::shared_ptr<T>()>()
     {
-        return lock();
+        return std::bind(&cbox::CboxPtr<T>::lock, this);
     }
 
     /*

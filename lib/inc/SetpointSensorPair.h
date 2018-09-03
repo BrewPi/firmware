@@ -31,13 +31,13 @@
 class SetpointSensorPair : public ProcessValue {
 
 private:
-    const std::function<std::shared_ptr<TempSensor>()>& sensor;
-    const std::function<std::shared_ptr<SetPoint>()>& setpoint;
+    const std::function<std::shared_ptr<TempSensor>()> sensor;
+    const std::function<std::shared_ptr<SetPoint>()> setpoint;
 
 public:
     explicit SetpointSensorPair(
-        const std::function<std::shared_ptr<TempSensor>()>& _sensor,
-        const std::function<std::shared_ptr<SetPoint>()>& _setpoint)
+        const std::function<std::shared_ptr<TempSensor>()> _sensor,
+        const std::function<std::shared_ptr<SetPoint>()> _setpoint)
         : sensor(_sensor)
         , setpoint(_setpoint)
     {

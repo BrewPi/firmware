@@ -13,8 +13,6 @@ class SetpointSensorPairBlock : public Block<SetpointSensorPairBlock> {
 private:
     cbox::CboxPtr<TempSensor> sensor;
     cbox::CboxPtr<SetPoint> setpoint;
-    const std::function<std::shared_ptr<TempSensor>()> _sensor = std::bind(&cbox::CboxPtr<TempSensor>::lock, &sensor);
-    const std::function<std::shared_ptr<SetPoint>()> _setpoint = std::bind(&cbox::CboxPtr<SetPoint>::lock, &setpoint);
     SetpointSensorPair pair;
 
 public
@@ -22,7 +20,7 @@ public
     SetpointSensorPairBlock(cbox::ObjectContainer& objects)
         : sensor(objects)
         , setpoint(objects)
-        , pair(_sensor, _setpoint)
+        , pair(sensor, setpoint)
     {
     }
 
