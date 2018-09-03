@@ -13,12 +13,12 @@ fi
 pushd "$MY_DIR/../platform/spark/firmware/modules" > /dev/null
 
 echo "Building system modules for P1"
-make all PLATFORM=p1
+make -s all PLATFORM=p1
 result=$?
 status $result
 
 echo "Building system modules for Photon"
-make all PLATFORM=photon
+make -s all PLATFORM=photon
 result=$?
 status $result
 
