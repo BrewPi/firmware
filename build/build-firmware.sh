@@ -3,11 +3,12 @@ MY_DIR=$(dirname $(readlink -f $0))
 function makeit()
 {
 	echo "building $*"
-    make -C . -s  all $*
+    make -s all $*
 if [[ "$?" -eq 0 ]]; then
   echo "✓ SUCCESS"
 else
   echo "✗ FAILED"
+  popd > /dev/null
   exit 1
 fi
 }
@@ -20,6 +21,5 @@ function makeapp()
 }
 
 pushd "$MYDIR" > /dev/null
-# makeapp APP=controller
 makeapp APP=brewblox
 popd > /dev/null

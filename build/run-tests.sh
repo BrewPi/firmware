@@ -7,15 +7,21 @@ if [[ "$1" -eq 0 ]]; then
   echo "✓ SUCCESS"
 else
   echo "✗ FAILED"
+  popd > /dev/null
   exit 1
 fi
 }
 
-# $MY_DIR/../lib/test/obj/runner
 # status $?
-
-$MY_DIR/../controlbox/build/runner
+echo "Running controlbox unit tests"
+pushd $MY_DIR/../controlbox/build/ > /dev/null
+./runner
 status $?
+popd > /dev/null
 
-$MY_DIR/../app/brewblox/test/build/runner
+
+echo "Running controlbox unit tests"
+pushd $MY_DIR/../app/brewblox/test/build > /dev/null
+./runner
 status $?
+popd > /dev/null

@@ -67,6 +67,5 @@ ENV BOOST_ROOT=/boost/boost_1_65_0
 # add catch test to system includes
 RUN curl -sSL https://github.com/catchorg/Catch2/releases/download/v2.3.0/catch.hpp -o /usr/local/include/catch.hpp
 
-COPY scripts /scripts
 WORKDIR /firmware/build
 CMD bash

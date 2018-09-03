@@ -127,7 +127,6 @@ runner: $(TARGETDIR)$(TARGET)
 
 $(TARGETDIR)$(TARGET) : $(BUILD_PATH) $(ALLOBJ)
 	@echo Building target: $@
-	@echo Invoking: GCC C++ Linker
 	$(MKDIR) $(dir $@)
 	$(LD) $(CFLAGS) $(ALLOBJ) --output $@ $(LDFLAGS)
 	@echo
@@ -140,19 +139,15 @@ $(BUILD_PATH):
 # C compiler to build .o from .c in $(BUILD_DIR)
 $(BUILD_PATH)%.o : $(SOURCE_PATH)/%.c
 	@echo Building file: $<
-	@echo Invoking: GCC C Compiler
 	$(MKDIR) $(dir $@)
 	$(CCC) $(CCFLAGS) -c -o $@ $<
-	@echo
 
 # CPP compiler to build .o from .cpp in $(BUILD_DIR)
 # Note: Calls standard $(CC) - gcc will invoke g++ as appropriate
 $(BUILD_PATH)%.o : $(SOURCE_PATH)/%.cpp
 	@echo Building file: $<
-	@echo Invoking: GCC CPP Compiler
 	$(MKDIR) $(dir $@)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
-	@echo
 
 # Other Targets
 clean:	

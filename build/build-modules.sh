@@ -12,16 +12,16 @@ else
 fi
 }
 
-pushd $MY_DIR/../app/brewblox/test > /dev/null
-echo "Building BrewBlox app unit tests"
-make -s
-result=$?
-status $result
-popd > /dev/null
+pushd $MY_DIR/../platform/spark/firmware/modules > /dev/null
 
-pushd > $MY_DIR/../controlbox
-echo "Building controlbox unit tests"
-make -s
+echo "Building system modules for P1"
+make all PLATFORM=p1
 result=$?
 status $result
+
+echo "Building system modules for Photon"
+make all PLATFORM=photon
+result=$?
+status $result
+
 popd > /dev/null
