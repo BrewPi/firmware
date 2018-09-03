@@ -52,6 +52,24 @@ public:
     }
 };
 
+void
+decodeProtoFromReply(std::stringstream& ss, ::google::protobuf::Message& message)
+{
+    cbox::IStreamDataIn hex(ss);
+    cbox::HexTextToBinaryIn decoder(hex);
+    while (hex.next() != '|') { // spool command echo
+    }
+    // spool status, id, profiles and object type
+    uint8_t header[6];
+    decoder.read(header, 6);
+
+    // pass the rest to the protobuf decoder
+    std::stringstream ssProto;
+    cbox::OStreamDataOut protoData(ssProto);
+    decoder.push(protoData);
+    message.ParseFromIstream(&ssProto);
+};
+
 SCENARIO("A Blox SetpointSensorPair object can be created from streamed protobuf data")
 {
     static auto& box = brewbloxBox();
@@ -136,5 +154,9 @@ SCENARIO("A Blox SetpointSensorPair object can be created from streamed protobuf
     box.hexCommunicate();
 
     CHECK(out.str().find("|00") != std::string::npos); // no errors
-    CHECK(out.str() == "");                            // no errors
+
+    blox::SetpointSensorPair reply;
+    decodeProtoFromReply(out, reply);
+    CHECK(reply.ShortDebugString() == "setpointId: 101 sensorId: 100 sensorValid: true "
+                                      "setpointValid: true setpointValue: 5376 sensorValue: 5120");
 }
