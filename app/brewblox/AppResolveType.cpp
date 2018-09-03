@@ -33,6 +33,7 @@ SET_TYPE_ID(SysInfoBlock, 264);
 SET_TYPE_ID(TempSensor, 265);   // interface
 SET_TYPE_ID(SetPoint, 266);     // interface
 SET_TYPE_ID(ProcessValue, 267); // interface
+SET_TYPE_ID(TempSensorMockBlock, 268);
 
 // need to figure out how to make a macro for this:
 class TicksWiring;

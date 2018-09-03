@@ -31,6 +31,12 @@ public:
     {
     }
 
+    TempSensorMock()
+        : value(temp_t::invalid())
+        , connected(false)
+    {
+    }
+
     void setConnected(bool _connected)
     {
         connected = _connected;

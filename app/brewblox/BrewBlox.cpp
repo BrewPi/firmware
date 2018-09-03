@@ -21,6 +21,7 @@
 #include "blox/SetPointSimpleBlock.h"
 #include "blox/SetpointSensorPairBlock.h"
 #include "blox/SysInfoBlock.h"
+#include "blox/TempSensorMockBlock.h"
 #include "blox/TempSensorOneWireBlock.h"
 #include "blox/TicksBlock.h"
 #include "cbox/Box.h"
@@ -64,6 +65,16 @@ class SetpointSensorPairBlock;
 
 TicksClass ticks;
 
+// define separately to make it available for tests
+#if !defined(SPARK)
+cbox::StringStreamConnectionSource&
+testConnectionSource()
+{
+    static cbox::StringStreamConnectionSource connSource;
+    return connSource;
+}
+#endif
+
 cbox::Box&
 makeBrewBloxBox()
 {
@@ -79,7 +90,9 @@ makeBrewBloxBox()
     static cbox::ObjectFactory objectFactory = {
         OBJECT_FACTORY_ENTRY(TempSensorOneWireBlock),
         OBJECT_FACTORY_ENTRY(SetPointSimpleBlock),
-        {cbox::resolveTypeId<SetpointSensorPairBlock>(), makeSetpointSensorPair}};
+        {cbox::resolveTypeId<SetpointSensorPairBlock>(), makeSetpointSensorPair},
+        OBJECT_FACTORY_ENTRY(TempSensorMockBlock),
+    };
 
     static EepromAccessImpl eeprom;
     static cbox::EepromObjectStorage objectStore(eeprom);
@@ -87,8 +100,7 @@ makeBrewBloxBox()
     static cbox::TcpConnectionSource tcpSource(8332);
     static cbox::ConnectionPool connections = {tcpSource};
 #else
-    static cbox::StringStreamConnectionSource connSource;
-    static cbox::ConnectionPool connections = {connSource};
+    static cbox::ConnectionPool connections = {testConnectionSource()};
 #endif
 
     static cbox::Box box(objectFactory, objects, objectStore, connections);

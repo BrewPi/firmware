@@ -5,18 +5,24 @@
 #include "blox/Block.h"
 #include "cbox/CboxPtr.h"
 #include "cbox/ResolveType.h"
+#include <functional>
+
+using std::placeholders::_1;
 
 class SetpointSensorPairBlock : public Block<SetpointSensorPairBlock> {
 private:
     cbox::CboxPtr<TempSensor> sensor;
     cbox::CboxPtr<SetPoint> setpoint;
+    const std::function<std::shared_ptr<TempSensor>()> _sensor = std::bind(&cbox::CboxPtr<TempSensor>::lock, &sensor);
+    const std::function<std::shared_ptr<SetPoint>()> _setpoint = std::bind(&cbox::CboxPtr<SetPoint>::lock, &setpoint);
     SetpointSensorPair pair;
 
-public:
+public
+    :
     SetpointSensorPairBlock(cbox::ObjectContainer& objects)
         : sensor(objects)
         , setpoint(objects)
-        , pair(sensor, setpoint)
+        , pair(_sensor, _setpoint)
     {
     }
 
@@ -37,8 +43,8 @@ public:
         blox_SetpointSensorPair message;
         message.sensorId = sensor.getId();
         message.setpointId = setpoint.getId();
-        message.sensor = pair.value().getRaw();
-        message.setpoint = pair.setting().getRaw();
+        message.sensorValue = pair.value().getRaw();
+        message.setpointValue = pair.setting().getRaw();
         message.sensorValid = sensor.valid();
         message.setpointValid = setpoint.valid();
 
@@ -48,8 +54,8 @@ public:
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
     {
         blox_SetpointSensorPair message;
-        message.sensor = sensor.getId();
-        message.setpoint = setpoint.getId();
+        message.sensorId = sensor.getId();
+        message.setpointId = setpoint.getId();
 
         return streamProtoTo(out, &message, blox_SetpointSensorPair_fields, blox_SetpointSensorPair_size);
     }

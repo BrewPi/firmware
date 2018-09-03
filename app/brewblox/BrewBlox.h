@@ -22,6 +22,12 @@
 #include "OneWire.h"
 #include "cbox/Box.h"
 
+#if !defined(SPARK)
+#include "cbox/ConnectionsStringStream.h"
+cbox::StringStreamConnectionSource&
+testConnectionSource();
+#endif
+
 // create a static Box object on first use and return a reference to it
 cbox::Box&
 brewbloxBox();

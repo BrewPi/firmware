@@ -487,6 +487,7 @@ public:
     virtual void endMessage() override final
     {
         out.write(crcValue);
+        crcValue = 0;
         out.endMessage();
     }
 

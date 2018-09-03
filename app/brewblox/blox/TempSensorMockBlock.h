@@ -5,7 +5,7 @@
 #include "blox/Block.h"
 #include "proto/cpp/TempSensorMock.pb.h"
 
-class TempSensorMockBlock : public Block<TempSensorMock> {
+class TempSensorMockBlock : public Block<TempSensorMockBlock> {
 private:
     TempSensorMock sensor;
 
