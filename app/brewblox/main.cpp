@@ -30,6 +30,15 @@ SYSTEM_THREAD(ENABLED);
 
 //MDNS mdns;
 
+#if PLATFORM_ID == PLATFORM_GCC
+#include <csignal>
+void
+signal_handler(int signal)
+{
+    exit(signal);
+}
+#endif
+
 #if PLATFORM_THREADING
 ApplicationWatchdog appWatchdog(60000, System.reset);
 inline void
@@ -49,9 +58,10 @@ void
 setup()
 {
     //Serial.begin(57600);
-    //eepromAccess.init();
-    //cbox::controlbox_setup(0);
-    //platform_init();
+    // Install a signal handler
+#if PLATFORM_ID == PLATFORM_GCC
+    std::signal(SIGINT, signal_handler);
+#endif
 
     System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
     WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
