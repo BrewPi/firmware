@@ -25,25 +25,18 @@
 #include <array>
 #include <functional>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 namespace cbox {
 
-std::unique_ptr<Object>
-createApplicationObject(obj_type_t typeId, DataIn& in, CboxError& errorCode);
-
-template <class T>
-std::unique_ptr<Object>
-createObject()
-{
-    return std::make_unique<T>();
-}
-
 // An object factory combines the create function with a type ID.
 // They can be put in a container that can be walked to find the matching typeId
+// The container keeps the objects as shared pointer, so it can create weak pointers to them.
+// Therefore the factory creates a shared pointer right away to only have one allocation.
 struct ObjectFactoryEntry {
     obj_type_t typeId;
-    std::function<std::unique_ptr<Object>()> createFn;
+    std::function<std::shared_ptr<Object>()> createFn;
 };
 
 class ObjectFactory {
@@ -56,33 +49,19 @@ public:
     {
     }
 
-    CboxError make(const obj_type_t& t, std::unique_ptr<Object>& objTarget) const
+    std::tuple<CboxError, std::shared_ptr<Object>> make(const obj_type_t& t) const
     {
         auto factoryEntry = std::find_if(objTypes.begin(), objTypes.end(), [&t](const ObjectFactoryEntry& entry) { return entry.typeId == t; });
         if (factoryEntry == objTypes.end()) {
-            return CboxError::OBJECT_NOT_CREATABLE;
-        } else {
-            objTarget = (*factoryEntry).createFn();
-            if (!objTarget) {
-                return CboxError::INSUFFICIENT_HEAP; // LCOV_EXCL_LINE
-            }
+            return {CboxError::OBJECT_NOT_CREATABLE, nullptr};
         }
-        return CboxError::OK;
+        auto obj = (*factoryEntry).createFn();
+        if (!obj) {
+            return {CboxError::INSUFFICIENT_HEAP, nullptr}; // LCOV_EXCL_LINE
+        }
+
+        return std::make_tuple(CboxError::OK, std::move(obj));
     }
 };
-
-/* macro to help define the object factory, use like this:
-
-ObjectFactory objectFactory = {
-        OBJECT_FACTORY_ENTRY(Class1),
-        OBJECT_FACTORY_ENTRY(Class2)
-};
-
-*/
-
-#define OBJECT_FACTORY_ENTRY(classname)                          \
-    {                                                            \
-        classname::staticTypeId(), cbox::createObject<classname> \
-    }
 
 } // end namespace cbox

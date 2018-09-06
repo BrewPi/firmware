@@ -22,35 +22,41 @@
 #include "ObjectFactory.h"
 #include "TestObjects.h"
 #include <catch.hpp>
+#include <tuple>
 
 using namespace cbox;
 
 SCENARIO("An object can be created by an ObjectFactory by resolving the type id")
 {
     ObjectFactory factory = {
-        OBJECT_FACTORY_ENTRY(LongIntObject),
-        OBJECT_FACTORY_ENTRY(LongIntVectorObject)};
+        {LongIntObject::staticTypeId(), std::make_shared<LongIntObject>},
+        {LongIntVectorObject::staticTypeId(), std::make_shared<LongIntVectorObject>},
+    };
 
     const obj_type_t longIntType = LongIntObject::staticTypeId();
     const obj_type_t longIntVectorType = LongIntVectorObject::staticTypeId();
 
     WHEN("The factory is given a valid type ID, the object with type ID is created")
     {
-        std::unique_ptr<Object> obj1;
-        auto status1 = factory.make(longIntType, obj1);
+        std::shared_ptr<Object> obj1;
+        CboxError status1;
+        std::tie(status1, obj1) = factory.make(longIntType);
         CHECK(status1 == CboxError::OK);
         CHECK(obj1->typeId() == longIntType);
 
-        std::unique_ptr<Object> obj2;
-        auto status2 = factory.make(longIntVectorType, obj2);
+        CboxError status2;
+        std::shared_ptr<Object> obj2;
+        std::tie(status2, obj2) = factory.make(longIntVectorType);
+
         CHECK(status2 == CboxError::OK);
         CHECK(obj2->typeId() == longIntVectorType);
     }
 
     WHEN("The factory is given an invalid type ID, nullptr is returned with status object_not_creatable")
     {
-        std::unique_ptr<Object> obj;
-        auto status = factory.make(9999, obj);
+        std::shared_ptr<Object> obj;
+        CboxError status;
+        std::tie(status, obj) = factory.make(9999);
         CHECK(status == CboxError::OBJECT_NOT_CREATABLE);
         CHECK(obj == nullptr);
     }

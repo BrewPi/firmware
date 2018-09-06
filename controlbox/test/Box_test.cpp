@@ -25,12 +25,13 @@ SCENARIO("A controlbox Box")
 
     ArrayEepromAccess<2048> eeprom;
     EepromObjectStorage storage(eeprom);
+
     ObjectFactory factory = {
-        OBJECT_FACTORY_ENTRY(LongIntObject),
-        OBJECT_FACTORY_ENTRY(LongIntVectorObject),
-        OBJECT_FACTORY_ENTRY(UpdateCounter),
+        {LongIntObject::staticTypeId(), std::make_shared<LongIntObject>},
+        {LongIntVectorObject::staticTypeId(), std::make_shared<LongIntVectorObject>},
+        {UpdateCounter::staticTypeId(), std::make_shared<UpdateCounter>},
         {PtrLongIntObject::staticTypeId(), [&container]() {
-             return std::make_unique<PtrLongIntObject>(container);
+             return std::make_shared<PtrLongIntObject>(container);
          }}};
 
     StringStreamConnectionSource connSource;
@@ -458,8 +459,12 @@ SCENARIO("A controlbox Box")
 
                     EepromObjectStorage storage2(eeprom);
                     ObjectFactory factory2 = {
-                        OBJECT_FACTORY_ENTRY(LongIntObject),
-                        OBJECT_FACTORY_ENTRY(LongIntVectorObject)};
+                        {LongIntObject::staticTypeId(), std::make_shared<LongIntObject>},
+                        {LongIntVectorObject::staticTypeId(), std::make_shared<LongIntVectorObject>},
+                        {UpdateCounter::staticTypeId(), std::make_shared<UpdateCounter>},
+                        {PtrLongIntObject::staticTypeId(), [&container]() {
+                             return std::make_shared<PtrLongIntObject>(container);
+                         }}};
 
                     StringStreamConnectionSource connSource2;
                     ConnectionPool connPool2 = {connSource2};

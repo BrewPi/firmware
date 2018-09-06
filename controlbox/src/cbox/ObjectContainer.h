@@ -111,13 +111,13 @@ public:
     }
 
     // create a new object and let box assign id
-    obj_id_t add(std::unique_ptr<Object> obj, const uint8_t active_in_profiles)
+    obj_id_t add(std::shared_ptr<Object> obj, const uint8_t active_in_profiles)
     {
         return add(std::move(obj), active_in_profiles, obj_id_t::invalid());
     }
 
     // create a new object with specific id, optionally replacing an existing object
-    obj_id_t add(std::unique_ptr<Object> obj, const uint8_t active_in_profiles, const obj_id_t& id, bool replace = false)
+    obj_id_t add(std::shared_ptr<Object> obj, const uint8_t active_in_profiles, const obj_id_t& id, bool replace = false)
     {
         obj_id_t newId;
         Iterator position;

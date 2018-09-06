@@ -83,16 +83,11 @@ makeBrewBloxBox()
         cbox::ContainedObject(2, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
         cbox::ContainedObject(3, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire()))};
 
-    auto makeSetpointSensorPair = []() {
-        return std::make_unique<SetpointSensorPairBlock>(objects);
-    };
-
     static cbox::ObjectFactory objectFactory = {
-        OBJECT_FACTORY_ENTRY(TempSensorOneWireBlock),
-        OBJECT_FACTORY_ENTRY(SetPointSimpleBlock),
-        {SetpointSensorPairBlock::staticTypeId(), makeSetpointSensorPair},
-        OBJECT_FACTORY_ENTRY(TempSensorMockBlock),
-    };
+        {TempSensorOneWireBlock::staticTypeId(), std::make_unique<TempSensorOneWireBlock>},
+        {SetPointSimpleBlock::staticTypeId(), std::make_unique<SetPointSimpleBlock>},
+        {SetpointSensorPairBlock::staticTypeId(), []() { return std::make_unique<SetpointSensorPairBlock>(objects); }},
+        {TempSensorMockBlock::staticTypeId(), std::make_unique<TempSensorMockBlock>}};
 
     static EepromAccessImpl eeprom;
     static cbox::EepromObjectStorage objectStore(eeprom);

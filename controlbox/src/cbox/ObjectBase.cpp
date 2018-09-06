@@ -32,7 +32,7 @@ throwIdNotUnique(uint16_t id)
     auto pair = std::equal_range(allIds.begin(), allIds.end(), id);
     if (pair.first != pair.second) {
         // duplicate id!
-        throw std::logic_error("ID " + std::to_string(id) + " not unique!");
+        throw std::logic_error("ID " + std::to_string(id) + " not unique!"); // LCOV_EXCL_LINE
     }
     allIds.insert(pair.first, id);
     return id;

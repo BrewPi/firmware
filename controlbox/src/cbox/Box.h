@@ -59,7 +59,7 @@ private:
     void reboot(DataIn& in, HexCrcDataOut& out);
     void factoryReset(DataIn& in, HexCrcDataOut& out);
 
-    CboxError createObjectFromStream(DataIn& in, uint8_t& profiles, std::unique_ptr<Object>& newObj);
+    std::tuple<CboxError, std::shared_ptr<Object>, uint8_t> createObjectFromStream(DataIn& in);
     void loadObjectsFromStorage();
 
 public:

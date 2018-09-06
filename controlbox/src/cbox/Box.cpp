@@ -28,6 +28,7 @@
 #include "ObjectContainer.h"
 #include "ObjectStorage.h"
 #include <memory>
+#include <tuple>
 
 extern void
 handleReset(bool);
@@ -118,12 +119,13 @@ Box::writeObject(DataIn& in, HexCrcDataOut& out)
                 uint8_t oldProfiles = cobj->profiles();
                 obj_id_t id = cobj->id();
 
-                std::unique_ptr<Object> newObj;
-                status = factory.make(actualType, newObj);
+                CboxError result;
+                std::shared_ptr<Object> obj;
+                std::tie(result, obj) = factory.make(actualType);
 
-                if (newObj && status == CboxError::OK) {
+                if (result == CboxError::OK && obj) {
                     // replace inactive object with active object to be able to stream to it
-                    *cobj = ContainedObject(id, oldProfiles, std::move(newObj));
+                    *cobj = ContainedObject(id, oldProfiles, std::move(obj));
                 }
             }
         }
@@ -163,26 +165,26 @@ Box::writeObject(DataIn& in, HexCrcDataOut& out)
 /**
  * Creates a new object by streaming in everything except the object id
  */
-CboxError
-Box::createObjectFromStream(DataIn& in, uint8_t& profiles, std::unique_ptr<Object>& newObj)
+std::tuple<CboxError, std::shared_ptr<Object>, uint8_t>
+Box::createObjectFromStream(DataIn& in)
 {
     obj_type_t typeId;
-    CboxError status = CboxError::OK;
+    uint8_t profiles;
 
     if (!in.get(profiles)) {
-        status = CboxError::INPUT_STREAM_READ_ERROR; // LCOV_EXCL_LINE
+        return {CboxError::INPUT_STREAM_READ_ERROR, nullptr, 0}; // LCOV_EXCL_LINE
     }
     if (!in.get(typeId)) {
-        status = CboxError::INPUT_STREAM_READ_ERROR; // LCOV_EXCL_LINE
+        return {CboxError::INPUT_STREAM_READ_ERROR, nullptr, 0}; // LCOV_EXCL_LINE
     }
 
-    if (status == CboxError::OK) {
-        status = factory.make(typeId, newObj);
-        if (newObj) {
-            status = newObj->streamFrom(in);
-        }
+    CboxError result;
+    std::shared_ptr<Object> obj;
+    std::tie(result, obj) = factory.make(typeId);
+    if (obj) {
+        obj->streamFrom(in);
     }
-    return status;
+    return std::make_tuple(std::move(result), std::move(obj), profiles);
 }
 
 /**
@@ -205,9 +207,9 @@ Box::createObject(DataIn& in, HexCrcDataOut& out)
         status = CboxError::INVALID_OBJECT_ID;
     }
 
-    std::unique_ptr<Object> newObj;
+    std::shared_ptr<Object> newObj;
     if (status == CboxError::OK) {
-        status = createObjectFromStream(in, profiles, newObj);
+        std::tie(status, newObj, profiles) = createObjectFromStream(in);
     }
 
     in.spool();
@@ -377,10 +379,10 @@ Box::loadObjectsFromStorage()
 
         } else {
             // new object
-            uint8_t profiles = 0;
-            std::unique_ptr<Object> newObj;
+            uint8_t profiles;
+            std::shared_ptr<Object> newObj;
 
-            status = createObjectFromStream(tee, profiles, newObj);
+            std::tie(status, newObj, profiles) = createObjectFromStream(tee);
 
             tee.spool();
             if (crcCalculator.crc() != 0) {
@@ -552,8 +554,9 @@ Box::setActiveProfilesAndUpdateObjects(const uint8_t newProfiles)
         if (shouldBeActive && objType == InactiveObject::staticTypeId()) {
             // look for object in storage and replace existing object with it
             auto retrieveContained = [this, &objId](RegionDataIn& objInStorage) -> CboxError {
+                CboxError status;
+                std::shared_ptr<Object> newObj;
                 uint8_t profiles = 0;
-                std::unique_ptr<Object> newObj;
 
                 // use a CrcDataOut to a black hole to check the CRC
                 BlackholeDataOut hole;
@@ -561,7 +564,7 @@ Box::setActiveProfilesAndUpdateObjects(const uint8_t newProfiles)
                 TeeDataIn tee(objInStorage, crcCalculator);
 
                 crcCalculator.put(objId); // id is part of CRC, but not part of the stream we get from storage
-                CboxError status = createObjectFromStream(tee, profiles, newObj);
+                std::tie(status, newObj, profiles) = createObjectFromStream(tee);
 
                 tee.spool();
                 if (crcCalculator.crc() != 0) {
