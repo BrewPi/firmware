@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PROTO_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-NANOPB_PATH="${PROTO_DIR}/../../../platform/spark/firmware/nanopb/nanopb"
+NANOPB_PATH="$(readlink -f "${PROTO_DIR}/../../../platform/spark/firmware/nanopb/nanopb")"
 PROTOC_NANOPB_PLUGIN="${NANOPB_PATH}/generator/protoc-gen-nanopb"
 if [[ "${OSTYPE}" == "msys" ]]; then
 	PROTOC_NANOPB_PLUGIN="${PROTOC_NANOPB_PLUGIN}.bat" # add .bat when on windows

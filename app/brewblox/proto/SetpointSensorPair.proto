@@ -1,16 +1,18 @@
 syntax = "proto3";
 
 import 'brewblox.proto';
+import "nanopb.proto";
 
 package blox;
 
 message SetpointSensorPair {
-  uint32 setpointId = 1 [(brewblox).link = "SetPoint"];
-  uint32 sensorId = 2 [(brewblox).link = "TempSensor"];
+  option (nanopb_msgopt).msgid = 259;
+  uint32 setpointId = 1 [(brewblox).link = "SetPoint", (nanopb).int_size = IS_16];
+  uint32 sensorId = 2 [(brewblox).link = "TempSensor", (nanopb).int_size = IS_16];
   
   bool setpointValid = 4;
   bool sensorValid = 3;
   
-  sint32 setpointValue = 5 [(brewblox).unit = "degC", (brewblox).scale = 256];
-  sint32 sensorValue = 6 [(brewblox).unit = "degC", (brewblox).scale = 256];
+  sint32 setpointValue = 5 [(brewblox).unit = "degC", (brewblox).scale = 256, (nanopb).int_size = IS_16];
+  sint32 sensorValue = 6 [(brewblox).unit = "degC", (brewblox).scale = 256, (nanopb).int_size = IS_16];
 }

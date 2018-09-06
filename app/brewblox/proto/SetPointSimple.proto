@@ -1,9 +1,10 @@
 syntax = "proto3";
 
 import 'brewblox.proto';
+import "nanopb.proto";
 
 package blox;
 
 message SetPointSimple {
-    sint32 setting = 1 [(brewblox).unit = "degC", (brewblox).scale = 256];
+    sint32 setting = 1 [(brewblox).unit = "degC", (brewblox).scale = 256, (nanopb).int_size = IS_16];
 }

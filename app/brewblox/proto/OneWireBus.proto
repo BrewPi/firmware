@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import 'brewblox.proto';
+import "nanopb.proto";
 
 package blox;
 
@@ -9,10 +10,10 @@ package blox;
 
 message OneWireBus {
     message Command {
-        uint32 opcode = 1;
-        uint32 data = 2;
+        uint32 opcode = 1 [(nanopb).int_size = IS_8];
+        uint32 data = 2 [(nanopb).int_size = IS_8];
     }
-
+    
     Command command = 1;
     repeated fixed64 address = 2 [(brewblox).hexed = true, (brewblox).readonly = true];
 }

@@ -1,2 +1,0 @@
-blox.OneWireBus.Command.opcode int_size:IS_8
-blox.OneWireBus.Command.data int_size:IS_8  

@@ -11,5 +11,5 @@ message BrewbloxFieldOptions {
 }
 
 extend google.protobuf.FieldOptions {
-    BrewbloxFieldOptions brewblox = 1011;
+    BrewbloxFieldOptions brewblox = 50001;
 }

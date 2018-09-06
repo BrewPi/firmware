@@ -1,5 +1,0 @@
-blox.SetpointSensorPair.setpointId int_size:16
-blox.SetpointSensorPair.sensorId int_size:16
-blox.SetpointSensorPair.setpointValue int_size:16
-blox.SetpointSensorPair.sensorValue int_size:16
-   

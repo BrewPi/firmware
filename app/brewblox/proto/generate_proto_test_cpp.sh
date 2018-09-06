@@ -4,6 +4,7 @@
 # do some renames so the names don't cause conflicts when both are used
 
 PROTO_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+NANOPB_PATH="$(readlink -f "${PROTO_DIR}/../../../platform/spark/firmware/nanopb/nanopb")"
 pushd "$PROTO_DIR" > /dev/null # .option files are read from execution directory, so have to cd into this dir 
 rm -rf test
 mkdir -p "test/proto"
@@ -19,7 +20,8 @@ done
 
 # generate code
 cd test/proto
-protoc *.proto --cpp_out=../cpp
+cp ${NANOPB_PATH}/generator/proto/nanopb.proto .
+protoc *.proto --cpp_out=../cpp --proto_path ${PROTO_DIR}/test/proto -I${NANOPB_PATH}/generator/proto
 
 #rename .cc files to .cpp
 cd ../cpp

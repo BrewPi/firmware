@@ -1,12 +1,13 @@
 syntax = "proto3";
 
 import 'brewblox.proto';
+import "nanopb.proto";
 
 package blox;
 
 message TempSensorOneWire {
-  sint32 value = 1 [(brewblox).unit = "degC", (brewblox).scale = 256];
+  sint32 value = 1 [(brewblox).unit = "degC", (brewblox).scale = 256, (nanopb).int_size = IS_16];
   bool connected = 2;
-  sint32 offset = 3 [(brewblox).unit = "delta_degC", (brewblox).scale = 256];
-  fixed64 address = 4 [(brewblox).hexed = true];;
+  sint32 offset = 3 [(brewblox).unit = "delta_degC", (brewblox).scale = 256, (nanopb).int_size = IS_16];
+  fixed64 address = 4 [(brewblox).hexed = true];
 }
