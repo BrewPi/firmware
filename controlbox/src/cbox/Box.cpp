@@ -27,7 +27,6 @@
 #include "Object.h"
 #include "ObjectContainer.h"
 #include "ObjectStorage.h"
-#include "ResolveType.h"
 #include <memory>
 
 extern void
@@ -111,7 +110,7 @@ Box::writeObject(DataIn& in, HexCrcDataOut& out)
         if (cobj == nullptr) {
             status = CboxError::INVALID_OBJECT_ID;
         } else {
-            if (cobj->object()->typeId() == resolveTypeId<InactiveObject>()) {
+            if (cobj->object()->typeId() == InactiveObject::staticTypeId()) {
                 // replace contained object with actual object to be able to write to it
                 InactiveObject* inactiveObj = static_cast<InactiveObject*>(cobj->object().get());
 
@@ -550,7 +549,7 @@ Box::setActiveProfilesAndUpdateObjects(const uint8_t newProfiles)
         // replace entire 'contained object', not just the object inside.
         // this ensures that any smart pointers to the contained object are also invalidated
 
-        if (shouldBeActive && objType == resolveTypeId<InactiveObject>()) {
+        if (shouldBeActive && objType == InactiveObject::staticTypeId()) {
             // look for object in storage and replace existing object with it
             auto retrieveContained = [this, &objId](RegionDataIn& objInStorage) -> CboxError {
                 uint8_t profiles = 0;
@@ -582,7 +581,7 @@ Box::setActiveProfilesAndUpdateObjects(const uint8_t newProfiles)
             }
         }
 
-        if (!shouldBeActive && objType != resolveTypeId<InactiveObject>()) {
+        if (!shouldBeActive && objType != InactiveObject::staticTypeId()) {
             // replace object with inactive object
             objects.deactivate(cit);
         }

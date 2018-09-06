@@ -22,7 +22,6 @@
 #include "DataStream.h"
 #include "InactiveObject.h"
 #include "Object.h"
-#include "ResolveType.h"
 #include <limits>
 #include <memory>
 
@@ -117,7 +116,7 @@ public:
     CboxError streamPersistedTo(DataOut& out) const
     {
         // id is not streamed out. It is passed to storage separately
-        if (_obj->typeId() == resolveTypeId<InactiveObject>()) {
+        if (_obj->typeId() == InactiveObject::staticTypeId()) {
             // inactive objects are not persisted, but no error is returned
             // never happens, because for a write an inactive object is temporarily replaced with an active object to process the write
             return CboxError::OK; // LCOV_EXCL_LINE

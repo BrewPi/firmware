@@ -6,6 +6,7 @@ import "nanopb.proto";
 package blox;
 
 message TempSensorMock {
-  sint32 value = 1 [(brewblox).unit = "degC", (brewblox).scale = 256, (nanopb).int_size = IS_16];
-  bool connected = 2;
+    option (nanopb_msgopt).msgid = 268;
+    sint32 value = 1 [(brewblox).unit = "degC", (brewblox).scale = 256, (nanopb).int_size = IS_16];
+    bool connected = 2;
 }

@@ -21,22 +21,29 @@
 
 #include "Object.h"
 #include "ObjectIds.h"
-#include "ResolveType.h"
 #include <type_traits>
 
 namespace cbox {
 
-template <typename T>
+#if !defined(PLATFORM_ID) || PLATFORM_ID == 3
+uint16_t
+throwIdNotUnique(uint16_t id);
+#endif
+
+template <uint16_t id>
 class ObjectBase : public Object {
 public:
     ObjectBase() = default;
     virtual ~ObjectBase() = default;
 
-    template <typename U,
-              typename = std::enable_if_t<std::is_same<T, U>::value>>
-    obj_type_t typeIdImpl(void) const
+    static obj_type_t staticTypeId()
     {
-        return resolveTypeId<U>();
+#if !defined(PLATFORM_ID) || PLATFORM_ID == 3 // check that ID is unique if building for cross platform (tests)
+        static auto uniqueId = throwIdNotUnique(id);
+        return uniqueId;
+#else
+        return id;
+#endif
     }
 
     /**
@@ -44,16 +51,43 @@ public:
 	 */
     virtual obj_type_t typeId() const override
     {
-        return typeIdImpl<T>();
+        return id;
     }
 
     virtual void* implements(const obj_type_t& iface) override
     {
-        if (ObjectBase::typeId() == iface) {
+        if (id == iface) {
             return this;
         }
         return nullptr;
     }
 };
+
+// any type can be assigned a typeid by explicit template instantiation
+// this allows objects to implement returning a pointer for that type, without needing to inherit from it
+template <typename T>
+const obj_type_t
+interfaceIdImpl();
+
+// for objects, the object id is the interface id
+template <typename T>
+const obj_type_t
+interfaceId(typename std::enable_if_t<std::is_base_of<Object, T>::value>* = 0)
+{
+    return T::staticTypeId();
+}
+
+// for interface, we check uniqueness on first use, if compiling with gcc (test code)
+template <typename T>
+const obj_type_t
+interfaceId(typename std::enable_if_t<!std::is_base_of<Object, T>::value>* = 0)
+{
+#if !defined(PLATFORM_ID) || PLATFORM_ID == 3 // check that ID is unique if building for cross platform (tests)
+    static auto uniqueId = throwIdNotUnique(interfaceIdImpl<T>());
+    return uniqueId;
+#else
+    return interfaceIdImpl<T>();
+#endif
+}
 
 } // end namespace cbox

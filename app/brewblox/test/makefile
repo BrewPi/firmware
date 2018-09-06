@@ -59,13 +59,14 @@ CPPSRC += $(call here_files,app/brewblox/proto/test/cpp,*.cpp)
 # add nanopb dependencies
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/firmware/nanopb/nanopb
 CSRC += $(call here_files,platform/spark/firmware/nanopb/nanopb,*.c)
+# enable message id's
+CFLAGS += -DPB_MSGID=1
 
 INCLUDE_DIRS += $(SOURCE_PATH)/platform
 
 # brewblox app specific implementations
 # CPPSRC += /app/brewblox/BrewBlox.cpp
 CPPSRC += /app/brewblox/Logger.cpp
-CPPSRC += /app/brewblox/AppResolveType.cpp
 CPPSRC += /app/brewblox/nanopb_callbacks.cpp
 CPPSRC += /app/brewblox/BrewBlox.cpp
 

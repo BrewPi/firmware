@@ -4,7 +4,7 @@
 #include "blox/Block.h"
 #include "proto/cpp/SetPointSimple.pb.h"
 
-class SetPointSimpleBlock : public Block<SetPointSimpleBlock> {
+class SetPointSimpleBlock : public Block<blox_SetPointSimple_msgid> {
 private:
     SetPointSimple setpoint;
 
@@ -44,10 +44,10 @@ public:
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == cbox::resolveTypeId(this)) {
+        if (iface == blox_SetPointSimple_msgid) {
             return this; // me!
         }
-        if (iface == cbox::resolveTypeId<SetPoint>()) {
+        if (iface == cbox::interfaceId<SetPoint>()) {
             // return the member that implements the interface in this case
             SetPoint* ptr = &setpoint;
             return ptr;

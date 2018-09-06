@@ -7,7 +7,7 @@
 OneWire&
 theOneWire();
 
-class TempSensorOneWireBlock : public Block<TempSensorOneWireBlock> {
+class TempSensorOneWireBlock : public Block<blox_TempSensorOneWire_msgid> {
 private:
     TempSensorOneWire sensor;
 
@@ -55,10 +55,10 @@ public:
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == cbox::resolveTypeId(this)) {
+        if (iface == blox_TempSensorOneWire_msgid) {
             return this; // me!
         }
-        if (iface == cbox::resolveTypeId<TempSensor>()) {
+        if (iface == cbox::interfaceId<TempSensor>()) {
             // return the member that implements the interface in this case
             TempSensor* ptr = &sensor;
             return ptr;

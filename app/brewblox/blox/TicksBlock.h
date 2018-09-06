@@ -27,7 +27,7 @@
 
 // provides a protobuf interface to the ticks object
 template <typename T>
-class TicksBlock : public cbox::ObjectBase<TicksBlock<T>> {
+class TicksBlock : public cbox::ObjectBase<blox_Ticks_msgid> {
     T& ticks;
 
 public:

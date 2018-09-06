@@ -18,5 +18,23 @@
  */
 
 #include "ObjectBase.h"
+#include <algorithm>
+#include <cstdint>
+#include <stdexcept>
+#include <vector>
 
-#include "CboxPtr.h"
+namespace cbox {
+std::vector<uint16_t> allIds;
+
+uint16_t
+throwIdNotUnique(uint16_t id)
+{
+    auto pair = std::equal_range(allIds.begin(), allIds.end(), id);
+    if (pair.first != pair.second) {
+        // duplicate id!
+        throw std::logic_error("ID " + std::to_string(id) + " not unique!");
+    }
+    allIds.insert(pair.first, id);
+    return id;
+}
+} // end namespace cbox

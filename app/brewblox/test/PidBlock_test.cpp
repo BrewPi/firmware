@@ -58,7 +58,7 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data"){
             	cbox::BufferDataIn in(buf);
 
                 uint8_t len = PidBlock::persistedMaxSize();
-                cbox::obj_type_t typeId = cbox::resolveTypeId<PidBlock>();
+                cbox::obj_type_t typeId = cbox::PidBlock::staticTypeId();
 
                 WHEN("an application object is created form the definition"){
                 	cbox::Object * obj = nullptr;

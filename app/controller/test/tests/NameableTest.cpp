@@ -19,12 +19,12 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "runner.h"
 #include "Nameable.h"
 
 BOOST_AUTO_TEST_SUITE(NameableTest)
 
-BOOST_AUTO_TEST_CASE(set_get) {
+BOOST_AUTO_TEST_CASE(set_get)
+{
     Nameable obj;
 
     BOOST_CHECK_EQUAL(obj.getName(), "");
@@ -33,7 +33,8 @@ BOOST_AUTO_TEST_CASE(set_get) {
     BOOST_CHECK_EQUAL(obj.getName(), "Test");
 }
 
-BOOST_AUTO_TEST_CASE(too_long_name_gets_truncated) {
+BOOST_AUTO_TEST_CASE(too_long_name_gets_truncated)
+{
     Nameable obj;
 
     obj.setName("TestTestTestTest");
@@ -41,4 +42,3 @@ BOOST_AUTO_TEST_CASE(too_long_name_gets_truncated) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-

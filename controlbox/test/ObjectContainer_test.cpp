@@ -24,7 +24,6 @@
 
 #include "DataStreamConverters.h"
 #include "Object.h"
-#include "ResolveType.h"
 #include "TestMatchers.hpp"
 #include "TestObjects.h"
 
@@ -55,7 +54,7 @@ SCENARIO("A container to hold objects")
         {
             auto obj2 = container.fetch(id2).lock();
             REQUIRE(obj2);
-            CHECK(obj2->typeId() == resolveTypeId<LongIntObject>());
+            CHECK(obj2->typeId() == LongIntObject::staticTypeId());
             // to be able to compare the value, we first dereference the smart pointer before typecasting
             CHECK(*static_cast<LongIntObject*>(&(*obj2)) == LongIntObject(0x22222222));
         }

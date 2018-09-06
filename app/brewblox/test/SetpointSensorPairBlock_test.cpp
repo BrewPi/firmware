@@ -100,7 +100,7 @@ SCENARIO("A Blox SetpointSensorPair object can be created from streamed protobuf
     inEncoder.put(commands::CREATE_OBJECT);
     inEncoder.put(cbox::obj_id_t(100));
     inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(cbox::resolveTypeId<TempSensorMockBlock>());
+    inEncoder.put(TempSensorMockBlock::staticTypeId());
 
     auto newSensor = blox::TempSensorMock();
     newSensor.set_value(temp_t(20.0).getRaw());
@@ -117,7 +117,7 @@ SCENARIO("A Blox SetpointSensorPair object can be created from streamed protobuf
     inEncoder.put(commands::CREATE_OBJECT);
     inEncoder.put(cbox::obj_id_t(101));
     inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(cbox::resolveTypeId<SetPointSimpleBlock>());
+    inEncoder.put(SetPointSimpleBlock::staticTypeId());
 
     blox::SetPointSimple newSetPoint;
     newSetPoint.set_setting(temp_t(21.0).getRaw());
@@ -133,7 +133,7 @@ SCENARIO("A Blox SetpointSensorPair object can be created from streamed protobuf
     inEncoder.put(commands::CREATE_OBJECT);
     inEncoder.put(cbox::obj_id_t(102));
     inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(cbox::resolveTypeId<SetpointSensorPairBlock>());
+    inEncoder.put(SetpointSensorPairBlock::staticTypeId());
 
     blox::SetpointSensorPair newPair;
     newPair.set_sensorid(100);

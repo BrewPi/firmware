@@ -32,6 +32,8 @@ ifeq ($(MODULAR),y)
 # include sources that are part of nanopb, but not included in shared libraries of particle
 CSRC += app/brewblox/nanopb_not_in_particle_dynalib.c
 endif
+# enable message id's
+CFLAGS += -DPB_MSGID=1
 
 # enable coverage for gcc builds
 ifeq ($(PLATFORM_ID),3)

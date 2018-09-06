@@ -4,12 +4,11 @@
 #include "SetpointSensorPair.pb.h"
 #include "blox/Block.h"
 #include "cbox/CboxPtr.h"
-#include "cbox/ResolveType.h"
 #include <functional>
 
 using std::placeholders::_1;
 
-class SetpointSensorPairBlock : public Block<SetpointSensorPairBlock> {
+class SetpointSensorPairBlock : public Block<blox_SetpointSensorPair_msgid> {
 private:
     cbox::CboxPtr<TempSensor> sensor;
     cbox::CboxPtr<SetPoint> setpoint;
@@ -65,10 +64,10 @@ public
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == cbox::resolveTypeId(this)) {
+        if (iface == blox_SetpointSensorPair_msgid) {
             return this; // me!
         }
-        if (iface == cbox::resolveTypeId<ProcessValue>()) {
+        if (iface == cbox::interfaceId<ProcessValue>()) {
             // return the member that implements the interface in this case
             ProcessValue* ptr = &pair;
             return ptr;

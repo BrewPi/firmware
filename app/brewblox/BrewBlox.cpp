@@ -90,7 +90,7 @@ makeBrewBloxBox()
     static cbox::ObjectFactory objectFactory = {
         OBJECT_FACTORY_ENTRY(TempSensorOneWireBlock),
         OBJECT_FACTORY_ENTRY(SetPointSimpleBlock),
-        {cbox::resolveTypeId<SetpointSensorPairBlock>(), makeSetpointSensorPair},
+        {SetpointSensorPairBlock::staticTypeId(), makeSetpointSensorPair},
         OBJECT_FACTORY_ENTRY(TempSensorMockBlock),
     };
 

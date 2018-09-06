@@ -6,5 +6,6 @@ import "nanopb.proto";
 package blox;
 
 message SetPointSimple {
+    option (nanopb_msgopt).msgid = 260;
     sint32 setting = 1 [(brewblox).unit = "degC", (brewblox).scale = 256, (nanopb).int_size = IS_16];
 }

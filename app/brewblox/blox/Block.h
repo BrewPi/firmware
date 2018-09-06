@@ -2,9 +2,10 @@
 
 #include "cbox/ObjectBase.h"
 #include "pb.h"
+#include <type_traits>
 
-template <typename T>
-using Block = cbox::ObjectBase<T>;
+template <uint16_t id>
+using Block = cbox::ObjectBase<id>;
 
 // helpers functions to stream protobuf fields
 cbox::CboxError

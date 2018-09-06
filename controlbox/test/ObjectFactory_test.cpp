@@ -20,7 +20,6 @@
 #include "Object.h"
 #include "ObjectContainer.h"
 #include "ObjectFactory.h"
-#include "ResolveType.h"
 #include "TestObjects.h"
 #include <catch.hpp>
 
@@ -32,8 +31,8 @@ SCENARIO("An object can be created by an ObjectFactory by resolving the type id"
         OBJECT_FACTORY_ENTRY(LongIntObject),
         OBJECT_FACTORY_ENTRY(LongIntVectorObject)};
 
-    const obj_type_t longIntType = resolveTypeId<LongIntObject>();
-    const obj_type_t longIntVectorType = resolveTypeId<LongIntVectorObject>();
+    const obj_type_t longIntType = LongIntObject::staticTypeId();
+    const obj_type_t longIntVectorType = LongIntVectorObject::staticTypeId();
 
     WHEN("The factory is given a valid type ID, the object with type ID is created")
     {

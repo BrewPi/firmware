@@ -24,7 +24,7 @@ public:
 
     void* implements(const cbox::obj_type_t& iface)
     {
-        if (iface == cbox::resolveTypeId<Nameable>()) {
+        if (iface == cbox::interfaceId<Nameable>()) {
             return this;
         }
         return nullptr;
@@ -38,7 +38,7 @@ protected:
     ~Nameable() = default;
 };
 
-class LongIntObject : public cbox::ObjectBase<LongIntObject> {
+class LongIntObject : public cbox::ObjectBase<1000> {
 private:
     uint32_t obj;
 
@@ -95,7 +95,7 @@ public:
 };
 
 // variable size object of multiple long ints
-class LongIntVectorObject : public cbox::ObjectBase<LongIntVectorObject> {
+class LongIntVectorObject : public cbox::ObjectBase<1001> {
 public:
     LongIntVectorObject()
         : values()
@@ -163,7 +163,7 @@ public:
  * - updating objects at the interval they request
  * - different output, input and persisted streams
  */
-class UpdateCounter : public cbox::ObjectBase<UpdateCounter> {
+class UpdateCounter : public cbox::ObjectBase<1002> {
 private:
     uint16_t _interval; // writable and persisted
     uint16_t _count;    // not writable
@@ -239,16 +239,21 @@ public:
     }
     virtual ~NameableLongIntObject() = default;
 
+    static cbox::obj_type_t staticTypeId()
+    {
+        return 1003;
+    }
+
     // need to override typeId, otherwise it would inherit from LongIntObject
     virtual cbox::obj_type_t typeId() const override
     {
-        return cbox::resolveTypeId<NameableLongIntObject>();
+        return staticTypeId();
     }
 
     // needs special handling due to multiple inheritance
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == NameableLongIntObject::typeId()) {
+        if (iface == staticTypeId()) {
             return this; // me!
         }
         if (auto ptr = LongIntObject::implements(iface)) {
@@ -261,7 +266,7 @@ public:
     }
 };
 
-class PtrLongIntObject : public cbox::ObjectBase<PtrLongIntObject> {
+class PtrLongIntObject : public cbox::ObjectBase<1005> {
 private:
     cbox::CboxPtr<LongIntObject> ptr1;
     cbox::CboxPtr<LongIntObject> ptr2;

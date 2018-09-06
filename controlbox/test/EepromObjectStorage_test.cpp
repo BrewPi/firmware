@@ -20,7 +20,6 @@
 #include "ArrayEepromAccess.h"
 #include "EepromObjectStorage.h"
 #include "Object.h"
-#include "ResolveType.h"
 #include "TestObjects.h"
 #include <catch.hpp>
 #include <cstdio>

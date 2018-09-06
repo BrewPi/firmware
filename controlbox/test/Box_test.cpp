@@ -1,7 +1,7 @@
 #include "Box.h"
 
-#include <catch.hpp>
 #include "testinfo.h"
+#include <catch.hpp>
 #include <iomanip>
 #include <iostream>
 
@@ -13,7 +13,6 @@
 #include "Object.h"
 #include "ObjectContainer.h"
 #include "ObjectFactory.h"
-#include "ResolveType.h"
 #include "TestObjects.h"
 
 using namespace cbox;
@@ -30,7 +29,7 @@ SCENARIO("A controlbox Box")
         OBJECT_FACTORY_ENTRY(LongIntObject),
         OBJECT_FACTORY_ENTRY(LongIntVectorObject),
         OBJECT_FACTORY_ENTRY(UpdateCounter),
-        {cbox::resolveTypeId<PtrLongIntObject>(), [&container]() {
+        {PtrLongIntObject::staticTypeId(), [&container]() {
              return std::make_unique<PtrLongIntObject>(container);
          }}};
 
@@ -386,9 +385,9 @@ SCENARIO("A controlbox Box")
 
         THEN("Only objects in an active profile are active, the others have the InactiveObject placeholder")
         {
-            CHECK(box.getObject(100).lock()->typeId() == resolveTypeId<LongIntObject>());
-            CHECK(box.getObject(101).lock()->typeId() == resolveTypeId<InactiveObject>());
-            CHECK(box.getObject(102).lock()->typeId() == resolveTypeId<LongIntObject>());
+            CHECK(box.getObject(100).lock()->typeId() == LongIntObject::staticTypeId());
+            CHECK(box.getObject(101).lock()->typeId() == InactiveObject::staticTypeId());
+            CHECK(box.getObject(102).lock()->typeId() == LongIntObject::staticTypeId());
         }
 
         WHEN("An object is given an active profiles value that would disable it, it is replaced by InactiveObject")
@@ -400,7 +399,7 @@ SCENARIO("A controlbox Box")
                << "12341234"; // value
             in << crc(in.str()) << "\n";
             box.hexCommunicate();
-            CHECK(box.getObject(100).lock()->typeId() == resolveTypeId<InactiveObject>());
+            CHECK(box.getObject(100).lock()->typeId() == InactiveObject::staticTypeId());
         }
 
         WHEN("The active profiles setting is changed (through the persisted block representing it)")
@@ -419,15 +418,15 @@ SCENARIO("A controlbox Box")
 
             THEN("Objects that are not active anymore are replaced with Inactive Object")
             {
-                CHECK(box.getObject(100).lock()->typeId() == resolveTypeId<InactiveObject>());
+                CHECK(box.getObject(100).lock()->typeId() == InactiveObject::staticTypeId());
             }
             THEN("Objects that where not active but should be are loaded from storage")
             {
-                CHECK(box.getObject(101).lock()->typeId() == resolveTypeId<LongIntObject>());
+                CHECK(box.getObject(101).lock()->typeId() == LongIntObject::staticTypeId());
             }
             THEN("Objects that should remain active are still active")
             {
-                CHECK(box.getObject(102).lock()->typeId() == resolveTypeId<LongIntObject>());
+                CHECK(box.getObject(102).lock()->typeId() == LongIntObject::staticTypeId());
             }
             THEN("The objects are listed correctly")
             {

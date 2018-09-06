@@ -27,7 +27,7 @@
 #endif
 
 // provides a protobuf interface to the read only system info
-class SysInfoBlock : public cbox::ObjectBase<SysInfoBlock> {
+class SysInfoBlock : public cbox::ObjectBase<blox_SysInfo_msgid> {
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
         blox_SysInfo message;

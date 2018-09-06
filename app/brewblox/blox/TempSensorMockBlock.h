@@ -5,7 +5,7 @@
 #include "blox/Block.h"
 #include "proto/cpp/TempSensorMock.pb.h"
 
-class TempSensorMockBlock : public Block<TempSensorMockBlock> {
+class TempSensorMockBlock : public Block<blox_TempSensorMock_msgid> {
 private:
     TempSensorMock sensor;
 
@@ -46,10 +46,10 @@ public:
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
     {
-        if (iface == cbox::resolveTypeId(this)) {
+        if (iface == blox_TempSensorMock_msgid) {
             return this; // me!
         }
-        if (iface == cbox::resolveTypeId<TempSensor>()) {
+        if (iface == cbox::interfaceId<TempSensor>()) {
             // return the member that implements the interface in this case
             TempSensor* ptr = &sensor;
             return ptr;

@@ -21,7 +21,6 @@
 
 #include "Object.h"
 #include "ObjectContainer.h"
-#include "ResolveType.h"
 #include <memory>
 
 namespace cbox {
@@ -76,7 +75,7 @@ public:
         }
         if (sptr) {
             // if the lookup succeeded, check if the Object implements the requested interface using the object types
-            auto requestedType = resolveTypeId<T>();
+            auto requestedType = interfaceId<T>();
             void* thisPtr = sptr->implements(requestedType);
             if (thisPtr != nullptr) {
                 // If the object returned a non-zero pointer, it supports the interface

@@ -79,9 +79,10 @@ ObjectFactory objectFactory = {
 };
 
 */
-#define OBJECT_FACTORY_ENTRY(classname)                                 \
-    {                                                                   \
-        cbox::resolveTypeId<classname>(), cbox::createObject<classname> \
+
+#define OBJECT_FACTORY_ENTRY(classname)                          \
+    {                                                            \
+        classname::staticTypeId(), cbox::createObject<classname> \
     }
 
 } // end namespace cbox

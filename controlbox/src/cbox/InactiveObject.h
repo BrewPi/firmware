@@ -28,7 +28,7 @@ namespace cbox {
 /**
  * An object that does nothing. When read, it returns the type it becomes when it is activated.
  */
-class InactiveObject : public ObjectBase<InactiveObject> {
+class InactiveObject : public ObjectBase<1> {
 private:
     obj_type_t actualType;
 
