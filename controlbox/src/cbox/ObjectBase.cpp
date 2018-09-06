@@ -23,6 +23,7 @@
 #include <stdexcept>
 #include <vector>
 
+#if !defined(PLATFORM_ID) || PLATFORM_ID == 3 // check that ID is unique if building for cross platform (tests)
 namespace cbox {
 std::vector<uint16_t> allIds;
 
@@ -38,3 +39,4 @@ throwIdNotUnique(uint16_t id)
     return id;
 }
 } // end namespace cbox
+#endif
