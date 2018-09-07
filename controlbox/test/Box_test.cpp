@@ -210,7 +210,7 @@ SCENARIO("A controlbox Box")
                  << "|" << addCrc("00")
                  << "," << addCrc("0100FFE80311111111")
                  << "," << addCrc("0200FFE80322222222")
-                 << "," << addCrc("0300FF020001")
+                 << "," << addCrc("0300FFFEFF01")
                  << "\n";
         CHECK(out.str() == expected.str());
     }
@@ -254,8 +254,8 @@ SCENARIO("A controlbox Box")
         expected << addCrc("03000000E80344444444") << "|" // command repetition
                  << addCrc("00"                           // status OK
                            "6400"                         // id 100
-                           "0001"                         // type InactiveObject
                            "00"                           // profiles 0x00
+                           "FFFF"                         // type InactiveObject
                            "E803")                        // actual type 1000
                  << "\n";
 
@@ -299,8 +299,8 @@ SCENARIO("A controlbox Box")
             expected << addCrc("02640000E80314141414") << "|" // command repetition
                      << addCrc("00"                           // status OK
                                "6400"                         // id 100
-                               "0001"                         // type InactiveObject
                                "00"                           // profiles 0x00
+                               "FFFF"                         // type InactiveObject
                                "E803")                        // actual type 1000
                      << "\n";
 
@@ -406,14 +406,14 @@ SCENARIO("A controlbox Box")
         WHEN("The active profiles setting is changed (through the persisted block representing it)")
         {
             in << "02"   // command
-               << "0300" // id
+               << "0300" // id of profiles object
                << "FF"   // profiles of object
-               << "0200" // type
+               << "FEFF" // type of profiles object
                << "02";  // value
             in << crc(in.str()) << "\n";
             box.hexCommunicate();
 
-            expected << addCrc("020300FF020002") << "|" << addCrc("000300FF020002") << "\n";
+            expected << addCrc("020300FFFEFF02") << "|" << addCrc("000300FFFEFF02") << "\n";
             CHECK(out.str() == expected.str());
             CHECK(box.getActiveProfiles() == 0x2);
 
@@ -441,8 +441,8 @@ SCENARIO("A controlbox Box")
                          << addCrc("00") << ","
                          << addCrc("0100FFE80311111111")
                          << "," << addCrc("020000E80312341234")
-                         << "," << addCrc("0300FF020002")
-                         << "," << addCrc("6400010100E803") // object 100 (0x64) is listed as inactive object of actual type 0xE803: 6400 - 01 - 0100 - E803
+                         << "," << addCrc("0300FFFEFF02")
+                         << "," << addCrc("640001FFFFE803") // object 100 (0x64) is listed as inactive object of actual type 0xE803: 6400 - 01 - FFFF - E803
                          << "," << addCrc("650002E80344444444")
                          << "," << addCrc("660003E80344444444")
                          << "\n";
@@ -611,7 +611,10 @@ SCENARIO("A controlbox Box")
             in << crc(in.str()) << "\n";
             box.hexCommunicate();
 
-            expected << addCrc("05") << "|" << addCrc("00") << "," << addCrc("0100FFE80311111111") << "," << addCrc("020000E80312341234") << "," << addCrc("0300FF020001") << "\n";
+            expected << addCrc("05") << "|" << addCrc("00")    // status OK
+                     << "," << addCrc("0100FFE80311111111")    // obj 1
+                     << "," << addCrc("020000E80312341234")    // obj 2
+                     << "," << addCrc("0300FFFEFF01") << "\n"; // profiles object
             CHECK(out.str() == expected.str());
         }
     }

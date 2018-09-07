@@ -6,9 +6,9 @@ import "nanopb.proto";
 package blox;
 
 message SetpointSensorPair {
-  option (nanopb_msgopt).msgid = 259;
-  uint32 setpointId = 1 [(brewblox).link = "SetPoint", (nanopb).int_size = IS_16];
-  uint32 sensorId = 2 [(brewblox).link = "TempSensor", (nanopb).int_size = IS_16];
+  option (nanopb_msgopt).msgid = 303;
+  uint32 setpointId = 1 [(brewblox).link = Setpoint, (nanopb).int_size = IS_16];
+  uint32 sensorId = 2 [(brewblox).link = TempSensor, (nanopb).int_size = IS_16];
   
   bool setpointValid = 4;
   bool sensorValid = 3;

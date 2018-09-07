@@ -9,7 +9,7 @@ package blox;
 // data is optional and only used in some commands. For example when doing a family search, data contains the family ID 
 
 message Ticks {
-    option (nanopb_msgopt).msgid = 262;
+    option (nanopb_msgopt).msgid = 257;
     uint32 millisSinceBoot = 1 [(brewblox).readonly = true, (nanopb).int_size = IS_32];
     uint32 secondsSinceEpoch = 2 [(nanopb).int_size = IS_32];
 }

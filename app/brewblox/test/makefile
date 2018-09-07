@@ -117,12 +117,7 @@ ALLOBJ += $(addprefix $(BUILD_PATH), $(CPPSRC:.cpp=.o))
 ALLDEPS += $(addprefix $(BUILD_PATH), $(CSRC:.c=.o.d))
 ALLDEPS += $(addprefix $(BUILD_PATH), $(CPPSRC:.cpp=.o.d))
 
-all: | proto runner
-
-proto:
-	@echo Generating nanobp protobuf c files
-	bash $(SOURCE_PATH)/app/brewblox/proto/generate_proto_cpp.sh
-	bash $(SOURCE_PATH)/app/brewblox/proto/generate_proto_test_cpp.sh
+all: runner
 
 runner: $(TARGETDIR)$(TARGET)
 

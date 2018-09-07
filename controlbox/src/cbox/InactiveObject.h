@@ -22,13 +22,14 @@
 #include "CboxError.h"
 #include "ObjectBase.h"
 #include "ObjectIds.h"
+#include <limits>
 
 namespace cbox {
 
 /**
  * An object that does nothing. When read, it returns the type it becomes when it is activated.
  */
-class InactiveObject : public ObjectBase<1> {
+class InactiveObject : public ObjectBase<std::numeric_limits<uint16_t>::max()> {
 private:
     obj_type_t actualType;
 

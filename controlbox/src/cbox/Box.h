@@ -122,7 +122,7 @@ public:
 };
 
 // the ProfilesObject can added to a box, so the active profile can be written as a system object and is also persisted
-class ProfilesObject : public ObjectBase<2> {
+class ProfilesObject : public ObjectBase<std::numeric_limits<uint16_t>::max() - 1> {
     Box* myBox;
 
 public:

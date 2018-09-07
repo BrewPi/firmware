@@ -9,7 +9,7 @@ package blox;
 // data is optional and only used in some commands. For example when doing a family search, data contains the family ID 
 
 message OneWireBus {
-    option (nanopb_msgopt).msgid = 256;
+    option (nanopb_msgopt).msgid = 258;
     message Command {
         uint32 opcode = 1 [(nanopb).int_size = IS_8];
         uint32 data = 2 [(nanopb).int_size = IS_8];

@@ -28,8 +28,8 @@ message Pid {
     }
 
     message Links {
-        sint32 input = 1 [(brewblox).link = "Input"];
-        sint32 output = 2 [(brewblox).link = "Output"];
+        sint32 input = 1 [(brewblox).link = ProcessValue];
+        sint32 output = 2 [(brewblox).link = ProcessValue];
     }
 
     message Filtering {
