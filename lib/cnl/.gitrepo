@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:johnmcfarlane/cnl.git
+	branch = develop
+	commit = e0ca09e1e2e034754456f27ca4916e13156bc7c4
+	parent = 280ffa9109a07b1e4e0fa9e51a812ec22a534a49
+	cmdver = 0.3.1
