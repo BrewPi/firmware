@@ -1,3 +1,0 @@
-blox.SensorSetPointPair.Links.sensor max_size:4 fixed_length:true
-blox.SensorSetPointPair.Links.setpoint max_size:4 fixed_length:true
-   

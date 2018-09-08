@@ -65,9 +65,9 @@ public:
     	return currentValue;
     }
 
-
-    virtual void update() override final {}
-    virtual void fastUpdate() override final {}
+    virtual update_t update(const update_t & t) override final {
+        return update_t_max(); // no updates needed
+    }
 
     temp_t min() const {
         return minimum;
@@ -99,11 +99,12 @@ public:
     	v.visit(*this);
     }
 
-    void setState(State s, int8_t priority = 127) override final { state = s; }
+    void setState(const State & s, const update_t & now) override final { state = s; }
     State getState() const override final { return state; }
 
-    virtual void update() override final {}
-    virtual void fastUpdate() override final {}
+    virtual update_t update(const update_t & now) override final {
+        return update_t_max(); // no updates needed
+    }
 
 private:
     State state;
@@ -125,10 +126,11 @@ public:
     	v.visit(*this);
     }
 
-    void setState(State state, int8_t priority = 127) override final {}
+    void setState(const State & state, const update_t & now) override final {}
     State getState() const override final { return State::Inactive;}
-    void update() override final {}
-    void fastUpdate() override final {}
+    virtual update_t update(const update_t & t) override final {
+        return update_t_max(); // no updates needed
+    }
 
 friend class ActuatorNopMixin;
 };
@@ -154,8 +156,9 @@ public:
         return temp_t::invalid();
     }
 
-    virtual void update() override final {}
-    virtual void fastUpdate() override final {}
+    virtual update_t update(const update_t & t) override final {
+        return update_t_max(); // no updates needed
+    }
 
 friend class ActuatorInvalidMixin;
 };

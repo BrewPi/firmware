@@ -40,14 +40,6 @@ public:
     ~TempSensorFallback() = default;
 
     /**
-     * Accept function for visitor pattern
-     * @param dispatcher Visitor to process this class
-     */
-    virtual void accept(VisitorBase & v) override final {
-    	v.visit(*this);
-    }
-
-    /**
      * Returns currently active sensor
      * @return TempSensor *: currently active sensor, main or backup
      */
@@ -64,15 +56,6 @@ public:
     }
 
     /**
-     * Attempt to (re-)initialize the active sensor.
-     *
-     * @return bool: true if active sensor was initialized correctly
-     */
-    virtual bool init() override final {
-        return activeSensor().init();
-    }
-
-    /**
      * Read the currently used sensor (main or backup)
      * @return temp_t: temperature of sensor
      */
@@ -81,7 +64,7 @@ public:
     /**
      * update() checks if the main sensor is connected and switches between the main and backup sensor
      */
-    virtual void update() override final;
+    virtual update_t update(const update_t & t) override final;
 
 private:
     TempSensor& main;

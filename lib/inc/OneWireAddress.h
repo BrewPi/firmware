@@ -18,35 +18,31 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
-/* old implementation */
-
-void parseBytes(uint8_t* data, const char* s, uint8_t len);
-void printBytes(const uint8_t* data, uint8_t len, char* buf);
-typedef uint8_t DeviceAddress[8];
-
-/* new implementation ? */
-
-class OneWireAddress{
+class OneWireAddress {
 public:
-    OneWireAddress() = default;
+    OneWireAddress()
+        : address(0){};
+    OneWireAddress(uint64_t addr)
+        : address(addr){};
     ~OneWireAddress() = default;
 
     void parse(const char* s);
     void print(char* buf, uint8_t len);
 
-    uint8_t &operator[](uint8_t i){
-        return address[i];
+    uint8_t* asUint8ptr()
+    { // for compatibility with OneWire classes that take a uint8_t *
+        return reinterpret_cast<uint8_t*>(&address);
     }
 
-    operator uint8_t *(){ // for compatibility with OneWire classes that take a uint8_t *
+    operator uint64_t() const
+    {
         return address;
     }
 
 private:
-    uint8_t address[8];
+    uint64_t address;
 };

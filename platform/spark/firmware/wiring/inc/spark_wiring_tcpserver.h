@@ -31,7 +31,8 @@
 
 class TCPClient;
 
-class TCPServer : public Print {
+class TCPServer : public Print
+{
 private:
     uint16_t _port;
     network_interface_t _nif;
@@ -39,15 +40,18 @@ private:
     TCPClient _client;
 
 public:
-    TCPServer(uint16_t, network_interface_t nif=0);
-    ~TCPServer() { stop(); }
+    TCPServer(uint16_t, network_interface_t nif = 0);
+    ~TCPServer()
+    {
+        stop();
+    }
 
     TCPClient available();
     virtual bool begin();
     virtual size_t write(uint8_t);
-    virtual size_t write(const uint8_t *buf, size_t size);
+    virtual size_t write(const uint8_t* buf, size_t size);
     virtual size_t write(uint8_t, system_tick_t timeout);
-    virtual size_t write(const uint8_t *buf, size_t size, system_tick_t timeout);
+    virtual size_t write(const uint8_t* buf, size_t size, system_tick_t timeout);
     void stop();
     using Print::write;
 };

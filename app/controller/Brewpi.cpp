@@ -19,7 +19,8 @@
 
 #include "Platform.h"
 #include "Brewpi.h"
-#include "Ticks.h"
+
+#include "../../lib/inc/MockTicks.h"
 #include "Control.h"
 #include "PiLink.h"
 #include "SettingsManager.h"

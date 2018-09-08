@@ -49,13 +49,10 @@ test_results/*.pdf
 # automatically generated doxygen files
 docs/_static/doxygen/
 deploy/
-controlbox/build
-
-
-app/cbox/proto/cpp/
 
 build/target/
 
 *.swp
 
 test_results/\.vscode/
+build/coverage/

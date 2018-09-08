@@ -46,7 +46,7 @@
 #include "ActuatorDigitalDelegate.h"
 #include "ProcessValueDelegate.h"
 #include "SetPointDelegate.h"
-#include "SensorSetPointPair.h"
+#include "SetpointSensorPair.h"
 
 #if WIRING
 #include "ActuatorPin.h"
@@ -376,11 +376,11 @@ void SetPointDelegateMixin::serializeImpl(JSON::Adapter & adapter)
     JSON_T(adapter, delegate);
 }
 
-void SensorSetPointPairMixin::serializeImpl(JSON::Adapter & adapter)
+void SetpointSensorPairMixin::serializeImpl(JSON::Adapter & adapter)
 {
-    SensorSetPointPair * obj = static_cast<SensorSetPointPair *>(this);
+    SetpointSensorPair * obj = static_cast<SetpointSensorPair *>(this);
 
-    JSON::Class root(adapter, "SensorSetPointPair");
+    JSON::Class root(adapter, "SetpointSensorPair");
     JSON_OE(adapter, sensor);
     JSON_OT(adapter, setPoint);
 }

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 MY_DIR=$(dirname $(readlink -f $0))
 
 function status()
@@ -7,12 +7,19 @@ if [[ "$1" -eq 0 ]]; then
   echo "✓ SUCCESS"
 else
   echo "✗ FAILED"
-  exit 1
 fi
 }
 
-$MY_DIR/../lib/test/obj/runner
+# status $?
+echo "Running ControlBox unit tests"
+pushd "$MY_DIR/../controlbox/build/" > /dev/null
+./runner
 status $?
+popd > /dev/null
 
-$MY_DIR/../app/cbox/test/obj/runner
+
+echo "Running BrewBlox unit tests"
+pushd "$MY_DIR/../app/brewblox/test/build" > /dev/null
+./runner
 status $?
+popd > /dev/null

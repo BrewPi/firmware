@@ -18,7 +18,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Ticks.h"
+#include "../inc/Ticks.h"
 
 
 // return time that has passed since timeStamp, take overflow into account
@@ -42,3 +42,4 @@ ticks_millis_t timeSinceMillis(ticks_millis_t currentTime, ticks_millis_t previo
         return (currentTime + 1440000) - (previousTime +1440000); // add a day to both for calculation
     }
 }
+

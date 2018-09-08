@@ -37,7 +37,7 @@
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMutexGroup.h"
 #include "ProcessValueDelegate.h"
-#include "SensorSetPointPair.h"
+#include "SetpointSensorPair.h"
 #include "runner.h"
 #include <iostream>
 #include <fstream>
@@ -93,8 +93,8 @@ public:
     ActuatorPwm hltHeater;
     SetPointSimple hltSet;
     SetPointSimple mashSet;
-    SensorSetPointPair hlt;
-    SensorSetPointPair mash;
+    SetpointSensorPair hlt;
+    SetpointSensorPair mash;
     ActuatorOffset hltOffsetActuator;
 
     PtrLookup hltHeaterInputLookup;

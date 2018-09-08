@@ -157,8 +157,8 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorOffset) {
     auto sp2 = SetPointConstant(20.0);
     auto sens1 = TempSensorMock(20.0);
     auto sens2 = TempSensorMock(20.0);
-    auto pair1 = SensorSetPointPair(sens1, sp1);
-    auto pair2 = SensorSetPointPair(sens2, sp2);
+    auto pair1 = SetpointSensorPair(sens1, sp1);
+    auto pair2 = SetpointSensorPair(sens2, sp2);
     auto act = ActuatorOffset(pair1, pair2, -10.0, 10.0);
     act.set(5.0); // should set sp1 to sp2 + 5.0 = 25.0;
 
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorOffset) {
     R"({                                           )"
     R"(    "kind": "ActuatorOffset",               )"
     R"(    "target": {                             )"
-    R"(        "kind": "SensorSetPointPair",       )"
+    R"(        "kind": "SetpointSensorPair",       )"
     R"(        "sensor": {                         )"
     R"(            "kind": "TempSensorMock",       )"
     R"(            "value": 20.0000,               )"
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorOffset) {
     R"(        }                                   )"
     R"(    },                                      )"
     R"(    "reference": {                          )"
-    R"(        "kind": "SensorSetPointPair",       )"
+    R"(        "kind": "SetpointSensorPair",       )"
     R"(        "sensor": {                         )"
     R"(            "kind": "TempSensorMock",       )"
     R"(            "value": 20.0000,               )"
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
     auto boolAct = ActuatorBool();
     auto pwmAct = ActuatorPwm(boolAct,4);
     auto sp = SetPointSimple(20.0);
-    auto input = SensorSetPointPair(sensor, sp);
+    auto input = SetpointSensorPair(sensor, sp);
     auto pid = Pid(input, pwmAct);
 
     std::string json = JSON::producer<Pid>::convert(pid);
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
     R"(    "name":"",                         )"
     R"(    "enabled":true,                    )"
     R"(    "input": {                         )"
-    R"(        "kind": "SensorSetPointPair",  )"
+    R"(        "kind": "SetpointSensorPair",  )"
     R"(        "sensor": {                    )"
     R"(            "kind": "TempSensorMock",  )"
     R"(            "value": 20.0000,          )"
@@ -350,7 +350,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
         R"(     "name": "heater1pid",                                   )"
         R"(     "enabled": true,                                        )"
         R"(     "input": {                                              )"
-        R"(         "kind": "SensorSetPointPair",                       )"
+        R"(         "kind": "SetpointSensorPair",                       )"
         R"(         "sensor": {                                         )"
         R"(             "kind": "TempSensorFallback",                   )"
         R"(             "onBackupSensor": false,                        )"
@@ -406,7 +406,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
         R"(     "name": "heater2pid",                                   )"
         R"(     "enabled": true,                                        )"
         R"(     "input": {                                              )"
-        R"(         "kind": "SensorSetPointPair",                       )"
+        R"(         "kind": "SetpointSensorPair",                       )"
         R"(         "sensor": {                                         )"
         R"(             "kind": "TempSensorDelegate",                   )"
         R"(             "name": "beer2",                                )"
@@ -458,7 +458,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
         R"(     "name": "coolerpid",                                    )"
         R"(     "enabled": true,                                        )"
         R"(     "input": {                                              )"
-        R"(         "kind": "SensorSetPointPair",                       )"
+        R"(         "kind": "SetpointSensorPair",                       )"
         R"(         "sensor": {                                         )"
         R"(             "kind": "TempSensorFallback",                   )"
         R"(             "onBackupSensor": false,                        )"
@@ -521,7 +521,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
         R"(     "name": "beer2fridgepid",                               )"
         R"(     "enabled": true,                                        )"
         R"(     "input": {                                              )"
-        R"(         "kind": "SensorSetPointPair",                       )"
+        R"(         "kind": "SetpointSensorPair",                       )"
         R"(         "sensor": {                                         )"
         R"(             "kind": "TempSensorDelegate",                   )"
         R"(             "name": "beer1",                                )"
@@ -540,7 +540,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
         R"(     "output": {                                             )"
         R"(         "kind": "ActuatorOffset",                           )"
         R"(         "target": {                                         )"
-        R"(             "kind": "SensorSetPointPair",                   )"
+        R"(             "kind": "SetpointSensorPair",                   )"
         R"(             "sensor": {                                     )"
         R"(                 "kind": "TempSensorFallback",               )"
         R"(                 "onBackupSensor": false,                    )"
@@ -561,7 +561,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
         R"(             }                                               )"
         R"(         },                                                  )"
         R"(         "reference": {                                      )"
-        R"(             "kind": "SensorSetPointPair",                   )"
+        R"(             "kind": "SetpointSensorPair",                   )"
         R"(             "sensor": {                                     )"
         R"(                 "kind": "TempSensorDelegate",               )"
         R"(                 "name": "beer1",                            )"

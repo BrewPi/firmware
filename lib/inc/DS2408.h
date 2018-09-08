@@ -41,7 +41,7 @@ public:
      * Constructor initializes both caches to 0xFF.
      * This means the output latches are disabled and all pins are sensed high
      */
-    DS2408(OneWire * oneWire, DeviceAddress address) : OneWireDevice(oneWire, address), connected(false)
+    DS2408(OneWire * oneWire, OneWireAddress address) : OneWireDevice(oneWire, address), connected(false)
     {
         regCache.pio = 0xFF;
         regCache.latch = 0xFF;

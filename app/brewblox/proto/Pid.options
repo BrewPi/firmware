@@ -1,0 +1,23 @@
+blox.Pid.Settings.kp int_size:IS_32
+blox.Pid.Settings.ti int_size:IS_16
+blox.Pid.Settings.td int_size:IS_16
+		
+blox.Pid.State.inputValue int_size:IS_16
+blox.Pid.State.inputSetting int_size:IS_16
+blox.Pid.State.outputValue int_size:IS_16
+blox.Pid.State.outputSetting int_size:IS_16
+				
+blox.Pid.State.p int_size:IS_32
+blox.Pid.State.i int_size:IS_32
+blox.Pid.State.d int_size:IS_32
+		
+blox.Pid.State.derivative int_size:IS_32
+blox.Pid.State.integral int_size:IS_32
+blox.Pid.State.error int_size:IS_16
+
+blox.Pid.Links.input int_size:IS_16
+blox.Pid.Links.output int_size:IS_16
+  	
+blox.Pid.Filtering.input int_size:IS_8
+blox.Pid.Filtering.derivative int_size:IS_8
+  	

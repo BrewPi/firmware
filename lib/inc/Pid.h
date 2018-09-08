@@ -75,7 +75,7 @@ class Pid final : public ControllerInterface, public PidMixin
 
         void init();
 
-        virtual void update() override final;
+        virtual update_t update(const update_t & t) override final;
 
         void setConstants(temp_long_t kp,
                           uint16_t ti,

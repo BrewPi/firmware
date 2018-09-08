@@ -23,7 +23,7 @@
 #include "ActuatorMutexGroupInterface.h"
 #include "RefTo.h"
 
-
+#if 0
 class ActuatorMutexGroupDelegate : public virtual ActuatorMutexGroupInterface
 {
 public:
@@ -60,3 +60,5 @@ public:
 private:
     RefTo<ActuatorMutexGroupInterface> delegate;
 };
+
+#endif

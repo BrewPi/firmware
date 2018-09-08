@@ -20,3 +20,17 @@ To build simply run these commands in the docker directory:
  - Increase available memory
  - Add more CPUs
  - Enable USB 2.0 and give access to the photon/p1. Add it in normal mode, then put it in DFU mode and also add that device.
+ 
+ # Running the cross compiled firmware simulator (cbox app)
+ 
+ To compile the simulator:
+ 
+ ```
+ docker-compose run --rm compiler make APP=cbox PLATFORM=gcc
+ ```
+ 
+ To run the simulator and generate a coverage report when it exits (in build/target/cbox-gcc/coverage/html):
+ 
+ ```
+ docker-compose run --rm --service-ports coverage-simulator
+ ```

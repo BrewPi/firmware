@@ -3,41 +3,30 @@
  * Copyright 2017 Matthew McGowan.
  *
  * This file is part of BrewPi.
- * 
+ *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * BrewPi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
 
-#include "Platform.h"
 #include <stdint.h>
+#include <ctime>
 
-typedef uint32_t tcduration_t;
-typedef uint32_t ticks_millis_t;
-typedef uint32_t ticks_micros_t;
-typedef uint32_t ticks_seconds_t;
-typedef uint8_t ticks_seconds_tiny_t;
-
-/**
- * Ticks - interface to a millisecond timer
- *
- * With more code space, Ticks would have been a virtual base class, so all implementations can easily provide the same interface.
- * Here, the different implementations have no common (virtual) base class to save code space. 
- * Instead, a typedef is used to compile-time select the implementation to use.
- * If that implementation doesn't implement the Ticks interface as expected, it will fail to compile.
- */
-
+using tcduration_t = uint32_t;
+using ticks_millis_t = uint32_t;
+using ticks_micros_t = uint32_t;
+using ticks_seconds_t = uint32_t;
 
 // return time that has passed since timeStamp, take overflow into account
 ticks_seconds_t timeSinceSeconds(ticks_seconds_t currentTime, ticks_seconds_t previousTime);
@@ -46,62 +35,48 @@ ticks_seconds_t timeSinceSeconds(ticks_seconds_t currentTime, ticks_seconds_t pr
 ticks_millis_t timeSinceMillis(ticks_millis_t currentTime, ticks_millis_t previousTime);
 
 
-/**
- * A Ticks implementation that increments the millis count each time it is called.
- * This is used for testing.
- */
-class MockTicks {
+template <typename Impl>
+class Ticks {
+    Impl impl;
+    ticks_seconds_t utcStart;
+
 public:
-	MockTicks(uint8_t increment) : _increment(increment), _ticks(0) { }
-	MockTicks() : _increment(1), _ticks(0) { }
+    Ticks() : impl(), utcStart(0){
+    }
 
-	ticks_millis_t millis() { return _ticks+=_increment; }
-	ticks_micros_t micros() { return 1000*_ticks++; }
-	ticks_seconds_t seconds() { return millis()/1000; }
-	ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) { return ::timeSinceSeconds(seconds(), timeStamp); }
-	ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) {  return ::timeSinceMillis(millis(), timeStamp); }
-	void reset(void){ _ticks = 0; };
-	void advance(ticks_millis_t adv){
-	    _ticks += adv;
-	}
-private:
+    inline ticks_millis_t millis() {
+        return impl.millis();
+    }
+    inline ticks_micros_t micros() {
+        return impl.micros();
+    }
+    inline ticks_seconds_t seconds() {
+        return impl.seconds();
+    }
+    inline ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) {
+        return ::timeSinceSeconds(seconds(), timeStamp);
+    }
+    inline ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) {
+        return ::timeSinceMillis(millis(), timeStamp);
+    }
 
-	uint32_t _increment;
-	uint32_t _ticks;	
-};
+    void setNow(const ticks_seconds_t & utcNow){
+        utcStart = utcNow - seconds();
+    }
 
-/**
- * Externally provided millis timer. The calling code takes care of advancing the timer by calling setMillis or incMillis.
- * This is used for testing and also by the simulator to provide simulated time.
- */
-class ExternalTicks {
-	public:
-	ExternalTicks() : _ticks(0) { }
+    ticks_seconds_t getNow(){
+        return utcStart + seconds();
+    }
 
-	ticks_millis_t millis() { return _ticks; }
-	ticks_micros_t micros() { return _ticks*1000; }	
-	ticks_seconds_t seconds() { return millis()/1000; }	
-	ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) { return ::timeSinceSeconds(seconds(), timeStamp); }
-    ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) {  return ::timeSinceMillis(millis(), timeStamp); }
-	void reset(void){ _ticks = 0; };
-			
-	void setMillis(ticks_millis_t now)	{ _ticks = now; }
-	void incMillis(ticks_millis_t advance)	{ _ticks += advance; }
-private:
-	ticks_millis_t _ticks;			
+    struct tm calendarTime()
+    {
+        struct tm *calendar_time;
+        calendar_time = getNow();
+        calendar_time->tm_year += 1900;
+        return *calendar_time;
+    }
 };
 
 
-/**
- * A delay class that does nothing.
- * In the AVR simulator, delays using millis() take a very long time. Using this class makes it possible to step through the code.
- */
-class NoOpDelay {
-public:	
-	void seconds(uint16_t seconds)	{ millis(seconds<<10); }
-	void millis(uint32_t millis)	{ }	
-	void microseconds(uint32_t micros) { }
-};
 
 
-#include "TicksImpl.h"

@@ -21,7 +21,6 @@
 
 
 #include "Brewpi.h"
-#include "Ticks.h"
 #include "Board.h"
 #include "Buzzer.h"
 
@@ -39,10 +38,10 @@ void Buzzer::setActive(bool active){
 void Buzzer::beep(uint8_t numBeeps, uint16_t duration) {
     for (uint8_t beepCount = 0; beepCount < numBeeps; beepCount++) {
         setActive(true);
-        wait.millis(duration);
+        HAL_Delay_Milliseconds(duration);
         setActive(false);
         if (beepCount < numBeeps - 1) {
-            wait.millis(duration); // not the last beep
+        	HAL_Delay_Milliseconds(duration); // not the last beep
         }
     }
 }

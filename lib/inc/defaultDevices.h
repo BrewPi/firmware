@@ -21,13 +21,13 @@
 #pragma once
 
 #include "TempSensorDisconnected.h"
-#include "ActuatorInterfaces.h"
-#include "ActuatorMocks.h"
+//#include "ActuatorInterfaces.h"
+//#include "ActuatorMocks.h"
 #include "SetPoint.h"
-#include "ActuatorMutexGroupDisabled.h"
+//#include "ActuatorMutexGroupDisabled.h"
 
-ActuatorNop * defaultActuator();
-ActuatorInvalid * defaultLinearActuator(); // always returns invalid and does nothing
+//ActuatorNop * defaultActuator();
+//ActuatorInvalid * defaultLinearActuator(); // always returns invalid and does nothing
 TempSensorDisconnected * defaultTempSensor();
 SetPointConstant * defaultSetPoint();
-ActuatorMutexGroupDisabled * defaultMutexGroup();
+//ActuatorMutexGroupDisabled * defaultMutexGroup();

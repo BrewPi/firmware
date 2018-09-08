@@ -1,0 +1,31 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "intelliSenseMode": "clang-x64",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/lib/inc",
+                "${workspaceFolder}/lib/mixins",
+                "${workspaceFolder}/controlbox/test",
+                "${workspaceFolder}/platform/spark/modules",
+                "${workspaceFolder}/platform/spark/firmware/user/inc",
+                "${workspaceFolder}/platform/spark/firmware/system/inc",
+                "${workspaceFolder}/platform/spark/firmware/wiring/inc",
+                "${workspaceFolder}/platform/spark/firmware/hal/inc",
+                "${workspaceFolder}/platform/spark/firmware/hal/shared",
+                "${workspaceFolder}/platform/spark/firmware/hal/src/gcc",
+                "${workspaceFolder}/platform/spark/firmware/services/inc",
+                "${workspaceFolder}/platform/spark/firmware/platform/shared/inc",
+                "${workspaceFolder}/platform/spark/firmware/hal/src/newhal",
+                "${workspaceFolder}/platform/spark/firmware/communication/src"
+            ]
+        }
+    ],
+    "version": 4
+}

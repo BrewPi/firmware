@@ -23,8 +23,9 @@
 #include "temperatureFormats.h"
 #include "Board.h"
 #include "TempControl.h"
+
+#include "../../lib/inc/MockTicks.h"
 #include "PiLink.h"
-#include "Ticks.h"
 #include "TempSensor.h"
 #include "TempSensorMock.h"
 #include "TempSensorDisconnected.h"

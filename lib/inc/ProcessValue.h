@@ -19,17 +19,12 @@
 
 #pragma once
 
-#include <stdint.h>
-#include "Interface.h"
-#include "ControllerMixins.h"
 #include "temperatureFormats.h"
+#include <stdint.h>
 /*
  * A process value has a setting and an current value
  */
-class ProcessValue :
-    public virtual Interface,
-    public virtual ProcessValueMixin
-{
+class ProcessValue {
 public:
     ProcessValue() = default;
     virtual ~ProcessValue() = default;
@@ -40,7 +35,6 @@ public:
     virtual temp_t setting() const = 0;
     // read the actual value of the process value
     virtual temp_t value() const = 0;
-    
 
 private:
     friend class ProcessValueMixin;

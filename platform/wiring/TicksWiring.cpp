@@ -1,19 +1,13 @@
-/*
- * TicksHardware.cpp
- *
- * Created: 07/01/2015 05:01:40
- *  Author: mat
- */ 
-
-#include "Ticks.h"
-
 #include "TicksWiring.h"
+#include "Ticks.h"
+#include "application.h"
+
+ticks_seconds_t TicksWiring::seconds() { return ::millis()/1000; }
+ticks_millis_t TicksWiring::millis() { return ::millis(); }
+ticks_micros_t TicksWiring::micros() { return ::micros(); }
 
 
-ticks_seconds_t HardwareTicks::seconds() { return ::millis()/1000; }
-
-
-void HardwareDelay::millis(uint16_t millis) { ::delay(millis); }
-
-void HardwareDelay::seconds(uint16_t seconds)	{ millis(seconds<<10); }
+void DelayWiring::millis(uint16_t millis) { ::delay(millis); }
+void DelayWiring::microseconds(uint32_t micros) { ::delayMicroseconds(micros); }
+void DelayWiring::seconds(uint16_t seconds) { millis(seconds*1000); }
 

@@ -28,6 +28,4 @@ class ControllerInterface: public virtual Interface
 public:
 	ControllerInterface() = default;
     virtual ~ControllerInterface() = default;
-
-    virtual void fastUpdate() override final {}; // fast update not needed for controllers
 };

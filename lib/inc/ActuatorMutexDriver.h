@@ -39,13 +39,10 @@ public:
     	v.visit(*this);
     }
 
-    virtual void update() override final {
-        target.update();
+    virtual update_t update(const update_t & t) override final {
+        return target.update(t);
     }
 
-    virtual void fastUpdate() override final {
-        target.fastUpdate();
-    }
 
     // To activate actuator, permission is asked from mutexGroup, false is always allowed
     // when priority not specified, default to highest priority

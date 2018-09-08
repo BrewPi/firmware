@@ -18,17 +18,16 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "str_functions.h"
-#include "Platform.h"
+#include "../inc/str_functions.h"
+#include <cstring>
 
 // custom string conversion functions that are smaller than standard versions
-
-
-long int my_strtol(const char* str, char** tail) {
+long int
+my_strtol(const char* str, char** tail)
+{
     long int val = 0;
     bool positive = true;
-    *tail = (char*) str;
+    *tail = (char*)str;
     unsigned char read = 0;
     while (1) {
         if (**tail == '\0') {
@@ -48,18 +47,21 @@ long int my_strtol(const char* str, char** tail) {
         (*tail)++;
     }
     if (read == 0) {
-        *tail = (char*) str;
+        *tail = (char*)str;
     }
     return positive ? val : -val;
 }
 
-bool invalidStrtolResult(const char * start, const char * end){
+bool
+invalidStrtolResult(const char* start, const char* end)
+{
     return ((*end != '\0' && *end != '.' && *end != ' ') // parsing did not end at end of string, space or decimal point
-            || start == end); // no number found in string
+            || start == end);                            // no number found in string
 }
 
-
-bool stringToBool(bool * result, const char * numberString) {
+bool
+stringToBool(bool* result, const char* numberString)
+{
     char* end;
     if (0 == strcmp("true", numberString)) {
         *result = true;
@@ -70,7 +72,7 @@ bool stringToBool(bool * result, const char * numberString) {
         return true;
     }
     uint8_t newValue = strtol_impl(numberString, &end); // only accept 0 and 1
-    if (invalidStrtolResult(numberString, end)) { // no number found in string
+    if (invalidStrtolResult(numberString, end)) {       // no number found in string
         return false;
     }
     if (newValue > 1) {
@@ -82,10 +84,12 @@ bool stringToBool(bool * result, const char * numberString) {
 
 // returns UINT16_MIN on failure
 
-bool stringToUint16(uint16_t* result, const char * numberString) {
+bool
+stringToUint16(uint16_t* result, const char* numberString)
+{
     char* end;
     long newValue;
-    newValue = strtol_impl(numberString, &end); // only accept 0 and 1
+    newValue = strtol_impl(numberString, &end);   // only accept 0 and 1
     if (invalidStrtolResult(numberString, end)) { // no number found in string
         return false;
     }
@@ -99,4 +103,3 @@ bool stringToUint16(uint16_t* result, const char * numberString) {
     }
     return true;
 }
-

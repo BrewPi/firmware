@@ -6,9 +6,12 @@ services:
     container_name: firmware-compiler
     volumes:
         - ../:/firmware
-        - "/etc/timezone:/etc/timezone:ro"
-        - "/etc/localtime:/etc/localtime:ro"
-        
+        # - "/etc/timezone:/etc/timezone:ro"
+        # - "/etc/localtime:/etc/localtime:ro"
+    command: tail -f /dev/null
+    # environment:
+    #    - COMPOSE_CONVERT_WINDOWS_PATHS=1
+
   simulator-compiler:
     build: ./simulator-compiler/
     image: brewblox/firmware-simulator-compiler
@@ -21,12 +24,29 @@ services:
   simulator:
     build: ./simulator/
     image: brewblox/firmware-simulator
+    privileged: true
     container_name: firmware-simulator
     volumes:
         - "/etc/timezone:/etc/timezone:ro"
         - "/etc/localtime:/etc/localtime:ro"
     ports:
+        # simulator
         - "8332:8332"
+        # gdbserver 
+        - "2345:2345"
+        
+  coverage-simulator:
+    build: ./compiler/
+    image: brewblox/firmware-compiler
+    container_name: firmware-coverage-simulator
+    volumes:
+        - ../:/firmware
+        - "/etc/timezone:/etc/timezone:ro"
+        - "/etc/localtime:/etc/localtime:ro"
+    ports:
+        # simulator
+        - "8332:8332"
+    command: bash run-simulator.sh        
 
 networks:
     default:

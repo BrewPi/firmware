@@ -36,7 +36,7 @@
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMutexGroup.h"
 #include "ProcessValueDelegate.h"
-#include "SensorSetPointPair.h"
+#include "SetpointSensorPair.h"
 #include "SetPointDelegate.h"
 
 #include "runner.h"
@@ -86,10 +86,10 @@ public:
 
     TempSensorMock fridgeSensor;
     SetPointSimple fridgeSet;
-    SensorSetPointPair fridge;
+    SetpointSensorPair fridge;
     TempSensorMock beerSensor;
     SetPointSimple beerSet;
-    SensorSetPointPair beer;
+    SetpointSensorPair beer;
     ActuatorBool heaterPin;
     ActuatorBool coolerPin;
     ActuatorMutexGroup mutex;

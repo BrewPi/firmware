@@ -1,3 +1,2 @@
 FROM brewblox/firmware-compiler
-
-CMD make APP=cbox PLATFORM=gcc && cp /firmware/build/target/cbox-gcc/cbox /firmware/docker/simulator/
+CMD rm -rf  /firmware/docker/simulator/target && make APP=cbox PLATFORM=gcc && cp -R /firmware/build/target /firmware/docker/simulator/target

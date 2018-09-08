@@ -1,11 +1,13 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
-WORKDIR /simulator
+RUN apt-get update -q && apt-get install -qy bash gdbserver gdb
 
-COPY cbox /simulator/
+COPY target /target/
+WORKDIR /target/cbox-gcc
  
-RUN touch /simulator/device_key.der /simulator/server_key.der
+RUN touch device_key.der server_key.der
 
 EXPOSE 8332
+EXPOSE 2345
 
 CMD ./cbox -i 123456789012345678901234

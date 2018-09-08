@@ -12,7 +12,7 @@ WARNINGS_AS_ERRORS ?=n
 USE_PRINTF_FLOAT ?=n
 
 run_make:
-	echo "Building app $(APP) from $(APP_MAKEFILE)" 
+	echo "Building app $(APP) from $(APP_MAKEFILE)"
 	@$(MAKE) -s -C $(SPARKDIR)/main \
 	APPDIR=$(APPDIR) \
 	USER_MAKEFILE=$(APP_MAKEFILE) \

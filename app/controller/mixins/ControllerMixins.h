@@ -225,10 +225,10 @@ protected:
     ~ProcessValueDelegateMixin() = default;
 };
 
-class SensorSetPointPairMixin: public Nameable {
+class SetpointSensorPairMixin: public Nameable {
 public:
     void serializeImpl(JSON::Adapter& adapter);
 protected:
-    ~SensorSetPointPairMixin() = default;
+    ~SetpointSensorPairMixin() = default;
 };
 
