@@ -439,6 +439,7 @@ temp_long_t::operator/(uint16_t const rhs)
     return result;
 }
 
+#if 0
 // converts fixed point value to string, without using double/float
 // resulting string is always length len (including \0). Spaces are prepended to achieve that
 char*
@@ -564,3 +565,4 @@ fromStringImpl(int32_t* raw,        // result is put in this variable upon succe
     }
     return false; // if value is not within limits, it is likely invalid
 }
+#endif
