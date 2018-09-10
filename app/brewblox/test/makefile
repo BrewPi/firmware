@@ -66,7 +66,6 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform
 
 # brewblox app specific implementations
 # CPPSRC += /app/brewblox/BrewBlox.cpp
-CPPSRC += /app/brewblox/Logger.cpp
 CPPSRC += /app/brewblox/nanopb_callbacks.cpp
 CPPSRC += /app/brewblox/BrewBlox.cpp
 

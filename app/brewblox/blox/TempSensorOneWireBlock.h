@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TempSensorOneWire.h"
+#include "Temperature.h"
 #include "blox/Block.h"
 #include "proto/cpp/TempSensorOneWire.pb.h"
 
@@ -23,8 +24,8 @@ public:
         cbox::CboxError res = streamProtoFrom(in, &newData, blox_TempSensorOneWire_fields, blox_TempSensorOneWire_size);
         /* if no errors occur, write new settings to wrapped object */
         if (res == cbox::CboxError::OK) {
-            sensor.setAddress(newData.address);
-            sensor.setCalibration(temp_t::raw(newData.offset));
+            sensor.setAddress(OneWireAddress(newData.address));
+            sensor.setCalibration(temp_t_from_base(newData.offset));
         }
         return res;
     }
@@ -33,9 +34,9 @@ public:
     {
         blox_TempSensorOneWire message;
         message.address = sensor.getAddress();
-        message.offset = sensor.getCalibration().getRaw();
-        message.connected = sensor.isConnected();
-        message.value = sensor.read().getRaw();
+        message.offset = to_base(sensor.getCalibration());
+        message.connected = sensor.valid();
+        message.value = to_base((sensor.read()));
         return streamProtoTo(out, &message, blox_TempSensorOneWire_fields, blox_TempSensorOneWire_size);
     }
 
@@ -43,7 +44,7 @@ public:
     {
         blox_TempSensorOneWire message = blox_TempSensorOneWire_init_zero;
         message.address = sensor.getAddress();
-        message.offset = sensor.getCalibration().getRaw();
+        message.offset = to_base(sensor.getCalibration());
         return streamProtoTo(out, &message, blox_TempSensorOneWire_fields, blox_TempSensorOneWire_size);
     }
 

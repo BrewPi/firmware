@@ -20,16 +20,14 @@
 
 #pragma once
 
-#include "temperatureFormats.h"
-
-#define TEMP_SENSOR_DISCONNECTED temp_t::invalid()
+#include "Temperature.h"
 
 class TempSensor {
 public:
     TempSensor() = default;
     virtual ~TempSensor() = default;
 
-    virtual bool isConnected(void) const = 0;
+    virtual bool valid() const = 0;
 
     /*
 	 * Read the sensor, returns cached value set in update()

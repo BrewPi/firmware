@@ -40,8 +40,8 @@ public
         blox_SetpointSensorPair message;
         message.sensorId = sensor.getId();
         message.setpointId = setpoint.getId();
-        message.sensorValue = pair.value().getRaw();
-        message.setpointValue = pair.setting().getRaw();
+        message.sensorValue = to_base(pair.value());
+        message.setpointValue = to_base(pair.setting());
         message.sensorValid = sensor.valid();
         message.setpointValid = setpoint.valid();
 

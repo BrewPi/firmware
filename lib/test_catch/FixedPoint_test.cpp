@@ -19,15 +19,11 @@
 
 #include <catch.hpp>
 
-#include "../inc/FixedPoint.h"
+#include "../inc/Temperature.h"
 #include <cstdint>
-#include <typeinfo>
 
 SCENARIO("CNL fixed point formats")
 {
-    using temp_t = safe_elastic_fixed_point<7, 8, int16_t>;
-    using temp_precise_t = safe_elastic_fixed_point<7, 23, int32_t>;
-    using temp_long_t = safe_elastic_fixed_point<23, 8, int32_t>;
     WHEN("assignment")
     {
         temp_t a = 5.0;
@@ -41,6 +37,13 @@ SCENARIO("CNL fixed point formats")
         temp_precise_t e = 5.0;
         temp_precise_t f = e;
         CHECK(e == f);
+    }
+
+    WHEN("Size is as small as a normal raw integer")
+    {
+        CHECK(sizeof(temp_t) == 2);
+        CHECK(sizeof(temp_precise_t) == 4);
+        CHECK(sizeof(temp_long_t) == 4);
     }
 
     WHEN("conversion between different precisions")
@@ -397,12 +400,23 @@ SCENARIO("CNL fixed point formats")
 
     WHEN("right_shift")
     {
-        temp_t t = 2.0;
-        unsigned char a = 1;
-        temp_t t2 = t >> a;
-        temp_t t3 = t >> uint8_t(1); //cast needed to prevent ambiguity
+        temp_t t = 8.0;
+        temp_t t2 = t >> 1;
+        temp_t t3 = t >> 3;
 
-        REQUIRE(double(t2) == 1.0);
+        REQUIRE(double(t2) == 4.0);
         REQUIRE(double(t3) == 1.0);
+    }
+
+    WHEN("from base")
+    {
+        auto t1 = temp_t_from_base(256);
+        CHECK(t1 == 1.0);
+    }
+
+    WHEN("to base")
+    {
+        auto t1 = temp_t_from_base(256);
+        CHECK(to_base(t1) == 256);
     }
 }

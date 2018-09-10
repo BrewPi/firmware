@@ -23,6 +23,7 @@
 #include <iostream>
 
 #include "../BrewBlox.h"
+#include "Temperature.h"
 #include "blox/SetPointSimpleBlock.h"
 #include "blox/SetpointSensorPairBlock.h"
 #include "blox/TempSensorMockBlock.h"
@@ -33,7 +34,6 @@
 #include "proto/test/cpp/SetPointSimple.test.pb.h"
 #include "proto/test/cpp/SetpointSensorPair.test.pb.h"
 #include "proto/test/cpp/TempSensorMock.test.pb.h"
-#include "temperatureFormats.h"
 
 class ProtoDataOut {
 public:
@@ -103,7 +103,7 @@ SCENARIO("A Blox SetpointSensorPair object can be created from streamed protobuf
     inEncoder.put(TempSensorMockBlock::staticTypeId());
 
     auto newSensor = blox::TempSensorMock();
-    newSensor.set_value(temp_t(20.0).getRaw());
+    newSensor.set_value(to_base(temp_t(20.0)));
     newSensor.set_connected(true);
     inProto.put(newSensor);
 
@@ -120,7 +120,7 @@ SCENARIO("A Blox SetpointSensorPair object can be created from streamed protobuf
     inEncoder.put(SetPointSimpleBlock::staticTypeId());
 
     blox::SetPointSimple newSetPoint;
-    newSetPoint.set_setting(temp_t(21.0).getRaw());
+    newSetPoint.set_setting(to_base(temp_t(21.0)));
     inProto.put(newSetPoint);
 
     inEncoder.endMessage();

@@ -18,8 +18,9 @@
  */
 
 #include "TempSensorFallback.h"
+
+#include "../inc/Logger.h"
 #include "LogMessages.h"
-#include "Logger.h"
 
 temp_t TempSensorFallback::read() const {
     return activeSensor().read();

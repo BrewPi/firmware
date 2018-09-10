@@ -19,8 +19,7 @@
 
 #pragma once
 
-#include "temperatureFormats.h"
-#include <stdint.h>
+#include "Temperature.h"
 /*
  * A process value has a setting and an current value
  */
@@ -35,7 +34,6 @@ public:
     virtual temp_t setting() const = 0;
     // read the actual value of the process value
     virtual temp_t value() const = 0;
-
-private:
-    friend class ProcessValueMixin;
+    // returns whether the process value is valid (data can be trusted)
+    virtual bool valid() const = 0;
 };

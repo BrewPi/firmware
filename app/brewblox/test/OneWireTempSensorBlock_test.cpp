@@ -20,8 +20,8 @@
 #include "../BrewBlox.h"
 #include "TempSensorOneWire.test.pb.h"
 #include "blox/TempSensorOneWireBlock.h"
-#include <catch.hpp>
 #include "cbox/DataStreamIo.h"
+#include <catch.hpp>
 #include <sstream>
 
 using namespace cbox;
@@ -48,12 +48,13 @@ SCENARIO("A TempSensorOneWireBlock")
         THEN("The new setting match what was sent")
         {
             CHECK(sensor.get().getAddress() == 0x12345678);
-            CHECK(sensor.get().getCalibration() == temp_t::raw(100));
+            temp_t calibration = sensor.get().getCalibration();
+            CHECK(to_rep(calibration) == 100);
         }
         THEN("The values that are not writable are ignored")
         {
-            CHECK(sensor.get().read() == TEMP_SENSOR_DISCONNECTED);
-            CHECK(sensor.get().isConnected() == false);
+            CHECK(sensor.get().read() == temp_t(0));
+            CHECK(sensor.get().valid() == false);
         }
 
         AND_WHEN("a SetPointSimpleBlock streams out protobuf, the settings match what was sent before and the read only values are correct")
@@ -68,7 +69,7 @@ SCENARIO("A TempSensorOneWireBlock")
             round_trip.ParseFromIstream(&ssOut);
 
             auto correct = message;
-            correct.set_value(temp_t::invalid().getRaw());
+            correct.set_value(0);
             correct.set_connected(false);
 
             CHECK(correct.DebugString() == round_trip.DebugString());

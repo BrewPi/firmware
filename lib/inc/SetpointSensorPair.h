@@ -57,7 +57,7 @@ public:
         if (auto sp = setpoint()) {
             return sp->read();
         } else {
-            return temp_t::invalid();
+            return 0;
         }
     }
 
@@ -66,7 +66,17 @@ public:
         if (auto sens = sensor()) {
             return sens->read();
         } else {
-            return temp_t::invalid();
+            return 0;
         }
+    }
+
+    virtual bool valid() const override final
+    {
+        if (auto sens = sensor()) {
+            if (auto sp = setpoint()) {
+                return sens->valid() && sp->valid();
+            }
+        }
+        return false;
     }
 };

@@ -21,19 +21,21 @@
 #pragma once
 
 #include "TempSensor.h"
-#include "temperatureFormats.h"
+#include "Temperature.h"
 
 class TempSensorMock final : public TempSensor {
+private:
+    temp_t value = 0;
+    bool connected = false;
+
 public:
-    TempSensorMock(temp_t initial)
-        : value(initial)
-        , connected(true)
+    TempSensorMock()
     {
     }
 
-    TempSensorMock()
-        : value(temp_t::invalid())
-        , connected(false)
+    TempSensorMock(temp_t initial)
+        : value(initial)
+        , connected(true)
     {
     }
 
@@ -47,7 +49,10 @@ public:
         value = val;
     }
 
-    virtual bool isConnected() const override final { return connected; }
+    virtual bool valid() const override final
+    {
+        return connected;
+    }
 
     void add(temp_t delta)
     {
@@ -56,21 +61,6 @@ public:
 
     virtual temp_t read() const override final
     {
-        if (!isConnected())
-            return temp_t::invalid();
-
-        // limit precision to mimic DS18B20 sensor
-        const uint8_t shift = temp_t::fractional_bit_count - 4; // DS18B20 has 0.0625 (1/16) degree C steps
-        temp_t rounder;
-        rounder.setRaw(1 << (shift - 1));
-        temp_t noise;
-        noise.setRaw(rand() % (1 << (shift - 1))); // noise max 1/2 bit
-        rounder += noise;
-        temp_t quantified = ((value + rounder) >> shift) << shift;
-        return quantified;
+        return value;
     }
-
-private:
-    temp_t value;
-    bool connected;
 };

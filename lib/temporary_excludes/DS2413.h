@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "Logger.h"
+#include "../inc/Logger.h"
 #include "OneWireDevice.h"
 
 typedef uint8_t pio_t;

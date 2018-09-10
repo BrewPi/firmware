@@ -38,7 +38,7 @@
 using EepromAccessImpl = cbox::SparkEepromAccess;
 using TicksClass = Ticks<TicksWiring>;
 #else
-#include "MockTicks.h"
+#include <MockTicks.h>
 #include "cbox/ArrayEepromAccess.h"
 #include "cbox/ConnectionsStringStream.h"
 using EepromAccessImpl = cbox::ArrayEepromAccess<2048>;

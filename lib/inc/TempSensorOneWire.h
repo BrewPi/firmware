@@ -23,7 +23,7 @@
 #include "DallasTemperature.h"
 #include "OneWireAddress.h"
 #include "TempSensor.h"
-#include "temperatureFormats.h"
+#include "Temperature.h"
 
 class OneWire;
 
@@ -33,10 +33,10 @@ class TempSensorOneWire final : public TempSensor {
 public:
 private:
     DallasTemperature sensor;
-    OneWireAddress sensorAddress;
-    temp_t calibrationOffset;
-    temp_t cachedValue;
-    bool connected;
+    OneWireAddress sensorAddress = 0;
+    temp_t calibrationOffset = 0;
+    temp_t cachedValue = 0;
+    bool connected = false;
 
 public:
     /**
@@ -50,21 +50,18 @@ public:
         : sensor(&bus)
         , sensorAddress(_address)
         , calibrationOffset(_calibrationOffset)
-        , cachedValue(TEMP_SENSOR_DISCONNECTED)
-        , connected(false)
-
     {
         init();
     }
 
     TempSensorOneWire(OneWire& bus)
-        : TempSensorOneWire(bus, 0, temp_t(0.0))
+        : sensor(&bus)
     {
     }
 
     ~TempSensorOneWire() = default;
 
-    virtual bool isConnected(void) const override final
+    virtual bool valid() const override final
     {
         return connected;
     }

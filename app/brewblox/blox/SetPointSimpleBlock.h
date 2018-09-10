@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SetPoint.h"
+#include "Temperature.h"
 #include "blox/Block.h"
 #include "proto/cpp/SetPointSimple.pb.h"
 
@@ -19,7 +20,7 @@ public:
         blox_SetPointSimple newData;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_SetPointSimple_fields, blox_SetPointSimple_size);
         if (result == cbox::CboxError::OK) {
-            setpoint.write(temp_t::raw(newData.setting));
+            setpoint.write(temp_t_from_base(newData.setting));
         }
         return result;
     }
@@ -27,7 +28,7 @@ public:
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
         blox_SetPointSimple message;
-        message.setting = setpoint.read().getRaw();
+        message.setting = to_base(setpoint.read());
 
         return streamProtoTo(out, &message, blox_SetPointSimple_fields, blox_SetPointSimple_size);
     }

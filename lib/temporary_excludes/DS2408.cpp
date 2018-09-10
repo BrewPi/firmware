@@ -6,7 +6,8 @@
  */
 
 #include "DS2408.h"
-#include "Logger.h"
+
+#include "../inc/Logger.h"
 
 #ifdef BREWPI_DS2408
 uint8_t
