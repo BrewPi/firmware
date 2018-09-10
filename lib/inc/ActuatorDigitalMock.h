@@ -19,47 +19,31 @@
 
 #pragma once
 
-#include "TempSensor.h"
-#include "Temperature.h"
+#include "ActuatorDigital.h"
 
-class TempSensorMock final : public TempSensor {
+/*
+ * A simple digital actuator that remembers its state. This is primary used for testing.
+ */
+class ActuatorDigitalMock final : public ActuatorDigital {
 private:
-    temp_t value = 0;
-    bool connected = false;
+    State state = Inactive;
 
 public:
-    TempSensorMock()
+    ActuatorDigitalMock() {}
+
+    ActuatorDigitalMock(State initial)
+        : state(initial)
     {
     }
 
-    TempSensorMock(temp_t initial)
-        : value(initial)
-        , connected(true)
-    {
-    }
+    ~ActuatorDigitalMock() = default;
 
-    void setConnected(bool _connected)
+    void setState(const State& s) override final
     {
-        connected = _connected;
+        state = s;
     }
-
-    void setTemp(temp_t val)
+    State getState() const override final
     {
-        value = val;
-    }
-
-    virtual bool valid() const override final
-    {
-        return connected;
-    }
-
-    void add(temp_t delta)
-    {
-        value += delta;
-    }
-
-    virtual temp_t read() const override final
-    {
-        return value;
+        return state;
     }
 };

@@ -17,49 +17,30 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <catch.hpp>
 
-#include "TempSensor.h"
-#include "Temperature.h"
+#include "../inc/ActuatorAnalogMock.h"
 
-class TempSensorMock final : public TempSensor {
-private:
-    temp_t value = 0;
-    bool connected = false;
-
-public:
-    TempSensorMock()
+SCENARIO("ActuatorAnalogMock test")
+{
+    WHEN("An ActuatorAnalogMock is constructed")
     {
-    }
+        auto act = ActuatorAnalogMock();
 
-    TempSensorMock(temp_t initial)
-        : value(initial)
-        , connected(true)
-    {
-    }
+        CHECK(act.setting() == 0);
+        CHECK(act.value() == 0);
+        CHECK(act.valid() == true);
 
-    void setConnected(bool _connected)
-    {
-        connected = _connected;
-    }
+        act = ActuatorAnalogMock(50);
 
-    void setTemp(temp_t val)
-    {
-        value = val;
-    }
+        CHECK(act.setting() == 50);
+        CHECK(act.value() == 50);
+        CHECK(act.valid() == true);
 
-    virtual bool valid() const override final
-    {
-        return connected;
-    }
+        act = ActuatorAnalogMock(110, 0, 100);
 
-    void add(temp_t delta)
-    {
-        value += delta;
+        CHECK(act.setting() == 100);
+        CHECK(act.value() == 100);
+        CHECK(act.valid() == true);
     }
-
-    virtual temp_t read() const override final
-    {
-        return value;
-    }
-};
+}

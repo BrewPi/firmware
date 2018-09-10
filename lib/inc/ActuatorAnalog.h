@@ -19,47 +19,19 @@
 
 #pragma once
 
-#include "TempSensor.h"
-#include "Temperature.h"
+#include "FixedPoint.h"
+#include "ProcessValue.h"
+#include <cstdint>
 
-class TempSensorMock final : public TempSensor {
-private:
-    temp_t value = 0;
-    bool connected = false;
+using ActuatorAnalogValue = safe_elastic_fixed_point<7, 8, int16_t>;
 
+/*
+ * An ActuatorAnalog has a range output between min and max
+ */
+class ActuatorAnalog : public ProcessValue<ActuatorAnalogValue> {
 public:
-    TempSensorMock()
-    {
-    }
+    using value_t = ActuatorAnalogValue;
 
-    TempSensorMock(temp_t initial)
-        : value(initial)
-        , connected(true)
-    {
-    }
-
-    void setConnected(bool _connected)
-    {
-        connected = _connected;
-    }
-
-    void setTemp(temp_t val)
-    {
-        value = val;
-    }
-
-    virtual bool valid() const override final
-    {
-        return connected;
-    }
-
-    void add(temp_t delta)
-    {
-        value += delta;
-    }
-
-    virtual temp_t read() const override final
-    {
-        return value;
-    }
+    ActuatorAnalog() = default;
+    virtual ~ActuatorAnalog() = default;
 };

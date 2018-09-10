@@ -1,18 +1,18 @@
 /*
- * Copyright 2017 BrewPi/Elco Jacobs.
+ * Copyright 2018 BrewPi B.V.
  *
- * This file is part of BrewPi.
- * 
+ * This file is part of the BrewBlox Control Library.
+ *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * BrewPi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,18 +28,18 @@
 /*
  * A process value has a setting and an current value
  */
-class SetpointSensorPair : public ProcessValue {
+class SetpointSensorPair : public ProcessValue<temp_t> {
 
 private:
-    const std::function<std::shared_ptr<TempSensor>()> sensor;
     const std::function<std::shared_ptr<Setpoint>()> setpoint;
+    const std::function<std::shared_ptr<TempSensor>()> sensor;
 
 public:
     explicit SetpointSensorPair(
-        std::function<std::shared_ptr<TempSensor>()>&& _sensor,
-        std::function<std::shared_ptr<Setpoint>()>&& _setpoint)
-        : sensor(_sensor)
-        , setpoint(_setpoint)
+        std::function<std::shared_ptr<Setpoint>()>&& _setpoint,
+        std::function<std::shared_ptr<TempSensor>()>&& _sensor)
+        : setpoint(_setpoint)
+        , sensor(_sensor)
     {
     }
 

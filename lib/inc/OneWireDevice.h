@@ -1,7 +1,7 @@
 /*
- * Copyright 2015 BrewPi/Elco Jacobs.
+ * Copyright 2018 BrewPi B.V.
  *
- * This file is part of BrewPi.
+ * This file is part of the BrewBlox Control Library.
  *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,8 +25,10 @@
 class OneWireDevice {
 public:
     OneWireDevice(OneWire* oneWire_, OneWireAddress address_);
+
 protected:
     ~OneWireDevice() = default;
+
 public:
     OneWireAddress getDeviceAddress();
     bool validAddress(OneWire* oneWire_, OneWireAddress address_);
@@ -35,5 +37,3 @@ protected:
     OneWire* oneWire;
     OneWireAddress address;
 };
-
-
