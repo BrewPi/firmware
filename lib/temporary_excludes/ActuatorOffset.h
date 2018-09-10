@@ -115,7 +115,7 @@ public:
         target.set(targetValue);
     };
 
-    // no action. SetPoint actuator only applies it's value when written by a PID
+    // no action. Setpoint actuator only applies it's value when written by a PID
     virtual update_t update(const update_t & t) override final {
         return update_t_max(); // no updates needed
     }

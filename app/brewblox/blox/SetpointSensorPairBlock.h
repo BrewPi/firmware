@@ -11,7 +11,7 @@ using std::placeholders::_1;
 class SetpointSensorPairBlock : public Block<blox_SetpointSensorPair_msgid> {
 private:
     cbox::CboxPtr<TempSensor> sensor;
-    cbox::CboxPtr<SetPoint> setpoint;
+    cbox::CboxPtr<Setpoint> setpoint;
     SetpointSensorPair pair;
 
 public

@@ -24,7 +24,7 @@
 #include "ActuatorInterfaces.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorPwm.h"
-#include "SetPoint.h"
+#include "Setpoint.h"
 #include "TempSensorDisconnected.h"
 #include "TempSensorExternal.h"
 #include "TempSensorFallback.h"
@@ -35,7 +35,7 @@
 #include "OneWireTempSensor.h"
 #include "TempSensorDelegate.h"
 #include "ActuatorDigitalDelegate.h"
-#include "SetPointDelegate.h"
+#include "SetpointDelegate.h"
 #include "SetpointSensorPair.h"
 #include "ProcessValueDelegate.h"
 
@@ -86,13 +86,13 @@ void VisitorSerialize::visit(ActuatorValue& thisRef) {
 void VisitorSerialize::visit(Pid& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void VisitorSerialize::visit(SetPointConstant& thisRef) {
+void VisitorSerialize::visit(SetpointConstant& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void VisitorSerialize::visit(SetPointMinMax& thisRef) {
+void VisitorSerialize::visit(SetpointMinMax& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void VisitorSerialize::visit(SetPointSimple& thisRef) {
+void VisitorSerialize::visit(SetpointSimple& thisRef) {
     thisRef.serializeImpl(adapter);
 }
 void VisitorSerialize::visit(TempSensorDisconnected& thisRef) {
@@ -124,7 +124,7 @@ void VisitorSerialize::visit(ActuatorDigitalDelegate& thisRef) {
 void VisitorSerialize::visit(ProcessValueDelegate& thisRef) {
     thisRef.serializeImpl(adapter);
 }
-void VisitorSerialize::visit(SetPointDelegate& thisRef) {
+void VisitorSerialize::visit(SetpointDelegate& thisRef) {
     thisRef.serializeImpl(adapter);
 }
 void VisitorSerialize::visit(SetpointSensorPair& thisRef) {

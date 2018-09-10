@@ -25,7 +25,7 @@
 #include "FilterCascaded.h"
 #include "TempSensor.h"
 #include "ActuatorInterfaces.h"
-#include "SetPoint.h"
+#include "Setpoint.h"
 #include "defaultDevices.h"
 #include "ControllerMixins.h"
 #include "ControllerInterface.h"

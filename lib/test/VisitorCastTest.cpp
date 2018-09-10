@@ -25,7 +25,7 @@
 #include "ActuatorMutexGroup.h"
 #include "TempSensorMock.h"
 #include "Pid.h"
-#include "SetPoint.h"
+#include "Setpoint.h"
 #include "runner.h"
 #include <boost/test/unit_test.hpp>
 

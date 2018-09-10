@@ -57,7 +57,7 @@ SCENARIO("A TempSensorOneWireBlock")
             CHECK(sensor.get().valid() == false);
         }
 
-        AND_WHEN("a SetPointSimpleBlock streams out protobuf, the settings match what was sent before and the read only values are correct")
+        AND_WHEN("a SetpointSimpleBlock streams out protobuf, the settings match what was sent before and the read only values are correct")
         {
             std::stringstream ssOut;
             cbox::OStreamDataOut out(ssOut);

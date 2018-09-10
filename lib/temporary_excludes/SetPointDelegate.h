@@ -24,13 +24,13 @@
 #include "Interface.h"
 #include "RefTo.h"
 
-class SetPointDelegate :
-    public SetPoint,
-    public SetPointDelegateMixin
+class SetpointDelegate :
+    public Setpoint,
+    public SetpointDelegateMixin
 {
 public:
-    SetPointDelegate(BaseLookup const& lookup) : delegate(lookup){}
-    ~SetPointDelegate() = default;
+    SetpointDelegate(BaseLookup const& lookup) : delegate(lookup){}
+    ~SetpointDelegate() = default;
 
     virtual void accept(VisitorBase & v) override final {
         v.visit(*this);
@@ -49,7 +49,7 @@ public:
     }
 
 private:
-    RefTo<SetPoint> delegate;
+    RefTo<Setpoint> delegate;
 
-friend class SetPointDelegateMixin;
+friend class SetpointDelegateMixin;
 };

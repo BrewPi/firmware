@@ -27,7 +27,7 @@
 #include "TempSensorMock.h"
 #include "SetpointSensorPair.h"
 #include "RefTo.h"
-#include "SetPoint.h"
+#include "Setpoint.h"
 #include "ActuatorOffset.h"
 
 struct RefToFixture{
@@ -116,9 +116,9 @@ BOOST_AUTO_TEST_CASE(RefTo_gets_different_target_when_lookup_is_changed) {
 }
 
 
-BOOST_AUTO_TEST_CASE(RefTo_SetPointActuator) {
-    auto sp1 = SetPointSimple(20.0);
-    auto sp2 = SetPointSimple(20.0);
+BOOST_AUTO_TEST_CASE(RefTo_SetpointActuator) {
+    auto sp1 = SetpointSimple(20.0);
+    auto sp2 = SetpointSimple(20.0);
     auto sensor1 = TempSensorMock(20.0);
     auto sensor2 = TempSensorMock(20.0);
 

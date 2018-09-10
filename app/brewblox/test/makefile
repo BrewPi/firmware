@@ -149,12 +149,13 @@ clean:
 	$(RM) $(ALLOBJ) $(ALLDEPS) $(TARGETDIR)$(TARGET)
 	$(RMDIR) $(TARGETDIR)
 	$(RMDIR) $(SOURCE_PATH)/app/brewblox/proto/cpp
+	$(RMDIR) $(SOURCE_PATH)/app/brewblox/proto/test
 	@echo
 
 # print variable by invoking make print-VARIABLE as VARIABLE = the_value_of_the_variable
 print-%  : ; @echo $* = $($*)
 
-.PHONY: all clean proto runner
+.PHONY: all clean runner
 .SECONDARY:
 
 # Include auto generated dependency files

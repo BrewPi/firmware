@@ -18,9 +18,9 @@
  */
 
 #include "../BrewBlox.h"
-#include "SetPointSimple.test.pb.h"
+#include "SetpointSimple.test.pb.h"
 //#include "blox/Block.h"
-#include "blox/SetPointSimpleBlock.h"
+#include "blox/SetpointSimpleBlock.h"
 #include <catch.hpp>
 //#include "cbox/Box.h"
 #include "cbox/DataStreamIo.h"
@@ -32,11 +32,11 @@
 
 using namespace cbox;
 
-SCENARIO("A Bloc SetPointSimpleBlock")
+SCENARIO("A Bloc SetpointSimpleBlock")
 {
-    WHEN("a SetPointSimpleBlock receives protobuf settings, the new setting matches what was sent")
+    WHEN("a SetpointSimpleBlock receives protobuf settings, the new setting matches what was sent")
     {
-        blox::SetPointSimple message;
+        blox::SetpointSimple message;
         message.set_setting(123);
         std::stringstream ssIn;
 
@@ -44,14 +44,14 @@ SCENARIO("A Bloc SetPointSimpleBlock")
         ssIn << '\0'; // zero terminate
         cbox::IStreamDataIn in(ssIn);
 
-        SetPointSimpleBlock sp;
+        SetpointSimpleBlock sp;
         CboxError res = sp.streamFrom(in);
         CHECK(res == CboxError::OK);
 
         temp_t setting = sp.get().read();
         CHECK(to_base(setting) == 123);
 
-        AND_WHEN("a SetPointSimpleBlock streams out protobuf settings, the output matches what was sent before")
+        AND_WHEN("a SetpointSimpleBlock streams out protobuf settings, the output matches what was sent before")
         {
             std::stringstream ssOut;
             cbox::OStreamDataOut out(ssOut);
@@ -59,7 +59,7 @@ SCENARIO("A Bloc SetPointSimpleBlock")
             CboxError res = sp.streamTo(out);
             CHECK(res == CboxError::OK);
 
-            blox::SetPointSimple round_trip;
+            blox::SetpointSimple round_trip;
             round_trip.ParseFromIstream(&ssOut);
 
             CHECK(message.DebugString() == round_trip.DebugString());

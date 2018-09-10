@@ -21,32 +21,31 @@
 
 #include "Temperature.h"
 
-class SetPoint {
+class Setpoint {
 public:
-    SetPoint() = default;
-    virtual ~SetPoint() = default;
+    Setpoint() = default;
+    virtual ~Setpoint() = default;
     virtual temp_t read() const = 0;
     virtual void write(temp_t val) = 0;
     virtual bool valid() = 0;
-    friend class SetPointMixin;
 };
 
-class SetPointSimple final : public SetPoint {
+class SetpointSimple final : public Setpoint {
 private:
     temp_t setting = 0;
     bool _valid = false;
 
 public:
-    SetPointSimple()
+    SetpointSimple()
     {
     }
 
-    SetPointSimple(temp_t _value)
+    SetpointSimple(temp_t _value)
         : setting(_value)
         , _valid(true)
     {
     }
-    ~SetPointSimple() = default;
+    ~SetpointSimple() = default;
 
     virtual temp_t read() const override final
     {
@@ -63,6 +62,4 @@ public:
     {
         return _valid;
     }
-
-    friend class SetPointSimpleMixin;
 };

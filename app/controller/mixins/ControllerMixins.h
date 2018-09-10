@@ -146,30 +146,30 @@ protected:
     ~ActuatorInvalidMixin() = default;
 };
 
-class SetPointMixin {
+class SetpointMixin {
 protected:
-    ~SetPointMixin() = default;
+    ~SetpointMixin() = default;
 };
 
-class SetPointSimpleMixin: public Nameable {
+class SetpointSimpleMixin: public Nameable {
 public:
     void serializeImpl(JSON::Adapter& adapter);
 protected:
-    ~SetPointSimpleMixin() = default;
+    ~SetpointSimpleMixin() = default;
 };
 
-class SetPointConstantMixin {
+class SetpointConstantMixin {
 public:
     void serializeImpl(JSON::Adapter& adapter);
 protected:
-    ~SetPointConstantMixin() = default;
+    ~SetpointConstantMixin() = default;
 };
 
-class SetPointMinMaxMixin {
+class SetpointMinMaxMixin {
 public:
     void serializeImpl(JSON::Adapter& adapter);
 protected:
-    ~SetPointMinMaxMixin() = default;
+    ~SetpointMinMaxMixin() = default;
 };
 
 class ActuatorPinMixin {
@@ -211,11 +211,11 @@ protected:
     ~ActuatorDigitalDelegateMixin() = default;
 };
 
-class SetPointDelegateMixin: public Nameable {
+class SetpointDelegateMixin: public Nameable {
 public:
     void serializeImpl(JSON::Adapter& adapter);
 protected:
-    ~SetPointDelegateMixin() = default;
+    ~SetpointDelegateMixin() = default;
 };
 
 class ProcessValueDelegateMixin: public Nameable {

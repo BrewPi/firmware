@@ -42,8 +42,8 @@ TempSensorDisconnected * defaultTempSensor(){
     return &t;
 }
 
-SetPointConstant * defaultSetPoint(){
-    static SetPointConstant sp(temp_t::invalid());
+SetpointConstant * defaultSetpoint(){
+    static SetpointConstant sp(temp_t::invalid());
     return &sp;
 }
 

@@ -1,5 +1,5 @@
 #include "ProcessValue.h"
-#include "SetPoint.h"
+#include "Setpoint.h"
 #include "TempSensor.h"
 #include "brewblox.pb.h"
 #include "cbox/ObjectBase.h"
@@ -22,7 +22,7 @@ interfaceIdImpl<TempSensor>()
 
 template <>
 const obj_type_t
-interfaceIdImpl<SetPoint>()
+interfaceIdImpl<Setpoint>()
 {
     return BrewbloxFieldOptions_LinkType_Setpoint;
 }

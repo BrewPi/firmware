@@ -34,7 +34,7 @@
 #include "ActuatorMutexGroup.h"
 #include "ActuatorMutexDriver.h"
 #include "ActuatorMocks.h"
-#include "SetPoint.h"
+#include "Setpoint.h"
 #include "VisitorSerialize.h"
 #if BREWPI_DS2413
 #include "ActuatorOneWire.h"
@@ -45,7 +45,7 @@
 #include "TempSensorDelegate.h"
 #include "ActuatorDigitalDelegate.h"
 #include "ProcessValueDelegate.h"
-#include "SetPointDelegate.h"
+#include "SetpointDelegate.h"
 #include "SetpointSensorPair.h"
 
 #if WIRING
@@ -303,30 +303,30 @@ void ActuatorOneWireMixin::serializeImpl(JSON::Adapter & adapter)
 }
 #endif
 
-void SetPointSimpleMixin::serializeImpl(JSON::Adapter & adapter)
+void SetpointSimpleMixin::serializeImpl(JSON::Adapter & adapter)
 {
-    SetPointSimple * obj = static_cast<SetPointSimple *>(this);
+    SetpointSimple * obj = static_cast<SetpointSimple *>(this);
 
-    JSON::Class root(adapter, "SetPointSimple");
+    JSON::Class root(adapter, "SetpointSimple");
     std::string name(getName());    // get name as std string for json_writer
     JSON_E(adapter, name);
     JSON::stream(adapter, "value", obj->settings.value, false);
 }
 
-void SetPointConstantMixin::serializeImpl(JSON::Adapter & adapter)
+void SetpointConstantMixin::serializeImpl(JSON::Adapter & adapter)
 {
-    SetPointConstant * obj   = static_cast<SetPointConstant *>(this);
+    SetpointConstant * obj   = static_cast<SetpointConstant *>(this);
     temp_t             value = obj -> value;    // create non-const copy for template resolution to work
 
-    JSON::Class root(adapter, "SetPointConstant");
+    JSON::Class root(adapter, "SetpointConstant");
     JSON_T(adapter, value);
 }
 
-void SetPointMinMaxMixin::serializeImpl(JSON::Adapter & adapter)
+void SetpointMinMaxMixin::serializeImpl(JSON::Adapter & adapter)
 {
-    SetPointMinMax * obj = static_cast<SetPointMinMax *>(this);
+    SetpointMinMax * obj = static_cast<SetpointMinMax *>(this);
 
-    JSON::Class root(adapter, "SetPointMinMax");
+    JSON::Class root(adapter, "SetpointMinMax");
     JSON_OE(adapter, value);
     JSON_OE(adapter, min);
     JSON_OT(adapter, max);
@@ -365,11 +365,11 @@ void ProcessValueDelegateMixin::serializeImpl(JSON::Adapter & adapter)
     JSON_T(adapter, delegate);
 }
 
-void SetPointDelegateMixin::serializeImpl(JSON::Adapter & adapter)
+void SetpointDelegateMixin::serializeImpl(JSON::Adapter & adapter)
 {
-    SetPointDelegate * obj = static_cast<SetPointDelegate *>(this);
+    SetpointDelegate * obj = static_cast<SetpointDelegate *>(this);
 
-    JSON::Class root(adapter, "SetPointDelegate");
+    JSON::Class root(adapter, "SetpointDelegate");
     std::string name(getName());    // get name as std string for json_writer
     JSON_E(adapter, name);
     Interface & delegate = obj->delegate();

@@ -22,7 +22,7 @@
 #include "ProcessValue.h"
 //#include "ActuatorMocks.h"
 #include "TempSensorDisconnected.h"
-#include "SetPoint.h"
+#include "Setpoint.h"
 #include "SetpointSensorPair.h"
 //#include "ActuatorMutexGroupDisabled.h"
 #include "VisitorCast.h"
@@ -46,14 +46,14 @@ TempSensor * defaultTarget<TempSensor>(){
 }
 
 template<>
-SetPoint * defaultTarget<SetPoint>(){
-    static SetPointConstant sp(temp_t::invalid());
+Setpoint * defaultTarget<Setpoint>(){
+    static SetpointConstant sp(temp_t::invalid());
     return &sp;
 }
 
 template<>
 ProcessValue * defaultTarget<ProcessValue>(){
-    static SetpointSensorPair pv(*defaultTarget<TempSensor>(), *defaultTarget<SetPoint>());
+    static SetpointSensorPair pv(*defaultTarget<TempSensor>(), *defaultTarget<Setpoint>());
     return &pv;
 }
 /*
@@ -67,7 +67,7 @@ ActuatorMutexGroupInterface * defaultTarget<ActuatorMutexGroupInterface>(){
 //template ActuatorDigital* asInterface<ActuatorDigital>(Interface*);
 //template ActuatorAnalog* asInterface<ActuatorAnalog>(Interface*);
 template TempSensor* asInterface<TempSensor>(Interface*);
-template SetPoint* asInterface<SetPoint>(Interface*);
+template Setpoint* asInterface<Setpoint>(Interface*);
 //template ActuatorMutexGroupInterface* asInterface<ActuatorMutexGroupInterface>(Interface*);
 template ProcessValue* asInterface<ProcessValue>(Interface*);
 

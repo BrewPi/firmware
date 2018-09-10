@@ -255,7 +255,7 @@ void TempControl::updateConstants()
     control.coolerPid.setDerivativeFilter(cc.cooler_dfilt);
     control.beerToFridgePid.setInputFilter(cc.beer2fridge_infilt);
     control.beerToFridgePid.setDerivativeFilter(cc.beer2fridge_dfilt);
-    control.fridgeSetPointActuator.setMin(-cc.beer2fridge_pidMax);
-    control.fridgeSetPointActuator.setMax(cc.beer2fridge_pidMax);
+    control.fridgeSetpointActuator.setMin(-cc.beer2fridge_pidMax);
+    control.fridgeSetpointActuator.setMax(cc.beer2fridge_pidMax);
     control.mutex.setDeadTime(cc.mutexDeadTime * 1000);
 }

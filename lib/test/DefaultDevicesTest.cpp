@@ -35,8 +35,8 @@ BOOST_AUTO_TEST_CASE(defaultTempSensor_works_with_all_TempSensor_functions){
     BOOST_CHECK_EQUAL(sensor->read(), temp_t::invalid());
 }
 
-BOOST_AUTO_TEST_CASE(defaultSetPoint_works_for_all_SetPoint_functions){
-    SetPoint * setpoint = defaultSetPoint();
+BOOST_AUTO_TEST_CASE(defaultSetpoint_works_for_all_Setpoint_functions){
+    Setpoint * setpoint = defaultSetpoint();
 
     setpoint->write(20.0); // doesn't return anything, just should not crash
 

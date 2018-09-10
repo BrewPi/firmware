@@ -32,7 +32,7 @@
 #include "ActuatorOffset.h"
 #include "TempSensorMock.h"
 #include "Pid.h"
-#include "SetPoint.h"
+#include "Setpoint.h"
 #include "Control.h"
 #include "json_writer.h"
 
@@ -113,32 +113,32 @@ BOOST_AUTO_TEST_CASE(serialize_nested_actuators2) {
 }
 
 BOOST_AUTO_TEST_CASE(serialize_setpoint) {
-    auto sp1 = SetPointSimple();
-    auto sp2 = SetPointConstant(20.0);
-    auto sp3 = SetPointSimple(25.0625);
+    auto sp1 = SetpointSimple();
+    auto sp2 = SetpointConstant(20.0);
+    auto sp3 = SetpointSimple(25.0625);
     sp3.setName("test");
 
-    std::string json = JSON::producer<SetPoint>::convert(sp1);
-    std::string valid = R"({"kind":"SetPointSimple","name":"","value":null})";
+    std::string json = JSON::producer<Setpoint>::convert(sp1);
+    std::string valid = R"({"kind":"SetpointSimple","name":"","value":null})";
 
     BOOST_CHECK_EQUAL(valid, json);
 
-    json = JSON::producer<SetPoint>::convert(sp2);
-    valid = R"({"kind":"SetPointConstant","value":20.0000})";
+    json = JSON::producer<Setpoint>::convert(sp2);
+    valid = R"({"kind":"SetpointConstant","value":20.0000})";
 
     BOOST_CHECK_EQUAL(valid, json);
 
-    json = JSON::producer<SetPoint>::convert(sp3);
-    valid = R"({"kind":"SetPointSimple","name":"test","value":25.0625})";
+    json = JSON::producer<Setpoint>::convert(sp3);
+    valid = R"({"kind":"SetpointSimple","name":"test","value":25.0625})";
 
     BOOST_CHECK_EQUAL(valid, json);
 }
 
 BOOST_AUTO_TEST_CASE(serialize_setpointMinMax) {
-    auto sp1 = SetPointMinMax();
+    auto sp1 = SetpointMinMax();
 
-    std::string json = JSON::producer<SetPointMinMax>::convert(sp1);
-    std::string valid = R"({"kind":"SetPointMinMax","value":null,"min":-127.9922,"max":127.9961})";
+    std::string json = JSON::producer<SetpointMinMax>::convert(sp1);
+    std::string valid = R"({"kind":"SetpointMinMax","value":null,"min":-127.9922,"max":127.9961})";
 
     BOOST_CHECK_EQUAL(valid, json);
 
@@ -146,15 +146,15 @@ BOOST_AUTO_TEST_CASE(serialize_setpointMinMax) {
     sp1.setMin(-10.0);
     sp1.setMax(30.0);
 
-    json = JSON::producer<SetPointMinMax>::convert(sp1);
-    valid = R"({"kind":"SetPointMinMax","value":20.0000,"min":-10.0000,"max":30.0000})";
+    json = JSON::producer<SetpointMinMax>::convert(sp1);
+    valid = R"({"kind":"SetpointMinMax","value":20.0000,"min":-10.0000,"max":30.0000})";
 
     BOOST_CHECK_EQUAL(valid, json);
 }
 
 BOOST_AUTO_TEST_CASE(serialize_ActuatorOffset) {
-    auto sp1 = SetPointSimple();
-    auto sp2 = SetPointConstant(20.0);
+    auto sp1 = SetpointSimple();
+    auto sp2 = SetpointConstant(20.0);
     auto sens1 = TempSensorMock(20.0);
     auto sens2 = TempSensorMock(20.0);
     auto pair1 = SetpointSensorPair(sens1, sp1);
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorOffset) {
     R"(            "connected": true               )"
     R"(        },                                  )"
     R"(        "setPoint": {                       )"
-    R"(            "kind": "SetPointSimple",       )"
+    R"(            "kind": "SetpointSimple",       )"
     R"(            "name": "",                     )"
     R"(            "value": 25.0000                )"
     R"(        }                                   )"
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE(serialize_ActuatorOffset) {
     R"(            "connected": true               )"
     R"(        },                                  )"
     R"(        "setPoint": {                       )"
-    R"(            "kind": "SetPointConstant",     )"
+    R"(            "kind": "SetpointConstant",     )"
     R"(            "value": 20.0000                )"
     R"(        }                                   )"
     R"(    },                                      )"
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
     auto sensor = TempSensorMock(20.0);
     auto boolAct = ActuatorBool();
     auto pwmAct = ActuatorPwm(boolAct,4);
-    auto sp = SetPointSimple(20.0);
+    auto sp = SetpointSimple(20.0);
     auto input = SetpointSensorPair(sensor, sp);
     auto pid = Pid(input, pwmAct);
 
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE(serialize_Pid) {
     R"(            "connected": true          )"
     R"(        },                             )"
     R"(        "setPoint": {                  )"
-    R"(            "kind": "SetPointSimple",  )"
+    R"(            "kind": "SetpointSimple",  )"
     R"(            "name": "",                )"
     R"(            "value": 20.0000           )"
     R"(        }                              )"
@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
         R"(             }                                               )"
         R"(         },                                                  )"
         R"(         "setPoint": {                                       )"
-        R"(             "kind": "SetPointSimple",                       )"
+        R"(             "kind": "SetpointSimple",                       )"
         R"(             "name": "fridgeset",                            )"
         R"(             "value": null                                   )"
         R"(         }                                                   )"
@@ -417,7 +417,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
         R"(             }                                               )"
         R"(         },                                                  )"
         R"(         "setPoint": {                                       )"
-        R"(             "kind": "SetPointSimple",                       )"
+        R"(             "kind": "SetpointSimple",                       )"
         R"(             "name": "beer2set",                             )"
         R"(             "value": null                                   )"
         R"(         }                                                   )"
@@ -473,7 +473,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
         R"(             }                                               )"
         R"(         },                                                  )"
         R"(         "setPoint": {                                       )"
-        R"(             "kind": "SetPointSimple",                       )"
+        R"(             "kind": "SetpointSimple",                       )"
         R"(             "name": "fridgeset",                            )"
         R"(             "value": null                                   )"
         R"(         }                                                   )"
@@ -532,7 +532,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
         R"(             }                                               )"
         R"(         },                                                  )"
         R"(         "setPoint": {                                       )"
-        R"(             "kind": "SetPointSimple",                       )"
+        R"(             "kind": "SetpointSimple",                       )"
         R"(             "name": "beer1set",                             )"
         R"(             "value": null                                   )"
         R"(         }                                                   )"
@@ -555,7 +555,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
         R"(                 }                                           )"
         R"(             },                                              )"
         R"(             "setPoint": {                                   )"
-        R"(                 "kind": "SetPointSimple",                   )"
+        R"(                 "kind": "SetpointSimple",                   )"
         R"(                 "name": "fridgeset",                        )"
         R"(                 "value": null                               )"
         R"(             }                                               )"
@@ -572,7 +572,7 @@ BOOST_AUTO_TEST_CASE(serialize_control) {
         R"(                 }                                           )"
         R"(             },                                              )"
         R"(             "setPoint": {                                   )"
-        R"(                 "kind": "SetPointSimple",                   )"
+        R"(                 "kind": "SetpointSimple",                   )"
         R"(                 "name": "beer1set",                         )"
         R"(                 "value": null                               )"
         R"(             }                                               )"

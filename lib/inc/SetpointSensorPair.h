@@ -20,7 +20,7 @@
 #pragma once
 
 #include "ProcessValue.h"
-#include "SetPoint.h"
+#include "Setpoint.h"
 #include "TempSensor.h"
 #include <functional>
 #include <memory>
@@ -32,12 +32,12 @@ class SetpointSensorPair : public ProcessValue {
 
 private:
     const std::function<std::shared_ptr<TempSensor>()> sensor;
-    const std::function<std::shared_ptr<SetPoint>()> setpoint;
+    const std::function<std::shared_ptr<Setpoint>()> setpoint;
 
 public:
     explicit SetpointSensorPair(
         std::function<std::shared_ptr<TempSensor>()>&& _sensor,
-        std::function<std::shared_ptr<SetPoint>()>&& _setpoint)
+        std::function<std::shared_ptr<Setpoint>()>&& _setpoint)
         : sensor(_sensor)
         , setpoint(_setpoint)
     {

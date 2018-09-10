@@ -24,7 +24,7 @@
 #include "Pid.h"
 #undef protected
 
-#include "SetPoint.h"
+#include "Setpoint.h"
 #include <cstdio>
 #include <math.h>
 #include "TempSensorMock.h"
@@ -57,7 +57,7 @@ public:
     TempSensorMock sensor;
     ActuatorBool vAct;
     ActuatorPwm act;
-    SetPointSimple sp;
+    SetpointSimple sp;
     SetpointSensorPair input;
     Pid pid;
 };
@@ -257,7 +257,7 @@ BOOST_FIXTURE_TEST_CASE(integrator_windup_cooling_PI, PidTest)
 }
 
 BOOST_AUTO_TEST_CASE(error_is_invalid_and_actuator_zero_when_input_is_invalid_longer_than_10_s){
-    auto sp = SetPointSimple(25.0); // setpoint is higher than temperature, actuator will heat
+    auto sp = SetpointSimple(25.0); // setpoint is higher than temperature, actuator will heat
     auto sensor = TempSensorMock(20.0);
     auto pin = ActuatorBool();
     auto act = ActuatorPwm(pin,4);
@@ -292,10 +292,10 @@ BOOST_AUTO_TEST_CASE(error_is_invalid_and_actuator_zero_when_input_is_invalid_lo
 
 
 BOOST_AUTO_TEST_CASE(pid_driving_setpoint_actuator){
-    auto sp = SetPointSimple(25.0); // setpoint is higher than temperature, actuator will heat
+    auto sp = SetpointSimple(25.0); // setpoint is higher than temperature, actuator will heat
     auto sensor = TempSensorMock(20.0);
     auto targetSensor = TempSensorMock(20.0);
-    auto targetSetpoint = SetPointSimple(20.0);
+    auto targetSetpoint = SetpointSimple(20.0);
 
     auto input = SetpointSensorPair(sensor, sp);
     auto target = SetpointSensorPair(targetSensor, targetSetpoint);

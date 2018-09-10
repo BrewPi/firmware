@@ -18,7 +18,7 @@
  */
 
 #include "blox/OneWireBusBlock.h"
-#include "blox/SetPointSimpleBlock.h"
+#include "blox/SetpointSimpleBlock.h"
 #include "blox/SetpointSensorPairBlock.h"
 #include "blox/SysInfoBlock.h"
 #include "blox/TempSensorMockBlock.h"
@@ -85,7 +85,7 @@ makeBrewBloxBox()
 
     static cbox::ObjectFactory objectFactory = {
         {TempSensorOneWireBlock::staticTypeId(), std::make_unique<TempSensorOneWireBlock>},
-        {SetPointSimpleBlock::staticTypeId(), std::make_unique<SetPointSimpleBlock>},
+        {SetpointSimpleBlock::staticTypeId(), std::make_unique<SetpointSimpleBlock>},
         {SetpointSensorPairBlock::staticTypeId(), []() { return std::make_unique<SetpointSensorPairBlock>(objects); }},
         {TempSensorMockBlock::staticTypeId(), std::make_unique<TempSensorMockBlock>}};
 

@@ -24,14 +24,14 @@
 
 #include "../BrewBlox.h"
 #include "Temperature.h"
-#include "blox/SetPointSimpleBlock.h"
+#include "blox/SetpointSimpleBlock.h"
 #include "blox/SetpointSensorPairBlock.h"
 #include "blox/TempSensorMockBlock.h"
 #include "cbox/Box.h"
 #include "cbox/DataStream.h"
 #include "cbox/DataStreamIo.h"
 #include "cbox/Object.h"
-#include "proto/test/cpp/SetPointSimple.test.pb.h"
+#include "proto/test/cpp/SetpointSimple.test.pb.h"
 #include "proto/test/cpp/SetpointSensorPair.test.pb.h"
 #include "proto/test/cpp/TempSensorMock.test.pb.h"
 
@@ -117,11 +117,11 @@ SCENARIO("A Blox SetpointSensorPair object can be created from streamed protobuf
     inEncoder.put(commands::CREATE_OBJECT);
     inEncoder.put(cbox::obj_id_t(101));
     inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(SetPointSimpleBlock::staticTypeId());
+    inEncoder.put(SetpointSimpleBlock::staticTypeId());
 
-    blox::SetPointSimple newSetPoint;
-    newSetPoint.set_setting(to_base(temp_t(21.0)));
-    inProto.put(newSetPoint);
+    blox::SetpointSimple newSetpoint;
+    newSetpoint.set_setting(to_base(temp_t(21.0)));
+    inProto.put(newSetpoint);
 
     inEncoder.endMessage();
 
