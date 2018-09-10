@@ -22,7 +22,7 @@ namespace {
     // https://docs.google.com/presentation/d/1oTYA7wbqDL97mkbAe5F97uEYBwAGvSH5YzDYCbBAUVA/edit?usp=sharing
     namespace test_jax2018_example {
         // pi stored as s5.10 (truncated rounding)
-        constexpr auto n = cnl::from_rep<cnl::fixed_point<int16, -10>>()(int16{3216});
+        constexpr auto n = cnl::_impl::from_rep<cnl::fixed_point<int16, -10>>(int16{3216});
 #if defined(__cpp_inline_variables)
         static_assert(identical(cnl::pi<cnl::fixed_point<int16, -10>>, n));
 #endif
@@ -58,6 +58,7 @@ namespace {
                 "cnl::fixed_point::fixed_point(fraction) w.out CTAD");
     }
 
+#if !defined(TEST_WIDE_INTEGER)
     namespace test_fraction_deduced {
         constexpr auto third = cnl::make_fraction(test_int{1}, test_int{3});
 
@@ -114,6 +115,7 @@ namespace {
         constexpr auto specific = cnl::fixed_point<uint8, -7>{third};
         static_assert(identical(cnl::fixed_point<uint8, -7>{0.328125}, specific), "");
     }
+#endif  // !defined(TEST_WIDE_INTEGER)
 }
 
 #endif //CNL_TEST_FIXED_POINT_FRACTION_CTOR_H
