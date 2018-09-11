@@ -20,7 +20,7 @@ public:
         blox_SetpointSimple newData;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_SetpointSimple_fields, blox_SetpointSimple_size);
         if (result == cbox::CboxError::OK) {
-            setpoint.write(temp_t_from_base(newData.setting));
+            setpoint.write(cnl::wrap<temp_t>(newData.setting));
         }
         return result;
     }
@@ -28,7 +28,7 @@ public:
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
         blox_SetpointSimple message;
-        message.setting = to_base(setpoint.read());
+        message.setting = cnl::unwrap(setpoint.read());
 
         return streamProtoTo(out, &message, blox_SetpointSimple_fields, blox_SetpointSimple_size);
     }

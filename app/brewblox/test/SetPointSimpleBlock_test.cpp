@@ -49,7 +49,7 @@ SCENARIO("A Bloc SetpointSimpleBlock")
         CHECK(res == CboxError::OK);
 
         temp_t setting = sp.get().read();
-        CHECK(to_base(setting) == 123);
+        CHECK(cnl::unwrap(setting) == 123);
 
         AND_WHEN("a SetpointSimpleBlock streams out protobuf settings, the output matches what was sent before")
         {

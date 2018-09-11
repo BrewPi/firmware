@@ -410,13 +410,13 @@ SCENARIO("CNL fixed point formats")
 
     WHEN("from base")
     {
-        auto t1 = temp_t_from_base(256);
+        auto t1 = cnl::wrap<temp_t>(256);
         CHECK(t1 == 1.0);
     }
 
     WHEN("to base")
     {
-        auto t1 = temp_t_from_base(256);
-        CHECK(to_base(t1) == 256);
+        auto t1 = cnl::wrap<temp_t>(256);
+        CHECK(cnl::unwrap(t1) == 256);
     }
 }

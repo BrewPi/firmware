@@ -1,9 +1,10 @@
 #pragma once
 
-#include <../cnl/include/cnl/elastic_integer.h>
-#include <../cnl/include/cnl/fixed_point.h>
-#include <../cnl/include/cnl/overflow_integer.h>
-#include <../cnl/include/cnl/rounding_integer.h>
+#include "../cnl/include/cnl/elastic_integer.h"
+#include "../cnl/include/cnl/fixed_point.h"
+#include "../cnl/include/cnl/num_traits.h"
+#include "../cnl/include/cnl/overflow_integer.h"
+#include "../cnl/include/cnl/rounding_integer.h"
 
 using namespace cnl::literals;
 

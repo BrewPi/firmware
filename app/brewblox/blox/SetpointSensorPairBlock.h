@@ -40,8 +40,8 @@ public
         blox_SetpointSensorPair message;
         message.sensorId = sensor.getId();
         message.setpointId = setpoint.getId();
-        message.sensorValue = to_base(pair.value());
-        message.setpointValue = to_base(pair.setting());
+        message.sensorValue = cnl::unwrap(pair.value());
+        message.setpointValue = cnl::unwrap(pair.setting());
         message.sensorValid = sensor.valid();
         message.setpointValid = setpoint.valid();
 

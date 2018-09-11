@@ -25,7 +25,7 @@ public:
         /* if no errors occur, write new settings to wrapped object */
         if (res == cbox::CboxError::OK) {
             sensor.setAddress(OneWireAddress(newData.address));
-            sensor.setCalibration(temp_t_from_base(newData.offset));
+            sensor.setCalibration(cnl::wrap<temp_t>(newData.offset));
         }
         return res;
     }
@@ -34,9 +34,9 @@ public:
     {
         blox_TempSensorOneWire message;
         message.address = sensor.getAddress();
-        message.offset = to_base(sensor.getCalibration());
+        message.offset = cnl::unwrap(sensor.getCalibration());
         message.connected = sensor.valid();
-        message.value = to_base((sensor.read()));
+        message.value = cnl::unwrap((sensor.read()));
         return streamProtoTo(out, &message, blox_TempSensorOneWire_fields, blox_TempSensorOneWire_size);
     }
 
@@ -44,7 +44,7 @@ public:
     {
         blox_TempSensorOneWire message = blox_TempSensorOneWire_init_zero;
         message.address = sensor.getAddress();
-        message.offset = to_base(sensor.getCalibration());
+        message.offset = cnl::unwrap(sensor.getCalibration());
         return streamProtoTo(out, &message, blox_TempSensorOneWire_fields, blox_TempSensorOneWire_size);
     }
 
