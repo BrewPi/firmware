@@ -8,7 +8,7 @@ namespace cbox {
 
 template <>
 const obj_type_t
-interfaceIdImpl<ProcessValue>()
+interfaceIdImpl<ProcessValue<temp_t>>()
 {
     return BrewbloxFieldOptions_LinkType_ProcessValue;
 }

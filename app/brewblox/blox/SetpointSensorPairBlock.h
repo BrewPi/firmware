@@ -19,7 +19,7 @@ public
     SetpointSensorPairBlock(cbox::ObjectContainer& objects)
         : sensor(objects)
         , setpoint(objects)
-        , pair(sensor, setpoint)
+        , pair(setpoint, sensor)
     {
     }
 
@@ -67,9 +67,9 @@ public
         if (iface == blox_SetpointSensorPair_msgid) {
             return this; // me!
         }
-        if (iface == cbox::interfaceId<ProcessValue>()) {
+        if (iface == cbox::interfaceId<ProcessValue<temp_t>>()) {
             // return the member that implements the interface in this case
-            ProcessValue* ptr = &pair;
+            ProcessValue<temp_t>* ptr = &pair;
             return ptr;
         }
         return nullptr;

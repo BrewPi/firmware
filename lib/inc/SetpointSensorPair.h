@@ -22,6 +22,7 @@
 #include "ProcessValue.h"
 #include "Setpoint.h"
 #include "TempSensor.h"
+#include "Temperature.h"
 #include <functional>
 #include <memory>
 
