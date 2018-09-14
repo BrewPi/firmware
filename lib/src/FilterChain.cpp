@@ -37,11 +37,11 @@ FilterChain::FilterChain(
 }
 
 void
-FilterChain::add(const int64_t val, const uint8_t fractionBits)
+FilterChain::add(const int32_t& val)
 {
     uint32_t updatePeriod = 1;
     int64_t nextFilterIn = val;
-    uint8_t nextFilterInFractionBits = fractionBits;
+    uint8_t nextFilterInFractionBits = 0;
     for (auto& s : stages) {
         s.filter.add(nextFilterIn, nextFilterInFractionBits);
         updatePeriod *= s.interval; // calculate how often the next filter should be updated
@@ -114,7 +114,7 @@ FilterChain::setStepThreshold(const int32_t& threshold)
 }
 
 int32_t
-FilterChain::getStepThreshold()
+FilterChain::getStepThreshold() const
 {
     if (stages.size() < 1) {
         return std::numeric_limits<int32_t>::max();
@@ -123,7 +123,7 @@ FilterChain::getStepThreshold()
 }
 
 int32_t
-FilterChain::read(uint8_t filterNr)
+FilterChain::read(uint8_t filterNr) const
 {
     if (filterNr >= stages.size()) {
         return 0;
@@ -132,13 +132,13 @@ FilterChain::read(uint8_t filterNr)
 }
 
 int32_t
-FilterChain::read()
+FilterChain::read() const
 {
     return read(stages.size() - 1);
 }
 
 int64_t
-FilterChain::readWithNFractionBits(uint8_t filterNr, uint8_t bits)
+FilterChain::readWithNFractionBits(uint8_t filterNr, uint8_t bits) const
 {
     if (filterNr >= stages.size()) {
         return 0;
@@ -147,13 +147,13 @@ FilterChain::readWithNFractionBits(uint8_t filterNr, uint8_t bits)
 }
 
 int64_t
-FilterChain::readWithNFractionBits(uint8_t bits)
+FilterChain::readWithNFractionBits(uint8_t bits) const
 {
     return readWithNFractionBits(stages.size() - 1);
 }
 
 uint32_t
-FilterChain::minSampleInterval(uint8_t filterNr)
+FilterChain::minSampleInterval(uint8_t filterNr) const
 {
     if (filterNr > stages.size() - 1) {
         return 1;
@@ -167,13 +167,13 @@ FilterChain::minSampleInterval(uint8_t filterNr)
 }
 
 uint32_t
-FilterChain::minSampleInterval()
+FilterChain::minSampleInterval() const
 {
     return minSampleInterval(stages.size() - 1);
 }
 
 uint8_t
-FilterChain::fractionBits(uint8_t filterNr)
+FilterChain::fractionBits(uint8_t filterNr) const
 {
     if (filterNr >= stages.size()) {
         return stages.back().filter.fractionBits();
@@ -182,22 +182,19 @@ FilterChain::fractionBits(uint8_t filterNr)
 }
 
 uint8_t
-FilterChain::fractionBits()
+FilterChain::fractionBits() const
 {
     return fractionBits(stages.size() - 1);
 }
 
 int32_t
-FilterChain::readLastInput()
+FilterChain::readLastInput() const
 {
     return stages.front().filter.readLastInput();
 }
 
-int32_t
-FilterChain::readDerivative(uint8_t filterNr, int32_t scale)
+IirFilter::DerivativeResult
+FilterChain::readDerivative() const
 {
-    if (filterNr > stages.size() - 1) {
-        return 0;
-    }
-    return stages[filterNr].filter.readDerivative(scale);
+    return stages.back().filter.readDerivative();
 }

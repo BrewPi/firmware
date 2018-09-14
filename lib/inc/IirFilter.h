@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limits>
 #include <stdint.h>
 
 #define FILTER_ORDER 6
@@ -28,7 +29,7 @@ private:
     int64_t unshift(const int64_t val, uint8_t shift) const;
 
 public:
-    IirFilter(const uint8_t& idx, const int32_t& threshold);
+    IirFilter(const uint8_t& idx, const int32_t& threshold = std::numeric_limits<int32_t>::max());
     ~IirFilter();
     static FilterParams const& FilterDefinition(const uint8_t idx);
     static double const dcGain(uint8_t idx); // mainly for testing
@@ -49,10 +50,18 @@ public:
     {
         return unshift(xv[0]);
     }
-    int32_t readDerivative(int32_t scale) const
+
+    struct DerivativeResult {
+        int64_t result;
+        uint8_t fractionBits;
+    };
+
+    DerivativeResult readDerivative() const // returns unshifted derivative
     {
-        return unshift(scale * (yv[0] - yv[1]));
+
+        return {yv[0] - yv[1], fractionBits()};
     }
+
     int32_t unityStepDerivative() const
     {
         return params().maxDerivative;

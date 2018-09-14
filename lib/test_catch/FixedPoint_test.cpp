@@ -431,6 +431,9 @@ SCENARIO("CNL fixed point formats")
         auto t5 = (t1 * t1) * (t1 * t1);
         auto t4 = t2 * t2;
 
+        CHECK(t5 == 1.0);
+        CHECK(t4 == 1.0);
+
         //WARN(boost::core::demangle(typeid(t2).name()));
         //WARN(boost::core::demangle(typeid(t3).name()));
         //WARN(boost::core::demangle(typeid(t4).name()));
