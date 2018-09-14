@@ -44,7 +44,7 @@ SCENARIO("Basic test of chain of filters", "[filterchain]")
 
         GIVEN("A filter chain of filters: " + chain_str.str())
         {
-            FilterChain chain(*chainSpec, INT32_MAX, 0);
+            FilterChain chain(*chainSpec, INT32_MAX);
 
             int32_t step = 5000;
             WHEN("A step input of std::to_string(step) is applied")
@@ -63,7 +63,7 @@ SCENARIO("Basic test of chain of filters", "[filterchain]")
 
     GIVEN("A chain of filters that is not downsampled in between")
     {
-        FilterChain chain({0, 0}, {1, 1}, INT32_MAX, 0);
+        FilterChain chain({0, 0}, {1, 1}, INT32_MAX);
 
         WHEN("A step input of 100000 is applied")
         {
@@ -112,13 +112,13 @@ SCENARIO("Basic test of chain of filters", "[filterchain]")
 
         auto chains
             = std::vector<FilterChain>{
-                FilterChain({0, 0}, {2, 1}, INT32_MAX, 0),                   // 28
-                FilterChain({2, 0}, {4, 1}, INT32_MAX, 0),                   // 56
-                FilterChain({2, 2, 0}, {4, 3, 1}, INT32_MAX, 0),             // 171
-                FilterChain({2, 2, 2}, {4, 3, 1}, INT32_MAX, 0),             // 293
-                FilterChain({2, 2, 2, 0}, {4, 4, 3, 1}, INT32_MAX, 0),       // 683
-                FilterChain({2, 2, 2, 2}, {4, 4, 4, 1}, INT32_MAX, 0),       // 1343
-                FilterChain({2, 2, 2, 2, 0}, {4, 4, 4, 3, 1}, INT32_MAX, 0), // 2604
+                FilterChain({0, 0}, {2, 1}, INT32_MAX),                   // 28
+                FilterChain({2, 0}, {4, 1}, INT32_MAX),                   // 56
+                FilterChain({2, 2, 0}, {4, 3, 1}, INT32_MAX),             // 171
+                FilterChain({2, 2, 2}, {4, 3, 1}, INT32_MAX),             // 257
+                FilterChain({2, 2, 2, 0}, {4, 4, 3, 1}, INT32_MAX),       // 683
+                FilterChain({2, 2, 2, 2}, {4, 4, 4, 1}, INT32_MAX),       // 1343
+                FilterChain({2, 2, 2, 2, 0}, {4, 4, 4, 3, 1}, INT32_MAX), // 2729
             };
 
         auto findGainAtPeriod = [&sine](FilterChain& c, const uint32_t& period) {
@@ -327,9 +327,9 @@ SCENARIO("Filters in chain are ran at specified intervals", "[filterchain][inter
     {
         THEN("the output value changes value every [product of the intervals] samples")
         {
-            FilterChain chain1({0, 2, 0, 2}, INT32_MAX, 0);
+            FilterChain chain1({0, 2, 0, 2}, INT32_MAX);
             countSameValueAtOutPut(chain1, 16, 63); // last filter updates every 16 counts, cycle is 64 counts
-            FilterChain chain2({2, 2, 2}, INT32_MAX, 0);
+            FilterChain chain2({2, 2, 2}, INT32_MAX);
             countSameValueAtOutPut(chain2, 16, 63);
         }
     }
@@ -338,19 +338,19 @@ SCENARIO("Filters in chain are ran at specified intervals", "[filterchain][inter
     {
         THEN("the output value changes value every [product of the intervals] samples")
         {
-            FilterChain chain1({2, 2, 2, 2, 2, 2}, {1, 1, 1, 1, 1, 1}, INT32_MAX, 0);
+            FilterChain chain1({2, 2, 2, 2, 2, 2}, {1, 1, 1, 1, 1, 1}, INT32_MAX);
             countSameValueAtOutPut(chain1, 1, 0);
             CHECK(chain1.minSampleInterval() == 1);
 
-            FilterChain chain2({2, 2, 2, 2, 2, 2}, {2, 1, 2, 1, 1, 4}, INT32_MAX, 0);
+            FilterChain chain2({2, 2, 2, 2, 2, 2}, {2, 1, 2, 1, 1, 4}, INT32_MAX);
             countSameValueAtOutPut(chain2, 4, 15);
             CHECK(chain2.minSampleInterval() == 16);
 
-            FilterChain chain3({2, 2, 2, 2, 2, 2}, {2, 2, 2, 1, 1, 4}, INT32_MAX, 0);
+            FilterChain chain3({2, 2, 2, 2, 2, 2}, {2, 2, 2, 1, 1, 4}, INT32_MAX);
             countSameValueAtOutPut(chain3, 8, 31);
             CHECK(chain3.minSampleInterval() == 32);
 
-            FilterChain chain4({2, 2, 2, 2, 2, 2}, {4, 2, 1, 4, 2, 1}, INT32_MAX, 0);
+            FilterChain chain4({2, 2, 2, 2, 2, 2}, {4, 2, 1, 4, 2, 1}, INT32_MAX);
             countSameValueAtOutPut(chain4, 64, 63);
             CHECK(chain4.minSampleInterval() == 64);
         }
@@ -360,17 +360,17 @@ SCENARIO("Filters in chain are ran at specified intervals", "[filterchain][inter
         THEN("the output value changes value at the expected count for each subfilter")
         {
             {
-                FilterChain chain({2, 2}, {0, 0}, INT32_MAX, 0);
+                FilterChain chain({2, 2}, {0, 0}, INT32_MAX);
                 CHECK(isUpdatedAtCounts(chain, 0, std::vector<int32_t>({0, 1, 2, 3})));
                 CHECK(isUpdatedAtCounts(chain, 1, std::vector<int32_t>({3, 7, 11, 15, 19})));
             }
             {
-                FilterChain chain({2, 2}, {1, 0}, INT32_MAX, 0);
+                FilterChain chain({2, 2}, {1, 0}, INT32_MAX);
                 CHECK(isUpdatedAtCounts(chain, 0, std::vector<int32_t>({0, 1, 2, 3})));
                 CHECK(isUpdatedAtCounts(chain, 1, std::vector<int32_t>({0, 1, 2, 3})));
             }
             {
-                FilterChain chain({2, 2, 2, 2, 2, 2}, {1, 1, 1, 1, 1, 1}, INT32_MAX, 0);
+                FilterChain chain({2, 2, 2, 2, 2, 2}, {1, 1, 1, 1, 1, 1}, INT32_MAX);
                 CHECK(isUpdatedAtCounts(chain, 0, std::vector<int32_t>({0, 1, 2, 3})));
                 CHECK(isUpdatedAtCounts(chain, 1, std::vector<int32_t>({0, 1, 2, 3})));
                 CHECK(isUpdatedAtCounts(chain, 2, std::vector<int32_t>({0, 1, 2, 3})));
@@ -378,7 +378,7 @@ SCENARIO("Filters in chain are ran at specified intervals", "[filterchain][inter
                 CHECK(isUpdatedAtCounts(chain, 4, std::vector<int32_t>({0, 1, 2, 3})));
             }
             {
-                FilterChain chain({2, 2, 2, 2, 2, 2}, {2, 1, 2, 1, 1, 4}, INT32_MAX, 0);
+                FilterChain chain({2, 2, 2, 2, 2, 2}, {2, 1, 2, 1, 1, 4}, INT32_MAX);
                 CHECK(isUpdatedAtCounts(chain, 0, std::vector<int32_t>({0, 1, 2, 3})));
                 CHECK(isUpdatedAtCounts(chain, 1, std::vector<int32_t>({1, 3, 5, 7})));
                 CHECK(isUpdatedAtCounts(chain, 2, std::vector<int32_t>({1, 3, 5, 7})));
@@ -396,7 +396,7 @@ SCENARIO("Filters chain output matches manually cascaded filters", "[filterchain
     {
         THEN("the output is the same if separate filters are read with max precision")
         {
-            FilterChain chain({0, 0, 0}, {1, 1, 1}, INT32_MAX, 0);
+            FilterChain chain({0, 0, 0}, {1, 1, 1}, INT32_MAX);
             IirFilter f1(0, INT32_MAX);
             IirFilter f2(0, INT32_MAX);
             IirFilter f3(0, INT32_MAX);
@@ -413,7 +413,7 @@ SCENARIO("Filters chain output matches manually cascaded filters", "[filterchain
         }
         THEN("the output is almost same if separate filters are read with normal precision")
         {
-            FilterChain chain({0, 0, 0}, {1, 1, 1}, INT32_MAX, 0);
+            FilterChain chain({0, 0, 0}, {1, 1, 1}, INT32_MAX);
             IirFilter f1(0, INT32_MAX);
             IirFilter f2(0, INT32_MAX);
             IirFilter f3(0, INT32_MAX);

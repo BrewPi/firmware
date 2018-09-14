@@ -17,9 +17,9 @@ private:
 
     int64_t xv[FILTER_ORDER + 1];
     int64_t yv[FILTER_ORDER + 1];
+    uint8_t paramsIdx;
     int32_t fastStepThreshold;
     uint8_t fastStepsRemaining;
-    uint8_t paramsIdx;
 
     FilterParams const& params() const;
     int64_t shift(const int64_t val) const;
@@ -28,7 +28,7 @@ private:
     int64_t unshift(const int64_t val, uint8_t shift) const;
 
 public:
-    IirFilter(uint8_t idx, int32_t threshold);
+    IirFilter(const uint8_t& idx, const int32_t& threshold);
     ~IirFilter();
     static FilterParams const& FilterDefinition(const uint8_t idx);
     static double const dcGain(uint8_t idx); // mainly for testing

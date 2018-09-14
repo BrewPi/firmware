@@ -19,27 +19,30 @@
 
 #pragma once
 #include "IirFilter.h"
+#include <limits>
 #include <memory>
 #include <stdint.h>
 #include <vector>
 
 class FilterChain {
 private:
-    std::vector<IirFilter> filters;
-    std::vector<uint8_t> intervals;
+    struct Stage {
+        IirFilter filter;
+        uint8_t interval;
+    };
+    std::vector<Stage> stages;
+
     uint32_t counter = 0;
 
 public:
-    FilterChain(const std::vector<uint8_t>& params, const int32_t& stepThreshold, const uint8_t& thresholdStartIdx);
-    FilterChain(const std::vector<uint8_t>& params, const std::vector<uint8_t>& intervals, const int32_t& stepThreshold, const uint8_t& thresholdStartIdx);
+    FilterChain(const std::vector<uint8_t>& params, const int32_t& stepThreshold = std::numeric_limits<int32_t>::max());
+    FilterChain(const std::vector<uint8_t>& params, const std::vector<uint8_t>& intervals, const int32_t& stepThreshold = std::numeric_limits<int32_t>::max());
     ~FilterChain() = default;
 
     void add(const int64_t val, uint8_t fractionBits = 0);
-    void setParams(std::vector<uint8_t> params);     // set which filters are in the chain
-    std::vector<uint8_t> getParams();                // read which filters are in the chain
+    void setParams(const std::vector<uint8_t>& params, const std::vector<uint8_t>& intervals, const int32_t& stepThreshold);
     void setStepThreshold(const int32_t& threshold); // set the step detection threshold
     int32_t getStepThreshold();                      // get the step detection threshold of last filter
-    int32_t getStepThreshold(uint8_t filterNr);      // get step threshold of specific filter
     int32_t read(uint8_t filterNr);                  // read from specified filter
     int32_t read();                                  // read from last filter
     uint32_t minSampleInterval(uint8_t filterNr);    // get minimum sample interval of filter at index i
@@ -54,7 +57,7 @@ public:
     }; // return count for a specific filter
     uint8_t length()
     {
-        return filters.size();
+        return stages.size();
     };
     uint8_t fractionBits(uint8_t idx);
     uint8_t fractionBits();

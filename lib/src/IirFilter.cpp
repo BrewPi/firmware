@@ -6,14 +6,13 @@
 
 #include <stdlib.h>
 
-IirFilter::IirFilter(const uint8_t idx, const int32_t threshold)
+IirFilter::IirFilter(const uint8_t& idx, const int32_t& threshold)
     : xv{0}
     , yv{0}
+    , paramsIdx(idx)
+    , fastStepThreshold(threshold)
     , fastStepsRemaining(FILTER_ORDER + 1)
-    , // this will trigger faststep on first reads to initialise the filter
-    paramsIdx(idx)
 {
-    setStepThreshold(threshold);
 }
 
 IirFilter::~IirFilter()
@@ -25,6 +24,7 @@ IirFilter::setStepThreshold(const int32_t threshold)
 {
     fastStepThreshold = threshold;
 }
+
 int32_t
 IirFilter::getStepThreshold() const
 {
@@ -223,12 +223,10 @@ IirFilter::params() const
 void
 IirFilter::setParamsIdx(const uint8_t idx)
 {
-    // shift output history to match new filter params
-    int8_t shiftDifference = FilterDefinition(idx).shift - FilterDefinition(paramsIdx).shift;
-    for (uint8_t i = 0; i <= FILTER_ORDER; i++) {
-        yv[i] = (shiftDifference >= 0) ? yv[i] << shiftDifference : yv[i] >> (-shiftDifference);
-    }
+    // reset filter (all history same value) to prevent instability
+    int64_t oldValue = readWithNFractionBits(FilterDefinition(idx).shift);
     paramsIdx = idx;
+    reset(oldValue);
 }
 
 uint8_t
