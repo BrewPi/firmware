@@ -23,7 +23,7 @@
 
 SCENARIO("ActuatorAnalogMock test")
 {
-    WHEN("An ActuatorAnalogMock is constructed")
+    WHEN("An ActuatorAnalogMock is constructed, initial values are corrent and min/max is applied")
     {
         auto act = ActuatorAnalogMock();
 
@@ -41,6 +41,12 @@ SCENARIO("ActuatorAnalogMock test")
 
         CHECK(act.setting() == 100);
         CHECK(act.value() == 100);
+        CHECK(act.valid() == true);
+
+        act = ActuatorAnalogMock(-10, 5, 100);
+
+        CHECK(act.setting() == 5);
+        CHECK(act.value() == 5);
         CHECK(act.valid() == true);
     }
 }

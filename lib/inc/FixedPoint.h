@@ -9,6 +9,13 @@
 using namespace cnl::literals;
 
 template <int I, int F, class Narrowest>
+using elastic_fixed_point = cnl::fixed_point<
+    cnl::elastic_integer<
+        I + F,
+        Narrowest>,
+    -F>;
+
+template <int I, int F, class Narrowest>
 using safe_elastic_fixed_point = cnl::fixed_point<
     cnl::overflow_integer<
         cnl::elastic_integer<

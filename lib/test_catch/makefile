@@ -35,8 +35,7 @@ CPPSRC += $(call here_files,lib/test_catch,*.cpp)
 
 # add all lib source files
 INCLUDE_DIRS += $(SOURCE_PATH)/lib/inc
-# CPPSRC += $(call here_files,lib/src,*.cpp)
-CPPSRC += /lib/src/temperatureFormats.cpp
+CPPSRC += $(call here_files,lib/src,*.cpp)
 
 INCLUDE_DIRS += $(SOURCE_PATH)/platform
 

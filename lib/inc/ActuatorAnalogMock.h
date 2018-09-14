@@ -21,6 +21,7 @@
 
 #include "ActuatorAnalog.h"
 #include <stdint.h>
+#include "future_std.h"
 
 /*
  * A range actuator that simply remembers the set value. This is primary used for testing.
@@ -53,13 +54,7 @@ public:
 
     virtual void set(const value_t& val) override final
     {
-        if (val < minimum) {
-            currentValue = minimum;
-        } else if (val > maximum) {
-            currentValue = maximum;
-        } else {
-            currentValue = val;
-        }
+        currentValue = std::clamp(val, minimum, maximum);
     }
     virtual value_t setting() const override final
     {
