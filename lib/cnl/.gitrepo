@@ -5,8 +5,8 @@
 ;
 [subrepo]
 	remote = git@github.com:johnmcfarlane/cnl.git
-	branch = unwrap
-	commit = 187e86609aa63dac18f6764170c7ff53351789b6
-	parent = 4f481f2a236a33e15c20a0f343578fe6689d3550
+	branch = develop
+	commit = d1050cda4c2dc567532788500ab625902d949647
+	parent = 8a5aa94c8f4e6eb4a1a3effa4b9033a9a42a3d55
 	cmdver = 0.4.0
 	method = merge

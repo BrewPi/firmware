@@ -18,6 +18,10 @@ set(test_sources
         overflow/overflow.cpp
         rounding/rounding.cpp
         _impl/num_traits/max_digits.cpp
+        _impl/num_traits/adopt.cpp
+        _impl/num_traits/adopt_digits.cpp
+        _impl/num_traits/adopt_signedness.cpp
+        _impl/rounding/convert.cpp
 
         # components
         constant.cpp
@@ -54,6 +58,7 @@ set(test_sources
         rounding/fixed_point/fixed_point.cpp
 
         # composites
+        elastic/wide/wide_elastic_integer.cpp
         fixed_point/integer/fixed_point_integer.cpp
         fixed_point/overflow/fixed_point_native_integer.cpp
         fixed_point/overflow/fixed_point_trapping_integer.cpp
@@ -201,7 +206,7 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
         set(SANITIZE_ENABLED_LINKER_FLAGS "-fsanitize=undefined --rtlib=compiler-rt -lasan")
     else ()
         set(SANITIZE_ENABLED_CXX_FLAGS "-fsanitize=undefined -fsanitize-trap=undefined -fsanitize=address")
-        set(SANITIZE_ENABLED_LINKER_FLAGS "-fsanitize=address")
+        set(SANITIZE_ENABLED_LINKER_FLAGS "-fsanitize=address -rtlib=compiler-rt -lgcc_s")
     endif ()
 else ()
     set(SANITIZE_ENABLED_CXX_FLAGS "-fsanitize=undefined -fsanitize-undefined-trap-on-error -fsanitize=address")
