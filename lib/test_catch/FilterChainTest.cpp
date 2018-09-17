@@ -49,7 +49,7 @@ SCENARIO("Basic test of chain of filters")
             int32_t step = 5000;
             WHEN("A step input of std::to_string(step) is applied")
             {
-                int32_t count = 0;
+                uint32_t count = 0;
                 while (count++ < 2000) {
                     chain.add(step);
                 }
@@ -67,26 +67,7 @@ SCENARIO("Basic test of chain of filters")
 
         WHEN("A step input of 100000 is applied")
         {
-            int32_t count = 0;
-            int32_t step = 100000;
-            //char csv[] = "../test-results/test.csv";
-            ///std::ofstream csvFile(csv);
-            while (count++ < 1000) {
-                chain.add(step);
-                /*				csvFile << count;
-				for(int i = 0; i < chain.length(); i++){
-					csvFile << "," << chain.read(i);
-				}
-				csvFile << std::endl;
-*/
-            }
-            //csvFile.close();
-            CHECK_THAT(chain.read(), IsWithinOf(1, 100000));
-        }
-
-        WHEN("A step input of 100000 is applied")
-        {
-            int32_t count = 0;
+            uint32_t count = 0;
             int32_t step = 100000;
             //char csv[] = "../test-results/test.csv";
             ///std::ofstream csvFile(csv);
@@ -137,7 +118,7 @@ SCENARIO("Basic test of chain of filters")
         };
 
         auto findHalfAmplitudePeriod = [&findGainAtPeriod](FilterChain& c) {
-            int32_t period = 10;
+            uint32_t period = 10;
             while (true) {
                 auto gain = findGainAtPeriod(c, period);
                 if (gain > 0.5) {
@@ -267,16 +248,16 @@ test_frequencies(
 }
 
 void
-countSameValueAtOutPut(FilterChain& chain, int32_t sameSampleCount, int32_t counterMax)
+countSameValueAtOutPut(FilterChain& chain, uint32_t sameSampleCount, uint32_t counterMax)
 {
     std::vector<int32_t> out;
     uint32_t counterMaxSeen = 0;
-    for (int32_t i = 0; i < 1000; i++) {
+    for (uint32_t i = 0; i < 1000; i++) {
         chain.add(100000);
         out.push_back(chain.read());
         counterMaxSeen = std::max(counterMaxSeen, chain.getCount());
     }
-    int32_t count = 1;
+    uint32_t count = 1;
     auto v = out.begin() + 1;
     // skip first values to skip start where filter is near zero
     for (; *v == *(v - 1) && v != out.end(); v++) {
@@ -295,11 +276,11 @@ countSameValueAtOutPut(FilterChain& chain, int32_t sameSampleCount, int32_t coun
 }
 
 bool
-isUpdatedAtCounts(FilterChain& chain, uint8_t filterIndex, std::vector<int32_t> counts)
+isUpdatedAtCounts(FilterChain& chain, uint8_t filterIndex, std::vector<uint32_t> counts)
 {
-    std::vector<int32_t> ticks;
+    std::vector<uint32_t> ticks;
     int32_t step = 100000;
-    int32_t count = 0;
+    uint32_t count = 0;
     while (chain.getCount() != 0 || chain.read(filterIndex) < step / 2) {
         chain.add(step); // ensure the filter output is a rising slope (skip the flat start)
     }
@@ -361,30 +342,30 @@ SCENARIO("Filters in chain are ran at specified intervals", "[filterchain][inter
         {
             {
                 FilterChain chain({2, 2}, {0, 0});
-                CHECK(isUpdatedAtCounts(chain, 0, std::vector<int32_t>({0, 1, 2, 3})));
-                CHECK(isUpdatedAtCounts(chain, 1, std::vector<int32_t>({3, 7, 11, 15, 19})));
+                CHECK(isUpdatedAtCounts(chain, 0, std::vector<uint32_t>({0, 1, 2, 3})));
+                CHECK(isUpdatedAtCounts(chain, 1, std::vector<uint32_t>({3, 7, 11, 15, 19})));
             }
             {
                 FilterChain chain({2, 2}, {1, 0});
-                CHECK(isUpdatedAtCounts(chain, 0, std::vector<int32_t>({0, 1, 2, 3})));
-                CHECK(isUpdatedAtCounts(chain, 1, std::vector<int32_t>({0, 1, 2, 3})));
+                CHECK(isUpdatedAtCounts(chain, 0, std::vector<uint32_t>({0, 1, 2, 3})));
+                CHECK(isUpdatedAtCounts(chain, 1, std::vector<uint32_t>({0, 1, 2, 3})));
             }
             {
                 FilterChain chain({2, 2, 2, 2, 2, 2}, {1, 1, 1, 1, 1, 1});
-                CHECK(isUpdatedAtCounts(chain, 0, std::vector<int32_t>({0, 1, 2, 3})));
-                CHECK(isUpdatedAtCounts(chain, 1, std::vector<int32_t>({0, 1, 2, 3})));
-                CHECK(isUpdatedAtCounts(chain, 2, std::vector<int32_t>({0, 1, 2, 3})));
-                CHECK(isUpdatedAtCounts(chain, 3, std::vector<int32_t>({0, 1, 2, 3})));
-                CHECK(isUpdatedAtCounts(chain, 4, std::vector<int32_t>({0, 1, 2, 3})));
+                CHECK(isUpdatedAtCounts(chain, 0, std::vector<uint32_t>({0, 1, 2, 3})));
+                CHECK(isUpdatedAtCounts(chain, 1, std::vector<uint32_t>({0, 1, 2, 3})));
+                CHECK(isUpdatedAtCounts(chain, 2, std::vector<uint32_t>({0, 1, 2, 3})));
+                CHECK(isUpdatedAtCounts(chain, 3, std::vector<uint32_t>({0, 1, 2, 3})));
+                CHECK(isUpdatedAtCounts(chain, 4, std::vector<uint32_t>({0, 1, 2, 3})));
             }
             {
                 FilterChain chain({2, 2, 2, 2, 2, 2}, {2, 1, 2, 1, 1, 4});
-                CHECK(isUpdatedAtCounts(chain, 0, std::vector<int32_t>({0, 1, 2, 3})));
-                CHECK(isUpdatedAtCounts(chain, 1, std::vector<int32_t>({1, 3, 5, 7})));
-                CHECK(isUpdatedAtCounts(chain, 2, std::vector<int32_t>({1, 3, 5, 7})));
-                CHECK(isUpdatedAtCounts(chain, 3, std::vector<int32_t>({3, 7, 11, 15})));
-                CHECK(isUpdatedAtCounts(chain, 4, std::vector<int32_t>({3, 7, 11, 15})));
-                CHECK(isUpdatedAtCounts(chain, 5, std::vector<int32_t>({3, 7, 11, 15})));
+                CHECK(isUpdatedAtCounts(chain, 0, std::vector<uint32_t>({0, 1, 2, 3})));
+                CHECK(isUpdatedAtCounts(chain, 1, std::vector<uint32_t>({1, 3, 5, 7})));
+                CHECK(isUpdatedAtCounts(chain, 2, std::vector<uint32_t>({1, 3, 5, 7})));
+                CHECK(isUpdatedAtCounts(chain, 3, std::vector<uint32_t>({3, 7, 11, 15})));
+                CHECK(isUpdatedAtCounts(chain, 4, std::vector<uint32_t>({3, 7, 11, 15})));
+                CHECK(isUpdatedAtCounts(chain, 5, std::vector<uint32_t>({3, 7, 11, 15})));
             }
         }
     }
@@ -401,8 +382,8 @@ SCENARIO("Filters chain output matches manually cascaded filters", "[filterchain
             IirFilter f2(0);
             IirFilter f3(0);
 
-            for (int32_t i = 0; i < 1000; i++) {
-                int32_t v = 100000;
+            for (uint32_t i = 0; i < 1000; i++) {
+                uint32_t v = 100000;
                 chain.add(v);
                 f1.add(v);
                 f2.add(f1.readWithNFractionBits(f1.fractionBits()), f1.fractionBits());
@@ -418,8 +399,8 @@ SCENARIO("Filters chain output matches manually cascaded filters", "[filterchain
             IirFilter f2(0);
             IirFilter f3(0);
 
-            for (int32_t i = 0; i < 1000; i++) {
-                int32_t v = 100000;
+            for (uint32_t i = 0; i < 1000; i++) {
+                uint32_t v = 100000;
                 chain.add(v);
                 f1.add(v);
                 f2.add(f1.read());

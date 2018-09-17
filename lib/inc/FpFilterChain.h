@@ -27,17 +27,33 @@ class FpFilterChain {
 private:
     FilterChain chain;
 
-    /*
-    FilterChain({0, 0}, {2, 1}, INT32_MAX, 0),                       // 28
-        FilterChain({2, 0}, {4, 1}, INT32_MAX, 0),                   // 56
-        FilterChain({2, 2, 0}, {4, 3, 1}, INT32_MAX, 0),             // 171
-        FilterChain({2, 2, 2}, {4, 3, 1}, INT32_MAX, 0),             // 257
-        FilterChain({2, 2, 2, 0}, {4, 4, 3, 1}, INT32_MAX, 0),       // 683
-        FilterChain({2, 2, 2, 2}, {4, 4, 4, 1}, INT32_MAX, 0),       // 1343
-        FilterChain({2, 2, 2, 2, 0}, {4, 4, 4, 3, 1}, INT32_MAX, 0), // 2729
-    */
+    struct FilterSpec {
+        const std::vector<uint8_t> paramIdxs;
+        const std::vector<uint8_t> intervals;
+    };
+
+    static FilterChain predefinedFilter(const uint8_t& specIdx)
+    {
+        static const FilterSpec predefinedFilters[] = {
+            {{0, 0}, {2, 1}},                   // 28
+            {{2, 0}, {4, 1}},                   // 56
+            {{2, 2, 0}, {4, 3, 1}},             // 171
+            {{2, 2, 2}, {4, 3, 1}},             // 257
+            {{2, 2, 2, 0}, {4, 4, 3, 1}},       // 683
+            {{2, 2, 2, 2}, {4, 4, 4, 1}},       // 1343
+            {{2, 2, 2, 2, 0}, {4, 4, 4, 3, 1}}, // 2729
+        };
+        auto idx = (specIdx < 7) ? specIdx : 0;
+        return FilterChain(predefinedFilters(idx).paramIdxs, predefinedFilters(idx).intervals);
+    }
+
 public:
     using value_type = T;
+
+    FpFilterChain(const uint8_t& specIdx)
+        : chain(predefinedFilter(specIdx))
+    {
+    }
 
     FpFilterChain(const std::vector<uint8_t>& params)
         : chain(params)
@@ -48,6 +64,12 @@ public:
         : chain(params, cnl::unwrap(stepThreshold))
     {
     }
+
+    FpFilterChain(const std::vector<uint8_t>& params, const std::vector<uint8_t>& intervals)
+        : chain(params, intervals)
+    {
+    }
+
     FpFilterChain(const std::vector<uint8_t>& params, const std::vector<uint8_t>& intervals, const value_type& stepThreshold)
         : chain(params, intervals, cnl::unwrap(stepThreshold))
     {
@@ -76,10 +98,21 @@ public:
     {
         return cnl::wrap<value_type>(chain.read());
     }
+
+    value_type read(uint8_t filterNr) const
+    {
+        return cnl::wrap<value_type>(chain.read(filterNr));
+    }
+
     value_type readLastInput()
     {
         return cnl::wrap<value_type>(chain.readLastInput());
     }
+
+    uint8_t length() const
+    {
+        return chain.length();
+    };
 
     // get the derivative from the chain with max precision and convert to the requested FP precision
     template <typename U>
@@ -91,5 +124,8 @@ public:
         return U(rawResult);
     }
 
-    void reset(const int32_t& value);
+    void reset(const value_type& value)
+    {
+        chain.reset(cnl::unwrap(value));
+    }
 };

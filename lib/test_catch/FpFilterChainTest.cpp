@@ -19,7 +19,7 @@
 
 #include "catch.hpp"
 
-//#include "../inc/future_std.h"
+#include "../inc/future_std.h"
 #include "FpFilterChain.h"
 #include "TestMatchers.hpp"
 //#include <algorithm> // std::copy
@@ -28,9 +28,11 @@
 #include <iostream>
 //#include <iterator> // std::ostream_iterator
 //#include <math.h>
-#include "../inc/Temperature.h"
+//#include "../inc/Temperature.h"
 #include <sstream>
 #include <vector>
+
+using temp_t = safe_elastic_fixed_point<11, 12, int32_t>;
 
 SCENARIO("Fixed point filterchain using temp_t")
 {
@@ -50,7 +52,7 @@ SCENARIO("Fixed point filterchain using temp_t")
             temp_t step = 10;
             WHEN("A step input of std::to_string(step) is applied")
             {
-                int32_t count = 0;
+                uint32_t count = 0;
                 while (count++ < 2000) {
                     chain.add(step);
                 }
@@ -61,16 +63,15 @@ SCENARIO("Fixed point filterchain using temp_t")
             }
         }
     }
-}
-#if 0
+
     GIVEN("A chain of filters that is not downsampled in between")
     {
-        FilterChain chain({0, 0}, {1, 1}, INT32_MAX);
+        auto chain = FpFilterChain<temp_t>({0, 0}, std::vector<uint8_t>{1, 1});
 
-        WHEN("A step input of 100000 is applied")
+        WHEN("A step input of 100 is applied")
         {
-            int32_t count = 0;
-            int32_t step = 100000;
+            uint32_t count = 0;
+            temp_t step = 100;
             //char csv[] = "../test-results/test.csv";
             ///std::ofstream csvFile(csv);
             while (count++ < 1000) {
@@ -83,66 +84,48 @@ SCENARIO("Fixed point filterchain using temp_t")
 */
             }
             //csvFile.close();
-            CHECK_THAT(chain.read(), IsWithinOf(1, 100000));
-        }
-
-        WHEN("A step input of 100000 is applied")
-        {
-            int32_t count = 0;
-            int32_t step = 100000;
-            //char csv[] = "../test-results/test.csv";
-            ///std::ofstream csvFile(csv);
-            while (count++ < 1000) {
-                chain.add(step);
-                /*				csvFile << count;
-				for(int i = 0; i < chain.length(); i++){
-					csvFile << "," << chain.read(i);
-				}
-				csvFile << std::endl;
-*/
-            }
-            //csvFile.close();
-            CHECK_THAT(chain.read(), IsWithinOf(1, 100000));
+            CHECK_THAT(chain.read(), IsWithinOf(temp_t(0.01), temp_t(100.0)));
         }
     }
 
     WHEN("Some filter chains are excited with a sine wave")
     {
-        auto sine = [](const uint32_t& t, const uint32_t& period, const int32_t& ampl) {
-            return ampl * sin(2.0 * M_PI * t / period);
+        auto sine = [](const uint32_t& t, const uint32_t& period, const temp_t& ampl) {
+            auto result = ampl * temp_t(sin(2.0 * M_PI * t / period));
+            return temp_t(result);
         };
 
         auto chains
-            = std::vector<FilterChain>{
-                FilterChain({0, 0}, {2, 1}, INT32_MAX),                   // 28
-                FilterChain({2, 0}, {4, 1}, INT32_MAX),                   // 56
-                FilterChain({2, 2, 0}, {4, 3, 1}, INT32_MAX),             // 171
-                FilterChain({2, 2, 2}, {4, 3, 1}, INT32_MAX),             // 257
-                FilterChain({2, 2, 2, 0}, {4, 4, 3, 1}, INT32_MAX),       // 683
-                FilterChain({2, 2, 2, 2}, {4, 4, 4, 1}, INT32_MAX),       // 1343
-                FilterChain({2, 2, 2, 2, 0}, {4, 4, 4, 3, 1}, INT32_MAX), // 2729
+            = std::vector<FpFilterChain<temp_t>>{
+                FpFilterChain<temp_t>({0, 0}, std::vector<uint8_t>{2, 1}), // 28
+                FpFilterChain<temp_t>({2, 0}, std::vector<uint8_t>{4, 1}), // 56
+                FpFilterChain<temp_t>({2, 2, 0}, {4, 3, 1}),               // 171
+                FpFilterChain<temp_t>({2, 2, 2}, {4, 3, 1}),               // 257
+                FpFilterChain<temp_t>({2, 2, 2, 0}, {4, 4, 3, 1}),         // 683
+                FpFilterChain<temp_t>({2, 2, 2, 2}, {4, 4, 4, 1}),         // 1343
+                FpFilterChain<temp_t>({2, 2, 2, 2, 0}, {4, 4, 4, 3, 1}),   // 2729
             };
 
-        auto findGainAtPeriod = [&sine](FilterChain& c, const uint32_t& period) {
-            int32_t amplIn = 100000;
-            int32_t max = 0;
+        auto findGainAtPeriod = [&sine](FpFilterChain<temp_t>& c, const uint32_t& period) {
+            const temp_t amplIn = 10;
+            temp_t max = 0;
             c.reset(0);
             for (uint32_t t = 0; t < period * 10; ++t) {
-                int32_t wave = sine(t, period, amplIn);
+                auto wave = sine(t, period, amplIn);
                 c.add(wave);
-                int32_t filterOutput = c.read();
+                auto filterOutput = c.read();
                 if (t > 4 * period) { // ignore start
-                    max = std::max(std::abs(filterOutput), max);
+                    max = std::max(cnl::abs(filterOutput), max);
                 }
             }
             return double(max) / amplIn;
         };
 
-        auto findHalfAmplitudePeriod = [&findGainAtPeriod](FilterChain& c) {
-            int32_t period = 10;
+        auto findHalfAmplitudePeriod = [&findGainAtPeriod](FpFilterChain<temp_t>& c) {
+            uint32_t period = 10;
             while (true) {
                 auto gain = findGainAtPeriod(c, period);
-                if (gain > 0.5) {
+                if (gain > temp_t(0.5)) {
                     std::cout << "\n"
                               << "Period of square wave that is decreased by 0.5: "
                               << period << "\n";
@@ -189,14 +172,14 @@ SCENARIO("Fixed point filterchain using temp_t")
 
         AND_WHEN("The step threshold is set, a slow filter will respond much quicker to a step input")
         {
-            auto findStepResponseDelay = [](FilterChain& c, const int32_t& stepAmpl) {
+            auto findStepResponseDelay = [](FpFilterChain<temp_t>& c, const temp_t& stepAmpl) {
                 c.reset(0);
                 uint32_t t = 0;
                 uint32_t stagesFinished = 0;
                 for (t = 0; t < 10000 && stagesFinished < c.length(); ++t) {
                     c.add(stepAmpl);
                     for (uint8_t i = 0; i < c.length(); ++i) {
-                        int32_t filterOutput = c.read(i);
+                        auto filterOutput = c.read(i);
                         if (filterOutput >= stepAmpl / 2 && i >= stagesFinished) { // ignore start
                             std::cout << "stage " << +i << " max at " << t << "\t";
                             ++stagesFinished;
@@ -215,221 +198,3 @@ SCENARIO("Fixed point filterchain using temp_t")
         }
     }
 }
-
-void
-test_frequencies(
-    FilterChain& chain,
-    std::vector<double> freq,
-    std::vector<double> ampl,
-    double input_freq,
-    double max_output_min,
-    double max_output_max,
-    char* csv = nullptr)
-{
-
-    double t = 0;
-    double dt = double(1.0) / double(input_freq);
-    double max_period = 1.0 / *std::min_element(freq.begin(), freq.end());
-    double t_end = std::max(10.0 * max_period, 10.0 * chain.minSampleInterval() * dt);
-    double sensor = 0;
-    double max = 0;
-    double t_max = 0;
-
-    std::ofstream csvFile(csv);
-
-    for (t = 0; t < t_end; t += dt) {
-        REQUIRE(freq.size() == ampl.size());
-        sensor = 0.0;
-        auto f = freq.begin();
-        auto a = ampl.begin();
-        for (; f < freq.end(); f++, a++) {
-            sensor += *a * sin(*f * 2.0 * M_PI * t);
-        }
-        int32_t sensor_int = sensor;
-        chain.add(sensor_int);
-        int32_t output = chain.read();
-        double abs_output = std::abs(output);
-        if (t > 0.7 * t_end && abs_output > max) {
-            max = abs_output;
-            t_max = t;
-        }
-        csvFile << t << "," << sensor;
-
-        for (int i = 0; i < chain.length(); i++) {
-            csvFile << "," << chain.read(i);
-        }
-        csvFile << std::endl;
-    }
-    csvFile.close();
-
-    CAPTURE(t_max);
-    CAPTURE(freq);
-    CHECK(max >= max_output_min);
-    CHECK(max <= max_output_max);
-}
-
-void
-countSameValueAtOutPut(FilterChain& chain, int32_t sameSampleCount, int32_t counterMax)
-{
-    std::vector<int32_t> out;
-    uint32_t counterMaxSeen = 0;
-    for (int32_t i = 0; i < 1000; i++) {
-        chain.add(100000);
-        out.push_back(chain.read());
-        counterMaxSeen = std::max(counterMaxSeen, chain.getCount());
-    }
-    int32_t count = 1;
-    auto v = out.begin() + 1;
-    // skip first values to skip start where filter is near zero
-    for (; *v == *(v - 1) && v != out.end(); v++) {
-    }
-    for (v++; *v == *(v - 1) && v != out.end(); v++) {
-    }
-    for (v++; *v == *(v - 1) && v != out.end(); v++) {
-    }
-    for (v++; *v == *(v - 1) && v != out.end(); v++) {
-        count++;
-    };
-    std::vector<int32_t> relevantOutput = std::vector<int32_t>(out.begin(), v);
-    CAPTURE(relevantOutput);
-    CHECK(count == sameSampleCount);
-    CHECK(counterMaxSeen == counterMax);
-}
-
-bool
-isUpdatedAtCounts(FilterChain& chain, uint8_t filterIndex, std::vector<int32_t> counts)
-{
-    std::vector<int32_t> ticks;
-    int32_t step = 100000;
-    int32_t count = 0;
-    while (chain.getCount() != 0 || chain.read(filterIndex) < step / 2) {
-        chain.add(step); // ensure the filter output is a rising slope (skip the flat start)
-    }
-    while (ticks.size() < counts.size() && count < 10000) {
-        int32_t previousFilterVal = chain.read(filterIndex);
-        chain.add(step);
-        int32_t filterVal = chain.read(filterIndex);
-        if (filterVal != previousFilterVal) {
-            ticks.push_back(count);
-        }
-        ++count;
-    }
-    while (chain.getCount() != 0) {
-        chain.add(step); // exit with count at zero again, to not offset next test
-    }
-
-    CHECK(ticks == counts);
-    return ticks == counts;
-}
-
-SCENARIO("Filters in chain are ran at specified intervals", "[filterchain][intervals]")
-{
-
-    WHEN("The sample rates are used from the filter spec")
-    {
-        THEN("the output value changes value every [product of the intervals] samples")
-        {
-            FilterChain chain1({0, 2, 0, 2}, INT32_MAX);
-            countSameValueAtOutPut(chain1, 16, 63); // last filter updates every 16 counts, cycle is 64 counts
-            FilterChain chain2({2, 2, 2}, INT32_MAX);
-            countSameValueAtOutPut(chain2, 16, 63);
-        }
-    }
-
-    WHEN("The sample rates are specified")
-    {
-        THEN("the output value changes value every [product of the intervals] samples")
-        {
-            FilterChain chain1({2, 2, 2, 2, 2, 2}, {1, 1, 1, 1, 1, 1}, INT32_MAX);
-            countSameValueAtOutPut(chain1, 1, 0);
-            CHECK(chain1.minSampleInterval() == 1);
-
-            FilterChain chain2({2, 2, 2, 2, 2, 2}, {2, 1, 2, 1, 1, 4}, INT32_MAX);
-            countSameValueAtOutPut(chain2, 4, 15);
-            CHECK(chain2.minSampleInterval() == 16);
-
-            FilterChain chain3({2, 2, 2, 2, 2, 2}, {2, 2, 2, 1, 1, 4}, INT32_MAX);
-            countSameValueAtOutPut(chain3, 8, 31);
-            CHECK(chain3.minSampleInterval() == 32);
-
-            FilterChain chain4({2, 2, 2, 2, 2, 2}, {4, 2, 1, 4, 2, 1}, INT32_MAX);
-            countSameValueAtOutPut(chain4, 64, 63);
-            CHECK(chain4.minSampleInterval() == 64);
-        }
-    }
-    WHEN("The sample rates are specified")
-    {
-        THEN("the output value changes value at the expected count for each subfilter")
-        {
-            {
-                FilterChain chain({2, 2}, {0, 0}, INT32_MAX);
-                CHECK(isUpdatedAtCounts(chain, 0, std::vector<int32_t>({0, 1, 2, 3})));
-                CHECK(isUpdatedAtCounts(chain, 1, std::vector<int32_t>({3, 7, 11, 15, 19})));
-            }
-            {
-                FilterChain chain({2, 2}, {1, 0}, INT32_MAX);
-                CHECK(isUpdatedAtCounts(chain, 0, std::vector<int32_t>({0, 1, 2, 3})));
-                CHECK(isUpdatedAtCounts(chain, 1, std::vector<int32_t>({0, 1, 2, 3})));
-            }
-            {
-                FilterChain chain({2, 2, 2, 2, 2, 2}, {1, 1, 1, 1, 1, 1}, INT32_MAX);
-                CHECK(isUpdatedAtCounts(chain, 0, std::vector<int32_t>({0, 1, 2, 3})));
-                CHECK(isUpdatedAtCounts(chain, 1, std::vector<int32_t>({0, 1, 2, 3})));
-                CHECK(isUpdatedAtCounts(chain, 2, std::vector<int32_t>({0, 1, 2, 3})));
-                CHECK(isUpdatedAtCounts(chain, 3, std::vector<int32_t>({0, 1, 2, 3})));
-                CHECK(isUpdatedAtCounts(chain, 4, std::vector<int32_t>({0, 1, 2, 3})));
-            }
-            {
-                FilterChain chain({2, 2, 2, 2, 2, 2}, {2, 1, 2, 1, 1, 4}, INT32_MAX);
-                CHECK(isUpdatedAtCounts(chain, 0, std::vector<int32_t>({0, 1, 2, 3})));
-                CHECK(isUpdatedAtCounts(chain, 1, std::vector<int32_t>({1, 3, 5, 7})));
-                CHECK(isUpdatedAtCounts(chain, 2, std::vector<int32_t>({1, 3, 5, 7})));
-                CHECK(isUpdatedAtCounts(chain, 3, std::vector<int32_t>({3, 7, 11, 15})));
-                CHECK(isUpdatedAtCounts(chain, 4, std::vector<int32_t>({3, 7, 11, 15})));
-                CHECK(isUpdatedAtCounts(chain, 5, std::vector<int32_t>({3, 7, 11, 15})));
-            }
-        }
-    }
-}
-
-SCENARIO("Filters chain output matches manually cascaded filters", "[filterchain][match]")
-{
-    WHEN("A filter chain is set up the same way as 2 normal filters after each other")
-    {
-        THEN("the output is the same if separate filters are read with max precision")
-        {
-            FilterChain chain({0, 0, 0}, {1, 1, 1}, INT32_MAX);
-            IirFilter f1(0, INT32_MAX);
-            IirFilter f2(0, INT32_MAX);
-            IirFilter f3(0, INT32_MAX);
-
-            for (int32_t i = 0; i < 1000; i++) {
-                int32_t v = 100000;
-                chain.add(v);
-                f1.add(v);
-                f2.add(f1.readWithNFractionBits(f1.fractionBits()), f1.fractionBits());
-                f3.add(f2.readWithNFractionBits(f2.fractionBits()), f2.fractionBits());
-                CAPTURE(i);
-                REQUIRE(chain.read() == f3.read());
-            }
-        }
-        THEN("the output is almost same if separate filters are read with normal precision")
-        {
-            FilterChain chain({0, 0, 0}, {1, 1, 1}, INT32_MAX);
-            IirFilter f1(0, INT32_MAX);
-            IirFilter f2(0, INT32_MAX);
-            IirFilter f3(0, INT32_MAX);
-
-            for (int32_t i = 0; i < 1000; i++) {
-                int32_t v = 100000;
-                chain.add(v);
-                f1.add(v);
-                f2.add(f1.read());
-                f3.add(f2.read());
-                CAPTURE(i);
-                REQUIRE_THAT(chain.read(), IsWithinOf(50, f3.read()));
-            }
-        }
-    }
-}
-#endif
