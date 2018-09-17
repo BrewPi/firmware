@@ -30,7 +30,6 @@
  * A process value has a setting and an current value
  */
 class SetpointSensorPair : public ProcessValue<temp_t> {
-
 private:
     const std::function<std::shared_ptr<Setpoint>()> setpoint;
     const std::function<std::shared_ptr<TempSensor>()> sensor;

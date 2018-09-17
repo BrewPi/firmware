@@ -22,6 +22,4 @@
 #include "FixedPoint.h"
 #include <cstdint>
 
-using temp_t = safe_elastic_fixed_point<7, 8, int16_t>;
-using temp_precise_t = safe_elastic_fixed_point<7, 23, int32_t>;
-using temp_wide_t = safe_elastic_fixed_point<23, 8, int32_t>;
+using temp_t = safe_elastic_fixed_point<11, 12, int32_t>;

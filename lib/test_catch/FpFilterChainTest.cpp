@@ -19,16 +19,11 @@
 
 #include "catch.hpp"
 
+#include "../inc/Temperature.h"
 #include "../inc/future_std.h"
 #include "FpFilterChain.h"
 #include "TestMatchers.hpp"
-//#include <algorithm> // std::copy
-//#include <cassert>
-#include <fstream>
 #include <iostream>
-//#include <iterator> // std::ostream_iterator
-//#include <math.h>
-//#include "../inc/Temperature.h"
 #include <sstream>
 #include <vector>
 

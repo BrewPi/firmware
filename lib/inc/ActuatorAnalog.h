@@ -23,7 +23,7 @@
 #include "ProcessValue.h"
 #include <cstdint>
 
-using ActuatorAnalogValue = safe_elastic_fixed_point<7, 8, int16_t>;
+using ActuatorAnalogValue = safe_elastic_fixed_point<11, 12, int32_t>;
 
 /*
  * An ActuatorAnalog has a range output between min and max

@@ -32,9 +32,9 @@ private:
         const std::vector<uint8_t> intervals;
     };
 
-    static FilterChain predefinedFilter(const uint8_t& specIdx)
+    static constexpr FilterSpec predefinedFilter(const uint8_t& specIdx)
     {
-        static const FilterSpec predefinedFilters[] = {
+        FilterSpec predefinedFilterSpecs[] = {
             {{0, 0}, {2, 1}},                   // 28
             {{2, 0}, {4, 1}},                   // 56
             {{2, 2, 0}, {4, 3, 1}},             // 171
@@ -44,14 +44,14 @@ private:
             {{2, 2, 2, 2, 0}, {4, 4, 4, 3, 1}}, // 2729
         };
         auto idx = (specIdx < 7) ? specIdx : 0;
-        return FilterChain(predefinedFilters(idx).paramIdxs, predefinedFilters(idx).intervals);
+        return predefinedFilterSpecs[idx];
     }
 
 public:
     using value_type = T;
 
     FpFilterChain(const uint8_t& specIdx)
-        : chain(predefinedFilter(specIdx))
+        : chain(predefinedFilter(specIdx).paramIdxs, predefinedFilter(specIdx).intervals)
     {
     }
 
@@ -82,10 +82,18 @@ public:
         chain.add(cnl::unwrap(val));
     }
     void add(const int32_t& val);
+
     void setParams(const std::vector<uint8_t>& params, const std::vector<uint8_t>& intervals, const value_type& stepThreshold)
     {
         chain.setParams(params, intervals, cnl::unwrap(stepThreshold));
     }
+
+    void setParams(const uint8_t& choice, const value_type& stepThreshold)
+    {
+        auto spec = predefinedFilter(choice);
+        chain.setParams(spec.paramIdxs, spec.intervals, cnl::unwrap(stepThreshold));
+    }
+
     void setStepThreshold(const value_type& stepThreshold)
     {
         chain.setStepThreshold(cnl::unwrap(stepThreshold));
