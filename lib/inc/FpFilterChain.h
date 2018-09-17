@@ -116,12 +116,18 @@ public:
 
     // get the derivative from the chain with max precision and convert to the requested FP precision
     template <typename U>
-    auto readDerivative()
+    U readDerivative(uint8_t filterIdx = 0)
     {
-        auto derivative = chain.readDerivative();
-
-        int64_t rawResult = (-U::exponent >= derivative.fractionBits) ? derivative.result << (-U::exponent - derivative.fractionBits) : derivative.result << (derivative.fractionBits + U::exponent);
-        return U(rawResult);
+        auto derivative = chain.readDerivative(filterIdx);
+        uint8_t destFractionBits = -U::exponent;
+        uint8_t filterFactionBits = -T::exponent + derivative.fractionBits;
+        int64_t result;
+        if (destFractionBits >= filterFactionBits) {
+            result = derivative.result << (destFractionBits - filterFactionBits);
+        } else {
+            result = derivative.result >> (filterFactionBits - destFractionBits);
+        }
+        return cnl::wrap<U>(result);
     }
 
     void reset(const value_type& value)

@@ -194,7 +194,7 @@ FilterChain::readLastInput() const
 }
 
 IirFilter::DerivativeResult
-FilterChain::readDerivative() const
+FilterChain::readDerivative(uint8_t filterIdx) const
 {
-    return stages.back().filter.readDerivative();
+    return (filterIdx < length()) ? stages[filterIdx].filter.readDerivative() : IirFilter::DerivativeResult{0, 0};
 }

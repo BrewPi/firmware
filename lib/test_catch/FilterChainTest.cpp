@@ -177,7 +177,7 @@ SCENARIO("Basic test of chain of filters")
                     for (uint8_t i = 0; i < c.length(); ++i) {
                         int32_t filterOutput = c.read(i);
                         if (filterOutput >= stepAmpl / 2 && i >= stagesFinished) { // ignore start
-                            std::cout << "stage " << +i << " max at " << t << "\t";
+                            std::cout << "stage " << +i << " at 50\% at t=" << t << "\t\t";
                             ++stagesFinished;
                         }
                     }

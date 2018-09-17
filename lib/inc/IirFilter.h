@@ -58,7 +58,6 @@ public:
 
     DerivativeResult readDerivative() const // returns unshifted derivative
     {
-
         return {yv[0] - yv[1], fractionBits()};
     }
 
@@ -66,6 +65,8 @@ public:
     {
         return params().maxDerivative;
     }
-    void reset(const int32_t& value);
-    void resetInternal(const int64_t& value);
+    void
+    reset(const int32_t& value);
+    void
+    resetInternal(const int64_t& value);
 };

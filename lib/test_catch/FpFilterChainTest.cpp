@@ -125,7 +125,7 @@ SCENARIO("Fixed point filterchain using temp_t")
             uint32_t period = 10;
             while (true) {
                 auto gain = findGainAtPeriod(c, period);
-                if (gain > temp_t(0.5)) {
+                if (gain >= temp_t(0.5)) {
                     std::cout << "\n"
                               << "Period of square wave that is decreased by 0.5: "
                               << period << "\n";
@@ -165,7 +165,7 @@ SCENARIO("Fixed point filterchain using temp_t")
             CHECK(findGainAtPeriod(chains[5], 600) < 0.1);
             CHECK(findGainAtPeriod(chains[5], 2400) > 0.8);
 
-            CHECK(findHalfAmplitudePeriod(chains[6]) == 2729);
+            CHECK(findHalfAmplitudePeriod(chains[6]) == 2730);
             CHECK(findGainAtPeriod(chains[6], 1200) < 0.1);
             CHECK(findGainAtPeriod(chains[6], 4800) > 0.8);
         }
@@ -181,7 +181,7 @@ SCENARIO("Fixed point filterchain using temp_t")
                     for (uint8_t i = 0; i < c.length(); ++i) {
                         auto filterOutput = c.read(i);
                         if (filterOutput >= stepAmpl / 2 && i >= stagesFinished) { // ignore start
-                            std::cout << "stage " << +i << " max at " << t << "\t";
+                            std::cout << "stage " << +i << " at 50\% at t=" << t << ", derivative:" << c.readDerivative<temp_t>(i) << "\n";
                             ++stagesFinished;
                         }
                     }
@@ -190,11 +190,13 @@ SCENARIO("Fixed point filterchain using temp_t")
                 return t;
             };
 
-            CHECK(findStepResponseDelay(chains[6], 100000) == 2496);
-            CHECK(findStepResponseDelay(chains[6], 900) == 2496);
-            chains[6].setStepThreshold(1000);
-            CHECK(findStepResponseDelay(chains[6], 100000) < 400);
-            CHECK(findStepResponseDelay(chains[6], 900) == 2496);
+            CHECK(findStepResponseDelay(chains[6], temp_t(100)) == 2496);
+            CHECK(findStepResponseDelay(chains[6], temp_t(10)) == 2496);
+            CHECK(findStepResponseDelay(chains[6], temp_t(0.9)) == 2496);
+            chains[6].setStepThreshold(1);
+            CHECK(findStepResponseDelay(chains[6], 100) < 400);
+            CHECK(findStepResponseDelay(chains[6], 10) < 2496 / 2);
+            CHECK(findStepResponseDelay(chains[6], 0.9) == 2496);
         }
     }
 }
