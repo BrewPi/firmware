@@ -1,5 +1,16 @@
 {
   "files.associations": {
-    "limits": "cpp"
-  }
+    "limits": "cpp",
+    "array": "cpp",
+    "deque": "cpp",
+    "list": "cpp",
+    "unordered_map": "cpp",
+    "vector": "cpp",
+    "initializer_list": "cpp",
+    "optional": "cpp",
+    "string_view": "cpp",
+    "type_traits": "cpp",
+    "utility": "cpp"
+  },
+  "editor.formatOnSave": true,
 }
