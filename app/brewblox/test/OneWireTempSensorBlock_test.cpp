@@ -33,7 +33,7 @@ SCENARIO("A TempSensorOneWireBlock")
         blox::TempSensorOneWire message;
         message.set_address(0x12345678);
         message.set_offset(100);
-        message.set_connected(true);
+        message.set_valid(true);
         message.set_value(123);
         std::stringstream ssIn;
 
@@ -53,7 +53,7 @@ SCENARIO("A TempSensorOneWireBlock")
         }
         THEN("The values that are not writable are ignored")
         {
-            CHECK(sensor.get().read() == temp_t(0));
+            CHECK(sensor.get().value() == temp_t(0));
             CHECK(sensor.get().valid() == false);
         }
 
@@ -70,7 +70,7 @@ SCENARIO("A TempSensorOneWireBlock")
 
             auto correct = message;
             correct.set_value(0);
-            correct.set_connected(false);
+            correct.set_valid(false);
 
             CHECK(correct.DebugString() == round_trip.DebugString());
         }

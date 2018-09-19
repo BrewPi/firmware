@@ -35,8 +35,8 @@ public:
         blox_TempSensorOneWire message;
         message.address = sensor.getAddress();
         message.offset = cnl::unwrap(sensor.getCalibration());
-        message.connected = sensor.valid();
-        message.value = cnl::unwrap((sensor.read()));
+        message.valid = sensor.valid();
+        message.value = cnl::unwrap((sensor.value()));
         return streamProtoTo(out, &message, blox_TempSensorOneWire_fields, blox_TempSensorOneWire_size);
     }
 

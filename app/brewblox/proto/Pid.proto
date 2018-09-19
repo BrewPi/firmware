@@ -1,44 +1,47 @@
 syntax = "proto3";
 
 import 'brewblox.proto';
+import "nanopb.proto";
 
 package blox;
 
 message Pid {
-    message Settings {
-        sint32 kp = 1 [(brewblox).unit = "degC", (brewblox).scale = 256];
-        uint32 ti = 2 [(brewblox).unit = "second"];
-        uint32 td = 3 [(brewblox).unit = "second"];
-        bool enabled = 4;
+    enum FilterChoice {
+    	FILT_30s = 0;
+    	FILT_1m = 1;
+    	FILT_3m = 2;
+    	FILT_5m = 3;
+    	FILT_10m = 4;
+    	FILT_20m = 5;
+    	FILT_45m = 6;
     }
+    
+    uint32 inputId = 1 [(brewblox).link = ProcessValue, (nanopb).int_size = IS_16];
+  	uint32 outputId = 2 [(brewblox).link = ProcessValue, (nanopb).int_size = IS_16];
+  
+	bool inputValid = 3 [(brewblox).readonly = true];
+  	bool outputValid = 4 [(brewblox).readonly = true];
+  
+    sint32 inputValue = 5 [(brewblox).unit = "degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
+    sint32 inputSetting = 6 [(brewblox).unit = "degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
+    sint32 outputValue = 7 [(brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
+    sint32 outputSetting = 8 [(brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
 
-    message State {
-        sint32 inputValue = 1 [(brewblox).unit = "degC", (brewblox).scale = 256];
-        sint32 inputSetting = 2 [(brewblox).unit = "degC", (brewblox).scale = 256];
-        sint32 outputValue = 3 [(brewblox).unit = "degC", (brewblox).scale = 256];
-        sint32 outputSetting = 4 [(brewblox).unit = "degC", (brewblox).scale = 256];
+	FilterChoice filter = 9;
+	sint32 filterThreshold = 10 [(brewblox).unit = "delta_degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32];
 
-        sint32 p = 5 [(brewblox).unit = "delta_degC", (brewblox).scale = 256];
-        sint32 i = 6 [(brewblox).unit = "delta_degC", (brewblox).scale = 256];
-        sint32 d = 7 [(brewblox).unit = "delta_degC / second", (brewblox).scale = 256];
+    bool enabled = 11;
+    bool active = 12 [(brewblox).readonly = true];
+    
+    sint32 kp = 13 [(brewblox).unit = "degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32];
+    uint32 ti = 14 [(brewblox).unit = "second", (nanopb).int_size = IS_16];
+    uint32 td = 15 [(brewblox).unit = "second", (nanopb).int_size = IS_16];
 
-        sint32 derivative = 8 [(brewblox).unit = "degC", (brewblox).scale = 16777216];
-        sint32 integral = 9 [(brewblox).unit = "degC", (brewblox).scale = 256];
-        sint32 error = 10 [(brewblox).unit = "degC", (brewblox).scale = 256];
-    }
+    sint32 p = 16 [(brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
+    sint32 i = 17 [(brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
+    sint32 d = 18 [(brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
 
-    message Links {
-        sint32 input = 1 [(brewblox).link = ProcessValue];
-        sint32 output = 2 [(brewblox).link = ProcessValue];
-    }
-
-    message Filtering {
-        uint32 input = 1;
-        uint32 derivative = 2;
-    }
-
-    Settings settings = 1;
-    State state = 2;
-    Links links = 3;
-    Filtering filtering = 4;
+    sint32 error = 19 [(brewblox).unit = "delta_degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];    
+    sint32 integral = 20 [(brewblox).unit = "delta_degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
+    sint32 derivative = 21 [(brewblox).unit = "delta_degC / second", (brewblox).scale = 8388608, (nanopb).int_size = IS_32, (brewblox).readonly = true];
 }

@@ -10,9 +10,9 @@ message SetpointSensorPair {
   uint32 setpointId = 1 [(brewblox).link = Setpoint, (nanopb).int_size = IS_16];
   uint32 sensorId = 2 [(brewblox).link = TempSensor, (nanopb).int_size = IS_16];
   
-  bool setpointValid = 4;
-  bool sensorValid = 3;
+  bool setpointValid = 3;
+  bool sensorValid = 4;
   
-  sint32 setpointValue = 5 [(brewblox).unit = "degC", (brewblox).scale = 256, (nanopb).int_size = IS_16];
-  sint32 sensorValue = 6 [(brewblox).unit = "degC", (brewblox).scale = 256, (nanopb).int_size = IS_16];
+  sint32 setpointValue = 5 [(brewblox).unit = "degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32];
+  sint32 sensorValue = 6 [(brewblox).unit = "degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32];
 }

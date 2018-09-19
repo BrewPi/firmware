@@ -24,15 +24,15 @@
 
 #include "../BrewBlox.h"
 #include "Temperature.h"
-#include "blox/SetpointSimpleBlock.h"
 #include "blox/SetpointSensorPairBlock.h"
+#include "blox/SetpointSimpleBlock.h"
 #include "blox/TempSensorMockBlock.h"
 #include "cbox/Box.h"
 #include "cbox/DataStream.h"
 #include "cbox/DataStreamIo.h"
 #include "cbox/Object.h"
-#include "proto/test/cpp/SetpointSimple.test.pb.h"
 #include "proto/test/cpp/SetpointSensorPair.test.pb.h"
+#include "proto/test/cpp/SetpointSimple.test.pb.h"
 #include "proto/test/cpp/TempSensorMock.test.pb.h"
 
 class ProtoDataOut {
@@ -157,6 +157,7 @@ SCENARIO("A Blox SetpointSensorPair object can be created from streamed protobuf
 
     blox::SetpointSensorPair reply;
     decodeProtoFromReply(out, reply);
-    CHECK(reply.ShortDebugString() == "setpointId: 101 sensorId: 100 sensorValid: true "
-                                      "setpointValid: true setpointValue: 5376 sensorValue: 5120");
+    CHECK(reply.ShortDebugString() == "setpointId: 101 sensorId: 100 "
+                                      "setpointValid: true sensorValid: true "
+                                      "setpointValue: 86016 sensorValue: 81920");
 }

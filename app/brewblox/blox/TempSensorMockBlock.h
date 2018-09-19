@@ -19,8 +19,8 @@ public:
         cbox::CboxError res = streamProtoFrom(in, &newData, blox_TempSensorMock_fields, blox_TempSensorMock_size);
         /* if no errors occur, write new settings to wrapped object */
         if (res == cbox::CboxError::OK) {
-            sensor.setTemp(cnl::wrap<temp_t>(newData.value));
-            sensor.setConnected(newData.connected);
+            sensor.value(cnl::wrap<temp_t>(newData.value));
+            sensor.connected(newData.connected);
         }
         return res;
     }
@@ -28,14 +28,18 @@ public:
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
         blox_TempSensorMock message;
-        message.connected = sensor.valid();
-        message.value = cnl::unwrap(sensor.read());
+        message.value = cnl::unwrap(sensor.value());
+        message.valid = sensor.valid();
+        message.connected = sensor.connected();
         return streamProtoTo(out, &message, blox_TempSensorMock_fields, blox_TempSensorMock_size);
     }
 
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
     {
-        return streamTo(out);
+        blox_TempSensorMock message = {0};
+        message.value = cnl::unwrap(sensor.value());
+        message.connected = sensor.connected();
+        return streamProtoTo(out, &message, blox_TempSensorMock_fields, blox_TempSensorMock_size);
     }
 
     virtual cbox::update_t update(const cbox::update_t& now) override final
