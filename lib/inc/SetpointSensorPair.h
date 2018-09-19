@@ -43,19 +43,19 @@ public:
     {
     }
 
-    ~SetpointSensorPair() = default;
+    virtual ~SetpointSensorPair() = default;
 
-    virtual void set(temp_t const& setting) override final
+    virtual void setting(temp_t const& setting) override final
     {
         if (auto sp = setpoint()) {
-            sp->write(setting);
+            sp->setting(setting);
         }
     }
 
     virtual temp_t setting() const override final
     {
         if (auto sp = setpoint()) {
-            return sp->read();
+            return sp->setting();
         } else {
             return 0;
         }
@@ -63,8 +63,8 @@ public:
 
     virtual temp_t value() const override final
     {
-        if (auto sens = sensor()) {
-            return sens->read();
+        if (auto sPtr = sensor()) {
+            return sPtr->value();
         } else {
             return 0;
         }

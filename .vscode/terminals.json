@@ -2,6 +2,13 @@
   "autorun": false,
   "terminals": [
     {
+      "name": "Lib test local build",
+      "description": "Run lib tests compiling on host",
+      "focus": true,
+      "cwd": "~/repos/firmware/lib/test_catch",
+      "command": "make && build/runner"
+    },
+    {
       "name": "Lib test",
       "description": "Run lib tests in docker",
       "focus": true,

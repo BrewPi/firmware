@@ -67,7 +67,7 @@ TempSensorOneWire::setConnected(bool _connected)
 }
 
 temp_t
-TempSensorOneWire::read() const
+TempSensorOneWire::value() const
 {
     if (!connected) {
         return 0;

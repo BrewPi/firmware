@@ -147,7 +147,7 @@ public:
             m_i = 0;
             m_d = 0;
             if (auto ptr = outputPtr()) {
-                ptr->set(in_t(0));
+                ptr->setting(in_t(0));
             }
         }
         m_enabled = state;

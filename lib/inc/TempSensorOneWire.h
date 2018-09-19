@@ -65,8 +65,8 @@ public:
         return connected;
     }
 
-    virtual temp_t read() const override final; // return cached value
-    void update();                              // read from hardware sensor
+    virtual temp_t value() const override final; // return cached value
+    void update();                               // read from hardware sensor
 
     void setAddress(OneWireAddress const& addr)
     {

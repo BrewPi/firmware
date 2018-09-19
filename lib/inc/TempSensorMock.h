@@ -24,8 +24,8 @@
 
 class TempSensorMock final : public TempSensor {
 private:
-    temp_t value = 0;
-    bool connected = false;
+    temp_t m_value = 0;
+    bool m_connected = false;
 
 public:
     TempSensorMock()
@@ -33,33 +33,38 @@ public:
     }
 
     TempSensorMock(temp_t initial)
-        : value(initial)
-        , connected(true)
+        : m_value(initial)
+        , m_connected(true)
     {
     }
 
-    void setConnected(bool _connected)
+    void connected(bool _connected)
     {
-        connected = _connected;
+        m_connected = _connected;
     }
 
-    void setTemp(temp_t val)
+    bool connected() const
     {
-        value = val;
+        return m_connected;
+    }
+
+    void value(temp_t val)
+    {
+        m_value = val;
+    }
+
+    temp_t value() const override final
+    {
+        return m_value;
     }
 
     virtual bool valid() const override final
     {
-        return connected;
+        return m_connected;
     }
 
     void add(temp_t delta)
     {
-        value += delta;
-    }
-
-    virtual temp_t read() const override final
-    {
-        return value;
+        m_value += delta;
     }
 };

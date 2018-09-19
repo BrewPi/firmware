@@ -20,16 +20,23 @@
 #pragma once
 
 #include "ActuatorAnalog.h"
-#include <stdint.h>
 #include "future_std.h"
+#include <stdint.h>
 
 /*
  * A range actuator that simply remembers the set value. This is primary used for testing.
  */
 class ActuatorAnalogMock final : public ActuatorAnalog {
 private:
+    // clipping for setting
     value_t minimum = cnl::numeric_limits<value_t>::lowest();
     value_t maximum = cnl::numeric_limits<value_t>::max();
+
+    // clipping for value (actuator can't reach setpoint)
+    value_t minimumValue = cnl::numeric_limits<value_t>::lowest();
+    value_t maximumValue = cnl::numeric_limits<value_t>::max();
+
+    // actual value
     value_t currentValue = 0;
 
 public:
@@ -47,14 +54,15 @@ public:
         : minimum(minVal)
         , maximum(maxVal)
     {
-        set(initial);
+        setting(initial);
     }
 
     ~ActuatorAnalogMock() = default;
 
-    virtual void set(const value_t& val) override final
+    virtual void setting(const value_t& val) override final
     {
         currentValue = std::clamp(val, minimum, maximum);
+        currentValue = std::clamp(currentValue, minimumValue, maximumValue);
     }
     virtual value_t setting() const override final
     {
@@ -71,9 +79,39 @@ public:
         return minimum;
     }
 
+    void min(const value_t& arg)
+    {
+        minimum = arg;
+    }
+
     value_t max() const
     {
         return maximum;
+    }
+
+    void max(const value_t& arg)
+    {
+        maximum = arg;
+    }
+
+    value_t minValue() const
+    {
+        return minimumValue;
+    }
+
+    void minValue(const value_t& arg)
+    {
+        minimumValue = arg;
+    }
+
+    value_t maxValue() const
+    {
+        return maximumValue;
+    }
+
+    void maxValue(const value_t& arg)
+    {
+        maximumValue = arg;
     }
 
     bool valid() const

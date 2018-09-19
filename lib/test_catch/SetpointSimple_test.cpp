@@ -29,7 +29,7 @@ SCENARIO("SetpointSimple test")
     {
         SetpointSimple sp;
 
-        CHECK(sp.read() == temp_t(0));
+        CHECK(sp.setting() == temp_t(0));
         CHECK(sp.valid() == false);
     }
 }

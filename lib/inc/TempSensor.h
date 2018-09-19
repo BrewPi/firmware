@@ -28,8 +28,5 @@ public:
 
     virtual bool valid() const = 0;
 
-    /*
-	 * Read the sensor, returns cached value set in update()
-	 */
-    virtual temp_t read() const = 0;
+    virtual temp_t value() const = 0;
 };

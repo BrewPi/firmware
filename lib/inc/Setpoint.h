@@ -25,15 +25,15 @@ class Setpoint {
 public:
     Setpoint() = default;
     virtual ~Setpoint() = default;
-    virtual temp_t read() const = 0;
-    virtual void write(temp_t val) = 0;
+    virtual temp_t setting() const = 0;
+    virtual void setting(const temp_t& val) = 0;
     virtual bool valid() = 0;
 };
 
 class SetpointSimple final : public Setpoint {
 private:
-    temp_t setting = 0;
-    bool _valid = false;
+    temp_t m_setting = 0;
+    bool m_valid = false;
 
 public:
     SetpointSimple()
@@ -41,25 +41,25 @@ public:
     }
 
     SetpointSimple(temp_t _value)
-        : setting(_value)
-        , _valid(true)
+        : m_setting(_value)
+        , m_valid(true)
     {
     }
     ~SetpointSimple() = default;
 
-    virtual temp_t read() const override final
+    virtual temp_t setting() const override final
     {
-        return setting;
+        return m_setting;
     }
 
-    virtual void write(temp_t val) override final
+    virtual void setting(const temp_t& val) override final
     {
-        setting = val;
-        _valid = true;
+        m_setting = val;
+        m_valid = true;
     }
 
     virtual bool valid() override final
     {
-        return _valid;
+        return m_valid;
     }
 };

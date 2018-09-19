@@ -32,7 +32,7 @@ public:
     virtual ~ProcessValue() = default;
 
     // set the setting for the process value
-    virtual void set(const T& setting) = 0;
+    virtual void setting(const T& setting) = 0;
     // get the setting for the process value
     virtual T setting() const = 0;
     // read the actual value of the process value

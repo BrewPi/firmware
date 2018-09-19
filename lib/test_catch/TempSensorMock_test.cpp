@@ -31,7 +31,7 @@ SCENARIO("TempSensorMockTest")
     {
         auto mock = TempSensorMock();
 
-        CHECK(mock.read() == temp_t(0));
+        CHECK(mock.value() == temp_t(0));
         CHECK(mock.valid() == false);
     }
 
@@ -39,23 +39,23 @@ SCENARIO("TempSensorMockTest")
     {
         auto mock = TempSensorMock(20.0);
 
-        CHECK(mock.read() == temp_t(20.0));
+        CHECK(mock.value() == temp_t(20.0));
         CHECK(mock.valid() == true);
     }
 
     WHEN("A mock sensor is disconnected, valid() returns false")
     {
         auto mock = TempSensorMock(20.0);
-        mock.setConnected(false);
+        mock.connected(false);
 
         CHECK(mock.valid() == false);
 
         AND_WHEN("It is reconnected, valid() returns true and it reads as the set value again")
         {
-            mock.setConnected(true);
+            mock.connected(true);
 
             CHECK(mock.valid() == true);
-            CHECK(mock.read() == temp_t(20.0));
+            CHECK(mock.value() == temp_t(20.0));
         }
     }
 }
