@@ -30,19 +30,23 @@ Pid::update()
         auto inputError = inputSetting - inputValue;
 
         filter.add(inputError);
-
+        inputFailureCount = 0;
     } else {
         // handle invalid input
-        if (inputFailureCount < 30) {
+        if (inputFailureCount < 10) {
             ++inputFailureCount;
         } else {
-            enabled(false);
+            if (active()) {
+                active(false);
+            }
+            return;
         }
     }
-
     if (!m_enabled) {
         return;
     }
+
+    active(true);
 
     // calculate PID parts.
     m_error = filter.read();

@@ -53,7 +53,8 @@ private:
     uint16_t m_ti = 0;          // integral time constant
     uint16_t m_td = 0;          // derivative time constant
     uint8_t m_filterChoice = 0; // input filter index
-    bool m_enabled = false;
+    bool m_enabled = false;     // persisted setting to manually disable the pid
+    bool m_active = false;      // automatically set when input is invalid
 
 public:
     explicit Pid(
@@ -141,6 +142,23 @@ public:
 
     void enabled(bool state)
     {
+        active(state);
+        m_enabled = state;
+    }
+
+    auto enabled()
+    {
+        return m_enabled;
+    }
+
+    auto active()
+    {
+        return m_active;
+    }
+
+private:
+    void active(bool state)
+    {
         if (!state) {
             m_error = 0;
             m_p = 0;
@@ -150,11 +168,6 @@ public:
                 ptr->setting(in_t(0));
             }
         }
-        m_enabled = state;
-    }
-
-    auto enabled()
-    {
-        return m_enabled;
+        m_active = state;
     }
 };
