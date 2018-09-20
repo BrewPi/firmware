@@ -7,8 +7,8 @@ package blox;
 
 message TempSensorOneWire {
     option (nanopb_msgopt).msgid = 302;
-    sint32 value = 1 [(brewblox).unit = "degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32];
-    bool valid = 2;
+    sint32 value = 1 [(brewblox).unit = "degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
+    bool valid = 2 [ (brewblox).readonly = true];
     sint32 offset = 3 [(brewblox).unit = "delta_degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32];
     fixed64 address = 4 [(brewblox).hexed = true];
 }
