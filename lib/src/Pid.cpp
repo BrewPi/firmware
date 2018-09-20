@@ -23,18 +23,21 @@
 void
 Pid::update()
 {
-    auto input = inputPtr();
+    auto input = m_inputPtr();
     if (input && input->valid()) {
-        auto inputSetting = input->setting();
-        auto inputValue = input->value();
-        auto inputError = inputSetting - inputValue;
+        m_inputSetting = input->setting();
+        m_inputValue = input->value();
+        auto inputError = m_inputSetting - m_inputValue;
 
-        filter.add(inputError);
-        inputFailureCount = 0;
+        m_filter.add(inputError);
+        m_inputFailureCount = 0;
     } else {
+        m_inputSetting = 0;
+        m_inputValue = 0;
+
         // handle invalid input
-        if (inputFailureCount < 10) {
-            ++inputFailureCount;
+        if (m_inputFailureCount < 10) {
+            ++m_inputFailureCount;
         } else {
             if (active()) {
                 active(false);
@@ -49,26 +52,26 @@ Pid::update()
     active(true);
 
     // calculate PID parts.
-    m_error = filter.read();
+    m_error = m_filter.read();
     m_p = m_kp * m_error;
 
     m_integral = (m_ti != 0) ? m_integral + m_p / m_ti : 0;
     m_i = m_integral;
 
-    m_derivative = filter.readDerivative<decltype(m_derivative)>();
+    m_derivative = m_filter.readDerivative<decltype(m_derivative)>();
     m_d = -m_kp * (m_derivative * m_td);
 
     auto pidResult = m_p + m_i + m_d;
 
-    out_t outputValue = pidResult;
+    m_outputValue = pidResult;
 
     // try to set the output to the desired setting
-    auto output = outputPtr();
+    auto output = m_outputPtr();
     if (output && output->valid()) {
-        output->setting(outputValue);
+        output->setting(m_outputValue);
 
         // get the clipped setting from the actuator
-        out_t achievedSetting = output->setting();
+        m_outputSetting = output->setting();
 
         if (m_ti != 0) { // 0 has been chosen to indicate that the integrator is disabled. This also prevents divide by zero.
             // update integral with anti-windup back calculation
@@ -76,10 +79,10 @@ Pid::update()
 
             auto antiWindup = out_t(0);
 
-            if (pidResult != achievedSetting) {
+            if (pidResult != m_outputSetting) {
                 // clipped to actuator min or max set in target actuator
                 // calculate anti-windup from setting instead of actual value, so it doesn't dip under the maximum
-                antiWindup = 3 * (pidResult - achievedSetting); // anti windup gain is 3
+                antiWindup = 3 * (pidResult - m_outputSetting); // anti windup gain is 3
                 // make sure anti-windup is at least increment when clipping to prevent further windup
                 antiWindup = (m_p >= 0) ? std::max(m_p / m_ti, antiWindup) : std::min(m_p / m_ti, antiWindup);
             } else {
@@ -109,5 +112,8 @@ Pid::update()
                 m_integral = std::clamp(newIntegral, m_integral, decltype(m_integral)(0));
             }
         }
+    } else {
+        m_outputSetting = 0;
+        m_outputValue = 0;
     }
 }

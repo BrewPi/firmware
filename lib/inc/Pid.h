@@ -33,10 +33,10 @@ public:
     using derivative_t = safe_elastic_fixed_point<1, 23, int32_t>;
 
 private:
-    const std::function<std::shared_ptr<ProcessValue<in_t>>()> inputPtr;
-    const std::function<std::shared_ptr<ProcessValue<out_t>>()> outputPtr;
+    const std::function<std::shared_ptr<ProcessValue<in_t>>()> m_inputPtr;
+    const std::function<std::shared_ptr<ProcessValue<out_t>>()> m_outputPtr;
 
-    FpFilterChain<in_t> filter;
+    FpFilterChain<in_t> m_filter;
 
     // state
     in_t m_error = 0;
@@ -46,7 +46,13 @@ private:
     integral_t m_integral = 0;
     derivative_t m_derivative = 0;
 
-    uint8_t inputFailureCount = 0;
+    in_t m_inputSetting = 0;
+    in_t m_inputValue = 0;
+
+    out_t m_outputSetting = 0;
+    out_t m_outputValue = 0;
+
+    uint8_t m_inputFailureCount = 0;
 
     // settings
     in_t m_kp = 0;              // proportional gain
@@ -58,11 +64,11 @@ private:
 
 public:
     explicit Pid(
-        std::function<std::shared_ptr<ProcessValue<in_t>>()>&& _input,
-        std::function<std::shared_ptr<ProcessValue<out_t>>()>&& _output)
-        : inputPtr(_input)
-        , outputPtr(_output)
-        , filter(0)
+        std::function<std::shared_ptr<ProcessValue<in_t>>()>&& input,
+        std::function<std::shared_ptr<ProcessValue<out_t>>()>&& output)
+        : m_inputPtr(input)
+        , m_outputPtr(output)
+        , m_filter(0)
     {
     }
 
@@ -73,28 +79,38 @@ public:
     void update();
 
     // state
-    auto error()
+    auto error() const
     {
         return m_error;
     }
 
-    auto p()
+    auto integral() const
+    {
+        return m_error;
+    }
+
+    auto derivative() const
+    {
+        return m_error;
+    }
+
+    auto p() const
     {
         return m_p;
     }
 
-    auto i()
+    auto i() const
     {
         return m_i;
     }
 
-    auto d()
+    auto d() const
     {
         return m_d;
     }
 
     // settings
-    auto kp()
+    auto kp() const
     {
         return m_kp;
     }
@@ -104,7 +120,7 @@ public:
         m_kp = arg;
     }
 
-    auto ti()
+    auto ti() const
     {
         return m_ti;
     }
@@ -114,7 +130,7 @@ public:
         m_ti = arg;
     }
 
-    auto td()
+    auto td() const
     {
         return m_td;
     }
@@ -124,20 +140,20 @@ public:
         m_td = arg;
     }
 
-    auto filterChoice()
+    auto filterChoice() const
     {
         return m_filterChoice;
     }
 
-    auto filterThreshold()
+    auto filterThreshold() const
     {
-        return filter.getStepThreshold();
+        return m_filter.getStepThreshold();
     }
 
     void configureFilter(const uint8_t& choice, const in_t& threshold)
     {
         m_filterChoice = choice;
-        filter.setParams(choice, threshold);
+        m_filter.setParams(choice, threshold);
     }
 
     void enabled(bool state)
@@ -146,14 +162,34 @@ public:
         m_enabled = state;
     }
 
-    auto enabled()
+    auto enabled() const
     {
         return m_enabled;
     }
 
-    auto active()
+    auto active() const
     {
         return m_active;
+    }
+
+    auto inputSetting() const
+    {
+        return m_inputSetting;
+    }
+
+    auto inputValue() const
+    {
+        return m_inputValue;
+    }
+
+    auto outputSetting() const
+    {
+        return m_outputSetting;
+    }
+
+    auto outputValue() const
+    {
+        return m_outputValue;
     }
 
 private:
@@ -164,7 +200,7 @@ private:
             m_p = 0;
             m_i = 0;
             m_d = 0;
-            if (auto ptr = outputPtr()) {
+            if (auto ptr = m_outputPtr()) {
                 ptr->setting(in_t(0));
             }
         }

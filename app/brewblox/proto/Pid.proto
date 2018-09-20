@@ -6,6 +6,8 @@ import "nanopb.proto";
 package blox;
 
 message Pid {
+	option (nanopb_msgopt).msgid = 304;
+	
     enum FilterChoice {
     	FILT_30s = 0;
     	FILT_1m = 1;
@@ -16,8 +18,8 @@ message Pid {
     	FILT_45m = 6;
     }
     
-    uint32 inputId = 1 [(brewblox).link = ProcessValue, (nanopb).int_size = IS_16];
-  	uint32 outputId = 2 [(brewblox).link = ProcessValue, (nanopb).int_size = IS_16];
+    uint32 inputId = 1 [(brewblox).link = ProcessValue_11_12, (nanopb).int_size = IS_16];
+  	uint32 outputId = 2 [(brewblox).link = ProcessValue_11_12, (nanopb).int_size = IS_16];
   
 	bool inputValid = 3 [(brewblox).readonly = true];
   	bool outputValid = 4 [(brewblox).readonly = true];

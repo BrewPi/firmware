@@ -1,7 +1,7 @@
 /*
- * Copyright 2017 BrewPi
+ * Copyright 2018 BrewPi B.V.
  *
- * This file is part of BrewPi.
+ * This file is part of BrewBlox.
  *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,41 +34,7 @@
 #include "proto/test/cpp/SetpointSensorPair.test.pb.h"
 #include "proto/test/cpp/SetpointSimple.test.pb.h"
 #include "proto/test/cpp/TempSensorMock.test.pb.h"
-
-class ProtoDataOut {
-public:
-    cbox::HexCrcDataOut& out;
-    ProtoDataOut(cbox::HexCrcDataOut& target)
-        : out(target)
-    {
-    }
-
-    void put(::google::protobuf::Message& message)
-    {
-        for (auto& c : message.SerializeAsString()) {
-            out.write(c);
-        }
-        out.write(0); // zero terminate protobuf message
-    }
-};
-
-void
-decodeProtoFromReply(std::stringstream& ss, ::google::protobuf::Message& message)
-{
-    cbox::IStreamDataIn hex(ss);
-    cbox::HexTextToBinaryIn decoder(hex);
-    while (hex.next() != '|') { // spool command echo
-    }
-    // spool status, id, profiles and object type
-    uint8_t header[6];
-    decoder.read(header, 6);
-
-    // pass the rest to the protobuf decoder
-    std::stringstream ssProto;
-    cbox::OStreamDataOut protoData(ssProto);
-    decoder.push(protoData);
-    message.ParseFromIstream(&ssProto);
-};
+#include "testHelpers.h"
 
 SCENARIO("A Blox SetpointSensorPair object can be created from streamed protobuf data")
 {

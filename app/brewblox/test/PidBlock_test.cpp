@@ -1,7 +1,7 @@
 /*
- * Copyright 2017 BrewPi
+ * Copyright 2018 BrewPi B.V.
  *
- * This file is part of BrewPi.
+ * This file is part of BrewBlox.
  *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,165 +17,146 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if 0
 #include <catch.hpp>
 #include <cstdio>
 #include <iomanip>
 #include <iostream>
 
-#include "../blox/PidBlock.h"
+#include "cbox/Box.h"
+#include "cbox/Object.h"
 
-#include "Box.h"
-#include "Object.h"
-#include "VisitorCast.h"
+#include "../BrewBlox.h"
+#include "Temperature.h"
+#include "blox/ActuatorAnalogMockBlock.h"
+#include "blox/PidBlock.h"
+#include "blox/SetpointSensorPairBlock.h"
+#include "blox/SetpointSimpleBlock.h"
+#include "blox/TempSensorMockBlock.h"
+#include "cbox/Box.h"
+#include "cbox/DataStream.h"
+#include "cbox/DataStreamIo.h"
+#include "cbox/Object.h"
+#include "proto/test/cpp/ActuatorAnalogMock.test.pb.h"
+#include "proto/test/cpp/Pid.test.pb.h"
+#include "proto/test/cpp/SetpointSensorPair.test.pb.h"
+#include "proto/test/cpp/SetpointSimple.test.pb.h"
+#include "proto/test/cpp/TempSensorMock.test.pb.h"
+#include "testHelpers.h"
 
-SCENARIO("A Blox Pid object can be created from streamed protobuf data"){
-    GIVEN("a protobuf message struct defining a Pid object"){
-        blox_Pid_Persisted message;
-        message.settings.enabled = false;
-        message.settings.kp = 10;
-        message.settings.ti = 1600;
-        message.settings.td = 60;
-        message.links = {{0x01, 0x00, 0x00, 0x00}, {0x02, 0x00, 0x00, 0x00}};
-        message.filtering.input = 3;
-        message.filtering.derivative = 4;
+SCENARIO("A Blox Pid object can be created from streamed protobuf data")
+{
+    static auto& box = brewbloxBox();
+    static auto& connSource = testConnectionSource();
+    using commands = cbox::Box::CommandID;
 
-        WHEN("it is encoded to a buffer"){
-            uint8_t buf[100] = {0};
-            pb_ostream_t stream = pb_ostream_from_buffer(buf, sizeof(buf));
-            bool status = pb_encode_delimited(&stream, blox_Pid_Persisted_fields, &message);
-            CHECK(status);
+    std::stringstream in, out, expected;
 
-            std::stringstream ss;
-            ss << "0x" << std::setfill('0') << std::hex;
-            for(int i =0 ; i <= blox_Pid_Persisted_size; i ++){
-                ss << std::setw(2) << static_cast<unsigned>(buf[i]);
-            }
-            INFO("Encoding of Pid Object is " << ss.str());
-            INFO("Length of encoding is " << blox_Pid_Persisted_size);
+    // use some helpers to create the data commands
+    cbox::OStreamDataOut inOs(in);
+    cbox::BinaryToHexTextOut toHex(inOs);
+    cbox::HexCrcDataOut inEncoder(toHex);
+    ProtoDataOut inProto(inEncoder);
 
-            AND_WHEN("we create a DataIn object from that buffer and create an object definition from it"){
-            	cbox::BufferDataIn in(buf);
+    connSource.add(in, out);
 
-                uint8_t len = PidBlock::persistedMaxSize();
-                cbox::obj_type_t typeId = cbox::PidBlock::staticTypeId();
+    auto clearStreams = [&in, &out, &expected]() {
+        in.str("");
+        in.clear();
+        out.str("");
+        out.clear();
+        expected.str("");
+        expected.clear();
+    };
 
-                WHEN("an application object is created form the definition"){
-                	cbox::Object * obj = nullptr;
-                    uint8_t error = createApplicationObject(obj, typeId, false);
+    // create mock sensor
+    clearStreams();
+    inEncoder.put(commands::CREATE_OBJECT);
+    inEncoder.put(cbox::obj_id_t(100));
+    inEncoder.put(uint8_t(0xFF));
+    inEncoder.put(TempSensorMockBlock::staticTypeId());
 
-                    THEN("No errors occur"){
-                        CHECK(error == cbox::errorCode(cbox::no_error));
-                    }
-                    REQUIRE(obj != nullptr);
+    auto newSensor = blox::TempSensorMock();
+    newSensor.set_value(cnl::unwrap(temp_t(20.0)));
+    newSensor.set_connected(true);
+    inProto.put(newSensor);
 
-                    cbox::WritableObject * pidObj = (cbox::WritableObject*) obj;
+    inEncoder.endMessage();
 
-                    AND_WHEN("we stream that bloc object to a DataOut stream")
-                    {
-                        uint8_t buf2[100] = {0};
-                        cbox::BufferDataOut out(buf2, sizeof(buf2));
-                        pidObj->readTo(out);
+    box.hexCommunicate();
+    CHECK(out.str().find("|00") != std::string::npos); // no errors
 
-                        // verify data that is streamed out by streaming it back in
-                        pb_istream_t stream_in = pb_istream_from_buffer(buf2, sizeof(buf2));
+    // create setpoint
+    clearStreams();
+    inEncoder.put(commands::CREATE_OBJECT);
+    inEncoder.put(cbox::obj_id_t(101));
+    inEncoder.put(uint8_t(0xFF));
+    inEncoder.put(SetpointSimpleBlock::staticTypeId());
 
-                        blox_Pid received;
-                        pb_decode_delimited(&stream_in, blox_Pid_fields, &received);
-                        THEN("The output matches the definition")
-                        {
-                            // check settings
-                            CHECK(received.settings.enabled == message.settings.enabled);
-                            CHECK(received.settings.kp == message.settings.kp);
-                            CHECK(received.settings.ti == message.settings.ti);
-                            CHECK(received.settings.td == message.settings.td);
-                            // check links
-                            for(uint8_t i = 0; i < MAX_ID_CHAIN_LENGHT; i++){
-                                CHECK(received.links.input[i] == message.links.input[i]);
-                                CHECK(received.links.output[i] == message.links.output[i]);
-                            }
-                            // check filtering
-                            CHECK(received.filtering.input == message.filtering.input);
-                            CHECK(received.filtering.derivative == message.filtering.derivative);
-                        }
-                    }
+    blox::SetpointSimple newSetpoint;
+    newSetpoint.set_setting(cnl::unwrap(temp_t(21.0)));
+    inProto.put(newSetpoint);
 
-                    AND_WHEN("The newly created PidBloc object receives settings from a DataIn stream")
-                    {
-                        blox_Pid_Persisted message2;
-                        message2.settings.enabled = false;
-                        message2.settings.kp = temp_t(5.0).getRaw();
-                        message2.settings.ti = 1200;
-                        message2.settings.td = 30;
-                        message2.links = {{0x02, 0x03, 0x04, 0x05}, {0x03, 0x04, 0x05, 0x06}};
-                        message2.filtering.input = 1;
-                        message2.filtering.derivative = 2;
+    inEncoder.endMessage();
 
-                        uint8_t buf2[100] = {0};
-                        pb_ostream_t stream2 = pb_ostream_from_buffer(buf2, sizeof(buf2));
-                        bool status = pb_encode_delimited(&stream2, blox_Pid_Persisted_fields, &message2);
-                        CHECK(status);
+    box.hexCommunicate();
+    CHECK(out.str().find("|00") != std::string::npos); // no errors
 
-                        cbox::BufferDataIn in2(buf2);
-                        pidObj->writeFrom(in2);
+    // create pair
+    clearStreams();
+    inEncoder.put(commands::CREATE_OBJECT);
+    inEncoder.put(cbox::obj_id_t(102));
+    inEncoder.put(uint8_t(0xFF));
+    inEncoder.put(SetpointSensorPairBlock::staticTypeId());
 
-                        THEN("The output stream changes to reflect the new settings")
-                        {
+    blox::SetpointSensorPair newPair;
+    newPair.set_sensorid(100);
+    newPair.set_setpointid(101);
+    inProto.put(newPair);
 
-                          uint8_t buf3[100] = {0};
-                          cbox::BufferDataOut out(buf3, sizeof(buf3));
-                          pidObj->readTo(out);
+    inEncoder.endMessage();
+    box.hexCommunicate();
 
-                          // verify data that is streamed out by streaming it back in
-                          pb_istream_t stream_in = pb_istream_from_buffer(buf3, sizeof(buf3));
+    CHECK(out.str().find("|00") != std::string::npos); // no errors
 
-                          blox_Pid received;
-                          pb_decode_delimited(&stream_in, blox_Pid_fields, &received);
-                              // check settings
-                          CHECK(received.settings.enabled == false);
-                          CHECK(received.settings.kp == temp_t(5.0).getRaw());
-                          CHECK(received.settings.ti == 1200);
-                          CHECK(received.settings.td == 30);
-                          // check links
-                          CHECK(received.links.input == message2.links.input);
-                          CHECK(received.links.output == message2.links.output);
-                          // check filtering
-                          CHECK(received.filtering.input == 1);
-                          CHECK(received.filtering.derivative == 2);
-                        }
-                    }
-                    AND_WHEN("The Pid contained in the bloc is used as application object")
-                    {
-                        Pid * p = asInterface<Pid>(pidObj->getApplicationInterface());
-                        REQUIRE(p != nullptr);
+    // create actuator
+    clearStreams();
+    inEncoder.put(commands::CREATE_OBJECT);
+    inEncoder.put(cbox::obj_id_t(103));
+    inEncoder.put(uint8_t(0xFF));
+    inEncoder.put(ActuatorAnalogMockBlock::staticTypeId());
 
-                        p->setConstants(6.0, 900, 15);
-                        p->setInputFiltering(2);
-                        p->setDerivativeFiltering(3);
-                        p->disable(false);
+    blox::ActuatorAnalogMock newActuator;
+    newActuator.set_setting(cnl::unwrap(ActuatorAnalog::value_t(0)));
+    newActuator.set_minsetting(cnl::unwrap(ActuatorAnalog::value_t(0)));
+    newActuator.set_maxsetting(cnl::unwrap(ActuatorAnalog::value_t(100)));
+    newActuator.set_minvalue(cnl::unwrap(ActuatorAnalog::value_t(0)));
+    newActuator.set_maxvalue(cnl::unwrap(ActuatorAnalog::value_t(100)));
+    inProto.put(newActuator);
 
-                        THEN("the output stream changes accordingly"){
-                            uint8_t buf2[100] = {0};
-                            cbox::BufferDataOut out(buf2, sizeof(buf2));
-                            pidObj->streamTo(out);
+    inEncoder.endMessage();
+    box.hexCommunicate();
+    CHECK(out.str().find("|00") != std::string::npos); // no errors
 
-                            // verify data that is streamed out by streaming it back in
-                            pb_istream_t stream_in = pb_istream_from_buffer(buf2, sizeof(buf2));
+    // create Pid
+    clearStreams();
+    inEncoder.put(commands::CREATE_OBJECT);
+    inEncoder.put(cbox::obj_id_t(104));
+    inEncoder.put(uint8_t(0xFF));
+    inEncoder.put(PidBlock::staticTypeId());
 
-                            blox_Pid received;
-                            pb_decode_delimited(&stream_in, blox_Pid_fields, &received);
-                            // check settings
-                            CHECK(received.settings.enabled == false);
-                            CHECK(received.settings.kp == temp_t(6.0).getRaw());
-                            CHECK(received.settings.ti == 900);
-                            CHECK(received.settings.td == 15);
-                            CHECK(received.filtering.input == 2);
-                            CHECK(received.filtering.derivative == 3);
-                        }
-                    }
-                }
-            }
-        }
-    }
+    blox::Pid newPid;
+    newPid.set_inputid(102);
+    newPid.set_outputid(103);
+    newPid.set_filter(blox::Pid_FilterChoice::Pid_FilterChoice_FILT_30s);
+    newPid.set_filterthreshold(cnl::unwrap(ActuatorAnalog::value_t(1)));
+    newPid.set_enabled(true);
+    newPid.set_kp(cnl::unwrap(Pid::in_t(0)));
+    newPid.set_ti(2000);
+    newPid.set_td(200);
+
+    inProto.put(newPid);
+
+    inEncoder.endMessage();
+    box.hexCommunicate();
+    CHECK(out.str().find("|00") != std::string::npos); // no errors
 }
-#endif

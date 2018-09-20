@@ -103,6 +103,11 @@ public:
         return std::bind(&cbox::CboxPtr<T>::lock, this);
     }
 
+    operator std::function<std::shared_ptr<T>()>() const
+    {
+        return std::bind(&cbox::CboxPtr<T>::const_lock, this);
+    }
+
     /*
      * Returns whether the weak pointer is still valid. This does not do a new object fetch.
      * Don't query this before trying to use the pointer, just try to lock it.

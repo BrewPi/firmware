@@ -29,15 +29,14 @@
 class ActuatorAnalogMock final : public ActuatorAnalog {
 private:
     // clipping for setting
-    value_t minimum = cnl::numeric_limits<value_t>::lowest();
-    value_t maximum = cnl::numeric_limits<value_t>::max();
+    value_t m_minSetting = cnl::numeric_limits<value_t>::lowest();
+    value_t m_maxSetting = cnl::numeric_limits<value_t>::max();
 
     // clipping for value (actuator can't reach setpoint)
-    value_t minimumValue = cnl::numeric_limits<value_t>::lowest();
-    value_t maximumValue = cnl::numeric_limits<value_t>::max();
+    value_t m_minValue = cnl::numeric_limits<value_t>::lowest();
+    value_t m_maxValue = cnl::numeric_limits<value_t>::max();
 
-    // actual value
-    value_t currentValue = 0;
+    value_t m_setting = 0;
 
 public:
     // construct without arguments, val = invalid, min and max are defaults
@@ -45,14 +44,14 @@ public:
 
     // construct with just val, min and max are defaults
     ActuatorAnalogMock(const value_t& initial)
-        : currentValue(initial)
+        : m_setting(initial)
     {
     }
 
     // construct with val, min, max
     ActuatorAnalogMock(const value_t& initial, const value_t& minVal, const value_t& maxVal)
-        : minimum(minVal)
-        , maximum(maxVal)
+        : m_minSetting(minVal)
+        , m_maxSetting(maxVal)
     {
         setting(initial);
     }
@@ -61,57 +60,56 @@ public:
 
     virtual void setting(const value_t& val) override final
     {
-        currentValue = std::clamp(val, minimum, maximum);
-        currentValue = std::clamp(currentValue, minimumValue, maximumValue);
+        m_setting = std::clamp(val, m_minSetting, m_maxSetting);
     }
     virtual value_t setting() const override final
     {
-        return currentValue;
+        return m_setting;
     }
 
     virtual value_t value() const override final
     {
-        return currentValue;
+        return std::clamp(m_setting, m_minValue, m_maxValue);
     }
 
-    value_t min() const
+    value_t minSetting() const
     {
-        return minimum;
+        return m_minSetting;
     }
 
-    void min(const value_t& arg)
+    void minSetting(const value_t& arg)
     {
-        minimum = arg;
+        m_minSetting = arg;
     }
 
-    value_t max() const
+    value_t maxSetting() const
     {
-        return maximum;
+        return m_maxSetting;
     }
 
-    void max(const value_t& arg)
+    void maxSetting(const value_t& arg)
     {
-        maximum = arg;
+        m_maxSetting = arg;
     }
 
     value_t minValue() const
     {
-        return minimumValue;
+        return m_minValue;
     }
 
     void minValue(const value_t& arg)
     {
-        minimumValue = arg;
+        m_minValue = arg;
     }
 
     value_t maxValue() const
     {
-        return maximumValue;
+        return m_maxValue;
     }
 
     void maxValue(const value_t& arg)
     {
-        maximumValue = arg;
+        m_maxValue = arg;
     }
 
     bool valid() const

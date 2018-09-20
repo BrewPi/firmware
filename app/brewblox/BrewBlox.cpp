@@ -17,9 +17,11 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "blox/ActuatorAnalogMockBlock.h"
 #include "blox/OneWireBusBlock.h"
-#include "blox/SetpointSimpleBlock.h"
+#include "blox/PidBlock.h"
 #include "blox/SetpointSensorPairBlock.h"
+#include "blox/SetpointSimpleBlock.h"
 #include "blox/SysInfoBlock.h"
 #include "blox/TempSensorMockBlock.h"
 #include "blox/TempSensorOneWireBlock.h"
@@ -38,9 +40,9 @@
 using EepromAccessImpl = cbox::SparkEepromAccess;
 using TicksClass = Ticks<TicksWiring>;
 #else
-#include <MockTicks.h>
 #include "cbox/ArrayEepromAccess.h"
 #include "cbox/ConnectionsStringStream.h"
+#include <MockTicks.h>
 using EepromAccessImpl = cbox::ArrayEepromAccess<2048>;
 using TicksClass = Ticks<MockTicks>;
 #endif
@@ -84,10 +86,13 @@ makeBrewBloxBox()
         cbox::ContainedObject(3, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire()))};
 
     static cbox::ObjectFactory objectFactory = {
-        {TempSensorOneWireBlock::staticTypeId(), std::make_unique<TempSensorOneWireBlock>},
-        {SetpointSimpleBlock::staticTypeId(), std::make_unique<SetpointSimpleBlock>},
-        {SetpointSensorPairBlock::staticTypeId(), []() { return std::make_unique<SetpointSensorPairBlock>(objects); }},
-        {TempSensorMockBlock::staticTypeId(), std::make_unique<TempSensorMockBlock>}};
+        {TempSensorOneWireBlock::staticTypeId(), std::make_shared<TempSensorOneWireBlock>},
+        {SetpointSimpleBlock::staticTypeId(), std::make_shared<SetpointSimpleBlock>},
+        {SetpointSensorPairBlock::staticTypeId(), []() { return std::make_shared<SetpointSensorPairBlock>(objects); }},
+        {TempSensorMockBlock::staticTypeId(), std::make_shared<TempSensorMockBlock>},
+        {ActuatorAnalogMockBlock::staticTypeId(), std::make_shared<ActuatorAnalogMockBlock>},
+        {PidBlock::staticTypeId(), []() { return std::make_shared<PidBlock>(objects); }},
+    };
 
     static EepromAccessImpl eeprom;
     static cbox::EepromObjectStorage objectStore(eeprom);

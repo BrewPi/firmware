@@ -23,6 +23,8 @@ public
     {
     }
 
+    virtual ~SetpointSensorPairBlock() = default;
+
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final
     {
         blox_SetpointSensorPair newData;

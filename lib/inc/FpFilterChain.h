@@ -98,11 +98,11 @@ public:
     {
         chain.setStepThreshold(cnl::unwrap(stepThreshold));
     }
-    value_type getStepThreshold()
+    value_type getStepThreshold() const
     {
         return cnl::wrap<value_type>(chain.getStepThreshold());
     }
-    value_type read()
+    value_type read() const
     {
         return cnl::wrap<value_type>(chain.read());
     }
@@ -112,7 +112,7 @@ public:
         return cnl::wrap<value_type>(chain.read(filterNr));
     }
 
-    value_type readLastInput()
+    value_type readLastInput() const
     {
         return cnl::wrap<value_type>(chain.readLastInput());
     }
@@ -124,7 +124,7 @@ public:
 
     // get the derivative from the chain with max precision and convert to the requested FP precision
     template <typename U>
-    U readDerivative(uint8_t filterIdx = 0)
+    U readDerivative(uint8_t filterIdx = 0) const
     {
         auto derivative = chain.readDerivative(filterIdx);
         uint8_t destFractionBits = -U::exponent;
