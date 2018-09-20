@@ -17,6 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Logger.h"
 #include "blox/ActuatorAnalogMockBlock.h"
 #include "blox/OneWireBusBlock.h"
 #include "blox/PidBlock.h"
@@ -55,14 +56,6 @@ using OneWireDriver = OneWireNull;
 using OneWireDriver = DS248x;
 #endif
 
-namespace cbox {
-void
-connectionStarted(DataOut& out)
-{
-    //    out.writeAnnotation("Connected to BrewBlox v0.1.0");
-}
-}
-
 class SetpointSensorPairBlock;
 
 TicksClass ticks;
@@ -76,6 +69,19 @@ testConnectionSource()
     return connSource;
 }
 #endif
+
+cbox::ConnectionPool&
+theConnectionPool()
+{
+#if defined(SPARK)
+    static cbox::TcpConnectionSource tcpSource(8332);
+    static cbox::ConnectionPool connections = {tcpSource};
+#else
+    static cbox::ConnectionPool connections = {testConnectionSource()};
+#endif
+
+    return connections;
+}
 
 cbox::Box&
 makeBrewBloxBox()
@@ -96,12 +102,7 @@ makeBrewBloxBox()
 
     static EepromAccessImpl eeprom;
     static cbox::EepromObjectStorage objectStore(eeprom);
-#if defined(SPARK)
-    static cbox::TcpConnectionSource tcpSource(8332);
-    static cbox::ConnectionPool connections = {tcpSource};
-#else
-    static cbox::ConnectionPool connections = {testConnectionSource()};
-#endif
+    static cbox::ConnectionPool& connections = theConnectionPool();
 
     static cbox::Box box(objectFactory, objects, objectStore, connections);
 
@@ -121,4 +122,27 @@ theOneWire()
     static OneWireDriver owDriver(0);
     static OneWire ow(owDriver);
     return ow;
+}
+
+Logger&
+logger()
+{
+    static auto logger = Logger([](Logger::LogLevel level, const std::string& log) {
+        cbox::DataOut& out = theConnectionPool().logDataOut();
+        out.write('<');
+        for (const auto& c : log) {
+            out.write(c);
+        }
+        out.write('>');
+        out.write('\n');
+    });
+    return logger;
+}
+
+namespace cbox {
+void
+connectionStarted(DataOut& out)
+{
+    out.put("<Connected to BrewBlox v0.1.0>");
+}
 }

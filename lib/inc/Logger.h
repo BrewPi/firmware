@@ -20,16 +20,20 @@
 #pragma once
 
 #include <functional>
-#include <iostream>
 #include <memory>
-#include <sstream>
 #include <string>
+
+std::string&
+operator<<(std::string& lh, const int& in);
+
+std::string&
+operator<<(std::string& lh, const std::string& in);
+
+std::string&
+operator<<(std::string& lh, const char* in);
 
 class Logger {
 public:
-    using LogFunctionType = std::function<void(const uint8_t& logLevel, const std::string&)>;
-    using Buffer_p = std::unique_ptr<std::ostringstream, std::function<void(std::ostringstream*)>>;
-
     enum LogLevel : uint8_t {
         DEBUG,
         INFO,
@@ -37,51 +41,29 @@ public:
         ERROR
     };
 
-    explicit Logger(LogFunctionType logFunction)
-        : m_logFunction(std::move(logFunction))
+    using LogWriteFunction = std::function<void(const LogLevel& logLevel, const std::string&)>;
+    using StringBuffer = std::unique_ptr<std::string, std::function<void(std::string*)>>;
+
+    explicit Logger(LogWriteFunction&& logFunction)
+        : m_logWriteFunction(logFunction)
     {
     }
 
-    Buffer_p operator()(LogLevel e)
+    StringBuffer operator()(LogLevel e)
     {
-        return Buffer_p(new std::ostringstream, [e, this](std::ostringstream* st) {
-            m_logFunction(e, st->str());
+        return StringBuffer(new std::string, [e, this](std::string* st) {
+            m_logWriteFunction(e, *st);
         });
     }
 
 private:
-    LogFunctionType m_logFunction;
+    LogWriteFunction m_logWriteFunction;
 };
 
-void
-logCerr(const uint8_t& level, const std::string& log)
-{
-    switch (level) {
-    case Logger::DEBUG:
-        std::cerr << "DEBUG: " << log;
-        break;
-    case Logger::INFO:
-        std::cerr << "INFO: " << log;
-        break;
-    case Logger::WARN:
-        std::cerr << "DEBUG: " << log;
-        break;
-    case Logger::ERROR:
-        std::cerr << "DEBUG: " << log;
-        break;
-    }
-}
+extern Logger&
+logger();
 
-Logger&
-testLogger()
-{
-    static Logger logger(logCerr);
-    return logger;
-}
-
-Logger& logger = testLogger();
-
-#define LOG_DEBUG *logger(Logger::DEBUG)
-#define LOG_INFO *logger(Logger::INFO)
-#define LOG_WARN *logger(Logger::WARN)
-#define LOG_ERROR *logger(Logger::ERROR)
+#define CL_LOG_DEBUG *logger()(Logger::DEBUG)
+#define CL_LOG_INFO *logger()(Logger::INFO)
+#define CL_LOG_WARN *logger()(Logger::WARN)
+#define CL_LOG_ERROR *logger()(Logger::ERROR)

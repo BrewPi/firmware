@@ -18,11 +18,12 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../inc/TempSensorOneWire.h"
-#include "../inc/DallasTemperature.h"
 #include "../inc/Logger.h"
+
+#include "../inc/DallasTemperature.h"
 #include "../inc/OneWire.h"
 #include "../inc/OneWireAddress.h"
+#include "../inc/TempSensorOneWire.h"
 #include "../inc/Temperature.h"
 
 /**
@@ -60,9 +61,9 @@ TempSensorOneWire::setConnected(bool _connected)
         return; // state stays the same
     }
     if (connected) {
-        LOG_WARN << "OneWire temp sensor connected" << sensorAddress;
+        CL_LOG_WARN << "OneWire temp sensor connected" << sensorAddress;
     } else {
-        LOG_WARN << "OneWire temp sensor disconnected" << sensorAddress;
+        CL_LOG_WARN << "OneWire temp sensor disconnected" << sensorAddress;
     }
 }
 
