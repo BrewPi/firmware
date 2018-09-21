@@ -65,9 +65,4 @@ public:
     {
         return cbox::Object::update_never(now);
     }
-
-    virtual cbox::obj_type_t typeId() const override final
-    {
-        return 262;
-    }
 };
