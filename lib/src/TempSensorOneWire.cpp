@@ -61,9 +61,9 @@ TempSensorOneWire::setConnected(bool _connected)
         return; // state stays the same
     }
     if (connected) {
-        CL_LOG_WARN << "OneWire temp sensor connected" << sensorAddress;
+        CL_LOG_WARN("OneWire temp sensor connected: ") << sensorAddress;
     } else {
-        CL_LOG_WARN << "OneWire temp sensor disconnected" << sensorAddress;
+        CL_LOG_WARN("OneWire temp sensor disconnected: ") << sensorAddress;
     }
 }
 

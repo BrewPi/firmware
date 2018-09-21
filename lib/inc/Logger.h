@@ -49,9 +49,9 @@ public:
     {
     }
 
-    StringBuffer operator()(LogLevel e)
+    StringBuffer operator()(LogLevel e, const char* initStr)
     {
-        return StringBuffer(new std::string, [e, this](std::string* st) {
+        return StringBuffer(new std::string(initStr), [e, this](std::string* st) {
             m_logWriteFunction(e, *st);
         });
     }
@@ -63,7 +63,7 @@ private:
 extern Logger&
 logger();
 
-#define CL_LOG_DEBUG *logger()(Logger::DEBUG)
-#define CL_LOG_INFO *logger()(Logger::INFO)
-#define CL_LOG_WARN *logger()(Logger::WARN)
-#define CL_LOG_ERROR *logger()(Logger::ERROR)
+#define CL_LOG_DEBUG(initStr) *logger()(Logger::DEBUG, initStr)
+#define CL_LOG_INFO(initStr) *logger()(Logger::INFO, initStr)
+#define CL_LOG_WARN(initStr) *logger()(Logger::WARN, initStr)
+#define CL_LOG_ERROR(initStr) *logger()(Logger::ERROR, initStr)
