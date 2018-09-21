@@ -1,56 +1,58 @@
-import gdb.printing
 import re
+import gdb
 
 
-class TempPrinter:
-    "Pretty Printer for temp_t and temp_long_t"
+def lookup_function(val):
+    "Look-up and return a pretty-printer that can print val."
+    # Get the type.
+    type = val.type
 
-    def __init__(self, val):
-        self.val = val
+    # If it points to a reference, get the reference.
+    if type.code == gdb.TYPE_CODE_REF:
+        type = type.target()
 
-    def to_string(self):
-        raw = self.val['value_']
-        val = (raw + 0.0) / 256.0
-        return "{0} ({1})".format(val, raw)
+    # Get the unqualified type, stripped of typedefs.
+    type = type.unqualified().strip_typedefs()
 
-
-class TempPrecisePrinter:
-    "Pretty Printer for temp_precise_t"
-
-    def __init__(self, val):
-        self.val = val
-
-    def to_string(self):
-        raw = self.val['value_']
-        val = (raw + 0.0) / 16777216.0
-        return "{0} ({1})".format(val, raw)
-
-
-def brewpi_pretty(val):
-    lookup_tag = val.type.tag
-    if lookup_tag == None:
+    # Get the type name.
+    typename = type.tag      
+    
+    if typename == None:
         return None
-    regex = re.compile('^temp_t$')
-    if regex.match(lookup_tag):
-        return TempPrinter(val)
-    regex = re.compile('^temp_long_t$')
-    if regex.match(lookup_tag):
-        return TempPrinter(val) # same nr of fraction bits
-    regex = re.compile('^temp_precise_t$')
-    if regex.match(lookup_tag):
-        return TempPrecisePrinter(val)
+    
+    # Iterate over local dictionary of types to determine
+    # if a printer is registered for that type.  Return an
+    # instantiation of the printer if found.
+    for function in sorted(pretty_printers_dict):
+        if function.match(typename):
+            return pretty_printers_dict[function](val)
 
+    # Cannot find a pretty printer.  Return None.
     return None
 
-# Register our pretty-printers with |objfile|.
-def register_pretty_printer():
-    #gdb.printing.register_pretty_printer(
-    #     gdb.current_objfile(),
-    #         build_pretty_printer())
-    gdb.pretty_printers.append(brewpi_pretty)
+class FixedPointPrinter:
+    "Pretty Printer for safe_elastic_fixed_point"
 
+    def __init__(self, val):
+        self.val = val
 
+    def to_string(self):
+        raw = self.val['_rep']['_rep']['_rep']
+        m = re.search('cnl::_impl::number_base<cnl::fixed_point<cnl::overflow_integer<cnl::elastic_integer<([0-9]+), (.+)>,\s*cnl::saturated_overflow_tag>,\s*(-[0-9]+),\s*([0-9])>,\s*cnl::overflow_integer<cnl::elastic_integer<([0-9]+),\s*(.+)>,\s*cnl::saturated_overflow_tag>\s*>',
+                      str(self.val.type))
+        scale = 2**(-int(m.group(3)))
+        scaled = (raw + 0.0) / scale
+        return "{0}: {1}".format(raw, scaled)
+        
+    def display_hint(self):
+        return 'string'   
 
-register_pretty_printer()
-
+# register the pretty-printer
+pretty_printers_dict={}
+pretty_printers_dict[
+    re.compile(
+        '.*cnl::_impl::number_base<cnl::fixed_point<.*>.*>'   
+        )
+]=FixedPointPrinter
+gdb.pretty_printers.append(lookup_function)
 

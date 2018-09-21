@@ -150,7 +150,7 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data")
     newPid.set_filter(blox::Pid_FilterChoice::Pid_FilterChoice_FILT_30s);
     newPid.set_filterthreshold(cnl::unwrap(ActuatorAnalog::value_t(1)));
     newPid.set_enabled(true);
-    newPid.set_kp(cnl::unwrap(Pid::in_t(0)));
+    newPid.set_kp(cnl::unwrap(Pid::in_t(10)));
     newPid.set_ti(2000);
     newPid.set_td(200);
 
@@ -159,4 +159,39 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data")
     inEncoder.endMessage();
     box.hexCommunicate();
     CHECK(out.str().find("|00") != std::string::npos); // no errors
+
+    // update 100 times (PID updates every second, t is in ms)
+    uint32_t t = 0;
+    for (; t < 1000000; ++t) {
+        box.update(t);
+    }
+
+    // read PID
+    clearStreams();
+    inEncoder.put(commands::READ_OBJECT);
+    inEncoder.put(cbox::obj_id_t(104));
+
+    inEncoder.endMessage();
+    box.hexCommunicate();
+
+    CHECK(out.str().find("|00") != std::string::npos); // no errors
+
+    blox::Pid reply;
+    decodeProtoFromReply(out, reply);
+
+    CHECK(cnl::wrap<Pid::out_t>(reply.p()) == Approx(10.0).epsilon(0.01));
+    CHECK(cnl::wrap<Pid::out_t>(reply.i()) == Approx(10.0 * 1.0 * 1000 / 2000).epsilon(0.05));
+    CHECK(cnl::wrap<Pid::out_t>(reply.d()) == 0);
+    CHECK(cnl::wrap<Pid::out_t>(reply.outputvalue()) == Approx(15.0).epsilon(0.05));
+
+    // only nonzero values are shown in the debug string
+    CHECK(reply.ShortDebugString() == "inputId: 102 outputId: 103 "
+                                      "inputValid: true outputValid: true "
+                                      "inputValue: 81920 inputSetting: 86016 "
+                                      "outputValue: 60518 outputSetting: 60518 "
+                                      "filterThreshold: 4096 "
+                                      "enabled: true active: true "
+                                      "kp: 40960 ti: 2000 td: 200 "
+                                      "p: 40950 i: 19568 "
+                                      "error: 4095 integral: 19568 derivative: -1");
 }

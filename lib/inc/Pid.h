@@ -86,12 +86,12 @@ public:
 
     auto integral() const
     {
-        return m_error;
+        return m_integral;
     }
 
     auto derivative() const
     {
-        return m_error;
+        return m_derivative;
     }
 
     auto p() const
