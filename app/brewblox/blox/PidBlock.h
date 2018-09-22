@@ -93,14 +93,6 @@ public:
         return update_1s(now);
     }
 
-    virtual void* implements(const cbox::obj_type_t& iface) override final
-    {
-        if (iface == blox_Pid_msgid) {
-            return this; // me!
-        }
-        return nullptr;
-    }
-
     Pid& get()
     {
         return pid;

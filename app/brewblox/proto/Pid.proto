@@ -1,36 +1,36 @@
 syntax = "proto3";
 
-import 'brewblox.proto';
+import "brewblox.proto";
 import "nanopb.proto";
 
 package blox;
 
 message Pid {
-	option (nanopb_msgopt).msgid = 304;
-	
+    option (nanopb_msgopt).msgid = 304;
+
     enum FilterChoice {
-    	FILT_30s = 0;
-    	FILT_1m = 1;
-    	FILT_3m = 2;
-    	FILT_5m = 3;
-    	FILT_10m = 4;
-    	FILT_20m = 5;
-    	FILT_45m = 6;
+        FILT_30s = 0;
+        FILT_1m = 1;
+        FILT_3m = 2;
+        FILT_5m = 3;
+        FILT_10m = 4;
+        FILT_20m = 5;
+        FILT_45m = 6;
     }
-    
+
     uint32 inputId = 1 [(brewblox).link = ProcessValue_11_12, (nanopb).int_size = IS_16];
-  	uint32 outputId = 2 [(brewblox).link = ProcessValue_11_12, (nanopb).int_size = IS_16];
+    uint32 outputId = 2 [(brewblox).link = ProcessValue_11_12, (nanopb).int_size = IS_16];
   
-	bool inputValid = 3 [(brewblox).readonly = true];
-  	bool outputValid = 4 [(brewblox).readonly = true];
+    bool inputValid = 3 [(brewblox).readonly = true];
+    bool outputValid = 4 [(brewblox).readonly = true];
   
     sint32 inputValue = 5 [(brewblox).unit = "degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
     sint32 inputSetting = 6 [(brewblox).unit = "degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
     sint32 outputValue = 7 [(brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
     sint32 outputSetting = 8 [(brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
 
-	FilterChoice filter = 9;
-	sint32 filterThreshold = 10 [(brewblox).unit = "delta_degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32];
+    FilterChoice filter = 9;
+    sint32 filterThreshold = 10 [(brewblox).unit = "delta_degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32];
 
     bool enabled = 11;
     bool active = 12 [(brewblox).readonly = true];
