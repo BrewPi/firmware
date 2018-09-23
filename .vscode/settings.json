@@ -49,7 +49,14 @@
     "thread": "cpp",
     "tuple": "cpp",
     "typeinfo": "cpp",
-    "algorithm": "cpp"
+    "algorithm": "cpp",
+    "hash_map": "cpp",
+    "hash_set": "cpp",
+    "csignal": "cpp",
+    "unordered_set": "cpp",
+    "future": "cpp",
+    "codecvt": "cpp",
+    "filesystem": "cpp"
   },
   "editor.formatOnSave": true,
 }

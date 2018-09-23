@@ -26,7 +26,7 @@
 /*
  * A range actuator that simply remembers the set value. This is primary used for testing.
  */
-class ActuatorAnalogMock final : public ActuatorAnalog {
+class ActuatorAnalogMock : public ActuatorAnalog {
 private:
     // clipping for setting
     value_t m_minSetting = cnl::numeric_limits<value_t>::lowest();

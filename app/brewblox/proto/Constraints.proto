@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+import "brewblox.proto";
+import "nanopb.proto";
+
+package blox;
+
+message ConstraintMin {
+    sint32 min = 1 [(brewblox).scale = 4096, (nanopb).int_size = IS_32];
+}
+
+message ConstraintMax {
+    sint32 min = 1 [(brewblox).scale = 4096, (nanopb).int_size = IS_32];
+}
+
+message ConstraintWrapper {
+    oneof constraint {
+        ConstraintMin min = 1;
+        ConstraintMax max = 2;
+    }
+}
+
+message ConstraintList {
+    repeated ConstraintWrapper constraint = 1;
+}

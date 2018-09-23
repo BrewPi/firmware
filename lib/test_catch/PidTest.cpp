@@ -19,9 +19,8 @@
 
 #include <catch.hpp>
 
-#include "Pid.h"
-
 #include "ActuatorAnalogMock.h"
+#include "Pid.h"
 #include "Setpoint.h"
 #include "SetpointSensorPair.h"
 #include "TempSensorMock.h"
@@ -150,8 +149,8 @@ SCENARIO("PID Test")
 
         setpoint->setting(21);
         sensor->value(20);
-        actuator->min(0);
-        actuator->max(20);
+        actuator->minSetting(0);
+        actuator->maxSetting(20);
 
         double accumulatedError = 0;
         for (int32_t i = 0; i <= 10000; ++i) {
@@ -191,8 +190,8 @@ SCENARIO("PID Test")
 
         setpoint->setting(19);
         sensor->value(20);
-        actuator->min(0);
-        actuator->max(20);
+        actuator->minSetting(0);
+        actuator->maxSetting(20);
 
         double accumulatedError = 0;
         for (int32_t i = 0; i <= 10000; ++i) {
@@ -262,7 +261,7 @@ SCENARIO("PID Test")
         CHECK(pid.i() == Approx(0).margin(0.01)); // anti windup limits this to 0
         CHECK(pid.d() == Approx(0).margin(0.01));
 
-        CHECK(actuator->setting() == Approx(5).margin(0.01));
+        CHECK(actuator->setting() == Approx(-10).margin(0.01));
     }
 
     WHEN("The actuator value is not reaching setting, the integrator is limited by anti-windup (negative kp)")
@@ -303,7 +302,7 @@ SCENARIO("PID Test")
         CHECK(pid.i() == Approx(0).margin(0.01)); // anti windup limits this to 0
         CHECK(pid.d() == Approx(0).margin(0.01));
 
-        CHECK(actuator->setting() == Approx(5).margin(0.01));
+        CHECK(actuator->setting() == Approx(-10).margin(0.01));
     }
 
     WHEN("The PID input is invalid for over 10 seconds, the actuator is set to zero and the PID is inactive")

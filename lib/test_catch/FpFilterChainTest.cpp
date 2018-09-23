@@ -24,6 +24,7 @@
 #include "FpFilterChain.h"
 #include "TestMatchers.hpp"
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <vector>
 

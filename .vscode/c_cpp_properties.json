@@ -11,7 +11,6 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/lib/inc",
-                "${workspaceFolder}/lib/mixins",
                 "${workspaceFolder}/controlbox/test",
                 "${workspaceFolder}/platform/spark/modules",
                 "${workspaceFolder}/platform/spark/firmware/user/inc",
