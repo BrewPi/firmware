@@ -19,25 +19,25 @@
 
 #pragma once
 
-#include "ActuatorAnalog.h"
+#include "ActuatorDigital.h"
 #include <functional>
 #include <vector>
 
 /*
  * An ActuatorAnalog has a range output
  */
-class ActuatorAnalogConstrained : public ActuatorAnalog {
+class ActuatorDigitalConstrained : public ActuatorDigital {
 public:
-    using ConstrainFunc = std::function<value_t(const value_t&)>;
+    using ConstrainFunc = std::function<State(const State&)>;
 
 private:
     std::vector<ConstrainFunc> constraints;
-    ActuatorAnalog& actuator;
+    ActuatorDigital& actuator;
 
 public:
-    ActuatorAnalogConstrained(ActuatorAnalog& act)
+    ActuatorDigitalConstrained(ActuatorDigital& act)
         : actuator(act){};
-    virtual ~ActuatorAnalogConstrained() = default;
+    virtual ~ActuatorDigitalConstrained() = default;
 
     void addConstraint(ConstrainFunc&& newConstraint)
     {
@@ -49,27 +49,17 @@ public:
         constraints.clear();
     }
 
-    virtual void setting(const value_t& val) override final
+    virtual void state(const State& val) override final
     {
-        value_t result = val;
+        State result = val;
         for (auto& constrainFunc : constraints) {
             result = constrainFunc(result);
         }
-        actuator.setting(result);
+        actuator.state(result);
     }
 
-    virtual value_t setting() const override final
+    virtual State state() const override final
     {
-        return actuator.setting();
-    }
-
-    virtual value_t value() const override final
-    {
-        return actuator.setting();
-    }
-
-    virtual bool valid() const override final
-    {
-        return actuator.valid();
+        return actuator.state();
     }
 };

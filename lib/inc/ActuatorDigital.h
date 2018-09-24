@@ -35,8 +35,8 @@ public:
     ActuatorDigital() = default;
     virtual ~ActuatorDigital() = default;
 
-    virtual void setState(const State& state) = 0;
+    virtual void state(const State& state) = 0;
 
     // no bool return type offered, because this forces classes to implement handling the Unknown state
-    virtual State getState() const = 0;
+    virtual State state() const = 0;
 };
