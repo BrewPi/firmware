@@ -26,24 +26,25 @@
  */
 class ActuatorDigitalMock final : public ActuatorDigital {
 private:
-    State state = Inactive;
+    State m_state = Inactive;
 
 public:
     ActuatorDigitalMock() {}
 
     ActuatorDigitalMock(State initial)
-        : state(initial)
+        : m_state(initial)
     {
     }
 
     ~ActuatorDigitalMock() = default;
 
-    void setState(const State& s) override final
+    void state(const State& s) override final
     {
-        state = s;
+        m_state = s;
     }
-    State getState() const override final
+
+    State state() const override final
     {
-        return state;
+        return m_state;
     }
 };

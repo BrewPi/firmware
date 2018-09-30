@@ -122,16 +122,16 @@ SCENARIO("Basic test of chain of filters")
             while (true) {
                 auto gain = findGainAtPeriod(c, period);
                 if (gain > 0.5) {
-                    std::cout << "\n"
-                              << "Period of square wave that is decreased by 0.5: "
-                              << period << "\n";
+                    // std::cout << "\n"
+                    //           << "Period of square wave that is decreased by 0.5: "
+                    //           << period << "\n";
                     return period;
                 }
                 auto periodIncreaseFactor = 1.0 + (0.5 - gain); // fast approach until close
                 periodIncreaseFactor = std::clamp(periodIncreaseFactor, 1.0, 1.1);
 
                 period = std::max(period * periodIncreaseFactor, period + 1.0); // add at least 1
-                std::cout << "[" << gain << ", " << period << "]\t";
+                // std::cout << "[" << gain << ", " << period << "]\t";
             };
         };
 
@@ -177,12 +177,12 @@ SCENARIO("Basic test of chain of filters")
                     for (uint8_t i = 0; i < c.length(); ++i) {
                         int32_t filterOutput = c.read(i);
                         if (filterOutput >= stepAmpl / 2 && i >= stagesFinished) { // ignore start
-                            std::cout << "stage " << +i << " at 50\% at t=" << t << "\t\t";
+                            // std::cout << "stage " << +i << " at 50\% at t=" << t << "\t\t";
                             ++stagesFinished;
                         }
                     }
                 }
-                std::cout << "\n";
+                // std::cout << "\n";
                 return t;
             };
 
