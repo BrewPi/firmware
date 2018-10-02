@@ -22,13 +22,13 @@
 #include "ActuatorDigitalChangeLogged.h"
 #include "ActuatorDigitalMock.h"
 
-SCENARIO("ActuatorDigitalChangeLogged test")
+SCENARIO("ActuatorDigitalChangeLogged test", "[ActuatorChangeLog]")
 {
     using State = ActuatorDigital::State;
 
     auto mock = ActuatorDigitalMock();
     auto logged = ActuatorDigitalChangeLogged(mock, 0);
-    ActuatorDigitalChangeLogged::ticks_millis_t now = 1000;
+    ticks_millis_t now = 1000;
 
     WHEN("ActuatorDigitalChangeLogged is newly constructed")
     {
@@ -85,10 +85,25 @@ SCENARIO("ActuatorDigitalChangeLogged test")
                 logged.state(newState, now);
             }
 
+            // when output is still active
+            CHECK(logged.state() == State::Active);
             auto durations = logged.durations(State::Active, now);
             CHECK(durations.total == 4000);
             CHECK(durations.stateTotal == 2000);
             auto duty = double(durations.stateTotal) / durations.total;
+            CHECK(duty == Approx(0.5).epsilon(0.001));
+
+            for (; now < 11300; ++now) {
+                auto newState = ((now / 1000) % 2) == 0 ? State::Active : State::Inactive;
+                logged.state(newState, now);
+            }
+
+            // when output is inactive
+            CHECK(logged.state() == State::Inactive);
+            durations = logged.durations(State::Active, now);
+            CHECK(durations.total == 4000);
+            CHECK(durations.stateTotal == 2000);
+            duty = double(durations.stateTotal) / durations.total;
             CHECK(duty == Approx(0.5).epsilon(0.001));
         }
     }

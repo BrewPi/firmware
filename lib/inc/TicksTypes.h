@@ -1,8 +1,7 @@
 /*
- * Copyright 2017 BrewPi/Elco Jacobs.
- * Copyright 2017 Matthew McGowan.
+ * Copyright 2018 BrewPi B.V.
  *
- * This file is part of BrewPi.
+ * This file is part of the BrewBlox Control Library.
  *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,28 +17,21 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../inc/TicksTypes.h"
+#pragma once
+
+#include <stdint.h>
+
+using duration_millis_t = uint32_t;
+using duration_micros_t = uint32_t;
+using duration_seconds_t = uint32_t;
+using ticks_millis_t = uint32_t;
+using ticks_micros_t = uint32_t;
+using ticks_seconds_t = uint32_t;
 
 // return time that has passed since timeStamp, take overflow into account
 duration_seconds_t
-secondsSince(ticks_seconds_t currentTime, ticks_seconds_t previousTime)
-{
-    if (currentTime >= previousTime) {
-        return currentTime - previousTime;
-    } else {
-        // overflow has occurred
-        return (currentTime + 1440) - (previousTime + 1440); // add a day to both for calculation
-    }
-}
+secondsSince(ticks_seconds_t currentTime, ticks_seconds_t previousTime);
 
 // return time that has passed since timeStamp, take overflow into account
 duration_millis_t
-millisSince(ticks_millis_t currentTime, ticks_millis_t previousTime)
-{
-    if (currentTime >= previousTime) {
-        return currentTime - previousTime;
-    } else {
-        // overflow has occurred
-        return (currentTime + 1440000) - (previousTime + 1440000); // add a day to both for calculation
-    }
-}
+millisSince(ticks_millis_t currentTime, ticks_millis_t previousTime);

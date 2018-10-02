@@ -19,21 +19,8 @@
 
 #pragma once
 
+#include "TicksTypes.h"
 #include <ctime>
-#include <stdint.h>
-
-using tcduration_t = uint32_t;
-using ticks_millis_t = uint32_t;
-using ticks_micros_t = uint32_t;
-using ticks_seconds_t = uint32_t;
-
-// return time that has passed since timeStamp, take overflow into account
-ticks_seconds_t
-timeSinceSeconds(ticks_seconds_t currentTime, ticks_seconds_t previousTime);
-
-// return time that has passed since timeStamp, take overflow into account
-ticks_millis_t
-timeSinceMillis(ticks_millis_t currentTime, ticks_millis_t previousTime);
 
 template <typename Impl>
 class Ticks {
@@ -59,13 +46,13 @@ public:
     {
         return impl.seconds();
     }
-    inline ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp)
+    inline ticks_seconds_t secondsSince(ticks_seconds_t timeStamp)
     {
-        return ::timeSinceSeconds(seconds(), timeStamp);
+        return ::secondsSince(seconds(), timeStamp);
     }
-    inline ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp)
+    inline ticks_millis_t millisSince(ticks_millis_t timeStamp)
     {
-        return ::timeSinceMillis(millis(), timeStamp);
+        return ::millisSince(millis(), timeStamp);
     }
 
     void setNow(const ticks_seconds_t& utcNow)

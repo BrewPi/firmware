@@ -20,19 +20,20 @@
 #pragma once
 
 #include "ActuatorDigital.h"
+#include "Ticks.h"
 #include <algorithm>
 #include <array>
 #include <cstdint>
-
 /*
  * An ActuatorDigital wrapper that logs the most recent changes
  */
+
+const uint8_t historyLength = 5;
+
 class ActuatorDigitalChangeLogged {
 public:
-    using ticks_millis_t = uint32_t;
     using State = ActuatorDigital::State;
     // uneven length makes last entry equal to first for toggling (PWM) behavior
-    static const uint8_t historyLength = 5;
 
     struct StateChange {
         State newState;
@@ -89,7 +90,11 @@ public:
         return result;
     }
 
-    auto durations(const State& state, const ticks_millis_t& now)
+    auto durations(const State& state,
+                   const ticks_millis_t& now,
+                   const bool windowCorrection = true,
+                   const uint8_t& maxChanges = historyLength,
+                   const duration_millis_t& maxHistory = std::numeric_limits<duration_millis_t>::max())
     {
         struct {
             ticks_millis_t stateTotal;
@@ -97,18 +102,42 @@ public:
         } result;
 
         result.stateTotal = 0;
-        ticks_millis_t end = now;
-        for (const auto& h : history) {
-            if (h.newState == state) {
-                result.stateTotal += end - h.startTime;
+        auto end = now;
+        auto start = now - 1;
+        auto lastState = state;
+        auto minStartTime = now - maxHistory;
+
+        for (auto h = history.cbegin(); h < history.cend() - (historyLength - maxChanges); ++h) {
+            start = h->startTime;
+            lastState = h->newState;
+            if (lastState == state) {
+                // don't remove now from statement below.
+                // if we compare durations instead of timestamps, we're not affected by overflow
+                if (now - start <= now - minStartTime) {
+                    result.stateTotal += end - start;
+                } else {
+                    start = minStartTime;
+                    result.stateTotal += end - start;
+                    break; // max history length reached
+                }
             }
-            end = h.startTime;
+            end = start;
         }
-        // correct windowing behavior so that the period is rather constant
-        // this is done by not counting part of the oldest state equal length to the current state (newest log until now)
-        result.total = history.front().startTime - history.back().startTime;
-        if (history.back().newState == state) {
-            result.stateTotal -= now - history.front().startTime;
+
+        result.total = now - start;
+
+        if (windowCorrection) {
+            // correct windowing behavior so that the period is rather constant
+            // this is done by not counting part of the oldest state equal length to the current state (newest log until now)
+            // but only if the last state is the same as the first
+
+            if (lastState == history.front().newState) {
+                auto correction = now - history.front().startTime;
+                result.total -= correction;
+                if (state == history.front().newState) {
+                    result.stateTotal -= correction;
+                }
+            }
         }
         return result;
     }
