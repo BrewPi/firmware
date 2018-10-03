@@ -45,8 +45,8 @@ randomIntervalTest(const int& numPeriods,
                    ticks_millis_t& now)
 {
     act.setting(duty);
-    ticks_millis_t lowToHighTime = 0;
-    ticks_millis_t highToLowTime = 0;
+    ticks_millis_t lowToHighTime = now;
+    ticks_millis_t highToLowTime = now;
     ticks_millis_t totalHighTime = 0;
     ticks_millis_t totalLowTime = 0;
 
@@ -194,9 +194,10 @@ SCENARIO("ActuatorPWM driving mock actuator")
     {
         act.setting(0);
         // wait target to go low
-        while (mock.state() == ActuatorDigital::State::Active) {
+        while (mock.state() != ActuatorDigital::State::Inactive) {
             act.update(now++);
         }
+        INFO(now);
         for (; now < 10 * act.period(); now += 100) {
             act.update(now);
             INFO(now);
@@ -208,14 +209,61 @@ SCENARIO("ActuatorPWM driving mock actuator")
     {
         act.setting(100);
         // wait target to go low
-        while (mock.state() == ActuatorDigital::State::Inactive) {
+        while (mock.state() != ActuatorDigital::State::Active) {
             act.update(now++);
         }
+        INFO(now);
         for (; now < 10 * act.period(); now += 100) {
             act.update(now);
             INFO(now);
             REQUIRE(mock.state() == ActuatorDigital::State::Active);
         }
+    }
+
+    WHEN("the PWM actuator is set to 50, and infrequently but regularly updated, "
+         "the achieved value is correctly calculated at all moments in the period")
+    {
+        act.setting(50);
+        for (; now < 5 * act.period(); now += 500) {
+            act.update(now);
+        }
+        for (; now < 15 * act.period(); now += 500) {
+            act.update(now);
+            INFO(now);
+            CHECK(act.value() == Approx(50).margin(0.1));
+        }
+    }
+
+    WHEN("the PWM actuator is set to 50, and infrequently and irregularly updated, "
+         "the achieved value is correctly calculated at all moments in the period")
+    {
+        act.setting(50);
+        for (; now < 5 * act.period(); now += std::rand() % 500) {
+            act.update(now);
+        }
+        for (; now < 15 * act.period(); now += std::rand() % 500) {
+            act.update(now);
+            INFO(now);
+            CHECK(act.value() == Approx(50).margin(2));
+        }
+    }
+
+    WHEN("the PWM actuator is set to 90 right after initialization, it goes active immediately")
+    {
+        act.setting(90);
+        act.update(now + 10); // history length is 1
+        CHECK(mock.state() == ActuatorDigital::State::Active);
+    }
+
+    WHEN("the PWM actuator is set from 0 to 50, it goes high immediately")
+    {
+        act.setting(0);
+        for (; now < 5 * act.period(); now += 1000) {
+            act.update(now);
+        }
+        act.setting(50);
+        act.update(now + 1);
+        CHECK(mock.state() == ActuatorDigital::State::Active);
     }
 }
 #if 0

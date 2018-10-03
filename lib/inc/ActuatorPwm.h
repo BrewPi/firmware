@@ -38,14 +38,7 @@ private:
     ActuatorDigitalChangeLogged& m_target;
     value_t m_dutySetting = 0;
     value_t m_dutyAchieved = 0;
-    duration_millis_t m_dutyLate = 0;
-    duration_millis_t m_periodLate = 0;
     duration_millis_t m_dutyTime = 0;
-    ticks_millis_t m_periodStartTime = 0;
-    ticks_millis_t m_highToLowTime = 0;
-    ticks_millis_t m_lowToHighTime = 0;
-    // last elapsed time between two pulses. Could be different from period due to cycle skipping
-    duration_millis_t m_cycleTime;
     duration_millis_t m_period;
 
 public:

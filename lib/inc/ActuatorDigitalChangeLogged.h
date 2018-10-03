@@ -94,7 +94,7 @@ public:
                    const ticks_millis_t& now,
                    const bool windowCorrection = true,
                    const uint8_t& maxChanges = historyLength,
-                   const duration_millis_t& maxHistory = std::numeric_limits<duration_millis_t>::max())
+                   const duration_millis_t& maxHistory = std::numeric_limits<duration_millis_t>::max() / 2)
     {
         struct {
             ticks_millis_t stateTotal;
@@ -139,6 +139,8 @@ public:
                 }
             }
         }
+
+        result.stateTotal = std::min(result.stateTotal, result.total);
         return result;
     }
 };
