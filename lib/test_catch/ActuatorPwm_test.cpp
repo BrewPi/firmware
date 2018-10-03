@@ -265,6 +265,17 @@ SCENARIO("ActuatorPWM driving mock actuator")
         act.update(now + 1);
         CHECK(mock.state() == ActuatorDigital::State::Active);
     }
+
+    WHEN("the PWM actuator is set from 100 to 50, it goes low immediately")
+    {
+        act.setting(100);
+        for (; now < 5 * act.period(); now += 1000) {
+            act.update(now);
+        }
+        act.setting(50);
+        act.update(now + 1);
+        CHECK(mock.state() == ActuatorDigital::State::Inactive);
+    }
 }
 #if 0
 
