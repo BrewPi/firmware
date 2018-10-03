@@ -49,6 +49,7 @@ randomIntervalTest(const int& numPeriods,
     ticks_millis_t highToLowTime = now;
     ticks_millis_t totalHighTime = 0;
     ticks_millis_t totalLowTime = 0;
+    ticks_millis_t nextUpdate = now;
 
     *output << std::endl
             << std::endl
@@ -67,7 +68,9 @@ randomIntervalTest(const int& numPeriods,
     for (int i = 0; i < numPeriods + 2; i++) {
         do {
             now += 1 + std::rand() % delayMax;
-            act.update(now);
+            if (now >= nextUpdate) {
+                nextUpdate = act.update(now);
+            }
         } while (target.state() == ActuatorDigital::State::Active);
         highToLowTime = now;
         ticks_millis_t highTime = highToLowTime - lowToHighTime;
@@ -83,7 +86,9 @@ randomIntervalTest(const int& numPeriods,
 #endif
         do {
             now += 1 + std::rand() % delayMax;
-            act.update(now);
+            if (now >= nextUpdate) {
+                nextUpdate = act.update(now);
+            }
         } while (target.state() == ActuatorDigital::State::Inactive);
         lowToHighTime = now;
         ticks_millis_t lowTime = lowToHighTime - highToLowTime;
@@ -170,9 +175,9 @@ SCENARIO("ActuatorPWM driving mock actuator")
 
     WHEN("update is called every millisecond, the average duty cycle is correct")
     {
-        CHECK(randomIntervalTest(5, act, mock, 50.0, 1, now) == Approx(50.0).margin(0.2));
-        CHECK(randomIntervalTest(5, act, mock, 2.0, 1, now) == Approx(2.0).margin(0.2));
-        CHECK(randomIntervalTest(5, act, mock, 98.0, 1, now) == Approx(98.0).margin(0.2));
+        CHECK(randomIntervalTest(100, act, mock, 50.0, 1, now) == Approx(50.0).margin(0.2));
+        CHECK(randomIntervalTest(100, act, mock, 2.0, 1, now) == Approx(2.0).margin(0.2));
+        CHECK(randomIntervalTest(100, act, mock, 98.0, 1, now) == Approx(98.0).margin(0.2));
     }
 
     WHEN("update interval is random, the average duty cycle is still correct")
@@ -187,7 +192,7 @@ SCENARIO("ActuatorPWM driving mock actuator")
     WHEN("Average_duty_cycle_is_correct_with_very long_period")
     {
         act.period(3600000);
-        CHECK(randomIntervalTest(10, act, mock, 40.0, 500, now) == Approx(40.0).margin(0.5));
+        CHECK(randomIntervalTest(10, act, mock, 40.0, 500, now) == Approx(40.0).margin(0.1));
     }
 
     WHEN("the PWM actuator is set to zero, the output stays low")
@@ -224,10 +229,10 @@ SCENARIO("ActuatorPWM driving mock actuator")
          "the achieved value is correctly calculated at all moments in the period")
     {
         act.setting(50);
-        for (; now < 5 * act.period(); now += 500) {
+        for (; now < 5 * act.period(); now += 250) {
             act.update(now);
         }
-        for (; now < 15 * act.period(); now += 500) {
+        for (; now < 15 * act.period(); now += 250) {
             act.update(now);
             INFO(now);
             CHECK(act.value() == Approx(50).margin(0.1));
@@ -238,10 +243,10 @@ SCENARIO("ActuatorPWM driving mock actuator")
          "the achieved value is correctly calculated at all moments in the period")
     {
         act.setting(50);
-        for (; now < 5 * act.period(); now += std::rand() % 500) {
+        for (; now < 5 * act.period(); now += std::rand() % 250) {
             act.update(now);
         }
-        for (; now < 15 * act.period(); now += std::rand() % 500) {
+        for (; now < 15 * act.period(); now += std::rand() % 250) {
             act.update(now);
             INFO(now);
             CHECK(act.value() == Approx(50).margin(2));

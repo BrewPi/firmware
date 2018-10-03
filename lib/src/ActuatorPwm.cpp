@@ -29,47 +29,60 @@ ActuatorPwm::update(const update_t& now)
     auto durations = m_target.durations(State::Active, now);
     m_dutyAchieved = (value_t(100) * durations.stateTotal) / durations.total;
 
-    auto timesHigh = m_target.getLastStartEndTime(State::Active, now);
-    auto timesLow = m_target.getLastStartEndTime(State::Inactive, now);
-
     if (m_target.state() == State::Active) {
+        if (m_dutySetting == value_t(100)) {
+            return now + 1000;
+        }
+
+        auto timesHigh = m_target.getLastStartEndTime(State::Active, now);
         // for checking the currently achieved value, look back max 2 periods
-        auto highTimeDurations = m_target.durations(State::Active, now, false, 4, 8 * m_period);
+        auto highTimeDurations = m_target.durations(State::Active, now, false, 4, m_period << 3);
         auto twoPeriodHighTime = highTimeDurations.stateTotal;
         auto twoPeriodTotalTime = highTimeDurations.total;
         auto twoPeriodTargetHighTime = duration_millis_t(twoPeriodTotalTime * (m_dutySetting / 100));
 
         auto thisPeriodHighTime = timesHigh.end - timesHigh.start;
 
-        auto maxHighTime = (m_dutySetting < value_t(75)) ? m_dutyTime : durations.total * 3 / 2;
-        auto minHighTime = (m_dutySetting > value_t(25)) ? m_dutyTime : 1u;
-        if (((m_dutySetting != value_t(100)
-              && twoPeriodHighTime >= twoPeriodTargetHighTime
-              && thisPeriodHighTime > minHighTime)
-             || thisPeriodHighTime > maxHighTime)) {
-            m_target.state(State::Inactive, now);
+        auto maxHighTime = (m_dutySetting < value_t(75)) ? m_dutyTime : (durations.total * 3) >> 1;
+        auto minHighTime = (m_dutySetting > value_t(25)) ? m_dutyTime / 2 : 1u;
+
+        if (thisPeriodHighTime < maxHighTime) {
+            if (thisPeriodHighTime < minHighTime) {
+                return now + std::min(update_t(1000), update_t(minHighTime - thisPeriodHighTime) >> 1);
+            }
+            if (twoPeriodHighTime < twoPeriodTargetHighTime) {
+                return now + std::min(update_t(1000), update_t(twoPeriodTargetHighTime - twoPeriodHighTime) >> 1);
+            }
         }
+        m_target.state(State::Inactive, now);
     } else if (m_target.state() == State::Inactive) {
+        if (m_dutySetting == value_t(0)) {
+            return now + 1000;
+        }
+        auto timesLow = m_target.getLastStartEndTime(State::Inactive, now);
         // for checking the currently achieved value, look back max 2 periods
-        auto lowTimeDurations = m_target.durations(State::Inactive, now, false, 4, 8 * m_period);
+        auto lowTimeDurations = m_target.durations(State::Inactive, now, false, 4, m_period << 3);
         auto twoPeriodLowTime = lowTimeDurations.stateTotal;
         auto twoPeriodTotalTime = lowTimeDurations.total;
         auto twoPeriodTargetLowTime = duration_millis_t(twoPeriodTotalTime * ((value_t(100) - m_dutySetting) / 100));
 
         auto thisPeriodLowTime = timesLow.end - timesLow.start;
 
-        // when not on low duty cycle, do not make period longer
-        auto maxLowTime = (m_dutySetting > value_t(25)) ? m_period - m_dutyTime : durations.total * 3 / 2;
+        // when not on low duty cycle, do not make period longer. High period should adapt.
+        auto maxLowTime = (m_dutySetting > value_t(25)) ? m_period - m_dutyTime : (durations.total * 3) >> 1;
         auto minLowTime = (m_dutySetting < value_t(75)) ? m_period - m_dutyTime : 1u;
 
-        if (((m_dutySetting != value_t(0)
-              && twoPeriodLowTime >= twoPeriodTargetLowTime
-              && thisPeriodLowTime > minLowTime)
-             || thisPeriodLowTime > maxLowTime)) {
-            m_target.state(State::Active, now);
+        if (thisPeriodLowTime < maxLowTime) {
+            if (thisPeriodLowTime < minLowTime) {
+                return now + std::min(update_t(1000), update_t(minLowTime - thisPeriodLowTime) >> 1);
+            }
+            if (twoPeriodLowTime < twoPeriodTargetLowTime) {
+                return now + std::min(update_t(1000), update_t(twoPeriodTargetLowTime - twoPeriodLowTime) >> 1);
+            }
         }
+        m_target.state(State::Active, now);
     } else {
         m_target.state(ActuatorDigital::State::Inactive, now); // force back into known state
     }
-    return now + 1; // TODO, don't request an update so often
+    return now + 1; // after toggling, do next update as quickly as possible
 }
