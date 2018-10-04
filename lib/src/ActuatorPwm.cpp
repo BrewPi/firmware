@@ -35,8 +35,10 @@ ActuatorPwm::update(const update_t& now)
         }
 
         auto timesHigh = m_target.getLastStartEndTime(State::Active, now);
-        // for checking the currently achieved value, look back max 2 periods
-        auto highTimeDurations = m_target.durations(State::Active, now, false, 4, m_period << 3);
+        // for checking the currently achieved value, look back max 2 periods (toggles)
+        // limit the time looked back to 3 periods, but longer for higher duty cycles
+        auto maxHistory = std::max(m_period * 3, m_dutyTime * 16);
+        auto highTimeDurations = m_target.durations(State::Active, now, false, 4, maxHistory);
         auto twoPeriodHighTime = highTimeDurations.stateTotal;
         auto twoPeriodTotalTime = highTimeDurations.total;
         auto twoPeriodTargetHighTime = duration_millis_t(twoPeriodTotalTime * (m_dutySetting / 100));
@@ -60,8 +62,10 @@ ActuatorPwm::update(const update_t& now)
             return now + 1000;
         }
         auto timesLow = m_target.getLastStartEndTime(State::Inactive, now);
-        // for checking the currently achieved value, look back max 2 periods
-        auto lowTimeDurations = m_target.durations(State::Inactive, now, false, 4, m_period << 3);
+        // for checking the currently achieved value, look back max 2 periods (toggles) and 4 periods (time)
+        auto invDutyTime = m_period - m_dutyTime;
+        auto maxHistory = std::max(m_period * 3, invDutyTime * 16);
+        auto lowTimeDurations = m_target.durations(State::Inactive, now, false, 4, maxHistory);
         auto twoPeriodLowTime = lowTimeDurations.stateTotal;
         auto twoPeriodTotalTime = lowTimeDurations.total;
         auto twoPeriodTargetLowTime = duration_millis_t(twoPeriodTotalTime * ((value_t(100) - m_dutySetting) / 100));
@@ -69,8 +73,8 @@ ActuatorPwm::update(const update_t& now)
         auto thisPeriodLowTime = timesLow.end - timesLow.start;
 
         // when not on low duty cycle, do not make period longer. High period should adapt.
-        auto maxLowTime = (m_dutySetting > value_t(25)) ? m_period - m_dutyTime : (durations.total * 3) >> 1;
-        auto minLowTime = (m_dutySetting < value_t(75)) ? m_period - m_dutyTime : 1u;
+        auto maxLowTime = (m_dutySetting > value_t(25)) ? invDutyTime : (durations.total * 3) >> 1;
+        auto minLowTime = (m_dutySetting < value_t(75)) ? invDutyTime : 1u;
 
         if (thisPeriodLowTime < maxLowTime) {
             if (thisPeriodLowTime < minLowTime) {

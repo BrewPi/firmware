@@ -22,6 +22,7 @@
 #include <stdlib.h> /* srand, rand */
 #include <time.h>   /* time, to seed rand */
 
+#include "ActuatorDigitalConstrained.h"
 #include "ActuatorDigitalMock.h"
 #include "ActuatorPwm.h"
 #include <cmath> // for sin
@@ -116,8 +117,8 @@ SCENARIO("ActuatorPWM driving mock actuator")
 {
     auto now = ticks_millis_t(0);
     auto mock = ActuatorDigitalMock();
-    auto logged = ActuatorDigitalChangeLogged(mock, now);
-    auto act = ActuatorPwm(logged, 4000);
+    auto constrained = ActuatorDigitalConstrained(mock, now);
+    auto act = ActuatorPwm(constrained, 4000);
 
     WHEN("Actuator setting is written, setting is contrained between  0-100")
     {
@@ -280,6 +281,22 @@ SCENARIO("ActuatorPWM driving mock actuator")
         act.setting(50);
         act.update(now + 1);
         CHECK(mock.state() == ActuatorDigital::State::Inactive);
+    }
+
+    WHEN("PWM actuator target is constrained with a minimal ON time and minimum OFF time, average is still correct")
+    {
+        // values typical for a fridge compressor
+        act.period(2400000);                                          // 40 minutes
+        constrained.addConstraint(ADConstraints::MinOnTime(300000));  // 5 minutes
+        constrained.addConstraint(ADConstraints::MinOffTime(600000)); // 10 minutes
+
+        CHECK(randomIntervalTest(10, act, mock, 50.0, 500, now) == Approx(50.0).margin(0.5));
+        CHECK(randomIntervalTest(10, act, mock, 20.0, 500, now) == Approx(20.0).margin(0.5));
+        CHECK(randomIntervalTest(10, act, mock, 80.0, 500, now) == Approx(80.0).margin(0.5));
+
+        // we don use 2% and 98% here, because with the maximum history taken into account it is not achievable under the constraints
+        CHECK(randomIntervalTest(10, act, mock, 4.0, 500, now) == Approx(4.0).margin(0.5));
+        CHECK(randomIntervalTest(10, act, mock, 96.0, 500, now) == Approx(96.0).margin(0.5));
     }
 }
 #if 0
