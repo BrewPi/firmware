@@ -51,9 +51,9 @@ public:
         history.fill(StateChange{State::Unknown, now - 1});
         history[0] = {actuator.state(), now};
     };
-    ~ActuatorDigitalChangeLogged() = default;
+    virtual ~ActuatorDigitalChangeLogged() = default;
 
-    void state(const State& state, const ticks_millis_t& now)
+    virtual void state(const State& state, const ticks_millis_t& now)
     {
         State previous = actuator.state();
         actuator.state(state);
@@ -68,7 +68,7 @@ public:
         return actuator.state();
     };
 
-    auto getLastStartEndTime(const State& state, const ticks_millis_t& now)
+    auto getLastStartEndTime(const State& state, const ticks_millis_t& now) const
     {
         struct {
             ticks_millis_t start;
@@ -94,7 +94,7 @@ public:
                    const ticks_millis_t& now,
                    const bool windowCorrection = true,
                    const uint8_t& maxChanges = historyLength,
-                   const duration_millis_t& maxHistory = std::numeric_limits<duration_millis_t>::max() / 2)
+                   const duration_millis_t& maxHistory = std::numeric_limits<duration_millis_t>::max() / 2) const
     {
         struct {
             ticks_millis_t stateTotal;
