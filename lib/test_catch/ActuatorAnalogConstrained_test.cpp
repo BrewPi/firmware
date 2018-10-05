@@ -21,6 +21,7 @@
 
 #include "ActuatorAnalogConstrained.h"
 #include "ActuatorAnalogMock.h"
+#include "Balancer.h"
 
 SCENARIO("ActuatorAnalogConstrained test", "[constraints]")
 {
@@ -41,7 +42,7 @@ SCENARIO("ActuatorAnalogConstrained test", "[constraints]")
 
         WHEN("A maximum constraint is added, the value is clipped at the maximum")
         {
-            cAct.addConstraint(AAConstraints::Maximum(25));
+            cAct.addConstraint(std::make_unique<AAConstraints::Maximum>(25));
 
             cAct.setting(50);
             CHECK(cAct.setting() == ActuatorAnalog::value_t(25));
@@ -49,7 +50,7 @@ SCENARIO("ActuatorAnalogConstrained test", "[constraints]")
 
             AND_WHEN("A minimum constraint is also added, the value is clipped at minimum and maximum")
             {
-                cAct.addConstraint(AAConstraints::Minimum(15));
+                cAct.addConstraint(std::make_unique<AAConstraints::Minimum>(15));
 
                 cAct.setting(50);
                 CHECK(cAct.setting() == ActuatorAnalog::value_t(25));
@@ -85,8 +86,8 @@ SCENARIO("When two analog actuators are constrained by a balancer", "[constraint
     auto act2 = ActuatorAnalogMock();
     auto cAct2 = ActuatorAnalogConstrained(act2);
 
-    cAct1.addConstraint(std::move(Balanced([&balancer]() { return balancer; })));
-    cAct2.addConstraint(std::move(Balanced([&balancer]() { return balancer; })));
+    cAct1.addConstraint(std::make_unique<AAConstraints::Balanced>([&balancer]() { return balancer; }));
+    cAct2.addConstraint(std::make_unique<AAConstraints::Balanced>([&balancer]() { return balancer; }));
 
     cAct1.setting(60);
     cAct2.setting(60);
@@ -94,13 +95,27 @@ SCENARIO("When two analog actuators are constrained by a balancer", "[constraint
     CHECK(cAct1.setting() == value_t(60));
     CHECK(cAct2.setting() == value_t(60));
 
-    THEN("After the balancer has updated, the values are contrained to not exceed the maximum available for the balancer")
+    THEN("After the balancer has updated, the values are constrained to not exceed the maximum available for the balancer, weighted by previous request")
     {
         balancer->update();
         cAct1.setting(60);
         cAct2.setting(60);
 
-        CHECK(cAct1.setting() == value_t(60));
-        CHECK(cAct2.setting() == value_t(60));
+        CHECK(cAct1.setting() == Approx(50).margin(cnl::numeric_limits<value_t>::min()));
+        CHECK(cAct2.setting() == Approx(50).margin(cnl::numeric_limits<value_t>::min()));
+
+        balancer->update();
+        cAct1.setting(70);
+        cAct2.setting(30);
+
+        CHECK(cAct1.setting() == Approx(50).margin(cnl::numeric_limits<value_t>::min()));
+        CHECK(cAct2.setting() == Approx(30).margin(cnl::numeric_limits<value_t>::min()));
+
+        balancer->update();
+        cAct1.setting(70);
+        cAct2.setting(30);
+
+        CHECK(cAct1.setting() == Approx(70).margin(cnl::numeric_limits<value_t>::min()));
+        CHECK(cAct2.setting() == Approx(30).margin(cnl::numeric_limits<value_t>::min()));
     }
 }

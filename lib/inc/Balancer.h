@@ -20,14 +20,18 @@
 #pragma once
 
 #include "ActuatorAnalog.h"
+#include "ActuatorAnalogConstrained.h"
 #include <functional>
 #include <vector>
 
+namespace AAConstraints {
 class Balanced;
+}
 
 class Balancer {
 private:
     using value_t = ActuatorAnalog::value_t;
+    using Balanced = AAConstraints::Balanced;
 
     struct Request {
         const Balanced* requester;
@@ -35,7 +39,7 @@ private:
         value_t granted;
     };
 
-    value_t available = 100;
+    const value_t available = 100;
 
     std::vector<Request> requesters;
 
@@ -45,12 +49,12 @@ public:
 
     void registerEntry(const Balanced* req)
     {
-        requesters.push_back(Request{req, 0, 0});
+        requesters.push_back(Request{req, 0, available});
     }
 
     void unregisterEntry(const Balanced* req)
     {
-        requesters.erase(std::remove_if(requesters.begin(), requesters.end(), [&req](const Request& r) { return r.requester == req; }));
+        requesters.erase(std::remove_if(requesters.begin(), requesters.end(), [req](const Request& r) { return r.requester == req; }));
     }
 
     value_t constrain(const Balanced* req, const value_t& val)
@@ -68,11 +72,14 @@ public:
 
     void update()
     {
-        value_t requestedTotal = 0;
+        auto requestedTotal = value_t(0);
         for (const auto& a : requesters) {
             requestedTotal += a.requested;
         }
-        auto scale = available / std::max(available, requestedTotal);
+        if (available > requestedTotal) {
+            requestedTotal = available;
+        }
+        safe_elastic_fixed_point<10, 21, int32_t> scale = cnl::quotient<safe_elastic_fixed_point<21, 21, int64_t>>(available, requestedTotal);
 
         for (auto& a : requesters) {
             a.granted = a.requested * scale;
@@ -80,9 +87,9 @@ public:
     }
 };
 
-class Balanced {
+namespace AAConstraints {
+class Balanced : public Base {
 private:
-    using value_t = ActuatorAnalog::value_t;
     const std::function<std::shared_ptr<Balancer>()> m_balancer;
 
 public:
@@ -98,7 +105,7 @@ public:
     Balanced(const Balanced&) = delete;
     Balanced& operator=(const Balanced&) = delete;
     Balanced(Balanced&&) = default;
-    Balanced& operator=(const Balanced&&) = delete;
+    Balanced& operator=(Balanced&&) = default;
 
     ~Balanced()
     {
@@ -107,7 +114,7 @@ public:
         }
     }
 
-    value_t operator()(const value_t& val) const
+    virtual value_t constrain(const value_t& val) const override final
     {
         if (auto balancerPtr = m_balancer()) {
             return balancerPtr->constrain(this, val);
@@ -115,3 +122,4 @@ public:
         return val;
     }
 };
+}

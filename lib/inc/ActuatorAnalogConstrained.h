@@ -20,27 +20,82 @@
 #pragma once
 
 #include "ActuatorAnalog.h"
-#include "Balancer.h"
 #include <functional>
 #include <vector>
+
+namespace AAConstraints {
+using value_t = ActuatorAnalog::value_t;
+
+class Base {
+public:
+    // constraints are movable but not copyable
+    Base() = default;
+    Base(const Base&) = delete;
+    Base& operator=(const Base&) = delete;
+    Base(Base&&) = default;
+    Base& operator=(Base&&) = default;
+
+    virtual ~Base() = default;
+
+    virtual value_t constrain(const value_t& val) const = 0;
+};
+
+class Minimum : public Base {
+private:
+    value_t m_min;
+
+public:
+    Minimum(const value_t& v)
+        : m_min(v)
+    {
+    }
+
+    virtual value_t constrain(const value_t& val) const override final
+    {
+        return std::max(val, m_min);
+    }
+};
+
+class Maximum : public Base {
+private:
+    value_t m_max;
+
+public:
+    Maximum(const value_t& v)
+        : m_max(v)
+    {
+    }
+
+    virtual value_t constrain(const value_t& val) const override final
+    {
+        return std::min(val, m_max);
+    }
+};
+}
 
 /*
  * An ActuatorAnalog has a range output
  */
 class ActuatorAnalogConstrained : public ActuatorAnalog {
 public:
-    using ConstrainFunc = std::function<value_t(const value_t&)>;
+    using Constraint = AAConstraints::Base;
 
 private:
-    std::vector<ConstrainFunc> constraints;
+    std::vector<std::unique_ptr<Constraint>> constraints;
     ActuatorAnalog& actuator;
 
 public:
     ActuatorAnalogConstrained(ActuatorAnalog& act)
         : actuator(act){};
+
+    ActuatorAnalogConstrained(const ActuatorAnalogConstrained&) = delete;
+    ActuatorAnalogConstrained& operator=(const ActuatorAnalogConstrained&) = delete;
+    ActuatorAnalogConstrained(ActuatorAnalogConstrained&&) = default;
+    ActuatorAnalogConstrained& operator=(ActuatorAnalogConstrained&&) = default;
+
     virtual ~ActuatorAnalogConstrained() = default;
 
-    void addConstraint(ConstrainFunc&& newConstraint)
+    void addConstraint(std::unique_ptr<Constraint>&& newConstraint)
     {
         constraints.push_back(std::move(newConstraint));
     }
@@ -53,8 +108,8 @@ public:
     virtual void setting(const value_t& val) override final
     {
         value_t result = val;
-        for (auto& constrainFunc : constraints) {
-            result = constrainFunc(result);
+        for (auto& c : constraints) {
+            result = c->constrain(result);
         }
         actuator.setting(result);
     }
@@ -74,41 +129,3 @@ public:
         return actuator.valid();
     }
 };
-
-namespace AAConstraints {
-using value_t = ActuatorAnalog::value_t;
-
-class Minimum {
-private:
-    value_t m_min;
-
-public:
-    Minimum(const value_t& v)
-        : m_min(v)
-    {
-    }
-
-    value_t operator()(const value_t& val)
-    {
-        return std::max(val, m_min);
-    }
-};
-
-class Maximum {
-private:
-    value_t m_max;
-
-public:
-    Maximum(const value_t& v)
-        : m_max(v)
-    {
-    }
-
-    value_t operator()(const value_t& val)
-    {
-        return std::min(val, m_max);
-    }
-};
-
-using Balanced = Balanced;
-}
