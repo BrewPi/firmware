@@ -24,7 +24,7 @@
 
 using State = ActuatorDigital::State;
 
-SCENARIO("ActuatorDigitalConstrained")
+SCENARIO("ActuatorDigitalConstrained", "[constraints]")
 {
     auto now = ticks_millis_t(0);
     auto mock = ActuatorDigitalMock();
@@ -84,5 +84,51 @@ SCENARIO("ActuatorDigitalConstrained")
 
         auto timesOn = constrained.getLastStartEndTime(State::Active, now);
         CHECK(timesOn.end - timesOn.start == 2000);
+    }
+}
+
+SCENARIO("Mutex contraint", "[constraints]")
+{
+    auto now = ticks_millis_t(0);
+    auto mock1 = ActuatorDigitalMock();
+    auto constrained1 = ActuatorDigitalConstrained(mock1, now);
+    auto mock2 = ActuatorDigitalMock();
+    auto constrained2 = ActuatorDigitalConstrained(mock2, now);
+    auto mut = std::make_shared<std::mutex>();
+
+    constrained1.state(State::Inactive, now);
+    constrained2.state(State::Inactive, now);
+
+    constrained1.addConstraint(ADConstraints::Mutex<std::mutex>(
+        [&mut]() {
+            return mut;
+        }));
+    constrained2.addConstraint(ADConstraints::Mutex<std::mutex>(
+        [&mut]() {
+            return mut;
+        }));
+
+    WHEN("Two actuators share a mutex, they cannot be active at the same time")
+    {
+        constrained1.state(State::Active, ++now);
+        CHECK(constrained1.state() == State::Active);
+        constrained2.state(State::Active, ++now);
+        CHECK(constrained2.state() == State::Inactive);
+
+        constrained1.state(State::Inactive, ++now);
+        constrained2.state(State::Active, ++now);
+        CHECK(constrained2.state() == State::Active);
+
+        constrained1.state(State::Active, ++now);
+        CHECK(constrained1.state() == State::Inactive);
+    }
+
+    WHEN("A minimum OFF time constraint holds an actuator low, it doesn't lock the mutex")
+    {
+        constrained1.addConstraint(ADConstraints::MinOffTime(1000));
+        constrained1.state(State::Active, ++now);
+        CHECK(constrained1.state() == State::Inactive);
+        constrained2.state(State::Active, ++now);
+        CHECK(constrained2.state() == State::Active);
     }
 }

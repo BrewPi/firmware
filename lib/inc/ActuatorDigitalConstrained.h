@@ -23,6 +23,7 @@
 #include "ActuatorDigitalChangeLogged.h"
 #include "TicksTypes.h"
 #include <functional>
+#include <mutex>
 #include <vector>
 
 /*
@@ -50,15 +51,24 @@ public:
         constraints.clear();
     }
 
+    bool checkConstraints(const State& val, const ticks_millis_t& now)
+    {
+        bool allowed = true;
+        for (auto& constrainFunc : constraints) {
+            allowed &= constrainFunc(val, now, *this);
+        }
+        return allowed;
+    }
+
     virtual void state(const State& val, const ticks_millis_t& now) override final
     {
-        State result = val;
-        for (auto& constrainFunc : constraints) {
-            if (!constrainFunc(result, now, *this)) {
-                return;
-            };
+        if (!checkConstraints(val, now)) {
+            // before returning, check constraints again with current state
+            // to reset any state keeping contstraints like mutex
+            checkConstraints(ActuatorDigitalChangeLogged::state(), now);
+            return;
         }
-        ActuatorDigitalChangeLogged::state(result, now);
+        ActuatorDigitalChangeLogged::state(val, now);
     }
 
     State state() const
@@ -102,4 +112,35 @@ public:
         return newState == State::Inactive || times.end - times.start >= minTime;
     }
 };
+
+template <class T>
+class Mutex {
+private:
+    const std::function<std::shared_ptr<T>()> m_mutex;
+
+public:
+    explicit Mutex(
+        std::function<std::shared_ptr<T>()>&& mut)
+        : m_mutex(mut)
+    {
+    }
+
+    bool operator()(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act)
+    {
+        if (newState == State::Inactive) {
+            if (auto mutPtr = m_mutex()) {
+                mutPtr->unlock();
+            }
+            return true;
+        }
+
+        if (auto mutPtr = m_mutex()) {
+            if (act.state() != State::Active && newState == State::Active) {
+                return mutPtr->try_lock();
+            }
+        }
+        return false;
+    }
+};
+
 } // end namespace ADConstraints
