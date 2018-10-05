@@ -43,7 +43,7 @@ public:
 
     void addConstraint(ConstrainFunc&& newConstraint)
     {
-        constraints.push_back(std::move(newConstraint));
+        constraints.emplace_back(std::move(newConstraint));
     }
 
     void removeAllConstraints()

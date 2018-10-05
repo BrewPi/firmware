@@ -22,7 +22,7 @@
 #include "ActuatorAnalogConstrained.h"
 #include "ActuatorAnalogMock.h"
 
-SCENARIO("ActuatorAnalogConstrained test")
+SCENARIO("ActuatorAnalogConstrained test", "[constraints]")
 {
     WHEN("An actuator is constructed wrapped by a ActuatorAnalogConstrained")
     {
@@ -73,5 +73,34 @@ SCENARIO("ActuatorAnalogConstrained test")
                 }
             }
         }
+    }
+}
+
+SCENARIO("When two analog actuators are constrained by a balancer", "[constraints]")
+{
+    using value_t = ActuatorAnalog::value_t;
+    auto balancer = std::make_shared<Balancer>();
+    auto act1 = ActuatorAnalogMock();
+    auto cAct1 = ActuatorAnalogConstrained(act1);
+    auto act2 = ActuatorAnalogMock();
+    auto cAct2 = ActuatorAnalogConstrained(act2);
+
+    cAct1.addConstraint(std::move(Balanced([&balancer]() { return balancer; })));
+    cAct2.addConstraint(std::move(Balanced([&balancer]() { return balancer; })));
+
+    cAct1.setting(60);
+    cAct2.setting(60);
+
+    CHECK(cAct1.setting() == value_t(60));
+    CHECK(cAct2.setting() == value_t(60));
+
+    THEN("After the balancer has updated, the values are contrained to not exceed the maximum available for the balancer")
+    {
+        balancer->update();
+        cAct1.setting(60);
+        cAct2.setting(60);
+
+        CHECK(cAct1.setting() == value_t(60));
+        CHECK(cAct2.setting() == value_t(60));
     }
 }
