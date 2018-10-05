@@ -94,13 +94,13 @@ SCENARIO("Mutex contraint", "[constraints]")
     auto constrained1 = ActuatorDigitalConstrained(mock1, now);
     auto mock2 = ActuatorDigitalMock();
     auto constrained2 = ActuatorDigitalConstrained(mock2, now);
-    auto mut = std::make_shared<std::mutex>();
+    auto mut = std::make_shared<TimedMutex>();
 
-    constrained1.addConstraint(ADConstraints::Mutex<std::mutex>(
+    constrained1.addConstraint(ADConstraints::Mutex(
         [&mut]() {
             return mut;
         }));
-    constrained2.addConstraint(ADConstraints::Mutex<std::mutex>(
+    constrained2.addConstraint(ADConstraints::Mutex(
         [&mut]() {
             return mut;
         }));
@@ -136,5 +136,32 @@ SCENARIO("Mutex contraint", "[constraints]")
         constrained2.state(State::Inactive, ++now);
         constrained2.state(State::Active, ++now);
         CHECK(constrained2.state() == State::Inactive);
+    }
+
+    WHEN("A minimum switch time of 1000 is set on the mutex and actuator 1 was active before")
+    {
+        mut->minSwitchTime(1000);
+        constrained1.state(State::Active, ++now);
+        CHECK(constrained1.state() == State::Active);
+
+        constrained1.state(State::Inactive, ++now);
+        CHECK(constrained1.state() == State::Inactive);
+
+        THEN("Actuator 1 can go active again immediately")
+        {
+            constrained1.state(State::Active, ++now);
+            CHECK(constrained1.state() == State::Active);
+        }
+
+        THEN("Actuator 2 has to wait until no actuator has been active for 1000ms")
+        {
+            constrained2.state(State::Active, ++now);
+            CHECK(constrained2.state() == State::Inactive);
+
+            while (constrained2.state() != State::Active && now < 2000) {
+                constrained2.state(State::Active, ++now);
+            }
+            CHECK(now == 1002);
+        }
     }
 }

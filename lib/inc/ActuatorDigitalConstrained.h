@@ -77,6 +77,45 @@ public:
     }
 };
 
+class TimedMutex {
+private:
+    std::mutex m_mutex;
+    duration_millis_t m_minSwitchTime = 0;
+    ticks_millis_t lastActive = 0;
+    const ActuatorDigitalChangeLogged* lastActuator = nullptr;
+
+public:
+    TimedMutex() = default;
+    ~TimedMutex() = default;
+
+    bool try_lock(const duration_millis_t& now, const ActuatorDigitalChangeLogged& act)
+    {
+        if (lastActuator == nullptr || lastActuator == &act || (now - lastActive) >= m_minSwitchTime) {
+            return m_mutex.try_lock();
+        }
+        return false;
+    }
+
+    void unlock(const duration_millis_t& now, const ActuatorDigitalChangeLogged& act)
+    {
+        if (act.state() == ActuatorDigital::State::Active) {
+            lastActive = now;
+            lastActuator = &act;
+        }
+        m_mutex.unlock();
+    }
+
+    duration_millis_t minSwitchTime()
+    {
+        return m_minSwitchTime;
+    }
+
+    void minSwitchTime(const duration_millis_t& v)
+    {
+        m_minSwitchTime = v;
+    }
+};
+
 namespace ADConstraints {
 using State = ActuatorDigital::State;
 class MinOnTime {
@@ -113,15 +152,14 @@ public:
     }
 };
 
-template <class T>
 class Mutex {
 private:
-    const std::function<std::shared_ptr<T>()> m_mutex;
+    const std::function<std::shared_ptr<TimedMutex>()> m_mutex;
     bool hasLock = false;
 
 public:
     explicit Mutex(
-        std::function<std::shared_ptr<T>()>&& mut)
+        std::function<std::shared_ptr<TimedMutex>()>&& mut)
         : m_mutex(mut)
     {
     }
@@ -131,7 +169,7 @@ public:
         if (newState == State::Inactive) {
             if (hasLock) {
                 if (auto mutPtr = m_mutex()) {
-                    mutPtr->unlock();
+                    mutPtr->unlock(now, act);
                     hasLock = false;
                 }
             }
@@ -140,7 +178,7 @@ public:
 
         if (auto mutPtr = m_mutex()) {
             if (act.state() != State::Active && newState == State::Active) {
-                hasLock = mutPtr->try_lock();
+                hasLock = mutPtr->try_lock(now, act);
                 return hasLock;
             }
         }

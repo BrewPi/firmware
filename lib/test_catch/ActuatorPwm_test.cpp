@@ -313,13 +313,13 @@ SCENARIO("Two PWM actuators driving mutually exclusive digital actuators can alt
     auto constrained2 = ActuatorDigitalConstrained(mock2, now);
     auto pwm2 = ActuatorPwm(constrained2, period);
 
-    auto mut = std::make_shared<std::mutex>();
+    auto mut = std::make_shared<TimedMutex>();
 
-    constrained1.addConstraint(ADConstraints::Mutex<std::mutex>(
+    constrained1.addConstraint(ADConstraints::Mutex(
         [&mut]() {
             return mut;
         }));
-    constrained2.addConstraint(ADConstraints::Mutex<std::mutex>(
+    constrained2.addConstraint(ADConstraints::Mutex(
         [&mut]() {
             return mut;
         }));
