@@ -41,10 +41,7 @@ SCENARIO("ActuatorAnalogConstrained test")
 
         WHEN("A maximum constraint is added, the value is clipped at the maximum")
         {
-            ActuatorAnalog::value_t max = 25;
-            cAct.addConstraint([max](const ActuatorAnalog::value_t& val) {
-                return std::min(val, max);
-            });
+            cAct.addConstraint(AAConstraints::Maximum(25));
 
             cAct.setting(50);
             CHECK(cAct.setting() == ActuatorAnalog::value_t(25));
@@ -52,10 +49,7 @@ SCENARIO("ActuatorAnalogConstrained test")
 
             AND_WHEN("A minimum constraint is also added, the value is clipped at minimum and maximum")
             {
-                ActuatorAnalog::value_t min = 15;
-                cAct.addConstraint([min](const ActuatorAnalog::value_t& val) {
-                    return std::max(val, min);
-                });
+                cAct.addConstraint(AAConstraints::Minimum(15));
 
                 cAct.setting(50);
                 CHECK(cAct.setting() == ActuatorAnalog::value_t(25));

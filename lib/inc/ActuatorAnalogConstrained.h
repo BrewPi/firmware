@@ -28,7 +28,7 @@
  */
 class ActuatorAnalogConstrained : public ActuatorAnalog {
 public:
-    using ConstrainFunc = std::function<value_t(const value_t&)>;
+    using ConstrainFunc = std::function<value_t(const ActuatorAnalogConstrained* act, const value_t&)>;
 
 private:
     std::vector<ConstrainFunc> constraints;
@@ -53,7 +53,7 @@ public:
     {
         value_t result = val;
         for (auto& constrainFunc : constraints) {
-            result = constrainFunc(result);
+            result = constrainFunc(this, result);
         }
         actuator.setting(result);
     }
@@ -73,3 +73,39 @@ public:
         return actuator.valid();
     }
 };
+
+namespace AAConstraints {
+using value_t = ActuatorAnalog::value_t;
+
+class Minimum {
+private:
+    value_t m_min;
+
+public:
+    Minimum(const value_t& v)
+        : m_min(v)
+    {
+    }
+
+    value_t operator()(const ActuatorAnalogConstrained* act, const value_t& val)
+    {
+        return std::max(val, m_min);
+    }
+};
+
+class Maximum {
+private:
+    value_t m_max;
+
+public:
+    Maximum(const value_t& v)
+        : m_max(v)
+    {
+    }
+
+    value_t operator()(const ActuatorAnalogConstrained* act, const value_t& val)
+    {
+        return std::min(val, m_max);
+    }
+};
+}
