@@ -117,6 +117,7 @@ template <class T>
 class Mutex {
 private:
     const std::function<std::shared_ptr<T>()> m_mutex;
+    bool hasLock = false;
 
 public:
     explicit Mutex(
@@ -128,15 +129,19 @@ public:
     bool operator()(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act)
     {
         if (newState == State::Inactive) {
-            if (auto mutPtr = m_mutex()) {
-                mutPtr->unlock();
+            if (hasLock) {
+                if (auto mutPtr = m_mutex()) {
+                    mutPtr->unlock();
+                    hasLock = false;
+                }
             }
             return true;
         }
 
         if (auto mutPtr = m_mutex()) {
             if (act.state() != State::Active && newState == State::Active) {
-                return mutPtr->try_lock();
+                hasLock = mutPtr->try_lock();
+                return hasLock;
             }
         }
         return false;

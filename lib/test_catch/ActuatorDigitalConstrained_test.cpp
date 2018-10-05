@@ -96,9 +96,6 @@ SCENARIO("Mutex contraint", "[constraints]")
     auto constrained2 = ActuatorDigitalConstrained(mock2, now);
     auto mut = std::make_shared<std::mutex>();
 
-    constrained1.state(State::Inactive, now);
-    constrained2.state(State::Inactive, now);
-
     constrained1.addConstraint(ADConstraints::Mutex<std::mutex>(
         [&mut]() {
             return mut;
@@ -130,5 +127,14 @@ SCENARIO("Mutex contraint", "[constraints]")
         CHECK(constrained1.state() == State::Inactive);
         constrained2.state(State::Active, ++now);
         CHECK(constrained2.state() == State::Active);
+    }
+
+    WHEN("An actuator doesn't have the mutex, it won't unlock it when set to Inactive")
+    {
+        constrained1.state(State::Active, ++now);
+        CHECK(constrained1.state() == State::Active);
+        constrained2.state(State::Inactive, ++now);
+        constrained2.state(State::Active, ++now);
+        CHECK(constrained2.state() == State::Inactive);
     }
 }
