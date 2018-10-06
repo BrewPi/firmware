@@ -287,9 +287,9 @@ SCENARIO("ActuatorPWM driving mock actuator")
     WHEN("PWM actuator target is constrained with a minimal ON time and minimum OFF time, average is still correct")
     {
         // values typical for a fridge compressor
-        pwm.period(2400000);                                          // 40 minutes
-        constrained.addConstraint(ADConstraints::MinOnTime(300000));  // 5 minutes
-        constrained.addConstraint(ADConstraints::MinOffTime(600000)); // 10 minutes
+        pwm.period(2400000);                                                            // 40 minutes
+        constrained.addConstraint(std::make_unique<ADConstraints::MinOnTime>(300000));  // 5 minutes
+        constrained.addConstraint(std::make_unique<ADConstraints::MinOffTime>(600000)); // 10 minutes
 
         CHECK(randomIntervalTest(10, pwm, mock, 50.0, 500, now) == Approx(50.0).margin(0.5));
         CHECK(randomIntervalTest(10, pwm, mock, 20.0, 500, now) == Approx(20.0).margin(0.5));
@@ -315,11 +315,11 @@ SCENARIO("Two PWM actuators driving mutually exclusive digital actuators can alt
 
     auto mut = std::make_shared<TimedMutex>();
 
-    constrained1.addConstraint(ADConstraints::Mutex(
+    constrained1.addConstraint(std::make_unique<ADConstraints::Mutex>(
         [&mut]() {
             return mut;
         }));
-    constrained2.addConstraint(ADConstraints::Mutex(
+    constrained2.addConstraint(std::make_unique<ADConstraints::Mutex>(
         [&mut]() {
             return mut;
         }));

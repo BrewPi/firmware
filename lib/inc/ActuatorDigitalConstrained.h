@@ -22,60 +22,9 @@
 #include "ActuatorDigital.h"
 #include "ActuatorDigitalChangeLogged.h"
 #include "TicksTypes.h"
-#include <functional>
+#include <memory>
 #include <mutex>
 #include <vector>
-
-/*
- * An ActuatorAnalog has a range output
- */
-class ActuatorDigitalConstrained : public ActuatorDigitalChangeLogged {
-public:
-    using ConstrainFunc = std::function<bool(const State&, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act)>;
-
-private:
-    std::vector<ConstrainFunc> constraints;
-
-public:
-    ActuatorDigitalConstrained(ActuatorDigital& act, const ticks_millis_t& now)
-        : ActuatorDigitalChangeLogged(act, now){};
-    virtual ~ActuatorDigitalConstrained() = default;
-
-    void addConstraint(ConstrainFunc&& newConstraint)
-    {
-        constraints.emplace_back(std::move(newConstraint));
-    }
-
-    void removeAllConstraints()
-    {
-        constraints.clear();
-    }
-
-    bool checkConstraints(const State& val, const ticks_millis_t& now)
-    {
-        bool allowed = true;
-        for (auto& constrainFunc : constraints) {
-            allowed &= constrainFunc(val, now, *this);
-        }
-        return allowed;
-    }
-
-    virtual void state(const State& val, const ticks_millis_t& now) override final
-    {
-        if (!checkConstraints(val, now)) {
-            // before returning, check constraints again with current state
-            // to reset any state keeping contstraints like mutex
-            checkConstraints(ActuatorDigitalChangeLogged::state(), now);
-            return;
-        }
-        ActuatorDigitalChangeLogged::state(val, now);
-    }
-
-    State state() const
-    {
-        return ActuatorDigitalChangeLogged::state();
-    }
-};
 
 class TimedMutex {
 private:
@@ -118,7 +67,16 @@ public:
 
 namespace ADConstraints {
 using State = ActuatorDigital::State;
-class MinOnTime {
+
+class Base {
+public:
+    Base() = default;
+    virtual ~Base() = default;
+
+    virtual bool allowed(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act) = 0;
+};
+
+class MinOnTime : public Base {
 private:
     duration_millis_t minTime;
 
@@ -128,14 +86,14 @@ public:
     {
     }
 
-    bool operator()(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act)
+    bool allowed(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act) override final
     {
         auto times = act.getLastStartEndTime(State::Active, now);
         return newState == State::Active || times.end - times.start >= minTime;
     }
 };
 
-class MinOffTime {
+class MinOffTime : public Base {
 private:
     duration_millis_t minTime;
 
@@ -145,14 +103,14 @@ public:
     {
     }
 
-    bool operator()(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act)
+    virtual bool allowed(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act) override final
     {
         auto times = act.getLastStartEndTime(State::Inactive, now);
         return newState == State::Inactive || times.end - times.start >= minTime;
     }
 };
 
-class Mutex {
+class Mutex : public Base {
 private:
     const std::function<std::shared_ptr<TimedMutex>()> m_mutex;
     bool hasLock = false;
@@ -164,7 +122,7 @@ public:
     {
     }
 
-    bool operator()(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act)
+    virtual bool allowed(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act) override final
     {
         if (newState == State::Inactive) {
             if (hasLock) {
@@ -187,3 +145,57 @@ public:
 };
 
 } // end namespace ADConstraints
+
+class ActuatorDigitalConstrained : public ActuatorDigitalChangeLogged {
+public:
+    using Constraint = ADConstraints::Base;
+
+private:
+    std::vector<std::unique_ptr<Constraint>> constraints;
+
+public:
+    ActuatorDigitalConstrained(ActuatorDigital& act, const ticks_millis_t& now)
+        : ActuatorDigitalChangeLogged(act, now){};
+
+    ActuatorDigitalConstrained(const ActuatorDigitalConstrained&) = delete;
+    ActuatorDigitalConstrained& operator=(const ActuatorDigitalConstrained&) = delete;
+    ActuatorDigitalConstrained(ActuatorDigitalConstrained&&) = default;
+    ActuatorDigitalConstrained& operator=(ActuatorDigitalConstrained&&) = default;
+
+    virtual ~ActuatorDigitalConstrained() = default;
+
+    void addConstraint(std::unique_ptr<Constraint>&& newConstraint)
+    {
+        constraints.push_back(std::move(newConstraint));
+    }
+
+    void removeAllConstraints()
+    {
+        constraints.clear();
+    }
+
+    bool checkConstraints(const State& val, const ticks_millis_t& now)
+    {
+        bool allowed = true;
+        for (auto& c : constraints) {
+            allowed &= c->allowed(val, now, *this);
+        }
+        return allowed;
+    }
+
+    virtual void state(const State& val, const ticks_millis_t& now) override final
+    {
+        if (!checkConstraints(val, now)) {
+            // before returning, check constraints again with current state
+            // to reset any state keeping contstraints like mutex
+            checkConstraints(ActuatorDigitalChangeLogged::state(), now);
+            return;
+        }
+        ActuatorDigitalChangeLogged::state(val, now);
+    }
+
+    State state() const
+    {
+        return ActuatorDigitalChangeLogged::state();
+    }
+};
