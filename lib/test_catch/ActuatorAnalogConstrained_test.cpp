@@ -86,8 +86,8 @@ SCENARIO("When two analog actuators are constrained by a balancer", "[constraint
     auto act2 = ActuatorAnalogMock();
     auto cAct2 = ActuatorAnalogConstrained(act2);
 
-    cAct1.addConstraint(std::make_unique<AAConstraints::Balanced>([&balancer]() { return balancer; }));
-    cAct2.addConstraint(std::make_unique<AAConstraints::Balanced>([&balancer]() { return balancer; }));
+    cAct1.addConstraint(std::make_unique<AAConstraints::Balanced>([balancer]() { return balancer; }));
+    cAct2.addConstraint(std::make_unique<AAConstraints::Balanced>([balancer]() { return balancer; }));
 
     cAct1.setting(60);
     cAct2.setting(60);

@@ -22,9 +22,11 @@
 #include <stdlib.h> /* srand, rand */
 #include <time.h>   /* time, to seed rand */
 
+#include "ActuatorAnalogConstrained.h"
 #include "ActuatorDigitalConstrained.h"
 #include "ActuatorDigitalMock.h"
 #include "ActuatorPwm.h"
+#include "Balancer.h"
 #include <cmath> // for sin
 #include <cstring>
 #include <fstream>
@@ -301,61 +303,106 @@ SCENARIO("ActuatorPWM driving mock actuator")
     }
 }
 
-SCENARIO("Two PWM actuators driving mutually exclusive digital actuators can alternate their dutycycles")
+SCENARIO("Two PWM actuators driving mutually exclusive digital actuators")
 {
     auto now = ticks_millis_t(0);
     auto period = duration_millis_t(4000);
     auto mock1 = ActuatorDigitalMock();
-    auto constrained1 = ActuatorDigitalConstrained(mock1, now);
-    auto pwm1 = ActuatorPwm(constrained1, period);
+    auto constrainedMock1 = ActuatorDigitalConstrained(mock1, now);
+    auto pwm1 = ActuatorPwm(constrainedMock1, period);
+    auto constrainedPwm1 = ActuatorAnalogConstrained(pwm1);
 
     auto mock2 = ActuatorDigitalMock();
-    auto constrained2 = ActuatorDigitalConstrained(mock2, now);
-    auto pwm2 = ActuatorPwm(constrained2, period);
+    auto constrainedMock2 = ActuatorDigitalConstrained(mock2, now);
+    auto pwm2 = ActuatorPwm(constrainedMock2, period);
+    auto constrainedPwm2 = ActuatorAnalogConstrained(pwm2);
 
     auto mut = std::make_shared<TimedMutex>();
+    auto balancer = std::make_shared<Balancer>();
 
-    constrained1.addConstraint(std::make_unique<ADConstraints::Mutex>(
-        [&mut]() {
+    constrainedMock1.addConstraint(std::make_unique<ADConstraints::Mutex>(
+        [mut]() {
             return mut;
         }));
-    constrained2.addConstraint(std::make_unique<ADConstraints::Mutex>(
-        [&mut]() {
+    constrainedMock2.addConstraint(std::make_unique<ADConstraints::Mutex>(
+        [mut]() {
             return mut;
         }));
 
-    auto timeHigh1 = duration_millis_t(0);
-    auto timeHigh2 = duration_millis_t(0);
-    auto timeTotal = duration_millis_t(100 * period);
+    auto checkDuties = [&](value_t duty1, value_t duty2, double expected1, double expected2) {
+        auto timeHigh1 = duration_millis_t(0);
+        auto timeHigh2 = duration_millis_t(0);
+        auto timeTotal = duration_millis_t(100 * period);
 
-    auto nextUpdate1 = ticks_millis_t(now);
-    auto nextUpdate2 = ticks_millis_t(now);
+        auto nextUpdate1 = ticks_millis_t(now);
+        auto nextUpdate2 = ticks_millis_t(now);
 
-    pwm1.setting(40);
-    pwm2.setting(50);
+        constrainedPwm1.setting(duty1);
+        constrainedPwm2.setting(duty2);
 
-    while (++now <= timeTotal) {
-        if (now >= nextUpdate1) {
-            nextUpdate1 = pwm1.update(now);
-            REQUIRE(!(mock1.state() == State::Active && mock2.state() == State::Active)); // not active at the same time
-        }
-        if (now >= nextUpdate2) {
-            nextUpdate2 = pwm2.update(now);
-            REQUIRE(!(mock1.state() == State::Active && mock2.state() == State::Active)); // not active at the same time
+        auto start = now;
+        auto warmup = 10 * period;
+        while (++now - start <= timeTotal + warmup) {
+            if (now >= nextUpdate1) {
+                nextUpdate1 = pwm1.update(now);
+                REQUIRE(!(mock1.state() == State::Active && mock2.state() == State::Active)); // not active at the same time
+            }
+            if (now >= nextUpdate2) {
+                nextUpdate2 = pwm2.update(now);
+                REQUIRE(!(mock1.state() == State::Active && mock2.state() == State::Active)); // not active at the same time
+            }
+            if (now % 1000 == 0) {
+                // keep setting the value to the constrained PWM, this is when the balancer gets its values. TODO: change that this is necessary ?
+                constrainedPwm1.setting(duty1);
+                constrainedPwm2.setting(duty2);
+                balancer->update();
+            }
+
+            if (now - start <= warmup) {
+                continue;
+            }
+
+            if (mock1.state() == State::Active) {
+                timeHigh1++;
+            }
+            if (mock2.state() == State::Active) {
+                timeHigh2++;
+            }
         }
 
-        if (mock1.state() == State::Active) {
-            timeHigh1++;
-        }
-        if (mock2.state() == State::Active) {
-            timeHigh2++;
-        }
+        auto avgDuty1 = double(timeHigh1) * 100 / timeTotal;
+        auto avgDuty2 = double(timeHigh2) * 100 / timeTotal;
+        CHECK(avgDuty1 == Approx(double(expected1)).margin(0.5));
+        CHECK(avgDuty2 == Approx(double(expected2)).margin(0.5));
+    };
+
+    WHEN("The sum of duty cycles is under 100, they can both reach their target by alternating")
+    {
+        checkDuties(40, 50, 40, 50);
+        checkDuties(50, 50, 50, 50);
+        checkDuties(30, 60, 30, 60);
     }
 
-    auto avgDuty1 = double(timeHigh1) * 100 / timeTotal;
-    auto avgDuty2 = double(timeHigh2) * 100 / timeTotal;
-    CHECK(avgDuty1 == Approx(40).margin(0.5));
-    CHECK(avgDuty2 == Approx(50).margin(0.5));
+    WHEN("A balancing constraint is added")
+    {
+        constrainedPwm1.addConstraint(std::make_unique<AAConstraints::Balanced>([balancer]() { return balancer; }));
+        constrainedPwm2.addConstraint(std::make_unique<AAConstraints::Balanced>([balancer]() { return balancer; }));
+
+        THEN("Achieved duty cycle matches the setting if the total is under 100")
+        {
+            checkDuties(40, 50, 40, 50);
+            checkDuties(50, 50, 50, 50);
+            checkDuties(30, 60, 30, 60);
+        }
+
+        THEN("Achieved duty cycle is scaled proportionally if total is over 100")
+        {
+            checkDuties(100, 100, 50, 50);
+            checkDuties(75, 50, 60, 40);
+            checkDuties(80, 30, 80.0 / 1.1, 30.0 / 1.1);
+            checkDuties(90, 20, 90.0 / 1.1, 20.0 / 1.1);
+        }
+    }
 }
 
 #if 0
