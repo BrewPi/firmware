@@ -69,7 +69,7 @@ randomIntervalTest(const int& numPeriods,
             << "l->h time        h->l time       high time       low time    value   period"
             << std::endl;
 #endif
-    for (int i = 0; i < numPeriods + 2; i++) {
+    for (int i = 0; i < numPeriods + 4; i++) {
         do {
             now += 1 + std::rand() % delayMax;
             if (now >= nextUpdate) {
@@ -78,7 +78,7 @@ randomIntervalTest(const int& numPeriods,
         } while (target.state() == State::Active);
         highToLowTime = now;
         ticks_millis_t highTime = highToLowTime - lowToHighTime;
-        if (i >= 2) {
+        if (i >= 4) {
             totalHighTime += highTime;
         }
 #if PRINT_TOGGLE_TIMES
@@ -96,7 +96,7 @@ randomIntervalTest(const int& numPeriods,
         } while (target.state() == State::Inactive);
         lowToHighTime = now;
         ticks_millis_t lowTime = lowToHighTime - highToLowTime;
-        if (i >= 2) {
+        if (i >= 4) {
             totalLowTime += lowTime;
         }
 #if PRINT_TOGGLE_TIMES
@@ -116,7 +116,7 @@ randomIntervalTest(const int& numPeriods,
             << std::endl;
     return avgDuty;
 }
-SCENARIO("ActuatorPWM driving mock actuator")
+SCENARIO("ActuatorPWM driving mock actuator", "[pwm]")
 {
     auto now = ticks_millis_t(0);
     auto mock = ActuatorDigitalMock();
@@ -144,24 +144,31 @@ SCENARIO("ActuatorPWM driving mock actuator")
         CHECK(pwm.setting() == value_t(0)); // min is 0
     }
 
-    WHEN("update is called every millisecond, low and high times are correct")
+    WHEN("update is called without delay, low and high times are correct")
     {
         auto duty = value_t(50);
         pwm.setting(duty);
         ticks_millis_t lowToHighTime1 = now;
         ticks_millis_t highToLowTime1 = now;
         ticks_millis_t lowToHighTime2 = now;
+        auto nextUpdate = now;
 
         do {
-            pwm.update(++now);
+            if (++now >= nextUpdate) {
+                nextUpdate = pwm.update(now);
+            }
         } while (mock.state() == State::Inactive);
         lowToHighTime1 = now;
         do {
-            pwm.update(++now);
+            if (++now >= nextUpdate) {
+                nextUpdate = pwm.update(now);
+            }
         } while (mock.state() == State::Active);
         highToLowTime1 = now;
         do {
-            pwm.update(++now);
+            if (++now >= nextUpdate) {
+                nextUpdate = pwm.update(now);
+            }
         } while (mock.state() == State::Inactive);
         lowToHighTime2 = now;
 
@@ -177,20 +184,22 @@ SCENARIO("ActuatorPWM driving mock actuator")
         CHECK(actualDuty == Approx(50.0).epsilon(0.01));
     }
 
-    WHEN("update is called every millisecond, the average duty cycle is correct")
+    WHEN("update is called without delays, the average duty cycle is correct")
     {
+        CHECK(randomIntervalTest(100, pwm, mock, 49.0, 1, now) == Approx(49.0).margin(0.2));
         CHECK(randomIntervalTest(100, pwm, mock, 50.0, 1, now) == Approx(50.0).margin(0.2));
+        CHECK(randomIntervalTest(100, pwm, mock, 51.0, 1, now) == Approx(51.0).margin(0.2));
         CHECK(randomIntervalTest(100, pwm, mock, 2.0, 1, now) == Approx(2.0).margin(0.2));
         CHECK(randomIntervalTest(100, pwm, mock, 98.0, 1, now) == Approx(98.0).margin(0.2));
     }
 
     WHEN("update interval is random, the average duty cycle is still correct")
     {
-        CHECK(randomIntervalTest(100, pwm, mock, 50.0, 500, now) == Approx(50.0).margin(0.5));
-        CHECK(randomIntervalTest(100, pwm, mock, 20.0, 500, now) == Approx(20.0).margin(0.5));
-        CHECK(randomIntervalTest(100, pwm, mock, 80.0, 500, now) == Approx(80.0).margin(0.5));
-        CHECK(randomIntervalTest(100, pwm, mock, 2.0, 500, now) == Approx(2.0).margin(0.5));
-        CHECK(randomIntervalTest(100, pwm, mock, 98.0, 500, now) == Approx(98.0).margin(0.5));
+        CHECK(randomIntervalTest(100, pwm, mock, 50.0, 500, now) == Approx(50.0).margin(1));
+        CHECK(randomIntervalTest(100, pwm, mock, 20.0, 500, now) == Approx(20.0).margin(1));
+        CHECK(randomIntervalTest(100, pwm, mock, 80.0, 500, now) == Approx(80.0).margin(1));
+        CHECK(randomIntervalTest(100, pwm, mock, 2.0, 500, now) == Approx(2.0).margin(1));
+        CHECK(randomIntervalTest(100, pwm, mock, 98.0, 500, now) == Approx(98.0).margin(1));
     }
 
     WHEN("Average_duty_cycle_is_correct_with_very long_period")
@@ -257,11 +266,14 @@ SCENARIO("ActuatorPWM driving mock actuator")
         }
     }
 
-    WHEN("the PWM actuator is set to 90 right after initialization, it goes active immediately")
+    WHEN("the PWM actuator is set to 90 right after initialization, it doesn't stay low longer than the normal low period")
     {
         pwm.setting(90);
-        pwm.update(now + 10); // history length is 1
-        CHECK(mock.state() == State::Active);
+        // wait target to go low
+        while (mock.state() != State::Inactive) {
+            pwm.update(now++);
+        }
+        CHECK(now <= 400);
     }
 
     WHEN("the PWM actuator is set from 0 to 50, it goes high immediately")
@@ -363,10 +375,6 @@ SCENARIO("Two PWM actuators driving mutually exclusive digital actuators")
             } else {
                 timeIdle++;
             }
-            if (now % 4000 == 0) {
-                auto timesHigh1 = constrainedMock1.getLastStartEndTime(State::Inactive, now);
-                // *output << timesHigh1.end - timesHigh1.start << std::endl;
-            }
         }
         auto timeTotal = timeHigh1 + timeHigh2 + timeIdle;
         INFO(std::to_string(timeHigh1) + ", " + std::to_string(timeHigh2) + ", " + std::to_string(timeIdle));
@@ -406,10 +414,8 @@ SCENARIO("Two PWM actuators driving mutually exclusive digital actuators")
         }
     }
 }
-
 #if 0
-
-    WHEN("Actuator PWM value is alternated between zero and a low value, the average is correct")
+WHEN("Actuator PWM value is alternated between zero and a low value, the average is correct")
 {
     // test with minimum ON of 2 seconds, minimum off of 5 seconds and period 5 seconds
     auto vAct = ActuatorBool();
@@ -551,8 +557,6 @@ BOOST_AUTO_TEST_CASE(ActuatorPWM_with_min_max_time_limited_OnOffActuator_as_driv
     BOOST_CHECK_CLOSE(randomIntervalTest(pwm, vAct, 1.0, 500), 1.0, 50);
     BOOST_CHECK_CLOSE(randomIntervalTest(pwm, vAct, 99.0, 500), 99.0, 0.5);
 }
-
-
 
 BOOST_AUTO_TEST_CASE(ramping_PWM_up_faster_than_period_gives_correct_average)
 {

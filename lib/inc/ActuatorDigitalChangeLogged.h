@@ -90,59 +90,59 @@ public:
         return result;
     }
 
-    auto durations(const State& state,
-                   const ticks_millis_t& now,
-                   const bool windowCorrection = true,
-                   const uint8_t& maxChanges = historyLength,
-                   const duration_millis_t& maxHistory = std::numeric_limits<duration_millis_t>::max() / 2) const
+    auto activeDurations(const ticks_millis_t& now)
     {
         struct {
-            ticks_millis_t stateTotal;
-            ticks_millis_t total;
+            ticks_millis_t currentActive;
+            ticks_millis_t currentPeriod;
+            ticks_millis_t previousActive;
+            ticks_millis_t previousPeriod;
         } result;
 
-        result.stateTotal = 0;
+        result.currentActive = 0;
+        result.currentPeriod = 0;
+        result.previousActive = 0;
+        result.previousPeriod = 0;
         auto end = now;
-        auto start = now - 1;
-        auto lastState = state;
-        auto minStartTime = now - maxHistory;
+        auto start = ticks_millis_t(0);
+        //auto minStartTime = now - maxHistory;
+        uint8_t activePeriods = 0;
 
-        for (auto h = history.cbegin(); h < history.cend() - (historyLength - maxChanges); ++h) {
+        auto h = history.cbegin();
+        for (; h < history.cend(); ++h) {
             start = h->startTime;
-            lastState = h->newState;
-            if (lastState == state) {
-                // don't remove now from statement below.
-                // if we compare durations instead of timestamps, we're not affected by overflow
-                if (now - start <= now - minStartTime) {
-                    result.stateTotal += end - start;
-                } else {
-                    start = minStartTime;
-                    result.stateTotal += end - start;
-                    break; // max history length reached
-                }
-            }
+            auto duration = end - start;
             end = start;
-        }
-
-        result.total = now - start;
-
-        if (windowCorrection) {
-            // correct windowing behavior so that the period is rather constant
-            // this is done by not counting part of the oldest state equal length to the current state (newest log until now)
-            // but only if the last state is the same as the first
-
-            if (lastState == history.front().newState) {
-                auto newestLength = now - history.front().startTime;
-                auto oldestLength = (history.end() - 2)->startTime - (history.end() - 1)->startTime;
-                auto correction = std::min(newestLength, oldestLength);
-                result.total -= correction;
-                if (state == history.front().newState) {
-                    result.stateTotal -= correction;
+            if (h->newState == State::Active) {
+                ++activePeriods;
+                if (result.currentActive == 0) {
+                    result.currentActive = duration;
+                    result.currentPeriod += duration;
+                } else if (result.previousActive == 0) {
+                    result.previousActive = duration;
+                    result.previousPeriod += duration;
+                } else {
+                    break;
+                }
+            } else {
+                if (history.front().newState == State::Inactive) {
+                    if (activePeriods == 0) {
+                        result.currentPeriod += duration;
+                    } else if (activePeriods <= 1) {
+                        result.previousPeriod += duration;
+                    } else {
+                        break;
+                    }
+                } else {
+                    if (activePeriods <= 1) {
+                        result.currentPeriod += duration;
+                    } else {
+                        result.previousPeriod += duration;
+                    }
                 }
             }
         }
 
-        result.stateTotal = std::min(result.stateTotal, result.total);
         return result;
     }
 };

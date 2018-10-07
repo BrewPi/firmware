@@ -78,7 +78,7 @@ SCENARIO("ActuatorDigitalChangeLogged test", "[ActuatorChangeLog]")
             CHECK(times.end == 4000);
         }
 
-        THEN("Accumulated times can be used to for example calculate a duty cycle")
+        THEN("Durations of current and previous period are correctly calculated")
         {
             for (; now < 10300; ++now) {
                 auto newState = ((now / 1000) % 2) == 0 ? State::Active : State::Inactive;
@@ -87,11 +87,11 @@ SCENARIO("ActuatorDigitalChangeLogged test", "[ActuatorChangeLog]")
 
             // when output is still active
             CHECK(logged.state() == State::Active);
-            auto durations = logged.durations(State::Active, now);
-            CHECK(durations.total == 4000);
-            CHECK(durations.stateTotal == 2000);
-            auto duty = double(durations.stateTotal) / durations.total;
-            CHECK(duty == Approx(0.5).epsilon(0.001));
+            auto durations = logged.activeDurations(now);
+            CHECK(durations.currentActive == 300);
+            CHECK(durations.currentPeriod == 1300);
+            CHECK(durations.previousActive == 1000);
+            CHECK(durations.previousPeriod == 2000);
 
             for (; now < 11300; ++now) {
                 auto newState = ((now / 1000) % 2) == 0 ? State::Active : State::Inactive;
@@ -99,12 +99,11 @@ SCENARIO("ActuatorDigitalChangeLogged test", "[ActuatorChangeLog]")
             }
 
             // when output is inactive
-            CHECK(logged.state() == State::Inactive);
-            durations = logged.durations(State::Active, now);
-            CHECK(durations.total == 4000);
-            CHECK(durations.stateTotal == 2000);
-            duty = double(durations.stateTotal) / durations.total;
-            CHECK(duty == Approx(0.5).epsilon(0.001));
+            durations = logged.activeDurations(now);
+            CHECK(durations.currentActive == 1000);
+            CHECK(durations.currentPeriod == 1300);
+            CHECK(durations.previousActive == 1000);
+            CHECK(durations.previousPeriod == 2000);
         }
     }
 }
