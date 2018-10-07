@@ -45,15 +45,28 @@ ActuatorPwm::update(const update_t& now)
 
         auto thisPeriodHighTime = timesHigh.end - timesHigh.start;
 
-        auto maxHighTime = (m_dutySetting < value_t(75)) ? m_dutyTime : (durations.total * 3) >> 1;
-        auto minHighTime = (m_dutySetting > value_t(25)) ? m_dutyTime / 2 : 1u;
-
-        if (thisPeriodHighTime < maxHighTime) {
-            if (thisPeriodHighTime < minHighTime) {
-                return now + std::min(update_t(1000), update_t(minHighTime - thisPeriodHighTime) >> 1);
+        if (m_dutySetting <= 50) {
+            // high period is fixed, low period adapts
+            if (thisPeriodHighTime < m_dutyTime) {
+                return now + std::min(update_t(1000), update_t(m_dutyTime - thisPeriodHighTime) >> 1);
             }
-            if (twoPeriodHighTime < twoPeriodTargetHighTime) {
-                return now + std::min(update_t(1000), update_t(twoPeriodTargetHighTime - twoPeriodHighTime) >> 1);
+        } else {
+            // high period can adapt between boundaries
+            // maximum high time is 1.5x the previous high time or 1.5 the normal duty time, whichever is higher
+            auto previousHighTime = twoPeriodHighTime - thisPeriodHighTime;
+            auto maxHighTime = std::max(m_dutyTime, previousHighTime) * 3 / 2;
+
+            // make sure that periods following each other do not alternate in high time
+            // if the current period is already longer than the duty, diminish it by 25% of the extra time
+            // This prevents alternating between 1500 and 2500 when the total of 2 periods should be 4000.
+            if (thisPeriodHighTime > m_dutyTime && twoPeriodHighTime < 2 * m_dutyTime) {
+                twoPeriodTargetHighTime -= (thisPeriodHighTime - m_dutyTime) / 4;
+            }
+
+            if (1) { //thisPeriodHighTime < maxHighTime) {
+                if (twoPeriodHighTime < twoPeriodTargetHighTime) {
+                    return now + std::min(update_t(1000), update_t(twoPeriodTargetHighTime - twoPeriodHighTime) >> 1);
+                }
             }
         }
         m_target.state(State::Inactive, now);
@@ -72,16 +85,27 @@ ActuatorPwm::update(const update_t& now)
 
         auto thisPeriodLowTime = timesLow.end - timesLow.start;
 
-        // when not on low duty cycle, do not make period longer. High period should adapt.
-        auto maxLowTime = (m_dutySetting > value_t(25)) ? invDutyTime : (durations.total * 3) >> 1;
-        auto minLowTime = (m_dutySetting < value_t(75)) ? invDutyTime : 1u;
-
-        if (thisPeriodLowTime < maxLowTime) {
-            if (thisPeriodLowTime < minLowTime) {
-                return now + std::min(update_t(1000), update_t(minLowTime - thisPeriodLowTime) >> 1);
+        if (m_dutySetting > 50) {
+            // low period is fixed, high period adapts
+            if (thisPeriodLowTime < invDutyTime) {
+                return now + std::min(update_t(1000), update_t(invDutyTime - thisPeriodLowTime) >> 1);
             }
-            if (twoPeriodLowTime < twoPeriodTargetLowTime) {
-                return now + std::min(update_t(1000), update_t(twoPeriodTargetLowTime - twoPeriodLowTime) >> 1);
+        } else {
+            // maximum low time is 1.5 the previous low time, or 1.5 the normal time whichever is higher
+            auto previousLowTime = twoPeriodLowTime - thisPeriodLowTime;
+            auto maxLowTime = std::max(invDutyTime, previousLowTime) * 3 / 2;
+
+            // make sure that periods following each other do not alternate in low time
+            // if the current period is already longer than the invDuty, diminish it by 25% of the extra time
+            // This prevents alternating between 1500 and 2500 when the total of 2 periods should be 4000.
+            if (thisPeriodLowTime > invDutyTime && twoPeriodLowTime < 2 * invDutyTime) {
+                twoPeriodTargetLowTime -= (thisPeriodLowTime - invDutyTime) / 4;
+            }
+
+            if (thisPeriodLowTime < maxLowTime) {
+                if (twoPeriodLowTime < twoPeriodTargetLowTime) {
+                    return now + std::min(update_t(1000), update_t(twoPeriodTargetLowTime - twoPeriodLowTime) >> 1);
+                }
             }
         }
         m_target.state(State::Active, now);

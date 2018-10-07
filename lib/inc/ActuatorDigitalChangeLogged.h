@@ -132,7 +132,9 @@ public:
             // but only if the last state is the same as the first
 
             if (lastState == history.front().newState) {
-                auto correction = now - history.front().startTime;
+                auto newestLength = now - history.front().startTime;
+                auto oldestLength = (history.end() - 2)->startTime - (history.end() - 1)->startTime;
+                auto correction = std::min(newestLength, oldestLength);
                 result.total -= correction;
                 if (state == history.front().newState) {
                     result.stateTotal -= correction;

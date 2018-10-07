@@ -332,7 +332,7 @@ SCENARIO("Two PWM actuators driving mutually exclusive digital actuators")
     auto checkDuties = [&](value_t duty1, value_t duty2, double expected1, double expected2) {
         auto timeHigh1 = duration_millis_t(0);
         auto timeHigh2 = duration_millis_t(0);
-        auto timeTotal = duration_millis_t(100 * period);
+        auto timeIdle = duration_millis_t(0);
 
         auto nextUpdate1 = ticks_millis_t(now);
         auto nextUpdate2 = ticks_millis_t(now);
@@ -341,8 +341,7 @@ SCENARIO("Two PWM actuators driving mutually exclusive digital actuators")
         constrainedPwm2.setting(duty2);
 
         auto start = now;
-        auto warmup = 10 * period;
-        while (++now - start <= timeTotal + warmup) {
+        while (++now - start <= 100 * period) {
             if (now >= nextUpdate1) {
                 nextUpdate1 = pwm1.update(now);
                 REQUIRE(!(mock1.state() == State::Active && mock2.state() == State::Active)); // not active at the same time
@@ -353,23 +352,24 @@ SCENARIO("Two PWM actuators driving mutually exclusive digital actuators")
             }
             if (now % 1000 == 0) {
                 // keep setting the value to the constrained PWM, this is when the balancer gets its values. TODO: change that this is necessary ?
+                balancer->update();
                 constrainedPwm1.setting(duty1);
                 constrainedPwm2.setting(duty2);
-                balancer->update();
             }
-
-            if (now - start <= warmup) {
-                continue;
-            }
-
             if (mock1.state() == State::Active) {
                 timeHigh1++;
-            }
-            if (mock2.state() == State::Active) {
+            } else if (mock2.state() == State::Active) {
                 timeHigh2++;
+            } else {
+                timeIdle++;
+            }
+            if (now % 4000 == 0) {
+                auto timesHigh1 = constrainedMock1.getLastStartEndTime(State::Inactive, now);
+                // *output << timesHigh1.end - timesHigh1.start << std::endl;
             }
         }
-
+        auto timeTotal = timeHigh1 + timeHigh2 + timeIdle;
+        INFO(std::to_string(timeHigh1) + ", " + std::to_string(timeHigh2) + ", " + std::to_string(timeIdle));
         auto avgDuty1 = double(timeHigh1) * 100 / timeTotal;
         auto avgDuty2 = double(timeHigh2) * 100 / timeTotal;
         CHECK(avgDuty1 == Approx(double(expected1)).margin(0.5));
@@ -401,6 +401,8 @@ SCENARIO("Two PWM actuators driving mutually exclusive digital actuators")
             checkDuties(75, 50, 60, 40);
             checkDuties(80, 30, 80.0 / 1.1, 30.0 / 1.1);
             checkDuties(90, 20, 90.0 / 1.1, 20.0 / 1.1);
+            checkDuties(95, 10, 95.0 / 1.05, 10.0 / 1.05);
+            checkDuties(85, 25, 85.0 / 1.1, 25.0 / 1.1);
         }
     }
 }
