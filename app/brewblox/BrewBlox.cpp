@@ -119,7 +119,7 @@ brewbloxBox()
 OneWire&
 theOneWire()
 {
-    static OneWireDriver owDriver(0);
+    static OneWireDriver owDriver;
     static OneWire ow(owDriver);
     return ow;
 }

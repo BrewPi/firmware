@@ -42,8 +42,8 @@ public:
     ticks_millis_t millis() { return _ticks += _increment; }
     ticks_micros_t micros() { return 1000 * _ticks++; }
     ticks_seconds_t seconds() { return millis() / 1000; }
-    ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) { return ::timeSinceSeconds(seconds(), timeStamp); }
-    ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) { return ::timeSinceMillis(millis(), timeStamp); }
+    ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) { return ::secondsSince(seconds(), timeStamp); }
+    ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) { return ::millisSince(millis(), timeStamp); }
     void reset(void) { _ticks = 0; };
     void advance(ticks_millis_t adv)
     {
@@ -69,8 +69,8 @@ public:
     ticks_millis_t millis() { return _ticks; }
     ticks_micros_t micros() { return _ticks * 1000; }
     ticks_seconds_t seconds() { return millis() / 1000; }
-    ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) { return ::timeSinceSeconds(seconds(), timeStamp); }
-    ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) { return ::timeSinceMillis(millis(), timeStamp); }
+    ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) { return ::secondsSince(seconds(), timeStamp); }
+    ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) { return ::millisSince(millis(), timeStamp); }
     void reset(void) { _ticks = 0; };
 
     void setMillis(ticks_millis_t now) { _ticks = now; }

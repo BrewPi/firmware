@@ -35,6 +35,11 @@ public:
         return reinterpret_cast<const uint8_t*>(&address);
     }
 
+    uint8_t* asUint8ptr()
+    { // for compatibility with OneWire classes that take a uint8_t *
+        return reinterpret_cast<uint8_t*>(&address);
+    }
+
     operator uint64_t() const
     {
         return address;
