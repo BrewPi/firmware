@@ -23,11 +23,10 @@
 
 class OneWireNull : public OneWireLowLevelInterface {
 public:
-    OneWireNull(uint8_t pin){};
+    OneWireNull(){};
     virtual ~OneWireNull() = default;
 
     virtual bool init() override final { return false; }
-    virtual uint8_t pinNr() override final { return 0; }
 
     // Perform a 1-Wire reset cycle. Returns 1 if a device responds
     // with a presence pulse.  Returns 0 if there is no device or the

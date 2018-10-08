@@ -20,6 +20,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 class OneWireAddress {
 public:
@@ -29,18 +30,17 @@ public:
         : address(addr){};
     ~OneWireAddress() = default;
 
-    void parse(const char* s);
-    void print(char* buf, uint8_t len);
-
-    uint8_t* asUint8ptr()
+    const uint8_t* asUint8ptr() const
     { // for compatibility with OneWire classes that take a uint8_t *
-        return reinterpret_cast<uint8_t*>(&address);
+        return reinterpret_cast<const uint8_t*>(&address);
     }
 
     operator uint64_t() const
     {
         return address;
     }
+
+    std::string toString() const;
 
 private:
     uint64_t address;

@@ -28,7 +28,6 @@ protected:
 public:
     // Configure the pin or chip
     virtual bool init() = 0;
-    virtual uint8_t pinNr(void) = 0;
 
     // Perform a 1-Wire reset cycle. Returns 1 if a device responds
     // with a presence pulse.  Returns 0 if there is no device or the

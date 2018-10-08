@@ -18,20 +18,21 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DS2413.h"
-#include "OneWire.h"
+#include "../inc/DS2413.h"
+#include "../inc/Logger.h"
+#include "../inc/OneWire.h"
 
 bool
 DS2413::cacheIsValid() const
 {
-    uint8_t upperInverted = (~cachedState & 0xf0) >> 4;
-    uint8_t lower = cachedState & 0x0f;
+    uint8_t upperInverted = (~m_cachedState & 0xf0) >> 4;
+    uint8_t lower = m_cachedState & 0x0f;
 
     return upperInverted == lower;
 }
 
 bool
-DS2413::writeLatchBit(uint8_t pos,
+DS2413::writeLatchBit(Pio pio,
                       bool set,
                       bool useCached)
 {
@@ -49,7 +50,7 @@ DS2413::writeLatchBit(uint8_t pos,
         }
     }
 
-    uint8_t mask = latchWriteMask(pos);
+    uint8_t mask = latchWriteMask(pio);
     uint8_t oldVal = writeByteFromCache();
     uint8_t newVal = oldVal;
 
@@ -70,7 +71,7 @@ DS2413::writeLatchBit(uint8_t pos,
 }
 
 bool
-DS2413::readLatchBit(pio_t pio, bool& result, bool useCached)
+DS2413::readLatchBit(Pio pio, bool& result, bool useCached)
 {
     if (!useCached || !cacheIsValid()) {
         update();
@@ -80,10 +81,10 @@ DS2413::readLatchBit(pio_t pio, bool& result, bool useCached)
 }
 
 bool
-DS2413::latchReadCached(pio_t pio, bool& result) const
+DS2413::latchReadCached(Pio pio, bool& result) const
 {
     if (cacheIsValid()) {
-        result = ((cachedState & latchReadMask(pio)) == 0);
+        result = ((m_cachedState & latchReadMask(pio)) == 0);
         return true;
     } else {
         result = false;
@@ -94,18 +95,14 @@ DS2413::latchReadCached(pio_t pio, bool& result) const
 bool
 DS2413::update()
 {
-    cachedState = accessRead();
+    m_cachedState = accessRead();
     bool success = cacheIsValid();
-    if (connected && !success) {
-        connected = false;
-        char addressString[17];
-        printBytes(address, 8, addressString);
-        logWarningString(DS2413_DISCONNECTED, addressString);
-    } else if (!connected && success) {
-        connected = true;
-        char addressString[17];
-        printBytes(address, 8, addressString);
-        logInfoString(DS2413_CONNECTED, addressString);
+    if (m_connected && !success) {
+        m_connected = false;
+        CL_LOG_WARN("DS2413 disconnected: ") << getDeviceAddress().toString();
+    } else if (!m_connected && success) {
+        m_connected = true;
+        CL_LOG_INFO("DS2413 connected: ") << getDeviceAddress().toString();
     }
     return success;
 }
@@ -115,23 +112,24 @@ DS2413::writeByteFromCache()
 {
     uint8_t returnval = 0;
 
-    for (uint8_t i = 0; i < 2; i++) {
-        if (cachedState & latchReadMask(i)) {
-            returnval |= latchWriteMask(i);
-        }
+    if (m_cachedState & latchReadMask(Pio::A)) {
+        returnval |= latchWriteMask(Pio::A);
+    }
+    if (m_cachedState & latchReadMask(Pio::B)) {
+        returnval |= latchWriteMask(Pio::B);
     }
 
     return returnval;
 }
 
 bool
-DS2413::sense(pio_t pio, bool& result)
+DS2413::sense(Pio pio, bool& result)
 {
     update();
     if (cacheIsValid()) {
         return false;
     } else {
-        result = ((cachedState & senseMask(pio)) != 0);
+        result = ((m_cachedState & senseMask(pio)) != 0);
         return true;
     }
 }
@@ -143,12 +141,12 @@ DS2413::sense(pio_t pio, bool& result)
 uint8_t
 DS2413::accessRead() /* const */
 {
-    oneWire->reset();
-    oneWire->select(address);
-    oneWire->write(ACCESS_READ);
+    oneWire.reset();
+    oneWire.select(address.asUint8ptr());
+    oneWire.write(ACCESS_READ);
 
     uint8_t data;
-    data = oneWire->read();
+    data = oneWire.read();
 
     return data;
 }
@@ -167,23 +165,23 @@ DS2413::accessWrite(uint8_t b,
     uint8_t ack = 0;
 
     do {
-        oneWire->reset();
-        oneWire->select(address);
-        oneWire->write(ACCESS_WRITE);
-        oneWire->write(b);
+        oneWire.reset();
+        oneWire.select(address.asUint8ptr());
+        oneWire.write(ACCESS_WRITE);
+        oneWire.write(b);
 
         /* data is sent again, inverted to guard against transmission errors */
-        oneWire->write(~b);
+        oneWire.write(~b);
 
         /* Acknowledgement byte, 0xAA for success, 0xFF for failure. */
-        ack = oneWire->read();
+        ack = oneWire.read();
 
         if (ack == ACK_SUCCESS) {
-            oneWire->read(); // status byte sent after ack
+            oneWire.read(); // status byte sent after ack
         }
     } while ((ack != ACK_SUCCESS) && (maxTries-- > 0));
 
-    oneWire->reset();
+    oneWire.reset();
 
     return ack == ACK_SUCCESS;
 }

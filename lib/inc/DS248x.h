@@ -65,11 +65,6 @@ public:
 
     bool configure(uint8_t config);
 
-    virtual uint8_t pinNr() override final
-    {
-        return mAddress & 0b11; // return lower bits of I2C address instead of pin
-    }
-
     // Perform the onewire reset function.  We will wait up to 250uS for
     // the bus to come high, if it doesn't then it is broken or shorted
     // and we return a 0;
