@@ -1,4 +1,5 @@
 #include "ActuatorAnalog.h"
+#include "ActuatorDigital.h"
 #include "FixedPoint.h"
 #include "ProcessValue.h"
 #include "Setpoint.h"
@@ -34,6 +35,13 @@ const obj_type_t
 interfaceIdImpl<ActuatorAnalog>()
 {
     return BrewbloxFieldOptions_LinkType_ActuatorAnalog;
+}
+
+template <>
+const obj_type_t
+interfaceIdImpl<ActuatorDigital>()
+{
+    return BrewbloxFieldOptions_LinkType_ActuatorDigital;
 }
 
 } // end namespace cbox

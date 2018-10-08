@@ -21,27 +21,52 @@
 #pragma once
 
 #include "ActuatorDigital.h"
+#include "pinmap_hal.h"
+
+#include "gpio_hal.h"
 
 class ActuatorPin final : public ActuatorDigital {
 private:
-    bool invert;
-    uint8_t pin;
+    uint8_t m_pin = 255;
+    bool m_invert = false;
 
 public:
-    ActuatorPin(uint8_t pin,
-                bool invert);
+    ActuatorPin(){};
+    ActuatorPin(uint8_t pin, bool invert)
+        : m_pin(pin)
+        , m_invert(invert)
+    {
+    }
 
-    ~ActuatorPin() = default;
+    virtual ~ActuatorPin() = default;
 
     virtual void state(const State& state) override final
     {
-        digitalWrite(pin, ((state == State::Active) ^ invert) ? HIGH : LOW);
+        HAL_GPIO_Write(m_pin, ((state == State::Active) ^ m_invert));
     }
 
     virtual State state() const override final
     {
-        return ((digitalRead(pin) != LOW) ^ invert) ? State::Active : State::Inactive;
+        return ((HAL_GPIO_Read(m_pin) != 0) ^ m_invert) ? State::Active : State::Inactive;
     }
 
-    virtual update_t update(const update_t& t) override final { return update_t_max(); }; // do nothing on periodic update
+    uint8_t pin() const
+    {
+        return m_pin;
+    }
+
+    void pin(uint8_t p)
+    {
+        m_pin = p;
+    }
+
+    bool invert() const
+    {
+        return m_invert;
+    }
+
+    void invert(bool inv)
+    {
+        m_invert = inv;
+    }
 };

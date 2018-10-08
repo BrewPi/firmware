@@ -69,6 +69,11 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform
 CPPSRC += /app/brewblox/nanopb_callbacks.cpp
 CPPSRC += /app/brewblox/BrewBlox.cpp
 
+# spark HAL includes
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/firmware/hal/inc
+CSRC += /platform/spark/firmware/hal/src/gcc/gpio_hal.c
+CFLAGS += -DPLATFORM_ID=3
+
 # include boost
 ifeq ($(BOOST_ROOT),)
 $(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)

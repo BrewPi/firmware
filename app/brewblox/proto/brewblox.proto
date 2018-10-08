@@ -9,6 +9,7 @@ message BrewbloxFieldOptions {
         TempSensor = 2;
         Setpoint = 3;
         ActuatorAnalog = 4;
+        ActuatorDigital = 5;
     }
     string unit = 1;
     uint32 scale = 2;
