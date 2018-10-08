@@ -86,83 +86,63 @@ SCENARIO("ActuatorOffset offsets one setpoint from another", "[ActuatorOffset]")
         CHECK(targetSetpoint->setting() == 27.0);
     }
 
-    WHEN("the reference sensor is invalid, but the reference setpoint is valid"
-         "target setpoint be invalid and actuator value is 0")
+    WHEN("the reference setting is used and the reference sensor is invalid, but the reference setpoint is valid"
+         "target setpoint be invalid and actuator value is 0, because it cannot get feedback on the actual value")
     {
-        act->selectedReference(ActuatorOffset::SETTING); // use reference setpoint again
+        act->selectedReference(ActuatorOffset::SETTING);
         targetSetpoint->setting(20);
         referenceSensor->connected(false);
         act->setting(12.0);
 
+        CHECK(targetSetpoint->setting() == 20.0); // unchanged
         CHECK(act->value() == 0);
         CHECK(act->valid() == false);
         CHECK(act->setting() == 12.0); // setting() still returns requested offset
         CHECK(targetSetpoint->valid() == false);
     }
 
-    WHEN("when reference setpoint is invalid, but the reference sensor is valid"
-         "target setpoint will be invalid and actuator value is 0")
+    WHEN("the reference setting is used and reference sensor is valid, but the reference setpoint is invalid"
+         "target setpoint will be invalid, and actuator value is 0")
     {
-        act->selectedReference(ActuatorOffset::SETTING); // use reference setpoint again
+        act->selectedReference(ActuatorOffset::SETTING);
         referenceSensor->connected(true);
         referenceSetpoint->valid(false);
         act->setting(12.0);
 
-        CHECK(act->value() == 0); // value() returns target sensor - ref sensor
+        CHECK(targetSetpoint->setting() == 20.0); // unchanged
+        CHECK(act->value() == 0);
+        CHECK(act->valid() == false);
+        CHECK(act->setting() == 12.0); // setting() still returns requested offset
+        CHECK(targetSetpoint->valid() == false);
+    }
+
+    WHEN("the reference value is used and the reference sensor is invalid, but the reference setpoint is valid"
+         "target setpoint be invalid and actuator value is 0, because it cannot get feedback on the actual value")
+    {
+        act->selectedReference(ActuatorOffset::VALUE);
+        targetSetpoint->setting(20);
+        referenceSensor->connected(false);
+        act->setting(12.0);
+
+        CHECK(targetSetpoint->setting() == 20.0); // unchanged
+        CHECK(act->value() == 0);
+        CHECK(act->valid() == false);
+        CHECK(act->setting() == 12.0); // setting() still returns requested offset
+        CHECK(targetSetpoint->valid() == false);
+    }
+
+    WHEN("the reference value is used and reference sensor is valid, but the reference setpoint is invalid"
+         "target setpoint will be invalid, and actuator value is 0")
+    {
+        act->selectedReference(ActuatorOffset::VALUE);
+        referenceSensor->connected(true);
+        referenceSetpoint->valid(false);
+        act->setting(12.0);
+
+        CHECK(targetSetpoint->setting() == 20.0); // unchanged
+        CHECK(act->value() == 0);
         CHECK(act->valid() == false);
         CHECK(act->setting() == 12.0); // setting() still returns requested offset
         CHECK(targetSetpoint->valid() == false);
     }
 }
-
-#if 0
-SCENARIO("Setting the actuator"){
-BOOST_AUTO_TEST_CASE(min_max){
-    SetpointSimple targetSetpoint(20.0);
-    SetpointSimple referenceSetpoint(20.0);
-    TempSensorMock targetSensor(20.0);
-    TempSensorMock referenceSensor(20.0);
-
-    SetpointSensorPair target(targetSensor, targetSetpoint);
-    SetpointSensorPair reference(referenceSensor, referenceSetpoint);
-
-    auto act = ActuatorOffset(target, reference, -10.0, 10.0);
-
-    act.set(20.0);
-    targetSensor.setTemp(30.0);
-
-    BOOST_CHECK_EQUAL(referenceSetpoint.read(), temp_t(20.0));
-    BOOST_CHECK_EQUAL(targetSetpoint.read(), temp_t(30.0));
-    BOOST_CHECK_EQUAL(act.setting(), temp_t(10.0));
-
-    act.set(-20.0);
-    targetSensor.setTemp(10.0);
-    BOOST_CHECK_EQUAL(referenceSetpoint.read(), temp_t(20.0));
-    BOOST_CHECK_EQUAL(targetSetpoint.read(), temp_t(10.0));
-    BOOST_CHECK_EQUAL(act.setting(), temp_t(-10.0));
-}
-
-BOOST_AUTO_TEST_CASE(when_target_sensor_is_invalid_actuator_value_is_invalid){
-    SetpointSimple targetSetpoint(20.0);
-    SetpointSimple referenceSetpoint(20.0);
-    TempSensorMock targetSensor(20.0);
-    TempSensorMock referenceSensor(20.0);
-
-    SetpointSensorPair target(targetSensor, targetSetpoint);
-    SetpointSensorPair reference(referenceSensor, referenceSetpoint);
-
-    auto act = ActuatorOffset(target, reference, -10.0, 10.0);
-    act.set(20.0);
-    targetSensor.setTemp(30.0);
-
-    targetSensor.setConnected(false);
-    act.update();
-
-    BOOST_CHECK_EQUAL(referenceSetpoint.read(), temp_t(20.0));
-    BOOST_CHECK_EQUAL(targetSetpoint.read(), temp_t(30.0));
-    BOOST_CHECK_EQUAL(act.setting(), temp_t(10.0)); // set value
-    BOOST_CHECK_EQUAL(act.value(), temp_t::invalid()); // achieved value
-}
-
-BOOST_AUTO_TEST_SUITE_END()
-#endif
