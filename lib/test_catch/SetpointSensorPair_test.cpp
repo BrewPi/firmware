@@ -22,8 +22,7 @@
 #include "../inc/Setpoint.h"
 #include "../inc/SetpointSensorPair.h"
 #include "../inc/TempSensorMock.h"
-#include "../inc/Temperature.h"
-#include <cstdint>
+#include <memory>
 
 SCENARIO("SetpointSensorPair test")
 {
@@ -34,13 +33,9 @@ SCENARIO("SetpointSensorPair test")
         auto setpoint = std::make_shared<SetpointSimple>(20.0);
         auto sensor = std::make_shared<TempSensorMock>(21.0);
 
-        auto setpointFunc = [&setpoint]() {
-            return setpoint;
-        };
-        auto sensorFunc = [&sensor]() {
-            return sensor;
-        };
-        auto pair = SetpointSensorPair(setpointFunc, sensorFunc);
+        auto pair = SetpointSensorPair(
+            [setpoint]() { return setpoint; },
+            [sensor]() { return sensor; });
 
         CHECK(pair.setting() == 20.0);
         CHECK(pair.value() == 21.0);

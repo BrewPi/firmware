@@ -18,15 +18,30 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
 
+#include "ActuatorDigital.h"
 
-#include "ActuatorPin.h"
+class ActuatorPin final : public ActuatorDigital {
+private:
+    bool invert;
+    uint8_t pin;
 
-ActuatorPin::ActuatorPin(uint8_t pin, bool invert)
-{
-    this -> invert = invert;
-    this -> pin    = pin;
+public:
+    ActuatorPin(uint8_t pin,
+                bool invert);
 
-    setState(State::Inactive);
-    pinMode(pin, OUTPUT);
-}
+    ~ActuatorPin() = default;
+
+    virtual void state(const State& state) override final
+    {
+        digitalWrite(pin, ((state == State::Active) ^ invert) ? HIGH : LOW);
+    }
+
+    virtual State state() const override final
+    {
+        return ((digitalRead(pin) != LOW) ^ invert) ? State::Active : State::Inactive;
+    }
+
+    virtual update_t update(const update_t& t) override final { return update_t_max(); }; // do nothing on periodic update
+};

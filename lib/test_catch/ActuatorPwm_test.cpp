@@ -33,7 +33,7 @@
 #include <iomanip>
 #include <iostream>
 
-#define PRINT_TOGGLE_TIMES 1
+#define PRINT_TOGGLE_TIMES 0
 
 using value_t = ActuatorAnalog::value_t;
 using State = ActuatorDigital::State;

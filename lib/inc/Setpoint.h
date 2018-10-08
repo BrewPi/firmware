@@ -28,6 +28,7 @@ public:
     virtual temp_t setting() const = 0;
     virtual void setting(const temp_t& val) = 0;
     virtual bool valid() = 0;
+    virtual void valid(bool v) = 0; // setpoint can be set to invalid to disable it
 };
 
 class SetpointSimple final : public Setpoint {
@@ -61,5 +62,10 @@ public:
     virtual bool valid() override final
     {
         return m_valid;
+    }
+
+    virtual void valid(bool v) override final
+    {
+        m_valid = v;
     }
 };

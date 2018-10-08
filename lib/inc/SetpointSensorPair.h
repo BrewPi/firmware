@@ -79,4 +79,12 @@ public:
         }
         return false;
     }
+
+    void valid(bool v)
+    {
+
+        if (auto sp = setpoint()) {
+            sp->valid(v);
+        }
+    }
 };
