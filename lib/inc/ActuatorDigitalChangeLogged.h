@@ -28,12 +28,12 @@
  * An ActuatorDigital wrapper that logs the most recent changes
  */
 
+// uneven length makes last entry equal to first for toggling (PWM) behavior
 const uint8_t historyLength = 5;
 
 class ActuatorDigitalChangeLogged : public ActuatorDigital {
 public:
     using State = ActuatorDigital::State;
-    // uneven length makes last entry equal to first for toggling (PWM) behavior
 
     struct StateChange {
         State newState;
@@ -44,6 +44,9 @@ private:
     ActuatorDigital& actuator;
     std::array<StateChange, historyLength> history;
 
+protected:
+    ticks_millis_t lastUpdateTime = 0;
+
 public:
     ActuatorDigitalChangeLogged(ActuatorDigital& act)
         : actuator(act)
@@ -53,15 +56,15 @@ public:
     };
     virtual ~ActuatorDigitalChangeLogged() = default;
 
-    virtual void state(const State& state, const ticks_millis_t& now)
+    virtual void state(const State& val, const ticks_millis_t& now)
     {
-        actuator.state(state);
+        actuator.state(val);
         update(now);
     };
 
-    virtual void state(const State& state) override
+    virtual void state(const State& val) override
     {
-        actuator.state(state);
+        state(val, lastUpdateTime);
     };
 
     State state() const
@@ -75,6 +78,7 @@ public:
             std::rotate(history.rbegin(), history.rbegin() + 1, history.rend());
             history[0] = {state(), now};
         }
+        lastUpdateTime = now;
     }
 
     auto getLastStartEndTime(const State& state, const ticks_millis_t& now) const

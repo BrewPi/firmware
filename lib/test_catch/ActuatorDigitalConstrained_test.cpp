@@ -165,31 +165,21 @@ SCENARIO("Mutex contraint", "[constraints]")
         }
     }
 
-    WHEN("The state is changed without providing the current time, it is applied in the next update")
+    WHEN("The state is changed without providing the current time, it is applied using the last update time")
     {
-        constrained1.state(State::Active);
-        CHECK(constrained1.state() == State::Inactive);
-        constrained1.update(++now);
+        constrained1.state(State::Active, 2000);
         CHECK(constrained1.state() == State::Active);
 
+        constrained1.update(6000);
         constrained1.state(State::Inactive);
-        constrained2.state(State::Active);
-        constrained1.update(++now);
-        constrained2.update(++now);
-        CHECK(constrained1.state() == State::Inactive);
-        CHECK(constrained2.state() == State::Active);
 
-        AND_WHEN("The new state is not allowed, it is only attempted once (no lingering updates)")
-        {
-            constrained1.state(State::Active);
-            constrained1.update(++now);
+        auto activeTimes = constrained1.getLastStartEndTime(State::Active, 8000);
+        auto inactiveTimes = constrained1.getLastStartEndTime(State::Inactive, 8000);
 
-            constrained2.state(State::Inactive);
-            constrained2.update(++now);
-            constrained1.update(++now);
+        CHECK(activeTimes.start == 2000);
+        CHECK(activeTimes.end == 6000);
 
-            CHECK(constrained1.state() == State::Inactive);
-            CHECK(constrained2.state() == State::Inactive);
-        }
+        CHECK(inactiveTimes.start == 6000);
+        CHECK(inactiveTimes.end == 8000);
     }
 }
