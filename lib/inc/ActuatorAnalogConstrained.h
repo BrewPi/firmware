@@ -38,8 +38,14 @@ public:
     virtual ~Base() = default;
 
     virtual value_t constrain(const value_t& val) const = 0;
+
+    virtual uint8_t id() = 0;
+
+    // pointer to data, client should now how to use it based on the id
+    virtual void copyData(void* dest, const uint8_t& maxBytes) = 0;
 };
 
+template <uint8_t ID>
 class Minimum : public Base {
 private:
     value_t m_min;
@@ -54,8 +60,22 @@ public:
     {
         return std::max(val, m_min);
     }
+
+    virtual uint8_t id() override final
+    {
+        return ID;
+    }
+
+    virtual void copyData(void* dest, const uint8_t& maxBytes) override final
+    {
+        if (maxBytes >= sizeof(value_t)) {
+            auto target = reinterpret_cast<value_t*>(dest);
+            *target = m_min;
+        }
+    }
 };
 
+template <uint8_t ID>
 class Maximum : public Base {
 private:
     value_t m_max;
@@ -69,6 +89,19 @@ public:
     virtual value_t constrain(const value_t& val) const override final
     {
         return std::min(val, m_max);
+    }
+
+    virtual uint8_t id() override final
+    {
+        return ID;
+    }
+
+    virtual void copyData(void* dest, const uint8_t& maxBytes) override final
+    {
+        if (maxBytes >= sizeof(value_t)) {
+            auto target = reinterpret_cast<value_t*>(dest);
+            *target = m_max;
+        }
     }
 };
 }
@@ -128,4 +161,9 @@ public:
     {
         return actuator.valid();
     }
+
+    const std::vector<std::unique_ptr<Constraint>>& constraintsList() const
+    {
+        return constraints;
+    };
 };

@@ -96,6 +96,12 @@ SCENARIO("A Blox ActuatorPwm object can be created from streamed protobuf data")
     newPwm.set_actuatorid(100);
     newPwm.set_setting(20);
     newPwm.set_period(4000);
+
+    auto min = new blox::ConstraintMin();
+    min->set_min(cnl::unwrap(ActuatorAnalog::value_t(10)));
+    auto c = newPwm.mutable_constraints()->add_constraint();
+    c->set_allocated_min(min);
+
     inProto.put(newPwm);
 
     inEncoder.endMessage();
@@ -115,5 +121,7 @@ SCENARIO("A Blox ActuatorPwm object can be created from streamed protobuf data")
 
     blox::ActuatorPwm reply;
     decodeProtoFromReply(out, reply);
-    CHECK(reply.ShortDebugString() == "actuatorId: 100 actuatorValid: true period: 4000 setting: 20 value: 20");
+    CHECK(reply.ShortDebugString() == "actuatorId: 100 actuatorValid: true "
+                                      "period: 4000 setting: 20 value: 20 "
+                                      "constraints { constraint { min { min: 40960 } } }");
 }

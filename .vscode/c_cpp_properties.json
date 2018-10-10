@@ -9,6 +9,7 @@
             ],
             "intelliSenseMode": "clang-x64",
             "includePath": [
+                ".",
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/lib/inc",
                 "${workspaceFolder}/controlbox/test",

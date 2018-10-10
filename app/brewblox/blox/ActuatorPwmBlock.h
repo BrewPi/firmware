@@ -1,11 +1,13 @@
 #pragma once
 
 #include "ActuatorAnalogConstrained.h"
+#include "ActuatorAnalogConstraintsProto.h"
 #include "ActuatorDigitalConstrained.h"
 #include "ActuatorPwm.h"
 #include "blox/Block.h"
 #include "cbox/CboxPtr.h"
 #include "proto/cpp/ActuatorPwm.pb.h"
+#include "proto/cpp/AnalogConstraints.pb.h"
 
 class ActuatorPwmBlock : public Block<blox_ActuatorPwm_msgid> {
 private:
@@ -35,6 +37,7 @@ public:
             actuator.setId(newData.actuatorId);
             constrained.setting(cnl::wrap<ActuatorAnalog::value_t>(newData.setting));
             pwm.period(newData.period);
+            setAnalogConstraints(newData.constraints, constrained);
         }
         return result;
     }
@@ -47,6 +50,7 @@ public:
         message.period = pwm.period();
         message.setting = cnl::unwrap(constrained.setting());
         message.value = cnl::unwrap(constrained.value());
+        getAnalogConstraints(message.constraints, constrained);
 
         return streamProtoTo(out, &message, blox_ActuatorPwm_fields, blox_ActuatorPwm_size);
     }
