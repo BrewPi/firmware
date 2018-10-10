@@ -27,9 +27,9 @@
 class ActuatorDigital {
 public:
     enum State : uint8_t {
-        Inactive,
-        Active,
-        Unknown
+        Inactive = 0,
+        Active = 1,
+        Unknown = 2,
     };
 
     ActuatorDigital() = default;

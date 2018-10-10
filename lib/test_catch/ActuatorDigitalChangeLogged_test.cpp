@@ -27,7 +27,7 @@ SCENARIO("ActuatorDigitalChangeLogged test", "[ActuatorChangeLog]")
     using State = ActuatorDigital::State;
 
     auto mock = ActuatorDigitalMock();
-    auto logged = ActuatorDigitalChangeLogged(mock, 0);
+    auto logged = ActuatorDigitalChangeLogged(mock);
     ticks_millis_t now = 1000;
 
     WHEN("ActuatorDigitalChangeLogged is newly constructed")

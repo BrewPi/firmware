@@ -4,7 +4,6 @@
 #include "SetpointSensorPair.pb.h"
 #include "blox/Block.h"
 #include "cbox/CboxPtr.h"
-#include <functional>
 
 using std::placeholders::_1;
 

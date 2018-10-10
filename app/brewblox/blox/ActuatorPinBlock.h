@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ActuatorDigitalConstrained.h"
 #include "ActuatorPin.h"
 #include "blox/Block.h"
 #include "proto/cpp/ActuatorPin.pb.h"
@@ -7,15 +8,21 @@
 class ActuatorPinBlock : public Block<blox_ActuatorPin_msgid> {
 private:
     ActuatorPin actuator;
+    ActuatorDigitalConstrained constrained;
 
 public:
-    ActuatorPinBlock() {}
+    ActuatorPinBlock()
+        : actuator(0, false)
+        , constrained(actuator)
+    {
+    }
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {
         blox_ActuatorPin newData;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_ActuatorPin_fields, blox_ActuatorPin_size);
         if (result == cbox::CboxError::OK) {
+            constrained.state(ActuatorDigital::State(newData.state));
             actuator.pin(newData.pin);
             actuator.invert(newData.invert);
         }
@@ -43,7 +50,8 @@ public:
 
     virtual cbox::update_t update(const cbox::update_t& now) override final
     {
-        return update_never(now);
+        constrained.update(now);
+        return now + 1000;
     }
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
@@ -51,9 +59,9 @@ public:
         if (iface == blox_ActuatorPin_msgid) {
             return this; // me!
         }
-        if (iface == cbox::interfaceId<ActuatorDigital>()) {
+        if (iface == cbox::interfaceId<ActuatorDigitalConstrained>()) {
             // return the member that implements the interface in this case
-            ActuatorDigital* ptr = &actuator;
+            ActuatorDigitalConstrained* ptr = &constrained;
             return ptr;
         }
         return nullptr;

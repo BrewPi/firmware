@@ -1,6 +1,5 @@
 /*
- * Copyright 2015 BrewPi/Elco Jacobs.
- * Copyright 2015 Matthew McGowan
+ * Copyright 2018 BrewPi B.V.
  *
  * This file is part of BrewPi.
  *
@@ -23,6 +22,8 @@
 #include "ActuatorAnalog.h"
 #include "ActuatorDigitalChangeLogged.h"
 #include "FixedPoint.h"
+#include <functional>
+#include <memory>
 #include <stdint.h>
 
 /**
@@ -35,11 +36,11 @@ public:
     using update_t = ticks_millis_t;
 
 private:
-    ActuatorDigitalChangeLogged& m_target;
+    const std::function<std::shared_ptr<ActuatorDigitalChangeLogged>()> m_target;
+    duration_millis_t m_period;
+    duration_millis_t m_dutyTime = 0;
     value_t m_dutySetting = 0;
     value_t m_dutyAchieved = 0;
-    duration_millis_t m_dutyTime = 0;
-    duration_millis_t m_period;
 
 public:
     /** Constructor.
@@ -48,7 +49,9 @@ public:
      *  @param _period PWM period in seconds
      *  @sa getPeriod(), setPeriod(), getTarget(), setTarget()
      */
-    ActuatorPwm(ActuatorDigitalChangeLogged& target, duration_millis_t period);
+    explicit ActuatorPwm(
+        std::function<std::shared_ptr<ActuatorDigitalChangeLogged>()>&& target,
+        duration_millis_t period = 4000);
 
     ~ActuatorPwm() = default;
 
@@ -101,8 +104,5 @@ public:
         m_period = p;
     }
 
-    virtual bool valid() const override final
-    {
-        return m_target.state() != State::Unknown;
-    }
+    virtual bool valid() const override final;
 };

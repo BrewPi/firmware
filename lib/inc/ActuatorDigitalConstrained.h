@@ -152,10 +152,19 @@ public:
 
 private:
     std::vector<std::unique_ptr<Constraint>> constraints;
+    // keeping track of a pending state enables a state setter that doesn't provide the time
+    // the sate is applied (if allowed) in the next update
+    enum PendingState : uint8_t {
+        Inactive = 0,
+        Active = 1,
+        Unknown = 2,
+        None = 3
+    } pending;
 
 public:
-    ActuatorDigitalConstrained(ActuatorDigital& act, const ticks_millis_t& now)
-        : ActuatorDigitalChangeLogged(act, now){};
+    ActuatorDigitalConstrained(ActuatorDigital& act)
+        : ActuatorDigitalChangeLogged(act)
+        , pending(PendingState::None){};
 
     ActuatorDigitalConstrained(const ActuatorDigitalConstrained&) = delete;
     ActuatorDigitalConstrained& operator=(const ActuatorDigitalConstrained&) = delete;
@@ -185,17 +194,30 @@ public:
 
     virtual void state(const State& val, const ticks_millis_t& now) override final
     {
+        pending = PendingState(val);
+        update(now);
+    }
+
+    virtual void state(const State& val) override final
+    {
+        pending = PendingState(val);
+    }
+
+    virtual State state() const override
+    {
+        return ActuatorDigitalChangeLogged::state();
+    }
+
+    void update(const ticks_millis_t& now)
+    {
+        auto val = State(pending);
         if (!checkConstraints(val, now)) {
             // before returning, check constraints again with current state
             // to reset any state keeping contstraints like mutex
             checkConstraints(ActuatorDigitalChangeLogged::state(), now);
-            return;
+        } else {
+            ActuatorDigitalChangeLogged::state(val, now);
         }
-        ActuatorDigitalChangeLogged::state(val, now);
-    }
-
-    State state() const
-    {
-        return ActuatorDigitalChangeLogged::state();
+        pending = PendingState::None;
     }
 };

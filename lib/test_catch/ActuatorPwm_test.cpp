@@ -120,8 +120,10 @@ SCENARIO("ActuatorPWM driving mock actuator", "[pwm]")
 {
     auto now = ticks_millis_t(0);
     auto mock = ActuatorDigitalMock();
-    auto constrained = ActuatorDigitalConstrained(mock, now);
-    auto pwm = ActuatorPwm(constrained, 4000);
+    auto constrained = std::make_shared<ActuatorDigitalConstrained>(mock);
+    auto pwm = ActuatorPwm(
+        [constrained]() { return constrained; },
+        4000);
 
     WHEN("Actuator setting is written, setting is contrained between  0-100")
     {
@@ -301,9 +303,9 @@ SCENARIO("ActuatorPWM driving mock actuator", "[pwm]")
     WHEN("PWM actuator target is constrained with a minimal ON time and minimum OFF time, average is still correct")
     {
         // values typical for a fridge compressor
-        pwm.period(2400000);                                                            // 40 minutes
-        constrained.addConstraint(std::make_unique<ADConstraints::MinOnTime>(300000));  // 5 minutes
-        constrained.addConstraint(std::make_unique<ADConstraints::MinOffTime>(600000)); // 10 minutes
+        pwm.period(2400000);                                                             // 40 minutes
+        constrained->addConstraint(std::make_unique<ADConstraints::MinOnTime>(300000));  // 5 minutes
+        constrained->addConstraint(std::make_unique<ADConstraints::MinOffTime>(600000)); // 10 minutes
 
         CHECK(randomIntervalTest(10, pwm, mock, 50.0, 500, now) == Approx(50.0).margin(0.5));
         CHECK(randomIntervalTest(10, pwm, mock, 20.0, 500, now) == Approx(20.0).margin(0.5));
@@ -320,23 +322,27 @@ SCENARIO("Two PWM actuators driving mutually exclusive digital actuators")
     auto now = ticks_millis_t(0);
     auto period = duration_millis_t(4000);
     auto mock1 = ActuatorDigitalMock();
-    auto constrainedMock1 = ActuatorDigitalConstrained(mock1, now);
-    auto pwm1 = ActuatorPwm(constrainedMock1, period);
+    auto constrainedMock1 = std::make_shared<ActuatorDigitalConstrained>(mock1);
+    auto pwm1 = ActuatorPwm(
+        [constrainedMock1]() { return constrainedMock1; },
+        4000);
     auto constrainedPwm1 = ActuatorAnalogConstrained(pwm1);
 
     auto mock2 = ActuatorDigitalMock();
-    auto constrainedMock2 = ActuatorDigitalConstrained(mock2, now);
-    auto pwm2 = ActuatorPwm(constrainedMock2, period);
+    auto constrainedMock2 = std::make_shared<ActuatorDigitalConstrained>(mock2);
+    auto pwm2 = ActuatorPwm(
+        [constrainedMock2]() { return constrainedMock2; },
+        4000);
     auto constrainedPwm2 = ActuatorAnalogConstrained(pwm2);
 
     auto mut = std::make_shared<TimedMutex>();
     auto balancer = std::make_shared<Balancer>();
 
-    constrainedMock1.addConstraint(std::make_unique<ADConstraints::Mutex>(
+    constrainedMock1->addConstraint(std::make_unique<ADConstraints::Mutex>(
         [mut]() {
             return mut;
         }));
-    constrainedMock2.addConstraint(std::make_unique<ADConstraints::Mutex>(
+    constrainedMock2->addConstraint(std::make_unique<ADConstraints::Mutex>(
         [mut]() {
             return mut;
         }));

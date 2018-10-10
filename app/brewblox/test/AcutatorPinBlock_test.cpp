@@ -31,6 +31,7 @@ SCENARIO("An ActuatorPinBlock")
     WHEN("a ActuatorPinBlock receives protobuf settings, the new settings match what was sent")
     {
         blox::ActuatorPin message;
+        message.set_state(blox::AD_State::AD_State_Active);
         message.set_pin(1);
         message.set_invert(true);
         std::stringstream ssIn;
@@ -45,6 +46,8 @@ SCENARIO("An ActuatorPinBlock")
 
         uint8_t pin = act.get().pin();
         bool invert = act.get().invert();
+        ActuatorDigital::State state = act.get().state();
+        CHECK(state == ActuatorDigital::State::Active);
         CHECK(pin == 1);
         CHECK(invert == true);
 

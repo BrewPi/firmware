@@ -30,7 +30,7 @@
 
 const uint8_t historyLength = 5;
 
-class ActuatorDigitalChangeLogged {
+class ActuatorDigitalChangeLogged : public ActuatorDigital {
 public:
     using State = ActuatorDigital::State;
     // uneven length makes last entry equal to first for toggling (PWM) behavior
@@ -45,28 +45,37 @@ private:
     std::array<StateChange, historyLength> history;
 
 public:
-    ActuatorDigitalChangeLogged(ActuatorDigital& act, const ticks_millis_t& now)
+    ActuatorDigitalChangeLogged(ActuatorDigital& act)
         : actuator(act)
     {
-        history.fill(StateChange{State::Unknown, now - 1});
-        history[0] = {actuator.state(), now};
+        history.fill(StateChange{State::Unknown, ticks_millis_t(-1)});
+        history[0] = {actuator.state(), 0};
     };
     virtual ~ActuatorDigitalChangeLogged() = default;
 
     virtual void state(const State& state, const ticks_millis_t& now)
     {
-        State previous = actuator.state();
         actuator.state(state);
-        if (previous != state) {
-            std::rotate(history.rbegin(), history.rbegin() + 1, history.rend());
-            history[0] = {state, now};
-        }
+        update(now);
+    };
+
+    virtual void state(const State& state) override
+    {
+        actuator.state(state);
     };
 
     State state() const
     {
         return actuator.state();
     };
+
+    void update(const ticks_millis_t& now)
+    {
+        if (state() != history.front().newState) {
+            std::rotate(history.rbegin(), history.rbegin() + 1, history.rend());
+            history[0] = {state(), now};
+        }
+    }
 
     auto getLastStartEndTime(const State& state, const ticks_millis_t& now) const
     {

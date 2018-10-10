@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "brewblox.proto";
+import "nanopb.proto";
+
+package blox;
+
+// Command encodes the next command to perform when the object is read
+// data is optional and only used in some commands. For example when doing a family search, data contains the family ID 
+
+message ActuatorPwm {
+    option (nanopb_msgopt).msgid = 307;
+
+    uint32 actuatorId = 1 [(brewblox).link = ActuatorDigital, (nanopb).int_size = IS_16];
+    bool actuatorValid = 2 [(brewblox).readonly = true];
+    uint32 period = 3;
+    sint32 setting = 4 [(brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
+    sint32 value = 5 [(brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
+}

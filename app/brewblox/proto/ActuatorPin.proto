@@ -12,7 +12,7 @@ package blox;
 message ActuatorPin {
     option (nanopb_msgopt).msgid = 306;
 
-    AD.State state = 1 [(brewblox).readonly = true];
+    AD.State state = 1;
     uint32 pin = 2 [(nanopb).int_size = IS_8];
     bool invert = 3;
 }

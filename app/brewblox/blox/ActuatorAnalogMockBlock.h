@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ActuatorAnalogConstrained.h"
 #include "ActuatorAnalogMock.h"
 #include "blox/Block.h"
 #include "proto/cpp/ActuatorAnalogMock.pb.h"
@@ -7,6 +8,7 @@
 class ActuatorAnalogMockBlock : public Block<blox_ActuatorAnalogMock_msgid> {
 private:
     ActuatorAnalogMock actuator = ActuatorAnalogMock(0, 0, 100);
+    ActuatorAnalogConstrained constrained = ActuatorAnalogConstrained(actuator);
 
 public:
     ActuatorAnalogMockBlock()
@@ -18,7 +20,7 @@ public:
         blox_ActuatorAnalogMock newData;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_ActuatorAnalogMock_fields, blox_ActuatorAnalogMock_size);
         if (result == cbox::CboxError::OK) {
-            actuator.setting(cnl::wrap<ActuatorAnalog::value_t>(newData.setting));
+            constrained.setting(cnl::wrap<ActuatorAnalog::value_t>(newData.setting));
             actuator.minSetting(cnl::wrap<ActuatorAnalog::value_t>(newData.minSetting));
             actuator.maxSetting(cnl::wrap<ActuatorAnalog::value_t>(newData.maxSetting));
             actuator.minValue(cnl::wrap<ActuatorAnalog::value_t>(newData.minValue));
@@ -30,9 +32,10 @@ public:
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
         blox_ActuatorAnalogMock message;
-        message.setting = cnl::unwrap(actuator.setting());
-        message.value = cnl::unwrap(actuator.value());
-        message.valid = actuator.valid();
+        message.setting = cnl::unwrap(constrained.setting());
+        message.value = cnl::unwrap(constrained.value());
+        message.valid = constrained.valid();
+
         message.minSetting = cnl::unwrap(actuator.minSetting());
         message.maxSetting = cnl::unwrap(actuator.maxSetting());
         message.minValue = cnl::unwrap(actuator.minValue());
@@ -44,7 +47,8 @@ public:
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
     {
         blox_ActuatorAnalogMock message;
-        message.setting = cnl::unwrap(actuator.setting());
+        message.setting = cnl::unwrap(constrained.setting());
+
         message.minSetting = cnl::unwrap(actuator.minSetting());
         message.maxSetting = cnl::unwrap(actuator.maxSetting());
         message.minValue = cnl::unwrap(actuator.minValue());
@@ -63,9 +67,9 @@ public:
         if (iface == blox_ActuatorAnalogMock_msgid) {
             return this; // me!
         }
-        if (iface == cbox::interfaceId<ActuatorAnalog>()) {
+        if (iface == cbox::interfaceId<ActuatorAnalogConstrained>()) {
             // return the member that implements the interface in this case
-            ActuatorAnalog* ptr = &actuator;
+            ActuatorAnalogConstrained* ptr = &constrained;
             return ptr;
         }
         if (iface == cbox::interfaceId<ProcessValue<ActuatorAnalog::value_t>>()) {

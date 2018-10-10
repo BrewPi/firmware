@@ -5,7 +5,7 @@ import "google/protobuf/descriptor.proto";
 message BrewbloxFieldOptions {
     enum LinkType {
         Invalid = 0;
-        ProcessValue_11_12 = 1;
+        ProcessValue = 1;
         TempSensor = 2;
         Setpoint = 3;
         ActuatorAnalog = 4;

@@ -28,7 +28,7 @@ SCENARIO("ActuatorDigitalConstrained", "[constraints]")
 {
     auto now = ticks_millis_t(0);
     auto mock = ActuatorDigitalMock();
-    auto constrained = ActuatorDigitalConstrained(mock, now);
+    auto constrained = ActuatorDigitalConstrained(mock);
 
     WHEN("A minimum ON time constrained is added, the actuator cannot turn off before it has passed")
     {
@@ -91,9 +91,9 @@ SCENARIO("Mutex contraint", "[constraints]")
 {
     auto now = ticks_millis_t(0);
     auto mock1 = ActuatorDigitalMock();
-    auto constrained1 = ActuatorDigitalConstrained(mock1, now);
+    auto constrained1 = ActuatorDigitalConstrained(mock1);
     auto mock2 = ActuatorDigitalMock();
-    auto constrained2 = ActuatorDigitalConstrained(mock2, now);
+    auto constrained2 = ActuatorDigitalConstrained(mock2);
     auto mut = std::make_shared<TimedMutex>();
 
     constrained1.addConstraint(std::make_unique<ADConstraints::Mutex>(
@@ -162,6 +162,34 @@ SCENARIO("Mutex contraint", "[constraints]")
                 constrained2.state(State::Active, ++now);
             }
             CHECK(now == 1002);
+        }
+    }
+
+    WHEN("The state is changed without providing the current time, it is applied in the next update")
+    {
+        constrained1.state(State::Active);
+        CHECK(constrained1.state() == State::Inactive);
+        constrained1.update(++now);
+        CHECK(constrained1.state() == State::Active);
+
+        constrained1.state(State::Inactive);
+        constrained2.state(State::Active);
+        constrained1.update(++now);
+        constrained2.update(++now);
+        CHECK(constrained1.state() == State::Inactive);
+        CHECK(constrained2.state() == State::Active);
+
+        AND_WHEN("The new state is not allowed, it is only attempted once (no lingering updates)")
+        {
+            constrained1.state(State::Active);
+            constrained1.update(++now);
+
+            constrained2.state(State::Inactive);
+            constrained2.update(++now);
+            constrained1.update(++now);
+
+            CHECK(constrained1.state() == State::Inactive);
+            CHECK(constrained2.state() == State::Inactive);
         }
     }
 }

@@ -1,5 +1,5 @@
-#include "ActuatorAnalog.h"
-#include "ActuatorDigital.h"
+#include "ActuatorAnalogConstrained.h"
+#include "ActuatorDigitalConstrained.h"
 #include "FixedPoint.h"
 #include "ProcessValue.h"
 #include "Setpoint.h"
@@ -13,7 +13,7 @@ template <>
 const obj_type_t
 interfaceIdImpl<ProcessValue<safe_elastic_fixed_point<11, 12, int32_t>>>()
 {
-    return BrewbloxFieldOptions_LinkType_ProcessValue_11_12;
+    return BrewbloxFieldOptions_LinkType_ProcessValue;
 }
 
 template <>
@@ -32,14 +32,14 @@ interfaceIdImpl<Setpoint>()
 
 template <>
 const obj_type_t
-interfaceIdImpl<ActuatorAnalog>()
+interfaceIdImpl<ActuatorAnalogConstrained>()
 {
     return BrewbloxFieldOptions_LinkType_ActuatorAnalog;
 }
 
 template <>
 const obj_type_t
-interfaceIdImpl<ActuatorDigital>()
+interfaceIdImpl<ActuatorDigitalConstrained>()
 {
     return BrewbloxFieldOptions_LinkType_ActuatorDigital;
 }

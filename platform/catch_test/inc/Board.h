@@ -24,6 +24,3 @@
 #ifdef __cplusplus
 #include "OneWire.h"
 #endif
-
-#define oneWirePin 0x0
-

@@ -68,6 +68,14 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data")
         expected.clear();
     };
 
+    // clear objects
+    clearStreams();
+    inEncoder.put(commands::CLEAR_OBJECTS);
+    inEncoder.endMessage();
+    box.hexCommunicate();
+
+    CHECK(out.str().find("|00") != std::string::npos); // no errors
+
     // create mock sensor
     clearStreams();
     inEncoder.put(commands::CREATE_OBJECT);

@@ -21,17 +21,15 @@
 #pragma once
 
 #include "ActuatorDigital.h"
-#include "pinmap_hal.h"
-
 #include "gpio_hal.h"
+#include "pinmap_hal.h"
 
 class ActuatorPin final : public ActuatorDigital {
 private:
-    uint8_t m_pin = 255;
-    bool m_invert = false;
+    uint8_t m_pin;
+    bool m_invert;
 
 public:
-    ActuatorPin(){};
     ActuatorPin(uint8_t pin, bool invert)
         : m_pin(pin)
         , m_invert(invert)

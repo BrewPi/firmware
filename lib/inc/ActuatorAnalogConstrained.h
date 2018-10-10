@@ -20,7 +20,7 @@
 #pragma once
 
 #include "ActuatorAnalog.h"
-#include <functional>
+#include <memory>
 #include <vector>
 
 namespace AAConstraints {
