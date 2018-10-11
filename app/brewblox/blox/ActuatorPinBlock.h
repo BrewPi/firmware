@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ActuatorDigitalConstrained.h"
+#include "ActuatorDigitalConstraintsProto.h"
 #include "ActuatorPin.h"
 #include "blox/Block.h"
 #include "proto/cpp/ActuatorPin.pb.h"
@@ -25,6 +26,7 @@ public:
             constrained.state(ActuatorDigital::State(newData.state));
             actuator.pin(newData.pin);
             actuator.invert(newData.invert);
+            setDigitalConstraints(newData.constraints, constrained);
         }
         return result;
     }
@@ -35,6 +37,7 @@ public:
         message.state = blox_AD_State(actuator.state());
         message.pin = actuator.pin();
         message.invert = actuator.invert();
+        getDigitalConstraints(message.constraints, constrained);
 
         return streamProtoTo(out, &message, blox_ActuatorPin_fields, blox_ActuatorPin_size);
     }

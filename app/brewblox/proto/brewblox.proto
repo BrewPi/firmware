@@ -3,21 +3,21 @@ syntax = "proto3";
 import "google/protobuf/descriptor.proto";
 
 message BrewbloxFieldOptions {
-    enum LinkType {
-        Invalid = 0;
-        ProcessValue = 1;
-        TempSensor = 2;
-        Setpoint = 3;
-        ActuatorAnalog = 4;
-        ActuatorDigital = 5;
-    }
-    string unit = 1;
-    uint32 scale = 2;
-    LinkType link = 3;
-    bool hexed = 4;
-    bool readonly = 5;
+  enum LinkType {
+    Invalid = 0;
+    ProcessValue = 1;
+    TempSensor = 2;
+    Setpoint = 3;
+    ActuatorAnalog = 4;
+    ActuatorDigital = 5;
+    Balancer = 6;
+    Mutex = 7;
+  }
+  string unit = 1;
+  uint32 scale = 2;
+  LinkType link = 3;
+  bool hexed = 4;
+  bool readonly = 5;
 }
 
-extend google.protobuf.FieldOptions {
-    BrewbloxFieldOptions brewblox = 50001;
-}
+extend google.protobuf.FieldOptions { BrewbloxFieldOptions brewblox = 50001; }

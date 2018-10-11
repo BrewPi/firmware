@@ -1,5 +1,7 @@
 #include "ActuatorAnalogConstrained.h"
 #include "ActuatorDigitalConstrained.h"
+#include "Balancer.h"
+#include "DigitalConstraints.pb.h"
 #include "FixedPoint.h"
 #include "ProcessValue.h"
 #include "Setpoint.h"
@@ -42,6 +44,20 @@ const obj_type_t
 interfaceIdImpl<ActuatorDigitalConstrained>()
 {
     return BrewbloxFieldOptions_LinkType_ActuatorDigital;
+}
+
+template <>
+const obj_type_t
+interfaceIdImpl<TimedMutex>()
+{
+    return BrewbloxFieldOptions_LinkType_Mutex;
+}
+
+template <>
+const obj_type_t
+interfaceIdImpl<Balancer<blox_DigitalConstraint_mutex_tag>>()
+{
+    return BrewbloxFieldOptions_LinkType_Balancer;
 }
 
 } // end namespace cbox

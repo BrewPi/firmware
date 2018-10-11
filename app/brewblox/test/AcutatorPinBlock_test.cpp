@@ -19,6 +19,7 @@
 
 #include "../BrewBlox.h"
 #include "ActuatorPin.test.pb.h"
+#include "DigitalConstraints.test.pb.h"
 #include "blox/ActuatorPinBlock.h"
 #include "cbox/DataStreamIo.h"
 #include <catch.hpp>
@@ -34,6 +35,12 @@ SCENARIO("An ActuatorPinBlock")
         message.set_state(blox::AD_State::AD_State_Active);
         message.set_pin(1);
         message.set_invert(true);
+
+        auto minOff = new blox::ConstraintMinOff();
+        minOff->set_timelimit(180);
+        auto c = message.mutable_constraints()->add_constraint();
+        c->set_allocated_minoff(minOff);
+
         std::stringstream ssIn;
 
         message.SerializeToOstream(&ssIn);
@@ -65,7 +72,8 @@ SCENARIO("An ActuatorPinBlock")
             // state is active because invert is true
             CHECK(round_trip.ShortDebugString() == "state: Active "
                                                    "pin: 1 "
-                                                   "invert: true");
+                                                   "invert: true "
+                                                   "constraints { constraint { minOff { timeLimit: 180 } } }");
         }
     }
 }

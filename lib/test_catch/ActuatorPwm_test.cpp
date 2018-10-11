@@ -303,9 +303,9 @@ SCENARIO("ActuatorPWM driving mock actuator", "[pwm]")
     WHEN("PWM actuator target is constrained with a minimal ON time and minimum OFF time, average is still correct")
     {
         // values typical for a fridge compressor
-        pwm.period(2400000);                                                             // 40 minutes
-        constrained->addConstraint(std::make_unique<ADConstraints::MinOnTime>(300000));  // 5 minutes
-        constrained->addConstraint(std::make_unique<ADConstraints::MinOffTime>(600000)); // 10 minutes
+        pwm.period(2400000);                                                                // 40 minutes
+        constrained->addConstraint(std::make_unique<ADConstraints::MinOnTime<2>>(300000));  // 5 minutes
+        constrained->addConstraint(std::make_unique<ADConstraints::MinOffTime<1>>(600000)); // 10 minutes
 
         CHECK(randomIntervalTest(10, pwm, mock, 50.0, 500, now) == Approx(50.0).margin(0.5));
         CHECK(randomIntervalTest(10, pwm, mock, 20.0, 500, now) == Approx(20.0).margin(0.5));
@@ -338,11 +338,11 @@ SCENARIO("Two PWM actuators driving mutually exclusive digital actuators")
     auto mut = std::make_shared<TimedMutex>();
     auto balancer = std::make_shared<Balancer<2>>();
 
-    constrainedMock1->addConstraint(std::make_unique<ADConstraints::Mutex>(
+    constrainedMock1->addConstraint(std::make_unique<ADConstraints::Mutex<3>>(
         [mut]() {
             return mut;
         }));
-    constrainedMock2->addConstraint(std::make_unique<ADConstraints::Mutex>(
+    constrainedMock2->addConstraint(std::make_unique<ADConstraints::Mutex<3>>(
         [mut]() {
             return mut;
         }));

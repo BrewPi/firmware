@@ -75,42 +75,67 @@ public:
     virtual ~Base() = default;
 
     virtual bool allowed(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act) = 0;
+
+    virtual uint8_t id() const = 0;
 };
 
+template <uint8_t ID>
 class MinOnTime : public Base {
 private:
-    duration_millis_t minTime;
+    duration_millis_t m_limit;
 
 public:
     MinOnTime(const duration_millis_t& min)
-        : minTime(min)
+        : m_limit(min)
     {
     }
 
     bool allowed(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act) override final
     {
         auto times = act.getLastStartEndTime(State::Active, now);
-        return newState == State::Active || times.end - times.start >= minTime;
+        return newState == State::Active || times.end - times.start >= m_limit;
+    }
+
+    virtual uint8_t id() const override final
+    {
+        return ID;
+    }
+
+    duration_millis_t limit()
+    {
+        return m_limit;
     }
 };
 
+template <uint8_t ID>
 class MinOffTime : public Base {
 private:
-    duration_millis_t minTime;
+    duration_millis_t m_limit;
 
 public:
     MinOffTime(const duration_millis_t& min)
-        : minTime(min)
+        : m_limit(min)
     {
     }
 
     virtual bool allowed(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act) override final
     {
         auto times = act.getLastStartEndTime(State::Inactive, now);
-        return newState == State::Inactive || times.end - times.start >= minTime;
+        return newState == State::Inactive || times.end - times.start >= m_limit;
+    }
+
+    virtual uint8_t id() const override final
+    {
+        return ID;
+    }
+
+    duration_millis_t limit()
+    {
+        return m_limit;
     }
 };
 
+template <uint8_t ID>
 class Mutex : public Base {
 private:
     const std::function<std::shared_ptr<TimedMutex>()> m_mutex;
@@ -142,6 +167,11 @@ public:
             }
         }
         return false;
+    }
+
+    virtual uint8_t id() const override final
+    {
+        return ID;
     }
 };
 
@@ -204,4 +234,9 @@ public:
     {
         return ActuatorDigitalChangeLogged::state();
     }
+
+    const std::vector<std::unique_ptr<Constraint>>& constraintsList() const
+    {
+        return constraints;
+    };
 };
