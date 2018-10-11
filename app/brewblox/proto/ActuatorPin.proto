@@ -17,5 +17,5 @@ message ActuatorPin {
   AD.State state = 1;
   uint32 pin = 2 [ (nanopb).int_size = IS_8 ];
   bool invert = 3;
-  DigitalConstraints constraints = 4;
+  DigitalConstraints constrainedBy = 4;
 }

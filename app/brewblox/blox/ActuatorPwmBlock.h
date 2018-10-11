@@ -37,7 +37,7 @@ public:
             actuator.setId(newData.actuatorId);
             constrained.setting(cnl::wrap<ActuatorAnalog::value_t>(newData.setting));
             pwm.period(newData.period);
-            setAnalogConstraints(newData.constraints, constrained);
+            setAnalogConstraints(newData.constrainedBy, constrained);
         }
         return result;
     }
@@ -50,7 +50,7 @@ public:
         message.period = pwm.period();
         message.setting = cnl::unwrap(constrained.setting());
         message.value = cnl::unwrap(constrained.value());
-        getAnalogConstraints(message.constraints, constrained);
+        getAnalogConstraints(message.constrainedBy, constrained);
 
         return streamProtoTo(out, &message, blox_ActuatorPwm_fields, blox_ActuatorPwm_size);
     }

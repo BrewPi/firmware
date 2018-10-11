@@ -5,27 +5,12 @@ import "nanopb.proto";
 
 package blox;
 
-message ConstraintMin {
-  sint32 min = 1 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32 ];
-}
-
-message ConstraintMax {
-  sint32 max = 1 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32 ];
-}
-
-message ConstraintBalanced {
-  uint32 balancerId = 1
-      [ (brewblox).link = Balancer, (nanopb).int_size = IS_16 ];
-}
-
 message AnalogConstraint {
   oneof constraint {
-    ConstraintMin min = 1;
-    ConstraintMax max = 2;
-    ConstraintBalanced balanced = 3;
+    sint32 min = 1 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32 ];
+    sint32 max = 2 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32 ];
+    uint32 balancer = 3 [ (brewblox).link = Balancer, (nanopb).int_size = IS_16 ];
   }
 }
 
-message AnalogConstraints {
-  repeated AnalogConstraint constraint = 1 [ (nanopb).max_count = 8 ];
-}
+message AnalogConstraints { repeated AnalogConstraint constraints = 1 [ (nanopb).max_count = 8 ]; }

@@ -26,7 +26,7 @@ public:
             constrained.state(ActuatorDigital::State(newData.state));
             actuator.pin(newData.pin);
             actuator.invert(newData.invert);
-            setDigitalConstraints(newData.constraints, constrained);
+            setDigitalConstraints(newData.constrainedBy, constrained);
         }
         return result;
     }
@@ -37,7 +37,7 @@ public:
         message.state = blox_AD_State(actuator.state());
         message.pin = actuator.pin();
         message.invert = actuator.invert();
-        getDigitalConstraints(message.constraints, constrained);
+        getDigitalConstraints(message.constrainedBy, constrained);
 
         return streamProtoTo(out, &message, blox_ActuatorPin_fields, blox_ActuatorPin_size);
     }

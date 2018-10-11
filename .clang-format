@@ -113,3 +113,4 @@ TabWidth:        4
 UseTab:          Never
 ---
 Language: Proto
+ColumnLimit: 120

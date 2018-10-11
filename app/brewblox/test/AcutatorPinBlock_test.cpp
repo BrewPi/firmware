@@ -36,10 +36,11 @@ SCENARIO("An ActuatorPinBlock")
         message.set_pin(1);
         message.set_invert(true);
 
-        auto minOff = new blox::ConstraintMinOff();
-        minOff->set_timelimit(180);
-        auto c = message.mutable_constraints()->add_constraint();
-        c->set_allocated_minoff(minOff);
+        auto cPtr1 = message.mutable_constrainedby()->add_constraints();
+        cPtr1->set_minoff(180);
+
+        auto cPtr2 = message.mutable_constrainedby()->add_constraints();
+        cPtr2->set_minon(120);
 
         std::stringstream ssIn;
 
@@ -73,7 +74,9 @@ SCENARIO("An ActuatorPinBlock")
             CHECK(round_trip.ShortDebugString() == "state: Active "
                                                    "pin: 1 "
                                                    "invert: true "
-                                                   "constraints { constraint { minOff { timeLimit: 180 } } }");
+                                                   "constrainedBy { "
+                                                   "constraints { minOff: 180 } "
+                                                   "constraints { minOn: 120 } }");
         }
     }
 }
