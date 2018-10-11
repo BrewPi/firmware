@@ -53,9 +53,11 @@ using TicksClass = Ticks<MockTicks>;
 #if !defined(PLATFORM_ID) || PLATFORM_ID == 3
 #include "OneWireNull.h"
 using OneWireDriver = OneWireNull;
+#define ONEWIRE_ARG
 #else
 #include "DS248x.h"
 using OneWireDriver = DS248x;
+#define ONEWIRE_ARG 0x00
 #endif
 
 class SetpointSensorPairBlock;
@@ -123,8 +125,8 @@ brewbloxBox()
 OneWire&
 theOneWire()
 {
-    static OneWireDriver owDriver;
-    static OneWire ow(owDriver);
+    static auto owDriver = OneWireDriver(ONEWIRE_ARG);
+    static auto ow = OneWire(owDriver);
     return ow;
 }
 

@@ -1,14 +1,15 @@
 #include "Logger.h"
+#include <cinttypes>
 #include <cstdint>
+#include <cstdio>
 #include <string>
-
-// for some reason using to_string in a header file causes a compile error, but it works in a cpp file
-// would prefer to use a template, but can't
 
 std::string&
 operator<<(std::string& lh, const int32_t& in)
 {
-    lh += std::to_string(in);
+    char temp[12];
+    snprintf(temp, 12, "%" PRId32, in);
+    lh += std::string(temp);
     return lh;
 }
 
