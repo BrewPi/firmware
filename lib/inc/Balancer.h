@@ -25,13 +25,15 @@
 #include <vector>
 
 namespace AAConstraints {
+template <uint8_t ID>
 class Balanced;
 }
 
+template <uint8_t ID>
 class Balancer {
 private:
     using value_t = ActuatorAnalog::value_t;
-    using Balanced = AAConstraints::Balanced;
+    using Balanced = AAConstraints::Balanced<ID>;
 
     struct Request {
         const Balanced* requester;
@@ -88,13 +90,15 @@ public:
 };
 
 namespace AAConstraints {
+
+template <uint8_t ID>
 class Balanced : public Base {
 private:
-    const std::function<std::shared_ptr<Balancer>()> m_balancer;
+    const std::function<std::shared_ptr<Balancer<ID>>()> m_balancer;
 
 public:
     explicit Balanced(
-        std::function<std::shared_ptr<Balancer>()>&& balancer)
+        std::function<std::shared_ptr<Balancer<ID>>()>&& balancer)
         : m_balancer(balancer)
     {
         if (auto balancerPtr = balancer()) {
@@ -120,6 +124,11 @@ public:
             return balancerPtr->constrain(this, val);
         }
         return val;
+    }
+
+    virtual uint8_t id() const
+    {
+        return ID;
     }
 };
 }

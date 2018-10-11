@@ -42,7 +42,7 @@ SCENARIO("ActuatorAnalogConstrained test", "[constraints]")
 
         WHEN("A maximum constraint is added, the value is clipped at the maximum")
         {
-            cAct.addConstraint(std::make_unique<AAConstraints::Maximum>(25));
+            cAct.addConstraint(std::make_unique<AAConstraints::Maximum<1>>(25));
 
             cAct.setting(50);
             CHECK(cAct.setting() == ActuatorAnalog::value_t(25));
@@ -50,7 +50,7 @@ SCENARIO("ActuatorAnalogConstrained test", "[constraints]")
 
             AND_WHEN("A minimum constraint is also added, the value is clipped at minimum and maximum")
             {
-                cAct.addConstraint(std::make_unique<AAConstraints::Minimum>(15));
+                cAct.addConstraint(std::make_unique<AAConstraints::Minimum<0>>(15));
 
                 cAct.setting(50);
                 CHECK(cAct.setting() == ActuatorAnalog::value_t(25));
@@ -80,14 +80,14 @@ SCENARIO("ActuatorAnalogConstrained test", "[constraints]")
 SCENARIO("When two analog actuators are constrained by a balancer", "[constraints]")
 {
     using value_t = ActuatorAnalog::value_t;
-    auto balancer = std::make_shared<Balancer>();
+    auto balancer = std::make_shared<Balancer<2>>();
     auto act1 = ActuatorAnalogMock();
     auto cAct1 = ActuatorAnalogConstrained(act1);
     auto act2 = ActuatorAnalogMock();
     auto cAct2 = ActuatorAnalogConstrained(act2);
 
-    cAct1.addConstraint(std::make_unique<AAConstraints::Balanced>([balancer]() { return balancer; }));
-    cAct2.addConstraint(std::make_unique<AAConstraints::Balanced>([balancer]() { return balancer; }));
+    cAct1.addConstraint(std::make_unique<AAConstraints::Balanced<2>>([balancer]() { return balancer; }));
+    cAct2.addConstraint(std::make_unique<AAConstraints::Balanced<2>>([balancer]() { return balancer; }));
 
     cAct1.setting(60);
     cAct2.setting(60);

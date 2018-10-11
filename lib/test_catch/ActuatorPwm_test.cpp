@@ -336,7 +336,7 @@ SCENARIO("Two PWM actuators driving mutually exclusive digital actuators")
     auto constrainedPwm2 = ActuatorAnalogConstrained(pwm2);
 
     auto mut = std::make_shared<TimedMutex>();
-    auto balancer = std::make_shared<Balancer>();
+    auto balancer = std::make_shared<Balancer<2>>();
 
     constrainedMock1->addConstraint(std::make_unique<ADConstraints::Mutex>(
         [mut]() {
@@ -399,8 +399,8 @@ SCENARIO("Two PWM actuators driving mutually exclusive digital actuators")
 
     WHEN("A balancing constraint is added")
     {
-        constrainedPwm1.addConstraint(std::make_unique<AAConstraints::Balanced>([balancer]() { return balancer; }));
-        constrainedPwm2.addConstraint(std::make_unique<AAConstraints::Balanced>([balancer]() { return balancer; }));
+        constrainedPwm1.addConstraint(std::make_unique<AAConstraints::Balanced<2>>([balancer]() { return balancer; }));
+        constrainedPwm2.addConstraint(std::make_unique<AAConstraints::Balanced<2>>([balancer]() { return balancer; }));
 
         THEN("Achieved duty cycle matches the setting if the total is under 100")
         {

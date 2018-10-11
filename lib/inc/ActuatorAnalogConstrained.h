@@ -39,10 +39,7 @@ public:
 
     virtual value_t constrain(const value_t& val) const = 0;
 
-    virtual uint8_t id() = 0;
-
-    // pointer to data, client should now how to use it based on the id
-    virtual void copyData(void* dest, const uint8_t& maxBytes) = 0;
+    virtual uint8_t id() const = 0;
 };
 
 template <uint8_t ID>
@@ -61,17 +58,14 @@ public:
         return std::max(val, m_min);
     }
 
-    virtual uint8_t id() override final
+    virtual uint8_t id() const override final
     {
         return ID;
     }
 
-    virtual void copyData(void* dest, const uint8_t& maxBytes) override final
+    value_t min() const
     {
-        if (maxBytes >= sizeof(value_t)) {
-            auto target = reinterpret_cast<value_t*>(dest);
-            *target = m_min;
-        }
+        return m_min;
     }
 };
 
@@ -91,17 +85,14 @@ public:
         return std::min(val, m_max);
     }
 
-    virtual uint8_t id() override final
+    virtual uint8_t id() const override final
     {
         return ID;
     }
 
-    virtual void copyData(void* dest, const uint8_t& maxBytes) override final
+    value_t max() const
     {
-        if (maxBytes >= sizeof(value_t)) {
-            auto target = reinterpret_cast<value_t*>(dest);
-            *target = m_max;
-        }
+        return m_max;
     }
 };
 }

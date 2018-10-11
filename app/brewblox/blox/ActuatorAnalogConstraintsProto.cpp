@@ -3,6 +3,9 @@
 #include "ActuatorAnalogConstrained.h"
 #include "proto/cpp/AnalogConstraints.pb.h"
 
+using Minimum = AAConstraints::Minimum<blox_ConstraintWrapper_min_tag>;
+using Maximum = AAConstraints::Maximum<blox_ConstraintWrapper_max_tag>;
+
 void
 setAnalogConstraints(const blox_AnalogConstraints& msg, ActuatorAnalogConstrained& act)
 {
@@ -11,11 +14,11 @@ setAnalogConstraints(const blox_AnalogConstraints& msg, ActuatorAnalogConstraine
         blox_ConstraintWrapper constraintDfn = msg.constraint[i];
         switch (constraintDfn.which_constraint) {
         case blox_ConstraintWrapper_min_tag:
-            act.addConstraint(std::make_unique<AAConstraints::Minimum<blox_ConstraintWrapper_min_tag>>(
+            act.addConstraint(std::make_unique<Minimum>(
                 cnl::wrap<ActuatorAnalog::value_t>(constraintDfn.constraint.min.min)));
             break;
         case blox_ConstraintWrapper_max_tag:
-            act.addConstraint(std::make_unique<AAConstraints::Maximum<blox_ConstraintWrapper_max_tag>>(
+            act.addConstraint(std::make_unique<Maximum>(
                 cnl::wrap<ActuatorAnalog::value_t>(constraintDfn.constraint.max.max)));
             break;
         }
@@ -37,14 +40,12 @@ getAnalogConstraints(blox_AnalogConstraints& msg, const ActuatorAnalogConstraine
         msg.constraint[i].which_constraint = constraintId;
         switch (constraintId) {
         case blox_ConstraintWrapper_min_tag: {
-            ActuatorAnalog::value_t data;
-            (*it)->copyData(&data, sizeof(data));
-            msg.constraint[i].constraint.min.min = cnl::unwrap(data);
+            auto obj = reinterpret_cast<Minimum*>((*it).get());
+            msg.constraint[i].constraint.min.min = cnl::unwrap(obj->min());
         } break;
         case blox_ConstraintWrapper_max_tag: {
-            ActuatorAnalog::value_t data;
-            (*it)->copyData(&data, sizeof(data));
-            msg.constraint[i].constraint.max.max = cnl::unwrap(data);
+            auto obj = reinterpret_cast<Maximum*>((*it).get());
+            msg.constraint[i].constraint.max.max = cnl::unwrap(obj->max());
         } break;
         }
         msg.constraint_count++;
