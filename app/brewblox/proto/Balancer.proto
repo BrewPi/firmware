@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+import "brewblox.proto";
+import "nanopb.proto";
+
+package blox;
+
+message Balancer {
+  option (nanopb_msgopt).msgid = 309;
+
+  message BalancedActuator {
+    uint32 id = 1 [ (brewblox).link = ActuatorAnalog, (nanopb).int_size = IS_16, (brewblox).readonly = true ];
+    sint32 requested = 2 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32 ];
+    sint32 granted = 3 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32 ];
+  }
+
+  repeated BalancedActuator clients = 1;
+}

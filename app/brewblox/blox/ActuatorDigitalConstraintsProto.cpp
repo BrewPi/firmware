@@ -8,22 +8,33 @@
 using MinOff = ADConstraints::MinOffTime<blox_DigitalConstraint_minOff_tag>;
 using MinOn = ADConstraints::MinOnTime<blox_DigitalConstraint_minOn_tag>;
 
-class CboxMutex : public ADConstraints::Mutex<blox_DigitalConstraint_mutex_tag> {
+class CboxMutex : public ADConstraints::Base {
 private:
+    using Mutex_t = ADConstraints::Mutex<blox_DigitalConstraint_mutex_tag>;
     cbox::CboxPtr<TimedMutex> lookup;
+    Mutex_t m_mutexConstraint;
 
 public:
-    CboxMutex(cbox::CboxPtr<TimedMutex>&& ptr, const cbox::obj_id_t& id)
-        : Mutex(lookup)
-        , lookup(ptr)
+    CboxMutex(const cbox::obj_id_t& id)
+        : lookup(brewbloxBox().makeCboxPtr<TimedMutex>(id))
+        , m_mutexConstraint(lookup)
     {
-        lookup.setId(id);
+    }
+
+    virtual uint8_t id() const override final
+    {
+        return m_mutexConstraint.id();
     }
 
     cbox::obj_id_t mutexId()
     {
         return lookup.getId();
     }
+
+    virtual bool allowed(const ActuatorDigital::State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act) override final
+    {
+        return m_mutexConstraint.allowed(newState, now, act);
+    };
 };
 
 void
@@ -41,7 +52,6 @@ setDigitalConstraints(const blox_DigitalConstraints& msg, ActuatorDigitalConstra
             break;
         case blox_DigitalConstraint_mutex_tag: {
             act.addConstraint(std::make_unique<CboxMutex>(
-                brewbloxBox().makeCboxPtr<TimedMutex>(),
                 constraintDfn.constraint.mutex));
             break;
         }

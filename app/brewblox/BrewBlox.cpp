@@ -22,6 +22,7 @@
 #include "blox/ActuatorOffsetBlock.h"
 #include "blox/ActuatorPinBlock.h"
 #include "blox/ActuatorPwmBlock.h"
+#include "blox/BalancerBlock.h"
 #include "blox/OneWireBusBlock.h"
 #include "blox/PidBlock.h"
 #include "blox/SetpointSensorPairBlock.h"
@@ -106,6 +107,7 @@ makeBrewBloxBox()
         {ActuatorPinBlock::staticTypeId(), []() { return std::make_shared<ActuatorPinBlock>(); }},
         {ActuatorPwmBlock::staticTypeId(), []() { return std::make_shared<ActuatorPwmBlock>(objects); }},
         {ActuatorOffsetBlock::staticTypeId(), []() { return std::make_shared<ActuatorOffsetBlock>(objects); }},
+        {BalancerBlock::staticTypeId(), []() { return std::make_shared<BalancerBlock>(); }},
     };
 
     static EepromAccessImpl eeprom;

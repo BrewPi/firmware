@@ -101,9 +101,9 @@ public:
     }
 
     template <typename T>
-    CboxPtr<T> makeCboxPtr()
+    CboxPtr<T> makeCboxPtr(const obj_id_t& id = 0)
     {
-        return CboxPtr<T>(objects);
+        return CboxPtr<T>(objects, id);
     }
 
     enum CommandID : uint8_t {

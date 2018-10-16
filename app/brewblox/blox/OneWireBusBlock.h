@@ -24,7 +24,7 @@ protected:
     static bool streamAdresses(pb_ostream_t* stream, const pb_field_t* field, void* const* arg)
     {
         OneWireAddress address;
-        OneWire* busPtr = (OneWire*)*arg;
+        OneWire* busPtr = reinterpret_cast<OneWire*>(*arg);
         if (busPtr == nullptr) {
             return false;
         }

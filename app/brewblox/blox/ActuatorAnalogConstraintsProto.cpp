@@ -9,24 +9,36 @@
 using Minimum = AAConstraints::Minimum<blox_AnalogConstraint_min_tag>;
 using Maximum = AAConstraints::Maximum<blox_AnalogConstraint_max_tag>;
 
-using Balanced = AAConstraints::Balanced<blox_AnalogConstraint_balancer_tag>;
-using BalancerT = Balancer<blox_AnalogConstraint_balancer_tag>;
+using Balanced_t = AAConstraints::Balanced<blox_AnalogConstraint_balancer_tag>;
+using Balancer_t = Balancer<blox_AnalogConstraint_balancer_tag>;
 
-class CboxBalanced : public Balanced {
+class CboxBalanced : public AAConstraints::Base {
 private:
-    cbox::CboxPtr<BalancerT> lookup;
+    // CboxBalanced does not use Balanced_t as base, becaue it needs to initialize the lookup
+    // before initializing the Balanced_t
+    cbox::CboxPtr<Balancer_t> lookup;
+    Balanced_t m_balanced;
 
 public:
-    CboxBalanced(cbox::CboxPtr<BalancerT>&& ptr, const cbox::obj_id_t& id)
-        : Balanced(lookup)
-        , lookup(ptr)
+    CboxBalanced(const cbox::obj_id_t& id)
+        : lookup(brewbloxBox().makeCboxPtr<Balancer_t>(id))
+        , m_balanced(lookup)
     {
-        lookup.setId(id);
     }
 
     cbox::obj_id_t balancerId()
     {
         return lookup.getId();
+    }
+
+    virtual uint8_t id() const override final
+    {
+        return m_balanced.id();
+    }
+
+    virtual AAConstraints::value_t constrain(const AAConstraints::value_t& val) const override final
+    {
+        return m_balanced.constrain(val);
     }
 };
 
@@ -47,7 +59,6 @@ setAnalogConstraints(const blox_AnalogConstraints& msg, ActuatorAnalogConstraine
             break;
         case blox_AnalogConstraint_balancer_tag:
             act.addConstraint(std::make_unique<CboxBalanced>(
-                brewbloxBox().makeCboxPtr<BalancerT>(),
                 constraintDfn.constraint.balancer));
             break;
         }

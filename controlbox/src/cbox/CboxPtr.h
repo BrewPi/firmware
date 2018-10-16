@@ -33,8 +33,8 @@ private:
     std::weak_ptr<Object> ptr;
 
 public:
-    CboxPtr(ObjectContainer& _objects)
-        : id(0)
+    explicit CboxPtr(ObjectContainer& _objects, const obj_id_t& _id = 0)
+        : id(_id)
         , objects(_objects)
     {
     }

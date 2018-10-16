@@ -88,6 +88,11 @@ public:
             a.granted = a.requested * scale;
         }
     }
+
+    const std::vector<Request>& clients() const
+    {
+        return requesters;
+    };
 };
 
 namespace AAConstraints {
