@@ -29,18 +29,17 @@
  */
 class ActuatorOffset final : public ActuatorAnalog {
 public:
-    enum ReferenceSelection {
+    enum SettingOrValue {
         SETTING,
         VALUE
     };
 
 private:
-    const std::function<std::shared_ptr<SetpointSensorPair>()>
-        m_target;
+    const std::function<std::shared_ptr<SetpointSensorPair>()> m_target;
     const std::function<std::shared_ptr<SetpointSensorPair>()> m_reference;
     value_t m_setting = 0;
     value_t m_value = 0;
-    ReferenceSelection m_selectedReference = ReferenceSelection::SETTING;
+    SettingOrValue m_selectedReference = SettingOrValue::SETTING;
 
 public:
     explicit ActuatorOffset(
@@ -81,12 +80,12 @@ public:
         return false;
     }
 
-    void selectedReference(const ReferenceSelection& sel)
+    void selectedReference(const SettingOrValue& sel)
     {
         m_selectedReference = sel;
     }
 
-    ReferenceSelection selectedReference()
+    SettingOrValue selectedReference() const
     {
         return m_selectedReference;
     }
@@ -99,7 +98,7 @@ public:
         if (auto targetPtr = m_target()) {
             if (auto refPtr = m_reference()) {
                 if (targetPtr->valid() && refPtr->valid()) {
-                    referenceValue = (m_selectedReference == ReferenceSelection::SETTING) ? refPtr->setting() : refPtr->value();
+                    referenceValue = (m_selectedReference == SettingOrValue::SETTING) ? refPtr->setting() : refPtr->value();
                     targetPtr->setting(referenceValue + m_setting);
                     targetValue = targetPtr->value();
                     m_value = targetValue - referenceValue;

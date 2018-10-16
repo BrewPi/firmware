@@ -145,7 +145,7 @@ public:
 
     virtual value_t value() const override final
     {
-        return actuator.setting();
+        return actuator.value();
     }
 
     virtual bool valid() const override final

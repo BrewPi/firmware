@@ -73,6 +73,10 @@ public
             ProcessValue<temp_t>* ptr = &pair;
             return ptr;
         }
+        if (iface == cbox::interfaceId<SetpointSensorPair>()) {
+            SetpointSensorPair* ptr = &pair;
+            return ptr;
+        }
         return nullptr;
     }
 

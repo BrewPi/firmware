@@ -19,6 +19,7 @@
 
 #include "Logger.h"
 #include "blox/ActuatorAnalogMockBlock.h"
+#include "blox/ActuatorOffsetBlock.h"
 #include "blox/ActuatorPinBlock.h"
 #include "blox/ActuatorPwmBlock.h"
 #include "blox/OneWireBusBlock.h"
@@ -104,6 +105,7 @@ makeBrewBloxBox()
         {PidBlock::staticTypeId(), []() { return std::make_shared<PidBlock>(objects); }},
         {ActuatorPinBlock::staticTypeId(), []() { return std::make_shared<ActuatorPinBlock>(); }},
         {ActuatorPwmBlock::staticTypeId(), []() { return std::make_shared<ActuatorPwmBlock>(objects); }},
+        {ActuatorOffsetBlock::staticTypeId(), []() { return std::make_shared<ActuatorOffsetBlock>(objects); }},
     };
 
     static EepromAccessImpl eeprom;

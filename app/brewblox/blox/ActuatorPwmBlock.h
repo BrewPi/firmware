@@ -35,9 +35,9 @@ public:
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_ActuatorPwm_fields, blox_ActuatorPwm_size);
         if (result == cbox::CboxError::OK) {
             actuator.setId(newData.actuatorId);
-            constrained.setting(cnl::wrap<ActuatorAnalog::value_t>(newData.setting));
             pwm.period(newData.period);
             setAnalogConstraints(newData.constrainedBy, constrained);
+            constrained.setting(cnl::wrap<ActuatorAnalog::value_t>(newData.setting));
         }
         return result;
     }

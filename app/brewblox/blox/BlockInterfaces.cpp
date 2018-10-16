@@ -5,6 +5,7 @@
 #include "FixedPoint.h"
 #include "ProcessValue.h"
 #include "Setpoint.h"
+#include "SetpointSensorPair.h"
 #include "TempSensor.h"
 #include "brewblox.pb.h"
 #include "cbox/ObjectBase.h"
@@ -23,6 +24,13 @@ const obj_type_t
 interfaceIdImpl<TempSensor>()
 {
     return BrewbloxFieldOptions_LinkType_TempSensor;
+}
+
+template <>
+const obj_type_t
+interfaceIdImpl<SetpointSensorPair>()
+{
+    return BrewbloxFieldOptions_LinkType_SetpointSensorPair;
 }
 
 template <>

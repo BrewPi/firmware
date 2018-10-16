@@ -94,7 +94,7 @@ SCENARIO("A Blox ActuatorPwm object can be created from streamed protobuf data")
 
     blox::ActuatorPwm newPwm;
     newPwm.set_actuatorid(100);
-    newPwm.set_setting(20);
+    newPwm.set_setting(cnl::unwrap(ActuatorAnalog::value_t(20)));
     newPwm.set_period(4000);
 
     auto c = newPwm.mutable_constrainedby()->add_constraints();
@@ -120,6 +120,6 @@ SCENARIO("A Blox ActuatorPwm object can be created from streamed protobuf data")
     blox::ActuatorPwm reply;
     decodeProtoFromReply(out, reply);
     CHECK(reply.ShortDebugString() == "actuatorId: 100 actuatorValid: true "
-                                      "period: 4000 setting: 20 value: 20 "
+                                      "period: 4000 setting: 81920 value: 409599 " // value is 100% because the actuator was ON when the PWM driver was created
                                       "constrainedBy { constraints { min: 40960 } }");
 }
