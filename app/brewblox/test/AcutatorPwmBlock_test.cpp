@@ -67,6 +67,8 @@ SCENARIO("A Blox ActuatorPwm object can be created from streamed protobuf data")
 
     CHECK(out.str().find("|00") != std::string::npos); // no errors
 
+    box.update(0); // ensure last update is at 0 and not influenced by other tests
+
     // create pin actuator
     clearStreams();
     inEncoder.put(commands::CREATE_OBJECT);
@@ -120,6 +122,6 @@ SCENARIO("A Blox ActuatorPwm object can be created from streamed protobuf data")
     blox::ActuatorPwm reply;
     decodeProtoFromReply(out, reply);
     CHECK(reply.ShortDebugString() == "actuatorId: 100 actuatorValid: true "
-                                      "period: 4000 setting: 81920 value: 409599 " // value is 100% because the actuator was ON when the PWM driver was created
+                                      "period: 4000 setting: 81920 "
                                       "constrainedBy { constraints { min: 40960 } }");
 }

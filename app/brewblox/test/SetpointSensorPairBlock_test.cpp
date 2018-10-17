@@ -69,6 +69,8 @@ SCENARIO("A Blox SetpointSensorPair object can be created from streamed protobuf
 
     CHECK(out.str().find("|00") != std::string::npos); // no errors
 
+    box.update(0); // ensure last update is at 0 and not influenced by other tests
+
     // create mock sensor
     clearStreams();
     inEncoder.put(commands::CREATE_OBJECT);

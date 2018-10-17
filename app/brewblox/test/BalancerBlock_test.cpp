@@ -69,6 +69,8 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
 
     CHECK(out.str().find("|00") != std::string::npos); // no errors
 
+    box.update(0); // ensure last update is at 0 and not influenced by other tests
+
     // create balancer
     clearStreams();
     inEncoder.put(commands::CREATE_OBJECT);
