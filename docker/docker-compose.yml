@@ -22,7 +22,7 @@ services:
         
   simulator:
     build: ./simulator/
-    image: brewblox/firmware-simulator
+    image: brewblox/firmware-simulator:develop
     privileged: true
     container_name: firmware-simulator
     volumes:
