@@ -19,8 +19,6 @@ services:
     container_name: firmware-simulator-compiler
     volumes:
         - ../:/firmware
-        - "/etc/timezone:/etc/timezone:ro"
-        - "/etc/localtime:/etc/localtime:ro"
         
   simulator:
     build: ./simulator/
