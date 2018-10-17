@@ -50,11 +50,9 @@ setDigitalConstraints(const blox_DigitalConstraints& msg, ActuatorDigitalConstra
         case blox_DigitalConstraint_minOn_tag:
             act.addConstraint(std::make_unique<MinOn>(constraintDfn.constraint.minOn));
             break;
-        case blox_DigitalConstraint_mutex_tag: {
-            act.addConstraint(std::make_unique<CboxMutex>(
-                constraintDfn.constraint.mutex));
+        case blox_DigitalConstraint_mutex_tag:
+            act.addConstraint(std::make_unique<CboxMutex>(constraintDfn.constraint.mutex));
             break;
-        }
         }
     }
 }

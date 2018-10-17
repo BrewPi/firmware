@@ -30,7 +30,7 @@
 class TimedMutex {
 private:
     std::mutex m_mutex;
-    duration_millis_t m_minSwitchTime = 0;
+    duration_millis_t m_differentActuatorWait = 0;
     ticks_millis_t lastActive = 0;
     const ActuatorDigitalChangeLogged* lastActuator = nullptr;
 
@@ -40,7 +40,7 @@ public:
 
     bool try_lock(const duration_millis_t& now, const ActuatorDigitalChangeLogged& act)
     {
-        if (lastActuator == nullptr || lastActuator == &act || (now - lastActive) >= m_minSwitchTime) {
+        if (lastActuator == nullptr || lastActuator == &act || (now - lastActive) >= m_differentActuatorWait) {
             return m_mutex.try_lock();
         }
         return false;
@@ -55,14 +55,14 @@ public:
         m_mutex.unlock();
     }
 
-    duration_millis_t minSwitchTime()
+    duration_millis_t differentActuatorWait() const
     {
-        return m_minSwitchTime;
+        return m_differentActuatorWait;
     }
 
-    void minSwitchTime(const duration_millis_t& v)
+    void differentActuatorWait(const duration_millis_t& v)
     {
-        m_minSwitchTime = v;
+        m_differentActuatorWait = v;
     }
 };
 

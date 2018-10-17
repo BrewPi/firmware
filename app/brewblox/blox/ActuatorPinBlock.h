@@ -23,17 +23,17 @@ public:
         blox_ActuatorPin newData;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_ActuatorPin_fields, blox_ActuatorPin_size);
         if (result == cbox::CboxError::OK) {
-            constrained.state(ActuatorDigital::State(newData.state));
             actuator.pin(newData.pin);
             actuator.invert(newData.invert);
             setDigitalConstraints(newData.constrainedBy, constrained);
+            constrained.state(ActuatorDigital::State(newData.state));
         }
         return result;
     }
 
     virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
     {
-        blox_ActuatorPin message;
+        blox_ActuatorPin message = blox_ActuatorPin_init_default;
         message.state = blox_AD_State(actuator.state());
         message.pin = actuator.pin();
         message.invert = actuator.invert();
@@ -44,11 +44,7 @@ public:
 
     virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
     {
-        blox_ActuatorPin persisted = blox_ActuatorPin_init_default;
-        persisted.pin = actuator.pin();
-        persisted.invert = actuator.invert();
-
-        return streamProtoTo(out, &persisted, blox_ActuatorPin_fields, blox_ActuatorPin_size);
+        return streamTo(out);
     }
 
     virtual cbox::update_t update(const cbox::update_t& now) override final

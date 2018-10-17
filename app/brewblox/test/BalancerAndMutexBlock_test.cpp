@@ -27,6 +27,7 @@
 #include "blox/ActuatorPinBlock.h"
 #include "blox/ActuatorPwmBlock.h"
 #include "blox/BalancerBlock.h"
+#include "blox/MutexBlock.h"
 #include "cbox/Box.h"
 #include "cbox/DataStream.h"
 #include "cbox/DataStreamIo.h"
@@ -34,6 +35,7 @@
 #include "proto/test/cpp/ActuatorPin.test.pb.h"
 #include "proto/test/cpp/ActuatorPwm.test.pb.h"
 #include "proto/test/cpp/Balancer.test.pb.h"
+#include "proto/test/cpp/Mutex.test.pb.h"
 #include "testHelpers.h"
 
 SCENARIO("Two PWM actuators can be constrained by a balancer")
@@ -86,6 +88,22 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
 
     CHECK(out.str().find("|00") != std::string::npos); // no errors
 
+    // create mutex
+    clearStreams();
+    inEncoder.put(commands::CREATE_OBJECT);
+    inEncoder.put(cbox::obj_id_t(101));
+    inEncoder.put(uint8_t(0xFF));
+    inEncoder.put(MutexBlock::staticTypeId());
+    {
+        auto newMutex = blox::Mutex();
+        newMutex.set_differentactuatorwait(100);
+        inProto.put(newMutex);
+    }
+    inEncoder.endMessage();
+    box.hexCommunicate();
+
+    CHECK(out.str().find("|00") != std::string::npos); // no errors
+
     // create pin actuator 1
     clearStreams();
     inEncoder.put(commands::CREATE_OBJECT);
@@ -97,8 +115,11 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         newPin.set_pin(0);
         newPin.set_state(blox::AD_State_Active);
         newPin.set_invert(false);
+        auto constraintPtr = newPin.mutable_constrainedby()->add_constraints();
+        constraintPtr->set_mutex(101);
         inProto.put(newPin);
     }
+
     inEncoder.endMessage();
     box.hexCommunicate();
 
@@ -139,6 +160,9 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         newPin.set_pin(0);
         newPin.set_state(blox::AD_State_Active);
         newPin.set_invert(false);
+        inProto.put(newPin);
+        auto constraintPtr = newPin.mutable_constrainedby()->add_constraints();
+        constraintPtr->set_mutex(101);
         inProto.put(newPin);
     }
 
@@ -183,9 +207,57 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
     box.hexCommunicate();
 
     CHECK(out.str().find("|00") != std::string::npos); // no errors
+    {
+        auto reply = blox::Balancer();
+        decodeProtoFromReply(out, reply);
+        CHECK(reply.ShortDebugString() == "clients { requested: 327680 granted: 204800 } "  // 80*4096, 50*4096
+                                          "clients { requested: 327680 granted: 204800 }"); // 80*4096, 50*4096
+    }
 
-    auto reply = blox::Balancer();
-    decodeProtoFromReply(out, reply);
-    CHECK(reply.ShortDebugString() == "clients { requested: 327680 granted: 204800 } "  // 80*4096, 50*4096
-                                      "clients { requested: 327680 granted: 204800 }"); // 80*4096, 50*4096
+    // read mutex
+    clearStreams();
+    inEncoder.put(commands::READ_OBJECT);
+    inEncoder.put(cbox::obj_id_t(101));
+
+    inEncoder.endMessage();
+    box.hexCommunicate();
+
+    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    {
+        auto reply = blox::Mutex();
+        decodeProtoFromReply(out, reply);
+        CHECK(reply.ShortDebugString() == "differentActuatorWait: 100");
+    }
+
+    // read a pin actuator
+    clearStreams();
+    inEncoder.put(commands::READ_OBJECT);
+    inEncoder.put(cbox::obj_id_t(200));
+
+    inEncoder.endMessage();
+    box.hexCommunicate();
+
+    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    {
+        auto reply = blox::ActuatorPin();
+        decodeProtoFromReply(out, reply);
+        CHECK(reply.ShortDebugString() == "state: Active constrainedBy { constraints { mutex: 101 } }");
+    }
+
+    // read a pwm actuator
+    clearStreams();
+    inEncoder.put(commands::READ_OBJECT);
+    inEncoder.put(cbox::obj_id_t(201));
+
+    inEncoder.endMessage();
+    box.hexCommunicate();
+
+    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    {
+        auto reply = blox::ActuatorPwm();
+        decodeProtoFromReply(out, reply);
+        CHECK(reply.ShortDebugString() == "actuatorId: 200 actuatorValid: true "
+                                          "period: 4000 setting: 327680 "
+                                          "constrainedBy { constraints { balancer: 100 } }");
+    }
 }

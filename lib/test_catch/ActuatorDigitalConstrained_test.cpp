@@ -140,7 +140,7 @@ SCENARIO("Mutex contraint", "[constraints]")
 
     WHEN("A minimum switch time of 1000 is set on the mutex and actuator 1 was active before")
     {
-        mut->minSwitchTime(1000);
+        mut->differentActuatorWait(1000);
         constrained1.state(State::Active, ++now);
         CHECK(constrained1.state() == State::Active);
 
