@@ -20,7 +20,7 @@
 #pragma once
 
 #include "ActuatorDigital.h"
-#include "Ticks.h"
+#include "TicksTypes.h"
 #include <algorithm>
 #include <array>
 #include <cstdint>

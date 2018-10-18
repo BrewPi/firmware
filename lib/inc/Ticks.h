@@ -25,12 +25,12 @@
 template <typename Impl>
 class Ticks {
     Impl impl;
-    ticks_seconds_t utcStart;
+    ticks_seconds_t& utcStart;
 
 public:
-    Ticks()
+    Ticks(ticks_seconds_t& utcStartRef)
         : impl()
-        , utcStart(0)
+        , utcStart(utcStartRef)
     {
     }
 

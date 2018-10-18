@@ -53,7 +53,7 @@ SCENARIO("A SetpointProfile block")
         CboxError res = sp.streamFrom(in);
         CHECK(res == CboxError::OK);
 
-        sp.get().deviceStartTime(1);
+        setBootTime(1);
         sp.update(14000);
         temp_t setting = sp.get().setting();
         CHECK(setting == temp_t(20.5));

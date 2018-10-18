@@ -63,9 +63,7 @@ using OneWireDriver = DS248x;
 #define ONEWIRE_ARG 0x00
 #endif
 
-class SetpointSensorPairBlock;
-
-TicksClass ticks;
+auto ticks = TicksClass(writableBootTimeRef());
 
 // define separately to make it available for tests
 #if !defined(SPARK)
@@ -149,6 +147,26 @@ logger()
         out.write('\n');
     });
     return logger;
+}
+
+static ticks_seconds_t bootTimeInSeconsSinceEpoch = 0;
+
+const ticks_seconds_t&
+bootTimeRef()
+{
+    return bootTimeInSeconsSinceEpoch;
+}
+
+ticks_seconds_t&
+writableBootTimeRef()
+{
+    return bootTimeInSeconsSinceEpoch;
+}
+
+void
+setBootTime(const ticks_seconds_t& bootTime)
+{
+    bootTimeInSeconsSinceEpoch = bootTime;
 }
 
 namespace cbox {

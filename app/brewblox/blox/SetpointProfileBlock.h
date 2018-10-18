@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BrewBlox.h"
 #include "SetpointProfile.h"
 #include "blox/Block.h"
 #include "pb_decode.h"
@@ -42,7 +43,10 @@ protected:
     }
 
 public:
-    SetpointProfileBlock() = default;
+    SetpointProfileBlock()
+        : profile(bootTimeRef())
+    {
+    }
     virtual ~SetpointProfileBlock() = default;
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final

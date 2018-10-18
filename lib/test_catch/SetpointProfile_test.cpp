@@ -25,9 +25,8 @@
 
 SCENARIO("SetpointProfile test", "[SetpointProfile]")
 {
-    SetpointProfile sp;
-
-    sp.deviceStartTime(10);
+    auto deviceStartTime = ticks_seconds_t(10);
+    auto sp = SetpointProfile(deviceStartTime);
 
     WHEN("the profile has no values, it is not valid and returns 0")
     {
@@ -177,7 +176,7 @@ SCENARIO("SetpointProfile test", "[SetpointProfile]")
 
     WHEN("The device start time is still at 0, the setpoint is invalid")
     {
-        sp.deviceStartTime(0);
+        deviceStartTime = 0;
         sp.addPoint(SetpointProfile::Point{ticks_seconds_t(11), temp_t(10)});
         sp.addPoint(SetpointProfile::Point{ticks_seconds_t(21), temp_t(20)});
 

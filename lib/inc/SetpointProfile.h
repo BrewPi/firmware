@@ -35,12 +35,13 @@ public:
 private:
     temp_t m_current = 0;
     bool m_valid = false;
-    ticks_seconds_t m_deviceStartTime = 0;
+    const ticks_seconds_t& m_deviceStartTime;
 
     std::vector<Point> m_points;
 
 public:
-    SetpointProfile()
+    SetpointProfile(const ticks_seconds_t& deviceStartTimeRef)
+        : m_deviceStartTime(deviceStartTimeRef)
     {
     }
 
@@ -52,16 +53,6 @@ public:
     void removeAllPoints()
     {
         m_points.clear();
-    }
-
-    ticks_seconds_t deviceStartTime() const
-    {
-        return m_deviceStartTime;
-    }
-
-    void deviceStartTime(const ticks_seconds_t& start)
-    {
-        m_deviceStartTime = start;
     }
 
     void update(const ticks_millis_t& now)
