@@ -26,6 +26,7 @@
 #include "blox/MutexBlock.h"
 #include "blox/OneWireBusBlock.h"
 #include "blox/PidBlock.h"
+#include "blox/SetpointProfileBlock.h"
 #include "blox/SetpointSensorPairBlock.h"
 #include "blox/SetpointSimpleBlock.h"
 #include "blox/SysInfoBlock.h"
@@ -108,6 +109,7 @@ makeBrewBloxBox()
         {ActuatorOffsetBlock::staticTypeId(), []() { return std::make_shared<ActuatorOffsetBlock>(objects); }},
         {BalancerBlock::staticTypeId(), []() { return std::make_shared<BalancerBlock>(); }},
         {MutexBlock::staticTypeId(), []() { return std::make_shared<MutexBlock>(); }},
+        {SetpointProfileBlock::staticTypeId(), []() { return std::make_shared<SetpointProfileBlock>(); }},
     };
 
     static EepromAccessImpl eeprom;

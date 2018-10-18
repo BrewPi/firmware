@@ -23,6 +23,7 @@
 #include <iostream>
 
 #include "../BrewBlox.h"
+#include "../BrewBloxTestBox.h"
 #include "Temperature.h"
 #include "blox/ActuatorPinBlock.h"
 #include "blox/ActuatorPwmBlock.h"
@@ -40,54 +41,33 @@
 
 SCENARIO("Two PWM actuators can be constrained by a balancer")
 {
-    static auto& box = brewbloxBox();
-    static auto& connSource = testConnectionSource();
+    auto testBox = BrewBloxTestBox();
+    auto box = testBox.box;
     using commands = cbox::Box::CommandID;
 
-    std::stringstream in, out, expected;
-
-    // use some helpers to create the data commands
-    cbox::OStreamDataOut inOs(in);
-    cbox::BinaryToHexTextOut toHex(inOs);
-    cbox::HexCrcDataOut inEncoder(toHex);
-    ProtoDataOut inProto(inEncoder);
-
-    connSource.add(in, out);
-
-    auto clearStreams = [&in, &out, &expected]() {
-        in.str("");
-        in.clear();
-        out.str("");
-        out.clear();
-        expected.str("");
-        expected.clear();
-    };
-
-    // clear objects
-    clearStreams();
-    inEncoder.put(commands::CLEAR_OBJECTS);
-    inEncoder.endMessage();
+    testBox.put(commands::CLEAR_OBJECTS);
+    testBox.endMessage();
     box.hexCommunicate();
 
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    CHECK(testBox.lastReplyHasStatusOk());
 
     box.update(0); // ensure last update is at 0 and not influenced by other tests
 
     // create balancer
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(100));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(BalancerBlock::staticTypeId());
+    testBox.clearStreams();
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(100));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(BalancerBlock::staticTypeId());
     {
         auto newBalancer = blox::Balancer();
-        inProto.put(newBalancer);
+        testBox.put(newBalancer);
     }
-    inEncoder.endMessage();
+    testBox.endMessage();
     box.hexCommunicate();
 
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
-
+    CHECK(testBox.lastReplyHasStatusOk());
+    /*
     // create mutex
     clearStreams();
     inEncoder.put(commands::CREATE_OBJECT);
@@ -260,4 +240,5 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
                                           "period: 4000 setting: 327680 "
                                           "constrainedBy { constraints { balancer: 100 } }");
     }
+    */
 }

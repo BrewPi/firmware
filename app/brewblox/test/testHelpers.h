@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "BrewBlox.h"
 #include "cbox/DataStream.h"
 #include "cbox/DataStreamConverters.h"
 #include "cbox/DataStreamIo.h"
