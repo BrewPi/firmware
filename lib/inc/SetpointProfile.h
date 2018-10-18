@@ -37,7 +37,7 @@ private:
     bool m_valid = false;
     ticks_seconds_t m_deviceStartTime = 0;
 
-    std::vector<Point> points;
+    std::vector<Point> m_points;
 
 public:
     SetpointProfile()
@@ -46,12 +46,12 @@ public:
 
     void addPoint(Point&& p)
     {
-        points.push_back(std::move(p));
+        m_points.push_back(std::move(p));
     }
 
     void removeAllPoints()
     {
-        points.clear();
+        m_points.clear();
     }
 
     ticks_seconds_t deviceStartTime() const
@@ -72,19 +72,19 @@ public:
         };
 
         auto nowSeconds = ticks_seconds_t(now / 1000) + m_deviceStartTime;
-        auto upper = std::lower_bound(points.cbegin(), points.cend(), nowSeconds, TimeStampLess{});
-        if (points.empty() || m_deviceStartTime == 0) {
+        auto upper = std::lower_bound(m_points.cbegin(), m_points.cend(), nowSeconds, TimeStampLess{});
+        if (m_points.empty() || m_deviceStartTime == 0) {
             m_current = 0;
             m_valid = false;
             return;
         }
-        if (upper == points.cbegin()) {
-            m_current = points.front().temp;
+        if (upper == m_points.cbegin()) {
+            m_current = m_points.front().temp;
             m_valid = false;
             return;
         }
-        if (upper == points.cend()) {
-            m_current = points.back().temp;
+        if (upper == m_points.cend()) {
+            m_current = m_points.back().temp;
             m_valid = false;
             return;
         }
@@ -119,5 +119,15 @@ public:
     valid(bool v) override final
     {
         // valid cannot be set using Setpoint base class
+    }
+
+    const std::vector<Point>& points() const
+    {
+        return m_points;
+    }
+
+    void points(std::vector<Point>&& newPoints)
+    {
+        m_points = newPoints;
     }
 };

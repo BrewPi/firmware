@@ -11,7 +11,6 @@ private:
 
 public:
     SetpointSimpleBlock()
-        : setpoint()
     {
     }
 
