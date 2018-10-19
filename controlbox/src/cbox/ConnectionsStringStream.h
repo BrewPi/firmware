@@ -23,6 +23,7 @@
 
 #include "Connections.h"
 #include "DataStreamIo.h"
+#include <memory>
 #include <sstream>
 
 namespace cbox {
@@ -34,19 +35,20 @@ namespace cbox {
 
 class StringStreamConnection : public Connection {
 private:
-    std::stringstream& in;
-    std::stringstream& out;
+    std::shared_ptr<std::stringstream> in;
+    std::shared_ptr<std::stringstream> out;
     IStreamDataIn dataIn;
     OStreamDataOut dataOut;
 
 public:
-    StringStreamConnection(std::stringstream& _in, std::stringstream& _out)
+    StringStreamConnection(std::shared_ptr<std::stringstream> _in, std::shared_ptr<std::stringstream> _out)
         : in(_in)
         , out(_out)
-        , dataIn(_in)
-        , dataOut(_out)
+        , dataIn(*_in)
+        , dataOut(*_out)
     {
     }
+    virtual ~StringStreamConnection() = default;
 
     virtual DataOut& getDataOut() override final
     {
@@ -60,7 +62,7 @@ public:
 
     virtual bool isConnected() override final
     {
-        return !(in.bad() || out.bad()); // use badbit of either stream to simulate disconnect
+        return !(in->bad() || out->bad()); // use badbit of either stream to simulate disconnect
     }
 };
 
@@ -69,7 +71,10 @@ private:
     std::queue<std::unique_ptr<StringStreamConnection>> connectionQueue;
 
 public:
-    void add(std::stringstream& in, std::stringstream& out)
+    StringStreamConnectionSource() = default;
+    virtual ~StringStreamConnectionSource() = default;
+
+    void add(std::shared_ptr<std::stringstream> in, std::shared_ptr<std::stringstream> out)
     {
         auto newConnection = std::make_unique<StringStreamConnection>(in, out);
         connectionQueue.push(std::move(newConnection));

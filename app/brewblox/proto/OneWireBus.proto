@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import 'brewblox.proto';
+import "brewblox.proto";
 import "nanopb.proto";
 
 package blox;
@@ -10,6 +10,7 @@ package blox;
 
 message OneWireBus {
     option (nanopb_msgopt).msgid = 258;
+
     message Command {
         uint32 opcode = 1 [(nanopb).int_size = IS_8];
         uint32 data = 2 [(nanopb).int_size = IS_8];

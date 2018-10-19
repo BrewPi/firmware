@@ -1,259 +1,69 @@
 /*
- * Copyright 2012-2013 BrewPi/Elco Jacobs.
+ * Copyright 2018 BrewPi B.V.
  *
- * This file is part of BrewPi.
- * 
+ * This file is part of the BrewBlox Control Library.
+ *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * BrewPi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
 
-#include "LogMessages.h"
-#include "temperatureFormats.h"
-#include <cstdarg>
-#include <cstdint>
+#include <functional>
+#include <memory>
+#include <string>
 
-// Enable printing debug only log messages and debug only wrapped statements
-#ifndef BREWPI_DEBUG
-#define BREWPI_DEBUG 0
-#endif
+std::string&
+operator<<(std::string& lh, const int& in);
 
-#if BREWPI_DEBUG > 0
-#define DEBUG_ONLY(x) x
-#else
-#define DEBUG_ONLY(x)
-#endif
+std::string&
+operator<<(std::string& lh, const std::string& in);
 
-// Set which debug messages are printed
-#ifndef BREWPI_LOG_ERRORS
-#define BREWPI_LOG_ERRORS 1
-#endif
+std::string&
+operator<<(std::string& lh, const char* in);
 
-#ifndef BREWPI_LOG_WARNINGS
-#define BREWPI_LOG_WARNINGS 1
-#endif
-
-#ifndef BREWPI_LOG_INFO
-#define BREWPI_LOG_INFO 1
-#endif
-
-#ifndef BREWPI_LOG_DEBUG
-#define BREWPI_LOG_DEBUG 0
-#endif
-
-// define error id variable type to make it easy to bump to uint16 when needed
-typedef uint8_t LOG_ID_TYPE;
-
-class BrewPiLogger {
+class Logger {
 public:
-    BrewPiLogger() = default;
-    ~BrewPiLogger() = default;
+    enum LogLevel : uint8_t {
+        DEBUG,
+        INFO,
+        WARN,
+        ERROR
+    };
 
-    static void logMessageVaArg(const char type, LOG_ID_TYPE errorID, const char* varTypes, ...);
+    using LogWriteFunction = std::function<void(const LogLevel& logLevel, const std::string&)>;
+    using StringBuffer = std::unique_ptr<std::string, std::function<void(std::string*)>>;
+
+    explicit Logger(LogWriteFunction&& logFunction)
+        : m_logWriteFunction(logFunction)
+    {
+    }
+
+    StringBuffer operator()(LogLevel e, const char* initStr)
+    {
+        return StringBuffer(new std::string(initStr), [e, this](std::string* st) {
+            m_logWriteFunction(e, *st);
+        });
+    }
+
+private:
+    LogWriteFunction m_logWriteFunction;
 };
-extern BrewPiLogger logger;
 
-#if BREWPI_LOG_ERRORS
-inline void
-logError(uint8_t debugId)
-{
-    logger.logMessageVaArg('E', debugId, "");
-}
-inline void
-logErrorInt(uint8_t debugId, int val)
-{
-    logger.logMessageVaArg('E', debugId, "d", val);
-}
-inline void
-logErrorString(uint8_t debugId, const char* val)
-{
-    logger.logMessageVaArg('E', debugId, "s", val);
-}
-inline void
-logErrorTemp(uint8_t debugId, temp_t* temp)
-{
-    logger.logMessageVaArg('E', debugId, "t", temp);
-}
-inline void
-logErrorIntInt(uint8_t debugId, int val1, int val2)
-{
-    logger.logMessageVaArg('E', debugId, "dd", val1, val2);
-}
-inline void
-logErrorIntIntInt(uint8_t debugId, int val1, int val2, int val3)
-{
-    logger.logMessageVaArg('E', debugId, "ddd", val1, val2, val3);
-}
-inline void
-logErrorAddress(uint8_t debugId, uint64_t val)
-{
-    logger.logMessageVaArg('I', debugId, "a", val);
-}
-#else
-#define logError(debugId) \
-    {                     \
-    }
-#define logErrorInt(debugId, val) \
-    {                             \
-    }
-#define logErrorString(debugId, val) \
-    {                                \
-    }
-#define logErrorTemp(debugId, temp) \
-    {                               \
-    }
-#define logErrorIntInt(debugId, val1, val2) \
-    {                                       \
-    }
-#define logErrorIntIntInt(debugId, val1, val2, val3) \
-    {                                                \
-    }
-#endif
+extern Logger&
+logger();
 
-#if BREWPI_LOG_WARNINGS
-inline void
-logWarning(uint8_t debugId)
-{
-    logger.logMessageVaArg('W', debugId, "");
-}
-inline void
-logWarningInt(uint8_t debugId, int val)
-{
-    logger.logMessageVaArg('W', debugId, "d", val);
-}
-inline void
-logWarningIntUint(uint8_t debugId, int val1, unsigned int val2)
-{
-    logger.logMessageVaArg('W', debugId, "du", val1, val2);
-}
-inline void
-logWarningString(uint8_t debugId, const char* val)
-{
-    logger.logMessageVaArg('W', debugId, "s", val);
-}
-inline void
-logWarningTemp(uint8_t debugId, temp_t* temp)
-{
-    logger.logMessageVaArg('W', debugId, "t", temp);
-}
-inline void
-logWarningIntString(uint8_t debugId, int val1, const char* val2)
-{
-    logger.logMessageVaArg('W', debugId, "ds", val1, val2);
-}
-inline void
-logWarningAddress(uint8_t debugId, uint64_t val)
-{
-    logger.logMessageVaArg('I', debugId, "a", val);
-}
-#else
-#define logWarning(debugId) \
-    {                       \
-    }
-#define logWarningInt(debugId, val) \
-    {                               \
-    }
-#define logWarningString(debugId, val) \
-    {                                  \
-    }
-#define logWarningTemp(debugId, temp) \
-    {                                 \
-    }
-#define logWarningIntString(debugId, val1, val2) \
-    {                                            \
-    }
-#endif
-
-#if BREWPI_LOG_INFO
-inline void
-logInfo(uint8_t debugId)
-{
-    logger.logMessageVaArg('I', debugId, "");
-}
-inline void
-logInfoInt(uint8_t debugId, int val)
-{
-    logger.logMessageVaArg('I', debugId, "d", val);
-}
-inline void
-logInfoString(uint8_t debugId, const char* val)
-{
-    logger.logMessageVaArg('I', debugId, "s", val);
-}
-inline void
-logInfoTemp(uint8_t debugId, temp_t* temp)
-{
-    logger.logMessageVaArg('I', debugId, "t", temp);
-}
-inline void
-logInfoIntString(uint8_t debugId, int val1, const char* val2)
-{
-    logger.logMessageVaArg('I', debugId, "ds", val1, val2);
-}
-inline void
-logInfoStringString(uint8_t debugId, const char* val1, const char* val2)
-{
-    logger.logMessageVaArg('I', debugId, "ss", val1, val2);
-}
-inline void
-logInfoIntStringTemp(uint8_t debugId, int val1, const char* val2, temp_t* val3)
-{
-    logger.logMessageVaArg('I', debugId, "dst", val1, val2, val3);
-}
-inline void
-logInfoTempTempFixedFixed(uint8_t debugId, temp_t* t1, temp_t* t2, temp_t* f1, temp_t* f2)
-{
-    logger.logMessageVaArg('I', debugId, "ttff", t1, t2, f1, f2);
-}
-inline void
-logInfoAddress(uint8_t debugId, uint64_t val)
-{
-    logger.logMessageVaArg('I', debugId, "a", val);
-}
-#else
-#define logInfo(debugId) \
-    {                    \
-    }
-#define logInfoInt(debugId, val) \
-    {                            \
-    }
-#define logInfoString(debugId, val) \
-    {                               \
-    }
-#define logInfoTemp(debugId, temp) \
-    {                              \
-    }
-#define logInfoStringString(debugId, val1, val2) \
-    {                                            \
-    }
-#define logInfoIntString(debugId, val1, val2) \
-    {                                         \
-    }
-#define logInfoIntStringTemp(debugId, val1, val2, val3) \
-    {                                                   \
-    }
-
-#endif
-
-#if BREWPI_LOG_DEBUG
-#include "PiLink.h"
-#define logDebug(string, ...) piLink.debugMessage(string, ##__VA_ARGS__)
-#else
-#define logDebug(string, ...) \
-    {                         \
-    }
-#endif
-
-// The following function should be implemented by the application in a cpp file:
-// void Logger::logMessageVaArg(char type, LOG_ID_TYPE errorID, const char * varTypes, ...){
+#define CL_LOG_DEBUG(initStr) *logger()(Logger::DEBUG, initStr)
+#define CL_LOG_INFO(initStr) *logger()(Logger::INFO, initStr)
+#define CL_LOG_WARN(initStr) *logger()(Logger::WARN, initStr)
+#define CL_LOG_ERROR(initStr) *logger()(Logger::ERROR, initStr)

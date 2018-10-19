@@ -61,9 +61,9 @@ protected:
     TempSensorDelegate log2Sensor;
     TempSensorDelegate log3Sensor;
     TempSensorFallback fridgeSensorWithFallback;
-    SetPointSimple beer1Set;
-    SetPointSimple beer2Set;
-    SetPointSimple fridgeSet;
+    SetpointSimple beer1Set;
+    SetpointSimple beer2Set;
+    SetpointSimple fridgeSet;
     ActuatorMutexGroup mutex;
 
     SetpointSensorPair fridge;
@@ -86,7 +86,7 @@ protected:
     ActuatorPwm heater2Pwm;
     Pid heater2Pid;
 
-    ActuatorOffset fridgeSetPointActuator;
+    ActuatorOffset fridgeSetpointActuator;
     Pid beerToFridgePid;
 
 

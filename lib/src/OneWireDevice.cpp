@@ -14,10 +14,10 @@
  * /param oneWire_ The oneWire bus the device is connected to
  * /param address_ The oneWire address of the device to use.
  */
-OneWireDevice::OneWireDevice(OneWire* oneWire_, OneWireAddress address_)
+OneWireDevice::OneWireDevice(OneWire& oneWire_, const OneWireAddress& address_)
+    : oneWire(oneWire_)
+    , address(address_)
 {
-    this->oneWire = oneWire_;
-    this->address = address_;
 }
 
 /**
@@ -25,7 +25,7 @@ OneWireDevice::OneWireDevice(OneWire* oneWire_, OneWireAddress address_)
  * @return device address
  */
 OneWireAddress
-OneWireDevice::getDeviceAddress()
+OneWireDevice::getDeviceAddress() const
 {
     return address;
 }
@@ -35,10 +35,9 @@ OneWireDevice::getDeviceAddress()
  * @return bool, true if valid
  */
 bool
-OneWireDevice::validAddress(OneWire* oneWire_,
-                            OneWireAddress address_)
+OneWireDevice::validAddress() const
 {
-    uint8_t* addr = address.asUint8ptr();
+    const uint8_t* addr = address.asUint8ptr();
 
-    return addr[0] && (oneWire->crc8(addr, 7) == addr[7]);
+    return addr[0] && (OneWire::crc8(addr, 7) == addr[7]);
 }

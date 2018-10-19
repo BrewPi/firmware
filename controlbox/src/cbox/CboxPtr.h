@@ -33,8 +33,8 @@ private:
     std::weak_ptr<Object> ptr;
 
 public:
-    CboxPtr(ObjectContainer& _objects)
-        : id(0)
+    explicit CboxPtr(ObjectContainer& _objects, const obj_id_t& _id = 0)
+        : id(_id)
         , objects(_objects)
     {
     }
@@ -101,6 +101,11 @@ public:
     operator std::function<std::shared_ptr<T>()>()
     {
         return std::bind(&cbox::CboxPtr<T>::lock, this);
+    }
+
+    operator std::function<std::shared_ptr<T>()>() const
+    {
+        return std::bind(&cbox::CboxPtr<T>::const_lock, this);
     }
 
     /*

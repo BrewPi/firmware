@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+import "brewblox.proto";
+import "nanopb.proto";
+
+package blox;
+
+message ActuatorAnalogMock {
+    option (nanopb_msgopt).msgid = 305;
+    sint32 setting = 1 [(brewblox).scale = 4096, (nanopb).int_size = IS_32];
+    sint32 value = 2 [(brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
+    bool valid = 3 [(brewblox).readonly = true];
+    sint32 minSetting = 4 [(brewblox).scale = 4096, (nanopb).int_size = IS_32];
+    sint32 maxSetting = 5 [(brewblox).scale = 4096, (nanopb).int_size = IS_32];
+    sint32 minValue = 6 [(brewblox).scale = 4096, (nanopb).int_size = IS_32];
+    sint32 maxValue = 7 [(brewblox).scale = 4096, (nanopb).int_size = IS_32];
+}

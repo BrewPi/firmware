@@ -17,9 +17,18 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Logger.h"
+#include "blox/ActuatorAnalogMockBlock.h"
+#include "blox/ActuatorOffsetBlock.h"
+#include "blox/ActuatorPinBlock.h"
+#include "blox/ActuatorPwmBlock.h"
+#include "blox/BalancerBlock.h"
+#include "blox/MutexBlock.h"
 #include "blox/OneWireBusBlock.h"
-#include "blox/SetPointSimpleBlock.h"
+#include "blox/PidBlock.h"
+#include "blox/SetpointProfileBlock.h"
 #include "blox/SetpointSensorPairBlock.h"
+#include "blox/SetpointSimpleBlock.h"
 #include "blox/SysInfoBlock.h"
 #include "blox/TempSensorMockBlock.h"
 #include "blox/TempSensorOneWireBlock.h"
@@ -38,9 +47,9 @@
 using EepromAccessImpl = cbox::SparkEepromAccess;
 using TicksClass = Ticks<TicksWiring>;
 #else
-#include "MockTicks.h"
 #include "cbox/ArrayEepromAccess.h"
 #include "cbox/ConnectionsStringStream.h"
+#include <MockTicks.h>
 using EepromAccessImpl = cbox::ArrayEepromAccess<2048>;
 using TicksClass = Ticks<MockTicks>;
 #endif
@@ -48,22 +57,14 @@ using TicksClass = Ticks<MockTicks>;
 #if !defined(PLATFORM_ID) || PLATFORM_ID == 3
 #include "OneWireNull.h"
 using OneWireDriver = OneWireNull;
+#define ONEWIRE_ARG
 #else
 #include "DS248x.h"
 using OneWireDriver = DS248x;
+#define ONEWIRE_ARG 0x00
 #endif
 
-namespace cbox {
-void
-connectionStarted(DataOut& out)
-{
-    //    out.writeAnnotation("Connected to BrewBlox v0.1.0");
-}
-}
-
-class SetpointSensorPairBlock;
-
-TicksClass ticks;
+auto ticks = TicksClass(writableBootTimeRef());
 
 // define separately to make it available for tests
 #if !defined(SPARK)
@@ -75,28 +76,46 @@ testConnectionSource()
 }
 #endif
 
-cbox::Box&
-makeBrewBloxBox()
+cbox::ConnectionPool&
+theConnectionPool()
 {
-    static cbox::ObjectContainer objects = {
-        cbox::ContainedObject(1, 0xFF, std::make_shared<SysInfoBlock>()),
-        cbox::ContainedObject(2, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
-        cbox::ContainedObject(3, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire()))};
-
-    static cbox::ObjectFactory objectFactory = {
-        {TempSensorOneWireBlock::staticTypeId(), std::make_unique<TempSensorOneWireBlock>},
-        {SetPointSimpleBlock::staticTypeId(), std::make_unique<SetPointSimpleBlock>},
-        {SetpointSensorPairBlock::staticTypeId(), []() { return std::make_unique<SetpointSensorPairBlock>(objects); }},
-        {TempSensorMockBlock::staticTypeId(), std::make_unique<TempSensorMockBlock>}};
-
-    static EepromAccessImpl eeprom;
-    static cbox::EepromObjectStorage objectStore(eeprom);
 #if defined(SPARK)
     static cbox::TcpConnectionSource tcpSource(8332);
     static cbox::ConnectionPool connections = {tcpSource};
 #else
     static cbox::ConnectionPool connections = {testConnectionSource()};
 #endif
+
+    return connections;
+}
+
+cbox::Box&
+makeBrewBloxBox()
+{
+    static cbox::ObjectContainer objects = {
+        // profiles will be at position 1
+        cbox::ContainedObject(2, 0xFF, std::make_shared<SysInfoBlock>()),
+        cbox::ContainedObject(3, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
+        cbox::ContainedObject(4, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire()))};
+
+    static cbox::ObjectFactory objectFactory = {
+        {TempSensorOneWireBlock::staticTypeId(), std::make_shared<TempSensorOneWireBlock>},
+        {SetpointSimpleBlock::staticTypeId(), std::make_shared<SetpointSimpleBlock>},
+        {SetpointSensorPairBlock::staticTypeId(), []() { return std::make_shared<SetpointSensorPairBlock>(objects); }},
+        {TempSensorMockBlock::staticTypeId(), std::make_shared<TempSensorMockBlock>},
+        {ActuatorAnalogMockBlock::staticTypeId(), std::make_shared<ActuatorAnalogMockBlock>},
+        {PidBlock::staticTypeId(), []() { return std::make_shared<PidBlock>(objects); }},
+        {ActuatorPinBlock::staticTypeId(), []() { return std::make_shared<ActuatorPinBlock>(); }},
+        {ActuatorPwmBlock::staticTypeId(), []() { return std::make_shared<ActuatorPwmBlock>(objects); }},
+        {ActuatorOffsetBlock::staticTypeId(), []() { return std::make_shared<ActuatorOffsetBlock>(objects); }},
+        {BalancerBlock::staticTypeId(), []() { return std::make_shared<BalancerBlock>(); }},
+        {MutexBlock::staticTypeId(), []() { return std::make_shared<MutexBlock>(); }},
+        {SetpointProfileBlock::staticTypeId(), []() { return std::make_shared<SetpointProfileBlock>(); }},
+    };
+
+    static EepromAccessImpl eeprom;
+    static cbox::EepromObjectStorage objectStore(eeprom);
+    static cbox::ConnectionPool& connections = theConnectionPool();
 
     static cbox::Box box(objectFactory, objects, objectStore, connections);
 
@@ -113,7 +132,50 @@ brewbloxBox()
 OneWire&
 theOneWire()
 {
-    static OneWireDriver owDriver(0);
-    static OneWire ow(owDriver);
+    static auto owDriver = OneWireDriver(ONEWIRE_ARG);
+    static auto ow = OneWire(owDriver);
     return ow;
+}
+
+Logger&
+logger()
+{
+    static auto logger = Logger([](Logger::LogLevel level, const std::string& log) {
+        cbox::DataOut& out = theConnectionPool().logDataOut();
+        out.write('<');
+        for (const auto& c : log) {
+            out.write(c);
+        }
+        out.write('>');
+        out.write('\n');
+    });
+    return logger;
+}
+
+static ticks_seconds_t bootTimeInSeconsSinceEpoch = 0;
+
+const ticks_seconds_t&
+bootTimeRef()
+{
+    return bootTimeInSeconsSinceEpoch;
+}
+
+ticks_seconds_t&
+writableBootTimeRef()
+{
+    return bootTimeInSeconsSinceEpoch;
+}
+
+void
+setBootTime(const ticks_seconds_t& bootTime)
+{
+    bootTimeInSeconsSinceEpoch = bootTime;
+}
+
+namespace cbox {
+void
+connectionStarted(DataOut& out)
+{
+    out.put("<Connected to BrewBlox v0.1.0>");
+}
 }

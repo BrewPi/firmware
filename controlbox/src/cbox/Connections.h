@@ -19,6 +19,7 @@
  */
 
 #pragma once
+#include "CompositeDataStream.h"
 #include "DataStream.h"
 #include "DataStreamConverters.h"
 #include <functional>
@@ -160,18 +161,25 @@ public:
     StreamConnection(const StreamConnection& other) = delete; // not copyable
 };
 
-class ConnectionPool {
-public:
-    ConnectionPool(std::initializer_list<std::reference_wrapper<ConnectionSource>> list)
-        : connectionSources(list)
-    {
-    }
+extern void
+connectionStarted(DataOut& out);
 
+class ConnectionPool {
 private:
     std::vector<std::reference_wrapper<ConnectionSource>> connectionSources;
     std::vector<std::unique_ptr<Connection>> connections;
 
+    CompositeDataOut<decltype(connections)> allConnectionsDataOut;
+    DataOut& currentDataOut;
+
 public:
+    ConnectionPool(std::initializer_list<std::reference_wrapper<ConnectionSource>> list)
+        : connectionSources(list)
+        , allConnectionsDataOut(connections, [](const decltype(connections)::value_type& conn) -> DataOut& { return conn->getDataOut(); })
+        , currentDataOut(allConnectionsDataOut)
+    {
+    }
+
     void updateConnections()
     {
         connections.erase(
@@ -183,6 +191,7 @@ public:
         for (auto& source : connectionSources) {
             std::unique_ptr<Connection> newConnection = source.get().newConnection();
             if (newConnection != nullptr) {
+                connectionStarted(newConnection->getDataOut());
                 connections.push_back(std::move(newConnection));
             }
         }
@@ -197,8 +206,17 @@ public:
     {
         updateConnections();
         for (auto& conn : connections) {
-            handler(conn->getDataIn(), conn->getDataOut());
+            DataIn& in = conn->getDataIn();
+            DataOut& out = conn->getDataOut();
+            currentDataOut = out;
+            handler(in, out);
+            currentDataOut = allConnectionsDataOut;
         }
+    }
+
+    DataOut& logDataOut() const
+    {
+        return currentDataOut;
     }
 };
 

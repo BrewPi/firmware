@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+import "brewblox.proto";
+import "nanopb.proto";
+import "ActuatorDigital.proto";
+import "DigitalConstraints.proto";
+
+package blox;
+
+message ActuatorPin {
+  option (nanopb_msgopt).msgid = 306;
+
+  AD.State state = 1;
+  uint32 pin = 2 [ (nanopb).int_size = IS_8 ];
+  bool invert = 3;
+  DigitalConstraints constrainedBy = 4;
+}

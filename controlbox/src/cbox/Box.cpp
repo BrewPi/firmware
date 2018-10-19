@@ -43,8 +43,8 @@ Box::Box(ObjectFactory& _factory, ObjectContainer& _objects, ObjectStorage& _sto
     , activeProfiles(0x01)
     , lastUpdateTime(0)
 {
-    objects.add(std::make_unique<ProfilesObject>(this), 0xFF); // add profiles object to give access to the active profiles setting
-    objects.setObjectsStartId(userStartId());                  // set startId for user objects to 100
+    objects.add(std::make_unique<ProfilesObject>(this), 0xFF, obj_id_t(1)); // add profiles object to give access to the active profiles setting on id 1
+    objects.setObjectsStartId(userStartId());                               // set startId for user objects to 100
     loadObjectsFromStorage();
 }
 
@@ -148,7 +148,7 @@ Box::writeObject(DataIn& in, HexCrcDataOut& out)
         };
         status = storage.storeObject(id, storeContained);
 
-        // deactive object if it is not a system objects and is not in an active profile
+        // deactivate object if it is not a system object and is not in an active profile
         if (id >= userStartId() && (cobj->profiles() & activeProfiles) == 0) {
             cobj->deactivate();
         }
@@ -172,10 +172,10 @@ Box::createObjectFromStream(DataIn& in)
     uint8_t profiles;
 
     if (!in.get(profiles)) {
-        return {CboxError::INPUT_STREAM_READ_ERROR, nullptr, 0}; // LCOV_EXCL_LINE
+        return std::make_tuple(CboxError::INPUT_STREAM_READ_ERROR, std::shared_ptr<Object>(), uint8_t(0)); // LCOV_EXCL_LINE
     }
     if (!in.get(typeId)) {
-        return {CboxError::INPUT_STREAM_READ_ERROR, nullptr, 0}; // LCOV_EXCL_LINE
+        return std::make_tuple(CboxError::INPUT_STREAM_READ_ERROR, std::shared_ptr<Object>(), uint8_t(0)); // LCOV_EXCL_LINE
     }
 
     CboxError result;

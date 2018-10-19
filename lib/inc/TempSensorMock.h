@@ -1,19 +1,18 @@
 /*
- * Copyright 2012-2013 BrewPi/Elco Jacobs.
- * Copyright 2013 Matthew McGowan.
+ * Copyright 2018 BrewPi B.V.
  *
- * This file is part of BrewPi.
- * 
+ * This file is part of the BrewBlox Control Library.
+ *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * BrewPi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,56 +20,51 @@
 #pragma once
 
 #include "TempSensor.h"
-#include "temperatureFormats.h"
+#include "Temperature.h"
 
 class TempSensorMock final : public TempSensor {
+private:
+    temp_t m_value = 0;
+    bool m_connected = false;
+
 public:
-    TempSensorMock(temp_t initial)
-        : value(initial)
-        , connected(true)
-    {
-    }
-
     TempSensorMock()
-        : value(temp_t::invalid())
-        , connected(false)
     {
     }
 
-    void setConnected(bool _connected)
+    TempSensorMock(temp_t initial)
+        : m_value(initial)
+        , m_connected(true)
     {
-        connected = _connected;
     }
 
-    void setTemp(temp_t val)
+    void connected(bool _connected)
     {
-        value = val;
+        m_connected = _connected;
     }
 
-    virtual bool isConnected() const override final { return connected; }
+    bool connected() const
+    {
+        return m_connected;
+    }
+
+    void value(temp_t val)
+    {
+        m_value = val;
+    }
+
+    temp_t value() const override final
+    {
+        return m_value;
+    }
+
+    virtual bool valid() const override final
+    {
+        return m_connected;
+    }
 
     void add(temp_t delta)
     {
-        value += delta;
+        m_value += delta;
     }
-
-    virtual temp_t read() const override final
-    {
-        if (!isConnected())
-            return temp_t::invalid();
-
-        // limit precision to mimic DS18B20 sensor
-        const uint8_t shift = temp_t::fractional_bit_count - 4; // DS18B20 has 0.0625 (1/16) degree C steps
-        temp_t rounder;
-        rounder.setRaw(1 << (shift - 1));
-        temp_t noise;
-        noise.setRaw(rand() % (1 << (shift - 1))); // noise max 1/2 bit
-        rounder += noise;
-        temp_t quantified = ((value + rounder) >> shift) << shift;
-        return quantified;
-    }
-
-private:
-    temp_t value;
-    bool connected;
 };

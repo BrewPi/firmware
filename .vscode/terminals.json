@@ -1,0 +1,40 @@
+{
+  "autorun": false,
+  "terminals": [
+    {
+      "name": "Lib test local build",
+      "description": "Run lib tests compiling on host",
+      "focus": true,
+      "cwd": "~/repos/firmware/lib/test_catch",
+      "command": "make && build/runner"
+    },
+    {
+      "name": "Lib test",
+      "description": "Run lib tests in docker",
+      "focus": true,
+      "cwd": "~/repos/firmware/docker",
+      "command": "docker-compose exec compiler bash build-and-run-lib-test.sh"
+    },
+    {
+      "name": "BrewBlox App test local",
+      "description": "Run BrewBlox app tests by compiling locally",
+      "focus": true,
+      "cwd": "~/repos/firmware/app/brewblox/test",
+      "command": "make && build/runner"
+    },
+    {
+      "name": "Compile proto",
+      "description": "Compile proto files",
+      "focus": true,
+      "cwd": "~/repos/firmware/docker",
+      "command": "docker-compose exec compiler bash compile-proto.sh"
+    },
+    {
+      "name": "Bash in compiler container",
+      "description": "Run bash inside compiler docker container",
+      "focus": true,
+      "cwd": "~/repos/firmware/docker",
+      "command": "docker-compose exec compiler bash"
+    }
+  ]
+}

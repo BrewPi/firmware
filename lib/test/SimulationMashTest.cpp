@@ -25,7 +25,7 @@
 #undef protected
 
 #include "temperatureFormats.h"
-#include "SetPoint.h"
+#include "Setpoint.h"
 #include <cstdio>
 #include <math.h>
 #include "TempSensorMock.h"
@@ -91,8 +91,8 @@ public:
     ActuatorMutexGroup mutex;
     ActuatorMutexDriver hltHeaterMutex;
     ActuatorPwm hltHeater;
-    SetPointSimple hltSet;
-    SetPointSimple mashSet;
+    SetpointSimple hltSet;
+    SetpointSimple mashSet;
     SetpointSensorPair hlt;
     SetpointSensorPair mash;
     ActuatorOffset hltOffsetActuator;
@@ -257,18 +257,18 @@ BOOST_FIXTURE_TEST_CASE(Simulate_HLT_Heater_Acts_On_MashTemp, SimMashDirect)
 {
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "1# mash setPoint, 2#error, 1#mash out sensor, 1#hlt sensor, 1#mash in temp, 3#heater pwm, 3# heater realized pwm, 4#p, 4#i, 4#d" << endl;
-    double SetPointDouble = 68;
+    double SetpointDouble = 68;
     for(int t = 0; t < 7200; t++){
 
         if(t > 2600 && t < 3200){
-            SetPointDouble += (5.0/600); // ramp up slowly, 5 degrees in 10 minutes
+            SetpointDouble += (5.0/600); // ramp up slowly, 5 degrees in 10 minutes
         }
 
         if(t > 4600 && t < 6400){
-            SetPointDouble += (5.0/1200); // ramp up slowly, 5 degrees in 20 minutes
+            SetpointDouble += (5.0/1200); // ramp up slowly, 5 degrees in 20 minutes
         }
 
-        mashSet.write(SetPointDouble);
+        mashSet.write(SetpointDouble);
         update();
 
         csv     << mashSet.read() << "," // setpoint
@@ -296,14 +296,14 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Mash_Cascaded_Control, SimMashCascaded)
             "3#mash2hlt P, 3#mash2hlt I, 3#mash2hlt D, 3#mash2hlt PID, 3#mash2hlt desired output, 3#mash2hlt realized output,"
             "5#heater pwm, 5# heater realized pwm, 4#heater P, 4#heater I, 4#heater D"
             << endl;
-    double SetPointDouble = 68;
+    double SetpointDouble = 68;
     for(int t = 0; t < 10800; t++){
 
         if(t > 3600 && t < 4200){
-            SetPointDouble += (5.0/600); // ramp up slowly, 5 degrees in 10 minutes
+            SetpointDouble += (5.0/600); // ramp up slowly, 5 degrees in 10 minutes
         }
 
-        mashSet.write(SetPointDouble);
+        mashSet.write(SetpointDouble);
         update();
 
         csv     << mashSet.read() << "," // setpoint

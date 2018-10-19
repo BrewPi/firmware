@@ -4,6 +4,8 @@ services:
     build: ./compiler/
     image: brewblox/firmware-compiler
     container_name: firmware-compiler
+    privileged: true
+    # user: 1000:1000 # set this to what running 'id' on a shell returns to prevent the build results being owned by root 
     volumes:
         - ../:/firmware
         # - "/etc/timezone:/etc/timezone:ro"
@@ -18,12 +20,10 @@ services:
     container_name: firmware-simulator-compiler
     volumes:
         - ../:/firmware
-        - "/etc/timezone:/etc/timezone:ro"
-        - "/etc/localtime:/etc/localtime:ro"
         
   simulator:
     build: ./simulator/
-    image: brewblox/firmware-simulator
+    image: brewblox/firmware-simulator:develop
     privileged: true
     container_name: firmware-simulator
     volumes:

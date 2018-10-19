@@ -43,9 +43,9 @@ public:
     virtual void visit(ActuatorTimeLimited& thisRef) override final;
     virtual void visit(ActuatorValue& thisRef) override final;
     virtual void visit(Pid& thisRef) override final;
-    virtual void visit(SetPointConstant& thisRef) override final;
-    virtual void visit(SetPointMinMax& thisRef) override final;
-    virtual void visit(SetPointSimple& thisRef) override final;
+    virtual void visit(SetpointConstant& thisRef) override final;
+    virtual void visit(SetpointMinMax& thisRef) override final;
+    virtual void visit(SetpointSimple& thisRef) override final;
     virtual void visit(TempSensorDisconnected& thisRef) override final;
     virtual void visit(TempSensorExternal& thisRef) override final;
     virtual void visit(TempSensorFallback& thisRef) override final;
@@ -57,7 +57,7 @@ public:
     virtual void visit(TempSensorDelegate& thisRef) override final;
     virtual void visit(ActuatorDigitalDelegate& thisRef) override final;
     virtual void visit(ProcessValueDelegate& thisRef) override final;
-    virtual void visit(SetPointDelegate& thisRef) override final;
+    virtual void visit(SetpointDelegate& thisRef) override final;
     virtual void visit(SetpointSensorPair& thisRef) override final;
 #if WIRING
     virtual void visit(ActuatorPin& thisRef) override final;

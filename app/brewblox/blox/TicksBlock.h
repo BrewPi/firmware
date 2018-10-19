@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "BrewBlox.h"
 #include "Ticks.h"
 #include "blox/Block.h"
 #include "cbox/DataStream.h"
@@ -66,8 +67,8 @@ public:
         return cbox::Object::update_never(now);
     }
 
-    virtual cbox::obj_type_t typeId() const override final
+    T& get()
     {
-        return 262;
+        return ticks;
     }
 };

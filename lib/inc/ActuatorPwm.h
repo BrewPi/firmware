@@ -1,6 +1,5 @@
 /*
- * Copyright 2015 BrewPi/Elco Jacobs.
- * Copyright 2015 Matthew McGowan
+ * Copyright 2018 BrewPi B.V.
  *
  * This file is part of BrewPi.
  *
@@ -18,140 +17,92 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #pragma once
 
+#include "ActuatorAnalog.h"
+#include "ActuatorDigitalChangeLogged.h"
+#include "FixedPoint.h"
+#include <functional>
+#include <memory>
 #include <stdint.h>
-#include "ActuatorInterfaces.h"
-#include <stdint.h>
-#include "ControllerMixins.h"
 
 /**
-	ActuatorPWM drives a digital actuator and makes it available as range actuator, by quickly turning it on and off repeatedly.
-
-
+	ActuatorPWM drives a (change logged) digital actuator and makes it available as range actuator, by quickly turning it on and off repeatedly.
  */
-class ActuatorPwm final : public ActuatorAnalog, public ActuatorPwmMixin
-{
+class ActuatorPwm final : public ActuatorAnalog {
+public:
+    using value_t = ActuatorAnalogValue;
+    using State = ActuatorDigital::State;
+    using update_t = ticks_millis_t;
+
 private:
-    ActuatorDigital & target;
-    temp_t         dutySetting;
-    int32_t        dutyLate;
-    int32_t        periodLate;
-    int32_t        dutyTime;
-    ticks_millis_t periodStartTime;
-    ticks_millis_t highToLowTime;
-    ticks_millis_t lowToHighTime;
-    // last elapsed time between two pulses. Could be different from period due to cycle skipping
-    int32_t        cycleTime;
-    int32_t        period_ms;
-    temp_t         minVal;
-    temp_t         maxVal;
+    const std::function<std::shared_ptr<ActuatorDigitalChangeLogged>()> m_target;
+    duration_millis_t m_period;
+    duration_millis_t m_dutyTime = 0;
+    value_t m_dutySetting = 0;
+    value_t m_dutyAchieved = 0;
 
 public:
     /** Constructor.
-     *  @param _target Digital actuator to be toggled with PWM
+     *  @param _m_
+     target Digital actuator to be toggled with PWM
      *  @param _period PWM period in seconds
      *  @sa getPeriod(), setPeriod(), getTarget(), setTarget()
      */
-    ActuatorPwm(ActuatorDigital & _target, uint16_t _period);
+    explicit ActuatorPwm(
+        std::function<std::shared_ptr<ActuatorDigitalChangeLogged>()>&& target,
+        duration_millis_t period = 4000);
 
     ~ActuatorPwm() = default;
 
-    /**
-     * Accept function for visitor pattern
-     * @param dispatcher Visitor to process this class
-     */
-    virtual void accept(VisitorBase & v) override final {
-    	v.visit(*this);
-    }
-
-    /** Returns minimum value
-     */
-    temp_t min() const {
-        return minVal;
-    }
-
-    /** Returns maximum value
-     */
-    temp_t max() const {
-        return maxVal;
-    }
-
     /** ActuatorPWM keeps track of the last high and low transition.
      *  This function returns the actually achieved value. This can differ from
-     *  the set value, because the target actuator is not toggling.
+     *  the set value, because the m_
+     target actuator is not toggling.
      *
      * @return achieved duty cycle in fixed point.
      */
-    virtual temp_t value() const override final;
+    virtual value_t value() const override final;
 
     /** Returns the set duty cycle
      * @return duty cycle setting in fixed point
      */
-    virtual temp_t setting() const override final {
-        return dutySetting;
+    virtual value_t setting() const override final
+    {
+        return m_dutySetting;
     }
 
     /** Sets a new duty cycle
      * @param val new duty cycle in fixed point
      */
-    virtual void set(temp_t const& val) override final;
+    virtual void setting(value_t const& val) override final;
 
-    //** Calculates whether the target should toggle and tries to toggle it if necessary
+    //** Calculates whether the m_target should toggle and tries to toggle it if necessary
     /** Each update, the PWM actuator checks whether it should toggle to achieve the set duty cycle.
      * It checks wether the output pin toggled and updates it's internal counters to keep track of
      * the achieved duty cycle. When it toggles late, it tries to compensate for this in the next cycle.
      * To maintain the correct duty cycle average, it can make the next high time shorter or longer.
-     * If needed, it can even skip going high or low. This will happen, for example, when the target is
+     * If needed, it can even skip going high or low. This will happen, for example, when the m_
+     target is
      * a time limited actuator with a minimum on and/or off time.
      */
-    void fastUpdate();
-
-    /**
-     * Periodic update (every second). Same as fast update, but calls periodic update on target too.
-     */
-    virtual update_t update(const update_t & t) override final {
-        static update_t lastTargetUpdate;
-        if(t >= lastTargetUpdate + 1000){
-            target.update(t);
-            lastTargetUpdate = t;
-        }
-        fastUpdate();
-        return t; // update as often as possible
-    };
+    update_t update(const update_t& now);
 
     /** returns the PWM period
      * @return PWM period in seconds
      */
-    ticks_seconds_t getPeriod() const
+    duration_millis_t period() const
     {
-        return period_ms / 1000; // return in seconds, same as set period
+        return m_period;
     }
 
     /** sets the PWM period
      * @param sec new period in seconds
      */
-    void setPeriod(uint16_t sec){
-        period_ms = int32_t(sec) * 1000;
+    void period(const duration_millis_t& p)
+    {
+        m_period = p;
     }
 
-
-
-private:
-    /** Calculates priority to be used with the MutexDriver.
-     * Actuators will get a higher priority if their duty cycle is higher, or they are far behind
-     * @return priority for this actuator to become active
-     * @sa MutexDriver
-     */
-    int8_t priority();
-
-    /** Calculates duty time based on expected period
-     * @param expectedPeriod estimate of the duration of the period in ms
-     * @return duration of the high period in ms
-     */
-    int32_t calculateDutyTime(int32_t expectedPeriod);
-
-    friend class ActuatorPwmMixin;
+    virtual bool valid() const override final;
 };

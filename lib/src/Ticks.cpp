@@ -18,28 +18,28 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../inc/Ticks.h"
-
+#include "../inc/TicksTypes.h"
 
 // return time that has passed since timeStamp, take overflow into account
-ticks_seconds_t timeSinceSeconds(ticks_seconds_t currentTime, ticks_seconds_t previousTime) {
-    if(currentTime>=previousTime){
+duration_seconds_t
+secondsSince(ticks_seconds_t currentTime, ticks_seconds_t previousTime)
+{
+    if (currentTime >= previousTime) {
         return currentTime - previousTime;
-    }
-    else{
+    } else {
         // overflow has occurred
-        return (currentTime + 1440) - (previousTime +1440); // add a day to both for calculation
+        return (currentTime + 1440) - (previousTime + 1440); // add a day to both for calculation
     }
 }
 
 // return time that has passed since timeStamp, take overflow into account
-ticks_millis_t timeSinceMillis(ticks_millis_t currentTime, ticks_millis_t previousTime) {
-    if(currentTime>=previousTime){
+duration_millis_t
+millisSince(ticks_millis_t currentTime, ticks_millis_t previousTime)
+{
+    if (currentTime >= previousTime) {
         return currentTime - previousTime;
-    }
-    else{
+    } else {
         // overflow has occurred
-        return (currentTime + 1440000) - (previousTime +1440000); // add a day to both for calculation
+        return (currentTime + 1440000) - (previousTime + 1440000); // add a day to both for calculation
     }
 }
-

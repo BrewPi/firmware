@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "Win32",
+            "name": "clang",
             "defines": [
                 "_DEBUG",
                 "UNICODE",
@@ -9,9 +9,9 @@
             ],
             "intelliSenseMode": "clang-x64",
             "includePath": [
+                ".",
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/lib/inc",
-                "${workspaceFolder}/lib/mixins",
                 "${workspaceFolder}/controlbox/test",
                 "${workspaceFolder}/platform/spark/modules",
                 "${workspaceFolder}/platform/spark/firmware/user/inc",

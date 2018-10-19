@@ -24,7 +24,7 @@
 #include "Pid.h"
 #undef protected
 
-#include "SetPoint.h"
+#include "Setpoint.h"
 #include <cstdio>
 #include <math.h>
 #include "TempSensorMock.h"
@@ -37,7 +37,7 @@
 #include "ActuatorMutexGroup.h"
 #include "ProcessValueDelegate.h"
 #include "SetpointSensorPair.h"
-#include "SetPointDelegate.h"
+#include "SetpointDelegate.h"
 
 #include "runner.h"
 #include <iostream>
@@ -85,10 +85,10 @@ public:
     }
 
     TempSensorMock fridgeSensor;
-    SetPointSimple fridgeSet;
+    SetpointSimple fridgeSet;
     SetpointSensorPair fridge;
     TempSensorMock beerSensor;
-    SetPointSimple beerSet;
+    SetpointSimple beerSet;
     SetpointSensorPair beer;
     ActuatorBool heaterPin;
     ActuatorBool coolerPin;
@@ -418,15 +418,15 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Beer, SimBeerHeater)
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "1#beer setPoint, 2#error, 1#beer sensor, 1#fridge air sensor, 1#fridge wall temp, "
             "3#heater pwm, 3#heater achieved pwm, 4#p, 4#i, 4#d" << endl;
-    double SetPointDouble = 19;
+    double SetpointDouble = 19;
     for(int t = 0; t < 60000; t++){
         if(t==1000){
-            SetPointDouble = 21;
+            SetpointDouble = 21;
         }
         if(t==8000){
-            SetPointDouble = 24;
+            SetpointDouble = 24;
         }
-        beerSet.write(SetPointDouble);
+        beerSet.write(SetpointDouble);
         update();
 
         csv     << beerSet.read() << "," // setpoint
@@ -450,15 +450,15 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_Acts_On_Fridge_Air, SimFridgeHeater)
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "1#fridge setPoint, 2#error, 1#beer sensor, 1#fridge air sensor, 1#fridge wall temp, "
             "3#heater pwm, 3#heater achieved pwm, 4#p, 4#i, 4#d" << endl;
-    double SetPointDouble = 19;
+    double SetpointDouble = 19;
     for(int t = 0; t < 20000; t++){
         if(t==1000){
-            SetPointDouble = 24;
+            SetpointDouble = 24;
         }
         if(t==8000){
-            SetPointDouble = 28;
+            SetpointDouble = 28;
         }
-        fridgeSet.write(SetPointDouble);
+        fridgeSet.write(SetpointDouble);
         update();
 
         csv     << fridgeSet.read() << "," // setpoint
@@ -482,15 +482,15 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Beer, SimBeerCooler)
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "1#setPoint, 2#error, 1#beer sensor, 1#fridge air sensor, 1#fridge wall temp, "
             "3#cooler pwm, 3#cooler achieved pwm, 4#p, 4#i, 4#d, 5a#cooler pin" << endl;
-    double SetPointDouble = 21;
+    double SetpointDouble = 21;
     for(int t = 0; t < 30000; t++){
         if(t==1000){
-            SetPointDouble = 19;
+            SetpointDouble = 19;
         }
         if(t==15000){
-            SetPointDouble = 18.5;
+            SetpointDouble = 18.5;
         }
-        beerSet.write(SetPointDouble);
+        beerSet.write(SetpointDouble);
         update();
 
         csv     << beerSet.read() << "," // setpoint
@@ -515,15 +515,15 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air, SimFridgeCooler)
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "1#setPoint, 2#error, 1#beer sensor, 1#fridge air sensor, 1#fridge wall temp, "
             "3#cooler pwm, 3#cooler achieved pwm, 4#p, 4#i, 4#d, 5a#cooler pin" << endl;
-    double SetPointDouble = 21;
+    double SetpointDouble = 21;
     for(int t = 0; t < 20000; t++){
         if(t==1000){
-            SetPointDouble = 19;
+            SetpointDouble = 19;
         }
         if(t==8000){
-            SetPointDouble = 15;
+            SetpointDouble = 15;
         }
-        fridgeSet.write(SetPointDouble);
+        fridgeSet.write(SetpointDouble);
         update();
 
         csv     << fridgeSet.read() << "," // setpoint
@@ -551,19 +551,19 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Cooler_Acts_On_Fridge_Air_With_Long_Period_
     ofstream csv("./test_results/" + boost_test_name() + ".csv");
     csv << "1#setPoint, 2#error, 1#beer sensor, 1#fridge air sensor, 1#fridge wall temp, "
             "3#cooler pwm, 3#cooler achieved pwm, 4#p, 4#i, 4#d, 5a#cooler pin" << endl;
-    double SetPointDouble = 21;
+    double SetpointDouble = 21;
 
     cooler.setPeriod(3600);
     coolerTimeLimited.setTimes(600, 120);
 
     for(int t = 0; t < 50000; t++){
         if(t==1000){
-            SetPointDouble = 19;
+            SetpointDouble = 19;
         }
         if(t==8000){
-            SetPointDouble = 5; // will require integral action here
+            SetpointDouble = 5; // will require integral action here
         }
-        fridgeSet.write(SetPointDouble);
+        fridgeSet.write(SetpointDouble);
         update();
 
         csv     << fridgeSet.read() << "," // setpoint
@@ -591,20 +591,20 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Fridge_Air, Sim
                 "4#cooler pwm, 4#cooler achieved pwm, 3#cooler P, 3#cooler I, 3#cooler D, "
                 "4#heater pwm, 4#heater achieved pwm, 3#heater P, 3#heater I, 3#heater D, "
                 "5a#cooler pin, 5a#heater pin" << endl;
-    double SetPointDouble = 20;
+    double SetpointDouble = 20;
     for(int t = 0; t < 40000; t++){
         if(t==1000){
-            SetPointDouble = 19;
+            SetpointDouble = 19;
         }
         if(t > 8000 && t < 16000){
-            SetPointDouble -= 0.0005; // ramp down slowly
+            SetpointDouble -= 0.0005; // ramp down slowly
         }
 
         if(t > 20000 && t < 28000){
-            SetPointDouble -= 0.0005; // ramp up slowly
+            SetpointDouble -= 0.0005; // ramp up slowly
         }
 
-        fridgeSet.write(SetPointDouble);
+        fridgeSet.write(SetpointDouble);
 
         update();
 
@@ -640,20 +640,20 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Air_Heater_And_Cooler_Acting_On_Beer, SimBeerHe
             "4#cooler pwm, 4#cooler achieved pwm, 3#cooler P, 3#cooler I, 3#cooler D, "
             "4#heater pwm, 4#heater achieved pwm, 3#heater P, 3#heater I, 3#heater D, "
             "5a#cooler pin, 5a#heater pin" << endl;
-    double SetPointDouble = 20;
+    double SetpointDouble = 20;
     for(int t = 0; t < 40000; t++){
         if(t==1000){
-            SetPointDouble = 19;
+            SetpointDouble = 19;
         }
         if(t > 8000 && t < 16000){
-            SetPointDouble -= 0.0001; // ramp down slowly
+            SetpointDouble -= 0.0001; // ramp down slowly
         }
 
         if(t > 20000 && t < 28000){
-            SetPointDouble -= 0.0001; // ramp up slowly
+            SetpointDouble -= 0.0001; // ramp up slowly
         }
 
-        beerSet.write(SetPointDouble);
+        beerSet.write(SetpointDouble);
         update();
 
         BOOST_CHECK( !(heaterPin.getState() && coolerPin.getState()) ); // pins are not active at the same time
@@ -690,21 +690,21 @@ BOOST_FIXTURE_TEST_CASE(Simulate_Cascaded_Control, SimCascadedHeaterCooler)
            "7#cooler pwm, 7# cooler achieved pwm, 5#cooler P, 5#cooler I, 5#cooler D, "
            "7#heater pwm, 7# heater achieved pwm, 6#heater P, 6#heater I, 6#heater D, "
            "8a#cooler pin, 8a#heater pin" << endl;
-    double SetPointDouble = 20;
+    double SetpointDouble = 20;
     for(int t = 0; t < 50000; t++){
         if(t==1000){
-            SetPointDouble = 19;
+            SetpointDouble = 19;
         }
 
         if(t > 8000 && t < 16000){
-            SetPointDouble -= 0.0001; // ramp down slowly
+            SetpointDouble -= 0.0001; // ramp down slowly
         }
 
         if(t > 20000 && t < 28000){
-            SetPointDouble -= 0.0001; // ramp up slowly
+            SetpointDouble -= 0.0001; // ramp up slowly
         }
 
-        beerSet.write(SetPointDouble);
+        beerSet.write(SetpointDouble);
         update();
 
         BOOST_CHECK( !(heaterPin.getState() && coolerPin.getState()) ); // pins are not active at the same time

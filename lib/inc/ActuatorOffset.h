@@ -17,116 +17,97 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- #pragma once
+#pragma once
 
-#include "ActuatorInterfaces.h"
-#include "ControllerMixins.h"
-#include "ProcessValue.h"
+#include "ActuatorAnalog.h"
+#include "SetpointSensorPair.h"
+#include <functional>
+#include <memory>
 
 /*
- * A linear actuator that sets a setpoint to reference setpoint + actuator value
+ * An analog actuator that sets a target to reference value + offset
  */
-class ActuatorOffset final : public ActuatorAnalog, public ActuatorOffsetMixin
-{
+class ActuatorOffset final : public ActuatorAnalog {
 public:
-    ActuatorOffset(ProcessValue & _target, // process value to manipulate
-                     ProcessValue & _reference, // process value to offset from
-                     temp_t _min = temp_t::min(), // minimum actuator value (targ - ref)
-                     temp_t _max = temp_t::max()) :  // maximum actuator value
-        target(_target),
-        reference(_reference),
-        offset(0.0),
-        minimum(_min),
-        maximum(_max),
-        useReferenceValue(false)
+    enum SettingOrValue {
+        SETTING,
+        VALUE
+    };
+
+private:
+    const std::function<std::shared_ptr<SetpointSensorPair>()> m_target;
+    const std::function<std::shared_ptr<SetpointSensorPair>()> m_reference;
+    value_t m_setting = 0;
+    value_t m_value = 0;
+    SettingOrValue m_selectedReference = SettingOrValue::SETTING;
+
+public:
+    explicit ActuatorOffset(
+        std::function<std::shared_ptr<SetpointSensorPair>()>&& target,    // process value to manipulate
+        std::function<std::shared_ptr<SetpointSensorPair>()>&& reference) // process value to offset from
+        : m_target(target)
+        , m_reference(reference)
     {
     }
     ~ActuatorOffset() = default;
 
-    /**
-     * Accept function for visitor pattern
-     * @param dispatcher Visitor to process this class
-     */
-    virtual void accept(VisitorBase & v) override final {
-    	v.visit(*this);
+    virtual void setting(value_t const& val) override final
+    {
+        m_setting = val;
+        update();
     }
 
-    temp_t readReference() const {
-        return (useReferenceValue) ? reference.value() : reference.setting();
-    }
-
-    virtual void set(temp_t const& val) override final {
-        if(val < minimum){
-            offset = minimum;
-        }
-        else if(val> maximum){
-            offset = maximum;
-        }
-        else{
-            offset = val;
-        }
-        apply();
-    }
-
-    virtual temp_t setting() const override final {
-        return offset;
+    virtual value_t setting() const override final
+    {
+        return m_setting;
     }
 
     // value() returns the actually achieved offset
     // By returning the actually achieved value, instead of the difference between the setpoints,
     // a PID can read back the actual actuator value and perform integrator anti-windup
-    virtual temp_t value() const override final{
-        temp_t targetValue = target.value();
-        temp_t referenceValue = readReference();
+    virtual value_t value() const override final
+    {
+        return m_value;
+    }
 
-        if(targetValue.isDisabledOrInvalid() || referenceValue.isDisabledOrInvalid()){
-            return temp_t::invalid();
+    virtual bool valid() const override final
+    {
+        if (auto targetPtr = m_target()) {
+            if (auto refPtr = m_reference()) {
+                return targetPtr->valid() && refPtr->valid();
+            }
         }
-        return targetValue - referenceValue;
+        return false;
     }
 
-    temp_t min() const {
-        return minimum;
+    void selectedReference(const SettingOrValue& sel)
+    {
+        m_selectedReference = sel;
     }
 
-    temp_t max() const {
-        return maximum;
+    SettingOrValue selectedReference() const
+    {
+        return m_selectedReference;
     }
 
-    void setMin(temp_t min) {
-        minimum = min;
-    }
+    void update()
+    {
+        auto targetValue = value_t(0);
+        auto referenceValue = value_t(0);
 
-    void setMax(temp_t max) {
-        maximum = max;
-    }
-
-    void setReferenceSettingOrValue(bool useSetting) {
-        useReferenceValue = useSetting;
-    }
-
-    void apply() {
-        temp_t referenceValue = readReference();
-        if(referenceValue.isDisabledOrInvalid()){
-            target.set(temp_t::invalid());
-            return;
+        if (auto targetPtr = m_target()) {
+            if (auto refPtr = m_reference()) {
+                if (targetPtr->valid() && refPtr->valid()) {
+                    referenceValue = (m_selectedReference == SettingOrValue::SETTING) ? refPtr->setting() : refPtr->value();
+                    targetPtr->setting(referenceValue + m_setting);
+                    targetValue = targetPtr->value();
+                    m_value = targetValue - referenceValue;
+                    return;
+                }
+            }
+            targetPtr->valid(false);
         }
-        temp_t targetValue = referenceValue + offset;
-        target.set(targetValue);
-    };
 
-    // no action. SetPoint actuator only applies it's value when written by a PID
-    virtual update_t update(const update_t & t) override final {
-        return update_t_max(); // no updates needed
+        m_value = 0;
     }
-
-private:
-    ProcessValue & target; // process value to manipulate
-    ProcessValue & reference; // process value to offset from
-    temp_t offset;
-    temp_t minimum;
-    temp_t maximum;
-    bool useReferenceValue; // use setting of reference and not actual value if false (default)
-
-    friend class ActuatorOffsetMixin;
 };

@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+import "brewblox.proto";
+import "nanopb.proto";
+import "AnalogConstraints.proto";
+
+package blox;
+
+message ActuatorPwm {
+  option (nanopb_msgopt).msgid = 307;
+
+  uint32 actuatorId = 1 [ (brewblox).link = ActuatorDigital, (nanopb).int_size = IS_16 ];
+  bool actuatorValid = 2 [ (brewblox).readonly = true ];
+  uint32 period = 3;
+  sint32 setting = 4 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32 ];
+  sint32 value = 5 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true ];
+  AnalogConstraints constrainedBy = 6;
+}

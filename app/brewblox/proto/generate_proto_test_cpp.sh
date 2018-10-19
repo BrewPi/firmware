@@ -15,6 +15,9 @@ for file in *.proto
 do
   cp "$file" "test/proto/${file%.proto}.test.proto"
   sed -i 's/brewblox.proto/brewblox.test.proto/g' "test/proto/${file%.proto}.test.proto"
+  sed -i 's/ActuatorDigital.proto/ActuatorDigital.test.proto/g' "test/proto/${file%.proto}.test.proto"
+  sed -i 's/AnalogConstraints.proto/AnalogConstraints.test.proto/g' "test/proto/${file%.proto}.test.proto"
+  sed -i 's/DigitalConstraints.proto/DigitalConstraints.test.proto/g' "test/proto/${file%.proto}.test.proto"
   sed -i 's/BrewbloxFieldOptions/BrewbloxTestFieldOptions/g' "test/proto/${file%.proto}.test.proto"
 done
 

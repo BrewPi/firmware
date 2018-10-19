@@ -4,14 +4,13 @@
 #include "SetpointSensorPair.pb.h"
 #include "blox/Block.h"
 #include "cbox/CboxPtr.h"
-#include <functional>
 
 using std::placeholders::_1;
 
 class SetpointSensorPairBlock : public Block<blox_SetpointSensorPair_msgid> {
 private:
     cbox::CboxPtr<TempSensor> sensor;
-    cbox::CboxPtr<SetPoint> setpoint;
+    cbox::CboxPtr<Setpoint> setpoint;
     SetpointSensorPair pair;
 
 public
@@ -19,9 +18,11 @@ public
     SetpointSensorPairBlock(cbox::ObjectContainer& objects)
         : sensor(objects)
         , setpoint(objects)
-        , pair(sensor, setpoint)
+        , pair(setpoint, sensor)
     {
     }
+
+    virtual ~SetpointSensorPairBlock() = default;
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final
     {
@@ -40,8 +41,8 @@ public
         blox_SetpointSensorPair message;
         message.sensorId = sensor.getId();
         message.setpointId = setpoint.getId();
-        message.sensorValue = pair.value().getRaw();
-        message.setpointValue = pair.setting().getRaw();
+        message.sensorValue = cnl::unwrap(pair.value());
+        message.setpointValue = cnl::unwrap(pair.setting());
         message.sensorValid = sensor.valid();
         message.setpointValid = setpoint.valid();
 
@@ -67,9 +68,13 @@ public
         if (iface == blox_SetpointSensorPair_msgid) {
             return this; // me!
         }
-        if (iface == cbox::interfaceId<ProcessValue>()) {
+        if (iface == cbox::interfaceId<ProcessValue<temp_t>>()) {
             // return the member that implements the interface in this case
-            ProcessValue* ptr = &pair;
+            ProcessValue<temp_t>* ptr = &pair;
+            return ptr;
+        }
+        if (iface == cbox::interfaceId<SetpointSensorPair>()) {
+            SetpointSensorPair* ptr = &pair;
             return ptr;
         }
         return nullptr;

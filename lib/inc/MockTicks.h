@@ -1,19 +1,18 @@
 /*
- * Copyright 2017 BrewPi/Elco Jacobs.
- * Copyright 2017 Matthew McGowan.
+ * Copyright 2018 BrewPi B.V.
  *
- * This file is part of BrewPi.
- * 
+ * This file is part of the BrewBlox Control Library.
+ *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * BrewPi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,13 +28,8 @@
  */
 class MockTicks {
 public:
-    MockTicks(uint8_t increment)
-        : _increment(increment)
-        , _ticks(0)
-    {
-    }
-    MockTicks()
-        : _increment(1)
+    MockTicks(duration_millis_t autoIncrement = 0)
+        : _increment(autoIncrement)
         , _ticks(0)
     {
     }
@@ -43,9 +37,9 @@ public:
     ticks_millis_t millis() { return _ticks += _increment; }
     ticks_micros_t micros() { return 1000 * _ticks++; }
     ticks_seconds_t seconds() { return millis() / 1000; }
-    ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) { return ::timeSinceSeconds(seconds(), timeStamp); }
-    ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) { return ::timeSinceMillis(millis(), timeStamp); }
-    void reset(void) { _ticks = 0; };
+    ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) { return ::secondsSince(seconds(), timeStamp); }
+    ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) { return ::millisSince(millis(), timeStamp); }
+    void reset(ticks_millis_t v = 0) { _ticks = v; };
     void advance(ticks_millis_t adv)
     {
         _ticks += adv;
@@ -70,8 +64,8 @@ public:
     ticks_millis_t millis() { return _ticks; }
     ticks_micros_t micros() { return _ticks * 1000; }
     ticks_seconds_t seconds() { return millis() / 1000; }
-    ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) { return ::timeSinceSeconds(seconds(), timeStamp); }
-    ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) { return ::timeSinceMillis(millis(), timeStamp); }
+    ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) { return ::secondsSince(seconds(), timeStamp); }
+    ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) { return ::millisSince(millis(), timeStamp); }
     void reset(void) { _ticks = 0; };
 
     void setMillis(ticks_millis_t now) { _ticks = now; }

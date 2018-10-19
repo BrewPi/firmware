@@ -66,9 +66,13 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform
 
 # brewblox app specific implementations
 # CPPSRC += /app/brewblox/BrewBlox.cpp
-CPPSRC += /app/brewblox/Logger.cpp
 CPPSRC += /app/brewblox/nanopb_callbacks.cpp
 CPPSRC += /app/brewblox/BrewBlox.cpp
+
+# spark HAL includes
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/firmware/hal/inc
+CSRC += /platform/spark/firmware/hal/src/gcc/gpio_hal.c
+CFLAGS += -DPLATFORM_ID=3
 
 # include boost
 ifeq ($(BOOST_ROOT),)
@@ -150,12 +154,13 @@ clean:
 	$(RM) $(ALLOBJ) $(ALLDEPS) $(TARGETDIR)$(TARGET)
 	$(RMDIR) $(TARGETDIR)
 	$(RMDIR) $(SOURCE_PATH)/app/brewblox/proto/cpp
+	$(RMDIR) $(SOURCE_PATH)/app/brewblox/proto/test
 	@echo
 
 # print variable by invoking make print-VARIABLE as VARIABLE = the_value_of_the_variable
 print-%  : ; @echo $* = $($*)
 
-.PHONY: all clean proto runner
+.PHONY: all clean runner
 .SECONDARY:
 
 # Include auto generated dependency files

@@ -18,10 +18,10 @@
  */
 
 #pragma once
-#include <memory>
+#include "ActuatorDigital.h"
 #include "DS2408.h"
-#include "ActuatorInterfaces.h"
-#include "ControllerMixins.h"
+#include <functional>
+#include <memory>
 
 /**
  * ValveController controls a single valve on a DS2408.
@@ -35,20 +35,26 @@
  * bit 1-0: Valve B status: 01 = opened, 10 = closed, 11 = in between \n
  *
  */
-class ValveController final : public ActuatorDigital, public ValveControllerMixin {
+class ValveController final : public ActuatorDigital {
+private:
+    const std::function<std::shared_ptr<DS2408>()> m_device;
+    uint8_t m_desiredAction = VALVE_IDLE_INIT;
+    char m_output = 'A';
+
 public:
     /**
      * Constructor that creates a new valve controller, using an already existing DS2408
      * @param device_ reference to the existing DS2408
      * @param output_ the valve is connected to either the upper or the lower bits. 1 for upper (B), 0 for lower (A)
      */
-    ValveController(std::shared_ptr<DS2408> device_,
-                    uint8_t  output_) :
-                    device(device_),
-                    desiredAction(VALVE_IDLE_INIT),
-                    output(output_)
-					{
-        device->update();
+    explicit ValveController(std::function<std::shared_ptr<DS2408>()>&& device,
+                             char output)
+        : m_device(device)
+        , m_output(output)
+    {
+        if (auto devPtr = m_device()) {
+            devPtr->update();
+        }
     }
 
     /**
@@ -59,10 +65,10 @@ public:
     /**
      * The valve itself can be in 3 states: fully closed, fully open or somewhere in between.
      */
-    static const uint8_t VALVE_OPENED = 0b01; //  Feedback switch for fully open is connected to GND.
-    static const uint8_t VALVE_CLOSED = 0b10; // = 0b10  Feedback switch for fully closed is connected to GND
-    static const uint8_t VALVE_HALFWAY= 0b11; // = 0b11  Neither switches are closed, so valve is neither open nor closed
-    static const uint8_t VALVE_ERROR = 0b00; // = 0b00  Both switches are closed. This is an error state. Is also used to indicate communication error
+    static const uint8_t VALVE_OPENED = 0b01;  //  Feedback switch for fully open is connected to GND.
+    static const uint8_t VALVE_CLOSED = 0b10;  // = 0b10  Feedback switch for fully closed is connected to GND
+    static const uint8_t VALVE_HALFWAY = 0b11; // = 0b11  Neither switches are closed, so valve is neither open nor closed
+    static const uint8_t VALVE_ERROR = 0b00;   // = 0b00  Both switches are closed. This is an error state. Is also used to indicate communication error
 
     /**
      * The motor can be driven in clockwise, anti-clockwise or idle
@@ -71,48 +77,39 @@ public:
     static const uint8_t VALVE_CLOSING = 0b10; // H-bridge is driven in direction to close the valve
     static const uint8_t VALVE_IDLE = 0b11;    // H-bridge has both legs at same level, so motor is idle
     // VALVE_IDLE_INIT is set in constructor as output state. This is to be able to distinguish between a desired idle state and uninitialized.
-    static const uint8_t VALVE_IDLE_INIT = 0b00;    // H-bridge has both legs at same level, so motor is idle.
-
-    /**
-     * Visitor pattern hook
-     * @param v
-     */
-    virtual void accept(VisitorBase & v) override final {
-        v.visit(*this);
-    }
-
+    static const uint8_t VALVE_IDLE_INIT = 0b00; // H-bridge has both legs at same level, so motor is idle.
 
     /**
      * Gets the state of the single valve (chosen by output nr). \n
      * State is based on reading the I/O pins connected to the feedback switches. \n
      * @returns state of valve (0b01 = opened, 0b10 = closed, 0b11 = in between \n
      */
-    uint8_t getPosition() const;
+    uint8_t position() const;
 
     /**
      * Gets the action currently performed by the motor of the valve, read from the latches. \n
      * @returns action performed by valve (0b01 = opening, 0b10 = closing, 0b11 = idle, 0b00= idle \n
      */
-    uint8_t getAction() const;
+    uint8_t action() const;
 
     /**
      * update reads the status from the valve.
      * When the valve is opening or closing, it reverts back to idle when it detects that the action is completed.
      */
-    virtual update_t update(const update_t & t) override final;
+    void update();
 
     /**
      * setActive will open or close the valve, for compatibility with the actuator interface.
      * @param active true opens the valve, false closes it.
      */
 
-    virtual void setState(const State & state, const update_t & now) override final;
+    virtual void state(const State& state) override final;
 
     /**
      * Check if valve is open.
      * @return true if valve is open or halfway or opening, false if closed or closing
      */
-    State getState() const override final;
+    State state() const override final;
 
     /**
      * Returns the state of the valve (action and current state) as a single 4 bit value
@@ -130,14 +127,16 @@ public:
     /**
      * Open the valve
      */
-    inline void open(){
+    inline void open()
+    {
         write(VALVE_OPENING);
     }
 
     /**
      * Close the valve
      */
-    inline void close(){
+    inline void close()
+    {
         write(VALVE_CLOSING);
     }
 
@@ -145,24 +144,8 @@ public:
      * Stop opening or closing the valve. The valves themselves automatically stop driving the motor with an internal switch.
      * This function stops the H-bridge from driving the motor. It could be used to stop the valve halfway.
      */
-    inline void idle(){
+    inline void idle()
+    {
         write(VALVE_IDLE);
     }
-
-    /**
-     * This function can be used to get a reference to the DS2408, so it can be shared with another valve controller.
-     * @return shared_ptr<DS2408> to the DS2408 driver class.
-     */
-    std::shared_ptr<DS2408> getHardwareDevice(){
-    	return device;
-    }
-
-protected:
-    std::shared_ptr<DS2408> device;
-    uint8_t desiredAction;
-    uint8_t output; // 0=A or 1=B
-
-
-    friend class ValveControllerMixin;
 };
-

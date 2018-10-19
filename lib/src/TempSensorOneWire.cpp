@@ -18,12 +18,13 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../inc/TempSensorOneWire.h"
-#include "../inc/DallasTemperature.h"
 #include "../inc/Logger.h"
+
+#include "../inc/DallasTemperature.h"
 #include "../inc/OneWire.h"
 #include "../inc/OneWireAddress.h"
-#include "../inc/temperatureFormats.h"
+#include "../inc/TempSensorOneWire.h"
+#include "../inc/Temperature.h"
 
 /**
  * Initializes the temperature sensor.
@@ -60,17 +61,17 @@ TempSensorOneWire::setConnected(bool _connected)
         return; // state stays the same
     }
     if (connected) {
-        logInfoAddress(INFO_TEMP_SENSOR_CONNECTED, sensorAddress);
+        CL_LOG_WARN("OneWire temp sensor connected: ") << sensorAddress;
     } else {
-        logWarningAddress(WARNING_TEMP_SENSOR_DISCONNECTED, sensorAddress);
+        CL_LOG_WARN("OneWire temp sensor disconnected: ") << sensorAddress;
     }
 }
 
 temp_t
-TempSensorOneWire::read() const
+TempSensorOneWire::value() const
 {
     if (!connected) {
-        return TEMP_SENSOR_DISCONNECTED;
+        return 0;
     }
 
     return cachedValue;
@@ -100,12 +101,11 @@ TempSensorOneWire::readAndConstrainTemp()
     setConnected(success);
 
     if (!success) {
-        return temp_t::invalid();
+        return 0;
     }
 
     // difference in precision between DS18B20 format and temperature format
-    const uint8_t shift = temp_t::fractional_bit_count - ONEWIRE_TEMP_SENSOR_PRECISION;
-    temp_t temp;
-    temp.setRaw(tempRaw << shift);
+    constexpr auto shift = (-temp_t::exponent) - ONEWIRE_TEMP_SENSOR_PRECISION;
+    temp_t temp = cnl::wrap<temp_t>(tempRaw << shift);
     return temp + calibrationOffset;
 }

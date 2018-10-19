@@ -63,14 +63,14 @@ Control::Control() :
     heater2Mutex(heater2Toggle, &mutex),
     heater2Pwm(heater2Mutex, 4), // period 4s
     heater2Pid(beer2, heater2Pwm),
-    fridgeSetPointActuator(fridge, beer1),
-    beerToFridgePid(beer1, fridgeSetPointActuator)
+    fridgeSetpointActuator(fridge, beer1),
+    beerToFridgePid(beer1, fridgeSetpointActuator)
 {
     // set up static devices for backwards compatibility with tempControl
     coolerPid.setActuatorIsNegative(true);
     mutex.setDeadTime(1800000); // 30 minutes
-    fridgeSetPointActuator.setMin(-10.0);
-    fridgeSetPointActuator.setMax(10.0);
+    fridgeSetpointActuator.setMin(-10.0);
+    fridgeSetpointActuator.setMax(10.0);
 
     fridgeSensor.setName("fridge");
     beer1Sensor.setName("beer1");

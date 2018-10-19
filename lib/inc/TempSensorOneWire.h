@@ -1,19 +1,18 @@
 /*
- * Copyright 2012-2013 BrewPi/Elco Jacobs.
- * Copyright 2013 Matthew McGowan 
+ * Copyright 2018 BrewPi B.V.
  *
- * This file is part of BrewPi.
- * 
+ * This file is part of the BrewBlox Control Library.
+ *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * BrewPi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,7 +22,7 @@
 #include "DallasTemperature.h"
 #include "OneWireAddress.h"
 #include "TempSensor.h"
-#include "temperatureFormats.h"
+#include "Temperature.h"
 
 class OneWire;
 
@@ -33,10 +32,10 @@ class TempSensorOneWire final : public TempSensor {
 public:
 private:
     DallasTemperature sensor;
-    OneWireAddress sensorAddress;
-    temp_t calibrationOffset;
-    temp_t cachedValue;
-    bool connected;
+    OneWireAddress sensorAddress = 0;
+    temp_t calibrationOffset = 0;
+    temp_t cachedValue = 0;
+    bool connected = false;
 
 public:
     /**
@@ -50,27 +49,24 @@ public:
         : sensor(&bus)
         , sensorAddress(_address)
         , calibrationOffset(_calibrationOffset)
-        , cachedValue(TEMP_SENSOR_DISCONNECTED)
-        , connected(false)
-
     {
         init();
     }
 
     TempSensorOneWire(OneWire& bus)
-        : TempSensorOneWire(bus, 0, temp_t(0.0))
+        : sensor(&bus)
     {
     }
 
     ~TempSensorOneWire() = default;
 
-    virtual bool isConnected(void) const override final
+    virtual bool valid() const override final
     {
         return connected;
     }
 
-    virtual temp_t read() const override final; // return cached value
-    void update();                              // read from hardware sensor
+    virtual temp_t value() const override final; // return cached value
+    void update();                               // read from hardware sensor
 
     void setAddress(OneWireAddress const& addr)
     {

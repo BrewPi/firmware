@@ -18,15 +18,12 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #pragma once
 
 #include "Logger.h"
 #include "OneWireDevice.h"
 
-typedef uint8_t pio_t;
-#define  DS2413_FAMILY_ID 0x3A
+#define DS2413_FAMILY_ID 0x3A
 
 /*
  * Provides access to a OneWire-addressable dual-channel I/O device.
@@ -36,16 +33,30 @@ typedef uint8_t pio_t;
  * channelRead/channelWrite reads and writes the channel latch state to turn the output transistor on or off
  * channelSense senses if the channel is pulled high.
  */
-class DS2413:
-    public OneWireDevice
-{
+class DS2413 : public OneWireDevice {
+public:
+    enum class Pio : char {
+        A = 'A',
+        B = 'B'
+    };
+
+private:
+    uint8_t m_cachedState; // last value of read
+    bool m_connected;      // stores whether last read was succesful
+
+    static const uint8_t ACCESS_READ = 0xF5;
+    static const uint8_t ACCESS_WRITE = 0x5A;
+    static const uint8_t ACK_SUCCESS = 0xAA;
+    static const uint8_t ACK_ERROR = 0xFF;
+
 public:
     /**
      * Constructor, initializes cached state to 0xff, which is an invalid state to signal that the cache is not valid yet.
      */
-    DS2413(OneWire * oneWire, OneWireAddress address) :
-        OneWireDevice(oneWire, address),
-        cachedState(0xff), connected(false)
+    DS2413(OneWire& oneWire, const OneWireAddress& address)
+        : OneWireDevice(oneWire, address)
+        , m_cachedState(0xff)
+        , m_connected(false)
     {
     }
 
@@ -68,9 +79,9 @@ public:
      * @param useCached     do not read the pin states from the device
      * @return              true on success
      */
-    bool writeLatchBit(pio_t pio,
-                    bool  set,
-                    bool  useCached);
+    bool writeLatchBit(Pio pio,
+                       bool set,
+                       bool useCached);
 
     /**
      * Read the latch state of an output. True means latch is active
@@ -79,9 +90,9 @@ public:
      * @param useCached         do not read current pin state from device, but use cached state
      * @return					true on success
      */
-    bool readLatchBit(pio_t pio, bool & result, bool useCached);
+    bool readLatchBit(Pio pio, bool& result, bool useCached);
 
-    bool latchReadCached(pio_t pio, bool & result) const;
+    bool latchReadCached(Pio pio, bool& result) const;
     /**
      * Periodic update to make sure the cache is valid.
      * Performs a simultaneous read of both channels and saves value to the cache.
@@ -96,22 +107,19 @@ public:
      * Note that for a read to make sense the channel must be off (value written is 1).
      * @return true on success
      */
-    bool sense(pio_t pio, bool & result);
+    bool sense(Pio pio, bool& result);
 
 private:
-    uint8_t cachedState; /** last value of read */
-    bool connected; /** stores whether last read was succesful */
-
     // assumes pio is either 0 or 1, which translates to masks 0x8 and 0x2
-    uint8_t latchReadMask(pio_t pio) const
+    uint8_t latchReadMask(Pio pio) const
     {
-        return pio ? 0x8 : 0x2;
+        return pio == Pio::A ? 0x2 : 0x8;
     }
 
     // assumes pio is either 0 or 1, which translates to masks 0x1 and 0x2
-    uint8_t latchWriteMask(pio_t pio) const
+    uint8_t latchWriteMask(Pio pio) const
     {
-        return pio ? 0x2 : 0x1;
+        return pio == Pio::A ? 0x1 : 0x2;
     }
 
     /*
@@ -128,7 +136,6 @@ private:
      */
     uint8_t writeByteFromCache();
 
-
     /**
      * Read all values at once, both current state and sensed values for the DS2413.
      * Output state of 8 pins for the DS2408.
@@ -143,20 +150,12 @@ private:
      */
     bool accessWrite(uint8_t b, uint8_t maxTries = 3);
 
-
     /**
      * Returns bitmask to extract the sense channel for the given pin from a read
      * @return bitmask which can be used to extract the bit corresponding to the channel
      */
-    uint8_t senseMask(pio_t pio) const
+    uint8_t senseMask(Pio pio) const
     {
-        return pio ? 0x4 : 0x1;    // assumes pio is either 0 or 1, which translates to masks 0x1 and 0x4
+        return pio == Pio::A ? 0x1 : 0x4; // assumes pio is either 0 or 1, which translates to masks 0x1 and 0x4
     }
-
-
-private:
-    static const uint8_t ACCESS_READ = 0xF5;
-    static const uint8_t ACCESS_WRITE = 0x5A;
-    static const uint8_t ACK_SUCCESS = 0xAA;
-    static const uint8_t ACK_ERROR = 0xFF;
 };

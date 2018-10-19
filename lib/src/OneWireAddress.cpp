@@ -20,48 +20,8 @@
 
 /* Old implementation, for backwards compatibility */
 
-#include "../inc/OneWireAddress.h"
+#include "OneWireAddress.h"
 #include <cstdint>
-
-void
-parseBytes(uint8_t* data,
-           const char* s,
-           uint8_t len)
-{
-    char c;
-
-    while ((c = *s++)) {
-        uint8_t d = ((c >= 'A') ? c - 'A' + 10 : c - '0') << 4;
-
-        c = *s++;
-        d |= ((c >= 'A') ? c - 'A' + 10 : c - '0');
-        *data++ = d;
-    }
-}
-
-void
-printBytes(const uint8_t* data,
-           uint8_t len,
-           char* buf) // prints 8-bit data in hex
-{
-    for (int i = 0; i < len; i++) {
-        uint8_t b = (data[i] >> 4) & 0x0f;
-
-        *buf++ = ((b > 9) ? b - 10 + 'A' : b + '0');
-        b = data[i] & 0x0f;
-        *buf++ = ((b > 9) ? b - 10 + 'A' : b + '0');
-    }
-
-    *buf = 0;
-}
-
-/* New implementation */
-
-uint8_t
-fromHex(char c)
-{
-    return (c >= 'A') ? c - 'A' + 10 : c - '0';
-}
 
 char
 toHex(uint8_t b)
@@ -69,36 +29,15 @@ toHex(uint8_t b)
     return ((b > 9) ? b - 10 + 'A' : b + '0');
 }
 
-void
-OneWireAddress::parse(const char* s)
+std::string
+OneWireAddress::toString() const
 {
-    char c;
-
-    for (int8_t i = 0; i < 8; i++) {
-        c = *s++;
-        if (!c) {
-            break; // encountered \0
-        }
-        uint8_t d = fromHex(c) << 4;
-        c = *s++;
-        if (!c) {
-            break; // encountered \0
-        }
-        d |= fromHex(c);
-        this[i] = d;
+    auto retv = std::string(16, '0');
+    auto strIt = retv.begin();
+    auto const addr = asUint8ptr();
+    for (auto bytePtr = addr; bytePtr < addr + 8; ++bytePtr) {
+        *strIt++ = toHex(((*bytePtr >> 4) & 0x0f));
+        *strIt++ = toHex((*bytePtr) & 0x0f);
     }
-}
-
-void
-OneWireAddress::print(char* buf, uint8_t len) // prints 8-bit data in hex
-{
-    for (int i = 0; i < 8 && i * 2 < len; i++) {
-        uint8_t b = (this[i] >> 4) & 0x0f;
-
-        *buf++ = toHex(b);
-        b = this[i] & 0x0f;
-        *buf++ = toHex(b);
-    }
-
-    *buf = 0;
+    return retv;
 }

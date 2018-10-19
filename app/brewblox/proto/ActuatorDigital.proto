@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package blox;
+
+message AD {
+    enum State {
+        Inactive = 0;
+        Active = 1;
+        Unknown = 2;
+    }
+}

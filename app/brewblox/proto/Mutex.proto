@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "brewblox.proto";
+import "nanopb.proto";
+
+package blox;
+
+message Mutex {
+  option (nanopb_msgopt).msgid = 310;
+
+  uint32 differentActuatorWait = 1;
+}

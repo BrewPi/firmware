@@ -53,11 +53,11 @@ public:
     {
         auto factoryEntry = std::find_if(objTypes.begin(), objTypes.end(), [&t](const ObjectFactoryEntry& entry) { return entry.typeId == t; });
         if (factoryEntry == objTypes.end()) {
-            return {CboxError::OBJECT_NOT_CREATABLE, nullptr};
+            return std::make_tuple(CboxError::OBJECT_NOT_CREATABLE, std::shared_ptr<Object>());
         }
         auto obj = (*factoryEntry).createFn();
         if (!obj) {
-            return {CboxError::INSUFFICIENT_HEAP, nullptr}; // LCOV_EXCL_LINE
+            return std::make_tuple(CboxError::INSUFFICIENT_HEAP, std::shared_ptr<Object>());
         }
 
         return std::make_tuple(CboxError::OK, std::move(obj));

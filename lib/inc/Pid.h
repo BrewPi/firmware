@@ -17,133 +17,193 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #pragma once
 
-#include "temperatureFormats.h"
-#include "FilterCascaded.h"
-#include "TempSensor.h"
-#include "ActuatorInterfaces.h"
-#include "SetPoint.h"
-#include "defaultDevices.h"
-#include "ControllerMixins.h"
-#include "ControllerInterface.h"
+#include "FixedPoint.h"
+#include "FpFilterChain.h"
 #include "ProcessValue.h"
 #include <cstring>
+#include <functional>
 
-class Pid final : public ControllerInterface, public PidMixin
-{
+class Pid {
+public:
+    using in_t = safe_elastic_fixed_point<11, 12, int32_t>;
+    using out_t = safe_elastic_fixed_point<11, 12, int32_t>;
+    using integral_t = safe_elastic_fixed_point<11, 30, int64_t>;
+    using derivative_t = safe_elastic_fixed_point<1, 23, int32_t>;
 
-    public:
-        Pid(ProcessValue & _input,
-            ProcessValue & _output);
-        ~Pid() = default;
+private:
+    const std::function<std::shared_ptr<ProcessValue<in_t>>()> m_inputPtr;
+    const std::function<std::shared_ptr<ProcessValue<out_t>>()> m_outputPtr;
 
-        struct Settings {
-            Settings() : kp(0.0), ti(0), td(0), enabled(true) {}
-            ~Settings() = default;
-            temp_long_t       kp;    // proportional gain
-            uint16_t          ti;    // integral time constant
-            uint16_t          td;    // derivative time constant
-            bool              enabled;
-        };
-        struct State {
-            State() : inputValue(0.0), inputSetting(0.0), outputValue(0.0), outputSetting(0.0),
-                    p(0.0), i(0.0), d(0.0), integral(0.0), derivative(0.0), error(0.0){}
-            ~State() = default;
-            temp_t            inputValue;
-            temp_t            inputSetting;
-            temp_t            outputValue;
-            temp_t            outputSetting;
-            temp_long_t       p;
-            temp_long_t       i;
-            temp_long_t       d;
-            temp_long_t       integral;
-            temp_precise_t    derivative;
-            temp_t            error; // last element for 32-bit alignment
-        };
+    FpFilterChain<in_t> m_filter;
 
+    // state
+    in_t m_error = 0;
+    in_t m_p = 0;
+    in_t m_i = 0;
+    in_t m_d = 0;
+    integral_t m_integral = 0;
+    derivative_t m_derivative = 0;
 
-        /**
-         * Accept function for visitor pattern
-         * @param dispatcher Visitor to process this class
-         */
-        virtual void accept(VisitorBase & v) override final {
-        	v.visit(*this);
-        }
+    in_t m_inputSetting = 0;
+    in_t m_inputValue = 0;
 
-        void init();
+    out_t m_outputSetting = 0;
+    out_t m_outputValue = 0;
 
-        virtual update_t update(const update_t & t) override final;
+    uint8_t m_inputFailureCount = 0;
 
-        void setConstants(temp_long_t kp,
-                          uint16_t ti,
-                          uint16_t td);
+    // settings
+    in_t m_kp = 0;              // proportional gain
+    uint16_t m_ti = 0;          // integral time constant
+    uint16_t m_td = 0;          // derivative time constant
+    uint8_t m_filterChoice = 0; // input filter index
+    bool m_enabled = false;     // persisted setting to manually disable the pid
+    bool m_active = false;      // automatically set when input is invalid
 
+public:
+    explicit Pid(
+        std::function<std::shared_ptr<ProcessValue<in_t>>()>&& input,
+        std::function<std::shared_ptr<ProcessValue<out_t>>()>&& output)
+        : m_inputPtr(input)
+        , m_outputPtr(output)
+        , m_filter(0)
+    {
+    }
 
-        uint8_t getInputFiltering()
-        {
-            return inputFilter.getFiltering();
-        }
+    ~Pid() = default;
 
-        uint8_t getDerivativeFiltering()
-        {
-            return derivativeFilter.getFiltering();
-        }
+    void init();
 
-        void setInputFiltering(uint8_t b)
-        {
-            inputFilter.setFiltering(b);
-        }
+    void update();
 
-        void setDerivativeFiltering(uint8_t b)
-        {
-            derivativeFilter.setFiltering(b);
-        }
+    // state
+    auto error() const
+    {
+        return m_error;
+    }
 
-        void enable(){
-            settings.enabled = true;
-        }
+    auto integral() const
+    {
+        return m_integral;
+    }
 
-        void disable(bool turnOffOutput){
-            settings.enabled = false;
-            state.error = 0.0;
-            state.p = 0.0;
-            state.i = 0.0;
-            state.d = 0.0;
-            if(turnOffOutput){
-                output.set(0.0);
+    auto derivative() const
+    {
+        return m_derivative;
+    }
+
+    auto p() const
+    {
+        return m_p;
+    }
+
+    auto i() const
+    {
+        return m_i;
+    }
+
+    auto d() const
+    {
+        return m_d;
+    }
+
+    // settings
+    auto kp() const
+    {
+        return m_kp;
+    }
+
+    void kp(const in_t& arg)
+    {
+        m_kp = arg;
+    }
+
+    auto ti() const
+    {
+        return m_ti;
+    }
+
+    void ti(const uint16_t& arg)
+    {
+        m_ti = arg;
+    }
+
+    auto td() const
+    {
+        return m_td;
+    }
+
+    void td(const uint16_t& arg)
+    {
+        m_td = arg;
+    }
+
+    auto filterChoice() const
+    {
+        return m_filterChoice;
+    }
+
+    auto filterThreshold() const
+    {
+        return m_filter.getStepThreshold();
+    }
+
+    void configureFilter(const uint8_t& choice, const in_t& threshold)
+    {
+        m_filterChoice = choice;
+        m_filter.setParams(choice, threshold);
+    }
+
+    void enabled(bool state)
+    {
+        active(state);
+        m_enabled = state;
+    }
+
+    auto enabled() const
+    {
+        return m_enabled;
+    }
+
+    auto active() const
+    {
+        return m_active;
+    }
+
+    auto inputSetting() const
+    {
+        return m_inputSetting;
+    }
+
+    auto inputValue() const
+    {
+        return m_inputValue;
+    }
+
+    auto outputSetting() const
+    {
+        return m_outputSetting;
+    }
+
+    auto outputValue() const
+    {
+        return m_outputValue;
+    }
+
+private:
+    void active(bool state)
+    {
+        if (!state) {
+            m_error = 0;
+            m_p = 0;
+            m_i = 0;
+            m_d = 0;
+            if (auto ptr = m_outputPtr()) {
+                ptr->setting(in_t(0));
             }
         }
-
-        void setSettings(Settings const & from){
-            settings = from;
-        }
-
-
-        Settings const& getSettings(){
-            return settings;
-        }
-
-        State const& getState(){
-            return state;
-        }
-
-    protected:
-        ProcessValue & input;
-        ProcessValue & output;
-        Settings settings;
-        State state;
-
-        FilterCascaded    inputFilter;
-        FilterCascaded    derivativeFilter;
-
-    private:
-        // remember previous setpoint, to be able to take the derivative of the error, instead of the input
-        uint8_t           failedReadCount;
-        temp_t            previousInputSetting;
-
-    friend class TempControl;
-    friend class PidMixin;
+        m_active = state;
+    }
 };

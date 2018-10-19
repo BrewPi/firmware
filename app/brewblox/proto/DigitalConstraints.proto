@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "brewblox.proto";
+import "nanopb.proto";
+
+package blox;
+
+message DigitalConstraint {
+  oneof constraint {
+    uint32 minOff = 1 [ (nanopb).int_size = IS_32 ];
+    uint32 minOn = 2 [ (nanopb).int_size = IS_32 ];
+    uint32 mutex = 3 [ (brewblox).link = Mutex, (nanopb).int_size = IS_16 ];
+  }
+}
+
+message DigitalConstraints { repeated DigitalConstraint constraints = 1 [ (nanopb).max_count = 8 ]; }
