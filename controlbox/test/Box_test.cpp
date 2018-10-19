@@ -20,8 +20,9 @@ using namespace cbox;
 SCENARIO("A controlbox Box")
 {
     ObjectContainer container = {
-        ContainedObject(1, 0xFF, std::make_shared<LongIntObject>(0x11111111)),
-        ContainedObject(2, 0xFF, std::make_shared<LongIntObject>(0x22222222))};
+        // profiles object will have id 1
+        ContainedObject(2, 0xFF, std::make_shared<LongIntObject>(0x11111111)),
+        ContainedObject(3, 0xFF, std::make_shared<LongIntObject>(0x22222222))};
 
     ArrayEepromAccess<2048> eeprom;
     EepromObjectStorage storage(eeprom);
@@ -55,13 +56,13 @@ SCENARIO("A controlbox Box")
 
     WHEN("A connection sends a read object command, it is processed by the Box")
     {
-        *in << "010100"; // read object 1
+        *in << "010200"; // read object 2
         *in << crc(in->str()) << "\n";
         box.hexCommunicate();
 
-        expected << addCrc("010100")
+        expected << addCrc("010200")
                  << "|" << addCrc("00"        // no error
-                                  "0100"      // object id 1
+                                  "0200"      // object id 2
                                   "FF"        // profiles 0xFF
                                   "E803"      // object type 1000
                                   "11111111") // object data
@@ -95,13 +96,13 @@ SCENARIO("A controlbox Box")
 
     WHEN("A connection sends a write object command, it is processed by the Box")
     {
-        *in << "02010001E80333333333"; // write object 1, set profiles to 01 and value to 33333333
+        *in << "02020001E80333333333"; // write object 2, set profiles to 01 and value to 33333333
         *in << crc(in->str()) << "\n";
         box.hexCommunicate();
 
-        expected << addCrc("02010001E80333333333")
+        expected << addCrc("02020001E80333333333")
                  << "|" << addCrc("00"        // no error
-                                  "0100"      // object id 1
+                                  "0200"      // object id 2
                                   "01"        // profiles 0x01
                                   "E803"      // object type 1000
                                   "33333333") // object data
@@ -111,13 +112,13 @@ SCENARIO("A controlbox Box")
         AND_WHEN("A connection sends a write object command with a wrong object type, INVALID_OBJECT_TYPE is returned and the object unchanged")
         {
             clearStreams();
-            *in << "02010001E90333333333"; // E903 instead of E803 is used
+            *in << "02020001E90333333333"; // E903 instead of E803 is used
             *in << crc(in->str()) << "\n";
             box.hexCommunicate();
 
-            expected << addCrc("02010001E90333333333")
+            expected << addCrc("02020001E90333333333")
                      << "|" << addCrc("41"        // INVALID_OBJECT_TYPE
-                                      "0100"      // object id 1
+                                      "0200"      // object id 2
                                       "01"        // profiles 0x01
                                       "E803"      // object type 1000
                                       "33333333") // object data
@@ -180,11 +181,11 @@ SCENARIO("A controlbox Box")
     WHEN("A connection sends a delete object command for system object, it is refused with status object_not_deletable (35)")
     {
         *in << "04"
-            << "0100"; // delete object, ID 1
+            << "0200"; // delete object, ID 2
         *in << crc(in->str()) << "\n";
         box.hexCommunicate();
 
-        expected << addCrc("040100")
+        expected << addCrc("040200")
                  << "|" << addCrc("23") // error code for object_not_deletable
                  << "\n";
         CHECK(out->str() == expected.str());
@@ -210,9 +211,9 @@ SCENARIO("A controlbox Box")
 
         expected << addCrc("05")
                  << "|" << addCrc("00")
-                 << "," << addCrc("0100FFE80311111111")
-                 << "," << addCrc("0200FFE80322222222")
-                 << "," << addCrc("0300FFFEFF01")
+                 << "," << addCrc("0100FFFEFF01")
+                 << "," << addCrc("0200FFE80311111111")
+                 << "," << addCrc("0300FFE80322222222")
                  << "\n";
         CHECK(out->str() == expected.str());
     }
@@ -363,10 +364,10 @@ SCENARIO("A controlbox Box")
         clearStreams();
 
         *in << "02"
-            << "0200"
+            << "0300"
             << "00"
             << "E803"
-            << "12341234"; // write system object 2 (including 00 for profiles)
+            << "12341234"; // write system object 3 (including 00 for profiles)
         *in << crc(in->str()) << "\n";
 
         box.hexCommunicate();
@@ -376,13 +377,13 @@ SCENARIO("A controlbox Box")
         REQUIRE(box.getObject(101).lock());
         REQUIRE(box.getObject(102).lock());
 
-        THEN("System object 2 was written, but it is not deactivated, because it is a system object)")
+        THEN("System object 3 was written, but it is not deactivated, because it is a system object)")
         {
-            *in << "010200"; // read object 02
+            *in << "010300"; // read object 03
             *in << crc(in->str()) << "\n";
             box.hexCommunicate();
 
-            expected << addCrc("010200") << "|" << addCrc("00020000E80312341234") << "\n";
+            expected << addCrc("010300") << "|" << addCrc("00030000E80312341234") << "\n";
             CHECK(out->str() == expected.str());
         }
 
@@ -408,14 +409,14 @@ SCENARIO("A controlbox Box")
         WHEN("The active profiles setting is changed (through the persisted block representing it)")
         {
             *in << "02"   // command
-                << "0300" // id of profiles object
+                << "0100" // id of profiles object
                 << "FF"   // profiles of object
                 << "FEFF" // type of profiles object
                 << "02";  // value
             *in << crc(in->str()) << "\n";
             box.hexCommunicate();
 
-            expected << addCrc("020300FFFEFF02") << "|" << addCrc("000300FFFEFF02") << "\n";
+            expected << addCrc("020100FFFEFF02") << "|" << addCrc("000100FFFEFF02") << "\n";
             CHECK(out->str() == expected.str());
             CHECK(box.getActiveProfiles() == 0x2);
 
@@ -440,10 +441,10 @@ SCENARIO("A controlbox Box")
                 box.hexCommunicate();
 
                 expected << addCrc("05") << "|"
-                         << addCrc("00") << ","
-                         << addCrc("0100FFE80311111111")
-                         << "," << addCrc("020000E80312341234")
-                         << "," << addCrc("0300FFFEFF02")
+                         << addCrc("00")
+                         << "," << addCrc("0100FFFEFF02")
+                         << "," << addCrc("0200FFE80311111111")
+                         << "," << addCrc("030000E80312341234")
                          << "," << addCrc("640001FFFFE803") // object 100 (0x64) is listed as inactive object of actual type 0xE803: 6400 - 01 - FFFF - E803
                          << "," << addCrc("650002E80344444444")
                          << "," << addCrc("660003E80344444444")
@@ -456,8 +457,9 @@ SCENARIO("A controlbox Box")
                 {
                     // note that only eeprom is not newly created here
                     ObjectContainer container2 = {
-                        ContainedObject(1, 0xFF, std::make_shared<LongIntObject>(0x11111111)),
-                        ContainedObject(2, 0xFF, std::make_shared<LongIntObject>(0x22222222))};
+                        // profiles obj is id 1
+                        ContainedObject(2, 0xFF, std::make_shared<LongIntObject>(0x11111111)),
+                        ContainedObject(3, 0xFF, std::make_shared<LongIntObject>(0x22222222))};
 
                     EepromObjectStorage storage2(eeprom);
                     ObjectFactory factory2 = {
@@ -593,7 +595,7 @@ SCENARIO("A controlbox Box")
                      << "," << addCrc("640001E80344444444")
                      << "," << addCrc("650002E80344444444")
                      << "," << addCrc("660003E80344444444")
-                     << "," << addCrc("020000E80312341234") // modified system object is also persisted
+                     << "," << addCrc("030000E80312341234") // modified system object is also persisted
                      << "\n";
 
             CHECK(out->str() == expected.str());
@@ -615,10 +617,11 @@ SCENARIO("A controlbox Box")
             *in << crc(in->str()) << "\n";
             box.hexCommunicate();
 
-            expected << addCrc("05") << "|" << addCrc("00")    // status OK
-                     << "," << addCrc("0100FFE80311111111")    // obj 1
-                     << "," << addCrc("020000E80312341234")    // obj 2
-                     << "," << addCrc("0300FFFEFF01") << "\n"; // profiles object
+            expected << addCrc("05") << "|" << addCrc("00") // status OK
+                     << "," << addCrc("0100FFFEFF01")       // profiles object
+                     << "," << addCrc("0200FFE80311111111") // obj 2
+                     << "," << addCrc("030000E80312341234") // obj 3
+                     << "\n";
             CHECK(out->str() == expected.str());
         }
     }
@@ -757,8 +760,8 @@ SCENARIO("A controlbox Box")
             << "6400"  // ID 100
             << "FF"    // profiles FF
             << "ED03"  // type 1005
-            << "0100"  // ptr 1 points to object 1
-            << "0200"; // ptr 2 points to object 2
+            << "0200"  // ptr 1 points to object 2
+            << "0300"; // ptr 2 points to object 3
 
         std::string command = in->str();
 
@@ -771,8 +774,8 @@ SCENARIO("A controlbox Box")
                       "6400"          // id 100
                       "FF"            // profiles 0xFF
                       "ED03"          // type 1002
-                      "0100"          // ptr 1 points to ID 1
-                      "0200"          // ptr 2 points to ID 2
+                      "0200"          // ptr 1 points to ID 2
+                      "0300"          // ptr 2 points to ID 3
                       "01"            // ptr1 OK
                       "01"            // ptr2 OK
                       "11111111"      // value 1
@@ -790,8 +793,8 @@ SCENARIO("A controlbox Box")
                 << "6400"  // ID 100
                 << "FF"    // profiles FF
                 << "ED03"  // type 1005
-                << "0200"  // ptr 1 points to object 2
-                << "0300"; // ptr 2 points to object 3
+                << "0300"  // ptr 1 points to object 3
+                << "0400"; // ptr 2 points to object 4
 
             std::string command = in->str();
 
@@ -804,8 +807,8 @@ SCENARIO("A controlbox Box")
                           "6400"          // id 100
                           "FF"            // profiles 0xFF
                           "ED03"          // type 1002
-                          "0200"          // ptr 1 points to ID 1
-                          "0300"          // ptr 2 points to ID 2
+                          "0300"          // ptr 1 points to ID 3
+                          "0400"          // ptr 2 points to ID 4
                           "01"            // ptr1 OK
                           "00"            // ptr2 not OK
                           "22222222"      // value 1

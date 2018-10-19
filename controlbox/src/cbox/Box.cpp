@@ -43,8 +43,8 @@ Box::Box(ObjectFactory& _factory, ObjectContainer& _objects, ObjectStorage& _sto
     , activeProfiles(0x01)
     , lastUpdateTime(0)
 {
-    objects.add(std::make_unique<ProfilesObject>(this), 0xFF); // add profiles object to give access to the active profiles setting
-    objects.setObjectsStartId(userStartId());                  // set startId for user objects to 100
+    objects.add(std::make_unique<ProfilesObject>(this), 0xFF, obj_id_t(1)); // add profiles object to give access to the active profiles setting on id 1
+    objects.setObjectsStartId(userStartId());                               // set startId for user objects to 100
     loadObjectsFromStorage();
 }
 
