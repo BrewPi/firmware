@@ -10,7 +10,7 @@ message SetpointProfile {
 
     message Point {
         uint32 time = 1;
-        sint32 temperature = 2 [(brewblox).unit = "degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32];
+        sint32 temperature = 2 [(brewblox).unit = Temp, (brewblox).scale = 4096, (nanopb).int_size = IS_32];
     }
 
     repeated Point points = 1;
