@@ -25,66 +25,89 @@
 #include "cbox/DataStreamIo.h"
 #include "testHelpers.h"
 #include <sstream>
+#include <type_traits>
 
 class BrewBloxTestBox {
 public:
-    cbox::Box& box;
-    std::stringstream in;
-    std::stringstream out;
-    std::stringstream expected;
+    std::shared_ptr<std::stringstream> in;
+    std::shared_ptr<std::stringstream> out;
     cbox::OStreamDataOut inOs;
     cbox::BinaryToHexTextOut toHex;
     cbox::HexCrcDataOut inEncoder;
     ProtoDataOut inProto;
+    bool lastReplyOk = false;
 
     BrewBloxTestBox()
-        : box(brewbloxBox())
-        , inOs(in)
+        : in(std::make_shared<std::stringstream>())
+        , out(std::make_shared<std::stringstream>())
+        , inOs(*in)
         , toHex(inOs)
         , inEncoder(toHex)
         , inProto(inEncoder)
     {
         testConnectionSource().add(in, out);
     }
-    ~BrewBloxTestBox() = default;
+    ~BrewBloxTestBox(){};
 
     void clearStreams()
     {
-        in.str("");
-        in.clear();
-        out.str("");
-        out.clear();
-        expected.str("");
-        expected.clear();
+        in->str("");
+        in->clear();
+        out->str("");
+        out->clear();
     }
 
     void reset()
     {
-        box.update(0);
+        brewbloxBox().update(0);
         clearStreams();
         inEncoder.put(cbox::Box::CommandID::CLEAR_OBJECTS);
         inEncoder.endMessage();
-        box.hexCommunicate();
+        brewbloxBox().hexCommunicate();
     }
 
     bool lastReplyHasStatusOk()
     {
-        return out.str().find("|00") != std::string::npos; // no errors
+        return lastReplyOk;
+    }
+
+    std::string processInput()
+    {
+        endInput();
+        brewbloxBox().hexCommunicate();
+        lastReplyOk = out->str().find("|00") != std::string::npos; // no errors
+        auto retv = out->str();
+        clearStreams();
+        return retv;
+    }
+
+    void processInputToProto(::google::protobuf::Message& message)
+    {
+        endInput();
+        brewbloxBox().hexCommunicate();
+        lastReplyOk = out->str().find("|00") != std::string::npos; // no errors
+        decodeProtoFromReply(*out, message);
+        clearStreams();
     }
 
     template <typename T>
-    void put(const T& t)
+    void put(const T& t, typename std::enable_if_t<!std::is_base_of<::google::protobuf::Message, T>::value>* = 0)
     {
         inEncoder.put(t);
     }
 
-    void put(::google::protobuf::Message& message)
+    void put(const ::google::protobuf::Message& message)
     {
         inProto.put(message);
     }
 
-    void endMessage()
+    void endInput()
     {
         inEncoder.endMessage();
+    }
+
+    void update(const cbox::update_t& now)
+    {
+        brewbloxBox().update(now);
     }
 };

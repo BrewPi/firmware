@@ -23,6 +23,7 @@
 #include <iostream>
 
 #include "../BrewBlox.h"
+#include "BrewBloxTestBox.h"
 #include "Temperature.h"
 #include "blox/ActuatorOffsetBlock.h"
 #include "blox/SetpointSensorPairBlock.h"
@@ -40,143 +41,98 @@
 
 SCENARIO("A Blox ActuatorOffset object can be created from streamed protobuf data")
 {
-    static auto& box = brewbloxBox();
-    static auto& connSource = testConnectionSource();
+    BrewBloxTestBox testBox;
     using commands = cbox::Box::CommandID;
 
-    std::stringstream in, out, expected;
-
-    // use some helpers to create the data commands
-    cbox::OStreamDataOut inOs(in);
-    cbox::BinaryToHexTextOut toHex(inOs);
-    cbox::HexCrcDataOut inEncoder(toHex);
-    ProtoDataOut inProto(inEncoder);
-
-    connSource.add(in, out);
-
-    auto clearStreams = [&in, &out, &expected]() {
-        in.str("");
-        in.clear();
-        out.str("");
-        out.clear();
-        expected.str("");
-        expected.clear();
-    };
-
-    // clear objects
-    clearStreams();
-    inEncoder.put(commands::CLEAR_OBJECTS);
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.reset();
 
     // create mock sensor 1
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(100));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(TempSensorMockBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(100));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(TempSensorMockBlock::staticTypeId());
 
     auto newSensor1 = blox::TempSensorMock();
     newSensor1.set_value(cnl::unwrap(temp_t(21.0)));
     newSensor1.set_connected(true);
-    inProto.put(newSensor1);
+    testBox.put(newSensor1);
 
-    inEncoder.endMessage();
-
-    box.hexCommunicate();
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // create setpoint 1
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(101));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(SetpointSimpleBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(101));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(SetpointSimpleBlock::staticTypeId());
 
     auto newSetpoint1 = blox::SetpointSimple();
     newSetpoint1.set_setting(cnl::unwrap(temp_t(20.0)));
-    inProto.put(newSetpoint1);
+    testBox.put(newSetpoint1);
 
-    inEncoder.endMessage();
-
-    box.hexCommunicate();
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // create pair 1 (target)
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(102));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(SetpointSensorPairBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(102));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(SetpointSensorPairBlock::staticTypeId());
 
     auto newPair1 = blox::SetpointSensorPair();
     newPair1.set_sensorid(100);
     newPair1.set_setpointid(101);
-    inProto.put(newPair1);
+    testBox.put(newPair1);
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // create mock sensor 2
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(103));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(TempSensorMockBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(103));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(TempSensorMockBlock::staticTypeId());
 
     auto newSensor2 = blox::TempSensorMock();
     newSensor2.set_value(cnl::unwrap(temp_t(27.0)));
     newSensor2.set_connected(true);
-    inProto.put(newSensor2);
+    testBox.put(newSensor2);
 
-    inEncoder.endMessage();
-
-    box.hexCommunicate();
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // create setpoint 2
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(104));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(SetpointSimpleBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(104));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(SetpointSimpleBlock::staticTypeId());
 
     auto newSetpoint2 = blox::SetpointSimple();
     newSetpoint2.set_setting(cnl::unwrap(temp_t(20.0)));
-    inProto.put(newSetpoint2);
+    testBox.put(newSetpoint2);
 
-    inEncoder.endMessage();
-
-    box.hexCommunicate();
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // create pair 2 (reference)
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(105));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(SetpointSensorPairBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(105));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(SetpointSensorPairBlock::staticTypeId());
 
     auto newPair2 = blox::SetpointSensorPair();
     newPair2.set_sensorid(103);
     newPair2.set_setpointid(104);
-    inProto.put(newPair2);
+    testBox.put(newPair2);
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // create actuator
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(106));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(ActuatorOffsetBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(106));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(ActuatorOffsetBlock::staticTypeId());
 
     blox::ActuatorOffset newAct;
     newAct.set_targetid(102);
@@ -184,60 +140,43 @@ SCENARIO("A Blox ActuatorOffset object can be created from streamed protobuf dat
     newAct.set_referencesettingorvalue(blox::ActuatorOffset_SettingOrValue(ActuatorOffset::SettingOrValue::SETTING));
     newAct.set_setting(cnl::unwrap(ActuatorAnalog::value_t(12)));
 
-    inProto.put(newAct);
+    testBox.put(newAct);
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // read actuator
-    clearStreams();
-    inEncoder.put(commands::READ_OBJECT);
-    inEncoder.put(cbox::obj_id_t(106));
-
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.put(commands::READ_OBJECT);
+    testBox.put(cbox::obj_id_t(106));
     {
-        auto reply = blox::ActuatorOffset();
-        decodeProtoFromReply(out, reply);
-        CHECK(reply.ShortDebugString() == "targetId: 102 targetValid: true referenceId: 105 referenceValid: true "
-                                          "setting: 49152 value: 4096"); // setting is 12 (setpoint difference), value is 1 (21 - 20)
+        auto decoded = blox::ActuatorOffset();
+        testBox.processInputToProto(decoded);
+        CHECK(testBox.lastReplyHasStatusOk());
+        CHECK(decoded.ShortDebugString() == "targetId: 102 targetValid: true referenceId: 105 referenceValid: true "
+                                            "setting: 49152 value: 4096"); // setting is 12 (setpoint difference), value is 1 (21 - 20)
     }
 
     // read reference pair
-    clearStreams();
-    inEncoder.put(commands::READ_OBJECT);
-    inEncoder.put(cbox::obj_id_t(102));
-
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.put(commands::READ_OBJECT);
+    testBox.put(cbox::obj_id_t(102));
 
     {
-        auto reply = blox::SetpointSensorPair();
-        decodeProtoFromReply(out, reply);
-        CHECK(reply.ShortDebugString() == "setpointId: 101 sensorId: 100 setpointValid: true sensorValid: true "
-                                          "setpointValue: 131072 sensorValue: 86016"); // 32, 21 (setpoint adjusted to 20 + 12)
+        auto decoded = blox::SetpointSensorPair();
+        testBox.processInputToProto(decoded);
+        CHECK(testBox.lastReplyHasStatusOk());
+        CHECK(decoded.ShortDebugString() == "setpointId: 101 sensorId: 100 setpointValid: true sensorValid: true "
+                                            "setpointValue: 131072 sensorValue: 86016"); // 32, 21 (setpoint adjusted to 20 + 12)
     }
 
     // read target pair
-    clearStreams();
-    inEncoder.put(commands::READ_OBJECT);
-    inEncoder.put(cbox::obj_id_t(105));
-
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.put(commands::READ_OBJECT);
+    testBox.put(cbox::obj_id_t(105));
 
     {
-        auto reply = blox::SetpointSensorPair();
-        decodeProtoFromReply(out, reply);
-        CHECK(reply.ShortDebugString() == "setpointId: 104 sensorId: 103 setpointValid: true sensorValid: true "
-                                          "setpointValue: 81920 sensorValue: 110592"); // 20, 27 (unaffected)
+        auto decoded = blox::SetpointSensorPair();
+        testBox.processInputToProto(decoded);
+        CHECK(testBox.lastReplyHasStatusOk());
+        CHECK(decoded.ShortDebugString() == "setpointId: 104 sensorId: 103 setpointValid: true sensorValid: true "
+                                            "setpointValue: 81920 sensorValue: 110592"); // 20, 27 (unaffected)
     }
 }

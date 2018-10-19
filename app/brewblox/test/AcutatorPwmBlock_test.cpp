@@ -23,6 +23,7 @@
 #include <iostream>
 
 #include "../BrewBlox.h"
+#include "BrewBloxTestBox.h"
 #include "Temperature.h"
 #include "blox/ActuatorPinBlock.h"
 #include "blox/ActuatorPwmBlock.h"
@@ -36,63 +37,31 @@
 
 SCENARIO("A Blox ActuatorPwm object can be created from streamed protobuf data")
 {
-    static auto& box = brewbloxBox();
-    static auto& connSource = testConnectionSource();
+    BrewBloxTestBox testBox;
     using commands = cbox::Box::CommandID;
 
-    std::stringstream in, out, expected;
-
-    // use some helpers to create the data commands
-    cbox::OStreamDataOut inOs(in);
-    cbox::BinaryToHexTextOut toHex(inOs);
-    cbox::HexCrcDataOut inEncoder(toHex);
-    ProtoDataOut inProto(inEncoder);
-
-    connSource.add(in, out);
-
-    auto clearStreams = [&in, &out, &expected]() {
-        in.str("");
-        in.clear();
-        out.str("");
-        out.clear();
-        expected.str("");
-        expected.clear();
-    };
-
-    // clear objects
-    clearStreams();
-    inEncoder.put(commands::CLEAR_OBJECTS);
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
-
-    box.update(0); // ensure last update is at 0 and not influenced by other tests
+    testBox.reset();
 
     // create pin actuator
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(100));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(ActuatorPinBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(100));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(ActuatorPinBlock::staticTypeId());
 
     auto newPin = blox::ActuatorPin();
     newPin.set_pin(0);
     newPin.set_state(blox::AD_State_Active);
     newPin.set_invert(false);
-    inProto.put(newPin);
+    testBox.put(newPin);
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // create pwm actuator
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(101));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(ActuatorPwmBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(101));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(ActuatorPwmBlock::staticTypeId());
 
     blox::ActuatorPwm newPwm;
     newPwm.set_actuatorid(100);
@@ -102,26 +71,20 @@ SCENARIO("A Blox ActuatorPwm object can be created from streamed protobuf data")
     auto c = newPwm.mutable_constrainedby()->add_constraints();
     c->set_min(cnl::unwrap(ActuatorAnalog::value_t(10)));
 
-    inProto.put(newPwm);
+    testBox.put(newPwm);
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // read pwm
-    clearStreams();
-    inEncoder.put(commands::READ_OBJECT);
-    inEncoder.put(cbox::obj_id_t(101));
+    testBox.put(commands::READ_OBJECT);
+    testBox.put(cbox::obj_id_t(101));
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
+    auto decoded = blox::ActuatorPwm();
+    testBox.processInputToProto(decoded);
 
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
-
-    blox::ActuatorPwm reply;
-    decodeProtoFromReply(out, reply);
-    CHECK(reply.ShortDebugString() == "actuatorId: 100 actuatorValid: true "
-                                      "period: 4000 setting: 81920 "
-                                      "constrainedBy { constraints { min: 40960 } }");
+    CHECK(testBox.lastReplyHasStatusOk());
+    CHECK(decoded.ShortDebugString() == "actuatorId: 100 actuatorValid: true "
+                                        "period: 4000 setting: 81920 "
+                                        "constrainedBy { constraints { min: 40960 } }");
 }

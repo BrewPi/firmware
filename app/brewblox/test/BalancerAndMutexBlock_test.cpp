@@ -19,11 +19,9 @@
 
 #include <catch.hpp>
 #include <cstdio>
-#include <iomanip>
-#include <iostream>
 
 #include "../BrewBlox.h"
-#include "../BrewBloxTestBox.h"
+#include "BrewBloxTestBox.h"
 #include "Temperature.h"
 #include "blox/ActuatorPinBlock.h"
 #include "blox/ActuatorPwmBlock.h"
@@ -41,20 +39,12 @@
 
 SCENARIO("Two PWM actuators can be constrained by a balancer")
 {
-    auto testBox = BrewBloxTestBox();
-    auto box = testBox.box;
+    BrewBloxTestBox testBox;
     using commands = cbox::Box::CommandID;
 
-    testBox.put(commands::CLEAR_OBJECTS);
-    testBox.endMessage();
-    box.hexCommunicate();
-
-    CHECK(testBox.lastReplyHasStatusOk());
-
-    box.update(0); // ensure last update is at 0 and not influenced by other tests
+    testBox.reset();
 
     // create balancer
-    testBox.clearStreams();
     testBox.put(commands::CREATE_OBJECT);
     testBox.put(cbox::obj_id_t(100));
     testBox.put(uint8_t(0xFF));
@@ -63,33 +53,27 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         auto newBalancer = blox::Balancer();
         testBox.put(newBalancer);
     }
-    testBox.endMessage();
-    box.hexCommunicate();
-
+    testBox.processInput();
     CHECK(testBox.lastReplyHasStatusOk());
-    /*
+
     // create mutex
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(101));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(MutexBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(101));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(MutexBlock::staticTypeId());
     {
         auto newMutex = blox::Mutex();
         newMutex.set_differentactuatorwait(100);
-        inProto.put(newMutex);
+        testBox.put(newMutex);
     }
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // create pin actuator 1
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(200));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(ActuatorPinBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(200));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(ActuatorPinBlock::staticTypeId());
     {
         auto newPin = blox::ActuatorPin();
         newPin.set_pin(0);
@@ -97,20 +81,17 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         newPin.set_invert(false);
         auto constraintPtr = newPin.mutable_constrainedby()->add_constraints();
         constraintPtr->set_mutex(101);
-        inProto.put(newPin);
+        testBox.put(newPin);
     }
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // create pwm actuator 1
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(201));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(ActuatorPwmBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(201));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(ActuatorPwmBlock::staticTypeId());
 
     {
         auto newPwm = blox::ActuatorPwm();
@@ -121,42 +102,35 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         auto c = newPwm.mutable_constrainedby()->add_constraints();
         c->set_balancer(100);
 
-        inProto.put(newPwm);
+        testBox.put(newPwm);
     }
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // create pin actuator 2
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(300));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(ActuatorPinBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(300));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(ActuatorPinBlock::staticTypeId());
 
     {
         auto newPin = blox::ActuatorPin();
         newPin.set_pin(0);
         newPin.set_state(blox::AD_State_Active);
         newPin.set_invert(false);
-        inProto.put(newPin);
         auto constraintPtr = newPin.mutable_constrainedby()->add_constraints();
         constraintPtr->set_mutex(101);
-        inProto.put(newPin);
+        testBox.put(newPin);
     }
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // create pwm actuator 2
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(301));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(ActuatorPwmBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(301));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(ActuatorPwmBlock::staticTypeId());
 
     {
         auto newPwm = blox::ActuatorPwm();
@@ -167,78 +141,59 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         auto c = newPwm.mutable_constrainedby()->add_constraints();
         c->set_balancer(100);
 
-        inProto.put(newPwm);
+        testBox.put(newPwm);
     }
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
-
-    box.update(0);
-    box.update(1000);
+    testBox.update(0);
+    testBox.update(1000);
 
     // read balancer
-    clearStreams();
-    inEncoder.put(commands::READ_OBJECT);
-    inEncoder.put(cbox::obj_id_t(100));
+    testBox.put(commands::READ_OBJECT);
+    testBox.put(cbox::obj_id_t(100));
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
     {
-        auto reply = blox::Balancer();
-        decodeProtoFromReply(out, reply);
-        CHECK(reply.ShortDebugString() == "clients { requested: 327680 granted: 204800 } "  // 80*4096, 50*4096
-                                          "clients { requested: 327680 granted: 204800 }"); // 80*4096, 50*4096
+        auto decoded = blox::Balancer();
+        testBox.processInputToProto(decoded);
+        CHECK(testBox.lastReplyHasStatusOk());
+        CHECK(decoded.ShortDebugString() == "clients { requested: 327680 granted: 204800 } "  // 80*4096, 50*4096
+                                            "clients { requested: 327680 granted: 204800 }"); // 80*4096, 50*4096
     }
 
     // read mutex
-    clearStreams();
-    inEncoder.put(commands::READ_OBJECT);
-    inEncoder.put(cbox::obj_id_t(101));
+    testBox.put(commands::READ_OBJECT);
+    testBox.put(cbox::obj_id_t(101));
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
     {
-        auto reply = blox::Mutex();
-        decodeProtoFromReply(out, reply);
-        CHECK(reply.ShortDebugString() == "differentActuatorWait: 100");
+        auto decoded = blox::Mutex();
+        testBox.processInputToProto(decoded);
+        CHECK(testBox.lastReplyHasStatusOk());
+        CHECK(decoded.ShortDebugString() == "differentActuatorWait: 100");
     }
 
     // read a pin actuator
-    clearStreams();
-    inEncoder.put(commands::READ_OBJECT);
-    inEncoder.put(cbox::obj_id_t(200));
+    testBox.put(commands::READ_OBJECT);
+    testBox.put(cbox::obj_id_t(200));
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
     {
-        auto reply = blox::ActuatorPin();
-        decodeProtoFromReply(out, reply);
-        CHECK(reply.ShortDebugString() == "state: Active constrainedBy { constraints { mutex: 101 } }");
+        auto decoded = blox::ActuatorPin();
+        testBox.processInputToProto(decoded);
+        CHECK(testBox.lastReplyHasStatusOk());
+        CHECK(decoded.ShortDebugString() == "state: Active constrainedBy { constraints { mutex: 101 } }");
     }
 
     // read a pwm actuator
-    clearStreams();
-    inEncoder.put(commands::READ_OBJECT);
-    inEncoder.put(cbox::obj_id_t(201));
+    testBox.put(commands::READ_OBJECT);
+    testBox.put(cbox::obj_id_t(201));
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
     {
-        auto reply = blox::ActuatorPwm();
-        decodeProtoFromReply(out, reply);
-        CHECK(reply.ShortDebugString() == "actuatorId: 200 actuatorValid: true "
-                                          "period: 4000 setting: 327680 "
-                                          "constrainedBy { constraints { balancer: 100 } }");
+        auto decoded = blox::ActuatorPwm();
+        testBox.processInputToProto(decoded);
+        CHECK(testBox.lastReplyHasStatusOk());
+        CHECK(decoded.ShortDebugString() == "actuatorId: 200 actuatorValid: true "
+                                            "period: 4000 setting: 327680 "
+                                            "constrainedBy { constraints { balancer: 100 } }");
     }
-    */
 }

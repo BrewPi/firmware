@@ -33,7 +33,7 @@ public:
     {
     }
 
-    void put(::google::protobuf::Message& message)
+    void put(const ::google::protobuf::Message& message)
     {
         for (auto& c : message.SerializeAsString()) {
             out.write(c);

@@ -26,6 +26,7 @@
 #include "cbox/Object.h"
 
 #include "../BrewBlox.h"
+#include "BrewBloxTestBox.h"
 #include "Temperature.h"
 #include "blox/ActuatorAnalogMockBlock.h"
 #include "blox/PidBlock.h"
@@ -45,95 +46,57 @@
 
 SCENARIO("A Blox Pid object can be created from streamed protobuf data")
 {
-    static auto& box = brewbloxBox();
-    static auto& connSource = testConnectionSource();
+    BrewBloxTestBox testBox;
     using commands = cbox::Box::CommandID;
 
-    std::stringstream in, out, expected;
-
-    // use some helpers to create the data commands
-    cbox::OStreamDataOut inOs(in);
-    cbox::BinaryToHexTextOut toHex(inOs);
-    cbox::HexCrcDataOut inEncoder(toHex);
-    ProtoDataOut inProto(inEncoder);
-
-    connSource.add(in, out);
-
-    auto clearStreams = [&in, &out, &expected]() {
-        in.str("");
-        in.clear();
-        out.str("");
-        out.clear();
-        expected.str("");
-        expected.clear();
-    };
-
-    // clear objects
-    clearStreams();
-    inEncoder.put(commands::CLEAR_OBJECTS);
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
-
-    box.update(0); // ensure last update is at 0 and not influenced by other tests
+    testBox.reset();
 
     // create mock sensor
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(100));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(TempSensorMockBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(100));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(TempSensorMockBlock::staticTypeId());
 
     auto newSensor = blox::TempSensorMock();
     newSensor.set_value(cnl::unwrap(temp_t(20.0)));
     newSensor.set_connected(true);
-    inProto.put(newSensor);
+    testBox.put(newSensor);
 
-    inEncoder.endMessage();
-
-    box.hexCommunicate();
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // create setpoint
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(101));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(SetpointSimpleBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(101));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(SetpointSimpleBlock::staticTypeId());
 
     blox::SetpointSimple newSetpoint;
     newSetpoint.set_setting(cnl::unwrap(temp_t(21.0)));
-    inProto.put(newSetpoint);
+    testBox.put(newSetpoint);
 
-    inEncoder.endMessage();
-
-    box.hexCommunicate();
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // create pair
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(102));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(SetpointSensorPairBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(102));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(SetpointSensorPairBlock::staticTypeId());
 
     blox::SetpointSensorPair newPair;
     newPair.set_sensorid(100);
     newPair.set_setpointid(101);
-    inProto.put(newPair);
+    testBox.put(newPair);
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
-
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // create actuator
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(103));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(ActuatorAnalogMockBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(103));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(ActuatorAnalogMockBlock::staticTypeId());
 
     blox::ActuatorAnalogMock newActuator;
     newActuator.set_setting(cnl::unwrap(ActuatorAnalog::value_t(0)));
@@ -141,18 +104,16 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data")
     newActuator.set_maxsetting(cnl::unwrap(ActuatorAnalog::value_t(100)));
     newActuator.set_minvalue(cnl::unwrap(ActuatorAnalog::value_t(0)));
     newActuator.set_maxvalue(cnl::unwrap(ActuatorAnalog::value_t(100)));
-    inProto.put(newActuator);
+    testBox.put(newActuator);
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // create Pid
-    clearStreams();
-    inEncoder.put(commands::CREATE_OBJECT);
-    inEncoder.put(cbox::obj_id_t(104));
-    inEncoder.put(uint8_t(0xFF));
-    inEncoder.put(PidBlock::staticTypeId());
+    testBox.put(commands::CREATE_OBJECT);
+    testBox.put(cbox::obj_id_t(104));
+    testBox.put(uint8_t(0xFF));
+    testBox.put(PidBlock::staticTypeId());
 
     blox::Pid newPid;
     newPid.set_inputid(102);
@@ -164,44 +125,38 @@ SCENARIO("A Blox Pid object can be created from streamed protobuf data")
     newPid.set_ti(2000);
     newPid.set_td(200);
 
-    inProto.put(newPid);
+    testBox.put(newPid);
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
+    testBox.processInput();
+    CHECK(testBox.lastReplyHasStatusOk());
 
     // update 100 times (PID updates every second, t is in ms)
     uint32_t t = 0;
     for (; t < 1000000; ++t) {
-        box.update(t);
+        testBox.update(t);
     }
 
     // read PID
-    clearStreams();
-    inEncoder.put(commands::READ_OBJECT);
-    inEncoder.put(cbox::obj_id_t(104));
+    testBox.put(commands::READ_OBJECT);
+    testBox.put(cbox::obj_id_t(104));
 
-    inEncoder.endMessage();
-    box.hexCommunicate();
+    auto decoded = blox::Pid();
+    testBox.processInputToProto(decoded);
+    CHECK(testBox.lastReplyHasStatusOk());
 
-    CHECK(out.str().find("|00") != std::string::npos); // no errors
-
-    blox::Pid reply;
-    decodeProtoFromReply(out, reply);
-
-    CHECK(cnl::wrap<Pid::out_t>(reply.p()) == Approx(10.0).epsilon(0.01));
-    CHECK(cnl::wrap<Pid::out_t>(reply.i()) == Approx(10.0 * 1.0 * 1000 / 2000).epsilon(0.05));
-    CHECK(cnl::wrap<Pid::out_t>(reply.d()) == 0);
-    CHECK(cnl::wrap<Pid::out_t>(reply.outputvalue()) == Approx(15.0).epsilon(0.05));
+    CHECK(cnl::wrap<Pid::out_t>(decoded.p()) == Approx(10.0).epsilon(0.01));
+    CHECK(cnl::wrap<Pid::out_t>(decoded.i()) == Approx(10.0 * 1.0 * 1000 / 2000).epsilon(0.05));
+    CHECK(cnl::wrap<Pid::out_t>(decoded.d()) == 0);
+    CHECK(cnl::wrap<Pid::out_t>(decoded.outputvalue()) == Approx(15.0).epsilon(0.05));
 
     // only nonzero values are shown in the debug string
-    CHECK(reply.ShortDebugString() == "inputId: 102 outputId: 103 "
-                                      "inputValid: true outputValid: true "
-                                      "inputValue: 81920 inputSetting: 86016 "
-                                      "outputValue: 60518 outputSetting: 60518 "
-                                      "filterThreshold: 4096 "
-                                      "enabled: true active: true "
-                                      "kp: 40960 ti: 2000 td: 200 "
-                                      "p: 40950 i: 19568 "
-                                      "error: 4095 integral: 19568 derivative: -1");
+    CHECK(decoded.ShortDebugString() == "inputId: 102 outputId: 103 "
+                                        "inputValid: true outputValid: true "
+                                        "inputValue: 81920 inputSetting: 86016 "
+                                        "outputValue: 60518 outputSetting: 60518 "
+                                        "filterThreshold: 4096 "
+                                        "enabled: true active: true "
+                                        "kp: 40960 ti: 2000 td: 200 "
+                                        "p: 40950 i: 19568 "
+                                        "error: 4095 integral: 19568 derivative: -1");
 }
