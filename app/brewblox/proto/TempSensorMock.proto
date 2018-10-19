@@ -8,7 +8,7 @@ package blox;
 message TempSensorMock {
     option (nanopb_msgopt).msgid = 301;
 
-    sint32 value = 1 [(brewblox).unit = "degC", (brewblox).scale = 4096, (nanopb).int_size = IS_32];
+    sint32 value = 1 [(brewblox).unit = Temp, (brewblox).scale = 4096, (nanopb).int_size = IS_32];
     bool valid = 2 [ (brewblox).readonly = true];
     bool connected = 3;
 }
