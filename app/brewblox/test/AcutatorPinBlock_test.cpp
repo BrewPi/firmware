@@ -17,13 +17,12 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../BrewBlox.h"
-#include "ActuatorPin.test.pb.h"
-#include "DigitalConstraints.test.pb.h"
-#include "blox/ActuatorPinBlock.h"
-#include "cbox/DataStreamIo.h"
 #include <catch.hpp>
-#include <sstream>
+
+#include "BrewBloxTestBox.h"
+#include "blox/ActuatorPinBlock.h"
+#include "proto/test/cpp/ActuatorPin.test.pb.h"
+#include "proto/test/cpp/DigitalConstraints.test.pb.h"
 
 using namespace cbox;
 
@@ -31,52 +30,45 @@ SCENARIO("An ActuatorPinBlock")
 {
     WHEN("a ActuatorPinBlock receives protobuf settings, the new settings match what was sent")
     {
-        blox::ActuatorPin message;
-        message.set_state(blox::AD_State::AD_State_Active);
-        message.set_pin(1);
-        message.set_invert(true);
+        BrewBloxTestBox testBox;
+        using commands = cbox::Box::CommandID;
 
-        auto cPtr1 = message.mutable_constrainedby()->add_constraints();
+        testBox.reset();
+
+        // create pin actuator
+        testBox.put(commands::CREATE_OBJECT);
+        testBox.put(cbox::obj_id_t(100));
+        testBox.put(uint8_t(0xFF));
+        testBox.put(ActuatorPinBlock::staticTypeId());
+
+        auto newPin = blox::ActuatorPin();
+        newPin.set_pin(1);
+        newPin.set_state(blox::AD_State_Active);
+        newPin.set_invert(true);
+
+        auto cPtr1 = newPin.mutable_constrainedby()->add_constraints();
         cPtr1->set_minoff(180);
 
-        auto cPtr2 = message.mutable_constrainedby()->add_constraints();
+        auto cPtr2 = newPin.mutable_constrainedby()->add_constraints();
         cPtr2->set_minon(120);
 
-        std::stringstream ssIn;
+        testBox.put(newPin);
 
-        message.SerializeToOstream(&ssIn);
-        ssIn << '\0'; // zero terminate
-        cbox::IStreamDataIn in(ssIn);
+        testBox.processInput();
+        CHECK(testBox.lastReplyHasStatusOk());
 
-        ActuatorPinBlock act;
-        auto res = act.streamFrom(in);
-        CHECK(res == CboxError::OK);
+        testBox.put(commands::READ_OBJECT);
+        testBox.put(cbox::obj_id_t(100));
 
-        uint8_t pin = act.get().pin();
-        bool invert = act.get().invert();
-        ActuatorDigital::State state = act.get().state();
-        CHECK(state == ActuatorDigital::State::Active);
-        CHECK(pin == 1);
-        CHECK(invert == true);
+        auto decoded = blox::ActuatorPin();
+        testBox.processInputToProto(decoded);
 
-        AND_WHEN("an ActuatorPinBlock streams out protobuf settings, the output matches what was sent before")
-        {
-            std::stringstream ssOut;
-            cbox::OStreamDataOut out(ssOut);
-
-            auto res = act.streamTo(out);
-            CHECK(res == CboxError::OK);
-
-            blox::ActuatorPin round_trip;
-            round_trip.ParseFromIstream(&ssOut);
-
-            // state is active because invert is true
-            CHECK(round_trip.ShortDebugString() == "state: Active "
-                                                   "pin: 1 "
-                                                   "invert: true "
-                                                   "constrainedBy { "
-                                                   "constraints { minOff: 180 } "
-                                                   "constraints { minOn: 120 } }");
-        }
+        CHECK(testBox.lastReplyHasStatusOk());
+        CHECK(decoded.ShortDebugString() == "state: Active "
+                                            "pin: 1 "
+                                            "invert: true "
+                                            "constrainedBy { "
+                                            "constraints { minOff: 180 } "
+                                            "constraints { minOn: 120 } }");
     }
 }

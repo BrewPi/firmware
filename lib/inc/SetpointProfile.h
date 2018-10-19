@@ -62,13 +62,14 @@ public:
             bool operator()(const ticks_seconds_t& time, const Point& p) const { return time < p.time; }
         };
 
-        auto nowSeconds = ticks_seconds_t(now / 1000) + m_deviceStartTime;
-        auto upper = std::lower_bound(m_points.cbegin(), m_points.cend(), nowSeconds, TimeStampLess{});
         if (m_points.empty() || m_deviceStartTime == 0) {
             m_current = 0;
             m_valid = false;
             return;
         }
+
+        auto nowSeconds = ticks_seconds_t(now / 1000) + m_deviceStartTime;
+        auto upper = std::lower_bound(m_points.cbegin(), m_points.cend(), nowSeconds, TimeStampLess{});
         if (upper == m_points.cbegin()) {
             m_current = m_points.front().temp;
             m_valid = false;

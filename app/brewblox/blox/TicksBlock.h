@@ -66,4 +66,9 @@ public:
     {
         return cbox::Object::update_never(now);
     }
+
+    T& get()
+    {
+        return ticks;
+    }
 };

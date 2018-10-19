@@ -28,13 +28,8 @@
  */
 class MockTicks {
 public:
-    MockTicks(uint8_t increment)
-        : _increment(increment)
-        , _ticks(0)
-    {
-    }
-    MockTicks()
-        : _increment(1)
+    MockTicks(duration_millis_t autoIncrement = 0)
+        : _increment(autoIncrement)
         , _ticks(0)
     {
     }
@@ -44,7 +39,7 @@ public:
     ticks_seconds_t seconds() { return millis() / 1000; }
     ticks_seconds_t timeSinceSeconds(ticks_seconds_t timeStamp) { return ::secondsSince(seconds(), timeStamp); }
     ticks_millis_t timeSinceMillis(ticks_millis_t timeStamp) { return ::millisSince(millis(), timeStamp); }
-    void reset(void) { _ticks = 0; };
+    void reset(ticks_millis_t v = 0) { _ticks = v; };
     void advance(ticks_millis_t adv)
     {
         _ticks += adv;

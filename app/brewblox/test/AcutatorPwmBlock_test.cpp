@@ -18,22 +18,12 @@
  */
 
 #include <catch.hpp>
-#include <cstdio>
-#include <iomanip>
-#include <iostream>
 
-#include "../BrewBlox.h"
 #include "BrewBloxTestBox.h"
-#include "Temperature.h"
 #include "blox/ActuatorPinBlock.h"
 #include "blox/ActuatorPwmBlock.h"
-#include "cbox/Box.h"
-#include "cbox/DataStream.h"
-#include "cbox/DataStreamIo.h"
-#include "cbox/Object.h"
 #include "proto/test/cpp/ActuatorPin.test.pb.h"
 #include "proto/test/cpp/ActuatorPwm.test.pb.h"
-#include "testHelpers.h"
 
 SCENARIO("A Blox ActuatorPwm object can be created from streamed protobuf data")
 {

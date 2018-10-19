@@ -17,10 +17,13 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../BrewBlox.h"
-#include "SetpointProfile.test.pb.h"
+#include "BrewBloxTestBox.h"
+#include "MockTicks.h"
 #include "blox/SetpointProfileBlock.h"
+#include "blox/TicksBlock.h"
 #include "cbox/DataStreamIo.h"
+#include "proto/test/cpp/SetpointProfile.test.pb.h"
+#include "proto/test/cpp/Ticks.test.pb.h"
 #include <catch.hpp>
 #include <sstream>
 
@@ -28,49 +31,97 @@ using namespace cbox;
 
 SCENARIO("A SetpointProfile block")
 {
-    WHEN("a SetpointProfileBlock receives new points")
+    WHEN("a SetpointProfileBlock is created")
     {
-        blox::SetpointProfile message;
+        BrewBloxTestBox testBox;
+        using commands = cbox::Box::CommandID;
+
+        testBox.reset();
+
+        // create mock sensor
+        testBox.put(commands::CREATE_OBJECT);
+        testBox.put(cbox::obj_id_t(100));
+        testBox.put(uint8_t(0xFF));
+        testBox.put(SetpointProfileBlock::staticTypeId());
+
+        auto message = blox::SetpointProfile();
         {
             auto newPoint = message.add_points();
-            newPoint->set_time(10);
+            newPoint->set_time(20'010);
             newPoint->set_temperature(cnl::unwrap(temp_t(20)));
         }
 
         {
             auto newPoint = message.add_points();
-            newPoint->set_time(20);
+            newPoint->set_time(20'020);
             newPoint->set_temperature(cnl::unwrap(temp_t(21)));
         }
 
-        std::stringstream ssIn;
+        testBox.put(message);
 
-        message.SerializeToOstream(&ssIn);
-        ssIn << '\0'; // zero terminate
-        cbox::IStreamDataIn in(ssIn);
+        testBox.processInput();
+        CHECK(testBox.lastReplyHasStatusOk());
 
-        SetpointProfileBlock sp;
-        CboxError res = sp.streamFrom(in);
-        CHECK(res == CboxError::OK);
+        testBox.update(10'000);
 
-        setBootTime(1);
-        sp.update(14000);
-        temp_t setting = sp.get().setting();
-        CHECK(setting == temp_t(20.5));
+        auto lookup = brewbloxBox().makeCboxPtr<SetpointProfileBlock>(100);
+        auto spPtr = lookup.lock();
+        REQUIRE(spPtr);
 
-        AND_WHEN("a SetpointProfile block streams out protobuf settings, the output matches what was sent before")
+        WHEN("The box has not received the current time (in seconds since epoch")
         {
-            std::stringstream ssOut;
-            cbox::OStreamDataOut out(ssOut);
+            THEN("The profile setpoint is invalid")
+            {
+                CHECK(spPtr->get().setting() == 0);
+                CHECK(spPtr->get().valid() == false);
+            }
+        }
 
-            CboxError res = sp.streamTo(out);
-            CHECK(res == CboxError::OK);
+        WHEN("The box has received the current time (in seconds since epoch")
+        {
+            // create mock sensor
+            testBox.put(commands::WRITE_OBJECT);
+            testBox.put(cbox::obj_id_t(3)); // ticks block is at 3
+            testBox.put(uint8_t(0xFF));
+            testBox.put(TicksBlock<MockTicks>::staticTypeId());
 
-            blox::SetpointProfile round_trip;
-            round_trip.ParseFromIstream(&ssOut);
+            auto message = blox::Ticks();
+            message.set_secondssinceepoch(20'000);
+            testBox.put(message);
 
-            CHECK(message.DebugString() == round_trip.DebugString());
-            CHECK(round_trip.ShortDebugString() == "points { time: 10 temperature: 81920 } points { time: 20 temperature: 86016 }");
+            auto reply = blox::Ticks();
+
+            testBox.processInputToProto(reply);
+
+            THEN("The system time is updated correctly")
+            {
+                CHECK(testBox.lastReplyHasStatusOk());
+
+                CHECK(reply.millissinceboot() == 10'000);
+                CHECK(reply.secondssinceepoch() == 20'000);
+            }
+
+            testBox.update(25000); // system is running for 25 seconds, so seconds since epoch should be 20.015 now
+
+            THEN("The profile setpoint is valid")
+            {
+                CHECK(spPtr->get().valid() == true);
+            }
+            AND_THEN("The setting is correctly interpolated")
+            {
+                CHECK(spPtr->get().setting() == temp_t(20.5)); // halfway between points
+            }
+            AND_WHEN("The SetpointProfile block streams out protobuf settings, the data is as expected")
+            {
+                testBox.put(commands::READ_OBJECT);
+                testBox.put(cbox::obj_id_t(100));
+
+                auto decoded = blox::SetpointProfile();
+                testBox.processInputToProto(decoded);
+                CHECK(testBox.lastReplyHasStatusOk());
+
+                CHECK(decoded.ShortDebugString() == "points { time: 20010 temperature: 81920 } points { time: 20020 temperature: 86016 }");
+            }
         }
     }
 }

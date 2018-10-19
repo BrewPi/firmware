@@ -18,24 +18,16 @@
  */
 
 #include <catch.hpp>
-#include <cstdio>
 
-#include "../BrewBlox.h"
 #include "BrewBloxTestBox.h"
-#include "Temperature.h"
 #include "blox/ActuatorPinBlock.h"
 #include "blox/ActuatorPwmBlock.h"
 #include "blox/BalancerBlock.h"
 #include "blox/MutexBlock.h"
-#include "cbox/Box.h"
-#include "cbox/DataStream.h"
-#include "cbox/DataStreamIo.h"
-#include "cbox/Object.h"
 #include "proto/test/cpp/ActuatorPin.test.pb.h"
 #include "proto/test/cpp/ActuatorPwm.test.pb.h"
 #include "proto/test/cpp/Balancer.test.pb.h"
 #include "proto/test/cpp/Mutex.test.pb.h"
-#include "testHelpers.h"
 
 SCENARIO("Two PWM actuators can be constrained by a balancer")
 {

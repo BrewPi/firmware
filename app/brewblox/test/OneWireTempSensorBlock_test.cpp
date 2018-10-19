@@ -17,62 +17,67 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../BrewBlox.h"
-#include "TempSensorOneWire.test.pb.h"
-#include "blox/TempSensorOneWireBlock.h"
-#include "cbox/DataStreamIo.h"
 #include <catch.hpp>
-#include <sstream>
 
-using namespace cbox;
+#include "BrewBloxTestBox.h"
+#include "blox/TempSensorOneWireBlock.h"
+#include "cbox/CboxPtr.h"
+#include "cbox/DataStreamIo.h"
+#include "proto/test/cpp/TempSensorOneWire.test.pb.h"
+#include <sstream>
 
 SCENARIO("A TempSensorOneWireBlock")
 {
-    WHEN("a TempSensorOneWireBlock receives protobuf settings")
+    WHEN("a TempSensorOneWire object is created")
     {
-        blox::TempSensorOneWire message;
-        message.set_address(0x12345678);
+        BrewBloxTestBox testBox;
+        using commands = cbox::Box::CommandID;
+
+        testBox.reset();
+
+        testBox.put(commands::CREATE_OBJECT);
+        testBox.put(cbox::obj_id_t(100));
+        testBox.put(uint8_t(0xFF));
+        testBox.put(TempSensorOneWireBlock::staticTypeId());
+
+        auto message = blox::TempSensorOneWire();
+        message.set_address(12345678);
         message.set_offset(100);
         message.set_valid(true);
         message.set_value(123);
-        std::stringstream ssIn;
 
-        message.SerializeToOstream(&ssIn);
-        ssIn << '\0'; // zero terminate
-        cbox::IStreamDataIn in(ssIn);
+        testBox.put(message);
 
-        TempSensorOneWireBlock sensor;
-        CboxError res = sensor.streamFrom(in);
-        CHECK(res == CboxError::OK);
+        testBox.processInput();
+        CHECK(testBox.lastReplyHasStatusOk());
 
-        THEN("The new setting match what was sent")
+        testBox.put(commands::READ_OBJECT);
+        testBox.put(cbox::obj_id_t(100));
+
+        auto decoded = blox::TempSensorOneWire();
+        testBox.processInputToProto(decoded);
+
+        THEN("The returned protobuf data is as expected")
         {
-            CHECK(sensor.get().getAddress() == 0x12345678);
-            temp_t calibration = sensor.get().getCalibration();
-            CHECK(to_rep(calibration) == 100);
-        }
-        THEN("The values that are not writable are ignored")
-        {
-            CHECK(sensor.get().value() == temp_t(0));
-            CHECK(sensor.get().valid() == false);
+            CHECK(testBox.lastReplyHasStatusOk());
+
+            CHECK(decoded.ShortDebugString() == "offset: 100 "
+                                                "address: 12345678");
         }
 
-        AND_WHEN("a SetpointSimpleBlock streams out protobuf, the settings match what was sent before and the read only values are correct")
+        THEN("The writable settings match what was sent")
         {
-            std::stringstream ssOut;
-            cbox::OStreamDataOut out(ssOut);
+            auto lookup = brewbloxBox().makeCboxPtr<TempSensorOneWireBlock>(100);
+            auto sensorPtr = lookup.lock();
+            REQUIRE(sensorPtr);
+            CHECK(sensorPtr->get().getAddress() == 12345678);
+            CHECK(sensorPtr->get().getCalibration() == cnl::wrap<temp_t>(100));
 
-            CboxError res = sensor.streamTo(out);
-            CHECK(res == CboxError::OK);
-
-            blox::TempSensorOneWire round_trip;
-            round_trip.ParseFromIstream(&ssOut);
-
-            auto correct = message;
-            correct.set_value(0);
-            correct.set_valid(false);
-
-            CHECK(correct.DebugString() == round_trip.DebugString());
+            AND_THEN("The values that are not writable are unchanged")
+            {
+                CHECK(sensorPtr->get().value() == temp_t(0));
+                CHECK(sensorPtr->get().valid() == false);
+            }
         }
     }
 }
