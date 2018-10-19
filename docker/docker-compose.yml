@@ -4,6 +4,7 @@ services:
     build: ./compiler/
     image: brewblox/firmware-compiler
     container_name: firmware-compiler
+    privileged: true
     # user: 1000:1000 # set this to what running 'id' on a shell returns to prevent the build results being owned by root 
     volumes:
         - ../:/firmware

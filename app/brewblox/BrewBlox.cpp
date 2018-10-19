@@ -93,9 +93,10 @@ cbox::Box&
 makeBrewBloxBox()
 {
     static cbox::ObjectContainer objects = {
-        cbox::ContainedObject(1, 0xFF, std::make_shared<SysInfoBlock>()),
-        cbox::ContainedObject(2, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
-        cbox::ContainedObject(3, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire()))};
+        // profiles will be at position 1
+        cbox::ContainedObject(2, 0xFF, std::make_shared<SysInfoBlock>()),
+        cbox::ContainedObject(3, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
+        cbox::ContainedObject(4, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire()))};
 
     static cbox::ObjectFactory objectFactory = {
         {TempSensorOneWireBlock::staticTypeId(), std::make_shared<TempSensorOneWireBlock>},
