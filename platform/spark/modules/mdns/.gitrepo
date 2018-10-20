@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/mrhornsby/spark-core-mdns.git
+	branch = master
+	commit = 69590dcfc0667c0583ecf583a3bd388a5f45eb13
+	parent = 00e8ecc8ed8ef05b5f546c1888bfcf44ebce26b6
+	method = merge
+	cmdver = 0.4.0
