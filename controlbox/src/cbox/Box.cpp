@@ -265,7 +265,7 @@ Box::deleteObject(DataIn& in, HexCrcDataOut& out)
 }
 
 /**
- * Walks the eeprom and writes out the construction definitions.
+ * Walks the object container and lists all objects.
  */
 void
 Box::listActiveObjects(DataIn& in, HexCrcDataOut& out)
@@ -284,6 +284,36 @@ Box::listActiveObjects(DataIn& in, HexCrcDataOut& out)
     for (auto it = objects.cbegin(); it < objects.cend(); it++) {
         out.writeListSeparator();
         it->streamTo(out);
+    }
+}
+
+/**
+ * Walks the object container and lists all objects that implement a certain interface
+ */
+void
+Box::listCompatibleObjects(DataIn& in, HexCrcDataOut& out)
+{
+    CboxError status = CboxError::OK;
+    obj_type_t interfaceType = 0;
+    if (!in.get(interfaceType)) {
+        status = CboxError::INPUT_STREAM_READ_ERROR; // LCOV_EXCL_LINE
+    }
+    in.spool();
+    auto crc = out.crc();
+
+    out.writeResponseSeparator();
+
+    if (crc) {
+        out.write(asUint8(CboxError::CRC_ERROR_IN_COMMAND));
+        return;
+    }
+
+    out.write(asUint8(status));
+    for (auto it = objects.cbegin(); it < objects.cend(); it++) {
+        if (it->object()->implements(interfaceType)) {
+            out.writeListSeparator();
+            out.put(it->id());
+        }
     }
 }
 
@@ -516,6 +546,9 @@ Box::handleCommand(DataIn& dataIn, DataOut& dataOut)
         break;
     case FACTORY_RESET:
         factoryReset(in, out);
+        break;
+    case LIST_COMPATIBLE_OBJECTS:
+        listCompatibleObjects(in, out);
         break;
     default:
         invalidCommand(in, out);

@@ -33,7 +33,9 @@ SCENARIO("A controlbox Box")
         {UpdateCounter::staticTypeId(), std::make_shared<UpdateCounter>},
         {PtrLongIntObject::staticTypeId(), [&container]() {
              return std::make_shared<PtrLongIntObject>(container);
-         }}};
+         }},
+        {NameableLongIntObject::staticTypeId(), std::make_shared<NameableLongIntObject>},
+    };
 
     StringStreamConnectionSource connSource;
     ConnectionPool connPool = {connSource};
@@ -214,6 +216,66 @@ SCENARIO("A controlbox Box")
                  << "," << addCrc("0100FFFEFF01")
                  << "," << addCrc("0200FFE80311111111")
                  << "," << addCrc("0300FFE80322222222")
+                 << "\n";
+        CHECK(out->str() == expected.str());
+    }
+
+    WHEN("A connection sends a list compatible objects command, ids of only compatible objects are returned")
+    {
+        *in << "03"        // create object
+            << "6400"      // ID 100
+            << "FF"        // profiles FF
+            << "E903"      // type 1001, LongIntVector
+            << "0200"      // size 2
+            << "33333333"  // value 33333333
+            << "44444444"; // value 44444444
+        *in << crc(in->str()) << "\n";
+        box.hexCommunicate();
+
+        expected << addCrc("036400FFE90302003333333344444444") << "|"
+                 << addCrc("00"        // status
+                           "6400"      // id 100
+                           "FF"        // profiles
+                           "E903"      // type 1001, LongIntVector
+                           "0200"      // size 2
+                           "33333333"  // value 33333333
+                           "44444444") // value 44444444
+                 << "\n";
+        CHECK(out->str() == expected.str());
+        CHECK(box.getObject(100).lock());
+
+        clearStreams();
+
+        *in << "03"        // create object
+            << "6500"      // ID 101
+            << "FF"        // profiles FF
+            << "EB03"      // type 1003, NameableLongIntObject
+            << "44444444"; // value 44444444
+        *in << crc(in->str()) << "\n";
+        box.hexCommunicate();
+
+        expected << addCrc("036500FFEB0344444444") << "|"
+                 << addCrc("00"        // status
+                           "6500"      // id
+                           "FF"        // profiles
+                           "EB03"      // type
+                           "44444444") // data
+                 << "\n";
+        CHECK(out->str() == expected.str());
+        CHECK(box.getObject(101).lock());
+
+        clearStreams();
+
+        *in << "0B";   // list compatible objects
+        *in << "E803"; // typeid for LongIntObject
+        *in << crc(in->str()) << "\n";
+        box.hexCommunicate();
+
+        expected << addCrc("0BE803")
+                 << "|" << addCrc("00")
+                 << "," << addCrc("0200") // id 2
+                 << "," << addCrc("0300") // id 3
+                 << "," << addCrc("6500") // id 101
                  << "\n";
         CHECK(out->str() == expected.str());
     }

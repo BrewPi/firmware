@@ -233,7 +233,7 @@ public:
 
 class NameableLongIntObject : public LongIntObject, public Nameable {
 public:
-    NameableLongIntObject(uint32_t rhs)
+    NameableLongIntObject(uint32_t rhs = 0)
         : LongIntObject(rhs)
     {
     }

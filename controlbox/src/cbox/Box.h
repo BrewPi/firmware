@@ -55,6 +55,7 @@ private:
     void listActiveObjects(DataIn& in, HexCrcDataOut& out);
     void readStoredObject(DataIn& in, HexCrcDataOut& out);
     void listStoredObjects(DataIn& in, HexCrcDataOut& out);
+    void listCompatibleObjects(DataIn& in, HexCrcDataOut& out);
     void clearObjects(DataIn& in, HexCrcDataOut& out);
     void reboot(DataIn& in, HexCrcDataOut& out);
     void factoryReset(DataIn& in, HexCrcDataOut& out);
@@ -107,17 +108,18 @@ public:
     }
 
     enum CommandID : uint8_t {
-        NONE = 0,                // no-op
-        READ_OBJECT = 1,         // stream an object to the data out
-        WRITE_OBJECT = 2,        // stream new data into an object from the data in
-        CREATE_OBJECT = 3,       // add a new object
-        DELETE_OBJECT = 4,       // delete an object by id
-        LIST_ACTIVE_OBJECTS = 5, // list objects saved to persistent storage
-        READ_STORED_OBJECT = 6,  // list objects saved to persistent storage
-        LIST_STORED_OBJECTS = 7, // list objects saved to persistent storage
-        CLEAR_OBJECTS = 8,       // remove all user objects
-        REBOOT = 9,              // reboot the system
-        FACTORY_RESET = 10,      // erase all settings and reboot
+        NONE = 0,                     // no-op
+        READ_OBJECT = 1,              // stream an object to the data out
+        WRITE_OBJECT = 2,             // stream new data into an object from the data in
+        CREATE_OBJECT = 3,            // add a new object
+        DELETE_OBJECT = 4,            // delete an object by id
+        LIST_ACTIVE_OBJECTS = 5,      // list objects saved to persistent storage
+        READ_STORED_OBJECT = 6,       // list objects saved to persistent storage
+        LIST_STORED_OBJECTS = 7,      // list objects saved to persistent storage
+        CLEAR_OBJECTS = 8,            // remove all user objects
+        REBOOT = 9,                   // reboot the system
+        FACTORY_RESET = 10,           // erase all settings and reboot
+        LIST_COMPATIBLE_OBJECTS = 11, // list object IDs implementing the requested interface
     };
 };
 
