@@ -30,7 +30,7 @@ namespace cbox {
 class ObjectContainer {
 private:
     std::vector<ContainedObject> objects;
-    obj_id_t startId;
+    obj_id_t startId = obj_id_t::start();
 
 public:
     using Iterator = decltype(objects)::iterator;
@@ -38,13 +38,16 @@ public:
 
     ObjectContainer()
         : objects()
-        , startId(obj_id_t::start())
     {
     }
 
     ObjectContainer(std::initializer_list<ContainedObject> systemObjects)
         : objects(systemObjects)
-        , startId(obj_id_t::start())
+    {
+    }
+
+    ObjectContainer(std::vector<ContainedObject>&& systemObjects)
+        : objects(systemObjects)
     {
     }
 

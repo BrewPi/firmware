@@ -64,7 +64,6 @@ SCENARIO("An ActuatorPinBlock")
 
         CHECK(testBox.lastReplyHasStatusOk());
         CHECK(decoded.ShortDebugString() == "state: Active "
-                                            "pin: 17 "
                                             "invert: true "
                                             "constrainedBy { "
                                             "constraints { minOff: 180 } "

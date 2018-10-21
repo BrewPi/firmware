@@ -171,7 +171,7 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         auto decoded = blox::ActuatorPin();
         testBox.processInputToProto(decoded);
         CHECK(testBox.lastReplyHasStatusOk());
-        CHECK(decoded.ShortDebugString() == "state: Active pin: 17 constrainedBy { constraints { mutex: 101 } }");
+        CHECK(decoded.ShortDebugString() == "state: Active constrainedBy { constraints { mutex: 101 } }");
     }
 
     // read a pwm actuator

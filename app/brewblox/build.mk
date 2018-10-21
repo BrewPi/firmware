@@ -61,6 +61,9 @@ CPPSRC += $(call here_files,platform/spark/modules/Board,*.cpp)
 INCLUDE_DIRS += $(SOURCE_PATH)/app/brewblox/spark
 CPPSRC += $(call here_files,app/brewblox/spark,*.cpp)
 
+# add board files (tests use emulated hardware)
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Board
+CPPSRC += $(call here_files,platform/spark/modules/Board,*.cpp)
 
 #SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
 #include $(SRC_EGUI)/egui.mk

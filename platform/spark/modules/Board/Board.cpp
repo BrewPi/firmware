@@ -35,58 +35,63 @@ readAlarmPin()
     return result;
 }
 
-uint8_t
-getShieldVersion()
+SparkVersion
+getSparkVersion()
 {
 
-#if PLATFORM_ID == 8 // P1
-    return BREWPI_SHIELD_SPARK_V3;
+#if PLATFORM_ID == 8 || PLATFORM_ID == 3 // P1 or simulation
+    return SparkVersion::V3;
 #else
     // V2 has a pull down resistor, V1 has a pull up resistor on the alarm pin
     // If the pin is low, it is V2
-    static uint8_t shield = readAlarmPin() ? BREWPI_SHIELD_SPARK_V1 : BREWPI_SHIELD_SPARK_V2;
-    return shield;
+    static SparkVersion version = readAlarmPin() ? SparkVersion::V1 : SparkVersion::V2;
+    return version;
 #endif
-}
-
-bool
-shieldIsV1()
-{
-    return getShieldVersion() == BREWPI_SHIELD_SPARK_V1; // only test once and remember
 }
 
 void
 boardInit()
 {
-#if PLATFORM_ID == 8 // P1, BrewPi Spark v3
-    HAL_Pin_Mode(PIN_ACTUATOR_BOTTOM1, OUTPUT);
-    HAL_Pin_Mode(PIN_ACTUATOR_BOTTOM2, OUTPUT);
-    HAL_Pin_Mode(PIN_ACTUATOR_TOP1, OUTPUT);
-    HAL_Pin_Mode(PIN_ACTUATOR_TOP2, OUTPUT);
-    HAL_Pin_Mode(PIN_ACTUATOR_TOP3, OUTPUT);
+#if PLATFORM_ID == 8 || PLATFORM_ID == 3 // P1 or simulation
+    HAL_Pin_Mode(PIN_V3_BOTTOM1, OUTPUT);
+    HAL_Pin_Mode(PIN_V3_BOTTOM2, OUTPUT);
+    HAL_Pin_Mode(PIN_V3_TOP1, OUTPUT);
+    HAL_Pin_Mode(PIN_V3_TOP2, OUTPUT);
+    HAL_Pin_Mode(PIN_V3_TOP3, OUTPUT);
 
-    HAL_GPIO_Write(PIN_ACTUATOR_BOTTOM1, LOW);
-    HAL_GPIO_Write(PIN_ACTUATOR_BOTTOM2, LOW);
-    HAL_GPIO_Write(PIN_ACTUATOR_TOP1, LOW);
-    HAL_GPIO_Write(PIN_ACTUATOR_TOP2, LOW);
-    HAL_GPIO_Write(PIN_ACTUATOR_TOP3, LOW);
+    HAL_GPIO_Write(PIN_V3_BOTTOM1, LOW);
+    HAL_GPIO_Write(PIN_V3_BOTTOM2, LOW);
+    HAL_GPIO_Write(PIN_V3_TOP1, LOW);
+    HAL_GPIO_Write(PIN_V3_TOP2, LOW);
+    HAL_GPIO_Write(PIN_V3_TOP3, LOW);
 
-    HAL_Pin_Mode(PIN_ACTUATOR_TOP1_DIR, OUTPUT);
-    HAL_Pin_Mode(PIN_ACTUATOR_TOP2_DIR, OUTPUT);
-    HAL_GPIO_Write(PIN_ACTUATOR_TOP1_DIR, HIGH); // set as output
-    HAL_GPIO_Write(PIN_ACTUATOR_TOP2_DIR, HIGH); // set as output
+#ifdef PIN_V3_TOP1_DIR
+    HAL_Pin_Mode(PIN_V3_TOP1_DIR, OUTPUT);
+    HAL_GPIO_Write(PIN_V3_TOP1_DIR, HIGH); // set as output
+#endif
 
+#ifdef PIN_V3_TOP2_DIR
+    HAL_Pin_Mode(PIN_V3_TOP2_DIR, OUTPUT);
+    HAL_GPIO_Write(PIN_V3_TOP2_DIR, HIGH); // set as output
+#endif
+
+#ifdef PIN_12V_ENABLE
     HAL_Pin_Mode(PIN_12V_ENABLE, OUTPUT);
+    // TODO: temporary until 12V can be toggled by software
+    HAL_GPIO_Write(PIN_12V_ENABLE, HIGH);
+#endif
+
+#ifdef PIN_5V_ENABLE
     HAL_Pin_Mode(PIN_5V_ENABLE, OUTPUT);
     // 5V on RJ12 enabled by default, 12V disabled to prevent damaging wrongly connected peripherals
     HAL_GPIO_Write(PIN_5V_ENABLE, HIGH);
-    // TODO: temporary until 12V can be toggled by software
-    HAL_GPIO_Write(PIN_12V_ENABLE, HIGH);
+#endif
 
     HAL_GPIO_Write(PIN_ALARM, LOW);
     HAL_Pin_Mode(PIN_LCD_BACKLIGHT, OUTPUT);
     HAL_GPIO_Write(PIN_LCD_BACKLIGHT, HIGH);
-#else
+
+#elif PLATFORM_ID == 6
     HAL_Pin_Mode(PIN_ACTUATOR1, OUTPUT);
     HAL_Pin_Mode(PIN_ACTUATOR2, OUTPUT);
     HAL_Pin_Mode(PIN_ACTUATOR3, OUTPUT);
@@ -101,6 +106,7 @@ boardInit()
         HAL_GPIO_Write(PIN_ACTUATOR0, LOW);
     }
 #endif
+
     HAL_Pin_Mode(PIN_ALARM, OUTPUT);
 
     HAL_Pin_Mode(PIN_RS485_TX, OUTPUT);

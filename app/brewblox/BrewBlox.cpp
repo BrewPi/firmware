@@ -93,27 +93,47 @@ theConnectionPool()
 cbox::ObjectContainer
 systemObjects()
 {
-    return cbox::ObjectContainer{
+    std::vector<cbox::ContainedObject> sysObjects = {
         // profiles will be at position 1
         cbox::ContainedObject(2, 0xFF, std::make_shared<SysInfoBlock>()),
         cbox::ContainedObject(3, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
         cbox::ContainedObject(4, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire())),
-#ifdef PIN_ACTUATOR0
-        cbox::ContainedObject(10, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR0)),
+    };
+
+    std::vector<cbox::ContainedObject> pinObjects = {
+#ifdef PIN_V3_BOTTOM1
+        cbox::ContainedObject(10, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_V3_BOTTOM1)),
+#endif
+#ifdef PIN_V3_BOTTOM2
+        cbox::ContainedObject(11, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_V3_BOTTOM2)),
+#endif
+#ifdef PIN_V3_TOP1
+        cbox::ContainedObject(12, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_V3_TOP1)),
+#endif
+#ifdef PIN_V3_TOP2
+        cbox::ContainedObject(13, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_V3_TOP2)),
+#endif
+#ifdef PIN_V3_TOP3
+        cbox::ContainedObject(15, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_V3_TOP3)),
 #endif
 #ifdef PIN_ACTUATOR1
-        cbox::ContainedObject(11, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR1)),
+        cbox::ContainedObject(16, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR1)),
 #endif
 #ifdef PIN_ACTUATOR2
-        cbox::ContainedObject(12, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR2)),
+        cbox::ContainedObject(17, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR2)),
 #endif
 #ifdef PIN_ACTUATOR3
-        cbox::ContainedObject(13, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR3)),
-#endif
-#ifdef PIN_ACTUATOR4
-        cbox::ContainedObject(14, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR4)),
+        cbox::ContainedObject(18, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR3)),
 #endif
     };
+
+#ifdef PIN_ACTUATOR0
+    if (getSparkVersion() == SparkVersion::V2) {
+        sysObjects.push_back(cbox::ContainedObject(15, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR0)));
+    }
+#endif
+    sysObjects.insert(sysObjects.end(), pinObjects.begin(), pinObjects.end());
+    return sysObjects;
 }
 
 cbox::Box&

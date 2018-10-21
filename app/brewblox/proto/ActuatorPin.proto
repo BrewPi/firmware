@@ -11,7 +11,6 @@ message ActuatorPin {
   option (nanopb_msgopt).msgid = 306;
 
   AD.State state = 1;
-  uint32 pin = 2 [ (brewblox).readonly = true, (nanopb).int_size = IS_8 ];
   bool invert = 3;
   DigitalConstraints constrainedBy = 4;
 }

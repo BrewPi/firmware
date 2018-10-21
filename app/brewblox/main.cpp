@@ -17,6 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Board.h"
 #include "BrewBlox.h"
 #include "application.h" // particle stuff
 #include "cbox/Object.h"
@@ -63,6 +64,7 @@ setup()
     std::signal(SIGINT, signal_handler);
 #endif
 
+    boardInit();
     System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
     WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
     Particle.connect();
