@@ -117,7 +117,8 @@ void MDNS::addTXTEntry(String key, String value) {
 
 bool MDNS::begin(bool announce) {
   // Wait for WiFi to connect
-  while (!WiFi.ready()) {
+  if (!WiFi.ready()) {
+    return false;
   }
 
   udp->begin(MDNS_PORT);
