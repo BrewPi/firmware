@@ -88,8 +88,11 @@ boardInit()
 #endif
 
     HAL_GPIO_Write(PIN_ALARM, LOW);
+
+#if PLATFORM_ID != 3
     HAL_Pin_Mode(PIN_LCD_BACKLIGHT, OUTPUT);
     HAL_GPIO_Write(PIN_LCD_BACKLIGHT, HIGH);
+#endif
 
 #elif PLATFORM_ID == 6
     HAL_Pin_Mode(PIN_ACTUATOR1, OUTPUT);
@@ -109,6 +112,7 @@ boardInit()
 
     HAL_Pin_Mode(PIN_ALARM, OUTPUT);
 
+#if PLATFORM_ID != 3
     HAL_Pin_Mode(PIN_RS485_TX, OUTPUT);
     HAL_Pin_Mode(PIN_RS485_RX, INPUT);
     HAL_Pin_Mode(PIN_RS485_TX_EN, OUTPUT);
@@ -121,4 +125,5 @@ boardInit()
     HAL_Pin_Mode(PIN_SD_CS, OUTPUT);
     HAL_Pin_Mode(PIN_LCD_DC, OUTPUT);
     HAL_Pin_Mode(PIN_TOUCH_IRQ, INPUT);
+#endif
 }

@@ -5,6 +5,28 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "brewblox app gcc",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/target/brewblox-gcc/brewblox",
+            "args": [
+                "-i123456789012345678901234"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build/target/brewblox-gcc",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    // "ignoreFailures": true
+                },
+            ],
+            "miDebuggerArgs": "-x ~/repos/firmware/tools/pretty.gdbinit"
+        },
+        {
             "name": "gdb lib test",
             "type": "cppdbg",
             "request": "launch",

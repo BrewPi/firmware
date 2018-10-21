@@ -88,22 +88,7 @@ enum class SparkVersion : uint8_t {
 
 #define PIN_V3_TOP1_DIR 5
 #define PIN_V3_TOP2_DIR 6
-#define PIN_12V_ENABLE 7
-#define PIN_5V_ENABLE 8
-
-#define PIN_ALARM 9
-
-#define PIN_RS485_TX_EN 10
-#define PIN_RS485_TX 11
-#define PIN_RS485_RX 12
-
-#define PIN_TOUCH_CS 13
-#define PIN_TOUCH_IRQ 14
-#define PIN_LCD_CS 15
-#define PIN_LCD_DC 16
-#define PIN_SD_CS 17
-#define PIN_LCD_BACKLIGHT 18
-
+#define PIN_ALARM 7
 #endif
 
 SparkVersion
