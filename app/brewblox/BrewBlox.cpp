@@ -130,9 +130,9 @@ makeBrewBloxBox()
         {PidBlock::staticTypeId(), []() { return std::make_shared<PidBlock>(objects); }},
         {ActuatorPwmBlock::staticTypeId(), []() { return std::make_shared<ActuatorPwmBlock>(objects); }},
         {ActuatorOffsetBlock::staticTypeId(), []() { return std::make_shared<ActuatorOffsetBlock>(objects); }},
-        {BalancerBlock::staticTypeId(), []() { return std::make_shared<BalancerBlock>(); }},
-        {MutexBlock::staticTypeId(), []() { return std::make_shared<MutexBlock>(); }},
-        {SetpointProfileBlock::staticTypeId(), []() { return std::make_shared<SetpointProfileBlock>(); }},
+        {BalancerBlock::staticTypeId(), std::make_shared<BalancerBlock>},
+        {MutexBlock::staticTypeId(), std::make_shared<MutexBlock>},
+        {SetpointProfileBlock::staticTypeId(), std::make_shared<SetpointProfileBlock>},
     };
 
     static EepromAccessImpl eeprom;

@@ -70,8 +70,13 @@ public:
         return nullptr;
     }
 
-    ActuatorPin& get()
+    ActuatorPin& getPin()
     {
         return actuator;
+    }
+
+    ActuatorDigitalConstrained& getConstrained()
+    {
+        return constrained;
     }
 };

@@ -21,8 +21,10 @@
 
 #include "BrewBlox.h"
 #include "MockTicks.h"
+#include "blox/ActuatorPinBlock.h"
 #include "blox/TicksBlock.h"
 #include "cbox/Box.h"
+#include "cbox/CboxPtr.h"
 #include "cbox/DataStream.h"
 #include "cbox/DataStreamIo.h"
 #include "testHelpers.h"
@@ -63,11 +65,21 @@ public:
 
     void reset()
     {
+        // reset system objects: pin actuators
+        for (cbox::obj_id_t id = 10; id <= 14; ++id) {
+            auto cbPtr = brewbloxBox().makeCboxPtr<ActuatorPinBlock>(id);
+            if (auto pinObj = cbPtr.lock()) {
+                pinObj->getConstrained().removeAllConstraints();
+                pinObj->getConstrained().resetHistory();
+                pinObj->getConstrained().state(ActuatorDigital::State::Inactive);
+            }
+        }
         brewbloxBox().update(0);
         clearStreams();
         inEncoder.put(cbox::Box::CommandID::CLEAR_OBJECTS);
         inEncoder.endMessage();
         brewbloxBox().hexCommunicate();
+        clearStreams();
     }
 
     bool lastReplyHasStatusOk()
