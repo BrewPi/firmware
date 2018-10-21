@@ -32,21 +32,6 @@ SCENARIO("A Blox ActuatorPwm object can be created from streamed protobuf data")
 
     testBox.reset();
 
-    // create pin actuator
-    testBox.put(commands::CREATE_OBJECT);
-    testBox.put(cbox::obj_id_t(100));
-    testBox.put(uint8_t(0xFF));
-    testBox.put(ActuatorPinBlock::staticTypeId());
-
-    auto newPin = blox::ActuatorPin();
-    newPin.set_pin(0);
-    newPin.set_state(blox::AD_State_Active);
-    newPin.set_invert(false);
-    testBox.put(newPin);
-
-    testBox.processInput();
-    CHECK(testBox.lastReplyHasStatusOk());
-
     // create pwm actuator
     testBox.put(commands::CREATE_OBJECT);
     testBox.put(cbox::obj_id_t(101));
@@ -54,7 +39,7 @@ SCENARIO("A Blox ActuatorPwm object can be created from streamed protobuf data")
     testBox.put(ActuatorPwmBlock::staticTypeId());
 
     blox::ActuatorPwm newPwm;
-    newPwm.set_actuatorid(100);
+    newPwm.set_actuatorid(10); // predefined system object for pin actuator
     newPwm.set_setting(cnl::unwrap(ActuatorAnalog::value_t(20)));
     newPwm.set_period(4000);
 
@@ -74,7 +59,7 @@ SCENARIO("A Blox ActuatorPwm object can be created from streamed protobuf data")
     testBox.processInputToProto(decoded);
 
     CHECK(testBox.lastReplyHasStatusOk());
-    CHECK(decoded.ShortDebugString() == "actuatorId: 100 actuatorValid: true "
+    CHECK(decoded.ShortDebugString() == "actuatorId: 10 actuatorValid: true "
                                         "period: 4000 setting: 81920 "
                                         "constrainedBy { constraints { min: 40960 } }");
 }

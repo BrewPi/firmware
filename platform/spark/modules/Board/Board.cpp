@@ -18,15 +18,20 @@
  */
 
 #include "Board.h"
-#include "application.h"
+#include "delay_hal.h"
+
+const uint8_t HIGH = 1;
+const uint8_t LOW = 0;
 
 bool
 readAlarmPin()
 {
-    pinMode(PIN_ALARM, INPUT);
+    HAL_Pin_Mode(PIN_ALARM, INPUT);
+#if PLATFORM_ID != 3
     HAL_Delay_Milliseconds(1); // give time to change
-    bool result = digitalRead(PIN_ALARM);
-    pinMode(PIN_ALARM, OUTPUT);
+#endif
+    bool result = HAL_GPIO_Read(PIN_ALARM);
+    HAL_Pin_Mode(PIN_ALARM, OUTPUT);
     return result;
 }
 
@@ -54,60 +59,60 @@ void
 boardInit()
 {
 #if PLATFORM_ID == 8 // P1, BrewPi Spark v3
-    pinMode(PIN_ACTUATOR_BOTTOM1, OUTPUT);
-    pinMode(PIN_ACTUATOR_BOTTOM2, OUTPUT);
-    pinMode(PIN_ACTUATOR_TOP1, OUTPUT);
-    pinMode(PIN_ACTUATOR_TOP2, OUTPUT);
-    pinMode(PIN_ACTUATOR_TOP3, OUTPUT);
+    HAL_Pin_Mode(PIN_ACTUATOR_BOTTOM1, OUTPUT);
+    HAL_Pin_Mode(PIN_ACTUATOR_BOTTOM2, OUTPUT);
+    HAL_Pin_Mode(PIN_ACTUATOR_TOP1, OUTPUT);
+    HAL_Pin_Mode(PIN_ACTUATOR_TOP2, OUTPUT);
+    HAL_Pin_Mode(PIN_ACTUATOR_TOP3, OUTPUT);
 
-    digitalWrite(PIN_ACTUATOR_BOTTOM1, LOW);
-    digitalWrite(PIN_ACTUATOR_BOTTOM2, LOW);
-    digitalWrite(PIN_ACTUATOR_TOP1, LOW);
-    digitalWrite(PIN_ACTUATOR_TOP2, LOW);
-    digitalWrite(PIN_ACTUATOR_TOP3, LOW);
+    HAL_GPIO_Write(PIN_ACTUATOR_BOTTOM1, LOW);
+    HAL_GPIO_Write(PIN_ACTUATOR_BOTTOM2, LOW);
+    HAL_GPIO_Write(PIN_ACTUATOR_TOP1, LOW);
+    HAL_GPIO_Write(PIN_ACTUATOR_TOP2, LOW);
+    HAL_GPIO_Write(PIN_ACTUATOR_TOP3, LOW);
 
-    pinMode(PIN_ACTUATOR_TOP1_DIR, OUTPUT);
-    pinMode(PIN_ACTUATOR_TOP2_DIR, OUTPUT);
-    digitalWrite(PIN_ACTUATOR_TOP1_DIR, HIGH); // set as output
-    digitalWrite(PIN_ACTUATOR_TOP2_DIR, HIGH); // set as output
+    HAL_Pin_Mode(PIN_ACTUATOR_TOP1_DIR, OUTPUT);
+    HAL_Pin_Mode(PIN_ACTUATOR_TOP2_DIR, OUTPUT);
+    HAL_GPIO_Write(PIN_ACTUATOR_TOP1_DIR, HIGH); // set as output
+    HAL_GPIO_Write(PIN_ACTUATOR_TOP2_DIR, HIGH); // set as output
 
-    pinMode(PIN_12V_ENABLE, OUTPUT);
-    pinMode(PIN_5V_ENABLE, OUTPUT);
+    HAL_Pin_Mode(PIN_12V_ENABLE, OUTPUT);
+    HAL_Pin_Mode(PIN_5V_ENABLE, OUTPUT);
     // 5V on RJ12 enabled by default, 12V disabled to prevent damaging wrongly connected peripherals
-    digitalWrite(PIN_5V_ENABLE, HIGH);
+    HAL_GPIO_Write(PIN_5V_ENABLE, HIGH);
     // TODO: temporary until 12V can be toggled by software
-    digitalWrite(PIN_12V_ENABLE, HIGH);
+    HAL_GPIO_Write(PIN_12V_ENABLE, HIGH);
 
-    digitalWrite(PIN_ALARM, LOW);
-    pinMode(PIN_LCD_BACKLIGHT, OUTPUT);
-    digitalWrite(PIN_LCD_BACKLIGHT, HIGH);
+    HAL_GPIO_Write(PIN_ALARM, LOW);
+    HAL_Pin_Mode(PIN_LCD_BACKLIGHT, OUTPUT);
+    HAL_GPIO_Write(PIN_LCD_BACKLIGHT, HIGH);
 #else
-    pinMode(PIN_ACTUATOR1, OUTPUT);
-    pinMode(PIN_ACTUATOR2, OUTPUT);
-    pinMode(PIN_ACTUATOR3, OUTPUT);
-    digitalWrite(PIN_ACTUATOR1, LOW);
-    digitalWrite(PIN_ACTUATOR2, LOW);
-    digitalWrite(PIN_ACTUATOR3, LOW);
+    HAL_Pin_Mode(PIN_ACTUATOR1, OUTPUT);
+    HAL_Pin_Mode(PIN_ACTUATOR2, OUTPUT);
+    HAL_Pin_Mode(PIN_ACTUATOR3, OUTPUT);
+    HAL_GPIO_Write(PIN_ACTUATOR1, LOW);
+    HAL_GPIO_Write(PIN_ACTUATOR2, LOW);
+    HAL_GPIO_Write(PIN_ACTUATOR3, LOW);
 
     if (shieldIsV1()) {
-        digitalWrite(PIN_ALARM, HIGH); // alarm is inverted on V1
+        HAL_GPIO_Write(PIN_ALARM, HIGH); // alarm is inverted on V1
     } else {
-        pinMode(PIN_ACTUATOR0, OUTPUT); // actuator 0 is not available on V1, but is on V2
-        digitalWrite(PIN_ACTUATOR0, LOW);
+        HAL_Pin_Mode(PIN_ACTUATOR0, OUTPUT); // actuator 0 is not available on V1, but is on V2
+        HAL_GPIO_Write(PIN_ACTUATOR0, LOW);
     }
 #endif
-    pinMode(PIN_ALARM, OUTPUT);
+    HAL_Pin_Mode(PIN_ALARM, OUTPUT);
 
-    pinMode(PIN_RS485_TX, OUTPUT);
-    pinMode(PIN_RS485_RX, INPUT);
-    pinMode(PIN_RS485_TX_EN, OUTPUT);
+    HAL_Pin_Mode(PIN_RS485_TX, OUTPUT);
+    HAL_Pin_Mode(PIN_RS485_RX, INPUT);
+    HAL_Pin_Mode(PIN_RS485_TX_EN, OUTPUT);
 
-    digitalWrite(PIN_TOUCH_CS, HIGH);
-    pinMode(PIN_TOUCH_CS, OUTPUT);
-    digitalWrite(PIN_LCD_CS, HIGH);
-    pinMode(PIN_LCD_CS, OUTPUT);
-    digitalWrite(PIN_SD_CS, HIGH);
-    pinMode(PIN_SD_CS, OUTPUT);
-    pinMode(PIN_LCD_DC, OUTPUT);
-    pinMode(PIN_TOUCH_IRQ, INPUT);
+    HAL_GPIO_Write(PIN_TOUCH_CS, HIGH);
+    HAL_Pin_Mode(PIN_TOUCH_CS, OUTPUT);
+    HAL_GPIO_Write(PIN_LCD_CS, HIGH);
+    HAL_Pin_Mode(PIN_LCD_CS, OUTPUT);
+    HAL_GPIO_Write(PIN_SD_CS, HIGH);
+    HAL_Pin_Mode(PIN_SD_CS, OUTPUT);
+    HAL_Pin_Mode(PIN_LCD_DC, OUTPUT);
+    HAL_Pin_Mode(PIN_TOUCH_IRQ, INPUT);
 }

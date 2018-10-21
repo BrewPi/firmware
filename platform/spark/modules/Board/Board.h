@@ -18,21 +18,17 @@
  */
 
 #pragma once
-#include "application.h"
+#include "gpio_hal.h"
+#include "pinmap_hal.h"
+
 // Most pins are only conditionally defined here, allowing definitions to be provided in Config.h for
 // local overrides
 enum {
-    BREWPI_SHIELD_DIY,
-    BREWPI_SHIELD_REV_A,
-    BREWPI_SHIELD_REV_C,
     BREWPI_SHIELD_SPARK_V1,
     BREWPI_SHIELD_SPARK_V2,
     BREWPI_SHIELD_SPARK_V3,
 };
 
-#define BREWPI_BOARD_LEONARDO 'l'
-#define BREWPI_BOARD_STANDARD 's'
-#define BREWPI_BOARD_MEGA 'm'
 #define BREWPI_BOARD_SPARKCORE 'x'
 #define BREWPI_BOARD_PHOTON 'y'
 #define BREWPI_BOARD_P1 'p'

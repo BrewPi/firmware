@@ -35,14 +35,13 @@ SCENARIO("An ActuatorPinBlock")
 
         testBox.reset();
 
-        // create pin actuator
-        testBox.put(commands::CREATE_OBJECT);
-        testBox.put(cbox::obj_id_t(100));
+        // write to pin actuator (system object)
+        testBox.put(commands::WRITE_OBJECT);
+        testBox.put(cbox::obj_id_t(10));
         testBox.put(uint8_t(0xFF));
         testBox.put(ActuatorPinBlock::staticTypeId());
 
         auto newPin = blox::ActuatorPin();
-        newPin.set_pin(1);
         newPin.set_state(blox::AD_State_Active);
         newPin.set_invert(true);
 
@@ -58,14 +57,14 @@ SCENARIO("An ActuatorPinBlock")
         CHECK(testBox.lastReplyHasStatusOk());
 
         testBox.put(commands::READ_OBJECT);
-        testBox.put(cbox::obj_id_t(100));
+        testBox.put(cbox::obj_id_t(10));
 
         auto decoded = blox::ActuatorPin();
         testBox.processInputToProto(decoded);
 
         CHECK(testBox.lastReplyHasStatusOk());
         CHECK(decoded.ShortDebugString() == "state: Active "
-                                            "pin: 1 "
+                                            "pin: 17 "
                                             "invert: true "
                                             "constrainedBy { "
                                             "constraints { minOff: 180 } "

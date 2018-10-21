@@ -17,6 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Board.h"
 #include "Logger.h"
 #include "blox/ActuatorAnalogMockBlock.h"
 #include "blox/ActuatorOffsetBlock.h"
@@ -89,14 +90,36 @@ theConnectionPool()
     return connections;
 }
 
-cbox::Box&
-makeBrewBloxBox()
+cbox::ObjectContainer
+systemObjects()
 {
-    static cbox::ObjectContainer objects = {
+    return cbox::ObjectContainer{
         // profiles will be at position 1
         cbox::ContainedObject(2, 0xFF, std::make_shared<SysInfoBlock>()),
         cbox::ContainedObject(3, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
-        cbox::ContainedObject(4, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire()))};
+        cbox::ContainedObject(4, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire())),
+#ifdef PIN_ACTUATOR0
+        cbox::ContainedObject(10, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR0)),
+#endif
+#ifdef PIN_ACTUATOR1
+        cbox::ContainedObject(11, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR1)),
+#endif
+#ifdef PIN_ACTUATOR2
+        cbox::ContainedObject(12, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR2)),
+#endif
+#ifdef PIN_ACTUATOR3
+        cbox::ContainedObject(13, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR3)),
+#endif
+#ifdef PIN_ACTUATOR4
+        cbox::ContainedObject(14, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR4)),
+#endif
+    };
+}
+
+cbox::Box&
+makeBrewBloxBox()
+{
+    static cbox::ObjectContainer objects = systemObjects();
 
     static cbox::ObjectFactory objectFactory = {
         {TempSensorOneWireBlock::staticTypeId(), std::make_shared<TempSensorOneWireBlock>},
@@ -105,7 +128,6 @@ makeBrewBloxBox()
         {TempSensorMockBlock::staticTypeId(), std::make_shared<TempSensorMockBlock>},
         {ActuatorAnalogMockBlock::staticTypeId(), std::make_shared<ActuatorAnalogMockBlock>},
         {PidBlock::staticTypeId(), []() { return std::make_shared<PidBlock>(objects); }},
-        {ActuatorPinBlock::staticTypeId(), []() { return std::make_shared<ActuatorPinBlock>(); }},
         {ActuatorPwmBlock::staticTypeId(), []() { return std::make_shared<ActuatorPwmBlock>(objects); }},
         {ActuatorOffsetBlock::staticTypeId(), []() { return std::make_shared<ActuatorOffsetBlock>(objects); }},
         {BalancerBlock::staticTypeId(), []() { return std::make_shared<BalancerBlock>(); }},
