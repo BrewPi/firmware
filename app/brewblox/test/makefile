@@ -55,6 +55,9 @@ CSRC += $(call here_files,app/brewblox/proto/cpp,*.c)
 CFLAGS += -isystem $(SOURCE_PATH)/app/brewblox/proto/test/cpp
 CPPSRC += $(call here_files,app/brewblox/proto/test/cpp,*.cpp)
 
+# add board files (tests use emulated hardware)
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Board
+CPPSRC += $(call here_files,platform/spark/modules/Board,*.cpp)
 
 # add nanopb dependencies
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/firmware/nanopb/nanopb
@@ -65,13 +68,17 @@ CFLAGS += -DPB_MSGID=1
 INCLUDE_DIRS += $(SOURCE_PATH)/platform
 
 # brewblox app specific implementations
-# CPPSRC += /app/brewblox/BrewBlox.cpp
 CPPSRC += /app/brewblox/nanopb_callbacks.cpp
 CPPSRC += /app/brewblox/BrewBlox.cpp
 
 # spark HAL includes
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/firmware/hal/inc
-CSRC += /platform/spark/firmware/hal/src/gcc/gpio_hal.c
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/firmware/hal/shared
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/firmware/services/inc
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/firmware/hal/src/gcc
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/firmware/hal/src/newhal
+CPPSRC += /platform/spark/firmware/hal/src/gcc/gpio_hal.cpp
+
 CFLAGS += -DPLATFORM_ID=3
 
 # include boost

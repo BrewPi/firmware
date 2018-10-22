@@ -61,14 +61,13 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
     testBox.processInput();
     CHECK(testBox.lastReplyHasStatusOk());
 
-    // create pin actuator 1
-    testBox.put(commands::CREATE_OBJECT);
-    testBox.put(cbox::obj_id_t(200));
+    // configure pin actuator 1
+    testBox.put(commands::WRITE_OBJECT);
+    testBox.put(cbox::obj_id_t(10)); // system object 11 is a predefined pin actuator
     testBox.put(uint8_t(0xFF));
     testBox.put(ActuatorPinBlock::staticTypeId());
     {
         auto newPin = blox::ActuatorPin();
-        newPin.set_pin(0);
         newPin.set_state(blox::AD_State_Active);
         newPin.set_invert(false);
         auto constraintPtr = newPin.mutable_constrainedby()->add_constraints();
@@ -87,7 +86,7 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
 
     {
         auto newPwm = blox::ActuatorPwm();
-        newPwm.set_actuatorid(200);
+        newPwm.set_actuatorid(10);
         newPwm.set_setting(cnl::unwrap(ActuatorAnalog::value_t(80)));
         newPwm.set_period(4000);
 
@@ -99,15 +98,14 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
     testBox.processInput();
     CHECK(testBox.lastReplyHasStatusOk());
 
-    // create pin actuator 2
-    testBox.put(commands::CREATE_OBJECT);
-    testBox.put(cbox::obj_id_t(300));
+    // configure pin actuator 2
+    testBox.put(commands::WRITE_OBJECT);
+    testBox.put(cbox::obj_id_t(11)); // system object 11 is a predefined pin actuator
     testBox.put(uint8_t(0xFF));
     testBox.put(ActuatorPinBlock::staticTypeId());
 
     {
         auto newPin = blox::ActuatorPin();
-        newPin.set_pin(0);
         newPin.set_state(blox::AD_State_Active);
         newPin.set_invert(false);
         auto constraintPtr = newPin.mutable_constrainedby()->add_constraints();
@@ -126,7 +124,7 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
 
     {
         auto newPwm = blox::ActuatorPwm();
-        newPwm.set_actuatorid(300);
+        newPwm.set_actuatorid(11);
         newPwm.set_setting(cnl::unwrap(ActuatorAnalog::value_t(80)));
         newPwm.set_period(4000);
 
@@ -167,7 +165,7 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
 
     // read a pin actuator
     testBox.put(commands::READ_OBJECT);
-    testBox.put(cbox::obj_id_t(200));
+    testBox.put(cbox::obj_id_t(10));
 
     {
         auto decoded = blox::ActuatorPin();
@@ -184,7 +182,7 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         auto decoded = blox::ActuatorPwm();
         testBox.processInputToProto(decoded);
         CHECK(testBox.lastReplyHasStatusOk());
-        CHECK(decoded.ShortDebugString() == "actuatorId: 200 actuatorValid: true "
+        CHECK(decoded.ShortDebugString() == "actuatorId: 10 actuatorValid: true "
                                             "period: 4000 setting: 327680 "
                                             "constrainedBy { constraints { balancer: 100 } }");
     }

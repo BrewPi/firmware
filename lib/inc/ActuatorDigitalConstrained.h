@@ -205,6 +205,11 @@ public:
         constraints.clear();
     }
 
+    void resetHistory()
+    {
+        ActuatorDigitalChangeLogged::resetHistory();
+    }
+
     bool checkConstraints(const State& val, const ticks_millis_t& now)
     {
         bool allowed = true;

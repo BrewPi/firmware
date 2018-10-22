@@ -21,6 +21,7 @@
 
 #include "blox/Block.h"
 #include "cbox/DataStream.h"
+#include "deviceid_hal.h"
 #include "proto/cpp/SysInfo.pb.h"
 #if defined(PLATFORM_ID) && PLATFORM_ID != 3
 #include "deviceid_hal.h"
@@ -32,9 +33,7 @@ class SysInfoBlock : public cbox::ObjectBase<blox_SysInfo_msgid> {
     {
         blox_SysInfo message;
 
-#if defined(PLATFORM_ID) && PLATFORM_ID != 3
         HAL_device_ID(static_cast<uint8_t*>(&message.deviceId[0]), 12);
-#endif
 
         return streamProtoTo(out, &message, blox_SysInfo_fields, blox_SysInfo_size);
     }

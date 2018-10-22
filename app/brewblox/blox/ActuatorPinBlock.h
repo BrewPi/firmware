@@ -12,8 +12,8 @@ private:
     ActuatorDigitalConstrained constrained;
 
 public:
-    ActuatorPinBlock()
-        : actuator(0, false)
+    ActuatorPinBlock(uint8_t pinNr)
+        : actuator(pinNr, false)
         , constrained(actuator)
     {
     }
@@ -23,7 +23,6 @@ public:
         blox_ActuatorPin newData;
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_ActuatorPin_fields, blox_ActuatorPin_size);
         if (result == cbox::CboxError::OK) {
-            actuator.pin(newData.pin);
             actuator.invert(newData.invert);
             setDigitalConstraints(newData.constrainedBy, constrained);
             constrained.state(ActuatorDigital::State(newData.state));
@@ -35,7 +34,6 @@ public:
     {
         blox_ActuatorPin message = blox_ActuatorPin_init_default;
         message.state = blox_AD_State(actuator.state());
-        message.pin = actuator.pin();
         message.invert = actuator.invert();
         getDigitalConstraints(message.constrainedBy, constrained);
 
@@ -66,8 +64,13 @@ public:
         return nullptr;
     }
 
-    ActuatorPin& get()
+    ActuatorPin& getPin()
     {
         return actuator;
+    }
+
+    ActuatorDigitalConstrained& getConstrained()
+    {
+        return constrained;
     }
 };

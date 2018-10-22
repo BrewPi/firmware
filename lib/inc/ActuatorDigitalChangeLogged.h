@@ -51,8 +51,7 @@ public:
     ActuatorDigitalChangeLogged(ActuatorDigital& act)
         : actuator(act)
     {
-        history.fill(StateChange{State::Unknown, ticks_millis_t(-1)});
-        history[0] = {actuator.state(), 0};
+        resetHistory();
     };
     virtual ~ActuatorDigitalChangeLogged() = default;
 
@@ -157,5 +156,12 @@ public:
         }
 
         return result;
+    }
+
+    void resetHistory()
+    {
+        history.fill(StateChange{State::Unknown, ticks_millis_t(-1)});
+        history[0] = {actuator.state(), 0};
+        lastUpdateTime = 0;
     }
 };
