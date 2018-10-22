@@ -20,25 +20,17 @@
 
 #pragma once
 
-
-#include "Ticks.h"
+#include "TicksTypes.h"
 
 /*
  * The Ticks class provides the time period since the device was powered up.
  */
 class TicksWiring {
 public:
-    TicksWiring(){}
-	ticks_millis_t millis();
-	ticks_micros_t micros();
-	ticks_seconds_t seconds();
-};
+    TicksWiring() {}
+    ticks_millis_t millis();
+    ticks_micros_t micros();
+    ticks_seconds_t seconds();
 
-
-class DelayWiring {
-public:
-	DelayWiring(){}
-	void seconds(uint16_t seconds);
-	void millis(uint16_t millis);
-	void microseconds(uint32_t micros);
+    void delayMillis(const duration_millis_t& millis);
 };

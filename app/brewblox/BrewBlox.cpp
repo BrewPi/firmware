@@ -223,6 +223,15 @@ setBootTime(const ticks_seconds_t& bootTime)
     bootTimeInSeconsSinceEpoch = bootTime;
 }
 
+void
+updateBrewbloxBox()
+{
+    brewbloxBox().update(ticks.millis());
+#if PLATFORM_ID == 3
+    ticks.delayMillis(10); // prevent 100% cpu usage
+#endif
+}
+
 namespace cbox {
 void
 connectionStarted(DataOut& out)

@@ -47,3 +47,6 @@ writableBootTimeRef();
 
 void
 setBootTime(const ticks_seconds_t& bootTime);
+
+void
+updateBrewbloxBox();

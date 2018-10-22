@@ -34,6 +34,11 @@ public:
     {
     }
 
+    inline void delayMillis(const duration_millis_t& val)
+    {
+        return impl.delayMillis(val);
+    }
+
     inline ticks_millis_t millis()
     {
         return impl.millis();

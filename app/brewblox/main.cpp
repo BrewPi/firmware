@@ -110,6 +110,7 @@ loop()
     }
 
     brewbloxBox().hexCommunicate();
+    updateBrewbloxBox();
     watchdogCheckin();
 }
 
