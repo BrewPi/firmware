@@ -114,7 +114,7 @@ systemObjects()
         cbox::ContainedObject(13, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_V3_TOP2)),
 #endif
 #ifdef PIN_V3_TOP3
-        cbox::ContainedObject(15, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_V3_TOP3)),
+        cbox::ContainedObject(14, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_V3_TOP3)),
 #endif
 #ifdef PIN_ACTUATOR1
         cbox::ContainedObject(16, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR1)),
