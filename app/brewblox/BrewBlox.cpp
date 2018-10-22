@@ -56,8 +56,8 @@ using TicksClass = Ticks<MockTicks>;
 #endif
 
 #if !defined(PLATFORM_ID) || PLATFORM_ID == 3
-#include "MockOneWireScanningFactory.h"
 #include "OneWireNull.h"
+#include "test/MockOneWireScanningFactory.h"
 using OneWireDriver = OneWireNull;
 #define ONEWIRE_ARG
 #else
