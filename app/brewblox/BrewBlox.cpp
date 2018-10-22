@@ -19,6 +19,7 @@
 
 #include "Board.h"
 #include "Logger.h"
+#include "OneWireScanningFactory.h"
 #include "blox/ActuatorAnalogMockBlock.h"
 #include "blox/ActuatorOffsetBlock.h"
 #include "blox/ActuatorPinBlock.h"
@@ -159,7 +160,10 @@ makeBrewBloxBox()
     static cbox::EepromObjectStorage objectStore(eeprom);
     static cbox::ConnectionPool& connections = theConnectionPool();
 
-    static cbox::Box box(objectFactory, objects, objectStore, connections);
+    std::vector<std::unique_ptr<cbox::ScanningFactory>> scanningFactories;
+    scanningFactories.push_back(std::unique_ptr<cbox::ScanningFactory>(new OneWireScanningFactory(objects, theOneWire())));
+
+    static cbox::Box box(objectFactory, objects, objectStore, connections, std::move(scanningFactories));
 
     return box;
 }

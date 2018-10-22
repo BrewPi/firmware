@@ -3,6 +3,7 @@
 #include "Balancer.h"
 #include "DigitalConstraints.pb.h"
 #include "FixedPoint.h"
+#include "OneWireDevice.h"
 #include "ProcessValue.h"
 #include "Setpoint.h"
 #include "SetpointSensorPair.h"
