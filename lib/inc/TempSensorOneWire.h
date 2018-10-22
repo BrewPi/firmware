@@ -21,6 +21,7 @@
 
 #include "DallasTemperature.h"
 #include "OneWireAddress.h"
+#include "OneWireDevice.h"
 #include "TempSensor.h"
 #include "Temperature.h"
 
@@ -28,12 +29,11 @@ class OneWire;
 
 #define ONEWIRE_TEMP_SENSOR_PRECISION (4)
 
-class TempSensorOneWire final : public TempSensor {
+class TempSensorOneWire final : public TempSensor, public OneWireDevice {
 public:
 private:
     DallasTemperature sensor;
-    OneWireAddress sensorAddress = 0;
-    temp_t calibrationOffset = 0;
+    temp_t calibrationOffset;
     temp_t cachedValue = 0;
     bool connected = false;
 
@@ -45,17 +45,14 @@ public:
 	 *    on the bus is used.
 	 * /param calibration	A temperature value that is added to all readings. This can be used to calibrate the sensor.	 
 	 */
-    TempSensorOneWire(OneWire& bus, OneWireAddress _address, const temp_t& _calibrationOffset)
-        : sensor(&bus)
-        , sensorAddress(_address)
+    TempSensorOneWire(OneWire& bus, OneWireAddress _address = 0, const temp_t& _calibrationOffset = 0)
+        : OneWireDevice(bus, _address)
+        , sensor(&bus)
         , calibrationOffset(_calibrationOffset)
     {
-        init();
-    }
-
-    TempSensorOneWire(OneWire& bus)
-        : sensor(&bus)
-    {
+        if (_address) {
+            init();
+        }
     }
 
     ~TempSensorOneWire() = default;
@@ -70,7 +67,7 @@ public:
 
     void setAddress(OneWireAddress const& addr)
     {
-        sensorAddress = addr;
+        OneWireDevice::setDeviceAddress(addr);
     }
     void setCalibration(temp_t const& calib)
     {
@@ -78,7 +75,7 @@ public:
     }
     OneWireAddress getAddress() const
     {
-        return sensorAddress;
+        return OneWireDevice::getDeviceAddress();
     }
     temp_t getCalibration() const
     {

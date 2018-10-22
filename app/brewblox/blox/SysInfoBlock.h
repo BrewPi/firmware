@@ -23,9 +23,6 @@
 #include "cbox/DataStream.h"
 #include "deviceid_hal.h"
 #include "proto/cpp/SysInfo.pb.h"
-#if defined(PLATFORM_ID) && PLATFORM_ID != 3
-#include "deviceid_hal.h"
-#endif
 
 // provides a protobuf interface to the read only system info
 class SysInfoBlock : public cbox::ObjectBase<blox_SysInfo_msgid> {

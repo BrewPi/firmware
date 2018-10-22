@@ -27,21 +27,26 @@
 #include "Object.h"
 #include "ObjectContainer.h"
 #include "ObjectStorage.h"
+#include "ScanningFactory.h"
 #include <memory>
 #include <tuple>
+#include <vector>
 
 extern void
 handleReset(bool);
 
 namespace cbox {
 
-Box::Box(ObjectFactory& _factory, ObjectContainer& _objects, ObjectStorage& _storage, ConnectionPool& _connections)
+Box::Box(ObjectFactory& _factory,
+         ObjectContainer& _objects,
+         ObjectStorage& _storage,
+         ConnectionPool& _connections,
+         std::vector<std::unique_ptr<ScanningFactory>>&& _scanners)
     : factory(_factory)
     , objects(_objects)
     , storage(_storage)
     , connections(_connections)
-    , activeProfiles(0x01)
-    , lastUpdateTime(0)
+    , scanners{std::move(_scanners)}
 {
     objects.add(std::make_unique<ProfilesObject>(this), 0xFF, obj_id_t(1)); // add profiles object to give access to the active profiles setting on id 1
     objects.setObjectsStartId(userStartId());                               // set startId for user objects to 100
@@ -498,6 +503,39 @@ Box::clearObjects(DataIn& in, HexCrcDataOut& out)
     out.write(asUint8(CboxError::OK));
 }
 
+/**
+ * 
+ *
+ */
+
+void
+Box::discoverNewObjects(DataIn& in, HexCrcDataOut& out)
+{
+    in.spool();
+    auto crc = out.crc();
+
+    out.writeResponseSeparator();
+
+    if (crc) {
+        out.write(asUint8(CboxError::CRC_ERROR_IN_COMMAND));
+        return;
+    }
+
+    out.write(asUint8(CboxError::OK));
+
+    for (auto& scanner : scanners) {
+        scanner->reset();
+        auto newId = obj_id_t(0);
+        do {
+            newId = scanner->scanAndAdd();
+            if (newId) {
+                out.writeListSeparator();
+                out.write(newId);
+            }
+        } while (newId);
+    }
+}
+
 /*
  * Processes the command request from a data stream.
  * @param dataIn The request data. The first byte is the command id. The stream is assumed to contain at least
@@ -549,6 +587,9 @@ Box::handleCommand(DataIn& dataIn, DataOut& dataOut)
         break;
     case LIST_COMPATIBLE_OBJECTS:
         listCompatibleObjects(in, out);
+        break;
+    case DISCOVER_NEW_OBJECTS:
+        discoverNewObjects(in, out);
         break;
     default:
         invalidCommand(in, out);
@@ -623,4 +664,5 @@ Box::setActiveProfilesAndUpdateObjects(const uint8_t newProfiles)
         }
     }
 }
+
 } // end namespace cbox

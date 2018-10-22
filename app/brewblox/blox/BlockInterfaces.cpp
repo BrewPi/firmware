@@ -3,6 +3,7 @@
 #include "Balancer.h"
 #include "DigitalConstraints.pb.h"
 #include "FixedPoint.h"
+#include "OneWireDevice.h"
 #include "ProcessValue.h"
 #include "Setpoint.h"
 #include "SetpointSensorPair.h"
@@ -66,6 +67,13 @@ const obj_type_t
 interfaceIdImpl<Balancer<blox_DigitalConstraint_mutex_tag>>()
 {
     return BrewbloxFieldOptions_LinkType_Balancer;
+}
+
+template <>
+const obj_type_t
+interfaceIdImpl<OneWireDevice>()
+{
+    return BrewbloxFieldOptions_LinkType_OneWireDevice;
 }
 
 } // end namespace cbox

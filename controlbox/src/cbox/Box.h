@@ -28,6 +28,7 @@
 #include "Object.h"
 #include "ObjectContainer.h"
 #include "ObjectFactory.h"
+#include "ScanningFactory.h"
 #include <memory>
 
 namespace cbox {
@@ -42,8 +43,9 @@ private:
     ObjectStorage& storage;
     // Box receives commands from connections in the connection pool and streams back the answer to the same connection
     ConnectionPool& connections;
-    uint8_t activeProfiles;
-    update_t lastUpdateTime;
+    std::vector<std::unique_ptr<ScanningFactory>> scanners;
+    uint8_t activeProfiles = 0x01;
+    update_t lastUpdateTime = 0;
 
     // command handlers
     void noop(DataIn& in, HexCrcDataOut& out);
@@ -55,16 +57,27 @@ private:
     void listActiveObjects(DataIn& in, HexCrcDataOut& out);
     void readStoredObject(DataIn& in, HexCrcDataOut& out);
     void listStoredObjects(DataIn& in, HexCrcDataOut& out);
-    void listCompatibleObjects(DataIn& in, HexCrcDataOut& out);
     void clearObjects(DataIn& in, HexCrcDataOut& out);
     void reboot(DataIn& in, HexCrcDataOut& out);
     void factoryReset(DataIn& in, HexCrcDataOut& out);
+    void listCompatibleObjects(DataIn& in, HexCrcDataOut& out);
+    void discoverNewObjects(DataIn& in, HexCrcDataOut& out);
 
     std::tuple<CboxError, std::shared_ptr<Object>, uint8_t> createObjectFromStream(DataIn& in);
     void loadObjectsFromStorage();
 
 public:
-    Box(ObjectFactory& _factory, ObjectContainer& _objects, ObjectStorage& _storage, ConnectionPool& _connections);
+    Box(ObjectFactory& _factory,
+        ObjectContainer& _objects,
+        ObjectStorage& _storage,
+        ConnectionPool& _connections,
+        std::vector<std::unique_ptr<ScanningFactory>>&& _scanners = std::vector<std::unique_ptr<ScanningFactory>>());
+
+    Box(const Box&) = delete;
+    Box& operator=(const Box&) = delete;
+    Box(Box&&) = default;
+    Box& operator=(Box&&) = default;
+
     ~Box() = default;
 
     void handleCommand(DataIn& data, DataOut& out);
@@ -107,6 +120,9 @@ public:
         return CboxPtr<T>(objects, id);
     }
 
+    obj_id_t
+    discoverNewObject(std::function<std::shared_ptr<Object>()>& discoverObject, std::function<bool(Object&, Object&)> isSame);
+
     enum CommandID : uint8_t {
         NONE = 0,                     // no-op
         READ_OBJECT = 1,              // stream an object to the data out
@@ -120,6 +136,7 @@ public:
         REBOOT = 9,                   // reboot the system
         FACTORY_RESET = 10,           // erase all settings and reboot
         LIST_COMPATIBLE_OBJECTS = 11, // list object IDs implementing the requested interface
+        DISCOVER_NEW_OBJECTS = 12,    // discover newly connected objects that support auto discovery
     };
 };
 

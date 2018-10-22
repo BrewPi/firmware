@@ -64,6 +64,12 @@ public:
             TempSensor* ptr = &sensor;
             return ptr;
         }
+        if (iface == cbox::interfaceId<OneWireDevice>()) {
+            // return the member that implements the interface in this case
+            TempSensorOneWire* sensorPtr = &sensor;
+            OneWireDevice* devicePtr = sensorPtr;
+            return devicePtr;
+        }
         return nullptr;
     }
 

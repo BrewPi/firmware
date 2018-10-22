@@ -31,6 +31,7 @@ protected:
 
 public:
     OneWireAddress getDeviceAddress() const;
+    void setDeviceAddress(const OneWireAddress& addr);
     bool validAddress() const;
 
 protected:

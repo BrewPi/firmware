@@ -57,10 +57,12 @@ using TicksClass = Ticks<MockTicks>;
 
 #if !defined(PLATFORM_ID) || PLATFORM_ID == 3
 #include "OneWireNull.h"
+#include "test/MockOneWireScanningFactory.h"
 using OneWireDriver = OneWireNull;
 #define ONEWIRE_ARG
 #else
 #include "DS248x.h"
+#include "OneWireScanningFactory.h"
 using OneWireDriver = DS248x;
 #define ONEWIRE_ARG 0x00
 #endif
@@ -159,7 +161,14 @@ makeBrewBloxBox()
     static cbox::EepromObjectStorage objectStore(eeprom);
     static cbox::ConnectionPool& connections = theConnectionPool();
 
-    static cbox::Box box(objectFactory, objects, objectStore, connections);
+    std::vector<std::unique_ptr<cbox::ScanningFactory>> scanningFactories;
+#if PLATFORM_ID == 3
+    scanningFactories.push_back(std::unique_ptr<cbox::ScanningFactory>(new MockOneWireScanningFactory(objects, theOneWire())));
+#else
+    scanningFactories.push_back(std::unique_ptr<cbox::ScanningFactory>(new OneWireScanningFactory(objects, theOneWire())));
+#endif
+
+    static cbox::Box box(objectFactory, objects, objectStore, connections, std::move(scanningFactories));
 
     return box;
 }
