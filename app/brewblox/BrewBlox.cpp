@@ -19,7 +19,6 @@
 
 #include "Board.h"
 #include "Logger.h"
-#include "OneWireScanningFactory.h"
 #include "blox/ActuatorAnalogMockBlock.h"
 #include "blox/ActuatorOffsetBlock.h"
 #include "blox/ActuatorPinBlock.h"
@@ -57,11 +56,13 @@ using TicksClass = Ticks<MockTicks>;
 #endif
 
 #if !defined(PLATFORM_ID) || PLATFORM_ID == 3
+#include "MockOneWireScanningFactory.h"
 #include "OneWireNull.h"
 using OneWireDriver = OneWireNull;
 #define ONEWIRE_ARG
 #else
 #include "DS248x.h"
+#include "OneWireScanningFactory.h"
 using OneWireDriver = DS248x;
 #define ONEWIRE_ARG 0x00
 #endif
@@ -161,7 +162,11 @@ makeBrewBloxBox()
     static cbox::ConnectionPool& connections = theConnectionPool();
 
     std::vector<std::unique_ptr<cbox::ScanningFactory>> scanningFactories;
+#if PLATFORM_ID == 3
+    scanningFactories.push_back(std::unique_ptr<cbox::ScanningFactory>(new MockOneWireScanningFactory(objects, theOneWire())));
+#else
     scanningFactories.push_back(std::unique_ptr<cbox::ScanningFactory>(new OneWireScanningFactory(objects, theOneWire())));
+#endif
 
     static cbox::Box box(objectFactory, objects, objectStore, connections, std::move(scanningFactories));
 

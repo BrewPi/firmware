@@ -79,5 +79,50 @@ SCENARIO("A TempSensorOneWireBlock")
                 CHECK(sensorPtr->get().valid() == false);
             }
         }
+
+        WHEN("An object discovery command is received")
+        {
+            testBox.put(commands::DISCOVER_NEW_OBJECTS);
+            auto reply = testBox.processInput();
+            THEN("3 new objects are discovered")
+            {
+                CHECK(reply == cbox::addCrc("0C") + "|0000" + "," + cbox::addCrc("65") + "," + cbox::addCrc("66") + "," + cbox::addCrc("67") + "\n");
+                AND_THEN("These objects can be used as temp sensor")
+                {
+                    auto s1 = brewbloxBox().makeCboxPtr<TempSensor>(101);
+                    auto s2 = brewbloxBox().makeCboxPtr<TempSensor>(102);
+                    auto s3 = brewbloxBox().makeCboxPtr<TempSensor>(103);
+
+                    CHECK(s1.lock());
+                    CHECK(s2.lock());
+                    CHECK(s3.lock());
+                }
+            }
+
+            AND_WHEN("The command is given for the second time")
+            {
+                testBox.put(commands::DISCOVER_NEW_OBJECTS);
+                auto reply = testBox.processInput();
+                THEN("No new objects are discovered")
+                {
+                    CHECK(reply == cbox::addCrc("0C") + "|0000\n");
+                }
+            }
+
+            AND_WHEN("One of the sensors is removed")
+            {
+                testBox.put(commands::DELETE_OBJECT);
+                testBox.put(cbox::obj_id_t(101));
+                testBox.processInput();
+                CHECK(testBox.lastReplyHasStatusOk());
+
+                THEN("It will be discovered again")
+                {
+                    testBox.put(commands::DISCOVER_NEW_OBJECTS);
+                    auto reply = testBox.processInput();
+                    CHECK(reply == cbox::addCrc("0C") + "|0000" + "," + cbox::addCrc("68") + "\n");
+                }
+            }
+        }
     }
 }
