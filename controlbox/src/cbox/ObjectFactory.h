@@ -22,8 +22,6 @@
 
 #include "DataStream.h"
 #include "Object.h"
-#include <array>
-#include <functional>
 #include <memory>
 #include <tuple>
 #include <vector>

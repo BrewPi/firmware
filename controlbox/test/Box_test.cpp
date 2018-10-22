@@ -17,6 +17,54 @@
 
 using namespace cbox;
 
+/**
+ * Simple mock factory that emulates object discovery
+ * Normally, a scanning factory will scan some type of communication bus
+ * This factory just has a list of candidates. If a LongIntObject with that value doesn't exist, it creates it.
+ */
+class LongIntScanningFactory : public ScanningFactory {
+private:
+    std::vector<uint32_t> candidates = {0x11111111, 0x22222222, 0x33333333, 0x44444444, 0x55555555};
+    std::vector<uint32_t>::const_iterator it;
+
+public:
+    LongIntScanningFactory(ObjectContainer& objects)
+        : ScanningFactory(objects)
+    {
+        reset();
+    }
+
+    virtual ~LongIntScanningFactory() = default;
+
+    virtual void reset() override final
+    {
+        it = candidates.cbegin();
+    };
+    virtual std::shared_ptr<Object> scan() override final
+    {
+        while (it != candidates.cend()) {
+            bool found = false;
+            uint32_t value = *it;
+            ++it;
+            for (auto existing = objectsRef.cbegin(); existing != objectsRef.cend(); ++existing) {
+                LongIntObject* ptrIfCorrectType = reinterpret_cast<LongIntObject*>(existing->object()->implements(LongIntObject::staticTypeId()));
+                if (ptrIfCorrectType == nullptr) {
+                    continue; // not the right type, no match
+                }
+                if (ptrIfCorrectType->value() == value) {
+                    found = true; // object with value already exists
+                    break;
+                }
+            }
+            if (!found) {
+                // create new object
+                return std::make_shared<LongIntObject>(value);
+            }
+        }
+        return nullptr;
+    };
+};
+
 SCENARIO("A controlbox Box")
 {
     ObjectContainer container = {
@@ -40,7 +88,11 @@ SCENARIO("A controlbox Box")
     StringStreamConnectionSource connSource;
     ConnectionPool connPool = {connSource};
 
-    Box box(factory, container, storage, connPool);
+    auto longIntScanner = std::unique_ptr<ScanningFactory>(new LongIntScanningFactory(container));
+    std::vector<std::unique_ptr<ScanningFactory>> scanningFactories;
+    scanningFactories.push_back(std::move(longIntScanner));
+
+    Box box(factory, container, storage, connPool, std::move(scanningFactories));
 
     auto in = std::make_shared<std::stringstream>();
     auto out = std::make_shared<std::stringstream>();
@@ -973,5 +1025,47 @@ SCENARIO("A controlbox Box")
         CHECK(storage.freeSpace() == 2013);
 
         CHECK(testInfo.rebootCount == rebootCountBeforeCommand + 1);
+    }
+
+    WHEN("A device discovery command is received")
+    {
+        *in << "0C"; // discover new objects
+        *in << crc(in->str()) << "\n";
+        box.hexCommunicate();
+
+        // we expect this command to create 3 new objects, with values 0x33333333, 0x44444444, 0x55555555
+        // 0x11111111 and 0x22222222 already exist
+
+        THEN("A list of IDs of newly created objects is returned")
+        {
+            expected << addCrc("0C") << "|"
+                     << addCrc("00")        // status
+                     << "," << addCrc("64") // new object id 100
+                     << "," << addCrc("65") // new object id 101
+                     << "," << addCrc("66") // new object id 102
+                     << "\n";
+            CHECK(out->str() == expected.str());
+        }
+
+        THEN("The objects that didn't exist yet but where provided by the scanner have been created")
+        {
+            clearStreams();
+            *in << "05"; // list all objects
+            *in << crc(in->str()) << "\n";
+            box.hexCommunicate();
+
+            expected << addCrc("05")
+                     << "|" << addCrc("00")
+                     << "," << addCrc("0100FFFEFF01")
+                     << "," << addCrc("0200FFE80311111111")
+                     << "," << addCrc("0300FFE80322222222")
+                     << "," << addCrc("6400FFE80333333333")
+                     << "," << addCrc("6500FFE80344444444")
+                     << "," << addCrc("6600FFE80355555555")
+                     << "\n";
+            CHECK(out->str() == expected.str());
+        }
+
+        clearStreams();
     }
 }
