@@ -22,6 +22,7 @@
 #include "../Connections.h"
 #include "spark_wiring_tcpclient.h"
 #include "spark_wiring_tcpserver.h"
+#include "spark_wiring_wifi.h"
 
 namespace cbox {
 
@@ -49,9 +50,12 @@ public:
 
     std::unique_ptr<Connection> newConnection() override final
     {
-        TCPClient newClient = server.available();
-        if (newClient.connected()) {
-            return std::make_unique<TcpConnection>(newClient);
+        using namespace spark;
+        if (WiFi.ready()) {
+            TCPClient newClient = server.available();
+            if (newClient.connected()) {
+                return std::make_unique<TcpConnection>(newClient);
+            }
         }
         return nullptr;
     }

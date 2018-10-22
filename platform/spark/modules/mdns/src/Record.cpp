@@ -2,13 +2,21 @@
 
 #include "Label.h"
 
-Record::Record(uint16_t type, uint32_t ttl) {
+Record::Record(uint16_t type, uint16_t cls, uint32_t ttl, bool announce) {
   this->type = type;
+  this->cls = cls;
   this->ttl = ttl;
+  this->announce = announce;
 }
 
 void Record::setLabel(Label * label) {
   this->label = label;
+}
+
+void Record::announceRecord() {
+  if (this->announce) {
+    this->answerRecord = true;
+  }
 }
 
 void Record::setAnswerRecord() {
@@ -34,7 +42,7 @@ void Record::setKnownRecord() {
 void Record::write(Buffer * buffer) {
   label->write(buffer);
   buffer->writeUInt16(type);
-  buffer->writeUInt16(IN_CLASS);
+  buffer->writeUInt16(cls);
   buffer->writeUInt32(ttl);
   writeSpecific(buffer);
 }
@@ -49,7 +57,7 @@ Label * Record::getLabel() {
   return label;
 }
 
-ARecord::ARecord():Record(A_TYPE, TTL_2MIN) {
+ARecord::ARecord():Record(A_TYPE, IN_CLASS | CACHE_FLUSH, TTL_2MIN) {
 }
 
 void ARecord::writeSpecific(Buffer * buffer) {
@@ -60,7 +68,7 @@ void ARecord::writeSpecific(Buffer * buffer) {
   }
 }
 
-NSECRecord::NSECRecord():Record(NSEC_TYPE, TTL_2MIN) {
+NSECRecord::NSECRecord():Record(NSEC_TYPE, IN_CLASS | CACHE_FLUSH, TTL_2MIN) {
 }
 
 HostNSECRecord::HostNSECRecord():NSECRecord() {
@@ -89,19 +97,19 @@ void InstanceNSECRecord::writeSpecific(Buffer * buffer) {
   buffer->writeUInt8(0x40);
 }
 
-PTRRecord::PTRRecord():Record(PTR_TYPE, TTL_75MIN) {
+PTRRecord::PTRRecord(bool meta):Record(PTR_TYPE, IN_CLASS, TTL_75MIN, !meta) {
 }
 
 void PTRRecord::writeSpecific(Buffer * buffer) {
-  buffer->writeUInt16(instanceLabel->getWriteSize());
-  instanceLabel->write(buffer);
+  buffer->writeUInt16(targetLabel->getWriteSize());
+  targetLabel->write(buffer);
 }
 
-void PTRRecord::setInstanceLabel(Label * label) {
-  instanceLabel = label;
+void PTRRecord::setTargetLabel(Label * label) {
+  targetLabel = label;
 }
 
-SRVRecord::SRVRecord():Record(SRV_TYPE, TTL_2MIN) {
+SRVRecord::SRVRecord():Record(SRV_TYPE, IN_CLASS | CACHE_FLUSH, TTL_2MIN) {
 }
 
 void SRVRecord::writeSpecific(Buffer * buffer) {
@@ -120,13 +128,13 @@ void SRVRecord::setPort(uint16_t port) {
   this->port = port;
 }
 
-TXTRecord::TXTRecord():Record(TXT_TYPE, TTL_75MIN) {
+TXTRecord::TXTRecord():Record(TXT_TYPE, IN_CLASS | CACHE_FLUSH, TTL_75MIN) {
 }
 
 void TXTRecord::addEntry(String key, String value) {
   String entry = key;
 
-  if (value != NULL) {
+  if (value == NULL || value.length() > 0) {
     entry += '=';
     entry += value;
   }

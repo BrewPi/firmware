@@ -30,10 +30,10 @@ services:
         - "/etc/timezone:/etc/timezone:ro"
         - "/etc/localtime:/etc/localtime:ro"
     ports:
-        # simulator
+        # brewblox protocol
         - "8332:8332"
-        # gdbserver 
-        - "2345:2345"
+        # http
+        - "8380:80"
         
   coverage-simulator:
     build: ./compiler/
@@ -44,8 +44,10 @@ services:
         - "/etc/timezone:/etc/timezone:ro"
         - "/etc/localtime:/etc/localtime:ro"
     ports:
-        # simulator
+        # brewblox protocol
         - "8332:8332"
+        # http
+        - "8380:80"
     command: bash run-simulator.sh        
 
 networks:

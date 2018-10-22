@@ -65,11 +65,8 @@ CPPSRC += $(call here_files,app/brewblox/spark,*.cpp)
 #SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
 #include $(SRC_EGUI)/egui.mk
 
-LIBS_DIR = $(SOURCE_PATH)/platform/spark/libs
-include $(LIBS_DIR)/libs.mk
-
-INCLUDE_DIRS += $(LIBS_DIR)/mdns/firmware
-CPPSRC += $(call here_files,platform/spark/libs/mdns/firmware,*.cpp)
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/mdns/src
+CPPSRC += $(call here_files,platform/spark/modules/mdns/src,*.cpp)
 
 ifeq ("$(CBOX_DEBUG)","y")
 EXTRA_CFLAGS += -DCBOX_DEBUG=1

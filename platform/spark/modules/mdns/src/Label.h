@@ -128,4 +128,18 @@ private:
   Record * aRecord;
 };
 
+class MetaLabel : public Label {
+
+public:
+
+  MetaLabel(String name, Label * nextLabel);
+
+  void addService(Record * ptrRecord);
+
+  virtual void matched(uint16_t type, uint16_t cls);
+
+private:
+  std::vector<Record *> records;
+};
+
 #endif

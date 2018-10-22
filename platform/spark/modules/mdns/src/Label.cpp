@@ -277,3 +277,22 @@ void InstanceLabel::matched(uint16_t type, uint16_t cls) {
     nsecRecord->setAnswerRecord();
   }
 }
+
+MetaLabel::MetaLabel(String name, Label * nextLabel):Label(name, nextLabel) {
+  // Do nothing
+}
+
+void MetaLabel::addService(Record * ptrRecord) {
+  records.push_back(ptrRecord);
+}
+
+void MetaLabel::matched(uint16_t type, uint16_t cls) {
+  switch(type) {
+    case PTR_TYPE:
+    case ANY_TYPE:
+      for (std::vector<Record *>::const_iterator i = this->records.begin(); i != this->records.end(); ++i) {
+        (*i)->setAnswerRecord();
+      }
+      break;
+  }
+}

@@ -18,17 +18,17 @@
  */
 
 #include "BrewBlox.h"
+#include "MDNS.h"
 #include "application.h" // particle stuff
 #include "cbox/Object.h"
-//#include "MDNS.h"
 
-// todo - add a system object that describes the application version
-// from this, the protocol of all objects can be determined by the client.
-
-SYSTEM_MODE(MANUAL);
 SYSTEM_THREAD(ENABLED);
+SYSTEM_MODE(SEMI_AUTOMATIC);
+STARTUP(System.enableFeature(FEATURE_RESET_INFO));
 
-//MDNS mdns;
+auto mdns = MDNS();
+auto mdns_started = bool(false);
+auto httpserver = TCPServer(80); // listen on 80 to serve a simple page with instructions
 
 #if PLATFORM_ID == PLATFORM_GCC
 #include <csignal>
@@ -64,32 +64,50 @@ setup()
 #endif
 
     System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
-    WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
-    Particle.connect();
+    WiFi.setListenTimeout(30);
     brewbloxBox(); // init box
     System.on(setup_update, watchdogCheckin);
+
+    bool success = mdns.setHostname(System.deviceID());
+    if (success) {
+        success = mdns.addService("tcp", "http", 80, "brewblox-status");
+    }
+    if (success) {
+        success = mdns.addService("tcp", "brewblox", 8332, "brewblox");
+    }
+    mdns.addTXTEntry("VERSION", "0.1.0");
 }
 
 void
 loop()
 {
+    if (!WiFi.ready()) {
+        if (!WiFi.connecting()) {
+            WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
+#if PLATFORM_ID != PLATFORM_GCC
+            Particle.connect();
+#endif
+        }
+    } else {
+        if (!mdns_started) {
+            mdns_started = mdns.begin(true);
+        } else {
+            mdns.processQueries();
+        }
+        TCPClient client = httpserver.available();
+        if (client) {
+            while (client.read() != -1) {
+            }
+
+            client.write("HTTP/1.1 200 Ok\n\n<html><body>Your BrewBlox Spark is online but it does not run it's own web server.\n"
+                         "Please install a BrewBlox server to connect to it using the BrewBlox protocol.</body></html>\n\n");
+            client.flush();
+            delay(5);
+            client.stop();
+        }
+    }
 
     brewbloxBox().hexCommunicate();
-    /*
-	if(!mdns_started && WiFi.ready() && WiFi.RSSI() < 0){
-
-		String id = System.deviceID();
-		bool success = mdns.setHostname(id)
-		  && mdns.addService("tcp", "brewpi", 8332, id)
-		  && mdns.begin();
-		if (!success) {
-			Comms::dataOut().writeAnnotation(mdns.getStatus().c_str());
-		}
-	}
-	if(mdns_started){
-		mdns.processQueries();
-	}
-*/
     watchdogCheckin();
 }
 
