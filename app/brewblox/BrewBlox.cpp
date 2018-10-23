@@ -39,19 +39,16 @@
 #include "cbox/EepromObjectStorage.h"
 #include "cbox/ObjectContainer.h"
 #include "cbox/ObjectFactory.h"
+#include "cbox/spark/SparkEepromAccess.h"
 #include <memory>
 
 #if defined(SPARK)
 #include "cbox/spark/ConnectionsTcp.h"
-#include "cbox/spark/SparkEepromAccess.h"
 #include "wiring/TicksWiring.h"
-using EepromAccessImpl = cbox::SparkEepromAccess;
 using TicksClass = Ticks<TicksWiring>;
 #else
-#include "cbox/ArrayEepromAccess.h"
 #include "cbox/ConnectionsStringStream.h"
 #include <MockTicks.h>
-using EepromAccessImpl = cbox::ArrayEepromAccess<2048>;
 using TicksClass = Ticks<MockTicks>;
 #endif
 
@@ -68,6 +65,7 @@ using OneWireDriver = DS248x;
 #endif
 
 auto ticks = TicksClass(writableBootTimeRef());
+using EepromAccessImpl = cbox::SparkEepromAccess;
 
 // define separately to make it available for tests
 #if !defined(SPARK)

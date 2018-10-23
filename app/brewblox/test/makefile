@@ -79,6 +79,9 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/firmware/services/inc
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/firmware/hal/src/gcc
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/firmware/hal/src/newhal
 CPPSRC += /platform/spark/firmware/hal/src/gcc/gpio_hal.cpp
+CPPSRC += /platform/spark/firmware/hal/src/gcc/eeprom_hal.cpp
+CPPSRC += /platform/spark/firmware/hal/src/gcc/filesystem.cpp
+CPPSRC += /platform/spark/firmware/communication/tests/catch/hal_stubs.cpp
 
 CFLAGS += -DPLATFORM_ID=3
 
