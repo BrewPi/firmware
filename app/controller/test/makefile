@@ -58,7 +58,7 @@ CPPSRC += $(call target_files,app/controller/mixins,*.cpp)
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller/esj
 
 # and control object
-CPPSRC += $(SOURCE_PATH)app/controller/Control.cpp
+CPPSRC += $(SOURCE_PATH)/app/controller/Control.cpp
 
 
 ifeq ($(BOOST_ROOT),)
@@ -66,7 +66,7 @@ $(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environmen
 endif
 CFLAGS += -I$(BOOST_ROOT)
 
-#INCLUDE_DIRS += $(SOURCE_PATH)app/fallback
+#INCLUDE_DIRS += $(SOURCE_PATH)/app/fallback
 INCLUDE_DIRS += $(SOURCE_PATH)/lib/inc
 INCLUDE_DIRS += $(SOURCE_PATH)/app/controller
 

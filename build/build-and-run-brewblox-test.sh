@@ -14,9 +14,15 @@ fi
 pushd "$MY_DIR/../app/brewblox/test" > /dev/null
 echo "Building BrewBlox app unit tests"
 make -s runner
-result=$?
+(( result = $? ))
 status $result
+(( exit_status = exit_status || result ))
 
 build/runner
+(( result = $? ))
+status $result
+(( exit_status = exit_status || result ))
 popd > /dev/null
+
+exit $exit_status
 

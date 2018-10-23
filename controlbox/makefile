@@ -15,14 +15,15 @@ TARGET=runner
 
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 mkfile_dir := $(dir $(mkfile_path))
-SOURCE_PATH = $(abspath $(mkfile_dir))
+remove_slash = $(patsubst %/,%,$1)
+SOURCE_PATH = $(call remove_slash,$(abspath $(mkfile_dir)))
 
 BUILD_PATH=$(TARGETDIR)
 
 # add all tests
-CPPSRC += $(patsubst $(SOURCE_PATH)%,%,$(wildcard $(SOURCE_PATH)/test/*.cpp))
+CPPSRC += $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/test/*.cpp))
 # and sources
-CPPSRC += $(patsubst $(SOURCE_PATH)%,%,$(wildcard $(SOURCE_PATH)/src/cbox/*.cpp))
+CPPSRC += $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/src/cbox/*.cpp))
 
 # include dir
 CFLAGS += -I$(SOURCE_PATH)/src/cbox

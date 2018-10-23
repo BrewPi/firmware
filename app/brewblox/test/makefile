@@ -15,7 +15,8 @@ TARGET=runner
 
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 mkfile_dir := $(dir $(mkfile_path))
-SOURCE_PATH = $(abspath $(mkfile_dir)/../../..)
+remove_slash = $(patsubst %/,%,$1)
+SOURCE_PATH = $(call remove_slash,$(abspath $(mkfile_dir)/../../..))
 
 BUILD_PATH=$(TARGETDIR)test/
 # Define the target directories. Nest 2 levels deep since we also include
@@ -27,7 +28,7 @@ rwildcard = $(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2
 # enumerates files in the filesystem and returns their path relative to the project root
 # $1 the directory relative to the project root
 # $2 the pattern to match, e.g. *.cpp
-target_files = $(patsubst $(SOURCE_PATH)%,%,$(call rwildcard,$(SOURCE_PATH)$1,$2))
+target_files = $(patsubst $(SOURCE_PATH)/%,%,$(call rwildcard,$(SOURCE_PATH)/$1,$2))
 
 # here_files is a non-recursive file search. target_files is recursive.
 here_files = $(patsubst $(SOURCE_PATH)/%,%,$(wildcard $(SOURCE_PATH)/$1/$2))
