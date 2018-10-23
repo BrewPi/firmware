@@ -183,7 +183,32 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         testBox.processInputToProto(decoded);
         CHECK(testBox.lastReplyHasStatusOk());
         CHECK(decoded.ShortDebugString() == "actuatorId: 10 actuatorValid: true "
-                                            "period: 4000 setting: 327680 "
+                                            "period: 4000 setting: 204800 "
                                             "constrainedBy { constraints { balancer: 100 } }");
+    }
+
+    // run for a while
+    for (ticks_millis_t now = 1001; now < 50000; ++now) {
+        testBox.update(now);
+    }
+
+    // read a pwm actuator 1
+    testBox.put(commands::READ_OBJECT);
+    testBox.put(cbox::obj_id_t(201));
+
+    {
+        auto decoded = blox::ActuatorPwm();
+        testBox.processInputToProto(decoded);
+        CHECK(decoded.value() == Approx(cnl::unwrap(ActuatorAnalog::value_t(50))).epsilon(0.03));
+    }
+
+    // read a pwm actuator 2
+    testBox.put(commands::READ_OBJECT);
+    testBox.put(cbox::obj_id_t(301));
+
+    {
+        auto decoded = blox::ActuatorPwm();
+        testBox.processInputToProto(decoded);
+        CHECK(decoded.value() == Approx(cnl::unwrap(ActuatorAnalog::value_t(50))).epsilon(0.03));
     }
 }
