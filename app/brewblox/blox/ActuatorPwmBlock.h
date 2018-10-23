@@ -67,6 +67,7 @@ public:
 
     virtual cbox::update_t update(const cbox::update_t& now) override final
     {
+        constrained.update();
         return pwm.update(now);
     }
 

@@ -138,6 +138,11 @@ public:
         actuator.setting(result);
     }
 
+    void update()
+    {
+        setting(setting());
+    }
+
     virtual value_t setting() const override final
     {
         return actuator.setting();
