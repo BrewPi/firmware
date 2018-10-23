@@ -3,7 +3,7 @@ FROM ubuntu:18.04
 COPY target /target/
 WORKDIR /target/brewblox-gcc
 
-RUN touch device_key.der server_key.der
+RUN touch device_key.der server_key.der eeprom.bin
 
 # status page
 EXPOSE 80
