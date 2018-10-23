@@ -94,8 +94,5 @@ enum class SparkVersion : uint8_t {
 SparkVersion
 getSparkVersion();
 
-bool
-sparkIsV1();
-
 void
 boardInit();

@@ -102,7 +102,7 @@ boardInit()
     HAL_GPIO_Write(PIN_ACTUATOR2, LOW);
     HAL_GPIO_Write(PIN_ACTUATOR3, LOW);
 
-    if (shieldIsV1()) {
+    if (getSparkVersion() == SparkVersion::V1) {
         HAL_GPIO_Write(PIN_ALARM, HIGH); // alarm is inverted on V1
     } else {
         HAL_Pin_Mode(PIN_ACTUATOR0, OUTPUT); // actuator 0 is not available on V1, but is on V2
