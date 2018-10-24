@@ -24,17 +24,21 @@
 
 namespace cbox {
 
+static bool SerialInUse = false;
 class SerialConnection : public StreamRefConnection<USBSerial> {
 public:
     SerialConnection()
         : StreamRefConnection(Serial)
     {
+        SerialInUse = true;
     }
-    virtual ~SerialConnection() = default;
+    virtual ~SerialConnection()
+    {
+        SerialInUse = false;
+    };
 };
 
 class SerialConnectionSource : public ConnectionSource {
-private:
 public:
     SerialConnectionSource()
     {
@@ -43,8 +47,7 @@ public:
 
     std::unique_ptr<Connection> newConnection() override final
     {
-        using namespace spark;
-        if (!Serial.isConnected()) {
+        if (Serial.isConnected() && !SerialInUse) {
             return std::make_unique<SerialConnection>();
         }
         return nullptr;
