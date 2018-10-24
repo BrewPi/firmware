@@ -16,6 +16,13 @@
       "command": "docker-compose exec compiler bash build-and-run-lib-test.sh"
     },
     {
+      "name": "BrewBlox App local",
+      "description": "Run BrewBlox app tests by compiling locally",
+      "focus": true,
+      "cwd": "~/repos/firmware/build",
+      "command": "make APP=brewblox PLATFORM=gcc"
+    },
+    {
       "name": "BrewBlox App test local",
       "description": "Run BrewBlox app tests by compiling locally",
       "focus": true,

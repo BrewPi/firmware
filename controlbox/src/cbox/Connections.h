@@ -124,6 +124,44 @@ public:
 };
 
 template <typename T>
+class StreamRefConnection : public Connection {
+private:
+    T& stream;
+    StreamDataIn<T> in;
+    StreamDataOut<T> out;
+
+public:
+    StreamRefConnection(T& _stream)
+        : stream(_stream)
+        , in(stream)
+        , out(stream)
+    {
+    }
+
+    virtual DataOut& getDataOut() override
+    {
+        return out;
+    }
+
+    virtual DataIn& getDataIn() override
+    {
+        return in;
+    }
+
+    virtual bool isConnected() override
+    {
+        return stream.isConnected();
+    }
+
+    T& get()
+    {
+        return stream;
+    }
+
+    StreamRefConnection(const StreamRefConnection& other) = delete; // not copyable
+};
+
+template <typename T>
 class StreamConnection : public Connection {
 private:
     T stream;
@@ -137,6 +175,7 @@ public:
         , out(stream)
     {
     }
+    virtual ~StreamConnection() = default;
 
     virtual DataOut& getDataOut() override
     {
