@@ -43,6 +43,7 @@
 #include <memory>
 
 #if defined(SPARK)
+#include "cbox/spark/ConnectionsSerial.h"
 #include "cbox/spark/ConnectionsTcp.h"
 #include "wiring/TicksWiring.h"
 using TicksClass = Ticks<TicksWiring>;
@@ -82,7 +83,8 @@ theConnectionPool()
 {
 #if defined(SPARK)
     static cbox::TcpConnectionSource tcpSource(8332);
-    static cbox::ConnectionPool connections = {tcpSource};
+    static cbox::SerialConnectionSource serialSource;
+    static cbox::ConnectionPool connections = {tcpSource, serialSource};
 #else
     static cbox::ConnectionPool connections = {testConnectionSource()};
 #endif
