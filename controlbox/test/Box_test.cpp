@@ -992,10 +992,10 @@ SCENARIO("A controlbox Box")
         THEN("A list of IDs of newly created objects is returned")
         {
             expected << addCrc("0C") << "|"
-                     << addCrc("00")        // status
-                     << "," << addCrc("64") // new object id 100
-                     << "," << addCrc("65") // new object id 101
-                     << "," << addCrc("66") // new object id 102
+                     << addCrc("00")          // status
+                     << "," << addCrc("6400") // new object id 100
+                     << "," << addCrc("6500") // new object id 101
+                     << "," << addCrc("6600") // new object id 102
                      << "\n";
             CHECK(out->str() == expected.str());
         }

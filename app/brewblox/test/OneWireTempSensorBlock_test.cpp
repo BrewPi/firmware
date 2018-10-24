@@ -86,7 +86,7 @@ SCENARIO("A TempSensorOneWireBlock")
             auto reply = testBox.processInput();
             THEN("3 new objects are discovered")
             {
-                CHECK(reply == cbox::addCrc("0C") + "|0000" + "," + cbox::addCrc("65") + "," + cbox::addCrc("66") + "," + cbox::addCrc("67") + "\n");
+                CHECK(reply == cbox::addCrc("0C") + "|0000" + "," + cbox::addCrc("6500") + "," + cbox::addCrc("6600") + "," + cbox::addCrc("6700") + "\n");
                 AND_THEN("These objects can be used as temp sensor")
                 {
                     auto s1 = brewbloxBox().makeCboxPtr<TempSensor>(101);
@@ -120,7 +120,7 @@ SCENARIO("A TempSensorOneWireBlock")
                 {
                     testBox.put(commands::DISCOVER_NEW_OBJECTS);
                     auto reply = testBox.processInput();
-                    CHECK(reply == cbox::addCrc("0C") + "|0000" + "," + cbox::addCrc("68") + "\n");
+                    CHECK(reply == cbox::addCrc("0C") + "|0000" + "," + cbox::addCrc("6800") + "\n");
                 }
             }
         }

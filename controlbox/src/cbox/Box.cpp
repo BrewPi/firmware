@@ -530,7 +530,7 @@ Box::discoverNewObjects(DataIn& in, HexCrcDataOut& out)
             newId = scanner->scanAndAdd();
             if (newId) {
                 out.writeListSeparator();
-                out.write(newId);
+                out.put(newId);
             }
         } while (newId);
     }
