@@ -249,8 +249,8 @@ public:
             DataOut& out = conn->getDataOut();
             currentDataOut = out;
             handler(in, out);
-            currentDataOut = allConnectionsDataOut;
         }
+        currentDataOut = allConnectionsDataOut;
     }
 
     DataOut& logDataOut() const

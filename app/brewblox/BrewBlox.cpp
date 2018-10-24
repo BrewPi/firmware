@@ -43,7 +43,9 @@
 #include <memory>
 
 #if defined(SPARK)
+#if PLATFORM_ID != 3 || defined(STDIN_SERIAL)
 #include "cbox/spark/ConnectionsSerial.h"
+#endif
 #include "cbox/spark/ConnectionsTcp.h"
 #include "wiring/TicksWiring.h"
 using TicksClass = Ticks<TicksWiring>;
@@ -83,8 +85,12 @@ theConnectionPool()
 {
 #if defined(SPARK)
     static cbox::TcpConnectionSource tcpSource(8332);
+#if PLATFORM_ID != 3 || defined(STDIN_SERIAL)
     static cbox::SerialConnectionSource serialSource;
     static cbox::ConnectionPool connections = {tcpSource, serialSource};
+#else
+    static cbox::ConnectionPool connections = {tcpSource};
+#endif
 #else
     static cbox::ConnectionPool connections = {testConnectionSource()};
 #endif
