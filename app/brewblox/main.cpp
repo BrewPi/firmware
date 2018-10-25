@@ -29,7 +29,11 @@ STARTUP(System.enableFeature(FEATURE_RESET_INFO));
 
 auto mdns = MDNS();
 auto mdns_started = bool(false);
+#if PLATFORM_ID == PLATFORM_GCC
+auto httpserver = TCPServer(8380); // listen on 8380 to serve a simple page with instructions
+#else
 auto httpserver = TCPServer(80); // listen on 80 to serve a simple page with instructions
+#endif
 
 #if PLATFORM_ID == PLATFORM_GCC
 #include <csignal>
