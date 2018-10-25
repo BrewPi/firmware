@@ -204,7 +204,6 @@ logger()
             out.write(c);
         }
         out.write('>');
-        out.write('\n');
     });
     return logger;
 }
