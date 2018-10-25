@@ -19,12 +19,16 @@
 
 #pragma once
 
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <string>
 
 std::string&
-operator<<(std::string& lh, const int& in);
+operator<<(std::string& lh, const int32_t& in);
+
+std::string&
+operator<<(std::string& lh, const uint32_t& in);
 
 std::string&
 operator<<(std::string& lh, const std::string& in);
@@ -53,6 +57,7 @@ public:
     {
         return StringBuffer(new std::string(initStr), [e, this](std::string* st) {
             m_logWriteFunction(e, *st);
+            delete st;
         });
     }
 
