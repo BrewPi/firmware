@@ -8,8 +8,8 @@ package blox;
 message SetpointSensorPair {
     option (nanopb_msgopt).msgid = 303;
 
-    uint32 setpointId = 1 [(brewblox).link = Setpoint, (nanopb).int_size = IS_16];
-    uint32 sensorId = 2 [(brewblox).link = TempSensor, (nanopb).int_size = IS_16];
+    uint32 setpointId = 1 [(brewblox).link = SetpointLink, (nanopb).int_size = IS_16];
+    uint32 sensorId = 2 [(brewblox).link = TempSensorLink, (nanopb).int_size = IS_16];
 
     bool setpointValid = 3 [(brewblox).readonly = true];
     bool sensorValid = 4 [(brewblox).readonly = true];

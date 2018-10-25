@@ -4,16 +4,16 @@ import "google/protobuf/descriptor.proto";
 
 message BrewbloxFieldOptions {
   enum LinkType {
-    Invalid = 0;
-    ProcessValue = 1;
-    TempSensor = 2;
-    Setpoint = 3;
-    SetpointSensorPair = 4;
-    ActuatorAnalog = 5;
-    ActuatorDigital = 6;
-    Balancer = 7;
-    Mutex = 8;
-    OneWireDevice = 9;
+    InvalidLink = 0;
+    ProcessValueLink = 1;
+    TempSensorLink = 2;
+    SetpointLink = 3;
+    SetpointSensorPairLink = 4;
+    ActuatorAnalogLink = 5;
+    ActuatorDigitalLink = 6;
+    BalancerLink = 7;
+    MutexLink = 8;
+    OneWireDeviceLink = 9;
   }
   enum UnitType {
       NotSet = 0;

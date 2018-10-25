@@ -14,9 +14,9 @@ message ActuatorOffset {
     VALUE = 1;
   }
 
-  uint32 targetId = 1 [ (brewblox).link = ProcessValue, (nanopb).int_size = IS_16 ];
+  uint32 targetId = 1 [ (brewblox).link = ProcessValueLink, (nanopb).int_size = IS_16 ];
   bool targetValid = 2 [ (brewblox).readonly = true ];
-  uint32 referenceId = 3 [ (brewblox).link = ProcessValue, (nanopb).int_size = IS_16 ];
+  uint32 referenceId = 3 [ (brewblox).link = ProcessValueLink, (nanopb).int_size = IS_16 ];
   SettingOrValue referenceSettingOrValue = 4;
   bool referenceValid = 5 [ (brewblox).readonly = true ];
   sint32 setting = 6 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true ];
