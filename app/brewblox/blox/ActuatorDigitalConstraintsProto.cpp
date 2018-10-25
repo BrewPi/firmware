@@ -8,16 +8,17 @@
 using MinOff = ADConstraints::MinOffTime<blox_DigitalConstraint_minOff_tag>;
 using MinOn = ADConstraints::MinOnTime<blox_DigitalConstraint_minOn_tag>;
 
+using Mutex_t = ADConstraints::Mutex<blox_DigitalConstraint_mutex_tag>;
+
 class CboxMutex : public ADConstraints::Base {
 private:
-    using Mutex_t = ADConstraints::Mutex<blox_DigitalConstraint_mutex_tag>;
     cbox::CboxPtr<TimedMutex> lookup;
     Mutex_t m_mutexConstraint;
 
 public:
     CboxMutex(const cbox::obj_id_t& objId)
         : lookup(brewbloxBox().makeCboxPtr<TimedMutex>(objId))
-        , m_mutexConstraint(lookup)
+        , m_mutexConstraint(lookup.lockFunctor())
     {
     }
 

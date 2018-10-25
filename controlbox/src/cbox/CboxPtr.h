@@ -98,12 +98,12 @@ public:
             std::move(const_cast<CboxPtr<T>*>(this)->lock()));
     }
 
-    operator std::function<std::shared_ptr<T>()>()
+    std::function<std::shared_ptr<T>()> lockFunctor()
     {
         return std::bind(&cbox::CboxPtr<T>::lock, this);
     }
 
-    operator std::function<std::shared_ptr<T>()>() const
+    std::function<std::shared_ptr<T>()> lockFunctor() const
     {
         return std::bind(&cbox::CboxPtr<T>::const_lock, this);
     }

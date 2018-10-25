@@ -22,7 +22,7 @@ private:
 public:
     CboxBalanced(const cbox::obj_id_t& objId)
         : lookup(brewbloxBox().makeCboxPtr<Balancer_t>(objId))
-        , m_balanced(lookup)
+        , m_balanced(lookup.lockFunctor())
     {
     }
 

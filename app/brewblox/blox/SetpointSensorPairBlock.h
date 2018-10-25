@@ -18,7 +18,7 @@ public
     SetpointSensorPairBlock(cbox::ObjectContainer& objects)
         : sensor(objects)
         , setpoint(objects)
-        , pair(setpoint, sensor)
+        , pair(setpoint.lockFunctor(), sensor.lockFunctor())
     {
     }
 

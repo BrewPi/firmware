@@ -20,7 +20,7 @@ public:
     ActuatorOffsetBlock(cbox::ObjectContainer& objects)
         : target(objects)
         , reference(objects)
-        , actuator(target, reference)
+        , actuator(target.lockFunctor(), reference.lockFunctor())
         , constrained(actuator)
     {
     }

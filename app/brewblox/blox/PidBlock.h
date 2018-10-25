@@ -20,7 +20,7 @@ public:
     PidBlock(cbox::ObjectContainer& objects)
         : input(objects)
         , output(objects)
-        , pid(input, [this]() {
+        , pid(input.lockFunctor(), [this]() {
             // convert ActuatorConstrained to base ProcessValue
             return std::shared_ptr<ProcessValue<Pid::out_t>>(this->output.lock());
         })
