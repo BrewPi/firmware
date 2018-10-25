@@ -393,7 +393,7 @@ Box::listStoredObjects(DataIn& in, HexCrcDataOut& out)
 void
 Box::loadObjectsFromStorage()
 {
-    auto objectLoader = [this](const storage_id_t& id, RegionDataIn& objInStorage) -> CboxError {
+    const auto objectLoader = [this](const storage_id_t& id, RegionDataIn& objInStorage) -> CboxError {
         obj_id_t objId = obj_id_t(id);
         CboxError status = CboxError::OK;
 
