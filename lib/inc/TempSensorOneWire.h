@@ -32,10 +32,10 @@ class OneWire;
 class TempSensorOneWire final : public TempSensor, public OneWireDevice {
 public:
 private:
-    DallasTemperature sensor;
-    temp_t calibrationOffset;
-    temp_t cachedValue = 0;
-    bool connected = false;
+    DallasTemperature m_sensor;
+    temp_t m_calibrationOffset;
+    temp_t m_cachedValue = 0;
+    bool m_connected = false;
 
 public:
     /**
@@ -47,19 +47,16 @@ public:
 	 */
     TempSensorOneWire(OneWire& bus, OneWireAddress _address = 0, const temp_t& _calibrationOffset = 0)
         : OneWireDevice(bus, _address)
-        , sensor(&bus)
-        , calibrationOffset(_calibrationOffset)
+        , m_sensor(&bus)
+        , m_calibrationOffset(_calibrationOffset)
     {
-        if (_address) {
-            init();
-        }
     }
 
     ~TempSensorOneWire() = default;
 
     virtual bool valid() const override final
     {
-        return connected;
+        return m_connected;
     }
 
     virtual temp_t value() const override final; // return cached value
@@ -71,7 +68,7 @@ public:
     }
     void setCalibration(temp_t const& calib)
     {
-        calibrationOffset = calib;
+        m_calibrationOffset = calib;
     }
     OneWireAddress getAddress() const
     {
@@ -79,13 +76,13 @@ public:
     }
     temp_t getCalibration() const
     {
-        return calibrationOffset;
+        return m_calibrationOffset;
     }
 
 private:
     void init();
 
-    void setConnected(bool connected);
+    void connected(bool _connected);
 
     void requestConversion();
 

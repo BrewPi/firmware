@@ -50,8 +50,8 @@ public:
 
     virtual cbox::update_t update(const cbox::update_t& now) override final
     {
-        // No updates for now. Alternatively, a periodic bus scan for new devices?
-        return update_never(now);
+        sensor.update();
+        return update_1s(now);
     }
 
     virtual void* implements(const cbox::obj_type_t& iface) override final
@@ -61,7 +61,8 @@ public:
         }
         if (iface == cbox::interfaceId<TempSensor>()) {
             // return the member that implements the interface in this case
-            TempSensor* ptr = &sensor;
+            TempSensorOneWire* owptr = &sensor;
+            TempSensor* ptr = owptr;
             return ptr;
         }
         if (iface == cbox::interfaceId<OneWireDevice>()) {

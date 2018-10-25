@@ -39,10 +39,10 @@ TempSensorOneWire::init()
 
     // If this is the first conversion after power on, the device will return DEVICE_DISCONNECTED_RAW
     // Because HIGH_ALARM_TEMP will be copied from EEPROM
-    int16_t temp = sensor.getTempRaw(getAddress().asUint8ptr());
+    int16_t temp = m_sensor.getTempRaw(getAddress().asUint8ptr());
     if (temp == DEVICE_DISCONNECTED_RAW) {
         // Device was just powered on and should be initialized
-        if (sensor.initConnection(getAddress().asUint8ptr())) {
+        if (m_sensor.initConnection(getAddress().asUint8ptr())) {
             requestConversion();
         }
     }
@@ -51,36 +51,37 @@ TempSensorOneWire::init()
 void
 TempSensorOneWire::requestConversion()
 {
-    sensor.requestTemperaturesByAddress(getAddress().asUint8ptr());
+    m_sensor.requestTemperaturesByAddress(getAddress().asUint8ptr());
 }
 
 void
-TempSensorOneWire::setConnected(bool _connected)
+TempSensorOneWire::connected(bool _connected)
 {
-    if (connected == _connected) {
+    if (m_connected == _connected) {
         return; // state stays the same
     }
-    if (connected) {
-        CL_LOG_WARN("OneWire temp sensor connected: ") << getAddress();
+    m_connected = _connected;
+    if (m_connected) {
+        // CL_LOG_WARN("OneWire temp sensor connected: ") << getAddress().toString();
     } else {
-        CL_LOG_WARN("OneWire temp sensor disconnected: ") << getAddress();
+        // CL_LOG_WARN("OneWire temp sensor disconnected: ") << getAddress().toString();
     }
 }
 
 temp_t
 TempSensorOneWire::value() const
 {
-    if (!connected) {
+    if (!m_connected) {
         return 0;
     }
 
-    return cachedValue;
+    return m_cachedValue;
 }
 
 void
 TempSensorOneWire::update()
 {
-    cachedValue = readAndConstrainTemp();
+    m_cachedValue = readAndConstrainTemp();
     requestConversion();
 }
 
@@ -90,7 +91,7 @@ TempSensorOneWire::readAndConstrainTemp()
     int16_t tempRaw;
     bool success;
 
-    tempRaw = sensor.getTempRaw(getAddress().asUint8ptr());
+    tempRaw = m_sensor.getTempRaw(getAddress().asUint8ptr());
     success = tempRaw != DEVICE_DISCONNECTED_RAW;
 
     if (!success) {
@@ -98,7 +99,7 @@ TempSensorOneWire::readAndConstrainTemp()
         init();
     }
 
-    setConnected(success);
+    connected(success);
 
     if (!success) {
         return 0;
@@ -107,5 +108,5 @@ TempSensorOneWire::readAndConstrainTemp()
     // difference in precision between DS18B20 format and temperature format
     constexpr auto shift = (-temp_t::exponent) - ONEWIRE_TEMP_SENSOR_PRECISION;
     temp_t temp = cnl::wrap<temp_t>(tempRaw << shift);
-    return temp + calibrationOffset;
+    return temp + m_calibrationOffset;
 }
