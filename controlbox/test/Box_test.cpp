@@ -1019,6 +1019,22 @@ SCENARIO("A controlbox Box")
             CHECK(out->str() == expected.str());
         }
 
+        THEN("The newly discoverd objects are persisted")
+        {
+            clearStreams();
+            *in << "07"; // list stored objects
+            *in << crc(in->str()) << "\n";
+            box.hexCommunicate();
+
+            expected << addCrc("07")
+                     << "|" << addCrc("00")
+                     << "," << addCrc("6400FFE80333333333")
+                     << "," << addCrc("6500FFE80344444444")
+                     << "," << addCrc("6600FFE80355555555")
+                     << "\n";
+            CHECK(out->str() == expected.str());
+        }
+
         clearStreams();
     }
 }
