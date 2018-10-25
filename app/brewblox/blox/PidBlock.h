@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ActuatorAnalogConstrained.h"
 #include "Pid.h"
 #include "ProcessValue.h"
 #include "blox/Block.h"
@@ -11,7 +12,7 @@
 class PidBlock : public Block<blox_Pid_msgid> {
 private:
     cbox::CboxPtr<ProcessValue<Pid::in_t>> input;
-    cbox::CboxPtr<ProcessValue<Pid::out_t>> output;
+    cbox::CboxPtr<ActuatorAnalogConstrained> output;
 
     Pid pid;
 
@@ -19,7 +20,10 @@ public:
     PidBlock(cbox::ObjectContainer& objects)
         : input(objects)
         , output(objects)
-        , pid(input, output)
+        , pid(input, [this]() {
+            // convert ActuatorConstrained to base ProcessValue
+            return std::shared_ptr<ProcessValue<Pid::out_t>>(this->output.lock());
+        })
     {
     }
 
