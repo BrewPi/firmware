@@ -168,11 +168,13 @@ public:
                 return CboxError::COULD_NOT_READ_PERSISTED_BLOCK_SIZE;
             }
 
-            switch (type) {
-            case static_cast<uint8_t>(BlockType::object): {
+            switch (BlockType(type)) {
+            case BlockType::object: {
                 auto blockData = RegionDataIn(reader, blockSize);
-
                 auto handleBlock = [&blockData, &handler]() -> CboxError {
+                    if (blockData.available() < sizeof(uint16_t) + sizeof(storage_id_t)) {
+                        return CboxError::PERSISTED_BLOCK_STREAM_ERROR;
+                    }
                     // first 2 bytes of block are actual data size. Limit reading to this region
                     uint16_t actualSize;
                     if (!blockData.get(actualSize)) {
@@ -186,14 +188,16 @@ public:
                     auto objectData = RegionDataIn(blockData, actualSize);
                     return handler(id, objectData);
                 };
-
                 auto result = handleBlock();
                 if (result != CboxError::OK) {
+                    if (result == CboxError::PERSISTED_BLOCK_STREAM_ERROR) {
+                        return CboxError::PERSISTED_BLOCK_STREAM_ERROR; // stop on read errors
+                    }
                     // log event. Do not return, because we do want to handle the next block
                 }
                 blockData.spool();
             } break;
-            case static_cast<uint8_t>(BlockType::disposed_block):
+            case BlockType::disposed_block:
                 if (!reader.skip(blockSize)) {
                     return CboxError::PERSISTED_BLOCK_STREAM_ERROR;
                 }
