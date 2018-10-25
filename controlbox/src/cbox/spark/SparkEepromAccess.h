@@ -6,11 +6,11 @@
 namespace cbox {
 
 class SparkEepromAccess : public EepromAccess {
-private:
-    static const uint16_t MAGIC_BYTES;
-
 public:
-    SparkEepromAccess() = default;
+    SparkEepromAccess()
+    {
+        HAL_EEPROM_Init();
+    }
     ~SparkEepromAccess() = default;
 
     virtual uint8_t readByte(uint16_t offset) const override final
