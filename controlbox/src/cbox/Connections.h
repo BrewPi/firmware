@@ -169,7 +169,7 @@ private:
     StreamDataOut<T> out;
 
 public:
-    StreamConnection(T _stream)
+    explicit StreamConnection(T&& _stream)
         : stream(std::move(_stream))
         , in(stream)
         , out(stream)

@@ -28,7 +28,7 @@ namespace cbox {
 
 class TcpConnection : public StreamConnection<TCPClient> {
 public:
-    TcpConnection(TCPClient _client)
+    explicit TcpConnection(TCPClient&& _client)
         : StreamConnection<TCPClient>(std::move(_client))
     {
     }
@@ -54,7 +54,7 @@ public:
         if (WiFi.ready()) {
             TCPClient newClient = server.available();
             if (newClient.connected()) {
-                return std::make_unique<TcpConnection>(newClient);
+                return std::make_unique<TcpConnection>(std::move(newClient));
             }
         }
         return nullptr;
