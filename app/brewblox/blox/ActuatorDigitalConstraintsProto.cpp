@@ -15,8 +15,8 @@ private:
     Mutex_t m_mutexConstraint;
 
 public:
-    CboxMutex(const cbox::obj_id_t& id)
-        : lookup(brewbloxBox().makeCboxPtr<TimedMutex>(id))
+    CboxMutex(const cbox::obj_id_t& objId)
+        : lookup(brewbloxBox().makeCboxPtr<TimedMutex>(objId))
         , m_mutexConstraint(lookup)
     {
     }

@@ -20,8 +20,8 @@ private:
     Balanced_t m_balanced;
 
 public:
-    CboxBalanced(const cbox::obj_id_t& id)
-        : lookup(brewbloxBox().makeCboxPtr<Balancer_t>(id))
+    CboxBalanced(const cbox::obj_id_t& objId)
+        : lookup(brewbloxBox().makeCboxPtr<Balancer_t>(objId))
         , m_balanced(lookup)
     {
     }
