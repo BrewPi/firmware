@@ -41,7 +41,8 @@ void
 setDigitalConstraints(const blox_DigitalConstraints& msg, ActuatorDigitalConstrained& act)
 {
     act.removeAllConstraints();
-    for (uint8_t i = 0; i < msg.constraints_count; ++i) {
+    pb_size_t numConstraints = std::min(msg.constraints_count, pb_size_t(sizeof(msg.constraints) / sizeof(msg.constraints[0])));
+    for (pb_size_t i = 0; i < numConstraints; ++i) {
         blox_DigitalConstraint constraintDfn = msg.constraints[i];
         switch (constraintDfn.which_constraint) {
         case blox_DigitalConstraint_minOff_tag:
@@ -63,8 +64,8 @@ getDigitalConstraints(blox_DigitalConstraints& msg, const ActuatorDigitalConstra
     auto& constraints = act.constraintsList();
     auto it = constraints.cbegin();
     msg.constraints_count = 0;
-    uint8_t numConstraints = sizeof(msg.constraints) / sizeof(msg.constraints[0]);
-    for (uint8_t i = 0; i < numConstraints; ++i, ++it) {
+    pb_size_t numConstraints = sizeof(msg.constraints) / sizeof(msg.constraints[0]);
+    for (pb_size_t i = 0; i < numConstraints; ++i, ++it) {
         if (it == constraints.cend()) {
             return;
         }
