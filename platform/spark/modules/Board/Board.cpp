@@ -55,15 +55,18 @@ boardInit()
 #if PLATFORM_ID == 8 || PLATFORM_ID == 3 // P1 or simulation
     HAL_Pin_Mode(PIN_V3_BOTTOM1, OUTPUT);
     HAL_Pin_Mode(PIN_V3_BOTTOM2, OUTPUT);
-    HAL_Pin_Mode(PIN_V3_TOP1, OUTPUT);
     HAL_Pin_Mode(PIN_V3_TOP2, OUTPUT);
     HAL_Pin_Mode(PIN_V3_TOP3, OUTPUT);
 
     HAL_GPIO_Write(PIN_V3_BOTTOM1, LOW);
     HAL_GPIO_Write(PIN_V3_BOTTOM2, LOW);
-    HAL_GPIO_Write(PIN_V3_TOP1, LOW);
     HAL_GPIO_Write(PIN_V3_TOP2, LOW);
     HAL_GPIO_Write(PIN_V3_TOP3, LOW);
+
+#ifdef PIN_V3_TOP1
+    HAL_Pin_Mode(PIN_V3_TOP1, OUTPUT);
+    HAL_GPIO_Write(PIN_V3_TOP1, LOW);
+#endif
 
 #ifdef PIN_V3_TOP1_DIR
     HAL_Pin_Mode(PIN_V3_TOP1_DIR, OUTPUT);
