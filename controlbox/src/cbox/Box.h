@@ -64,7 +64,7 @@ private:
     void discoverNewObjects(DataIn& in, HexCrcDataOut& out);
 
     std::tuple<CboxError, std::shared_ptr<Object>, uint8_t> createObjectFromStream(DataIn& in);
-    void loadObjectsFromStorage();
+    CboxError loadSingleObjectFromStorage(const storage_id_t& id, RegionDataIn& objInStorage);
 
 public:
     Box(ObjectFactory& _factory,
@@ -108,6 +108,8 @@ public:
         lastUpdateTime = now;
         objects.forcedUpdate(now);
     }
+
+    void loadObjectsFromStorage();
 
     inline const obj_id_t userStartId() const
     {

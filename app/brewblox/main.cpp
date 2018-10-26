@@ -71,7 +71,7 @@ setup()
     boardInit();
     System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
     WiFi.setListenTimeout(30);
-    brewbloxBox(); // init box
+    brewbloxBox().loadObjectsFromStorage(); // init box and load stored objects
     System.on(setup_update, watchdogCheckin);
 
     bool success = mdns.setHostname(System.deviceID());

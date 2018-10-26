@@ -540,9 +540,10 @@ SCENARIO("A controlbox Box")
                     StringStreamConnectionSource connSource2;
                     ConnectionPool connPool2 = {connSource2};
 
-                    THEN("All objects are restored from storage")
+                    THEN("All objects can be restored from storage")
                     {
                         Box box2(factory2, container2, storage2, connPool2);
+                        box2.loadObjectsFromStorage();
 
                         auto in2 = std::make_shared<std::stringstream>();
                         auto out2 = std::make_shared<std::stringstream>();
@@ -609,6 +610,7 @@ SCENARIO("A controlbox Box")
                             CHECK(eepromReplace(originalObject, damagedObject) == true);
 
                             Box box2(factory2, container2, storage2, connPool2);
+                            box2.loadObjectsFromStorage();
 
                             auto in2 = std::make_shared<std::stringstream>();
                             auto out2 = std::make_shared<std::stringstream>();
