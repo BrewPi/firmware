@@ -67,7 +67,8 @@ using OneWireDriver = DS248x;
 #define ONEWIRE_ARG 0x00
 #endif
 
-auto ticks = TicksClass(writableBootTimeRef());
+static ticks_seconds_t bootTimeInSeconsSinceEpoch = 0;
+auto ticks = TicksClass(bootTimeInSeconsSinceEpoch);
 using EepromAccessImpl = cbox::SparkEepromAccess;
 
 // define separately to make it available for tests
@@ -98,56 +99,45 @@ theConnectionPool()
     return connections;
 }
 
-cbox::ObjectContainer
-systemObjects()
+cbox::Box&
+makeBrewBloxBox()
 {
-    std::vector<cbox::ContainedObject> sysObjects = {
+    static cbox::ObjectContainer objects({
         // profiles will be at position 1
         cbox::ContainedObject(2, 0xFF, std::make_shared<SysInfoBlock>()),
         cbox::ContainedObject(3, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
         cbox::ContainedObject(4, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire())),
-    };
+    });
 
-    std::vector<cbox::ContainedObject> pinObjects = {
 #ifdef PIN_V3_BOTTOM1
-        cbox::ContainedObject(10, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_V3_BOTTOM1)),
+    objects.add(std::make_shared<ActuatorPinBlock>(objects, PIN_V3_BOTTOM1), 0xFF, 10);
 #endif
 #ifdef PIN_V3_BOTTOM2
-        cbox::ContainedObject(11, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_V3_BOTTOM2)),
+    objects.add(std::make_shared<ActuatorPinBlock>(objects, PIN_V3_BOTTOM2), 0xFF, 11);
 #endif
 #ifdef PIN_V3_TOP1
-        cbox::ContainedObject(12, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_V3_TOP1)),
+    objects.add(std::make_shared<ActuatorPinBlock>(objects, PIN_V3_TOP1), 0xFF, 12);
 #endif
 #ifdef PIN_V3_TOP2
-        cbox::ContainedObject(13, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_V3_TOP2)),
+    objects.add(std::make_shared<ActuatorPinBlock>(objects, PIN_V3_TOP2), 0xFF, 13);
 #endif
 #ifdef PIN_V3_TOP3
-        cbox::ContainedObject(14, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_V3_TOP3)),
+    objects.add(std::make_shared<ActuatorPinBlock>(objects, PIN_V3_TOP3), 0xFF, 14);
 #endif
-#ifdef PIN_ACTUATOR1
-        cbox::ContainedObject(16, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR1)),
-#endif
-#ifdef PIN_ACTUATOR2
-        cbox::ContainedObject(17, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR2)),
-#endif
-#ifdef PIN_ACTUATOR3
-        cbox::ContainedObject(18, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR3)),
-#endif
-    };
-
 #ifdef PIN_ACTUATOR0
     if (getSparkVersion() == SparkVersion::V2) {
-        sysObjects.push_back(cbox::ContainedObject(15, 0xFF, std::make_shared<ActuatorPinBlock>(PIN_ACTUATOR0)));
+        objects.add(std::make_shared<ActuatorPinBlock>(objects, PIN_ACTUATOR0), 0xFF, 15);
     }
 #endif
-    sysObjects.insert(sysObjects.end(), pinObjects.begin(), pinObjects.end());
-    return sysObjects;
-}
-
-cbox::Box&
-makeBrewBloxBox()
-{
-    static cbox::ObjectContainer objects = systemObjects();
+#ifdef PIN_ACTUATOR1
+    objects.add(std::make_shared<ActuatorPinBlock>(objects, PIN_ACTUATOR1), 0xFF, 16);
+#endif
+#ifdef PIN_ACTUATOR2
+    objects.add(std::make_shared<ActuatorPinBlock>(objects, PIN_ACTUATOR2), 0xFF, 17);
+#endif
+#ifdef PIN_ACTUATOR3
+    objects.add(std::make_shared<ActuatorPinBlock>(objects, PIN_ACTUATOR3), 0xFF, 18);
+#endif
 
     static cbox::ObjectFactory objectFactory = {
         {TempSensorOneWireBlock::staticTypeId(), std::make_shared<TempSensorOneWireBlock>},
@@ -160,7 +150,7 @@ makeBrewBloxBox()
         {ActuatorOffsetBlock::staticTypeId(), []() { return std::make_shared<ActuatorOffsetBlock>(objects); }},
         {BalancerBlock::staticTypeId(), std::make_shared<BalancerBlock>},
         {MutexBlock::staticTypeId(), std::make_shared<MutexBlock>},
-        {SetpointProfileBlock::staticTypeId(), std::make_shared<SetpointProfileBlock>},
+        {SetpointProfileBlock::staticTypeId(), []() { return std::make_shared<SetpointProfileBlock>(bootTimeInSeconsSinceEpoch); }},
     };
 
     static EepromAccessImpl eeprom;
@@ -207,8 +197,6 @@ logger()
     });
     return logger;
 }
-
-static ticks_seconds_t bootTimeInSeconsSinceEpoch = 0;
 
 const ticks_seconds_t&
 bootTimeRef()

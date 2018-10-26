@@ -1,8 +1,8 @@
 
 
 #include "ActuatorDigitalConstrained.h"
-#include "BrewBlox.h"
 #include "cbox/CboxPtr.h"
+#include "cbox/ObjectContainer.h"
 #include "proto/cpp/DigitalConstraints.pb.h"
 
 using MinOff = ADConstraints::MinOffTime<blox_DigitalConstraint_minOff_tag>;
@@ -16,8 +16,8 @@ private:
     Mutex_t m_mutexConstraint;
 
 public:
-    CboxMutex(const cbox::obj_id_t& objId)
-        : lookup(brewbloxBox().makeCboxPtr<TimedMutex>(objId))
+    CboxMutex(cbox::ObjectContainer& objects, const cbox::obj_id_t& objId)
+        : lookup(cbox::CboxPtr<TimedMutex>(objects, objId))
         , m_mutexConstraint(lookup.lockFunctor())
     {
     }
@@ -39,7 +39,7 @@ public:
 };
 
 void
-setDigitalConstraints(const blox_DigitalConstraints& msg, ActuatorDigitalConstrained& act)
+setDigitalConstraints(const blox_DigitalConstraints& msg, ActuatorDigitalConstrained& act, cbox::ObjectContainer& objects)
 {
     act.removeAllConstraints();
     pb_size_t numConstraints = std::min(msg.constraints_count, pb_size_t(sizeof(msg.constraints) / sizeof(msg.constraints[0])));
@@ -53,7 +53,7 @@ setDigitalConstraints(const blox_DigitalConstraints& msg, ActuatorDigitalConstra
             act.addConstraint(std::make_unique<MinOn>(constraintDfn.constraint.minOn));
             break;
         case blox_DigitalConstraint_mutex_tag:
-            act.addConstraint(std::make_unique<CboxMutex>(constraintDfn.constraint.mutex));
+            act.addConstraint(std::make_unique<CboxMutex>(objects, constraintDfn.constraint.mutex));
             break;
         }
     }

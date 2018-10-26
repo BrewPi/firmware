@@ -11,13 +11,15 @@
 
 class ActuatorPwmBlock : public Block<blox_ActuatorPwm_msgid> {
 private:
+    cbox::ObjectContainer& objectsRef; // remember object container reference to create constraints
     cbox::CboxPtr<ActuatorDigitalConstrained> actuator;
     ActuatorPwm pwm;
     ActuatorAnalogConstrained constrained;
 
 public:
     ActuatorPwmBlock(cbox::ObjectContainer& objects)
-        : actuator(objects)
+        : objectsRef(objects)
+        , actuator(objects)
         , pwm(
               [this]() {
                   // convert ActuatorDigitalConstrained to base ActuatorDigitalChangeLogged
@@ -36,7 +38,7 @@ public:
         if (result == cbox::CboxError::OK) {
             actuator.setId(newData.actuatorId);
             pwm.period(newData.period);
-            setAnalogConstraints(newData.constrainedBy, constrained);
+            setAnalogConstraints(newData.constrainedBy, constrained, objectsRef);
             constrained.setting(cnl::wrap<ActuatorAnalog::value_t>(newData.setting));
         }
         return result;

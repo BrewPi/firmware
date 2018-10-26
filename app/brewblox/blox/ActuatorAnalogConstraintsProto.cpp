@@ -2,7 +2,6 @@
 
 #include "ActuatorAnalogConstrained.h"
 #include "Balancer.h"
-#include "BrewBlox.h"
 #include "cbox/CboxPtr.h"
 #include "proto/cpp/AnalogConstraints.pb.h"
 
@@ -20,8 +19,8 @@ private:
     Balanced_t m_balanced;
 
 public:
-    CboxBalanced(const cbox::obj_id_t& objId)
-        : lookup(brewbloxBox().makeCboxPtr<Balancer_t>(objId))
+    CboxBalanced(cbox::ObjectContainer& objects, const cbox::obj_id_t& objId)
+        : lookup(cbox::CboxPtr<Balancer_t>(objects, objId))
         , m_balanced(lookup.lockFunctor())
     {
     }
@@ -43,7 +42,7 @@ public:
 };
 
 void
-setAnalogConstraints(const blox_AnalogConstraints& msg, ActuatorAnalogConstrained& act)
+setAnalogConstraints(const blox_AnalogConstraints& msg, ActuatorAnalogConstrained& act, cbox::ObjectContainer& objects)
 {
     act.removeAllConstraints();
     pb_size_t numConstraints = std::min(msg.constraints_count, pb_size_t(sizeof(msg.constraints) / sizeof(msg.constraints[0])));
@@ -59,8 +58,7 @@ setAnalogConstraints(const blox_AnalogConstraints& msg, ActuatorAnalogConstraine
                 cnl::wrap<ActuatorAnalog::value_t>(constraintDfn.constraint.max)));
             break;
         case blox_AnalogConstraint_balancer_tag:
-            act.addConstraint(std::make_unique<CboxBalanced>(
-                constraintDfn.constraint.balancer));
+            act.addConstraint(std::make_unique<CboxBalanced>(objects, constraintDfn.constraint.balancer));
             break;
         }
     }

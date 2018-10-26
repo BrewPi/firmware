@@ -1,6 +1,5 @@
 #pragma once
 
-#include "BrewBlox.h"
 #include "SetpointProfile.h"
 #include "blox/Block.h"
 #include "pb_decode.h"
@@ -43,8 +42,8 @@ protected:
     }
 
 public:
-    SetpointProfileBlock()
-        : profile(bootTimeRef())
+    SetpointProfileBlock(ticks_millis_t& bootTimeRef)
+        : profile(bootTimeRef)
     {
     }
     virtual ~SetpointProfileBlock() = default;

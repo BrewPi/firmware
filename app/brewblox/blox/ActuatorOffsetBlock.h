@@ -2,7 +2,6 @@
 
 #include "ActuatorAnalogConstrained.h"
 #include "ActuatorAnalogConstraintsProto.h"
-
 #include "ActuatorOffset.h"
 #include "blox/Block.h"
 #include "cbox/CboxPtr.h"
@@ -11,6 +10,7 @@
 
 class ActuatorOffsetBlock : public Block<blox_ActuatorOffset_msgid> {
 private:
+    cbox::ObjectContainer& objectsRef; // remember object container reference to create constraints
     cbox::CboxPtr<SetpointSensorPair> target;
     cbox::CboxPtr<SetpointSensorPair> reference;
     ActuatorOffset actuator;
@@ -18,7 +18,8 @@ private:
 
 public:
     ActuatorOffsetBlock(cbox::ObjectContainer& objects)
-        : target(objects)
+        : objectsRef(objects)
+        , target(objects)
         , reference(objects)
         , actuator(target.lockFunctor(), reference.lockFunctor())
         , constrained(actuator)
@@ -33,7 +34,7 @@ public:
             target.setId(newData.targetId);
             reference.setId(newData.referenceId);
             actuator.selectedReference(ActuatorOffset::SettingOrValue(newData.referenceSettingOrValue));
-            setAnalogConstraints(newData.constrainedBy, constrained);
+            setAnalogConstraints(newData.constrainedBy, constrained, objectsRef);
             constrained.setting(cnl::wrap<ActuatorAnalog::value_t>(newData.setting));
         }
         return result;

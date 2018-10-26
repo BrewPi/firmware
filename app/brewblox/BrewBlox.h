@@ -37,16 +37,5 @@ brewbloxBox();
 OneWire&
 theOneWire();
 
-// have a global variable for the device start time, which is updated with
-// the ticks block but referenced by blocks that need the actual time
-const ticks_seconds_t&
-bootTimeRef();
-
-ticks_seconds_t&
-writableBootTimeRef();
-
-void
-setBootTime(const ticks_seconds_t& bootTime);
-
 void
 updateBrewbloxBox();

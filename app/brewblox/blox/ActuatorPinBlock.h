@@ -5,18 +5,22 @@
 #include "ActuatorPin.h"
 #include "blox/Block.h"
 #include "proto/cpp/ActuatorPin.pb.h"
+#include <cstdint>
 
 class ActuatorPinBlock : public Block<blox_ActuatorPin_msgid> {
 private:
+    cbox::ObjectContainer& objectsRef; // remember object container reference to create constraints
     ActuatorPin actuator;
     ActuatorDigitalConstrained constrained;
 
 public:
-    ActuatorPinBlock(uint8_t pinNr)
-        : actuator(pinNr, false)
+    ActuatorPinBlock(cbox::ObjectContainer& objects, uint8_t pinNr)
+        : objectsRef(objects)
+        , actuator(pinNr, false)
         , constrained(actuator)
     {
     }
+    virtual ~ActuatorPinBlock() = default;
 
     virtual cbox::CboxError streamFrom(cbox::DataIn& dataIn) override final
     {
@@ -24,7 +28,7 @@ public:
         cbox::CboxError result = streamProtoFrom(dataIn, &newData, blox_ActuatorPin_fields, blox_ActuatorPin_size);
         if (result == cbox::CboxError::OK) {
             actuator.invert(newData.invert);
-            setDigitalConstraints(newData.constrainedBy, constrained);
+            setDigitalConstraints(newData.constrainedBy, constrained, objectsRef);
             constrained.state(ActuatorDigital::State(newData.state));
         }
         return result;

@@ -63,7 +63,7 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
 
     // configure pin actuator 1
     testBox.put(commands::WRITE_OBJECT);
-    testBox.put(cbox::obj_id_t(10)); // system object 11 is a predefined pin actuator
+    testBox.put(cbox::obj_id_t(10)); // system object 10 is a predefined pin actuator
     testBox.put(uint8_t(0xFF));
     testBox.put(ActuatorPinBlock::staticTypeId());
     {
