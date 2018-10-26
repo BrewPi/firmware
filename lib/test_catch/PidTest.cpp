@@ -109,7 +109,7 @@ SCENARIO("PID Test")
         CHECK(pid.error() == Approx(1.2).epsilon(0.05)); // the filter introduces some delay, which is why this is not 1.0
         CHECK(pid.p() == Approx(12).epsilon(0.05));
         CHECK(pid.i() == Approx(accumulatedError * (10.0 / 2000)).epsilon(0.01));
-        CHECK(pid.d() == Approx(10 * 9.0 / 900 * 200).epsilon(0.01));
+        CHECK(pid.d() == Approx(-10 * 9.0 / 900 * 200).epsilon(0.01));
 
         CHECK(actuator->setting() == pid.p() + pid.i() + pid.d());
     }
@@ -136,7 +136,7 @@ SCENARIO("PID Test")
         CHECK(pid.error() == Approx(-1.2).epsilon(0.05)); // the filter introduces some delay, which is why this is not 1.0
         CHECK(pid.p() == Approx(12).epsilon(0.05));
         CHECK(pid.i() == Approx(accumulatedError * (-10.0 / 2000)).epsilon(0.01));
-        CHECK(pid.d() == Approx(10 * 9.0 / 900 * 200).epsilon(0.01));
+        CHECK(pid.d() == Approx(-10 * 9.0 / 900 * 200).epsilon(0.01));
 
         CHECK(actuator->setting() == pid.p() + pid.i() + pid.d());
     }

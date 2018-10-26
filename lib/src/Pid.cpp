@@ -59,7 +59,7 @@ Pid::update()
     m_i = m_integral;
 
     m_derivative = m_filter.readDerivative<decltype(m_derivative)>();
-    m_d = -m_kp * (m_derivative * m_td);
+    m_d = m_kp * (m_derivative * m_td);
 
     auto pidResult = m_p + m_i + m_d;
 
