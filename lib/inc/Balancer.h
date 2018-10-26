@@ -66,6 +66,11 @@ public:
             return r.requester == req;
         });
 
+        if (match == requesters.end()) {
+            registerEntry(req);
+            match = (requesters.end() - 1);
+        }
+
         if (match != requesters.end()) {
             match->requested = val;
             return std::min(val, match->granted);
@@ -118,9 +123,6 @@ public:
         std::function<std::shared_ptr<Balancer<ID>>()>&& balancer)
         : m_balancer(balancer)
     {
-        if (auto balancerPtr = balancer()) {
-            balancerPtr->registerEntry(this);
-        }
     }
 
     Balanced(const Balanced&) = delete;
