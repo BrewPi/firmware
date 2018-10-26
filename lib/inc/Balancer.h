@@ -75,17 +75,28 @@ public:
 
     void update()
     {
+        auto numActuators = requesters.size();
+        if (numActuators == 0) {
+            return;
+        }
+
         auto requestedTotal = value_t(0);
         for (const auto& a : requesters) {
             requestedTotal += a.requested;
         }
+        auto budgetLeft = value_t(0);
         if (available > requestedTotal) {
+            budgetLeft = available - requestedTotal;
             requestedTotal = available;
         }
-        safe_elastic_fixed_point<10, 21, int32_t> scale = cnl::quotient<safe_elastic_fixed_point<21, 21, int64_t>>(available, requestedTotal);
+        auto budgetLeftPerActuator = budgetLeft / numActuators;
+
+        safe_elastic_fixed_point<10, 21, int32_t>
+            scale = cnl::quotient<safe_elastic_fixed_point<21, 21, int64_t>>(available, requestedTotal);
 
         for (auto& a : requesters) {
             a.granted = a.requested * scale;
+            a.granted += budgetLeftPerActuator;
         }
     }
 

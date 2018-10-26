@@ -151,4 +151,35 @@ SCENARIO("When two analog actuators are constrained by a balancer", "[constraint
         CHECK(cAct1.setting() == Approx(70).margin(cnl::numeric_limits<value_t>::min()));
         CHECK(cAct2.setting() == Approx(30).margin(cnl::numeric_limits<value_t>::min()));
     }
+    THEN("When the previous request didn't exceed the total, the excess is equally distributed for the granted values")
+    {
+        balancer->update();
+        cAct1.setting(20);
+        cAct2.setting(0);
+        balancer->update();
+        cAct1.setting(100);
+        cAct2.setting(100);
+
+        CHECK(cAct1.setting() == Approx(60).margin(cnl::numeric_limits<value_t>::min()));
+        CHECK(cAct2.setting() == Approx(40).margin(cnl::numeric_limits<value_t>::min()));
+
+        balancer->update();
+        cAct1.setting(0);
+        cAct2.setting(0);
+        balancer->update();
+        cAct1.setting(100);
+        cAct2.setting(100);
+
+        CHECK(cAct1.setting() == Approx(50).margin(cnl::numeric_limits<value_t>::min()));
+        CHECK(cAct2.setting() == Approx(50).margin(cnl::numeric_limits<value_t>::min()));
+
+        AND_THEN("On the next request it is limited")
+        {
+            balancer->update();
+            cAct1.setting(100);
+            cAct2.setting(100);
+            CHECK(cAct1.setting() == Approx(50).margin(cnl::numeric_limits<value_t>::min()));
+            CHECK(cAct2.setting() == Approx(50).margin(cnl::numeric_limits<value_t>::min()));
+        }
+    }
 }
