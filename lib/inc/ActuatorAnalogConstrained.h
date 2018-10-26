@@ -131,7 +131,9 @@ public:
 
     virtual void setting(const value_t& val) override final
     {
-        value_t result = val;
+        // first set actuator to requested value to
+        actuator.setting(val);
+        value_t result = actuator.setting();
         for (auto& c : constraints) {
             result = c->constrain(result);
         }

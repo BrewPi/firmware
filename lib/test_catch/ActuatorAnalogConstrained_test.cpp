@@ -82,8 +82,12 @@ SCENARIO("When two analog actuators are constrained by a balancer", "[constraint
     using value_t = ActuatorAnalog::value_t;
     auto balancer = std::make_shared<Balancer<2>>();
     auto act1 = ActuatorAnalogMock();
+    act1.minSetting(0);
+    act1.maxSetting(100);
     auto cAct1 = ActuatorAnalogConstrained(act1);
     auto act2 = ActuatorAnalogMock();
+    act2.minSetting(0);
+    act2.maxSetting(100);
     auto cAct2 = ActuatorAnalogConstrained(act2);
 
     cAct1.addConstraint(std::make_unique<AAConstraints::Balanced<2>>([balancer]() { return balancer; }));
@@ -111,6 +115,35 @@ SCENARIO("When two analog actuators are constrained by a balancer", "[constraint
         CHECK(cAct1.setting() == Approx(50).margin(cnl::numeric_limits<value_t>::min()));
         CHECK(cAct2.setting() == Approx(30).margin(cnl::numeric_limits<value_t>::min()));
 
+        balancer->update();
+        cAct1.setting(70);
+        cAct2.setting(30);
+
+        CHECK(cAct1.setting() == Approx(70).margin(cnl::numeric_limits<value_t>::min()));
+        CHECK(cAct2.setting() == Approx(30).margin(cnl::numeric_limits<value_t>::min()));
+    }
+
+    THEN("Values that the actuator does not support are used by the balancer")
+    {
+        balancer->update();
+        cAct1.setting(-60);
+        cAct2.setting(-60);
+
+        for (auto& client : balancer->clients()) {
+            CHECK(client.requested == 0);
+        }
+
+        balancer->update();
+        cAct1.setting(-70);
+        cAct2.setting(30);
+
+        for (auto& client : balancer->clients()) {
+            CHECK(client.requested >= 0);
+        }
+
+        balancer->update();
+        cAct1.setting(70);
+        cAct2.setting(30);
         balancer->update();
         cAct1.setting(70);
         cAct2.setting(30);
