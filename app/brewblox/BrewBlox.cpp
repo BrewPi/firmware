@@ -229,6 +229,7 @@ namespace cbox {
 void
 connectionStarted(DataOut& out)
 {
-    out.put("0000|0000<!Connected to BrewBlox v0.1.0>\n");
+    char msg[] = "<!Connected to BrewBlox v0.1.0>";
+    out.writeBuffer(&msg, strlen(msg));
 }
 }
