@@ -63,6 +63,7 @@ public:
         persisted.actuatorId = actuator.getId();
         persisted.period = pwm.period();
         persisted.setting = cnl::unwrap(constrained.setting());
+        getAnalogConstraints(persisted.constrainedBy, constrained);
 
         return streamProtoTo(out, &persisted, blox_ActuatorPwm_fields, blox_ActuatorPwm_size);
     }
