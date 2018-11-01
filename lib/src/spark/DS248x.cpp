@@ -66,13 +66,13 @@ uint8_t
 DS248x::busyWait(bool setReadPtr)
 {
     uint8_t status;
-    int loopCount = 1000;
+    int loopCount = 100;
     while ((status = wireReadStatus(setReadPtr)) & DS248X_STATUS_BUSY) {
         if (--loopCount <= 0) {
             mTimeout = 1;
             break;
         }
-        delayMicroseconds(20);
+        delayMicroseconds(200);
     }
     return status;
 }

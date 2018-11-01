@@ -62,7 +62,6 @@ watchdogCheckin()
 void
 setup()
 {
-    //Serial.begin(57600);
     // Install a signal handler
 #if PLATFORM_ID == PLATFORM_GCC
     std::signal(SIGINT, signal_handler);
