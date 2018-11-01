@@ -229,6 +229,6 @@ namespace cbox {
 void
 connectionStarted(DataOut& out)
 {
-    out.put("<Connected to BrewBlox v0.1.0>");
+    out.put("0000|0000<!Connected to BrewBlox v0.1.0>\n");
 }
 }
