@@ -21,6 +21,8 @@ message BrewbloxFieldOptions {
       DeltaTemp = 2;
       DeltaTempPerTime = 3;
       Time = 4;
+      InverseTemp = 5;
+      DeltaTempTime = 6;
   }
   UnitType unit = 1;
   uint32 scale = 2;

@@ -35,7 +35,7 @@ message Pid {
     bool enabled = 11;
     bool active = 12 [(brewblox).readonly = true];
     
-    sint32 kp = 13 [(brewblox).unit = Temp, (brewblox).scale = 4096, (nanopb).int_size = IS_32];
+    sint32 kp = 13 [(brewblox).unit = InverseTemp, (brewblox).scale = 4096, (nanopb).int_size = IS_32];
     uint32 ti = 14 [(brewblox).unit = Time, (nanopb).int_size = IS_16];
     uint32 td = 15 [(brewblox).unit = Time, (nanopb).int_size = IS_16];
 
@@ -44,6 +44,6 @@ message Pid {
     sint32 d = 18 [(brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
 
     sint32 error = 19 [(brewblox).unit = DeltaTemp, (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];    
-    sint32 integral = 20 [(brewblox).unit = DeltaTemp, (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
+    sint32 integral = 20 [(brewblox).unit = DeltaTempTime, (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true];
     sint32 derivative = 21 [(brewblox).unit = DeltaTempPerTime, (brewblox).scale = 8388608, (nanopb).int_size = IS_32, (brewblox).readonly = true];
 }
