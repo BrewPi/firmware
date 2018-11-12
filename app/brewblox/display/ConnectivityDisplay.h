@@ -20,73 +20,75 @@
 #pragma once
 
 extern "C" {
-    #include "d4d.h"
+#include "d4d.h"
 }
 #include "Platform.h"
-#include "PiLink.h"
 
-class ControllerWiFiView
-{
+class ControllerWiFiView {
     const D4D_OBJECT* obj;
 
 public:
-    ControllerWiFiView(){
+    ControllerWiFiView()
+    {
         this->obj = nullptr;
     }
 
-    ControllerWiFiView(const D4D_OBJECT* wifiObj){
+    ControllerWiFiView(const D4D_OBJECT* wifiObj)
+    {
         this->obj = wifiObj;
     }
 
-    void setTarget(const D4D_OBJECT* wifiObj){
+    void setTarget(const D4D_OBJECT* wifiObj)
+    {
         this->obj = wifiObj;
     }
 
-    void update(bool wifiConnected, char * const ipAddress);
+    void update(bool wifiConnected, char* const ipAddress);
 };
 
-class ControllerWiFiPresenter
-{
+class ControllerWiFiPresenter {
 public:
     ControllerWiFiView& view_;
 
 public:
-
     ControllerWiFiPresenter(ControllerWiFiView& view)
-        : view_(view) {}
+        : view_(view)
+    {
+    }
 
     void update();
 };
 
-class ControllerUSBView
-{
+class ControllerUSBView {
     const D4D_OBJECT* obj;
 
 public:
-    ControllerUSBView(){
+    ControllerUSBView()
+    {
         this->obj = nullptr;
     }
-    ControllerUSBView(const D4D_OBJECT* usbObj){
+    ControllerUSBView(const D4D_OBJECT* usbObj)
+    {
         this->obj = usbObj;
     }
 
-    void setTarget(const D4D_OBJECT* usbObj){
+    void setTarget(const D4D_OBJECT* usbObj)
+    {
         this->obj = usbObj;
     }
 
     void update(bool serialConnected);
 };
 
-
-class ControllerUSBPresenter
-{
+class ControllerUSBPresenter {
 public:
     ControllerUSBView& view_;
 
 public:
-
     ControllerUSBPresenter(ControllerUSBView& view)
-        : view_(view) {}
+        : view_(view)
+    {
+    }
 
     void update();
 };
@@ -96,5 +98,3 @@ extern ControllerWiFiPresenter wifiPresenter;
 
 extern ControllerUSBView usbView;
 extern ControllerUSBPresenter usbPresenter;
-
-

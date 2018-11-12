@@ -56,7 +56,9 @@
     "unordered_set": "cpp",
     "future": "cpp",
     "codecvt": "cpp",
-    "filesystem": "cpp"
+    "filesystem": "cpp",
+    "connected_device_widget.h": "c",
+    "process_value_widget.h": "c"
   },
   "editor.formatOnSave": true,
 }

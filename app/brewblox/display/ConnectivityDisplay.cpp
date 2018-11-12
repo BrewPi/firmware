@@ -18,42 +18,47 @@
  */
 
 #include "ConnectivityDisplay.h"
+#include "application.h"
 
-char controller_wifi_ip[16]= "";
+char controller_wifi_ip[16] = "";
 ControllerWiFiView wifiView;
 ControllerWiFiPresenter wifiPresenter(wifiView);
 
 ControllerUSBView usbView;
 ControllerUSBPresenter usbPresenter(usbView);
 
-
-void ControllerUSBView::update(bool serialConnected)
+void
+ControllerUSBView::update(bool serialConnected)
 {
-    if(obj != nullptr){
+    if (obj != nullptr) {
         obj->clrScheme->fore = serialConnected ? D4D_COLOR_LIGHT_GREY : D4D_COLOR_GREY;
         D4D_InvalidateObject(obj, D4D_FALSE); // force redraw, because color scheme change doesn't trigger it
     }
 }
 
-void ControllerUSBPresenter::update(){
+void
+ControllerUSBPresenter::update()
+{
     bool serialConnected = Serial.isConnected();
     view_.update(serialConnected);
 }
 
-void ControllerWiFiView::update(bool wifiConnected, char * const ipAddress)
+void
+ControllerWiFiView::update(bool wifiConnected, char* const ipAddress)
 {
-    if(obj != nullptr){
+    if (obj != nullptr) {
         obj->clrScheme->fore = wifiConnected ? D4D_COLOR_LIGHT_GREY : D4D_COLOR_GREY;
         D4D_SetText(obj, ipAddress);
         D4D_InvalidateObject(obj, D4D_FALSE); // force redraw, because color scheme change doesn't trigger it
     }
 }
 
-void ControllerWiFiPresenter::update(){
-#if BREWPI_USE_WIFI
+void
+ControllerWiFiPresenter::update()
+{
     char ipAddressString[16];
     bool wifiConnected = WiFi.ready();
-    piLink.ipAddressAsString(ipAddressString);
+    IPAddress ip = WiFi.localIP();
+    snprintf(ipAddressString, 16, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
     view_.update(wifiConnected, ipAddressString);
-#endif
 }

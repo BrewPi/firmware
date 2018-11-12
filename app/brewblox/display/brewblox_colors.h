@@ -15,14 +15,23 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
- */ 
+ */
 
-#ifndef _BREWPI_LOGO_H
-#define _BREWPI_LOGO_H
+#ifndef BREWBLOX_COLORS_H
+#define BREWBLOX_COLORS_H
 
-D4D_EXTERN_BMP(bmp_brewpi_logo_black_45_30);
-D4D_EXTERN_BMP(bmp_brewpi_logo_black_72_48);
-D4D_EXTERN_BMP(bmp_brewpi_logo_black_90_60);
-D4D_EXTERN_BMP(bmp_brewpi_logo_black_120_80);
-
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+#define REGULAR_TEXT_COLOR D4D_COLOR_RGB(255, 255, 255)
+#define SECONDARY_TEXT_COLOR D4D_COLOR_RGB(160, 160, 160)
+#define LOW_TEXT_COLOR D4D_COLOR_RGB(128, 128, 128)
+
+#define INITIAL_BLOCK_COLOR D4D_COLOR_RGB(32, 32, 32)
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* BREWPI_COLORS_H */
