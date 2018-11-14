@@ -77,16 +77,19 @@ setup()
     if (success) {
         success = mdns.addService("tcp", "http", 80, "brewblox-status");
     }
+    mdns.addTXTEntry("VERSION", "0.1.0");
+    mdns.addTXTEntry("ID", System.deviceID());
     if (success) {
-        success = mdns.addService("tcp", "brewblox", 8332, "brewblox");
+        success = mdns.addService("tcp", "brewblox", 8332, System.deviceID());
     }
     mdns.addTXTEntry("VERSION", "0.1.0");
+    mdns.addTXTEntry("ID", System.deviceID());
 }
 
 void
 loop()
 {
-    if (!WiFi.ready()) {
+    if (!WiFi.ready() || WiFi.listening()) {
         if (!WiFi.connecting()) {
             WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
 #if PLATFORM_ID != PLATFORM_GCC
@@ -112,7 +115,9 @@ loop()
         }
     }
 
-    brewbloxBox().hexCommunicate();
+    if (!WiFi.listening()) {
+        brewbloxBox().hexCommunicate();
+    }
     updateBrewbloxBox();
     watchdogCheckin();
 }
