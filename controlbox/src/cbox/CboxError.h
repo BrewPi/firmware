@@ -60,7 +60,7 @@ enum class CboxError : uint8_t {
     OBJECT_DATA_NOT_ACCEPTED = 68,
 
     // freak events that should not be possible
-    WRITE_TO_INACTIVE_OBJECT = 200,
+    PERSISTING_TO_INACTIVE_OBJECT = 200,
 };
 
 inline uint8_t
