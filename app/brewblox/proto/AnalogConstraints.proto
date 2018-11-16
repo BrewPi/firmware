@@ -9,7 +9,7 @@ message AnalogConstraint {
   oneof constraint {
     sint32 min = 1 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32 ];
     sint32 max = 2 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32 ];
-    uint32 balancer = 3 [ (brewblox).link = Balancer, (nanopb).int_size = IS_16 ];
+    uint32 balancer = 3 [ (brewblox).link = BalancerLink, (nanopb).int_size = IS_16 ];
   }
 }
 

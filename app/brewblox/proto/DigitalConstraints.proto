@@ -9,7 +9,7 @@ message DigitalConstraint {
   oneof constraint {
     uint32 minOff = 1 [ (nanopb).int_size = IS_32 ];
     uint32 minOn = 2 [ (nanopb).int_size = IS_32 ];
-    uint32 mutex = 3 [ (brewblox).link = Mutex, (nanopb).int_size = IS_16 ];
+    uint32 mutex = 3 [ (brewblox).link = MutexLink, (nanopb).int_size = IS_16 ];
   }
 }
 

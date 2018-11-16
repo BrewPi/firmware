@@ -9,7 +9,7 @@ package blox;
 message ActuatorPwm {
   option (nanopb_msgopt).msgid = 307;
 
-  uint32 actuatorId = 1 [ (brewblox).link = ActuatorDigital, (nanopb).int_size = IS_16 ];
+  uint32 actuatorId = 1 [ (brewblox).link = ActuatorDigitalLink, (nanopb).int_size = IS_16 ];
   bool actuatorValid = 2 [ (brewblox).readonly = true ];
   uint32 period = 3;
   sint32 setting = 4 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32 ];
