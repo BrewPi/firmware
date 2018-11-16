@@ -44,17 +44,15 @@ public:
         return CboxError::OK;
     }
 
-    // LCOV_EXCL_START
     virtual CboxError streamFrom(DataIn& out) override final
     {
-        return CboxError::WRITE_TO_INACTIVE_OBJECT; // should never occur
+        return CboxError::OK;
     }
 
     virtual CboxError streamPersistedTo(DataOut& out) const override final
     {
-        return CboxError::OK; // inactive objects are never persisted
+        return CboxError::PERSISTING_TO_INACTIVE_OBJECT; // inactive objects are never persisted
     }
-    // LCOV_EXCL_STOP
 
     virtual update_t update(const update_t& now) override final
     {
