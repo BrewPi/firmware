@@ -130,36 +130,27 @@ Box::writeObject(DataIn& in, HexCrcDataOut& out)
     if (cobj != nullptr && status == CboxError::OK) {
         if (cobj->object()->typeId() == InactiveObject::staticTypeId()
             && ((cobj->profiles() & activeProfiles) != 0)) {
-            // replace object with actual object to activate it
-            InactiveObject* inactiveObj = static_cast<InactiveObject*>(cobj->object().get());
-
-            obj_type_t actualType = inactiveObj->actualTypeId();
             obj_id_t id = cobj->id();
-
             std::shared_ptr<Object> obj;
-            std::tie(status, obj) = factory.make(actualType);
 
-            if (status == CboxError::OK && obj) {
-                // actual object successfully created, now restore eeprom data
-                bool handlerCalled = false;
-                auto streamHandler = [&obj, &handlerCalled](RegionDataIn& objInStorage) -> CboxError {
-                    handlerCalled = true;
-                    RegionDataIn objWithoutCrc(objInStorage, objInStorage.available() - 1);
+            bool handlerCalled = false;
+            auto streamHandler = [this, &obj, &handlerCalled](RegionDataIn& objInStorage) -> CboxError {
+                handlerCalled = true;
+                RegionDataIn objWithoutCrc(objInStorage, objInStorage.available() - 1);
 
-                    objWithoutCrc.next(); // skip stored profiles
-                    objWithoutCrc.next(); // skip object type (2 bytes)
-                    objWithoutCrc.next();
+                uint8_t storedProfiles; // discarded
+                CboxError status;
+                std::tie(status, obj, storedProfiles) = createObjectFromStream(objWithoutCrc);
 
-                    return obj->streamFrom(objWithoutCrc);
-                };
-                status = storage.retrieveObject(storage_id_t(id), streamHandler);
+                return status;
+            };
+            status = storage.retrieveObject(storage_id_t(id), streamHandler);
 
-                if (!handlerCalled) {
-                    status = CboxError::INVALID_OBJECT_ID; // write status if handler has not written it
-                }
-                if (status == CboxError::OK) {
-                    *cobj = ContainedObject(id, cobj->profiles(), std::move(obj)); // replace contained object
-                }
+            if (!handlerCalled) {
+                status = CboxError::INVALID_OBJECT_ID; // write status if handler has not written it
+            }
+            if (status == CboxError::OK) {
+                *cobj = ContainedObject(id, cobj->profiles(), std::move(obj)); // replace contained object
             }
         }
         if (status == CboxError::OK) {
