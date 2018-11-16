@@ -77,24 +77,26 @@ setup()
     System.on(setup_update, watchdogCheckin);
 
     bool success = mdns.setHostname(System.deviceID());
-    mdns.addTXTEntry("VERSION", "0.1.0");
-    mdns.addTXTEntry("ID", System.deviceID());
-    mdns.addTXTEntry("PLATFORM", xstr(PLATFORM_ID));
-    auto hw = String("Spark ");
-    switch (getSparkVersion()) {
-    case SparkVersion::V1:
-        hw += "1";
-        break;
-    case SparkVersion::V2:
-        hw += "2";
-        break;
-    case SparkVersion::V3:
-        hw += "3";
-        break;
-    }
-    mdns.addTXTEntry("HW", hw);
     success = success && mdns.addService("tcp", "http", 80, System.deviceID());
     success = success && mdns.addService("tcp", "brewblox", 8332, System.deviceID());
+    if (success) {
+        auto hw = String("Spark ");
+        switch (getSparkVersion()) {
+        case SparkVersion::V1:
+            hw += "1";
+            break;
+        case SparkVersion::V2:
+            hw += "2";
+            break;
+        case SparkVersion::V3:
+            hw += "3";
+            break;
+        }
+        mdns.addTXTEntry("VERSION", "0.1.0");
+        mdns.addTXTEntry("ID", System.deviceID());
+        mdns.addTXTEntry("PLATFORM", xstr(PLATFORM_ID));
+        mdns.addTXTEntry("HW", hw);
+    }
 }
 
 void
