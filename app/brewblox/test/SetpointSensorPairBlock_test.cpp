@@ -94,5 +94,6 @@ SCENARIO("A Blox SetpointSensorPair object can be created from streamed protobuf
     CHECK(testBox.lastReplyHasStatusOk());
     CHECK(decoded.ShortDebugString() == "setpointId: 101 sensorId: 100 "
                                         "setpointValid: true sensorValid: true "
-                                        "setpointValue: 86016 sensorValue: 81920");
+                                        "setpointValue: 86016 sensorValue: 81920 "
+                                        "valid: true");
 }
