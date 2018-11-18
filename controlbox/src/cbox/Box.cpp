@@ -114,24 +114,6 @@ Box::writeObject(DataIn& in, HexCrcDataOut& out)
         cobj = objects.fetchContained(id);
         if (cobj == nullptr) {
             status = CboxError::INVALID_OBJECT_ID;
-        } else {
-            if (cobj->object()->typeId() == InactiveObject::staticTypeId()) {
-                // replace contained object with actual object to be able to write to it
-                InactiveObject* inactiveObj = static_cast<InactiveObject*>(cobj->object().get());
-
-                obj_type_t actualType = inactiveObj->actualTypeId();
-                uint8_t oldProfiles = cobj->profiles();
-                obj_id_t id = cobj->id();
-
-                CboxError result;
-                std::shared_ptr<Object> obj;
-                std::tie(result, obj) = factory.make(actualType);
-
-                if (result == CboxError::OK && obj) {
-                    // replace inactive object with active object to be able to stream to it
-                    *cobj = ContainedObject(id, oldProfiles, std::move(obj));
-                }
-            }
         }
     }
 
@@ -146,11 +128,38 @@ Box::writeObject(DataIn& in, HexCrcDataOut& out)
     }
 
     if (cobj != nullptr && status == CboxError::OK) {
-        // save new settings to storage
-        auto storeContained = [&cobj](DataOut& out) -> CboxError {
-            return cobj->streamPersistedTo(out);
-        };
-        status = storage.storeObject(id, storeContained);
+        if (cobj->object()->typeId() == InactiveObject::staticTypeId()
+            && ((cobj->profiles() & activeProfiles) != 0)) {
+            obj_id_t id = cobj->id();
+            std::shared_ptr<Object> obj;
+
+            bool handlerCalled = false;
+            auto streamHandler = [this, &obj, &handlerCalled](RegionDataIn& objInStorage) -> CboxError {
+                handlerCalled = true;
+                RegionDataIn objWithoutCrc(objInStorage, objInStorage.available() - 1);
+
+                uint8_t storedProfiles; // discarded
+                CboxError status;
+                std::tie(status, obj, storedProfiles) = createObjectFromStream(objWithoutCrc);
+
+                return status;
+            };
+            status = storage.retrieveObject(storage_id_t(id), streamHandler);
+
+            if (!handlerCalled) {
+                status = CboxError::INVALID_OBJECT_ID; // write status if handler has not written it
+            }
+            if (status == CboxError::OK) {
+                *cobj = ContainedObject(id, cobj->profiles(), std::move(obj)); // replace contained object
+            }
+        }
+        if (status == CboxError::OK) {
+            // save new settings to storage
+            auto storeContained = [&cobj](DataOut& storage) -> CboxError {
+                return cobj->streamPersistedTo(storage);
+            };
+            status = storage.storeObject(id, storeContained);
+        }
 
         // deactivate object if it is not a system object and is not in an active profile
         if (id >= userStartId() && (cobj->profiles() & activeProfiles) == 0) {

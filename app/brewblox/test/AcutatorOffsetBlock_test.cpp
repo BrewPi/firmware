@@ -59,6 +59,7 @@ SCENARIO("A Blox ActuatorOffset object can be created from streamed protobuf dat
 
     auto newSetpoint1 = blox::SetpointSimple();
     newSetpoint1.set_setting(cnl::unwrap(temp_t(20.0)));
+    newSetpoint1.set_valid(true);
     testBox.put(newSetpoint1);
 
     testBox.processInput();
@@ -100,6 +101,7 @@ SCENARIO("A Blox ActuatorOffset object can be created from streamed protobuf dat
 
     auto newSetpoint2 = blox::SetpointSimple();
     newSetpoint2.set_setting(cnl::unwrap(temp_t(20.0)));
+    newSetpoint2.set_valid(true);
     testBox.put(newSetpoint2);
 
     testBox.processInput();
@@ -136,6 +138,8 @@ SCENARIO("A Blox ActuatorOffset object can be created from streamed protobuf dat
     testBox.processInput();
     CHECK(testBox.lastReplyHasStatusOk());
 
+    testBox.update(0);
+
     // read actuator
     testBox.put(commands::READ_OBJECT);
     testBox.put(cbox::obj_id_t(106));
@@ -156,7 +160,8 @@ SCENARIO("A Blox ActuatorOffset object can be created from streamed protobuf dat
         testBox.processInputToProto(decoded);
         CHECK(testBox.lastReplyHasStatusOk());
         CHECK(decoded.ShortDebugString() == "setpointId: 101 sensorId: 100 setpointValid: true sensorValid: true "
-                                            "setpointValue: 131072 sensorValue: 86016"); // 32, 21 (setpoint adjusted to 20 + 12)
+                                            "setpointValue: 131072 sensorValue: 86016 " // 32, 21 (setpoint adjusted to 20 + 12)
+                                            "valid: true");
     }
 
     // read target pair
@@ -168,6 +173,7 @@ SCENARIO("A Blox ActuatorOffset object can be created from streamed protobuf dat
         testBox.processInputToProto(decoded);
         CHECK(testBox.lastReplyHasStatusOk());
         CHECK(decoded.ShortDebugString() == "setpointId: 104 sensorId: 103 setpointValid: true sensorValid: true "
-                                            "setpointValue: 81920 sensorValue: 110592"); // 20, 27 (unaffected)
+                                            "setpointValue: 81920 sensorValue: 110592 " // 20, 27 (unaffected)
+                                            "valid: true");
     }
 }

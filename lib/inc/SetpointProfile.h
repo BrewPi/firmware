@@ -102,7 +102,7 @@ public:
     }
 
     virtual bool
-    valid() override final
+    valid() const override final
     {
         return m_valid;
     }

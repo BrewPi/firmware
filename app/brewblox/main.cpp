@@ -59,6 +59,9 @@ watchdogCheckin()
 }
 #endif
 
+#define str(x) #x
+#define xstr(x) "x"
+
 void
 setup()
 {
@@ -74,19 +77,32 @@ setup()
     System.on(setup_update, watchdogCheckin);
 
     bool success = mdns.setHostname(System.deviceID());
+    success = success && mdns.addService("tcp", "http", 80, System.deviceID());
+    success = success && mdns.addService("tcp", "brewblox", 8332, System.deviceID());
     if (success) {
-        success = mdns.addService("tcp", "http", 80, "brewblox-status");
+        auto hw = String("Spark ");
+        switch (getSparkVersion()) {
+        case SparkVersion::V1:
+            hw += "1";
+            break;
+        case SparkVersion::V2:
+            hw += "2";
+            break;
+        case SparkVersion::V3:
+            hw += "3";
+            break;
+        }
+        mdns.addTXTEntry("VERSION", "0.1.0");
+        mdns.addTXTEntry("ID", System.deviceID());
+        mdns.addTXTEntry("PLATFORM", xstr(PLATFORM_ID));
+        mdns.addTXTEntry("HW", hw);
     }
-    if (success) {
-        success = mdns.addService("tcp", "brewblox", 8332, "brewblox");
-    }
-    mdns.addTXTEntry("VERSION", "0.1.0");
 }
 
 void
 loop()
 {
-    if (!WiFi.ready()) {
+    if (!WiFi.ready() || WiFi.listening()) {
         if (!WiFi.connecting()) {
             WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
 #if PLATFORM_ID != PLATFORM_GCC
@@ -112,7 +128,9 @@ loop()
         }
     }
 
-    brewbloxBox().hexCommunicate();
+    if (!WiFi.listening()) {
+        brewbloxBox().hexCommunicate();
+    }
     updateBrewbloxBox();
     watchdogCheckin();
 }

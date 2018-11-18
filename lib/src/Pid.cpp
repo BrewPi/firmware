@@ -25,17 +25,15 @@ Pid::update()
 {
     auto input = m_inputPtr();
     if (input && input->valid()) {
+        if (m_enabled) {
+            active(true);
+        }
         m_inputSetting = input->setting();
         m_inputValue = input->value();
         auto inputError = m_inputSetting - m_inputValue;
-
         m_filter.add(inputError);
         m_inputFailureCount = 0;
     } else {
-        m_inputSetting = 0;
-        m_inputValue = 0;
-
-        // handle invalid input
         if (m_inputFailureCount < 10) {
             ++m_inputFailureCount;
         } else {
@@ -45,11 +43,9 @@ Pid::update()
             return;
         }
     }
-    if (!m_enabled) {
+    if (!active()) {
         return;
     }
-
-    active(true);
 
     // calculate PID parts.
     m_error = m_filter.read();

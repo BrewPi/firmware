@@ -354,7 +354,7 @@ SCENARIO("A controlbox Box")
             CHECK(out->str() == expected.str());
         }
 
-        THEN("The object can still be written as the original object type, but the reply still contains an inactive object")
+        THEN("Writing an inactive object as the actual object it replaces, gives invalid object type error")
         {
             clearStreams();
 
@@ -367,7 +367,7 @@ SCENARIO("A controlbox Box")
             box.hexCommunicate();
 
             expected << addCrc("02640000E80314141414") << "|" // command repetition
-                     << addCrc("00"                           // status OK
+                     << addCrc("41"                           // status invalid object type
                                "6400"                         // id 100
                                "00"                           // profiles 0x00
                                "FFFF"                         // type InactiveObject
@@ -376,7 +376,7 @@ SCENARIO("A controlbox Box")
 
             CHECK(out->str() == expected.str());
 
-            AND_THEN("But the stored data will be updated")
+            AND_THEN("The stored data will be unchanged")
             {
                 clearStreams();
 
@@ -389,7 +389,48 @@ SCENARIO("A controlbox Box")
                                    "6400"      // id
                                    "00"        // stored profiles
                                    "E803"      // stored type
-                                   "14141414") // stored data
+                                   "44444444") // stored data
+                         << "\n";
+                CHECK(out->str() == expected.str());
+            }
+        }
+
+        THEN("Writing profiles of an inactive object can re-activate it")
+        {
+            clearStreams();
+
+            *in << "02"    // write object
+                << "6400"  // id 100
+                << "FF"    // active in all profiles
+                << "FFFF"  // typeid 1000
+                << "0000"; // actual type doesn't matter
+            *in << crc(in->str()) << "\n";
+            box.hexCommunicate();
+
+            expected << addCrc("026400FFFFFF0000") << "|" // command repetition
+                     << addCrc("00"                       // status OK
+                               "6400"                     // id
+                               "FF"                       // profiles
+                               "E803"                     // stored type
+                               "44444444")                // stored data
+                     << "\n";
+
+            CHECK(out->str() == expected.str());
+
+            AND_THEN("The stored data will be contain the new profiles")
+            {
+                clearStreams();
+
+                *in << "066400"; // read stored object 100
+                *in << crc(in->str()) << "\n";
+                box.hexCommunicate();
+
+                expected << addCrc("066400") << "|"
+                         << addCrc("00"        // status
+                                   "6400"      // id
+                                   "FF"        // stored profiles
+                                   "E803"      // stored type
+                                   "44444444") // stored data
                          << "\n";
                 CHECK(out->str() == expected.str());
             }
