@@ -7,10 +7,13 @@ package blox;
 
 message DigitalConstraint {
   oneof constraint {
-    uint32 minOff = 1 [ (nanopb).int_size = IS_32 ];
-    uint32 minOn = 2 [ (nanopb).int_size = IS_32 ];
+    uint32 minOff = 1 [ (brewblox).unit = Time, (brewblox).scale = 1000, (nanopb).int_size = IS_32 ];
+    uint32 minOn = 2 [ (brewblox).unit = Time, (brewblox).scale = 1000, (nanopb).int_size = IS_32 ];
     uint32 mutex = 3 [ (brewblox).link = MutexLink, (nanopb).int_size = IS_16 ];
   }
 }
 
-message DigitalConstraints { repeated DigitalConstraint constraints = 1 [ (nanopb).max_count = 8 ]; }
+message DigitalConstraints {
+  repeated DigitalConstraint constraints = 1 [ (nanopb).max_count = 8 ];
+  uint32 blocking = 2;
+}

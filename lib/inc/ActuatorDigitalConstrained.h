@@ -183,6 +183,7 @@ public:
 
 private:
     std::vector<std::unique_ptr<Constraint>> constraints;
+    uint8_t m_blockingConstraint = 0;
 
 public:
     ActuatorDigitalConstrained(ActuatorDigital& act)
@@ -210,20 +211,32 @@ public:
         ActuatorDigitalChangeLogged::resetHistory();
     }
 
-    bool checkConstraints(const State& val, const ticks_millis_t& now)
+    uint8_t checkConstraints(const State& val, const ticks_millis_t& now)
     {
-        bool allowed = true;
+        uint8_t firstBlockingConstraint = 0;
+        uint8_t count = 1;
         for (auto& c : constraints) {
-            allowed &= c->allowed(val, now, *this);
+            if (!c->allowed(val, now, *this)) {
+                // don't exit early, all constraints need to be updated
+                if (firstBlockingConstraint == 0) {
+                    firstBlockingConstraint = count;
+                }
+            }
+            ++count;
         }
-        return allowed;
+        return firstBlockingConstraint;
+    }
+
+    uint8_t blockingConstraint() const
+    {
+        return m_blockingConstraint;
     }
 
     virtual void state(const State& val, const ticks_millis_t& now) override final
     {
-        if (!checkConstraints(val, now)) {
-            // before returning, check constraints again with current state
-            // to reset any state keeping contstraints like mutex
+        m_blockingConstraint = checkConstraints(val, now);
+        if (m_blockingConstraint != 0) {
+            // Check constraints again with current state to reset any state keeping contstraints like mutex
             checkConstraints(ActuatorDigitalChangeLogged::state(), now);
         } else {
             ActuatorDigitalChangeLogged::state(val, now);

@@ -42,14 +42,14 @@ SCENARIO("An ActuatorPinBlock")
         testBox.put(ActuatorPinBlock::staticTypeId());
 
         auto newPin = blox::ActuatorPin();
-        newPin.set_state(blox::AD_State_Active);
+        newPin.set_state(blox::AD_State_Inactive);
         newPin.set_invert(true);
 
         auto cPtr1 = newPin.mutable_constrainedby()->add_constraints();
-        cPtr1->set_minoff(180);
+        cPtr1->set_minoff(180000);
 
         auto cPtr2 = newPin.mutable_constrainedby()->add_constraints();
-        cPtr2->set_minon(120);
+        cPtr2->set_minon(120000);
 
         testBox.put(newPin);
 
@@ -63,10 +63,63 @@ SCENARIO("An ActuatorPinBlock")
         testBox.processInputToProto(decoded);
 
         CHECK(testBox.lastReplyHasStatusOk());
+        CHECK(decoded.ShortDebugString() == "invert: true "
+                                            "constrainedBy { "
+                                            "constraints { minOff: 180000 } "
+                                            "constraints { minOn: 120000 } }");
+
+        // write state inactive
+        auto writeState = [&testBox, &decoded](blox::AD_State state) {
+            testBox.put(commands::WRITE_OBJECT);
+            testBox.put(cbox::obj_id_t(10));
+            testBox.put(uint8_t(0xFF));
+            testBox.put(ActuatorPinBlock::staticTypeId());
+
+            decoded.set_state(state);
+            testBox.put(decoded);
+
+            decoded = blox::ActuatorPin();
+
+            testBox.processInputToProto(decoded);
+
+            CHECK(testBox.lastReplyHasStatusOk());
+        };
+
+        // will refuse to turn ON
+        writeState(blox::AD_State_Active);
+        CHECK(decoded.ShortDebugString() == "invert: true "
+                                            "constrainedBy { "
+                                            "constraints { minOff: 180000 } "
+                                            "constraints { minOn: 120000 } "
+                                            "blocking: 1 }");
+
+        testBox.update(200000);
+
+        // will turn ON
+        writeState(blox::AD_State_Active);
         CHECK(decoded.ShortDebugString() == "state: Active "
                                             "invert: true "
                                             "constrainedBy { "
-                                            "constraints { minOff: 180 } "
-                                            "constraints { minOn: 120 } }");
+                                            "constraints { minOff: 180000 } "
+                                            "constraints { minOn: 120000 } }");
+        testBox.update(201000);
+
+        // will refuse to turn OFF
+        writeState(blox::AD_State_Inactive);
+        CHECK(decoded.ShortDebugString() == "state: Active "
+                                            "invert: true "
+                                            "constrainedBy { "
+                                            "constraints { minOff: 180000 } "
+                                            "constraints { minOn: 120000 } "
+                                            "blocking: 2 }");
+
+        testBox.update(500000);
+
+        // will turn OFF
+        writeState(blox::AD_State_Inactive);
+        CHECK(decoded.ShortDebugString() == "invert: true "
+                                            "constrainedBy { "
+                                            "constraints { minOff: 180000 } "
+                                            "constraints { minOn: 120000 } }");
     }
 }
