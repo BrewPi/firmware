@@ -86,8 +86,8 @@ getDigitalConstraints(blox_DigitalConstraints& msg, const ActuatorDigitalConstra
             msg.constraints[i].constraint.mutex = obj->mutexId();
         } break;
         }
+        msg.constraints[i].limiting = act.limiting() & (uint8_t(1) << i);
         msg.constraints_count++;
     }
-
-    msg.blocking = act.blockingConstraint();
+    msg.unconstrained = blox_AD_State(act.unconstrained());
 }

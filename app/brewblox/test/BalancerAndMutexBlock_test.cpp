@@ -163,7 +163,7 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         CHECK(decoded.ShortDebugString() == "differentActuatorWait: 100");
     }
 
-    // read a pin actuator
+    // read a pin actuator 1
     testBox.put(commands::READ_OBJECT);
     testBox.put(cbox::obj_id_t(10));
 
@@ -171,10 +171,21 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         auto decoded = blox::ActuatorPin();
         testBox.processInputToProto(decoded);
         CHECK(testBox.lastReplyHasStatusOk());
-        CHECK(decoded.ShortDebugString() == "state: Active constrainedBy { constraints { mutex: 101 } }");
+        CHECK(decoded.ShortDebugString() == "constrainedBy { constraints { mutex: 101 limiting: true } unconstrained: Active }");
     }
 
-    // read a pwm actuator
+    // read a pin actuator 2
+    testBox.put(commands::READ_OBJECT);
+    testBox.put(cbox::obj_id_t(11));
+
+    {
+        auto decoded = blox::ActuatorPin();
+        testBox.processInputToProto(decoded);
+        CHECK(testBox.lastReplyHasStatusOk());
+        CHECK(decoded.ShortDebugString() == "state: Active constrainedBy { constraints { mutex: 101 } unconstrained: Active }");
+    }
+
+    // read a pwm actuator 1
     testBox.put(commands::READ_OBJECT);
     testBox.put(cbox::obj_id_t(201));
 
@@ -184,7 +195,22 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         CHECK(testBox.lastReplyHasStatusOk());
         CHECK(decoded.ShortDebugString() == "actuatorId: 10 actuatorValid: true "
                                             "period: 4000 setting: 204800 "
-                                            "constrainedBy { constraints { balancer: 100 } }");
+                                            "constrainedBy { constraints { balancer: 100 limiting: true } "
+                                            "unconstrained: 327680 }");
+    }
+
+    // read a pwm actuator 2
+    testBox.put(commands::READ_OBJECT);
+    testBox.put(cbox::obj_id_t(301));
+
+    {
+        auto decoded = blox::ActuatorPwm();
+        testBox.processInputToProto(decoded);
+        CHECK(testBox.lastReplyHasStatusOk());
+        CHECK(decoded.ShortDebugString() == "actuatorId: 11 actuatorValid: true "
+                                            "period: 4000 setting: 204800 "
+                                            "constrainedBy { constraints { balancer: 100 limiting: true } "
+                                            "unconstrained: 327680 }");
     }
 
     // run for a while

@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "brewblox.proto";
 import "nanopb.proto";
+import "ActuatorDigital.proto";
 
 package blox;
 
@@ -11,9 +12,10 @@ message DigitalConstraint {
     uint32 minOn = 2 [ (brewblox).unit = Time, (brewblox).scale = 1000, (nanopb).int_size = IS_32 ];
     uint32 mutex = 3 [ (brewblox).link = MutexLink, (nanopb).int_size = IS_16 ];
   }
+  bool limiting = 100 [ (brewblox).readonly = true ];
 }
 
 message DigitalConstraints {
   repeated DigitalConstraint constraints = 1 [ (nanopb).max_count = 8 ];
-  uint32 blocking = 2;
+  AD.State unconstrained = 2 [ (brewblox).readonly = true ];
 }

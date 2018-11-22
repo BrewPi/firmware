@@ -73,7 +73,7 @@ getAnalogConstraints(blox_AnalogConstraints& msg, const ActuatorAnalogConstraine
     pb_size_t numConstraints = pb_size_t(sizeof(msg.constraints) / sizeof(msg.constraints[0]));
     for (pb_size_t i = 0; i < numConstraints; ++i, ++it) {
         if (it == constraints.cend()) {
-            return;
+            break;
         }
         auto constraintId = (*it)->id();
         msg.constraints[i].which_constraint = constraintId;
@@ -91,6 +91,8 @@ getAnalogConstraints(blox_AnalogConstraints& msg, const ActuatorAnalogConstraine
             msg.constraints[i].constraint.balancer = obj->balancerId();
         } break;
         }
+        msg.constraints[i].limiting = act.limiting() & (uint8_t(1) << i);
         msg.constraints_count++;
     }
+    msg.unconstrained = cnl::unwrap(act.unconstrained());
 }

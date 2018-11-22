@@ -11,6 +11,10 @@ message AnalogConstraint {
     sint32 max = 2 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32 ];
     uint32 balancer = 3 [ (brewblox).link = BalancerLink, (nanopb).int_size = IS_16 ];
   }
+  bool limiting = 100 [ (brewblox).readonly = true ];
 }
 
-message AnalogConstraints { repeated AnalogConstraint constraints = 1 [ (nanopb).max_count = 8 ]; }
+message AnalogConstraints { 
+  repeated AnalogConstraint constraints = 1 [ (nanopb).max_count = 8 ];
+  sint32 unconstrained = 2 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true ];
+}

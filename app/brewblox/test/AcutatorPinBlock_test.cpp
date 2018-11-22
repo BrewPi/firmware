@@ -89,9 +89,9 @@ SCENARIO("An ActuatorPinBlock")
         writeState(blox::AD_State_Active);
         CHECK(decoded.ShortDebugString() == "invert: true "
                                             "constrainedBy { "
-                                            "constraints { minOff: 180000 } "
+                                            "constraints { minOff: 180000 limiting: true } "
                                             "constraints { minOn: 120000 } "
-                                            "blocking: 1 }");
+                                            "unconstrained: Active }");
 
         testBox.update(200000);
 
@@ -101,7 +101,8 @@ SCENARIO("An ActuatorPinBlock")
                                             "invert: true "
                                             "constrainedBy { "
                                             "constraints { minOff: 180000 } "
-                                            "constraints { minOn: 120000 } }");
+                                            "constraints { minOn: 120000 } "
+                                            "unconstrained: Active }");
         testBox.update(201000);
 
         // will refuse to turn OFF
@@ -110,8 +111,8 @@ SCENARIO("An ActuatorPinBlock")
                                             "invert: true "
                                             "constrainedBy { "
                                             "constraints { minOff: 180000 } "
-                                            "constraints { minOn: 120000 } "
-                                            "blocking: 2 }");
+                                            "constraints { minOn: 120000 limiting: true } "
+                                            "}");
 
         testBox.update(500000);
 
@@ -120,6 +121,7 @@ SCENARIO("An ActuatorPinBlock")
         CHECK(decoded.ShortDebugString() == "invert: true "
                                             "constrainedBy { "
                                             "constraints { minOff: 180000 } "
-                                            "constraints { minOn: 120000 } }");
+                                            "constraints { minOn: 120000 } "
+                                            "}");
     }
 }

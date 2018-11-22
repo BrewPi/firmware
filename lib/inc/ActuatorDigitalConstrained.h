@@ -92,6 +92,9 @@ public:
 
     bool allowed(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act) override final
     {
+        if (act.state() != State::Active) {
+            return true;
+        }
         auto times = act.getLastStartEndTime(State::Active, now);
         return newState == State::Active || times.end - times.start >= m_limit;
     }
@@ -120,6 +123,9 @@ public:
 
     virtual bool allowed(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act) override final
     {
+        if (act.state() != State::Inactive) {
+            return true;
+        }
         auto times = act.getLastStartEndTime(State::Inactive, now);
         return newState == State::Inactive || times.end - times.start >= m_limit;
     }
@@ -151,6 +157,7 @@ public:
     virtual bool allowed(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act) override final
     {
         if (newState == State::Inactive) {
+            // always allow switching OFF, but release mutex
             if (hasLock) {
                 if (auto mutPtr = m_mutex()) {
                     mutPtr->unlock(now, act);
@@ -160,10 +167,17 @@ public:
             return true;
         }
 
-        if (auto mutPtr = m_mutex()) {
-            if (act.state() != State::Active && newState == State::Active) {
-                hasLock = mutPtr->try_lock(now, act);
-                return hasLock;
+        if (newState == State::Active) {
+            if (hasLock) {
+                return true; // already owner of lock
+            }
+
+            if (auto mutPtr = m_mutex()) {
+                if (act.state() != State::Active && newState == State::Active) {
+                    // if turning on, try to acquire mutex
+                    hasLock = mutPtr->try_lock(now, act);
+                    return hasLock;
+                }
             }
         }
         return false;
@@ -183,7 +197,8 @@ public:
 
 private:
     std::vector<std::unique_ptr<Constraint>> constraints;
-    uint8_t m_blockingConstraint = 0;
+    uint8_t m_limiting = 0x00;
+    State m_unconstrained = State::Inactive;
 
 public:
     ActuatorDigitalConstrained(ActuatorDigital& act)
@@ -198,7 +213,9 @@ public:
 
     void addConstraint(std::unique_ptr<Constraint>&& newConstraint)
     {
-        constraints.push_back(std::move(newConstraint));
+        if (constraints.size() < 8) {
+            constraints.push_back(std::move(newConstraint));
+        }
     }
 
     void removeAllConstraints()
@@ -213,29 +230,28 @@ public:
 
     uint8_t checkConstraints(const State& val, const ticks_millis_t& now)
     {
-        uint8_t firstBlockingConstraint = 0;
-        uint8_t count = 1;
+        uint8_t limiting = 0x00;
+        uint8_t bit = 0x01;
         for (auto& c : constraints) {
             if (!c->allowed(val, now, *this)) {
                 // don't exit early, all constraints need to be updated
-                if (firstBlockingConstraint == 0) {
-                    firstBlockingConstraint = count;
-                }
+                limiting = limiting | bit;
             }
-            ++count;
+            bit = bit << 1;
         }
-        return firstBlockingConstraint;
+        return limiting;
     }
 
-    uint8_t blockingConstraint() const
+    uint8_t limiting() const
     {
-        return m_blockingConstraint;
+        return m_limiting;
     }
 
     virtual void state(const State& val, const ticks_millis_t& now) override final
     {
-        m_blockingConstraint = checkConstraints(val, now);
-        if (m_blockingConstraint != 0) {
+        m_unconstrained = val;
+        m_limiting = checkConstraints(val, now);
+        if (m_limiting != 0) {
             // Check constraints again with current state to reset any state keeping contstraints like mutex
             checkConstraints(ActuatorDigitalChangeLogged::state(), now);
         } else {
@@ -251,6 +267,16 @@ public:
     virtual State state() const override
     {
         return ActuatorDigitalChangeLogged::state();
+    }
+
+    void update(const ticks_millis_t& now)
+    {
+        state(m_unconstrained, now); // re-apply constraints for new update time
+    }
+
+    State unconstrained() const
+    {
+        return m_unconstrained;
     }
 
     const std::vector<std::unique_ptr<Constraint>>& constraintsList() const
