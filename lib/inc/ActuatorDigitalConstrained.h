@@ -153,12 +153,13 @@ public:
         : m_mutex(mut)
     {
     }
+    ~Mutex() = default;
 
     virtual bool allowed(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act) override final
     {
         if (newState == State::Inactive) {
             // always allow switching OFF, but release mutex
-            if (hasLock) {
+            if (act.state() == State::Active) {
                 if (auto mutPtr = m_mutex()) {
                     mutPtr->unlock(now, act);
                     hasLock = false;
