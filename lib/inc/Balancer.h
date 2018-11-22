@@ -78,6 +78,19 @@ public:
         return val;
     }
 
+    value_t granted(const Balanced* req) const
+    {
+        auto match = find_if(requesters.begin(), requesters.end(), [&req](const Request& r) {
+            return r.requester == req;
+        });
+
+        if (match == requesters.end()) {
+            return 0;
+        }
+
+        return match->granted;
+    }
+
     void update()
     {
         auto numActuators = requesters.size();
@@ -148,6 +161,14 @@ public:
     virtual uint8_t id() const
     {
         return ID;
+    }
+
+    value_t granted() const
+    {
+        if (auto balancerPtr = m_balancer()) {
+            return balancerPtr->granted(this);
+        }
+        return 0;
     }
 };
 }

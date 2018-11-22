@@ -91,7 +91,9 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         newPwm.set_period(4000);
 
         auto c = newPwm.mutable_constrainedby()->add_constraints();
-        c->set_balancer(100);
+        auto balanced = new blox::AnalogConstraint_Balanced();
+        balanced->set_balancerid(100);
+        c->set_allocated_balanced(balanced);
 
         testBox.put(newPwm);
     }
@@ -129,7 +131,9 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         newPwm.set_period(4000);
 
         auto c = newPwm.mutable_constrainedby()->add_constraints();
-        c->set_balancer(100);
+        auto balanced = new blox::AnalogConstraint_Balanced();
+        balanced->set_balancerid(100);
+        c->set_allocated_balanced(balanced);
 
         testBox.put(newPwm);
     }
@@ -195,7 +199,10 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         CHECK(testBox.lastReplyHasStatusOk());
         CHECK(decoded.ShortDebugString() == "actuatorId: 10 actuatorValid: true "
                                             "period: 4000 setting: 204800 "
-                                            "constrainedBy { constraints { balancer: 100 limiting: true } "
+                                            "constrainedBy { "
+                                            "constraints { "
+                                            "balanced { balancerId: 100 granted: 204800 } "
+                                            "limiting: true } "
                                             "unconstrained: 327680 }");
     }
 
@@ -209,7 +216,10 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
         CHECK(testBox.lastReplyHasStatusOk());
         CHECK(decoded.ShortDebugString() == "actuatorId: 11 actuatorValid: true "
                                             "period: 4000 setting: 204800 "
-                                            "constrainedBy { constraints { balancer: 100 limiting: true } "
+                                            "constrainedBy { "
+                                            "constraints { "
+                                            "balanced { balancerId: 100 granted: 204800 } "
+                                            "limiting: true } "
                                             "unconstrained: 327680 }");
     }
 

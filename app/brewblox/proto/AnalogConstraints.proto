@@ -6,10 +6,15 @@ import "nanopb.proto";
 package blox;
 
 message AnalogConstraint {
+  message Balanced {
+    uint32 balancerId = 1 [ (brewblox).link = BalancerLink, (nanopb).int_size = IS_16 ];
+    uint32 granted = 2 [ (brewblox).readonly = true ];
+  }
+
   oneof constraint {
     sint32 min = 1 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32 ];
     sint32 max = 2 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32 ];
-    uint32 balancer = 3 [ (brewblox).link = BalancerLink, (nanopb).int_size = IS_16 ];
+    Balanced balanced = 3;
   }
   bool limiting = 100 [ (brewblox).readonly = true ];
 }

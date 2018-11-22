@@ -8,8 +8,8 @@
 using Minimum = AAConstraints::Minimum<blox_AnalogConstraint_min_tag>;
 using Maximum = AAConstraints::Maximum<blox_AnalogConstraint_max_tag>;
 
-using Balanced_t = AAConstraints::Balanced<blox_AnalogConstraint_balancer_tag>;
-using Balancer_t = Balancer<blox_AnalogConstraint_balancer_tag>;
+using Balanced_t = AAConstraints::Balanced<blox_AnalogConstraint_balanced_tag>;
+using Balancer_t = Balancer<blox_AnalogConstraint_balanced_tag>;
 
 class CboxBalanced : public AAConstraints::Base {
 private:
@@ -39,6 +39,11 @@ public:
     {
         return m_balanced.constrain(val);
     }
+
+    AAConstraints::value_t granted() const
+    {
+        return m_balanced.granted();
+    }
 };
 
 void
@@ -57,8 +62,8 @@ setAnalogConstraints(const blox_AnalogConstraints& msg, ActuatorAnalogConstraine
             act.addConstraint(std::make_unique<Maximum>(
                 cnl::wrap<ActuatorAnalog::value_t>(constraintDfn.constraint.max)));
             break;
-        case blox_AnalogConstraint_balancer_tag:
-            act.addConstraint(std::make_unique<CboxBalanced>(objects, constraintDfn.constraint.balancer));
+        case blox_AnalogConstraint_balanced_tag:
+            act.addConstraint(std::make_unique<CboxBalanced>(objects, constraintDfn.constraint.balanced.balancerId));
             break;
         }
     }
@@ -86,9 +91,10 @@ getAnalogConstraints(blox_AnalogConstraints& msg, const ActuatorAnalogConstraine
             auto obj = reinterpret_cast<Maximum*>((*it).get());
             msg.constraints[i].constraint.max = cnl::unwrap(obj->max());
         } break;
-        case blox_AnalogConstraint_balancer_tag: {
+        case blox_AnalogConstraint_balanced_tag: {
             auto obj = reinterpret_cast<CboxBalanced*>((*it).get());
-            msg.constraints[i].constraint.balancer = obj->balancerId();
+            msg.constraints[i].constraint.balanced.balancerId = obj->balancerId();
+            msg.constraints[i].constraint.balanced.granted = cnl::unwrap(obj->granted());
         } break;
         }
         msg.constraints[i].limiting = act.limiting() & (uint8_t(1) << i);
