@@ -65,6 +65,8 @@ public:
 
     void invert(bool inv)
     {
+        auto active = state();
         m_invert = inv;
+        state(active);
     }
 };

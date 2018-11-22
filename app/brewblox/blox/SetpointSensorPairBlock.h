@@ -45,6 +45,7 @@ public
         message.setpointValue = cnl::unwrap(pair.setting());
         message.sensorValid = sensor.valid();
         message.setpointValid = setpoint.valid();
+        message.valid = pair.valid();
 
         return streamProtoTo(out, &message, blox_SetpointSensorPair_fields, blox_SetpointSensorPair_size);
     }

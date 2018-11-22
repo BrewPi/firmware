@@ -148,7 +148,8 @@ SCENARIO("A Blox ActuatorOffset object can be created from streamed protobuf dat
         testBox.processInputToProto(decoded);
         CHECK(testBox.lastReplyHasStatusOk());
         CHECK(decoded.ShortDebugString() == "targetId: 102 targetValid: true referenceId: 105 referenceValid: true "
-                                            "setting: 49152 value: 4096"); // setting is 12 (setpoint difference), value is 1 (21 - 20)
+                                            "setting: 49152 value: 4096 " // setting is 12 (setpoint difference), value is 1 (21 - 20)
+                                            "constrainedBy { unconstrained: 49152 }");
     }
 
     // read reference pair

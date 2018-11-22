@@ -9,7 +9,7 @@
 
 class BalancerBlock : public Block<blox_Balancer_msgid> {
 public:
-    using Balancer_t = Balancer<blox_AnalogConstraint_balancer_tag>;
+    using Balancer_t = Balancer<blox_AnalogConstraint_balanced_tag>;
 
 private:
     Balancer_t balancer;
