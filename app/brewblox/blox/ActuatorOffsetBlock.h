@@ -53,6 +53,7 @@ public:
 
         message.setting = cnl::unwrap(constrained.setting());
         message.value = cnl::unwrap(constrained.value());
+        message.valid = constrained.valid();
         getAnalogConstraints(message.constrainedBy, constrained);
 
         return streamProtoTo(out, &message, blox_ActuatorOffset_fields, blox_ActuatorOffset_size);

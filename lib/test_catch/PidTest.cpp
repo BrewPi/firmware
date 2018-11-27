@@ -20,6 +20,7 @@
 #include <catch.hpp>
 
 #include "ActuatorAnalogMock.h"
+#include "ActuatorOffset.h"
 #include "Pid.h"
 #include "Setpoint.h"
 #include "SetpointSensorPair.h"
@@ -27,7 +28,7 @@
 #include <iostream>
 #include <math.h>
 
-SCENARIO("PID Test")
+SCENARIO("PID Test with mock actuator", "[pid]")
 {
     auto setpoint = std::make_shared<SetpointSimple>(20.0);
     auto sensor = std::make_shared<TempSensorMock>(20.0);
@@ -305,7 +306,7 @@ SCENARIO("PID Test")
         CHECK(actuator->setting() == Approx(-10).margin(0.01));
     }
 
-    WHEN("The PID input is invalid for over 10 seconds, the actuator is set to zero and the PID is inactive")
+    WHEN("The PID input is invalid for over 10 seconds, the actuator is set to invalid and the PID is inactive")
     {
         pid.kp(10);
         pid.ti(2000);
@@ -325,15 +326,84 @@ SCENARIO("PID Test")
             }
         }
         CHECK(i == 2010);
-        CHECK(actuator->setting() == 0);
+        CHECK(actuator->valid() == false);
 
-        AND_WHEN("The input becomes valid again, the pid becomes active again")
+        AND_WHEN("The input becomes valid again, the pid and actuatore become active again")
         {
             sensor->connected(true);
             pid.update();
 
             CHECK(pid.active() == true);
-            CHECK(actuator->setting() == Approx(20.0).epsilon(0.05)); // P = 10, I = 10, D = 0
+            CHECK(actuator->valid() == true);
+        }
+    }
+}
+
+SCENARIO("PID Test with offset actuator", "[pid]")
+{
+    auto targetSetpoint = std::make_shared<SetpointSimple>(65.0);
+    auto targetSensor = std::make_shared<TempSensorMock>(65.0);
+
+    auto referenceSensor = std::make_shared<TempSensorMock>(65.0);
+    auto referenceSetpoint = std::make_shared<SetpointSimple>(67.0);
+
+    auto target = std::make_shared<SetpointSensorPair>(
+        [targetSetpoint]() { return targetSetpoint; },
+        [targetSensor]() { return targetSensor; });
+
+    auto reference = std::make_shared<SetpointSensorPair>(
+        [referenceSetpoint]() { return referenceSetpoint; },
+        [referenceSensor]() { return referenceSensor; });
+
+    auto actuator = std::make_shared<ActuatorOffset>(
+        [target]() { return target; },
+        [reference]() { return reference; });
+
+    auto pid = Pid(
+        [&reference]() { return reference; },
+        [&actuator]() { return actuator; });
+
+    pid.enabled(true);
+
+    pid.kp(2);
+    pid.ti(0);
+    pid.td(0);
+
+    for (int32_t i = 0; i < 100; ++i) {
+        pid.update(); // update 100 times to settle input filter
+    }
+
+    WHEN("The PID has updated, the target setpoint is set correctly")
+    {
+        CHECK(actuator->setting() == Approx(4.0).margin(0.01));
+        CHECK(targetSetpoint->setting() == Approx(71.0).margin(0.01));
+        CHECK(actuator->valid() == true);
+    }
+
+    WHEN("The PID input sensor becomes invalid")
+    {
+        referenceSensor->connected(false);
+        pid.update();
+        CHECK(actuator->valid() == false);
+        THEN("The target setpoint is set to invalid after 10 failed updates")
+        {
+            for (uint8_t i = 0; i < 10; ++i) {
+                CHECK(pid.active() == true);
+                CHECK(targetSetpoint->valid() == true);
+                pid.update();
+            }
+
+            CHECK(pid.active() == false);
+            CHECK(targetSetpoint->valid() == false);
+        }
+
+        AND_WHEN("The sensor comes back alive, the pid and setpoint are active/valid again")
+        {
+            referenceSensor->connected(true);
+            pid.update();
+
+            CHECK(pid.active() == true);
+            CHECK(targetSetpoint->valid() == true);
         }
     }
 }

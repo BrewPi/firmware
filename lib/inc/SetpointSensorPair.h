@@ -80,9 +80,8 @@ public:
         return false;
     }
 
-    void valid(bool v)
+    virtual void valid(bool v) override final
     {
-
         if (auto sp = setpoint()) {
             sp->valid(v);
         }
