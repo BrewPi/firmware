@@ -170,5 +170,9 @@ public:
         }
         return 0;
     }
+    virtual uint8_t order() const override final
+    {
+        return 2;
+    }
 };
 }
