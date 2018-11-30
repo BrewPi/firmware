@@ -20,6 +20,7 @@
 #pragma once
 
 #include "ActuatorAnalog.h"
+#include <algorithm>
 #include <memory>
 #include <vector>
 

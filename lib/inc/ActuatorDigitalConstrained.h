@@ -22,6 +22,7 @@
 #include "ActuatorDigital.h"
 #include "ActuatorDigitalChangeLogged.h"
 #include "TicksTypes.h"
+#include <algorithm>
 #include <functional>
 #include <memory>
 #include <mutex>

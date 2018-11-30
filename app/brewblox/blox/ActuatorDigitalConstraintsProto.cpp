@@ -36,6 +36,11 @@ public:
     {
         return m_mutexConstraint.allowed(newState, now, act);
     };
+
+    virtual uint8_t order() const override final
+    {
+        return m_mutexConstraint.order();
+    }
 };
 
 void
