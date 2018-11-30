@@ -15,4 +15,5 @@ message ActuatorPwm {
   sint32 setting = 4 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32 ];
   sint32 value = 5 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true ];
   AnalogConstraints constrainedBy = 6;
+  bool valid = 7 [ (brewblox).readonly = true ];
 }

@@ -80,6 +80,13 @@ public:
         return false;
     }
 
+    virtual void valid(bool v) override final
+    {
+        if (auto targetPtr = m_target()) {
+            return targetPtr->valid(v);
+        }
+    }
+
     void selectedReference(const SettingOrValue& sel)
     {
         m_selectedReference = sel;
@@ -97,12 +104,15 @@ public:
 
         if (auto targetPtr = m_target()) {
             if (auto refPtr = m_reference()) {
-                if (targetPtr->valid() && refPtr->valid()) {
-                    referenceValue = (m_selectedReference == SettingOrValue::SETTING) ? refPtr->setting() : refPtr->value();
-                    targetPtr->setting(referenceValue + m_setting);
-                    targetValue = targetPtr->value();
-                    m_value = targetValue - referenceValue;
-                    return;
+                if (refPtr->valid()) {
+                    targetPtr->valid(true); // try to make target valid
+                    if (targetPtr->valid()) {
+                        referenceValue = (m_selectedReference == SettingOrValue::SETTING) ? refPtr->setting() : refPtr->value();
+                        targetPtr->setting(referenceValue + m_setting);
+                        targetValue = targetPtr->value();
+                        m_value = targetValue - referenceValue;
+                        return;
+                    }
                 }
             }
             targetPtr->valid(false);

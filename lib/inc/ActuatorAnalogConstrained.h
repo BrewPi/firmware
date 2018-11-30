@@ -175,6 +175,11 @@ public:
         return actuator.valid();
     }
 
+    virtual void valid(bool v) override final
+    {
+        actuator.valid(v);
+    }
+
     value_t unconstrained() const
     {
         return m_unconstrained;

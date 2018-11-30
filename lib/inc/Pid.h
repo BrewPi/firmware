@@ -195,14 +195,8 @@ public:
 private:
     void active(bool state)
     {
-        if (!state) {
-            m_error = 0;
-            m_p = 0;
-            m_i = 0;
-            m_d = 0;
-            if (auto ptr = m_outputPtr()) {
-                ptr->setting(in_t(0));
-            }
+        if (auto ptr = m_outputPtr()) {
+            ptr->valid(state);
         }
         m_active = state;
     }

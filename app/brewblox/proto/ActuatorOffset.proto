@@ -22,4 +22,5 @@ message ActuatorOffset {
   sint32 setting = 6 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true ];
   sint32 value = 7 [ (brewblox).scale = 4096, (nanopb).int_size = IS_32, (brewblox).readonly = true ];
   AnalogConstraints constrainedBy = 8;
+  bool valid = 9 [ (brewblox).readonly = true ];
 }

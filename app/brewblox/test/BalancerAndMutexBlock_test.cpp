@@ -203,7 +203,8 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
                                             "constraints { "
                                             "balanced { balancerId: 100 granted: 204800 } "
                                             "limiting: true } "
-                                            "unconstrained: 327680 }");
+                                            "unconstrained: 327680 } "
+                                            "valid: true");
     }
 
     // read a pwm actuator 2
@@ -220,7 +221,8 @@ SCENARIO("Two PWM actuators can be constrained by a balancer")
                                             "constraints { "
                                             "balanced { balancerId: 100 granted: 204800 } "
                                             "limiting: true } "
-                                            "unconstrained: 327680 }");
+                                            "unconstrained: 327680 } "
+                                            "valid: true");
     }
 
     // run for a while

@@ -39,4 +39,6 @@ public:
     virtual T value() const = 0;
     // returns whether the process value is valid (data can be trusted)
     virtual bool valid() const = 0;
+    // writes valid flag (will set setting to invalid)
+    virtual void valid(bool v) = 0;
 };

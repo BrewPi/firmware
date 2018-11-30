@@ -159,7 +159,7 @@ public:
     {
         if (newState == State::Inactive) {
             // always allow switching OFF, but release mutex
-            if (act.state() == State::Active) {
+            if (act.state() == State::Active || hasLock) {
                 if (auto mutPtr = m_mutex()) {
                     mutPtr->unlock(now, act);
                     hasLock = false;
