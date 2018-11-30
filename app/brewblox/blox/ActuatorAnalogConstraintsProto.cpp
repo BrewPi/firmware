@@ -44,6 +44,11 @@ public:
     {
         return m_balanced.granted();
     }
+
+    virtual uint8_t order() const override final
+    {
+        return m_balanced.order();
+    }
 };
 
 void

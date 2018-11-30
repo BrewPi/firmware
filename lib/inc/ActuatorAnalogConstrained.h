@@ -20,6 +20,7 @@
 #pragma once
 
 #include "ActuatorAnalog.h"
+#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -40,6 +41,8 @@ public:
     virtual value_t constrain(const value_t& val) const = 0;
 
     virtual uint8_t id() const = 0;
+
+    virtual uint8_t order() const = 0;
 };
 
 template <uint8_t ID>
@@ -66,6 +69,11 @@ public:
     value_t min() const
     {
         return m_min;
+    }
+
+    virtual uint8_t order() const override final
+    {
+        return 0;
     }
 };
 
@@ -94,12 +102,18 @@ public:
     {
         return m_max;
     }
+
+    virtual uint8_t order() const override final
+    {
+        return 1;
+    }
 };
 }
 
 /*
  * An ActuatorAnalog has a range output
  */
+
 class ActuatorAnalogConstrained : public ActuatorAnalog {
 public:
     using Constraint = AAConstraints::Base;
@@ -126,6 +140,9 @@ public:
         if (constraints.size() < 8) {
             constraints.push_back(std::move(newConstraint));
         }
+
+        std::sort(constraints.begin(), constraints.end(),
+                  [](const std::unique_ptr<Constraint>& a, const std::unique_ptr<Constraint>& b) { return a->order() < b->order(); });
     }
 
     void removeAllConstraints()
@@ -152,6 +169,7 @@ public:
             }
             bit = bit << 1;
         }
+
         actuator.setting(result);
     }
 

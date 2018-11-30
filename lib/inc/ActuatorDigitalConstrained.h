@@ -22,6 +22,7 @@
 #include "ActuatorDigital.h"
 #include "ActuatorDigitalChangeLogged.h"
 #include "TicksTypes.h"
+#include <algorithm>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -77,6 +78,8 @@ public:
     virtual bool allowed(const State& newState, const ticks_millis_t& now, const ActuatorDigitalChangeLogged& act) = 0;
 
     virtual uint8_t id() const = 0;
+
+    virtual uint8_t order() const = 0;
 };
 
 template <uint8_t ID>
@@ -108,6 +111,11 @@ public:
     {
         return m_limit;
     }
+
+    virtual uint8_t order() const override final
+    {
+        return 1;
+    }
 };
 
 template <uint8_t ID>
@@ -138,6 +146,11 @@ public:
     duration_millis_t limit()
     {
         return m_limit;
+    }
+
+    virtual uint8_t order() const override final
+    {
+        return 0;
     }
 };
 
@@ -188,6 +201,11 @@ public:
     {
         return ID;
     }
+
+    virtual uint8_t order() const override final
+    {
+        return 2;
+    }
 };
 
 } // end namespace ADConstraints
@@ -217,6 +235,8 @@ public:
         if (constraints.size() < 8) {
             constraints.push_back(std::move(newConstraint));
         }
+        std::sort(constraints.begin(), constraints.end(),
+                  [](const std::unique_ptr<Constraint>& a, const std::unique_ptr<Constraint>& b) { return a->order() < b->order(); });
     }
 
     void removeAllConstraints()
@@ -235,8 +255,8 @@ public:
         uint8_t bit = 0x01;
         for (auto& c : constraints) {
             if (!c->allowed(val, now, *this)) {
-                // don't exit early, all constraints need to be updated
                 limiting = limiting | bit;
+                break;
             }
             bit = bit << 1;
         }
@@ -252,10 +272,7 @@ public:
     {
         m_unconstrained = val;
         m_limiting = checkConstraints(val, now);
-        if (m_limiting != 0) {
-            // Check constraints again with current state to reset any state keeping contstraints like mutex
-            checkConstraints(ActuatorDigitalChangeLogged::state(), now);
-        } else {
+        if (m_limiting == 0) {
             ActuatorDigitalChangeLogged::state(val, now);
         }
     }
