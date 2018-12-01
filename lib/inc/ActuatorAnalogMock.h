@@ -37,6 +37,7 @@ private:
     value_t m_maxValue = cnl::numeric_limits<value_t>::max();
 
     value_t m_setting = 0;
+    bool m_valid = true;
 
 public:
     // construct without arguments, val = invalid, min and max are defaults
@@ -112,8 +113,13 @@ public:
         m_maxValue = arg;
     }
 
-    bool valid() const
+    bool valid() const override final
     {
-        return true;
+        return m_valid;
+    }
+
+    void valid(bool v) override final
+    {
+        m_valid = v;
     }
 };

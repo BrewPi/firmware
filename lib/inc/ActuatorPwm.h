@@ -105,4 +105,6 @@ public:
     }
 
     virtual bool valid() const override final;
+
+    virtual void valid(bool v) override final;
 };

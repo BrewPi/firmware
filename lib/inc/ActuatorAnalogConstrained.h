@@ -20,6 +20,7 @@
 #pragma once
 
 #include "ActuatorAnalog.h"
+#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -40,6 +41,8 @@ public:
     virtual value_t constrain(const value_t& val) const = 0;
 
     virtual uint8_t id() const = 0;
+
+    virtual uint8_t order() const = 0;
 };
 
 template <uint8_t ID>
@@ -66,6 +69,11 @@ public:
     value_t min() const
     {
         return m_min;
+    }
+
+    virtual uint8_t order() const override final
+    {
+        return 0;
     }
 };
 
@@ -94,12 +102,18 @@ public:
     {
         return m_max;
     }
+
+    virtual uint8_t order() const override final
+    {
+        return 1;
+    }
 };
 }
 
 /*
  * An ActuatorAnalog has a range output
  */
+
 class ActuatorAnalogConstrained : public ActuatorAnalog {
 public:
     using Constraint = AAConstraints::Base;
@@ -107,6 +121,8 @@ public:
 private:
     std::vector<std::unique_ptr<Constraint>> constraints;
     ActuatorAnalog& actuator;
+    uint8_t m_limiting = 0x00;
+    value_t m_unconstrained = 0;
 
 public:
     ActuatorAnalogConstrained(ActuatorAnalog& act)
@@ -121,7 +137,12 @@ public:
 
     void addConstraint(std::unique_ptr<Constraint>&& newConstraint)
     {
-        constraints.push_back(std::move(newConstraint));
+        if (constraints.size() < 8) {
+            constraints.push_back(std::move(newConstraint));
+        }
+
+        std::sort(constraints.begin(), constraints.end(),
+                  [](const std::unique_ptr<Constraint>& a, const std::unique_ptr<Constraint>& b) { return a->order() < b->order(); });
     }
 
     void removeAllConstraints()
@@ -131,18 +152,30 @@ public:
 
     virtual void setting(const value_t& val) override final
     {
-        // first set actuator to requested value to
+        // first set actuator to requested value to check whether it constrains the setting itself
         actuator.setting(val);
         value_t result = actuator.setting();
+        m_unconstrained = result;
+
+        // keep track of which constraints limit the setting in a bitfield
+        m_limiting = 0x00;
+        uint8_t bit = 0x01;
+
         for (auto& c : constraints) {
-            result = c->constrain(result);
+            auto constrained = c->constrain(result);
+            if (constrained != result) {
+                m_limiting = m_limiting | bit;
+                result = constrained;
+            }
+            bit = bit << 1;
         }
+
         actuator.setting(result);
     }
 
     void update()
     {
-        setting(setting());
+        setting(m_unconstrained); // re-apply constraints
     }
 
     virtual value_t setting() const override final
@@ -158,6 +191,21 @@ public:
     virtual bool valid() const override final
     {
         return actuator.valid();
+    }
+
+    virtual void valid(bool v) override final
+    {
+        actuator.valid(v);
+    }
+
+    value_t unconstrained() const
+    {
+        return m_unconstrained;
+    }
+
+    uint8_t limiting() const
+    {
+        return m_limiting;
     }
 
     const std::vector<std::unique_ptr<Constraint>>& constraintsList() const

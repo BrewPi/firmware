@@ -38,7 +38,8 @@
 using value_t = ActuatorAnalog::value_t;
 using State = ActuatorDigital::State;
 
-auto output = &std::cout;
+// auto output = &std::cout; // uncomment for stdout output
+auto output = std::make_unique<std::ofstream>(); // use unopened file stream for no output
 
 double
 randomIntervalTest(const int& numPeriods,

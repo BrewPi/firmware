@@ -36,6 +36,11 @@ public:
     {
         return m_mutexConstraint.allowed(newState, now, act);
     };
+
+    virtual uint8_t order() const override final
+    {
+        return m_mutexConstraint.order();
+    }
 };
 
 void
@@ -68,7 +73,7 @@ getDigitalConstraints(blox_DigitalConstraints& msg, const ActuatorDigitalConstra
     pb_size_t numConstraints = sizeof(msg.constraints) / sizeof(msg.constraints[0]);
     for (pb_size_t i = 0; i < numConstraints; ++i, ++it) {
         if (it == constraints.cend()) {
-            return;
+            break;
         }
         auto constraintId = (*it)->id();
         msg.constraints[i].which_constraint = constraintId;
@@ -86,6 +91,8 @@ getDigitalConstraints(blox_DigitalConstraints& msg, const ActuatorDigitalConstra
             msg.constraints[i].constraint.mutex = obj->mutexId();
         } break;
         }
+        msg.constraints[i].limiting = act.limiting() & (uint8_t(1) << i);
         msg.constraints_count++;
     }
+    msg.unconstrained = blox_AD_State(act.unconstrained());
 }

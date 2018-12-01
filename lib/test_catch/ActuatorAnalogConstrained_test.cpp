@@ -123,7 +123,7 @@ SCENARIO("When two analog actuators are constrained by a balancer", "[constraint
         CHECK(cAct2.setting() == Approx(30).margin(cnl::numeric_limits<value_t>::min()));
     }
 
-    THEN("Values that the actuator does not support are used by the balancer")
+    THEN("Values that are clipped by the actuator are not used by the balancer")
     {
         balancer->update();
         cAct1.setting(-60);
@@ -151,7 +151,7 @@ SCENARIO("When two analog actuators are constrained by a balancer", "[constraint
         CHECK(cAct1.setting() == Approx(70).margin(cnl::numeric_limits<value_t>::min()));
         CHECK(cAct2.setting() == Approx(30).margin(cnl::numeric_limits<value_t>::min()));
     }
-    THEN("When the previous request didn't exceed the total, the excess is equally distributed for the granted values")
+    THEN("if the previous request didn't exceed the total, the excess is equally distributed for the granted values")
     {
         balancer->update();
         cAct1.setting(20);
@@ -180,6 +180,21 @@ SCENARIO("When two analog actuators are constrained by a balancer", "[constraint
             cAct2.setting(100);
             CHECK(cAct1.setting() == Approx(50).margin(cnl::numeric_limits<value_t>::min()));
             CHECK(cAct2.setting() == Approx(50).margin(cnl::numeric_limits<value_t>::min()));
+        }
+    }
+
+    AND_WHEN("the actuators also have maximum constraints smaller than the available total")
+    {
+        cAct1.addConstraint(std::make_unique<AAConstraints::Maximum<1>>(20));
+        cAct2.addConstraint(std::make_unique<AAConstraints::Maximum<1>>(30));
+
+        THEN("the balancer uses the value clipped by the maximum constraint")
+        {
+            cAct1.setting(100);
+            cAct2.setting(100);
+            balancer->update();
+            CHECK(balancer->clients()[0].requested == 20);
+            CHECK(balancer->clients()[1].requested == 30);
         }
     }
 }

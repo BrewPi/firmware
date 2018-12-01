@@ -52,6 +52,7 @@ public:
         message.period = pwm.period();
         message.setting = cnl::unwrap(constrained.setting());
         message.value = cnl::unwrap(constrained.value());
+        message.valid = constrained.valid();
         getAnalogConstraints(message.constrainedBy, constrained);
 
         return streamProtoTo(out, &message, blox_ActuatorPwm_fields, blox_ActuatorPwm_size);

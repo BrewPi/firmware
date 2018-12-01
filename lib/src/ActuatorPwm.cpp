@@ -144,3 +144,14 @@ ActuatorPwm::valid() const
     }
     return false;
 }
+
+void
+ActuatorPwm::valid(bool v)
+{
+    if (!v) {
+        if (auto actPtr = m_target()) {
+            actPtr->state(State::Inactive);
+        }
+        setting(0);
+    }
+}
