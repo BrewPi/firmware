@@ -64,23 +64,25 @@ CPPSRC += $(call here_files,platform/spark/modules/Buzzer,*.cpp)
 # display
 INCLUDE_DIRS += $(SOURCE_PATH)/app/brewblox/display
 CPPSRC += $(call target_files,app/brewblox/display,*.cpp)
-CPPSRC += $(call target_files,app/brewblox/display,*.c)
-
-# hardware specific includes
-# INCLUDE_DIRS += $(SOURCE_PATH)/app/brewblox/spark
-#CPPSRC += $(call here_files,app/brewblox/spark,*.cpp)
+CSRC += $(call target_files,app/brewblox/display,*.c)
 
 # add board files (tests use emulated hardware)
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Board
 CPPSRC += $(call here_files,platform/spark/modules/Board,*.cpp)
 
+# add display dependencies
 INCLUDE_DIRS +=  $(SOURCE_PATH)/platform/spark/modules/eGUI/D4D
-CSRC =  $(call target_files,platform/spark/modules/eGUI/D4D,*.c)
-CPPSRC =  $(call target_files,platform/spark/modules/eGUI/D4D,*.cpp)
+CSRC +=  $(call target_files,platform/spark/modules/eGUI/D4D,*.c)
+CPPSRC +=  $(call target_files,platform/spark/modules/eGUI/D4D,*.cpp)
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/BrewPiTouch
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/SPIArbiter
 
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/WebSockets/firmware
+CPPSRC +=  $(call here_files,platform/spark/modules/WebSockets/firmware,*.cpp)
+CSRC += $(call here_files,platform/spark/libs/WebSockets/firmware/libb64,*.c)
+CSRC += $(call here_files,platform/spark/libs/WebSockets/firmware/libsha1,*.c)
 
+# medns
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/mdns/src
 CPPSRC += $(call here_files,platform/spark/modules/mdns/src,*.cpp)
 

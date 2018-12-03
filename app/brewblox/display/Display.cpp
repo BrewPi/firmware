@@ -25,8 +25,8 @@ extern "C" {
 #include "d4d.h"
 }
 
-D4D_SCREEN* DisplayClass::onTimeoutScreen = nullptr;
-D4D_SCREEN* DisplayClass::nextScreen = nullptr;
+D4D_SCREEN_S* DisplayClass::onTimeoutScreen = nullptr;
+D4D_SCREEN_S* DisplayClass::nextScreen = nullptr;
 ticks_millis_t DisplayClass::screenStartTime = 0;
 D4D_EXTERN_SCREEN(screen_startup);
 
@@ -70,6 +70,14 @@ DisplayClass::update(const ticks_millis_t& now)
         D4D_ActivateScreen(newScreen, D4D_TRUE);
     }
 }
+
+DisplayClass&
+displayRef()
+{
+    static DisplayClass d;
+    return d;
+}
+
 /*
 #if PLATFORM_ID == 3
 #define FREERTOS 0

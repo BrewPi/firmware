@@ -1,5 +1,5 @@
 /*
- * Buzzer.cpp
+ * BuzzerClass.cpp
  *
  * Copyright 2015 BrewPi.
  *
@@ -25,7 +25,7 @@
 #include "spark_wiring.h"
 
 void
-Buzzer::setActive(bool active)
+BuzzerClass::setActive(bool active)
 {
     switch (getSparkVersion()) {
     case SparkVersion::V1:
@@ -41,7 +41,7 @@ Buzzer::setActive(bool active)
 }
 
 void
-Buzzer::beep(uint8_t numBeeps, uint16_t duration)
+BuzzerClass::beep(uint8_t numBeeps, uint16_t duration)
 {
     for (uint8_t beepCount = 0; beepCount < numBeeps; beepCount++) {
         setActive(true);
@@ -53,10 +53,9 @@ Buzzer::beep(uint8_t numBeeps, uint16_t duration)
     }
 }
 
-Buzzer&
+BuzzerClass&
 buzzerRef()
 {
-    static Buzzer buzzer;
+    static BuzzerClass buzzer;
     return buzzer;
 }
-#define Buzzer buzzerRef()

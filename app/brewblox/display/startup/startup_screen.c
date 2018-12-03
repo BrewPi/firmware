@@ -18,7 +18,7 @@
  */
 
 #include "startup_screen.h"
-#include "../brewpblox_colors.h"
+#include "../brewblox_colors.h"
 #include "../fonts.h"
 #include "../widget_color_scheme.h"
 #include "d4d.h"

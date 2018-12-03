@@ -20,10 +20,10 @@
 #include "Board.h"
 #include "BrewBlox.h"
 #include "Buzzer.h"
-#include "Display.h"
 #include "MDNS.h"
 #include "application.h" // particle stuff
 #include "cbox/Object.h"
+#include "display/Display.h"
 
 SYSTEM_THREAD(ENABLED);
 SYSTEM_MODE(SEMI_AUTOMATIC);
@@ -73,7 +73,7 @@ setup()
 #endif
 
     boardInit();
-    buzzer.beep(2, 100);
+    Buzzer.beep(2, 100);
     System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
     WiFi.setListenTimeout(30);
     brewbloxBox().loadObjectsFromStorage(); // init box and load stored objects

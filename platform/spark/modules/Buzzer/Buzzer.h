@@ -21,10 +21,10 @@
 
 #include "Board.h"
 
-class Buzzer {
+class BuzzerClass {
 public:
-    Buzzer() = default;
-    ~Buzzer() = default;
+    BuzzerClass() = default;
+    ~BuzzerClass() = default;
 
     /**
      * Performs a number of beeps synchronously.
@@ -36,4 +36,7 @@ public:
     void setActive(bool active);
 };
 
-extern Buzzer buzzer;
+BuzzerClass&
+buzzerRef();
+
+#define Buzzer buzzerRef()

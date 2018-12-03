@@ -21,12 +21,12 @@
 #include "TicksTypes.h"
 #include <stdint.h>
 
-struct D4D_SCREEN;
+struct D4D_SCREEN_S;
 
 class DisplayClass {
 private:
-    static D4D_SCREEN* onTimeoutScreen;
-    static D4D_SCREEN* nextScreen;
+    static D4D_SCREEN_S* onTimeoutScreen;
+    static D4D_SCREEN_S* nextScreen;
     static ticks_millis_t screenStartTime;
 
 public:
@@ -58,10 +58,6 @@ public:
 };
 
 DisplayClass&
-displayRef()
-{
-    static DisplayClass d;
-    return d;
-}
+displayRef();
 
 #define Display displayRef()

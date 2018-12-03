@@ -25,14 +25,19 @@
 #include "process_value_screen.h"
 #include "process_value_widget.h"
 #include <vector>
+extern "C" {
+#include "d4d.h"
+}
 
 class ProcessValueView {
+private:
     const D4D_OBJECT* pObject;
     cbox::CboxPtr<ProcessValue<temp_t>> pvLookup;
 
 public:
-    ProcessValueView(const D4D_OBJECT* obj)
+    ProcessValueView(const D4D_OBJECT* obj, cbox::ObjectContainer& _objects)
         : pObject(obj)
+        , pvLookup(_objects)
     {
     }
 
@@ -43,7 +48,7 @@ public:
 
     cbox::obj_id_t getId()
     {
-        pvLookup.getId();
+        return pvLookup.getId();
     }
 
     void update();
@@ -64,19 +69,19 @@ public:
 
 class ProcessValueScreenMgr {
 private:
-    std::vector<ProcessValueView> pvViews;
     cbox::ObjectContainer& objects;
+    std::vector<ProcessValueView> pvViews;
 
 public:
     ProcessValueScreenMgr(cbox::ObjectContainer& _objects)
         : objects(_objects)
         , pvViews({
-              ProcessValueView(&scrProcessValues00),
-              ProcessValueView(&scrProcessValues01),
-              ProcessValueView(&scrProcessValues02),
-              ProcessValueView(&scrProcessValues10),
-              ProcessValueView(&scrProcessValues11),
-              ProcessValueView(&scrProcessValues12),
+              ProcessValueView(&scrProcessValues00, _objects),
+              ProcessValueView(&scrProcessValues01, _objects),
+              ProcessValueView(&scrProcessValues02, _objects),
+              ProcessValueView(&scrProcessValues10, _objects),
+              ProcessValueView(&scrProcessValues11, _objects),
+              ProcessValueView(&scrProcessValues12, _objects),
           })
     {
     }
@@ -84,4 +89,4 @@ public:
     void update();
 
     void search();
-}
+};

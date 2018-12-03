@@ -47,8 +47,8 @@ ProcessValueScreenMgr::search()
 
     for (auto& view : pvViews) {
         if (it != objects.cend()) {
-            if (it->object()->implements(cbox::interfaceId<ProcessValue<temp_t>>()) {
-                view.setId(id->id());
+            if (it->object()->implements(cbox::interfaceId<ProcessValue<temp_t>>())) {
+                view.setId(it->id());
             }
             ++it;
         } else {
@@ -65,7 +65,7 @@ ProcessValueScreenMgr::update()
     }
 }
 
-ProcessValueScreenMgr pvScreenMgr;
+//ProcessValueScreenMgr pvScreenMgr;
 
 void
 ScreenProcessValues_OnInit()
@@ -77,8 +77,8 @@ ScreenProcessValues_OnInit()
 void
 ScreenProcessValues_OnMain()
 {
-    pvScreenMgr.search();
-    pvScreenMgr.update();
+    //pvScreenMgr.search();
+    //pvScreenMgr.update();
     usbPresenter.update();
     wifiPresenter.update();
 }

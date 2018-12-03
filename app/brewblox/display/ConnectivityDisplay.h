@@ -22,7 +22,6 @@
 extern "C" {
 #include "d4d.h"
 }
-#include "Platform.h"
 
 class ControllerWiFiView {
     const D4D_OBJECT* obj;

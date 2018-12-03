@@ -62,19 +62,19 @@ D4D_PV_SetNameText(const D4D_OBJECT* pObj, const char* text);
 #define D4D_PV_SETTING(pObj) ((const D4D_OBJECT*)((pObj)->pRelations[2]))
 #define D4D_PV_NAME(pObj) ((const D4D_OBJECT*)((pObj)->pRelations[3]))
 
-#define D4D_DECLARE_PV(ref, x, y, cx, cy)                                                                                                                                                                                   \
-    D4D_EXTERN_OBJECT(ref);                                                                                                                                                                                                 \
-    D4D_DECLARE_OBJECT_RELATIONS(ref##_value_relations, &ref, NULL);                                                                                                                                                        \
-    D4D_DECLARE_OBJECT_RELATIONS(ref##_setting_relations, &ref, NULL);                                                                                                                                                      \
-    D4D_DECLARE_OBJECT_RELATIONS(ref##_name_relations, &ref, NULL);                                                                                                                                                         \
-    char ref##_value_buf[12];                                                                                                                                                                                               \
-    char ref##_setting_buf[12];                                                                                                                                                                                             \
-    char ref##_setting_buf[12];                                                                                                                                                                                             \
-    _D4D_DECLARE_LABEL(D4D_CONST, ref##_value, ref##_value_buf, 0, 0, cx, (((cy)*2) / 3), 0, NULL, ref##_value_relations, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(color_scheme_pv), FONT_ARIAL7, NULL, NULL);                \
-    _D4D_DECLARE_LABEL(D4D_CONST, ref##_setting, ref##_setting_buf, 0, (((cy)*2) / 3), cx, ((cy) / 3), 0, NULL, ref##_setting_relations, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(color_scheme_pv), FONT_ARIAL7, NULL, NULL); \
-    _D4D_DECLARE_LABEL(D4D_CONST, ref##_name, ref##_name_buf, 0, (((cy)*2) / 3), cx, ((cy) / 3), 0, NULL, ref##_name_relations, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(color_scheme_pv), FONT_ARIAL7, NULL, NULL);          \
-    D4D_DECLARE_OBJECT_RELATIONS(ref##_btn_relations, NULL, &ref##_value, &ref##_connection);                                                                                                                               \
-    _D4D_DECLARE_BUTTON(D4D_CONST, ref, NULL, x, y, cx, cy, 0, NULL, ref##_btn_relations, (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH), NULL, NULL, AS_D4D_COLOR_SCHEME(color_scheme_pv), FONT_ARIAL7, NULL, NULL, NULL);
+#define D4D_DECLARE_PV(ref, x, y, cx, cy)                                                                                                                                                                                    \
+    D4D_EXTERN_OBJECT(ref);                                                                                                                                                                                                  \
+    D4D_DECLARE_OBJECT_RELATIONS(ref##_value_relations, &ref, NULL);                                                                                                                                                         \
+    D4D_DECLARE_OBJECT_RELATIONS(ref##_setting_relations, &ref, NULL);                                                                                                                                                       \
+    D4D_DECLARE_OBJECT_RELATIONS(ref##_name_relations, &ref, NULL);                                                                                                                                                          \
+    char ref##_value_buf[12];                                                                                                                                                                                                \
+    char ref##_setting_buf[12];                                                                                                                                                                                              \
+    char ref##_name_buf[12];                                                                                                                                                                                                 \
+    _D4D_DECLARE_LABEL(D4D_CONST, ref##_value, ref##_value_buf, 0, 0, cx, (((cy)*2) / 3), 0, NULL, ref##_value_relations, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&color_scheme_pv), FONT_ARIAL7, NULL, NULL);                \
+    _D4D_DECLARE_LABEL(D4D_CONST, ref##_setting, ref##_setting_buf, 0, (((cy)*2) / 3), cx, ((cy) / 3), 0, NULL, ref##_setting_relations, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&color_scheme_pv), FONT_ARIAL7, NULL, NULL); \
+    _D4D_DECLARE_LABEL(D4D_CONST, ref##_name, ref##_name_buf, 0, (((cy)*2) / 3), cx, ((cy) / 3), 0, NULL, ref##_name_relations, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&color_scheme_pv), FONT_ARIAL7, NULL, NULL);          \
+    D4D_DECLARE_OBJECT_RELATIONS(ref##_btn_relations, NULL, &ref##_value, &ref##_setting, &ref##_name);                                                                                                                      \
+    _D4D_DECLARE_BUTTON(D4D_CONST, ref, NULL, x, y, cx, cy, 0, NULL, ref##_btn_relations, (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH), NULL, NULL, AS_D4D_COLOR_SCHEME(&color_scheme_pv), FONT_ARIAL7, NULL, NULL, NULL);
 
 #ifdef __cplusplus
 }

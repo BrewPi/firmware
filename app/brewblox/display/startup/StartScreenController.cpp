@@ -15,72 +15,75 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
- */ 
+ */
 
-#include "Brewpi.h"
-#include "Platform.h"
-#include <algorithm>
-#include "startup_screen.h"
 #include "../BrewPiTouch/BrewPiTouch.h"
-#include "UI.h"
-#include "UIController.h"
+#include "startup_screen.h"
+#include <algorithm>
 
-
+/*
 class StartupScreenModel {
-    
+
     uint32_t timer;
     bool touched_flag;
     uint8_t fade_color;
-public:    
-    void start() {
+
+public:
+    void start()
+    {
         timer = millis();
         touched_flag = false;
         fade_color = 255;
     }
-    
-    uint32_t elapsed() {
-        return millis()-timer;
+
+    uint32_t elapsed()
+    {
+        return millis() - timer;
     }
-    
-    bool timeout() {
-        return elapsed()>4500;
+
+    bool timeout()
+    {
+        return elapsed() > 4500;
     }
-    
-    bool touched() {
+
+    bool touched()
+    {
         return touched_flag;
     }
-    
-    void flagTouched() {
+
+    void flagTouched()
+    {
         touched_flag = true;
     }
-        
-    bool fadeColorUpdate(uint8_t newColor) {
-        bool changed = newColor!=fade_color;
+
+    bool fadeColorUpdate(uint8_t newColor)
+    {
+        bool changed = newColor != fade_color;
         fade_color = newColor;
         return changed;
     }
-    
+
     uint8_t fadeColor() { return fade_color; }
 };
 
 // really would have liked to have this on the stack, but can't with re-entrant coding model.
 StartupScreenModel model;
 
-
-
 extern BrewPiTouch touch;
- 
-void ScrStartup_OnInit()
-{    
+
+void
+ScrStartup_OnInit()
+{
 }
 
-void ScrStartup_OnMain()
-{    
+void
+ScrStartup_OnMain()
+{
     uint32_t elapsed = model.elapsed();
-    if (elapsed>2000) {                        
-        if (model.fadeColorUpdate(min(255lu, ((elapsed-2000)*255)/(3000)))) {
+    if (elapsed > 2000) {
+        if (model.fadeColorUpdate(min(255lu, ((elapsed - 2000) * 255) / (3000)))) {
             uint8_t c = model.fadeColor();
-            scrStartup_version.clrScheme->fore = D4D_COLOR_RGB(c,c,c);            
+            scrStartup_version.clrScheme->fore = D4D_COLOR_RGB(c, c, c);
             D4D_InvalidateObject(&scrStartup_version, D4D_FALSE);
         }
     }
@@ -88,33 +91,36 @@ void ScrStartup_OnMain()
         uiController.notifyStartupComplete();
 }
 
-void ScrStartup_OnActivate()
-{    
+void
+ScrStartup_OnActivate()
+{
     model.start();
 // would ideally like to make this conditional on using the brewpi touch driver
-#if PLATFORM_ID!=3
+#if PLATFORM_ID != 3
     touch.setStabilityThreshold(16000); // set to high Threshold to disable filter
 #endif
 }
 
-void ScrStartup_OnDeactivate()
+void
+ScrStartup_OnDeactivate()
 {
-    if (model.touched()){
-#if PLATFORM_ID!=3
+    if (model.touched()) {
+#if PLATFORM_ID != 3
         touch.setStabilityThreshold(5); // require extra stable reading
 #endif
         calibrateTouchScreen();
     }
-#if PLATFORM_ID!=3
+#if PLATFORM_ID != 3
     touch.setStabilityThreshold(); // reset to default
 #endif
 }
 
-Byte ScrStartup_OnObjectMsg(D4D_MESSAGE* pMsg)
-{    
-    if (pMsg->nMsgId==D4D_MSG_TOUCHED) 
+Byte
+ScrStartup_OnObjectMsg(D4D_MESSAGE* pMsg)
+{
+    if (pMsg->nMsgId == D4D_MSG_TOUCHED)
         model.flagTouched();
     return 0;
 }
 
-
+*/
