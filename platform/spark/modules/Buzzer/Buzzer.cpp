@@ -19,33 +19,44 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "Brewpi.h"
-#include "Board.h"
 #include "Buzzer.h"
+#include "Board.h"
+#include "delay_hal.h"
+#include "spark_wiring.h"
 
-#if BREWPI_BUZZER
-
-void Buzzer::setActive(bool active){
-#if(PLATFORM_ID == 8)
-    analogWrite(PIN_ALARM, active ? 128 : 0, 3000);
-#else
-    digitalWrite(PIN_ALARM, active ^ shieldIsV1());
-#endif    
+void
+Buzzer::setActive(bool active)
+{
+    switch (getSparkVersion()) {
+    case SparkVersion::V1:
+        HAL_GPIO_Write(PIN_ALARM, !active);
+        break;
+    case SparkVersion::V2:
+        HAL_GPIO_Write(PIN_ALARM, active);
+        break;
+    case SparkVersion::V3:
+        analogWrite(PIN_ALARM, active ? 128 : 0, 3000);
+        break;
+    }
 }
 
-
-void Buzzer::beep(uint8_t numBeeps, uint16_t duration) {
+void
+Buzzer::beep(uint8_t numBeeps, uint16_t duration)
+{
     for (uint8_t beepCount = 0; beepCount < numBeeps; beepCount++) {
         setActive(true);
         HAL_Delay_Milliseconds(duration);
         setActive(false);
         if (beepCount < numBeeps - 1) {
-        	HAL_Delay_Milliseconds(duration); // not the last beep
+            HAL_Delay_Milliseconds(duration); // not the last beep
         }
     }
 }
 
-Buzzer buzzer;
-
-#endif
+Buzzer&
+buzzerRef()
+{
+    static Buzzer buzzer;
+    return buzzer;
+}
+#define Buzzer buzzerRef()

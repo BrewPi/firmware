@@ -57,16 +57,29 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform
 CSRC += $(call here_files,platform/spark/modules/Board,*.c)
 CPPSRC += $(call here_files,platform/spark/modules/Board,*.cpp)
 
+# buzzer
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Buzzer
+CPPSRC += $(call here_files,platform/spark/modules/Buzzer,*.cpp)
+
+# display
+INCLUDE_DIRS += $(SOURCE_PATH)/app/brewblox/display
+CPPSRC += $(call target_files,app/brewblox/display,*.cpp)
+CPPSRC += $(call target_files,app/brewblox/display,*.c)
+
 # hardware specific includes
-INCLUDE_DIRS += $(SOURCE_PATH)/app/brewblox/spark
-CPPSRC += $(call here_files,app/brewblox/spark,*.cpp)
+# INCLUDE_DIRS += $(SOURCE_PATH)/app/brewblox/spark
+#CPPSRC += $(call here_files,app/brewblox/spark,*.cpp)
 
 # add board files (tests use emulated hardware)
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Board
 CPPSRC += $(call here_files,platform/spark/modules/Board,*.cpp)
 
-#SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
-#include $(SRC_EGUI)/egui.mk
+INCLUDE_DIRS +=  $(SOURCE_PATH)/platform/spark/modules/eGUI/D4D
+CSRC =  $(call target_files,platform/spark/modules/eGUI/D4D,*.c)
+CPPSRC =  $(call target_files,platform/spark/modules/eGUI/D4D,*.cpp)
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/BrewPiTouch
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/SPIArbiter
+
 
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/mdns/src
 CPPSRC += $(call here_files,platform/spark/modules/mdns/src,*.cpp)

@@ -194,7 +194,7 @@ logger()
             out.write(c);
         }
         out.write('>');
-    });
+        });
     return logger;
 }
 

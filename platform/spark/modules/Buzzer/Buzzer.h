@@ -21,9 +21,7 @@
 
 #include "Board.h"
 
-#if BREWPI_BUZZER
-
-class Buzzer{
+class Buzzer {
 public:
     Buzzer() = default;
     ~Buzzer() = default;
@@ -39,4 +37,3 @@ public:
 };
 
 extern Buzzer buzzer;
-#endif
