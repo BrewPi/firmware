@@ -196,6 +196,8 @@ public:
     virtual void valid(bool v) override final
     {
         actuator.valid(v);
+        // re-apply setting for when actuator has constrained it due to being invalid
+        setting(actuator.setting());
     }
 
     value_t unconstrained() const
