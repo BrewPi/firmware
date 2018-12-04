@@ -150,16 +150,13 @@ public:
         constraints.clear();
     }
 
-    virtual void setting(const value_t& val) override final
+    value_t constrain(const value_t& val)
     {
-        // first set actuator to requested value to check whether it constrains the setting itself
-        actuator.setting(val);
-        value_t result = actuator.setting();
-        m_unconstrained = result;
-
         // keep track of which constraints limit the setting in a bitfield
         m_limiting = 0x00;
         uint8_t bit = 0x01;
+
+        value_t result = val;
 
         for (auto& c : constraints) {
             auto constrained = c->constrain(result);
@@ -170,12 +167,28 @@ public:
             bit = bit << 1;
         }
 
-        actuator.setting(result);
+        return result;
+    }
+
+    virtual void setting(const value_t& val) override final
+    {
+        // first set actuator to requested value to check whether it constrains the setting itself
+        actuator.setting(val);
+        m_unconstrained = actuator.setting();
+
+        // then set it to the constrained value
+        if (actuator.valid()) {
+            actuator.setting(constrain(m_unconstrained));
+        } else {
+            constrain(0);
+        }
     }
 
     void update()
     {
-        setting(m_unconstrained); // re-apply constraints
+        if (actuator.valid()) {
+            setting(m_unconstrained); // re-apply constraints
+        }
     }
 
     virtual value_t setting() const override final
@@ -195,9 +208,12 @@ public:
 
     virtual void valid(bool v) override final
     {
+        auto old = actuator.valid();
         actuator.valid(v);
-        // re-apply setting for when actuator has constrained it due to being invalid
-        setting(actuator.setting());
+        if (old != actuator.valid()) {
+            // update constraints state in case setting valid has changed the limits inside the actuator itself
+            constrain(actuator.setting());
+        }
     }
 
     value_t unconstrained() const
