@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "d4d.h"
-
 #define FONT_ARIAL7 0
 #define FONT_ARIAL7_HIGH 1
 #define FONT_ARIAL7_WIDE 2

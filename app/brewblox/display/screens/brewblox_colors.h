@@ -17,8 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BREWBLOX_COLORS_H
-#define BREWBLOX_COLORS_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,5 +32,3 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* BREWPI_COLORS_H */

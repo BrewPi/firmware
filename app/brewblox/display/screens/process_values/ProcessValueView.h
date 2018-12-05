@@ -19,6 +19,8 @@
 
 #pragma once
 
+#if 0
+
 #include "ProcessValue.h"
 #include "Temperature.h"
 #include "cbox/CboxPtr.h"
@@ -90,3 +92,5 @@ public:
 
     void search();
 };
+
+#endif

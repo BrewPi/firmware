@@ -19,9 +19,7 @@
 
 #pragma once
 
-extern "C" {
-#include "d4d.h"
-}
+#include "d4d.hpp"
 
 class ControllerWiFiView {
     const D4D_OBJECT* obj;

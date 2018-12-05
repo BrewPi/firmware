@@ -58,7 +58,12 @@
     "codecvt": "cpp",
     "filesystem": "cpp",
     "connected_device_widget.h": "c",
-    "process_value_widget.h": "c"
+    "process_value_widget.h": "c",
+    "widget_color_scheme.h": "c",
+    "screen.h": "c",
+    "brewblox_colors.h": "c",
+    "d4d.hpp": "c",
+    "fonts.h": "c"
   },
   "editor.formatOnSave": true,
 }

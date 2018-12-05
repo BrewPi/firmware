@@ -1,7 +1,7 @@
 /*
- * Copyright 2015 BrewPi / Elco Jacobs, Matthew McGowan.
+ * Copyright 2018 BrewPi B.V.
  *
- * This file is part of BrewPi.
+ * This file is part of BrewBlox.
  * 
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,34 +15,10 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
- */ 
+ */
 
+#pragma once
 
-#ifndef STARTUP_SCREEN_H
-#define	STARTUP_SCREEN_H
-
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
-#include "d4d.h"
-
-        
-void ScrStartup_OnInit();
-void ScrStartup_OnMain();
-void ScrStartup_OnActivate();
-void ScrStartup_OnDeactivate();
-Byte ScrStartup_OnObjectMsg(D4D_MESSAGE* pMsg);
-
-extern void calibrateTouchScreen();
-
-D4D_EXTERN_OBJECT(scrStartup_version);
-D4D_EXTERN_OBJECT(scrStartup_text);
-
-
-#ifdef	__cplusplus
-}
-#endif
-
-#endif	/* STARTUP_SCREEN_H */
-
+#include "../d4d.hpp"
+#include "brewblox_colors.h"
+#include "fonts.h"

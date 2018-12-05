@@ -17,6 +17,8 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#if 0
+
 #include <algorithm>
 #include <functional>
 
@@ -99,3 +101,5 @@ ScreenProcessValues_OnObjectMsg(D4D_MESSAGE* pMsg)
     D4D_UNUSED(pMsg);
     return 0;
 }
+
+#endif

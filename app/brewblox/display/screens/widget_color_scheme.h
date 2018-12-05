@@ -15,46 +15,44 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
- */ 
+ */
 
-#ifndef WIDGET_COLOR_SCHEME_H
-#define	WIDGET_COLOR_SCHEME_H
+#pragma once
 
-#include <stdint.h>
+#include "d4d.hpp"
 #include <stddef.h>
-#include "d4d.h"
+#include <stdint.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * The core colors for a simple widget. Most widgets use only these core color values
  * so we don't need to waste space storing the full D4D_COLOR_SCHEME which stores colors
  * that aren't applicable (screen, progress bar, guage etc...) 
  */
-typedef struct WIDGET_COLOR_SCHEME {
-  D4D_COLOR bckg;                       ///< The object background color in standard state
-  D4D_COLOR bckgDis;                    ///< The object background color in disabled state
-  D4D_COLOR bckgFocus;                  ///< The object background color in focused state
-  D4D_COLOR bckgCapture;                ///< The object background color in captured state
-  D4D_COLOR fore;                       ///< The object fore color in standard state
-  D4D_COLOR foreDis;                    ///< The object fore color in disabled state
-  D4D_COLOR foreFocus;                  ///< The object fore color in focused state
-  D4D_COLOR foreCapture;                ///< The object fore color in captured state
-} WIDGET_COLOR_SCHEME;
+struct WIDGET_COLOR_SCHEME {
+    D4D_COLOR bckg;        ///< The object background color in standard state
+    D4D_COLOR bckgDis;     ///< The object background color in disabled state
+    D4D_COLOR bckgFocus;   ///< The object background color in focused state
+    D4D_COLOR bckgCapture; ///< The object background color in captured state
+    D4D_COLOR fore;        ///< The object fore color in standard state
+    D4D_COLOR foreDis;     ///< The object fore color in disabled state
+    D4D_COLOR foreFocus;   ///< The object fore color in focused state
+    D4D_COLOR foreCapture; ///< The object fore color in captured state
+};
 
 #define AS_D4D_COLOR_SCHEME(c) \
-    ((D4D_CLR_SCHEME*)(((uint8_t*)c)-offsetof(D4D_CLR_SCHEME, bckg)))
-
+    ((D4D_CLR_SCHEME*)(((uint8_t*)c) - offsetof(D4D_CLR_SCHEME, bckg)))
 
 /**
  * Declare a label with the given colors. 
  * The WIDGET_COLOR_SCHEME is availalbe as name_color.
  */
 #define D4D_DECLARE_COLOR_LABEL(name, text, x, y, cx, cy, font, type, bg, fg) \
-    WIDGET_COLOR_SCHEME name##_color = { bg, bg, bg, bg, fg, fg, fg, fg }; \
-    D4D_DECLARE_LABEL(name, text, x, y, cx, cy, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&name##_color), font, NULL, NULL);
+    WIDGET_COLOR_SCHEME name##_color = {bg, bg, bg, bg, fg, fg, fg, fg};
 
-
-
-#endif	/* WIDGET_COLOR_SCHEME_H */
-
+#ifdef __cplusplus
+}
+#endif

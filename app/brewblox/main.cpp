@@ -23,7 +23,7 @@
 #include "MDNS.h"
 #include "application.h" // particle stuff
 #include "cbox/Object.h"
-#include "display/Display.h"
+#include "d4d.hpp"
 
 SYSTEM_THREAD(ENABLED);
 SYSTEM_MODE(SEMI_AUTOMATIC);
@@ -64,6 +64,8 @@ watchdogCheckin()
 #define str(x) #x
 #define xstr(x) "x"
 
+extern D4D_SCREEN screen_startup;
+
 void
 setup()
 {
@@ -78,6 +80,8 @@ setup()
     WiFi.setListenTimeout(30);
     brewbloxBox().loadObjectsFromStorage(); // init box and load stored objects
     System.on(setup_update, watchdogCheckin);
+
+    D4D_Init(&screen_startup);
 
     bool success = mdns.setHostname(System.deviceID());
     success = success && mdns.addService("tcp", "http", 80, System.deviceID());
@@ -134,7 +138,15 @@ loop()
     if (!WiFi.listening()) {
         brewbloxBox().hexCommunicate();
     }
+
     updateBrewbloxBox();
+
+    // update display
+    D4D_TimeTickPut();
+    D4D_CheckTouchScreen();
+    D4D_Poll();
+    D4D_FlushOutput();
+
     watchdogCheckin();
 }
 

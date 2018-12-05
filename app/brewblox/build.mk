@@ -79,8 +79,8 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/SPIArbiter
 
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/WebSockets/firmware
 CPPSRC +=  $(call here_files,platform/spark/modules/WebSockets/firmware,*.cpp)
-CSRC += $(call here_files,platform/spark/libs/WebSockets/firmware/libb64,*.c)
-CSRC += $(call here_files,platform/spark/libs/WebSockets/firmware/libsha1,*.c)
+CSRC += $(call here_files,platform/spark/modules/WebSockets/firmware/libb64,*.c)
+CSRC += $(call here_files,platform/spark/modules/WebSockets/firmware/libsha1,*.c)
 
 # medns
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/mdns/src

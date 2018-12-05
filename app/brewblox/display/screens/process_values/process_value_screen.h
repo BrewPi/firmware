@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "d4d.h"
+#include "../screen.h"
 
 #ifdef __cplusplus
 extern "C" {
