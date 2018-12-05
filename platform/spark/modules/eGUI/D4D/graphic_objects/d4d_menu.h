@@ -302,7 +302,7 @@ typedef struct
 *       _D4D_DECLARE_MENU_END()
 * @endcode
 *******************************************************************************/
-#define _D4D_DECLARE_MENU_END() { {NULL, 0, 0, NULL}, NULL, NULL} };
+#define _D4D_DECLARE_MENU_END() { {NULL, 0, 0, NULL, 0, 0}, NULL, NULL} };
 
 /**************************************************************************/ /*!
 * @brief   Macro that is used to close the item list for menu definition

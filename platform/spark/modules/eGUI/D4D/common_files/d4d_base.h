@@ -470,6 +470,7 @@ typedef Byte D4D_SYSTEM_FLAGS;
 
 // System flag - TimeTick
 #define D4D_SYSTEM_F_TIMETICK           (0x01)
+#define D4D_SYSTEM_F_SYSTEM_KEYS_DISABLE (0x02)
 
 /******************************************************************************
 * D4D Base macros

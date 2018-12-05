@@ -371,33 +371,21 @@ static void D4D_LCD_Plot8points(D4D_COOR cx, D4D_COOR cy, D4D_COOR x, D4D_COOR y
 void D4D_LCD_Circle (D4D_COOR cx, D4D_COOR cy, D4D_COOR radius,
                  D4D_BOOL fill, D4D_LINETYPE line_type, D4D_COLOR color)   //draw circle
 {
-  sWord error =  (sWord)(-1 * (sWord)radius);
+  sWord e =  (sWord)(-1 * (sWord)radius);
   D4D_COOR x = radius;
   D4D_COOR y = 0;
 
-  // The following while loop may altered to 'while (x > y)' for a
-  // performance benefit, as long as a call to 'plot4points' follows
-  // the body of the loop. This allows for the elimination of the
-  // '(x != y') test in 'plot8points', providing a further benefit.
-  //
-  // For the sake of clarity, this is not shown here.
   while (x >= y)
   {
     D4D_LCD_Plot8points(cx, cy, x, y, fill, line_type, color);
 
-    error += y;
-    ++y;
-    error += y;
+    e += 2*y + 1;
+    y++;
 
-    // The following test may be implemented in assembly language in
-    // most machines by testing the carry flag after adding 'y' to
-    // the value of 'error' in the previous step, since 'error'
-    // nominally has a negative value.
-    if (error >= 0)
+    if (e >= 0)
     {
       --x;
-      error -= x;
-      error -= x;
+      e -= 2*x;
     }
   }
 }

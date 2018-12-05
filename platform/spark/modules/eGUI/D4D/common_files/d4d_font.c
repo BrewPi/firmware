@@ -231,7 +231,7 @@ static D4D_FONT_DATA* D4D_GetCharData(FNT_CHAR_PLACE* char_place);
         // 8. Adjust the used pointers in all loaded structures
         pFntDesc = d4d_FontTableRam[i].pFontDescriptor;
 #ifdef D4D_UNICODE
-        while((pFntDesc != NULL) && (pFntDesc - d4d_FontTableRam[i].pFontDescriptor) <= fileSize)
+        while((pFntDesc != NULL) && ((pFntDesc - d4d_FontTableRam[i].pFontDescriptor) <= fileSize))
         {
 #endif
           if(pFntDesc->pIxTable)

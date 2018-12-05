@@ -53,7 +53,7 @@
 
   // include of low level driver heaser file
   // it will be included into wole project only in case that this driver is selected in main D4D configuration file
-  #include "low_level_drivers\touch_screen\touch_screen_drivers\tsc2046\d4dtch_tsc2046.h"
+  #include "low_level_drivers/touch_screen/touch_screen_drivers/tsc2046/d4dtch_tsc2046.h"
   /******************************************************************************
   * Macros
   ******************************************************************************/

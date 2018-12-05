@@ -129,12 +129,12 @@
 #define D4D_SCR_FINT_REDRAWC        (0x04)
 #define D4D_SCR_FINT_CHECKOBJECTS   (0x08)
 
-#define D4D_SCR_FINT_MOUSE_MASK     (0x30)
-#define D4D_SCR_FINT_MOUSE_SHIFT    4
+#define D4D_SCR_FINT_MOUSE_MASK     (0x60)
+#define D4D_SCR_FINT_MOUSE_SHIFT    (5)
 
-#define D4D_SCR_FINT_MOUSE_NORMAL       0x10
-#define D4D_SCR_FINT_MOUSE_BUSY         0x20
-#define D4D_SCR_FINT_MOUSE_UNAVAILABLE  0x30
+#define D4D_SCR_FINT_MOUSE_NORMAL       (0x20)
+#define D4D_SCR_FINT_MOUSE_BUSY         (0x40)
+#define D4D_SCR_FINT_MOUSE_UNAVAILABLE  (0x60)
 
 struct D4D_STRING_S;
 /******************************************************************************
@@ -338,6 +338,68 @@ typedef struct D4D_SCREEN_S
 #define D4D_DECLARE_SCREEN_END() NULL };
 
 /**************************************************************************/ /*!
+* @brief   Macro that create the screen structure in RAM memory including all substructures
+* @param   name - name of screen
+* @param   funcPrefix - Prefix Name of screen event handlers
+* @param   x - coordination of screen in X axis
+* @param   y - coordination of screen in Y axis
+* @param   cx - size of screen in X axis
+* @param   cy - size of screen in Y axis
+* @param   text - title bar text (if used)
+* @param   fontId - title bar text font
+* @param   icon - title bar icon picture
+* @param   initFlags - init flags of screen corresponding to \ref doxd4d_screen_const_flags
+* @param   pScheme - pointer to color scheme. In case that this parameter is NULL, the default scheme color will be used for draw screen and objects
+
+* @note    This macro create complete D4D_SCREEN structure in ROM, including the screen data sub structure. Is used to declare the eGUI screen.
+*          This is screen declaration macro to create screen in ROM without round corners.
+*******************************************************************************/
+#define D4D_DECLARE_SCREEN_BEGIN_INRAM(name, funcPrefix, x ,y, cx, cy, text, fontId, icon, initFlags, pScheme)\
+  _D4D_DECLARE_SCREEN_BEGIN(D4D_NO_CONST, name, funcPrefix, x ,y, cx, cy, 0, text, fontId, icon, initFlags, pScheme)
+
+/**************************************************************************/ /*!
+* @brief   Macro that create the screen structure in RAM memory with standard settings
+* @param   name - name of screen
+* @param   funcPrefix - Prefix Name of screen event handlers
+* @note    This macro create complete \ref D4D_SCREEN structure in ROM, including the screen data sub structure. Is used to declare the eGUI screen.
+*          This is simplified screen declaration macro to create screen in ROM without round corners. Instead of some missing parameters are used default one.
+*******************************************************************************/
+#define D4D_DECLARE_STD_SCREEN_BEGIN_INRAM(name, funcPrefix) D4D_DECLARE_SCREEN_BEGIN_INRAM(name, funcPrefix, 0 ,0, \
+          (D4D_COOR)(D4D_SCREEN_SIZE_LONGER_SIDE), (D4D_COOR)(D4D_SCREEN_SIZE_SHORTER_SIDE), NULL, 0, NULL, D4D_SCR_F_DEFAULT, NULL)
+
+/**************************************************************************/ /*!
+* @brief   Macro that create the screen structure in RAM memory with standard settings in portrait orientation
+* @param   name - name of screen
+* @param   funcPrefix - Prefix Name of screen event handlers
+* @note    This macro create complete \ref D4D_SCREEN structure in ROM, including the screen data sub structure. Is used to declare the eGUI screen.
+*          This is simplified screen declaration macro to create screen in ROM without round corners.
+*          Instead of some missing parameters are used default one.
+*******************************************************************************/
+#define D4D_DECLARE_STD_PORTRAIT_SCREEN_BEGIN_INRAM(name, funcPrefix) D4D_DECLARE_SCREEN_BEGIN_INRAM(name, funcPrefix, 0 ,0, \
+          (D4D_COOR)(D4D_SCREEN_SIZE_SHORTER_SIDE), (D4D_COOR)(D4D_SCREEN_SIZE_LONGER_SIDE), NULL, 0, NULL, D4D_SCR_F_DEFAULT, NULL)
+
+/**************************************************************************/ /*!
+* @brief   Macro that create the screen structure in RAM memory including all substructures with round corners
+* @param   name - name of screen
+* @param   funcPrefix - Prefix Name of screen event handlers
+* @param   x - coordination of screen in X axis
+* @param   y - coordination of screen in Y axis
+* @param   cx - size of screen in X axis
+* @param   cy - size of screen in Y axis
+* @param   radius - radius of corners
+* @param   text - title bar text (if used)
+* @param   fontId - title bar text font
+* @param   icon - title bar icon picture
+* @param   initFlags - init flags of screen corresponding to \ref doxd4d_screen_const_flags
+* @param   pScheme - pointer to color scheme. In case that this parameter is NULL, the default scheme color will be used for draw screen and objects
+
+* @note    This macro create complete \ref D4D_SCREEN structure in ROM, including the screen data sub structure. Is used to declare the eGUI screen.
+*          This is screen declaration macro to create screen in ROM with round corners.
+*******************************************************************************/
+#define D4D_DECLARE_RSCREEN_BEGIN_INRAM(name, funcPrefix, x ,y, cx, cy, radius, text, fontId, icon, initFlags, pScheme)\
+  _D4D_DECLARE_SCREEN_BEGIN(D4D_NO_CONST, name, funcPrefix, x ,y, cx, cy, radius, text, fontId, icon, initFlags, pScheme)
+
+/**************************************************************************/ /*!
 * @brief   Macro that externs the D4D_SCREEN struxture
 * @param   name of screen structure
 * @note    This is help macro to write clear D4D code to extern D4D_SCREEN to other C file
@@ -359,13 +421,13 @@ typedef struct D4D_SCREEN_S
 #endif
 
 D4D_SCREEN* D4D_GetActiveScreen(void);
-void D4D_ActivateScreen(D4D_SCREEN* pNewScreen, D4D_BOOL bReplaceCurrent);
+void D4D_ActivateScreen(const D4D_SCREEN* pNewScreen, D4D_BOOL bReplaceCurrent);
 void D4D_EscapeScreen(void);
 void D4D_EscapeToBaseScreen(void);
-void D4D_InitScreen(D4D_SCREEN* pScreen);
-void D4D_InvalidateScreen(D4D_SCREEN* pScreen, D4D_BOOL bComplete);
-void D4D_SetScreenTextProperties(D4D_SCREEN* pScreen, D4D_TEXT_PROPERTIES property);
-void D4D_SetScreenFontProperties(D4D_SCREEN* pScreen, D4D_FONT_PROPERTIES property);
+void D4D_InitScreen(const D4D_SCREEN* pScreen);
+void D4D_InvalidateScreen(const D4D_SCREEN* pScreen, D4D_BOOL bComplete);
+void D4D_SetScreenTextProperties(const D4D_SCREEN* pScreen, D4D_TEXT_PROPERTIES property);
+void D4D_SetScreenFontProperties(const D4D_SCREEN* pScreen, D4D_FONT_PROPERTIES property);
 
 
 D4D_POINT D4D_GetClientToScreenPoint(D4D_OBJECT* pObject, D4D_POINT* nClientPoint);

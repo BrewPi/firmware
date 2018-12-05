@@ -244,7 +244,7 @@ typedef struct
 *               there is missing parameter that is needed by user application used the full macro \ref _D4D_DECLARE_RADIOBUTTON instead of this one.
 *******************************************************************************/
 #define D4D_DECLARE_RADIOBUTTON(name, text, x, y, cx, cy, flags, pbmpChecked, pbmpUnChecked, pScheme, fontId, pUser, onchange, pOnUsrMsg) \
-  _D4D_DECLARE_RADIOBUTTON(D4D_CONST, name, text, x, y, cx, cy, 0, flags, NULL, NULL, pbmpChecked, pbmpUnChecked, pScheme, fontId, pUser, onchange, pOnUsrMsg)
+  _D4D_DECLARE_RADIOBUTTON(D4D_CONST, name, text, x, y, cx, cy, 0, NULL, NULL, flags, pbmpChecked, pbmpUnChecked, pScheme, fontId, pUser, onchange, pOnUsrMsg)
 
 /**************************************************************************/ /*!
 * @brief   Macro that create the Radio button object structure in memory including all substructures with restricted count of parameters to simplify definition

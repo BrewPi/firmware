@@ -51,7 +51,7 @@
 // the string d4dtch_cr_touch_ID must be replaced by define created one line up
 #if (D4D_MK_STR(D4D_LLD_TCH) == d4dtch_cr_touch_ID)
 
-#include "low_level_drivers\touch_screen\touch_screen_drivers\cr_touch\d4dtch_cr_touch.h"
+#include "low_level_drivers/touch_screen/touch_screen_drivers/cr_touch/d4dtch_cr_touch.h"
 
 // compilation enable preprocessor condition
 // the string d4dtch_k70_lcdc_ID must be replaced by define created one line up
@@ -61,7 +61,7 @@
   #include <bsp.h>
   #include <i2c.h>
 
-  #include "low_level_drivers\touch_screen\touch_screen_drivers\cr_touch\iic_mqx\mqx_iic.h"
+  #include "low_level_drivers/touch_screen/touch_screen_drivers/cr_touch/iic_mqx/mqx_iic.h"
 
   /******************************************************************************
   * Macros
