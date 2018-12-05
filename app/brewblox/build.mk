@@ -35,6 +35,10 @@ endif
 # enable message id's
 CFLAGS += -DPB_MSGID=1
 
+# define platform parameters to avoid -Wundef warnings
+CFLAGS += -DLITTLE_ENDIAN=1234
+CFLAGS += -DBYTE_ORDER=LITTLE_ENDIAN
+
 # enable coverage for gcc builds
 ifeq ($(PLATFORM_ID),3)
 EXTRA_CFLAGS += -g -O0 -fno-inline
@@ -82,7 +86,7 @@ CPPSRC +=  $(call here_files,platform/spark/modules/WebSockets/firmware,*.cpp)
 CSRC += $(call here_files,platform/spark/modules/WebSockets/firmware/libb64,*.c)
 CSRC += $(call here_files,platform/spark/modules/WebSockets/firmware/libsha1,*.c)
 
-# medns
+# mdns
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/mdns/src
 CPPSRC += $(call here_files,platform/spark/modules/mdns/src,*.cpp)
 
