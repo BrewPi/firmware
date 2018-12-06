@@ -21,6 +21,7 @@
 #include "all_screens.h"
 #include "screen.h"
 #include "spark_wiring_timer.h"
+#include "widget_color_scheme.h"
 #include <algorithm>
 
 extern BrewPiTouch touch;
@@ -28,7 +29,7 @@ extern BrewPiTouch touch;
 #define xstr(s) str(s)
 #define str(s) #s
 
-D4D_DECLARE_STD_LABEL(scrStartup_version, "BrewBlox " xstr(GIT_VERSION), 140, 320, 32 * 7, 15, FONT_SMALL)
+D4D_DECLARE_COLOR_LABEL(scrStartup_version, "BrewBlox " xstr(GIT_VERSION), 0, 140, 320, 15, FONT_SMALL, D4D_CONST, D4D_COLOR_BLACK, D4D_COLOR_BLACK);
 D4D_DECLARE_STD_LABEL(scrStartup_text, "Tap screen to re-calibrate touch", 160 - 16 * 7, 200, 32 * 7, 15, FONT_SMALL)
 D4D_DECLARE_SCREEN_BEGIN(screen_startup, ScrStartup_, 0, 0, (D4D_COOR)(D4D_SCREEN_SIZE_LONGER_SIDE), (D4D_COOR)(D4D_SCREEN_SIZE_SHORTER_SIDE), nullptr, 0, nullptr, (D4D_SCR_F_DEFAULT | D4D_SCR_F_TOUCHENABLE), nullptr)
 D4D_DECLARE_SCREEN_OBJECT(scrStartup_version)
@@ -43,11 +44,7 @@ public:
     static void start()
     {
         fade_color = 0;
-        D4D_ActivateScreen(&screen_startup, true);
-    }
-
-    static void end()
-    {
+        // calibrateTouchIfNeeded();
     }
 
     static void update()
@@ -61,9 +58,7 @@ public:
 
     static void calibrateTouchIfNeeded()
     {
-        D4D_TOUCHSCREEN_CALIB calib;
-        // TODO load calibration
-        calib.ScreenCalibrated = 0; // temporary
+        static D4D_TOUCHSCREEN_CALIB calib; // TODO load calibration
 
         if (calib.ScreenCalibrated != 1) {
             calibrateTouch();
@@ -82,6 +77,7 @@ public:
 #if PLATFORM_ID != 3
         touch.setStabilityThreshold(); // reset to default
 #endif
+        D4D_InvalidateScreen(&screen_startup, D4D_TRUE); // redraw screen
     }
 
     static uint8_t
@@ -104,6 +100,7 @@ ScrStartup_OnInit()
 void
 ScrStartup_OnMain()
 {
+    StartupScreen::update();
 }
 
 void

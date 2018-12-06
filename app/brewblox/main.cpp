@@ -80,8 +80,6 @@ setup()
     brewbloxBox().loadObjectsFromStorage(); // init box and load stored objects
     System.on(setup_update, watchdogCheckin);
 
-    D4D_Init(&screen_startup);
-
     bool success = mdns.setHostname(System.deviceID());
     success = success && mdns.addService("tcp", "http", 80, System.deviceID());
     success = success && mdns.addService("tcp", "brewblox", 8332, System.deviceID());
@@ -103,6 +101,9 @@ setup()
         mdns.addTXTEntry("PLATFORM", xstr(PLATFORM_ID));
         mdns.addTXTEntry("HW", hw);
     }
+
+    D4D_Init(NULL);
+    D4D_ActivateScreen(&screen_startup, D4D_TRUE);
 }
 
 void
