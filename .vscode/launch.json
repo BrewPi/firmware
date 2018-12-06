@@ -24,7 +24,8 @@
                     // "ignoreFailures": true
                 },
             ],
-            "miDebuggerArgs": "-x ~/repos/firmware/tools/pretty.gdbinit"
+            "miDebuggerArgs": "-x ~/repos/firmware/tools/pretty.gdbinit",
+            "preLaunchTask": "touch gcc app file deps"
         },
         {
             "name": "gdb lib test",

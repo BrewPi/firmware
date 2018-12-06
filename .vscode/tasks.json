@@ -1,0 +1,53 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build app gcc",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "APP=brewblox",
+                "PLATFORM=gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "touch gcc app file deps",
+            "type": "shell",
+            "command": "touch",
+            "args": [
+                "device_key.der",
+                "server_key.der",
+                "eeprom.bin"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/build/target/brewblox-gcc"
+            },
+            "presentation": {
+                "echo": false,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+        }
+    ]
+}

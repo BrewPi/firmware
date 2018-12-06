@@ -17,6 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AppTicks.h"
 #include "Board.h"
 #include "BrewBlox.h"
 #include "Buzzer.h"
@@ -24,7 +25,8 @@
 #include "application.h" // particle stuff
 #include "cbox/Object.h"
 #include "d4d.hpp"
-#include "display/all_screens.h"
+#include "display/screens/startup_screen.h"
+#include "spark_wiring_timer.h"
 
 SYSTEM_THREAD(ENABLED);
 SYSTEM_MODE(SEMI_AUTOMATIC);
@@ -66,6 +68,17 @@ watchdogCheckin()
 #define xstr(x) "x"
 
 void
+displayTick()
+{
+    static ticks_millis_t lastTick = -40;
+    auto now = ticks.millis();
+    if (now > lastTick + 40) {
+        lastTick = now;
+        D4D_TimeTickPut();
+    }
+}
+
+void
 setup()
 {
     // Install a signal handler
@@ -103,7 +116,8 @@ setup()
     }
 
     D4D_Init(NULL);
-    D4D_ActivateScreen(&screen_startup, D4D_TRUE);
+    StartupScreen::activate();
+    displayTick();
 }
 
 void
@@ -142,10 +156,10 @@ loop()
     updateBrewbloxBox();
 
     // update display
-    D4D_TimeTickPut();
     D4D_CheckTouchScreen();
     D4D_Poll();
     D4D_FlushOutput();
+    displayTick();
 
     watchdogCheckin();
 }
