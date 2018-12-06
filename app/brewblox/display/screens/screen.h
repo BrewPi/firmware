@@ -22,3 +22,5 @@
 #include "../d4d.hpp"
 #include "brewblox_colors.h"
 #include "fonts.h"
+
+#pragma GCC diagnostic ignored "-Wwrite-strings"

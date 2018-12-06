@@ -18,6 +18,7 @@
  */
 
 #include "BrewPiTouch.h"
+#include "all_screens.h"
 #include "screen.h"
 #include "spark_wiring_timer.h"
 #include <algorithm>
@@ -27,12 +28,8 @@ extern BrewPiTouch touch;
 #define xstr(s) str(s)
 #define str(s) #s
 
-char str_version[] = "BrewBlox " xstr(GIT_VERSION);
-char str_text[] = "Tap screen to re-calibrate touch";
-
-D4D_DECLARE_STD_LABEL(scrStartup_version, str_version, 140, 320, 32 * 7, 15, FONT_SMALL)
-D4D_DECLARE_STD_LABEL(scrStartup_text, str_text, 160 - 16 * 7, 200, 32 * 7, 15, FONT_SMALL)
-
+D4D_DECLARE_STD_LABEL(scrStartup_version, "BrewBlox " xstr(GIT_VERSION), 140, 320, 32 * 7, 15, FONT_SMALL)
+D4D_DECLARE_STD_LABEL(scrStartup_text, "Tap screen to re-calibrate touch", 160 - 16 * 7, 200, 32 * 7, 15, FONT_SMALL)
 D4D_DECLARE_SCREEN_BEGIN(screen_startup, ScrStartup_, 0, 0, (D4D_COOR)(D4D_SCREEN_SIZE_LONGER_SIDE), (D4D_COOR)(D4D_SCREEN_SIZE_SHORTER_SIDE), nullptr, 0, nullptr, (D4D_SCR_F_DEFAULT | D4D_SCR_F_TOUCHENABLE), nullptr)
 D4D_DECLARE_SCREEN_OBJECT(scrStartup_version)
 D4D_DECLARE_SCREEN_OBJECT(scrStartup_text)

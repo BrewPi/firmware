@@ -24,6 +24,7 @@
 #include "application.h" // particle stuff
 #include "cbox/Object.h"
 #include "d4d.hpp"
+#include "display/all_screens.h"
 
 SYSTEM_THREAD(ENABLED);
 SYSTEM_MODE(SEMI_AUTOMATIC);
@@ -63,8 +64,6 @@ watchdogCheckin()
 
 #define str(x) #x
 #define xstr(x) "x"
-
-extern D4D_SCREEN screen_startup;
 
 void
 setup()
