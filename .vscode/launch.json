@@ -25,7 +25,7 @@
                 },
             ],
             "miDebuggerArgs": "-x ~/repos/firmware/tools/pretty.gdbinit",
-            "preLaunchTask": "touch gcc app file deps"
+            "preLaunchTask": "build_and_touch_gcc"
         },
         {
             "name": "gdb lib test",
@@ -65,7 +65,7 @@
                 },
             ],
             "miDebuggerArgs": "-x ~/repos/firmware/tools/pretty.gdbinit"
-        }
+        },
         {
             "name": "gdb controlbox test",
             "type": "cppdbg",

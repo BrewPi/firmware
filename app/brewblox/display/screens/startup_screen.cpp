@@ -26,17 +26,25 @@
 
 extern BrewPiTouch touch;
 
+#ifndef BUILD_NAME
+#error BUILD_NAME not set
+#endif
+
 #define str(s) #s
 #define xstr(s) str(s)
 
-D4D_DECLARE_STD_LABEL(scrStartup_version, "BrewBlox " xstr(GIT_VERSION), 0, 140, 320, 15, FONT_SMALL);
-D4D_DECLARE_STD_LABEL(scrStartup_text, "Tap screen to re-calibrate touch", 160 - 16 * 7, 200, 32 * 7, 15, FONT_SMALL)
-D4D_DECLARE_STD_PROGRESS_BAR(scrStartup_progress, 80, 180, 160, 20, 0)
+char stepTxt[32] = "Init board";
+
+D4D_DECLARE_STD_LABEL(scrStartup_version, "BrewBlox " xstr(BUILD_NAME), 0, 140, 320, 15, FONT_SMALL)
+D4D_DECLARE_STD_PROGRESS_BAR(scrStartup_progress, 80, 160, 160, 20, 0)
+D4D_DECLARE_STD_LABEL(scrStartup_step, stepTxt, 0, 180, 320, 15, FONT_SMALL)
+D4D_DECLARE_STD_LABEL(scrStartup_txt_calibrate, "Tap screen to re-calibrate touch", 0, 210, 320, 15, FONT_SMALL)
 
 D4D_DECLARE_SCREEN_BEGIN(screen_startup, ScrStartup_, 0, 0, (D4D_COOR)(D4D_SCREEN_SIZE_LONGER_SIDE), (D4D_COOR)(D4D_SCREEN_SIZE_SHORTER_SIDE), nullptr, 0, nullptr, (D4D_SCR_F_DEFAULT | D4D_SCR_F_TOUCHENABLE), nullptr)
 D4D_DECLARE_SCREEN_OBJECT(scrStartup_version)
-D4D_DECLARE_SCREEN_OBJECT(scrStartup_text)
 D4D_DECLARE_SCREEN_OBJECT(scrStartup_progress)
+D4D_DECLARE_SCREEN_OBJECT(scrStartup_step)
+D4D_DECLARE_SCREEN_OBJECT(scrStartup_txt_calibrate)
 D4D_DECLARE_SCREEN_END()
 
 void
@@ -49,12 +57,28 @@ void
 StartupScreen::calibrateTouchIfNeeded()
 {
     static D4D_TOUCHSCREEN_CALIB calib; // TODO load calibration
+    calib.ScreenCalibrated = 1;         // temporary
 
     if (calib.ScreenCalibrated != 1) {
         calibrateTouch();
         // store calibration
         D4D_TCH_SetCalibration(calib);
     }
+    D4D_TCH_SetCalibration(calib); // remove later
+}
+
+void
+StartupScreen::setProgress(const uint8_t& v)
+{
+    D4D_PrgrsBarSetValue(&scrStartup_progress, v);
+    D4D_Poll();
+}
+
+void
+StartupScreen::setStep(const char* txt)
+{
+    D4D_LabelSetText(&scrStartup_step, txt);
+    D4D_Poll();
 }
 
 void
@@ -79,9 +103,6 @@ ScrStartup_OnInit()
 void
 ScrStartup_OnMain()
 {
-    static D4D_PROGRESS_BAR_VALUE v = 0;
-    v = (v + 1) % 100;
-    D4D_PrgrsBarSetValue(&scrStartup_progress, v);
 }
 
 void

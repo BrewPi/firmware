@@ -17,9 +17,13 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdint.h>
+
 class StartupScreen {
 public:
     static void activate();
     static void calibrateTouchIfNeeded();
     static void calibrateTouch();
+    static void setProgress(const uint8_t& v);
+    static void setStep(const char* txt);
 };

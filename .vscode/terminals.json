@@ -49,6 +49,6 @@
       "focus": true,
       "cwd": "~/repos/firmware/docker",
       "command": "docker-compose exec compiler make clean APP=brewblox PLATFORM=gcc"
-    },
+    }
   ]
 }

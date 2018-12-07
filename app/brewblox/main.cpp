@@ -86,13 +86,33 @@ setup()
     std::signal(SIGINT, signal_handler);
 #endif
 
+    D4D_Init(NULL);
+    StartupScreen::activate();
+    displayTick();
+
     boardInit();
     Buzzer.beep(2, 100);
+    StartupScreen::setProgress(10);
+
+    StartupScreen::setStep("Init system");
     System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
     WiFi.setListenTimeout(30);
-    brewbloxBox().loadObjectsFromStorage(); // init box and load stored objects
     System.on(setup_update, watchdogCheckin);
+    StartupScreen::setProgress(20);
 
+    StartupScreen::setStep("Init OneWire");
+    theOneWire();
+    StartupScreen::setProgress(30);
+
+    StartupScreen::setStep("Init BrewBlox");
+    brewbloxBox();
+    StartupScreen::setProgress(40);
+
+    StartupScreen::setStep("Loading objects");
+    brewbloxBox().loadObjectsFromStorage(); // init box and load stored objects
+    StartupScreen::setProgress(60);
+
+    StartupScreen::setStep("Init mDNS");
     bool success = mdns.setHostname(System.deviceID());
     success = success && mdns.addService("tcp", "http", 80, System.deviceID());
     success = success && mdns.addService("tcp", "brewblox", 8332, System.deviceID());
@@ -114,10 +134,13 @@ setup()
         mdns.addTXTEntry("PLATFORM", xstr(PLATFORM_ID));
         mdns.addTXTEntry("HW", hw);
     }
+    StartupScreen::setProgress(100);
 
-    D4D_Init(NULL);
-    StartupScreen::activate();
-    displayTick();
+    StartupScreen::setStep("Ready!");
+
+    while (ticks.millis() < 5000) {
+        displayTick();
+    };
 }
 
 void

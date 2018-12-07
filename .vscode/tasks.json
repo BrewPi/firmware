@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build app gcc",
+            "label": "build_gcc",
             "type": "shell",
             "command": "make",
             "args": [
@@ -16,7 +16,7 @@
                 "isDefault": true
             },
             "options": {
-                "cwd": "${workspaceFolder}/build"
+                "cwd": "${workspaceFolder}/build",
             },
             "presentation": {
                 "echo": true,
@@ -26,10 +26,10 @@
                 "showReuseMessage": false,
                 "clear": false
             },
-            "problemMatcher": "$gcc"
+            "problemMatcher": "$gcc",
         },
         {
-            "label": "touch gcc app file deps",
+            "label": "touch_gcc",
             "type": "shell",
             "command": "touch",
             "args": [
@@ -48,6 +48,13 @@
                 "showReuseMessage": false,
                 "clear": false
             },
+        },
+        {
+            "label": "build_and_touch_gcc",
+            "dependsOn": [
+                "build_gcc",
+                "touch_gcc"
+            ]
         }
     ]
 }

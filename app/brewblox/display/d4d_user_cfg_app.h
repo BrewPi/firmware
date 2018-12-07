@@ -29,7 +29,8 @@
 * and the GNU Lesser General Public License along with this program.
 * If not, see <http://www.gnu.org/licenses/>.
 *
-***************************************************************************//*!
+***************************************************************************/
+/*!
 *
 * @file      d4d_user_cfg_app.h
 *
@@ -53,11 +54,10 @@
 *
 ******************************************************************************/
 
-
 // Variable of coordinations of display
-// in simple - if display has resolution bigger than 256, than you have to specify 
-// bigger type than unsigned char (recommended is unsigned short) 
-#define D4D_COOR_TYPE Word 
+// in simple - if display has resolution bigger than 256, than you have to specify
+// bigger type than unsigned char (recommended is unsigned short)
+#define D4D_COOR_TYPE Word
 /******************************************************************************
 *
 *   User definition of input KEYS format 
@@ -80,33 +80,30 @@
 //#define D4D_KEY_FUNC_FOCUS_PREV    D4D_KEY_SCANCODE_LEFT
 
 // Backward compatibility section
-  //#define D4D_KEY_UP     0x01
-  //#define D4D_KEY_DOWN   0x02
-  //#define D4D_KEY_LEFT   0x04
-  //#define D4D_KEY_RIGHT  0x08
-  //#define D4D_KEY_ENTER  0x10
-  //#define D4D_KEY_ESC    0x20
+//#define D4D_KEY_UP     0x01
+//#define D4D_KEY_DOWN   0x02
+//#define D4D_KEY_LEFT   0x04
+//#define D4D_KEY_RIGHT  0x08
+//#define D4D_KEY_ENTER  0x10
+//#define D4D_KEY_ESC    0x20
 
-			
+#define D4D_FONT_TABLE_DISABLED D4D_FALSE // this option enable /disable font table for whole driver when this option is sets to true all strings are disabled
 
-#define D4D_FONT_TABLE_DISABLED D4D_FALSE       // this option enable /disable font table for whole driver
-                                                // when this option is sets to true all strings are disabled
-
-#define D4D_ROUND_CORNER_ENABLE D4D_FALSE  // this option disable/enable round corners support of D4D
+#define D4D_ROUND_CORNER_ENABLE D4D_FALSE // this option disable/enable round corners support of D4D
 
 // Supported color systems
-//  D4D_COLOR_SYSTEM_RGB888 
-//  D4D_COLOR_SYSTEM_RGB666 
-//  D4D_COLOR_SYSTEM_RGB565 
-//  D4D_COLOR_SYSTEM_RGB332 
+//  D4D_COLOR_SYSTEM_RGB888
+//  D4D_COLOR_SYSTEM_RGB666
+//  D4D_COLOR_SYSTEM_RGB565
+//  D4D_COLOR_SYSTEM_RGB332
 
-#define D4D_COLOR_SYSTEM D4D_COLOR_SYSTEM_RGB565  // this select the type of D4D system colors (also depends size of type D4D_COLOR on this settings)
+#define D4D_COLOR_SYSTEM D4D_COLOR_SYSTEM_RGB565 // this select the type of D4D system colors (also depends size of type D4D_COLOR on this settings)
 
 //#define D4D_COLOR_TRANSPARENT D4D_COLOR_GREEN // this is definition of transparent color - comment it in case that transparent color won't be used in project
 
-#define D4D_EXTSRC_TEXT_ENABLE D4D_FALSE		// External strings support
- 
-#define D4D_EXTSRC_FILE_ENABLE  D4D_FALSE
+#define D4D_EXTSRC_TEXT_ENABLE D4D_FALSE // External strings support
+
+#define D4D_EXTSRC_FILE_ENABLE D4D_FALSE
 
 #define D4D_FNT_EXTSRC_SUPPORT D4D_FALSE
 
@@ -114,11 +111,11 @@
 
 //#define D4D_UNICODE                   // Enables Unicode support
 
-#define D4D_SCREEN_HISTORY 3         // This option define depth of history of screens
+#define D4D_SCREEN_HISTORY 3 // This option define depth of history of screens
 
-#define D4D_SCREEN_SIZE_LONGER_SIDE  320  // The maximum resolution of longer longer side of physical LCD
+#define D4D_SCREEN_SIZE_LONGER_SIDE 320 // The maximum resolution of longer longer side of physical LCD
 
-#define D4D_SCREEN_SIZE_SHORTER_SIDE  240  // The maximum resolution of  shorter longer side of physical LCD
+#define D4D_SCREEN_SIZE_SHORTER_SIDE 240 // The maximum resolution of  shorter longer side of physical LCD
 
 #define D4D_COLOR_SYSTEM_FORE D4D_COLOR_WHITE // System fore color (for example for calibration screen)
 
@@ -130,12 +127,11 @@
 * CallBack function definition
 ******************************************************************************/
 
-
-//#define D4D_INPUT_EVENT_CALLBACK D4D_InputEventCB // This name of callback function 
-                                                  // that is called with all input events
-                                                  // from keyboard or touchscreen. 
-                                                  // Prototype is void D4D_INPUT_EVENT_CALLBACK(void)
-                                                  // Uncomment to used it.           
+//#define D4D_INPUT_EVENT_CALLBACK D4D_InputEventCB // This name of callback function
+// that is called with all input events
+// from keyboard or touchscreen.
+// Prototype is void D4D_INPUT_EVENT_CALLBACK(void)
+// Uncomment to used it.
 
 /******************************************************************************
 *
@@ -148,7 +144,7 @@
 // 16m colors bitmap without pallete
 #define D4D_BMP_16MNOPAL_ENABLE D4D_FALSE
 
-// 65k colors bitmap without pallete 
+// 65k colors bitmap without pallete
 #define D4D_BMP_65536NOPAL_ENABLE D4D_FALSE
 
 // 256 colors bitmap without pallete
@@ -181,24 +177,22 @@
 ******************************************************************************/
 
 // Define a default screen outline color
-#define D4D_COLOR_SCR_OUTLINE  D4D_COLOR_LIGHT_GREY
+#define D4D_COLOR_SCR_OUTLINE D4D_COLOR_LIGHT_GREY
 
 // Define a default screen header color
-#define D4D_COLOR_SCR_TITLEBAR  D4D_COLOR_WHITE
+#define D4D_COLOR_SCR_TITLEBAR D4D_COLOR_WHITE
 
 // Define a default screen header text color
-#define D4D_COLOR_SCR_TILTLETEXT  D4D_COLOR_BLACK
+#define D4D_COLOR_SCR_TILTLETEXT D4D_COLOR_BLACK
 
 // Define a default screen header exit button fore color
-#define D4D_COLOR_SCR_EXIT_BTN_FORE  D4D_COLOR_WHITE
+#define D4D_COLOR_SCR_EXIT_BTN_FORE D4D_COLOR_WHITE
 
 // Define a default screen header exit button background color
-#define D4D_COLOR_SCR_EXIT_BTN_BCKG  D4D_COLOR_BRIGHT_RED
+#define D4D_COLOR_SCR_EXIT_BTN_BCKG D4D_COLOR_BRIGHT_RED
 
 // Define a default screen background color
-#define D4D_COLOR_SCR_DESKTOP  D4D_COLOR_BLACK
-
-
+#define D4D_COLOR_SCR_DESKTOP D4D_COLOR_BLACK
 
 // Define a default title offset in axis X (is used already for title icon offset)
 //#define D4D_SCR_TITLE_OFF_X  30
@@ -218,9 +212,8 @@
 // Define a default exit button offset
 //#define D4D_SCR_TITLE_EXITBTN_OFFSET  4
 
-
-// Define a default flags 
-#define D4D_SCR_F_DEFAULT        (D4D_SCR_F_BCKG)
+// Define a default flags
+#define D4D_SCR_F_DEFAULT (D4D_SCR_F_BCKG)
 
 /******************************************************************************
 *
@@ -236,9 +229,9 @@
 ******************************************************************************/
 
 // standard normal color fore
-#define D4D_COLOR_FORE_NORM  D4D_COLOR_WHITE
+#define D4D_COLOR_FORE_NORM D4D_COLOR_WHITE
 // standard normal color background
-#define D4D_COLOR_BCKG_NORM  D4D_COLOR_BLACK
+#define D4D_COLOR_BCKG_NORM D4D_COLOR_BLACK
 
 // standard disabled color fore
 #define D4D_COLOR_FORE_DISABLED D4D_COLOR_WHITE
@@ -255,7 +248,6 @@
 // standard capturing color background
 #define D4D_COLOR_BCKG_CAPTURE D4D_COLOR_WHITE
 
-
 /******************************************************************************
 * Button Object
 ******************************************************************************/
@@ -264,13 +256,12 @@
 * Features
 ***********************/
 
-
 /***********************
 * Properties
 ***********************/
 
 #ifndef D4D_BTN_F_DEFAULT
-#define D4D_BTN_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_BTN_F_3D | D4D_OBJECT_F_BEVEL_RAISED /*| D4D_BTN_F_CONT_RECT */)
+#define D4D_BTN_F_DEFAULT (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_BTN_F_3D | D4D_OBJECT_F_BEVEL_RAISED /*| D4D_BTN_F_CONT_RECT */)
 #endif
 
 //#define D4D_BTN_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
@@ -285,7 +276,6 @@
 
 //#define D4D_BTN_3D_SHIFT 1
 
-
 /******************************************************************************
 * Gauge Object
 ******************************************************************************/
@@ -294,7 +284,7 @@
 * Properties
 ***********************/
 
-#define D4D_GAUGE_F_DEFAULT     (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED  | D4D_GAUGE_F_HUB | D4D_GAUGE_F_THICK_POINTER | D4D_OBJECT_F_BEVEL_DENTED)
+#define D4D_GAUGE_F_DEFAULT (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_GAUGE_F_HUB | D4D_GAUGE_F_THICK_POINTER | D4D_OBJECT_F_BEVEL_DENTED)
 
 //#define D4D_GAUGE_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
 //#define D4D_GAUGE_FNT_PRTY_DEFAULT  ( 0 )
@@ -309,8 +299,8 @@
 * Colors
 ***********************/
 // standard gauge colors
-#define D4D_COLOR_GAUG_HUB        D4D_COLOR_YELLOW
-#define D4D_COLOR_GAUG_POINTER    D4D_COLOR_BRIGHT_YELLOW
+#define D4D_COLOR_GAUG_HUB D4D_COLOR_YELLOW
+#define D4D_COLOR_GAUG_POINTER D4D_COLOR_BRIGHT_YELLOW
 
 /******************************************************************************
 * Slider Object
@@ -320,8 +310,7 @@
 * Properties
 ***********************/
 
-
-#define D4D_SLDR_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_BEVEL_RAISED)
+#define D4D_SLDR_F_DEFAULT (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_BEVEL_RAISED)
 
 //#define D4D_SLDR_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
 //#define D4D_SLDR_FNT_PRTY_DEFAULT  ( D4D_FNT_PRTY_TRANSPARENT_YES_MASK )
@@ -343,7 +332,7 @@
 /******************************************************************************
 * Icon Object
 ******************************************************************************/
- 
+
 /***********************
 * Features
 ***********************/
@@ -367,10 +356,10 @@
 * Properties
 ***********************/
 
-#define D4D_LBL_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED )
+#define D4D_LBL_F_DEFAULT (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED)
 
-#define D4D_LBL_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
-#define D4D_LBL_FNT_PRTY_DEFAULT  ( D4D_FNT_PRTY_TRANSPARENT_NO_MASK )
+#define D4D_LBL_TXT_PRTY_DEFAULT (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
+#define D4D_LBL_FNT_PRTY_DEFAULT (D4D_FNT_PRTY_TRANSPARENT_NO_MASK)
 
 /******************************************************************************
 * Menu Object
@@ -380,7 +369,7 @@
 * Properties
 ***********************/
 
-#define D4D_MENU_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FOCUSRECT | D4D_MENU_F_INDEX | D4D_MENU_F_SIDEBAR | D4D_OBJECT_F_BEVEL_RAISED)
+#define D4D_MENU_F_DEFAULT (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FOCUSRECT | D4D_MENU_F_INDEX | D4D_MENU_F_SIDEBAR | D4D_OBJECT_F_BEVEL_RAISED)
 
 #define D4D_MENU_F_SCRLBRS_DEFAULT (D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_OBJECT_F_BEVEL_RAISED)
 
@@ -392,7 +381,6 @@
 
 //#define D4D_MENU_ITEM_TXT_PRTY_DEFAULT  ( D4D_TXT_PRTY_ALIGN_V_CENTER_MASK | D4D_TXT_PRTY_ALIGN_H_LEFT_MASK )
 //#define D4D_MENU_ITEM_FNT_PRTY_DEFAULT  ( 0 )
-
 
 /******************************************************************************
 * CheckBox  Object
@@ -422,7 +410,6 @@
 // standard check box colors
 //#define D4D_COLOR_CHECKBOX_ICON_BCKG  D4D_COLOR_WHITE
 
-
 /******************************************************************************
 * Radio button  Object
 ******************************************************************************/
@@ -434,7 +421,7 @@
 /*
 //#define D4D_RADIOBUTTON_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH\
                                   | D4D_RADIOBUTTON_F_ICON_RING )
- */ 
+ */
 
 // #define D4D_RADIOBUTTON_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_LEFT_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
 // #define D4D_RADIOBUTTON_FNT_PRTY_DEFAULT  ( 0 )
@@ -462,11 +449,11 @@
 * Properties
 ***********************/
 
-#define D4D_GRAPH_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_GRAPH_F_MODE_ROLLOVER | D4D_GRAPH_F_VALUE_X_BOTT | D4D_OBJECT_F_BEVEL_RAISED)
+#define D4D_GRAPH_F_DEFAULT (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_GRAPH_F_MODE_ROLLOVER | D4D_GRAPH_F_VALUE_X_BOTT | D4D_OBJECT_F_BEVEL_RAISED)
 
 //#define D4D_GRAPH_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
 //#define D4D_GRAPH_FNT_PRTY_DEFAULT  ( 0 )
-//#define D4D_GRAPH_LBL_FNT_PRTY_DEFAULT  ( 0 ) 
+//#define D4D_GRAPH_LBL_FNT_PRTY_DEFAULT  ( 0 )
 
 /***********************
 * Sizes constants
@@ -474,12 +461,11 @@
 //#define D4D_GRAPH_BORDER_OFF        5
 //#define D4D_GRAPH_VALUE_OFF        2
 
- 
 /***********************
 * Colors
 ***********************/
 // standard graph grid color
-#define D4D_COLOR_GRAPH_GRID  D4D_COLOR_BLACK
+#define D4D_COLOR_GRAPH_GRID D4D_COLOR_BLACK
 
 /******************************************************************************
 * Picture Object
@@ -489,8 +475,7 @@
 * Properties
 ***********************/
 
-#define D4D_PIC_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED)
-
+#define D4D_PIC_F_DEFAULT (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED)
 
 /******************************************************************************
 * Scroll bar Object
@@ -507,7 +492,6 @@
 ***********************/
 //#define #define D4D_SCRLBAR_TAB_SIZE  ( 4 )
 
-
 /******************************************************************************
 * Console Object
 ******************************************************************************/
@@ -519,10 +503,10 @@
 //#define D4D_CNSL_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_FOCUSRECT | D4D_OBJECT_F_TOUCHENABLE)
 
 // Console scroll bars default properties
-//#define D4D_CNSL_F_SCRLBRS_DEFAULT  (D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_OBJECT_F_FOCUSRECT) 
+//#define D4D_CNSL_F_SCRLBRS_DEFAULT  (D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_OBJECT_F_FOCUSRECT)
 
 //#define D4D_CNSL_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_LEFT_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
-//#define D4D_CNSL_FNT_PRTY_DEFAULT  ( 0 ) 
+//#define D4D_CNSL_FNT_PRTY_DEFAULT  ( 0 )
 
 /***********************
 * Sizes constants
@@ -540,13 +524,13 @@
 * Properties
 ***********************/
 //Text Box default properties
-#define D4D_TXTBX_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_BEVEL_RAISED)
+#define D4D_TXTBX_F_DEFAULT (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_TABSTOP | D4D_OBJECT_F_BEVEL_RAISED)
 
 // Text Box scroll bar default properties
-#define D4D_TXTBX_F_SCRLBRS_DEFAULT  (D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_OBJECT_F_BEVEL_RAISED)
+#define D4D_TXTBX_F_SCRLBRS_DEFAULT (D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH | D4D_OBJECT_F_BEVEL_RAISED)
 
 //#define D4D_TXTBX_TXT_PRTY_DEFAULT  (D4D_TXT_PRTY_ALIGN_H_LEFT_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
-//#define D4D_TXTBX_FNT_PRTY_DEFAULT  ( 0 ) 
+//#define D4D_TXTBX_FNT_PRTY_DEFAULT  ( 0 )
 
 /***********************
 * Sizes constants
@@ -562,7 +546,6 @@
 * Properties
 ***********************/
 
-
 //#define D4D_PRGRS_BAR_F_DEFAULT  (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED  | D4D_PRGRS_BAR_F_BAR_AUTOCOLOR | D4D_PRGRS_BAR_F_BAR_SCALECOLOR)
 
 /***********************
@@ -574,9 +557,9 @@
 * Colors
 ***********************/
 // standard slider colors
-//#define D4D_COLOR_PRGRS_BAR_BAR_FORE    D4D_COLOR_DARK_GREEN
-//#define D4D_COLOR_PRGRS_BAR_BAR_END  D4D_COLOR_YELLOW
-//#define D4D_COLOR_PRGRS_BAR_BAR_BCKG   D4D_COLOR_BRIGHT_GREY
+#define D4D_COLOR_PRGRS_BAR_BAR_FORE D4D_COLOR_RGB(0, 0, 128)
+#define D4D_COLOR_PRGRS_BAR_BAR_END D4D_COLOR_RGB(0, 128, 128)
+#define D4D_COLOR_PRGRS_BAR_BAR_BCKG D4D_COLOR_BRIGHT_GREY
 
 /***********************
 * Limits
@@ -623,7 +606,6 @@
 //#define D4D_LIST_BOX_SCRLBR_WIDTH  ( 20 )
 
 //#define D4D_LIST_BOX_SCRLBR_STEP  ( 2 )
-
 
 /******************************************************************************
 * Edit Box Object
