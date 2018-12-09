@@ -532,17 +532,17 @@ const D4D_FONT_SIZE d4dfnt_04b03_width_table[] = {
 
 const D4D_FONT_DESCRIPTOR d4dfnt_04b03_desc = {
     0,                                                                                                                              // Font descriptor version number
-    D4D_FONT_FLAGS_IX_STYLE_LINEAR | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                                                         // linear / nonlinear , proporcional or not
+    D4D_FONT_FLAGS_IX_STYLE_LINEAR | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                                                         // linear / nonlinear , proportional or not
     ' ',                                                                                                                            // start char of used table
     96,                                                                                                                             // count of all chars of used table
     0x0020,                                                                                                                         // index of char that will be printed instead of
     6,                                                                                                                              // font size (size of font loaded in PC)
-    0,                                                                                                                              // height of font bitmpap for non proporcional fonts
+    0,                                                                                                                              // height of font bitmpap for non proportional fonts
     5,                                                                                                                              // offset from Y0 coordination to baseline
     {6, 7},                                                                                                                         // size of biggest char x/y
     D4D_FONT_PACK_BITORDER_LITTLEEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON, // packing condition of individual bitmaps
     NULL,                                                                                                                           // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    d4dfnt_04b03_offset_table,                                                                                                      // Offset table - used when proporcial font is set in flags
-    d4dfnt_04b03_width_table,                                                                                                       // Size table - used when proporcial font is set in flags
+    d4dfnt_04b03_offset_table,                                                                                                      // Offset table - used when proportional font is set in flags
+    d4dfnt_04b03_width_table,                                                                                                       // Size table - used when proportional font is set in flags
     d4dfnt_04b03_data_table                                                                                                         // bitmap/font data array
 };

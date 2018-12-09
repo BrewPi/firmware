@@ -17,9 +17,10 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
 #include "d4d.h"
 
-#include "../fonts.h"
+#include "../fonts/fonts.h"
 #include "../widget_color_scheme.h"
 #include "process_value_widget.h"
 
@@ -31,7 +32,6 @@
 #define SCR_PV_CY_GAP 4
 #define TEST_TEXT_X 108
 #define TEST_TEXT_CY 12
-/*
 D4D_DECLARE_PV(scrProcessValues00, SCR_PV_CX + 0 * (SCR_PV_CX + SCR_PV_CX_GAP), SCR_PV_Y0 + 0 * (SCR_PV_CY + SCR_PV_CY_GAP), SCR_PV_CX, SCR_PV_CY);
 D4D_DECLARE_PV(scrProcessValues01, SCR_PV_CX + 1 * (SCR_PV_CX + SCR_PV_CX_GAP), SCR_PV_Y0 + 1 * (SCR_PV_CY + SCR_PV_CY_GAP), SCR_PV_CX, SCR_PV_CY);
 D4D_DECLARE_PV(scrProcessValues02, SCR_PV_CX + 2 * (SCR_PV_CX + SCR_PV_CX_GAP), SCR_PV_Y0 + 0 * (SCR_PV_CY + SCR_PV_CY_GAP), SCR_PV_CX, SCR_PV_CY);

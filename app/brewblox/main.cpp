@@ -186,8 +186,7 @@ setup()
         displayTick();
     };
 
-    StartupScreen::calibrateTouchIfNeeded();
-    //ProcessValuesScreen::activate();
+    ProcessValuesScreen::activate();
 }
 
 void

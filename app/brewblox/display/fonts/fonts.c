@@ -21,18 +21,25 @@
 
 #include "font04b03.h"
 #include "fonts.h"
+#include "icons.h"
+#include "kakwa.h"
 #include "tewi.h"
 
 // Font Table declaration
 
 D4D_DECLARE_FONT_TABLE_BEGIN
-D4D_DECLARE_FONT(FONT_ARIAL7, d4dfnt_Arial7_desc, 1, 1, 0, 0)
-D4D_DECLARE_FONT(FONT_ARIAL7_HIGH, d4dfnt_Arial7_desc, 1, 2, 0, 0)
-D4D_DECLARE_FONT(FONT_ARIAL7_WIDE, d4dfnt_Arial7_desc, 2, 1, 0, 0)
-D4D_DECLARE_FONT(FONT_ARIAL7_BIG, d4dfnt_Arial7_desc, 2, 2, 0, 0)
-//D4D_DECLARE_FONT(FONT_04B03, d4dfnt_04b03_desc, 1, 1, 0, 0)
+D4D_DECLARE_FONT(FONT_KAKWA, d4dfnt_kakwa_desc, 1, 1, 0, 0)
+D4D_DECLARE_FONT(FONT_KAKWA_BIG, d4dfnt_kakwa_desc, 2, 2, 0, 0)
 D4D_DECLARE_FONT(FONT_TEWI, d4dfnt_tewi_desc, 1, 1, 0, 0)
 D4D_DECLARE_FONT(FONT_TEWI_BIG, d4dfnt_tewi_desc, 2, 2, 0, 0)
+D4D_DECLARE_FONT(FONT_ALTE_DIN_22, d4dfnt_AlteDIN1451_22_desc, 1, 1, 0, 0)
+D4D_DECLARE_FONT(FONT_ALTE_DIN_16, d4dfnt_AlteDIN1451_16_desc, 1, 1, 0, 0)
+D4D_DECLARE_FONT(FONT_ICON, d4dfnt_icons_desc, 1, 1, 0, 0)
+//D4D_DECLARE_FONT(FONT_ARIAL7, d4dfnt_Arial7_desc, 1, 1, 0, 0)
+//D4D_DECLARE_FONT(FONT_ARIAL7_HIGH, d4dfnt_Arial7_desc, 1, 2, 0, 0)
+//D4D_DECLARE_FONT(FONT_ARIAL7_WIDE, d4dfnt_Arial7_desc, 2, 1, 0, 0)
+//D4D_DECLARE_FONT(FONT_ARIAL7_BIG, d4dfnt_Arial7_desc, 2, 2, 0, 0)
+//D4D_DECLARE_FONT(FONT_04B03, d4dfnt_04b03_desc, 1, 1, 0, 0)
 //D4D_DECLARE_FONT(FONT_BERLIN_SANS_FBDEMI12, d4dfnt_BerlinSansFBDemi12_desc, 1, 1, 1, 0)
 //D4D_DECLARE_FONT(FONT_BERLIN_SANS_FBDEMI12_HIGH, d4dfnt_BerlinSansFBDemi12_desc, 1, 2, 1, 0)
 //D4D_DECLARE_FONT(FONT_BERLIN_SANS_FBDEMI12_BIG, d4dfnt_BerlinSansFBDemi12_desc, 2, 2, 1, 0)
@@ -40,13 +47,9 @@ D4D_DECLARE_FONT(FONT_TEWI_BIG, d4dfnt_tewi_desc, 2, 2, 0, 0)
 //D4D_DECLARE_FONT(FONT_SEGOEUI8_BIG, d4dfnt_SegoeUI_8_desc, 2, 2, 0, 0)
 //D4D_DECLARE_FONT(FONT_SEGOEUI9, d4dfnt_SegoeUI_9_desc, 1, 1, 0, 0)
 //D4D_DECLARE_FONT(FONT_SEGOEUI10, d4dfnt_SegoeUI10_desc, 1, 1, 0, 0)
-D4D_DECLARE_FONT(FONT_SEGOEUI11, d4dfnt_SegoeUI11_desc, 1, 1, 0, 0)
 //D4D_DECLARE_FONT(FONT_SEGOEUI9_BIG, d4dfnt_SegoeUI_9_desc, 2, 2, 0, 0)
 //D4D_DECLARE_FONT(FONT_PROGGY_SQUARE, d4dfnt_ProggySquare_desc, 1, 1, 0, 0)
 //D4D_DECLARE_FONT(FONT_PROGGY_SQUARE_BIG, d4dfnt_ProggySquare_desc, 2, 2, 0, 0)
-D4D_DECLARE_FONT(FONT_SEGOEUI11, d4dfnt_SegoeUI11_desc, 1, 1, 0, 0)
-D4D_DECLARE_FONT(FONT_ALTE_DIN_22, d4dfnt_AlteDIN1451_22_desc, 1, 1, 0, 0)
-D4D_DECLARE_FONT(FONT_ALTE_DIN_16, d4dfnt_AlteDIN1451_16_desc, 1, 1, 0, 0)
 
 D4D_DECLARE_FONT_TABLE_END
 
@@ -344,18 +347,18 @@ const Byte d4dfnt_CourierNew8B_data_table[] = {
 
 const D4D_FONT_DESCRIPTOR d4dfnt_CourierNew8B_desc = {
     0,                                                                                                                           // Font descriptor version number
-    0,                                                                                                                           // linear / nonlinear , proporcional or not
+    0,                                                                                                                           // linear / nonlinear , proportional or not
     ' ',                                                                                                                         // start char of used table
     96,                                                                                                                          // count of all chars of used table
     95,                                                                                                                          // index of char that will be printed instead of
     8,                                                                                                                           // font size (size of font loaded in PC)
-    13,                                                                                                                          // size of font bitmpap for non proporcional fonts
+    13,                                                                                                                          // size of font bitmpap for non proportional fonts
     11,                                                                                                                          // offset from Y0 coordination to baseline
     {7, 14},                                                                                                                     // size of biggest char x/y
     D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON, // packing condition of individual bitmaps
     NULL,                                                                                                                        // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    NULL,                                                                                                                        // Offset table - used when proporcial font is set in flags
-    NULL,                                                                                                                        // Size table - used when proporcial font is set in flags
+    NULL,                                                                                                                        // Offset table - used when proportional font is set in flags
+    NULL,                                                                                                                        // Size table - used when proportional font is set in flags
     d4dfnt_CourierNew8B_data_table                                                                                               // bitmap/font data array
 };
 
@@ -931,18 +934,18 @@ const Byte d4dfnt_TimesNewRoman12B_width_table[] = {
 
 const D4D_FONT_DESCRIPTOR d4dfnt_TimesNewRoman12B_desc = {
     0,                                                                                                                           // Font descriptor version number
-    D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                                                                                       // linear / nonlinear , proporcional or not
+    D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                                                                                       // linear / nonlinear , proportional or not
     ' ',                                                                                                                         // start char of used table
     96,                                                                                                                          // count of all chars of used table
     95,                                                                                                                          // index of char that will be printed instead of
     12,                                                                                                                          // font size (size of font loaded in PC)
-    0,                                                                                                                           // size of font bitmpap for non proporcional fonts
+    0,                                                                                                                           // size of font bitmpap for non proportional fonts
     15,                                                                                                                          // offset from Y0 coordination to baseline
     {16, 19},                                                                                                                    // size of biggest char x/y
     D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON, // packing condition of individual bitmaps
     NULL,                                                                                                                        // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    (D4D_FONT_OFFSET*)d4dfnt_TimesNewRoman12B_offset_table,                                                                      // Offset table - used when proporcial font is set in flags
-    (D4D_FONT_SIZE*)d4dfnt_TimesNewRoman12B_width_table,                                                                         // Size table - used when proporcial font is set in flags
+    (D4D_FONT_OFFSET*)d4dfnt_TimesNewRoman12B_offset_table,                                                                      // Offset table - used when proportional font is set in flags
+    (D4D_FONT_SIZE*)d4dfnt_TimesNewRoman12B_width_table,                                                                         // Size table - used when proportional font is set in flags
     d4dfnt_TimesNewRoman12B_data_table                                                                                           // bitmap/font data array
 };
 
@@ -1504,18 +1507,18 @@ const Byte d4dfnt_BerlinSansFBDemi12_width_table[] = {
 
 const D4D_FONT_DESCRIPTOR d4dfnt_BerlinSansFBDemi12_desc = {
     0,                                                                                                                           // Font descriptor version number
-    D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                                                                                       // linear / nonlinear , proporcional or not
+    D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                                                                                       // linear / nonlinear , proportional or not
     ' ',                                                                                                                         // start char of used table
     96,                                                                                                                          // count of all chars of used table
     95,                                                                                                                          // index of char that will be printed instead of
     12,                                                                                                                          // font size (size of font loaded in PC)
-    0,                                                                                                                           // size of font bitmpap for non proporcional fonts
+    0,                                                                                                                           // size of font bitmpap for non proportional fonts
     15,                                                                                                                          // offset from Y0 coordination to baseline
     {15, 18},                                                                                                                    // size of biggest char x/y
     D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON, // packing condition of individual bitmaps
     NULL,                                                                                                                        // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    (D4D_FONT_OFFSET*)d4dfnt_BerlinSansFBDemi12_offset_table,                                                                    // Offset table - used when proporcial font is set in flags
-    (D4D_FONT_SIZE*)d4dfnt_BerlinSansFBDemi12_width_table,                                                                       // Size table - used when proporcial font is set in flags
+    (D4D_FONT_OFFSET*)d4dfnt_BerlinSansFBDemi12_offset_table,                                                                    // Offset table - used when proportional font is set in flags
+    (D4D_FONT_SIZE*)d4dfnt_BerlinSansFBDemi12_width_table,                                                                       // Size table - used when proportional font is set in flags
     d4dfnt_BerlinSansFBDemi12_data_table                                                                                         // bitmap/font data array
 };
 
@@ -2018,18 +2021,18 @@ const Byte d4dfnt_Arial7_width_table[] = {
 
 const D4D_FONT_DESCRIPTOR d4dfnt_Arial7_desc = {
     0,                                                                                                                           // Font descriptor version number
-    D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                                                                                       // linear / nonlinear , proporcional or not
+    D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                                                                                       // linear / nonlinear , proportional or not
     ' ',                                                                                                                         // start char of used table
     96,                                                                                                                          // count of all chars of used table
     0,                                                                                                                           // index of char that will be printed instead of
     7,                                                                                                                           // font size (size of font loaded in PC)
-    0,                                                                                                                           // size of font bitmpap for non proporcional fonts
+    0,                                                                                                                           // size of font bitmpap for non proportional fonts
     9,                                                                                                                           // offset from Y0 coordination to baseline
     {9, 12},                                                                                                                     // size of biggest char x/y
     D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON, // packing condition of individual bitmaps
     NULL,                                                                                                                        // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    (D4D_FONT_OFFSET*)d4dfnt_Arial7_offset_table,                                                                                // Offset table - used when proporcial font is set in flags
-    (D4D_FONT_SIZE*)d4dfnt_Arial7_width_table,                                                                                   // Size table - used when proporcial font is set in flags
+    (D4D_FONT_OFFSET*)d4dfnt_Arial7_offset_table,                                                                                // Offset table - used when proportional font is set in flags
+    (D4D_FONT_SIZE*)d4dfnt_Arial7_width_table,                                                                                   // Size table - used when proportional font is set in flags
     d4dfnt_Arial7_data_table                                                                                                     // bitmap/font data array
 };
 
@@ -2970,18 +2973,18 @@ const Byte d4dfnt_CourierNewTest_index_table[] = {
 
 const D4D_FONT_DESCRIPTOR d4dfnt_CourierNewTest_desc = {
     0,                                                                                                                           // Font descriptor version number
-    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_LOOKUP | D4D_FONT_FLAGS_FNT_WIDTH_MONOSPACE,                      // linear / nonlinear , proporcional or not
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_LOOKUP | D4D_FONT_FLAGS_FNT_WIDTH_MONOSPACE,                      // linear / nonlinear , proportional or not
     ' ',                                                                                                                         // start char of used table
     223,                                                                                                                         // count of all chars of used table
     32,                                                                                                                          // index of char that will be printed instead of
     10,                                                                                                                          // font size (size of font loaded in PC)
-    16,                                                                                                                          // size of font bitmpap for non proporcional fonts
+    16,                                                                                                                          // size of font bitmpap for non proportional fonts
     12,                                                                                                                          // offset from Y0 coordination to baseline
     {8, 16},                                                                                                                     // size of biggest char x/y
     D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON, // packing condition of individual bitmaps
     (D4D_FONT_IX*)d4dfnt_CourierNewTest_index_table,                                                                             // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    NULL,                                                                                                                        // Offset table - used when proporcial font is set in flags
-    NULL,                                                                                                                        // Size table - used when proporcial font is set in flags
+    NULL,                                                                                                                        // Offset table - used when proportional font is set in flags
+    NULL,                                                                                                                        // Size table - used when proportional font is set in flags
     d4dfnt_CourierNewTest_data_table                                                                                             // bitmap/font data array
 };
 
@@ -3432,18 +3435,18 @@ const D4D_FONT_SIZE d4dfnt_Tahoma_8_width_table[] = {
 
 const D4D_FONT_DESCRIPTOR d4dfnt_Tahoma_8_desc = {
     0,                                                                                                                           // Font descriptor version number
-    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proporcional or not
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proportional or not
     ' ',                                                                                                                         // start char of used table
     70,                                                                                                                          // count of all chars of used table
     0x0020,                                                                                                                      // index of char that will be printed instead of
     8,                                                                                                                           // font size (size of font loaded in PC)
-    0,                                                                                                                           // height of font bitmpap for non proporcional fonts
+    0,                                                                                                                           // height of font bitmpap for non proportional fonts
     11,                                                                                                                          // offset from Y0 coordination to baseline
     {11, 13},                                                                                                                    // size of biggest char x/y
     D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON, // packing condition of individual bitmaps
     d4dfnt_Tahoma_8_index_table,                                                                                                 // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    d4dfnt_Tahoma_8_offset_table,                                                                                                // Offset table - used when proporcial font is set in flags
-    d4dfnt_Tahoma_8_width_table,                                                                                                 // Size table - used when proporcial font is set in flags
+    d4dfnt_Tahoma_8_offset_table,                                                                                                // Offset table - used when proportional font is set in flags
+    d4dfnt_Tahoma_8_width_table,                                                                                                 // Size table - used when proportional font is set in flags
     d4dfnt_Tahoma_8_data_table,                                                                                                  // bitmap/font data array
     NULL                                                                                                                         // pointer for next UNICODE page
 };
@@ -3895,18 +3898,18 @@ const D4D_FONT_SIZE d4dfnt_Tahoma_9_width_table[] = {
 
 const D4D_FONT_DESCRIPTOR d4dfnt_Tahoma_9_desc = {
     0,                                                                                                                           // Font descriptor version number
-    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proporcional or not
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proportional or not
     ' ',                                                                                                                         // start char of used table
     70,                                                                                                                          // count of all chars of used table
     0x0020,                                                                                                                      // index of char that will be printed instead of
     9,                                                                                                                           // font size (size of font loaded in PC)
-    0,                                                                                                                           // height of font bitmpap for non proporcional fonts
+    0,                                                                                                                           // height of font bitmpap for non proportional fonts
     12,                                                                                                                          // offset from Y0 coordination to baseline
     {12, 14},                                                                                                                    // size of biggest char x/y
     D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON, // packing condition of individual bitmaps
     d4dfnt_Tahoma_9_index_table,                                                                                                 // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    d4dfnt_Tahoma_9_offset_table,                                                                                                // Offset table - used when proporcial font is set in flags
-    d4dfnt_Tahoma_9_width_table,                                                                                                 // Size table - used when proporcial font is set in flags
+    d4dfnt_Tahoma_9_offset_table,                                                                                                // Offset table - used when proportional font is set in flags
+    d4dfnt_Tahoma_9_width_table,                                                                                                 // Size table - used when proportional font is set in flags
     d4dfnt_Tahoma_9_data_table,                                                                                                  // bitmap/font data array
     NULL                                                                                                                         // pointer for next UNICODE page
 };
@@ -4365,18 +4368,18 @@ const D4D_FONT_SIZE d4dfnt_SegoeUISemibold_9_width_table[] = {
 
 const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUISemibold_9_desc = {
     0,                                                                                                                           // Font descriptor version number
-    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proporcional or not
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proportional or not
     ' ',                                                                                                                         // start char of used table
     70,                                                                                                                          // count of all chars of used table
     0x0020,                                                                                                                      // index of char that will be printed instead of
     9,                                                                                                                           // font size (size of font loaded in PC)
-    0,                                                                                                                           // height of font bitmpap for non proporcional fonts
+    0,                                                                                                                           // height of font bitmpap for non proportional fonts
     13,                                                                                                                          // offset from Y0 coordination to baseline
     {12, 15},                                                                                                                    // size of biggest char x/y
     D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON, // packing condition of individual bitmaps
     d4dfnt_SegoeUISemibold_9_index_table,                                                                                        // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    d4dfnt_SegoeUISemibold_9_offset_table,                                                                                       // Offset table - used when proporcial font is set in flags
-    d4dfnt_SegoeUISemibold_9_width_table,                                                                                        // Size table - used when proporcial font is set in flags
+    d4dfnt_SegoeUISemibold_9_offset_table,                                                                                       // Offset table - used when proportional font is set in flags
+    d4dfnt_SegoeUISemibold_9_width_table,                                                                                        // Size table - used when proportional font is set in flags
     d4dfnt_SegoeUISemibold_9_data_table,                                                                                         // bitmap/font data array
     NULL                                                                                                                         // pointer for next UNICODE page
 };
@@ -4834,18 +4837,18 @@ const D4D_FONT_SIZE d4dfnt_SegoeUI_9_width_table[] = {
 
 const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUI_9_desc = {
     0,                                                                                                                           // Font descriptor version number
-    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proporcional or not
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proportional or not
     ' ',                                                                                                                         // start char of used table
     70,                                                                                                                          // count of all chars of used table
     0x0020,                                                                                                                      // index of char that will be printed instead of
     9,                                                                                                                           // font size (size of font loaded in PC)
-    0,                                                                                                                           // height of font bitmpap for non proporcional fonts
+    0,                                                                                                                           // height of font bitmpap for non proportional fonts
     13,                                                                                                                          // offset from Y0 coordination to baseline
     {11, 15},                                                                                                                    // size of biggest char x/y
     D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON, // packing condition of individual bitmaps
     d4dfnt_SegoeUI_9_index_table,                                                                                                // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    d4dfnt_SegoeUI_9_offset_table,                                                                                               // Offset table - used when proporcial font is set in flags
-    d4dfnt_SegoeUI_9_width_table,                                                                                                // Size table - used when proporcial font is set in flags
+    d4dfnt_SegoeUI_9_offset_table,                                                                                               // Offset table - used when proportional font is set in flags
+    d4dfnt_SegoeUI_9_width_table,                                                                                                // Size table - used when proportional font is set in flags
     d4dfnt_SegoeUI_9_data_table,                                                                                                 // bitmap/font data array
     NULL                                                                                                                         // pointer for next UNICODE page
 };
@@ -5297,18 +5300,18 @@ const D4D_FONT_SIZE d4dfnt_SegoeUI_8_width_table[] = {
 
 const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUI_8_desc = {
     0,                                                                                                                           // Font descriptor version number
-    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proporcional or not
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proportional or not
     ' ',                                                                                                                         // start char of used table
     70,                                                                                                                          // count of all chars of used table
     0x0020,                                                                                                                      // index of char that will be printed instead of
     8,                                                                                                                           // font size (size of font loaded in PC)
-    0,                                                                                                                           // height of font bitmpap for non proporcional fonts
+    0,                                                                                                                           // height of font bitmpap for non proportional fonts
     12,                                                                                                                          // offset from Y0 coordination to baseline
     {11, 13},                                                                                                                    // size of biggest char x/y
     D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON, // packing condition of individual bitmaps
     d4dfnt_SegoeUI_8_index_table,                                                                                                // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    d4dfnt_SegoeUI_8_offset_table,                                                                                               // Offset table - used when proporcial font is set in flags
-    d4dfnt_SegoeUI_8_width_table,                                                                                                // Size table - used when proporcial font is set in flags
+    d4dfnt_SegoeUI_8_offset_table,                                                                                               // Offset table - used when proportional font is set in flags
+    d4dfnt_SegoeUI_8_width_table,                                                                                                // Size table - used when proportional font is set in flags
     d4dfnt_SegoeUI_8_data_table,                                                                                                 // bitmap/font data array
     NULL                                                                                                                         // pointer for next UNICODE page
 };
@@ -5923,18 +5926,18 @@ const D4D_FONT_SIZE d4dfnt_Verdana_8_width_table[] = {
 
 const D4D_FONT_DESCRIPTOR d4dfnt_Verdana_8_desc = {
     0,                                                                                                                           // Font descriptor version number
-    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proporcional or not
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proportional or not
     ' ',                                                                                                                         // start char of used table
     97,                                                                                                                          // count of all chars of used table
     0x0020,                                                                                                                      // index of char that will be printed instead of
     8,                                                                                                                           // font size (size of font loaded in PC)
-    0,                                                                                                                           // height of font bitmpap for non proporcional fonts
+    0,                                                                                                                           // height of font bitmpap for non proportional fonts
     11,                                                                                                                          // offset from Y0 coordination to baseline
     {12, 13},                                                                                                                    // size of biggest char x/y
     D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON, // packing condition of individual bitmaps
     d4dfnt_Verdana_8_index_table,                                                                                                // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    d4dfnt_Verdana_8_offset_table,                                                                                               // Offset table - used when proporcial font is set in flags
-    d4dfnt_Verdana_8_width_table,                                                                                                // Size table - used when proporcial font is set in flags
+    d4dfnt_Verdana_8_offset_table,                                                                                               // Offset table - used when proportional font is set in flags
+    d4dfnt_Verdana_8_width_table,                                                                                                // Size table - used when proportional font is set in flags
     d4dfnt_Verdana_8_data_table,                                                                                                 // bitmap/font data array
     NULL                                                                                                                         // pointer for next UNICODE page
 };
@@ -6233,18 +6236,18 @@ const D4D_FONT_SIZE d4dfnt_SegoeUI11_width_table[] = {
 
 const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUI11_desc = {
     0,                                                                                                                           // Font descriptor version number
-    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proporcional or not
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proportional or not
     ' ',                                                                                                                         // start char of used table
     39,                                                                                                                          // count of all chars of used table
     0x0020,                                                                                                                      // index of char that will be printed instead of
     11,                                                                                                                          // font size (size of font loaded in PC)
-    0,                                                                                                                           // height of font bitmpap for non proporcional fonts
+    0,                                                                                                                           // height of font bitmpap for non proportional fonts
     16,                                                                                                                          // offset from Y0 coordination to baseline
     {14, 20},                                                                                                                    // size of biggest char x/y
     D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON, // packing condition of individual bitmaps
     d4dfnt_SegoeUI11_index_table,                                                                                                // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    d4dfnt_SegoeUI11_offset_table,                                                                                               // Offset table - used when proporcial font is set in flags
-    d4dfnt_SegoeUI11_width_table,                                                                                                // Size table - used when proporcial font is set in flags
+    d4dfnt_SegoeUI11_offset_table,                                                                                               // Offset table - used when proportional font is set in flags
+    d4dfnt_SegoeUI11_width_table,                                                                                                // Size table - used when proportional font is set in flags
     d4dfnt_SegoeUI11_data_table,                                                                                                 // bitmap/font data array
     NULL                                                                                                                         // pointer for next UNICODE page
 };
@@ -6522,18 +6525,18 @@ const D4D_FONT_SIZE d4dfnt_SegoeUI10_width_table[] = {
 
 const D4D_FONT_DESCRIPTOR d4dfnt_SegoeUI10_desc = {
     0,                                                                                                                           // Font descriptor version number
-    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proporcional or not
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proportional or not
     ' ',                                                                                                                         // start char of used table
     39,                                                                                                                          // count of all chars of used table
     0x0020,                                                                                                                      // index of char that will be printed instead of
     10,                                                                                                                          // font size (size of font loaded in PC)
-    0,                                                                                                                           // height of font bitmpap for non proporcional fonts
+    0,                                                                                                                           // height of font bitmpap for non proportional fonts
     14,                                                                                                                          // offset from Y0 coordination to baseline
     {12, 17},                                                                                                                    // size of biggest char x/y
     D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON, // packing condition of individual bitmaps
     d4dfnt_SegoeUI10_index_table,                                                                                                // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    d4dfnt_SegoeUI10_offset_table,                                                                                               // Offset table - used when proporcial font is set in flags
-    d4dfnt_SegoeUI10_width_table,                                                                                                // Size table - used when proporcial font is set in flags
+    d4dfnt_SegoeUI10_offset_table,                                                                                               // Offset table - used when proportional font is set in flags
+    d4dfnt_SegoeUI10_width_table,                                                                                                // Size table - used when proportional font is set in flags
     d4dfnt_SegoeUI10_data_table,                                                                                                 // bitmap/font data array
     NULL                                                                                                                         // pointer for next UNICODE page
 };
@@ -6996,18 +6999,18 @@ const D4D_FONT_SIZE d4dfnt_AlteDIN1451_22_width_table[] = {
 
 const D4D_FONT_DESCRIPTOR d4dfnt_AlteDIN1451_22_desc = {
     0,                                                                                                                           // Font descriptor version number
-    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proporcional or not
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proportional or not
     '+',                                                                                                                         // start char of used table
     16,                                                                                                                          // count of all chars of used table
     0x002B,                                                                                                                      // index of char that will be printed instead of
     22,                                                                                                                          // font size (size of font loaded in PC)
-    0,                                                                                                                           // height of font bitmpap for non proporcional fonts
+    0,                                                                                                                           // height of font bitmpap for non proportional fonts
     21,                                                                                                                          // offset from Y0 coordination to baseline
     {17, 21},                                                                                                                    // size of biggest char x/y
     D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON, // packing condition of individual bitmaps
     d4dfnt_AlteDIN1451_22_index_table,                                                                                           // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    d4dfnt_AlteDIN1451_22_offset_table,                                                                                          // Offset table - used when proporcial font is set in flags
-    d4dfnt_AlteDIN1451_22_width_table,                                                                                           // Size table - used when proporcial font is set in flags
+    d4dfnt_AlteDIN1451_22_offset_table,                                                                                          // Offset table - used when proportional font is set in flags
+    d4dfnt_AlteDIN1451_22_width_table,                                                                                           // Size table - used when proportional font is set in flags
     d4dfnt_AlteDIN1451_22_data_table,                                                                                            // bitmap/font data array
     NULL                                                                                                                         // pointer for next UNICODE page
 };
@@ -7145,18 +7148,18 @@ const D4D_FONT_SIZE d4dfnt_AlteDIN1451_16_width_table[] = {
 
 const D4D_FONT_DESCRIPTOR d4dfnt_AlteDIN1451_16_desc = {
     0,                                                                                                                           // Font descriptor version number
-    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proporcional or not
+    D4D_FONT_FLAGS_IX_STYLE_NONLINEAR | D4D_FONT_FLAGS_IX_TYPE_MAP | D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL,                      // linear / nonlinear , proportional or not
     '+',                                                                                                                         // start char of used table
     16,                                                                                                                          // count of all chars of used table
     0x002B,                                                                                                                      // index of char that will be printed instead of
     16,                                                                                                                          // font size (size of font loaded in PC)
-    0,                                                                                                                           // height of font bitmpap for non proporcional fonts
+    0,                                                                                                                           // height of font bitmpap for non proportional fonts
     15,                                                                                                                          // offset from Y0 coordination to baseline
     {13, 15},                                                                                                                    // size of biggest char x/y
     D4D_FONT_PACK_BITORDER_BIGEND | D4D_FONT_PACK_SCANBASED_ROW | D4D_FONT_PACK_SCANPREFERRED_ROW | D4D_FONT_PACK_COMPRESSED_ON, // packing condition of individual bitmaps
     d4dfnt_AlteDIN1451_16_index_table,                                                                                           // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    d4dfnt_AlteDIN1451_16_offset_table,                                                                                          // Offset table - used when proporcial font is set in flags
-    d4dfnt_AlteDIN1451_16_width_table,                                                                                           // Size table - used when proporcial font is set in flags
+    d4dfnt_AlteDIN1451_16_offset_table,                                                                                          // Offset table - used when proportional font is set in flags
+    d4dfnt_AlteDIN1451_16_width_table,                                                                                           // Size table - used when proportional font is set in flags
     d4dfnt_AlteDIN1451_16_data_table,                                                                                            // bitmap/font data array
     NULL                                                                                                                         // pointer for next UNICODE page
 };

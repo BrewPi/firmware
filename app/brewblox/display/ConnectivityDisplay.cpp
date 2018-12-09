@@ -18,8 +18,9 @@
  */
 
 #include "ConnectivityDisplay.h"
-#include "application.h"
+/*
 
+#include "application.h"
 char controller_wifi_ip[16] = "";
 ControllerWiFiView wifiView;
 ControllerWiFiPresenter wifiPresenter(wifiView);
@@ -62,3 +63,4 @@ ControllerWiFiPresenter::update()
     snprintf(ipAddressString, 16, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
     view_.update(wifiConnected, ipAddressString);
 }
+*/

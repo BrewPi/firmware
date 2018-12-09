@@ -121,7 +121,7 @@
 
 #define D4D_COLOR_SYSTEM_BCKG D4D_COLOR_BLACK // System background color (for example for calibration screen)
 
-#define D4D_FONT_SYSTEM_DEFAULT 3 // System default font (for example for calibration screen)
+#define D4D_FONT_SYSTEM_DEFAULT 0 // System default font (for example for calibration screen)
 
 /******************************************************************************
 * CallBack function definition
