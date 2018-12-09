@@ -79,7 +79,9 @@ INCLUDE_DIRS +=  $(SOURCE_PATH)/platform/spark/modules/eGUI/D4D
 CSRC +=  $(call target_files,platform/spark/modules/eGUI/D4D,*.c)
 CPPSRC +=  $(call target_files,platform/spark/modules/eGUI/D4D,*.cpp)
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/BrewPiTouch
+CPPSRC +=  $(call here_files,platform/spark/modules/BrewPiTouch,*.cpp)
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/SPIArbiter
+CPPSRC +=  $(call here_files,platform/spark/modules/SPIArbiter,*.cpp)
 
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/WebSockets/firmware
 CPPSRC +=  $(call here_files,platform/spark/modules/WebSockets/firmware,*.cpp)

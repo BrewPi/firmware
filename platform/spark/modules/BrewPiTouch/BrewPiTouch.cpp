@@ -19,16 +19,15 @@
 
 #include "BrewPiTouch.h"
 #include "spark_wiring.h"
-#include <limits.h>
-// includes for getting a median:
-#undef min
-#undef max
-#undef swap
-#include <vector>
 #include <algorithm>
+#include <limits.h>
+#include <vector>
 
-
-BrewPiTouch::BrewPiTouch(SPIArbiter & spia, const uint8_t cs, const uint8_t irq) : _spi(spia),  pinCS(cs), pinIRQ(irq) {
+BrewPiTouch::BrewPiTouch(SPIArbiter& spia, const uint8_t cs, const uint8_t irq)
+    : _spi(spia)
+    , pinCS(cs)
+    , pinIRQ(irq)
+{
     config = BrewPiTouch::START;
     width = 1600;
     height = 1600;
@@ -39,10 +38,13 @@ BrewPiTouch::BrewPiTouch(SPIArbiter & spia, const uint8_t cs, const uint8_t irq)
     stabilityThreshold = 40;
 }
 
-BrewPiTouch::~BrewPiTouch() {
+BrewPiTouch::~BrewPiTouch()
+{
 }
 
-void BrewPiTouch::init(uint8_t configuration) {
+void
+BrewPiTouch::init(uint8_t configuration)
+{
     // default is:
     // 12bit (mode=0)
     // power down between conversions, penIRQ enabled (PD1,PD0 = 00)
@@ -58,34 +60,44 @@ void BrewPiTouch::init(uint8_t configuration) {
     _spi.transfer(config);
     _spi.end();
 
-    filterX.init(width/2);
+    filterX.init(width / 2);
     filterX.setCoefficients(SETTLING_TIME_25_SAMPLES);
-    filterY.init(height/2);
+    filterY.init(height / 2);
     filterY.setCoefficients(SETTLING_TIME_25_SAMPLES);
     update();
 }
 
-void BrewPiTouch::set8bit() {
+void
+BrewPiTouch::set8bit()
+{
     config = config | MODE;
 }
 
-void BrewPiTouch::set12bit() {
+void
+BrewPiTouch::set12bit()
+{
     config = config & ~MODE;
 }
 
-bool BrewPiTouch::is8bit() {
+bool
+BrewPiTouch::is8bit()
+{
     return (config & MODE) ? 1 : 0;
 }
 
-bool BrewPiTouch::is12bit() {
+bool
+BrewPiTouch::is12bit()
+{
     return (config & MODE) ? 0 : 1;
 }
 
-uint16_t BrewPiTouch::readChannel(uint8_t channel) {
+uint16_t
+BrewPiTouch::readChannel(uint8_t channel)
+{
     uint16_t data;
-    _spi.begin(); // will drive CS pin low, needed for conversion timing
+    _spi.begin();                               // will drive CS pin low, needed for conversion timing
     _spi.transfer((config & CHMASK) | channel); // select channel x/y
-    delayMicroseconds(1); // make sure conversion is complete, without checking busy pin
+    delayMicroseconds(1);                       // make sure conversion is complete, without checking busy pin
     data = _spi.transfer(0);
     if (is12bit()) {
         data = data << 8;
@@ -96,28 +108,38 @@ uint16_t BrewPiTouch::readChannel(uint8_t channel) {
     return data;
 }
 
-bool BrewPiTouch::isTouched() {
+bool
+BrewPiTouch::isTouched()
+{
     return (digitalRead(pinIRQ) == HIGH ? 0 : 1);
 }
 
-int16_t BrewPiTouch::getXRaw() {
+int16_t
+BrewPiTouch::getXRaw()
+{
     return filterX.readInput();
 }
 
-int16_t BrewPiTouch::getYRaw() {
+int16_t
+BrewPiTouch::getYRaw()
+{
     return filterY.readInput();
 }
 
-int16_t BrewPiTouch::getX() {
-    int32_t val = getXRaw(); // create room for multiplication
-    val -= xOffset; // remove offset
+int16_t
+BrewPiTouch::getX()
+{
+    int32_t val = getXRaw();      // create room for multiplication
+    val -= xOffset;               // remove offset
     val = val * tftWidth / width; //scale
     return val;
 }
 
-int16_t BrewPiTouch::getY() {
-    int32_t val = getYRaw(); // create room for multiplication
-    val -= yOffset; // remove offset
+int16_t
+BrewPiTouch::getY()
+{
+    int32_t val = getYRaw();        // create room for multiplication
+    val -= yOffset;                 // remove offset
     val = val * tftHeight / height; //scale
     return val;
 }
@@ -127,14 +149,16 @@ int16_t BrewPiTouch::getY() {
  *  It reads numSamples values and takes the median
  *  The result is fed to the low pass filters
  */
-bool BrewPiTouch::update(uint16_t numSamples) {
+bool
+BrewPiTouch::update(uint16_t numSamples)
+{
     std::vector<int16_t> samplesX;
     std::vector<int16_t> samplesY;
 
     bool valid = true;
 
     if (!isTouched()) {
-    	return false; // exit immediately when not touched to prevent claiming SPI
+        return false; // exit immediately when not touched to prevent claiming SPI
     }
     for (uint16_t i = 0; i < numSamples; i++) {
         if (!isTouched()) {
@@ -156,14 +180,18 @@ bool BrewPiTouch::update(uint16_t numSamples) {
     return valid && isStable();
 }
 
-void BrewPiTouch::setStabilityThreshold(int16_t threshold){
+void
+BrewPiTouch::setStabilityThreshold(int16_t threshold)
+{
     stabilityThreshold = threshold;
 }
 
 /* isStable() returns true if the difference between the last sample and 
  * a low pass filtered value of past samples is under a certain threshold
  */
-bool BrewPiTouch::isStable() {
+bool
+BrewPiTouch::isStable()
+{
     if (abs(filterX.readInput() - filterX.readOutput()) > stabilityThreshold) {
         return false;
     }

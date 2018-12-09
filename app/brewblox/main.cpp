@@ -75,9 +75,9 @@ displayTick()
     auto now = ticks.millis();
     if (now > lastTick + 40) {
         lastTick = now;
-        D4D_TimeTickPut();
-        D4D_CheckTouchScreen();
         D4D_Poll();
+        D4D_CheckTouchScreen();
+        D4D_TimeTickPut();
         D4D_FlushOutput();
     }
 }
@@ -146,34 +146,38 @@ setup()
     std::signal(SIGINT, signal_handler);
 #endif
     boardInit();
-    Buzzer.beep(2, 100);
+    Buzzer.beep(2, 50);
 
     System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
     WiFi.setListenTimeout(30);
     System.on(setup_update, watchdogCheckin);
 
-    // first load only system object from storage
-    brewbloxBox().reloadStoredObject(2);
-
-#if PLATFORM_ID == 3
+#if PLATFORM_ID == PLATFORM_GCC
     manageConnections(); // init network early to websocket display emulation works during setup()
 #endif
 
     // init display
     D4D_Init(nullptr);
-    StartupScreen::activate();
-    StartupScreen::setProgress(10);
+    D4D_TOUCHSCREEN_CALIB defaultCalib = {1, 0, 0, 64, 64};
+    D4D_TCH_SetCalibration(defaultCalib);
 
+    StartupScreen::activate();
+
+    StartupScreen::setProgress(10);
+    StartupScreen::setStep("Init BrewBlox framework");
+    brewbloxBox();
+
+    StartupScreen::setProgress(60);
     StartupScreen::setStep("Init OneWire");
     theOneWire();
-    StartupScreen::setProgress(30);
 
+    StartupScreen::setProgress(70);
     StartupScreen::setStep("Init BrewBlox");
-    StartupScreen::setProgress(40);
 
+    StartupScreen::setProgress(80);
     StartupScreen::setStep("Loading objects");
     brewbloxBox().loadObjectsFromStorage(); // init box and load stored objects
-    StartupScreen::setProgress(60);
+    StartupScreen::setProgress(90);
 
     StartupScreen::setStep("Init mDNS");
     initMdns();

@@ -102,7 +102,6 @@ ScrStartup_OnInit()
 void
 ScrStartup_OnMain()
 {
-    StartupScreen::calibrateTouchIfNeeded();
 }
 
 void
