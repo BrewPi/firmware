@@ -88,11 +88,11 @@ manageConnections()
     if (!WiFi.ready() || WiFi.listening()) {
         if (!WiFi.connecting()) {
             WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
-#if PLATFORM_ID != PLATFORM_GCC
-            Particle.connect();
-#endif
         }
     } else {
+#if PLATFORM_ID != PLATFORM_GCC
+        Particle.connect();
+#endif
         if (!mdns_started) {
             mdns_started = mdns.begin(true);
         } else {
