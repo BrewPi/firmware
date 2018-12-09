@@ -21,30 +21,15 @@
 
 #include "blox/Block.h"
 #include "cbox/DataStream.h"
-#include "deviceid_hal.h"
 #include "proto/cpp/SysInfo.pb.h"
 
 // provides a protobuf interface to the read only system info
 class SysInfoBlock : public cbox::ObjectBase<blox_SysInfo_msgid> {
-    virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final
-    {
-        blox_SysInfo message;
+    virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final;
 
-        HAL_device_ID(static_cast<uint8_t*>(&message.deviceId[0]), 12);
+    virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final;
 
-        return streamProtoTo(out, &message, blox_SysInfo_fields, blox_SysInfo_size);
-    }
-
-    virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final
-    {
-        return cbox::CboxError::OBJECT_NOT_WRITABLE;
-    };
-
-    virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final
-    {
-
-        return cbox::CboxError::OK;
-    }
+    virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final;
 
     virtual cbox::update_t update(const cbox::update_t& now) override final
     {

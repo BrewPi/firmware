@@ -19,7 +19,9 @@
 
 #include "d4d.h"
 
+#include "font04b03.h"
 #include "fonts.h"
+#include "tewi.h"
 
 // Font Table declaration
 
@@ -28,6 +30,9 @@ D4D_DECLARE_FONT(FONT_ARIAL7, d4dfnt_Arial7_desc, 1, 1, 0, 0)
 D4D_DECLARE_FONT(FONT_ARIAL7_HIGH, d4dfnt_Arial7_desc, 1, 2, 0, 0)
 D4D_DECLARE_FONT(FONT_ARIAL7_WIDE, d4dfnt_Arial7_desc, 2, 1, 0, 0)
 D4D_DECLARE_FONT(FONT_ARIAL7_BIG, d4dfnt_Arial7_desc, 2, 2, 0, 0)
+//D4D_DECLARE_FONT(FONT_04B03, d4dfnt_04b03_desc, 1, 1, 0, 0)
+D4D_DECLARE_FONT(FONT_TEWI, d4dfnt_tewi_desc, 1, 1, 0, 0)
+D4D_DECLARE_FONT(FONT_TEWI_BIG, d4dfnt_tewi_desc, 2, 2, 0, 0)
 //D4D_DECLARE_FONT(FONT_BERLIN_SANS_FBDEMI12, d4dfnt_BerlinSansFBDemi12_desc, 1, 1, 1, 0)
 //D4D_DECLARE_FONT(FONT_BERLIN_SANS_FBDEMI12_HIGH, d4dfnt_BerlinSansFBDemi12_desc, 1, 2, 1, 0)
 //D4D_DECLARE_FONT(FONT_BERLIN_SANS_FBDEMI12_BIG, d4dfnt_BerlinSansFBDemi12_desc, 2, 2, 1, 0)
@@ -39,6 +44,7 @@ D4D_DECLARE_FONT(FONT_SEGOEUI11, d4dfnt_SegoeUI11_desc, 1, 1, 0, 0)
 //D4D_DECLARE_FONT(FONT_SEGOEUI9_BIG, d4dfnt_SegoeUI_9_desc, 2, 2, 0, 0)
 //D4D_DECLARE_FONT(FONT_PROGGY_SQUARE, d4dfnt_ProggySquare_desc, 1, 1, 0, 0)
 //D4D_DECLARE_FONT(FONT_PROGGY_SQUARE_BIG, d4dfnt_ProggySquare_desc, 2, 2, 0, 0)
+D4D_DECLARE_FONT(FONT_SEGOEUI11, d4dfnt_SegoeUI11_desc, 1, 1, 0, 0)
 D4D_DECLARE_FONT(FONT_ALTE_DIN_22, d4dfnt_AlteDIN1451_22_desc, 1, 1, 0, 0)
 D4D_DECLARE_FONT(FONT_ALTE_DIN_16, d4dfnt_AlteDIN1451_16_desc, 1, 1, 0, 0)
 

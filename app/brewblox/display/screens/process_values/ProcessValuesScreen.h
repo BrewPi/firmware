@@ -20,13 +20,9 @@
 #include "d4d.hpp"
 #include <stdint.h>
 
-class StartupScreen {
+class ProcessValuesScreen {
 public:
     static void activate();
-    static void calibrateTouchIfNeeded();
-    static void calibrateTouch();
-    static void setProgress(const uint8_t& v);
-    static void setStep(const char* txt);
 };
 
-extern const D4D_SCREEN* startup_screen;
+extern const D4D_SCREEN* process_values_screen;

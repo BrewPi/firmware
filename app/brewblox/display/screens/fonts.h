@@ -23,6 +23,9 @@
 #define FONT_ARIAL7_HIGH 1
 #define FONT_ARIAL7_WIDE 2
 #define FONT_ARIAL7_BIG 3
+#define FONT_04B03 4
+#define FONT_TEWI 5
+#define FONT_TEWI_BIG 6
 //#define FONT_BERLIN_SANS_FBDEMI12         4
 //#define FONT_BERLIN_SANS_FBDEMI12_HIGH    5
 //#define FONT_BERLIN_SANS_FBDEMI12_BIG     6
@@ -37,7 +40,7 @@
 #define FONT_ALTE_DIN_22 15
 #define FONT_ALTE_DIN_16 16
 
-#define FONT_SMALL FONT_ARIAL7
+#define FONT_SMALL FONT_TEWI
 #define FONT_REGULAR FONT_SEGOEUI11
 #define FONT_NUMBER_LARGE FONT_ALTE_DIN_22
 #define FONT_NUMBER_MEDIUM FONT_ALTE_DIN_16
@@ -46,6 +49,7 @@
 //extern const D4D_FONT_DESCRIPTOR d4dfnt_TimesNewRoman12B_desc;
 //extern const D4D_FONT_DESCRIPTOR d4dfnt_BerlinSansFBDemi12_desc;
 extern const D4D_FONT_DESCRIPTOR d4dfnt_Arial7_desc;
+extern const D4D_FONT_DESCRIPTOR d4dfnt_tewi_desc;
 //extern const D4D_FONT_DESCRIPTOR d4dfnt_CourierNewTest_desc;
 //extern const D4D_FONT_DESCRIPTOR d4dfnt_Tahoma_8_desc;
 //extern const D4D_FONT_DESCRIPTOR d4dfnt_Tahoma_9_desc;

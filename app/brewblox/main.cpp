@@ -25,6 +25,7 @@
 #include "application.h" // particle stuff
 #include "cbox/Object.h"
 #include "d4d.hpp"
+#include "display/screens/process_values/ProcessValuesScreen.h"
 #include "display/screens/startup_screen.h"
 #include "spark_wiring_timer.h"
 
@@ -75,76 +76,14 @@ displayTick()
     if (now > lastTick + 40) {
         lastTick = now;
         D4D_TimeTickPut();
+        D4D_CheckTouchScreen();
+        D4D_Poll();
+        D4D_FlushOutput();
     }
 }
 
 void
-setup()
-{
-    // Install a signal handler
-#if PLATFORM_ID == PLATFORM_GCC
-    std::signal(SIGINT, signal_handler);
-#endif
-
-    D4D_Init(NULL);
-    StartupScreen::activate();
-    displayTick();
-
-    boardInit();
-    Buzzer.beep(2, 100);
-    StartupScreen::setProgress(10);
-
-    StartupScreen::setStep("Init system");
-    System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
-    WiFi.setListenTimeout(30);
-    System.on(setup_update, watchdogCheckin);
-    StartupScreen::setProgress(20);
-
-    StartupScreen::setStep("Init OneWire");
-    theOneWire();
-    StartupScreen::setProgress(30);
-
-    StartupScreen::setStep("Init BrewBlox");
-    brewbloxBox();
-    StartupScreen::setProgress(40);
-
-    StartupScreen::setStep("Loading objects");
-    brewbloxBox().loadObjectsFromStorage(); // init box and load stored objects
-    StartupScreen::setProgress(60);
-
-    StartupScreen::setStep("Init mDNS");
-    bool success = mdns.setHostname(System.deviceID());
-    success = success && mdns.addService("tcp", "http", 80, System.deviceID());
-    success = success && mdns.addService("tcp", "brewblox", 8332, System.deviceID());
-    if (success) {
-        auto hw = String("Spark ");
-        switch (getSparkVersion()) {
-        case SparkVersion::V1:
-            hw += "1";
-            break;
-        case SparkVersion::V2:
-            hw += "2";
-            break;
-        case SparkVersion::V3:
-            hw += "3";
-            break;
-        }
-        mdns.addTXTEntry("VERSION", "0.1.0");
-        mdns.addTXTEntry("ID", System.deviceID());
-        mdns.addTXTEntry("PLATFORM", xstr(PLATFORM_ID));
-        mdns.addTXTEntry("HW", hw);
-    }
-    StartupScreen::setProgress(100);
-
-    StartupScreen::setStep("Ready!");
-
-    while (ticks.millis() < 5000) {
-        displayTick();
-    };
-}
-
-void
-loop()
+manageConnections()
 {
     if (!WiFi.ready() || WiFi.listening()) {
         if (!WiFi.connecting()) {
@@ -171,6 +110,90 @@ loop()
             client.stop();
         }
     }
+}
+
+void
+initMdns()
+{
+    bool success = mdns.setHostname(System.deviceID());
+    success = success && mdns.addService("tcp", "http", 80, System.deviceID());
+    success = success && mdns.addService("tcp", "brewblox", 8332, System.deviceID());
+    if (success) {
+        auto hw = String("Spark ");
+        switch (getSparkVersion()) {
+        case SparkVersion::V1:
+            hw += "1";
+            break;
+        case SparkVersion::V2:
+            hw += "2";
+            break;
+        case SparkVersion::V3:
+            hw += "3";
+            break;
+        }
+        mdns.addTXTEntry("VERSION", "0.1.0");
+        mdns.addTXTEntry("ID", System.deviceID());
+        mdns.addTXTEntry("PLATFORM", xstr(PLATFORM_ID));
+        mdns.addTXTEntry("HW", hw);
+    }
+}
+
+void
+setup()
+{
+    // Install a signal handler
+#if PLATFORM_ID == PLATFORM_GCC
+    std::signal(SIGINT, signal_handler);
+#endif
+    boardInit();
+    Buzzer.beep(2, 100);
+
+    System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
+    WiFi.setListenTimeout(30);
+    System.on(setup_update, watchdogCheckin);
+
+    // first load only system object from storage
+    brewbloxBox().reloadStoredObject(2);
+
+#if PLATFORM_ID == 3
+    manageConnections(); // init network early to websocket display emulation works during setup()
+#endif
+
+    // init display
+    D4D_Init(nullptr);
+    StartupScreen::activate();
+    StartupScreen::setProgress(10);
+
+    StartupScreen::setStep("Init OneWire");
+    theOneWire();
+    StartupScreen::setProgress(30);
+
+    StartupScreen::setStep("Init BrewBlox");
+    StartupScreen::setProgress(40);
+
+    StartupScreen::setStep("Loading objects");
+    brewbloxBox().loadObjectsFromStorage(); // init box and load stored objects
+    StartupScreen::setProgress(60);
+
+    StartupScreen::setStep("Init mDNS");
+    initMdns();
+
+    StartupScreen::setProgress(100);
+
+    StartupScreen::setStep("Ready!");
+
+    while (ticks.millis() < 5000) {
+        displayTick();
+    };
+
+    StartupScreen::calibrateTouchIfNeeded();
+    //ProcessValuesScreen::activate();
+}
+
+void
+loop()
+{
+    manageConnections();
 
     if (!WiFi.listening()) {
         brewbloxBox().hexCommunicate();
@@ -178,10 +201,6 @@ loop()
 
     updateBrewbloxBox();
 
-    // update display
-    D4D_CheckTouchScreen();
-    D4D_Poll();
-    D4D_FlushOutput();
     displayTick();
 
     watchdogCheckin();

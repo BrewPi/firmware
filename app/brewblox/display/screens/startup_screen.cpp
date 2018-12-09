@@ -18,6 +18,7 @@
  */
 
 #include "startup_screen.h"
+#include "BrewBlox.h"
 #include "BrewPiTouch.h"
 #include "screen.h"
 #include "spark_wiring_timer.h"
@@ -56,15 +57,10 @@ StartupScreen::activate()
 void
 StartupScreen::calibrateTouchIfNeeded()
 {
-    static D4D_TOUCHSCREEN_CALIB calib; // TODO load calibration
-    calib.ScreenCalibrated = 1;         // temporary
-
+    auto calib = D4D_GetTouchScreenCalibration();
     if (calib.ScreenCalibrated != 1) {
         calibrateTouch();
-        // store calibration
-        D4D_TCH_SetCalibration(calib);
     }
-    D4D_TCH_SetCalibration(calib); // remove later
 }
 
 void
@@ -86,12 +82,15 @@ StartupScreen::calibrateTouch()
 {
 #if PLATFORM_ID != 3
     touch.setStabilityThreshold(5); // require extra stable reading
-    auto timeoutTimer = Timer(20000, D4D_InterruptCalibrationScreen, true);
+    static auto timeoutTimer = Timer(20000, D4D_InterruptCalibrationScreen, true);
 #endif
     D4D_CalibrateTouchScreen();
 #if PLATFORM_ID != 3
     touch.setStabilityThreshold(); // reset to default
 #endif
+    if (D4D_TCH_GetCalibrationStatus()) {
+        brewbloxBox().storeUpdatedObject(2); // save system object
+    }
 }
 
 void
@@ -103,6 +102,7 @@ ScrStartup_OnInit()
 void
 ScrStartup_OnMain()
 {
+    StartupScreen::calibrateTouchIfNeeded();
 }
 
 void

@@ -125,6 +125,9 @@ public:
     obj_id_t
     discoverNewObject(std::function<std::shared_ptr<Object>()>& discoverObject, std::function<bool(Object&, Object&)> isSame);
 
+    CboxError storeUpdatedObject(const obj_id_t& id) const;
+    CboxError reloadStoredObject(const obj_id_t& id);
+
     enum CommandID : uint8_t {
         NONE = 0,                     // no-op
         READ_OBJECT = 1,              // stream an object to the data out
