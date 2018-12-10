@@ -17,14 +17,26 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ProcessValue.h"
+#include "ProcessValueWidget.h"
 #include "d4d.hpp"
 #include <stdint.h>
+#include <vector>
 
 class ProcessValuesScreen {
+private:
+    static std::vector<ProcessValueWidget> pvWidgets;
+
 public:
+    ProcessValuesScreen() = default;
+    ~ProcessValuesScreen() = default;
+
+    static void init();
     static void activate();
     static void updateUsb();
     static void updateWiFi();
+    static void searchPVs();
+    static void updatePVs();
 };
 
 extern const D4D_SCREEN* process_values_screen;
