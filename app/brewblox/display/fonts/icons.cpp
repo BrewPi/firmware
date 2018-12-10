@@ -35,7 +35,7 @@
 #include <array>
 #include <cstring>
 
-constexpr Byte d4dfnt_siji_data_table[] = {
+constexpr Byte d4dfnt_siji_data_table[] __attribute__((unused)) = {
 
     /* character 0x0020 (' '): (width = 12, offset = 0) */
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2441,7 +2441,7 @@ template <size_t... indices>
 class IconTable {
 public:
     constexpr IconTable()
-        : my_table(table())
+        : table(gen_table())
     {
     }
 
@@ -2455,25 +2455,28 @@ public:
         return numIcons() * 18;
     }
 
-    static constexpr std::array<Byte, size()>
-    table()
+    struct Table {
+        Byte data[size()] = {0};
+    };
+
+    static constexpr auto
+    gen_table()
     {
-        auto icon_data = std::array<Byte, size()>{0};
-        auto icons = std::array<size_t, numIcons()>{indices...};
-        size_t data_index = 0;
-        for (auto& icon : icons) {
-            for (int i = 0; i < 18; ++i) {
-                icon_data[data_index++] = d4dfnt_siji_data_table[(icon - 0x20) * 18 + i];
+        constexpr size_t icons[] = {indices...};
+        Table icon_data;
+        for (size_t j = 0; j < sizeof(icons) / sizeof(icons[0]); ++j) {
+            for (size_t i = 0; i < 18; ++i) {
+                icon_data.data[j * 18 + i] = d4dfnt_siji_data_table[(icons[j] - 0x20) * 18 + i];
             }
         }
         return icon_data;
     }
 
-    const std::array<Byte, size()> my_table; // actual data table to refer to
+    const Table table; // actual data table to refer to
 };
 
 // start index at 0x20, because D4D has special handling for non-printable characters < 0x20
-const auto myTable = IconTable<
+constexpr auto myTable = IconTable<
     0x14d, // 0x20 pacman
     0x235, // 0x21 USB
     0x217, // 0x22 WiFi no signal
@@ -2496,4 +2499,4 @@ const D4D_FONT_DESCRIPTOR d4dfnt_icons_desc = {
     NULL,                                                                                                                           // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
     NULL,                                                                                                                           // Offset table - used when proportional font is set in flags
     NULL,                                                                                                                           // Size table - used when proportional font is set in flags
-    myTable.my_table.data()};
+    myTable.table.data};
