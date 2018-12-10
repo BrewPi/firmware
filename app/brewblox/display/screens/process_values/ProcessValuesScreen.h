@@ -23,6 +23,8 @@
 class ProcessValuesScreen {
 public:
     static void activate();
+    static void updateUsb();
+    static void updateWiFi();
 };
 
 extern const D4D_SCREEN* process_values_screen;

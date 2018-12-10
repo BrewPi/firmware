@@ -20,12 +20,14 @@
 #include "ProcessValuesScreen.h"
 #include "../screen.h"
 #include "../widget_color_scheme.h"
+#include "application.h"
 #include <algorithm>
 
 #define str(s) #s
 #define xstr(s) str(s)
 
-char controller_wifi_ip[16] = "192.168.100.100";
+char wifi_ip[16] = "0.0.0.0";
+char wifi_icon[] = "\x22";
 
 #define SCR_PV_X0 65
 #define SCR_PV_Y0 65
@@ -39,11 +41,27 @@ char controller_wifi_ip[16] = "192.168.100.100";
 #define TITLE_CY 40
 #define TEST_TEXT_CY 12
 
-D4D_DECLARE_COLOR_LABEL(scrPV_usb_icon, "\x21", 0, 0, 20, 20, FONT_ICON, D4D_CONST, D4D_COLOR_BLACK, D4D_COLOR_LIGHT_GREY);
-D4D_DECLARE_COLOR_LABEL(scrPV_usb_state, "USB", 20, 0, 20, 20, FONT_REGULAR, D4D_CONST, D4D_COLOR_BLACK, D4D_COLOR_LIGHT_GREY);
+WIDGET_COLOR_SCHEME TOP_BAR_SCHEME = {
+    D4D_COLOR_RGB(0, 0, 0),      ///< The object background color in standard state
+    D4D_COLOR_RGB(0, 0, 0),      ///< The object background color in disabled state
+    D4D_COLOR_RGB(0, 0, 0),      ///< The object background color in focused state
+    D4D_COLOR_RGB(0, 0, 0),      ///< The object background color in captured state
+    D4D_COLOR_RGB(64, 100, 128), ///< The object fore color in standard state
+    D4D_COLOR_RGB(64, 64, 64),   ///< The object fore color in disabled state
+    D4D_COLOR_RGB(64, 100, 200), ///< The object fore color in focused state
+    D4D_COLOR_RGB(64, 100, 255), ///< The object fore color in captured state
+};
 
-D4D_DECLARE_COLOR_LABEL(scrPV_wifi_icon, "\x22", 40, 0, 20, 20, FONT_ICON, D4D_NO_CONST, D4D_COLOR_BLACK, D4D_COLOR_LIGHT_GREY);
-D4D_DECLARE_COLOR_LABEL(scrPV_wifi_ip, controller_wifi_ip, 60, 0, 15 * 6, 20, FONT_REGULAR, D4D_NO_CONST, D4D_COLOR_BLACK, D4D_COLOR_LIGHT_GREY);
+D4D_DECLARE_LABEL(scrPV_usb_icon, "\x21", 0, 0, 20, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_ICON, nullptr, nullptr);
+D4D_DECLARE_LABEL(scrPV_usb_text, "USB", 20, 0, 20, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_REGULAR, nullptr, nullptr);
+
+D4D_DECLARE_LABEL(scrPV_wifi_icon, wifi_icon, 40, 0, 20, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_ICON, nullptr, nullptr);
+
+#undef D4D_LBL_TXT_PRTY_DEFAULT
+#define D4D_LBL_TXT_PRTY_DEFAULT (D4D_TXT_PRTY_ALIGN_H_LEFT_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
+D4D_DECLARE_LABEL(scrPV_wifi_ip, wifi_ip, 60, 0, 15 * 6, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_REGULAR, nullptr, nullptr);
+#undef D4D_LBL_TXT_PRTY_DEFAULT
+#define D4D_LBL_TXT_PRTY_DEFAULT (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
 
 D4D_DECLARE_STD_LABEL(scrPV_title, "BrewBlox Process Values", TITLE_X, TITLE_Y, TITLE_CX, TITLE_CY, FONT_SMALL);
 D4D_DECLARE_STD_LABEL(scrPV_title2, "BrewBlox Process Values", TITLE_X, TITLE_Y + 50, TITLE_CX, TITLE_CY, FONT_REGULAR);
@@ -59,7 +77,7 @@ D4D_DECLARE_SCREEN_OBJECT(scrPV10)
 D4D_DECLARE_SCREEN_OBJECT(scrPV11)
 D4D_DECLARE_SCREEN_OBJECT(scrPV12)*/
 D4D_DECLARE_SCREEN_OBJECT(scrPV_usb_icon)
-D4D_DECLARE_SCREEN_OBJECT(scrPV_usb_state)
+D4D_DECLARE_SCREEN_OBJECT(scrPV_usb_text)
 D4D_DECLARE_SCREEN_OBJECT(scrPV_wifi_icon)
 D4D_DECLARE_SCREEN_OBJECT(scrPV_wifi_ip)
 D4D_DECLARE_SCREEN_OBJECT(scrPV_title)
@@ -78,6 +96,38 @@ ProcessValuesScreen::activate()
 }
 
 void
+ProcessValuesScreen::updateUsb()
+{
+    bool connected = Serial.isConnected();
+    D4D_EnableObject(&scrPV_usb_icon, connected);
+    D4D_EnableObject(&scrPV_usb_text, connected);
+}
+
+void
+ProcessValuesScreen::updateWiFi()
+{
+    int signal = WiFi.RSSI();
+    IPAddress ip = WiFi.localIP();
+    snprintf(wifi_ip, 16, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+
+    if (signal >= 0) {
+        wifi_icon[0] = 0x22;
+        D4D_EnableObject(&scrPV_wifi_icon, false);
+        D4D_EnableObject(&scrPV_wifi_ip, false);
+        return;
+    }
+    if (signal >= -65) {
+        wifi_icon[0] = 0x25;
+    } else if (signal >= -70) {
+        wifi_icon[0] = 0x24;
+    } else {
+        wifi_icon[0] = 0x23;
+    }
+    D4D_EnableObject(&scrPV_wifi_icon, true);
+    D4D_EnableObject(&scrPV_wifi_ip, true);
+}
+
+void
 scrPV_OnInit()
 {
 }
@@ -85,6 +135,8 @@ scrPV_OnInit()
 void
 scrPV_OnMain()
 {
+    ProcessValuesScreen::updateUsb();
+    ProcessValuesScreen::updateWiFi();
 }
 
 void

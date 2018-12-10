@@ -2481,8 +2481,8 @@ constexpr auto myTable = IconTable<
     0x235, // 0x21 USB
     0x217, // 0x22 WiFi no signal
     0x218, // 0x23 WiFi 1/3
-    0x219, // 0x23 WiFi 2/3
-    0x220  // 0x23 WiFi 3/3
+    0x219, // 0x24 WiFi 2/3
+    0x220  // 0x25 WiFi 3/3
     >();
 
 const D4D_FONT_DESCRIPTOR d4dfnt_icons_desc = {
