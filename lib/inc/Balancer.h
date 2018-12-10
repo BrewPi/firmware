@@ -52,7 +52,7 @@ public:
 
     void registerEntry(const Balanced* req)
     {
-        requesters.push_back(Request{req, 0, available});
+        requesters.push_back(Request{req, available, 0});
     }
 
     void unregisterEntry(const Balanced* req)
@@ -66,16 +66,12 @@ public:
             return r.requester == req;
         });
 
-        if (match == requesters.end()) {
-            registerEntry(req);
-            match = (requesters.end() - 1);
-        }
-
         if (match != requesters.end()) {
             match->requested = val;
             return std::min(val, match->granted);
         };
-        return val;
+
+        return 0; // not found. Should not be possible because Balanced registers in constructor
     }
 
     value_t granted(const Balanced* req) const
@@ -136,6 +132,9 @@ public:
         std::function<std::shared_ptr<Balancer<ID>>()>&& balancer)
         : m_balancer(balancer)
     {
+        if (auto balancerPtr = m_balancer()) {
+            balancerPtr->registerEntry(this);
+        }
     }
 
     Balanced(const Balanced&) = delete;

@@ -96,8 +96,11 @@ SCENARIO("When two analog actuators are constrained by a balancer", "[constraint
     cAct1.setting(60);
     cAct2.setting(60);
 
-    CHECK(cAct1.setting() == value_t(60));
-    CHECK(cAct2.setting() == value_t(60));
+    THEN("The actuator setting is zero until the first update of the balancer")
+    {
+        CHECK(cAct1.setting() == value_t(0));
+        CHECK(cAct2.setting() == value_t(0));
+    }
 
     THEN("After the balancer has updated, the values are constrained to not exceed the maximum available for the balancer, weighted by previous request")
     {

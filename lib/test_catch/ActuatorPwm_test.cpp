@@ -316,6 +316,19 @@ SCENARIO("ActuatorPWM driving mock actuator", "[pwm]")
         CHECK(randomIntervalTest(10, pwm, mock, 4.0, 500, now) == Approx(4.0).margin(0.5));
         CHECK(randomIntervalTest(10, pwm, mock, 96.0, 500, now) == Approx(96.0).margin(0.5));
     }
+
+    WHEN("PWM actuator is set to invalid, the output pin is low")
+    {
+        // values typical for a fridge compressor
+        pwm.setting(100);
+        pwm.update(now);
+
+        CHECK(mock.state() == State::Active);
+
+        pwm.valid(false);
+
+        CHECK(mock.state() == State::Inactive);
+    }
 }
 
 SCENARIO("Two PWM actuators driving mutually exclusive digital actuators")
@@ -418,6 +431,19 @@ SCENARIO("Two PWM actuators driving mutually exclusive digital actuators")
             checkDuties(90, 20, 90.0 / 1.1, 20.0 / 1.1);
             checkDuties(95, 10, 95.0 / 1.05, 10.0 / 1.05);
             checkDuties(85, 25, 85.0 / 1.1, 25.0 / 1.1);
+        }
+
+        AND_WHEN("A PWM is set to invalid, its requested value is zero in the balancer")
+        {
+            constrainedPwm1.setting(50);
+            constrainedPwm1.valid(false);
+
+            constrainedPwm1.update();
+            constrainedPwm2.update();
+
+            balancer->update();
+
+            CHECK(balancer->clients()[0].requested == 0);
         }
     }
 }

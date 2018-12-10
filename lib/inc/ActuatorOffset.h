@@ -83,7 +83,7 @@ public:
     virtual void valid(bool v) override final
     {
         if (auto targetPtr = m_target()) {
-            return targetPtr->valid(v);
+            targetPtr->valid(v);
         }
     }
 

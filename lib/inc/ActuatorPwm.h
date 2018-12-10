@@ -41,6 +41,7 @@ private:
     duration_millis_t m_dutyTime = 0;
     value_t m_dutySetting = 0;
     value_t m_dutyAchieved = 0;
+    bool m_valid = true;
 
 public:
     /** Constructor.
