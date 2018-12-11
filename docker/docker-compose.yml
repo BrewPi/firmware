@@ -48,6 +48,8 @@ services:
         - "8332:8332"
         # http
         - "8380:80"
+        # websocket display emulation
+        - "8380:7376"
     command: bash run-simulator.sh        
 
 networks:

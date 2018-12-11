@@ -26,13 +26,6 @@
 #include "cbox/CboxPtr.h"
 #include <algorithm>
 
-#define INACTIVE_BG_COLOR D4D_COLOR_RGB(24, 24, 24)
-#define ACTIVE_BG_COLOR D4D_COLOR_RGB(140, 0, 25)
-#define INACTIVE_FG_LOW_COLOR D4D_COLOR_RGB(64, 64, 64)
-#define ACTIVE_FG_LOW_COLOR D4D_COLOR_RGB(160, 160, 160)
-#define INACTIVE_FS_COLOR D4D_COLOR_RGB(128, 128, 128)
-#define ACTIVE_FG_COLOR D4D_COLOR_RGB(255, 255, 255)
-
 constexpr auto
 pvColorScheme(const uint8_t r, const uint8_t g, const uint8_t b)
 {
@@ -53,13 +46,6 @@ pvColorScheme(const uint8_t r, const uint8_t g, const uint8_t b)
     return scheme;
 }
 
-void
-D4D_PV_SetValueText(const D4D_OBJECT* pObj, const char* text);
-void
-D4D_PV_SetSettingText(const D4D_OBJECT* pObj, const char* text);
-void
-D4D_PV_SetNameText(const D4D_OBJECT* pObj, const char* text);
-
 /*! @brief This is process value init text properties.
            If not defined, it sets to (\ref D4D_ALIGN_H_CENTER_MASK | \ref D4D_ALIGN_V_CENTER_MASK) as a default.*/
 
@@ -69,19 +55,19 @@ D4D_PV_SetNameText(const D4D_OBJECT* pObj, const char* text);
 #define D4D_PV_SETTING(pObj) ((const D4D_OBJECT*)((pObj)->pRelations[2]))
 #define D4D_PV_NAME(pObj) ((const D4D_OBJECT*)((pObj)->pRelations[3]))
 
-#define D4D_DECLARE_PV(ref, x, y, cx, cy)                                                                                                                                                                                                 \
-    D4D_EXTERN_OBJECT(ref);                                                                                                                                                                                                               \
-    D4D_DECLARE_OBJECT_RELATIONS(ref##_value_relations, &ref, nullptr);                                                                                                                                                                   \
-    D4D_DECLARE_OBJECT_RELATIONS(ref##_setting_relations, &ref, nullptr);                                                                                                                                                                 \
-    D4D_DECLARE_OBJECT_RELATIONS(ref##_name_relations, &ref, nullptr);                                                                                                                                                                    \
-    char ref##_value_buf[12];                                                                                                                                                                                                             \
-    char ref##_setting_buf[12];                                                                                                                                                                                                           \
-    char ref##_name_buf[12];                                                                                                                                                                                                              \
-    auto ref##_scheme = pvColorScheme(30, 50, 100);                                                                                                                                                                                       \
-    _D4D_DECLARE_LABEL(D4D_CONST, ref##_value, ref##_value_buf, 0, 0, cx, (((cy)*2) / 3), 0, nullptr, ref##_value_relations, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&ref##_scheme), FONT_NUMBER_LARGE, nullptr, nullptr);                 \
-    _D4D_DECLARE_LABEL(D4D_CONST, ref##_setting, ref##_setting_buf, 0, (((cy)*2) / 3), cx, ((cy) / 3), 0, nullptr, ref##_setting_relations, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&ref##_scheme), FONT_NUMBER_MEDIUM, nullptr, nullptr); \
-    _D4D_DECLARE_LABEL(D4D_CONST, ref##_name, ref##_name_buf, 0, (((cy)*2) / 3), cx, ((cy) / 3), 0, nullptr, ref##_name_relations, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&ref##_scheme), FONT_REGULAR, nullptr, nullptr);                \
-    D4D_DECLARE_OBJECT_RELATIONS(ref##_btn_relations, nullptr, &ref##_value, &ref##_setting, &ref##_name);                                                                                                                                \
+#define D4D_DECLARE_PV(ref, x, y, cx, cy)                                                                                                                                                                                 \
+    D4D_EXTERN_OBJECT(ref);                                                                                                                                                                                               \
+    D4D_DECLARE_OBJECT_RELATIONS(ref##_value_relations, &ref, nullptr);                                                                                                                                                   \
+    D4D_DECLARE_OBJECT_RELATIONS(ref##_setting_relations, &ref, nullptr);                                                                                                                                                 \
+    D4D_DECLARE_OBJECT_RELATIONS(ref##_name_relations, &ref, nullptr);                                                                                                                                                    \
+    char ref##_value_buf[12];                                                                                                                                                                                             \
+    char ref##_setting_buf[12];                                                                                                                                                                                           \
+    char ref##_name_buf[16];                                                                                                                                                                                              \
+    auto ref##_scheme = pvColorScheme(30, 50, 100);                                                                                                                                                                       \
+    _D4D_DECLARE_LABEL(D4D_CONST, ref##_value, ref##_value_buf, 0, cy * 1 / 7, cx, 25, 0, nullptr, ref##_value_relations, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&ref##_scheme), FONT_NUMBER_LARGE, nullptr, nullptr);    \
+    _D4D_DECLARE_LABEL(D4D_CONST, ref##_setting, ref##_setting_buf, 0, cy / 2, cx, 25, 0, nullptr, ref##_setting_relations, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&ref##_scheme), FONT_NUMBER_MEDIUM, nullptr, nullptr); \
+    _D4D_DECLARE_LABEL(D4D_CONST, ref##_name, ref##_name_buf, 0, cy - 20, cx, 20, 0, nullptr, ref##_name_relations, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&ref##_scheme), FONT_REGULAR, nullptr, nullptr);               \
+    D4D_DECLARE_OBJECT_RELATIONS(ref##_btn_relations, nullptr, &ref##_value, &ref##_setting, &ref##_name);                                                                                                                \
     _D4D_DECLARE_BUTTON(D4D_CONST, ref, nullptr, x, y, cx, cy, 0, nullptr, ref##_btn_relations, (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH), nullptr, nullptr, AS_D4D_COLOR_SCHEME(&ref##_scheme), FONT_REGULAR, nullptr, nullptr, nullptr);
 
 class ProcessValueWidget {

@@ -33,10 +33,11 @@ ProcessValueWidget::setEnabled(bool enabled)
 void
 ProcessValueWidget::update()
 {
+    using namespace cnl;
     if (auto pv = pvLookup.const_lock()) {
-        D4D_SetText(pObject->pRelations[0], "value");
-        D4D_SetText(pObject->pRelations[1], "setting");
-        D4D_SetText(pObject->pRelations[2], "name");
+        D4D_SetText(pObject->pRelations[1], "20.0");
+        D4D_SetText(pObject->pRelations[2], "21.0");
+        D4D_SetText(pObject->pRelations[3], "0123456789012345");
         setEnabled(true);
         return;
     }

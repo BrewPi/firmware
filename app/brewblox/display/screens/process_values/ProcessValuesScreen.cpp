@@ -105,8 +105,8 @@ ProcessValuesScreen::init()
     pvWidgets[1].setId(101);
     pvWidgets[2].setId(102);
     pvWidgets[3].setId(103);
-    pvWidgets[4].setId(104);
-    pvWidgets[5].setId(105);
+    pvWidgets[4].setId(110);
+    pvWidgets[5].setId(108);
 }
 
 void
