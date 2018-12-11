@@ -17,28 +17,22 @@
  * along with Controlbox.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SysInfoBlock.h"
-#include "deviceid_hal.h"
-#include <cstring>
+#pragma once
 
-cbox::CboxError
-SysInfoBlock::streamTo(cbox::DataOut& out) const
-{
-    blox_SysInfo message = blox_SysInfo_init_zero;
+#include "blox/Block.h"
+#include "cbox/DataStream.h"
+#include "proto/cpp/WiFiSettings.pb.h"
 
-    HAL_device_ID(static_cast<uint8_t*>(&message.deviceId[0]), 12);
+// provides a protobuf interface to the read only system info
+class WiFiSettingsBlock : public cbox::ObjectBase<blox_WiFiSettings_msgid> {
+    virtual cbox::CboxError streamTo(cbox::DataOut& out) const override final;
 
-    return streamProtoTo(out, &message, blox_SysInfo_fields, blox_SysInfo_size);
-}
+    virtual cbox::CboxError streamFrom(cbox::DataIn& in) override final;
 
-cbox::CboxError
-SysInfoBlock::streamFrom(cbox::DataIn& in)
-{
-    return cbox::CboxError::OK;
+    virtual cbox::CboxError streamPersistedTo(cbox::DataOut& out) const override final;
+
+    virtual cbox::update_t update(const cbox::update_t& now) override final
+    {
+        return update_never(now);
+    }
 };
-
-cbox::CboxError
-SysInfoBlock::streamPersistedTo(cbox::DataOut& out) const
-{
-    return cbox::CboxError::OK;
-}

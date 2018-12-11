@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+import "brewblox.proto";
+import "nanopb.proto";
+
+package blox;
+
+message WiFiSettings {
+  enum WlanSecurity {
+    WLAN_SEC_UNSEC = 0;
+    WLAN_SEC_WEP = 1;
+    WLAN_SEC_WPA = 2;
+    WLAN_SEC_WPA2 = 3;
+    WLAN_SEC_WPA_ENTERPRISE = 4;
+    WLAN_SEC_WPA2_ENTERPRISE = 5;
+    WLAN_SEC_NOT_SET = 255;
+  }
+  enum WlanCipher {
+    WLAN_CIPHER_NOT_SET = 0;
+    WLAN_CIPHER_AES = 1;
+    WLAN_CIPHER_TKIP = 2;
+    WLAN_CIPHER_AES_TKIP = 3; // OR of AES and TKIP
+  }
+
+  string ssid = 1 [ (nanopb).max_size = 33 ];
+  string password = 2 [ (nanopb).max_size = 64 ];
+  WlanSecurity security = 3;
+  WlanCipher cipher = 4;
+  int32 signal = 5;
+  bytes ip = 6 [ (brewblox).readonly = true, (nanopb).max_size = 4, (nanopb).fixed_length = true ];
+
+  option (nanopb_msgopt).msgid = 312;
+}

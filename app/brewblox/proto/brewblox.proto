@@ -29,6 +29,8 @@ message BrewbloxFieldOptions {
   LinkType link = 3;
   bool hexed = 4;
   bool readonly = 5;
+  bool logged = 6;
+  bool hexstr = 7;
 }
 
 extend google.protobuf.FieldOptions { BrewbloxFieldOptions brewblox = 50001; }

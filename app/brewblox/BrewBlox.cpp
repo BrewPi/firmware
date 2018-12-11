@@ -34,6 +34,8 @@
 #include "blox/SysInfoBlock.h"
 #include "blox/TempSensorMockBlock.h"
 #include "blox/TempSensorOneWireBlock.h"
+#include "blox/TouchSettingsBlock.h"
+#include "blox/WiFiSettingsBlock.h"
 #include "cbox/Box.h"
 #include "cbox/Connections.h"
 #include "cbox/EepromObjectStorage.h"
@@ -78,8 +80,12 @@ makeBrewBloxBox()
     static cbox::ObjectContainer objects({
         // profiles will be at position 1
         cbox::ContainedObject(2, 0xFF, std::make_shared<SysInfoBlock>()),
-        cbox::ContainedObject(3, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
-        cbox::ContainedObject(4, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire())),
+            cbox::ContainedObject(3, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
+            cbox::ContainedObject(4, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire())),
+#if defined(SPARK)
+            cbox::ContainedObject(5, 0xFF, std::make_shared<WiFiSettingsBlock>()),
+            cbox::ContainedObject(6, 0xFF, std::make_shared<TouchSettingsBlock>()),
+#endif
     });
 
 #ifdef PIN_V3_BOTTOM1

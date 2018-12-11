@@ -71,6 +71,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform
 # brewblox app specific implementations
 CPPSRC += /app/brewblox/nanopb_callbacks.cpp
 CPPSRC += /app/brewblox/BrewBlox.cpp
+CPPSRC += /app/brewblox/AppTicks.cpp
 
 # spark HAL includes
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/firmware/hal/inc
@@ -124,6 +125,12 @@ LDFLAGS += `pkg-config --libs protobuf`
 
 # don't generate warnings for system headers
 CFLAGS += -Wno-system-headers
+
+CPPEXCLUDES += app/brewblox/blox/TouchSettingsBlock.cpp
+CPPEXCLUDES += app/brewblox/blox/WiFiSettingsBlock.cpp
+
+CSRC := $(filter-out $(CEXCLUDES),$(CSRC))
+CPPSRC := $(filter-out $(CPPEXCLUDES),$(CPPSRC)) 
 
 # Collect all object and dep files
 ALLOBJ += $(addprefix $(BUILD_PATH), $(CSRC:.c=.o))

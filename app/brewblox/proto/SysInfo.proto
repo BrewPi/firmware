@@ -6,47 +6,6 @@ import "nanopb.proto";
 package blox;
 
 message SysInfo {
-  message WiFi {
-    enum WlanSecurity {
-      WLAN_SEC_UNSEC = 0;
-      WLAN_SEC_WEP = 1;
-      WLAN_SEC_WPA = 2;
-      WLAN_SEC_WPA2 = 3;
-      WLAN_SEC_WPA_ENTERPRISE = 4;
-      WLAN_SEC_WPA2_ENTERPRISE = 5;
-      WLAN_SEC_NOT_SET = 255;
-    }
-    enum WlanCipher {
-      WLAN_CIPHER_NOT_SET = 0;
-      WLAN_CIPHER_AES = 1;
-      WLAN_CIPHER_TKIP = 2;
-      WLAN_CIPHER_AES_TKIP = 3; // OR of AES and TKIP
-    }
-
-    string ssid = 1 [ (nanopb).max_size = 33 ];
-    string password = 2 [ (nanopb).max_size = 64 ];
-    WlanSecurity security = 3;
-    WlanCipher cipher = 4;
-    int32 signal = 5;
-    bytes ip = 6 [ (brewblox).readonly = true, (nanopb).max_size = 4, (nanopb).fixed_length = true ];
-  }
-
-  message Touch {
-
-    enum Calibrated {
-        NO = 0;
-        YES = 1;
-        NEW = 2;
-    }
-    Calibrated calibrated = 1;
-    int32 x_offset = 2 [ (nanopb).int_size = IS_16 ];
-    int32 y_offset = 3 [ (nanopb).int_size = IS_16 ];
-    uint32 x_bits_per_pixel_x16 = 4 [ (nanopb).int_size = IS_16 ];
-    uint32 y_bits_per_pixel_x16 = 5 [ (nanopb).int_size = IS_16 ];
-  }
-
   option (nanopb_msgopt).msgid = 256;
-  bytes deviceId = 1 [ (brewblox).readonly = true, (nanopb).max_size = 12, (nanopb).fixed_length = true ];
-  WiFi wifi = 2;
-  Touch touch = 3;
+  bytes deviceId = 1 [ (brewblox).readonly = true, (nanopb).max_size = 12, (nanopb).fixed_length = true, (brewblox).hexstr = true ];
 }

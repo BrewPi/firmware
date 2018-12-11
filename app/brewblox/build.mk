@@ -65,16 +65,15 @@ CPPSRC += $(call here_files,platform/spark/modules/Board,*.cpp)
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Buzzer
 CPPSRC += $(call here_files,platform/spark/modules/Buzzer,*.cpp)
 
-# display
-INCLUDE_DIRS += $(SOURCE_PATH)/app/brewblox/display
-CPPSRC += $(call target_files,app/brewblox/display,*.cpp)
-CSRC += $(call target_files,app/brewblox/display,*.c)
-
 # add board files (tests use emulated hardware)
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Board
 CPPSRC += $(call here_files,platform/spark/modules/Board,*.cpp)
 
 # add display dependencies
+INCLUDE_DIRS += $(SOURCE_PATH)/app/brewblox/display
+CPPSRC += $(call target_files,app/brewblox/display,*.cpp)
+CSRC += $(call target_files,app/brewblox/display,*.c)
+
 INCLUDE_DIRS +=  $(SOURCE_PATH)/platform/spark/modules/eGUI/D4D
 CSRC +=  $(call target_files,platform/spark/modules/eGUI/D4D,*.c)
 CPPSRC +=  $(call target_files,platform/spark/modules/eGUI/D4D,*.cpp)
