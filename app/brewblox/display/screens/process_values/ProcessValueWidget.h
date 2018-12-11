@@ -42,7 +42,7 @@ pvColorScheme(const uint8_t r, const uint8_t g, const uint8_t b)
 
     WIDGET_COLOR_SCHEME scheme = {
         D4D_COLOR_RGB(r, g, b),                         ///< The object background color in standard state
-        D4D_COLOR_RGB(24, 24, 24),                      ///< The object background color in disabled state
+        D4D_COLOR_RGB(40, 40, 40),                      ///< The object background color in disabled state
         D4D_COLOR_RGB(r_lighter, g_lighter, b_lighter), ///< The object background color in focused state
         D4D_COLOR_RGB(r_lighter, g_lighter, b_lighter), ///< The object background color in captured state
         D4D_COLOR_RGB(255, 255, 255),                   ///< The object fore color in standard state

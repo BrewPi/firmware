@@ -100,6 +100,13 @@ ProcessValuesScreen::init()
     pvWidgets.emplace_back(&scrPV_pv10);
     pvWidgets.emplace_back(&scrPV_pv11);
     pvWidgets.emplace_back(&scrPV_pv12);
+
+    pvWidgets[0].setId(100);
+    pvWidgets[1].setId(101);
+    pvWidgets[2].setId(102);
+    pvWidgets[3].setId(103);
+    pvWidgets[4].setId(104);
+    pvWidgets[5].setId(105);
 }
 
 void
