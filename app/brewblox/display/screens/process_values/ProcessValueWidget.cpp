@@ -31,13 +31,48 @@ ProcessValueWidget::setEnabled(bool enabled)
 }
 
 void
+to_chars(const temp_t& t, char* buf, uint8_t len, uint8_t decimals)
+{
+    uint8_t digits = decimals + 2;
+    temp_t rounder;
+
+    auto temporary = t;
+    if (t >= 0) {
+        while (temporary >= temp_t(10)) {
+            temporary = temporary / 10;
+            ++digits;
+        }
+        rounder = temp_t(0.5);
+    } else {
+        while (temporary <= temp_t(-10)) {
+            temporary = temporary / 10;
+            ++digits;
+        }
+        digits += 1;
+        rounder = -temp_t(0.5);
+    }
+
+    for (; decimals > 0; decimals--) {
+        rounder = rounder / 10;
+    }
+    std::memset(buf, 0, len);
+    if (digits > len) {
+        digits = len;
+    }
+
+    cnl::to_chars(buf, &buf[digits], t + rounder);
+}
+
+void
 ProcessValueWidget::update()
 {
-    using namespace cnl;
     if (auto pv = pvLookup.const_lock()) {
-        D4D_SetText(pObject->pRelations[1], "20.0");
-        D4D_SetText(pObject->pRelations[2], "21.0");
-        D4D_SetText(pObject->pRelations[3], "0123456789012345");
+        char buf[10];
+        to_chars(pv->value(), buf, 10, 1);
+        D4D_SetText(pObject->pRelations[1], buf);
+        to_chars(pv->setting(), buf, 10, 1);
+        D4D_SetText(pObject->pRelations[2], buf);
+        D4D_SetText(pObject->pRelations[3], "Long beer name");
         setEnabled(true);
         return;
     }

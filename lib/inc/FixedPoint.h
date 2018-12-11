@@ -9,12 +9,9 @@
 #include "../cnl/include/cnl/_impl/fixed_point/is_fixed_point.h"
 #include "../cnl/include/cnl/_impl/fixed_point/named.h"
 #include "../cnl/include/cnl/_impl/fixed_point/operators.h"
-// #include "../cnl/include/cnl/_impl/fixed_point/to_chars.h"
+#include "../cnl/include/cnl/_impl/fixed_point/to_chars.h"
 // #include "../cnl/include/cnl/_impl/fixed_point/to_string.h"
 #include "../cnl/include/cnl/_impl/fixed_point/type.h"
-//#include "_impl/fixed_point/extras.h"
-//#include "_impl/fixed_point/to_chars.h"
-//#include "_impl/fixed_point/to_string.h"
 
 #include "../cnl/include/cnl/elastic_integer.h"
 #include "../cnl/include/cnl/num_traits.h"
