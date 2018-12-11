@@ -14,12 +14,16 @@
 
 #include "type.h"
 #include "../cmath/abs.h"
+#include "../config.h"
 #include "../num_traits/fixed_width_scale.h"
 #include "../num_traits/unwrap.h"
-#include "../terminate.h"
+#include "../unreachable.h"
 
 #include <cmath>
+#if defined(CNL_IOSTREAM_ENABLED)
 #include <istream>
+#include <ostream>
+#endif
 
 /// compositional numeric library
 namespace cnl {
@@ -101,7 +105,7 @@ namespace cnl {
     {
         using type = fixed_point<Rep, Exponent, Radix>;
         return _impl::to_rep(x)<0
-               ? _impl::terminate<type>("negative value passed to cnl::sqrt")
+               ? _impl::unreachable<type>("negative value passed to cnl::sqrt")
                : type{_impl::from_rep<type>(_impl::sqrt_solve1<Exponent>{}(unwrap(x)))};
     }
 
