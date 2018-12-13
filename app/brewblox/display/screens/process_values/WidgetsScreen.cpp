@@ -17,7 +17,7 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ProcessValuesScreen.h"
+#include "WidgetsScreen.h"
 #include "../screen.h"
 #include "BrewBlox.h"
 #include "ProcessValueWidget.h"
@@ -51,18 +51,18 @@ SmallColorScheme TOP_BAR_SCHEME = {
     D4D_COLOR_RGB(64, 100, 255), ///< The object fore color in captured state
 };
 
-D4D_DECLARE_LABEL(scrPV_usb_icon, "\x21", 0, 0, 20, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_ICON, nullptr, nullptr);
-D4D_DECLARE_LABEL(scrPV_usb_text, "USB", 20, 0, 20, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_REGULAR, nullptr, nullptr);
+D4D_DECLARE_LABEL(scrWidgets_usb_icon, "\x21", 0, 0, 20, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_ICON, nullptr, nullptr);
+D4D_DECLARE_LABEL(scrWidgets_usb_text, "USB", 20, 0, 20, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_REGULAR, nullptr, nullptr);
 
-D4D_DECLARE_LABEL(scrPV_wifi_icon, wifi_icon, 40, 0, 20, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_ICON, nullptr, nullptr);
+D4D_DECLARE_LABEL(scrWidgets_wifi_icon, wifi_icon, 40, 0, 20, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_ICON, nullptr, nullptr);
 
 #undef D4D_LBL_TXT_PRTY_DEFAULT
 #define D4D_LBL_TXT_PRTY_DEFAULT (D4D_TXT_PRTY_ALIGN_H_LEFT_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
-D4D_DECLARE_LABEL(scrPV_wifi_ip, wifi_ip, 60, 0, 15 * 6, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_REGULAR, nullptr, nullptr);
+D4D_DECLARE_LABEL(scrWidgets_wifi_ip, wifi_ip, 60, 0, 15 * 6, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_REGULAR, nullptr, nullptr);
 
 #undef D4D_LBL_TXT_PRTY_DEFAULT
 #define D4D_LBL_TXT_PRTY_DEFAULT (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
-D4D_DECLARE_LABEL(scrPV_title, "All Processes", 40, 220, 240, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_REGULAR, nullptr, nullptr);
+D4D_DECLARE_LABEL(scrWidgets_title, "All Processes", 40, 220, 240, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_REGULAR, nullptr, nullptr);
 
 WidgetWrapper widget0(0);
 WidgetWrapper widget1(1);
@@ -71,12 +71,12 @@ WidgetWrapper widget3(3);
 WidgetWrapper widget4(4);
 WidgetWrapper widget5(5);
 
-D4D_DECLARE_STD_SCREEN_BEGIN_INRAM(screen_process_values, scrPV_)
-&scrPV_usb_icon,
-    &scrPV_usb_text,
-    &scrPV_wifi_icon,
-    &scrPV_wifi_ip,
-    &scrPV_title,
+D4D_DECLARE_STD_SCREEN_BEGIN_INRAM(widgets_screen, scrWidgets_)
+&scrWidgets_usb_icon,
+    &scrWidgets_usb_text,
+    &scrWidgets_wifi_icon,
+    &scrWidgets_wifi_ip,
+    &scrWidgets_title,
     widget0.pObj(),
     widget1.pObj(),
     widget2.pObj(),
@@ -87,46 +87,33 @@ D4D_DECLARE_STD_SCREEN_BEGIN_INRAM(screen_process_values, scrPV_)
 }
 ;
 
-std::vector<std::unique_ptr<ProcessValueWidget>> ProcessValuesScreen::widgets;
+std::vector<std::unique_ptr<ProcessValueWidget>> WidgetsScreen::widgets;
 
 void
-ProcessValuesScreen::init()
+WidgetsScreen::init()
 {
     auto w = std::make_unique<ProcessValueWidget>(widget0, 8);
     widgets.push_back(std::move(w));
-    D4D_InvalidateScreen(&screen_process_values, D4D_TRUE);
-    /*
-    pvWidgets.emplace_back(&scrPV_pv01);
-    pvWidgets.emplace_back(&scrPV_pv02);
-    pvWidgets.emplace_back(&scrPV_pv10);
-    pvWidgets.emplace_back(&scrPV_pv11);
-    pvWidgets.emplace_back(&scrPV_pv12);
-
-    pvWidgets[0].setId(100);
-    pvWidgets[1].setId(101);
-    pvWidgets[2].setId(102);
-    pvWidgets[3].setId(103);
-    pvWidgets[4].setId(110);
-    pvWidgets[5].setId(108);*/
+    D4D_InvalidateScreen(&widgets_screen, D4D_TRUE);
 }
 
 void
-ProcessValuesScreen::activate()
+WidgetsScreen::activate()
 {
     init();
-    D4D_ActivateScreen(&screen_process_values, D4D_TRUE);
+    D4D_ActivateScreen(&widgets_screen, D4D_TRUE);
 }
 
 void
-ProcessValuesScreen::updateUsb()
+WidgetsScreen::updateUsb()
 {
     bool connected = Serial.isConnected();
-    D4D_EnableObject(&scrPV_usb_icon, connected);
-    D4D_EnableObject(&scrPV_usb_text, connected);
+    D4D_EnableObject(&scrWidgets_usb_icon, connected);
+    D4D_EnableObject(&scrWidgets_usb_text, connected);
 }
 
 void
-ProcessValuesScreen::updateWiFi()
+WidgetsScreen::updateWiFi()
 {
     int signal = WiFi.RSSI();
     IPAddress ip = WiFi.localIP();
@@ -134,8 +121,8 @@ ProcessValuesScreen::updateWiFi()
 
     if (signal >= 0) {
         wifi_icon[0] = 0x22;
-        D4D_EnableObject(&scrPV_wifi_icon, false);
-        D4D_EnableObject(&scrPV_wifi_ip, false);
+        D4D_EnableObject(&scrWidgets_wifi_icon, false);
+        D4D_EnableObject(&scrWidgets_wifi_ip, false);
         return;
     }
     if (signal >= -65) {
@@ -145,12 +132,12 @@ ProcessValuesScreen::updateWiFi()
     } else {
         wifi_icon[0] = 0x23;
     }
-    D4D_EnableObject(&scrPV_wifi_icon, true);
-    D4D_EnableObject(&scrPV_wifi_ip, true);
+    D4D_EnableObject(&scrWidgets_wifi_icon, true);
+    D4D_EnableObject(&scrWidgets_wifi_ip, true);
 }
 
 void
-ProcessValuesScreen::updatePVs()
+WidgetsScreen::updateWidgets()
 {
     for (auto& w : widgets) {
         if (w) {
@@ -160,30 +147,30 @@ ProcessValuesScreen::updatePVs()
 }
 
 void
-scrPV_OnInit()
+scrWidgets_OnInit()
 {
 }
 
 void
-scrPV_OnMain()
+scrWidgets_OnMain()
 {
-    ProcessValuesScreen::updateUsb();
-    ProcessValuesScreen::updateWiFi();
-    ProcessValuesScreen::updatePVs();
+    WidgetsScreen::updateUsb();
+    WidgetsScreen::updateWiFi();
+    WidgetsScreen::updateWidgets();
 }
 
 void
-scrPV_OnActivate()
+scrWidgets_OnActivate()
 {
 }
 
 void
-scrPV_OnDeactivate()
+scrWidgets_OnDeactivate()
 {
 }
 
 uint8_t
-scrPV_OnObjectMsg(D4D_MESSAGE* pMsg)
+scrWidgets_OnObjectMsg(D4D_MESSAGE* pMsg)
 {
     return D4D_FALSE; // don't block further processing
 }

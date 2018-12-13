@@ -22,19 +22,19 @@
 #include <stdint.h>
 #include <vector>
 
-class ProcessValuesScreen {
+class WidgetsScreen {
 private:
     static std::vector<std::unique_ptr<ProcessValueWidget>> widgets;
 
 public:
-    ProcessValuesScreen() = default;
-    ~ProcessValuesScreen() = default;
+    WidgetsScreen() = default;
+    ~WidgetsScreen() = default;
 
     static void init();
     static void activate();
     static void updateUsb();
     static void updateWiFi();
-    static void updatePVs();
+    static void updateWidgets();
 };
 
 extern const D4D_SCREEN* process_values_screen;
