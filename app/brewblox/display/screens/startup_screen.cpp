@@ -21,8 +21,6 @@
 #include "BrewBlox.h"
 #include "screen.h"
 #include "spark_wiring_timer.h"
-#include "widget_color_scheme.h"
-#include <algorithm>
 
 #if PLATFORM_ID != 3
 #include "BrewPiTouch.h"

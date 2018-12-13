@@ -24,10 +24,7 @@
 void
 ProcessValueWidget::setEnabled(bool enabled)
 {
-    D4D_EnableObject(pObject, enabled);
-    D4D_EnableObject(D4D_PV_VALUE(pObject), enabled);
-    D4D_EnableObject(D4D_PV_SETTING(pObject), enabled);
-    D4D_EnableObject(D4D_PV_NAME(pObject), enabled);
+    D4D_EnableObject(pObj(), enabled);
 }
 
 void
@@ -37,7 +34,7 @@ to_chars(const temp_t& t, char* buf, uint8_t len, uint8_t decimals)
     temp_t rounder;
 
     auto temporary = t;
-    if (t >= 0) {
+    if (t >= temp_t(0)) {
         while (temporary >= temp_t(10)) {
             temporary = temporary / 10;
             ++digits;
@@ -69,10 +66,10 @@ ProcessValueWidget::update()
     if (auto pv = pvLookup.const_lock()) {
         char buf[10];
         to_chars(pv->value(), buf, 10, 1);
-        D4D_SetText(pObject->pRelations[1], buf);
+        D4D_SetText(&value, buf);
         to_chars(pv->setting(), buf, 10, 1);
-        D4D_SetText(pObject->pRelations[2], buf);
-        D4D_SetText(pObject->pRelations[3], "Long beer name");
+        D4D_SetText(&setting, buf);
+        D4D_SetText(&name, "Long beer name");
         setEnabled(true);
         return;
     }

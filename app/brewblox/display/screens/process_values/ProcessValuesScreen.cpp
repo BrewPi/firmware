@@ -19,7 +19,6 @@
 
 #include "ProcessValuesScreen.h"
 #include "../screen.h"
-#include "../widget_color_scheme.h"
 #include "BrewBlox.h"
 #include "ProcessValueWidget.h"
 #include "application.h"
@@ -41,7 +40,7 @@ char wifi_icon[] = "\x22";
 #define SCR_PV_CY_GAP 5
 #define SCR_PV_CY_OFFSET (SCR_PV_CY + SCR_PV_CY_GAP)
 
-WIDGET_COLOR_SCHEME TOP_BAR_SCHEME = {
+SmallColorScheme TOP_BAR_SCHEME = {
     D4D_COLOR_RGB(0, 0, 0),      ///< The object background color in standard state
     D4D_COLOR_RGB(0, 0, 0),      ///< The object background color in disabled state
     D4D_COLOR_RGB(0, 0, 0),      ///< The object background color in focused state
@@ -65,36 +64,40 @@ D4D_DECLARE_LABEL(scrPV_wifi_ip, wifi_ip, 60, 0, 15 * 6, 20, D4D_LBL_F_DEFAULT, 
 #define D4D_LBL_TXT_PRTY_DEFAULT (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
 D4D_DECLARE_LABEL(scrPV_title, "All Processes", 40, 220, 240, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_REGULAR, nullptr, nullptr);
 
-D4D_DECLARE_PV(scrPV_pv00, SCR_PV_X0 + SCR_PV_CX_OFFSET * 0, SCR_PV_Y0 + SCR_PV_CY_OFFSET * 0, SCR_PV_CX, SCR_PV_CY);
-D4D_DECLARE_PV(scrPV_pv01, SCR_PV_X0 + SCR_PV_CX_OFFSET * 1, SCR_PV_Y0 + SCR_PV_CY_OFFSET * 0, SCR_PV_CX, SCR_PV_CY);
-D4D_DECLARE_PV(scrPV_pv02, SCR_PV_X0 + SCR_PV_CX_OFFSET * 2, SCR_PV_Y0 + SCR_PV_CY_OFFSET * 0, SCR_PV_CX, SCR_PV_CY);
-D4D_DECLARE_PV(scrPV_pv10, SCR_PV_X0 + SCR_PV_CX_OFFSET * 0, SCR_PV_Y0 + SCR_PV_CY_OFFSET * 1, SCR_PV_CX, SCR_PV_CY);
-D4D_DECLARE_PV(scrPV_pv11, SCR_PV_X0 + SCR_PV_CX_OFFSET * 1, SCR_PV_Y0 + SCR_PV_CY_OFFSET * 1, SCR_PV_CX, SCR_PV_CY);
-D4D_DECLARE_PV(scrPV_pv12, SCR_PV_X0 + SCR_PV_CX_OFFSET * 2, SCR_PV_Y0 + SCR_PV_CY_OFFSET * 1, SCR_PV_CX, SCR_PV_CY);
+D4D_OBJECT* widget0 = nullptr;
+D4D_OBJECT* widget1 = nullptr;
+D4D_OBJECT* widget2 = nullptr;
+D4D_OBJECT* widget3 = nullptr;
+D4D_OBJECT* widget4 = nullptr;
+D4D_OBJECT* widget5 = nullptr;
 
-D4D_DECLARE_STD_SCREEN_BEGIN(screen_process_values, scrPV_)
+// TODO: widget wrapper with writable widget object pointer
 
-D4D_DECLARE_SCREEN_OBJECT(scrPV_usb_icon)
-D4D_DECLARE_SCREEN_OBJECT(scrPV_usb_text)
-D4D_DECLARE_SCREEN_OBJECT(scrPV_wifi_icon)
-D4D_DECLARE_SCREEN_OBJECT(scrPV_wifi_ip)
-D4D_DECLARE_SCREEN_OBJECT(scrPV_title)
+D4D_DECLARE_STD_SCREEN_BEGIN_INRAM(screen_process_values, scrPV_)
+&scrPV_usb_icon,
+    &scrPV_usb_text,
+    &scrPV_wifi_icon,
+    &scrPV_wifi_ip,
+    &scrPV_title,
+    widget0,
+    widget1,
+    widget2,
+    widget3,
+    widget4,
+    widget5,
+    nullptr
+}
+;
 
-D4D_DECLARE_SCREEN_OBJECT(scrPV_pv00)
-D4D_DECLARE_SCREEN_OBJECT(scrPV_pv01)
-D4D_DECLARE_SCREEN_OBJECT(scrPV_pv02)
-D4D_DECLARE_SCREEN_OBJECT(scrPV_pv10)
-D4D_DECLARE_SCREEN_OBJECT(scrPV_pv11)
-D4D_DECLARE_SCREEN_OBJECT(scrPV_pv12)
-
-D4D_DECLARE_SCREEN_END()
-
-std::vector<ProcessValueWidget> ProcessValuesScreen::pvWidgets;
+std::vector<std::unique_ptr<Widget>> ProcessValuesScreen::widgets;
 
 void
 ProcessValuesScreen::init()
 {
-    pvWidgets.emplace_back(&scrPV_pv00);
+    auto w = std::make_unique<ProcessValueWidget>(0, 108);
+    widgets.push_back(std::move(w));
+    D4D_InvalidateScreen(&screen_process_values, D4D_TRUE);
+    /*
     pvWidgets.emplace_back(&scrPV_pv01);
     pvWidgets.emplace_back(&scrPV_pv02);
     pvWidgets.emplace_back(&scrPV_pv10);
@@ -106,7 +109,7 @@ ProcessValuesScreen::init()
     pvWidgets[2].setId(102);
     pvWidgets[3].setId(103);
     pvWidgets[4].setId(110);
-    pvWidgets[5].setId(108);
+    pvWidgets[5].setId(108);*/
 }
 
 void
@@ -147,29 +150,14 @@ ProcessValuesScreen::updateWiFi()
     D4D_EnableObject(&scrPV_wifi_icon, true);
     D4D_EnableObject(&scrPV_wifi_ip, true);
 }
-/*
-void
-ProcessValuesScreen::searchPVs()
-{
-    auto it = objects.cbegin();
-
-    for (auto& w : pvWidgets) {
-        if (it != objects.cend()) {
-            if (it->object()->implements(cbox::interfaceId<ProcessValue<temp_t>>())) {
-                w.setId(it->id());
-            }
-            ++it;
-        } else {
-            w.setId(0);
-        }
-    }
-}*/
 
 void
 ProcessValuesScreen::updatePVs()
 {
-    for (auto& w : pvWidgets) {
-        w.update();
+    for (auto& w : widgets) {
+        if (w) {
+            w->update();
+        }
     }
 }
 

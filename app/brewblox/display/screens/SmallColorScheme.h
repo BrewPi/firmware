@@ -18,21 +18,14 @@
  */
 
 #pragma once
-
 #include "d4d.hpp"
-#include <stddef.h>
-#include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * The core colors for a simple widget. Most widgets use only these core color values
  * so we don't need to waste space storing the full D4D_COLOR_SCHEME which stores colors
  * that aren't applicable (screen, progress bar, guage etc...) 
  */
-struct WIDGET_COLOR_SCHEME {
+struct SmallColorScheme {
     D4D_COLOR bckg;        ///< The object background color in standard state
     D4D_COLOR bckgDis;     ///< The object background color in disabled state
     D4D_COLOR bckgFocus;   ///< The object background color in focused state
@@ -45,15 +38,3 @@ struct WIDGET_COLOR_SCHEME {
 
 #define AS_D4D_COLOR_SCHEME(c) \
     ((D4D_CLR_SCHEME*)(((uint8_t*)c) - offsetof(D4D_CLR_SCHEME, bckg)))
-
-/**
- * Declare a label with the given colors. 
- * The WIDGET_COLOR_SCHEME is availalbe as name_color.
- */
-#define D4D_DECLARE_COLOR_LABEL(name, text, x, y, cx, cy, font, type, bg, fg) \
-    WIDGET_COLOR_SCHEME name##_color = {bg, bg, bg, bg, fg, fg, fg, fg};      \
-    D4D_DECLARE_LABEL(name, text, x, y, cx, cy, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&name##_color), font, NULL, NULL);
-
-#ifdef __cplusplus
-}
-#endif

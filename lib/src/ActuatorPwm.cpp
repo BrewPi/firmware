@@ -43,7 +43,7 @@ ActuatorPwm::update(const update_t& now)
                 return now + 1000;
             }
 
-            if (m_dutySetting <= 50) {
+            if (m_dutySetting <= value_t(50)) {
                 // high period is fixed, low period adapts
                 if (currentHighTime < m_dutyTime) {
                     wait = m_dutyTime - currentHighTime;
@@ -80,7 +80,7 @@ ActuatorPwm::update(const update_t& now)
 
             auto thisPeriodLowTime = currentPeriod - currentHighTime;
 
-            if (m_dutySetting > 50) {
+            if (m_dutySetting > value_t(50)) {
                 // low period is fixed, high period adapts
                 if (thisPeriodLowTime < invDutyTime) {
                     wait = invDutyTime - thisPeriodLowTime;

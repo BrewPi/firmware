@@ -18,69 +18,88 @@
  */
 
 #pragma once
+#include "../Widget.h"
 #include "../screen.h"
-#include "../widget_color_scheme.h"
 #include "BrewBlox.h"
 #include "ProcessValue.h"
 #include "Temperature.h"
 #include "cbox/CboxPtr.h"
 #include <algorithm>
 
-constexpr auto
-pvColorScheme(const uint8_t r, const uint8_t g, const uint8_t b)
-{
-    auto r_lighter = uint8_t(std::min(uint16_t(r) * 3 / 2, 255));
-    auto g_lighter = uint8_t(std::min(uint16_t(g) * 3 / 2, 255));
-    auto b_lighter = uint8_t(std::min(uint16_t(b) * 3 / 2, 255));
-
-    WIDGET_COLOR_SCHEME scheme = {
-        D4D_COLOR_RGB(r, g, b),                         ///< The object background color in standard state
-        D4D_COLOR_RGB(40, 40, 40),                      ///< The object background color in disabled state
-        D4D_COLOR_RGB(r_lighter, g_lighter, b_lighter), ///< The object background color in focused state
-        D4D_COLOR_RGB(r_lighter, g_lighter, b_lighter), ///< The object background color in captured state
-        D4D_COLOR_RGB(255, 255, 255),                   ///< The object fore color in standard state
-        D4D_COLOR_RGB(128, 128, 128),                   ///< The object fore color in disabled state
-        D4D_COLOR_RGB(255, 255, 255),                   ///< The object fore color in focused state
-        D4D_COLOR_RGB(255, 255, 255),                   ///< The object fore color in captured state
-    };
-    return scheme;
-}
-
-/*! @brief This is process value init text properties.
-           If not defined, it sets to (\ref D4D_ALIGN_H_CENTER_MASK | \ref D4D_ALIGN_V_CENTER_MASK) as a default.*/
-
-#define D4D_PV_TXT_PRTY_DEFAULT (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_CENTER_MASK)
-
-#define D4D_PV_VALUE(pObj) ((const D4D_OBJECT*)((pObj)->pRelations[1]))
-#define D4D_PV_SETTING(pObj) ((const D4D_OBJECT*)((pObj)->pRelations[2]))
-#define D4D_PV_NAME(pObj) ((const D4D_OBJECT*)((pObj)->pRelations[3]))
-
-#define D4D_DECLARE_PV(ref, x, y, cx, cy)                                                                                                                                                                                 \
-    D4D_EXTERN_OBJECT(ref);                                                                                                                                                                                               \
-    D4D_DECLARE_OBJECT_RELATIONS(ref##_value_relations, &ref, nullptr);                                                                                                                                                   \
-    D4D_DECLARE_OBJECT_RELATIONS(ref##_setting_relations, &ref, nullptr);                                                                                                                                                 \
-    D4D_DECLARE_OBJECT_RELATIONS(ref##_name_relations, &ref, nullptr);                                                                                                                                                    \
-    char ref##_value_buf[12];                                                                                                                                                                                             \
-    char ref##_setting_buf[12];                                                                                                                                                                                           \
-    char ref##_name_buf[16];                                                                                                                                                                                              \
-    auto ref##_scheme = pvColorScheme(30, 50, 100);                                                                                                                                                                       \
-    _D4D_DECLARE_LABEL(D4D_CONST, ref##_value, ref##_value_buf, 0, cy * 1 / 7, cx, 25, 0, nullptr, ref##_value_relations, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&ref##_scheme), FONT_NUMBER_LARGE, nullptr, nullptr);    \
-    _D4D_DECLARE_LABEL(D4D_CONST, ref##_setting, ref##_setting_buf, 0, cy / 2, cx, 25, 0, nullptr, ref##_setting_relations, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&ref##_scheme), FONT_NUMBER_MEDIUM, nullptr, nullptr); \
-    _D4D_DECLARE_LABEL(D4D_CONST, ref##_name, ref##_name_buf, 0, cy - 20, cx, 20, 0, nullptr, ref##_name_relations, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&ref##_scheme), FONT_REGULAR, nullptr, nullptr);               \
-    D4D_DECLARE_OBJECT_RELATIONS(ref##_btn_relations, nullptr, &ref##_value, &ref##_setting, &ref##_name);                                                                                                                \
-    _D4D_DECLARE_BUTTON(D4D_CONST, ref, nullptr, x, y, cx, cy, 0, nullptr, ref##_btn_relations, (D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_TOUCHENABLE | D4D_OBJECT_F_FASTTOUCH), nullptr, nullptr, AS_D4D_COLOR_SCHEME(&ref##_scheme), FONT_REGULAR, nullptr, nullptr, nullptr);
-
-class ProcessValueWidget {
+class ProcessValueWidget : public Widget {
 private:
-    const D4D_OBJECT* pObject;
     cbox::CboxPtr<ProcessValue<temp_t>> pvLookup;
 
+    char value_buf[12];
+    char setting_buf[12];
+    char name_buf[16];
+
+    const D4D_OBJECT* lbl_relations[2] = {&widgetObject, nullptr};
+
+    D4D_STR_PROPERTIES lbl_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, D4D_LBL_TXT_PRTY_DEFAULT};
+    D4D_LABEL value_lbl = {value_buf, D4D_TEXT_LEN(value_buf), FONT_NUMBER_LARGE, &lbl_strPrties, 12, 0};
+    D4D_LABEL setting_lbl = {setting_buf, D4D_TEXT_LEN(setting_buf), FONT_NUMBER_MEDIUM, &lbl_strPrties, 12, 0};
+    D4D_LABEL name_lbl = {name_buf, D4D_TEXT_LEN(name_buf), FONT_REGULAR, &lbl_strPrties, 16, 0};
+
+    D4D_OBJECT_DATA valueData = {((D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL};
+    D4D_OBJECT_DATA settingData = {((D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL};
+    D4D_OBJECT_DATA nameData = {((D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL};
+
+    D4D_OBJECT value = {
+        {0, cy / 7},       // D4D_POINT position
+        {cx, 25},          // D4D_SIZE                              size;                 ///< Size of the object.
+        0,                 // D4D_COOR                              radius;               ///< Object corners radius.
+        nullptr,           // D4D_MARGIN*                           pMargin;              ///< Object inner margin.
+        &value_lbl,        // void*                                 pParam;               ///< The object depends parameters.
+        &d4d_labelSysFunc, // D4D_OBJECT_SYS_FUNCTION*              pObjFunc;             ///< The pointer on object system functions.
+        nullptr,           // D4D_ON_USR_MSG                        OnUsrMessage;         ///< The pointer on user message.
+        nullptr,           // D4D_OBJECT_USR_DATA                   userData;             ///< The pointer on user data container (user pointer and optionaly parent/children).
+        lbl_relations,     // D4D_OBJECT_RELATIONS                  pRelations;           ///< Relationship between the objects.
+        initFlags,         ///< The initializations object flags.
+        scheme,            ///< Pointer on used color scheme.
+        &valueData,        ///< Pointer on runtime object data.
+    };
+
+    D4D_OBJECT setting = {
+        {0, cy / 2},       // D4D_POINT position
+        {cx, 20},          // D4D_SIZE                              size;                 ///< Size of the object.
+        0,                 // D4D_COOR                              radius;               ///< Object corners radius.
+        nullptr,           // D4D_MARGIN*                           pMargin;              ///< Object inner margin.
+        &name_lbl,         // void*                                 pParam;               ///< The object depends parameters.
+        &d4d_labelSysFunc, // D4D_OBJECT_SYS_FUNCTION*              pObjFunc;             ///< The pointer on object system functions.
+        nullptr,           // D4D_ON_USR_MSG                        OnUsrMessage;         ///< The pointer on user message.
+        nullptr,           // D4D_OBJECT_USR_DATA                   userData;             ///< The pointer on user data container (user pointer and optionaly parent/children).
+        lbl_relations,     // D4D_OBJECT_RELATIONS                  pRelations;           ///< Relationship between the objects.
+        initFlags,         ///< The initializations object flags.
+        scheme,            ///< Pointer on used color scheme.
+        &settingData,      ///< Pointer on runtime object data.
+    };
+
+    D4D_OBJECT name
+        = {
+            {0, cy - 20},      // D4D_POINT position
+            {cx, 20},          // D4D_SIZE                              size;                 ///< Size of the object.
+            0,                 // D4D_COOR                              radius;               ///< Object corners radius.
+            nullptr,           // D4D_MARGIN*                           pMargin;              ///< Object inner margin.
+            &name_lbl,         // void*                                 pParam;               ///< The object depends parameters.
+            &d4d_labelSysFunc, // D4D_OBJECT_SYS_FUNCTION*              pObjFunc;             ///< The pointer on object system functions.
+            nullptr,           // D4D_ON_USR_MSG                        OnUsrMessage;         ///< The pointer on user message.
+            nullptr,           // D4D_OBJECT_USR_DATA                   userData;             ///< The pointer on user data container (user pointer and optionaly parent/children).
+            lbl_relations,     // D4D_OBJECT_RELATIONS                  pRelations;           ///< Relationship between the objects.
+            initFlags,         ///< The initializations object flags.
+            scheme,            ///< Pointer on used color scheme.
+            &nameData,         ///< Pointer on runtime object data.
+        };
+
+    D4D_OBJECT* relations[5] = {&widgetObject, &value, &setting, &name, nullptr};
+
 public:
-    ProcessValueWidget(const D4D_OBJECT* obj)
-        : pObject(obj)
-        , pvLookup(brewbloxBox().makeCboxPtr<ProcessValue<temp_t>>())
+    ProcessValueWidget(uint8_t pos, const cbox::obj_id_t& id)
+        : Widget(pos, relations)
+        , pvLookup(brewbloxBox().makeCboxPtr<ProcessValue<temp_t>>(id))
     {
     }
+    virtual ~ProcessValueWidget() = default;
 
     void setId(const cbox::obj_id_t& id)
     {
@@ -92,11 +111,10 @@ public:
         return pvLookup.getId();
     }
 
-    void update();
+    virtual void update() override final;
 
-    void invalidate()
+    virtual void onClick() override final
     {
-        D4D_InvalidateObject(pObject, D4D_TRUE);
     }
 
     void setEnabled(bool enabled);

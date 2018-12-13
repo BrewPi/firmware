@@ -1,7 +1,7 @@
 /*
- * Copyright 2018 BrewPi B.V.
+ * Copyright 2015 BrewPi / Elco Jacobs, Matthew McGowan.
  *
- * This file is part of BrewBlox.
+ * This file is part of BrewPi.
  * 
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,24 +17,4 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ProcessValueWidget.h"
-#include "d4d.hpp"
-#include <stdint.h>
-#include <vector>
-
-class ProcessValuesScreen {
-private:
-    static std::vector<std::unique_ptr<Widget>> widgets;
-
-public:
-    ProcessValuesScreen() = default;
-    ~ProcessValuesScreen() = default;
-
-    static void init();
-    static void activate();
-    static void updateUsb();
-    static void updateWiFi();
-    static void updatePVs();
-};
-
-extern const D4D_SCREEN* process_values_screen;
+#include "Widget.h"
