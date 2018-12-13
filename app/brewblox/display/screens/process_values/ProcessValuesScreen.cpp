@@ -64,14 +64,12 @@ D4D_DECLARE_LABEL(scrPV_wifi_ip, wifi_ip, 60, 0, 15 * 6, 20, D4D_LBL_F_DEFAULT, 
 #define D4D_LBL_TXT_PRTY_DEFAULT (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
 D4D_DECLARE_LABEL(scrPV_title, "All Processes", 40, 220, 240, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_REGULAR, nullptr, nullptr);
 
-D4D_OBJECT* widget0 = nullptr;
-D4D_OBJECT* widget1 = nullptr;
-D4D_OBJECT* widget2 = nullptr;
-D4D_OBJECT* widget3 = nullptr;
-D4D_OBJECT* widget4 = nullptr;
-D4D_OBJECT* widget5 = nullptr;
-
-// TODO: widget wrapper with writable widget object pointer
+WidgetWrapper widget0(0);
+WidgetWrapper widget1(1);
+WidgetWrapper widget2(2);
+WidgetWrapper widget3(3);
+WidgetWrapper widget4(4);
+WidgetWrapper widget5(5);
 
 D4D_DECLARE_STD_SCREEN_BEGIN_INRAM(screen_process_values, scrPV_)
 &scrPV_usb_icon,
@@ -79,22 +77,22 @@ D4D_DECLARE_STD_SCREEN_BEGIN_INRAM(screen_process_values, scrPV_)
     &scrPV_wifi_icon,
     &scrPV_wifi_ip,
     &scrPV_title,
-    widget0,
-    widget1,
-    widget2,
-    widget3,
-    widget4,
-    widget5,
+    widget0.pObj(),
+    widget1.pObj(),
+    widget2.pObj(),
+    widget3.pObj(),
+    widget4.pObj(),
+    widget5.pObj(),
     nullptr
 }
 ;
 
-std::vector<std::unique_ptr<Widget>> ProcessValuesScreen::widgets;
+std::vector<std::unique_ptr<ProcessValueWidget>> ProcessValuesScreen::widgets;
 
 void
 ProcessValuesScreen::init()
 {
-    auto w = std::make_unique<ProcessValueWidget>(0, 108);
+    auto w = std::make_unique<ProcessValueWidget>(widget0, 108);
     widgets.push_back(std::move(w));
     D4D_InvalidateScreen(&screen_process_values, D4D_TRUE);
     /*

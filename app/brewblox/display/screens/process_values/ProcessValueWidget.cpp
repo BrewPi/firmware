@@ -22,12 +22,6 @@
 #include "Temperature.h"
 
 void
-ProcessValueWidget::setEnabled(bool enabled)
-{
-    D4D_EnableObject(pObj(), enabled);
-}
-
-void
 to_chars(const temp_t& t, char* buf, uint8_t len, uint8_t decimals)
 {
     auto digits = decimals + 2;
@@ -73,8 +67,8 @@ ProcessValueWidget::update()
         to_chars(pv->setting(), buf, 10, 1);
         D4D_SetText(&setting, buf);
         D4D_SetText(&name, "Long beer name");
-        setEnabled(true);
+        wrapper.setEnabled(true);
         return;
     }
-    setEnabled(false);
+    wrapper.setEnabled(false);
 }

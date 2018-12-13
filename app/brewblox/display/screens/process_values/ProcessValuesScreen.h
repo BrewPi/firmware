@@ -24,7 +24,7 @@
 
 class ProcessValuesScreen {
 private:
-    static std::vector<std::unique_ptr<Widget>> widgets;
+    static std::vector<std::unique_ptr<ProcessValueWidget>> widgets;
 
 public:
     ProcessValuesScreen() = default;
