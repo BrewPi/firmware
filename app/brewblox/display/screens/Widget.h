@@ -36,7 +36,7 @@ public:
     D4D_OBJECT_DATA widgetObjectData = {((initFlags | D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL};
 
     D4D_STR_PROPERTIES lbl_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, D4D_LBL_TXT_PRTY_DEFAULT};
-    D4D_LABEL placeholder_lbl = {"unassigned", 11, FONT_REGULAR, &lbl_strPrties, 11, 0};
+    D4D_LABEL placeholder_lbl = {{"unassigned", 11, FONT_REGULAR, &lbl_strPrties, 11, 0}};
     const D4D_OBJECT* placeholder_relations[2] = {pObj(), nullptr};
     D4D_OBJECT_DATA placeholderData = {((D4D_OBJECT_F_VISIBLE | /* D4D_OBJECT_F_ENABLED | */ D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL};
     D4D_OBJECT placeholder = {
@@ -120,7 +120,7 @@ public:
         D4D_EnableObject(pObj(), enabled);
     }
 
-    constexpr SmallColorScheme makeColorScheme(const uint8_t r, const uint8_t g, const uint8_t b)
+    static constexpr SmallColorScheme makeColorScheme(const uint8_t r, const uint8_t g, const uint8_t b)
     {
         auto r_lighter = uint8_t(std::min(uint16_t(r) * 3 / 2, 255));
         auto g_lighter = uint8_t(std::min(uint16_t(g) * 3 / 2, 255));

@@ -54,7 +54,8 @@ to_chars(const temp_t& t, char* buf, uint8_t len, uint8_t decimals)
         digits = len;
     }
 
-    cnl::to_chars(buf, &buf[digits], rounded);
+    using reduced_precision_t = safe_elastic_fixed_point<11, 10, int32_t>;
+    cnl::to_chars(buf, &buf[digits], reduced_precision_t(rounded));
 }
 
 void

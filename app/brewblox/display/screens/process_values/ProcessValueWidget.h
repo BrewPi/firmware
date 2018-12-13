@@ -40,9 +40,9 @@ private:
     D4D_STR_PROPERTIES bottom_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_BOTTOM_MASK)};
     D4D_STR_PROPERTIES center_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_CENTER_MASK)};
     D4D_STR_PROPERTIES top_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_TOP_MASK)};
-    D4D_LABEL value_lbl = {value_buf, D4D_TEXT_LEN(value_buf), FONT_NUMBER_LARGE, &bottom_strPrties, 12, 0};
-    D4D_LABEL setting_lbl = {setting_buf, D4D_TEXT_LEN(setting_buf), FONT_NUMBER_MEDIUM, &center_strPrties, 12, 0};
-    D4D_LABEL name_lbl = {name_buf, D4D_TEXT_LEN(name_buf), FONT_REGULAR, &top_strPrties, 16, 0};
+    D4D_LABEL value_lbl = {{value_buf, D4D_TEXT_LEN(value_buf), FONT_NUMBER_LARGE, &bottom_strPrties, 12, 0}};
+    D4D_LABEL setting_lbl = {{setting_buf, D4D_TEXT_LEN(setting_buf), FONT_NUMBER_MEDIUM, &center_strPrties, 12, 0}};
+    D4D_LABEL name_lbl = {{name_buf, D4D_TEXT_LEN(name_buf), FONT_REGULAR, &top_strPrties, 16, 0}};
 
     D4D_OBJECT_DATA valueData = {((D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL};
     D4D_OBJECT_DATA settingData = {((D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL};

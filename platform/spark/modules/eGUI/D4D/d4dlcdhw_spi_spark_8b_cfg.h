@@ -29,7 +29,8 @@
 * and the GNU Lesser General Public License along with this program.
 * If not, see <http://www.gnu.org/licenses/>.
 *
-***************************************************************************//*!
+***************************************************************************/
+/*!
 *
 * @file      d4dlcdhw_sp_spark_8b_cfg.h.example
 *
@@ -46,13 +47,13 @@
 #ifndef __D4DLCD_SPI_SPARK_8B_CFG_H
 #define __D4DLCD_SPI_SPARK_8B_CFG_H
 
-  /******************************************************************************
+/******************************************************************************
   * includes
   ******************************************************************************/
 
 #include "Board.h"
 
-  /******************************************************************************
+/******************************************************************************
   * Constants
   ******************************************************************************/
 
@@ -61,14 +62,12 @@
 
 //#define D4DLCD_DISPLAY_MCU_USER_INIT;
 
-
-
-  /*******************************************
+/*******************************************
   * Signals definition
   *******************************************/
 
-  #define D4DLCD_CS              PIN_LCD_CS         // CS
-  #define D4DLCD_DC              PIN_LCD_DC         // DC
+#define D4DLCD_CS PIN_LCD_CS // CS
+#define D4DLCD_DC PIN_LCD_DC // DC
 
 // No HW reset, use software reset
 //  #define D4DLCD_RESET           255       // RESET
@@ -77,59 +76,43 @@
 
 //  #define D4DLCD_BACKLIGHT       0         // BACKLIGHT
 
-  /*********** Power macros - for modification uncomment and modify ***********/
+/*********** Power macros - for modification uncomment and modify ***********/
 
-#if PLATFORM_ID==0
-  #define D4DLCD_INIT_CS pinMode(D4DLCD_CS, OUTPUT)
-  #define D4DLCD_ASSERT_CS PIN_MAP[D4DLCD_CS].gpio_peripheral->BRR = PIN_MAP[D4DLCD_CS].gpio_pin;
-  #define D4DLCD_DEASSERT_CS PIN_MAP[D4DLCD_CS].gpio_peripheral->BSRR = PIN_MAP[D4DLCD_CS].gpio_pin;
-  #define D4DLCD_INIT_DC pinMode(D4DLCD_DC, OUTPUT)
-  #define D4DLCD_ASSERT_DC PIN_MAP[D4DLCD_DC].gpio_peripheral->BRR = PIN_MAP[D4DLCD_DC].gpio_pin;
-  #define D4DLCD_DEASSERT_DC PIN_MAP[D4DLCD_DC].gpio_peripheral->BSRR = PIN_MAP[D4DLCD_DC].gpio_pin;
-
-#elif PLATFORM_ID==6 || PLATFORM_ID==8
-  #define D4DLCD_INIT_CS pinMode(D4DLCD_CS, OUTPUT)
-  #define D4DLCD_DEASSERT_CS HAL_Pin_Map()[D4DLCD_CS].gpio_peripheral->BSRRL = HAL_Pin_Map()[D4DLCD_CS].gpio_pin;
-  #define D4DLCD_ASSERT_CS HAL_Pin_Map()[D4DLCD_CS].gpio_peripheral->BSRRH = HAL_Pin_Map()[D4DLCD_CS].gpio_pin;
-  #define D4DLCD_INIT_DC pinMode(D4DLCD_DC, OUTPUT)
-  #define D4DLCD_DEASSERT_DC HAL_Pin_Map()[D4DLCD_DC].gpio_peripheral->BSRRL = HAL_Pin_Map()[D4DLCD_DC].gpio_pin;
-  #define D4DLCD_ASSERT_DC HAL_Pin_Map()[D4DLCD_DC].gpio_peripheral->BSRRH = HAL_Pin_Map()[D4DLCD_DC].gpio_pin;
-
-
-#elif PLATFORM_ID==666 || PLATFORM_ID==3
-#include "pinmap_hal.h"
+#if PLATFORM_ID == 0
 #define D4DLCD_INIT_CS pinMode(D4DLCD_CS, OUTPUT)
-  #define D4DLCD_DEASSERT_CS digitalWrite(D4DLCD_CS, LOW)
-  #define D4DLCD_ASSERT_CS digitalWrite(D4DLCD_CS, HIGH)
-  #define D4DLCD_INIT_DC pinMode(D4DLCD_DC, OUTPUT)
-  #define D4DLCD_DEASSERT_DC digitalWrite(D4DLCD_DC, LOW)
-  #define D4DLCD_ASSERT_DC digitalWrite(D4DLCD_DC, HIGH)
+#define D4DLCD_ASSERT_CS PIN_MAP[D4DLCD_CS].gpio_peripheral->BRR = PIN_MAP[D4DLCD_CS].gpio_pin;
+#define D4DLCD_DEASSERT_CS PIN_MAP[D4DLCD_CS].gpio_peripheral->BSRR = PIN_MAP[D4DLCD_CS].gpio_pin;
+#define D4DLCD_INIT_DC pinMode(D4DLCD_DC, OUTPUT)
+#define D4DLCD_ASSERT_DC PIN_MAP[D4DLCD_DC].gpio_peripheral->BRR = PIN_MAP[D4DLCD_DC].gpio_pin;
+#define D4DLCD_DEASSERT_DC PIN_MAP[D4DLCD_DC].gpio_peripheral->BSRR = PIN_MAP[D4DLCD_DC].gpio_pin;
+
+#elif PLATFORM_ID == 6 || PLATFORM_ID == 8
+#define D4DLCD_INIT_CS pinMode(D4DLCD_CS, OUTPUT)
+#define D4DLCD_DEASSERT_CS HAL_Pin_Map()[D4DLCD_CS].gpio_peripheral->BSRRL = HAL_Pin_Map()[D4DLCD_CS].gpio_pin;
+#define D4DLCD_ASSERT_CS HAL_Pin_Map()[D4DLCD_CS].gpio_peripheral->BSRRH = HAL_Pin_Map()[D4DLCD_CS].gpio_pin;
+#define D4DLCD_INIT_DC pinMode(D4DLCD_DC, OUTPUT)
+#define D4DLCD_DEASSERT_DC HAL_Pin_Map()[D4DLCD_DC].gpio_peripheral->BSRRL = HAL_Pin_Map()[D4DLCD_DC].gpio_pin;
+#define D4DLCD_ASSERT_DC HAL_Pin_Map()[D4DLCD_DC].gpio_peripheral->BSRRH = HAL_Pin_Map()[D4DLCD_DC].gpio_pin;
+
+#elif PLATFORM_ID == 666 || PLATFORM_ID == 3
+#define D4DLCD_INIT_CS pinMode(D4DLCD_CS, OUTPUT)
+#define D4DLCD_DEASSERT_CS digitalWrite(D4DLCD_CS, LOW)
+#define D4DLCD_ASSERT_CS digitalWrite(D4DLCD_CS, HIGH)
+#define D4DLCD_INIT_DC pinMode(D4DLCD_DC, OUTPUT)
+#define D4DLCD_DEASSERT_DC digitalWrite(D4DLCD_DC, LOW)
+#define D4DLCD_ASSERT_DC digitalWrite(D4DLCD_DC, HIGH)
 #else
 #error Unknown Platform
 #endif
 
-
-
 #if defined(D4DLCD_RESET)
-  #define D4DLCD_INIT_RESET pinMode(D4DLCD_RESET, OUTPUT)
-  #define D4DLCD_ASSERT_RESET digitalWrite(D4DLCD_RESET, LOW)
-  #define D4DLCD_DEASSERT_RESET digitalWrite(D4DLCD_RESET, HIGH)
+#define D4DLCD_INIT_RESET pinMode(D4DLCD_RESET, OUTPUT)
+#define D4DLCD_ASSERT_RESET digitalWrite(D4DLCD_RESET, LOW)
+#define D4DLCD_DEASSERT_RESET digitalWrite(D4DLCD_RESET, HIGH)
 #else
-  #define D4DLCD_INIT_RESET 
-  #define D4DLCD_ASSERT_RESET
-  #define D4DLCD_DEASSERT_RESET 
+#define D4DLCD_INIT_RESET
+#define D4DLCD_ASSERT_RESET
+#define D4DLCD_DEASSERT_RESET
 #endif
 
-
-
 #endif /* __D4DLCD_SPI_SPARK_8B_CFG_H */
-
-
-
-
-
-
-
-
-
-

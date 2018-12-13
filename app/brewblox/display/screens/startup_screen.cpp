@@ -20,6 +20,7 @@
 #include "startup_screen.h"
 #include "BrewBlox.h"
 #include "screen.h"
+#include "spark_wiring_ticks.h"
 #include "spark_wiring_timer.h"
 
 #if PLATFORM_ID != 3

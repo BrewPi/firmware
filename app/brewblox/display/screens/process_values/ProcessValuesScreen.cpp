@@ -92,7 +92,7 @@ std::vector<std::unique_ptr<ProcessValueWidget>> ProcessValuesScreen::widgets;
 void
 ProcessValuesScreen::init()
 {
-    auto w = std::make_unique<ProcessValueWidget>(widget0, 108);
+    auto w = std::make_unique<ProcessValueWidget>(widget0, 8);
     widgets.push_back(std::move(w));
     D4D_InvalidateScreen(&screen_process_values, D4D_TRUE);
     /*

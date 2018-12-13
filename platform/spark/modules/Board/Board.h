@@ -20,7 +20,11 @@
 #pragma once
 #include "core_hal.h"
 #include "gpio_hal.h"
+#if PLATFORM_ID == 3
 #include "pinmap_hal.h"
+#else
+#include "pinmap_impl.h"
+#endif
 #include <stdint.h>
 
 // Most pins are only conditionally defined here, allowing definitions to be provided in Config.h for
