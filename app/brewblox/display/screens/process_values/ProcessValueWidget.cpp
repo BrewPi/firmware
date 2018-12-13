@@ -30,34 +30,37 @@ ProcessValueWidget::setEnabled(bool enabled)
 void
 to_chars(const temp_t& t, char* buf, uint8_t len, uint8_t decimals)
 {
-    uint8_t digits = decimals + 2;
-    temp_t rounder;
-
-    auto temporary = t;
-    if (t >= temp_t(0)) {
-        while (temporary >= temp_t(10)) {
-            temporary = temporary / 10;
-            ++digits;
-        }
-        rounder = temp_t(0.5);
-    } else {
-        while (temporary <= temp_t(-10)) {
-            temporary = temporary / 10;
-            ++digits;
-        }
-        digits += 1;
-        rounder = -temp_t(0.5);
-    }
+    auto digits = decimals + 2;
+    auto rounder = temp_t(0.5);
 
     for (; decimals > 0; decimals--) {
         rounder = rounder / 10;
     }
+
+    temp_t rounded;
+    if (t >= temp_t(0)) {
+        rounded = t + rounder;
+        auto temporary = rounded;
+        while (temporary >= temp_t(10)) {
+            temporary = temporary / 10;
+            ++digits;
+        }
+    } else {
+        rounded = t - rounder;
+        auto temporary = rounded;
+        while (temporary <= temp_t(-10)) {
+            temporary = temporary / 10;
+            ++digits;
+        }
+        digits += 1; // for minus sign
+    }
+
     std::memset(buf, 0, len);
     if (digits > len) {
         digits = len;
     }
 
-    cnl::to_chars(buf, &buf[digits], t + rounder);
+    cnl::to_chars(buf, &buf[digits], rounded);
 }
 
 void
