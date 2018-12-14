@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 BrewPi / Elco Jacobs, Matthew McGowan.
+ * Copyright 2018 BrewPi B.V.
  *
  * This file is part of BrewPi.
  *
@@ -66,8 +66,6 @@ ProcessValueWidget::update()
         to_chars(pv->value(), buf, 10, 1);
         D4D_SetText(&value, buf);
         to_chars(pv->setting(), buf, 10, 1);
-        D4D_SetText(&setting, buf);
-        D4D_SetText(&name, "Long beer name");
         wrapper.setEnabled(true);
         return;
     }

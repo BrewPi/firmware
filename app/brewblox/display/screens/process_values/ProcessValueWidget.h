@@ -37,16 +37,14 @@ private:
 
     const D4D_OBJECT* lbl_relations[2] = {wrapper.pObj(), nullptr};
 
-    D4D_STR_PROPERTIES bottom_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_BOTTOM_MASK)};
-    D4D_STR_PROPERTIES center_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_CENTER_MASK)};
-    D4D_STR_PROPERTIES top_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_TOP_MASK)};
-    D4D_LABEL value_lbl = {{value_buf, D4D_TEXT_LEN(value_buf), FONT_NUMBER_LARGE, &bottom_strPrties, 12, 0}};
-    D4D_LABEL setting_lbl = {{setting_buf, D4D_TEXT_LEN(setting_buf), FONT_NUMBER_MEDIUM, &center_strPrties, 12, 0}};
-    D4D_LABEL name_lbl = {{name_buf, D4D_TEXT_LEN(name_buf), FONT_REGULAR, &top_strPrties, 16, 0}};
+    D4D_STR_PROPERTIES value_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_BOTTOM_MASK)};
+    D4D_STR_PROPERTIES setting_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_CENTER_MASK)};
+
+    D4D_LABEL value_lbl = {{value_buf, D4D_TEXT_LEN(value_buf), FONT_NUMBER_LARGE, &value_strPrties, 12, 0}};
+    D4D_LABEL setting_lbl = {{setting_buf, D4D_TEXT_LEN(setting_buf), FONT_NUMBER_MEDIUM, &setting_strPrties, 12, 0}};
 
     D4D_OBJECT_DATA valueData = {((D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL};
     D4D_OBJECT_DATA settingData = {((D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL};
-    D4D_OBJECT_DATA nameData = {((D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_ENABLED | D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL};
 
     D4D_OBJECT value = {
         {0, 0},                           // D4D_POINT position
@@ -78,28 +76,12 @@ private:
         &settingData,                                         ///< Pointer on runtime object data.
     };
 
-    D4D_OBJECT name
-        = {
-            {0, wrapper.cy - 15}, // D4D_POINT position
-            {wrapper.cx, 15},     // D4D_SIZE                              size;                 ///< Size of the object.
-            0,                    // D4D_COOR                              radius;               ///< Object corners radius.
-            nullptr,              // D4D_MARGIN*                           pMargin;              ///< Object inner margin.
-            &name_lbl,            // void*                                 pParam;               ///< The object depends parameters.
-            &d4d_labelSysFunc,    // D4D_OBJECT_SYS_FUNCTION*              pObjFunc;             ///< The pointer on object system functions.
-            nullptr,              // D4D_ON_USR_MSG                        OnUsrMessage;         ///< The pointer on user message.
-            nullptr,              // D4D_OBJECT_USR_DATA                   userData;             ///< The pointer on user data container (user pointer and optionaly parent/children).
-            lbl_relations,        // D4D_OBJECT_RELATIONS                  pRelations;           ///< Relationship between the objects.
-            wrapper.initFlags,    ///< The initializations object flags.
-            wrapper.scheme,       ///< Pointer on used color scheme.
-            &nameData,            ///< Pointer on runtime object data.
-    };
-
 public:
     ProcessValueWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id)
         : pvLookup(brewbloxBox().makeCboxPtr<ProcessValue<temp_t>>(id))
         , wrapper(myWrapper)
     {
-        wrapper.setChildren({&value, &setting, &name});
+        wrapper.setChildren({&value, &setting});
     }
     virtual ~ProcessValueWidget()
     {
