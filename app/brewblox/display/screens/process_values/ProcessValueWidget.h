@@ -31,8 +31,8 @@ private:
     cbox::CboxPtr<ProcessValue<temp_t>> pvLookup;
     WidgetWrapper& wrapper;
 
-    char value_buf[12];
-    char setting_buf[12];
+    char value_buf[12] = {0};
+    char setting_buf[12] = {0};
 
     const D4D_OBJECT* lbl_relations[2] = {wrapper.pObj(), nullptr};
 

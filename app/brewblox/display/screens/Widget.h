@@ -50,15 +50,17 @@ public:
         {nullptr, 0, 0, 0, 0, 0}, // group box is only used to pain the background
     };
 
+    char widget_name[15] = "unassigned";
     D4D_BUTTON_STATUS btn_status = {0};
     D4D_STR_PROPERTIES btn_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_BOTTOM_MASK)};
     D4D_OBJECT_DATA btnData = {((D4D_OBJECT_F_VISIBLE | /* D4D_OBJECT_F_ENABLED | */ D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL};
     D4D_OBJECT* btnRelations[2] = {&widgetObject, nullptr};
     D4D_BUTTON btnParams = {
-        {"unassigned", 14, FONT_REGULAR, &btn_strPrties, 14, 0},
-        nullptr,           /* pBmpNormal */
-        nullptr,           /* pBmpFocus */
-        &btn_status,       /* Status clear */
+        {widget_name, 15, FONT_REGULAR, &btn_strPrties, 15, 0},
+        nullptr, /* pBmpNormal */
+        nullptr,
+        64                 /* pBmpFocus */
+            & btn_status,  /* Status clear */
         buttonClickHandler /* Click event */
     };
 
@@ -153,11 +155,11 @@ public:
 
         SmallColorScheme scheme = {
             D4D_COLOR_RGB(r, g, b),                         ///< The object background color in standard state
-            D4D_COLOR_RGB(40, 40, 40),                      ///< The object background color in disabled state
+            D4D_COLOR_RGB(24, 24, 24),                      ///< The object background color in disabled state
             D4D_COLOR_RGB(r_lighter, g_lighter, b_lighter), ///< The object background color in focused state
             D4D_COLOR_RGB(r_lighter, g_lighter, b_lighter), ///< The object background color in captured state
             D4D_COLOR_RGB(255, 255, 255),                   ///< The object fore color in standard state
-            D4D_COLOR_RGB(128, 128, 128),                   ///< The object fore color in disabled state
+            D4D_COLOR_RGB(48, 48, 48),                      ///< The object fore color in disabled state
             D4D_COLOR_RGB(255, 255, 255),                   ///< The object fore color in focused state
             D4D_COLOR_RGB(255, 255, 255),                   ///< The object fore color in captured state
         };
