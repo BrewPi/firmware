@@ -18,10 +18,10 @@
  */
 
 #include "WidgetsScreen.h"
-#include "../screen.h"
 #include "BrewBlox.h"
 #include "ProcessValueWidget.h"
 #include "application.h"
+#include "screen.h"
 #include <algorithm>
 #include <vector>
 
@@ -87,7 +87,7 @@ D4D_DECLARE_STD_SCREEN_BEGIN_INRAM(widgets_screen, scrWidgets_)
 }
 ;
 
-std::vector<std::unique_ptr<ProcessValueWidget>> WidgetsScreen::widgets;
+std::vector<std::unique_ptr<WidgetBase>> WidgetsScreen::widgets;
 
 void
 WidgetsScreen::init()

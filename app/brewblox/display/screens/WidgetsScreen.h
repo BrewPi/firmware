@@ -1,7 +1,7 @@
 /*
- * Copyright 2015 BrewPi / Elco Jacobs, Matthew McGowan.
+ * Copyright 2018 BrewPi B.V.
  *
- * This file is part of BrewPi.
+ * This file is part of BrewBlox.
  * 
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,4 +17,24 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Widget.h"
+#include "WidgetBase.h"
+#include "d4d.hpp"
+#include <stdint.h>
+#include <vector>
+
+class WidgetsScreen {
+private:
+    static std::vector<std::unique_ptr<WidgetBase>> widgets;
+
+public:
+    WidgetsScreen() = default;
+    ~WidgetsScreen() = default;
+
+    static void init();
+    static void activate();
+    static void updateUsb();
+    static void updateWiFi();
+    static void updateWidgets();
+};
+
+extern const D4D_SCREEN* process_values_screen;

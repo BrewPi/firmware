@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 BrewPi / Elco Jacobs, Matthew McGowan.
+ * Copyright 2018 BrewPi B.V.
  *
  * This file is part of BrewPi.
  * 
@@ -18,18 +18,16 @@
  */
 
 #pragma once
-#include "../Widget.h"
-#include "../screen.h"
 #include "BrewBlox.h"
 #include "ProcessValue.h"
 #include "Temperature.h"
+#include "WidgetBase.h"
 #include "cbox/CboxPtr.h"
 #include <algorithm>
 
-class ProcessValueWidget {
+class ProcessValueWidget : public WidgetBase {
 private:
     cbox::CboxPtr<ProcessValue<temp_t>> pvLookup;
-    WidgetWrapper& wrapper;
 
     char value_buf[12] = {0};
     char setting_buf[12] = {0};
@@ -77,8 +75,8 @@ private:
 
 public:
     ProcessValueWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id)
-        : pvLookup(brewbloxBox().makeCboxPtr<ProcessValue<temp_t>>(id))
-        , wrapper(myWrapper)
+        : WidgetBase(myWrapper)
+        , pvLookup(brewbloxBox().makeCboxPtr<ProcessValue<temp_t>>(id))
     {
         wrapper.setChildren({&value, &setting});
         wrapper.setClickHandler(this, onClickStatic);
@@ -88,20 +86,8 @@ public:
         wrapper.setChildren({});
     }
 
-    void
-    setId(const cbox::obj_id_t& id)
-    {
-        pvLookup.setId(id);
-    }
-
-    cbox::obj_id_t
-    getId()
-    {
-        return pvLookup.getId();
-    }
-
     virtual void
-    update() final;
+    update() override final;
 
     static void onClickStatic(void* thisPtr)
     {

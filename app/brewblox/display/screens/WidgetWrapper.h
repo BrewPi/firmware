@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 BrewPi / Elco Jacobs, Matthew McGowan.
+ * Copyright 2018 BrewPi B.V.
  *
  * This file is part of BrewPi.
  * 
@@ -57,10 +57,9 @@ public:
     D4D_OBJECT* btnRelations[2] = {&widgetObject, nullptr};
     D4D_BUTTON btnParams = {
         {widget_name, 15, FONT_REGULAR, &btn_strPrties, 15, 0},
-        nullptr, /* pBmpNormal */
-        nullptr,
-        64                 /* pBmpFocus */
-            & btn_status,  /* Status clear */
+        nullptr,           /* pBmpNormal */
+        nullptr,           /* pBmpFocus */
+        &btn_status,       /* Status clear */
         buttonClickHandler /* Click event */
     };
 

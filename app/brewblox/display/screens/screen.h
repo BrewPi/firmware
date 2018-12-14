@@ -20,7 +20,6 @@
 #pragma once
 
 #include "../d4d.hpp"
-#include "brewblox_colors.h"
 #include "fonts/fonts.h"
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"

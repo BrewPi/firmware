@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 BrewPi / Elco Jacobs, Matthew McGowan.
+ * Copyright 2018 BrewPi B.V.
  *
  * This file is part of BrewPi.
  * 
@@ -18,17 +18,21 @@
  */
 
 #pragma once
+#include "WidgetWrapper.h"
+#include "screen.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+class WidgetBase {
+protected:
+    WidgetWrapper& wrapper;
 
-#define REGULAR_TEXT_COLOR D4D_COLOR_RGB(255, 255, 255)
-#define SECONDARY_TEXT_COLOR D4D_COLOR_RGB(160, 160, 160)
-#define LOW_TEXT_COLOR D4D_COLOR_RGB(128, 128, 128)
+public:
+    WidgetBase(WidgetWrapper& myWrapper)
+        : wrapper(myWrapper)
+    {
+    }
+    virtual ~WidgetBase()
+    {
+    }
 
-#define INITIAL_BLOCK_COLOR D4D_COLOR_RGB(32, 32, 32)
-
-#ifdef __cplusplus
-}
-#endif
+    virtual void update() = 0;
+};
