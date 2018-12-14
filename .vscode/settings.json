@@ -64,7 +64,8 @@
     "brewblox_colors.h": "c",
     "d4d.hpp": "c",
     "fonts.h": "c",
-    "icons.h": "c"
+    "icons.h": "c",
+    "d4d_private.h": "c"
   },
   "editor.formatOnSave": true,
 }

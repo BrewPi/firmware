@@ -36,7 +36,15 @@ public:
     D4D_OBJECT_DATA widgetObjectData = {((initFlags | D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL};
 
     void* clickHandlerObject = nullptr;
-    void (*clickHandlerFunction)(D4D_OBJECT*) = nullptr;
+    void (*clickHandlerFunction)(void*) = nullptr;
+
+    static void buttonClickHandler(D4D_OBJECT* btnObj)
+    {
+        auto thisPtr = reinterpret_cast<WidgetWrapper*>(btnObj->userData);
+        if (thisPtr && thisPtr->clickHandlerFunction) {
+            thisPtr->clickHandlerFunction(thisPtr->clickHandlerObject);
+        }
+    }
 
     D4D_GROUP_BOX widget_params = {
         {nullptr, 0, 0, 0, 0, 0}, // group box is only used to pain the background
@@ -48,25 +56,25 @@ public:
     D4D_OBJECT* btnRelations[2] = {&widgetObject, nullptr};
     D4D_BUTTON btnParams = {
         {"unassigned", 14, FONT_REGULAR, &btn_strPrties, 14, 0},
-        nullptr,             /* pBmpNormal */
-        nullptr,             /* pBmpFocus */
-        &btn_status,         /* Status clear */
-        clickHandlerFunction /* Click event */
+        nullptr,           /* pBmpNormal */
+        nullptr,           /* pBmpFocus */
+        &btn_status,       /* Status clear */
+        buttonClickHandler /* Click event */
     };
 
     D4D_OBJECT btnObject = {
-        {0, 0},              // D4D_POINT position
-        {cx, 94},            // D4D_SIZE                              size;                 ///< Size of the object.
-        0,                   // D4D_COOR                              radius;               ///< Object corners radius.
-        nullptr,             // D4D_MARGIN*                           pMargin;              ///< Object inner margin.
-        &btnParams,          // void*                                 pParam;               ///< The object depends parameters.
-        &d4d_btnSysFunc,     // D4D_OBJECT_SYS_FUNCTION*              pObjFunc;             ///< The pointer on object system functions.
-        nullptr,             // D4D_ON_USR_MSG                        OnUsrMessage;         ///< The pointer on user message.
-        &clickHandlerObject, // D4D_OBJECT_USR_DATA                   userData;             ///< The pointer on user data container (user pointer and optionaly parent/children).
-        btnRelations,        // D4D_OBJECT_RELATIONS                  pRelations;           ///< Relationship between the objects.
-        initFlags,           ///< The initializations object flags.
-        scheme,              ///< Pointer on used color scheme.
-        &btnData,            ///< Pointer on runtime object data.
+        {0, 0},          // D4D_POINT position
+        {cx, 94},        // D4D_SIZE                              size;                 ///< Size of the object.
+        0,               // D4D_COOR                              radius;               ///< Object corners radius.
+        nullptr,         // D4D_MARGIN*                           pMargin;              ///< Object inner margin.
+        &btnParams,      // void*                                 pParam;               ///< The object depends parameters.
+        &d4d_btnSysFunc, // D4D_OBJECT_SYS_FUNCTION*              pObjFunc;             ///< The pointer on object system functions.
+        nullptr,         // D4D_ON_USR_MSG                        OnUsrMessage;         ///< The pointer on user message.
+        this,            // D4D_OBJECT_USR_DATA                   userData;             ///< The pointer on user data container (user pointer and optionaly parent/children).
+        btnRelations,    // D4D_OBJECT_RELATIONS                  pRelations;           ///< Relationship between the objects.
+        initFlags,       ///< The initializations object flags.
+        scheme,          ///< Pointer on used color scheme.
+        &btnData,        ///< Pointer on runtime object data.
     };
 
     const D4D_OBJECT_SYS_FUNCTION widgetSysFunc = {
@@ -109,7 +117,7 @@ public:
         return &widgetObject;
     }
 
-    void setClickHandler(void* obj, void (*func)(D4D_OBJECT*))
+    void setClickHandler(void* obj, void (*func)(void*))
     {
         clickHandlerFunction = func;
         clickHandlerObject = obj;

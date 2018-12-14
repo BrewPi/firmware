@@ -33,7 +33,6 @@ private:
 
     char value_buf[12];
     char setting_buf[12];
-    char name_buf[16];
 
     const D4D_OBJECT* lbl_relations[2] = {wrapper.pObj(), nullptr};
 
@@ -82,6 +81,7 @@ public:
         , wrapper(myWrapper)
     {
         wrapper.setChildren({&value, &setting});
+        wrapper.setClickHandler(this, onClickStatic);
     }
     virtual ~ProcessValueWidget()
     {
@@ -103,8 +103,10 @@ public:
     virtual void
     update() final;
 
-    virtual void
-    onClick() final
+    static void onClickStatic(void* thisPtr)
+    {
+    }
+    void onClick()
     {
     }
 };
