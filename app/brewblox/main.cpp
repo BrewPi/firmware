@@ -25,7 +25,7 @@
 #include "application.h" // particle stuff
 #include "cbox/Object.h"
 #include "d4d.hpp"
-#include "display/screens/process_values/WidgetsScreen.h"
+#include "display/screens/WidgetsScreen.h"
 #include "display/screens/startup_screen.h"
 #include "spark_wiring_timer.h"
 

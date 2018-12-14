@@ -32,6 +32,9 @@ public:
     }
     virtual ~WidgetBase()
     {
+        wrapper.resetClickHandler();
+        wrapper.resetChildren();
+        wrapper.resetName();
     }
 
     virtual void update() = 0;

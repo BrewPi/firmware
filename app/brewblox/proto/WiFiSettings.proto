@@ -6,6 +6,8 @@ import "nanopb.proto";
 package blox;
 
 message WiFiSettings {
+  option (nanopb_msgopt).msgid = 312;
+  
   enum WlanSecurity {
     WLAN_SEC_UNSEC = 0;
     WLAN_SEC_WEP = 1;
@@ -28,6 +30,4 @@ message WiFiSettings {
   WlanCipher cipher = 4;
   int32 signal = 5;
   bytes ip = 6 [ (brewblox).readonly = true, (nanopb).max_size = 4, (nanopb).fixed_length = true ];
-
-  option (nanopb_msgopt).msgid = 312;
 }

@@ -21,8 +21,10 @@
 #include "BrewBlox.h"
 #include "ProcessValueWidget.h"
 #include "application.h"
+#include "blox/DisplaySettingsBlock.h"
 #include "screen.h"
 #include <algorithm>
+#include <array>
 #include <vector>
 
 #define str(s) #s
@@ -62,14 +64,17 @@ D4D_DECLARE_LABEL(scrWidgets_wifi_ip, wifi_ip, 60, 0, 15 * 6, 20, D4D_LBL_F_DEFA
 
 #undef D4D_LBL_TXT_PRTY_DEFAULT
 #define D4D_LBL_TXT_PRTY_DEFAULT (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
-D4D_DECLARE_LABEL(scrWidgets_title, "All Processes", 40, 220, 240, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_REGULAR, nullptr, nullptr);
+char screen_title[32] = "Edit this screen in the Web UI";
+D4D_DECLARE_LABEL(scrWidgets_title, screen_title, 40, 220, 240, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_REGULAR, nullptr, nullptr);
 
-WidgetWrapper widget0(0);
-WidgetWrapper widget1(1);
-WidgetWrapper widget2(2);
-WidgetWrapper widget3(3);
-WidgetWrapper widget4(4);
-WidgetWrapper widget5(5);
+std::array<WidgetWrapper, 6> widgetWrappers = {
+    WidgetWrapper(0),
+    WidgetWrapper(1),
+    WidgetWrapper(2),
+    WidgetWrapper(3),
+    WidgetWrapper(4),
+    WidgetWrapper(5),
+};
 
 D4D_DECLARE_STD_SCREEN_BEGIN_INRAM(widgets_screen, scrWidgets_)
 &scrWidgets_usb_icon,
@@ -77,12 +82,12 @@ D4D_DECLARE_STD_SCREEN_BEGIN_INRAM(widgets_screen, scrWidgets_)
     &scrWidgets_wifi_icon,
     &scrWidgets_wifi_ip,
     &scrWidgets_title,
-    widget0.pObj(),
-    widget1.pObj(),
-    widget2.pObj(),
-    widget3.pObj(),
-    widget4.pObj(),
-    widget5.pObj(),
+    widgetWrappers[0].pObj(),
+    widgetWrappers[1].pObj(),
+    widgetWrappers[2].pObj(),
+    widgetWrappers[3].pObj(),
+    widgetWrappers[4].pObj(),
+    widgetWrappers[5].pObj(),
     nullptr
 }
 ;
@@ -90,17 +95,37 @@ D4D_DECLARE_STD_SCREEN_BEGIN_INRAM(widgets_screen, scrWidgets_)
 std::vector<std::unique_ptr<WidgetBase>> WidgetsScreen::widgets;
 
 void
-WidgetsScreen::init()
+WidgetsScreen::loadSettings()
 {
-    auto w = std::make_unique<ProcessValueWidget>(widget0, 8);
-    widgets.push_back(std::move(w));
+    auto& settings = DisplaySettingsBlock::settings();
+    if (settings.name[0] != 0) {
+        D4D_SetText(&scrWidgets_title, settings.name);
+    }
+
+    widgets.clear();
+    pb_size_t numWidgets = std::min(settings.widgets_count, pb_size_t(sizeof(settings.widgets) / sizeof(settings.widgets[0])));
+    for (pb_size_t i = 0; i < numWidgets; ++i) {
+        blox_DisplaySettings_Widget widgetDfn = settings.widgets[i];
+        auto pos = widgetDfn.pos;
+        if (pos == 0 || pos > 6) {
+            continue; // invalid position on screen
+        }
+        switch (widgetDfn.which_obj) {
+        case blox_DisplaySettings_Widget_ProcessValue_tag:
+            WidgetWrapper& wrapper = widgetWrappers[pos - 1];
+            wrapper.setName(widgetDfn.name);
+            auto w = std::make_unique<ProcessValueWidget>(wrapper, cbox::obj_id_t(widgetDfn.obj.ProcessValue));
+            widgets.push_back(std::move(w));
+        }
+    }
+
     D4D_InvalidateScreen(&widgets_screen, D4D_TRUE);
 }
 
 void
 WidgetsScreen::activate()
 {
-    init();
+    loadSettings();
     D4D_ActivateScreen(&widgets_screen, D4D_TRUE);
 }
 
@@ -154,6 +179,9 @@ scrWidgets_OnInit()
 void
 scrWidgets_OnMain()
 {
+    if (DisplaySettingsBlock::newSettingsReceived()) {
+        WidgetsScreen::loadSettings();
+    }
     WidgetsScreen::updateUsb();
     WidgetsScreen::updateWiFi();
     WidgetsScreen::updateWidgets();

@@ -83,7 +83,6 @@ public:
     }
     virtual ~ProcessValueWidget()
     {
-        wrapper.setChildren({});
     }
 
     virtual void

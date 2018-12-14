@@ -50,7 +50,7 @@ public:
         {nullptr, 0, 0, 0, 0, 0}, // group box is only used to pain the background
     };
 
-    char widget_name[15] = "unassigned";
+    char widget_name[15];
     D4D_BUTTON_STATUS btn_status = {0};
     D4D_STR_PROPERTIES btn_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_BOTTOM_MASK)};
     D4D_OBJECT_DATA btnData = {((D4D_OBJECT_F_VISIBLE | /* D4D_OBJECT_F_ENABLED | */ D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL};
@@ -109,6 +109,7 @@ public:
               &widgetObjectData,    ///< Pointer on runtime object data.
           }
     {
+        resetName();
     }
     virtual ~WidgetWrapper() = default;
 
@@ -118,10 +119,26 @@ public:
         return &widgetObject;
     }
 
+    void setName(char* newName)
+    {
+        D4D_SetText(&btnObject, newName);
+    }
+
+    void resetName()
+    {
+        D4D_SetText(&btnObject, "unassigned");
+    }
+
     void setClickHandler(void* obj, void (*func)(void*))
     {
         clickHandlerFunction = func;
         clickHandlerObject = obj;
+    }
+
+    void resetClickHandler()
+    {
+        clickHandlerFunction = nullptr;
+        clickHandlerObject = nullptr;
     }
 
     void
@@ -129,6 +146,18 @@ public:
     {
         objects.resize(2); // keep parent and button
         objects.insert(objects.end(), children.cbegin(), children.cend());
+        for (auto it = objects.begin() + 2; it != objects.end(); ++it) {
+            auto pChild = *it;
+            pChild->pData->pScreen = widgetObjectData.pScreen; // ensure children are owned by the correct screen
+        }
+        objects.push_back(nullptr);
+        widgetObject.pRelations = objects.data();
+    }
+
+    void
+    resetChildren()
+    {
+        objects.resize(2); // keep parent and button
         objects.push_back(nullptr);
         widgetObject.pRelations = objects.data();
     }

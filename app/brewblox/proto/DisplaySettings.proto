@@ -5,17 +5,16 @@ import "nanopb.proto";
 
 package blox;
 
-message Display {
-  option (nanopb_msgopt).msgid = 313;
+message DisplaySettings {
+  option (nanopb_msgopt).msgid = 314;
 
-  message Screen {
-    message Widget {
-      uint32 pos = 1 [ (nanopb).int_size = IS_8 ];
-      bytes bg_color = 2 [ (nanopb).max_size = 3, (nanopb).fixed_length = true ];
-      string name = 3 [ (nanopb).max_size = 16 ];
-      oneof obj { uint32 ProcessValue = 10 [ (brewblox).link = ProcessValueLink, (nanopb).int_size = IS_16 ]; };
-    }
-
-    repeated Widget widgets = 1 [ (nanopb).max_count = 6 ];
+  message Widget {
+    uint32 pos = 1 [ (nanopb).int_size = IS_8 ];
+    bytes bg_color = 2 [ (nanopb).max_size = 3, (nanopb).fixed_length = true ];
+    string name = 3 [ (nanopb).max_size = 16 ];
+    oneof obj { uint32 ProcessValue = 10 [ (brewblox).link = ProcessValueLink, (nanopb).int_size = IS_16 ]; };
   }
+
+  repeated Widget widgets = 1 [ (nanopb).max_count = 6 ];
+  string name = 2 [ (nanopb).max_size = 32 ];
 }

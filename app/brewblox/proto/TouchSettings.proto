@@ -6,6 +6,8 @@ import "nanopb.proto";
 package blox;
 
 message TouchSettings {
+  option (nanopb_msgopt).msgid = 313;
+
   enum Calibrated {
     NO = 0;
     YES = 1;
@@ -16,6 +18,4 @@ message TouchSettings {
   int32 y_offset = 3 [ (nanopb).int_size = IS_16 ];
   uint32 x_bits_per_pixel_x16 = 4 [ (nanopb).int_size = IS_16 ];
   uint32 y_bits_per_pixel_x16 = 5 [ (nanopb).int_size = IS_16 ];
-
-  option (nanopb_msgopt).msgid = 313;
 }

@@ -25,6 +25,7 @@
 #include "blox/ActuatorPinBlock.h"
 #include "blox/ActuatorPwmBlock.h"
 #include "blox/BalancerBlock.h"
+#include "blox/DisplaySettingsBlock.h"
 #include "blox/MutexBlock.h"
 #include "blox/OneWireBusBlock.h"
 #include "blox/PidBlock.h"
@@ -86,6 +87,7 @@ makeBrewBloxBox()
             cbox::ContainedObject(5, 0xFF, std::make_shared<WiFiSettingsBlock>()),
             cbox::ContainedObject(6, 0xFF, std::make_shared<TouchSettingsBlock>()),
 #endif
+            cbox::ContainedObject(7, 0xFF, std::make_shared<DisplaySettingsBlock>()),
     });
 
 #ifdef PIN_V3_BOTTOM1

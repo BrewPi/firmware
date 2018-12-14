@@ -85,6 +85,11 @@ public:
             ActuatorAnalogConstrained* ptr = &constrained;
             return ptr;
         }
+        if (iface == cbox::interfaceId<ProcessValue<ActuatorAnalog::value_t>>()) {
+            // return the member that implements the interface in this case
+            ProcessValue<ActuatorAnalog::value_t>* ptr = &constrained;
+            return ptr;
+        }
         return nullptr;
     }
 
