@@ -19,6 +19,7 @@
 
 #pragma once
 #include "d4d.hpp"
+#include <algorithm>
 
 /**
  * The core colors for a simple widget. Most widgets use only these core color values
@@ -38,3 +39,23 @@ struct SmallColorScheme {
 
 #define AS_D4D_COLOR_SCHEME(c) \
     ((D4D_CLR_SCHEME*)(((uint8_t*)c) - offsetof(D4D_CLR_SCHEME, bckg)))
+
+static constexpr SmallColorScheme
+makeSmallColorScheme(const uint8_t r, const uint8_t g, const uint8_t b)
+{
+    auto r_lighter = uint8_t(std::min(uint16_t(r) * 3 / 2, 255));
+    auto g_lighter = uint8_t(std::min(uint16_t(g) * 3 / 2, 255));
+    auto b_lighter = uint8_t(std::min(uint16_t(b) * 3 / 2, 255));
+
+    SmallColorScheme scheme = {
+        D4D_COLOR_RGB(r, g, b),                         ///< The object background color in standard state
+        D4D_COLOR_RGB(24, 24, 24),                      ///< The object background color in disabled state
+        D4D_COLOR_RGB(r_lighter, g_lighter, b_lighter), ///< The object background color in focused state
+        D4D_COLOR_RGB(r_lighter, g_lighter, b_lighter), ///< The object background color in captured state
+        D4D_COLOR_RGB(255, 255, 255),                   ///< The object fore color in standard state
+        D4D_COLOR_RGB(48, 48, 48),                      ///< The object fore color in disabled state
+        D4D_COLOR_RGB(255, 255, 255),                   ///< The object fore color in focused state
+        D4D_COLOR_RGB(255, 255, 255),                   ///< The object fore color in captured state
+    };
+    return scheme;
+}

@@ -21,6 +21,44 @@
 #include "ProcessValue.h"
 #include "Temperature.h"
 
+ProcessValueWidget::ProcessValueWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id)
+    : WidgetBase(myWrapper)
+    , lbl_relations{wrapper.pObj(), nullptr}
+    , value{
+          {0, 15},           // D4D_POINT position
+          {wrapper.cx, 22},  // D4D_SIZE                              size;                 ///< Size of the object.
+          0,                 // D4D_COOR                              radius;               ///< Object corners radius.
+          nullptr,           // D4D_MARGIN*                           pMargin;              ///< Object inner margin.
+          &value_lbl,        // void*                                 pParam;               ///< The object depends parameters.
+          &d4d_labelSysFunc, // D4D_OBJECT_SYS_FUNCTION*              pObjFunc;             ///< The pointer on object system functions.
+          nullptr,           // D4D_ON_USR_MSG                        OnUsrMessage;         ///< The pointer on user message.
+          nullptr,           // D4D_OBJECT_USR_DATA                   userData;             ///< The pointer on user data container (user pointer and optionaly parent/children).
+          lbl_relations,     // D4D_OBJECT_RELATIONS                  pRelations;           ///< Relationship between the objects.
+          0,                 ///< The initializations object flags.
+          wrapper.scheme,    ///< Pointer on used color scheme.
+          &valueData,        ///< Pointer on runtime object data.
+      }
+    , setting{
+          {0, 55},           // D4D_POINT position
+          {wrapper.cx, 16},  // D4D_SIZE                              size;                 ///< Size of the object.
+          0,                 // D4D_COOR                              radius;               ///< Object corners radius.
+          nullptr,           // D4D_MARGIN*                           pMargin;              ///< Object inner margin.
+          &setting_lbl,      // void*                                 pParam;               ///< The object depends parameters.
+          &d4d_labelSysFunc, // D4D_OBJECT_SYS_FUNCTION*              pObjFunc;             ///< The pointer on object system functions.
+          nullptr,           // D4D_ON_USR_MSG                        OnUsrMessage;         ///< The pointer on user message.
+          nullptr,           // D4D_OBJECT_USR_DATA                   userData;             ///< The pointer on user data container (user pointer and optionaly parent/children).
+          lbl_relations,     // D4D_OBJECT_RELATIONS                  pRelations;           ///< Relationship between the objects.
+          0,                 ///< The initializations object flags.
+          wrapper.scheme,    ///< Pointer on used color scheme.
+          &settingData,      ///< Pointer on runtime object data.
+      }
+    , pvLookup(brewbloxBox().makeCboxPtr<ProcessValue<temp_t>>(id))
+{
+    wrapper.setChildren({&value, &setting});
+    wrapper.setClickHandler(this, onClickStatic);
+    wrapper.setEnabled(D4D_FALSE); // start widget disabled
+}
+
 void
 to_chars(const temp_t& t, char* buf, uint8_t len, uint8_t decimals)
 {
@@ -62,12 +100,17 @@ void
 ProcessValueWidget::update()
 {
     if (auto pv = pvLookup.const_lock()) {
-        char buf[10];
-        to_chars(pv->value(), buf, 10, 1);
+        char buf[12];
+        to_chars(pv->value(), buf, 12, 1);
         D4D_SetText(&value, buf);
-        to_chars(pv->setting(), buf, 10, 1);
+        D4D_EnableObject(&value, true);
+        to_chars(pv->setting(), buf, 12, 1);
+        D4D_SetText(&setting, buf);
+        D4D_EnableObject(&setting, true);
         wrapper.setEnabled(true);
         return;
     }
+    D4D_EnableObject(&value, false);
+    D4D_EnableObject(&setting, false);
     wrapper.setEnabled(false);
 }

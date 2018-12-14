@@ -125,8 +125,8 @@ WidgetsScreen::loadSettings()
 void
 WidgetsScreen::activate()
 {
-    loadSettings();
     D4D_ActivateScreen(&widgets_screen, D4D_TRUE);
+    loadSettings();
 }
 
 void
