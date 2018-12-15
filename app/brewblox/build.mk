@@ -39,13 +39,6 @@ CFLAGS += -DPB_MSGID=1
 CFLAGS += -DLITTLE_ENDIAN=1234
 CFLAGS += -DBYTE_ORDER=LITTLE_ENDIAN
 
-# enable coverage for gcc builds
-ifeq ($(PLATFORM_ID),3)
-EXTRA_CFLAGS += -g -O0 -fno-inline
-EXTRA_CFLAGS += --coverage
-LDFLAGS += -Wl,--verbose --coverage
-endif
-
 # App
 INCLUDE_DIRS += $(SOURCE_PATH)/app/brewblox
 
@@ -112,6 +105,10 @@ CPPFLAGS += -I $(BOOST_ROOT)
 # Warn when functions and classes can be marked final
 # CPPFLAGS += -Wsuggest-final-types
 # CPPFLAGS += -Wsuggest-final-methods
+
+ifeq ($(PLATFORM_ID),3)
+include $(SOURCE_PATH)/build/checkers.mk # sanitizer and gcov
+endif
 
 CSRC := $(filter-out $(CEXCLUDES),$(CSRC))
 CPPSRC := $(filter-out $(CPPEXCLUDES),$(CPPSRC)) 
