@@ -18,27 +18,19 @@
  */
 
 #include "WiFiSettingsBlock.h"
+#include "connectivity.h"
 #include "d4d.hpp"
 #include "deviceid_hal.h"
-#include "spark_wiring_wifi.h"
 #include <cstring>
-
-using namespace spark;
 
 cbox::CboxError
 WiFiSettingsBlock::streamTo(cbox::DataOut& out) const
 {
     blox_WiFiSettings message = blox_WiFiSettings_init_zero;
 
-    strncpy(message.ssid, WiFi.SSID(), 33);
+    printWiFiIp(message.ip);
 
-    IPAddress ip = WiFi.localIP();
-    message.ip[0] = ip[0];
-    message.ip[1] = ip[1];
-    message.ip[2] = ip[2];
-    message.ip[3] = ip[3];
-
-    message.signal = WiFi.RSSI();
+    message.signal = wifiSignal();
 
     return streamProtoTo(out, &message, blox_WiFiSettings_fields, blox_WiFiSettings_size);
 }
@@ -51,7 +43,7 @@ WiFiSettingsBlock::streamFrom(cbox::DataIn& in)
     if (result == cbox::CboxError::OK) {
         if (message.password[0] != 0) {
             // new wifi credentials received
-            WiFi.setCredentials(message.ssid, message.password, message.security, message.cipher);
+            setWifiCredentials(message.ssid, message.password, message.security, message.cipher);
         }
     }
     return result;

@@ -7,7 +7,7 @@ package blox;
 
 message WiFiSettings {
   option (nanopb_msgopt).msgid = 312;
-  
+
   enum WlanSecurity {
     WLAN_SEC_UNSEC = 0;
     WLAN_SEC_WEP = 1;
@@ -28,6 +28,6 @@ message WiFiSettings {
   string password = 2 [ (nanopb).max_size = 64 ];
   WlanSecurity security = 3;
   WlanCipher cipher = 4;
-  int32 signal = 5;
-  bytes ip = 6 [ (brewblox).readonly = true, (nanopb).max_size = 4, (nanopb).fixed_length = true ];
+  int32 signal = 5 [ (nanopb).int_size = IS_8 ];
+  string ip = 6 [ (brewblox).readonly = true, (nanopb).max_size = 16, (nanopb).fixed_length = true ];
 }

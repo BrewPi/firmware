@@ -2437,7 +2437,7 @@ constexpr Byte d4dfnt_siji_data_table[] __attribute__((unused)) = {
     0x00, 0x00, 0x00, 0x20, 0x80, 0x06, 0x38, 0xC0, 0x02, 0x68, 0x80, 0x03, 0x2C, 0x80, 0x00, 0x00,
     0x00, 0x00};
 
-template <size_t... indices>
+template <uint32_t... indices>
 class IconTable {
 public:
     constexpr IconTable()
@@ -2445,28 +2445,29 @@ public:
     {
     }
 
-    static constexpr size_t numIcons()
+    static constexpr uint32_t numIcons()
     {
         return sizeof...(indices);
     }
 
-    static constexpr size_t size()
+    static constexpr uint32_t size()
     {
         return numIcons() * 18;
     }
 
     struct Table {
-        Byte data[size()] = {0};
+        uint8_t data[size()] = {0};
     };
 
-    static constexpr auto
+    static constexpr Table
     gen_table()
     {
-        constexpr size_t icons[] = {indices...};
+        constexpr uint32_t icons[] = {indices...};
         Table icon_data;
-        for (size_t j = 0; j < sizeof(icons) / sizeof(icons[0]); ++j) {
-            for (size_t i = 0; i < 18; ++i) {
-                icon_data.data[j * 18 + i] = d4dfnt_siji_data_table[(icons[j] - 0x20) * 18 + i];
+        for (uint32_t j = 0; j < sizeof(icons) / sizeof(icons[0]); ++j) {
+            uint32_t iconStart = (icons[j] - 32) * 18; // pos 0 is 0x20
+            for (uint32_t i = 0; i < 18; ++i) {
+                icon_data.data[j * 18 + i] = d4dfnt_siji_data_table[iconStart + i];
             }
         }
         return icon_data;
@@ -2482,7 +2483,7 @@ constexpr auto myTable = IconTable<
     0x217, // 0x22 WiFi no signal
     0x218, // 0x23 WiFi 1/3
     0x219, // 0x24 WiFi 2/3
-    0x220  // 0x25 WiFi 3/3
+    0x21A  // 0x25 WiFi 3/3
     >();
 
 const D4D_FONT_DESCRIPTOR d4dfnt_icons_desc = {

@@ -20,8 +20,8 @@
 #include "WidgetsScreen.h"
 #include "BrewBlox.h"
 #include "ProcessValueWidget.h"
-#include "application.h"
 #include "blox/DisplaySettingsBlock.h"
+#include "connectivity.h"
 #include "screen.h"
 #include <algorithm>
 #include <array>
@@ -133,7 +133,7 @@ WidgetsScreen::activate()
 void
 WidgetsScreen::updateUsb()
 {
-    bool connected = Serial.isConnected();
+    bool connected = serialConnected();
     D4D_EnableObject(&scrWidgets_usb_icon, connected);
     D4D_EnableObject(&scrWidgets_usb_text, connected);
 }
@@ -141,9 +141,8 @@ WidgetsScreen::updateUsb()
 void
 WidgetsScreen::updateWiFi()
 {
-    int signal = WiFi.RSSI();
-    IPAddress ip = WiFi.localIP();
-    snprintf(wifi_ip, 16, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+    auto signal = wifiSignal();
+    printWiFiIp(wifi_ip);
 
     if (signal >= 0) {
         wifi_icon[0] = 0x22;
