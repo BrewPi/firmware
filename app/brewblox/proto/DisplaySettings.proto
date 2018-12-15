@@ -16,5 +16,5 @@ message DisplaySettings {
   }
 
   repeated Widget widgets = 1 [ (nanopb).max_count = 6 ];
-  string name = 2 [ (nanopb).max_size = 32 ];
+  string name = 2 [ (nanopb).max_size = 40 ];
 }

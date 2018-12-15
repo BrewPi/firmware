@@ -64,7 +64,7 @@ D4D_DECLARE_LABEL(scrWidgets_wifi_ip, wifi_ip, 60, 0, 15 * 6, 20, D4D_LBL_F_DEFA
 
 #undef D4D_LBL_TXT_PRTY_DEFAULT
 #define D4D_LBL_TXT_PRTY_DEFAULT (D4D_TXT_PRTY_ALIGN_H_CENTER_MASK | D4D_TXT_PRTY_ALIGN_V_CENTER_MASK)
-char screen_title[32] = "Edit this screen in the Web UI";
+char screen_title[40] = "Edit this screen in the web interface";
 D4D_DECLARE_LABEL(scrWidgets_title, screen_title, 40, 220, 240, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_REGULAR, nullptr, nullptr);
 
 std::array<WidgetWrapper, 6> widgetWrappers = {
@@ -76,7 +76,7 @@ std::array<WidgetWrapper, 6> widgetWrappers = {
     WidgetWrapper(5),
 };
 
-D4D_DECLARE_STD_SCREEN_BEGIN_INRAM(widgets_screen, scrWidgets_)
+D4D_DECLARE_STD_SCREEN_BEGIN(widgets_screen, scrWidgets_)
 &scrWidgets_usb_icon,
     &scrWidgets_usb_text,
     &scrWidgets_wifi_icon,
@@ -88,9 +88,7 @@ D4D_DECLARE_STD_SCREEN_BEGIN_INRAM(widgets_screen, scrWidgets_)
     widgetWrappers[3].pObj(),
     widgetWrappers[4].pObj(),
     widgetWrappers[5].pObj(),
-    nullptr
-}
-;
+    D4D_DECLARE_SCREEN_END();
 
 std::vector<std::unique_ptr<WidgetBase>> WidgetsScreen::widgets;
 
