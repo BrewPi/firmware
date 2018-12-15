@@ -18,7 +18,6 @@
  */
 
 #include "WidgetBase.h"
-#include "d4d.hpp"
 
 class WidgetsScreen {
 private:

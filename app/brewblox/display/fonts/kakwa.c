@@ -31,8 +31,9 @@
 *
 *END************************************************************************/
 
-#include "kakwa.h"
 #include "d4d.h"
+
+#include "fonts.h"
 
 const Byte d4dfnt_kakwa_data_table[] = {
 

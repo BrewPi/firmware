@@ -22,7 +22,6 @@
 #include "ProcessValueWidget.h"
 #include "blox/DisplaySettingsBlock.h"
 #include "connectivity.h"
-#include "screen.h"
 #include <algorithm>
 #include <array>
 #include <vector>
@@ -53,8 +52,10 @@ SmallColorScheme TOP_BAR_SCHEME = {
     D4D_COLOR_RGB(64, 100, 255), ///< The object fore color in captured state
 };
 
-D4D_DECLARE_LABEL(scrWidgets_usb_icon, "\x21", 0, 0, 20, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_ICON, nullptr, nullptr);
-D4D_DECLARE_LABEL(scrWidgets_usb_text, "USB", 20, 0, 20, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_REGULAR, nullptr, nullptr);
+char icon_str[2] = "\x21";
+char usb_str[4] = "USB";
+D4D_DECLARE_LABEL(scrWidgets_usb_icon, icon_str, 0, 0, 20, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_ICON, nullptr, nullptr);
+D4D_DECLARE_LABEL(scrWidgets_usb_text, usb_str, 20, 0, 20, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_REGULAR, nullptr, nullptr);
 
 D4D_DECLARE_LABEL(scrWidgets_wifi_icon, wifi_icon, 40, 0, 20, 20, D4D_LBL_F_DEFAULT, AS_D4D_COLOR_SCHEME(&TOP_BAR_SCHEME), FONT_ICON, nullptr, nullptr);
 

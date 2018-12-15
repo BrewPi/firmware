@@ -20,7 +20,6 @@
 #include "WidgetWrapper.h"
 #include "SmallColorScheme.h"
 #include "cbox/CboxPtr.h"
-#include "screen.h"
 #include <algorithm>
 #include <vector>
 

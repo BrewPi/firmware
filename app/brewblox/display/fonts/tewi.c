@@ -31,8 +31,9 @@
 *
 *END************************************************************************/
 
-#include "tewi.h"
 #include "d4d.h"
+
+#include "fonts.h"
 
 const Byte d4dfnt_tewi_data_table[] = {
 

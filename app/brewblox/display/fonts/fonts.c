@@ -19,11 +19,7 @@
 
 #include "d4d.h"
 
-#include "font04b03.h"
 #include "fonts.h"
-#include "icons.h"
-#include "kakwa.h"
-#include "tewi.h"
 
 // Font Table declaration
 

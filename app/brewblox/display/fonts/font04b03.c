@@ -31,8 +31,9 @@
 *
 *END************************************************************************/
 
-#include "font04b03.h"
 #include "d4d.h"
+
+#include "fonts.h"
 
 const Byte d4dfnt_04b03_data_table[] = {
 

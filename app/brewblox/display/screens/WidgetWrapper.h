@@ -18,9 +18,10 @@
  */
 
 #pragma once
+#include "../fonts/fonts.h"
 #include "SmallColorScheme.h"
 #include "cbox/CboxPtr.h"
-#include "screen.h"
+#include "d4d.hpp"
 #include <vector>
 
 class WidgetWrapper {

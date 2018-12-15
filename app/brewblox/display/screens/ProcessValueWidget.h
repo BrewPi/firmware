@@ -22,6 +22,7 @@
 #include "Temperature.h"
 #include "WidgetBase.h"
 #include "cbox/CboxPtr.h"
+#include "d4d.hpp"
 
 class ProcessValueWidget : public WidgetBase {
 private:

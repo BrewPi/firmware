@@ -21,6 +21,7 @@
 #include "BrewBlox.h"
 #include "ProcessValue.h"
 #include "Temperature.h"
+#include "d4d.hpp"
 
 ProcessValueWidget::ProcessValueWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id)
     : WidgetBase(myWrapper)

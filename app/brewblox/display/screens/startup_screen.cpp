@@ -18,8 +18,9 @@
  */
 
 #include "startup_screen.h"
+#include "../fonts/fonts.h"
 #include "BrewBlox.h"
-#include "screen.h"
+#include "d4d.hpp"
 #include "spark_wiring_ticks.h"
 #include "spark_wiring_timer.h"
 
@@ -36,11 +37,14 @@ extern BrewPiTouch touch;
 #define xstr(s) str(s)
 
 char stepTxt[32] = "Init board";
+char versionString[] = "BrewBlox " xstr(BUILD_NAME);
 
-D4D_DECLARE_STD_LABEL(scrStartup_version, "BrewBlox " xstr(BUILD_NAME), 0, 140, 320, 15, FONT_SMALL)
+D4D_DECLARE_STD_LABEL(scrStartup_version, versionString, 0, 140, 320, 15, FONT_SMALL)
 D4D_DECLARE_STD_PROGRESS_BAR(scrStartup_progress, 80, 160, 160, 20, 0)
 D4D_DECLARE_STD_LABEL(scrStartup_step, stepTxt, 0, 180, 320, 15, FONT_SMALL)
-D4D_DECLARE_STD_LABEL(scrStartup_txt_calibrate, "Tap screen to re-calibrate touch", 0, 210, 320, 15, FONT_SMALL)
+
+char calibrate_str[] = "Tap screen to re-calibrate touch";
+D4D_DECLARE_STD_LABEL(scrStartup_txt_calibrate, calibrate_str, 0, 210, 320, 15, FONT_SMALL)
 
 D4D_DECLARE_SCREEN_BEGIN(screen_startup, ScrStartup_, 0, 0, (D4D_COOR)(D4D_SCREEN_SIZE_LONGER_SIDE), (D4D_COOR)(D4D_SCREEN_SIZE_SHORTER_SIDE), nullptr, 0, nullptr, (D4D_SCR_F_DEFAULT | D4D_SCR_F_TOUCHENABLE), nullptr)
 D4D_DECLARE_SCREEN_OBJECT(scrStartup_version)

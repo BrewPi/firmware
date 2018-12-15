@@ -18,6 +18,7 @@
  */
 
 #pragma once
+#include "d4d.hpp"
 
 #define FONT_KAKWA 0
 #define FONT_KAKWA_BIG 1
@@ -48,10 +49,12 @@
 #define FONT_NUMBER_MEDIUM FONT_ALTE_DIN_16
 #define FONT_NUMBER_LARGE FONT_ALTE_DIN_22
 
+extern const D4D_FONT_DESCRIPTOR d4dfnt_04b03_desc;
+extern const D4D_FONT_DESCRIPTOR d4dfnt_icons_desc;
 extern const D4D_FONT_DESCRIPTOR d4dfnt_tewi_desc;
+extern const D4D_FONT_DESCRIPTOR d4dfnt_kakwa_desc;
 extern const D4D_FONT_DESCRIPTOR d4dfnt_AlteDIN1451_22_desc;
 extern const D4D_FONT_DESCRIPTOR d4dfnt_AlteDIN1451_16_desc;
-extern const D4D_FONT_DESCRIPTOR d4dfnt_kakwa_desc;
 
 //extern const D4D_FONT_DESCRIPTOR d4dfnt_CourierNew8B_desc;
 //extern const D4D_FONT_DESCRIPTOR d4dfnt_TimesNewRoman12B_desc;

@@ -135,9 +135,9 @@ typedef LWord D4D_OBJECT_INITFLAGS;
 
 /*! @brief The object system function needed for each object - this is part of D4D_OBJECT main structure.*/
 typedef struct D4D_OBJECT_SYS_FUNCTION_S {
-    D4D_TCHAR* strName;                               ///< Object type (widget) name, it also could be used as a identifier of object type
+    const D4D_TCHAR* strName;                         ///< Object type (widget) name, it also could be used as a identifier of object type
     void (*OnSysMessage)(struct D4D_MESSAGE_S* pMsg); ///< Object system message receiver function pointer
-    D4D_BOOL (*CheckCoordinates)
+    D4D_BOOL(*CheckCoordinates)
     (struct D4D_OBJECT_S* pObj, D4D_POINT point);                     ///< Object check coordinates function pointer (return true or false if the input point fits into the object, is used just for non standard objects)
     struct D4D_STRING_S* (*GetTextBuffer)(struct D4D_OBJECT_S* pObj); ///< Object get text buffer function pointer (the function returns the pointer of the object text buffer, if exists)
 } D4D_OBJECT_SYS_FUNCTION;

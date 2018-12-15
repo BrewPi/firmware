@@ -31,7 +31,10 @@
 *
 *END************************************************************************/
 
-#include "icons.h"
+#include "d4d.hpp"
+
+#include "fonts.h"
+
 #include <array>
 #include <cstring>
 

@@ -17,7 +17,6 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "d4d.hpp"
 #include <cstdint>
 
 class StartupScreen {
@@ -28,5 +27,3 @@ public:
     static void setProgress(const uint8_t& v);
     static void setStep(const char* txt);
 };
-
-extern const D4D_SCREEN* startup_screen;

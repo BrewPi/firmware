@@ -65,7 +65,12 @@
     "d4d.hpp": "c",
     "fonts.h": "c",
     "icons.h": "c",
-    "d4d_private.h": "c"
+    "d4d_private.h": "c",
+    "d4d.h": "c",
+    "d4d_types.h": "c",
+    "d4d_user_cfg.h": "c",
+    "font04b03.h": "c",
+    "tewi.h": "c"
   },
   "editor.formatOnSave": true,
   "clang.cflags": [
