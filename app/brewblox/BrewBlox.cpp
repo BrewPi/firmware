@@ -20,6 +20,7 @@
 #include "AppTicks.h"
 #include "Board.h"
 #include "Logger.h"
+#include "OneWireScanningFactory.h"
 #include "blox/ActuatorAnalogMockBlock.h"
 #include "blox/ActuatorOffsetBlock.h"
 #include "blox/ActuatorPinBlock.h"

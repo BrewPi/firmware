@@ -18,6 +18,7 @@
  */
 
 #include "ProcessValueWidget.h"
+#include "BrewBlox.h"
 #include "ProcessValue.h"
 #include "Temperature.h"
 

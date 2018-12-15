@@ -18,12 +18,10 @@
  */
 
 #pragma once
-#include "BrewBlox.h"
 #include "ProcessValue.h"
 #include "Temperature.h"
 #include "WidgetBase.h"
 #include "cbox/CboxPtr.h"
-#include <algorithm>
 
 class ProcessValueWidget : public WidgetBase {
 private:

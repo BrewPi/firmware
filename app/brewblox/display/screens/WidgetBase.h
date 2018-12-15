@@ -19,7 +19,6 @@
 
 #pragma once
 #include "WidgetWrapper.h"
-#include "screen.h"
 
 class WidgetBase {
 protected:

@@ -18,12 +18,8 @@
  */
 
 #include "DisplaySettingsBlock.h"
-#include "d4d.hpp"
 #include "deviceid_hal.h"
-#include "spark_wiring_wifi.h"
 #include <cstring>
-
-using namespace spark;
 
 cbox::CboxError
 DisplaySettingsBlock::streamTo(cbox::DataOut& out) const

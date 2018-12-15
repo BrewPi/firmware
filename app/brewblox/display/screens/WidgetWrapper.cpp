@@ -41,7 +41,7 @@ WidgetWrapper::WidgetWrapper(uint8_t pos)
           &widget_params,       // void*                                 pParam;               ///< The object depends parameters.
           &d4d_groupBoxSysFunc, // D4D_OBJECT_SYS_FUNCTION*              pObjFunc;             ///< The pointer on object system functions.
           nullptr,              // D4D_ON_USR_MSG                        OnUsrMessage;         ///< The pointer on user message.
-          this,                 // D4D_OBJECT_USR_DATA                   userData;             ///< The pointer on user data container (user pointer and optionaly parent/children).
+          this,                 // D4D_OBJECT_USR_DATA                   userData;             ///< The pointer on user data container (user pointer and optionally parent/children).
           objects.data(),       // D4D_OBJECT_RELATIONS                  pRelations;           ///< Relationship between the objects.
           0,                    ///< The initializations object flags.
           scheme,               ///< Pointer on used color scheme.

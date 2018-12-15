@@ -19,8 +19,6 @@
 
 #include "WidgetBase.h"
 #include "d4d.hpp"
-#include <cstdint>
-#include <vector>
 
 class WidgetsScreen {
 private:
