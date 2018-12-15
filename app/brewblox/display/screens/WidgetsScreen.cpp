@@ -114,6 +114,7 @@ WidgetsScreen::loadSettings()
         case blox_DisplaySettings_Widget_ProcessValue_tag:
             WidgetWrapper& wrapper = widgetWrappers[pos - 1];
             wrapper.setName(widgetDfn.name);
+            wrapper.setColor(widgetDfn.bg_color[0], widgetDfn.bg_color[1], widgetDfn.bg_color[2]);
             auto w = std::make_unique<ProcessValueWidget>(wrapper, cbox::obj_id_t(widgetDfn.obj.ProcessValue));
             widgets.push_back(std::move(w));
         }

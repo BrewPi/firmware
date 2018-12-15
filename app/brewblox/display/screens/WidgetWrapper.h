@@ -98,6 +98,7 @@ public:
 
     void setName(char* newName);
     void resetName();
+    void setColor(uint8_t r, uint8_t g, uint8_t b);
     void setClickHandler(void* obj, void (*func)(void*));
     void resetClickHandler();
     void setChildren(std::vector<D4D_OBJECT*> children);

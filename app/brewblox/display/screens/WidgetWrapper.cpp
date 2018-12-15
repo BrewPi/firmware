@@ -58,6 +58,12 @@ WidgetWrapper::setName(char* newName)
 }
 
 void
+WidgetWrapper::setColor(uint8_t r, uint8_t g, uint8_t b)
+{
+    colorScheme = makeSmallColorScheme(r, g, b);
+}
+
+void
 WidgetWrapper::resetName()
 {
     D4D_SetText(&btnObject, "unassigned");
