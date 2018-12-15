@@ -21,7 +21,7 @@
 
 #include "ActuatorAnalog.h"
 #include "future_std.h"
-#include <stdint.h>
+#include <cstdint>
 
 /*
  * A range actuator that simply remembers the set value. This is primary used for testing.

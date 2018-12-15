@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include <cstdint>
 
 const uint16_t eepromStart = 0;
 

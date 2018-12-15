@@ -18,7 +18,7 @@
  */
 
 #include "d4d.hpp"
-#include <stdint.h>
+#include <cstdint>
 
 class StartupScreen {
 public:

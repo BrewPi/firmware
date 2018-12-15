@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 class OneWireLowLevelInterface {
 protected:

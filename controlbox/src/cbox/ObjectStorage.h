@@ -20,7 +20,7 @@
 #pragma once
 
 #include <functional>
-#include <stdint.h>
+#include <cstdint>
 
 namespace cbox {
 

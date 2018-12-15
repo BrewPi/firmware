@@ -19,7 +19,7 @@
 
 #include "WidgetBase.h"
 #include "d4d.hpp"
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 class WidgetsScreen {

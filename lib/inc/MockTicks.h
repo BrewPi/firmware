@@ -20,7 +20,7 @@
 #pragma once
 
 #include "TicksTypes.h"
-#include <stdint.h>
+#include <cstdint>
 
 /**
  * A Ticks implementation that increments the millis count each time it is called.

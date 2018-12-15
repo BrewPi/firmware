@@ -24,7 +24,7 @@
 #include "FixedPoint.h"
 #include <functional>
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 
 /**
 	ActuatorPWM drives a (change logged) digital actuator and makes it available as range actuator, by quickly turning it on and off repeatedly.

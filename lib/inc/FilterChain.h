@@ -21,7 +21,7 @@
 #include "IirFilter.h"
 #include <limits>
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 class FilterChain {
