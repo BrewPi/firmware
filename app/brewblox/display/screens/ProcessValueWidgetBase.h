@@ -28,37 +28,92 @@ class ProcessValueWidgetBase : public WidgetBase {
 protected:
     char value_buf[12] = {0};
     char setting_buf[12] = {0};
+    char icons_buf[6] = {0};
 
     const D4D_OBJECT* lbl_relations[2];
 
     D4D_STR_PROPERTIES value_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_BOTTOM_MASK)};
     D4D_STR_PROPERTIES setting_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_CENTER_MASK)};
+    D4D_STR_PROPERTIES icons_strPrties = {D4D_LBL_FNT_PRTY_DEFAULT, (D4D_ALIGN_H_CENTER_MASK | D4D_ALIGN_V_CENTER_MASK)};
 
     D4D_LABEL value_lbl = {{value_buf, D4D_TEXT_LEN(value_buf), FONT_NUMBER_LARGE, &value_strPrties, 12, 0}};
     D4D_LABEL setting_lbl = {{setting_buf, D4D_TEXT_LEN(setting_buf), FONT_NUMBER_MEDIUM, &setting_strPrties, 12, 0}};
+    D4D_LABEL icons_lbl = {{icons_buf, D4D_TEXT_LEN(icons_buf), FONT_ICON, &icons_strPrties, 6, 0}};
 
     D4D_OBJECT_DATA valueData = {((D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL};
     D4D_OBJECT_DATA settingData = {((D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL};
+    D4D_OBJECT_DATA iconsData = {((D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_NOTINIT) & D4D_OBJECT_F_SYSTEM_MASK), NULL};
 
     D4D_OBJECT value;
     D4D_OBJECT setting;
+    D4D_OBJECT icons;
 
 public:
     ProcessValueWidgetBase(WidgetWrapper& myWrapper);
+    virtual ~ProcessValueWidgetBase() = default;
 
     void
-    setValue(const char* buf, bool enabled)
+    setValue(const char* buf)
     {
         D4D_SetText(&value, buf);
-        D4D_EnableObject(&value, true);
+        resetValueStrikeThrough();
     }
 
     void
-    setSetting(const char* buf, bool enabled)
+    setSetting(const char* buf)
     {
         D4D_SetText(&setting, buf);
-        D4D_EnableObject(&setting, true);
+        resetSettingStrikeThrough();
     }
 
-    virtual ~ProcessValueWidgetBase() = default;
+    void
+    setIcons(const char* buf)
+    {
+        D4D_SetText(&icons, buf);
+    }
+
+    void
+    setDisconnected()
+    {
+        setIcons("\0x20f");
+        D4D_EnableObject(&setting, false);
+        D4D_EnableObject(&icons, false);
+        D4D_EnableObject(&value, false);
+        enableBackground(false);
+    }
+
+    void
+    setConnected()
+    {
+        D4D_EnableObject(&setting, true);
+        D4D_EnableObject(&icons, true);
+        D4D_EnableObject(&value, true);
+        enableBackground(true);
+    }
+
+    void setValueStrikeThrough()
+    {
+        value_strPrties.font_properties = value_strPrties.font_properties | D4D_FNT_PRTY_STRIKETHROUGH_SINGLE_MASK;
+        D4D_InvalidateObject(&value, false);
+    }
+
+    void resetValueStrikeThrough()
+
+    {
+        value_strPrties.font_properties = value_strPrties.font_properties & ~D4D_FNT_PRTY_STRIKETHROUGH_MASK;
+        D4D_InvalidateObject(&value, false);
+    }
+
+    void setSettingStrikeThrough()
+    {
+        setting_strPrties.font_properties = setting_strPrties.font_properties | D4D_FNT_PRTY_STRIKETHROUGH_SINGLE_MASK;
+        D4D_InvalidateObject(&setting, false);
+    }
+
+    void resetSettingStrikeThrough()
+
+    {
+        setting_strPrties.font_properties = setting_strPrties.font_properties & ~D4D_FNT_PRTY_STRIKETHROUGH_MASK;
+        D4D_InvalidateObject(&setting, false);
+    }
 };

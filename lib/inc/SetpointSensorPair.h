@@ -70,14 +70,25 @@ public:
         }
     }
 
-    virtual bool valid() const override final
+    bool sensorValid() const
     {
         if (auto sens = sensor()) {
-            if (auto sp = setpoint()) {
-                return sens->valid() && sp->valid();
-            }
+            return sens->valid();
         }
         return false;
+    }
+
+    bool setpointValid() const
+    {
+        if (auto sp = setpoint()) {
+            return sp->valid();
+        }
+        return false;
+    }
+
+    virtual bool valid() const override final
+    {
+        return sensorValid() && setpointValid();
     }
 
     virtual void valid(bool v) override final

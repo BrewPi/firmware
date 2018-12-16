@@ -17,13 +17,11 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
 #include "FixedPoint.h"
 #include <cstring>
 
 void
-to_chars(const fp12_t& t, char* buf, uint8_t len, uint8_t decimals)
+to_chars_dec(const fp12_t& t, char* buf, uint8_t len, uint8_t decimals)
 {
     auto digits = decimals + 2;
     auto rounder = fp12_t(0.5);

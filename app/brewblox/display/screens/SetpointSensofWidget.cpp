@@ -31,15 +31,27 @@ void
 SetpointSensorWidget::update()
 {
     if (auto ptr = lookup.const_lock()) {
-        enableBackground(true);
+        setConnected();
         char buf[12];
-        to_chars(ptr->value(), buf, 12, 1);
-        setValue(buf, true);
-        to_chars(ptr->setting(), buf, 12, 1);
-        setSetting(buf, true);
+        char icons[3] = {0};
+        if (ptr->sensorValid()) {
+            temp_to_chars(ptr->value(), buf, 12, 1);
+            setValue(buf);
+            icons[0] = '\x29';
+        } else {
+            setValueStrikeThrough();
+            icons[0] = '\x2B';
+        }
+        if (ptr->setpointValid()) {
+            temp_to_chars(ptr->setting(), buf, 12, 1);
+            setSetting(buf);
+            icons[1] = '\x2A';
+        } else {
+            setSettingStrikeThrough();
+            icons[1] = '\x20';
+        }
+        setIcons(icons);
         return;
     }
-    setValue("", false);
-    setSetting("", false);
-    enableBackground(false);
+    setDisconnected();
 }

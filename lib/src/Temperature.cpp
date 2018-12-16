@@ -19,7 +19,7 @@
 
 #include "Temperature.h"
 
-TempFormat tempformat = TempFormat::Celsius;
+TempFormat tempFormat = TempFormat::Celsius;
 
 void
 tempDiff_to_chars(const temp_t& t, char* buf, uint8_t len, uint8_t decimals)
@@ -28,7 +28,7 @@ tempDiff_to_chars(const temp_t& t, char* buf, uint8_t len, uint8_t decimals)
     if (tempFormat == Fahrenheit) {
         val = (t * 9) / 5;
     }
-    to_chars(val, buf, len, decimals);
+    to_chars_dec(val, buf, len, decimals);
 }
 
 void
@@ -38,5 +38,5 @@ temp_to_chars(const temp_t& t, char* buf, uint8_t len, uint8_t decimals)
     if (tempFormat == Fahrenheit) {
         val += (t * 9) / 5 + fp12_t(32);
     }
-    to_chars(val, buf, len, decimals);
+    to_chars_dec(val, buf, len, decimals);
 }

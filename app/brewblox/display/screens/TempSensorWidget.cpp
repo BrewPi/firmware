@@ -30,14 +30,20 @@ void
 TempSensorWidget::update()
 {
     if (auto ptr = lookup.const_lock()) {
-        enableBackground(true);
+        setConnected();
         char buf[12];
-        to_chars(ptr->value(), buf, 12, 1);
-        setValue(buf, true);
-        setSetting("", true);
+        char icons[2] = {0};
+        if (ptr->valid()) {
+            temp_to_chars(ptr->value(), buf, 12, 1);
+            setValue(buf);
+            icons[0] = 0x29;
+        } else {
+            setValueStrikeThrough();
+            icons[0] = 0x2B;
+        }
+        setIcons(icons);
+        setSetting("");
         return;
     }
-    setValue("", false);
-    setSetting("", false);
-    enableBackground(false);
+    setDisconnected();
 }

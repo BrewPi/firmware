@@ -155,3 +155,12 @@ ActuatorPwm::valid(bool v)
         setting(0);
     }
 }
+
+ActuatorPwm::State
+ActuatorPwm::targetState() const
+{
+    if (auto actPtr = m_target()) {
+        return actPtr->state();
+    }
+    return State::Unknown;
+}

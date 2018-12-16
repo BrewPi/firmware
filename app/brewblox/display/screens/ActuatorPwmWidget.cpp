@@ -19,6 +19,7 @@
 
 #include "ActuatorPwmWidget.h"
 #include "BrewBlox.h"
+#include "FixedPoint.h"
 
 ActuatorPwmWidget::ActuatorPwmWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id)
     : ProcessValueWidgetBase(myWrapper)
@@ -31,15 +32,27 @@ void
 ActuatorPwmWidget::update()
 {
     if (auto ptr = lookup.const_lock()) {
-        enableBackground(true);
+        setConnected();
         char buf[12];
-        to_chars(ptr->value(), buf, 12, 1);
-        setValue(buf, true);
-        to_chars(ptr->setting(), buf, 12, 1);
-        setSetting(buf, true);
+        to_chars_dec(ptr->value(), buf, 12, 1);
+        setValue(buf);
+        to_chars_dec(ptr->setting(), buf, 12, 1);
+        setSetting(buf);
+
+        switch (ptr->targetState()) {
+        case ActuatorPwm::State::Inactive:
+            buf[0] = 0x26;
+            break;
+        case ActuatorPwm::State::Active:
+            buf[0] = 0x27;
+            break;
+        default:
+            buf[0] = 0x28;
+            break;
+        }
+        buf[1] = 0;
+        setIcons(buf);
         return;
     }
-    setValue("", false);
-    setSetting("", false);
-    enableBackground(false);
+    setDisconnected();
 }

@@ -2481,12 +2481,18 @@ public:
 
 // start index at 0x20, because D4D has special handling for non-printable characters < 0x20
 constexpr auto myTable = IconTable<
-    0x14d, // 0x20 pacman
+    0x020, // 0x20 space
     0x235, // 0x21 USB
     0x217, // 0x22 WiFi no signal
     0x218, // 0x23 WiFi 1/3
     0x219, // 0x24 WiFi 2/3
-    0x21A  // 0x25 WiFi 3/3
+    0x21A, // 0x25 WiFi 3/3
+    0x0E6, // 0x26 circle outline
+    0x056, // 0x27 circle filled
+    0x20f, // 0x28 plug disconnected
+    0x0cf, // 0x29 thermometer
+    0x13e, // 0x2A arrow left
+    0x0b3  // 0x2B exclamation mark
     >();
 
 const D4D_FONT_DESCRIPTOR d4dfnt_icons_desc = {
