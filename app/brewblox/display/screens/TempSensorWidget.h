@@ -18,33 +18,17 @@
  */
 
 #pragma once
-#include "WidgetWrapper.h"
+#include "ProcessValueWidgetBase.h"
+#include "TempSensor.h"
+#include "cbox/CboxPtr.h"
 
-class WidgetBase {
-protected:
-    WidgetWrapper& wrapper;
+class TempSensorWidget : public ProcessValueWidgetBase {
+private:
+    cbox::CboxPtr<TempSensor> lookup;
 
 public:
-    WidgetBase(WidgetWrapper& myWrapper)
-        : wrapper(myWrapper)
-    {
-    }
-    virtual ~WidgetBase()
-    {
-        wrapper.resetClickHandler();
-        wrapper.resetChildren();
-        wrapper.resetName();
-    }
+    TempSensorWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id);
+    virtual ~TempSensorWidget() = default;
 
-    void setClickHandler(void* obj, void (*func)(void*))
-    {
-        wrapper.setClickHandler(obj, func);
-    }
-
-    void enableBackground(bool enabled)
-    {
-        wrapper.setEnabled(enabled);
-    }
-
-    virtual void update() = 0;
+    virtual void update() override final;
 };

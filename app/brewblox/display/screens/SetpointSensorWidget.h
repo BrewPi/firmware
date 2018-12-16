@@ -18,33 +18,26 @@
  */
 
 #pragma once
-#include "WidgetWrapper.h"
+#include "ProcessValueWidgetBase.h"
+#include "SetpointSensorPair.h"
+#include "cbox/CboxPtr.h"
 
-class WidgetBase {
-protected:
-    WidgetWrapper& wrapper;
+class SetpointSensorWidget : public ProcessValueWidgetBase {
+private:
+    cbox::CboxPtr<SetpointSensorPair> lookup;
 
 public:
-    WidgetBase(WidgetWrapper& myWrapper)
-        : wrapper(myWrapper)
-    {
-    }
-    virtual ~WidgetBase()
-    {
-        wrapper.resetClickHandler();
-        wrapper.resetChildren();
-        wrapper.resetName();
-    }
+    SetpointSensorWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id);
+    virtual ~SetpointSensorWidget() = default;
 
-    void setClickHandler(void* obj, void (*func)(void*))
-    {
-        wrapper.setClickHandler(obj, func);
-    }
+    virtual void update() override final;
 
-    void enableBackground(bool enabled)
+    static void
+    onClickStatic(void* thisPtr)
     {
-        wrapper.setEnabled(enabled);
     }
-
-    virtual void update() = 0;
+    void
+    onClick()
+    {
+    }
 };

@@ -80,6 +80,11 @@ public:
         if (iface == blox_ActuatorPwm_msgid) {
             return this; // me!
         }
+        if (iface == cbox::interfaceId<ActuatorPwm>()) {
+            // return the member that implements the interface in this case
+            ActuatorPwm* ptr = &pwm;
+            return ptr;
+        }
         if (iface == cbox::interfaceId<ActuatorAnalogConstrained>()) {
             // return the member that implements the interface in this case
             ActuatorAnalogConstrained* ptr = &constrained;

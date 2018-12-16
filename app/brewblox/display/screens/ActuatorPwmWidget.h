@@ -18,33 +18,26 @@
  */
 
 #pragma once
-#include "WidgetWrapper.h"
+#include "ActuatorPwm.h"
+#include "ProcessValueWidgetBase.h"
+#include "cbox/CboxPtr.h"
 
-class WidgetBase {
-protected:
-    WidgetWrapper& wrapper;
+class ActuatorPwmWidget : public ProcessValueWidgetBase {
+private:
+    cbox::CboxPtr<ActuatorPwm> lookup;
 
 public:
-    WidgetBase(WidgetWrapper& myWrapper)
-        : wrapper(myWrapper)
-    {
-    }
-    virtual ~WidgetBase()
-    {
-        wrapper.resetClickHandler();
-        wrapper.resetChildren();
-        wrapper.resetName();
-    }
+    ActuatorPwmWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id);
+    virtual ~ActuatorPwmWidget() = default;
 
-    void setClickHandler(void* obj, void (*func)(void*))
-    {
-        wrapper.setClickHandler(obj, func);
-    }
+    virtual void update() override final;
 
-    void enableBackground(bool enabled)
+    static void
+    onClickStatic(void* thisPtr)
     {
-        wrapper.setEnabled(enabled);
     }
-
-    virtual void update() = 0;
+    void
+    onClick()
+    {
+    }
 };

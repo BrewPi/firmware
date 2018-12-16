@@ -18,16 +18,15 @@
  */
 
 #include "WidgetsScreen.h"
+#include "ActuatorPwmWidget.h"
 #include "BrewBlox.h"
-#include "ProcessValueWidget.h"
+#include "SetpointSensorWidget.h"
+#include "TempSensorWidget.h"
 #include "blox/DisplaySettingsBlock.h"
 #include "connectivity.h"
 #include <algorithm>
 #include <array>
 #include <vector>
-
-#define str(s) #s
-#define xstr(s) str(s)
 
 char wifi_ip[16] = "0.0.0.0";
 char wifi_icon[] = "\x22";
@@ -109,13 +108,27 @@ WidgetsScreen::loadSettings()
         if (pos == 0 || pos > 6) {
             continue; // invalid position on screen
         }
+
+        WidgetWrapper& wrapper = widgetWrappers[pos - 1];
+        wrapper.setName(widgetDfn.name);
+        wrapper.setColor(widgetDfn.bg_color[0], widgetDfn.bg_color[1], widgetDfn.bg_color[2]);
+
         switch (widgetDfn.which_obj) {
-        case blox_DisplaySettings_Widget_ProcessValue_tag:
-            WidgetWrapper& wrapper = widgetWrappers[pos - 1];
-            wrapper.setName(widgetDfn.name);
-            wrapper.setColor(widgetDfn.bg_color[0], widgetDfn.bg_color[1], widgetDfn.bg_color[2]);
-            auto w = std::make_unique<ProcessValueWidget>(wrapper, cbox::obj_id_t(widgetDfn.obj.ProcessValue));
-            widgets.push_back(std::move(w));
+        case blox_DisplaySettings_Widget_TempSensor_tag:
+            widgets.push_back(std::make_unique<TempSensorWidget>(wrapper, cbox::obj_id_t(widgetDfn.obj.TempSensor)));
+            break;
+        case blox_DisplaySettings_Widget_SetpointSensorPair_tag:
+            widgets.push_back(std::make_unique<SetpointSensorWidget>(wrapper, cbox::obj_id_t(widgetDfn.obj.SetpointSensorPair)));
+            break;
+        case blox_DisplaySettings_Widget_ActuatorPwm_tag:
+            widgets.push_back(std::make_unique<ActuatorPwmWidget>(wrapper, cbox::obj_id_t(widgetDfn.obj.ActuatorPwm)));
+            break;
+        case blox_DisplaySettings_Widget_ActuatorAnalog_tag:
+            break;
+        case blox_DisplaySettings_Widget_Pid_tag:
+            break;
+        default:
+            break;
         }
     }
 

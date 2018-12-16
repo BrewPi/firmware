@@ -14,6 +14,8 @@ message BrewbloxFieldOptions {
     BalancerLink = 7;
     MutexLink = 8;
     OneWireDeviceLink = 9;
+    ActuatorPwmLink = 10;
+    PidLink = 11;
   }
   enum UnitType {
       NotSet = 0;

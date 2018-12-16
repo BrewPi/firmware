@@ -1,50 +1,42 @@
 /*
  * Copyright 2018 BrewPi B.V.
  *
- * This file is part of BrewPi.
- * 
+ * This file is part of the BrewBlox Control Library.
+ *
  * BrewPi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * BrewPi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-#include "WidgetWrapper.h"
+#include "Temperature.h"
 
-class WidgetBase {
-protected:
-    WidgetWrapper& wrapper;
+TempFormat tempformat = TempFormat::Celsius;
 
-public:
-    WidgetBase(WidgetWrapper& myWrapper)
-        : wrapper(myWrapper)
-    {
+void
+tempDiff_to_chars(const temp_t& t, char* buf, uint8_t len, uint8_t decimals)
+{
+    fp12_t val = t;
+    if (tempFormat == Fahrenheit) {
+        val = (t * 9) / 5;
     }
-    virtual ~WidgetBase()
-    {
-        wrapper.resetClickHandler();
-        wrapper.resetChildren();
-        wrapper.resetName();
-    }
+    to_chars(val, buf, len, decimals);
+}
 
-    void setClickHandler(void* obj, void (*func)(void*))
-    {
-        wrapper.setClickHandler(obj, func);
+void
+temp_to_chars(const temp_t& t, char* buf, uint8_t len, uint8_t decimals)
+{
+    fp12_t val = t;
+    if (tempFormat == Fahrenheit) {
+        val += (t * 9) / 5 + fp12_t(32);
     }
-
-    void enableBackground(bool enabled)
-    {
-        wrapper.setEnabled(enabled);
-    }
-
-    virtual void update() = 0;
-};
+    to_chars(val, buf, len, decimals);
+}

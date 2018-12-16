@@ -33,3 +33,8 @@ using safe_elastic_fixed_point = cnl::fixed_point<
             Narrowest>,
         cnl::saturated_overflow_tag>,
     -F>;
+
+using fp12_t = safe_elastic_fixed_point<11, 12, int32_t>;
+
+void
+to_chars(const fp12_t& t, char* buf, uint8_t len, uint8_t decimals);

@@ -24,8 +24,8 @@
 #include "cbox/CboxPtr.h"
 #include "d4d.hpp"
 
-class ProcessValueWidget : public WidgetBase {
-private:
+class ProcessValueWidgetBase : public WidgetBase {
+protected:
     char value_buf[12] = {0};
     char setting_buf[12] = {0};
 
@@ -43,18 +43,22 @@ private:
     D4D_OBJECT value;
     D4D_OBJECT setting;
 
-    cbox::CboxPtr<ProcessValue<temp_t>> pvLookup;
-
 public:
-    ProcessValueWidget(WidgetWrapper& myWrapper, const cbox::obj_id_t& id);
+    ProcessValueWidgetBase(WidgetWrapper& myWrapper);
 
-    virtual ~ProcessValueWidget() = default;
-    virtual void update() override final;
+    void
+    setValue(const char* buf, bool enabled)
+    {
+        D4D_SetText(&value, buf);
+        D4D_EnableObject(&value, true);
+    }
 
-    static void onClickStatic(void* thisPtr)
+    void
+    setSetting(const char* buf, bool enabled)
     {
+        D4D_SetText(&setting, buf);
+        D4D_EnableObject(&setting, true);
     }
-    void onClick()
-    {
-    }
+
+    virtual ~ProcessValueWidgetBase() = default;
 };

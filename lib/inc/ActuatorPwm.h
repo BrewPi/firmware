@@ -22,16 +22,16 @@
 #include "ActuatorAnalog.h"
 #include "ActuatorDigitalChangeLogged.h"
 #include "FixedPoint.h"
+#include <cstdint>
 #include <functional>
 #include <memory>
-#include <cstdint>
 
 /**
 	ActuatorPWM drives a (change logged) digital actuator and makes it available as range actuator, by quickly turning it on and off repeatedly.
  */
 class ActuatorPwm final : public ActuatorAnalog {
 public:
-    using value_t = ActuatorAnalogValue;
+    using value_t = ActuatorAnalog::value_t;
     using State = ActuatorDigital::State;
     using update_t = ticks_millis_t;
 
