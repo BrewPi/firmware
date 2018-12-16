@@ -39,7 +39,7 @@ SetpointSensorWidget::update()
             setValue(buf);
             icons[0] = '\x29';
         } else {
-            setValueStrikeThrough();
+            setValue(nullptr);
             icons[0] = '\x2B';
         }
         if (ptr->setpointValid()) {
@@ -47,8 +47,7 @@ SetpointSensorWidget::update()
             setSetting(buf);
             icons[1] = '\x2A';
         } else {
-            setSettingStrikeThrough();
-            icons[1] = '\x20';
+            setSetting(nullptr);
         }
         setIcons(icons);
         return;

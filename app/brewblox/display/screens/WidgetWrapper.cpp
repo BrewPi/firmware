@@ -31,6 +31,8 @@ WidgetWrapper::WidgetWrapper(uint8_t pos)
     : x(5 + 105 * (pos % 3))
     , y((pos <= 2) ? 20 : 123)
     , colorScheme(makeSmallColorScheme(30, 50, 100))
+    , bckgDisDefault(colorScheme.bckgDis)
+    , foreDisDefault(colorScheme.foreDis)
     , objects{nullptr, &btnObject, nullptr}
     , wrapperObject{
           {x, y},               // D4D_POINT position
@@ -108,6 +110,9 @@ WidgetWrapper::invalidate()
 void
 WidgetWrapper::setEnabled(bool enabled)
 {
+    // render normal background for disabled objects if wrapper enabled
+    colorScheme.bckgDis = enabled ? colorScheme.bckg : bckgDisDefault;
+    colorScheme.foreDis = enabled ? colorScheme.bckgFocus : foreDisDefault;
     D4D_EnableObject(&wrapperObject, enabled);
     D4D_EnableObject(&btnObject, enabled);
 }

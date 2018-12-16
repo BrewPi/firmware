@@ -55,21 +55,34 @@ public:
     void
     setValue(const char* buf)
     {
-        D4D_SetText(&value, buf);
-        resetValueStrikeThrough();
+        if (buf) {
+            D4D_SetText(&value, buf);
+            D4D_EnableObject(&value, true);
+            return;
+        }
+        D4D_EnableObject(&value, false);
     }
 
     void
     setSetting(const char* buf)
     {
-        D4D_SetText(&setting, buf);
-        resetSettingStrikeThrough();
+        if (buf) {
+            D4D_SetText(&setting, buf);
+            D4D_EnableObject(&setting, true);
+            return;
+        }
+        D4D_EnableObject(&setting, false);
     }
 
     void
     setIcons(const char* buf)
     {
-        D4D_SetText(&icons, buf);
+        if (buf) {
+            D4D_SetText(&icons, buf);
+            D4D_EnableObject(&icons, true);
+            return;
+        }
+        D4D_EnableObject(&icons, false);
     }
 
     void
@@ -89,31 +102,6 @@ public:
         D4D_EnableObject(&icons, true);
         D4D_EnableObject(&value, true);
         enableBackground(true);
-    }
-
-    void setValueStrikeThrough()
-    {
-        value_strPrties.font_properties = value_strPrties.font_properties | D4D_FNT_PRTY_STRIKETHROUGH_SINGLE_MASK;
-        D4D_InvalidateObject(&value, false);
-    }
-
-    void resetValueStrikeThrough()
-
-    {
-        value_strPrties.font_properties = value_strPrties.font_properties & ~D4D_FNT_PRTY_STRIKETHROUGH_MASK;
-        D4D_InvalidateObject(&value, false);
-    }
-
-    void setSettingStrikeThrough()
-    {
-        setting_strPrties.font_properties = setting_strPrties.font_properties | D4D_FNT_PRTY_STRIKETHROUGH_SINGLE_MASK;
-        D4D_InvalidateObject(&setting, false);
-    }
-
-    void resetSettingStrikeThrough()
-
-    {
-        setting_strPrties.font_properties = setting_strPrties.font_properties & ~D4D_FNT_PRTY_STRIKETHROUGH_MASK;
-        D4D_InvalidateObject(&setting, false);
+        wrapper.colorScheme.bckgDis = wrapper.colorScheme.bckg;
     }
 };

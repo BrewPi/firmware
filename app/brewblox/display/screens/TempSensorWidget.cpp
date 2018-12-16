@@ -38,7 +38,7 @@ TempSensorWidget::update()
             setValue(buf);
             icons[0] = 0x29;
         } else {
-            setValueStrikeThrough();
+            setValue(nullptr);
             icons[0] = 0x2B;
         }
         setIcons(icons);

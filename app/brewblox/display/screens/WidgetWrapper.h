@@ -31,6 +31,8 @@ public:
     static const D4D_COOR cx = 100;
     static const D4D_COOR cy = 98;
     SmallColorScheme colorScheme;
+    D4D_COLOR bckgDisDefault;
+    D4D_COLOR foreDisDefault;
     D4D_CLR_SCHEME* scheme = AS_D4D_COLOR_SCHEME(&colorScheme);
     D4D_OBJECT_DATA wrapperObjectData = {(D4D_OBJECT_F_VISIBLE | D4D_OBJECT_F_NOTINIT), NULL};
 

@@ -43,9 +43,9 @@ struct SmallColorScheme {
 static constexpr SmallColorScheme
 makeSmallColorScheme(const uint8_t r, const uint8_t g, const uint8_t b)
 {
-    auto r_lighter = uint8_t(std::min(uint16_t(r) * 3 / 2, 255));
-    auto g_lighter = uint8_t(std::min(uint16_t(g) * 3 / 2, 255));
-    auto b_lighter = uint8_t(std::min(uint16_t(b) * 3 / 2, 255));
+    auto r_lighter = uint8_t(std::min(uint16_t(r) + 24, 255));
+    auto g_lighter = uint8_t(std::min(uint16_t(g) + 24, 255));
+    auto b_lighter = uint8_t(std::min(uint16_t(b) + 24, 255));
 
     SmallColorScheme scheme = {
         D4D_COLOR_RGB(r, g, b),                         ///< The object background color in standard state
