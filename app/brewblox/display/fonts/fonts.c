@@ -26,8 +26,8 @@
 D4D_DECLARE_FONT_TABLE_BEGIN
 D4D_DECLARE_FONT(FONT_KAKWA, d4dfnt_kakwa_desc, 1, 1, 0, 0)
 D4D_DECLARE_FONT(FONT_KAKWA_BIG, d4dfnt_kakwa_desc, 2, 2, 0, 0)
-D4D_DECLARE_FONT(FONT_TEWI, d4dfnt_tewi_desc, 1, 1, 0, 0)
-D4D_DECLARE_FONT(FONT_TEWI_BIG, d4dfnt_tewi_desc, 2, 2, 0, 0)
+//D4D_DECLARE_FONT(FONT_TEWI, d4dfnt_tewi_desc, 1, 1, 0, 0)
+//D4D_DECLARE_FONT(FONT_TEWI_BIG, d4dfnt_tewi_desc, 2, 2, 0, 0)
 D4D_DECLARE_FONT(FONT_ALTE_DIN_22, d4dfnt_AlteDIN1451_22_desc, 1, 1, 0, 0)
 D4D_DECLARE_FONT(FONT_ALTE_DIN_16, d4dfnt_AlteDIN1451_16_desc, 1, 1, 0, 0)
 D4D_DECLARE_FONT(FONT_ICON, d4dfnt_icons_desc, 1, 1, 0, 0)
