@@ -47,7 +47,6 @@
 #endif
 
 #include "OneWireLowLevelInterface.h"
-#include <cinttypes>
 
 // pass low level driver as template
 class OneWire {

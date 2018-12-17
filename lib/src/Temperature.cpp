@@ -21,22 +21,22 @@
 
 TempFormat tempFormat = TempFormat::Celsius;
 
-void
-tempDiff_to_chars(const temp_t& t, char* buf, uint8_t len, uint8_t decimals)
+std::string
+tempDiff_to_string(const temp_t& t, uint8_t decimals)
 {
     fp12_t val = t;
     if (tempFormat == Fahrenheit) {
         val = (t * 9) / 5;
     }
-    to_chars_dec(val, buf, len, decimals);
+    return to_string_dec(val, decimals);
 }
 
-void
-temp_to_chars(const temp_t& t, char* buf, uint8_t len, uint8_t decimals)
+std::string
+temp_to_string(const temp_t& t, uint8_t decimals)
 {
     fp12_t val = t;
     if (tempFormat == Fahrenheit) {
         val += (t * 9) / 5 + fp12_t(32);
     }
-    to_chars_dec(val, buf, len, decimals);
+    return to_string_dec(val, decimals);
 }

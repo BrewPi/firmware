@@ -28,7 +28,7 @@ using temp_t = safe_elastic_fixed_point<7, 8, int16_t>;
 using temp_precise_t = safe_elastic_fixed_point<7, 23, int32_t>;
 using temp_wide_t = safe_elastic_fixed_point<23, 8, int32_t>;
 
-SCENARIO("CNL fixed point formats")
+SCENARIO("CNL fixed point formats", "[fixedpoint]")
 {
     WHEN("assignment")
     {
@@ -442,5 +442,26 @@ SCENARIO("CNL fixed point formats")
         //WARN(boost::core::demangle(typeid(t3).name()));
         //WARN(boost::core::demangle(typeid(t4).name()));
         //WARN(boost::core::demangle(typeid(t5).name()));
+    }
+
+    WHEN("temp_t is converted to string")
+    {
+        CHECK(to_string_dec(temp_t(10), 1) == "10.0");
+        CHECK(to_string_dec(temp_t(10), 2) == "10.00");
+        CHECK(to_string_dec(temp_t(9.99), 1) == "10.0");
+        CHECK(to_string_dec(temp_t(9.96), 1) == "10.0");
+        CHECK(to_string_dec(temp_t(10.01), 1) == "10.0");
+        CHECK(to_string_dec(temp_t(10.06), 1) == "10.1");
+        CHECK(to_string_dec(temp_t(10.01499), 2) == "10.01");
+        CHECK(to_string_dec(temp_t(10.054), 2) == "10.05");
+
+        CHECK(to_string_dec(temp_t(-10), 1) == "-10.0");
+        CHECK(to_string_dec(temp_t(-10), 2) == "-10.00");
+        CHECK(to_string_dec(temp_t(-9.99), 1) == "-10.0");
+        CHECK(to_string_dec(temp_t(-9.96), 1) == "-10.0");
+        CHECK(to_string_dec(temp_t(-10.01), 1) == "-10.0");
+        CHECK(to_string_dec(temp_t(-10.06), 1) == "-10.1");
+        CHECK(to_string_dec(temp_t(-10.01499), 2) == "-10.01");
+        CHECK(to_string_dec(temp_t(-10.054), 2) == "-10.05");
     }
 }

@@ -1,4 +1,3 @@
-#include "Logger.h"
 #include <cinttypes>
 #include <cstdint>
 #include <cstdio>
@@ -7,8 +6,8 @@
 std::string&
 operator<<(std::string& lh, const int32_t& in)
 {
-    char temp[12];
-    snprintf(temp, 12, "%" PRId32, in);
+    char temp[33];
+    snprintf(temp, 33, "%" PRId32, in);
     lh += std::string(temp);
     return lh;
 }
@@ -16,8 +15,8 @@ operator<<(std::string& lh, const int32_t& in)
 std::string&
 operator<<(std::string& lh, const uint32_t& in)
 {
-    char temp[12];
-    snprintf(temp, 12, "%" PRIu32, in);
+    char temp[33];
+    snprintf(temp, 33, "%" PRIu32, in);
     lh += std::string(temp);
     return lh;
 }

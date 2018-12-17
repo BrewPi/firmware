@@ -32,19 +32,17 @@ SetpointSensorWidget::update()
 {
     if (auto ptr = lookup.const_lock()) {
         setConnected();
-        char buf[12];
+
         char icons[3] = {0};
         if (ptr->sensorValid()) {
-            temp_to_chars(ptr->value(), buf, 12, 1);
-            setValue(buf);
+            setValue(temp_to_string(ptr->value(), 1).c_str());
             icons[0] = '\x29';
         } else {
             setValue(nullptr);
             icons[0] = '\x2B';
         }
         if (ptr->setpointValid()) {
-            temp_to_chars(ptr->setting(), buf, 12, 1);
-            setSetting(buf);
+            setSetting(temp_to_string(ptr->setting(), 1).c_str());
             icons[1] = '\x2A';
         } else {
             setSetting(nullptr);

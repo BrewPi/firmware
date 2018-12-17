@@ -18,41 +18,32 @@
  */
 
 #include "FixedPoint.h"
+#include "Logger.h"
+#include <algorithm>
 #include <cstring>
+#include <stdlib.h>
 
-void
-to_chars_dec(const fp12_t& t, char* buf, uint8_t len, uint8_t decimals)
+std::string
+to_string_dec(const fp12_t& t, uint8_t decimals)
 {
-    auto digits = decimals + 2;
+    // shift to right number of digits
+    auto shifted = t;
+    for (uint8_t i = decimals; i > 0; --i) {
+        shifted = shifted * 10;
+    }
+
+    // ensure correct rounding
     auto rounder = fp12_t(0.5);
+    shifted = t >= fp12_t(0) ? shifted + rounder : shifted - rounder;
 
-    for (; decimals > 0; decimals--) {
-        rounder = rounder / 10;
-    }
+    // convert to int
+    auto intValue = int32_t(shifted);
 
-    fp12_t rounded;
-    if (t >= fp12_t(0)) {
-        rounded = t + rounder;
-        auto temporary = rounded;
-        while (temporary >= fp12_t(10)) {
-            temporary = temporary / 10;
-            ++digits;
-        }
-    } else {
-        rounded = t - rounder;
-        auto temporary = rounded;
-        while (temporary <= fp12_t(-10)) {
-            temporary = temporary / 10;
-            ++digits;
-        }
-        digits += 1; // for minus sign
-    }
+    // convert to string
+    auto s = std::string();
+    s = s << intValue;
 
-    std::memset(buf, 0, len);
-    if (digits > len) {
-        digits = len;
-    }
-
-    using reduced_precision_t = safe_elastic_fixed_point<11, 10, int32_t>;
-    cnl::to_chars(buf, &buf[digits], reduced_precision_t(rounded));
+    // insert decimal point
+    s.insert(s.end() - decimals, '.');
+    return s;
 }

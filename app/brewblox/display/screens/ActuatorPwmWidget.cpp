@@ -33,25 +33,23 @@ ActuatorPwmWidget::update()
 {
     if (auto ptr = lookup.const_lock()) {
         setConnected();
-        char buf[12];
-        to_chars_dec(ptr->value(), buf, 12, 1);
-        setValue(buf);
-        to_chars_dec(ptr->setting(), buf, 12, 1);
-        setSetting(buf);
+        setValue(temp_to_string(ptr->value(), 1).c_str());
+        setSetting(temp_to_string(ptr->setting(), 1).c_str());
 
+        char icons[2];
         switch (ptr->targetState()) {
         case ActuatorPwm::State::Inactive:
-            buf[0] = 0x26;
+            icons[0] = 0x26;
             break;
         case ActuatorPwm::State::Active:
-            buf[0] = 0x27;
+            icons[0] = 0x27;
             break;
         default:
-            buf[0] = 0x28;
+            icons[0] = 0x28;
             break;
         }
-        buf[1] = 0;
-        setIcons(buf);
+        icons[1] = 0;
+        setIcons(icons);
         return;
     }
     setDisconnected();

@@ -19,21 +19,17 @@
 
 #pragma once
 
-#include "FixedPoint.h"
 #include <cstdint>
 #include <string>
 
-using temp_t = fp12_t;
+std::string&
+operator<<(std::string& lh, const int32_t& in);
 
-enum TempFormat {
-    Celsius,
-    Fahrenheit
-};
+std::string&
+operator<<(std::string& lh, const uint32_t& in);
 
-extern TempFormat tempFormat;
+std::string&
+operator<<(std::string& lh, const std::string& in);
 
-std::string
-tempDiff_to_string(const temp_t& t, uint8_t decimals);
-
-std::string
-temp_to_string(const temp_t& t, uint8_t decimals);
+std::string&
+operator<<(std::string& lh, const char* in);

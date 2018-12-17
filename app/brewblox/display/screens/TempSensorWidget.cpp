@@ -31,11 +31,9 @@ TempSensorWidget::update()
 {
     if (auto ptr = lookup.const_lock()) {
         setConnected();
-        char buf[12];
         char icons[2] = {0};
         if (ptr->valid()) {
-            temp_to_chars(ptr->value(), buf, 12, 1);
-            setValue(buf);
+            setValue(temp_to_string(ptr->value(), 1).c_str());
             icons[0] = 0x29;
         } else {
             setValue(nullptr);
