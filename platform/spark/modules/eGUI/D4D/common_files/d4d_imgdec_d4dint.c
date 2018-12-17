@@ -48,11 +48,8 @@
 #include "common_files/d4d_private.h"
 #include "common_files/d4d_imgdec_d4dint.h"
 
-
-
-
-
-static D4D_BOOL D4D_BmpHeaderCheckEndianism(const D4D_BMP* pBmp);
+D4D_BOOL
+D4D_BmpHeaderCheckEndianism(const D4D_BMP* pBmp);
 //static void D4D_LCD_DrawRBmp(D4D_COOR x, D4D_COOR y, const D4D_BMP* pBmp, D4D_BOOL greyScale, D4D_COOR radius);
 
 #if D4D_BMP_PAL_2_ENABLE != D4D_FALSE
@@ -769,8 +766,8 @@ D4D_COLOR D4D_GetPixel_BmpDecodeBmp2(D4D_D4DBMP_DECODE* pDecode)
 
 #endif
 
-
-static D4D_BOOL D4D_BmpHeaderCheckEndianism(const D4D_BMP* pBmp)
+D4D_BOOL
+D4D_BmpHeaderCheckEndianism(const D4D_BMP* pBmp)
 {
   Word* pHead = (Word*)pBmp->pData;
 
