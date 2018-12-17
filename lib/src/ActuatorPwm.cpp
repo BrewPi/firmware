@@ -13,8 +13,10 @@ ActuatorPwm::ActuatorPwm(
 void
 ActuatorPwm::setting(value_t const& val)
 {
-    m_dutySetting = std::clamp(val, value_t(0), value_t(100));
-    m_dutyTime = duration_millis_t((m_dutySetting * m_period) / value_t(100));
+    if (valid()) {
+        m_dutySetting = std::clamp(val, value_t(0), value_t(100));
+        m_dutyTime = duration_millis_t((m_dutySetting * m_period) / value_t(100));
+    }
 }
 
 // returns the actual achieved PWM value, not the set value
@@ -140,7 +142,7 @@ bool
 ActuatorPwm::valid() const
 {
     if (auto actPtr = m_target()) {
-        return actPtr->state() != State::Unknown;
+        return m_valid && actPtr->state() != State::Unknown;
     }
     return false;
 }
@@ -154,6 +156,7 @@ ActuatorPwm::valid(bool v)
         }
         setting(0);
     }
+    m_valid = v;
 }
 
 ActuatorPwm::State
