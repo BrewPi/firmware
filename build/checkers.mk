@@ -1,9 +1,10 @@
 # enable coverage for gcc builds
-EXTRA_CFLAGS += -g -O0 -fno-inline -static
+EXTRA_CFLAGS += -g -O0 -fno-inline
 EXTRA_CFLAGS += --coverage
 LDFLAGS += -Wl,--verbose --coverage
 
-CFLAGS += -fprofile-arcs -ftest-coverage
+CFLAGS += -fprofile-arcs -ftest-coverage -static-libasan -static-libubsan
+LDFLAGS += --coverage -fsanitize=address,undefined
 
 # use asan to detect errors
 EXTRA_CFLAGS += -fno-omit-frame-pointer

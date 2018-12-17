@@ -17,6 +17,7 @@ CFLAGS +=  -g3 -m64 -O$(GCC_OPTIMIZE) -gdwarf-2
 CFLAGS += -Wno-unused-local-typedefs
 ASFLAGS +=  -g3
 
+LDFLAGS += --coverage -fsanitize=address,undefined
 
 ifeq ("$(MAKE_OS)", "LINUX")
 LDFLAGS +=  -pthread
