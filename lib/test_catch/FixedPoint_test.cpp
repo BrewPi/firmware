@@ -22,6 +22,7 @@
 #include "FixedPoint.h"
 #include <boost/core/demangle.hpp>
 #include <cstdint>
+#include <iomanip>
 #include <type_traits>
 
 using temp_t = safe_elastic_fixed_point<7, 8, int16_t>;
@@ -466,5 +467,22 @@ SCENARIO("CNL fixed point formats", "[fixedpoint]")
         CHECK(to_string_dec(temp_t(0), 2) == "0.00");
         CHECK(to_string_dec(temp_t(0.01), 2) == "0.01");
         CHECK(to_string_dec(temp_t(-0.01), 2) == "-0.01");
+
+        auto bit = cnl::wrap<temp_t>(1);
+        for (auto t = temp_t(-11); t < temp_t(11); t += bit) {
+            auto rounder = (t >= temp_t(0)) ? double(0.005) : -double(0.005);
+            double d = double(t);
+            if (d > -0.00499999 && d < 0.0) {
+                d = 0.0; // we don't use -0.00 for
+            } else {
+                d += rounder;
+            }
+            auto s = std::to_string(d);
+
+            INFO(d);
+            INFO(t);
+            s.erase(s.find('.') + 3, std::string::npos);
+            REQUIRE(to_string_dec(t, 2) == s);
+        }
     }
 }
