@@ -43,6 +43,13 @@ to_string_dec(const fp12_t& t, uint8_t decimals)
     auto s = std::string();
     s = s << intValue;
 
+    // prefix zeros for values smaller than 1
+    uint8_t insertPos = (intValue < 0) ? 1 : 0; // handle minus sign
+    uint8_t minChars = decimals + insertPos + 1;
+    if (minChars > s.size()) {
+        s.insert(insertPos, minChars - s.size(), '0');
+    }
+
     // insert decimal point
     s.insert(s.end() - decimals, '.');
     return s;

@@ -463,5 +463,8 @@ SCENARIO("CNL fixed point formats", "[fixedpoint]")
         CHECK(to_string_dec(temp_t(-10.06), 1) == "-10.1");
         CHECK(to_string_dec(temp_t(-10.01499), 2) == "-10.01");
         CHECK(to_string_dec(temp_t(-10.054), 2) == "-10.05");
+        CHECK(to_string_dec(temp_t(0), 2) == "0.00");
+        CHECK(to_string_dec(temp_t(0.01), 2) == "0.01");
+        CHECK(to_string_dec(temp_t(-0.01), 2) == "-0.01");
     }
 }
