@@ -30,7 +30,18 @@ printWiFiIp(char dest[16])
 int8_t
 wifiSignal()
 {
-    return WiFi.RSSI();
+    if (!WiFi.ready()) {
+        return 2;
+    }
+
+    wlan_connected_info_t info = {0};
+    info.size = sizeof(info);
+    int r = wlan_connected_info(nullptr, &info, nullptr);
+    if (r == 0) {
+        return info.rssi != std::numeric_limits<int32_t>::min() ? info.rssi / 100 : 2;
+    }
+
+    return 2;
 }
 
 bool
