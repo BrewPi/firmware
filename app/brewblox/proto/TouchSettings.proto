@@ -14,8 +14,8 @@ message TouchSettings {
     NEW = 2;
   }
   Calibrated calibrated = 1;
-  int32 x_offset = 2 [ (nanopb).int_size = IS_16 ];
-  int32 y_offset = 3 [ (nanopb).int_size = IS_16 ];
-  uint32 x_bits_per_pixel_x16 = 4 [ (nanopb).int_size = IS_16 ];
-  uint32 y_bits_per_pixel_x16 = 5 [ (nanopb).int_size = IS_16 ];
+  int32 xOffset = 2 [ (nanopb).int_size = IS_16 ];
+  int32 yOffset = 3 [ (nanopb).int_size = IS_16 ];
+  uint32 xBitsPerPixelX16 = 4 [ (nanopb).int_size = IS_16 ];
+  uint32 yBitsPerPixelX16 = 5 [ (nanopb).int_size = IS_16 ];
 }

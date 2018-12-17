@@ -111,7 +111,7 @@ WidgetsScreen::loadSettings()
 
         WidgetWrapper& wrapper = widgetWrappers[pos - 1];
         wrapper.setName(widgetDfn.name);
-        wrapper.setColor(widgetDfn.bg_color[0], widgetDfn.bg_color[1], widgetDfn.bg_color[2]);
+        wrapper.setColor(widgetDfn.color[0], widgetDfn.color[1], widgetDfn.color[2]);
 
         switch (widgetDfn.which_obj) {
         case blox_DisplaySettings_Widget_TempSensor_tag:

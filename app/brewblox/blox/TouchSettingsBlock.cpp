@@ -29,10 +29,10 @@ TouchSettingsBlock::streamTo(cbox::DataOut& out) const
     auto calib = D4D_TCH_GetCalibration();
 
     message.calibrated = blox_TouchSettings_Calibrated(calib.ScreenCalibrated);
-    message.x_offset = calib.TouchScreenXoffset;
-    message.y_offset = calib.TouchScreenYoffset;
-    message.x_bits_per_pixel_x16 = calib.TouchScreenXBitsPerPixelx16;
-    message.y_bits_per_pixel_x16 = calib.TouchScreenYBitsPerPixelx16;
+    message.xOffset = calib.TouchScreenXoffset;
+    message.yOffset = calib.TouchScreenYoffset;
+    message.xBitsPerPixelX16 = calib.TouchScreenXBitsPerPixelx16;
+    message.yBitsPerPixelX16 = calib.TouchScreenYBitsPerPixelx16;
 
     return streamProtoTo(out, &message, blox_TouchSettings_fields, blox_TouchSettings_size);
 }
@@ -46,10 +46,10 @@ TouchSettingsBlock::streamFrom(cbox::DataIn& in)
         auto calib = D4D_GetTouchScreenCalibration();
         if (message.calibrated == blox_TouchSettings_Calibrated_NEW || calib.ScreenCalibrated == 0) {
             calib.ScreenCalibrated = 1;
-            calib.TouchScreenXoffset = message.x_offset;
-            calib.TouchScreenYoffset = message.y_offset;
-            calib.TouchScreenXBitsPerPixelx16 = message.x_bits_per_pixel_x16;
-            calib.TouchScreenYBitsPerPixelx16 = message.y_bits_per_pixel_x16;
+            calib.TouchScreenXoffset = message.xOffset;
+            calib.TouchScreenYoffset = message.yOffset;
+            calib.TouchScreenXBitsPerPixelx16 = message.xBitsPerPixelX16;
+            calib.TouchScreenYBitsPerPixelx16 = message.yBitsPerPixelX16;
             D4D_TCH_SetCalibration(calib);
         }
     }

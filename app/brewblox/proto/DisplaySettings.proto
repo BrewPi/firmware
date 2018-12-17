@@ -10,7 +10,7 @@ message DisplaySettings {
 
   message Widget {
     uint32 pos = 1 [ (nanopb).int_size = IS_8 ];
-    bytes bg_color = 2 [ (nanopb).max_size = 3, (nanopb).fixed_length = true, (brewblox).hexstr = true ];
+    bytes color = 2 [ (nanopb).max_size = 3, (nanopb).fixed_length = true, (brewblox).hexstr = true ];
     string name = 3 [ (nanopb).max_size = 16 ];
     oneof obj {
       uint32 TempSensor = 10 [ (brewblox).link = TempSensorLink, (nanopb).int_size = IS_16 ];
