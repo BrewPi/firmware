@@ -1,5 +1,6 @@
 #include "ActuatorAnalogConstrained.h"
 #include "ActuatorDigitalConstrained.h"
+#include "ActuatorPwm.h"
 #include "Balancer.h"
 #include "DigitalConstraints.pb.h"
 #include "FixedPoint.h"
@@ -74,6 +75,13 @@ const obj_type_t
 interfaceIdImpl<OneWireDevice>()
 {
     return BrewbloxFieldOptions_LinkType_OneWireDeviceLink;
+}
+
+template <>
+const obj_type_t
+interfaceIdImpl<ActuatorPwm>()
+{
+    return BrewbloxFieldOptions_LinkType_ActuatorPwmLink;
 }
 
 } // end namespace cbox

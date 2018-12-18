@@ -30,16 +30,27 @@
 #error CNL_INT128_ENABLED already defined
 #endif
 
-#if defined(CNL_USE_INT128)
-
-// GCC/Clang 64-bit builds support 128-bit integer through __int128 type
-#if !defined(__SIZEOF_INT128__)
-#error CNL_USE_INT128 is defined but __int128 is not supported
+#if defined(CNL_CAN_USE_INT128)
+#error CNL_CAN_USE_INT128 already defined
 #endif
 
-#define CNL_INT128_ENABLED
+#if defined(__SIZEOF_INT128__)
+#define CNL_CAN_USE_INT128 1
+#else
+#define CNL_CAN_USE_INT128 0
+#endif
 
-#endif  // defined(CNL_USE_INT128)
+#if defined(CNL_USE_INT128)
+#if !CNL_CAN_USE_INT128
+#error CNL_USE_INT128 is defined but 128-bit integers is not enabled for this compiler
+#endif
+#else
+#define CNL_USE_INT128 CNL_CAN_USE_INT128
+#endif
+
+#if CNL_USE_INT128
+#define CNL_INT128_ENABLED
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // CNL_EXCEPTIONS_ENABLED macro definition
@@ -130,6 +141,27 @@
 #endif
 #elif defined(CNL_RELEASE)
 #define CNL_UNREACHABLE_UB_ENABLED
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+// CNL_IOSTREAM_ENABLED macro definition
+
+#if defined(CNL_IOSTREAM_ENABLED)
+#error CNL_IOSTREAM_ENABLED already defined
+#endif
+
+#if defined(CNL_USE_IOSTREAM)
+#if CNL_USE_IOSTREAM
+#define CNL_IOSTREAM_ENABLED
+#endif
+#elif defined(__STDC_HOSTED__)
+#if __STDC_HOSTED__
+#define CNL_IOSTREAM_ENABLED
+#else
+// Either CNL_USE_IOSTREAM or __STDC_HOSTED__
+// must be defined and set to either 0 or 1.
+#error __STDC_HOSTED__ not defined
+#endif
 #endif
 
 #endif  // CNL_CONFIG_H

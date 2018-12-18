@@ -186,7 +186,7 @@ typedef Word D4D_FONT_DSIZE;
   typedef struct D4D_FONT_DESCRIPTOR_S
   {
     D4D_FONT_REV revision;       //1 Font descriptor version number
-    D4D_FONT_FLAGS flags;        //1 linear / non linear , proporcional or not,
+    D4D_FONT_FLAGS flags;        //1 linear / non linear , proportional or not,
     D4D_FONT_IX startChar;       //2/1 start char of used table
     D4D_FONT_IX charCnt;         //2/1 end char of used table
     D4D_FONT_IX charDefault;     //2/1 index of char that will be printed instead of
@@ -196,8 +196,8 @@ typedef Word D4D_FONT_DSIZE;
     D4D_FONT_SIZES charFullSize; //2 size of biggest char x/y
     D4D_FONT_PACK pack;          //1 packing condition of individual bitmaps 15
     const D4D_FONT_IX *pIxTable;       // Index table - is used when nonlinearIX is set in flags, flags also determine the type of IxTable
-    const D4D_FONT_OFFSET *pOffTable;  // Offset table - used when proporcial font is set in flags
-    const D4D_FONT_SIZE *pSizeTable;   // Size table - used when proporcial font is set in flags
+    const D4D_FONT_OFFSET *pOffTable;  // Offset table - used when proportional font is set in flags
+    const D4D_FONT_SIZE *pSizeTable;   // Size table - used when proportional font is set in flags
     const D4D_FONT_DATA *pFontData; // bitmap/font data array
     const struct D4D_FONT_DESCRIPTOR_S* pNext;  // pointer on next page for this font (used in unicode)
   }D4D_FONT_DESCRIPTOR;

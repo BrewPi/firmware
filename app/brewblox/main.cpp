@@ -17,11 +17,17 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AppTicks.h"
 #include "Board.h"
 #include "BrewBlox.h"
+#include "Buzzer.h"
 #include "MDNS.h"
 #include "application.h" // particle stuff
 #include "cbox/Object.h"
+#include "d4d.hpp"
+#include "display/screens/WidgetsScreen.h"
+#include "display/screens/startup_screen.h"
+#include "spark_wiring_timer.h"
 
 SYSTEM_THREAD(ENABLED);
 SYSTEM_MODE(SEMI_AUTOMATIC);
@@ -63,19 +69,52 @@ watchdogCheckin()
 #define xstr(x) "x"
 
 void
-setup()
+displayTick()
 {
-    // Install a signal handler
-#if PLATFORM_ID == PLATFORM_GCC
-    std::signal(SIGINT, signal_handler);
+    static ticks_millis_t lastTick = -40;
+    auto now = ticks.millis();
+    if (now > lastTick + 40) {
+        lastTick = now;
+        D4D_Poll();
+        D4D_CheckTouchScreen();
+        D4D_TimeTickPut();
+        D4D_FlushOutput();
+    }
+}
+
+void
+manageConnections()
+{
+    if (!WiFi.ready() || WiFi.listening()) {
+        if (!WiFi.connecting()) {
+            WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
+        }
+    } else {
+#if PLATFORM_ID != PLATFORM_GCC
+        Particle.connect();
 #endif
+        if (!mdns_started) {
+            mdns_started = mdns.begin(true);
+        } else {
+            mdns.processQueries();
+        }
+        TCPClient client = httpserver.available();
+        if (client) {
+            while (client.read() != -1) {
+            }
 
-    boardInit();
-    System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
-    WiFi.setListenTimeout(30);
-    brewbloxBox().loadObjectsFromStorage(); // init box and load stored objects
-    System.on(setup_update, watchdogCheckin);
+            client.write("HTTP/1.1 200 Ok\n\n<html><body>Your BrewBlox Spark is online but it does not run it's own web server.\n"
+                         "Please install a BrewBlox server to connect to it using the BrewBlox protocol.</body></html>\n\n");
+            client.flush();
+            delay(5);
+            client.stop();
+        }
+    }
+}
 
+void
+initMdns()
+{
     bool success = mdns.setHostname(System.deviceID());
     success = success && mdns.addService("tcp", "http", 80, System.deviceID());
     success = success && mdns.addService("tcp", "brewblox", 8332, System.deviceID());
@@ -100,38 +139,73 @@ setup()
 }
 
 void
+setup()
+{
+    // Install a signal handler
+#if PLATFORM_ID == PLATFORM_GCC
+    std::signal(SIGINT, signal_handler);
+#endif
+    boardInit();
+    Buzzer.beep(2, 50);
+
+    System.disable(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS);
+    WiFi.setListenTimeout(30);
+    System.on(setup_update, watchdogCheckin);
+
+#if PLATFORM_ID == PLATFORM_GCC
+    manageConnections(); // init network early to websocket display emulation works during setup()
+#endif
+
+    // init display
+    D4D_Init(nullptr);
+    D4D_TOUCHSCREEN_CALIB defaultCalib = {1, 0, 0, 64, 64};
+    D4D_TCH_SetCalibration(defaultCalib);
+
+    StartupScreen::activate();
+
+    StartupScreen::setProgress(10);
+    StartupScreen::setStep("Init BrewBlox framework");
+    brewbloxBox();
+
+    StartupScreen::setProgress(60);
+    StartupScreen::setStep("Init OneWire");
+    theOneWire();
+
+    StartupScreen::setProgress(70);
+    StartupScreen::setStep("Init BrewBlox");
+
+    StartupScreen::setProgress(80);
+    StartupScreen::setStep("Loading objects");
+    brewbloxBox().loadObjectsFromStorage(); // init box and load stored objects
+    StartupScreen::setProgress(90);
+
+    StartupScreen::setStep("Init mDNS");
+    initMdns();
+
+    StartupScreen::setProgress(100);
+
+    StartupScreen::setStep("Ready!");
+
+    while (ticks.millis() < 5000) {
+        displayTick();
+    };
+
+    WidgetsScreen::activate();
+}
+
+void
 loop()
 {
-    if (!WiFi.ready() || WiFi.listening()) {
-        if (!WiFi.connecting()) {
-            WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
-#if PLATFORM_ID != PLATFORM_GCC
-            Particle.connect();
-#endif
-        }
-    } else {
-        if (!mdns_started) {
-            mdns_started = mdns.begin(true);
-        } else {
-            mdns.processQueries();
-        }
-        TCPClient client = httpserver.available();
-        if (client) {
-            while (client.read() != -1) {
-            }
-
-            client.write("HTTP/1.1 200 Ok\n\n<html><body>Your BrewBlox Spark is online but it does not run it's own web server.\n"
-                         "Please install a BrewBlox server to connect to it using the BrewBlox protocol.</body></html>\n\n");
-            client.flush();
-            delay(5);
-            client.stop();
-        }
-    }
+    manageConnections();
 
     if (!WiFi.listening()) {
         brewbloxBox().hexCommunicate();
     }
+
     updateBrewbloxBox();
+
+    displayTick();
+
     watchdogCheckin();
 }
 

@@ -53,7 +53,7 @@
 
   // include of low level driver heaser file
   // it will be included into wole project only in case that this driver is selected in main D4D configuration file
-  #include "low_level_drivers\LCD\lcd_hw_interface\spi_sw_16bit\d4dlcdhw_swspi_16b.h"
+  #include "low_level_drivers/LCD/lcd_hw_interface/spi_sw_16bit/d4dlcdhw_swspi_16b.h"
   /******************************************************************************
   * Macros
   ******************************************************************************/

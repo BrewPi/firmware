@@ -45,8 +45,8 @@
 
 #if D4D_I2C_DISABLE_COMPILATION != 0
 
-#include "low_level_drivers\touch_screen\touch_screen_drivers\cr_touch\iic\hw_iic.h"
-#include "low_level_drivers\touch_screen\touch_screen_drivers\cr_touch\iic\hw_iic_prv.h"
+#include "low_level_drivers/touch_screen/touch_screen_drivers/cr_touch/iic/hw_iic.h"
+#include "low_level_drivers/touch_screen/touch_screen_drivers/cr_touch/iic/hw_iic_prv.h"
 
   /******************************************************************************
   * Macros

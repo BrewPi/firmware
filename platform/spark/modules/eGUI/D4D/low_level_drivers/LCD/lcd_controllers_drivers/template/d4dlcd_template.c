@@ -63,7 +63,7 @@
 //  #if (D4D_LLD_LCD == d4dlcd_template_ID)
   // include of low level driver heaser file
   // it will be included into wole project only in case that this driver is selected in main D4D configuration file
-  #include "low_level_drivers\LCD\lcd_controllers_drivers\template\d4dlcd_template.h"
+  #include "low_level_drivers/LCD/lcd_controllers_drivers/template/d4dlcd_template.h"
   /******************************************************************************
   * Macros
   ******************************************************************************/

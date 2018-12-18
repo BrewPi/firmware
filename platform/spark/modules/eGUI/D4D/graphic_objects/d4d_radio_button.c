@@ -101,7 +101,7 @@ static void D4D_RadioButtonValue2Coor(D4D_OBJECT* pThis)
   {
     _calc.TxtGeom = _calc.contentGeom;
 
-    _calc.TxtGeom.pnt.x = (D4D_COOR) (_calc.BmpGeom.pnt.x + _calc.BmpGeom.sz.cx + D4D_CHECKBOX_TEXT_OFFSET);
+    _calc.TxtGeom.pnt.x = (D4D_COOR) (_calc.BmpGeom.pnt.x + _calc.BmpGeom.sz.cx + D4D_RADIOBUTTON_TEXT_OFFSET);
     _calc.TxtGeom.sz.cx -= (D4D_COOR) (_calc.TxtGeom.pnt.x - _calc.contentGeom.pnt.x);
     #if D4D_ROUND_CORNER_ENABLE != D4D_FALSE
       _calc.TxtGeom.sz.cx -= (D4D_COOR) (pThis->radius / 2);

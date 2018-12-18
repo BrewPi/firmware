@@ -154,7 +154,7 @@ static void D4D_ConsoleOnDraw(D4D_MESSAGE* pMsg)
   D4D_SIZE tmp_size, tmp_winOff;
   D4D_STRING tmp_txtbuff;
   D4D_STR_PROPERTIES tmp_strPrties;
-  D4D_BOOL tmp_font_proporcional = D4D_FALSE;
+  D4D_BOOL tmp_font_proportional = D4D_FALSE;
 
 
   D4D_CnslValue2Coor(pThis);
@@ -192,7 +192,7 @@ static void D4D_ConsoleOnDraw(D4D_MESSAGE* pMsg)
 
 
     if(D4D_GetFont(pCnsl->textFontId)->pFontDescriptor->flags & D4D_FONT_FLAGS_FNT_WIDTH_PROPORTIONAL)
-      tmp_font_proporcional = D4D_TRUE;
+      tmp_font_proportional = D4D_TRUE;
 
     for(line_cnt = 0; line_cnt < _calc.charArrSize.cy; line_cnt++)
     {
@@ -211,7 +211,7 @@ static void D4D_ConsoleOnDraw(D4D_MESSAGE* pMsg)
 
       if((tmp_winOff.cx + _calc.charArrSize.cx) <= pCnsl->txtArrSize.cx)
       {
-        if(tmp_font_proporcional)
+        if(tmp_font_proportional)
           tmp_txtbuff.printLen = D4D_CnslFindMaxTextLenght(tmp_txtbuff.pText, pCnsl->textFontId, tmp_winOff.cx, pCnsl->txtArrSize.cx);
         else
           tmp_txtbuff.printLen = _calc.charArrSize.cx;
@@ -247,7 +247,7 @@ static void D4D_ConsoleOnDraw(D4D_MESSAGE* pMsg)
 
     tmp_point.x = D4D_GetTextBuffWidthTab(&tmp_txtbuff, NULL);
 
-    if(tmp_font_proporcional)
+    if(tmp_font_proportional)
     {
       if(tmp_point.x < (D4D_COOR)( _calc.txtGeom.sz.cx - tmp_size.cx))
         cursorVisible = D4D_TRUE;

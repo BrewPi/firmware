@@ -19,22 +19,11 @@
 
 #pragma once
 
+#include "string_operators.h"
 #include <cstdint>
 #include <functional>
 #include <memory>
 #include <string>
-
-std::string&
-operator<<(std::string& lh, const int32_t& in);
-
-std::string&
-operator<<(std::string& lh, const uint32_t& in);
-
-std::string&
-operator<<(std::string& lh, const std::string& in);
-
-std::string&
-operator<<(std::string& lh, const char* in);
 
 class Logger {
 public:

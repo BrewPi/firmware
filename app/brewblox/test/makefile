@@ -71,6 +71,7 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform
 # brewblox app specific implementations
 CPPSRC += /app/brewblox/nanopb_callbacks.cpp
 CPPSRC += /app/brewblox/BrewBlox.cpp
+CPPSRC += /app/brewblox/AppTicks.cpp
 
 # spark HAL includes
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/firmware/hal/inc
@@ -107,9 +108,9 @@ CFLAGS += -D_SYS_WAIT_H_ -D_SYS_WAIT_H
 CPPFLAGS += -std=gnu++14
 CFLAGS += -pthread
 
-# compile with coverage
-CFLAGS += -g -fprofile-arcs -ftest-coverage
-LDFLAGS += -lgcov
+ifeq ($(PLATFORM_ID),3)
+include ../../build/checkers.mk # sanitizer and gcov
+endif
 
 # the following warnings can help find opportunities for impromevent in virtual functions
 # Warn when virtual functions are overriden without override/override final specifier (requires gcc 5.1)
@@ -124,6 +125,12 @@ LDFLAGS += `pkg-config --libs protobuf`
 
 # don't generate warnings for system headers
 CFLAGS += -Wno-system-headers
+
+CPPEXCLUDES += app/brewblox/blox/TouchSettingsBlock.cpp
+CPPEXCLUDES += app/brewblox/blox/WiFiSettingsBlock.cpp
+
+CSRC := $(filter-out $(CEXCLUDES),$(CSRC))
+CPPSRC := $(filter-out $(CPPEXCLUDES),$(CPPSRC)) 
 
 # Collect all object and dep files
 ALLOBJ += $(addprefix $(BUILD_PATH), $(CSRC:.c=.o))

@@ -1,0 +1,106 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build_gcc",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "APP=brewblox",
+                "PLATFORM=gcc"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "build_p1",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "APP=brewblox",
+                "PLATFORM=p1",
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "touch_gcc",
+            "type": "shell",
+            "command": "touch",
+            "args": [
+                "device_key.der",
+                "server_key.der",
+                "eeprom.bin"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/build/target/brewblox-gcc"
+            },
+            "presentation": {
+                "echo": false,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "build_and_touch_gcc",
+            "dependsOn": [
+                "build_gcc",
+                "touch_gcc"
+            ]
+        },
+        {
+            "label": "flash_p1",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "APP=brewblox",
+                "PLATFORM=p1",
+                "program-dfu",
+                "PARTICLE_SERIAL_DEV=/dev/ttyACM0"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "problemMatcher": "$gcc",
+            "dependsOn": [
+                "build_and_touch_gcc",
+            ]
+        },
+    ]
+}

@@ -296,7 +296,7 @@ static void D4D_MenuOnDraw(D4D_MESSAGE* pMsg)
     D4D_DrawTextRect(&tmp_point, &tmp_size, &tmp_txtbuff, clrT, clrB);
   }
 
-  for(tmpB = 0; (tmpB < _calc.posCnt) && (tmpB < _calc.itemsCnt); tmpB++)
+  for(tmpB = 0; (tmpB < _calc.posCnt) && (tmpB + pMenu->pData->page_ix < _calc.itemsCnt); tmpB++)
   {
     if(((pMenu->pData->ix - pMenu->pData->page_ix) != tmpB) || (!D4D_IsEnabled(pThis)))
     {
@@ -564,7 +564,7 @@ static D4D_BOOL D4D_MenuScrollBarSetup(D4D_OBJECT* pObject)
     pScrlBr->position.x = (D4D_COOR)(_calc.contentGeom.pnt.x + _calc.contentGeom.sz.cx  - D4D_MENU_SCRLBR_WIDTH);
     pScrlBr->position.y = (D4D_COOR)(_calc.contentGeom.pnt.y + _calc.titleBar_y + 1);
 
-    pScrlBr->position = D4D_GetScreenToClientPoint( pObject, &pScrlBr->position);
+    pScrlBr->position = D4D_GetScreenToClientPoint( pScrlBr, &pScrlBr->position);
 
     pScrlBr->size.cx = D4D_MENU_SCRLBR_WIDTH;
     pScrlBr->size.cy = (D4D_COOR)(_calc.contentGeom.sz.cy - _calc.titleBar_y - 1);
@@ -599,9 +599,7 @@ void D4D_MenuScrollBarsFeedBack(D4D_OBJECT* pThis, D4D_INDEX old_position, D4D_I
   D4D_MENU* pMenu = D4D_GET_MENU(D4D_GetParentObject(pThis));
 
   D4D_UNUSED(old_position);
-
   pMenu->pData->page_ix = (D4D_MENU_INDEX)new_position;
-  pMenu->pData->ix = (D4D_MENU_INDEX)new_position;
 
   D4D_InvalidateObject(D4D_GetParentObject(pThis), D4D_FALSE);
 }

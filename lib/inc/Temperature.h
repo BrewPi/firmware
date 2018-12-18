@@ -21,5 +21,19 @@
 
 #include "FixedPoint.h"
 #include <cstdint>
+#include <string>
 
-using temp_t = safe_elastic_fixed_point<11, 12, int32_t>;
+using temp_t = fp12_t;
+
+enum TempFormat {
+    Celsius,
+    Fahrenheit
+};
+
+extern TempFormat tempFormat;
+
+std::string
+tempDiff_to_string(const temp_t& t, uint8_t decimals);
+
+std::string
+temp_to_string(const temp_t& t, uint8_t decimals);

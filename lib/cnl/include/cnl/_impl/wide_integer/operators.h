@@ -13,11 +13,30 @@
 #include "make_wide_integer.h"
 #include "numeric_limits.h"
 #include "type.h"
+#include "../multiword_integer/from_value.h"
+#include "../multiword_integer/operators.h"
 #include "../operators.h"
 
 /// compositional numeric library
 namespace cnl {
     namespace _impl {
+
+        template<int LhsDigits, class LhsNarrowest, class Rhs>
+        constexpr auto operator<<(wide_integer<LhsDigits, LhsNarrowest> const& lhs, Rhs const& rhs)
+        -> wide_integer<LhsDigits, LhsNarrowest>
+        {
+            return wide_integer<LhsDigits, LhsNarrowest>(
+                    to_rep(lhs) << set_signedness_t<int, is_signed<Rhs>::value>(rhs));
+        }
+
+        template<int LhsDigits, class LhsNarrowest, class Rhs>
+        constexpr auto operator>>(wide_integer<LhsDigits, LhsNarrowest> const& lhs, Rhs const& rhs)
+        -> wide_integer<LhsDigits, LhsNarrowest>
+        {
+            return wide_integer<LhsDigits, LhsNarrowest>(
+                    to_rep(lhs) >> set_signedness_t<int, is_signed<Rhs>::value>(rhs));
+        }
+
         template<typename Operator, int Digits, typename Narrowest>
         struct unary_operator<Operator, wide_integer<Digits, Narrowest>> {
             constexpr auto operator()(wide_integer<Digits, Narrowest> const& rhs) const
@@ -30,8 +49,7 @@ namespace cnl {
         template<class Operator, int LhsDigits, typename LhsNarrowest, int RhsDigits, typename RhsNarrowest>
         struct binary_operator<
                 Operator,
-                wide_integer<LhsDigits, LhsNarrowest>, wide_integer<RhsDigits, RhsNarrowest>,
-                typename Operator::is_not_comparison> {
+                wide_integer<LhsDigits, LhsNarrowest>, wide_integer<RhsDigits, RhsNarrowest>> {
             using _lhs = wide_integer<LhsDigits, LhsNarrowest>;
             using _rhs = wide_integer<RhsDigits, RhsNarrowest>;
             using _result = typename std::common_type<_lhs, _rhs>::type;
@@ -42,10 +60,9 @@ namespace cnl {
         };
 
         template<class Operator, int LhsDigits, typename LhsNarrowest, int RhsDigits, typename RhsNarrowest>
-        struct binary_operator<
+        struct comparison_operator<
                 Operator,
-                wide_integer<LhsDigits, LhsNarrowest>, wide_integer<RhsDigits, RhsNarrowest>,
-                typename Operator::is_comparison> {
+                wide_integer<LhsDigits, LhsNarrowest>, wide_integer<RhsDigits, RhsNarrowest>> {
             constexpr auto operator()(
                     wide_integer<LhsDigits, LhsNarrowest> const& lhs,
                     wide_integer<RhsDigits, RhsNarrowest> const& rhs) const

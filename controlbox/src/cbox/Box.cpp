@@ -682,4 +682,55 @@ Box::setActiveProfilesAndUpdateObjects(const uint8_t newProfiles)
     }
 }
 
+CboxError
+Box::storeUpdatedObject(const obj_id_t& id) const
+{
+
+    auto cobj = objects.fetchContained(id);
+    if (cobj == nullptr) {
+        return CboxError::INVALID_OBJECT_ID;
+    }
+
+    auto storeContained = [&cobj](DataOut& storage) -> CboxError {
+        return cobj->streamPersistedTo(storage);
+    };
+    return storage.storeObject(id, storeContained);
+}
+
+CboxError
+Box::reloadStoredObject(const obj_id_t& id)
+{
+    ContainedObject* cobj = objects.fetchContained(id);
+    if (cobj == nullptr) {
+        return CboxError::INVALID_OBJECT_ID;
+    }
+
+    bool handlerCalled = false;
+    auto streamHandler = [this, &cobj, &handlerCalled](RegionDataIn& objInStorage) -> CboxError {
+        handlerCalled = true;
+        RegionDataIn objWithoutCrc(objInStorage, objInStorage.available() - 1);
+
+        obj_type_t typeId;
+        uint8_t profiles; // discarded
+
+        if (!objWithoutCrc.get(profiles)) {
+            return CboxError::INPUT_STREAM_READ_ERROR; // LCOV_EXCL_LINE
+        }
+        if (!objWithoutCrc.get(typeId)) {
+            return CboxError::INPUT_STREAM_READ_ERROR; // LCOV_EXCL_LINE
+        }
+        if (typeId != cobj->object()->typeId()) {
+            return CboxError::INVALID_OBJECT_TYPE;
+        }
+
+        return cobj->object()->streamFrom(objWithoutCrc);
+    };
+    CboxError status = storage.retrieveObject(storage_id_t(id), streamHandler);
+    if (!handlerCalled) {
+        return CboxError::INVALID_OBJECT_ID; // write status if handler has not written it
+    }
+
+    return status;
+}
+
 } // end namespace cbox

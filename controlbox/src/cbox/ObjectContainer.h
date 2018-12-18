@@ -22,7 +22,7 @@
 #include "ContainedObject.h"
 #include "Object.h"
 #include <functional>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 namespace cbox {

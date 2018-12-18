@@ -21,12 +21,10 @@
 
 #include "Board.h"
 
-#if BREWPI_BUZZER
-
-class Buzzer{
+class BuzzerClass {
 public:
-    Buzzer() = default;
-    ~Buzzer() = default;
+    BuzzerClass() = default;
+    ~BuzzerClass() = default;
 
     /**
      * Performs a number of beeps synchronously.
@@ -38,5 +36,7 @@ public:
     void setActive(bool active);
 };
 
-extern Buzzer buzzer;
-#endif
+BuzzerClass&
+buzzerRef();
+
+#define Buzzer buzzerRef()

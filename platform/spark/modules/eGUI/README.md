@@ -1,6 +1,10 @@
 ![eGUI](http://gargy007.github.io/egui_doc/eGUI_Logo.png)
 ====
 
+----------------------------------------------------------------
+| !!! All links MUST be updated to reflect new owner place !!! |
+----------------------------------------------------------------
+
 Welcome to eGUI embedded graphic library Wiki pages.
 
 

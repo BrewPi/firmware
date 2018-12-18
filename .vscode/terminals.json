@@ -17,7 +17,7 @@
     },
     {
       "name": "BrewBlox App local",
-      "description": "Run BrewBlox app tests by compiling locally",
+      "description": "Compiling brewblox gcc app locally",
       "focus": true,
       "cwd": "~/repos/firmware/build",
       "command": "make APP=brewblox PLATFORM=gcc"
@@ -42,6 +42,13 @@
       "focus": true,
       "cwd": "~/repos/firmware/docker",
       "command": "docker-compose exec compiler bash"
+    },
+    {
+      "name": "BrewBlox App clean",
+      "description": "Run BrewBlox app clean using docker",
+      "focus": true,
+      "cwd": "~/repos/firmware/docker",
+      "command": "docker-compose exec compiler make clean APP=brewblox PLATFORM=gcc"
     }
   ]
 }

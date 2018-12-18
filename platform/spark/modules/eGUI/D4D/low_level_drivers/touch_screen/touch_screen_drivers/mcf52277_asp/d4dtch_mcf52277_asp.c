@@ -53,7 +53,7 @@
 
   // include of low level driver heaser file
   // it will be included into wole project only in case that this driver is selected in main D4D configuration file
-  #include "low_level_drivers\touch_screen\touch_screen_drivers\mcf52277_asp\d4dtch_mcf52277_asp.h"
+  #include "low_level_drivers/touch_screen/touch_screen_drivers/mcf52277_asp/d4dtch_mcf52277_asp.h"
   /******************************************************************************
   * Macros
   ******************************************************************************/

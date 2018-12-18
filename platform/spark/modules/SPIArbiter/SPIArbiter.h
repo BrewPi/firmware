@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "application.h"
+#include "spark_wiring_spi.h"
 #include <functional>
 
 const uint16_t SS_PIN_NONE = UINT16_MAX - 1;

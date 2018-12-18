@@ -132,7 +132,7 @@ typedef sByte D4D_GAUGE_VALUE;
 typedef Byte D4D_GAUGE_ANGLE;
 
 
-/*! @brief The gauge linits structure that defines input value range and for this range specifz the final angles on LCD.*/
+/*! @brief The gauge limits structure that defines input value range and for this range specify the final angles on LCD.*/
 typedef struct
 {
   D4D_GAUGE_VALUE valueMin;   ///< minimal value (corresponds to angleMin)

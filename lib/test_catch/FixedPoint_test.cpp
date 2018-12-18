@@ -22,13 +22,14 @@
 #include "FixedPoint.h"
 #include <boost/core/demangle.hpp>
 #include <cstdint>
+#include <iomanip>
 #include <type_traits>
 
 using temp_t = safe_elastic_fixed_point<7, 8, int16_t>;
 using temp_precise_t = safe_elastic_fixed_point<7, 23, int32_t>;
 using temp_wide_t = safe_elastic_fixed_point<23, 8, int32_t>;
 
-SCENARIO("CNL fixed point formats")
+SCENARIO("CNL fixed point formats", "[fixedpoint]")
 {
     WHEN("assignment")
     {
@@ -442,5 +443,46 @@ SCENARIO("CNL fixed point formats")
         //WARN(boost::core::demangle(typeid(t3).name()));
         //WARN(boost::core::demangle(typeid(t4).name()));
         //WARN(boost::core::demangle(typeid(t5).name()));
+    }
+
+    WHEN("temp_t is converted to string")
+    {
+        CHECK(to_string_dec(temp_t(10), 1) == "10.0");
+        CHECK(to_string_dec(temp_t(10), 2) == "10.00");
+        CHECK(to_string_dec(temp_t(9.99), 1) == "10.0");
+        CHECK(to_string_dec(temp_t(9.96), 1) == "10.0");
+        CHECK(to_string_dec(temp_t(10.01), 1) == "10.0");
+        CHECK(to_string_dec(temp_t(10.06), 1) == "10.1");
+        CHECK(to_string_dec(temp_t(10.01499), 2) == "10.01");
+        CHECK(to_string_dec(temp_t(10.054), 2) == "10.05");
+
+        CHECK(to_string_dec(temp_t(-10), 1) == "-10.0");
+        CHECK(to_string_dec(temp_t(-10), 2) == "-10.00");
+        CHECK(to_string_dec(temp_t(-9.99), 1) == "-10.0");
+        CHECK(to_string_dec(temp_t(-9.96), 1) == "-10.0");
+        CHECK(to_string_dec(temp_t(-10.01), 1) == "-10.0");
+        CHECK(to_string_dec(temp_t(-10.06), 1) == "-10.1");
+        CHECK(to_string_dec(temp_t(-10.01499), 2) == "-10.01");
+        CHECK(to_string_dec(temp_t(-10.054), 2) == "-10.05");
+        CHECK(to_string_dec(temp_t(0), 2) == "0.00");
+        CHECK(to_string_dec(temp_t(0.01), 2) == "0.01");
+        CHECK(to_string_dec(temp_t(-0.01), 2) == "-0.01");
+
+        auto bit = cnl::wrap<temp_t>(1);
+        for (auto t = temp_t(-11); t < temp_t(11); t += bit) {
+            auto rounder = (t >= temp_t(0)) ? double(0.005) : -double(0.005);
+            double d = double(t);
+            if (d > -0.00499999 && d < 0.0) {
+                d = 0.0; // we don't use -0.00 for
+            } else {
+                d += rounder;
+            }
+            auto s = std::to_string(d);
+
+            INFO(d);
+            INFO(t);
+            s.erase(s.find('.') + 3, std::string::npos);
+            REQUIRE(to_string_dec(t, 2) == s);
+        }
     }
 }

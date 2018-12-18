@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 using duration_millis_t = uint32_t;
 using duration_micros_t = uint32_t;

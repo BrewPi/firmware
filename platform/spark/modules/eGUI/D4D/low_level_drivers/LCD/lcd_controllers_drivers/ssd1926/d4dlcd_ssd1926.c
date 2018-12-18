@@ -54,8 +54,8 @@
 
   // include of low level driver heaser file
   // it will be included into wole project only in case that this driver is selected in main D4D configuration file
-  #include "low_level_drivers\LCD\lcd_controllers_drivers\ssd1926\d4dlcd_ssd1926.h"
-  #include "low_level_drivers\LCD\lcd_hw_interface\common_drivers\d4dlcdhw_common.h"
+  #include "low_level_drivers/LCD/lcd_controllers_drivers/ssd1926/d4dlcd_ssd1926.h"
+  #include "low_level_drivers/LCD/lcd_hw_interface/common_drivers/d4dlcdhw_common.h"
   /******************************************************************************
   * Macros
   ******************************************************************************/

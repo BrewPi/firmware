@@ -339,11 +339,13 @@ static void D4D_SldrOnDraw(D4D_MESSAGE* pMsg)
     D4D_FillRRect(&_calc.bar3Geom.pnt, &_calc.bar3Geom.sz, clrBarBckg, _calc.inner_radius);
 
     // draw active part of the bar
-    if(pThis->initFlags & D4D_SLDR_F_BAR_SCALECOLOR)
-      D4D_FillRRectColorScale(&_calc.bar2Geom.pnt, &_calc.bar2Geom.sz, D4D_COLOR_SLDR_BAR_START, clrBar, _calc.dir, _calc.bar_radius);
-    else
-      D4D_FillRRect(&_calc.bar2Geom.pnt, &_calc.bar2Geom.sz, clrBar, _calc.inner_radius);
-
+    if(pSldr->pData->value != 0)
+    {
+      if(pThis->initFlags & D4D_SLDR_F_BAR_SCALECOLOR)
+        D4D_FillRRectColorScale(&_calc.bar2Geom.pnt, &_calc.bar2Geom.sz, D4D_COLOR_SLDR_BAR_START, clrBar, _calc.dir, _calc.bar_radius);
+      else
+        D4D_FillRRect(&_calc.bar2Geom.pnt, &_calc.bar2Geom.sz, clrBar, _calc.inner_radius);
+    }
     // Draw the frame
     if(draw & (D4D_OBJECT_DRAWFLAGS_COMPLETE | D4D_OBJECT_DRAWFLAGS_STATE))
       D4D_DrawFrame(pThis, clrT, clrB);

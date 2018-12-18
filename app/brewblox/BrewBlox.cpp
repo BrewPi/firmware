@@ -17,13 +17,16 @@
  * along with BrewPi.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AppTicks.h"
 #include "Board.h"
 #include "Logger.h"
+#include "OneWireScanningFactory.h"
 #include "blox/ActuatorAnalogMockBlock.h"
 #include "blox/ActuatorOffsetBlock.h"
 #include "blox/ActuatorPinBlock.h"
 #include "blox/ActuatorPwmBlock.h"
 #include "blox/BalancerBlock.h"
+#include "blox/DisplaySettingsBlock.h"
 #include "blox/MutexBlock.h"
 #include "blox/OneWireBusBlock.h"
 #include "blox/PidBlock.h"
@@ -33,7 +36,8 @@
 #include "blox/SysInfoBlock.h"
 #include "blox/TempSensorMockBlock.h"
 #include "blox/TempSensorOneWireBlock.h"
-#include "blox/TicksBlock.h"
+#include "blox/TouchSettingsBlock.h"
+#include "blox/WiFiSettingsBlock.h"
 #include "cbox/Box.h"
 #include "cbox/Connections.h"
 #include "cbox/EepromObjectStorage.h"
@@ -42,33 +46,6 @@
 #include "cbox/spark/SparkEepromAccess.h"
 #include <memory>
 
-#if defined(SPARK)
-#if PLATFORM_ID != 3 || defined(STDIN_SERIAL)
-#include "cbox/spark/ConnectionsSerial.h"
-#endif
-#include "cbox/spark/ConnectionsTcp.h"
-#include "wiring/TicksWiring.h"
-using TicksClass = Ticks<TicksWiring>;
-#else
-#include "cbox/ConnectionsStringStream.h"
-#include <MockTicks.h>
-using TicksClass = Ticks<MockTicks>;
-#endif
-
-#if !defined(PLATFORM_ID) || PLATFORM_ID == 3
-#include "OneWireNull.h"
-#include "test/MockOneWireScanningFactory.h"
-using OneWireDriver = OneWireNull;
-#define ONEWIRE_ARG
-#else
-#include "DS248x.h"
-#include "OneWireScanningFactory.h"
-using OneWireDriver = DS248x;
-#define ONEWIRE_ARG 0x00
-#endif
-
-static ticks_seconds_t bootTimeInSeconsSinceEpoch = 0;
-auto ticks = TicksClass(bootTimeInSeconsSinceEpoch);
 using EepromAccessImpl = cbox::SparkEepromAccess;
 
 // define separately to make it available for tests
@@ -105,8 +82,13 @@ makeBrewBloxBox()
     static cbox::ObjectContainer objects({
         // profiles will be at position 1
         cbox::ContainedObject(2, 0xFF, std::make_shared<SysInfoBlock>()),
-        cbox::ContainedObject(3, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
-        cbox::ContainedObject(4, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire())),
+            cbox::ContainedObject(3, 0xFF, std::make_shared<TicksBlock<TicksClass>>(ticks)),
+            cbox::ContainedObject(4, 0xFF, std::make_shared<OneWireBusBlock>(theOneWire())),
+#if defined(SPARK)
+            cbox::ContainedObject(5, 0xFF, std::make_shared<WiFiSettingsBlock>()),
+            cbox::ContainedObject(6, 0xFF, std::make_shared<TouchSettingsBlock>()),
+#endif
+            cbox::ContainedObject(7, 0xFF, std::make_shared<DisplaySettingsBlock>()),
     });
 
 #ifdef PIN_V3_BOTTOM1
@@ -150,7 +132,7 @@ makeBrewBloxBox()
         {ActuatorOffsetBlock::staticTypeId(), []() { return std::make_shared<ActuatorOffsetBlock>(objects); }},
         {BalancerBlock::staticTypeId(), std::make_shared<BalancerBlock>},
         {MutexBlock::staticTypeId(), std::make_shared<MutexBlock>},
-        {SetpointProfileBlock::staticTypeId(), []() { return std::make_shared<SetpointProfileBlock>(bootTimeInSeconsSinceEpoch); }},
+        {SetpointProfileBlock::staticTypeId(), []() { return std::make_shared<SetpointProfileBlock>(bootTimeRef()); }},
     };
 
     static EepromAccessImpl eeprom;
@@ -196,24 +178,6 @@ logger()
         out.write('>');
     });
     return logger;
-}
-
-const ticks_seconds_t&
-bootTimeRef()
-{
-    return bootTimeInSeconsSinceEpoch;
-}
-
-ticks_seconds_t&
-writableBootTimeRef()
-{
-    return bootTimeInSeconsSinceEpoch;
-}
-
-void
-setBootTime(const ticks_seconds_t& bootTime)
-{
-    bootTimeInSeconsSinceEpoch = bootTime;
 }
 
 void

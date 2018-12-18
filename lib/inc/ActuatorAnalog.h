@@ -23,14 +23,12 @@
 #include "ProcessValue.h"
 #include <cstdint>
 
-using ActuatorAnalogValue = safe_elastic_fixed_point<11, 12, int32_t>;
-
 /*
  * An ActuatorAnalog has a range output between min and max
  */
-class ActuatorAnalog : public ProcessValue<ActuatorAnalogValue> {
+class ActuatorAnalog : public ProcessValue<fp12_t> {
 public:
-    using value_t = ActuatorAnalogValue;
+    using value_t = fp12_t;
 
     ActuatorAnalog() = default;
     virtual ~ActuatorAnalog() = default;

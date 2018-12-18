@@ -175,7 +175,7 @@ typedef struct
 #define _D4D_DECLARE_EDIT_BOX(type, name, x, y, cx, cy, radius, pMargin, pRelations, flags, pScheme, pInitText, fontId, maxStr, pUser, pOnEvent, pOnUsrMsg) \
     static D4D_STR_PROPERTIES name##_strPrties = {D4D_EDIT_BOX_FNT_PRTY_DEFAULT, D4D_EDIT_BOX_TXT_PRTY_DEFAULT};\
     static D4D_TCHAR name##_txtArray[maxStr + 1];\
-    static D4D_EDIT_BOX_DATA name##_data = { {name##_txtArray, maxStr, fontId, &name##_strPrties, 0, 0}, 0};\
+    static D4D_EDIT_BOX_DATA name##_data = { {name##_txtArray, maxStr, fontId, &name##_strPrties, 0, 0}, 0, 0, 0};\
     static type D4D_EDIT_BOX name##_params = \
     { \
         pInitText,\

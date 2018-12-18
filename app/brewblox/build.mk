@@ -35,12 +35,9 @@ endif
 # enable message id's
 CFLAGS += -DPB_MSGID=1
 
-# enable coverage for gcc builds
-ifeq ($(PLATFORM_ID),3)
-EXTRA_CFLAGS += -g -O0 -fno-inline
-EXTRA_CFLAGS += --coverage
-LDFLAGS += -Wl,--verbose --coverage
-endif
+# define platform parameters to avoid -Wundef warnings
+CFLAGS += -DLITTLE_ENDIAN=1234
+CFLAGS += -DBYTE_ORDER=LITTLE_ENDIAN
 
 # App
 INCLUDE_DIRS += $(SOURCE_PATH)/app/brewblox
@@ -57,25 +54,35 @@ INCLUDE_DIRS += $(SOURCE_PATH)/platform
 CSRC += $(call here_files,platform/spark/modules/Board,*.c)
 CPPSRC += $(call here_files,platform/spark/modules/Board,*.cpp)
 
-# hardware specific includes
-INCLUDE_DIRS += $(SOURCE_PATH)/app/brewblox/spark
-CPPSRC += $(call here_files,app/brewblox/spark,*.cpp)
+# buzzer
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Buzzer
+CPPSRC += $(call here_files,platform/spark/modules/Buzzer,*.cpp)
 
 # add board files (tests use emulated hardware)
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/Board
 CPPSRC += $(call here_files,platform/spark/modules/Board,*.cpp)
 
-#SRC_EGUI = $(SOURCE_PATH)/platform/spark/modules/eGUI
-#include $(SRC_EGUI)/egui.mk
+# add display dependencies
+INCLUDE_DIRS += $(SOURCE_PATH)/app/brewblox/display
+CPPSRC += $(call target_files,app/brewblox/display,*.cpp)
+CSRC += $(call target_files,app/brewblox/display,*.c)
 
+INCLUDE_DIRS +=  $(SOURCE_PATH)/platform/spark/modules/eGUI/D4D
+CSRC +=  $(call target_files,platform/spark/modules/eGUI/D4D,*.c)
+CPPSRC +=  $(call target_files,platform/spark/modules/eGUI/D4D,*.cpp)
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/BrewPiTouch
+CPPSRC +=  $(call here_files,platform/spark/modules/BrewPiTouch,*.cpp)
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/SPIArbiter
+CPPSRC +=  $(call here_files,platform/spark/modules/SPIArbiter,*.cpp)
+
+INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/WebSockets/firmware
+CPPSRC +=  $(call here_files,platform/spark/modules/WebSockets/firmware,*.cpp)
+CSRC += $(call here_files,platform/spark/modules/WebSockets/firmware/libb64,*.c)
+CSRC += $(call here_files,platform/spark/modules/WebSockets/firmware/libsha1,*.c)
+
+# mdns
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/mdns/src
 CPPSRC += $(call here_files,platform/spark/modules/mdns/src,*.cpp)
-
-ifeq ("$(CBOX_DEBUG)","y")
-EXTRA_CFLAGS += -DCBOX_DEBUG=1
-else
-EXTRA_CFLAGS += -DCBOX_DEBUG=0
-endif
 
 # include boost
 ifeq ($(BOOST_ROOT),)
@@ -92,6 +99,12 @@ CPPFLAGS += -I $(BOOST_ROOT)
 # Warn when functions and classes can be marked final
 # CPPFLAGS += -Wsuggest-final-types
 # CPPFLAGS += -Wsuggest-final-methods
+
+ifeq ($(PLATFORM_ID),3)
+ifeq ("$(TEST_BUILD)","y") # coverage, address sanitizer, undefined behavior
+include $(SOURCE_PATH)/build/checkers.mk # sanitizer and gcov
+endif
+endif
 
 CSRC := $(filter-out $(CEXCLUDES),$(CSRC))
 CPPSRC := $(filter-out $(CPPEXCLUDES),$(CPPSRC)) 

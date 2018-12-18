@@ -6,7 +6,7 @@ current_dir := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 APPDIR := $(realpath $(current_dir)/..)
 SPARKDIR := $(APPDIR)/platform/spark/firmware
 
-APP ?= controller
+APP ?= brewblox
 APP_MAKEFILE := app/$(APP)/build.mk
 WARNINGS_AS_ERRORS ?=n
 USE_PRINTF_FLOAT ?=n

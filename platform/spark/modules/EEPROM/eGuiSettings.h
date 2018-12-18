@@ -36,25 +36,20 @@ public:
      */
     bool loadTouchCalib()
     {
+        /*eepromAccess.get(offsetof(EepromFormat, eGuiSettings), calib);
         D4D_TOUCHSCREEN_CALIB calib;
-        eepromAccess.get(offsetof(EepromFormat, eGuiSettings), calib);
         if (calib.ScreenCalibrated != 1) {
             return false;
         }
-        D4D_TCH_SetCalibration(calib);
+        D4D_TCH_SetCalibration(calib);*/
         return true;
     };
 
     /**
      * Stores current touch screen calibration data from eGUI to flash memory
      */
-    void storeTouchCalib()
-    {
-        D4D_TOUCHSCREEN_CALIB calib = D4D_TCH_GetCalibration();
-        eepromAccess.put(offsetof(EepromFormat, eGuiSettings), calib);
+    void storeTouchCalib(){
+        /*D4D_TOUCHSCREEN_CALIB calib = D4D_TCH_GetCalibration();
+        eepromAccess.put(offsetof(EepromFormat, eGuiSettings), calib);*/
     };
 };
-
-extern eGuiSettingsClass eGuiSettings;
-
-#endif /* EGUISETTINGS_H */

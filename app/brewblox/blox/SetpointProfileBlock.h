@@ -42,7 +42,7 @@ protected:
     }
 
 public:
-    SetpointProfileBlock(ticks_millis_t& bootTimeRef)
+    SetpointProfileBlock(const ticks_millis_t& bootTimeRef)
         : profile(bootTimeRef)
     {
     }
