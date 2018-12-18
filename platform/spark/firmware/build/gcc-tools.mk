@@ -8,7 +8,7 @@ include $(COMMON_BUILD)/common-tools.mk
 #
 
 GCC_OPTIMIZE=3
-ifeq ($(DEBUG_BUILD),y)
+ifeq ("$(TEST_BUILD)","y")
      GCC_OPTIMIZE=0
 endif
 
@@ -17,7 +17,9 @@ CFLAGS +=  -g3 -m64 -O$(GCC_OPTIMIZE) -gdwarf-2
 CFLAGS += -Wno-unused-local-typedefs
 ASFLAGS +=  -g3
 
+ifeq ("$(TEST_BUILD)","y")
 LDFLAGS += --coverage -fsanitize=address,undefined
+endif
 
 ifeq ("$(MAKE_OS)", "LINUX")
 LDFLAGS +=  -pthread

@@ -84,12 +84,6 @@ CSRC += $(call here_files,platform/spark/modules/WebSockets/firmware/libsha1,*.c
 INCLUDE_DIRS += $(SOURCE_PATH)/platform/spark/modules/mdns/src
 CPPSRC += $(call here_files,platform/spark/modules/mdns/src,*.cpp)
 
-ifeq ("$(CBOX_DEBUG)","y")
-EXTRA_CFLAGS += -DCBOX_DEBUG=1
-else
-EXTRA_CFLAGS += -DCBOX_DEBUG=0
-endif
-
 # include boost
 ifeq ($(BOOST_ROOT),)
 $(error BOOST_ROOT not set. Download boost and add BOOST_ROOT to your environment variables.)
@@ -107,7 +101,9 @@ CPPFLAGS += -I $(BOOST_ROOT)
 # CPPFLAGS += -Wsuggest-final-methods
 
 ifeq ($(PLATFORM_ID),3)
+ifeq ("$(TEST_BUILD)","y") # coverage, address sanitizer, undefined behavior
 include $(SOURCE_PATH)/build/checkers.mk # sanitizer and gcov
+endif
 endif
 
 CSRC := $(filter-out $(CEXCLUDES),$(CSRC))
